@@ -447,6 +447,15 @@ static void CG_Item( centity_t *cent ) {
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 
+	// add strobe effect -- should make this toggle?
+	if ( ( item->giType == IT_WEAPON ) ||
+		 ( item->giType == IT_ARMOR ) || 
+		 ( item->giType == IT_AMMO) ||
+		 ( item->giType == IT_HOLDABLE) ) {
+		ent.customShader = cgs.media.itemStrobeShader;
+		trap_R_AddRefEntityToScene(&ent);
+	}
+
 #ifdef MISSIONPACK
 	if ( item->giType == IT_WEAPON && wi->barrelModel ) {
 		refEntity_t	barrel;
