@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/04/08 20:14:34  blaze
+// func_breakable explode fix
+//
 // Revision 1.28  2002/04/05 06:50:25  blaze
 // breakables should now respawn when the round restarts( when g_teamplay:SpawnPlayers() is called to be exact)
 //
@@ -451,7 +454,6 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 	G_ExplodeMissile(self);
 //	radius damage
   
-	
 }
 
 
@@ -677,13 +679,11 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
      			break;
 
      	}
-    if (ent->explosive)
+    if (ent->explosive && strcmp(g_entities[ENTITYNUM_WORLD].classname,"worldspawn"))
     {
       mod = MOD_TRIGGER_HURT;
       func_breakable_die(ent, inflictor, attacker, damage, mod);
     }
-    //unlink it instead of freeing
-    trap_UnlinkEntity(ent);
 		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
@@ -756,6 +756,8 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 		tent = G_TempEntity2( impactPoint, EV_CHIP_GLASS, eParm);
 
   }
+  //unlink it instead of freeing
+  trap_UnlinkEntity(ent);
 }
 
 

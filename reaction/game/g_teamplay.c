@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/04/08 20:14:34  blaze
+// func_breakable explode fix
+//
 // Revision 1.61  2002/04/07 12:49:10  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -685,7 +688,7 @@ void SpawnPlayers()
   for (i=0;i<level.num_entities; i++)
   {
     ent = &g_entities[i];
-    if (ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) 
+    if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) 
     {
       //re-link all unlinked breakables
       trap_LinkEntity(ent);
