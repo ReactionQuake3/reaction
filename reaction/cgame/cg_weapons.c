@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2003/04/06 23:20:18  niceass
+// changes to what models 3rd person akimbos use
+//
 // Revision 1.114  2003/04/04 16:38:47  niceass
 // fixed gun2 lighting, possibly
 //
@@ -1314,13 +1317,9 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 	if (ps == NULL) {
 		orientation_t tag;
 
-		if ( weaponNum == WP_AKIMBO && trap_R_LerpTag(&tag, parent->hModel, 0, 0, 1, "tag_weapon2") ) {
-			gun1.hModel = cg_weapons[ WP_PISTOL ].weaponModel;
-			gun2.hModel = cg_weapons[ WP_PISTOL ].weaponModel;
-		}
-		else {
-			gun1.hModel = weapon->weaponModel;
-		}
+		gun1.hModel = weapon->weaponModel;
+		if ( weaponNum == WP_AKIMBO && trap_R_LerpTag(&tag, parent->hModel, 0, 0, 1, "tag_weapon2") )
+			gun2.hModel = gun1.hModel;
 	} 
 	//Elder: we are in first-person, use the first-person (NOT default) model
 	else {
