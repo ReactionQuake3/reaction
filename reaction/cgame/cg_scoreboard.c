@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/04/23 06:05:52  niceass
+// scoreboard stuff (btw, green is ugly)
+//
 // Revision 1.22  2002/04/18 16:13:23  jbravo
 // Scoreboard now shows green for live players and white for dead.
 // Time should not get reset on deaths any more.
@@ -152,7 +155,8 @@ void DrawCenterStripText(int y, int Height, char *Text, int maxChars, float *Col
 static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, float *Boarder, float *Color ) {
 	char	Tmp[128];
 	clientInfo_t	*ci;
-	float	FillColor[4];
+	float	FillColor[4], TextColor[4];
+	int		l;
 
 	if ( score->client < 0 || score->client >= cgs.maxclients ) {
 		Com_Printf( "Bad score->client: %i\n", score->client );
@@ -161,19 +165,27 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 
 	ci = &cgs.clientinfo[score->client];
 
-	FillColor[0] = Fill[0];
-	FillColor[1] = Fill[1];
-	FillColor[2] = Fill[2];
-	FillColor[3] = Fill[3];
+	for (l = 0; l < 4; l++) {
+		FillColor[l] = Fill[l];
+		TextColor[l] = Color[l];
+	}
 
-	if (score->client == cg.clientNum) FillColor[3] += 0.4f;
+	if (score->client == cg.clientNum) FillColor[3] += 0.2f;
 	if (FillColor[3] > 1) FillColor[3] = 1;
+
+	// Dead?
+	if ( !score->alive ) {
+		TextColor[0] *= 0.6f;
+		TextColor[1] *= 0.6f;
+		TextColor[2] *= 0.6f;
+	}
 	
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, FillColor, Boarder);
 
-	DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, Color);
-	Com_sprintf(Tmp, 128, "%4i  %4i  %5i  %6i", score->time, score->ping, score->score, score->damage);
-	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, Color);
+	Com_sprintf(Tmp, 128, "%5i  %s", score->score, ci->name);
+	DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 27, TextColor);
+	Com_sprintf(Tmp, 128, "%4i  %4i  %6i", score->time, score->ping, score->damage);
+	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, TextColor);
 }
 
 /*
@@ -207,6 +219,13 @@ static int CG_TeamplayScoreboard(void)
 		if (Alpha > 1.0f) Alpha = 1.0f;
 	}
 
+	// NiceAss: I added this so it will update while open. It normally only would update when first opened.
+	if ( cg.scoresRequestTime + 2000 < cg.time ) {
+		cg.scoresRequestTime = cg.time;
+		trap_SendClientCommand( "score" );
+	}
+
+
 	MAKERGBA(White, 1.0f, 1.0f, 1.0f, 1.0f);
 	MAKERGBA(Black, 0.0f, 0.0f, 0.0f, 1.0f);
 	MAKERGBA(Green, 0.0f, 1.0f, 0.0f, 1.0f);
@@ -232,8 +251,8 @@ static int CG_TeamplayScoreboard(void)
 
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, White);
-		DrawLeftStripText(y, SB_FONTSIZEH, "Name", 100, White);
-		DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Frags  Damage", 100, White);
+		DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, White);
+		DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, White);
 		y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 		First = 0;
@@ -253,6 +272,9 @@ static int CG_TeamplayScoreboard(void)
 
 
 	// *************** RED TEAM ***************
+	//trap_Cvar_VariableStringBuffer("g_RQ3_team1model", Tmp, sizeof(Tmp));
+	//CG_Printf("Red: %s\n", Tmp);
+
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, Black);
 	trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
 	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, Black);
@@ -260,8 +282,8 @@ static int CG_TeamplayScoreboard(void)
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
-	DrawLeftStripText(y, SB_FONTSIZEH, "Name", 100, White);
-	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Frags  Damage", 100, White);
+	DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, White);
+	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, White);
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	Ping = Frags = Damage = 0;
@@ -273,10 +295,7 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[ Score->client ];
 
 			if (ci->team == TEAM_RED) {
-				if(Score->alive)
-					CG_DrawTeamplayClientScore(y, Score, RedL, Black, Green);
-				else
-					CG_DrawTeamplayClientScore(y, Score, RedL, Black, White);
+				CG_DrawTeamplayClientScore(y, Score, RedL, Black, White);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, Black);
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
@@ -289,9 +308,10 @@ static int CG_TeamplayScoreboard(void)
 		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL, Black);
 		
 		y += 2;
-		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Reds), Frags, Damage);
+		Com_sprintf(Tmp, 128, "%5d", Frags);
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
-		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
+		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+		Com_sprintf(Tmp, 128, "%4d  %6d", (int)((float)Ping / (float)Reds), Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
 	}
 	else {
@@ -308,8 +328,8 @@ static int CG_TeamplayScoreboard(void)
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
-	DrawLeftStripText(y, SB_FONTSIZEH, "Name", 100, White);
-	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Frags  Damage", 100, White);
+	DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, White);
+	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, White);
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	Ping = Frags = Damage = 0;
@@ -321,10 +341,7 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[ Score->client ];
 
 			if (ci->team == TEAM_BLUE) {
-				if(Score->alive)
-					CG_DrawTeamplayClientScore(y, Score, BlueL, Black, Green);
-				else
-					CG_DrawTeamplayClientScore(y, Score, BlueL, Black, White);
+				CG_DrawTeamplayClientScore(y, Score, BlueL, Black, White);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, Black);
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
@@ -336,9 +353,16 @@ static int CG_TeamplayScoreboard(void)
 		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL, Black);
 
 		y += 2;
+		/*
 		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Blues), Frags, Damage );
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
+		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+		*/
+		Com_sprintf(Tmp, 128, "%5d", Frags);
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
+		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+		Com_sprintf(Tmp, 128, "%4d  %6d", (int)((float)Ping / (float)Blues), Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
 	}
 	else {
@@ -380,12 +404,6 @@ static int CG_TeamplayScoreboard(void)
 			DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, GreyL, Black);
 		else
 			DrawStrip(y, SB_FONTSIZEH, qfalse, qfalse, qtrue, GreyL, Black);
-	}
-
-	// NiceAss: I added this so it will update while open. It normally only would update when first opened.
-	if ( cg.scoresRequestTime + 2000 < cg.time ) {
-		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand( "score" );
 	}
 
 	return Reds+Blues+ceil(Spectators/2)+Refs;
