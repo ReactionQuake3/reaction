@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/09/08 19:46:27  niceass
+// newb ctb message added
+//
 // Revision 1.14  2002/07/27 22:15:16  niceass
 // special weapon cheat w/ flag fixed
 //
@@ -825,8 +828,10 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	
 	// JBravo: no picking up [the enemy case-NiceAss] case if you have a two handed weapon.
 	if (other->client->ps.weapon != WP_PISTOL && other->client->ps.weapon != WP_KNIFE &&
-		team != cl->sess.sessionTeam) {
-		return 0;
+		team != cl->sess.sessionTeam && level.time - cl->flagMessageTime > 10000 ) {
+			cl->flagMessageTime = level.time;
+			trap_SendServerCommand(cl->ps.clientNum, va("print \"^1Your active weapon must be the pistol or knife in order to pick up the enemy case!^7\n\""));
+			return 0;
 	}
 
 	// NiceAss: If you are switching weapons as you go over a flag, cmd.weapon will have the weapon

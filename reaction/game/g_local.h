@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/09/08 19:47:03  niceass
+// newb ctb message added
+//
 // Revision 1.123  2002/09/07 22:40:01  jbravo
 // Added a scaling ctb respawn system.  Fixed a bug that allowed players to
 // spawn before their team respawn with the team command.
@@ -729,6 +732,7 @@ struct gclient_s {
 	float rd_repTime;	//The time for the last repeated radio msg
 // JBravo: time of death for delayed CTB respawns
 	int time_of_death;
+	int flagMessageTime;// NiceAss: Newb message for pistol/knife w/ enemy case
 };
 
 // JBravo: for model loading
