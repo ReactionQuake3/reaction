@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/21 04:27:53  blaze
+// more func_explosive goodness
+//
 // Revision 1.21  2002/01/31 02:50:18  blaze
 // some basic work on the trains/elevators
 //
@@ -2350,11 +2353,11 @@ void SP_func_explosive (gentity_t *ent)
 	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
 	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
 
-	ent->s.powerups = ((ent->material << 12) & 0xF000) +
-			((ent->tension << 8) & 0x0F00) +
-			((ent->bounce << 4) & 0x00F0) +
+	ent->s.powerups = ((ent->material << 12) & 0xF000) |
+			((ent->tension << 8) & 0x0F00) |
+			((ent->bounce << 4) & 0x00F0) |
 			((ent->size) & 0x000F);
-
+  G_Printf("%d %d %d %d %d\n",((ent->material << 12) & 0xF000),((ent->tension << 8) & 0x0F00),((ent->bounce << 4) & 0x00F0), ((ent->size) & 0x000F), ent->s.powerups);
 	trap_LinkEntity( ent );
-	G_Printf("at : %s %s\n", vtos(ent->r.currentAngles), vtos(ent->r.currentOrigin ) );
+	G_Printf("at : %s %s Material (%d)\n", vtos(ent->r.currentAngles), vtos(ent->r.currentOrigin ), ent->material );
 }
