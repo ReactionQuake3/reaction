@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/07/01 19:20:46  makro
+// Bots now use semi-auto when firing the mk23 from long range
+//
 // Revision 1.46  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -433,6 +436,46 @@ int RQ3_Bot_GetWeaponMode(bot_state_t * bs, int weapon)
 				return 1;
 				//unzoomed
 			} else {
+				return 0;
+			}
+		}
+	case WP_KNIFE:
+		{
+			if ((bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) {
+				//slashing
+				return 0;
+			} else {
+				//throwing
+				return 1;
+			}
+		}
+	case WP_PISTOL:
+		{
+			if ((bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE) {
+				//3rb
+				return 1;
+			} else {
+				//full auto
+				return 0;
+			}
+		}
+	case WP_MP5:
+		{
+			if ((bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE) {
+				//3rb
+				return 1;
+			} else {
+				//normal
+				return 0;
+			}
+		}
+	case WP_M4:
+		{
+			if ((bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
+				//3rb
+				return 1;
+			} else {
+				//normal
 				return 0;
 			}
 		}
@@ -1595,6 +1638,14 @@ void BotChooseWeapon(bot_state_t * bs)
 			} else {
 				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
 			}
+		} else if (bs->weaponnum == WP_PISTOL) {
+			if (dist > 800) {
+				//semi-auto
+				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 1);
+			} else {
+				//full auto
+				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 0);
+			}
 		}
 	} else {
 		//Makro - new function
@@ -1627,6 +1678,14 @@ void BotChooseWeapon(bot_state_t * bs)
 				//unzoomed
 			} else {
 				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
+			}
+		} else if (bs->weaponnum == WP_PISTOL) {
+			if (dist > 800) {
+				//semi-auto
+				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 1);
+			} else {
+				//full auto
+				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 0);
 			}
 		}
 	}
