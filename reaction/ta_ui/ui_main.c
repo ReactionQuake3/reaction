@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/06/15 13:19:17  makro
+// Support for adding random bots when starting up a game from the UI
+//
 // Revision 1.32  2002/06/13 15:50:24  makro
 // Bot list is now sorted alphabetically
 //
@@ -1309,8 +1312,12 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 		text = "Closed";
 	} else if (value == 1) {
 		text = "Human";
+	//Makro - support for adding a random bot
+	} else if (value == 2) {
+		text = "Random";
 	} else {
-		value -= 2;
+		//Makro - changed from 2
+		value -= 3;
 
 //Makro - using bot list instead of character list
 /*
@@ -2785,7 +2792,8 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 				value = 0;
 				break;
 			case K_END:
-				value = UI_GetNumBots() + 2 - 1;
+				//Makro - support for adding a random bot; changed 2 to 3
+				value = UI_GetNumBots() + 3 - 1;
 				break;
 			case K_MOUSE2:
 			case K_LEFTARROW:
@@ -2806,10 +2814,11 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 			}
 		} else {
 */
-			if (value >= UI_GetNumBots() + 2) {
+			//Makro - support for adding a random bot; changed 2 to 3
+			if (value >= UI_GetNumBots() + 3) {
 				value = 0;
 			} else if (value < 0) {
-				value = UI_GetNumBots() + 2 - 1;
+				value = UI_GetNumBots() + 3 - 1;
 			}
 //		}
 
@@ -3580,7 +3589,8 @@ static void UI_RunMenuScript(char **args) {
 
 			for (i = 0; i < PLAYERS_PER_TEAM; i++) {
 				int bot = trap_Cvar_VariableValue( va("ui_blueteam%i", i+1));
-				if (bot > 1) {
+				//Makro - support for adding random bots; changed from 1 to 2
+				if (bot > 2) {
 					//Makro - using bot list instead of character list; new code below
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
@@ -3588,14 +3598,27 @@ static void UI_RunMenuScript(char **args) {
 					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f blue\n", UI_GetBotNameByNumber(bot-2), skill);
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f blue\n", UI_GetBotNameByNumber(bot-3), skill);
 					} else {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-3), skill);
+					}
+					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
+				} else if (bot == 2) {
+					//Makro - support for adding random bots
+					if (ui_actualNetGameType.integer >= GT_TEAM) {
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f blue\n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), skill);
+					} else {
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 				bot = trap_Cvar_VariableValue( va("ui_redteam%i", i+1));
-				if (bot > 1) {
+				//Makro - support for adding random bots; changed from 1 to 2
+				if (bot > 2) {
 					//Makro - using bot list instead of character list; new code below
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
@@ -3603,9 +3626,21 @@ static void UI_RunMenuScript(char **args) {
 					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f red\n", UI_GetBotNameByNumber(bot-2), skill);
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f red\n", UI_GetBotNameByNumber(bot-3), skill);
 					} else {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-3), skill);
+					}
+					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
+				} else if (bot == 2) {
+					//Makro - support for adding random bots
+					if (ui_actualNetGameType.integer >= GT_TEAM) {
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f red\n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), skill);
+					} else {
+						//Makro - support for adding random bots; changed from 2 to 3
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -3869,9 +3904,10 @@ static void UI_RunMenuScript(char **args) {
 			//}
 		//Makro - add random bot
 		} else if (Q_stricmp(name, "addRandomBot") == 0) {
-				int index = (int) (random() * (float) (UI_GetNumBots() - 1));
-				//Makro - don't add the bot instantly
-				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+			//int index = (int) (random() * (float) (UI_GetNumBots() - 1));
+			//Makro - don't add the bot instantly
+			//trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+			trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 		//Makro - record a demo
 		} else if (Q_stricmp(name, "recordDemo") == 0) {
 			int oldSync = (int) trap_Cvar_VariableValue("g_synchronousClients");
