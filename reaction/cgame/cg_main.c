@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/06/09 18:58:40  makro
+// no message
+//
 // Revision 1.76  2002/06/09 05:14:40  niceass
 // pressure change
 //
@@ -527,10 +530,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE },
 // JBravo: cvars for regular crosshairs and their colors
-	{ &cg_RQ3_crosshairColorR, "cg_RQ3_crosshairColorR", "0.0", CVAR_ARCHIVE },
+// Makro - changed default color to white; it was 0/1/0/.75 before
+	{ &cg_RQ3_crosshairColorR, "cg_RQ3_crosshairColorR", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_crosshairColorG, "cg_RQ3_crosshairColorG", "1.0", CVAR_ARCHIVE },
-	{ &cg_RQ3_crosshairColorB, "cg_RQ3_crosshairColorB", "0.0", CVAR_ARCHIVE },
-	{ &cg_RQ3_crosshairColorA, "cg_RQ3_crosshairColorA", "0.75", CVAR_ARCHIVE },
+	{ &cg_RQ3_crosshairColorB, "cg_RQ3_crosshairColorB", "1.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_crosshairColorA, "cg_RQ3_crosshairColorA", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_tkokAutoPopup, "cg_RQ3_tkokAutoPopup", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE },

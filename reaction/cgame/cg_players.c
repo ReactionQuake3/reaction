@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/06/09 18:58:40  makro
+// no message
+//
 // Revision 1.29  2002/06/01 04:20:09  niceass
 // knife throw active animation bug fixed
 //
@@ -935,7 +938,8 @@ void CG_UpdateTeamVars() {
 	clientInfo_t	*ci;
 	int		i;
 	int		Reds, Blues, Spectators;
-	char v[2];
+	//Makro - changed from 2 to 4; not really needed, but it's safer
+	char v[4];
 
 	Reds = Blues = Spectators = 0;
 

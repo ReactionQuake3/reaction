@@ -6,14 +6,13 @@
 --------------------Configuration: cgame - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1C1.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1CC.tmp" with contents
 [
 /nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
 "C:\Games\Quake3\rq3source\reaction\cgame\cg_info.c"
-"C:\Games\Quake3\rq3source\reaction\cgame\cg_main.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1C1.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1C2.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1CC.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1CD.tmp" with contents
 [
 /nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
 .\Release\bg_misc.obj
@@ -42,18 +41,17 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1C2.tmp" with conte
 .\Release\q_shared.obj
 .\Release\ui_shared.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1C2.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1CD.tmp"
 <h3>Output Window</h3>
 Compiling...
 cg_info.c
-C:\Games\Quake3\rq3source\reaction\cgame\cg_info.c(226) : error C2065: 'skipdetail' : undeclared identifier
-cg_main.c
-Error executing cl.exe.
+Linking...
+   Creating library Release/cgamex86.lib and object Release/cgamex86.exp
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 1 error(s), 0 warning(s)
+cgamex86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

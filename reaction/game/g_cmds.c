@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/06/09 18:58:00  makro
+// no message
+//
 // Revision 1.121  2002/06/07 19:07:08  slicer
 // removed cvars for teamXready, replaced by level.teamXready
 //
@@ -1071,10 +1074,17 @@ void Cmd_Team_f (gentity_t *ent) {
 	int	oldTeam;
 	char	s[MAX_TOKEN_CHARS];
 
+	//Makro - moved here
+	if (g_gametype == GT_TEAMPLAY) {
+		oldTeam = ent->client->sess.savedTeam;
+	} else {
+		oldTeam = ent->client->sess.sessionTeam;
+	}
+
 	if (trap_Argc() != 2) {
 // JBravo: lets keep the teamnames right.
 		if (g_gametype.integer == GT_TEAMPLAY) {
-			oldTeam = ent->client->sess.savedTeam;
+			//oldTeam = ent->client->sess.savedTeam;
 			switch (oldTeam) {
 			case TEAM_RED:
 				trap_SendServerCommand( ent-g_entities, va("print \"You are a member of %s\n\"", g_RQ3_team1name.string));
@@ -1088,7 +1098,7 @@ void Cmd_Team_f (gentity_t *ent) {
 				break;
 			}
 		} else {
-			oldTeam = ent->client->sess.sessionTeam;
+			//oldTeam = ent->client->sess.sessionTeam;
 			switch (oldTeam) {
 			case TEAM_BLUE:
 				trap_SendServerCommand (ent-g_entities, "print \"Blue team\n\"");
