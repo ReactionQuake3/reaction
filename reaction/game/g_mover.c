@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2003/04/01 11:06:47  jbravo
+// Removed a debug message
+//
 // Revision 1.56  2003/03/28 22:26:23  makro
 // no message
 //
@@ -2079,7 +2082,7 @@ void Reached_Train(gentity_t * ent)
 	// start it going
 	SetMoverState(ent, MOVER_1TO2, level.time);
 	//debug!!!
-	G_Printf("^4Got past SetMoverState\n\n");
+	//G_Printf("^4Got past SetMoverState\n\n");
 
 	// if there is a "wait" value on the target, don't start moving yet
 	if (next->wait) {
