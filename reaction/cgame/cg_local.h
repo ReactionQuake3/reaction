@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.151  2003/09/01 15:09:48  jbravo
+// Cleanups, crashbug fix and version bumped to 3.2
+//
 // Revision 1.150  2003/08/31 14:48:33  jbravo
 // Code not compiling under linux fixed and a warning silenced.
 //
@@ -1361,12 +1364,13 @@ typedef struct {
 	qhandle_t scoreboardTime;
 
 	// medals shown during gameplay
-	qhandle_t medalImpressive;
-	qhandle_t medalExcellent;
+	// JBravo: no thanks
+	//qhandle_t medalImpressive;
+	//qhandle_t medalExcellent;
 	qhandle_t medalGauntlet;
-	qhandle_t medalDefend;
-	qhandle_t medalAssist;
-	qhandle_t medalCapture;
+	//qhandle_t medalDefend;
+	//qhandle_t medalAssist;
+	//qhandle_t medalCapture;
 
 	// sounds
 	sfxHandle_t kickSound;	//Elder: kick sound

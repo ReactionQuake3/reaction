@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2003/09/01 15:09:48  jbravo
+// Cleanups, crashbug fix and version bumped to 3.2
+//
 // Revision 1.138  2003/08/10 20:13:26  makro
 // no message
 //
@@ -2151,12 +2154,13 @@ static void CG_RegisterGraphics(void)
 	cgs.media.teleportEffectShader = trap_R_RegisterShader("teleportEffect");
 
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3");
-	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
-	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
+	//cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
+	//cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
 	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_gauntlet");
-	cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
-	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
-	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
+	// JBravo: not needed
+	//cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
+	//cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
+	//cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
 
 	//Elder: C3A laser tutorial
 	cgs.media.laserShader = trap_R_RegisterShader("sprites/laser");
@@ -2166,46 +2170,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", i));
 	cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg4x-%i", i));
 	cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg6x-%i", i));
-	/*
-	//Elder: added for sniper crosshairs
-	switch (cg_RQ3_ssgCrosshair.integer) {
-	case 0:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x");
-		break;
-	case 1:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x-1");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x-1");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x-1");
-		break;
-	case 2:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x-2");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x-2");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x-2");
-		break;
-	case 3:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x-3");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x-3");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x-3");
-		break;
-	case 4:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x-4");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x-4");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x-4");
-		break;
-	case 5:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x-5");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x-5");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x-5");
-		break;
-	default:
-		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
-		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg4x");
-		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x");
-		break;
-	}
-	*/
+
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_health");
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_healthwarning");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2003/09/01 15:09:48  jbravo
+// Cleanups, crashbug fix and version bumped to 3.2
+//
 // Revision 1.27  2003/07/30 16:05:46  makro
 // no message
 //
@@ -404,8 +407,6 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 {
 	int health, armor, reward;
 
-//      sfxHandle_t sfx;
-
 	// don't play the sounds if the player just changed teams
 	if (ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM]) {
 		return;
@@ -414,8 +415,6 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 	if (ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) {
 		armor = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
-		//Elder: completely remove cowbell sound
-		//if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 	} else if (ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS]) {
 		if (cg_RQ3_anouncer.integer == 1)
 			trap_S_StartLocalSound(cgs.media.hitTeamSound, CHAN_LOCAL_SOUND);
@@ -433,40 +432,7 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 	}
 	// reward sounds
 	reward = qfalse;
-	//Blaze: Removed because it uses the persistant stats stuff
-	/*if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-	   pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
-	   reward = qtrue;
-	   //Com_Printf("capture\n");
-	   }
-	   if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
-	   sfx = cgs.media.impressiveSound;
-	   pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
-	   reward = qtrue;
-	   //Com_Printf("impressive\n");
-	   }
-	   if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
-	   sfx = cgs.media.excellentSound;
-	   pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
-	   reward = qtrue;
-	   //Com_Printf("excellent\n");
-	   }
-	   if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
-	   sfx = cgs.media.humiliationSound;
-	   pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
-	   reward = qtrue;
-	   //Com_Printf("guantlet frag\n");
-	   }
-	   if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-	   pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
-	   reward = qtrue;
-	   //Com_Printf("defend\n");
-	   }
-	   if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-	   pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
-	   reward = qtrue;
-	   //Com_Printf("assist\n");
-	   } */
+
 	// if any of the player event bits changed
 	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
 		if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD) !=
@@ -516,39 +482,8 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 	// timelimit warnings
 	if (cgs.timelimit > 0) {
 		int msec;
-
 		msec = cg.time - cgs.levelStartTime;
-// JBravo: we dont want the sudden death sound in RQ3
-/*		if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 ) {
-			cg.timelimitWarnings |= 1 | 2 | 4;
-			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
-		} */
-// JBravo: we dont want the Q3 X minutes left sounds.
-/*		if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
-			cg.timelimitWarnings |= 1 | 2;
-			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
-		}
-		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
-			cg.timelimitWarnings |= 1;
-			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
-		} */
 	}
-	// fraglimit warnings
-/*	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF) {
-		highScore = cgs.scores1;
-		if ( !( cg.fraglimitWarnings & 4 ) && highScore == (cgs.fraglimit - 1) ) {
-			cg.fraglimitWarnings |= 1 | 2 | 4;
-			if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.oneFragSound);
-		}
-		else if ( cgs.fraglimit > 2 && !( cg.fraglimitWarnings & 2 ) && highScore == (cgs.fraglimit - 2) ) {
-			cg.fraglimitWarnings |= 1 | 2;
-			if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.twoFragSound);
-		}
-		else if ( cgs.fraglimit > 3 && !( cg.fraglimitWarnings & 1 ) && highScore == (cgs.fraglimit - 3) ) {
-			cg.fraglimitWarnings |= 1;
-			if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.threeFragSound);
-		}
-	} */
 }
 
 /*

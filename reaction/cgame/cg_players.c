@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2003/09/01 15:09:48  jbravo
+// Cleanups, crashbug fix and version bumped to 3.2
+//
 // Revision 1.61  2003/07/30 16:05:46  makro
 // no message
 //
@@ -2162,8 +2165,8 @@ static void CG_PlayerSprites(centity_t * cent)
 		CG_PlayerFloatSprite(cent, cgs.media.balloonShader);
 		return;
 	}
-
-	if (cent->currentState.eFlags & EF_AWARD_IMPRESSIVE) {
+// JBravo: we dont want the Q3 awards
+/*	if (cent->currentState.eFlags & EF_AWARD_IMPRESSIVE) {
 		CG_PlayerFloatSprite(cent, cgs.media.medalImpressive);
 		return;
 	}
@@ -2171,14 +2174,14 @@ static void CG_PlayerSprites(centity_t * cent)
 	if (cent->currentState.eFlags & EF_AWARD_EXCELLENT) {
 		CG_PlayerFloatSprite(cent, cgs.media.medalExcellent);
 		return;
-	}
+	} */
 
 	if (cent->currentState.eFlags & EF_AWARD_GAUNTLET) {
 		CG_PlayerFloatSprite(cent, cgs.media.medalGauntlet);
 		return;
 	}
 
-	if (cent->currentState.eFlags & EF_AWARD_DEFEND) {
+/*	if (cent->currentState.eFlags & EF_AWARD_DEFEND) {
 		CG_PlayerFloatSprite(cent, cgs.media.medalDefend);
 		return;
 	}
@@ -2192,6 +2195,7 @@ static void CG_PlayerSprites(centity_t * cent)
 		CG_PlayerFloatSprite(cent, cgs.media.medalCapture);
 		return;
 	}
+*/
 // JBravo: no triangles over teammates.
 	if (cgs.gametype >= GT_TEAM) {
 		return;

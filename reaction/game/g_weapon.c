@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2003/09/01 15:09:49  jbravo
+// Cleanups, crashbug fix and version bumped to 3.2
+//
 // Revision 1.90  2003/07/30 16:05:47  makro
 // no message
 //
@@ -1851,7 +1854,9 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 	}
 	//Get rid of you?
 	if (ent->client->lasersight || enabled == qfalse) {
-		G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
+		// JBravo: fixing the bad gEnt crashbug
+		if (ent->client->lasersight)
+			G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
 		ent->client->lasersight = NULL;
 		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		return;
