@@ -61,6 +61,7 @@
 * Added a clientside cvar (cg_RQ3_SuicideLikeARealMan) to control frag lossage on suicides
 * Fixed stats for non-TP gametypes
 * Cleaned up server logging and added real timestamping to them.
+* MM: "referee" voting command and ref's "kick" user command now uses player's numbers instead of names
 
 
 
