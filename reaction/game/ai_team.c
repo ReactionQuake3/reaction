@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/07/02 20:22:35  jbravo
+// Changed the files to use the right ui.
+//
 // Revision 1.10  2002/06/22 00:19:57  jbravo
 // Cleanups for colors and stopped bots looking for team leaders in TP
 //
@@ -69,7 +72,7 @@
 // for the voice chats
 
 //Blaze: was there a extra ../ here?
-#include "../ui/menudef.h"
+#include "../ta_ui/menudef.h"
 
 //ctf task preferences for a client
 typedef struct bot_ctftaskpreference_s {

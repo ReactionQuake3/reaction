@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2002/07/02 20:22:35  jbravo
+// Changed the files to use the right ui.
+//
 // Revision 1.148  2002/07/02 19:15:17  jbravo
 // Drop weapon with akimbos now behaves like AQ, plus no suicides during LCA
 //
@@ -354,7 +357,7 @@
 #include "zcam.h"
 
 //Blaze: was there a extra ../ here?
-#include "../ui/menudef.h"	// for the voice chats
+#include "../ta_ui/menudef.h"	// for the voice chats
 //Blaze for door code
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
 

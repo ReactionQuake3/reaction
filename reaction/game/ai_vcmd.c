@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/07/02 20:22:35  jbravo
+// Changed the files to use the right ui.
+//
 // Revision 1.7  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -66,7 +69,7 @@
 // for the voice chats
 
 //Blaze: was there a extra ../ here?
-#include "../ui/menudef.h"
+#include "../ta_ui/menudef.h"
 
 typedef struct voiceCommand_s {
 	char *cmd;

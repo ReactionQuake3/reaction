@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/07/02 20:22:35  jbravo
+// Changed the files to use the right ui.
+//
 // Revision 1.48  2002/07/01 19:55:50  makro
 // Reorganized things a little
 //
@@ -188,7 +191,7 @@
 // for the voice chats
 
 //Blaze: was there a extra ../ here?
-#include "../ui/menudef.h"
+#include "../ta_ui/menudef.h"
 
 //Makro - to get rid of the warnings
 void Cmd_Bandage(gentity_t * ent);

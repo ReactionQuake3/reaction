@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/07/02 20:22:35  jbravo
+// Changed the files to use the right ui.
+//
 // Revision 1.54  2002/07/01 02:55:13  blaze
 // change the format of the autorecorded demo name
 //
@@ -146,7 +149,7 @@
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-#include "../ui/menudef.h"	// bk001205 - for Q3_ui as well
+#include "../ta_ui/menudef.h"	// bk001205 - for Q3_ui as well
 
 //Blaze: holds the id to name mapping of the breakables
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
