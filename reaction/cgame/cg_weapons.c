@@ -471,6 +471,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			break;
 		}
 	}
+
 	if ( !item->classname ) {
 		CG_Error( "Couldn't find weapon %i", weaponNum );
 	}
@@ -492,9 +493,21 @@ void CG_RegisterWeapon( int weaponNum ) {
 		if ( ammo->giType == IT_AMMO && ammo->giTag == weaponNum ) {
 			break;
 		}
+		//Elder: hack for handcannon to use M3 ammo icon
+		else if (weaponNum == WP_HANDCANNON && ammo->giType == IT_AMMO && ammo->giTag == WP_M3)
+		{
+			break;
+		}
+		//Elder: hack for akimbos to use MK23 ammo icon
+		else if (weaponNum == WP_AKIMBO && ammo->giType == IT_AMMO && ammo->giTag == WP_PISTOL)
+		{
+			break;
+		}
 	}
 	if ( ammo->classname && ammo->world_model[0] ) {
 		weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] );
+		//Elder: added
+		weaponInfo->ammoIcon = trap_R_RegisterShader( ammo->icon );
 	}
 
 	strcpy( path, item->world_model[0] );
@@ -1236,20 +1249,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 	*/
 
-	//Elder: added to supress burst mode flashes + sounds when 'predicting'
-	// M4
-	if ( ps->weapon == WP_M4 && ps->stats[STAT_BURST] > 2 ) {
-		return;
-	}
-	// MP5
-	if ( ps->weapon == WP_MP5 && ps->stats[STAT_BURST] > 2 ) {
-		return;
-	}
-	// MK23
-	if ( ps->weapon == WP_PISTOL && ps->stats[STAT_BURST] > 0 ) {
-		return;
-	}
-
 	//Elder: re-added to fix loss of muzzle flashes!
 	// impulse flash
 	if ( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash ) {
@@ -1608,6 +1607,10 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
+	//Elder: don't allow weapon switching when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
+
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
 	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
@@ -1640,6 +1643,7 @@ void CG_NextWeapon_f( void ) {
 	}
 	else {
 		CG_RQ3_Zoom1x();
+		trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -1669,6 +1673,10 @@ void CG_PrevWeapon_f( void ) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
+
+	//Elder: don't allow weapon switching when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
@@ -1701,6 +1709,7 @@ void CG_PrevWeapon_f( void ) {
 	}
 	else {
 		CG_RQ3_Zoom1x();
+		trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -1717,8 +1726,10 @@ void CG_SpecialWeapon_f( void ) {
 	int		original;
 
 	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
+
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
@@ -1733,6 +1744,10 @@ void CG_SpecialWeapon_f( void ) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
+	
+	//Elder: don't allow weapon switching when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
@@ -1767,6 +1782,7 @@ void CG_SpecialWeapon_f( void ) {
 	}
 	else {
 		CG_RQ3_Zoom1x();
+		trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -1790,7 +1806,6 @@ void CG_RQ3_SyncZoom ( void ) {
 		//CG_Printf("Zoomed out\n");
 		cg.zoomLevel = 0;
 	}
-
 }
 
 //Elder: save zoom level and do any other necessary housekeeping
@@ -1877,7 +1892,7 @@ void CG_RQ3_Zoom1x () {
 		cg.zoomLevel = 0;
 		cg.zoomTime = cg.time;
 	}
-	trap_SendClientCommand("unzoom");
+	//trap_SendClientCommand("unzoom");
 }
 
 int CG_RQ3_GetGrenadeMode()
@@ -1924,6 +1939,7 @@ void CG_Weapon_f( void ) {
 	int num;
 	
 	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
 
@@ -1938,6 +1954,10 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 	
+	//Elder: don't allow weapon switching when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
+
 	//Elder: in the middle of firing, reloading or weapon-switching
 	if (cg.snap->ps.weaponTime > 0) {
 		return;
@@ -1966,6 +1986,8 @@ void CG_Weapon_f( void ) {
 			//do weapon select sound
 		}
 		trap_SendClientCommand("weapon");
+		//Elder: added to get out of function at this point
+		return;
 	}
 
 	num = atoi( CG_Argv( 1 ) );
@@ -1992,6 +2014,7 @@ void CG_Weapon_f( void ) {
 	//cg.zoomLevel = 0;
 	
 	CG_RQ3_Zoom1x();
+	trap_SendClientCommand("unzoom");
 	cg.weaponSelect = num;
 }
 
@@ -2065,6 +2088,27 @@ void CG_FireWeapon( centity_t *cent ) {
 	
 	weap = &cg_weapons[ ent->weapon ];
 
+	//Elder: added to supress burst mode flashes + sounds when 'predicting'
+	// M4
+	if ( cg.snap->ps.weapon == WP_M4 && 
+		 (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE &&
+		 cg.snap->ps.stats[STAT_BURST] > 2 )
+	{
+		return;
+	}
+	// MP5
+	if ( cg.snap->ps.weapon == WP_MP5 &&
+		(cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE &&
+		cg.snap->ps.stats[STAT_BURST] > 2 ) {
+		return;
+	}
+	// MK23
+	if ( cg.snap->ps.weapon == WP_PISTOL &&
+		(cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE &&
+		cg.snap->ps.stats[STAT_BURST] > 0 ) {
+		return;
+	}
+
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
 	cent->muzzleFlashTime = cg.time;
@@ -2125,6 +2169,14 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	qboolean		alphaFade;
 	qboolean		isSprite;
 	int				duration;
+	
+	//Elder: for impact smoke marks
+	localEntity_t	*smokePuff;
+	vec3_t			puffOrigin;
+	vec3_t			puffOffset;
+	vec3_t			puffDir;
+	
+	int				i;
 
 	mark = 0;
 	radius = 32;
@@ -2353,8 +2405,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		shader = cgs.media.grenadeExplosionShader;
 		sfx = cgs.media.sfx_rockexp;
 		mark = cgs.media.burnMarkShader;
-		radius = 64;
-		light = 300;
+		radius = 96;	//64
+		light = 450;	//300
 		isSprite = qtrue;
 		break;
 	
@@ -2380,7 +2432,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		break;
 	}
 
-	if ( sfx ) {
+	//Elder: 75% of the time render a bullet ricochet sound
+	i = (int)(random() * 35) % 4;
+	if ( sfx && i < 3) {
 		trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
 
@@ -2416,6 +2470,35 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 	//} else {
 		CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse );
 	//}
+
+	
+	//Elder: 75% of the time render a smoke puff
+	i = (int)(random() * 100) % 4;
+	if (cg_RQ3_impactEffects.integer && i < 3)
+	{
+		switch ( weapon ) {	
+			case WP_MP5:
+			case WP_M4:
+			case WP_PISTOL:
+				puffDir[0] = 0;
+				puffDir[1] = 0;
+				puffDir[2] = 16;
+
+				VectorCopy(dir, puffOffset);
+				VectorNormalize(puffOffset);
+				VectorNegate(puffOffset, puffOffset);
+				VectorScale(puffOffset, 13, puffOffset);
+				VectorSubtract(origin, puffOffset, puffOrigin);
+				smokePuff = CG_SmokePuff( puffOrigin, puffDir, 
+						  (int)(random() * 100) % 4 + 13, 
+						  1, 1, 1, 0.25f,
+						  650, 
+						  cg.time, 0,
+						  LEF_PUFF_DONT_SCALE, 
+						  cgs.media.smokePuffShader );
+				break;
+		}
+	}
 }
 
 
@@ -2529,10 +2612,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 CG_ShotgunPattern
 
 Perform the same traces the server did to locate the
-hit splashes (FIXME: ranom seed isn't synce anymore)
+hit splashes (FIXME: random seed isn't synce anymore)
+Elder: hopefully fixed the seed problem
 ================
 */
-static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, int shotType ) {
+static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, int shotType, int seed ) {
 	int			i;
 	float		r, u;
 	vec3_t		end;
@@ -2565,8 +2649,10 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 	for ( i = 0 ; i < count ; i++ ) {
 		if (shotType == WP_M3)
 		{
-			r = crandom() * DEFAULT_M3_HSPREAD * 16;
-			u = crandom() * DEFAULT_M3_VSPREAD * 16;
+			r = Q_crandom(&seed) * DEFAULT_M3_HSPREAD * 16;
+			u = Q_crandom(&seed) * DEFAULT_M3_VSPREAD * 16;
+			//r = crandom() * DEFAULT_M3_HSPREAD * 16;
+			//u = crandom() * DEFAULT_M3_VSPREAD * 16;
 			//r = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
 			//u = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
 		}
@@ -2574,11 +2660,12 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 		{
 			//Elder: fill in shotType
 			shotType = WP_HANDCANNON;
-			r = crandom() * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
-			u = crandom() * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
+			r = Q_crandom(&seed) * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
+			u = Q_crandom(&seed) * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
 //			r = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
 //			u = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
-		}		VectorMA( origin, 8192 * 16, forward, end);
+		}
+		VectorMA( origin, 8192 * 16, forward, end);
 		VectorMA (end, r, right, end);
 		VectorMA (end, u, up, end);
 
@@ -2612,13 +2699,14 @@ void CG_ShotgunFire( entityState_t *es, qboolean ism3) {
 	//Elder: note param changes
 	if (ism3)	
 	{
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_M3);
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_M3, es->eventParm);
 	}
 	else
 	{
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_HANDCANNON);
-		es->origin2[1] += 5;
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, -1 );
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_HANDCANNON, es->eventParm);
+		es->angles2[1] += 20;
+		//es->origin2[1] += 5;
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, -1, es->eventParm);
 	}
 }
 

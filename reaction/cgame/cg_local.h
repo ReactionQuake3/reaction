@@ -47,6 +47,8 @@
 #define STAT_MINUS			10	// num frame for '-' stats digit
 
 #define	ICON_SIZE			48
+//Elder: small icon size added
+#define SMICON_SIZE			32
 #define	CHAR_WIDTH			32
 #define	CHAR_HEIGHT			48
 #define	TEXT_ICON_SPACE		4
@@ -629,6 +631,11 @@ typedef struct {
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
 
+	// Elder: for message flooding protection
+	int			sayTime;
+	int			sayCount;
+	
+
 } cg_t;
 
 
@@ -1194,6 +1201,8 @@ extern	vmCvar_t		cg_RQ3_ssgColorR;
 extern	vmCvar_t		cg_RQ3_ssgColorG;
 extern	vmCvar_t		cg_RQ3_ssgColorB;
 extern	vmCvar_t		cg_RQ3_ssgColorA;
+//Elder: smoke puffs, sparks, etc.
+extern	vmCvar_t		cg_RQ3_impactEffects;
 
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
@@ -1463,7 +1472,8 @@ void CG_ScorePlum( int client, vec3_t org, int score );
 
 void CG_GibPlayer( vec3_t playerOrigin );
 void CG_BigExplode( vec3_t playerOrigin );
-void CG_BreakGlass( vec3_t playerOrigin, int glassParm );// Blaze: Breakable glass Elder: modified
+// Blaze: Breakable glass Elder: modified
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type );
 void CG_Bleed( vec3_t origin, int entityNum );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,

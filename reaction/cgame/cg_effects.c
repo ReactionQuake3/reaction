@@ -693,16 +693,15 @@ void CG_BigExplode( vec3_t playerOrigin ) {
 	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 }
 
-  #define	GLASS_VELOCITY	175
-  #define	GLASS_JUMP		125
-
-  /*
-  ==================
-  CG_LaunchGlass
-  ==================
-  */
-  //Elder: might want to rotate the model randomly or do it in break glass
-  void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation, qhandle_t hModel ) {
+#define	GLASS_VELOCITY	175
+#define	GLASS_JUMP		125
+/*
+==================
+CG_LaunchGlass
+==================
+*/
+void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
+					 float bounce, qhandle_t hModel ) {
   	localEntity_t	*le;
   	refEntity_t		*re;
   
@@ -711,9 +710,8 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   
   	le->leType = LE_FRAGMENT;
   	le->startTime = cg.time;
-  	le->endTime = le->startTime + (random() * 3000)+ cg_RQ3_glasstime.integer;// + 30000;
+  	le->endTime = le->startTime + (random() * 3000)+ cg_RQ3_glasstime.integer; // + 30000;
 	
-  
   	VectorCopy( origin, re->origin );
   	AxisCopy( axisDefault, re->axis );
   	re->hModel = hModel;
@@ -722,7 +720,7 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   	VectorCopy( origin, le->pos.trBase );
   	VectorCopy( velocity, le->pos.trDelta );
   	le->pos.trTime = cg.time;
-  
+	
   	//Elder: added
   	//VectorCopy( origin, le->angles.trBase );
   	VectorCopy( velocity, le->angles.trBase );
@@ -730,101 +728,147 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   	VectorCopy( rotation, le->angles.trDelta );
   	le->angles.trTime = cg.time;
   
-  	le->bounceFactor = 0.3f;
+  	le->bounceFactor = bounce;
   
   	le->leFlags = LEF_TUMBLE;
   	le->leBounceSoundType = LEBS_BRASS;
   	le->leMarkType = LEMT_NONE;
   }
   
-  /*
-  ===================
-  CG_BreakGlass
+/*
+===================
+CG_BreakGlass
+
+Generated a bunch of glass shards launching out from the glass location
+Elder: don't be mislead by the name - this breaks more than glass
+===================
+*/
   
-  Generated a bunch of glass shards launching out from the glass location
-  ===================
-  */
-  
-void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	vec3_t	origin, velocity, rotation;
     int     value;
-  	int     count = 40;					// How many shards to generate
-  	int     states[] = {1,2,3};			// The array of possible numbers
+  	int     count;
+  	int     states[] = {1,2,3};			// Select model variations
   	// Get the size of the array
     int     numstates = sizeof(states)/sizeof(states[0]);
-    // Elder: The handles to our debris models
-    qhandle_t	debris1, debris2, debris3;
-  
-  	//Elder: check bit amount
-  	if ( (glassParm & RQ3_DEBRIS_SMALL) == RQ3_DEBRIS_SMALL) {
-  		count = 8 + rand() % 5;
-  	}
-  	//else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM) {
-  	else if ( (glassParm & RQ3_DEBRIS_LARGE) == RQ3_DEBRIS_LARGE) {
-  		count = 40 + rand() % 15;
-  	}
-  	else if ( (glassParm & RQ3_DEBRIS_TONS) == RQ3_DEBRIS_TONS) {
+    // Elder: debris model handles
+    qhandle_t	debris1;
+	qhandle_t	debris2;
+	qhandle_t	debris3;
+	int		bounceFactor;
+	int		newParm;
+
+  	if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM &&
+		 (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
+	{
+		//Tons
   		count = 65 + rand() % 25;
   	}
-  	else {
-  		//medium is default
-  		count = 22 + rand() % 7;
+ 	else if ( (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
+	{
+		//Large
+  		count = 40 + rand() % 15;
+  	}
+  	else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM)
+	{
+		//Medium
+		count = 22 + rand() % 7;
+  	}
+  	else
+	{
+		//Small
+  		count = 8 + rand() % 5;
 	}
 
-	CG_Printf("glassParm: %d\n", glassParm);
+	/*
+	===============================
+	TODO: Utilize variation bits!
+	==============================
+	*/
+
+	//Strip off amount info and revert eParm back to server-side size
+	newParm = glassParm & 15;
+	glassParm &= ~newParm;
+	glassParm = glassParm << (type * 4);
+
+	CG_Printf("glassParm: %i\n", glassParm);
 
 	//Elder: check debris type and assign debris models  	
-	//Using bit-op check b/c I will be stuffing the amount in there too
-	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD) {
+	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD)
+	{
   		CG_Printf("Launching wood\n");
   		debris1 = cgs.media.wood01;
   		debris2 = cgs.media.wood02;
   		debris3 = cgs.media.wood03;
+		bounceFactor = 0.8f;
   	}
-  	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL) {
+  	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL)
+	{
   		CG_Printf("Launching metal\n");
   		debris1 = cgs.media.metal01;
   		debris2 = cgs.media.metal02;
   		debris3 = cgs.media.metal03;
+		bounceFactor = 0.7f;
   	}
-  	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC) { 
+  	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC)
+	{ 
   		CG_Printf("Launching ceramic\n");
   		debris1 = cgs.media.ceramic01;
   		debris2 = cgs.media.ceramic02;
   		debris3 = cgs.media.ceramic03;
+		bounceFactor = 0.7f;
   	}
-  	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER) { 
+  	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER)
+	{
   		CG_Printf("Launching paper\n");
   		debris1 = cgs.media.paper01;
   		debris2 = cgs.media.paper02;
   		debris3 = cgs.media.paper03;
+		bounceFactor = 0.2f;
   	}
-	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK) { 
+	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK)
+	{ 
   		CG_Printf("Launching brick\n");
   		debris1 = cgs.media.brick01;
   		debris2 = cgs.media.brick02;
   		debris3 = cgs.media.brick03;
+		bounceFactor = 0.4f;
   	}
-	else if ( (glassParm & RQ3_DEBRIS_CONCRETE) == RQ3_DEBRIS_CONCRETE) { 
+	else if ( (glassParm & RQ3_DEBRIS_CONCRETE) == RQ3_DEBRIS_CONCRETE)
+	{ 
   		CG_Printf("Launching concrete\n");
   		debris1 = cgs.media.concrete01;
   		debris2 = cgs.media.concrete02;
   		debris3 = cgs.media.concrete03;
+		bounceFactor = 0.5f;
   	}
-  	else {
+	/*
+	else if ( (glassParm & RQ3_DEBRIS_POPCAN) == RQ3_DEBRIS_POPCAN)
+	{ 
+  		CG_Printf("Launching pop cans\n");
+  		debris1 = cgs.media.popcan01;
+  		debris2 = cgs.media.popcan02;
+  		debris3 = cgs.media.popcan03;
+  	}
+	*/
+  	else
+	{
   		//glass is default
   		CG_Printf("Launching glass\n");
   		debris1 = cgs.media.glass01;
   		debris2 = cgs.media.glass02;
   		debris3 = cgs.media.glass03;
+		bounceFactor = 0.7f;
   	}
   	
+	//launch loop
   	while ( count-- ) {
       	// Generate the random number every count so every shard is a
       	// of the three. If this is placed above it only gets a random
       	// number every time a piece of glass is broken.
       	value = states[rand()%numstates];
-      	VectorCopy( playerOrigin, origin );
+
+		VectorCopy( playerOrigin, origin );
       	velocity[0] = crandom() * GLASS_VELOCITY;
       	velocity[1] = crandom() * GLASS_VELOCITY;
       	velocity[2] = GLASS_JUMP + crandom() * GLASS_VELOCITY;
@@ -832,16 +876,17 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
 		rotation[0] = crandom() * GLASS_VELOCITY;
 		rotation[1] = crandom() * GLASS_VELOCITY;
 		rotation[2] = crandom() * GLASS_VELOCITY;
-      	switch (value) {
+      	
+		switch (value)
+		{
       	case 1:
-      		// If our random number was 1, generate the 1st shard piece
-          	CG_LaunchGlass( origin, velocity, rotation, debris1 );
+          	CG_LaunchGlass( origin, velocity, rotation, bounceFactor, debris1 );
           	break;
       	case 2:
-      		CG_LaunchGlass( origin, velocity, rotation, debris2 );
+      		CG_LaunchGlass( origin, velocity, rotation, bounceFactor, debris2 );
           	break;
       	case 3:
-      		CG_LaunchGlass( origin, velocity, rotation, debris3 );
+      		CG_LaunchGlass( origin, velocity, rotation, bounceFactor, debris3 );
       		break;
       	}
   	}

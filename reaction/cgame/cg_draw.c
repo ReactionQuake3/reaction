@@ -501,7 +501,7 @@ static void CG_DrawStatusBar( void ) {
 	int			style;
 	centity_t	*cent;
 	playerState_t	*ps;
-	int			value, value2;
+	int			value;//, value2;
 	vec4_t		hcolor;
 	vec3_t		angles;
 	vec3_t		origin;
@@ -510,6 +510,7 @@ static void CG_DrawStatusBar( void ) {
 //#ifdef MISSIONPACK
 //	qhandle_t	handle;
 //#endif
+	int			i;
 	
 	static float colors [4][4] = {
 		{ 0.0f, 1.0f, 0.0f, 1.0f } ,		//full green
@@ -543,7 +544,7 @@ static void CG_DrawStatusBar( void ) {
 	hcolor[2] = 0;
 	hcolor[3] = (value <= 25) * (0.01 * value + 0.75) + (value > 25) * 1;
 	
-	/* Elder: Old clamp routine for reference
+	/* Elder: Old clamp routine for reference -- more efficient since less stack usage?
 	for (i = 0; i < 4; i++) {
 		if (hcolor[i] > 1.0) {
 			CG_Printf ("Over one on %i\n",i);
@@ -555,23 +556,72 @@ static void CG_DrawStatusBar( void ) {
 			}
 	}*/
 
-	CG_DrawPic(8, 440, 32, 32, hicon);
+	CG_DrawPic(8, 440, SMICON_SIZE, SMICON_SIZE, hicon);
 	UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
 	
 	
 	//Elder: Draw weapon ammo and clips
 	style = UI_LEFT|UI_DROPSHADOW;
-	icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
+
+	icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
 	if (icon)
-		CG_DrawPic(152, 440, 32, 32, icon);
+		CG_DrawPic(152, 440, SMICON_SIZE, SMICON_SIZE, icon);
+
+	icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
+	//Don't draw ammo icon if holding grenade or knife
+	if (icon &&
+		cg.predictedPlayerState.weapon != WP_KNIFE &&
+		cg.predictedPlayerState.weapon != WP_GRENADE)
+		CG_DrawPic(252, 440, SMICON_SIZE, SMICON_SIZE, icon);
 	
-	if ( cent->currentState.weapon ) {
+	if ( cent->currentState.weapon )
+	{
 		value = ps->ammo[cent->currentState.weapon];
-		value2 = ps->stats[STAT_CLIPS];
-		if ( value > -1 ) {
-			UI_DrawProportionalString(188, 444, va("%d / %d", value, value2), style, colors[0]);
+
+		if ( value > -1 )
+			UI_DrawProportionalString(188, 444, va("%d", value), style, colors[0]);
+
+		//UI_DrawProportionalString(188, 444, "/"), style, colors[0]);
+
+		value = ps->stats[STAT_CLIPS];
+		if ( value > -1 &&
+			cg.predictedPlayerState.weapon != WP_KNIFE &&
+			cg.predictedPlayerState.weapon != WP_GRENADE)
+			UI_DrawProportionalString(288, 444, va("%d", value), style, colors[0]);
+	}
+
+	//Elder: draw grenades, if any, on the side
+	if (cg.snap->ps.ammo[ WP_GRENADE ] > 0)
+	{
+		icon = cg_weapons[ WP_GRENADE ].weaponIcon;
+		if (icon)
+			CG_DrawPic(640-SMICON_SIZE, 360, SMICON_SIZE, SMICON_SIZE, icon);
+		UI_DrawProportionalString(580, 364, va("%d", cg.snap->ps.ammo[WP_GRENADE]), style, colors[0]);
+	}
+
+	//Elder: draw special weapons, if any, on the side
+	if (cg.snap->ps.stats[STAT_UNIQUEWEAPONS])
+	{
+		for (i = 1; i < MAX_WEAPONS; i++)
+		{
+			if (i == WP_KNIFE ||
+				i == WP_PISTOL ||
+				i == WP_GRENADE ||
+				i == WP_AKIMBO)
+				continue;
+
+			if ( (1 << i) == ((1 << i) & cg.snap->ps.stats[STAT_WEAPONS]))
+				break;
+		}
+
+		if (i < MAX_WEAPONS)
+		{
+			icon = cg_weapons[i].weaponIcon;
+			if (icon)
+				CG_DrawPic(640-SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
 		}
 	}
+
 }
 
 /* Elder: old stuff
@@ -1392,7 +1442,8 @@ CG_DrawLowerRight
 static void CG_DrawLowerRight( void ) {
 	float	y;
 
-	y = 480 - ICON_SIZE;
+	//y = 480 - ICON_SIZE;
+	y = 320 + SMICON_SIZE;
 
 	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
@@ -1544,7 +1595,8 @@ static void CG_DrawHoldableItem( void ) {
 	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
 	if ( value ) {
 		CG_RegisterItemVisuals( value );
-		CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
+		//CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
+		CG_DrawPic( 640-SMICON_SIZE, 440, SMICON_SIZE, SMICON_SIZE, cg_items[ value ].icon );
 	}
 
 }

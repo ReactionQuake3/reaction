@@ -561,8 +561,31 @@ void CG_PredictPlayerState( void ) {
 			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
 		}
 
+		//Elder: predict bursting here
+	/*
+	if ( (cg.snap->ps.weapon == WP_M4 &&
+		 (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
+		 (cg.snap->ps.weapon == WP_MP5 &&
+		 (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE))
+	{
+		if (cg_pmove.cmd.buttons & BUTTON_ATTACK)// && client->ps.stats[STAT_BURST] > 0)
+		{
+			if ( cg.snap->ps.stats[STAT_BURST] >= 0 && cg.snap->ps.stats[STAT_BURST] < 3)
+				cg_pmove.cmd.buttons |= BUTTON_ATTACK;
+			else
+				cg_pmove.cmd.buttons &= ~BUTTON_ATTACK;
+		}
+		else if (cg.snap->ps.stats[STAT_BURST] > 2)
+		{
+			cg.snap->ps.stats[STAT_BURST] = 0;
+			cg.snap->ps.weaponTime += 500;
+		}
+		else if (cg.snap->ps.stats[STAT_BURST] > 0)
+			cg_pmove.cmd.buttons |= BUTTON_ATTACK;
+	}*/
+	
 		Pmove (&cg_pmove);
-
+	
 		moved = qtrue;
 
 		// add push trigger movement effects

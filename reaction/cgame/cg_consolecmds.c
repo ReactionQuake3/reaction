@@ -33,6 +33,7 @@ Elder: reset local zoom, then proceed with server action
 */
 static void CG_DropWeapon_f (void) {
 	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
 
@@ -45,7 +46,11 @@ static void CG_DropWeapon_f (void) {
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
-	
+
+	//Elder: don't allow weapon dropping when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
+
 	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("dropweapon");
 }
@@ -61,6 +66,7 @@ the client command to reduce bandwidth use slightly
 */
 static void CG_Bandage_f (void) {
 	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
 
@@ -80,13 +86,16 @@ static void CG_Bandage_f (void) {
 		return;
 	}
 
-	//if (cg.snap->ps.stats[STAT_BANDAGE]) {
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are already bandaging!\n");
 		//cg.zoomed = 0;
 		//cg.zoomLevel = 0;
 		return;
 	}
+
+	//Elder: don't allow bandaging when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
 
 	//Elder: added to prevent bandaging while reloading or firing
 	//Moved below "already-bandaging" case and removed message
@@ -109,6 +118,7 @@ Elder: reset reload depressed flag
 =================
 */
 static void CG_ReloadReset_f (void) {
+	//CG_Printf("Releasing Reload\n");
 	cg.rq3_reloadDown = qfalse;
 }
 
@@ -118,6 +128,7 @@ static void CG_ReloadReset_f (void) {
 CG_Reload_f
 
 Elder: reset local zoom, then proceed with server action
+Note: most of this doesn't work if it's a +button style
 =================
 */
 static void CG_Reload_f (void) {
@@ -125,6 +136,7 @@ static void CG_Reload_f (void) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	
 	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
 	
@@ -138,18 +150,23 @@ static void CG_Reload_f (void) {
 		return;
 	}
 
-	if (cg.rq3_reloadDown)
+	//Elder: don't allow reloading when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
 
-	cg.rq3_reloadDown = qtrue;
-
-	//Elder: prevent "reloading" when dead hehe
-	if ( cg.snap->ps.stats[STAT_HEALTH] < 0 ) {
-		CG_Printf("Nothing to reload - you are dead.\n");
+	if (cg.rq3_reloadDown == qtrue)
+	{
+		//CG_Printf("Reload down... exiting\n");
 		return;
 	}
 
-	
+	//cg.rq3_reloadDown = qtrue;
+
+	//Elder: prevent "reloading" when dead hehe
+	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
+		CG_Printf("Nothing to reload - you are dead.\n");
+		return;
+	}
 
 	//Elder: don't allow reloading until the weapon is free
 	//Don't cut-off here because we want to check for fast-reloads
@@ -174,6 +191,7 @@ static void CG_Reload_f (void) {
 	if (cg.snap->ps.weapon == WP_SSG3000 && cg.zoomFirstReturn == -1)
 		cg.zoomFirstReturn = 0;
 
+	//CG_Printf("Sending reload command to server\n");
 	trap_SendClientCommand("reload");
 }
 
@@ -212,6 +230,18 @@ static void CG_Viewpos_f (void) {
 	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
 		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
 		(int)cg.refdefViewAngles[YAW]);
+}
+
+/*
+=============
+CG_PlayerOrigin_f
+
+Debugging command to print player's origin
+=============
+*/
+static void CG_PlayerOrigin_f (void) {
+	CG_Printf("(%i %i %i)\n", (int)cg.snap->ps.origin[0],
+		(int)cg.snap->ps.origin[1], (int)cg.snap->ps.origin[2]);
 }
 
 
@@ -555,6 +585,64 @@ static void CG_StartOrbit_f( void ) {
 }
 
 
+/*
+==================
+CG_Say_f
+
+Elder: Pre-validate say command to avoid text flooding
+==================
+*/
+
+static void CG_Say_f ( void ) {
+
+	if (cg.time - cg.sayTime > 2000)
+		cg.sayCount = 0;
+
+	if (cg.sayCount == 0)
+		cg.sayTime = cg.time;
+	
+	cg.sayCount++;
+
+	CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
+
+	if (cg.sayCount > 4 && cg.time - cg.sayTime < 2000)
+	{
+		CG_Printf("Cannot send messages.\n");
+		return;
+	}
+
+	trap_SendClientCommand("say");
+}
+
+
+/*
+==================
+CG_SayTeam_f
+
+Elder: Pre-validate say_team command to avoid text flooding
+==================
+*/
+
+static void CG_SayTeam_f ( void ) {
+
+	if (cg.time - cg.sayTime > 2000)
+		cg.sayCount = 0;
+
+	if (cg.sayCount == 0)
+		cg.sayTime = cg.time;
+	
+	cg.sayCount++;
+
+	CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
+
+	if (cg.sayCount > 4 && cg.time - cg.sayTime < 2000)
+	{
+		CG_Printf("Cannot send messages.\n");
+		return;
+	}
+	
+	trap_SendClientCommand("say_team");
+}
 
 
 typedef struct {
@@ -570,6 +658,7 @@ static consoleCommand_t	commands[] = {
 	{ "nextskin", CG_TestModelNextSkin_f },
 	{ "prevskin", CG_TestModelPrevSkin_f },
 	{ "viewpos", CG_Viewpos_f },
+	{ "playerorigin", CG_PlayerOrigin_f },
 	{ "+scores", CG_ScoresDown_f },
 	{ "-scores", CG_ScoresUp_f },
 /*	{ "+zoom", CG_ZoomDown_f },				// hawkins not needed in Reaction
@@ -584,6 +673,11 @@ static consoleCommand_t	commands[] = {
 	{ "+reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
 	{ "-reload", CG_ReloadReset_f},			// Elder: added to stop auto-throttle
 	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
+	//Elder: added for manual sv_floodProtect check
+	{ "messagemode", CG_Say_f },
+	{ "messagemode2", CG_SayTeam_f },
+	{ "say", CG_Say_f },
+	{ "say_team", CG_SayTeam_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
@@ -699,4 +793,7 @@ void CG_InitConsoleCommands( void ) {
 	//Elder: try this
 	trap_AddCommand ("weapon");
 	trap_AddCommand ("specialweapon");
+	trap_AddCommand ("messagemode");
+	trap_AddCommand ("messagemode2");
+	trap_AddCommand ("playerorigin");
 }
