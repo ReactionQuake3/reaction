@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/04/02 04:18:58  jbravo
+// Made the TP scoreboard go down at round beginig (not for spectators) and
+// pop up at intermission.  Also added special to the use command
+//
 // Revision 1.25  2002/03/30 23:20:10  jbravo
 // Added damage in scoreboard.
 //
@@ -1261,9 +1265,14 @@ static void CG_ServerCommand( void ) {
 	// NiceAss: LCA
 	if ( !strcmp( cmd, "lights") ) {
 		trap_Cvar_Set("cg_RQ3_lca", "1");
+		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED || cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+			cg.showScores = qfalse;
+			cg.scoreTPMode = 0;
+		}
 		CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		CG_Printf("\nLIGHTS...\n");
-		CG_AddBufferedSound(cgs.media.lightsSound);
+		trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
+//		CG_AddBufferedSound(cgs.media.lightsSound);
 		return;
 	}
 	if ( !strcmp( cmd, "camera") ) {
@@ -1279,14 +1288,20 @@ static void CG_ServerCommand( void ) {
 		CG_AddBufferedSound(cgs.media.actionSound);
 		return;
 	}
-	if ( !strcmp( cmd, "roundbegin") ) {
+// JBravo: client commands to use instead of CLIENTINFO cvars.
+	if (!strcmp(cmd, "roundbegin")) {
 		trap_Cvar_Set("cg_RQ3_team_round_going", "1");
 		return;
 	}
-	if ( !strcmp( cmd, "roundend") ) {
+	if (!strcmp(cmd, "roundend")) {
 		trap_Cvar_Set("cg_RQ3_team_round_going", "0");
 		return;
 	}
+	if (!strcmp(cmd, "mapend")) {
+		cg.showScores = qtrue;
+		cg.scoreTPMode = 0;
+		return;
+	}	
 // JBravo: radio. This implementation rules. Used to suck :)
 	if (!strcmp(cmd, "playradiosound")) {
 		int	sound, gender;

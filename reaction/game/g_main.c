@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/04/02 04:18:58  jbravo
+// Made the TP scoreboard go down at round beginig (not for spectators) and
+// pop up at intermission.  Also added special to the use command
+//
 // Revision 1.40  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -1193,10 +1197,14 @@ void BeginIntermission( void ) {
 			respawn(client);
 		}
 		MoveClientToIntermission( client );
+// JBravo: send the TP scoreboard to players
+		if (g_gametype.integer == GT_TEAMPLAY)
+			trap_SendServerCommand (i, "mapend");
 	}
 
 	// send the current scoring to all clients
-	SendScoreboardMessageToAllClients();
+	if (g_gametype.integer != GT_TEAMPLAY)
+		SendScoreboardMessageToAllClients();
 
 }
 

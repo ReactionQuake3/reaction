@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/04/02 04:18:58  jbravo
+// Made the TP scoreboard go down at round beginig (not for spectators) and
+// pop up at intermission.  Also added special to the use command
+//
 // Revision 1.51  2002/03/31 23:41:45  jbravo
 // Added the use command
 //
@@ -1421,7 +1425,7 @@ void RQ3_SpectatorMode(gentity_t *ent)
 void RQ3_Cmd_Use_f(gentity_t *ent)
 {
 	char	*cmd, buf[128];
-	int	weapon;
+	int	weapon, i;
 
 	if (!ent->client) {
 		return;		// not fully in game yet
@@ -1479,6 +1483,13 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
 			return;
 		}
+	} else if (Q_stricmp (cmd, RQ3_GRENADE_NAME) == 0 || Q_stricmp (cmd, "grenade") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) ) == (1 << WP_GRENADE)) {
+			weapon = WP_GRENADE;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_GRENADE_NAME));
+			return;
+		}
 	} else if (Q_stricmp (cmd, "throwing combat knife") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE)) {
 			weapon = WP_KNIFE;
@@ -1495,11 +1506,26 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
 		}
+	} else if (Q_stricmp (cmd, "special") == 0) {
+		for (i = WP_NUM_WEAPONS - 1; i > 0; i--) {
+			if (i == WP_KNIFE || i == WP_PISTOL || i == WP_AKIMBO || i == WP_GRENADE)
+				continue;
+			if (ent->client->ps.stats[STAT_WEAPONS] & (1 << i)) {
+				weapon = i;
+				break;
+			}
+		}
+		if (weapon == WP_NONE) {
+			trap_SendServerCommand(ent-g_entities, va("print \"You dont have a special weapon!\n\""));
+			return;
+		}
 	}
 	if (weapon == WP_NONE) {
 		trap_SendServerCommand(ent-g_entities, va("print \"Unknown item: %s\n\"", cmd));
 		return;
 	}
+	if (weapon == ent->client->ps.weapon)
+		return;
 	Com_sprintf (buf, sizeof(buf), "weapon %d\n", weapon);
 	trap_SendConsoleCommand(EXEC_APPEND, buf);
 }
