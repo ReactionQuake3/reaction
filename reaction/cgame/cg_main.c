@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.100  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -485,6 +489,14 @@ vmCvar_t cg_RQ3_forceteamtalk;
 vmCvar_t cg_RQ3_limchasecam;
 vmCvar_t cg_RQ3_tgren;
 vmCvar_t cg_RQ3_friendlyFire;
+vmCvar_t cg_RQ3_version;
+// JBravo: cvars for the about menu
+vmCvar_t cg_RQ3_hostname;
+vmCvar_t cg_RQ3_needpass;
+vmCvar_t cg_RQ3_capturelimit;
+vmCvar_t cg_RQ3_dmflags;
+vmCvar_t cg_RQ3_bot_minplayers;
+vmCvar_t cg_RQ3_showOwnKills;
 
 typedef struct {
 	vmCvar_t *vmCvar;
@@ -656,15 +668,23 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	//Slicer: Team Status Cvars for MM
 	{&cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
 	// JBravo: more MM ingame cvars.
-	{&cg_RQ3_timelimit, "cg_RQ3_timelimit", "0", CVAR_ROM},
+	{&cg_RQ3_timelimit, "timelimit", "0", CVAR_ROM},
 	{&cg_RQ3_roundlimit, "cg_RQ3_roundlimit", "0", CVAR_ROM},
 	{&cg_RQ3_roundtimelimit, "cg_RQ3_roundtimelimit", "0", CVAR_ROM},
-	{&cg_RQ3_fraglimit, "cg_RQ3_fraglimit", "0", CVAR_ROM},
+	{&cg_RQ3_fraglimit, "fraglimit", "0", CVAR_ROM},
 	{&cg_RQ3_maxplayers, "cg_RQ3_maxplayers", "0", CVAR_ROM},
 	{&cg_RQ3_forceteamtalk, "cg_RQ3_forceteamtalk", "0", CVAR_ROM},
 	{&cg_RQ3_limchasecam, "cg_RQ3_limchasecam", "0", CVAR_ROM},
 	{&cg_RQ3_tgren, "cg_RQ3_tgren", "0", CVAR_ROM},
 	{&cg_RQ3_friendlyFire, "cg_RQ3_friendlyFire", "0", CVAR_ROM},
+	{&cg_RQ3_version, "g_RQ3_version", "0", CVAR_ROM},
+	// JBravo: cvars for the about menu.
+	{&cg_RQ3_hostname, "sv_hostname", "0", CVAR_ROM},
+	{&cg_RQ3_needpass, "g_needpass", "0", CVAR_ROM},
+	{&cg_RQ3_capturelimit, "capturelimit", "0", CVAR_ROM},
+	{&cg_RQ3_dmflags, "dmflags", "0", CVAR_ROM},
+	{&cg_RQ3_bot_minplayers, "bot_minplayers", "0", CVAR_ROM},
+	{&cg_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ROM},
 	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 
 //      { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }

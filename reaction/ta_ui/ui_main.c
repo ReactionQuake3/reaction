@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.44  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -1600,8 +1604,8 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 	} else {
 
 		strcpy(team, UI_Cvar_VariableString("ui_teamName"));
-		strcpy(model, UI_Cvar_VariableString("team_model"));
-		strcpy(head, UI_Cvar_VariableString("team_headmodel"));
+		strcpy(model, UI_Cvar_VariableString("model"));
+		strcpy(head, UI_Cvar_VariableString("headmodel"));
 		if (q3Model) {
 			q3Model = qfalse;
 			updateModel = qtrue;
@@ -4682,7 +4686,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 beta 2.1 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 Beta 2.2 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {
@@ -5435,8 +5439,8 @@ static void UI_FeederSelection(float feederID, int index)
 		UI_SelectedHead(index, &actual);
 		index = actual;
 		if (index >= 0 && index < uiInfo.characterCount) {
-			trap_Cvar_Set("team_model", va("%s", uiInfo.characterList[index].base));
-			trap_Cvar_Set("team_headmodel", va("*%s", uiInfo.characterList[index].name));
+			trap_Cvar_Set("model", va("%s", uiInfo.characterList[index].base));
+			trap_Cvar_Set("headmodel", va("*%s", uiInfo.characterList[index].name));
 			updateModel = qtrue;
 		}
 	} else if (feederID == FEEDER_Q3HEADS) {

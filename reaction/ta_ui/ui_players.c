@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.5  2002/06/16 20:06:15  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -968,7 +972,12 @@ static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, 
 		}
 		pi->legsSkin = trap_R_RegisterSkin(filename);
 	}
-
+// JBravo: adding
+	if (!pi->legsSkin) {
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/lower_%s.skin",
+				modelName, skinName);
+		pi->legsSkin = trap_R_RegisterSkin(filename);
+	}
 	if (teamName && *teamName) {
 		Com_sprintf(filename, sizeof(filename), "models/players/%s/%s/upper_%s.skin", modelName, teamName,
 			    skinName);
@@ -986,13 +995,26 @@ static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, 
 		}
 		pi->torsoSkin = trap_R_RegisterSkin(filename);
 	}
+// JBravo: adding
+	if (!pi->torsoSkin) {
+		Com_sprintf(filename, sizeof(filename), "models/players/%s/upper_%s.skin", modelName, skinName);
+		pi->torsoSkin = trap_R_RegisterSkin(filename);
+	}
 
 	if (UI_FindClientHeadFile(filename, sizeof(filename), teamName, headModelName, headSkinName, "head", "skin")) {
 		pi->headSkin = trap_R_RegisterSkin(filename);
 	}
 
 	if (!pi->legsSkin || !pi->torsoSkin || !pi->headSkin) {
-		return qfalse;
+// JBravo: No need for errors if the skin doesnt exsist. Lets drop in a default instead.
+		Com_sprintf(filename, sizeof(filename), "models/players/grunt/lower_resdog.skin");
+		pi->legsSkin = trap_R_RegisterSkin(filename);
+		Com_sprintf(filename, sizeof(filename), "models/players/grunt/upper_resdog.skin");
+		pi->torsoSkin = trap_R_RegisterSkin(filename);
+		Com_sprintf(filename, sizeof(filename), "models/players/grunt/head_resdog.skin");
+		pi->headSkin = trap_R_RegisterSkin(filename);
+		trap_Cvar_Set("model", "grunt/resdog");
+		trap_Cvar_Set("headmodel", "grunt/resdog");
 	}
 
 	return qtrue;
@@ -1143,7 +1165,6 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 	Q_strncpyz(modelName, modelSkinName, sizeof(modelName));
-
 	slash = strchr(modelName, '/');
 	if (!slash) {
 		// modelName did not include a skin name
@@ -1171,8 +1192,12 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/lower.md3", modelName);
 		pi->legsModel = trap_R_RegisterModel(filename);
 		if (!pi->legsModel) {
-			Com_Printf("Failed to load model file %s\n", filename);
-			return qfalse;
+// JBravo: no errors on bad models. Defaults in stead.
+			Com_sprintf(filename, sizeof(filename), "models/players/grunt/lower.md3");
+			pi->legsModel = trap_R_RegisterModel(filename);
+			trap_Cvar_Set("model", "grunt/resdog");
+			//Com_Printf("Failed to load model file %s\n", filename);
+			//return qfalse;
 		}
 	}
 
@@ -1182,8 +1207,12 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/upper.md3", modelName);
 		pi->torsoModel = trap_R_RegisterModel(filename);
 		if (!pi->torsoModel) {
-			Com_Printf("Failed to load model file %s\n", filename);
-			return qfalse;
+// JBravo: no errors on bad models. Defaults in stead.
+			Com_sprintf(filename, sizeof(filename), "models/players/grunt/upper.md3");
+			pi->torsoModel = trap_R_RegisterModel(filename);
+			trap_Cvar_Set("model", "grunt/resdog");
+			//Com_Printf("Failed to load model file %s\n", filename);
+			//return qfalse;
 		}
 	}
 
@@ -1200,8 +1229,11 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 	if (!pi->headModel) {
-		Com_Printf("Failed to load model file %s\n", filename);
-		return qfalse;
+		Com_sprintf(filename, sizeof(filename), "models/players/grunt/head.md3");
+		pi->headModel = trap_R_RegisterModel(filename);
+		trap_Cvar_Set("model", "grunt/resdog");
+		//Com_Printf("Failed to load model file %s\n", filename);
+		//return qfalse;
 	}
 	// if any skins failed to load, fall back to default
 	if (!UI_RegisterClientSkin(pi, modelName, skinName, headModelName, headSkinName, teamName)) {
@@ -1215,8 +1247,11 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	if (!UI_ParseAnimationFile(filename, pi->animations)) {
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/animation.cfg", modelName);
 		if (!UI_ParseAnimationFile(filename, pi->animations)) {
-			Com_Printf("Failed to load animation file %s\n", filename);
-			return qfalse;
+			Com_sprintf(filename, sizeof(filename), "models/players/grunt/animation.cfg");
+			if (!UI_ParseAnimationFile(filename, pi->animations)) {
+				Com_Printf("Failed to load animation file %s\n", filename);
+				return qfalse;
+			}
 		}
 	}
 

@@ -11,6 +11,11 @@
 * Fixed the missing weapon/item menu in the player menu
 * Added g_RQ3_version and g_RQ3_showOwnKills to the about server menu
 * Fixed missing shader errors in the UI on numerous places.
+* Fixed the about server UI menu values
+* Made the UI handle illegal models and skins more robustly
+* UI model previw is fixed.
+* UI model previw and selection now controls DM gametype models, not team models.
+* Added a radiosoundset selection dialog to the UI
 
 
 

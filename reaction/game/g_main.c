@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.104  2002/07/26 06:46:31  jbravo
 // Added a map_restart after successful callvote g_gametype votes.
 //
@@ -437,7 +441,7 @@ static cvarTable_t gameCvarTable[] = {
 	// latched vars
 	{&g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse},
 
-	{&g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
+	{&g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 	{&g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 
 	// change anytime vars
@@ -485,7 +489,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse},
 
 	//Makro - changed default to 0
-	{&g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE, 0, qfalse},
+	{&g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE | CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_listEntity, "g_listEntity", "0", 0, 0, qfalse},
 
 	// NiceAss: Taken out of the missionpack
@@ -557,7 +561,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "Beta 2.1", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse}
+	{&g_RQ3_version, "g_RQ3_version", "Beta 2.2", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse}
 };
 
 // bk001129 - made static to avoid aliasing

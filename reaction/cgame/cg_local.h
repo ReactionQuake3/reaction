@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.111  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -1734,6 +1738,13 @@ extern vmCvar_t cg_RQ3_forceteamtalk;
 extern vmCvar_t cg_RQ3_limchasecam;
 extern vmCvar_t cg_RQ3_tgren;
 extern vmCvar_t cg_RQ3_friendlyFire;
+// JBravo: cvars for the about menu
+extern vmCvar_t cg_RQ3_hostname;
+extern vmCvar_t cg_RQ3_needpass;
+extern vmCvar_t cg_RQ3_capturelimit;
+extern vmCvar_t cg_RQ3_dmflags;
+extern vmCvar_t cg_RQ3_bot_minplayers;
+extern vmCvar_t cg_RQ3_showOwnKills;
 
 //Slicer: matchmode team status cvars
 //extern        vmCvar_t                cg_RQ3_RefID;

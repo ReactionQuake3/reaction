@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/07/26 22:28:38  jbravo
+// Fixed the server about menu, made the UI handle illegal models and skins
+// better.
+//
 // Revision 1.108  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -1470,6 +1474,7 @@ void ClientBegin(int clientNum)
 	gclient_t *client;
 	int flags, savedPing = 0, i;
 	int savedPers[MAX_PERSISTANT];
+	char str[256];
 
 	ent = g_entities + clientNum;
 	client = level.clients + clientNum;
@@ -1559,7 +1564,19 @@ void ClientBegin(int clientNum)
 			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %s %i", CVARSET, settings2[i],
 						trap_Cvar_VariableIntegerValue(settings[i])));
 		}
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_capturelimit %i", CVARSET,
+					trap_Cvar_VariableIntegerValue("capturelimit")));
 	}
+// JBravo: setting cvars for the about menu
+	trap_Cvar_VariableStringBuffer("sv_hostname", str, sizeof(str));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_hostname %s", CVARSET, str));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_needpass %i", CVARSET, g_needpass.integer));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_dmflags %i", CVARSET, g_dmflags.integer));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_showOwnKills %i", CVARSET, g_RQ3_showOwnKills.integer));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_timelimit %i", CVARSET, g_timelimit.integer));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_fraglimit %i", CVARSET, g_fraglimit.integer));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_bot_minplayers %i", CVARSET, 
+				trap_Cvar_VariableIntegerValue("bot_minplayers")));
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
