@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2003/09/19 00:54:23  makro
+// Flares again
+//
 // Revision 1.74  2003/09/17 23:49:29  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -2658,6 +2661,5 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	CG_Draw2D();
 
 	//Makro - lens flare
-	if (cgs.numFlares)
-		CG_AddLensFlare();
+	CG_AddLensFlare();
 }

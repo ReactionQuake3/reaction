@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2003/09/19 00:53:14  makro
+// Flares again
+//
 // Revision 1.79  2003/09/18 19:08:40  makro
 // Lens flares
 //
@@ -462,8 +465,8 @@ void Think_SetupFlare(gentity_t *ent)
 void SP_misc_lens_flare(gentity_t *ent)
 {
 	float f;
-	if (ent->count <= 0) {
-		G_Printf(S_COLOR_YELLOW"Warning: misc_lens_flare with count <=0 at %s\n", vtos(ent->s.origin));
+	if (ent->count < 0) {
+		G_Printf(S_COLOR_YELLOW"Warning: misc_lens_flare with count <0 at %s\n", vtos(ent->s.origin));
 		ent->count = 4;
 	}
 	G_SpawnInt("minsize", "16", &ent->damage);

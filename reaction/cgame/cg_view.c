@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2003/09/19 00:54:23  makro
+// Flares again
+//
 // Revision 1.39  2003/09/18 19:05:10  makro
 // Lens flares
 //
@@ -1020,6 +1023,9 @@ void CG_AddLensFlare()
 	int i, timeDelta = 0;
 	qboolean visible = qfalse;
 
+	if (cgs.numFlares <= 0 && (cgs.sunFlareSize <= 0 || cgs.sunAlpha == 0))
+		return;
+
 	VectorCopy(cgs.sunDir, dir);
 	dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
 	dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
@@ -1038,12 +1044,6 @@ void CG_AddLensFlare()
 		if ((tr.surfaceFlags & SURF_SKY) || tr.fraction == 1.0f)
 		{
 			//get the screen co-ordinates of the sun
-			//cx = (1.0f - (float)(y + hfovx)/cg.refdef.fov_x) * 640;
-			//cy = (1.0f - (float)(p + hfovy)/cg.refdef.fov_y) * 480;
-			//cx = 320 * (1 - dp[1] / sin(hfovx * PI180));
-			//cy = 240 * (1 - dp[2] / sin(hfovy * PI180));
-			//cx = 320 * (1 - (float)yaw / hfovx);
-			//cy = 240 * (1 - (float)pitch / hfovy);
 			cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
 			cy = 240 * (1.0f - dp[2] / (cos(pitch * PI180) * tan(hfovy * PI180)));
 			cgs.lastSunX = cx;
@@ -1073,7 +1073,7 @@ void CG_AddLensFlare()
 			color[3] *= fade;
 		}
 		//sun
-		if (cgs.sunFlareSize > 0) {
+		if (cgs.sunFlareSize > 0 && cgs.sunAlpha > 0) {
 			size = cgs.sunFlareSize * fovFactor;
 			hsize = size/2;
 			trap_R_SetColor(color);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2003/09/19 00:54:23  makro
+// Flares again
+//
 // Revision 1.76  2003/09/18 19:05:10  makro
 // Lens flares
 //
@@ -449,7 +452,6 @@ static void CG_ParseWarmup(void)
 //Makro - sky portal and lens flare
 void CG_ParseSkyPortal(const char *str)
 {
-	int n;
 	//sky portal
 	if (str && str[0] && Q_stricmp(str, "none")) {
 		cgs.skyPortalOrigin[0] = atof(Info_ValueForKey(str, "x"));
@@ -460,12 +462,12 @@ void CG_ParseSkyPortal(const char *str)
 		cgs.skyPortalSet = qfalse;
 	}
 	//lens flare
-	n = atoi(Info_ValueForKey(str, "ln"));
-	if (n > 0) {
+	cgs.sunFlareSize = atoi(Info_ValueForKey(str, "lsun"));
+	cgs.numFlares = atoi(Info_ValueForKey(str, "ln"));
+	if (cgs.sunFlareSize > 0 || cgs.numFlares > 0) {
 		float alphamin, alphamax, sizemin, sizemax, dfactor = 0.75f;
 		int i;
-
-		cgs.numFlares = n;
+		
 		cgs.sunDir[0] = atof(Info_ValueForKey(str, "lx"));
 		cgs.sunDir[1] = atof(Info_ValueForKey(str, "ly"));
 		cgs.sunDir[2] = atof(Info_ValueForKey(str, "lz"));
@@ -473,7 +475,6 @@ void CG_ParseSkyPortal(const char *str)
 		alphamax = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lamax")));
 		sizemin = atof(Info_ValueForKey(str, "lsmin"));
 		sizemax = atof(Info_ValueForKey(str, "lsmax"));
-		cgs.sunFlareSize = atoi(Info_ValueForKey(str, "lsun"));
 		cgs.sunAlpha = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lsa")));
 
 		//generate flare parms

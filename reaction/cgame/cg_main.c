@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2003/09/19 00:54:23  makro
+// Flares again
+//
 // Revision 1.142  2003/09/18 19:05:10  makro
 // Lens flares
 //
@@ -2272,7 +2275,7 @@ static void CG_RegisterGraphics(void)
 
 	//Makro - lens flare shaders
 	for (i=0; i<NUM_FLARE_SHADERS; i++)
-		cgs.media.flareShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/flare%.2d", i+1));
+		cgs.media.flareShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/flare%02d", i+1));
 	cgs.media.sunFlareShader = trap_R_RegisterShaderNoMip("gfx/2d/sunflare");
 
 	// register all the server specified models

@@ -6,13 +6,16 @@
 --------------------Configuration: cgame - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2CC.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP33F.tmp" with contents
 [
 /nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"Release/" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_draw.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_main.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_servercmds.c"
 "C:\Games\Quake3\rq3source\reaction\cgame\cg_view.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2CC.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2CD.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP33F.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP340.tmp" with contents
 [
 /nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
 .\Release\bg_misc.obj
@@ -43,13 +46,16 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2CD.tmp" with conte
 .\Release\q_shared.obj
 .\Release\ui_shared.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2CD.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP340.tmp"
 <h3>Output Window</h3>
 Compiling...
+cg_draw.c
+cg_main.c
+cg_servercmds.c
 cg_view.c
 Linking...
    Creating library Release/cgamex86.lib and object Release/cgamex86.exp
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2D1.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP344.tmp" with contents
 [
 /nologo /o"Release/cgame.bsc" 
 .\Release\bg_misc.sbr
@@ -79,7 +85,7 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2D1.tmp" with conte
 .\Release\q_math.sbr
 .\Release\q_shared.sbr
 .\Release\ui_shared.sbr]
-Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP2D1.tmp"
+Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP344.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
