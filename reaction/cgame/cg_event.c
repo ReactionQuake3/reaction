@@ -2037,7 +2037,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: added additional param
 		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
 		VectorAdd(es->pos.trBase, dir, dir);
-		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum2, 16);
+		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum2, 10);
 		break;
 
 	case EV_JUMPKICK:
@@ -2046,6 +2046,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		// obviously not the pistol but oh well
 		CG_MissileHitPlayer( WP_PISTOL, position, dir, es->otherEntityNum );
 		CG_JumpKick( es );
+		break;
+
+	case EV_EJECTBLOOD:
+		DEBUGNAME("EV_EJECTBLOOD");
+		// Eject a blood splat
 		break;
 
 	case EV_SHOTGUN:
@@ -2246,7 +2251,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		trap_S_StartSound( cent->lerpOrigin, es->number, CHAN_AUTO, cgs.media.headshotSound);
 		ByteToDir(es->eventParm, dir);
 		VectorAdd(es->pos.trBase, dir, dir);
-		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum, 8);
+		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum, 6);
 		break;
 
 	case EV_PAIN:

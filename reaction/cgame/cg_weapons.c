@@ -852,12 +852,18 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_AKIMBO:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0.5f );
+		// Elder: no more pseudo-dual sound needed :)
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		//Elder: changed to use pseudo-dual sound
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
-		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
-		//weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
+		//weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
+		//weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
+		
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/akimbo/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+		}
 		break;
 		
 	case WP_GRENADE:
@@ -1375,7 +1381,15 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
 			// Elder: draw flash based on first-person view
-			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
+			// choose tag for akimbo
+			if (ps->weapon == WP_AKIMBO && ps->stats[STAT_BURST])
+			{
+				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash2");
+			}
+			else
+			{
+				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
+			}
 			// Make flash larger to compensate for depth hack
 			VectorScale( flash.axis[0], 2.0f, flash.axis[0] );
 			VectorScale( flash.axis[1], 2.0f, flash.axis[1] );
@@ -1384,7 +1398,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		else {
 			//Elder: draw flash based on 3rd-person view
-			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+			if (cg.akimboFlash)
+				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash2");
+			else
+				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 		}
 		
 		trap_R_AddRefEntityToScene( &flash );
@@ -1540,7 +1557,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 			 ps->weapon == WP_M3 ||
 			 ps->weapon == WP_HANDCANNON ||
 			 ps->weapon == WP_SSG3000 ||
-			 ps->weapon == WP_M4) {
+			 ps->weapon == WP_M4 ||
+			 ps->weapon == WP_AKIMBO) {
 			// development tool
 			hand.frame = hand.oldframe = cg_gun_frame.integer;
 			hand.backlerp = 0;
@@ -2204,7 +2222,16 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	{
 		cent->muzzleFlashTime = cg.time;
 	}
-	
+
+	// Elder: choose alternate muzzle flashes for 3rd-person views
+	if (ent->weapon == WP_AKIMBO) {
+		if (cg.akimboFlash) {
+			cg.akimboFlash = 0;
+		} else {
+			cg.akimboFlash = 1;
+		}
+	}
+
 	// lightning gun only does this this on initial press
 	//Blaze: no more Lighting gun
 	/*
@@ -2249,6 +2276,90 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	}
 }
 
+/*
+===============
+CG_ShrapnelSpark
+
+Added by Elder
+Modified tracer code
+I really don't know what's going on half the time here :)
+===============
+*/
+static void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length ) {
+	vec3_t		forward, right;
+	polyVert_t	verts[4];
+	vec3_t		line;
+	float		len, begin, end;
+	vec3_t		start, finish;
+	//vec3_t		midpoint;
+
+	// tracer
+	VectorSubtract( dest, source, forward );
+	len = VectorNormalize( forward );
+
+	// start at least a little ways from the muzzle
+	//if ( len < 10 ) {
+		//return;
+	//}
+
+	begin = crandom() * 8;
+	end = begin + length;
+	if ( end > len ) {
+		end = len;
+	}
+	VectorMA( source, begin, forward, start );
+	VectorMA( source, end, forward, finish );
+
+	line[0] = DotProduct( forward, cg.refdef.viewaxis[1] );
+	line[1] = DotProduct( forward, cg.refdef.viewaxis[2] );
+
+	VectorScale( cg.refdef.viewaxis[1], line[1], right );
+	VectorMA( right, -line[0], cg.refdef.viewaxis[2], right );
+	VectorNormalize( right );
+
+	VectorMA( finish, width, right, verts[0].xyz );
+	verts[0].st[0] = 0;
+	verts[0].st[1] = 1;
+	verts[0].modulate[0] = 255;
+	verts[0].modulate[1] = 255;
+	verts[0].modulate[2] = 255;
+	verts[0].modulate[3] = 255;
+
+	VectorMA( finish, -width, right, verts[1].xyz );
+	verts[1].st[0] = 1;
+	verts[1].st[1] = 0;
+	verts[1].modulate[0] = 255;
+	verts[1].modulate[1] = 255;
+	verts[1].modulate[2] = 255;
+	verts[1].modulate[3] = 255;
+
+	VectorMA( start, -width, right, verts[2].xyz );
+	verts[2].st[0] = 1;
+	verts[2].st[1] = 1;
+	verts[2].modulate[0] = 255;
+	verts[2].modulate[1] = 255;
+	verts[2].modulate[2] = 255;
+	verts[2].modulate[3] = 255;
+
+	VectorMA( start, width, right, verts[3].xyz );
+	verts[3].st[0] = 0;
+	verts[3].st[1] = 0;
+	verts[3].modulate[0] = 255;
+	verts[3].modulate[1] = 255;
+	verts[3].modulate[2] = 255;
+	verts[3].modulate[3] = 255;
+
+	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
+
+	//midpoint[0] = ( start[0] + finish[0] ) * 0.5;
+	//midpoint[1] = ( start[1] + finish[1] ) * 0.5;
+	//midpoint[2] = ( start[2] + finish[2] ) * 0.5;
+
+	// add the tracer sound
+	//trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+
+}
+
 
 /*
 =================
@@ -2278,6 +2389,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	vec3_t			puffOrigin;
 	vec3_t			puffOffset;
 	vec3_t			puffDir;
+	int				contentType;
 	
 	//Elder: for impact sparks
 	vec3_t			velocity;
@@ -2467,7 +2579,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		sfx = cgs.media.sfx_rockexp;
 		mark = cgs.media.burnMarkShader;
 		radius = 96;	//64
-		light = 450;	//300
+		light = 350;	//300
 		isSprite = qtrue;
 		break;
 	
@@ -2558,28 +2670,32 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	i = rand() % 4;
 	if (cg_RQ3_impactEffects.integer && i < 3)
 	{
-		switch ( weapon ) {	
-			case WP_MP5:
-			case WP_M4:
-			case WP_PISTOL:
-			case WP_SSG3000:
-				puffDir[0] = 0;
-				puffDir[1] = 0;
-				puffDir[2] = 16;
+		contentType = trap_CM_PointContents( origin, 0 );
+		// no puff in water
+		if ( !( contentType & CONTENTS_WATER ) ) {
+			switch ( weapon ) {	
+				case WP_MP5:
+				case WP_M4:
+				case WP_PISTOL:
+				case WP_SSG3000:
+					puffDir[0] = 0;
+					puffDir[1] = 0;
+					puffDir[2] = 16;
 
-				VectorCopy(dir, puffOffset);
-				VectorNormalize(puffOffset);
-				VectorNegate(puffOffset, puffOffset);
-				VectorScale(puffOffset, 13, puffOffset);
-				VectorSubtract(origin, puffOffset, puffOrigin);
-				smokePuff = CG_SmokePuff( puffOrigin, puffDir, 
-						  (int)(random() * 100) % 4 + 13, 
-						  1, 1, 1, 0.25f,
-						  650, 
-						  cg.time, 0,
-						  LEF_PUFF_DONT_SCALE, 
-						  cgs.media.smokePuffShader );
-				break;
+					VectorCopy(dir, puffOffset);
+					VectorNormalize(puffOffset);
+					VectorNegate(puffOffset, puffOffset);
+					VectorScale(puffOffset, 13, puffOffset);
+					VectorSubtract(origin, puffOffset, puffOrigin);
+					smokePuff = CG_SmokePuff( puffOrigin, puffDir, 
+							  (int)(random() * 100) % 4 + 13, 
+							  1, 1, 1, 0.25f,
+							  650, 
+							  cg.time, 0,
+							  LEF_PUFF_DONT_SCALE, 
+							  cgs.media.smokePuffShader );
+					break;
+			}
 		}
 	}
 
@@ -2618,7 +2734,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	// Elder: grenade explosion
 	if (cg_RQ3_impactEffects.integer && weapon == WP_GRENADE)
 	{
-		sparkCount = 60 + rand() % 15;
+		vec3_t shrapnelDest;
+
+		sparkCount = 60 + rand() % 10;
 		origin[2] += 32;
 
 		for (i = 0; i < sparkCount; i++)
@@ -2626,8 +2744,30 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			VectorScale (dir, rand() % 200, velocity);
 			velocity[0] += rand() % 200 - 100;
 			velocity[1] += rand() % 200 - 100;
+			
+			if (i % 8 == 7)
+			{
+				// Add shrapnel trace effect
+				VectorMA(origin, 0.7f, velocity, shrapnelDest);
+				CG_ShrapnelSpark(origin, shrapnelDest, 10, 280);
+			}
+
+			// Add sparks
 			CG_ParticleSparks(origin, velocity, 900 + rand() % 200, 5, 5, -2.5f, 3.5f);
 		}
+
+		// Add smoke puff
+		puffDir[0] = 0;
+		puffDir[1] = 0;
+		puffDir[2] = 20;
+		origin[2] -= 16;
+		smokePuff = CG_SmokePuff( origin, puffDir, 
+				  rand() % 12 + 48, 
+				  1, 1, 1, 0.4f,
+				  1750, 
+				  cg.time, 0,
+				  0, 
+				  cgs.media.smokePuffShader );
 	}
 }
 
@@ -3016,6 +3156,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			else if ( ( destContentType & CONTENTS_WATER ) ) {
 				trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER );
 				CG_BubbleTrail( trace.endpos, end, 32 );
+				// TODO: water splash mark
 			}
 
 			// draw a tracer

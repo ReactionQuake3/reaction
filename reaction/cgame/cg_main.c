@@ -1067,7 +1067,7 @@ static void CG_RegisterGraphics( void ) {
 	//Elder: akimbos - some of the stuff isn't in yet :p
 	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
  	cgs.media.akimboFlashModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_flash.md3" );
- 	cgs.media.akimbo1stModel = trap_R_RegisterModel( "models/weapons2/akimbo_1st.md3" );
+ 	cgs.media.akimbo1stModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_1st.md3" );
 	cgs.media.akimboHandModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_hand.md3" );
 
 	//Elder: item cache

@@ -679,6 +679,7 @@ typedef struct {
 	qboolean		laserSight;	//Whether to draw local laser sight
 	localEntity_t	*laserEnt;	//Local model -- NULL if not in-use
 	qboolean		rq3_irvision;	// Elder: enabled IR vision
+	int			akimboFlash;	// Alternate between two tags for flash (0 or 1)
 
 } cg_t;
 
