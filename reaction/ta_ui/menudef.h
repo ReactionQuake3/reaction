@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/11/09 13:05:02  makro
+// g_RQ3_teamXname cvars are now used in the join menu
+//
 // Revision 1.8  2002/08/30 15:09:43  makro
 // MM UI
 //
@@ -230,6 +233,10 @@
 #define UI_RQ3_RADIOPRESET8 158
 #define UI_RQ3_RADIOPRESET9 159
 #define UI_RQ3_RADIOPRESET10 160
+
+//Makro - join menu items
+#define UI_RQ3_JOINTEAM1 161
+#define UI_RQ3_JOINTEAM2 162
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200

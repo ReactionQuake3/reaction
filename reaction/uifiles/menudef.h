@@ -209,6 +209,10 @@
 #define UI_RQ3_RADIOPRESET9 159
 #define UI_RQ3_RADIOPRESET10 160
 
+//Makro - join menu items
+#define UI_RQ3_JOINTEAM1 161
+#define UI_RQ3_JOINTEAM2 162
+
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200
 #define UI_EFFECTS 201

@@ -3,38 +3,22 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: cgame - Win32 Release--------------------
-</h3>
-<h3>Command Lines</h3>
-
-
-
-<h3>Results</h3>
-cgamex86.dll - 0 error(s), 0 warning(s)
-<h3>
---------------------Configuration: game - Win32 Release--------------------
-</h3>
-<h3>Command Lines</h3>
-
-
-
-<h3>Results</h3>
-qagamex86.dll - 0 error(s), 0 warning(s)
-<h3>
 --------------------Configuration: ui - Win32 Release TA--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48E.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSPA6.tmp" with contents
 [
 /nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /Fp"Release_TA/ta_ui.pch" /YX /Fo"Release_TA/" /Fd"Release_TA/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_atoms.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_gameinfo.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_main.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_players.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_shared.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_syscalls.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48E.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48F.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSPA6.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSPA7.tmp" with contents
 [
 /nologo /base:"0x40000000" /dll /incremental:no /pdb:"Release_TA/uix86.pdb" /map:"Release_TA/uix86.map" /machine:I386 /def:".\ui.def" /out:"../Release/uix86.dll" /implib:"Release_TA/uix86.lib" 
 .\Release_TA\bg_misc.obj
@@ -48,14 +32,16 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48F.tmp" with conte
 .\Release_TA\ui_syscalls.obj
 .\Release_TA\ui_util.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48F.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSPA7.tmp"
 <h3>Output Window</h3>
 Compiling...
+bg_misc.c
 ui_atoms.c
 ui_gameinfo.c
 ui_main.c
-C:\Games\Quake3\rq3source\reaction\ta_ui\ui_main.c(4821) : warning C4101: 'game' : unreferenced local variable
+C:\Games\Quake3\rq3source\reaction\ta_ui\ui_main.c(4861) : warning C4101: 'game' : unreferenced local variable
 ui_players.c
+ui_shared.c
 ui_syscalls.c
 Linking...
    Creating library Release_TA/uix86.lib and object Release_TA/uix86.exp

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/11/09 13:05:02  makro
+// g_RQ3_teamXname cvars are now used in the join menu
+//
 // Revision 1.23  2002/09/29 16:06:45  jbravo
 // Work done at the HPWorld expo
 //
@@ -2678,7 +2681,8 @@ qboolean Item_TextField_HandleKey(itemDef_t * item, int key)
 			}
 		}
 
-		if (key == K_TAB || key == K_DOWNARROW || key == K_KP_DOWNARROW) {
+		//Makro - added mousewheel
+		if (key == K_TAB || key == K_DOWNARROW || key == K_KP_DOWNARROW || key == K_MWHEELDOWN) {
 			newItem = Menu_SetNextCursorItem(item->parent);
 			if (newItem
 			    && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {
@@ -2686,7 +2690,8 @@ qboolean Item_TextField_HandleKey(itemDef_t * item, int key)
 			}
 		}
 
-		if (key == K_UPARROW || key == K_KP_UPARROW) {
+		//Makro - added mousewheel
+		if (key == K_UPARROW || key == K_KP_UPARROW || key == K_MWHEELUP) {
 			newItem = Menu_SetPrevCursorItem(item->parent);
 			if (newItem
 			    && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD)) {

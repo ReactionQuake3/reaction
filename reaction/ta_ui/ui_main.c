@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/11/09 13:05:02  makro
+// g_RQ3_teamXname cvars are now used in the join menu
+//
 // Revision 1.55  2002/10/31 01:10:07  jbravo
 // Bumped the version to 2.3
 //
@@ -1428,6 +1431,14 @@ static void UI_RQ3_DrawPreset(rectDef_t * rect, float scale, vec4_t color, int n
 	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
+static char team1Name[128], team2Name[128];
+//Makro - added for the join menu
+static void UI_RQ3_DrawJoinTeam(rectDef_t * rect, float scale, vec4_t color, int num, int textStyle)
+{
+	//char *text = va("Team %i", num);
+	Text_Paint(rect->x, rect->y, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, textStyle);
+}
+
 static void UI_DrawTeamMember(rectDef_t * rect, float scale, vec4_t color, qboolean blue, int num, int textStyle)
 {
 	// 0 - None
@@ -2360,21 +2371,26 @@ void UI_BuildIngameServerInfoList()
 					AddIngameLine("Round time limit", (limit !=0 ) ? va("%i", limit) : "None");
 					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
 					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
+					break;
 				}
 			case GT_TEAM:
+				{
 					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
 					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
-					if (gametype == GT_TEAM)
-						AddIngameLine("TeamDM Mode", (tdmMode != 0) ? "Classic" : "TP style");
+					AddIngameLine("TeamDM Mode", (tdmMode != 0) ? "Classic" : "TP style");
+					break;
+				}
 			case GT_CTF:
 				{
 					limit = atoi(Info_ValueForKey(info, "capturelimit"));
 					AddIngameLine("Capture limit", (limit !=0 ) ? va("%i", limit) : "None");
+					break;
 				}
 			default:
 				{
 					limit = atoi(Info_ValueForKey(info, "fraglimit"));
 					AddIngameLine("Frag limit", (limit !=0 ) ? va("%i", limit) : "None");
+					break;
 				}
 		}
 		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
@@ -2781,6 +2797,11 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	case UI_RQ3_RADIOPRESET9:
 	case UI_RQ3_RADIOPRESET10:
 		UI_RQ3_DrawPreset(&rect, scale, color, ownerDraw - UI_RQ3_RADIOPRESET1 + 1, textStyle);
+		break;
+	//Makro - join team menu items
+	case UI_RQ3_JOINTEAM1:
+	case UI_RQ3_JOINTEAM2:
+		UI_RQ3_DrawJoinTeam(&rect, scale, color, (ownerDraw == UI_RQ3_JOINTEAM1) ? 1 : 2, textStyle);
 		break;
 	case UI_SELECTEDPLAYER:
 		UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
@@ -4233,6 +4254,12 @@ static void UI_RunMenuScript(char **args)
 			UI_LoadArenas();
 			UI_MapCountVote();
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "ingame_callvote");
+		//Makro - get the team names
+		} else if (Q_stricmp(name, "updateJoinTeamNames") == 0) {
+			char info[MAX_INFO_STRING];
+			trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+			strncpy(team1Name, UI_Cvar_VariableString("g_RQ3_team1Name"), sizeof(team1Name));
+			strncpy(team2Name, UI_Cvar_VariableString("g_RQ3_team2Name"), sizeof(team2Name));
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {

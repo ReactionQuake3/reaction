@@ -12,7 +12,7 @@
 	focusColor 1 .75 0 1			// Menu focus color for text and items
 	style 1
 	shadowStyle 1
-	onOpen { play "sound/misc/menu1.wav" }
+	onOpen { play "sound/misc/menu1.wav" ; uiScript "updateJoinTeamNames" }
 
 //Window
 
@@ -55,9 +55,10 @@
 
     itemdef {
 	name team
-	text "1. Silver Team:"
+	text "1."
+	ownerDraw UI_RQ3_JOINTEAM1
 	shortcutKey "1"
-	type ITEM_TYPE_BUTTON
+	//type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
 	rect 8 36 128 20
@@ -65,7 +66,7 @@
 	textalignx 16
 	textaligny 18
 	textscale .225
-	forecolor  1 1 1 1
+	forecolor 1 1 1 1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; exec "cmd team red" ; uiScript "weapAfterJoin" ; close "ingame_join" }
     }
@@ -91,9 +92,10 @@
 
     itemdef {
 	name team
-	text "2. Black Team:"
+	text "2."
+	ownerDraw UI_RQ3_JOINTEAM2
 	shortcutKey "2"
-	type ITEM_TYPE_BUTTON
+	//type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
 	rect 8 56 128 20
@@ -101,7 +103,7 @@
 	textalignx 16
 	textaligny 18
 	textscale .225
-	forecolor  1 1 1 1
+	forecolor 1 1 1 1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; close "ingame_join" }
     }
