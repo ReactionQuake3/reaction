@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/03/02 22:02:09  niceass
+// mk23 and akimbo last fire animation fixed
+//
 // Revision 1.58  2002/03/02 08:03:14  niceass
 // look down movement bug fixed
 //
@@ -2900,20 +2903,26 @@ static void PM_Weapon( void ) {
 			if (pm->ps->weapon == WP_AKIMBO)
 			{
 				// don't repeat animation if on second akimbo shot
-				if ( !pm->ps->stats[STAT_BURST] )
-					PM_StartWeaponAnim( WP_ANIM_FIRE );
+				if ( !pm->ps->stats[STAT_BURST] ) {
+					if ( pm->ps->ammo[pm->ps->weapon] > 2 )
+						PM_StartWeaponAnim( WP_ANIM_FIRE );
+					else
+						PM_StartWeaponAnim( WP_ANIM_EXTRA1 );
+				}
 			}
-			else /* if (pm->ps->weapon == WP_PISTOL ||
+			else {
+				/* if (pm->ps->weapon == WP_PISTOL ||
 				pm->ps->weapon == WP_M3 ||
 				pm->ps->weapon == WP_HANDCANNON ||
 				pm->ps->weapon == WP_SSG3000 ||
 				pm->ps->weapon == WP_M4 ||
 				pm->ps->weapon == WP_MP5 ||
 				pm->ps->weapon == WP_GRENADE) */
-				//if ( pm->ps->ammo[pm->ps->weapon] > 1 )
+				if ( pm->ps->ammo[pm->ps->weapon] > 1 )
 					PM_StartWeaponAnim( WP_ANIM_FIRE );
-				//else
-				//	PM_StartWeaponAnim( WP_ANIM_EMPTY );
+				else if ( pm->ps->weapon == WP_PISTOL )
+					PM_StartWeaponAnim( WP_ANIM_EXTRA1 );		// Fix for last round fired
+			}
 		}
 	}
 
