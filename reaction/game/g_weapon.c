@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/09/24 05:06:17  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.81  2002/09/08 03:31:36  niceass
 // accuracy improved
 //
@@ -1766,7 +1769,6 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
 	// snap to integer coordinates for more efficient network bandwidth usage
-	// SnapVector(muzzlePoint);
 }
 
 /*
@@ -1783,7 +1785,6 @@ void CalcMuzzlePointOrigin(gentity_t * ent, vec3_t origin, vec3_t forward, vec3_
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
 	// snap to integer coordinates for more efficient network bandwidth usage
-	// SnapVector(muzzlePoint);
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/09/24 05:06:16  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.88  2002/08/30 01:09:06  jbravo
 // Semi fixed the bodies thing in CTB
 //
@@ -376,6 +379,8 @@ void ClientImpacts(gentity_t * ent, pmove_t * pm)
 		if (j != i) {
 			continue;	// duplicated
 		}
+		//Blaze: Print out some debug info
+		if (&g_entities[pm->touchents[i]] == NULL) G_Printf("Ln 0377\n");
 		other = &g_entities[pm->touchents[i]];
 
 		if ((ent->r.svFlags & SVF_BOT) && (ent->touch)) {
@@ -426,6 +431,9 @@ void G_TouchTriggers(gentity_t * ent)
 	VectorAdd(ent->client->ps.origin, ent->r.maxs, maxs);
 
 	for (i = 0; i < num; i++) {
+		//Blaze: Print out some debug info
+		if (&g_entities[touch[i]] == NULL) G_Printf("Ln 0429\n");
+
 		hit = &g_entities[touch[i]];
 
 		if (!hit->touch && !ent->touch) {
@@ -552,7 +560,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 
 	// Attack Button cycles throught free view, follow or zcam
 	if ((ucmd->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) {
-		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0) {
+		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 && client->sess.referee == 0 ) {
 			if (!OKtoFollow(clientNum))
 				return;
 			if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
@@ -742,7 +750,10 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 			ent->client->ps.damageEvent++;
 			ent->client->ps.damageCount += damage;
 			if (ent->client->lasthurt_mod != 0) {
-				G_Damage(ent, &g_entities[ent->client->lasthurt_client],
+					//Blaze: Print out some debug info
+					if (&g_entities[ent->client->lasthurt_client] == NULL) G_Printf("Ln 0748\n");
+
+					G_Damage(ent, &g_entities[ent->client->lasthurt_client],
 					 &g_entities[ent->client->lasthurt_client], NULL, NULL, damage, 0, MOD_FALLING);
 			} else {
 				G_Damage(ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
@@ -770,6 +781,9 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 			ent->client->ps.damageEvent++;
 			ent->client->ps.damageCount += damage;
 			if (ent->client->lasthurt_mod != 0) {
+				//Blaze: Print out some debug info
+				if (&g_entities[ent->client->lasthurt_client] == NULL) G_Printf("Ln 0779\n");
+
 				G_Damage(ent, &g_entities[ent->client->lasthurt_client],
 					 &g_entities[ent->client->lasthurt_client], NULL, NULL, damage, 0, MOD_FALLING);
 			} else {

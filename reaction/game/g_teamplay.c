@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2002/09/24 05:06:17  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.137  2002/09/09 02:26:55  niceass
 // enabled drop case
 //
@@ -993,7 +996,7 @@ void SpawnPlayers()
 		client->sess.teamSpawn = qfalse;
 	}
 // JBravo: lets make those pesky subs follow live players.
-	if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer) {
+	if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer ) {
 		for (i = 0; i < level.maxclients; i++) {
 			player = &g_entities[i];
 			if (!player->inuse || !player->client)
@@ -1397,7 +1400,7 @@ void MakeSpectator(gentity_t * ent)
 	}
 	if (ent->r.svFlags & SVF_BOT)
 		client->sess.spectatorState = SPECTATOR_FREE;
-	else if (g_RQ3_limchasecam.integer != 0) {
+	else if (g_RQ3_limchasecam.integer != 0 ) {
 		if (OKtoFollow(ent - g_entities)) {
 			client->sess.spectatorState = SPECTATOR_FOLLOW;
 			client->specMode = SPECTATOR_FOLLOW;
@@ -1439,12 +1442,17 @@ qboolean OKtoFollow(int clientnum)
 		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) {
 			continue;
 		}
+		if (level.clients[clientnum].sess.referee == 1 && level.clients[clientnum].sess.savedTeam == TEAM_SPECTATOR) {
+			x++;
+		}		
 		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 &&
 		    level.clients[i].sess.sessionTeam != level.clients[clientnum].sess.savedTeam) {
 			continue;
 		}
+
 		x++;
 	};
+	
 	if (x > 0) {
 		return qtrue;
 	}

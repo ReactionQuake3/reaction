@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/09/24 05:06:16  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.8  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -49,6 +52,9 @@ void UpdateTournamentInfo(void)
 	// find the real player
 	player = NULL;
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Print out some debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 0052\n");
+			
 		player = &g_entities[i];
 		if (!player->inuse) {
 			continue;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/09/24 05:06:16  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.115  2002/09/02 03:30:53  jbravo
 // Hopefully fixed the skinhacking
 //
@@ -383,6 +386,8 @@ qboolean SpotWouldTelefrag(gentity_t * spot)
 	num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
 
 	for (i = 0; i < num; i++) {
+		//Blaze: Print out some Debug info
+		if (&g_entities[touch[i]] == NULL) G_Printf("Ln 0376\n");
 		hit = &g_entities[touch[i]];
 		//if ( hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 ) {
 		if (hit->client) {
@@ -1338,7 +1343,8 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	gclient_t *client;
 	char userinfo[MAX_INFO_STRING], ipaddr[64];
 	gentity_t *ent;
-
+	//Blaze: Prit out some Debug info
+	if (&g_entities[clientNum] == NULL) G_Printf("Ln 1399\n");
 	ent = &g_entities[clientNum];
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
@@ -1985,6 +1991,9 @@ void ClientDisconnect(int clientNum)
 		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR
 		    && level.clients[i].sess.spectatorState == SPECTATOR_FOLLOW
 		    && level.clients[i].sess.spectatorClient == clientNum) {
+			//Blaze: Prit out some Debug info
+			if (&g_entities[i] == NULL) G_Printf("Ln 2049\n");
+
 			StopFollowing(&g_entities[i]);
 		}
 	}

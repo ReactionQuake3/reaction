@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2002/09/24 05:06:17  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.125  2002/09/02 02:21:13  niceass
 // removed spherical head detection
 //
@@ -696,6 +699,9 @@ void SendObit(char *msg, gentity_t * deadguy, gentity_t * attacker)
 	} else {
 		if (g_RQ3_showOwnKills.integer == 0) {
 			for (i = 0; i < level.maxclients; i++) {
+				//Blaze: Prit out some Debug info
+				if (&g_entities[i] == NULL) G_Printf("Ln 0693\n");
+				
 				other = &g_entities[i];
 				if (!other->inuse || !other->client)
 					continue;
@@ -706,6 +712,9 @@ void SendObit(char *msg, gentity_t * deadguy, gentity_t * attacker)
 			}
 		} else {
 			for (i = 0; i < level.maxclients; i++) {
+				//Blaze: Prit out some Debug info
+				if (&g_entities[i] == NULL) G_Printf("Ln 1399\n");
+				
 				other = &g_entities[i];
 				if (!other->inuse || !other->client)
 					continue;
@@ -2424,6 +2433,9 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 	numListedEntities = trap_EntitiesInBox(mins, maxs, entityList, MAX_GENTITIES);
 
 	for (e = 0; e < numListedEntities; e++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[entityList[e]] == NULL) G_Printf("Ln 2499\n");
+
 		ent = &g_entities[entityList[e]];
 
 		if (ent == ignore)

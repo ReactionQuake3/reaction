@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/09/24 05:06:17  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.118  2002/09/10 14:14:20  makro
 // no message
 //
@@ -1018,6 +1021,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	// set client fields on player ents
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 0994\n");
+
 		g_entities[i].client = level.clients + i;
 	}
 
@@ -1234,6 +1240,10 @@ void AddTournamentPlayer(void)
 
 	level.warmupTime = -1;
 
+	
+	//Blaze: Prit out some Debug info
+	if (&g_entities[nextInLine - level.clients] == NULL) G_Printf("Ln 1214\n");
+	
 	// set them to free-for-all team
 	SetTeam(&g_entities[nextInLine - level.clients], "f");
 }
@@ -1258,6 +1268,10 @@ void RemoveTournamentLoser(void)
 	if (level.clients[clientNum].pers.connected != CON_CONNECTED) {
 		return;
 	}
+	//Blaze: Prit out some Debug info
+	if (&g_entities[clientNum] == NULL) G_Printf("Ln 1241\n");
+	
+	
 	// make them a spectator
 	SetTeam(&g_entities[clientNum], "s");
 }
@@ -1280,6 +1294,9 @@ void RemoveTournamentWinner(void)
 	if (level.clients[clientNum].pers.connected != CON_CONNECTED) {
 		return;
 	}
+	//Blaze: Prit out some Debug info
+	if (&g_entities[clientNum] == NULL) G_Printf("Ln 1241\n");
+		
 	// make them a spectator
 	SetTeam(&g_entities[clientNum], "s");
 }
@@ -1396,6 +1413,8 @@ void CalculateRanks(void)
 			if (g_gametype.integer >= GT_TEAM) {
 				if (level.clients[i].pers.connected == CON_CONNECTED) {
 					level.numPlayingClients++;
+					//Blaze: Prit out some Debug info
+					if (&g_entities[i] == NULL) G_Printf("Ln 1386\n");
 					if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 						level.numVotingClients++;
 					}
@@ -1412,6 +1431,8 @@ void CalculateRanks(void)
 					// decide if this should be auto-followed
 					if (level.clients[i].pers.connected == CON_CONNECTED) {
 						level.numPlayingClients++;
+						//Blaze: Prit out some Debug info
+						if (&g_entities[i] == NULL) G_Printf("Ln 1241\n");
 						if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 							level.numVotingClients++;
 							if (level.clients[i].sess.sessionTeam == TEAM_RED)
@@ -1809,7 +1830,9 @@ void LogExit(const char *string)
 
 		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping,
 			    level.sortedClients[i], cl->pers.netname);
-
+		//Blaze: Prit out some Debug info
+		if (&g_entities[cl - level.clients] == NULL) G_Printf("Ln 1792\n");
+			
 		// Don't print bot statistics
 		if (g_RQ3_statLog.integer && !(g_entities[cl - level.clients].r.svFlags & SVF_BOT)) {
 			// Elder: Statistics tracking for server
@@ -1936,6 +1959,9 @@ void CheckIntermissionExit(void)
 		if (cl->pers.connected != CON_CONNECTED) {
 			continue;
 		}
+		//Blaze: Prit out some Debug info
+		if (&g_entities[cl->ps.clientNum] == NULL) G_Printf("Ln 1925\n");		
+			
 		if (g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) {
 			continue;
 		}
@@ -2341,6 +2367,8 @@ void CheckTeamLeader(int team)
 		for (i = 0; i < level.maxclients; i++) {
 			if (level.clients[i].sess.sessionTeam != team)
 				continue;
+			//Blaze: Prit out some Debug info
+			if (&g_entities[i] == NULL) G_Printf("Ln 2333\n");
 			if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 				level.clients[i].sess.teamLeader = qtrue;
 				break;

@@ -26,6 +26,8 @@ int getNumberOfRefs() {
 	int i,count;
 	count = 0;
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 0030\n");		
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;
@@ -41,6 +43,8 @@ gentity_t *getEntByName(char *name)
 	int i;
 
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 0047\n");
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;
@@ -56,6 +60,8 @@ qboolean checkCaptain(team_t team)
 	int i;
 
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 0059\n");		
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;
@@ -377,6 +383,8 @@ void MM_ClearScores(qboolean clearTeamFlags)
 	int i;
 
 	for (i = 0; i < level.maxclients; i++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[i] == NULL) G_Printf("Ln 1241\n");
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.168  2002/09/24 05:06:17  blaze
+// fixed spectating so ref\'s can now use all the chasecam modes.
+//
 // Revision 1.167  2002/09/07 22:40:01  jbravo
 // Added a scaling ctb respawn system.  Fixed a bug that allowed players to
 // spawn before their team respawn with the team command.
@@ -468,6 +471,8 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 				ent->client->sess.savedTeam != cl->sess.savedTeam)
 				alive = qtrue;
 		}
+		//Blaze: Prit out some Debug info
+		if (&g_entities[level.sortedClients[i]] == NULL) G_Printf("Ln 1399\n");
 
 		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", 
 			level.sortedClients[i], 
@@ -1326,7 +1331,8 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 		}
 // JBravo: limchasecam
 		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 &&
-		    ent->client->sess.savedTeam != level.clients[clientnum].sess.sessionTeam) {
+		    ent->client->sess.savedTeam != level.clients[clientnum].sess.sessionTeam && ent->client->sess.referee == 0) {
+			G_Printf("SavedTeam = (%d)\n",ent->client->sess.savedTeam);
 			continue;
 		}
 		// this is good, we can use it
@@ -1515,6 +1521,9 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 
 	// send it to all the apropriate clients
 	for (j = 0; j < level.maxclients; j++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[j] == NULL) G_Printf("Ln 1532\n");
+		
 		other = &g_entities[j];
 		G_SayTo(ent, other, mode, color, name, text);
 	}
@@ -1585,6 +1594,8 @@ static void Cmd_Tell_f(gentity_t * ent)
 	if (targetNum < 0 || targetNum >= level.maxclients) {
 		return;
 	}
+	//Blaze: Prit out some Debug info
+	if (&g_entities[targetNum] == NULL) G_Printf("Ln 1608\n");
 
 	target = &g_entities[targetNum];
 	if (!target || !target->inuse || !target->client) {
@@ -1657,6 +1668,9 @@ void G_Voice(gentity_t * ent, gentity_t * target, int mode, const char *id, qboo
 	}
 	// send it to all the apropriate clients
 	for (j = 0; j < level.maxclients; j++) {
+		//Blaze: Prit out some Debug info
+		if (&g_entities[j] == NULL) G_Printf("Ln 1682\n");
+
 		other = &g_entities[j];
 		G_VoiceTo(ent, other, mode, id, voiceonly);
 	}
@@ -1705,6 +1719,8 @@ static void Cmd_VoiceTell_f(gentity_t * ent, qboolean voiceonly)
 	if (targetNum < 0 || targetNum >= level.maxclients) {
 		return;
 	}
+	//Blaze: Prit out some Debug info
+	if (&g_entities[targetNum] == NULL) G_Printf("Ln 1733\n");
 
 	target = &g_entities[targetNum];
 	if (!target || !target->inuse || !target->client) {
@@ -1824,6 +1840,9 @@ void Cmd_GameCommand_f(gentity_t * ent)
 	if (order < 0 || order > sizeof(gc_orders) / sizeof(char *)) {
 		return;
 	}
+	//Blaze: Prit out some Debug info
+	if (&g_entities[player] == NULL) G_Printf("Ln 1854\n");
+
 	G_Say(ent, &g_entities[player], SAY_TELL, gc_orders[order]);
 	G_Say(ent, ent, SAY_TELL, gc_orders[order]);
 }
