@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2003/01/06 00:23:29  makro
+// no message
+//
 // Revision 1.41  2003/01/05 22:36:50  makro
 // Added "inactive" field for entities
 // New "target_activate" entity
@@ -222,7 +225,8 @@ field_t fields[] = {
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
 	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
-	{"inactive", FOFS(inactive), F_INT},	// Makro - for func_trains
+	{"inactive", FOFS(inactive), F_INT},	// Makro - added
+	{"activatename", FOFS(activatename), F_LSTRING},
 	{NULL}
 };
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2003/01/06 00:23:29  makro
+// no message
+//
 // Revision 1.9  2003/01/05 22:36:50  makro
 // Added "inactive" field for entities
 // New "target_activate" entity
@@ -447,13 +450,15 @@ void target_activate_use(gentity_t * self, gentity_t * other, gentity_t * activa
 	gentity_t	*loop = NULL;
 	int action = 0;
 
-	if (!Q_stricmp(self->pathtarget, "on")) {
-		action = 1;
-	} else if (!Q_stricmp(self->pathtarget, "off")) {
-		action = 2;
+	if (self->pathtarget) {
+		if (!Q_stricmp(self->pathtarget, "on")) {
+			action = 1;
+		} else if (!Q_stricmp(self->pathtarget, "off")) {
+			action = 2;
+		}
 	}
 
-	for (loop = G_Find(NULL, FOFS(targetname), self->target); loop; G_Find(loop, FOFS(targetname), self->target)) {
+	for (loop = G_Find(NULL, FOFS(activatename), self->target); loop; loop = G_Find(loop, FOFS(activatename), self->target)) {
 		switch (action) {
 			case 1:
 				loop->inactive = 0;
@@ -470,6 +475,11 @@ void target_activate_use(gentity_t * self, gentity_t * other, gentity_t * activa
 
 void SP_target_activate(gentity_t * self)
 {
+	if (!self->target) {
+		G_Printf(S_COLOR_YELLOW "WARNING: target_activate with no target at %s^7\n", vtos(self->s.origin));
+		G_FreeEntity(self);
+		return;
+	}
 	self->use = target_activate_use;
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2003/01/06 00:23:29  makro
+// no message
+//
 // Revision 1.133  2003/01/05 22:36:50  makro
 // Added "inactive" field for entities
 // New "target_activate" entity
@@ -516,6 +519,7 @@ struct gentity_s {
 	//Blaze: Holds the target set by a button
 	char *pathtarget;
 	//Makro - added
+	char *activatename;
 	int inactive;
 };
 
