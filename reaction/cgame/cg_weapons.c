@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2003/02/01 02:15:31  jbravo
+// Replacement models and items
+//
 // Revision 1.102  2003/01/08 04:46:26  jbravo
 // Wrote a new hackish model replacement system
 //
@@ -201,12 +204,8 @@ Reads information for frame-sound timing
 static qboolean CG_ParseWeaponSoundFile(const char *filename, weaponInfo_t * weapon)
 {
 	char *text_p;
-	int len;
-	int i;
+	int len, i, skip;
 	char *token;
-
-//      float                   fps;
-	int skip;		// Elder: What's this for?
 	char text[20000];
 	fileHandle_t f;
 	sfxWeapTiming_t *weapTiming;
@@ -238,26 +237,20 @@ static qboolean CG_ParseWeaponSoundFile(const char *filename, weaponInfo_t * wea
 			break;
 		// Add it to the array
 		if (atoi(token)) {
-			//Com_Printf("(%i): %s\n", i, token);
 			weapTiming->sfxInfo[i].frame = atoi(token);
 		} else
 			break;
-		//return qfalse;
 
 		// Grab sound file path
 		token = COM_Parse(&text_p);
 		if (!token)
 			break;
-		//return qfalse;
 
-		//Com_Printf("(%i): %s\n", i, token);
 		weapTiming->sfxInfo[i].sound = trap_S_RegisterSound(token, qfalse);
 	}
 
 	// Store total number
 	weapTiming->numFrames = i;
-	//Com_Printf("Total Frames: %i\n", weapTiming->numFrames);
-
 	return qtrue;
 }
 
@@ -308,11 +301,8 @@ CG_ParseWeaponAnimFile
 */
 static qboolean CG_ParseWeaponAnimFile(const char *filename, weaponInfo_t * weapon)
 {
-	char *text_p;
-	int len;
-	int i;
-	int skip;
-	char *token;
+	char *text_p, *token;
+	int len, i, skip;
 	float fps;
 	char text[20000];
 	fileHandle_t f;
@@ -436,15 +426,12 @@ localEntity_t *CG_ShotgunEjectBrass(centity_t * cent)
 	if (cg_brassTime.integer <= 0) {
 		return NULL;
 	}
-	//for ( i = 0; i < isHC + 1; i++ ) {
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
-
 	le->leType = LE_FRAGMENT;
 	le->startTime = cg.time;
 	le->endTime = le->startTime + cg_brassTime.integer * 3 + cg_brassTime.integer * random();
-
 	le->pos.trType = TR_GRAVITY;
 	le->pos.trTime = cg.time;
 
@@ -456,18 +443,15 @@ localEntity_t *CG_ShotgunEjectBrass(centity_t * cent)
 		re->hModel = cgs.media.shotgunBrassModel;
 
 	le->bounceFactor = 0.3f;
-
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
-
 	le->angles.trDelta[0] = rand() % 200 - 100;
 	le->angles.trDelta[1] = rand() % 200 - 100;
 	le->angles.trDelta[2] = rand() % 200 - 100;
-
 	le->leFlags = LEF_TUMBLE;
 	le->leBounceSoundType = LEBS_BRASS;
 	le->leMarkType = LEMT_NONE;
-	//}
+
 	return le;
 }
 
@@ -481,7 +465,6 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 	vec3_t axis[36], move, move2, next_move, vec, temp;
 	float len;
 	int i, j, skip;
-
 	localEntity_t *le;
 	refEntity_t *re;
 
@@ -500,12 +483,10 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
-
 	le->leType = LE_FADE_RGB;
 	le->startTime = cg.time;
 	le->endTime = cg.time + cg_railTrailTime.value;
 	le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
 	re->shaderTime = cg.time / 1000.0f;
 	re->reType = RT_RAIL_CORE;
 	re->customShader = cgs.media.railCoreShader;
@@ -517,7 +498,6 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 	re->shaderRGBA[1] = ci->color1[1] * 255;
 	re->shaderRGBA[2] = ci->color1[2] * 255;
 	re->shaderRGBA[3] = 255;
-
 	le->color[0] = ci->color1[0] * 0.75;
 	le->color[1] = ci->color1[1] * 0.75;
 	le->color[2] = ci->color1[2] * 0.75;
@@ -548,22 +528,18 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 			le->startTime = cg.time;
 			le->endTime = cg.time + (i >> 1) + 600;
 			le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
 			re->shaderTime = cg.time / 1000.0f;
 			re->reType = RT_SPRITE;
 			re->radius = 1.1f;
 			re->customShader = cgs.media.railRingsShader;
-
 			re->shaderRGBA[0] = ci->color2[0] * 255;
 			re->shaderRGBA[1] = ci->color2[1] * 255;
 			re->shaderRGBA[2] = ci->color2[2] * 255;
 			re->shaderRGBA[3] = 255;
-
 			le->color[0] = ci->color2[0] * 0.75;
 			le->color[1] = ci->color2[1] * 0.75;
 			le->color[2] = ci->color2[2] * 0.75;
 			le->color[3] = 1.0f;
-
 			le->pos.trType = TR_LINEAR;
 			le->pos.trTime = cg.time;
 
@@ -739,6 +715,15 @@ void CG_RegisterWeapon(int weaponNum)
 		MAKERGB(weaponInfo->flashDlightColor, 1, 1, 0);
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/mk23/mk23fire.wav", qfalse);
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/mk23/mk23reload.wav", qfalse);
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_mk23_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
+			}
+		}
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
@@ -765,7 +750,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/knife/slash.wav", qfalse);
 		weaponInfo->missileModel =
 		    trap_R_RegisterModel(va("models/weapons2/%s/knife.md3", cg_RQ3_knife.string));
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_knife_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_knife.string, cg_RQ3_knife_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_knife.string, cg_RQ3_knife_skin.string));
+			}
+		}
 		// Load the animation information
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_knife.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
@@ -781,7 +774,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/m4/m4reload.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_m4_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_m4.string, cg_RQ3_m4_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_m4.string, cg_RQ3_m4_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_m4.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -808,6 +809,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[2] = trap_S_RegisterSound("sound/weapons/ssg3000/ssgbolt.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_ssg3000_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_ssg3000.string, cg_RQ3_ssg3000_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_ssg3000.string, cg_RQ3_ssg3000_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_ssg3000.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -830,7 +840,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/mp5/mp5reload.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_mp5_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_mp5.string, cg_RQ3_mp5_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_mp5.string, cg_RQ3_mp5_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_mp5.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -855,7 +873,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/handcannon/hcreload.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_handcannon_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_handcannon.string, cg_RQ3_handcannon_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_handcannon.string, cg_RQ3_handcannon_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_handcannon.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -879,7 +905,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/m3/m3fire.wav", qfalse);
 		weaponInfo->worldReloadSound[1] = trap_S_RegisterSound("sound/weapons/m3/m3in.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_m3_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_m3.string, cg_RQ3_m3_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_m3.string, cg_RQ3_m3_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_m3.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -905,6 +939,15 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/akimbo/akimboreload.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_akimbo_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_akimbo.string, cg_RQ3_akimbo_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_akimbo.string, cg_RQ3_akimbo_skin.string));
+			}
+		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_akimbo.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -930,7 +973,15 @@ void CG_RegisterWeapon(int weaponNum)
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
 		//Blaze: Make sure we load this as we may have exploding crates
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
-
+		// JBravo: skin replacements
+		if (strcmp(cg_RQ3_grenade_skin.string, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
+				cg_RQ3_grenade.string, cg_RQ3_grenade_skin.string));
+			if (!weaponInfo->customSkin) {
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+					cg_RQ3_grenade.string, cg_RQ3_grenade_skin.string));
+			}
+		}
 		// Load the animation information
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_grenade.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
@@ -974,54 +1025,64 @@ void CG_RegisterItemVisuals(int itemNum)
 	
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
-	if (item->giType == IT_HOLDABLE) {
-		if (item->giTag == HI_KEVLAR) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_kevlar.string));
-		}
-		if (item->giTag == HI_LASER) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_laser.string));
-		}
-		if (item->giTag == HI_SILENCER) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_silencer.string));
-		}
-		if (item->giTag == HI_BANDOLIER) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_bandolier.string));
-		}
-		if (item->giTag == HI_SLIPPERS) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_slippers.string));
-		}
-		if (item->giTag == HI_HELMET) {
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_helmet.string));
-		}
-	} else {
-		itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
-	}
-	if (item->giType == IT_HOLDABLE) {
-		if (item->giTag == HI_KEVLAR) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_kevlar.string));
-		}
-		if (item->giTag == HI_LASER) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_laser.string));
-		}
-		if (item->giTag == HI_SILENCER) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_silencer.string));
-		}
-		if (item->giTag == HI_BANDOLIER) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_bandolier.string));
-		}
-		if (item->giTag == HI_SLIPPERS) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_slippers.string));
-		}
-		if (item->giTag == HI_HELMET) {
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_helmet.string));
-		}
-	} else {
-		itemInfo->icon = trap_R_RegisterShader(item->icon);
-	}
+	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
+	itemInfo->icon = trap_R_RegisterShader(item->icon);
 
 	if (item->giType == IT_WEAPON) {
 		CG_RegisterWeapon(item->giTag);
 	}
+// JBravo: replacement skins for items
+	if (item->giType == IT_HOLDABLE) {
+		if (!strcmp(item->classname, "item_kevlar") && strcmp(cg_RQ3_kevlar_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
+			}
+		}
+		if (!strcmp(item->classname, "item_silencer") && strcmp(cg_RQ3_silencer_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_silencer.string, cg_RQ3_silencer_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
+			}
+		}
+		if (!strcmp(item->classname, "item_laser") && strcmp(cg_RQ3_laser_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_laser.string, cg_RQ3_laser_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_laser.string, cg_RQ3_laser_skin.string));
+			}
+		}
+		if (!strcmp(item->classname, "item_bandolier") && strcmp(cg_RQ3_bandolier_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_bandolier.string, cg_RQ3_bandolier_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_bandolier.string, cg_RQ3_bandolier_skin.string));
+			}
+		}
+		if (!strcmp(item->classname, "item_slippers") && strcmp(cg_RQ3_slippers_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_slippers.string, cg_RQ3_slippers_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_slippers.string, cg_RQ3_slippers_skin.string));
+			}
+		}
+		if (!strcmp(item->classname, "item_helmet") && strcmp(cg_RQ3_helmet_skin.string, "default")) {
+			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
+				cg_RQ3_helmet.string, cg_RQ3_helmet_skin.string));
+			if (!itemInfo->customSkin) {
+				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
+					cg_RQ3_helmet.string, cg_RQ3_helmet_skin.string));
+			}
+		}
+	}
+
 	//
 	// powerups have an accompanying ring or sphere
 	//
@@ -1049,9 +1110,8 @@ CG_CalculateWeaponPosition
 */
 static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 {
-	float scale;
+	float scale, fracsin;
 	int delta;
-	float fracsin;
 
 	VectorCopy(cg.refdef.vieworg, origin);
 	VectorCopy(cg.refdefViewAngles, angles);
@@ -1075,15 +1135,6 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 	} else if (delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME) {
 		origin[2] += cg.landChange * 0.25 * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
 	}
-#if 0
-	// drop the weapon when stair climbing
-	delta = cg.time - cg.stepTime;
-	if (delta < STEP_TIME / 2) {
-		origin[2] -= cg.stepChange * 0.25 * delta / (STEP_TIME / 2);
-	} else if (delta < STEP_TIME) {
-		origin[2] -= cg.stepChange * 0.25 * (STEP_TIME - delta) / (STEP_TIME / 2);
-	}
-#endif
 
 	// idle drift
 	scale = cg.xyspeed + 40;
@@ -1114,12 +1165,7 @@ sound should only be done on the world model case.
 */
 void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * cent, int team)
 {
-	refEntity_t gun;
-
-//      Blaze: Can remove this because no more spinning barrel
-//      refEntity_t     barrel;
-	refEntity_t flash;
-	refEntity_t silencer, laser;
+	refEntity_t gun, flash, silencer, laser;
 	vec3_t angles;
 	weapon_t weaponNum;
 	weaponInfo_t *weapon;
@@ -1151,6 +1197,10 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	if (!gun.hModel) {
 		return;
 	}
+
+	// JBravo: activate the custom skin, if any
+	if (weapon->customSkin)
+		gun.customSkin = weapon->customSkin;
 
 	if (!ps) {
 		// add weapon ready sound
@@ -1205,8 +1255,6 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 				if (cg.curSyncSound.played == qfalse) {
 					cg.curSyncSound.played = qtrue;
-
-					//CG_Printf("Playing a timed sound (%i %i %1.1f)\n", gun.frame, gun.oldframe, gun.backlerp);
 					trap_S_StartLocalSound(cg.curSyncSound.sound, CHAN_WEAPON);
 				}
 			}
@@ -1348,7 +1396,6 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 								      "tag_shell2");
 				else
 					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel, "tag_shell");
-
 			}
 
 			VectorCopy(shell->refEntity.origin, shell->pos.trBase);
@@ -1469,9 +1516,6 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 	if (ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum) {
 		// add rail trail
-		//Blaze: no need for this
-		//CG_SpawnRailTrail( cent, flash.origin );
-
 		if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2]) {
 			trap_R_AddLightToScene(flash.origin, 300 + (rand() & 31), weapon->flashDlightColor[0],
 					       weapon->flashDlightColor[1], weapon->flashDlightColor[2]);
@@ -1574,10 +1618,7 @@ CG_DrawWeaponSelect
 */
 void CG_DrawWeaponSelect(void)
 {
-	int i;
-	int bits;
-	int count;
-	int x, y, w;
+	int i, bits, count, x, y, w;
 	char *name;
 	float *color;
 
@@ -1670,8 +1711,7 @@ CG_NextWeapon_f
 */
 void CG_NextWeapon_f(void)
 {
-	int i;
-	int original;
+	int i, original;
 
 	if (!cg.snap) {
 		return;
@@ -1723,8 +1763,7 @@ CG_PrevWeapon_f
 */
 void CG_PrevWeapon_f(void)
 {
-	int i;
-	int original;
+	int i, original;
 
 	if (!cg.snap) {
 		return;
@@ -1755,10 +1794,6 @@ void CG_PrevWeapon_f(void)
 		if (cg.weaponSelect == -1) {
 			cg.weaponSelect = 15;
 		}
-		//Blaze: Allow full Cycle
-		//if ( cg.weaponSelect == WP_GAUNTLET ) {
-		//      continue;               // never cycle to gauntlet
-		//}
 		if (CG_WeaponSelectable(cg.weaponSelect)) {
 			break;
 		}
@@ -1782,8 +1817,7 @@ CG_SpecialWeapon_f
 */
 void CG_SpecialWeapon_f(void)
 {
-	int i;
-	int original;
+	int i, original;
 
 	if (!cg.snap) {
 		//CG_Printf("No snapshot: normally exiting\n");
@@ -2012,8 +2046,6 @@ The current weapon has just run out of ammo
 */
 void CG_OutOfAmmoChange(void)
 {
-	//int           i;
-
 	if (!cg.snap)
 		return;
 
@@ -2195,31 +2227,13 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 		       vec3_t dir, impactSound_t soundType, int weapModification)
 {
-	qhandle_t mod;
-	qhandle_t mark;
-	qhandle_t shader;
+	qhandle_t mod, mark, shader;
 	sfxHandle_t sfx;
-	float radius;
-	float light;
-	vec3_t lightColor;
-	localEntity_t *le;
-	int r;
-	qboolean alphaFade;
-	qboolean isSprite;
-	int duration;
-	int angle;
-
-	//Elder: for impact smoke marks
-	localEntity_t *smokePuff;
-	vec3_t puffOrigin;
-	vec3_t puffOffset;
-	vec3_t puffDir;
-	int contentType;
-
-	//Elder: for impact sparks
-	vec3_t velocity;
-	int sparkCount;
-	int i;
+	float radius, light;
+	vec3_t lightColor, puffOrigin, puffOffset, puffDir, velocity;
+	localEntity_t *le, *smokePuff;
+	int r, duration, angle, contentType, sparkCount, i;
+	qboolean alphaFade, isSprite;
 
 	mark = 0;
 	radius = 32;
@@ -2589,11 +2603,8 @@ We are not going to show every HC impact
 static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum, int shellWeapon)
 {
 	trace_t tr;
-	int sourceContentType, destContentType;
-
-	int l, playerNum;
+	int sourceContentType, destContentType, l, playerNum;
 	vec3_t t_start;
-
 	//Makro
 	int Material;
 
@@ -2720,12 +2731,9 @@ hit splashes
 */
 static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int otherEntNum, int shotType, int seed)
 {
-	int i;
+	int i, count;
 	float r, u;
-	vec3_t end;
-	vec3_t forward, right, up;
-
-	int count;
+	vec3_t end, forward, right, up;
 	int hc_multipler = 0;
 
 	// derive the right and up vectors from the forward vector, because
@@ -2822,8 +2830,7 @@ void CG_CreateTracer(int entity, vec3_t start, vec3_t end)
 {
 	localEntity_t *le;
 	float dist;
-	vec3_t dir, end2;
-	vec3_t temp, midpoint;
+	vec3_t dir, end2, temp, midpoint;
 	float tracerSpeed = 5000;
 
 	VectorSubtract(end, start, dir);
@@ -2861,11 +2868,9 @@ CG_Tracer
 */
 void CG_Tracer(vec3_t source, vec3_t dest)
 {
-	vec3_t forward, right;
+	vec3_t forward, right, line, start, finish;
 	polyVert_t verts[4];
-	vec3_t line;
 	float len, begin, end;
-	vec3_t start, finish;
 
 	// tracer
 	VectorSubtract(dest, source, forward);
@@ -3007,9 +3012,7 @@ Local laser dot if it is the client's own laser
 */
 static void CG_LocalLaser()
 {
-	vec3_t muzzle;
-	vec3_t forward;
-	vec3_t end;
+	vec3_t muzzle, forward, end;
 	refEntity_t *re;
 	trace_t tr;
 

@@ -193,7 +193,7 @@ makedirs:
 	@if [ ! -d $(BQ)/$(UIDIRNAME) ];then mkdir $(BQ)/$(UIDIRNAME);fi
 
 ctags:
-	ctags -f tags -R *
+#	ctags -f tags -R *
 
 # --object lists for each build type--
 GQVMOBJ = $(GOBJ:%.o=$(BQ)/%.asm)

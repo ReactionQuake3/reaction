@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2003/02/01 02:15:31  jbravo
+// Replacement models and items
+//
 // Revision 1.47  2003/01/08 04:46:26  jbravo
 // Wrote a new hackish model replacement system
 //
@@ -169,7 +172,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/weapons2/m4/m4.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_m4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_M4_NAME,
 	 24,
 	 IT_WEAPON,
@@ -186,7 +189,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/weapons2/ssg3000/ssg3000.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_ssg\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_ssg\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_SSG3000_NAME,
 	 6,
 	 IT_WEAPON,
@@ -203,7 +206,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/weapons2/mp5/mp5.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_mp5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_mp5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_MP5_NAME,
 	 30,
 	 IT_WEAPON,
@@ -237,7 +240,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/weapons2/m3/m3.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_m3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_M3_NAME,
 	 7,
 	 IT_WEAPON,
@@ -588,10 +591,10 @@ Only in CTF games
 	{
 	 "item_kevlar",
 	 "sound/items/kevlar.wav",
-	 {"models/items/kevlar.md3",
+	 {"models/items/kevlar.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_kevlar",
+	 "icons/iconi_kevlar\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_KEVLAR_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -603,10 +606,10 @@ Only in CTF games
 	{
 	 "item_silencer",
 	 "sound/items/silencer.wav",
-	 {"models/items/silencer.md3",
+	 {"models/items/silencer.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_silencer",
+	 "icons/iconi_silencer\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_SILENCER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -618,10 +621,10 @@ Only in CTF games
 	{
 	 "item_laser",
 	 "sound/items/laser.wav",
-	 {"models/items/laser.md3",
+	 {"models/items/laser.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_laser",
+	 "icons/iconi_laser\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_LASER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -633,10 +636,10 @@ Only in CTF games
 	{
 	 "item_bandolier",
 	 "sound/items/bandolier.wav",
-	 {"models/items/bandolier.md3",
+	 {"models/items/bandolier.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_bandolier",
+	 "icons/iconi_bandolier\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_BANDOLIER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -648,10 +651,10 @@ Only in CTF games
 	{
 	 "item_slippers",
 	 "sound/items/slippers.wav",
-	 {"models/items/slippers.md3",
+	 {"models/items/slippers.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_slippers",
+	 "icons/iconi_slippers\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_SLIPPERS_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -663,10 +666,10 @@ Only in CTF games
 	{
 	 "item_helmet",
 	 "sound/items/slippers.wav",
-	 {"models/items/helmet/helmet.md3",
+	 {"models/items/helmet.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_helmet",
+	 "icons/iconi_helmet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_HELMET_NAME,
 	 0,
 	 IT_HOLDABLE,

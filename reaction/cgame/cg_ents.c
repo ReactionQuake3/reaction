@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2003/02/01 02:15:31  jbravo
+// Replacement models and items
+//
 // Revision 1.34  2003/01/08 04:46:25  jbravo
 // Wrote a new hackish model replacement system
 //
@@ -339,6 +342,7 @@ static void CG_Item(centity_t * cent)
 	int msec;
 	float frac, scale;
 	weaponInfo_t *wi;
+	itemInfo_t *itemInfo;
 
 	es = &cent->currentState;
 	if (es->modelindex >= bg_numItems) {
@@ -452,6 +456,18 @@ static void CG_Item(centity_t * cent)
 			VectorCopy(myvec, ent.axis[2]);
 		}
 	}
+	// JBravo: world skins
+	if (item->giType == IT_WEAPON) {
+		wi = &cg_weapons[item->giTag];
+		if (wi->customSkin)
+			ent.customSkin = wi->customSkin;
+	}
+	if (item->giType == IT_HOLDABLE) {
+		itemInfo = &cg_items[item - bg_itemlist];
+		if (itemInfo->customSkin)
+			ent.customSkin = itemInfo->customSkin;
+	}
+
 	//Elder: ammo offset?
 	if (item->giType == IT_AMMO)
 		cent->lerpOrigin[2] -= 12;
@@ -550,8 +566,6 @@ static void CG_Missile(centity_t * cent)
 	entityState_t *s1;
 	const weaponInfo_t *weapon;
 
-//      int     col;
-
 	s1 = &cent->currentState;
 	if (s1->weapon > WP_NUM_WEAPONS) {
 		s1->weapon = 0;
@@ -565,23 +579,6 @@ static void CG_Missile(centity_t * cent)
 	if (weapon->missileTrailFunc) {
 		weapon->missileTrailFunc(cent, weapon);
 	}
-/*
-	if ( cent->currentState.modelindex == TEAM_RED ) {
-		col = 1;
-	}
-	else if ( cent->currentState.modelindex == TEAM_BLUE ) {
-		col = 2;
-	}
-	else {
-		col = 0;
-	}
-
-	// add dynamic light
-	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
-			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
-	}
-*/
 	// add dynamic light
 	if (weapon->missileDlight) {
 		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
@@ -600,16 +597,6 @@ static void CG_Missile(centity_t * cent)
 	memset(&ent, 0, sizeof(ent));
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
-//Blaze: No Plasma Gun
-/*	if ( cent->currentState.weapon == WP_PLASMAGUN ) {
-		ent.reType = RT_SPRITE;
-		ent.radius = 16;
-		ent.rotation = 0;
-		ent.customShader = cgs.media.plasmaBallShader;
-		trap_R_AddRefEntityToScene( &ent );
-		return;
-	}
-*/
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;

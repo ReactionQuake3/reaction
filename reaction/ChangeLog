@@ -1,5 +1,7 @@
 # List fixes here for the 2.3 release
 
+* Added replacement model functionality for weapons and items
+* Added replacement skin functionality for weapons and items
 * Fixed the HC's power.
 * Items from the weapon/item menus are now disabled if they're banned from the server
 * Added Itembanning

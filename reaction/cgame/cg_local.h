@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/02/01 02:15:31  jbravo
+// Replacement models and items
+//
 // Revision 1.132  2002/12/05 23:11:29  blaze
 // Added item replacement code
 //
@@ -743,6 +746,7 @@ typedef struct weaponInfo_s {
 	qhandle_t weaponModel;	// Third-person/world model
 	qhandle_t barrelModel;
 	qhandle_t flashModel;
+	qhandle_t customSkin;	// JBravo: for custom skins
 
 	qhandle_t firstModel;	//Elder: view model
 	qhandle_t animHandModel;	//Blaze: for animations
@@ -789,6 +793,8 @@ typedef struct {
 	qboolean registered;
 	qhandle_t models[MAX_ITEM_MODELS];
 	qhandle_t icon;
+// JBravo: for customskins
+	qhandle_t customSkin;
 } itemInfo_t;
 
 typedef struct {
@@ -1697,6 +1703,16 @@ extern vmCvar_t cg_RQ3_handcannon;
 extern vmCvar_t cg_RQ3_m3;
 extern vmCvar_t cg_RQ3_akimbo;
 extern vmCvar_t cg_RQ3_grenade;
+// JBravo: replacement skins
+extern vmCvar_t cg_RQ3_knife_skin;
+extern vmCvar_t cg_RQ3_mk23_skin;
+extern vmCvar_t cg_RQ3_m4_skin;
+extern vmCvar_t cg_RQ3_ssg3000_skin;
+extern vmCvar_t cg_RQ3_mp5_skin;
+extern vmCvar_t cg_RQ3_handcannon_skin;
+extern vmCvar_t cg_RQ3_m3_skin;
+extern vmCvar_t cg_RQ3_akimbo_skin;
+extern vmCvar_t cg_RQ3_grenade_skin;
 //Blaze: replacement items
 extern vmCvar_t cg_RQ3_bandolier;
 extern vmCvar_t cg_RQ3_kevlar;
@@ -1704,6 +1720,13 @@ extern vmCvar_t cg_RQ3_silencer;
 extern vmCvar_t cg_RQ3_laser;
 extern vmCvar_t cg_RQ3_slippers;
 extern vmCvar_t cg_RQ3_helmet;
+// JBravo: replacement skins
+extern vmCvar_t cg_RQ3_bandolier_skin;
+extern vmCvar_t cg_RQ3_kevlar_skin;
+extern vmCvar_t cg_RQ3_silencer_skin;
+extern vmCvar_t cg_RQ3_laser_skin;
+extern vmCvar_t cg_RQ3_slippers_skin;
+extern vmCvar_t cg_RQ3_helmet_skin;
 
 
 //Blaze: Reaction weapon positions

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2003/02/01 02:15:31  jbravo
+// Replacement models and items
+//
 // Revision 1.117  2003/01/08 04:46:26  jbravo
 // Wrote a new hackish model replacement system
 //
@@ -414,7 +417,16 @@ vmCvar_t cg_RQ3_handcannon;
 vmCvar_t cg_RQ3_m3;
 vmCvar_t cg_RQ3_akimbo;
 vmCvar_t cg_RQ3_grenade;
-
+// JBravo: replacement skin cvars
+vmCvar_t cg_RQ3_knife_skin;
+vmCvar_t cg_RQ3_mk23_skin;
+vmCvar_t cg_RQ3_m4_skin;
+vmCvar_t cg_RQ3_ssg3000_skin;
+vmCvar_t cg_RQ3_mp5_skin;
+vmCvar_t cg_RQ3_handcannon_skin;
+vmCvar_t cg_RQ3_m3_skin;
+vmCvar_t cg_RQ3_akimbo_skin;
+vmCvar_t cg_RQ3_grenade_skin;
 //Blaze: replacement items
 vmCvar_t cg_RQ3_bandolier;
 vmCvar_t cg_RQ3_kevlar;
@@ -422,6 +434,13 @@ vmCvar_t cg_RQ3_silencer;
 vmCvar_t cg_RQ3_laser;
 vmCvar_t cg_RQ3_slippers;
 vmCvar_t cg_RQ3_helmet;
+// JBravo: replacement skin cvars
+vmCvar_t cg_RQ3_bandolier_skin;
+vmCvar_t cg_RQ3_kevlar_skin;
+vmCvar_t cg_RQ3_silencer_skin;
+vmCvar_t cg_RQ3_laser_skin;
+vmCvar_t cg_RQ3_slippers_skin;
+vmCvar_t cg_RQ3_helmet_skin;
 
 
 //Elder: muzzle flash toggle
@@ -660,6 +679,16 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_m3, "cg_RQ3_m3", "m3", CVAR_ARCHIVE},
 	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo", CVAR_ARCHIVE},
 	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade", CVAR_ARCHIVE},
+	// JBravo: replacement skins
+	{&cg_RQ3_knife_skin, "cg_RQ3_knife_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_mk23_skin, "cg_RQ3_mk23_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_m4_skin, "cg_RQ3_m4_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_ssg3000_skin, "cg_RQ3_ssg3000_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_mp5_skin, "cg_RQ3_mp5_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_handcannon_skin, "cg_RQ3_handcannon_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_m3_skin, "cg_RQ3_m3_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_akimbo_skin, "cg_RQ3_akimbo_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_grenade_skin, "cg_RQ3_grenade_skin", "default", CVAR_ARCHIVE},
 
 	//Blaze: replacement items
 	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier", CVAR_ARCHIVE},
@@ -668,6 +697,13 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_laser, "cg_RQ3_laser", "laser", CVAR_ARCHIVE},
 	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers", CVAR_ARCHIVE},
 	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet", CVAR_ARCHIVE},
+	// JBravo: replacement skins
+	{&cg_RQ3_bandolier_skin, "cg_RQ3_bandolier_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_kevlar_skin, "cg_RQ3_kevlar_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_silencer_skin, "cg_RQ3_silencer_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_laser_skin, "cg_RQ3_laser_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_slippers_skin, "cg_RQ3_slippers_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_helmet_skin, "cg_RQ3_helmet_skin", "default", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
@@ -1901,13 +1937,13 @@ static void CG_RegisterGraphics(void)
 	cgs.media.akimboHandModel = trap_R_RegisterModel("models/weapons2/akimbo/akimbo_hand.md3");
 
 	//Elder: item cache
-	cgs.media.rq3_bandolierModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_bandolier.string));
-	cgs.media.rq3_kevlarModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_kevlar.string));
-	cgs.media.rq3_silencerModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_silencer.string));
+	cgs.media.rq3_bandolierModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_bandolier.string));
+	cgs.media.rq3_kevlarModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_kevlar.string));
+	cgs.media.rq3_silencerModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_silencer.string));
 	cgs.media.rq3_laserModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_laser.string));
-	cgs.media.rq3_slippersModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_slippers.string));
+	cgs.media.rq3_slippersModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_slippers.string));
 	// JBravo: adding the helmet
-	cgs.media.rq3_helmetModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_helmet.string));
+	cgs.media.rq3_helmetModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_helmet.string));
 
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
 
@@ -2263,8 +2299,55 @@ void CG_ReplaceModels(void)
 				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
 			}
 		}
+		if (!strcmp(item->classname, "item_kevlar")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_kevlar.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_kevlar.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "item_silencer")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_silencer.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_silencer.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "item_laser")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_laser.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_laser.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "item_bandolier")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_bandolier.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_bandolier.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "item_slippers")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_slippers.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_slippers.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "item_helmet")) {
+			Com_sprintf(newname, MAX_QPATH, "models/items/%s.md3", cg_RQ3_helmet.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconi_%s", cg_RQ3_helmet.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
 	}
-
 }
 
 /*
