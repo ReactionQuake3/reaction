@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/05/19 15:45:03  makro
+// "Specify server" option
+//
 // Revision 1.9  2002/04/22 18:40:58  makro
 // Model validation
 //
@@ -144,6 +147,9 @@ extern vmCvar_t ui_RQ3_modelCommand;
 extern vmCvar_t ui_RQ3_teamCount1;
 extern vmCvar_t ui_RQ3_teamCount2;
 extern vmCvar_t ui_RQ3_numSpectators;
+//Makro - specify server option
+extern vmCvar_t ui_RQ3_joinAddress;
+extern vmCvar_t ui_RQ3_joinPort;
 
 
 //

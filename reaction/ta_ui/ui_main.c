@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/05/19 15:45:03  makro
+// "Specify server" option
+//
 // Revision 1.21  2002/05/15 12:48:17  makro
 // Fixed a bug with bots + teams
 //
@@ -118,8 +121,8 @@ static const serverFilter_t serverFilters[] = {
 	{"Rocket Arena", "arena" },
 	{"Alliance", "alliance20" },
 	{"Weapons Factory Arena", "wfa" },
-	{"OSP", "osp" },*/
-	{"All", "" },
+	{"OSP", "osp" },
+	{"All", "" },*/
 	{"Reaction", "reaction" }
 };
 
@@ -3688,6 +3691,12 @@ static void UI_RunMenuScript(char **args) {
 				trap_LAN_GetServerAddressString(ui_netSource.integer, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, 1024);
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", buff ) );
 			}
+		//Makro - specify server
+		} else if (Q_stricmp(name, "JoinSpecifiedServer") == 0) {
+			trap_Cvar_Set("cg_thirdPerson", "0");
+			trap_Cvar_Set("cg_cameraOrbit", "0");
+			trap_Cvar_Set("ui_singlePlayerActive", "0");
+			trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s:%i\n", ui_RQ3_joinAddress.string, ui_RQ3_joinPort.integer) );
 		} else if (Q_stricmp(name, "FoundPlayerJoinServer") == 0) {
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			if (uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
@@ -6124,7 +6133,9 @@ vmCvar_t	ui_RQ3_weapAfterJoin;
 vmCvar_t	ui_RQ3_teamCount1;
 vmCvar_t	ui_RQ3_teamCount2;
 vmCvar_t	ui_RQ3_numSpectators;
-
+//Makro - specify server option
+vmCvar_t	ui_RQ3_joinAddress;
+vmCvar_t	ui_RQ3_joinPort;
 
 
 // bk001129 - made static to avoid aliasing
@@ -6255,7 +6266,10 @@ static cvarTable_t		cvarTable[] = {
 	//Makro - team counts
 	{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},
 	{ &ui_RQ3_teamCount2, "g_RQ3_teamCount2", "0", 0},
-	{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0}
+	{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0},
+	//Makro - specify server option
+	{ &ui_RQ3_joinAddress, "ui_RQ3_joinAddress", "", CVAR_ARCHIVE},
+	{ &ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE}
 };
 
 // bk001129 - made static to avoid aliasing
