@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/03/19 06:00:14  niceass
+// tab scoreboard quicky change to q2 way
+//
 // Revision 1.34  2002/03/18 19:19:08  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -272,10 +275,38 @@ static void CG_ScoresDown_f( void ) {
 	}
 }
 
-static void CG_ScoresUp_f( void ) {
-	if ( cg.showScores ) {
+static void CG_Scores_f ( void ) {
+
+	if ( cg.showScores && cg.scoreTPMode == 1 ) {
 		cg.showScores = qfalse;
-		cg.scoreFadeTime = cg.time;
+		cg.scoreFadeTime = 0; //cg.time;
+		cg.scoreTPMode = 0;
+		return;
+	}
+
+	if (cg.scoreTPMode == 0 && cg.showScores) {
+		cg.scoreTPMode = 1;
+		return;
+	}
+
+	if ( cg.scoresRequestTime + 2000 < cg.time ) {
+		// the scores are more than two seconds out of data,
+		// so request new ones
+		cg.scoresRequestTime = cg.time;
+		trap_SendClientCommand( "score" );
+
+		// leave the current scores up if they were already
+		// displayed, but if this is the first hit, clear them out
+		if ( !cg.showScores ) {
+			cg.showScores = qtrue;
+			cg.scoreStartTime = cg.time;
+			cg.numScores = 0;
+		}
+	} else {
+		// show the cached contents even if they just pressed if it
+		// is within two seconds
+		cg.showScores = qtrue;
+		cg.scoreStartTime = cg.time;
 	}
 }
 
@@ -750,8 +781,8 @@ static consoleCommand_t	commands[] = {
 	{ "prevskin", CG_TestModelPrevSkin_f },
 	{ "viewpos", CG_Viewpos_f },
 	{ "playerorigin", CG_PlayerOrigin_f },
-	{ "+scores", CG_ScoresDown_f },
-	{ "-scores", CG_ScoresUp_f },
+	//{ "+scores", CG_ScoresDown_f },
+	{ "scores", CG_Scores_f },
 /*	{ "+zoom", CG_ZoomDown_f },				// hawkins not needed in Reaction
 	{ "-zoom", CG_ZoomUp_f },*/			
 	//Blaze: Weapon stats
