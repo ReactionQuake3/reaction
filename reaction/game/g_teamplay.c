@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/11 18:02:33  slicer
+// Fixed team changes and scoreboard bugs
+//
 // Revision 1.30  2002/03/07 14:29:12  slicer
 // Intermission ala aq2, when timelimit/roundlimit hits.
 //
@@ -798,8 +801,9 @@ void MakeSpectator( gentity_t *ent )
 
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
-	client->sess.savedTeam = client->sess.sessionTeam;
-	client->ps.persistant[PERS_SAVEDTEAM] = client->sess.sessionTeam;
+	//Slicer, commenting this, fixes a lot..savedTeam is always accurate, no need to change it here
+//	client->sess.savedTeam = client->sess.sessionTeam;
+//	client->ps.persistant[PERS_SAVEDTEAM] = client->sess.sessionTeam;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 	ClientSpawn(ent);

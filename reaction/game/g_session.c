@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/11 18:02:33  slicer
+// Fixed team changes and scoreboard bugs
+//
 // Revision 1.9  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -56,14 +59,18 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
-	s = va("%i %i %i %i %i %i %i", 
+	//Slicer how about savedTeam ?!
+
+	s = va("%i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorTime,
 		client->sess.spectatorState,
 		client->sess.spectatorClient,
 		client->sess.wins,
 		client->sess.losses,
-		client->sess.teamLeader
+		client->sess.teamLeader,
+		//Adding saved Team
+		client->sess.savedTeam
 		);
 
 	var = va( "session%i", client - level.clients );
@@ -90,25 +97,29 @@ void G_ReadSessionData( gclient_t *client ) {
 	int teamLeader;
 	int spectatorState;
 	int sessionTeam;
+	//Slicer
+	int savedTeam;
 
 	var = va( "session%i", client - level.clients );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
-
-	sscanf( s, "%i %i %i %i %i %i %i",
+//Slicer: Reading savedTeam also.
+	sscanf( s, "%i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorTime,
 		&spectatorState,              // bk010221 - format
 		&client->sess.spectatorClient,
 		&client->sess.wins,
 		&client->sess.losses,
-		&teamLeader                   // bk010221 - format
+		&teamLeader,                   // bk010221 - format
+		&savedTeam
 		);
 
 	// bk001205 - format issues
 	client->sess.sessionTeam = (team_t)sessionTeam;
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.teamLeader = (qboolean)teamLeader;
-
+	
+	client->sess.savedTeam = (team_t)savedTeam;
 #ifdef __ZCAM__
 	camera_state_load (client);
 #endif /* __ZCAM__ */

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/03/11 18:02:33  slicer
+// Fixed team changes and scoreboard bugs
+//
 // Revision 1.46  2002/03/07 01:38:36  assimon
 // Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
 //
@@ -1135,7 +1138,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	// get and distribute relevent paramters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
+
+	//slicer : make sessionTeam = to savedTeam for scoreboard on cgame
+	client->sess.sessionTeam = client->sess.savedTeam ;
 	ClientUserinfoChanged( clientNum );
+	client->sess.sessionTeam = TEAM_SPECTATOR;
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
