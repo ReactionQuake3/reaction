@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/07/11 04:27:29  niceass
+// crash bug fix for CTB & not selecting an item
+//
 // Revision 1.122  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -1146,7 +1149,7 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 0;
 		break;
 	default:
-		G_Printf("%s had an illegal teamplay weapon %i!\n", ent->client->pers.netname,
+		G_Printf("%s had an illegal teamplay weapon [%i]!\n", ent->client->pers.netname,
 			 ent->client->teamplayWeapon);
 		break;
 	}
@@ -1167,8 +1170,15 @@ void EquipPlayer(gentity_t * ent)
 	}
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
-	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
-	ent->client->uniqueItems = 1;
+	
+	if (ent->client->teamplayItem) {
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
+		ent->client->uniqueItems = 1;
+	}
+	else {
+		G_Printf("%s had an illegal teamplay item [%i]!\n", ent->client->pers.netname,
+			 ent->client->teamplayItem);
+	}
 }
 
 void UnstickPlayer(gentity_t * ent)
