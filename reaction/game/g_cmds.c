@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/06/10 19:04:21  slicer
+// Passing RefID trought scoreboard, forgot to add
+//
 // Revision 1.123  2002/06/10 03:26:04  jbravo
 // Fixed two small errors
 //
@@ -347,10 +350,10 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 		stringlength += j;
 	}
 
-	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i %i %i %i%s", i,
+	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i %i %i %i %i%s", i,
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], 
 		level.team1ready, level.team2ready,
-		(int)level.matchTime, string));
+		(int)level.matchTime,g_RQ3_RefID.integer, string));
 }
 
 
