@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/07/01 02:55:13  blaze
+// change the format of the autorecorded demo name
+//
 // Revision 1.53  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1192,11 +1195,8 @@ void CG_RQ3_Cmd()
 		case 1:
 		case 3:
 			trap_RealTime(&qtime);
-			Com_sprintf(playerName, sizeof(playerName), "%s", cgs.clientinfo->name);
-			RemoveColorEscapeSequences(playerName);
-			Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d_%s_%s\n",
-				    qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min,
-				    qtime.tm_sec, cgs.mapname, playerName);
+			Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d\n",
+				    qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
 			for (i = 0; i < MAX_QPATH; i++) {
 				switch (scrnshotName[i]) {
 				case '>':
