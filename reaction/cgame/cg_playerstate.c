@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/06/05 20:09:17  jbravo
+// Never commit uncompiled code! :)
+//
 // Revision 1.21  2002/06/05 20:06:07  jbravo
 // no more Q3 X minutes left or X frags left sounds
 //
@@ -543,8 +546,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1;
 			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
-		}
-	} */
+		} */
+	} 
 
 	// fraglimit warnings
 /*	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF) {
