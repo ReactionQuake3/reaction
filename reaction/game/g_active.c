@@ -128,8 +128,8 @@ global pain sound events for all clients.
 */
 void P_DamageFeedback( gentity_t *player ) {
 	gclient_t	*client;
-	float	count;
-	vec3_t	angles;
+	float	count, side;
+	vec3_t	angles, v;
 
 	client = player->client;
 	if ( client->ps.pm_type == PM_DEAD ) {
@@ -157,11 +157,52 @@ void P_DamageFeedback( gentity_t *player ) {
 		client->damage_fromWorld = qfalse;
 	} else {
 		vectoangles( client->damage_from, angles );
-		client->ps.damagePitch = angles[PITCH]/360.0 * 256;
-		client->ps.damageYaw = angles[YAW]/360.0 * 256;
+// Q3 Code
+/*		client->ps.damagePitch = angles[PITCH]/360.0 * 256;
+		client->ps.damageYaw = angles[YAW]/360.0 * 256;*/
+		
+
+		// new RQ3 view-kick code, needs more tweaking (the 50 needs to be replaces with that below calcuation
+		// from the AQ2 code.
+		VectorSubtract(client->damage_from, player->s.origin , v);
+		VectorNormalize(v);
+
+		side = -DotProduct(v,forward);
+		client->ps.damagePitch = 50*side*0.3;
+
+		side = - DotProduct(v,right);
+		client->ps.damageYaw = 50*side*0.3;
+	
 	}
 
-	
+	/*	AQ2 code pasted here for reference
+
+   kick = abs(client->damage_knockback);
+  if (kick && player->health > 0) // kick of 0 means no view adjust at all
+  {
+    kick = kick * 100 / player->health;
+
+    if (kick < count*0.5)
+      kick = count*0.5;
+    if (kick > 50)
+      kick = 50;
+
+    VectorSubtract (client->damage_from, player->s.origin, v);
+    VectorNormalize (v);
+                
+    side = DotProduct (v, right);
+    client->v_dmg_roll = kick*side*0.3;
+                
+    side = -DotProduct (v, forward);
+    client->v_dmg_pitch = kick*side*0.3;
+
+    client->v_dmg_time = level.time + DAMAGE_TIME;
+
+
+
+
+  */
+
 	/*
 	G_Printf("Lasthurt: %d, Head: %d, Face: %d, And-Op: %d\n", 
 			client->lasthurt_location, 
