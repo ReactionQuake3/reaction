@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.40  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -462,7 +466,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "(CG_Obituary)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 /*
@@ -675,7 +679,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died and the mod is %i. Tell this to JB\n", targetName, mod );
+	CG_Printf( "(CG_Obituary_Head)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 
@@ -859,7 +863,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "(CG_Obituary_Chest)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 /*
@@ -1052,7 +1056,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "(CG_Obituary_Stomach)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 /*
@@ -1245,7 +1249,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "(CG_Obituary_Legs)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 //==========================================================================

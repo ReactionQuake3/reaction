@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.30  2002/03/14 23:14:19  slicer
 // Added Fraglimit checks on TP ( !!! )
 //
@@ -147,6 +151,8 @@ vmCvar_t	g_RQ3_roundtimelimit;
 vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	g_RQ3_sniperup;
+vmCvar_t	g_RQ3_team1name;
+vmCvar_t	g_RQ3_team2name;
 vmCvar_t	RQ3_lca;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
@@ -278,6 +284,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_team1name, "g_RQ3_team1name", "Cops", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
+	{ &g_RQ3_team2name, "g_RQ3_team2name", "Robbers", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
@@ -1524,7 +1532,7 @@ void CheckExitRules( void ) {
 		return;
 	}
 	//Slicer
-	if(g_gametype.integer == GT_TEAMPLAY) {
+	if(g_gametype.integer == GT_TEAMPLAY && g_fraglimit.integer > 0) {
 		for ( i=0 ; i< g_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.25  2002/03/04 20:50:59  jbravo
 // No floating scores over dead bodies, triangles disabled, and no viewing
 // names of enemys just of teammates.
@@ -2492,7 +2496,7 @@ static qboolean CG_DrawFollow( void ) {
 	vec4_t		color;
 	const char	*name;
 	int		team;
-	char		combinedName[512];
+	char		combinedName[512], teamname[128];
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
@@ -2508,11 +2512,13 @@ static qboolean CG_DrawFollow( void ) {
 	if ( cgs.gametype >= GT_TEAM ) {
 		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
 		if (team == TEAM_RED) {
-			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 1",
-				cgs.clientinfo[cg.snap->ps.clientNum].name);
+			trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
+			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
+				cgs.clientinfo[cg.snap->ps.clientNum].name, teamname);
 		} else {
-			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 2",
-				cgs.clientinfo[cg.snap->ps.clientNum].name);
+			trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
+			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
+				cgs.clientinfo[cg.snap->ps.clientNum].name, teamname);
 		}
 		x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
 		CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );

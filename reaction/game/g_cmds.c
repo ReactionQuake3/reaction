@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.71  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -666,11 +670,11 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		if (client->sess.savedTeam == TEAM_RED) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined team 1.\n\"",
-				client->pers.netname));
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined %s.\n\"",
+				client->pers.netname, g_RQ3_team1name.string));
 		} else if (client->sess.savedTeam == TEAM_BLUE) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined team 2.\n\"",
-				client->pers.netname));
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined %s.\n\"",
+				client->pers.netname, g_RQ3_team2name.string));
 		} else if (client->sess.savedTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " left his team.\n\"",
 				client->pers.netname));

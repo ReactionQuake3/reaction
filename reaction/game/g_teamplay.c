@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.33  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -426,10 +430,10 @@ int WonGame(int winner)
 		trap_SendServerCommand( -1, "print \"It was a tie, no points awarded!\n\"" );
 	} else {
 		if (winner == WINNER_TEAM1) {
-			trap_SendServerCommand( -1, "print \"Team 1 won!\n\"" );
+			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team1name.string));
 			level.teamScores[TEAM_RED]++;
 		} else {
-			trap_SendServerCommand( -1, "print \"Team 2 won!\n\"" );
+			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team2name.string));
 			level.teamScores[TEAM_BLUE]++;
 		}
 	}

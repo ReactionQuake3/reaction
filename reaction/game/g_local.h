@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/17 00:40:23  jbravo
+// Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
+// Slicers fraglimit check.
+//
 // Revision 1.52  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -1109,6 +1113,8 @@ extern	vmCvar_t	g_RQ3_roundtimelimit;		// JBravo: Time pr. round
 extern	vmCvar_t	g_RQ3_tgren;			// JBravo: no. of team grenades
 extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limited to same team.
 extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
+extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
+extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
 extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
