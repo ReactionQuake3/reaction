@@ -1426,8 +1426,9 @@ void RQ3_ResetWeapon( int weapon ) {
 		//default respawn time and is flagged
 		if (numRemoved < 1 &&
 			(ent->flags & FL_DROPPED_ITEM) == FL_DROPPED_ITEM &&
-			(ent->flags & FL_RQ3_JUNKITEM) == FL_RQ3_JUNKITEM &&
-			level.time - ent->timestamp >= RQ3_RESPAWNTIME_DEFAULT) {
+			(ent->flags & FL_RQ3_JUNKITEM) == FL_RQ3_JUNKITEM ) {
+			//Elder: removed because of possible door collision removal
+			//level.time - ent->timestamp >= RQ3_RESPAWNTIME_DEFAULT) {
 			G_FreeEntity(ent);
 			numRemoved++;
 		}

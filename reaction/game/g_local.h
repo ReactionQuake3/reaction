@@ -56,12 +56,14 @@ typedef enum {
 	ROTATOR_POS2,
 	ROTATOR_1TO2,
 	ROTATOR_2TO1
-
 } moverState_t;
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
 #define RQ3_RESPAWNTIME_DEFAULT		30000	// Elder: time for weapons to respawn
+
+#define SP_AUTOOPEN			128				// Elder: revert to Q3 behaviour
+#define SP_NODOORTOGGLE		256				// Elder: added to disable mover toggling
 
 //============================================================================
 
@@ -176,7 +178,7 @@ struct gentity_s {
 	float		random;
 
 	gitem_t		*item;			// for bonus items	
-	float		distance;		// VALKYRIE: for rotating door 
+	float		distance;		// VALKYRIE: for rotating door
 };
 
 

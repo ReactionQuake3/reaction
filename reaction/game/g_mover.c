@@ -335,9 +335,10 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			//Elder: debug code
 			G_Printf("RQ3: TR_SINE crusher code removed\n");
 			//Elder: temp - player will stop the pendulum from going
-			return qfalse;
+			//Elder: removed qfalse and continue
+			//return qfalse;
 			//G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
-			continue;
+			//continue;
 		}
 
 		
@@ -519,7 +520,6 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		VectorScale( delta, f, ent->s.apos.trDelta );
 		ent->s.apos.trType = TR_LINEAR_STOP;
 		break;
-
 	}
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );	
 	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
@@ -562,6 +562,7 @@ void ReturnToPos1( gentity_t *ent ) {
 	}
 }
 
+
 // Reaction
 /*
 ================
@@ -579,6 +580,7 @@ void ReturnToApos1( gentity_t *ent ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
 	}
 }
+
 
 /*
 ================
@@ -599,15 +601,22 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos2 );
 		}
 
-		// return to pos1 after a delay
-		ent->think = ReturnToPos1;
-		ent->nextthink = level.time + ent->wait;
-
+		//Elder: added toggle bit
+		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) {
+			// return to pos1 after a delay
+			ent->think = ReturnToPos1;
+			ent->nextthink = level.time + ent->wait;
+		}
+		else {
+			//G_Printf("Sliding Toggle Door used\n");
+		}
+		
 		// fire targets
 		if ( !ent->activator ) {
 			ent->activator = ent;
 		}
 		G_UseTargets( ent, ent->activator );
+
 	} else if ( ent->moverState == MOVER_2TO1 ) {
 		// reached pos1
 		SetMoverState( ent, MOVER_POS1, level.time );
@@ -621,6 +630,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		if ( ent->teammaster == ent || !ent->teammaster ) {
 			trap_AdjustAreaPortalState( ent, qfalse );
 		}
+
 	} else if ( ent->moverState == ROTATOR_1TO2 ) {			// Reaction 
 		// reached pos2
 		SetMoverState( ent, ROTATOR_POS2, level.time );
@@ -630,9 +640,15 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos2 );
 		}
 
-		// return to apos1 after a delay
-		ent->think = ReturnToApos1;
-		ent->nextthink = level.time + ent->wait;
+		//Elder: added toggle bit
+		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) {
+			// return to apos1 after a delay
+			ent->think = ReturnToApos1;
+			ent->nextthink = level.time + ent->wait;
+		}
+		else {
+			//G_Printf("Rotating Toggle Door used\n");
+		}
 
 		// fire targets
 		if ( !ent->activator ) {
@@ -697,39 +713,59 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// if all the way up, just delay before coming down
 	if ( ent->moverState == MOVER_POS2 ) {
-		ent->nextthink = level.time + ent->wait;
+		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal Q3 door
+			ent->nextthink = level.time + ent->wait;
+		}
+		else {
+			//Elder: Move back "immediately"
+			MatchTeam( ent, MOVER_2TO1, level.time + 50);
+			if ( ent->sound1to2 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
+			}
+		}
 		return;
 	}
 
 	// only partway down before reversing
 	if ( ent->moverState == MOVER_2TO1 ) {
+		//Elder: don't interrupt if auto-opening
+		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
+			return;
+		
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
 		if ( partial > total ) {
 			partial = total;
 		}
-
-		MatchTeam( ent, MOVER_1TO2, level.time - ( total - partial ) );
-
-		if ( ent->sound1to2 ) {
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-		}
+		//if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal Q3 door and Toggle Door work identically
+			MatchTeam( ent, MOVER_1TO2, level.time - ( total - partial ) );
+			if ( ent->sound1to2 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
+			}
+		//}
 		return;
 	}
 
 	// only partway up before reversing
 	if ( ent->moverState == MOVER_1TO2 ) {
+		//Elder: don't interrupt if auto-opening
+		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
+			return;
+
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
 		if ( partial > total ) {
 			partial = total;
 		}
-
-		MatchTeam( ent, MOVER_2TO1, level.time - ( total - partial ) );
-
-		if ( ent->sound2to1 ) {
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
-		}
+		//if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal Q3 door and Toggle Door work identically
+			MatchTeam( ent, MOVER_2TO1, level.time - ( total - partial ) );
+			if ( ent->sound2to1 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
+			}
+		//}
 		return;
 	}
 
@@ -755,39 +791,60 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// if all the way up, just delay before coming down
 	if ( ent->moverState == ROTATOR_POS2 ) {
-		ent->nextthink = level.time + ent->wait;
+		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal rotating door
+			ent->nextthink = level.time + ent->wait;
+		}
+		else {
+			//Elder: Move back "immediately"
+			MatchTeam( ent, ROTATOR_2TO1, level.time + 50);
+			if ( ent->sound1to2 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
+			}
+		}
 		return;
 	}
 
 	// only partway down before reversing
 	if ( ent->moverState == ROTATOR_2TO1 ) {
+		//Elder: don't interrupt if auto-opening
+		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
+			return;
+
 		total = ent->s.apos.trDuration;
-		partial = level.time - ent->s.time;
+		partial = level.time - ent->s.apos.trTime;
 		if ( partial > total ) {
 			partial = total;
 		}
-
-		MatchTeam( ent, ROTATOR_1TO2, level.time - ( total - partial ) );
-
-		if ( ent->sound1to2 ) {
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-		}
+		//if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal and toggle rotator act identically
+			MatchTeam( ent, ROTATOR_1TO2, level.time - ( total - partial ) );
+			if ( ent->sound1to2 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
+			}
+		//}
 		return;
 	}
 
 	// only partway up before reversing
 	if ( ent->moverState == ROTATOR_1TO2 ) {
+		//Elder: don't interrupt if auto-opening
+		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
+			return;
+		
 		total = ent->s.apos.trDuration;
-		partial = level.time - ent->s.time;
+		partial = level.time - ent->s.apos.trTime;
 		if ( partial > total ) {
 			partial = total;
 		}
-
-		MatchTeam( ent, ROTATOR_2TO1, level.time - ( total - partial ) );
-
-		if ( ent->sound2to1 ) {
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
-		}
+		//Elder: Identical code -- err, maybe we can merge it
+		//if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
+			//Elder: normal and toggle rotator act identically
+			MatchTeam( ent, ROTATOR_2TO1, level.time - ( total - partial ) );
+			if ( ent->sound2to1 ) {
+				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
+			}
+		//}
 		return;
 	}
 }
@@ -870,6 +927,7 @@ void InitMover( gentity_t *ent ) {
 	if ( ent->s.pos.trDuration <= 0 ) {
 		ent->s.pos.trDuration = 1;
 	}
+
 }
 
 
@@ -896,6 +954,26 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 		if( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {
 			Team_DroppedFlagThink( other );
 			return;
+		}
+		// Elder: added to handle weapons in door paths - 
+		// later we'll need to handle items here too
+		if( other->s.eType == ET_ITEM && other->item->giType == IT_WEAPON ) {
+			switch ( other->item->giTag ) {
+			case WP_MP5:
+			case WP_M4:
+			case WP_M3:
+			case WP_HANDCANNON:
+			case WP_SSG3000:
+				RQ3_DroppedWeaponThink( other );
+				return;
+			case WP_GRENADE:
+			case WP_PISTOL:
+			case WP_KNIFE:
+			case WP_AKIMBO:
+			default:
+				break;
+			}
+
 		}
 		G_TempEntity( other->s.origin, EV_ITEM_POP );
 		G_FreeEntity( other );
@@ -956,12 +1034,15 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 			Touch_DoorTriggerSpectator( ent, other, trace );
 		}
 	}
-	else if ( ent->parent->moverState != MOVER_1TO2 &&
-			ent->parent->moverState != ROTATOR_1TO2 ) {
-//Blaze's broken open door code		
-		
-		if (other->client->openDoor == qtrue )
-		{
+	//else if ( ent->parent->moverState != MOVER_1TO2 &&
+			//ent->parent->moverState != ROTATOR_1TO2 ) {
+	//Elder: we want to handle MOVER_1TO2 and ROTATOR_1TO2 now
+	else {
+		//Blaze's broken open door code
+		//Elder: not as broken as you think	:)
+		if (other->client->openDoor == qtrue ||
+			(ent->parent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN) {
+			//G_Printf("Using a door\n");
 			Use_BinaryMover( ent->parent, ent, other );
 			other->client->openDoor = qfalse;
 		}
@@ -1025,7 +1106,7 @@ void Think_MatchTeam( gentity_t *ent ) {
 	MatchTeam( ent, ent->moverState, level.time );
 }
 
-
+//Elder: old func_door Radiant comment
 /*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER
 TOGGLE		wait in both the start and end states for a trigger event.
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
@@ -1042,16 +1123,61 @@ NOMONSTER	monsters will not trigger this door
 "light"		constantLight radius
 "health"	if set, the door must be shot open
 */
+
+//Elder: new one from GTKRadiant's entity.def plus Reaction stuff
+
+/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER x x x x AUTOOPEN NOTOGGLE
+Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it.
+-------- KEYS --------
+angle : determines the opening direction of door (up = -1, down = -2).
+speed : determines how fast the door moves (default 100).
+wait : number of seconds before door returns (default 2, -1 = return immediately)
+lip : lip remaining at end of move (default 8)
+targetname : if set, a func_button or trigger is required to activate the door.
+health : if set to a non-zero value, the door must be damaged by "health" amount of points to activate (default 0).
+dmg : damage to inflict on player when he blocks operation of door (default 4). Door will reverse direction when blocked unless CRUSHER spawnflag is set.
+team: assign the same team name to multiple doors that should operate together (see Notes).
+light : constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0).
+color : constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1).
+model2 : path/name of model to include (eg: models/mapobjects/pipe/pipe02.md3).
+origin : alternate method of setting XYZ origin of .md3 model included with entity (See Notes).
+notfree : when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.
+notteam : when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
+notsingle : when set to 1, entity will not spawn in Single Player mode (bot play mode).
+soundstop : path to sound file to play when door comes to a stop
+soundmove : path to sound file to play when door is moving
+-------- SPAWNFLAGS --------
+START_OPEN : the door will spawn in the open state and operate in reverse.
+CRUSHER : door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way.
+NOTOGGLE : door will close like traditional Q3 doors using the wait period
+AUTOOPEN : door will open like traditional Q3 doors (like a motion sensor)
+Setting NOTOGGLE and AUTOOPEN will make the doors act like traditional Q3A doors
+-------- NOTES --------
+Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.*/
 void SP_func_door (gentity_t *ent) {
 	vec3_t	abs_movedir;
 	float	distance;
 	vec3_t	size;
 	float	lip;
+	//Elder: added
+	char	*sSndMove;
+	char	*sSndStop;
 
+	//Elder: can set sounds from here?
+	//G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
+	//G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
 	ent->blocked = Blocked_Door;
+
+	//Elder: added for debugging purposes but doesn't show up (DOH)
+	if ( (ent->spawnflags & 1) == 1)
+		G_Printf("func_door Starting Open\n");
+	if ( (ent->spawnflags & 4) == 4)
+		G_Printf("func_door CRUSHER\n");
+	if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE)
+		G_Printf("func_door is a Toggle\n");
 
 	// default speed of 400
 	if (!ent->speed)
