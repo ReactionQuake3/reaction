@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/09/08 23:23:49  niceass
+// no first person pistol action when firing in semi-auto with predictweapons 0 fixed
+//
 // Revision 1.94  2002/09/08 03:14:17  niceass
 // tracerchance now can be 0.0 to 0.4
 //
@@ -2657,19 +2660,19 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 	// M4
 	if (cg.snap->ps.weapon == WP_M4 &&
 	    (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE &&
-	    cg.snap->ps.stats[STAT_BURST] > 2) {
+	    cg.snap->ps.stats[STAT_BURST] > 2 && cg_RQ3_predictWeapons.integer == 1) {
 		return;
 	}
 	// MP5
 	if (cg.snap->ps.weapon == WP_MP5 &&
 	    (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE &&
-	    cg.snap->ps.stats[STAT_BURST] > 2) {
+	    cg.snap->ps.stats[STAT_BURST] > 2 && cg_RQ3_predictWeapons.integer == 1) {
 		return;
 	}
 	// MK23
 	if (cg.snap->ps.weapon == WP_PISTOL &&
 	    (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE &&
-	    cg.snap->ps.stats[STAT_BURST] > 0) {
+	    cg.snap->ps.stats[STAT_BURST] > 0 && cg_RQ3_predictWeapons.integer == 1) {
 		return;
 	}
 	// KNIFE
@@ -2677,9 +2680,6 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 	if (weapModification == RQ3_WPMOD_KNIFENOMARK) {
 		return;
 	}
-	/*if ( cg.snap->ps.weapon == WP_KNIFE ) // { && cg.snap->ps.stats[STAT_BURST] > 0 ) {
-	   return;
-	   } */
 
 	// NiceAss:
 	if (ent->weapon == WP_M3)
