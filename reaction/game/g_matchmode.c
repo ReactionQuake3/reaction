@@ -565,8 +565,9 @@ void MM_Settings_f(gentity_t * ent) {
 		return;
 
 	//Invalid Data SENT
-	if(trap_Argc()!= NR_SETTVARS)
+	if(trap_Argc()-1!= NR_SETTVARS) {
 		return;
+	}
 
 	if((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change settings\n\""));
