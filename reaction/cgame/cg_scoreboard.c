@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/08/27 05:08:22  niceass
+// fix for ref
+//
 // Revision 1.45  2002/08/24 07:59:48  niceass
 // new ref system
 //
@@ -695,7 +698,7 @@ static int CG_TeamplayScoreboard(void)
 				if (Alternate == 1)
 					DrawStripText(y, -(SB_FONTSIZEW * 6), SB_FONTSIZEH, "^3[REF]^7", 100, colorWhite);
 				else
-					DrawStripText(y, ((SCREEN_WIDTH + SB_WIDTH) / 2) + SB_FONTSIZEW, SB_FONTSIZEH, "^3[REF]^7", 100, colorWhite);
+					DrawStripText(y, SB_WIDTH + SB_FONTSIZEW, SB_FONTSIZEH, "^3[REF]^7", 100, colorWhite);
 			}
 			
 			
