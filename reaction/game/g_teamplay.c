@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/07/02 18:30:53  makro
+// Fixed bug with akimbo/pistol clips in TP
+//
 // Revision 1.119  2002/07/02 03:41:59  jbravo
 // Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
 // and fixed the captain status lingering on people after switching from MM
@@ -1105,7 +1108,8 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_AKIMBO);
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
-		ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
+		//Makro - added pistol clips
+		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
 		ent->client->ps.weaponTime = RQ3_AKIMBO_ACTIVATE_DELAY;
