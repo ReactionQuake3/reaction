@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.90  2002/04/07 03:22:48  jbravo
 // Tweaks and crashbug fixes
 //
@@ -892,10 +895,10 @@ void SetTeam( gentity_t *ent, char *s )
 	//	client->sess.savedTeam = team;
 			switch(ent->client->pers.captain) {
 				case TEAM_RED:
-					trap_Cvar_Set("RQ3_team1", "0");
+					trap_Cvar_Set("g_RQ3_team1ready", "0");
 					break;
 				case TEAM_BLUE:
-					trap_Cvar_Set("RQ3_team2", "0");
+					trap_Cvar_Set("g_RQ3_team2ready", "0");
 					break;
 				default:
 					break;
@@ -2945,6 +2948,8 @@ void ClientCommand( int clientNum ) {
 		MM_Ready_f( ent );
 	else if (Q_stricmp (cmd, "sub") == 0)
 		MM_Sub_f( ent );
+	else if (Q_stricmp (cmd, "teamname") == 0)
+		MM_TeamName_f(ent);
 // aasimon: referee for MM
 	else if (Q_stricmp (cmd, "reflogin") == 0)
 		Ref_Auth ( ent );

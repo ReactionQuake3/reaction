@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.42  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -195,8 +198,8 @@ vmCvar_t	g_RQ3_maxteamkills;
 vmCvar_t	g_RQ3_twbanrounds;
 vmCvar_t	g_RQ3_tkbanrounds;
 //Slicer: Team Status Cvars for MM
-vmCvar_t	RQ3_team1;
-vmCvar_t	RQ3_team2;
+vmCvar_t	g_RQ3_team1ready;
+vmCvar_t	g_RQ3_team2ready;
 // aasimon: Ref System for MM
 vmCvar_t	g_RQ3_AllowRef;
 vmCvar_t	g_RQ3_RefPass;
@@ -327,8 +330,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
-	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
-	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
+	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
+	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_SYSTEMINFO, 0, qfalse },
@@ -337,8 +340,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
-	{ &RQ3_team1, "RQ3_team1", "0", 0, 0, qfalse},
-	{ &RQ3_team2, "RQ3_team2", "0", 0, 0, qfalse},
+	{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
@@ -695,8 +698,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
 		level.matchTime = 0;
 		level.inGame = qfalse;
-		trap_Cvar_Set("RQ3_team1", "0");
-		trap_Cvar_Set("RQ3_team2", "0");
+		trap_Cvar_Set("g_RQ3_team1ready", "0");
+		trap_Cvar_Set("g_RQ3_team2ready", "0");
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {

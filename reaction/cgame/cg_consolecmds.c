@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/04/07 12:49:53  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.42  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -975,6 +978,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");
 	trap_AddCommand ("sub");
+	trap_AddCommand ("teamname");
 // aasimon: refeere mm
 	trap_AddCommand ("reflogin");
 	trap_AddCommand ("ref");

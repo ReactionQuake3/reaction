@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/07 12:49:53  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.63  2002/04/03 03:13:48  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -1590,8 +1593,9 @@ extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
-extern vmCvar_t	RQ3_team1;
-extern vmCvar_t	RQ3_team2;
+extern	vmCvar_t		cg_RQ3_team1ready;
+extern	vmCvar_t		cg_RQ3_team2ready;
+
 
 //
 // cg_main.c

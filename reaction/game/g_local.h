@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.65  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -659,6 +662,7 @@ char *G_NewString( const char *string );
 //
 // g_cmds.c
 //
+char	*ConcatArgs( int start );
 void Cmd_Score_f (gentity_t *ent);
 void StopFollowing( gentity_t *ent );
 void BroadcastTeamChange( gclient_t *client, int oldTeam );
@@ -1081,8 +1085,8 @@ extern	vmCvar_t	g_RQ3_maxteamkills;		// JBravo: Max teamkills
 extern	vmCvar_t	g_RQ3_twbanrounds;		// JBravo: no. of games team wounders are banned
 extern	vmCvar_t	g_RQ3_tkbanrounds;		// JBravo: no. of games team killers are banned
 //Slicer: Team Status Cvars for MM
-extern vmCvar_t	RQ3_team1;
-extern vmCvar_t	RQ3_team2;
+extern vmCvar_t	g_RQ3_team1ready;
+extern vmCvar_t	g_RQ3_team2ready;
 //aasimon: Ref System for MM
 extern vmCvar_t g_RQ3_AllowRef;
 extern vmCvar_t g_RQ3_RefPass;

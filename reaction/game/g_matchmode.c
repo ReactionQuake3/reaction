@@ -64,13 +64,13 @@ void MM_Captain_f( gentity_t *ent ) {
 		return;
 	}
 	if(ent->client->pers.captain  == TEAM_RED) {
-			trap_Cvar_Set("RQ3_team1", "0");
+			trap_Cvar_Set("g_RQ3_team1ready", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 			ent->client->pers.netname,"Red Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
 	}
 	else if(ent->client->pers.captain == TEAM_BLUE) {
-			trap_Cvar_Set("RQ3_team2", "0");
+			trap_Cvar_Set("g_RQ3_team2ready", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 				ent->client->pers.netname,"Blue Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
@@ -94,22 +94,22 @@ void MM_Ready_f(gentity_t *ent) {
 	if(ent->client->pers.captain != TEAM_FREE) {
 		if(ent->client->sess.savedTeam == TEAM_RED) {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			"Red Team",RQ3_team1.integer == 0 ? "": "no longer"));
+			"Red Team",g_RQ3_team1ready.integer == 0 ? "": "no longer"));
 			
-			if(RQ3_team1.integer)
-				trap_Cvar_Set("RQ3_Team1", "0");
+			if(g_RQ3_team1ready.integer)
+				trap_Cvar_Set("g_RQ3_team1ready", "0");
 			else
-				trap_Cvar_Set("RQ3_Team1", "1");
+				trap_Cvar_Set("g_RQ3_team1ready", "1");
 
 		}
 		else {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			"Blue Team",RQ3_team2.integer == 0 ? "": " no longer"));
+			"Blue Team",g_RQ3_team2ready.integer == 0 ? "": " no longer"));
 
-			if(RQ3_team2.integer)
-					trap_Cvar_Set("RQ3_Team2", "0");
+			if(g_RQ3_team2ready.integer)
+					trap_Cvar_Set("g_RQ3_team2ready", "0");
 			else
-				trap_Cvar_Set("RQ3_Team2", "1");
+				trap_Cvar_Set("g_RQ3_team2ready", "1");
 			
 		}
 	}
@@ -117,6 +117,66 @@ void MM_Ready_f(gentity_t *ent) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");	
 
 }
+
+void MM_TeamName_f(gentity_t *ent) {
+		int args;
+		team_t team;
+		char *buff;
+		
+		team = ent->client->sess.savedTeam; 
+		if(!g_RQ3_matchmode.integer) 
+			return;
+		if(team == TEAM_SPECTATOR) {
+			return;
+		}
+
+		args = trap_Argc();
+
+		if(args < 2) {
+			trap_SendServerCommand(ent-g_entities, va("print \"Your Team Name: %s\n\"",
+				ent->client->sess.savedTeam == TEAM_RED ? g_RQ3_team1name.string : g_RQ3_team2name.string ));
+			return;
+		}
+		else {
+			if(ent->client->pers.captain == TEAM_FREE) {
+				trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");
+				return;
+			}
+
+			if(level.team_game_going || level.team_round_going) {
+					trap_SendServerCommand(ent-g_entities, "print \"You cannot change your team's name while playing or ready.\n\"");				
+			}
+
+			buff = ConcatArgs( 1 );
+
+			if( strlen(buff) > TEAM_NAME_SIZE )
+				buff[TEAM_NAME_SIZE] = 0;
+
+			if(team == TEAM_RED) {
+				if(g_RQ3_team1ready.integer) {
+					trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
+					return;
+				}
+				trap_Cvar_Set("g_RQ3_team1name",buff);
+				trap_SendServerCommand(-1,va("print \"New Team 1 Name: %s\n\"",buff));
+				
+				
+
+			}
+			else {
+				if(g_RQ3_team2ready.integer) {
+					trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
+					return;
+				}
+				trap_Cvar_Set("g_RQ3_team2name",buff);
+				trap_SendServerCommand(-1,va("print \"New Team 2 Name: %s\n\"",buff));
+			
+			}
+		
+
+		}	
+}
+
 
 //
 //	aasimon: Referee Functions Definition, with some aid functions first

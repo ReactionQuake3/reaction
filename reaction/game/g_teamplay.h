@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.10  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -44,6 +47,8 @@
 #define WINNER_TEAM1	1
 #define WINNER_TEAM2	2
 #define WINNER_TIE	3
+//Slicer TeamName Size.
+#define TEAM_NAME_SIZE 30
 
 void CheckTeamRules();
 void StartLCA();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.62  2002/04/07 03:22:48  jbravo
 // Tweaks and crashbug fixes
 //
@@ -1740,10 +1743,10 @@ void ClientDisconnect( int clientNum ) {
 	if(g_RQ3_matchmode.integer) {
 		switch(ent->client->pers.captain ) {
 				case TEAM_RED:
-					trap_Cvar_Set("RQ3_team1", "0");
+					trap_Cvar_Set("g_RQ3_team1ready", "0");
 					break;
 				case TEAM_BLUE:
-					trap_Cvar_Set("RQ3_team2", "0");
+					trap_Cvar_Set("g_RQ3_team2ready", "0");
 					break;
 				default:
 					break;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/04/07 12:49:53  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.52  2002/04/03 03:13:49  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -290,8 +293,8 @@ vmCvar_t	cg_RQ3_team1name;
 vmCvar_t	cg_RQ3_team2name;
 
 //Slicer: matchmode team status cvars
-vmCvar_t	MM_team1;
-vmCvar_t	MM_team2;
+vmCvar_t	cg_RQ3_team1ready;
+vmCvar_t	cg_RQ3_team2ready;
 // NiceAss: Taken out of the missionpack
 vmCvar_t	cg_enableBreath;
 // JBravo: ditto
@@ -453,8 +456,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
 	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
-	{ &MM_team1, "MM_team1", "0", 0},
-	{ &MM_team2, "MM_team2", "0", 0}
+	{ &cg_RQ3_team1ready, "g_RQ3_team1ready", "0", 0},
+	{ &cg_RQ3_team2ready, "g_RQ3_team2ready", "0", 0}
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 

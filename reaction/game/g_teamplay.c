@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/04/07 12:49:10  slicer
+// Added 'teamname' command for MM, and tweaked the cvar system.
+//
 // Revision 1.60  2002/04/07 03:22:48  jbravo
 // Tweaks and crashbug fixes
 //
@@ -253,7 +256,7 @@ void CheckTeamRules()
 		} else {
 			//Slicer: Adding Matchmode
 			if(g_RQ3_matchmode.integer) {
-				if(RQ3_team1.integer && RQ3_team2.integer)
+				if(g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
 					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
 				else
 					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
@@ -289,8 +292,8 @@ void CheckTeamRules()
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
 					trap_SendServerCommand( -1, "roundend");
-					trap_Cvar_Set("RQ3_Team1", "0");
-					trap_Cvar_Set("RQ3_Team2", "0");
+					trap_Cvar_Set("g_RQ3_team1ready", "0");
+					trap_Cvar_Set("g_RQ3_team2ready", "0");
 					MakeAllLivePlayersObservers ();
 					trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 					return;
@@ -380,7 +383,7 @@ qboolean BothTeamsHavePlayers()
 	int onteam1 = 0, onteam2 = 0;
 
 	//Slicer: Matchmode
-	if(g_RQ3_matchmode.integer && (!RQ3_team1.integer || !RQ3_team2.integer))
+	if(g_RQ3_matchmode.integer && (!g_RQ3_team1ready.integer || !g_RQ3_team2ready.integer))
 		return 0;
 	
 
@@ -534,8 +537,8 @@ int WonGame(int winner)
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
 			trap_SendServerCommand( -1, "roundend");
-			trap_Cvar_Set("RQ3_Team1", "0");
-			trap_Cvar_Set("RQ3_Team2", "0");
+			trap_Cvar_Set("g_RQ3_team1ready", "0");
+			trap_Cvar_Set("g_RQ3_team2ready", "0");
 			MakeAllLivePlayersObservers ();
 			trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 			return 1;
@@ -560,8 +563,8 @@ int WonGame(int winner)
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
 				trap_SendServerCommand( -1, "roundend");
-				trap_Cvar_Set("RQ3_Team1", "0");
-				trap_Cvar_Set("RQ3_Team2", "0");
+				trap_Cvar_Set("g_RQ3_team1ready", "0");
+				trap_Cvar_Set("g_RQ3_team2ready", "0");
 				MakeAllLivePlayersObservers ();
 				trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 				return 1;
