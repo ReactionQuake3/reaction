@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/17 16:57:39  jbravo
+// Items can now be dropped during bandaging
+//
 // Revision 1.86  2002/06/17 03:22:58  jbravo
 // Base voting system is now fixed.
 //
@@ -1265,10 +1268,6 @@ void CalculateRanks(void)
 					level.numPlayingClients++;
 					if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 						level.numVotingClients++;
-/*						if (level.clients[i].sess.savedTeam == TEAM_RED)
-							level.numteamVotingClients[0]++;
-						else if (level.clients[i].sess.savedTeam == TEAM_BLUE)
-							level.numteamVotingClients[1]++; */
 					}
 					if (level.follow1 == -1) {
 						level.follow1 = i;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2002/06/17 16:57:39  jbravo
+// Items can now be dropped during bandaging
+//
 // Revision 1.130  2002/06/17 03:22:58  jbravo
 // Base voting system is now fixed.
 //
@@ -2778,11 +2781,11 @@ void Cmd_DropItem_f(gentity_t * ent)
 		return;
 
 // JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
-//      if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
+// Turns out they are full of shit... :)
+/*	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
-	}
+	} */
 
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM]) {
 		//Elder: reset item totals if using bandolier
