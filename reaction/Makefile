@@ -74,6 +74,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_servercmds.o \
 	$(CGDIRNAME)/cg_snapshot.o \
 	$(CGDIRNAME)/cg_view.o \
+	$(CGDIRNAME)/cg_atmospheric.o \
 	$(CGDIRNAME)/cg_weapons.o
   
 UIOBJ = \
