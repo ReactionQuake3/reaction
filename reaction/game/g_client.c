@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/26 10:32:52  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.52  2002/03/17 23:43:43  slicer
 // Made Bots visible again at DM
 //
@@ -1594,7 +1597,9 @@ void ClientSpawn(gentity_t *ent) {
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
-	ClientThink( ent-g_entities );
+// JBravo: We should not have to call this during TP spawns
+	if (g_gametype.integer != GT_TEAMPLAY)
+		ClientThink( ent-g_entities );
 
 	// positively link the client, even if the command times are weird
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -1604,7 +1609,9 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 	// run the presend to set anything else
-	ClientEndFrame( ent );
+// JBravo: We should not have to call this during TP spawns
+	if (g_gametype.integer != GT_TEAMPLAY)
+		ClientEndFrame( ent );
 
 	//Blaze: Send cheat cvars to client
 	if (!G_SendCheatVars(ent->s.clientNum))

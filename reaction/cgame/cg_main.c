@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/26 10:32:51  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.50  2002/03/23 05:50:47  jbravo
 // Moved enableDust out of the missionpack
 //
@@ -438,8 +441,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 // JBravo: added
-	{ &cg_RQ3_lca, "g_RQ3_lca", "0", 0},
-	{ &cg_RQ3_team_round_going, "g_RQ3_team_round_going", "0", 0},
+	{ &cg_RQ3_lca, "cg_RQ3_lca", "0", CVAR_ROM},
+	{ &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{ &cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
 	{ &cg_gravity, "g_gravity", "0", 0},

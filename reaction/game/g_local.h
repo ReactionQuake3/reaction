@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/03/26 10:32:52  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.57  2002/03/25 14:55:00  jbravo
 // teamCount cvars for Makro
 //
@@ -1133,7 +1136,6 @@ extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = 
 extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
-extern	vmCvar_t	g_RQ3_team_round_going;		// JBravo: cvar to signal cgame that a round is in progress
 extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/03/26 10:32:52  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.44  2002/03/25 14:55:01  jbravo
 // teamCount cvars for Makro
 //
@@ -169,7 +172,6 @@ void CheckTeamRules()
 	if(level.intermissiontime)
 		return;
 
-
 	level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
 
 	if (level.lights_camera_action) {
@@ -232,7 +234,7 @@ void CheckTeamRules()
 				if(level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
-					trap_Cvar_Set("g_RQ3_team_round_going", "0");
+					trap_SendServerCommand( -1, "roundend");
 					trap_Cvar_Set("RQ3_Team1", "0");
 					trap_Cvar_Set("RQ3_Team2", "0");
 					MakeAllLivePlayersObservers ();
@@ -246,7 +248,7 @@ void CheckTeamRules()
 					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					trap_Cvar_Set("g_RQ3_team_round_going", "0");
+					trap_SendServerCommand( -1, "roundend");
 					//Slicer: Start Intermission
 					BeginIntermission();
 					return;
@@ -270,7 +272,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_Cvar_Set("g_RQ3_team_round_going", "0");
+			trap_SendServerCommand( -1, "roundend");
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -284,7 +286,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_Cvar_Set("g_RQ3_team_round_going", "0");
+			trap_SendServerCommand( -1, "roundend");
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -305,7 +307,6 @@ void StartLCA()
 	SpawnPlayers();
 
 	trap_SendServerCommand( -1, "lights");
-	trap_SendServerCommand( -1, "print \"\n------------------\nLIGHTS...\n\"");
 }
 
 void ContinueLCA()
@@ -315,14 +316,12 @@ void ContinueLCA()
 
 	if (level.lights_camera_action == (21*level.fps)/10) {
 		trap_SendServerCommand( -1, "camera");
-		trap_SendServerCommand( -1, "print \"\nCAMERA...\n\"");
 	}
 	else if (level.lights_camera_action == 1) {
 		trap_SendServerCommand( -1, "action");
-		trap_SendServerCommand( -1, "print \"\nACTION!\n\n\"");
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
-		trap_Cvar_Set("g_RQ3_team_round_going", "1");
+		trap_SendServerCommand( -1, "roundbegin");
 		level.current_round_length = 0;
 	}
 	level.lights_camera_action--;
@@ -485,7 +484,7 @@ int WonGame(int winner)
 			if(level.matchTime >= g_timelimit.integer * 60) {
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
-			trap_Cvar_Set("g_RQ3_team_round_going", "0");
+			trap_SendServerCommand( -1, "roundend");
 			trap_Cvar_Set("RQ3_Team1", "0");
 			trap_Cvar_Set("RQ3_Team2", "0");
 			MakeAllLivePlayersObservers ();
@@ -497,7 +496,7 @@ int WonGame(int winner)
 			if(level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				trap_Cvar_Set("g_RQ3_team_round_going", "0");
+				trap_SendServerCommand( -1, "roundend");
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -511,7 +510,7 @@ int WonGame(int winner)
 			if(g_RQ3_matchmode.integer) {
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
-				trap_Cvar_Set("g_RQ3_team_round_going", "0");
+				trap_SendServerCommand( -1, "roundend");
 				trap_Cvar_Set("RQ3_Team1", "0");
 				trap_Cvar_Set("RQ3_Team2", "0");
 				MakeAllLivePlayersObservers ();
@@ -523,7 +522,7 @@ int WonGame(int winner)
 			trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
 			trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-			trap_Cvar_Set("g_RQ3_team_round_going", "0");
+			trap_SendServerCommand( -1, "roundend");
 			//Slicer: Start Intermission
 			BeginIntermission();
 			return 1;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/03/26 10:32:52  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.23  2002/03/17 03:35:29  jbravo
 // More radio tewaks and cleanups.
 //
@@ -1252,18 +1255,31 @@ static void CG_ServerCommand( void ) {
 
 	// NiceAss: LCA
 	if ( !strcmp( cmd, "lights") ) {
+		trap_Cvar_Set("cg_RQ3_lca", "1");
 		CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_Printf("\nLIGHTS...\n");
 		CG_AddBufferedSound(cgs.media.lightsSound);
 		return;
 	}
 	if ( !strcmp( cmd, "camera") ) {
 		CG_CenterPrint( "CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_Printf("\nCAMERA...\n");
 		CG_AddBufferedSound(cgs.media.cameraSound);
 		return;
 	}
 	if ( !strcmp( cmd, "action") ) {
 		CG_CenterPrint( "ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_Printf("\nACTION!\n");
+		trap_Cvar_Set("cg_RQ3_lca", "0");
 		CG_AddBufferedSound(cgs.media.actionSound);
+		return;
+	}
+	if ( !strcmp( cmd, "roundbegin") ) {
+		trap_Cvar_Set("cg_RQ3_team_round_going", "1");
+		return;
+	}
+	if ( !strcmp( cmd, "roundend") ) {
+		trap_Cvar_Set("cg_RQ3_team_round_going", "0");
 		return;
 	}
 // JBravo: radio. This implementation rules. Used to suck :)

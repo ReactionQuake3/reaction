@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/03/26 10:32:52  jbravo
+// Bye bye LCA lag
+//
 // Revision 1.38  2002/03/25 14:55:00  jbravo
 // teamCount cvars for Makro
 //
@@ -174,7 +177,6 @@ vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	g_RQ3_sniperup;
 vmCvar_t	g_RQ3_lca;
-vmCvar_t	g_RQ3_team_round_going;
 vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
 vmCvar_t	g_RQ3_teamCount1;
@@ -318,11 +320,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_SYSTEMINFO, 0, qfalse },
-	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &g_RQ3_team_round_going, "g_RQ3_team_round_going", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_RQ3_lca, "g_RQ3_lca", "0", 0, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
-	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &RQ3_team1, "RQ3_team1", "0", 0, 0, qfalse},
+	{ &RQ3_team2, "RQ3_team2", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
