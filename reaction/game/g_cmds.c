@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.186  2003/04/09 20:57:21  jbravo
+// DM team none was missing a suicide.
+//
 // Revision 1.185  2003/04/09 02:00:43  jbravo
 // Fixed team none in DM and some final cleanups for the 3.0 release
 //
@@ -1134,6 +1137,13 @@ void SetTeam(gentity_t * ent, char *s)
 	if (client->sess.sessionTeam != TEAM_SPECTATOR && client->sess.sessionTeam != TEAM_FREE &&
 	    client->ps.pm_type == PM_NORMAL) {
 		// Kill him (makes sure he loses flags, etc)
+		ent->flags &= ~FL_GODMODE;
+		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+		player_die(ent, ent, ent, 100000, MOD_SUICIDE);
+	}
+
+// JBravo: DM players switching to spectators should also die.
+	if (g_gametype.integer == GT_FFA && team == TEAM_SPECTATOR && client->ps.pm_type == PM_NORMAL) {
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
 		player_die(ent, ent, ent, 100000, MOD_SUICIDE);
