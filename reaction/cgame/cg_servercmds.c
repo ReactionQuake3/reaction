@@ -1057,13 +1057,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-/*	//	zoom back to 1x for Reaction. hawkins
-	if ( !strcmp( cmd, "zoom1x") ) {
-			rxn_zoom1x();
-			return;
-	}
-*/				
-
 	if ( !strcmp( cmd, "selectpistol") ) {
 		//CG_Printf("Selecting pistol\n");
 		//trap_SendConsoleCommand(va("cmd weapon %i\n", WP_PISTOL));

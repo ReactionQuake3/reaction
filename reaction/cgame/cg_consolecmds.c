@@ -52,6 +52,12 @@ static void CG_DropWeapon_f (void) {
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
 
+	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	{
+		CG_Printf("You are too busy bandaging!\n");
+		return;
+	}
+
 	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("dropweapon");
 }
@@ -707,12 +713,12 @@ static void CG_IRVision_f ( void ) {
 	{
 		if (cg.rq3_irvision)
 		{
-			CG_Printf("IR vision enabled.\n");
+			CG_Printf("IR vision disabled.\n");
 			cg.rq3_irvision = qfalse;
 		}
 		else
 		{
-			CG_Printf("IR vision disabled.\n");
+			CG_Printf("IR vision enabled.\n");
 			cg.rq3_irvision = qtrue;
 		}
 		
@@ -756,10 +762,10 @@ static consoleCommand_t	commands[] = {
 	{ "-reload", CG_ReloadReset_f},			// Elder: added to stop auto-throttle
 	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
 	//Elder: added for manual sv_floodProtect check
-	{ "messagemode", CG_Say_f },
-	{ "messagemode2", CG_SayTeam_f },
-	{ "say", CG_Say_f },
-	{ "say_team", CG_SayTeam_f },
+	//{ "messagemode", CG_Say_f },
+	//{ "messagemode2", CG_SayTeam_f },
+	//{ "say", CG_Say_f },
+	//{ "say_team", CG_SayTeam_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
@@ -881,8 +887,8 @@ void CG_InitConsoleCommands( void ) {
 	//Elder: try this
 	trap_AddCommand ("weapon");
 	trap_AddCommand ("specialweapon");
-	trap_AddCommand ("messagemode");
-	trap_AddCommand ("messagemode2");
+	//trap_AddCommand ("messagemode");
+	//trap_AddCommand ("messagemode2");
 	trap_AddCommand ("playerorigin");
 	trap_AddCommand ("irvision");
 }

@@ -895,6 +895,10 @@ typedef struct {
 	sfxHandle_t silencerSound;
 	sfxHandle_t kevlarHitSound;
 	sfxHandle_t	weapToggleSound;
+	sfxHandle_t knifeClankSound;
+	sfxHandle_t knifeDeathSound;
+	sfxHandle_t knifeHitSound;
+	//sfxHandle_t knifeThrowSound;
 
 	sfxHandle_t	quadSound;
 	sfxHandle_t	tracerSound;
@@ -1244,7 +1248,8 @@ extern	vmCvar_t		cg_RQ3_impactEffects;
 extern	vmCvar_t		cg_RQ3_laserAssist;
 //Blaze: anouncer sounds
 extern	vmCvar_t		cg_RQ3_anouncer;
-
+//Elder: different blood types
+extern	vmCvar_t		cg_RQ3_bloodStyle;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;

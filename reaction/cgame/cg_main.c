@@ -157,6 +157,8 @@ vmCvar_t	cg_RQ3_impactEffects;
 vmCvar_t	cg_RQ3_laserAssist;
 //Blaze: anouncer sounds
 vmCvar_t	cg_RQ3_anouncer;
+//Elder: different blood types
+vmCvar_t	cg_RQ3_bloodStyle;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -327,6 +329,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_bloodStyle, "cg_RQ3_bloodStyle", "0", CVAR_ARCHIVE },
 	{ &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
@@ -654,6 +657,9 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencershot.wav", qfalse);
 	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/vest.wav", qfalse);
 	cgs.media.weapToggleSound = trap_S_RegisterSound( "sound/misc/click.wav", qfalse);
+	cgs.media.knifeClankSound = trap_S_RegisterSound( "sound/misc/knife_clank.wav", qfalse);
+	cgs.media.knifeDeathSound = trap_S_RegisterSound( "sound/player/gurp2.wav", qfalse);
+	cgs.media.knifeHitSound = trap_S_RegisterSound( "sound/misc/knife_hit.wav", qfalse);
 
 
 #ifdef MISSIONPACK
@@ -1000,7 +1006,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.armorIcon  = trap_R_RegisterShaderNoMip( "icons/iconr_yellow" );
 
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
-	cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
+	//Elder: changed from m_shel to s_shell
+	cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
 	cgs.media.gibAbdomen = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
 	cgs.media.gibArm = trap_R_RegisterModel( "models/gibs/arm.md3" );

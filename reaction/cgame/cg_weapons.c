@@ -2350,7 +2350,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
 		mark = cgs.media.bulletMarkShader;
-		sfx = 0;
+		sfx = cgs.media.knifeClankSound;
 		radius = 4;
 		
 		break;
@@ -2358,8 +2358,13 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		break;
 	}
 
-	//Elder: 75% of the time render a bullet ricochet sound
-	i = (int)(random() * 35) % 4;
+	// Knives always play sound
+	if (weapon == WP_KNIFE)
+		i = 1;
+	else
+		//Elder: 75% of the time render a bullet ricochet sound
+		i = (int)(random() * 35) % 4;
+
 	if ( sfx && i < 3) {
 		trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
@@ -2790,6 +2795,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 	trace_t trace;
 	int sourceContentType, destContentType;
 	vec3_t		start;
+	centity_t	*cent;
 
 	// if the shooter is currently valid, calc a source point and possibly
 	// do trail effects
@@ -2814,8 +2820,24 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			}
 
 			// draw a tracer
-			if ( random() < cg_tracerChance.value ) {
-				CG_Tracer( start, end );
+			// Elder: only if not using SSG, check if this client is the source
+			if (sourceEntityNum == cg.snap->ps.clientNum)
+			{
+				if (cg.snap->ps.weapon != WP_SSG3000)
+				{
+					if ( random() < cg_tracerChance.value )
+						CG_Tracer( start, end );
+				}
+			}
+			else
+			{
+				cent = &cg_entities[sourceEntityNum];
+				if ( cent->currentValid && cent->currentState.weapon != WP_SSG3000)
+				{
+					if ( random() < cg_tracerChance.value ) {
+						CG_Tracer( start, end );
+					}
+				}
 			}
 		}
 	}

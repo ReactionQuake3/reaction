@@ -488,7 +488,8 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 	int			i;
 	int			spacing = 30;
 	int			bloodCount = 0;
-	
+	trace_t		tr;
+
 	if ( !cg_blood.integer ) {
 		return;
 	}
@@ -497,23 +498,35 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 	if (numBursts > MAX_SPRAY_BURSTS)
 		numBursts = MAX_SPRAY_BURSTS;
 
+
 	VectorCopy (end, move);
 	VectorSubtract (end, start, vec);
 
 	//Calculate true length via start/end points
 	VectorCopy (vec, trueEnd);
 	VectorNormalize (trueEnd);
-	
+
 	//VectorScale (trueEnd, 300 + rand() % 100, trueEnd); 
 	//VectorAdd (end, trueEnd, trueEnd);
 	VectorMA(end, 300 + rand() % 100, trueEnd, trueEnd);
+
+	// Check end point validity so it doesn't go through walls
+	// If it does go through wall, take the trace's endpoint
+	// ****************************** TEST ME!!!!!!! *******************
+	CG_Trace(&tr, start, NULL, NULL, trueEnd, entityNum, CONTENTS_SOLID);
+	if (tr.fraction != 1.0)
+		VectorCopy(tr.endpos, trueEnd);
+
 	VectorSubtract (trueEnd, start, vec);
 
 	len = VectorNormalize (vec);
 	
 	//Set velocity
 	VectorScale(vec, 10, velocity);
-	velocity[2] += 30;
+	if (cg_RQ3_bloodStyle.integer == 1)
+		velocity[2] += 30;
+	else
+		velocity[2] -= 10;
 
 	// advance a random amount first
 	i = rand() % (int)spacing;
@@ -535,10 +548,15 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 					 cgs.media.bloodTrailShader);
 
 		blood->refEntity.rotation = rand() % 360;
-		blood->leMarkType = LEMT_BLOOD;
-		blood->leType = LE_FRAGMENT;
-		blood->pos.trType = TR_GRAVITY;
-		blood->bounceFactor = 0.4f;
+		//Check blood style
+		if (cg_RQ3_bloodStyle.integer == 1)
+		{
+			blood->leType = LE_FRAGMENT;
+			blood->leMarkType = LEMT_BLOOD;
+			blood->pos.trType = TR_GRAVITY;
+			blood->bounceFactor = 0.4f;
+		}
+
 		VectorAdd (move, vec, move);
 	}
 }

@@ -1101,6 +1101,8 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 		CG_Printf("Anim: %d, Old lf->frame %d, New lf->frame: %d\n",
 						newAnimation, lf->frame, anim->firstFrame);
 	}
+
+	lf->oldFrame = lf->frame;
 	lf->frame = anim->firstFrame;
 	
 }
@@ -1144,6 +1146,7 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale, qboolean weaponAnim ) {
 	int			f, numFrames;
 	animation_t	*anim;
+	qboolean	resetAnim = qfalse;
 
 	// debugging tool to get no animations
 	if ( cg_animSpeed.integer == 0 ) {
@@ -1155,9 +1158,18 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 	if ( newAnimation != lf->animationNumber || !lf->animation ) {
 		if (weaponAnim) {
 			CG_SetWeaponLerpFrame( ci, lf, newAnimation );
+			resetAnim = qtrue;
 		} else {
 			CG_SetLerpFrameAnimation( ci, lf, newAnimation );
 		}
+	}
+
+	// Elder's chunk of debug code
+	if (weaponAnim && cg_debugAnim.integer)
+	{
+		CG_Printf("(%d)==================\n", cg.time);
+		CG_Printf("lf->frame (%d), lf->frameTime (%d),\n", lf->frame, lf->frameTime);
+		CG_Printf("lf->oldFrame (%d), lf->oldFrameTime (%d),\n", lf->oldFrame, lf->oldFrameTime);
 	}
 
 	// if we have passed the current frame, move it to
@@ -1202,7 +1214,11 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 			lf->frame = anim->firstFrame + anim->numFrames - 1 - (f%anim->numFrames);
 		}
 		else {
-			lf->frame = anim->firstFrame + f;
+			//Elder's stuff
+			if (resetAnim)
+				lf->frame = anim->firstFrame;
+			else
+				lf->frame = anim->firstFrame + f;
 		}
 		if ( cg.time > lf->frameTime ) {
 			lf->frameTime = cg.time;
@@ -1225,6 +1241,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 	} else {
 		lf->backlerp = 1.0 - (float)( cg.time - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
 	}
+
 }
 
 
@@ -1250,7 +1267,7 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 {
 	clientInfo_t *ci;
 	int clientNum;
-
+	
 	clientNum = cent->currentState.clientNum;
 
 	if ( cg_noPlayerAnims.integer ) {
@@ -1259,7 +1276,7 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 	}
 
 	ci = &cgs.clientinfo[ clientNum ];
-
+	
 	CG_RunLerpFrame( ci, &cent->pe.weapon, cent->currentState.generic1, 1, qtrue );
 
 	// QUARANTINE - Debug - Animations

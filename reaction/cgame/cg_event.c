@@ -1348,6 +1348,57 @@ static void CG_DMRewardEvent( entityState_t *ent ) {
 
 }
 
+/*
+==============
+CG_JumpKick
+
+Added by Elder
+Handles messages for client jumpkicks plus sound event
+==============
+*/
+static void CG_JumpKick ( entityState_t *ent )
+{
+	int				target;
+	int				attacker;
+	clientInfo_t	*ci;
+	char			sex[4];		// null-terminated so one-bigger than pronoun
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_JumpKick: target out of range" );
+	}
+	else if ( attacker < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_JumpKick: attacker out of range" );
+	}
+
+	if (ent->weapon && attacker == cg.clientNum)
+	{
+		// this client was the kicker
+		ci = &cgs.clientinfo[target];
+
+		// get gender-appropriate pronoun
+		if (ci->gender == GENDER_FEMALE)
+			Q_strncpyz(sex, "her", sizeof(sex));
+		else if (ci->gender == GENDER_MALE)
+			Q_strncpyz(sex, "his", sizeof(sex));
+		else
+			Q_strncpyz(sex, "its", sizeof(sex));
+
+		CG_Printf("You kicked %s's %s from %s hands!\n",
+					ci->name, cg_weapons[ent->weapon].item->pickup_name, sex);
+	}
+	else if (ent->weapon && target == cg.clientNum)
+	{
+		// this client was the kicked
+		ci = &cgs.clientinfo[attacker];
+		CG_Printf("%s kicked your weapon from your hands!\n", ci->name);
+	}
+
+	// everyone hears this
+	trap_S_StartSound(NULL, ent->number, CHAN_AUTO, cgs.media.kickSound);
+}
 
 /*
 ==============
@@ -1912,6 +1963,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm, qtrue );
 		break;
 
+	case EV_JUMPKICK:
+		DEBUGNAME("EV_JUMPKICK");
+		ByteToDir( es->eventParm, dir );
+		CG_MissileHitPlayer( WP_PISTOL, position, dir, es->otherEntityNum );
+		CG_JumpKick( es );
+		break;
 
 	case EV_SHOTGUN:
 		DEBUGNAME("EV_SHOTGUN");
@@ -1947,9 +2004,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_RQ3_SOUND:
 		DEBUGNAME("EV_RQ3_SOUND");
 		switch (es->eventParm) {
+			// Elder: handled in EV_JUMPKICK now
+			// But this is for non-client hits like glass
     		case RQ3_SOUND_KICK:
     			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kickSound);
     			break;
+
 			//Elder: handled in EV_HEADSHOT now
 			/*
     		case RQ3_SOUND_HEADSHOT:
@@ -1967,9 +2027,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				//TODO: make sparks from hit position
 				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
 				break;
-			//case RQ3_SOUND_RELOAD_PISTOL:
-				//trap_S_StartSound( es->pos.trBase, es->number, CHAN_AUTO, cgs.media.reloadmk23Sound);
-				//break;
+			case RQ3_SOUND_KNIFEHIT:
+				//When a player gets slashed
+				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.knifeHitSound);
+				break;
+			case RQ3_SOUND_KNIFEDEATH:
+				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.knifeDeathSound);
+				break;
+			
     		default:
     			break;
 		}
