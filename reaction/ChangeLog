@@ -28,3 +28,5 @@
 * Health functionality for movers should be complete now
 * Rezooming after quick reloading is much faster.
 * Visible laser in fog for all players but you.
+* Bots dont look for a team leader in TP
+
