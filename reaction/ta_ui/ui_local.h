@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/04/20 15:06:28  makro
+// Cool stuff :p
+//
 // Revision 1.7  2002/04/06 21:40:59  makro
 // Delayed in-game bot adds. Fixed a small bug in the key
 // handling code for bot names.
@@ -1086,6 +1089,8 @@ char *UI_GetBotInfoByName( const char *name );
 int UI_GetNumBots( void );
 void UI_LoadBots( void );
 char *UI_GetBotNameByNumber( int num );
+//Makro - added
+int UI_SelectedQ3Head( qboolean doUpdate );
 
 void UI_GetBestScore( int level, int *score, int *skill );
 void UI_SetBestScore( int level, int score );

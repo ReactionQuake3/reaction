@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/04/20 15:06:28  makro
+// Cool stuff :p
+//
 // Revision 1.16  2002/04/14 21:50:55  makro
 // Stuff
 //
@@ -183,6 +186,7 @@ static void UI_ParseGameInfo(const char *teamFile);
 static void UI_ParseTeamInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static const char *UI_SelectedHead(int index, int *actual);
+
 static int UI_GetIndexFromSelection(int actual);
 
 int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
@@ -4571,6 +4575,23 @@ static const char *UI_SelectedHead(int index, int *actual) {
 	return "";
 }
 
+//Makro - added
+int UI_SelectedQ3Head( qboolean doUpdate ) {
+	//return uiInfo.q3SelectedHead;
+	int i;
+	char currentSkin[64];
+	trap_Cvar_VariableStringBuffer("model", currentSkin, sizeof(currentSkin));
+	
+	updateModel |= doUpdate;
+	
+	for (i=0; i<uiInfo.q3HeadCount; i++) {
+		if (!strcmp(currentSkin, uiInfo.q3HeadNames[i])) {
+			return i;
+		}
+	}
+	return 0;
+}
+
 static int UI_GetIndexFromSelection(int actual) {
 	int i, c;
 	c = 0;
@@ -4747,8 +4768,10 @@ static void UI_FeederSelection(float feederID, int index) {
     if (index >= 0 && index < uiInfo.q3HeadCount) {
       trap_Cvar_Set( "model", uiInfo.q3HeadNames[index]);
       trap_Cvar_Set( "headmodel", uiInfo.q3HeadNames[index]);
-			updateModel = qtrue;
-		}
+	  //Makro - this should be saved here
+	  uiInfo.q3SelectedHead = index;
+	  updateModel = qtrue;
+	}
   } else if (feederID == FEEDER_MAPS || feederID == FEEDER_ALLMAPS) {
 		int actual, map;
 		map = (feederID == FEEDER_ALLMAPS) ? ui_currentNetMap.integer : ui_currentMap.integer;
@@ -5064,6 +5087,7 @@ joingametypes {
 			// two tokens per line, character name and sex
 			// Makro  - name and sex for gametypes ? Har har har
 			//          They probably mean "name" and "value", heh
+			//			I guess copy/paste isn't a coder's best friend after all
 			if (join) {
 				if (!String_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) || !Int_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum)) {
 					return qfalse;
@@ -5286,7 +5310,7 @@ static void UI_BuildQ3Model_List( void )
 	int		numfiles;
 	char	dirlist[2048];
 	char	filelist[2048];
-	char	skinname[64];
+	char	skinname[64], currentSkin[64];
 	char	scratch[256];
 	char*	dirptr;
 	char*	fileptr;
@@ -5296,10 +5320,13 @@ static void UI_BuildQ3Model_List( void )
 	int		filelen;
 
 	uiInfo.q3HeadCount = 0;
+	//Makro - save current model
+	trap_Cvar_VariableStringBuffer("model", currentSkin, sizeof(currentSkin));
 
 	// iterate directory of all player models
 	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, 2048 );
 	dirptr  = dirlist;
+
 	for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr+=dirlen+1)
 	{
 		dirlen = strlen(dirptr);
@@ -5340,6 +5367,10 @@ static void UI_BuildQ3Model_List( void )
 				}
 				if (!dirty) {
 					Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), scratch);
+					//Makro - see if this model is the selected one
+					if (!strcmp(currentSkin, scratch)) {
+						uiInfo.q3SelectedHead = uiInfo.q3HeadCount;
+					}
 					uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = trap_R_RegisterShaderNoMip(va("models/players/%s/%s",dirptr,skinname));
 				}
 			}

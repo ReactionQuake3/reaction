@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/04/20 15:06:28  makro
+// Cool stuff :p
+//
 // Revision 1.13  2002/04/14 21:50:55  makro
 // Stuff
 //
@@ -47,6 +50,9 @@
 // string allocation/managment
 
 #include "ui_shared.h"
+
+//Makro - to avoid a warning
+int UI_SelectedQ3Head( qboolean doUpdate );
 
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
@@ -925,7 +931,6 @@ void Menu_UpdatePosition(menuDef_t *menu) {
 }
 
 void Menu_PostParse(menuDef_t *menu) {
-
 	if (menu == NULL) {
 		return;
 	}
@@ -2916,6 +2921,7 @@ static void Display_CloseCinematics() {
 }
 
 void  Menus_Activate(menuDef_t *menu) {
+	int i;
 	
 	//Makro - better to check for this kind of stuff
 	if (!menu) {
@@ -2941,6 +2947,31 @@ void  Menus_Activate(menuDef_t *menu) {
 			DC->startBackgroundTrack(menu->soundName, menu->soundName);
 		}
 
+	}
+
+	//Makro - select the right player model icon
+	for (i=0; i<menu->itemCount; i++) {
+		if (menu->items[i]->type == ITEM_TYPE_LISTBOX && menu->items[i]->special == FEEDER_Q3HEADS) {
+			//Makro - select the right player model icon
+			listBoxDef_t *listPtr;
+			int	size = 2, start = 0, pos = UI_SelectedQ3Head(qtrue);
+
+			listPtr = (listBoxDef_t*)menu->items[i]->typeData;
+			if (listPtr->elementWidth) {
+				size = (int) (menu->items[i]->window.rect.w / listPtr->elementWidth);
+				if (size < 2)
+						break;
+				start = listPtr->startPos;
+				if ( start + size < pos)
+					start = ((int) (pos / size)) * size;
+				if (start + size > DC->feederCount(FEEDER_Q3HEADS))
+					start = DC->feederCount(FEEDER_Q3HEADS) - size;
+				listPtr->startPos = start;
+				listPtr->endPos = start + size;
+			}
+			listPtr->cursorPos = pos;
+			menu->items[i]->cursorPos = pos;
+		}
 	}
 
 	Display_CloseCinematics();
@@ -3145,8 +3176,8 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		case K_ESCAPE:
 			if (!g_waitingForKey && menu->onESC) {
 				itemDef_t it;
-		    it.parent = menu;
-		    Item_RunScript(&it, menu->onESC);
+				it.parent = menu;
+				Item_RunScript(&it, menu->onESC);
 			}
 			break;
 		case K_TAB:
@@ -3922,15 +3953,20 @@ void UI_ClearBind( const char *cvar ) {
 
 	id = BindingIDFromName(cvar);
 	if (id != -1) {
-		g_bindings[id].bind1 = -1;
-		g_bindings[id].bind2 = -1;
+		if (g_bindings[id].bind1 != -1) {
+			DC->setBinding( g_bindings[id].bind1, "" );
+			g_bindings[id].bind1 = -1;
+		}
+		if (g_bindings[id].bind2 != -1) {
+			DC->setBinding( g_bindings[id].bind2, "" );
+			g_bindings[id].bind2 = -1;
+		}
 	}
 
 	Controls_SetConfig(qtrue);
 	g_waitingForKey = qfalse;
 	g_bindItem = NULL;
 
-	return;
 }
 
 qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
