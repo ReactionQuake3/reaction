@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/24 18:42:35  makro
+// Elevator stuff
+//
 // Revision 1.38  2002/05/23 18:37:50  makro
 // Bots should crouch more often when they attack with a SSG
 // Made this depend on skill. Also, elevator stuff
@@ -1118,7 +1121,7 @@ void InitMover( gentity_t *ent ) {
 	if (G_SpawnString( "pathtarget","", &sound)) {
 		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
 	}
-	
+
 }
 
 
