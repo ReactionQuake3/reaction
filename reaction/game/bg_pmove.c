@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/05/01 21:14:59  jbravo
+// Misc fixes
+//
 // Revision 1.68  2002/04/26 05:29:38  niceass
 // PHYSICS, Take 2
 //
@@ -1698,15 +1701,15 @@ static void PM_FinishWeaponChange( void ) {
 	savedWeap = pm->ps->weapon;
 
 	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
-		Com_Printf("BANDAGEBUG: (1) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
-				weapon);
+//		Com_Printf("BANDAGEBUG: (1) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
+//				weapon);
 		weapon = savedWeap;
 //		weapon = WP_NONE;
 	}
 
 	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
-		Com_Printf("BANDAGEBUG: (2) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
-				weapon);
+//		Com_Printf("BANDAGEBUG: (2) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
+//				weapon);
 		weapon = savedWeap;
 //		weapon = WP_NONE;
 	}

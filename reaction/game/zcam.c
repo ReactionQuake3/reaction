@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/05/01 21:14:59  jbravo
+// Misc fixes
+//
 // Revision 1.10  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -237,17 +240,17 @@ static int NumPlayers (void)
   for (i = 0; i < level.maxclients; i++) 
     {
 // JBravo: zcam team fixes
-      if (g_gametype.integer == GT_TEAMPLAY) {
+/*      if (g_gametype.integer == GT_TEAMPLAY) {
 	if (level.clients[i].pers.connected == CON_CONNECTED 
 		&& level.clients[i].sess.savedTeam != TEAM_SPECTATOR) {
 	  count ++;
 	}
-      } else {
+      } else { */
 	if (level.clients[i].pers.connected == CON_CONNECTED 
 		&& level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) {
 	  count ++;
 	}
-      }
+//      }
     }
   return count;
 }

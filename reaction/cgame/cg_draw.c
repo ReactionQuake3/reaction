@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/01 21:14:59  jbravo
+// Misc fixes
+//
 // Revision 1.38  2002/05/01 03:27:17  niceass
 // centerprint fix + prettier
 //
@@ -2415,6 +2418,10 @@ static void CG_DrawCrosshairNames( void ) {
 	if ( cg.renderingThirdPerson ) {
 		return;
 	}
+// JBravo: no names for zcam users.
+	if (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) {
+		return;
+	}
 
 	// scan the known entities to see if the crosshair is sighted on one
 	CG_ScanForCrosshairEntity();
@@ -2671,7 +2678,7 @@ static qboolean CG_DrawFollow( void ) {
 		if (team == TEAM_RED) {
 			Com_sprintf (combinedName, sizeof(combinedName), "%sFollowing%s %s%s/%s%s", S_COLOR_RED,
 				S_COLOR_WHITE, cgs.clientinfo[cg.snap->ps.clientNum].name, S_COLOR_RED,
-				S_COLOR_MAGENTA, cg_RQ3_team2name.string);
+				S_COLOR_MAGENTA, cg_RQ3_team1name.string);
 		} else {
 			Com_sprintf (combinedName, sizeof(combinedName), "%sFollowing%s %s%s/%s%s", S_COLOR_RED,
 				S_COLOR_WHITE, cgs.clientinfo[cg.snap->ps.clientNum].name, S_COLOR_RED,
