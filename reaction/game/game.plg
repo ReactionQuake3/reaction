@@ -6,13 +6,13 @@
 --------------------Configuration: game - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1AC.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP235.tmp" with contents
 [
 /nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
-"C:\Games\Quake3\rq3source\reaction\game\ai_dmnet.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_dmq3.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1AC.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1AD.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP235.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP236.tmp" with contents
 [
 kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /machine:I386 /def:".\game.def" /out:"..\Release/qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
 \reactionoutput\ai_chat.obj
@@ -55,10 +55,10 @@ kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows 
 \reactionoutput\zcam.obj
 \reactionoutput\zcam_target.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1AD.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP236.tmp"
 <h3>Output Window</h3>
 Compiling...
-ai_dmnet.c
+ai_dmq3.c
 Linking...
    Creating library c:\reactionoutput/qagamex86.lib and object c:\reactionoutput/qagamex86.exp
 

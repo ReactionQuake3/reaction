@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/11 12:45:25  makro
+// Spectators can go through breakables and doors with
+// a targetname or health. Bots should crouch more/jump less
+// often when attacking at long range
+//
 // Revision 1.36  2002/05/11 00:38:47  blaze
 // trigger_push and target_push default to no noise when the noise flag is not set.
 //
@@ -78,6 +83,8 @@
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 void G_ExplodeMissile( gentity_t *ent );
+//Makro - added
+void Think_SpawnNewDoorTrigger( gentity_t *ent );
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
@@ -637,6 +644,10 @@ void SP_func_breakable( gentity_t *ent ) {
   if ( ent->model2 ) {
       ent->s.modelindex2 = G_ModelIndex( ent->model2 );
   }
+
+  //Makro - added this so spectators can go through breakables
+  ent->nextthink = level.time + FRAMETIME;
+  ent->think = Think_SpawnNewDoorTrigger;
 
   trap_LinkEntity (ent);
 }

@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/05/11 12:45:25  makro
+// Spectators can go through breakables and doors with
+// a targetname or health. Bots should crouch more/jump less
+// often when attacking at long range
+//
 // Revision 1.27  2002/05/11 00:38:47  blaze
 // trigger_push and target_push default to no noise when the noise flag is not set.
 //
@@ -1300,6 +1305,7 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 		mins[1] += 60;
 	}
 
+
 	other = G_Spawn ();
 	other->classname = "door_trigger_spectator";
 	VectorCopy (mins, other->r.mins);
@@ -1451,12 +1457,14 @@ void SP_func_door (gentity_t *ent) {
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-		if ( ent->targetname || health ) {
-			// non touch/shoot doors
-			ent->think = Think_MatchTeam;
-		} else {
+//Makro - spectators should be able to go through doors with health/targetname
+//plus, MatchTeam is called in the end, anyway
+//		if ( ent->targetname || health ) {
+//			// non touch/shoot doors
+//			ent->think = Think_MatchTeam;
+//		} else {
 			ent->think = Think_SpawnNewDoorTrigger;
-		}
+//		}
 	}
 
 	//Elder: open areaportals for start_open doors
@@ -1597,12 +1605,14 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-		if ( ent->targetname || health ) {
-			// non touch/shoot doors
-			ent->think = Think_MatchTeam;
-		} else {
+//Makro - spectators should be able to go through doors with health/targetname
+//plus, MatchTeam is called in the end, anyway
+//		if ( ent->targetname || health ) {
+//			// non touch/shoot doors
+//			ent->think = Think_MatchTeam;
+//		} else {
 			ent->think = Think_SpawnNewDoorTrigger;
-		}
+//		}
 	}
 }
 

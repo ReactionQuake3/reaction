@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/11 12:45:25  makro
+// Spectators can go through breakables and doors with
+// a targetname or health. Bots should crouch more/jump less
+// often when attacking at long range
+//
 // Revision 1.24  2002/05/05 15:18:02  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -755,11 +760,11 @@ void SP_worldspawn( void ) {
 	trap_SetConfigstring( CS_MESSAGE, s );				// map specific message
 
 	//Makro - color for the loading screen text
-	G_SpawnVector( "_color", "0.75 0.75 0.75", color );
+	G_SpawnVector( "_text_color", "0.75 0.75 0.75", color );
 	Info_SetValueForKey(info, "r1", va("%f", color[0]));
 	Info_SetValueForKey(info, "g1", va("%f", color[1]));
 	Info_SetValueForKey(info, "b1", va("%f", color[2]));
-	G_SpawnVector( "_color2", "1 1 1", color );
+	G_SpawnVector( "_text_color2", "1 1 1", color );
 	Info_SetValueForKey(info, "r2", va("%f", color[0]));
 	Info_SetValueForKey(info, "g2", va("%f", color[1]));
 	Info_SetValueForKey(info, "b2", va("%f", color[2]));

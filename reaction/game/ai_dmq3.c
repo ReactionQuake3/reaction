@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/05/11 12:45:25  makro
+// Spectators can go through breakables and doors with
+// a targetname or health. Bots should crouch more/jump less
+// often when attacking at long range
+//
 // Revision 1.30  2002/05/10 13:21:53  makro
 // Mainly bot stuff. Also fixed a couple of crash bugs
 //
@@ -331,18 +336,14 @@ Added by Makro
 */
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	vec3_t dir;
-
+/*
 	VectorTargetDist(bs->origin, dest, dist, dir);
 	//dir[2] = bs->origin[2];
-	/*
-	if (bot_developer.integer == 2) {
-		G_Printf(va("^5BOT CODE: ^7Moving from (%i %i %i) towards entity at (%i %i %i) up to (%i %i %i)\n",
-			(int) bs->origin[0], (int) bs->origin[1], (int) bs->origin[2],
-			(int) dest[0], (int) dest[1], (int) dest[2],
-			(int) dir[0], (int) dir[1], (int) dir[2]));
-	}
-	*/
 	BotMoveTo(bs, dir);
+*/
+	VectorSubtract(dest, bs->origin, dir);
+	VectorNormalize(dir);
+	trap_BotMoveInDirection(bs->ms, dir, 400, MOVE_WALK);
 }
 
 /*
@@ -3230,6 +3231,11 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	VectorSubtract(entinfo.origin, bs->origin, forward);
 	//the distance towards the enemy
 	dist = VectorNormalize(forward);
+	//Makro - for long range attacks the bots should crouch more often
+	if (dist > 512) {
+		croucher = Com_Clamp(0, 1, croucher * 2.0f);
+		jumper = Com_Clamp(0, 1, jumper / 2.0f);
+	}
 	VectorNegate(forward, backward);
 	//walk, crouch or jump
 	movetype = MOVE_WALK;
