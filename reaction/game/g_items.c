@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/08/27 05:34:38  jbravo
+// Fixing item reapperaing in TP and CTB
+//
 // Revision 1.45  2002/08/27 04:05:43  jbravo
 // Fixed dropped weapons and items blocking doors and other movers.
 //
@@ -1467,10 +1470,9 @@ void RQ3_ResetItem(int itemTag)
 	gentity_t *rq3_temp;
 	float angle = rand() % 360;
 
-// JBravo: no resetting items in TP
-// JBravo: man, Ive done this badly :(
-/*	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
-		return; */
+// JBravo: no resetting items in TP or CTB
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
+		return;
 
 	switch (itemTag) {
 	case HI_KEVLAR:
