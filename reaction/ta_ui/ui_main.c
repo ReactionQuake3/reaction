@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2003/04/13 16:56:22  makro
+// In-game browser was showing "reaction" servers instead of "rq3" ones
+//
 // Revision 1.72  2003/04/07 02:18:49  jbravo
 // Removed more unlagged stuff that was messing up impact marks and fixed a
 // booboo in the UI ssg xhair previews.
@@ -331,7 +334,7 @@ static const serverFilter_t serverFilters[] = {
 	{"OSP", "osp" },
 	{"All", "" },*/
 	//Makro - hack !!!
-	{"Reaction", "reaction"}
+	{"Reaction", "rq3"}
 };
 
 static const char *teamArenaGameTypes[] = {
