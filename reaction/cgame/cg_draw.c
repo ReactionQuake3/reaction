@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/06/24 05:55:50  niceass
+// drawping
+//
 // Revision 1.51  2002/06/23 23:09:20  niceass
 // modified upper right scores
 //
@@ -587,12 +590,11 @@ static float CG_DrawSnapshot(float y)
 static float CG_DrawScore(float y)
 {
 	char *s;
-	int w, x;
+	int w, x = 0;
 	float BColor[4], FColor[4];
 
 	y += 4;
 
-	// What about spectator?
 	MAKERGBA(FColor, 0.0f, 0.0f, 0.0f, 1.0f);
 
 	if (cgs.gametype >= GT_TEAM) {
@@ -655,11 +657,12 @@ static float CG_DrawScore(float y)
 
 /*
 ==================
-CG_DrawFPS
+CG_DrawFPSandPing
 ==================
 */
-#define	FPS_FRAMES	4
-static float CG_DrawFPS(float y)
+#define	FPS_FRAMES	8			// NiceAss: Increased from 4 for a smoother average.
+
+static float CG_DrawFPSandPing(float y)
 {
 	char *s;
 	int w;
@@ -668,7 +671,7 @@ static float CG_DrawFPS(float y)
 	int i, total;
 	int fps;
 	static int previous;
-	int t, frameTime;
+	int t, frameTime, x = 0;
 	float Color[4];
 
 	// don't use serverTime, because that will be drifting to
@@ -692,17 +695,40 @@ static float CG_DrawFPS(float y)
 		}
 		fps = 1000 * FPS_FRAMES / total;
 
-		s = va("%ifps", fps);
-		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		if (cg_drawFPS.integer) {
+			s = va("%ifps", fps);
+			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+			x = w;
 
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-		CG_FillRect(631 - w - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+			CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-		CG_DrawCleanRect(631 - w - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+			CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-		CG_DrawSmallString(631 - w, y + 2, s, 1.0F);
+			CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+
+			x += 9;
+		}
+
+		// Draw ping here:
+		if (cg_drawPing.integer) {
+			s = va("%ims", cg.snap->ping);
+			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+			x += w;
+
+			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+			CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+
+			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+			CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+
+			CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+		}	
 	}
+
+	if (!cg_drawFPS.integer && !cg_drawPing.integer)
+		return y;
 
 	return y + SMALLCHAR_HEIGHT + 4;
 }
@@ -924,9 +950,7 @@ static void CG_DrawUpperRight(void)
 		y = CG_DrawSnapshot(y);
 	}
 	y = CG_DrawScore(y);
-	if (cg_drawFPS.integer) {
-		y = CG_DrawFPS(y);
-	}
+	y = CG_DrawFPSandPing(y);
 	if (cg_drawTimer.integer) {
 		y = CG_DrawTimer(y);
 	}

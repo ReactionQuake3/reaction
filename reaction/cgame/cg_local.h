@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/06/24 05:55:24  niceass
+// drawping
+//
 // Revision 1.101  2002/06/23 04:36:02  niceass
 // change to foglaser
 //
@@ -1508,6 +1511,7 @@ extern vmCvar_t cg_shadows;
 extern vmCvar_t cg_gibs;
 extern vmCvar_t cg_drawTimer;
 extern vmCvar_t cg_drawFPS;
+extern vmCvar_t cg_drawPing;
 extern vmCvar_t cg_drawSnapshot;
 extern vmCvar_t cg_draw3dIcons;
 extern vmCvar_t cg_drawIcons;
