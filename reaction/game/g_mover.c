@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.59  2003/07/30 16:05:46  makro
 // no message
 //
@@ -2077,32 +2080,83 @@ void Reached_Train(gentity_t * ent)
 	//G_Printf("^3Train is at (%f %f %f) or (%f %f %f)\n",ent->s.origin[0],ent->s.origin[1],ent->s.origin[2], ent->pos1[0], ent->pos1[1], ent->pos1[2]);
 	//G_Printf("^2NextTrain  Origin(%f, %f, %f) Next Origin (%f, %f, %f)\n", next->nextTrain->s.origin[0], next->nextTrain->s.origin[1], next->nextTrain->s.origin[2], next->s.origin[0], next->s.origin[1], next->s.origin[2]);
 
-	VectorCopy(next->s.origin, ent->pos1);
-	VectorCopy(next->nextTrain->s.origin, ent->pos2);
+	//Makro - restore origin
+	VectorCopy(ent->backup_origin, ent->s.origin2);
+	
+	//Makro - moving train
+	if ( !(next->spawnflags & 1) ) {
+		VectorCopy(next->s.origin, ent->pos1);
+		VectorCopy(next->nextTrain->s.origin, ent->pos2);
+		
+		// if the path_corner has a speed, use that
+		if (next->speed) {
+			speed = next->speed;
+		} else {
+			// otherwise use the train's speed
+			speed = ent->speed;
+		}
+		if (speed < 1) {
+			speed = 1;
+		}
+		// calculate duration
+		VectorSubtract(ent->pos2, ent->pos1, move);
+		length = VectorLength(move);
+		
+		ent->s.pos.trDuration = length * 1000 / speed;
+		// start it going
+		SetMoverState(ent, MOVER_1TO2, level.time);
+		ent->s.apos.trType = TR_STATIONARY;
+		VectorCopy(ent->s.origin2, ent->backup_origin);
 
-	// if the path_corner has a speed, use that
-	if (next->speed) {
-		speed = next->speed;
+	//rotating train
 	} else {
-		// otherwise use the train's speed
-		speed = ent->speed;
-	}
-	if (speed < 1) {
-		speed = 1;
-	}
-	// calculate duration
-	VectorSubtract(ent->pos2, ent->pos1, move);
-	length = VectorLength(move);
+		float dist;
+		vec3_t a, b;
 
-	ent->s.pos.trDuration = length * 1000 / speed;
+		//temp hack !!
+		VectorSet(next->s.origin2, 128, 128, 0);
 
+		//debug info
+		G_Printf(S_COLOR_YELLOW"Rotating train: %s\n", vtos(next->s.origin2));
+
+		if (next->speed) {
+			speed = next->speed;
+		} else {
+			// otherwise use the train's speed
+			speed = ent->speed;
+		}
+		if (speed < 1) {
+			speed = 1;
+		}
+
+		VectorSubtract(next->s.origin, next->s.origin2, a);
+		VectorSubtract(next->nextTrain->s.origin, next->s.origin2, b);
+		dist = acos( DotProduct(a, b) / (VectorLength(a) * VectorLength(b)) ) * 180.0f / M_PI;
+		G_Printf(S_COLOR_YELLOW"Rotating train: dist = %f\n", dist);
+		
+		//VectorClear(ent->movedir);
+		VectorSet(ent->movedir, 0, 1, 0);
+		VectorCopy(ent->r.currentAngles, ent->pos1);
+		VectorMA(ent->pos1, dist, ent->movedir, ent->pos2);
+		VectorCopy(ent->s.origin2, ent->backup_origin);
+		VectorCopy(next->s.origin2, ent->s.origin2);
+	
+		// set origin
+		VectorCopy(next->s.origin2, ent->s.pos.trBase);
+		ent->s.pos.trType = TR_STATIONARY;
+		VectorCopy(next->s.origin, ent->r.currentOrigin);
+
+		VectorCopy(ent->pos1, ent->s.apos.trBase);
+		
+		// calculate time to reach second position from speed
+		ent->s.apos.trDuration = dist * 1000 / speed;
+
+		// start it going
+		SetMoverState(ent, ROTATOR_1TO2, level.time);
+	}
+		
 	// looping sound
 	ent->s.loopSound = next->soundLoop;
-
-	// start it going
-	SetMoverState(ent, MOVER_1TO2, level.time);
-	//debug!!!
-	//G_Printf("^4Got past SetMoverState\n\n");
 
 	// if there is a "wait" value on the target, don't start moving yet
 	if (next->wait) {

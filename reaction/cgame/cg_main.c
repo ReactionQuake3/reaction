@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.137  2003/07/30 16:05:46  makro
 // no message
 //
@@ -1852,8 +1855,10 @@ static void CG_RegisterBreakables(void)
 			continue;
 		}
 
-		id = atoi(Info_ValueForKey(breakInfo, "id"));
-		if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
+		//Makro - not needed
+		//id = atoi(Info_ValueForKey(breakInfo, "id"));
+		id = i;
+		//if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
 			name = Info_ValueForKey(breakInfo, "type");
 			Com_Printf("Registering breakable %s ID=%d\n", name, id);
 			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
@@ -1907,9 +1912,9 @@ static void CG_RegisterBreakables(void)
 			cgs.media.breakables[id].shader = trap_R_RegisterShader(va("breakable_%s_explosion", name));
 			cgs.media.breakables[id].velocity = atoi(Info_ValueForKey(breakInfo, "velocity"));
 			cgs.media.breakables[id].jump = atoi(Info_ValueForKey(breakInfo, "jump"));
-		} else {
-			CG_Printf("ID was %d\n", id);
-		}
+		//} else {
+		//	CG_Printf("ID was %d\n", id);
+		//}
 
 	}
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.148  2003/07/30 16:05:46  makro
 // no message
 //
@@ -358,6 +361,7 @@
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
+#include "..\GAME\q_shared.h"	// Added by ClassView
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
@@ -1674,6 +1678,12 @@ typedef struct {
 	cgMedia_t media;
 // JBravo: unlagged
 	int delagHitscan;
+	//Makro - sky portals
+	vec3_t skyPortalOrigin;
+	qboolean skyPortalSet;
+	//Makro - "clear" color
+	vec3_t clearColor;
+	qboolean clearColorSet;
 } cgs_t;
 
 //==============================================================================

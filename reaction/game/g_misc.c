@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.72  2003/07/30 16:05:46  makro
 // no message
 //
@@ -769,7 +772,7 @@ void Use_Breakable(gentity_t * self, gentity_t * other, gentity_t * activator)
 	//{
 	//make sure it breaks
 	//Makro - added check
-	if (!self->exploded)
+	if (!self->exploded && self->health>0)
 	{
 		self->health = 0;
 		G_BreakGlass(self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health);
@@ -805,6 +808,25 @@ Type is the value set in the type key. Texture is any texture(s) referenced by t
  
 If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction Quake 3 for the proper format.
 */
+
+static void InitBreakable_Finish(gentity_t * ent)
+{
+	char info[MAX_INFO_STRING];
+
+	ent->think = NULL;
+	ent->nextthink = 0;
+	if (ent->s.weapon < 0 || ent->s.weapon >= RQ3_MAX_BREAKABLES) {
+		G_Printf(S_COLOR_RED, "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
+		G_FreeEntity(ent, __LINE__, __FILE__);
+	}
+	trap_GetConfigstring(CS_BREAKABLES + ent->s.weapon, info, sizeof(info));
+	if (strlen(Info_ValueForKey(info, "type")) == 0) {
+		G_Printf(S_COLOR_RED, "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
+		G_FreeEntity(ent, __LINE__, __FILE__);
+	}
+	ent->s.eventParm |= (ent->s.weapon & 0x0FFF);
+	ent->s.weapon = 0;
+}
 
 void SP_func_breakable(gentity_t * ent)
 {
@@ -888,28 +910,39 @@ void SP_func_breakable(gentity_t * ent)
 		ent->damage_radius = GRENADE_SPLASH_RADIUS;
 	}
 	ent->use = Use_Breakable;
+	ent->s.eventParm = amount << 6;
 
-	G_SpawnString("id", "0", &id);
-	if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES) {
-		G_Printf("^2ERROR: ID too high\n");
-		G_FreeEntity(ent, __LINE__, __FILE__);
-		return;
+	//Makro - new code
+	if (G_SpawnInt("type_id", "0", &ent->s.weapon)) {
+		ent->think = InitBreakable_Finish;
+		ent->nextthink = level.time + FRAMETIME;
+	} else {
+		G_SpawnString("id", "0", &id);
+		if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES) {
+			G_Printf("^2ERROR: ID too high\n");
+			G_FreeEntity(ent, __LINE__, __FILE__);
+			return;
+		}
+		//Com_Printf("ID (%d) ", id);
+		if (!G_SpawnString("type", "", &name)) {
+			G_Printf("^2ERROR: broken breakable name (%s)\n", name);
+			G_FreeEntity(ent, __LINE__, __FILE__);
+			return;
+		}
+		//Com_Printf("type (%s)\n",name);
+		G_SpawnString("force", "7", &velocity);
+		
+		G_SpawnString("lift", "5", &jump);
+		//Elder: merge the bits
+		ent->s.eventParm |= (atoi(id) & 0x0FFF);
+
+		Info_SetValueForKey(breakinfo, "type", name);
+		Info_SetValueForKey(breakinfo, "velocity", velocity);
+		Info_SetValueForKey(breakinfo, "jump", jump);
+		//Makro - not needed
+		//Info_SetValueForKey(breakinfo, "id", id);
+		trap_SetConfigstring(CS_BREAKABLES + atoi(id), breakinfo);
 	}
-	//Com_Printf("ID (%d) ", id);
-	if (!G_SpawnString("type", "", &name)) {
-		G_Printf("^2ERROR: broken breakable name (%s)\n", name);
-		G_FreeEntity(ent, __LINE__, __FILE__);
-		return;
-	}
-	//Com_Printf("type (%s)\n",name);
-	G_SpawnString("force", "7", &velocity);
-
-	G_SpawnString("lift", "5", &jump);
-
-	amount = amount << 6;
-
-	//Elder: merge the bits
-	ent->s.eventParm = amount | (atoi(id) & 0x0FFF);
 
 	ent->health = health;
 	ent->health_saved = health;
@@ -929,11 +962,6 @@ void SP_func_breakable(gentity_t * ent)
 	//Makro - added this so spectators can go through breakables
 	//ent->nextthink = level.time + FRAMETIME;
 	//ent->think = Think_SpawnNewDoorTrigger;
-	Info_SetValueForKey(breakinfo, "type", name);
-	Info_SetValueForKey(breakinfo, "velocity", velocity);
-	Info_SetValueForKey(breakinfo, "jump", jump);
-	Info_SetValueForKey(breakinfo, "id", id);
-	trap_SetConfigstring(CS_BREAKABLES + atoi(id), breakinfo);
 
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.43  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -1081,7 +1084,7 @@ void CG_AddPacketEntities(int mode)
 	centity_t *cent;
 	int num;
 
-	//Makro - if we're rendering the entities in a sky portals, we don't need this stuff
+	//Makro - if we're rendering the entities in a sky portal, we don't need this stuff
 	if (mode != 1) {
 		playerState_t *ps;
 

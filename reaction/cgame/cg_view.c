@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.34  2003/04/23 17:49:38  slicer
 // Added new cvar cg_RQ3_ssgZoomSensLock
 //
@@ -1004,8 +1007,6 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
 	int inwater;
-	//Makro - added for sky portals
-	const char *info;
 	int skyPortalMode = -1;
 
 	//Blaze: for cheat detection
@@ -1068,36 +1069,24 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
 	//Makro - fog hull
-	info = CG_ConfigString(CS_FOGHULL);
-	if (info) {
-		if (info[0]) {
-			vec4_t fogcolor;
-			fogcolor[0] = atof(Info_ValueForKey(info, "r"));
-			fogcolor[1] = atof(Info_ValueForKey(info, "g"));
-			fogcolor[2] = atof(Info_ValueForKey(info, "b"));
-			fogcolor[3] = 1;
-			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
-			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
-		}
+	if (cgs.clearColorSet) {
+		float fogcolor[4];
+		fogcolor[0] = cgs.clearColor[0];
+		fogcolor[1] = cgs.clearColor[1];
+		fogcolor[2] = cgs.clearColor[2];
+		fogcolor[3] = 1.0f;
+		CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
 	}
 	//CG_DrawBigPolygon();
 
 	//Makro - draw sky portal first
-	//Note - doing it here means that sky portal entities won't get drawn. but at least the rest of the map looks ok :/
-	info = CG_ConfigString(CS_SKYPORTAL);
-	if (info[0] && Q_stricmp(info, "none")) {
+	if (cgs.skyPortalSet) {
 		vec3_t oldOrigin;
-
 		skyPortalMode = 0;
-		CG_AddPacketEntities(qtrue);
+		CG_AddPacketEntities(1);
 		VectorCopy(cg.refdef.vieworg, oldOrigin);
-		cg.refdef.vieworg[0] = atof(Info_ValueForKey(info, "x"));
-		cg.refdef.vieworg[1] = atof(Info_ValueForKey(info, "y"));
-		cg.refdef.vieworg[2] = atof(Info_ValueForKey(info, "z"));
-		//memset(skyRef.areamask, 0, sizeof(skyRef.areamask));
-		//Com_Printf("View axis is: %f %f %f\n", cg.refdef.viewaxis[0], cg.refdef.viewaxis[1], cg.refdef.viewaxis[2]);
+		VectorCopy(cgs.skyPortalOrigin, cg.refdef.vieworg);
 		trap_R_RenderScene(&cg.refdef);
-		//trap_R_ClearScene();
 		VectorCopy(oldOrigin, cg.refdef.vieworg);
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.142  2003/07/30 16:05:46  makro
 // no message
 //
@@ -548,6 +551,7 @@ struct gentity_s {
 	//Makro - added
 	char *activatename;
 	int inactive;
+	vec3_t backup_origin;
 };
 
 typedef enum {

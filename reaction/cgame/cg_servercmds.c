@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.72  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -433,6 +436,31 @@ static void CG_ParseWarmup(void)
 	cg.warmup = warmup;
 }
 
+//Makro - added
+void CG_ParseSkyPortal(const char *str)
+{
+	if (str && str[0] && Q_stricmp(str, "none")) {
+		cgs.skyPortalOrigin[0] = atof(Info_ValueForKey(str, "x"));
+		cgs.skyPortalOrigin[1] = atof(Info_ValueForKey(str, "y"));
+		cgs.skyPortalOrigin[2] = atof(Info_ValueForKey(str, "z"));
+		cgs.skyPortalSet = qtrue;
+	} else {
+		cgs.skyPortalSet = qfalse;
+	}
+}
+
+//Makro - added
+void CG_ParseFogHull(const char *str)
+{
+	if (str && str[0]) {
+		cgs.clearColor[0] = atof(Info_ValueForKey(str, "r"));
+		cgs.clearColor[1] = atof(Info_ValueForKey(str, "g"));
+		cgs.clearColor[2] = atof(Info_ValueForKey(str, "b"));
+		cgs.clearColorSet = qtrue;
+	} else {
+		cgs.clearColorSet = qfalse;
+	}
+}
 /*
 ================
 CG_SetConfigValues
@@ -456,6 +484,10 @@ void CG_SetConfigValues(void)
 	// q3f atmospheric stuff:
 	if ( cg_atmosphericEffects.integer )
 		CG_EffectParse( CG_ConfigString( CS_ATMOSEFFECT ) );
+	//Makro - "clear" color
+	CG_ParseFogHull( CG_ConfigString(CS_FOGHULL) );
+	//Makro - sky portal
+	CG_ParseSkyPortal( CG_ConfigString(CS_SKYPORTAL) );
 }
 
 /*
@@ -575,7 +607,13 @@ static void CG_ConfigStringModified(void)
 		CG_ShaderStateChanged();
   	} else if( num == CS_ATMOSEFFECT ) {
   	  	CG_EffectParse( str );
-   	}
+   	//Makro - sky portals
+	} else if (num == CS_SKYPORTAL) {
+		CG_ParseSkyPortal(str);
+	//Makro - "clear" color
+	} else if (num == CS_FOGHULL) {
+		CG_ParseFogHull(str);
+	}
 
 }
 

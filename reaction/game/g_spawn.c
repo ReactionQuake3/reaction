@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2003/08/10 20:13:26  makro
+// no message
+//
 // Revision 1.44  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -814,6 +817,7 @@ void SP_worldspawn(void)
 
 	vec3_t		color;
 	//int		nodetail = 0;
+	int			i;
 	char		info[MAX_INFO_STRING];
 
 	G_SpawnString("classname", "", &s);
@@ -868,7 +872,25 @@ void SP_worldspawn(void)
 	G_SpawnString("enableBreath", "0", &s);
 	trap_Cvar_Set("g_enableBreath", s);
 
-  	// q3f atmospheric stuff:
+  	//Makro - read func_breakable types
+	if (G_SpawnInt("numbreakabletypes", "0", &i)) {
+		int j;
+		for (j=0; j<i && j<RQ3_MAX_BREAKABLES; j++) {
+			char *type, *force, *lift;
+			if (!G_SpawnString(va("b%d_type", j), "", &type))
+				continue;
+			G_SpawnString(va("b%d_force", j), "7", &force);
+			G_SpawnString(va("b%d_lift", j), "5", &lift);
+			info[0] = 0;
+			Info_SetValueForKey(info, "type", type);
+			Info_SetValueForKey(info, "velocity", force);
+			Info_SetValueForKey(info, "jump", lift);
+			trap_SetConfigstring(CS_BREAKABLES + j, info);
+		}
+	}
+	
+	
+	// q3f atmospheric stuff:
 	G_SpawnString( "atmosphere", "", &s );
   	trap_SetConfigstring( CS_ATMOSEFFECT, s );  	  	  	// Atmospheric effect
 
