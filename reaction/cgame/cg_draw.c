@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/08/22 03:32:10  niceass
+// countdown code added
+//
 // Revision 1.62  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -566,6 +569,35 @@ static void CG_DrawStatusBar(void)
 ===========================================================================================
 */
 
+static float CG_DrawCTBCountDown(float y)
+{
+	char *s;
+	int w;
+	int x = 0;
+	float Color[4];
+
+	if ( cg.CTBcountdowntime - cg.time < 0 ) {
+		cg.CTBcountdowntime = 0;
+		return y;
+	}
+
+	y += 4;
+	s = va("Respawn in %d", (int)ceil( (cg.CTBcountdowntime - cg.time) / 1000.0f) );
+	w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+	x = w;
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+
+	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+
+	return y + SMALLCHAR_HEIGHT + 4;
+}
+
+
 /*
 ================
 CG_DrawAttacker
@@ -844,7 +876,10 @@ static float CG_DrawTimer(float y)
 	int w;
 	int mins, seconds, tens;
 	int msec;
+	int x = 0;
+	float Color[4];
 
+	y += 4;
 	msec = cg.time - cgs.levelStartTime;
 
 	seconds = msec / 1000;
@@ -854,9 +889,16 @@ static float CG_DrawTimer(float y)
 	seconds -= tens * 10;
 
 	s = va("%i:%i%i", mins, tens, seconds);
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
+	w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+	x = w;
 
-	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+
+	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
@@ -1035,21 +1077,23 @@ static void CG_DrawUpperRight(void)
 
 	y = 0;
 
-	if (cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1) {
+	if (cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1)
 		y = CG_DrawTeamOverlay(y, qtrue, qtrue);
-	}
-	if (cg_drawSnapshot.integer) {
+
+	if (cg_drawSnapshot.integer)
 		y = CG_DrawSnapshot(y);
-	}
+
 	y = CG_DrawScore(y);
 	y = CG_DrawFPSandPing(y);
-	if (cg_drawTimer.integer) {
-		y = CG_DrawTimer(y);
-	}
-	if (cg_drawAttacker.integer) {
-		y = CG_DrawAttacker(y);
-	}
 
+	if (cg_drawTimer.integer)
+		y = CG_DrawTimer(y);
+
+	if (cg.CTBcountdowntime)
+		y = CG_DrawCTBCountDown(y);
+
+	if (cg_drawAttacker.integer)
+		y = CG_DrawAttacker(y);
 }
 
 /*
@@ -1928,12 +1972,14 @@ CG_DrawSpectator
 */
 static void CG_DrawSpectator(void)
 {
-	float Color[4];
+	float	Color[4];
+	int		team;
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 
 	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
-		CG_TeamColor(cg.snap->ps.persistant[PERS_SAVEDTEAM], Color);
+		team = (cgs.gametype == GT_TEAMPLAY) ? cg.snap->ps.persistant[PERS_SAVEDTEAM] : cg.snap->ps.persistant[PERS_TEAM];
+		CG_TeamColor(team, Color);
 		Color[0] *= 0.7f;
 		Color[1] *= 0.7f;
 		Color[2] *= 0.7f;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/08/22 03:30:20  niceass
+// countdown code added
+//
 // Revision 1.115  2002/08/07 04:45:07  niceass
 // ctb changes
 //
@@ -997,6 +1000,8 @@ typedef struct {
 	int matchTime;
 	int team1ready;
 	int team2ready;
+
+	int CTBcountdowntime;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/08/22 03:29:36  niceass
+// countdown code added
+//
 // Revision 1.61  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -1177,9 +1180,9 @@ void RemoveColorEscapeSequences(char *text)
 	text[l] = '\0';
 }
 
-void CG_CtbCountDown(int delay)
+void CG_CtbCountDown(int delay) 
 {
-	// NiceAss, do your magic here :)
+	cg.CTBcountdowntime = cg.time + delay * 1000;
 }
 
 /*
@@ -1319,7 +1322,7 @@ void CG_RQ3_Cmd()
 		}
 		break;
 	case SETWEAPON:
-		i = atoi(CG_Argv(1));
+		i = atoi(CG_Argv(2));
 		cg.weaponSelect = i;
 		cg.weaponSelectTime = cg.time;
 		break;
@@ -1341,7 +1344,7 @@ void CG_RQ3_Cmd()
 		CG_CvarSet();
 		break;
 	case CTBCOUNTDOWN:
-		i = atoi(CG_Argv(1));
+		i = atoi(CG_Argv(2));
 		CG_CtbCountDown(i);
 		break;
 	default:
