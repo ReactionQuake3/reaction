@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/07/16 04:27:19  niceass
+// physics back to 2.0
+//
 // Revision 1.16  2002/07/08 04:30:19  niceass
 // changes to gravity
 //
@@ -86,10 +89,10 @@ qboolean PM_SlideMove(qboolean gravity)
 	VectorCopy(pm->ps->velocity, primal_velocity);
 
 	if (gravity) {
-		/*VectorCopy(pm->ps->velocity, endVelocity);
+		VectorCopy(pm->ps->velocity, endVelocity);
 		endVelocity[2] -= pm->ps->gravity * pml.frametime;
 		pm->ps->velocity[2] = (pm->ps->velocity[2] + endVelocity[2]) * 0.5;
-		primal_velocity[2] = endVelocity[2];*/
+		primal_velocity[2] = endVelocity[2];
 
 		/*if ( pml.groundPlane ) {
 		   // slide along the ground plane
@@ -234,7 +237,7 @@ qboolean PM_SlideMove(qboolean gravity)
 	}
 
 	if (gravity) {
-		//VectorCopy(endVelocity, pm->ps->velocity);
+		VectorCopy(endVelocity, pm->ps->velocity);
 	}
 	// don't change velocity if in a timer (FIXME: is this correct?)
 	if (pm->ps->pm_time) {
@@ -261,9 +264,8 @@ void PM_StepSlideMove(qboolean gravity)
 	VectorCopy(pm->ps->origin, start_o);
 	VectorCopy(pm->ps->velocity, start_v);
 
-	PM_SlideMove(gravity);
-	//if (PM_SlideMove(gravity) == 0)
-		//return;		// we got exactly where we wanted to go first try       
+	if (PM_SlideMove(gravity) == 0)
+		return;		// we got exactly where we wanted to go first try       
 
 	VectorCopy(pm->ps->origin, down_o);
 	VectorCopy(pm->ps->velocity, down_v);

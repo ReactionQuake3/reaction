@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/07/16 04:27:19  niceass
+// physics back to 2.0
+//
 // Revision 1.84  2002/07/08 04:34:41  niceass
 // oops, small mistake
 //
@@ -718,12 +721,10 @@ static void PM_AirMove(void)
 
 	// project moves down to flat plane
 
-	/* REMOVED. WAS IN 2.0.
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
 	VectorNormalize(pml.forward);
 	VectorNormalize(pml.right);
-	*/
 
 	for (i = 0; i < 2; i++) {
 		wishvel[i] = pml.forward[i] * fmove * scale + pml.right[i] * smove * scale;
@@ -745,7 +746,7 @@ static void PM_AirMove(void)
 	   pm->ps->velocity, OVERCLIP );
 	   }
 	 */
-	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+
 	PM_StepSlideMove(qtrue);
 }
 
@@ -834,8 +835,7 @@ static void PM_WalkMove(void)
 		wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-	// NiceAss: Changed from 2.0. Was commented out.
-	wishvel[2] = 0;
+	// wishvel[2] = 0;
 
 	VectorCopy(wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
@@ -864,10 +864,6 @@ static void PM_WalkMove(void)
 	} else {
 		accelerate = pm_accelerate;
 	}
-
-	// NiceAss: Changed from 2.0. Wasn't here before.
-	if (pm->ps->velocity[2] < 0)
-		pm->ps->velocity[2] = 0;
 
 	PM_Accelerate(wishdir, wishspeed, accelerate);
 
