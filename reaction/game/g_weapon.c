@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/09/02 02:23:45  niceass
+// removed spherical head detection and may have helped the ssg accuracy bug
+//
 // Revision 1.79  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -516,11 +519,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 	//u = sin(r) * crandom() * spread * 16;
 	//r = cos(r) * crandom() * spread * 16;
 
-	//FYI: multiply by 16 so we can reach the furthest ends of a "TA" sized map
-
-	u = crandom() * spread * 16;
-	r = crandom() * spread * 16;
-	VectorMA(muzzle, 8192 * 16, forward, end);
+	u = crandom() * spread;
+	r = crandom() * spread;
+	VectorMA(muzzle, 8192, forward, end);
 	VectorMA(end, r, right, end);
 	VectorMA(end, u, up, end);
 
@@ -540,13 +541,14 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards(tr.endpos, muzzle);
 
-		// send bullet impact
 		// NiceAss: Special hit-detection stuff for the head
+		/*
 		if (traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse) {
 			VectorCopy(tr.endpos, muzzle);
 			passent = tr.entityNum;
 			continue;
 		}
+		*/
 
 		if (traceEnt->takedamage && traceEnt->client) {
 			/*if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR && 
@@ -770,18 +772,14 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 	// generate the "random" spread pattern
 	for (i = 0; i < count; i++) {
 		if (shotType == WP_M3) {
-			r = Q_crandom(&seed) * DEFAULT_M3_HSPREAD * 16;
-			u = Q_crandom(&seed) * DEFAULT_M3_VSPREAD * 16;
-			//r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-			//u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			r = Q_crandom(&seed) * DEFAULT_M3_HSPREAD;
+			u = Q_crandom(&seed) * DEFAULT_M3_VSPREAD;
 		} else {
-			r = Q_crandom(&seed) * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
-			u = Q_crandom(&seed) * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
-			//r = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
-			//u = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
+			r = Q_crandom(&seed) * DEFAULT_SHOTGUN_HSPREAD * 4;
+			u = Q_crandom(&seed) * DEFAULT_SHOTGUN_VSPREAD * hc_multipler;
 		}
 
-		VectorMA(origin, 8192 * 16, forward, end);
+		VectorMA(origin, 8192, forward, end);
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
 		if (ShotgunPellet(origin, end, ent) && !hitClient) {
@@ -927,48 +925,6 @@ void weapon_railgun_fire(gentity_t * ent)
 	}
 
 }
-
-/*
-======================================================================
-
-GRAPPLING HOOK
-
-======================================================================
-*/
-//Blaze: No need for grappling hook
-/*
-void Weapon_GrapplingHook_Fire (gentity_t *ent)
-{
-	if (!ent->client->fireHeld && !ent->client->hook)
-		fire_grapple (ent, muzzle, forward);
-
-	ent->client->fireHeld = qtrue;
-}
-
-void Weapon_HookFree (gentity_t *ent)
-{
-	ent->parent->client->hook = NULL;
-	ent->parent->client->ps.pm_flags &= ~PMF_GRAPPLE_PULL;
-	G_FreeEntity( ent );
-}
-
-void Weapon_HookThink (gentity_t *ent)
-{
-	if (ent->enemy) {
-		vec3_t v, oldorigin;
-
-		VectorCopy(ent->r.currentOrigin, oldorigin);
-		v[0] = ent->enemy->r.currentOrigin[0] + (ent->enemy->r.mins[0] + ent->enemy->r.maxs[0]) * 0.5;
-		v[1] = ent->enemy->r.currentOrigin[1] + (ent->enemy->r.mins[1] + ent->enemy->r.maxs[1]) * 0.5;
-		v[2] = ent->enemy->r.currentOrigin[2] + (ent->enemy->r.mins[2] + ent->enemy->r.maxs[2]) * 0.5;
-		SnapVectorTowards( v, oldorigin );	// save net bandwidth
-
-		G_SetOrigin( ent, v );
-	}
-
-	VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
-}
-*/
 
 /*
 ======================================================================
@@ -1197,50 +1153,6 @@ int RQ3_Spread(gentity_t * ent, int spread)
 	}
 
 	return (int) (spread * factor[stage]);
-
-	/*
-	   //Elder: original AQ2 code
-	   int running = 225; // minimum speed for running
-	   int walking = 10; // minimum speed for walking
-	   int laser = 0;
-	   float factor[] = {.7, 1, 2, 6};
-	   int stage = 0;
-
-	   // 225 is running
-	   // < 10 will be standing
-	   float xyspeed = (ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
-
-	   if (ent->client->ps.pmove.pm_flags & PMF_DUCKED) // crouching
-	   return( spread * .65);
-
-	   if ( (ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))])
-	   && (ent->client->curr_weap == MK23_NUM
-	   || ent->client->curr_weap == MP5_NUM
-	   || ent->client->curr_weap == M4_NUM ) )
-	   laser = 1;
-
-	   // running
-	   if ( xyspeed > running*running )
-	   stage = 3;
-	   // walking
-	   else if ( xyspeed >= walking*walking )
-	   stage = 2;
-	   // standing
-	   else
-	   stage = 1;
-
-	   // laser advantage
-	   if (laser)
-	   {
-	   if (stage == 1)
-	   stage = 0;
-	   else
-	   stage = 1;
-	   }
-
-	   return (int)(spread * factor[stage]);
-	 */
-
 }
 
 /*
@@ -1382,7 +1294,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 {
 	vec3_t end;
 	trace_t trace;
-	gentity_t *tent[MAX_SSG3000_HITS];
+	gentity_t *tent;//[MAX_SSG3000_HITS];
 	gentity_t *tentWall;
 	gentity_t *traceEnt = NULL;
 	int damage;
@@ -1404,76 +1316,60 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 	if (ent->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 		ent->client->pers.records[REC_SSG3000SHOTS]++;
 
-	VectorMA(muzzle, 8192 * 16, forward, end);
+	VectorMA(muzzle, 8192, forward, end);
 
 	//Elder: added to assist in zoom crap
-	if (RQ3_isZoomed(ent)) {
-		spread = 0;
-	} else {
-		/*
-		   r = random() * M_PI * 2.0f;
-		   u = sin(r) * crandom() * spread * 16;
-		   r = cos(r) * crandom() * spread * 16;
-		   VectorMA (end, r, right, end);
-		   VectorMA (end, u, up, end);
-		 */
+	if (!RQ3_isZoomed(ent)) {
 		spread = RQ3_Spread(ent, SNIPER_SPREAD);
-		u = crandom() * spread * 16;
-		r = crandom() * spread * 16;
+		u = crandom() * spread;
+		r = crandom() * spread;
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
 	}
 
 	damage = SNIPER_DAMAGE;
 
-	//VectorMA (muzzle, 8192*16, forward, end);
-
 	// trace only against the solids, so the SSG3000 will go through people
 	unlinked = 0;
 	hits = 0;
 	passent = ent->s.number;
-	//G_Printf("(%d) SSG: Begin loop\n", level.time);
 	do {
 		//Elder: need to store this flag because
 		//the entity may get wiped out in G_Damage
 		hitBreakable = qfalse;
 
-		//G_Printf("(%d) SSG: Trapping trace\n", level.time);
-
 		trap_Trace(&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-		if (trace.entityNum >= ENTITYNUM_MAX_NORMAL) {
-			//G_Printf("(%d) SSG: OOB Entity: exiting loop\n", level.time);
+		
+		// Basically, it hit a wall (worldspawn)
+		if (trace.entityNum >= ENTITYNUM_MAX_NORMAL)
 			break;
-		}
 
 		traceEnt = &g_entities[trace.entityNum];
+
 		if (traceEnt->unbreakable == qtrue) {
 			Material = GetMaterialFromFlag(trace.surfaceFlags);
-			//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
-			//       (trace.surfaceFlags & SURF_METAL2) )
 			if (IsMetalMat(Material))
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_METAL);
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_METAL);
 			else if (Material == MAT_GLASS)
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_GLASS);
-			//Makro - added
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_GLASS);
 			else if (IsWoodMat(Material))
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_WOOD);
-			//Makro - added
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WOOD);
 			else if (Material == MAT_BRICK)
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
-			//Makro - added
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
 			else if (Material == MAT_CERAMIC)
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
 			else
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 
-			if (traceEnt && traceEnt->s.eType == ET_PRESSURE)
-				G_CreatePressure(trace.endpos, trace.plane.normal, traceEnt);
+			tent->s.eventParm = DirToByte(trace.plane.normal);
+			tent->s.otherEntityNum = ent->s.number;
+
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, 0, 0, MOD_SNIPER);
 			return;
 		}
 
 		// NiceAss: Special hit-detection stuff for the head
+		/*
 		if (traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, trace.endpos) == qfalse) {
 			// It actually didn't hit anything...
 			trap_UnlinkEntity(traceEnt);
@@ -1481,10 +1377,9 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			unlinked++;
 			continue;
 		}
+		*/
 
 		if (traceEnt->takedamage) {
-			//G_Printf("(%d) SSG: hit damagable entity\n", level.time);
-
 			//flag hitBreakable - bullets go through even
 			//if it doesn't "shatter" - but that's usually
 			//not the case
@@ -1493,40 +1388,30 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			}
 			// send impacts
 			if (traceEnt->client ) {
-				//if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
-				//{
 				if ( !OnSameTeam(traceEnt, ent) || (OnSameTeam(traceEnt, ent) && g_friendlyFire.integer > 0) ) {
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_SSG3000_HIT_FLESH);
-					tent[unlinked]->s.eventParm = DirToByte(forward);
-					tent[unlinked]->s.otherEntityNum2 = traceEnt->s.number;
-					tent[unlinked]->s.otherEntityNum = ent->s.number;
+					tent = G_TempEntity(trace.endpos, EV_SSG3000_HIT_FLESH);
+					tent->s.eventParm = DirToByte(forward);
+					tent->s.otherEntityNum2 = traceEnt->s.number;
+					tent->s.otherEntityNum = ent->s.number;
 				}
-				//}
-				//tent[unlinked]->s.eventParm = traceEnt->s.number;
 			} else {
 				// impact type
-				//Makro - new surfaceparm system
 				Material = GetMaterialFromFlag(trace.surfaceFlags);
-				//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
-				//       (trace.surfaceFlags & SURF_METAL2) )
 				if (IsMetalMat(Material))
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_METAL);
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_METAL);
 				else if (Material == MAT_GLASS)
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_GLASS);
-				//Makro - added
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_GLASS);
 				else if (IsWoodMat(Material))
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_WOOD);
-				//Makro - added
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WOOD);
 				else if (Material == MAT_BRICK)
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
-				//Makro - added
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
 				else if (Material == MAT_CERAMIC)
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
 				else
-					tent[unlinked] = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 
-				tent[unlinked]->s.eventParm = ReflectVectorByte(forward, trace.plane.normal);
-				tent[unlinked]->s.otherEntityNum = ent->s.number;
+				tent->s.eventParm = DirToByte(trace.plane.normal);
+				tent->s.otherEntityNum = ent->s.number;
 			}
 
 			if (LogAccuracyHit(traceEnt, ent)) {
@@ -1535,13 +1420,11 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			//G_Printf("(%d) SSG: Doing damage to target\n", level.time);
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_SNIPER);
 		}
+
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
 
-		// traceEnt->client->kevlarHit ||
 		if ( hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID) ) {
-			// G_Printf("hitKev %d   hitBreak %d  contents %d\n", traceEnt->client->kevlarHit, hitBreakable, trace.contents);
-			//G_Printf("(%d) SSG: did not hit breakable and hit solid, exiting loop\n", level.time);
 			break;	// we hit something solid enough to stop the beam
 		}
 
@@ -1551,72 +1434,40 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			unlinkedEntities[unlinked] = traceEnt;
 			unlinked++;
 		}
-		//G_Printf("(%d) SSG: Unlinked count: %d\n", level.time, unlinked);
 	} while (unlinked < MAX_SSG3000_HITS);
 
-	//G_Printf("(%d) SSG: Relinking unlinked entities\n", level.time);
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
 		trap_LinkEntity(unlinkedEntities[i]);
 	}
 
-	// the final trace endpos will be the terminal point of the rail trail
-
 	// snap the endpos to integers to save net bandwidth, but nudged towards the line
 	SnapVectorTowards(trace.endpos, muzzle);
 
-	//G_Printf("(%d) SSG: Sending bullet impact event\n", level.time);
-
 	// send wall bullet impact
-	// no explosion at end if SURF_NOIMPACT
+
 	Material = GetMaterialFromFlag(trace.surfaceFlags);
-	//G_Printf("SSG3000: Hit entity #%i (%s): surfaceFlag = %i\n", trace.entityNum, g_entities[trace.entityNum].classname, trace.surfaceFlags);
 	if (!(trace.surfaceFlags & SURF_NOIMPACT)) {
 		//Makro - new surfaceparm system
-		//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
-		//       (trace.surfaceFlags & SURF_METAL2) )
 		if (IsMetalMat(Material))
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_METAL);
 		else if (Material == MAT_GLASS)
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_GLASS);
-		//Makro - added
 		else if (IsWoodMat(Material))
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_WOOD);
-		//Makro - added
 		else if (Material == MAT_BRICK)
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
-		//Makro - added
 		else if (Material == MAT_CERAMIC)
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
 		else
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 
-		tentWall->s.eventParm = ReflectVectorByte(forward, trace.plane.normal);
+		tentWall->s.eventParm = DirToByte(trace.plane.normal);
 		tentWall->s.otherEntityNum = ent->s.number;
 
 		if (traceEnt && traceEnt->s.eType == ET_PRESSURE)
 			G_CreatePressure(trace.endpos, trace.plane.normal, traceEnt);
 	}
-	// send railgun beam effect
-	//tent = G_TempEntity( trace.endpos, EV_RAILTRAIL );
-
-	// set player number for custom colors on the railtrail
-	//tent->s.clientNum = ent->s.clientNum;
-
-	//VectorCopy( muzzle, tent->s.origin2 );
-	// move origin a bit to come closer to the drawn gun muzzle
-	//VectorMA( tent->s.origin2, 4, right, tent->s.origin2 );
-	//VectorMA( tent->s.origin2, -1, up, tent->s.origin2 );
-
-	// no explosion at end if SURF_NOIMPACT, but still make the trail
-	//if ( trace.surfaceFlags & SURF_NOIMPACT ) {
-	//tent->s.eventParm = 255;      // don't make the explosion at the end
-	//} else {
-	//tent->s.eventParm = DirToByte( trace.plane.normal );
-	//}
-	//tent->s.clientNum = ent->s.clientNum;
-
-	//G_Printf("(%d) SSG: Shooter reward\n", level.time);
 
 	// give the shooter a reward sound if they have made two railgun hits in a row
 	if (hits == 0) {
@@ -1968,7 +1819,6 @@ void FireWeapon(gentity_t * ent)
 		//ent->client->m4Shots++;
 		break;
 	case WP_SSG3000:
-		//Weapon_SSG3000_FireOld( ent );
 		Weapon_SSG3000_Fire(ent);
 		//ent->client->ssgShots++;
 		break;
@@ -2084,7 +1934,7 @@ void Laser_Think(gentity_t * self)
 
 	// Keep tracing if it hits glass.
 	for (l = 0; l < 10; l++) {
-		VectorMA(start, 8192 * 16, forward, end);
+		VectorMA(start, 8192, forward, end);
 
 		//Trace Position
 		trap_Trace(&tr, start, NULL, NULL, end, passent, MASK_SHOT);
@@ -2098,10 +1948,13 @@ void Laser_Think(gentity_t * self)
 			return;
 		}
 		// It "hit" a player, but actually missed (thanks to new headshot code!)
+		/*
 		if ((traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse)) {
 			passent = tr.entityNum;
 			continue;
 		}
+		*/
+
 		//Makro - new surfaceparm system
 		//if (!(tr.surfaceFlags & SURF_GLASS)) break;
 		if (!(GetMaterialFromFlag(tr.surfaceFlags) == MAT_GLASS))
