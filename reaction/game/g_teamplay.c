@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/03/02 16:16:54  jbravo
+// Fixed the uneven team calculations
+//
 // Revision 1.24  2002/03/01 20:02:34  jbravo
 // Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
 // makro
@@ -488,12 +491,16 @@ void CheckForUnevenTeams(gentity_t *player)
 				onteam2++;
 		}
 	}
-	if (onteam1 > onteam2)
-		trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 2\n\"",
-			onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s"));
-	else if (onteam2 > onteam1)
-		trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 1\n\"",
-			onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s"));
+
+	if (player->client->sess.savedTeam == TEAM_RED) {
+		if (onteam1 > onteam2)
+			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 2\n\"",
+				onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s"));
+	} else if (player->client->sess.savedTeam == TEAM_BLUE) {
+		if (onteam2 > onteam1)
+			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 1\n\"",
+				onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s"));
+	}
 }
 
 void SpawnPlayers()
