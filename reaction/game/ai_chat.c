@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/04/01 12:45:54  makro
+// Changed some weapon names
+//
 // Revision 1.5  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -279,28 +282,97 @@ BotWeaponNameForMeansOfDeath
 
 char *BotWeaponNameForMeansOfDeath(int mod) {
 	switch(mod) {
-		case MOD_SHOTGUN: return "Shotgun";
-		case MOD_GAUNTLET: return "Gauntlet";
-		case MOD_MACHINEGUN: return "Machinegun";
+		case MOD_SHOTGUN:
+			return "Shotgun";
+			break;
+		case MOD_GAUNTLET:
+			return "Gauntlet";
+			break;
+		case MOD_MACHINEGUN:
+			return "Machinegun";
+			break;
 		case MOD_GRENADE:
-		case MOD_GRENADE_SPLASH: return "Grenade Launcher";
+		case MOD_GRENADE_SPLASH:
+			return "Grenade Launcher";
+			break;
 		case MOD_ROCKET:
-		case MOD_ROCKET_SPLASH: return "Rocket Launcher";
+		case MOD_ROCKET_SPLASH:
+			return "Rocket Launcher";
+			break;
 		case MOD_PLASMA:
-		case MOD_PLASMA_SPLASH: return "Plasmagun";
-		case MOD_RAILGUN: return "Railgun";
-		case MOD_LIGHTNING: return "Lightning Gun";
+		case MOD_PLASMA_SPLASH:
+			return "Plasmagun";
+			break;
+		case MOD_RAILGUN:
+			return "Railgun";
+			break;
+		case MOD_LIGHTNING:
+			return "Lightning Gun";
+			break;
 		case MOD_BFG:
-		case MOD_BFG_SPLASH: return "BFG10K";
+		case MOD_BFG_SPLASH:
+			return "BFG10K";
+			break;
 #ifdef MISSIONPACK
-		case MOD_NAIL: return "Nailgun";
-		case MOD_CHAINGUN: return "Chaingun";
-		case MOD_PROXIMITY_MINE: return "Proximity Launcher";
-		case MOD_KAMIKAZE: return "Kamikaze";
-		case MOD_JUICED: return "Prox mine";
+		case MOD_NAIL:
+			return "Nailgun";
+			break;
+		case MOD_CHAINGUN:
+			return "Chaingun";
+			break;
+		case MOD_PROXIMITY_MINE:
+			return "Proximity Launcher";
+			break;
+		case MOD_KAMIKAZE:
+			return "Kamikaze";
+			break;
+		case MOD_JUICED:
+			return "Prox mine";
+			break;
 #endif
-		case MOD_GRAPPLE: return "Grapple";
-		default: return "[unknown weapon]";
+		case MOD_GRAPPLE:
+			return "Grapple";
+			break;
+		//Makro - added RQ3 weapon names
+		case MOD_PISTOL:
+			return RQ3_PISTOL_NAME;
+			break;
+		case MOD_MP5:
+			return RQ3_MP5_NAME;
+			break;
+		case MOD_M4:
+			return RQ3_M4_NAME;
+			break;
+		case MOD_M3:
+			return RQ3_M3_NAME;
+			break;
+		case MOD_HANDCANNON:
+			return RQ3_HANDCANNON_NAME;
+			break;
+		case MOD_SNIPER:
+			return RQ3_SSG3000_NAME;
+			break;
+		case MOD_AKIMBO:
+			return RQ3_AKIMBO_NAME;
+			break;
+		case MOD_KNIFE:
+		case MOD_KNIFE_THROWN:
+			return RQ3_KNIFE_NAME;
+			break;
+		/*
+		case MOD_BLEEDING:
+			return RQ3_PISTOL_NAME;
+			break;
+		case MOD_KICK:
+			return RQ3_PISTOL_NAME;
+			break;
+		case MOD_FRIENDLY_FIRE:
+			return RQ3_PISTOL_NAME;
+			break;
+		*/
+		default:
+			return "[unknown weapon]";
+			break;
 	}
 }
 
@@ -318,6 +390,8 @@ char *BotRandomWeaponName(void) {
 	rnd = random() * 8.9;
 #endif
 	switch(rnd) {
+		//Makro - changed to RQ3 weapon names
+		/*
 		case 0: return "Gauntlet";
 		case 1: return "Shotgun";
 		case 2: return "Machinegun";
@@ -332,6 +406,37 @@ char *BotRandomWeaponName(void) {
 		case 10: return "Proximity Launcher";
 #endif
 		default: return "BFG10K";
+		*/
+	case 0:
+		return RQ3_PISTOL_NAME;
+		break;
+	case 1:
+		return RQ3_M3_NAME;
+		break;
+	case 2:
+		return RQ3_MP5_NAME;
+		break;
+	case 3:
+		return RQ3_HANDCANNON_NAME;
+		break;
+	case 4:
+		return RQ3_SSG3000_NAME;
+		break;
+	case 5:
+		return RQ3_M4_NAME;
+		break;
+	case 6:
+		return RQ3_GRENADE_NAME;
+		break;
+	case 7:
+		return RQ3_AKIMBO_NAME;
+		break;
+	case 8:
+		return RQ3_KNIFE_NAME;
+		break;
+	default:
+		return RQ3_PISTOL_NAME;
+		break;
 	}
 }
 

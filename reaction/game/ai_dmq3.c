@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.10  2002/04/01 01:02:22  jbravo
-// Fixing warnings and an error in bot code
+// Revision 1.11  2002/04/01 12:45:54  makro
+// Changed some weapon names
 //
 // Revision 1.9  2002/03/31 19:16:56  makro
 // Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
@@ -71,9 +71,6 @@
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"
 
-// JBravo: for warnings
-void Cmd_Bandage (gentity_t *ent);
-
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
 #define AREACONTENTS_MODELNUMSHIFT		24
@@ -125,6 +122,15 @@ aas_altroutegoal_t blue_altroutegoals[MAX_ALTROUTEGOALS];
 int blue_numaltroutegoals;
 
 
+//Makro - the vector located on the line from src to dest dist units away
+void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
+	VectorClear(final);
+	VectorSubtract(src, dest, final);
+	VectorNormalize(final);
+	VectorScale(final, dist, final);
+	VectorAdd(final, src, final);
+}
+
 /*
 ==================
 BotMoveTowardsEnt
@@ -137,6 +143,7 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	bot_goal_t goal;
 	bot_moveresult_t moveresult;
 
+	/*
 	VectorClear(dir);
 	VectorSubtract(bs->origin, dest, dir);
 	VectorNormalize(dir);
@@ -146,6 +153,8 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	}
 	VectorScale(dir, dist, dir);
 	VectorAdd(dir, bs->origin, dir);
+	*/
+	VectorTargetDist(bs->origin, dest, dist, dir);
 	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
 
 	//create goal
@@ -4130,7 +4139,7 @@ BotFuncBreakableGoal
 
 Added by Makro
 Basically a rip off of the previous
-function
+function !
 ====================================
 */
 int BotFuncBreakableGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activategoal) {
@@ -4469,8 +4478,6 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		//if door is moving, wait till it stops
 		if ( g_entities[entitynum].moverState == ROTATOR_1TO2 || g_entities[entitynum].moverState == ROTATOR_2TO1 || (g_entities[entitynum].targetname) ) {
 			BotMoveTowardsEnt(bs, entinfo.origin, -80);
-//			if ( g_entities[entitynum].targetname = NULL ) {
-// JBravo: assuming Makro meant == and not =
 			if ( g_entities[entitynum].targetname == NULL ) {
 				return 0;
 			}
