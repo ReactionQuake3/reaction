@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.2  2002/01/21 19:52:31  jbravo
+// Fixed a bug that didnt allow knifes to be selected as primary weapon
+//
 // Revision 1.1  2002/01/11 20:23:41  jbravo
 // Added the two new files for TP I forgot during the main TP commit
 //
@@ -519,6 +522,13 @@ void EquipPlayer (gentity_t *ent)
 	case WP_HANDCANNON:
 		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
+		break;
+	case WP_KNIFE:
+		if (bandolierFactor == 2) {
+			ent->client->ps.ammo[ WP_KNIFE ] = 20;
+		} else {
+			ent->client->ps.ammo[ WP_KNIFE ] = 10;
+		}
 		break;
 	default:
 		break;
