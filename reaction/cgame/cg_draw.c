@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/05/19 18:32:11  jbravo
+// Made new cvars for regular xhair colors.
+//
 // Revision 1.41  2002/05/18 03:55:35  niceass
 // many misc. changes
 //
@@ -2352,10 +2355,10 @@ static void CG_DrawCrosshair(void) {
 		}
 		hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
 	//}
-	crosshairColor[0] = cg_RQ3_ssgColorR.value;
-	crosshairColor[1] = cg_RQ3_ssgColorG.value;
-	crosshairColor[2] = cg_RQ3_ssgColorB.value;
-	crosshairColor[3] = cg_RQ3_ssgColorA.value;
+	crosshairColor[0] = cg_RQ3_crosshairColorR.value;
+	crosshairColor[1] = cg_RQ3_crosshairColorG.value;
+	crosshairColor[2] = cg_RQ3_crosshairColorB.value;
+	crosshairColor[3] = cg_RQ3_crosshairColorA.value;
 	for (i = 0; i < 4; i++) {
 		if (crosshairColor[i] > 1.0f)
 			crosshairColor[i] = 1.0f;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/05/19 18:32:11  jbravo
+// Made new cvars for regular xhair colors.
+//
 // Revision 1.76  2002/05/18 21:58:53  blaze
 // cg_rq3_autoaction support
 //
@@ -1598,6 +1601,11 @@ extern	vmCvar_t		cg_RQ3_ssgColorR;
 extern	vmCvar_t		cg_RQ3_ssgColorG;
 extern	vmCvar_t		cg_RQ3_ssgColorB;
 extern	vmCvar_t		cg_RQ3_ssgColorA;
+// JBravo: normal crosshair colors
+extern	vmCvar_t		cg_RQ3_crosshairColorR;
+extern	vmCvar_t		cg_RQ3_crosshairColorG;
+extern	vmCvar_t		cg_RQ3_crosshairColorB;
+extern	vmCvar_t		cg_RQ3_crosshairColorA;
 //Elder: SSG unique sensitivities
 extern	vmCvar_t		cg_RQ3_ssgSensitivityAuto;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity2x;

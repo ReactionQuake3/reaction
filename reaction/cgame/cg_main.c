@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/05/19 18:32:11  jbravo
+// Made new cvars for regular xhair colors.
+//
 // Revision 1.65  2002/05/18 03:55:35  niceass
 // many misc. changes
 //
@@ -265,6 +268,11 @@ vmCvar_t	cg_RQ3_ssgColorR;
 vmCvar_t	cg_RQ3_ssgColorG;
 vmCvar_t	cg_RQ3_ssgColorB;
 vmCvar_t	cg_RQ3_ssgColorA;
+// JBravo: normal crosshair colors
+vmCvar_t	cg_RQ3_crosshairColorR;
+vmCvar_t	cg_RQ3_crosshairColorG;
+vmCvar_t	cg_RQ3_crosshairColorB;
+vmCvar_t	cg_RQ3_crosshairColorA;
 //Elder: SSG unique sensitivities
 vmCvar_t	cg_RQ3_ssgSensitivityAuto;
 vmCvar_t	cg_RQ3_ssgSensitivity2x;
@@ -484,6 +492,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE },
+// JBravo: cvars for regular crosshairs and their colors
+	{ &cg_RQ3_crosshairColorR, "cg_RQ3_crosshairColorR", "0.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_crosshairColorG, "cg_RQ3_crosshairColorG", "1.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_crosshairColorB, "cg_RQ3_crosshairColorB", "0.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_crosshairColorA, "cg_RQ3_crosshairColorA", "0.75", CVAR_ARCHIVE },
 	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE },
