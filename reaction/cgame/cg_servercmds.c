@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/05/07 15:04:56  slicer
+// Removed a debug message left behind..
+//
 // Revision 1.32  2002/05/06 21:40:37  slicer
 // Added rq3_cmd
 //
@@ -1207,7 +1210,7 @@ void CG_RQ3_Cmd () {
 			CG_SetTeamPlayers();
 			break;
 		case SELECTPISTOL:
-			CG_Printf("Selecting pistol\n");
+		//	CG_Printf("Selecting pistol\n");
 			if (cg.snap) {
 			switch (cg.snap->ps.weapon) {
 				case WP_PISTOL:
