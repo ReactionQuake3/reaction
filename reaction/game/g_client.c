@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/06/17 00:23:59  slicer
+// Lasersight problem fixed
+//
 // Revision 1.94  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1549,6 +1552,12 @@ void ClientSpawn(gentity_t * ent)
 	int savedRadiopower, savedRadiogender;	// JBravo: for radio.
 	camera_t savedCamera;	// JBravo: to save camera stuff
 	char userinfo[MAX_INFO_STRING];
+
+	//Slicer : Laser FIX
+
+	//Try to turn the laser off if it's on
+	if (ent->client->lasersight)
+ 		Laser_Gen(ent, qfalse);
 
 	index = ent - g_entities;
 	client = ent->client;
