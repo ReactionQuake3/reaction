@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/03/30 17:37:49  jbravo
+// Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
+//
 // Revision 1.47  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -163,6 +166,8 @@
 //-----------------------------------------------------------------------------
 
 #include "g_local.h"
+#include "zcam.h"
+
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 char	*ConcatArgs( int start );
 int	touch[MAX_GENTITIES];
@@ -1346,7 +1351,8 @@ void RQ3_SpectatorMode(gentity_t *ent)
 {
 	if (ent->client->sess.spectatorState == SPECTATOR_ZCAM)
 		trap_SendServerCommand(ent->client->ps.clientNum,
-			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"ZCAM\n"));
+			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"ZCAM-%s\n",
+			(ent->client->camera->mode == CAMERA_MODE_SWING)? "SWING":"FLIC"));
 	else
 	trap_SendServerCommand(ent->client->ps.clientNum,
 			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"%s\n",

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/03/30 17:37:48  jbravo
+// Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
+//
 // Revision 1.64  2002/03/30 02:54:24  jbravo
 // MOre spec tweaks and a scoreboard fix
 //
@@ -568,9 +571,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		if(ucmd->upmove >=10 ) {
 			if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
 				client->ps.pm_flags |= PMF_JUMP_HELD;
-				if (client->sess.spectatorState == SPECTATOR_ZCAM)
-					CameraSwingCycle(ent, 1);
-				else
+				if (client->sess.spectatorState == SPECTATOR_ZCAM) {
+					if (client->camera->mode == CAMERA_MODE_SWING)
+						CameraSwingCycle(ent, 1);
+				} else
 					Cmd_FollowCycle_f(ent, 1);
 			}
 		}
@@ -586,9 +590,19 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_ZCAM;
 			client->specMode = SPECTATOR_ZCAM;
+			client->camera->mode = CAMERA_MODE_SWING;
 			client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
 			client->ps.pm_flags &= ~PMF_FOLLOW;
 			CameraSwingCycle(ent, 1);
+			RQ3_SpectatorMode(ent);
+		} else if (client->sess.spectatorState == SPECTATOR_ZCAM && client->camera->mode == CAMERA_MODE_SWING
+				&& OKtoFollow(clientNum)) {
+			client->sess.spectatorState = SPECTATOR_ZCAM;
+			client->specMode = SPECTATOR_ZCAM;
+			client->camera->mode = CAMERA_MODE_FLIC;
+			client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+			CameraFlicBegin (ent);
 			RQ3_SpectatorMode(ent);
 		} else if (client->sess.spectatorState == SPECTATOR_ZCAM && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_FOLLOW;

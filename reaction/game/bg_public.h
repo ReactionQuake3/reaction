@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/30 17:37:48  jbravo
+// Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
+//
 // Revision 1.52  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -606,6 +609,7 @@ typedef enum {
 	PERS_CAPTURES					// captures
 	*/
 	PERS_SAVEDTEAM,				// JBravo: for TP
+	PERS_DAMAGE_DELT,			// JBravo: Keeping track of damage.
 	PERS_WEAPONMODES				// Blaze: Holds the different weapond modes for the different guns see below for the defines to use
 } persEnum_t;
 //RQ3 Weapon modes - If the bit is set, then the weapon is in the more restrictive mode, as in if it's set to 1 it's semi, 3rnd burst, etc

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/03/30 17:37:48  jbravo
+// Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
+//
 // Revision 1.53  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -117,7 +120,9 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 	//}
 
 	// show score plum
-	ScorePlum(ent, origin, score);
+	// JBravo: not in TP
+	if (g_gametype.integer != GT_TEAMPLAY)
+		ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
 	if (g_gametype.integer == GT_TEAM)
@@ -1357,27 +1362,12 @@ dflags		these flags are used to control how T_Damage works
 void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
 	gclient_t	*client;
-	int			take;
-	int			save;
-	int			asave;
-	int			knockback;
-	int			max;
-    int         bleeding = 0; // damage causes bleeding
-    int         instant_dam = 1;
-	vec3_t bulletPath;
-    vec3_t bulletAngle;
-
-	//Elder: added for M3 and Pistols
-	vec_t dist;
-	vec3_t line;
-
-    int clientHeight;
-    int clientFeetZ;
-    int clientRotation;
-    int bulletHeight;
-    int bulletRotation;     // Degrees rotation around client.
-    int impactRotation;
-
+	int		take, save, asave, knockback, max;
+	int		bleeding = 0, instant_dam = 1;
+	vec3_t		bulletPath, bulletAngle, line;
+	vec_t		dist;
+	int		clientHeight, clientFeetZ, clientRotation, bulletHeight;
+	int		bulletRotation, impactRotation;
 	gentity_t	*tent;
 
 #ifdef MISSIONPACK
@@ -1401,7 +1391,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
-	if ( level.intermissionQueued ) {
+	if (level.intermissionQueued) {
 		return;
 	}
 
@@ -1418,125 +1408,81 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// Elder: respawn protection -- only for gunfire though!
 	// No safety from falling!
 	// NiceAss: Or TELEFAGS!
-	if ( targ->client && inflictor &&
+	if (targ->client && inflictor &&
 		 level.time - targ->client->respawnTime < g_RQ3_respawnProtectTime.integer * 1000 &&
 		 mod != MOD_TELEFRAG)
 		return;
 
-	if ( !inflictor ) {
+	if (!inflictor) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
 
-	if ( !attacker ) {
+	if (!attacker) {
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}
 
-	// shootable doors / buttons don't actually have any health
-	//Blaze: Dont want to be able to shoot doors open
-	/*
-	if ( targ->s.eType == ET_MOVER ) {
-		if ( targ->use && (targ->moverState == MOVER_POS1
-			|| targ->moverState == ROTATOR_POS1)  ) {
-			targ->use( targ, inflictor, attacker );
-		}
-		return;
-	}
-	*/
-	if ( targ->s.eType == ET_MOVER && targ->health <= 0 ) {
+	if (targ->s.eType == ET_MOVER && targ->health <= 0) {
 		return;
 	}
 
-    //Elder: from action source
-    // damage reduction for shotgun and mk23/akimbo
-    // if far away, reduce it to original action levels
-    //Note: doesn't handle shots on non-clients (e.g. breakables)
-    if (targ->client && inflictor->client) {
-    	if ( mod == MOD_M3) {
-    		VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line );
-        	dist = VectorLength( line );
-        	if ( dist > 450.0 ) {
+	//Elder: from action source
+	// damage reduction for shotgun and mk23/akimbo
+	// if far away, reduce it to original action levels
+	//Note: doesn't handle shots on non-clients (e.g. breakables)
+	if (targ->client && inflictor->client) {
+		if (mod == MOD_M3) {
+			VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line);
+			dist = VectorLength(line);
+			if (dist > 450.0) {
 				damage -= 2;
 			}
+		} else if (mod == MOD_PISTOL || mod == MOD_AKIMBO) {
+			VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line);
+			dist = VectorLength(line);
+			if (dist > 600.0 && dist < 1400.0) {
+				damage = (int)(damage * 2/3);
+			}
+		//Elder: added >= ... 1400.0 is a magic number for perfect shots if not in :)
+			else if (dist >= 1400.0) {
+				damage = (int)(damage * 1/2);
+			}
 		}
-    	else if ( mod == MOD_PISTOL || mod == MOD_AKIMBO ) {
-        	VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line );
-        	dist = VectorLength( line );
-        	// G_Printf("Distance from target: %f\n", dist);
-        	if ( dist > 600.0 && dist < 1400.0 ) {
-				// G_Printf("Damage reduced to 2/3\n");
-            	damage = (int)(damage * 2/3);
-        	}
-        	//Elder: added >= ... 1400.0 is a magic number for perfect shots if not in :)
-        	else if ( dist >= 1400.0 ) {
-        		// G_Printf("Damage reduced to 1/2\n");
-            	damage = (int)(damage * 1/2);
-        	}
-    	}
-    }
+	}
 
 	//Blaze: If we shot a breakable item subtract the damage from its health and try to break it
- 	if ( targ->s.eType == ET_BREAKABLE ) {
-        targ->health -= damage;
- 		G_BreakGlass( targ, point, mod );
+	if (targ->s.eType == ET_BREAKABLE) {
+		targ->health -= damage;
+		G_BreakGlass(targ, point, mod);
  		return;
- 	}
+	}
+
 #ifdef MISSIONPACK
 	if( g_gametype.integer == GT_OBELISK && CheckObeliskAttack( targ, attacker ) ) {
  		return;
  	}
 #endif
-	// reduce damage by the attacker's handicap value
-	// unless they are rocket jumping
-	// NiceAss: This isn't needed
-	/*
-	if ( attacker->client && attacker != targ ) {
-		max = 100;//100 is the max health, no handicap attacker->client->ps.stats[STAT_MAX_HEALTH];
-#ifdef MISSIONPACK
-		if( bg_itemlist[attacker->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
-			max /= 2;
-	}
-#endif
-		damage = damage * max / 100;
-	}
-	*/
 
 	client = targ->client;
 
-	if ( client ) {
-		if ( client->noclip ) {
+	if (client) {
+		if (client->noclip) {
 			return;
 		}
 	}
 
-	if ( !dir ) {
+	if (!dir) {
 		dflags |= DAMAGE_NO_KNOCKBACK;
 	} else {
 		VectorNormalize(dir);
 	}
 
-	//Elder: this is a simplifed knockback calc - Action has a radically different one.
-	//knockback = damage;
-
-	//if ( knockback > 200 ) {
-		//knockback = 200;
-	//}
-
-	//if ( mod == MOD_KICK )
-	//{
-		//knockback = 200;
-	//}
-
-	if ( targ->flags & FL_NO_KNOCKBACK ) {
+	if (targ->flags & FL_NO_KNOCKBACK) {
 		knockback = 0;
-	}
-	else if ( dflags & DAMAGE_NO_KNOCKBACK ) {
+	} else if (dflags & DAMAGE_NO_KNOCKBACK) {
 		knockback = 0;
-	}
-	else
-	{
+	} else {
 		//Elder: select knockback
-		switch (mod)
-		{
+		switch (mod) {
 			case MOD_HANDCANNON:
 				knockback = RQ3_HANDCANNON_KICK;
 				break;
@@ -1573,7 +1519,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				knockback = 400;
 				break;
 			default:
-				//G_Printf("Unknown MOD\n");
 				G_Printf("G_Damage: Received unknown MOD - using default knockback\n");
 				knockback = 50;
 				break;
@@ -1584,14 +1529,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// This was added when the possibility of missing was added from spherical head detection.
 	// We don't want someone flying back from a sniper to the head when it actually missed!
 	// Hal: Make sure we have valid pointers before accessing them
-	if ( (dir != NULL) && (point != NULL) && G_HitPlayer ( targ, dir, point ) ) {
+	if ((dir != NULL) && (point != NULL) && G_HitPlayer (targ, dir, point)) {
 		// figure momentum add, even if the damage won't be taken
-		if ( knockback && targ->client ) {
+		if (knockback && targ->client) {
 			vec3_t	kvel, flydir;
 			float	mass;
 
-			if ( mod != MOD_FALLING )
-			{
+			if (mod != MOD_FALLING) {
 				VectorCopy(dir, flydir);
 				flydir[2] += 0.4f;
 			}
@@ -1612,14 +1556,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 			// set the timer so that the other client can't cancel
 			// out the movement immediately
-			if ( !targ->client->ps.pm_time ) {
-				int		t;
+			if (!targ->client->ps.pm_time) {
+				int	t;
 
 				t = knockback * 2;
-				if ( t < 50 ) {
+				if (t < 50) {
 					t = 50;
 				}
-				if ( t > 200 ) {
+				if (t > 200) {
 					t = 200;
 				}
 				targ->client->ps.pm_time = t;
@@ -1629,11 +1573,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		// NiceAss: This was moved too
 		// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-		if ( attacker->client && targ != attacker && targ->health > 0
-			&& targ->s.eType != ET_MISSILE
-			&& targ->s.eType != ET_GENERAL) 
-		{
-			if ( OnSameTeam( targ, attacker ) ) {
+		if (attacker->client && targ != attacker && targ->health > 0 &&
+			targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL) {
+			if (OnSameTeam(targ, attacker)) {
 				attacker->client->ps.persistant[PERS_HITS]--;
 			} else {
 				attacker->client->ps.persistant[PERS_HITS]++;
@@ -1643,17 +1585,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// check for completely getting out of the damage
-	if ( !(dflags & DAMAGE_NO_PROTECTION) ) {
+	if (!(dflags & DAMAGE_NO_PROTECTION)) {
 
 		// if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
 		// if the attacker was on the same team
 #ifdef MISSIONPACK
 		if ( mod != MOD_JUICED && targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker)  ) {
 #else
-		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
+		if (targ != attacker && OnSameTeam(targ, attacker)) {
 #endif
 // JBravo: more FF tweaks
-			if ( g_friendlyFire.integer == 2 && level.team_round_going ) {
+			if (g_friendlyFire.integer == 2 && level.team_round_going) {
 				return;
 			}
 		}
@@ -1669,35 +1611,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #endif
 
 		// check for godmode
-		if ( targ->flags & FL_GODMODE ) {
+		if (targ->flags & FL_GODMODE) {
 			return;
 		}
 	}
 
-//	hawkins: no battlesuit for reaction
-	/*
-	// battlesuit protects from all radius damage (but takes knockback)
-	// and protects 50% against all damage
-	if ( client && client->ps.powerups[PW_BATTLESUIT] ) {
-		G_AddEvent( targ, EV_POWERUP_BATTLESUIT, 0 );
-		if ( ( dflags & DAMAGE_RADIUS ) || ( mod == MOD_FALLING ) ) {
-			return;
-		}
-		damage *= 0.5;
-	}
-	*/
 	//Blaze: Add falling damage for limping
-	if ( mod == MOD_FALLING ) targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
+	if (mod == MOD_FALLING) targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
 
-
-	// always give half damage if hurting self
-	// calculated after knockback, so rocket jumping works
-	//Elder: no way >:)
-	//if ( targ == attacker) {
-		//damage *= 0.5;
-	//}
-
-	if ( damage < 1 ) {
+	if (damage < 1) {
 		damage = 1;
 	}
 	take = damage;
@@ -1707,315 +1629,223 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	asave = CheckArmor (targ, take, dflags);
 	take -= asave;
 
-	if ( g_debugDamage.integer ) {
+	if (g_debugDamage.integer) {
 		G_Printf( "%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
-			targ->health, take, asave );
+			targ->health, take, asave);
 	}
-
-
-	// Elder: moved below location damage
-	// add to the damage inflicted on a player this frame
-	// the total will be turned into screen blends and view angle kicks
-	// at the end of the frame
-	/*
-	if ( client ) {
-		if ( attacker ) {
-			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
-		} else {
-			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
-		}
-		client->damage_armor += asave;
-		client->damage_blood += take;
-		client->damage_knockback += knockback;
-		if ( dir ) {
-			VectorCopy ( dir, client->damage_from );
-			client->damage_fromWorld = qfalse;
-		} else {
-			VectorCopy ( targ->r.currentOrigin, client->damage_from );
-			client->damage_fromWorld = qtrue;
-		}
-	}
-	*/
 
 	// See if it's the player hurting the emeny flag carrier
 #ifdef MISSIONPACK
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF ) {
 #else
-	if( g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 #endif
-	Team_CheckHurtCarrier(targ, attacker);
+		Team_CheckHurtCarrier(targ, attacker);
 	}
 
-	if (targ->client)
-	{
+	if (targ->client) {
 		// set the last client who damaged the target
 		targ->client->lasthurt_client = attacker->s.number;
 		targ->client->lasthurt_mod = mod;
-		//if(targ->client->bleeding == 0)//Do bleeding damage first so that you dont do faster more bleeding with different guns
-		//	targ->client->bleeding = take*BLEED_TIME;
-// Begin Duffman
+		// Begin Duffman
 		// Modify the damage for location damage
 
-        if (  point && targ && targ->health > 0 && attacker && take)
-		{
+		if (point && targ && targ->health > 0 && attacker && take) {
 			// First things first.  If we're not damaging them, why are we here?
-			//Elder: removed M3, handcannon, and grenades from location damage code
+			// Elder: removed M3, handcannon, and grenades from location damage code
 
-			if (take &&
-				mod == MOD_M3 ||
+			if (take && mod == MOD_M3 ||
 				mod == MOD_HANDCANNON ||
 				mod == MOD_GRENADE ||
-				mod == MOD_GRENADE_SPLASH)
-			{
+				mod == MOD_GRENADE_SPLASH) {
 				bleeding = 1;
 				instant_dam = 0;
 
 				//No location damage
-				//targ->client->lasthurt_location = LOCATION_STOMACH|LOCATION_FRONT;
 				targ->client->lasthurt_location = LOCATION_NONE|LOCATION_FRONT;
 				//Elder: we'll use the shotgun damage report model from AQ2
-				if (mod == MOD_HANDCANNON || mod == MOD_M3)
-				{
+				if (mod == MOD_HANDCANNON || mod == MOD_M3) {
 					//Elder: do shotgun report like AQ2
 					int playernum = targ - g_entities;
 
-					//playernum--;
 					if (playernum >= 0 && playernum < MAX_CLIENTS)
 						tookShellHit[playernum] = 1;
-				}
-				else {
+				} else {
 					// Grenade stuff - don't print if you hurt yourself
 					// We could re-use the shotgun report for grenades
 					if (targ != attacker)
 						trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
-			}
-
-
-			else if (take &&
-				mod == MOD_PISTOL ||
-				mod == MOD_M4 ||
-				mod == MOD_SNIPER ||
-				mod == MOD_MP5 ||
-				mod == MOD_AKIMBO ||
-				//mod == MOD_M3 ||
-				//mod == MOD_HANDCANNON ||
-				//mod == MOD_GRENADE ||
-				//mod == MOD_GRENADE_SPLASH ||
-				mod == MOD_KNIFE ||
-				mod == MOD_KNIFE_THROWN)
-			{
-			   bleeding = 1;
-			   instant_dam = 0;
+			} else if (take && mod == MOD_PISTOL || mod == MOD_M4 ||
+				mod == MOD_SNIPER || mod == MOD_MP5 || mod == MOD_AKIMBO ||
+				mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN) {
+				bleeding = 1;
+				instant_dam = 0;
 
 				// Point[2] is the REAL world Z. We want Z relative to the clients feet
+				// Where the feet are at [real Z]
+				clientFeetZ  = targ->r.currentOrigin[2] + targ->r.mins[2];
+				// How tall the client is [Relative Z]
+				clientHeight = targ->r.maxs[2] - targ->r.mins[2];
+				// Where the bullet struck [Relative Z]
+				bulletHeight = point[2] - clientFeetZ;
+				// Get a vector aiming from the client to the bullet hit
+				VectorSubtract(targ->r.currentOrigin, point, bulletPath);
+				// Convert it into PITCH, ROLL, YAW
+				vectoangles(bulletPath, bulletAngle);
+				clientRotation = targ->client->ps.viewangles[YAW];
+				bulletRotation = bulletAngle[YAW];
 
-		       // Where the feet are at [real Z]
-		       clientFeetZ  = targ->r.currentOrigin[2] + targ->r.mins[2];
-		       // How tall the client is [Relative Z]
-		       clientHeight = targ->r.maxs[2] - targ->r.mins[2];
-		       // Where the bullet struck [Relative Z]
-		       bulletHeight = point[2] - clientFeetZ;
+				impactRotation = abs(clientRotation-bulletRotation);
 
-		       // Get a vector aiming from the client to the bullet hit
-		       VectorSubtract(targ->r.currentOrigin, point, bulletPath);
-		       // Convert it into PITCH, ROLL, YAW
-		       vectoangles(bulletPath, bulletAngle);
+				impactRotation += 45; // just to make it easier to work with
+				impactRotation = impactRotation % 360; // Keep it in the 0-359 range
 
-		       clientRotation = targ->client->ps.viewangles[YAW];
-		       bulletRotation = bulletAngle[YAW];
+				if (impactRotation < 90) {
+					if (attacker->client && level.team_round_going)
+						attacker->client->pers.records[REC_BACKSHOTS]++;
+						targ->client->lasthurt_location = LOCATION_BACK;
+				} else if (impactRotation < 180) {
+					if (attacker->client && level.team_round_going)
+						attacker->client->pers.records[REC_RIGHTSHOTS]++;
+						targ->client->lasthurt_location = LOCATION_RIGHT;
+				} else if (impactRotation < 270) {
+					if (attacker->client && level.team_round_going)
+						attacker->client->pers.records[REC_FRONTSHOTS]++;
+						targ->client->lasthurt_location = LOCATION_FRONT;
+				} else if (impactRotation < 360) {
+					if (attacker->client && level.team_round_going)
+						attacker->client->pers.records[REC_LEFTSHOTS]++;
+						targ->client->lasthurt_location = LOCATION_LEFT;
+				} else
+					targ->client->lasthurt_location = LOCATION_NONE;
 
-		       impactRotation = abs(clientRotation-bulletRotation);
-
-		       impactRotation += 45; // just to make it easier to work with
-		       impactRotation = impactRotation % 360; // Keep it in the 0-359 range
-
-		       if (impactRotation < 90)
-			   {
-				   if (attacker->client && level.team_round_going)
-					   attacker->client->pers.records[REC_BACKSHOTS]++;
-	               targ->client->lasthurt_location = LOCATION_BACK;
-			   }
-		       else if (impactRotation < 180)
-			   {
-				   if (attacker->client && level.team_round_going)
-					   attacker->client->pers.records[REC_RIGHTSHOTS]++;
-			       targ->client->lasthurt_location = LOCATION_RIGHT;
-			   }
-		       else if (impactRotation < 270)
-			   {
-				   if (attacker->client && level.team_round_going)
-					   attacker->client->pers.records[REC_FRONTSHOTS]++;
-			       targ->client->lasthurt_location = LOCATION_FRONT;
-			   }
-		       else if (impactRotation < 360)
-			   {
-				   if (attacker->client && level.team_round_going)
-					   attacker->client->pers.records[REC_LEFTSHOTS]++;
-			       targ->client->lasthurt_location = LOCATION_LEFT;
-			   }
-		       else
-			       targ->client->lasthurt_location = LOCATION_NONE;
-
-		       // NiceAss: Added for better head hit-detection.
+				// NiceAss: Added for better head hit-detection.
 				if (!G_HitPlayer(targ, dir, point)) {
-				   // NiceAss: It didn't intersect the sphere (head) and it's above the shoulders so it hit the air.
-				   return;
+					// NiceAss: It didn't intersect the sphere (head) and it's above the shoulders so it hit the air.
+					return;
 				}
 
-		       // The upper body never changes height, just distance from the feet
-	           if (bulletHeight > clientHeight - 2)
-	               targ->client->lasthurt_location |= LOCATION_HEAD;
-		       else if (bulletHeight > clientHeight - 8)
-                   targ->client->lasthurt_location |= LOCATION_FACE;
-			   else if (bulletHeight > clientHeight - 10)
-                   targ->client->lasthurt_location |= LOCATION_SHOULDER;
-               else if (bulletHeight > clientHeight - 16)
-                   targ->client->lasthurt_location |= LOCATION_CHEST;
-	           else if (bulletHeight > clientHeight - 26)
-                    targ->client->lasthurt_location |= LOCATION_STOMACH;
-               else if (bulletHeight > clientHeight - 29)
-                    targ->client->lasthurt_location |= LOCATION_GROIN;
-              //else if (bulletHeight < 4)
-	            //       targ->client->lasthurt_location |= LOCATION_FOOT;
-		       else
-                       // The leg is the only thing that changes size when you duck,
-                       // so we check for every other parts RELATIVE location, and
-                       // whats left over must be the leg.
-	               targ->client->lasthurt_location |= LOCATION_LEG;
+				// The upper body never changes height, just distance from the feet
+				if (bulletHeight > clientHeight - 2)
+					targ->client->lasthurt_location |= LOCATION_HEAD;
+				else if (bulletHeight > clientHeight - 8)
+					targ->client->lasthurt_location |= LOCATION_FACE;
+				else if (bulletHeight > clientHeight - 10)
+					targ->client->lasthurt_location |= LOCATION_SHOULDER;
+				else if (bulletHeight > clientHeight - 16)
+					targ->client->lasthurt_location |= LOCATION_CHEST;
+				else if (bulletHeight > clientHeight - 26)
+					targ->client->lasthurt_location |= LOCATION_STOMACH;
+				else if (bulletHeight > clientHeight - 29)
+					targ->client->lasthurt_location |= LOCATION_GROIN;
+				else
+				// The leg is the only thing that changes size when you duck,
+				// so we check for every other parts RELATIVE location, and
+				// whats left over must be the leg.
+					targ->client->lasthurt_location |= LOCATION_LEG;
 
+				switch (targ->client->lasthurt_location &
+					~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT)) {
+					case LOCATION_HEAD:
+					case LOCATION_FACE:
+						if (attacker->client && level.team_round_going)
+							attacker->client->pers.records[REC_HEADSHOTS]++;
+						//save headshot time for player_die
+						targ->client->headShotTime = level.time;
 
-			   //G_Printf("In loc damage: %d incomming\n",take);
-				// Check the location ignoring the rotation info
-			   //Elder: moved up
-			   /*
-				if (mod == MOD_HANDCANNON || mod == MOD_M3)
-				{
-					//trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
-					//Elder: do shotgun report like AQ2
-					int playernum = targ - g_entities;
+						//Elder: reusing line so we don't have to declare more variables
+						line[0] = line[1] = 0;
+						line[2] = 20;
+						trap_SendServerCommand(attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"",
+									targ->client->pers.netname));
+						trap_SendServerCommand(targ-g_entities, va("print \"Head Damage.\n\""));
 
-					playernum--;
-					if (playernum >= 0 && playernum <= MAX_CLIENTS - 1)
-						tookShellHit[playernum] = 1;
-
-                    //bleeding = 1;
-                    //instant_dam = 0;
-				}
-				else if (mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH )
-				{
-					trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
-				}
-				else */
-				if (1)
-				{
-					switch ( targ->client->lasthurt_location &
-                          ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) )
-					{
-						case LOCATION_HEAD:
-						case LOCATION_FACE:
-							if (attacker->client && level.team_round_going)
-								attacker->client->pers.records[REC_HEADSHOTS]++;
-							//save headshot time for player_die
-							targ->client->headShotTime = level.time;
-
-							//Elder: reusing line so we don't have to declare more variables
-							line[0] = 0;
-							line[1] = 0;
-							line[2] = 20;
-
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-
-							//Setup headshot spray and sound
-							//Only do if not knife or SSG -- SSG has its own trail of blood
-							if (mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
-							{
-								VectorAdd(targ->s.pos.trBase, line, line);
-								tent = G_TempEntity(line, EV_HEADSHOT);
+						//Setup headshot spray and sound
+						//Only do if not knife or SSG -- SSG has its own trail of blood
+						if (mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
+							VectorAdd(targ->s.pos.trBase, line, line);
+							tent = G_TempEntity(line, EV_HEADSHOT);
+							tent->s.eventParm = DirToByte(dir);
+							tent->s.otherEntityNum = targ->s.clientNum;
+						}
+						take *= 1.8; //+ 1;
+						break;
+					case LOCATION_SHOULDER:
+					case LOCATION_CHEST:
+						if (attacker->client && level.team_round_going)
+							attacker->client->pers.records[REC_CHESTSHOTS]++;
+						// Vest stuff - is the knife supposed to be affected?
+						// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
+						if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR
+							&& mod != MOD_KNIFE_THROWN) {
+							targ->client->kevlarHit = qtrue;
+							if (attacker->client->ps.weapon == WP_SSG3000) {
+								trap_SendServerCommand(attacker-g_entities, va("print \"%s ^7has a Kevlar Vest, too bad you have AP rounds...\n\"",
+											targ->client->pers.netname));
+								trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s^7's AP sniper round\n\"",
+											attacker->client->pers.netname));
+								take = take * 0.325;
+							} else {
+								if (mod != MOD_KNIFE) { // && mod != MOD_KNIFE_THROWN)
+									trap_SendServerCommand(attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"",
+											targ->client->pers.netname));
+								} else {
+									trap_SendServerCommand(attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"",
+												targ->client->pers.netname));
+									trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed most of %s ^7shot\n\"",
+												attacker->client->pers.netname ));
+								}
+								take = take/10;
+								instant_dam = 1;
+								bleeding = 0;
+							}
+							//Kevlar sound
+							if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
+								tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
 								tent->s.eventParm = DirToByte(dir);
-								tent->s.otherEntityNum = targ->s.clientNum;
+								//tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
 							}
-							take *= 1.8; //+ 1;
-							break;
-						case LOCATION_SHOULDER:
-						case LOCATION_CHEST:
-							if (attacker->client && level.team_round_going)
-								attacker->client->pers.records[REC_CHESTSHOTS]++;
-							//Vest stuff - is the knife supposed to be affected?
-							// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
-							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR
-								&& mod != MOD_KNIFE_THROWN)
-							{
-								targ->client->kevlarHit = qtrue;
-								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
-								if (attacker->client->ps.weapon == WP_SSG3000)
-								{
-									trap_SendServerCommand(attacker-g_entities, va("print \"%s ^7has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
-                                    trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s^7's AP sniper round\n\"",attacker->client->pers.netname));
-                                    take = take * 0.325;
-								}
-								else
-								{
-									if (mod != MOD_KNIFE)// && mod != MOD_KNIFE_THROWN)
-										trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));
-									else
-										trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
-									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s ^7shot\n\"", attacker->client->pers.netname ));
-									take = take/10;
-									instant_dam = 1;
-									bleeding = 0;
-								}
-								//Kevlar sound
-								if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
-								{
-									tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
-									tent->s.eventParm = DirToByte(dir);
-									//tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
-								}
-							}
-							else
-							{
-								trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
-  								trap_SendServerCommand( targ-g_entities, va("print \"Chest Damage.\n\""));
-								take *= 0.65;
-							}
-							break;
-						case LOCATION_STOMACH:
-						case LOCATION_GROIN:
-							if (attacker->client && level.team_round_going)
-								attacker->client->pers.records[REC_STOMACHSHOTS]++;
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
-							take *= 0.4;
-							break;
-						case LOCATION_LEG:
-						case LOCATION_FOOT:
-							if (attacker->client && level.team_round_going)
-								attacker->client->pers.records[REC_LEGSHOTS]++;
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
-							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
-							take *= 0.25;
-							break;
-					}
+						} else {
+							trap_SendServerCommand(attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"",
+										targ->client->pers.netname));
+							trap_SendServerCommand(targ-g_entities, va("print \"Chest Damage.\n\""));
+							take *= 0.65;
+						}
+						break;
+					case LOCATION_STOMACH:
+					case LOCATION_GROIN:
+						if (attacker->client && level.team_round_going)
+							attacker->client->pers.records[REC_STOMACHSHOTS]++;
+						trap_SendServerCommand(attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"",
+									targ->client->pers.netname));
+						trap_SendServerCommand(targ-g_entities, va("print \"Stomach Damage.\n\""));
+						take *= 0.4;
+						break;
+					case LOCATION_LEG:
+					case LOCATION_FOOT:
+						if (attacker->client && level.team_round_going)
+							attacker->client->pers.records[REC_LEGSHOTS]++;
+						trap_SendServerCommand(attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"",
+									targ->client->pers.netname));
+						trap_SendServerCommand(targ-g_entities, va("print \"Leg Damage.\n\""));
+						targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
+						take *= 0.25;
+						break;
 				}
-			//			   G_Printf("In loc damage: %d outgoing\n",take);
-
+//			G_Printf("In loc damage: %d outgoing\n",take);
 			}
-//             take = G_LocationDamage(point, targ, attacker, take);
-		}
-
-        else
-             targ->client->lasthurt_location = LOCATION_NONE;
+//		take = G_LocationDamage(point, targ, attacker, take);
+		} else
+			targ->client->lasthurt_location = LOCATION_NONE;
 // End Duffman
 	}
 
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
-	if ( client ) {
-		if ( attacker ) {
+	if (client) {
+		if (attacker) {
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
 		} else {
 			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
@@ -2023,11 +1853,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		client->damage_armor += asave;
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
-		if ( dir ) {
-			VectorCopy ( dir, client->damage_from );
+		if (dir) {
+			VectorCopy (dir, client->damage_from);
 			client->damage_fromWorld = qfalse;
 		} else {
-			VectorCopy ( targ->r.currentOrigin, client->damage_from );
+			VectorCopy (targ->r.currentOrigin, client->damage_from);
 			client->damage_fromWorld = qtrue;
 		}
 	}
@@ -2036,57 +1866,32 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) {
 //		G_Printf("(%d) taken as damage\n",take);
-		if (instant_dam)
-		{
+// JBravo: for Damage delt tracking
+		attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
 		}
-		if ( targ->client ) {
+		if (targ->client) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
 
-		if ( targ->health <= 0 ) {
-			//Elder: removed so we can play with bodies :)
-			//if ( client ) {
-				//targ->flags |= FL_NO_KNOCKBACK;
-			//}
-
+		if (targ->health <= 0) {
 			if (targ->health < -999) {
 				targ->health = -999;
 			}
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
 			return;
-		// Elder: why was this commented out?
-		} else if ( targ->pain ) {
+		} else if (targ->pain) {
 			targ->pain (targ, attacker, take);
 		}
 	}
-	/*
-	// Elder: crash code because conditional was missing
-	if (client)
-	{
-		if (!(targ->flags & FL_GODMODE) && (take))
-		{
-			// this one was missing
-			if (targ->pain)
-				targ->pain (targ, attacker, take);
-		}
-	}
 
-	// Elder: this is commented out because of redundancy
-	if (take)
-	{
-	    if (targ->pain) targ->pain (targ, attacker, take);
-	}
-	*/
-
-	if (client)
-	{
-		if (client->lasthurt_location && bleeding)
-		{
+	if (client) {
+		if (client->lasthurt_location && bleeding) {
 			// Elder: use the server FPS
-			int realBleedTime;
+			int	realBleedTime;
 
 			realBleedTime = trap_Cvar_VariableIntegerValue("sv_fps");
 			if (realBleedTime <= 0)
@@ -2098,16 +1903,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				VectorClear(targ->client->bleedloc_offset);
 			else
 				VectorSubtract (point, targ->r.currentOrigin, targ->client->bleedloc_offset);
-
-			//G_Printf("(%d) = damage",damage);
-			//G_Printf("(%d) = bleeding",client->bleeding);
 		}
-		//if (bleeding)
-		//{
-		//	client->bleeding += damage * BLEED_TIME;
-		//	G_Printf("(%d) = damage",damage);
-		//	G_Printf("(%d) = bleeding",client->bleeding);
-		//}
 	}
 }
 
