@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/05/29 13:49:26  makro
+// Elevators/doors
+//
 // Revision 1.17  2002/05/23 18:37:50  makro
 // Bots should crouch more often when they attack with a SSG
 // Made this depend on skill. Also, elevator stuff
@@ -255,7 +258,11 @@ void SP_trigger_push( gentity_t *self ) {
 	//Makro - for bot-only triggers
 	if ( !(self->spawnflags & 1) ) {
 		self->r.svFlags &= ~SVF_NOCLIENT;
+		self->s.powerups = 0;
+	} else {
+		self->s.powerups = 1;
 	}
+	self->s.powerups = (self->spawnflags & 1);
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;

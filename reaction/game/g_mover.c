@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/05/29 13:49:25  makro
+// Elevators/doors
+//
 // Revision 1.40  2002/05/27 06:51:54  niceass
 // FIXED SPELLING MISTACK
 //
@@ -1505,19 +1508,21 @@ void SP_func_door (gentity_t *ent) {
 
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
 		int health;
+		int makeTrigger = 1;
 
 		G_SpawnInt( "health", "0", &health );
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-//Makro - spectators should be able to go through doors with health/targetname
-//plus, MatchTeam is called in the end, anyway
-//		if ( ent->targetname || health ) {
-//			// non touch/shoot doors
-//			ent->think = Think_MatchTeam;
-//		} else {
+		if ( ent->targetname || health ) {
+			//Makro - some doors don't need spectator triggers
+			G_SpawnInt( "nospectators", "0", &makeTrigger );
+		}
+		if (makeTrigger) {
 			ent->think = Think_SpawnNewDoorTrigger;
-//		}
+		} else {
+			ent->think = Think_MatchTeam;
+		}
 	}
 
 	//Elder: open areaportals for start_open doors
@@ -1653,19 +1658,21 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
 		int health;
+		int makeTrigger = 1;
 
 		G_SpawnInt( "health", "0", &health );
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-//Makro - spectators should be able to go through doors with health/targetname
-//plus, MatchTeam is called in the end, anyway
-//		if ( ent->targetname || health ) {
-//			// non touch/shoot doors
-//			ent->think = Think_MatchTeam;
-//		} else {
+		if ( ent->targetname || health ) {
+			//Makro - some doors don't need spectator triggers
+			G_SpawnInt( "nospectators", "0", &makeTrigger );
+		}
+		if (makeTrigger) {
 			ent->think = Think_SpawnNewDoorTrigger;
-//		}
+		} else {
+			ent->think = Think_MatchTeam;
+		}
 	}
 }
 

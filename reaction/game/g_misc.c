@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/05/29 13:49:25  makro
+// Elevators/doors
+//
 // Revision 1.48  2002/05/27 06:51:20  niceass
 // pressure support for targets
 //
@@ -884,6 +887,8 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 
 void SP_func_pressure( gentity_t *ent ) {
 	char *type;
+	char	*s;
+
 	// Make it appear as the brush
 	trap_SetBrushModel( ent, ent->model );
 	trap_LinkEntity (ent);
@@ -906,6 +911,11 @@ void SP_func_pressure( gentity_t *ent ) {
 
 	// ent->s.frame holds type
 	// ent->s.powerups holds speed
+
+	//Makro - added for elevators
+	if (G_SpawnString( "pathtarget","", &s)) {
+		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
+	}
 }
 
 void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {

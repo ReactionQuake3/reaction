@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/29 13:49:25  makro
+// Elevators/doors
+//
 // Revision 1.38  2002/05/12 22:14:13  makro
 // Impact sounds
 //
@@ -1510,22 +1513,25 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 		return;
 	}
 
-	// if we didn't hit this same jumppad the previous frame
-	// then don't play the event sound again if we are in a fat trigger
-	if ( ps->jumppad_ent != jumppad->number ) {
-
-		/*
-		vectoangles( jumppad->origin2, angles);
-		p = fabs( AngleNormalize180( angles[PITCH] ) );
-		if( p < 45 ) {
-			effectNum = 0;
-		} else {
-			effectNum = 1;
+	//Makro - disable all this for bot only triggers
+	if (!jumppad->powerups) {
+		// if we didn't hit this same jumppad the previous frame
+		// then don't play the event sound again if we are in a fat trigger
+		if ( ps->jumppad_ent != jumppad->number ) {
+	
+			/*
+			vectoangles( jumppad->origin2, angles);
+			p = fabs( AngleNormalize180( angles[PITCH] ) );
+			if( p < 45 ) {
+				effectNum = 0;
+			} else {
+				effectNum = 1;
+			}
+				*/
+			// NiceAss: For cutsom sounds...
+			effectNum = jumppad->generic1;
+			BG_AddPredictableEventToPlayerstate( EV_JUMP_PAD, effectNum, ps );
 		}
-		*/
-		// NiceAss: For cutsom sounds...
-		effectNum = jumppad->generic1;
-		BG_AddPredictableEventToPlayerstate( EV_JUMP_PAD, effectNum, ps );
 	}
 	// remember hitting this jumppad this frame
 	ps->jumppad_ent = jumppad->number;
