@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/02/04 02:05:28  jbravo
+// removed an extraneous return value from a void routine
+//
 // Revision 1.9  2002/02/04 00:31:40  niceass
 // oops =D
 //
@@ -64,7 +67,7 @@ void PM_StepSlideMove_ ( void ) {
 		if (trace.allsolid) {
 			// entity is completely trapped in another solid
 			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return qtrue;
+			return; // qtrue;
 		}
 
 		if (trace.fraction > 0) {
