@@ -11,10 +11,16 @@ CONTROLS MENU
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
+#define ART_BACK0		"menu/art/rq3-menu-back.tga"
+#define ART_BACK1		"menu/art/rq3-menu-back-focus.tga"	
+//#define ART_BACK0			"menu/art/back_0"
+//#define ART_BACK1			"menu/art/back_1"
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
+
+//Elder: RQ3 Setup assets
+#define RQ3_SETUP_ICON		"menu/art/rq3-setup-controls.jpg"
+#define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.jpg"
 
 
 typedef struct {
@@ -79,9 +85,8 @@ typedef struct
 #define ID_MOUSELOOK	14
 #define ID_CENTERVIEW	15
 #define ID_ZOOMVIEW		16
-//Blaze: Reaction Bins = knife
+// Elder: WEAPON1 is now pistol
 #define ID_WEAPON1		17	
-//Blaze: Reaction Binds = Pistol
 #define ID_WEAPON2		18
 #define ID_WEAPON3		19	
 #define ID_WEAPON4		20	
@@ -128,9 +133,7 @@ typedef struct
 #define ANIM_TURNRIGHT	9
 #define ANIM_LOOKUP		10
 #define ANIM_LOOKDOWN	11
-//Blaze: Reaction Knife
 #define ANIM_WEAPON1	12
-//Blaze: Reaction Pistol
 #define ANIM_WEAPON2	13
 #define ANIM_WEAPON3	14
 #define ANIM_WEAPON4	15
@@ -155,14 +158,20 @@ typedef struct
 //	menutext_s			banner;
 //	menubitmap_s		framel;
 //	menubitmap_s		framer;
+/*
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
+*/
 //	menutext_s		load;
 //	menutext_s		save;
 	menutext_s		defaults;
+
+	//Elder: RQ3 Stuff
+	menubitmap_s	rq3_setupicon;
+	menubitmap_s	rq3_setuptitle;
 
 	menubitmap_s		player;
 
@@ -188,15 +197,15 @@ typedef struct
 	//menuaction_s		chainsaw;
 	//menuaction_s		machinegun;
 //Blaze: Reaction weapons binds
-	menuaction_s		knife;
 	menuaction_s		mk23;
+	menuaction_s		m3;
+	menuaction_s		mp5;
+	menuaction_s		handcannon;
+	menuaction_s		ssg3000;
 	menuaction_s		m4;
-	menuaction_s		grenadelauncher;
-	menuaction_s		rocketlauncher;
-	menuaction_s		lightning;
-	menuaction_s		railgun;
-	menuaction_s		plasma;
-	menuaction_s		bfg;
+	menuaction_s		akimbos;
+	menuaction_s		knife;
+	menuaction_s		grenade;
 	menuaction_s		attack;
 	menuaction_s		prevweapon;
 	menuaction_s		nextweapon;
@@ -269,16 +278,15 @@ static bind_t g_bindings[] =
 	{"+zoom", 			"zoom view",		ID_ZOOMVIEW,	ANIM_IDLE,		-1,				-1,		-1, -1},
 //Blaze: Reaction Weapon binds
 //Jbravo: order is important.
-//Elder: my comment isn't important heh :)
-	{"weapon 1",		"MK23",			ID_WEAPON2,	ANIM_WEAPON2,	'2',	-1,	-1, -1},
-	{"weapon 2",		"Shotgun",		ID_WEAPON7,	ANIM_WEAPON7,	'7',	-1,	-1, -1},
-	{"weapon 3",		"MP5",			ID_WEAPON5,	ANIM_WEAPON5,	'5',	-1,	-1, -1},
-	{"weapon 4",		"Hand Cannon",		ID_WEAPON6,	ANIM_WEAPON6,	'6',	-1,	-1, -1},
-	{"weapon 5",		"SSG3000",		ID_WEAPON4,	ANIM_WEAPON4,	'4',	-1,	-1, -1},
-	{"weapon 6",		"M4",			ID_WEAPON3,	ANIM_WEAPON3,	'3',	-1,	-1, -1},
-	{"weapon 7",		"Akimbo Pistols",	ID_WEAPON8,	ANIM_WEAPON8,	'8',	-1,	-1, -1},
-	{"weapon 8",		"Knife",		ID_WEAPON1,	ANIM_WEAPON1,	'1',	-1,	-1, -1},
-	{"weapon 9",		"Grenade",		ID_WEAPON9,	ANIM_WEAPON9,	'9',	-1,	-1, -1},
+	{"weapon 1",		"MK23 Pistol",						ID_WEAPON1,	ANIM_WEAPON1,	'1',	-1,	-1, -1},
+	{"weapon 2",		"M3 Super 90 Assault Shotgun",		ID_WEAPON2,	ANIM_WEAPON2,	'2',	-1,	-1, -1},
+	{"weapon 3",		"MP5/10 Submachinegun",				ID_WEAPON3,	ANIM_WEAPON3,	'3',	-1,	-1, -1},
+	{"weapon 4",		"Handcannon",						ID_WEAPON4,	ANIM_WEAPON4,	'4',	-1,	-1, -1},
+	{"weapon 5",		"Sniper Rifle",						ID_WEAPON5,	ANIM_WEAPON5,	'5',	-1,	-1, -1},
+	{"weapon 6",		"M4 Assault Rifle",					ID_WEAPON6,	ANIM_WEAPON6,	'6',	-1,	-1, -1},
+	{"weapon 7",		"Dual MK23 Pistols",				ID_WEAPON7,	ANIM_WEAPON7,	'7',	-1,	-1, -1},
+	{"weapon 8",		"Combat Knife",						ID_WEAPON8,	ANIM_WEAPON8,	'8',	-1,	-1, -1},
+	{"weapon 9",		"M26 Fragmentation Grenade",		ID_WEAPON9,	ANIM_WEAPON9,	'9',	-1,	-1, -1},
 	{"+attack", 		"attack",			ID_ATTACK,		ANIM_ATTACK,	K_CTRL,			-1,		-1, -1},
 	{"weapprev",		"prev weapon",		ID_WEAPPREV,	ANIM_IDLE,		'[',			-1,		-1, -1},
 	{"weapnext", 		"next weapon",		ID_WEAPNEXT,	ANIM_IDLE,		']',			-1,		-1, -1},
@@ -289,7 +297,7 @@ static bind_t g_bindings[] =
 	{"messagemode4", 	"chat - attacker",	ID_CHAT4,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"bandage",	 		"Bandage",			ID_BANDAGE,		ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"+button5",		"Reload",			ID_RELOAD,		ANIM_RELOAD,	-1,				-1,		-1, -1},
-	{"weapon",			"Weapon Mode",		ID_WEAPON,		ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"weapon",			"Weapon mode",		ID_WEAPON,		ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"opendoor",	 	"Open door",		ID_OPENDOOR,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropweapon",	 	"Drop Weapon",		ID_DROPWEAP,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropitem",	 	"Drop Item",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
@@ -330,21 +338,20 @@ static menucommon_s *g_weapons_controls[] = {
 	(menucommon_s *)&s_controls.nextweapon,
 	(menucommon_s *)&s_controls.prevweapon,
 	(menucommon_s *)&s_controls.autoswitch,    
-//Blaze: No need for the chainsaw??? <- Gauntlet	
-//	(menucommon_s *)&s_controls.chainsaw,         
-//Blaze: No need for the machinegun
-//	(menucommon_s *)&s_controls.machinegun,
-//Blaze: Reaction knife menu addition
-	(menucommon_s *)&s_controls.knife,
-//Blaze: Reaction pistol menu addition
+//Blaze: No need for the chainsaw/gauntlet or machinegun
+/*
+	(menucommon_s *)&s_controls.chainsaw,         
+	(menucommon_s *)&s_controls.machinegun,
+*/
 	(menucommon_s *)&s_controls.mk23,
-	(menucommon_s *)&s_controls.m4,          
-	(menucommon_s *)&s_controls.grenadelauncher,
-	(menucommon_s *)&s_controls.rocketlauncher,   
-	(menucommon_s *)&s_controls.lightning,   
-	(menucommon_s *)&s_controls.railgun,          
-	(menucommon_s *)&s_controls.plasma,           
-	(menucommon_s *)&s_controls.bfg, 
+	(menucommon_s *)&s_controls.m3,
+	(menucommon_s *)&s_controls.mp5,          
+	(menucommon_s *)&s_controls.handcannon,
+	(menucommon_s *)&s_controls.ssg3000,   
+	(menucommon_s *)&s_controls.m4,
+	(menucommon_s *)&s_controls.akimbos,   
+	(menucommon_s *)&s_controls.knife,          
+	(menucommon_s *)&s_controls.grenade, 
 	NULL,
 };
 
@@ -544,35 +551,35 @@ static void Controls_UpdateModel( int anim ) {
 */
 //Blaze: Reaction weapons
 	case ANIM_WEAPON1:
-		s_controls.playerWeapon = WP_KNIFE;
-		break;
-
-	case ANIM_WEAPON2:
 		s_controls.playerWeapon = WP_PISTOL;
 		break;
 
-	case ANIM_WEAPON3:
-		s_controls.playerWeapon = WP_M4;
-		break;
-
-	case ANIM_WEAPON4:
-		s_controls.playerWeapon = WP_SSG3000;
-		break;
-
-	case ANIM_WEAPON5:
-		s_controls.playerWeapon = WP_MP5;
-		break;
-
-	case ANIM_WEAPON6:
-		s_controls.playerWeapon = WP_HANDCANNON;
-		break;
-
-	case ANIM_WEAPON7:
+	case ANIM_WEAPON2:
 		s_controls.playerWeapon = WP_M3;
 		break;
 
-	case ANIM_WEAPON8:
+	case ANIM_WEAPON3:
+		s_controls.playerWeapon = WP_MP5;
+		break;
+
+	case ANIM_WEAPON4:
+		s_controls.playerWeapon = WP_HANDCANNON;
+		break;
+
+	case ANIM_WEAPON5:
+		s_controls.playerWeapon = WP_SSG3000;
+		break;
+
+	case ANIM_WEAPON6:
+		s_controls.playerWeapon = WP_M4;
+		break;
+
+	case ANIM_WEAPON7:
 		s_controls.playerWeapon = WP_AKIMBO;
+		break;
+
+	case ANIM_WEAPON8:
+		s_controls.playerWeapon = WP_KNIFE;
 		break;
 
 	case ANIM_WEAPON9:
@@ -597,7 +604,7 @@ static void Controls_UpdateModel( int anim ) {
 		s_controls.playerChat = qtrue;
 		break;
 	case ANIM_RELOAD:
-		Com_Printf("At Reload");
+		//Com_Printf("At Reload");
 		//s_controls.weapon.generic.
 		break;
 
@@ -642,6 +649,7 @@ static void Controls_Update( void ) {
 	y = ( SCREEN_HEIGHT - j * SMALLCHAR_HEIGHT ) / 2;
 	// bk001204 - parentheses
 	for( j = 0;	(control = controls[j]) ; j++, y += SMALLCHAR_HEIGHT ) {
+		//Elder: changed from 320
 		control->x      = 320;
 		control->y      = y;
 		control->left   = 320 - 19*SMALLCHAR_WIDTH;
@@ -1260,6 +1268,24 @@ static void Controls_InitWeapons( void ) {
 }
 
 /*
+===============
+Added by Elder
+Controls_MenuDraw
+===============
+*/
+static void Controls_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &s_controls.menu );
+}
+
+/*
 =================
 Controls_MenuInit
 =================
@@ -1273,6 +1299,7 @@ static void Controls_MenuInit( void )
 
 	Controls_Cache();
 
+	s_controls.menu.draw = Controls_MenuDraw;
 	s_controls.menu.key        = Controls_MenuKey;
 	s_controls.menu.wrapAround = qtrue;
 	s_controls.menu.fullscreen = qtrue;
@@ -1302,6 +1329,7 @@ static void Controls_MenuInit( void )
 	s_controls.framer.width  	    = 256;
 	s_controls.framer.height  	    = 334;
 */
+/*
 	s_controls.multim.generic.type		= MTYPE_PTEXT;
 	s_controls.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_controls.multim.generic.x			= 120;
@@ -1341,7 +1369,25 @@ static void Controls_MenuInit( void )
 	s_controls.exitm.string				= "EXIT";
 	s_controls.exitm.color				= color_red;
 	s_controls.exitm.style				= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for setup icon
+	s_controls.rq3_setupicon.generic.type				= MTYPE_BITMAP;
+	s_controls.rq3_setupicon.generic.name				= RQ3_SETUP_ICON;
+	s_controls.rq3_setupicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_controls.rq3_setupicon.generic.x					= 0;
+	s_controls.rq3_setupicon.generic.y					= 4;
+	s_controls.rq3_setupicon.width						= RQ3_ICON_WIDTH;
+	s_controls.rq3_setupicon.height						= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for setup title
+	s_controls.rq3_setuptitle.generic.type				= MTYPE_BITMAP;
+	s_controls.rq3_setuptitle.generic.name				= RQ3_SETUP_TITLE;
+	s_controls.rq3_setuptitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_controls.rq3_setuptitle.generic.x					= 64;
+	s_controls.rq3_setuptitle.generic.y					= 12;
+	s_controls.rq3_setuptitle.width						= 256;
+	s_controls.rq3_setuptitle.height						= 32;
 
 	s_controls.looking.generic.type     = MTYPE_PTEXT;
 	s_controls.looking.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -1398,12 +1444,12 @@ static void Controls_MenuInit( void )
 	s_controls.back.generic.type	 = MTYPE_BITMAP;
 	s_controls.back.generic.name     = ART_BACK0;
 	s_controls.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	s_controls.back.generic.x		 = 0;
-	s_controls.back.generic.y		 = 480-64;
+	s_controls.back.generic.x		 = 8;
+	s_controls.back.generic.y		 = 480-44;
 	s_controls.back.generic.id	     = ID_BACK;
 	s_controls.back.generic.callback = Controls_MenuEvent;
-	s_controls.back.width  		     = 128;
-	s_controls.back.height  		 = 64;
+	s_controls.back.width  		     = 32;
+	s_controls.back.height  		 = 32;
 	s_controls.back.focuspic         = ART_BACK1;
 
 	s_controls.player.generic.type      = MTYPE_BITMAP;
@@ -1489,61 +1535,60 @@ static void Controls_MenuInit( void )
 	s_controls.machinegun.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.machinegun.generic.id        = ID_WEAPON2;
 */
-	s_controls.m4.generic.type	     = MTYPE_ACTION;
-	s_controls.m4.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.m4.generic.callback  = Controls_ActionEvent;
-	s_controls.m4.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.m4.generic.id        = ID_WEAPON3;
-
-	s_controls.grenadelauncher.generic.type	     = MTYPE_ACTION;
-	s_controls.grenadelauncher.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.grenadelauncher.generic.callback  = Controls_ActionEvent;
-	s_controls.grenadelauncher.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.grenadelauncher.generic.id        = ID_WEAPON4;
-
-	s_controls.rocketlauncher.generic.type	    = MTYPE_ACTION;
-	s_controls.rocketlauncher.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.rocketlauncher.generic.callback  = Controls_ActionEvent;
-	s_controls.rocketlauncher.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.rocketlauncher.generic.id        = ID_WEAPON5;
-
-	s_controls.lightning.generic.type	   = MTYPE_ACTION;
-	s_controls.lightning.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.lightning.generic.callback  = Controls_ActionEvent;
-	s_controls.lightning.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.lightning.generic.id        = ID_WEAPON6;
-
-	s_controls.railgun.generic.type	     = MTYPE_ACTION;
-	s_controls.railgun.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.railgun.generic.callback  = Controls_ActionEvent;
-	s_controls.railgun.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.railgun.generic.id        = ID_WEAPON7;
-
-	s_controls.plasma.generic.type	    = MTYPE_ACTION;
-	s_controls.plasma.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.plasma.generic.callback  = Controls_ActionEvent;
-	s_controls.plasma.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.plasma.generic.id        = ID_WEAPON8;
-
-	s_controls.bfg.generic.type	     = MTYPE_ACTION;
-	s_controls.bfg.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.bfg.generic.callback  = Controls_ActionEvent;
-	s_controls.bfg.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.bfg.generic.id        = ID_WEAPON9;
-
-//Blaze: Reaction Binds
-	s_controls.knife.generic.type	     = MTYPE_ACTION;
-	s_controls.knife.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
-	s_controls.knife.generic.callback  = Controls_ActionEvent;
-	s_controls.knife.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.knife.generic.id        = ID_WEAPON1;
-
-
 	s_controls.mk23.generic.type	     = MTYPE_ACTION;
 	s_controls.mk23.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
 	s_controls.mk23.generic.callback  = Controls_ActionEvent;
 	s_controls.mk23.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.mk23.generic.id        = ID_WEAPON2;
+	s_controls.mk23.generic.id        = ID_WEAPON1;
+
+	s_controls.m3.generic.type	     = MTYPE_ACTION;
+	s_controls.m3.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.m3.generic.callback  = Controls_ActionEvent;
+	s_controls.m3.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.m3.generic.id        = ID_WEAPON2;
+
+	s_controls.mp5.generic.type	     = MTYPE_ACTION;
+	s_controls.mp5.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.mp5.generic.callback  = Controls_ActionEvent;
+	s_controls.mp5.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.mp5.generic.id        = ID_WEAPON3;
+
+	s_controls.handcannon.generic.type	     = MTYPE_ACTION;
+	s_controls.handcannon.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.handcannon.generic.callback  = Controls_ActionEvent;
+	s_controls.handcannon.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.handcannon.generic.id        = ID_WEAPON4;
+
+	s_controls.ssg3000.generic.type	    = MTYPE_ACTION;
+	s_controls.ssg3000.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.ssg3000.generic.callback  = Controls_ActionEvent;
+	s_controls.ssg3000.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.ssg3000.generic.id        = ID_WEAPON5;
+
+	s_controls.m4.generic.type	    = MTYPE_ACTION;
+	s_controls.m4.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.m4.generic.callback  = Controls_ActionEvent;
+	s_controls.m4.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.m4.generic.id        = ID_WEAPON6;
+
+	s_controls.akimbos.generic.type	   = MTYPE_ACTION;
+	s_controls.akimbos.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.akimbos.generic.callback  = Controls_ActionEvent;
+	s_controls.akimbos.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.akimbos.generic.id        = ID_WEAPON7;
+
+	s_controls.knife.generic.type	     = MTYPE_ACTION;
+	s_controls.knife.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.knife.generic.callback  = Controls_ActionEvent;
+	s_controls.knife.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.knife.generic.id        = ID_WEAPON8;
+
+	s_controls.grenade.generic.type	     = MTYPE_ACTION;
+	s_controls.grenade.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.grenade.generic.callback  = Controls_ActionEvent;
+	s_controls.grenade.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.grenade.generic.id        = ID_WEAPON9;
+
 
 	s_controls.attack.generic.type	    = MTYPE_ACTION;
 	s_controls.attack.generic.flags     = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
@@ -1752,11 +1797,15 @@ static void Controls_MenuInit( void )
 //	Menu_AddItem( &s_controls.menu, &s_controls.banner );
 //	Menu_AddItem( &s_controls.menu, &s_controls.framel );
 //	Menu_AddItem( &s_controls.menu, &s_controls.framer );
+/*
 	Menu_AddItem( &s_controls.menu, &s_controls.multim );
 	Menu_AddItem( &s_controls.menu, &s_controls.setupm );
 	Menu_AddItem( &s_controls.menu, &s_controls.demom );
 	Menu_AddItem( &s_controls.menu, &s_controls.modsm );
 	Menu_AddItem( &s_controls.menu, &s_controls.exitm );
+*/
+	Menu_AddItem( &s_controls.menu, &s_controls.rq3_setupicon );
+	Menu_AddItem( &s_controls.menu, &s_controls.rq3_setuptitle );
 
 	Menu_AddItem( &s_controls.menu, &s_controls.player );
 	Menu_AddItem( &s_controls.menu, &s_controls.name );
@@ -1799,16 +1848,16 @@ static void Controls_MenuInit( void )
 //	Menu_AddItem( &s_controls.menu, &s_controls.chainsaw );
 //	Menu_AddItem( &s_controls.menu, &s_controls.machinegun );
 //Blaze: Reaction weapon additions Pistol replaces machinegun
-	Menu_AddItem( &s_controls.menu, &s_controls.knife);
+	
 	Menu_AddItem( &s_controls.menu, &s_controls.mk23);
-
+	Menu_AddItem( &s_controls.menu, &s_controls.m3);
+	Menu_AddItem( &s_controls.menu, &s_controls.mp5 );
+	Menu_AddItem( &s_controls.menu, &s_controls.handcannon );
+	Menu_AddItem( &s_controls.menu, &s_controls.ssg3000 );
 	Menu_AddItem( &s_controls.menu, &s_controls.m4 );
-	Menu_AddItem( &s_controls.menu, &s_controls.grenadelauncher );
-	Menu_AddItem( &s_controls.menu, &s_controls.rocketlauncher );
-	Menu_AddItem( &s_controls.menu, &s_controls.lightning );
-	Menu_AddItem( &s_controls.menu, &s_controls.railgun );
-	Menu_AddItem( &s_controls.menu, &s_controls.plasma );
-	Menu_AddItem( &s_controls.menu, &s_controls.bfg );
+	Menu_AddItem( &s_controls.menu, &s_controls.akimbos );
+	Menu_AddItem( &s_controls.menu, &s_controls.knife );
+	Menu_AddItem( &s_controls.menu, &s_controls.grenade );
 
 	Menu_AddItem( &s_controls.menu, &s_controls.showscores );
 	Menu_AddItem( &s_controls.menu, &s_controls.useitem );
@@ -1860,8 +1909,10 @@ Controls_Cache
 void Controls_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_TITLE );
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 }
 
 

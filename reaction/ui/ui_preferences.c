@@ -40,7 +40,11 @@ GAME OPTIONS MENU
 
 //Elder: RQ3 stuff
 #define ID_MUZZLEFLASH			139
+#define ID_PAINBLEND			140
+#define ID_ANNOUNCER			141
+#define ID_IMPACTEFFECTS		142
 
+//#define 
 
 typedef struct {
 	menuframework_s		menu;
@@ -61,6 +65,9 @@ typedef struct {
 	menutext_s		rq3_statustext;
 
 	menuradiobutton_s	rq3_muzzleflash;
+	menuradiobutton_s	rq3_painblend;
+	menuradiobutton_s	rq3_announcer;
+	menuradiobutton_s	rq3_impacteffects;
 
 	menulist_s			crosshair;
 	menuradiobutton_s	simpleitems;
@@ -120,7 +127,10 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
 	//Elder: added
-	s_preferences.rq3_muzzleflash.curvalue	= trap_Cvar_VariableValue( "rxn_flash" ) != 0;
+	s_preferences.rq3_muzzleflash.curvalue	= trap_Cvar_VariableValue( "cg_RQ3_flash" ) != 0;
+	s_preferences.rq3_painblend.curvalue	= trap_Cvar_VariableValue( "cg_RQ3_painBlend" ) != 0;
+	s_preferences.rq3_impacteffects.curvalue	= trap_Cvar_VariableValue( "cg_RQ3_impactEffects" ) != 0;
+	s_preferences.rq3_announcer.curvalue	= trap_Cvar_VariableValue( "cg_RQ3_announcer" ) != 0;
 }
 
 
@@ -180,7 +190,19 @@ static void Preferences_Event( void* ptr, int event ) {
 		case ID_MUZZLEFLASH:
 			s_preferences.rq3_statustext.string = "Enable weapon muzzle flashes";
 			break;
-				
+
+		case ID_PAINBLEND:
+			s_preferences.rq3_statustext.string = "Enable screen pain blends";
+			break;
+
+		case ID_ANNOUNCER:
+			s_preferences.rq3_statustext.string = "Enable Quake 3 announcer";
+			break;
+
+		case ID_IMPACTEFFECTS:
+			s_preferences.rq3_statustext.string = "Enable visual projectile impact effects";
+			break;
+
 		case ID_BACK:
 			s_preferences.rq3_statustext.string = "Return to main menu";
 			break;
@@ -245,7 +267,11 @@ static void Preferences_Event( void* ptr, int event ) {
     		break;
     
         case ID_MUZZLEFLASH:
-    		trap_Cvar_SetValue( "rxn_flash", s_preferences.allowdownload.curvalue );
+    		trap_Cvar_SetValue( "cg_RQ3_flash", s_preferences.allowdownload.curvalue );
+    		break;
+		
+		case ID_PAINBLEND:
+    		trap_Cvar_SetValue( "cg_RQ3_painBlend", s_preferences.allowdownload.curvalue );
     		break;
     
     	case ID_BACK:
@@ -433,6 +459,15 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.wallmarks.generic.y	          = y;
 
 	y += BIGCHAR_HEIGHT+2;
+	s_preferences.rq3_impacteffects.generic.type            = MTYPE_RADIOBUTTON;
+	s_preferences.rq3_impacteffects.generic.name	          = "Impact Effects:";
+	s_preferences.rq3_impacteffects.generic.flags	          = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.rq3_impacteffects.generic.callback        = Preferences_Event;
+	s_preferences.rq3_impacteffects.generic.id              = ID_IMPACTEFFECTS;
+	s_preferences.rq3_impacteffects.generic.x	              = PREFERENCES_X_POS;
+	s_preferences.rq3_impacteffects.generic.y	              = y;
+
+	y += BIGCHAR_HEIGHT+2;
 	s_preferences.brass.generic.type              = MTYPE_RADIOBUTTON;
 	s_preferences.brass.generic.name	          = "Ejecting Brass:";
 	s_preferences.brass.generic.flags	          = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -458,6 +493,24 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.rq3_muzzleflash.generic.id              = ID_MUZZLEFLASH;
 	s_preferences.rq3_muzzleflash.generic.x	              = PREFERENCES_X_POS;
 	s_preferences.rq3_muzzleflash.generic.y	              = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.rq3_painblend.generic.type				= MTYPE_RADIOBUTTON;
+	s_preferences.rq3_painblend.generic.name				= "Pain Blends:";
+	s_preferences.rq3_painblend.generic.flags				= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.rq3_painblend.generic.callback			= Preferences_Event;
+	s_preferences.rq3_painblend.generic.id					= ID_PAINBLEND;
+	s_preferences.rq3_painblend.generic.x					= PREFERENCES_X_POS;
+	s_preferences.rq3_painblend.generic.y					= y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.rq3_announcer.generic.type            = MTYPE_RADIOBUTTON;
+	s_preferences.rq3_announcer.generic.name	          = "Announcer:";
+	s_preferences.rq3_announcer.generic.flags	          = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.rq3_announcer.generic.callback        = Preferences_Event;
+	s_preferences.rq3_announcer.generic.id              = ID_ANNOUNCER;
+	s_preferences.rq3_announcer.generic.x	              = PREFERENCES_X_POS;
+	s_preferences.rq3_announcer.generic.y	              = y;
 
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.identifytarget.generic.type     = MTYPE_RADIOBUTTON;
@@ -552,9 +605,12 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshair );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.simpleitems );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.wallmarks );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_impacteffects );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.brass );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.dynamiclights );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_muzzleflash );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_painblend );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_announcer );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.identifytarget );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.highqualitysky );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.synceveryframe );

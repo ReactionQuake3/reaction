@@ -4,8 +4,10 @@
 
 //#define ART_FRAMEL			"menu/art/frame2_l"
 //#define ART_FRAMER			"menu/art/frame1_r"
-#define ART_MODEL0			"menu/art/model_0"
-#define ART_MODEL1			"menu/art/model_1"
+//#define ART_MODEL0			"menu/art/model_0"
+//#define ART_MODEL1			"menu/art/model_1"
+#define ART_MODEL0			"menu/art/rq3-player-models.jpg"
+#define ART_MODEL1			"menu/art/rq3-player-models-focus.jpg"
 #define ART_BACK0			"menu/art/rq3-menu-back.tga"
 #define ART_BACK1			"menu/art/rq3-menu-back-focus.tga"
 //#define ART_BACK0			"menu/art/back_0"
@@ -22,6 +24,8 @@
 //Elder: RQ3 stuff
 #define RQ3_SETUP_ICON		"menu/art/rq3-setup-player.jpg"
 #define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.tga"
+
+#define PLAYERINFO_X_POS		72
 
 #define ID_NAME			10
 #define ID_HANDICAP		11
@@ -163,9 +167,10 @@ static void PlayerSettings_DrawName( void *self ) {
 	}
 
 	// draw at bottom also using proportional font
-	Q_strncpyz( name, f->field.buffer, sizeof(name) );
-	Q_CleanStr( name );
-	UI_DrawProportionalString( 320, 440, name, UI_CENTER|UI_BIGFONT, text_color_normal );
+	// Elder removed
+	//Q_strncpyz( name, f->field.buffer, sizeof(name) );
+	//Q_CleanStr( name );
+	//UI_DrawProportionalString( 320, 440, name, UI_CENTER|UI_BIGFONT, text_color_normal );
 }
 
 
@@ -239,10 +244,11 @@ static void PlayerSettings_DrawPlayer( void *self ) {
 		strcpy( s_playersettings.playerModel, buf );
 
 		viewangles[YAW]   = 180 - 60;
+		//viewangles[YAW] = ( uis.realtime / 1000 ) % 360;
 		viewangles[PITCH] = 0;
 		viewangles[ROLL]  = 0;
 		//Blaze: Default draw of player, changed WP_MACHINEGUN to WP_PISTOL
-		UI_PlayerInfo_SetInfo( &s_playersettings.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_PISTOL, qfalse );
+		UI_PlayerInfo_SetInfo( &s_playersettings.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_M4, qfalse );
 	}
 
 	b = (menubitmap_s*) self;
@@ -304,12 +310,13 @@ static void PlayerSettings_SetMenuItems( void ) {
 	memset( &s_playersettings.playerinfo, 0, sizeof(playerInfo_t) );
 	
 	viewangles[YAW]   = 180 - 30;
+	//viewangles[YAW] = ( uis.realtime / 1000 ) % 360;
 	viewangles[PITCH] = 0;
 	viewangles[ROLL]  = 0;
 
 	UI_PlayerInfo_SetModel( &s_playersettings.playerinfo, UI_Cvar_VariableString( "model" ) );
 	//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-	UI_PlayerInfo_SetInfo( &s_playersettings.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_PISTOL, qfalse );
+	UI_PlayerInfo_SetInfo( &s_playersettings.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, vec3_origin, WP_M4, qfalse );
 
 	// handicap
 	h = Com_Clamp( 5, 100, trap_Cvar_VariableValue("handicap") );
@@ -355,6 +362,8 @@ static void PlayerSettings_MenuDraw( void ) {
 	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 	
 	// standard menu drawing
 	Menu_Draw( &s_playersettings.menu );
@@ -468,7 +477,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.name.generic.ownerdraw		= PlayerSettings_DrawName;
 	s_playersettings.name.field.widthInChars	= MAX_NAMELENGTH;
 	s_playersettings.name.field.maxchars		= MAX_NAMELENGTH;
-	s_playersettings.name.generic.x				= 192;
+	s_playersettings.name.generic.x				= PLAYERINFO_X_POS;
 	s_playersettings.name.generic.y				= y;
 	s_playersettings.name.generic.left			= 192 - 8;
 	s_playersettings.name.generic.top			= y - 8;
@@ -480,7 +489,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.handicap.generic.flags		= QMF_NODEFAULTINIT;
 	s_playersettings.handicap.generic.id		= ID_HANDICAP;
 	s_playersettings.handicap.generic.ownerdraw	= PlayerSettings_DrawHandicap;
-	s_playersettings.handicap.generic.x			= 192;
+	s_playersettings.handicap.generic.x			= PLAYERINFO_X_POS;
 	s_playersettings.handicap.generic.y			= y;
 	s_playersettings.handicap.generic.left		= 192 - 8;
 	s_playersettings.handicap.generic.top		= y - 8;
@@ -493,7 +502,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.effects.generic.flags		= QMF_NODEFAULTINIT;
 	s_playersettings.effects.generic.id			= ID_EFFECTS;
 	s_playersettings.effects.generic.ownerdraw	= PlayerSettings_DrawEffects;
-	s_playersettings.effects.generic.x			= 192;
+	s_playersettings.effects.generic.x			= PLAYERINFO_X_POS;
 	s_playersettings.effects.generic.y			= y;
 	s_playersettings.effects.generic.left		= 192 - 8;
 	s_playersettings.effects.generic.top		= y - 8;
@@ -506,10 +515,10 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.model.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_playersettings.model.generic.id			= ID_MODEL;
 	s_playersettings.model.generic.callback		= PlayerSettings_MenuEvent;
-	s_playersettings.model.generic.x			= 640;
-	s_playersettings.model.generic.y			= 480-64;
-	s_playersettings.model.width				= 128;
-	s_playersettings.model.height				= 64;
+	s_playersettings.model.generic.x			= 640 - 8;
+	s_playersettings.model.generic.y			= 480-44;
+	s_playersettings.model.width				= 64;
+	s_playersettings.model.height				= 32;
 	s_playersettings.model.focuspic				= ART_MODEL1;
 
 	s_playersettings.player.generic.type		= MTYPE_BITMAP;

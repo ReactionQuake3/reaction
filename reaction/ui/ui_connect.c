@@ -182,16 +182,16 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	}
 
 	//320 64
-	UI_DrawProportionalString( x, 72, va("Connecting to %s", cstate.servername), UI_LEFT|UI_SMALLFONT, menu_text_color );
+	UI_DrawProportionalString( x, 72, va("Connect: %s", cstate.servername), UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, color_red );
 	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 
 	// display global MOTD at bottom
 	UI_DrawProportionalString( x, 352, 
-		Info_ValueForKey( cstate.updateInfoString, "motd" ), UI_LEFT|UI_SMALLFONT, menu_text_color );
+		Info_ValueForKey( cstate.updateInfoString, "motd" ), UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 	
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-		UI_DrawProportionalString( x, 384, cstate.messageString, UI_LEFT|UI_SMALLFONT, menu_text_color );
+		UI_DrawProportionalString( x, 384, cstate.messageString, UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 	}
 
 #if 0
@@ -249,7 +249,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 		return;
 	}
 
-	UI_DrawProportionalString( x, 400, s, UI_LEFT|UI_SMALLFONT, color_white );
+	UI_DrawProportionalString( x, 400, s, UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, color_red );
 	
 	//Elder: "Letterbox" mask - why it has to be here... *shrugs*
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);

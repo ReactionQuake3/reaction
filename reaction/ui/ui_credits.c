@@ -39,7 +39,7 @@ Elder's modifications
 #define LEFT_JUSTIFY_POSITION	330
 
 //Elder: fader code parameters - plus nicer to access vec4_t with COLOR_*
-#define FADE_START_TIME		5000
+#define FADE_START_TIME		4000
 #define FADE_DURATION		10000
 #define COLOR_R 0
 #define COLOR_G 1
@@ -130,7 +130,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 // Artwork - models, textures, whatever
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ART", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "SONIC128", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "LINH NGUYEN (SONIC128)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "IAN MCEACHERN (FROST)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "BRIAN MILLS (BIRDMAN)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MARK POTNICK (CLOUD)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },

@@ -2,16 +2,21 @@
 //
 #include "ui_local.h"
 
-#define MODEL_BACK0			"menu/art/back_0"
-#define MODEL_BACK1			"menu/art/back_1"
+// Elder: changed
+#define MODEL_BACK0			"menu/art/rq3-menu-back.tga"
+#define MODEL_BACK1			"menu/art/rq3-menu-back-focus"
 #define MODEL_SELECT		"menu/art/opponents_select"
 #define MODEL_SELECTED		"menu/art/opponents_selected"
-#define MODEL_FRAMEL		"menu/art/frame1_l"
-#define MODEL_FRAMER		"menu/art/frame1_r"
-#define MODEL_PORTS			"menu/art/player_models_ports"
+//#define MODEL_FRAMEL		"menu/art/frame1_l"
+//#define MODEL_FRAMER		"menu/art/frame1_r"
+//#define MODEL_PORTS			"menu/art/player_models_ports"
 #define MODEL_ARROWS		"menu/art/gs_arrows_0"
 #define MODEL_ARROWSL		"menu/art/gs_arrows_l"
 #define MODEL_ARROWSR		"menu/art/gs_arrows_r"
+
+//Elder: RQ3 stuff
+#define RQ3_SETUP_ICON		"menu/art/rq3-setup-player.jpg"
+#define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.tga"
 
 #define LOW_MEMORY			(5 * 1024 * 1024)
 
@@ -21,9 +26,9 @@ static char* playermodel_artlist[] =
 	MODEL_BACK1,	
 	MODEL_SELECT,
 	MODEL_SELECTED,
-	MODEL_FRAMEL,
-	MODEL_FRAMER,
-	MODEL_PORTS,	
+	//MODEL_FRAMEL,
+	//MODEL_FRAMER,
+	//MODEL_PORTS,	
 	MODEL_ARROWS,
 	MODEL_ARROWSL,
 	MODEL_ARROWSR,
@@ -64,13 +69,19 @@ typedef struct
 //Blaze: Dont need this any more
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
+/*
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
+*/
 
-	menubitmap_s	ports;
+	//Elder: RQ3 stuff	
+	menubitmap_s	rq3_setuptitle;
+	menubitmap_s	rq3_setupicon;	
+
+//	menubitmap_s	ports;
 //	menutext_s		banner;
 	menubitmap_s	back;
 	menubitmap_s	player;
@@ -79,7 +90,7 @@ typedef struct
 	menubitmap_s	right;
 	menutext_s		modelname;
 	menutext_s		skinname;
-	menutext_s		playername;
+//	menutext_s		playername;
 	playerInfo_t	playerinfo;
 	int				nummodels;
 	char			modelnames[MAX_PLAYERMODELS][128];
@@ -90,6 +101,26 @@ typedef struct
 } playermodel_t;
 
 static playermodel_t s_playermodel;
+
+
+/*
+===============
+Added by Elder
+PlayerModel_MenuDraw
+===============
+*/
+static void PlayerModel_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &s_playermodel.menu );
+}
+
 
 /*
 =================
@@ -163,13 +194,13 @@ static void PlayerModel_UpdateModel( void )
 
 	memset( &s_playermodel.playerinfo, 0, sizeof(playerInfo_t) );
 	
-	viewangles[YAW]   = 180 - 30;
+	viewangles[YAW]   = 180 - 60;
 	viewangles[PITCH] = 0;
 	viewangles[ROLL]  = 0;
 	VectorClear( moveangles );
 
 	UI_PlayerInfo_SetModel( &s_playermodel.playerinfo, s_playermodel.modelskin );
-	UI_PlayerInfo_SetInfo( &s_playermodel.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, moveangles, WP_KNIFE, qfalse );
+	UI_PlayerInfo_SetInfo( &s_playermodel.playerinfo, LEGS_IDLE, TORSO_STAND, viewangles, moveangles, WP_M4, qfalse );
 }
 
 /*
@@ -450,8 +481,8 @@ static void PlayerModel_SetMenuItems( void )
 	char*			pdest;
 
 	// name
-	trap_Cvar_VariableStringBuffer( "name", s_playermodel.playername.string, 16 );
-	Q_CleanStr( s_playermodel.playername.string );
+	//trap_Cvar_VariableStringBuffer( "name", s_playermodel.playername.string, 16 );
+	//Q_CleanStr( s_playermodel.playername.string );
 
 	// model
 	trap_Cvar_VariableStringBuffer( "model", s_playermodel.modelskin, 64 );
@@ -506,7 +537,7 @@ static void PlayerModel_MenuInit( void )
 	int			k;
 	int			x;
 	int			y;
-	static char	playername[32];
+	//static char	playername[32];
 	static char	modelname[32];
 	static char	skinname[32];
 
@@ -515,6 +546,7 @@ static void PlayerModel_MenuInit( void )
 
 	PlayerModel_Cache();
 
+	s_playermodel.menu.draw		  = PlayerModel_MenuDraw;
 	s_playermodel.menu.key        = PlayerModel_MenuKey;
 	s_playermodel.menu.wrapAround = qtrue;
 	s_playermodel.menu.fullscreen = qtrue;
@@ -543,6 +575,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.framer.width         = 256;
 	s_playermodel.framer.height        = 334;
 */
+/*
 	s_playermodel.multim.generic.type	= MTYPE_PTEXT;
 	s_playermodel.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_playermodel.multim.generic.x	= 120;
@@ -583,16 +616,36 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.exitm.string		= "EXIT";
 	s_playermodel.exitm.color		= color_red;
 	s_playermodel.exitm.style		= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for system icon
+	s_playermodel.rq3_setupicon.generic.type				= MTYPE_BITMAP;
+	s_playermodel.rq3_setupicon.generic.name				= RQ3_SETUP_ICON;
+	s_playermodel.rq3_setupicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_playermodel.rq3_setupicon.generic.x					= 0;
+	s_playermodel.rq3_setupicon.generic.y					= 4;
+	s_playermodel.rq3_setupicon.width						= RQ3_ICON_WIDTH;
+	s_playermodel.rq3_setupicon.height						= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for setup title
+	s_playermodel.rq3_setuptitle.generic.type				= MTYPE_BITMAP;
+	s_playermodel.rq3_setuptitle.generic.name				= RQ3_SETUP_TITLE;
+	s_playermodel.rq3_setuptitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_playermodel.rq3_setuptitle.generic.x					= 64;
+	s_playermodel.rq3_setuptitle.generic.y					= 12;
+	s_playermodel.rq3_setuptitle.width						= 256;
+	s_playermodel.rq3_setuptitle.height						= 32;
+
+/*
 	s_playermodel.ports.generic.type  = MTYPE_BITMAP;
 	s_playermodel.ports.generic.name  = MODEL_PORTS;
 	s_playermodel.ports.generic.flags = QMF_LEFT_JUSTIFY|QMF_INACTIVE;
 	s_playermodel.ports.generic.x     = 50;
-	s_playermodel.ports.generic.y     = 59;
+	s_playermodel.ports.generic.y     = 72;
 	s_playermodel.ports.width         = 274;
 	s_playermodel.ports.height        = 274;
-
-	y =	59;
+*/
+	y =	72;
 	for (i=0,k=0; i<PLAYERGRID_ROWS; i++)
 	{
 		x =	50;
@@ -626,7 +679,7 @@ static void PlayerModel_MenuInit( void )
 		}
 		y += 64+6;
 	}
-
+/*
 	s_playermodel.playername.generic.type  = MTYPE_PTEXT;
 	s_playermodel.playername.generic.flags = QMF_CENTER_JUSTIFY|QMF_INACTIVE;
 	s_playermodel.playername.generic.x	   = 320;
@@ -634,11 +687,11 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.playername.string	       = playername;
 	s_playermodel.playername.style		   = UI_CENTER;
 	s_playermodel.playername.color         = text_color_normal;
-
+*/
 	s_playermodel.modelname.generic.type  = MTYPE_PTEXT;
 	s_playermodel.modelname.generic.flags = QMF_CENTER_JUSTIFY|QMF_INACTIVE;
 	s_playermodel.modelname.generic.x	  = 497;
-	s_playermodel.modelname.generic.y	  = 54;
+	s_playermodel.modelname.generic.y	  = 64;
 	s_playermodel.modelname.string	      = modelname;
 	s_playermodel.modelname.style		  = UI_CENTER;
 	s_playermodel.modelname.color         = text_color_normal;
@@ -646,7 +699,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.skinname.generic.type   = MTYPE_PTEXT;
 	s_playermodel.skinname.generic.flags  = QMF_CENTER_JUSTIFY|QMF_INACTIVE;
 	s_playermodel.skinname.generic.x	  = 497;
-	s_playermodel.skinname.generic.y	  = 394;
+	s_playermodel.skinname.generic.y	  = 380;
 	s_playermodel.skinname.string	      = skinname;
 	s_playermodel.skinname.style		  = UI_CENTER;
 	s_playermodel.skinname.color          = text_color_normal;
@@ -663,7 +716,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.arrows.generic.name		= MODEL_ARROWS;
 	s_playermodel.arrows.generic.flags		= QMF_INACTIVE;
 	s_playermodel.arrows.generic.x			= 125;
-	s_playermodel.arrows.generic.y			= 340;
+	s_playermodel.arrows.generic.y			= 360;
 	s_playermodel.arrows.width				= 128;
 	s_playermodel.arrows.height				= 32;
 
@@ -672,7 +725,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.left.generic.callback		= PlayerModel_MenuEvent;
 	s_playermodel.left.generic.id			= ID_PREVPAGE;
 	s_playermodel.left.generic.x			= 125;
-	s_playermodel.left.generic.y			= 340;
+	s_playermodel.left.generic.y			= 360;
 	s_playermodel.left.width  				= 64;
 	s_playermodel.left.height  				= 32;
 	s_playermodel.left.focuspic				= MODEL_ARROWSL;
@@ -682,7 +735,7 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.right.generic.callback	= PlayerModel_MenuEvent;
 	s_playermodel.right.generic.id			= ID_NEXTPAGE;
 	s_playermodel.right.generic.x			= 125+61;
-	s_playermodel.right.generic.y			= 340;
+	s_playermodel.right.generic.y			= 360;
 	s_playermodel.right.width  				= 64;
 	s_playermodel.right.height  		    = 32;
 	s_playermodel.right.focuspic			= MODEL_ARROWSR;
@@ -692,24 +745,27 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_playermodel.back.generic.callback = PlayerModel_MenuEvent;
 	s_playermodel.back.generic.id	    = ID_BACK;
-	s_playermodel.back.generic.x		= 0;
-	s_playermodel.back.generic.y		= 480-64;
-	s_playermodel.back.width  		    = 128;
-	s_playermodel.back.height  		    = 64;
+	s_playermodel.back.generic.x		= 8;
+	s_playermodel.back.generic.y		= 480-44;
+	s_playermodel.back.width  		    = 32;
+	s_playermodel.back.height  		    = 32;
 	s_playermodel.back.focuspic         = MODEL_BACK1;
 
 //Blaze: Dont need this
 //	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.banner );
 //	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.framel );
 //	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.framer );
+/*
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.demom );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.multim );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.exitm );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.setupm );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.modsm);
-
-	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.ports );
-	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.playername );
+*/
+	Menu_AddItem( &s_playermodel.menu,  &s_playermodel.rq3_setupicon );
+	Menu_AddItem( &s_playermodel.menu,  &s_playermodel.rq3_setuptitle );
+//	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.ports );
+//	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.playername );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.modelname );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.skinname );
 
