@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/02/28 05:41:54  blaze
+// weapons stats on client side
+//
 // Revision 1.17  2002/02/11 00:30:02  niceass
 // LCA fix
 //
@@ -116,6 +119,75 @@ static void CG_ParseScores( void ) {
 	CG_SetScoreSelection(NULL);
 #endif
 
+}
+/*
+=================
+CG_ParseWeaponStats
+
+=================
+*/
+static void CG_ParseWeaponStats( void ) {
+	int		i;
+  
+	i=1;
+  //Blaze: oi, damn fugly code
+  cg.records[REC_KNIFETHROWSHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFETHROWHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFESLASHSHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFESLASHHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_MK23SHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_MK23HITS] = atoi( CG_Argv(i++));
+  cg.records[REC_M3SHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_M3HITS] = atoi( CG_Argv(i++));
+  cg.records[REC_MP5SHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_MP5HITS] = atoi( CG_Argv(i++));
+  cg.records[REC_M4SHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_M4HITS] = atoi( CG_Argv(i++));
+  cg.records[REC_SSG3000SHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_SSG3000HITS] = atoi( CG_Argv(i++));
+  cg.records[REC_HANDCANNONSHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_HANDCANNONHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_AKIMBOSHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_AKIMBOHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_GRENADESHOTS] = atoi( CG_Argv(i++));
+  cg.records[REC_GRENADEHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_KICKHITS] = atoi( CG_Argv(i++));
+
+}
+/*
+=================
+CG_ParseWeaponStats2
+I send 2 server config strings, I was not 
+sure if there was a max length, so may aswell avoid it
+=================
+*/
+static void CG_ParseWeaponStats2( void ) {
+	int		i;
+  
+	i=1;
+  //Blaze: oi, damn fugly code
+  cg.records[REC_KNIFETHROWDEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFETHROWKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFESLASHDEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_KNIFESLASHKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_MK23DEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_MK23KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_M3DEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_M3KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_MP5DEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_MP5KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_M4DEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_M4KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_SSG3000DEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_SSG3000KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_HANDCANNONDEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_HANDCANNONKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_AKIMBODEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_AKIMBOKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_GRENADEDEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_GRENADEKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_KICKDEATHS] = atoi( CG_Argv(i++));
+  cg.records[REC_KICKKILLS] = atoi( CG_Argv(i++));
 }
 
 /*
@@ -1057,6 +1129,16 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "scores" ) ) {
 		CG_ParseScores();
+		return;
+	}
+
+  if ( !strcmp( cmd, "wstats" ) ) {
+		CG_ParseWeaponStats();
+		return;
+	}
+
+  if ( !strcmp( cmd, "wstats2" ) ) {
+		CG_ParseWeaponStats2();
 		return;
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/02/28 05:41:54  blaze
+// weapons stats on client side
+//
 // Revision 1.21  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -2826,6 +2829,7 @@ static void CG_Draw2D( void ) {
 	if ( !cg.scoreBoardShowing) {
 		CG_DrawCenterString();
 	}
+  if ( cg.showWStats )	CG_DrawWeaponStats();
 }
 
 

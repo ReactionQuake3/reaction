@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/02/28 05:41:54  blaze
+// weapons stats on client side
+//
 // Revision 1.28  2002/02/10 08:17:08  niceass
 // many changes to scoreboard (deaths/second mode)
 //
@@ -257,6 +260,44 @@ static void CG_ScoresUp_f( void ) {
 		cg.scoreFadeTime = cg.time;
 	}
 }
+
+/*
+=================================
+CG_WeaponStatsUp_f
+Turns on the players weapon stats
+=================================
+*/
+static void CG_WeaponStatsUp_f(void)
+{	
+  if ( cg.wstatsRequestTime + 2000 < cg.time ) {
+		// the stats are more than two seconds out of data,
+		// so request new ones
+		cg.wstatsRequestTime = cg.time;
+		trap_SendClientCommand( "wstats" );
+	}
+
+	if (!cg.showWStats) 
+  {
+    cg.wstatsStartTime = cg.time;
+    cg.showWStats = qtrue;
+  }
+}
+
+
+/*
+=================================
+CG_WeaponStatsDown_f
+Turns off the players weapon stats
+=================================
+*/
+static void CG_WeaponStatsDown_f(void)
+{
+	if (cg.showWStats)
+  {
+    cg.showWStats = qfalse;
+  }
+}
+
 
 #ifdef MISSIONPACK
 extern menuDef_t *menuScoreboard;
@@ -695,6 +736,9 @@ static consoleCommand_t	commands[] = {
 	{ "-scores", CG_ScoresUp_f },
 /*	{ "+zoom", CG_ZoomDown_f },				// hawkins not needed in Reaction
 	{ "-zoom", CG_ZoomUp_f },*/			
+	//Blaze: Weapon stats
+	{ "+wstats", CG_WeaponStatsUp_f },
+	{ "-wstats", CG_WeaponStatsDown_f },
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/02/28 05:41:54  blaze
+// weapons stats on client side
+//
 // Revision 1.48  2002/02/10 08:17:08  niceass
 // many changes to scoreboard (deaths/second mode)
 //
@@ -385,6 +388,8 @@ typedef struct {
 	int				team;
 } score_t;
 
+//Blaze: WeaponStats Struct
+
 // each client has an associated clientInfo_t
 // that contains media references necessary to present the
 // client model and other color coded effects
@@ -659,6 +664,11 @@ typedef struct {
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
 	int			scoreTPMode;
+  //Blaze: weapon stats stuff
+	qboolean	showWStats;
+  int     wstatsStartTime;
+  int			wstatsRequestTime;
+  //end weapon stats stuff
 	char		killerName[MAX_NAME_LENGTH];
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
 	int				spectatorLen;												// length of list
@@ -785,6 +795,8 @@ typedef struct {
 
 // JBravo: adding scoreStartTime for NiceAss
 	int		scoreStartTime;
+
+	int			records[REC_NUM_RECORDS];	// Blaze: for our statistics tracking
 
 } cg_t;
 
