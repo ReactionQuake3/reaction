@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/06/10 19:10:59  jbravo
+// Voting system fixed for TP
+//
 // Revision 1.69  2002/06/10 18:38:40  makro
 // Changed default value for g_allowvote to 0
 //
@@ -1200,11 +1203,8 @@ This will be called on every client connect, begin, disconnect, death,
 and team change.
 ============
 */
-void CalculateRanks( void ) {
-	int		i;
-	int		rank;
-	int		score;
-	int		newScore;
+void CalculateRanks (void) {
+	int		i, rank, score, newScore;
 	gclient_t	*cl;
 
 	level.follow1 = -1;
@@ -1213,48 +1213,71 @@ void CalculateRanks( void ) {
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
-	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
+	for (i = 0; i < TEAM_NUM_TEAMS; i++) {
 		level.numteamVotingClients[i] = 0;
 	}
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
+	for (i = 0 ; i < level.maxclients ; i++) {
+		if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 			level.sortedClients[level.numConnectedClients] = i;
 			level.numConnectedClients++;
 
-			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ) {
-				level.numNonSpectatorClients++;
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				if (level.clients[i].sess.savedTeam != TEAM_SPECTATOR) {
+					level.numNonSpectatorClients++;
 
-				// decide if this should be auto-followed
-				if ( level.clients[i].pers.connected == CON_CONNECTED ) {
-					level.numPlayingClients++;
-					if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
-						level.numVotingClients++;
-						if ( level.clients[i].sess.sessionTeam == TEAM_RED )
-							level.numteamVotingClients[0]++;
-						else if ( level.clients[i].sess.sessionTeam == TEAM_BLUE )
-							level.numteamVotingClients[1]++;
+					// decide if this should be auto-followed
+					if (level.clients[i].pers.connected == CON_CONNECTED) {
+						level.numPlayingClients++;
+						if (!(g_entities[i].r.svFlags & SVF_BOT)) {
+							level.numVotingClients++;
+							if (level.clients[i].sess.savedTeam == TEAM_RED)
+								level.numteamVotingClients[0]++;
+							else if (level.clients[i].sess.savedTeam == TEAM_BLUE)
+								level.numteamVotingClients[1]++;
+						}
+						if (level.follow1 == -1) {
+							level.follow1 = i;
+						} else if (level.follow2 == -1) {
+							level.follow2 = i;
+						}
 					}
-					if ( level.follow1 == -1 ) {
-						level.follow1 = i;
-					} else if ( level.follow2 == -1 ) {
-						level.follow2 = i;
+				}
+			} else {
+				if (level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) {
+					level.numNonSpectatorClients++;
+
+					// decide if this should be auto-followed
+					if (level.clients[i].pers.connected == CON_CONNECTED) {
+						level.numPlayingClients++;
+						if (!(g_entities[i].r.svFlags & SVF_BOT)) {
+							level.numVotingClients++;
+							if (level.clients[i].sess.sessionTeam == TEAM_RED)
+								level.numteamVotingClients[0]++;
+							else if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
+								level.numteamVotingClients[1]++;
+						}
+						if (level.follow1 == -1) {
+							level.follow1 = i;
+						} else if (level.follow2 == -1) {
+							level.follow2 = i;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	qsort( level.sortedClients, level.numConnectedClients,
-		sizeof(level.sortedClients[0]), SortRanks );
+	qsort(level.sortedClients, level.numConnectedClients,
+		sizeof(level.sortedClients[0]), SortRanks);
 
 	// set the rank value for all clients that are connected and not spectators
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if (g_gametype.integer >= GT_TEAM) {
 		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
-		for ( i = 0;  i < level.numConnectedClients; i++ ) {
-			cl = &level.clients[ level.sortedClients[i] ];
-			if ( level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] ) {
+		for (i = 0;  i < level.numConnectedClients; i++) {
+			cl = &level.clients[level.sortedClients[i]];
+			if (level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]) {
 				cl->ps.persistant[PERS_RANK] = 2;
-			} else if ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) {
+			} else if (level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
 				cl->ps.persistant[PERS_RANK] = 0;
 			} else {
 				cl->ps.persistant[PERS_RANK] = 1;
@@ -1263,39 +1286,39 @@ void CalculateRanks( void ) {
 	} else {
 		rank = -1;
 		score = 0;
-		for ( i = 0;  i < level.numPlayingClients; i++ ) {
-			cl = &level.clients[ level.sortedClients[i] ];
+		for (i = 0;  i < level.numPlayingClients; i++) {
+			cl = &level.clients[level.sortedClients[i]];
 			newScore = cl->ps.persistant[PERS_SCORE];
-			if ( i == 0 || newScore != score ) {
+			if (i == 0 || newScore != score) {
 				rank = i;
 				// assume we aren't tied until the next client is checked
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank;
+				level.clients[level.sortedClients[i]].ps.persistant[PERS_RANK] = rank;
 			} else {
 				// we are tied with the previous client
-				level.clients[ level.sortedClients[i-1] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
+				level.clients[level.sortedClients[i-1]].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
+				level.clients[level.sortedClients[i]].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 			score = newScore;
-			if ( g_gametype.integer == GT_SINGLE_PLAYER && level.numPlayingClients == 1 ) {
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
+			if (g_gametype.integer == GT_SINGLE_PLAYER && level.numPlayingClients == 1) {
+				level.clients[level.sortedClients[i]].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 		}
 	}
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
-	if ( g_gametype.integer >= GT_TEAM ) {
-		trap_SetConfigstring( CS_SCORES1, va("%i", level.teamScores[TEAM_RED] ) );
-		trap_SetConfigstring( CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE] ) );
+	if (g_gametype.integer >= GT_TEAM) {
+		trap_SetConfigstring (CS_SCORES1, va("%i", level.teamScores[TEAM_RED]));
+		trap_SetConfigstring (CS_SCORES2, va("%i", level.teamScores[TEAM_BLUE]));
 	} else {
-		if ( level.numConnectedClients == 0 ) {
-			trap_SetConfigstring( CS_SCORES1, va("%i", SCORE_NOT_PRESENT) );
-			trap_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
-		} else if ( level.numConnectedClients == 1 ) {
-			trap_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			trap_SetConfigstring( CS_SCORES2, va("%i", SCORE_NOT_PRESENT) );
+		if (level.numConnectedClients == 0) {
+			trap_SetConfigstring (CS_SCORES1, va("%i", SCORE_NOT_PRESENT));
+			trap_SetConfigstring (CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
+		} else if (level.numConnectedClients == 1) {
+			trap_SetConfigstring (CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring (CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		} else {
-			trap_SetConfigstring( CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			trap_SetConfigstring( CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
+			trap_SetConfigstring (CS_SCORES1, va("%i", level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring (CS_SCORES2, va("%i", level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE]));
 		}
 	}
 
@@ -1303,7 +1326,7 @@ void CalculateRanks( void ) {
 	CheckExitRules();
 
 	// if we are at the intermission, send the new info to everyone
-	if ( level.intermissiontime ) {
+	if (level.intermissiontime) {
 		SendScoreboardMessageToAllClients();
 	}
 }

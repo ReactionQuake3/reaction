@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2002/06/10 19:10:59  jbravo
+// Voting system fixed for TP
+//
 // Revision 1.124  2002/06/10 19:04:21  slicer
 // Passing RefID trought scoreboard, forgot to add
 //
@@ -1785,7 +1788,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) ) {
 		i = atoi( arg2 );
-		if (i != GT_FFA && i != GT_TEAM && i != GT_TEAMPLAY) {
+		if (i != GT_FFA && i != GT_TEAMPLAY) {
 			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 			return;
 		}
