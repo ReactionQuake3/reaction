@@ -404,6 +404,7 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	// Blaze: check for double jump
+	
 	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 		pm->ps->velocity[2] += 100; // More velocity

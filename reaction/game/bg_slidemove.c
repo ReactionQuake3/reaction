@@ -238,10 +238,11 @@ void PM_StepSlideMove( qboolean gravity ) {
 	// never step up when you still have up velocity
 	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 ||
 										DotProduct(trace.plane.normal, up) < 0.7)) {
-		if ( pm->ps->stats[STAT_JUMPTIME] <= 0) 
+/*		if ( pm->ps->stats[STAT_JUMPTIME] <= 0) //Blaze: Removed to stop a little skip, it used to nead this, but mabey 1.27 fixed this
 		{
+			Com_Printf("Jump Check\n");
 			return; // Blaze RE: Allow step up or second jump while jumping	
-		}
+		}*/
 	}
 
 	VectorCopy (pm->ps->origin, down_o);
