@@ -178,9 +178,10 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
+/*	Blaze: No Kamikazie
 	if( ent->item->giTag == HI_KAMIKAZE ) {
 		other->client->ps.eFlags |= EF_KAMIKAZE;
-	}
+	}*/
 
 	return RESPAWN_HOLDABLE;
 }
@@ -537,6 +538,7 @@ void RespawnItem( gentity_t *ent ) {
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 
+/*	Blaze: No Kamikaze item
 	if ( ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_KAMIKAZE ) {
 		// play powerup spawn sound to all clients
 		gentity_t	*te;
@@ -551,6 +553,7 @@ void RespawnItem( gentity_t *ent ) {
 		te->s.eventParm = G_SoundIndex( "sound/items/kamikazerespawn.wav" );
 		te->r.svFlags |= SVF_BROADCAST;
 	}
+	*/
 
 	// play the normal respawn sound only to nearby clients
 	G_AddEvent( ent, EV_ITEM_RESPAWN, 0 );
@@ -929,7 +932,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->s.pos.trTime = level.time;	// +50; no pre-step if it doesn't clip players
 		VectorScale( velocity, 40, dropped->s.pos.trDelta ); // 700 500 400
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
-		dropped->physicsBounce = 0.1;
+		dropped->physicsBounce = 0.1f;
 	}
 
 	trap_LinkEntity (dropped);

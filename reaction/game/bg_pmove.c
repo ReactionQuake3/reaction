@@ -1121,7 +1121,7 @@ static void PM_CrashLand( void ) {
 	pm->ps->legsTimer = TIMER_LAND;
 
 	// calculate the exact velocity on landing
-	dist = pm->ps->origin[2] - pml.previous_origin[2];
+	/*dist = pm->ps->origin[2] - pml.previous_origin[2];
 	vel = pml.previous_velocity[2];
 	acc = -pm->ps->gravity;
 
@@ -1134,7 +1134,7 @@ static void PM_CrashLand( void ) {
 		return;
 	}
 	t = (-b - sqrt( den ) ) / ( 2 * a );
-
+*/
 	//delta = vel + t * acc;
 	//Blaze: added to make it more like aq2
 	delta = pm->ps->velocity[2] - pml.previous_velocity[2];
@@ -1166,27 +1166,28 @@ static void PM_CrashLand( void ) {
 
 	// SURF_NODAMAGE is used for bounce pads where you don't ever
 	// want to take damage or play a crunch sound
-	damage = (int)(((delta-30)/2));
-    if (damage < 1)  damage = 1;
-    damage *= 10;
+
+	if (delta > 30)
+	{
+
+		//Com_Printf("delta =(%f), delta - 30 = (%f), damage = (%d)",delta,delta-30,(int)(((delta-30)/2)));
+		damage = (int)(((delta-30)/2));
+		if (damage < 1)  damage = 1;
+		damage *= 10;
 	
-	if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
-		if ( delta > 30 ) {
-			//Blaze lots of changes to make it more like aq2
-			// this is a pain grunt, so don't play it if dead
-			if ( pm->ps->stats[STAT_HEALTH] > 0 ) {
-				PM_AddEvent( EV_FALL_FAR );
-				pm->ps->stats[STAT_FALLDAMAGE] = damage;
+		if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
+				//Blaze lots of changes to make it more like aq2
+				// this is a pain grunt, so don't play it if dead
+			if ( pm->ps->stats[STAT_HEALTH] > 0 && damage > 0) {
+					PM_AddEvent( EV_FALL_FAR );
+					pm->ps->stats[STAT_FALLDAMAGE] = damage;
 			}
-		} else if ( delta > 7 ) {
-			PM_AddEvent( EV_FALL_SHORT );
-			pm->ps->stats[STAT_FALLDAMAGE] = 0;
-			
-		} 
-		else {
-			PM_AddEvent( PM_FootstepForSurface() );
-			//Elder: added? useful? 
-			pm->ps->stats[STAT_FALLDAMAGE] = 0;
+			else 
+			{
+				PM_AddEvent( PM_FootstepForSurface() );
+				//Elder: added? useful? 
+				pm->ps->stats[STAT_FALLDAMAGE] = 0;
+			}
 		}
 	}
 
@@ -1833,14 +1834,16 @@ static void PM_Weapon( void ) {
 	// check for item using
 	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
 		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
+
+			/*  Blaze: No more medkit
 			if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
 				&& pm->ps->stats[STAT_HEALTH] >= (125) ) { //medikit check pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
 				// don't use medkit if at max health
-			} else {
+			} else {*/
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 				pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
-			}
+			//}
 			return;
 		}
 	} else {
