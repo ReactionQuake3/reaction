@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/03/03 13:49:28  jbravo
+// Initializing weapon modes on connect.
+//
 // Revision 1.44  2002/03/03 03:11:37  jbravo
 // Use propper weapon anims on TP spawns
 //
@@ -1227,6 +1230,13 @@ void ClientBegin( int clientNum ) {
 		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
+// JBravo: Set grenades to short, and the other weapons to full automatic on connect.
+		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
+		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED;
+		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MP5MODE;
+		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_M4MODE;
+		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
 #ifdef __ZCAM__
 		client->camera->mode = CAMERA_MODE_SWING;
 #endif
