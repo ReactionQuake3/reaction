@@ -5,8 +5,13 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/04/04 18:06:44  makro
+// Improved door code. Bots reply to radio treport from teammates.
+// Improved reloading code.
+//
 // Revision 1.5  2002/03/31 19:16:56  makro
-// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+// Bandaging, reloading, opening rotating doors (still needs a lot of work),
+// shooting breakables
 //
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
@@ -305,9 +310,12 @@ int NumPlayersOnSameTeam(bot_state_t *bs) {
 }
 
 /*
-==================
-TeamPlayIsOn
-==================
+====================================
+BotGetPatrolWaypoints
+
+Makro - description was wrong
+(TeamPlayIsOn)
+====================================
 */
 int BotGetPatrolWaypoints(bot_state_t *bs, bot_match_t *match) {
 	char keyarea[MAX_MESSAGE_SIZE];

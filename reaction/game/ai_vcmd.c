@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/04/04 18:06:44  makro
+// Improved door code. Bots reply to radio treport from teammates.
+// Improved reloading code.
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -468,7 +472,8 @@ void BotVoiceChat_WantOnDefense(bot_state_t *bs, int client, int mode) {
 	BotAI_BotInitialChat(bs, "keepinmind", netname, NULL);
 	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, client, VOICECHAT_YES);
-	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+	//Makro - BUTTON_AFFIRMATIVE is now used for reloading
+	//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 
 /*
@@ -489,7 +494,8 @@ void BotVoiceChat_WantOnOffense(bot_state_t *bs, int client, int mode) {
 	BotAI_BotInitialChat(bs, "keepinmind", netname, NULL);
 	trap_BotEnterChat(bs->cs, client, CHAT_TELL);
 	BotVoiceChatOnly(bs, client, VOICECHAT_YES);
-	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+	//Makro - BUTTON_AFFIRMATIVE is now used for reloading
+	//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 
 void BotVoiceChat_Dummy(bot_state_t *bs, int client, int mode) {

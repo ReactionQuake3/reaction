@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/04/04 18:06:44  makro
+// Improved door code. Bots reply to radio treport from teammates.
+// Improved reloading code.
+//
 // Revision 1.11  2002/04/03 17:39:36  makro
 // Made bots handle incoming radio spam better
 //
@@ -15,7 +19,8 @@
 // Changed some weapon names
 //
 // Revision 1.7  2002/03/31 19:16:56  makro
-// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+// Bandaging, reloading, opening rotating doors (still needs a lot of work),
+// shooting breakables
 //
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
@@ -72,6 +77,8 @@
 //Makro - to get rid of the warnings
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
 void Cmd_Bandage (gentity_t *ent);
+gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+void BotAttack(bot_state_t *bs);
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
@@ -1293,6 +1300,15 @@ int AINode_Respawn(bot_state_t *bs) {
 		}
 		else {
 			trap_EA_Respawn(bs->client);
+			//Makro - maybe this will help in teamplay
+			if (gametype == GT_TEAMPLAY) {
+				gentity_t *spot = SelectRandomDeathmatchSpawnPoint();
+				aas_entityinfo_t entinfo;
+
+				BotEntityInfo(spot-g_entities, &entinfo);
+				BotMoveTo(bs, entinfo.origin);
+
+			}
 		}
 	}
 	else if (bs->respawn_time < FloatTime()) {
@@ -1387,7 +1403,9 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 						// if the mine is visible from the current position
 						if (bsptrace.fraction >= 1.0 || bsptrace.ent == state.number) {
 							// shoot at the mine
-							trap_EA_Attack(bs->client);
+							//Makro - using custom function to allow in-combat reloads
+							//trap_EA_Attack(bs->client);
+							BotAttack(bs);
 						}
 					}
 				}
@@ -1446,7 +1464,9 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 						// if the mine is visible from the current position
 						if (bsptrace.fraction >= 1.0 || bsptrace.ent == state.number) {
 							// shoot at the mine
-							trap_EA_Attack(bs->client);
+							//Makro - using custom function to allow in-combat reloads
+							//trap_EA_Attack(bs->client);
+							BotAttack(bs);
 						}
 					}
 				}
@@ -1550,7 +1570,9 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 				vectoangles(dir, ideal_viewangles);
 				// if the bot is pretty close with it's aim
 				if (InFieldOfVision(bs->viewangles, 20, ideal_viewangles)) {
-					trap_EA_Attack(bs->client);
+					//Makro - using custom function to allow in-combat reloads
+					//trap_EA_Attack(bs->client);
+					BotAttack(bs);
 				}
 			}
 		}

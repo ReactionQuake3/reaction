@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/04/04 18:06:44  makro
+// Improved door code. Bots reply to radio treport from teammates.
+// Improved reloading code.
+//
 // Revision 1.14  2002/04/03 17:46:14  makro
 // Fixed one more thing
 //
@@ -18,7 +22,8 @@
 // Changed some weapon names
 //
 // Revision 1.9  2002/03/31 19:16:56  makro
-// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+// Bandaging, reloading, opening rotating doors (still needs a lot of work),
+// shooting breakables
 //
 // Revision 1.8  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
@@ -146,6 +151,59 @@ void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
 
 /*
 ==================
+BotAttack
+
+Added by Makro
+==================
+*/
+void BotAttack(bot_state_t *bs) {
+	//If the gun is empty
+	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
+		//If bot has extra clips, reload
+		if (g_entities[bs->entitynum].client->numClips[bs->weaponnum] >= 1 ) {
+			//Cmd_Reload( &g_entities[bs->entitynum] );
+			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+		}
+	} else {
+		trap_EA_Attack(bs->client);
+	}
+}
+
+/*
+==================
+BotMoveTo
+
+Added by Makro
+==================
+*/
+bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest) {
+	bot_goal_t goal;
+	bot_moveresult_t moveresult;
+
+	//create goal
+	goal.entitynum = 0;
+	VectorCopy(dest, goal.origin);
+	VectorSet(goal.mins, -8, -8, -8);
+	VectorSet(goal.maxs, 8, 8, 8);
+	VectorAdd(goal.mins, goal.origin, goal.mins);
+	VectorAdd(goal.maxs, goal.origin, goal.maxs);
+	goal.areanum = trap_AAS_PointAreaNum(goal.origin);
+	//initialize the movement state
+	BotSetupForMovement(bs);
+	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
+
+	//move towards the goal
+	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, TFL_DEFAULT);
+	//if movement failed
+	if (moveresult.failure) {
+		//reset the avoid reach, otherwise bot is stuck in current area
+		trap_BotResetAvoidReach(bs->ms);
+		bs->activatestack->time = 0;
+	}
+	return moveresult;
+}
+/*
+==================
 BotMoveTowardsEnt
 
 Added by Makro
@@ -153,8 +211,6 @@ Added by Makro
 */
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	vec3_t dir;
-	bot_goal_t goal;
-	bot_moveresult_t moveresult;
 
 	/*
 	VectorClear(dir);
@@ -168,15 +224,7 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	VectorAdd(dir, bs->origin, dir);
 	*/
 	VectorTargetDist(bs->origin, dest, dist, dir);
-	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
-
-	//create goal
-	memset(&moveresult, 0, sizeof(moveresult));
-	goal.entitynum = 0;
-	VectorCopy(dir, goal.origin);
-	VectorSet(goal.mins, -8, -8, -8);
-	VectorSet(goal.maxs, 8, 8, 8);
-	goal.areanum = trap_AAS_PointAreaNum(goal.origin);
+	dir[2] = bs->origin[2];
 	/*
 	if (bot_developer.integer == 2) {
 		G_Printf(va("^5BOT CODE: ^7Moving from (%i %i %i) towards entity at (%i %i %i) up to (%i %i %i)\n",
@@ -185,13 +233,7 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 			(int) dir[0], (int) dir[1], (int) dir[2]));
 	}
 	*/
-	//initialize the movement state
-	BotSetupForMovement(bs);
-	//move towards the goal
-	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, TFL_DEFAULT);
-
-	//moveresult->failure = qfalse;
-	//VectorCopy(dir, moveresult->movedir);
+	BotMoveTo(bs, dir);
 }
 
 /*
@@ -1669,7 +1711,8 @@ void BotChooseWeapon(bot_state_t *bs) {
 	//Makro - gun is empty; if bot has extra clips - reload, otherwise switch to knife
 	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
 		if (g_entities[bs->entitynum].client->numClips[bs->weaponnum] >= 1 ) {
-			Cmd_Reload( &g_entities[bs->entitynum] );
+			//Cmd_Reload( &g_entities[bs->entitynum] );
+			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			/*
 			if (bot_developer.integer == 2) {
 				G_Printf("^5BOT CODE: ^7Reloading\n");
@@ -3810,11 +3853,15 @@ void BotCheckAttack(bot_state_t *bs) {
 	//if fire has to be release to activate weapon
 	if (wi.flags & WFL_FIRERELEASED) {
 		if (bs->flags & BFL_ATTACKED) {
-			trap_EA_Attack(bs->client);
+			//Makro - using custom function to allow in-combat reloads
+			//trap_EA_Attack(bs->client);
+			BotAttack(bs);
 		}
 	}
 	else {
-		trap_EA_Attack(bs->client);
+		//Makro - using custom function to allow in-combat reloads
+		//trap_EA_Attack(bs->client);
+		BotAttack(bs);
 	}
 	bs->flags ^= BFL_ATTACKED;
 }
@@ -3888,7 +3935,9 @@ void BotMapScripts(bot_state_t *bs) {
 			bs->ideal_viewangles[YAW] = AngleMod(bs->ideal_viewangles[YAW]);
 			//
 			if (InFieldOfVision(bs->viewangles, 20, bs->ideal_viewangles)) {
-				trap_EA_Attack(bs->client);
+				//Makro - using custom function to allow in-combat reloads
+				//trap_EA_Attack(bs->client);
+				BotAttack(bs);
 			}
 		}
 	}
@@ -4874,6 +4923,11 @@ Added by Makro
 */
 void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 
+	//Must be in a team-based game to reply
+	if (gametype < GT_TEAM) {
+		return;
+	}
+
 	//Bot must be alive to report
 	if (!BotIsDead(bs)) {
 		char *token;
@@ -4898,6 +4952,12 @@ void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 			if ( (willreply) && (FloatTime() > BOT_RADIO_REPLY_TIME + bs->radioresponse_time) && (bs->radioresponse_count < 20) ) {
 				char *sender = COM_ParseExt(&msg, qtrue);
 				qboolean responded = qfalse;
+
+				//Lazy bots
+				if ( random() < 0.5 ) {
+					//sender = Q_strlwr(sender);
+					EasyClientName(ClientFromName(sender), sender, 32);
+				}
 
 				if (strstr(msg, "treport")) {
 					//Team, report in
@@ -4931,6 +4991,11 @@ Added by Makro
 qboolean BotCheckRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 	char *token;
 	char *initial = msg;
+
+	//Must be in a team-based game to reply
+	if (gametype < GT_TEAM) {
+		return qfalse;
+	}
 
 	token = COM_ParseExt(&msg, qtrue);
 	msg = initial;
