@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/08/27 04:05:43  jbravo
+// Fixed dropped weapons and items blocking doors and other movers.
+//
 // Revision 1.44  2002/08/03 06:21:04  jbravo
 // Fixed the Akimbo ammo when akimbos are not the primary weapon
 //
@@ -766,22 +769,36 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 	}
 	//Elder: Reaction Unique Weapons in deathmatch - respawn in ~60 seconds
 	//Don't forget to condition it when we get teamplay in
-	else if (item->giType == IT_WEAPON &&
+	// JBravo: not forgotten and that if should not have the knife and pistol.
+/*	else if (item->giType == IT_WEAPON &&
 		 item->giTag != WP_GRENADE && item->giTag != WP_PISTOL &&
-		 item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE) {
-		dropped->think = RQ3_DroppedWeaponThink;
+		 item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE) { */
+	else if (item->giType == IT_WEAPON &&
+		item->giTag != WP_GRENADE && item->giTag != WP_AKIMBO) {
+		if (g_gametype.integer == GT_TEAMPLAY)
+			dropped->think = 0;
+		else
+			dropped->think = RQ3_DroppedWeaponThink;
 // JBravo: weapons and items go away faster in CTF
 		if (g_gametype.integer == GT_CTF)
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
+		else if (g_gametype.integer == GT_TEAMPLAY)
+			dropped->nextthink = 0;
 		else
 			dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
 	//Elder: for unique items in deathmatch ... remember to condition for teamplay
+	//JBravo: not forgotten either ;)
 	else if (item->giType == IT_HOLDABLE) {
-		dropped->think = RQ3_DroppedItemThink;
+	       	if (g_gametype.integer == GT_TEAMPLAY)
+			dropped->think = 0;
+		else
+			dropped->think = RQ3_DroppedItemThink;
 // JBravo: weapons and items go away faster in CTF
 		if (g_gametype.integer == GT_CTF)
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
+		else if (g_gametype.integer == GT_TEAMPLAY)
+			dropped->nextthink = 0;
 		else
 			dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	} else {
@@ -1342,8 +1359,9 @@ void RQ3_ResetWeapon(int weapon)
 	int numRemoved = 0;
 
 // JBravo: no resetting/respawning weapons and items in TP
-	if (g_gametype.integer == GT_TEAMPLAY)
-		return;
+// JBravo: Bah!  this is a nono!
+/*	if (g_gametype.integer == GT_TEAMPLAY)
+		return; */
 
 	switch (weapon) {
 	case WP_M3:
@@ -1412,8 +1430,10 @@ void RQ3_DroppedItemThink(gentity_t * ent)
 //      float           angle = rand() % 360;
 
 // JBravo: no resetting items in TP
-	if (g_gametype.integer == GT_TEAMPLAY)
-		return;
+// JBravo: bah! again :(
+/*	if (g_gametype.integer == GT_TEAMPLAY)
+		return; */
+
 	switch (ent->item->giTag) {
 	case HI_KEVLAR:
 	case HI_LASER:
@@ -1448,8 +1468,9 @@ void RQ3_ResetItem(int itemTag)
 	float angle = rand() % 360;
 
 // JBravo: no resetting items in TP
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
-		return;
+// JBravo: man, Ive done this badly :(
+/*	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
+		return; */
 
 	switch (itemTag) {
 	case HI_KEVLAR:

@@ -53,6 +53,7 @@
 * New server info menu code
 * New 100% customizable presets menu with editor
 * Removed the cd key menu
+* Fixed dropped weapons and items blocking doors and other movers.
 
 
 # List fixes here for the 2.1 release
