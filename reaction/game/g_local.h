@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/07/09 03:24:30  niceass
+// added alive function
+//
 // Revision 1.107  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -893,6 +896,7 @@ int G_SoundIndex(char *name);
 void G_TeamCommand(team_t team, char *cmd);
 void G_KillBox(gentity_t * ent);
 gentity_t *G_Find(gentity_t * from, int fieldofs, const char *match);
+int G_PlayerAlive(gentity_t *ent);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);
