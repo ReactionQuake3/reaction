@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/03/31 02:03:35  niceass
+// new testing tag command
+//
 // Revision 1.19  2002/03/16 21:50:49  niceass
 // I tabbed a function properly. It was pissing me off
 //
@@ -114,6 +117,36 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
 }
 
+/*
+======================
+CG_PositionRotatedEntityOnTag
+
+Modifies the entities position and axis by the given
+tag location
+======================
+*/
+void CG_PositionRotatedOffsetEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
+							qhandle_t parentModel, char *tagName, vec3_t Offset ) {
+	int				i;
+	orientation_t	lerped;
+	vec3_t			tempAxis[3], tmp;
+
+//AxisClear( entity->axis );
+	// lerp the tag
+	trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+		1.0 - parent->backlerp, tagName );
+
+	// FIXME: allow origin offsets along tag?
+	VectorCopy( parent->origin, entity->origin );
+	VectorAdd(lerped.origin, Offset, lerped.origin);
+	for ( i = 0 ; i < 3 ; i++ ) {
+		VectorMA( entity->origin, lerped.origin[i], parent->axis[i], entity->origin );
+	}
+
+	// had to cast away the const to avoid compiler problems...
+	MatrixMultiply( entity->axis, lerped.axis, tempAxis );
+	MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
+}
 
 /*
 ==========================================================================
