@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/02/06 12:06:48  slicer
+// TP Scores bug fix
+//
 // Revision 1.33  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -1123,6 +1126,7 @@ void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
+	int savedPing,savedScore;
 
 	ent = g_entities + clientNum;
 
@@ -1143,6 +1147,12 @@ void ClientBegin( int clientNum ) {
 		client->pers.sub = TEAM_FREE;
 	}
 
+	//Slicer: Saving score and ping
+	savedPing = client->ps.ping;
+	savedScore = client->ps.persistant[PERS_SCORE];
+
+	
+
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
@@ -1155,6 +1165,12 @@ void ClientBegin( int clientNum ) {
 	flags = client->ps.eFlags;
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
+
+	//Slicer: Repost score and ping 
+	if(g_gametype.integer == GT_TEAMPLAY) {
+		client->ps.ping = savedPing;
+		client->ps.persistant[PERS_SCORE] = savedScore;
+	}
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 

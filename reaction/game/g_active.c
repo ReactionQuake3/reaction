@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/02/06 12:06:48  slicer
+// TP Scores bug fix
+//
 // Revision 1.45  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -1517,12 +1520,15 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 			cl = &level.clients[ clientNum ];
 			if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
-// JBravo: saving score and ping to fix the scoreboard
+			// JBravo: saving score and ping to fix the scoreboard
 				savedPing = ent->client->ps.ping;
 				savedScore = ent->client->ps.persistant[PERS_SCORE];
 				ent->client->ps = cl->ps;
-				ent->client->ps.ping = savedPing;
-//				ent->client->ps.persistant[PERS_SCORE] = savedScore;
+				//Reposting score and ping.. 
+				if(g_gametype.integer == GT_TEAMPLAY) {
+					ent->client->ps.ping = savedPing;
+					ent->client->ps.persistant[PERS_SCORE] = savedScore;
+				}
 //				ent->client->ps.persistant[PERS_SCORE] = ent->client->savedpersistant[PERS_SCORE];
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				ent->client->ps.eFlags = flags;
