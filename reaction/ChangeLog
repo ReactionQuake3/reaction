@@ -1,19 +1,20 @@
 # List fixes here for the 2.25 release
 
 * Problem fixed in the bullet firing code that affected the otherwise good hitboxes.
-* Sky portal code tweaked for better performance. Now it's also possible to have sky portals with animated textures
-* Fixed "unselectable grenade shown in the inventory if you switch weapons after pulling the pin" bug
-* Fixed a bug that prevented headless player models from being rendered
-* Fixed the bug that was causing the in-game server info menu to spam an invalid shader error to the console
-* Added a scaling CTB respawn delay which is active when g_RQ3_ctb_respawndelay is 0
+* Sky portal code tweaked for better performance. Now it's also possible to have sky portals with animated textures.
+* Fixed "unselectable grenade shown in the inventory if you switch weapons after pulling the pin" bug.
+* Fixed a bug that prevented headless player models from being rendered.
+* Fixed the bug that was causing the in-game server info menu to spam an invalid shader error to the console.
+* Added a scaling CTB respawn delay which is active when g_RQ3_ctb_respawndelay is 0.
 * Fixed a bug where players could get past the teamspawns in CTB by using the team command.
-* Dropped cases stay on the map for 45 seconds now. (was 30 seconds)
-* SSG accuracy bug fixed. (It actually affects all weapons, just not noticably)
+* Dropped cases stay on the map for 45 seconds now. (was 30 seconds).
+* SSG accuracy bug fixed. (It actually affects all weapons, just not noticably).
 * cg_tracerchance now can be adjusted. Anything above 0.4 is capped internally. For fo0d, basically.
 * Fixed semi-auto pistol w/ predictweapons set to 0 bug. Also made predictweapons predict less when set to 0 (even more like Quake 2).
 * Bug with in-game server browser fixed that caused most RQ3 servers to be filtered out.
 * "Drop case" added.
 * Smoke puff on silencer less intrusive.
+* Fixed a bug that was filtering out maps from the callvote map lists.
 
 # List fixes here for the 2.2 release
 

@@ -12,7 +12,7 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { uiScript loadArenas ; hide grpReferee ; show login }
+	onOpen { uiScript loadVoteArenas ; hide grpReferee ; show login }
 
 //Window
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/09/10 14:14:20  makro
+// no message
+//
 // Revision 1.117  2002/09/09 02:30:12  niceass
 // updated version
 //
@@ -531,8 +534,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse},
 	{&g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse},
 
-	//Makro - changed default to 0
-	{&g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE | CVAR_SYSTEMINFO, 0, qfalse},
+	//Makro - changed default to 0; added CVAR_SERVERINFO flag
+	{&g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE | CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_listEntity, "g_listEntity", "0", 0, 0, qfalse},
 
 	// NiceAss: Taken out of the missionpack
