@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/01/14 01:19:23  niceass
+// No more default 800 gravity on items - NiceAss
+//
 // Revision 1.14  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -2824,8 +2827,8 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.legs, cent->currentState.legsAnim );
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.torso, cent->currentState.torsoAnim );
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+	CG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
+	CG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 
 	VectorCopy( cent->lerpOrigin, cent->rawOrigin );
 	VectorCopy( cent->lerpAngles, cent->rawAngles );

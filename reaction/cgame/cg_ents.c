@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/01/14 01:19:23  niceass
+// No more default 800 gravity on items - NiceAss
+//
 // Revision 1.17  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -594,7 +597,7 @@ static void CG_Missile( centity_t *cent ) {
 	if ( weapon->missileSound ) {
 		vec3_t	velocity;
 
-		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
+		CG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
 
 		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound );
 	}
@@ -638,7 +641,7 @@ static void CG_Missile( centity_t *cent ) {
 		if ( s1->weapon == WP_KNIFE ) {
 			vec3_t knifeVelocity;
 
-			BG_EvaluateTrajectoryDelta(&s1->pos, cg.time, knifeVelocity);
+			CG_EvaluateTrajectoryDelta(&s1->pos, cg.time, knifeVelocity);
 			vectoangles(knifeVelocity, cent->lerpAngles);
 			cent->lerpAngles[0] += cg.time; // was / 6
 
@@ -841,11 +844,11 @@ void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int
 		return;
 	}
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, fromTime, oldOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, fromTime, oldAngles );
+	CG_EvaluateTrajectory( &cent->currentState.pos, fromTime, oldOrigin );
+	CG_EvaluateTrajectory( &cent->currentState.apos, fromTime, oldAngles );
 
-	BG_EvaluateTrajectory( &cent->currentState.pos, toTime, origin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, toTime, angles );
+	CG_EvaluateTrajectory( &cent->currentState.pos, toTime, origin );
+	CG_EvaluateTrajectory( &cent->currentState.apos, toTime, angles );
 
 	VectorSubtract( origin, oldOrigin, deltaOrigin );
 	VectorSubtract( angles, oldAngles, deltaAngles );
@@ -875,15 +878,15 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 
 	// this will linearize a sine or parabolic curve, but it is important
 	// to not extrapolate player positions if more recent data is available
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, current );
-	BG_EvaluateTrajectory( &cent->nextState.pos, cg.nextSnap->serverTime, next );
+	CG_EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, current );
+	CG_EvaluateTrajectory( &cent->nextState.pos, cg.nextSnap->serverTime, next );
 
 	cent->lerpOrigin[0] = current[0] + f * ( next[0] - current[0] );
 	cent->lerpOrigin[1] = current[1] + f * ( next[1] - current[1] );
 	cent->lerpOrigin[2] = current[2] + f * ( next[2] - current[2] );
 
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.snap->serverTime, current );
-	BG_EvaluateTrajectory( &cent->nextState.apos, cg.nextSnap->serverTime, next );
+	CG_EvaluateTrajectory( &cent->currentState.apos, cg.snap->serverTime, current );
+	CG_EvaluateTrajectory( &cent->nextState.apos, cg.nextSnap->serverTime, next );
 
 	cent->lerpAngles[0] = LerpAngle( current[0], next[0], f );
 	cent->lerpAngles[1] = LerpAngle( current[1], next[1], f );
@@ -922,8 +925,8 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	}
 
 	// just use the current frame and evaluate as best we can
-	BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-	BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+	CG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
+	CG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
@@ -1281,37 +1284,3 @@ static void CG_Dlight( centity_t *cent )  {
 	//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
 }
 
-
-/*
-=================
-CG_CalcViewAngle
-Added by NiceAss.
-
-Start not known. End known.
-Used for calculating a player's viewing angle.
-Currently used for spark directions (reflected off a plane).
-=================
-*/
-void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir) {
-	vec3_t delta, start;
-
-	CG_CalcMuzzlePoint(sourceEntityNum, start);
-	VectorSubtract(end, start, delta);
-	VectorNormalize2(delta, viewDir);
-}
-
-/*
-=================
-CG_CalcViewAngle2
-Added by NiceAss.
-
-Start known. End known.
-Used for calculating a player's viewing angle.
-Currently used for spark directions (reflected off a plane).
-=================
-*/
-void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir) {
-	vec3_t delta;
-	VectorSubtract(end, start, delta);
-	VectorNormalize2(delta, viewDir);
-}

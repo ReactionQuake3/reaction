@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/01/14 01:19:23  niceass
+// No more default 800 gravity on items - NiceAss
+//
 // Revision 1.39  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
 //
@@ -1555,7 +1558,8 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 					 //int skipNumber, int mask );
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
-
+void CG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
+void CG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
 //
 // cg_events.c
@@ -1580,7 +1584,6 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 							qhandle_t parentModel, char *tagName );
 //Blaze: for weapon animations
 void CG_PositionWeaponOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName );
-
 
 //
 // cg_weapons.c
@@ -1617,6 +1620,8 @@ void CG_DrawWeaponSelect( void );
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 void CG_CheckLaser ();				//Elder: check laser to see if it's our own
+void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir);
+void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir);
 
 //
 // cg_marks.c

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/01/14 01:19:23  niceass
+// No more default 800 gravity on items - NiceAss
+//
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -125,7 +128,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 	t2 = step * ( cg.time / step );
 
 	for ( ; t <= t2; t += step ) {
-		BG_EvaluateTrajectory( &le->pos, t, newOrigin );
+		CG_EvaluateTrajectory( &le->pos, t, newOrigin );
 
 		blood = CG_SmokePuff( newOrigin, vec3_origin, 
 					  20,		// radius
@@ -213,7 +216,7 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 
 	// reflect the velocity on the trace plane
 	hitTime = cg.time - cg.frametime + cg.frametime * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &le->pos, hitTime, velocity );
+	CG_EvaluateTrajectoryDelta( &le->pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, le->pos.trDelta );
 
@@ -266,7 +269,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	}
 
 	// calculate new position
-	BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
+	CG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 	// trace a line from previous position to new position
 	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
@@ -277,7 +280,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		if ( le->leFlags & LEF_TUMBLE ) {
 			vec3_t angles;
 
-			BG_EvaluateTrajectory( &le->angles, cg.time, angles );
+			CG_EvaluateTrajectory( &le->angles, cg.time, angles );
 			AnglesToAxis( angles, le->refEntity.axis );
 		}
 
@@ -370,7 +373,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 		re->radius = le->radius * ( 1.0 - c ) + 8;
 	}
 
-	BG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
+	CG_EvaluateTrajectory( &le->pos, cg.time, re->origin );
 
 	// if the view would be "inside" the sprite, kill the sprite
 	// so it doesn't add too much overdraw

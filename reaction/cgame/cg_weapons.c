@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/01/14 01:19:23  niceass
+// No more default 800 gravity on items - NiceAss
+//
 // Revision 1.46  2002/01/12 15:18:20  jbravo
 // Added a fix from Niceass. (cg_drawgun affecting other player models)
 //
@@ -493,7 +496,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	startTime = ent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
+	CG_EvaluateTrajectory( &es->pos, cg.time, origin );
 	contents = CG_PointContents( origin, -1 );
 
 	// if object (e.g. grenade) is stationary, don't toss up smoke
@@ -502,7 +505,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		return;
 	}
 
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
+	CG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
 	lastContents = CG_PointContents( lastPos, -1 );
 
 	ent->trailTime = cg.time;
@@ -515,7 +518,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	}
 
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
+		CG_EvaluateTrajectory( &es->pos, t, lastPos );
 
 		smoke = CG_SmokePuff( lastPos, up,
 					  wi->trailRadius,
@@ -561,7 +564,7 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	startTime = ent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
+	CG_EvaluateTrajectory( &es->pos, cg.time, origin );
 	contents = CG_PointContents( origin, -1 );
 
 	// if object (e.g. grenade) is stationary, don't toss up smoke
@@ -570,7 +573,7 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 		return;
 	}
 
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
+	CG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
 	lastContents = CG_PointContents( lastPos, -1 );
 
 	ent->trailTime = cg.time;
@@ -583,7 +586,7 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	}
 
 	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
+		CG_EvaluateTrajectory( &es->pos, t, lastPos );
 
 		smoke = CG_SmokePuff( lastPos, up,
 					  wi->trailRadius,
@@ -626,7 +629,7 @@ static void CG_PlasmaTrail( centity_t *cent, const weaponInfo_t *wi ) {
 	startTime = cent->trailTime;
 	t = step * ( (startTime + step) / step );
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
+	CG_EvaluateTrajectory( &es->pos, cg.time, origin );
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
@@ -708,7 +711,7 @@ void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 	es = &ent->currentState;
 
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
+	CG_EvaluateTrajectory( &es->pos, cg.time, origin );
 	ent->trailTime = cg.time;
 
 	memset( &beam, 0, sizeof( beam ) );
@@ -1234,6 +1237,7 @@ NiceAss; I've torn this function up with testing... ignore it =P
 ===============
 */
 static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
+	/*
 	trace_t		trace;
 	refEntity_t		beam;
 	vec3_t			forward;
@@ -1250,7 +1254,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	//CG_Printf("%d \n", cg.predictedPlayerState.clientNum);
 
 	// find muzzle point for this frame
-	//BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
+	//CG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 	AngleVectors( cent->lerpAngles, forward, NULL, NULL );
 
 	// project forward by the lightning range
@@ -1275,6 +1279,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	if ( trace.fraction < 1.0 ) {
 
 	}
+	*/
 }
 
 
@@ -1692,15 +1697,15 @@ Add the weapon, and flash for the player's view
 void CG_AddViewWeapon( playerState_t *ps ) {
 	refEntity_t	hand;
 	centity_t	*cent;
-	clientInfo_t	*ci;
+	//clientInfo_t	*ci;
 	float		fovOffset;
 	vec3_t		angles;
 	weaponInfo_t	*weapon;
 	// remove this:
-	vec3_t		origin;
+	//vec3_t		origin;
 
 	//Blaze: Reaction vars for gun positions
-	float rxn_gunx, rxn_guny, rxn_gunz;
+	//float rxn_gunx, rxn_guny, rxn_gunz;
 
 
 
@@ -3903,7 +3908,7 @@ static void CG_LocalLaser ()
 	VectorCopy(re->origin, re->oldorigin);
 	VectorCopy(tr.endpos, re->origin);
 	//VectorCopy(tr.endpos, cg.laserEnt->pos.trBase);
-	//BG_EvaluateTrajectory(&cg.laserEnt->pos, cg.time, re->origin);
+	//CG_EvaluateTrajectory(&cg.laserEnt->pos, cg.time, re->origin);
 
 	//Boost the endTime
 	cg.laserEnt->endTime += 10000;
@@ -3997,3 +4002,38 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 	}
 }
 
+
+
+/*
+=================
+CG_CalcViewAngle
+Added by NiceAss.
+
+Start not known. End known.
+Used for calculating a player's viewing angle.
+Currently used for spark directions (reflected off a plane).
+=================
+*/
+void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir) {
+	vec3_t delta, start;
+
+	CG_CalcMuzzlePoint(sourceEntityNum, start);
+	VectorSubtract(end, start, delta);
+	VectorNormalize2(delta, viewDir);
+}
+
+/*
+=================
+CG_CalcViewAngle2
+Added by NiceAss.
+
+Start known. End known.
+Used for calculating a player's viewing angle.
+Currently used for spark directions (reflected off a plane).
+=================
+*/
+void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir) {
+	vec3_t delta;
+	VectorSubtract(end, start, delta);
+	VectorNormalize2(delta, viewDir);
+}
