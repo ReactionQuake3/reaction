@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/06/21 21:05:00  niceass
+// tinkering
+//
 // Revision 1.36  2002/06/20 02:27:30  jbravo
 // Now the scoreboard doesnt show whos alive and whos not when you are alive
 //
@@ -121,7 +124,7 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h);
 
 #define SB_WIDTH		330
 #define SB_FONTSIZEW	7
-#define SB_FONTSIZEH	14
+#define SB_FONTSIZEH	(SB_FONTSIZEW * 2)
 #define SB_PADDING		1
 
 void DrawStrip(int y, int Height, qboolean Fill, qboolean Top, qboolean Bottom, float *FillC, float *BoarderC)
@@ -251,13 +254,14 @@ static int CG_TeamplayScoreboard(void)
 	score_t *Score;
 	int y;
 	int Alternate, First;
-//	char teamname[128];
-	int Ping, Frags, Damage;	// Averages
+	int Ping, Frags, Damage;	// Averages and totals
 	char Tmp[128];
 
+	// Colors
 	vec4_t RedL, BlueL, GreyL, BlackL;
 	vec4_t RedD, BlueD, GreyD;
 
+	// Sine wave fading
 	if (cg.time > cg.scoreStartTime + 300) {
 		Alpha = cos((cg.time - cg.scoreStartTime) / 400.0f) * 0.15f + 0.85f;
 	} else {
@@ -267,7 +271,7 @@ static int CG_TeamplayScoreboard(void)
 			Alpha = 1.0f;
 	}
 
-	// NiceAss: I added this so it will update while open. It normally only would update when first opened.
+	// NiceAss: Update scoreboard while open every 2 seconds
 	if (cg.scoresRequestTime + 2000 < cg.time) {
 		cg.scoresRequestTime = cg.time;
 		trap_SendClientCommand("score");
@@ -283,15 +287,10 @@ static int CG_TeamplayScoreboard(void)
 
 	Reds = Blues = Spectators = Refs = RedSubs = BlueSubs = 0;
 
+	// Get totals for red/blue/spectators and subs
 	for (i = 0; i < cg.numScores; i++) {
 		Score = &cg.scores[i];
 		ci = &cgs.clientinfo[Score->client];
-
-		/*
-		   if (cg_RQ3_matchmode.integer) {
-		   if (Score->client == cg_RQ3_RefID.integer && ci->team == TEAM_SPECTATOR) continue;
-		   }
-		 */
 
 		if (Score->sub == TEAM_RED)
 			RedSubs++;
@@ -307,6 +306,7 @@ static int CG_TeamplayScoreboard(void)
 
 	y = 20;			// Starting height.
 
+	// NiceAss: The matchmode match time
 	if (cg_RQ3_matchmode.integer) {
 		int mins, secs;
 		char Time[16];
@@ -318,8 +318,8 @@ static int CG_TeamplayScoreboard(void)
 		DrawRightStripText(y, SB_FONTSIZEH, va("Matchtime: %s", Time), 100, colorWhite);
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 	}
-	// MATCHMODE / TEAMPLAY for showing Referee
-	//if ( cg_RQ3_matchmode.integer && cg_RQ3_RefID.integer >= 0) {
+
+	// NiceAss: Matchmode stuff for showing Referee
 	if (cg_RQ3_matchmode.integer && cg.refID >= 0) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 		ci = &cgs.clientinfo[cg.refID];
@@ -327,18 +327,27 @@ static int CG_TeamplayScoreboard(void)
 		DrawRightStripText(y, SB_FONTSIZEH, ci->name, 30, colorBlack);
 		y += SB_FONTSIZEH + SB_PADDING * 4 + 2;
 	}
-	// DEATHMATCH:
+
+	// NiceAss: Deathmatch scoreboard:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
+		vec3_t	headAngles;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, colorWhite);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, colorWhite);
 		DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, colorWhite);
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
+
+		VectorSet(headAngles, 0, sin(cg.time * 0.002f) * 20.0f + 180.0f, 0);
 
 		First = 0;
 		for (i = 0; i < cg.numScores; i++) {
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[Score->client];
 			CG_DrawTeamplayClientScore(y, Score, GreyL, colorWhite, colorWhite);
+
+			if (ci->team != TEAM_SPECTATOR)
+				CG_DrawHead((SCREEN_WIDTH + SB_WIDTH) / 2, y, SB_FONTSIZEH + SB_PADDING * 2+1, 
+					SB_FONTSIZEH + SB_PADDING * 2+1, Score->client, headAngles);
+
 			if (First == 0)
 				DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorWhite);
 			y += SB_FONTSIZEH + SB_PADDING * 2;
@@ -348,17 +357,15 @@ static int CG_TeamplayScoreboard(void)
 
 		return Reds + Blues + ceil(Spectators / 2) + Refs;
 	}
-	// *************** RED TEAM ***************
-	//trap_Cvar_VariableStringBuffer("g_RQ3_team1model", Tmp, sizeof(Tmp));
 
+	// *************** RED TEAM ***************
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, colorBlack);
-	//trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
-	DrawStripText(y, 50, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorBlack);
+	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
-						       cg.team1ready ? "Ready" : "Not Ready", cg.teamScores[0]), 100,
-				   colorWhite);
+						     cg.team1ready ? "Ready" : "Not Ready", cg.teamScores[0]), 
+							 100, colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, colorWhite);
 
@@ -382,7 +389,6 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[Score->client];
 
-				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_RED && Score->sub == 0) {
 					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
 					if (First == 0)
@@ -439,13 +445,12 @@ static int CG_TeamplayScoreboard(void)
 	// *************** BLUE TEAM ************
 	y += SB_FONTSIZEH * 2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, colorBlack);
-	//trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
-	DrawStripText(y, 50, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
+	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
-						       cg.team2ready ? "Ready" : "Not Ready", cg.teamScores[1]), 100,
-				   colorWhite);
+						       cg.team2ready ? "Ready" : "Not Ready", cg.teamScores[1]), 
+							   100, colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, colorWhite);
 	
@@ -467,7 +472,6 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[Score->client];
 
-				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_BLUE && Score->sub == 0) {
 					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
 					if (First == 0)
@@ -490,7 +494,6 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[Score->client];
 
-//                              if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_BLUE && Score->sub) {
 					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
 					if (First == 0)
@@ -533,7 +536,6 @@ static int CG_TeamplayScoreboard(void)
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[Score->client];
 
-			//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 			if (ci->team == TEAM_SPECTATOR) {
 				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, colorBlack);
 				if (First == 0)
@@ -1237,7 +1239,7 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 		return;
 
 	VectorClear( headAngles );
-	headAngles[1] = sin(cg.time * 0.003f) * 20.0f + 180.0f;
+	headAngles[1] = sin(cg.time * 0.0025f) * 20.0f + 180.0f;
 	headAngles[0] = cos(cg.time * 0.002f) * 8.0f;
 
 	CG_DrawScoreBoardHead(x, y, w, h, headModel, headSkin, headAngles);
