@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/05/31 19:01:33  makro
+// Unfixed something
+//
 // Revision 1.26  2002/05/31 00:17:06  jbravo
 // Slicers fix for the weaponswitching issue
 //
@@ -287,43 +290,45 @@ void CG_DrawInformation( void ) {
 	// game type
 	switch ( cgs.gametype ) {
 	case GT_FFA:
-		line = "Classic Action Deathmatch";
+		line = "CLASSIC ACTION DEATHMATCH";
 		break;
 	case GT_SINGLE_PLAYER:
-		line = "Single Player";
+		line = "SINGLE PLAYER";
 		break;
 	case GT_TOURNAMENT:
-		line = "Tournament";
+		line = "TOURNAMENT";
 		break;
 	case GT_TEAM:
-		line = "Team Deathmatch";
+		line = "TEAM DEATHMATCH";
 		break;
 // JBravo: teamplay stuff.
 	case GT_TEAMPLAY:
 		//Makro - changed from RQ3 Teamplay
-		line = "Classic Action Teamplay";
+		line = "CLASSIC ACTION TEAMPLAY";
 		break;
 	case GT_CTF:
-		line = "Capture The Flag";
+		line = "CAPTURE THE FLAG";
 		break;
 #ifdef MISSIONPACK
 	case GT_1FCTF:
-		line = "One Flag CTF";
+		line = "ONE FLAG CTF";
 		break;
 	case GT_OBELISK:
-		line = "Overload";
+		line = "OVERLOAD";
 		break;
 	case GT_HARVESTER:
-		line = "Harvester";
+		line = "HARVESTER";
 		break;
 #endif
 	default:
-		line = "Unknown Gametype";
+		line = "UNKNOWN GAMETYPE";
 		break;
 	}
+
 // JBravo: the call to Q_strupr seems to crash Q3 when running as dll or .so. Attempting a fix
-	strcat (line, '\0');
-	line = Q_strupr(line);
+// Makro: the fix crashes Q3 with .dll's, unfixing ;P
+	//strcat (line, '\0');
+	//line = Q_strupr(line);
 
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
