@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/06/23 04:36:02  niceass
+// change to foglaser
+//
 // Revision 1.100  2002/06/21 23:20:34  blaze
 // cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
 //
@@ -1914,7 +1917,7 @@ localEntity_t *CG_SmokePuff(const vec3_t p,
 void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
 void CG_SpawnEffect(vec3_t org);
 void CG_ScorePlum(int client, vec3_t org, int score);
-void CG_DrawVisibleLaser( vec3_t origin, int clientNum);
+void CG_DrawVisibleLaser( vec3_t origin, int clientNum, vec3_t dir);
 
 //Blaze: for explosions
 void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration);

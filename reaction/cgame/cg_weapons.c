@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/06/23 04:34:54  niceass
+// change to foglaser
+//
 // Revision 1.84  2002/06/21 04:09:44  niceass
 // fog laser
 //
@@ -1727,12 +1730,12 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		cent->ejectBrassTime = 0;
 	}
 
-
 	if ( cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		refEntity_t muzzle;
 		memset(&muzzle, 0, sizeof(muzzle));
 		CG_PositionEntityOnTag(&muzzle, &gun, weapon->weaponModel, "tag_flash");
-		CG_DrawVisibleLaser(muzzle.origin, cent->currentState.clientNum);
+		
+		CG_DrawVisibleLaser(muzzle.origin, cent->currentState.clientNum, muzzle.axis[0]);
 	}
 
 	//Elder: re-added to fix loss of muzzle flashes!

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/06/23 04:36:27  niceass
+// change to foglaser
+//
 // Revision 1.37  2002/06/21 21:06:56  niceass
 // laserfog stuff
 //
@@ -1176,10 +1179,10 @@ static void CG_VisibleLaser( vec3_t start, vec3_t finish ) {
 }
 
 
-void CG_DrawVisibleLaser( vec3_t origin, int clientNum) {
+void CG_DrawVisibleLaser( vec3_t origin, int clientNum, vec3_t dir) {
 	int			num, sourceContentType, destContentType;
 	centity_t	*cent;
-	vec3_t		destination, start, end;
+	vec3_t		start, end;
 	trace_t		trace;
 
 	if ( !cg_enableLaserFog.integer )
@@ -1189,17 +1192,19 @@ void CG_DrawVisibleLaser( vec3_t origin, int clientNum) {
 		cent = &cg_entities[cg.snap->entities[num].number];
 		if (cent->currentState.eType == ET_LASER &&
 			cent->currentState.clientNum == clientNum ) {
-			VectorCopy(cent->lerpOrigin, destination);
 			break;
 		}
 	}
 
-	VectorCopy(origin, start);
-	VectorCopy(destination, end);
-
 	// Failed to find a laser dot that the player owns.
 	if (num == cg.snap->numEntities)
 		return;
+
+	VectorCopy(origin, start);
+
+	VectorMA(origin, 8192 * 16, dir, end);
+	trap_CM_BoxTrace(&trace, start, end, NULL, NULL, 0, MASK_SHOT);
+	VectorCopy(trace.endpos, end);
 
 	sourceContentType = trap_CM_PointContents(start, 0);
 	destContentType = trap_CM_PointContents(end, 0);
