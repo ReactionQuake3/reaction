@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/03/05 02:08:16  jbravo
+// Fixed Unknown client command: Roundlimit bug
+//
 // Revision 1.28  2002/03/03 23:51:45  jbravo
 // Final fixes for anims at spawn and a knife bug.
 //
@@ -443,7 +446,7 @@ int WonGame(int winner)
 				return 1;
 			}
 			else {
-			trap_SendServerCommand( -1, "Roundlimit hit.\n\"" );
+			trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
 			return 1;
 			}
