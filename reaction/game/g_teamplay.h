@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/05/04 16:19:02  jbravo
+// Fixing the stuff cmd to work on dedicated servers.
+//
 // Revision 1.13  2002/05/01 18:44:36  jbravo
 // Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
 // g_teamplay.c
@@ -84,6 +87,6 @@ void ParseSayText (gentity_t * ent, char *text);
 void RQ3_SpectatorMode(gentity_t *ent);
 void Add_TeamKill(gentity_t *attacker);
 void RQ3_Cmd_TKOk(gentity_t *ent);
-void RQ3_Cmd_Stuff(gentity_t *ent);
+void RQ3_Cmd_Stuff(void);
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
 void setFFState(gentity_t *ent);

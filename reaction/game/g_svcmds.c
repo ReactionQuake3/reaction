@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/04 16:19:02  jbravo
+// Fixing the stuff cmd to work on dedicated servers.
+//
 // Revision 1.7  2002/04/03 15:51:01  jbravo
 // Small warning fixes
 //
@@ -25,7 +28,7 @@
 // this file holds commands that can be executed by the server console, but not remote clients
 
 #include "g_local.h"
-
+#include "g_teamplay.h"
 
 /*
 ==============================================================================
@@ -458,6 +461,12 @@ qboolean	ConsoleCommand( void ) {
 
 	if (Q_stricmp (cmd, "removeip") == 0) {
 		Svcmd_RemoveIP_f();
+		return qtrue;
+	}
+
+// JBravo: adding a stuff cmd.
+	if (Q_stricmp (cmd, "stuff") == 0) {
+		RQ3_Cmd_Stuff();
 		return qtrue;
 	}
 

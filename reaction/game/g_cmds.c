@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/05/04 16:19:02  jbravo
+// Fixing the stuff cmd to work on dedicated servers.
+//
 // Revision 1.101  2002/05/01 18:44:36  jbravo
 // Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
 // g_teamplay.c
@@ -2907,8 +2910,6 @@ void ClientCommand( int clientNum ) {
 // JBravo: adding tkok
 	else if (Q_stricmp (cmd, "tkok") == 0)
 		RQ3_Cmd_TKOk (ent);
-	else if (Q_stricmp (cmd, "stuff") == 0)
-		RQ3_Cmd_Stuff (ent);
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );

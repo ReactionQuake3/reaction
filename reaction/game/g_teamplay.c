@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/05/04 16:19:02  jbravo
+// Fixing the stuff cmd to work on dedicated servers.
+//
 // Revision 1.75  2002/05/04 16:13:05  makro
 // Bots
 //
@@ -1755,20 +1758,20 @@ void RQ3_Cmd_TKOk (gentity_t *ent)
 	ent->enemy = NULL;
 }		
 
-void RQ3_Cmd_Stuff (gentity_t *ent)
+void RQ3_Cmd_Stuff (void)
 {
 	char	*cmd, user[128];
 	int	len, client;
 
 	len = trap_Argc ();
 	if (len < 3) {
-		trap_SendServerCommand(ent-g_entities, va("print \"Usage:  stuff <user id> <text>\n\""));
+		G_Printf ("Usage:  stuff <user id> <text>\n");
 		return;
 	}
 
 	trap_Argv(1, user, sizeof(user));
 	if (user[0] < '0' || user[0] > '9') {
-		trap_SendServerCommand(ent-g_entities, va("print \"Usage:  stuff <user id> <text>\n\""));
+		G_Printf ("Usage:  stuff <user id> <text>\n");
 		return;
 	}
 	client = atoi (user);
@@ -1776,4 +1779,3 @@ void RQ3_Cmd_Stuff (gentity_t *ent)
 
 	trap_SendServerCommand(client, va("stuff %s\n", cmd));
 }
-
