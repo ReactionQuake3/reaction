@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/05/26 05:16:56  niceass
+// pressure
+//
 // Revision 1.46  2002/05/25 16:31:18  blaze
 // moved breakable stuff over to config strings
 //
@@ -877,8 +880,8 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 }
 
 void SP_func_pressure( gentity_t *ent ) {
+	char *type;
 	// Make it appear as the brush
-	G_Printf("Creating Pressure entity\n");
 	trap_SetBrushModel( ent, ent->model );
 	trap_LinkEntity (ent);
 
@@ -886,10 +889,17 @@ void SP_func_pressure( gentity_t *ent ) {
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 	ent->s.eType = ET_PRESSURE;
 
-	G_SpawnInt( "speed", "0", &ent->size);
+	G_SpawnInt( "speed", "0", &ent->mass);		// mass will hold speed... yeah...
+	G_SpawnString( "type", "steam", &type);
 
-	// ent->spawnflags
-	// flame, steam, water
+	if (ent->mass == 0) ent->mass = 200;
+
+	if (!Q_stricmp(type, "water"))				// bounce will hold pressure type... yeah...
+		ent->bounce = 1;
+	else if (!Q_stricmp(type, "flame") || !Q_stricmp(type, "fire"))
+		ent->bounce = 2;
+	else	// steam is default
+		ent->bounce = 0;
 
 	// ent->s.frame holds type
 	// ent->s.powerups holds speed
@@ -901,9 +911,8 @@ void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {
 	tent = G_TempEntity( origin, EV_PRESSURE );
 	tent->s.eventParm = DirToByte( normal );
 
-	tent->s.frame = ent->spawnflags;	// 1 = water, 2 = steam, 4 = fire
-	tent->s.powerups = ent->size;		// speed of pressure
-	G_Printf("Game: %d and %d\n", tent->s.frame, tent->s.powerups);
+	tent->s.frame = ent->bounce;		// 1 = water, 2 = flame, 0 = steam
+	tent->s.powerups = ent->mass;		// speed of pressure
 }
 
 

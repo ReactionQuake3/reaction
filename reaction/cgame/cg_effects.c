@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/05/26 05:16:12  niceass
+// pressure
+//
 // Revision 1.30  2002/05/19 21:27:51  blaze
 // added force and buoyancy to breakables
 //
@@ -1334,7 +1337,7 @@ void CG_BreakBreakable( centity_t *cent,int eParam, int number ) {
 	
 }
 
-void CG_Pressure( vec3_t origin, vec3_t dir, centity_t *cent )
+void CG_Pressure( vec3_t origin, vec3_t dir, int type, int speed )
 {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -1342,6 +1345,16 @@ void CG_Pressure( vec3_t origin, vec3_t dir, centity_t *cent )
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 	le->leType = LE_PRESSURE;
+
+	if (type == 1) 
+		le->leFlags = LEF_WATER;
+	else if (type == 2) 
+		le->leFlags = LEF_FLAME;
+	else
+		le->leFlags = LEF_STEAM;
+
+	le->size = (float)speed;					// Size holds the speed.... yes...
+
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(dir, le->pos.trDelta);
 	le->startTime = cg.time;

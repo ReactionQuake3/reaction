@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/05/26 05:15:36  niceass
+// pressure
+//
 // Revision 1.56  2002/05/12 22:13:43  makro
 // Impact sounds
 //
@@ -2617,7 +2620,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_PRESSURE:
  		DEBUGNAME("EV_PRESSURE");
 		ByteToDir(es->eventParm, dir);
- 		CG_Pressure( position, dir, cent );
+ 		CG_Pressure( position, dir, es->frame, es->powerups );
 		break;
 
   case EV_STOPLOOPINGSOUND:
