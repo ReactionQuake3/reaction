@@ -1653,7 +1653,7 @@ static void PM_CheckDuck (void)
 
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 
-	if ( trace.fraction == 1.0 && !pml.ladder) {
+	if ( trace.fraction == 1.0 && !pml.ladder && !(pm->ps->pm_flags & PMF_DUCKED)) {
 		pm->maxs[2] = 32;
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 		return;
@@ -1867,7 +1867,6 @@ static void PM_BeginWeaponChange( int weapon ) {
 	//Elder: ignore disarm delays when throwing a weapon
 	if (pm->ps->stats[STAT_RQ3] & RQ3_THROWWEAPON)
 	{
-		//Com_Printf("Got to throw skip\n");
 		pm->ps->stats[STAT_RQ3] &= ~RQ3_THROWWEAPON;
 		pm->ps->weaponTime = 0;
 	}
@@ -1925,8 +1924,9 @@ static void PM_BeginWeaponChange( int weapon ) {
 		*/
 		if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
-		else
+		else {
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
+		}
 	}
 
 	// Elder: cancel reload stuff here
@@ -1941,6 +1941,12 @@ static void PM_BeginWeaponChange( int weapon ) {
 
 	pm->ps->weaponstate = WEAPON_DROPPING;
 
+	// NiceAss: Added this. Is it a hack?
+	if (pm->ps->weapon == WP_GRENADE && pm->ps->ammo[pm->ps->weapon] == 0) {
+		pm->ps->weaponTime = 0;
+		return;
+	}
+
 	//Elder: temp hack
 	/*
 	if (pm->ps->weapon == WP_PISTOL ||
@@ -1954,10 +1960,12 @@ static void PM_BeginWeaponChange( int weapon ) {
 		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 	else*/
+
 	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
-	else
+	else {
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
+	}
 
 	PM_StartTorsoAnim( TORSO_DROP );
 }
@@ -2041,6 +2049,7 @@ static void PM_FinishWeaponChange( void ) {
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 	*/
 	/*else*/
+
 	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
 	else
@@ -2521,7 +2530,7 @@ static void PM_Weapon( void ) {
 		}
 		else if (pm->ps->stats[STAT_BURST])
 		{
-			pm->ps->weaponTime += 150; // 200
+			pm->ps->weaponTime += 100; // lowered again to 100 from 150 from 200
 			pm->ps->stats[STAT_BURST] = 0;
 		}
 	}
@@ -2562,6 +2571,15 @@ static void PM_Weapon( void ) {
 	}
 	*/
 
+	//NiceAss: I added this smoother M4 rise. Should this be used?
+	/*
+	if ( ( pm->cmd.buttons & 1 || pm->ps->stats[STAT_BURST] ) && pm->ps->ammo[pm->ps->weapon]) {
+		if ( pm->ps->weapon == WP_M4)
+		{
+			pm->ps->delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(pm->ps->delta_angles[0]) - 0.08);
+		}
+	}
+	*/
 
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 ) {
@@ -2590,7 +2608,6 @@ static void PM_Weapon( void ) {
 				PM_AddEvent( EV_FIRE_WEAPON );
 				pm->ps->ammo[WP_GRENADE]--;
 			}
-
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}
 		else
@@ -2598,8 +2615,9 @@ static void PM_Weapon( void ) {
 			//Elder: temp hack
 			if (pm->ps->weaponstate == WEAPON_READY)
 			{
-				if (pm->ps->ammo[pm->ps->weapon] == 0)
+				if (pm->ps->ammo[pm->ps->weapon] == 0) {
 					PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+				}
 				/*
 				else if (pm->ps->weapon == WP_PISTOL ||
 					pm->ps->weapon == WP_M3 ||
@@ -2613,8 +2631,9 @@ static void PM_Weapon( void ) {
 					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 				*/
 				else if (pm->ps->weapon == WP_KNIFE &&
-						 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+						 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 					PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
+				}
 				else
 					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 			}
@@ -2635,6 +2654,7 @@ static void PM_Weapon( void ) {
 		if (pm->ps->ammo[WP_GRENADE] == 0)
 			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
 	}*/
+
 
 	// Elder: added STAT_RELOADTIME and STAT_WEAPONSTALLTIME check
 	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0 ||
@@ -2660,8 +2680,9 @@ static void PM_Weapon( void ) {
 		// Should always draw the weapon when it is just ready
 //		PM_StartWeaponAnim( WP_ANIM_READY );
 		// temp hack
-		if (pm->ps->ammo[pm->ps->weapon] == 0)
+		if (pm->ps->ammo[pm->ps->weapon] == 0) {
 			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+		}
 		/*
 		else if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
@@ -2698,7 +2719,8 @@ static void PM_Weapon( void ) {
 				PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
 				return;
 			}
-			else if ( pm->ps->weaponstate == WEAPON_COCKED )
+			// NiceAss: Fix for the double-grenade bug (pm->ps->weaponstate == WEAPON_FIRING)
+			else if ( pm->ps->weaponstate == WEAPON_COCKED || pm->ps->weaponstate == WEAPON_FIRING)
 				return;
 		}
 		// Elder: stall the thrown knife action
@@ -2732,10 +2754,6 @@ static void PM_Weapon( void ) {
 		}
 		*/
 	}
-
-
-
-
 
 	// check for fireA release
 	// if they aren't pressing attack
@@ -2870,6 +2888,7 @@ static void PM_Weapon( void ) {
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
+
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 

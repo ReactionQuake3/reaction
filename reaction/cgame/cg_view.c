@@ -22,7 +22,7 @@ enhanced into a single model testing facility.
 
 Model viewing can begin with either "testmodel <modelname>" or "testgun <modelname>".
 
-The names must be the full pathname after the basedir, like 
+The names must be the full pathname after the basedir, like
 "models/weapons/v_launch/tris.md3" or "players/male/tris.md3"
 
 Testmodel will create a fake entity 100 units in front of the current view
@@ -280,11 +280,11 @@ static void CG_OffsetThirdPersonView( void ) {
 // this causes a compiler bug on mac MrC compiler
 static void CG_StepOffset( void ) {
 	int		timeDelta;
-	
+
 	// smooth out stair climbing
 	timeDelta = cg.time - cg.stepTime;
 	if ( timeDelta < STEP_TIME ) {
-		cg.refdef.vieworg[2] -= cg.stepChange 
+		cg.refdef.vieworg[2] -= cg.stepChange
 			* (STEP_TIME - timeDelta) / STEP_TIME;
 	}
 }
@@ -305,7 +305,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	float			f;
 	vec3_t			predictedVelocity;
 	int				timeDelta;
-	
+
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
 		return;
 	}
@@ -354,7 +354,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	delta = DotProduct ( predictedVelocity, cg.refdef.viewaxis[0]);
 	angles[PITCH] += delta * cg_runpitch.value;
-	
+
 	delta = DotProduct ( predictedVelocity, cg.refdef.viewaxis[1]);
 	angles[ROLL] -= delta * cg_runroll.value;
 
@@ -382,7 +382,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	// smooth out duck height changes
 	timeDelta = cg.time - cg.duckTime;
 	if ( timeDelta < DUCK_TIME) {
-		cg.refdef.vieworg[2] -= cg.duckChange 
+		cg.refdef.vieworg[2] -= cg.duckChange
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
@@ -418,7 +418,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	{
 #define	NECK_LENGTH		8
 	vec3_t			forward, up;
- 
+
 	cg.refdef.vieworg[2] -= NECK_LENGTH;
 	AngleVectors( cg.refdefViewAngles, forward, NULL, up );
 	VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
@@ -430,7 +430,7 @@ static void CG_OffsetFirstPersonView( void ) {
 	if (cg.kick_time)
 	{
 		int duration;
-		
+
 		if (cg.kick_duration)
 			duration = cg.kick_duration;
 		else
@@ -467,7 +467,7 @@ static void CG_OffsetFirstPersonView( void ) {
 
 /* hawkins: not needed in rxn as is. however, useful for SSG. */
 /*
-void CG_ZoomDown_f( void ) { 
+void CG_ZoomDown_f( void ) {
 	if ( cg.zoomed ) {
 		return;
 	}
@@ -475,7 +475,7 @@ void CG_ZoomDown_f( void ) {
 	cg.zoomTime = cg.time;
 }
 
-void CG_ZoomUp_f( void ) { 
+void CG_ZoomUp_f( void ) {
 	if ( !cg.zoomed ) {
 		return;
 	}
@@ -571,7 +571,7 @@ static int CG_CalcFov( void ) {
 */
 	if (cg_RQ3_ssgZoomAssist.integer == 0)
 		CG_RQ3_SyncZoom();
-	
+
 	//SSG3000 zoom handling
 /*
 	// old code
@@ -622,7 +622,7 @@ static int CG_CalcFov( void ) {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 		}
 		//Idle state or out of ammo
-		else if (cg.snap->ps.weaponTime == 0 && 
+		else if (cg.snap->ps.weaponTime == 0 &&
 				 cg.snap->ps.stats[STAT_RELOADTIME] == 0)
 		{
 			fov_x = CG_RQ3_GetFov();
@@ -643,7 +643,7 @@ static int CG_CalcFov( void ) {
 		else if (cg.snap->ps.weaponTime < ZOOM_TIME &&
 				 cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME &&
 				 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS))
-		{	
+		{
 			if (cg.zoomFirstReturn == ZOOM_OUT ||
 				cg.zoomFirstReturn == ZOOM_OUTOFAMMO && cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 			{
@@ -663,7 +663,7 @@ static int CG_CalcFov( void ) {
 			if ( f > 1.0 || cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
 				fov_x = zoomFov;
 			else
-				fov_x = fov_x + f * ( zoomFov - fov_x );	
+				fov_x = fov_x + f * ( zoomFov - fov_x );
 				//fov_x = zoomFov + f * ( fov_x - zoomFov );
 		}
 		//first time after a shot or reload - zoom out
@@ -674,9 +674,9 @@ static int CG_CalcFov( void ) {
 				cg.zoomTime = cg.time;
 				cg.zoomFirstReturn = ZOOM_OUT;
 			}
-		
+
 			fov_x = CG_RQ3_GetFov();
-			
+
 			if (cg.zoomFirstReturn == ZOOM_OUTOFAMMO &&
 				cg.snap->ps.stats[STAT_RELOADATTEMPTS] == 0)// &&
 				//cg.snap->ps.weaponstate != WEAPON_RELOADING)
@@ -769,7 +769,7 @@ static int CG_CalcFov( void ) {
 				  cg.snap->ps.weaponstate == WEAPON_RAISING ) &&
 				 cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME &&
 				 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS))
-		{	
+		{
 			if (cg.zoomFirstReturn == ZOOM_OUT)
 			{
 				cg.zoomTime = cg.time;
@@ -791,7 +791,7 @@ static int CG_CalcFov( void ) {
 			if ( f > 1.0 ) //|| cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
 				fov_x = zoomFov;
 			else
-				fov_x = fov_x + f * ( zoomFov - fov_x );	
+				fov_x = fov_x + f * ( zoomFov - fov_x );
 				//fov_x = zoomFov + f * ( fov_x - zoomFov );
 		}
 		//first time after a shot, reload, or weapon switch - zoom out
@@ -811,8 +811,8 @@ static int CG_CalcFov( void ) {
 				cg.zoomTime = cg.time;
 				cg.zoomFirstReturn = ZOOM_OUT;
 			}
-		
-			
+
+
 			if (cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
 			{
 				zoomFov = fov_x;
@@ -905,7 +905,7 @@ static void CG_DamageBlendBlob( void ) {
 	int			t;
 	int			maxTime;
 	refEntity_t		ent;
-	
+
 	if ( !cg.damageValue ) {
 		return;
 	}
@@ -1229,18 +1229,19 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		//Blaze: Check for invalid video settings.
 		for(i=0;i<30;i++)
 		{
-			if (strcmp(cheats[i].cvar, NULL)!=0) 
+			if (strcmp(cheats[i].cvar, NULL)!=0)
 			{
 				cvar_val = CG_Cvar_Get(cheats[i].cvar);
 				//CG_Printf("%s is set to %f\n",cheats[i].cvar, cvar_val);
-				if ( cvar_val < cheats[i].low || cvar_val > cheats[i].high) 
+				if ( (cvar_val < cheats[i].low || cvar_val > cheats[i].high) )
 				{
 					CG_Printf("This server restricts %s to be between %1.11f and %1.11f\n",cheats[i].cvar,cheats[i].low, cheats[i].high);
+					trap_Cvar_Set("RQ3_CvarKickReason", cheats[i].cvar );
 					trap_SendConsoleCommand(va("disconnect\n"));
 				}
-				
+
 			}
-	
+
 		}
 	}
 }

@@ -1710,6 +1710,12 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	}
 
 
+	// Added by NiceAss so sounds will be played even if the weapon isn't drawn.
+	if ( !cg_drawGun.integer && (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) != RQ3_THROWWEAPON) {
+		// NiceAss: TODO--Play sounds even if cg_drawGun.integer == 0 (helps the player know
+		//			when bandaging is completed.
+	}
+
 	// allow the gun to be completely removed
 	// Elder: don't draw if throwing
 //	if ( !cg_drawGun.integer || (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
@@ -1760,7 +1766,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		rxn_gunx += 10;
 	}
 
-	
+
 	if ((cg_RQ3_drawWeapon.integer > 1 ) && (cg_RQ3_drawWeapon.integer < 4 ))
 	{
 		rxn_guny = cg_gun_y.value + 4*(cg_RQ3_drawWeapon.integer-1);
@@ -3176,7 +3182,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 					color[1] = 96;
 					color[2] = 64;
 					color[3] = 192;
-					break;				
+					break;
 				case WP_M3:
 				case WP_HANDCANNON:
 					flashCount = 2 + rand() % 3;
@@ -3194,7 +3200,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 					color[3] = 192;
 					break;
 			}
-		
+
 			// Elder: should probably dump this into another function
 			for ( i = 0; i < flashCount; i++ )
 			{
@@ -3214,20 +3220,20 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 
 				VectorMA( origin, scale + 0.5f, temp, le->refEntity.origin );
 				VectorCopy(temp, le->refEntity.axis[0]);
-				
+
 				// set spark colour
 				le->refEntity.shaderRGBA[0] = color[0];
 				le->refEntity.shaderRGBA[1] = color[1];
 				le->refEntity.shaderRGBA[2] = color[2];
 				le->refEntity.shaderRGBA[3] = color[3];
-				
+
 				// readjust behaviour
 				le->leType = LE_MOVE_SCALE_FADE;
 				le->pos.trType = TR_LINEAR;
 				le->pos.trTime = cg.time;
 				VectorCopy(le->refEntity.origin, le->pos.trBase);
 				VectorScale(offsetDir, 30, le->pos.trDelta);
-				
+
 				le->light = light;
 				VectorCopy( lightColor, le->lightColor );
 			}

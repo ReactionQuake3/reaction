@@ -165,6 +165,8 @@ vmCvar_t	cg_RQ3_laserAssist;
 vmCvar_t	cg_RQ3_anouncer;
 //Elder: different blood types
 vmCvar_t	cg_RQ3_bloodStyle;
+//NiceAss: Q2-like prediction
+vmCvar_t	cg_RQ3_oldpredict;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -190,7 +192,6 @@ vmCvar_t	cg_oldRail;
 vmCvar_t	cg_oldRocket;
 vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
-
 #ifdef MISSIONPACK
 vmCvar_t 	cg_redTeamName;
 vmCvar_t 	cg_blueTeamName;
@@ -346,8 +347,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
+	// NiceAss: Added:
+	{ &cg_RQ3_oldpredict, "cg_RQ3_oldpredict", "0", CVAR_ARCHIVE}
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -379,7 +382,7 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 }
 
-/*																																			
+/*
 ===================
 CG_ForceModelChange
 ===================
@@ -549,7 +552,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		len = s-start;
 		if (len >= MAX_QPATH || len < 5) {
-			CG_Error( "PrecacheItem: %s has bad precache string", 
+			CG_Error( "PrecacheItem: %s has bad precache string",
 				item->classname);
 			return;
 		}
@@ -761,7 +764,7 @@ static void CG_RegisterSounds( void ) {
 		//Elder: new footsteps
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_GRASS][i] = trap_S_RegisterSound (name, qfalse);
-		
+
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_WOOD][i] = trap_S_RegisterSound (name, qfalse);
 
@@ -1064,25 +1067,25 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.glass01 = trap_R_RegisterModel( "models/breakables/glass01.md3" );
  	cgs.media.glass02 = trap_R_RegisterModel( "models/breakables/glass02.md3" );
  	cgs.media.glass03 = trap_R_RegisterModel( "models/breakables/glass03.md3" );
-	
+
 	//Elder: additional debris
 	//Todo: load only if in the level
 	cgs.media.wood01 = trap_R_RegisterModel( "models/breakables/wood01.md3" );
  	cgs.media.wood02 = trap_R_RegisterModel( "models/breakables/wood02.md3" );
  	cgs.media.wood03 = trap_R_RegisterModel( "models/breakables/wood03.md3" );
-	
+
 	cgs.media.metal01 = trap_R_RegisterModel( "models/breakables/metal01.md3" );
  	cgs.media.metal02 = trap_R_RegisterModel( "models/breakables/metal02.md3" );
  	cgs.media.metal03 = trap_R_RegisterModel( "models/breakables/metal03.md3" );
- 	
+
  	cgs.media.ceramic01 = trap_R_RegisterModel( "models/breakables/ceramic01.md3" );
  	cgs.media.ceramic02 = trap_R_RegisterModel( "models/breakables/ceramic02.md3" );
  	cgs.media.ceramic03 = trap_R_RegisterModel( "models/breakables/ceramic03.md3" );
- 	
+
  	cgs.media.paper01 = trap_R_RegisterModel( "models/breakables/paper01.md3" );
  	cgs.media.paper02 = trap_R_RegisterModel( "models/breakables/paper02.md3" );
  	cgs.media.paper03 = trap_R_RegisterModel( "models/breakables/paper03.md3" );
- 	
+
 	cgs.media.brick01 = trap_R_RegisterModel( "models/breakables/brick01.md3" );
  	cgs.media.brick02 = trap_R_RegisterModel( "models/breakables/brick02.md3" );
  	cgs.media.brick03 = trap_R_RegisterModel( "models/breakables/brick03.md3" );
@@ -1113,7 +1116,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
-	
+
 	// Elder: added
 	cgs.media.hitSparkModel = trap_R_RegisterModel("models/weaphits/tracer/tracer.md3");
 	cgs.media.hitSparkShader = trap_R_RegisterShader("models/weaphits/tracer/tracer");
@@ -1159,7 +1162,7 @@ static void CG_RegisterGraphics( void ) {
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_health" );
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_healthwarning" );
-	
+
 
 	memset( cg_items, 0, sizeof( cg_items ) );
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
@@ -1256,7 +1259,7 @@ static void CG_RegisterGraphics( void ) {
 
 
 
-/*																																			
+/*
 =======================
 CG_BuildSpectatorString
 
@@ -1278,7 +1281,7 @@ void CG_BuildSpectatorString() {
 }
 
 
-/*																																			
+/*
 ===================
 CG_RegisterClients
 ===================
@@ -1377,7 +1380,7 @@ qboolean CG_Asset_Parse(int handle) {
 	if (Q_stricmp(token.string, "{") != 0) {
 		return qfalse;
 	}
-    
+
 	while ( 1 ) {
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
@@ -1573,7 +1576,7 @@ qboolean CG_Load_Menu(char **p) {
 	while ( 1 ) {
 
 		token = COM_ParseExt(p, qtrue);
-    
+
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
 		}
@@ -1582,7 +1585,7 @@ qboolean CG_Load_Menu(char **p) {
 			return qfalse;
 		}
 
-		CG_ParseMenu(token); 
+		CG_ParseMenu(token);
 	}
 	return qfalse;
 }
@@ -1616,7 +1619,7 @@ void CG_LoadMenus(const char *menuFile) {
 	trap_FS_Read( buf, len, f );
 	buf[len] = 0;
 	trap_FS_FCloseFile( f );
-	
+
 	COM_Compress(buf);
 
 	Menu_Reset();
@@ -1813,7 +1816,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 			case 6:
 				if ( sp->ping == -1 ) {
 					return "connecting";
-				} 
+				}
 				return va("%4i", sp->ping);
 			break;
 		}
@@ -1918,7 +1921,7 @@ void CG_LoadHudMenu() {
 	cgDC.registerModel = &trap_R_RegisterModel;
 	cgDC.modelBounds = &trap_R_ModelBounds;
 	cgDC.fillRect = &CG_FillRect;
-	cgDC.drawRect = &CG_DrawRect;   
+	cgDC.drawRect = &CG_DrawRect;
 	cgDC.drawSides = &CG_DrawSides;
 	cgDC.drawTopBottom = &CG_DrawTopBottom;
 	cgDC.clearScene = &trap_R_ClearScene;
@@ -1946,8 +1949,8 @@ void CG_LoadHudMenu() {
 	//cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
 	//cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
 	//cgDC.executeText = &trap_Cmd_ExecuteText;
-	cgDC.Error = &Com_Error; 
-	cgDC.Print = &Com_Printf; 
+	cgDC.Error = &Com_Error;
+	cgDC.Print = &Com_Printf;
 	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
 	//cgDC.Pause = &CG_Pause;
 	cgDC.registerSound = &trap_S_RegisterSound;
@@ -1957,11 +1960,11 @@ void CG_LoadHudMenu() {
 	cgDC.stopCinematic = &CG_StopCinematic;
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-	
+
 	Init_Display(&cgDC);
 
 	Menu_Reset();
-	
+
 	trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
 	hudSet = buff;
 	if (hudSet[0] == '\0') {

@@ -14,19 +14,20 @@ void CheckBleeding(gentity_t *targ)
 	// just safety check it
 	if (realBleedTime <= 0)
 		realBleedTime = BLEED_TIME;
-	
-	if (!(targ->client->bleeding) || (targ->health <=0))
-		return;	
-	
-	temp = (int)(targ->client->bleeding * 0.2f);
-	targ->client->bleeding -= temp;	
-	
-	if (temp <= 0)
-		temp = 1;	
 
-	targ->client->bleed_remain += temp;	
+	if (!(targ->client->bleeding) || (targ->health <=0))
+		return;
+
+	// NiceAss: (10.0f / realBleedTime) is just (Q2 FPS / Q3 FPS)
+	temp = (int)(targ->client->bleeding * 0.2f * (10.0f / realBleedTime));
+	targ->client->bleeding -= temp;
+
+	if (temp <= 0)
+		temp = 1;
+
+	targ->client->bleed_remain += temp;
 	damage = (int)(targ->client->bleed_remain/realBleedTime);
-	
+
 	if (targ->client->bleed_remain >= realBleedTime)
 	{
 		//G_Printf("Bleed Remain: %i Server Time: %i\n", targ->client->bleed_remain, level.time);
@@ -62,12 +63,12 @@ void CheckBleeding(gentity_t *targ)
 		if (g_RQ3_ejectBlood.integer && targ->client->bleed_delay <= level.time)
 		{
 		  vec3_t bleedOrigin;
-		  
+
 		  targ->client->bleed_delay = level.time + 2000; // 2 seconds
 		  VectorAdd(targ->client->bleedloc_offset, targ->client->ps.origin, bleedOrigin);
 		  //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
 		  //EjectBlooder(ent, pos, pos);
-                        
+
 		  // do bleeding
 		  tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
 		  tent->s.otherEntityNum = targ->s.clientNum;
@@ -89,7 +90,7 @@ void StartBandage(gentity_t *ent)
   {
     return;
   }
-        
+
   temp = (int)(ent->client->bleeding * .2);
   ent->client->bleeding -= temp;
   if ( temp <= 0 )
@@ -102,7 +103,7 @@ void StartBandage(gentity_t *ent)
     if ( damage > 1 )
     {
                                 // action doens't do this
-      //ent->client->damage_blood += damage; // for feedback                                
+      //ent->client->damage_blood += damage; // for feedback
     }
     if ( ent->health <= 0 )
     {
@@ -121,10 +122,10 @@ void StartBandage(gentity_t *ent)
       VectorAdd(ent->client->bleedloc_offset, ent->absmax, pos);
       //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
       EjectBlooder(ent, pos, pos);
-                        
+
       // do bleeding
 
     }
-                                                
+
   }
-*/                
+*/

@@ -12,7 +12,7 @@ CONTROLS MENU
 #include "ui_local.h"
 
 #define ART_BACK0		"menu/art/rq3-menu-back.tga"
-#define ART_BACK1		"menu/art/rq3-menu-back-focus.tga"	
+#define ART_BACK1		"menu/art/rq3-menu-back-focus.tga"
 //#define ART_BACK0			"menu/art/back_0"
 //#define ART_BACK1			"menu/art/back_1"
 //#define ART_FRAMEL			"menu/art/frame2_l"
@@ -44,7 +44,7 @@ typedef struct
 {
 	char*	name;
 	float	defaultvalue;
-	float	value;	
+	float	value;
 } configcvar_t;
 
 #define SAVE_NOOP		0
@@ -75,32 +75,32 @@ typedef struct
 
 // bindable actions
 #define ID_SHOWSCORES	0
-#define ID_USEITEM		1	
-#define ID_SPEED		2	
-#define ID_FORWARD		3	
+#define ID_USEITEM		1
+#define ID_SPEED		2
+#define ID_FORWARD		3
 #define ID_BACKPEDAL	4
 #define ID_MOVELEFT		5
 #define ID_MOVERIGHT	6
-#define ID_MOVEUP		7	
+#define ID_MOVEUP		7
 #define ID_MOVEDOWN		8
-#define ID_LEFT			9	
-#define ID_RIGHT		10	
-#define ID_STRAFE		11	
-#define ID_LOOKUP		12	
+#define ID_LEFT			9
+#define ID_RIGHT		10
+#define ID_STRAFE		11
+#define ID_LOOKUP		12
 #define ID_LOOKDOWN		13
 #define ID_MOUSELOOK	14
 #define ID_CENTERVIEW	15
 #define ID_ZOOMVIEW		16
 // Elder: WEAPON1 is now pistol
-#define ID_WEAPON1		17	
+#define ID_WEAPON1		17
 #define ID_WEAPON2		18
-#define ID_WEAPON3		19	
-#define ID_WEAPON4		20	
-#define ID_WEAPON5		21	
-#define ID_WEAPON6		22	
-#define ID_WEAPON7		23	
-#define ID_WEAPON8		24	
-#define ID_WEAPON9		25	
+#define ID_WEAPON3		19
+#define ID_WEAPON4		20
+#define ID_WEAPON5		21
+#define ID_WEAPON6		22
+#define ID_WEAPON7		23
+#define ID_WEAPON8		24
+#define ID_WEAPON9		25
 #define ID_ATTACK		26
 #define ID_WEAPPREV		27
 #define ID_WEAPNEXT		28
@@ -182,7 +182,7 @@ typedef struct
 	menutext_s		rq3_statustext;
 
 	menubitmap_s		player;
-	
+
 	/*
 	menutext_s			movement;
 	menutext_s			looking;
@@ -193,7 +193,7 @@ typedef struct
 	menubitmap_s		looking;
 	menubitmap_s		weapons;
 	menubitmap_s		misc;
-	
+
 	//Blaze: Reaction Menu
 	menubitmap_s		reaction;
 
@@ -207,7 +207,7 @@ typedef struct
 	menuaction_s		turnright;
 	menuaction_s		sidestep;
 	menuaction_s		run;
-	
+
 //Blaze: Dont need these
 	//menuaction_s		chainsaw;
 	//menuaction_s		machinegun;
@@ -252,7 +252,7 @@ typedef struct
 	menuaction_s		dropweap;
 	menuaction_s		dropitem;
 	menuaction_s		irvision;
-	
+
 	menuradiobutton_s	joyenable;
 	menuslider_s		joythreshold;
 	int					section;
@@ -267,13 +267,13 @@ typedef struct
 
 	menubitmap_s		back;
 	menutext_s			name;
-} controls_t; 	
+} controls_t;
 
 static controls_t s_controls;
 
 static vec4_t controls_binding_color  = {1.00f, 0.43f, 0.00f, 1.00f}; // bk: Win32 C4305
 
-static bind_t g_bindings[] = 
+static bind_t g_bindings[] =
 {
 	{"+scores",			"show scores",		ID_SHOWSCORES,	ANIM_IDLE,		K_TAB,			-1,		-1, -1},
 	{"+button2",		"use item",			ID_USEITEM,		ANIM_IDLE,		K_ENTER,		-1,		-1, -1},
@@ -317,7 +317,7 @@ static bind_t g_bindings[] =
 	{"opendoor",	 	"Open Door",		ID_OPENDOOR,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropweapon",	 	"Drop Weapon",		ID_DROPWEAP,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropitem",	 	"Drop Item",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
-	{"irvision",	 	"IR Vision",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"irvision",	 	"IR Vision",		ID_IRVISION,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{(char*)NULL,		(char*)NULL,		0,				0,				-1,				-1,		-1,	-1},
 };
 
@@ -336,39 +336,39 @@ static configcvar_t g_configcvars[] =
 
 static menucommon_s *g_movement_controls[] =
 {
-	(menucommon_s *)&s_controls.alwaysrun,     
-	(menucommon_s *)&s_controls.run,            
+	(menucommon_s *)&s_controls.alwaysrun,
+	(menucommon_s *)&s_controls.run,
 	(menucommon_s *)&s_controls.walkforward,
 	(menucommon_s *)&s_controls.backpedal,
-	(menucommon_s *)&s_controls.stepleft,      
-	(menucommon_s *)&s_controls.stepright,     
-	(menucommon_s *)&s_controls.moveup,        
-	(menucommon_s *)&s_controls.movedown,      
-	(menucommon_s *)&s_controls.turnleft,      
-	(menucommon_s *)&s_controls.turnright,     
+	(menucommon_s *)&s_controls.stepleft,
+	(menucommon_s *)&s_controls.stepright,
+	(menucommon_s *)&s_controls.moveup,
+	(menucommon_s *)&s_controls.movedown,
+	(menucommon_s *)&s_controls.turnleft,
+	(menucommon_s *)&s_controls.turnright,
 	(menucommon_s *)&s_controls.sidestep,
 	NULL
 };
 
 static menucommon_s *g_weapons_controls[] = {
-	(menucommon_s *)&s_controls.attack,           
+	(menucommon_s *)&s_controls.attack,
 	(menucommon_s *)&s_controls.nextweapon,
 	(menucommon_s *)&s_controls.prevweapon,
-	(menucommon_s *)&s_controls.autoswitch,    
+	(menucommon_s *)&s_controls.autoswitch,
 //Blaze: No need for the chainsaw/gauntlet or machinegun
 /*
-	(menucommon_s *)&s_controls.chainsaw,         
+	(menucommon_s *)&s_controls.chainsaw,
 	(menucommon_s *)&s_controls.machinegun,
 */
 	(menucommon_s *)&s_controls.mk23,
 	(menucommon_s *)&s_controls.m3,
-	(menucommon_s *)&s_controls.mp5,          
+	(menucommon_s *)&s_controls.mp5,
 	(menucommon_s *)&s_controls.handcannon,
-	(menucommon_s *)&s_controls.ssg3000,   
+	(menucommon_s *)&s_controls.ssg3000,
 	(menucommon_s *)&s_controls.m4,
-	(menucommon_s *)&s_controls.akimbos,   
-	(menucommon_s *)&s_controls.knife,          
-	(menucommon_s *)&s_controls.grenade, 
+	(menucommon_s *)&s_controls.akimbos,
+	(menucommon_s *)&s_controls.knife,
+	(menucommon_s *)&s_controls.grenade,
 	NULL,
 };
 
@@ -388,7 +388,7 @@ static menucommon_s *g_looking_controls[] = {
 };
 
 static menucommon_s *g_misc_controls[] = {
-	(menucommon_s *)&s_controls.showscores, 
+	(menucommon_s *)&s_controls.showscores,
 	(menucommon_s *)&s_controls.useitem,
 	(menucommon_s *)&s_controls.gesture,
 	(menucommon_s *)&s_controls.chat,
@@ -399,8 +399,8 @@ static menucommon_s *g_misc_controls[] = {
 };
 //Blaze: Reaction Menu stuff
 static menucommon_s *g_reaction_controls[] = {
-	
-	(menucommon_s *)&s_controls.bandage, 
+
+	(menucommon_s *)&s_controls.bandage,
 	(menucommon_s *)&s_controls.reload,
 	(menucommon_s *)&s_controls.weapon,
 	(menucommon_s *)&s_controls.opendoor,
@@ -513,23 +513,23 @@ static void Controls_UpdateModel( int anim ) {
 	s_controls.playerChat			 = qfalse;
 
 	switch( anim ) {
-	case ANIM_RUN:	
+	case ANIM_RUN:
 		s_controls.playerLegs = LEGS_RUN;
 		break;
 
-	case ANIM_WALK:	
+	case ANIM_WALK:
 		s_controls.playerLegs = LEGS_WALK;
 		break;
 
-	case ANIM_BACK:	
+	case ANIM_BACK:
 		s_controls.playerLegs = LEGS_BACK;
 		break;
 
-	case ANIM_JUMP:	
+	case ANIM_JUMP:
 		s_controls.playerLegs = LEGS_JUMP;
 		break;
 
-	case ANIM_CROUCH:	
+	case ANIM_CROUCH:
 		s_controls.playerLegs = LEGS_IDLECR;
 		break;
 
@@ -728,16 +728,16 @@ static void Controls_Update( void ) {
 		s_controls.movement.generic.flags &= ~QMF_PULSEIFFOCUS;
 		s_controls.movement.generic.flags |= (QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
 		break;
-	
+
 	case C_LOOKING:
 		s_controls.looking.generic.flags &= ~QMF_PULSEIFFOCUS;
 		s_controls.looking.generic.flags |= (QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
 		break;
-	
+
 	case C_WEAPONS:
 		s_controls.weapons.generic.flags &= ~QMF_PULSEIFFOCUS;
 		s_controls.weapons.generic.flags |= (QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
-		break;		
+		break;
 
 	case C_MISC:
 		s_controls.misc.generic.flags &= ~QMF_PULSEIFFOCUS;
@@ -796,7 +796,7 @@ static void Controls_DrawKeyBinding( void *self )
 
 	if (c)
 	{
-		UI_FillRect( a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, listbar_color ); 
+		UI_FillRect( a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, listbar_color );
 
 		UI_DrawString( x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT|UI_SMALLFONT, text_color_highlight );
 		UI_DrawString( x + SMALLCHAR_WIDTH, y, name, UI_LEFT|UI_SMALLFONT|UI_PULSE, text_color_highlight );
@@ -945,7 +945,7 @@ static void Controls_SetConfig( void )
 			break;
 
 		if (bindptr->bind1 != -1)
-		{	
+		{
 			trap_Key_SetBinding( bindptr->bind1, bindptr->command );
 
 			if (bindptr->bind2 != -1)
@@ -1023,12 +1023,12 @@ static sfxHandle_t Controls_MenuKey( int key )
 			case K_KP_DEL:
 				key = -1;
 				break;
-		
+
 			case K_MOUSE2:
 			case K_ESCAPE:
 				if (s_controls.changesmade)
 					Controls_SetConfig();
-				goto ignorekey;	
+				goto ignorekey;
 
 			default:
 				goto ignorekey;
@@ -1045,21 +1045,21 @@ static sfxHandle_t Controls_MenuKey( int key )
 				s_controls.waitingforkey = qfalse;
 				Controls_Update();
 				return (menu_out_sound);
-	
+
 			case '`':
 				goto ignorekey;
 		}
 	}
 
 	s_controls.changesmade = qtrue;
-	
+
 	if (key != -1)
 	{
 		// remove from any other bind
 		bindptr = g_bindings;
 		for (i=0; ;i++,bindptr++)
 		{
-			if (!bindptr->label)	
+			if (!bindptr->label)
 				break;
 
 			if (bindptr->bind2 == key)
@@ -1067,7 +1067,7 @@ static sfxHandle_t Controls_MenuKey( int key )
 
 			if (bindptr->bind1 == key)
 			{
-				bindptr->bind1 = bindptr->bind2;	
+				bindptr->bind1 = bindptr->bind2;
 				bindptr->bind2 = -1;
 			}
 		}
@@ -1078,9 +1078,9 @@ static sfxHandle_t Controls_MenuKey( int key )
 	bindptr = g_bindings;
 	for (i=0; ;i++,bindptr++)
 	{
-		if (!bindptr->label)	
+		if (!bindptr->label)
 			break;
-		
+
 		if (bindptr->id == id)
 		{
 			found = qtrue;
@@ -1107,15 +1107,15 @@ static sfxHandle_t Controls_MenuKey( int key )
 				trap_Key_SetBinding( bindptr->bind2, "" );
 				bindptr->bind1 = key;
 				bindptr->bind2 = -1;
-			}						
+			}
 			break;
 		}
-	}				
-		
+	}
+
 	s_controls.waitingforkey = qfalse;
 
 	if (found)
-	{	
+	{
 		Controls_Update();
 		return (menu_out_sound);
 	}
@@ -1195,7 +1195,7 @@ static void Controls_MenuEvent( void* ptr, int event )
 			case ID_MOVEMENT:
 				//if (event == QM_ACTIVATED)
 				//{
-					s_controls.section = C_MOVEMENT; 
+					s_controls.section = C_MOVEMENT;
 					Controls_Update();
 				//}
 				break;
@@ -1203,7 +1203,7 @@ static void Controls_MenuEvent( void* ptr, int event )
 			case ID_LOOKING:
 				//if (event == QM_ACTIVATED)
 				//{
-					s_controls.section = C_LOOKING; 
+					s_controls.section = C_LOOKING;
 					Controls_Update();
 				//}
 				break;
@@ -1211,7 +1211,7 @@ static void Controls_MenuEvent( void* ptr, int event )
 			case ID_WEAPONS:
 				//if (event == QM_ACTIVATED)
 				//{
-					s_controls.section = C_WEAPONS; 
+					s_controls.section = C_WEAPONS;
 					Controls_Update();
 				//}
 				break;
@@ -1219,7 +1219,7 @@ static void Controls_MenuEvent( void* ptr, int event )
 			case ID_MISC:
 				//if (event == QM_ACTIVATED)
 				//{
-					s_controls.section = C_MISC; 
+					s_controls.section = C_MISC;
 					Controls_Update();
 				//}
 				break;
@@ -1274,7 +1274,7 @@ static void Controls_MenuEvent( void* ptr, int event )
 				//{
 					s_controls.changesmade = qtrue;
 				//}
-				break;		
+				break;
 		}
 	}
 }
@@ -1344,7 +1344,7 @@ static void Controls_MenuDraw( void ) {
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
-	
+
 	// standard menu drawing
 	Menu_Draw( &s_controls.menu );
 }
@@ -1901,7 +1901,7 @@ static void Controls_MenuInit( void )
 	s_controls.opendoor.generic.callback = Controls_ActionEvent;
 	s_controls.opendoor.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.opendoor.generic.id		= ID_OPENDOOR;
-	
+
 	s_controls.dropweap.generic.type		= MTYPE_ACTION;
 	s_controls.dropweap.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
 	s_controls.dropweap.generic.callback = Controls_ActionEvent;
@@ -2002,7 +2002,7 @@ static void Controls_MenuInit( void )
 //	Menu_AddItem( &s_controls.menu, &s_controls.chainsaw );
 //	Menu_AddItem( &s_controls.menu, &s_controls.machinegun );
 //Blaze: Reaction weapon additions Pistol replaces machinegun
-	
+
 	Menu_AddItem( &s_controls.menu, &s_controls.mk23);
 	Menu_AddItem( &s_controls.menu, &s_controls.m3);
 	Menu_AddItem( &s_controls.menu, &s_controls.mp5 );

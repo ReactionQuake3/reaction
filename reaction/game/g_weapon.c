@@ -1,6 +1,6 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-// g_weapon.c 
+// g_weapon.c
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -51,7 +51,7 @@ qboolean JumpKick( gentity_t *ent )
 	int			damage;
 	//Elder: for kick sound
 	qboolean	kickSuccess;
-	
+
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
 	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
@@ -59,11 +59,11 @@ qboolean JumpKick( gentity_t *ent )
 	muzzle[2] -= (ent->client->ps.viewheight - 20);
 	VectorMA (muzzle, 25, forward, end);
 	//VectorMA (muzzle, 32, forward, end);
-	
+
 	//VectorCopy( ent->s.origin, muzzle );
 	//muzzle[2] += 32;
 	// the muzzle really isn't the right point to test the jumpkick from
-	
+
 	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
 	//trap_Trace (&tr, ent->s.origin, NULL, NULL, end, ent->s.number, MASK_SHOT);
 
@@ -120,7 +120,7 @@ qboolean JumpKick( gentity_t *ent )
 		tent->s.otherEntityNum2 = ent->s.number;
 		tent->s.eventParm = DirToByte( tr.plane.normal );
 		tent->s.weapon = 0;
-		
+
 
 		if (traceEnt->client->uniqueWeapons > 0)
 		{
@@ -134,7 +134,7 @@ qboolean JumpKick( gentity_t *ent )
 			//Set the entity's weapon to the target's weapon before he/she throws it
 			tent->s.weapon = ThrowWeapon(traceEnt, qtrue);
 		}
-		
+
 		// Don't need other sound event
 		kickSuccess = qfalse;
 	}
@@ -160,7 +160,7 @@ qboolean JumpKick( gentity_t *ent )
 		//Make the "size" vector - hopefully this is right
 		//VectorSubtract(traceEnt->r.maxs, traceEnt->r.mins, size);
 		//G_Printf("Size: %s\n", vtos(size));
-		
+
 		//VectorMA(traceEnt->r.absmin, 0.5, size, vTemp);
 		//VectorSubtract(vTemp, tr.endpos, vTemp);
 		//VectorNormalize(vTemp);
@@ -199,7 +199,7 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 		crossProduct = d_forward[0]*d_right[1]-d_right[0]*d_forward[1];
 
 		// See if we are on the proper side to do it
-		if ( ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) || 
+		if ( ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) ||
 			 ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0))
 		{
 			Cmd_OpenDoor( ent );
@@ -306,7 +306,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -394,6 +394,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	//r = cos(r) * crandom() * spread * 16;
 
 	//FYI: multiply by 16 so we can reach the furthest ends of a "TA" sized map
+
 	u = crandom() * spread * 16;
 	r = crandom() * spread * 16;
 	VectorMA (muzzle, 8192*16, forward, end);
@@ -404,26 +405,33 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	for (i = 0; i < 10; i++) {
 
 		trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-		return;
-	}
-
-	traceEnt = &g_entities[ tr.entityNum ];
-
-	// snap the endpos to integers, but nudged towards the line
-	SnapVectorTowards( tr.endpos, muzzle );
-
-	// send bullet impact
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
-		{
-			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-			//tent->s.eventParm = traceEnt->s.number;
-			tent->s.eventParm = DirToByte(forward);
-			tent->s.otherEntityNum2 = traceEnt->s.number;
-			tent->s.otherEntityNum = ent->s.number;
+		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+			return;
 		}
-		if( LogAccuracyHit( traceEnt, ent ) ) {
+
+		traceEnt = &g_entities[ tr.entityNum ];
+
+		// snap the endpos to integers, but nudged towards the line
+		SnapVectorTowards( tr.endpos, muzzle );
+
+		// send bullet impact
+		// NiceAss: Special hit-detection stuff for the head
+		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse ) {
+			VectorCopy (tr.endpos, muzzle);
+			passent = tr.entityNum;
+			continue;
+		}
+
+		if ( traceEnt->takedamage && traceEnt->client ) {
+			if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
+			{
+				tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+				//tent->s.eventParm = traceEnt->s.number;
+				tent->s.eventParm = DirToByte(forward);
+				tent->s.otherEntityNum2 = traceEnt->s.number;
+				tent->s.otherEntityNum = ent->s.number;
+			}
+			if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
 				switch (MOD)
@@ -446,29 +454,29 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 						break;
 				}
 
+			}
+		//Elder: *******************TEST CODE *****************
+		//} else if ( tr.surfaceFlags & SURF_GRASS ) {
+			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
+			//tent->s.eventParm = DirToByte( tr.plane.normal );
+		} else if ( (tr.surfaceFlags & SURF_METALSTEPS) ||
+			(tr.surfaceFlags & SURF_METAL2) ) {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
+		} else if ( tr.surfaceFlags & SURF_GLASS) {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
+		} else {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
 		}
-	//Elder: *******************TEST CODE *****************
-	//} else if ( tr.surfaceFlags & SURF_GRASS ) {
-		//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
-		//tent->s.eventParm = DirToByte( tr.plane.normal );
-	} else if ( (tr.surfaceFlags & SURF_METALSTEPS) ||
-				(tr.surfaceFlags & SURF_METAL2) ) {
-		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.otherEntityNum = ent->s.number;
-	} else if ( tr.surfaceFlags & SURF_GLASS) {
-		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.otherEntityNum = ent->s.number;
-	} else {
-		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.otherEntityNum = ent->s.number;
-	}
-	//tent->s.otherEntityNum = ent->s.number;
-	//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
+		//tent->s.otherEntityNum = ent->s.number;
+		//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
 
-	if ( traceEnt->takedamage) {
+		if ( traceEnt->takedamage) {
 #ifdef MISSIONPACK
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -483,30 +491,29 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 				}
 				continue;
 			}
-			else {
+		else {
 #endif
-		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-			damage, 0, MOD);
-		
-		// FIXME: poor implementation
-		if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
-			if (traceEnt->client->kevlarHit == qfalse) {
-				tent2 = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-				//tent->s.eventParm = traceEnt->s.number;
-				tent2->s.eventParm = DirToByte(forward);
-				tent2->s.otherEntityNum2 = traceEnt->s.number;
-				// Need this?
-				tent2->s.otherEntityNum = ent->s.number;
+			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD);
+
+			// FIXME: poor implementation
+			if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
+				if (traceEnt->client->kevlarHit == qfalse) {
+					tent2 = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+					//tent->s.eventParm = traceEnt->s.number;
+					tent2->s.eventParm = DirToByte(forward);
+					tent2->s.otherEntityNum2 = traceEnt->s.number;
+					// Need this?
+					tent2->s.otherEntityNum = ent->s.number;
+				}
+				else
+					traceEnt->client->kevlarHit = qfalse;
 			}
-			else
-				traceEnt->client->kevlarHit = qfalse;
-		}
 
 #ifdef MISSIONPACK
-			}
+		}
 #endif
 		}
-		break;
+	break;
 	}
 }
 
@@ -555,28 +562,29 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	passent = ent->s.number;
 	VectorCopy( start, tr_start );
 	VectorCopy( end, tr_end );
+
 	for (i = 0; i < 10; i++) {
 		trap_Trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
-	traceEnt = &g_entities[ tr.entityNum ];
+		traceEnt = &g_entities[ tr.entityNum ];
 
-	// send bullet impact
-	if (  tr.surfaceFlags & SURF_NOIMPACT ) {
-		return qfalse;
-	}
+		// send bullet impact
+		if (  tr.surfaceFlags & SURF_NOIMPACT ) {
+			return qfalse;
+		}
 
-	if ( traceEnt->takedamage) {
-		//Elder: added to discern handcannon and m3 damage
-		if (ent->client && ent->client->ps.weapon == WP_HANDCANNON ) {
-			//G_Printf("Firing handcannon\n");
-			damage = HANDCANNON_DAMAGE;
-			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_HANDCANNON);
-		}
-		else {
-			//G_Printf("Firing M3\n");
-			damage = M3_DAMAGE;
-			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_M3);
-		}
-		//damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
+		if ( traceEnt->takedamage) {
+			//Elder: added to discern handcannon and m3 damage
+			if (ent->client && ent->client->ps.weapon == WP_HANDCANNON ) {
+				//G_Printf("Firing handcannon\n");
+				damage = HANDCANNON_DAMAGE;
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_HANDCANNON);
+			}
+			else {
+				//G_Printf("Firing M3\n");
+				damage = M3_DAMAGE;
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_M3);
+			}
+			//damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
 #ifdef MISSIONPACK
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -592,18 +600,18 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 				continue;
 			}
 			else {
-		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-			damage, 0, MOD_SHOTGUN);
-		if( LogAccuracyHit( traceEnt, ent ) ) {
-			return qtrue;
-		}
-	}
-#else
-			//Elder: moved into if conditional above
-			//G_Damage( traceEnt, ent, ent, forward, tr.endpos,	damage, 0, MOD_SHOTGUN);
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+				damage, 0, MOD_SHOTGUN);
 				if( LogAccuracyHit( traceEnt, ent ) ) {
 					return qtrue;
 				}
+			}
+#else
+			//Elder: moved into if conditional above
+			//G_Damage( traceEnt, ent, ent, forward, tr.endpos,	damage, 0, MOD_SHOTGUN);
+			if( LogAccuracyHit( traceEnt, ent ) ) {
+				return qtrue;
+			}
 #endif
 		}
 		return qfalse;
@@ -953,7 +961,7 @@ void Weapon_HookThink (gentity_t *ent)
 	VectorCopy( ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 }
 */
- 
+
 /*
 ======================================================================
 
@@ -1098,26 +1106,26 @@ KNIFE ATTACKS
 
 //Elder: changed to void function
 void Knife_Attack ( gentity_t *self, int damage)
-{    
-    trace_t tr; 
+{
+    trace_t tr;
     vec3_t end;
 	gentity_t *hitent;
 	gentity_t *tent;
-	
+
 	if (self->client)
 		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
 
 	VectorMA( muzzle, KNIFE_RANGE, forward, end );
     trap_Trace (&tr, muzzle, NULL, NULL, end, self->s.number, MASK_SHOT);
-    hitent = &g_entities[ tr.entityNum ];    
-	
+    hitent = &g_entities[ tr.entityNum ];
+
     // don't need to check for water
-    //if (!((tr.surfaceFlags) && (tr.surfaceFlags & SURF_SKY)))    
-	if (!(tr.surfaceFlags & SURF_SKY))    
+    //if (!((tr.surfaceFlags) && (tr.surfaceFlags & SURF_SKY)))
+	if (!(tr.surfaceFlags & SURF_SKY))
     {
-        if (tr.fraction < 1.0)        
-        {            
-            if (hitent->takedamage)            
+        if (tr.fraction < 1.0)
+        {
+            if (hitent->takedamage)
             {
 				//Elder: no knock-back on knife slashes
 				G_Damage (hitent, self, self, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_KNIFE );
@@ -1138,7 +1146,7 @@ void Knife_Attack ( gentity_t *self, int damage)
 			}
         }
     }
-} 
+}
 
 //static int knives = 0;
 
@@ -1152,10 +1160,10 @@ void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 
 	G_Printf("Knife Touched Something\n");
 
-        
+
     if (other == ent->parent)
 		return;
-        
+
 	if (trace && (trace->surfaceFlags & SURF_SKY)) {
 	//Blaze: Get rid of the knife if it hits the sky
 //                G_FreeEdict (ent);
@@ -1163,17 +1171,17 @@ void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 		G_FreeEntity(ent);
 		return;
     }
-        
+
 	if (ent->parent->client) {
 		//Blaze: Play the clank hit noise
 //      gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
 //      PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
 	}
-        
+
     // calculate position for the explosion entity
 
 	VectorMA (ent->s.origin, -0.02, ent->s.origin2, origin);
-        
+
 //glass fx
     if (0 == Q_stricmp(other->classname, "func_explosive")) {
         // ignore it, so it can bounce
@@ -1185,28 +1193,28 @@ void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 		G_Damage (other, ent, ent, ent->s.origin2, ent->s.origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
     }
     else {
-            
+
                 // code to manage excess knives in the game, guarantees that
-                // no more than knifelimit knives will be stuck in walls.  
+                // no more than knifelimit knives will be stuck in walls.
                 // if knifelimit == 0 then it won't be in effect and it can
                 // start removing knives even when less than the limit are
                 // out there.
             /*    if ( g_rxn_knifelimit.value != 0 )
                 {
                         knives++;
-                        
+
                         if (knives > g_rxn_knifelimit.value)
                                 knives = 1;
-                        
+
                         knife = FindEdictByClassnum ("weapon_Knife", knives);
-                        
+
                         if (knife)
-                        {               
+                        {
                                 knife->nextthink = level.time + .1;
                         }
-                        
-                }   */  
-		
+
+                }   */
+
 	//spawn a knife in the object
 	//Elder: todo - rotate the knife model so it's collinear with trajectory
 	//and eliminate the jittering
@@ -1278,11 +1286,11 @@ int RQ3_Spread (gentity_t *ent, int spread)
     // 225 is running
     // < 10 will be standing
     float xyspeed = (ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
-        
+
         if (ent->client->ps.pmove.pm_flags & PMF_DUCKED) // crouching
                 return( spread * .65);
 
-        if ( (ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))]) 
+        if ( (ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))])
                         && (ent->client->curr_weap == MK23_NUM
                         || ent->client->curr_weap == MP5_NUM
                         || ent->client->curr_weap == M4_NUM ) )
@@ -1298,7 +1306,7 @@ int RQ3_Spread (gentity_t *ent, int spread)
         // standing
         else
                 stage = 1;
-        
+
         // laser advantage
         if (laser)
         {
@@ -1307,7 +1315,7 @@ int RQ3_Spread (gentity_t *ent, int spread)
                         else
                                 stage = 1;
         }
-                
+
         return (int)(spread * factor[stage]);
 	*/
 
@@ -1332,7 +1340,7 @@ void Weapon_Knife_Fire(gentity_t *ent)
 
 	// extra vertical velocity
 	forward[2] += 0.2f;
-	
+
 	//Elder: already done in  Knife_Throw
 	//VectorNormalize( forward );
 
@@ -1370,7 +1378,7 @@ void Weapon_M4_Fire(gentity_t *ent)
 
 	Bullet_Fire( ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
-	/*	
+	/*
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
 		//Elder: burst three shots
 		if (ent->client->weaponfireNextTime > 0 && ent->client->ps.stats[STAT_BURST] > 2) {
@@ -1510,13 +1518,23 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			//G_Printf("(%d) SSG: OOB Entity: exiting loop\n", level.time);
 			break;
 		}
-		
+
 		traceEnt = &g_entities[ trace.entityNum ];
-		
+
+		// NiceAss: Special hit-detection stuff for the head
+		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, trace.endpos) == qfalse ) {
+			// It actually didn't hit anything...
+			trap_UnlinkEntity( traceEnt );
+			unlinkedEntities[unlinked] = traceEnt;
+			unlinked++;
+			continue;
+		}
+
+
 		if ( traceEnt->takedamage )
 		{
 			//G_Printf("(%d) SSG: hit damagable entity\n", level.time);
-			
+
 			//flag hitBreakable - bullets go through even
 			//if it doesn't "shatter" - but that's usually
 			//not the case
@@ -1545,7 +1563,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			else
 			{
 				// impact type
-				if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
+				if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
 					 (trace.surfaceFlags & SURF_METAL2) )
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 				else if (trace.surfaceFlags & SURF_GLASS)
@@ -1575,7 +1593,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			}
 			*/
 		}
-			
+
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
 		if ( hitKevlar || (hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID))) {
@@ -1608,7 +1626,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	// no explosion at end if SURF_NOIMPACT
 	if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
 	{
-		if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
+		if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
 			 (trace.surfaceFlags & SURF_METAL2) )
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 		else if (trace.surfaceFlags & SURF_GLASS)
@@ -1688,7 +1706,7 @@ void Weapon_MP5_Fire(gentity_t *ent)
 	{
 		spread = MP5_SPREAD;
 	}
-	
+
 	Bullet_Fire( ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }
@@ -1746,7 +1764,7 @@ void Weapon_M3_Fire(gentity_t *ent)
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_M3 );
-	
+
 	//Elder: added for damage report
 	RQ3_ProduceShotgunDamageReport(ent);
 }
@@ -1764,7 +1782,7 @@ Modelled after the one done for AQ2
 void RQ3_InitShotgunDamageReport( void )
 {
 	//Elder: Reset all tookShellHit 'slots' to zero
-	memset(tookShellHit, 0, MAX_CLIENTS * sizeof(int));	
+	memset(tookShellHit, 0, MAX_CLIENTS * sizeof(int));
 }
 
 //Elder: similar to AQ2 source
@@ -1778,7 +1796,7 @@ void RQ3_ProduceShotgunDamageReport(gentity_t *self)
 	gclient_t	*hitClient;
 
     //for (l = 1; l <= g_maxclients.integer; l++)
-	
+
 	// Run through array to see if anyone was hit
 	for (i = 0; i < MAX_CLIENTS; i++)
     {
@@ -1800,7 +1818,7 @@ void RQ3_ProduceShotgunDamageReport(gentity_t *self)
             {
 				//grammar set
 				if (printed == (totalNames - 1))
-                {		
+                {
 					if (totalNames == 2)
 						Q_strcat(textbuf, sizeof(textbuf), "^7 and ");
                     else if (totalNames != 1)
@@ -1808,7 +1826,7 @@ void RQ3_ProduceShotgunDamageReport(gentity_t *self)
                 }
                 else if (printed)
 					Q_strcat(textbuf, sizeof(textbuf), "^7, ");
-				
+
 				//add to text buffer
 				hitClient = g_entities[i].client;
 				Q_strcat(textbuf, sizeof(textbuf), hitClient->pers.netname);
@@ -1947,7 +1965,7 @@ void FireWeapon( gentity_t *ent ) {
 	} else {*/
 	//Elder: uncommented so it won't be zero!
 	s_quadFactor = 1;
-	//} 
+	//}
 #ifdef MISSIONPACK
 	if( ent->client->persistantPowerup && ent->client->persistantPowerup->item && ent->client->persistantPowerup->item->giTag == PW_DOUBLER ) {
 		s_quadFactor *= 2;
@@ -2297,7 +2315,7 @@ void Laser_Gen( gentity_t *ent, qboolean enabled )	{
 	int type = 1;
 
 	// First, if it's not the right weapon, leave
-	if ( ent->client->ps.weapon != WP_PISTOL && 
+	if ( ent->client->ps.weapon != WP_PISTOL &&
 		 ent->client->ps.weapon != WP_MP5 &&
 		 ent->client->ps.weapon != WP_M4 )
 	{
@@ -2348,6 +2366,8 @@ void Laser_Think( gentity_t *self )
 {
 	vec3_t		end, start, forward, up;
 	trace_t		tr;
+	int			l=0, passent;
+	gentity_t	*traceEnt;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
@@ -2365,21 +2385,37 @@ void Laser_Think( gentity_t *self )
 	//Set Aiming Directions
 	AngleVectors(self->parent->client->ps.viewangles, forward, right, up);
 	CalcMuzzlePoint(self->parent, forward, right, up, start);
-	VectorMA (start, 8192 * 16, forward, end);
 
-	//Trace Position
-	trap_Trace (&tr, start, NULL, NULL, end, self->parent->s.number, MASK_SHOT );
+	passent = self->parent->s.number;
+	// Keep tracing if it hits glass.
+	for (l = 0; l < 10; l++)
+	{
+		VectorMA (start, 8192 * 16, forward, end);
 
-	//Did you not hit anything?
-	if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY)	{
-		self->nextthink = level.time + 10;
-		trap_UnlinkEntity(self);
-		return;
+		//Trace Position
+		trap_Trace (&tr, start, NULL, NULL, end, passent, MASK_SHOT);
+		traceEnt = &g_entities[ tr.entityNum ];
+
+		//Did you not hit anything?
+		if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY)	{
+			self->nextthink = level.time + 10;
+			trap_UnlinkEntity(self);
+			return;
+		}
+
+		VectorMA(tr.endpos, 10, forward, start); // Nudge it forward a little bit
+
+		// It "hit" a player, but actually missed (thanks to new headshot code!)
+		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse ) {
+			passent = tr.entityNum;
+			continue;
+		}
+		if (!(tr.surfaceFlags & SURF_GLASS)) break;
 	}
 
 	//Move you forward to keep you visible
 	if (tr.fraction != 1)
-		VectorMA(tr.endpos,-4,forward,tr.endpos); 
+		VectorMA(tr.endpos,-4,forward,tr.endpos);
 
 	//Set Your position
 	VectorCopy( tr.endpos, self->r.currentOrigin );
@@ -2410,7 +2446,7 @@ void ReloadWeapon ( gentity_t *ent, int stage )
 	{
 		//G_Printf("Hit server-side reload stage 1\n");
 		if ( ent->client->ps.weapon == WP_M3 )
-			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
 		ent->client->numClips[ent->client->ps.weapon]--;
 	}
 	else if (stage == 2)
@@ -2424,15 +2460,15 @@ void ReloadWeapon ( gentity_t *ent, int stage )
 
 	    //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
 		if (ent->client->ps.weapon == WP_M3) {
-			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
 		}
-		else if (ent->client->ps.weapon == WP_HANDCANNON) { 
+		else if (ent->client->ps.weapon == WP_HANDCANNON) {
 			ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
 		}
 		else if(ent->client->ps.weapon == WP_PISTOL) {
-			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL];
 		}
-		else if (ent->client->ps.weapon == WP_AKIMBO) { 
+		else if (ent->client->ps.weapon == WP_AKIMBO) {
 			ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
 		}
 	}

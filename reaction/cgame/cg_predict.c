@@ -125,7 +125,7 @@ Elder: changed header - added 'const' to mins and maxs so VMs can compile
 Also check cg_syscalls.c and cg_local.h
 ================
 */
-void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int skipNumber, int mask ) {
 	trace_t	t;
 
@@ -227,10 +227,10 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 	for ( i = 0 ; i < 3 ; i++ ) {
 		out->origin[i] = prev->ps.origin[i] + f * (next->ps.origin[i] - prev->ps.origin[i] );
 		if ( !grabAngles ) {
-			out->viewangles[i] = LerpAngle( 
+			out->viewangles[i] = LerpAngle(
 				prev->ps.viewangles[i], next->ps.viewangles[i], f );
 		}
-		out->velocity[i] = prev->ps.velocity[i] + 
+		out->velocity[i] = prev->ps.velocity[i] +
 			f * (next->ps.velocity[i] - prev->ps.velocity[i] );
 	}
 
@@ -262,9 +262,9 @@ static void CG_TouchItem( centity_t *cent ) {
 	if ( !BG_CanItemBeGrabbed( cgs.gametype, &cent->currentState, &cg.predictedPlayerState ) ) {
 		return;		// can't hold it
 	}
-	
 
-	// Special case for flags.  
+
+	// Special case for flags.
 	// We don't predict touching our own flag
 #ifdef MISSIONPACK
 	if( cgs.gametype == GT_1FCTF ) {
@@ -347,7 +347,7 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		trap_CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin, 
+		trap_CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
 			cg_pmove.mins, cg_pmove.maxs, cmodel, -1 );
 
 		if ( !trace.startsolid ) {
@@ -451,7 +451,7 @@ void CG_PredictPlayerState( void ) {
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
 	trap_GetUserCmd( cmdNum, &oldestCmd );
-	if ( oldestCmd.serverTime > cg.snap->ps.commandTime 
+	if ( oldestCmd.serverTime > cg.snap->ps.commandTime
 		&& oldestCmd.serverTime < cg.time ) {	// special check for map_restart
 		if ( cg_showmiss.integer ) {
 			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
@@ -464,7 +464,7 @@ void CG_PredictPlayerState( void ) {
 
 	// get the most recent information we have, even if
 	// the server time is beyond our current cg.time,
-	// because predicted player positions are going to 
+	// because predicted player positions are going to
 	// be ahead of everything else anyway
 	if ( cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport ) {
 		cg.predictedPlayerState = cg.nextSnap->ps;
@@ -522,7 +522,7 @@ void CG_PredictPlayerState( void ) {
 				cg.thisFrameTeleport = qfalse;
 			} else {
 				vec3_t	adjusted;
-				CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
+				CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
 					cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
 
 				if ( cg_showmiss.integer ) {
@@ -588,9 +588,9 @@ void CG_PredictPlayerState( void ) {
 		else if (cg.snap->ps.stats[STAT_BURST] > 0)
 			cg_pmove.cmd.buttons |= BUTTON_ATTACK;
 	}*/
-	
+
 		Pmove (&cg_pmove);
-	
+
 		moved = qtrue;
 
 		// add push trigger movement effects
@@ -612,8 +612,8 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// adjust for the movement of the groundentity
-	CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
-		cg.predictedPlayerState.groundEntityNum, 
+	CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
+		cg.predictedPlayerState.groundEntityNum,
 		cg.physicsTime, cg.time, cg.predictedPlayerState.origin );
 
 	if ( cg_showmiss.integer ) {
@@ -621,6 +621,10 @@ void CG_PredictPlayerState( void ) {
 			CG_Printf("WARNING: dropped event\n");
 		}
 	}
+
+	// NiceAss: Added to remove prediction (like q2).
+	if (cg_RQ3_oldpredict.integer)
+		return;
 
 	// fire events and other transition triggered things
 	CG_TransitionPlayerState( &cg.predictedPlayerState, &oldPlayerState );

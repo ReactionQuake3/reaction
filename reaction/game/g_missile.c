@@ -287,7 +287,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		return;
 	}
 	*/
-	
+
 #ifdef MISSIONPACK
 	if ( other->takedamage ) {
 		if ( ent->s.weapon != WP_PROX_LAUNCHER ) {
@@ -327,7 +327,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if ( VectorLength( velocity ) == 0 ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
-			
+
 			//Elder: added
 			//Blaze: Moved down into the section where it actually hits the glass, otherwise the breakable entity is gone when it checks for it
 			/*if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
@@ -438,8 +438,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if (ent->s.weapon == WP_KNIFE) {
 		if ( other->takedamage && other->client) {
 			// Elder: must add it in here if we remove it from above
-			
-			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, ent->s.origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
+			// NiceAss: Fixed knife-leg damage bug here. Passed it the wrong vector I guess...
+			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, ent->r.currentOrigin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
 			//hit a player - send the gurgle or embedding sound event
 		}
 		else {
@@ -451,8 +451,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//spawn a knife at its trajectory end-point
 			xr_item = BG_FindItemForWeapon( WP_KNIFE );
 
-			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);			
-			
+			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
+
 			if (other->s.eType == ET_BREAKABLE) {
 				VectorScale(knifeVelocity, -0.25, knifeVelocity);
 				//Blaze: Moved from above, now deal the damage to the glass, and let the knife drop
@@ -463,22 +463,22 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					velocity[2] = 0;
 					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
 				}
-				
+
 
 				//breakable "hit"; make it fall to the ground
 				xr_drop = LaunchItem(xr_item, trace->endpos, velocity, FL_DROPPED_ITEM);
 
 				//but still set it as a thrown knife
 				//xr_drop->flags |= FL_THROWN_KNIFE;
-				
+
 				//Elder: move the knife back a bit more
 				//and transfer into shared entityState
 				VectorScale(trace->plane.normal, 16, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
-				
+
 				//VectorCopy(xr_drop->s.origin, temp);
 				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
-				
+
 				VectorCopy(xr_drop->s.origin, xr_drop->r.currentOrigin);
 			}
 			else {
@@ -492,14 +492,14 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				VectorNormalize(temp);
 				VectorScale(temp, -4, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
-				
+
 				//VectorCopy(xr_drop->s.origin, temp);
 				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
 			}
-			
+
 			//Elder: transfer entity data into the shared entityState
 			//They are rotated on the client side in cg_ents.c
-			
+
 			//G_Printf("movedir: %s\n", vtos(ent->s.pos.trDelta));
 			xr_drop->s.eFlags = xr_drop->flags;
 
@@ -521,7 +521,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
 			other, ent->splashMethodOfDeath ) ) {
 			if( !hitClient ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
@@ -639,7 +639,7 @@ void G_RunMissile( gentity_t *ent ) {
 	{
 		vec3_t knifeVelocity;
 
-		BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);			
+		BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
 		vectoangles(knifeVelocity, ent->s.angles);
 		ent->s.angles[0] += level.time % 360;
 	}
@@ -701,7 +701,7 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorCopy (start, bolt->r.currentOrigin);
 
 	return bolt;
-}	
+}
 */
 //=============================================================================
 
@@ -717,7 +717,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	vec3_t up, right;
 
 	if (self->client)
-		AngleVectors( self->client->ps.viewangles, NULL, right, up);	
+		AngleVectors( self->client->ps.viewangles, NULL, right, up);
 	else
 	{
 		// just in case we put those shooters back
@@ -748,7 +748,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
-	
+
 	//Elder: grenade toggle distances/speeds
 	if ( self->client) {
 		// Elder: Statistics tracking
@@ -778,12 +778,12 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 			speed = GRENADE_MEDIUM_SPEED;
 		}
 	}
-	
+
 	VectorScale( dir, speed, bolt->s.pos.trDelta );
 	VectorMA (bolt->s.pos.trDelta, 200 + crandom() * 10.0f, up, bolt->s.pos.trDelta);
     VectorMA (bolt->s.pos.trDelta, crandom() * 10.0f, right, bolt->s.pos.trDelta);
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-	
+
 
 	VectorCopy (start, bolt->r.currentOrigin);
 
@@ -828,6 +828,9 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_KNIFETHROWSHOTS]++;
 	}
+
+	bolt->s.pos.trDelta[2] *= .85;
+
 	//Elder: not needed anymore
 	//Saving stuff for Makro's knife equations
 	//VectorCopy( start, bolt->s.origin2);
@@ -1008,7 +1011,7 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 	VectorCopy( start, bolt->r.currentOrigin );
 
 	return bolt;
-}	
+}
 
 
 /*

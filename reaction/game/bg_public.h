@@ -279,7 +279,7 @@ typedef enum {
 #define GRENADE_LONG_SPEED		920
 
 //Elder: knife throw speed - from the AQ2 source
-#define THROW_SPEED                             1100  // NiceAss: Changed to 1100 (from 1200)
+#define THROW_SPEED                             1200  // NiceAss: Changed to 1100 (from 1200)
 
 //Elder: special flag needed in both games
 #define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case

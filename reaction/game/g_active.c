@@ -588,7 +588,8 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
-
+			// NiceAss: clear last player to hit you.
+			ent->client->lasthurt_mod = 0;
 		}
 
 	}
