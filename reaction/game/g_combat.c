@@ -104,6 +104,7 @@ void TossClientItems( gentity_t *self ) {
 	//Elder: throw items in a "circle" starting at a random angle
 	i = level.time;
 	angle = Q_random(&i) * 30;
+	//angle = 0;
 
 	//Elder: added hadUniqueWeapons check - returns to qfalse if died with the gun
 	//as opposed to dropping it, then died
@@ -512,17 +513,22 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     if ( self->client )
     {
     	// Hawkins put spread back and zoom out
+		
+		//Elder: this wouldn't happen if you copy and paste carefully
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+
 		//Elder: remove zoom bits
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
         self->client->bleed_remain = 0;
         //Elder: added;
         //self->client->isBandaging = qfalse;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
+		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
+		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;

@@ -616,8 +616,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		case WP_MP5:
 		case WP_M4:
 		case WP_SSG3000:
-			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer)
-				return;
+			//Elder: check to see if it's in mid-air
+			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer ||
+				ent->s.pos.trDelta[2] != 0)
+					return;
 			break;
 		case WP_AKIMBO:
 		default:
@@ -873,7 +875,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	dropped->touch = Touch_Item;
 
 	//Elder: suspend thrown knives so they don't jitter
-	G_Printf("xr_flags: %d, condition: %d\n", xr_flags, (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE);
+	//G_Printf("xr_flags: %d, condition: %d\n", xr_flags, (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE);
 	if (item->giTag == WP_KNIFE && ( (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) {
 		G_SetOrigin( dropped, origin );
 
@@ -885,7 +887,6 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		G_SetOrigin( dropped, origin );
 		dropped->s.pos.trType = TR_GRAVITY;
 		dropped->s.pos.trTime = level.time;
-		//Elder: should change to a constant velocity for weapons
 		VectorCopy( velocity, dropped->s.pos.trDelta );
 		
 		//Elder: moved from outside else statement
@@ -909,7 +910,6 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL && 
 		item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE ) {
 		dropped->think = RQ3_DroppedWeaponThink;
-		//Elder: don't want to wait forever while testing :)
 		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
 
@@ -920,11 +920,12 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 
 	dropped->flags = xr_flags;//FL_DROPPED_ITEM;
 	if( xr_flags & FL_THROWN_ITEM) {
-		dropped->clipmask = MASK_SHOT; // XRAY FMJ
-		dropped->s.pos.trTime = level.time - 50;	// move a bit on the very first frame
-		VectorScale( velocity, 200, dropped->s.pos.trDelta ); // 700 500 400
+		//Elder: we don't want it to clip against players
+		dropped->clipmask = MASK_SOLID; //MASK_SHOT
+		dropped->s.pos.trTime = level.time;	// +50; no pre-step if it doesn't clip players
+		VectorScale( velocity, 40, dropped->s.pos.trDelta ); // 700 500 400
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
-		dropped->physicsBounce= 0;
+		dropped->physicsBounce = 0.1;
 	}
 
 	trap_LinkEntity (dropped);
@@ -934,6 +935,8 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 
 /*
 ================
+Modified by Elder
+
 dropWeapon XRAY FMJ
 ================
 */
@@ -941,31 +944,30 @@ gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags 
 	vec3_t	velocity;
 	vec3_t  angles;
 	vec3_t	origin;
+	int		throwheight;
 
 	VectorCopy( ent->s.pos.trBase, origin );
 	VectorCopy( ent->s.apos.trBase, angles );
 	angles[YAW] += angle;
-	angles[PITCH] = 0; // always forward
+	angles[PITCH] = -55; // always at a 55 degree above horizontal angle
 
 	AngleVectors( angles, velocity, NULL, NULL);
-	//VectorScale( velocity, 150, velocity);
 
 	// set aiming directions
 	//AngleVectors (ent->client->ps.viewangles, velocity, NULL, NULL);
-
-	origin[2] += ent->client->ps.viewheight;
-	VectorMA( origin, 10, velocity, origin ); // 14 34
+	
+	//Elder: don't toss from the head, but from the "waist"
+	origin[2] += 10; // (ent->client->ps.viewheight / 2);
+	VectorMA( origin, 5, velocity, origin ); // 14 34 10
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector( origin);
 
 	// less vertical velocity
 	//velocity[2] += 0.2f;
 	//velocity[2] = 20;
-	//G_Printf("Velocity: %s\n", vtos(velocity));
 	VectorNormalize( velocity );
 	VectorScale( velocity, 5, velocity);
 	return LaunchItem( item, origin, velocity, xr_flags );
-	//return LaunchItem( item, ent->s.pos.trBase, velocity, xr_flags );
 }
 
 /*
@@ -1360,12 +1362,22 @@ void G_RunItem( gentity_t *ent ) {
 		return;
 	}
 
+	//Elder: debug
+	//if (ent->item && ent->item->giType == IT_WEAPON) {
+		//G_Printf("item velocity: %s\n", vtos(ent->s.pos.trDelta));
+	//}
+
 	// if it is in a nodrop volume, remove it
 	contents = trap_PointContents( ent->r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		if (ent->item && ent->item->giType == IT_TEAM) {
 			Team_FreeEntity(ent);
-		} else {
+		}
+		else if (ent->item && ent->item->giType == IT_WEAPON) {
+			//Elder: force-call the weaponthink function
+			RQ3_DroppedWeaponThink(ent);
+		}
+		else {
 			G_FreeEntity( ent );
 		}
 		return;
@@ -1395,12 +1407,15 @@ void RQ3_DroppedWeaponThink(gentity_t *ent) {
     	case WP_HANDCANNON:
     	case WP_SSG3000:
     		weaponNum = ent->item->giTag;
-    		break;
-    		
+    		break;    		
     	case WP_PISTOL:
     	case WP_KNIFE:
-    	case WP_AKIMBO:
     	case WP_GRENADE:
+			//Just free the entity
+			G_FreeEntity(ent);
+			return;
+			break;
+		case WP_AKIMBO:
     	default:
     		//Elder: shouldn't have to come here
     		G_Printf("DroppedWeaponThink: Out of range weapon %d\n", ent->item->giTag);

@@ -1675,11 +1675,9 @@ void Cmd_Reload( gentity_t *ent )       {
     //if( ent->client->zoomed ){
 		//ent->client->zoomed=0;
 	//}
-	//Elder: remove zoom bits
-	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-		//Elder: can't use events
-		//G_AddEvent(ent,EV_ZOOM,0);
+
+	//Elder: can't use events
+	//G_AddEvent(ent,EV_ZOOM,0);
     
     //Elder: serious debug code
     /*
@@ -1693,7 +1691,7 @@ void Cmd_Reload( gentity_t *ent )       {
 		   return;
 		   break;
 	   case WP_PISTOL:
-		   delay = 2500;
+		   delay = RQ3_PISTOL_RELOAD_DELAY;
    		   if (ent->client->ps.ammo[weapon] >= RQ3_PISTOL_AMMO)
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1702,7 +1700,7 @@ void Cmd_Reload( gentity_t *ent )       {
 		   break;
 	   //Elder: was missing?
 	   case WP_M4:
-		   delay = 2000;
+		   delay = RQ3_M4_RELOAD_DELAY;
    		   if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO)
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1711,7 +1709,8 @@ void Cmd_Reload( gentity_t *ent )       {
 		   break;		   
 	   case WP_M3:
 		   ammotoadd += ent->client->ps.ammo[weapon];
-		   delay = 400;			// from 1000 to 400 by hawkins. reloads too slowly.
+		   //Elder: temporarily using fast-loads
+		   delay = RQ3_M3_FAST_RELOAD_DELAY;
 		   if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1719,14 +1718,15 @@ void Cmd_Reload( gentity_t *ent )       {
 		   }
 		   break;
 	   case WP_HANDCANNON:
-		   delay = 2500;
+		   delay = RQ3_HANDCANNON_RELOAD_DELAY;
 		   if (ent->client->ps.ammo[weapon] >= RQ3_HANDCANNON_AMMO) {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
 		   }
 		   break;
 	   case WP_SSG3000:
-		   delay = 1000;
+		   //Elder: temporarily using fast-loads
+		   delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
 		   ammotoadd += ent->client->ps.ammo[weapon];
 		   if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO) {
 		   	   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1734,15 +1734,14 @@ void Cmd_Reload( gentity_t *ent )       {
 		   }
 		   break;
 	   case WP_AKIMBO:
-	   	   //Elder: added- but I don't think it's the right value
-	   	   delay = 2500;
+	   	   delay = RQ3_AKIMBO_RELOAD_DELAY;
    		   if (ent->client->ps.ammo[weapon] >= RQ3_AKIMBO_AMMO) {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
 		   }
 		   break;
 	   case WP_MP5:
-		   delay = 2000;
+		   delay = RQ3_MP5_RELOAD_DELAY;
    		   if (ent->client->ps.ammo[weapon] >= RQ3_MP5_AMMO)
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1750,6 +1749,7 @@ void Cmd_Reload( gentity_t *ent )       {
 		   }
 		   break;
 	   default:
+		   //Elder: shouldn't be here
 		   delay = 2500;
    		   //Elder: changed function
    		   if (ent->client->ps.ammo[weapon] >= ClipAmountForAmmo(weapon))
@@ -1770,6 +1770,10 @@ void Cmd_Reload( gentity_t *ent )       {
 			return;
 		}
    	   
+		//Elder: remove zoom bits
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+
 	   //ent->client->ps.weaponstate = WEAPON_RELOADING;
        ent->client->ps.weaponstate = WEAPON_DROPPING;
        ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )

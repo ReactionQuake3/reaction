@@ -52,7 +52,8 @@ gitem_t	bg_itemlist[] =
 //Knife
 	{
 		"weapon_knife",
-		"sound/weapons/knife/knife.wav",
+		//"sound/weapons/knife/knife.wav",
+		"sound/misc/am_pkup.wav",
 		{"models/weapons2/knife/knife.md3",0,0,0},
 		"icons/iconw_knife",
 		"Knife",
@@ -126,7 +127,7 @@ gitem_t	bg_itemlist[] =
 //Handcannon
 	{
 		"weapon_handcannon",
-		"sound/weapons/handcannon/copen.wav",
+		"sound/weapons/handcannon/hcopen.wav",
         { "models/weapons2/handcannon/handcannon.md3", 
 		0, 0, 0},
 /* icon */		"icons/iconw_sawedoff",
@@ -172,7 +173,8 @@ gitem_t	bg_itemlist[] =
 //Grenade
 	{
 		"weapon_grenade",
-		"sound/grenade/tink2.wav",
+		//"sound/grenade/tink2.wav",
+		"sound/misc/am_pkup.wav",
         { "models/weapons2/grenade/grenade.md3", 
 		0, 0, 0},
 /* icon */		"icons/iconw_grenade",
@@ -941,6 +943,9 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 	case IT_WEAPON:
 		//Elder: gotta check before we can pick it up
 		//if (item->giTag == WP_KNIFE && ps->ammo[WP_KNIFE] >= RQ3_KNIFE_MAXCLIP)
+			//return qfalse;
+		//else
+		//if (item->giTag != WP_KNIFE && ent->pos.trDelta && ent->pos.trDelta[2] != 0)
 			//return qfalse;
 		//else
 			return qtrue;	// weapons are always picked up

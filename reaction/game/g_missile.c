@@ -443,7 +443,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				//but still set it as a thrown knife
 				//xr_drop->flags |= FL_THROWN_KNIFE;
 				
-				//Elder: make the knife stick out a bit more
+				//Elder: move the knife back a bit more
 				//and transfer into shared entityState
 				VectorScale(trace->plane.normal, 16, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
@@ -458,7 +458,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 				//Elder: make the knife stick out a bit more
 				//and transfer into shared entityState
-				VectorScale(trace->plane.normal, 4, temp);
+				VectorCopy(ent->s.pos.trDelta, temp);
+				VectorNormalize(temp);
+				VectorScale(temp, -4, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
 				VectorCopy(xr_drop->s.origin, temp);
 				VectorAdd(temp, knifeOffset, xr_drop->s.origin);
@@ -473,9 +475,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 			//Elder: transfer entity data into the shared entityState
 			//They are rotated on the client side in cg_ents.c
+			
+			//G_Printf("movedir: %s\n", vtos(ent->s.pos.trDelta));
 			xr_drop->s.eFlags = xr_drop->flags;
-			vectoangles( trace->plane.normal, xr_drop->s.angles );
-			xr_drop->s.angles[0] += 270;
+			//vectoangles( trace->plane.normal, xr_drop->s.angles );
+			vectoangles( ent->s.pos.trDelta, xr_drop->s.angles );
+			xr_drop->s.angles[0] += 90;
 		}
 	}
 
