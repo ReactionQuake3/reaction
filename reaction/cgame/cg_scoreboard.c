@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2003/03/29 18:53:41  jbravo
+// Fixed ammo bug when dropping bandolier. Added color to more errormessages
+//
 // Revision 1.50  2002/10/21 21:17:16  niceass
 // bleh
 //
@@ -300,7 +303,7 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 	int l;
 
 	if (score->client < 0 || score->client >= cgs.maxclients) {
-		Com_Printf("Bad score->client: %i\n", score->client);
+		Com_Printf("^1Bad score->client: %i\n", score->client);
 		return;
 	}
 

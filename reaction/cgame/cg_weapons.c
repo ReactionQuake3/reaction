@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2003/03/29 18:53:41  jbravo
+// Fixed ammo bug when dropping bandolier. Added color to more errormessages
+//
 // Revision 1.109  2003/03/29 17:00:11  jbravo
 // More replacement hiccups after skin cvars where removed
 //
@@ -752,17 +755,17 @@ void CG_RegisterWeapon(int weaponNum)
 		// Load the animation information
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 
 		break;
@@ -770,23 +773,23 @@ void CG_RegisterWeapon(int weaponNum)
 	case WP_KNIFE:
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/knife/slash.wav", qfalse);
-		weaponInfo->missileModel =
-		    trap_R_RegisterModel(va("models/weapons2/%s/knife.md3", cg_RQ3_knife.string));
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
 		trap_Cvar_VariableStringBuffer("cg_RQ3_knife", str, sizeof(str));
 		model = modelFromStr(str);
 		skin = skinFromStr(str);
+		weaponInfo->missileModel =
+		    trap_R_RegisterModel(va("models/weapons2/%s/knife.md3", model));
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		// Load the animation information
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		break;
@@ -806,22 +809,22 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 
 		break;
@@ -843,21 +846,21 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 
@@ -876,22 +879,22 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 
@@ -911,22 +914,22 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 
 		break;
@@ -944,22 +947,22 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 
 		break;
@@ -980,22 +983,22 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 
 		break;
@@ -1016,23 +1019,23 @@ void CG_RegisterWeapon(int weaponNum)
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		// Load the animation information
 		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
-			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			Com_Printf("^1Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
 			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
-				Com_Printf("Failed to load weapon sound file %s\n", filename);
+				Com_Printf("^1Failed to load weapon sound file %s\n", filename);
 			}
 		} else {
-			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+			Com_Printf("^1Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 
@@ -1078,7 +1081,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 		if (!strcmp(item->classname, "item_silencer")) {
@@ -1088,7 +1091,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 		if (!strcmp(item->classname, "item_laser")) {
@@ -1098,7 +1101,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 		if (!strcmp(item->classname, "item_bandolier")) {
@@ -1108,7 +1111,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 		if (!strcmp(item->classname, "item_slippers")) {
@@ -1118,7 +1121,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 		if (!strcmp(item->classname, "item_helmet")) {
@@ -1128,7 +1131,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
-					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 	}

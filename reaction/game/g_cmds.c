@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.183  2003/03/29 18:53:41  jbravo
+// Fixed ammo bug when dropping bandolier. Added color to more errormessages
+//
 // Revision 1.182  2003/03/28 13:10:36  jbravo
 // *** empty log message ***
 //
@@ -2672,18 +2675,22 @@ void Cmd_DropItem_f(gentity_t * ent)
 		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
 			if (ent->client->numClips[WP_SSG3000] > RQ3_SSG3000_EXTRA_AMMO)
 				ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO;
-			if (ent->client->numClips[WP_M3] > RQ3_M3_EXTRA_AMMO)
-				ent->client->numClips[WP_M3] = RQ3_M3_EXTRA_AMMO;
+			if (ent->client->numClips[WP_M3] > RQ3_M3_MAXCLIP)
+				ent->client->numClips[WP_M3] = RQ3_M3_MAXCLIP;
+			if (ent->client->numClips[WP_HANDCANNON] > RQ3_M3_MAXCLIP)
+				ent->client->numClips[WP_HANDCANNON] = RQ3_M3_MAXCLIP;
 			if (ent->client->numClips[WP_M4] > RQ3_M4_EXTRA_AMMO)
 				ent->client->numClips[WP_M4] = RQ3_M4_EXTRA_AMMO;
 			if (ent->client->numClips[WP_MP5] > RQ3_MP5_EXTRA_AMMO)
 				ent->client->numClips[WP_MP5] = RQ3_MP5_EXTRA_AMMO;
-			if (ent->client->numClips[WP_KNIFE] > RQ3_KNIVES_EXTRA_AMMO)
-				ent->client->numClips[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO;
+			if (ent->client->ps.ammo[WP_KNIFE] > RQ3_KNIVES_EXTRA_AMMO) {
+				ent->client->ps.ammo[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO;
+				ent->client->weaponCount[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO;
+			}
 			if (ent->client->numClips[WP_AKIMBO] > RQ3_AKIMBO_EXTRA_AMMO)
 				ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO;
 			if (ent->client->ps.ammo[WP_GRENADE] > 0)
-				ent->client->ps.ammo[WP_GRENADE] = 0;
+				ent->client->ps.ammo[WP_GRENADE] = 2;
 			if (ent->client->numClips[WP_PISTOL] > 1)
 				ent->client->numClips[WP_PISTOL] = 1;
 			if (ent->client->uniqueWeapons > g_RQ3_maxWeapons.integer) {

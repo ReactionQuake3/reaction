@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2003/03/29 18:53:41  jbravo
+// Fixed ammo bug when dropping bandolier. Added color to more errormessages
+//
 // Revision 1.17  2002/12/02 19:52:05  niceass
 // water pressure & shell ejection stuff
 //
@@ -1235,7 +1238,7 @@ void CG_ParticleSnowFlurry(qhandle_t pshader, centity_t * cent)
 	qboolean turb = qtrue;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleSnowFlurry pshader == ZERO!\n");
+		CG_Printf("^1CG_ParticleSnowFlurry pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1298,7 +1301,7 @@ void CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb,
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleSnow pshader == ZERO!\n");
+		CG_Printf("^1CG_ParticleSnow pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1351,7 +1354,7 @@ void CG_ParticleBubble(qhandle_t pshader, vec3_t origin, vec3_t origin2, int tur
 	float randsize;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleSnow pshader == ZERO!\n");
+		CG_Printf("^1CG_ParticleSnow pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1409,7 +1412,7 @@ void CG_ParticleSmoke(qhandle_t pshader, centity_t * cent)
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleSmoke == ZERO!\n");
+		CG_Printf("^1CG_ParticleSmoke == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1652,7 +1655,7 @@ void CG_ParticleImpactSmokePuff(qhandle_t pshader, vec3_t origin)
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleImpactSmokePuff pshader == ZERO!\n");
+		CG_Printf("^1CG_ParticleImpactSmokePuff pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1692,7 +1695,7 @@ void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEnt
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_Particle_Bleed pshader == ZERO!\n");
+		CG_Printf("^1CG_Particle_Bleed pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1753,7 +1756,7 @@ void CG_Particle_OilParticle(qhandle_t pshader, centity_t * cent)
 	ratio = (float) 1 - ((float) time / (float) time2);
 
 	if (!pshader)
-		CG_Printf("CG_Particle_OilParticle == ZERO!\n");
+		CG_Printf("^1CG_Particle_OilParticle == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1805,7 +1808,7 @@ void CG_Particle_OilSlick(qhandle_t pshader, centity_t * cent)
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_Particle_OilSlick == ZERO!\n");
+		CG_Printf("^1CG_Particle_OilSlick == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -1871,7 +1874,7 @@ void CG_OilSlickRemove(centity_t * cent)
 	id = 1.0f;
 
 	if (!id)
-		CG_Printf("CG_OilSlickRevove NULL id\n");
+		CG_Printf("^1CG_OilSlickRevove NULL id\n");
 
 	for (p = active_particles; p; p = next) {
 		next = p->next;
@@ -1939,7 +1942,7 @@ void CG_BloodPool(localEntity_t * le, qhandle_t pshader, trace_t * tr)
 	float rndSize;
 
 	if (!pshader)
-		CG_Printf("CG_BloodPool pshader == ZERO!\n");
+		CG_Printf("^1CG_BloodPool pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;
@@ -2226,7 +2229,7 @@ void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, f
 	cparticle_t *p;
 
 	if (!pshader)
-		CG_Printf("CG_ParticleImpactSmokePuff pshader == ZERO!\n");
+		CG_Printf("^1CG_ParticleImpactSmokePuff pshader == ZERO!\n");
 
 	if (!free_particles)
 		return;

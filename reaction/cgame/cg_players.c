@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2003/03/29 18:53:41  jbravo
+// Fixed ammo bug when dropping bandolier. Added color to more errormessages
+//
 // Revision 1.57  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -232,7 +235,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 		return qfalse;
 	}
 	if (len >= sizeof(text) - 1) {
-		CG_Printf("File %s too long\n", filename);
+		CG_Printf("^1File %s too long\n", filename);
 		return qfalse;
 	}
 	trap_FS_Read(text, len, f);
@@ -277,7 +280,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 				//Makro - added developer 1 check
 				trap_Cvar_VariableStringBuffer("developer", var, sizeof(var));
 				if (atoi(var))
-					CG_Printf("Bad footsteps parm in %s: %s\n", filename, token);
+					CG_Printf("^1Bad footsteps parm in %s: %s\n", filename, token);
 			}
 			continue;
 		} else if (!Q_stricmp(token, "headoffset")) {
@@ -314,7 +317,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 			text_p = prev;	// unget the token
 			break;
 		}
-		Com_Printf("unknown token '%s' is %s\n", token, filename);
+		Com_Printf("^1unknown token '%s' is %s\n", token, filename);
 	}
 
 	// read information for each frame
@@ -376,7 +379,7 @@ static qboolean CG_ParseAnimationFile(const char *filename, clientInfo_t * ci)
 	}
 
 	if (i != MAX_ANIMATIONS) {
-		CG_Printf("Error parsing animation file: %s", filename);
+		CG_Printf("^1Error parsing animation file: %s", filename);
 		return qfalse;
 	}
 	// crouch backward animation
@@ -632,14 +635,14 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 		ci->legsSkin = trap_R_RegisterSkin(filename);
 	}
 	if (!ci->legsSkin) {
-		Com_Printf("Leg skin load failure: %s\n", filename);
+		Com_Printf("^1Leg skin load failure: %s\n", filename);
 	}
 
 	if (CG_FindClientModelFile(filename, sizeof(filename), ci, teamName, modelName, skinName, "upper", "skin")) {
 		ci->torsoSkin = trap_R_RegisterSkin(filename);
 	}
 	if (!ci->torsoSkin) {
-		Com_Printf("Torso skin load failure: %s\n", filename);
+		Com_Printf("^1Torso skin load failure: %s\n", filename);
 	}
 
 	if (CG_FindClientHeadFile
@@ -647,7 +650,7 @@ static qboolean CG_RegisterClientSkin(clientInfo_t * ci, const char *teamName, c
 		ci->headSkin = trap_R_RegisterSkin(filename);
 	}
 	if (!ci->headSkin) {
-		Com_Printf("Head skin load failure: %s\n", filename);
+		Com_Printf("^1Head skin load failure: %s\n", filename);
 	}
 	// if any skins failed to load
 	if (!ci->legsSkin || !ci->torsoSkin || !ci->headSkin) {
@@ -679,7 +682,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/lower.md3", modelName);
 		ci->legsModel = trap_R_RegisterModel(filename);
 		if (!ci->legsModel) {
-			Com_Printf("Failed to load model file %s\n", filename);
+			Com_Printf("^1Failed to load model file %s\n", filename);
 			return qfalse;
 		}
 	}
@@ -690,7 +693,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/upper.md3", modelName);
 		ci->torsoModel = trap_R_RegisterModel(filename);
 		if (!ci->torsoModel) {
-			Com_Printf("Failed to load model file %s\n", filename);
+			Com_Printf("^1Failed to load model file %s\n", filename);
 			return qfalse;
 		}
 	}
@@ -708,13 +711,13 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 		ci->headModel = trap_R_RegisterModel(filename);
 	}
 	if (!ci->headModel) {
-		Com_Printf("Failed to load model file %s\n", filename);
+		Com_Printf("^1Failed to load model file %s\n", filename);
 		return qfalse;
 	}
 	// if any skins failed to load, return failure
 	if (!CG_RegisterClientSkin(ci, teamName, modelName, skinName, headName, headSkinName)) {
 		if (teamName && *teamName) {
-			Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName,
+			Com_Printf("^1Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName,
 				   headName, headSkinName);
 			if (ci->team == TEAM_BLUE) {
 				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_BLUETEAM_NAME);
@@ -722,12 +725,12 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_REDTEAM_NAME);
 			}
 			if (!CG_RegisterClientSkin(ci, newTeamName, modelName, skinName, headName, headSkinName)) {
-				Com_Printf("Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName,
+				Com_Printf("^1Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName,
 					   skinName, headName, headSkinName);
 				return qfalse;
 			}
 		} else {
-			Com_Printf("Failed to load skin file: %s : %s, %s : %s\n", modelName, skinName, headName,
+			Com_Printf("^1Failed to load skin file: %s : %s, %s : %s\n", modelName, skinName, headName,
 				   headSkinName);
 			return qfalse;
 		}
@@ -737,7 +740,7 @@ static qboolean CG_RegisterClientModelname(clientInfo_t * ci, const char *modelN
 	if (!CG_ParseAnimationFile(filename, ci)) {
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/animation.cfg", modelName);
 		if (!CG_ParseAnimationFile(filename, ci)) {
-			Com_Printf("Failed to load animation file %s\n", filename);
+			Com_Printf("^1Failed to load animation file %s\n", filename);
 			return qfalse;
 		}
 	}
@@ -1009,7 +1012,7 @@ static void CG_SetDeferredClientInfo(clientInfo_t * ci)
 	}
 
 	// we should never get here...
-	CG_Printf("CG_SetDeferredClientInfo: no valid clients!\n");
+	CG_Printf("^1CG_SetDeferredClientInfo: no valid clients!\n");
 
 	CG_LoadClientInfo(ci);
 }
@@ -1238,7 +1241,7 @@ void CG_NewClientInfo(int clientNum)
 			CG_SetDeferredClientInfo(&newInfo);
 			// if we are low on memory, leave them with this model
 			if (forceDefer) {
-				CG_Printf("Memory is low.  Using deferred model.\n");
+				CG_Printf("^1Memory is low.  Using deferred model.\n");
 				newInfo.deferred = qfalse;
 			}
 		} else {
@@ -1270,7 +1273,7 @@ void CG_LoadDeferredPlayers(void)
 		if (ci->infoValid && ci->deferred) {
 			// if we are low on memory, leave it deferred
 			if (trap_MemoryRemaining() < 4000000) {
-				CG_Printf("Memory is low.  Using deferred model.\n");
+				CG_Printf("^1Memory is low.  Using deferred model.\n");
 				ci->deferred = qfalse;
 				continue;
 			}
