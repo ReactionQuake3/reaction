@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.170  2002/09/30 01:32:30  jbravo
+// Fixing the vote and callvote cmd's so dead players in CTB can use them.
+//
 // Revision 1.169  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -1904,7 +1907,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 		return;
 	}
 // JBravo: Lets allow spectators to vote in TP
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer < GT_TEAM) {
 		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to call a vote as spectator.\n\"");
 		return;
 	}
@@ -2025,7 +2028,7 @@ void Cmd_Vote_f(gentity_t * ent)
 		return;
 	}
 	//Makro - allow spectators to vote in TP
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer < GT_TEAM) {
 		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to vote as spectator.\n\"");
 		return;
 	}
