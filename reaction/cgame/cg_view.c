@@ -3,6 +3,13 @@
 // cg_view.c -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 #include "cg_local.h"
+//Blaze: Should come in handy for cheat detection
+static float CG_Cvar_Get(const char *cvar) {
+	char buff[128];
+	memset(buff, 0, sizeof(buff));
+	trap_Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
+	return atof(buff);
+}
 
 
 /*
@@ -943,6 +950,10 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;
 
+	//Blaze: for cheat detection
+	int		i;
+	float   cvar_val;
+	//end Blaze
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
@@ -1057,6 +1068,24 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 
-
+	if ((cg.time - cgs.levelStartTime) / 10000 == 1)
+	{
+		//Blaze: Check for invalid video settings.
+		for(i=0;i<30;i++)
+		{
+			if (strcmp(cheats[i].cvar, NULL)!=0) 
+			{
+				cvar_val = CG_Cvar_Get(cheats[i].cvar);
+				//CG_Printf("%s is set to %f\n",cheats[i].cvar, cvar_val);
+				if ( cvar_val < cheats[i].low || cvar_val > cheats[i].high) 
+				{
+					CG_Printf("This server restricts %s to be between %f and %f\n",cheats[i].cvar,cheats[i].low, cheats[i].high);
+					trap_SendConsoleCommand(va("disconnect\n"));
+				}
+				
+			}
+	
+		}
+	}
 }
 

@@ -120,6 +120,15 @@ typedef enum {
 	IMPACTSOUND_FLESH
 } impactSound_t;
 
+
+//Blaze: anti cheat stuff
+typedef struct {
+	char		cvar[40];
+	float		low;
+	float		high;
+} cheat_cvar;
+
+
 //=================================================
 
 // player entities need to track more information
@@ -1341,6 +1350,8 @@ extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 extern	vmCvar_t		cg_obeliskRespawnDelay;
 #endif
+//Blaze: Cheat cvars
+extern cheat_cvar		cheats[30];
 
 //
 // cg_main.c

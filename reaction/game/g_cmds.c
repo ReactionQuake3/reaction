@@ -2575,6 +2575,7 @@ void ClientCommand( int clientNum ) {
 	{
 		Cmd_PlayerStats_f( ent );
 	}
+	
 	else
 		trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }

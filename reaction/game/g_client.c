@@ -861,7 +861,68 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 }
+/*
+===========
+G_SendCheatVars(int)
 
+  Send which cvars are cheats, and the acceptable values
+===========
+*/
+int G_SendCheatVars(int clientNum)
+{
+	char *text_p;
+	int len;
+	int i;
+	int skip;
+	char *token;
+	char text[20000];
+	fileHandle_t f;
+	char *filename = "cvar.cfg";
+	char cheatVar[40], cl_cheatvar[128];
+	float lowval, highval;
+
+
+	// load the file
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( len <= 0 ) {
+		return qfalse;
+	}
+	if ( len >= sizeof( text ) - 1 ) {
+		G_Printf( "File %s too long\n", filename );
+		return qfalse;
+	}
+
+	trap_FS_Read( text, len, f );
+	text[len] = 0;
+	trap_FS_FCloseFile( f );
+		
+	// parse the text
+	text_p = text;
+	skip = 0; // quite the compiler warning
+	
+	for ( i = 0 ; i < 30 ; i++ ) { 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		if (strlen(token) >=40)
+		{
+			Com_Printf("Cheatvar %s is too long\n",token);
+			return qfalse;
+		}
+		Q_strncpyz( cheatVar, token, sizeof( cheatVar ) );
+		if ( !strcmp(token, NULL)) return qtrue;
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		lowval = atof( token ); 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		highval = atof( token ); 
+		
+		Com_sprintf(cl_cheatvar, sizeof(cl_cheatvar),"addCheatVar %s %f %f\n",cheatVar,lowval,highval);
+		//Com_Printf("%s", cl_cheatvar);
+		trap_SendServerCommand(clientNum, va("%s",cl_cheatvar));
+	}
+	return qtrue;
+}
 
 /*
 ===========
@@ -1022,6 +1083,8 @@ void ClientBegin( int clientNum ) {
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+	//Blaze: load in the cvar.cfg file and send off the values to the currently connecting client.
+
 }
 
 /*
@@ -1318,6 +1381,13 @@ void ClientSpawn(gentity_t *ent) {
 
 	// run the presend to set anything else
 	ClientEndFrame( ent );
+
+	//Blaze: Send cheat cvars to client
+	if (!G_SendCheatVars(ent->s.clientNum))
+	{
+		Com_Printf("Error loading cvar cfg");
+		//return "Error_loading_cvar_cfg";
+	}
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );

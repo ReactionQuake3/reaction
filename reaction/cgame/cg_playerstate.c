@@ -232,6 +232,8 @@ A respawn happened this snapshot
 ================
 */
 void CG_Respawn( void ) {
+	int i=0;
+	float cvar_val;
 	// no error decay on player movement
 	cg.thisFrameTeleport = qtrue;
 
@@ -245,6 +247,8 @@ void CG_Respawn( void ) {
 	CG_RQ3_Zoom1x();
 
 	cg.curSyncSound = 0;
+
+
 }
 
 extern char *eventnames[];

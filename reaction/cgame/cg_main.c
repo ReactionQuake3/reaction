@@ -198,6 +198,8 @@ vmCvar_t	cg_recordSPDemo;
 vmCvar_t	cg_recordSPDemoName;
 vmCvar_t	cg_obeliskRespawnDelay;
 #endif
+//Blaze: cheat struct
+cheat_cvar	cheats[30];
 
 typedef struct {
 	vmCvar_t	*vmCvar;

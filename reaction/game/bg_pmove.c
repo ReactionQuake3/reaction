@@ -304,7 +304,19 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	// q2 style
 	int			i;
 	float		addspeed, accelspeed, currentspeed;
-
+	//Blaze: New ramp move code
+	//vec3_t		point;
+	//trace_t		trace;
+	float		normal;
+	float		temp;
+	
+	normal = pml.groundTrace.plane.normal[2];
+	if (normal > 0) 
+	{
+		temp = wishspeed;
+		wishspeed *= (2 - normal);
+	}
+	//Blaze: end new ramp jump code
 	currentspeed = DotProduct (pm->ps->velocity, wishdir);
 	addspeed = wishspeed - currentspeed;
 	if (addspeed <= 0) {
@@ -324,7 +336,26 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	vec3_t		pushDir;
 	float		pushLen;
 	float		canPush;
+	//Blaze: New ramp move code
+	//vec3_t		point;
+	//trace_t		trace;
+	float		normal;
+	float		temp;
+	//point[0] = pm->ps->origin[0];
+	//point[1] = pm->ps->origin[1];
+	//point[2] = pm->ps->origin[2] - 0.25;
 
+	//pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+	
+	normal = pml.groundTrace.plane.normal[2];
+	if (normal > 0) 
+	{
+		Com_Printf("(%f)",wishspeed);
+		temp = wishspeed;
+		wishspeed *= (2 - normal);
+		Com_Printf(" (%f) (%f)\n", wishspeed-temp, normal);
+	}
+	//Blaze: end new ramp jump code
 	VectorScale( wishdir, wishspeed, wishVelocity );
 	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
 	pushLen = VectorNormalize( pushDir );
@@ -925,7 +956,7 @@ static void PM_WalkMove( void ) {
 	float		accelerate;
 	float		vel;
 	//Blaze: New ramp move code
-	vec3_t		point;
+/*	vec3_t		point;
 	trace_t		trace;
 
 	point[0] = pm->ps->origin[0];
@@ -933,6 +964,7 @@ static void PM_WalkMove( void ) {
 	point[2] = pm->ps->origin[2] - 0.25;
 
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+	*/
 	//Com_Printf("(%f)",trace.plane.normal[2]);
 	
 	//Blaze: end new ramp jump code
@@ -995,7 +1027,8 @@ static void PM_WalkMove( void ) {
 	wishspeed *= scale;
 
 	//Blaze: Some ramp jump stuff here
-	wishspeed *= 2 - trace.plane.normal[2];
+//	if ( 2 - trace.plane.normal[2] > 1.00f)	Com_Printf("(%f)\n",2 - trace.plane.normal[2]);
+//	wishspeed *= 2 - trace.plane.normal[2];
 
 	//End blaze ramp jumping stuff
 
@@ -1038,7 +1071,7 @@ static void PM_WalkMove( void ) {
 	}
 
 	vel = VectorLength(pm->ps->velocity);
-
+//	Com_Printf("(%f)\n", vel);
 	// slide along the ground plane
 //Blaze: ramp jump test
 	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 

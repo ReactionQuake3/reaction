@@ -137,13 +137,14 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 CG_ParseWeaponAnimFile
 ==========================
 */
-static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weapon ) {
+static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weapon ) 
+{
 	char *text_p;
 	int len;
 	int i;
+	int skip;
 	char *token;
 	float fps;
-	int skip;
 	char text[20000];
 	fileHandle_t f;
 	animation_t *animations;

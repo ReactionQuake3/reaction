@@ -1056,6 +1056,45 @@ static void CG_ServerCommand( void ) {
 		cg.levelShot = qtrue;
 		return;
 	}
+	//Blaze: Dont think q3 can do 
+	/*if ( !strcmp( cmd, "numCheatVars" ) )
+	{//set and clear the cheatvar structure
+		int		numCheats;
+		numCheats = atoi(CG_Argv(1));
+		
+		return;		
+	}*/
+
+	if ( !strcmp( cmd, "delCheatVar" ) )
+	{//remove a cvar from the list of cheat variables
+	 //not needed now, mabey later?
+		return;
+	}
+
+	if ( !strcmp( cmd, "addCheatVar" ) )
+	{//add a cvar from the list of cheat variables
+		char param[128];
+		int i;
+		float lowend, highend;
+		
+		Q_strncpyz( param, CG_Argv(1), 128 );
+		lowend = atof(CG_Argv(2));
+		highend = atof(CG_Argv(3));
+		//CG_Printf("1) %s %f %f\n", param, lowend, highend);
+		for (i=0;i<30; i++)
+		{
+			if (!strcmp(cheats[i].cvar, NULL))
+			{
+				Q_strncpyz( cheats[i].cvar, param, 40 );
+				cheats[i].high = highend;
+				cheats[i].low = lowend;
+				//CG_Printf("2) %s %f %f\n", cheats[i].cvar, cheats[i].low, cheats[i].high);
+				return;
+			}
+		}
+		return;
+	}
+
 
 	if ( !strcmp( cmd, "selectpistol") ) {
 		//CG_Printf("Selecting pistol\n");
