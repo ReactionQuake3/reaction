@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/04/03 17:39:36  makro
+// Made bots handle incoming radio spam better
+//
 // Revision 1.12  2002/04/03 16:33:20  makro
 // Bots now respond to radio commands
 //
@@ -76,6 +79,7 @@
 
 //Makro - to get rid of the warnings
 void Cmd_Bandage (gentity_t *ent);
+void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText );
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -4856,6 +4860,8 @@ int BotAIPredictObstacles(bot_state_t *bs, bot_goal_t *goal) {
 	return qfalse;
 }
 
+#define BOT_RADIO_REPLY_TIME	2
+
 /*
 ==================
 BotReplyToRadioMessage
@@ -4872,19 +4878,45 @@ void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 
 		token = COM_ParseExt(&msg, qtrue);
 		if ( !Q_stricmp(token, "radio") ) {
+			qboolean willreply;
+
+			//The bot is more likely to reply if you don't spam him with treport's
+			if (bs->radioresponse_count > 15) {
+				willreply = (random() < 0.3);
+			} else if (bs->radioresponse_count > 10) {
+				willreply = (random() < 0.5);
+			} else if (bs->radioresponse_count > 5) {
+				willreply = (random() < 0.7);
+			} else {
+				willreply = (random() < 0.9);
+			}
+
 			//Bots won't reply to ALL radio messages; they do have a life, you know
-			if ( random() < 0.9 ) {
+			if ( (willreply) && (FloatTime() > BOT_RADIO_REPLY_TIME + bs->radioresponse_time) && (bs->radioresponse_count < 20) ) {
 				char *sender = COM_ParseExt(&msg, qtrue);
+				qboolean responded = qfalse;
+
+				//Lazy bots
+				if ( random() < 0.5 ) {
+					sender = strlwr(sender);
+				}
 
 				if (strstr(msg, "treport")) {
 					//Team, report in
 					G_Say( &g_entities[bs->entitynum], NULL, SAY_TEAM, va("%s, I have a $W with $A ammo and $H health", sender));
+					responded = qtrue;
+				}
+
+				if (responded) {
+					bs->radioresponse_time = FloatTime();
+					bs->radioresponse_count++;
 				}
 				//TODO:
-				//Add code that makes the bot move towards
-				//the player that sent the radio message
-				//Prioritize teamdown, taking_f, im_hit
-				//over enemyd and enemys
+				// - Add code that makes the bot move towards
+				//   the player that sent the radio message
+				// - Prioritize teamdown, taking_f, im_hit
+				//   over enemyd and enemys
+				// - Make the bot talk dirty to spammers
 			}
 		}
 		msg = initial;

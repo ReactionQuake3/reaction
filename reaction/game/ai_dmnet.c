@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/04/03 17:39:36  makro
+// Made bots handle incoming radio spam better
+//
 // Revision 1.10  2002/04/03 16:33:20  makro
 // Bots now respond to radio commands
 //
@@ -1266,6 +1269,12 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 		bs->respawn_time = FloatTime() + 1 + random();
 		bs->respawnchat_time = 0;
 	}
+
+	//Makro - the last time the bot responded to a radio message
+	bs->radioresponse_time = 0;
+	//Makro - how many times the bot responded to radio messages
+	bs->radioresponse_count = 0;
+
 	//set respawn state
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;
