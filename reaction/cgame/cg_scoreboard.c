@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/07/02 07:21:41  niceass
+// untested matchmode ping determination
+//
 // Revision 1.37  2002/06/21 21:05:00  niceass
 // tinkering
 //
@@ -127,6 +130,70 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h);
 #define SB_FONTSIZEH	(SB_FONTSIZEW * 2)
 #define SB_PADDING		1
 
+int TeamAveragePing(team_t team) 
+{
+	int i;
+	int Players = 0, AvgPing = 0;
+	int MaxPing1 = -1;								// Ping value
+	int MaxPing1I = -1, MaxPing2I = -1;				// Index value
+
+	score_t *Score;
+	clientInfo_t *ci;
+
+	// Find out how many are on the team
+	// and the two highest pingers
+	for (i = 0; i < cg.numScores; i++) {
+		Score = &cg.scores[i];
+		ci = &cgs.clientinfo[Score->client];
+
+		if (Score->sub == TEAM_RED || Score->sub == TEAM_BLUE)
+			continue;
+
+		if (ci->team != team)
+			continue;
+
+		Players++;
+
+		if (Score->ping >= MaxPing1) {
+			MaxPing2I = MaxPing1I;
+			MaxPing1 = Score->ping;
+			MaxPing1I = i;
+		}
+	}
+
+	for (i = 0; i < cg.numScores; i++) {
+		Score = &cg.scores[i];
+		ci = &cgs.clientinfo[Score->client];
+
+		if (Score->sub == TEAM_RED || Score->sub == TEAM_BLUE)
+			continue;
+
+		if (ci->team != team)
+			continue;
+
+		// 4+ players, ignore highest pinger on team
+		if (Players > 3 && i == MaxPing1I)
+			continue;
+
+		// 7+ players, ignore second highest pinger on team also
+		if (Players > 6 && i == MaxPing2I)
+			continue;
+
+		AvgPing += Score->ping;
+	}
+
+
+	// One player ignored
+	if (Players > 3) 
+		Players--;
+
+	// A Second player ignored
+	if (Players > 6)
+		Players--;
+
+	return AvgPing / Players;
+}
+
 void DrawStrip(int y, int Height, qboolean Fill, qboolean Top, qboolean Bottom, float *FillC, float *BoarderC)
 {
 
@@ -234,6 +301,13 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 		DrawStripText(y, -(SB_FONTSIZEW * 6), SB_FONTSIZEH, "[SUB]", 100, colorWhite);
 	else if (score->sub && score->captain)
 		DrawStripText(y, -(SB_FONTSIZEW * 16), SB_FONTSIZEH, "[CAPTAIN] [SUB]", 100, colorWhite);
+
+	if (ci->powerups & ( 1 << PW_REDFLAG ) )
+		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 16, y, SB_FONTSIZEH + SB_PADDING * 2+1, 
+			SB_FONTSIZEH + SB_PADDING * 2+1, TEAM_RED, qfalse );
+	else if (ci->powerups & ( 1 << PW_BLUEFLAG ) )
+		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 16, y, SB_FONTSIZEH + SB_PADDING * 2+1,
+			SB_FONTSIZEH + SB_PADDING * 2+1, TEAM_BLUE, qfalse );
 }
 
 /*
@@ -350,6 +424,7 @@ static int CG_TeamplayScoreboard(void)
 
 			if (First == 0)
 				DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorWhite);
+
 			y += SB_FONTSIZEH + SB_PADDING * 2;
 			First = 1;
 		}
@@ -401,6 +476,7 @@ static int CG_TeamplayScoreboard(void)
 
 				}
 			}
+			Ping /= Reds;
 			DrawStrip(y - (SB_FONTSIZEH + SB_PADDING * 2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL,
 				  colorBlack);
 		}
@@ -430,10 +506,14 @@ static int CG_TeamplayScoreboard(void)
 		}
 
 		y += 2;
+
+		if (cg_RQ3_matchmode.integer)
+			Ping = TeamAveragePing(TEAM_RED);
+
 		Com_sprintf(Tmp, 128, "%5d", Frags);
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
-		Com_sprintf(Tmp, 128, "%4d  %6d", (int) ((float) Ping / (float) Reds), Damage);
+		Com_sprintf(Tmp, 128, "%4d  %6d", Ping, Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
 		DrawCenterStripText(y, SB_FONTSIZEH, "Totals", 20, colorWhite);
 	} else {
@@ -483,6 +563,7 @@ static int CG_TeamplayScoreboard(void)
 					First = 1;
 				}
 			}
+			Ping /= Blues;
 			DrawStrip(y - (SB_FONTSIZEH + SB_PADDING * 2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL,
 				  colorBlack);
 		}
@@ -510,10 +591,13 @@ static int CG_TeamplayScoreboard(void)
 		}
 		y += 2;
 
+		if (cg_RQ3_matchmode.integer)
+			Ping = TeamAveragePing(TEAM_BLUE);
+
 		Com_sprintf(Tmp, 128, "%5d", Frags);
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
-		Com_sprintf(Tmp, 128, "%4d  %6d", (int) ((float) Ping / (float) Blues), Damage);
+		Com_sprintf(Tmp, 128, "%4d  %6d", Ping, Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
 		DrawCenterStripText(y, SB_FONTSIZEH, "Totals", 20, colorWhite);
 	} else {
