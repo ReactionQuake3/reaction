@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/06/17 04:59:50  niceass
+// redid the voting. Hope you like it.
+//
 // Revision 1.46  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1827,12 +1830,14 @@ CG_DrawVote
 */
 static void CG_DrawVote(void)
 {
-	char *s;
-	int sec;
+	char *s, *s2;
+	int sec, y = 58;
+	float Color1[4];
 
 	if (!cgs.voteTime) {
 		return;
 	}
+
 	// play a talk beep whenever it is modified
 	if (cgs.voteModified) {
 		cgs.voteModified = qfalse;
@@ -1843,8 +1848,26 @@ static void CG_DrawVote(void)
 	if (sec < 0) {
 		sec = 0;
 	}
-	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo);
-	CG_DrawSmallString(0, 58, s, 1.0F);
+
+	s = va("Vote[%i seconds left] Yes[%i] No[%i]", sec, cgs.voteYes, cgs.voteNo);
+	s2 = va("Vote: %s", cgs.voteString);
+
+	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
+
+	CG_FillRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, Color1);
+	CG_DrawCleanRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
+	CG_DrawStringExt(3, y+2, s, colorWhite, qtrue, qfalse, 
+		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
+	y += SMALLCHAR_HEIGHT + 3;
+	
+	CG_FillRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, Color1);
+	CG_DrawCleanRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
+	CG_DrawStringExt(3, y + 2, s2, colorWhite, qtrue, qfalse, 
+		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 }
 
 /*
@@ -1854,8 +1877,9 @@ CG_DrawTeamVote
 */
 static void CG_DrawTeamVote(void)
 {
-	char *s;
-	int sec, cs_offset;
+	char *s, *s2;
+	int sec, cs_offset, y = 100;
+	float Color1[4];
 
 	if (cgs.clientinfo->team == TEAM_RED)
 		cs_offset = 0;
@@ -1877,9 +1901,30 @@ static void CG_DrawTeamVote(void)
 	if (sec < 0) {
 		sec = 0;
 	}
+	/*
 	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
 	       cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset]);
 	CG_DrawSmallString(0, 90, s, 1.0F);
+	*/
+	s = va("TeamVote[%i seconds left] Yes[%i] No[%i]", sec, cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset]);
+	s2 = va("Vote: %s", cgs.teamVoteString[cs_offset]);
+
+	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
+
+	CG_FillRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, Color1);
+	CG_DrawCleanRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
+	CG_DrawStringExt(3, y+2, s, colorWhite, qtrue, qfalse, 
+		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
+	y += SMALLCHAR_HEIGHT + 3;
+	
+	CG_FillRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, Color1);
+	CG_DrawCleanRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
+	CG_DrawStringExt(3, y + 2, s2, colorWhite, qtrue, qfalse, 
+		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 }
 
 static qboolean CG_DrawScoreboard()
