@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/05/22 04:20:37  blaze
+// Sound entity changes as per Sze - teach me to comit when Sze is still talking
+//
 // Revision 1.33  2002/05/22 04:19:22  blaze
 // Sound entity changes as per Sze - more
 //
@@ -1829,16 +1832,13 @@ void SP_func_plat (gentity_t *ent) {
 	char	*sSndStart;
 
 	G_SpawnString( "soundstart", "sound/movers/plat_start.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/plat_end.wav", &sSndStop );
+	G_SpawnString( "soundstop", "sound/movers/plat_stop.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
 	ent->soundPos2 = G_SoundIndex(sSndStop);
 
-
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
 
 	VectorClear (ent->s.angles);
 
