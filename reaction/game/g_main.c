@@ -132,6 +132,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
 
+	// Elder: slow down to 300?
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
@@ -490,7 +491,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	// make sure we have flags for CTF, etc
 	if( g_gametype.integer >= GT_TEAM ) {
-	G_CheckTeamItems();
+		G_CheckTeamItems();
 	}
 
 	//Elder: spawn unique items.
@@ -502,7 +503,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if ( trap_Cvar_VariableIntegerValue( "sv_floodprotect" ) != 0 )
 	{
 		trap_Cvar_Set( "sv_floodprotect", "0" );
-		G_Printf("sv_floodprotect shut off for RQ3 Beta 1.\n");
+		G_Printf("sv_floodprotect shut off for RQ3 Release 1.\n");
 	}
 
 	SaveRegisteredItems();

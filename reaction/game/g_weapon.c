@@ -2405,9 +2405,17 @@ Handles server-side management of numclips
 void ReloadWeapon ( gentity_t *ent, int stage )
 {
 
-	if (stage == 2)
+	if (stage == 1 && (ent->client->ps.weapon == WP_SSG3000 ||
+		ent->client->ps.weapon == WP_M3) )
 	{
-		G_Printf("Hit server-side reload\n");
+		G_Printf("Hit server-side reload stage 1\n");
+		if ( ent->client->ps.weapon == WP_M3 )
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+		ent->client->numClips[ent->client->ps.weapon]--;
+	}
+	else if (stage == 2)
+	{
+		G_Printf("Hit server-side reload stage 2\n");
 		ent->client->numClips[ent->client->ps.weapon]--;
 		// remove an extra clip if using HC or Akimbos
 		if (ent->client->ps.weapon == WP_HANDCANNON ||

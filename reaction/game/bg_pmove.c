@@ -1915,6 +1915,9 @@ static void PM_BeginWeaponChange( int weapon ) {
 	pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
 	pm->ps->stats[STAT_RQ3] &= ~RQ3_QUEUERELOAD;
 
+	// Elder: cancel burst shots
+	pm->ps->stats[STAT_BURST] = 0;
+
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	
 	//Elder: temp hack
@@ -2284,6 +2287,15 @@ static void PM_Reload( void )
 		}
 
 		// insert stage 1 sound events here; check against the reload time
+		
+		// Special handcannon shell ejection hack
+		if ( pm->ps->weapon == WP_HANDCANNON &&
+			 !(pm->ps->stats[STAT_RQ3] & RQ3_RELOADWEAPON1) &&
+			 pm->ps->stats[STAT_RELOADTIME] < 1400 )
+		{
+			pm->ps->stats[STAT_RQ3] |= RQ3_RELOADWEAPON1;
+			PM_AddEvent(EV_RELOAD_WEAPON1);
+		}
 
 		// finished reload
 		if (pm->ps->stats[STAT_RELOADTIME] <= 0)
@@ -2343,12 +2355,12 @@ static void PM_Reload( void )
 						PM_StartWeaponAnim(WP_ANIM_EXTRA1);
 						//PM_StartWeaponAnim(WP_ANIM_RELOAD);
 					}
-						
-					
+
 					if (pm->ps->stats[STAT_CLIPS] > 0)
 					{
 						//Com_Printf("Sending event from continuous fast-reloads\n");
-						PM_AddEvent(EV_RELOAD_WEAPON2);
+						PM_AddEvent(EV_RELOAD_WEAPON1);
+						//PM_AddEvent(EV_RELOAD_WEAPON0);
 					}
 					else
 					{
@@ -2400,6 +2412,7 @@ static void PM_Reload( void )
 				//Com_Printf("Finished reload\n");
 				pm->ps->stats[STAT_RELOADTIME] = 0;
 				pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+				pm->ps->stats[STAT_RQ3] &= ~RQ3_RELOADWEAPON1;
 				pm->ps->weaponstate = WEAPON_READY;
 			//}
 	
@@ -2481,7 +2494,7 @@ static void PM_Weapon( void ) {
 		{
 			pm->ps->stats[STAT_BURST] = 0;
 		}
-		else if ((pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->stats[STAT_BURST])
+		else if ( (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->stats[STAT_BURST] )
 		{
 			pm->cmd.buttons &= ~BUTTON_ATTACK;
 		}
@@ -2543,11 +2556,13 @@ static void PM_Weapon( void ) {
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
 	
+	// Elder: modified so that a dropweapon command is high precedence
+
 	//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING) {
-	if ( pm->ps->weaponTime <= 0 &&
-		!(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_STALL)) {
+	if ( (pm->ps->stats[STAT_RQ3] & RQ3_THROWWEAPON) || (pm->ps->weaponTime <= 0 &&
+		!(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_STALL))) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
-			//Elder TODO: if switching weapons, fire off the grenade "instantly"
+			//Elder: if switching weapons, fire off the grenade "instantly"
 			if ( pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
 				pm->ps->weaponstate = WEAPON_FIRING;
 				pm->cmd.buttons &= ~BUTTON_ATTACK;
@@ -2654,9 +2669,9 @@ static void PM_Weapon( void ) {
 		if ( pm->ps->weapon == WP_GRENADE )
 		{
 			pm->ps->weaponTime = 0;
-			// put it in the "cocked" position
+			// put it in the "cocked" position and play the pin-pull animation
 			pm->ps->weaponstate = WEAPON_COCKED;
-			PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+			PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
 			return;
 		}
 		// Elder: stall the thrown knife action

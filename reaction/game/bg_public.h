@@ -498,6 +498,7 @@ typedef enum {
 #define RQ3_FASTRELOADS		64		// Fast-reloads flag
 #define RQ3_LOCKRELOADS		128		// Lock-reloads at end of fast-reload cycle
 #define RQ3_QUEUERELOAD		256		// auto-reload if set
+#define RQ3_RELOADWEAPON1	512		// flag off EV_RELOAD_WEAPON1 event so no dupes occur
 
 
 // player_state->persistant[] indexes

@@ -11,6 +11,7 @@
 
 //Elder: moved kick to g_weapon.c where it belongs
 
+
 /*
 ===============
 G_DamageFeedback
@@ -741,10 +742,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 		case EV_RELOAD_WEAPON0:
 			ReloadWeapon ( ent, 0 );
 			break;
+	*/
 		case EV_RELOAD_WEAPON1:
 			ReloadWeapon ( ent, 1 );
 			break;
-	*/
 		case EV_RELOAD_WEAPON2:
 			ReloadWeapon ( ent, 2 );
 			break;
@@ -754,14 +755,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			//ent->client->zoomed=0;
 			break;
 
-/*		case EV_ZOOM:
-			if(ent->client->zoomed==3)
-				ent->client->zoomed=0;
-			else
-				ent->client->zoomed++;
-			G_Printf("zoomlevel = %d\n",ent->client->zoomed);
-			break;
-*/
 		case EV_USE_ITEM1:		// teleporter
 			// drop flags in CTF
 			item = NULL;
@@ -921,7 +914,7 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 	//weaponTime > 0 or weaponState == weapon_dropping?  Or both?
 	//Still firing
 	if (!forceThrow)
-		if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0)
+		if ( (ucmd->buttons & BUTTON_ATTACK) || client->ps.weaponTime > 0)
 			return 0;
 
 	//Elder: Bandaging case -- handled in cgame
@@ -930,7 +923,8 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		//trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		//return;
 	//}
-
+	//Elder: remove zoom bits
+	Cmd_Unzoom(ent);
 		
 	weap = 0;
 	if (client->uniqueWeapons > 0)
@@ -1183,69 +1177,19 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// check for the hit-scan gauntlet, don't let the action
 	// go through as an attack unless it actually hits something
-//Blaze: no need for the gauntlet check
-//	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
-//		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
-//		pm.gauntletHit = CheckGauntletAttack( ent );
-//	}
-
+	// Blaze: no need for the gauntlet check
+	/*
+	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
+		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
+		pm.gauntletHit = CheckGauntletAttack( ent );
+	}
+	*/
 	if ( ent->flags & FL_FORCE_GESTURE ) {
 		ent->flags &= ~FL_FORCE_GESTURE;
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
 	}
 
-	//**************Elder: moved to bg_pmove.c (PM_Weapon)************//
-	//Elder: New 3rb Code
-	//force fire button down if STAT_BURST is < proper amount
-	//Otherwise release the button 
-	/*
-	if ( (client->ps.weapon == WP_M4 &&
-		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
-		 (client->ps.weapon == WP_MP5 &&
-		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE))
-	{
-		int weaponNum = client->ps.weapon;
-
-		if (client->ps.ammo[weaponNum] == 0)
-		{
-			client->ps.stats[STAT_BURST] = 0;
-		}
-		else if (ucmd->buttons & BUTTON_ATTACK)// && client->ps.stats[STAT_BURST] > 0)
-		{
-			if ( client->ps.stats[STAT_BURST] >= 0 && client->ps.stats[STAT_BURST] < 3)
-				ucmd->buttons |= BUTTON_ATTACK;
-			else
-				ucmd->buttons &= ~BUTTON_ATTACK;
-		}
-		else if (client->ps.stats[STAT_BURST] > 2)
-		{
-			client->ps.stats[STAT_BURST] = 0;
-			client->ps.weaponTime += 300;
-		}
-		//Don't need?
-		else if (client->ps.stats[STAT_BURST] > 0)
-			ucmd->buttons |= BUTTON_ATTACK;
-	}
-
-	//Elder: New semi-auto code
-	if ( client->ps.weapon == WP_PISTOL && 
-		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
-	{
-		if (client->ps.ammo[WP_PISTOL] == 0)
-		{
-			client->ps.stats[STAT_BURST] = 0;
-		}
-		else if ((ucmd->buttons & BUTTON_ATTACK) && client->ps.stats[STAT_BURST])
-		{
-			ucmd->buttons &= ~BUTTON_ATTACK;
-		}
-		else if (client->ps.stats[STAT_BURST])
-		{
-			client->ps.weaponTime += 200;
-			client->ps.stats[STAT_BURST] = 0;
-		}
-	}
-	*/
+	//Elder: 3rb Code moved to bg_pmove.c (resides in PM_Weapon)
 
 #ifdef MISSIONPACK
 	// check for invulnerability expansion before doing the Pmove
@@ -1327,7 +1271,7 @@ void ClientThink_real( gentity_t *ent ) {
 		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
 	}
 	else {
-	BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
 	}
 	SendPendingPredictableEvents( &ent->client->ps );
 

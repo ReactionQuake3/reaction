@@ -2355,19 +2355,10 @@ void Cmd_DropWeapon_f( gentity_t *ent ) {
 	
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
-	//Elder: added -- checked in cgame
-	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
-	//{
-		//trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
-		//return;
-	//}
-	//else
-	//{
-		//Elder: remove zoom bits
-		Cmd_Unzoom(ent);
-		//Throwing away return here
-		ThrowWeapon( ent, qfalse );
-	//}
+	//Elder: remove zoom bits
+	//Cmd_Unzoom(ent);
+	//Throwing away return value here; high precedence weapon drop
+	ThrowWeapon( ent, qtrue );
 }
 
 /*
