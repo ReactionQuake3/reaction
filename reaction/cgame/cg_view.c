@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/07 14:51:57  makro
+// no message
+//
 // Revision 1.18  2002/02/23 18:07:46  slicer
 // Changed Sniper code and Cam code
 //
@@ -1259,8 +1262,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				if ( (cvar_val < cheats[i].low || cvar_val > cheats[i].high) )
 				{
 					CG_Printf("This server restricts %s to be between %1.11f and %1.11f\n",cheats[i].cvar,cheats[i].low, cheats[i].high);
-					trap_Cvar_Set("RQ3_CvarKickReason", cheats[i].cvar );
-					trap_SendConsoleCommand(va("disconnect\n"));
+					//Makro - a Com_Error would be nicer
+					//trap_Cvar_Set("RQ3_CvarKickReason", cheats[i].cvar );
+					//trap_SendConsoleCommand(va("disconnect\n"));
+					Com_Error( ERR_DISCONNECT, "WARNING: You have been disconnected from the server because %s was out of range (%1.3f - %1.3f)",cheats[i].cvar,cheats[i].low, cheats[i].high);
 				}
 
 			}

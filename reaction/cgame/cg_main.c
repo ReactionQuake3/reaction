@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/07 14:51:57  makro
+// no message
+//
 // Revision 1.39  2002/02/26 04:02:53  jbravo
 // Getting rid of the triangles over teammates heads by making cg_drawFriend's
 // default 0
@@ -2183,7 +2186,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	CG_RegisterClients();		// if low on memory, some clients will be deferred
 
+//Makro - this should be moved out of missionpack eventually
 #ifdef MISSIONPACK
+	CG_LoadingString( "hud menu" );
 	CG_AssetCache();
 	CG_LoadHudMenu();      // load new hud stuff
 #endif
