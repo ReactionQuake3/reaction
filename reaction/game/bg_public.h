@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/07/16 04:09:44  niceass
+// skyportal compile fix
+//
 // Revision 1.85  2002/07/13 22:43:59  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -519,7 +522,7 @@ extern radio_msg_t female_radio_msgs[];
 //Makro - color for the loading screen text
 //#define CS_LOADINGSCREEN              29
 //Makro - sky portals !
-//#define CS_SKYPORTAL		30
+#define CS_SKYPORTAL		30
 //Makro - fog hull
 #define CS_FOGHULL			31
 
