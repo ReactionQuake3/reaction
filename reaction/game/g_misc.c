@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/03/20 22:58:54  blaze
+// changed dlight to light_d
+//
 // Revision 1.23  2002/03/16 08:46:32  niceass
 // spectator going through doors no longer reset viewangle
 //
@@ -78,7 +81,7 @@ void SP_light( gentity_t *self ) {
 	G_FreeEntity( self );
 }
 
-/*QUAKED dlight (0 1 0) (-8 -8 -8) (8 8 8)
+/*QUAKED light_d (0 1 0) (-8 -8 -8) (8 8 8)
 Dynamic light entity.  Use sparingly.
 Q3 does not allow for manual light radius setup.
 Set the color key for the intended color
@@ -123,7 +126,7 @@ void SP_dlight( gentity_t *ent ) {
 	ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 
 	ent->s.eType = ET_DLIGHT;
-	ent->classname = "dlight";
+	ent->classname = "light_d";
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy( ent->s.origin, ent->r.currentOrigin);
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/20 22:58:27  blaze
+// changed dlight to light_d
+//
 // Revision 1.10  2002/03/10 21:42:44  blaze
 // allow RQ3_weapon_name to map to weapon_name to make radiant work better
 //
@@ -253,7 +256,7 @@ spawn_t	spawns[] = {
 	{"target_push", SP_target_push},
 
 	{"light", SP_light},
-	{"dlight", SP_dlight},	// Elder: dlight entity
+	{"light_d", SP_dlight},	// Elder: dlight entity
 	{"path_corner", SP_path_corner},
 
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},
