@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/06/05 20:06:07  jbravo
+// no more Q3 X minutes left or X frags left sounds
+//
 // Revision 1.20  2002/05/31 00:17:06  jbravo
 // Slicers fix for the weaponswitching issue
 //
@@ -532,7 +535,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			cg.timelimitWarnings |= 1 | 2 | 4;
 			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
 		} */
-		if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
+// JBravo: we dont want the Q3 X minutes left sounds.
+/*		if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2;
 			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
 		}
@@ -540,10 +544,10 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			cg.timelimitWarnings |= 1;
 			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
 		}
-	}
+	} */
 
 	// fraglimit warnings
-	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF) {
+/*	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF) {
 		highScore = cgs.scores1;
 		if ( !( cg.fraglimitWarnings & 4 ) && highScore == (cgs.fraglimit - 1) ) {
 			cg.fraglimitWarnings |= 1 | 2 | 4;
@@ -557,7 +561,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			cg.fraglimitWarnings |= 1;
 			if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.threeFragSound);
 		}
-	}
+	} */
 }
 
 /*
