@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/06/05 04:58:43  niceass
+// Scoreboard changes
+//
 // Revision 1.30  2002/06/03 19:20:18  niceass
 // referee change
 //
@@ -196,7 +199,7 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 	if (FillColor[3] > 1) FillColor[3] = 1;
 
 	// Dead?
-	if (!score->alive && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+	if (!score->alive) {// && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 		TextColor[0] *= 0.5f;
 		TextColor[1] *= 0.5f;
 		TextColor[2] *= 0.5f;
@@ -206,8 +209,13 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 
 	Com_sprintf(Tmp, 128, "%5i  %s", score->score, ci->name);
 	DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 27, TextColor);
-	Com_sprintf(Tmp, 128, "%4i  %4i  %6i", score->time, score->ping, score->damage);
-	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, TextColor);
+	if (score->ping != -1) {
+		Com_sprintf(Tmp, 128, "%4i  %4i  %6i", score->time, score->ping, score->damage);
+		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, TextColor);
+	}
+	else {
+		DrawRightStripText(y, SB_FONTSIZEH, "CONNECTING     ", 100, TextColor);
+	}
 
 	if (score->captain && score->sub == 0)
 		DrawStripText(y, -(SB_FONTSIZEW * 10), SB_FONTSIZEH, "[CAPTAIN]", 100, colorWhite);
