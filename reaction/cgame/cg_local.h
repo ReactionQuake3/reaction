@@ -77,6 +77,7 @@
 
 //Elder: Some ssg stuff
 #define ZOOM_LEVELS		3
+#define ZOOM_PREPTIME	10		//milliseconds
 
 typedef enum {
 	FOOTSTEP_NORMAL,
@@ -507,8 +508,10 @@ typedef struct {
 
 	// zoom key					
 
-	qboolean	zoomed;					// Hawkins: not just zoomed... but
-//	int			zoomLevel;				// Zoom LEVEL!
+	qboolean	zoomed;					// Determines first-person weapon drawing
+	int			zoomLevel;				// Zoom LEVEL! -- uses zoom bits like STAT_RQ3
+	int			lastZoomLevel;			// Save last zoom state
+	int			zoomFirstReturn;		// Elder: switch for zooming in/out between shots
 	int			zoomTime;
 	float		zoomSensitivity;
 
@@ -588,15 +591,15 @@ typedef struct {
 	int			weaponSelectTime;
 	int			weaponAnimation;
 	int			weaponAnimationTime;
-
+	
 	// blend blobs
 	float		damageTime;
 	float		damageX, damageY, damageValue;
 
 	//Elder: added for alpha pain blend
 	int			rq3_trueDamage;		//Q3 doesn't hold the actual damage amount in cg.damageValue
-	//float		rq3_lastPainAlpha;
 	float		rq3_blendTime;		//How long we take to fade out
+	qboolean	rq3_reloadDown;		//Flag to check if reload is pressed
 
 	// status bar head
 	float		headYaw;
@@ -1177,13 +1180,21 @@ extern	vmCvar_t		cg_blood;
 extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_deferPlayers;
 //Blaze: Reaction weapon positions
-extern	vmCvar_t		rxn_drawWeapon;
+extern	vmCvar_t		cg_RQ3_drawWeapon;
 //Blaze: how long the glass stays around for
-extern  vmCvar_t		rxn_glasstime;
+extern  vmCvar_t		cg_RQ3_glasstime;
 //Elder: muzzle flash toggle
-extern  vmCvar_t		rxn_flash;
-//Elder: turn on or off alpha blending
-extern	vmCvar_t		rxn_painblend;
+extern  vmCvar_t		cg_RQ3_flash;
+//Elder: toggle alpha blending
+extern	vmCvar_t		cg_RQ3_painblend;
+//Elder: toggle client-side zoom assist
+extern	vmCvar_t		cg_RQ3_ssgZoomAssist;
+//Elder: crosshair colours!
+extern	vmCvar_t		cg_RQ3_ssgColorR;
+extern	vmCvar_t		cg_RQ3_ssgColorG;
+extern	vmCvar_t		cg_RQ3_ssgColorB;
+extern	vmCvar_t		cg_RQ3_ssgColorA;
+
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
@@ -1383,6 +1394,13 @@ void CG_Weapon_f( void );
 void CG_PrevWeapon_f( void );
 void CG_SpecialWeapon_f ( void );
 
+void CG_RQ3_SyncZoom ( void );
+void CG_RQ3_SaveZoomLevel();
+void CG_RQ3_Zoom( void );			//Elder: just threw it in
+void CG_RQ3_Zoom1x();
+int  CG_RQ3_GetGrenadeMode();
+void CG_RQ3_GrenadeMode();
+
 void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
@@ -1397,7 +1415,6 @@ void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team );
 void CG_DrawWeaponSelect( void );
-void CG_RXN_Zoom( void );			//Elder: just threw it in
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 

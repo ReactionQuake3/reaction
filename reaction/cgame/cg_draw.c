@@ -1983,8 +1983,8 @@ static void CG_DrawCrosshair(void) {
 	qhandle_t	hShader;
 	float		f;
 	float		x, y;
-	int			ca;
-	char		*ssg_crosshair;
+	int			ca, i;
+	vec4_t		crosshairColor;
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -2021,32 +2021,51 @@ static void CG_DrawCrosshair(void) {
 
 	//Elder: Sniper crosshairs - lots of hardcoded values :/
  	//if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
-	if ( cg.snap->ps.weapon==WP_SSG3000 &&
-		( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
-		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
+	if ( cg.snap->ps.weapon == WP_SSG3000 &&
+		 (cg.zoomFirstReturn == -1 || cg.snap->ps.weaponTime < ZOOM_TIME) &&
+		( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+		  (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
 		int zoomMag;
 		x = SCREEN_WIDTH / 2;
 		y = SCREEN_HEIGHT / 2;
 
 		//derive zoom level - seems complicated but they're only bit comparisions
-		if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
-			(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+		if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+			(cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
 			zoomMag = 2;
 		}
-		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+		else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
 			zoomMag = 0;
 		}
-		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+		else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
 			zoomMag = 1;
 		}
 		else {
 			//Shouldn't need to be here
-			CG_Error("CG_DrawCrosshair: received bad zoom value %d\n", zoomMag);
+			CG_Error("CG_DrawCrosshair: received no zoom value\n");
 		}
 
+		//Elder: Setup crosshair colours
+		crosshairColor[0] = cg_RQ3_ssgColorR.value;
+		crosshairColor[1] = cg_RQ3_ssgColorG.value;
+		crosshairColor[2] = cg_RQ3_ssgColorB.value;
+		crosshairColor[3] = cg_RQ3_ssgColorA.value;
+
+		//Clamp
+		for (i = 0; i < 4; i++)
+		{
+			if (crosshairColor[i] > 1.0)
+				crosshairColor[i] = 1.0;
+			else if (crosshairColor[i] < 0)
+				crosshairColor[i] = 0;
+		}
+
+		trap_R_SetColor(crosshairColor);
 		//I can probably scale the zoom with the screen width -/+ keys
  		//But I'll do it later.
  		CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
+		
+		trap_R_SetColor(NULL);
  		return;
 	}
 	else {
@@ -2706,7 +2725,7 @@ static void CG_DrawDamageBlend()
 	vec4_t damageColor;
 
 	//Leave if no true damage, disabled, or ragepro
-	if ( !cg.rq3_trueDamage || !rxn_painblend.integer ||
+	if ( !cg.rq3_trueDamage || !cg_RQ3_painblend.integer ||
 		 cgs.glconfig.hardwareType == GLHW_RAGEPRO)
 	{
 		return;

@@ -97,45 +97,45 @@ static void CG_Obituary( entityState_t *ent ) {
 	message2 = "";
 
 	// check for single client messages
-
+	gender = ci->gender;
 	switch( mod ) {
-	case MOD_SUICIDE:
-		message = "suicides";
-		break;
-	case MOD_FALLING:
-		//message = "'s thoughts weren't happy enough";
-		//Elder: changed
-		if ( gender == GENDER_FEMALE )
-			message = "plummets to her death";
-		else if ( gender == GENDER_NEUTER )
-			message = "plummets to its death";
-		else
-			message = "plummets to his death";
-		break;
-	case MOD_CRUSH:
-		message = "was flattened";
-		break;
-	case MOD_WATER:
-		message = "sank like a rock";
-		break;
-	case MOD_SLIME:
-		message = "melted";
-		break;
-	case MOD_LAVA:
-		message = "does a back flip into the lava";
-		break;
-	case MOD_TARGET_LASER:
-		message = "saw the light";
-		break;
-	case MOD_TRIGGER_HURT:
-		message = "was in the wrong place";
-		break;
-	case MOD_BLEEDING:
-		message = "bleeds to death";
-		break;
-	default:
-		message = NULL;
-		break;
+		case MOD_SUICIDE:
+			message = "suicides";
+			break;
+		case MOD_FALLING:
+			//message = "'s thoughts weren't happy enough";
+			//Elder: changed
+			if ( gender == GENDER_FEMALE )
+				message = "plummets to her death";
+			else if ( gender == GENDER_NEUTER )
+				message = "plummets to its death";
+			else
+				message = "plummets to his death";
+			break;
+		case MOD_CRUSH:
+			message = "was flattened";
+			break;
+		case MOD_WATER:
+			message = "sank like a rock";
+			break;
+		case MOD_SLIME:
+			message = "melted";
+			break;
+		case MOD_LAVA:
+			message = "does a back flip into the lava";
+			break;
+		case MOD_TARGET_LASER:
+			message = "saw the light";
+			break;
+		case MOD_TRIGGER_HURT:
+			message = "was in the wrong place";
+			break;
+		case MOD_BLEEDING:
+			message = "bleeds to death";
+			break;
+		default:
+			message = NULL;
+			break;
 	}
 
 	if (attacker == target) {
@@ -1639,8 +1639,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_NOAMMO:
 		DEBUGNAME("EV_NOAMMO");
-//Elder: uncommented
-		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
+		//Elder: Only play on non-grenade/knife
+		//Todo: use "out of ammo sound" for specific gun?
+		switch ( cg.snap->ps.weapon )
+		{
+			case WP_GRENADE:
+			case WP_KNIFE:
+				break;
+			default:
+				trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
+				break;
+		}
 		if ( es->number == cg.snap->ps.clientNum ) {
 			CG_OutOfAmmoChange();
 		}
@@ -1650,7 +1659,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: TODO: change to appropriate weapon "in" sound
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );
 		//Elder: removed
-		//CG_rxn_zoom(0);
+		//CG_RQ3_Zoom(0);
 		break;
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");

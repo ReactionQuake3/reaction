@@ -138,12 +138,19 @@ vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 //Blaze: reaction weapon positioning
-vmCvar_t	rxn_drawWeapon;
-vmCvar_t	rxn_glasstime;
+vmCvar_t	cg_RQ3_drawWeapon;
+vmCvar_t	cg_RQ3_glasstime;
 //Elder: muzzle flash toggle
-vmCvar_t	rxn_flash;
-//Elder: turn on or off alpha blending
-vmCvar_t	rxn_painblend;
+vmCvar_t	cg_RQ3_flash;
+//Elder: toggle alpha blending
+vmCvar_t	cg_RQ3_painblend;
+//Elder: toggle client-side zoom assist
+vmCvar_t	cg_RQ3_ssgZoomAssist;
+//Elder: crosshair colours!
+vmCvar_t	cg_RQ3_ssgColorR;
+vmCvar_t	cg_RQ3_ssgColorG;
+vmCvar_t	cg_RQ3_ssgColorB;
+vmCvar_t	cg_RQ3_ssgColorA;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -294,12 +301,16 @@ cvarTable_t		cvarTable[] = {
 	{ &cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	//Blaze: Reaction hand type command
-	{ &rxn_drawWeapon, "rxn_drawWeapon", "2", CVAR_ARCHIVE },
-	{ &rxn_glasstime, "rxn_glasstime", "0", CVAR_ARCHIVE },
+	{ &cg_RQ3_drawWeapon, "cg_RQ3_drawWeapon", "2", CVAR_ARCHIVE },
+	{ &cg_RQ3_glasstime, "cg_RQ3_glasstime", "0", CVAR_ARCHIVE },
 	//Elder: added
-	{ &rxn_flash, "rxn_flash", "1", CVAR_ARCHIVE },
-	{ &rxn_painblend, "rxn_painblend", "1", CVAR_ARCHIVE }
-
+	{ &cg_RQ3_flash, "cg_RQ3_flash", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_painblend, "cg_RQ3_painblend", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgZoomAssist, "cg_RQ3_ssgZoomAssist", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgColorR, "cg_RQ3_ssgColorR", "0.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE }
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 

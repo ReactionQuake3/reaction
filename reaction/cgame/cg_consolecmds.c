@@ -46,8 +46,7 @@ static void CG_DropWeapon_f (void) {
 		return;
 	}
 	
-	//cg.zoomed = 0;
-	//cg.zoomLevel = 0;
+	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("dropweapon");
 }
 
@@ -91,17 +90,28 @@ static void CG_Bandage_f (void) {
 
 	//Elder: added to prevent bandaging while reloading or firing
 	//Moved below "already-bandaging" case and removed message
-	if ( cg.snap->ps.weaponTime > 0 || cg.snap->ps.weaponstate == WEAPON_COCKED) {
+	//if ( cg.snap->ps.weaponTime > 0 || cg.snap->ps.weaponstate == WEAPON_COCKED) {
 		//CG_Printf("You are too busy with your weapon!\n");
-		return;
-	}
-	
-	//else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
-		//cg.zoomed = 0;
-		//cg.zoomLevel = 0;
+		//return;
 	//}
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
+		CG_RQ3_Zoom1x();
+	}
 	trap_SendClientCommand("bandage");
 }
+
+
+/*
+=================
+CG_ReloadReset_f
+
+Elder: reset reload depressed flag
+=================
+*/
+static void CG_ReloadReset_f (void) {
+	cg.rq3_reloadDown = qfalse;
+}
+
 
 /*
 =================
@@ -117,7 +127,7 @@ static void CG_Reload_f (void) {
 	if ( !cg.snap ) {
 		return;
 	}
-
+	
 	// if we are going into the intermission, don't do anything
 	if ( cg.intermissionStarted ) {
 		return;
@@ -128,11 +138,18 @@ static void CG_Reload_f (void) {
 		return;
 	}
 
+	if (cg.rq3_reloadDown)
+		return;
+
+	cg.rq3_reloadDown = qtrue;
+
 	//Elder: prevent "reloading" when dead hehe
 	if ( cg.snap->ps.stats[STAT_HEALTH] < 0 ) {
 		CG_Printf("Nothing to reload - you are dead.\n");
 		return;
 	}
+
+	
 
 	//Elder: don't allow reloading until the weapon is free
 	//Don't cut-off here because we want to check for fast-reloads
@@ -152,6 +169,11 @@ static void CG_Reload_f (void) {
 		//cg.zoomed = 0;
 		//cg.zoomLevel = 0;
 	}
+
+	//Elder: reset "no ammo" switch in view
+	if (cg.snap->ps.weapon == WP_SSG3000 && cg.zoomFirstReturn == -1)
+		cg.zoomFirstReturn = 0;
+
 	trap_SendClientCommand("reload");
 }
 
@@ -559,7 +581,8 @@ static consoleCommand_t	commands[] = {
 	{ "weapon", CG_Weapon_f },				// Elder: it's for RQ3 and Q3A
 	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
-	{ "reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
+	{ "+reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
+	{ "-reload", CG_ReloadReset_f},			// Elder: added to stop auto-throttle
 	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },

@@ -444,6 +444,48 @@ void CG_ZoomUp_f( void ) {
 
 /*
 ====================
+CG_RQ3_GetFov
+
+Returns a FOV based on the current zoom state
+====================
+*/
+
+static int CG_RQ3_GetFov()
+{
+	if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+		 (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED )
+		return 10;
+	else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
+		return 20;
+	else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW)
+		return 45;
+
+	return 90;
+}
+
+/*
+====================
+CG_RQ3_GetFov
+
+Returns a FOV based on the last zoom state
+====================
+*/
+
+static int CG_RQ3_GetLastFov()
+{
+	if ( (cg.lastZoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+		 (cg.lastZoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED )
+		return 10;
+	else if ( (cg.lastZoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
+		return 20;
+	else if ( (cg.lastZoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW)
+		return 45;
+
+	return 90;
+}
+
+/*
+====================
 CG_CalcFov
 
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
@@ -457,16 +499,15 @@ static int CG_CalcFov( void ) {
 	float	phase;
 	float	v;
 	int		contents;
-	float	fov_x, fov_y;
-	float	zoomFov;
+	float	fov_x, fov_y;		//Current zoom
+	float	zoomFov;			//Desired zoom
 	float	f;
 	int		inwater;
 
-/*	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
-		// if in intermission, use a fixed value */
-
-	// Hawkins always use FOV 90.
-	fov_x = 90;
+	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
+		fov_x = 90;
+	}
+		// if in intermission, use a fixed value
 
 /*
 	} else {
@@ -486,78 +527,136 @@ static int CG_CalcFov( void ) {
 		// account for zooms
 //	zoomFov = cg_zoomFov.value;
 */
-	// Hawkins Reaction zooming.
-	if ( cg.snap->ps.weapon==WP_SSG3000 &&
-		( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
-		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
-		/*
-		switch(cg.zoomLevel){
-		case 1:
-			zoomFov=45;
-			break;
-		case 2:
-			fov_x = 45;
-			zoomFov=20;
-			break;
-		case 3:
-			fov_x = 20;
-			zoomFov=10;
-			break;
-		case 0:
-		default:
-			zoomFov=90;
-			cg.zoomed=qfalse;
-			break;
-		}*/
+	if (cg_RQ3_ssgZoomAssist.integer == 0)
+		CG_RQ3_SyncZoom();
+	
+	//SSG3000 zoom handling
+	if ( cg.snap->ps.weapon == WP_SSG3000)
+	{
+		//switching zoom
+		if (cg.zoomLevel != cg.lastZoomLevel)
+		{
+			fov_x = CG_RQ3_GetLastFov();
+			//Get desired zoom FOV based on current FOV
+			if (cg.zoomLevel == 0)
+			{
+				zoomFov = 90;
+				cg.zoomed = qfalse;
+			}
+			else
+			{
+				switch ((int)fov_x)
+				{
+					case 20:
+						zoomFov = 10;
+						cg.zoomed = qtrue;
+						break;
+					case 45:
+						zoomFov = 20;
+						cg.zoomed = qtrue;
+						break;
+					case 90:
+						zoomFov = 45;
+						cg.zoomed = qtrue;
+						break;
+					case 10:
+					default:
+						zoomFov = 90;
+						cg.zoomed = qfalse;
+						break;
+				}
+			}
 
-		if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
-			(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
-			//6x
-			fov_x = 20;
-			zoomFov = 10;
-			cg.zoomed = qtrue;
-		}
-		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
-			//2x
-			zoomFov = 45;
-			cg.zoomed = qtrue;
-		}
-		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
-			//4x
-			fov_x = 45;
-			zoomFov = 20;
-			cg.zoomed = qtrue;
-		}
-		else {
-			//1x
-			zoomFov = 90;
-			cg.zoomed = qfalse;
-		}
-
-		if ( zoomFov < 1 ) {
-			zoomFov = 1;
-		} else if ( zoomFov > 160 ) {
-			zoomFov = 160;
-		}
-		if ( cg.zoomed ) {
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
-			if ( f > 1.0 ) {
+			if ( f > 1.0 )
+			{
+				//finished zoom switch
+				cg.lastZoomLevel = cg.zoomLevel;
 				fov_x = zoomFov;
-			} else {
+			}
+			else
 				fov_x = fov_x + f * ( zoomFov - fov_x );
+		}
+		//Idle state or out of ammo
+		else if (cg.snap->ps.weaponTime == 0)
+		{
+			fov_x = CG_RQ3_GetFov();
+			if (fov_x == 90)
+				cg.zoomed = qfalse;
+			else
+				cg.zoomed = qtrue;
+
+			//if (cg.snap->ps.ammo[WP_SSG3000] == 0)
+				//cg.zoomFirstReturn = -1;
+			//else
+			if (cg.lowAmmoWarning)
+				cg.zoomFirstReturn = -1;
+			else
+				cg.zoomFirstReturn = 0;
+		}
+		//Zoom back in after a reload or fire or weapon switch
+		else if (cg.snap->ps.weaponTime < ZOOM_TIME)
+		{	
+			if (cg.zoomFirstReturn == 1)
+			{
+				cg.zoomTime = cg.time;
+				cg.zoomFirstReturn = 0;
 			}
-		} else {
+
+			fov_x = 90;
+			zoomFov = CG_RQ3_GetFov();
+
+			if (zoomFov == 90)
+				cg.zoomed = qfalse;
+			else
+				cg.zoomed = qtrue;
+
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
-			if ( f > 1.0 ) {
-				fov_x = fov_x;
-			} else {
-				fov_x = zoomFov + f * ( fov_x - zoomFov );
+			if ( f > 1.0 || cg.zoomFirstReturn == -1)
+				fov_x = zoomFov;
+			else
+				fov_x = fov_x + f * ( zoomFov - fov_x );	
+				//fov_x = zoomFov + f * ( fov_x - zoomFov );
+		}
+		//first time after a shot or reload - zoom out
+		else
+		{
+			if (cg.zoomFirstReturn == 0)
+			{
+				cg.zoomTime = cg.time;
+				cg.zoomFirstReturn = 1;
 			}
+		
+			fov_x = CG_RQ3_GetFov();
+			
+			if (cg.zoomFirstReturn == -1)
+				zoomFov = fov_x;
+			else
+				zoomFov = 90;
+
+			//if (zoomFov == 90)
+				//cg.zoomed = qfalse;
+			//else
+				//cg.zoomed = qtrue;
+
+			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+			if ( f > 1.0 )
+			{
+				fov_x = zoomFov;
+				if (fov_x == 90)
+					cg.zoomed = qfalse;
+				else
+					cg.zoomed = qtrue;
+			}
+			else
+				fov_x = fov_x + f * ( zoomFov - fov_x );
 		}
 	}
-	else {
-		//Elder: safety check
-		//cg.zoomLevel = 0;
+	//Using anything but the SSG3000
+	else
+	{
+		//Always at 90 degrees
+		fov_x = 90;
 		cg.zoomed = qfalse;
 	}
 

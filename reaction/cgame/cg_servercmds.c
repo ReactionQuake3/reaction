@@ -1051,14 +1051,12 @@ static void CG_ServerCommand( void ) {
 				case WP_PISTOL:
 				case WP_KNIFE:
 				case WP_AKIMBO:
-				case WP_GRENADE:
 					break;
+				//case WP_GRENADE:
 				default:
 					cg.weaponSelectTime = cg.time;
 					cg.weaponSelect = WP_PISTOL;
-					//cg.zoomed = qfalse;
-					//cg.zoomLevel = 0;
-					//trap_SendClientCommand("unzoom");
+					CG_RQ3_Zoom1x();
 					break;
 			}
 		}

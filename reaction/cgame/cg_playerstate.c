@@ -12,22 +12,24 @@
 CG_CheckAmmo
 
 If the ammo has gone low enough to generate the warning, play a sound
+Elder: changed the purpose of the function
+It now generates a warning ONLY if the *current* weapon is low on/out of ammo
 ==============
 */
 void CG_CheckAmmo( void ) {
-	int		i;
+	//int		i;
 	int		total;
 	int		previous;
-	int		weapons;
+	//int		weapons;
 
 	// see about how many seconds of ammo we have remaining
-	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
+	//weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
 	total = 0;
 	//Blaze: ammo check
-	for ( i = WP_KNIFE ; i < WP_NUM_WEAPONS ; i++ ) {
-		if ( ! ( weapons & ( 1 << i ) ) ) {
-			continue;
-		}
+	//for ( i = WP_KNIFE ; i < WP_NUM_WEAPONS ; i++ ) {
+		//if ( ! ( weapons & ( 1 << i ) ) ) {
+			//continue;
+		//}
 //Blaze: Dont need this
 /*
 		switch ( i ) {
@@ -45,26 +47,72 @@ void CG_CheckAmmo( void ) {
 			break;
 		}
 */		
-		total += cg.snap->ps.ammo[i] * 2000;//Blaze: Make this big so you dont his the amo check off the bat
+		//Elder: how it should be handled - but we're not using it
+		//for this purpose
+		/*
+		switch (i) {
+		case WP_PISTOL:
+			total += cg.snap->ps.ammo[i] * RQ3_PISTOL_DELAY;
+			break;
+		case WP_M3:
+			total += cg.snap->ps.ammo[i] * RQ3_M3_DELAY;
+			break;
+		case WP_M4:
+			total += cg.snap->ps.ammo[i] * RQ3_M4_DELAY;
+			break;
+		case WP_MP5:
+			total += cg.snap->ps.ammo[i] * RQ3_MP5_DELAY;
+			break;
+		case WP_M3:
+			total += cg.snap->ps.ammo[i] * RQ3_M3_DELAY;
+			break;
+		case WP_SSG3000:
+			total += cg.snap->ps.ammo[i] * RQ3_SSG3000_DELAY;
+			break;
+		case WP_GRENADE:
+			total += cg.snap->ps.ammo[i] * RQ3_GRENADE_DELAY;
+			break;
+		case WP_KNIFE:
+			total += cg.snap->ps.ammo[i] * RQ3_KNIFE_DELAY;
+			break;
+		default:
+			total += cg.snap->ps.ammo[i] * 2000;
+			break;
+		}
+		*/
+
+		//total += cg.snap->ps.ammo[i] * 2000;//Blaze: Make this big so you dont his the amo check off the bat
+		/*
 		if ( total >= 5000 ) {
 			cg.lowAmmoWarning = 0;
 			return;
 		}
+	}*/
+
+	total = cg.snap->ps.ammo[cg.snap->ps.weapon];
+	
+	if (total > 0)
+	{
+		cg.lowAmmoWarning = 0;
+		if (cg.snap->ps.weapon == WP_SSG3000 && cg.zoomFirstReturn == -1)
+			cg.zoomFirstReturn = 0;
+		return;
 	}
 
 	previous = cg.lowAmmoWarning;
 
 	if ( total == 0 ) {
 		cg.lowAmmoWarning = 2;
-	} else {
+	}
+	//else {
 		//Elder: only allow completely empty ammo warning sounds
 		//cg.lowAmmoWarning = 1;
-	}
+	//}
 
 	// play a sound on transitions
-	if ( cg.lowAmmoWarning != previous ) {
-		trap_S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND );
-	}
+	//if ( cg.lowAmmoWarning != previous ) {
+		//trap_S_StartLocalSound( cgs.media.noAmmoSound, CHAN_LOCAL_SOUND );
+	//}
 }
 
 /*
@@ -194,8 +242,7 @@ void CG_Respawn( void ) {
 	cg.weaponSelect = cg.snap->ps.weapon;
 	
 	//Elder: added to reset zoom stuff LOCALLY
-	//cg.zoomed = qfalse;
-	//cg.zoomLevel = 0;
+	CG_RQ3_Zoom1x();
 }
 
 extern char *eventnames[];
@@ -522,5 +569,24 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 		cg.duckChange = ps->viewheight - ops->viewheight;
 		cg.duckTime = cg.time;
 	}
+
+	//Elder: grenade message
+	if (ps->weapon == WP_GRENADE &&
+		ps->weaponstate == WEAPON_COCKED && ops->weaponstate != WEAPON_COCKED)
+	{
+		switch(CG_RQ3_GetGrenadeMode())
+		{
+			case RQ3_GRENSHORT|RQ3_GRENMED:
+				CG_Printf("Pin pulled. Ready to make a long range throw.\n");
+				break;
+			case RQ3_GRENMED:
+				CG_Printf("Pin pulled. Ready to make a medium range throw.\n");
+				break;
+			case RQ3_GRENSHORT:
+				CG_Printf("Pin pulled. Ready to make a short range throw.\n");
+				break;
+		}
+	}
+
 }
 

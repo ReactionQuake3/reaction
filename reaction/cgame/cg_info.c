@@ -125,7 +125,6 @@ void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info;
 	const char	*sysInfo;
-	char		sTemp[1024];
 	int			x = 8;
 	int			y;
 	int			value;

@@ -711,7 +711,7 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   
   	le->leType = LE_FRAGMENT;
   	le->startTime = cg.time;
-  	le->endTime = le->startTime + (random() * 3000)+ rxn_glasstime.integer;// + 30000;
+  	le->endTime = le->startTime + (random() * 3000)+ cg_RQ3_glasstime.integer;// + 30000;
 	
   
   	VectorCopy( origin, re->origin );

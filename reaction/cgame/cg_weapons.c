@@ -1287,8 +1287,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//Blaze: No flash
 	//Elder: Yes flash - try this
 	
-	//Elder: add conditional here so the dlight is still drawn when rxn_flash is 0
-	if ( rxn_flash.integer ) {
+	//Elder: add conditional here so the dlight is still drawn when cg_RQ3_flash is 0
+	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
 			//Elder: draw flash based on first-person view
 			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
@@ -1420,9 +1420,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		rxn_gunx += 10;
 	}
 
-	if ((rxn_drawWeapon.integer > 1 ) && (rxn_drawWeapon.integer < 4 ))
+	if ((cg_RQ3_drawWeapon.integer > 1 ) && (cg_RQ3_drawWeapon.integer < 4 ))
 	{
-		rxn_guny = cg_gun_y.value + 4*(rxn_drawWeapon.integer-1);
+		rxn_guny = cg_gun_y.value + 4*(cg_RQ3_drawWeapon.integer-1);
 	}
 	//Blaze end:
 
@@ -1639,7 +1639,7 @@ void CG_NextWeapon_f( void ) {
 		cg.weaponSelect = original;
 	}
 	else {
-		trap_SendClientCommand("unzoom");
+		CG_RQ3_Zoom1x();
 	}
 }
 
@@ -1700,7 +1700,7 @@ void CG_PrevWeapon_f( void ) {
 		cg.weaponSelect = original;
 	}
 	else {
-		trap_SendClientCommand("unzoom");
+		CG_RQ3_Zoom1x();
 	}
 }
 
@@ -1766,22 +1766,92 @@ void CG_SpecialWeapon_f( void ) {
 		cg.weaponSelect = original;
 	}
 	else {
-		trap_SendClientCommand("unzoom");
+		CG_RQ3_Zoom1x();
 	}
 }
 
 
 //Elder: for returning to the zoom state in ps stats
-void CG_RQ3_QuickZoom ( void ) {
-	//cg.zoomLevel = lastzoom;
+void CG_RQ3_SyncZoom ( void ) {
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+		//CG_Printf("Zoomed to 6x\n");
+		cg.zoomLevel = RQ3_ZOOM_LOW|RQ3_ZOOM_MED;
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+		//CG_Printf("Zoomed to 2x\n");
+		cg.zoomLevel = RQ3_ZOOM_LOW;
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+		//CG_Printf("Zoomed to 4x\n");
+		cg.zoomLevel = RQ3_ZOOM_MED;
+	}
+	else {
+		//CG_Printf("Zoomed out\n");
+		cg.zoomLevel = 0;
+	}
+
 }
 
-// Hawkins (weapon command)
-// Elder: Don't call it the weapon command heh :)
-//void CG_RXN_Zoom(int n){
-//Elder: not used again - AQ2 doesn't tell the player about the zoom level
-void CG_RXN_Zoom( void ) {
+//Elder: save zoom level and do any other necessary housekeeping
+void CG_RQ3_SaveZoomLevel() {
+	cg.lastZoomLevel = cg.zoomLevel;
+}
+
+
+/*
+void CG_RQ3_SyncZoom2 ( void ) {
+	int statZoom;
+
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+		statZoom = RQ3_ZOOM_LOW|RQ3_ZOOM_MED;
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+		statZoom = RQ3_ZOOM_LOW;
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+		statZoom = RQ3_ZOOM_MED;
+	}
+	else {
+		statZoom = 0;
+	}
+
+	if (statZoom != cg.zoomLevel)
+		cg.zoomLevel = statZoom;
+}*/
+
+//Elder: This should identical to the portion inside
+//the weapon function in g_cmds.c
+void CG_RQ3_Zoom( void ) {
 	//Elder: reworked SSG zoom
+	if (cg.snap->ps.weapon == WP_SSG3000)
+	{
+		CG_RQ3_SaveZoomLevel();
+
+		if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+			 (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+			//Elder: zoom 1x
+			cg.zoomLevel &= ~RQ3_ZOOM_LOW;
+			cg.zoomLevel &= ~RQ3_ZOOM_MED;
+		}
+		else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+			//Elder: zoom 6x
+			cg.zoomLevel |= RQ3_ZOOM_LOW;
+		}	
+		else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+			//Elder: zoom 4x
+			cg.zoomLevel |= RQ3_ZOOM_MED;
+			cg.zoomLevel &= ~RQ3_ZOOM_LOW;
+		}
+		else {
+			//Elder: zoom 2x
+			cg.zoomLevel |= RQ3_ZOOM_LOW;
+		}
+		
+		cg.zoomTime = cg.time;
+	}
+
 	/*
 	if(cg.snap->ps.weapon==WP_SSG3000) {
 		cg.zoomLevel++;
@@ -1797,48 +1867,50 @@ void CG_RXN_Zoom( void ) {
 		cg.zoomTime = cg.time;
 	}
 	*/
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
-		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
-		CG_Printf("Zoomed to 6x\n");
-	}
-	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
-		CG_Printf("Zoomed to 2x\n");
-	}
-	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
-		CG_Printf("Zoomed to 4x\n");
-	}
-	else {
-		CG_Printf("Zoomed out\n");
-	}
+}
 
-/*
-		if ( n == 0 ) {
-			cg.zoomLevel=0;
-			cg.zoomed=qfalse;
-//			trap_Cvar_Set("cg_drawGun","1");
-			CG_Printf("Zoomed to 1x\n");
-		} else {
-//			trap_Cvar_Set("cg_drawGun","0");
-			cg.zoomed = qtrue;
-			cg.zoomTime = cg.time;
-			CG_Printf("Zoomed to %dx\n",2*n);
-		}
-		
-	} 
-*/
-//	trap_SendClientCommand ("weapon");
+//Elder: reset locally and send server message
+void CG_RQ3_Zoom1x () {
+	if (cg_RQ3_ssgZoomAssist.integer)
+	{
+		cg.lastZoomLevel = cg.zoomLevel;
+		cg.zoomLevel = 0;
+		cg.zoomTime = cg.time;
+	}
+	trap_SendClientCommand("unzoom");
+}
+
+int CG_RQ3_GetGrenadeMode()
+{
+	int grenMode = 0;
+
+	if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
+		grenMode |= RQ3_GRENSHORT;
 	
+	if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
+		grenMode |= RQ3_GRENMED;
+
+	return grenMode;
 }
 
-//Elder: unused function
-/*
-void rxn_zoom1x(void) {
-	cg.zoomLevel=0;
-	cg.zoomed=qfalse;
-	cg.zoomTime = cg.time;
+//Print grenade mode message
+void CG_RQ3_GrenadeMode()
+{
+	//Print a message for the next mode in line
+	if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
+		(cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED ) {
+		CG_Printf("Prepared to make a short range throw\n");
+		//cg.grenadeMode = RQ3_GRENSHORT|RQ3_GRENMED;
+	}
+	else if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT) {
+		CG_Printf("Prepared to make a medium range throw\n");
+		//cg.grenadeMode = RQ3_GRENSHORT;
+	}
+	else if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED) {
+		CG_Printf("Prepared to make a long range throw\n");
+		//cg.grenadeMode = RQ3_GRENMED;
+	}
 }
-*/
-
 
 /*
 ===============
@@ -1882,9 +1954,15 @@ void CG_Weapon_f( void ) {
 		if (cg.snap->ps.weapon == WP_SSG3000) {
 			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.lensSound);
 			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
-			//CG_RXN_Zoom();
+			if (cg_RQ3_ssgZoomAssist.integer)
+				CG_RQ3_Zoom();
 		}
-		else {
+		else if (cg.snap->ps.weapon == WP_GRENADE)
+		{
+			CG_RQ3_GrenadeMode();
+		}
+		else
+		{
 			//do weapon select sound
 		}
 		trap_SendClientCommand("weapon");
@@ -1913,7 +1991,7 @@ void CG_Weapon_f( void ) {
 	//cg.zoomed = qfalse;
 	//cg.zoomLevel = 0;
 	
-	trap_SendClientCommand("unzoom");
+	CG_RQ3_Zoom1x();
 	cg.weaponSelect = num;
 }
 
