@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/04/03 03:13:48  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.22  2002/03/31 13:52:48  jbravo
 // More cleanups
 //
@@ -37,6 +40,9 @@
 static void CG_LaserSight( centity_t *cent );
 static void CG_Dlight( centity_t *cent );
 
+extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
+
+extern void trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 /*
 ======================
 CG_PositionEntityOnTag

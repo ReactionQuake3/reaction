@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.53  2002/03/30 17:37:48  jbravo
 // Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
 //
@@ -124,6 +127,9 @@
 #define DLIGHT_FLICKER		2
 #define DLIGHT_PULSE		4
 #define DLIGHT_STROBE		8
+
+//Blaze: Max number of breakables
+#define RQ3_MAX_BREAKABLES 10
 
 //Old debris definitions
 //Elder: debris bit parms to pass to break_glass - maybe I should enum this?
@@ -875,8 +881,8 @@ typedef enum {
 	EV_FOOTWADE,
 	EV_SWIM,
 
-// JBravo: for func_explosive
-	EV_GIB_GLASS,
+//Blaze: For exploding breakables
+	EV_EXPLODE_BREAKABLE,
 
 	EV_STEP_4,
 	EV_STEP_8,
@@ -976,7 +982,8 @@ typedef enum {
 	EV_BREAK_GLASS1,			// Blaze: Breakable glass
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,
-	EV_SCOREPLUM,			// score plum
+  EV_CHIP_GLASS,  //Blaze: this even just breaks it a little bit.
+  EV_SCOREPLUM,			// score plum
 
 //#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,

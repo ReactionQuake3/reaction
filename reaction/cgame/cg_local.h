@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/04/03 03:13:48  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.62  2002/03/31 02:03:13  niceass
 // added tag declaration
 //
@@ -840,7 +843,13 @@ typedef struct {
 	int			records[REC_NUM_RECORDS];	// Blaze: for our statistics tracking
 
 } cg_t;
-
+//Blaze: struct to hold the func_breakable stuff
+typedef struct {
+  qhandle_t model[3];
+  sfxHandle_t sound[3];
+  sfxHandle_t exp_sound;
+  qhandle_t shader;
+} breakable_t;
 
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
@@ -933,9 +942,9 @@ typedef struct {
 	qhandle_t	akimbo1stModel;
 	qhandle_t	akimboHandModel;
 
-// JBravo: func_brakable stuff
-	qhandle_t	breakable_frag[15][3];
-	sfxHandle_t	breakable_snd[15];
+// Blaze: func_explosive stuff
+	breakable_t	breakables[16];
+	
 
 	qhandle_t	smoke2;
 
@@ -1149,8 +1158,9 @@ typedef struct {
 	sfxHandle_t	youSuckSound;
 #endif
 	sfxHandle_t	gibSound;
-	sfxHandle_t glassSound; //Blaze: Reaction breakable glass
-	sfxHandle_t glass2Sound;
+  //Blaze: Dont need this any more
+//	sfxHandle_t glassSound; //Blaze: Reaction breakable glass
+//	sfxHandle_t glass2Sound;
 	sfxHandle_t	gibBounce1Sound;
 	sfxHandle_t	gibBounce2Sound;
 	sfxHandle_t	gibBounce3Sound;
@@ -1841,7 +1851,7 @@ void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length );
 void CG_GibPlayer( vec3_t playerOrigin );
 void CG_BigExplode( vec3_t playerOrigin );
 // Blaze: Breakable glass Elder: modified
-void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type );
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int number, int type, int isChip );
 void CG_Bleed( vec3_t origin, int entityNum );
 //Elder: for SSG shots
 void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts );

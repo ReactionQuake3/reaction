@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.59  2002/04/02 20:23:12  jbravo
 // Bots dont get to use any specmode other than FREE and the recive radio cmds
 // as text and not sounds.
@@ -124,6 +127,9 @@
 
 // JBravo: fixme. Hack to use SelectInitialSpawnPoint() in ClientSpawn.
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
+
+//Blaze:for the breakable code
+char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 #define RQ3_NONAMEPLAYER		"Nameless"
 
@@ -1096,6 +1102,27 @@ int G_SendCheatVars(int clientNum)
 	}
 	return qtrue;
 }
+/*
+===============
+G_SendBreakableInfo
+sends out info to the clients about the breakables to load
+===============
+*/
+
+int G_SendBreakableInfo(int clientNum)
+{
+  int i;
+  char cl_breakableinfo[128];
+  for (i=0;i< RQ3_MAX_BREAKABLES; i++)
+  {
+    if ( (strcmp(rq3_breakables[i],"") ) )
+    {
+      Com_sprintf(cl_breakableinfo, sizeof(cl_breakableinfo), "breakable %d %s\n",i,rq3_breakables[i]);
+      trap_SendServerCommand(clientNum, va("%s",cl_breakableinfo));
+    }
+  }
+  return 0;
+}
 
 /*
 ===========
@@ -1204,6 +1231,16 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		client->camera->mode = CAMERA_MODE_SWING;
 		RQ3_SpectatorMode(ent);
 	}
+
+  //Blaze: Send out the breakable names to the clients
+  if (!isBot && G_SendBreakableInfo(clientNum))
+  {
+    Com_Printf("Error sending breakable info to client\n");
+  }
+	// for statistics
+//	client->areabits = areabits;
+//	if ( !client->areabits )
+//		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }

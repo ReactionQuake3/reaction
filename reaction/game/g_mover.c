@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.23  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -2297,31 +2300,9 @@ void SP_func_pendulum(gentity_t *ent) {
 	ent->s.apos.trDelta[2] = speed;
 }
 
-// JBravo: adding for func_explosive
-void func_explosive_explode( gentity_t *self , vec3_t pos ) {
-	int eParam;
-//	GibEntity( self, 0 );
-	eParam = self->mass;
-	G_AddEvent(self, EV_GIB_GLASS, eParam);
+//Blaze: Merged into func_breakable in g_misc.c
 
-//	G_Printf("Explode_explode\n" );
-	self->takedamage = qfalse;
-	self->s.eType = ET_INVISIBLE;
-	self->r.contents = 0;
-	self->s.solid = 0;
-}
-
-// JBravo: adding for func_explosive
-void func_explosive_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
-{
-	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self,0);
-
-//	G_Printf("%s: explode @ %s\n", self->classname , vtos(self->s.origin) );
-	G_ExplodeMissile(self);
-//	radius damage
-	func_explosive_explode( self , self->s.origin );
-}
-
+/*
 // JBravo: adding for func_explosive
 void SP_func_explosive (gentity_t *ent)
 {
@@ -2347,11 +2328,12 @@ void SP_func_explosive (gentity_t *ent)
 	InitMover( ent );
 
 //	VectorSubtract( ent->r.maxs, ent->r.mins, ent->s.origin );
-	VectorCopy( ent->s.pos.trBase, ent->s.origin );
+	VectorCopy( ent->s.pos.trBase, ent->s.origin );*/
 /*	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
 	VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );		*/
+/*
 	ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
 	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
 	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
@@ -2360,7 +2342,8 @@ void SP_func_explosive (gentity_t *ent)
 			((ent->tension << 8) & 0x0F00) |
 			((ent->bounce << 4) & 0x00F0) |
 			((ent->size) & 0x000F);
-  G_Printf("%d %d %d %d %d\n",((ent->material << 12) & 0xF000),((ent->tension << 8) & 0x0F00),((ent->bounce << 4) & 0x00F0), ((ent->size) & 0x000F), ent->s.powerups);
+
 	trap_LinkEntity( ent );
 	G_Printf("at : %s %s Material (%d)\n", vtos(ent->r.currentAngles), vtos(ent->r.currentOrigin ), ent->material );
 }
+*/

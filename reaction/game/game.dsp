@@ -175,6 +175,10 @@ SOURCE=.\g_main.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\g_matchmode.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\g_mem.c
 # End Source File
 # Begin Source File
@@ -244,6 +248,14 @@ SOURCE=.\q_shared.c
 # Begin Source File
 
 SOURCE=.\rxn_game.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\zcam.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\zcam_target.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -331,6 +343,10 @@ SOURCE=.\g_local.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\g_matchmode.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\g_public.h
 # End Source File
 # Begin Source File
@@ -360,6 +376,10 @@ SOURCE=.\surfaceflags.h
 # Begin Source File
 
 SOURCE=.\syn.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\zcam.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

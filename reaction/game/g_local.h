@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.63  2002/04/02 00:56:18  jbravo
 // Removed the zcam defines again and did some cleanups
 //
@@ -249,11 +252,20 @@ struct gentity_s {
 	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage);
 	void		(*die)(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
-	int		pain_debounce_time;
-	int		fly_sound_debounce_time;	// wind tunnel
-	int		last_move_time;
-	int		health;
-	qboolean	takedamage;
+
+	int			pain_debounce_time;
+	int			fly_sound_debounce_time;	// wind tunnel
+	int			last_move_time;
+
+	int			health;
+  //Blaze: holds if we can "chip" off peices
+  qboolean chippable;
+  //true if we cant break it
+  qboolean unbreakable;
+  //true if it's explosive
+  qboolean	explosive;
+
+  qboolean	takedamage;
 	int		damage;
 	int		splashDamage;		// quad will increase this without increasing radius
 	int		splashRadius;
@@ -281,6 +293,7 @@ struct gentity_s {
 	gitem_t		*item;			// for bonus items
 	float		distance;		// VALKYRIE: for rotating door
 };
+
 
 
 typedef enum {
@@ -791,7 +804,7 @@ void DropPortalSource( gentity_t *ent );
 void DropPortalDestination( gentity_t *ent );
 #endif
 
-void G_BreakGlass( gentity_t *ent, vec3_t point, int mod );//Blaze: Breakable glass
+void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int mod, int damage );//Blaze: Breakable glass
 void G_RunDlight ( gentity_t *ent );	// Elder: dlight running
 void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void G_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
@@ -838,6 +851,8 @@ void InitBodyQue (void);
 void ClientSpawn( gentity_t *ent );
 //Blaze: for the cheat vars stuff
 int G_SendCheatVars(int);
+//Blaze: for the breakable stuff
+int G_SendBreakableInfo(int);
 void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void AddScore( gentity_t *ent, vec3_t origin, int score );
 void CalculateRanks( void );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/04/03 03:13:49  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.51  2002/03/26 10:32:51  jbravo
 // Bye bye LCA lag
 //
@@ -81,6 +84,9 @@ int forceModelModificationCount = -1;
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
+
+//Blaze: used to access the names of the breakables
+char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 /*
 ================
@@ -817,15 +823,11 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.useNothingSound = trap_S_RegisterSound( "sound/items/use_nothing.wav", qfalse );
 	cgs.media.gibSound = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
 	//Blaze: Reaction breakable glass
-	cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
-	cgs.media.glass2Sound = trap_S_RegisterSound( "sound/world/glassbk2.wav", qfalse );
+	/*cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
+	cgs.media.glass2Sound = trap_S_RegisterSound( "sound/world/glassbk2.wav", qfalse );*/
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
-
-  //Blaze: func_explosive sounds
-  cgs.media.breakable_snd[0] = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
-  cgs.media.breakable_snd[1] = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
 
 	//Elder: RQ3 sounds
 	cgs.media.kickSound = trap_S_RegisterSound( "sound/misc/kick.wav", qfalse);
@@ -1238,12 +1240,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.gibLeg = trap_R_RegisterModel( "models/gibs/leg.md3" );
 	cgs.media.gibSkull = trap_R_RegisterModel( "models/gibs/skull.md3" );
 	cgs.media.gibBrain = trap_R_RegisterModel( "models/gibs/brain.md3" );
-	//Blaze: Breakable Glass
-  i=0;
-	cgs.media.breakable_frag[i][0] = cgs.media.glass01 = trap_R_RegisterModel( "models/breakables/glass01.md3" );
- 	cgs.media.breakable_frag[i][1] = cgs.media.glass02 = trap_R_RegisterModel( "models/breakables/glass02.md3" );
- 	cgs.media.breakable_frag[i][2] = cgs.media.glass03 = trap_R_RegisterModel( "models/breakables/glass03.md3" );
-
+	//Blaze: Delay loading the breakable stuff
+/*
 	//Elder: additional debris
 	//Todo: load only if in the level
   i++;
@@ -1276,7 +1274,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.breakable_frag[i][0] = cgs.media.concrete01 = trap_R_RegisterModel( "models/breakables/concrete01.md3" );
  	cgs.media.breakable_frag[i][1] = cgs.media.concrete02 = trap_R_RegisterModel( "models/breakables/concrete02.md3" );
  	cgs.media.breakable_frag[i][2] = cgs.media.concrete03 = trap_R_RegisterModel( "models/breakables/concrete03.md3" );
-
+*/
 	//Elder: akimbos - some of the stuff isn't in yet :p
 	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
  	cgs.media.akimboFlashModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_flash.md3" );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/04/03 03:13:49  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.62  2002/04/01 22:23:38  slicer
 // Added "weapon" command buffering
 //
@@ -3203,6 +3206,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 							   duration, isSprite );
 			le->light = light;
 			VectorCopy( lightColor, le->lightColor );
+
 		}
 		else if ( cg_RQ3_impactEffects.integer )
 		{
@@ -3410,6 +3414,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	// Elder: grenade explosion
 	if (cg_RQ3_impactEffects.integer && weapon == WP_GRENADE)
 	{
+
 		vec3_t shrapnelDest;
 
 		sparkCount = 60 + rand() % 10;

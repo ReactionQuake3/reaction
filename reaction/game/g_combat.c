@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.55  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1455,9 +1458,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	//Blaze: If we shot a breakable item subtract the damage from its health and try to break it
-	if (targ->s.eType == ET_BREAKABLE) {
-		targ->health -= damage;
-		G_BreakGlass(targ, point, mod);
+ 	if ( targ->s.eType == ET_BREAKABLE ) 
+  {
+    if (!targ->unbreakable)
+    {
+
+    targ->health -= damage;
+    }
+ 		G_BreakGlass( targ, inflictor, attacker, point, mod, damage );
  		return;
 	}
 
@@ -1523,6 +1531,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				//Elder: do some calculation here?
 				knockback = 400;
 				break;
+      case MOD_TRIGGER_HURT:
+        knockback = (int)(0.75 * damage);
+        break;
 			default:
 				G_Printf("G_Damage: Received unknown MOD - using default knockback\n");
 				knockback = 50;
@@ -1660,7 +1671,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			// Elder: removed M3, handcannon, and grenades from location damage code
 
 			if (take && (mod == MOD_M3 || mod == MOD_HANDCANNON ||
-				mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH)) {
+				mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH || mod == MOD_TRIGGER_HURT)) {
 				bleeding = 1;
 				instant_dam = 0;
 
@@ -2062,10 +2073,11 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		if ( dist > radius ) {
 			continue;
 		}
+    //Blaze: lets use the q3 damage because it works the same for grenades, but lets breakables work better.
 		// Q2 radius damage
-		points = damage - 0.5f * dist;
+		//points = damage - 0.5f * dist;
 		// Q3 radius damage
-		//points = damage * ( 1.0 - dist / radius );
+		points = damage * ( 1.0 - dist / radius );
 
 		//Elder: reduce grenade damage if crouching
 		if (ent->r.maxs[2] < 20)
@@ -2073,7 +2085,7 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
             points = points * 0.5f; // hefty reduction in damage
         }
 
-		if( CanDamage (ent, origin) ) {
+    if( CanDamage (ent, origin) ) {
 			if( LogAccuracyHit( ent, attacker ) ) {
 				hitClient = qtrue;
 			}

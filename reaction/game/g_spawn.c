@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.13  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -208,9 +211,12 @@ void SP_team_blueobelisk( gentity_t *ent );
 void SP_team_redobelisk( gentity_t *ent );
 void SP_team_neutralobelisk( gentity_t *ent );
 #endif
-//void SP_item_botroam( gentity_t *ent ) {};
+
+void SP_item_botroam( gentity_t *ent ) {};
+//Blaze: merged func_explosive into func_breakable
+
 // JBravo: adding explosive
-void SP_func_explosive (gentity_t *self);
+//void SP_func_explosive (gentity_t *self);
 
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
@@ -286,8 +292,10 @@ spawn_t	spawns[] = {
 	{"team_blueobelisk", SP_team_blueobelisk},
 	{"team_neutralobelisk", SP_team_neutralobelisk},
 #endif
-	{"func_explosive", SP_func_explosive},	// JBravo: for explosive.
-//	{"item_botroam", SP_item_botroam},
+
+//Blaze: Merged func_explosive into func_breakable
+//	{"func_explosive", SP_func_explosive},	// JBravo: for explosive.
+	{"item_botroam", SP_item_botroam},
 
 	{0, 0}
 };

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.68  2002/04/02 20:23:12  jbravo
 // Bots dont get to use any specmode other than FREE and the recive radio cmds
 // as text and not sounds.
@@ -104,7 +107,7 @@
 //-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-
+#define __ZCAM__
 #include "g_local.h"
 // JBravo: need TP functions
 #include "g_teamplay.h"

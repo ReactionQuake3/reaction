@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.25  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -42,6 +45,9 @@
 
 #include "g_local.h"
 
+extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
+
+void G_ExplodeMissile( gentity_t *ent );
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
@@ -413,75 +419,95 @@ Fires at either the target or the current direction.
 //void SP_shooter_grenade( gentity_t *ent ) {
 //	InitShooter( ent, WP_GRENADE_LAUNCHER);
 //}
+// Blaze: adding for func_breakable explosions
+void func_breakable_explode( gentity_t *self , vec3_t pos ) {
+	int eParam;
+  gentity_t *tent;
+//	GibEntity( self, 0 );
+	eParam = self->s.eventParm;
 
-//Blaze: Breakable glasss
+  tent = G_TempEntity2( pos, EV_EXPLODE_BREAKABLE, eParam);
+
+	self->takedamage = qfalse;
+	self->s.eType = ET_INVISIBLE;
+	self->r.contents = 0;
+	self->s.solid = 0;
+}
+
+// Blaze: adding for func_breakable explosions
+
+void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+{
+  
+	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
+
+  func_breakable_explode( self , self->s.origin );
+	G_ExplodeMissile(self);
+//	radius damage
+  
+	
+}
+
+
 //Elder: Breakable anything!* -- we define, that is
-/*QUAKED func_breakable (1 0 0) (-16 -16 -16) (16 16 16)
- Explodes any defined type of debris
- "health" overrides the default health value of 5
- "debris" overrides the default glass shards
-   0 - glass
-   1 - wood
-   2 - metal
-   3 - ceramics
-   4 - paper
-   5 - brick
-   6 - concrete
- "amount" overrides the default quantity
-   0 - small: about 10 pieces
-   1 - medium: about 25 pieces
-   2 - large: about 50 pieces
-   3 - tons (watch out when using this)
- "variation" (0 to 3) allows you to pick one of 4 variations
-   
- */
+/*QUAKED func_breakable (0 .5 .8) ? CHIPPABLE UNBREAKABLE EXPLOSIVE 
+Breakable object entity that breaks, chips or explodes when damaged. 
+-------- KEYS -------- 
+health : determines the strength of the glass (default 5). 
+id : a unique identification. Each type of breakable in a given map needs to have a separate id. Valid values are 0 through 63. 
+type : type of breakable. See notes below. 
+amount : sets the number of fragments to generate when the entity breaks. 0 ~ 10 pieces; 1 ~ 25 pieces; 2 ~ 50 pieces; 3 ~ lots of pieces (default 0). 
+damage : sets the amount of damage dealt to nearbly players if the entity is made to be explosive (default 100). 
+damage_radius : sets the maximum distance from the explosion players will take damage (default 128). 
+-------- SPAWNFLAGS -------- 
+CHIPPABLE : little pieces will spawn when the entity is shot. 
+UNBREAKABLE : entity will never break. To make the entity chip, but never break, check the first two spawnflags. To make the entity chip and eventually break, only set the first spawnflag. 
+EXPLOSIVE : entity will explode. 
+-------- NOTES -------- 
+Breakables are defined in sets by the 'type' key (e.g. type : glass, type : wood). Each type used in a map must be given a unique id number. Each entity of a particular type must have the same id number (i.e. if your first glass breakable has id : 1, then every glass breakable must have id : 1). To add custom breakables, use this format: 
+ 
+Models: breakables/type/models/break1.md3, breakables/type/models/break2.md3, breakables/type/models/break3.md3 
+Type is the value set in the type key. No more, no less than three models are required. The names must be break#. Texture/shader information is contained in the .md3 file just like regular mapobjects. 
+ 
+Sounds: breakables/type/sounds/break1.wav, breakables/type/sounds/break2.wav, breakables/type/sounds/break3.wav, breakables/type/sounds/explosion.wav 
+Type is the value set in the type key. No more, no less than three break sounds are required. The names must be break#. If the entity will be exploding (explosive : 1), then the explosion.wav sound must be included as well. 
+ 
+Explosion graphic: breakables/type/explosion/texture 
+Type is the value set in the type key. Texture is any texture(s) referenced by the explosion shader. The shader script should be added to yourmap.shader.  
+ 
+If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction Quake 3 for the proper format.
+*/ 
+ 
+
+
 void SP_func_breakable( gentity_t *ent ) {
 	int health;
 	int amount;
-	int variation;
-	int debris;
-	int temp;
+  int id;
+  int temp;
+  int damage;
+  int damage_radius;
+  char *name;
   
-    // Make it appear as the brush
-    trap_SetBrushModel( ent, ent->model );
+  // Make it appear as the brush
+  trap_SetBrushModel( ent, ent->model );
     
 	// Setup health of breakable
-    G_SpawnInt( "health", "0", &health );
-    if( health <= 0 )
-  		health = 5;
+  G_SpawnInt( "health", "0", &health );
+  if( health <= 0 )	health = 5;
 
-	// Setup debris type
-	G_SpawnInt( "debris", "0", &temp );
-	switch (temp)
-	{
-		case 0:
-			debris = RQ3_DEBRIS_GLASS;
-			break;
-		case 1:
-			debris = RQ3_DEBRIS_WOOD;
-			break;
-		case 2:
-			debris = RQ3_DEBRIS_METAL;
-			break;
-		case 3:
-			debris = RQ3_DEBRIS_CERAMIC;
-			break;
-		case 4:
-			debris = RQ3_DEBRIS_PAPER;
-			break;
-		case 5:
-			debris = RQ3_DEBRIS_BRICK;
-			break;
-		case 6:
-			debris = RQ3_DEBRIS_CONCRETE;
-			break;
-		default:
-			debris = RQ3_DEBRIS_GLASS;
-			break;
-	}
-   
+  G_SpawnInt("damage","170", &damage);
+
+	ent->damage = damage;
+
+  G_SpawnInt("damage_radius","340", &damage_radius);
+
+	ent->damage_radius = damage_radius;
+  
+
 	// Setup amount type
-	G_SpawnInt( "amount", "0", &temp );   
+	G_SpawnInt( "amount", "0", &temp );  
+
 	switch (temp)
 	{
 		case 0:
@@ -500,43 +526,79 @@ void SP_func_breakable( gentity_t *ent ) {
 			amount = RQ3_DEBRIS_MEDIUM;
 			break;
 	}
-	
-	// Setup variation type
-	G_SpawnInt( "variation", "0", &temp);
-	switch (temp)
-	{
-		case 0:
-			variation = 0;
-			break;
-		case 1:
-			variation = RQ3_DEBRIS_VAR1;
-			break;
-		case 2:
-			variation = RQ3_DEBRIS_VAR2;
-			break;
-		case 3:
-			variation = RQ3_DEBRIS_VAR1|RQ3_DEBRIS_VAR2;
-			break;
-		default:
-			variation = 0;
-			break;
-	}
+	if ( ent->spawnflags & 1)
+  {
+    ent->chippable = qtrue;
+  }
+  else
+  {
+    ent->chippable = qfalse;
+  }
 
+  if ( ent->spawnflags & 2)
+  {
+    ent->unbreakable = qtrue;
+  }
+  else
+  {
+    ent->unbreakable = qfalse;
+  }
+	
+  if ( ent->spawnflags & 4)
+  {
+    ent->explosive = qtrue;
+  }
+  else
+  {
+    ent->explosive = qfalse;
+  }
+
+  if ( !ent->damage_radius )
+  {
+    ent->damage_radius=GRENADE_SPLASH_RADIUS;
+  }
+
+  G_SpawnInt( "id","0", &id);
+  if (id < 0 || id >= RQ3_MAX_BREAKABLES )
+  {
+    G_Printf("^2ERROR: ID too high\n");
+    G_FreeEntity( ent );
+    return;
+  }
+  if (G_SpawnString( "name", "", &name) )
+  {
+    Q_strncpyz(rq3_breakables[id],name,80);
+  }
+  else
+  {
+    G_Printf("^2ERROR: broken breakable name (%s)\n", rq3_breakables[id]);
+    G_FreeEntity( ent );
+    return;
+  }
+  
+  amount = amount << 6;
+  
+  id = id & 0x0FFF;
 	//Elder: merge the bits
-	ent->s.eventParm = amount|variation|debris;
-	
-    ent->health = health;
-    ent->takedamage = qtrue;
+ 	ent->s.eventParm = amount | id ;
 
-    // Let it know it is a breakable object
-    ent->s.eType = ET_BREAKABLE;
+  ent->health = health;
+  ent->takedamage = qtrue;
 
-    // If the mapper gave it a model, use it
-    if ( ent->model2 ) {
-        ent->s.modelindex2 = G_ModelIndex( ent->model2 );
-    }
 
-    trap_LinkEntity (ent);
+  ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
+	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
+	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
+
+  // Let it know it is a breakable object
+  ent->s.eType = ET_BREAKABLE;
+
+  // If the mapper gave it a model, use it
+  if ( ent->model2 ) {
+      ent->s.modelindex2 = G_ModelIndex( ent->model2 );
+  }
+
+  trap_LinkEntity (ent);
 }
 
 
@@ -548,7 +610,7 @@ Create/process a breakable event entity
 Original by inolen, heavy modifications by Elder
 =================
 */
-void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
+void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int mod, int damage )
 {
 	gentity_t   *tent;
  	vec3_t      size;
@@ -565,11 +627,11 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 	//This way, the mappers can use a single func_breakable
 	//while we process it on the server-side.
 	//Places to stuff: eventParm
-
+  eParm = ent->s.eventParm;
  	if( ent->health <= 0 ) {
 		//G_Printf("Original eParm: %i \n", ent->s.eventParm);
 		//Copy the first four bits and strip them out of the original
-		eParm = ent->s.eventParm & 15;
+	/*	eParm = ent->s.eventParm & 15;
 		ent->s.eventParm &= ~eParm;
 		
 		//Shift-op loop
@@ -580,7 +642,7 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 		}
 		
 		eParm |= ent->s.eventParm;
-
+*/
 		//eParm should now be under 1 byte and shiftCount >= 0
 		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
 		
@@ -609,6 +671,11 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
      			break;
 
      	}
+    if (ent->explosive)
+    {
+      mod = MOD_TRIGGER_HURT;
+      func_breakable_die(ent, inflictor, attacker, damage, mod);
+    }
 		G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
@@ -626,11 +693,61 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 				G_Error("G_BreakGlass: shiftCount > 2\n");
 				break;
 		}
+
 		//G_Printf("eType: %i\n", tent->s.event & ~EV_EVENT_BITS);
      	//Elder: use TempEntity2 to stuff params
         //tent = G_TempEntity( center, EV_BREAK_GLASS );
  	//tent->s.eventParm = eParm;
  	}
+  else if(ent->chippable)
+  {
+    //Stil has some life left, so chip it
+		//Copy the first four bits and strip them out of the original
+		/*eParm = ent->s.eventParm & 15;
+		ent->s.eventParm &= ~eParm;
+		
+		//Shift-op loop
+		while (ent->s.eventParm > 255)
+		{
+			shiftCount++;
+			ent->s.eventParm = ent->s.eventParm >> 4;
+		}
+		
+		eParm |= ent->s.eventParm;
+*/
+		//eParm should now be under 1 byte and shiftCount >= 0
+		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
+		
+        // Tell the program based on the gun if it was caused by splash damage
+     	switch( mod ) {
+     		//Elder: added + compacted
+     		case MOD_KNIFE:
+     		case MOD_KNIFE_THROWN:
+			case MOD_MP5:
+     		case MOD_M4:
+     		case MOD_M3:
+     		case MOD_PISTOL:
+     		case MOD_HANDCANNON:
+     		case MOD_AKIMBO:
+     		case MOD_SNIPER:
+     		case MOD_GAUNTLET:
+     		case MOD_KICK:
+				//Use actual impact point
+     			VectorCopy(point, impactPoint);
+				break;
+     		default:
+     			//Splash damage weapons: use center of the glass
+				VectorSubtract(ent->r.maxs, ent->r.mins, size);
+				VectorScale(size, 0.5, size);
+				VectorAdd(ent->r.mins, size, impactPoint);
+     			break;
+
+     	}
+		//G_FreeEntity( ent );
+		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
+		tent = G_TempEntity2( impactPoint, EV_CHIP_GLASS, eParm);
+
+  }
 }
 
 

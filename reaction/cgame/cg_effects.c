@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/04/03 03:13:48  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.23  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -577,6 +580,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	ex->refEntity.hModel = hModel;
 	ex->refEntity.customShader = shader;
+  
 
 	// set origin
 	VectorCopy( newOrigin, ex->refEntity.origin );
@@ -1026,6 +1030,7 @@ void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
   	le->leMarkType = LEMT_NONE;
 }
   
+
 /*
 ===================
 CG_BreakGlass
@@ -1035,123 +1040,64 @@ Elder: don't be mislead by the name - this breaks more than glass
 ===================
 */
   
-void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
-  	vec3_t	origin, velocity, rotation;
-    int     value;
-  	int     count;
-  	int     states[] = {1,2,3};			// Select model variations
-  	// Get the size of the array
-    int     numstates = sizeof(states)/sizeof(states[0]);
-    // Elder: debris model handles
-    qhandle_t	debris1;
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int number, int type, int isChip ) {
+  vec3_t	origin, velocity, rotation;
+  int     value;
+  int     count;
+  int     states[] = {1,2,3};			// Select model variations
+  // Get the size of the array
+  int     numstates = sizeof(states)/sizeof(states[0]);
+  // Elder: debris model handles
+  qhandle_t	debris1;
 	qhandle_t	debris2;
 	qhandle_t	debris3;
-	int		bounceFactor;
+	float		bounceFactor;
 	int		newParm;
-
-  	if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM &&
+  int   id;
+  qhandle_t sound;
+  
+  id = (glassParm & 63);
+//  Com_Printf("ID is %d\n",id);
+  glassParm = glassParm >> 6;
+  sound = cgs.media.breakables[id].sound[rand() % 3];
+	trap_S_StartSound( NULL, number, CHAN_BODY, sound );
+  bounceFactor = 0.3;
+  
+  if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM &&
 		 (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
 	{
 		//Tons
   		count = 65 + rand() % 16;
-  	}
+  }
  	else if ( (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
 	{
 		//Large
   		count = 40 + rand() % 11;
-  	}
-  	else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM)
+  }
+  else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM)
 	{
 		//Medium
 		count = 20 + rand() % 6;
-  	}
-  	else
+  }
+  else
 	{
 		//Small
-  		count = 8 + rand() % 6;
+  	count = 8 + rand() % 6;
 	}
-
-	/*
-	===============================
-	TODO: Utilize variation bits!
-	==============================
-	*/
-
+  //If it's just a chip, dont make so many
+  if (isChip == 1)
+  {
+    count /= 8;
+  }
 	//Strip off amount info and revert eParm back to server-side size
 	newParm = glassParm & 15;
 	glassParm &= ~newParm;
 	glassParm = glassParm << (type * 4);
 
-	//CG_Printf("glassParm: %i\n", glassParm);
-
-	//Elder: check debris type and assign debris models  	
-	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD)
-	{
-  		//CG_Printf("Launching wood\n");
-  		debris1 = cgs.media.wood01;
-  		debris2 = cgs.media.wood02;
-  		debris3 = cgs.media.wood03;
-		bounceFactor = 0.8f;
-  	}
- 	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL)
-	{
-  		//CG_Printf("Launching metal\n");
-  		debris1 = cgs.media.metal01;
-  		debris2 = cgs.media.metal02;
-  		debris3 = cgs.media.metal03;
-		bounceFactor = 0.7f;
- 	}
- 	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC)
-	{ 
-  		//CG_Printf("Launching ceramic\n");
-  		debris1 = cgs.media.ceramic01;
-  		debris2 = cgs.media.ceramic02;
-  		debris3 = cgs.media.ceramic03;
-		bounceFactor = 0.7f;
- 	}
- 	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER)
-	{
-  		//CG_Printf("Launching paper\n");
-  		debris1 = cgs.media.paper01;
-  		debris2 = cgs.media.paper02;
-  		debris3 = cgs.media.paper03;
-		bounceFactor = 0.2f;
- 	}
-	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK)
-	{ 
-  		//CG_Printf("Launching brick\n");
-  		debris1 = cgs.media.brick01;
-  		debris2 = cgs.media.brick02;
-  		debris3 = cgs.media.brick03;
-		bounceFactor = 0.4f;
-  	}
-	else if ( (glassParm & RQ3_DEBRIS_CONCRETE) == RQ3_DEBRIS_CONCRETE)
-	{ 
-  		//CG_Printf("Launching concrete\n");
-  		debris1 = cgs.media.concrete01;
-  		debris2 = cgs.media.concrete02;
-  		debris3 = cgs.media.concrete03;
-		bounceFactor = 0.5f;
-  	}
-	/*
-	else if ( (glassParm & RQ3_DEBRIS_POPCAN) == RQ3_DEBRIS_POPCAN)
-	{ 
-  		CG_Printf("Launching pop cans\n");
-  		debris1 = cgs.media.popcan01;
-  		debris2 = cgs.media.popcan02;
-  		debris3 = cgs.media.popcan03;
-  	}
-	*/
-  	else
-	{
-  		//glass is default
-  		//CG_Printf("Launching glass\n");
-  		debris1 = cgs.media.glass01;
-  		debris2 = cgs.media.glass02;
-  		debris3 = cgs.media.glass03;
-		bounceFactor = 0.7f;
-  	}
-  	
+  debris1 = cgs.media.breakables[id].model[0];
+  debris2 = cgs.media.breakables[id].model[1];
+  debris3 = cgs.media.breakables[id].model[2];
+  
 	//launch loop
   	while ( count-- ) {
       	// Generate the random number every count so every shard is a
@@ -1226,6 +1172,27 @@ void CG_LaunchBreakableFrag( vec3_t origin, vec3_t velocity, qhandle_t hModel, f
 	le->leBounceSoundType = LEBS_NONE;
 	le->leMarkType = LEMT_NONE;
 }
+/*
+=============
+VectorToString
+
+This is just a convenience function
+for printing vectors
+=============
+*/
+char	*vtos( const vec3_t v ) {
+	static	int		index;
+	static	char	str[8][32];
+	char	*s;
+
+	// use an array so that multiple vtos won't collide
+	s = str[index];
+	index = (index + 1)&7;
+
+	Com_sprintf (s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2]);
+
+	return s;
+}
 
 // JBravo: also for func_explosive
 /*
@@ -1238,11 +1205,9 @@ Generated a bunch of gibs launching out from the breakables location
 #define BREAK_VELOCITY  550
 #define BREAK_JUMP      1500
 
-void CG_BreakBreakable( centity_t *cent, int eParam ) {
+void CG_BreakBreakable( centity_t *cent,int eParam, int number ) {
 	localEntity_t	*le;
 	vec3_t		origin, velocity;
-	qhandle_t	model;
-	sfxHandle_t	sound;
  	qhandle_t		mod;
 	qhandle_t		shader;
 	vec3_t shrapnelDest;
@@ -1253,44 +1218,62 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 	vec3_t			lightColor;
   int duration;
   int				sparkCount;
-	int		i, mass, material;
-	float		tension, bouncyness, size;
-//	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
 
-	mass = ((eParam >> 4) & 0x0F) + 1;
-	tension = 0.25 * (((eParam >> 2) & 0x03) + 1);
-	bouncyness = 0.25 * (((eParam) & 0x3) + 1);
+	int		i;
+	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
+  int   id;
+  int count;
 
-	mass = eParam;
-
-	material = (cent->currentState.powerups >> 12) & 0x000F;
-	tension = 0.0667 * (float)((cent->currentState.powerups >> 8) & 0x000F);
-	bouncyness = 0.0667 * (float)((cent->currentState.powerups >> 4) & 0x000F);
-	size = 0.1333 * (float)((cent->currentState.powerups) & 0x000F);
-
-	if (mass == 0) mass = 1;
-	if (size <= 0) size = 1;
+  
+  id = (eParam & 63);
+  eParam = eParam >> 6;
+  
+  trap_S_StartSound( NULL, number, CHAN_BODY, cgs.media.breakables[id].exp_sound );  
+  
+  if ( (eParam & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM &&
+		 (eParam & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
+	{
+		//Tons
+  		count = 65 + rand() % 16;
+  }
+ 	else if ( (eParam & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
+	{
+		//Large
+  		count = 40 + rand() % 11;
+  }
+  else if ( (eParam & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM)
+	{
+		//Medium
+		count = 20 + rand() % 6;
+  }
+  else
+	{
+		//Small
+  	count = 8 + rand() % 6;
+	}
 	//if (material) material--;
-
-	VectorCopy( cent->currentState.origin, origin );
-
-	sound = cgs.media.breakable_snd[material];
-	trap_S_StartSound( origin, cent->currentState.number, CHAN_BODY, sound );
+	VectorCopy( cent->lerpOrigin, origin );
+  /*
+	sound = cgs.media.breakables[id].sound;
+	trap_S_StartSound( origin, cent->currentState.number, CHAN_BODY, sound );*/
 
 	// create an explosion
 	mod = cgs.media.dishFlashModel;
-	shader = cgs.media.grenadeExplosionShader;
-	light = 350;
+	shader = cgs.media.breakables[id].shader;
+
+  
+  //Com_Printf("Explosion, %d, breakableshader %d at %s ep %d\n",shader,cgs.media.breakables[id].shader, vtos(origin), eParam);
+	light = 550;
 	lightColor[0] = 1;
 	lightColor[1] = 1;
 	lightColor[2] = 0;
-  duration = 600;
+  duration = 1000;
 
-  velocity[0] = (crandom() * BREAK_VELOCITY) * tension;
-	velocity[1] = (crandom() * BREAK_VELOCITY) * tension;
-	velocity[2] = ( random() * BREAK_JUMP)     * tension;
+  velocity[0] = 1;
+  velocity[1] = 1;
+  velocity[2] = 1;
 
-	le = CG_MakeExplosion( origin, velocity,
+  le = CG_MakeExplosion( origin, velocity,
 					   mod,	shader,
 					   duration, qtrue );
 	le->light = light;
@@ -1322,20 +1305,11 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 	puffDir[2] = 20;
 	origin[2] -= 16;
 	smokePuff = CG_SmokePuff( origin, puffDir,
-			  rand() % 12 + 48,
-			  1, 1, 1, 0.4f,
-			  1750,
+			  rand() % 12 + 100,
+			  1, 1, 1, 0.6f,
+			  3000,
 			  cg.time, 0,
 			  0,
 			  cgs.media.smokePuffShader );
-  
-	for (i = 0; i < mass; i++) {
-		velocity[0] = (crandom() * BREAK_VELOCITY) * tension;
-		velocity[1] = (crandom() * BREAK_VELOCITY) * tension;
-		velocity[2] = ( random() * BREAK_JUMP)     * tension;
-		model = cgs.media.breakable_frag[material][(int)(2.0 * random())];
-		CG_LaunchBreakableFrag( origin, velocity, model, bouncyness, size );
-	}
-
 
 }

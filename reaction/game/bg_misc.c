@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/04/03 03:13:16  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.31  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1410,6 +1413,7 @@ char *eventnames[] = {
 	"EV_BREAK_GLASS1",			// Blaze: Breakable glass
 	"EV_BREAK_GLASS2",
 	"EV_BREAK_GLASS3",
+  "EV_CHIP_GLASS",  //Blaze: this even just breaks it a little bit.
 	"EV_SCOREPLUM",			// score plum
 
 //#ifdef MISSIONPACK

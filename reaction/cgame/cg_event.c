@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/04/03 03:13:48  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.47  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -68,7 +71,7 @@
 
 #include "cg_local.h"
 // JBravo: warning fix
-void CG_BreakBreakable(centity_t *cent, int eParam);
+void CG_BreakBreakable(centity_t *cent, int eParam, int number);
 
 // for the voice chats
 #ifdef MISSIONPACK // bk001205
@@ -2496,30 +2499,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
  		// Change cgs.media.gibSound to whatever sound you want it to use
  		// I think the gib sound sounds pretty good
  		//Elder: gonna move this into the function some day
-		if ( rand() % 2 )
- 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
-		else
-			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
- 		//Elder: modified
- 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 0 );
+ 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 0, 0 );
  		break;
 	case EV_BREAK_GLASS2:
  		DEBUGNAME("EV_BREAK_GLASS2");
- 		if ( rand() % 2 )
- 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
-		else
-			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
- 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 1 );
+ 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 1, 0 );
  		break;
 	case EV_BREAK_GLASS3:
  		DEBUGNAME("EV_BREAK_GLASS3");
- 		if ( rand() % 2 )
- 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
-		else
-			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
- 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 2 );
+ 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 2, 0 );
  		break;
-	case EV_STOPLOOPINGSOUND:
+	case EV_CHIP_GLASS:
+ 		DEBUGNAME("EV_CHIP_GLASS");
+ 		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 1, 1 );
+ 		break;
+
+  case EV_STOPLOOPINGSOUND:
 		DEBUGNAME("EV_STOPLOOPINGSOUND");
 		trap_S_StopLoopingSound( es->number );
 		es->loopSound = 0;
@@ -2530,11 +2525,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		CG_Beam( cent );
 		break;
 
-// JBravo: adding func_explosive
-	case EV_GIB_GLASS:
-		DEBUGNAME("EV_GIB_GLASS");
+// Blaze: an exploding breakable
+	case EV_EXPLODE_BREAKABLE:
+		DEBUGNAME("EV_EXPLODE_BREAKABLE");
 		//trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
-		CG_BreakBreakable( cent, es->eventParm );
+		CG_BreakBreakable( cent, es->eventParm, es->number );
 		break;
 
 	default:

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/04/03 03:13:49  blaze
+// NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
+//
 // Revision 1.26  2002/04/02 04:18:58  jbravo
 // Made the TP scoreboard go down at round beginig (not for spectators) and
 // pop up at intermission.  Also added special to the use command
@@ -61,6 +64,9 @@
 
 #include "cg_local.h"
 #include "../ui/menudef.h" // bk001205 - for Q3_ui as well
+
+//Blaze: holds the id to name mapping of the breakables
+extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 typedef struct {
 	const char *order;
@@ -1239,6 +1245,31 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "breakable" ) )
+  {
+    int id;
+    id = atoi(CG_Argv(1));
+    if (id >= 0 && id < RQ3_MAX_BREAKABLES)
+    {
+      //Com_Printf("Registering breakable %s ID=%d\n",CG_Argv(2), id);
+      //Blaze: Breakable stuff - register the models, sounds, and explosion shader
+	    cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",CG_Argv(2)) );
+ 	    cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",CG_Argv(2)) );
+ 	    cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",CG_Argv(2)) );
+      cgs.media.breakables[id].shader = trap_R_RegisterShader( va("breakable_%s_explosion",CG_Argv(2)) );
+      cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", CG_Argv(2)), qfalse );
+      cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", CG_Argv(2)), qfalse );
+      cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", CG_Argv(2)), qfalse );
+      cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", CG_Argv(2)), qfalse );
+      return;
+    }
+    else
+    {
+      CG_Printf("ID was %d\n",id);
+    }
+    return;
+    
+  }
 
 	if ( !strcmp( cmd, "selectpistol") ) {
 		//CG_Printf("Selecting pistol\n");
