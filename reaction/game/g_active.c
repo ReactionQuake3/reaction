@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/03/26 11:32:04  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.61  2002/03/23 21:29:42  jbravo
 // I finally fixed snipers spawning with pistol up. g_RQ3_sniperup has been
 // reinstated.
@@ -546,6 +549,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	if((ucmd->buttons & BUTTON_ATTACK) && !( client->oldbuttons & BUTTON_ATTACK )) {
 		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_FOLLOW;
+			client->specMode = SPECTATOR_FOLLOW;
 			client->ps.pm_flags |= PMF_FOLLOW;
 			Cmd_FollowCycle_f( ent, 1 );
 		} else {
@@ -1607,6 +1611,8 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				// drop them to free spectators unless they are dedicated camera followers
 				if ( ent->client->sess.spectatorClient >= 0 ) {
 					ent->client->sess.spectatorState = SPECTATOR_FREE;
+// JBravo: saving spectatorState
+					ent->client->specMode = SPECTATOR_FREE;
 					ClientBegin( ent->client - level.clients );
 				}
 			}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/03/26 11:32:05  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.81  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -969,6 +972,7 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
+	ent->client->specMode = SPECTATOR_FREE;
 	//Slicer - Removing any zoom bits he might have gainned
 	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -1083,6 +1087,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	}
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+	ent->client->specMode = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
 }
 
@@ -1141,6 +1146,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+		ent->client->specMode = SPECTATOR_FOLLOW;
 		return;
 	} while ( clientnum != original );
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/03/26 11:32:05  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.11  2002/03/18 17:52:36  slicer
 // Saved sess.savedTeam throught map changes for matchmode
 //
@@ -193,6 +196,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	}
 
 	sess->spectatorState = SPECTATOR_FREE;
+	client->specMode = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
 
 	G_WriteClientSessionData( client );

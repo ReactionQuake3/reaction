@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/03/26 11:32:05  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.45  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -865,11 +868,9 @@ void MakeSpectator( gentity_t *ent )
 
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
-	//Slicer, commenting this, fixes a lot..savedTeam is always accurate, no need to change it here
-//	client->sess.savedTeam = client->sess.sessionTeam;
-//	client->ps.persistant[PERS_SAVEDTEAM] = client->sess.sessionTeam;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
+	client->sess.spectatorState = client->specMode;
 	ClientSpawn(ent);
 }
 

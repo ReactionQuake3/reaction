@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/03/26 11:32:04  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.53  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -1323,7 +1326,7 @@ void ClientSpawn(gentity_t *ent) {
 //	char			*savedAreaBits;
 	int			accuracy_hits, accuracy_shots;
 	int			eventSequence;
-	int			savedWeapon, savedItem;			// JBravo: to save weapon/item info
+	int			savedWeapon, savedItem, savedSpec;	// JBravo: to save weapon/item info
 	int			savedRadiopower, savedRadiogender;	// JBravo: for radio.
 	char			userinfo[MAX_INFO_STRING];
 
@@ -1357,6 +1360,11 @@ void ClientSpawn(gentity_t *ent) {
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		spawnPoint = SelectSpectatorSpawnPoint (
 			spawn_origin, spawn_angles);
+// JBravo: remember saved specmodes.
+		if (g_gametype.integer == GT_TEAMPLAY) {
+			if (client->specMode == SPECTATOR_FOLLOW || client->specMode == SPECTATOR_FREE)
+				client->sess.spectatorState = client->specMode;
+		}
 	} else if (g_gametype.integer >= GT_CTF ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint (
@@ -1431,6 +1439,7 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: save weapon/item info
 	savedWeapon = client->teamplayWeapon;
 	savedItem = client->teamplayItem;
+	savedSpec = client->specMode;
 // JBravo: save radiosettings
 	savedRadiopower = client->radioOff;
 	savedRadiogender = client->radioGender;
@@ -1440,6 +1449,7 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: restore weapon/item info
 	client->teamplayWeapon = savedWeapon;
 	client->teamplayItem = savedItem;
+	client->specMode = savedSpec;
 // JBravo: restore radiosettings
 	client->radioOff = savedRadiopower;
 	client->radioGender = savedRadiogender;

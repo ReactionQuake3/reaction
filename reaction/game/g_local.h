@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/03/26 11:32:05  jbravo
+// Remember specstate between rounds.
+//
 // Revision 1.58  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -576,6 +579,7 @@ struct gclient_s {
         struct camera_s *camera;
 #endif /* __ZCAM__ */
 // JBravo adding TP stuff
+	int	specMode;
 	int	teamplayWeapon;
 	int	teamplayItem;
 	int	radioGender;
