@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/06/13 20:16:16  slicer
+// Setting gender on DM also
+//
 // Revision 1.76  2002/06/13 19:46:18  assimon
 // Map defined in cfg is now played with main/team cvar settings
 //
@@ -942,11 +945,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_SoundIndex( "sound/player/gurp1.wav" );
 		G_SoundIndex( "sound/player/gurp2.wav" );
 	}
-
-// JBravo: reset teamplay stuff.
-	if( g_gametype.integer == GT_TEAMPLAY ) {
-
-		//Slicer: Default Radio Gender according to MODEL gender
+//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
 		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
 		s = Q_strrchr(model, '/');
@@ -966,6 +965,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 					level.team2gender = legitmodels[i].gender; 
 			}
 		}
+// JBravo: reset teamplay stuff.
+	if( g_gametype.integer == GT_TEAMPLAY ) {
 		level.team_round_countdown = 0;
 		level.rulecheckfrequency = 0;
 		level.lights_camera_action = 0;
