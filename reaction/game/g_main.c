@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/06/13 23:54:40  assimon
+// Dont ask what i changed...better for your health. Now comments work properly.
+//
 // Revision 1.80  2002/06/13 22:46:56  slicer
 // another small fix
 //
@@ -480,7 +483,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
 	{ &g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	// aasimon: stuff for da ini file
-	{ &g_RQ3_IniFile, "g_RQ3_IniFile", "rq3.ini", CVAR_SERVERINFO, 0, qtrue},
+	{ &g_RQ3_IniFile, "g_RQ3_IniFile", "", CVAR_SERVERINFO, 0, qfalse},
 	{ &g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	{ &g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse}, 
 	{ &g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse}
@@ -2585,8 +2588,13 @@ void RQ3_ReadInitFile() {
 	char		*buf;
  	int		len;
 
- 	len = trap_FS_FOpenFile (g_RQ3_IniFile.string, &file, FS_READ);
- 	if (!file) {
+	len = trap_FS_FOpenFile (g_RQ3_IniFile.string, &file, FS_READ);
+	
+	if (!file)
+		len = trap_FS_FOpenFile ("rq3.ini", &file, FS_READ);
+	
+	if (!file)
+	{
  		G_Printf ("Could not open INI file\n");
 		trap_Cvar_Set ("g_RQ3_ValidIniFile", "0");
 		return;
@@ -2596,7 +2604,7 @@ void RQ3_ReadInitFile() {
 
  	buf = G_Alloc (len); 
 	trap_FS_Read (buf, len, file);
- //	G_Printf ("RQ3 config system: Ini File contains: %s\n", buf);
+
  	trap_FS_FCloseFile (file);
 
 	RQ3_ParseBuffer (buf, len); 
@@ -2607,9 +2615,16 @@ void RQ3_ParseBuffer (char *buf, int len) {
 	int	cur_pos, tag_type;
 
 	for (cur_pos = 0;  cur_pos < len; cur_pos++) {
+		
+		if ( *(buf + cur_pos) == '#' || ( *(buf + cur_pos) == '/' &&  *(buf + cur_pos + 1) == '/'))
+			RQ3_SkipLineComment( buf, &cur_pos );
+		
+
 		// chop things we dont need
 		if ((*(buf + cur_pos) == ' ') || (*(buf + cur_pos) == '\n') || (*(buf + cur_pos) == '\t') || (*(buf + cur_pos) == '\r'))
 			continue;
+
+
 		if (*(buf + cur_pos) == '<') { // we are in a tag
 			cur_pos++;
 			if ((tag_type = RQ3_GetTag (buf, &cur_pos, tag, len)) == INVALID)
