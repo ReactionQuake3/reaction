@@ -1662,31 +1662,30 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							//Vest stuff
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
-									
 								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
 								if (attacker->client->ps.weapon == WP_SSG3000)
-								{	trap_SendServerCommand(attacker-g_entities, va("print \"%s has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
+								{
+									trap_SendServerCommand(attacker-g_entities, va("print \"%s has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
                                     trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s's AP sniper round\n\"",attacker->client->pers.netname));
                                     take = take * 0.325;
-                                 
 								}
 								else
 								{	trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));	
 									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s shot\n\"", attacker->client->pers.netname ));
 									take = take/10;
+									instant_dam = 1;
 									bleeding = 0;
 								}
 								//Elder: flag for sound in feedback
 								targ->client->damage_vest = qtrue;
-								break;
 							}
 							else
 							{
 								trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
   								trap_SendServerCommand( targ-g_entities, va("print \"Chest Damage.\n\""));
 								take *= 0.65;
-								break;
 							}
+							break;
 						}
 						case (LOCATION_STOMACH):
 						{   

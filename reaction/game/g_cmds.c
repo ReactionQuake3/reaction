@@ -1992,8 +1992,12 @@ void Cmd_Reload( gentity_t *ent )       {
 
 	//ent->client->ps.weaponstate = WEAPON_RELOADING;
     ent->client->ps.weaponstate = WEAPON_RELOADING;
-    //ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
-    //                              ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+	//Elder: temporary hack to drop weapon if it's not the MK23
+	if (ent->client->ps.weapon != WP_PISTOL)
+	{
+		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
+									^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+	}
     ent->client->ps.weaponTime += delay;
        
     //Elder: at this point there should be sufficient ammo requirements to reload

@@ -2644,7 +2644,10 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_Weapon();
 
 	//weapon animations(rq3 specific)
-	PM_WeaponAnimation();
+	//Elder: hack to avoid messing up fast-reloads
+	if (pm->ps->weapon == WP_PISTOL)
+		PM_WeaponAnimation();
+
 	// torso animation
 	PM_TorsoAnimation();
 

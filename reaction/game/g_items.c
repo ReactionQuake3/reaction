@@ -1583,7 +1583,7 @@ void RQ3_DroppedItemThink(gentity_t *ent) {
 			rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
 			G_FreeEntity(ent);
 			Drop_Item (rq3_temp, rq3_item, angle);
-			G_Printf("RQ3_DroppedItemThink: Freeing item entity + respawning\n");
+			//G_Printf("RQ3_DroppedItemThink: Freeing item entity + respawning\n");
     		break;
     	default:
     		//Elder: shouldn't have to come here

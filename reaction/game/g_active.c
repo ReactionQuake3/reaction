@@ -1570,7 +1570,9 @@ void ClientEndFrame( gentity_t *ent ) {
 	if ( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER )
 	{
 		//Disable laser if switching weapons, bandaging, etc.
-		if (ent->client->lasersight && ent->client->ps.weaponstate == WEAPON_DROPPING)
+		if (ent->client->lasersight && 
+			(ent->client->ps.weaponstate == WEAPON_DROPPING ||
+			 ent->client->ps.weaponstate == WEAPON_RELOADING))
 		{	
 			Laser_Gen(ent, qfalse);
 		}

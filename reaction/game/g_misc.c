@@ -482,13 +482,12 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 		//eParm should now be under 1 byte and shiftCount >= 0
 		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
 		
- 		G_FreeEntity( ent );
-
         // Tell the program based on the gun if it was caused by splash damage
      	switch( mod ) {
      		//Elder: added + compacted
      		case MOD_KNIFE:
      		case MOD_KNIFE_THROWN:
+			case MOD_MP5:
      		case MOD_M4:
      		case MOD_M3:
      		case MOD_PISTOL:
@@ -506,7 +505,10 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 				VectorScale(size, 0.5, size);
 				VectorAdd(ent->r.mins, size, impactPoint);
      			break;
+
      	}
+		
+		G_FreeEntity( ent );
 
 		switch ( shiftCount )
 		{
