@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/04/02 20:23:12  jbravo
+// Bots dont get to use any specmode other than FREE and the recive radio cmds
+// as text and not sounds.
+//
 // Revision 1.58  2002/04/01 22:23:14  slicer
 // Added "weapon" command buffering | Solved Gren Mode Bug
 //
@@ -1115,26 +1119,24 @@ restarts.
 */
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value;
-//	char		*areabits;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
 	gentity_t	*ent;
 
-	ent = &g_entities[ clientNum ];
-
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	ent = &g_entities[clientNum];
+	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
-	if ( G_FilterPacket( value ) ) {
+	if (G_FilterPacket(value)) {
 		return "Banned.";
 	}
 
-	if ( !( ent->r.svFlags & SVF_BOT ) ) {
+	if (!( ent->r.svFlags & SVF_BOT)) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
-		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
-			strcmp( g_password.string, value) != 0) {
+		if (g_password.string[0] && Q_stricmp(g_password.string, "none") &&
+			strcmp(g_password.string, value) != 0) {
 			return "Invalid password";
 		}
 	}
@@ -1143,9 +1145,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	ent->client = level.clients + clientNum;
 	client = ent->client;
 
-//	areabits = client->areabits;
-
-	memset( client, 0, sizeof(*client) );
+	memset(client, 0, sizeof(*client));
 
 	client->pers.connected = CON_CONNECTING;
 
@@ -1155,15 +1155,15 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 
 	// read or initialize the session data
-	if ( firstTime || level.newSession ) {
-		G_InitSessionData( client, userinfo );
+	if (firstTime || level.newSession) {
+		G_InitSessionData(client, userinfo);
 	}
-	G_ReadSessionData( client );
+	G_ReadSessionData(client);
 
-	if( isBot ) {
+	if(isBot) {
 		ent->r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
-		if( !G_BotConnect( clientNum, !firstTime ) ) {
+		if(!G_BotConnect(clientNum, !firstTime)) {
 			return "BotConnectfailed";
 		}
 	}
@@ -1171,24 +1171,23 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// get and distribute relevent paramters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 
-	//slicer : make sessionTeam = to savedTeam for scoreboard on cgame
+// slicer : make sessionTeam = to savedTeam for scoreboard on cgame
 // JBravo: only for teamplay. Could break DM
 	if (g_gametype.integer == GT_TEAMPLAY) {
-		client->sess.sessionTeam = client->sess.savedTeam ;
-		ClientUserinfoChanged( clientNum );
-		client->sess.sessionTeam = TEAM_SPECTATOR;
+		client->sess.sessionTeam = client->sess.savedTeam;
+		ClientUserinfoChanged(clientNum);
 	}
 	else
-		ClientUserinfoChanged( clientNum );
+		ClientUserinfoChanged(clientNum);
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
-	if ( firstTime ) {
-		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
+	if (firstTime) {
+		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
 	}
 
-	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
-		client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		BroadcastTeamChange( client, -1 );
+	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
+		client->sess.sessionTeam != TEAM_SPECTATOR) {
+		BroadcastTeamChange(client, -1);
 	}
 
 	// count current clients and rank for scoreboard
@@ -1198,12 +1197,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
+		client->sess.spectatorState = SPECTATOR_FREE;
+		client->specMode = SPECTATOR_FREE;
+		client->ps.pm_flags &= ~PMF_FOLLOW;
+		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		client->camera->mode = CAMERA_MODE_SWING;
+		RQ3_SpectatorMode(ent);
 	}
-
-	// for statistics
-//	client->areabits = areabits;
-//	if ( !client->areabits )
-//		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }
@@ -1217,7 +1217,7 @@ to be placed into the level.  This will happen every level load,
 and on transition between teams, but doesn't happen on respawns
 ============
 */
-void ClientBegin( int clientNum ) {
+void ClientBegin(int clientNum) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int		flags, savedPing, i;
@@ -1226,11 +1226,11 @@ void ClientBegin( int clientNum ) {
 	ent = g_entities + clientNum;
 	client = level.clients + clientNum;
 
-	if ( ent->r.linked ) {
-		trap_UnlinkEntity( ent );
+	if (ent->r.linked) {
+		trap_UnlinkEntity(ent);
 	}
 
-	G_InitGentity( ent );
+	G_InitGentity(ent);
 	ent->touch = 0;
 	ent->pain = 0;
 	ent->client = client;
@@ -1245,7 +1245,7 @@ void ClientBegin( int clientNum ) {
 	//Slicer: Saving persistant and ping
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		savedPing = client->ps.ping;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
+		for (i = 0 ;i < MAX_PERSISTANT; i++)
 			savedPers[i] = client->ps.persistant[i]; 
 	}
 
@@ -1259,24 +1259,28 @@ void ClientBegin( int clientNum ) {
 	// so the viewpoint doesn't interpolate through the
 	// world to the new position
 	flags = client->ps.eFlags;
-	memset( &client->ps, 0, sizeof( client->ps ) );
+	memset(&client->ps, 0, sizeof(client->ps));
 	client->ps.eFlags = flags;
 
 	//Slicer: Repost score and ping 
-	if(g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY) {
 		client->ps.ping = savedPing;
-		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
+		for (i = 0; i < MAX_PERSISTANT; i++)
 			client->ps.persistant[i] = savedPers[i];
 	}
 	// locate ent at a spawn point
-	ClientSpawn( ent );
+	ClientSpawn(ent);
 
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
-	if ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) {
+	if (g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
+		client->specMode = SPECTATOR_FREE;
+		client->ps.pm_flags &= ~PMF_FOLLOW;
+		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		RQ3_SpectatorMode(ent);
 // JBravo: Set grenades to short, and the other weapons to full automatic on connect.
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
 		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED;
@@ -1291,18 +1295,16 @@ void ClientBegin( int clientNum ) {
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
 
-		if ( g_gametype.integer != GT_TOURNAMENT ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
+		if (g_gametype.integer != GT_TOURNAMENT) {
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
 		}
 	}
-	G_LogPrintf( "ClientBegin: %i\n", clientNum );
+	G_LogPrintf("ClientBegin: %i\n", clientNum);
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
-	//Blaze: load in the cvar.cfg file and send off the values to the currently connecting client.
 
 	// JBravo: default weapons
-
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/04/02 20:23:12  jbravo
+// Bots dont get to use any specmode other than FREE and the recive radio cmds
+// as text and not sounds.
+//
 // Revision 1.52  2002/04/02 04:18:58  jbravo
 // Made the TP scoreboard go down at round beginig (not for spectators) and
 // pop up at intermission.  Also added special to the use command
@@ -878,7 +882,7 @@ void UnstickPlayer( gentity_t *ent )
 	}
 }
 
-void MakeSpectator( gentity_t *ent )
+void MakeSpectator(gentity_t *ent)
 {
 	gclient_t	*client;
 
@@ -889,7 +893,10 @@ void MakeSpectator( gentity_t *ent )
 	client->ps.stats[STAT_WEAPONS] = 0;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
-	client->sess.spectatorState = client->specMode;
+	if (ent->r.svFlags & SVF_BOT)
+		client->sess.spectatorState = SPECTATOR_FREE;
+	else
+		client->sess.spectatorState = client->specMode;
 	ClientSpawn(ent);
 }
 
@@ -1060,9 +1067,14 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 				player = &g_entities[i];
 				if (!player->inuse)
 					continue;
-				if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
-					trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
-						ent->client->radioGender));
+				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
+					if (player->r.svFlags & SVF_BOT)
+						trap_SendServerCommand(ent-g_entities, va("print \"radio %s %i\n\"",
+							ent->client->pers.netname, x));
+					else
+						trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
+							ent->client->radioGender));
+				}
 			}
 		}
 		x++;

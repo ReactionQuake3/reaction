@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/02 20:23:12  jbravo
+// Bots dont get to use any specmode other than FREE and the recive radio cmds
+// as text and not sounds.
+//
 // Revision 1.67  2002/04/01 22:23:14  slicer
 // Added "weapon" command buffering | Solved Gren Mode Bug
 //
@@ -567,6 +571,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		G_TouchTriggers( ent );
 		trap_UnlinkEntity( ent );
 	}
+
+// JBravo: Lets not allow bots to use any specmode other than FREE
+	if (ent->r.svFlags & SVF_BOT)
+		return;
 
 	//Slicer - Changing this for aq2 way
 	// Jump button cycles throught spectators
