@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/06/02 00:13:39  makro
+// Spectators can vote in TP, not just call a vote
+//
 // Revision 1.114  2002/05/31 18:17:10  makro
 // Bot stuff. Added a server command that prints a line to a client
 // and everyone who is spectating him
@@ -1742,7 +1745,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		i = atoi( arg2 );
 		if (i != GT_FFA && i != GT_TEAM && i != GT_TEAMPLAY) {
 			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
-		return;
+			return;
 		}
 
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, i );
@@ -1808,7 +1811,8 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Vote already cast.\n\"" );
 		return;
 	}
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+	//Makro - allow spectators to vote in TP
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to vote as spectator.\n\"" );
 		return;
 	}
