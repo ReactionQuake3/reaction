@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/04/18 16:13:23  jbravo
+// Scoreboard now shows green for live players and white for dead.
+// Time should not get reset on deaths any more.
+//
 // Revision 1.94  2002/04/14 12:55:03  jbravo
 // Cleaned up cmd_reload while hunting for the m3 reload bug
 //
@@ -199,13 +203,11 @@ DeathmatchScoreboardMessage
 
 ==================
 */ 
-void DeathmatchScoreboardMessage( gentity_t *ent ) {
-	char		entry[1024];
-	char		string[1400];
-	int			stringlength;
-	int			i, j;
+void DeathmatchScoreboardMessage (gentity_t *ent) {
+	char		entry[1024], string[1400];
+	int		stringlength, i, j, alive;
 	gclient_t	*cl;
-	int			numSorted, scoreFlags, accuracy, perfect;
+	int		numSorted, scoreFlags, accuracy;
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -219,55 +221,32 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 
 		cl = &level.clients[level.sortedClients[i]];
 
-		if ( cl->pers.connected == CON_CONNECTING ) {
+		if (cl->pers.connected == CON_CONNECTING) {
 			ping = -1;
 		} else {
 			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 		}
 
-		if( cl->accuracy_shots ) {
+		if (cl->accuracy_shots) {
 			accuracy = cl->accuracy_hits * 100 / cl->accuracy_shots;
-		}
-		else {
+		} else {
 			accuracy = 0;
 		}
-		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
-//Blaze: Removed because it uses the persistant stats stuff
-//Elder: played around with it...
-//		G_Printf("Clientnum: %s is %d\n", cl->pers.netname, cl->ps.persistant[PERS_KILLED]);
+
+		alive = cl->sess.sessionTeam != TEAM_SPECTATOR ? 1 : 0;
 
 		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
-			cl->ps.persistant[PERS_KILLED],	// NiceAss: Added for TP scoreboard
-			cl->ps.persistant[PERS_DAMAGE_DELT],  // JBravo: Added for TP scoreboard
-			0,
+			cl->ps.persistant[PERS_KILLED],		// NiceAss: Added for TP scoreboard
+			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo:  Added for TP scoreboard
+			alive,					// JBravo:  Added for TP scoreboard
 			0,
 			0,
 			0,
 			0);
-			//cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			//cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			//cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-			//cl->ps.persistant[PERS_DEFEND_COUNT],
-			//cl->ps.persistant[PERS_ASSIST_COUNT],
-			//perfect,
-			//cl->ps.persistant[PERS_CAPTURES]);
 
-
-/*		Com_sprintf (entry, sizeof(entry),
-			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
-			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-			cl->ps.persistant[PERS_DEFEND_COUNT],
-			cl->ps.persistant[PERS_ASSIST_COUNT],
-			perfect,
-			cl->ps.persistant[PERS_CAPTURES]);
-			*/
 		j = strlen(entry);
 		if (stringlength + j > 1024)
 			break;
@@ -275,9 +254,9 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		stringlength += j;
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i,
+	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i%s", i,
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
-		string ) );
+		string));
 }
 
 

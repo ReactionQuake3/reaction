@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/04/18 16:13:23  jbravo
+// Scoreboard now shows green for live players and white for dead.
+// Time should not get reset on deaths any more.
+//
 // Revision 1.64  2002/04/07 12:49:53  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -418,6 +422,7 @@ typedef struct {
 	int				score;
 	int				deaths;		// NiceAss: Added deaths
 	int				damage;		// JBravo: Added damage
+	int				alive;		// JBravo: Added flag to tell if player is alive
 	int				ping;
 	int				time;
 	int				scoreFlags;

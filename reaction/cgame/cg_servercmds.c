@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/04/18 16:13:23  jbravo
+// Scoreboard now shows green for live players and white for dead.
+// Time should not get reset on deaths any more.
+//
 // Revision 1.27  2002/04/03 03:13:49  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -131,10 +135,12 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].deaths = atoi(CG_Argv(i * 14 + 11));
 		// JBravo: Added damage, replaced the place of excellentCount
 		cg.scores[i].damage = atoi(CG_Argv(i * 14 + 12));
+		// JBravo: Added health, replaced the place of guantletCount
+		cg.scores[i].alive = atoi(CG_Argv(i * 14 + 13));
 		//Elder: these should be zero
 		//cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
 		//cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
+		//cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
 		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
 		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
 		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));

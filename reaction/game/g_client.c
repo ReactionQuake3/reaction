@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/18 16:13:23  jbravo
+// Scoreboard now shows green for live players and white for dead.
+// Time should not get reset on deaths any more.
+//
 // Revision 1.65  2002/04/09 14:30:10  jbravo
 // Made cg_thirdPerson a CVAR_ROM, Made bots understand team aliases (1 and 2) and
 // made TP spawns more random.
@@ -1248,6 +1252,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		camera_begin(ent);
 		client->camera->mode = CAMERA_MODE_SWING;
 	}
+// JBravo: moved from ClientBegin
+	client->pers.enterTime = level.time;
 
   //Blaze: Send out the breakable names to the clients
   if (!isBot && G_SendBreakableInfo(clientNum))
@@ -1304,7 +1310,7 @@ void ClientBegin(int clientNum) {
 	}
 
 	client->pers.connected = CON_CONNECTED;
-	client->pers.enterTime = level.time;
+//	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
 
 	// save eflags around this, because changing teams will

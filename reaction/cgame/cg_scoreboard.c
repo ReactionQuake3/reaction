@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/04/18 16:13:23  jbravo
+// Scoreboard now shows green for live players and white for dead.
+// Time should not get reset on deaths any more.
+//
 // Revision 1.21  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -192,7 +196,7 @@ static int CG_TeamplayScoreboard(void)
 	char	Tmp[128];
 
 	vec4_t	White, Black, RedL, BlueL, GreyL, BlackL;
-	vec4_t	RedD, BlueD, GreyD;
+	vec4_t	RedD, BlueD, GreyD, Green;
 
 	if (cg.time > cg.scoreStartTime+300) {
 		Alpha = cos((cg.time-cg.scoreStartTime) / 400.0f) * 0.15f + 0.85f;
@@ -205,6 +209,7 @@ static int CG_TeamplayScoreboard(void)
 
 	MAKERGBA(White, 1.0f, 1.0f, 1.0f, 1.0f);
 	MAKERGBA(Black, 0.0f, 0.0f, 0.0f, 1.0f);
+	MAKERGBA(Green, 0.0f, 1.0f, 0.0f, 1.0f);
 	MAKERGBA(BlackL, 0.0f, 0.0f, 0.0f, 0.8f * Alpha);
 	MAKERGBA(RedD, 0.8f, 0.0f,0.0f, 0.8f * Alpha);
 	MAKERGBA(BlueD, 0.0f, 0.0f, 0.8f, 0.8f * Alpha);
@@ -268,7 +273,10 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[ Score->client ];
 
 			if (ci->team == TEAM_RED) {
-				CG_DrawTeamplayClientScore(y, Score, RedL, Black, White);
+				if(Score->alive)
+					CG_DrawTeamplayClientScore(y, Score, RedL, Black, Green);
+				else
+					CG_DrawTeamplayClientScore(y, Score, RedL, Black, White);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, Black);
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
@@ -313,7 +321,10 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[ Score->client ];
 
 			if (ci->team == TEAM_BLUE) {
-				CG_DrawTeamplayClientScore(y, Score, BlueL, Black, White);
+				if(Score->alive)
+					CG_DrawTeamplayClientScore(y, Score, BlueL, Black, Green);
+				else
+					CG_DrawTeamplayClientScore(y, Score, BlueL, Black, White);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, Black);
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
