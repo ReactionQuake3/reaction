@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/03/01 20:22:31  jbravo
+// Fixed a small booboo with the teamcounts
+//
 // Revision 1.62  2002/03/01 20:02:34  jbravo
 // Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
 // makro
@@ -851,6 +854,7 @@ void SetTeam( gentity_t *ent, char *s )
 //         so the scoreboard will be correct.  Also check for uneven teams.
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		x = RQ3TeamCount( -1, client->sess.savedTeam);
+		x = RQ3TeamCount( -1, oldTeam);
 		CheckForUnevenTeams(ent);
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;
