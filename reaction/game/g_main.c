@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/07/19 04:29:58  niceass
+// include CTF in showing scoreboard at end of map
+//
 // Revision 1.101  2002/07/16 04:07:26  niceass
 // no "sudden death" in ctb
 //
@@ -1561,8 +1564,9 @@ void BeginIntermission(void)
 			respawn(client);
 		}
 		MoveClientToIntermission(client);
-// JBravo: send the TP scoreboard to players
-		if (g_gametype.integer == GT_TEAMPLAY)
+		// JBravo: send the TP scoreboard to players
+		// NiceAss: And CTF
+		if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 			trap_SendServerCommand(i, va("rq3_cmd %i", MAPEND));
 	}
 
