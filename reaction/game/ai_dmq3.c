@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/06/01 13:37:02  makro
+// Tweaked bandaging code
+//
 // Revision 1.39  2002/05/31 18:17:10  makro
 // Bot stuff. Added a server command that prints a line to a client
 // and everyone who is spectating him
@@ -2710,7 +2713,7 @@ void RQ3_Bot_IdleActions( bot_state_t *bs ) {
 
 
 	//check if the bot needs to bandage
-	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
+	if (damage && RQ3_Bot_CheckBandage(bs)) {
 		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 			Cmd_Bandage( &g_entities[bs->entitynum] );
 			bs->idleAction_time = FloatTime() + 4;
@@ -5997,10 +6000,24 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 		case EV_FALL_FAR:
 		case EV_FALL_FAR_NOSOUND:		// Makro - check for falling damage
 			{
-				//Makro - this is the attack skill, we should be using the overall skill
-				int	skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
-				if (random() > (1.0f - skill)) {
-					if (RQ3_Bot_NeedToBandage(bs) == 2) {
+				if (RQ3_Bot_NeedToBandage(bs) == 2) {
+					qboolean willBandage = qfalse;
+					//Makro - this is the attack skill, we should be using the overall skill
+					int	skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+					//if the bot isn't in the middle of a fight
+					if (bs->enemy == -1) {
+						if (BotFindEnemy(bs, -1)) {
+							//if an enemy is nearby, a smart bot won't bandage
+							willBandage = (random() > skill);
+						} else {
+							//but it will otherwise
+							willBandage = (random() > (1.0f - skill));
+						}
+					} else {
+						//smart bots don't bandage during a fight
+						willBandage = (random() > skill);
+					}
+					if (willBandage) {
 						Cmd_Bandage( &g_entities[bs->entitynum] );
 					}
 				}

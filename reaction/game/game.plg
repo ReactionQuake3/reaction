@@ -3,6 +3,15 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
+--------------------Configuration: cgame - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+cgamex86.dll - 0 error(s), 0 warning(s)
+<h3>
 --------------------Configuration: game - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
@@ -11,6 +20,15 @@
 
 <h3>Results</h3>
 qagamex86.dll - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: ui - Win32 Release TA--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/06/01 13:37:02  makro
+// Tweaked bandaging code
+//
 // Revision 1.26  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -2357,12 +2360,15 @@ AIEnter_Battle_Fight
 ==================
 */
 void AIEnter_Battle_Fight(bot_state_t *bs, char *s) {
+	float attack_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
 	BotRecordNodeSwitch(bs, "battle fight", "", s);
 	trap_BotResetLastAvoidReach(bs->ms);
 	//Makro - check if the bot has leg damage
 	if (RQ3_Bot_NeedToBandage(bs) == 2) {
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
+		if (random() > attack_skill) {
+			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+				Cmd_Bandage( &g_entities[bs->entitynum] );
+			}
 		}
 	}
 	bs->ainode = AINode_Battle_Fight;
@@ -2423,11 +2429,13 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	if (bs->enemydeath_time) {
 		if (bs->enemydeath_time < FloatTime() - 1.0) {
 			bs->enemydeath_time = 0;
-			//Makro - check if the bot needs to bandage
-			if (RQ3_Bot_NeedToBandage(bs) != 0) {
-				if (RQ3_Bot_CheckBandage(bs)) {
-					if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-						Cmd_Bandage( &g_entities[bs->entitynum] );
+			if (random() > 0.3f) {
+				//Makro - check if the bot needs to bandage
+				if (RQ3_Bot_NeedToBandage(bs) != 0) {
+					if (RQ3_Bot_CheckBandage(bs)) {
+						if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+							Cmd_Bandage( &g_entities[bs->entitynum] );
+						}
 					}
 				}
 			}//
@@ -2777,10 +2785,13 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	//if the enemy is NOT visible for 4 seconds
 	if (bs->enemyvisible_time < FloatTime() - 4) {
 		//Makro - bot retreating, enemy not in sight - a good time to bandage
-		if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
-			//If not bandaging already
-			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-				Cmd_Bandage( &g_entities[bs->entitynum] );
+		//if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
+		if (random() > 0.3f) {
+			if (RQ3_Bot_NeedToBandage(bs)) {
+				//If not bandaging already
+				if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+					Cmd_Bandage( &g_entities[bs->entitynum] );
+				}
 			}
 		}
 		AIEnter_Seek_LTG(bs, "battle retreat: lost enemy");
@@ -2790,18 +2801,20 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	else if (bs->enemyvisible_time < FloatTime()) {
 		//if there is another enemy
 		if (BotFindEnemy(bs, -1)) {
-			//if the bot has leg damage
-			if (RQ3_Bot_NeedToBandage(bs) == 2) {
-				//If the bot wants to bandage and not bandaging already
-				if (bs->cur_ps.weaponstate != WEAPON_BANDAGING && RQ3_Bot_CheckBandage(bs)) {
-					Cmd_Bandage( &g_entities[bs->entitynum] );
+			if (random() < 0.5f) {
+				//if the bot is hurt
+				if (RQ3_Bot_NeedToBandage(bs)) {
+					//If the bot wants to bandage and not bandaging already
+					if (bs->cur_ps.weaponstate != WEAPON_BANDAGING && RQ3_Bot_CheckBandage(bs)) {
+						Cmd_Bandage( &g_entities[bs->entitynum] );
+					}
 				}
 			}
 			AIEnter_Battle_Fight(bs, "battle retreat: another enemy");
 			return qfalse;
 		} else {
 			if (RQ3_Bot_NeedToBandage(bs) != 0) {
-			//If not bandaging already
+				//If not bandaging already
 				if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 					Cmd_Bandage( &g_entities[bs->entitynum] );
 				}
