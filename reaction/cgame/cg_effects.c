@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/21 02:17:39  blaze
+// more func_explosive goodness
+//
 // Revision 1.21  2002/03/21 00:26:46  blaze
 // some fixing of func_explosive
 //
@@ -29,6 +32,92 @@
 // of event processing
 
 #include "cg_local.h"
+
+extern void CG_Particle_Bleed (qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration);
+/*
+===============
+CG_ShrapnelSpark
+
+Moved from cg_weapons
+Added by Elder
+Modified tracer code
+I really don't know what's going on half the time here :)
+===============
+*/
+void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length ) {
+	vec3_t		forward, right;
+	polyVert_t	verts[4];
+	vec3_t		line;
+	float		len, begin, end;
+	vec3_t		start, finish;
+	//vec3_t		midpoint;
+
+	// tracer
+	VectorSubtract( dest, source, forward );
+	len = VectorNormalize( forward );
+
+	// start at least a little ways from the muzzle
+	//if ( len < 10 ) {
+		//return;
+	//}
+
+	begin = crandom() * 8;
+	end = begin + length;
+	if ( end > len ) {
+		end = len;
+	}
+	VectorMA( source, begin, forward, start );
+	VectorMA( source, end, forward, finish );
+
+	line[0] = DotProduct( forward, cg.refdef.viewaxis[1] );
+	line[1] = DotProduct( forward, cg.refdef.viewaxis[2] );
+
+	VectorScale( cg.refdef.viewaxis[1], line[1], right );
+	VectorMA( right, -line[0], cg.refdef.viewaxis[2], right );
+	VectorNormalize( right );
+
+	VectorMA( finish, width, right, verts[0].xyz );
+	verts[0].st[0] = 0;
+	verts[0].st[1] = 1;
+	verts[0].modulate[0] = 255;
+	verts[0].modulate[1] = 255;
+	verts[0].modulate[2] = 255;
+	verts[0].modulate[3] = 255;
+
+	VectorMA( finish, -width, right, verts[1].xyz );
+	verts[1].st[0] = 1;
+	verts[1].st[1] = 0;
+	verts[1].modulate[0] = 255;
+	verts[1].modulate[1] = 255;
+	verts[1].modulate[2] = 255;
+	verts[1].modulate[3] = 255;
+
+	VectorMA( start, -width, right, verts[2].xyz );
+	verts[2].st[0] = 1;
+	verts[2].st[1] = 1;
+	verts[2].modulate[0] = 255;
+	verts[2].modulate[1] = 255;
+	verts[2].modulate[2] = 255;
+	verts[2].modulate[3] = 255;
+
+	VectorMA( start, width, right, verts[3].xyz );
+	verts[3].st[0] = 0;
+	verts[3].st[1] = 0;
+	verts[3].modulate[0] = 255;
+	verts[3].modulate[1] = 255;
+	verts[3].modulate[2] = 255;
+	verts[3].modulate[3] = 255;
+
+	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
+
+	//midpoint[0] = ( start[0] + finish[0] ) * 0.5;
+	//midpoint[1] = ( start[1] + finish[1] ) * 0.5;
+	//midpoint[2] = ( start[2] + finish[2] ) * 0.5;
+
+	// add the tracer sound
+	//trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+
+}
 
 
 /*
@@ -1153,15 +1242,18 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 	sfxHandle_t	sound;
  	qhandle_t		mod;
 	qhandle_t		shader;
+	vec3_t shrapnelDest;
+	localEntity_t	*smokePuff;
+	vec3_t			puffDir;
 
+ 	float			light;
+	vec3_t			lightColor;
+  int duration;
+  int				sparkCount;
 	int		i, mass, material;
 	float		tension, bouncyness, size;
 	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
 
-	// allow gibs to be turned off for speed
-	if ( !cg_gibs.integer ) {
-		return;
-	}
 	mass = ((eParam >> 4) & 0x0F) + 1;
 	tension = 0.25 * (((eParam >> 2) & 0x03) + 1);
 	bouncyness = 0.25 * (((eParam) & 0x3) + 1);
@@ -1185,15 +1277,54 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 	// create an explosion
 	mod = cgs.media.dishFlashModel;
 	shader = cgs.media.grenadeExplosionShader;
+	light = 350;
+	lightColor[0] = 1;
+	lightColor[1] = 1;
+	lightColor[2] = 0;
+  duration = 600;
 
-  le = CG_MakeExplosion( origin, velocity,
-						   mod,
-						   shader,
-						   600, qtrue );
-	le->light = 300;
-	le->lightColor[0] = 1;
-	le->lightColor[1] = 0.75;
-	le->lightColor[2] = 0.50;
+  velocity[0] = (crandom() * BREAK_VELOCITY) * tension;
+	velocity[1] = (crandom() * BREAK_VELOCITY) * tension;
+	velocity[2] = ( random() * BREAK_JUMP)     * tension;
+
+	le = CG_MakeExplosion( origin, velocity,
+					   mod,	shader,
+					   duration, qtrue );
+	le->light = light;
+  VectorCopy( lightColor, le->lightColor );
+
+  
+  sparkCount = 60 + rand() % 10;
+	origin[2] += 32;
+
+	for (i = 0; i < sparkCount; i++)
+	{
+		VectorScale (velocity, rand() % 200, velocity);
+		velocity[0] += rand() % 200 - 100;
+		velocity[1] += rand() % 200 - 100;
+		if (i % 8 == 7)
+		{
+			// Add shrapnel trace effect
+			VectorMA(origin, 0.7f, velocity, shrapnelDest);
+			CG_ShrapnelSpark(origin, shrapnelDest, 10, 280);
+		}
+
+		// Add sparks
+		CG_ParticleSparks(origin, velocity, 900 + rand() % 200, 5, 5, -2.5f, 3.5f);
+	}
+
+	// Add smoke puff
+	puffDir[0] = 0;
+	puffDir[1] = 0;
+	puffDir[2] = 20;
+	origin[2] -= 16;
+	smokePuff = CG_SmokePuff( origin, puffDir,
+			  rand() % 12 + 48,
+			  1, 1, 1, 0.4f,
+			  1750,
+			  cg.time, 0,
+			  0,
+			  cgs.media.smokePuffShader );
   
 	for (i = 0; i < mass; i++) {
 		velocity[0] = (crandom() * BREAK_VELOCITY) * tension;

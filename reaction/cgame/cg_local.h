@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/03/21 02:17:39  blaze
+// more func_explosive goodness
+//
 // Revision 1.54  2002/03/17 21:32:23  jbravo
 // Fixed the dynamic teamnames system up a bit to reduce traffic
 //
@@ -1802,6 +1805,10 @@ void CG_LightningBoltBeam( vec3_t start, vec3_t end );
 #endif
 void CG_ScorePlum( int client, vec3_t org, int score );
 
+//Blaze: for explosions
+void CG_Particle_Bleed (qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration);
+void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length );
+
 void CG_GibPlayer( vec3_t playerOrigin );
 void CG_BigExplode( vec3_t playerOrigin );
 // Blaze: Breakable glass Elder: modified
@@ -1863,6 +1870,7 @@ void CG_PlayBufferedVoiceChats( void );
 void CG_Respawn( void );
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 void CG_CheckChangedPredictableEvents( playerState_t *ps );
+
 
 
 //===============================================

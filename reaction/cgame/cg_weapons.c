@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/03/21 02:17:39  blaze
+// more func_explosive goodness
+//
 // Revision 1.56  2002/03/21 00:26:11  blaze
 // some fixing of func_explosive
 //
@@ -50,6 +53,8 @@
 //
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
+
+
 
 /*
 ==========================
@@ -2740,90 +2745,6 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 				break;
 		}
 	}
-}
-
-/*
-===============
-CG_ShrapnelSpark
-
-Added by Elder
-Modified tracer code
-I really don't know what's going on half the time here :)
-===============
-*/
-static void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length ) {
-	vec3_t		forward, right;
-	polyVert_t	verts[4];
-	vec3_t		line;
-	float		len, begin, end;
-	vec3_t		start, finish;
-	//vec3_t		midpoint;
-
-	// tracer
-	VectorSubtract( dest, source, forward );
-	len = VectorNormalize( forward );
-
-	// start at least a little ways from the muzzle
-	//if ( len < 10 ) {
-		//return;
-	//}
-
-	begin = crandom() * 8;
-	end = begin + length;
-	if ( end > len ) {
-		end = len;
-	}
-	VectorMA( source, begin, forward, start );
-	VectorMA( source, end, forward, finish );
-
-	line[0] = DotProduct( forward, cg.refdef.viewaxis[1] );
-	line[1] = DotProduct( forward, cg.refdef.viewaxis[2] );
-
-	VectorScale( cg.refdef.viewaxis[1], line[1], right );
-	VectorMA( right, -line[0], cg.refdef.viewaxis[2], right );
-	VectorNormalize( right );
-
-	VectorMA( finish, width, right, verts[0].xyz );
-	verts[0].st[0] = 0;
-	verts[0].st[1] = 1;
-	verts[0].modulate[0] = 255;
-	verts[0].modulate[1] = 255;
-	verts[0].modulate[2] = 255;
-	verts[0].modulate[3] = 255;
-
-	VectorMA( finish, -width, right, verts[1].xyz );
-	verts[1].st[0] = 1;
-	verts[1].st[1] = 0;
-	verts[1].modulate[0] = 255;
-	verts[1].modulate[1] = 255;
-	verts[1].modulate[2] = 255;
-	verts[1].modulate[3] = 255;
-
-	VectorMA( start, -width, right, verts[2].xyz );
-	verts[2].st[0] = 1;
-	verts[2].st[1] = 1;
-	verts[2].modulate[0] = 255;
-	verts[2].modulate[1] = 255;
-	verts[2].modulate[2] = 255;
-	verts[2].modulate[3] = 255;
-
-	VectorMA( start, width, right, verts[3].xyz );
-	verts[3].st[0] = 0;
-	verts[3].st[1] = 0;
-	verts[3].modulate[0] = 255;
-	verts[3].modulate[1] = 255;
-	verts[3].modulate[2] = 255;
-	verts[3].modulate[3] = 255;
-
-	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
-
-	//midpoint[0] = ( start[0] + finish[0] ) * 0.5;
-	//midpoint[1] = ( start[1] + finish[1] ) * 0.5;
-	//midpoint[2] = ( start[2] + finish[2] ) * 0.5;
-
-	// add the tracer sound
-	//trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
-
 }
 
 
