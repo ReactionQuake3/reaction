@@ -529,7 +529,7 @@ static void CG_DrawStatusBar( void ) {
 		style |= UI_PULSE;
 	
 	//Elder: Need bandaging?
-	if (ps->stats[STAT_BANDAGE])
+	if ( (ps->stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED)
 		hicon = cgs.media.rq3_healthicon2;
 	else
 		hicon = cgs.media.rq3_healthicon;
@@ -2020,12 +2020,33 @@ static void CG_DrawCrosshair(void) {
 
 
 	//Elder: Sniper crosshairs - lots of hardcoded values :/
- 	if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
+ 	//if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
+	if ( cg.snap->ps.weapon==WP_SSG3000 &&
+		( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
+		int zoomMag;
 		x = 640 / 2;
 		y = 480 / 2;
- 		//I can probably scale the zoom with the screen width -/+ keys
+
+		//derive zoom level - seems complicated but they're only bit comparisions
+		if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+			(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+			zoomMag = 2;
+		}
+		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+			zoomMag = 0;
+		}
+		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+			zoomMag = 1;
+		}
+		else {
+			//Shouldn't need to be here
+			CG_Error("CG_DrawCrosshair: received bad zoom value %d\n", zoomMag);
+		}
+
+		//I can probably scale the zoom with the screen width -/+ keys
  		//But I'll do it later.
- 		CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[cg.zoomLevel - 1]);
+ 		CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
  		return;
 	}
 	else {

@@ -41,8 +41,8 @@ static void CG_DropWeapon_f (void) {
 		return;
 	}
 	
-	cg.zoomed = 0;
-	cg.zoomLevel = 0;
+	//cg.zoomed = 0;
+	//cg.zoomLevel = 0;
 	trap_SendClientCommand("dropweapon");
 }
 
@@ -58,15 +58,34 @@ static void CG_Bandage_f (void) {
 		return;
 	}
 
-	///Elder: spectator?
+	//Elder: spectator?
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
-	
-	if (cg.snap->ps.stats[STAT_BANDAGE]) {
-		cg.zoomed = 0;
-		cg.zoomLevel = 0;
+
+	//Elder: prevent "bandaging" when dead hehe
+	if ( cg.snap->ps.stats[STAT_HEALTH] < 0 ) {
+		CG_Printf("It's a bit too late to bandage yourself...\n");
+		return;
 	}
+
+	//Elder: added to prevent bandaging while reloading or firing
+	if ( cg.snap->ps.weaponTime > 0 ) {
+		CG_Printf("You are too busy with your weapon!\n");
+		return;
+	}
+
+	//if (cg.snap->ps.stats[STAT_BANDAGE]) {
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You are already bandaging!\n");
+		//cg.zoomed = 0;
+		//cg.zoomLevel = 0;
+		return;
+	}
+	//else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
+		//cg.zoomed = 0;
+		//cg.zoomLevel = 0;
+	//}
 	trap_SendClientCommand("bandage");
 }
 
@@ -89,13 +108,25 @@ static void CG_Reload_f (void) {
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
-	
+
+	//Elder: prevent "reloading" when dead hehe
+	if ( cg.snap->ps.stats[STAT_HEALTH] < 0 ) {
+		CG_Printf("Nothing to reload - you are dead.\n");
+		return;
+	}
+
+	//Elder: added to prevent bandaging while reloading
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You'll get to your weapon when you are finished bandaging!\n");
+		return;
+	}
+
 	//Elder: no clips, or full chamber means no reload
 	//CG_Printf("currentState.weapon: %d, clipamount: %d\n", cent->currentState.weapon, ClipAmountForAmmo(cent->currentState.weapon));
 	if (cg.snap->ps.stats[STAT_CLIPS] &&
 		cg.snap->ps.ammo[cent->currentState.weapon] < ClipAmountForAmmo(cent->currentState.weapon) ) {
-		cg.zoomed = 0;
-		cg.zoomLevel = 0;
+		//cg.zoomed = 0;
+		//cg.zoomLevel = 0;
 	}
 	trap_SendClientCommand("reload");
 }
@@ -501,7 +532,7 @@ static consoleCommand_t	commands[] = {
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
-	{ "weapon", CG_Weapon_f },				// Elder: it's for AQ2 and Q3!?
+	{ "weapon", CG_Weapon_f },				// Elder: it's for RQ3 and Q3A
 	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
 	{ "reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
@@ -614,7 +645,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("reload");
  	trap_AddCommand ("opendoor");
  	trap_AddCommand ("bandage");
-	trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd
+	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used
 	//Elder: added to give drop weapon auto-complete
 	trap_AddCommand ("dropweapon");
 	//Elder: try this

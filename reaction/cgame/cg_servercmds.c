@@ -1054,9 +1054,9 @@ static void CG_ServerCommand( void ) {
 				default:
 					cg.weaponSelectTime = cg.time;
 					cg.weaponSelect = WP_PISTOL;
-					cg.zoomed = qfalse;
-					cg.zoomLevel = 0;
-					trap_SendClientCommand("unzoom");
+					//cg.zoomed = qfalse;
+					//cg.zoomLevel = 0;
+					//trap_SendClientCommand("unzoom");
 					break;
 			}
 		}

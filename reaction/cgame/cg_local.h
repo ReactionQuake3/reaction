@@ -507,7 +507,7 @@ typedef struct {
 	// zoom key					
 
 	qboolean	zoomed;					// Hawkins: not just zoomed... but
-	int			zoomLevel;				// Zoom LEVEL!
+//	int			zoomLevel;				// Zoom LEVEL!
 	int			zoomTime;
 	float		zoomSensitivity;
 

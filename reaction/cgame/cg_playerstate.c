@@ -184,8 +184,8 @@ void CG_Respawn( void ) {
 	cg.weaponSelect = cg.snap->ps.weapon;
 	
 	//Elder: added to reset zoom stuff LOCALLY
-	cg.zoomed = qfalse;
-	cg.zoomLevel = 0;
+	//cg.zoomed = qfalse;
+	//cg.zoomLevel = 0;
 }
 
 extern char *eventnames[];

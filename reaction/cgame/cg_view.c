@@ -487,7 +487,10 @@ static int CG_CalcFov( void ) {
 //	zoomFov = cg_zoomFov.value;
 */
 	// Hawkins Reaction zooming.
-	if(cg.zoomed){
+	if ( cg.snap->ps.weapon==WP_SSG3000 &&
+		( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
+		/*
 		switch(cg.zoomLevel){
 		case 1:
 			zoomFov=45;
@@ -505,13 +508,38 @@ static int CG_CalcFov( void ) {
 			zoomFov=90;
 			cg.zoomed=qfalse;
 			break;
+		}*/
+
+		if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+			(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+			//6x
+			fov_x = 20;
+			zoomFov = 10;
+			cg.zoomed = qtrue;
 		}
+		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+			//2x
+			zoomFov = 45;
+			cg.zoomed = qtrue;
+		}
+		else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+			//4x
+			fov_x = 45;
+			zoomFov = 20;
+			cg.zoomed = qtrue;
+		}
+		else {
+			//1x
+			zoomFov = 90;
+			cg.zoomed = qfalse;
+		}
+
 		if ( zoomFov < 1 ) {
 			zoomFov = 1;
 		} else if ( zoomFov > 160 ) {
 			zoomFov = 160;
 		}
-			if ( cg.zoomed ) {
+		if ( cg.zoomed ) {
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
 			if ( f > 1.0 ) {
 				fov_x = zoomFov;
@@ -529,7 +557,8 @@ static int CG_CalcFov( void ) {
 	}
 	else {
 		//Elder: safety check
-		cg.zoomLevel = 0;
+		//cg.zoomLevel = 0;
+		cg.zoomed = qfalse;
 	}
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );

@@ -728,8 +728,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_AKIMBO:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0.5f );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
-		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
+		//Elder: changed to use pseudo-dual sound
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
+		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
+		//weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
@@ -1589,8 +1591,14 @@ void CG_NextWeapon_f( void ) {
 	}
 
 	//Elder: added
-	cg.zoomed = qfalse;
-	cg.zoomLevel = 0;
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You are too busy bandaging...\n");
+		return;
+	}
+
+	//Elder: added
+	//cg.zoomed = qfalse;
+	//cg.zoomLevel = 0;
 
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
@@ -1630,8 +1638,14 @@ void CG_PrevWeapon_f( void ) {
 	}
 
 	//Elder: added
-	cg.zoomed = qfalse;
-	cg.zoomLevel = 0;
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You are too busy bandaging...\n");
+		return;
+	}
+
+	//Elder: added
+	//cg.zoomed = qfalse;
+	//cg.zoomLevel = 0;
 
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
@@ -1654,11 +1668,18 @@ void CG_PrevWeapon_f( void ) {
 	}
 }
 
+//Elder: for returning to the zoom state in ps stats
+void CG_RQ3_QuickZoom ( void ) {
+	//cg.zoomLevel = lastzoom;
+}
+
 // Hawkins (weapon command)
 // Elder: Don't call it the weapon command heh :)
 //void CG_RXN_Zoom(int n){
+//Elder: not used again - AQ2 doesn't tell the player about the zoom level
 void CG_RXN_Zoom( void ) {
 	//Elder: reworked SSG zoom
+	/*
 	if(cg.snap->ps.weapon==WP_SSG3000) {
 		cg.zoomLevel++;
 		if (cg.zoomLevel == 4) {
@@ -1672,6 +1693,21 @@ void CG_RXN_Zoom( void ) {
 		}
 		cg.zoomTime = cg.time;
 	}
+	*/
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+		CG_Printf("Zoomed to 6x\n");
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+		CG_Printf("Zoomed to 2x\n");
+	}
+	else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+		CG_Printf("Zoomed to 4x\n");
+	}
+	else {
+		CG_Printf("Zoomed out\n");
+	}
+
 /*
 		if ( n == 0 ) {
 			cg.zoomLevel=0;
@@ -1716,6 +1752,18 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
+	//Elder: added to prevent weapon switching while bandaging
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You are too busy bandaging...\n");
+		return;
+	}
+	
+	//Elder: in the middle of firing, reloading or weapon-switching
+	if (cg.snap->ps.weaponTime > 0) {
+		return;
+	}
+
+
 	///Elder: spectator?
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
@@ -1723,14 +1771,15 @@ void CG_Weapon_f( void ) {
 
 	// Hawkins (give 'weapon' dual meaning)
 	if ( trap_Argc() == 1 ) {
-	//Elder: if SSG, use local zooming THEN forward to server for stats
 		if (cg.snap->ps.weapon == WP_SSG3000) {
 			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.lensSound);
 			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
-			CG_RXN_Zoom();
-			}
-
-	trap_SendClientCommand("weapon");
+			//CG_RXN_Zoom();
+		}
+		else {
+			//do weapon select sound
+		}
+		trap_SendClientCommand("weapon");
 	}
 
 	num = atoi( CG_Argv( 1 ) );
@@ -1753,8 +1802,8 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 	
-	cg.zoomed = qfalse;
-	cg.zoomLevel = 0;
+	//cg.zoomed = qfalse;
+	//cg.zoomLevel = 0;
 	
 	trap_SendClientCommand("unzoom");
 	cg.weaponSelect = num;

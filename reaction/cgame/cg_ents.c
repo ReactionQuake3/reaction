@@ -275,6 +275,7 @@ static void CG_Item( centity_t *cent ) {
 	//Elder: added knife conditional
 	if ( item->giType == IT_WEAPON && 
 		!(item->giTag == WP_KNIFE && ( (es->eFlags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) ) {
+
 		vec3_t          myvec;
 		
 		//CG_Printf("Should not be in here if it's a thrown knife\n");		
@@ -293,7 +294,11 @@ static void CG_Item( centity_t *cent ) {
 			wi->weaponMidpoint[2] * ent.axis[2][2];
 	//Blaze: Dont raise the weapon, but lower it
 	//Elder: increased value
-		cent->lerpOrigin[2] -= 14;
+		//Elder: don't lower knives by much - this is bad hardcode but oh well
+		if ( item->giTag == WP_KNIFE)
+			cent->lerpOrigin[2] -= 10;
+		else
+			cent->lerpOrigin[2] -= 14;
 	//	cent->lerpOrigin[2] += 8;	// an extra height boost
     // Blaze: rotate the gun by 90 degrees to place it on the ground
         VectorCopy(ent.axis[1], myvec);
