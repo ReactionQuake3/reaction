@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2003/03/08 09:58:08  niceass
+// Changes to make my "position on tag with offset" work correctly with orientation matrices crap for CTB tag_weapon2
+//
 // Revision 1.37  2003/02/27 20:51:14  makro
 // no message
 //
@@ -184,20 +187,19 @@ void CG_PositionRotatedOffsetEntityOnTag(refEntity_t * entity, const refEntity_t
 	orientation_t lerped;
 	vec3_t tempAxis[3];	//, tmp;
 
-//AxisClear( entity->axis );
 	// lerp the tag
 	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
 
-	// FIXME: allow origin offsets along tag?
 	VectorCopy(parent->origin, entity->origin);
-	VectorAdd(lerped.origin, Offset, lerped.origin);
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
 		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
-	}
 
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply(entity->axis, lerped.axis, tempAxis);
 	MatrixMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+
+	for (i = 0; i < 3; i++)
+		VectorMA(entity->origin, Offset[i], entity->axis[i], entity->origin);
 }
 
 /*
