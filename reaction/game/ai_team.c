@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/06/22 00:19:57  jbravo
+// Cleanups for colors and stopped bots looking for team leaders in TP
+//
 // Revision 1.9  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1109,8 +1112,8 @@ void BotTeamAI(bot_state_t * bs)
 		return;
 	//make sure we've got a valid team leader
 	if (!BotValidTeamLeader(bs)) {
-		//
-		if (!FindHumanTeamLeader(bs)) {
+		// JBravo: try to stop that teamleader crap in TP
+		if (!FindHumanTeamLeader(bs) && gametype != GT_TEAMPLAY) {
 			//
 			if (!bs->askteamleader_time && !bs->becometeamleader_time) {
 				if (bs->entergame_time + 10 > FloatTime()) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/06/22 00:19:57  jbravo
+// Cleanups for colors and stopped bots looking for team leaders in TP
+//
 // Revision 1.19  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -119,3 +122,5 @@ void Cmd_Ignoreclear_f(gentity_t * ent);
 void Cmd_Playerlist_f(gentity_t * ent);
 int IsInIgnoreList(gentity_t * source, gentity_t * subject);
 void RQ3_GetSpawnPoints (void);
+void ResetKills(gentity_t * ent);
+void AddKilledPlayer(gentity_t * self, gentity_t * ent);

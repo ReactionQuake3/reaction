@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/06/22 00:19:57  jbravo
+// Cleanups for colors and stopped bots looking for team leaders in TP
+//
 // Revision 1.112  2002/06/21 15:04:55  makro
 // Health functionality for movers should be complete now
 //
@@ -371,7 +374,6 @@ void RQ3_SetupTeamSpawnPoints(void);
 gitem_t *BG_FindItemForHoldable(holdable_t pw);
 char *ConcatArgs(int start);
 int touch[MAX_GENTITIES];
-void ResetKills(gentity_t * ent);
 void ClearBodyQue(void);
 void Cmd_DropItem_f(gentity_t * ent);
 void Cmd_DropWeapon_f(gentity_t * ent);
@@ -1750,13 +1752,16 @@ void GetNearbyTeammates(gentity_t * self, char *buf)
 			if (nearby_teammates_num == 2) {
 				strcat(buf, "^5 and ");
 				strcat(buf, nearby_teammates[l]);
+				strcat(buf, "^5");
 			} else {
 				if (l == (nearby_teammates_num - 1)) {
 					strcat(buf, "^5, and ");
 					strcat(buf, nearby_teammates[l]);
+					strcat(buf, "^5");
 				} else {
 					strcat(buf, "^5, ");
 					strcat(buf, nearby_teammates[l]);
+					strcat(buf, "^5, ");
 				}
 			}
 		}
