@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/03/23 21:29:42  jbravo
+// I finally fixed snipers spawning with pistol up. g_RQ3_sniperup has been
+// reinstated.
+//
 // Revision 1.41  2002/03/23 05:17:43  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -716,78 +720,83 @@ void EquipPlayer (gentity_t *ent)
 
 	switch(ent->client->teamplayWeapon) {
 	case WP_SSG3000:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_SSG3000 );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
-		ent->client->ps.weapon = WP_SSG3000;
-		ent->client->ps.weaponTime = RQ3_SSG3000_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_SSG3000] = RQ3_SSG3000_AMMO;
+		if (g_RQ3_sniperup.integer == 1) {
+			ent->client->ps.weapon = WP_SSG3000;
+			ent->client->ps.weaponTime = RQ3_SSG3000_ACTIVATE_DELAY;
+		} else {
+			ent->client->ps.weapon = WP_PISTOL;
+			ent->client->ps.weaponTime = RQ3_PISTOL_ACTIVATE_DELAY;
+		}
+		ent->client->weaponCount[WP_SSG3000] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_MP5:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MP5 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
+		ent->client->numClips[WP_MP5] = RQ3_MP5_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_MP5] = RQ3_MP5_AMMO;
 		ent->client->ps.weapon = WP_MP5;
 		ent->client->ps.weaponTime = RQ3_MP5_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_MP5] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M3:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M3 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
+		ent->client->numClips[WP_M3] = RQ3_M3_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_M3] = RQ3_M3_AMMO;
 		ent->client->ps.weapon = WP_M3;
 		ent->client->ps.weaponTime = RQ3_M3_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_M3] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M4:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M4 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
+		ent->client->numClips[WP_M4] = RQ3_M4_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_M4] = RQ3_M4_AMMO;
 		ent->client->ps.weapon = WP_M4;
 		ent->client->ps.weaponTime = RQ3_M4_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_M4] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_AKIMBO:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_AKIMBO );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
+		ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
 		ent->client->ps.weaponTime = RQ3_AKIMBO_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_AKIMBO] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
 	case WP_HANDCANNON:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_HANDCANNON );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO * bandolierFactor;
-		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
+		ent->client->numClips[WP_HANDCANNON] = RQ3_HANDCANNON_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_HANDCANNON] = RQ3_HANDCANNON_AMMO;
 		ent->client->ps.weapon = WP_HANDCANNON;
 		ent->client->ps.weaponTime = RQ3_HANDCANNON_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_HANDCANNON] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_KNIFE:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.ammo[ WP_KNIFE ] = RQ3_KNIVES_EXTRA_AMMO * bandolierFactor;
+		ent->client->ps.ammo[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.weapon = WP_KNIFE;
 		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
-		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->weaponCount[WP_KNIFE] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
 	default:

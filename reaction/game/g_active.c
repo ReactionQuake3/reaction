@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/03/23 21:29:42  jbravo
+// I finally fixed snipers spawning with pistol up. g_RQ3_sniperup has been
+// reinstated.
+//
 // Revision 1.60  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -1037,29 +1041,15 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 	usercmd_t	*ucmd;
 	gitem_t		*xr_item;
 	gentity_t	*xr_drop;
-//	byte i;
-//	int amount;
 	int weap;
 
 	client = ent->client;
 	ucmd = &ent->client->pers.cmd;
 
-	//if( client->ps.weapon == WP_KNIFE || client->ps.weapon == WP_PISTOL || client->ps.weapon == WP_GRENADE || ( ucmd->buttons & BUTTON_ATTACK ))
-	//	return;
-
-	//Elder: TODO: have to add a reloading case:
-	//weaponTime > 0 or weaponState == weapon_dropping?  Or both?
-	//Still firing
 	if (!forceThrow)
-		if ( (ucmd->buttons & BUTTON_ATTACK) || client->ps.weaponTime > 0)
+		if ((ucmd->buttons & BUTTON_ATTACK) || client->ps.weaponTime > 0)
 			return 0;
 
-	//Elder: Bandaging case -- handled in cgame
-	//else if (client->isBandaging) {
-	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		//trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
-		//return;
-	//}
 	//Elder: remove zoom bits
 	Cmd_Unzoom(ent);
 
@@ -1085,18 +1075,12 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 				weap = WP_SSG3000;
 			if (weap == 0 )
 				return 0;
-		}
-		else
-		{
+		} else {
 			weap = client->ps.weapon;
 		}
 
 		xr_item = BG_FindItemForWeapon( weap );
 
-		//Elder: Send a server command instead of force-setting
-		//client->ps.weapon = WP_PISTOL;
-		//Elder: Don't reset the weapon ammo
-		//client->ps.ammo[ weap ] = 0;
 		client->pers.hadUniqueWeapon[weap] = qtrue;
 
 
