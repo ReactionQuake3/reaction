@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/07/02 07:22:10  niceass
+// kill pressures at LCA
+//
 // Revision 1.18  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -664,6 +667,10 @@ void CG_AddPressureEntity(localEntity_t * le)
 	vec3_t velocity;
 	vec3_t origin;
 	float alpha;
+
+	// Kill it if LCA.
+	if (cg.lca)
+		CG_FreeLocalEntity(le);
 
 	if (le->leFlags == LEF_WATER) {
 		return;

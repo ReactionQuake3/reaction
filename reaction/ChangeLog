@@ -54,3 +54,5 @@
 * Fixed subs and limchasecam
 * The captain status no longer stays on people after mapchanges
 * Commands like "drop weapon ; use throwing combat knife" now work as expected.
+* Pressures are killed on LCA
+* Matchmode ping determine code in
