@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/02/10 21:21:23  slicer
+// Saving persistant and other data on some events..
+//
 // Revision 1.46  2002/02/10 18:38:42  jbravo
 // Added new SPECTATOR_ZCAM spec mode.
 //
@@ -529,7 +532,7 @@ struct gclient_s {
 // JBravo adding TP stuff
 	int	teamplayWeapon;
 	int	teamplayItem;
-	int	savedpersistant[MAX_PERSISTANT];
+//	int	savedpersistant[MAX_PERSISTANT];
 };
 
 

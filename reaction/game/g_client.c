@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/02/10 21:21:22  slicer
+// Saving persistant and other data on some events..
+//
 // Revision 1.36  2002/02/10 16:26:55  jbravo
 // Attempting to intergrate zcam better into rq3 and a fix for lights.wav
 //
@@ -1132,7 +1135,8 @@ void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
-	int savedPing,savedScore;
+	int savedPing,i;
+	int savedPers[MAX_PERSISTANT];
 
 	ent = g_entities + clientNum;
 
@@ -1153,11 +1157,11 @@ void ClientBegin( int clientNum ) {
 		client->pers.sub = TEAM_FREE;
 	}
 
-	//Slicer: Saving score and ping
+	//Slicer: Saving persistant and ping
 	savedPing = client->ps.ping;
-	savedScore = client->ps.persistant[PERS_SCORE];
+	for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
+		savedPers[i] = client->ps.persistant[i]; 
 
-	
 
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
@@ -1175,7 +1179,8 @@ void ClientBegin( int clientNum ) {
 	//Slicer: Repost score and ping 
 	if(g_gametype.integer == GT_TEAMPLAY) {
 		client->ps.ping = savedPing;
-		client->ps.persistant[PERS_SCORE] = savedScore;
+		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
+			client->ps.persistant[i] = savedPers[i];
 	}
 	// locate ent at a spawn point
 	ClientSpawn( ent );
@@ -1336,7 +1341,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
-		savedpers[i] = client->savedpersistant[i];
+	//	savedpers[i] = client->savedpersistant[i];
 	}
 	eventSequence = client->ps.eventSequence;
 
@@ -1360,7 +1365,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
-		client->savedpersistant[i] = savedpers[i];
+//		client->savedpersistant[i] = savedpers[i];
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn

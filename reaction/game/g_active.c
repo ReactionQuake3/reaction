@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/02/10 21:21:22  slicer
+// Saving persistant and other data on some events..
+//
 // Revision 1.51  2002/02/10 18:38:42  jbravo
 // Added new SPECTATOR_ZCAM spec mode.
 //
@@ -1533,7 +1536,8 @@ SpectatorClientEndFrame
 */
 void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
-	int		savedPing, savedScore,savedFlags;
+	int		savedPing, savedFlags,i;
+	int savedPers[MAX_PERSISTANT];
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -1553,18 +1557,21 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
 			// JBravo: saving score and ping to fix the scoreboard
 				savedPing = ent->client->ps.ping;
-				savedScore = ent->client->ps.persistant[PERS_SCORE];
-				//Slicer saving pm_flags
+				//Slicer saving pm_flags & pers
 				savedFlags = ent->client->ps.pm_flags;
+				for (i = 0 ; i < MAX_PERSISTANT ; i++)
+					savedPers[i] = ent->client->ps.persistant[i];
+				//This will make the spectator get the client's stuff
 				ent->client->ps = cl->ps;
 				//Reposting score and ping.. 
 				if(g_gametype.integer == GT_TEAMPLAY) {
+					for (i = 0 ; i < MAX_PERSISTANT ; i++)
+						ent->client->ps.persistant[i] = savedPers[i];
+										
 					ent->client->ps.ping = savedPing;
-					ent->client->ps.persistant[PERS_SCORE] = savedScore;
 					//Slicer reposting pmflags
 					ent->client->ps.pm_flags = savedFlags;
 				}
-//				ent->client->ps.persistant[PERS_SCORE] = ent->client->savedpersistant[PERS_SCORE];
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				ent->client->ps.eFlags = flags;
 				return;

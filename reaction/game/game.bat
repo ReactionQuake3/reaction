@@ -85,6 +85,10 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc%  ../rxn_game.c
 @if errorlevel 1 goto quit
+%cc%  ../zcam.c
+@if errorlevel 1 goto quit
+%cc%  ../zcam_target.c
+@if errorlevel 1 goto quit
 
 
 q3asm -f ../game

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/02/10 21:21:23  slicer
+// Saving persistant and other data on some events..
+//
 // Revision 1.41  2002/02/07 23:31:22  niceass
 // fixed a bug in G_Combat that assumed pointers waren't NULL (only in DLLs was it a problem)
 //
@@ -614,11 +617,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 // JBravo: save client->ps so spectating wont zap it.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+/*	if (g_gametype.integer == GT_TEAMPLAY) {
 		for (i = 0 ; i < MAX_PERSISTANT ; i++) {
 			self->client->savedpersistant[i] = self->client->ps.persistant[i];
 		}
-	}
+	}*/
 
 #ifdef MISSIONPACK
 	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
