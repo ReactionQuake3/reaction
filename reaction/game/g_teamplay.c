@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2002/09/09 02:26:55  niceass
+// enabled drop case
+//
 // Revision 1.136  2002/09/08 12:50:52  jbravo
 // Tuned the scaling ctb respawn system a bit and defaulted g_RQ3_ctb_respawndelay
 // to 0
@@ -1114,8 +1117,8 @@ void RQ3_Cmd_Drop_f(gentity_t * ent)
 		Cmd_DropItem_f(ent);
 	} else if (Q_stricmp(cmd, "weapon") == 0) {
 		Cmd_DropWeapon_f(ent);
-//	} else if (Q_stricmp(cmd, "case") == 0) {
-//		Cmd_Dropcase_f(ent);
+	} else if (Q_stricmp(cmd, "case") == 0) {
+		Cmd_Dropcase_f(ent);
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"unknown item: %s\n\"", cmd));
 	}
