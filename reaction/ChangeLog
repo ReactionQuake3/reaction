@@ -4,7 +4,8 @@
 * added g_RQ3_ctb_respawndelay for delayed CTB respawns.
 * Fixed initial spawning in teammates for CTB
 * Changed rq3ctf to rq3ctb in .arena parsing code.
-* Fixed the MM settings menu to also work wnem connected to a remote server.
+* Fixed the MM settings menu to also work when connected to a remote server.
+* Fixed the about server menu to display the right g_ cvars when connected to a remote server.
 * Removed colors from the nicks in MM commands
 * Added a map_restart after successful g_gametype votes.
 * UI now supports CTB as a valid gametype
@@ -26,7 +27,7 @@
 * Blocked radio commands during LCA
 * Added the dynamic radio system
 * Hacked the bufferedsound system so radio sound overlap less
-* No rcon stuff alowed in matchmode
+* No rcon stuff command alowed in matchmode
 
 # List fixes here for the 2.1 release
 
