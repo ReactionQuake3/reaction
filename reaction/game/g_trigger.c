@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/05/11 22:01:41  makro
+// Trigger_hurt
+//
 // Revision 1.11  2002/05/11 17:59:49  makro
 // Trigger_hurt update
 //
@@ -424,6 +427,9 @@ void SP_trigger_hurt( gentity_t *self ) {
 	// link in to the world if starting active
 	if ( ! (self->spawnflags & 1) ) {
 		trap_LinkEntity (self);
+	} else {
+		//Makro - added
+		trap_UnlinkEntity (self);
 	}
 }
 
