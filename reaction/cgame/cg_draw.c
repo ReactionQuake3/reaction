@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/01 03:27:17  niceass
+// centerprint fix + prettier
+//
 // Revision 1.37  2002/04/29 06:10:48  niceass
 // better centerprint
 //
@@ -2167,12 +2170,14 @@ static void CG_DrawCenterString( void ) {
 
 	y = cg.centerPrintY - windowHeight / 2;
 
-	MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
-		cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, color2);
-	MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
-		cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, 1, color2);
+	if (cg.centerPrint[0] != '\n') {
+		MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 0.4f * color[3]);
+		CG_FillRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
+			cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, color2);
+		MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 1.0f * color[3]);
+		CG_DrawCleanRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
+			cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, 1, color2);
+	}
 
 
 	while ( 1 ) {
