@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 /**********************************************************************
@@ -73,18 +61,21 @@ void UI_StartDemoLoop( void ) {
 }
 
 
+#ifndef MISSIONPACK // bk001206
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
+#endif // MISSIONPACK
 
+#ifndef MISSIONPACK // bk001206
 static void NeedCDKeyAction( qboolean result ) {
 	if ( !result ) {
 		trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
 	}
 }
-
+#endif // MISSIONPACK
 
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];
@@ -336,14 +327,30 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
 
 	if ( Q_stricmp (cmd, "remapShader") == 0 ) {
-		if (trap_Argc() == 4) {
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
-			trap_R_RemapShader(shader1, shader2, UI_Argv(3));
-			return qtrue;
+		//Makro - disabling shader remapping when cheats are off
+		if ( trap_Cvar_VariableValue("sv_cheats") == 1 ) {
+			if (trap_Argc() >= 4) {
+				char shader1[MAX_QPATH];
+				char shader2[MAX_QPATH];
+				Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
+				Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
+				trap_R_RemapShader(shader1, shader2, UI_Argv(3));
+				}
+			else
+			//Makro - if no delay is specified, use 0
+			if (trap_Argc() == 3) {
+				char shader1[MAX_QPATH];
+				char shader2[MAX_QPATH];
+				Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
+				Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
+				trap_R_RemapShader(shader1, shader2, 0);
+				}
+			else
+				Com_Printf("Usage: remapShader <oldShader> <newShader> [delay]\n");	
 		}
+		else
+			Com_Printf("Shader remapping is cheat-protected\n");
+		return qtrue;
 	}
 
 	if ( Q_stricmp (cmd, "postgame") == 0 ) {
@@ -364,6 +371,15 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	if ( Q_stricmp (cmd, "ui_cdkey") == 0 ) {
 		//UI_CDKeyMenu_f();
+		return qtrue;
+	}
+
+	//Makro - adding popup for choose commands
+	if ( Q_stricmp (cmd, "ui_RQ3_loadout") == 0 ) {
+		if ( trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY )
+			_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
+		else
+			Com_Printf("Not playing teamplay\n");
 		return qtrue;
 	}
 

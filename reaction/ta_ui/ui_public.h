@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #ifndef __UI_PUBLIC_H__
@@ -132,7 +120,9 @@ typedef enum {
 	UIMENU_NEED_CD,
 	UIMENU_BAD_CD_KEY,
 	UIMENU_TEAM,
-	UIMENU_POSTGAME
+	UIMENU_POSTGAME,
+//Makro - added weapon menu
+	UIMENU_RQ3_WEAPON
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

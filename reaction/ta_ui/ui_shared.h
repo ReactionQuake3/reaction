@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 #ifndef __UI_SHARED_H
 #define __UI_SHARED_H
 
@@ -116,6 +104,8 @@ typedef struct {
   Rectangle rect;                 // client coord rectangle
   Rectangle rectClient;           // screen coord rectangle
   const char *name;               //
+//Makro - adding support for shortcut keys
+  const char *shortcutKey;
   const char *group;              // if it belongs to a group
   const char *cinematicName;		  // cinematic name
   int cinematic;								  // cinematic handle
@@ -197,7 +187,9 @@ typedef struct multiDef_s {
 } multiDef_t;
 
 typedef struct modelDef_s {
-	int angle;
+	//Makro - adding full rotation
+	//int angle;
+	vec3_t angles;
 	vec3_t origin;
 	float fov_x;
 	float fov_y;
@@ -211,7 +203,7 @@ typedef struct modelDef_s {
 
 typedef struct itemDef_s {
   Window window;                 // common positional, border, style, layout info
-  Rectangle textRect;            // rectangle the text ( if any ) consumes     
+  Rectangle textRect;            // rectangle the text ( if any ) consumes
   int type;                      // text, button, radiobutton, checkbox, textfield, listbox, combo
   int alignment;                 // left center right
   int textalignment;             // ( optional ) alignment for text within rect based on text width
@@ -439,3 +431,5 @@ int			trap_PC_ReadToken( int handle, pc_token_t *pc_token );
 int			trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
 
 #endif
+
+

@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // ui_players.c
@@ -62,119 +50,78 @@ tryagain:
 		if ( item->giType != IT_WEAPON ) {
 			continue;
 		}
-
 		if ( item->giTag == weaponNum ) {
 			break;
 		}
 	}
+
 	if ( item->classname ) {
 		pi->weaponModel = trap_R_RegisterModel( item->world_model[0] );
 	}
 
 	if( pi->weaponModel == 0 ) {
-		//Makro - changed to WP_PISTOL from WP_MACHINEGUN
+		//Blaze: Changed from WP_MACHINEGUN to WP_PISTOL
 		if( weaponNum == WP_PISTOL ) {
 			weaponNum = WP_NONE;
 			goto tryagain;
 		}
-		//Makro - changed to WP_PISTOL from WP_MACHINEGUN
+		//Blaze: Changed from WP_MACHINEGUN to WP_PISTOL
 		weaponNum = WP_PISTOL;
 		goto tryagain;
 	}
-
-/*	Makro - old check:
-	if ( weaponNum == WP_MACHINEGUN || weaponNum == WP_GAUNTLET || weaponNum == WP_BFG ) {
-*/
-	if ( weaponNum == WP_PISTOL ) {
+	//Blaze: none of our weapons have barrel models
+	/*if ( weaponNum == WP_PISTOL || weaponNum == WP_GAUNTLET || weaponNum == WP_BFG ) {
 		strcpy( path, item->world_model[0] );
 		COM_StripExtension( path, path );
 		strcat( path, "_barrel.md3" );
 		pi->barrelModel = trap_R_RegisterModel( path );
-	}
+	}*/
 
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension( path, path );
 	strcat( path, "_flash.md3" );
 	pi->flashModel = trap_R_RegisterModel( path );
 
+
+//Blaze: I think this makes some funky colors or something, I dont really know ;)
+//Blaze: Reaction Weapons
 	switch( weaponNum ) {
-/* Makro - removed and replaced with rq3 weapons
-	case WP_GAUNTLET:
+	case WP_KNIFE:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
 		break;
 
-	case WP_MACHINEGUN:
+	case WP_PISTOL:
 		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
 		break;
 
-	case WP_SHOTGUN:
+	case WP_M4:
 		MAKERGB( pi->flashDlightColor, 1, 1, 0 );
 		break;
 
-	case WP_GRENADE_LAUNCHER:
+	case WP_SSG3000:
 		MAKERGB( pi->flashDlightColor, 1, 0.7f, 0.5f );
 		break;
 
-	case WP_ROCKET_LAUNCHER:
-		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
-		break;
-
-	case WP_LIGHTNING:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_RAILGUN:
-		MAKERGB( pi->flashDlightColor, 1, 0.5f, 0 );
-		break;
-
-	case WP_PLASMAGUN:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_BFG:
-		MAKERGB( pi->flashDlightColor, 1, 0.7f, 1 );
-		break;
-
-	case WP_GRAPPLING_HOOK:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-*/
-	case WP_PISTOL:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_M3:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
 	case WP_MP5:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+		MAKERGB( pi->flashDlightColor, 1, 0.75f, 0 );
 		break;
 
 	case WP_HANDCANNON:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
 		break;
 
-	case WP_SSG3000:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-
-	case WP_M4:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+	case WP_M3:
+		MAKERGB( pi->flashDlightColor, 1, 0.5f, 0 );
 		break;
 
 	case WP_AKIMBO:
 		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
 		break;
 
-	case WP_KNIFE:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
+	case WP_GRENADE:
+		MAKERGB( pi->flashDlightColor, 1, 0.7f, 1 );
 		break;
 
-	case WP_GRENADE:
-		MAKERGB( pi->flashDlightColor, 0.6f, 0.6f, 1 );
-		break;
-	
 	default:
 		MAKERGB( pi->flashDlightColor, 1, 1, 1 );
 		break;
@@ -728,7 +675,8 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refEntity_t		torso;
 	refEntity_t		head;
 	refEntity_t		gun;
-	refEntity_t		barrel;
+	//Makro - barrel is no longer used
+	//refEntity_t		barrel;
 	refEntity_t		flash;
 	vec3_t			origin;
 	int				renderfx;
@@ -779,7 +727,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
 	xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
 	refdef.fov_y = atan2( refdef.height, xx );
-	refdef.fov_y *= ( 360 / M_PI );
+	refdef.fov_y *= ( 360 / (float)M_PI );
 
 	// calculate distance so the player nearly fills the box
 	len = 0.7 * ( maxs[2] - mins[2] );		
@@ -868,7 +816,8 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	//
 	// add the spinning barrel
 	//
-/*	Makro - removed this - do we need a spinning barrel ?!
+	//Blaze: No spinning barrels in rq3
+	/*
 	if ( pi->realWeapon == WP_MACHINEGUN || pi->realWeapon == WP_GAUNTLET || pi->realWeapon == WP_BFG ) {
 		vec3_t	angles;
 
@@ -890,7 +839,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 		trap_R_AddRefEntityToScene( &barrel );
 	}
-*/
+	*/
 
 	//
 	// add muzzle flash
@@ -935,6 +884,72 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	trap_R_RenderScene( &refdef );
 }
 
+/*
+==========================
+UI_FileExists
+==========================
+*/
+static qboolean	UI_FileExists(const char *filename) {
+	int len;
+
+	len = trap_FS_FOpenFile( filename, 0, FS_READ );
+	if (len>0) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+/*
+==========================
+UI_FindClientHeadFile
+==========================
+*/
+static qboolean	UI_FindClientHeadFile( char *filename, int length, const char *teamName, const char *headModelName, const char *headSkinName, const char *base, const char *ext ) {
+	char *team, *headsFolder;
+	int i;
+
+	team = "default";
+
+	if ( headModelName[0] == '*' ) {
+		headsFolder = "heads/";
+		headModelName++;
+	}
+	else {
+		headsFolder = "";
+	}
+	while(1) {
+		for ( i = 0; i < 2; i++ ) {
+			if ( i == 0 && teamName && *teamName ) {
+				Com_sprintf( filename, length, "models/players/%s%s/%s/%s%s_%s.%s", headsFolder, headModelName, headSkinName, teamName, base, team, ext );
+			}
+			else {
+				Com_sprintf( filename, length, "models/players/%s%s/%s/%s_%s.%s", headsFolder, headModelName, headSkinName, base, team, ext );
+			}
+			if ( UI_FileExists( filename ) ) {
+				return qtrue;
+			}
+			if ( i == 0 && teamName && *teamName ) {
+				Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, headSkinName, ext );
+			}
+			else {
+				Com_sprintf( filename, length, "models/players/%s%s/%s_%s.%s", headsFolder, headModelName, base, headSkinName, ext );
+			}
+			if ( UI_FileExists( filename ) ) {
+				return qtrue;
+			}
+			if ( !teamName || !*teamName ) {
+				break;
+			}
+		}
+		// if tried the heads folder first
+		if ( headsFolder[0] ) {
+			break;
+		}
+		headsFolder = "heads/";
+	}
+
+	return qfalse;
+}
 
 /*
 ==========================
@@ -942,7 +957,7 @@ UI_RegisterClientSkin
 ==========================
 */
 static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName , const char *teamName) {
-	char		filename[MAX_QPATH];
+	char		filename[MAX_QPATH*2];
 
 	if (teamName && *teamName) {
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/%s/lower_%s.skin", modelName, teamName, skinName );
@@ -950,6 +965,14 @@ static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
 	}
 	pi->legsSkin = trap_R_RegisterSkin( filename );
+	if (!pi->legsSkin) {
+		if (teamName && *teamName) {
+			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%s/lower_%s.skin", modelName, teamName, skinName );
+		} else {
+			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/lower_%s.skin", modelName, skinName );
+		}
+		pi->legsSkin = trap_R_RegisterSkin( filename );
+	}
 
 	if (teamName && *teamName) {
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/%s/upper_%s.skin", modelName, teamName, skinName );
@@ -957,20 +980,16 @@ static qboolean	UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 		Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
 	}
 	pi->torsoSkin = trap_R_RegisterSkin( filename );
-
-	if( headModelName[0] == '*' ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/head_%s.skin", &headModelName[1], headSkinName );
-	} else {
+	if (!pi->torsoSkin) {
 		if (teamName && *teamName) {
-			Com_sprintf( filename, sizeof( filename ), "models/players/%s/%s/head_%s.skin", headModelName, teamName, headSkinName );
+			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/%s/upper_%s.skin", modelName, teamName, skinName );
 		} else {
-			Com_sprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", headModelName, headSkinName );
+			Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/upper_%s.skin", modelName, skinName );
 		}
+		pi->torsoSkin = trap_R_RegisterSkin( filename );
 	}
 
-	pi->headSkin = trap_R_RegisterSkin( filename );
-	if ( !pi->headSkin && headModelName[0] != '*' ) {
-		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/head_%s.skin", headModelName, headSkinName );
+	if ( UI_FindClientHeadFile( filename, sizeof(filename), teamName, headModelName, headSkinName, "head", "skin" ) ) {
 		pi->headSkin = trap_R_RegisterSkin( filename );
 	}
 
@@ -1104,18 +1123,18 @@ static qboolean UI_ParseAnimationFile( const char *filename, animation_t *animat
 	return qtrue;
 }
 
-
 /*
 ==========================
 UI_RegisterClientModelname
 ==========================
 */
-qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName, const char *headName, const char *teamName ) {
+qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName, const char *headModelSkinName, const char *teamName ) {
 	char		modelName[MAX_QPATH];
-	char		headModelName[MAX_QPATH];
 	char		skinName[MAX_QPATH];
+	char		headModelName[MAX_QPATH];
+	char		headSkinName[MAX_QPATH];
 	char		filename[MAX_QPATH];
-	char		*slash, *headslash;
+	char		*slash;
 
 	pi->torsoModel = 0;
 	pi->headModel = 0;
@@ -1125,7 +1144,6 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	}
 
 	Q_strncpyz( modelName, modelSkinName, sizeof( modelName ) );
-	Q_strncpyz( headModelName, headName, sizeof( headModelName ) );
 
 	slash = strchr( modelName, '/' );
 	if ( !slash ) {
@@ -1133,13 +1151,17 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 		Q_strncpyz( skinName, "default", sizeof( skinName ) );
 	} else {
 		Q_strncpyz( skinName, slash + 1, sizeof( skinName ) );
-		// truncate modelName
-		*slash = 0;
+		*slash = '\0';
 	}
 
-	headslash = strchr( headModelName, '/' );
-	if ( headslash ) {
-		*headslash = 0;
+	Q_strncpyz( headModelName, headModelSkinName, sizeof( headModelName ) );
+	slash = strchr( headModelName, '/' );
+	if ( !slash ) {
+		// modelName did not include a skin name
+		Q_strncpyz( headSkinName, "default", sizeof( skinName ) );
+	} else {
+		Q_strncpyz( headSkinName, slash + 1, sizeof( skinName ) );
+		*slash = '\0';
 	}
 
 	// load cmodels before models so filecache works
@@ -1147,37 +1169,45 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
 	pi->legsModel = trap_R_RegisterModel( filename );
 	if ( !pi->legsModel ) {
-		Com_Printf( "Failed to load model file %s\n", filename );
-		return qfalse;
+		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/lower.md3", modelName );
+		pi->legsModel = trap_R_RegisterModel( filename );
+		if ( !pi->legsModel ) {
+			Com_Printf( "Failed to load model file %s\n", filename );
+			return qfalse;
+		}
 	}
 
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
 	pi->torsoModel = trap_R_RegisterModel( filename );
 	if ( !pi->torsoModel ) {
+		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/upper.md3", modelName );
+		pi->torsoModel = trap_R_RegisterModel( filename );
+		if ( !pi->torsoModel ) {
+			Com_Printf( "Failed to load model file %s\n", filename );
+			return qfalse;
+		}
+	}
+
+	if (headModelName && headModelName[0] == '*' ) {
+		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", &headModelName[1], &headModelName[1] );
+	}
+	else {
+		Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headModelName );
+	}
+	pi->headModel = trap_R_RegisterModel( filename );
+	if ( !pi->headModel && headModelName[0] != '*') {
+		Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", headModelName, headModelName );
+		pi->headModel = trap_R_RegisterModel( filename );
+	}
+
+	if (!pi->headModel) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
 	}
 
-  if (headName && headName[0] == '*' ) {
-	  Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", &headName[1], &headName[1] );
-  }
-  else {
-	  Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", headModelName );
-  }
-  pi->headModel = trap_R_RegisterModel( filename );
-  if ( !pi->headModel && headName[0] != '*') {
-	  Com_sprintf( filename, sizeof( filename ), "models/players/heads/%s/%s.md3", headName, headName );
-	  pi->headModel = trap_R_RegisterModel( filename );
-	}
-
-	if (!pi->headModel) {
-	  Com_Printf( "Failed to load model file %s\n", filename );
-	  return qfalse;
-  }
-
 	// if any skins failed to load, fall back to default
-	if ( !UI_RegisterClientSkin( pi, modelName, skinName, headModelName, skinName, teamName) ) {
-    if ( !UI_RegisterClientSkin( pi, modelName, "default", headName, "default", teamName ) ) {
+	if ( !UI_RegisterClientSkin( pi, modelName, skinName, headModelName, headSkinName, teamName) ) {
+		if ( !UI_RegisterClientSkin( pi, modelName, "default", headModelName, "default", teamName ) ) {
 			Com_Printf( "Failed to load skin file: %s : %s\n", modelName, skinName );
 			return qfalse;
 		}
@@ -1186,8 +1216,11 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 	// load the animations
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg", modelName );
 	if ( !UI_ParseAnimationFile( filename, pi->animations ) ) {
-		Com_Printf( "Failed to load animation file %s\n", filename );
-		return qfalse;
+		Com_sprintf( filename, sizeof( filename ), "models/players/characters/%s/animation.cfg", modelName );
+		if ( !UI_ParseAnimationFile( filename, pi->animations ) ) {
+			Com_Printf( "Failed to load animation file %s\n", filename );
+			return qfalse;
+		}
 	}
 
 	return qtrue;
@@ -1202,7 +1235,7 @@ UI_PlayerInfo_SetModel
 void UI_PlayerInfo_SetModel( playerInfo_t *pi, const char *model, const char *headmodel, char *teamName ) {
 	memset( pi, 0, sizeof(*pi) );
 	UI_RegisterClientModelname( pi, model, headmodel, teamName );
-	//Makro - changed WP_MACHINEGUN to WP_PISTOL
+	//Blaze: Changed from WP_MACHINEGUN to WP_PISTOL
 	pi->weapon = WP_PISTOL;
 	pi->currentWeapon = pi->weapon;
 	pi->lastWeapon = pi->weapon;
@@ -1296,8 +1329,8 @@ void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_
 	}
 
 	// torso animation
-	//Makro - changed WP_GAUNTLET to WP_KNIFE
 	if ( torsoAnim == TORSO_STAND || torsoAnim == TORSO_STAND2 ) {
+		//Changed from WP_GAUNTLET to WP_KNIFE
 		if ( weaponNum == WP_NONE || weaponNum == WP_KNIFE ) {
 			torsoAnim = TORSO_STAND2;
 		}
@@ -1306,8 +1339,8 @@ void UI_PlayerInfo_SetInfo( playerInfo_t *pi, int legsAnim, int torsoAnim, vec3_
 		}
 	}
 
-	//Makro - changed WP_GAUNTLET to WP_KNIFE
 	if ( torsoAnim == TORSO_ATTACK || torsoAnim == TORSO_ATTACK2 ) {
+		//Changed from WP_GAUNTLET to WP_KNIFE
 		if ( weaponNum == WP_NONE || weaponNum == WP_KNIFE ) {
 			torsoAnim = TORSO_ATTACK2;
 		}

@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 //
@@ -30,8 +18,10 @@ static char		*ui_botInfos[MAX_BOTS];
 static int		ui_numArenas;
 static char		*ui_arenaInfos[MAX_ARENAS];
 
+#ifndef MISSIONPACK // bk001206
 static int		ui_numSinglePlayerArenas;
 static int		ui_numSpecialSinglePlayerArenas;
+#endif
 
 /*
 ===============

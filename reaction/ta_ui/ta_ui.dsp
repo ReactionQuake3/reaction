@@ -8,12 +8,12 @@ CFG=ui - Win32 Debug TA
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "ui.mak".
+!MESSAGE NMAKE /f "ta_ui.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "ui.mak" CFG="ui - Win32 Debug TA"
+!MESSAGE NMAKE /f "ta_ui.mak" CFG="ui - Win32 Debug TA"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 

@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #ifndef __UI_LOCAL_H__
@@ -122,7 +110,8 @@ extern vmCvar_t	ui_scoreTime;
 extern vmCvar_t	ui_smallFont;
 extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
-
+//Makro - cvar for player model display
+extern vmCvar_t ui_RQ3_model_command;
 
 
 //
@@ -604,7 +593,7 @@ typedef struct {
 #define MAX_MAPS 128
 #define MAX_SPMAPS 16
 #define PLAYERS_PER_TEAM 5
-#define MAX_PINGREQUESTS		16
+#define MAX_PINGREQUESTS		32
 #define MAX_ADDRESSLENGTH		64
 #define MAX_HOSTNAMELENGTH		22
 #define MAX_MAPNAMELENGTH		16
@@ -616,6 +605,7 @@ typedef struct {
 #define MAX_SERVERSTATUS_TEXT	1024
 #define MAX_FOUNDPLAYER_SERVERS	16
 #define TEAM_MEMBERS 5
+//Makro - I don't think these are used anywhere
 #define GAMES_ALL			0
 #define GAMES_FFA			1
 #define GAMES_TEAMPLAY		2
@@ -633,7 +623,9 @@ typedef struct {
   const char *name;
 	const char *imageName;
   qhandle_t headImage;
-  qboolean female;
+	const char *base;
+	qboolean active;
+	int reference;
 } characterInfo;
 
 typedef struct {

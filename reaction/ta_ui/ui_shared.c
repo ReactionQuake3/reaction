@@ -1,15 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-// $Id$
-//
-//-----------------------------------------------------------------------------
-//
-// $Log$
-// Revision 1.1  2002/02/10 02:36:52  jbravo
-// Adding ta_ui files from Makro into CVS
-//
-//
-//-----------------------------------------------------------------------------
 // 
 // string allocation/managment
 
@@ -30,6 +18,55 @@ typedef struct scrollInfo_s {
 	itemDef_t *item;
 	qboolean scrollDir;
 } scrollInfo_t;
+
+//Makro - data for the shortcut keys
+
+typedef struct {
+	char *Name;
+	int Value;
+} RQ3_keyAlias_t;
+
+static RQ3_keyAlias_t RQ3_KeyAliases[] =
+{
+	{"0",			'0'},
+	{"1",			'1'},
+	{"2",			'2'},
+	{"3",			'3'},
+	{"4",			'4'},
+	{"5",			'5'},
+	{"6",			'6'},
+	{"7",			'7'},
+	{"8",			'8'},
+	{"9",			'9'},
+	{"A",			'a'},
+	{"B",			'b'},
+	{"C",			'c'},
+	{"D",			'd'},
+	{"E",			'e'},
+	{"F",			'f'},
+	{"G",			'g'},
+	{"H",			'h'},
+	{"I",			'i'},
+	{"J",			'j'},
+	{"K",			'k'},
+	{"L",			'l'},
+	{"M",			'm'},
+	{"N",			'n'},
+	{"O",			'o'},
+	{"P",			'p'},
+	{"Q",			'q'},
+	{"R",			'r'},
+	{"S",			's'},
+	{"T",			't'},
+	{"U",			'u'},
+	{"V",			'v'},
+	{"W",			'w'},
+	{"X",			'x'},
+	{"Y",			'y'},
+	{"Z",			'z'},
+	{"",			K_LAST_KEY}
+};
+
 
 static scrollInfo_t scrollInfo;
 
@@ -525,7 +562,7 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 		}
 		Q_strcat(script, 1024, " ");
 	}
-	//return qfalse;
+	return qfalse; 	// bk001105 - LCC   missing return value
 }
 
 // display, window, menu, item code
@@ -1316,12 +1353,15 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 	itemDef_t *oldFocus;
 	sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
 	qboolean playSound = qfalse;
-	menuDef_t *parent = (menuDef_t*)item->parent;
+	menuDef_t *parent; // bk001206: = (menuDef_t*)item->parent;
 	// sanity check, non-null, not a decoration and does not already have the focus
 	if (item == NULL || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
 		return qfalse;
 	}
 
+	// bk001206 - this can be NULL.
+	parent = (menuDef_t*)item->parent; 
+      
 	// items can be enabled and disabled based on cvars
 	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
 		return qfalse;
@@ -2345,7 +2385,8 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 		captureFunc = NULL;
 		captureData = NULL;
 	} else {
-		if (down && key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+	  // bk001206 - parentheses
+		if ( down && ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
 			Item_StartCapture(item, key);
 		}
 	}
@@ -2560,6 +2601,34 @@ static rectDef_t *Item_CorrectedTextRect(itemDef_t *item) {
 	return &rect;
 }
 
+//Makro - for shortcut keys
+int UI_RQ3_KeyNumFromChar( const char *keystr ) {
+int i;
+for (i = 0; RQ3_KeyAliases[i].Value != K_LAST_KEY; i++) {
+		if (Q_stricmp(RQ3_KeyAliases[i].Name, keystr) == 0)
+				return RQ3_KeyAliases[i].Value;
+	}
+	return K_LAST_KEY;
+}
+
+//Makro - search for items that have shortcuts
+qboolean RQ3_TriggerShortcut(menuDef_t *menu, int key) {
+	int i;
+
+	if (menu == NULL) {
+		return qfalse;
+	}
+
+	for (i = 0; i < menu->itemCount; i++) {
+		if ( UI_RQ3_KeyNumFromChar(menu->items[i]->window.shortcutKey) == key ) {
+			Item_Action(menu->items[i]);
+			return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
 void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	int i;
 	itemDef_t *item = NULL;
@@ -2599,7 +2668,8 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		// see if the mouse is within the window bounds and if so is this a mouse click
 	if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
 		static qboolean inHandleKey = qfalse;
-		if (!inHandleKey && key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+		// bk001206 - parentheses
+		if (!inHandleKey && ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
 			inHandleKey = qtrue;
 			Menus_HandleOOBClick(menu, key, down);
 			inHandleKey = qfalse;
@@ -2626,6 +2696,11 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	if (!down) {
 		inHandler = qfalse;
 		return;
+	}
+
+	//Makro - check for shortcuts
+	if (RQ3_TriggerShortcut(menu, key)) {
+			return;
 	}
 
 	// default handling
@@ -3101,79 +3176,59 @@ typedef struct
 
 static bind_t g_bindings[] = 
 {
-	{"+scores",			 K_TAB,				-1,		-1, -1},
-	{"+button2",		 K_ENTER,			-1,		-1, -1},
-	{"+speed", 			 K_SHIFT,			-1,		-1,	-1},
-	{"+forward", 		 K_UPARROW,		-1,		-1, -1},
-	{"+back", 			 K_DOWNARROW,	-1,		-1, -1},
-	{"+moveleft", 	 ',',					-1,		-1, -1},
-	{"+moveright", 	 '.',					-1,		-1, -1},
-	{"+moveup",			 K_SPACE,			-1,		-1, -1},
-	{"+movedown",		 'c',					-1,		-1, -1},
-	{"+left", 			 K_LEFTARROW,	-1,		-1, -1},
-	{"+right", 			 K_RIGHTARROW,	-1,		-1, -1},
-	{"+strafe", 		 K_ALT,				-1,		-1, -1},
-	{"+lookup", 		 K_PGDN,				-1,		-1, -1},
-	{"+lookdown", 	 K_DEL,				-1,		-1, -1},
-	{"+mlook", 			 '/',					-1,		-1, -1},
-	{"centerview", 	 K_END,				-1,		-1, -1},
-	{"+zoom", 			 -1,						-1,		-1, -1},
-	{"weapon 1",		 '1',					-1,		-1, -1},
-	{"weapon 2",		 '2',					-1,		-1, -1},
-	{"weapon 3",		 '3',					-1,		-1, -1},
-	{"weapon 4",		 '4',					-1,		-1, -1},
-	{"weapon 5",		 '5',					-1,		-1, -1},
-	{"weapon 6",		 '6',					-1,		-1, -1},
-	{"weapon 7",		 '7',					-1,		-1, -1},
-	{"weapon 8",		 '8',					-1,		-1, -1},
-	{"weapon 9",		 '9',					-1,		-1, -1},
-	{"weapon 10",		 '0',					-1,		-1, -1},
-	{"weapon 11",		 -1,					-1,		-1, -1},
-	{"weapon 12",		 -1,					-1,		-1, -1},
-	{"weapon 13",		 -1,					-1,		-1, -1},
-	{"+attack", 		 K_CTRL,				-1,		-1, -1},
-	{"weapprev",		 '[',					-1,		-1, -1},
-	{"weapnext", 		 ']',					-1,		-1, -1},
-	{"+button3", 		 K_MOUSE3,			-1,		-1, -1},
-	{"prevTeamMember", 'w',					-1,		-1, -1},
-	{"nextTeamMember", 'r',					-1,		-1, -1},
-	{"nextOrder", 't',					-1,		-1, -1},
-	{"confirmOrder", 'y',					-1,		-1, -1},
-	{"denyOrder", 'n',					-1,		-1, -1},
-	{"taskOffense", 'o',					-1,		-1, -1},
-	{"taskDefense", 'd',					-1,		-1, -1},
-	{"taskPatrol", 'p',					-1,		-1, -1},
-	{"taskCamp", 'c',					-1,		-1, -1},
-	{"taskFollow", 'f',					-1,		-1, -1},
-	{"taskRetrieve", 'v',					-1,		-1, -1},
-	{"taskEscort", 'e',					-1,		-1, -1},
-	{"taskOwnFlag", 'i',					-1,		-1, -1},
-	{"taskSuicide", 'k',					-1,		-1, -1},
-	{"tauntKillInsult", K_F1,			-1,		-1, -1},
-	{"tauntPraise", K_F2,			-1,		-1, -1},
-	{"tauntTaunt", K_F3,			-1,		-1, -1},
-	{"tauntDeathInsult", K_F4,			-1,		-1, -1},
-	{"tauntGauntlet", K_F5,			-1,		-1, -1},
-	{"scoresUp", K_KP_PGUP,			-1,		-1, -1},
-	{"scoresDown", K_KP_PGDN,			-1,		-1, -1},
-	{"messagemode",  '-1',					-1,		-1, -1},
-	{"messagemode2", -1,						-1,		-1, -1},
-	{"messagemode3", -1,						-1,		-1, -1},
-	{"messagemode4", -1,						-1,		-1, -1},
-//Makro - added RQ3 stuff
-	{"bandage", -1,						-1,		-1, -1},
-	{"opendoor", -1,						-1,		-1, -1},
-	{"+button5", -1,						-1,		-1, -1},
-	{"specialweapon", -1,						-1,		-1, -1},
-	{"weapon", -1,						-1,		-1, -1},
-	{"dropweapon", -1,						-1,		-1, -1},
-	{"dropitem", -1,						-1,		-1, -1},
-	{"irvision", -1,						-1,		-1, -1}
+	{"+scores",			K_TAB,			-1,		-1, -1},
+	{"+button2",		K_ENTER,		-1,		-1, -1},
+	{"+speed",		K_SHIFT,		-1,		-1,	-1},
+	{"+forward",		K_UPARROW,		-1,		-1, -1},
+	{"+back",		K_DOWNARROW,	-1,		-1, -1},
+	{"+moveleft",	',',			-1,		-1, -1},
+	{"+moveright", 	'.',			-1,		-1, -1},
+	{"+moveup",		K_SPACE,		-1,		-1, -1},
+	{"+movedown",	'c',			-1,		-1, -1},
+	{"+left", 	K_LEFTARROW,	-1,		-1, -1},
+	{"+right", 		K_RIGHTARROW,	-1,		-1, -1},
+	{"+strafe", 			K_ALT,			-1,		-1, -1},
+	{"+lookup", 		K_PGDN,			-1,		-1, -1},
+	{"+lookdown", 		K_DEL,			-1,		-1, -1},
+	{"+mlook", 			'/',			-1,		-1, -1},
+	{"centerview", 		K_END,			-1,		-1, -1},
+	{"+zoom", 			-1,				-1,		-1, -1},
+//Blaze: Reaction Weapon binds
+//Jbravo: order is important.
+	{"weapon 1",	'1',	-1,	-1, -1},
+	{"weapon 2",	'2',	-1,	-1, -1},
+	{"weapon 3",	'3',	-1,	-1, -1},
+	{"weapon 4",	'4',	-1,	-1, -1},
+	{"weapon 5",	'5',	-1,	-1, -1},
+	{"weapon 6",	'6',	-1,	-1, -1},
+	{"weapon 7",	'7',	-1,	-1, -1},
+	{"weapon 8",	'8',	-1,	-1, -1},
+	{"weapon 9",	'9',	-1,	-1, -1},
+	{"+attack", 		K_CTRL,			-1,		-1, -1},
+	{"weapprev",		'[',			-1,		-1, -1},
+	{"weapnext", 		']',			-1,		-1, -1},
+	{"+button3", 		K_MOUSE3,		-1,		-1, -1},
+	{"messagemode", 	't',			-1,		-1, -1},
+	{"messagemode2",	-1,				-1,		-1, -1},
+	{"messagemode3",	-1,				-1,		-1, -1},
+	{"messagemode4",	-1,				-1,		-1, -1},
+	{"bandage",	 		-1,				-1,		-1, -1},
+	{"+button5",		-1,				-1,		-1, -1},
+	{"weapon",			-1,				-1,		-1, -1},
+	{"opendoor",	 	-1,				-1,		-1, -1},
+	{"dropweapon",	 	-1,				-1,		-1, -1},
+	{"dropitem",	 	-1,				-1,		-1, -1},
+	{"irvision",		-1,				-1,		-1, -1},
+//Makro - this one was missing
+	{"specialweapon",		-1,			-1,		-1, -1},
+//Makro - for the weapon/item menus
+	{"ui_RQ3_loadout",		-1,			-1,		-1,	-1}
 };
 
 
 static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
 
+#ifndef MISSIONPACK // bk001206
 static configcvar_t g_configcvars[] =
 {
 	{"cl_run",			0,					0},
@@ -3186,6 +3241,7 @@ static configcvar_t g_configcvars[] =
 	{"cl_freelook",		0,					0},
 	{NULL,				0,					0}
 };
+#endif
 
 /*
 =================
@@ -3567,6 +3623,7 @@ void Item_Model_Paint(itemDef_t *item) {
 	origin[1] = 0.5 * ( mins[1] + maxs[1] );
 
 	// calculate distance so the model nearly fills the box
+	// Makro - note - this doesn't seem right to me
 	if (qtrue) {
 		float len = 0.5 * ( maxs[2] - mins[2] );		
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
@@ -3575,7 +3632,7 @@ void Item_Model_Paint(itemDef_t *item) {
 		origin[0] = item->textscale;
 	}
 	refdef.fov_x = (modelPtr->fov_x) ? modelPtr->fov_x : w;
-	refdef.fov_x = (modelPtr->fov_y) ? modelPtr->fov_y : h;
+	refdef.fov_y = (modelPtr->fov_y) ? modelPtr->fov_y : h;
 
 	//refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
 	//xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
@@ -3598,11 +3655,22 @@ void Item_Model_Paint(itemDef_t *item) {
 	if (modelPtr->rotationSpeed) {
 		if (DC->realTime > item->window.nextTime) {
 			item->window.nextTime = DC->realTime + modelPtr->rotationSpeed;
-			modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
+			//Makro - now we're using 3 angles, not jsut one
+			//modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
+			modelPtr->angles[0] = (int)(modelPtr->angles[0] + 1) % 360;
 		}
 	}
-	VectorSet( angles, 0, modelPtr->angle, 0 );
+	//Makro - now we're using 3 angles, not jsut one
+	//VectorSet( angles, 0, modelPtr->angle, 0 );
+	angles[YAW] = modelPtr->angles[0];
+	angles[PITCH] = modelPtr->angles[1];
+	angles[ROLL] = modelPtr->angles[2];
 	AnglesToAxis( angles, ent.axis );
+
+	//Makro - maybe this will fix the origin bug (model_origin not being taken into account)
+	origin[0] += modelPtr->origin[0];
+	origin[1] += modelPtr->origin[1];
+	origin[2] += modelPtr->origin[2];
 
 	ent.hModel = item->asset;
 	VectorCopy( origin, ent.origin );
@@ -3816,7 +3884,7 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 		}
 
 		if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
-			memcpy(color, parent->disableColor, sizeof(vec4_t));
+		  memcpy(color, parent->disableColor, sizeof(vec4_t)); // bk001207 - FIXME: Com_Memcpy
 		}
 	
 		if (item->text) {
@@ -4349,6 +4417,15 @@ qboolean ItemParse_name( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+// Makro - shortcutKey <key>
+qboolean ItemParse_shortcutKey( itemDef_t *item, int handle ) {
+	if (!PC_String_Parse(handle, &item->window.shortcutKey)) {
+		return qfalse;
+	}
+	 //Com_Printf(S_COLOR_BLUE "^4MDEBUG: Shortcut key read: %s\n^7", item->window.shortcutKey);
+	return qtrue;
+}
+
 // name <string>
 qboolean ItemParse_focusSound( itemDef_t *item, int handle ) {
 	const char *temp;
@@ -4387,7 +4464,9 @@ qboolean ItemParse_asset_model( itemDef_t *item, int handle ) {
 		return qfalse;
 	}
 	item->asset = DC->registerModel(temp);
-	modelPtr->angle = rand() % 360;
+	//Makro - we're using 3 angles now, not just one
+	//modelPtr->angle = rand() % 360;
+	modelPtr->angles[0] = rand() % 360;
 	return qtrue;
 }
 
@@ -4454,17 +4533,38 @@ qboolean ItemParse_model_rotation( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-// model_angle <integer>
+// Makro - I'm going to make it so that we can rotate models around all 3 axis
+// model_angle <integer> - old one
 qboolean ItemParse_model_angle( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = (modelDef_t*)item->typeData;
 
-	if (!PC_Int_Parse(handle, &modelPtr->angle)) {
+	//Makro - changed from Int to Float
+	if (!PC_Float_Parse(handle, &modelPtr->angles[0])) {
 		return qfalse;
 	}
 	return qtrue;
 }
+// model_angles <yaw> <pitch> <roll>
+qboolean ItemParse_model_angles( itemDef_t *item, int handle ) {
+	modelDef_t *modelPtr;
+	Item_ValidateTypeData(item);
+	modelPtr = (modelDef_t*)item->typeData;
+
+	if (PC_Float_Parse(handle, &modelPtr->angles[0])) {
+		if (PC_Float_Parse(handle, &modelPtr->angles[1])) {
+			if (PC_Float_Parse(handle, &modelPtr->angles[2])) {
+				return qtrue;
+			}
+		}
+	}
+	return qfalse;
+}
+
+
+
+
 
 // rect <rectangle>
 qboolean ItemParse_rect( itemDef_t *item, int handle ) {
@@ -4938,8 +5038,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 		}
 
 	}
-
-	//return qfalse;
+	return qfalse; 	// bk001205 - LCC missing return value
 }
 
 qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
@@ -4984,8 +5083,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
 		}
 
 	}
-
-	//return qfalse;
+	return qfalse; 	// bk001205 - LCC missing return value
 }
 
 
@@ -5049,6 +5147,7 @@ qboolean ItemParse_hideCvar( itemDef_t *item, int handle ) {
 
 keywordHash_t itemParseKeywords[] = {
 	{"name", ItemParse_name, NULL},
+	{"shortcutkey", ItemParse_shortcutKey, NULL},
 	{"text", ItemParse_text, NULL},
 	{"group", ItemParse_group, NULL},
 	{"asset_model", ItemParse_asset_model, NULL},
@@ -5058,6 +5157,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"model_fovy", ItemParse_model_fovy, NULL},
 	{"model_rotation", ItemParse_model_rotation, NULL},
 	{"model_angle", ItemParse_model_angle, NULL},
+	//Makro - support for 3 angles
+	{"model_angles", ItemParse_model_angles, NULL},
 	{"rect", ItemParse_rect, NULL},
 	{"style", ItemParse_style, NULL},
 	{"decoration", ItemParse_decoration, NULL},
@@ -5164,6 +5265,7 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 			return qfalse;
 		}
 	}
+	return qfalse; 	// bk001205 - LCC missing return value
 }
 
 
@@ -5217,7 +5319,7 @@ qboolean MenuParse_name( itemDef_t *item, int handle ) {
 
 qboolean MenuParse_fullscreen( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
-	if (!PC_Int_Parse(handle, &menu->fullScreen)) {
+	if (!PC_Int_Parse(handle, (int*) &menu->fullScreen)) { // bk001206 - cast qboolean
 		return qfalse;
 	}
 	return qtrue;
@@ -5566,6 +5668,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 			return qfalse;
 		}
 	}
+	return qfalse; 	// bk001205 - LCC missing return value
 }
 
 /*
@@ -5613,8 +5716,10 @@ displayContextDef_t *Display_GetContext() {
 	return DC;
 }
  
+#ifndef MISSIONPACK // bk001206
 static float captureX;
 static float captureY;
+#endif
 
 void *Display_CaptureItem(int x, int y) {
 	int i;
@@ -5754,4 +5859,3 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
 	}
 	return qfalse;
 }
-
