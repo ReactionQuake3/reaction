@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/06/09 06:30:59  blaze
+// some changes to the default sounds on doors.
+//
 // Revision 1.43  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -1443,9 +1446,9 @@ void SP_func_door (gentity_t *ent) {
 
 	//Elder: can set sounds from here
   //Blaze: changed default path as per Sze
-	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
+	G_SpawnString( "soundstart", "sound/misc/silence.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/rdoor_stop.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/rdoor_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
@@ -1562,8 +1565,8 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/misc/silence.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/rdoor_stop.wav", &sSndStop );
+	G_SpawnString( "soundstart", "sound/movers/rdoor_stop.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/misc/silence.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/movers/rdoor_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
