@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2003/08/25 20:22:58  makro
+// Fixed a bug in old baseq3 func_train code
+//
 // Revision 1.61  2003/08/24 22:45:17  makro
 // Rotating func_trains
 //
@@ -2144,7 +2147,9 @@ void Think_SetupTrainTargets(gentity_t * ent)
 {
 	gentity_t *path, *next, *start;
 
-	ent->nextTrain = G_Find(NULL, FOFS(targetname), ent->target);
+	//Makro - choose a path_corner from the targeted entities
+	//not the first targeted entity
+	ent->nextTrain = G_Find2(NULL, FOFS(targetname), ent->target, FOFS(classname), "path_corner");
 	if (!ent->nextTrain) {
 		G_Printf("func_train at %s with an unfound target\n", vtos(ent->r.absmin));
 		return;
@@ -2167,7 +2172,7 @@ void Think_SetupTrainTargets(gentity_t * ent)
 		do {
 			next = G_Find(next, FOFS(targetname), path->target);
 			if (!next) {
-				G_Printf("Train corner at %s without a target path_corner\n", vtos(path->s.origin));
+				G_Printf("Train corner at %s without a target path_corner (%s)\n", vtos(path->s.origin), path->target);
 				return;
 			}
 		} while (strcmp(next->classname, "path_corner"));
