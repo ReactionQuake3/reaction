@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/04/09 18:52:13  makro
+// Target_speakers can now be toggled on/off
+//
 // Revision 1.23  2002/04/03 03:13:48  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -202,13 +205,14 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 	// add loop sound
 	if ( cent->currentState.loopSound ) {
-		if (cent->currentState.eType != ET_SPEAKER) {
+		//Makro - maybe this will help with the speakers ?
+		//if (cent->currentState.eType != ET_SPEAKER) {
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				cgs.gameSounds[ cent->currentState.loopSound ] );
-		} else {
-			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-				cgs.gameSounds[ cent->currentState.loopSound ] );
-		}
+		//} else {
+		//	trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+		//		cgs.gameSounds[ cent->currentState.loopSound ] );
+		//}
 	}
 
 
