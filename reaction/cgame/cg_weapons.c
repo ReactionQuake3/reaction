@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/06/11 21:50:51  niceass
+// HC changes
+//
 // Revision 1.78  2002/06/06 00:29:14  blaze
 // got rid of the out of ammo shader
 //
@@ -321,9 +324,14 @@ localEntity_t *CG_MachineGunEjectBrass( centity_t *cent ) {
 
 	AxisCopy( axisDefault, re->axis );
 
-	re->hModel = cgs.media.machinegunBrassModel;
-
 	le->bounceFactor = 0.5;
+
+	if ( cent->currentState.weapon == WP_M4 || cent->currentState.weapon == WP_SSG3000) {
+		re->hModel = cgs.media.largeBrassModel;
+		le->bounceFactor *= 0.75;
+	}
+	else
+		re->hModel = cgs.media.machinegunBrassModel;
 
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
@@ -346,16 +354,17 @@ CG_ShotgunEjectBrass
 localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
+	int				isHC;
 //	vec3_t			velocity, xvelocity;
 //	vec3_t			offset, xoffset;
 //	vec3_t			v[3];
 //	int				i;//, isHC;
 //	float	waterScale = 1.0f;
 
-	//if (cent->currentState.weapon == WP_HANDCANNON)
-	//	isHC=1;
-	//else
-	//	isHC=0;
+	if (cent->currentState.weapon == WP_HANDCANNON)
+		isHC=1;
+	else
+		isHC=0;
 
 	if ( cg_brassTime.integer <= 0 ) {
 		return NULL;
@@ -375,7 +384,11 @@ localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 
 		AxisCopy( axisDefault, re->axis );
 
-		re->hModel = cgs.media.shotgunBrassModel;
+		if (isHC)
+			re->hModel = cgs.media.HCBrassModel;
+		else
+			re->hModel = cgs.media.shotgunBrassModel;
+
 		le->bounceFactor = 0.3f;
 
 		le->angles.trType = TR_LINEAR;
@@ -1722,12 +1735,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 		if ( shell != NULL ) {
 			float	speed = 1.0f;
-			int		axis = 0;
-
-			if ( weaponNum == WP_M4 || weaponNum == WP_SSG3000) {
-				shell->refEntity.hModel = cgs.media.largeBrassModel;
-				shell->bounceFactor *= 0.75;
-			}
+			int		axis1 = 0, axis2 = 0;
 
 			if (ps) {
 				if ( weapon->item->giTag == WP_AKIMBO && !ps->stats[STAT_BURST] )
@@ -1748,12 +1756,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = 0.5f;
 
 			if (weaponNum == WP_HANDCANNON) {
-				speed = -speed * 1.5;		// horrible hacks
-				axis = 1;
+				speed = -speed;		// horrible hacks
+				axis1 = 1;
 			}
 
-			vectoangles( shell->refEntity.axis[axis], shell->angles.trBase);
-			VectorScale( shell->refEntity.axis[axis], 160 * speed, shell->pos.trDelta );
+			vectoangles( shell->refEntity.axis[axis1], shell->angles.trBase);
+			VectorScale( shell->refEntity.axis[axis2], 160 * speed, shell->pos.trDelta );
 			VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 		}
 
@@ -1770,7 +1778,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = -0.5f;
 
 				vectoangles( shell->refEntity.axis[1], shell->angles.trBase);
-				VectorScale( shell->refEntity.axis[1], 160 * speed * 1.5, shell->pos.trDelta );
+				VectorScale( shell->refEntity.axis[0], 160 * speed, shell->pos.trDelta );
 				VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 			}
 		}
