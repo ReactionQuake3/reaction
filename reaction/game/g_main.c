@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/06/13 19:46:18  assimon
+// Map defined in cfg is now played with main/team cvar settings
+//
 // Revision 1.75  2002/06/13 17:01:30  slicer
 // Radio Gender changes according to model gender
 //
@@ -841,7 +844,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	// Runs the config if the file is valid. First run will allways be valid
 	if( g_RQ3_ValidIniFile.integer && (g_RQ3_NextMapID.integer == -1) ){  
-		g_RQ3_NextMapID.integer = 0;
+		//g_RQ3_NextMapID.integer = 0;
 		RQ3_ReadInitFile();
 	}
 
@@ -2751,6 +2754,29 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 							return PARSING_ERROR;
 					else
 					if (map_number != g_RQ3_NextMapID.integer) {
+
+						// this is for a first time check to set the map name correctly
+						// for the first rotation
+						if ( g_RQ3_NextMapID.integer == -1 ){
+							trap_Cvar_Set ("g_RQ3_NextMapID", "0");
+							trap_Cvar_Set( "g_RQ3_NextMap", word_buff );
+							
+							// skipp everything till end of rotation
+							for(;;){
+								if( RQ3_GetCommand( buf, cur_pos, cvar, value, len ) == TOKEN_TAG ){
+									(*cur_pos)++;
+									if ((*(buf + *cur_pos) == '/')) {
+										(*cur_pos)++;
+						
+										if (RQ3_GetTag (buf, cur_pos, tag, len) == ROTATION){  	
+											G_Printf ("RQ3 config system: Block <rotation> is finished\n");
+											return 1;
+										}
+									}
+								}
+							}
+						}
+
 						// skipp everything and go to the next map
 						while (*(buf + *cur_pos) != '<')
 							(*cur_pos)++;
