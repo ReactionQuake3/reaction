@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/01/23 15:59:43  jbravo
+// Make use of NiceAsses ClearBodyQue() between rounds
+//
 // Revision 1.3  2002/01/21 20:03:15  jbravo
 // Changed the knifes fix a bit
 //
@@ -197,6 +200,7 @@ void CleanLevel()
 	gentity_t	*ent;
 	int		i;
 
+	ClearBodyQue();
 	ent = &g_entities[MAX_CLIENTS];
 	for ( i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++)
 	{
