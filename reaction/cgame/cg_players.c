@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/08/27 07:29:31  niceass
+// tralalaanasdfadf
+//
 // Revision 1.50  2002/08/27 07:28:11  niceass
 // shuttup
 //
@@ -2501,7 +2504,9 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 
 		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL )) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS )) )
 			// Terrain has all 3 of these set. Assume it's terrain if all 3 are this way
-			if ( !(trace.surfaceFlags & (SURF_NOLIGHTMAP | SURF_NOMARKS | SURF_NODRAW)) )
+			if ( !(trace.surfaceFlags & SURF_NOLIGHTMAP) &&
+				 !(trace.surfaceFlags & SURF_NOMARKS) &&
+				 !(trace.surfaceFlags & SURF_NODRAW) )
 				return qtrue;
 	}
 
