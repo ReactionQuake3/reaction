@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/23 15:54:35  makro
+// cg_RQ3_avidemo tweak
+//
 // Revision 1.20  2002/05/21 14:59:11  makro
 // cg_RQ3_avidemo
 //
@@ -1277,9 +1280,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	//Makro - like cl_avidemo, just that it uses JPEG's
-	if (cg_RQ3_avidemo.integer > 0) {
+	if (atof(cg_RQ3_avidemo.string) > 0) {
 		//if it's time to take a screenshot
-		if (cg.time > cg.screenshotTime + (int) (1000 / cg_RQ3_avidemo.integer)) {
+		if ( cg.time > cg.screenshotTime + (int) (1000.0f / atof(cg_RQ3_avidemo.string)) ) {
 			trap_SendConsoleCommand("screenshotJPEG silent\n");
 			cg.screenshotTime = cg.time;
 		}
