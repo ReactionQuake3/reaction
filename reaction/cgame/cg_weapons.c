@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/06/03 01:09:33  niceass
+// silencer scale changes
+//
 // Revision 1.75  2002/05/29 03:52:21  niceass
 // LAM code
 //
@@ -1631,8 +1634,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		vec3_t	angles;
 
 		if (weaponNum == WP_PISTOL) scale = 1.2f;
-		if (weaponNum == WP_SSG3000) scale = 2.0f;
-		if (weaponNum == WP_MP5) scale = 1.7f;
+		if (weaponNum == WP_SSG3000) scale = 2.5f;
+		if (weaponNum == WP_MP5) scale = 1.3f;
 
 		memset( &silencer, 0, sizeof( silencer ) );
 		silencer.hModel = cgs.media.rq3_silencerModel;
