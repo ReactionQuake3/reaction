@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2003/02/13 21:19:50  makro
+// no message
+//
 // Revision 1.22  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -184,6 +187,8 @@ extern vmCvar_t ui_serverStatusTimeOut;
 
 //Makro - cvar for player model display
 extern vmCvar_t ui_RQ3_modelCommand;
+//Makro - model cvar
+extern vmCvar_t ui_RQ3_model;
 
 //Makro - team counts for the join menu
 //Handled in cgame now

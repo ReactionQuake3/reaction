@@ -10,7 +10,7 @@
     visible 0						// Visible on open
     focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
     timedItems 39
-    timerInterval 5500
+    timerInterval 3000
 
     fadeCycle 500						// how often fade happens in milliseconds
     fadeAmount 0.01					// amount to adjust alpha per cycle
@@ -148,7 +148,7 @@
 	textscale .3
 	textalignx 220
 	textaligny 120
-	text "(c) 2000 - 2002 REACTION QUAKE 3 TEAM\n\n\n"
+	text "(c) 2000 - 2003 REACTION QUAKE 3 TEAM\n\n\n"
 	     "www.reactionquake3.com"
 	autowrapped
 	visible 1
@@ -1399,7 +1399,7 @@
 	textalignx 220
 	textaligny 80
 	text "THIS HAS BEEN A REACTION QUAKE 3\nTEAM PRODUCTION\n\n"
-	     "Copyright 2000 - 2002"
+	     "Copyright 2000 - 2003"
 	autowrapped
 	visible 1
 	decoration

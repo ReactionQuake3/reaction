@@ -406,7 +406,7 @@
 	type ITEM_TYPE_BUTTON
 	style 0
 	textscale .225
-	rect 84 56 188 20
+	rect 84 44 188 20
 	textalign ITEM_ALIGN_CENTER
 	textalignx 88
 	textaligny 12
@@ -423,7 +423,7 @@
 	type ITEM_TYPE_BUTTON
 	style 0
 	textscale .225
-	rect 84 76 188 20
+	rect 84 64 188 20
 	textalign ITEM_ALIGN_CENTER
 	textalignx 88
 	textaligny 12
@@ -440,7 +440,7 @@
 	type ITEM_TYPE_BUTTON
 	style 0
 	textscale .225
-	rect 84 96 188 20
+	rect 84 84 188 20
 	textalign ITEM_ALIGN_CENTER
 	textalignx 88
 	textaligny 12
@@ -457,7 +457,7 @@
 	type ITEM_TYPE_BUTTON
 	style 0
 	textscale .225
-	rect 84 116 188 20
+	rect 84 104 188 20
 	textalign ITEM_ALIGN_CENTER
 	textalignx 88
 	textaligny 12
@@ -469,12 +469,29 @@
     itemDef {
 	name match
 	group grpReferee
+	text "Hear All"
+	shortcutKey "H"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 124 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref hearall"; uiScript closeingame }
+    }
+
+    itemDef {
+	name match
+	group grpReferee
 	text "Settings..."
 	shortcutKey "S"
 	type ITEM_TYPE_BUTTON
 	style 0
 	textscale .225
-	rect 84 156 188 20
+	rect 84 164 188 20
 	textalign ITEM_ALIGN_CENTER
 	textalignx 88
 	textaligny 12

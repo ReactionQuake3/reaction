@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2003/02/13 21:19:51  makro
+// no message
+//
 // Revision 1.58  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -826,6 +829,12 @@ void UI_ShowPostGame(qboolean newHigh)
 _UI_Refresh
 =================
 */
+//Makro - need this variable here; moved from line ~1585 
+static qboolean updateModel = qtrue;
+qboolean UI_NeedToUpdateModel()
+{
+	return updateModel;
+}
 
 void UI_DrawCenteredPic(qhandle_t image, int w, int h)
 {
@@ -844,6 +853,7 @@ void _UI_Refresh(int realtime)
 {
 	static int index;
 	static int previousTimes[UI_FPS_FRAMES];
+	int modelModCount;
 
 	//if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
 	//      return;
@@ -868,7 +878,18 @@ void _UI_Refresh(int realtime)
 		uiInfo.uiDC.FPS = 1000 * UI_FPS_FRAMES / total;
 	}
 
+	modelModCount = ui_RQ3_model.modificationCount;
 	UI_UpdateCvars();
+	if (modelModCount != ui_RQ3_model.modificationCount) {
+		int i;
+		
+		for (i=0;i<uiInfo.q3HeadCount;i++) {
+			if (!Q_stricmp(uiInfo.q3HeadNames[i], ui_RQ3_model.string)) {
+				UI_FeederSelection(FEEDER_Q3HEADS, i);
+				break;
+			}
+		}
+	}
 
 	if (Menu_Count() > 0) {
 		// paint all the menus
@@ -1575,7 +1596,8 @@ static void UI_DrawMapCinematic(rectDef_t * rect, float scale, vec4_t color, qbo
 	}
 }
 
-static qboolean updateModel = qtrue;
+//Makro - need to use this variable around line 870; moved above
+//static qboolean updateModel = qtrue;
 static qboolean q3Model = qfalse;
 static animNumber_t RQ3_UI_legsAnim = LEGS_IDLE;
 static animNumber_t RQ3_UI_torsoAnim = TORSO_STAND;
@@ -7098,6 +7120,9 @@ vmCvar_t ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 vmCvar_t ui_RQ3_modelCommand;
 
+//Makro - model cvar
+vmCvar_t ui_RQ3_model;
+
 //Makro - for the SSG crosshair preview
 vmCvar_t ui_RQ3_ssgCrosshair;
 
@@ -7290,6 +7315,8 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", 0},
 	{&ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
 	{&ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "1", CVAR_ARCHIVE},
+	//Makro - model cvar
+	{&ui_RQ3_model, "model", "grunt/resdog", 0},
 	//Makro - team counts
 	//Handled in cgame now
 	//{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},

@@ -213,4 +213,8 @@
 * Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
 * Added CTB radio commands to all radio sets.
 * Added spawnflag 8 to breakables and func_buttons to allow them to be unkickable
-
+* Made it so that explosions from explosive breakables that have either damage or damageradius
+  set to 0 don't hurt the players
+* Changing the "model" cvar in the console now causes the player model preview and the model icon
+  selection to be updated immediately
+* Added "Hear All" option to the ref menu

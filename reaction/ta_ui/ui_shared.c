@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2003/02/13 21:19:51  makro
+// no message
+//
 // Revision 1.24  2002/11/09 13:05:02  makro
 // g_RQ3_teamXname cvars are now used in the join menu
 //
@@ -83,6 +86,7 @@
 
 //Makro - to avoid a warning
 int UI_SelectedQ3Head(qboolean doUpdate);
+qboolean UI_NeedToUpdateModel();
 
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
@@ -3155,10 +3159,40 @@ static void Display_CloseCinematics()
 	}
 }
 
-void Menus_Activate(menuDef_t * menu)
+//Makro - select the right player model icon
+void UI_RQ3_SelectPlayerIcon(menuDef_t *menu)
 {
 	int i;
 
+	for (i = 0; i < menu->itemCount; i++) {
+		if (menu->items[i]->type == ITEM_TYPE_LISTBOX && menu->items[i]->special == FEEDER_Q3HEADS) {
+			//Makro - select the right player model icon
+			listBoxDef_t *listPtr = (listBoxDef_t *) menu->items[i]->typeData;
+			int size = 2, start = 0, end = 2, pos = UI_SelectedQ3Head(qtrue);
+
+			if (listPtr->elementWidth) {
+				size = (int) (menu->items[i]->window.rect.w / listPtr->elementWidth);
+				if (size >= 2) {
+					start = listPtr->startPos;
+					end = listPtr->endPos;
+					if (start + size <= pos || pos + size <= end)
+						start = ((int) (pos / size)) * size;
+					if (start + size > DC->feederCount(FEEDER_Q3HEADS))
+						start = DC->feederCount(FEEDER_Q3HEADS) - size;
+					if (start < 0)
+						start = 0;
+					listPtr->startPos = start;
+					listPtr->endPos = start + size;
+				}
+			}
+			listPtr->cursorPos = pos;
+			menu->items[i]->cursorPos = pos;
+		}
+	}
+}
+
+void Menus_Activate(menuDef_t * menu)
+{
 	//Makro - it's better to check for this kind of stuff
 	if (!menu) {
 		return;
@@ -3185,31 +3219,7 @@ void Menus_Activate(menuDef_t * menu)
 
 	}
 	//Makro - select the right player model icon
-	for (i = 0; i < menu->itemCount; i++) {
-		if (menu->items[i]->type == ITEM_TYPE_LISTBOX && menu->items[i]->special == FEEDER_Q3HEADS) {
-			//Makro - select the right player model icon
-			listBoxDef_t *listPtr = (listBoxDef_t *) menu->items[i]->typeData;
-			int size = 2, start = 0, end = 2, pos = UI_SelectedQ3Head(qtrue);
-
-			if (listPtr->elementWidth) {
-				size = (int) (menu->items[i]->window.rect.w / listPtr->elementWidth);
-				if (size >= 2) {
-					start = listPtr->startPos;
-					end = listPtr->endPos;
-					if (start + size <= pos || pos + size <= end)
-						start = ((int) (pos / size)) * size;
-					if (start + size > DC->feederCount(FEEDER_Q3HEADS))
-						start = DC->feederCount(FEEDER_Q3HEADS) - size;
-					if (start < 0)
-						start = 0;
-					listPtr->startPos = start;
-					listPtr->endPos = start + size;
-				}
-			}
-			listPtr->cursorPos = pos;
-			menu->items[i]->cursorPos = pos;
-		}
-	}
+	UI_RQ3_SelectPlayerIcon(menu);
 
 	Display_CloseCinematics();
 
@@ -5136,6 +5146,9 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 	if (forcePaint) {
 		menu->window.flags |= WINDOW_FORCED;
 	}
+	//Makro - kinda hackish; oh well...
+	if (UI_NeedToUpdateModel())
+		UI_RQ3_SelectPlayerIcon(menu);
 	//Makro - see if we have any onShow script
 	if (!(menu->shown)) {
 		//If it's the first time a menu is shown, look for a onFirstShow script

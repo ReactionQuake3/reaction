@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2003/02/13 21:19:50  makro
+// no message
+//
 // Revision 1.63  2003/01/11 17:42:18  makro
 // Fixed a bug in the sky portal code
 //
@@ -656,7 +659,9 @@ void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * att
 {
 	func_breakable_explode(self, self->s.origin);
 //      G_ExplodeMissile(self);
-	G_RadiusDamage(self->s.origin, attacker, self->damage, self->damage_radius, self, meansOfDeath);
+	//Makro - added check
+	if (self->damage > 0 && self->damage_radius > 0)
+		G_RadiusDamage(self->s.origin, attacker, self->damage, self->damage_radius, self, meansOfDeath);
 	//    radius damage
 	trap_UnlinkEntity(self);
 

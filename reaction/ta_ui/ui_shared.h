@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2003/02/13 21:19:51  makro
+// no message
+//
 // Revision 1.14  2002/06/22 19:20:57  makro
 // Changed number of custom SSG crosshairs to 6
 //
@@ -489,6 +492,8 @@ menuDef_t *Menus_ActivateByName(const char *p);
 void Menu_Reset();
 qboolean Menus_AnyFullScreenVisible();
 void Menus_Activate(menuDef_t * menu);
+//Makro - select the right player model icon
+void UI_RQ3_SelectPlayerIcon(menuDef_t *menu);
 
 displayContextDef_t *Display_GetContext();
 void *Display_CaptureItem(int x, int y);
