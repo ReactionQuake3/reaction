@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/06/12 11:15:31  makro
+// Support for changing the SSG crosshair. Some other stuff
+//
 // Revision 1.30  2002/06/09 18:56:53  makro
 // Removed teamcount cvars
 //
@@ -2065,10 +2068,6 @@ static void UI_DrawSSGCrosshair(rectDef_t *rect) {
 	color[3] = trap_Cvar_VariableValue("cg_RQ3_ssgColorA");
 	trap_R_SetColor( color );
 
-	if (uiInfo.currentSSGCrosshair < 0 || uiInfo.currentSSGCrosshair >= NUM_SSGCROSSHAIRS) {
-		uiInfo.currentSSGCrosshair = 0;
-	}
-
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.uiDC.Assets.SSGcrosshairShader);
 	trap_R_SetColor( NULL );
 }
@@ -2974,13 +2973,32 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
 	return qfalse;
 }
 
-//Makro - for the SSG crosshair
-//Not used yet
-/*
+//Makro - added for the SSG crosshair
 static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+		int current = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair"), offset = 1;
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
+			offset = -1;
+		}
+		current += offset;
+
+		if (current < 0)
+			current = NUM_SSGCROSSHAIRS - 1;
+		else if (current >= NUM_SSGCROSSHAIRS)
+			current = 0;
+		
+		trap_Cvar_SetValue("cg_RQ3_ssgCrosshair", (float) current);
+
+		if (current == 0)
+			uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
+		else
+			uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", current));
+		
+		return qtrue;
+	}
 	return qfalse;
 }
-*/
 
 static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
 	//Makro - left/right support
@@ -3082,7 +3100,7 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 			break;
 		//Makro - for the SSG crosshair
 		case UI_SSG_CROSSHAIR:
-			UI_Crosshair_HandleKey(flags, special, key);
+			UI_SSG_Crosshair_HandleKey(flags, special, key);
 			break;
 		case UI_SELECTEDPLAYER:
 			UI_SelectedPlayer_HandleKey(flags, special, key);
@@ -3634,6 +3652,26 @@ static void UI_RunMenuScript(char **args) {
 			} else {
 				trap_Cvar_Set("ui_cdkeyvalid", "CD Key does not appear to be valid.");
 			}
+		//Makro - change the SSG crosshair
+		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
+			int current, offset;
+			if (Int_Parse(args, &offset)) {
+				if (String_Parse(args, &name2)) {
+					qboolean instant = (Q_stricmp(name2, "instant") == 0);
+					current = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair") + offset;
+					if (current < 0)
+						current = NUM_SSGCROSSHAIRS - 1;
+					else if (current >= NUM_SSGCROSSHAIRS)
+						current = 0;
+					if (instant) {
+						if (current == 0)
+							uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
+						else
+							uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", current));
+					}
+					trap_Cvar_SetValue("cg_RQ3_ssgCrosshair", (float) current);
+				}
+			}
 		} else if (Q_stricmp(name, "loadArenas") == 0) {
 			//Makro - updating cvars needed here
 			trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
@@ -3833,7 +3871,8 @@ static void UI_RunMenuScript(char **args) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 		//Makro - record a demo
 		} else if (Q_stricmp(name, "recordDemo") == 0) {
-			trap_Cmd_ExecuteText( EXEC_APPEND, va("record %s", ui_RQ3_demoName.string) );
+			int oldSync = (int) trap_Cvar_VariableValue("g_synchronousClients");
+			trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; wait; set g_synchronousClients 1; record %s; set g_synchronousClients %i", ui_RQ3_demoName.string, oldSync) );
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource.integer != AS_FAVORITES) {
 				char name[MAX_NAME_LENGTH];
@@ -5653,8 +5692,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	// sets defaults for ui temp cvars
 	uiInfo.effectsColor = gamecodetoui[(int)trap_Cvar_VariableValue("color1")-1];
 	uiInfo.currentCrosshair = (int)trap_Cvar_VariableValue("cg_drawCrosshair");
-	//Makro - for the SSG crosshair preview
-	uiInfo.currentSSGCrosshair = (int)trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair");
+
 	trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
 
 	//Makro - save the music volume

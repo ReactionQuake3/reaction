@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/06/12 11:15:31  makro
+// Support for changing the SSG crosshair. Some other stuff
+//
 // Revision 1.11  2002/04/11 20:57:19  makro
 // Tweaked onShow script handling; added onFirstShow script
 //
@@ -53,7 +56,8 @@
 #define MAX_MENUDEFFILE 4096
 #define MAX_MENUFILE 32768
 #define MAX_MENUS 64
-#define MAX_MENUITEMS 96
+//Makro - changed max item count from 96
+#define MAX_MENUITEMS 100
 #define MAX_COLOR_RANGES 10
 #define MAX_OPEN_MENUS 16
 

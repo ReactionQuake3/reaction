@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/06/12 11:15:31  makro
+// Support for changing the SSG crosshair. Some other stuff
+//
 // Revision 1.13  2002/06/09 18:56:53  makro
 // Removed teamcount cvars
 //
@@ -178,7 +181,8 @@ extern vmCvar_t ui_RQ3_demoName;
 #define	MAX_EDIT_LINE			256
 
 #define MAX_MENUDEPTH			8
-#define MAX_MENUITEMS			96
+//Makro - this is already defined in ui_shared.h
+//#define MAX_MENUITEMS			100
 
 #define MTYPE_NULL				0
 #define MTYPE_SLIDER			1	
@@ -868,8 +872,6 @@ typedef struct {
 	int nextFindPlayerRefresh;
 
 	int currentCrosshair;
-	//Makro - for the SSG crosshair preview
-	int currentSSGCrosshair;
 	//Makro - save the music volume
 	float oldMusicVol;
 	qboolean savedMusicVol;

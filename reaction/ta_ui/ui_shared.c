@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/06/12 11:15:31  makro
+// Support for changing the SSG crosshair. Some other stuff
+//
 // Revision 1.19  2002/06/08 11:43:31  makro
 // Changed color "lerping" for focused items a bit
 //
@@ -3732,7 +3735,9 @@ static bind_t g_bindings[] =
 	{"ui_RQ3_loadout",	'l',			-1,			-1,	-1},
 	{"ui_RQ3_joinTeam",	'j',			-1,			-1,	-1},
 	{"ui_RQ3_radio",	-1,				-1,			-1,	-1},
-	{"ui_RQ3_tkok",		-1,				-1,			-1,	-1}
+	{"ui_RQ3_tkok",		-1,				-1,			-1,	-1},
+	{"screenshot",		-1,				-1,			-1. -1},
+	{"screenshotJPEG",	K_F12,			-1,			-1. -1}
 };
 
 
@@ -3976,10 +3981,12 @@ void Item_Bind_Paint(itemDef_t *item) {
 			lowLight[2] = 0.8f * 0.0f;
 			lowLight[3] = 0.8f * 1.0f;
 		} else {
-			lowLight[0] = 0.8f * parent->focusColor[0]; 
-			lowLight[1] = 0.8f * parent->focusColor[1]; 
-			lowLight[2] = 0.8f * parent->focusColor[2]; 
-			lowLight[3] = 0.8f * parent->focusColor[3]; 
+			//Makro - changed to use item forecolor
+			//lowLight[0] = 0.8f * parent->focusColor[0]; 
+			//lowLight[1] = 0.8f * parent->focusColor[1]; 
+			//lowLight[2] = 0.8f * parent->focusColor[2]; 
+			//lowLight[3] = 0.8f * parent->focusColor[3]; 
+			memcpy(lowLight, &item->window.foreColor, sizeof(item->window.foreColor));
 		}
 		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else {
