@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/06/02 22:22:04  makro
+// Bug in the server browser
+//
 // Revision 1.25  2002/06/02 00:15:07  makro
 // Small fixes
 //
@@ -132,7 +135,6 @@ static const serverFilter_t serverFilters[] = {
 	{"Weapons Factory Arena", "wfa" },
 	{"OSP", "osp" },
 	{"All", "" },*/
-	{"Reaction", "reaction" },
 	//Makro - hack !!!
 	{"Reaction", "reaction" }
 };
@@ -2819,18 +2821,19 @@ static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
 	//Makro - left/right support
 	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 
-		if (key == K_MOUSE2 || key == K_LEFTARROW) {
-			ui_serverFilterType.integer--;
-		} else {
-			ui_serverFilterType.integer++;
-		}
+	if (key == K_MOUSE2 || key == K_LEFTARROW) {
+		ui_serverFilterType.integer--;
+	} else {
+		ui_serverFilterType.integer++;
+	}
 
     if (ui_serverFilterType.integer >= numServerFilters) {
       ui_serverFilterType.integer = 0;
     } else if (ui_serverFilterType.integer < 0) {
       ui_serverFilterType.integer = numServerFilters - 1;
-		}
-		UI_BuildServerDisplayList(qtrue);
+	}
+	
+	UI_BuildServerDisplayList(qtrue);
     return qtrue;
   }
   return qfalse;
@@ -4213,12 +4216,15 @@ static void UI_BuildServerDisplayList(qboolean force) {
 				}
 			}
 				
-			if (ui_serverFilterType.integer > 0) {
+			//Makro - changed check
+			//if (ui_serverFilterType.integer > 0) {
+			if (serverFilters[ui_serverFilterType.integer].basedir[0]) {
 				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 					continue;
 				}
 			}
+
 			// make sure we never add a favorite server twice
 			if (ui_netSource.integer == AS_FAVORITES) {
 				UI_RemoveServerFromDisplayList(i);
