@@ -669,7 +669,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.headshotSound = trap_S_RegisterSound( "sound/misc/headshot.wav", qfalse);
 	//cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
 	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencershot.wav", qfalse);
-	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/vest.wav", qfalse);
+	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/kevlarhit.wav", qfalse);
 	cgs.media.weapToggleSound = trap_S_RegisterSound( "sound/misc/click.wav", qfalse);
 	cgs.media.knifeClankSound = trap_S_RegisterSound( "sound/misc/knife_clank.wav", qfalse);
 	cgs.media.knifeDeathSound = trap_S_RegisterSound( "sound/player/gurp2.wav", qfalse);
@@ -759,7 +759,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
 
 		//Elder: new footsteps
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass%i.wav", i+1);
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_GRASS][i] = trap_S_RegisterSound (name, qfalse);
 		
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood%i.wav", i+1);
@@ -770,6 +770,9 @@ static void CG_RegisterSounds( void ) {
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_METAL2][i] = trap_S_RegisterSound (name, qfalse);
+
+		//Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
+		//cgs.media.footsteps[FOOTSTEP_GRAVEL][i] = trap_S_RegisterSound (name, qfalse);
 	}
 
 	// only register the items that the server says we need

@@ -1470,6 +1470,15 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_GRASS ][rand()&3] );
 		}
 		break;
+	/*
+	case EV_FOOTSTEP_GRAVEL:
+		DEBUGNAME("EV_FOOTSTEP_GRAVEL");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_GRAVEL ][rand()&3] );
+		}
+		break;
+	*/
 	case EV_FOOTSTEP_WOOD:
 		DEBUGNAME("EV_FOOTSTEP_WOOD");
 		if (cg_footsteps.integer) {

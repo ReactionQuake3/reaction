@@ -3145,7 +3145,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			le->light = light;
 			VectorCopy( lightColor, le->lightColor );
 		}
-		else
+		else if ( cg_RQ3_impactEffects.integer )
 		{
 			vec3_t temp, offsetDir;
 			byte color[4];
