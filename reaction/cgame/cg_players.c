@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/08/22 07:06:14  niceass
+// basic wallhack protection in, ala ncserver
+//
 // Revision 1.43  2002/08/18 20:26:35  jbravo
 // New hitboxes.  Fixed CTB awards (flags)
 //
@@ -2437,6 +2440,54 @@ int CG_LightVerts(vec3_t normal, int numVerts, polyVert_t * verts)
 	return qtrue;
 }
 
+//*********** NiceAss Start ************
+static vec3_t playerMins = { -15, -15, -24 };
+static vec3_t playerMaxs = { 15, 15, 32 };
+
+qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
+	int i;
+	vec3_t	ends[9];
+	trace_t	trace;
+
+	for (i = 0; i < 9; i++)
+		VectorCopy(cent->lerpOrigin, ends[i]);
+
+	ends[1][0] += playerMins[0];
+	ends[2][0] += playerMins[0];
+	ends[3][0] += playerMins[0];
+	ends[4][0] += playerMins[0];
+	ends[1][1] += playerMaxs[1];
+	ends[2][1] += playerMaxs[1];
+	ends[3][1] += playerMins[1];
+	ends[4][1] += playerMins[1];
+	ends[1][2] += playerMaxs[2];
+	ends[2][2] += playerMins[2];
+	ends[3][2] += playerMaxs[2];
+	ends[4][2] += playerMins[2];
+
+	ends[5][0] += playerMaxs[0];
+	ends[6][0] += playerMaxs[0];
+	ends[7][0] += playerMaxs[0];
+	ends[8][0] += playerMaxs[0];
+	ends[5][1] += playerMaxs[1];
+	ends[6][1] += playerMaxs[1];
+	ends[7][1] += playerMins[1];
+	ends[8][1] += playerMins[1];
+	ends[5][2] += playerMaxs[2];
+	ends[6][2] += playerMins[2];
+	ends[7][2] += playerMaxs[2];
+	ends[8][2] += playerMins[2];
+
+	for (i =0; i < 9; i++) {
+		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
+
+		if ( trace.fraction == 1 || GetMaterialFromFlag(trace.surfaceFlags) == MAT_GLASS)
+			return qtrue;
+	}
+
+	return qfalse;
+}
+
 /*
 ===============
 CG_Player
@@ -2478,6 +2529,10 @@ void CG_Player(centity_t * cent)
 			}
 		}
 	}
+
+	// NiceAss: Check for visibility here
+	if (cent->currentState.number != cg.snap->ps.clientNum && !CG_CheckPlayerVisible(cg.refdef.vieworg, cent) )
+		return;
 
 	memset(&legs, 0, sizeof(legs));
 	memset(&torso, 0, sizeof(torso));
