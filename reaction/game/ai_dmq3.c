@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/23 18:37:50  makro
+// Bots should crouch more often when they attack with a SSG
+// Made this depend on skill. Also, elevator stuff
+//
 // Revision 1.35  2002/05/19 15:43:51  makro
 // Bots now know about weapon modes. Just for grenades so far.
 //
@@ -3354,9 +3358,10 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	//the distance towards the enemy
 	dist = VectorNormalize(forward);
 	//Makro - for long range attacks the bots should crouch more often
-	if (dist > 512) {
-		croucher = Com_Clamp(0.1f, 1, croucher * 2.0f);
-		jumper = Com_Clamp(0, 1, jumper / 2.0f);
+	//		same for sniper now; also added skill as a factor
+	if ( dist > 512 || (dist > 128 && bs->cur_ps.weapon == WP_SSG3000) ) {
+		croucher = Com_Clamp(0.1f, 1, croucher * (attack_skill + 1));
+		jumper = Com_Clamp(0, 1, jumper / (attack_skill + 1));
 	}
 	VectorNegate(forward, backward);
 	//walk, crouch or jump

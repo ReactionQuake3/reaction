@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/05/23 18:37:50  makro
+// Bots should crouch more often when they attack with a SSG
+// Made this depend on skill. Also, elevator stuff
+//
 // Revision 1.44  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -700,7 +704,7 @@ void SP_func_breakable( gentity_t *ent ) {
 
   trap_LinkEntity (ent);
 
-	//Makro - added
+	//Makro - added for elevators
 	if (G_SpawnString( "pathtarget","", &s)) {
 		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
 	}

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/23 18:37:50  makro
+// Bots should crouch more often when they attack with a SSG
+// Made this depend on skill. Also, elevator stuff
+//
 // Revision 1.37  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -1110,7 +1114,7 @@ void InitMover( gentity_t *ent ) {
 		ent->s.pos.trDuration = 1;
 	}
 
-	//Makro - added
+	//Makro - added for elevators
 	if (G_SpawnString( "pathtarget","", &sound)) {
 		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
 	}
@@ -1736,7 +1740,7 @@ void InitRotator( gentity_t *ent ) {
 		ent->s.apos.trDuration = 1;
 	}
 
-	//Makro - added
+	//Makro - added for elevators
 	if (G_SpawnString( "pathtarget","", &sound)) {
 		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
 	}
@@ -2249,6 +2253,7 @@ The train spawns at the first target it is pointing at.
 void SP_func_train (gentity_t *self) {
 	VectorClear (self->s.angles);
 
+	/* Makro - more power to the mappa' !
 	if (self->spawnflags & TRAIN_BLOCK_STOPS) {
 		self->damage = 0;
 	} else {
@@ -2256,6 +2261,7 @@ void SP_func_train (gentity_t *self) {
 			self->damage = 2;
 		}
 	}
+	*/
 
 	if ( !self->speed ) {
 		self->speed = 100;

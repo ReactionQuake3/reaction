@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/05/23 18:37:50  makro
+// Bots should crouch more often when they attack with a SSG
+// Made this depend on skill. Also, elevator stuff
+//
 // Revision 1.16  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -55,7 +59,7 @@ void InitTrigger( gentity_t *self ) {
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 
-	//Makro - added
+	//Makro - added for elevators
 	if (G_SpawnString( "pathtarget","", &s)) {
 		Q_strncpyz(self->pathtarget, s, sizeof(self->pathtarget));
 	}
