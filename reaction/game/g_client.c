@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/05/28 04:46:12  niceass
+// headless fix
+//
 // Revision 1.80  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -616,7 +619,13 @@ void CopyToBodyQue( gentity_t *ent ) {
 	trap_UnlinkEntity (body);
 
 	body->s = ent->s;
-	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
+
+	// clear EF_TALK, etc
+	if (body->s.eFlags & EF_HEADLESS)
+		body->s.eFlags = EF_DEAD | EF_HEADLESS;
+	else
+		body->s.eFlags = EF_DEAD;
+
 	body->s.powerups = 0;	// clear powerups
 	body->s.loopSound = 0;	// clear lava burning
 	body->s.number = body - g_entities;
