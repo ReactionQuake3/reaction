@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/08/30 17:22:29  makro
+// Added clientNum info to the UI; made ref kick and referee ui scripts
+// use client nums instead of names
+//
 // Revision 1.47  2002/08/30 15:09:43  makro
 // MM UI
 //
@@ -2391,6 +2395,7 @@ static void UI_BuildPlayerList()
 			Q_strncpyz(uiInfo.playerNames[uiInfo.playerCount], Info_ValueForKey(info, "n"),
 				   MAX_NAME_LENGTH);
 			Q_CleanStr(uiInfo.playerNames[uiInfo.playerCount]);
+			uiInfo.clientNums[uiInfo.playerCount] = n;
 			uiInfo.playerCount++;
 			team2 = atoi(Info_ValueForKey(info, "t"));
 			if (team2 == team) {
@@ -4092,13 +4097,13 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "refKick") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText(EXEC_APPEND,
-						     va("ref kick %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
+						     va("ref kick %i\n", uiInfo.clientNums[uiInfo.playerIndex]));
 			}
 		//Makro - captain command - referee
 		} else if (Q_stricmp(name, "captainRef") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText(EXEC_APPEND,
-						     va("referee %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
+						     va("referee %i\n", uiInfo.clientNums[uiInfo.playerIndex]));
 			}
 		//Makro - ref login
 		} else if (Q_stricmp(name, "refLogin") == 0) {

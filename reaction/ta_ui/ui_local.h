@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/08/30 17:22:28  makro
+// Added clientNum info to the UI; made ref kick and referee ui scripts
+// use client nums instead of names
+//
 // Revision 1.19  2002/08/30 15:09:43  makro
 // MM UI
 //
@@ -890,6 +894,8 @@ typedef struct {
 	char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	int teamClientNums[MAX_CLIENTS];
+	//Makro - added
+	int clientNums[MAX_CLIENTS];
 
 	int mapCount;
 	mapInfo mapList[MAX_MAPS];
