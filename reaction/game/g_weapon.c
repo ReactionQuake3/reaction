@@ -1043,71 +1043,121 @@ void Weapon_SSG3000_FireOld(gentity_t *ent)
 /*
 =================
 Elder:
-This is based on the railgun code
+This is a triple-hybrid bastard child of
+railgun_fire, old SSG, and bullet_fire code
 
 weapon_ssg3000_fire
 =================
 */
-#define	MAX_SSG3000_HITS	5
+#define	MAX_SSG3000_HITS	4
 void Weapon_SSG3000_Fire (gentity_t *ent) {
 	vec3_t		end;
 	trace_t		trace;
-	gentity_t	*tent;
+	gentity_t	*tent[MAX_SSG3000_HITS];
+	gentity_t	*tentWall;
 	gentity_t	*traceEnt;
 	int			damage;
 	int			i;
 	int			hits;
 	int			unlinked;
 	int			passent;
-	qboolean	hitBreakable;
 	gentity_t	*unlinkedEntities[MAX_SSG3000_HITS];
+
+	qboolean	hitBreakable;
+	float		r;
+	float		u;
+	float		spread;
+
+
+	VectorMA (muzzle, 8192*16, forward, end);
+
+	//Elder: added to assist in zoom crap
+	if (RQ3_isZoomed(ent)) {
+		spread = 0;
+	}
+	else  {
+		spread = RQ3Spread(ent, SNIPER_SPREAD);
+		r = random() * M_PI * 2.0f;
+		u = sin(r) * crandom() * spread * 16;
+		r = cos(r) * crandom() * spread * 16;
+		VectorMA (end, r, right, end);
+		VectorMA (end, u, up, end);
+	}
+
 
 	//damage = 100 * s_quadFactor;
 	damage = SNIPER_DAMAGE;
 
-	VectorMA (muzzle, 8192, forward, end);
+	//VectorMA (muzzle, 8192*16, forward, end);
 
 	// trace only against the solids, so the SSG3000 will go through people
 	unlinked = 0;
 	hits = 0;
 	passent = ent->s.number;
-	G_Printf("NewSSG3000: Start\n");
+	//G_Printf("(%d) SSG: Begin loop\n", level.time);
 	do {
 		//Elder: need to store this flag because
 		//the entity may get wiped out in G_Damage
 		hitBreakable = qfalse;
 
+		//G_Printf("(%d) SSG: Trapping trace\n", level.time);
+
 		trap_Trace (&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 		if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL ) {
+			//G_Printf("(%d) SSG: OOB Entity: exiting loop\n", level.time);
 			break;
 		}
+		
 		traceEnt = &g_entities[ trace.entityNum ];
+		
 		if ( traceEnt->takedamage ) {
-
+			//G_Printf("(%d) SSG: hit damagable entity\n", level.time);
+			
 			//flag hitBreakable - bullets go through even
 			//if it doesn't "shatter" - but that's usually
 			//not the case
 			if ( traceEnt->s.eType == ET_BREAKABLE ) {
+				//G_Printf("(%d) SSG: Hit a breakable\n", level.time);
 				hitBreakable = qtrue;
 			}
+
+			// send impacts
+			if ( traceEnt->client )
+			{
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_FLESH );
+				tent[unlinked]->s.eventParm = traceEnt->s.number;
+			}
+			else
+			{
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+				tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
+			}
+			tent[unlinked]->s.otherEntityNum = ent->s.number;
 
 			if( LogAccuracyHit( traceEnt, ent ) ) {
 				hits++;
 			}
+
+			//G_Printf("(%d) SSG: Doing damage to target\n", level.time);
 			G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_SNIPER);
 		}
+
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
 		if ( hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID)) {
+			//G_Printf("(%d) SSG: did not hit breakable and hit solid, exiting loop\n", level.time);
 			break;		// we hit something solid enough to stop the beam
 		}
 
+		//G_Printf("(%d) SSG: Unlinking trace entity\n", level.time);
 		// unlink this entity, so the next trace will go past it
 		trap_UnlinkEntity( traceEnt );
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
+		//G_Printf("(%d) SSG: Unlinked count: %d\n", level.time, unlinked);
 	} while ( unlinked < MAX_SSG3000_HITS );
 
+	//G_Printf("(%d) SSG: Relinking unlinked entities\n", level.time);
 	// link back in any entities we unlinked
 	for ( i = 0 ; i < unlinked ; i++ ) {
 		trap_LinkEntity( unlinkedEntities[i] );
@@ -1118,20 +1168,16 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	// snap the endpos to integers to save net bandwidth, but nudged towards the line
 	SnapVectorTowards( trace.endpos, muzzle );
 
-	// send bullet impact
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		//Elder: should probably change to something more spectacular
-		tent = G_TempEntity( trace.endpos, EV_BULLET_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
-		if( LogAccuracyHit( traceEnt, ent ) ) {
-				ent->client->accuracy_hits++;
-		}
-	} else {
-		tent = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
-		tent->s.eventParm = DirToByte( trace.plane.normal );
-	}
-	tent->s.otherEntityNum = ent->s.number;
+	//G_Printf("(%d) SSG: Sending bullet impact event\n", level.time);
 
+	// send wall bullet impact
+	// no explosion at end if SURF_NOIMPACT
+	if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
+	{
+		tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+		tentWall->s.eventParm = DirToByte( trace.plane.normal );
+		tentWall->s.otherEntityNum = ent->s.number;
+	}
 
 	// send railgun beam effect
 	//tent = G_TempEntity( trace.endpos, EV_RAILTRAIL );
@@ -1151,6 +1197,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		//tent->s.eventParm = DirToByte( trace.plane.normal );
 	//}
 	//tent->s.clientNum = ent->s.clientNum;
+
+	//G_Printf("(%d) SSG: Shooter reward\n", level.time);
 
 	// give the shooter a reward sound if they have made two railgun hits in a row
 	if ( hits == 0 ) {
@@ -1172,6 +1220,9 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		ent->client->accuracy_hits++;
 	}
 
+	//Elder: bolt action plus save last zoom
+	ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
+	RQ3_SaveZoomLevel(ent);
 }
 
 
@@ -1482,6 +1533,7 @@ void FireWeapon( gentity_t *ent ) {
 		Weapon_M4_Fire ( ent );
 		break;
 	case WP_SSG3000:
+		//Weapon_SSG3000_FireOld( ent );
 		Weapon_SSG3000_Fire ( ent );
 		break;
 	case WP_MP5:

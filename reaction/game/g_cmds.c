@@ -2039,8 +2039,8 @@ void Cmd_OpenDoor(gentity_t *ent)
 	//Use_BinaryMover( ent->parent, ent, other );
 	gentity_t *door = NULL;
 
-	//Don't open doors if intermission or dead
-	if (level.intermissiontime || ent->client->ps.stats[STAT_HEALTH] <= 0)
+	//Don't open doors if dead
+	if (ent->client->ps.stats[STAT_HEALTH] <= 0)
 		return;
 
 	while ((door = findradius(door,ent->r.currentOrigin,100)) != NULL)

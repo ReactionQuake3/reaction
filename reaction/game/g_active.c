@@ -1496,19 +1496,21 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
 
+	
 	//Elder: M4 ride-up/kick -- condition for non-burst and ammo only
 	if ( ent->client->ps.weapon == WP_M4 && ent->client->ps.ammo[WP_M4] > 0 &&
 		(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE &&
 		(ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
-		{
-			//G_Printf("bullets: %d, viewangle: %f\n", ent->client->consecutiveShots, ent->client->ps.viewangles[0]);
-			ent->client->ps.delta_angles[0] = ANGLE2SHORT(ent->client->consecutiveShots * -0.7);
-		}
-	else
-		{
-		ent->client->ps.delta_angles[0] = 0;
+	{
+		//G_Printf("bullets: %d, viewangle: %f\n", ent->client->consecutiveShots, ent->client->ps.viewangles[0]);	
+		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
+	}
+	else if (ent->client->consecutiveShots)
+	{
+		//Restore view after shots
+		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7);
 		ent->client->consecutiveShots = 0;
-		}
+	}
 	
 
 	G_SetClientSound (ent);
