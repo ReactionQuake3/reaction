@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/07/24 05:28:44  jbravo
+// Changed rq3ctf to rq3ctb in the .arena parsing code.
+//
 // Revision 1.8  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -70,7 +73,7 @@ static RQ3_GameType_t RQ3_GameTypes[] = {
 	{"rq3dm", 1 << GT_FFA},
 	{"rq3tdm", 1 << GT_TEAM},
 	{"rq3tp", 1 << GT_TEAMPLAY},
-	{"rq3ctf", 1 << GT_CTF},
+	{"rq3ctb", 1 << GT_CTF},
 	{"none", 0}
 };
 

@@ -1,7 +1,10 @@
 # List fixes here for the 2.2 release
+
 * cg_RQ3_predictWeapons added for Q2 similar delayed animations.
 * added g_RQ3_ctb_respawndelay for delayed CTB respawns.
 * Fixed initial spawning in teammates for CTB
+* Changed rq3ctf to rq3ctb in .arena parsing code.
+
 
 # List fixes here for the 2.1 release
 
