@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2003/03/09 19:47:48  niceass
+// Support for torso pistol animations
+//
 // Revision 1.92  2003/02/05 04:29:14  niceass
 // added support for akimbo animations
 //
@@ -1808,13 +1811,15 @@ PM_TorsoAnimation
 static void PM_TorsoAnimation(void)
 {
 	if (pm->ps->weaponstate == WEAPON_READY) {
-		if (pm->ps->weapon == WP_KNIFE) {
+		if (pm->ps->weapon == WP_KNIFE)
 			PM_ContinueTorsoAnim(TORSO_STAND2);
-		} else if ( pm->ps->weapon == WP_AKIMBO) {
+		else if ( pm->ps->weapon == WP_AKIMBO)
 			PM_ContinueTorsoAnim(TORSO_STAND3);
-		} else {
+		else if ( pm->ps->weapon == WP_PISTOL)
+			PM_ContinueTorsoAnim(TORSO_STAND4);
+		else
 			PM_ContinueTorsoAnim(TORSO_STAND);
-		}
+
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
 		if (pm->ps->ammo[pm->ps->weapon] == 0)
@@ -2285,14 +2290,14 @@ static void PM_Weapon(void)
 	if (pm->ps->weaponstate == WEAPON_RAISING &&
 	    !((pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) && pm->ps->stats[STAT_BURST])) {
 		pm->ps->weaponstate = WEAPON_READY;
-		if (pm->ps->weapon == WP_KNIFE) {
+		if (pm->ps->weapon == WP_KNIFE)
 			PM_StartTorsoAnim(TORSO_STAND2);
-		// NiceAss: Support for special akimbo torso animations
-		} else if ( pm->ps->weapon == WP_AKIMBO ) {
+		else if ( pm->ps->weapon == WP_AKIMBO )
 			PM_StartTorsoAnim(TORSO_STAND3);
-		} else {
+		else if ( pm->ps->weapon == WP_PISTOL )
+			PM_StartTorsoAnim(TORSO_STAND4);
+		else
 			PM_StartTorsoAnim(TORSO_STAND);
-		}
 		// temp hack
 		if (pm->ps->ammo[pm->ps->weapon] == 0) {
 			PM_ContinueWeaponAnim(WP_ANIM_EMPTY);
@@ -2414,6 +2419,8 @@ static void PM_Weapon(void)
 			// NiceAss: Support for akimbo torso attack animations
 			if ( pm->ps->weapon == WP_AKIMBO )
 				PM_StartTorsoAnim(TORSO_ATTACK3);
+			else if ( pm->ps->weapon == WP_PISTOL )
+				PM_StartTorsoAnim(TORSO_ATTACK4);
 			else
 				PM_StartTorsoAnim(TORSO_ATTACK);
 
