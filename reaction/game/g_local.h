@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/03/17 03:35:29  jbravo
+// More radio tewaks and cleanups.
+//
 // Revision 1.53  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -88,6 +91,9 @@
 #define  __ZCAM__
 
 #define BODY_QUEUE_SIZE		8
+
+// JBravo: Max number of killed enemys to track
+#define RQ3_MAXKILLS	5
 
 // Blaze: How long someone bleeds for
 // Elder: This doesn't work the same as Q2 because clients and servers can

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/03/17 03:35:29  jbravo
+// More radio tewaks and cleanups.
+//
 // Revision 1.35  2002/03/17 01:55:43  jbravo
 // Fixed a small bug in radio enemyd that made it say "one enemu down"
 //
@@ -972,8 +975,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 	while (Q_stricmp(radio_msgs[x].msg, "END")) {
 		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
 			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
-				kills = ReadKilledPlayers (ent);
-				ResetKills (ent);
+				kills = ent->client->killStreak;
+				ent->client->killStreak = 0;
 				if (kills >1 && kills <10) {
 					for (i = 0; i < level.maxclients; i++) {
 						player = &g_entities[i];
@@ -981,7 +984,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 							continue;
 						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
 							trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"",
-								kills, ent->client->radioGender));
+								kills-1, ent->client->radioGender));
 					}
 				}
 			}
@@ -1126,7 +1129,7 @@ void ResetKills (gentity_t * ent)
 {
 	int	i;
 
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < RQ3_MAXKILLS; i++) {
 		ent->client->lastkilled_client[i] = NULL;
 	}
 }
@@ -1136,9 +1139,9 @@ int ReadKilledPlayers (gentity_t * ent)
 	int	results, i;
 
 	results = -1;
-	if (ent->client->lastkilled_client[0]) {
-		for (i = 0; i < 5; i++) {
-			if (ent->client->lastkilled_client[i]) {
+	if (ent->client->lastkilled_client[0] != NULL) {
+		for (i = 0; i < RQ3_MAXKILLS; i++) {
+			if (ent->client->lastkilled_client[i] != NULL) {
 				results++;
 			}
 		}
@@ -1152,7 +1155,7 @@ void AddKilledPlayer (gentity_t * self, gentity_t * ent)
 	int	kills;
 
 	kills = ReadKilledPlayers (self);
-	if (kills == 5 || kills == -1) {
+	if (kills == RQ3_MAXKILLS || kills == -1) {
 		self->client->lastkilled_client[0] = ent;
 	} else {
 		self->client->lastkilled_client[kills + 1] = ent;

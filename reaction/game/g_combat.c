@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/17 03:35:29  jbravo
+// More radio tewaks and cleanups.
+//
 // Revision 1.50  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -836,7 +839,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			// Increase number of kills this life for attacker
 			// JBravo: unless we are in teamplay
 			if (g_gametype.integer == GT_TEAMPLAY) {
-				attacker->client->killStreak = 0;
+				attacker->client->killStreak++;
 				AddScore(attacker, self->r.currentOrigin, 1);
 			} else {
 				attacker->client->killStreak++;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/17 03:35:29  jbravo
+// More radio tewaks and cleanups.
+//
 // Revision 1.22  2002/03/14 16:04:26  slicer
 // Optimization on radio parsing
 //
@@ -1263,153 +1266,19 @@ static void CG_ServerCommand( void ) {
 		CG_AddBufferedSound(cgs.media.actionSound);
 		return;
 	}
-// JBravo: radio. This implementation sucks.
+// JBravo: radio. This implementation rules. Used to suck :)
 	if (!strcmp(cmd, "playradiosound")) {
 		int	sound, gender;
 
 		sound = atoi(CG_Argv(1));
 		gender = atoi(CG_Argv(2));
 		//Slicer optimization
-		if(!gender)	CG_AddBufferedSound(cgs.media.male_sounds[sound]);
-		
-		else 
+		if(!gender) {
+			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+		} else {
 			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
-		return;
-		/*
-		if (sound == 0) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_1sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_1sound);
-		} else if (sound == 1) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_2sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_2sound);
-		} else if (sound == 2) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_3sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_3sound);
-		} else if (sound == 3) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_4sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_4sound);
-		} else if (sound == 4) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_5sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_5sound);
-		} else if (sound == 5) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_6sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_6sound);
-		} else if (sound == 6) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_7sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_7sound);
-		} else if (sound == 7) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_8sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_8sound);
-		} else if (sound == 8) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_9sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_9sound);
-		} else if (sound == 9) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_10sound);
-			else
-				CG_AddBufferedSound(cgs.media.female_10sound);
-		} else if (sound == 10) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_backsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_backsound);
-		} else if (sound == 11) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_coversound);
-			else
-				CG_AddBufferedSound(cgs.media.female_coversound);
-		} else if (sound == 12) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_downsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_downsound);
-		} else if (sound == 13) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_enemydsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_enemydsound);
-		} else if (sound == 14) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_enemyssound);
-			else
-				CG_AddBufferedSound(cgs.media.female_enemyssound);
-		} else if (sound == 15) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_forwardsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_forwardsound);
-		} else if (sound == 16) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_gosound);
-			else
-				CG_AddBufferedSound(cgs.media.female_gosound);
-		} else if (sound == 17) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_im_hitsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_im_hitsound);
-		} else if (sound == 18) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_leftsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_leftsound);
-		} else if (sound == 19) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_reportinsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_reportinsound);
-		} else if (sound == 20) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_rightsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_rightsound);
-		} else if (sound == 21) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_taking_fsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_taking_fsound);
-		} else if (sound == 22) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_teamdownsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_teamdownsound);
-		} else if (sound == 23) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_treportsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_treportsound);
-		} else if (sound == 24) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_upsound);
-			else
-				CG_AddBufferedSound(cgs.media.female_upsound);
-		} else if (sound == 25) {
-			if (!gender)
-				CG_AddBufferedSound(cgs.media.male_click);
-			else
-				CG_AddBufferedSound(cgs.media.female_click);
 		}
-
 		return;
-		*/
 	}
 
 	CG_Printf( "Unknown client game command: %s\n", cmd );
