@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/05/31 05:12:50  niceass
+// tpcountdown default 0!1@$@#%$
+//
 // Revision 1.60  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -406,7 +409,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SERVERINFO, 0, qfalse },
-	{ &g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_RQ3_printOwnObits, "g_RQ3_printOwnObits", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_RQ3_gib, "g_RQ3_gib", "1", CVAR_ARCHIVE, 0, qtrue },
 	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_ROM, 0, qfalse},
