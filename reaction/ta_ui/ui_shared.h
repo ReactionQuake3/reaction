@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/04/11 20:57:19  makro
+// Tweaked onShow script handling; added onFirstShow script
+//
 // Revision 1.10  2002/03/24 21:26:14  makro
 // no message
 //
@@ -308,7 +311,9 @@ typedef struct {
   const char *onFinishTimer;
 //Makro - executed when the menu is shown
   const char *onShow;
+  const char *onFirstShow;
   qboolean shown;
+  int showCount;
   const char *soundName;						// background loop sound for menu
 //Makro - music intro  
   const char *soundIntro;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/04/11 20:57:19  makro
+// Tweaked onShow script handling; added onFirstShow script
+//
 // Revision 1.11  2002/03/31 13:23:25  makro
 // Cleaned things up a little
 //
@@ -2891,12 +2894,21 @@ static void Display_CloseCinematics() {
 }
 
 void  Menus_Activate(menuDef_t *menu) {
+	
+	//Makro - better to check for this kind of stuff
+	if (!menu) {
+		return;
+	}
+	
 	menu->window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
 	if (menu->onOpen) {
 		itemDef_t item;
 		item.parent = menu;
 		Item_RunScript(&item, menu->onOpen);
 	}
+
+	//Makro - set shown to qfalse to allow onShow events to be triggerred
+	menu->shown = qfalse;
 
 	if (menu->soundName && *menu->soundName) {
 //		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
@@ -4524,6 +4536,7 @@ void Menu_Init(menuDef_t *menu) {
 	menu->fadeCycle = DC->Assets.fadeCycle;
 	//Makro - ensure that onShow events are triggerred
 	menu->shown = qfalse;
+	menu->showCount = 0;
 	Window_Init(&menu->window);
 }
 
@@ -4752,12 +4765,25 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 
 	//Makro - see if we have any onShow script
 	if (!(menu->shown)) {
-		if (menu->onShow) {
-			if (menu->itemCount > 0) {
-				Item_RunScript(menu->items[0], menu->onShow);
+		//If it's the first time a menu is shown, look for a onFirstShow script
+		if (menu->showCount == 0) {
+			if (menu->onFirstShow) {
+				if (menu->itemCount > 0) {
+					//Found onFirstShow script; item count > 0
+					Item_RunScript(menu->items[0], menu->onFirstShow);
+				}
+			} else if (menu->onShow) {
+				if (menu->itemCount > 0) {
+					//onFirstShow script not found, using onShow instead
+					Item_RunScript(menu->items[0], menu->onShow);
+				}
 			}
+		} else if (menu->itemCount > 0) {
+			Item_RunScript(menu->items[0], menu->onShow);
 		}
+
 		menu->shown = qtrue;
+		menu->showCount++;
 	}
 
 	// draw the background if necessary
@@ -5875,6 +5901,14 @@ qboolean MenuParse_onShow( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+qboolean MenuParse_onFirstShow( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Script_Parse(handle, &menu->onFirstShow)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean MenuParse_onClose( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Script_Parse(handle, &menu->onClose)) {
@@ -6152,6 +6186,7 @@ keywordHash_t menuParseKeywords[] = {
 	{"onOpen", MenuParse_onOpen, NULL},
 	//Makro - executed when the menu is shown
 	{"onShow", MenuParse_onShow, NULL},
+	{"onFirstShow", MenuParse_onFirstShow, NULL},
 	{"onClose", MenuParse_onClose, NULL},
 	{"onESC", MenuParse_onESC, NULL},
 	//Makro - executed when all the items in a timed sequence have been shown
