@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/03/30 15:25:57  makro
+// Fixed door kicking
+//
 // Revision 1.37  2002/03/12 04:55:31  blaze
 // stats should only be recored when the round is in progress
 //
@@ -220,6 +223,7 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 {
 	gentity_t *traceEnt;
 	trace_t tr;
+	qboolean ok;
 
 	traceEnt = &g_entities[ trIn->entityNum ];
 	if ( Q_stricmp (traceEnt->classname, "func_door_rotating") == 0 )
@@ -236,10 +240,17 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 		crossProduct = d_forward[0]*d_right[1]-d_right[0]*d_forward[1];
 
 		// See if we are on the proper side to do it
-		if ( ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) ||
-			 ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0))
+		// Makro - it didn't take into account moverstate
+		ok = ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) ||
+			 ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0);
+		if (traceEnt->moverState == ROTATOR_1TO2 || traceEnt->moverState == ROTATOR_POS2) {
+			ok = !ok;
+		}
+		if ( ok )
 		{
-			Cmd_OpenDoor( ent );
+			//Cmd_OpenDoor( ent );
+			//Makro - Cmd_OpenDoor opens ALL the doors near the kicked one
+			Use_BinaryMover( traceEnt, traceEnt, ent);
 			VectorMA( trIn->endpos, 25, forward, end );
 			trap_Trace (&tr, trIn->endpos, NULL, NULL, end, trIn->entityNum, MASK_SHOT);
 			if ( !(tr.surfaceFlags & SURF_NOIMPACT) )
