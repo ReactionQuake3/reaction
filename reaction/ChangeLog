@@ -8,7 +8,7 @@
 * Damage for headshots (mp5 especially) tweaked.
 * The owned sound (knife slashing kills) now just played for attacker and victim.
 * CTB now has the same 20 second delay for starting a map as TP has (including countdown)
-* Assed propper handling of players who join CTB games while in progress.
+* Added propper handling of players who join CTB games while in progress.
 * g_RQ3_teamXname cvars now set to black/silver in CTB.
 * the team cmd (with no arguments) now knows the CTB teams.
 * Enhanced matchmode so it now works for CTB.
