@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/02/04 00:11:12  slicer
+// Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
+//
 // Revision 1.37  2002/01/30 07:37:25  niceass
 // EnableBreath added for mappers (TA thing)
 //
@@ -234,6 +237,9 @@ vmCvar_t	cg_enableDust;
 cheat_cvar	cheats[30];
 // JBravo: lca in progress cvar
 vmCvar_t	RQ3_lca;
+//Slicer: matchmode team status cvars
+vmCvar_t	MM_team1;
+vmCvar_t	MM_team2;
 // NiceAss: Taken out of the missionpack
 vmCvar_t	cg_enableBreath;
 
@@ -383,7 +389,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 // JBravo: added
-	{ &RQ3_lca, "RQ3_lca", "0", 0}
+	{ &RQ3_lca, "RQ3_lca", "0", 0},
+	//Slicer: Team Status Cvars for MM
+	{ &MM_team1, "MM_team1", "0", 0},
+	{ &MM_team2, "MM_team2", "0", 0}
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 

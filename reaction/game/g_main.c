@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/02/04 00:10:49  slicer
+// Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
+//
 // Revision 1.19  2002/01/31 23:51:18  slicer
 // Adding Matchmode: just a few basics and files...
 //
@@ -113,6 +116,9 @@ vmCvar_t	g_RQ3_roundtimelimit;
 vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	RQ3_lca;
+//Slicer: Team Status Cvars for MM
+vmCvar_t	MM_team1;
+vmCvar_t	MM_team2;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -231,7 +237,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", 0, 0, qtrue},
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", 0, 0, qtrue},
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", 0, 0, qtrue},
-	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse}
+	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	//Slicer: Team Status Cvars for MM
+	{ &MM_team1, "MM_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &MM_team2, "MM_team2", "0", CVAR_SYSTEMINFO, 0, qfalse}
 
 };
 
@@ -584,8 +593,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 // Slicer: reset matchmode vars
 	if(g_matchmode.integer) {
 		level.matchTime = 0;
-		level.team1ready = qfalse;
-		level.team2ready = qfalse;
+		trap_Cvar_Set("MM_team1", "0");
+		trap_Cvar_Set("MM_team2", "0");
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {

@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.41  2002/02/02 20:39:09  slicer
-// Matchmode: Adding Captains
+// Revision 1.42  2002/02/04 00:10:49  slicer
+// Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
 // Revision 1.40  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
@@ -615,8 +615,6 @@ typedef struct {
 #endif
 //	Slicer: Matchmode
 	float	matchTime;
-	qboolean team1ready;
-	qboolean team2ready;
 // JBravo adding TP
 	int		lights_camera_action;
 	qboolean	team_round_going;
@@ -1070,6 +1068,9 @@ extern	vmCvar_t	g_RQ3_roundtimelimit;		// JBravo: Time pr. round
 extern	vmCvar_t	g_RQ3_tgren;			// JBravo: no. of team grenades
 extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limited to same team.
 extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
+//Slicer: Team Status Cvars for MM
+extern vmCvar_t	MM_team1;
+extern vmCvar_t	MM_team2;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

@@ -61,13 +61,13 @@ void MM_Captain_f( gentity_t *ent ) {
 		return;
 	}
 	if(ent->client->pers.captain  == TEAM_RED) {
-			level.team1ready = qfalse;
+			trap_Cvar_Set("MM_team1", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 			ent->client->pers.netname,"Red Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
 	}
 	else if(ent->client->pers.captain == TEAM_BLUE) {
-			level.team2ready = qfalse;
+			trap_Cvar_Set("MM_team2", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 				ent->client->pers.netname,"Blue Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
@@ -89,22 +89,24 @@ void MM_Ready_f(gentity_t *ent) {
 
 	if(ent->client->pers.captain != TEAM_FREE) {
 		if(ent->client->sess.savedTeam == TEAM_RED) {
-			if(level.team1ready)
-				level.team1ready = qfalse;
+			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
+			"Red Team",MM_team1.integer == 0 ? "": "no longer"));
+			
+			if(MM_team1.integer)
+				trap_Cvar_Set("MM_Team1", "0");
 			else
-				level.team1ready = qtrue;
-			trap_SendServerCommand( -1, va("cp \"%s is %s Ready.\n\"",
-			"Red Team",level.team1ready ? "": "no longer"));
-			//trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
-			//"Red Team",level.team1ready ? "": "no longer"));
+				trap_Cvar_Set("MM_Team1", "1");
+
 		}
 		else {
-			if(level.team2ready)
-				level.team2ready = qfalse;
+			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
+			"Blue Team",MM_team2.integer == 0 ? "": " no longer"));
+
+			if(MM_team2.integer)
+					trap_Cvar_Set("MM_Team2", "0");
 			else
-				level.team2ready = qtrue;
-			trap_SendServerCommand( -1, va("cp \"%s is %s Ready.\n\"",
-			"Red Team",	level.team2ready ? "": "no longer"));
+				trap_Cvar_Set("MM_Team2", "1");
+			
 		}
 	}
 	else

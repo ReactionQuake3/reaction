@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.30  2002/02/03 21:23:51  slicer
-// More Matchmode code and fixed 2 bugs in TP
+// Revision 1.31  2002/02/04 00:10:49  slicer
+// Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
 // Revision 1.28  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
@@ -1527,10 +1527,10 @@ void ClientDisconnect( int clientNum ) {
 	if(g_gametype.integer) {
 		switch(ent->client->pers.captain ) {
 				case TEAM_RED:
-					level.team1ready = qfalse;
+					trap_Cvar_Set("MM_team1", "0");
 				break;
 				case TEAM_BLUE:
-					level.team2ready = qfalse;
+					trap_Cvar_Set("MM_team2", "0");
 				break;
 		}
 	}

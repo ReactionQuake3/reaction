@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/02/04 00:11:12  slicer
+// Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
+//
 // Revision 1.42  2002/01/30 07:37:25  niceass
 // EnableBreath added for mappers (TA thing)
 //
@@ -1440,6 +1443,9 @@ extern	vmCvar_t		cg_enableBreath;
 extern cheat_cvar		cheats[30];
 // JBravo: To signal cgame that lca is in progress
 extern	vmCvar_t		RQ3_lca;
+//Slicer: matchmode team status cvars
+extern vmCvar_t	MM_team1;
+extern vmCvar_t	MM_team2;
 
 //
 // cg_main.c
