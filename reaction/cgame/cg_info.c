@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/03/03 18:10:20  makro
+// Changed the colors for the 'loading map' screen a bit
+//
 // Revision 1.11  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
 //
@@ -181,13 +184,14 @@ void CG_DrawInformation( void ) {
 	}
 
 	//Elder: "Letterbox" mask
-	CG_FillRect( 0, 0, SCREEN_WIDTH, 54, colorBlack);
+	//Makro - changed it a bit
+	CG_FillRect( 0, 0, SCREEN_WIDTH, 56, colorBlack);
 	CG_FillRect( 0, 426, SCREEN_WIDTH, 54, colorBlack);
-	CG_FillRect( 0, 54, SCREEN_WIDTH, 2, colorRed);
-	CG_FillRect( 0, 426, SCREEN_WIDTH, 2, colorRed);
+	CG_FillRect( 0, 56, SCREEN_WIDTH, 2, colorMdGrey);
+	CG_FillRect( 0, 426, SCREEN_WIDTH, 2, colorMdGrey);
 
 	//Elder: mapname
-	UI_DrawProportionalString(x, 26, s, UI_LEFT|UI_DROPSHADOW, colorRed);
+	UI_DrawProportionalString(x, 26, s, UI_LEFT|UI_DROPSHADOW, colorDkGrey);
 	//CG_DrawBigStringColor(4, 24, s, color_red);
 
 	//Elder: removed
@@ -219,7 +223,11 @@ void CG_DrawInformation( void ) {
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Q_strncpyz(buf, s, 1024);
 		//Q_CleanStr(buf);
-		CG_DrawSmallStringColor(x, y, s, colorRed);
+		
+		//Makro - allow color-coded texts
+		//CG_DrawSmallStringColor(x, y, s, colorMdGrey);
+		CG_DrawStringExt(x, y, s, colorLtGrey, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+
 		y += SMALLCHAR_HEIGHT;
 	}
 
