@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/05/13 04:41:26  makro
+// Bug with doors (mine !)
+//
 // Revision 1.28  2002/05/11 12:45:25  makro
 // Spectators can go through breakables and doors with
 // a targetname or health. Bots should crouch more/jump less
@@ -1279,16 +1282,19 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 
 	// NiceAss: This trigger will be for players
 	// create a trigger with this size
-	other = G_Spawn ();
-	other->classname = "door_trigger";
-	VectorCopy (mins, other->r.mins);
-	VectorCopy (maxs, other->r.maxs);
-	other->parent = ent;
-	other->r.contents = CONTENTS_TRIGGER;
-	other->touch = Touch_DoorTrigger;
-	// remember the thinnest axis
-	other->count = best;
-	trap_LinkEntity (other);
+	// Makro - we only want these for doors without health & targetname
+	if (!(ent->targetname) && !ent->health) {
+		other = G_Spawn ();
+		other->classname = "door_trigger";
+		VectorCopy (mins, other->r.mins);
+		VectorCopy (maxs, other->r.maxs);
+		other->parent = ent;
+		other->r.contents = CONTENTS_TRIGGER;
+		other->touch = Touch_DoorTrigger;
+		// remember the thinnest axis
+		other->count = best;
+		trap_LinkEntity (other);
+	}
 
 	// NiceAss: This trigger will be for spectators
 	// NiceAss: Undo the stretched box size
