@@ -33,6 +33,7 @@ G_TestEntityPosition
 gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	trace_t	tr;
 	int		mask;
+	vec3_t	origin2;
 
 	if ( ent->clipmask ) {
 		mask = ent->clipmask;
@@ -40,14 +41,18 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 		mask = MASK_SOLID;
 	}
 	if ( ent->client ) {
+		//VectorCopy(ent->client->ps.origin,origin2);
+		//origin2[2] +=200;
 		trap_Trace( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
 	} else {
 		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
 	}
 	
 	if (tr.startsolid)
+	{
+		//Com_Printf("startsolid\n");
 		return &g_entities[ tr.entityNum ];
-		
+	}	
 	return NULL;
 }
 
@@ -152,6 +157,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	block = G_TestEntityPosition( check );
 	if (!block) {
 		// pushed ok
+
 		if ( check->client ) {
 			VectorCopy( check->client->ps.origin, check->r.currentOrigin );
 		} else {
@@ -250,6 +256,8 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	pushed_t	*p;
 	int			entityList[MAX_GENTITIES];
 	int			listedEntities;
+	float			deltaTime;
+	float		phase;
 	vec3_t		totalMins, totalMaxs;
 
 	*obstacle = NULL;
@@ -349,13 +357,18 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			|| check->r.absmax[0] <= mins[0]
 			|| check->r.absmax[1] <= mins[1]
 			|| check->r.absmax[2] <= mins[2]) {
+			//	Com_Printf("No Test\n");
 				continue;
 			}
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
+			
 			if (!G_TestEntityPosition (check)) {
 				continue;
 			}
+
+
+			
 		}
 
 		// the entity needs to be pushed
@@ -370,8 +383,32 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 		//But it has to PUSH the client off... I don't know how just yet :(
 		if ( pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE ) {
 			//Elder: debug code
-			continue;
-			G_Printf("RQ3: TR_SINE crusher code removed\n");
+			//G_Printf("RQ3: TR_SINE crusher code removed\n");
+			for ( p=pushed_p-1 ; p>=pushed ; p-- ) {
+				VectorCopy (p->origin, p->ent->s.pos.trBase);
+				VectorCopy (p->angles, p->ent->s.apos.trBase);
+				if ( p->ent->client ) {
+					//trBase[1] = angle it swings at, delta[2] = speed
+					//Com_Printf("(%d)(%f)(%f)\n",pusher->s.apos.trDuration[0],pusher->s.apos.trDuration[1],pusher->s.apos.trDuration[2]);
+					deltaTime = (level.time - pusher->s.apos.trTime ) / (float) pusher->s.apos.trDuration;
+					phase = sin( deltaTime * M_PI * 2 );
+					if (phase <0)
+					{
+						p->ent->client->ps.origin[1]+=abs((int)(10*cos(pusher->s.apos.trBase[1])));
+						p->ent->client->ps.origin[0]+=abs((int)(10*sin(pusher->s.apos.trBase[1])));
+					}
+					if (phase >=0)
+					{
+						p->ent->client->ps.origin[1]-=abs((int)(10*cos(pusher->s.apos.trBase[1])));
+						p->ent->client->ps.origin[0]-=abs((int)(10*sin(pusher->s.apos.trBase[1])));
+					}
+					p->ent->client->ps.delta_angles[YAW] = p->deltayaw;
+					//VectorCopy (p->origin, p->ent->client->ps.origin);
+				}
+//				trap_LinkEntity (p->ent);
+			}
+		//	return qfalse;
+		continue;
 			//Elder: temp - player will stop the pendulum from going
 			//Elder: removed qfalse and continue
 			//return qfalse;
