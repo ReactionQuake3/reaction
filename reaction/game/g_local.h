@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.81  2002/05/19 21:27:28  blaze
 // added force and buoyancy to breakables
 //
@@ -287,8 +290,6 @@ struct gentity_s {
 	float		angle;			// set in editor, -1 = up, -2 = down
 	char		*target;
 	char		*targetname;
-	//Blaze: Holds the target set by a button
-	char		*pathtarget;
 	char		*team;
 	char		*targetShaderName;
 	char		*targetShaderNewName;
@@ -347,6 +348,8 @@ struct gentity_s {
 
 	gitem_t		*item;			// for bonus items
 	float		distance;		// VALKYRIE: for rotating door
+	//Blaze: Holds the target set by a button
+	char		pathtarget[32];
 };
 
 
@@ -795,6 +798,8 @@ int		G_SoundIndex( char *name );
 void	G_TeamCommand( team_t team, char *cmd );
 void	G_KillBox (gentity_t *ent);
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
+//Makro - added
+gentity_t *G_Find2 (gentity_t *from, int fieldofs, const char *match, int fieldofs2, const char *match2);
 gentity_t *G_PickTarget (char *targetname);
 void	G_UseTargets (gentity_t *ent, gentity_t *activator);
 void	G_SetMovedir ( vec3_t angles, vec3_t movedir);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.25  2002/05/11 12:45:25  makro
 // Spectators can go through breakables and doors with
 // a targetname or health. Bots should crouch more/jump less
@@ -169,6 +172,7 @@ field_t fields[] = {
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
+	//{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
 	{NULL}
 };
 

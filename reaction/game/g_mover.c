@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.36  2002/05/23 05:13:44  blaze
 // More sound changes as per Sze, please dont kill me Cent
 //
@@ -835,11 +838,12 @@ Use_BinaryMover
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	int		total;
 	int		partial;
+	/* Makro - trains have a custom use function now
 	//Blaze: Holds the train entity
 	gentity_t *temp;
 	if ( ent->pathtarget != NULL )
 	{
-		G_Printf("The pathtarget is %s\n",ent->pathtarget);
+		//G_Printf("The pathtarget is %s\n",ent->pathtarget);
 		temp = NULL;
 		temp = G_Find(temp,FOFS(targetname),ent->target);
 		if ( !temp )
@@ -854,6 +858,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 			//G_Printf("^2%s\n", ent->nextTrain->targetname);
 		}
 	}
+	*/
 
 	// only the master should be used
 	if ( ent->flags & FL_TEAMSLAVE ) {
@@ -1105,6 +1110,11 @@ void InitMover( gentity_t *ent ) {
 		ent->s.pos.trDuration = 1;
 	}
 
+	//Makro - added
+	if (G_SpawnString( "pathtarget","", &sound)) {
+		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
+	}
+	
 }
 
 
@@ -1183,7 +1193,10 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	}
 
 	// reverse direction
-	Use_BinaryMover( ent, ent, other );
+	// Makro - not for func_trains
+	if (Q_stricmp(ent->classname, "func_train")) {
+		Use_BinaryMover( ent, ent, other );
+	}
 }
 
 /*
@@ -1722,6 +1735,11 @@ void InitRotator( gentity_t *ent ) {
 	if ( ent->s.apos.trDuration <= 0 ) {
 		ent->s.apos.trDuration = 1;
 	}
+
+	//Makro - added
+	if (G_SpawnString( "pathtarget","", &sound)) {
+		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
+	}
 }
 
 
@@ -1923,13 +1941,13 @@ When a button is touched, it moves some distance in the direction of it's angle,
 "light"		constantLight radius
 "pathtarget" stores the target for a train
 */
+
 void SP_func_button( gentity_t *ent ) {
 	vec3_t		abs_movedir;
 	float		distance;
 	vec3_t		size;
 	float		lip;
-	char		*s;
-  char *noise;
+	char *noise;
   
   //changed to sound to stop it from conflicting with the looping noise
   //Changed from noise to sound as per Sze
@@ -1951,10 +1969,6 @@ void SP_func_button( gentity_t *ent ) {
 	// calculate second position
 	trap_SetBrushModel( ent, ent->model );
 
-	if ( G_SpawnString( "pathtarget","", &s) ) {
-		strcpy(ent->pathtarget, s);
-	}
-
 	G_SpawnFloat( "lip", "4", &lip );
 
 	G_SetMovedir( ent->s.angles, ent->movedir );
@@ -1974,6 +1988,10 @@ void SP_func_button( gentity_t *ent ) {
 	}
 
 	InitMover( ent );
+	//if ( G_SpawnString( "pathtarget","", &s) ) {
+	//	strcpy(ent->pathtarget, s);
+	//}
+
 }
 
 
@@ -2021,7 +2039,8 @@ void Reached_Train( gentity_t *ent ) {
 	}
 
 	// fire all other targets
-	G_UseTargets( next, NULL );
+	// Makro - set activator to ent; was NULL before
+	G_UseTargets( next, ent );
 
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
@@ -2144,6 +2163,75 @@ void SP_path_corner( gentity_t *self ) {
 	// path corners don't need to be linked in
 }
 
+/*
+===============
+Use_Func_Train
+
+Added by Makro
+===============
+*/
+void Use_Func_Train( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	gentity_t		*next;
+	float			speed;
+	vec3_t			move;
+	float			length;
+
+	// copy the apropriate values
+	if (!other->pathtarget)
+		return;
+	//G_Printf("pathtarget to look for: %s\n\n", other->pathtarget);
+	next = G_Find2(NULL, FOFS(targetname), other->pathtarget, FOFS(classname), "path_corner");
+	
+	if ( !next || !next->nextTrain ) {
+		return;		// just stop
+	}
+
+	// set the new trajectory
+	VectorCopy( ent->r.currentOrigin, ent->pos1 );
+	VectorCopy( next->s.origin, ent->pos2 );
+	ent->nextTrain = next;
+
+	//the train is already there
+	if (VectorCompare(ent->pos1, ent->pos2)) {
+		Reached_Train(ent);
+		return;
+	}
+	//Blaze: Spam out some info about where the train is
+	//G_Printf("^1Reached Reached_Train %s %s\n", next->targetname, next->target);
+	//G_Printf("^3Train is at (%f %f %f) or (%f %f %f)\n",ent->s.origin[0],ent->s.origin[1],ent->s.origin[2], ent->pos1[0], ent->pos1[1], ent->pos1[2]);
+	//G_Printf("^2NextTrain  Origin(%f, %f, %f) Next Origin (%f, %f, %f)\n", next->nextTrain->s.origin[0], next->nextTrain->s.origin[1], next->nextTrain->s.origin[2], next->s.origin[0], next->s.origin[1], next->s.origin[2]);
+	
+	speed = ent->speed;
+
+	// calculate duration
+	VectorSubtract( ent->pos2, ent->pos1, move );
+	length = VectorLength( move );
+
+	ent->s.pos.trDuration = length * 1000 / speed;
+
+	// looping sound
+	ent->s.loopSound = next->soundLoop;
+
+	// start it going
+	SetMoverState( ent, MOVER_1TO2, level.time );
+
+	// if there is a "wait" value on the target, don't start moving yet
+	if ( next->wait ) {
+		ent->nextthink = level.time + next->wait * 1000;
+		ent->think = Think_BeginMoving;
+		ent->s.pos.trType = TR_STATIONARY;
+	}
+	//Blaze: If the wait is less than 0, dont nextthing
+	/*
+	if (next->wait < 0)
+	{
+		ent->nextthink = 0;
+		ent->think = Think_BeginMoving;
+		ent->s.pos.trType = TR_STATIONARY;
+	}
+	*/
+}
+
 
 
 /*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
@@ -2188,6 +2276,10 @@ void SP_func_train (gentity_t *self) {
 	// a chance to spawn
 	self->nextthink = level.time + FRAMETIME;
 	self->think = Think_SetupTrainTargets;
+
+	//Makro - added
+	self->use = Use_Func_Train;
+	self->blocked = Blocked_Door;
 }
 
 /*

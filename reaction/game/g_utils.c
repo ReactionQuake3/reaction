@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.9  2002/05/20 16:25:48  makro
 // Triggerable cameras
 //
@@ -180,6 +183,18 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 	return NULL;
 }
 
+//Makro - returns the first entity that matches both fieldofs
+gentity_t *G_Find2 (gentity_t *from, int fieldofs, const char *match, int fieldofs2, const char *match2) {
+	gentity_t	*ent;
+
+	for (ent = G_Find(from, fieldofs, match); ent; ent = G_Find(ent, fieldofs, match)) {
+		char *s = *(char **) ((byte *)ent + fieldofs2);
+		if (!Q_stricmp(s, match2))
+			return ent;
+	}
+
+	return NULL;
+}
 
 /*
 =============

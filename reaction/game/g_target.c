@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.4  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -135,6 +138,10 @@ void SP_target_score( gentity_t *ent ) {
 If "private", only the activator gets the message.  If no checks, all clients get the message.
 */
 void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+	//Makro - crash bug fix
+	if (activator == NULL)
+		return;
+
 	if ( activator->client && ( ent->spawnflags & 4 ) ) {
 		trap_SendServerCommand( activator-g_entities, va("cp \"%s\"", ent->message ));
 		return;

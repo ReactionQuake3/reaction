@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.43  2002/05/23 04:53:41  blaze
 // some func_breakable fixes.  Explosives respawn on new rounds now .
 //
@@ -571,7 +574,7 @@ void SP_func_breakable( gentity_t *ent ) {
   int damage_radius;
   int velocity;
   int jump;
-  char *name;
+  char *name, *s;
   
   // Make it appear as the brush
   trap_SetBrushModel( ent, ent->model );
@@ -695,11 +698,12 @@ void SP_func_breakable( gentity_t *ent ) {
       ent->s.modelindex2 = G_ModelIndex( ent->model2 );
   }
 
-  //Makro - added this so spectators can go through breakables
-  //ent->nextthink = level.time + FRAMETIME;
-  //ent->think = Think_SpawnNewDoorTrigger;
-
   trap_LinkEntity (ent);
+
+	//Makro - added
+	if (G_SpawnString( "pathtarget","", &s)) {
+		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
+	}
 }
 
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/05/23 15:55:25  makro
+// Elevators
+//
 // Revision 1.15  2002/05/22 04:19:45  blaze
 // Sound entity changes as per Sze
 //
@@ -44,12 +47,18 @@
 
 
 void InitTrigger( gentity_t *self ) {
+	char *s;
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
 
 	trap_SetBrushModel( self, self->model );
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
+
+	//Makro - added
+	if (G_SpawnString( "pathtarget","", &s)) {
+		Q_strncpyz(self->pathtarget, s, sizeof(self->pathtarget));
+	}
 }
 
 
