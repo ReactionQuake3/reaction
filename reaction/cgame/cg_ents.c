@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/07/19 04:33:52  niceass
+// laser fog fix and ctb markers
+//
 // Revision 1.29  2002/06/21 21:06:20  niceass
 // laserfog stuff
 //
@@ -955,6 +958,37 @@ static void CG_TeamBase(centity_t * cent)
 
 /*
 ===============
+CG_DrawDecal	By NiceAss
+===============
+*/
+static void CG_DrawDecal(centity_t * cent)
+{
+	trace_t	trace;
+	vec3_t	end;
+	float	alpha, radius;
+
+	if (cgs.gametype == GT_CTF) {
+		//cent->currentState.modelindex 
+		
+		VectorCopy(cent->lerpOrigin, end);
+		end[2] -= 8192;
+
+		alpha = sin(cg.time / 160.0f) * 0.25 + 0.75f;
+		radius = 48 + (cos(cg.time / 320.0f) * 4.0f);
+
+		// Project downward to the ground
+		CG_Trace(&trace, cent->lerpOrigin, NULL, NULL, end, 0, CONTENTS_SOLID | CONTENTS_PLAYERCLIP);
+
+		if (cent->currentState.modelindex == TEAM_RED)
+			CG_ImpactMark(cgs.media.ctbXMark1, trace.endpos, trace.plane.normal, 45.0f,
+				      1, 1, 1, 1, qfalse, radius, qtrue);
+		else
+			CG_ImpactMark(cgs.media.ctbXMark2, trace.endpos, trace.plane.normal, 45.0f,
+				      1, 1, 1, 1, qfalse, radius, qtrue);
+	}
+}
+/*
+===============
 CG_AddCEntity
 
 ===============
@@ -1015,6 +1049,9 @@ static void CG_AddCEntity(centity_t * cent)
 	case ET_TEAM:
 		CG_TeamBase(cent);
 		break;
+	case ET_DECAL:
+		CG_DrawDecal(cent);
+		break;
 	case ET_LASER:
 		//Elder: the local laser call is checked in playerstate unless it is disabled
 		//if (!cg_RQ3_laserAssist.integer || cent->currentState.clientNum != cg.snap->ps.clientNum)
@@ -1050,7 +1087,7 @@ void CG_AddPacketEntities(void)
 		}
 	} else {
 		cg.frameInterpolation = 0;	// actually, it should never be used, because
-		// no entities should be marked as interpolating
+		// no entities7 should be marked as interpolating
 	}
 
 	// the auto-rotating items will all have the same axis
@@ -1107,11 +1144,12 @@ static void CG_LaserSight(centity_t * cent)
 		ent.rotation = 0;
 		ent.customShader = cgs.media.laserShader;
 
-		// NiceAss: If the dot is in the fog, don't draw it unless it's your laser or
-		// fog lasers are disabled.
-		if ( !(trap_CM_PointContents(cent->lerpOrigin, 0) & CONTENTS_FOG) || 
-			cent->currentState.clientNum == cg.clientNum ||
-			!cg_enableLaserFog.integer )
+		// NiceAss: If it's your laser dot, draw it
+		// or if not in the fog and not your laser dot draw it
+		if ( ( cent->currentState.clientNum == cg.clientNum || 
+			(!(trap_CM_PointContents(cent->lerpOrigin, 0) & CONTENTS_FOG) && 
+			cent->currentState.clientNum != cg.clientNum) ) &&	
+			cg_enableLaserFog.integer )
 			trap_R_AddRefEntityToScene(&ent);
 	} else {
 		trap_R_AddLightToScene(ent.origin, 200, 1, 1, 1);
