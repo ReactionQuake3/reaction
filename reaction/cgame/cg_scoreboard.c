@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/07/22 01:27:38  niceass
+// spectator coloring fix
+//
 // Revision 1.42  2002/07/19 04:40:56  jbravo
 // Added 2 new radio sets and ctb radio sound support
 //
@@ -642,20 +645,22 @@ static int CG_TeamplayScoreboard(void)
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[Score->client];
 
-			if (ci->team == TEAM_SPECTATOR) {
-				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, colorBlack);
-				if (First == 0)
-					DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorBlack);
+			if (ci->team != TEAM_SPECTATOR)
+				continue;
 
-				if (Alternate == 1) {
-					DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, colorWhite);
-				} else {
-					DrawRightStripText(y, SB_FONTSIZEH, ci->name, 20, colorWhite);
-					y += SB_FONTSIZEH + SB_PADDING * 2;
-				}
-				Alternate = -Alternate;
-				First = 1;
+			if (First == 0)
+				DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorBlack);
+			else
+				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, colorBlack);
+
+			if (Alternate == 1) {
+				DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, colorWhite);
+			} else {
+				DrawRightStripText(y, SB_FONTSIZEH, ci->name, 20, colorWhite);
+				y += SB_FONTSIZEH + SB_PADDING * 2;
 			}
+			Alternate = -Alternate;
+			First = 1;
 		}
 
 		if (Alternate == 1)
