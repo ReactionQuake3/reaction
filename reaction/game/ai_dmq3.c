@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/04/03 16:33:20  makro
+// Bots now respond to radio commands
+//
 // Revision 1.11  2002/04/01 12:45:54  makro
 // Changed some weapon names
 //
@@ -70,6 +73,9 @@
 
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"
+
+//Makro - to get rid of the warnings
+void Cmd_Bandage (gentity_t *ent);
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -1397,7 +1403,7 @@ BotTeamGoals
 ==================
 */
 void BotTeamGoals(bot_state_t *bs, int retreat) {
-
+	bot_goal_t *goal;
 	if ( retreat ) {
 		if (gametype == GT_CTF) {
 			BotCTFRetreatGoals(bs);
@@ -1715,7 +1721,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 #ifdef MISSIONPACK
 	int offence, leader;
 
-//	if (gametype <= GT_TEAM)
+	//if (gametype <= GT_TEAM)
 	if (gametype <= GT_TEAMPLAY)
 		return;
 
@@ -4195,7 +4201,7 @@ int BotFuncDoorRotatingActivateGoal(bot_state_t *bs, int bspent, bot_activategoa
 	VectorAdd(mins, maxs, origin);
 	VectorScale(origin, 0.5, origin);
 	activategoal->goal.entitynum = entitynum;
-	VectorCopy(origin, activategoal->target);
+	VectorTargetDist(bs->origin, origin, -40, activategoal->origin);
 	activategoal->openDoor = qtrue;
 	activategoal->goal.number = 0;
 	activategoal->goal.flags = 0;
@@ -4852,6 +4858,61 @@ int BotAIPredictObstacles(bot_state_t *bs, bot_goal_t *goal) {
 
 /*
 ==================
+BotReplyToRadioMessage
+
+Added by Makro
+==================
+*/
+void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
+
+	//Bot must be alive to report
+	if (!BotIsDead(bs)) {
+		char *token;
+		char *initial = msg;
+
+		token = COM_ParseExt(&msg, qtrue);
+		if ( !Q_stricmp(token, "radio") ) {
+			//Bots won't reply to ALL radio messages; they do have a life, you know
+			if ( random() < 0.9 ) {
+				char *sender = COM_ParseExt(&msg, qtrue);
+
+				if (strstr(msg, "treport")) {
+					//Team, report in
+					G_Say( &g_entities[bs->entitynum], NULL, SAY_TEAM, va("%s, I have a $W with $A ammo and $H health", sender));
+				}
+				//TODO:
+				//Add code that makes the bot move towards
+				//the player that sent the radio message
+				//Prioritize teamdown, taking_f, im_hit
+				//over enemyd and enemys
+			}
+		}
+		msg = initial;
+	}
+}
+
+/*
+==================
+BotCheckRadioMessage
+
+Added by Makro
+==================
+*/
+qboolean BotCheckRadioMessage( bot_state_t *bs, char *msg, int handle ) {
+	char *token;
+	char *initial = msg;
+
+	token = COM_ParseExt(&msg, qtrue);
+	msg = initial;
+	if ( !Q_stricmp(token, "radio") ) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+/*
+==================
 BotCheckConsoleMessages
 ==================
 */
@@ -4861,6 +4922,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 	int context, handle;
 	bot_consolemessage_t m;
 	bot_match_t match;
+	qboolean radio;
 
 	//the name of this bot
 	ClientName(bs->client, botname, sizeof(botname));
@@ -4871,6 +4933,22 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 			//if it is a chat message the bot needs some time to read it
 			if (m.type == CMS_CHAT && m.time > FloatTime() - (1 + random())) break;
 		}
+		
+		//Makro - check for radio commands
+		radio  = BotCheckRadioMessage(bs, m.message, handle);
+		if ( radio ) {
+			//The bot needs at least two seconds to reply
+			if ( FloatTime() > (m.time + 2 + random()) ) {
+				BotReplyToRadioMessage(bs, m.message, handle);
+				//remove the console message
+				trap_BotRemoveConsoleMessage(bs->cs, handle);
+				continue;
+			} else {
+				//Too soon to reply
+				break;
+			}
+		}
+
 		//
 		ptr = m.message;
 		//if it is a chat message then don't unify white spaces and don't

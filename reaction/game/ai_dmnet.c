@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/04/03 16:33:20  makro
+// Bots now respond to radio commands
+//
 // Revision 1.9  2002/04/01 12:45:54  makro
 // Changed some weapon names
 //
@@ -63,7 +66,9 @@
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"
 
-
+//Makro - to get rid of the warnings
+void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
+void Cmd_Bandage (gentity_t *ent);
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
@@ -238,6 +243,11 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 			if (!(goal->flags & GFL_DROPPED)) {
 				trap_BotSetAvoidGoalTime(bs->gs, goal->number, -1);
 			}
+			/*
+			if (g_entities[goal->entitynum].classname) {
+				G_Printf(va("^5BOT CODE: ^7Reached item of type (%s)\n", g_entities[goal->entitynum].classname));
+			}
+			*/
 			return qtrue;
 		}
 		//if the goal isn't there
@@ -1498,12 +1508,10 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	
 	//Makro - if the bot has to open a door
 	if (bs->activatestack->openDoor) {
-		int dist;
-
+		//int dist;
 		BotEntityInfo(goal->entitynum, &entinfo);
-		dist = Distance(bs->origin, entinfo.origin);
-
-		if (dist < 64) {
+		//dist = Distance(bs->origin, entinfo.origin);
+		if (trap_BotTouchingGoal(bs->origin, goal)) {
 			/*
 			if (bot_developer.integer == 2) {
 				G_Printf(va("^5BOT CODE: ^7Reached door at (%i %i %i) from (%i %i %i)\n",
@@ -1514,7 +1522,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 			BotPopFromActivateGoalStack(bs);
 			//bs->activatestack->time = 0;
 			Cmd_OpenDoor( &g_entities[bs->entitynum] );
-			BotMoveTowardsEnt(bs, entinfo.origin, -80);
+			BotMoveTowardsEnt(bs, entinfo.origin, -64);
 			return qtrue;
 		}
 
