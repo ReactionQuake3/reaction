@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/06/11 23:40:18  jbravo
+// Made the head sphere larger
+//
 // Revision 1.92  2002/06/05 21:54:38  jbravo
 // Never say 100% done again ;)
 //
@@ -2543,7 +2546,8 @@ qboolean G_HitPlayer ( gentity_t *targ, vec3_t dir, vec3_t point )
 	AngleVectors(targ->client->ps.viewangles, s_forward, s_right, s_up);
 	VectorMA(s_origin, 3.2, s_forward, s_origin);  // Move origin of sphere foreward a little (better centerage of the head)
 
-	if ( !RaySphereIntersections(s_origin, 6, point, dir, s_intersections ) && bulletHeight > clientHeight - 8) {
+// JBravo: changed the head radius to 10.  was 6
+	if ( !RaySphereIntersections(s_origin, 10, point, dir, s_intersections ) && bulletHeight > clientHeight - 8) {
 		// NiceAss: It didn't intersect the sphere and it's above the shoulders so it hit the air.
 		return qfalse;
 	}
