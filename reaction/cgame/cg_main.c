@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/06/06 03:01:46  blaze
+// a breakable with a underscore in it's name will now try and load files from it's parent if it cant find any itself
+// ex glass_blue will load sounds from glass if there is no glass_blue/sounds/break1.wav
+//
 // Revision 1.72  2002/06/06 01:53:51  niceass
 // pressure change
 //
@@ -1170,6 +1174,29 @@ static void CG_RegisterSounds( void ) {
 }
 
 
+
+//===================================================================================
+/*
+=================
+CG_CheckFile
+
+  This function checks to see if a file exists
+=================
+*/
+static qboolean CG_CheckFile(const char *fpath)
+{
+	fileHandle_t f;
+  int len;
+  len = trap_FS_FOpenFile( fpath, &f, FS_READ ) ;
+  if(len == -1)
+  {
+    	trap_FS_FCloseFile( f );
+      return qfalse;
+  }
+  trap_FS_FCloseFile( f );
+  return qtrue;
+}
+
 //===================================================================================
 /*
 =================
@@ -1182,6 +1209,8 @@ static void CG_RegisterBreakables(void){
 	int i,id;
 	const char *breakInfo;
   const char *name;
+  char baseName[80];
+	
   CG_Printf("In registerbreakables\n");
   for (i=0;i < RQ3_MAX_BREAKABLES; i++)
   {
@@ -1195,14 +1224,46 @@ static void CG_RegisterBreakables(void){
       name = Info_ValueForKey(breakInfo,"type");
 			Com_Printf("Registering breakable %s ID=%d\n",name, id);
 			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
-			cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",name));
- 			cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",name));
- 			cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",name));
+      if (CG_CheckFile(va("breakables/%s/models/break1.md3",name)) == qtrue)
+      {
+			  cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",name));
+ 			  cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",name));
+ 			  cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",name));
+      }
+      else
+      {
+        strncpy(baseName,name,80);
+        baseName[strstr(name,"_") - name]='\0';
+			  cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",baseName));
+ 			  cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",baseName));
+ 			  cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",baseName));
+      }
+      if (CG_CheckFile(va("breakables/%s/sounds/break1.wav", name)) == qtrue)
+      {
+  			cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", name), qfalse);
+			  cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", name), qfalse);
+			  cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", name), qfalse);
+      }
+      else
+      {
+        strncpy(baseName,name,80);
+        baseName[strstr(name,"_") - name]='\0';
+  			cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", baseName), qfalse);
+			  cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", baseName), qfalse);
+			  cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", baseName), qfalse);
+      }
+      if (CG_CheckFile(va("breakables/%s/sounds/explosion.wav", name)) == qtrue)
+      {
+        cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", name), qfalse);
+      }
+      else
+      {
+        strncpy(baseName,name,80);
+        baseName[strstr(name,"_") - name]='\0';
+        cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", baseName), qfalse);
+      }
+
 			cgs.media.breakables[id].shader = trap_R_RegisterShader( va("breakable_%s_explosion",name));
-			cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", name), qfalse);
-			cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", name), qfalse);
-			cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", name), qfalse);
-			cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", name), qfalse);
       cgs.media.breakables[id].velocity = atoi(Info_ValueForKey(breakInfo,"velocity"));
       cgs.media.breakables[id].jump = atoi(Info_ValueForKey(breakInfo,"jump"));
 		} else {
