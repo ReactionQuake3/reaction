@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/03/02 15:39:34  jbravo
+// Fixed team auto (PickTeam) up for TP
+//
 // Revision 1.42  2002/03/02 14:54:24  jbravo
 // Added the skin and model names to the name of the player thats being
 // followed, as in AQ
@@ -645,8 +648,13 @@ PickTeam
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
-	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
-	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		counts[TEAM_BLUE] = RQ3TeamCount (ignoreClientNum, TEAM_BLUE);
+		counts[TEAM_RED] = RQ3TeamCount (ignoreClientNum, TEAM_RED);
+	} else {
+		counts[TEAM_BLUE] = TeamCount (ignoreClientNum, TEAM_BLUE);
+		counts[TEAM_RED] = TeamCount (ignoreClientNum, TEAM_RED);
+	}
 
 	if ( counts[TEAM_BLUE] > counts[TEAM_RED] ) {
 		return TEAM_RED;
