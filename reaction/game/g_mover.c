@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2004/02/04 00:56:08  makro
+// no message
+//
 // Revision 1.72  2004/02/04 00:42:23  makro
 // no message
 //
@@ -2494,12 +2497,12 @@ void SetFuncStaticState(gentity_t *ent, qboolean state)
 		ent->s.eFlags &= ~EF_NODRAW;
 		ent->r.contents = CONTENTS_SOLID;
 		ent->r.svFlags &= ~SVF_NOCLIENT;
-		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+		trap_RQ3AdjustAreaPortalState(ent, qfalse, __LINE__, __FILE__);
 	} else {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = CONTENTS_TRIGGER;
 		ent->r.svFlags |= SVF_NOCLIENT;
-		trap_RQ3AdjustAreaPortalState(ent, qfalse, __LINE__, __FILE__);
+		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
 	}
 }
 
