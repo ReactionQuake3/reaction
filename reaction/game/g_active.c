@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/06/17 00:27:29  jbravo
+// Cleanup
+//
 // Revision 1.77  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -138,12 +141,6 @@
 #include "g_teamplay.h"
 #include "zcam.h"
 
-//Elder: got rid of these
-//extern float  s_quadFactor;
-//extern vec3_t forward, right, up;
-//extern vec3_t muzzle;
-//extern void Cmd_OpenDoor( gentity_t * );
-
 //Elder: moved kick to g_weapon.c where it belongs
 
 /*
@@ -158,7 +155,6 @@ global pain sound events for all clients.
 */
 void P_DamageFeedback(gentity_t * player)
 {
-//      gentity_t       *tent;
 	gclient_t *client;
 	float count, side;
 	vec3_t angles, v;
@@ -168,13 +164,8 @@ void P_DamageFeedback(gentity_t * player)
 	if (client->ps.pm_type == PM_DEAD) {
 		return;
 	}
+
 	// total points of damage shot at the player this frame
-	//if (client->damage_blood > 0)
-	//G_Printf("(%i) Damage_blood: %i\n", player->s.clientNum, client->damage_blood);
-
-	//if (client->damage_knockback > 0)
-	//G_Printf("(%i) Damage_knockback: %i\n", player->s.clientNum, client->damage_knockback);
-
 	count = client->damage_blood + client->damage_armor;
 	if (count == 0) {
 		return;		// didn't take any damage
@@ -194,9 +185,6 @@ void P_DamageFeedback(gentity_t * player)
 		client->damage_fromWorld = qfalse;
 	} else {
 		vectoangles(client->damage_from, angles);
-// Q3 Code
-/*		client->ps.damagePitch = angles[PITCH]/360.0 * 256;
-		client->ps.damageYaw = angles[YAW]/360.0 * 256;*/
 
 		// new RQ3 view-kick code, needs more tweaking (the 50 needs to be replaces with that below calcuation
 		// from the AQ2 code.
@@ -215,41 +203,8 @@ void P_DamageFeedback(gentity_t * player)
 
 	}
 
-	/*      AQ2 code pasted here for reference
-
-	   kick = abs(client->damage_knockback);
-	   if (kick && player->health > 0) // kick of 0 means no view adjust at all
-	   {
-	   kick = kick * 100 / player->health;
-
-	   if (kick < count*0.5)
-	   kick = count*0.5;
-	   if (kick > 50)
-	   kick = 50;
-
-	   VectorSubtract (client->damage_from, player->s.origin, v);
-	   VectorNormalize (v);
-
-	   side = DotProduct (v, right);
-	   client->v_dmg_roll = kick*side*0.3;
-
-	   side = -DotProduct (v, forward);
-	   client->v_dmg_pitch = kick*side*0.3;
-
-	   client->v_dmg_time = level.time + DAMAGE_TIME;
-
-	 */
-
-	/*
-	   G_Printf("Lasthurt: %d, Head: %d, Face: %d, And-Op: %d\n",
-	   client->lasthurt_location,
-	   LOCATION_HEAD, LOCATION_FACE,
-	   client->lasthurt_location & ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) );
-	 */
-
 	// play an appropriate pain sound
 	if ((level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE)) {
-		//player->pain_debounce_time = level.time + 700;
 		//Elder: reduced pain debounce time so we can have a few more sounds :)
 		player->pain_debounce_time = level.time + 250;
 
@@ -259,18 +214,7 @@ void P_DamageFeedback(gentity_t * player)
 		case LOCATION_FACE:
 			if (client->lasthurt_mod == MOD_KNIFE || client->lasthurt_mod == MOD_KNIFE_THROWN)
 				G_AddEvent(player, EV_RQ3_SOUND, RQ3_SOUND_KNIFEDEATH);
-			//Elder: do nothing -- sound is handled in g_combat.c again
-			//tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
-			//Elder: takes more bandwidth but guarantees a headshot sound
-			//G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
-			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
 			break;
-			/*
-			   case LOCATION_CHEST:
-			   case LOCATION_SHOULDER:
-			   G_AddEvent( player, EV_PAIN, player->health );
-			   break;
-			 */
 		default:
 			G_AddEvent(player, EV_PAIN, player->health);
 			break;
@@ -282,13 +226,6 @@ void P_DamageFeedback(gentity_t * player)
 	client->ps.damageCount = count;
 
 	// Elder: HC Smoke
-	/*
-	   if (client->lasthurt_mod == MOD_HANDCANNON)
-	   {
-	   G_Printf("Feedback: damage_blood: %i, damage_knockback: %i\n",
-	   client->damage_blood, client->damage_knockback);
-	   }
-	 */
 	if (client->lasthurt_mod == MOD_HANDCANNON &&
 	    client->damage_blood >= 120 && client->damage_knockback >= RQ3_HANDCANNON_KICK * 6) {
 		client->ps.eFlags |= EF_HANDCANNON_SMOKED;
@@ -364,24 +301,16 @@ void P_WorldEffects(gentity_t * ent)
 	// check for sizzle damage (move to pmove?)
 	//
 	if (waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME))) {
-		/*
-		   if (ent->health > 0
-		   && ent->pain_debounce_time <= level.time     ) {
-		 */
 		// Elder: changed around a bit -- using timestamp variable
 		if (ent->health > 0 && level.time > ent->timestamp) {
 			if (envirosuit) {
 				G_AddEvent(ent, EV_POWERUP_BATTLESUIT, 0);
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
-					//G_Damage (ent, NULL, NULL, NULL, NULL,
-					//30*waterlevel, 0, MOD_LAVA);
 					G_Damage(ent, NULL, NULL, NULL, NULL, 3 * waterlevel, 0, MOD_LAVA);
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
-					//G_Damage (ent, NULL, NULL, NULL, NULL,
-					//10*waterlevel, 0, MOD_SLIME);
 					G_Damage(ent, NULL, NULL, NULL, NULL, waterlevel, 0, MOD_SLIME);
 				}
 				// Elder: added
@@ -690,9 +619,6 @@ void ClientTimerActions(gentity_t * ent, int msec)
 	while (client->timeResidual >= 1000) {
 		client->timeResidual -= 1000;
 
-//              else if(ent->client->isbleeding)
-//                      ent->client->isbleeding = qfalse;
-
 		// regenerate
 		if (client->ps.powerups[PW_REGEN]) {
 			if (ent->health < 100) {	//max health 100 client->ps.stats[STAT_MAX_HEALTH]) {
@@ -728,12 +654,8 @@ void ClientTimerActions(gentity_t * ent, int msec)
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
 			ent->client->bleedBandageCount = 0;
-			//Elder: remove bandage work
-			//      ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
-//                      ent->client->ps.weaponstate = WEAPON_RAISING;
-//                      ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
 			// NiceAss: clear last player to hit you.
 			ent->client->lasthurt_mod = 0;
 		}
@@ -778,8 +700,6 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 	int damage;
 	vec3_t dir;
 	vec3_t origin, angles;
-
-//      qboolean        fired;
 	gitem_t *item;
 	gentity_t *drop;
 
@@ -852,11 +772,6 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 		case EV_FIRE_WEAPON:
 			FireWeapon(ent);
 			break;
-			/*
-			   case EV_RELOAD_WEAPON0:
-			   ReloadWeapon ( ent, 0 );
-			   break;
-			 */
 		case EV_RELOAD_WEAPON1:
 			ReloadWeapon(ent, 1);
 			break;
@@ -866,7 +781,6 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 
 		case EV_CHANGE_WEAPON:
 			//Elder: not a good place to put stuff
-			//ent->client->zoomed=0;
 			break;
 
 		case EV_USE_ITEM1:	// teleporter
@@ -1110,8 +1024,6 @@ void ClientThink_real(gentity_t * ent)
 	if (pmove_fixed.integer || client->pers.pmoveFixed) {
 		ucmd->serverTime =
 		    ((ucmd->serverTime + pmove_msec.integer - 1) / pmove_msec.integer) * pmove_msec.integer;
-		//if (ucmd->serverTime - client->ps.commandTime <= 0)
-		//      return;
 	}
 	//
 	// check for exiting intermission
@@ -1255,42 +1167,6 @@ void ClientThink_real(gentity_t * ent)
 	if (bJumping)
 		JumpKick(ent);
 
-	//Blaze: Remove all this stuff
-	/*
-	   //Elder: added for akimbos and 3rb and sniper zoom
-	   switch( ent->client->ps.weapon ) {
-	   case WP_AKIMBO:
-
-	   //if ( ent->client->weaponfireNextTime != 0 &&
-	   // level.time >= ent->client->weaponfireNextTime) {
-	   // FireWeapon( ent );
-	   //}
-
-	   break;
-	   case WP_M3:
-	   //Elder: try to do a fast reload if it's queued
-	   if ( ent->client->ps.weaponTime < RQ3_M3_FAST_RELOAD_DELAY &&
-	   ent->client->fastReloads &&
-	   ent->client->reloadAttempts > 0)
-	   {
-	   //G_Printf("(%i) ClientThink: attempting M3 fast-reload...\n", ent->s.clientNum);
-	   Cmd_Reload( ent );
-	   }
-	   break;
-	   case WP_SSG3000:
-	   //Elder: try to do a fast reload if it's queued
-	   if ( ent->client->ps.weaponTime < RQ3_SSG3000_FAST_RELOAD_DELAY &&
-	   ent->client->fastReloads &&
-	   ent->client->reloadAttempts > 0)
-	   {
-	   //G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
-	   Cmd_Reload( ent );
-	   }
-	   break;
-	   default:
-	   break;
-	   }
-	 */
 	// save results of triggers and client events
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
@@ -1442,97 +1318,6 @@ void SpectatorClientEndFrame(gentity_t * ent)
 
 /*
 ==============
-RQ3_ClientReloadStages
-
-Added by Elder
-
-Check to see if any reload events need
-to occur and dispatch if necessary
-This would be completely client-side
-except other players need to hear the reloading
-==============
-*/
-/* // Elder -- bad code -- and should go in pmove anyways
-static void RQ3_ClientReloadStages ( gentity_t *ent )
-{
-	gentity_t	*tent;
-
-	// no events for dead people
-	if (ent->client->ps.pm_type == PM_DEAD)
-	{
-		ent->client->reloadStage = -1;
-		return;
-	}
-
-	if ( ent->client->ps.weaponstate == WEAPON_RELOADING &&
-		 ent->client->ps.weaponTime > 0)
-	{
-		switch (ent->client->ps.weapon)
-		{
-			//Elder: hardcoded timing values :p
-			case WP_PISTOL:
-				if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 1900 &&
-					ent->client->reloadStage == 1)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 2);
-					ent->client->reloadStage = 2;
-				}
-				else if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 1500 &&
-						ent->client->reloadStage == 0)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 1);
-					ent->client->reloadStage = 1;
-				}
-				else if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 100 &&
-						ent->client->reloadStage == -1)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
-					ent->client->reloadStage = 0;
-				}
-				break;
-
-			case WP_M3:
-				if ( ent->client->ps.weaponTime % RQ3_M3_RELOAD_DELAY < RQ3_M3_RELOAD_DELAY - 500 &&
-					ent->client->reloadStage == -1)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
-					ent->client->reloadStage = 0;
-				}
-				break;
-			case WP_M4:
-				if (ent->client->ps.weaponTime < RQ3_M4_RELOAD_DELAY - 1600 &&
-						ent->client->reloadStage == 0)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 1);
-					ent->client->reloadStage = 1;
-				}
-				else if (ent->client->ps.weaponTime < RQ3_M4_RELOAD_DELAY - 300 &&
-						ent->client->reloadStage == -1)
-				{
-					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
-					ent->client->reloadStage = 0;
-				}
-				break;
-		}
-
-		if (tent)
-		{
-			tent->s.weapon = ent->client->ps.weapon;
-			tent->s.clientNum = ent->client->ps.clientNum;
-		}
-
-	}
-	else if (ent->client->reloadStage != -1)
-	{
-		// Reset reload stage
-		ent->client->reloadStage = -1;
-	}
-
-}
-*/
-
-/*
-==============
 ClientEndFrame
 
 Called at the end of each server frame for each connected client
@@ -1603,7 +1388,6 @@ void ClientEndFrame(gentity_t * ent)
 		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_NEED;
 	} else {
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
-//              ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
 
 	//Moved to pmove.c
@@ -1631,8 +1415,6 @@ void ClientEndFrame(gentity_t * ent)
 	if (ent->client->weapon_attempts > 0)
 		Cmd_Weapon(ent);
 
-	//RQ3_ClientReloadStages(ent);
-
 	G_SetClientSound(ent);
 
 	// set the latest infor
@@ -1642,8 +1424,4 @@ void ClientEndFrame(gentity_t * ent)
 		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	}
 	SendPendingPredictableEvents(&ent->client->ps);
-
-	// set the bit for the reachability area the client is currently in
-//      i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
-//      ent->client->areabits[i >> 3] |= 1 << (i & 7);
 }
