@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/02 23:05:25  makro
+// Loading screen. Jump kicks. Bot stuff
+//
 // Revision 1.23  2002/05/02 12:44:58  makro
 // Customizable color for the loading screen text. Bot stuff
 //
@@ -320,10 +323,34 @@ RQ3_Bot_GetWeaponInfo
 Added by Makro
 ==================
 */
-void RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, void  *weaponinfo) {
-	trap_BotGetWeaponInfo(weaponstate, weapon, weaponinfo);
-	//TODO: - set spreads here depending on what the player is doing - crouching, running etc.
-	//		- set grenade range
+//TODO: - set spreads here depending on what the player is doing - crouching, running etc.
+qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, void  *weaponinfo) {
+
+	//if the weapon is not valid
+	if (weapon <= WP_NONE || weapon >= 	WP_NUM_WEAPONS) {
+		return qfalse;
+	} else {
+		weaponinfo_t *wi;
+		trap_BotGetWeaponInfo(weaponstate, weapon, weaponinfo);
+		wi = (weaponinfo_t*) weaponinfo;
+
+		if (!wi) return qfalse;
+		if (!wi->valid) return qfalse;
+		if (wi->number == WP_GRENADE) {
+			//long range
+			if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED &&
+				(bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT ) {
+				wi->speed = GRENADE_LONG_SPEED;
+			//medium range
+			} else if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED ) {
+				wi->speed = GRENADE_MEDIUM_SPEED;
+			//short range
+			} else {
+				wi->speed = GRENADE_SHORT_SPEED;
+			}
+		}
+	}
+	return qtrue;
 }
 
 /*
@@ -425,7 +452,8 @@ qboolean EntityIsDead(aas_entityinfo_t *entinfo) {
 	if (entinfo->number >= 0 && entinfo->number < MAX_CLIENTS) {
 		//retrieve the current client state
 		BotAI_GetClientState( entinfo->number, &ps );
-		if (ps.pm_type != PM_NORMAL) return qtrue;
+		//Makro - added health check
+		if (ps.pm_type != PM_NORMAL || ps.stats[STAT_HEALTH] <= 0) return qtrue;
 	}
 	return qfalse;
 }
@@ -1545,13 +1573,17 @@ Added by Makro
 */
 void BotRQ3TPSeekGoals( bot_state_t *bs ) {
 	int		firstBot = 0, firstHuman = 0, leader = 0, i;
+	static int maxclients;
+
+	if (!maxclients)
+		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
 	
 	//if the bot already has a goal	
 	if (bs->ltgtype)
 		return;
 
 	//find the first human/bot teammates
-	for ( i=0; i<MAX_CLIENTS; i++ ) {
+	for ( i=0; i < MAX_CLIENTS && i < maxclients; i++ ) {
 		if ( !(g_entities[i].inuse) || !(g_entities[i].client) )
 			continue;
 		if (!BotSameTeam(bs, i))
@@ -3695,10 +3727,11 @@ void BotAimAtEnemy(bot_state_t *bs) {
 
 	//get the weapon information
 	//trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
-	//Makro - new function
-	RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi);
-	//get the weapon specific aim accuracy and or aim skill
+	//Makro - new function; if weapon/weapon info not ok, stop
+	if (!RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi)) 
+		return;
 
+	//get the weapon specific aim accuracy and or aim skill
 //Blaze: just gonna set the Characteristic aim to machinegun for all of these, but I am still doing the if's so we can edit it later for bot support
 //Blaze: Reaction Pistol
 	if (wi.number == WP_PISTOL) {
@@ -3990,8 +4023,9 @@ void BotCheckAttack(bot_state_t *bs) {
 	//Makro - we need the weapon info sooner
 	//get the weapon info
 	//trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
-	//Makro - new function
-	RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi);
+	//Makro - new function; if weapon/weapon info not ok, stop
+	if (!RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi)) 
+		return;
 	reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;
@@ -5607,6 +5641,20 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 		}
 		case EV_FOOTSTEP:
 		case EV_FOOTSTEP_METAL:
+		case EV_FOOTSTEP_GRASS:		// Elder: new surfaces
+		case EV_FOOTSTEP_WOOD:
+		case EV_FOOTSTEP_CARPET:
+		case EV_FOOTSTEP_METAL2:
+		case EV_FOOTSTEP_GRAVEL:
+		case EV_FOOTSTEP_SNOW:		// JBravo: new surfaces
+		case EV_FOOTSTEP_MUD:
+		case EV_FOOTSTEP_WOOD2:
+		case EV_FOOTSTEP_HARDMETAL:
+		case EV_FOOTSTEP_LEAVES:		// Makro: new surfaces
+		case EV_FOOTSTEP_CEMENT:
+		case EV_FOOTSTEP_MARBLE:
+		case EV_FOOTSTEP_SNOW2:
+		case EV_FOOTSTEP_HARDSTEPS:
 		case EV_FOOTSPLASH:
 		case EV_FOOTWADE:
 		case EV_SWIM:

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/05/02 23:05:25  makro
+// Loading screen. Jump kicks. Bot stuff
+//
 // Revision 1.50  2002/05/02 03:06:09  blaze
 // Fixed breakables crashing on vashes
 //
@@ -156,24 +159,7 @@ qboolean JumpKick( gentity_t *ent )
 		return qfalse;
 	}
 
-// JBravo: some sanity checks on the traceEnt
-	if (traceEnt == NULL || traceEnt->client == NULL)
-		return qfalse;
-
-// JBravo: no kicking teammates while rounds are going
-	if (g_gametype.integer == GT_TEAMPLAY) {
-		if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
-			level.team_round_going)
-				return qfalse;
-	}
-
-	if (ent->client->ps.powerups[PW_QUAD] ) {
-		G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
-		s_quadFactor = g_quadfactor.value;
-	} else {
-		s_quadFactor = 1;
-	}
-
+	//Makro - this was a few lines below
 	damage = 20;
 
 	if ( traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
@@ -190,6 +176,34 @@ qboolean JumpKick( gentity_t *ent )
 		if (ent->client && level.team_round_going)
 			ent->client->pers.records[REC_KICKHITS]++;
 	}
+	//end Makro
+
+// JBravo: some sanity checks on the traceEnt
+// Makro - this check made the sound only play when a client is hit
+//	if (traceEnt == NULL || traceEnt->client == NULL)
+	if (traceEnt == NULL)
+		return qfalse;
+
+// JBravo: no kicking teammates while rounds are going
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		//Makro - client check here
+		if (ent->client)
+			if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
+				level.team_round_going)
+					return qfalse;
+	}
+
+	//Makro - client check
+	if (ent->client) {
+		if (ent->client->ps.powerups[PW_QUAD] ) {
+			G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
+			s_quadFactor = g_quadfactor.value;
+		} else {
+			s_quadFactor = 1;
+		}
+	}
+
+	//Makro - moved some code up by a few lines to allow breakables to be kicked
 
 	// send blood impact + event stuff
 	/*
@@ -257,7 +271,6 @@ qboolean JumpKick( gentity_t *ent )
 		//if (traceEnt->client->ps.velocity[2] > 0)
 			//traceEnt->s.groundEntityNum = ENTITYNUM_NONE;
 	//}
-
 
 	//Elder: Our set of locally called sounds
 	if (kickSuccess)

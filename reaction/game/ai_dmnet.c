@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/02 23:05:25  makro
+// Loading screen. Jump kicks. Bot stuff
+//
 // Revision 1.19  2002/05/02 12:44:58  makro
 // Customizable color for the loading screen text. Bot stuff
 //
@@ -99,17 +102,7 @@
 //Makro - to get rid of the warnings
 void Cmd_Bandage (gentity_t *ent);
 void Cmd_DropItem_f(gentity_t *ent);
-gentity_t *SelectRandomDeathmatchSpawnPoint( void );
-
-int FindHumanTeamLeader(bot_state_t *bs);
-void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode);
-
-//From ai_dmq3.c
-void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final);
-void BotAttack(bot_state_t *bs);
-bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
-void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
-
+void Cmd_DropWeapon_f(gentity_t *ent);
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
@@ -118,15 +111,6 @@ int numnodeswitches;
 char nodeswitch[MAX_NODESWITCHES+1][144];
 
 #define LOOKAHEAD_DISTANCE		300
-
-/*
-==================
-BotRespawn
-
-Added by Makro
-Replaces trap_EA_respawn
-==================
-*/
 
 /*
 ==================
@@ -283,12 +267,25 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 
 /*
 ==================
-RQ3_Bot_SpecialWeapon
+RQ3_Bot_WeaponToDrop
 
 Added by Makro
 ==================
 */
-int RQ3_Bot_SpecialWeapon(bot_state_t *bs) {
+int RQ3_Bot_WeaponToDrop(bot_state_t *bs) {
+	if (bs->cur_ps.weapon <= WP_NONE || bs->cur_ps.weapon >= WP_NUM_WEAPONS)
+		return WP_NONE;
+	if (bs->cur_ps.weapon == WP_PISTOL || bs->cur_ps.weapon == WP_KNIFE ||
+		bs->cur_ps.weapon == WP_AKIMBO || bs->cur_ps.weapon == WP_GRENADE) {
+		//no special weapon selected
+		if (bs->inventory[INVENTORY_M4]) return WP_M4;
+		else if (bs->inventory[INVENTORY_M3]) return WP_M3;
+		else if (bs->inventory[INVENTORY_MP5]) return WP_MP5;
+		else if (bs->inventory[INVENTORY_HANDCANNON]) return WP_HANDCANNON;
+		else if (bs->inventory[INVENTORY_SSG3000]) return WP_SSG3000;
+	} else {
+		return bs->cur_ps.weapon;
+	}
 	return WP_NONE;
 }
 
@@ -374,6 +371,11 @@ Added by Makro
 ==================
 */
 qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
+	float attack_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+
+	//check the bot skill
+	if ( random() < (1 - attack_skill) ) return qfalse;
+	
 	//if the bot doesn't have an item or it didn't reach one
 	if ( !g_entities[goal->entitynum].item )
 		return qfalse;
@@ -384,23 +386,28 @@ qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 		else {
 			holdable_t	oldItem = bg_itemlist[bs->cur_ps.stats[STAT_HOLDABLE_ITEM]].giTag;
 			holdable_t	newItem = g_entities[goal->entitynum].item->giTag;
-			int i, oldScore, newScore;
+			int i, oldScore, newScore, dropWeapon = WP_NONE;
+			
 			//if the two items are identical
 			if ( oldItem == newItem ) return qfalse;
+			//if the bot drops the bandolier a weapon might be dropped, too
+			if ( oldItem == HI_BANDOLIER && g_entities[bs->entitynum].client->uniqueWeapons > g_RQ3_maxWeapons.integer )
+				dropWeapon = RQ3_Bot_WeaponToDrop(bs);
 
 			newScore = oldScore = 0;
 			//check all the weapons
-			for ( i = 0; i < MAX_WEAPONS; i++ ) {
+			for ( i = WP_NONE+1; i < MAX_WEAPONS; i++ ) {
 				//if the bot has the weapon
 				if ( bs->cur_ps.stats[STAT_WEAPONS] & (1 << i) ) {
 					//get the score for it
 					oldScore += RQ3_Bot_ComboScore(i, oldItem);
-					newScore += RQ3_Bot_ComboScore(i, newItem);
+					//don't add the score for a weapon if it's going to be dropped
+					if (i != dropWeapon)
+						newScore += RQ3_Bot_ComboScore(i, newItem);
 				}
 			}
 
-			//FIXME - special code is needed for the bandolier, since throwing it away
-			//will also throw one of the weapons
+			//if the new item is better
 			if (newScore > oldScore) {
 				Cmd_DropItem_f( &g_entities[bs->entitynum] );
 				return qtrue;
@@ -408,12 +415,20 @@ qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 		}
 	//if the bot can pick up a weapon
 	} else if ( g_entities[goal->entitynum].item->giType == IT_WEAPON ) {
-		//Code coming soon :P
-		return qfalse;
+		int		dropWeapon = RQ3_Bot_WeaponToDrop(bs);
+
+		if (dropWeapon == WP_NONE) return qfalse;
+		if (bs->cur_ps.ammo[dropWeapon]) return qfalse;
+		if (RQ3_Bot_CanReload(bs, dropWeapon)) return qfalse;
+		//Makro - the current weapon is empty, drop it
+		Cmd_DropWeapon_f( &g_entities[bs->entitynum] );
+
+		return qtrue;
 	}
 
 	return qfalse;
 }
+
 /*
 ==================
 BotReachedGoal
@@ -424,8 +439,8 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 		//if touching the goal
 		if (trap_BotTouchingGoal(bs->origin, goal)) {
 			if (!(goal->flags & GFL_DROPPED)) {
-				//Makro - check if the bot picked up a better weapon or item
 				trap_BotSetAvoidGoalTime(bs->gs, goal->number, -1);
+				//Makro - check if the bot picked up a better weapon or item
 				RQ3_Bot_NeedToDropStuff( bs , goal );
 			}
 			/*
@@ -1408,8 +1423,7 @@ AINode_Stand
 ==================
 */
 int AINode_Stand(bot_state_t *bs) {
-	qboolean willBandage = qfalse;
-
+	
 	//if the bot's health decreased
 	if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
 		if (BotChat_HitTalking(bs)) {

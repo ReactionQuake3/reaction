@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/05/02 23:05:25  makro
+// Loading screen. Jump kicks. Bot stuff
+//
 // Revision 1.5  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -179,6 +182,15 @@ int ClientOnSameTeamFromName(bot_state_t *bs, char *name);
 int BotPointAreaNum(vec3_t origin);
 //
 void BotMapScripts(bot_state_t *bs);
+
+//RQ3 bot functions
+qboolean RQ3_Bot_CheckBandage( bot_state_t *bs );
+qboolean RQ3_Bot_CanReload( bot_state_t *bs, int weapon );
+void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final);
+void BotAttack(bot_state_t *bs);
+bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
+void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
+
 
 //ctf flags
 #define CTF_FLAG_NONE		0

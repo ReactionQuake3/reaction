@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/02 23:05:25  makro
+// Loading screen. Jump kicks. Bot stuff
+//
 // Revision 1.20  2002/05/02 12:44:58  makro
 // Customizable color for the loading screen text. Bot stuff
 //
@@ -707,6 +710,7 @@ void SP_worldspawn( void ) {
 	char	*s;
 	vec3_t	color;
 	char	info[MAX_INFO_STRING];
+	int		nodetail = 0;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -725,10 +729,18 @@ void SP_worldspawn( void ) {
 	trap_SetConfigstring( CS_MESSAGE, s );				// map specific message
 
 	//Makro - color for the loading screen text
-	G_SpawnVector( "_color", "1 1 1", color );
-	Info_SetValueForKey(info, "red", va("%f", color[0]));
-	Info_SetValueForKey(info, "green", va("%f", color[1]));
-	Info_SetValueForKey(info, "blue", va("%f", color[2]));
+	G_SpawnVector( "_color", "0.75 0.75 0.75", color );
+	Info_SetValueForKey(info, "r1", va("%f", color[0]));
+	Info_SetValueForKey(info, "g1", va("%f", color[1]));
+	Info_SetValueForKey(info, "b1", va("%f", color[2]));
+	G_SpawnVector( "_color2", "1 1 1", color );
+	Info_SetValueForKey(info, "r2", va("%f", color[0]));
+	Info_SetValueForKey(info, "g2", va("%f", color[1]));
+	Info_SetValueForKey(info, "b2", va("%f", color[2]));
+	//skip detail ?
+	G_SpawnInt( "nodetail", "0", &nodetail );
+	Info_SetValueForKey(info, "nodetail", va("%i", nodetail));
+	//save settings
 	trap_SetConfigstring( CS_LOADINGSCREEN, info );
 	
 	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
