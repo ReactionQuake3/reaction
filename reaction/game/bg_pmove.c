@@ -1170,6 +1170,7 @@ static void PM_CrashLand( void ) {
 	// SURF_NODAMAGE is used for bounce pads where you don't ever
 	// want to take damage or play a crunch sound
 
+
 	if (delta > 30)
 	{
 
@@ -1177,12 +1178,18 @@ static void PM_CrashLand( void ) {
 		damage = (int)(((delta-30)/2));
 		if (damage < 1)  damage = 1;
 		damage *= 10;
-	
+		
+		
 		if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
 				//Blaze lots of changes to make it more like aq2
 				// this is a pain grunt, so don't play it if dead
 			if ( pm->ps->stats[STAT_HEALTH] > 0 && damage > 0) {
-					PM_AddEvent( EV_FALL_FAR );
+					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
+						PM_AddEvent( EV_FALL_FAR_NOSOUND );
+					else
+						PM_AddEvent( EV_FALL_FAR );
+					
+						
 					pm->ps->stats[STAT_FALLDAMAGE] = damage;
 			}
 			else 
@@ -1193,13 +1200,19 @@ static void PM_CrashLand( void ) {
 			}
 		}
 	}
-	else if (delta > 20)
-	{
-		PM_AddEvent( EV_FALL_SHORT );
-		//Elder: added? useful? 
-		pm->ps->stats[STAT_FALLDAMAGE] = 0;
+	else if (delta > 20) 
+	{	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
+		{	PM_AddEvent( EV_FALL_SHORT_NOSOUND );
+			//Elder: added? useful? 
+			pm->ps->stats[STAT_FALLDAMAGE] = 0;
+		}
+		else
+		{	PM_AddEvent( EV_FALL_SHORT );
+			//Elder: added? useful? 
+			pm->ps->stats[STAT_FALLDAMAGE] = 0;
+		}
 	}
-	else 
+	else if (!(bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS))
 	{
 		PM_AddEvent( PM_FootstepForSurface() );
 		//Elder: added? useful? 
@@ -1618,7 +1631,7 @@ static void PM_Footsteps( void ) {
 		if ( pm->waterlevel == 0 ) {
 			//Elder: we can check for slippers here!
 			// on ground will only play sounds if running
-			if ( footstep && !pm->noFootsteps ) {
+			if (( footstep && !pm->noFootsteps ) && !(bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS))  {
 				PM_AddEvent( PM_FootstepForSurface() );
 			}
 		} else if ( pm->waterlevel == 1 ) {

@@ -667,6 +667,24 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			
 			break;
 
+		case EV_FALL_FAR_NOSOUND:
+
+			if ( ent->s.eType != ET_PLAYER ) {
+				break;		// not in the player model
+			}
+			if ( g_dmflags.integer & DF_NO_FALLING ) {
+				break;
+			}
+
+			damage = ent->client->ps.stats[STAT_FALLDAMAGE];
+			VectorSet (dir, 0, 0, 1);
+			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
+			//Elder: added so we can trigger AQ2 pain blends
+			ent->client->ps.damageEvent++;
+			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			
+			break;
+
 		case EV_FIRE_WEAPON:
 			FireWeapon( ent );
 			break;
@@ -1452,7 +1470,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	{
 		G_Printf("Spawn an Item\n");
 		//rq3_item = BG_FindItem( "Kevlar Vest" );
-		rq3_item = BG_FindItemForHoldable( HI_KEVLAR );
+		rq3_item = BG_FindItemForHoldable( HI_SLIPPERS );
 		rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
 		Drop_Item (rq3_temp, rq3_item, 0);
 	}

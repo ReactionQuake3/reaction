@@ -2128,19 +2128,21 @@ void CG_FireWeapon( centity_t *cent ) {
 		trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
-	// play a sound
-	for ( c = 0 ; c < 4 ; c++ ) {
-		if ( !weap->flashSound[c] ) {
-			break;
+	if ent->client->ps.
+		// play a sound
+		for ( c = 0 ; c < 4 ; c++ ) {
+			if ( !weap->flashSound[c] ) {
+				break;
+			}
 		}
-	}
-	if ( c > 0 ) {
-		c = rand() % c;
-		if ( weap->flashSound[c] )
-		{
-			trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
+
+		if ( c > 0 ) {
+			c = rand() % c;
+			if ( weap->flashSound[c] )
+			{
+				trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
+			}
 		}
-	}
 
 	// do brass ejection
 	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {

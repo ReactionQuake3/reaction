@@ -27,6 +27,15 @@
 #define INVENTORY_SHOTGUNAMMO		20
 #define INVENTORY_AKIMBOAMMO		21
 #define INVENTORY_GRENADEAMMO		22
+
+// Duffman: I stold the below numbers for RQ3 Items
+
+#define INVENTORY_KEVLAR			23
+#define INVENTORY_LASER				24
+#define INVENTORY_SLIPPERS			25
+#define INVENTORY_SILENCER			26
+#define INVENTORY_BANDOLIER			27
+
 /*
 #define INVENTORY_SHELLS			18
 #define INVENTORY_BULLETS			19

@@ -1367,7 +1367,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	es = &cent->currentState;
 	event = es->event & ~EV_EVENT_BITS;
-
+	
 	if ( cg_debugEvents.integer ) {
 		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
 	}
@@ -1426,7 +1426,19 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_FALL_SHORT:
 		DEBUGNAME("EV_FALL_SHORT");
+		
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.landSound );
+		
+
+		if ( clientNum == cg.predictedPlayerState.clientNum ) {
+			// smooth landing z changes
+			cg.landChange = -8;
+			cg.landTime = cg.time;
+		}
+		break;
+	case EV_FALL_SHORT_NOSOUND:
+		DEBUGNAME("EV_FALL_SHORT_NOSOUND");
+		
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
 			cg.landChange = -8;
@@ -1436,16 +1448,32 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FALL_MEDIUM:
 		DEBUGNAME("EV_FALL_MEDIUM");
 		// use normal pain sound
+	
 		trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*pain100_1.wav" ) );
+		
+
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
 			cg.landChange = -16;
 			cg.landTime = cg.time;
 		}
 		break;
+	case EV_FALL_MEDIUM_NOSOUND:
+		DEBUGNAME("EV_FALL_MEDIUM_NOSOUND");
+
+		if ( clientNum == cg.predictedPlayerState.clientNum ) {
+			// smooth landing z changes
+			cg.landChange = -16;
+			cg.landTime = cg.time;
+		}
+		break;
+
 	case EV_FALL_FAR:
 		DEBUGNAME("EV_FALL_FAR");
+	
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
+		
+
 		cent->pe.painTime = cg.time;	// don't play a pain sound right after this
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
@@ -1453,6 +1481,15 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			cg.landTime = cg.time;
 		}
 		break;
+	case EV_FALL_FAR_NOSOUND:
+		DEBUGNAME("EV_FALL_FAR_NOSOUND");
+		if ( clientNum == cg.predictedPlayerState.clientNum ) {
+			// smooth landing z changes
+			cg.landChange = -24;
+			cg.landTime = cg.time;
+		}
+		break;
+
 
 	case EV_STEP_4:
 	case EV_STEP_8:
