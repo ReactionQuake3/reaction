@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/02/22 02:13:13  jbravo
+// Fixed a few bugs and did some cleanups
+//
 // Revision 1.52  2002/02/10 21:21:22  slicer
 // Saving persistant and other data on some events..
 //
@@ -791,6 +794,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			if ( g_dmflags.integer & DF_NO_FALLING ) {
 				break;
 			}
+// JBravo: fix falling pain during lca
+			if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+				break;
+			}
 
 			damage = ent->client->ps.stats[STAT_FALLDAMAGE];
 			VectorSet (dir, 0, 0, 1);
@@ -815,6 +822,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 				break;		// not in the player model
 			}
 			if ( g_dmflags.integer & DF_NO_FALLING ) {
+				break;
+			}
+// JBravo: fix falling pain during lca again
+			if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
 				break;
 			}
 

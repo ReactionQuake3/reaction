@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/02/22 02:13:13  jbravo
+// Fixed a few bugs and did some cleanups
+//
 // Revision 1.51  2002/02/10 22:02:06  niceass
 // took some debug info out
 //
@@ -589,22 +592,24 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 SetTeam
 =================
 */
-void SetTeam( gentity_t *ent, char *s ) {
-	int					team, oldTeam;
-	gclient_t			*client;
-	int					clientNum;
+void SetTeam( gentity_t *ent, char *s )
+{
+	int			team, oldTeam, clientNum;
+	gclient_t		*client;
 	spectatorState_t	specState;
-	int					specClient;
-	int			teamLeader, teamsave;
+	int			specClient, teamLeader, teamsave;
 
 	//
 	// see what change is requested
 	//
 	client = ent->client;
-
 	clientNum = client - level.clients;
-	specClient = 0;
-	specState = SPECTATOR_NOT;
+
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		specClient = 0;
+		specState = SPECTATOR_NOT;
+	}
+
 	if ( !Q_stricmp( s, "scoreboard" ) || !Q_stricmp( s, "score" )  ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_SCOREBOARD;
@@ -623,8 +628,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 		specState = SPECTATOR_FREE;
 	} else if ( g_gametype.integer >= GT_TEAM ) {
 		// if running a team game, assign player to one of the teams
-		if ( g_gametype.integer != GT_TEAMPLAY ) {
-		specState = SPECTATOR_NOT;
+		if (g_gametype.integer != GT_TEAMPLAY) {
+			specState = SPECTATOR_NOT;
 		}
 		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) || !Q_stricmp( s, "1") ) {
 			team = TEAM_RED;
@@ -677,7 +682,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if ( g_gametype.integer == GT_TEAMPLAY ) {
 		oldTeam = client->sess.savedTeam;
 	} else {
-	oldTeam = client->sess.sessionTeam;
+		oldTeam = client->sess.sessionTeam;
 	}
 	if ( team == oldTeam ) {
 		return;
@@ -702,8 +707,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 // JBravo: if player is changing from FREE or SPECT. there is no need for violence.
 	//Slicer: If he's dead no need for violence too
-	if ( (oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE) && 
-		ent->client->ps.pm_type == PM_NORMAL){
+	if ((oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE) && 
+		ent->client->ps.pm_type == PM_NORMAL) {
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
@@ -761,7 +766,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 // JBravo: to avoid messages when players are killed and move to spectator team.
 	if ( client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE && g_gametype.integer != GT_TEAMPLAY ) {
-	BroadcastTeamChange( client, oldTeam );
+		BroadcastTeamChange( client, oldTeam );
 	}
 
 	// get and distribute relevent paramters
@@ -775,10 +780,11 @@ void SetTeam( gentity_t *ent, char *s ) {
 		ClientUserinfoChanged( clientNum );
 		client->sess.sessionTeam = teamsave;
 	} else {
-	ClientUserinfoChanged( clientNum );
+		ClientUserinfoChanged( clientNum );
+		ClientBegin( clientNum );
 	}
 
-	ClientBegin( clientNum );
+//	ClientBegin( clientNum );
 }
 
 /*
@@ -821,21 +827,21 @@ void Cmd_Team_f( gentity_t *ent ) {
 				break;
 			}
 		} else {
-		oldTeam = ent->client->sess.sessionTeam;
-		switch ( oldTeam ) {
-		case TEAM_BLUE:
-			trap_SendServerCommand( ent-g_entities, "print \"Blue team\n\"" );
-			break;
-		case TEAM_RED:
-			trap_SendServerCommand( ent-g_entities, "print \"Red team\n\"" );
-			break;
-		case TEAM_FREE:
-			trap_SendServerCommand( ent-g_entities, "print \"Free team\n\"" );
-			break;
-		case TEAM_SPECTATOR:
-			trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
-			break;
-		}
+			oldTeam = ent->client->sess.sessionTeam;
+			switch ( oldTeam ) {
+			case TEAM_BLUE:
+				trap_SendServerCommand( ent-g_entities, "print \"Blue team\n\"" );
+				break;
+			case TEAM_RED:
+				trap_SendServerCommand( ent-g_entities, "print \"Red team\n\"" );
+				break;
+			case TEAM_FREE:
+				trap_SendServerCommand( ent-g_entities, "print \"Free team\n\"" );
+				break;
+			case TEAM_SPECTATOR:
+				trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
+				break;
+			}
 		}
 		return;
 	}

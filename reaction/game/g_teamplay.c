@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/02/22 02:13:13  jbravo
+// Fixed a few bugs and did some cleanups
+//
 // Revision 1.15  2002/02/11 00:30:23  niceass
 // LCA fix
 //
@@ -237,7 +240,7 @@ void MakeAllLivePlayersObservers()
 			continue;
 		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
 		level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
-		level.clients[i].sess.spectatorState = SPECTATOR_FOLLOW;
+		level.clients[i].sess.spectatorState = SPECTATOR_FREE;
 	}
 }
 
@@ -471,10 +474,6 @@ void SpawnPlayers()
 		client = player->client;
 		clientNum = client - level.clients;
 
-//		for (x = 0 ; x < MAX_PERSISTANT ; x++) {
-//			client->ps.persistant[x] = client->savedpersistant[x];
-//		}
-
 		client->sess.teamSpawn = qtrue;
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
@@ -500,8 +499,6 @@ void RQ3_Cmd_Choose_f( gentity_t *ent )
 	if ( !ent->client ) {
 		return;		// not fully in game yet
 	}
-
-//	trap_Argv( 1, cmd, sizeof( cmd ) );
 
 	cmd = ConcatArgs( 1 );
 

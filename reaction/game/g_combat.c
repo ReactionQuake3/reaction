@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/02/22 02:13:13  jbravo
+// Fixed a few bugs and did some cleanups
+//
 // Revision 1.42  2002/02/10 21:21:23  slicer
 // Saving persistant and other data on some events..
 //
@@ -599,6 +602,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		//Elder: stop reload attempts
 		self->client->reloadAttempts = 0;
+
+		//JBravo: switch off the lasersight
+		if (self->client->lasersight) {
+			G_FreeEntity(self->client->lasersight);
+			self->client->lasersight = NULL;
+		}
 	}
 	if (self->client->ps.pm_type == PM_DEAD) {
 		return;
@@ -615,13 +624,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// check for a player that almost brought in cubes
 		CheckAlmostScored( self, attacker );
 	}
-
-// JBravo: save client->ps so spectating wont zap it.
-/*	if (g_gametype.integer == GT_TEAMPLAY) {
-		for (i = 0 ; i < MAX_PERSISTANT ; i++) {
-			self->client->savedpersistant[i] = self->client->ps.persistant[i];
-		}
-	}*/
 
 #ifdef MISSIONPACK
 	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
