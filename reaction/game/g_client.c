@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/06/12 22:32:24  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.90  2002/06/12 15:29:53  slicer
 // Improved and fixed the Anti-Cheat System
 //
@@ -1107,7 +1110,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 
 	//Slicer: for the anti-cheat system
-	s = Info_ValueForKey( userinfo, "cg_RQ3_auth" );
+/*	s = Info_ValueForKey( userinfo, "cg_RQ3_auth" );
 
 	if(!atoi(s)) {
 		  //Blaze: Send cheat cvars to client
@@ -1121,13 +1124,14 @@ void ClientUserinfoChanged( int clientNum ) {
 			/*	G_Printf("Sending changed userinfo\n");
 				Info_SetValueForKey( userinfo, "cg_RQ3_auth", "1" );
 				// register the userinfo
-				trap_SetUserinfo( clientNum, userinfo );*/
+				trap_SetUserinfo( clientNum, userinfo );
 			trap_SendServerCommand( clientNum, va("rq3_cmd %i",AUTH));
 
 		}
-			
+		
 		
 	}
+	*/
 
 
 /*	NOTE: all client side now

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/06/12 22:31:59  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.49  2002/06/12 15:30:24  slicer
 // Improved and fixed the Anti-Cheat System
 //
@@ -1280,8 +1283,8 @@ void CG_RQ3_Cmd () {
 			CG_SetTeamPlayers();
 			break;*/
 		//Slicer: for the anti-cheat system
-		case AUTH:
-			trap_Cvar_Set("cg_RQ3_auth","1");
+	//	case AUTH:
+	//		trap_Cvar_Set("cg_RQ3_auth","1");
 		case SELECTPISTOL:
 			if (cg.snap) {
 			switch (cg.snap->ps.weapon) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/06/12 22:31:59  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.91  2002/06/12 15:30:24  slicer
 // Improved and fixed the Anti-Cheat System
 //
@@ -1668,7 +1671,7 @@ extern	vmCvar_t		cg_RQ3_crosshairColorA;
 // JBravo: cvar for tkok popups
 extern	vmCvar_t		cg_RQ3_tkokAutoPopup;
 // Slicer: for the Anti-Cheat System
-extern  vmCvar_t	cg_RQ3_Auth;
+//extern  vmCvar_t	cg_RQ3_Auth;
 //Elder: SSG unique sensitivities
 extern	vmCvar_t		cg_RQ3_ssgSensitivityAuto;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity2x;

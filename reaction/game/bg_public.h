@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/06/12 22:32:24  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.77  2002/06/12 15:29:53  slicer
 // Improved and fixed the Anti-Cheat System
 //
@@ -312,8 +315,7 @@ enum {
 	RADIO,
     STARTDEMO,
     STOPDEMO,
-    SCREENSHOT,
-	AUTH
+    SCREENSHOT
 };
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2002/06/12 22:32:24  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.126  2002/06/10 23:32:03  slicer
 // Tweaked the weapon queuing
 //
@@ -3047,6 +3050,13 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "playerstats") == 0)
 	{
 		Cmd_PlayerStats_f( ent );
+	}
+	else if(Q_stricmp (cmd, "SendCheatCvars")==0) {
+		if (!G_SendCheatVars(clientNum))
+		{
+			Com_Printf("Error loading cvar cfg\n");
+			//return "Error_loading_cvar_cfg";
+		}
 	}
 
 	else

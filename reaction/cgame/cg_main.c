@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/06/12 22:31:59  slicer
+// Even better way to improve the Cvar Anti-Cheat System
+//
 // Revision 1.81  2002/06/12 15:30:24  slicer
 // Improved and fixed the Anti-Cheat System
 //
@@ -322,7 +325,7 @@ vmCvar_t	cg_RQ3_crosshairColorA;
 // JBravo: cvar for tkok popup
 vmCvar_t	cg_RQ3_tkokAutoPopup;
 // Slicer: for the Anti-Cheat System
-vmCvar_t	cg_RQ3_Auth;
+//vmCvar_t	cg_RQ3_Auth;
 //Elder: SSG unique sensitivities
 vmCvar_t	cg_RQ3_ssgSensitivityAuto;
 vmCvar_t	cg_RQ3_ssgSensitivity2x;
@@ -529,7 +532,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	//{ &cg_RQ3_drawWeapon, "cg_RQ3_drawWeapon", "2", CVAR_ARCHIVE },
 	{ &cg_RQ3_glasstime, "cg_RQ3_glasstime", "0", CVAR_ARCHIVE },
 	// Slicer: for the Anti-Cheat System
-	{ &cg_RQ3_Auth, "cg_RQ3_Auth", "0", CVAR_USERINFO | CVAR_ROM },
+	//{ &cg_RQ3_Auth, "cg_RQ3_Auth", "0", CVAR_USERINFO | CVAR_ROM },
 	// Elder: added
 	{ &cg_RQ3_flash, "cg_RQ3_flash", "1", CVAR_ARCHIVE },
 	// NiceAss: added
@@ -2621,7 +2624,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	trap_S_ClearLoopingSounds( qtrue );
 
 	//Slicer: For the anti-cheat system
-	trap_Cvar_Set("cg_RQ3_Auth","0");
+	//trap_Cvar_Set("cg_RQ3_Auth","0");
+	trap_SendClientCommand("SendCheatCvars");
 }
 
 /*
