@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/07/27 22:15:16  niceass
+// special weapon cheat w/ flag fixed
+//
 // Revision 1.13  2002/07/24 02:48:10  niceass
 // CTB first time spawning fix
 //
@@ -825,6 +828,14 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 		team != cl->sess.sessionTeam) {
 		return 0;
 	}
+
+	// NiceAss: If you are switching weapons as you go over a flag, cmd.weapon will have the weapon
+	// you are switching to. Otherwise it should be the same as ps.weapon. Fix for a cheat
+	if (other->client->pers.cmd.weapon != WP_PISTOL && other->client->pers.cmd.weapon != WP_KNIFE &&
+		team != cl->sess.sessionTeam) {
+		return 0;
+	}
+
 	// GT_CTF
 	if (team == cl->sess.sessionTeam) {
 		return Team_TouchOurFlag(ent, other, team);
