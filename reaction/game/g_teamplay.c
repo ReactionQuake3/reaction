@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/05/30 18:22:20  jbravo
+// Misc fixes
+//
 // Revision 1.97  2002/05/23 04:53:41  blaze
 // some func_breakable fixes.  Explosives respawn on new rounds now .
 //
@@ -1030,6 +1033,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 0;
 		break;
 	default:
+		G_Printf("%s had an illegal teamplay weapon %i!\n", ent->client->pers.netname, ent->client->teamplayWeapon);
 		break;
 	}
 

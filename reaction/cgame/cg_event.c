@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/05/30 18:22:20  jbravo
+// Misc fixes
+//
 // Revision 1.60  2002/05/28 01:46:58  jbravo
 // Added stomach gibbing
 //
@@ -113,6 +116,9 @@ void CG_BreakBreakable(centity_t *cent, int eParam, int number);
 #ifdef MISSIONPACK // bk001205
 #include "../../ui/menudef.h"
 #endif
+
+void CG_LaunchGib (vec3_t origin, vec3_t velocity, qhandle_t hModel);
+	
 //==========================================================================
 
 /*
@@ -1579,7 +1585,7 @@ also called by CG_CheckPlayerstateEvents
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
 	int				event;
-	vec3_t			dir, viewDir;
+	vec3_t			dir; //, viewDir;
 	const char		*s;
 	int				clientNum;
 	clientInfo_t	*ci;
