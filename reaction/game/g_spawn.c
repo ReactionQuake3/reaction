@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.34  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -434,6 +437,11 @@ qboolean G_CallSpawn(gentity_t * ent)
 		ent->classname = "weapon_m4";
 	else if (!strcmp(ent->classname, "RQ3weapon_grenade"))
 		ent->classname = "weapon_grenade";
+	// JBravo: Briefcases
+	else if (!strcmp(ent->classname, "RQ3case_blaxk"))
+		ent->classname = "team_CTF_blueflag";
+	else if (!strcmp(ent->classname, "RQ3case_silver"))
+		ent->classname = "team_CTF_redflag";
 
 	//Elder: map Q3DM ammo -> RQ3 ammo
 	if (!strcmp(ent->classname, "RQ3ammo_mk23"))

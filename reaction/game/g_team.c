@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.10  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -75,9 +78,9 @@ int OtherTeam(int team)
 const char *TeamName(int team)
 {
 	if (team == TEAM_RED)
-		return "RED";
+		return "SILVER";
 	else if (team == TEAM_BLUE)
-		return "BLUE";
+		return "BLACK";
 	else if (team == TEAM_SPECTATOR)
 		return "SPECTATOR";
 	return "FREE";
@@ -86,9 +89,9 @@ const char *TeamName(int team)
 const char *OtherTeamName(int team)
 {
 	if (team == TEAM_RED)
-		return "BLUE";
+		return "BLACK";
 	else if (team == TEAM_BLUE)
-		return "RED";
+		return "SILVER";
 	else if (team == TEAM_SPECTATOR)
 		return "SPECTATOR";
 	return "FREE";
@@ -324,7 +327,7 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS);
 		attacker->client->pers.teamState.fragcarrier++;
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's flag carrier!\n",
+		PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's courier!\n",
 			 attacker->client->pers.netname, TeamName(team));
 
 		// the target had the flag, clear the hurt carrier
@@ -628,9 +631,9 @@ void Team_ReturnFlag(int team)
 {
 	Team_ReturnFlagSound(Team_ResetFlag(team), team);
 	if (team == TEAM_FREE) {
-		PrintMsg(NULL, "The flag has returned!\n");
+		PrintMsg(NULL, "The case has returned!\n");
 	} else {
-		PrintMsg(NULL, "The %s flag has returned!\n", TeamName(team));
+		PrintMsg(NULL, "The %s case has returned!\n", TeamName(team));
 	}
 }
 
@@ -690,7 +693,7 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 
 	if (ent->flags & FL_DROPPED_ITEM) {
 		// hey, its not home.  return it by teleporting it back
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", cl->pers.netname, TeamName(team));
+		PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s case!\n", cl->pers.netname, TeamName(team));
 		AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
 		other->client->pers.teamState.flagrecovery++;
 		other->client->pers.teamState.lastreturnedflag = level.time;
@@ -702,7 +705,7 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 	// flag, he's just won!
 	if (!cl->ps.powerups[enemy_flag])
 		return 0;	// We don't have the flag
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n", cl->pers.netname, TeamName(OtherTeam(team)));
+	PrintMsg(NULL, "%s" S_COLOR_WHITE " captured the %s case!\n", cl->pers.netname, TeamName(OtherTeam(team)));
 
 	cl->ps.powerups[enemy_flag] = 0;
 
@@ -780,7 +783,7 @@ int Team_TouchEnemyFlag(gentity_t * ent, gentity_t * other, int team)
 {
 	gclient_t *cl = other->client;
 
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " got the %s flag!\n", other->client->pers.netname, TeamName(team));
+	PrintMsg(NULL, "%s" S_COLOR_WHITE " got the %s case!\n", other->client->pers.netname, TeamName(team));
 
 	if (team == TEAM_RED)
 		cl->ps.powerups[PW_REDFLAG] = INT_MAX;	// flags never expire
@@ -801,6 +804,10 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	int team;
 	gclient_t *cl = other->client;
 
+// JBravo: no picking up case if you have a two handed weapon.
+	if (other->client->ps.weapon != WP_PISTOL && other->client->ps.weapon != WP_KNIFE) {
+		return 0;
+	}
 	// figure out what team this flag is
 	if (strcmp(ent->classname, "team_CTF_redflag") == 0) {
 		team = TEAM_RED;

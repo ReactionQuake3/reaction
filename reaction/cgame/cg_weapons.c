@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.85  2002/06/23 04:34:54  niceass
 // change to foglaser
 //
@@ -2091,6 +2094,11 @@ static qboolean CG_WeaponSelectable(int i)
 	//if ( !cg.snap->ps.ammo[i] && !cg.snap->ps.stats[STAT_CLIPS] ) {
 	//return qfalse;
 	//}
+	// JBravo: lets not allow switching to weapons other than pistol or knife if the player has a case
+	if (cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_REDFLAG]) {
+		if (i != WP_PISTOL && i != WP_KNIFE)
+			return qfalse;
+	}
 	if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << i))) {
 		return qfalse;
 	}
@@ -2267,6 +2275,10 @@ void CG_SpecialWeapon_f(void)
 	}
 	//Elder: don't allow weapon switching when in the middle of bursts
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
+
+	// JBravo: not in CTF
+	if (cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_REDFLAG])
 		return;
 
 	//Elder: in the middle of firing, reloading or weapon-switching
@@ -2529,6 +2541,11 @@ void CG_Weapon_f(void)
 
 	if (num < 1 || num > 15) {
 		return;
+	}
+	// JBravo: CTB provisions
+	if (cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_REDFLAG]) {
+		if (num != WP_PISTOL && num != WP_KNIFE)
+			return;
 	}
 	//Elder: this point on is the regular Q3 weapon function - weird
 

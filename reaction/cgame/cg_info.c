@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.33  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -331,8 +334,9 @@ void CG_DrawInformation(void)
 		//Makro - changed from RQ3 Teamplay
 		line = "CLASSIC ACTION TEAMPLAY";
 		break;
+// JBravo: now knows as CTB
 	case GT_CTF:
-		line = "CAPTURE THE FLAG";
+		line = "CAPTURE THE BRIEFCASE";
 		break;
 	default:
 		line = "UNKNOWN GAMETYPE";

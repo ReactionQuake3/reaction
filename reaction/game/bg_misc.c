@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.41  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -531,7 +534,8 @@ Only in CTF games
 	{
 	 "team_CTF_redflag",
 	 NULL,
-	 {"models/flags/r_flag.md3",
+//	 {"models/flags/r_flag.md3",
+	 {"models/cases/s_case.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconf_red1",
@@ -550,7 +554,8 @@ Only in CTF games
 	{
 	 "team_CTF_blueflag",
 	 NULL,
-	 {"models/flags/b_flag.md3",
+//	 {"models/flags/b_flag.md3",
+	 {"models/cases/b_case.md3",
 	  0, 0, 0}
 	 ,
 /* icon */ "icons/iconf_blu1",

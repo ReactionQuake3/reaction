@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.39  2002/06/28 21:20:44  makro
 // More MM...
 //
@@ -200,7 +203,7 @@ static const char *teamArenaGameNames[] = {
 	"Team Deathmatch",
 //Makro - inserted teamplay
 	"RQ3 Teamplay",
-	"Capture the Flag",
+	"Capture the Briefcase",
 	"One Flag CTF",
 	"Overload",
 	"Harvester",

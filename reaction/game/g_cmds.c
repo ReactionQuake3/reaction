@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.146  2002/06/28 21:41:12  jbravo
 // Gawd damn buglet
 //
@@ -1844,7 +1847,7 @@ static const char *gameNames[] = {
 
 // JBravo: duh ;)
 	"RQ3 teamplay",
-	"Capture the Flag",
+	"Capture the Briefcase",
 	"One Flag CTF",
 	"Overload",
 	"Harvester"

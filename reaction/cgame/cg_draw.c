@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.52  2002/06/24 05:55:50  niceass
 // drawping
 //
@@ -2142,8 +2145,9 @@ static void CG_DrawWarmup(void)
 // JBravo adding teamplay
 		} else if (cgs.gametype == GT_TEAMPLAY) {
 			s = "RQ3 Teamplay";
+// JBravo: Now known as CTB
 		} else if (cgs.gametype == GT_CTF) {
-			s = "Capture the Flag";
+			s = "Capture the Briefcase";
 		} else {
 			s = "";
 		}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.115  2002/06/26 03:28:36  niceass
 // upper right HUD scores updated quickly
 //
@@ -1918,6 +1921,39 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	cmd = ConcatArgs(1);
 	weapon = WP_NONE;
 
+	if (Q_stricmp(cmd, RQ3_PISTOL_NAME) == 0 || Q_stricmp(cmd, "pistol") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL)) == (1 << WP_PISTOL)) {
+			weapon = WP_PISTOL;
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
+			return;
+		}
+	} else if (Q_stricmp(cmd, "throwing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
+			weapon = WP_KNIFE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			return;
+		}
+	} else if (Q_stricmp(cmd, "slashing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
+			weapon = WP_KNIFE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			return;
+		}
+	}
+	if (weapon != WP_NONE) {
+		if (weapon == ent->client->ps.weapon)
+			return;
+		Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
+		trap_SendServerCommand(ent - g_entities, buf);
+		return;
+	}
+	if (g_gametype.integer == GT_CTF && (ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG]))
+		return;
 	if (Q_stricmp(cmd, RQ3_MP5_NAME) == 0 || Q_stricmp(cmd, "mp5") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5)) == (1 << WP_MP5)) {
 			weapon = WP_MP5;
@@ -1961,34 +1997,11 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
 			return;
 		}
-	} else if (Q_stricmp(cmd, RQ3_PISTOL_NAME) == 0 || Q_stricmp(cmd, "pistol") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL)) == (1 << WP_PISTOL)) {
-			weapon = WP_PISTOL;
-		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
-			return;
-		}
 	} else if (Q_stricmp(cmd, RQ3_GRENADE_NAME) == 0 || Q_stricmp(cmd, "grenade") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE)) == (1 << WP_GRENADE)) {
 			weapon = WP_GRENADE;
 		} else {
 			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_GRENADE_NAME));
-			return;
-		}
-	} else if (Q_stricmp(cmd, "throwing combat knife") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
-			weapon = WP_KNIFE;
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
-		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
-			return;
-		}
-	} else if (Q_stricmp(cmd, "slashing combat knife") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
-			weapon = WP_KNIFE;
-			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
-		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
 		}
 	} else if (Q_stricmp(cmd, "special") == 0) {
@@ -2021,7 +2034,7 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 	char userinfo[MAX_INFO_STRING];
 	char *value;
 
-	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || !victim->client)
+	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client || !victim->client)
 		return;
 
 	attacker->client->team_wounds++;
@@ -2068,7 +2081,7 @@ void Add_TeamKill(gentity_t * attacker)
 	char *value;
 
 	// NiceAss: No TKing in matchmode
-	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || g_RQ3_matchmode.integer)
+	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client || g_RQ3_matchmode.integer)
 		return;
 
 	attacker->client->team_kills++;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/29 04:15:15  jbravo
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+//
 // Revision 1.89  2002/06/24 05:55:03  niceass
 // drawping
 //
@@ -1336,8 +1339,10 @@ static void CG_RegisterGraphics(void)
 	}
 
 	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
-		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3");
-		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3");
+//		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3");
+//		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3");
+		cgs.media.redFlagModel = trap_R_RegisterModel("models/cases/s_case.md3");
+		cgs.media.blueFlagModel = trap_R_RegisterModel("models/cases/b_case.md3");
 		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_red3");
