@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/10/21 21:01:09  niceass
+// no ref ready code
+//
 // Revision 1.127  2002/10/20 21:24:32  blaze
 // Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
 //
@@ -1038,6 +1041,7 @@ typedef struct {
 	int matchTime;
 	int team1ready;
 	int team2ready;
+	int refready;
 
 	int CTBcountdowntime;
 } cg_t;
