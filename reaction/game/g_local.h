@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2003/08/24 22:45:17  makro
+// Rotating func_trains
+//
 // Revision 1.143  2003/08/10 20:13:26  makro
 // no message
 //
@@ -551,7 +554,6 @@ struct gentity_s {
 	//Makro - added
 	char *activatename;
 	int inactive;
-	vec3_t backup_origin;
 };
 
 typedef enum {
