@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/09/08 23:25:09  niceass
+// made cg_rq3_predictweapons even more like quake 2, and it's simpler
+//
 // Revision 1.89  2002/09/04 00:16:17  makro
 // Fixed 'unselectable grenade shown in the inventory if you switch weapons
 // after pulling the pin' bug
@@ -172,9 +175,9 @@ static void PM_StartWeaponAnim(int anim)
 	}
 
 	// NiceAss: Don't do client prediction of weapon animations
-	if ( !pm->predict && (anim == WP_ANIM_FIRE || anim == WP_ANIM_IDLE || 
+	/*if ( !pm->predict && (anim == WP_ANIM_FIRE || anim == WP_ANIM_IDLE || 
 		anim == WP_ANIM_EXTRA1 || anim == WP_ANIM_THROWFIRE ) )
-		return;
+		return;*/
 
 	pm->ps->generic1 = ((pm->ps->generic1 & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 }
@@ -186,9 +189,10 @@ static void PM_ContinueWeaponAnim(int anim)
 	}
 
 	// NiceAss: Don't do client prediction of weapon animations
+	/*
 	if ( !pm->predict && (anim == WP_ANIM_FIRE || anim == WP_ANIM_IDLE || 
 		anim == WP_ANIM_EXTRA1 || anim == WP_ANIM_THROWFIRE ) )
-		return;
+		return;*/
 
 	PM_StartWeaponAnim(anim);
 }
@@ -2180,8 +2184,8 @@ static void PM_Weapon(void)
 	//NiceAss: I added this for smooth M4 rise
 	if (pm->ps->weaponstate == WEAPON_FIRING && pm->ps->ammo[pm->ps->weapon] &&
 		pm->ps->weapon == WP_M4 && !pm->ps->stats[STAT_BURST] && 
-		!(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) &&
-		pm->predict ) {
+		!(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) /*&&
+		pm->predict*/ ) {
 			pm->ps->delta_angles[0] -= ANGLE2SHORT(0.13);
 	}
 
@@ -2209,7 +2213,7 @@ static void PM_Weapon(void)
 			if (pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
 				pm->ps->weaponstate = WEAPON_FIRING;
 				pm->cmd.buttons &= ~BUTTON_ATTACK;
-				if (pm->predict)
+				//if (pm->predict)
 					PM_AddEvent2(EV_FIRE_WEAPON, RQ3_WPMOD_GRENADEDROP);
 				pm->ps->ammo[WP_GRENADE]--;
 				//Makro - if this is the last grenade, remove the weapon from the inventory
@@ -2466,7 +2470,7 @@ static void PM_Weapon(void)
 
 	// fire weapon
 	// NiceAss: Check to see if this is game or cgame
-	if (pm->predict) {
+	//if (pm->predict) {
 		//Elder: check for silencer
 		if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
 			(pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_MP5 || pm->ps->weapon == WP_SSG3000)) {
@@ -2477,7 +2481,7 @@ static void PM_Weapon(void)
 			PM_AddEvent2(EV_FIRE_WEAPON, RQ3_WPMOD_KNIFENOMARK);
 		} else
 			PM_AddEvent(EV_FIRE_WEAPON);
-	}
+	//}
 
 	switch (pm->ps->weapon) {
 	default:
@@ -2965,8 +2969,10 @@ void PmoveSingle(pmove_t * pmove)
 	PM_SetWaterLevel();
 
 	// weapons
-	PM_Reload();
-	PM_Weapon();
+	if (pm->predict) {
+		PM_Reload();
+		PM_Weapon();
+	}
 
 	// torso animation
 	PM_TorsoAnimation();
