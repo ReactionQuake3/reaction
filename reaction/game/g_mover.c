@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/23 05:13:44  blaze
+// More sound changes as per Sze, please dont kill me Cent
+//
 // Revision 1.35  2002/05/23 04:58:05  blaze
 // More sound changes as per Sze, please dont kill me Cent
 //
@@ -1836,7 +1839,7 @@ void SP_func_plat (gentity_t *ent) {
 
 	G_SpawnString( "soundstart", "sound/movers/plat_start.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/plat_stop.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
+	G_SpawnString( "soundmove", "sound/movers/plat_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
