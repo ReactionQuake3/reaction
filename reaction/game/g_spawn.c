@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/09/01 21:15:08  makro
+// Sky portal tweaks
+//
 // Revision 1.39  2002/08/30 00:00:16  makro
 // Sky portals
 //
@@ -695,7 +698,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 	//Makro - is the entity in a sky portal ?
 	if (G_SpawnInt("skyportalent", "0", &i)) {
 		if (i) {
-			ent->s.eFlags |= EF_SKYPORTAL;
+			ent->s.eFlags |= EF_HEADLESS;
 		}
 	}
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/09/01 21:15:08  makro
+// Sky portal tweaks
+//
 // Revision 1.95  2002/08/30 00:00:16  makro
 // Sky portals
 //
@@ -803,7 +806,6 @@ typedef enum {
 #define	EF_AWARD_ASSIST		0x00020000	// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000	// denied
 #define EF_TEAMVOTED		0x00080000	// already cast a team vote
-#define EF_SKYPORTAL		0x00000200	// Makro - the entity is in a sky portal; 0x00100000 didn't seem to work
 
 
 // NOTE: may not have more than 16

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/09/01 21:14:36  makro
+// Sky portal tweaks
+//
 // Revision 1.32  2002/08/29 23:58:27  makro
 // Sky portals
 //
@@ -1076,13 +1079,13 @@ CG_AddPacketEntities
 Makro - added skyportal param
 ===============
 */
-void CG_AddPacketEntities(qboolean inSkyPortal)
+void CG_AddPacketEntities(int mode)
 {
 	centity_t *cent;
 	int num;
 
 	//Makro - if we're rendering the entities in a sky portals, we don't need this stuff
-	if (!inSkyPortal) {
+	if (mode != 1) {
 		playerState_t *ps;
 
 		// set cg.frameInterpolation
@@ -1122,19 +1125,26 @@ void CG_AddPacketEntities(qboolean inSkyPortal)
 		CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 	}
 
-	// add each entity sent over by the server
-	for (num = 0; num < cg.snap->numEntities; num++) {
-		cent = &cg_entities[cg.snap->entities[num].number];
-		if (inSkyPortal) {
-			if (cent->currentState.eFlags & EF_SKYPORTAL) {
-				CG_AddCEntity(cent);
-			}
-		} else {
-			if (!(cent->currentState.eFlags & EF_SKYPORTAL)) {
-				CG_AddCEntity(cent);
+	if (mode != -1) {
+		// add each entity sent over by the server
+		for (num = 0; num < cg.snap->numEntities; num++) {
+			cent = &cg_entities[cg.snap->entities[num].number];
+			if (mode == 1) {
+				if (cent->currentState.eFlags & EF_HEADLESS) {
+					CG_AddCEntity(cent);
+				}
+			} else {
+				if (!(cent->currentState.eFlags & EF_HEADLESS) || cent->currentState.eType == ET_PLAYER) {
+					CG_AddCEntity(cent);
+				}
 			}
 		}
 
+	} else {
+		for (num = 0; num < cg.snap->numEntities; num++) {
+			cent = &cg_entities[cg.snap->entities[num].number];
+			CG_AddCEntity(cent);
+		}
 	}
 }
 

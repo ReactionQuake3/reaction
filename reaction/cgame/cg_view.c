@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/09/01 21:14:37  makro
+// Sky portal tweaks
+//
 // Revision 1.28  2002/08/29 23:58:28  makro
 // Sky portals
 //
@@ -1126,8 +1129,9 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
 	int inwater;
-	//Makro - added for sky portals !
+	//Makro - added for sky portals
 	const char *info;
+	int skyPortalMode = -1;
 
 	//Blaze: for cheat detection
 	int i;
@@ -1183,6 +1187,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		CG_DamageBlendBlob();
 	}
 
+	//Makro - these were a few lines below
+	cg.refdef.time = cg.time;
+	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
+
 	//Makro - fog hull
 	info = CG_ConfigString(CS_FOGHULL);
 	if (info) {
@@ -1201,25 +1209,24 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	//Note - doing it here means that sky portal entities won't get drawn. but at least the rest of the map looks ok :/
 	info = CG_ConfigString(CS_SKYPORTAL);
 	if (info[0] && Q_stricmp(info, "none")) {
-		//vec3_t oldOrigin;
-		refdef_t skyRef;
+		vec3_t oldOrigin;
+
+		skyPortalMode = 0;
 		CG_AddPacketEntities(qtrue);
-		memset(&skyRef, 0, sizeof(skyRef));
-		memcpy(&skyRef, &cg.refdef, sizeof(skyRef));
-		//VectorCopy(cg.refdef.vieworg, oldOrigin);
-		skyRef.vieworg[0] = atof(Info_ValueForKey(info, "x"));
-		skyRef.vieworg[1] = atof(Info_ValueForKey(info, "y"));
-		skyRef.vieworg[2] = atof(Info_ValueForKey(info, "z"));
+		VectorCopy(cg.refdef.vieworg, oldOrigin);
+		cg.refdef.vieworg[0] = atof(Info_ValueForKey(info, "x"));
+		cg.refdef.vieworg[1] = atof(Info_ValueForKey(info, "y"));
+		cg.refdef.vieworg[2] = atof(Info_ValueForKey(info, "z"));
 		//memset(skyRef.areamask, 0, sizeof(skyRef.areamask));
 		//Com_Printf("View axis is: %f %f %f\n", cg.refdef.viewaxis[0], cg.refdef.viewaxis[1], cg.refdef.viewaxis[2]);
-		trap_R_RenderScene(&skyRef);
+		trap_R_RenderScene(&cg.refdef);
 		//trap_R_ClearScene();
-		//VectorCopy(oldOrigin, cg.refdef.vieworg);
+		VectorCopy(oldOrigin, cg.refdef.vieworg);
 	}
 
 	// build the render lists
 	if (!cg.hyperspace) {
-		CG_AddPacketEntities(qfalse);	// adter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities(skyPortalMode);	// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 		CG_AddParticles();
 		CG_AddLocalEntities();
@@ -1240,8 +1247,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	if (cg.testModelEntity.hModel) {
 		CG_AddTestModel();
 	}
-	cg.refdef.time = cg.time;
-	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
+
+	//Makro - moved a few lines up, before the sky portal code
+	//cg.refdef.time = cg.time;
+	//memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
 	// warning sounds when powerup is wearing off
 	CG_PowerupTimerSounds();

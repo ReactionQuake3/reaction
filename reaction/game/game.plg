@@ -6,22 +6,156 @@
 --------------------Configuration: cgame - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP3D.tmp" with contents
+[
+/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
+"C:\Games\Quake3\rq3source\reaction\game\bg_pmove.c"
+"C:\Games\Quake3\rq3source\reaction\game\bg_slidemove.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_consolecmds.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_draw.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_drawtools.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_effects.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_ents.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_event.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_info.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_localents.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_main.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_marks.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_players.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_playerstate.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_predict.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_scoreboard.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_servercmds.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_snapshot.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_syscalls.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_view.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_weapons.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_math.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_shared.c"
+"C:\Games\Quake3\rq3source\reaction\ui\ui_shared.c"
+]
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP3D.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP3E.tmp" with contents
+[
+/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
+.\Release\bg_misc.obj
+.\Release\bg_pmove.obj
+.\Release\bg_slidemove.obj
+.\Release\cg_atmospheric.obj
+.\Release\cg_consolecmds.obj
+.\Release\cg_draw.obj
+.\Release\cg_drawtools.obj
+.\Release\cg_effects.obj
+.\Release\cg_ents.obj
+.\Release\cg_event.obj
+.\Release\cg_info.obj
+.\Release\cg_localents.obj
+.\Release\cg_main.obj
+.\Release\cg_marks.obj
+.\Release\cg_players.obj
+.\Release\cg_playerstate.obj
+.\Release\cg_predict.obj
+.\Release\cg_scoreboard.obj
+.\Release\cg_servercmds.obj
+.\Release\cg_snapshot.obj
+.\Release\cg_syscalls.obj
+.\Release\cg_view.obj
+.\Release\cg_weapons.obj
+.\Release\q_math.obj
+.\Release\q_shared.obj
+.\Release\ui_shared.obj
+]
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP3E.tmp"
+<h3>Output Window</h3>
+Compiling...
+bg_misc.c
+bg_pmove.c
+bg_slidemove.c
+cg_atmospheric.c
+cg_consolecmds.c
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(626) : warning C4706: assignment within conditional expression
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(638) : warning C4706: assignment within conditional expression
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(184) : warning C4701: local variable 'tr' may be used without having been initialized
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(334) : warning C4701: local variable 'tr' may be used without having been initialized
+cg_draw.c
+cg_drawtools.c
+cg_effects.c
+cg_ents.c
+cg_event.c
+cg_info.c
+cg_localents.c
+cg_main.c
+cg_marks.c
+cg_players.c
+cg_playerstate.c
+cg_predict.c
+cg_scoreboard.c
+cg_servercmds.c
+cg_snapshot.c
+cg_syscalls.c
+cg_view.c
+cg_weapons.c
+q_math.c
+q_shared.c
+ui_shared.c
+Linking...
+   Creating library Release/cgamex86.lib and object Release/cgamex86.exp
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 0 error(s), 0 warning(s)
+cgamex86.dll - 0 error(s), 4 warning(s)
 <h3>
 --------------------Configuration: game - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP12.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP42.tmp" with contents
 [
 /nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\game\ai_chat.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_cmd.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_dmnet.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_dmq3.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_main.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_team.c"
+"C:\Games\Quake3\rq3source\reaction\game\ai_vcmd.c"
+"C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
+"C:\Games\Quake3\rq3source\reaction\game\bg_pmove.c"
+"C:\Games\Quake3\rq3source\reaction\game\bg_slidemove.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_active.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_arenas.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_bot.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_client.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_cmds.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_combat.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_fileio.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_items.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_main.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_matchmode.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_mem.c"
 "C:\Games\Quake3\rq3source\reaction\game\g_misc.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_missile.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_mover.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_session.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_spawn.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_svcmds.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_syscalls.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_target.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_team.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_teamplay.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_trigger.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_utils.c"
+"C:\Games\Quake3\rq3source\reaction\game\g_weapon.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_math.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_shared.c"
+"C:\Games\Quake3\rq3source\reaction\game\rxn_game.c"
+"C:\Games\Quake3\rq3source\reaction\game\zcam.c"
+"C:\Games\Quake3\rq3source\reaction\game\zcam_target.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP12.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP13.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP42.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP43.tmp" with contents
 [
 kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /machine:I386 /def:".\game.def" /out:"..\Release/qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
 \reactionoutput\ai_chat.obj
@@ -64,21 +198,103 @@ kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows 
 \reactionoutput\zcam.obj
 \reactionoutput\zcam_target.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP13.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP43.tmp"
 <h3>Output Window</h3>
 Compiling...
+ai_chat.c
+ai_cmd.c
+ai_dmnet.c
+ai_dmq3.c
+ai_main.c
+ai_team.c
+ai_vcmd.c
+bg_misc.c
+bg_pmove.c
+bg_slidemove.c
+g_active.c
+g_arenas.c
+g_bot.c
+g_client.c
+g_cmds.c
+C:\Games\Quake3\rq3source\reaction\game\g_client.c(1691) : warning C4701: local variable 'classname' may be used without having been initialized
+g_combat.c
+g_fileio.c
+g_items.c
+g_main.c
+g_matchmode.c
+g_mem.c
 g_misc.c
+g_missile.c
+g_mover.c
+g_session.c
+g_spawn.c
+g_svcmds.c
+g_syscalls.c
+g_target.c
+g_team.c
+g_teamplay.c
+g_trigger.c
+g_utils.c
+g_weapon.c
+q_math.c
+C:\Games\Quake3\rq3source\reaction\game\g_weapon.c(2127) : warning C4701: local variable 'tr' may be used without having been initialized
+q_shared.c
+rxn_game.c
+zcam.c
+zcam_target.c
 Linking...
    Creating library c:\reactionoutput/qagamex86.lib and object c:\reactionoutput/qagamex86.exp
 
 
 
 <h3>Results</h3>
-qagamex86.dll - 0 error(s), 0 warning(s)
+qagamex86.dll - 0 error(s), 2 warning(s)
 <h3>
 --------------------Configuration: ui - Win32 Release TA--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP47.tmp" with contents
+[
+/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /Fp"Release_TA/ta_ui.pch" /YX /Fo"Release_TA/" /Fd"Release_TA/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_math.c"
+"C:\Games\Quake3\rq3source\reaction\game\q_shared.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_atoms.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_gameinfo.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_main.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_players.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_shared.c"
+"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_syscalls.c"
+]
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP47.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48.tmp" with contents
+[
+/nologo /base:"0x40000000" /dll /incremental:no /pdb:"Release_TA/uix86.pdb" /map:"Release_TA/uix86.map" /machine:I386 /def:".\ui.def" /out:"../Release/uix86.dll" /implib:"Release_TA/uix86.lib" 
+.\Release_TA\bg_misc.obj
+.\Release_TA\q_math.obj
+.\Release_TA\q_shared.obj
+.\Release_TA\ui_atoms.obj
+.\Release_TA\ui_gameinfo.obj
+.\Release_TA\ui_main.obj
+.\Release_TA\ui_players.obj
+.\Release_TA\ui_shared.obj
+.\Release_TA\ui_syscalls.obj
+.\Release_TA\ui_util.obj
+]
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP48.tmp"
+<h3>Output Window</h3>
+Compiling...
+bg_misc.c
+q_math.c
+q_shared.c
+ui_atoms.c
+ui_gameinfo.c
+ui_main.c
+ui_players.c
+ui_shared.c
+ui_syscalls.c
+Linking...
+   Creating library Release_TA/uix86.lib and object Release_TA/uix86.exp
 
 
 
