@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/05/23 04:53:41  blaze
+// some func_breakable fixes.  Explosives respawn on new rounds now .
+//
 // Revision 1.96  2002/05/23 03:07:10  blaze
 // Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
 //
@@ -845,7 +848,10 @@ void SpawnPlayers()
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
 			trap_LinkEntity(ent);
-		}
+      ent->exploded = qfalse;
+      ent->takedamage = qtrue;
+      ent->s.eType = ET_BREAKABLE;
+    }
 	}
 }
 

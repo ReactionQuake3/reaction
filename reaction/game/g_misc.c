@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/05/23 04:53:41  blaze
+// some func_breakable fixes.  Explosives respawn on new rounds now .
+//
 // Revision 1.42  2002/05/21 14:19:26  makro
 // Printf's for misc_portal_surface setup errors
 //
@@ -507,10 +510,8 @@ void func_breakable_explode( gentity_t *self , vec3_t pos ) {
 
   tent = G_TempEntity2( pos, EV_EXPLODE_BREAKABLE, eParam);
 
-	self->takedamage = qfalse;
-	self->s.eType = ET_INVISIBLE;
-	self->r.contents = 0;
-	self->s.solid = 0;
+//	self->takedamage = qfalse;
+//	self->s.eType = ET_INVISIBLE;
   self->exploded = qtrue;
 }
 
@@ -519,7 +520,7 @@ void func_breakable_explode( gentity_t *self , vec3_t pos ) {
 void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
   func_breakable_explode( self , self->s.origin );
-	G_ExplodeMissile(self);
+//	G_ExplodeMissile(self);
 	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
   //	radius damage
   
