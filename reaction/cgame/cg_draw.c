@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/07/03 02:40:14  niceass
+// fix cg_drawping problem
+//
 // Revision 1.54  2002/06/29 21:58:54  niceass
 // big changes in cg_drawping
 //
@@ -674,7 +677,7 @@ static float CG_DrawFPSandPing(float y)
 	char *s;
 	int w;
 	static int previousTimes[FPS_FRAMES];
-	static int index;
+	static int index, index2;
 	int i, total;
 	int fps;
 	static int previous;
@@ -696,8 +699,9 @@ static float CG_DrawFPSandPing(float y)
 	previousTimes[index % FPS_FRAMES] = frameTime;
 
 	if (cg.latestSnapshotNum != currentSnapshotNum && cg.snap) {
-		Pings[index % PING_SNAPS] = cg.snap->ping;
+		Pings[index2 % PING_SNAPS] = cg.snap->ping;
 		currentSnapshotNum = cg.latestSnapshotNum;
+		index2++;
 	}
 
 	index++;
@@ -731,7 +735,7 @@ static float CG_DrawFPSandPing(float y)
 	}
 
 	// Draw ping here:
-	if (index > PING_SNAPS) {
+	if (index2 > PING_SNAPS) {
 		int avgping = 0, l;
 
 		for (l = 0; l < PING_SNAPS; l++) {
@@ -2437,6 +2441,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	if (separation != 0) {
 		VectorMA(cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg);
 	}
+
 	// draw 3D view
 	trap_R_RenderScene(&cg.refdef);
 
