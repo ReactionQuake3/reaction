@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/06/06 20:44:16  makro
+// Removed cheat protection for cg_gunX, Y and Z
+//
 // Revision 1.74  2002/06/06 18:10:51  makro
 // Loading a map with pre-2.0 breakables crashed Q3. Added temp fix
 //
@@ -415,9 +418,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
 	{ &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
 	{ &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
-	{ &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
-	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
-	{ &cg_gun_z, "cg_gunZ", "0", CVAR_CHEAT },
+	//Makro - changed from CVAR_CHEAT
+	{ &cg_gun_x, "cg_gunX", "0", CVAR_ARCHIVE },
+	{ &cg_gun_y, "cg_gunY", "0", CVAR_ARCHIVE },
+	{ &cg_gun_z, "cg_gunZ", "0", CVAR_ARCHIVE },
 	//Blaze: to test the gun frames
 	{ &cg_gun_frame, "cg_gun_frame", "0", CVAR_CHEAT },
 	{ &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
