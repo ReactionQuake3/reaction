@@ -126,13 +126,15 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "MICHAEL BRUCE (AGTORANGE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "DAN CHIN (LT. HAWKINS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MIKE CONNOR (HOMER)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "BRYCE HUTCHINGS (NICEASS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
 
 // Artwork - models, textures, whatever
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ART", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "LINH NGUYEN (SONIC128)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "IAN MCEACHERN (FROST)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "BRIAN MILLS (BIRDMAN)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "LINH NGUYEN (SONIC128)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MARK POTNICK (CLOUD)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "RYAN VANCE (BRAGOBLIN)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
@@ -175,7 +177,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 // Additional organization -- past peeps
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ADDITIONAL ORGANIZATION", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "LUCY", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "LUCY CONNOR (LUCY)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // Website
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -186,16 +188,16 @@ cr_line credits[] = { // edit this as necessary for your credits
 // Beta Testers
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "TESTERS AND ADVISORS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "BLACK MONK", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "FICTION", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "NON FICTION (FICTION)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SETH CHABOT (WOOK!EBOY)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "STEVE EWALD (PSYCHOTAKES)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "LUKE PAUL (ALICE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "ANDREW PROSNIK (BLACK MONK)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // TBC
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "..TO BE FINISHED..", UI_CENTER|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+//{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+//{ "..TO BE FINISHED..", UI_CENTER|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+//{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -210,7 +212,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 // Additional testers -- Elder's test subjects ;)
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ADDITIONAL TESTING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "WINSTON CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "WINSTON CHOW (SHISHKABOB)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "STEPHEN LOOI (DUD)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // Music Contributions
@@ -257,8 +259,11 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "ALL THE LITTLE PEOPLE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "FAMILY AND FRIENDS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "FEAR.NET FREQUENTERS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "id SOFTWARE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "THE A-TEAM (AQ2 DEVELOPERS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "THE GRAMMAR RANGERS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "#MODELING @ GAMESNET", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
 
 // Commodities -- food, drugs, you name it
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -270,6 +275,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "HOT POCKETS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MOUNTAIN DEW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "PEPSI", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "PHO", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "VARIOUS PIZZA PLACES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "WACOM TABLETS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
@@ -284,7 +290,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "WEB HOSTS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "TELEFRAGGED AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "FILEPLANET AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "ALL MIRRORS (TOO MANY TO LIST)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // Fan sites?
 
