@@ -1,17 +1,35 @@
 goto %1
+
 :cgame
 cd cgame
 call cgame
 cd..
 goto done
+
 :game
 cd game
 call game
 cd..
 goto done
+
 :ui
 cd ui
 call ui
+cd ..
+goto done
+
+:all
+cd cgame
+call cgame
+cd ..
+cd game
+call game
+cd ..
+cd ui
+call ui
+cd ..
+
+
 :done
 cd\
 cd quake3
