@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/04/29 06:13:31  niceass
+// small particle stuff
+//
 // Revision 1.7  2002/04/23 06:06:19  niceass
 // pressure particles
 //
@@ -2362,21 +2365,23 @@ void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float 
 
 	p->width = LARGESIZE*0.06f;
 	p->height = LARGESIZE*0.06f;
-	p->endheight = LARGESIZE*0.70;
-	p->endwidth = LARGESIZE*0.70;
+	p->endheight = LARGESIZE*0.70f;
+	p->endwidth = LARGESIZE*0.70f;
 	
 	p->rotate = qtrue;
 	p->roll = crandom()*179;
 
 	p->pshader = cgs.media.smokePuffShader;
 
+	//cgs.media.grenadeExplosionShader
+
 	p->type = P_SMOKE;
 	
 	VectorCopy(org, p->org);
 
-	p->vel[0] = vel[0];
-	p->vel[1] = vel[1];
-	p->vel[2] = vel[2];
+	p->vel[0] = vel[0]*speed;
+	p->vel[1] = vel[1]*speed;
+	p->vel[2] = vel[2]*speed;
 
 	p->accel[0] = 0;
 	p->accel[1] = 0;
