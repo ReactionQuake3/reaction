@@ -140,6 +140,8 @@ vmCvar_t	cg_teamOverlayUserinfo;
 //Blaze: reaction weapon positioning
 vmCvar_t	rxn_drawWeapon;
 vmCvar_t	rxn_glasstime;
+//Elder: muzzle flash toggle
+vmCvar_t	rxn_flash;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -292,6 +294,8 @@ cvarTable_t		cvarTable[] = {
 	//Blaze: Reaction hand type command
 	{ &rxn_drawWeapon, "rxn_drawWeapon", "2", CVAR_ARCHIVE },
 	{ &rxn_glasstime, "rxn_glasstime", "0", CVAR_ARCHIVE },
+	//Elder: added
+	{ &rxn_flash, "rxn_flash", "1", CVAR_ARCHIVE }
 
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
@@ -603,10 +607,13 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.useNothingSound = trap_S_RegisterSound( "sound/items/use_nothing.wav", qfalse );
 	cgs.media.gibSound = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
 	//Blaze: Reaction breakable glass
-	cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glasbk.wav", qfalse );
+	cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
+
+	//Elder: kick sound
+	cgs.media.kickSound = trap_S_RegisterSound( "sound/misc/kick.wav", qfalse);
 
 #ifdef MISSIONPACK
 	cgs.media.useInvulnerabilitySound = trap_S_RegisterSound( "sound/items/invul_activate.wav", qfalse );
@@ -935,7 +942,29 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.glass01 = trap_R_RegisterModel( "models/breakables/glass01.md3" );
  	cgs.media.glass02 = trap_R_RegisterModel( "models/breakables/glass02.md3" );
  	cgs.media.glass03 = trap_R_RegisterModel( "models/breakables/glass03.md3" );
-
+	
+	//Elder: additional debris
+	cgs.media.wood01 = trap_R_RegisterModel( "models/breakables/wood01.md3" );
+ 	cgs.media.wood02 = trap_R_RegisterModel( "models/breakables/wood02.md3" );
+ 	cgs.media.wood03 = trap_R_RegisterModel( "models/breakables/wood03.md3" );
+	
+	cgs.media.metal01 = trap_R_RegisterModel( "models/breakables/metal01.md3" );
+ 	cgs.media.metal02 = trap_R_RegisterModel( "models/breakables/metal02.md3" );
+ 	cgs.media.metal03 = trap_R_RegisterModel( "models/breakables/metal03.md3" );
+ 	
+ 	cgs.media.ceramic01 = trap_R_RegisterModel( "models/breakables/ceramic01.md3" );
+ 	cgs.media.ceramic02 = trap_R_RegisterModel( "models/breakables/ceramic02.md3" );
+ 	cgs.media.ceramic03 = trap_R_RegisterModel( "models/breakables/ceramic03.md3" );
+ 	
+ 	cgs.media.paper01 = trap_R_RegisterModel( "models/breakables/paper01.md3" );
+ 	cgs.media.paper02 = trap_R_RegisterModel( "models/breakables/paper02.md3" );
+ 	cgs.media.paper03 = trap_R_RegisterModel( "models/breakables/paper03.md3" );
+ 	
+	//Elder: akimbos - some of the stuff isn't in yet :p
+	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
+ 	cgs.media.akimboFlashModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_flash.md3" );
+ 	cgs.media.akimbo3rdModel = trap_R_RegisterModel( "models/weapons2/akimbo_3rd.md3" );
+	cgs.media.akimboHandModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_hand.md3" );
 
 	cgs.media.smoke2 = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
@@ -976,6 +1005,15 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip( "medal_assist" );
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip( "medal_capture" );
 
+	//Elder: added for sniper crosshairs
+    cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x" );
+    cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x" );
+    cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x" );
+
+	//Elder: other hud-related elements
+	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_health" );
+	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_healthwarning" );
+	
 
 	memset( cg_items, 0, sizeof( cg_items ) );
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );

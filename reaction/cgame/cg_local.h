@@ -75,6 +75,9 @@
 #define DEFAULT_REDTEAM_NAME		"Stroggs"
 #define DEFAULT_BLUETEAM_NAME		"Pagans"
 
+//Elder: Some ssg stuff
+#define ZOOM_LEVELS		3
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
@@ -363,6 +366,9 @@ typedef struct weaponInfo_s {
 	qhandle_t		weaponModel;
 	qhandle_t		barrelModel;
 	qhandle_t		flashModel;
+	//Elder: added third person model to weaponInfo structure
+	qhandle_t		thirdModel;
+	
 
 	vec3_t			weaponMidpoint;		// so it will rotate centered instead of by tag
 
@@ -504,7 +510,6 @@ typedef struct {
 	int			zoomLevel;				// Zoom LEVEL!
 	int			zoomTime;
 	float		zoomSensitivity;
-
 
 	// information screen text during loading
 	char		infoScreenText[MAX_STRING_CHARS];
@@ -683,7 +688,25 @@ typedef struct {
  	qhandle_t	glass01;  //Blaze: Breakable glass
   	qhandle_t	glass02;  //Blaze: Breakable glass
   	qhandle_t	glass03;  //Blaze: Breakable glass
-
+  	//Elder: additional debris
+  	qhandle_t	metal01;
+  	qhandle_t	metal02;
+  	qhandle_t	metal03;
+  	qhandle_t	wood01;
+  	qhandle_t	wood02;
+  	qhandle_t	wood03;
+  	qhandle_t	ceramic01;
+  	qhandle_t	ceramic02;
+  	qhandle_t	ceramic03;
+  	qhandle_t	paper01;
+  	qhandle_t	paper02;
+  	qhandle_t	paper03;
+	//Elder: akimbo stuff - since it's valid every game
+	qhandle_t	akimboModel;
+	qhandle_t	akimboFlashModel;
+	qhandle_t	akimbo3rdModel;
+	qhandle_t	akimboHandModel;
+	
 
 	qhandle_t	smoke2;
 
@@ -707,6 +730,13 @@ typedef struct {
 	qhandle_t	lagometerShader;
 	qhandle_t	backTileShader;
 	qhandle_t	noammoShader;
+
+	//Elder: sniper crosshairs
+	qhandle_t	ssgCrosshair[ZOOM_LEVELS];
+	
+	//Elder: RQ3 hud-related stuff
+	qhandle_t	rq3_healthicon;
+	qhandle_t	rq3_healthicon2;
 
 	qhandle_t	smokePuffShader;
 	qhandle_t	smokePuffRageProShader;
@@ -795,6 +825,7 @@ typedef struct {
 	qhandle_t	medalCapture;
 
 	// sounds
+	sfxHandle_t	kickSound;		//Elder: kick sound
 	sfxHandle_t	quadSound;
 	sfxHandle_t	tracerSound;
 	sfxHandle_t	selectSound;
@@ -1125,6 +1156,8 @@ extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		rxn_drawWeapon;
 //Blaze: how long the glass stays around for
 extern  vmCvar_t		rxn_glasstime;
+//Elder: muzzle flash toggle
+extern  vmCvar_t		rxn_flash;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
@@ -1319,8 +1352,9 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 // cg_weapons.c
 //
 void CG_NextWeapon_f( void );
-void CG_PrevWeapon_f( void );
+//Elder: added?
 void CG_Weapon_f( void );
+void CG_PrevWeapon_f( void );
 
 void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
@@ -1336,6 +1370,7 @@ void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team );
 void CG_DrawWeaponSelect( void );
+void CG_RXN_Zoom( void );			//Elder: just threw it in
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 
@@ -1384,7 +1419,7 @@ void CG_ScorePlum( int client, vec3_t org, int score );
 
 void CG_GibPlayer( vec3_t playerOrigin );
 void CG_BigExplode( vec3_t playerOrigin );
-void CG_BreakGlass( vec3_t playerOrigin );// Blaze: Breakable glass
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm );// Blaze: Breakable glass Elder: modified
 void CG_Bleed( vec3_t origin, int entityNum );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,

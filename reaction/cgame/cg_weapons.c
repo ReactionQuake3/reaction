@@ -511,8 +511,20 @@ void CG_RegisterWeapon( int weaponNum ) {
 	strcat( path, "_hand.md3" );
 	weaponInfo->handsModel = trap_R_RegisterModel( path );
 
+	//Elder: added to cache 3rd-person models (hopefully)
+	strcpy( path, item->world_model[0] );
+	COM_StripExtension( path, path );
+	strcat( path, "_3rd.md3" );
+	weaponInfo->thirdModel = trap_R_RegisterModel( path );
+
 	if ( !weaponInfo->handsModel ) {
-		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
+		//Elder: WTF!?
+		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/m3/m3_hand.md3" );
+	}
+	
+	//Elder: if no _3rd model, point to the weaponModel... this may get funky :)
+	if ( !weaponInfo->thirdModel ) {
+		weaponInfo->thirdModel = weaponInfo->weaponModel;
 	}
 
 	weaponInfo->loopFireSound = qfalse;
@@ -662,8 +674,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
-	case WP_KNIFE:
 		
+	case WP_KNIFE:
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/slash.wav", qfalse );
 		weaponInfo->missileModel = trap_R_RegisterModel("models/weapons2/knife/knife.md3");
 		//weaponInfo->missileTrailFunc = CG_GrenadeTrail;
@@ -672,40 +684,57 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
 		break;
+		
 	case WP_M4:
+		//Elder: added
+		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
+		
 	case WP_SSG3000:
+		//Elder: added
+		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
+		
 	case WP_MP5:
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5fire1.wav", qfalse );
+		//Elder: added
+		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
+		
 	case WP_HANDCANNON:
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/cannon_fire.wav", qfalse );
+		//Elder: added
+		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
+		//Elder: changed to hcfire from cannon_fire
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
+		
 	case WP_M3:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/shotgun/sshotf1b.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		break;
 		
 	case WP_AKIMBO:
+		//Elder: added
+		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0.5f );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
+		
 	case WP_GRENADE:
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/3rd_grenade.md3" );
+		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/grenade_3rd.md3" );
 		weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
@@ -1067,8 +1096,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//}
 	if (ps == NULL)
 	{
-		switch (weaponNum)//Blaze: Used to make the third person weapon models different then 1st person
-		{
+		//Elder: We are in third person, use the third-person model
+		gun.hModel = weapon->thirdModel;
+		
+			/* Elder: use the cached model above
+			switch (weaponNum)//Blaze: Used to make the third person weapon models different then 1st person
+			{
 			case 0:
 				//gun.hModel = trap_R_RegisterModel( "models/weapons2/mk23/3rd_mk23.md3" );
 				//No Case zero
@@ -1100,11 +1133,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			case 9:
 				gun.hModel = trap_R_RegisterModel("models/weapons2/grenade/3rd_grenade.md3");
 				break;
-		}
-	
+			}
+			*/
 	}
-	else
-	{
+	else {
+		//Elder: we are in first-person, use the first-person (default) model
 		gun.hModel = weapon->weaponModel;
 	}
 	
@@ -1137,6 +1170,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		frac = 1.0;
 	}
 	*/
+		//Elder: shouldn't have to do this anymore
+		/*
 		if (weaponNum == 4)//Blaze: Scale the Sniper Rifle down a bit
 		{
 			frac = 0.8f;
@@ -1144,6 +1179,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			//VectorScale(parent->axis[1], frac, parent->axis[1]);
 			//VectorScale(parent->axis[2], frac, parent->axis[2]);
 		}
+		*/
 		
 	}	
 	CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
@@ -1195,15 +1231,37 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 	*/
 
+	//Elder: added to supress burst mode flashes + sounds when 'predicting'
+	// M4
+	if ( ps->weapon == WP_M4 && ps->stats[STAT_BURST] > 2 ) {
+		return;
+	}
+	// MP5
+	if ( ps->weapon == WP_MP5 && ps->stats[STAT_BURST] > 2 ) {
+		return;
+	}
+	// MK23
+	if ( ps->weapon == WP_PISTOL && ps->stats[STAT_BURST] > 0 ) {
+		return;
+	}
+
+	//Elder: re-added to fix loss of muzzle flashes!
+	// impulse flash
+	if ( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash ) {
+		return;
+	}
+
 	memset( &flash, 0, sizeof( flash ) );
+	
 	VectorCopy( parent->lightingOrigin, flash.lightingOrigin );
 	flash.shadowPlane = parent->shadowPlane;
 	flash.renderfx = parent->renderfx;
-
+	
 	flash.hModel = weapon->flashModel;
 	if (!flash.hModel) {
 		return;
 	}
+	
 	angles[YAW] = 0;
 	angles[PITCH] = 0;
 	angles[ROLL] = crandom() * 10;
@@ -1222,9 +1280,33 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 	*/
 	//Blaze: No flash
-	//CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
-	//trap_R_AddRefEntityToScene( &flash );
-
+	//Elder: Yes flash - try this
+	
+	//Elder: add conditional here so the dlight is still drawn when rxn_flash is 0
+	if ( rxn_flash.integer ) {
+		if (ps) {
+			//Elder: draw flash based on first-person view
+			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+		}
+		else {
+			//Elder: draw flash based on 3rd-person view
+			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->thirdModel, "tag_flash");
+		}
+		
+		trap_R_AddRefEntityToScene( &flash );
+	}
+	else {
+		//Elder: crappy way to get the dlight working w/o the flash model
+		if ( ps || cg.renderingThirdPerson ||
+			cent->currentState.number != cg.predictedPlayerState.clientNum ) {
+			if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
+				trap_R_AddLightToScene( gun.origin, 300 + (rand()&31), weapon->flashDlightColor[0],
+					weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
+			}
+		}
+		return;
+	}
+	
 	if ( ps || cg.renderingThirdPerson ||
 		cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		// add lightning bolt
@@ -1355,15 +1437,16 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	// set up gun position
 	CG_CalculateWeaponPosition( hand.origin, angles );
 //Blaze start: reaction gun positioning
-	VectorMA( hand.origin, rxn_gunx, cg.refdef.viewaxis[0], hand.origin );
-	VectorMA( hand.origin, rxn_guny, cg.refdef.viewaxis[1], hand.origin );
-	VectorMA( hand.origin, (rxn_gunz + fovOffset), cg.refdef.viewaxis[2], hand.origin );
+//	VectorMA( hand.origin, rxn_gunx, cg.refdef.viewaxis[0], hand.origin );
+//	VectorMA( hand.origin, rxn_guny, cg.refdef.viewaxis[1], hand.origin );
+//	VectorMA( hand.origin, (rxn_gunz + fovOffset), cg.refdef.viewaxis[2], hand.origin );
 //Blaze end:
 
 //Blaze: Use above code instead
-//	VectorMA( hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin );
-//	VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin );
-//	VectorMA( hand.origin, (cg_gun_z.value+fovOffset), cg.refdef.viewaxis[2], hand.origin );
+//Elder: reused so Cloud can adjust the models manually
+	VectorMA( hand.origin, cg_gun_x.value, cg.refdef.viewaxis[0], hand.origin );
+	VectorMA( hand.origin, cg_gun_y.value, cg.refdef.viewaxis[1], hand.origin );
+	VectorMA( hand.origin, (cg_gun_z.value+fovOffset), cg.refdef.viewaxis[2], hand.origin );
 
 	AnglesToAxis( angles, hand.axis );
 
@@ -1504,6 +1587,10 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
+	//Elder: added
+	cg.zoomed = qfalse;
+	cg.zoomLevel = 0;
+
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
@@ -1541,6 +1628,10 @@ void CG_PrevWeapon_f( void ) {
 		return;
 	}
 
+	//Elder: added
+	cg.zoomed = qfalse;
+	cg.zoomLevel = 0;
+
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
@@ -1563,9 +1654,24 @@ void CG_PrevWeapon_f( void ) {
 }
 
 // Hawkins (weapon command)
-void CG_rxn_zoom(int n){
+// Elder: Don't call it the weapon command heh :)
+//void CG_RXN_Zoom(int n){
+void CG_RXN_Zoom( void ) {
+	//Elder: reworked SSG zoom
 	if(cg.snap->ps.weapon==WP_SSG3000) {
-		cg.zoomLevel=n;
+		cg.zoomLevel++;
+		if (cg.zoomLevel == 4) {
+			cg.zoomed = qfalse;
+			cg.zoomLevel = 0;
+			CG_Printf("Zoomed out\n");
+		}
+		else {
+			cg.zoomed = qtrue;
+			CG_Printf("Zoomed to %dx\n", cg.zoomLevel * 2);	
+		}
+		cg.zoomTime = cg.time;
+	}
+/*
 		if ( n == 0 ) {
 			cg.zoomLevel=0;
 			cg.zoomed=qfalse;
@@ -1577,43 +1683,51 @@ void CG_rxn_zoom(int n){
 			cg.zoomTime = cg.time;
 			CG_Printf("Zoomed to %dx\n",2*n);
 		}
-		cg.zoomTime = cg.time;
+		
 	} 
-	
+*/
 //	trap_SendClientCommand ("weapon");
 	
 }
 
+//Elder: unused function
+/*
 void rxn_zoom1x(void) {
 	cg.zoomLevel=0;
 	cg.zoomed=qfalse;
 	cg.zoomTime = cg.time;
 }
-
-
+*/
 
 
 /*
 ===============
 CG_Weapon_f
+
+Elder: does local stuff, then proceeds to server
+Used with Q3's internal weapon switching "e.g. weapon 10"
 ===============
 */
 void CG_Weapon_f( void ) {
-	int		num;
-
-	// Hawkins (give 'weapon' dual meaning.)
-	if(trap_Argc()==1){
-		trap_SendClientCommand("weapon");		// hawkins use events
-/*		rxn_weapon();
-		return;
-*/
-	}
-
+	int num;
+	
 	if ( !cg.snap ) {
 		return;
 	}
+
+	///Elder: spectator?
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
+	}
+
+	// Hawkins (give 'weapon' dual meaning)
+	if ( trap_Argc() == 1 ) {
+	//Elder: if SSG, use local zooming THEN forward to server for stats
+		if (cg.snap->ps.weapon == WP_SSG3000) {
+			CG_RXN_Zoom();
+			}
+
+	trap_SendClientCommand("weapon");
 	}
 
 	num = atoi( CG_Argv( 1 ) );
@@ -1621,21 +1735,27 @@ void CG_Weapon_f( void ) {
 	if ( num < 1 || num > 15 ) {
 		return;
 	}
+
+	//Elder: this point on is the regular Q3 weapon function - weird
 	
 	cg.weaponSelectTime = cg.time;
 
 	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) ) {
 		return;		// don't have the weapon
 	}
-/*
-	// unzoom when switching weapon
-	rxn_zoom1x();
+
+	//Elder: If re-selecting SSG - leave function
+	if ( (1 << num) == (1 << WP_SSG3000) && cg.snap->ps.weapon == WP_SSG3000) {
+		//CG_Printf("Selecting SSG\n");
+		return;
+	}
+	
+	cg.zoomed = qfalse;
+	cg.zoomLevel = 0;
+	
 	trap_SendClientCommand("unzoom");
-*/
 	cg.weaponSelect = num;
 }
-
-
 
 
 /*
@@ -1648,14 +1768,20 @@ The current weapon has just run out of ammo
 void CG_OutOfAmmoChange( void ) {
 	int		i;
 
+	/* Elder: disable auto-switch
 	cg.weaponSelectTime = cg.time;
 
+	//Elder: we'll have to change this to
+	//a) show the empty gun animation if gun's ammo = 0
+	//b) NOT auto-switch to another weapon
+	
 	for ( i = 15 ; i > 0 ; i-- ) {
 		if ( CG_WeaponSelectable( i ) ) {
 			cg.weaponSelect = i;
 			break;
 		}
 	}
+	*/
 }
 
 
@@ -1688,12 +1814,13 @@ void CG_FireWeapon( centity_t *cent ) {
 		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
+	
 	weap = &cg_weapons[ ent->weapon ];
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
 	cent->muzzleFlashTime = cg.time;
-
+	
 	// lightning gun only does this this on initial press
 	//Blaze: no more Lighting gun
 	/*
@@ -1993,7 +2120,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, im
 		light = 300;
 		isSprite = qtrue;
 		break;
-*/
+		*/
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
 		mark = cgs.media.bulletMarkShader;

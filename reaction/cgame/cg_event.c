@@ -757,7 +757,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_NOAMMO:
 		DEBUGNAME("EV_NOAMMO");
-//		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
+//Elder: uncommented
+		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
 		if ( es->number == cg.snap->ps.clientNum ) {
 			CG_OutOfAmmoChange();
 		}
@@ -765,7 +766,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_CHANGE_WEAPON:
 		DEBUGNAME("EV_CHANGE_WEAPON");
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );
-		CG_rxn_zoom(0);
+		//Elder: removed
+		//CG_rxn_zoom(0);
 		break;
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");
@@ -773,11 +775,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 
 	// Reaction Zoom
+	/*
 	case EV_ZOOM:
 		DEBUGNAME("EV_ZOOM");
 		CG_rxn_zoom(es->eventParm);
 		break;
-
+	*/
 	case EV_USE_ITEM0:
 		DEBUGNAME("EV_USE_ITEM0");
 		CG_UseItem( cent );
@@ -996,6 +999,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
+	
+	case EV_RQ3_SOUND:
+		DEBUGNAME("EV_RQ3_SOUND");
+		//CG_Printf("EV_RQ3_SOUND\n");
+		if (es->eventParm == 0) {
+			//CG_Printf("EV_RQ3_SOUND: Kick\n");
+			trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.kickSound);
+		}
+		break;
+
 	case EV_GLOBAL_TEAM_SOUND:	// play from the player's head so it never diminishes
 		{
 			DEBUGNAME("EV_GLOBAL_TEAM_SOUND");
@@ -1177,8 +1190,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
  		DEBUGNAME("EV_BREAK_GLASS");
  		// Change cgs.media.gibSound to whatever sound you want it to use
  		// I think the gib sound sounds pretty good
+ 		//Elder: gonna move this into the function
  		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
- 		CG_BreakGlass( cent->lerpOrigin );
+ 		//Elder: modified
+ 		CG_BreakGlass( cent->lerpOrigin, es->eventParm );
  		break;
 	case EV_STOPLOOPINGSOUND:
 		DEBUGNAME("EV_STOPLOOPINGSOUND");

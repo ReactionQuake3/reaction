@@ -24,7 +24,81 @@ void CG_TargetCommand_f( void ) {
 	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
+/*
+=================
+CG_DropWeapon_f
 
+Elder: reset local zoom, then proceed with server action
+=================
+*/
+static void CG_DropWeapon_f (void) {
+	if ( !cg.snap ) {
+		return;
+	}
+
+	///Elder: spectator?
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		return;
+	}
+	
+	cg.zoomed = 0;
+	cg.zoomLevel = 0;
+	trap_SendClientCommand("dropweapon");
+}
+
+/*
+=================
+CG_Bandage_f
+
+Elder: reset local zoom, then proceed with server action
+=================
+*/
+static void CG_Bandage_f (void) {
+	if ( !cg.snap ) {
+		return;
+	}
+
+	///Elder: spectator?
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		return;
+	}
+	
+	if (cg.snap->ps.stats[STAT_BANDAGE]) {
+		cg.zoomed = 0;
+		cg.zoomLevel = 0;
+	}
+	trap_SendClientCommand("bandage");
+}
+
+/*
+=================
+CG_Reload_f
+
+Elder: reset local zoom, then proceed with server action
+=================
+*/
+static void CG_Reload_f (void) {
+	centity_t	*cent;
+	cent = &cg_entities[cg.snap->ps.clientNum];
+	
+	if ( !cg.snap ) {
+		return;
+	}
+
+	///Elder: spectator?
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		return;
+	}
+	
+	//Elder: no clips, or full chamber means no reload
+	//CG_Printf("currentState.weapon: %d, clipamount: %d\n", cent->currentState.weapon, ClipAmountForAmmo(cent->currentState.weapon));
+	if (cg.snap->ps.stats[STAT_CLIPS] &&
+		cg.snap->ps.ammo[cent->currentState.weapon] < ClipAmountForAmmo(cent->currentState.weapon) ) {
+		cg.zoomed = 0;
+		cg.zoomLevel = 0;
+	}
+	trap_SendClientCommand("reload");
+}
 
 /*
 =================
@@ -427,7 +501,10 @@ static consoleCommand_t	commands[] = {
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
-	{ "weapon", CG_Weapon_f },
+	{ "weapon", CG_Weapon_f },				// Elder: it's for AQ2 and Q3!?
+	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
+	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
+	{ "reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
@@ -460,9 +537,8 @@ static consoleCommand_t	commands[] = {
 	{ "scoresUp", CG_scrollScoresUp_f },
 #endif
 	{ "startOrbit", CG_StartOrbit_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers }
+	{ "loaddeferred", CG_LoadDeferredPlayers },
 };
-
 
 /*
 =================
@@ -539,4 +615,8 @@ void CG_InitConsoleCommands( void ) {
  	trap_AddCommand ("opendoor");
  	trap_AddCommand ("bandage");
 	trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd
+	//Elder: added to give drop weapon auto-complete
+	trap_AddCommand ("dropweapon");
+	//Elder: try this
+	trap_AddCommand ("weapon");
 }

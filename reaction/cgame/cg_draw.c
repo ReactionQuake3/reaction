@@ -495,19 +495,86 @@ CG_DrawStatusBar
 
 ================
 */
-#ifndef MISSIONPACK
+//#ifndef MISSIONPACK
 static void CG_DrawStatusBar( void ) {
 	int			color;
+	int			style;
 	centity_t	*cent;
 	playerState_t	*ps;
-	int			value;
+	int			value, value2;
 	vec4_t		hcolor;
 	vec3_t		angles;
 	vec3_t		origin;
+	qhandle_t	hicon;
 	qhandle_t	icon;
-#ifdef MISSIONPACK
-	qhandle_t	handle;
-#endif
+//#ifdef MISSIONPACK
+//	qhandle_t	handle;
+//#endif
+	
+	static float colors [4][4] = {
+		{ 0.0f, 1.0f, 0.0f, 1.0f } ,		//full green
+		{ 0.8f, 0.0f, 0.0f, 0.7f } ,		//
+		{ 0.6f, 0.0f, 0.0f, 0.7f } ,		//
+		{ 0.4f, 0.0f, 0.0f, 0.7f } };		//
+	
+	
+	cent = &cg_entities[cg.snap->ps.clientNum];
+	ps = &cg.snap->ps;
+	
+	//Draw health
+	value = ps->stats[STAT_HEALTH];
+	style = UI_LEFT|UI_DROPSHADOW;
+	
+	if (value <= 25)
+		style |= UI_PULSE;
+	
+	//Elder: Need bandaging?
+	if (ps->stats[STAT_BANDAGE])
+		hicon = cgs.media.rq3_healthicon2;
+	else
+		hicon = cgs.media.rq3_healthicon;
+	
+	//Elder: dynamic health color ramps
+	//Blends from green to yellow to red algebraically
+	//100 - Green, 50 - Yellow, 25 - Red, 0 - Faded Red
+	//Note: These formulas are clamped from 0.0 to 1.0 algebraically
+	hcolor[0] = (value > 50) * (-0.02 * value + 2.0) + (value <= 50) * 1 ;
+	hcolor[1] = (value > 25 && value <= 50) * (0.04 * value - 1.0) + (value > 50) * 1;
+	hcolor[2] = 0;
+	hcolor[3] = (value <= 25) * (0.01 * value + 0.75) + (value > 25) * 1;
+	
+	/* Elder: Old clamp routine for reference
+	for (i = 0; i < 4; i++) {
+		if (hcolor[i] > 1.0) {
+			CG_Printf ("Over one on %i\n",i);
+			hcolor[i] = 1.0;
+		}
+		else if (hcolor[i] < 0.0) {
+			CG_Printf ("Below zero on %i\n",i);
+			hcolor[i] = 0.0;
+			}
+	}*/
+
+	CG_DrawPic(8, 440, 32, 32, hicon);
+	UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
+	
+	
+	//Elder: Draw weapon ammo and clips
+	style = UI_LEFT|UI_DROPSHADOW;
+	icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
+	if (icon)
+		CG_DrawPic(152, 440, 32, 32, icon);
+	
+	if ( cent->currentState.weapon ) {
+		value = ps->ammo[cent->currentState.weapon];
+		value2 = ps->stats[STAT_CLIPS];
+		if ( value > -1 ) {
+			UI_DrawProportionalString(188, 444, va("%d / %d", value, value2), style, colors[0]);
+		}
+	}
+}
+
+/* Elder: old stuff
 	static float colors[4][4] = { 
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
 		{ 1.0f, 0.69f, 0.0f, 1.0f } ,		// normal
@@ -685,7 +752,9 @@ static void CG_DrawStatusBar( void ) {
 	}
 #endif
 }
-#endif
+*/
+//#endif
+
 
 /*
 ===========================================================================================
@@ -1915,6 +1984,7 @@ static void CG_DrawCrosshair(void) {
 	float		f;
 	float		x, y;
 	int			ca;
+	char		*ssg_crosshair;
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -1948,16 +2018,28 @@ static void CG_DrawCrosshair(void) {
 		h *= ( 1 + f );
 	}
 
-	x = cg_crosshairX.integer;
-	y = cg_crosshairY.integer;
-	CG_AdjustFrom640( &x, &y, &w, &h );
 
-	ca = cg_drawCrosshair.integer;
-	if (ca < 0) {
-		ca = 0;
+	//Elder: Sniper crosshairs - lots of hardcoded values :/
+ 	if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
+		x = 640 / 2;
+		y = 480 / 2;
+ 		//I can probably scale the zoom with the screen width -/+ keys
+ 		//But I'll do it later.
+ 		CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[cg.zoomLevel - 1]);
+ 		return;
 	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	else {
+		x = cg_crosshairX.integer;
+		y = cg_crosshairY.integer;
+		CG_AdjustFrom640( &x, &y, &w, &h );
 
+		ca = cg_drawCrosshair.integer;
+		if (ca < 0) {
+			ca = 0;
+		}
+		hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	}
+	
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
 		w, h, 0, 0, 1, 1, hShader );
@@ -2277,7 +2359,8 @@ static void CG_DrawAmmoWarning( void ) {
 		s = "LOW AMMO WARNING";
 	}
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
+	//Elder: commented out for now
+	//CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }
 
 

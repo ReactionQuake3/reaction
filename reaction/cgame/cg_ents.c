@@ -274,7 +274,8 @@ static void CG_Item( centity_t *cent ) {
 			wi->weaponMidpoint[1] * ent.axis[1][2] +
 			wi->weaponMidpoint[2] * ent.axis[2][2];
 	//Blaze: Dont raise the weapon, but lower it
-		cent->lerpOrigin[2] -= 8;
+	//Elder: increased value
+		cent->lerpOrigin[2] -= 14;
 	//	cent->lerpOrigin[2] += 8;	// an extra height boost
     // Blaze: rotate the gun by 90 degrees to place it on the ground
         VectorCopy(ent.axis[1], myvec);

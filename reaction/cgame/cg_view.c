@@ -527,6 +527,10 @@ static int CG_CalcFov( void ) {
 			}
 		}
 	}
+	else {
+		//Elder: safety check
+		cg.zoomLevel = 0;
+	}
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
 	fov_y = atan2( cg.refdef.height, x );

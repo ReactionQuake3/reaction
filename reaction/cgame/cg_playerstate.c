@@ -182,6 +182,10 @@ void CG_Respawn( void ) {
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
+	
+	//Elder: added to reset zoom stuff LOCALLY
+	cg.zoomed = qfalse;
+	cg.zoomLevel = 0;
 }
 
 extern char *eventnames[];

@@ -697,6 +697,7 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   CG_LaunchGlass
   ==================
   */
+  //Elder: might want to rotate the model randomly or do it in break glass
   void CG_LaunchGlass( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
   	localEntity_t	*le;
   	refEntity_t		*re;
@@ -734,38 +735,87 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   */
   #define	GLASS_VELOCITY	175
   #define	GLASS_JUMP		125
-  void CG_BreakGlass( vec3_t playerOrigin ) {
+void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
   	vec3_t	origin, velocity;
-      int     value;
-  	// How many shards to generate
-  	int     count = 50;
-  	// The array of possible numbers
-  	int     states[] = {1,2,3};
+    int     value;
+  	int     count = 40;					// How many shards to generate
+  	int     states[] = {1,2,3};			// The array of possible numbers
   	// Get the size of the array
-      int     numstates = sizeof(states)/sizeof(states[0]);
+    int     numstates = sizeof(states)/sizeof(states[0]);
+    // Elder: The handles to our debris models
+    qhandle_t	debris1, debris2, debris3;
   
-  	// Countdown "count" so this will subtract 1 from the "count"
-  	// X many times. X being the "count" value
-  	while ( count-- ) {
-  	// Generate the random number every count so every shard is a
-  	// of the three. If this is placed above it only gets a random
-  	// number every time a piece of glass is broken.
-  	value = states[rand()%numstates];
-  	VectorCopy( playerOrigin, origin );
-  	velocity[0] = crandom()*GLASS_VELOCITY;
-  	velocity[1] = crandom()*GLASS_VELOCITY;
-  	velocity[2] = GLASS_JUMP + crandom()*GLASS_VELOCITY;
-  	switch (value) {
-  	case 1:
-  	// If our random number was 1, generate the 1st shard piece
-      CG_LaunchGlass( origin, velocity, cgs.media.glass01 );
-      break;
-  	case 2:
-  	CG_LaunchGlass( origin, velocity, cgs.media.glass02 );
-      break;
-  	case 3:
-  	CG_LaunchGlass( origin, velocity, cgs.media.glass03 );
-  	break;
+  	//Elder: check bit amount
+  	if ( (glassParm & RQ3_DEBRIS_SMALL) == RQ3_DEBRIS_SMALL) {
+  		count = 8 + rand() % 5;
   	}
+  	//else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM) {
+  	else if ( (glassParm & RQ3_DEBRIS_LARGE) == RQ3_DEBRIS_LARGE) {
+  		count = 40 + rand() % 15;
+  	}
+  	else if ( (glassParm & RQ3_DEBRIS_TONS) == RQ3_DEBRIS_TONS) {
+  		count = 65 + rand() % 25;
+  	}
+  	else {
+  		//medium is default
+  		count = 22 + rand() % 7;
+	}
+
+	//Elder: check debris type and assign debris models  	
+	//Using bit-op check b/c I will be stuffing the amount in there too
+	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD) {
+  		CG_Printf("Launching wood\n");
+  		debris1 = cgs.media.wood01;
+  		debris2 = cgs.media.wood02;
+  		debris3 = cgs.media.wood03;
+  	}
+  	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL) {
+  		CG_Printf("Launching metal\n");
+  		debris1 = cgs.media.metal01;
+  		debris2 = cgs.media.metal02;
+  		debris3 = cgs.media.metal03;
+  	}
+  	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC) { 
+  		CG_Printf("Launching ceramic\n");
+  		debris1 = cgs.media.ceramic01;
+  		debris2 = cgs.media.ceramic02;
+  		debris3 = cgs.media.ceramic03;
+  	}
+  	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER) { 
+  		CG_Printf("Launching paper\n");
+  		debris1 = cgs.media.paper01;
+  		debris2 = cgs.media.paper02;
+  		debris3 = cgs.media.paper03;
+  	}
+  	else {
+  		//glass is default
+  		CG_Printf("Launching glass\n");
+  		debris1 = cgs.media.glass01;
+  		debris2 = cgs.media.glass02;
+  		debris3 = cgs.media.glass03;
+  	}
+  	
+  	while ( count-- ) {
+      	// Generate the random number every count so every shard is a
+      	// of the three. If this is placed above it only gets a random
+      	// number every time a piece of glass is broken.
+      	value = states[rand()%numstates];
+      	VectorCopy( playerOrigin, origin );
+      	velocity[0] = crandom()*GLASS_VELOCITY;
+      	velocity[1] = crandom()*GLASS_VELOCITY;
+      	velocity[2] = GLASS_JUMP + crandom()*GLASS_VELOCITY;
+      	  	
+      	switch (value) {
+      	case 1:
+      		// If our random number was 1, generate the 1st shard piece
+          	CG_LaunchGlass( origin, velocity, debris1 );
+          	break;
+      	case 2:
+      		CG_LaunchGlass( origin, velocity, debris2 );
+          	break;
+      	case 3:
+      		CG_LaunchGlass( origin, velocity, debris3 );
+      		break;
+      	}
   	}
 }
