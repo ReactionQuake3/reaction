@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/02/10 16:26:55  jbravo
+// Attempting to intergrate zcam better into rq3 and a fix for lights.wav
+//
 // Revision 1.35  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -2215,7 +2218,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 // JBravo: LCA soundevents.
 			case RQ3_SOUND_LIGHTS:
 				if ( es->number == cg.snap->ps.clientNum )
-					CG_AddBufferedSound(cgs.media.lightsSound);
+//					CG_AddBufferedSound(cgs.media.lightsSound);
+					trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.lightsSound);
+//					trap_S_StartLocalSound( cgs.media.lightsSound, CHAN_ANNOUNCER );
 				break;
 			case RQ3_SOUND_CAMERA:
 				if ( es->number == cg.snap->ps.clientNum )

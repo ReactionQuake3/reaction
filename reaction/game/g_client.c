@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/02/10 16:26:55  jbravo
+// Attempting to intergrate zcam better into rq3 and a fix for lights.wav
+//
 // Revision 1.35  2002/02/07 23:01:07  slicer
 // Small fix..
 //
@@ -1180,6 +1183,10 @@ void ClientBegin( int clientNum ) {
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
 	if ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
+		client->sess.spectatorState = SPECTATOR_FREE;
+#ifdef __ZCAM__
+		client->camera->mode = CAMERA_MODE_FLIC;
+#endif
 	}
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
