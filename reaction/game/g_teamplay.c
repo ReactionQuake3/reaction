@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/02/25 19:51:26  jbravo
+// Fixed a bug that made it impossible to pick up special weapons when player
+// had selected akimbos or knives
+//
 // Revision 1.20  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -613,6 +617,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
 		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_MP5:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MP5 );
@@ -620,6 +626,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M3:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M3 );
@@ -627,6 +635,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M4:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M4 );
@@ -634,6 +644,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_AKIMBO:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_AKIMBO );
@@ -641,6 +653,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 0;
 		break;
 	case WP_HANDCANNON:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_HANDCANNON );
@@ -648,18 +662,20 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_KNIFE:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
+		ent->client->weaponCount[ent->client->ps.weapon] = 1;
+		ent->client->uniqueWeapons = 0;
 		break;
 	default:
 		break;
 	}
-	ent->client->weaponCount[ent->client->ps.weapon] = 1;
-	ent->client->uniqueWeapons = 1;
 
 	if (grenades > 0) {
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE );
