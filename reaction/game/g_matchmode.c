@@ -5,6 +5,17 @@ int ClientNumberFromString(gentity_t *to, char *s);
 int refVotes[2]; // refVotes[0] is the clientnumber red team voted 
 				//	refVotes[1] is the clientnumber blue team voted 
 
+void SendEndMessage() {
+
+	int mins, secs;
+
+	mins = (int)floor(level.matchTime  / 60.0f);
+	secs = level.matchTime - (mins * 60);		
+
+	trap_SendServerCommand( -1, "cp \"Match is Over!\n\"");
+	trap_SendServerCommand( -1, va("print \"Scores: Team1 [%d]  -  Team2 [%d]  \n\"",level.teamScores[TEAM_RED],level.teamScores[TEAM_BLUE]));
+	trap_SendServerCommand( -1, va("print \"Total Match Time: %d:%02d \n\"",mins,secs));
+}
 gentity_t* getEntByName ( char *name ){
 	gentity_t *ent;
 	int i;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/06/08 10:51:42  slicer
+// Added a better end message for MM matches
+//
 // Revision 1.103  2002/06/07 19:07:08  slicer
 // removed cvars for teamXready, replaced by level.teamXready
 //
@@ -711,13 +714,13 @@ int WonGame(int winner)
 		//Slicer : Matchmode
 		if (g_RQ3_matchmode.integer) {
 			if (level.matchTime >= g_timelimit.integer * 60) {
+			SendEndMessage();
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
 			trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.team1ready = qfalse;
 			level.team2ready = qfalse;
 			MakeAllLivePlayersObservers ();
-			trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 			return 1;
 			}
 		}
@@ -737,13 +740,13 @@ int WonGame(int winner)
 		if (level.teamScores[TEAM_RED] >= g_RQ3_roundlimit.integer || level.teamScores[TEAM_BLUE] >= g_RQ3_roundlimit.integer) {
 				//Slicer : Matchmode
 			if (g_RQ3_matchmode.integer) {
+				SendEndMessage();
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
 				trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				level.team1ready = qfalse;
 				level.team2ready = qfalse;
 				MakeAllLivePlayersObservers ();
-				trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 				return 1;
 			} else {
 				//Slicer: Adding a normal console print..
