@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/05/27 06:54:06  niceass
+// new reflection code
+//
 // Revision 1.61  2002/05/25 10:40:31  makro
 // Loading screen
 //
@@ -561,7 +564,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			//} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
 		} else if (IsMetalMat(Material)) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
-			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.eventParm = ReflectVectorByte( forward, tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
 			//} else if ( tr.surfaceFlags & SURF_GLASS) {
 		} else if ( Material == MAT_GLASS ) {
@@ -1753,7 +1756,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 				else
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
-				tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
+				tent[unlinked]->s.eventParm = ReflectVectorByte( forward, trace.plane.normal );
 				tent[unlinked]->s.otherEntityNum = ent->s.number;
 			}
 
@@ -1833,7 +1836,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		else
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
-		tentWall->s.eventParm = DirToByte( trace.plane.normal );
+		tentWall->s.eventParm = ReflectVectorByte( forward, trace.plane.normal );
 		tentWall->s.otherEntityNum = ent->s.number;
 
 		if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
@@ -2496,8 +2499,7 @@ void G_StartKamikaze( gentity_t *ent ) {
 	if (ent->client) {
 		//
 		explosion->activator = ent;
-		//
-		ent->s.eFlags &= ~EF_KAMIKAZE;
+
 		// nuke the guy that used it
 		G_Damage( ent, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_KAMIKAZE );
 	}
