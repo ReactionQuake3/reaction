@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/12 14:01:00  makro
+// Added FEEDER_INGAME_SERVERINFO
+//
 // Revision 1.4  2002/03/03 21:22:58  makro
 // no message
 //
@@ -81,6 +84,8 @@
 #define FEEDER_SERVERSTATUS					0x0d			// server status
 #define FEEDER_FINDPLAYER					0x0e			// find player
 #define FEEDER_CINEMATICS					0x0f			// cinematics
+//Makro - improved in-game server info screen
+#define FEEDER_INGAME_SERVERINFO			0x10
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
