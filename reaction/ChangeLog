@@ -57,3 +57,6 @@
 * Pressures are killed on LCA
 * Matchmode ping determination added to scoreboard
 * Player total and sub total added to the scoreboard
+* Bug with pistol clips for akimbo/pistol in TP fixed.
+* Drop weapon for akimbos now behaves like in AQ
+* No using the kill command during LCA
