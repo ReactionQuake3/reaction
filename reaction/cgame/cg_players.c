@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/01 04:20:09  niceass
+// knife throw active animation bug fixed
+//
 // Revision 1.28  2002/05/27 07:01:02  niceass
 // headless code
 //
@@ -1192,7 +1195,7 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 	}
 
 	// Elder: selecting the right weapon animation
-	if (newAnimation == WP_ANIM_ACTIVATE)
+	if (newAnimation == WP_ANIM_ACTIVATE || newAnimation == WP_ANIM_THROWACTIVATE)
 		anim = &cg_weapons[cg.weaponSelect].animations[ newAnimation ];
 	else
 		anim = &cg_weapons[cg.snap->ps.weapon].animations[ newAnimation ];
