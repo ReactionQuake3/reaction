@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.50  2002/03/11 02:25:38  niceass
 // client gravity fix/tag shell ejection
 //
@@ -1233,6 +1236,59 @@ typedef struct {
 	sfxHandle_t	cameraSound;
 	sfxHandle_t	actionSound;
 	sfxHandle_t	lca10_0Sound;
+// JBravo: Radio sounds
+	sfxHandle_t	male_1sound;
+	sfxHandle_t	male_2sound;
+	sfxHandle_t	male_3sound;
+	sfxHandle_t	male_4sound;
+	sfxHandle_t	male_5sound;
+	sfxHandle_t	male_6sound;
+	sfxHandle_t	male_7sound;
+	sfxHandle_t	male_8sound;
+	sfxHandle_t	male_9sound;
+	sfxHandle_t	male_10sound;
+	sfxHandle_t	male_backsound;
+	sfxHandle_t	male_coversound;
+	sfxHandle_t	male_downsound;
+	sfxHandle_t	male_enemydsound;
+	sfxHandle_t	male_enemyssound;
+	sfxHandle_t	male_forwardsound;
+	sfxHandle_t	male_gosound;
+	sfxHandle_t	male_im_hitsound;
+	sfxHandle_t	male_leftsound;
+	sfxHandle_t	male_reportinsound;
+	sfxHandle_t	male_rightsound;
+	sfxHandle_t	male_taking_fsound;
+	sfxHandle_t	male_teamdownsound;
+	sfxHandle_t	male_treportsound;
+	sfxHandle_t	male_upsound;
+	sfxHandle_t	male_click;
+	sfxHandle_t	female_1sound;
+	sfxHandle_t	female_2sound;
+	sfxHandle_t	female_3sound;
+	sfxHandle_t	female_4sound;
+	sfxHandle_t	female_5sound;
+	sfxHandle_t	female_6sound;
+	sfxHandle_t	female_7sound;
+	sfxHandle_t	female_8sound;
+	sfxHandle_t	female_9sound;
+	sfxHandle_t	female_10sound;
+	sfxHandle_t	female_backsound;
+	sfxHandle_t	female_coversound;
+	sfxHandle_t	female_downsound;
+	sfxHandle_t	female_enemydsound;
+	sfxHandle_t	female_enemyssound;
+	sfxHandle_t	female_forwardsound;
+	sfxHandle_t	female_gosound;
+	sfxHandle_t	female_im_hitsound;
+	sfxHandle_t	female_leftsound;
+	sfxHandle_t	female_reportinsound;
+	sfxHandle_t	female_rightsound;
+	sfxHandle_t	female_taking_fsound;
+	sfxHandle_t	female_teamdownsound;
+	sfxHandle_t	female_treportsound;
+	sfxHandle_t	female_upsound;
+	sfxHandle_t	female_click;
 } cgMedia_t;
 
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.69  2002/03/13 18:40:52  slicer
 // Adjusted some of elder's unzoom code for the new sniper system ( server side )
 //
@@ -1995,7 +1998,8 @@ void Cmd_Bandage (gentity_t *ent)
 
 
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
-        ent->client->bleedtick = 4;
+// JBravo: bleedtick was 4. This should fix bandage bugs.
+        	ent->client->bleedtick = 6;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
 	}
@@ -2892,6 +2896,13 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Choose_f (ent);
 	else if (Q_stricmp (cmd, "drop") == 0)
 		RQ3_Cmd_Drop_f (ent);
+// JBravo: adding radio
+	else if (Q_stricmp (cmd, "radiogender") == 0)
+		RQ3_Cmd_Radiogender_f (ent);
+	else if (Q_stricmp (cmd, "radio_power") == 0)
+		RQ3_Cmd_Radio_power_f (ent);
+	else if (Q_stricmp (cmd, "radio") == 0)
+		RQ3_Cmd_Radio_f (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
 	//Elder: stuff for dropping items

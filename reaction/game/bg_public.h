@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.49  2002/03/03 21:46:26  blaze
 // weapon stats, done, beta test for bugs
 //
@@ -218,6 +221,16 @@ typedef enum {
 
 	RQ3_SOUND_TOTAL
 } rq3_sounds_t;
+
+// JBravo: radio. This part stolen from AQ
+typedef struct radio_msg_s
+{
+	char *msg;  // the msg name
+	int length; // length in server frames (ie tenths of a second), rounded up
+} radio_msg_t;
+
+extern radio_msg_t male_radio_msgs[];
+extern radio_msg_t female_radio_msgs[];
 
 //Elder: Weapon damage and spread stats
 #define PISTOL_DAMAGE 			90

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.4  2002/02/09 00:10:12  jbravo
 // Fixed spectator follow and free and updated zcam to 1.04 and added the
 // missing zcam files.
@@ -44,3 +47,6 @@ void RQ3_Cmd_Drop_f( gentity_t *ent );
 void UnstickPlayer( gentity_t *ent );
 void MakeSpectator( gentity_t *ent );
 qboolean OKtoFollow( int clientnum );
+void RQ3_Cmd_Radio_f ( gentity_t *ent );
+void RQ3_Cmd_Radio_power_f ( gentity_t *ent );
+void RQ3_Cmd_Radiogender_f ( gentity_t *ent );

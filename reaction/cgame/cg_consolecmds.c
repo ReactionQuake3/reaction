@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.31  2002/03/13 18:41:18  slicer
 // Adjusted some of elder's unzoom code for the new sniper system ( server side )
 //
@@ -889,6 +892,10 @@ void CG_InitConsoleCommands( void ) {
 #ifdef __ZCAM__
 	trap_AddCommand ("camera");
 #endif
+// JBravo: for radio
+	trap_AddCommand ("radio");
+	trap_AddCommand ("radiogender");
+	trap_AddCommand ("radio_power");
 // Slicer: Matchmode
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");

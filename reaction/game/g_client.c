@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.47  2002/03/11 18:02:33  slicer
 // Fixed team changes and scoreboard bugs
 //
@@ -1300,6 +1303,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		accuracy_hits, accuracy_shots;
 	int		eventSequence;
 	int		savedWeapon, savedItem;		// JBravo: to save weapon/item info
+	int		savedRadiopower, savedRadiogender;	// JBravo: for radio.
 	char	userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
@@ -1407,12 +1411,18 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: save weapon/item info
 	savedWeapon = client->teamplayWeapon;
 	savedItem = client->teamplayItem;
+// JBravo: save radiosettings
+	savedRadiopower = client->radioOff;
+	savedRadiogender = client->radioGender;
 
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
 
 // JBravo: restore weapon/item info
 	client->teamplayWeapon = savedWeapon;
 	client->teamplayItem = savedItem;
+// JBravo: restore radiosettings
+	client->radioOff = savedRadiopower;
+	client->radioGender = savedRadiogender;
 
 	client->pers = saved;
 	client->sess = savedSess;

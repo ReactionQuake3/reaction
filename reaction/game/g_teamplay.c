@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.31  2002/03/11 18:02:33  slicer
 // Fixed team changes and scoreboard bugs
 //
@@ -832,3 +835,142 @@ qboolean OKtoFollow( int clientnum )
 	}
 	return qfalse;
 }
+
+void RQ3_Cmd_Radio_power_f(gentity_t *ent)
+{
+	if (ent->client->radioOff == qfalse) {
+		ent->client->radioOff = qtrue;
+		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched off\n\"");
+		trap_SendServerCommand(ent-g_entities, "playradiosound 25 0\n\"");
+	} else {
+		ent->client->radioOff = qfalse;
+		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched on\n\"");
+		trap_SendServerCommand(ent-g_entities, "playradiosound 25 0\n\"");
+	}
+}
+
+void RQ3_Cmd_Radiogender_f(gentity_t *ent)
+{
+	char	arg[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() == 1) {
+		if (ent->client->radioGender == 0) {
+			trap_SendServerCommand(ent-g_entities, "print \"Radio gender currently set to male\n\"");
+			return;
+		} else {
+			trap_SendServerCommand(ent-g_entities, "print \"Radio gender currently set to female\n\"");
+			return;
+		}
+	}
+
+	trap_Argv(1, arg, sizeof(arg));
+	if (Q_stricmp (arg, "male") == 0) {
+		trap_SendServerCommand(ent-g_entities, "print \"Radio gender set to male\n\"");
+		ent->client->radioGender = 0;
+	} else if (Q_stricmp (arg, "female") == 0) {
+		trap_SendServerCommand(ent-g_entities, "print \"Radio gender set to female\n\"");
+		ent->client->radioGender = 1;
+	} else {
+		trap_SendServerCommand(ent-g_entities, "print \"Invalid gender selection, try 'male' or 'female'\n\"");
+	}
+}
+
+radio_msg_t male_radio_msgs[] = {
+	{ "1", 6 },
+	{ "2", 6 },
+	{ "3", 8 },
+	{ "4", 7 },
+	{ "5", 8 },
+	{ "6", 9 },
+	{ "7", 8 },
+	{ "8", 7 },
+	{ "9", 7 },
+	{ "10", 6 },
+	{ "back", 6 },
+	{ "cover", 7 },
+	{ "down", 13 },
+	{ "enemyd", 10 },
+	{ "enemys", 9 },
+	{ "forward", 6 },
+	{ "go", 6 },
+	{ "im_hit", 7 },
+	{ "left", 7 },
+	{ "reportin", 9 },
+	{ "right", 6 },
+	{ "taking_f", 22 },
+	{ "teamdown", 13 },
+	{ "treport", 12 },
+	{ "up", 4 },
+	{ "click", 4 },
+	{ "END", 0 }, // end of list delimiter
+};
+
+radio_msg_t female_radio_msgs[] = {
+	{ "1", 5 },
+	{ "2", 5 },
+	{ "3", 5 },
+	{ "4", 5 },
+	{ "5", 5 },
+	{ "6", 8 },
+	{ "7", 7 },
+	{ "8", 5 },
+	{ "9", 5 },
+	{ "10", 5 },
+	{ "back", 6 },
+	{ "cover", 5 },
+	{ "down", 6 },
+	{ "enemyd", 9 },
+	{ "enemys", 9 },
+	{ "forward", 8 },
+	{ "go", 6 },
+	{ "im_hit", 7 },
+	{ "left", 8 },
+	{ "reportin", 9 },
+	{ "right", 5 },
+	{ "taking_f", 22 },
+	{ "teamdown", 10 },
+	{ "treport", 12 },
+	{ "up", 6 },
+	{ "click", 6 },
+	{ "END", 0 }, // end of list delimiter
+};
+
+void RQ3_Cmd_Radio_f(gentity_t *ent)
+{
+	char		msg[MAX_TOKEN_CHARS];
+	radio_msg_t	*radio_msgs;
+	gentity_t	*player;
+	int		i, x;
+
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+		return;
+	if (trap_Argc () < 2)
+		return;
+	if (ent->client->radioOff == qtrue) {
+		trap_SendServerCommand(ent-g_entities, "print \"Your radio is off!\n\"");
+		return;
+	}
+	if (ent->client->radioGender == 0)
+		radio_msgs = male_radio_msgs;
+	else
+		radio_msgs = female_radio_msgs;
+
+	x = 0;
+
+	trap_Argv(1, msg, sizeof(msg));
+
+	while (Q_stricmp(radio_msgs[x].msg, "END")) {
+		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
+			for (i = 0; i < level.maxclients; i++) {
+				player = &g_entities[i];
+				if (!player->inuse)
+					continue;
+				if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
+					trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
+						ent->client->radioGender));
+			}
+		}
+		x++;
+	}
+}
+

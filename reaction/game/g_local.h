@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/14 02:24:39  jbravo
+// Adding radio :)
+//
 // Revision 1.50  2002/03/07 01:38:36  assimon
 // Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
 //
@@ -546,7 +549,8 @@ struct gclient_s {
 // JBravo adding TP stuff
 	int	teamplayWeapon;
 	int	teamplayItem;
-//	int	savedpersistant[MAX_PERSISTANT];
+	int	radioGender;
+	qboolean	radioOff;
 };
 
 
