@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/26 05:12:11  niceass
+// gravity fix and progress bar stuff
+//
 // Revision 1.69  2002/05/25 07:12:34  blaze
 // moved breakables into a configstring so they work in demos
 //
@@ -529,7 +532,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
 	{ &ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
 	{ &ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM},
-	{ &cg_gravity, "g_gravity", "0", 0},
+	{ &cg_gravity, "g_gravity", "800", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
 	{ &cg_RQ3_team1ready, "g_RQ3_team1ready", "0", 0},
@@ -1215,8 +1218,9 @@ This function may execute for a couple of minutes with a slow disk.
 =================
 */
 static void CG_RegisterGraphics( void ) {
-	int			i;
+	int			i, num = 0;
 	char		items[MAX_ITEMS+1];
+
 	static char		*sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
@@ -1238,6 +1242,7 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( cgs.mapname );
 
 	trap_R_LoadWorldMap( cgs.mapname );
+	cg.loadingMapPercent += 0.45f;
 
 	// precache status bar pics
 	CG_LoadingString( "game media" );
@@ -1274,7 +1279,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
-	//cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
+	cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
 	cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );
@@ -1533,18 +1538,26 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_healthwarning" );
 
 
+	cg.loadingMapPercent += 0.05f;
+
 	memset( cg_items, 0, sizeof( cg_items ) );
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
 	strcpy( items, CG_ConfigString( CS_ITEMS) );
 
+	for ( i = 1 ; i < bg_numItems ; i++ )
+		if ( items[ i ] == '1' || cg_buildScript.integer )
+			num++;
+
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 		if ( items[ i ] == '1' || cg_buildScript.integer ) {
 			CG_LoadingItem( i );
 			CG_RegisterItemVisuals( i );
+			if (num) cg.loadingMapPercent += (0.25f / (float)num);
 		}
 	}
+	if (!num) cg.loadingMapPercent += 0.25f;
 
 	// wall marks
 	cgs.media.bulletMarkShader = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
@@ -1617,7 +1630,8 @@ static void CG_RegisterGraphics( void ) {
 
 #endif
 	CG_ClearParticles ();
-/*
+
+	/*
 	for (i=1; i<MAX_PARTICLES_AREAS; i++)
 	{
 		{
@@ -1661,10 +1675,16 @@ CG_RegisterClients
 ===================
 */
 static void CG_RegisterClients( void ) {
-	int		i;
+	int		i, num = 0;
 
 	CG_LoadingClient(cg.clientNum);
 	CG_NewClientInfo(cg.clientNum);
+
+	for (i=0 ; i<MAX_CLIENTS ; i++) {
+		const char		*clientInfo;
+		clientInfo = CG_ConfigString( CS_PLAYERS+i );
+		if (cg.clientNum != i && clientInfo[0] ) num++;
+	}
 
 	for (i=0 ; i<MAX_CLIENTS ; i++) {
 		const char		*clientInfo;
@@ -1679,7 +1699,9 @@ static void CG_RegisterClients( void ) {
 		}
 		CG_LoadingClient( i );
 		CG_NewClientInfo( i );
+		if (num) cg.loadingMapPercent += (0.2f / (float)num);
 	}
+	if (!num) cg.loadingMapPercent += 0.2f;
 	CG_BuildSpectatorString();
 }
 
@@ -2446,15 +2468,16 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_LoadingString( "sounds" );
 
 	CG_RegisterSounds();
+	cg.loadingMapPercent += 0.05f;
 
 	CG_LoadingString( "graphics" );
 
 	CG_RegisterGraphics();
 
-  //Blaze: Load breakables
-  CG_LoadingString( "breakables" );
+	//Blaze: Load breakables
+	CG_LoadingString( "breakables" );
 
-  CG_RegisterBreakables();
+	CG_RegisterBreakables();
 
 	CG_LoadingString( "clients" );
 
