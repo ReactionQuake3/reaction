@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/07/19 04:28:39  niceass
+// no end line fix
+//
 // Revision 1.16  2002/07/16 04:06:21  niceass
 // temporary hack solution for map rotation and ctb
 //
