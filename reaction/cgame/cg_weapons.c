@@ -796,6 +796,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/ssg3000/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+		}
 		break;
 		
 	case WP_MP5:
@@ -1510,7 +1514,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		if ( cg_gun_frame.integer ||
 			 ps->weapon == WP_PISTOL ||
 			 ps->weapon == WP_M3 ||
-			 ps->weapon == WP_HANDCANNON) {
+			 ps->weapon == WP_HANDCANNON ||
+			 ps->weapon == WP_SSG3000) {
 			// development tool
 			hand.frame = hand.oldframe = cg_gun_frame.integer;
 			hand.backlerp = 0;

@@ -1679,7 +1679,8 @@ void Cmd_Bandage (gentity_t *ent)
 		//Elder: temp hack
 		if (ent->client->ps.weapon == WP_PISTOL ||
 			ent->client->ps.weapon == WP_M3 ||
-			ent->client->ps.weapon == WP_HANDCANNON)
+			ent->client->ps.weapon == WP_HANDCANNON ||
+			ent->client->ps.weapon == WP_SSG3000)
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
@@ -1938,6 +1939,8 @@ void Cmd_Reload( gentity_t *ent )
 			if (ent->client->fastReloads) {
 				//Fast reload
 				//G_Printf("Using fast reloads\n");
+				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+											^ ANIM_TOGGLEBIT ) | WP_ANIM_RELOAD;
 				delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
 			}

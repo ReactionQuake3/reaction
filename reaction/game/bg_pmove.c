@@ -1830,7 +1830,8 @@ static void PM_BeginWeaponChange( int weapon ) {
 		//Elder: temp hack
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON)
+			pm->ps->weapon == WP_HANDCANNON ||
+			pm->ps->weapon == WP_SSG3000)
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
 	}
 	
@@ -1838,7 +1839,8 @@ static void PM_BeginWeaponChange( int weapon ) {
 	//Elder: temp hack
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON)
+		pm->ps->weapon == WP_HANDCANNON ||
+		pm->ps->weapon == WP_SSG3000)
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
@@ -1912,7 +1914,8 @@ static void PM_FinishWeaponChange( void ) {
 	//Elder: temp hack
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON)
+		pm->ps->weapon == WP_HANDCANNON ||
+		pm->ps->weapon == WP_SSG3000)
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
@@ -1938,7 +1941,8 @@ static void PM_TorsoAnimation( void ) {
 		//Elder: temp hack
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON)
+			pm->ps->weapon == WP_HANDCANNON ||
+			pm->ps->weapon == WP_SSG3000)
 			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
@@ -2097,7 +2101,8 @@ static void PM_Weapon( void ) {
 			if (pm->ps->weaponstate == WEAPON_READY &&
 				(pm->ps->weapon == WP_PISTOL ||
 				 pm->ps->weapon == WP_M3 ||
-				 pm->ps->weapon == WP_HANDCANNON))
+				 pm->ps->weapon == WP_HANDCANNON ||
+				 pm->ps->weapon == WP_SSG3000))
 				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 		}
 	}
@@ -2142,7 +2147,8 @@ static void PM_Weapon( void ) {
 		// temp hack
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON)
+			pm->ps->weapon == WP_HANDCANNON ||
+			pm->ps->weapon == WP_SSG3000)
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
@@ -2229,7 +2235,8 @@ static void PM_Weapon( void ) {
 			// Elder: don't repeat if on semi-auto
 			if (pm->ps->weapon == WP_PISTOL ||
 				pm->ps->weapon == WP_M3 ||
-				pm->ps->weapon == WP_HANDCANNON)
+				pm->ps->weapon == WP_HANDCANNON ||
+				pm->ps->weapon == WP_SSG3000)
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
@@ -2846,7 +2853,8 @@ void PmoveSingle (pmove_t *pmove) {
 	//Elder: temp hack to avoid messing up fast-reloads
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON )
+		pm->ps->weapon == WP_HANDCANNON ||
+		pm->ps->weapon == WP_SSG3000)
 		PM_WeaponAnimation();
 
 	// torso animation
