@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/03 00:40:25  blaze
+// some more breakables fixes(ssg chips)
+//
 // Revision 1.86  2002/05/31 17:32:11  jbravo
 // HC gibs almost working :)
 //
@@ -1903,6 +1906,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	vec3_t		bouncedir, impactpoint;
 #endif
 
+  
 	if (!targ->takedamage) {
 		return;
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/06/03 00:40:25  blaze
+// some more breakables fixes(ssg chips)
+//
 // Revision 1.63  2002/06/02 22:04:38  blaze
 // breakables act proper when triggered(explode if explosive, etc)  also, spawnflags 8 will make the breakable so you cant kick it
 //
@@ -1700,7 +1703,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 
    		if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
 			G_CreatePressure(trace.endpos, trace.plane.normal, traceEnt);
-
+      G_Damage (traceEnt, ent, ent, forward, trace.endpos, 0, 0, MOD_SNIPER);
       return;
     }
 
@@ -1723,7 +1726,6 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			//not the case
 			if ( traceEnt->s.eType == ET_BREAKABLE )
 			{
-				//G_Printf("(%d) SSG: Hit a breakable\n", level.time);
 				hitBreakable = qtrue;
 			}
 

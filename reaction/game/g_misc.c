@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/06/03 00:40:25  blaze
+// some more breakables fixes(ssg chips)
+//
 // Revision 1.52  2002/06/02 22:04:38  blaze
 // breakables act proper when triggered(explode if explosive, etc)  also, spawnflags 8 will make the breakable so you cant kick it
 //
@@ -781,7 +784,7 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
  	//Elder: for the bit-shifting
 	int			eParm;
 	int			shiftCount = 0;
-
+  
 	//Elder:
 	//eventParm can only transmit as a byte (8-bits/255)
 	//So if we receive a huge one, we can knock it down (shift-op)
@@ -815,7 +818,7 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
      		//Elder: added + compacted
      		case MOD_KNIFE:
      		case MOD_KNIFE_THROWN:
-			case MOD_MP5:
+			  case MOD_MP5:
      		case MOD_M4:
      		case MOD_M3:
      		case MOD_PISTOL:
