@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2003/04/06 21:46:56  makro
+// no message
+//
 // Revision 1.18  2003/04/06 18:31:22  makro
 // SSG crosshairs
 //
@@ -141,8 +144,9 @@
 #define SLIDER_HEIGHT 16.0
 #define SLIDER_THUMB_WIDTH 12.0
 #define SLIDER_THUMB_HEIGHT 20.0
+//note - duplicated in bg_public.h
+#define	NUM_CROSSHAIRS			10
 //Makro - moved to bg_public.h
-//#define	NUM_CROSSHAIRS			10
 ////Makro - for the SSG crosshair preview
 //#define	NUM_SSGCROSSHAIRS		6
 
