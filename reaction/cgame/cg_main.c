@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/06/06 18:10:51  makro
+// Loading a map with pre-2.0 breakables crashed Q3. Added temp fix
+//
 // Revision 1.73  2002/06/06 03:01:46  blaze
 // a breakable with a underscore in it's name will now try and load files from it's parent if it cant find any itself
 // ex glass_blue will load sounds from glass if there is no glass_blue/sounds/break1.wav
@@ -1233,7 +1236,10 @@ static void CG_RegisterBreakables(void){
       else
       {
         strncpy(baseName,name,80);
-        baseName[strstr(name,"_") - name]='\0';
+        //Makro - crash bug fix; TODO: find a better way to handle this
+		if (!strstr(name, "_"))
+			return;
+		baseName[strstr(name,"_") - name]='\0';
 			  cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",baseName));
  			  cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",baseName));
  			  cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",baseName));

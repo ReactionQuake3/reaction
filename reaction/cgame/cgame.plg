@@ -6,53 +6,11 @@
 --------------------Configuration: cgame - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCF.tmp" with contents
-[
-/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR"Debug/" /Fp"Debug/cgame.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
-"C:\Development\reaction\cgame\cg_main.c"
-]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCF.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPD0.tmp" with contents
-[
-/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:yes /pdb:"Debug/cgamex86.pdb" /map:"Debug/cgamex86.map" /debug /machine:I386 /def:".\cgame.def" /out:"../Debug/cgamex86.dll" /implib:"Debug/cgamex86.lib" 
-.\Debug\bg_misc.obj
-.\Debug\bg_pmove.obj
-.\Debug\bg_slidemove.obj
-.\Debug\cg_consolecmds.obj
-.\Debug\cg_draw.obj
-.\Debug\cg_drawtools.obj
-.\Debug\cg_effects.obj
-.\Debug\cg_ents.obj
-.\Debug\cg_event.obj
-.\Debug\cg_info.obj
-.\Debug\cg_localents.obj
-.\Debug\cg_main.obj
-.\Debug\cg_marks.obj
-.\Debug\cg_players.obj
-.\Debug\cg_playerstate.obj
-.\Debug\cg_predict.obj
-.\Debug\cg_scoreboard.obj
-.\Debug\cg_servercmds.obj
-.\Debug\cg_snapshot.obj
-.\Debug\cg_syscalls.obj
-.\Debug\cg_view.obj
-.\Debug\cg_weapons.obj
-.\Debug\q_math.obj
-.\Debug\q_shared.obj
-.\Debug\ui_shared.obj
-]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPD0.tmp"
-<h3>Output Window</h3>
-Compiling...
-cg_main.c
-C:\Development\reaction\cgame\cg_main.c(1245) : error C2110: cannot add two pointers
-C:\Development\reaction\cgame\cg_main.c(1245) : fatal error C1903: unable to recover from previous error(s); stopping compilation
-Error executing cl.exe.
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 2 error(s), 0 warning(s)
+cgamex86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
