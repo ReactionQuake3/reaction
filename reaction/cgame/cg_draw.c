@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/04/29 06:10:48  niceass
+// better centerprint
+//
 // Revision 1.36  2002/04/29 01:24:34  niceass
 // frag counter added
 //
@@ -990,17 +993,6 @@ static float CG_DrawScore ( float y ) {
 	int			w, x;
 	float	Color[4];
 
-/*
-	if (cgs.gametype >= GT_TEAM) {
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED)
-			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 0.4f);
-
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE)
-			MAKERGBA(Color, 0.0f, 0.0f, 1.0f, 0.4f);
-	}
-*/
-	
-	
 	y += 4;
 
 	s = va( "%i", cg.snap->ps.persistant[PERS_SCORE] );
@@ -2113,21 +2105,33 @@ for a few moments
 */
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	char	*s;
+	int		length = 0;
 
 	Q_strncpyz( cg.centerPrint, str, sizeof(cg.centerPrint) );
 
 	cg.centerPrintTime = cg.time;
 	cg.centerPrintY = y;
 	cg.centerPrintCharWidth = charWidth;
+	cg.centerPrintMaxLen = 0;
 
 	// count the number of lines for centering
 	cg.centerPrintLines = 1;
 	s = cg.centerPrint;
 	while( *s ) {
-		if (*s == '\n')
+		if (*s == '\n') {
 			cg.centerPrintLines++;
+			if (length > cg.centerPrintMaxLen) cg.centerPrintMaxLen = length;
+			length = 0;
+		}
+		else {
+			length++;
+		}
 		s++;
 	}
+	if (cg.centerPrintMaxLen == 0) cg.centerPrintMaxLen = CG_DrawStrlen(str);
+
+	// Last character a linefeed
+	if (*(s - 1) == '\n') cg.centerPrintLines--;
 }
 
 
@@ -2143,7 +2147,8 @@ static void CG_DrawCenterString( void ) {
 #ifdef MISSIONPACK // bk010221 - unused else
   int h;
 #endif
-	float	*color;
+	float	*color, color2[4];
+	int		windowHeight;
 
 	if ( !cg.centerPrintTime ) {
 		return;
@@ -2158,7 +2163,17 @@ static void CG_DrawCenterString( void ) {
 
 	start = cg.centerPrint;
 
-	y = cg.centerPrintY - cg.centerPrintLines * BIGCHAR_HEIGHT / 2;
+	windowHeight = cg.centerPrintLines*(int)(cg.centerPrintCharWidth * 1.5);
+
+	y = cg.centerPrintY - windowHeight / 2;
+
+	MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
+		cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, color2);
+	MAKERGBA(color2, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanRect(320 - (cg.centerPrintMaxLen*cg.centerPrintCharWidth)*0.5f - 3, y - 3,
+		cg.centerPrintCharWidth*cg.centerPrintMaxLen+6, windowHeight + 6, 1, color2);
+
 
 	while ( 1 ) {
 		char linebuffer[1024];
