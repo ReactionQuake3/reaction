@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/07/01 19:55:50  makro
+// Reorganized things a little
+//
 // Revision 1.47  2002/07/01 19:20:46  makro
 // Bots now use semi-auto when firing the mk23 from long range
 //
@@ -1570,7 +1573,7 @@ float RQ3_Bot_WeaponFitness(bot_state_t * bs, int weapon)
 
 /*
 ======================
-RQ3_Bot_ChooseWeapon
+RQ3_Bot_ChooseBestFightWeapon
 
 Added by Makro
 ======================
@@ -1591,13 +1594,13 @@ int RQ3_Bot_ChooseBestFightWeapon(bot_state_t * bs)
 
 /*
 ==================
-BotChooseWeapon
+RQ3_Bot_ChooseWeaponMode
+
+Added by Makro
 ==================
 */
-void BotChooseWeapon(bot_state_t * bs)
+void RQ3_Bot_ChooseWeaponMode(bot_state_t * bs)
 {
-	int newweaponnum;
-
 	//distance from the enemy
 	int dist;
 
@@ -1611,6 +1614,46 @@ void BotChooseWeapon(bot_state_t * bs)
 	if (dist <= 0) {
 		dist = 8;
 	}
+
+	if (bs->weaponnum == WP_GRENADE) {
+		//long range
+		if (dist > 800) {
+			RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 2);
+		//medium range
+		} else if (dist > 400) {
+			RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 1);
+		//short range
+		} else {
+			RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
+		}
+	} else if (bs->weaponnum == WP_SSG3000) {
+		//2x
+		if (bs->enemy != -1 && dist > 600) {
+			RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 1);
+		//unzoomed
+		} else {
+			RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
+		}
+	} else if (bs->weaponnum == WP_PISTOL) {
+		if (dist > 800) {
+			//semi-auto
+			RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 1);
+		} else {
+			//full auto
+			RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 0);
+		}
+	}
+}
+
+/*
+==================
+BotChooseWeapon
+==================
+*/
+void BotChooseWeapon(bot_state_t * bs)
+{
+	int newweaponnum;
+
 	//Makro - don't change weapons while bandaging
 	if (bs->cur_ps.weaponstate == WEAPON_BANDAGING) {
 		return;
@@ -1619,34 +1662,7 @@ void BotChooseWeapon(bot_state_t * bs)
 	if (bs->cur_ps.weaponstate == WEAPON_RAISING || bs->cur_ps.weaponstate == WEAPON_DROPPING) {
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 		//Makro - choose weapon mode
-		if (bs->weaponnum == WP_GRENADE) {
-			//long range
-			if (dist > 800) {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 2);
-				//medium range
-			} else if (dist > 400) {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 1);
-				//short range
-			} else {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
-			}
-		} else if (bs->weaponnum == WP_SSG3000) {
-			//2x
-			if (bs->enemy != -1 && dist > 600) {
-				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 1);
-				//unzoomed
-			} else {
-				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
-			}
-		} else if (bs->weaponnum == WP_PISTOL) {
-			if (dist > 800) {
-				//semi-auto
-				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 1);
-			} else {
-				//full auto
-				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 0);
-			}
-		}
+		RQ3_Bot_ChooseWeaponMode(bs);
 	} else {
 		//Makro - new function
 		//newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
@@ -1660,34 +1676,7 @@ void BotChooseWeapon(bot_state_t * bs)
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 		//Makro - choose weapon mode
-		if (bs->weaponnum == WP_GRENADE) {
-			//long range
-			if (dist > 800) {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 2);
-				//medium range
-			} else if (dist > 400) {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 1);
-				//short range
-			} else {
-				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
-			}
-		} else if (bs->weaponnum == WP_SSG3000) {
-			//2x
-			if (bs->enemy != -1 && dist > 600) {
-				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 1);
-				//unzoomed
-			} else {
-				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
-			}
-		} else if (bs->weaponnum == WP_PISTOL) {
-			if (dist > 800) {
-				//semi-auto
-				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 1);
-			} else {
-				//full auto
-				RQ3_Bot_SetWeaponMode(bs, WP_PISTOL, 0);
-			}
-		}
+		RQ3_Bot_ChooseWeaponMode(bs);
 	}
 }
 
