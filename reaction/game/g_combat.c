@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/15 17:13:22  makro
+// Restored Q3A code for movers with health
+//
 // Revision 1.74  2002/05/15 13:58:35  makro
 // Health for movers
 //
@@ -1894,9 +1897,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}
 
+	/* old code
 	if (targ->s.eType == ET_MOVER && targ->health <= 0) {
 		//Makro - added
 		if (targ->use) targ->use(targ, inflictor, attacker);
+		return;
+	}*/
+
+	// Makro - pasted back from the original code
+	// shootable doors / buttons don't actually have any health
+	if ( targ->s.eType == ET_MOVER ) {
+		if ( targ->use && targ->moverState == MOVER_POS1 ) {
+			targ->use( targ, inflictor, attacker );
+		}
 		return;
 	}
 
