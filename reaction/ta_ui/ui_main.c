@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/12 22:15:13  makro
+// Support for ignore/unignore
+//
 // Revision 1.19  2002/04/30 11:56:54  makro
 // Stuff
 //
@@ -3723,6 +3726,16 @@ static void UI_RunMenuScript(char **args) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote kick %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
 			}
+		//Makro - ignore command
+		} else if (Q_stricmp(name, "ignore") == 0) {
+			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("ignore %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
+			}
+		//...and unignore
+		} else if (Q_stricmp(name, "unignore") == 0) {
+			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("unignore %s\n",uiInfo.playerNames[uiInfo.playerIndex]) );
+			}
 		} else if (Q_stricmp(name, "voteGame") == 0) {
 			if (ui_netGameType.integer >= 0 && ui_netGameType.integer < uiInfo.numGameTypes) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callvote g_gametype %i\n",uiInfo.gameTypes[ui_netGameType.integer].gtEnum) );
@@ -5572,8 +5585,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.playingIntro = "";
 	uiInfo.playingLoop = "";
 
-	//Makro - set default bot skill to max
-	uiInfo.skillIndex = numSkillLevels - 1;
+	//Makro - set default bot skill to medium
+	uiInfo.skillIndex = 2;
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
