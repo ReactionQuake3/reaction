@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/01/31 02:55:58  blaze
+// some basic work with the trains/elevators
+//
 // Revision 1.37  2002/01/31 02:25:31  jbravo
 // Adding limchasecam.
 //
@@ -176,6 +179,8 @@ struct gentity_s {
 	float		angle;			// set in editor, -1 = up, -2 = down
 	char		*target;
 	char		*targetname;
+	//Blaze: Holds the target set by a button
+	char		*pathtarget;
 	char		*team;
 	char		*targetShaderName;
 	char		*targetShaderNewName;
