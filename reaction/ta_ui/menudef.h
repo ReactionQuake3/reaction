@@ -1,3 +1,15 @@
+//-----------------------------------------------------------------------------
+//
+// $Id$
+//
+//-----------------------------------------------------------------------------
+//
+// $Log$
+// Revision 1.3  2002/02/21 20:10:16  jbravo
+// Converted files back from M$ format and added cvs headers again.
+//
+//
+//-----------------------------------------------------------------------------
 
 #define ITEM_TYPE_TEXT 0                  // simple text
 #define ITEM_TYPE_BUTTON 1                // button, basically text with a border 
