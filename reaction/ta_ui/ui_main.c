@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/04/03 16:34:29  makro
+// Got rid of one more warning
+//
 // Revision 1.11  2002/03/31 14:14:42  makro
 // Cleaned up a little more
 //
@@ -1621,7 +1624,6 @@ static const int UI_AIIndexFromName(const char *name) {
 	return 0;
 }
 #endif
-*/
 
 #ifndef MISSIONPACK // bk001206
 static const char *UI_OpponentLeaderHead() {
@@ -1630,8 +1632,6 @@ static const char *UI_OpponentLeaderHead() {
 }
 #endif
 
-//Makro - not used anywhere
-/*
 #ifndef MISSIONPACK // bk001206
 static const char *UI_OpponentLeaderModel() {
 	int i;
