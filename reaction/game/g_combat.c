@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/26 04:09:11  jbravo
+// Got rid of the grey excelent icon over players heads.
+//
 // Revision 1.63  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -927,12 +930,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
-			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
+// JBravo: not now.
+/*			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-			}
+			} */
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
