@@ -383,15 +383,15 @@ void	Ref_Command ( gentity_t *ent){
 	else if(Q_stricmp (com, "pause") == 0 ){
 		if(level.paused) {
 			trap_SendServerCommand( -1, "cp \"Game resumed by Referee.\n\"");
-			level.paused = false;
+			level.paused = qfalse;
 		}
 		else {
 			if(level.team_game_going) {
 				if(level.inGame)
-					trap_SendServerCommand( ent-g_entities, "print \"Game will be paused at the end of the round"
+					trap_SendServerCommand( ent-g_entities, "print \"Game will be paused at the end of the round");
 				else
-					trap_SendServerCommand( -1, "cp \"Game is now paused by the Referee.\n\"");
-				level.paused = true;
+					trap_SendServerCommand(-1,va("cp \"Game is now paused by the Referee\""));
+				level.paused = qtrue;
 			}
 			else
 				trap_SendServerCommand( ent-g_entities, "print \"No game is going..");
