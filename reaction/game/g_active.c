@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/08/30 01:09:06  jbravo
+// Semi fixed the bodies thing in CTB
+//
 // Revision 1.87  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -1213,7 +1216,7 @@ void ClientThink_real(gentity_t * ent)
 			// pressing attack or use is the normal respawn method
 			// JBravo: make'em spactate
 			if (ucmd->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) {
-				if (g_gametype.integer == GT_TEAMPLAY) {
+				if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 					MakeSpectator(ent);
 				} else {
 					respawn(ent);

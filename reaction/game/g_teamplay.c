@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2002/08/30 01:09:06  jbravo
+// Semi fixed the bodies thing in CTB
+//
 // Revision 1.132  2002/08/29 23:47:10  jbravo
 // Disabled drop case and fixed a padding problem in the date code.
 //
@@ -1302,7 +1305,7 @@ void RQ3_Respawn_CTB_players(int team)
 			ent->client->ps.persistant[PERS_TEAM] = team;
 			ent->client->sess.spectatorState = SPECTATOR_NOT;
 			ent->client->specMode = SPECTATOR_NOT;
-			respawn(ent);
+			ClientSpawn(ent);
 		}
 	}
 }
@@ -1358,6 +1361,8 @@ void MakeSpectator(gentity_t * ent)
 			}
 		}
 		ClientSpawn(ent);
+		ent->client->gibbed = qtrue;
+		trap_UnlinkEntity(ent);
 		return;
 	}
 	if (ent->r.svFlags & SVF_BOT)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/08/30 01:09:06  jbravo
+// Semi fixed the bodies thing in CTB
+//
 // Revision 1.113  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -844,15 +847,8 @@ respawn
 */
 void respawn(gentity_t * ent)
 {
-	//gentity_t     *tent;
-
 	CopyToBodyQue(ent);
 	ClientSpawn(ent);
-
-	// add a teleportation effect
-	//Elder: removed
-	//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-	//tent->s.clientNum = ent->s.clientNum;
 }
 
 /*
