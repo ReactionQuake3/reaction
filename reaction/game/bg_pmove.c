@@ -457,7 +457,7 @@ static qboolean PM_CheckJump( void ) {
 			Com_Printf("^4Hit a double jump^7\n");
 //			Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
-		pm->ps->velocity[2] = JUMP_VELOCITY;
+		pm->ps->velocity[2] += JUMP_VELOCITY;
 	}
 	pm->ps->stats[STAT_JUMPTIME] = 400; // Time that the second jump is within to get the higher jump
 	// end Blaze
