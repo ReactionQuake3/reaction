@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.12  2002/06/18 03:57:38  jbravo
 // Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
 //
@@ -40,7 +43,6 @@
 // this file holds commands that can be executed by the server console, but not remote clients
 
 #include "g_local.h"
-#include "g_teamplay.h"
 
 /*
 ==============================================================================

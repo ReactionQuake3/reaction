@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.18  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -74,6 +77,12 @@
 //Slicer TeamName Size.
 #define TEAM_NAME_SIZE 30
 
+typedef struct {
+	float distance;
+	gentity_t *s;
+} spawn_distances_t;
+
+
 void CheckTeamRules();
 void StartLCA();
 void ContinueLCA();
@@ -109,3 +118,4 @@ void Cmd_Ignorenum_f(gentity_t * ent);
 void Cmd_Ignoreclear_f(gentity_t * ent);
 void Cmd_Playerlist_f(gentity_t * ent);
 int IsInIgnoreList(gentity_t * source, gentity_t * subject);
+void RQ3_GetSpawnPoints (void);

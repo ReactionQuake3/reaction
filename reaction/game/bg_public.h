@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.80  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1319,6 +1322,7 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const play
 #define	DF_NO_FALLING			8
 #define DF_FIXED_FOV			16
 #define	DF_NO_FOOTSTEPS			32
+#define DF_SPAWN_FARTHEST		512
 
 // content masks
 #define	MASK_ALL				(-1)

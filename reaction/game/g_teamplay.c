@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.108  2002/06/17 03:30:33  jbravo
 // More color fixes
 //
@@ -352,6 +355,8 @@
 
 #include "g_local.h"
 #include "zcam.h"
+
+void RQ3_SetupTeamSpawnPoints (void);
 
 gitem_t *BG_FindItemForHoldable(holdable_t pw);
 char *ConcatArgs(int start);
@@ -853,6 +858,7 @@ void SpawnPlayers()
 	int clientNum, i;
 
 	level.spawnPointsLocated = qfalse;
+	RQ3_SetupTeamSpawnPoints ();
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
 
@@ -2285,4 +2291,268 @@ void Cmd_Playerlist_f(gentity_t * ent)
 			continue;
 		trap_SendServerCommand(ent - g_entities, va("print \"%i - %s^7\n\"", i, other->client->pers.netname));
 	}
+}
+
+// Freud: RQ3_compare_spawn_distances
+//
+// Sorting mechanism for spawn point distances feeded to qsort
+int QDECL RQ3_compare_spawn_distances (const void *sd1, const void *sd2)
+{
+	if (((spawn_distances_t *) sd1)->distance < ((spawn_distances_t *) sd2)->distance)
+		return -1;
+	else if (((spawn_distances_t *) sd1)->distance > ((spawn_distances_t *) sd2)->distance)
+		return 1;
+	else
+		return 0;
+}
+
+// Freud: SpawnPointDistance
+//
+// Returns the distance between two spawn points (or any entities, actually...)
+float
+RQ3_SpawnPointDistance (gentity_t * spot1, gentity_t * spot2)
+{
+	vec3_t v;
+	VectorSubtract (spot1->s.origin, spot2->s.origin, v);
+	return VectorLength (v);
+}
+
+// RQ3_GetSpawnPoints ()
+//
+// Called whenever no spawn points are available.
+void RQ3_GetSpawnPoints ()
+{
+	gentity_t *spot;
+	int x, spawns;
+
+	spot = NULL;
+
+	// The team that is called with SetupRandomTeamplaySpawnPoint
+	level.randteam = rand() % MAX_TEAMS;
+
+	// Reset the spawns for each team
+	for (x = 0;x < MAX_TEAMS;x++) {
+		level.num_potential_spawns[x] = 0;
+		level.num_used_farteamplay_spawns[x] = 0;
+	}
+
+	spawns = 0;
+
+	// Read spawn points from the map
+	while ((spot = G_Find (spot, FOFS (classname), "info_player_deathmatch")) != NULL) {
+		spawns++;
+		for (x = 0;x < MAX_TEAMS;x++) {
+			level.potential_spawns[x][level.num_potential_spawns[x]] = spot;
+			level.num_potential_spawns[x]++;
+		}
+	}
+	G_Printf("%i spawns read from map\n", spawns);
+}
+
+// Freud: RQ3_SelectRandomTeamplaySpawnPoint
+//
+// Selects a random spawns point from potential team spawns.
+qboolean RQ3_SelectRandomTeamplaySpawnPoint (int team)
+{
+	int spawn_point, y, ok, i, z;
+	float distance;
+	gentity_t *spot;
+
+	spot = NULL;
+
+	i = 0;
+	ok = qfalse;
+
+	// Done with potential spawns, re-reading and re-assigning
+	if (level.num_potential_spawns[team] < 1) 
+	{
+		RQ3_GetSpawnPoints ();
+		RQ3_SetupTeamSpawnPoints ();
+		return qfalse;
+	}
+
+	// Randomizing from potential spawn points
+	spawn_point = rand() % level.num_potential_spawns[team];
+
+	// decrementing potential spawns counter
+	level.num_potential_spawns[team]--;
+
+	while ((ok == qfalse) && (i < MAX_TEAMS)) 
+	{
+		ok = qtrue;
+		for (y = 0; y < MAX_TEAMS; y++)
+		{
+			if (level.teams_assigned[y] == qtrue)
+			{
+				distance = RQ3_SpawnPointDistance (level.potential_spawns[team][spawn_point],
+						level.teamplay_spawns[y]);
+
+				if (distance == 0)
+				{
+					ok = qfalse;
+				}
+			}
+		}
+
+		if (ok == qfalse)
+		{
+			spawn_point++;
+			if (spawn_point == level.num_potential_spawns[team])
+			{
+				spawn_point = 0;
+			}
+			i++;
+		}
+	}
+	// Assigning the spawn point to the team
+	level.teamplay_spawns[team] = level.potential_spawns[team][spawn_point];
+	level.teams_assigned[team] = qtrue;
+
+	// Removing used spawn point from potential_spawns
+	for (z = spawn_point;z < level.num_potential_spawns[team];z++)
+	{
+		level.potential_spawns[team][z] = level.potential_spawns[team][z + 1];
+	}
+
+	if (i == MAX_TEAMS)
+	{
+		G_Printf("Arrrggh: More teams than potential spawnpoints!\n");
+
+		if ((spot = G_Find (spot, FOFS (classname), "info_player_start")) != NULL)
+		{
+			G_Printf("Well, guess I'm using info_player_start\n");
+			level.teamplay_spawns[team] = spot;
+		}
+		else
+			return qfalse;
+	}
+	return qtrue;
+}
+
+// Freud: RQ3_SelectFarTeamplaySpawnPoint
+//
+// Selects farthest teamplay spawn point(s) from available spawns.
+qboolean RQ3_SelectFarTeamplaySpawnPoint (int team)
+{
+	int u, x, y, z;
+	int spawn_to_use, preferred_spawn_points, num_already_used;
+	int total_good_spawn_points, num_usable;
+
+	float closest_spawn_distance, distance;
+	gentity_t *usable_spawns[MAX_SPAWN_POINTS];
+	qboolean used;
+
+	spawn_distances_t spawn_distances[MAX_SPAWN_POINTS];
+
+	num_already_used = 0;
+
+	// Reset the spawn_distances structure
+	for (x = 0; x < MAX_SPAWN_POINTS; x++) {
+		memset(&spawn_distances[x], 0 , sizeof(spawn_distances[x]));
+	}
+
+	//
+	for (x = 0; x < level.num_potential_spawns[team]; x++)
+	{
+		closest_spawn_distance = 2000000000;
+
+		for (y = 0; y < MAX_TEAMS; y++)
+		{
+			if (level.teams_assigned[y] == qtrue)
+			{
+				distance = RQ3_SpawnPointDistance (level.potential_spawns[team][x], level.teamplay_spawns[y]);
+
+				if (distance < closest_spawn_distance)
+				{
+					closest_spawn_distance = distance;
+				}
+			}
+		}
+
+		if (closest_spawn_distance == 0)
+			num_already_used++;
+
+		spawn_distances[x].s = level.potential_spawns[team][x];
+		spawn_distances[x].distance = closest_spawn_distance;
+	}
+
+	// Sort the farthest spawn points to the end of the array
+	qsort (spawn_distances, MAX_SPAWN_POINTS,
+			sizeof (spawn_distances_t), RQ3_compare_spawn_distances);
+
+	total_good_spawn_points = level.num_potential_spawns[team] - num_already_used;
+
+	// Support Spawn farthest and the old AQ system for spawn possibilities
+	if (g_dmflags.integer & DF_SPAWN_FARTHEST || total_good_spawn_points <= 4)
+		preferred_spawn_points = 1;
+	else if (total_good_spawn_points <= 10)
+		preferred_spawn_points = 2;
+	else
+		preferred_spawn_points = 3;
+
+	num_usable = 0;
+
+	// Now lets go through the spawn points and see if they have been used up.
+	for (z = 0;z < preferred_spawn_points;z++)
+	{
+		used = qfalse;
+		for (u = 0; u < level.num_used_farteamplay_spawns[team]; u++)
+		{
+			if (level.used_farteamplay_spawns[team][u] == spawn_distances[MAX_SPAWN_POINTS - z - 1].s) {
+				used = qtrue;
+			}
+
+		}
+		if (used == qfalse)
+		{
+			usable_spawns[num_usable] = spawn_distances[MAX_SPAWN_POINTS-z-1].s;
+			num_usable++;
+		}
+	}
+
+	// Can't use any of the far spawn points, let's go through the whole thing again.
+	if (num_usable < 1)
+	{
+		RQ3_SetupTeamSpawnPoints();
+		return qfalse;
+	}
+
+	// Randomize through the usable spawns.
+	spawn_to_use = rand() % num_usable;
+
+	// Marking the spawn as used.
+	level.used_farteamplay_spawns[team][level.num_used_farteamplay_spawns[team]] = usable_spawns[spawn_to_use];
+	level.num_used_farteamplay_spawns[team]++;
+
+	// Setting the team to assigned and assigning the spawn point.
+	level.teams_assigned[team] = qtrue;
+	level.teamplay_spawns[team] = usable_spawns[spawn_to_use];
+
+	if (!level.teamplay_spawns[team]) {
+		G_Printf("Argh, Invalid Far Spawn\n");
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+// Freud: RQ3_SetupTeamSpawnPoints
+//
+// Call this for assigning the spawn points to the teams
+void RQ3_SetupTeamSpawnPoints()
+{
+	int i;
+
+	for (i = 0; i < MAX_TEAMS; i++) {
+		level.teamplay_spawns[i] = NULL;
+		level.teams_assigned[i] = qfalse;
+	}
+
+	if (RQ3_SelectRandomTeamplaySpawnPoint (level.randteam) == qfalse)
+		return;
+
+	// If we ever decide to have more teams then 2.. :)
+	for (i = 0;i < MAX_TEAMS;i++)
+		if (i != level.randteam && RQ3_SelectFarTeamplaySpawnPoint (i) == qfalse)
+			return;
 }

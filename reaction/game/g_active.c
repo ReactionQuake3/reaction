@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.79  2002/06/18 06:15:30  niceass
 // m4 kick now smooth
 //
@@ -140,8 +143,6 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
-// JBravo: need TP functions
-#include "g_teamplay.h"
 #include "zcam.h"
 
 //Elder: moved kick to g_weapon.c where it belongs

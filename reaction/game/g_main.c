@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.90  2002/06/19 05:21:43  niceass
 // scoreboard stuff
 //
@@ -981,6 +984,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.team_game_going = 0;
 		level.team_round_going = 0;
 		level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
+		level.num_potential_spawns[0] = 0;
+		level.num_potential_spawns[1] = 0;
 	}
 // Slicer: reset matchmode vars
 	if (g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
@@ -998,7 +1003,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	G_RemapTeamShaders();
-
 }
 
 /*

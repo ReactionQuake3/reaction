@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.96  2002/06/18 09:22:16  niceass
 // file exist function
 //
@@ -213,6 +216,8 @@
 
 // JBravo: Max number of killed enemys to track
 #define RQ3_MAXKILLS		5
+#define MAX_TEAMS		2
+#define MAX_SPAWN_POINTS	128
 
 // Blaze: How long someone bleeds for
 // Elder: This doesn't work the same as Q2 because clients and servers can
@@ -748,6 +753,16 @@ typedef struct {
 	//Slicer: 
 	int team1gender;
 	int team2gender;
+
+	// Freud: spawning system
+	int randteam;
+	int num_used_farteamplay_spawns[MAX_TEAMS];
+	int num_potential_spawns[MAX_TEAMS];
+	gentity_t *teamplay_spawns[MAX_TEAMS];
+	qboolean teams_assigned[MAX_TEAMS];
+	gentity_t *potential_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
+	gentity_t *used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
+
 } level_locals_t;
 
 //

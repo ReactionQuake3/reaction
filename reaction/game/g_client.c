@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/06/19 18:13:57  jbravo
+// New TNG spawning system :)
+//
 // Revision 1.95  2002/06/17 00:23:59  slicer
 // Lasersight problem fixed
 //
@@ -332,7 +335,8 @@ SelectNearestDeathmatchSpawnPoint
 Find the spot that we DON'T want to use
 ================
 */
-#define	MAX_SPAWN_POINTS	128
+// Moved to g_local.h
+//#define	MAX_SPAWN_POINTS	128
 gentity_t *SelectNearestDeathmatchSpawnPoint(vec3_t from)
 {
 	gentity_t *spot;
@@ -364,7 +368,8 @@ SelectRandomDeathmatchSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-#define	MAX_SPAWN_POINTS	128
+// Moved to g_local.h
+//#define	MAX_SPAWN_POINTS	128
 gentity_t *SelectRandomDeathmatchSpawnPoint(void)
 {
 	gentity_t *spot;
@@ -1563,7 +1568,7 @@ void ClientSpawn(gentity_t * ent)
 	client = ent->client;
 
 // JBravo: Check if team spawnpoints have been located. If not find a spot for each team ala AQ2.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+/*	if (g_gametype.integer == GT_TEAMPLAY) {
 		if (!level.spawnPointsLocated) {
 			client->pers.initialSpawn = qfalse;
 			do {
@@ -1582,7 +1587,7 @@ void ClientSpawn(gentity_t * ent)
 									       level.team2spawn_angles);
 			level.spawnPointsLocated = qtrue;
 		}
-	}
+	} */
 // End JBravo.
 
 	// find a spawn point
@@ -1604,16 +1609,21 @@ void ClientSpawn(gentity_t * ent)
 						 client->pers.teamState.state, spawn_origin, spawn_angles);
 // JBravo: If we are in Teamplay mode, use the teamspawnpoints.
 	} else if (g_gametype.integer == GT_TEAMPLAY) {
+
+		// Freud: Assign the spawns from the spawning system (g_teamplay.c)
+		level.team1spawnpoint = level.teamplay_spawns[0];
+		level.team2spawnpoint = level.teamplay_spawns[1];
+
 		if (client->sess.sessionTeam == TEAM_RED) {
 			client->sess.spawnPoint = level.team1spawnpoint;
 			spawnPoint = level.team1spawnpoint;
-			VectorCopy(level.team1spawn_angles, spawn_angles);
-			VectorCopy(level.team1spawn_origin, spawn_origin);
+			VectorCopy(level.team1spawnpoint->s.angles, spawn_angles);
+			VectorCopy(level.team1spawnpoint->s.origin, spawn_origin);
 		} else {
 			client->sess.spawnPoint = level.team2spawnpoint;
 			spawnPoint = level.team2spawnpoint;
-			VectorCopy(level.team2spawn_angles, spawn_angles);
-			VectorCopy(level.team2spawn_origin, spawn_origin);
+			VectorCopy(level.team2spawnpoint->s.angles, spawn_angles);
+			VectorCopy(level.team2spawnpoint->s.origin, spawn_origin);
 		}
 // End JBravo.
 	} else {
