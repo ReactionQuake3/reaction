@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/05/19 04:48:50  jbravo
+// Added sniper headshot and hc really hard hit gibbing.  HC event gets lost
+// between game and cgame
+//
 // Revision 1.77  2002/05/18 14:52:16  makro
 // Bot stuff. Other stuff. Just... stuff :p
 //
@@ -1088,9 +1092,10 @@ player_die
 */
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*DMReward;
-	int		anim, contents, killer, i;
+	int		anim, contents, killer, i, hurt;
 	char		*killerName, *obit;
 
+	hurt = 0;
 	//Blaze: Stop bleeding when dead
 	if ( self->client )
 	{
@@ -1185,6 +1190,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_HEADKILLS]++;
 		}
 		PrintDeathMessage (self, attacker, LOC_HDAM, meansOfDeath);
+		hurt = LOC_HDAM;
 	}
 	else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER) {
@@ -1194,6 +1200,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  if (attacker && attacker->client)	attacker->client->pers.records[REC_CHESTKILLS]++;
 		}
 		PrintDeathMessage (self, attacker, LOC_CDAM, meansOfDeath);
+		hurt = LOC_CDAM;
 	}
 	else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN) {
@@ -1203,6 +1210,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_STOMACHKILLS]++;
 		}
 		PrintDeathMessage (self, attacker, LOC_SDAM, meansOfDeath);
+		hurt = LOC_SDAM;
 	}
 	else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT) {
@@ -1212,9 +1220,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_LEGKILLS]++;
 		}
 		PrintDeathMessage (self, attacker, LOC_LDAM, meansOfDeath);
+		hurt = LOC_LDAM;
 	} else {
 //		// non-location/world kill
 		PrintDeathMessage (self, attacker, LOC_NOLOC, meansOfDeath);
+		hurt = 0;
 	}
 
 	Cmd_Unzoom(self);
@@ -1284,10 +1294,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			  break;
 		}
 	}
-/*	ent->s.eventParm = meansOfDeath;
-	ent->s.otherEntityNum = self->s.number;
-	ent->s.otherEntityNum2 = killer;
-	ent->r.svFlags = SVF_BROADCAST;	// send to everyone */
 	self->enemy = attacker;
 	if (level.team_round_going) {
 		//Makro - crash bug fix
@@ -1501,6 +1507,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// remove powerups
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
+
+// JBravo: AQ style Sniper and HC gibbing
+	if ((meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM) || (meansOfDeath == MOD_HANDCANNON && self->health <= -15)) {
+		G_Printf("AQ GIB!\n");
+		self->client->ps.eFlags &= ~EF_HANDCANNON_SMOKED;
+		self->s.eFlags &= ~EF_KAMIKAZE;
+		GibEntity (self, killer);
+	}
 
 	// never gib in a nodrop
 	if ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
