@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/24 22:50:52  niceass
+// misc. 2d screen stuff changed
+//
 // Revision 1.30  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -570,6 +573,7 @@ static void CG_DrawStatusBar( void ) {
 	vec3_t		origin;
 	qhandle_t	hicon;
 	qhandle_t	icon;
+	qhandle_t	model;
 //#ifdef MISSIONPACK
 //	qhandle_t	handle;
 //#endif
@@ -623,13 +627,18 @@ static void CG_DrawStatusBar( void ) {
 	//CG_DrawStringExt(44, 444, va("%d", value), hcolor, qtrue, qtrue, 24, 24, 3);
 	UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
 	
-	
 	//Elder: Draw weapon ammo and clips
 	style = UI_LEFT|UI_DROPSHADOW;
-
+/*
 	icon = cg_weapons[ cg.predictedPlayerState.weapon ].weaponIcon;
+
+	origin[0] = 40;
+	origin[1] = 0;
+	origin[2] = -30;
+
 	if (icon)
 		CG_DrawPic(152, 440, SMICON_SIZE, SMICON_SIZE, icon);
+*/
 
 	icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
 	//Don't draw ammo icon if holding grenade or knife
@@ -697,7 +706,6 @@ static void CG_DrawStatusBar( void ) {
 			CG_DrawPic(640-SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
 	}
 }
-
 /* Elder: old stuff
 	static float colors[4][4] = { 
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
@@ -877,6 +885,7 @@ static void CG_DrawStatusBar( void ) {
 #endif
 }
 */
+
 //#endif
 
 
@@ -969,12 +978,15 @@ static float CG_DrawFPS( float y ) {
 	int		fps;
 	static	int	previous;
 	int		t, frameTime;
+	float	Color[4];
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
 	t = trap_Milliseconds();
 	frameTime = t - previous;
 	previous = t;
+
+	y += 4;
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
 	index++;
@@ -990,12 +1002,18 @@ static float CG_DrawFPS( float y ) {
 		fps = 1000 * FPS_FRAMES / total;
 
 		s = va( "%ifps", fps );
-		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+		w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
 
-		CG_DrawBigString( 635 - w, y + 2, s, 1.0F);
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+		CG_FillRect( 631 - w - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color );
+
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+		CG_DrawCleanRect( 631 - w - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color );
+
+		CG_DrawSmallString( 631 - w, y + 2, s, 1.0F);
 	}
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + SMALLCHAR_HEIGHT + 4;
 }
 
 /*
@@ -1264,14 +1282,12 @@ static float CG_DrawScores( float y ) {
 	// draw from the right side to left
 	if ( cgs.gametype >= GT_TEAM ) {
 		x = 640;
-		color[0] = 0.0f;
-		color[1] = 0.0f;
-		color[2] = 1.0f;
-		color[3] = 0.33f;
+		MAKERGBA(color, 0.0f, 0.0f, 1.0f, 0.33f);
 		s = va( "%2i", s2 );
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
 		x -= w;
 		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
 			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
 		}
@@ -1288,14 +1304,12 @@ static float CG_DrawScores( float y ) {
 				}
 			}
 		}
-		color[0] = 1.0f;
-		color[1] = 0.0f;
-		color[2] = 0.0f;
-		color[3] = 0.33f;
+		MAKERGBA(color, 1.0f, 0.0f, 0.0f, 0.33f);
 		s = va( "%2i", s1 );
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
-		x -= w;
+		x -= w-1;
 		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
 			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
 		}
@@ -1524,8 +1538,8 @@ static void CG_DrawLowerRight( void ) {
 	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
-
-	y = CG_DrawScores( y );
+	// NiceAss: Taken out. Kinda ugly. I'll probably recode this later....
+//	y = CG_DrawScores( y );
 	y = CG_DrawPowerups( y );
 }
 #endif // MISSIONPACK
@@ -2330,12 +2344,34 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
-	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
+	float	Color[4];
+	
+	//CG_Printf("%d ", cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE);
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+
+	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+		MAKERGBA(Color, 0.7f, 0.0f, 0.0f, 0.3f);
+	}
+
+	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) {
+		MAKERGBA(Color, 0.0f, 0.0f, 0.7f, 0.3f);
+	}
+
+	CG_FillRect( 0, 400, 640, 80, Color );
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanLine(0, 400, 640, 1, Color);
+
+	CG_DrawBigString(320 - 10 * 8, 410, "Spectating", 1.0F);
+
+	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) return;
+
 	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
+		CG_DrawBigString(320 - 15 * 8, 450, "Waiting to play...", 1.0F);
 	}
 	else if ( cgs.gametype >= GT_TEAM ) {
-		CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
+		CG_DrawBigString(320 - 19 * 8, 450, "Join a team to play", 1.0F);
 	}
 }
 
@@ -2809,14 +2845,17 @@ static void CG_Draw2D( void ) {
 	}
 */
 	//Slicer: Adding HUD for follow spectating
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_BLUE)
-			CG_DrawSpectator();
+	if ( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) || 
+		cg.predictedPlayerState.pm_type == PM_SPECTATOR) {
+		//if (cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_BLUE)
+		// cg.predictedPlayerState.pm_type == PM_SPECTATOR
+		CG_DrawSpectator();
 		CG_DrawCrosshair();
 		CG_DrawCrosshairNames();
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
-		if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+		// if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+		if ( cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
 
 #ifdef MISSIONPACK
 			if ( cg_drawStatus.integer ) {
