@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.151  2002/07/07 23:54:57  jbravo
+// Say and Say_team now resets the idle timer
+//
 // Revision 1.150  2002/07/04 04:20:41  jbravo
 // Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
 // that where in eye spectating someone moved on to another player instantly on death.
@@ -1361,6 +1364,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 
 	// Elder: validate the client
 	validation = RQ3_ValidateSay(ent);
+	ent->client->idletime = 0;
 
 	if (validation != SAY_OK) {
 		// Only send one message for the initial offense
@@ -1479,7 +1483,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 
 /*
 ==================
-Cmd_Say_f
+Cmd_ay_f
 ==================
 */
 static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
