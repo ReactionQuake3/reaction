@@ -24,4 +24,5 @@
 * Fixed a model bug for team 2
 * changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and made it control what $K does
 * Spectators can now use say_team to communicate among each others, DM and TP
+* Unzoom now plays the lens sound
 
