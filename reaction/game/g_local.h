@@ -21,7 +21,7 @@
 // that run non-standard server frame rates.
 #define BLEED_TIME              20
 // Elder: Everyone knows you lose 6 health from the moment you start bandaging
-// Let's enforce that in-code because it's sometimes 7 or even 8 
+// Let's enforce that in-code because it's sometimes 7 or even 8
 // Elder: LOL it's 3, dumb Elder!
 #define BLEED_BANDAGE			3
 #define BLEED_BANDAGE_TIME		5400	// 27 x 2
@@ -107,13 +107,13 @@ struct gentity_s {
 	char		*model;
 	char		*model2;
 	int			freetime;			// level.time when the object was freed
-	
+
 	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
 	qboolean	freeAfterEvent;
 	qboolean	unlinkAfterEvent;
 
 	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges
-									// all game items are physicsObjects, 
+									// all game items are physicsObjects,
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
 	int			clipmask;			// brushes with this content value will be collided against
 									// when moving.  items and corpses do not collide against
@@ -191,7 +191,7 @@ struct gentity_s {
 	float		wait;
 	float		random;
 
-	gitem_t		*item;			// for bonus items	
+	gitem_t		*item;			// for bonus items
 	float		distance;		// VALKYRIE: for rotating door
 
 };
@@ -258,7 +258,7 @@ typedef struct {
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
-	clientConnected_t	connected;	
+	clientConnected_t	connected;
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
 	qboolean	initialSpawn;		// the first spawn should be at a cool location
@@ -271,12 +271,12 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
-	
+
 	qboolean	hadUniqueWeapon[MAX_WEAPONS];	//Elder: for "ammo" in last gun
 
 	int			sayTime;			// Elder: say validation stuff
 	int			sayCount;
-	int			sayWarnings;		
+	int			sayWarnings;
 	int			sayBans;
 	int			sayMuteTime;
 	qboolean	sayModerated;		// so warnings are not repeated for multi-line, same-frame messages
@@ -392,7 +392,7 @@ struct gclient_s {
     int			switchTeamTime;		// time the player switched teams
 // Begin Duffman
 	int			numClips[MAX_WEAPONS];   	 // Number of clips each weapon has
-// End Duffman   
+// End Duffman
 	int			weaponCount[WP_NUM_WEAPONS];	// Elder: for duplicate unique weapon tracking
 
 	qboolean	openDoor;			//Blaze: used to hold if someone has hit opendoor key
@@ -422,7 +422,7 @@ struct gclient_s {
 //	int			zoomed; 			// Hawkins (SSG zoom)
 	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)
 	int			shots;   			// Blaze: Number of shots fired so far with this weapon
-	
+
 	int			weaponfireNextTime;		// for akimbos
 	int			lastzoom;				// Elder: save last zoom state when firing
 
@@ -431,7 +431,7 @@ struct gclient_s {
 	int			lastReloadTime;			// Elder: for queuing M3/SSG reloads
 	int			reloadAttempts;			// Elder: for queuing M3/SSG reloads
 	int			reloadStage;			// Elder: 0, 1, 2 for sound queuing - move to stats?
-	
+
 	int			consecutiveShots;		// Elder: for M4 ride-up/kick
 	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var
 	int			uniqueItems;
@@ -706,6 +706,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
 //
 void G_RunMover( gentity_t *ent );
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
+void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ); // NiceAss: Added
 
 //
 // g_trigger.c

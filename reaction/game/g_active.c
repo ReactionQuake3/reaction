@@ -64,11 +64,11 @@ void P_DamageFeedback( gentity_t *player ) {
 // Q3 Code
 /*		client->ps.damagePitch = angles[PITCH]/360.0 * 256;
 		client->ps.damageYaw = angles[YAW]/360.0 * 256;*/
-		
+
 
 		// new RQ3 view-kick code, needs more tweaking (the 50 needs to be replaces with that below calcuation
 		// from the AQ2 code.
-		
+
 		// set aiming directions
 		AngleVectors (client->ps.viewangles, forward, right, up);
 
@@ -80,7 +80,7 @@ void P_DamageFeedback( gentity_t *player ) {
 
 		side = - DotProduct(v,right);
 		client->ps.damageYaw = 50*side*0.3;
-	
+
 	}
 
 	/*	AQ2 code pasted here for reference
@@ -97,10 +97,10 @@ void P_DamageFeedback( gentity_t *player ) {
 
     VectorSubtract (client->damage_from, player->s.origin, v);
     VectorNormalize (v);
-                
+
     side = DotProduct (v, right);
     client->v_dmg_roll = kick*side*0.3;
-                
+
     side = -DotProduct (v, forward);
     client->v_dmg_pitch = kick*side*0.3;
 
@@ -112,19 +112,19 @@ void P_DamageFeedback( gentity_t *player ) {
   */
 
 	/*
-	G_Printf("Lasthurt: %d, Head: %d, Face: %d, And-Op: %d\n", 
-			client->lasthurt_location, 
+	G_Printf("Lasthurt: %d, Head: %d, Face: %d, And-Op: %d\n",
+			client->lasthurt_location,
 			LOCATION_HEAD, LOCATION_FACE,
 			client->lasthurt_location & ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) );
 	*/
-	
+
 	// play an appropriate pain sound
 	if ( (level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE) ) {
 		//player->pain_debounce_time = level.time + 700;
 		//Elder: reduced pain debounce time so we can have a few more sounds :)
 		player->pain_debounce_time = level.time + 250;
-		
-		switch ( client->lasthurt_location & 
+
+		switch ( client->lasthurt_location &
              ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) ) {
 		//Elder: headshot sound
         case LOCATION_HEAD:
@@ -132,10 +132,10 @@ void P_DamageFeedback( gentity_t *player ) {
 			if (client->lasthurt_mod == MOD_KNIFE || client->lasthurt_mod == MOD_KNIFE_THROWN)
 				G_AddEvent( player, EV_RQ3_SOUND, RQ3_SOUND_KNIFEDEATH);
 			//Elder: do nothing -- sound is handled in g_combat.c again
-			//tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			//tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
 			//Elder: takes more bandwidth but guarantees a headshot sound
 			//G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
-			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
 			break;
 		/*
 		case LOCATION_CHEST:
@@ -147,7 +147,7 @@ void P_DamageFeedback( gentity_t *player ) {
 			G_AddEvent( player, EV_PAIN, player->health );
 			break;
 		}
-		
+
 		client->ps.damageEvent++;
 	}
 
@@ -229,7 +229,7 @@ void P_WorldEffects( gentity_t *ent ) {
 				// don't play a normal pain sound
 				ent->pain_debounce_time = level.time + 200;
 
-				G_Damage (ent, NULL, NULL, NULL, NULL, 
+				G_Damage (ent, NULL, NULL, NULL, NULL,
 					ent->damage, DAMAGE_NO_ARMOR, MOD_WATER);
 			}
 		}
@@ -241,7 +241,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for sizzle damage (move to pmove?)
 	//
-	if (waterlevel && 
+	if (waterlevel &&
 		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
 		/*
 		if (ent->health > 0
@@ -254,16 +254,16 @@ void P_WorldEffects( gentity_t *ent ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
-					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+					//G_Damage (ent, NULL, NULL, NULL, NULL,
 						//30*waterlevel, 0, MOD_LAVA);
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						3*waterlevel, 0, MOD_LAVA);
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
-					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+					//G_Damage (ent, NULL, NULL, NULL, NULL,
 						//10*waterlevel, 0, MOD_SLIME);
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						waterlevel, 0, MOD_SLIME);
 				}
 				// Elder: added
@@ -383,7 +383,8 @@ void	G_TouchTriggers( gentity_t *ent ) {
 			if ( hit->s.eType != ET_TELEPORT_TRIGGER &&
 				// this is ugly but adding a new ET_? type will
 				// most likely cause network incompatibilities
-				hit->touch != Touch_DoorTrigger) {
+				// NiceAss: changed Touch_DoorTrigger to Touch_DoorTriggerSpectator
+				hit->touch != Touch_DoorTriggerSpectator) {
 				continue;
 			}
 		}
@@ -474,8 +475,8 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		// gameplay, everyone isn't kicked
 		client->inactivityTime = level.time + 60 * 1000;
 		client->inactivityWarning = qfalse;
-	} else if ( client->pers.cmd.forwardmove || 
-		client->pers.cmd.rightmove || 
+	} else if ( client->pers.cmd.forwardmove ||
+		client->pers.cmd.rightmove ||
 		client->pers.cmd.upmove ||
 		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
@@ -706,7 +707,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			{
 				G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
 			}
-			
+
 			break;
 
 		case EV_FALL_FAR_NOSOUND:
@@ -732,7 +733,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			{
 				G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
 			}
-			
+
 			break;
 
 		case EV_FIRE_WEAPON:
@@ -925,7 +926,7 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 	//}
 	//Elder: remove zoom bits
 	Cmd_Unzoom(ent);
-		
+
 	weap = 0;
 	if (client->uniqueWeapons > 0)
 	{
@@ -955,21 +956,21 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		}
 
 		xr_item = BG_FindItemForWeapon( weap );
-	
+
 		//Elder: Send a server command instead of force-setting
 		//client->ps.weapon = WP_PISTOL;
 		//Elder: Don't reset the weapon ammo
 		//client->ps.ammo[ weap ] = 0;
 		client->pers.hadUniqueWeapon[weap] = qtrue;
-		
-		
+
+
 		//Elder: for immediate weapon drops
 		if (client->ps.weapon == weap)
 		{
 			client->ps.stats[STAT_RQ3] |= RQ3_THROWWEAPON;
 			trap_SendServerCommand( ent-g_entities, va("selectpistol"));
 		}
-		
+
 		client->weaponCount[weap]--;
 		if (client->weaponCount[weap] == 0)
 			client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
@@ -1086,7 +1087,7 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( ucmd->serverTime < level.time - 1000 ) {
 		ucmd->serverTime = level.time - 1000;
 //		G_Printf("serverTime >>>>>\n" );
-	} 
+	}
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -1305,7 +1306,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// touch other objects
 	ClientImpacts( ent, &pm );
-	
+
 	//Elder: someone added
 	if ( bJumping )	JumpKick( ent );
 
@@ -1313,7 +1314,7 @@ void ClientThink_real( gentity_t *ent ) {
 	switch( ent->client->ps.weapon ) {
 	case WP_AKIMBO:
 		/*
-		if ( ent->client->weaponfireNextTime != 0 && 
+		if ( ent->client->weaponfireNextTime != 0 &&
 			level.time >= ent->client->weaponfireNextTime) {
 			FireWeapon( ent );
 		}
@@ -1327,7 +1328,7 @@ void ClientThink_real( gentity_t *ent ) {
 		{
 			G_Printf("(%i) ClientThink: attempting M3 fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
-		}		
+		}
 		break;
 	case WP_SSG3000:
 		//Elder: try to do a fast reload if it's queued
@@ -1337,12 +1338,12 @@ void ClientThink_real( gentity_t *ent ) {
 		{
 			G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
-		}		
+		}
 		break;
 	default:
 		break;
 	}
-	
+
 	// save results of triggers and client events
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
@@ -1358,12 +1359,12 @@ void ClientThink_real( gentity_t *ent ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
-			if ( g_forcerespawn.integer > 0 && 
+			if ( g_forcerespawn.integer > 0 &&
 				( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
 				respawn( ent );
 				return;
 			}
-		
+
 			// pressing attack or use is the normal respawn method
 			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
 				respawn( ent );
@@ -1642,10 +1643,10 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
 
-	
+
 	//Moved to pmove.c
 	//Elder: M4 ride-up/kick -- condition for non-burst and ammo only
-	
+
 	if (ent->client->consecutiveShots &&
 		(ent->client->ps.ammo[WP_M4] <= 0 || ent->client->ps.weaponstate != WEAPON_FIRING))
 	{
@@ -1667,7 +1668,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		//Try to turn the laser on if it's off
 		if (ent->client->lasersight == NULL)
 			Laser_Gen(ent, qtrue);
-	}		
+	}
 
 	//RQ3_ClientReloadStages(ent);
 

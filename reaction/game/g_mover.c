@@ -1099,29 +1099,32 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 Touch_DoorTriggerSpectator
 ================
 */
-static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	int i, axis;
 	vec3_t origin, dir, angles;
 
-	axis = ent->count;
-	VectorClear(dir);
-	if (fabs(other->s.origin[axis] - ent->r.absmax[axis]) <
-		fabs(other->s.origin[axis] - ent->r.absmin[axis])) {
-		// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
-		origin[axis] = ent->r.absmin[axis] - 15;
-		dir[axis] = -1;
+	// NiceAss: Only let spectators teleport through a door.
+	if (other->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		axis = ent->count;
+		VectorClear(dir);
+		if (fabs(other->s.origin[axis] - ent->r.absmax[axis]) <
+			fabs(other->s.origin[axis] - ent->r.absmin[axis])) {
+			// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
+			origin[axis] = ent->r.absmin[axis] - 15;
+			dir[axis] = -1;
+		}
+		else {
+			// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
+			origin[axis] = ent->r.absmax[axis] + 15;
+			dir[axis] = 1;
+		}
+		for (i = 0; i < 3; i++) {
+			if (i == axis) continue;
+			origin[i] = (ent->r.absmin[i] + ent->r.absmax[i]) * 0.5;
+		}
+		vectoangles(dir, angles);
+		TeleportPlayer(other, origin, angles );
 	}
-	else {
-		// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
-		origin[axis] = ent->r.absmax[axis] + 15;
-		dir[axis] = 1;
-	}
-	for (i = 0; i < 3; i++) {
-		if (i == axis) continue;
-		origin[i] = (ent->r.absmin[i] + ent->r.absmax[i]) * 0.5;
-	}
-	vectoangles(dir, angles);
-	TeleportPlayer(other, origin, angles );
 }
 
 /*
@@ -1130,6 +1133,8 @@ Touch_DoorTrigger
 ================
 */
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+	// NiceAss: Not needed now that door's have their own spectator trigger
+	/*
 	if ( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		// if the door is not open and not opening
 		if ( ent->parent->moverState != MOVER_1TO2 &&
@@ -1139,10 +1144,11 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 			Touch_DoorTriggerSpectator( ent, other, trace );
 		}
 	}
+	*/
 	//else if ( ent->parent->moverState != MOVER_1TO2 &&
 			//ent->parent->moverState != ROTATOR_1TO2 ) {
 	//Elder: we want to handle MOVER_1TO2 and ROTATOR_1TO2 now
-	else {
+	//else {
 		//Blaze's broken open door code
 		//Elder: not as broken as you think	:)
 		if (other->client->openDoor == qtrue ||
@@ -1152,7 +1158,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 			other->client->openDoor = qfalse;
 			other->client->openDoorTime = 0;
 		}
-	}
+	//}
 }
 
 
@@ -1190,11 +1196,10 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 			best = i;
 		}
 	}
-	// NiceAss: This affected spectators near doors (jumping too soon)
-	// 		This was expanding the bounds of the door trigger out from the door 120 units.
-	//maxs[best] += 120;
-	//mins[best] -= 120;
+	maxs[best] += 120;
+	mins[best] -= 120;
 
+	// NiceAss: This trigger will be for players
 	// create a trigger with this size
 	other = G_Spawn ();
 	other->classname = "door_trigger";
@@ -1206,6 +1211,22 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	// remember the thinnest axis
 	other->count = best;
 	trap_LinkEntity (other);
+
+	// NiceAss: This trigger will be for spectators
+	// NiceAss: Undo most of the stretched box size so it is only a little bigger than the door
+	maxs[best] -= 110;
+	mins[best] += 110;
+	other = G_Spawn ();
+	other->classname = "door_trigger_spectator";
+	VectorCopy (mins, other->r.mins);
+	VectorCopy (maxs, other->r.maxs);
+	other->parent = ent;
+	other->r.contents = CONTENTS_TRIGGER;
+	other->touch = Touch_DoorTriggerSpectator;
+	// remember the thinnest axis
+	other->count = best;
+	trap_LinkEntity (other);
+
 
 	MatchTeam( ent, ent->moverState, level.time );
 }
