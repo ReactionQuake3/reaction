@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/08/27 07:02:09  niceass
+// terrain fix?
+//
 // Revision 1.48  2002/08/27 06:57:24  niceass
 // gooddamnit =(
 //
@@ -2494,7 +2497,9 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
 
 		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL ) ) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS ) ) )
-			return qtrue;
+			// Terrain has all 3 of these set. Assume it's terrain if all 3 are this way
+			if ( !(trace.surfaceFlags & (SURF_NOLIGHTMAP & SURF_NOMARKS & SURF_NODRAW)) )
+				return qtrue;
 	}
 
 	return qfalse;
