@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/07/09 05:41:23  niceass
+// fix to kicking in CTB
+//
 // Revision 1.74  2002/07/04 00:59:25  blaze
 // moved the kick counter for stats to a more accurate spot.
 //
@@ -245,11 +248,17 @@ qboolean JumpKick(gentity_t * ent)
 		kickSuccess = qtrue;
 
 // JBravo: no kicking teammates while rounds are going
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		//Makro - client check here
 		if (traceEnt->client != NULL && ent->client != NULL) {
+			// TP
 			if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
-			    level.team_round_going) {
+			    level.team_round_going && g_gametype.integer == GT_TEAMPLAY) {
+				return qfalse;
+			}
+			// CTF
+			if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
+			    g_gametype.integer == GT_CTF) {
 				return qfalse;
 			}
 		}
