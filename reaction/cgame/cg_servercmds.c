@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/05/20 16:23:44  jbravo
+// Fixed spec problem when noone is alive. Fixed kicking teammates bug
+//
 // Revision 1.40  2002/05/20 04:59:33  jbravo
 // Lots of small fixes.
 //
@@ -1347,7 +1350,7 @@ void CG_RQ3_Cmd () {
 		case SETWEAPON:
 			i = atoi(CG_Argv(1));
 			cg.weaponSelect = i;
-//			cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << i);
+			cg.weaponSelectTime = cg.time;
 			break;
 		case STUFF:
 			CG_Stuffcmd();

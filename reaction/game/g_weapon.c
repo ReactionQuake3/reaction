@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/05/20 16:23:44  jbravo
+// Fixed spec problem when noone is alive. Fixed kicking teammates bug
+//
 // Revision 1.57  2002/05/18 14:52:16  makro
 // Bot stuff. Other stuff. Just... stuff :p
 //
@@ -139,25 +142,20 @@ Because it is a weapon!
 ======================================================================
 */
 
-qboolean JumpKick( gentity_t *ent )
-{
+qboolean JumpKick (gentity_t *ent) {
 	trace_t		tr;
 	vec3_t		end;
-	gentity_t	*tent;
-	gentity_t	*traceEnt;
-	int			damage;
+	gentity_t	*tent, *traceEnt;
+	int		damage;
 	//Elder: for kick sound
 	qboolean	kickSuccess;
 
-	if ( g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action ) {
+	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
 		return qfalse;		// JBravo: No kicking during LCA
 	}
 
 	//Makro - added
-	if ( ent == NULL ) {
-		return qfalse;
-	}
-	if ( ent->client == NULL ) {
+	if (ent == NULL || ent->client == NULL) {
 		return qfalse;
 	}
 
@@ -167,50 +165,31 @@ qboolean JumpKick( gentity_t *ent )
 	// Elder: AQ2 offset
 	muzzle[2] -= (ent->client->ps.viewheight - 20);
 	VectorMA (muzzle, 25, forward, end);
-	//VectorMA (muzzle, 32, forward, end);
 
-	//VectorCopy( ent->s.origin, muzzle );
-	//muzzle[2] += 32;
 	// the muzzle really isn't the right point to test the jumpkick from
 
 	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-	//trap_Trace (&tr, ent->s.origin, NULL, NULL, end, ent->s.number, MASK_SHOT);
 
-	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+	if (tr.surfaceFlags & SURF_NOIMPACT) {
 		return qfalse;
 	}
 
-	kickSuccess = DoorKick( &tr, ent, muzzle, forward );
-	traceEnt = &g_entities[ tr.entityNum ];
+	kickSuccess = DoorKick (&tr, ent, muzzle, forward);
+	traceEnt = &g_entities[tr.entityNum];
 
 // JBravo: some sanity checks on the traceEnt
 // Makro - this check made the sound only play when a client is hit
-//	if (traceEnt == NULL || traceEnt->client == NULL)
 	if (traceEnt == NULL)
 		return qfalse;
 
-	if ( !traceEnt->takedamage) {
+	if (!traceEnt->takedamage)
 		return qfalse;
-	}
 
 	//Makro - this was a few lines below
 	damage = 20;
 
-	if ( traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
+	if (traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
 		kickSuccess = qtrue;
-
-	//Elder: can't hit if crouching but can still hit "dead" bodies :)
-	if (traceEnt->client && traceEnt->health > 0 && traceEnt->r.maxs[2] < 20)
-    {
-		return qfalse;
-    }
-	else {
-		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
-		if (ent->client && level.team_round_going)
-			ent->client->pers.records[REC_KICKHITS]++;
-	}
-	//end Makro
 
 // JBravo: no kicking teammates while rounds are going
 	if (g_gametype.integer == GT_TEAMPLAY) {
@@ -222,6 +201,15 @@ qboolean JumpKick( gentity_t *ent )
 			}
 		}
 	}
+	//Elder: can't hit if crouching but can still hit "dead" bodies :)
+	if (traceEnt->client && traceEnt->health > 0 && traceEnt->r.maxs[2] < 20) {
+		return qfalse;
+	} else {
+		G_Damage (traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_LOCATIONAL, MOD_KICK);
+		if (ent->client && level.team_round_going)
+			ent->client->pers.records[REC_KICKHITS]++;
+	}
+	//end Makro
 
 	//Makro - client check
 	if (ent->client) {
@@ -235,31 +223,17 @@ qboolean JumpKick( gentity_t *ent )
 
 	//Makro - moved some code up by a few lines to allow breakables to be kicked
 
-	// send blood impact + event stuff
-	/*
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		//tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-		tent = G_TempEntity( tr.endpos, EV_JUMPKICK );
-		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.weapon = ent->s.weapon;
-	}
-	*/
-
-	if (traceEnt->client != NULL && traceEnt->takedamage)
-	{
-		tent = G_TempEntity( tr.endpos, EV_JUMPKICK );
+	if (traceEnt->client != NULL && traceEnt->takedamage) {
+		tent = G_TempEntity (tr.endpos, EV_JUMPKICK);
 		tent->s.otherEntityNum = traceEnt->s.number;
 		tent->s.otherEntityNum2 = ent->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.eventParm = DirToByte (tr.plane.normal);
 		tent->s.weapon = 0;
 
-
-		if (traceEnt->client->uniqueWeapons > 0)
-		{
+		if (traceEnt->client->uniqueWeapons > 0) {
 			//Elder: toss a unique weapon if kicked
 			//Need to make sure to cancel any reload attempts - test this
-			Cmd_Unzoom(traceEnt);
+			Cmd_Unzoom (traceEnt);
 			traceEnt->client->fastReloads = 0;
 			traceEnt->client->reloadAttempts = 0;
 			traceEnt->client->ps.weaponTime = 0;
@@ -272,40 +246,9 @@ qboolean JumpKick( gentity_t *ent )
 		kickSuccess = qfalse;
 	}
 
-
-
-	//Elder: for the kick
-	// do our special form of knockback here
-	/*
-        VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
-        VectorSubtract (v, point, v);
-        VectorNormalize (v);
-        VectorMA (self->enemy->velocity, kick, v, self->enemy->velocity);
-        if (self->enemy->velocity[2] > 0)
-                self->enemy->groundentity = NULL;
-	*/
-	//Elder: kick knockback for AQ2 -- recall variable kick = 400
-	//if (traceEnt->client)
-	//{
-		//Elder: for kick knockback
-		//vec3_t		size, vTemp;
-
-		//Make the "size" vector - hopefully this is right
-		//VectorSubtract(traceEnt->r.maxs, traceEnt->r.mins, size);
-		//G_Printf("Size: %s\n", vtos(size));
-
-		//VectorMA(traceEnt->r.absmin, 0.5, size, vTemp);
-		//VectorSubtract(vTemp, tr.endpos, vTemp);
-		//VectorNormalize(vTemp);
-		//VectorMA(traceEnt->client->ps.velocity, 400, vTemp, traceEnt->client->ps.velocity);
-		//if (traceEnt->client->ps.velocity[2] > 0)
-			//traceEnt->s.groundEntityNum = ENTITYNUM_NONE;
-	//}
-
 	//Elder: Our set of locally called sounds
-	if (kickSuccess)
-	{
-		G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+	if (kickSuccess) {
+		G_AddEvent (ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
 	}
 
 	return qtrue;
