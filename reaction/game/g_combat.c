@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/03/03 21:46:26  blaze
+// weapon stats, done, beta test for bugs
+//
 // Revision 1.46  2002/03/01 18:21:26  jbravo
 // Cleanups and removal of g_RQ3_sniperup
 //
@@ -789,6 +792,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
 	self->enemy = attacker;
 	self->client->ps.persistant[PERS_KILLED]++;
+  //Blaze: Give the attacker 1 kill
+  attacker->client->pers.records[REC_KILLS]++;
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
@@ -797,6 +802,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if (attacker == self || OnSameTeam (self, attacker)) {
 			if (level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
+        //If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
+        attacker->client->pers.records[REC_KILLS]--;
+        //Also, increment the TK's record
+        attacker->client->pers.records[REC_TEAMKILLS]++;
 			}
 		} else {
 			// Increase number of kills this life for attacker
@@ -879,6 +888,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (meansOfDeath == MOD_SUICIDE) {
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_SUICIDES]++;
+    self->client->pers.records[REC_KILLS]--;
+    AddScore(self, self->r.currentOrigin, -1);
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
 				Team_ReturnFlag( TEAM_FREE );

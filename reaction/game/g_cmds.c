@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/03/03 21:46:26  blaze
+// weapon stats, done, beta test for bugs
+//
 // Revision 1.65  2002/03/03 02:04:14  jbravo
 // Zcam tewaking
 //
@@ -216,7 +219,7 @@ Request current weaponstats information
 void Cmd_WeaponStats_f( gentity_t *ent)
 {
   
-	trap_SendServerCommand( ent-g_entities, va("wstats %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", 
+	trap_SendServerCommand( ent-g_entities, va("wstats %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", 
     ent->client->pers.records[REC_KNIFETHROWSHOTS],ent->client->pers.records[REC_KNIFETHROWHITS],
     ent->client->pers.records[REC_KNIFESLASHSHOTS],ent->client->pers.records[REC_KNIFESLASHHITS],
     ent->client->pers.records[REC_MK23SHOTS],ent->client->pers.records[REC_MK23HITS],
@@ -227,7 +230,8 @@ void Cmd_WeaponStats_f( gentity_t *ent)
     ent->client->pers.records[REC_HANDCANNONSHOTS],ent->client->pers.records[REC_HANDCANNONHITS],
     ent->client->pers.records[REC_AKIMBOSHOTS],ent->client->pers.records[REC_AKIMBOHITS],
     ent->client->pers.records[REC_GRENADESHOTS],ent->client->pers.records[REC_GRENADEHITS],
-    ent->client->pers.records[REC_KICKHITS]));
+    ent->client->pers.records[REC_KICKHITS],ent->client->pers.records[REC_KILLS],
+    ent->client->pers.records[REC_TEAMKILLS], ent->client->pers.records[REC_SUICIDES]));
 
 	trap_SendServerCommand( ent-g_entities, va("wstats2 %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", 
     ent->client->pers.records[REC_KNIFETHROWDEATHS],ent->client->pers.records[REC_KNIFETHROWKILLS],

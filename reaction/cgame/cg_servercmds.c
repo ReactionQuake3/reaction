@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/03 21:44:01  blaze
+// weapon stats, done, beta test for bugs
+//
 // Revision 1.18  2002/02/28 05:41:54  blaze
 // weapons stats on client side
 //
@@ -152,6 +155,9 @@ static void CG_ParseWeaponStats( void ) {
   cg.records[REC_GRENADESHOTS] = atoi( CG_Argv(i++));
   cg.records[REC_GRENADEHITS] = atoi( CG_Argv(i++));
   cg.records[REC_KICKHITS] = atoi( CG_Argv(i++));
+  cg.records[REC_KILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_TEAMKILLS] = atoi( CG_Argv(i++));
+  cg.records[REC_SUICIDES] = atoi( CG_Argv(i++));
 
 }
 /*

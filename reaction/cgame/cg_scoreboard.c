@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/03 21:44:01  blaze
+// weapon stats, done, beta test for bugs
+//
 // Revision 1.9  2002/03/02 01:16:30  blaze
 // weapons stats- reordered where the mp5 was to make it more consistant with the weapon selection page
 //
@@ -733,7 +736,7 @@ CG_DrawWeaponStats
 ==============================
 */
 #define WS_LEFTSIDE 20
-#define WS_TOP 230
+#define WS_TOP 200
 #define WS_WIDTH 640 - WS_LEFTSIDE * 10
 #define WS_LINE_WIDTH			1
 #define WS_PADDING				(WS_LINE_WIDTH+2)
@@ -741,7 +744,7 @@ CG_DrawWeaponStats
 
 void CG_DrawWeaponStats(void)
 {
-	int		i, red, blue, spec, score, deaths, offset;
+	int		i, red, blue, spec, offset;
 	float	color[4], Alpha, Alpha2;
 	
 	clientInfo_t	*ci;
@@ -759,8 +762,9 @@ void CG_DrawWeaponStats(void)
 	}
   //make room for 8 weapon stats
   size = (10*20)+SB_PADDING;
-  score = cg.snap->ps.persistant[PERS_SCORE];
-  deaths = cg.snap->ps.persistant[PERS_KILLED];
+  
+  
+
 	// Score bar - Red:
 	MAKERGBA(color, 1.0f, 0.5f, 0.5f, 0.7f * Alpha);
 	CG_FillRect(WS_LEFTSIDE, WS_TOP, 
@@ -777,7 +781,7 @@ void CG_DrawWeaponStats(void)
 				WS_WIDTH, size, color);
   //box for weapon stuff
 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 0.8f);
-	CG_DrawCleanRect( WS_LEFTSIDE, WS_TOP, 
+	 CG_DrawCleanRect( WS_LEFTSIDE, WS_TOP, 
 			WS_WIDTH, (SMALLCHAR_HEIGHT+WS_PADDING*2)*2+size, WS_LINE_WIDTH, color );
 
   //box for score stuff
@@ -796,41 +800,52 @@ void CG_DrawWeaponStats(void)
   
   //Fill in the top bar	
   offset = 7;
-	MAKERGBA(color, 1.0f, 0.0f, 0.0f, 1.0f);
+	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6, WS_TOP + SB_PADDING,
 							"Score", color);
 
-	MAKERGBA(color, 0.0f, 1.0f, 0.0f, 1.0f);
+	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7, WS_TOP + SB_PADDING,
 							"Net", color);
 
-  MAKERGBA(color, 0.0f, 0.0f, 1.0f, 1.0f);
+  MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 2, WS_TOP + SB_PADDING,
-							"Kills", color);
+							"K/D/S", color);
 
-  MAKERGBA(color, 0.5f, 0.0f, 0.0f, 1.0f);
+ 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 3, WS_TOP + SB_PADDING,
-							"Deaths", color);
-
- 	MAKERGBA(color, 0.0f, 0.5f, 0.0f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 4, WS_TOP + SB_PADDING,
-							"Sui", color);
-
- 	MAKERGBA(color, 0.0f, 0.0f, 0.5f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 5, WS_TOP + SB_PADDING,
 							"TK's", color);
 
-  MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 6, WS_TOP + SB_PADDING,
-							"Efficiency", color);
+//  MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
+//	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 4, WS_TOP + SB_PADDING,
+//							"Efficiency", color);
                
-	Com_sprintf(String, sizeof(String),	"%4i",score);
-
-  
+	Com_sprintf(String, sizeof(String),	"%4i",cg.snap->ps.persistant[PERS_SCORE]);
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
 							String, color);
+
+  Com_sprintf(String, sizeof(String),	"%3i",cg.records[REC_KILLS] - cg.snap->ps.persistant[PERS_KILLED]);
+
+  MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 - 1, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
+							String, color);
+
+
+  Com_sprintf(String, sizeof(String),	"%i/%i/%i",cg.records[REC_KILLS],cg.snap->ps.persistant[PERS_KILLED],cg.records[REC_SUICIDES]);
+
+  MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 2, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
+							String, color);
+
+  Com_sprintf(String, sizeof(String),	"%4i",cg.records[REC_TEAMKILLS]);
+
+  MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 * 3, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
+							String, color);
+
+  
   i=2;
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -944,181 +959,181 @@ void CG_DrawWeaponStats(void)
 
   //Hits
   i=2;
-  offset=24;
+  offset=25;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Hits", color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFESLASHHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFESLASHHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFETHROWHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFETHROWHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MK23HITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MK23HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5HITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MP5HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3HITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M3HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M4HITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M4HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_HANDCANNONHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_HANDCANNONHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_SSG3000HITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_SSG3000HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_AKIMBOHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_AKIMBOHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_GRENADEHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_GRENADEHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KICKHITS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KICKHITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
   //Shots
   i=2;
-  offset = 30;
+  offset = 32;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * (offset - 1), WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Shots", color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFESLASHSHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFESLASHSHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFETHROWSHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFETHROWSHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MK23SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MK23SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MP5SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M3SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M4SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M4SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_HANDCANNONSHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_HANDCANNONSHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_SSG3000SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_SSG3000SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_AKIMBOSHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_AKIMBOSHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_GRENADESHOTS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_GRENADESHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
   //Kills
   i=2;
-  offset = 37;
+  offset = 44;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * (offset - 1), WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Kills", color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFESLASHKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFESLASHKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFETHROWKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFETHROWKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MK23KILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MK23KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5KILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MP5KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3KILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M3KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M4KILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M4KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_HANDCANNONKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_HANDCANNONKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_SSG3000KILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_SSG3000KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_AKIMBOKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_AKIMBOKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_GRENADEKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_GRENADEKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KICKKILLS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KICKKILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
@@ -1127,60 +1142,60 @@ void CG_DrawWeaponStats(void)
   i=2;
   offset = 45;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
-	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
+	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * (offset -2), WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Deaths", color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFESLASHDEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFESLASHDEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KNIFETHROWDEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KNIFETHROWDEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MK23DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MK23DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_MP5DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M3DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M4DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_M4DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_HANDCANNONDEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_HANDCANNONDEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_SSG3000DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_SSG3000DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_AKIMBODEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_AKIMBODEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_GRENADEDEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_GRENADEDEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_KICKDEATHS]);
+  Com_sprintf(String, sizeof(String),	"%4d",cg.records[REC_KICKDEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);

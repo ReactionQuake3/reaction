@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/03 21:46:26  blaze
+// weapon stats, done, beta test for bugs
+//
 // Revision 1.48  2002/02/26 02:58:47  jbravo
 // Fixing the spectator_free mode not being predicted in the client.
 //
@@ -792,7 +795,9 @@ typedef enum {
 	REC_FRAGSTEALS,			// this is a derived record -- remove?
 	REC_CHATCOUNT,
 	REC_GESTURECOUNT,
-
+  REC_KILLS,        //How many kills - different then score
+  //how many TK's
+  REC_TEAMKILLS,
 	REC_NUM_RECORDS
 } rq3record_t;
 
