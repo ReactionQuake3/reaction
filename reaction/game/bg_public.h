@@ -513,19 +513,20 @@ typedef enum {
 
 } powerup_t;
 
+//Elder: swapped around
 typedef enum {
 	HI_NONE,
 
-	HI_KEVLAR,
-	HI_LASER,
-	HI_SILENCER,
-	HI_BANDO,
-	HI_SLIPERS,
 	HI_TELEPORTER,
 	HI_MEDKIT,
 	HI_KAMIKAZE,
 	HI_PORTAL,
 	HI_INVULNERABILITY,
+	HI_KEVLAR,
+	HI_LASER,
+	HI_SILENCER,
+	HI_BANDO,
+	HI_SLIPERS,
 
 	HI_NUM_HOLDABLE
 } holdable_t;
