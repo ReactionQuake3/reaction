@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/02/23 16:55:09  jbravo
+// Added debugging to help find what was going with can't find item for weapon
+// error that crash the server.
+//
 // Revision 1.28  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -885,6 +889,14 @@ BG_FindItemForWeapon
 */
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	gitem_t	*it;
+
+// JBravo: adding debugging messages.
+	if (weapon > 10) {
+		Com_Printf("The server will most likly crash now.\n");
+		Com_Printf("If you see this message, write down what was happening\n");
+		Com_Printf("and let JBravo know about it.\n");
+		Com_Printf("in BG_FindItemForWeapon: weapon is %i.\n", weapon);
+	}
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
 		if ( it->giType == IT_WEAPON && it->giTag == weapon ) {

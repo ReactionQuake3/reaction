@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/02/23 16:55:09  jbravo
+// Added debugging to help find what was going with can't find item for weapon
+// error that crash the server.
+//
 // Revision 1.53  2002/02/22 02:13:13  jbravo
 // Fixed a few bugs and did some cleanups
 //
@@ -1064,6 +1068,9 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		{
 			weap = client->ps.weapon;
 		}
+
+// JBravo: adding debugging messages.
+		G_Printf("in ThrowWeapon: weapon is %i\n", weap);
 
 		xr_item = BG_FindItemForWeapon( weap );
 
