@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/04/29 06:14:10  niceass
+// pressure
+//
 // Revision 1.28  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -1328,14 +1331,14 @@ void CG_BreakBreakable( centity_t *cent,int eParam, int number ) {
 	
 }
 
-void CG_PressureWater( vec3_t origin, vec3_t dir )
+void CG_Pressure( vec3_t origin, vec3_t dir, centity_t *cent )
 {
 	localEntity_t	*le;
 	refEntity_t		*re;
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
-	le->leType = LE_PRESSURE_WATER;
+	le->leType = LE_PRESSURE;
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(dir, le->pos.trDelta);
 	le->startTime = cg.time;

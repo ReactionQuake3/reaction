@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/04/29 06:14:57  niceass
+// pressure
+//
 // Revision 1.51  2002/04/23 06:08:58  niceass
 // pressure stuff
 //
@@ -2564,10 +2567,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
  		DEBUGNAME("EV_CHIP_GLASS");
  		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 1, 1 );
  		break;
-	case EV_PRESSURE_WATER:
- 		DEBUGNAME("EV_PRESSURE_WATER");
+	case EV_PRESSURE:
+ 		DEBUGNAME("EV_PRESSURE");
 		ByteToDir(es->eventParm, dir);
- 		CG_PressureWater( position, dir );
+ 		CG_Pressure( position, dir, cent );
 		break;
 
   case EV_STOPLOOPINGSOUND:
