@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/06/11 13:42:54  makro
+// Added a time limit for changing weapon modes for bots
+//
 // Revision 1.41  2002/06/06 20:04:10  makro
 // Checking teams
 //
@@ -419,9 +422,15 @@ Added by Makro
 */
 void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 	int i, modeCount, oldMode, press;
+	float reactionTime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 
 	//not holding the right weapon
 	if (weapon != bs->cur_ps.weapon)
+		return;
+
+	//too soon ?
+	//TODO: array with weapon mode change times for individual weapons ?
+	if (FloatTime() < bs->weapoModeChange_time + 2 - reactionTime)
 		return;
 
 	switch (bs->cur_ps.weapon) {
@@ -456,6 +465,8 @@ void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 		//Cmd_Weapon( &g_entities[bs->entitynum] );
 		Cmd_New_Weapon( &g_entities[bs->entitynum] );
 	}
+
+	bs->weapoModeChange_time = FloatTime;
 }
 
 /*

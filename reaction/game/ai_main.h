@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/06/11 13:42:54  makro
+// Added a time limit for changing weapon modes for bots
+//
 // Revision 1.9  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -221,7 +224,8 @@ typedef struct bot_state_s
 	int predictobstacles_goalareanum;				//last goal areanum the bot predicted obstacles for
 	float radioresponse_time;						//Makro - the last time the bot responded to a radio message
 	int radioresponse_count;						//Makro - how many times the bot responded to radio messages
-	float idleAction_time;						//Makro - last time the bot did something while roaming around (reload/bandage)
+	float idleAction_time;							//Makro - last time the bot did something while roaming around (reload/bandage)
+	float weapoModeChange_time;						//Makro - last time the bot changed weapon modes
 
 	vec3_t aimtarget;
 	vec3_t enemyvelocity;							//enemy velocity 0.5 secs ago during battle
