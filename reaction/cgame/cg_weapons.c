@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2003/03/29 23:04:56  jbravo
+// More post _skin cvar fixes
+//
 // Revision 1.110  2003/03/29 18:53:41  jbravo
 // Fixed ammo bug when dropping bandolier. Added color to more errormessages
 //
@@ -629,7 +632,7 @@ void CG_RegisterWeapon(int weaponNum)
 {
 	weaponInfo_t *weaponInfo;
 	gitem_t *item, *ammo;
-	char path[MAX_QPATH], str[MAX_TOKEN_CHARS];
+	char path[MAX_QPATH], str[MAX_STRING_CHARS];
 	char *model, *skin;
 	vec3_t mins, maxs;
 	// QUARANTINE - Weapon Animations - Added Variable
@@ -730,6 +733,8 @@ void CG_RegisterWeapon(int weaponNum)
 	}
 
 	weaponInfo->loopFireSound = qfalse;
+
+	memset (str, 0, sizeof(str));
 
 	switch (weaponNum) {
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2003/03/29 23:04:56  jbravo
+// More post _skin cvar fixes
+//
 // Revision 1.51  2003/03/29 16:01:36  jbravo
 // _skin cvars now fully removed. dlight code from Makro added. cvar
 // defaults fixed.
@@ -1611,7 +1614,7 @@ qboolean IsWoodFlag(int flag)
 }
 
 //Makro - added
-char *modelFromStr(char *s)
+/* char *modelFromStr(char *s)
 {
 	char *p, *out = s;
 	if (!s)
@@ -1623,9 +1626,9 @@ char *modelFromStr(char *s)
 		*p='/';
 	}
 	return out;
-}
+} */
 
-char *skinFromStr(char *s)
+/*char *skinFromStr(char *s)
 {
 	char *p;
 	if (!s)
@@ -1635,6 +1638,37 @@ char *skinFromStr(char *s)
 	if ((p = Q_strrchr(s, '/')) != NULL)
 		return p+1;
 	return va("default");
+} */
+
+// NiceAss: rewriting to avoid va() overriting data.
+char *modelFromStr(char *s)
+{
+	static char buffer[128];
+	char *p;
+
+	if (!s)
+		return NULL;
+	strncpy(buffer, s, 128);
+	if ((p = Q_strrchr(buffer, '/')) != NULL)
+		*p = '\0';
+	return buffer;
+}
+
+char *skinFromStr(char *s)
+{
+	static char buffer[128];
+	char *p;
+
+	memset(buffer, 0, 128); 
+	if (!s)
+		return NULL;
+	if (!*s)
+		return buffer;
+	strncpy(buffer, s, 128);
+	if ((p = Q_strrchr(buffer, '/')) != NULL)
+		return p+1;
+	strcpy(buffer, "default");
+	return buffer;
 }
 
 char *strchrstr(char *s, char *chars)
