@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/02/24 20:49:07  slicer
+// Follow Spect Players- Draws the gun
+//
 // Revision 1.49  2002/02/23 18:07:46  slicer
 // Changed Sniper code and Cam code
 //
@@ -1714,8 +1717,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	//float rxn_gunx, rxn_guny, rxn_gunz;
 
 
-
-	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	//Slicer - Spect code for follow
+	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR && !(ps->pm_flags & PMF_FOLLOW)) {
 		return;
 	}
 
