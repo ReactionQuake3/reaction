@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/03/17 01:44:39  jbravo
+// Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
+// DM.  Only DM problem I can see is that bots are invisible.
+//
 // Revision 1.31  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -645,7 +649,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.fps = trap_Cvar_VariableIntegerValue( "sv_fps" );
 	}
 // Slicer: reset matchmode vars
-	if(g_RQ3_matchmode.integer) {
+	if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
 		level.matchTime = 0;
 		level.inGame = qfalse;
 		trap_Cvar_Set("RQ3_team1", "0");

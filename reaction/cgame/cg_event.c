@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/03/17 01:44:39  jbravo
+// Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
+// DM.  Only DM problem I can see is that bots are invisible.
+//
 // Revision 1.41  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -2409,19 +2413,43 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//Elder: location events
 	case EV_OBITUARY_HEAD:
 		DEBUGNAME("EV_OBITUARY_HEAD");
-		CG_Obituary_Head( es );
+// JBravo: the following mod's dont have locations and are not handled in the location Orbits
+		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
+			CG_Obituary( es );
+		} else {
+			CG_Obituary_Head( es );
+		}
 		break;
 	case EV_OBITUARY_CHEST:
 		DEBUGNAME("EV_OBITUARY_CHEST");
-		CG_Obituary_Chest( es );
+// JBravo: the following mod's dont have locations and are not handled in the location Orbits
+		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
+			CG_Obituary( es );
+		} else {
+			CG_Obituary_Chest( es );
+		}
 		break;
 	case EV_OBITUARY_STOMACH:
 		DEBUGNAME("EV_OBITUARY_STOMACH");
-		CG_Obituary_Stomach( es );
+// JBravo: the following mod's dont have locations and are not handled in the location Orbits
+		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
+			CG_Obituary( es );
+		} else {
+			CG_Obituary_Stomach( es );
+		}
 		break;
 	case EV_OBITUARY_LEGS:
 		DEBUGNAME("EV_OBITUARY_LEGS");
-		CG_Obituary_Legs( es );
+// JBravo: the following mod's dont have locations and are not handled in the location Orbits
+		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
+			CG_Obituary( es );
+		} else {
+			CG_Obituary_Legs( es );
+		}
 		break;
 	//
 	// powerup events

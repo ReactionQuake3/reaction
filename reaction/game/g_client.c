@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/17 01:44:39  jbravo
+// Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
+// DM.  Only DM problem I can see is that bots are invisible.
+//
 // Revision 1.49  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -1146,9 +1150,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 
 	//slicer : make sessionTeam = to savedTeam for scoreboard on cgame
-	client->sess.sessionTeam = client->sess.savedTeam ;
-	ClientUserinfoChanged( clientNum );
-	client->sess.sessionTeam = TEAM_SPECTATOR;
+// JBravo: only for teamplay. Could break DM
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		client->sess.sessionTeam = client->sess.savedTeam ;
+		ClientUserinfoChanged( clientNum );
+		client->sess.sessionTeam = TEAM_SPECTATOR;
+	}
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
@@ -1189,17 +1196,16 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	int			flags;
-	int savedPing, i;
-	int savedPers[MAX_PERSISTANT];
+	int		flags, savedPing, i;
+	int 		savedPers[MAX_PERSISTANT];
 
 	ent = g_entities + clientNum;
-
 	client = level.clients + clientNum;
 
 	if ( ent->r.linked ) {
 		trap_UnlinkEntity( ent );
 	}
+
 	G_InitGentity( ent );
 	ent->touch = 0;
 	ent->pain = 0;
@@ -1207,16 +1213,17 @@ void ClientBegin( int clientNum ) {
 
 	//Slicer : Reseting matchmode vars
 	//Note: Each time a player changes team, this will also be called..
-	if(g_RQ3_matchmode.integer ) {
+	if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
 		client->pers.captain = TEAM_FREE;
 		client->pers.sub = TEAM_FREE;
 	}
 
 	//Slicer: Saving persistant and ping
-	savedPing = client->ps.ping;
-	for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
-		savedPers[i] = client->ps.persistant[i]; 
-
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		savedPing = client->ps.ping;
+		for ( i = 0 ; i < MAX_PERSISTANT ; i++ )
+			savedPers[i] = client->ps.persistant[i]; 
+	}
 
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
@@ -1292,22 +1299,22 @@ Initializes all non-persistant parts of playerState
 ============
 */
 void ClientSpawn(gentity_t *ent) {
-	int		index;
-	vec3_t	spawn_origin, spawn_angles;
-	gclient_t	*client;
-	int		i;
+	int			index;
+	vec3_t			spawn_origin, spawn_angles;
+	gclient_t		*client;
+	int			i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int		persistant[MAX_PERSISTANT], savedpers[MAX_PERSISTANT];
-	gentity_t	*spawnPoint;
-	int		flags;
-	int		savedPing;
-//	char	*savedAreaBits;
-	int		accuracy_hits, accuracy_shots;
-	int		eventSequence;
-	int		savedWeapon, savedItem;		// JBravo: to save weapon/item info
-	int		savedRadiopower, savedRadiogender;	// JBravo: for radio.
-	char	userinfo[MAX_INFO_STRING];
+	int			persistant[MAX_PERSISTANT], savedpers[MAX_PERSISTANT];
+	gentity_t		*spawnPoint;
+	int			flags;
+	int			savedPing;
+//	char			*savedAreaBits;
+	int			accuracy_hits, accuracy_shots;
+	int			eventSequence;
+	int			savedWeapon, savedItem;			// JBravo: to save weapon/item info
+	int			savedRadiopower, savedRadiogender;	// JBravo: for radio.
+	char			userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -1407,7 +1414,6 @@ void ClientSpawn(gentity_t *ent) {
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
-	//	savedpers[i] = client->savedpersistant[i];
 	}
 	eventSequence = client->ps.eventSequence;
 
@@ -1430,15 +1436,12 @@ void ClientSpawn(gentity_t *ent) {
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
-//	client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
-//	client->lastkilled_client = -1;
 	client->lastkilled_client[0] = NULL;
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
-//		client->savedpersistant[i] = savedpers[i];
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
