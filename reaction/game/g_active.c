@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/06/03 05:25:37  niceass
+// spectator changes
+//
 // Revision 1.73  2002/05/21 04:58:27  blaze
 // kicked the reload bugs ass!
 //
@@ -502,11 +505,11 @@ void	G_TouchTriggers( gentity_t *ent ) {
 
 		// ignore most entities if a spectator
 		if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-			if ( hit->s.eType != ET_TELEPORT_TRIGGER &&
+			if ( hit->s.eType != ET_TELEPORT_TRIGGER ) { //&&
 				// this is ugly but adding a new ET_? type will
 				// most likely cause network incompatibilities
 				// NiceAss: changed Touch_DoorTrigger to Touch_DoorTriggerSpectator
-				hit->touch != Touch_DoorTriggerSpectator) {
+				// hit->touch != Touch_DoorTriggerSpectator) {
 				continue;
 			}
 		}
@@ -573,7 +576,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		memset (&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
-		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
+		pm.tracemask = 0;	// spectators can fly through bodies
 		pm.trace = trap_Trace;
 		pm.pointcontents = trap_PointContents;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/03 05:24:31  niceass
+// spectator changes
+//
 // Revision 1.86  2002/05/31 18:17:10  makro
 // Bot stuff. Added a server command that prints a line to a client
 // and everyone who is spectating him
@@ -899,7 +902,7 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
 //
 void G_RunMover( gentity_t *ent );
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
-void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ); // NiceAss: Added
+//void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ); // NiceAss: Added
 
 //
 // g_trigger.c

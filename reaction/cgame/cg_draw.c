@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/06/03 05:23:47  niceass
+// spectator changes
+//
 // Revision 1.43  2002/06/03 00:48:32  niceass
 // match scoreboard changes
 //
@@ -2489,20 +2492,21 @@ static void CG_DrawSpectator(void) {
 		}
 	}
 
-	CG_FillRect( 0, 400, 640, 80, Color );
+	CG_FillRect( 0, 420, 640, 60, Color );
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanLine(0, 400, 640, 1, Color);
+	CG_DrawCleanLine(0, 420, 640, 1, Color);
 
-	CG_DrawBigString(320 - 10 * 8, 410, "Spectating", 1.0F);
+	CG_DrawBigString(320 - 10 * 8, 425, "Spectating", 1.0F);
 
-	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) return;
+	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || 
+		cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) return;
 
 	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString(320 - 15 * 8, 450, "Waiting to play...", 1.0F);
+		CG_DrawBigString(320 - 15 * 8, 455, "Waiting to play...", 1.0F);
 	}
 	else if ( cgs.gametype >= GT_TEAM ) {
-		CG_DrawBigString(320 - 19 * 8, 450, "Join a team to play", 1.0F);
+		CG_DrawBigString(320 - 19 * 8, 455, "Join a team to play", 1.0F);
 	}
 }
 

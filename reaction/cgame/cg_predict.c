@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/06/03 05:23:22  niceass
+// spectator changes
+//
 // Revision 1.19  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -479,10 +482,10 @@ void CG_PredictPlayerState( void ) {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
+		cg_pmove.tracemask = 0;	// NiceAss: spectators can fly through everything
 	}
 
-// JBravo: fixing telefragging and shit during spawing (Thanks NiceAss! :)
+	// JBravo: fixing telefragging and shit during spawing (Thanks NiceAss! :)
 	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_PLAYERSOLID) != RQ3_PLAYERSOLID) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;
 	}
