@@ -197,6 +197,28 @@
 	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
    }
 
+   itemdef {
+	rect 138 138 160 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_MULTI
+	text "D. Dynamic Radio:"
+	shortcutKey "D"
+	border 1
+	bordersize 1
+	cvar "cg_RQ3_dynamicRadio"
+	cvarFloatList { "On" 1 "Off" 0 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textalignx 6
+	textaligny 12
+	textscale .225
+	visible 1
+	cvarTest "g_gameType"
+	showCvar { "4" ; "5" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+   }
+
 //Icon list
 
     itemdef {
