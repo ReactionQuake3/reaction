@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/04/01 22:23:14  slicer
+// Added "weapon" command buffering | Solved Gren Mode Bug
+//
 // Revision 1.87  2002/03/31 23:41:45  jbravo
 // Added the use command
 //
@@ -2484,28 +2487,36 @@ void Cmd_OpenDoor(gentity_t *ent)
 	}
 }
 
-
 /* Hawkins. Reaction weapon command */
 void Cmd_Weapon(gentity_t *ent)
 {
+	
+	ent->client->weapon_attempts--;
+	  if (ent->client->weapon_attempts < 0)
+		ent->client->weapon_attempts = 0;
+
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 
 	//Elder: debug code
 	//G_Printf("PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
-	//Elder: added since cgame doesn't actually know if its bandaging
-	//if (ent->client->isBandaging == qtrue) {
-//	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+
 	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
-		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+		if(!ent->client->weapon_after_bandage_warned) {
+			ent->client->weapon_after_bandage_warned = qtrue;
+			trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+		}
+		ent->client->weapon_attempts++;
 		return;
 	}
+	ent->client->weapon_after_bandage_warned = qfalse;
 
 	//Can't use weapon while firing
-	if ( ent->client->ps.weaponTime > 0 || ent->client->ps.stats[STAT_RELOADTIME] > 0)
+	if ( ent->client->ps.weaponTime > 0 || ent->client->ps.stats[STAT_RELOADTIME] > 0) {
+	  ent->client->weapon_attempts++;
 		return;
-
+	}
 	//Elder: added brackets, and-ops and not-ops instead of logical ops
 	switch(ent->s.weapon){
 	case WP_SSG3000:
@@ -2546,12 +2557,13 @@ void Cmd_Weapon(gentity_t *ent)
 		//Elder: don't print - will broadcast to server
 		//G_Printf("zoomlevel = %d\n",ent->client->zoomed);
 		//G_AddEvent(ent,EV_ZOOM,ent->client->zoomed);
-
+		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/lens.wav"));
 		break;
 	case WP_PISTOL:
 		// semiauto toggle (increase accuracy)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
 		{
+
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		}
@@ -2560,6 +2572,7 @@ void Cmd_Weapon(gentity_t *ent)
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MK23MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
 		}
+		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
 	case WP_M4:
 		// 3rb/full auto toggle
@@ -2573,6 +2586,7 @@ void Cmd_Weapon(gentity_t *ent)
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_M4MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
 		}
+		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
 	case WP_MP5:
 		// 3rb/full auto toggle
@@ -2586,6 +2600,7 @@ void Cmd_Weapon(gentity_t *ent)
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MP5MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
 		}
+		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
 	case WP_KNIFE:
 		// NiceAss: weapon animation/state check before the mode switch.
@@ -2635,19 +2650,19 @@ void Cmd_Weapon(gentity_t *ent)
 		{//Going into Short
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED; //unset the med flag
-			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
 		{//Going into Med
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENSHORT; //unset the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		{//Going into Long
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
 		}
 		//Elder: added
 		else {
@@ -2666,7 +2681,13 @@ void Cmd_Weapon(gentity_t *ent)
 	}
 
 }
+//Slicer
+void Cmd_New_Weapon(gentity_t *ent) {
 
+	ent->client->weapon_attempts++;
+    if (ent->client->weapon_attempts == 1)
+		Cmd_Weapon (ent);
+}
 
 // Hawkins make sure spread comes back
 void Cmd_Unzoom(gentity_t *ent)
@@ -2944,7 +2965,7 @@ void ClientCommand( int clientNum ) {
 	//End Blaze
 	// Hawkins
 	else if (Q_stricmp (cmd, "weapon") == 0)
-		Cmd_Weapon (ent);
+		Cmd_New_Weapon (ent);
 	else if (Q_stricmp (cmd, "unzoom") == 0)
 		Cmd_Unzoom (ent);
 	// end hawkins

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/04/01 22:23:14  slicer
+// Added "weapon" command buffering | Solved Gren Mode Bug
+//
 // Revision 1.57  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1463,6 +1466,9 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client[0] = NULL;
+	//Slicer
+	client->weapon_attempts = 0;
+	client->weapon_after_bandage_warned = qfalse;
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];

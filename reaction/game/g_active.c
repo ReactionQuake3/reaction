@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/01 22:23:14  slicer
+// Added "weapon" command buffering | Solved Gren Mode Bug
+//
 // Revision 1.66  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -1858,6 +1861,10 @@ void ClientEndFrame( gentity_t *ent ) {
 		if (ent->client->lasersight == NULL)
 			Laser_Gen(ent, qtrue);
 	}
+
+	//Slicer
+	if (ent->client->weapon_attempts > 0)
+		Cmd_Weapon (ent);
 
 	//RQ3_ClientReloadStages(ent);
 
