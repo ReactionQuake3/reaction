@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/01/12 20:02:16  hal9000
+// Verify we have a valid client pointer before using its members
+//
 // Revision 1.35  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1524,7 +1527,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// NiceAss: Make sure it hit the player before doing this stuff.
 	// This was added when the possibility of missing was added from spherical head detection.
 	// We don't want someone flying back from a sniper to the head when it actually missed!
-	if ( G_HitPlayer ( targ, dir, point ) ) {
+	// Hal: Make sure we have valid pointers before accessing them
+	if ( (dir != NULL) && (point != NULL) && G_HitPlayer ( targ, dir, point ) ) {
 		// figure momentum add, even if the damage won't be taken
 		if ( knockback && targ->client ) {
 			vec3_t	kvel, flydir;
@@ -2069,11 +2073,15 @@ qboolean G_HitPlayer ( gentity_t *targ, vec3_t dir, vec3_t point )
 	clientHeight = targ->r.maxs[2] - targ->r.mins[2];
 	bulletHeight = point[2] - clientFeetZ;
 
-	// NiceAss: Added for better head hit-detection. Numbers derived by testing with Mr. T
-	VectorCopy(targ->r.currentOrigin, s_origin);
-	s_origin[2] = targ->r.currentOrigin[2] + targ->r.maxs[2] - 4;  // Center in the face.
-	AngleVectors(targ->client->ps.viewangles, s_forward, s_right, s_up);
-	VectorMA(s_origin, 3.2, s_forward, s_origin);  // Move origin of sphere foreward a little (better centerage of the head)
+	// Hal: targ->client isn't necessarily valid
+	if ( targ->client )
+	{
+		// NiceAss: Added for better head hit-detection. Numbers derived by testing with Mr. T
+		VectorCopy(targ->r.currentOrigin, s_origin);
+		s_origin[2] = targ->r.currentOrigin[2] + targ->r.maxs[2] - 4;  // Center in the face.
+		AngleVectors(targ->client->ps.viewangles, s_forward, s_right, s_up);
+		VectorMA(s_origin, 3.2, s_forward, s_origin);  // Move origin of sphere foreward a little (better centerage of the head)
+	}
 
 	if ( !RaySphereIntersections(s_origin, 6, point, dir, s_intersections ) && bulletHeight > clientHeight - 8) {
 		// NiceAss: It didn't intersect the sphere and it's above the shoulders so it hit the air.
