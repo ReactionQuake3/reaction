@@ -3824,7 +3824,7 @@ static void CG_LocalLaser ()
 	//Create the laser entity if it's not there
 	if (cg.laserSight == qfalse)
 	{
-		CG_Printf("Initializing Local Laser...\n");
+		//CG_Printf("Initializing Local Laser...\n");
 
 		cg.laserSight = qtrue;
 		cg.laserEnt = CG_AllocLocalEntity();
@@ -3894,7 +3894,7 @@ void CG_CheckLaser()
 	//Disable laser
 	else if (cg.laserSight == qtrue)
 	{
-		CG_Printf("Destroying Local Laser...\n");
+		//CG_Printf("Destroying Local Laser...\n");
 		CG_FreeLocalEntity(cg.laserEnt);
 		cg.laserSight = qfalse;
 	}

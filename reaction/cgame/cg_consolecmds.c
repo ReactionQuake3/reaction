@@ -565,7 +565,7 @@ static void CG_Say_f ( void ) {
 	
 	cg.sayCount++;
 
-	CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
+	// CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
 
 	if (cg.sayCount > 4 && cg.time - cg.sayTime < 2000)
 	{
@@ -595,7 +595,7 @@ static void CG_SayTeam_f ( void ) {
 	
 	cg.sayCount++;
 
-	CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
+	// CG_Printf("sayCount: %i sayTime: %i\n", cg.sayCount, cg.sayTime);
 
 	if (cg.sayCount > 4 && cg.time - cg.sayTime < 2000)
 	{

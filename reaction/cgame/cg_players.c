@@ -1100,8 +1100,8 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 	if ( cg_debugAnim.integer ) {
 		CG_Printf( "Weapon Anim: %i\n", newAnimation );
 		// Elder: more info
-		CG_Printf( "Snap Weapon: %i\n", cg.snap->ps.weapon);
-		CG_Printf( "Desired Weapon: %i\n", cg.weaponSelect);
+		//CG_Printf( "Snap Weapon: %i\n", cg.snap->ps.weapon);
+		//CG_Printf( "Desired Weapon: %i\n", cg.weaponSelect);
 	}
 
 	//Elder: reset frame so there is no lerping between new animations
