@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.146  2002/06/28 21:41:12  jbravo
+// Gawd damn buglet
+//
 // Revision 1.145  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -1905,7 +1908,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	// special case for g_gametype, check for bad values
 	if (!Q_stricmp(arg1, "g_gametype")) {
 		i = atoi(arg2);
-		if (i != GT_FFA && i != GT_TEAMPLAY || i != GT_CTF) {
+		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF) {
 			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype. Valid gametypes are 0, 4 and 5.\n\"");
 			return;
 		}
