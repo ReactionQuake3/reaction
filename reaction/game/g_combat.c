@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/06/05 21:54:38  jbravo
+// Never say 100% done again ;)
+//
 // Revision 1.91  2002/06/05 20:52:47  jbravo
 // Fixed sniper explode gib and sniper stomach gib. Gibs are now 100% :)
 //
@@ -539,7 +542,6 @@ void GibEntity_Headshot (gentity_t *self, int killer) {
 // JBravo: stomach gibbing
 void GibEntity_Stomach (gentity_t *self, int killer) {
 	G_TempEntity (self->r.currentOrigin, EV_GIB_PLAYER_STOMACH);
-//	G_AddEvent (self, EV_GIB_PLAYER_STOMACH, 0);
 }
 /*
 ==================
@@ -2387,8 +2389,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 									targ->client->pers.netname));
 						trap_SendServerCommand(targ-g_entities, va("print \"Stomach Damage.\n\""));
 						take *= 0.4;
-						if (attacker->client && attacker->client->ps.weapon == WP_SSG3000) {
-//							G_AddEvent (targ, EV_GIB_PLAYER_STOMACH, 0);
+						if (attacker->client && attacker->client->ps.weapon == WP_SSG3000 && g_RQ3_gib.integer >= 1) {
 							G_TempEntity (targ->r.currentOrigin, EV_GIB_PLAYER_STOMACH);
 						}
 						break;
