@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/07/08 00:52:14  jbravo
+// Renamed the foglaser shader at Sze's request.
+//
 // Revision 1.93  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -1590,7 +1593,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.metalMarkShader = trap_R_RegisterShader("gfx/damage/metal_mrk");
 
 	// NiceAss: for foglaser
-	cgs.media.railCoreShader = trap_R_RegisterShader("railCore");
+	cgs.media.railCoreShader = trap_R_RegisterShader("fogLaser");
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();
