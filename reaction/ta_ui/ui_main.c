@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/06/13 15:50:24  makro
+// Bot list is now sorted alphabetically
+//
 // Revision 1.31  2002/06/12 11:15:31  makro
 // Support for changing the SSG crosshair. Some other stuff
 //
@@ -6355,7 +6358,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_captureLimit, "ui_captureLimit", "5", 0},
 	{ &ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
-	{ &ui_findPlayer, "ui_findPlayer", "Sarge", CVAR_ARCHIVE},
+	//Makro - changed from Sarge
+	{ &ui_findPlayer, "ui_findPlayer", "Abbey", CVAR_ARCHIVE},
 	//Makro - adding CVAR_ROM
 	{ &ui_Q3Model, "ui_q3model", "1", CVAR_ARCHIVE | CVAR_ROM},
 	{ &ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},

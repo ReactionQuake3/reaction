@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/06/13 15:50:24  makro
+// Bot list is now sorted alphabetically
+//
 // Revision 1.6  2002/05/26 14:37:21  makro
 // Map list is now sorted alphabetically
 //
@@ -306,7 +309,7 @@ void UI_LoadBots( void ) {
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[1024];
-	char*		dirptr;
+	char		*dirptr;
 	int			i;
 	int			dirlen;
 
@@ -329,6 +332,22 @@ void UI_LoadBots( void ) {
 		strcat(filename, dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
+	
+	//Makro - sort bot list
+	for (i = 0; i<ui_numBots-1; i++) {
+		for (dirlen = i+1; dirlen < ui_numBots; dirlen++) {
+			char *n1 = Info_ValueForKey(ui_botInfos[i], "name");
+			char *n2 = Info_ValueForKey(ui_botInfos[dirlen], "name");
+			if (!n1) n1 = "Abbey";
+			if (!n2) n2 = "Abbey";
+			if (Q_stricmp(n1, n2) > 0) {
+				dirptr = ui_botInfos[i];
+				ui_botInfos[i] = ui_botInfos[dirlen];
+				ui_botInfos[dirlen] = dirptr;
+			}
+		}
+	}
+
 	trap_Print( va( "%i bots parsed\n", ui_numBots ) );
 }
 
@@ -376,5 +395,6 @@ char *UI_GetBotNameByNumber( int num ) {
 	if (info) {
 		return Info_ValueForKey( info, "name" );
 	}
-	return "Sarge";
+	//Makro - changed from Sarge
+	return "Raver";
 }
