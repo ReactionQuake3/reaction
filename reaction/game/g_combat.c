@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/04/06 20:47:24  niceass
+// fall damage bug fix
+//
 // Revision 1.57  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -1885,12 +1888,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-
 	// do the damage
 	if (take) {
-//		G_Printf("(%d) taken as damage\n",take);
-// JBravo: for Damage delt tracking
-		attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+		// G_Printf("(%d) taken as damage\n",take);
+		// JBravo: for Damage delt tracking
+		if (attacker && attacker->client) attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
 		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
