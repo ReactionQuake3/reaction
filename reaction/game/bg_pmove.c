@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/02/27 01:54:28  jbravo
+// More spectatorfixes and finally stopped all fallingdamage anims and
+// sounds during LCA.
+//
 // Revision 1.56  2002/02/04 00:30:35  niceass
 // New physics
 //
@@ -1157,6 +1161,11 @@ static void PM_CrashLand( void ) {
 	//float		t;
 	//float		a, b, c, den;
 	int			damage;
+
+// JBravo: no falling at all during LCA in Teamplay
+	if (RQ3_lca.integer) {
+		return;
+	}
 
 	// decide which landing animation to use
 	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {

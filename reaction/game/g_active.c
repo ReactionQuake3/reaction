@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/02/27 01:54:29  jbravo
+// More spectatorfixes and finally stopped all fallingdamage anims and
+// sounds during LCA.
+//
 // Revision 1.56  2002/02/26 02:58:47  jbravo
 // Fixing the spectator_free mode not being predicted in the client.
 //
@@ -1531,8 +1535,7 @@ void ClientThink( int clientNum ) {
 // JBravo: Take SPECTATOR_ZCAM into account
 	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
 		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-		(ent->client->sess.spectatorState == SPECTATOR_FOLLOW ||
-		 ent->client->sess.spectatorState == SPECTATOR_FREE)))
+		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))
 #endif /* __ZCAM__ */
 		) {
 		ClientThink_real( ent );
@@ -1547,8 +1550,7 @@ void G_RunClient( gentity_t *ent ) {
 // JBravo: Take SPECTATOR_ZCAM into account
 	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
 		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-		(ent->client->sess.spectatorState == SPECTATOR_FOLLOW ||
-		 ent->client->sess.spectatorState == SPECTATOR_FREE)))
+		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))
 #endif /* __ZCAM__ */
 	)
 	{

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/02/27 01:54:29  jbravo
+// More spectatorfixes and finally stopped all fallingdamage anims and
+// sounds during LCA.
+//
 // Revision 1.59  2002/02/26 21:59:10  jbravo
 // Fixed death on switching teams while dead
 //
@@ -769,8 +773,11 @@ void SetTeam( gentity_t *ent, char *s )
 		client->sess.spectatorTime = level.time;
 	}
 
-	client->sess.spectatorState = specState;
-	client->sess.spectatorClient = specClient;
+// JBravo: not messing with spec system in TP during teamswitches
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		client->sess.spectatorState = specState;
+		client->sess.spectatorClient = specClient;
+	}
 
 	client->sess.teamLeader = qfalse;
 

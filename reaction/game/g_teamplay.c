@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/02/27 01:54:29  jbravo
+// More spectatorfixes and finally stopped all fallingdamage anims and
+// sounds during LCA.
+//
 // Revision 1.21  2002/02/25 19:51:26  jbravo
 // Fixed a bug that made it impossible to pick up special weapons when player
 // had selected akimbos or knives
@@ -505,6 +509,7 @@ void SpawnPlayers()
 			client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
+		client->sess.spectatorState = SPECTATOR_NOT;
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;

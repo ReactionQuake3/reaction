@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/02/27 01:54:29  jbravo
+// More spectatorfixes and finally stopped all fallingdamage anims and
+// sounds during LCA.
+//
 // Revision 1.39  2002/02/26 21:59:10  jbravo
 // Fixed death on switching teams while dead
 //
@@ -1202,6 +1206,8 @@ void ClientBegin( int clientNum ) {
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
 	if ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
+		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
+		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
 #ifdef __ZCAM__
 		client->camera->mode = CAMERA_MODE_SWING;
