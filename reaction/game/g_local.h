@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/06/20 18:40:17  slicer
+// Future 2.1 Matchmode Features - PART I
+//
 // Revision 1.97  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -733,6 +736,7 @@ typedef struct {
 	qboolean team2ready;
 	qboolean inGame;
 	qboolean paused;
+	qboolean settingsLocked;
 // JBravo adding TP
 	int lights_camera_action;
 	qboolean team_round_going;
@@ -1204,6 +1208,7 @@ extern vmCvar_t g_proxMineTimeout;
 
 //Slicer: Matchmode
 extern vmCvar_t g_RQ3_matchmode;
+extern vmCvar_t g_RQ3_forceteamtalk;
 
 //Blaze: Reaction cvars
 extern vmCvar_t g_rxn_knifelimit;

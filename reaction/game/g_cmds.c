@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.136  2002/06/20 18:40:17  slicer
+// Future 2.1 Matchmode Features - PART I
+//
 // Revision 1.135  2002/06/20 02:27:30  jbravo
 // Now the scoreboard doesnt show whos alive and whos not when you are alive
 //
@@ -1466,6 +1469,10 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 	} else {
 		p = ConcatArgs(1);
 	}
+
+	//Slicer Matchmode
+	if(g_RQ3_matchmode.integer && g_RQ3_forceteamtalk.integer == 2 && (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer))
+		mode = SAY_TEAM; // Force say_team for non captains / refs
 
 	G_Say(ent, NULL, mode, p);
 }

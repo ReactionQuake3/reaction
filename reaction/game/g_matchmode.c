@@ -432,6 +432,13 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"clearscores\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"pause\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"cyclemap\n\"");
+		trap_SendServerCommand(ent - g_entities, "print\"lockSettings\n\"");
+		return;
+	} else if (Q_stricmp(com, "lockSettings") == 0) {
+		if(level.settingsLocked)
+			level.settingsLocked = qfalse;
+		else
+			level.settingsLocked = qtrue;
 		return;
 	} else if (Q_stricmp(com, "kick") == 0) {	// kick kick kick
 		trap_Argv(2, com, sizeof(com));
@@ -490,4 +497,55 @@ void Ref_Resign(gentity_t * ent)
 
 	trap_Cvar_Set("g_RQ3_RefID", "-1");
 	trap_SendServerCommand(ent - g_entities, "print \"You resign from your referee status\n\"");
+}
+
+/*
+Timelimit
+RoundLimit
+RoundTimeLimit
+Fraglimit
+Max Players <- TO BE IMPLEMENTED
+Friendly Fire
+Chase Cam
+Team Grenades
+---> Irvision Doesnt Exist.
+Force Team Talk
+*/
+#define NR_SETTVARS 9
+
+const char *settings[] = {"timelimit","g_RQ3_roundlimit","g_RQ3_roundtimelimit","fraglimit","g_RQ3_maxplayers","g_RQ3_forceteamtalk",
+								"g_RQ3_limchasecam","g_RQ3_tgren","g_friendlyFire"};
+
+void MM_Settings_f(gentity_t * ent) {
+	int i;
+	char str[MAX_TOKEN_CHARS];
+
+	if (!g_RQ3_matchmode.integer)
+		return;
+
+	//Invalid Data SENT
+	if(trap_Argc()!= NR_SETTVARS)
+		return;
+	if(ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer) {
+		trap_SendServerCommand(ent - g_entities, "print \"Only Captains and Referees can change match Settings\n\"");
+		return;
+	}
+	//Game has begun
+	if(level.inGame) {
+		trap_SendServerCommand(ent - g_entities, "print \"Settings can only be changed before a game starts\n\"");
+		return;
+	}
+	//Referee locked settings
+	if(level.settingsLocked) {
+			trap_SendServerCommand(ent - g_entities, "print \"Settings are currently locked, only Referee can unlock them\n\"");
+			return;
+	}
+
+	for(i = 0; i < NR_SETTVARS; ++i) {
+		trap_Argv(i+1, str, sizeof(str));
+		trap_Cvar_Set(settings[i],str);
+	}
+
+	trap_SendServerCommand(-1,va("print \"Match Settings have been changed by %s\n\"",ent->client->pers.netname));
+
 }

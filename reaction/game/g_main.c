@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/06/20 18:40:17  slicer
+// Future 2.1 Matchmode Features - PART I
+//
 // Revision 1.91  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -308,6 +311,7 @@ vmCvar_t g_listEntity;
 
 //Slicer: Matchmode
 vmCvar_t g_RQ3_matchmode;
+vmCvar_t g_RQ3_forceteamtalk;
 
 //Blaze: Reaction cvars
 vmCvar_t g_rxn_knifelimit;
@@ -448,6 +452,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
+	{&g_RQ3_forceteamtalk, "g_RQ3_forceteamtalk", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: radio protect
 	{&g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0, 0, qfalse},
 	{&g_RQ3_radioFloodTime, "g_RQ3_radioFloodTime", "2", 0, 0, qfalse},
@@ -993,6 +998,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.inGame = qfalse;
 		level.team1ready = qfalse;
 		level.team2ready = qfalse;
+		level.paused = qfalse;
+		level.settingsLocked = qfalse;
 		refVotes[0] = refVotes[1] = -1;
 	}
 
