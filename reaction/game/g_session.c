@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/02/02 20:39:09  slicer
+// Matchmode: Adding Captains
+//
 // Revision 1.5  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -102,6 +105,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	const char		*value;
 
 	sess = &client->sess;
+
+	//Slicer : setting savedteam
+	sess->savedTeam = TEAM_SPECTATOR;
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM ) {

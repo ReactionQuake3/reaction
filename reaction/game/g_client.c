@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/02/02 20:39:09  slicer
+// Matchmode: Adding Captains
+//
 // Revision 1.28  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
 //
@@ -1129,8 +1132,10 @@ void ClientBegin( int clientNum ) {
 
 	//Slicer : Reseting matchmode vars
 	//Note: Each time a player changes team, this will also be called..
-	client->pers.captain = TEAM_FREE;
-	client->pers.sub = TEAM_FREE;
+	if(g_matchmode.integer ) {
+		client->pers.captain = TEAM_FREE;
+		client->pers.sub = TEAM_FREE;
+	}
 
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;

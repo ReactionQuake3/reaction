@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/02/02 20:39:09  slicer
+// Matchmode: Adding Captains
+//
 // Revision 1.43  2002/02/02 16:34:02  slicer
 // Matchmode..
 //
@@ -685,7 +688,9 @@ void SetTeam( gentity_t *ent, char *s ) {
 	client->pers.teamState.state = TEAM_BEGIN;
 
 // JBravo: if player is changing from FREE or SPECT. there is no need for violence.
-	if ( oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE ) {
+	//Slicer: If he's dead no need for violence too
+	if ( (oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE) && 
+		ent->client->ps.pm_type == PM_NORMAL){
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
@@ -700,6 +705,22 @@ void SetTeam( gentity_t *ent, char *s ) {
 		client->sess.savedTeam = team;
 	} else {
 		client->sess.sessionTeam = team;
+	}
+
+
+	//Slicer : Matchmode
+	if(g_matchmode.integer) {
+		client->sess.savedTeam = team;
+
+		switch(team) {
+		case TEAM_RED:
+			level.team1ready = qfalse;
+			break;
+		case TEAM_BLUE:
+			level.team2ready = qfalse;
+			break;
+		}
+
 	}
 
 	// they go to the end of the line for tournements
@@ -2659,7 +2680,7 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
 //Slicer: matchmode
-	else if (Q_stricmp (cmd, "captain") == 0 && g_matchmode.integer)
+	else if (Q_stricmp (cmd, "captain") == 0)
 		MM_Captain_f( ent );
 
 // Begin Duffman

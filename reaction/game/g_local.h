@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/02/02 20:39:09  slicer
+// Matchmode: Adding Captains
+//
 // Revision 1.40  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
 //
@@ -40,8 +43,7 @@
 #include "bg_public.h"
 #include "g_public.h"
 
-//Slicer: MatchMode
-#include "g_matchmode.h"
+
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
@@ -295,7 +297,6 @@ typedef struct {
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
-	//Slicer
 	team_t		sessionTeam;
 	team_t			savedTeam;		// JBravo: Used to hold the real team status of a player.
 	int			spectatorTime;		// for determining next-in-line to play
@@ -1274,3 +1275,6 @@ int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *paren
 void	trap_SnapVector( float *v );
 
 gentity_t *findradius (gentity_t *from, vec3_t org, float rad); // Blaze: Find someone in a radius around you
+
+//Slicer: MatchMode
+#include "g_matchmode.h"
