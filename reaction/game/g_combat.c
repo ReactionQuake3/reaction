@@ -101,29 +101,36 @@ void TossClientItems( gentity_t *self ) {
 	//BTW, that means no cheating to get all weapons or it'll spawn mad!!
 	weaponInventory = self->client->ps.stats[STAT_WEAPONS];
 	
+	//Elder: added hadUniqueWeapons check - returns to qfalse if died with the gun
+	//as opposed to dropping it, then died
 	if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
 		item = BG_FindItemForWeapon( WP_M3 );
 		Drop_Item( self, item, 0);
+		self->client->hadUniqueWeapon[ WP_M3 ] = qfalse;
 	}
 	
 	if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
 		item = BG_FindItemForWeapon( WP_M4 );
 		Drop_Item( self, item, 0);
+		self->client->hadUniqueWeapon[ WP_M4 ] = qfalse;
 	}
 	
 	if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
 		item = BG_FindItemForWeapon( WP_MP5 );
 		Drop_Item( self, item, 0);
+		self->client->hadUniqueWeapon[ WP_MP5 ] = qfalse;
 	}
 	
 	if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
 		item = BG_FindItemForWeapon( WP_HANDCANNON );
 		Drop_Item( self, item, 0);
+		self->client->hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
 	}
 	
 	if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
 		item = BG_FindItemForWeapon( WP_SSG3000 );
 		Drop_Item( self, item, 0);
+		self->client->hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
 	}
 	
 	//Elder: Always drop the pistol

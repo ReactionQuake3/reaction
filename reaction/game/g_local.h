@@ -60,7 +60,7 @@ typedef enum {
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
-#define RQ3_RESPAWNTIME_DEFAULT		30000	// Elder: time for weapons to respawn
+#define RQ3_RESPAWNTIME_DEFAULT		60000	// Elder: time for weapons to respawn - up to 60s
 
 #define SP_AUTOOPEN			128				// Elder: revert to Q3 behaviour
 #define SP_NODOORTOGGLE		256				// Elder: added to disable mover toggling
@@ -354,7 +354,8 @@ struct gclient_s {
 	// end Homer
 	
 	//Elder: prep for "ammo" in last gun
-	int			lastGunAmmo[MAX_WEAPONS];
+	//Only the server needs to know this
+	qboolean		hadUniqueWeapon[MAX_WEAPONS];
 	
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

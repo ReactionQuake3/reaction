@@ -388,8 +388,12 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		ammotoadd=30;
 		break;
 	}
+	//Elder: conditional added to "restore" weapons
+	if ( other->client->hadUniqueWeapon[ent->item->giTag] == qfalse ||
+		 !((ent->flags & FL_THROWN_ITEM) == FL_THROWN_ITEM) ) {
+		other->client->ps.ammo[ent->item->giTag]= ammotoadd;
+	}
 
-	other->client->ps.ammo[ent->item->giTag]= ammotoadd;
 // End Duffman
 
 
@@ -898,6 +902,10 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce= 0;
 	}
+
+	//Elder: suspend thrown knives so it doesn't jitter
+	//if (item->giTag == WP_KNIFE)
+		//dropped->spawnflags |= 1; //suspended
 
 	trap_LinkEntity (dropped);
 

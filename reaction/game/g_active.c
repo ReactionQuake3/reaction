@@ -876,8 +876,10 @@ void ThrowWeapon( gentity_t *ent )
 	//if( client->ps.weapon == WP_KNIFE || client->ps.weapon == WP_PISTOL || client->ps.weapon == WP_GRENADE || ( ucmd->buttons & BUTTON_ATTACK ))
 	//	return;
 
+	//Elder: TODO: have to add a reloading case:
+	//weaponTime > 0 or weaponState == weapon_dropping?  Or both?
 	//Still firing
-	if (ucmd->buttons & BUTTON_ATTACK) {
+	if (ucmd->buttons & BUTTON_ATTACK || client->ps.weaponTime > 0) {
 		return;
 	}
 	//Elder: Bandaging case
@@ -886,8 +888,7 @@ void ThrowWeapon( gentity_t *ent )
 		return;
 	}
 
-	//Elder: have to add a reloading case
-
+		
 	weap = 0;
 	if (client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
 	{
@@ -907,7 +908,9 @@ void ThrowWeapon( gentity_t *ent )
 	
 		//Elder: Send a server command instead of force-setting
 		//client->ps.weapon = WP_PISTOL;
-		client->ps.ammo[ weap ] = 0;
+		//Elder: Don't reset the weapon ammo
+		//client->ps.ammo[ weap ] = 0;
+		client->hadUniqueWeapon[weap] = qtrue;
 		trap_SendServerCommand( ent-g_entities, va("selectpistol"));		
 		
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);

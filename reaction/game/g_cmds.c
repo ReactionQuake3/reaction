@@ -1601,6 +1601,13 @@ void Cmd_Bandage (gentity_t *ent)
 		//Elder: can't use events
 		//G_AddEvent(ent,EV_ZOOM,0);
 	//}
+
+	//Elder: added so you can't "rebandage"
+	if (ent->client->isBandaging == qtrue) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
+		return;
+	}
+
 	if (ent->client->bleeding || (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
 		ent->client->ps.weaponstate = WEAPON_DROPPING;

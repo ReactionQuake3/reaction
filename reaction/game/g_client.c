@@ -1040,6 +1040,9 @@ void ClientSpawn(gentity_t *ent) {
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
+	//To save the ammo stuff
+	qboolean hadUniqueWeapon[MAX_WEAPONS];
+
 	index = ent - g_entities;
 	client = ent->client;
 
@@ -1101,6 +1104,11 @@ void ClientSpawn(gentity_t *ent) {
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 	
+	//Elder: save unique weapon info
+	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+		hadUniqueWeapon[i] = client->hadUniqueWeapon[i];
+	}
+
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
 	}
@@ -1120,6 +1128,11 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
 	
+	//Elder: restore unique weapon info
+	for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
+		client->hadUniqueWeapon[i] = hadUniqueWeapon[i];
+	}
+
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
 	}
