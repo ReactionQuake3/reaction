@@ -1,10 +1,10 @@
 # List fixes here for the 2.1 release :)
 
 * Fixed the FOV bug when selecting SSG at spawn
-* Kickback from weapons ajusted
+* Kickback from weapons adjusted
 * Rotation bug that skipped first and last map in rotation fixed
 * LaserSight bug is fixed.
-* Fixed the base votingsystem. Still needs a cleanup
+* Fixed the base voting system. Still needs a cleanup
 * Fixed the respawning of dead players weapons and items in TP
 * Fixed to allow > 16 breakables
 * Recoded the AI for changing weapon modes. Bots can now zoom in/out with the SSG.
@@ -13,3 +13,6 @@
 * Redid the visuals on callvote and callteamvote.
 * M4 muzzleflash 25% smaller.
 * Added callvote cyclemap. It replaces callvote nextmap
+* Callvote map [mapname] new verifies the map exists before calling the vote.
+* Tweaked leg damage.
+* Smooth M4 rise.
