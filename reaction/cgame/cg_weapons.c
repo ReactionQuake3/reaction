@@ -1469,6 +1469,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
 	}
 	else {
+		
 		CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
 		CG_PositionWeaponOnTag( &gun, parent, parent->hModel, "tag_weapon");
 
@@ -1488,7 +1489,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		{
 			int i = 0;
 			qboolean noSound = qfalse;
-
+			
 			while ( gun.frame != weapon->animationSounds->sfxInfo[i].frame )
 			{
 				if ( ++i == weapon->animationSounds->numFrames )
@@ -1511,6 +1512,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				if (cg.curSyncSound.played == qfalse)
 				{
 					cg.curSyncSound.played = qtrue;
+					
 					//CG_Printf("Playing a timed sound (%i %i %1.1f)\n", gun.frame, gun.oldframe, gun.backlerp);
 					trap_S_StartLocalSound ( cg.curSyncSound.sound, CHAN_WEAPON );
 				}
@@ -1522,6 +1524,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// Elder: added ps so we see SSG in third-person zoomed
 	if (cg.zoomed && ps)
 		return;
+
+	if (!cg_drawGun.integer) return;
 
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
 
@@ -1649,7 +1653,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		if ( ps || cg.renderingThirdPerson ||
 			cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 			if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
-				trap_R_AddLightToScene( gun.origin, 300 + (rand()&31), weapon->flashDlightColor[0],
+				if (!cg_drawGun.value)trap_R_AddLightToScene( gun.origin, 300 + (rand()&31), weapon->flashDlightColor[0],
 					weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
 			}
 		}
@@ -1708,7 +1712,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	// allow the gun to be completely removed
 	// Elder: don't draw if throwing
-	if ( !cg_drawGun.integer || (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
+//	if ( !cg_drawGun.integer || (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
+	//Blaze: removed cg_drawGun checks and moved into other code.
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
 //Blaze: Removed these
 //		vec3_t		origin;
 
@@ -3923,27 +3929,30 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		CG_Error( "CG_ReloadWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
-
 	weap = &cg_weapons[ent->weapon];
 	switch ( reloadStage )
 	{
 	case 0:
 		if (weap->worldReloadSound[0] && ent->clientNum != cg.snap->ps.clientNum)
+		{
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[0]);
-
+		}
 		break;
 	case 1:
 		if (weap->worldReloadSound[1] && ent->clientNum != cg.snap->ps.clientNum)
+		{
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[1]);
+		}
 
 		if ( ent->weapon == WP_HANDCANNON )
 			CG_ShotgunEjectBrass( cent );
-
 		break;
 	case 2:
 		if (weap->worldReloadSound[2] && ent->clientNum != cg.snap->ps.clientNum)
+		{
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[2]);
-
+		}
+		
 		break;
 	default:
 		CG_Error("CG_ReloadWeapon: Reload stage > 2\n");
