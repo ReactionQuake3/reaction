@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/06/04 21:35:40  makro
+// Updated trigger_push code
+//
 // Revision 1.20  2002/06/04 20:53:19  makro
 // Trigger_pushes can now be teamed up
 //
@@ -205,7 +208,11 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 		gentity_t	*loop = NULL;
 		for (loop = G_Find2(NULL, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget); loop; G_Find2(loop, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget)) {
 			//Makro - delay 5 seconds before triggering another trigger_push from the same "team"
-			loop->s.powerups = level.time + 5;
+			if (self->distance) {
+				loop->s.powerups = level.time + self->distance * 1000;
+			} else {
+				loop->s.powerups = level.time + 5 * 1000;
+			}
 		}
 	}
 
