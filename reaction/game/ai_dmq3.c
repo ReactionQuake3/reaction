@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.33  2002/05/11 19:18:20  makro
 // Sand surfaceparm
 //
@@ -4866,7 +4869,9 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		return 0;
 	}
 	//if it is a door
-	if (!strcmp(classname, "func_door")) {
+	//Makro - or a door_rotating
+	if (!strcmp(classname, "func_door") || !strcmp(classname, "func_door_rotating")) {
+		qboolean rotating = (strcmp(classname, "func_door_rotating") == 0);
 		if (trap_AAS_FloatForBSPEpairKey(ent, "health", &health)) {
 			//if the door has health then the door must be shot to open
 			if (health) {
@@ -4877,28 +4882,28 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		//
 		trap_AAS_IntForBSPEpairKey(ent, "spawnflags", &spawnflags);
 		// if the door starts open then just wait for the door to return
-		if ( spawnflags & 1 )
+		// Makro - only if toggle is not set
+		if ( (spawnflags & 1) && !(spawnflags & 8) )
 			return 0;
 		//get the door origin
 		if (!trap_AAS_VectorForBSPEpairKey(ent, "origin", origin)) {
 			VectorClear(origin);
 		}
 		//if the door is open or opening already
-		if (!VectorCompare(origin, entinfo.origin))
-			return 0;
+		//Makro - different code for rotating doors
+		if (!rotating) {
+			if (!VectorCompare(origin, entinfo.origin))
+				return 0;
+		} else {
+			if (g_entities[entinfo.number].moverState == ROTATOR_1TO2 || g_entities[entinfo.number].moverState == ROTATOR_2TO1)
+				return 0;
+		}
 		// store all the areas the door is in
- 			trap_AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model));
+ 		trap_AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model));
 		if (*model) {
  			modelindex = atoi(model+1);
 			if (modelindex) {
- 			VectorClear(angles);
-				//Makro - this should help
-				Cmd_OpenDoor( &g_entities[bs->entitynum] );
-				/*
-				if (bot_developer.integer == 2) {
-					G_Printf("^5BOT CODE: ^7Blocked by a sliding door\n");
-				}
-				*/
+ 				VectorClear(angles);
 				BotModelMinsMaxs(modelindex, ET_MOVER, 0, absmins, absmaxs);
  			//
 				numareas = trap_AAS_BBoxAreas(absmins, absmaxs, areas, MAX_ACTIVATEAREAS*2);
@@ -4927,27 +4932,35 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 					}
 				}
 			}
+			//Makro - open the door
+			if (!g_entities[entinfo.number].targetname) {
+				if (!rotating) {
+					Cmd_OpenDoor( &g_entities[bs->entitynum] );
+					return 0;
+				} else {
+					BotMoveTowardsEnt(bs, entinfo.origin, -80);
+					//BotFuncDoorRotatingActivateGoal(bs, ent, activategoal);
+					Cmd_OpenDoor( &g_entities[bs->entitynum] );
+					return 0;
+				}
+			}
 		}
 	}
 	//if it is some glass
  	if (!strcmp(classname, "func_breakable")) {
- 		BotFuncBreakableGoal(bs, ent, activategoal);
 		//disable all areas the blocking entity is in
 		BotEnableActivateGoalAreas( activategoal, qfalse );
-		return ent;
+		//nothing the bot can do to unbreakable glass
+		if (g_entities[entinfo.number].unbreakable)
+			return 0;
+		if (!g_entities[entinfo.number].targetname) {
+			BotFuncBreakableGoal(bs, ent, activategoal);
+			return ent;
+		}
  	}
+	/* Handled above now
 	//Makro - checking for rotating doors
 	if ( !strcmp(classname, "func_door_rotating") ) {
-		/*
-		if (bot_developer.integer == 2) {
-			G_Printf("^5BOT CODE: ^7Blocked by a rotating door\n");
-		}
-		*/
-		/*if ( trap_AAS_AreaReachability(bs->areanum) ) {
-			// disable all areas the blocking entity is in
-			BotEnableActivateGoalAreas( activategoal, qfalse );
-		}
-		*/
 		//if door is moving, wait till it stops
 		if ( g_entities[entitynum].moverState == ROTATOR_1TO2 || g_entities[entitynum].moverState == ROTATOR_2TO1 || (g_entities[entitynum].targetname) ) {
 			BotMoveTowardsEnt(bs, entinfo.origin, -80);
@@ -4961,7 +4974,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 			BotEnableActivateGoalAreas( activategoal, qfalse );
 			return ent;
 		}
- 	}
+ 	}*/
 	// if the bot is blocked by or standing on top of a button
 	if (!strcmp(classname, "func_button")) {
 		return 0;

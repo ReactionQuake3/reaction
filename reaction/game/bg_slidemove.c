@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.13  2002/05/07 05:06:56  niceass
 // physics tweaks
 //
@@ -132,7 +135,10 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 		if (numplanes >= MAX_CLIP_PLANES) {
 			// this shouldn't really happen
+			// Makro - yet it does ! - added ifdef
+#ifdef DEBUG
 			Com_Printf("DEBUG: MAX_CLIP_PLANES\n");
+#endif
 			VectorClear( pm->ps->velocity );
 			return qtrue;
 		}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.76  2002/05/16 06:57:54  makro
 // Doors with health (again !), bot-only trigger_pushes
 //
@@ -1910,15 +1913,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// Makro - we should change some more stuff in here
 	// shootable doors / buttons don't actually have any health
 	if ( targ->s.eType == ET_MOVER && targ->health < 0) {
-		if ( targ->use && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1) ) {
+		if ( targ->use && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1 || (targ->spawnflags & 8)) ) {
 			targ->use( targ, inflictor, attacker );
 		}
+		/*
 		//use the targets of the team master
 		if (targ->teammaster && targ->teammaster != targ) {
 			G_UseTargets(targ->teammaster, attacker);
 		}
 		//use own targets
 		G_UseTargets(targ, attacker);
+		*/
 		return;
 	}
 

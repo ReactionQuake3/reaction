@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.36  2002/05/04 16:13:04  makro
 // Bots
 //
@@ -620,9 +623,13 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if (other->health < 1)
 		return;		// dead people can't pickup
 
-	//Makro - if the item is not sent to the client, picking it up would be kinda odd
-	if (ent->r.svFlags & SVF_NOCLIENT) {
-		//G_Printf("^1Reached SVF_NOCLIENT item\n");
+	//Makro - even more bot hacks !
+	//this way, we can remove the item from the bot's library for a few seconds
+	//so bots won't get stuck in a loop between 2 items
+	if ((ent->r.svFlags & MASK_BOTHACK) == MASK_BOTHACK) {
+		if (ent->nextthink < level.time) {
+			ent->nextthink = level.time + 45 * 1000;
+		}
 		return;
 	}
 

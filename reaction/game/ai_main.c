@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.8  2002/05/04 16:13:04  makro
 // Bots
 //
@@ -1486,9 +1489,9 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}*/
-			//Makro - hack for bots
+			//Makro - hack for bots !
 			if (ent->r.svFlags & SVF_NOCLIENT) {
-				if ( !(ent->r.svFlags & SVF_BOTHACK) ) {
+				if ( !(ent->r.svFlags & SVF_BOTHACK) || ent->nextthink > level.time) {
 					trap_BotLibUpdateEntity(i, NULL);
 					continue;
 				}

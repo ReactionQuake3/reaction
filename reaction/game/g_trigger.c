@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.13  2002/05/16 06:57:54  makro
 // Doors with health (again !), bot-only trigger_pushes
 //
@@ -231,7 +234,10 @@ void SP_trigger_push( gentity_t *self ) {
 		self->s.generic1 = G_SoundIndex( sound );
 	}
 
-	self->r.svFlags &= ~SVF_NOCLIENT;
+	//Makro - for bot-only triggers
+	if ( !(self->spawnflags & 1) ) {
+		self->r.svFlags &= ~SVF_NOCLIENT;
+	}
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/05/18 14:52:16  makro
+// Bot stuff. Other stuff. Just... stuff :p
+//
 // Revision 1.56  2002/05/12 22:14:13  makro
 // Impact sounds
 //
@@ -2631,6 +2634,8 @@ void Laser_Think( gentity_t *self )
 	trace_t		tr; //, tr2;
 	int			l=0, passent;
 	gentity_t	*traceEnt;
+	//Makro - added
+	int			contents;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
@@ -2679,6 +2684,16 @@ void Laser_Think( gentity_t *self )
 		//Makro - new surfaceparm system
 		//if (!(tr.surfaceFlags & SURF_GLASS)) break;
 		if (!(GetMaterialFromFlag(tr.surfaceFlags) == MAT_GLASS)) break;
+		/*
+		//Makro - don't go through brushes that aren't detail/trans
+		//contents = trap_PointContents(tr.endpos, -1);
+		contents = tr.contents;
+		if (contents & CONTENTS_SOLID) {
+			if ( !(contents & (CONTENTS_TRANSLUCENT | CONTENTS_DETAIL)) ) {
+				break;
+			}
+		}
+		*/
 		VectorMA(tr.endpos, 10, forward, start); // Nudge it forward a little bit
 	}
 	
