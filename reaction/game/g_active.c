@@ -101,6 +101,16 @@ qboolean JumpKick( gentity_t *ent )
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 		damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
 
+	//Elder: for the kick
+	// do our special form of knockback here
+	/*
+        VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
+        VectorSubtract (v, point, v);
+        VectorNormalize (v);
+        VectorMA (self->enemy->velocity, kick, v, self->enemy->velocity);
+        if (self->enemy->velocity[2] > 0)
+                self->enemy->groundentity = NULL;
+	*/
 	//Elder: Our set of locally called sounds
 	G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
 	return qtrue;
@@ -890,12 +900,12 @@ void ThrowWeapon( gentity_t *ent )
 		if (weap == 0 ) return;
 		xr_item = BG_FindItemForWeapon( weap );
 	
-		//Elder: moved up
-		client->ps.weapon = WP_PISTOL;
+		//Elder: Send a server command instead of force-setting
+		//client->ps.weapon = WP_PISTOL;
 		client->ps.ammo[ weap ] = 0;
+		trap_SendServerCommand( ent-g_entities, va("selectpistol"));		
 		
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
-		//client->ps.weapon = WP_PISTOL;
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
 		client->ps.stats[STAT_UNIQUEWEAPONS]--;

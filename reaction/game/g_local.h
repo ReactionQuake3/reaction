@@ -325,27 +325,33 @@ struct gclient_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 
-	int         bleeding; //Blaze: remaining points to bleed away
-	int			bleed_remain;//Blaze: How much left to bleed
-	int			bleedloc; //Blaze: Where are we bleeding
-	vec3_t		bleedloc_offset;// Blaze: location of bleeding (from origin)
+	int         bleeding; 			//Blaze: remaining points to bleed away
+	int			bleed_remain;		//Blaze: How much left to bleed
+	int			bleedloc; 			//Blaze: Where are we bleeding
+	vec3_t		bleedloc_offset;	// Blaze: location of bleeding (from origin)
 	vec3_t      bleednorm;
-	//qboolean	isBleeding;//Blaze: is client bleeding
-	int			legDamage;//Blaze: Client has leg damage - holds number of hits too
-	int			bleedtick;//Blaze: Holds # of seconds till bleeding stops.
+	//qboolean	isBleeding;			//Blaze: is client bleeding
+	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
+	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
+	
 	//Elder: server only needs to know for sniper spread - ARGH
-	int			zoomed; // Hawkins (SSG zoom)
-	//qboolean	semi;	// hawkins (semiauto mode for m4, mp5, pistol)
-	int			shots;   //Blaze: Number of shots fired so far with this weapon
+	int			zoomed; 			// Hawkins (SSG zoom)
+	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)
+	int			shots;   			//Blaze: Number of shots fired so far with this weapon
+	
 	// Homer: weaponstate vars for Cmd_Weapon
 	// make these a single bitmask? worth the effort?
-	int 			mk23semi; // pistol to semi-auto	
-	int 			mp5_3rb;   // MP5 to 3rb
-	int 			m4_3rb;    // M4 to 3rb
-	int 			grenRange; // range to throw grenade (short/medium/long)
-	int 			throwKnife; // knife to throwing
+	int 			mk23semi; 		// pistol to semi-auto	
+	int 			mp5_3rb;  		// MP5 to 3rb
+	int 			m4_3rb;    		// M4 to 3rb
+	int 			grenRange; 		// range to throw grenade (short/medium/long)
+	int 			throwKnife; 	// knife to throwing
 	qboolean		isBandaging;	//Elder: player in the process of bandaging
 	// end Homer
+	
+	//Elder: prep for "ammo" in last gun
+	int			lastGunAmmo[MAX_WEAPONS];
+	
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
 	int			portalID;

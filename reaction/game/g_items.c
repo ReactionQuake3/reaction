@@ -281,11 +281,12 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		quantity = 0; // None for you, sir!
 	} else {
 		if ( ent->count ) {
+			//Elder: place to put gun's chamber ammo?
 			quantity = ent->count;
 		} else {
 			quantity = ent->item->quantity;
 		}
-
+		/* Elder: commented out
 		// dropped items and teamplay weapons always have full ammo
 		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
 			// respawning rules
@@ -295,7 +296,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			} else {
 				quantity = 1;		// only add a single shot
 			}
-		}
+		} */
 	}
 
 	// add the weapon
@@ -354,7 +355,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_M3:
-		ammotoadd= RQ3_M3_AMMO ;
+		ammotoadd= RQ3_M3_AMMO;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_HANDCANNON:
@@ -383,6 +384,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		break;
 	default:
 		//Blaze: Should never hit here
+		G_Printf("Pickup_Weapon given bad giTag: %d\n", ent->item->giTag);
 		ammotoadd=30;
 		break;
 	}
@@ -575,8 +577,46 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	case IT_WEAPON:
 		switch(ent->item->giTag)
 		{
-		//Blaze: Check to see if we already have the weapon, If not so check and see if we have less then full ammo, if so pick up gun
-		//Elder: this is really confusing - FIXME
+		//Blaze: Check to see if we already have the weapon,
+		//If not so check and see if we have less then full ammo, if so pick up gun
+		//Elder's version:
+		//Accumulators (e.g. knife, grenade): if you have the weap AND the max limit, leave
+		//Pistols: if you have akimbos AND max clips, leave
+		//Akimbos: shouldn't pick them up b/c they shouldn't be dropped
+		//Specials: if you have more than/equal to limit (remember bando later), leave
+		case WP_KNIFE:
+			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) == (1 << WP_KNIFE) ) &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
+				return;
+			break;
+		case WP_GRENADE:
+			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) == (1 << WP_GRENADE) ) &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP) )
+				return;
+			break;
+		case WP_PISTOL:
+			//Elder: always have pistol - but extra ones give akimbo or clips
+			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) == (1 << WP_AKIMBO) ) &&
+				other->client->ps.stats[ent->item->giTag] >= RQ3_PISTOL_MAXCLIP)
+				//leave if we have max clips and akimbos
+				return;
+			break;
+		case WP_M3:
+		case WP_HANDCANNON:
+		case WP_MP5:
+		case WP_M4:
+		case WP_SSG3000:
+			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer)
+				return;
+			break;
+		case WP_AKIMBO:
+		default:
+			//Elder: shouldn't be here
+			G_Printf("Touch_Item received invalid IT_WEAPON giTag: %d\n", ent->item->giTag);
+			return;
+			break;
+		}
+		/*
 		case WP_KNIFE:
 			if (!other->client->ps.stats[STAT_WEAPONS] & WP_KNIFE == WP_KNIFE &&
 				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
@@ -626,7 +666,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP))
 				return;
 			break;
-		}
+		
 		//Blaze: Check and see if it's a unique weapon, and if so make sure they dont have too many already
 		if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 ||
 			ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON ||
@@ -635,7 +675,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				return;
 			}
 		}
-
+		*/
+		
 		respawn = Pickup_Weapon(ent, other);
 		respawn = -1; //Dont respawn weapons
 		
