@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/07/04 16:07:54  slicer
+// Small fix for the "settings" cmd
+//
 // Revision 1.41  2002/07/02 09:51:29  makro
 // In-game server info code
 //
@@ -4014,7 +4017,7 @@ static void UI_RunMenuScript(char **args)
 			}
 		//Makro - send the matchmode settings to the server
 		} else if (Q_stricmp(name, "sendMMsettings") == 0) {
-			trap_Cmd_ExecuteText(EXEC_APPEND, va("settings %i %i %i %i %i %i %i %i %i",
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("settings %i %i %i %i %i %i %i %i %i\n",
 			ui_RQ3_timelimit.integer,
 			ui_RQ3_roundlimit.integer,
 			ui_RQ3_roundtimelimit.integer,
