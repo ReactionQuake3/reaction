@@ -7,6 +7,9 @@
 * With allWeapon/allItems enable it won't toss weapons/items when you die
 * Various helmet bugs fixed.
 * Successful mapvote now waits for a round to end in TP.
+* Fixed a bug in the replacement code with grenades
+* In some circumstanses you would also get chest damage from a headshot
+* Bug in the UI radiobind code fixed.
 
 # List fixes here for the 3.0 release
 
