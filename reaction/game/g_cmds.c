@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.181  2003/03/28 13:05:18  jbravo
+// No nickchanging to avoid getting votekicked.
+//
 // Revision 1.180  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -456,6 +459,8 @@
 #include "../ta_ui/menudef.h"	// for the voice chats
 //Blaze for door code
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
+// JBravo: for kicking code
+gentity_t *getEntByName(char *name);
 
 /*
 ==================
@@ -1951,10 +1956,11 @@ Cmd_CallVote_f
 */
 void Cmd_CallVote_f(gentity_t * ent)
 {
-	int i;
+	int i, kickNum;
 	float delay;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
+	gentity_t *kicked;
 
 	if (!g_allowVote.integer) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1Voting not allowed here.\n\"");
@@ -2014,8 +2020,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>,clearscores,resetmatch.\n\"");
 					return;
 			}
-		}
-		else {
+		} else {
 			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 			trap_SendServerCommand(ent - g_entities, 
 				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
@@ -2042,13 +2047,13 @@ void Cmd_CallVote_f(gentity_t * ent)
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
 
-		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
+		if (!G_FileExists(va("maps/%s.bsp", arg2))) {
 			trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not exist.\n\"", arg2));
 			return;
 		}
 
 		// NiceAss: Talk to NiceAss before you fix this crappy hack =)
-		if ( !G_FileSearch( va("scripts/%s.arena", arg2), "rq3ctb" ) && g_gametype.integer == GT_CTF ) {
+		if (!G_FileSearch( va("scripts/%s.arena", arg2), "rq3ctb" ) && g_gametype.integer == GT_CTF) {
 			trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support CTB.\n\"", arg2));
 			return;
 		}
@@ -2060,6 +2065,17 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "cyclemap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
+	} else if (!Q_strncmp(arg1, "kick", 4)) {
+		kicked = getEntByName(arg2);
+		if (kicked && kicked->client) {
+			kickNum = kicked->client - level.clients;
+			Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick \"%i\"", kickNum);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s \"%s\"", arg1, arg2);
+		} else {
+			G_Printf("Fuck, no client\n");
+			Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
+			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
+		}
 	} else {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
