@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/06/02 19:22:12  blaze
+// my bad, breakables unlink when triggered now
+//
 // Revision 1.50  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -565,6 +568,7 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 //	G_ExplodeMissile(self);
 	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
   //	radius damage
+  trap_UnlinkEntity(self);
   
 }
 
