@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/05/26 14:37:21  makro
+// Map list is now sorted alphabetically
+//
 // Revision 1.5  2002/03/31 13:23:26  makro
 // Cleaned things up a little
 //
@@ -247,6 +250,17 @@ void UI_LoadArenas( void ) {
 		uiInfo.mapCount++;
 		if (uiInfo.mapCount >= MAX_MAPS) {
 			break;
+		}
+	}
+
+	//Makro - sorting list
+	for (i = 0; i < uiInfo.mapCount - 1; i++) {
+		for (n = i+1; n < uiInfo.mapCount; n++) {
+			if (Q_stricmp(uiInfo.mapList[i].mapName, uiInfo.mapList[n].mapName) > 0) {
+				mapInfo temp = uiInfo.mapList[i];
+				uiInfo.mapList[i] = uiInfo.mapList[n];
+				uiInfo.mapList[n] = temp;
+			}
 		}
 	}
 }
