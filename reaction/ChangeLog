@@ -1,4 +1,4 @@
-# List fixes here for post 2.25
+# List fixes here for the 2.3 release
 
 * Fixed the chasecam so ref's will be able to use all the chasecam modes.
 * Fixed the cg_rq3_autoaction code up a bit more to show the map name, and a few other fixes
@@ -15,6 +15,8 @@
 * Bots know how to pick up cases in CTB.
 * Weapon banning implemented via the g_RQ3_weaponban cvar.
 * callvote and vote cmd's now know about CTB spectators and dead players.
+
+
 
 # List fixes here for the 2.25 release
 
@@ -33,6 +35,8 @@
 * "Drop case" added.
 * Smoke puff on silencer less intrusive.
 * Fixed a bug that was filtering out maps from the callvote map lists.
+
+
 
 # List fixes here for the 2.2 release
 
@@ -99,6 +103,8 @@
 * MM: "referee" voting command and ref's "kick" user command now uses player's numbers instead of names
 * Added support for sky portals
 * Greatly enhanced UI functionality for matchmode
+
+
 
 # List fixes here for the 2.1 release
 
@@ -172,7 +178,4 @@
 * Shell ejections on spawn in TP should be fixed
 * Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
 * Added CTB radio commands to all radio sets.
-<<<<<<< ChangeLog
 * Added spawnflag 8 to breakables and func_buttons to allow them to be unkickable
-=======
->>>>>>> 1.87
