@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/02/26 04:59:10  jbravo
+// Fixed teamswitching and team broadcasting
+//
 // Revision 1.57  2002/02/26 03:46:53  jbravo
 // Range can now be set on grenades.
 //
@@ -581,28 +584,31 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
 // JBravo: change team names if teamplay
 
-	if ( client->sess.sessionTeam == TEAM_RED ) {
-		if ( g_gametype.integer == GT_TEAMPLAY ) {
-			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined team 1.\n\"",
-				client->pers.netname) );
-		} else {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
-			client->pers.netname) );
-		}
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		if ( g_gametype.integer == GT_TEAMPLAY ) {
-			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined team 2.\n\"",
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (client->sess.savedTeam == TEAM_RED) {
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined team 1.\n\"",
 				client->pers.netname));
-		} else {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-		client->pers.netname));
+		} else if (client->sess.savedTeam == TEAM_BLUE) {
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " joined team 2.\n\"",
+				client->pers.netname));
+		} else if (client->sess.savedTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " left his team.\n\"",
+				client->pers.netname));
 		}
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
+	} else {
+		if ( client->sess.sessionTeam == TEAM_RED ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
+				client->pers.netname) );
+		} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
+				client->pers.netname));
+		} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
+				client->pers.netname));
+		} else if ( client->sess.sessionTeam == TEAM_FREE ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
+				client->pers.netname));
+		}
 	}
 }
 
@@ -736,9 +742,7 @@ void SetTeam( gentity_t *ent, char *s )
 	}
 
 // JBravo: lets set the correct var here.
-	if ( g_gametype.integer != GT_TEAMPLAY ) {
-		client->sess.sessionTeam = team;
-	} else if ( !client->sess.teamSpawn ) {
+	if (g_gametype.integer == GT_TEAMPLAY) {
 		client->sess.savedTeam = team;
 		client->ps.persistant[PERS_SAVEDTEAM] = team;
 	} else {
@@ -785,9 +789,9 @@ void SetTeam( gentity_t *ent, char *s )
 	}
 
 // JBravo: to avoid messages when players are killed and move to spectator team.
-	if ( client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE && g_gametype.integer != GT_TEAMPLAY ) {
+//	if ( client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE && g_gametype.integer != GT_TEAMPLAY ) {
 		BroadcastTeamChange( client, oldTeam );
-	}
+//	}
 
 	// get and distribute relevent paramters
 
@@ -797,14 +801,12 @@ void SetTeam( gentity_t *ent, char *s )
 		CheckForUnevenTeams(ent);
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;
-		ClientUserinfoChanged( clientNum );
+		ClientUserinfoChanged(clientNum);
 		client->sess.sessionTeam = teamsave;
 	} else {
 		ClientUserinfoChanged( clientNum );
 		ClientBegin( clientNum );
 	}
-
-//	ClientBegin( clientNum );
 }
 
 /*
