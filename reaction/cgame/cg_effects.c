@@ -512,7 +512,6 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 
 	// Check end point validity so it doesn't go through walls
 	// If it does go through wall, take the trace's endpoint
-	// ****************************** TEST ME!!!!!!! *******************
 	CG_Trace(&tr, start, NULL, NULL, trueEnd, entityNum, CONTENTS_SOLID);
 	if (tr.fraction != 1.0)
 		VectorCopy(tr.endpos, trueEnd);

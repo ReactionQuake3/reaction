@@ -821,6 +821,9 @@ typedef struct {
 	qhandle_t	holeMarkShader;
 	qhandle_t	energyMarkShader;
 
+	// Elder: rq3 marks
+	qhandle_t	slashMarkShader;
+
 	// powerup shaders
 	qhandle_t	quadShader;
 	qhandle_t	redQuadShader;
@@ -1474,7 +1477,8 @@ void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent, int weapModification );
 void CG_ReloadWeapon( centity_t *cent, int reloadStage );	//Elder: added
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
+						vec3_t dir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, qboolean armorPiercing );

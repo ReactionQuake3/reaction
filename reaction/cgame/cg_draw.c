@@ -2832,6 +2832,28 @@ static void CG_DrawDamageBlend()
 	CG_FillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, damageColor);
 }
 
+/*
+=====================
+CG_DrawIRBlend
+
+Elder: Small red tint
+Note: This sucks - causes 10fps drop on my system so don't use it
+=====================
+*/
+static void CG_DrawIRBlend()
+{
+	vec4_t irColor;
+
+	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER
+		&& cg.rq3_irvision)
+	{
+		irColor[0] = 0;
+		irColor[1] = 1.0f;
+		irColor[2] = 0;
+		irColor[3] = 0.1f;
+		CG_FillRect(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, irColor);
+	}
+}
 
 
 /*
@@ -2893,6 +2915,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// Elder: draw damage blend
 	CG_DrawDamageBlend();
+	//CG_DrawIRBlend();
 
 	// draw status bar and other floating elements
  	CG_Draw2D();

@@ -745,6 +745,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 	
 	//Elder: if no _1st model, point to the weaponModel... this may get funky :)
 	if ( !weaponInfo->firstModel ) {
+		// Added warning message
+		CG_Printf(" ^3Warning: %s first-person model not found; using world model^7\n", weaponInfo->item->pickup_name);
 		weaponInfo->firstModel = weaponInfo->weaponModel;
 	}
 
@@ -2224,7 +2226,7 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, 
-							vec3_t dir, impactSound_t soundType ) {
+							vec3_t dir, impactSound_t soundType, int weapModification ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -2237,6 +2239,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	qboolean		alphaFade;
 	qboolean		isSprite;
 	int				duration;
+	int				angle;
 	
 	//Elder: for impact smoke marks
 	localEntity_t	*smokePuff;
@@ -2262,7 +2265,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 
 	switch ( weapon ) {
 
-//Blaze: Reaction M4
+	//Blaze: Reaction M4
 	case WP_M4:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
@@ -2356,12 +2359,20 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		isSprite = qtrue;
 		break;
 		*/
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
-		sfx = cgs.media.knifeClankSound;
-		radius = 4;
-		
+		if (weapModification == RQ3_WPMOD_KNIFESLASH)
+		{
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			mark = cgs.media.slashMarkShader;
+			sfx = cgs.media.knifeClankSound;
+			radius = rand() % 4 + 6;
+		}
+		else
+		{
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			sfx = cgs.media.knifeClankSound;
+		}
 		break;
 	default:
 		break;
@@ -2408,7 +2419,15 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	//	color = cgs.clientinfo[clientNum].color;
 	//	CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
 	//} else {
-		CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse );
+	
+	// Elder: Our knife slashes aren't vertical so don't go beyond 45 degrees
+	if (weapon == WP_KNIFE)
+		angle = random() * 90 + 45;
+	else
+		angle = random() * 360;
+
+	if ( mark )
+		CG_ImpactMark( mark, origin, dir, angle, 1,1,1,1, alphaFade, radius, qfalse );
 	//}
 
 	
@@ -2449,7 +2468,7 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
 	CG_Bleed( origin, entityNum );
-
+	
 	// some weapons will make an explosion with the blood, while
 	// others will just make the blood
 	//Blaze: None of these are valid
@@ -2462,7 +2481,7 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 	case WP_CHAINGUN:
 	case WP_PROX_LAUNCHER:
 #endif
-		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH );
+		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH, 0 );
 		break;
 	default:
 		break;
@@ -2537,24 +2556,24 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			}				
 		}
 		else
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 			}
-			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 		}
 	}
 }
@@ -2860,7 +2879,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			CG_Bleed( end, fleshEntityNum );
 	} else {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-		CG_MissileHitWall( WP_PISTOL, 0, end, normal, IMPACTSOUND_DEFAULT );
+		CG_MissileHitWall( WP_PISTOL, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
 	}
 
 }

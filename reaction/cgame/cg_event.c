@@ -1944,13 +1944,18 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_MISSILE_MISS:
 		DEBUGNAME("EV_MISSILE_MISS");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, 0 );
 		break;
 
 	case EV_MISSILE_MISS_METAL:
 		DEBUGNAME("EV_MISSILE_MISS_METAL");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL, 0 );
+		break;
+	case EV_KNIFE_MISS:
+		DEBUGNAME("EV_KNIFE_MISS");
+		ByteToDir( es->eventParm, dir );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, RQ3_WPMOD_KNIFESLASH );
 		break;
 
 	case EV_RAILTRAIL:
@@ -1961,7 +1966,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//CG_RailTrail( ci, es->origin2, es->pos.trBase );
 		if ( es->eventParm != 255 ) {
 			ByteToDir( es->eventParm, dir );
-			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
+			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, 0 );
 		}
 		break;
 
@@ -1987,6 +1992,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_JUMPKICK:
 		DEBUGNAME("EV_JUMPKICK");
 		ByteToDir( es->eventParm, dir );
+		// obviously not the pistol but oh well
 		CG_MissileHitPlayer( WP_PISTOL, position, dir, es->otherEntityNum );
 		CG_JumpKick( es );
 		break;
