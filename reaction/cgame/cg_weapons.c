@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/05/01 17:46:00  slicer
+// Only calling "unzoom" when switching from ssg ( less lag )
+//
 // Revision 1.68  2002/05/01 03:28:07  niceass
 // mp5 scale change for silencer
 //
@@ -2124,7 +2127,9 @@ void CG_NextWeapon_f( void ) {
 //Slicer: Done Server Side
 	else {
 //		CG_RQ3_Zoom1x();
-		trap_SendClientCommand("unzoom");
+		//Slicer lets call unzoom for SSG only
+		if(original == WP_SSG3000)
+			trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -2194,7 +2199,9 @@ void CG_PrevWeapon_f( void ) {
 	else {
 //Slicer: Done Server Side
 		//CG_RQ3_Zoom1x();
-		trap_SendClientCommand("unzoom");
+		//Slicer lets call unzoom for SSG only
+		if(original == WP_SSG3000)
+			trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -2274,7 +2281,9 @@ void CG_SpecialWeapon_f( void ) {
 	else {
 //Slicer: Done Server Side
 	//	CG_RQ3_Zoom1x();
-		trap_SendClientCommand("unzoom");
+		//Slicer lets call unzoom for SSG only
+		if(original == WP_SSG3000)
+			trap_SendClientCommand("unzoom");
 	}
 }
 
@@ -2524,7 +2533,9 @@ void CG_Weapon_f( void ) {
 	//cg.zoomLevel = 0;
 //Slicer : Done Server Side
 //	CG_RQ3_Zoom1x();
-	trap_SendClientCommand("unzoom");
+	//Slicer lets call unzoom for SSG only
+	if(cg.weaponSelect == WP_SSG3000)
+		trap_SendClientCommand("unzoom");
 	cg.weaponSelect = num;
 }
 
