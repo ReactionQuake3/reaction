@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/06/16 19:25:55  slicer
+// Commited aasimon's fix for capped rotation ini, and a small tweak for MM
+//
 // Revision 1.82  2002/06/16 17:38:00  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -2601,7 +2604,7 @@ int RQ3_GetTag ( char *buf, int *cur_pos, char *tag, int len){
 // Parser of a block
 int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 	int	map_number = 0;
-	char	map_to_go[2], word_buff[50], buff_map[50];
+	char	map_to_go[4], word_buff[50], buff_map[50];
 	char	cvar[40], value[80], model[200], *skin;
 	char	map_now[50];
 

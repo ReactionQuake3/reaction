@@ -241,7 +241,7 @@ void MM_TeamName_f (gentity_t *ent) {
 
 void checkRefVotes() {
 	gentity_t *ent;
-	char nr[2];
+	char nr[4];
 	G_Printf("Vote Red: %i Vote Blue %i \n",refVotes[0],refVotes[1]);
 	if(refVotes[0] == refVotes[1]) {
 		ent = g_entities + refVotes[0];
