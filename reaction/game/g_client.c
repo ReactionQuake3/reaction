@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/07/02 03:41:59  jbravo
+// Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
+// and fixed the captain status lingering on people after switching from MM
+//
 // Revision 1.103  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1431,6 +1435,9 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
 
+// JBravo: cleaning up stuff
+	client->sess.sub = TEAM_FREE;
+	client->sess.captain = TEAM_FREE;
 	return NULL;
 }
 

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/07/02 03:41:59  jbravo
+// Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
+// and fixed the captain status lingering on people after switching from MM
+//
 // Revision 1.106  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1316,7 +1320,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
 			// JBravo: Done ;)
-			if (g_gametype.integer != GT_TEAMPLAY || g_gametype.integer != GT_CTF) {
+			if (g_gametype.integer == GT_FFA) {
 				if (attacker->client->killStreak < 4)
 					AddScore(attacker, self->r.currentOrigin, 1);
 				else if (attacker->client->killStreak < 8) {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/07/02 03:41:59  jbravo
+// Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
+// and fixed the captain status lingering on people after switching from MM
+//
 // Revision 1.118  2002/07/01 02:56:15  blaze
 // moved the start demo code to where it prints the 20 seconds till match start
 //
@@ -1965,6 +1969,7 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	if (weapon != WP_NONE) {
 		if (weapon == ent->client->ps.weapon)
 			return;
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
 		Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
 		trap_SendServerCommand(ent - g_entities, buf);
 		return;
@@ -2041,9 +2046,9 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	}
 	if (weapon == ent->client->ps.weapon)
 		return;
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
 	Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
 	trap_SendServerCommand(ent - g_entities, buf);
-//      trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i weapon %i", STUFF, weapon));
 }
 
 void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
