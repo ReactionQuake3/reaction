@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/04/13 15:37:54  jbravo
+// limchasecam has been redone with new spec system
+//
 // Revision 1.62  2002/04/08 20:14:34  blaze
 // func_breakable explode fix
 //
@@ -935,12 +938,26 @@ void MakeSpectator(gentity_t *ent)
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 	if (ent->r.svFlags & SVF_BOT)
 		client->sess.spectatorState = SPECTATOR_FREE;
-	else
+	else if (g_RQ3_limchasecam.integer != 0) {
+		if (OKtoFollow (ent - g_entities)) {
+			client->sess.spectatorState = SPECTATOR_FOLLOW;
+			client->specMode = SPECTATOR_FOLLOW;
+			client->ps.pm_flags |= PMF_FOLLOW;
+			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			Cmd_FollowCycle_f(ent, 1);
+		} else {
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->specMode = SPECTATOR_FREE;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		}
+	} else {
 		client->sess.spectatorState = client->specMode;
+	}
 	ClientSpawn(ent);
 }
 
-qboolean OKtoFollow( int clientnum )
+qboolean OKtoFollow(int clientnum)
 {
 	int i, x;
 
@@ -954,6 +971,10 @@ qboolean OKtoFollow( int clientnum )
 			continue;
 		}
 		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 && i != clientnum &&
+				level.clients[i].sess.sessionTeam != level.clients[clientnum].sess.savedTeam) {
 			continue;
 		}
 		x++;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/04/13 15:37:53  jbravo
+// limchasecam has been redone with new spec system
+//
 // Revision 1.70  2002/04/03 15:29:24  jbravo
 // Those __ZCAM__ ifdefs keep creaping back in :)
 //
@@ -603,7 +606,16 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	// Attack Button cycles throught free view, follow or zcam
 	if((ucmd->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) {
-		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
+		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0) {
+			if (!OKtoFollow(clientNum)) return;
+			if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
+				client->sess.spectatorState = SPECTATOR_FOLLOW;
+				client->specMode = SPECTATOR_FOLLOW;
+				client->ps.pm_flags |= PMF_FOLLOW;
+				client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			}
+			return;
+		} else if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_ZCAM;
 			client->specMode = SPECTATOR_ZCAM;
 			client->camera->mode = CAMERA_MODE_SWING;

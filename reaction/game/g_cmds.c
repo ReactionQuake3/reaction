@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/04/13 15:37:53  jbravo
+// limchasecam has been redone with new spec system
+//
 // Revision 1.92  2002/04/07 12:57:36  slicer
 // Small fix on Matchmode Captain system
 //
@@ -1099,7 +1102,6 @@ Cmd_FollowCycle_f
 void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
-	int		chasemode;
 
 	// if they are playing a tournement game, count as a loss
 	if ( (g_gametype.integer == GT_TOURNAMENT )
@@ -1116,7 +1118,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
 	}
 
-	chasemode = trap_Cvar_VariableIntegerValue( "g_RQ3_limchasecam" );
 	clientnum = ent->client->sess.spectatorClient;
 	original = clientnum;
 	do {
@@ -1139,7 +1140,8 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		}
 
 // JBravo: limchasecam
-		if ( chasemode > 0 && ent->client->sess.savedTeam != level.clients[ clientnum ].sess.sessionTeam ) {
+		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 &&
+			ent->client->sess.savedTeam != level.clients[clientnum].sess.sessionTeam) {
 			continue;
 		}
 
