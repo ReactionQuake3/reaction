@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/08/27 01:25:22  jbravo
+// Fixed scoring in TOURNAMENT mode and made it a legit gametype.
+//
 // Revision 1.109  2002/08/23 14:25:05  slicer
 // Added a new Referee System with multiple ref support
 //
@@ -750,7 +753,8 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_gametype", "0");
 	}
 // JBravo: lets disable the untested modes.
-	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
+			g_gametype.integer != GT_TOURNAMENT) {
 		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");

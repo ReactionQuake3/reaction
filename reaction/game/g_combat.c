@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/08/27 01:25:22  jbravo
+// Fixed scoring in TOURNAMENT mode and made it a legit gametype.
+//
 // Revision 1.120  2002/08/23 23:07:01  blaze
 // Should have fixed the unkickable thing breaking explosive breakables.
 //
@@ -1324,7 +1327,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				attacker->client->killStreak++;
 				AddScore(attacker, self->r.currentOrigin, 1);
-			} else if (g_gametype.integer == GT_CTF) {
+			} else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TOURNAMENT) {
 				attacker->client->killStreak = 0;
 				AddScore(attacker, self->r.currentOrigin, 1);
 			} else {
