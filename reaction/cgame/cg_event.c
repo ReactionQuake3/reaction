@@ -446,7 +446,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
+	
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -655,7 +655,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
+	
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -834,7 +834,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
+	
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -2360,19 +2360,28 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
  		DEBUGNAME("EV_BREAK_GLASS1");
  		// Change cgs.media.gibSound to whatever sound you want it to use
  		// I think the gib sound sounds pretty good
- 		//Elder: gonna move this into the function
- 		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+ 		//Elder: gonna move this into the function some day
+		if ( rand() % 2 )
+ 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+		else
+			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
  		//Elder: modified
  		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 0 );
  		break;
 	case EV_BREAK_GLASS2:
  		DEBUGNAME("EV_BREAK_GLASS2");
- 		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+ 		if ( rand() % 2 )
+ 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+		else
+			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
  		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 1 );
  		break;
 	case EV_BREAK_GLASS3:
  		DEBUGNAME("EV_BREAK_GLASS3");
- 		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+ 		if ( rand() % 2 )
+ 			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glassSound );
+		else
+			trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.glass2Sound );
  		CG_BreakGlass( cent->lerpOrigin, es->eventParm, 2 );
  		break;
 	case EV_STOPLOOPINGSOUND:

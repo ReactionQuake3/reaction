@@ -1021,6 +1021,12 @@ void CG_RegisterWeapon( int weaponNum ) {
 		//weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mp5/mp5in.wav", qfalse );
 		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mp5/mp5slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+		
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/mp5/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
+		}
 		break;
 		
 	case WP_HANDCANNON:
@@ -1847,29 +1853,32 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	AnglesToAxis( angles, hand.axis );
 
 	//Elder: temp hack
-	//if ( ps->weapon != WP_PISTOL && ps->weapon != WP_M3)
-	//{
-		// map torso animations to weapon animations
-		if ( cg_gun_frame.integer ||
-			 ps->weapon == WP_PISTOL ||
-			 ps->weapon == WP_M3 ||
-			 ps->weapon == WP_HANDCANNON ||
-			 ps->weapon == WP_SSG3000 ||
-			 ps->weapon == WP_M4 ||
-			 ps->weapon == WP_AKIMBO ||
-			 ps->weapon == WP_GRENADE ||
-			 ps->weapon == WP_KNIFE) {
-			// development tool
-			hand.frame = hand.oldframe = cg_gun_frame.integer;
-			hand.backlerp = 0;
-		} else {
-				// get clientinfo for animation map
-				ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-				hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame );
-				hand.oldframe = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.oldFrame );
-				hand.backlerp = cent->pe.torso.backlerp;
-		}
-	//}
+	// map torso animations to weapon animations
+	/*
+	if ( cg_gun_frame.integer ||
+		 ps->weapon == WP_PISTOL ||
+		 ps->weapon == WP_M3 ||
+		 ps->weapon == WP_HANDCANNON ||
+		 ps->weapon == WP_SSG3000 ||
+		 ps->weapon == WP_M4 ||
+		 ps->weapon == WP_MP5 ||
+		 ps->weapon == WP_AKIMBO ||
+		 ps->weapon == WP_GRENADE ||
+		 ps->weapon == WP_KNIFE ) {
+	*/
+		// development tool
+		hand.frame = hand.oldframe = cg_gun_frame.integer;
+		hand.backlerp = 0;
+	/*
+	} else {
+			// get clientinfo for animation map
+			ci = &cgs.clientinfo[ cent->currentState.clientNum ];
+			hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame );
+			hand.oldframe = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.oldFrame );
+			hand.backlerp = cent->pe.torso.backlerp;
+	}
+	*/
+
 
 	hand.hModel = weapon->handsModel;
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
@@ -2389,7 +2398,6 @@ void CG_Weapon_f( void ) {
 		}
 
 		if (cg.snap->ps.weapon == WP_SSG3000) {
-			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.lensSound);
 			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
 			if (cg_RQ3_ssgZoomAssist.integer)
 				CG_RQ3_Zoom();
@@ -2398,12 +2406,14 @@ void CG_Weapon_f( void ) {
 		{
 			CG_RQ3_GrenadeMode();
 		}
-		else
+		// only play "click" sound for M4/MP5/Pistol
+		else if (cg.snap->ps.weapon == WP_M4 || cg.snap->ps.weapon == WP_MP5 ||
+				cg.snap->ps.weapon == WP_PISTOL )
 		{
-			//do weapon select sound
 			trap_S_StartLocalSound( cgs.media.weapToggleSound, CHAN_ITEM);
 		}
 		trap_SendClientCommand("weapon");
+		
 		//Elder: added to get out of function at this point
 		return;
 	}
@@ -2848,280 +2858,321 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	duration = 600;
 
 	switch ( weapon ) {
+		case WP_M4:
+		case WP_MP5:
+		case WP_PISTOL:
+		case WP_AKIMBO:
+		case WP_SSG3000:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
 
-	//Blaze: Reaction M4
-	case WP_M4:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
+			r = rand() & 3;
+			
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 )
+					sfx = cgs.media.sfx_metalric1;
+				else if ( r == 2 )
+					sfx = cgs.media.sfx_metalric2;
+				else
+					sfx = cgs.media.sfx_metalric3;
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 )
+					sfx = cgs.media.sfx_glassric1;
+				else if ( r == 2 )
+					sfx = cgs.media.sfx_glassric2;
+				else
+					sfx = cgs.media.sfx_glassric3;
+			}
+			else
+			{
+				if ( r == 0 )
+					sfx = cgs.media.sfx_ric1;
+				else if ( r == 1 )
+					sfx = cgs.media.sfx_ric2;
+				else
+					sfx = cgs.media.sfx_ric3;
+			}
+			radius = 8;
+			break;
 
-		r = rand() & 3;
-		if (soundType == IMPACTSOUND_METAL)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_metalric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_metalric2;
-			} else {
-				sfx = cgs.media.sfx_metalric3;
-			}
-		}
-		else if (soundType == IMPACTSOUND_GLASS)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_glassric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_glassric2;
-			} else {
-				sfx = cgs.media.sfx_glassric3;
-			}
-		}
-		else
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_ric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_ric2;
-			} else {
-				sfx = cgs.media.sfx_ric3;
-			}
-		}
-
-		radius = 8;
-		break;
-//Blaze: Reaction Pistol
-	case WP_PISTOL:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-
-		r = rand() & 3;
-		if (soundType == IMPACTSOUND_METAL)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_metalric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_metalric2;
-			} else {
-				sfx = cgs.media.sfx_metalric3;
-			}
-		}
-		else if (soundType == IMPACTSOUND_GLASS)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_glassric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_glassric2;
-			} else {
-				sfx = cgs.media.sfx_glassric3;
-			}
-		}
-		else
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_ric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_ric2;
-			} else {
-				sfx = cgs.media.sfx_ric3;
-			}
-		}
-		radius = 8;
-		break;
-	case WP_SSG3000:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-
-		r = rand() & 3;
-		if (soundType == IMPACTSOUND_METAL)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_metalric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_metalric2;
-			} else {
-				sfx = cgs.media.sfx_metalric3;
-			}
-		}
-		else if (soundType == IMPACTSOUND_GLASS)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_glassric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_glassric2;
-			} else {
-				sfx = cgs.media.sfx_glassric3;
-			}
-		}
-		else
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_ric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_ric2;
-			} else {
-				sfx = cgs.media.sfx_ric3;
-			}
-		}
-		radius = 8;
-		break;
-	case WP_AKIMBO:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-
-		r = rand() & 3;
-		if (soundType == IMPACTSOUND_METAL)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_metalric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_metalric2;
-			} else {
-				sfx = cgs.media.sfx_metalric3;
-			}
-		}
-		else if (soundType == IMPACTSOUND_GLASS)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_glassric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_glassric2;
-			} else {
-				sfx = cgs.media.sfx_glassric3;
-			}
-		}
-		else
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_ric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_ric2;
-			} else {
-				sfx = cgs.media.sfx_ric3;
-			}
-		}
-		radius = 8;
-		break;
-
-//Blaze: Reaction MP5
-	case WP_MP5:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-
-		r = rand() & 3;
-		if (soundType == IMPACTSOUND_METAL)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_metalric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_metalric2;
-			} else {
-				sfx = cgs.media.sfx_metalric3;
-			}
-		}
-		else if (soundType == IMPACTSOUND_GLASS)
-		{
-			if ( r < 2 ) {
-				sfx = cgs.media.sfx_glassric1;
-			} else if ( r == 2 ) {
-				sfx = cgs.media.sfx_glassric2;
-			} else {
-				sfx = cgs.media.sfx_glassric3;
-			}
-		}
-		else
-		{
-			if ( r == 0 ) {
-				sfx = cgs.media.sfx_ric1;
-			} else if ( r == 1 ) {
-				sfx = cgs.media.sfx_ric2;
-			} else {
-				sfx = cgs.media.sfx_ric3;
-			}
-		}
-		radius = 8;
-		break;
-//Blaze: Reaction Shotgun
-	case WP_M3:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-		sfx = 0;
-		radius = 4;
-		break;
-	case WP_HANDCANNON:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		if (soundType == IMPACTSOUND_GLASS)
-			mark = cgs.media.glassMarkShader;
-		else
-			mark = cgs.media.bulletMarkShader;
-		sfx = 0;
-		radius = 4;
-		break;
-	case WP_GRENADE:
-		mod = cgs.media.dishFlashModel;
-		shader = cgs.media.grenadeExplosionShader;
-		sfx = cgs.media.sfx_rockexp;
-		mark = cgs.media.burnMarkShader;
-		radius = 96;	//64
-		light = 350;	//300
-		isSprite = qtrue;
-		break;
-	
-	case WP_KNIFE:
 		/*
-		mod = cgs.media.dishFlashModel;
-		//shader = cgs.media.grenadeExplosionShader;
-		sfx = cgs.media.sfx_rockexp;
-		mark = cgs.media.burnMarkShader;
-		radius = 64;
-		light = 300;
-		isSprite = qtrue;
-		break;
+		//Blaze: Reaction M4
+		case WP_M4:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+
+			r = rand() & 3;
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_metalric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_metalric2;
+				} else {
+					sfx = cgs.media.sfx_metalric3;
+				}
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_glassric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_glassric2;
+				} else {
+					sfx = cgs.media.sfx_glassric3;
+				}
+			}
+			else
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_ric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_ric2;
+				} else {
+					sfx = cgs.media.sfx_ric3;
+				}
+			}
+
+			radius = 8;
+			break;
+	//Blaze: Reaction Pistol
+		case WP_PISTOL:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+
+			r = rand() & 3;
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_metalric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_metalric2;
+				} else {
+					sfx = cgs.media.sfx_metalric3;
+				}
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_glassric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_glassric2;
+				} else {
+					sfx = cgs.media.sfx_glassric3;
+				}
+			}
+			else
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_ric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_ric2;
+				} else {
+					sfx = cgs.media.sfx_ric3;
+				}
+			}
+			radius = 8;
+			break;
+		case WP_SSG3000:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+
+			r = rand() & 3;
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_metalric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_metalric2;
+				} else {
+					sfx = cgs.media.sfx_metalric3;
+				}
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_glassric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_glassric2;
+				} else {
+					sfx = cgs.media.sfx_glassric3;
+				}
+			}
+			else
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_ric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_ric2;
+				} else {
+					sfx = cgs.media.sfx_ric3;
+				}
+			}
+			radius = 8;
+			break;
+		case WP_AKIMBO:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+
+			r = rand() & 3;
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_metalric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_metalric2;
+				} else {
+					sfx = cgs.media.sfx_metalric3;
+				}
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_glassric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_glassric2;
+				} else {
+					sfx = cgs.media.sfx_glassric3;
+				}
+			}
+			else
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_ric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_ric2;
+				} else {
+					sfx = cgs.media.sfx_ric3;
+				}
+			}
+			radius = 8;
+			break;
+
+	//Blaze: Reaction MP5
+		case WP_MP5:
+			mod = cgs.media.bulletFlashModel;
+			shader = cgs.media.bulletExplosionShader;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+
+			r = rand() & 3;
+			if (soundType == IMPACTSOUND_METAL)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_metalric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_metalric2;
+				} else {
+					sfx = cgs.media.sfx_metalric3;
+				}
+			}
+			else if (soundType == IMPACTSOUND_GLASS)
+			{
+				if ( r < 2 ) {
+					sfx = cgs.media.sfx_glassric1;
+				} else if ( r == 2 ) {
+					sfx = cgs.media.sfx_glassric2;
+				} else {
+					sfx = cgs.media.sfx_glassric3;
+				}
+			}
+			else
+			{
+				if ( r == 0 ) {
+					sfx = cgs.media.sfx_ric1;
+				} else if ( r == 1 ) {
+					sfx = cgs.media.sfx_ric2;
+				} else {
+					sfx = cgs.media.sfx_ric3;
+				}
+			}
+			radius = 8;
+			break;
 		*/
-		if (weapModification == RQ3_WPMOD_KNIFESLASH)
-		{
+
+		case WP_M3:
+		case WP_HANDCANNON:
 			mod = cgs.media.bulletFlashModel;
 			shader = cgs.media.bulletExplosionShader;
-			mark = cgs.media.slashMarkShader;
-			sfx = cgs.media.knifeClankSound;
-			radius = rand() % 4 + 6;
-		}
-		else
-		{
-			mod = cgs.media.bulletFlashModel;
-			shader = cgs.media.bulletExplosionShader;
-			sfx = cgs.media.knifeClankSound;
-		}
-		break;
-	default:
-		break;
+			if (soundType == IMPACTSOUND_GLASS)
+				mark = cgs.media.glassMarkShader;
+			else
+				mark = cgs.media.bulletMarkShader;
+			sfx = 0;
+			radius = 4;
+			break;
+
+		case WP_GRENADE:
+			mod = cgs.media.dishFlashModel;
+			shader = cgs.media.grenadeExplosionShader;
+			sfx = cgs.media.sfx_rockexp;
+			mark = cgs.media.burnMarkShader;
+			radius = 96;	//64
+			light = 350;	//300
+			isSprite = qtrue;
+			break;
+		
+		case WP_KNIFE:
+			/*
+			mod = cgs.media.dishFlashModel;
+			//shader = cgs.media.grenadeExplosionShader;
+			sfx = cgs.media.sfx_rockexp;
+			mark = cgs.media.burnMarkShader;
+			radius = 64;
+			light = 300;
+			isSprite = qtrue;
+			break;
+			*/
+			if (weapModification == RQ3_WPMOD_KNIFESLASH)
+			{
+				mod = cgs.media.bulletFlashModel;
+				shader = cgs.media.bulletExplosionShader;
+				mark = cgs.media.slashMarkShader;
+				sfx = cgs.media.knifeClankSound;
+				radius = rand() % 4 + 6;
+			}
+			else
+			{
+				mod = cgs.media.bulletFlashModel;
+				shader = cgs.media.bulletExplosionShader;
+				sfx = cgs.media.knifeClankSound;
+			}
+			break;
+		default:
+			break;
 	}
 
-	// Knives, SSG, and grenades always play sound
-	if (weapon == WP_KNIFE || weapon == WP_SSG3000 || weapon == WP_GRENADE)
+	//
+	// ricochet sound
+	//
+	if (weapon == WP_KNIFE || weapon == WP_SSG3000 || weapon == WP_GRENADE ||
+		soundType == IMPACTSOUND_METAL )
 		i = 1;
 	else
 		//Elder: 90% of the time render a bullet ricochet sound
@@ -3153,18 +3204,21 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	// impact mark
 	//
 	alphaFade = (mark == cgs.media.energyMarkShader);	// plasma fades alpha, all others fade color
+	
 	//Blaze: No more railgun
-	//if ( weapon == WP_RAILGUN ) {
-	//	float	*color;
+	/*
+	if ( weapon == WP_RAILGUN ) {
+		float	*color;
 
 		// colorize with client color
-	//	color = cgs.clientinfo[clientNum].color;
-	//	CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
-	//} else {
+		color = cgs.clientinfo[clientNum].color;
+		CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
+	} else {
+	*/
 	
-	// Elder: Our knife slashes aren't vertical so don't go beyond 45 degrees
+	// Elder: Our knife slashes are vertical
 	if (weapon == WP_KNIFE)
-		angle = random() * 90 + 45;
+		angle = random() * 90;
 	else
 		angle = random() * 360;
 
@@ -3172,6 +3226,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		CG_ImpactMark( mark, origin, dir, angle, 1,1,1,1, alphaFade, radius, qfalse );
 	//}
 
+
+	//
+	// impact visual effects
+	//
 	
 	//Elder: 75% of the time render a smoke puff
 	i = rand() % 4;
@@ -3184,6 +3242,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				case WP_MP5:
 				case WP_M4:
 				case WP_PISTOL:
+				case WP_AKIMBO:
 				case WP_SSG3000:
 					puffDir[0] = 0;
 					puffDir[1] = 0;
@@ -3200,7 +3259,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 							  650, 
 							  cg.time, 0,
 							  LEF_PUFF_DONT_SCALE, 
-							  cgs.media.smokePuffShader );
+							  cgs.media.smokePuffAnimShader );
 					break;
 			}
 		}
@@ -3370,7 +3429,7 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			// SURF_NOIMPACT will not make a flame puff or a mark
 			return;
 		}
-		if ( tr.surfaceFlags & SURF_METALSTEPS )
+		if ( (tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) )
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
@@ -3394,13 +3453,14 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		}
 		else
 		{
-			//Blaze: Changed WP_SHOTGUN to WP_M3
+			// Elder: By default, the M3 and HC will spark on all surfaces
+			// Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			}
 			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 		}

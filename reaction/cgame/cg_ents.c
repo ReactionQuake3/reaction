@@ -303,14 +303,16 @@ static void CG_Item( centity_t *cent ) {
 
 
 	// autorotate at one of two speeds
-//Blaze: no rotating
-//	if ( item->giType == IT_HEALTH ) {
-//		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
-//		AxisCopy( cg.autoAxisFast, ent.axis );
-//	} else {
-//		VectorCopy( cg.autoAngles, cent->lerpAngles );
-//		AxisCopy( cg.autoAxis, ent.axis );
-//	}
+	//Blaze: no rotating
+	/*
+	if ( item->giType == IT_HEALTH ) {
+		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+		AxisCopy( cg.autoAxisFast, ent.axis );
+	} else {
+		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		AxisCopy( cg.autoAxis, ent.axis );
+	}
+	*/
 
 	if (item->giType == IT_WEAPON && item->giTag != WP_KNIFE &&
 		(es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0) ) {
@@ -320,16 +322,21 @@ static void CG_Item( centity_t *cent ) {
 		//It's out here because the wi calculations mess up the lerpOrigin
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
 		AxisCopy( cg.autoAxisFast, ent.axis );
-
+		
 		VectorCopy(ent.axis[1], myvec);
 		VectorNegate(ent.axis[2], ent.axis[1]);
 		VectorCopy(myvec, ent.axis[2]);
 	}
-	else if (item->giType == IT_HOLDABLE &&
-			(es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0))
+	else if (item->giType == IT_HOLDABLE)
 	{
-		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
-		AxisCopy( cg.autoAxisFast, ent.axis );
+		//Elder: rotate item if moving
+		if (es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0)
+		{
+			VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+			AxisCopy( cg.autoAxisFast, ent.axis );
+		}
+		else
+			AnglesToAxis(es->angles, ent.axis);
 	}
 
 	wi = NULL;
@@ -342,6 +349,10 @@ static void CG_Item( centity_t *cent ) {
 
 		vec3_t          myvec;
 		
+		// Elder: bad hack -- but oh well.
+		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0)
+			AnglesToAxis(es->angles, ent.axis);
+
 		//CG_Printf("Should not be in here if it's a thrown knife\n");		
 		wi = &cg_weapons[item->giTag];
 		cent->lerpOrigin[0] -= 
@@ -356,16 +367,17 @@ static void CG_Item( centity_t *cent ) {
 			wi->weaponMidpoint[0] * ent.axis[0][2] +
 			wi->weaponMidpoint[1] * ent.axis[1][2] +
 			wi->weaponMidpoint[2] * ent.axis[2][2];
-	//Blaze: Dont raise the weapon, but lower it
-	//Elder: increased value
+		//Blaze: Dont raise the weapon, but lower it
 		//Elder: don't lower knives by much - this is bad hardcode but oh well
 		if ( item->giTag == WP_KNIFE)
 			cent->lerpOrigin[2] -= 10;
 		else
 			cent->lerpOrigin[2] -= 14;
-	//	cent->lerpOrigin[2] += 8;	// an extra height boost
+
+		//	cent->lerpOrigin[2] += 8;	// an extra height boost
     
-		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0) {
+		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0)
+		{
 			// Blaze: rotate the gun by 90 degrees to place it on the ground
 			VectorCopy(ent.axis[1], myvec);
 			VectorNegate(ent.axis[2], ent.axis[1]);

@@ -861,6 +861,7 @@ typedef struct {
 	qhandle_t	rq3_healthicon2;
 
 	qhandle_t	smokePuffShader;
+	qhandle_t	smokePuffAnimShader;
 	qhandle_t	smokePuffRageProShader;
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
@@ -1025,7 +1026,8 @@ typedef struct {
 	sfxHandle_t	youSuckSound;
 #endif
 	sfxHandle_t	gibSound;
-	sfxHandle_t glassSound;//Blaze: Reaction breakable glass
+	sfxHandle_t glassSound; //Blaze: Reaction breakable glass
+	sfxHandle_t glass2Sound;
 	sfxHandle_t	gibBounce1Sound;
 	sfxHandle_t	gibBounce2Sound;
 	sfxHandle_t	gibBounce3Sound;

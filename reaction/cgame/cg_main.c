@@ -656,6 +656,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.gibSound = trap_S_RegisterSound( "sound/player/gibsplt1.wav", qfalse );
 	//Blaze: Reaction breakable glass
 	cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
+	cgs.media.glass2Sound = trap_S_RegisterSound( "sound/world/glassbk2.wav", qfalse );
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
@@ -924,6 +925,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip( "menu/tab/time.tga" );
 
 	cgs.media.smokePuffShader = trap_R_RegisterShader( "smokePuff" );
+	// Elder: expanding animated smoke puff
+	cgs.media.smokePuffAnimShader = trap_R_RegisterShader( "smokePuff-rq3" );
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader( "smokePuffRagePro" );
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
 #ifdef MISSIONPACK
