@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.33  2002/06/21 21:02:07  niceass
 // worldspawn laserfog check
 //
@@ -472,12 +475,14 @@ qboolean G_CallSpawn(gentity_t * ent)
 		if (!strcmp(item->classname, ent->classname)) {
 			//only spawn flags in CTF mode
 			if (item->giType == IT_TEAM && (item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG)) {
+	// JBravo: no spawning in CTF
 				if (g_gametype.integer == GT_CTF) {
 					G_SpawnItem(ent, item);
 					return qtrue;
 				}
 			} else {
-				G_SpawnItem(ent, item);
+				if (g_gametype.integer != GT_CTF)
+					G_SpawnItem(ent, item);
 				return qtrue;
 			}
 		}

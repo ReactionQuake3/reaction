@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.100  2002/06/23 23:32:29  jbravo
 // Fixed logging of clients IP addresses.
 //
@@ -1057,7 +1060,7 @@ void ClientUserinfoChanged(int clientNum)
 		Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
 	}
 	//Com_Printf("%s model=(%s)\n",client->pers.netname, model);
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		if (client->sess.sessionTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
 			skin2 = Q_strrchr(model2, '/');
@@ -1508,7 +1511,7 @@ void ClientBegin(int clientNum)
 	CalculateRanks();
 
 	// JBravo: default weapons
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (ent->r.svFlags & SVF_BOT) {
 			//Makro - changed to m4/laser from pistol/kevlar
@@ -1565,29 +1568,6 @@ void ClientSpawn(gentity_t * ent)
 
 	index = ent - g_entities;
 	client = ent->client;
-
-// JBravo: Check if team spawnpoints have been located. If not find a spot for each team ala AQ2.
-/*	if (g_gametype.integer == GT_TEAMPLAY) {
-		if (!level.spawnPointsLocated) {
-			client->pers.initialSpawn = qfalse;
-			do {
-				level.team1spawnpoint =
-				    SelectSpawnPoint(vec3_origin, level.team1spawn_origin, level.team1spawn_angles);
-				if ((level.team1spawnpoint->flags & FL_NO_BOTS) && (ent->r.svFlags & SVF_BOT)) {
-					continue;
-				}
-				if ((level.team1spawnpoint->flags & FL_NO_HUMANS) && !(ent->r.svFlags & SVF_BOT)) {
-					continue;
-				}
-				break;
-			} while (1);
-			level.team2spawnpoint = SelectRandomFurthestSpawnPoint(level.team1spawnpoint->s.origin,
-									       level.team2spawn_origin,
-									       level.team2spawn_angles);
-			level.spawnPointsLocated = qtrue;
-		}
-	} */
-// End JBravo.
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
@@ -1746,7 +1726,7 @@ void ClientSpawn(gentity_t * ent)
 
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 		client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
 		client->numClips[WP_PISTOL] = 0;
 		client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
@@ -1829,7 +1809,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 	// weapon animations
-	if (g_gametype.integer != GT_TEAMPLAY)
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
 		client->ps.generic1 = ((client->ps.generic1 & ANIM_TOGGLEBIT)
 				       ^ ANIM_TOGGLEBIT) | WP_ANIM_IDLE;
 
@@ -1843,7 +1823,7 @@ void ClientSpawn(gentity_t * ent)
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		// JBravo: Lets make sure we have the right weapons
-		if (g_gametype.integer == GT_TEAMPLAY) {
+		if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 			EquipPlayer(ent);
 		} else {
 			client->ps.weapon = 1;

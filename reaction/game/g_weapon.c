@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.68  2002/06/24 01:21:26  blaze
 // changed HC to be more like aq2.  Probably more work needed
 //
@@ -1318,7 +1321,7 @@ void Weapon_Knife_Fire(gentity_t * ent)
 
 	//m = Knife_Throw(ent, muzzle, forward, THROW_DAMAGE, 1200);
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	m = fire_knife(ent, muzzle, forward);
 //      m->damage *= s_quadFactor;
@@ -1350,7 +1353,7 @@ void Weapon_M4_Fire(gentity_t * ent)
 	}
 
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	Bullet_Fire(ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
@@ -1385,7 +1388,7 @@ void Weapon_MK23_Fire(gentity_t * ent)
 		spread = PISTOL_SPREAD;
 	}
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	Bullet_Fire(ent, RQ3_Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
 }
@@ -1406,7 +1409,7 @@ void Weapon_SSG3000_FireOld(gentity_t * ent)
 		spread = RQ3_Spread(ent, SNIPER_SPREAD);
 	}
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	Bullet_Fire(ent, spread, SNIPER_DAMAGE, MOD_SNIPER);
 
@@ -1725,7 +1728,7 @@ void Weapon_MP5_Fire(gentity_t * ent)
 	}
 
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	Bullet_Fire(ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
@@ -1741,7 +1744,7 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	gentity_t *tent, *tent2;
 
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	//Elder: added for damage report
 	RQ3_InitShotgunDamageReport();
@@ -1780,7 +1783,7 @@ void Weapon_M3_Fire(gentity_t * ent)
 	gentity_t *tent;
 
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	//Elder: added for damage report
 	RQ3_InitShotgunDamageReport();
@@ -1876,7 +1879,7 @@ void Weapon_Akimbo_Fire(gentity_t * ent)
 	//Blaze: Will need 2 of these
 	spread = AKIMBO_SPREAD;
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	Bullet_Fire(ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 
@@ -1904,7 +1907,7 @@ void Weapon_Grenade_Fire(gentity_t * ent)
 	VectorNormalize(forward);
 
 // JBravo: ff
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
 	m = fire_grenade(ent, muzzle, forward);
 	//Elder: removed

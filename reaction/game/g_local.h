@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.104  2002/06/23 19:25:11  niceass
 // bandage bug fix
 //
@@ -301,6 +304,7 @@ typedef enum {
 
 #define SP_PODIUM_MODEL			"models/mapobjects/podium/podium4.md3"
 #define RQ3_RESPAWNTIME_DEFAULT		60000	// Elder: time for weapons to respawn - up to 60s
+#define RQ3_CTF_RESPAWNTIME_DEFAULT	10000	// JBravo: time for weapons to respawn - up to 10s
 #define SP_AUTOOPEN			4	// Elder: revert to Q3 behaviour
 #define SP_DOORTOGGLE			8	// Elder: added to enable mover toggling
 #define MAXDOORTIME			100	// Elder: max time the opendoor key can stay open

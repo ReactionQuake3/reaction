@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.97  2002/06/23 19:12:17  slicer
 // More Matchmode work
 //
@@ -695,7 +698,7 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_gametype", "0");
 	}
 // JBravo: lets disable the untested modes.
-	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");
@@ -962,7 +965,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 	//Elder: spawn unique items.
 	// JBravo: unless we are in Teamplay
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 		RQ3_StartUniqueItems();
 	}
 	// Elder: force sv_floodprotect to 0 -- remove when we finish
@@ -983,7 +986,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_SoundIndex("sound/player/gurp2.wav");
 	}
 // JBravo: reset teamplay stuff.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 
 		//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));

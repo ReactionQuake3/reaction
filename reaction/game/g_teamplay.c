@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.113  2002/06/22 00:19:57  jbravo
 // Cleanups for colors and stopped bots looking for team leaders in TP
 //
@@ -1479,10 +1482,17 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 							continue;
 						if (IsInIgnoreList(player, ent))
 							continue;
-						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
-							trap_SendServerCommand(player - g_entities,
-									       va("rq3_cmd %i %i %i\n", RADIO,
-										  kills - 1, ent->client->radioGender));
+						if (g_gametype.integer != GT_TEAMPLAY) {
+							if (player->client->sess.sessionTeam == ent->client->sess.sessionTeam)
+								trap_SendServerCommand(player - g_entities,
+										       va("rq3_cmd %i %i %i\n", RADIO,
+											  kills - 1, ent->client->radioGender));
+						} else {
+							if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
+								trap_SendServerCommand(player - g_entities,
+										       va("rq3_cmd %i %i %i\n", RADIO,
+											  kills - 1, ent->client->radioGender));
+						}
 					}
 				}
 			}
@@ -1492,16 +1502,30 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 					continue;
 				if (IsInIgnoreList(player, ent))
 					continue;
-				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
-					if (player->r.svFlags & SVF_BOT)
-						trap_SendServerCommand(player - g_entities,
-								       va("print \"radio %s %s\n\"",
-									  ent->client->pers.netname,
-									  radio_msgs[x].msg));
-					else
-						trap_SendServerCommand(player - g_entities,
-								       va("rq3_cmd %i %i %i\n", RADIO, x,
-									  ent->client->radioGender));
+				if (g_gametype.integer != GT_TEAMPLAY) {
+					if (player->client->sess.sessionTeam == ent->client->sess.sessionTeam) {
+						if (player->r.svFlags & SVF_BOT)
+							trap_SendServerCommand(player - g_entities,
+									       va("print \"radio %s %s\n\"",
+										  ent->client->pers.netname,
+										  radio_msgs[x].msg));
+						else
+							trap_SendServerCommand(player - g_entities,
+									       va("rq3_cmd %i %i %i\n", RADIO, x,
+										  ent->client->radioGender));
+					}
+				} else {
+					if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
+						if (player->r.svFlags & SVF_BOT)
+							trap_SendServerCommand(player - g_entities,
+									       va("print \"radio %s %s\n\"",
+										  ent->client->pers.netname,
+										  radio_msgs[x].msg));
+						else
+							trap_SendServerCommand(player - g_entities,
+									       va("rq3_cmd %i %i %i\n", RADIO, x,
+										  ent->client->radioGender));
+					}
 				}
 			}
 			//Slicer lets return to stop the while if found..

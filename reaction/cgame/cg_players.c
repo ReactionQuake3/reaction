@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.34  2002/06/23 15:51:59  slicer
 // Fixed the UI team count cvars when someone disconnects.
 //
@@ -405,7 +408,7 @@ static qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t 
 			if (CG_FileExists(filename)) {
 				return qtrue;
 			}
-			if (cgs.gametype == GT_TEAMPLAY) {
+			if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
 				Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", modelName, base, skinName,
 					    ext);
 			} else if (cgs.gametype >= GT_TEAM) {
@@ -491,7 +494,7 @@ static qboolean CG_FindClientHeadFile(char *filename, int length, clientInfo_t *
 			if (CG_FileExists(filename)) {
 				return qtrue;
 			}
-			if (cgs.gametype == GT_TEAMPLAY) {
+			if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
 				Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", headModelName, base,
 					    headSkinName, ext);
 			} else if (cgs.gametype >= GT_TEAM) {

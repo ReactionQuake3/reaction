@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.41  2002/06/17 04:02:24  jbravo
 // Fixed weapon and item respawning after death in TP
 //
@@ -853,12 +856,20 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		 item->giTag != WP_GRENADE && item->giTag != WP_PISTOL &&
 		 item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE) {
 		dropped->think = RQ3_DroppedWeaponThink;
-		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
+// JBravo: weapons and items go away faster in CTF
+		if (g_gametype.integer == GT_CTF)
+			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
+		else
+			dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
 	//Elder: for unique items in deathmatch ... remember to condition for teamplay
 	else if (item->giType == IT_HOLDABLE) {
 		dropped->think = RQ3_DroppedItemThink;
-		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
+// JBravo: weapons and items go away faster in CTF
+		if (g_gametype.integer == GT_CTF)
+			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
+		else
+			dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	} else {
 		// auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
@@ -1092,7 +1103,8 @@ void ClearRegisteredItems(void)
 	RegisterItem(BG_FindItemForHoldable(HI_BANDOLIER));
 	RegisterItem(BG_FindItemForHoldable(HI_LASER));
 	//Makro - all weapons should be loaded in teamplay
-	if (trap_Cvar_VariableIntegerValue("g_gametype") == GT_TEAMPLAY) {
+	//JBravo: and CTF
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		RegisterItem(BG_FindItemForWeapon(WP_M3));
 		RegisterItem(BG_FindItemForWeapon(WP_MP5));
 		RegisterItem(BG_FindItemForWeapon(WP_HANDCANNON));
@@ -1487,7 +1499,7 @@ void RQ3_ResetItem(int itemTag)
 	float angle = rand() % 360;
 
 // JBravo: no resetting items in TP
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		return;
 
 	switch (itemTag) {

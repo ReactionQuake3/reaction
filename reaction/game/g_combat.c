@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/06/24 05:51:51  jbravo
+// CTF mode is now semi working
+//
 // Revision 1.103  2002/06/23 18:29:21  jbravo
 // Suicides now always gib.
 //
@@ -1276,7 +1279,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		if (attacker == self) {
 			AddScore(attacker, self->r.currentOrigin, -1);
 		} else if (OnSameTeam(self, attacker)) {
-			if (level.team_round_going) {
+			if (g_gametype.integer == GT_TEAMPLAY && level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
 				//If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
 				attacker->client->pers.records[REC_KILLS]--;
@@ -1285,6 +1288,13 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				Add_TeamKill(attacker);
 				trap_SendServerCommand(self - g_entities,
 						       va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
+			} else if (g_gametype.integer == GT_CTF) {
+				AddScore(attacker, self->r.currentOrigin, -1);
+				attacker->client->pers.records[REC_KILLS]--;
+				attacker->client->pers.records[REC_TEAMKILLS]++;
+				Add_TeamKill(attacker);
+				trap_SendServerCommand(self - g_entities,
+							va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
 			}
 		} else {
 			// Increase number of kills this life for attacker
@@ -1292,13 +1302,15 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				attacker->client->killStreak++;
 				AddScore(attacker, self->r.currentOrigin, 1);
+			} else if (g_gametype.integer == GT_CTF) {
+				attacker->client->killStreak = 0;
 			} else {
 				attacker->client->killStreak++;
 			}
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
 			// JBravo: Done ;)
-			if (g_gametype.integer != GT_TEAMPLAY) {
+			if (g_gametype.integer != GT_TEAMPLAY || g_gametype.integer != GT_CTF) {
 				if (attacker->client->killStreak < 4)
 					AddScore(attacker, self->r.currentOrigin, 1);
 				else if (attacker->client->killStreak < 8) {
@@ -1777,7 +1789,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// JBravo: FF control
 	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
 	    targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
-	    (!g_friendlyFire.integer && level.team_round_going))
+	    ((g_gametype.integer == GT_TEAMPLAY && !g_friendlyFire.integer && level.team_round_going) ||
+	    		(g_gametype.integer == GT_CTF && !g_friendlyFire.integer)))
 		return;
 
 	// the intermission has allready been qualified for, so don't
@@ -1981,10 +1994,10 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		// if the attacker was on the same team
 		if (targ != attacker && OnSameTeam(targ, attacker)) {
 // JBravo: more FF tweaks
-			if (g_friendlyFire.integer == 2 && level.team_round_going) {
+			if (g_gametype.integer == GT_TEAMPLAY && g_friendlyFire.integer == 2 && level.team_round_going) {
 				return;
 			}
-			if (level.team_round_going)
+			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer == GT_CTF)
 				Add_TeamWound(attacker, targ, mod);
 		}
 		// check for godmode
