@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/07/11 04:29:41  niceass
+// removed auto-joining teams for things like ctb
+//
 // Revision 1.16  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -128,7 +131,11 @@ void G_ReadSessionData(gclient_t * client)
 	       &savedTeam, &captain, &sub);
 
 	// bk001205 - format issues
-	client->sess.sessionTeam = (team_t) sessionTeam;
+
+	// NiceAss: I don't believe we want this. (Auto join a team when changing maps)
+	// Only noticable on non-roundbased games like CTB.
+	// client->sess.sessionTeam = (team_t) sessionTeam;
+
 	client->sess.spectatorState = (spectatorState_t) spectatorState;
 	client->sess.teamLeader = (qboolean) teamLeader;
 
