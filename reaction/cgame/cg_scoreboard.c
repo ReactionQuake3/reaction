@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/07/08 04:27:32  niceass
+// moved some code to game. Changed from head models to icons
+//
 // Revision 1.39  2002/07/02 07:38:55  niceass
 // Added total players/subs & fixed ping bug
 //
@@ -280,11 +283,12 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 
 	if (score->client == cg.clientNum)
 		FillColor[3] += 0.2f;
+
 	if (FillColor[3] > 1)
 		FillColor[3] = 1;
 
 	// Dead?
-	if (!score->alive && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+	if (!score->alive) {
 		TextColor[0] *= 0.5f;
 		TextColor[1] *= 0.5f;
 		TextColor[2] *= 0.5f;
@@ -430,10 +434,10 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[Score->client];
 			CG_DrawTeamplayClientScore(y, Score, GreyL, colorWhite, colorWhite);
 
-			if (ci->team != TEAM_SPECTATOR)
+/*			if (ci->team != TEAM_SPECTATOR)
 				CG_DrawHead((SCREEN_WIDTH + SB_WIDTH) / 2, y, SB_FONTSIZEH + SB_PADDING * 2+1, 
 					SB_FONTSIZEH + SB_PADDING * 2+1, Score->client, headAngles);
-
+*/
 			if (First == 0)
 				DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorWhite);
 
@@ -457,7 +461,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - Wins: %d", Reds, RedSubs, cg.teamScores[0]), 100, colorWhite);
 
 
-	CG_ScoreBoardHead (TEAM_RED, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
+	CG_ScoreBoardHead (TEAM_RED, (SCREEN_WIDTH - SB_WIDTH) / 2 - 36, y, 34, 34);
 
 
 	y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
@@ -546,7 +550,7 @@ static int CG_TeamplayScoreboard(void)
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - Wins: %d", Blues, BlueSubs, cg.teamScores[1]), 100, colorWhite);
 	
-	CG_ScoreBoardHead (TEAM_BLUE, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
+	CG_ScoreBoardHead (TEAM_BLUE, (SCREEN_WIDTH - SB_WIDTH) / 2 - 36, y, 34, 34);
 
 	y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 
@@ -1305,8 +1309,9 @@ void CG_DrawWeaponStats(void)
 void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 	char		modelskin[128], filename[128];
 	char		*model = NULL, *skin = NULL;
-	qhandle_t	headModel, headSkin;
-	vec3_t		headAngles;
+	qhandle_t	headModel, headSkin, headIcon;
+	
+	vec3_t		Angles;
 
 	if (team == TEAM_RED) 
 		strcpy(modelskin, cg_RQ3_team1model.string);
@@ -1322,6 +1327,8 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 	skin++;
 	model = modelskin;
 
+	//********************** LOAD HEAD ***************************
+	/*
 	Com_sprintf(filename, 128, "models/players/%s/head.md3", model);
 	headModel = trap_R_RegisterModel( filename );
 
@@ -1334,11 +1341,19 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 	if (!headSkin)
 		return;
 
-	VectorClear( headAngles );
-	headAngles[1] = sin(cg.time * 0.0025f) * 20.0f + 180.0f;
-	headAngles[0] = cos(cg.time * 0.002f) * 8.0f;
+	VectorClear( Angles );
+	Angles[1] = sin(cg.time * 0.0025f) * 20.0f + 180.0f;
+	Angles[0] = cos(cg.time * 0.002f) * 8.0f;
 
-	CG_DrawScoreBoardHead(x, y, w, h, headModel, headSkin, headAngles);
+	CG_DrawScoreBoardHead(x, y, w, h, headModel, headSkin, Angles);
+	*/
+	Com_sprintf(filename, 128, "models/players/%s/icon_%s.md3", model, skin);
+	headIcon = trap_R_RegisterShaderNoMip( filename );
+
+	if (!headIcon)
+		return;
+
+	CG_DrawPic(x, y, w, h, headIcon);
 }
 
 
@@ -1347,21 +1362,20 @@ void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 
 	Displays the player model. This is just an altered CG_DrawHead.
 */
-
+/*
 void CG_DrawScoreBoardHead(float x, float y, float w, float h, 
-						   qhandle_t headModel, qhandle_t headSkin, vec3_t headAngles)
+						   qhandle_t headModel, qhandle_t headSkin, 
+						   vec3_t headAngles)
 {
-	clipHandle_t cm;
 	float len;
 	vec3_t origin;
 	vec3_t mins, maxs;
 
-	cm = headModel;
-	if (!cm) {
+	if (!headModel)
 		return;
-	}
+
 	// offset the origin y and z to center the head
-	trap_R_ModelBounds(cm, mins, maxs);
+	trap_R_ModelBounds(headModel, mins, maxs);
 
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
@@ -1372,4 +1386,7 @@ void CG_DrawScoreBoardHead(float x, float y, float w, float h,
 	origin[0] = len / 0.268;	// len / tan( fov/2 )
 
 	CG_Draw3DModel(x, y, w, h, headModel, headSkin, origin, headAngles);
+
+
 }
+*/
