@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/02/07 23:47:06  niceass
+// Score sorting for >= GT_TEAM fixed
+//
 // Revision 1.21  2002/02/05 23:41:27  slicer
 // More on matchmode..
 //
@@ -132,9 +135,10 @@ vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
 vmCvar_t	g_singlePlayer;
 vmCvar_t	g_enableDust;
-vmCvar_t	g_enableBreath;
 vmCvar_t	g_proxMineTimeout;
 #endif
+// NiceAss: Taken out of the missionpack
+vmCvar_t	g_enableBreath;
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
@@ -181,7 +185,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
 
 	// Elder: slow down to 300?
-	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
+	{ &g_speed, "g_speed", "300", 0, 0, qtrue  },	// was 320
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
@@ -213,9 +217,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
 
 	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
-	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse },
 #endif
+	// NiceAss: Taken out of the missionpack
+	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
@@ -811,38 +816,41 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	ca = &level.clients[*(int *)a];
 	cb = &level.clients[*(int *)b];
 
-	// sort special clients last
-	if ( ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
-		return 1;
-	}
-	if ( cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
-		return -1;
-	}
-
-	// then connecting clients
-	if ( ca->pers.connected == CON_CONNECTING ) {
-		return 1;
-	}
-	if ( cb->pers.connected == CON_CONNECTING ) {
-		return -1;
-	}
-
-
-	// then spectators
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if ( ca->sess.spectatorTime < cb->sess.spectatorTime ) {
-			return -1;
-		}
-		if ( ca->sess.spectatorTime > cb->sess.spectatorTime ) {
+	// Added so score is the only important factor in sorting
+	if (g_gametype.integer < GT_TEAM) {
+		// sort special clients last
+		if ( ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
 			return 1;
 		}
-		return 0;
-	}
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return 1;
-	}
-	if ( cb->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return -1;
+		if ( cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
+			return -1;
+		}
+
+		// then connecting clients
+		if ( ca->pers.connected == CON_CONNECTING ) {
+			return 1;
+		}
+		if ( cb->pers.connected == CON_CONNECTING ) {
+			return -1;
+		}
+
+
+		// then spectators
+		if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
+			if ( ca->sess.spectatorTime < cb->sess.spectatorTime ) {
+				return -1;
+			}
+			if ( ca->sess.spectatorTime > cb->sess.spectatorTime ) {
+				return 1;
+			}
+			return 0;
+		}
+		if ( ca->sess.sessionTeam == TEAM_SPECTATOR ) {
+			return 1;
+		}
+		if ( cb->sess.sessionTeam == TEAM_SPECTATOR ) {
+			return -1;
+		}
 	}
 
 	// then sort by score
