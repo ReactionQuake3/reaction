@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/05/06 00:35:49  jbravo
+// Small fixes to misc stuff
+//
 // Revision 1.11  2002/05/01 21:14:59  jbravo
 // Misc fixes
 //
@@ -694,7 +697,8 @@ void CameraFlicBegin (gentity_t *ent)
   cameras[clientNum].flic_target = NULL;
   cameras[clientNum].swing_target = NULL;
   camera_begin (ent);
-  CameraShowMode (ent);
+// JBravo: no need for this extra spam
+//  CameraShowMode (ent);
 }
 
 static void CameraStaticThink (gentity_t *ent)
@@ -923,7 +927,8 @@ void CameraSwingCycle (gentity_t *ent, int dir)
   if (ent->client->camera->mode != CAMERA_MODE_SWING)
     {
       ent->client->camera->mode = CAMERA_MODE_SWING;
-      CameraShowMode (ent);
+// JBravo: yes, we know
+//      CameraShowMode (ent);
       
       // start with current flic target
       if (ent->client->camera->flic_target != NULL

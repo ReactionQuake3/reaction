@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/05/06 00:35:49  jbravo
+// Small fixes to misc stuff
+//
 // Revision 1.65  2002/05/04 16:13:04  makro
 // Bots
 //
@@ -1026,7 +1029,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 // JBravo: make clients that are following this one stop following.
 		if (client->sess.spectatorClient == self->s.number) {
 			if (g_gametype.integer == GT_TEAMPLAY) {
-				if (client->sess.spectatorState != SPECTATOR_ZCAM)
+				if (client->sess.spectatorState == SPECTATOR_FOLLOW)
 					Cmd_FollowCycle_f(follower, 1);
 			} else {
 				Cmd_Score_f(g_entities + i);

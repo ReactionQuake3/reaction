@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/05/06 00:35:49  jbravo
+// Small fixes to misc stuff
+//
 // Revision 1.103  2002/05/05 15:51:16  slicer
 // Captain and subs get saved on map_restarts ( moved to "sess" )
 //
@@ -985,6 +988,8 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->specMode = SPECTATOR_FREE;
+// JBravo: clear zcam also
+	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 	//Slicer - Removing any zoom bits he might have gainned
 	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;

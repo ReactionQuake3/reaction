@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/05/06 00:35:49  jbravo
+// Small fixes to misc stuff
+//
 // Revision 1.80  2002/05/05 16:51:36  slicer
 // Fixed a problem on MakeAllPlayersObservers()
 //
@@ -470,8 +473,12 @@ void MakeAllLivePlayersObservers()
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
+// JBravo: I dont agree. Why allow players that are already spectators to stay in follow
+// Mode or zcam mode when there are no other players to follow ?
 		//Slicer: Need to check if they are solid or not.
-		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
+//		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
+//			continue;
+		if (!player->inuse)
 			continue;
 		//Slicer Adding this..
 		level.clients[i].ps.pm_type = PM_DEAD;
@@ -479,8 +486,7 @@ void MakeAllLivePlayersObservers()
 
 		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
 		level.clients[i].ps.persistant[PERS_SAVEDTEAM] = level.clients[i].sess.sessionTeam;
-		level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
-		level.clients[i].sess.spectatorState = SPECTATOR_FREE;
+		StopFollowing (player);
 	}
 }
 
