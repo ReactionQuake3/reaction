@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/06/08 14:07:52  makro
+// no message
+//
 // Revision 1.30  2002/06/08 11:41:01  makro
 // The loading screen code will now look for
 // levelshots/load_mapname.tga first
@@ -222,8 +225,6 @@ void CG_DrawInformation( void ) {
 	char		buf[1024];
 	//qboolean	skipdetail;
 	vec4_t		color1 = {.75, .75, .75, 1}, color2 = {1, 1, 1, 1};
-
-	skipdetail = qfalse;
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
