@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/03/17 16:38:57  jbravo
+// Colored nicks fucked up the string in $K messages.
+//
 // Revision 1.36  2002/03/17 03:35:29  jbravo
 // More radio tewaks and cleanups.
 //
@@ -1173,10 +1176,11 @@ void GetLastKilledTarget (gentity_t * self, char * buf)
 		if (kills > 0) {
 			for (i = 1; i < kills + 1; i++) {
 				if (i == kills) {
-					strcat (buf, " and ");
+					strcat (buf, "^5 and ");
 					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
+					strcat (buf, "^5");
 				} else {
-					strcat (buf, ", ");
+					strcat (buf, "^5, ");
 					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
 				}
 			}
