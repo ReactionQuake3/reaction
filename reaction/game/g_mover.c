@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/05/23 04:58:05  blaze
+// More sound changes as per Sze, please dont kill me Cent
+//
 // Revision 1.34  2002/05/22 04:20:37  blaze
 // Sound entity changes as per Sze - teach me to comit when Sze is still talking
 //
@@ -1410,7 +1413,7 @@ void SP_func_door (gentity_t *ent) {
   //Blaze: changed default path as per Sze
 	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/movers/door_move.wav", &sSndMove );
+	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
@@ -1529,9 +1532,9 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/movers/door_move.wav", &sSndMove );
+	G_SpawnString( "soundstart", "sound/misc/silence.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/rdoor_stop.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/rdoor_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
