@@ -10,7 +10,7 @@
     visible 0						// Visible on open
     focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
     timedItems 39
-    timerInterval 3000
+    timerInterval 5500
 
     fadeCycle 500						// how often fade happens in milliseconds
     fadeAmount 0.01					// amount to adjust alpha per cycle
@@ -120,7 +120,7 @@
 
 //Timed items
 
-    // REACTION QUAKE 3 BETA 2 //
+    // REACTION QUAKE 3 VERSION 3.0 //
 
     itemDef {
 	name "timer1"
@@ -148,7 +148,7 @@
 	textscale .3
 	textalignx 220
 	textaligny 120
-	text "(c) 2000 - 2003 REACTION QUAKE 3 TEAM\n\n\n"
+	text "(c) 2000 - 2003 Boomstick Studios\n\n\n"
 	     "www.reactionquake3.com"
 	autowrapped
 	visible 1
@@ -183,11 +183,11 @@
 	textalignx 120
 	textaligny 80
 	text "Richard Allen\n"
-	     "Malcolm Bechard\n"
+	     "Bryce Hutchings\n"
 	     "Scott Brooks\n"
 	     "Victor Chow\n"
+	     "Andrei Drexler\n"
 	     "Bruno Covacha\n"
-	     "Bryce Hutchings\n"
 	     "Daniel Simoes"
 	autowrapped
 	textheight 24
@@ -206,11 +206,11 @@
 	textalignx 100
 	textaligny 80
 	text "JBravo\n"
-	     "Tsunami\n"
+	     "NiceAss\n"
 	     "Blaze\n"
 	     "Elder_MMHS\n"
+	     "Makro\n"
 	     "aasimon\n"
-	     "NiceAss\n"
 	     "sLiCeR"
 	autowrapped
 	textheight 24
@@ -247,7 +247,7 @@
 	textaligny 100
 	text "Michael Bruce\n"
 	     "Dan Chin\n"
-	     "Andrei Drexler\n"
+	     "Malcolm Bechard\n"
 	     "Tomas Edwardsson\n"
 	autowrapped
 	textheight 24
@@ -267,7 +267,7 @@
 	textaligny 100
 	text "AgtOrange\n"
 	     "Lt. Hawkins\n"
-	     "Makro\n"
+	     "Tsunami\n"
 	     "Freud\n"
 	autowrapped
 	textheight 24
@@ -307,6 +307,7 @@
 	     "Linh Nguyen\n"
 	     "Mark Potnick\n"
 	     "Ryan Vance\n"
+	     "Paul Greveson\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -328,6 +329,7 @@
 	     "Sonique128\n"
 	     "Cloud\n"
 	     "BraGoblin\n"
+	     "MoP\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -345,7 +347,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textscale .35
 	textalignx 120
-	textaligny 50
+	textaligny 10
 	text "ADDITIONAL ARTWORK"
 	visible 1
 	decoration
@@ -360,12 +362,17 @@
 	textalign ITEM_ALIGN_LEFT
 	textscale .35
 	textalignx 120
-	textaligny 90
-	text "Victor Chow\n"
+	textaligny 50
+	text "Scott DeLeury\n"
 	     "Tomi Isoaho\n"
+	     "Christopher Jayawardena\n"
 	     "Shay McCarty\n"
 	     "Malcolm Ramsay\n"
 	     "Jesse Smith\n"
+	     "Jaymz Plummer\n"
+	     "Hannu Saarinenas\n"
+	     "Henri Tervapuro\n"
+	     "Julien\n"
 	     "Kyle VanMeurs"
 	autowrapped
 	textheight 24
@@ -382,12 +389,17 @@
 	textalign ITEM_ALIGN_RIGHT
 	textscale .35
 	textalignx 100
-	textaligny 90
-	text "Elder_MMHS\n"
+	textaligny 50
+	text "CannonFodder\n"
 	     "T.T.I.\n"
+	     "EvilFutsin\n"
 	     "Shaymon\n"
 	     "shenka\n"
 	     "Spyder\n"
+	     "LST\n"
+	     "Presenter\n"
+	     "Leon\n"
+	     "Zenogaist-Zero\n"
 	     "R0oK"
 	autowrapped
 	textheight 24
@@ -406,7 +418,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textscale .35
 	textalignx 120
-	textaligny 40
+	textaligny 10
 	text "LEVEL DESIGN"
 	visible 1
 	decoration
@@ -421,15 +433,18 @@
 	textalign ITEM_ALIGN_LEFT
 	textscale .35
 	textalignx 112
-	textaligny 80
+	textaligny 50
 	text "David Costello\n"
 	     "Andrei Drexler\n"
+	     "Alexander Axelsson\n"
 	     "Tomi Isoaho\n"
 	     "Shay McCarty\n"
 	     "David Pike\n"
 	     "Kelly Rush\n"
 	     "Jesse Smith\n"
 	     "Walter Somol\n"
+	     "Jordan Zylstra\n"
+	     "Geraldo Espinal\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -445,15 +460,18 @@
 	textalign ITEM_ALIGN_RIGHT
 	textscale .35
 	textalignx 92
-	textaligny 80
+	textaligny 50
 	text "Sze\n"
 	     "Makro\n"
+	     "Lognoreng\n"
 	     "T.T.I.\n"
 	     "Shaymon\n"
 	     "Centurion\n"
 	     "Hexydes\n"
 	     "Spyder\n"
 	     "Johnny Rocket\n"
+	     "Guy Incognito\n"
+	     "WarMachine\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -489,6 +507,9 @@
 	textaligny 120
 	text "Jason Irby\n"
 	     "Gregory Simmons\n"
+	     "John Gilbertson\n"
+	     "Tomi Vainikka\n"
+	     "Chris Polan\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -507,6 +528,9 @@
 	textaligny 120
 	text "Irby\n"
 	     "Smoke\n"
+	     "Homicide\n"
+	     "Zakath\n"
+	     "God Incarnate\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -541,7 +565,8 @@
 	textalignx 120
 	textaligny 140
 	text "Erwin Peil\n"
-	     "Andre Beardsley-Dusette"
+	     "Andre Beardsley-Dusette\n"
+	     "Caryn Law"
 	autowrapped
 	textheight 24
 	visible 1
@@ -559,7 +584,8 @@
 	textalignx 100
 	textaligny 140
 	text "SpecOps\n"
-	     "Nicodem-X"
+	     "Nicodem-X\n"
+	     "Hellchick"
 	autowrapped
 	textheight 24
 	visible 1
@@ -644,7 +670,8 @@
 	textscale .35
 	textalignx 120
 	textaligny 140
-	text "Andrew Prosnik"
+	text "Andrew Prosnik\n"
+	      "Scott DeLeury"
 	autowrapped
 	textheight 24
 	visible 1
@@ -661,7 +688,8 @@
 	textscale .35
 	textalignx 100
 	textaligny 140
-	text "Black Monk"
+	text "Black Monk\n"
+	      "CannonFodder"
 	autowrapped
 	textheight 24
 	visible 1
@@ -696,7 +724,10 @@
 	textalignx 120
 	textaligny 120
 	text "Victor Chow\n"
+	     "Christopher A Strickler\n"
 	     "Malcolm Ramsay\n"
+	     "Scott Brooks\n"
+	     "Andrew Prosnik\n"
 	     "Richard Watt"
 	autowrapped
 	textheight 24
@@ -715,7 +746,10 @@
 	textalignx 100
 	textaligny 120
 	text "Elder_MMHS\n"
+	     "Preacher\n"
 	     "shenka\n"
+	     "Blaze\n"
+	     "Black Monk\n"
 	     "C00T"
 	autowrapped
 	textheight 24
@@ -753,8 +787,7 @@
 	text "Non Fiction\n"
 	     "Seth Chabot\n"
 	     "Steve Ewald\n"
-	     "Luke Paul\n"
-	     "Andrew Prosnik"
+	     "Luke Paul"
 	autowrapped
 	textheight 24
 	visible 1
@@ -774,8 +807,7 @@
 	text "Fiction\n"
 	     "Wook!eBoy\n"
 	     "Psychotakes\n"
-	     "Alice\n"
-	     "Black Monk"
+	     "Alice"
 	autowrapped
 	textheight 24
 	visible 1
@@ -809,13 +841,15 @@
 	textscale .35
 	textalignx 120
 	textaligny 80
-	text "Scott DeLeury\n"
+	text "Alexander Bergereau\n"
 	     "Mark Somol\n"
+	     "Andrew Harrell\n"
 	     "Christopher Jayawardena\n"
 	     "Justin Pickles\n"
 	     "Michael Morris\n"
-	     "Fredrik Nilsskog Ravlo\n"
-	     "Geraldo Espinal"
+	     "Paul Greveson\n"
+	     "Paul Witt\n"
+	     "Fredrik Nilsskog Ravlo"
 	autowrapped
 	textheight 24
 	visible 1
@@ -832,13 +866,15 @@
 	textscale .35
 	textalignx 100
 	textaligny 80
-	text "CannonFodder\n"
+	text "Arild\n"
 	     "ColdMiser\n"
+	     "EdgeCrusher\n"
 	     "EvilFutsin\n"
 	     "GoKu^^7L\n"
 	     "JesterRace\n"
-	     "^^7Proto\n"
-	     "WarMachine\n"
+	     "MoP\n"
+	     "Karmann\n"
+	     "^^7Proto"
 	autowrapped
 	textheight 24
 	visible 1
@@ -874,9 +910,11 @@
 	textaligny 80
 	text "Andrew Weidlich\n"
 	     "Stephen Looi\n"
-	     "Tomas Edwardsson\n"
-	     "Jordan Zylstra\n"
+	     "Marcus Varland\n"
+	     "John Gilbertson\n"
 	     "Mitch Glover\n"
+	     "David Lundvall\n"
+	     "Tomi Vainikka\n"
 	     "Winston Chow"
 	autowrapped
 	textheight 24
@@ -896,9 +934,11 @@
 	textaligny 80
 	text "Commodore\n"
 	     "DuD\n"
-	     "Freud\n"
-	     "Guy Incognito\n"
+	     "FragBait\n"
+	     "Homicide\n"
 	     "Mud\n"
+	     "WizardExt\n"
+	     "Zakath\n"
 	     "ShishKabob"
 	autowrapped
 	textheight 24
@@ -950,7 +990,8 @@
 	textscale .35
 	textalignx 120
 	textaligny 120
-	text "Dwayne Douglass"
+	text "Dwayne Douglass\n"
+	      "Paul Greveson\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -967,7 +1008,8 @@
 	textscale .35
 	textalignx 100
 	textaligny 120
-	text "Oddjob"
+	text "Oddjob\n"
+	      "MoP\n"
 	autowrapped
 	textheight 24
 	visible 1
@@ -992,7 +1034,7 @@
 	decoration
     }
 
-    // THE REACTION QUAKE 3 TEAM THANKS //
+    // BOOMSTICK STUDIOS THANKS //
 
     itemDef {
 	name "timer18"
@@ -1004,13 +1046,13 @@
 	textscale .35
 	textalignx 120
 	textaligny 100
-	text "THE REACTION QUAKE 3 TEAM THANKS"
+	text "BOOMSTICK STUDIOS THANKS"
 	autowrapped
 	visible 1
 	decoration
     }
 
-    // A-TEAM REPRESENTATIVE //
+    // INDIVIDUALS //
 
     itemDef {
 	name "timer19"
@@ -1021,13 +1063,17 @@
 	textalign ITEM_ALIGN_CENTER
 	textscale .35
 	textalignx 120
-	textaligny 80
-	text "A-TEAM REPRESENTATIVE\n"
+	textaligny 40
+	text "A-TEAM Representative\n"
 	     "Dwayne Douglass\n\n"
 	     "ZCam Author\n"
 	     "Avi 'Zung!' Rozen\n\n"
 	     "Unlagged Autor\n"
-	     "Neil 'haste' Toronto"
+	     "Neil 'haste' Toronto\n\n"
+	     "Our Installer makers\n"
+	     "Karmann (Windows)\n"
+	     "Freud (Linux)\n"
+	     "CannonFodder (Mac)"
 	autowrapped
 	visible 1
 	decoration
@@ -1137,13 +1183,13 @@
 	     "All the little people\n"
 	     "Family and friends\n"
 	     "Fear.net frequenters\n"
-	     "HoneyStudios.Com\n"
+	     "OGL and Activision\n"
 	     "id Software\n"
              "Opin Kerfi HF\n"
 	     "Simnet (Landssíminn)\n"
 	     "The A-Team (AQ2 developers)\n"
 	     "The Grammar Rangers\n"
-	     "#Modeling @ GamesNet"
+	     "#model_design on ProGamePlayer"
 	autowrapped
 	visible 1
 	decoration
@@ -1191,9 +1237,7 @@
 	textaligny 80
 	text "WEB HOSTS\n\n"
 	     "All mirrors (too many to list)\n"
-	     "Simnet (Landssíminn)\n"
-	     "Telefragged and affiliates\n"
-	     "2MHost"
+	     "Simnet (Landssíminn)"
 	autowrapped
 	visible 1
 	decoration
@@ -1400,7 +1444,7 @@
 	textscale .3
 	textalignx 220
 	textaligny 80
-	text "THIS HAS BEEN A REACTION QUAKE 3\nTEAM PRODUCTION\n\n"
+	text "THIS HAS BEEN A BOOMSTICK STUDIOS\nPRODUCTION\n\n"
 	     "Copyright 2000 - 2003"
 	autowrapped
 	visible 1
