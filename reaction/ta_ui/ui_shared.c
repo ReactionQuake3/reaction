@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/06/05 19:17:07  makro
+// Squashed some bugs :)
+//
 // Revision 1.17  2002/06/04 11:37:23  makro
 // Items that fade out are hidden automatically now
 //
@@ -1422,22 +1425,28 @@ void Script_Orbit(itemDef_t *item, char **args) {
 }
 
 void Script_SetFocus(itemDef_t *item, char **args) {
-  const char *name;
-  itemDef_t *focusItem;
+	const char *name;
+	itemDef_t *focusItem;
+	
+	if (String_Parse(args, &name)) {
+		focusItem = Menu_FindItemByName(item->parent, name);
+		if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
+			//Makro - added
+			menuDef_t	*menu = (menuDef_t*) item->parent;
+			Menu_ClearFocus(item->parent);
+			focusItem->window.flags |= WINDOW_HASFOCUS;
 
-  if (String_Parse(args, &name)) {
-    focusItem = Menu_FindItemByName(item->parent, name);
-    if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION) && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
-      Menu_ClearFocus(item->parent);
-      focusItem->window.flags |= WINDOW_HASFOCUS;
-      if (focusItem->onFocus) {
-        Item_RunScript(focusItem, focusItem->onFocus);
-      }
-      if (DC->Assets.itemFocusSound) {
-        DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
-      }
-    }
-  }
+			//Makro - cursorItem was not set
+			menu->cursorItem = focusItem - menu->items[0];
+			
+			if (focusItem->onFocus) {
+				Item_RunScript(focusItem, focusItem->onFocus);
+			}
+			if (DC->Assets.itemFocusSound) {
+				DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
+			}
+		}
+	}
 }
 
 void Script_SetPlayerModel(itemDef_t *item, char **args) {

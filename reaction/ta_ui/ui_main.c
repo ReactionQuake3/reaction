@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/06/05 19:17:07  makro
+// Squashed some bugs :)
+//
 // Revision 1.27  2002/06/04 21:19:10  makro
 // Added leading zero's in the "last refresh time" text
 //
@@ -1311,7 +1314,14 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 			text = UI_GetBotNameByNumber(value);
 		//}
 	}
-  Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+	//Makro - changed
+	//Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+	if (ui_actualNetGameType.integer >= GT_TEAM) {
+		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", num, text), 0, 0, textStyle);
+	} else {
+		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", blue ? (num+5) : num, text), 0, 0, textStyle);
+	}
+
 }
 
 static void UI_DrawEffects(rectDef_t *rect, float scale, vec4_t color) {
@@ -1923,7 +1933,13 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 				}
 				text = uiInfo.aliasList[value].name;
 			}
-			s = va("%i. %s", ownerDraw-UI_BLUETEAM1 + 1, text);
+			//Makro - changed
+			//s = va("%i. %s", ownerDraw-UI_BLUETEAM1 + 1, text);
+			if (ui_actualNetGameType.integer >= GT_TEAM) {
+				s = va("%i. %s", ownerDraw-UI_BLUETEAM1 + 1, text);
+			} else {
+				s = va("%i. %s", ownerDraw-UI_BLUETEAM1 + 6, text);
+			}
       break;
     case UI_REDTEAM1:
 		case UI_REDTEAM2:
