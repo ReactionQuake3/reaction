@@ -41,11 +41,12 @@
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
 #define	MINS_Z				-24
-#define DEFAULT_VIEWHEIGHT	22
-//#define	DEFAULT_VIEWHEIGHT	26
+//#define DEFAULT_VIEWHEIGHT	22
+#define	DEFAULT_VIEWHEIGHT	26
 //Elder: changed to 8 like AQ2 source
-#define CROUCH_VIEWHEIGHT	8
-//#define CROUCH_VIEWHEIGHT	12
+//Elder: moved back to original viewheight
+//#define CROUCH_VIEWHEIGHT	8
+#define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
 
 //Elder: New breakable bit definitions
@@ -606,6 +607,26 @@ typedef enum {
 	WP_NONE,
 //Blaze: Reaction Weapons
 //Remember to put them in the right spots
+/*
+MK23 Pistol
+M3 Super 90 Assault Shotgun
+MP5/10 Submachinegun
+Handcannon
+Sniper Rifle
+M4 Assault Rifle
+Dual MK23 Pistols
+Combat Knife
+*/
+	WP_PISTOL,
+	WP_M3,
+	WP_MP5,
+	WP_HANDCANNON,
+	WP_SSG3000,
+	WP_M4,
+	WP_AKIMBO,
+	WP_KNIFE,
+	WP_GRENADE,
+/*
 	WP_KNIFE,
 	WP_PISTOL,
 	WP_M4,
@@ -615,6 +636,7 @@ typedef enum {
 	WP_HANDCANNON,
 	WP_AKIMBO,
 	WP_GRENADE,
+*/
 #ifdef MISSIONPACK
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,

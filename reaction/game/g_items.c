@@ -901,7 +901,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 
 	dropped->s.eType = ET_ITEM;
 	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
-	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
+	dropped->s.modelindex2 = 1; // This is non-zero if it's a dropped item
 
 	dropped->classname = item->classname;
 	dropped->item = item;
@@ -956,8 +956,9 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->think = RQ3_DroppedItemThink;
 		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
-
-	else { // auto-remove after 30 seconds
+	else
+	{	
+		// auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
@@ -965,8 +966,8 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	dropped->flags = xr_flags;//FL_DROPPED_ITEM;
 	if( xr_flags & FL_THROWN_ITEM) {
 		//Elder: we don't want it to clip against players
-		dropped->clipmask = MASK_SOLID; //MASK_SHOT
-		dropped->s.pos.trTime = level.time;	// +50; no pre-step if it doesn't clip players
+		dropped->clipmask = MASK_SOLID;			//MASK_SHOT
+		dropped->s.pos.trTime = level.time;		// +50; no pre-step if it doesn't clip players
 		VectorScale( velocity, 40, dropped->s.pos.trDelta ); // 700 500 400
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce = 0.1f;
@@ -1300,8 +1301,9 @@ be on an entity that hasn't spawned yet.
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
-
-	//TODO: check spawn angles; client-side should make use of them too
+	
+	//Elder: check spawn angles; client-side should make use of them too
+	G_SpawnFloat( "angle", "0", &ent->s.angles[1] );
 
 	RegisterItem( item );
 	if ( G_ItemDisabled(item) )
@@ -1405,6 +1407,14 @@ void G_RunItem( gentity_t *ent ) {
 
 	if ( tr.startsolid ) {
 		tr.fraction = 0;
+	}
+
+	if ( ent->flags & FL_DROPPED_ITEM && VectorLength(ent->s.pos.trDelta) != 0 &&
+		(ent->item->giType == IT_WEAPON || ent->item->giType == IT_HOLDABLE) )
+	{
+		// calculate spin -- should be identical to cg.autoAngles
+		//cg.autoAnglesFast[1] = ( cg.time & 1023 ) * 360 / 1024.0f;
+		ent->s.angles[1] = ( level.time & 1023 ) * 360 / 1024.0f;
 	}
 
 	trap_LinkEntity( ent );	// FIXME: avoid this for stationary?

@@ -496,6 +496,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	//Elder: spawn unique items.
 	RQ3_StartUniqueItems();
 
+	// Elder: force sv_floodprotect to 0 -- remove when we finish
+	// recoding the weapon command and any other commands that may
+	// need smashing :)
+	if ( trap_Cvar_VariableIntegerValue( "sv_floodprotect" ) != 0 )
+	{
+		trap_Cvar_Set( "sv_floodprotect", "0" );
+		G_Printf("sv_floodprotect shut off for RQ3 Beta 1.\n");
+	}
+
 	SaveRegisteredItems();
 
 	G_Printf ("-----------------------------------\n");

@@ -1656,7 +1656,9 @@ static void PM_CheckDuck (void)
 		}
 	}
 
-	if (pm->ps->pm_flags & PMF_DUCKED)
+	// Elder: don't allow mid-air "crouching"
+	// Removed because it was causing problems -- WTF is the "jump" flag?
+	if (pm->ps->pm_flags & PMF_DUCKED )// && pm->ps->groundEntityNum != ENTITYNUM_NONE)
 	{
 		pm->maxs[2] = 16;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
@@ -1888,6 +1890,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 		}
 
 		//Elder: temp hack
+		/*
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
@@ -1897,8 +1900,12 @@ static void PM_BeginWeaponChange( int weapon ) {
 			pm->ps->weapon == WP_GRENADE ||
 			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
-		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		else
+		*/
+		if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
+		else
+			PM_StartWeaponAnim(WP_ANIM_DISARM);
 	}
 
 	// Elder: cancel reload stuff here
@@ -1911,17 +1918,22 @@ static void PM_BeginWeaponChange( int weapon ) {
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	
 	//Elder: temp hack
+	/*
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
 		pm->ps->weapon == WP_M4 ||
+		pm->ps->weapon == WP_MP5 ||
 		pm->ps->weapon == WP_AKIMBO ||
 		pm->ps->weapon == WP_GRENADE ||
 		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
-	else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+	else*/
+	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
+	else
+		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
 }
@@ -1992,17 +2004,23 @@ static void PM_FinishWeaponChange( void ) {
 	}
 
 	//Elder: temp hack
+	/*
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
 		pm->ps->weapon == WP_M4 ||
+		pm->ps->weapon == WP_MP5 ||
 		pm->ps->weapon == WP_AKIMBO ||
 		pm->ps->weapon == WP_GRENADE ||
 		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
-	else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+	*/
+	/*else*/
+	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
+	else
+		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 	
 	PM_StartTorsoAnim( TORSO_RAISE );
 
@@ -2027,17 +2045,22 @@ static void PM_TorsoAnimation( void ) {
 		//Elder: temp hack
 		if (pm->ps->ammo[pm->ps->weapon] == 0)
 			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+		/*
 		else if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
 			pm->ps->weapon == WP_M4 ||
+			pm->ps->weapon == WP_MP5 ||
 			pm->ps->weapon == WP_AKIMBO ||
 			pm->ps->weapon == WP_GRENADE ||
 			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 			PM_ContinueWeaponAnim(WP_ANIM_IDLE);
+		*/
 		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
+		else
+			PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
@@ -2534,18 +2557,23 @@ static void PM_Weapon( void ) {
 			{
 				if (pm->ps->ammo[pm->ps->weapon] == 0)
 					PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+				/*
 				else if (pm->ps->weapon == WP_PISTOL ||
 					pm->ps->weapon == WP_M3 ||
 					pm->ps->weapon == WP_HANDCANNON ||
 					pm->ps->weapon == WP_SSG3000 ||
 					pm->ps->weapon == WP_M4 ||
+					pm->ps->weapon == WP_MP5 ||
 					pm->ps->weapon == WP_AKIMBO ||
 					pm->ps->weapon == WP_GRENADE ||
 					(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
+				*/
 				else if (pm->ps->weapon == WP_KNIFE &&
 						 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 					PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
+				else
+					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 			}
 		}
 	}
@@ -2590,17 +2618,22 @@ static void PM_Weapon( void ) {
 		// temp hack
 		if (pm->ps->ammo[pm->ps->weapon] == 0)
 			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+		/*
 		else if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
 			pm->ps->weapon == WP_M4 ||
+			pm->ps->weapon == WP_MP5 ||
 			pm->ps->weapon == WP_AKIMBO ||
 			pm->ps->weapon == WP_GRENADE ||
 			(pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
+		*/
 		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_StartWeaponAnim( WP_ANIM_THROWIDLE );
+		else
+			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
 
@@ -2665,14 +2698,15 @@ static void PM_Weapon( void ) {
 	
 	//Elder: custom player model fire animations go here
 	// start the animation even if out of ammo -- Elder: NO WAY
-	if ( pm->ps->weapon == WP_KNIFE ) {
+	if ( pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE ) {
 		// the gauntlet only "fires" when it actually hits something
 //		if ( !pm->gauntletHit ) {
 //			pm->ps->weaponTime = 0;
 //			pm->ps->weaponstate = WEAPON_READY;
 //			return;
 //		}
-		if (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)
+		if ( pm->ps->weapon == WP_GRENADE ||
+			(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
 			PM_StartWeaponAnim( WP_ANIM_FIRE );
 		else
 			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
@@ -2697,12 +2731,13 @@ static void PM_Weapon( void ) {
 				if ( !pm->ps->stats[STAT_BURST] )
 					PM_StartWeaponAnim( WP_ANIM_FIRE );
 			}
-			else if (pm->ps->weapon == WP_PISTOL ||
+			else /* if (pm->ps->weapon == WP_PISTOL ||
 				pm->ps->weapon == WP_M3 ||
 				pm->ps->weapon == WP_HANDCANNON ||
 				pm->ps->weapon == WP_SSG3000 ||
 				pm->ps->weapon == WP_M4 ||
-				pm->ps->weapon == WP_GRENADE)
+				pm->ps->weapon == WP_MP5 ||
+				pm->ps->weapon == WP_GRENADE) */
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
@@ -3374,6 +3409,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	//weapon animations(rq3 specific)
 	//Elder: temp hack to avoid messing up fast-reloads
+	/*
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
@@ -3383,6 +3419,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->weapon == WP_GRENADE ||
 		pm->ps->weapon == WP_KNIFE)
 		PM_WeaponAnimation();
+	*/
 
 	// torso animation
 	PM_TorsoAnimation();

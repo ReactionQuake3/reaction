@@ -1359,6 +1359,8 @@ void ClientSpawn(gentity_t *ent) {
 		// spawn given items have fired
 		client->ps.weapon = 1;
 		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
+			if ( i == WP_KNIFE )
+				continue;
 			if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) ) {
 				client->ps.weapon = i;
 				break;

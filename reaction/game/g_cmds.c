@@ -1680,11 +1680,13 @@ void Cmd_Bandage (gentity_t *ent)
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
 
 		//Elder: temp hack
+		/*
 		if (ent->client->ps.weapon == WP_PISTOL ||
 			ent->client->ps.weapon == WP_M3 ||
 			ent->client->ps.weapon == WP_HANDCANNON ||
 			ent->client->ps.weapon == WP_SSG3000 ||
 			ent->client->ps.weapon == WP_M4 ||
+			ent->client->ps.weapon == WP_MP5 ||
 			ent->client->ps.weapon == WP_AKIMBO ||
 			ent->client->ps.weapon == WP_GRENADE ||
 			(ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
@@ -1692,10 +1694,16 @@ void Cmd_Bandage (gentity_t *ent)
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
-		else if (ent->client->ps.weapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		else */
+		if (ent->client->ps.weapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_THROWDISARM;
+		}
+		else
+		{
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
 
 		//Elder: always lower the player model
