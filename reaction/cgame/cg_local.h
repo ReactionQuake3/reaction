@@ -1334,6 +1334,8 @@ extern	vmCvar_t		cg_RQ3_ssgSensitivityAuto;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity2x;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity4x;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity6x;
+//Blaze: Holds which crosshair to use for the ssg
+extern  vmCvar_t		cg_RQ3_ssgCrosshair;
 //Elder: smoke puffs, sparks, etc.
 extern	vmCvar_t		cg_RQ3_impactEffects;
 //Elder: toggle client-side laser drawing

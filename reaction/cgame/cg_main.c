@@ -157,6 +157,8 @@ vmCvar_t	cg_RQ3_ssgSensitivityAuto;
 vmCvar_t	cg_RQ3_ssgSensitivity2x;
 vmCvar_t	cg_RQ3_ssgSensitivity4x;
 vmCvar_t	cg_RQ3_ssgSensitivity6x;
+//Blaze: Which ssg crosshair to use
+vmCvar_t	cg_RQ3_ssgCrosshair;
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t	cg_RQ3_impactEffects;
 //Elder: toggle client-side laser drawing
@@ -336,6 +338,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_ssgSensitivity2x, "cg_RQ3_ssgSensitivity2x", "0.4", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity4x, "cg_RQ3_ssgSensitivity4x", "0.2", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity6x, "cg_RQ3_ssgSensitivity6x", "0.1", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgCrosshair, "cg_RQ3_ssgCrosshair", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorR, "cg_RQ3_ssgColorR", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
@@ -1155,10 +1158,44 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.laserShader = trap_R_RegisterShader( "sprites/laser" );
 
 	//Elder: added for sniper crosshairs
-    cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x" );
-    cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x" );
-    cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x" );
-
+	switch (cg_RQ3_ssgCrosshair.integer)
+	{
+	case 0:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x" );
+		break;
+	case 1:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x-1" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x-1" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x-1" );
+		break;
+	case 2:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x-2" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x-2" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x-2" );
+		break;
+	case 3:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x-3" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x-3" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x-3" );
+		break;
+	case 4:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x-4" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x-4" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x-4" );
+		break;
+	case 5:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x-5" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x-5" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x-5" );
+		break;
+	default:
+		cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg2x" );
+		cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg4x" );
+		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/ssg6x" );
+		break;
+	}
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_health" );
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip( "gfx/rq3_hud/hud_healthwarning" );
