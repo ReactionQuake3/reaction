@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/09/29 16:06:45  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.30  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -577,7 +580,6 @@ gentity_t *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			self->client->pers.records[REC_GRENADESHOTS]++;
 		if (self->client->ps.stats[STAT_HEALTH] <= 0 ||
-		    //              (self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
 		    self->client->ps.weaponstate == WEAPON_BANDAGING ||
 		    // NiceAss: Should catch any case of switching weapons with a grenade "cocked"
 		    self->client->ps.weaponstate == WEAPON_DROPPING) {

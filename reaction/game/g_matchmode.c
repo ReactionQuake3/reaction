@@ -80,6 +80,7 @@ void MM_RunFrame(void)
 	switch (g_gametype.integer) {
 		//Each Type has different ways of dealing things..
 	case (GT_TEAMPLAY):
+	case (GT_CTF):
 		if (level.team_game_going && level.inGame)
 			level.matchTime += 1.0f / (float) fps;
 		break;
@@ -156,14 +157,19 @@ void MM_Ready_f(gentity_t * ent)
 	if (!g_RQ3_matchmode.integer)
 		return;
 
-	if(level.inGame && (g_RQ3_mmflags.integer & MMF_UNREADY) != MMF_UNREADY) {
+	if (level.inGame && (g_RQ3_mmflags.integer & MMF_UNREADY) != MMF_UNREADY) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to un-ready your team after the match started\n\""));
+		return;
+	}
+
+	if (level.inGame && g_gametype.integer == GT_CTF) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "CTB does not yet support un-readying your team after the match started\n\""));
 		return;
 	}
 
 	if (ent->client->sess.captain != TEAM_FREE) {
 		if (ent->client->sess.savedTeam == TEAM_RED) {
-			trap_SendServerCommand(-1, va("cp \"%s are%s Ready.\n\"",
+			trap_SendServerCommand(-1, va("cp \"%s is%s Ready.\n\"",
 						      g_RQ3_team1name.string, level.team1ready ? " no longer" : ""));
 
 			if (level.team1ready)
@@ -171,7 +177,7 @@ void MM_Ready_f(gentity_t * ent)
 			else
 				level.team1ready = qtrue;
 		} else {
-			trap_SendServerCommand(-1, va("cp \"%s are%s Ready.\n\"",
+			trap_SendServerCommand(-1, va("cp \"%s is%s Ready.\n\"",
 						      g_RQ3_team2name.string, level.team2ready ? " no longer" : ""));
 
 			if (level.team2ready)
@@ -397,7 +403,7 @@ void MM_ClearScores(qboolean clearTeamFlags)
 		ent->client->ps.persistant[PERS_KILLED] = 0;
 		ent->client->ps.persistant[PERS_DAMAGE_DELT] = 0;
 	}
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		level.teamScores[TEAM_RED] = 0;
 		level.teamScores[TEAM_BLUE] = 0;
 	}

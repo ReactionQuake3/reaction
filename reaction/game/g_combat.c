@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.126  2002/09/24 05:06:17  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -393,7 +396,7 @@ void TossClientItems(gentity_t * self)
 	//Elder: added hadUniqueWeapons check - returns to qfalse if died with the gun
 	//as opposed to dropping it, then died
 
-	if ((weaponInventory & (1 << WP_M3)) == (1 << WP_M3)) {
+	if ((weaponInventory & (1 << WP_M3)) == (1 << WP_M3) && ((int) g_RQ3_weaponban.integer & WPF_M3)) {
 		while (self->client->weaponCount[WP_M3]) {
 			item = BG_FindItemForWeapon(WP_M3);
 			Drop_Item(self, item, angle);
@@ -404,7 +407,7 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 
-	if ((weaponInventory & (1 << WP_M4)) == (1 << WP_M4)) {
+	if ((weaponInventory & (1 << WP_M4)) == (1 << WP_M4) && ((int) g_RQ3_weaponban.integer & WPF_M4)) {
 		while (self->client->weaponCount[WP_M4]) {
 			item = BG_FindItemForWeapon(WP_M4);
 			Drop_Item(self, item, angle);
@@ -415,7 +418,7 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 
-	if ((weaponInventory & (1 << WP_MP5)) == (1 << WP_MP5)) {
+	if ((weaponInventory & (1 << WP_MP5)) == (1 << WP_MP5) && ((int) g_RQ3_weaponban.integer & WPF_MP5)) {
 		while (self->client->weaponCount[WP_MP5]) {
 			item = BG_FindItemForWeapon(WP_MP5);
 			Drop_Item(self, item, angle);
@@ -426,7 +429,7 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 
-	if ((weaponInventory & (1 << WP_HANDCANNON)) == (1 << WP_HANDCANNON)) {
+	if ((weaponInventory & (1 << WP_HANDCANNON)) == (1 << WP_HANDCANNON) && ((int) g_RQ3_weaponban.integer & WPF_HC)) {
 		while (self->client->weaponCount[WP_HANDCANNON]) {
 			item = BG_FindItemForWeapon(WP_HANDCANNON);
 			Drop_Item(self, item, angle);
@@ -437,7 +440,7 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 
-	if ((weaponInventory & (1 << WP_SSG3000)) == (1 << WP_SSG3000)) {
+	if ((weaponInventory & (1 << WP_SSG3000)) == (1 << WP_SSG3000) && ((int) g_RQ3_weaponban.integer & WPF_SNIPER)) {
 		while (self->client->weaponCount[WP_SSG3000]) {
 			item = BG_FindItemForWeapon(WP_SSG3000);
 			Drop_Item(self, item, angle);
@@ -448,12 +451,14 @@ void TossClientItems(gentity_t * self)
 		}
 	}
 	//Elder: Always drop the pistol
-	item = BG_FindItemForWeapon(WP_PISTOL);
-	Drop_Item(self, item, angle);
-	angle += 30;
+	if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
+		item = BG_FindItemForWeapon(WP_PISTOL);
+		Drop_Item(self, item, angle);
+		angle += 30;
+	}
 
 	//Elder: drop a knife if player has at least one
-	if (self->client->ps.ammo[WP_KNIFE] > 0) {
+	if (self->client->ps.ammo[WP_KNIFE] > 0 && ((int) g_RQ3_weaponban.integer & WPF_KNIFE)) {
 		item = BG_FindItemForWeapon(WP_KNIFE);
 		Drop_Item(self, item, angle);
 		angle += 30;
@@ -1392,7 +1397,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			}
 // JBravo: adding the 0wned sound
 			if (meansOfDeath == MOD_KNIFE) {
-				trap_SendServerCommand(-1, va("rq3_cmd %i", OWNED));
+				trap_SendServerCommand(attacker - g_entities, va("rq3_cmd %i", OWNED));
+				trap_SendServerCommand(self - g_entities, va("rq3_cmd %i", OWNED));
 			}
 			attacker->client->lastKillTime = level.time;
 		}
@@ -2192,7 +2198,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 						tent->s.eventParm = DirToByte(dir);
 						tent->s.otherEntityNum = targ->s.clientNum;
 					}
-					take *= 1.8;	//+ 1;
+					take *= 1.8 + 1;	//+ 1;
 					break;
 				case LOCATION_CHEST:
 					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
@@ -2414,11 +2420,8 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 	float points, dist;
 	gentity_t *ent;
 	int entityList[MAX_GENTITIES];
-	int numListedEntities;
-	vec3_t mins, maxs;
-	vec3_t v;
-	vec3_t dir;
-	int i, e;
+	int numListedEntities, i, e;
+	vec3_t mins, maxs, v, dir;
 	qboolean hitClient = qfalse;
 
 	if (radius < 1) {
@@ -2455,7 +2458,6 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float
 		}
 
 		dist = VectorLength(v);
-		//if ( dist >= radius ) {
 		if (dist > radius) {
 			continue;
 		}

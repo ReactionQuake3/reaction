@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.96  2002/09/01 21:15:08  makro
 // Sky portal tweaks
 //
@@ -360,7 +363,7 @@ enum {
 	LIGHTS,
 	CAMERA,
 	ACTION,
-	//SETTEAMPLAYERS,
+	TPCOUNTDOWN,
 	SELECTPISTOL,
 //Slicer: apparently not being used
 //      ROUND,

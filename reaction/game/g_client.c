@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.116  2002/09/24 05:06:16  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -389,13 +392,11 @@ qboolean SpotWouldTelefrag(gentity_t * spot)
 		//Blaze: Print out some Debug info
 		if (&g_entities[touch[i]] == NULL) G_Printf("Ln 0376\n");
 		hit = &g_entities[touch[i]];
-		//if ( hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 ) {
 		if (hit->client) {
 			return qtrue;
 		}
 
 	}
-
 	return qfalse;
 }
 
@@ -407,7 +408,7 @@ Find the spot that we DON'T want to use
 ================
 */
 // Moved to g_local.h
-//#define	MAX_SPAWN_POINTS	128
+//#define       MAX_SPAWN_POINTS        128
 gentity_t *SelectNearestDeathmatchSpawnPoint(vec3_t from)
 {
 	gentity_t *spot;
@@ -440,7 +441,7 @@ go to a random point that doesn't telefrag
 ================
 */
 // Moved to g_local.h
-//#define	MAX_SPAWN_POINTS	128
+//#define       MAX_SPAWN_POINTS        128
 gentity_t *SelectRandomDeathmatchSpawnPoint(void)
 {
 	gentity_t *spot;
@@ -515,45 +516,11 @@ gentity_t *SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
 		}
 	}
 
-	/* NICEASS WAY:
-	   gentity_t    *spot;
-	   vec3_t               delta;
-	   float                dist, furthestDist;
-	   gentity_t    *furthestSpot;
-
-	   furthestDist = 0;
-	   furthestSpot = NULL;
-	   spot = NULL;
-
-	   while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-
-	   VectorSubtract( spot->s.origin, from, delta );
-	   dist = VectorLength( delta );
-	   if ( dist > furthestDist ) {
-	   furthestDist = dist;
-	   furthestSpot = spot;
-	   }
-	   }
-
-	   if (!furthestSpot) {
-	   spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
-	   if (!spot)
-	   G_Error( "Couldn't find a spawn point" );
-	   VectorCopy (spot->s.origin, origin);
-	   origin[2] += 9;
-	   VectorCopy (spot->s.angles, angles);
-	   return spot;
-	   }
-	   else {
-	   return furthestSpot;
-	   }
-	 */
-
 	//Makro - on a map with one spawn point, if one player has to respawn and someone is
 	//already near the spawnpoint, Q3 crashes; added check
 	if (numSpots != 0) {
 		// select a random spot from the spawn points furthest away
-		rnd = random() * (numSpots / 3);	// NiceAss: divided by 2 changed to 3 to cut down on close spawns	
+		rnd = random() * (numSpots / 3);	// NiceAss: divided by 2 changed to 3 to cut down on close spawns       
 
 		VectorCopy(list_spot[rnd]->s.origin, origin);
 		origin[2] += 9;
@@ -564,7 +531,7 @@ gentity_t *SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
 		//Makro - added; note - plenty of room for improvement here, I just wanted to get rid of the crash bug
 		spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
 		if (!spot) {
-			G_Error( "Couldn't find a spawn point" );
+			G_Error("Couldn't find a spawn point");
 		}
 		VectorCopy(spot->s.origin, origin);
 		origin[2] += 9;
@@ -572,8 +539,6 @@ gentity_t *SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
 
 		return spot;
 	}
-
-
 }
 
 /*
@@ -586,34 +551,6 @@ Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles)
 {
 	return SelectRandomFurthestSpawnPoint(avoidPoint, origin, angles);
-
-	/*
-	   gentity_t    *spot;
-	   gentity_t    *nearestSpot;
-
-	   nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
-
-	   spot = SelectRandomDeathmatchSpawnPoint ( );
-	   if ( spot == nearestSpot ) {
-	   // roll again if it would be real close to point of death
-	   spot = SelectRandomDeathmatchSpawnPoint ( );
-	   if ( spot == nearestSpot ) {
-	   // last try
-	   spot = SelectRandomDeathmatchSpawnPoint ( );
-	   }
-	   }
-
-	   // find a single player start spot
-	   if (!spot) {
-	   G_Error( "Couldn't find a spawn point" );
-	   }
-
-	   VectorCopy (spot->s.origin, origin);
-	   origin[2] += 9;
-	   VectorCopy (spot->s.angles, angles);
-
-	   return spot;
-	 */
 }
 
 /*
@@ -920,7 +857,7 @@ team_t PickTeam(int ignoreClientNum)
 {
 	int counts[TEAM_NUM_TEAMS];
 
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		counts[TEAM_BLUE] = RQ3TeamCount(ignoreClientNum, TEAM_BLUE);
 		counts[TEAM_RED] = RQ3TeamCount(ignoreClientNum, TEAM_RED);
 	} else {
@@ -940,26 +877,6 @@ team_t PickTeam(int ignoreClientNum)
 	}
 	return TEAM_BLUE;
 }
-
-/*
-===========
-ForceClientSkin
-
-Forces a client's skin (for teamplay)
-===========
-*/
-/*
-static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
-	char *p;
-
-	if ((p = Q_strrchr(model, '/')) != 0) {
-		*p = 0;
-	}
-
-	Q_strcat(model, MAX_QPATH, "/");
-	Q_strcat(model, MAX_QPATH, skin);
-}
-*/
 
 /*
 ===========
@@ -1105,7 +1022,6 @@ void ClientUserinfoChanged(int clientNum)
 	if (client->pers.maxHealth < 1 || client->pers.maxHealth > 100) {
 		client->pers.maxHealth = 100;
 	}
-
 	// set model
 	if (g_gametype.integer >= GT_TEAM) {
 		Q_strncpyz(model, Info_ValueForKey(userinfo, "team_model"), sizeof(model));
@@ -1390,8 +1306,8 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		}
 	}
 // slicer : make sessionTeam = to savedTeam for scoreboard on cgame
-// JBravo: only for teamplay. Could break DM
-	if (g_gametype.integer == GT_TEAMPLAY) {
+// JBravo: only for teambased games. Could break DM
+	if (g_gametype.integer >= GT_TEAM) {
 		client->sess.sessionTeam = client->sess.savedTeam;
 		ClientUserinfoChanged(clientNum);
 	} else
@@ -1411,7 +1327,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	CalculateRanks();
 
 // JBravo: clients in TP begin as spectators
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
@@ -1420,13 +1336,13 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 		camera_begin(ent);
 		client->camera->mode = CAMERA_MODE_SWING;
+	} else {
+		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		camera_begin(ent);
+		client->camera->mode = CAMERA_MODE_SWING;
 	}
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
-/* Slicer - no no !! this can't be here ! 
-// JBravo: cleaning up stuff
-	client->sess.sub = TEAM_FREE;
-	client->sess.captain = TEAM_FREE;*/
 	return NULL;
 }
 
@@ -1459,13 +1375,6 @@ void ClientBegin(int clientNum)
 	ent->pain = 0;
 	ent->client = client;
 
-	//Slicer : Reseting matchmode vars
-	//Note: Each time a player changes team, this will also be called..
-	//if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
-	//      client->sess.captain = TEAM_FREE;
-	//      client->sess.sub = TEAM_FREE;
-	//}
-
 	//Slicer: Saving persistant and ping
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		savedPing = client->ps.ping;
@@ -1474,7 +1383,6 @@ void ClientBegin(int clientNum)
 	}
 
 	client->pers.connected = CON_CONNECTED;
-//      client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
 
 	// save eflags around this, because changing teams will
@@ -1492,13 +1400,12 @@ void ClientBegin(int clientNum)
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			client->ps.persistant[i] = savedPers[i];
 	}
-
 	// locate ent at a spawn point
 	ClientSpawn(ent);
 
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
-	if ( ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) || 
-		( g_gametype.integer == GT_CTF && client->sess.sessionTeam != TEAM_RED && client->sess.sessionTeam != TEAM_BLUE ) ) {
+	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+	    client->sess.sessionTeam != TEAM_RED && client->sess.sessionTeam != TEAM_BLUE) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
@@ -1517,6 +1424,13 @@ void ClientBegin(int clientNum)
 		client->camera->mode = CAMERA_MODE_SWING;
 	}
 
+	if (g_gametype.integer == GT_FFA) {
+		client->sess.sessionTeam = TEAM_FREE;
+		client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+		client->sess.spectatorState = SPECTATOR_NOT;
+		client->specMode = SPECTATOR_NOT;
+	}
+
 	if (client->sess.sessionTeam != TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;	//set to short range
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;	//set to slash attack
@@ -1530,13 +1444,13 @@ void ClientBegin(int clientNum)
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
 
 // JBravo: synching the cvars over to clients for the MM ingame menu.
-	if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_matchmode.integer) {
-		for (i = 0; i < 9 ; ++i) {
+	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) && g_RQ3_matchmode.integer) {
+		for (i = 0; i < 9; ++i) {
 			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %s %i", CVARSET, settings2[i],
-						trap_Cvar_VariableIntegerValue(settings[i])));
+								    trap_Cvar_VariableIntegerValue(settings[i])));
 		}
 		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_capturelimit %i", CVARSET,
-					trap_Cvar_VariableIntegerValue("capturelimit")));
+							    trap_Cvar_VariableIntegerValue("capturelimit")));
 	}
 // JBravo: setting cvars for the about menu
 	trap_Cvar_VariableStringBuffer("sv_hostname", str, sizeof(str));
@@ -1546,8 +1460,8 @@ void ClientBegin(int clientNum)
 	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_showOwnKills %i", CVARSET, g_RQ3_showOwnKills.integer));
 	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_timelimit %i", CVARSET, g_timelimit.integer));
 	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_fraglimit %i", CVARSET, g_fraglimit.integer));
-	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_bot_minplayers %i", CVARSET, 
-				trap_Cvar_VariableIntegerValue("bot_minplayers")));
+	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i cg_RQ3_bot_minplayers %i", CVARSET,
+						    trap_Cvar_VariableIntegerValue("bot_minplayers")));
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
@@ -1569,7 +1483,6 @@ void ClientBegin(int clientNum)
 		}
 		i = RQ3TeamCount(-1, client->sess.sessionTeam);
 	}
-
 }
 
 /*
@@ -1583,24 +1496,18 @@ Initializes all non-persistant parts of playerState
 */
 void ClientSpawn(gentity_t * ent)
 {
-	int index;
+	int index, i, flags, savedPing;
+	int persistant[MAX_PERSISTANT];
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;
-	int i;
 	clientPersistant_t saved;
 	clientSession_t savedSess;
-	int persistant[MAX_PERSISTANT];
 	gentity_t *spawnPoint;
-	int flags;
-	int savedPing;
-
-//      char                    *savedAreaBits;
-	int accuracy_hits, accuracy_shots;
-	int eventSequence;
+	int accuracy_hits, accuracy_shots, eventSequence;
 	int savedWeapon, savedItem, savedSpec;	// JBravo: to save weapon/item info
 	int savedRadiopower, savedRadiogender;	// JBravo: for radio.
 	int savedMaleSet, savedFemaleSet;	// JBravo: for soundset saves.
-	camera_t savedCamera;	// JBravo: to save camera stuff
+	camera_t savedCamera;			// JBravo: to save camera stuff
 	char userinfo[MAX_INFO_STRING];
 	char *classname;
 
@@ -1608,24 +1515,23 @@ void ClientSpawn(gentity_t * ent)
 
 	//Try to turn the laser off if it's on
 	if (ent->client->lasersight)
- 		Laser_Gen(ent, qfalse);
+		Laser_Gen(ent, qfalse);
 
 	index = ent - g_entities;
 	client = ent->client;
+	spawnPoint = NULL;
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
-		if (g_gametype.integer == GT_CTF && (client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE)) {
-			spawnPoint = NULL;
+		if (g_gametype.integer == GT_CTF &&
+		    (client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE)) {
 			if (client->sess.savedTeam == TEAM_RED)
 				classname = "team_CTF_redflag";
 			else if (client->sess.savedTeam == TEAM_BLUE)
 				classname = "team_CTF_blueflag";
-			else
-				G_Printf("Wtf ? What team are U on boy ?\n");
-			
+
 			while ((spawnPoint = G_Find(spawnPoint, FOFS(classname), classname)) != NULL) {
 				if (!(spawnPoint->flags & FL_DROPPED_ITEM))
 					break;
@@ -1634,12 +1540,12 @@ void ClientSpawn(gentity_t * ent)
 				VectorCopy(spawnPoint->r.currentOrigin, spawn_origin);
 				VectorCopy(spawnPoint->s.angles, spawn_angles);
 				spawn_origin[2] += 30;
-			} 
+			}
 		} else if (VectorLength(ent->client->ps.origin) == 0.0f) {
-		// Origin is not set yet? Use a spawn point
+			// Origin is not set yet? Use a spawn point
 			spawnPoint = SelectSpectatorSpawnPoint(spawn_origin, spawn_angles);
-		}		// Have a set origin already? Use it. (where you died or changed to spectator)
-		else {
+			// Have a set origin already? Use it. (where you died or changed to spectator)
+		} else {
 			spawnPoint = NULL;
 			VectorCopy(ent->client->ps.origin, spawn_origin);
 			VectorCopy(ent->client->ps.viewangles, spawn_angles);
@@ -1668,7 +1574,6 @@ void ClientSpawn(gentity_t * ent)
 		}
 		// Freud: Quake3 moves spawns up 9 pixs?
 		spawn_origin[2] += 9;
-
 // End JBravo.
 	} else {
 		do {
@@ -1707,7 +1612,6 @@ void ClientSpawn(gentity_t * ent)
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
-//      savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
 
@@ -1768,7 +1672,6 @@ void ClientSpawn(gentity_t * ent)
 		client->pers.maxHealth = 100;
 	}
 	// clear entity values
-	//client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 	client->ps.eFlags = flags;
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
@@ -1793,20 +1696,20 @@ void ClientSpawn(gentity_t * ent)
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
 	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
-		client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
-		client->numClips[WP_PISTOL] = 0;
-		client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
+		if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
+			client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
+			client->numClips[WP_PISTOL] = 0;
+			client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
+		}
+		if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+			client->ps.ammo[WP_KNIFE] = 1;
+		}
 	}
-//Blaze: Changed WP_GAUNTLET to WP_KNIFE
-	client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
-//Blaze: 1 knife to start with
-	client->ps.ammo[WP_KNIFE] = 1;
-//Blaze: No Grappling Hook in reaction
-//      client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
 //Blaze: Set the bandage variable to 0
 	client->bleedtick = 0;
 	// health will count down towards max_health
-	ent->health = client->ps.stats[STAT_HEALTH] = 100;	// max health of 100 client->ps.stats[STAT_MAX_HEALTH];//Blaze: removed * 1.25 becase we wanna start at 100 health
+	ent->health = client->ps.stats[STAT_HEALTH] = 100;	//Blaze: removed * 1.25 becase we wanna start at 100 health
 	// reset streak count
 	client->killStreak = 0;
 
@@ -1828,7 +1731,7 @@ void ClientSpawn(gentity_t * ent)
 		// force the base weapon up
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
 		// JBravo: we dont want the endless pistol in TP
-		if (g_gametype.integer != GT_TEAMPLAY) {
+		if (g_gametype.integer < GT_TEAM) {
 			client->ps.weapon = WP_PISTOL;
 			client->ps.weaponstate = WEAPON_READY;
 		}
@@ -1850,7 +1753,8 @@ void ClientSpawn(gentity_t * ent)
 	ent->client->ps.stats[STAT_RQ3] = 0;
 
 // JBravo: remember saved specmodes.
-	if (g_gametype.integer == GT_TEAMPLAY && client->sess.sessionTeam == TEAM_SPECTATOR) {
+	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+	    client->sess.sessionTeam == TEAM_SPECTATOR) {
 		if (client->specMode == SPECTATOR_FOLLOW || client->specMode == SPECTATOR_FREE) {
 			client->sess.spectatorState = client->specMode;
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
@@ -1889,8 +1793,8 @@ void ClientSpawn(gentity_t * ent)
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		// JBravo: Lets make sure we have the right weapons
-		if ( ( g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF ) &&
-			( client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE ) ) {
+		if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+		    (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE)) {
 			EquipPlayer(ent);
 		} else {
 			client->ps.weapon = 1;
@@ -1910,7 +1814,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer != GT_TEAMPLAY)
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
 		ClientThink(ent - g_entities);
 
 	// positively link the client, even if the command times are weird
@@ -1921,13 +1825,14 @@ void ClientSpawn(gentity_t * ent)
 	}
 	// run the presend to set anything else
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer != GT_TEAMPLAY)
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
 
 // JBravo: lock the player down
 	if (g_gametype.integer == GT_CTF && ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-			(ent->client->sess.savedTeam == TEAM_RED || ent->client->sess.savedTeam == TEAM_BLUE))
+	    (ent->client->sess.savedTeam == TEAM_RED || ent->client->sess.savedTeam == TEAM_BLUE) &&
+	    !level.lights_camera_action)
 		ent->client->ps.pm_type = PM_FREEZE;
 
 	// clear entity state values
@@ -1979,7 +1884,7 @@ void ClientDisconnect(int clientNum)
 	}
 	// aasimon: Referee. If player is referee, clean ref 
 	/*if (clientNum == g_RQ3_RefID.integer)
-		trap_Cvar_Set("g_RQ3_RefID", "-1");*/
+	   trap_Cvar_Set("g_RQ3_RefID", "-1"); */
 
 // JBravo: if the client had a laser, turn it off so it doesnt stay there forever.
 	if (ent->client->lasersight) {

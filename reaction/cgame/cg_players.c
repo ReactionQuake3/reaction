@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.52  2002/08/29 14:45:17  niceass
 // disabled wallhack
 //
@@ -1009,12 +1012,12 @@ void CG_UpdateTeamVars()
 {
 	clientInfo_t *ci;
 	int i;
-	int Reds, Blues, Spectators;
+	int Reds, Blues, Spectators, Dmers;
 
 	//Makro - changed from 2 to 4; not really needed, but it's safer
 	char v[4];
 
-	Reds = Blues = Spectators = 0;
+	Reds = Blues = Spectators = Dmers = 0;
 
 	for (i = 0, ci = cgs.clientinfo; i < cgs.maxclients; i++, ci++) {
 		if (!ci->infoValid)
@@ -1023,16 +1026,32 @@ void CG_UpdateTeamVars()
 			Reds++;
 		if (ci->team == TEAM_BLUE)
 			Blues++;
-		if (ci->team == TEAM_SPECTATOR || ci->team == TEAM_FREE)
-			Spectators++;
+
+		if (cgs.gametype >= GT_TEAM) {
+			if (ci->team == TEAM_SPECTATOR || ci->team == TEAM_FREE)
+				Spectators++;
+		} else {
+			if (ci->team == TEAM_FREE)
+				Dmers++;
+			if (ci->team == TEAM_SPECTATOR)
+				Spectators++;
+		}
 	}
 	//CG_Printf("Reds: %i, Blues: %i, Spectators: %i\n",Reds, Blues, Spectators);
-	Com_sprintf(v, sizeof(v), "%i", Reds);
-	trap_Cvar_Set("ui_RQ3_teamCount1", v);
-	Com_sprintf(v, sizeof(v), "%i", Blues);
-	trap_Cvar_Set("ui_RQ3_teamCount2", v);
-	Com_sprintf(v, sizeof(v), "%i", Spectators);
-	trap_Cvar_Set("ui_RQ3_numSpectators", v);
+// JBravo: We count the "teams" differently in DM
+	if (cgs.gametype >= GT_TEAM) {
+		Com_sprintf(v, sizeof(v), "%i", Reds);
+		trap_Cvar_Set("ui_RQ3_teamCount1", v);
+		Com_sprintf(v, sizeof(v), "%i", Blues);
+		trap_Cvar_Set("ui_RQ3_teamCount2", v);
+		Com_sprintf(v, sizeof(v), "%i", Spectators);
+		trap_Cvar_Set("ui_RQ3_numSpectators", v);
+	} else {
+		Com_sprintf(v, sizeof(v), "%i", Dmers);
+		trap_Cvar_Set("ui_RQ3_teamCount1", v);
+		Com_sprintf(v, sizeof(v), "%i", Spectators);
+		trap_Cvar_Set("ui_RQ3_numSpectators", v);
+	}
 }
 
 /*

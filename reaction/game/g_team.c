@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/09/29 16:06:45  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.15  2002/09/08 19:46:27  niceass
 // newb ctb message added
 //
@@ -197,8 +200,8 @@ qboolean OnSameTeam(gentity_t * ent1, gentity_t * ent2)
 	if (g_gametype.integer < GT_TEAM) {
 		return qfalse;
 	}
-// JBravo: fixing for TP
-	if (g_gametype.integer == GT_TEAMPLAY) {
+// JBravo: fixing for TP and other team based games
+	if (g_gametype.integer >= GT_TEAM) {
 		if (ent1->client->sess.savedTeam == ent2->client->sess.savedTeam) {
 			return qtrue;
 		}

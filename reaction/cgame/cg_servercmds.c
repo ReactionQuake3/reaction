@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.66  2002/09/17 20:17:12  blaze
 // Fixed up the cg_rq3_autoaction to include the map name, and removed the player name since it was broken anyways
 //
@@ -1232,6 +1235,9 @@ void CG_RQ3_Cmd()
 		CG_CenterPrint("CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
 		CG_Printf("\nCAMERA...\n");
 		CG_AddBufferedSound(cgs.media.cameraSound);
+		break;
+	case TPCOUNTDOWN:
+		CG_AddBufferedSound(cgs.media.lca10_0Sound);
 		break;
 	case ACTION:
 		CG_CenterPrint("ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);

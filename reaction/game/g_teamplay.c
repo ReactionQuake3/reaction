@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2002/09/29 16:06:45  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.138  2002/09/24 05:06:17  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -479,8 +482,7 @@ gentity_t *FindClientByPersName(char *name)
 
 void CheckTeamRules()
 {
-	int winner, i, checked_tie = 0;
-	gentity_t *player;
+	int winner, checked_tie = 0;
 
 	//Slicer
 	if (level.intermissiontime)
@@ -537,14 +539,7 @@ void CheckTeamRules()
 		if (level.team_round_countdown)
 			level.team_round_countdown--;
 		if (g_RQ3_tpcountdown.integer && level.team_round_countdown == (101 * level.fps) / 10) {
-			for (i = 0; i < level.maxclients; i++) {
-				player = &g_entities[i];
-				if (!player->inuse)
-					continue;
-				G_AddEvent(player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
-
-			}
-
+			trap_SendServerCommand(-1, va("rq3_cmd %i", TPCOUNTDOWN));
 			trap_SendServerCommand(-1, va("rq3_cmd %i 0", MAPSTART));
 		}
 
@@ -561,8 +556,6 @@ void CheckTeamRules()
 				if (level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown =
 					    level.team_game_going = level.matchTime = 0;
-					//Slicer: apparently not being used
-					//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 					level.team1ready = qfalse;
 					level.team2ready = qfalse;
 					MakeAllLivePlayersObservers();
@@ -573,10 +566,7 @@ void CheckTeamRules()
 				if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 					//Slicer : Let's do a normal console print instead..
 					trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
-					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					//Slicer: apparently not being used
-					//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 					//Slicer: Start Intermission
 					BeginIntermission();
 					return;
@@ -586,15 +576,20 @@ void CheckTeamRules()
 		if (!level.team_round_countdown) {
 			if (BothTeamsHavePlayers()) {
 				//Slicer let's print to the console too
-				trap_SendServerCommand(-1, "print \"The round will begin in 20 seconds!\n\"");
-				trap_SendServerCommand(-1, va("cp \"The round will begin in 20 seconds!\n\""));
+				if (g_gametype.integer == GT_TEAMPLAY) {
+					trap_SendServerCommand(-1, "print \"The round will begin in 20 seconds!\n\"");
+					trap_SendServerCommand(-1, va("cp \"The round will begin in 20 seconds!\n\""));
+				} else {
+					trap_SendServerCommand(-1, "print \"The game will begin in 20 seconds!\n\"");
+					trap_SendServerCommand(-1, va("cp \"The game will begin in 20 seconds!\n\""));
+				}
 				level.team_round_countdown = (201 * level.fps) / 10;
-  			//Blaze: moved from below the G_AddEvent
-			  trap_SendServerCommand(-1, va("rq3_cmd %i 0", STARTDEMO));
+				//Blaze: moved from below the G_AddEvent
+				trap_SendServerCommand(-1, va("rq3_cmd %i 0", STARTDEMO));
 			}
 		}
 	} else {
-		if ((winner = CheckForWinner()) != WINNER_NONE) {
+		if (g_gametype.integer == GT_TEAMPLAY && ((winner = CheckForWinner()) != WINNER_NONE)) {
 			if (!checked_tie) {
 				level.holding_on_tie_check = (50 * level.fps) / 10;
 				return;
@@ -602,22 +597,19 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			//Slicer: apparently not being used
-			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71 * level.fps) / 10;
 			return;
 		}
 
-		if (g_RQ3_roundtimelimit.integer && (level.current_round_length > g_RQ3_roundtimelimit.integer * 60 * level.fps)) {
+		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_roundtimelimit.integer &&
+		    (level.current_round_length > g_RQ3_roundtimelimit.integer * 60 * level.fps)) {
 			trap_SendServerCommand(-1, va("cp \"Round timelimit hit.\n\""));
 			winner = CheckForForcedWinner();
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			//Slicer: apparently not being used
-			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71 * level.fps) / 10;
@@ -632,7 +624,12 @@ void StartLCA()
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41 * level.fps) / 10;
 	G_LogPrintf("LIGHTS...\n");
-	SpawnPlayers();
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		SpawnPlayers();
+	} else {
+		RQ3_Respawn_CTB_players(TEAM_RED);
+		RQ3_Respawn_CTB_players(TEAM_BLUE);
+	}
 	level.lights_delay = 4;
 }
 
@@ -646,8 +643,6 @@ void ContinueLCA()
 		trap_SendServerCommand(-1, va("rq3_cmd %i", ACTION));
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
-		//Slicer: apparently not being used
-		//trap_SendServerCommand(-1, va("rq3_cmd %i 1", ROUND));
 		level.current_round_length = 0;
 	}
 	level.lights_camera_action--;
@@ -705,7 +700,7 @@ void CleanLevel()
 			if (!Q_stricmp(ent->classname, "func_static")) {
 				ent->count = (ent->spawnflags & 1);
 				ent->use(ent, NULL, NULL);
-			//Makro - reset door health each round
+				//Makro - reset door health each round
 			} else if (ent->s.eType == ET_MOVER && ent->takedamage) {
 				ent->health = ent->health_saved;
 			}
@@ -837,8 +832,6 @@ int WonGame(int winner)
 				SendEndMessage();
 				level.inGame = level.team_round_going = level.team_round_countdown =
 				    level.team_game_going = level.matchTime = 0;
-				//Slicer: apparently not being used
-				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				level.team1ready = qfalse;
 				level.team2ready = qfalse;
 				MakeAllLivePlayersObservers();
@@ -848,8 +841,6 @@ int WonGame(int winner)
 			if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 				trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				//Slicer: apparently not being used
-				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -865,8 +856,6 @@ int WonGame(int winner)
 				SendEndMessage();
 				level.inGame = level.team_round_going = level.team_round_countdown =
 				    level.team_game_going = level.matchTime = 0;
-				//Slicer: apparently not being used
-				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				level.team1ready = qfalse;
 				level.team2ready = qfalse;
 				MakeAllLivePlayersObservers();
@@ -876,8 +865,6 @@ int WonGame(int winner)
 				trap_SendServerCommand(-1, "print \"Roundlimit hit.\n\"");
 				trap_SendServerCommand(-1, va("cp \"Roundlimit hit.\n\""));
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				//Slicer: apparently not being used
-				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -890,8 +877,6 @@ int WonGame(int winner)
 team_t RQ3TeamCount(int ignoreClientNum, int team)
 {
 	int i, count = 0;
-
-//      char    buf[64];
 
 	for (i = 0; i < level.maxclients; i++) {
 		if (i == ignoreClientNum) {
@@ -908,16 +893,6 @@ team_t RQ3TeamCount(int ignoreClientNum, int team)
 		}
 	}
 
-/*	Com_sprintf (buf, sizeof(buf), "%i", count);
-	if (team == TEAM_RED)
-		trap_Cvar_Set("g_RQ3_teamCount1", buf);
-	else if (team == TEAM_BLUE)
-		trap_Cvar_Set("g_RQ3_teamCount2", buf);
-	else if (team == TEAM_SPECTATOR || team == TEAM_FREE)	
-		trap_Cvar_Set("g_RQ3_numSpectators", buf); */
-
-	//Com_sprintf (buf, sizeof(buf), "setteamplayers %i %i\n", team, count);
-	//trap_SendServerCommand(-1, buf);
 	return count;
 }
 
@@ -964,8 +939,8 @@ void SpawnPlayers()
 
 		if (!player->inuse || !player->client)
 			continue;
-		//Slicer: Matchmode - Subs don't spawn
 
+//Slicer: Matchmode - Subs don't spawn
 		if (g_RQ3_matchmode.integer && player->client->sess.sub != TEAM_FREE)
 			continue;
 // JBravo: lets not respawn spectators in free floating mode
@@ -988,9 +963,8 @@ void SpawnPlayers()
 			client->sess.spectatorState = SPECTATOR_NOT;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
-		ResetKills (player);
+		ResetKills(player);
 		client->last_damaged_players[0] = '\0';
-//              trap_SendServerCommand(player-g_entities, "lights");
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
@@ -1032,26 +1006,54 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 	cmd = ConcatArgs(1);
 
 	if (Q_stricmp(cmd, RQ3_MP5_NAME) == 0 || Q_stricmp(cmd, "mp5") == 0) {
-		ent->client->teamplayWeapon = WP_MP5;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_MP5_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_MP5) {
+			ent->client->teamplayWeapon = WP_MP5;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_MP5_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_MP5_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_M3_NAME) == 0 || Q_stricmp(cmd, "m3") == 0) {
-		ent->client->teamplayWeapon = WP_M3;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M3_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_M3) {
+			ent->client->teamplayWeapon = WP_M3;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M3_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_M3_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_M4_NAME) == 0 || Q_stricmp(cmd, "m4") == 0) {
-		ent->client->teamplayWeapon = WP_M4;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M4_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_M4) {
+			ent->client->teamplayWeapon = WP_M4;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M4_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_M4_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp(cmd, "hc") == 0) {
-		ent->client->teamplayWeapon = WP_HANDCANNON;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_HANDCANNON_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_HC) {
+			ent->client->teamplayWeapon = WP_HANDCANNON;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_HANDCANNON_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HANDCANNON_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp(cmd, "sniper") == 0) {
-		ent->client->teamplayWeapon = WP_SSG3000;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_SNIPER) {
+			ent->client->teamplayWeapon = WP_SSG3000;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SSG3000_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp(cmd, "knives") == 0) {
-		ent->client->teamplayWeapon = WP_KNIFE;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
+			ent->client->teamplayWeapon = WP_KNIFE;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_KNIFE_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp(cmd, "akimbo") == 0) {
-		ent->client->teamplayWeapon = WP_AKIMBO;
-		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_AKIMBO_NAME));
+		if ((int) g_RQ3_weaponban.integer & WPF_DUAL) {
+			ent->client->teamplayWeapon = WP_AKIMBO;
+			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_AKIMBO_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_AKIMBO_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_KEVLAR_NAME) == 0 || Q_stricmp(cmd, "kevlar") == 0) {
 		ent->client->teamplayItem = HI_KEVLAR;
 		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
@@ -1103,7 +1105,7 @@ void Cmd_Dropcase_f(gentity_t * ent)
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"Huh? You dont have a flag to drop!\n\""));
 	}
-		
+
 }
 
 void RQ3_Cmd_Drop_f(gentity_t * ent)
@@ -1136,9 +1138,7 @@ void EquipPlayer(gentity_t * ent)
 		return;
 
 	bandolierFactor = grenades = 0;
-
-	ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] = 1;	// extra clip of ammo for pistol
-	ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+	ent->client->ps.stats[STAT_WEAPONS] = 0;
 
 	if (ent->client->teamplayItem == HI_BANDOLIER) {
 		bandolierFactor = 2;
@@ -1147,11 +1147,19 @@ void EquipPlayer(gentity_t * ent)
 		bandolierFactor = 1;
 	}
 
+	if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
+		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] = 1;	// extra clip of ammo for pistol
+		ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+	}
+
+	if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+	}
+
 	switch (ent->client->teamplayWeapon) {
 	case WP_SSG3000:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_SSG3000);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_SSG3000] = RQ3_SSG3000_AMMO;
 		if (g_RQ3_sniperup.integer == 1) {
@@ -1165,9 +1173,7 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_MP5:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_MP5);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_MP5);
 		ent->client->numClips[WP_MP5] = RQ3_MP5_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_MP5] = RQ3_MP5_AMMO;
 		ent->client->ps.weapon = WP_MP5;
@@ -1176,9 +1182,7 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M3:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_M3);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_M3);
 		ent->client->numClips[WP_M3] = RQ3_M3_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_M3] = RQ3_M3_AMMO;
 		ent->client->ps.weapon = WP_M3;
@@ -1187,9 +1191,7 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M4:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_M4);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_M4);
 		ent->client->numClips[WP_M4] = RQ3_M4_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_M4] = RQ3_M4_AMMO;
 		ent->client->ps.weapon = WP_M4;
@@ -1198,11 +1200,10 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_AKIMBO:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_AKIMBO);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_AKIMBO);
 		//Makro - added pistol clips
-		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
+		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] =
+		    RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
 		ent->client->ps.weaponTime = RQ3_AKIMBO_ACTIVATE_DELAY;
@@ -1210,9 +1211,7 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 0;
 		break;
 	case WP_HANDCANNON:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_HANDCANNON);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_HANDCANNON);
 		ent->client->numClips[WP_HANDCANNON] = RQ3_HANDCANNON_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_HANDCANNON] = RQ3_HANDCANNON_AMMO;
 		ent->client->ps.weapon = WP_HANDCANNON;
@@ -1221,8 +1220,6 @@ void EquipPlayer(gentity_t * ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_KNIFE:
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_KNIFE);
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
 		ent->client->ps.ammo[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.weapon = WP_KNIFE;
 		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
@@ -1251,12 +1248,11 @@ void EquipPlayer(gentity_t * ent)
 	}
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
-	
 	if (ent->client->teamplayItem) {
-		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] =
+		    BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
 		ent->client->uniqueItems = 1;
-	}
-	else {
+	} else {
 		G_Printf("%s had an illegal teamplay item [%i]!\n", ent->client->pers.netname,
 			 ent->client->teamplayItem);
 	}
@@ -1287,7 +1283,7 @@ void UnstickPlayer(gentity_t * ent)
 	}
 }
 
-void RQ3_StartTimer (int team, int delay)
+void RQ3_StartTimer(int team, int delay)
 {
 	int i;
 	gentity_t *ent;
@@ -1315,7 +1311,8 @@ void RQ3_Respawn_CTB_players(int team)
 		ent = &g_entities[i];
 		if (!ent->inuse || !ent->client)
 			continue;
-		if (ent->client->sess.savedTeam == team && ent->client->sess.spectatorState == SPECTATOR_FREE) {
+		if (ent->client->sess.savedTeam == team && (ent->client->sess.spectatorState == SPECTATOR_FREE ||
+							    level.lights_camera_action)) {
 			ent->client->weaponCount[ent->client->ps.weapon] = ent->client->savedPSweapon;
 			ent->client->ps.stats[STAT_WEAPONS] = ent->client->savedSTAT;
 			ent->client->sess.sessionTeam = team;
@@ -1334,7 +1331,7 @@ void MakeSpectator(gentity_t * ent)
 	int i;
 
 	client = ent->client;
-	if (client->sess.sessionTeam == TEAM_SPECTATOR)
+	if (g_gametype.integer == GT_TEAMPLAY && client->sess.sessionTeam == TEAM_SPECTATOR)
 		return;
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue(ent);
@@ -1346,10 +1343,10 @@ void MakeSpectator(gentity_t * ent)
 				continue;
 			if (follower->client->pers.connected != CON_CONNECTED)
 				continue;
-			if (follower->client->sess.sessionTeam != TEAM_SPECTATOR) 
+			if (follower->client->sess.sessionTeam != TEAM_SPECTATOR)
 				continue;
 			if (follower->client->sess.spectatorClient == ent->s.number &&
-					follower->client->sess.spectatorState == SPECTATOR_FOLLOW)
+			    follower->client->sess.spectatorState == SPECTATOR_FOLLOW)
 				Cmd_FollowCycle_f(follower, 1);
 		}
 	}
@@ -1362,7 +1359,7 @@ void MakeSpectator(gentity_t * ent)
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 
-	if (g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer == GT_CTF && level.team_round_going) {
 		client->sess.spectatorState = SPECTATOR_FREE;
 		client->specMode = SPECTATOR_FREE;
 		client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -1557,7 +1554,7 @@ radio_msg_t male_radio_msgs[] = {
 	{"plost1", 1},
 	{"plost2", 1},
 	{"plost3", 1},
-	{"END", 0},		// end of list delimiter
+	{"END", 0},			// end of list delimiter
 };
 
 radio_msg_t female_radio_msgs[] = {
@@ -1618,7 +1615,7 @@ radio_msg_t female_radio_msgs[] = {
 	{"plost1", 1},
 	{"plost2", 1},
 	{"plost3", 1},
-	{"END", 0},		// end of list delimiter
+	{"END", 0},			// end of list delimiter
 };
 
 //Slicer Adding Flood Protection Functions
@@ -1651,7 +1648,6 @@ qboolean CheckForFlood(gentity_t * ent)
 	}
 
 	return qtrue;
-
 }
 
 qboolean CheckForRepeat(gentity_t * ent, int radioCode)
@@ -1733,17 +1729,12 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 							continue;
 						if (IsInIgnoreList(player, ent))
 							continue;
-						if (g_gametype.integer != GT_TEAMPLAY) {
-							if (player->client->sess.sessionTeam == ent->client->sess.sessionTeam)
-								trap_SendServerCommand(player - g_entities,
-										       va("rq3_cmd %i %i %i %i\n", RADIO,
-											  kills - 1, ent->client->radioGender, set));
-						} else {
-							if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
-								trap_SendServerCommand(player - g_entities,
-										       va("rq3_cmd %i %i %i %i\n", RADIO,
-											  kills - 1, ent->client->radioGender, set));
-						}
+						if (player->client->sess.savedTeam == ent->client->sess.savedTeam &&
+						    player->client->radioOff == qfalse)
+							trap_SendServerCommand(player - g_entities,
+									       va("rq3_cmd %i %i %i %i\n", RADIO,
+										  kills - 1, ent->client->radioGender,
+										  set));
 					}
 				}
 			}
@@ -1753,30 +1744,17 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 					continue;
 				if (IsInIgnoreList(player, ent))
 					continue;
-				if (g_gametype.integer != GT_TEAMPLAY) {
-					if (player->client->sess.sessionTeam == ent->client->sess.sessionTeam) {
-						if (player->r.svFlags & SVF_BOT)
-							trap_SendServerCommand(player - g_entities,
-									       va("print \"radio %s %s\n\"",
-										  ent->client->pers.netname,
-										  radio_msgs[x].msg));
-						else
-							trap_SendServerCommand(player - g_entities,
-									       va("rq3_cmd %i %i %i %i\n", RADIO, x,
-										  ent->client->radioGender, set));
-					}
-				} else {
-					if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
-						if (player->r.svFlags & SVF_BOT)
-							trap_SendServerCommand(player - g_entities,
-									       va("print \"radio %s %s\n\"",
-										  ent->client->pers.netname,
-										  radio_msgs[x].msg));
-						else
-							trap_SendServerCommand(player - g_entities,
-									       va("rq3_cmd %i %i %i %i\n", RADIO, x,
-										  ent->client->radioGender, set));
-					}
+				if (player->client->sess.savedTeam == ent->client->sess.savedTeam &&
+				    player->client->radioOff == qfalse) {
+					if (player->r.svFlags & SVF_BOT)
+						trap_SendServerCommand(player - g_entities,
+								       va("print \"radio %s %s\n\"",
+									  ent->client->pers.netname,
+									  radio_msgs[x].msg));
+					else
+						trap_SendServerCommand(player - g_entities,
+								       va("rq3_cmd %i %i %i %i\n", RADIO, x,
+									  ent->client->radioGender, set));
 				}
 			}
 			//Slicer lets return to stop the while if found..
@@ -2046,7 +2024,7 @@ void GetNearbyTeammates(gentity_t * self, char *buf)
 	}
 }
 
-void GetLastDamagedPlayers (gentity_t * ent, char *buf)
+void GetLastDamagedPlayers(gentity_t * ent, char *buf)
 {
 	if (ent->client->last_damaged_players[0] == '\0')
 		strcpy(buf, "nobody");
@@ -2099,7 +2077,7 @@ void ParseSayText(gentity_t * ent, char *text)
 				if (g_RQ3_showOwnKills.integer)
 					GetLastKilledTarget(ent, infobuf);
 				else
-					GetLastDamagedPlayers (ent, infobuf);
+					GetLastDamagedPlayers(ent, infobuf);
 				strcpy(pbuf, infobuf);
 				pbuf = SeekBufEnd(pbuf);
 				p += 2;
@@ -2122,10 +2100,10 @@ void ParseSayText(gentity_t * ent, char *text)
 				pbuf = SeekBufEnd (pbuf);
 				p += 2;
 				continue; */
-			case 'P': 
-				GetLastDamagedPlayers (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+			case 'P':
+				GetLastDamagedPlayers(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			}
@@ -2199,7 +2177,8 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, buf);
 		return;
 	}
-	if (g_gametype.integer == GT_CTF && (ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG]))
+	if (g_gametype.integer == GT_CTF
+	    && (ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG]))
 		return;
 	if (Q_stricmp(cmd, RQ3_MP5_NAME) == 0 || Q_stricmp(cmd, "mp5") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5)) == (1 << WP_MP5)) {
@@ -2329,7 +2308,8 @@ void Add_TeamKill(gentity_t * attacker)
 	char *value;
 
 	// NiceAss: No TKing in matchmode
-	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client || g_RQ3_matchmode.integer)
+	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client
+	    || g_RQ3_matchmode.integer)
 		return;
 
 	attacker->client->team_kills++;

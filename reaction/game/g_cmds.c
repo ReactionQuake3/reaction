@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.169  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.168  2002/09/24 05:06:17  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -960,7 +963,7 @@ void SetTeam(gentity_t * ent, char *s)
 	client = ent->client;
 	clientNum = client - level.clients;
 
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 		specClient = 0;
 		specState = SPECTATOR_NOT;
 	}
@@ -982,7 +985,7 @@ void SetTeam(gentity_t * ent, char *s)
 		specState = SPECTATOR_FREE;
 	} else if (g_gametype.integer >= GT_TEAM) {
 		// if running a team game, assign player to one of the teams
-		if (g_gametype.integer != GT_TEAMPLAY) {
+		if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 			specState = SPECTATOR_NOT;
 		}
 		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r") || !Q_stricmp(s, "1")) {
@@ -1029,7 +1032,7 @@ void SetTeam(gentity_t * ent, char *s)
 	// decide if we will allow the change
 	//
 // JBravo: we use the savedTeam var because the player meight be dead.
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		oldTeam = client->sess.savedTeam;
 	} else {
 		oldTeam = client->sess.sessionTeam;
@@ -1062,13 +1065,9 @@ void SetTeam(gentity_t * ent, char *s)
 	}
 
 // JBravo: lets set the correct var here.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		client->sess.savedTeam = team;
 		client->ps.persistant[PERS_SAVEDTEAM] = team;
-	} else if (g_gametype.integer == GT_CTF) {
-		client->sess.savedTeam = team;
-		client->ps.persistant[PERS_SAVEDTEAM] = team;
-		client->sess.sessionTeam = team;
 	} else {
 		client->sess.sessionTeam = team;
 	}
@@ -1093,7 +1092,7 @@ void SetTeam(gentity_t * ent, char *s)
 		client->sess.spectatorTime = level.time;
 	}
 // JBravo: not messing with spec system in TP during teamswitches
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 		client->sess.spectatorState = specState;
 		client->sess.spectatorClient = specClient;
 	}
@@ -1124,19 +1123,12 @@ void SetTeam(gentity_t * ent, char *s)
 			client->radioGender = level.team1gender;
 		else if (client->sess.savedTeam == TEAM_BLUE)
 			client->radioGender = level.team2gender;
-		if (g_gametype.integer == GT_CTF) {
-			if (client->sess.savedTeam == TEAM_RED) {
-				if (level.team1respawn == 0)
-					ClientBegin(clientNum);
-			} else if (client->sess.savedTeam == TEAM_BLUE) {
-				if (level.team2respawn == 0)
-					ClientBegin(clientNum);
-			}
-		}
 	} else {
 		ClientUserinfoChanged(clientNum);
 		ClientBegin(clientNum);
 	}
+	if (g_gametype.integer == GT_CTF)
+		MakeSpectator (ent);
 }
 
 /*
@@ -1177,7 +1169,7 @@ void Cmd_Team_f(gentity_t * ent)
 	char s[MAX_TOKEN_CHARS];
 
 	//Makro - moved here
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		oldTeam = ent->client->sess.savedTeam;
 	} else {
 		oldTeam = ent->client->sess.sessionTeam;
@@ -1185,7 +1177,7 @@ void Cmd_Team_f(gentity_t * ent)
 
 	if (trap_Argc() != 2) {
 // JBravo: lets keep the teamnames right.
-		if (g_gametype.integer == GT_TEAMPLAY) {
+		if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_TEAM) {
 			//oldTeam = ent->client->sess.savedTeam;
 			switch (oldTeam) {
 			case TEAM_RED:
@@ -1197,6 +1189,21 @@ void Cmd_Team_f(gentity_t * ent)
 				trap_SendServerCommand(ent - g_entities,
 						       va("print \"You are a member of %s\n\"",
 							  g_RQ3_team2name.string));
+				break;
+			case TEAM_SPECTATOR:
+			case TEAM_FREE:
+				trap_SendServerCommand(ent - g_entities, "print \"You have not joined a team.\n\"");
+				break;
+			}
+		} else if (g_gametype.integer == GT_CTF) {
+			switch (oldTeam) {
+			case TEAM_RED:
+				trap_SendServerCommand(ent - g_entities,
+						       va("print \"You are a member of the SILVER team.\n\""));
+				break;
+			case TEAM_BLUE:
+				trap_SendServerCommand(ent - g_entities,
+						       va("print \"You are a member of the BLACK team.\n\""));
 				break;
 			case TEAM_SPECTATOR:
 			case TEAM_FREE:
@@ -1379,7 +1386,7 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 		return;
 	
 	// JBravo: Dead people dont speak to the living...  or so Im told.
-	if ( !G_PlayerAlive( ent ) && G_PlayerAlive( other ) &&
+	if (!G_PlayerAlive(ent) && G_PlayerAlive(other) &&
 		g_gametype.integer == GT_TEAMPLAY && level.team_round_going && mode != SAY_REF)
 		return;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.50  2002/07/22 06:34:46  niceass
 // cleaned up the powerup code
 //
@@ -1660,7 +1663,11 @@ void BotChooseWeapon(bot_state_t * bs)
 		return;
 	}
 
-	if (bs->cur_ps.weaponstate == WEAPON_RAISING || bs->cur_ps.weaponstate == WEAPON_DROPPING) {
+// JBravo: Force the bot to use a pistol when he decides to go for a case.
+	if (bs->ltgtype == LTG_GETFLAG) {
+		bs->weaponnum = WP_PISTOL;
+		RQ3_Bot_ChooseWeaponMode(bs);
+	} else if (bs->cur_ps.weaponstate == WEAPON_RAISING || bs->cur_ps.weaponstate == WEAPON_DROPPING) {
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 		//Makro - choose weapon mode
 		RQ3_Bot_ChooseWeaponMode(bs);

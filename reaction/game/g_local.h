@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.124  2002/09/08 19:47:03  niceass
 // newb ctb message added
 //
@@ -368,6 +371,17 @@ typedef enum {
 #define SP_AUTOOPEN			4	// Elder: revert to Q3 behaviour
 #define SP_DOORTOGGLE			8	// Elder: added to enable mover toggling
 #define MAXDOORTIME			100	// Elder: max time the opendoor key can stay open
+
+// JBravo: adding weaponbanning
+#define WPF_MK23			0x00000001	// 1
+#define WPF_MP5				0x00000002	// 2
+#define WPF_M4				0x00000004	// 4
+#define WPF_M3				0x00000008	// 8
+#define WPF_HC				0x00000010	// 16
+#define WPF_SNIPER			0x00000020	// 32
+#define WPF_DUAL			0x00000040	// 64
+#define WPF_KNIFE			0x00000080	// 128
+#define WPF_GRENADE			0x00000100	// 256
 
 //============================================================================
 
@@ -1355,6 +1369,7 @@ extern vmCvar_t g_RQ3_twbanrounds;	// JBravo: no. of games team wounders are ban
 extern vmCvar_t g_RQ3_tkbanrounds;	// JBravo: no. of games team killers are banned
 extern vmCvar_t g_RQ3_ppl_idletime;	// JBravo: Seconds Idle before playing an insane sound
 extern vmCvar_t g_RQ3_idleaction;	// JBravo: what to do with Idlers. 0 = sound, 1 = team none, 2 = kick
+extern vmCvar_t g_RQ3_weaponban;	// JBravo: Bitmapped cvar for weaponbanning
 extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb respawns
 
 //Slicer: Team Status Cvars for MM

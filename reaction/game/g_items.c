@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.48  2002/09/09 02:26:18  niceass
 // fixed drop case
 //
@@ -172,10 +175,9 @@ int Pickup_Powerup(gentity_t * ent, gentity_t * other)
 
 int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 {
-
 	//Elder: why it's implemented like this I have no idea
+	//JBravo: Neiter do I :(   Sucks Monks Nads this way :(
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
-	//other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item->giTag;
 	other->client->uniqueItems++;
 
 	//Try to fire up the laser if it's picked up
@@ -487,7 +489,6 @@ Touch_Item
 */
 void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
-
 	int respawn;
 	qboolean predict;
 	int bandolierFactor;
@@ -637,11 +638,9 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		break;
 	case IT_TEAM:
 		// NiceAss: can't pick it up if it's in mid-flight (someone dropped it)
-		if ( ent->s.pos.trDelta[2] != 0.0f )
+		if (ent->s.pos.trDelta[2] != 0.0f)
 			return;
-		
 		respawn = Pickup_Team(ent, other);
-
 		break;
 	case IT_HOLDABLE:
 		//Elder: check to see if it's in mid-air

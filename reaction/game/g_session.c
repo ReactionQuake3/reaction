@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/09/29 16:06:45  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.20  2002/08/23 14:25:05  slicer
 // Added a new Referee System with multiple ref support
 //
@@ -88,7 +91,7 @@ void G_WriteClientSessionData(gclient_t * client)
 
 	//Slicer how about savedTeam ?!
 
-	if (!g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
+	if (!g_RQ3_matchmode.integer && (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)) {
 		//Reset teams on map changes / map_restarts, except on matchmode
 		client->sess.savedTeam = TEAM_SPECTATOR;
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/09/29 16:06:45  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.22  2002/08/26 00:41:53  makro
 // Presets menu + editor
 //
@@ -6104,145 +6107,78 @@ qboolean ItemParse_hideCvar(itemDef_t * item, int handle)
 }
 
 keywordHash_t itemParseKeywords[] = {
-	{"name", ItemParse_name, NULL}
-	,
+	{"name", ItemParse_name, NULL},
 	//Makro - support for shortcut keys
-	{"shortcutkey", ItemParse_shortcutKey, NULL}
-	,
+	{"shortcutkey", ItemParse_shortcutKey, NULL},
 	//Makro - fixed text height for autowrapped items
-	{"textHeight", ItemParse_textHeight, NULL}
-	,
-	{"text", ItemParse_text, NULL}
-	,
-	{"group", ItemParse_group, NULL}
-	,
-	{"asset_model", ItemParse_asset_model, NULL}
-	,
-	{"asset_shader", ItemParse_asset_shader, NULL}
-	,
-	{"model_origin", ItemParse_model_origin, NULL}
-	,
-	{"model_fovx", ItemParse_model_fovx, NULL}
-	,
-	{"model_fovy", ItemParse_model_fovy, NULL}
-	,
-	{"model_rotation", ItemParse_model_rotation, NULL}
-	,
-	{"model_angle", ItemParse_model_angle, NULL}
-	,
+	{"textHeight", ItemParse_textHeight, NULL},
+	{"text", ItemParse_text, NULL},
+	{"group", ItemParse_group, NULL},
+	{"asset_model", ItemParse_asset_model, NULL},
+	{"asset_shader", ItemParse_asset_shader, NULL},
+	{"model_origin", ItemParse_model_origin, NULL},
+	{"model_fovx", ItemParse_model_fovx, NULL},
+	{"model_fovy", ItemParse_model_fovy, NULL},
+	{"model_rotation", ItemParse_model_rotation, NULL},
+	{"model_angle", ItemParse_model_angle, NULL},
 	//Makro - support for 3 angles
-	{"model_angles", ItemParse_model_angles, NULL}
-	,
-	{"rect", ItemParse_rect, NULL}
-	,
-	{"style", ItemParse_style, NULL}
-	,
-	{"decoration", ItemParse_decoration, NULL}
-	,
-	{"notselectable", ItemParse_notselectable, NULL}
-	,
-	{"wrapped", ItemParse_wrapped, NULL}
-	,
-	{"autowrapped", ItemParse_autowrapped, NULL}
-	,
-	{"horizontalscroll", ItemParse_horizontalscroll, NULL}
-	,
-	{"type", ItemParse_type, NULL}
-	,
-	{"elementwidth", ItemParse_elementwidth, NULL}
-	,
-	{"elementheight", ItemParse_elementheight, NULL}
-	,
-	{"feeder", ItemParse_feeder, NULL}
-	,
-	{"elementtype", ItemParse_elementtype, NULL}
-	,
-	{"columns", ItemParse_columns, NULL}
-	,
-	{"border", ItemParse_border, NULL}
-	,
+	{"model_angles", ItemParse_model_angles, NULL},
+	{"rect", ItemParse_rect, NULL},
+	{"style", ItemParse_style, NULL},
+	{"decoration", ItemParse_decoration, NULL},
+	{"notselectable", ItemParse_notselectable, NULL},
+	{"wrapped", ItemParse_wrapped, NULL},
+	{"autowrapped", ItemParse_autowrapped, NULL},
+	{"horizontalscroll", ItemParse_horizontalscroll, NULL},
+	{"type", ItemParse_type, NULL},
+	{"elementwidth", ItemParse_elementwidth, NULL},
+	{"elementheight", ItemParse_elementheight, NULL},
+	{"feeder", ItemParse_feeder, NULL},
+	{"elementtype", ItemParse_elementtype, NULL},
+	{"columns", ItemParse_columns, NULL},
+	{"border", ItemParse_border, NULL},
 	//Makro - for drop shadow effects
-	{"shadowStyle", ItemParse_shadowStyle, NULL}
-	,
-	{"bordersize", ItemParse_bordersize, NULL}
-	,
-	{"visible", ItemParse_visible, NULL}
-	,
-	{"ownerdraw", ItemParse_ownerdraw, NULL}
-	,
-	{"align", ItemParse_align, NULL}
-	,
-	{"textalign", ItemParse_textalign, NULL}
-	,
-	{"textalignx", ItemParse_textalignx, NULL}
-	,
-	{"textaligny", ItemParse_textaligny, NULL}
-	,
-	{"textscale", ItemParse_textscale, NULL}
-	,
-	{"textstyle", ItemParse_textstyle, NULL}
-	,
-	{"backcolor", ItemParse_backcolor, NULL}
-	,
-	{"forecolor", ItemParse_forecolor, NULL}
-	,
-	{"bordercolor", ItemParse_bordercolor, NULL}
-	,
-	{"outlinecolor", ItemParse_outlinecolor, NULL}
-	,
-	{"background", ItemParse_background, NULL}
-	,
-	{"onFocus", ItemParse_onFocus, NULL}
-	,
-	{"leaveFocus", ItemParse_leaveFocus, NULL}
-	,
+	{"shadowStyle", ItemParse_shadowStyle, NULL},
+	{"bordersize", ItemParse_bordersize, NULL},
+	{"visible", ItemParse_visible, NULL},
+	{"ownerdraw", ItemParse_ownerdraw, NULL},
+	{"align", ItemParse_align, NULL},
+	{"textalign", ItemParse_textalign, NULL},
+	{"textalignx", ItemParse_textalignx, NULL},
+	{"textaligny", ItemParse_textaligny, NULL},
+	{"textscale", ItemParse_textscale, NULL},
+	{"textstyle", ItemParse_textstyle, NULL},
+	{"backcolor", ItemParse_backcolor, NULL},
+	{"forecolor", ItemParse_forecolor, NULL},
+	{"bordercolor", ItemParse_bordercolor, NULL},
+	{"outlinecolor", ItemParse_outlinecolor, NULL},
+	{"background", ItemParse_background, NULL},
+	{"onFocus", ItemParse_onFocus, NULL},
+	{"leaveFocus", ItemParse_leaveFocus, NULL},
 	//Makro - for timers
-	{"onTimer", ItemParse_onTimer, NULL}
-	,
-	{"mouseEnter", ItemParse_mouseEnter, NULL}
-	,
-	{"mouseExit", ItemParse_mouseExit, NULL}
-	,
-	{"mouseEnterText", ItemParse_mouseEnterText, NULL}
-	,
-	{"mouseExitText", ItemParse_mouseExitText, NULL}
-	,
-	{"action", ItemParse_action, NULL}
-	,
-	{"special", ItemParse_special, NULL}
-	,
-	{"cvar", ItemParse_cvar, NULL}
-	,
-	{"maxChars", ItemParse_maxChars, NULL}
-	,
-	{"maxPaintChars", ItemParse_maxPaintChars, NULL}
-	,
-	{"focusSound", ItemParse_focusSound, NULL}
-	,
-	{"cvarFloat", ItemParse_cvarFloat, NULL}
-	,
-	{"cvarStrList", ItemParse_cvarStrList, NULL}
-	,
-	{"cvarFloatList", ItemParse_cvarFloatList, NULL}
-	,
-	{"addColorRange", ItemParse_addColorRange, NULL}
-	,
-	{"ownerdrawFlag", ItemParse_ownerdrawFlag, NULL}
-	,
-	{"enableCvar", ItemParse_enableCvar, NULL}
-	,
-	{"cvarTest", ItemParse_cvarTest, NULL}
-	,
-	{"disableCvar", ItemParse_disableCvar, NULL}
-	,
-	{"showCvar", ItemParse_showCvar, NULL}
-	,
-	{"hideCvar", ItemParse_hideCvar, NULL}
-	,
-	{"cinematic", ItemParse_cinematic, NULL}
-	,
-	{"doubleclick", ItemParse_doubleClick, NULL}
-	,
+	{"onTimer", ItemParse_onTimer, NULL},
+	{"mouseEnter", ItemParse_mouseEnter, NULL},
+	{"mouseExit", ItemParse_mouseExit, NULL},
+	{"mouseEnterText", ItemParse_mouseEnterText, NULL},
+	{"mouseExitText", ItemParse_mouseExitText, NULL},
+	{"action", ItemParse_action, NULL},
+	{"special", ItemParse_special, NULL},
+	{"cvar", ItemParse_cvar, NULL},
+	{"maxChars", ItemParse_maxChars, NULL},
+	{"maxPaintChars", ItemParse_maxPaintChars, NULL},
+	{"focusSound", ItemParse_focusSound, NULL},
+	{"cvarFloat", ItemParse_cvarFloat, NULL},
+	{"cvarStrList", ItemParse_cvarStrList, NULL},
+	{"cvarFloatList", ItemParse_cvarFloatList, NULL},
+	{"addColorRange", ItemParse_addColorRange, NULL},
+	{"ownerdrawFlag", ItemParse_ownerdrawFlag, NULL},
+	{"enableCvar", ItemParse_enableCvar, NULL},
+	{"cvarTest", ItemParse_cvarTest, NULL},
+	{"disableCvar", ItemParse_disableCvar, NULL},
+	{"showCvar", ItemParse_showCvar, NULL},
+	{"hideCvar", ItemParse_hideCvar, NULL},
+	{"cinematic", ItemParse_cinematic, NULL},
+	{"doubleclick", ItemParse_doubleClick, NULL},
 	{NULL, NULL, NULL}
 };
 

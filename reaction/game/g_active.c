@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.89  2002/09/24 05:06:16  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -508,7 +511,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 	}
 
 	if (client->sess.spectatorState == SPECTATOR_FREE) {
-		if (g_gametype.integer == GT_CTF && client->sess.spectatorState == SPECTATOR_FREE &&
+		if (g_gametype.integer == GT_CTF && level.team_round_going &&
 			(client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE))
 			client->ps.pm_type = PM_FREEZE;
 		else
@@ -1220,13 +1223,6 @@ void ClientThink_real(gentity_t * ent)
 			if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) && level.time > client->respawnTime) {
 				MakeSpectator(ent);
 			}
-/*			if (g_gametype.integer == GT_CTF) {
-				if (level.time > client->time_of_death + (g_RQ3_ctb_respawndelay.integer * 1000)) {
-					respawn(ent);
-				} else {
-					return;
-				}
-			} */
 			// pressing attack or use is the normal respawn method
 			// JBravo: make'em spactate
 			if (ucmd->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) {
@@ -1243,7 +1239,7 @@ void ClientThink_real(gentity_t * ent)
 	if (g_RQ3_ppl_idletime.integer) {
 		if (ucmd->forwardmove == 0 && ucmd->rightmove == 0) {
 			if (client->idletime) {
-				if (level.time >= client->idletime + (g_RQ3_ppl_idletime.integer *1000)) {
+				if (level.time >= client->idletime + (g_RQ3_ppl_idletime.integer * 1000)) {
 					if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_idleaction.integer == 1 &&
 						(ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
 						trap_SendServerCommand( -1, va("print \"Removing %s^7 from his team for excessive Idling\n\"", 

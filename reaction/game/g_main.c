@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/09/29 16:06:44  jbravo
+// Work done at the HPWorld expo
+//
 // Revision 1.119  2002/09/24 05:06:17  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -338,7 +341,7 @@
 #include "zcam.h"
 #include "q_shared.h"
 
-int trap_RealTime(qtime_t *qtime);
+int trap_RealTime(qtime_t * qtime);
 level_locals_t level;
 
 typedef struct {
@@ -437,15 +440,12 @@ vmCvar_t g_RQ3_twbanrounds;
 vmCvar_t g_RQ3_tkbanrounds;
 vmCvar_t g_RQ3_ppl_idletime;
 vmCvar_t g_RQ3_idleaction;
+vmCvar_t g_RQ3_weaponban;
 vmCvar_t g_RQ3_ctb_respawndelay;
 
-//Slicer: Team Status Cvars for MM
-//vmCvar_t      g_RQ3_team1ready;
-//vmCvar_t      g_RQ3_team2ready;
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
 vmCvar_t g_RQ3_RefPass;
-//vmCvar_t g_RQ3_RefID;
 vmCvar_t g_RQ3_maxRefs;
 
 // aasimon: ini stuff
@@ -473,6 +473,7 @@ vmCvar_t g_RQ3_cvarfile;
 
 //Makro - for server browsers
 vmCvar_t g_RQ3_version;
+
 //Makro - max votes per client
 vmCvar_t g_RQ3_maxClientVotes;
 
@@ -489,7 +490,6 @@ static cvarTable_t gameCvarTable[] = {
 
 	// latched vars
 	{&g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse},
-
 	{&g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 	{&g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse},
 
@@ -498,29 +498,19 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{&g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{&g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
-
 	{&g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse},
-
 	{&g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue},
-
 	{&g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE},
 	{&g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE},
-
 	{&g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue},
 	{&g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue},
 	{&g_log, "g_log", "reaction.log", CVAR_ARCHIVE, 0, qfalse},
 	{&g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse},
-
 	{&g_password, "g_password", "", CVAR_USERINFO, 0, qfalse},
-
 	{&g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse},
 	{&g_filterBan, "g_filterBan", "1", CVAR_ARCHIVE, 0, qfalse},
-
 	{&g_needpass, "g_needpass", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse},
-
 	{&g_dedicated, "dedicated", "0", 0, 0, qfalse},
-
-	// Elder: slow down to 300?
 	{&g_speed, "g_speed", "300", 0, 0, qtrue},	// was 320
 	{&g_gravity, "g_gravity", "800", CVAR_SYSTEMINFO, 0, qtrue},	// shared with client (cg_gravity)
 	{&g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue},
@@ -533,7 +523,6 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse},
 	{&g_motd, "g_motd", "", 0, 0, qfalse},
 	{&g_blood, "com_blood", "1", 0, 0, qfalse},
-
 	{&g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse},
 	{&g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse},
 
@@ -549,7 +538,6 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
-
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
@@ -595,6 +583,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
@@ -785,10 +774,15 @@ void G_RegisterCvars(void)
 	}
 // JBravo: lets disable the untested modes.
 	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
-			g_gametype.integer != GT_TOURNAMENT) {
+	    g_gametype.integer != GT_TOURNAMENT) {
 		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");
+	}
+
+	if (g_gametype.integer == GT_CTF) {
+		trap_Cvar_Set("g_RQ3_team1name", "SILVER");
+		trap_Cvar_Set("g_RQ3_team2name", "BLACK");
 	}
 
 	level.warmupModificationCount = g_warmup.modificationCount;
@@ -882,14 +876,12 @@ void RQ3_loadmodels(void)
 			dirptr[dirlen - 1] = '\0';
 		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
 			continue;
-//		Com_Printf("models (%s)\n", dirptr);
 		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
 		if (file) {
 			trap_FS_Read(buf, len, file);
 			buf[len] = 0;
 			text_p = buf;
 			trap_FS_FCloseFile(file);
-//			Com_Printf("Adding %s as a legit model\n", dirptr);
 			Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
 			for (j = 0; j < 3; j++) {
 				token = COM_Parse(&text_p);
@@ -1077,7 +1069,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 // JBravo: reset teamplay stuff.
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
-
 		//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
 		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
@@ -1109,7 +1100,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.team1respawn = level.team2respawn = 0;
 	}
 // Slicer: reset matchmode vars
-	if (g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
+	if (g_RQ3_matchmode.integer && (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)) {
 		level.matchTime = 0;
 		level.inGame = qfalse;
 		level.team1ready = qfalse;
@@ -1604,7 +1595,6 @@ void FindIntermissionPoint(void)
 			}
 		}
 	}
-
 }
 
 /*
@@ -1621,7 +1611,7 @@ void BeginIntermission(void)
 		return;		// already active
 	}
 
-	if ( g_RQ3_ValidIniFile.integer == 1 )
+	if (g_RQ3_ValidIniFile.integer == 1)
 		trap_SendServerCommand(-1, va("print \"Next map in rotation is %s\n\"", g_RQ3_NextMap.string));
 
 	// if in tournement mode, change the wins / losses
@@ -1723,7 +1713,6 @@ void ExitLevel(void)
 			level.clients[i].pers.connected = CON_CONNECTING;
 		}
 	}
-
 }
 
 /*
@@ -1787,16 +1776,17 @@ void LogExit(const char *string)
 	int i, numSorted;
 	gclient_t *cl;
 	qtime_t now;
-	char* names_day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-	char* names_month[] = { "January", "February", "March", "April", "May", "June", "July", "August",
-				"September", "October", "November", "December" };
+	char *names_day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+	char *names_month[] = { "January", "February", "March", "April", "May", "June", "July", "August",
+		"September", "October", "November", "December" };
 
 	trap_RealTime(&now);
-	G_LogPrintf("Game ending at %s %i %s %i %02i:%02i:%02i : %s\n", names_day[now.tm_wday], now.tm_mday, names_month[now.tm_mon],
-			(now.tm_year)+1900, now.tm_hour, now.tm_min, now.tm_sec, string);
-	trap_SendServerCommand(-1, va("print \"Game ending at %s %i %s %i %i:%i:%i.\n\"", names_day[now.tm_wday],
-			now.tm_mday, names_month[now.tm_mon], (now.tm_year)+1900, now.tm_hour,
-			now.tm_min, now.tm_sec, string));
+	G_LogPrintf("Game ending at %s %i %s %i %02i:%02i:%02i : %s\n", names_day[now.tm_wday], now.tm_mday,
+		    names_month[now.tm_mon], (now.tm_year) + 1900, now.tm_hour, now.tm_min, now.tm_sec, string);
+	trap_SendServerCommand(-1,
+			       va("print \"Game ending at %s %i %s %i %i:%i:%i.\n\"", names_day[now.tm_wday],
+				  now.tm_mday, names_month[now.tm_mon], (now.tm_year) + 1900, now.tm_hour, now.tm_min,
+				  now.tm_sec, string));
 
 	level.intermissionQueued = level.time;
 
@@ -1906,49 +1896,9 @@ and then, if a player presses BUTTON_ATTACK, change the map
 */
 void CheckIntermissionExit(void)
 {
-//      int                     ready, notReady;
 	int i;
 	gclient_t *cl;
 
-//      int                     readyMask;
-
-/*	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	// see which players are ready
-	ready = 0;
-	notReady = 0;
-	readyMask = 0;
-	for (i=0 ; i< g_maxclients.integer ; i++) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
-			continue;
-		}
-
-		if ( cl->readyToExit ) {
-			ready++;
-			if ( i < 16 ) {
-				readyMask |= 1 << i;
-			}
-		} else {
-			notReady++;
-		}
-	}
-
-	// copy the readyMask to each player's stats so
-	// it can be displayed on the scoreboard
-	for (i=0 ; i< g_maxclients.integer ; i++) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
-	}
-*/
 	// never exit in less than five seconds
 	if (level.time < level.intermissiontime + 5000) {
 		return;
@@ -1968,33 +1918,6 @@ void CheckIntermissionExit(void)
 		if (g_entities[cl->ps.clientNum].client->buttons & BUTTON_ATTACK)
 			ExitLevel();
 	}
-/*
-	// if nobody wants to go, clear timer
-	if ( !ready ) {
-		level.readyToExit = qfalse;
-		return;
-	}
-
-	// if everyone wants to go, go now
-	if ( !notReady ) {
-		ExitLevel();
-		return;
-	}
-
-	// the first person to ready starts the ten second timeout
-	if ( !level.readyToExit ) {
-		level.readyToExit = qtrue;
-		level.exitTime = level.time;
-	}
-
-	// if we have waited ten seconds since at least one player
-	// wanted to exit, go ahead
-	if ( level.time < level.exitTime + 10000 ) {
-		return;
-	}
-
-	ExitLevel();
-	*/
 }
 
 /*
@@ -2075,15 +1998,6 @@ void CheckExitRules(void)
 		return;
 	}
 
-	// check for sudden death
-	// NiceAss: Not needed in any RQ3 variant?
-	/*
-	if (ScoreIsTied()) {
-		// always wait for sudden death
-		return;
-	}
-	*/
-
 	if (g_timelimit.integer && !level.warmupTime) {
 		if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
@@ -2141,7 +2055,6 @@ void CheckExitRules(void)
 			return;
 		}
 	}
-
 }
 
 /*
@@ -2268,11 +2181,11 @@ void CheckVote(void)
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
 		level.voteExecuteTime = 0;
 		if (Q_stricmp(level.voteString, "cyclemap") == 0)
- 			BeginIntermission();
+			BeginIntermission();
 		else if (Q_stricmp(level.voteString, "map") == 0) {
-				trap_Cvar_Set("g_RQ3_ValidIniFile", "2");  // check this latter. This trap may not be necessary 
-				g_RQ3_ValidIniFile.integer = 2;
-				BeginIntermission();
+			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");	// check this latter. This trap may not be necessary 
+			g_RQ3_ValidIniFile.integer = 2;
+			BeginIntermission();
 		} else if (Q_stricmp(level.voteString, "g_gametype") == 0) {
 			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
@@ -2299,7 +2212,6 @@ void CheckVote(void)
 	}
 	level.voteTime = 0;
 	trap_SetConfigstring(CS_VOTE_TIME, "");
-
 }
 
 /*
@@ -2425,7 +2337,6 @@ void CheckTeamVote(int team)
 	}
 	level.teamVoteTime[cs_offset] = 0;
 	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
-
 }
 
 /*
@@ -2482,20 +2393,18 @@ Advances the non-player objects in the world
 */
 void G_RunFrame(int levelTime)
 {
-	int i;
 	gentity_t *ent;
-
-	//Blaze: Used for droping knifes
-	//gitem_t               *xr_item;
-	//gentity_t     *xr_drop;
-	//int                   temp;
-	int msec;
-	int start, end;
+	int i, msec, start, end;
 
 	// if we are waiting for the level to restart, do nothing
 	if (level.restarted) {
 		return;
 	}
+
+/*	if (g_gametype.integer == GT_CTF && g_RQ3_matchmode.integer && level.team_round_going &&
+			(!level.team1ready || !level.team2ready || level.paused)) {
+		return;
+	} */
 
 	level.framenum++;
 	level.previousTime = level.time;
@@ -2517,33 +2426,13 @@ void G_RunFrame(int levelTime)
 		// clear events that are too old
 		if (level.time - ent->eventTime > EVENT_VALID_MSEC) {
 			if (ent->s.event) {
-				//G_Printf("Discarded: %i\n", ent->s.event & ~EV_EVENT_BITS);
 				ent->s.event = 0;	// &= EV_EVENT_BITS;
 				if (ent->client) {
 					ent->client->ps.externalEvent = 0;
-					// predicted events should never be set to zero
-					//ent->client->ps.events[0] = 0;
-					//ent->client->ps.events[1] = 0;
 				}
 			}
 			if (ent->freeAfterEvent) {
-				//Elder: moved to g_missile.c where it belongs
-				// tempEntities or dropped items completely go away after their event
-				//if (!strcmp(ent->classname,"weapon_knife"))
-				//{
-				/*
-				   xr_item = BG_FindItemForWeapon( WP_KNIFE );
-				   //Elder: removed
-				   //xr_drop= dropWeapon( ent, xr_item, 0,  FL_THROWN_ITEM );//FL_DROPPED_ITEM |
-				   xr_drop = LaunchItem(xr_item, ent->s.pos.trBase, 0, FL_THROWN_KNIFE);
-
-				   G_FreeEntity( ent );
-				 */
-				//}
-				//else
-				//{
 				G_FreeEntity(ent);
-				//}
 				continue;
 			} else if (ent->unlinkAfterEvent) {
 				// items that will respawn will hide themselves after their pickup event
@@ -2574,13 +2463,6 @@ void G_RunFrame(int levelTime)
 			G_RunMover(ent);
 			continue;
 		}
-		/*
-		// Elder: run dynamic lights
-		if (ent->s.eType == ET_DLIGHT) {
-			G_RunDlight(ent);
-			continue;
-		}
-		*/
 
 		if (i < MAX_CLIENTS) {
 			G_RunClient(ent);	// Basicly calls ClientThink_real()
@@ -2607,11 +2489,7 @@ void G_RunFrame(int levelTime)
 		CheckTournament();
 	}
 	// see if it is time to end the level
-	// JBravo: no need if teamplay
-	// Slicer: We will need it now for the rotation system..
-//      if ( g_gametype.integer != GT_TEAMPLAY ) {
 	CheckExitRules();
-//      }
 
 	// update to team status?
 	// JBravo: no need if teamplay
@@ -2621,8 +2499,8 @@ void G_RunFrame(int levelTime)
 	// cancel vote if timed out
 	CheckVote();
 
-	// JBravo: this is the main function in g_teamplay that does everything
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	// JBravo: this is the main function in g_teamplay that does everything for TP and CTB
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		CheckTeamRules();
 	}
 	// Slicer: matchmode
@@ -2722,13 +2600,12 @@ void RQ3_ReadInitFile()
 	char *buf;
 	int len;
 
-	if ( g_RQ3_ValidIniFile.integer == 3 ){		
-		trap_Cvar_Set( "g_RQ3_ValidIniFile", "1");
+	if (g_RQ3_ValidIniFile.integer == 3) {
+		trap_Cvar_Set("g_RQ3_ValidIniFile", "1");
 		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteMap));
 		return;
-	}else
-	if ( g_RQ3_ValidIniFile.integer == 2 ){
-		trap_Cvar_Set( "g_RQ3_ValidIniFile", "1");
+	} else if (g_RQ3_ValidIniFile.integer == 2) {
+		trap_Cvar_Set("g_RQ3_ValidIniFile", "1");
 		trap_SendConsoleCommand(EXEC_APPEND, va("%s %s\n", level.voteString, level.voteMap));
 		return;
 	}
@@ -2775,7 +2652,6 @@ void RQ3_ParseBuffer(char *buf, int len)
 				return;
 
 			// now we found a tag, so we start loading parameters for the kind of tag
-
 			if (RQ3_ParseBlock(tag_type, tag, &cur_pos, buf, len) == PARSING_ERROR)
 				return;
 		}
@@ -2783,9 +2659,6 @@ void RQ3_ParseBuffer(char *buf, int len)
 
 	G_Printf("RQ3 config system: Finished loading the ini File\n");
 	return;
-
-	// Can't go here
-	//G_Printf ( "RQ3 config system: Invalid init file\n" );
 }
 
 int RQ3_GetTag(char *buf, int *cur_pos, char *tag, int len)
@@ -2912,8 +2785,6 @@ int RQ3_ParseBlock(int tag_type, char *tag, int *cur_pos, char *buf, int len)
 				if (RQ3_GetTag(buf, cur_pos, tag, len) == MAP) {
 					G_Printf("RQ3 config system: Prossessing block <map>\n");
 					// Process the map block here
-					// G_Printf ("RQ3 config system: g_RQ3_NextMapID is: %d and map_number is: %d \n", g_RQ3_NextMapID.integer, map_number);
-
 					if (RQ3_GetWord(buf, cur_pos, word_buff, len) == TOKEN_TAG)
 						if (RQ3_CheckClosingTag(buf, cur_pos, MAP, len) == PARSING_OK) {
 							map_number++;
@@ -2993,7 +2864,6 @@ int RQ3_GetWord(char *buf, int *cur_pos, char *word, int len)
 {
 	int count;
 
-//      for (;; (*cur_pos)++) {
 	for (;;) {
 		if (*(buf + *cur_pos) == '"') {
 			count = 0;
@@ -3027,7 +2897,6 @@ int RQ3_GetWord(char *buf, int *cur_pos, char *word, int len)
 			break;
 		}
 	}
-//      }
 	return TOKEN_WORD;
 }
 
@@ -3037,7 +2906,6 @@ int RQ3_GetCommand(char *buf, int *cur_pos, char *cvar, char *value, int len)
 	int state = NONE;
 	int count;
 
-//      for (;; (*cur_pos)++) {
 	for (;;) {
 		if (*(buf + *cur_pos) == '<')	// closing block
 			return TOKEN_TAG;
@@ -3084,8 +2952,6 @@ int RQ3_GetCommand(char *buf, int *cur_pos, char *cvar, char *value, int len)
 			return TOKEN_CVAR;
 		}
 	}
-
-//}
 }
 
 char *known_tags[] = { "main", "rotation", "map", "cvars", "team1", "team2" };
