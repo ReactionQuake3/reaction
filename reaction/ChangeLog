@@ -20,4 +20,7 @@
 * Scoreboard no longer shows who's dead and whos not while you are alive.
 * Added the 'lens' sound when using "unzoom" for SSG
 * Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
+* Added $P for last damaged player
+* Fixed a model bug for team 2
+* changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and made it control what $K does
 
