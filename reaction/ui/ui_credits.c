@@ -128,6 +128,8 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "MALCOLM BECHARD (TSUNAMI)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SCOTT BROOKS (BLAZE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "VICTOR CHOW (ELDER_MMHS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "BRYCE HUTCHINGS (NICEASS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "RICHARD ALLEN (JBRAVO)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // Additional programming -- snippets
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -135,7 +137,6 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "MICHAEL BRUCE (AGTORANGE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "DAN CHIN (LT. HAWKINS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MIKE CONNOR (HOMER)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "BRYCE HUTCHINGS (NICEASS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 
 // Artwork - models, textures, whatever
