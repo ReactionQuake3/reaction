@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2003/03/08 10:02:23  niceass
+// CTB briefcases in 3rd person now utilize tag_weapon2
+//
 // Revision 1.55  2002/10/26 22:03:42  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -836,8 +839,8 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 	if (ci->torsoModel) {
 		orientation_t tag;
 
-		// if the torso model has the "tag_flag"
-		if (trap_R_LerpTag(&tag, ci->torsoModel, 0, 0, 1, "tag_flag")) {
+		// NiceAss: if the torso model has the "tag_weapon2" (akimbo & briefcase)
+		if (trap_R_LerpTag(&tag, ci->torsoModel, 0, 0, 1, "tag_weapon2")) {
 			ci->newAnims = qtrue;
 		}
 	}
@@ -2008,113 +2011,32 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel, refEntity_t *torso)
 /*
 ===============
 CG_PlayerFlag
+100% recoded by the one and only NiceAss
 ===============
 */
-static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * torso)
+static void CG_PlayerFlag(centity_t * cent, qhandle_t hModel, refEntity_t * torso)
 {
-	clientInfo_t *ci;
-	refEntity_t pole;
-	refEntity_t flag;
-	vec3_t angles, dir;
-	int legsAnim, flagAnim, updateangles;
-	float angle, d;
+	vec3_t angles, offset;
+	refEntity_t	flag;
 
 	// show the flag pole model
-	memset(&pole, 0, sizeof(pole));
-	pole.hModel = cgs.media.flagPoleModel;
-	VectorCopy(torso->lightingOrigin, pole.lightingOrigin);
-	pole.shadowPlane = torso->shadowPlane;
-	pole.renderfx = torso->renderfx;
-	CG_PositionEntityOnTag(&pole, torso, torso->hModel, "tag_flag");
-	trap_R_AddRefEntityToScene(&pole);
-
-	// show the flag model
 	memset(&flag, 0, sizeof(flag));
-	flag.hModel = cgs.media.flagFlapModel;
-	flag.customSkin = hSkin;
+
+	flag.hModel = hModel;
+
 	VectorCopy(torso->lightingOrigin, flag.lightingOrigin);
 	flag.shadowPlane = torso->shadowPlane;
 	flag.renderfx = torso->renderfx;
+	flag.nonNormalizedAxes = qtrue;
 
-	VectorClear(angles);
-
-	updateangles = qfalse;
-	legsAnim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
-	if (legsAnim == LEGS_IDLE || legsAnim == LEGS_IDLECR) {
-		flagAnim = FLAG_STAND;
-	} else if (legsAnim == LEGS_WALK || legsAnim == LEGS_WALKCR) {
-		flagAnim = FLAG_STAND;
-		updateangles = qtrue;
-	} else {
-		flagAnim = FLAG_RUN;
-		updateangles = qtrue;
-	}
-
-	if (updateangles) {
-
-		VectorCopy(cent->currentState.pos.trDelta, dir);
-		// add gravity
-		dir[2] += 100;
-		VectorNormalize(dir);
-		d = DotProduct(pole.axis[2], dir);
-		// if there is anough movement orthogonal to the flag pole
-		if (fabs(d) < 0.9) {
-			//
-			d = DotProduct(pole.axis[0], dir);
-			if (d > 1.0f) {
-				d = 1.0f;
-			} else if (d < -1.0f) {
-				d = -1.0f;
-			}
-			angle = acos(d);
-
-			d = DotProduct(pole.axis[1], dir);
-			if (d < 0) {
-				angles[YAW] = 360 - angle * 180 / M_PI;
-			} else {
-				angles[YAW] = angle * 180 / M_PI;
-			}
-			if (angles[YAW] < 0)
-				angles[YAW] += 360;
-			if (angles[YAW] > 360)
-				angles[YAW] -= 360;
-
-			//vectoangles( cent->currentState.pos.trDelta, tmpangles );
-			//angles[YAW] = tmpangles[YAW] + 45 - cent->pe.torso.yawAngle;
-			// change the yaw angle
-			CG_SwingAngles(angles[YAW], 25, 90, 0.15f, &cent->pe.flag.yawAngle, &cent->pe.flag.yawing);
-		}
-
-		/*
-		   d = DotProduct(pole.axis[2], dir);
-		   angle = Q_acos(d);
-
-		   d = DotProduct(pole.axis[1], dir);
-		   if (d < 0) {
-		   angle = 360 - angle * 180 / M_PI;
-		   }
-		   else {
-		   angle = angle * 180 / M_PI;
-		   }
-		   if (angle > 340 && angle < 20) {
-		   flagAnim = FLAG_RUNUP;
-		   }
-		   if (angle > 160 && angle < 200) {
-		   flagAnim = FLAG_RUNDOWN;
-		   }
-		 */
-	}
-	// set the yaw angle
-	angles[YAW] = cent->pe.flag.yawAngle;
-	// lerp the flag animation frames
-	ci = &cgs.clientinfo[cent->currentState.clientNum];
-	CG_RunLerpFrame(ci, &cent->pe.flag, flagAnim, 1, qfalse);
-	flag.oldframe = cent->pe.flag.oldFrame;
-	flag.frame = cent->pe.flag.frame;
-	flag.backlerp = cent->pe.flag.backlerp;
-
+	angles[YAW] = 0;
+	angles[PITCH] = 0;
+	angles[ROLL] = 90;
 	AnglesToAxis(angles, flag.axis);
-	CG_PositionRotatedEntityOnTag(&flag, &pole, pole.hModel, "tag_flag");
+
+	// Evil hardcoded offsets!
+	VectorSet( offset, -4, 0, -7 );
+	CG_PositionRotatedOffsetEntityOnTag( &flag, torso, torso->hModel, "tag_weapon2", offset );
 
 	trap_R_AddRefEntityToScene(&flag);
 }
@@ -2137,7 +2059,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	// redflag
 	if (powerups & (1 << PW_REDFLAG)) {
 		if (ci->newAnims) {
-			CG_PlayerFlag(cent, cgs.media.redFlagFlapSkin, torso);
+			CG_PlayerFlag(cent, cgs.media.redFlagModel, torso);
 		} else {
 			CG_TrailItem(cent, cgs.media.redFlagModel, torso);
 		}
@@ -2147,7 +2069,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	// blueflag
 	if (powerups & (1 << PW_BLUEFLAG)) {
 		if (ci->newAnims) {
-			CG_PlayerFlag(cent, cgs.media.blueFlagFlapSkin, torso);
+			CG_PlayerFlag(cent, cgs.media.blueFlagModel, torso);
 		} else {
 			CG_TrailItem(cent, cgs.media.blueFlagModel, torso);
 		}
@@ -2157,7 +2079,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	// neutralflag
 	if (powerups & (1 << PW_NEUTRALFLAG)) {
 		if (ci->newAnims) {
-			CG_PlayerFlag(cent, cgs.media.neutralFlagFlapSkin, torso);
+			CG_PlayerFlag(cent, cgs.media.neutralFlagModel, torso);
 		} else {
 			CG_TrailItem(cent, cgs.media.neutralFlagModel, torso);
 		}
