@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/08/21 03:45:36  niceass
+// enhanced particle system that supports bouncing
+//
 // Revision 1.12  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -344,6 +347,10 @@ typedef struct particle_s {
 
 	int accumroll;
 
+	// reflection stuff
+	float reflectdistance;
+	vec3_t reflectnormal;
+	float mtime;
 } cparticle_t;
 
 typedef enum {
@@ -1051,12 +1058,16 @@ void CG_AddParticles(void)
 {
 	cparticle_t *p, *next;
 	float alpha;
-	float time, time2;
+	float time, time2, mtime, mtime2;
 	vec3_t org;
 	int color;
 	cparticle_t *active, *tail;
 	int type;
 	vec3_t rotate_ang;
+
+	trace_t tr;
+	vec3_t dist, end;
+	float dot;
 
 	if (!initparticles)
 		CG_ClearParticles();
@@ -1080,6 +1091,7 @@ void CG_AddParticles(void)
 		next = p->next;
 
 		time = (cg.time - p->time) * 0.001;
+		mtime = (cg.time - p->mtime) * 0.001;
 
 		alpha = p->alpha + time * p->alphavel;
 		if (alpha <= 0) {	// faded out
@@ -1153,14 +1165,51 @@ void CG_AddParticles(void)
 		color = p->color;
 
 		time2 = time * time;
+		mtime2 = mtime * mtime;
 
-		org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;
-		org[1] = p->org[1] + p->vel[1] * time + p->accel[1] * time2;
-		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
+		if (p->mtime) {
+			org[0] = p->org[0] + p->vel[0] * mtime + p->accel[0] * mtime2;
+			org[1] = p->org[1] + p->vel[1] * mtime + p->accel[1] * mtime2;
+			org[2] = p->org[2] + p->vel[2] * mtime + p->accel[2] * mtime2;
+		}
+		else {
+			org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;
+			org[1] = p->org[1] + p->vel[1] * time + p->accel[1] * time2;
+			org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
+		}
 
 		type = p->type;
 
 		CG_AddParticleToScene(p, org, alpha);
+
+		VectorSubtract(org, p->org, dist);
+
+		if ( VectorLength( dist ) > p->reflectdistance - 15 && p->reflectdistance ) {
+			float length;
+			length = VectorLength(p->vel);
+			// reflection stuff
+			p->vel[0] += (rand() % 200) - 100;
+			p->vel[1] += (rand() % 200) - 100;
+			p->vel[2] += (rand() % 200) - 100;
+
+			VectorNormalize(p->vel);
+			VectorScale(p->vel, length, p->vel);
+
+			//dot = DotProduct(p->vel, p->reflectnormal);
+			//VectorMA(p->vel, -2 * dot, p->reflectnormal, p->vel);
+
+			PM_ClipVelocity(p->vel, p->reflectnormal, p->vel, 1.2);
+			VectorCopy(org, p->org);
+
+			VectorMA(org, 300, p->vel, end);
+			CG_Trace(&tr, org, NULL, NULL, end, 0, MASK_SOLID);
+
+			VectorSubtract(org, tr.endpos, dist);
+			p->reflectdistance = VectorLength(dist);
+			VectorCopy(tr.plane.normal, p->reflectnormal);
+
+			p->mtime = cg.time;
+		}
 	}
 
 	active_particles = active;
@@ -2215,6 +2264,7 @@ void CG_ParticleAir(vec3_t org, vec3_t vel, int duration, float alpha, float spe
 	p->next = active_particles;
 	active_particles = p;
 	p->time = cg.time;
+	p->mtime = cg.time;
 
 	p->endtime = cg.time + duration;
 	p->startfade = cg.time + duration / 1.5;
@@ -2252,6 +2302,8 @@ void CG_ParticleAir(vec3_t org, vec3_t vel, int duration, float alpha, float spe
 
 void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader)
 {
+	trace_t		tr;
+	vec3_t		end, dist;
 	cparticle_t *p;
 
 	if (!free_particles)
@@ -2261,6 +2313,7 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	p->next = active_particles;
 	active_particles = p;
 	p->time = cg.time;
+	p->mtime = cg.time;
 
 	p->endtime = cg.time + duration;
 	p->startfade = cg.time;
@@ -2286,11 +2339,15 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	p->vel[1] = vel[1] * speed;
 	p->vel[2] = vel[2] * speed;
 
-	p->accel[0] = 0;
-	p->accel[1] = 0;
-	p->accel[2] = 100;
-
 	p->vel[0] += (crandom() * 12);
 	p->vel[1] += (crandom() * 12);
 	p->vel[2] += (crandom() * 12);
+
+	// reflection stuff
+	VectorMA(org, 300, p->vel, end);
+	CG_Trace(&tr, org, NULL, NULL, end, 0, MASK_SOLID);
+
+	VectorSubtract(org, tr.endpos, dist);
+	p->reflectdistance = VectorLength(dist);
+	VectorCopy(tr.plane.normal, p->reflectnormal);
 }
