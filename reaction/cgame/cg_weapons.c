@@ -1762,6 +1762,11 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
 	//Elder: added to prevent weapon switching while bandaging
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are too busy bandaging...\n");
@@ -1829,6 +1834,16 @@ The current weapon has just run out of ammo
 */
 void CG_OutOfAmmoChange( void ) {
 	int		i;
+
+
+	if (!cg.snap)
+		return;
+
+	//Select the pistol when we run out of grenades or knives
+	if (cg.snap->ps.weapon == WP_KNIFE || cg.snap->ps.weapon == WP_GRENADE) {
+		cg.weaponSelectTime = cg.time;
+		cg.weaponSelect = WP_PISTOL;
+	}
 
 	/* Elder: disable auto-switch
 	cg.weaponSelectTime = cg.time;
@@ -2274,9 +2289,12 @@ SHOTGUN TRACING
 /*
 ================
 CG_ShotgunPellet
+
+Elder: added shellWeapon param
+We are not going to show every HC impact
 ================
 */
-static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum ) {
+static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWeapon ) {
 	trace_t		tr;
 	int sourceContentType, destContentType;
 
@@ -2316,10 +2334,21 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum ) {
 		}
 		if ( tr.surfaceFlags & SURF_METALSTEPS ) {
 			//Blaze: Changed WP_SHOTGUN to WP_M3
-			CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
+			}				
 		} else {
 			//Blaze: Changed WP_SHOTGUN to WP_M3
-			CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
+			}
+			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
 		}
 	}
 }
@@ -2372,6 +2401,8 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 		}
 		else
 		{
+			//Elder: fill in shotType
+			shotType = WP_HANDCANNON;
 			r = crandom() * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
 			u = crandom() * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
 //			r = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
@@ -2380,7 +2411,7 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 		VectorMA (end, r, right, end);
 		VectorMA (end, u, up, end);
 
-		CG_ShotgunPellet( origin, end, otherEntNum );
+		CG_ShotgunPellet( origin, end, otherEntNum, shotType );
 	}
 }
 

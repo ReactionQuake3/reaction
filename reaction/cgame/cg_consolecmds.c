@@ -36,6 +36,11 @@ static void CG_DropWeapon_f (void) {
 		return;
 	}
 
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
 	///Elder: spectator?
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
@@ -50,11 +55,18 @@ static void CG_DropWeapon_f (void) {
 =================
 CG_Bandage_f
 
-Elder: reset local zoom, then proceed with server action
+Elder:
+check cases that are possible before sending
+the client command to reduce bandwidth use slightly
 =================
 */
 static void CG_Bandage_f (void) {
 	if ( !cg.snap ) {
+		return;
+	}
+
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
 		return;
 	}
 
@@ -69,12 +81,6 @@ static void CG_Bandage_f (void) {
 		return;
 	}
 
-	//Elder: added to prevent bandaging while reloading or firing
-	if ( cg.snap->ps.weaponTime > 0 ) {
-		CG_Printf("You are too busy with your weapon!\n");
-		return;
-	}
-
 	//if (cg.snap->ps.stats[STAT_BANDAGE]) {
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are already bandaging!\n");
@@ -82,6 +88,14 @@ static void CG_Bandage_f (void) {
 		//cg.zoomLevel = 0;
 		return;
 	}
+
+	//Elder: added to prevent bandaging while reloading or firing
+	//Moved below "already-bandaging" case and removed message
+	if ( cg.snap->ps.weaponTime > 0 ) {
+		//CG_Printf("You are too busy with your weapon!\n");
+		return;
+	}
+	
 	//else if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
 		//cg.zoomed = 0;
 		//cg.zoomLevel = 0;
@@ -101,6 +115,11 @@ static void CG_Reload_f (void) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	
 	if ( !cg.snap ) {
+		return;
+	}
+
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
 		return;
 	}
 

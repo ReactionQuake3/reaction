@@ -60,6 +60,7 @@ CG_Obituary
 */
 static void CG_Obituary( entityState_t *ent ) {
 	int			mod;
+	int			n; //Elder: for random messages
 	int			target, attacker;
 	char		*message;
 	char		*message2;
@@ -102,10 +103,17 @@ static void CG_Obituary( entityState_t *ent ) {
 		message = "suicides";
 		break;
 	case MOD_FALLING:
-		message = "'s thoughts weren't happy enough";
+		//message = "'s thoughts weren't happy enough";
+		//Elder: changed
+		if ( gender == GENDER_FEMALE )
+			message = "plummets to her death";
+		else if ( gender == GENDER_NEUTER )
+			message = "plummets to its death";
+		else
+			message = "plummets to his death";
 		break;
 	case MOD_CRUSH:
-		message = "was squished";
+		message = "was flattened";
 		break;
 	case MOD_WATER:
 		message = "sank like a rock";
@@ -123,7 +131,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		message = "was in the wrong place";
 		break;
 	case MOD_BLEEDING:
-		message = "bled to death";
+		message = "bleeds to death";
 		break;
 	default:
 		message = NULL;
@@ -140,12 +148,21 @@ static void CG_Obituary( entityState_t *ent ) {
 #endif
 		case MOD_GRENADE_SPLASH:
 			if ( gender == GENDER_FEMALE )
+				message = "didn't throw her grenade far enough";
+			else if (gender == GENDER_NEUTER)
+				message = "didn't throw its grenade far enough";
+			else
+				message = "didn't throw his grenade far enough";
+			break;
+			/*
+			if ( gender == GENDER_FEMALE )
 				message = "tripped on her own grenade";
 			else if ( gender == GENDER_NEUTER )
 				message = "tripped on its own grenade";
 			else
 				message = "tripped on his own grenade";
 			break;
+			*/
 		case MOD_ROCKET_SPLASH:
 			if ( gender == GENDER_FEMALE )
 				message = "blew herself up";
@@ -296,8 +313,247 @@ static void CG_Obituary( entityState_t *ent ) {
 			message = "was juiced by";
 			break;
 #endif
+		//Elder: added
+		case MOD_FALLING:
+			message = "was taught how to fly by";
+			break;
 		case MOD_PISTOL:
-			message = "has a hole in his head from";
+			message = "was shot by";
+            message2 = "'s Mark 23 Pistol";
+			break;
+		case MOD_M4:
+			message = "was shot by";
+			message2 = "'s M4 Assault Rifle";
+			break;
+		case MOD_MP5:
+			message = "was shot by";
+			message2 = "'s MP5/10 Submachinegun";
+			break;
+		case MOD_AKIMBO:
+			message = "was shot by";
+			message2 = "'s pair of Mark 23 Pistols";
+			break;
+		case MOD_M3:
+			n = rand() % 2 + 1;
+			if (n == 1)
+            {
+				message = "accepts"; 
+				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+			}
+            else
+            {
+				message = "is full of buckshot from"; 
+				message2 = "'s M3 Super 90 Assault Shotgun";
+			}
+			break;
+		case MOD_HANDCANNON:
+			n = rand() % 2 + 1;
+			if (n == 1)
+            {
+				message = "ate"; 
+				message2 = "'s sawed-off 12 gauge";
+			}
+            else
+            {
+				message = "is full of buckshot from"; 
+				message2 = "'s sawed off shotgun";
+			}
+			break;
+		case MOD_SNIPER:
+			message = "was sniped by";
+			break;
+		case MOD_KICK:
+			n = rand() % 3 + 1;
+			if (n == 1)
+            {
+				if (gender == GENDER_NEUTER)
+               		message = "got its ass kicked by";
+				else if (gender == GENDER_FEMALE)
+					message = "got her ass kicked by";
+				else
+					message = "got his ass kicked by";
+			}
+			else if (n == 2)
+			{
+				message = "couldn't remove";
+				if (gender == GENDER_NEUTER)
+					message2 = "'s boot from its ass";
+				else if (gender == GENDER_FEMALE)
+					message2 = "'s boot from her ass";
+				else
+					message2 = "'s boot from his ass";
+            }
+			else
+			{
+				if (gender == GENDER_NEUTER)
+					message = "had a Bruce Lee put on it by"; 
+				else if (gender == GENDER_FEMALE)
+					message = "had a Bruce Lee put on her by";                                      
+				else
+					message = "had a Bruce Lee put on him by";
+				message2 = ", with a quickness";
+			}
+			break;
+		case MOD_KNIFE:
+			message = "was slashed apart by";
+			message2 = "'s Combat Knife";
+			break;
+		case MOD_KNIFE_THROWN:
+			message = " was hit by";
+			message2 = "'s flying Combat Knife";
+			break;
+		case MOD_TELEFRAG:
+			message = "tried to invade";
+			message2 = "'s personal space";
+			break;
+		default:
+			message = "was killed by";
+			break;
+		}
+
+		if (message) {
+			CG_Printf( "%s %s %s%s\n", 
+				targetName, message, attackerName, message2);
+			return;
+		}
+	}
+
+	// we don't know what it was
+	CG_Printf( "%s died.\n", targetName );
+}
+
+/*
+=============
+Added by Elder
+Slim version of main obit
+
+CG_Obituary_Head
+=============
+*/
+static void CG_Obituary_Head( entityState_t *ent ) {
+	int			mod;
+	int			target, attacker;
+	char		*message;
+	char		*message2;
+	const char	*targetInfo;
+	const char	*attackerInfo;
+	char		targetName[32];
+	char		attackerName[32];
+	gender_t	gender;
+	clientInfo_t	*ci;
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+	mod = ent->eventParm;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_Obituary: target out of range" );
+	}
+	ci = &cgs.clientinfo[target];
+
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+		attacker = ENTITYNUM_WORLD;
+		attackerInfo = NULL;
+	} else {
+		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+	}
+
+	targetInfo = CG_ConfigString( CS_PLAYERS + target );
+	if ( !targetInfo ) {
+		return;
+	}
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+	strcat( targetName, S_COLOR_WHITE );
+
+	message2 = "";
+
+	// check for single client messages
+
+	switch( mod ) {
+	case MOD_SUICIDE:
+		message = "suicides";
+		break;
+	case MOD_FALLING:
+		message = "'s thoughts weren't happy enough";
+		break;
+	case MOD_CRUSH:
+		message = "was squished";
+		break;
+	case MOD_WATER:
+		message = "sank like a rock";
+		break;
+	case MOD_SLIME:
+		message = "melted";
+		break;
+	case MOD_LAVA:
+		message = "does a back flip into the lava";
+		break;
+	case MOD_TARGET_LASER:
+		message = "saw the light";
+		break;
+	case MOD_TRIGGER_HURT:
+		message = "was in the wrong place";
+		break;
+	case MOD_BLEEDING:
+		message = "bled to death";
+		break;
+	default:
+		message = NULL;
+		break;
+	}
+
+	if (attacker == target) {
+		gender = ci->gender;
+		switch (mod) {
+		case MOD_GRENADE_SPLASH:
+			break;
+		default:
+			//Elder: shouldn't be here
+			break;
+		}
+	}
+
+	if (message) {
+		CG_Printf( "%s %s.\n", targetName, message);
+		return;
+	}
+
+	// check for kill messages from the current clientNum
+	if ( attacker == cg.snap->ps.clientNum ) {
+		char	*s;
+
+		if ( cgs.gametype < GT_TEAM ) {
+			s = va("You fragged %s\n%s place with %i", targetName, 
+				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				cg.snap->ps.persistant[PERS_SCORE] );
+		} else {
+			s = va("You fragged %s", targetName );
+		}
+		// print the text message as well
+	}
+
+	// check for double client messages
+	if ( !attackerInfo ) {
+		attacker = ENTITYNUM_WORLD;
+		strcpy( attackerName, "noname" );
+	} else {
+		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
+		strcat( attackerName, S_COLOR_WHITE );
+		// check for kill messages about the current clientNum
+		if ( target == cg.snap->ps.clientNum ) {
+			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+		}
+	}
+
+	if ( attacker != ENTITYNUM_WORLD ) {
+		switch (mod) {
+		case MOD_PISTOL:
+			if (gender == GENDER_FEMALE)
+				message = "has a hole in her head from";
+			else if (gender == GENDER_NEUTER)
+				message = "has a hole in its head from";
+			else
+				message = "has a hole in his head from";
 			message2 = "'s Mark23 Pistol";
 			break;
 		case MOD_M4:
@@ -312,19 +568,596 @@ static void CG_Obituary( entityState_t *ent ) {
 			message = "was trepanned by";
 			message2 = "'s akimbo Mark 23 pistols";
 			break;
-		case MOD_M3:
-			message = "accepts";
-			message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
+		case MOD_SNIPER:
+			if (cg.refdef.fov_x < 90)
+			{
+				if (gender == GENDER_NEUTER)
+					message = "saw the sniper bullet go through its scope thanks to";
+				else if (gender == GENDER_FEMALE)
+					message = "saw the sniper bullet go through her scope thanks to";
+				else 
+					message = "saw the sniper bullet go through his scope thanks to";
+			}
+			else
+			{
+				message = "caught a sniper bullet between the eyes from";
+			}
+			break;
+		case MOD_KNIFE:
+			if (gender == GENDER_NEUTER)
+				message = "had its throat slit by";                                                                  
+			else if (gender == GENDER_FEMALE)
+				message = "had her throat slit by";                                                                  
+			else 
+				message = "had his throat slit by";                                                                  
+			break;
+		case MOD_KNIFE_THROWN:
+			message = "caught";
+			if (gender == GENDER_NEUTER)
+				message2 = "'s flying knife with its forehead";
+			else if (gender == GENDER_FEMALE)
+				message2 = "'s flying knife with her forehead";
+			else
+				message2 = "'s flying knife with his forehead";
 			break;
 		case MOD_HANDCANNON:
-			message = "ate";
-			message2 = "'s sawed-off 12 gauge";
+		case MOD_M3:
+		case MOD_KICK:
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			//Elder: shouldn't be here
+			break;
+		case MOD_TELEFRAG:
+			message = "tried to invade";
+			message2 = "'s personal space";
+			break;
+		default:
+			message = "was killed by";
+			break;
+		}
+
+		if (message) {
+			CG_Printf( "%s %s %s%s\n", 
+				targetName, message, attackerName, message2);
+			return;
+		}
+	}
+
+	// we don't know what it was
+	CG_Printf( "%s died.\n", targetName );
+}
+
+
+/*
+=============
+Added by Elder
+Slim version of main obit
+
+CG_Obituary_Chest
+=============
+*/
+static void CG_Obituary_Chest( entityState_t *ent ) {
+	int			mod;
+	int			target, attacker;
+	char		*message;
+	char		*message2;
+	const char	*targetInfo;
+	const char	*attackerInfo;
+	char		targetName[32];
+	char		attackerName[32];
+	gender_t	gender;
+	clientInfo_t	*ci;
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+	mod = ent->eventParm;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_Obituary: target out of range" );
+	}
+	ci = &cgs.clientinfo[target];
+
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+		attacker = ENTITYNUM_WORLD;
+		attackerInfo = NULL;
+	} else {
+		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+	}
+
+	targetInfo = CG_ConfigString( CS_PLAYERS + target );
+	if ( !targetInfo ) {
+		return;
+	}
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+	strcat( targetName, S_COLOR_WHITE );
+
+	message2 = "";
+
+	// check for single client messages
+
+	switch( mod ) {
+	case MOD_SUICIDE:
+		message = "suicides";
+		break;
+	case MOD_FALLING:
+		message = "'s thoughts weren't happy enough";
+		break;
+	case MOD_CRUSH:
+		message = "was squished";
+		break;
+	case MOD_WATER:
+		message = "sank like a rock";
+		break;
+	case MOD_SLIME:
+		message = "melted";
+		break;
+	case MOD_LAVA:
+		message = "does a back flip into the lava";
+		break;
+	case MOD_TARGET_LASER:
+		message = "saw the light";
+		break;
+	case MOD_TRIGGER_HURT:
+		message = "was in the wrong place";
+		break;
+	case MOD_BLEEDING:
+		message = "bled to death";
+		break;
+	default:
+		message = NULL;
+		break;
+	}
+
+	if (attacker == target) {
+		gender = ci->gender;
+		switch (mod) {
+		case MOD_GRENADE_SPLASH:
+		default:
+			//Elder: shouldn't be here
+			break;
+		}
+	}
+
+	if (message) {
+		CG_Printf( "%s %s.\n", targetName, message);
+		return;
+	}
+
+	// check for kill messages from the current clientNum
+	if ( attacker == cg.snap->ps.clientNum ) {
+		char	*s;
+
+		if ( cgs.gametype < GT_TEAM ) {
+			s = va("You fragged %s\n%s place with %i", targetName, 
+				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				cg.snap->ps.persistant[PERS_SCORE] );
+		} else {
+			s = va("You fragged %s", targetName );
+		}
+		// print the text message as well
+	}
+
+	// check for double client messages
+	if ( !attackerInfo ) {
+		attacker = ENTITYNUM_WORLD;
+		strcpy( attackerName, "noname" );
+	} else {
+		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
+		strcat( attackerName, S_COLOR_WHITE );
+		// check for kill messages about the current clientNum
+		if ( target == cg.snap->ps.clientNum ) {
+			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+		}
+	}
+
+	if ( attacker != ENTITYNUM_WORLD ) {
+		switch (mod) {
+		case MOD_PISTOL:
+			message = "loses a vital chest organ thanks to";
+			message2 = "'s Mark 23 pistol";
+			break;
+		case MOD_M4:
+			message = "feels some heart burn thanks to";
+			message2 = "'s M4 Assault Rifle";
+			break;
+		case MOD_MP5:
+			message = "feels some chest pain via";
+			message2 = "'s MP5/10 Submachinegun";
+			break;
+		case MOD_AKIMBO:
+			message = "was John Woo'd by";
 			break;
 		case MOD_SNIPER:
 			message = "was picked off by";
 			break;
+		case MOD_KNIFE:
+			message = "had open heart surgery, compliments of";
+			break;
+		case MOD_KNIFE_THROWN:
+			message = "'s ribs don't help against";
+			message2 = "'s flying knife";
+			break;
+		case MOD_HANDCANNON:
+		case MOD_M3:
 		case MOD_KICK:
-			message = "got his ass kicked by";
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			//Elder: shouldn't be here
+			break;
+		case MOD_TELEFRAG:
+			message = "tried to invade";
+			message2 = "'s personal space";
+			break;
+		default:
+			message = "was killed by";
+			break;
+		}
+
+		if (message) {
+			CG_Printf( "%s %s %s%s\n", 
+				targetName, message, attackerName, message2);
+			return;
+		}
+	}
+
+	// we don't know what it was
+	CG_Printf( "%s died.\n", targetName );
+}
+
+/*
+=============
+Added by Elder
+Slim version of main obit
+
+CG_Obituary_Stomach
+=============
+*/
+static void CG_Obituary_Stomach( entityState_t *ent ) {
+	int			mod;
+	int			target, attacker;
+	char		*message;
+	char		*message2;
+	const char	*targetInfo;
+	const char	*attackerInfo;
+	char		targetName[32];
+	char		attackerName[32];
+	gender_t	gender;
+	clientInfo_t	*ci;
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+	mod = ent->eventParm;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_Obituary: target out of range" );
+	}
+	ci = &cgs.clientinfo[target];
+
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+		attacker = ENTITYNUM_WORLD;
+		attackerInfo = NULL;
+	} else {
+		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+	}
+
+	targetInfo = CG_ConfigString( CS_PLAYERS + target );
+	if ( !targetInfo ) {
+		return;
+	}
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+	strcat( targetName, S_COLOR_WHITE );
+
+	message2 = "";
+
+	// check for single client messages
+
+	switch( mod ) {
+	case MOD_SUICIDE:
+		message = "suicides";
+		break;
+	case MOD_FALLING:
+		message = "'s thoughts weren't happy enough";
+		break;
+	case MOD_CRUSH:
+		message = "was squished";
+		break;
+	case MOD_WATER:
+		message = "sank like a rock";
+		break;
+	case MOD_SLIME:
+		message = "melted";
+		break;
+	case MOD_LAVA:
+		message = "does a back flip into the lava";
+		break;
+	case MOD_TARGET_LASER:
+		message = "saw the light";
+		break;
+	case MOD_TRIGGER_HURT:
+		message = "was in the wrong place";
+		break;
+	case MOD_BLEEDING:
+		message = "bled to death";
+		break;
+	default:
+		message = NULL;
+		break;
+	}
+
+	if (attacker == target) {
+		gender = ci->gender;
+		switch (mod) {
+		case MOD_GRENADE_SPLASH:
+		default:
+			//Elder: shouldn't be here
+			break;
+		}
+	}
+
+	if (message) {
+		CG_Printf( "%s %s.\n", targetName, message);
+		return;
+	}
+
+	// check for kill messages from the current clientNum
+	if ( attacker == cg.snap->ps.clientNum ) {
+		char	*s;
+
+		if ( cgs.gametype < GT_TEAM ) {
+			s = va("You fragged %s\n%s place with %i", targetName, 
+				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				cg.snap->ps.persistant[PERS_SCORE] );
+		} else {
+			s = va("You fragged %s", targetName );
+		}
+		// print the text message as well
+	}
+
+	// check for double client messages
+	if ( !attackerInfo ) {
+		attacker = ENTITYNUM_WORLD;
+		strcpy( attackerName, "noname" );
+	} else {
+		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
+		strcat( attackerName, S_COLOR_WHITE );
+		// check for kill messages about the current clientNum
+		if ( target == cg.snap->ps.clientNum ) {
+			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+		}
+	}
+
+	if ( attacker != ENTITYNUM_WORLD ) {
+		switch (mod) {
+		case MOD_PISTOL:
+			if (gender == GENDER_NEUTER)
+				message = "loses its lunch to";
+			else if (gender == GENDER_FEMALE)
+				message = "loses her lunch to";
+			else
+				message = "loses his lunch to";
+			message2 = "'s .45 caliber pistol round";
+			break;
+		case MOD_M4:
+			message = "has an upset stomach thanks to";
+			message2 = "'s M4 Assault Rifle";
+			break;
+		case MOD_MP5:
+			message = "needs some Pepto Bismol after";
+			message2 = "'s 10mm MP5 round";
+			break;
+		case MOD_AKIMBO:
+			message = "needs some new kidneys thanks to";
+			message2 = "'s akimbo Mark 23 pistols";
+			break;
+		case MOD_SNIPER:
+			message = "was sniped in the stomach by";
+			break;
+		case MOD_KNIFE:
+			message = "was gutted by";
+			break;
+		case MOD_KNIFE_THROWN:
+			if (gender == GENDER_NEUTER)
+				message = "sees the contents of its own stomach thanks to";
+			else if (gender == GENDER_FEMALE)
+				message = "sees the contents of her own stomach thanks to";
+			else
+				message = "sees the contents of his own stomach thanks to";
+			message2 = "'s flying knife";
+			break;
+		case MOD_HANDCANNON:
+		case MOD_M3:
+		case MOD_KICK:
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			//Elder: shouldn't be here
+			break;
+		case MOD_TELEFRAG:
+			message = "tried to invade";
+			message2 = "'s personal space";
+			break;
+		default:
+			message = "was killed by";
+			break;
+		}
+
+		if (message) {
+			CG_Printf( "%s %s %s%s\n", 
+				targetName, message, attackerName, message2);
+			return;
+		}
+	}
+
+	// we don't know what it was
+	CG_Printf( "%s died.\n", targetName );
+}
+
+/*
+=============
+Added by Elder
+Slim version of main obit
+
+CG_Obituary_Legs
+=============
+*/
+static void CG_Obituary_Legs( entityState_t *ent ) {
+	int			mod;
+	int			target, attacker;
+	char		*message;
+	char		*message2;
+	const char	*targetInfo;
+	const char	*attackerInfo;
+	char		targetName[32];
+	char		attackerName[32];
+	gender_t	gender;
+	clientInfo_t	*ci;
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+	mod = ent->eventParm;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_Obituary: target out of range" );
+	}
+	ci = &cgs.clientinfo[target];
+
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+		attacker = ENTITYNUM_WORLD;
+		attackerInfo = NULL;
+	} else {
+		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+	}
+
+	targetInfo = CG_ConfigString( CS_PLAYERS + target );
+	if ( !targetInfo ) {
+		return;
+	}
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+	strcat( targetName, S_COLOR_WHITE );
+
+	message2 = "";
+
+	// check for single client messages
+
+	switch( mod ) {
+	case MOD_SUICIDE:
+		message = "suicides";
+		break;
+	case MOD_FALLING:
+		message = "'s thoughts weren't happy enough";
+		break;
+	case MOD_CRUSH:
+		message = "was squished";
+		break;
+	case MOD_WATER:
+		message = "sank like a rock";
+		break;
+	case MOD_SLIME:
+		message = "melted";
+		break;
+	case MOD_LAVA:
+		message = "does a back flip into the lava";
+		break;
+	case MOD_TARGET_LASER:
+		message = "saw the light";
+		break;
+	case MOD_TRIGGER_HURT:
+		message = "was in the wrong place";
+		break;
+	case MOD_BLEEDING:
+		message = "bled to death";
+		break;
+	default:
+		message = NULL;
+		break;
+	}
+
+	if (attacker == target) {
+		gender = ci->gender;
+		switch (mod) {
+		case MOD_GRENADE_SPLASH:
+		default:
+			//Elder: shouldn't be here
+			break;
+		}
+	}
+
+	if (message) {
+		CG_Printf( "%s %s.\n", targetName, message);
+		return;
+	}
+
+	// check for kill messages from the current clientNum
+	if ( attacker == cg.snap->ps.clientNum ) {
+		char	*s;
+
+		if ( cgs.gametype < GT_TEAM ) {
+			s = va("You fragged %s\n%s place with %i", targetName, 
+				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				cg.snap->ps.persistant[PERS_SCORE] );
+		} else {
+			s = va("You fragged %s", targetName );
+		}
+		// print the text message as well
+	}
+
+	// check for double client messages
+	if ( !attackerInfo ) {
+		attacker = ENTITYNUM_WORLD;
+		strcpy( attackerName, "noname" );
+	} else {
+		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
+		strcat( attackerName, S_COLOR_WHITE );
+		// check for kill messages about the current clientNum
+		if ( target == cg.snap->ps.clientNum ) {
+			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
+		}
+	}
+
+	if ( attacker != ENTITYNUM_WORLD ) {
+		switch (mod) {
+		case MOD_PISTOL:
+			message = "is legless because of";
+			message2 = "'s .45 caliber pistol round";
+			break;
+		case MOD_M4:
+			message = "is now shorter thanks to";
+			message2 = "'s M4 Assault Rifle";
+			break;
+		case MOD_MP5:
+			if (gender == GENDER_NEUTER)
+				message = "had its legs blown off thanks to";
+			else if (gender == GENDER_FEMALE)
+				message = "had her legs blown off thanks to";
+			else
+				message = "had his legs blown off thanks to";
+			message2 = "'s MP5/10 Submachinegun";
+			break;
+		case MOD_AKIMBO:
+			message = "was shot in the legs by";
+			message2 = "'s akimbo Mark 23 pistols";
+			break;
+		case MOD_SNIPER:
+			message = "was shot in the legs by";
+			break;
+		case MOD_KNIFE:
+			message = "was stabbed repeatedly in the legs by";
+			break;
+		case MOD_KNIFE_THROWN:
+			if (gender == GENDER_NEUTER)
+				message = "had its legs cut off thanks to";
+			else if (gender == GENDER_FEMALE)
+				message = "had her legs cut off thanks to"; 
+			else
+				message = "had his legs cut off thanks to";                                                                                                                                                                                    
+                                                
+			message2 = "'s flying knife";
+			break;
+		case MOD_HANDCANNON:
+		case MOD_M3:
+		case MOD_KICK:
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			//Elder: shouldn't be here
 			break;
 		case MOD_TELEFRAG:
 			message = "tried to invade";
@@ -1235,7 +2068,23 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_OBITUARY");
 		CG_Obituary( es );
 		break;
-
+	//Elder: location events
+	case EV_OBITUARY_HEAD:
+		DEBUGNAME("EV_OBITUARY_HEAD");
+		CG_Obituary_Head( es );
+		break;
+	case EV_OBITUARY_CHEST:
+		DEBUGNAME("EV_OBITUARY_CHEST");
+		CG_Obituary_Chest( es );
+		break;
+	case EV_OBITUARY_STOMACH:
+		DEBUGNAME("EV_OBITUARY_STOMACH");
+		CG_Obituary_Stomach( es );
+		break;
+	case EV_OBITUARY_LEGS:
+		DEBUGNAME("EV_OBITUARY_LEGS");
+		CG_Obituary_Legs( es );
+		break;
 	//
 	// powerup events
 	//
