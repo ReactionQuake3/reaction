@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/16 21:49:45  niceass
+// All new shell ejection code
+//
 // Revision 1.7  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -210,29 +213,38 @@ CG_ReflectVelocity
 ================
 */
 void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
-	vec3_t	velocity;
+	vec3_t	velocity, normal;
 	float	dot;
 	int		hitTime;
 
+	// NiceAss: Make the reflection less perfect
+	VectorCopy( trace->plane.normal, normal );
+	if (le->leFlags == LEF_TUMBLE) {
+		normal[0] += crandom() * 0.1;
+		normal[1] += crandom() * 0.1;
+		normal[2] += crandom() * 0.1;
+		VectorNormalize(normal);
+	}
+
 	// reflect the velocity on the trace plane
 	hitTime = cg.time - cg.frametime + cg.frametime * trace->fraction;
-	CG_EvaluateTrajectoryDelta( &le->pos, hitTime, velocity );
-	dot = DotProduct( velocity, trace->plane.normal );
-	VectorMA( velocity, -2*dot, trace->plane.normal, le->pos.trDelta );
+	CG_LE_EvaluateTrajectoryDelta( &le->pos, hitTime, velocity );
+	dot = DotProduct( velocity, normal );
+	VectorMA( velocity, -2*dot, normal, le->pos.trDelta );
 
 	VectorScale( le->pos.trDelta, le->bounceFactor, le->pos.trDelta );
 
 	VectorCopy( trace->endpos, le->pos.trBase );
 	le->pos.trTime = cg.time;
 
-
 	// check for stop, making sure that even on low FPS systems it doesn't bobble
 	if ( trace->allsolid || 
-		( trace->plane.normal[2] > 0 && 
+		VectorLength(le->pos.trDelta) < 30.0 ) {
+		// NiceAss: I don't know what this crap is, but it didn't work too well no sloped surfaces
+		/*( trace->plane.normal[2] > 0 && 
 		( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) ) {
+		*/
 		le->pos.trType = TR_STATIONARY;
-	} else {
-
 	}
 }
 
@@ -269,7 +281,8 @@ void CG_AddFragment( localEntity_t *le ) {
 	}
 
 	// calculate new position
-	CG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
+	CG_LE_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
+
 
 	// trace a line from previous position to new position
 	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
@@ -280,7 +293,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		if ( le->leFlags & LEF_TUMBLE ) {
 			vec3_t angles;
 
-			CG_EvaluateTrajectory( &le->angles, cg.time, angles );
+			CG_LE_EvaluateTrajectory( &le->angles, cg.time, angles );
 			AnglesToAxis( angles, le->refEntity.axis );
 		}
 
@@ -880,6 +893,84 @@ void CG_AddLocalEntities( void ) {
 	}
 }
 
+/*
+	The only difference is that this will account for water friction
+*/
+void CG_LE_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
+	float		deltaTime;
+	float		phase;
+	float		friction = 1.0f;
 
+	switch( tr->trType ) {
+	case TR_STATIONARY:
+	case TR_INTERPOLATE:
+		VectorCopy( tr->trBase, result );
+		break;
+	case TR_LINEAR:
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		break;
+	case TR_SINE:
+		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
+		phase = sin( deltaTime * M_PI * 2 );
+		VectorMA( tr->trBase, phase, tr->trDelta, result );
+		break;
+	case TR_LINEAR_STOP:
+		if ( atTime > tr->trTime + tr->trDuration ) {
+			atTime = tr->trTime + tr->trDuration;
+		}
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		if ( deltaTime < 0 ) {
+			deltaTime = 0;
+		}
+		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		break;
+	case TR_GRAVITY:
+		if (trap_CM_PointContents(tr->trBase, 0) & CONTENTS_WATER) friction = 0.3f;
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorMA( tr->trBase, deltaTime * friction, tr->trDelta, result );
+		result[2] -= 0.5 * cg_gravity.value * friction * deltaTime * deltaTime;
+		break;
+	default:
+		Com_Error( ERR_DROP, "CG_LE_EvaluateTrajectory: unknown trType: %i", tr->trTime );
+		break;
+	}
+}
 
+void CG_LE_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
+	float	deltaTime;
+	float	phase;
+	float	friction = 1.0f;
 
+	switch( tr->trType ) {
+	case TR_STATIONARY:
+	case TR_INTERPOLATE:
+		VectorClear( result );
+		break;
+	case TR_LINEAR:
+		VectorCopy( tr->trDelta, result );
+		break;
+	case TR_SINE:
+		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
+		phase = cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
+		phase *= 0.5;
+		VectorScale( tr->trDelta, phase, result );
+		break;
+	case TR_LINEAR_STOP:
+		if ( atTime > tr->trTime + tr->trDuration ) {
+			VectorClear( result );
+			return;
+		}
+		VectorCopy( tr->trDelta, result );
+		break;
+	case TR_GRAVITY:
+		if (trap_CM_PointContents(tr->trBase, 0) & CONTENTS_WATER) friction = 0.3f;
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorScale( tr->trDelta, friction, result );
+		result[2] -= cg_gravity.value*friction*deltaTime;
+		break;
+	default:
+		Com_Error( ERR_DROP, "CG_LE_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+		break;
+	}
+}

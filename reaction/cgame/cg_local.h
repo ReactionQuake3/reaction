@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/16 21:50:09  niceass
+// All new shell ejection code
+//
 // Revision 1.52  2002/03/14 16:04:26  slicer
 // Optimization on radio parsing
 //
@@ -263,7 +266,7 @@ typedef struct centity_s {
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
-	int				ejectBrass;			// NiceAss: set if the weapon should eject a shell
+	int				ejectBrassTime;			// NiceAss: set if the weapon should eject a shell
 	int				previousEvent;
 	int				teleportFlag;
 
@@ -910,6 +913,7 @@ typedef struct {
 	qhandle_t	smoke2;
 
 	qhandle_t	machinegunBrassModel;
+	qhandle_t	largeBrassModel;
 	qhandle_t	shotgunBrassModel;
 
 	qhandle_t	railRingsShader;
@@ -1766,6 +1770,8 @@ void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
 void CG_FreeLocalEntity( localEntity_t *le );
+void CG_LE_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
+void CG_LE_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
 //
 // cg_effects.c
