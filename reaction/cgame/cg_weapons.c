@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2003/03/08 10:04:12  niceass
+// small code change. should make no difference
+//
 // Revision 1.104  2003/02/05 04:44:47  niceass
 // added support for tag_weapon2 (2 pistols for akimbo)
 //
@@ -1387,7 +1390,7 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 		VectorScale(laser.axis[1], scale, laser.axis[1]);
 		VectorScale(laser.axis[2], scale, laser.axis[2]);
 
-		CG_PositionRotatedOffsetEntityOnTag(&laser, &gun1, weapon->firstModel, "tag_laser", vec3_origin);
+		CG_PositionRotatedEntityOnTag(&laser, &gun1, weapon->firstModel, "tag_laser");
 
 		laser.nonNormalizedAxes = qtrue;
 
