@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2003/04/19 15:27:31  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.138  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -340,7 +344,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION		"reaction"
+#define	GAMEVERSION		"rq3"
 #define BODY_QUEUE_SIZE		8
 
 // JBravo: Max number of killed enemys to track
@@ -607,7 +611,6 @@ typedef struct {
 //
 #define MAX_NETNAME		36
 #define	MAX_VOTE_COUNT		3
-#define NUM_PING_SAMPLES	64
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
@@ -640,25 +643,7 @@ typedef struct {
 	int records[REC_NUM_RECORDS];	// Elder: for our statistics tracking
 // JBravo: unlagged
 	int delag;
-	int debugDelag;
-	int cmdTimeNudge;
-	int latentSnaps;
-	int latentCmds;
-	int plOut;
-	usercmd_t cmdqueue[MAX_LATENT_CMDS];
-	int cmdhead;
-	int realPing;
-	int pingsamples[NUM_PING_SAMPLES];
-	int samplehead;
 } clientPersistant_t;
-
-// JBravo: unlagged
-#define NUM_CLIENT_HISTORY	17
-typedef struct {
-	vec3_t mins, maxs;
-	vec3_t currentOrigin;
-	int leveltime;
-} clientHistory_t;
 
 struct camera_s;
 
@@ -807,12 +792,6 @@ struct gclient_s {
 // JBravo: time of death for delayed CTB respawns
 	int time_of_death;
 	int flagMessageTime;// NiceAss: Newb message for pistol/knife w/ enemy case
-// JBravo: unlagged
-	int attackTime;
-	int historyHead;
-	clientHistory_t history[NUM_CLIENT_HISTORY];
-	clientHistory_t saved;
-	int frameOffset;
 	int lastUpdateFrame;
 };
 
@@ -951,7 +930,6 @@ typedef struct {
 	qboolean teams_assigned[MAX_TEAMS];
 	gentity_t *potential_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
 	gentity_t *used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
-	int frameStartTime;
 } level_locals_t;
 
 //
@@ -1155,14 +1133,14 @@ void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, v
 //void SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean CheckGauntletAttack(gentity_t * ent);
 
-// JBrabo: unlagged - g_unlagged.c
-void G_ResetHistory(gentity_t *ent);
+// JBravo: unlagged - g_unlagged.c
+/*void G_ResetHistory(gentity_t *ent);
 void G_StoreHistory(gentity_t *ent);
 void G_TimeShiftAllClients(int time, gentity_t *skip);
 void G_UnTimeShiftAllClients(gentity_t *skip);
 void G_DoTimeShiftFor(gentity_t *ent);
 void G_UndoTimeShiftFor(gentity_t *ent);
-void G_UnTimeShiftClient(gentity_t *client);
+void G_UnTimeShiftClient(gentity_t *client); */
 void G_PredictPlayerMove(gentity_t *ent, float frametime);
 
 //void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace);
@@ -1415,8 +1393,6 @@ extern vmCvar_t g_proxMineTimeout;
 // JBravo: unlagged
 extern vmCvar_t g_delagHitscan;
 extern vmCvar_t g_unlaggedVersion;
-extern vmCvar_t g_truePing;
-extern vmCvar_t g_lightningDamage;
 extern vmCvar_t sv_fps;
 
 //Slicer: Matchmode

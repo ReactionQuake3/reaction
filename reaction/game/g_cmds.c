@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.187  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.186  2003/04/09 20:57:21  jbravo
 // DM team none was missing a suicide.
 //
@@ -506,8 +510,8 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		if (cl->pers.connected == CON_CONNECTING) {
 			ping = -1;
 		} else {
-			//ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
+			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+			//ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
 		}
 
 		if (cl->accuracy_shots) {

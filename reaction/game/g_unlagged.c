@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.3  2003/04/19 15:27:31  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.2  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -23,7 +27,7 @@ G_ResetHistory
 Clear out the given client's history (should be called when the teleport bit is flipped)
 ============
 */
-void G_ResetHistory(gentity_t * ent)
+/*void G_ResetHistory(gentity_t * ent)
 {
 	int i, time;
 
@@ -35,7 +39,7 @@ void G_ResetHistory(gentity_t * ent)
 		VectorCopy(ent->r.currentOrigin, ent->client->history[i].currentOrigin);
 		ent->client->history[i].leveltime = time;
 	}
-}
+} */
 
 /*
 ============
@@ -44,7 +48,7 @@ G_StoreHistory
 Keep track of where the client's been
 ============
 */
-void G_StoreHistory(gentity_t * ent)
+/*void G_StoreHistory(gentity_t * ent)
 {
 	int head, frametime;
 
@@ -63,7 +67,7 @@ void G_StoreHistory(gentity_t * ent)
 	VectorCopy(ent->s.pos.trBase, ent->client->history[head].currentOrigin);
 	SnapVector(ent->client->history[head].currentOrigin);
 	ent->client->history[head].leveltime = level.time;
-}
+} */
 
 /*
 =============
@@ -73,8 +77,8 @@ Used below to interpolate between two previous vectors
 Returns a vector "frac" times the distance between "start" and "end"
 =============
 */
-static void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result)
-{
+//static void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result)
+//{
 // From CG_InterpolateEntityPosition in cg_ents.c:
 /*
 	cent->lerpOrigin[0] = current[0] + f * ( next[0] - current[0] );
@@ -83,10 +87,10 @@ static void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result)
 */
 // Making these exactly the same should avoid floating-point error
 
-	result[0] = start[0] + frac * (end[0] - start[0]);
+/*	result[0] = start[0] + frac * (end[0] - start[0]);
 	result[1] = start[1] + frac * (end[1] - start[1]);
 	result[2] = start[2] + frac * (end[2] - start[2]);
-}
+} */
 
 /*
 =================
@@ -95,10 +99,10 @@ G_TimeShiftClient
 Move a client back to where he was at the specified "time"
 =================
 */
-void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * debugger)
+/*void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * debugger)
 {
 	int j, k;
-	char msg[2048];
+	char msg[2048]; */
 
 	// this will dump out the head index, and the time for all the stored positions
 /*
@@ -131,7 +135,7 @@ void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * de
 
 	// find two entries in the history whose times sandwich "time"
 	// assumes no two adjacent records have the same timestamp
-	j = k = ent->client->historyHead;
+/*	j = k = ent->client->historyHead;
 	do {
 		if (ent->client->history[j].leveltime <= time)
 			break;
@@ -226,7 +230,7 @@ void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * de
 			trap_SendServerCommand(debugger - g_entities, msg);
 		}
 	}
-}
+} */
 
 /*
 =====================
@@ -236,7 +240,7 @@ Move ALL clients back to where they were at the specified "time",
 except for "skip"
 =====================
 */
-void G_TimeShiftAllClients(int time, gentity_t * skip)
+/*void G_TimeShiftAllClients(int time, gentity_t * skip)
 {
 	int i;
 	gentity_t *ent;
@@ -250,7 +254,7 @@ void G_TimeShiftAllClients(int time, gentity_t * skip)
 			G_TimeShiftClient(ent, time, debug, skip);
 		}
 	}
-}
+} */
 
 /*
 ================
@@ -259,7 +263,7 @@ G_DoTimeShiftFor
 Decide what time to shift everyone back to, and do it
 ================
 */
-void G_DoTimeShiftFor(gentity_t * ent)
+/* void G_DoTimeShiftFor(gentity_t * ent)
 {
 	//int wpflags[WP_NUM_WEAPONS] = { 0, 0, 2, 4, 0, 0, 8, 16, 0, 0, 0 };
 	int wpflags[WP_NUM_WEAPONS] = { 0, 2, 4, 2, 4, 16, 2, 2, 0, 0 };
@@ -280,7 +284,7 @@ void G_DoTimeShiftFor(gentity_t * ent)
 	}
 
 	G_TimeShiftAllClients(time, ent);
-}
+} */
 
 /*
 ===================
@@ -289,7 +293,7 @@ G_UnTimeShiftClient
 Move a client back to where he was before the time shift
 ===================
 */
-void G_UnTimeShiftClient(gentity_t * ent)
+/* void G_UnTimeShiftClient(gentity_t * ent)
 {
 	// if it was saved
 	if (ent->client->saved.leveltime == level.time) {
@@ -302,7 +306,7 @@ void G_UnTimeShiftClient(gentity_t * ent)
 		// this will recalculate absmin and absmax
 		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 	}
-}
+} */
 
 /*
 =======================
@@ -312,7 +316,7 @@ Move ALL the clients back to where they were before the time shift,
 except for "skip"
 =======================
 */
-void G_UnTimeShiftAllClients(gentity_t * skip)
+/*void G_UnTimeShiftAllClients(gentity_t * skip)
 {
 	int i;
 	gentity_t *ent;
@@ -323,7 +327,7 @@ void G_UnTimeShiftAllClients(gentity_t * skip)
 			G_UnTimeShiftClient(ent);
 		}
 	}
-}
+} */
 
 /*
 ==================
@@ -332,7 +336,7 @@ G_UndoTimeShiftFor
 Put everyone except for this client back where they were
 ==================
 */
-void G_UndoTimeShiftFor(gentity_t * ent)
+/*void G_UndoTimeShiftFor(gentity_t * ent)
 {
 
 	// don't un-time shift for mistakes or bots
@@ -341,7 +345,7 @@ void G_UndoTimeShiftFor(gentity_t * ent)
 	}
 
 	G_UnTimeShiftAllClients(ent);
-}
+} */
 
 /*
 ===========================

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.3  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.2  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -17,11 +21,11 @@
 #include "cg_local.h"
 
 // we'll need these prototypes
-void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum);
+//void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum);
 //void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum);
 
 // and this as well
-#define MACHINEGUN_SPREAD	200
+//#define MACHINEGUN_SPREAD	200
 
 /*
 =======================
@@ -32,7 +36,7 @@ lightning gun is done in CG_LightningBolt, since it was just a matter
 of setting the right origin and angles.
 =======================
 */
-void CG_PredictWeaponEffects(centity_t * cent)
+/*void CG_PredictWeaponEffects(centity_t * cent)
 {
 	vec3_t muzzlePoint, forward, right, up;
 	entityState_t *ent = &cent->currentState;
@@ -223,7 +227,7 @@ void CG_PredictWeaponEffects(centity_t * cent)
 			//Com_Printf( "Predicted bullet\n" );
 		}
 	}
-}
+} */
 
 /*
 =================

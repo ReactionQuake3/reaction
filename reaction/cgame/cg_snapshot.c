@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.7  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -272,17 +276,6 @@ static snapshot_t *CG_ReadNextSnapshot(void)
 		cgs.processedSnapshotNum++;
 		r = trap_GetSnapshot(cgs.processedSnapshotNum, dest);
 
-// JBravo: unlagged
-		if (cg_latentSnaps.integer && r) {
-			int i = 0, time = dest->serverTime;
-			while (dest->serverTime > time - cg_latentSnaps.integer * (1000 / sv_fps.integer)) {
-				if (!(r = trap_GetSnapshot(cgs.processedSnapshotNum - i, dest))) {
-					break;
-				}
-				i++;
-			}
-		}
-
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if (cg.snap && r && dest->serverTime == cg.snap->serverTime) {
 			//continue;
@@ -337,11 +330,7 @@ void CG_ProcessSnapshots(void)
 	if (n != cg.latestSnapshotNum) {
 		if (n < cg.latestSnapshotNum) {
 			// this should never happen
-			if (cg_latentSnaps.integer) {
-				CG_Printf("WARNING: CG_ProcessSnapshots: n < cg.latestSnapshotNum\n");
-			} else {
-				CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
-			}
+			CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -379,11 +368,7 @@ void CG_ProcessSnapshots(void)
 
 			// if time went backwards, we have a level restart
 			if (cg.nextSnap->serverTime < cg.snap->serverTime) {
-				if (cg_latentSnaps.integer) {
-					CG_Printf("WARNING: CG_ProcessSnapshots: Server time went backwards\n");
-				} else {
-					CG_Error("CG_ProcessSnapshots: Server time went backwards");
-				}
+				CG_Error("CG_ProcessSnapshots: Server time went backwards");
 			}
 		}
 		// if our time is < nextFrame's, we have a nice interpolating state

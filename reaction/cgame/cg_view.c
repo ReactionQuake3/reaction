@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.32  2003/04/13 21:58:00  slicer
 // Added a Zoom Sensitivity Lock during fire sequence of ssg; removed unnecessary code
 //
@@ -1007,8 +1011,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 	//end Blaze
 	cg.time = serverTime;
-// JBravo: unlagged
-	cg.time -= cg_latentSnaps.integer * (1000 / sv_fps.integer);
 
 	cg.demoPlayback = demoPlayback;
 

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.133  2003/04/07 18:21:34  niceass
 // teamplay irvision
 //
@@ -599,16 +603,11 @@ vmCvar_t cg_trueLightning;
 
 // JBravo: unlagged
 vmCvar_t cg_delag;
-vmCvar_t cg_debugDelag;
 vmCvar_t cg_drawBBox;
-vmCvar_t cg_cmdTimeNudge;
 vmCvar_t sv_fps;
-vmCvar_t cg_projectileNudge;
 vmCvar_t cg_optimizePrediction;
-vmCvar_t cl_timeNudge;
-vmCvar_t cg_latentSnaps;
 vmCvar_t cg_latentCmds;
-vmCvar_t cg_plOut;
+vmCvar_t cl_timeNudge;
 
 //Blaze: cheat struct
 cheat_cvar cheats[30];
@@ -884,16 +883,11 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_lowEffects, "cg_lowEffects", "0", CVAR_ARCHIVE},
 // JBravo: unlagged
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
-	{&cg_debugDelag, "cg_debugDelag", "0", CVAR_USERINFO | CVAR_CHEAT},
 	{&cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT},
-	{&cg_cmdTimeNudge, "cg_cmdTimeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&sv_fps, "sv_fps", "20", 0},
-	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
 	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
-	{&cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE},
-	{&cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT},
 	{&cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT},
-	{&cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT},
+	{&cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE}
 
 	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 	//{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
@@ -1043,16 +1037,8 @@ void CG_UpdateCvars(void)
 
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 // JBravo: unlagged
-		if (cv->vmCvar == &cg_cmdTimeNudge) {
-			CG_Cvar_ClampInt(cv->cvarName, cv->vmCvar, 0, 999);
-		} else if (cv->vmCvar == &cl_timeNudge) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -50, 50);
-		} else if (cv->vmCvar == &cg_latentSnaps) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 10);
-		} else if (cv->vmCvar == &cg_latentCmds) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, MAX_LATENT_CMDS - 1);
-		} else if (cv->vmCvar == &cg_plOut) {
-			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 100);
+		if (cv->vmCvar == &cl_timeNudge) {
+			CG_Cvar_ClampInt(cv->cvarName, cv->vmCvar, -50, 50);
 		}
 		trap_Cvar_Update(cv->vmCvar);
 	}

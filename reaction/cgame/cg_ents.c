@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.42  2003/04/02 17:58:03  jbravo
 // Ammo skin only replacements now work.
 //
@@ -888,9 +892,6 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
-// JBravo: unlagged
-	int timeshift = 0;
-
 	// this is done server-side now - cg_smoothClients is undefined
 	// players will always be TR_INTERPOLATE
 	// if this player does not want to see extrapolated players
@@ -922,35 +923,9 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		cent->currentState.pos.trDuration = 1000 / sv_fps.integer;
 	}
 
-	if (cent->currentState.eType == ET_MISSILE) {
-		// if it's one of ours
-		if (cent->currentState.otherEntityNum == cg.clientNum) {
-			timeshift = 1000 / sv_fps.integer;
-		} else if ( cent->currentState.weapon != WP_GRENADE) {
-			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
-		}
-	}
-	
 	// just use the current frame and evaluate as best we can
-//	CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
-//	CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
-	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin);
-	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time + timeshift, cent->lerpAngles);
-
-	if (timeshift != 0) {
-		trace_t tr;
-		vec3_t lastOrigin;
-
-		BG_EvaluateTrajectory (&cent->currentState.pos, cg.time, lastOrigin);
-		CG_Trace(&tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT);
-
-		// don't let the projectile go through the floor
-		if (tr.fraction < 1.0f) {
-			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * (cent->lerpOrigin[0] - lastOrigin[0]);
-			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * (cent->lerpOrigin[1] - lastOrigin[1]);
-			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * (cent->lerpOrigin[2] - lastOrigin[2]);
-		}
-	}
+	CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+	CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state

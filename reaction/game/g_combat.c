@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.136  2003/04/07 12:29:33  jbravo
 // Minor FF system fix
 //
@@ -1189,8 +1193,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if (level.intermissiontime) {
 		return;
 	}
-// JBravo: unlagged
-//	G_UnTimeShiftClient(self);
 
 // JBravo: lets not bother with those CTF functions in Teamplay
 	if (g_gametype.integer == GT_CTF) {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2003/04/19 15:27:31  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.69  2003/04/03 17:18:25  makro
 // dlights
 //
@@ -408,7 +412,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 
 	// JBravo: unlagged
-	G_ResetHistory(player);
+	// G_ResetHistory(player);
 
 	// set angles
 	// SetClientViewAngle( player, angles );

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.130  2003/04/09 02:00:43  jbravo
 // Fixed team none in DM and some final cleanups for the 3.0 release
 //
@@ -1045,21 +1049,7 @@ void ClientUserinfoChanged(int clientNum)
 	} else { 
 		client->pers.delag = atoi(s);
 	}
-	s = Info_ValueForKey(userinfo, "cg_cmdTimeNudge");
-	client->pers.cmdTimeNudge = atoi(s);
-	s = Info_ValueForKey(userinfo, "cg_debugDelag");
-	if (!atoi(s)) {
-		client->pers.debugDelag = qfalse;
-	} else {
-		client->pers.debugDelag = qtrue;
-	}
-	s = Info_ValueForKey(userinfo, "cg_latentSnaps");
-	client->pers.latentSnaps = atoi(s);
-	s = Info_ValueForKey(userinfo, "cg_latentCmds");
-	client->pers.latentCmds = atoi(s);
-	s = Info_ValueForKey(userinfo, "cg_plOut");
-	client->pers.plOut = atoi(s);
-	
+
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey(userinfo, "name");
@@ -1420,12 +1410,6 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		client->specMode = SPECTATOR_NOT;
 	}
 
-// JBravo: unlagged
-/*	if (g_delagHitscan.integer) {
-		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1ON!\n\"");
-	} else {
-		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1OFF!\n\"");
-	} */
 	return NULL;
 }
 
@@ -1710,8 +1694,7 @@ void ClientSpawn(gentity_t * ent)
 	flags ^= EF_TELEPORT_BIT;
 
 	// JBravo: unlagged
-	G_ResetHistory(ent);
-	ent->client->saved.leveltime = 0;
+	//ent->client->saved.leveltime = 0;
 
 	// clear everything but the persistant data
 

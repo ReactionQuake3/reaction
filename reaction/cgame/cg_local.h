@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.145  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.144  2003/04/13 21:58:00  slicer
 // Added a Zoom Sensitivity Lock during fire sequence of ssg; removed unnecessary code
 //
@@ -1860,16 +1864,11 @@ extern vmCvar_t cg_trueLightning;
 
 // JBravo: unlagged
 extern vmCvar_t cg_delag;
-extern vmCvar_t cg_debugDelag;
 extern vmCvar_t cg_drawBBox;
-extern vmCvar_t cg_cmdTimeNudge;
 extern vmCvar_t sv_fps;
-extern vmCvar_t cg_projectileNudge;
 extern vmCvar_t cg_optimizePrediction;
-extern vmCvar_t cl_timeNudge;
-extern vmCvar_t cg_latentSnaps;
 extern vmCvar_t cg_latentCmds;
-extern vmCvar_t cg_plOut;
+extern vmCvar_t cl_timeNudge;
 
 // NiceAss: No longer part of the MissionPack
 extern vmCvar_t cg_enableBreath;
@@ -1927,7 +1926,7 @@ extern vmCvar_t cg_RQ3_matchmode;
 extern  	vmCvar_t  	  	cg_atmosphericEffects;
 extern  	vmCvar_t  	  	cg_lowEffects;
 
-void CG_PredictWeaponEffects(centity_t *cent);
+//void CG_PredictWeaponEffects(centity_t *cent);
 void CG_AddBoundingBox(centity_t *cent);
 qboolean CG_Cvar_ClampInt(const char *name, vmCvar_t *vmCvar, int min, int max);
 

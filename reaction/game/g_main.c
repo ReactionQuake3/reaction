@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2003/04/19 15:27:31  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.142  2003/04/13 01:08:02  jbravo
 // typo in cvar name
 //
@@ -548,8 +552,6 @@ vmCvar_t g_enableDust;
 // JBravo: unlagged
 vmCvar_t g_delagHitscan;
 vmCvar_t g_unlaggedVersion;
-vmCvar_t g_truePing;
-vmCvar_t g_lightningDamage;
 vmCvar_t sv_fps;
 
 //Blaze let cvar.cfg be set by server admins
@@ -624,8 +626,6 @@ static cvarTable_t gameCvarTable[] = {
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
-	{&g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue},
-	{&g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue},
 	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
@@ -2674,10 +2674,10 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-/*		if (ent->s.eType == ET_MISSILE) {
+		if (ent->s.eType == ET_MISSILE) {
 			G_RunMissile(ent);
 			continue;
-		} */
+		}
 
 		if (ent->s.eType == ET_ITEM || ent->physicsObject) {
 			G_RunItem(ent);
@@ -2696,21 +2696,6 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
-// JBravo: unlagged
-//	G_TimeShiftAllClients(level.previousTime, NULL);
-	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if (!ent->inuse) {
-			continue;
-		}
-		if (ent->freeAfterEvent) {
-			continue;
-		}
-		if (ent->s.eType == ET_MISSILE) {
-			G_RunMissile(ent);
-		}
-	}
-//	G_UnTimeShiftAllClients(NULL);
 
 	end = trap_Milliseconds();
 
@@ -2773,7 +2758,7 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
-	level.frameStartTime = trap_Milliseconds();
+//	level.frameStartTime = trap_Milliseconds();
 }
 
 /*

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2003/04/19 15:27:30  jbravo
+// Backing out of most of unlagged.  Only optimized prediction and smooth clients
+// remains.
+//
 // Revision 1.98  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -1108,54 +1112,8 @@ void ClientThink_real(gentity_t * ent)
 	if (ucmd->serverTime < level.time - 1000) {
 		ucmd->serverTime = level.time - 1000;
 	}
-// JBravo: unlagged
-	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
-	if (client->pers.plOut) {
-		float thresh = (float)client->pers.plOut / 100.0f;
-		if (random() < thresh) {
-			return;
-		}
-	}
-	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
-	client->pers.samplehead++;
-	if ( client->pers.samplehead >= NUM_PING_SAMPLES ) {
-		client->pers.samplehead -= NUM_PING_SAMPLES;
-	}
 
-	if (g_truePing.integer) {
-		int i, sum = 0;
-
-		for (i = 0; i < NUM_PING_SAMPLES; i++) {
-			sum += client->pers.pingsamples[i];
-		}
-		client->pers.realPing = sum / NUM_PING_SAMPLES;
-	} else {
-		client->pers.realPing = client->ps.ping;
-	}
-	client->pers.cmdqueue[client->pers.cmdhead] = client->pers.cmd;
-	client->pers.cmdhead++;
-	if (client->pers.cmdhead >= MAX_LATENT_CMDS) {
-		client->pers.cmdhead -= MAX_LATENT_CMDS;
-	}
-	if (client->pers.latentCmds) {
-		int time = ucmd->serverTime;
-
-		int cmdindex = client->pers.cmdhead - client->pers.latentCmds - 1;
-		while (cmdindex < 0) {
-			cmdindex += MAX_LATENT_CMDS;
-		}
-		client->pers.cmd = client->pers.cmdqueue[cmdindex];
-		client->pers.realPing += time - ucmd->serverTime;
-	}
-	client->attackTime = ucmd->serverTime;
 	client->lastUpdateFrame = level.framenum;
-	if (client->pers.latentSnaps) {
-		client->pers.realPing += client->pers.latentSnaps * (1000 / sv_fps.integer);
-		client->attackTime -= client->pers.latentSnaps * (1000 / sv_fps.integer);
-	}
-	if (client->pers.realPing < 0) {
-		client->pers.realPing = 0;
-	}
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -1277,11 +1235,7 @@ void ClientThink_real(gentity_t * ent)
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
 	}
-/*	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	} else {
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	} */
+
 	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	SendPendingPredictableEvents(&ent->client->ps);
 
@@ -1506,9 +1460,8 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 */
 void ClientEndFrame(gentity_t * ent)
 {
-	int i;
+	int i, frames;
 	clientPersistant_t *pers;
-	int frames;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 		SpectatorClientEndFrame(ent);
@@ -1549,18 +1502,8 @@ void ClientEndFrame(gentity_t * ent)
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
-	// add the EF_CONNECTION flag if we haven't gotten commands recently
-/*	if (level.time - ent->client->lastCmdTime > 1000) {
-		ent->s.eFlags |= EF_CONNECTION;
-	} else {
-		ent->s.eFlags &= ~EF_CONNECTION;
-	} */
-
-// Begin Duffman
 	// Update the clips Amount in weapon for the client
 	ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
-
-// End Duffman
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	//Elder: bleeding notification
@@ -1597,13 +1540,6 @@ void ClientEndFrame(gentity_t * ent)
 		Cmd_Weapon(ent);
 
 	G_SetClientSound(ent);
-
-	// set the latest infor
-/*	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	} else {
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	} */
 	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	SendPendingPredictableEvents(&ent->client->ps);
 
@@ -1619,5 +1555,4 @@ void ClientEndFrame(gentity_t * ent)
 		G_PredictPlayerMove(ent, (float)frames / sv_fps.integer);
 		SnapVector(ent->s.pos.trBase);
 	}
-	G_StoreHistory(ent);
 }
