@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/09/08 13:14:47  makro
+// New code added for the callvote menu map list
+//
 // Revision 1.50  2002/09/08 00:34:26  jbravo
 // Bumped version to 2.21
 //
@@ -307,6 +310,8 @@ static void UI_ParseGameInfo(const char *teamFile);
 static void UI_ParseTeamInfo(const char *teamFile);
 static const char *UI_SelectedMap(int index, int *actual);
 static const char *UI_SelectedHead(int index, int *actual);
+//Makro - added
+static int UI_MapCountVote(void);
 
 static int UI_GetIndexFromSelection(int actual);
 
@@ -4204,6 +4209,12 @@ static void UI_RunMenuScript(char **args)
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "createserver");
+		//Makro - new UI script that doesn't check the gametype
+		} else if (Q_stricmp(name, "loadVoteArenas") == 0) {
+			trap_Cvar_Set("ui_currentNetMap", "0");
+			UI_LoadArenas();
+			UI_MapCountVote();
+			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "ingame_callvote");
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -4610,6 +4621,27 @@ static int UI_MapCountByGameType(qboolean singlePlayer)
 			}
 			c++;
 			uiInfo.mapList[i].active = qtrue;
+		}
+	}
+	return c;
+}
+
+/*
+==================
+UI_MapCountVote
+Added by Makro
+==================
+*/
+static int UI_MapCountVote(void)
+{
+	int i, c = 0;
+
+	for (i=0; i < uiInfo.mapCount; i++) {
+		if (uiInfo.mapList[i].typeBits != 0) {
+			c++;
+			uiInfo.mapList[i].active = qtrue;
+		} else {
+			uiInfo.mapList[i].active = qfalse;
 		}
 	}
 	return c;

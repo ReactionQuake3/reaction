@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/09/08 13:14:47  makro
+// New code added for the callvote menu map list
+//
 // Revision 1.9  2002/07/24 05:28:44  jbravo
 // Changed rq3ctf to rq3ctb in the .arena parsing code.
 //
@@ -253,9 +256,9 @@ void UI_LoadArenas(void)
 					uiInfo.mapList[uiInfo.mapCount].typeBits |= RQ3_GameTypes[i].Value;
 				}
 			}
-		} else {
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= UI_RQ3_DefaultArenaGameType;
-		}
+		}// else {
+		//	uiInfo.mapList[uiInfo.mapCount].typeBits |= UI_RQ3_DefaultArenaGameType;
+		//}
 
 		uiInfo.mapCount++;
 		if (uiInfo.mapCount >= MAX_MAPS) {
