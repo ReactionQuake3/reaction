@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/06/29 20:57:25  niceass
+// small change to kevlar detection
+//
 // Revision 1.104  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -1812,6 +1815,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (!attacker) {
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}
+
+	if (targ->client)
+		targ->client->kevlarHit = qfalse;
 
 	/* old code
 	   if (targ->s.eType == ET_MOVER && targ->health <= 0) {
