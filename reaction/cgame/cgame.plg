@@ -6,13 +6,33 @@
 --------------------Configuration: cgame - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1B3.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32B.tmp" with contents
 [
-/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"Release/" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_consolecmds.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_draw.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_drawtools.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_effects.c"
 "C:\Games\Quake3\rq3source\reaction\cgame\cg_ents.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_event.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_info.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_localents.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_main.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_marks.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_players.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_playerstate.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_predict.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_scoreboard.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_servercmds.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_snapshot.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_syscalls.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_unlagged.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_view.c"
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_weapons.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1B3.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1B4.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32B.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32C.tmp" with contents
 [
 /nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
 .\Release\bg_misc.obj
@@ -43,35 +63,76 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1B4.tmp" with conte
 .\Release\q_shared.obj
 .\Release\ui_shared.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP1B4.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32C.tmp"
 <h3>Output Window</h3>
 Compiling...
+cg_atmospheric.c
+cg_consolecmds.c
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(626) : warning C4706: assignment within conditional expression
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(638) : warning C4706: assignment within conditional expression
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(184) : warning C4701: local variable 'tr' may be used without having been initialized
+C:\Games\Quake3\rq3source\reaction\cgame\cg_atmospheric.c(334) : warning C4701: local variable 'tr' may be used without having been initialized
+cg_draw.c
+cg_drawtools.c
+cg_effects.c
 cg_ents.c
-Linking...
-   Creating library Release/cgamex86.lib and object Release/cgamex86.exp
+cg_event.c
+cg_info.c
+cg_localents.c
+cg_main.c
+cg_marks.c
+cg_players.c
+cg_playerstate.c
+cg_predict.c
+cg_scoreboard.c
+C:\Games\Quake3\rq3source\reaction\cgame\cg_predict.c(805) : warning C4701: local variable 'predictCmd' may be used without having been initialized
+C:\Games\Quake3\rq3source\reaction\cgame\cg_predict.c(809) : warning C4701: local variable 'stateIndex' may be used without having been initialized
+cg_servercmds.c
+cg_snapshot.c
+cg_syscalls.c
+cg_unlagged.c
+cg_view.c
+C:\Games\Quake3\rq3source\reaction\cgame\cg_view.c(1010) : error C2065: 'ADDENT_NOSKYPORTAL' : undeclared identifier
+cg_weapons.c
+Error executing cl.exe.
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32D.tmp" with contents
+[
+/nologo /o"Release/cgame.bsc" 
+.\Release\bg_misc.sbr
+.\Release\bg_pmove.sbr
+.\Release\bg_slidemove.sbr
+.\Release\cg_atmospheric.sbr
+.\Release\cg_consolecmds.sbr
+.\Release\cg_draw.sbr
+.\Release\cg_drawtools.sbr
+.\Release\cg_effects.sbr
+.\Release\cg_ents.sbr
+.\Release\cg_event.sbr
+.\Release\cg_info.sbr
+.\Release\cg_localents.sbr
+.\Release\cg_main.sbr
+.\Release\cg_marks.sbr
+.\Release\cg_players.sbr
+.\Release\cg_playerstate.sbr
+.\Release\cg_predict.sbr
+.\Release\cg_scoreboard.sbr
+.\Release\cg_servercmds.sbr
+.\Release\cg_snapshot.sbr
+.\Release\cg_syscalls.sbr
+.\Release\cg_unlagged.sbr
+.\Release\cg_view.sbr
+.\Release\cg_weapons.sbr
+.\Release\q_math.sbr
+.\Release\q_shared.sbr
+.\Release\ui_shared.sbr]
+Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP32D.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 0 error(s), 0 warning(s)
-<h3>
---------------------Configuration: game - Win32 Release--------------------
-</h3>
-<h3>Command Lines</h3>
-
-
-
-<h3>Results</h3>
-qagamex86.dll - 0 error(s), 0 warning(s)
-<h3>
---------------------Configuration: ui - Win32 Release TA--------------------
-</h3>
-<h3>Command Lines</h3>
-
-
-
-<h3>Results</h3>
-uix86.dll - 0 error(s), 0 warning(s)
+cgamex86.dll - 1 error(s), 6 warning(s)
 </pre>
 </body>
 </html>

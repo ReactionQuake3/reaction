@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2003/09/07 19:51:39  makro
+// no message
+//
 // Revision 1.45  2003/08/26 19:28:37  makro
 // target_speakers
 //
@@ -1089,7 +1092,7 @@ void CG_AddPacketEntities(int mode)
 	int num;
 
 	//Makro - if we're rendering the entities in a sky portal, we don't need this stuff
-	if (mode != 1) {
+	if (mode != ADDENTS_SKYPORTAL) {
 		playerState_t *ps;
 
 		// set cg.frameInterpolation
@@ -1140,21 +1143,25 @@ void CG_AddPacketEntities(int mode)
 		}
 	}
 
-	if (mode != -1) {
+	//Makro - if we have a sky portal
+	if (mode != ADDENTS_NOSKYPORTAL) {
 		// add each entity sent over by the server
 		for (num = 0; num < cg.snap->numEntities; num++) {
 			cent = &cg_entities[cg.snap->entities[num].number];
-			if (mode == 1) {
+			//if we're adding sky portal entities
+			if (mode == ADDENTS_SKYPORTAL) {
 				if (cent->currentState.eFlags & EF_HEADLESS) {
 					CG_AddCEntity(cent);
 				}
+			//if not, we're adding normal entities
 			} else {
 				if (!(cent->currentState.eFlags & EF_HEADLESS) || cent->currentState.eType == ET_PLAYER) {
 					CG_AddCEntity(cent);
 				}
 			}
 		}
-
+	//no sky portal defined, just add all the entities without checking if they're
+	//sky portal entities or not (faster)
 	} else {
 		for (num = 0; num < cg.snap->numEntities; num++) {
 			cent = &cg_entities[cg.snap->entities[num].number];

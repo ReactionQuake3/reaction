@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.152  2003/09/07 19:51:40  makro
+// no message
+//
 // Revision 1.151  2003/09/01 15:09:48  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -2116,6 +2119,9 @@ void CG_PainEvent(centity_t * cent, int health);
 void CG_SetEntitySoundPosition(centity_t * cent);
 //Makro - added skyportal param
 //void CG_AddPacketEntities(void);
+#define ADDENTS_NOSKYPORTAL		-1
+#define ADDENTS_NORMAL			0
+#define ADDENTS_SKYPORTAL		1
 void CG_AddPacketEntities(int mode);
 void CG_Beam(centity_t * cent);
 void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);

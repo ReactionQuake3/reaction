@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2003/09/07 19:51:39  makro
+// no message
+//
 // Revision 1.73  2003/07/30 16:05:46  makro
 // no message
 //
@@ -1426,7 +1429,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 	case EV_PRESSURE:
 		DEBUGNAME("EV_PRESSURE");
 		ByteToDir(es->eventParm, dir);
-		CG_Pressure(position, dir, es->frame, es->powerups, es->constantLight);
+		//Makro - changed from constantLight to generic1
+		CG_Pressure(position, dir, es->frame, es->powerups, es->generic1);
 		break;
 
 	case EV_STOPLOOPINGSOUND:

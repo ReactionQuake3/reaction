@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2003/09/07 19:51:40  makro
+// no message
+//
 // Revision 1.35  2003/08/10 20:13:26  makro
 // no message
 //
@@ -1007,7 +1010,7 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
 	int inwater;
-	int skyPortalMode = -1;
+	int skyPortalMode = ADDENT_NOSKYPORTAL;
 
 	//Blaze: for cheat detection
 	int i;
@@ -1082,8 +1085,8 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	//Makro - draw sky portal first
 	if (cgs.skyPortalSet) {
 		vec3_t oldOrigin;
-		skyPortalMode = 0;
-		CG_AddPacketEntities(1);
+		CG_AddPacketEntities(ADDENTS_SKYPORTAL);
+		skyPortalMode = ADDENTS_NORMAL;
 		VectorCopy(cg.refdef.vieworg, oldOrigin);
 		VectorCopy(cgs.skyPortalOrigin, cg.refdef.vieworg);
 		trap_R_RenderScene(&cg.refdef);
