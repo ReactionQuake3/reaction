@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/05/28 01:46:58  jbravo
+// Added stomach gibbing
+//
 // Revision 1.59  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -1493,6 +1496,25 @@ void CG_GibPlayerHeadshot (vec3_t playerOrigin) {
 	}
 }
 
+void CG_GibPlayerStomachshot (vec3_t playerOrigin) {
+	vec3_t	origin, velocity;
+
+	if (!cg_blood.integer) {
+		return;
+	}
+
+	VectorCopy (playerOrigin, origin);
+	origin[2]+=25;
+	velocity[0] = crandom()*GIB_VELOCITY;
+	velocity[1] = crandom()*GIB_VELOCITY;
+	velocity[2] = GIB_JUMP + crandom()*GIB_VELOCITY;
+	if (rand() & 1) {
+		CG_LaunchGib (origin, velocity, cgs.media.gibAbdomen);
+	} else {
+		CG_LaunchGib (origin, velocity, cgs.media.gibIntestine);
+	}
+}
+
 /*
 ==============
 CG_JumpKick
@@ -2633,6 +2655,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
 		cent->pe.noHead = qtrue;
 		CG_GibPlayerHeadshot( cent->lerpOrigin );
+		break;
+	case EV_GIB_PLAYER_STOMACH:
+		DEBUGNAME("EV_GIB_PLAYER_STOMACH");
+		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
+		CG_GibPlayerStomachshot( cent->lerpOrigin );
 		break;
 	case EV_BREAK_GLASS1:
  		DEBUGNAME("EV_BREAK_GLASS1");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/28 01:46:58  jbravo
+// Added stomach gibbing
+//
 // Revision 1.73  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -1068,7 +1071,8 @@ typedef enum {
 	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,			// gib a previously living player
-	EV_GIB_PLAYER_HEADSHOT,		// JBravo: for sniperheadshots
+	EV_GIB_PLAYER_HEADSHOT,		// JBravo: for sniper head shots
+	EV_GIB_PLAYER_STOMACH,		// JBravo: for sniper stomach shots
 	EV_BREAK_GLASS1,			// Blaze: Breakable glass
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,

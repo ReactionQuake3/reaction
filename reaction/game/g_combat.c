@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/05/28 01:46:58  jbravo
+// Added stomach gibbing
+//
 // Revision 1.83  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -508,6 +511,11 @@ void GibEntity( gentity_t *self, int killer ) {
 void GibEntity_Headshot (gentity_t *self, int killer) {
 	G_AddEvent (self, EV_GIB_PLAYER_HEADSHOT, 0);
 	self->client->noHead = qtrue;
+}
+
+// JBravo: stomach gibbing
+void GibEntity_Stomach (gentity_t *self, int killer) {
+	G_AddEvent (self, EV_GIB_PLAYER_STOMACH, 0);
 }
 /*
 ==================
@@ -1518,8 +1526,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// JBravo: AQ style Sniper and HC gibbing
 	if (g_RQ3_gib.integer > 0) {
 		if (meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM) {
-			G_Printf("AQ GIB!\n");
-			if (g_RQ3_gib.integer == 1 || g_RQ3_gib.integer == 2) {
+			if (g_RQ3_gib.integer < 3) {
 				// NiceAss: beheading =D
 				self->client->ps.eFlags |= EF_HEADLESS;
 				GibEntity_Headshot (self, killer);
@@ -1528,8 +1535,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		} else {
 			self->client->noHead = qfalse;
 		}
+		if (meansOfDeath == MOD_SNIPER && hurt == LOC_SDAM)
+			GibEntity_Stomach (self, killer);
 		if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1) { // && self->health <= -15) {
-			G_Printf("AQ GIB!\n");
 			self->client->noHead = qfalse;
 			trap_LinkEntity (self);
 			GibEntity (self, killer);
