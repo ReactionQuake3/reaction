@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/06/18 05:18:55  niceass
+// adjustment to leg damage
+//
 // Revision 1.79  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -2930,12 +2933,14 @@ void PmoveSingle(pmove_t * pmove)
 		PM_WalkMove();
 
 		// NiceAss: New leg damage, based on the AQ2 leg damage code.
-		if (pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE && (pm->cmd.serverTime % 550) < 300) {
+		if (pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE && pm->ps->groundEntityNum != ENTITYNUM_NONE) {
 			int i;
-
-			for (i = 0; i < 3; i++) {
-				if ((i < 2 || pm->ps->velocity[2] > 0) && pm->ps->groundEntityNum != ENTITYNUM_NONE)
-					pm->ps->velocity[i] /= 4;
+			
+			if ( (pm->cmd.serverTime % 600) < 250 ) {
+				for (i = 0; i < 3; i++) {
+					if ( i < 2 || pm->ps->velocity[2] > 0 )
+						pm->ps->velocity[i] /= 4;
+				}
 			}
 		}
 	} else {
