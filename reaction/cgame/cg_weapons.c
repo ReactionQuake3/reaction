@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/10/20 21:24:32  blaze
+// Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
+//
 // Revision 1.96  2002/09/09 06:40:35  niceass
 // smoke puff less intrusive
 //
@@ -811,7 +814,11 @@ void CG_RegisterWeapon(int weaponNum)
 
 	// QUARANTINE - Weapon Animations - Added Variable
 	char filename[MAX_QPATH];	//Used to open animation.cfg files
-
+	char mname[MAX_QPATH];
+	char md3name[MAX_QPATH];
+	char newname[MAX_QPATH];
+	char newicon[MAX_QPATH];
+	char teststuff[MAX_QPATH];
 	// END
 
 	int i;
@@ -840,9 +847,59 @@ void CG_RegisterWeapon(int weaponNum)
 		CG_Error("Couldn't find weapon %i", weaponNum);
 	}
 	CG_RegisterItemVisuals(item - bg_itemlist);
-
+	strcpy(mname,item->world_model[0]+16);
+	mname[strstr(mname,"/")-mname] = '\0';
+	strcpy(md3name,item->world_model[0]+16+strlen(mname)+1);
+	//CG_Printf("Weapon: (%s) (%s) (%s) (%s)\n",mname, md3name,item->icon, item->world_model[0]);
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0]);
+	if (!strcmp(mname,"knife"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_knife.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_knife.string) + 13, "icons/iconw_%s",cg_rq3_knife.string);
+	}
+	else if (!strcmp(mname,"mk23"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_mk23.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_mk23.string) + 13, "icons/iconw_%s",cg_rq3_mk23.string);
+	}
+	else if (!strcmp(mname,"m4"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_m4.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_m4.string) + 13, "icons/iconw_%s",cg_rq3_m4.string);
+	}
+	else if (!strcmp(mname,"ssg3000"))
+	{
+		Com_Printf("hmm: (%s)\n",md3name);
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_ssg3000.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_ssg3000.string) + 13, "icons/iconw_%s",cg_rq3_ssg3000.string);
+	}
+	else if (!strcmp(mname,"mp5"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_mp5.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_mp5.string) + 13, "icons/iconw_%s",cg_rq3_mp5.string);
+	}
+	else if (!strcmp(mname,"handcannon"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_handcannon.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_handcannon.string) + 13, "icons/iconw_%s",cg_rq3_handcannon.string);
+	}
+	else if (!strcmp(mname,"m3"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_m3.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_m3.string) + 13, "icons/iconw_%s",cg_rq3_m3.string);
+	}
+	else if (!strcmp(mname,"akimbo"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_akimbo.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_akimbo.string) + 13, "icons/iconw_%s",cg_rq3_akimbo.string);
+	}
+	else if (!strcmp(mname,"grenade"))
+	{
+		Com_sprintf(newname,MAX_QPATH,"models/weapons2/%s/%s",cg_rq3_grenade.string,md3name);
+		Com_sprintf(newicon,strlen(cg_rq3_grenade.string) + 13, "icons/iconw_%s",cg_rq3_grenade.string);
+	}
+	//Com_Printf("Loading (%s) instead of (%s)\n",newname,item->world_model[0]);
+	weaponInfo->weaponModel = trap_R_RegisterModel(newname);
 
 	// calc midpoint for rotation
 	trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
@@ -850,8 +907,8 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * (maxs[i] - mins[i]);
 	}
 
-	weaponInfo->weaponIcon = trap_R_RegisterShader(item->icon);
-	weaponInfo->ammoIcon = trap_R_RegisterShader(item->icon);
+	weaponInfo->weaponIcon = trap_R_RegisterShader(newicon);
+	weaponInfo->ammoIcon = trap_R_RegisterShader(newicon);
 
 	for (ammo = bg_itemlist + 1; ammo->classname; ammo++) {
 		if (ammo->giType == IT_AMMO && ammo->giTag == weaponNum) {
@@ -872,23 +929,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ammoIcon = trap_R_RegisterShader(ammo->icon);
 	}
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, newname);
 	COM_StripExtension(path, path);
 	strcat(path, "_flash.md3");
 	weaponInfo->flashModel = trap_R_RegisterModel(path);
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, newname);
 	COM_StripExtension(path, path);
 	strcat(path, "_barrel.md3");
 	weaponInfo->barrelModel = trap_R_RegisterModel(path);
 
-	strcpy(path, item->world_model[0]);
+	strcpy(path, newname);
 	COM_StripExtension(path, path);
 	strcat(path, "_hand.md3");
 	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
 	//Elder: added to cache 1st-person models
-	strcpy(path, item->world_model[0]);
+	strcpy(path, newname);
 	COM_StripExtension(path, path);
 	strcat(path, "_1st.md3");
 	weaponInfo->firstModel = trap_R_RegisterModel(path);
@@ -917,14 +974,14 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/mk23/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_mk23.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/mk23/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_mk23.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -937,10 +994,10 @@ void CG_RegisterWeapon(int weaponNum)
 	case WP_KNIFE:
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/knife/slash.wav", qfalse);
-		weaponInfo->missileModel = trap_R_RegisterModel("models/weapons2/knife/knife.md3");
+		weaponInfo->missileModel = trap_R_RegisterModel(va("models/weapons2/%s/knife.md3",cg_rq3_knife.string));
 
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/knife/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_knife.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
@@ -959,14 +1016,14 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/m4/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_m4.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/m4/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_m4.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -985,13 +1042,13 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[2] = trap_S_RegisterSound("sound/weapons/ssg3000/ssgbolt.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/ssg3000/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_ssg3000.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/ssg3000/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_ssg3000.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1008,14 +1065,14 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/mp5/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_mp5.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/mp5/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_mp5.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1033,14 +1090,14 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_handcannon.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/handcannon/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_handcannon.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1056,14 +1113,14 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[1] = trap_S_RegisterSound("sound/weapons/m3/m3in.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/m3/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_m3.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/m3/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_m3.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1081,14 +1138,14 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/akimbo/akimboreload.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/akimbo/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_akimbo.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/akimbo/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_akimbo.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1111,14 +1168,14 @@ void CG_RegisterWeapon(int weaponNum)
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/grenade/animation.cfg");
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg",cg_rq3_grenade.string);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/grenade/sound.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",cg_rq3_grenade.string);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1155,7 +1212,7 @@ void CG_RegisterItemVisuals(int itemNum)
 
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
-
+	
 	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
 
 	itemInfo->icon = trap_R_RegisterShader(item->icon);

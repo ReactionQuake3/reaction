@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/10/20 21:24:32  blaze
+// Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
+//
 // Revision 1.111  2002/09/08 03:15:16  niceass
 // tracerchance now can be 0.0 to 0.4
 //
@@ -386,6 +389,17 @@ vmCvar_t cg_RQ3_glasstime;
 //Blaze: Anti OGC code
 vmCvar_t ogc_islame;
 
+//Blaze: replacement weapons
+vmCvar_t cg_rq3_knife;
+vmCvar_t cg_rq3_mk23;
+vmCvar_t cg_rq3_m4;
+vmCvar_t cg_rq3_ssg3000;
+vmCvar_t cg_rq3_mp5;
+vmCvar_t cg_rq3_handcannon;
+vmCvar_t cg_rq3_m3;
+vmCvar_t cg_rq3_akimbo;
+vmCvar_t cg_rq3_grenade;
+
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
 
@@ -612,6 +626,17 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE},
 	{&cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE},
 	{&ogc_islame,"ogc_islame","1",CVAR_ROM},
+	//Blaze: replacement weapons
+	{&cg_rq3_knife, "cg_rq3_knife", "knife", CVAR_ARCHIVE},
+	{&cg_rq3_mk23, "cg_rq3_mk23", "mk23", CVAR_ARCHIVE},
+	{&cg_rq3_m4, "cg_rq3_m4", "m4", CVAR_ARCHIVE},
+	{&cg_rq3_ssg3000, "cg_rq3_ssg3000", "ssg3000", CVAR_ARCHIVE},
+	{&cg_rq3_mp5, "cg_rq3_mp5", "mp5", CVAR_ARCHIVE},
+	{&cg_rq3_handcannon, "cg_rq3_handcannon", "handcannon", CVAR_ARCHIVE},
+	{&cg_rq3_m3, "cg_rq3_m3", "m3", CVAR_ARCHIVE},
+	{&cg_rq3_akimbo, "cg_rq3_akimbo", "akimbo", CVAR_ARCHIVE},
+	{&cg_rq3_grenade, "cg_rq3_grenade", "grenade", CVAR_ARCHIVE},
+
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 	{&cg_buildScript, "com_buildScript", "0", 0},	// force loading of all possible data amd error on failures
@@ -1927,13 +1952,14 @@ static void CG_RegisterGraphics(void)
 
 	// only register the items that the server says we need
 	strcpy(items, CG_ConfigString(CS_ITEMS));
-
+	CG_Printf("Items: (%s)\n",items);
 	for (i = 1; i < bg_numItems; i++)
 		if (items[i] == '1' || cg_buildScript.integer)
 			num++;
 
 	for (i = 1; i < bg_numItems; i++) {
 		if (items[i] == '1' || cg_buildScript.integer) {
+			
 			CG_LoadingItem(i);
 			CG_RegisterItemVisuals(i);
 			if (num)

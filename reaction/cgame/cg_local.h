@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2002/10/20 21:24:32  blaze
+// Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
+//
 // Revision 1.126  2002/09/01 21:14:37  makro
 // Sky portal tweaks
 //
@@ -1665,6 +1668,17 @@ extern vmCvar_t cg_predictItems;
 extern vmCvar_t cg_deferPlayers;
 //Blaze: Anti OGC code
 extern vmCvar_t ogc_islame;
+
+//Blaze: replacement weapons
+extern vmCvar_t cg_rq3_knife;
+extern vmCvar_t cg_rq3_mk23;
+extern vmCvar_t cg_rq3_m4;
+extern vmCvar_t cg_rq3_ssg3000;
+extern vmCvar_t cg_rq3_mp5;
+extern vmCvar_t cg_rq3_handcannon;
+extern vmCvar_t cg_rq3_m3;
+extern vmCvar_t cg_rq3_akimbo;
+extern vmCvar_t cg_rq3_grenade;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;
