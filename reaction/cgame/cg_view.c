@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/21 14:59:11  makro
+// cg_RQ3_avidemo
+//
 // Revision 1.19  2002/03/07 14:51:57  makro
 // no message
 //
@@ -1265,11 +1268,20 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 					//Makro - a Com_Error would be nicer
 					//trap_Cvar_Set("RQ3_CvarKickReason", cheats[i].cvar );
 					//trap_SendConsoleCommand(va("disconnect\n"));
-					Com_Error( ERR_DISCONNECT, "WARNING: You have been disconnected from the server because %s was out of range (%1.3f - %1.3f)",cheats[i].cvar,cheats[i].low, cheats[i].high);
+					Com_Error( ERR_DISCONNECT, "WARNING: You have been disconnected from the server because %s was out of range (%f - %f)",cheats[i].cvar,cheats[i].low, cheats[i].high);
 				}
 
 			}
 
+		}
+	}
+
+	//Makro - like cl_avidemo, just that it uses JPEG's
+	if (cg_RQ3_avidemo.integer > 0) {
+		//if it's time to take a screenshot
+		if (cg.time > cg.screenshotTime + (int) (1000 / cg_RQ3_avidemo.integer)) {
+			trap_SendConsoleCommand("screenshotJPEG silent\n");
+			cg.screenshotTime = cg.time;
 		}
 	}
 }

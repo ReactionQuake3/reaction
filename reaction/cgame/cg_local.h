@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/05/21 14:59:11  makro
+// cg_RQ3_avidemo
+//
 // Revision 1.79  2002/05/19 21:27:51  blaze
 // added force and buoyancy to breakables
 //
@@ -710,6 +713,8 @@ typedef struct {
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
 
 	int			cvarCheckTime;	// Elder: used for cvar cheat interval cycling
+
+	int			screenshotTime;	// Makro - avidemo with jpegs
 
 	int			physicsTime;	// either cg.snap->time or cg.nextSnap->time
 
@@ -1635,6 +1640,8 @@ extern	vmCvar_t		cg_RQ3_bloodStyle;
 extern	vmCvar_t		cg_RQ3_strobe;
 //Niceass: Q2-like prediction (or lack of)
 // extern	vmCvar_t		cg_RQ3_oldpredict;
+//Makro - avidemo with jpegs
+extern	vmCvar_t		cg_RQ3_avidemo;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/05/21 14:59:11  makro
+// cg_RQ3_avidemo
+//
 // Revision 1.67  2002/05/19 21:04:37  jbravo
 // Tkok popup system
 //
@@ -297,6 +300,8 @@ vmCvar_t	cg_RQ3_anouncer;
 vmCvar_t	cg_RQ3_bloodStyle;
 //NiceAss: Temporary boolean strobe cvar
 vmCvar_t	cg_RQ3_strobe;
+//Makro: avidemo with jpegs
+vmCvar_t	cg_RQ3_avidemo;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -511,6 +516,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+	//Makro - avidemo with jpegs
+	{ &cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0 },
 // JBravo: added
 	{ &cg_RQ3_lca, "cg_RQ3_lca", "0", CVAR_ROM},
 	{ &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},

@@ -3,14 +3,73 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: cgame - Win32 Debug--------------------
+--------------------Configuration: cgame - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP53D.tmp" with contents
+[
+/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_view.c"
+]
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP53D.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP53E.tmp" with contents
+[
+/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
+.\Release\bg_misc.obj
+.\Release\bg_pmove.obj
+.\Release\bg_slidemove.obj
+.\Release\cg_consolecmds.obj
+.\Release\cg_draw.obj
+.\Release\cg_drawtools.obj
+.\Release\cg_effects.obj
+.\Release\cg_ents.obj
+.\Release\cg_event.obj
+.\Release\cg_info.obj
+.\Release\cg_localents.obj
+.\Release\cg_main.obj
+.\Release\cg_marks.obj
+.\Release\cg_players.obj
+.\Release\cg_playerstate.obj
+.\Release\cg_predict.obj
+.\Release\cg_scoreboard.obj
+.\Release\cg_servercmds.obj
+.\Release\cg_snapshot.obj
+.\Release\cg_syscalls.obj
+.\Release\cg_view.obj
+.\Release\cg_weapons.obj
+.\Release\q_math.obj
+.\Release\q_shared.obj
+.\Release\ui_shared.obj
+]
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP53E.tmp"
+<h3>Output Window</h3>
+Compiling...
+cg_view.c
+Linking...
+   Creating library Release/cgamex86.lib and object Release/cgamex86.exp
+
+
+
+<h3>Results</h3>
+cgamex86.dll - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: game - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 0 error(s), 0 warning(s)
+qagamex86.dll - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: ui - Win32 Release TA--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
