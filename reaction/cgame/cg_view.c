@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2004/03/09 01:05:21  makro
+// Flares
+//
 // Revision 1.46  2004/03/09 00:39:47  makro
 // Flares
 //
@@ -1032,7 +1035,7 @@ static void CG_PlayBufferedSounds(void)
 
 
 #define FLARE_FADEOUT_TIME	200
-#define FLARE_BLIND_ALPHA	0.2f
+#define FLARE_BLIND_ALPHA	0.25f
 
 void CG_AddLensFlare(qboolean sun)
 {
@@ -1040,7 +1043,7 @@ void CG_AddLensFlare(qboolean sun)
 
 	if (cgs.numFlares <= 0 && (cgs.sunFlareSize <= 0 || cgs.sunAlpha == 0))
 		return;
-
+ 
 	if (sun)
 	{
 		float PI180 = M_PI/180, pitch, yaw, cx, cy,
