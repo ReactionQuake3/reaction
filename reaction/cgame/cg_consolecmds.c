@@ -843,6 +843,8 @@ void CG_InitConsoleCommands( void ) {
 	//Elder: added to give drop weapon auto-complete
 	trap_AddCommand ("dropweapon");
 	trap_AddCommand ("dropitem");
+	//Blaze: to get weapon stats
+	trap_AddCommand ("playerstats");
 	//Elder: try this
 	trap_AddCommand ("weapon");
 	trap_AddCommand ("specialweapon");

@@ -1046,6 +1046,25 @@ void ClientSpawn(gentity_t *ent) {
 	int		savedPing;
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
+	int		knifeShots = 0;
+	int		knifeHits = 0;
+	int		mk23Shots = 0;
+	int		mk23Hits = 0;
+	int		m4Shots =0;
+	int		m4Hits = 0;
+	int		mp5Shots = 0;
+	int		mp5Hits = 0;
+	int		m3Shots = 0;
+	int		m3Hits = 0;
+	int		hcShots = 0;
+	int		hcHits = 0;
+	int		ssgShots = 0;
+	int		ssgHits = 0;
+	int		akimboShots = 0;
+	int		akimboHits = 0;
+	int		grenShots = 0;
+	int		grenHits = 0;
+
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
@@ -1109,6 +1128,23 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
+	knifeShots = client->knifeShots;
+	knifeHits = client->knifeHits;
+	mk23Shots = client->mk23Shots;
+	mk23Hits = client->mk23Hits;
+	m4Shots = client->m4Shots;
+	m4Hits = client->m4Hits;
+	mp5Shots = client->mp5Shots;
+	mp5Hits = client->mp5Hits;
+	m3Shots = client->m3Shots;
+	m3Hits = client->m3Hits;
+	hcShots = client->hcShots;
+	hcHits = client->hcHits;
+	akimboShots = client->akimboShots;
+	akimboHits = client->akimboHits;
+	grenShots = client->grenShots;
+	grenHits = client->grenHits;
+
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
 	}

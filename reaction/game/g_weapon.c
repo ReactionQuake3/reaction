@@ -378,6 +378,23 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		tent->s.eventParm = traceEnt->s.number;
 		if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
+				switch (MOD)
+				{
+				case MOD_PISTOL:
+					ent->client->mk23Hits++;
+					break;
+				case MOD_M4:
+					ent->client->m4Hits++;
+					break;
+				case MOD_MP5:
+					ent->client->mp5Hits++;
+					break;
+				case MOD_AKIMBO:
+					ent->client->akimboHits++;
+					break;
+				}
+				
+
 		}
 	} else {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
@@ -570,6 +587,15 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 		if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
 			hitClient = qtrue;
 			ent->client->accuracy_hits++;
+			switch (shotType)
+				{
+				case WP_M3:
+					ent->client->m3Hits++;
+					break;
+				case WP_HANDCANNON:
+					ent->client->hcHits++;
+					break;
+				}
 		}
 	}
 }
@@ -1483,6 +1509,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->client->accuracy_hits++;
+		ent->client->ssgHits++;
 	}
 
 	//Elder: bolt action plus save last zoom
@@ -1787,31 +1814,40 @@ void FireWeapon( gentity_t *ent ) {
 //Blaze: The functions get called when you shoot your gun
 	case WP_KNIFE:
 		Weapon_Knife_Fire (ent);
+		ent->client->knifeShots++;
 		break;
 	case WP_GRENADE:
 		Weapon_Grenade_Fire ( ent );
+		ent->client->grenShots++;
 		break;
 	case WP_PISTOL:
 		Weapon_MK23_Fire ( ent );
+		ent->client->mk23Shots++;
 		break;
 	case WP_M4:
 		Weapon_M4_Fire ( ent );
+		ent->client->m4Shots++;
 		break;
 	case WP_SSG3000:
 		//Weapon_SSG3000_FireOld( ent );
 		Weapon_SSG3000_Fire ( ent );
+		ent->client->ssgShots++;
 		break;
 	case WP_MP5:
 		Weapon_MP5_Fire ( ent );
+		ent->client->mp5Shots++;
 		break;
 	case WP_HANDCANNON:
 		Weapon_HandCannon_Fire ( ent );
+		ent->client->hcShots++;
 		break;
 	case WP_M3:
 		Weapon_M3_Fire ( ent );
+		ent->client->m3Shots++;
 		break;
 	case WP_AKIMBO:
 		Weapon_Akimbo_Fire ( ent );
+		ent->client->akimboShots++;
 		break;
 #ifdef MISSIONPACK
 	case WP_NAILGUN:

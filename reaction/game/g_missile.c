@@ -65,6 +65,8 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
 			, ent->splashMethodOfDeath ) ) {
 			g_entities[ent->r.ownerNum].client->accuracy_hits++;
+			if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
+			if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
 		}
 	}
 	//Elder: huhh?
@@ -308,6 +310,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
+				if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
+				if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
 				hitClient = qtrue;
 			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
@@ -500,6 +504,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			other, ent->splashMethodOfDeath ) ) {
 			if( !hitClient ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
+				if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
+				if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
 			}
 		}
 	}

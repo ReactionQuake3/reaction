@@ -2367,7 +2367,30 @@ void Cmd_DropItem_f( gentity_t *ent )
 		ThrowItem( ent );
 	}
 }
+/*
+=================
+PlayerStats
+=================
+*/
+void Cmd_PlayerStats_f( gentity_t *ent )
+{
+	char textbuf[1024];
+	
 
+	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
+	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Weapon | Accuracy | Hits/Shots |\n\""));
+	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Knife  |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->knifeHits / (ent->client->knifeShots ? ent->client->knifeShots : 1)), ent->client->knifeHits, ent->client->knifeShots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| MK23   |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->mk23Hits / (ent->client->mk23Shots ? ent->client->mk23Shots : 1)), ent->client->mk23Hits, ent->client->mk23Shots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Akimbo |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->akimboHits / (ent->client->akimboShots ? ent->client->akimboShots : 1)), ent->client->akimboHits, ent->client->akimboShots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| M4     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->m4Hits / (ent->client->m4Shots ? ent->client->m4Shots : 1)), ent->client->m4Hits, ent->client->m4Shots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| MP5    |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->mp5Hits / (ent->client->mp5Shots ? ent->client->mp5Shots : 1)), ent->client->mp5Hits, ent->client->mp5Shots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| M3     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->m3Hits / (ent->client->m3Shots ? ent->client->m3Shots : 1)), ent->client->m3Hits, ent->client->m3Shots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| HC     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->hcHits / (ent->client->hcShots ? ent->client->hcShots : 1)), ent->client->hcHits, ent->client->hcShots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| SSG    |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->ssgHits / (ent->client->ssgShots ? ent->client->ssgShots : 1)), ent->client->ssgHits, ent->client->ssgShots));
+	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
+}
 
 /*
 =================
@@ -2503,6 +2526,10 @@ void ClientCommand( int clientNum ) {
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );
+	else if (Q_stricmp (cmd, "playerstats") == 0)
+	{
+		Cmd_PlayerStats_f( ent );
+	}
 	else
 		trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }

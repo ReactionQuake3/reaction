@@ -262,6 +262,7 @@ typedef struct {
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
 	qboolean		hadUniqueWeapon[MAX_WEAPONS];	//Elder: for "ammo" in last gun
+
 } clientPersistant_t;
 
 
@@ -301,8 +302,28 @@ struct gclient_s {
 
 	int			accuracy_shots;		// total number of shots
 	int			accuracy_hits;		// total number of hits
+	//Blaze: For weapon stats
+	//Will need to pass these along in g_client to the new client after spawn
+	int			knifeShots;
+	int			knifeHits;
+	int			mk23Shots;
+	int			mk23Hits;
+	int			m4Shots;
+	int			m4Hits;
+	int			mp5Shots;
+	int			mp5Hits;
+	int			m3Shots;
+	int			m3Hits;
+	int			hcShots;
+	int			hcHits;
+	int			ssgShots;
+	int			ssgHits;
+	int			akimboShots;
+	int			akimboHits;
+	int			grenShots;
+	int			grenHits;
+	
 
-	//
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
