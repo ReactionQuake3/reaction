@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/02/02 16:34:02  slicer
+// Matchmode..
+//
 // Revision 1.42  2002/01/31 02:53:28  blaze
 // err, make that playerstats command
 //
@@ -2553,6 +2556,7 @@ void Cmd_PlayerStats_f( gentity_t *ent )
 ClientCommand
 =================
 */
+
 void ClientCommand( int clientNum ) {
 	gentity_t *ent;
 	char	cmd[MAX_TOKEN_CHARS];
@@ -2654,6 +2658,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
+//Slicer: matchmode
+	else if (Q_stricmp (cmd, "captain") == 0 && g_matchmode.integer)
+		MM_Captain_f( ent );
+
 // Begin Duffman
 	else if (Q_stricmp (cmd, "reload") == 0)
 	{
