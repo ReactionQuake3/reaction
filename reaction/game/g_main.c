@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/05/12 00:07:47  slicer
+// Added Normal Radio Flood Protection
+//
 // Revision 1.56  2002/05/11 16:22:38  slicer
 // Added a Repeat Flood Protection to Radio
 //
@@ -257,6 +260,8 @@ vmCvar_t	g_RQ3_NextMapID;
 vmCvar_t		g_RQ3_radioRepeat;
 vmCvar_t		g_RQ3_radioRepeatTime;
 vmCvar_t		g_RQ3_radioBan;
+vmCvar_t		g_RQ3_radioFlood;
+vmCvar_t		g_RQ3_radioFloodTime;
 
  
 #ifdef MISSIONPACK
@@ -366,6 +371,8 @@ static cvarTable_t		gameCvarTable[] = {
 	//Slicer: Matchmode
 	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	//Slicer: radio protect
+	{ &g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0 , 0, qfalse  },
+	{ &g_RQ3_radioFloodTime, "g_RQ3_radioFloodTime", "2", 0 , 0, qfalse  },
 	{ &g_RQ3_radioRepeat, "g_RQ3_radioRepeat", "2", 0 , 0, qfalse  },
 	{ &g_RQ3_radioRepeatTime, "g_RQ3_radioRepeat", "1", 0 , 0, qfalse  },
 	{ &g_RQ3_radioBan, "g_RQ3_radioBan", "10", 0 , 0, qfalse  },

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/05/12 00:07:47  slicer
+// Added Normal Radio Flood Protection
+//
 // Revision 1.87  2002/05/11 16:22:38  slicer
 // Added a Repeat Flood Protection to Radio
 //
@@ -1202,6 +1205,39 @@ radio_msg_t female_radio_msgs[] = {
 	{ "END", 0 }, // end of list delimiter
 };
 //Slicer Adding Flood Protection Functions
+qboolean CheckForFlood (gentity_t * ent)
+{
+	//If he's muted..
+  if (ent->client->rd_mute) {
+      if (ent->client->rd_mute > level.time) // Still muted..
+		return qfalse;
+      else
+		ent->client->rd_mute = 0; // No longer muted..
+   }
+  if(!ent->client->rd_Count) {
+		ent->client->rd_time = level.time;
+		++ent->client->rd_Count;
+  }
+  else {
+	++ent->client->rd_Count;
+	if(level.time - ent->client->rd_time < g_RQ3_radioFloodTime.integer) {
+		if(ent->client->rd_Count >= g_RQ3_radioFlood.integer) {
+			trap_SendServerCommand(ent-g_entities, va("print \"Radio Flood Detected, you are silenced for %i secs\n\"",
+			      (int) g_RQ3_radioBan.integer));
+				 ent->client->rd_mute = level.time + g_RQ3_radioBan.integer*1000;
+			 return qfalse;
+		}
+	}
+	else {
+		ent->client->rd_Count = 0;
+	}
+  }
+  
+  return qtrue;
+
+}
+
+
 qboolean CheckForRepeat (gentity_t *ent, int radioCode) {
 	int lastRadioCode;
 	//If he's muted..
@@ -1260,8 +1296,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 
 	while (Q_stricmp(radio_msgs[x].msg, "END")) {
 		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
-			//Slicer Checking for repeat flood
-			if(!CheckForRepeat(ent,x))
+			//Slicer Checking for flood protections
+			if(!CheckForRepeat(ent,x) || !CheckForFlood (ent))
 				return;
 			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
 				kills = ent->client->killStreak;

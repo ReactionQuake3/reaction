@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/05/12 00:07:47  slicer
+// Added Normal Radio Flood Protection
+//
 // Revision 1.79  2002/05/11 16:22:38  slicer
 // Added a Repeat Flood Protection to Radio
 //
@@ -583,6 +586,9 @@ struct gclient_s {
 	//Slicer Flood protect:
 	
 	float	rd_mute;		//Time to be muted
+	int		rd_Count;		//Counter for the last msgs in "xx" secs allowed
+	float	rd_time;		//Time for the first radio message of the ones to follow
+
 	int		rd_lastRadio;	//Code of the last radio used
 	int		rd_repCount;	//Counter for the number of repeated radio msgs
 	float	rd_repTime;		//The time for the last repeated radio msg
@@ -1184,6 +1190,8 @@ extern vmCvar_t g_RQ3_NextMapID;
 extern vmCvar_t		g_RQ3_radioRepeat;
 extern vmCvar_t		g_RQ3_radioRepeatTime;
 extern vmCvar_t		g_RQ3_radioBan;
+extern vmCvar_t		g_RQ3_radioFlood;
+extern vmCvar_t		g_RQ3_radioFloodTime;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
