@@ -577,7 +577,9 @@ void weapon_railgun_fire (gentity_t *ent) {
 		ent->client->accurateCount += hits;
 		if ( ent->client->accurateCount >= 2 ) {
 			ent->client->accurateCount -= 2;
-			ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+
+			//Blaze: Removed because it uses the persistant stats stuff
+			//ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
 			// add the sprite over the player's head
 			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
@@ -947,15 +949,15 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	gentity_t	*m;
 
 // Homer: if client is supposed to be slashing, go to that function instead
-	if ( !ent->client->throwKnife ) {
+	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE ) {
 		//Elder: added
-		ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
+		//ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
 		Knife_Attack(ent,SLASH_DAMAGE);
 		return;
 	}
 
 	//Elder: added
-	ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
+//	ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
 
 	// extra vertical velocity
 	forward[2] += 0.2f;
@@ -979,9 +981,15 @@ void Weapon_M4_Fire(gentity_t *ent)
 {
 	float spread;
 	// Homer: increment burst if needed
-	if ( ent->client->m4_3rb )
+	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE )
+	{
 		ent->client->ps.stats[STAT_BURST]++;
-	spread = (ent->client->m4_3rb? M4_SPREAD*.7 : M4_SPREAD);
+		spread = M4_SPREAD * 0.7;
+	}
+	else
+	{
+		spread = M4_SPREAD;
+	}
 	Bullet_Fire( ent, RQ3Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
 }
@@ -995,9 +1003,15 @@ void Weapon_MK23_Fire(gentity_t *ent)
 {
 	float spread;
 	// Homer: increment burst if needed
-	if ( ent->client->mk23semi )
+	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE )
+	{
+		spread = PISTOL_SPREAD * 0.7;
 		ent->client->ps.stats[STAT_BURST]++;
-	spread = (ent->client->mk23semi? PISTOL_SPREAD*.7 : PISTOL_SPREAD);
+	}
+	else
+	{
+		spread = PISTOL_SPREAD;
+	}
 	Bullet_Fire( ent, RQ3Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
 
 }
@@ -1024,9 +1038,16 @@ void Weapon_MP5_Fire(gentity_t *ent)
 {
 	float spread;
 	// Homer: increment burst if needed
-	if ( ent->client->mp5_3rb )
+	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE )
+	{
+		spread = MP5_SPREAD * 0.7;
 		ent->client->ps.stats[STAT_BURST]++;
-	spread = (ent->client->mp5_3rb? MP5_SPREAD*.7 : MP5_SPREAD);
+	}
+	else
+	{
+		spread = MP5_SPREAD;
+	}
+	
 	Bullet_Fire( ent, RQ3Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }

@@ -331,7 +331,7 @@ struct gclient_s {
 	vec3_t		bleedloc_offset;	// Blaze: location of bleeding (from origin)
 	vec3_t      bleednorm;
 	//qboolean	isBleeding;			//Blaze: is client bleeding
-	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
+//	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
 	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
 	
 	//Elder: server only needs to know for sniper spread - ARGH
@@ -341,11 +341,13 @@ struct gclient_s {
 	
 	// Homer: weaponstate vars for Cmd_Weapon
 	// make these a single bitmask? worth the effort?
-	int 			mk23semi; 		// pistol to semi-auto	
+	// Moved to PERS_WEAPONMODES in bg_public.h
+/*	int 			mk23semi; 		// pistol to semi-auto	
 	int 			mp5_3rb;  		// MP5 to 3rb
 	int 			m4_3rb;    		// M4 to 3rb
 	int 			grenRange; 		// range to throw grenade (short/medium/long)
 	int 			throwKnife; 	// knife to throwing
+	*/
 	qboolean		isBandaging;	//Elder: player in the process of bandaging
 	// end Homer
 	

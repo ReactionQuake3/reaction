@@ -326,7 +326,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 
 	// reward sounds
 	reward = qfalse;
-	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
+	//Blaze: Removed because it uses the persistant stats stuff
+	/*if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
 		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
 		reward = qtrue;
 		//Com_Printf("capture\n");
@@ -382,7 +383,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
 		reward = qtrue;
 		//Com_Printf("assist\n");
-	}
+	}*/
 	// if any of the player event bits changed
 	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
 		if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD) !=

@@ -6,13 +6,13 @@
 --------------------Configuration: game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP798.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP44F.tmp" with contents
 [
 /nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /D "DEBUG" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
 "c:\reaction\game\bg_pmove.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP798.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP799.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP44F.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP450.tmp" with contents
 [
 kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:yes /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /debug /machine:I386 /def:".\game.def" /out:"..\Debug/qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
 \reactionoutput\ai_chat.obj
@@ -51,7 +51,7 @@ kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows 
 \reactionoutput\q_shared.obj
 \reactionoutput\rxn_game.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP799.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP450.tmp"
 <h3>Output Window</h3>
 Compiling...
 bg_pmove.c

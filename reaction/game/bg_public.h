@@ -292,8 +292,11 @@ typedef enum {
 	STAT_UNIQUEWEAPONS,
 	STAT_FALLDAMAGE,
 	STAT_BANDAGE,				//Elder: holds bandage need
-	STAT_KNIFE,					//Elder: knife throwing -- wasteful?  then later rename STAT_RQ3 or something and use bits
+	STAT_RQ3,					//Blaze: Will hold a few flags for bandage, etc info
+//	STAT_KNIFE,					//Elder: knife throwing -- wasteful?  then later rename STAT_RQ3 or something and use bits
 } statIndex_t;
+//STAT_RQ3 stat info 
+#define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
 
 
 // player_state->persistant[] indexes
@@ -311,13 +314,23 @@ typedef enum {
 	PERS_ATTACKEE_ARMOR,			// health/armor of last person we attacked
 	PERS_KILLED,					// count of the number of times you died
 	// player awards tracking
+	/* Blaze: No need for these, may re-implement later if we want in a different form
 	PERS_IMPRESSIVE_COUNT,			// two railgun hits in a row
 	PERS_EXCELLENT_COUNT,			// two successive kills in a short amount of time
 	PERS_DEFEND_COUNT,				// defend awards
 	PERS_ASSIST_COUNT,				// assist awards
 	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
 	PERS_CAPTURES					// captures
+	*/
+	PERS_WEAPONMODES				// Blaze: Holds the different weapond modes for the different guns see below for the defines to use
 } persEnum_t;
+//RQ3 Weapon modes - If the bit is set, then the weapon is in the more restrictive mode, as in if it's set to 1 it's semi, 3rnd burst, etc
+#define RQ3_MK23MODE		1		// Pistol modes
+#define RQ3_MP5MODE			2		// MP5 Modes
+#define RQ3_M4MODE			4		// M4 Modes
+#define RQ3_KNIFEMODE		8		// Knife Modes
+#define RQ3_GRENSHORT		16		// Short range grenade
+#define RQ3_GRENMED			32		// Medium range grenade, if short and medium are both 1, then it is long range
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD

@@ -48,8 +48,8 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			accuracy = 0;
 		}
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
-
-		Com_sprintf (entry, sizeof(entry),
+//Blaze: Removed because it uses the persistant stats stuff
+/*		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
@@ -60,6 +60,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			cl->ps.persistant[PERS_ASSIST_COUNT], 
 			perfect,
 			cl->ps.persistant[PERS_CAPTURES]);
+			*/
 		j = strlen(entry);
 		if (stringlength + j > 1024)
 			break;
@@ -274,23 +275,28 @@ void Cmd_Give_f (gentity_t *ent)
 */
 
 	if (Q_stricmp(name, "excellent") == 0) {
-		ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
+		//Blaze: Removed because it uses the persistant stats stuff
+		//ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
 		return;
 	}
 	if (Q_stricmp(name, "impressive") == 0) {
-		ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+		//Blaze: Removed because it uses the persistant stats stuff
+		//ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
 		return;
 	}
 	if (Q_stricmp(name, "gauntletaward") == 0) {
-		ent->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
+		//Blaze: Removed because it uses the persistant stats stuff
+		//ent->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 		return;
 	}
 	if (Q_stricmp(name, "defend") == 0) {
-		ent->client->ps.persistant[PERS_DEFEND_COUNT]++;
+		//Blaze: Removed because it uses the persistant stats stuff
+		//ent->client->ps.persistant[PERS_DEFEND_COUNT]++;
 		return;
 	}
 	if (Q_stricmp(name, "assist") == 0) {
-		ent->client->ps.persistant[PERS_ASSIST_COUNT]++;
+		//Blaze: Removed because it uses the persistant stats stuff
+		//ent->client->ps.persistant[PERS_ASSIST_COUNT]++;
 		return;
 	}
 
@@ -1595,7 +1601,7 @@ void Cmd_Bandage (gentity_t *ent)
 		//Elder: can't use events
 		//G_AddEvent(ent,EV_ZOOM,0);
 	//}
-	if (ent->client->bleeding)
+	if (ent->client->bleeding || (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
         ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
@@ -1605,6 +1611,7 @@ void Cmd_Bandage (gentity_t *ent)
         ent->client->bleedtick = 4;
         //Elder: added
         ent->client->isBandaging = qtrue;
+		ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}
 	else
 	{
@@ -1875,39 +1882,55 @@ void Cmd_Weapon(gentity_t *ent)
 		break;
 	case WP_PISTOL:
 		// semiauto toggle (increase accuracy)
-		ent->client->mk23semi = !(ent->client->mk23semi);
-		if (ent->client->mk23semi)
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
-		else
+		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_MK23MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+		}
+		else
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MK23MODE;
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
+		}
 		break;
 	case WP_M4:
 		// 3rb/full auto toggle
-		ent->client->m4_3rb = !(ent->client->m4_3rb);
-		if (ent->client->m4_3rb)
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
-		else
+		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE)
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_M4MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+		}
+		else
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_M4MODE;
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+		}
 		break;
 	case WP_MP5:
 		// 3rb/full auto toggle
-		ent->client->mp5_3rb = !(ent->client->mp5_3rb);
-		if (ent->client->mp5_3rb)
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
-		else
+		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE)
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_MP5MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+		}
+		else
+		{
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MP5MODE;
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+		}
 		break;
 	case WP_KNIFE:
 		// toggle throwing/slashing
-		ent->client->throwKnife = !(ent->client->throwKnife);
-		if (ent->client->throwKnife) {
+		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)
+		{
 			//Elder: added
-			ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
 		}
-		else {
+		else 
+		{
 			//Elder: we're gonna use this to flag throw or slash with the knife
-			ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to slashing.\n\""));
 		}
 		break;
@@ -1922,15 +1945,25 @@ void Cmd_Weapon(gentity_t *ent)
 		break;
 	case WP_GRENADE:
 		// short, medium, long throws
-		ent->client->grenRange++;
-		if ( ent->client->grenRange > 2 )
-			ent->client->grenRange = 0;
-		if ( ent->client->grenRange == 0 )
+		if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT == RQ3_GRENSHORT && ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED == RQ3_GRENMED)
+		{//Going into Short
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= !RQ3_GRENMED; //unset the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
-		else if (ent->client->grenRange == 1)
+			
+		}
+		else if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT == RQ3_GRENSHORT)
+		{//Going into Med
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= !RQ3_GRENSHORT; //unset the short flag
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
-		else
+		}
+		else if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED == RQ3_GRENMED)
+		{//Going into Long
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
+		}	
 		break;
 	default:
 		break;

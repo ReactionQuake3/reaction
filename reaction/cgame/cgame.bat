@@ -1,6 +1,6 @@
 mkdir vm
 cd vm
-set cc=call..\compile.bat
+set cc=call ..\compile.bat
 
 %cc% ../../game/bg_misc.c
 @if errorlevel 1 goto quit

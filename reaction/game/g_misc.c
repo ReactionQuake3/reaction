@@ -332,7 +332,7 @@ Fires at either the target or the current direction.
    3 - tons (watch out when using this)
  */
 void SP_func_breakable( gentity_t *ent ) {
-	int amount;
+	int amount=0;
 	int health;
 	int debris;
 	int temp;
@@ -350,7 +350,7 @@ void SP_func_breakable( gentity_t *ent ) {
 	if (temp < 0 || temp > 3)
 		debris = RQ3_DEBRIS_GLASS;
 	else
-		debris = (1 << temp + 4);
+		debris = (1 << (temp + 4));
    
 	G_SpawnInt( "amount", "0", &temp );   
 	if (temp < 0 || temp > 3)

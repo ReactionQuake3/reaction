@@ -863,8 +863,8 @@ void ThrowWeapon( gentity_t *ent )
 	usercmd_t	*ucmd;
 	gitem_t		*xr_item;
 	gentity_t	*xr_drop;
-	byte i;
-	int amount;
+//	byte i;
+//	int amount;
 	int weap;
 
 	client = ent->client;
@@ -1013,9 +1013,10 @@ void ClientThink_real( gentity_t *ent ) {
 	client->ps.gravity = g_gravity.value;
 
 	// set speed
-	if(client->legDamage < g_speed.value)
+//Blaze: Where did this come from
+/*	if(client->legDamage < g_speed.value)
 		client->ps.speed = g_speed.value - client->legDamage;
-	else
+	else*/
 		client->ps.speed = g_speed.value;
 
 #ifdef MISSIONPACK

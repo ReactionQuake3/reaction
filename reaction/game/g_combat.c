@@ -575,7 +575,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if( meansOfDeath == MOD_GAUNTLET ) {
 				
 				// play humiliation on player
-				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
+				//Blaze: Removed because it uses the persistant stats stuff
+				//attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
@@ -583,6 +584,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 				// also play humiliation on target
+				
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
 			}
 
@@ -590,7 +592,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			// if this is close enough to the last kill, give a reward sound
 			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
 				// play excellent on player
-				attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
+				//Blaze: Removed because it uses the persistant stats stuff
+				//attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
@@ -1252,7 +1255,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		damage *= 0.5;
 	}
 	*/
-
+	//Blaze: Add falling damage for limping
+	if ( mod == MOD_FALLING ) targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
 	if ( attacker->client && targ != attacker && targ->health > 0
 			&& targ->s.eType != ET_MISSILE
@@ -1468,12 +1472,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
 							take *= 0.25;
+							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
 							break;
 						}
 						case (LOCATION_FOOT): 
 						{   
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
+							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
 							take *= 0.25;
 							break;
 						}

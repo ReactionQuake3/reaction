@@ -1223,7 +1223,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->zoomed=0;
 	
 	//Elder: knife reset/initialize
-	client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
+	client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
 
 	//Elder: reset isBandaging flag
 	client->isBandaging = qfalse;
