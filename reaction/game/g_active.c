@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/07/02 19:15:17  jbravo
+// Drop weapon with akimbos now behaves like AQ, plus no suicides during LCA
+//
 // Revision 1.81  2002/06/23 19:27:52  niceass
 // bandage bug fix
 //
@@ -860,6 +863,12 @@ int ThrowWeapon(gentity_t * ent, qboolean forceThrow)
 
 	//Elder: remove zoom bits
 	Cmd_Unzoom(ent);
+
+// JBravo: simulate AQ drop weapon for akimbo with no special weap
+	if (client->ps.weapon == WP_AKIMBO && client->uniqueWeapons == 0) {
+		trap_SendServerCommand(ent - g_entities, va("stuff weapon %i\n", WP_PISTOL));
+		return 0;
+	}
 
 	weap = 0;
 	if (client->uniqueWeapons > 0) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.148  2002/07/02 19:15:17  jbravo
+// Drop weapon with akimbos now behaves like AQ, plus no suicides during LCA
+//
 // Revision 1.147  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -355,10 +358,6 @@
 //Blaze for door code
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
 
-//Blaze: Get amount of ammo a clip holds
-//Elder: def'd in bg_public.h
-//int ClipAmountForWeapon( int );
-
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -645,8 +644,6 @@ void Cmd_Give_f(gentity_t * ent)
 	}
 
 	if (give_all || Q_stricmp(name, "weapons") == 0) {
-		//Blaze: Removed ( 1 << WP_GRAPPLING_HOOK ) -
-		//I have no clue what that does
 		//Elder: basically it sets all the STAT_WEAPONS bits to 1 EXCEPT for WP_NONE and
 		//the initial bit (I don't know what that is)
 		//http://www.iota-six.freeserve.co.uk/c/bitwise.htm
@@ -674,42 +671,6 @@ void Cmd_Give_f(gentity_t * ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
 		if (!give_all)
 			return;
-	}
-//Blaze: No armor in reaction, so give all should not give you any for testing
-/*
-	if (give_all || Q_stricmp(name, "armor") == 0)
-	{
-		ent->client->ps.stats[STAT_ARMOR] = 200;
-
-		if (!give_all)
-			return;
-	}
-*/
-
-	if (Q_stricmp(name, "excellent") == 0) {
-		//Blaze: Removed because it uses the persistant stats stuff
-		//ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "impressive") == 0) {
-		//Blaze: Removed because it uses the persistant stats stuff
-		//ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "gauntletaward") == 0) {
-		//Blaze: Removed because it uses the persistant stats stuff
-		//ent->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "defend") == 0) {
-		//Blaze: Removed because it uses the persistant stats stuff
-		//ent->client->ps.persistant[PERS_DEFEND_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "assist") == 0) {
-		//Blaze: Removed because it uses the persistant stats stuff
-		//ent->client->ps.persistant[PERS_ASSIST_COUNT]++;
-		return;
 	}
 	// spawn a specific item right on the player
 	if (!give_all) {
@@ -876,6 +837,11 @@ void Cmd_Kill_f(gentity_t * ent)
 		return;
 	}
 	if (ent->health <= 0) {
+		return;
+	}
+	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+		trap_SendServerCommand(ent - g_entities,
+					"print \"Don't be a Jmmsbnd007 and at least wait until the round starts.\n\"");
 		return;
 	}
 	ent->flags &= ~FL_GODMODE;
@@ -1094,18 +1060,15 @@ void SetTeam(gentity_t * ent, char *s)
 	if ((oldTeam == TEAM_RED || oldTeam == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
 		CheckTeamLeader(oldTeam);
 	}
-// JBravo: to avoid messages when players are killed and move to spectator team.
-//      if ( client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE && g_gametype.integer != GT_TEAMPLAY ) {
 	BroadcastTeamChange(client, oldTeam);
-//      }
 
 	// get and distribute relevent paramters
 
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
 	if (g_gametype.integer == GT_TEAMPLAY) {
-		if(g_RQ3_matchmode.integer && g_RQ3_maxplayers.integer > 0) {
-			if(RQ3TeamCount(-1, client->sess.savedTeam) > g_RQ3_maxplayers.integer) // If it overflows max players
+		if (g_RQ3_matchmode.integer && g_RQ3_maxplayers.integer > 0) {
+			if (RQ3TeamCount(-1, client->sess.savedTeam) > g_RQ3_maxplayers.integer) // If it overflows max players
 				//Make him a sub immeadiatly.
 				ent->client->sess.sub = client->sess.savedTeam; 
 		}
@@ -1117,7 +1080,7 @@ void SetTeam(gentity_t * ent, char *s)
 		ClientUserinfoChanged(clientNum);
 		CalculateRanks();
 		client->sess.sessionTeam = teamsave;
-		ResetKills (ent);
+		ResetKills(ent);
 		client->last_damaged_players[0] = '\0';
 		//Slicer: Changing radio gender according to models
 		if (client->sess.savedTeam == TEAM_RED)
@@ -1394,7 +1357,6 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 	char location[64];
 	int validation;
 
-
 	// Elder: validate the client
 	validation = RQ3_ValidateSay(ent);
 
@@ -1425,19 +1387,16 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 	}
 
 // Slicer: DM now has [SPECTATOR]
-//	if (g_gametype.integer < GT_TEAM && mode == SAY_TEAM) {
-//		mode = SAY_ALL;
-//	}
 // JBravo: adding below the [DEAD] tag infront of dead players names.
 	switch (mode) {
 	default:
 	case SAY_ALL:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			if(g_gametype.integer < GT_TEAM) // DM, SPECTATOR
+			if (g_gametype.integer < GT_TEAM)	// DM, SPECTATOR
 				Com_sprintf(name, sizeof(name), "[SPECTATOR] %s%c%c" EC ": ", ent->client->pers.netname,
 				    Q_COLOR_ESCAPE, COLOR_WHITE);
 			else {
-				if(ent->client->sess.savedTeam == TEAM_SPECTATOR)
+				if (ent->client->sess.savedTeam == TEAM_SPECTATOR)
 					Com_sprintf(name, sizeof(name), "[SPECTATOR] %s%c%c" EC ": ", ent->client->pers.netname,
 						  Q_COLOR_ESCAPE, COLOR_WHITE);			
 				else
@@ -1456,7 +1415,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 			Com_sprintf(name, sizeof(name), EC "[SPECTATOR] (%s%c%c" EC ")" EC ": ",
 				    ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 			else {
-				if(ent->client->sess.savedTeam == TEAM_SPECTATOR)
+				if (ent->client->sess.savedTeam == TEAM_SPECTATOR)
 					Com_sprintf(name, sizeof(name), EC "[SPECTATOR] (%s%c%c" EC ")" EC ": ",
 						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 				else
@@ -1526,7 +1485,6 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 	char *p;
 	qboolean normaluser;
 
-
 	if (trap_Argc() < 2 && !arg0) {
 		return;
 	}
@@ -1538,19 +1496,19 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 	}
 
 	//Slicer Matchmode
-	if(g_RQ3_matchmode.integer) {
+	if (g_RQ3_matchmode.integer) {
 		normaluser = (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer);
 		switch (g_RQ3_forceteamtalk.integer) {
-			case 1: //Only allow say_team when the game hasn't started
-				if(level.inGame && normaluser)
-					mode = SAY_TEAM;
-				break;
-			case 2:
-				if(normaluser)
-					mode = SAY_TEAM;
-				break;
-			default:
-				break;
+		case 1: //Only allow say_team when the game hasn't started
+			if (level.inGame && normaluser)
+				mode = SAY_TEAM;
+			break;
+		case 2:
+			if (normaluser)
+				mode = SAY_TEAM;
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -1574,7 +1532,7 @@ static void Cmd_Tell_f(gentity_t * ent)
 	}
 
 	//Slicer : no TELL FOR TP
-	if(!g_gametype.integer < GT_TEAM)
+	if (!g_gametype.integer < GT_TEAM)
 		return;
 
 	trap_Argv(1, arg, sizeof(arg));
@@ -1733,7 +1691,6 @@ static void Cmd_VoiceTaunt_f(gentity_t * ent)
 		return;
 	}
 	// insult someone who just killed you
-//      if (ent->enemy && ent->enemy->client && ent->enemy->client->lastkilled_client == ent->s.number) {
 // JBravo: adding the multiple killed system.
 	if (ent->enemy && ent->enemy->client && ent->enemy->client->lastkilled_client[0] == ent) {
 		// i am a dead corpse
@@ -1747,11 +1704,9 @@ static void Cmd_VoiceTaunt_f(gentity_t * ent)
 		return;
 	}
 	// insult someone you just killed
-//      if (ent->client->lastkilled_client >= 0 && ent->client->lastkilled_client != ent->s.number) {
 // JBravo: adding the multiple killed system.
 	if (ent->client->lastkilled_client[0] != NULL && ent->client->lastkilled_client[0]->s.number >= 0 &&
 	    ent->client->lastkilled_client[0]->s.number != ent->s.number) {
-//              who = g_entities + ent->client->lastkilled_client;
 		who = ent->client->lastkilled_client[0];
 		if (who->client) {
 			// who is the person I just killed
@@ -1770,7 +1725,6 @@ static void Cmd_VoiceTaunt_f(gentity_t * ent)
 					G_Voice(ent, ent, SAY_TELL, VOICECHAT_KILLINSULT, qfalse);
 				}
 			}
-//                      ent->client->lastkilled_client = -1;
 // JBravo: adding the multiple killed system.
 			ent->client->lastkilled_client[0] = NULL;
 			return;
@@ -1921,34 +1875,17 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "map")) {
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
-//		char s[MAX_STRING_CHARS];
 
 		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
 			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", arg2));
 			return;
 		}
 
-	/*	trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
-		if (*s) {
-			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s; set nextmap \"%s\"", arg1, arg2,
-				    s);
-		} else {
-			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
-		}
-	*/
-
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteMap, sizeof(level.voteMap), "%s", arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s %s", level.voteString, level.voteMap);
 
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
-//		char s[MAX_STRING_CHARS];
-
-		/*trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
-		if (!*s) {
-			trap_SendServerCommand(ent - g_entities, "print \"nextmap not set.\n\"");
-			return;
-		}*/
 		Com_sprintf(level.voteString, sizeof(level.voteString), "cyclemap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	} else {
@@ -2238,20 +2175,6 @@ Cmd_Stats_f
 */
 void Cmd_Stats_f(gentity_t * ent)
 {
-/*
-	int max, n, i;
-
-	max = trap_AAS_PointReachabilityAreaIndex( NULL );
-
-	n = 0;
-	for ( i = 0; i < max; i++ ) {
-		if ( ent->client->areabits[i >> 3] & (1 << (i & 7)) )
-			n++;
-	}
-
-	//trap_SendServerCommand( ent-g_entities, va("print \"visited %d of %d areas\n\"", n, max));
-	trap_SendServerCommand( ent-g_entities, va("print \"%d%% level coverage\n\"", n * 100 / max));
-*/
 }
 
 /*
@@ -2266,11 +2189,6 @@ void Cmd_Bandage(gentity_t * ent)
 		return;
 
 	//Elder: added so you can't "rebandage"
-/*	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
-		return;
-	}
-*/
 	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are already bandaging!\n\""));
 		return;
@@ -2281,9 +2199,6 @@ void Cmd_Bandage(gentity_t * ent)
 		//Elder: remove zoom bits
 		Cmd_Unzoom(ent);
 
-		//Elder: added
-//              ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
-
 		//Elder: drop the primed grenade
 		//Moved weapon switch to bg_pmove.c
 		if (ent->client->ps.weapon == WP_GRENADE && ent->client->ps.weaponstate == WEAPON_COCKED) {
@@ -2291,7 +2206,6 @@ void Cmd_Bandage(gentity_t * ent)
 			ent->client->ps.ammo[WP_GRENADE]--;
 		}
 //slicer
-		//      ent->client->ps.weaponstate = WEAPON_DROPPING;
 		ent->client->ps.weaponstate = WEAPON_BANDAGING;
 
 		if (ent->client->ps.weapon == WP_KNIFE
@@ -2310,309 +2224,6 @@ void Cmd_Bandage(gentity_t * ent)
 	}
 }
 
-/*
-==================
- Cmd_Reload
- Added by Duffman
-
- Fastreloads:
- a_cmds in action source for proper behavior.
- void Cmd_Reload_f (edict_t *ent)
-==================
-*/
-/* Dont need this code any more
-void Cmd_Reload( gentity_t *ent )
-{
-	int weapon, ammotoadd, delay = 0;
-
-	if (ent->client->ps.pm_type == PM_SPECTATOR)
-		return;
-  
-
-	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
-	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
-		ent->client->fastReloads = 0;
-		ent->client->reloadAttempts = 0;
-		trap_SendServerCommand(ent-g_entities, va("print \"You are too busy bandaging...\n\""));
-		return;
-	}
-
-	//Prevent reloading while bursting
-	if (ent->client->ps.stats[STAT_BURST] > 0)
-		return;
-
-	weapon = ent->client->ps.weapon;
-	//Elder: changed to new function
-	ammotoadd = ClipAmountForReload(weapon);
-
-	switch (weapon) {
-		case WP_KNIFE:
-			trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-			return;
-			break;
-		case WP_PISTOL:
-			if (ent->client->ps.ammo[weapon] >= RQ3_PISTOL_AMMO) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			delay = RQ3_PISTOL_RELOAD_DELAY;
-			break;
-		case WP_M4:
-   			if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			delay = RQ3_M4_RELOAD_DELAY;
-			break;
-		case WP_M3:
-			ammotoadd += ent->client->ps.ammo[weapon];
-
-			//Check to see if fastReloads is stale
-			if (level.time - ent->client->lastReloadTime > RQ3_M3_RELOAD_DELAY)
-				ent->client->fastReloads = 0;
-
-			if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO) {
-				//reset fast reloads and attempts
-				ent->client->fastReloads = 0;
-				ent->client->reloadAttempts = 0;
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-
-			//Check if it's already reloading
-			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_M3] > 0) {
-				//Have we fast reloaded before?
-				if (ent->client->fastReloads) {
-					if (level.time - ent->client->lastReloadTime < RQ3_M3_ALLOW_FAST_RELOAD_DELAY) {
-						//not enough time has passed for a fast-reload attempt so ignore it
-						return;
-					} else if (level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY) {
-						//Gotcha!
-						ent->client->fastReloads = 1;
-					} else {
-						//Missed the window of opportunity! - Reset fastReloads
-						ent->client->fastReloads = 0;
-					}
-				}
-				//Fast-reload virgin
-				else if (level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY) {
-					ent->client->fastReloads = 1;
-				} else {
-					//not enough time has passed for a fast-reload attempt so ignore it
-					return;
-				}
-			}
-
-			//check for fast reloads
-			if (ent->client->fastReloads) {
-				//Fast reload
-				ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT)
-											^ ANIM_TOGGLEBIT) | WP_ANIM_RELOAD;
-				delay = RQ3_M3_FAST_RELOAD_DELAY;
-				ent->client->fastReloads = 1;
-				//Elder: reset reload stage so we can hear sound
-				ent->client->reloadStage = -1;
-			} else {
-				//Regular reload
-				delay = RQ3_M3_RELOAD_DELAY;
-				ent->client->fastReloads = 0;
-			}
-
-			//Elder: finished a full reload cycle - mark the time and discard the attempt
-			ent->client->lastReloadTime = level.time;
-			ent->client->reloadAttempts--;
-
-			//Finish off if no more reload attempts
-			if (ent->client->reloadAttempts < 1 && ent->client->fastReloads)
-				delay += RQ3_M3_FINISH_RELOAD_DELAY;
-			break;
-		case WP_HANDCANNON:
-			delay = RQ3_HANDCANNON_RELOAD_DELAY;
-			if (ent->client->ps.ammo[weapon] >= RQ3_HANDCANNON_AMMO) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			break;
-		case WP_SSG3000:
-			ammotoadd += ent->client->ps.ammo[weapon];
-
-			//Check to see if fastReloads is stale
-			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
-				ent->client->fastReloads = 0;
-
-			if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO) {
-				//reset fast reloads and attempts
-				ent->client->fastReloads = 0;
-				ent->client->reloadAttempts = 0;
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-
-			//Check if it's already reloading
-			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_SSG3000] > 0) {
-				//Have we fast reloaded before?
-				if (ent->client->fastReloads) {
-					if (level.time - ent->client->lastReloadTime < RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY) {
-						//not enough time has passed for a fast-reload attempt so ignore it
-						return;
-					} else if (level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY) {
-						//Gotcha!
-						ent->client->fastReloads = 1;
-					} else {
-						//Missed the window of opportunity! - Reset fastReloads
-						ent->client->fastReloads = 0;
-					}
-				}
-				//Fast-reload virgin
-				else if (level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY) {
-					ent->client->fastReloads = 1;
-				} else {
-					//not enough time has passed for a fast-reload attempt so ignore it
-					return;
-				}
-			}
-
-			//check for fast reloads
-			if (ent->client->fastReloads) {
-				//Fast reload
-				ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT)
-											^ ANIM_TOGGLEBIT) | WP_ANIM_RELOAD;
-				delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
-				ent->client->fastReloads = 1;
-			} else {
-				//Regular reload
-				delay = RQ3_SSG3000_RELOAD_DELAY;
-				ent->client->fastReloads = 0;
-			}
-
-			//Elder: finished a full reload cycle - mark the time and discard the attempt
-			ent->client->lastReloadTime = level.time;
-			ent->client->reloadAttempts--;
-
-			//Finish off if no more reload attempts
-			if (ent->client->reloadAttempts < 1 && ent->client->fastReloads)
-				delay += RQ3_SSG3000_FINISH_RELOAD_DELAY;
-			break;
-		case WP_AKIMBO:
-	   		delay = RQ3_AKIMBO_RELOAD_DELAY;
-   			if (ent->client->ps.ammo[weapon] >= RQ3_AKIMBO_AMMO) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			break;
-		case WP_MP5:
-			delay = RQ3_MP5_RELOAD_DELAY;
-   			if (ent->client->ps.ammo[weapon] >= RQ3_MP5_AMMO) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			break;
-		default:
-			//Elder: shouldn't be here
-			delay = 2500;
-   			//Elder: changed function
-   			if (ent->client->ps.ammo[weapon] >= ClipAmountForAmmo(weapon)) {
-				trap_SendServerCommand(ent-g_entities, va("print \"No need to reload.\n\""));
-				return;
-			}
-			break;
-		}
-
-	// Elder: added handcannon and akimbo conditional
-	if (ent->client->numClips[weapon] == 0)	{
-		ent->client->fastReloads = 0;
-		ent->client->reloadAttempts = 0;
-		trap_SendServerCommand(ent-g_entities, va("print \"Out of ammo\n\""));
-		return;
-	} else if ((weapon == WP_HANDCANNON || weapon == WP_AKIMBO) && ent->client->numClips[weapon] < 2) {
-		trap_SendServerCommand(ent-g_entities, va("print \"Not enough ammo\n\""));
-		return;
-	}
-	// Elder: check if still in recoil
-	else if ( ent->client->ps.weaponTime > 0 && !ent->client->fastReloads ) {
-		return;
-	}
-
-	//Save once only
-	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000) {
-		RQ3_SaveZoomLevel(ent);
-	}
-
-	ent->client->ps.weaponstate = WEAPON_RELOADING;
-	ent->client->ps.torsoAnim = ((ent->client->ps.torsoAnim & ANIM_TOGGLEBIT)
-									^ ANIM_TOGGLEBIT) | TORSO_DROP;
-	//Elder: at this point there should be sufficient ammo requirements to reload
-	if (ent->client->numClips[weapon] > 0) {
-		//Elder: more attempts to synchronize the mk23 and akimbos
-		if (weapon == WP_PISTOL && (ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO))) {
-			ent->client->ps.ammo[WP_AKIMBO] = ent->client->ps.ammo[WP_AKIMBO] - ent->client->ps.ammo[WP_PISTOL] + ammotoadd;
-			if (ent->client->ps.ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO) {
-				ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
-			}
-		} else if (weapon == WP_AKIMBO) {
-			//Elder: refill the MK23 as well
-			ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
-		}
-
-		// add ammo to weapon
-		ent->client->ps.ammo[weapon] = ammotoadd;
-		ent->client->numClips[weapon]--;
-
-		//Elder: remove an extra "clip" if it's the handcannon or akimbo
-		if (weapon == WP_HANDCANNON || weapon == WP_AKIMBO)
-			ent->client->numClips[weapon]--;
-
-		//Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
-		if (weapon == WP_M3) {
-			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
-		} else if (weapon == WP_HANDCANNON) {
-			ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
-		} else if(weapon == WP_PISTOL) {
-			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL];
-		} else if (weapon == WP_AKIMBO) {
-			ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
-		}
-	}
-}
-*/
-
-/*
-==================
- ClipAmountForWeapon for Cmd_Reload
- Added by Duffman
- Returns the amount of ammo a weapon can hold
-==================
-*/
-//Blaze: Moved to bg_misc.c because of needs for this funcion else
-//Elder: def'd in bg_public.h
-/*
-int ClipAmountForWeapon( int w )        {
-	//How much each clip holds
-	   switch(w){
-		   case WP_PISTOL:
-			   return 15;
-		   case WP_KNIFE:
-			   return 1;
-		   case WP_M4:
-			   return 24;
-		   case WP_SSG3000:
-			   return 6;
-		   case WP_MP5:
-			   return 30;
-		   case WP_HANDCANNON:
-			   return 2;
-		   case WP_M3:
-			   return 8;
-		   case WP_AKIMBO:
-			   return 24;
-		   case WP_GRENADE:
-			   return 1;
-		   default:
-			   return 12;
-	   }
-       return 12; //this wont happen unless you copy-and-paste too much
-}
-*/
 /*
 ==================
  Opendoor Function
@@ -2651,9 +2262,6 @@ void Cmd_Weapon(gentity_t * ent)
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 
-	//Elder: debug code
-	//G_Printf("PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
-
 	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		if (!ent->client->weapon_after_bandage_warned) {
 			ent->client->weapon_after_bandage_warned = qtrue;
@@ -2664,20 +2272,7 @@ void Cmd_Weapon(gentity_t * ent)
 		return;
 	}
 	ent->client->weapon_after_bandage_warned = qfalse;
-/*
-	//Can't use weapon while firing
-//	if ( ent->client->ps.weaponTime > 0 || ent->client->ps.stats[STAT_RELOADTIME] > 0) {
 
-		WEAPON_READY,		//sync with WP_ANIM_IDLE
-	WEAPON_COCKED,		//sync with WP_ANIM_EXTRA1 for grenade
-	WEAPON_RAISING,		//sync with WP_ANIM_ACTIVATE
-	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
-	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
-	WEAPON_RELOADING,	//sync with WP_ANIM_RELOAD
-	WEAPON_STALL,		//for delaying weapon fires (knife, grenade)
-	WEAPON_MODECHANGE,	// NiceAss: sync with WP_ANIM_EXTRA1 & WP_ANIM_EXTRA2 for knife.
-	WEAPON_BANDAGING	// NiceAss: Added to follow AQ2 and fix a bug.
-	*/
 	if (ent->client->ps.weaponstate == WEAPON_RELOADING ||
 	    ent->client->ps.weaponstate == WEAPON_FIRING ||
 	    ent->client->ps.weaponstate == WEAPON_DROPPING || ent->client->ps.weaponstate == WEAPON_RAISING) {
@@ -2687,46 +2282,28 @@ void Cmd_Weapon(gentity_t * ent)
 	//Elder: added brackets, and-ops and not-ops instead of logical ops
 	switch (ent->s.weapon) {
 	case WP_SSG3000:
-		// zoom is done by client. zoom 3 levels, then zoom out
-		//Elder: This is just for the server to track when calcing the spread
-		/*
-		   if (ent->client->zoomed == 3) {
-		   ent->client->zoomed = 0;
-		   }
-		   else {
-		   ent->client->zoomed++;
-		   }
-		 */
 		if ((ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
 		    (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
 			//Elder: zoom 1x
-			//G_Printf("Server: 1x\n");
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		} else if ((ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
 			//Elder: zoom 6x
-			//G_Printf("Server: 6x\n");
 			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_LOW;
 		} else if ((ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
 			//Elder: zoom 4x
-			//G_Printf("Server: 4x\n");
 			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_MED;
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 		} else {
 			//Elder: zoom 2x
-			//G_Printf("Server: 2x\n");
 			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_LOW;
 		}
 
-		//Elder: don't print - will broadcast to server
-		//G_Printf("zoomlevel = %d\n",ent->client->zoomed);
-		//G_AddEvent(ent,EV_ZOOM,ent->client->zoomed);
 		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/lens.wav"));
 		break;
 	case WP_PISTOL:
 		// semiauto toggle (increase accuracy)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE) {
-
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
 			G_SendClientSpec(ent, va("print \"Switched to full automatic.\n\""));
 		} else {
@@ -2817,13 +2394,6 @@ void Cmd_Weapon(gentity_t * ent)
 		else {
 			G_Printf("Cmd_Weapon_f: Received bad grenade toggle\n");
 		}
-		/* Elder: debugging code
-		   G_Printf("Grenade toggle- Short: %d, Medium: %d, Long: %d\n",
-		   (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT,
-		   (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED,
-		   (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
-		   (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED);
-		 */
 		break;
 	default:
 		break;
@@ -2849,21 +2419,8 @@ void Cmd_Unzoom(gentity_t * ent)
 			ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED)
 		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/lens.wav"));
 
-	//G_Printf("Got to Cmd_Unzoom\n");
-	//Elder: added
-	//if (ent->client->isBandaging == qtrue) {
-	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-	//trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
-	//return;
-	//}
-	//else {
-	//Elder: remove zoom bits
-	
 	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-	//ent->client->zoomed = 0;
-	//}
-
 }
 
 /*
@@ -2877,7 +2434,6 @@ void Cmd_DropWeapon_f(gentity_t * ent)
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 // JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
-//      if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand(ent - g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
@@ -2908,16 +2464,6 @@ void Cmd_DropItem_f(gentity_t * ent)
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM]) {
 		//Elder: reset item totals if using bandolier
 		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
-/*				if (ent->client->numClips[WP_PISTOL] > RQ3_PISTOL_MAXCLIP)
-				{
-					ent->client->numClips[WP_PISTOL] = RQ3_PISTOL_MAXCLIP;
-					ent->client->numClips[WP_AKIMBO] = RQ3_PISTOL_MAXCLIP;
-				}
-				if (ent->client->numClips[WP_M3] > RQ3_M3_MAXCLIP)
-				{
-					ent->client->numClips[WP_M3] = RQ3_M3_MAXCLIP;
-					ent->client->numClips[WP_HANDCANNON] = RQ3_M3_MAXCLIP;
-				} */
 			if (ent->client->numClips[WP_SSG3000] > RQ3_SSG3000_EXTRA_AMMO)
 				ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO;
 			if (ent->client->numClips[WP_M3] > RQ3_M3_EXTRA_AMMO)
@@ -2930,22 +2476,18 @@ void Cmd_DropItem_f(gentity_t * ent)
 				ent->client->numClips[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO;
 			if (ent->client->numClips[WP_AKIMBO] > RQ3_AKIMBO_EXTRA_AMMO)
 				ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO;
-
 			if (ent->client->ps.ammo[WP_GRENADE] > 0)
 				ent->client->ps.ammo[WP_GRENADE] = 0;
 			if (ent->client->numClips[WP_PISTOL] > 1)
 				ent->client->numClips[WP_PISTOL] = 1;
-
 			if (ent->client->uniqueWeapons > g_RQ3_maxWeapons.integer) {
 				Cmd_Unzoom(ent);
 				ThrowWeapon(ent, qtrue);
 			}
-
 		}
 		//Force laser off
 		else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER)
 			Laser_Gen(ent, qfalse);
-
 		ThrowItem(ent);
 	}
 }
@@ -2957,8 +2499,6 @@ PlayerStats
 */
 void Cmd_PlayerStats_f(gentity_t * ent)
 {
-	//char textbuf[1024];
-
 	trap_SendServerCommand(ent - g_entities, va("print \"%s^7:\n\"", ent->client->pers.netname));
 	trap_SendServerCommand(ent - g_entities, va("print \"----------------------------------\n\""));
 	trap_SendServerCommand(ent - g_entities, va("print \"| Weapon  | Accuracy | Hits/Shots |\n\""));
@@ -3014,7 +2554,6 @@ void Cmd_PlayerStats_f(gentity_t * ent)
 				    records[REC_SSG3000SHOTS] : 1)), (float) ent->client->pers.records[REC_SSG3000HITS],
 				  (float) ent->client->pers.records[REC_SSG3000SHOTS]));
 	trap_SendServerCommand(ent - g_entities, va("print \"----------------------------------\n\""));
-
 }
 
 /*
@@ -3088,8 +2627,6 @@ void ClientCommand(int clientNum)
 	if (level.intermissiontime) {
 // JBravo: this is just simply way out there.
 //              Cmd_Say_f (ent, qfalse, qtrue);
-		trap_SendServerCommand(ent - g_entities,
-				       va("print \"That command is not allowed during intermission\n\""));
 		return;
 	}
 
@@ -3153,18 +2690,12 @@ void ClientCommand(int clientNum)
 		Ref_Command(ent);
 	else if (Q_stricmp(cmd, "refresign") == 0)
 		Ref_Resign(ent);
-
 // Begin Duffman
 	else if (Q_stricmp(cmd, "reload") == 0) {
-		//Elder: add to reload queue if using fast-reloadable weapons
-		//if (ent->client->ps.weapon == WP_M3 || ent->client->ps.weapon == WP_SSG3000)
-		//ent->client->reloadAttempts++;
-		//G_Printf("Trying a reload...\n");
 		//Cmd_Reload( ent );
-	}
 // End Duffman
 	//Blaze's Open door command
-	else if (Q_stricmp(cmd, "opendoor") == 0)
+	} else if (Q_stricmp(cmd, "opendoor") == 0)
 		Cmd_OpenDoor(ent);
 	//Blaze: Bandage code
 	else if (Q_stricmp(cmd, "bandage") == 0)
@@ -3211,16 +2742,12 @@ void ClientCommand(int clientNum)
 		Cmd_DropItem_f(ent);
 	else if (Q_stricmp(cmd, "camera") == 0)
 		camera_cmd(ent);
-	else if (Q_stricmp(cmd, "playerstats") == 0) {
+	else if (Q_stricmp(cmd, "playerstats") == 0)
 		Cmd_PlayerStats_f(ent);
-	} else if (Q_stricmp(cmd, "SendCheatCvars") == 0) {
-		if (!G_SendCheatVars(clientNum)) {
+	else if (Q_stricmp(cmd, "SendCheatCvars") == 0) {
+		if (!G_SendCheatVars(clientNum))
 			Com_Printf("Error loading cvar cfg\n");
-			//return "Error_loading_cvar_cfg";
-		}
-	}
-
-	else
+	} else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }
 
@@ -3239,12 +2766,8 @@ spam from reaching other clients.
 
 int RQ3_ValidateSay(gentity_t * ent)
 {
-	int timeCheck;
-	int warnTime;
-	int banTime;
-	int intervalTime;
-	int maxWarnings;
-	int maxMessages;
+	int timeCheck, warnTime, banTime;
+	int intervalTime, maxWarnings, maxMessages;
 
 	if (g_RQ3_messageProtect.integer == 0)
 		return SAY_OK;
