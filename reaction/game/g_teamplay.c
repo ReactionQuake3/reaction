@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/03/17 01:55:43  jbravo
+// Fixed a small bug in radio enemyd that made it say "one enemu down"
+//
 // Revision 1.34  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -971,7 +974,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
 				kills = ReadKilledPlayers (ent);
 				ResetKills (ent);
-				if (kills >=1 && kills <10) {
+				if (kills >1 && kills <10) {
 					for (i = 0; i < level.maxclients; i++) {
 						player = &g_entities[i];
 						if (!player->inuse)
