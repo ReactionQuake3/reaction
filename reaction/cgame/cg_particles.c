@@ -1231,7 +1231,8 @@ void CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duratio
 
 	// find the animation string
 	for (anim=0; shaderAnimNames[anim]; anim++) {
-		if (!stricmp( animStr, shaderAnimNames[anim] ))
+// JBravo - It was stricmp.  Changed to Q_stricmp
+		if (!Q_stricmp( animStr, shaderAnimNames[anim] ))
 			break;
 	}
 	if (!shaderAnimNames[anim]) {
@@ -1811,7 +1812,8 @@ void CG_ParticleBloodCloud (centity_t *cent, vec3_t origin, vec3_t dir)
 	
 }
 
-void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed)
+// JBravo - there was "float scale" missing from the declaration here.  Caused errors under linux.
+void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale)
 {
 	cparticle_t	*p;
 

@@ -242,7 +242,8 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define	BOTLIB_HARD_LINKED
 #endif
 
-#if !idppc
+// JBravo: this causes compile time issues under Linux
+/* #if !idppc
 inline static short BigShort( short l) { return ShortSwap(l); }
 #define LittleShort
 inline static int BigLong(int l) { return LongSwap(l); }
@@ -256,7 +257,7 @@ inline static short LittleShort(short l) { return ShortSwap(l); }
 inline static int LittleLong (int l) { return LongSwap(l); }
 #define BigFloat
 inline static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
+#endif */
 
 #endif
 
@@ -601,6 +602,8 @@ typedef struct {
 	float	v[3];
 } vec3struct_t;
 #define VectorCopy(a,b)	*(vec3struct_t *)b=*(vec3struct_t *)a;
+// JBravo: ID_INLINE get defined again.  Error....
+#undef ID_INLINE
 #define ID_INLINE static
 #endif
 #endif

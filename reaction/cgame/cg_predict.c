@@ -245,6 +245,8 @@ static void CG_TouchItem( centity_t *cent ) {
 	gitem_t		*item;
 //Blaze: No item prediction
 	return;
+// JBravo - Compiler warnings over unreached code.
+/*
 	if ( !cg_predictItems.integer ) {
 		return;
 	}
@@ -297,7 +299,7 @@ static void CG_TouchItem( centity_t *cent ) {
 		if ( !cg.predictedPlayerState.ammo[ item->giTag ] ) {
 			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
 		}
-	}
+	}  */
 }
 
 
