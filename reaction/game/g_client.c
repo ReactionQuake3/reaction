@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/07/09 05:42:18  niceass
+// small change to userinfo
+//
 // Revision 1.104  2002/07/02 03:41:59  jbravo
 // Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
 // and fixed the captain status lingering on people after switching from MM
@@ -1249,7 +1252,7 @@ void ClientUserinfoChanged(int clientNum)
 	} else {
 		s = va
 		    ("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-		     client->pers.netname, client->sess.savedTeam, model, headModel, redTeam, blueTeam, c1, c2,
+		     client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2,
 		     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
