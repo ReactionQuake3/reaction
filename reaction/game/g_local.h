@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/05 01:20:50  jbravo
+// Delay the lights sound 5 server frames.
+//
 // Revision 1.73  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -669,6 +672,7 @@ typedef struct {
 	vec3_t			team2spawn_origin;
 	vec3_t			team2spawn_angles;
 	int			fps;
+	int			lights_delay;
 } level_locals_t;
 //
 // rxn_game.c

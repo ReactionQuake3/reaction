@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/05/05 01:20:50  jbravo
+// Delay the lights sound 5 server frames.
+//
 // Revision 1.76  2002/05/04 16:19:02  jbravo
 // Fixing the stuff cmd to work on dedicated servers.
 //
@@ -278,6 +281,14 @@ void CheckTeamRules()
 
 	level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
 
+	if (level.lights_delay) {
+		level.lights_delay--;
+		if (level.lights_delay == 1) {
+			level.lights_delay = 0;
+			trap_SendServerCommand(-1, "lights");
+		}
+	}
+
 	if (level.lights_camera_action) {
 		ContinueLCA();
 		return;
@@ -292,6 +303,11 @@ void CheckTeamRules()
 			return;
 		level.holding_on_tie_check = 0;
 		checked_tie = 1;
+	}
+
+	if (level.lights_delay == 1) {
+		level.lights_delay = 0;
+		trap_SendServerCommand(-1, "lights");
 	}
 
 	if (level.team_round_countdown == 1) {
@@ -406,7 +422,7 @@ void StartLCA()
 	level.lights_camera_action = (41*level.fps)/10;
 	G_LogPrintf ("LIGHTS...\n");
 	SpawnPlayers();
-//	trap_SendServerCommand( -1, "lights");
+	level.lights_delay = 6;
 }
 
 void ContinueLCA()
@@ -735,7 +751,7 @@ void SpawnPlayers()
 			client->sess.spectatorState = SPECTATOR_NOT;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
-		trap_SendServerCommand(player-g_entities, "lights");
+//		trap_SendServerCommand(player-g_entities, "lights");
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
