@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/07/16 04:09:14  niceass
+// stupid team scoreboard fix
+//
 // Revision 1.106  2002/07/11 04:32:24  niceass
 // misc CTB changes for joining a team or becoming a spectator on map load. Also team check before weapon equip
 //
@@ -1253,7 +1256,7 @@ void ClientUserinfoChanged(int clientNum)
 	} else {
 		s = va
 		    ("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-		     client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2,
+		     client->pers.netname, client->sess.savedTeam, model, headModel, redTeam, blueTeam, c1, c2,
 		     client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
