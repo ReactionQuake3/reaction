@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2004/03/13 01:17:32  makro
+// no message
+//
 // Revision 1.31  2004/03/12 15:56:46  makro
 // no message
 //
@@ -247,7 +250,18 @@ trigger_always
 void trigger_always_think(gentity_t * ent)
 {
 	G_UseTargets(ent, ent);
-	G_FreeEntity(ent, __LINE__, __FILE__);
+	//Makro - we want to be able to re-use this entity (round-based gametypes)
+	//so we're not going to free it
+	//G_FreeEntity(ent, __LINE__, __FILE__);
+	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+}
+
+//Makro - reset function
+void trigger_always_reset(gentity_t *ent)
+{
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	ent->nextthink = level.time + 300;
+	ent->think = trigger_always_think;
 }
 
 /*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
@@ -258,6 +272,8 @@ void SP_trigger_always(gentity_t * ent)
 	// we must have some delay to make sure our use targets are present
 	ent->nextthink = level.time + 300;
 	ent->think = trigger_always_think;
+	//Makro - reset function
+	ent->reset = trigger_always_reset;
 }
 
 /*

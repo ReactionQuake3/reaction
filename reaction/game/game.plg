@@ -3,10 +3,153 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
+--------------------Configuration: cgame - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP526.tmp" with contents
+[
+/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"D:\Work\rq3source\reaction\Release/" /Fp"D:\Work\rq3source\reaction\Release/cgame.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /c 
+"D:\Work\rq3source\reaction\game\bg_misc.c"
+"D:\Work\rq3source\reaction\game\bg_pmove.c"
+"D:\Work\rq3source\reaction\game\bg_slidemove.c"
+"D:\Work\rq3source\reaction\cgame\cg_atmospheric.c"
+"D:\Work\rq3source\reaction\cgame\cg_consolecmds.c"
+"D:\Work\rq3source\reaction\cgame\cg_draw.c"
+"D:\Work\rq3source\reaction\cgame\cg_drawtools.c"
+"D:\Work\rq3source\reaction\cgame\cg_effects.c"
+"D:\Work\rq3source\reaction\cgame\cg_ents.c"
+"D:\Work\rq3source\reaction\cgame\cg_event.c"
+"D:\Work\rq3source\reaction\cgame\cg_info.c"
+"D:\Work\rq3source\reaction\cgame\cg_localents.c"
+"D:\Work\rq3source\reaction\cgame\cg_main.c"
+"D:\Work\rq3source\reaction\cgame\cg_marks.c"
+"D:\Work\rq3source\reaction\cgame\cg_players.c"
+"D:\Work\rq3source\reaction\cgame\cg_playerstate.c"
+"D:\Work\rq3source\reaction\cgame\cg_predict.c"
+"D:\Work\rq3source\reaction\cgame\cg_scoreboard.c"
+"D:\Work\rq3source\reaction\cgame\cg_servercmds.c"
+"D:\Work\rq3source\reaction\cgame\cg_snapshot.c"
+"D:\Work\rq3source\reaction\cgame\cg_syscalls.c"
+"D:\Work\rq3source\reaction\cgame\cg_unlagged.c"
+"D:\Work\rq3source\reaction\cgame\cg_view.c"
+"D:\Work\rq3source\reaction\cgame\cg_weapons.c"
+"D:\Work\rq3source\reaction\game\q_math.c"
+"D:\Work\rq3source\reaction\game\q_shared.c"
+"D:\Work\rq3source\reaction\ui\ui_shared.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP526.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP527.tmp" with contents
+[
+/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"D:\Work\rq3source\reaction\Release/cgamex86.pdb" /map:"D:\Work\rq3source\reaction\Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"D:\Work\rq3source\reaction\Release\cgamex86.dll" /implib:"D:\Work\rq3source\reaction\Release/cgamex86.lib" 
+\Work\rq3source\reaction\Release\bg_misc.obj
+\Work\rq3source\reaction\Release\bg_pmove.obj
+\Work\rq3source\reaction\Release\bg_slidemove.obj
+\Work\rq3source\reaction\Release\cg_atmospheric.obj
+\Work\rq3source\reaction\Release\cg_consolecmds.obj
+\Work\rq3source\reaction\Release\cg_draw.obj
+\Work\rq3source\reaction\Release\cg_drawtools.obj
+\Work\rq3source\reaction\Release\cg_effects.obj
+\Work\rq3source\reaction\Release\cg_ents.obj
+\Work\rq3source\reaction\Release\cg_event.obj
+\Work\rq3source\reaction\Release\cg_info.obj
+\Work\rq3source\reaction\Release\cg_localents.obj
+\Work\rq3source\reaction\Release\cg_main.obj
+\Work\rq3source\reaction\Release\cg_marks.obj
+\Work\rq3source\reaction\Release\cg_players.obj
+\Work\rq3source\reaction\Release\cg_playerstate.obj
+\Work\rq3source\reaction\Release\cg_predict.obj
+\Work\rq3source\reaction\Release\cg_scoreboard.obj
+\Work\rq3source\reaction\Release\cg_servercmds.obj
+\Work\rq3source\reaction\Release\cg_snapshot.obj
+\Work\rq3source\reaction\Release\cg_syscalls.obj
+\Work\rq3source\reaction\Release\cg_unlagged.obj
+\Work\rq3source\reaction\Release\cg_view.obj
+\Work\rq3source\reaction\Release\cg_weapons.obj
+\Work\rq3source\reaction\Release\q_math.obj
+\Work\rq3source\reaction\Release\q_shared.obj
+\Work\rq3source\reaction\Release\ui_shared.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP527.tmp"
+<h3>Output Window</h3>
+Compiling...
+bg_misc.c
+bg_pmove.c
+bg_slidemove.c
+cg_atmospheric.c
+cg_consolecmds.c
+D:\Work\rq3source\reaction\cgame\cg_atmospheric.c(626) : warning C4706: assignment within conditional expression
+D:\Work\rq3source\reaction\cgame\cg_atmospheric.c(638) : warning C4706: assignment within conditional expression
+D:\Work\rq3source\reaction\cgame\cg_atmospheric.c(184) : warning C4701: local variable 'tr' may be used without having been initialized
+D:\Work\rq3source\reaction\cgame\cg_atmospheric.c(334) : warning C4701: local variable 'tr' may be used without having been initialized
+cg_draw.c
+cg_drawtools.c
+cg_effects.c
+cg_ents.c
+cg_event.c
+cg_info.c
+cg_localents.c
+cg_main.c
+cg_marks.c
+cg_players.c
+cg_playerstate.c
+cg_predict.c
+cg_scoreboard.c
+D:\Work\rq3source\reaction\cgame\cg_predict.c(805) : warning C4701: local variable 'predictCmd' may be used without having been initialized
+D:\Work\rq3source\reaction\cgame\cg_predict.c(809) : warning C4701: local variable 'stateIndex' may be used without having been initialized
+cg_servercmds.c
+cg_snapshot.c
+cg_syscalls.c
+cg_unlagged.c
+cg_view.c
+cg_weapons.c
+q_math.c
+q_shared.c
+ui_shared.c
+Linking...
+   Creating library D:\Work\rq3source\reaction\Release/cgamex86.lib and object D:\Work\rq3source\reaction\Release/cgamex86.exp
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52B.tmp" with contents
+[
+/nologo /o"D:\Work\rq3source\reaction\Release/cgame.bsc" 
+\Work\rq3source\reaction\Release\bg_misc.sbr
+\Work\rq3source\reaction\Release\bg_pmove.sbr
+\Work\rq3source\reaction\Release\bg_slidemove.sbr
+\Work\rq3source\reaction\Release\cg_atmospheric.sbr
+\Work\rq3source\reaction\Release\cg_consolecmds.sbr
+\Work\rq3source\reaction\Release\cg_draw.sbr
+\Work\rq3source\reaction\Release\cg_drawtools.sbr
+\Work\rq3source\reaction\Release\cg_effects.sbr
+\Work\rq3source\reaction\Release\cg_ents.sbr
+\Work\rq3source\reaction\Release\cg_event.sbr
+\Work\rq3source\reaction\Release\cg_info.sbr
+\Work\rq3source\reaction\Release\cg_localents.sbr
+\Work\rq3source\reaction\Release\cg_main.sbr
+\Work\rq3source\reaction\Release\cg_marks.sbr
+\Work\rq3source\reaction\Release\cg_players.sbr
+\Work\rq3source\reaction\Release\cg_playerstate.sbr
+\Work\rq3source\reaction\Release\cg_predict.sbr
+\Work\rq3source\reaction\Release\cg_scoreboard.sbr
+\Work\rq3source\reaction\Release\cg_servercmds.sbr
+\Work\rq3source\reaction\Release\cg_snapshot.sbr
+\Work\rq3source\reaction\Release\cg_syscalls.sbr
+\Work\rq3source\reaction\Release\cg_unlagged.sbr
+\Work\rq3source\reaction\Release\cg_view.sbr
+\Work\rq3source\reaction\Release\cg_weapons.sbr
+\Work\rq3source\reaction\Release\q_math.sbr
+\Work\rq3source\reaction\Release\q_shared.sbr
+\Work\rq3source\reaction\Release\ui_shared.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52B.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+cgamex86.dll - 0 error(s), 6 warning(s)
+<h3>
 --------------------Configuration: game - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP506.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52C.tmp" with contents
 [
 /nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"D:\Work\rq3source\reaction\Release/" /Fp"D:\Work\rq3source\reaction\Release/game.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /c 
 "D:\Work\rq3source\reaction\game\ai_chat.c"
@@ -50,8 +193,8 @@ Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP506.tmp" with conte
 "D:\Work\rq3source\reaction\game\zcam.c"
 "D:\Work\rq3source\reaction\game\zcam_target.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP506.tmp" 
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP507.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52C.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52D.tmp" with contents
 [
 kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"D:\Work\rq3source\reaction\Release/qagamex86.pdb" /map:"D:\Work\rq3source\reaction\Release/qagamex86.map" /machine:I386 /def:".\game.def" /out:"D:\Work\rq3source\reaction\Release\qagamex86.dll" /implib:"D:\Work\rq3source\reaction\Release/qagamex86.lib" 
 \Work\rq3source\reaction\Release\ai_chat.obj
@@ -95,7 +238,7 @@ kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows 
 \Work\rq3source\reaction\Release\zcam.obj
 \Work\rq3source\reaction\Release\zcam_target.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP507.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP52D.tmp"
 <h3>Output Window</h3>
 Compiling...
 ai_chat.c
@@ -144,7 +287,7 @@ zcam.c
 zcam_target.c
 Linking...
    Creating library D:\Work\rq3source\reaction\Release/qagamex86.lib and object D:\Work\rq3source\reaction\Release/qagamex86.exp
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP50B.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP531.tmp" with contents
 [
 /nologo /o"D:\Work\rq3source\reaction\Release/game.bsc" 
 \Work\rq3source\reaction\Release\ai_chat.sbr
@@ -187,7 +330,7 @@ Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP50B.tmp" with conte
 \Work\rq3source\reaction\Release\rxn_game.sbr
 \Work\rq3source\reaction\Release\zcam.sbr
 \Work\rq3source\reaction\Release\zcam_target.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP50B.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP531.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
@@ -195,6 +338,75 @@ Creating browse info file...
 
 <h3>Results</h3>
 qagamex86.dll - 0 error(s), 4 warning(s)
+<h3>
+--------------------Configuration: ui - Win32 Release TA--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP532.tmp" with contents
+[
+/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /FR"D:\Work\rq3source\reaction\Release/" /Fp"D:\Work\rq3source\reaction\Release/ta_ui.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /c 
+"D:\Work\rq3source\reaction\game\bg_misc.c"
+"D:\Work\rq3source\reaction\game\q_math.c"
+"D:\Work\rq3source\reaction\game\q_shared.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_atoms.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_gameinfo.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_main.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_players.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_shared.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_syscalls.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_util.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP532.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP533.tmp" with contents
+[
+/nologo /base:"0x40000000" /dll /incremental:no /pdb:"D:\Work\rq3source\reaction\Release/uix86.pdb" /map:"D:\Work\rq3source\reaction\Release/uix86.map" /machine:I386 /def:".\ui.def" /out:"D:\Work\rq3source\reaction\Release\uix86.dll" /implib:"D:\Work\rq3source\reaction\Release/uix86.lib" 
+\Work\rq3source\reaction\Release\bg_misc.obj
+\Work\rq3source\reaction\Release\q_math.obj
+\Work\rq3source\reaction\Release\q_shared.obj
+\Work\rq3source\reaction\Release\ui_atoms.obj
+\Work\rq3source\reaction\Release\ui_gameinfo.obj
+\Work\rq3source\reaction\Release\ui_main.obj
+\Work\rq3source\reaction\Release\ui_players.obj
+\Work\rq3source\reaction\Release\ui_shared.obj
+\Work\rq3source\reaction\Release\ui_syscalls.obj
+\Work\rq3source\reaction\Release\ui_util.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP533.tmp"
+<h3>Output Window</h3>
+Compiling...
+bg_misc.c
+q_math.c
+q_shared.c
+ui_atoms.c
+ui_gameinfo.c
+ui_main.c
+ui_players.c
+ui_shared.c
+ui_syscalls.c
+ui_util.c
+Linking...
+   Creating library D:\Work\rq3source\reaction\Release/uix86.lib and object D:\Work\rq3source\reaction\Release/uix86.exp
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP537.tmp" with contents
+[
+/nologo /o"D:\Work\rq3source\reaction\Release/ta_ui.bsc" 
+\Work\rq3source\reaction\Release\bg_misc.sbr
+\Work\rq3source\reaction\Release\q_math.sbr
+\Work\rq3source\reaction\Release\q_shared.sbr
+\Work\rq3source\reaction\Release\ui_atoms.sbr
+\Work\rq3source\reaction\Release\ui_gameinfo.sbr
+\Work\rq3source\reaction\Release\ui_main.sbr
+\Work\rq3source\reaction\Release\ui_players.sbr
+\Work\rq3source\reaction\Release\ui_shared.sbr
+\Work\rq3source\reaction\Release\ui_syscalls.sbr
+\Work\rq3source\reaction\Release\ui_util.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP537.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

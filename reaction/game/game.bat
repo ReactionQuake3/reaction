@@ -1,9 +1,8 @@
-rem set path=c:\quake3\bin_nt;%PATH%
-rem The following line is to circumvent MS Platform SDK install crap
-set include=
+@echo on
 mkdir vm
 cd vm
-set cc=call ..\compile.bat
+
+set cc=call ..\..\compile.bat
 
 %cc%  ../g_main.c
 @if errorlevel 1 goto quit
@@ -51,8 +50,6 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc%  ../g_items.c
 @if errorlevel 1 goto quit
-%cc%  ../g_matchmode.c
-@if errorlevel 1 goto quit
 %cc%  ../g_mem.c
 @if errorlevel 1 goto quit
 %cc%  ../g_misc.c
@@ -71,23 +68,13 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc%  ../g_team.c
 @if errorlevel 1 goto quit
-%cc%  ../g_teamplay.c
-@if errorlevel 1 goto quit
 %cc%  ../g_trigger.c
 @if errorlevel 1 goto quit
 %cc%  ../g_utils.c
 @if errorlevel 1 goto quit
 %cc%  ../g_weapon.c
 @if errorlevel 1 goto quit
-%cc%  ../g_fileio.c
-@if errorlevel 1 goto quit
 %cc%  ../ai_vcmd.c
-@if errorlevel 1 goto quit
-%cc%  ../rxn_game.c
-@if errorlevel 1 goto quit
-%cc%  ../zcam.c
-@if errorlevel 1 goto quit
-%cc%  ../zcam_target.c
 @if errorlevel 1 goto quit
 
 

@@ -1,6 +1,8 @@
+@echo off
 mkdir vm
 cd vm
-set cc=lcc -DQ3_VM -DMISSIONPACK -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui %1
+
+set cc=call ..\..\compile.bat -DMISSIONPACK
 
 %cc%  ../g_main.c
 @if errorlevel 1 goto quit
