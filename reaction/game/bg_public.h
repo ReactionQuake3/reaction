@@ -404,7 +404,8 @@ typedef enum {
 	STAT_ARMOR,						// Elder: technically we don't need this anymore - maybe for vest
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 // Begin Duffman
-	STAT_CLIPS,                     // Num Clips player currently has
+	STAT_CLIPS,						// Num Clips player currently has
+	STAT_STREAK,
 // End Duffman
 // Homer: for bursting
 	STAT_BURST, 			// number of shots in burst
@@ -636,6 +637,8 @@ typedef enum {
 	EV_GLOBAL_SOUND,		// no attenuation
 	EV_GLOBAL_TEAM_SOUND,
 	EV_RQ3_SOUND,			// Elder: play local sounds - intended for kick
+
+	EV_DMREWARD,				// Duffman: To display expotional reward messages.
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
