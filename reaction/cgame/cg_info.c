@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/28 21:06:37  jbravo
+// I broke the progressbar.  Final fix for that
+//
 // Revision 1.24  2002/05/28 03:10:50  jbravo
 // My fixups broke stuff
 //
@@ -418,7 +421,7 @@ void CG_DrawInformation( void ) {
 		}
 
 		trap_R_SetColor(colorDkGrey);
-		for (bar; bar < 10; bar++) {
+		for (; bar < 10; bar++) {
 			CG_DrawPic(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, percentBox);
 		}
 	} else {
@@ -426,10 +429,9 @@ void CG_DrawInformation( void ) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
 		}
 
-		for (bar; bar < 10; bar++) {
+		for (; bar < 10; bar++) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
 		}
 	}
 
 }
-
