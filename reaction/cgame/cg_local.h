@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/11 22:49:42  niceass
+// HC brass
+//
 // Revision 1.89  2002/06/10 14:02:31  slicer
 // Removed rq3_cmd : ROUND , associated to cg_RQ3_team_round_going that wasn't being used
 //
@@ -1061,6 +1064,7 @@ typedef struct {
 	qhandle_t	machinegunBrassModel;
 	qhandle_t	largeBrassModel;
 	qhandle_t	shotgunBrassModel;
+	qhandle_t	HCBrassModel;
 
 	qhandle_t	railRingsShader;
 	qhandle_t	railCoreShader;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/06/11 22:49:22  niceass
+// HC brass
+//
 // Revision 1.79  2002/06/10 14:02:31  slicer
 // Removed rq3_cmd : ROUND , associated to cg_RQ3_team_round_going that wasn't being used
 //
@@ -1483,6 +1486,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
 	cgs.media.largeBrassModel = trap_R_RegisterModel( "models/weapons2/shells/l_shell.md3" );
 	cgs.media.shotgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
+	cgs.media.HCBrassModel = trap_R_RegisterModel( "models/weapons2/shells/hc_shell.md3" );
 
 	cgs.media.gibAbdomen = trap_R_RegisterModel( "models/gibs/abdomen.md3" );
 	cgs.media.gibArm = trap_R_RegisterModel( "models/gibs/arm.md3" );
