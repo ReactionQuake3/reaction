@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/15 12:48:17  makro
+// Fixed a bug with bots + teams
+//
 // Revision 1.20  2002/05/12 22:15:13  makro
 // Support for ignore/unignore
 //
@@ -3514,22 +3517,32 @@ static void UI_RunMenuScript(char **args) {
 			for (i = 0; i < PLAYERS_PER_TEAM; i++) {
 				int bot = trap_Cvar_VariableValue( va("ui_blueteam%i", i+1));
 				if (bot > 1) {
-					//Makro - using bot list instead of character list
+					//Makro - using bot list instead of character list; new code below
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
 					//} else {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
+					if (ui_actualNetGameType.integer >= GT_TEAM) {
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f blue\n", UI_GetBotNameByNumber(bot-2), skill);
+					} else {
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 				bot = trap_Cvar_VariableValue( va("ui_redteam%i", i+1));
 				if (bot > 1) {
-					//Makro - using bot list instead of character list
+					//Makro - using bot list instead of character list; new code below
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
 					//} else {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
+					if (ui_actualNetGameType.integer >= GT_TEAM) {
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f red\n", UI_GetBotNameByNumber(bot-2), skill);
+					} else {
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 			}
