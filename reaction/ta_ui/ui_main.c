@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2003/03/02 21:12:46  jbravo
+// Version bumped to 3.0.  Lets try and keep it list this.
+//
 // Revision 1.62  2003/02/26 18:22:05  makro
 // Added an option to change crosshair size in assetGlobalDef's
 //
@@ -4998,7 +5001,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v2.3 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.0 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {
