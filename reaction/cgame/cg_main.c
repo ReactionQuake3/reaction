@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/05/19 21:04:37  jbravo
+// Tkok popup system
+//
 // Revision 1.66  2002/05/19 18:32:11  jbravo
 // Made new cvars for regular xhair colors.
 //
@@ -273,6 +276,8 @@ vmCvar_t	cg_RQ3_crosshairColorR;
 vmCvar_t	cg_RQ3_crosshairColorG;
 vmCvar_t	cg_RQ3_crosshairColorB;
 vmCvar_t	cg_RQ3_crosshairColorA;
+// JBravo: cvar for tkok popup
+vmCvar_t	cg_RQ3_tkokAutoPopup;
 //Elder: SSG unique sensitivities
 vmCvar_t	cg_RQ3_ssgSensitivityAuto;
 vmCvar_t	cg_RQ3_ssgSensitivity2x;
@@ -497,6 +502,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_crosshairColorG, "cg_RQ3_crosshairColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_crosshairColorB, "cg_RQ3_crosshairColorB", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_crosshairColorA, "cg_RQ3_crosshairColorA", "0.75", CVAR_ARCHIVE },
+	{ &cg_RQ3_tkokAutoPopup, "cg_RQ3_tkokAutoPopup", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE },

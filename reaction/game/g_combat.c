@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/05/19 21:04:37  jbravo
+// Tkok popup system
+//
 // Revision 1.78  2002/05/19 04:48:50  jbravo
 // Added sniper headshot and hc really hard hit gibbing.  HC event gets lost
 // between game and cgame
@@ -1319,6 +1322,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				//Also, increment the TK's record
 				attacker->client->pers.records[REC_TEAMKILLS]++;
 				Add_TeamKill(attacker);
+				trap_SendServerCommand (self-g_entities, va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
 			}
 		} else {
 			// Increase number of kills this life for attacker

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/19 21:04:37  jbravo
+// Tkok popup system
+//
 // Revision 1.37  2002/05/18 21:58:53  blaze
 // cg_rq3_autoaction support
 //
@@ -1349,6 +1352,10 @@ void CG_RQ3_Cmd () {
 			break;
 		case RADIO:
 			CG_Radio();
+			break;
+		case TKOK:
+			if (cg_RQ3_tkokAutoPopup.integer)
+				trap_SendConsoleCommand ("ui_RQ3_tkok\n");
 			break;
 		default:
 			break;

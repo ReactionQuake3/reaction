@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/05/19 21:04:37  jbravo
+// Tkok popup system
+//
 // Revision 1.65  2002/05/18 21:57:54  blaze
 // Transmit round start to clients
 // used for cg_rq3_autoaction
@@ -268,9 +271,10 @@ enum {
 	SELECTPISTOL,
 	ROUND,
 	MAPEND,
-  MAPSTART,
-  SETWEAPON,
+	MAPSTART,
+	SETWEAPON,
 	STUFF,
+	TKOK,
 	RADIO
 };
 //Elder: sound events for EV_RQ3_SOUND

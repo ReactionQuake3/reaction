@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/05/19 21:04:37  jbravo
+// Tkok popup system
+//
 // Revision 1.77  2002/05/19 18:32:11  jbravo
 // Made new cvars for regular xhair colors.
 //
@@ -1606,6 +1609,8 @@ extern	vmCvar_t		cg_RQ3_crosshairColorR;
 extern	vmCvar_t		cg_RQ3_crosshairColorG;
 extern	vmCvar_t		cg_RQ3_crosshairColorB;
 extern	vmCvar_t		cg_RQ3_crosshairColorA;
+// JBravo: cvar for tkok popups
+extern	vmCvar_t		cg_RQ3_tkokAutoPopup;
 //Elder: SSG unique sensitivities
 extern	vmCvar_t		cg_RQ3_ssgSensitivityAuto;
 extern	vmCvar_t		cg_RQ3_ssgSensitivity2x;
