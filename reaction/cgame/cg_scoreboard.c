@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/06/05 23:39:23  niceass
+// small change in wording
+//
 // Revision 1.31  2002/06/05 04:58:43  niceass
 // Scoreboard changes
 //
@@ -415,7 +418,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
 		Com_sprintf(Tmp, 128, "%4d  %6d", (int)((float)Ping / (float)Reds), Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
-		DrawCenterStripText(y, SB_FONTSIZEH, "Averages", 20, colorWhite);
+		DrawCenterStripText(y, SB_FONTSIZEH, "Totals", 20, colorWhite);
 	}
 	else {
 		y += 2;
@@ -493,7 +496,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
 		Com_sprintf(Tmp, 128, "%4d  %6d", (int)((float)Ping / (float)Blues), Damage);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, colorWhite);
-		DrawCenterStripText(y, SB_FONTSIZEH, "Averages", 20, colorWhite);
+		DrawCenterStripText(y, SB_FONTSIZEH, "Totals", 20, colorWhite);
 	}
 	else {
 		y+=2;
