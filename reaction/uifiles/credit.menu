@@ -1022,11 +1022,11 @@
 	textscale .35
 	textalignx 120
 	textaligny 80
-	text "A-TEAM REPRESENTATIVE\n\n"
-	     "Dwayne Douglass\n\n\n"
-	     "ZCam Author\n\n"
+	text "A-TEAM REPRESENTATIVE\n"
+	     "Dwayne Douglass\n\n"
+	     "ZCam Author\n"
 	     "Avi 'Zung!' Rozen\n\n"
-	     "Unlagged Autor\n\n"
+	     "Unlagged Autor\n"
 	     "Neil 'haste' Toronto"
 	autowrapped
 	visible 1
