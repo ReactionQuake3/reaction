@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/08/03 06:21:04  jbravo
+// Fixed the Akimbo ammo when akimbos are not the primary weapon
+//
 // Revision 1.43  2002/07/19 04:30:31  niceass
 // decals below cases and some other changes
 //
@@ -234,10 +237,6 @@ void Add_Ammo(gentity_t * ent, int weapon, int count, int bandolierFactor)
 	} else if (weapon == WP_AKIMBO) {
 		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
 	}
-	//ent->client->ps.ammo[weapon] += count;
-	//if ( ent->client->ps.ammo[weapon] > 200 ) {
-	//      ent->client->ps.ammo[weapon] = 200;
-	//}
 }
 
 int Pickup_Ammo(gentity_t * ent, gentity_t * other, int bandolierFactor)
@@ -276,11 +275,9 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		other->client->ps.stats[STAT_WEAPONS] |= (1 << ent->item->giTag);
 	}
 // Begin Duffman - Adds a clip for each weapon picked up, will want to edit this later
-	/*Add_Ammo( other, ent->item->giTag, quantity ); */
 	switch (ent->item->giTag) {
 	case WP_KNIFE:
 		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP * bandolierFactor) {
-			//G_Printf("(%d)\n",other->client->ps.ammo[ent->item->giTag]);
 			ammotoadd = other->client->ps.ammo[WP_KNIFE] + 1;
 		} else {
 			ammotoadd = RQ3_KNIFE_MAXCLIP;
@@ -290,19 +287,15 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		//Elder: special case
 		//Someone can optimize this code later, but for now, it works.
 		if (!(other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO))) {
-			//give akimbo
-			//G_Printf("Dual MK23 pistols\n");
 			trap_SendServerCommand(other - g_entities, va("print \"%s^7\n\"", RQ3_AKIMBO_NAME));
 			other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_AKIMBO);
 			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
 			//Elder: always reset back to full clip like Action if first pistol picked up
 			ammotoadd = RQ3_PISTOL_AMMO;
-			//ammotoadd = other->client->ps.ammo[WP_PISTOL];
 		}
 		//Elder: Already have akimbo - technically should have pistol
 		else if (other->client->numClips[WP_PISTOL] < 2) {
 			//give an extra clip - make < 2 + 2 * hasBandolier(0/1) or something for bando when it's in
-			//G_Printf("Picked up an extra clip\n");
 			trap_SendServerCommand(other - g_entities, va("print \"Picked up an extra clip^7\n\""));
 			other->client->numClips[WP_PISTOL]++;
 			other->client->numClips[WP_AKIMBO]++;
@@ -469,23 +462,6 @@ void RespawnItem(gentity_t * ent)
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 
-/*	Blaze: No Kamikaze item
-	if ( ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_KAMIKAZE ) {
-		// play powerup spawn sound to all clients
-		gentity_t	*te;
-
-		// if the powerup respawn sound should Not be global
-		if (ent->speed) {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GENERAL_SOUND );
-		}
-		else {
-			te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_SOUND );
-		}
-		te->s.eventParm = G_SoundIndex( "sound/items/kamikazerespawn.wav" );
-		te->r.svFlags |= SVF_BROADCAST;
-	}
-	*/
-
 	// play the normal respawn sound only to nearby clients
 	G_AddEvent(ent, EV_ITEM_RESPAWN, 0);
 
@@ -582,72 +558,11 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 			return;
 			break;
 		}
-		/*
-		   case WP_KNIFE:
-		   if (!other->client->ps.stats[STAT_WEAPONS] & WP_KNIFE == WP_KNIFE &&
-		   (other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
-		   return;
-		   break;
-		   case WP_PISTOL:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_PISTOL == WP_PISTOL) &&
-		   (other->client->ps.stats[STAT_CLIPS] >= RQ3_PISTOL_MAXCLIP) )
-		   //Elder: why are we checking clips here but ammo in the others and what-not??
-		   return;
-		   break;
-		   case WP_M3:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M3 == WP_M3) &&
-		   (other->client->ps.ammo[ent->item->giTag] >= RQ3_M3_AMMO) )
-		   return;
-		   break;
-		   case WP_HANDCANNON:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_HANDCANNON == WP_HANDCANNON) &&
-		   (other->client->ps.ammo[ent->item->giTag] >= RQ3_HANDCANNON_AMMO) )
-		   return;
-		   break;
-		   case WP_MP5:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_MP5 == WP_MP5) &&
-		   (other->client->ps.stats[STAT_CLIPS] >= RQ3_MP5_MAXCLIP) )
-		   return;
-		   break;
-		   case WP_M4:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M4 == WP_M4) &&
-		   (other->client->ps.stats[STAT_CLIPS] >= RQ3_M4_MAXCLIP) )
-		   return;
-		   break;
-		   case WP_SSG3000:
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_SSG3000 == WP_SSG3000) &&
-		   (other->client->ps.ammo[ent->item->giTag] >= RQ3_SSG3000_AMMO ) )
-		   return;
-		   break;
-		   case WP_AKIMBO:
-		   //Elder: uhh- 24 clips?
-		   //if (!(other->client->ps.stats[STAT_WEAPONS] & WP_AKIMBO == WP_AKIMBO) &&
-		   //(other->client->ps.stats[STAT_CLIPS] >= 24) ) return;
-		   if (!(other->client->ps.stats[STAT_WEAPONS] & WP_AKIMBO == WP_AKIMBO) &&
-		   (other->client->ps.stats[STAT_CLIPS] >= RQ3_AKIMBO_MAXCLIP) )
-		   return;
-		   break;
-		   case WP_GRENADE:
-		   if (!other->client->ps.stats[STAT_WEAPONS] & WP_GRENADE == WP_GRENADE &&
-		   (other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP))
-		   return;
-		   break;
-
-		   //Blaze: Check and see if it's a unique weapon, and if so make sure they dont have too many already
-		   if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 ||
-		   ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON ||
-		   ent->item->giTag == WP_SSG3000) {
-		   if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_RQ3_maxWeapons.integer) {
-		   return;
-		   }
-		   }
-		 */
 
 		respawn = Pickup_Weapon(ent, other, bandolierFactor);
 
 		//Elder: added pistol and knife condition
 		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL || ent->item->giTag == WP_KNIFE) {
-//                      G_Printf("Grenade Picked up (%d)\n",respawn);
 			respawn = 30;
 		} else {
 			//Elder: moved here
@@ -697,7 +612,6 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 			break;
 		}
 		respawn = Pickup_Ammo(ent, other, bandolierFactor);
-//              predict = qfalse;
 		break;
 	case IT_ARMOR:
 		respawn = Pickup_Armor(ent, other);
@@ -726,9 +640,6 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	if (!respawn) {
 		return;
 	}
-	//Elder: Moved after checks so we don't print a billion log messages
-	// JBravo: removed.
-//      G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
 
 	// play the normal pickup sound
 	if (predict) {

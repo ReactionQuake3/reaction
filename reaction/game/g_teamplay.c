@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2002/08/03 06:21:04  jbravo
+// Fixed the Akimbo ammo when akimbos are not the primary weapon
+//
 // Revision 1.124  2002/07/19 04:40:56  jbravo
 // Added 2 new radio sets and ctb radio sound support
 //
@@ -1059,7 +1062,7 @@ void EquipPlayer(gentity_t * ent)
 
 	bandolierFactor = grenades = 0;
 
-	ent->client->numClips[WP_PISTOL] = 1;	// extra clip of ammo for pistol
+	ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO] = 1;	// extra clip of ammo for pistol
 	ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
 
 	if (ent->client->teamplayItem == HI_BANDOLIER) {
