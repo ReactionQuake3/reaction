@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/06/23 15:51:59  slicer
+// Fixed the UI team count cvars when someone disconnects.
+//
 // Revision 1.33  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -996,6 +999,8 @@ void CG_NewClientInfo(int clientNum)
 	configstring = CG_ConfigString(clientNum + CS_PLAYERS);
 	if (!configstring[0]) {
 		memset(ci, 0, sizeof(*ci));
+		//Slicer: Recalculate team count cvars
+		CG_UpdateTeamVars();
 		return;		// player just left
 	}
 	// build into a temp buffer so the defer checks can use
