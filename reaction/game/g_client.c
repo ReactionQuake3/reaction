@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/05/27 06:50:01  niceass
+// further spawning and removed kamakazi
+//
 // Revision 1.78  2002/05/25 16:31:18  blaze
 // moved breakable stuff over to config strings
 //
@@ -383,7 +386,29 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 			numSpots++;
 		}
 	}
-	if (!numSpots) {
+
+
+	/* NICEASS WAY:
+	gentity_t	*spot;
+	vec3_t		delta;
+	float		dist, furthestDist;
+	gentity_t	*furthestSpot;
+
+	furthestDist = 0;
+	furthestSpot = NULL;
+	spot = NULL;
+  
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+
+		VectorSubtract( spot->s.origin, from, delta );
+		dist = VectorLength( delta );
+		if ( dist > furthestDist ) {
+			furthestDist = dist;
+			furthestSpot = spot;
+		}
+	}
+
+	if (!furthestSpot) {
 		spot = G_Find( NULL, FOFS(classname), "info_player_deathmatch");
 		if (!spot)
 			G_Error( "Couldn't find a spawn point" );
@@ -392,9 +417,14 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 		VectorCopy (spot->s.angles, angles);
 		return spot;
 	}
+	else {
+		return furthestSpot;
+	}
+	*/
+
 
 	// select a random spot from the spawn points furthest away
-	rnd = random() * (numSpots / 2);
+	rnd = random() * (numSpots / 3); // NiceAss: divided by 2 changed to 3 to cut down on close spawns
 
 	VectorCopy (list_spot[rnd]->s.origin, origin);
 	origin[2] += 9;
@@ -584,24 +614,6 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 	body->s = ent->s;
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
-#ifdef MISSIONPACK
-	if ( ent->s.eFlags & EF_KAMIKAZE ) {
-		body->s.eFlags |= EF_KAMIKAZE;
-
-		// check if there is a kamikaze timer around for this owner
-		for (i = 0; i < MAX_GENTITIES; i++) {
-			e = &g_entities[i];
-			if (!e->inuse)
-				continue;
-			if (e->activator != ent)
-				continue;
-			if (strcmp(e->classname, "kamikaze timer"))
-				continue;
-			e->activator = body;
-			break;
-		}
-	}
-#endif
 	body->s.powerups = 0;	// clear powerups
 	body->s.loopSound = 0;	// clear lava burning
 	body->s.number = body - g_entities;
@@ -1554,9 +1566,6 @@ void ClientSpawn(gentity_t *ent) {
 		} while ( 1 );
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
-
-	// always clear the kamikaze flag
-	ent->s.eFlags &= ~EF_KAMIKAZE;
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
