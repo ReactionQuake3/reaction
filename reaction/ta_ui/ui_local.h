@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/10 22:10:10  makro
+// no message
+//
 // Revision 1.5  2002/03/03 21:22:58  makro
 // no message
 //
@@ -126,7 +129,7 @@ extern vmCvar_t	ui_smallFont;
 extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
 //Makro - cvar for player model display
-extern vmCvar_t ui_RQ3_model_command;
+extern vmCvar_t ui_RQ3_modelCommand;
 
 
 //
@@ -830,6 +833,10 @@ typedef struct {
 	int currentCrosshair;
 	//Makro - for the SSG crosshair preview
 	int currentSSGCrosshair;
+	//Makro - save the music volume
+	float oldMusicVol;
+	qboolean savedMusicVol;
+
 	int startPostGameTime;
 	sfxHandle_t newHighScoreSound;
 
@@ -841,6 +848,9 @@ typedef struct {
 	int effectsColor;
 
 	qboolean inGameLoad;
+
+	//Makro - music files currently being played
+	const char *playingIntro, *playingLoop;
 
 }	uiInfo_t;
 

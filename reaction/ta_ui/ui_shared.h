@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/10 22:10:10  makro
+// no message
+//
 // Revision 1.7  2002/03/03 21:22:58  makro
 // no message
 //
@@ -111,7 +114,7 @@
 #define SLIDER_THUMB_HEIGHT 20.0
 #define	NUM_CROSSHAIRS			10
 //Makro - for the SSG crosshair preview
-#define	NUM_SSGCROSSHAIRS		6
+#define	NUM_SSGCROSSHAIRS		5
 
 typedef struct {
   const char *command;
@@ -240,6 +243,9 @@ typedef struct itemDef_s {
   float textalignx;              // ( optional ) text alignment x coord
   float textaligny;              // ( optional ) text alignment x coord
   float textscale;               // scale percentage from 72pts
+  //Makro - fixed height for autowrapped text
+  float textHeight;
+  
   int textStyle;                 // ( optional ) style, normal and shadowed are it for now
   const char *text;              // display text
   void *parent;                  // menu owner
@@ -251,6 +257,8 @@ typedef struct itemDef_s {
   const char *action;            // select script
   const char *onFocus;           // select script
   const char *leaveFocus;        // select script
+  //Makro - extra action executed when the timer show this item
+  const char *onTimer;
   const char *cvar;              // associated cvar 
   const char *cvarTest;          // associated cvar for enable actions
 	const char *enableCvar;			   // enable, disable, show, or hide based on value, this can contain a list
@@ -276,11 +284,19 @@ typedef struct {
   const char *onOpen;								// run when the menu is first opened
   const char *onClose;							// run when the menu is closed
   const char *onESC;								// run when the menu is closed
-	const char *soundName;						// background loop sound for menu
+//Makro - executed when all the items in a timed sequence have been shown
+  const char *onFinishTimer;
+  const char *soundName;						// background loop sound for menu
+//Makro - music intro  
+  const char *soundIntro;
 
   vec4_t focusColor;								// focus color for items
   vec4_t disableColor;							// focus color for items
   itemDef_t *items[MAX_MENUITEMS];	// items this menu contains   
+
+  //Makro - timer is on/off
+  qboolean timerEnabled;
+  int nextTimer, timerInterval, timedItems, timerPos;
 } menuDef_t;
 
 typedef struct {

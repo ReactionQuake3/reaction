@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/10 22:10:10  makro
+// no message
+//
 // Revision 1.7  2002/03/03 21:22:58  makro
 // no message
 //
@@ -848,6 +851,11 @@ void Menu_PostParse(menuDef_t *menu) {
 		menu->window.rect.h = 480;
 	}
 
+	//Makro - timer is disabled by default
+	menu->timerEnabled = qfalse;
+	menu->nextTimer = 0;
+	menu->timerPos = 0;
+
 	Menu_UpdatePosition(menu);
 }
 
@@ -1223,8 +1231,6 @@ void Script_Orbit(itemDef_t *item, char **args) {
   }
 }
 
-
-
 void Script_SetFocus(itemDef_t *item, char **args) {
   const char *name;
   itemDef_t *focusItem;
@@ -1288,9 +1294,37 @@ void Script_playLooped(itemDef_t *item, char **args) {
 	}
 }
 
+//Makro - timer scripts
+void Script_StartTimer(itemDef_t *item, char **args) {
+	menuDef_t *menu = (menuDef_t*) item->parent;
+	
+	if (menu) {
+		if (menu->timedItems > 0) {
+			menu->timerEnabled = qtrue;
+			menu->timerPos = 0;
+			if (menu->timerInterval <= 0) {
+				menu->timerInterval = 1000;
+			}
+		}
+	}
+}
+
+void Script_StopTimer(itemDef_t *item, char **args) {
+	menuDef_t *menu = (menuDef_t*) item->parent;
+	
+	if (menu) {
+		menu->timerEnabled = qfalse;
+		menu->timerPos = 0;
+	}
+}
 
 commandDef_t commandList[] =
 {
+  //Makro - for timers
+  {"startTimer", &Script_StartTimer},           // group/name
+  {"restartTimer", &Script_StartTimer},         // group/name
+  {"stopTimer", &Script_StopTimer},             // group/name
+
   {"fadein", &Script_FadeIn},                   // group/name
   {"fadeout", &Script_FadeOut},                 // group/name
   {"show", &Script_Show},                       // group/name
@@ -1982,15 +2016,27 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 
 qboolean Item_YesNo_HandleKey(itemDef_t *item, int key) {
 
-  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
-		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
-	    DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
-		  return qtrue;
+	qboolean ok = qfalse;
+
+	//Makro - an item should react on key presses even if the mouse isn't over it
+	if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+		if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+			if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+				ok = qtrue;
+			}
+		} else {
+			if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+				ok = qtrue;
+			}
 		}
-  }
+	}
 
-  return qfalse;
+	if (ok) {
+		DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+		return qtrue;
+	}
 
+	return qfalse;
 }
 
 int Item_Multi_CountSettings(itemDef_t *item) {
@@ -2055,30 +2101,55 @@ const char *Item_Multi_Setting(itemDef_t *item) {
 
 qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
+
+	//Makro - added support for left/right keys
+	//made it so that the mouse pointer doesn't have to be over the item
+	qboolean ok = qfalse;
 	if (multiPtr) {
-	  if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar) {
-			if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
-				int current = Item_Multi_FindCvarByValue(item) + 1;
-				int max = Item_Multi_CountSettings(item);
-				if ( current < 0 || current >= max ) {
-					current = 0;
+		if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
+			if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+				if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+					ok = qtrue;
 				}
-				if (multiPtr->strDef) {
-					DC->setCVar(item->cvar, multiPtr->cvarStr[current]);
-				} else {
-					float value = multiPtr->cvarValue[current];
-					if (((float)((int) value)) == value) {
-						DC->setCVar(item->cvar, va("%i", (int) value ));
-					}
-					else {
-						DC->setCVar(item->cvar, va("%f", value ));
-					}
+			} else {
+				if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+					ok = qtrue;
 				}
-				return qtrue;
 			}
 		}
 	}
-  return qfalse;
+	
+	if (ok) {
+		int current = Item_Multi_FindCvarByValue(item) + 1;
+		int max = Item_Multi_CountSettings(item);
+		
+		if (key == K_LEFTARROW) {
+			current -= 2;
+		}
+
+		if ( current < 0 ) {
+			current = max-1;
+		} else {
+			if (current >= max) {
+				current = 0;
+			}
+		}
+
+		if (multiPtr->strDef) {
+			DC->setCVar(item->cvar, multiPtr->cvarStr[current]);
+		} else {
+			float value = multiPtr->cvarValue[current];
+			if (((float)((int) value)) == value) {
+				DC->setCVar(item->cvar, va("%i", (int) value ));
+			} else {
+				DC->setCVar(item->cvar, va("%f", value ));
+			}
+		}
+
+		return qtrue;
+	}
+  
+	return qfalse;
 }
 
 qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
@@ -2384,39 +2455,109 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 	float x, value, width, work;
 
 	//DC->Print("slider handle key\n");
-	if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+	if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
 		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
+			if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+				editFieldDef_t *editDef = item->typeData;
+				if (editDef) {
+					rectDef_t testRect;
+					width = SLIDER_WIDTH;
+					if (item->text) {
+						x = item->textRect.x + item->textRect.w + 8;
+					} else {
+						x = item->window.rect.x;
+					}
+
+					testRect = item->window.rect;
+					testRect.x = x;
+					value = (float)SLIDER_THUMB_WIDTH / 2;
+					testRect.x -= value;
+					//DC->Print("slider x: %f\n", testRect.x);
+					testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
+					//DC->Print("slider w: %f\n", testRect.w);
+					if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
+						work = DC->cursorx - x;
+						value = work / width;
+						value *= (editDef->maxVal - editDef->minVal);
+						// vm fuckage
+						// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
+						value += editDef->minVal;
+						DC->setCVar(item->cvar, va("%f", value));
+						return qtrue;
+					}
+				}
+			}
+		//Makro - adding left/right key handling
+		} else if (key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
 			editFieldDef_t *editDef = item->typeData;
+			
 			if (editDef) {
-				rectDef_t testRect;
-				width = SLIDER_WIDTH;
-				if (item->text) {
-					x = item->textRect.x + item->textRect.w + 8;
-				} else {
-					x = item->window.rect.x;
+				value = DC->getCVarValue(item->cvar);
+				work = (editDef->maxVal - editDef->minVal) / 10;
+				
+				switch (key) {
+					case K_RIGHTARROW:
+						value = Com_Clamp(editDef->minVal, editDef->maxVal, value+work);
+						break;
+					case K_LEFTARROW:
+						value = Com_Clamp(editDef->minVal, editDef->maxVal, value-work);
+						break;
+					case K_HOME:
+						value = editDef->minVal;
+						break;
+					case K_END:
+						value = editDef->maxVal;
+						break;
+				}
+				
+				DC->setCVar(item->cvar, va("%f", value));
+				return qtrue;
+			}
+			//DC->Print("slider LEFT/RIGHT\n");
+		}
+	}
+	//DC->Print("slider handle key exit\n");
+	return qfalse;
+}
+
+//Makro - left/right support for inactive numeric fields
+qboolean Item_InActiveTextField_HandleKey(itemDef_t *item, int key) {
+	if (!g_editingField) {
+		if (item->type == ITEM_TYPE_NUMERICFIELD && item->cvar) {
+			if (key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_PGUP || key == K_PGDN) {
+				editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
+				int current = (int) DC->getCVarValue(item->cvar);
+
+				switch (key) {
+					case K_LEFTARROW:
+						current--;
+						break;
+					case K_RIGHTARROW:
+						current++;
+						break;
+					case K_PGUP:
+						current+=5;
+						break;
+					case K_PGDN:
+						current-=5;
+						break;
+					default:
+						current = 0;
+						break;
 				}
 
-				testRect = item->window.rect;
-				testRect.x = x;
-				value = (float)SLIDER_THUMB_WIDTH / 2;
-				testRect.x -= value;
-				//DC->Print("slider x: %f\n", testRect.x);
-				testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
-				//DC->Print("slider w: %f\n", testRect.w);
-				if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
-					work = DC->cursorx - x;
-					value = work / width;
-					value *= (editDef->maxVal - editDef->minVal);
-					// vm fuckage
-					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
-					value += editDef->minVal;
-					DC->setCVar(item->cvar, va("%f", value));
-					return qtrue;
+				if (current < 0) {
+					current = 0;
 				}
+				if (strlen(va("%i", current)) <= editPtr->maxChars) {
+					DC->setCVar(item->cvar, va("%i", current));
+				}
+
+				return qtrue;
 			}
 		}
 	}
-	DC->Print("slider handle key exit\n");
+
 	return qfalse;
 }
 
@@ -2450,9 +2591,16 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
       return qfalse;
       break;
     case ITEM_TYPE_EDITFIELD:
+		//Makro - separated editing fields from numeric fields
+		return qfalse;
+		break;
     case ITEM_TYPE_NUMERICFIELD:
-      //return Item_TextField_HandleKey(item, key);
+      /*
+	  //return Item_TextField_HandleKey(item, key);
       return qfalse;
+	  */
+	  //Makro - left/right support
+	  return Item_InActiveTextField_HandleKey(item, key);
       break;
     case ITEM_TYPE_COMBO:
       return qfalse;
@@ -2585,7 +2733,13 @@ void  Menus_Activate(menuDef_t *menu) {
 
 	if (menu->soundName && *menu->soundName) {
 //		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
-		DC->startBackgroundTrack(menu->soundName, menu->soundName);
+		//Makro - check for intro
+		if (menu->soundIntro && *menu->soundIntro) {
+			DC->startBackgroundTrack(menu->soundIntro, menu->soundName);
+		} else {
+			DC->startBackgroundTrack(menu->soundName, menu->soundName);
+		}
+
 	}
 
 	Display_CloseCinematics();
@@ -2646,7 +2800,7 @@ static rectDef_t *Item_CorrectedTextRect(itemDef_t *item) {
 }
 
 //Makro - function to determine whether or not an item is visible
-qboolean UI_RQ3_ActiveItem(itemDef_t *item) {
+qboolean UI_RQ3_IsActiveItem(itemDef_t *item) {
 
 	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
 		return qfalse;
@@ -2669,7 +2823,7 @@ qboolean UI_RQ3_TriggerShortcut(menuDef_t *menu, int key) {
 
 	if (DC->realTime >= UI_RQ3_lastCheckForShortcuts+UI_RQ3_ShortcutCheckDelay ) {
 		for (i = 0; i < menu->itemCount; i++) {
-			if ( menu->items[i]->window.shortcutKey == key && UI_RQ3_ActiveItem(menu->items[i]) ) {
+			if ( menu->items[i]->window.shortcutKey == key && UI_RQ3_IsActiveItem(menu->items[i]) ) {
 				Item_Action(menu->items[i]);
 				return qtrue;
 			}
@@ -3002,8 +3156,13 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 			if (*p == '\0') {
 				break;
 			}
-			//
-			y += height + 5;
+			
+			//Makro - fixed height
+			if (item->textHeight) {
+				y += (item->textHeight);
+			} else {
+				y += height + 5;
+			}
 			p = newLinePtr;
 			len = 0;
 			newLine = 0;
@@ -4343,6 +4502,39 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
 
 }
 
+//Makro - timer actions
+void UI_RQ3_HandleTimer(menuDef_t *menu) {
+	if (menu) {
+		if (menu->timerEnabled) {
+			if (DC->realTime > menu->nextTimer) {
+				if (menu->timerPos+1 > menu->timedItems) {
+					menu->timerEnabled = qfalse;
+					if (menu->onFinishTimer && menu->itemCount>0) {
+						Item_RunScript(menu->items[0], menu->onFinishTimer);
+					}
+				} else {
+					int i;
+					menu->nextTimer = DC->realTime + menu->timerInterval;
+
+					for (i=0; i<menu->itemCount; i++) {
+						if (!Q_stricmp(menu->items[i]->window.group, "timer")) {
+							if (!Q_stricmp(menu->items[i]->window.name, va("timer%i", menu->timerPos+1))) {
+								menu->items[i]->window.flags |= WINDOW_VISIBLE;
+								if (menu->items[i]->onTimer) {
+									Item_RunScript(menu->items[i], menu->items[i]->onTimer);
+								}
+							} else {
+								menu->items[i]->window.flags &= ~WINDOW_VISIBLE;
+							}
+						}
+					}
+				menu->timerPos++;
+				}
+			}
+		}
+	}
+}
+
 void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	int i;
 
@@ -4371,6 +4563,9 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 		// this allows a background shader without being full screen
 		//UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
 	}
+
+	//Makro - handle timers
+	UI_RQ3_HandleTimer(menu);
 
 	// paint the background and or border
 	Window_Paint(&menu->window, menu->fadeAmount, menu->fadeClamp, menu->fadeCycle );
@@ -4494,6 +4689,14 @@ qboolean ItemParse_shortcutKey( itemDef_t *item, int handle ) {
 	 //Com_Printf(S_COLOR_BLUE "^4MDEBUG: Shortcut key read: %s\n^7", item->window.shortcutKey);
 	
 	item->window.shortcutKey = UI_RQ3_KeyNumFromChar(temp);
+	return qtrue;
+}
+
+//Makro - fixed height for autowrapped text
+qboolean ItemParse_textHeight( itemDef_t *item, int handle ) {
+	if (!PC_Float_Parse(handle, &item->textHeight)) {
+		return qfalse;
+	}
 	return qtrue;
 }
 
@@ -4948,6 +5151,14 @@ qboolean ItemParse_leaveFocus( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+//Makro - extra action executed when the timer show this item
+qboolean ItemParse_onTimer( itemDef_t *item, int handle ) {
+	if (!PC_Script_Parse(handle, &item->onTimer)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean ItemParse_mouseEnter( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->mouseEnter)) {
 		return qfalse;
@@ -5218,7 +5429,10 @@ qboolean ItemParse_hideCvar( itemDef_t *item, int handle ) {
 
 keywordHash_t itemParseKeywords[] = {
 	{"name", ItemParse_name, NULL},
+	//Makro - support for shortcut keys
 	{"shortcutkey", ItemParse_shortcutKey, NULL},
+	//Makro - fixed text height for autowrapped items
+	{"textHeight", ItemParse_textHeight, NULL},
 	{"text", ItemParse_text, NULL},
 	{"group", ItemParse_group, NULL},
 	{"asset_model", ItemParse_asset_model, NULL},
@@ -5260,6 +5474,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"background", ItemParse_background, NULL},
 	{"onFocus", ItemParse_onFocus, NULL},
 	{"leaveFocus", ItemParse_leaveFocus, NULL},
+	//Makro - for timers
+	{"onTimer", ItemParse_onTimer, NULL},
 	{"mouseEnter", ItemParse_mouseEnter, NULL},
 	{"mouseExit", ItemParse_mouseExit, NULL},
 	{"mouseEnterText", ItemParse_mouseEnterText, NULL},
@@ -5353,7 +5569,8 @@ void Item_InitControls(itemDef_t *item) {
 			listPtr->cursorPos = 0;
 			listPtr->startPos = 0;
 			listPtr->endPos = 0;
-			listPtr->cursorPos = 0;
+			//Makro - set twice
+			//listPtr->cursorPos = 0;
 		}
 	}
 }
@@ -5449,6 +5666,32 @@ qboolean MenuParse_onESC( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+//Makro - executed when all the items in a timed sequence have been shown
+qboolean MenuParse_onFinishTimer( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Script_Parse(handle, &menu->onFinishTimer)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - timer interval
+qboolean MenuParse_timerInterval( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Int_Parse(handle, &menu->timerInterval)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - total items in timed sequence
+qboolean MenuParse_timedItems( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Int_Parse(handle, &menu->timedItems)) {
+		return qfalse;
+	}
+	return qtrue;
+}
 
 
 qboolean MenuParse_border( itemDef_t *item, int handle ) {
@@ -5611,6 +5854,17 @@ qboolean MenuParse_soundLoop( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+//Makro - support for music with intro
+qboolean MenuParse_soundIntro( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+
+	if (!PC_String_Parse(handle, &menu->soundIntro)) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
 qboolean MenuParse_fadeClamp( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
@@ -5664,6 +5918,12 @@ keywordHash_t menuParseKeywords[] = {
 	{"onOpen", MenuParse_onOpen, NULL},
 	{"onClose", MenuParse_onClose, NULL},
 	{"onESC", MenuParse_onESC, NULL},
+	//Makro - executed when all the items in a timed sequence have been shown
+	{"onFinishTimer", MenuParse_onFinishTimer, NULL},
+	//Makro - timer interval
+	{"timerInterval", MenuParse_timerInterval, NULL},
+	//Makro - total items in timed sequence
+	{"timedItems", MenuParse_timedItems, NULL},
 	{"border", MenuParse_border, NULL},
 	{"borderSize", MenuParse_borderSize, NULL},
 	{"backcolor", MenuParse_backcolor, NULL},
@@ -5677,6 +5937,8 @@ keywordHash_t menuParseKeywords[] = {
 	{"ownerdrawFlag", MenuParse_ownerdrawFlag, NULL},
 	{"outOfBoundsClick", MenuParse_outOfBounds, NULL},
 	{"soundLoop", MenuParse_soundLoop, NULL},
+	//Makro - support for music with intro
+	{"soundIntro", MenuParse_soundIntro, NULL},
 	{"itemDef", MenuParse_itemDef, NULL},
 	{"cinematic", MenuParse_cinematic, NULL},
 	{"popup", MenuParse_popup, NULL},
@@ -5883,6 +6145,10 @@ static void Menu_CacheContents(menuDef_t *menu) {
 
 		if (menu->soundName && *menu->soundName) {
 			DC->registerSound(menu->soundName, qfalse);
+		}
+		//Makro - caching sound intro
+		if (menu->soundName && *menu->soundIntro) {
+			DC->registerSound(menu->soundIntro, qfalse);
 		}
 	}
 

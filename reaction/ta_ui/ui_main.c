@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/10 22:10:10  makro
+// no message
+//
 // Revision 1.5  2002/03/03 21:22:58  makro
 // no message
 //
@@ -216,7 +219,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 
 
 void AssetCache() {
-	int n;
+	int n, ssg;
 	//if (Assets.textFont == NULL) {
 	//}
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
@@ -244,7 +247,12 @@ void AssetCache() {
 	}
 
 	//Makro - for the SSG crosshair preview
-	uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
+	ssg = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair");
+	if (ssg <= 0 || ssg >= NUM_SSGCROSSHAIRS) {
+		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
+	} else {
+		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", ssg));
+	}
 
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
@@ -264,7 +272,7 @@ void _UI_DrawTopBottom(float x, float y, float w, float h, float size) {
 }
 
 
-//Makro - use different animations for the player model depending on ui_RQ3_model_command
+//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
 
 animNumber_t UI_RQ3_GetAnimForLegs()
 {
@@ -282,7 +290,9 @@ animNumber_t UI_RQ3_GetAnimForLegs()
 	else
 		return LEGS_IDLE;
 */
-	switch (ui_RQ3_model_command.integer) {
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+	
+	switch (cmd) {
 		case 2:
 			return LEGS_BACK;
 		case 3:
@@ -300,11 +310,13 @@ animNumber_t UI_RQ3_GetAnimForLegs()
 	}
 }
 
-//Makro - use different animations for the player model depending on ui_RQ3_model_command
+//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
 
 animNumber_t UI_RQ3_GetAnimForTorso()
 {
-	switch (ui_RQ3_model_command.integer) {
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+
+	switch (cmd) {
 		case 101:
 			return TORSO_RAISE;
 		case 102:
@@ -332,7 +344,9 @@ animNumber_t UI_RQ3_GetAnimForTorso()
 
 weapon_t UI_RQ3_GetWeaponForPlayer()
 {
-	switch (ui_RQ3_model_command.integer) {
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+
+	switch (cmd) {
 		case 102:
 			return WP_M3;
 		case 103:
@@ -1412,7 +1426,7 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 		}
 	}
   
-	updateModel = updateModel || (ui_RQ3_model_command.integer != 0);
+	//updateModel = updateModel || (trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0);
 	if (updateModel) {
   	memset( &info, 0, sizeof(playerInfo_t) );
   	viewangles[YAW]   = 180 + 40;
@@ -1424,9 +1438,17 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
     //Makro: Changed from WP_PISTOL to custom function
 	UI_PlayerInfo_SetInfo( &info, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
 //		UI_RegisterClientModelname( &info, model, head, team);
-	trap_Cvar_SetValue( "ui_RQ3_model_command", 0);
     updateModel = qfalse;
   }
+
+	if (trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0) {
+  	//memset( &info, 0, sizeof(playerInfo_t) );
+  	viewangles[YAW]   = 180 + 40;
+  	viewangles[PITCH] = 0;
+  	viewangles[ROLL]  = 0;
+	UI_PlayerInfo_SetInfo( &info, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
+	trap_Cvar_SetValue( "ui_RQ3_modelCommand", 0);
+	}
 
   UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2);
 
@@ -1607,7 +1629,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
 	vec3_t	viewangles;
 	vec3_t	moveangles;
   
-	updateOpponentModel = updateOpponentModel || (ui_RQ3_model_command.integer !=0);
+	updateOpponentModel = updateOpponentModel || trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0;
 	if (updateOpponentModel) {
 		
 		strcpy(model, UI_Cvar_VariableString("ui_opponentModel"));
@@ -1624,7 +1646,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
 	UI_PlayerInfo_SetInfo( &info2, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
 		UI_RegisterClientModelname( &info2, model, headmodel, team);
     updateOpponentModel = qfalse;
-	trap_Cvar_SetValue( "ui_RQ3_model_command", 0);
+	trap_Cvar_SetValue( "ui_RQ3_modelCommand", 0);
   }
 
   UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info2, uiInfo.uiDC.realTime / 2);
@@ -1899,15 +1921,20 @@ static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int text
 }
 
 static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
-  Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "Red" : "Blue", 0, 0, textStyle);
+	//Makro - added Team 1/2
+	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, textStyle);
 }
 
 static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
  	trap_R_SetColor( color );
+
 	if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
 		uiInfo.currentCrosshair = 0;
 	}
-	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+	//Makro - fixing bug that draws a crosshair even if cg_drawcrosshair is 0
+	if (uiInfo.currentCrosshair != 0) {
+		UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+	}
  	trap_R_SetColor( NULL );
 }
 
@@ -2426,9 +2453,10 @@ static qboolean UI_Handicap_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 	    uiInfo.effectsColor--;
 		} else {
 	    uiInfo.effectsColor++;
@@ -2447,14 +2475,15 @@ static qboolean UI_Effects_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
     int i;
     i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
 		if (uiInfo.teamList[i].cinematic >= 0) {
 		  trap_CIN_StopCinematic(uiInfo.teamList[i].cinematic);
 			uiInfo.teamList[i].cinematic = -1;
 		}
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 	    i--;
 		} else {
 	    i++;
@@ -2474,11 +2503,12 @@ static qboolean UI_ClanName_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboolean resetMap) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 		int oldCount = UI_MapCountByGameType(qtrue);
 
 		// hard coded mess here
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_gameType.integer--;
 			if (ui_gameType.integer == 2) {
 				ui_gameType.integer = 1;
@@ -2513,9 +2543,10 @@ static qboolean UI_GameType_HandleKey(int flags, float *special, int key, qboole
 }
 
 static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_netGameType.integer--;
 		} else {
 			ui_netGameType.integer++;
@@ -2538,9 +2569,10 @@ static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_JoinGameType_HandleKey(int flags, float *special, int key) {
-	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_joinGameType.integer--;
 		} else {
 			ui_joinGameType.integer++;
@@ -2562,13 +2594,24 @@ static qboolean UI_JoinGameType_HandleKey(int flags, float *special, int key) {
 
 
 static qboolean UI_Skill_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
   	int i = trap_Cvar_VariableValue( "g_spSkill" );
 
-		if (key == K_MOUSE2) {
-	    i--;
-		} else {
-	    i++;
+		switch (key) {
+			case K_HOME:
+				i = 1;
+				break;
+			case K_END:
+				i = numSkillLevels;
+				break;
+			case K_MOUSE2:
+			case K_LEFTARROW:
+				i--;
+				break;
+			default:
+				i++;
+				break;
 		}
 
     if (i < 1) {
@@ -2584,11 +2627,12 @@ static qboolean UI_Skill_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_TeamName_HandleKey(int flags, float *special, int key, qboolean blue) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
     int i;
     i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 	    i--;
 		} else {
 	    i++;
@@ -2608,17 +2652,28 @@ static qboolean UI_TeamName_HandleKey(int flags, float *special, int key, qboole
 }
 
 static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboolean blue, int num) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
 		// 0 - None
 		// 1 - Human
 		// 2..NumCharacters - Bot
 		char *cvar = va(blue ? "ui_blueteam%i" : "ui_redteam%i", num);
 		int value = trap_Cvar_VariableValue(cvar);
 
-		if (key == K_MOUSE2) {
-			value--;
-		} else {
-			value++;
+		switch (key) {
+			case K_HOME:
+				value = 0;
+				break;
+			case K_END:
+				value = UI_GetNumBots() + 2 - 1;
+				break;
+			case K_MOUSE2:
+			case K_LEFTARROW:
+				value--;
+				break;
+			default:
+				value++;
+				break;
 		}
 
 //Makro - using bot list instead of character list
@@ -2645,9 +2700,10 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 }
 
 static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 		
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_netSource.integer--;
 		} else {
 			ui_netSource.integer++;
@@ -2670,9 +2726,10 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_serverFilterType.integer--;
 		} else {
 			ui_serverFilterType.integer++;
@@ -2690,8 +2747,9 @@ static qboolean UI_NetFilter_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-		if (key == K_MOUSE2) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			UI_PriorOpponent();
 		} else {
 			UI_NextOpponent();
@@ -2702,11 +2760,12 @@ static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 		int game = trap_Cvar_VariableValue("g_gametype");
 		int value = uiInfo.botIndex;
 
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			value--;
 		} else {
 			value++;
@@ -2735,12 +2794,25 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-		if (key == K_MOUSE2) {
-			uiInfo.skillIndex--;
-		} else {
-			uiInfo.skillIndex++;
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
+		
+		switch (key) {
+			case K_HOME:
+				uiInfo.skillIndex = 0;
+				break;
+			case K_END:
+				uiInfo.skillIndex = numSkillLevels-1;
+				break;
+			case K_MOUSE2:
+			case K_LEFTARROW:
+				uiInfo.skillIndex--;
+				break;
+			default:
+				uiInfo.skillIndex++;
+				break;
 		}
+		
 		if (uiInfo.skillIndex >= numSkillLevels) {
 			uiInfo.skillIndex = 0;
 		} else if (uiInfo.skillIndex < 0) {
@@ -2752,7 +2824,8 @@ static qboolean UI_BotSkill_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 		uiInfo.redBlue ^= 1;
 		return qtrue;
 	}
@@ -2760,8 +2833,9 @@ static qboolean UI_RedBlue_HandleKey(int flags, float *special, int key) {
 }
 
 static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-		if (key == K_MOUSE2) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			uiInfo.currentCrosshair--;
 		} else {
 			uiInfo.currentCrosshair++;
@@ -2772,7 +2846,9 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
 		} else if (uiInfo.currentCrosshair < 0) {
 			uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
 		}
-		trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair)); 
+		
+		trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair));
+		
 		return qtrue;
 	}
 	return qfalse;
@@ -2802,7 +2878,8 @@ static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key) {
 
 
 static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
-  if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+	//Makro - left/right support
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
 		int selected;
 
 		UI_BuildPlayerList();
@@ -2811,7 +2888,7 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) 
 		}
 		selected = trap_Cvar_VariableValue("cg_selectedPlayer");
 		
-		if (key == K_MOUSE2) {
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			selected--;
 		} else {
 			selected++;
@@ -3533,8 +3610,13 @@ static void UI_RunMenuScript(char **args) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
 			}
 		} else if (Q_stricmp(name, "Quit") == 0) {
+			//Makro - see if we have to restore the music volume
+			if (uiInfo.savedMusicVol) {
+				trap_Cmd_ExecuteText( EXEC_NOW, va("set s_musicvolume %f\n", uiInfo.oldMusicVol));
+			}
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
-			trap_Cmd_ExecuteText( EXEC_NOW, "quit");
+			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
+			trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n");
 		} else if (Q_stricmp(name, "Controls") == 0) {
 		  trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
@@ -3701,6 +3783,13 @@ static void UI_RunMenuScript(char **args) {
 			}
 		} else if (Q_stricmp(name, "glCustom") == 0) {
 			trap_Cvar_Set("ui_glCustom", "4");
+		//Makro - save/load the music volume		
+		} else if (Q_stricmp(name, "backupMusicVolume") == 0) {
+			uiInfo.oldMusicVol = trap_Cvar_VariableValue("s_musicvolume");
+			uiInfo.savedMusicVol = qtrue;
+		} else if (Q_stricmp(name, "restoreMusicVolume") == 0) {
+			trap_Cvar_SetValue("s_musicvolume", uiInfo.oldMusicVol);
+			uiInfo.savedMusicVol = qfalse;
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);
@@ -5208,6 +5297,22 @@ static void UI_BuildQ3Model_List( void )
 }
 
 
+//Makro - custom functions to start/stop background music
+
+void UI_RQ3_StopBackgroundTrack( void ) {
+	trap_S_StopBackgroundTrack();
+	uiInfo.playingIntro = "";
+	uiInfo.playingLoop = "";
+}
+
+void UI_RQ3_StartBackgroundTrack( const char *intro, const char *loop) {
+	if (uiInfo.playingIntro != intro || uiInfo.playingLoop != loop) {
+		uiInfo.playingIntro = intro;
+		uiInfo.playingLoop = loop;
+		trap_S_StartBackgroundTrack(intro, loop);
+	}
+}
+
 
 /*
 =================
@@ -5284,8 +5389,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.Pause = &UI_Pause;
 	uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
 	uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
-	uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-	uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+	//Makro - custom functions
+	//uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
+	//uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+	uiInfo.uiDC.startBackgroundTrack = &UI_RQ3_StartBackgroundTrack;
+	uiInfo.uiDC.stopBackgroundTrack = &UI_RQ3_StopBackgroundTrack;
 	uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
 	uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
 	uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
@@ -5344,6 +5452,14 @@ void _UI_Init( qboolean inGameLoad ) {
 	//Makro - for the SSG crosshair preview
 	uiInfo.currentSSGCrosshair = (int)trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair");
 	trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
+
+	//Makro - save the music volume
+	uiInfo.oldMusicVol = trap_Cvar_VariableValue("s_musicvolume");
+	uiInfo.savedMusicVol = qfalse;
+
+	//Makro - music files being played
+	uiInfo.playingIntro = "";
+	uiInfo.playingLoop = "";
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
@@ -5852,7 +5968,7 @@ vmCvar_t	ui_realCaptureLimit;
 vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 //Makro - cvar for player model display
-vmCvar_t	ui_RQ3_model_command;
+vmCvar_t	ui_RQ3_modelCommand;
 //Makro - for the SSG crosshair preview
 vmCvar_t	ui_RQ3_ssgCrosshair;
 //Makro - activate the weapon menu after a team join
@@ -5981,7 +6097,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	//Makro - cvar for player model display
-	{ &ui_RQ3_model_command, "ui_RQ3_model_command", "0", CVAR_ARCHIVE},
+	{ &ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", CVAR_ARCHIVE},
 	{ &ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
 	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "0", CVAR_ARCHIVE}
 

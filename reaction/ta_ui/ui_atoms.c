@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/03/10 22:10:10  makro
+// no message
+//
 // Revision 1.4  2002/03/03 21:22:58  makro
 // no message
 //
@@ -411,26 +414,26 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	if ( Q_stricmp (cmd, "inc") == 0 ) {
 		if (trap_Argc() >= 2) {
 			char cvar[MAX_CVAR_VALUE_STRING];
-			int amount = 1;
+			float amount = 1;
+			float val;
 			int max = 0;
-			int val;
 
 			Q_strncpyz(cvar, UI_Argv(1), sizeof(cvar));
-			val = (int) trap_Cvar_VariableValue(cvar);
+			val = trap_Cvar_VariableValue(cvar);
 
 			if (trap_Argc() >= 3) {
-				amount = atoi(UI_Argv(2));
+				amount = atof(UI_Argv(2));
 				if (trap_Argc() >= 4) {
 					max = atoi(UI_Argv(3));
 				}
 			}
 			if (max != 0) {
-				trap_Cvar_SetValue(cvar, (val+amount) % max);
+				trap_Cvar_SetValue(cvar, (float) (((int)(val+amount)) % max));
 			} else {
 				trap_Cvar_SetValue(cvar, val+amount);
 			}
 		} else {
-			Com_Printf("Usage: inc <cvarName> [amount] [max]\n");	
+			Com_Printf("Usage: inc <cvarName> [amount] [max]\n");
 		}
 		return qtrue;
 	}
