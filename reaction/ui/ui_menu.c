@@ -249,6 +249,8 @@ static void Main_MenuDraw( void ) {
 	//Elder: "Letterbox" mask
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 
 	// standard menu drawing
 	Menu_Draw( &s_main.menu );

@@ -101,6 +101,8 @@ static void ConfirmMenu_Draw( void ) {
 	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 	
 	//UI_DrawNamedPic( 142, 118, 359, 256, ART_CONFIRM_FRAME );
 	UI_DrawProportionalString( 320, 204, s_confirm.question, UI_CENTER|UI_INVERSE, color_red );

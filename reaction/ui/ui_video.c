@@ -156,6 +156,8 @@ static void DriverInfo_MenuDraw( void )
 	//Elder: "Letterbox" mask
 	UI_FillRect( 0, 0, 640, 54, color_black);
 	UI_FillRect( 0, 426, 640, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 
 	//Elder: moved outside the mask scope
 	Menu_Draw( &s_driverinfo.menu );
@@ -818,6 +820,8 @@ void GraphicsOptions_MenuDraw (void)
 	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 	
 	Menu_Draw( &s_graphicsoptions.menu );
 }

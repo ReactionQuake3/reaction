@@ -16,6 +16,7 @@ menufield_s passwordField;
 static connstate_t	lastConnState;
 static char			lastLoadingText[MAX_INFO_VALUE];
 
+
 static void UI_ReadableSize ( char *buf, int bufsize, int value )
 {
 	if (value > 1024*1024*1024 ) { // gigs
@@ -136,6 +137,9 @@ to prevent it from blinking away too rapidly on local or lan games.
 ========================
 */
 void UI_DrawConnectScreen( qboolean overlay ) {
+	//Elder: alignment with cg_info.c stuff
+	int x = 8;
+	
 	char			*s;
 	uiClientState_t	cstate;
 	char			info[MAX_INFO_VALUE];
@@ -153,19 +157,21 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 	info[0] = '\0';
 	if( trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) ) ) {
-		UI_DrawProportionalString( 320, 16, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), UI_BIGFONT|UI_CENTER|UI_DROPSHADOW, color_white );
+		//Elder: removed
+		//UI_DrawProportionalString( 320, 16, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), UI_BIGFONT|UI_CENTER|UI_DROPSHADOW, color_white );
 	}
 
-	UI_DrawProportionalString( 320, 64, va("Connecting to %s", cstate.servername), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+	//320 64
+	UI_DrawProportionalString( x, 72, va("Connecting to %s", cstate.servername), UI_LEFT|UI_SMALLFONT, menu_text_color );
 	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
 
 	// display global MOTD at bottom
-	UI_DrawProportionalString( SCREEN_WIDTH/2, SCREEN_HEIGHT-32, 
-		Info_ValueForKey( cstate.updateInfoString, "motd" ), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+	UI_DrawProportionalString( x, 384, 
+		Info_ValueForKey( cstate.updateInfoString, "motd" ), UI_LEFT|UI_SMALLFONT, menu_text_color );
 	
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-		UI_DrawProportionalString( 320, 192, cstate.messageString, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+		UI_DrawProportionalString( x, 400, cstate.messageString, UI_LEFT|UI_SMALLFONT, menu_text_color );
 	}
 
 #if 0
@@ -223,7 +229,14 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 		return;
 	}
 
-	UI_DrawProportionalString( 320, 128, s, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, color_white );
+	UI_DrawProportionalString( x, 400, s, UI_LEFT|UI_SMALLFONT, color_white );
+	
+	//Elder: "Letterbox" mask - why it has to be here... *shrugs*
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+
 
 	// password required / connection rejected information goes here
 }

@@ -109,11 +109,11 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "REACTION QUAKE 3 TEAM", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "PROGRAMMING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "MALCOLM BECHARD", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SCOTT BROOKS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "VICTOR CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ADDITIONAL PROGRAMMING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "MALCOLM BECHARD", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MICHAEL BRUCE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "DAN CHIN", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MIKE CONNOR", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
@@ -138,6 +138,7 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "CENTURION", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SPYDER", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MAKRO", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "SHAYMON", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "SOUND DESIGN", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "ERWIN PEIL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
@@ -162,10 +163,22 @@ cr_line credits[] = { // edit this as necessary for your credits
 
 { "THE REACTION QUAKE 3 TEAM THANKS", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "INDIVIDUALS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "FEX THE MESSAGEBOARD GOD", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "IAIN MCGINNISS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "A-TEAM REPRESENTATIVE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "ODDJOB", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "CODING ASSISTANCE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "IAIN MCGINNISS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "INOLEN", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "APOXOL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "CODE 3 ARENA", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "JUZ'S SLIPGATE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "QUAKE3WORLD FORUMS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "ELDER'S TEST PIGGY", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "SHISHKABOB", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "MESSAGEBOARD GOD", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "THE GREAT FEX", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "GROUPS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "ALL THE LITTLE PEOPLE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
@@ -175,12 +188,14 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "COMMODITIES", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "MOUNTAIN DEW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "WEBSITES", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "CODE 3 ARENA", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "JUZ'S SLIPGATE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "MAPPING ASSISTANCE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "QERADIANT.COM", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "QUAKE3WORLD", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "TELEFRAGGED", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "GAMEDESIGN.NET", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "WEB HOSTS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "TELEFRAGGED AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "FILEPLANET AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
 
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -284,6 +299,7 @@ static sfxHandle_t UI_CreditMenu_Key( int key ) {
 	//Elder: doesn't appear to restore music volume
 	//trap_Cmd_ExecuteText( EXEC_APPEND, va("s_musicvolume %f;quit\n", mvolume));
 	//trap_Cvar_SetValue( "s_musicvolume", mvolume);
+	//trap_S_StopBackgroundTrack();
 	trap_Cmd_ExecuteText( EXEC_APPEND, va("s_musicvolume %f\n", mvolume));
 	trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n");
 	return 0;
@@ -419,6 +435,8 @@ static void ScrollingCredits_Draw(void) {
     //Elder: "Letterbox" mask
 	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
 	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
 	
 	//Elder: debug information for fader
 	//UI_DrawString( 635, 464, va( "Time index: %i", uis.realtime - starttime), UI_RIGHT|UI_SMALLFONT, color_white);
@@ -442,7 +460,12 @@ void UI_CreditMenu( void ) {
 	mvolume = trap_Cvar_VariableValue( "s_musicvolume" );
 	if(mvolume < 0.5)
 		trap_Cmd_ExecuteText( EXEC_APPEND, "s_musicvolume 0.5\n" );
-	trap_Cmd_ExecuteText( EXEC_APPEND, "music music/win\n" );
+	
+	//void trap_S_StopBackgroundTrack( void )
+	//void trap_S_StartBackgroundTrack( const char *intro, const char *loop) {
+	//trap_S_StartBackgroundTrack( "music/win", "music/win");
+	
+	trap_Cmd_ExecuteText( EXEC_APPEND, "music music/win music/win\n" );
 
 	// load the background shader
 #ifdef BACKGROUND_SHADER
