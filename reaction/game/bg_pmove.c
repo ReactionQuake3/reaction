@@ -1927,13 +1927,20 @@ static void PM_Weapon( void ) {
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 
-	// check for out of ammo or one bullet in akimbo
-	if ( ! pm->ps->ammo[ pm->ps->weapon ] ||
-		pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ pm->ps->weapon ] == 1) {
+	// check for out of ammo
+	if ( ! pm->ps->ammo[ pm->ps->weapon ]) {
 		PM_AddEvent( EV_NOAMMO );
 		pm->ps->weaponTime += 500;
 		return;
 	}
+
+	//if ( ! pm->ps->ammo[ pm->ps->weapon ] ||
+		//pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ pm->ps->weapon ] == 1) {
+		//PM_AddEvent( EV_NOAMMO );
+		//pm->ps->weaponTime += 500;
+		//return;
+	//}
+
 
 	// take an ammo away if not infinite
 	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
@@ -1944,9 +1951,15 @@ static void PM_Weapon( void ) {
 			pm->ps->ammo[ pm->ps->weapon ]--;
 		}
 		//Elder: remove one more bullet/shell if handcannon/akimbo
-		if (pm->ps->weapon == WP_HANDCANNON || pm->ps->weapon == WP_AKIMBO) {
+		if (pm->ps->weapon == WP_HANDCANNON) {
 			pm->ps->ammo[ pm->ps->weapon ]--;
 		}
+
+		//Elder: take away an extra bullet if available - handled in g_weapon.c as well
+		else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
+			pm->ps->ammo[ WP_AKIMBO ] --;
+		}
+
 		//Elder: sync bullets a la AQ2 style
 		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[pm->ps->weapon] < 12) {
 			pm->ps->ammo[WP_PISTOL] = pm->ps->ammo[WP_AKIMBO];
@@ -1955,6 +1968,9 @@ static void PM_Weapon( void ) {
 			pm->ps->ammo[WP_AKIMBO]--;
 		}
 	}
+
+
+
 	
 	// fire weapon
 	PM_AddEvent( EV_FIRE_WEAPON );
@@ -2024,6 +2040,13 @@ static void PM_Weapon( void ) {
 	}
 
 	pm->ps->weaponTime += addTime;
+
+	//Auto-switch when out of ammo with grenade or knife
+	if ( (pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE) &&
+		!pm->ps->ammo[ pm->ps->weapon ]) {
+		PM_AddEvent( EV_NOAMMO );
+		pm->ps->weaponTime += 150;
+	}
 }
 
 /*

@@ -585,7 +585,18 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->pers.netname, obit );
 
 	// broadcast the death event to everyone
-	ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+	// Elder: use appropriate obit event
+	if ( (self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD)
+		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_HEAD );
+	else if ( (self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST)
+		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_CHEST );
+	else if ( (self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH)
+		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_STOMACH );
+	else if ( (self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG)
+		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_LEGS );
+	else
+		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
@@ -636,8 +647,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				DMReward->r.svFlags = SVF_BROADCAST;
 			}
 
-			if( meansOfDeath == MOD_GAUNTLET ) {
-				
+			//if( meansOfDeath == MOD_GAUNTLET ) {
+			//Elder: changed to knife slash heh
+			if( meansOfDeath == MOD_KNIFE ) {
 				// play humiliation on player
 				//Blaze: Removed because it uses the persistant stats stuff
 				//attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
@@ -1335,9 +1347,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// always give half damage if hurting self
 	// calculated after knockback, so rocket jumping works
-	if ( targ == attacker) {
-		damage *= 0.5;
-	}
+	//Elder: no way >:)
+	//if ( targ == attacker) {
+		//damage *= 0.5;
+	//}
 
 	if ( damage < 1 ) {
 		damage = 1;
@@ -1396,20 +1409,51 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
         if (  point && targ && targ->health > 0 && attacker && take)
 		{
-	       // First things first.  If we're not damaging them, why are we here? 
+			// First things first.  If we're not damaging them, why are we here? 
+			//Elder: removed M3, handcannon, and grenades from location damage code
+			
+			if (take &&
+				mod == MOD_M3 ||
+				mod == MOD_HANDCANNON ||
+				mod == MOD_GRENADE ||
+				mod == MOD_GRENADE_SPLASH)
+			{
+				bleeding = 1;
+				instant_dam = 0;
+				
+				//No location damage
+				//targ->client->lasthurt_location = LOCATION_STOMACH|LOCATION_FRONT;
+				targ->client->lasthurt_location = LOCATION_NONE|LOCATION_FRONT;
+				//Elder: we'll use the shotgun damage report model from AQ2
+				if (mod == MOD_HANDCANNON || mod == MOD_M3)
+				{
+					//Elder: do shotgun report like AQ2
+					int playernum = targ - g_entities;
+					
+					playernum--;
+					if (playernum >= 0 && playernum <= MAX_CLIENTS - 1)
+						tookShellHit[playernum] = 1;
+				}
+				else {
+					//Grenade stuff
+					trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
+				}
+			}
 
-		   if (take && 
-			   mod == MOD_PISTOL ||
-		       mod == MOD_M4 ||
-			   mod == MOD_SNIPER ||
-			   mod == MOD_MP5 ||
-			   mod == MOD_AKIMBO ||
-			   mod == MOD_M3 ||
-	           mod == MOD_HANDCANNON || 
-			   mod == MOD_GRENADE || 
-			   mod == MOD_GRENADE_SPLASH ||
-			   mod == MOD_KNIFE)
-	       {
+
+			else if (take && 
+				mod == MOD_PISTOL ||
+				mod == MOD_M4 ||
+				mod == MOD_SNIPER ||
+				mod == MOD_MP5 ||
+				mod == MOD_AKIMBO ||
+				//mod == MOD_M3 ||
+				//mod == MOD_HANDCANNON || 
+				//mod == MOD_GRENADE || 
+				//mod == MOD_GRENADE_SPLASH ||
+				mod == MOD_KNIFE ||
+				mod == MOD_KNIFE_THROWN)
+			{
 			   bleeding = 1;   
 			   instant_dam = 0;
 
@@ -1470,11 +1514,27 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 			   //G_Printf("In loc damage: %d incomming\n",take);
 				// Check the location ignoring the rotation info
-				if (mod == MOD_HANDCANNON || mod == MOD_M3 || mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH )
+			   //Elder: moved up
+			   /*
+				if (mod == MOD_HANDCANNON || mod == MOD_M3)
+				{
+					//trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
+					//Elder: do shotgun report like AQ2
+					int playernum = targ - g_entities;
+					
+					playernum--;
+					if (playernum >= 0 && playernum <= MAX_CLIENTS - 1)
+						tookShellHit[playernum] = 1;
+
+                    //bleeding = 1;
+                    //instant_dam = 0;
+				}
+				else if (mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH )
 				{
 					trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
-				else
+				else */
+			   if (1)
 				{
 					switch ( targ->client->lasthurt_location & 
                           ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) )
@@ -1566,7 +1626,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 //		G_Printf("(%d) taken as damage\n",take);
 		if (instant_dam) 
 		{
-			G_Printf("(%d) instant damage\n",take);
+			//G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
 		}
 		if ( targ->client ) {
@@ -1731,6 +1791,12 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 
 		points = damage * ( 1.0 - dist / radius );
 
+		//Elder: reduce grenade damage if crouching
+		if (ent->r.maxs[2] < 20)
+        {
+            points = points * 0.5; // hefty reduction in damage
+        }
+
 		if( CanDamage (ent, origin) ) {
 			if( LogAccuracyHit( ent, attacker ) ) {
 				hitClient = qtrue;
@@ -1739,6 +1805,7 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
 			dir[2] += 24;
+            
 			G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
 		}
 	}

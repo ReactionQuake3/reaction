@@ -1254,6 +1254,12 @@ char *eventnames[] = {
 	"EV_DEATH2",
 	"EV_DEATH3",
 	"EV_OBITUARY",
+	//Elder:
+	//Location-specific obits- need separate events b/c you can't stuff >8bits in eventParm
+	"EV_OBITUARY_HEAD",
+	"EV_OBITUARY_CHEST",
+	"EV_OBITUARY_STOMACH",
+	"EV_OBITUARY_LEGS",
 
 	"EV_POWERUP_QUAD",
 	"EV_POWERUP_BATTLESUIT",

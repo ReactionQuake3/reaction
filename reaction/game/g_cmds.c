@@ -1800,13 +1800,13 @@ void Cmd_Reload( gentity_t *ent )       {
 			//check for fast reloads
 			if (ent->client->fastReloads) {
 				//Fast reload
-				G_Printf("Using fast reloads\n");
+				//G_Printf("Using fast reloads\n");
 				delay = RQ3_M3_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
 			}
 			else {
 				//Regular reload
-				G_Printf("Using regular reloads\n");
+				//G_Printf("Using regular reloads\n");
 				delay = RQ3_M3_RELOAD_DELAY;
 				ent->client->fastReloads = 0;
 			}
@@ -1887,13 +1887,13 @@ void Cmd_Reload( gentity_t *ent )       {
 			//check for fast reloads
 			if (ent->client->fastReloads) {
 				//Fast reload
-				G_Printf("Using fast reloads\n");
+				//G_Printf("Using fast reloads\n");
 				delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
 			}
 			else {
 				//Regular reload
-				G_Printf("Using regular reloads\n");
+				//G_Printf("Using regular reloads\n");
 				delay = RQ3_SSG3000_RELOAD_DELAY;
 				ent->client->fastReloads = 0;
 			}

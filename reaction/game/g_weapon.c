@@ -13,6 +13,9 @@ static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
 static	vec3_t	muzzle;
 
+//Elder: used for shell damage - we have no more malloc function so make it static?
+int tookShellHit[MAX_CLIENTS];
+
 #define NUM_NAILSHOTS 10
 
 /*
@@ -1068,6 +1071,9 @@ void Weapon_HandCannon_Fire(gentity_t *ent)
 {
 	gentity_t		*tent, *tent2;
 
+	//Elder: added for damage report
+	RQ3_InitShotgunDamageReport();
+
 	// send shotgun blast
 	tent = G_TempEntity( muzzle, EV_HANDCANNON );
 	VectorScale( forward, 4096, tent->s.origin2 );
@@ -1086,6 +1092,8 @@ void Weapon_HandCannon_Fire(gentity_t *ent)
 	//Elder: note negative one
 	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1 );
 
+	//Elder: added for damage report
+	RQ3_ProduceShotgunDamageReport(ent);
 }
 /*
 ============
@@ -1097,6 +1105,9 @@ void Weapon_M3_Fire(gentity_t *ent)
 	//Blaze: call to shotgun fire function here
 	gentity_t		*tent;
 
+	//Elder: added for damage report
+	RQ3_InitShotgunDamageReport();
+
 	// send shotgun blast
 	tent = G_TempEntity( muzzle, EV_SHOTGUN );
 	VectorScale( forward, 4096, tent->s.origin2 );
@@ -1105,6 +1116,72 @@ void Weapon_M3_Fire(gentity_t *ent)
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_M3 );
+	
+	//Elder: added for damage report
+	RQ3_ProduceShotgunDamageReport(ent);
+}
+
+/*
+==============
+RQ3_ShotgunDamageReport
+
+Added by Elder
+Used to determine hits from a shotgun source
+Modelled after the one done for AQ2
+==============
+*/
+
+void RQ3_InitShotgunDamageReport( void )
+{
+	//Elder: Reset all tookShellHit 'slots' to zero
+	memset(tookShellHit, 0, MAX_CLIENTS * sizeof(int));	
+}
+
+//Elder: almost straight out of the AQ2 source
+void RQ3_ProduceShotgunDamageReport(gentity_t *self)
+{
+	
+	int		l;
+    int		total_to_print = 0;
+	int		printed = 0;
+    static char textbuf[1024];
+
+    for (l = 1; l <= g_maxclients.integer; l++)
+        {
+			if (tookShellHit[l - 1])
+				total_to_print++;
+        }
+
+        if (total_to_print)
+        {
+			if (total_to_print > 10)
+				total_to_print = 10;
+
+			strcpy(textbuf, "You hit ");
+            for (l = 1; l <= g_maxclients.integer; l++)
+            {
+			    if (tookShellHit[l - 1])
+                {
+				    if (printed == (total_to_print - 1))
+                    {
+					    if (total_to_print == 2)
+							strcat(textbuf, " and ");
+                        else if (total_to_print != 1)
+                            strcat(textbuf, ", and ");
+                    }
+                    else if (printed)
+                        strcat(textbuf, ", ");
+
+					strcat(textbuf, g_entities[l].client->pers.netname);
+                    //strcat(textbuf, g_edicts[l].client->pers.netname);
+                        printed++;
+                }
+                if (printed == total_to_print)
+					break;
+            }
+				trap_SendServerCommand( self-g_entities, va("print \"%s^7\n\"", textbuf));
+                //gi.cprintf(self, PRINT_HIGH, "%s\n", textbuf);
+        }
 }
 
 /*
@@ -1119,8 +1196,8 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	spread = AKIMBO_SPREAD;
 	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 
-	//Elder: reset
-	if (ent->client->weaponfireNextTime > 0)
+	//Elder: reset plus added 1 bullet check
+	if (ent->client->weaponfireNextTime > 0 || ent->client->ps.ammo[WP_AKIMBO] < 2)
 		ent->client->weaponfireNextTime = 0;
 	else
 		ent->client->weaponfireNextTime = level.time + RQ3_AKIMBO_DELAY2;

@@ -171,7 +171,9 @@ void P_DamageFeedback( gentity_t *player ) {
 	
 	// play an appropriate pain sound
 	if ( (level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE) ) {
-		player->pain_debounce_time = level.time + 700;
+		//player->pain_debounce_time = level.time + 700;
+		//Elder: reduced pain debounce time so we can have a few more sounds :)
+		player->pain_debounce_time = level.time + 250;
 		
 		switch ( client->lasthurt_location & 
              ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) ) {

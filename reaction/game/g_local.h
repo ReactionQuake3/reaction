@@ -649,6 +649,10 @@ qboolean CheckGauntletAttack( gentity_t *ent );
 //Blaze: No need for these because no gauntlet
 //void Weapon_HookFree (gentity_t *ent);
 //void Weapon_HookThink (gentity_t *ent);
+//Elder: for shotgun damage reports
+void RQ3_InitShotgunDamageReport( void );
+void RQ3_ProduceShotgunDamageReport(gentity_t *self);
+extern int tookShellHit[MAX_CLIENTS];
 
 
 //
