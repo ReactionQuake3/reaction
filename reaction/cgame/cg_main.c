@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/03/21 00:26:20  blaze
+// some fixing of func_explosive
+//
 // Revision 1.46  2002/03/17 21:32:23  jbravo
 // Fixed the dynamic teamnames system up a bit to reduce traffic
 //
@@ -211,6 +214,8 @@ vmCvar_t	cg_RQ3_ssgSensitivity4x;
 vmCvar_t	cg_RQ3_ssgSensitivity6x;
 //Blaze: Which ssg crosshair to use
 vmCvar_t	cg_RQ3_ssgCrosshair;
+//Blaze: Allow stuff to be done automatically on round start/end
+vmCvar_t	cg_RQ3_autoAction;
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t	cg_RQ3_impactEffects;
 //Elder: toggle client-side laser drawing
@@ -406,6 +411,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_ssgSensitivity2x, "cg_RQ3_ssgSensitivity2x", "0.4", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity4x, "cg_RQ3_ssgSensitivity4x", "0.2", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity6x, "cg_RQ3_ssgSensitivity6x", "0.1", CVAR_ARCHIVE },
+  //Blaze: Added to let people autop perform actions on match start/end
+  { &cg_RQ3_autoAction, "cg_RQ3_autoAction", "0", CVAR_ARCHIVE },
 	//Makro - this should be latched
 	{ &cg_RQ3_ssgCrosshair, "cg_RQ3_ssgCrosshair", "0", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &cg_RQ3_ssgColorR, "cg_RQ3_ssgColorR", "0.0", CVAR_ARCHIVE },
@@ -799,6 +806,10 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound( "sound/player/gibimp1.wav", qfalse );
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
+
+  //Blaze: func_explosive sounds
+  cgs.media.breakable_snd[0] = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
+  cgs.media.breakable_snd[1] = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
 
 	//Elder: RQ3 sounds
 	cgs.media.kickSound = trap_S_RegisterSound( "sound/misc/kick.wav", qfalse);
@@ -1210,35 +1221,43 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.gibSkull = trap_R_RegisterModel( "models/gibs/skull.md3" );
 	cgs.media.gibBrain = trap_R_RegisterModel( "models/gibs/brain.md3" );
 	//Blaze: Breakable Glass
-	cgs.media.glass01 = trap_R_RegisterModel( "models/breakables/glass01.md3" );
- 	cgs.media.glass02 = trap_R_RegisterModel( "models/breakables/glass02.md3" );
- 	cgs.media.glass03 = trap_R_RegisterModel( "models/breakables/glass03.md3" );
+  i=0;
+	cgs.media.breakable_frag[i][0] = cgs.media.glass01 = trap_R_RegisterModel( "models/breakables/glass01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.glass02 = trap_R_RegisterModel( "models/breakables/glass02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.glass03 = trap_R_RegisterModel( "models/breakables/glass03.md3" );
 
 	//Elder: additional debris
 	//Todo: load only if in the level
-	cgs.media.wood01 = trap_R_RegisterModel( "models/breakables/wood01.md3" );
- 	cgs.media.wood02 = trap_R_RegisterModel( "models/breakables/wood02.md3" );
- 	cgs.media.wood03 = trap_R_RegisterModel( "models/breakables/wood03.md3" );
+  i++;
 
-	cgs.media.metal01 = trap_R_RegisterModel( "models/breakables/metal01.md3" );
- 	cgs.media.metal02 = trap_R_RegisterModel( "models/breakables/metal02.md3" );
- 	cgs.media.metal03 = trap_R_RegisterModel( "models/breakables/metal03.md3" );
+	cgs.media.breakable_frag[i][0] = cgs.media.wood01 = trap_R_RegisterModel( "models/breakables/wood01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.wood02 = trap_R_RegisterModel( "models/breakables/wood02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.wood03 = trap_R_RegisterModel( "models/breakables/wood03.md3" );
 
- 	cgs.media.ceramic01 = trap_R_RegisterModel( "models/breakables/ceramic01.md3" );
- 	cgs.media.ceramic02 = trap_R_RegisterModel( "models/breakables/ceramic02.md3" );
- 	cgs.media.ceramic03 = trap_R_RegisterModel( "models/breakables/ceramic03.md3" );
+  i++;
+	cgs.media.breakable_frag[i][0] = cgs.media.metal01 = trap_R_RegisterModel( "models/breakables/metal01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.metal02 = trap_R_RegisterModel( "models/breakables/metal02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.metal03 = trap_R_RegisterModel( "models/breakables/metal03.md3" );
 
- 	cgs.media.paper01 = trap_R_RegisterModel( "models/breakables/paper01.md3" );
- 	cgs.media.paper02 = trap_R_RegisterModel( "models/breakables/paper02.md3" );
- 	cgs.media.paper03 = trap_R_RegisterModel( "models/breakables/paper03.md3" );
+  i++;
+ 	cgs.media.breakable_frag[i][0] = cgs.media.ceramic01 = trap_R_RegisterModel( "models/breakables/ceramic01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.ceramic02 = trap_R_RegisterModel( "models/breakables/ceramic02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.ceramic03 = trap_R_RegisterModel( "models/breakables/ceramic03.md3" );
 
-	cgs.media.brick01 = trap_R_RegisterModel( "models/breakables/brick01.md3" );
- 	cgs.media.brick02 = trap_R_RegisterModel( "models/breakables/brick02.md3" );
- 	cgs.media.brick03 = trap_R_RegisterModel( "models/breakables/brick03.md3" );
+  i++;
+ 	cgs.media.breakable_frag[i][0] = cgs.media.paper01 = trap_R_RegisterModel( "models/breakables/paper01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.paper02 = trap_R_RegisterModel( "models/breakables/paper02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.paper03 = trap_R_RegisterModel( "models/breakables/paper03.md3" );
 
-	cgs.media.concrete01 = trap_R_RegisterModel( "models/breakables/concrete01.md3" );
- 	cgs.media.concrete02 = trap_R_RegisterModel( "models/breakables/concrete02.md3" );
- 	cgs.media.concrete03 = trap_R_RegisterModel( "models/breakables/concrete03.md3" );
+  i++;
+	cgs.media.breakable_frag[i][0] = cgs.media.brick01 = trap_R_RegisterModel( "models/breakables/brick01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.brick02 = trap_R_RegisterModel( "models/breakables/brick02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.brick03 = trap_R_RegisterModel( "models/breakables/brick03.md3" );
+
+  i++;
+	cgs.media.breakable_frag[i][0] = cgs.media.concrete01 = trap_R_RegisterModel( "models/breakables/concrete01.md3" );
+ 	cgs.media.breakable_frag[i][1] = cgs.media.concrete02 = trap_R_RegisterModel( "models/breakables/concrete02.md3" );
+ 	cgs.media.breakable_frag[i][2] = cgs.media.concrete03 = trap_R_RegisterModel( "models/breakables/concrete03.md3" );
 
 	//Elder: akimbos - some of the stuff isn't in yet :p
 	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
@@ -1365,6 +1384,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.shadowMarkShader = trap_R_RegisterShader( "markShadow" );
 	cgs.media.wakeMarkShader = trap_R_RegisterShader( "wake" );
 	cgs.media.bloodMarkShader = trap_R_RegisterShader( "bloodMark" );
+  //Blaze: added for explosive boxes and grenades
+  cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 	// Elder: added
 	cgs.media.slashMarkShader = trap_R_RegisterShader( "gfx/damage/slash_mrk" );
 	cgs.media.glassMarkShader = trap_R_RegisterShader( "gfx/damage/glass_mrk" );

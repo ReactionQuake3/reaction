@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/03/21 00:26:46  blaze
+// some fixing of func_explosive
+//
 // Revision 1.20  2002/03/04 20:50:59  jbravo
 // No floating scores over dead bodies, triangles disabled, and no viewing
 // names of enemys just of teammates.
@@ -998,30 +1001,30 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   		debris3 = cgs.media.wood03;
 		bounceFactor = 0.8f;
   	}
-  	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL)
+ 	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL)
 	{
   		//CG_Printf("Launching metal\n");
   		debris1 = cgs.media.metal01;
   		debris2 = cgs.media.metal02;
   		debris3 = cgs.media.metal03;
 		bounceFactor = 0.7f;
-  	}
-  	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC)
+ 	}
+ 	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC)
 	{ 
   		//CG_Printf("Launching ceramic\n");
   		debris1 = cgs.media.ceramic01;
   		debris2 = cgs.media.ceramic02;
   		debris3 = cgs.media.ceramic03;
 		bounceFactor = 0.7f;
-  	}
-  	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER)
+ 	}
+ 	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER)
 	{
   		//CG_Printf("Launching paper\n");
   		debris1 = cgs.media.paper01;
   		debris2 = cgs.media.paper02;
   		debris3 = cgs.media.paper03;
 		bounceFactor = 0.2f;
-  	}
+ 	}
 	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK)
 	{ 
   		//CG_Printf("Launching brick\n");
@@ -1141,12 +1144,16 @@ Generated a bunch of gibs launching out from the breakables location
 ===================
 */
 #define BREAK_VELOCITY  550
-#define BREAK_JUMP              150
+#define BREAK_JUMP      1500
 
 void CG_BreakBreakable( centity_t *cent, int eParam ) {
+	localEntity_t	*le;
 	vec3_t		origin, velocity;
 	qhandle_t	model;
 	sfxHandle_t	sound;
+ 	qhandle_t		mod;
+	qhandle_t		shader;
+
 	int		i, mass, material;
 	float		tension, bouncyness, size;
 	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
@@ -1160,6 +1167,7 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 	bouncyness = 0.25 * (((eParam) & 0x3) + 1);
 
 	mass = eParam;
+
 	material = (cent->currentState.powerups >> 12) & 0x000F;
 	tension = 0.0667 * (float)((cent->currentState.powerups >> 8) & 0x000F);
 	bouncyness = 0.0667 * (float)((cent->currentState.powerups >> 4) & 0x000F);
@@ -1167,13 +1175,26 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 
 	if (mass == 0) mass = 1;
 	if (size <= 0) size = 1;
-	if (material) material--;
+	//if (material) material--;
 
 	VectorCopy( cent->currentState.origin, origin );
 
 	sound = cgs.media.breakable_snd[material];
 	trap_S_StartSound( origin, cent->currentState.number, CHAN_BODY, sound );
 
+	// create an explosion
+	mod = cgs.media.dishFlashModel;
+	shader = cgs.media.grenadeExplosionShader;
+
+  le = CG_MakeExplosion( origin, velocity,
+						   mod,
+						   shader,
+						   600, qtrue );
+	le->light = 300;
+	le->lightColor[0] = 1;
+	le->lightColor[1] = 0.75;
+	le->lightColor[2] = 0.50;
+  
 	for (i = 0; i < mass; i++) {
 		velocity[0] = (crandom() * BREAK_VELOCITY) * tension;
 		velocity[1] = (crandom() * BREAK_VELOCITY) * tension;
@@ -1181,4 +1202,6 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
 		model = cgs.media.breakable_frag[material][(int)(2.0 * random())];
 		CG_LaunchBreakableFrag( origin, velocity, model, bouncyness, size );
 	}
+
+
 }

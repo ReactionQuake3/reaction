@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/03/21 00:26:11  blaze
+// some fixing of func_explosive
+//
 // Revision 1.55  2002/03/18 19:19:08  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -1024,7 +1027,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
 		//weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/gren_throw.wav", qfalse );
-		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
+    //Blaze: Make sure we load this as we may have exploding crates
+		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 
 		// Load the animation information
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/grenade/animation.cfg" );
