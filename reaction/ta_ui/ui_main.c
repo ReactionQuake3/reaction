@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2003/03/31 21:02:30  makro
+// no message
+//
 // Revision 1.69  2003/03/31 15:17:58  makro
 // Replacements system tweaks.
 // Fixed some other bugs.
@@ -2623,7 +2626,7 @@ void UI_SelectReplacement(void)
 	if (strcmp(currentCvar, uiInfo.replacements.Cvars[uiInfo.replacements.Index]))
 	{
 		trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), uiInfo.replacements.Cvars[uiInfo.replacements.Index]);
-		Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
+		//Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
 	}
 }
 
@@ -2686,7 +2689,7 @@ void UI_LoadReplacement(int index)
 		Q_strncpyz(model, uiInfo.replacements.Type, sizeof(model));
 	if (!strcmp(currentCvar, p))
 	{
-		Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
+		//Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
 	}
 	
 	Q_strncpyz(skin, skinFromStr(p), sizeof(skin));
@@ -2944,7 +2947,11 @@ static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, 
 	
 	Q_strncpyz(buf, uiInfo.replacements.Info, sizeof(buf));
 	do {
+		int l;
 		p = GetLine(&text);
+		l = strlen(p);
+		while ( l>0 && Text_Width(p, scale, 0) > rect->w )
+			p[l--]=0;
 		Text_Paint(rect->x, y, scale, color, p, 0, 0, textStyle);
 		y += Text_Height(p, scale, 0) + 4;
 	} while (strlen(text)>0 /*&& y<rect->h*/);
@@ -2952,7 +2959,25 @@ static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, 
 
 static void UI_DrawReplacementName(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.replacements.Name, 0, 0, textStyle);
+	char name[128], *curCvar = UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type));
+	char *newCvar;
+	int l;
+	
+	if (uiInfo.replacements.Count <= 0)
+		return;
+
+	Q_strncpyz(name, uiInfo.replacements.Name, sizeof(name));
+	newCvar = uiInfo.replacements.Cvars[uiInfo.replacements.Index % uiInfo.replacements.Count];
+
+	if (!strcmp(newCvar, curCvar))
+		Q_strins(name, "> ", sizeof(name));
+
+	//don't go over the window borders
+	l = strlen(name);
+	while (l>0 && Text_Width(name, scale, 0)>rect->w)
+		name[l--]=0;
+
+	Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, textStyle);
 }
 
 static void UI_DrawReplacementType(rectDef_t * rect, float scale, vec4_t color, int textStyle)

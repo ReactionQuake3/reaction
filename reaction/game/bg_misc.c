@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2003/03/31 21:04:24  makro
+// no message
+//
 // Revision 1.52  2003/03/29 23:04:56  jbravo
 // More post _skin cvar fixes
 //
@@ -1681,5 +1684,43 @@ char *strchrstr(char *s, char *chars)
 		else
 			s++;
 	return NULL;
+}
+
+char *strins(char *dest, char *s)
+{
+	int i, l1 = strlen(dest), l2 = strlen(s);
+
+	for (i=l1; i>=0; i--)
+		dest[i+l2]=dest[i];
+	for (i=0; i<l2; i++)
+		dest[i]=s[i];
+	return dest;
+}
+
+char *Q_strins(char *dest, char *s, int size)
+{
+	int l1, l2, i;
+
+	if (!dest || !s)
+		return NULL;
+
+	l1 = strlen(dest);
+	l2 = strlen(s);
+	
+	if (l2+1 > size)
+		l2 = size - 1;
+	
+	if (l1+l2+1 > size)
+	{
+		l1 = size - l2 - 1;
+		dest[l1]=0;
+	}
+
+	for (i=l1; i>=0; i--)
+		dest[i+l2]=dest[i];
+	for (i=0; i<l2; i++)
+		dest[i]=s[i];
+
+	return dest;
 }
 

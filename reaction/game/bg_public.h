@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2003/03/31 21:04:24  makro
+// no message
+//
 // Revision 1.103  2003/03/29 15:04:03  jbravo
 // Removing skin replacement cvars
 //
@@ -1539,3 +1542,5 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);
 char *modelFromStr(char *s);
 char *skinFromStr(char *s);
 char *strchrstr(char *s, char *chars);
+char *strins(char *dest, char *s);
+char *Q_strins(char *dest, char *s, int size);
