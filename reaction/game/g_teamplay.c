@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/02/05 10:04:41  jbravo
+// Debugging message gone and cleanup of Antistick routinr
+//
 // Revision 1.9  2002/02/04 05:44:00  jbravo
 // Fixed a typo in knives name
 //
@@ -587,17 +590,6 @@ void UnstickPlayer( gentity_t *ent )
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
 
-// JBravo: test
-//#define	PLAYERBOX 500
-//	mins[0] = -PLAYERBOX * 1.42;
-//	mins[1] = -PLAYERBOX * 1.42;
-//	mins[2] = -PLAYERBOX * 1.42;
-//	maxs[0] = PLAYERBOX * 1.42;
-//	maxs[1] = PLAYERBOX * 1.42;
-//	maxs[2] = PLAYERBOX * 1.42;
-//	VectorAdd( ent->client->ps.origin, mins, mins );
-//	VectorAdd( ent->client->ps.origin, maxs, maxs );
-
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
@@ -608,7 +600,6 @@ void UnstickPlayer( gentity_t *ent )
 	}
 
 	if (count == 0) {
-		G_Printf ("making %s solid!\n", ent->client->pers.netname);
 		ent->client->ps.stats[STAT_RQ3] |= RQ3_PLAYERSOLID;
 	}
 }
