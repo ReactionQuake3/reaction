@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/06/12 15:01:01  slicer
+// Removed g_RQ3_matchmode from USERINFO
+//
 // Revision 1.73  2002/06/12 03:37:38  blaze
 // some fixes for the add bot code
 //
@@ -418,7 +421,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
-	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse  },
+	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse  },
 	//Slicer: radio protect
 	{ &g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0 , 0, qfalse  },
 	{ &g_RQ3_radioFloodTime, "g_RQ3_radioFloodTime", "2", 0 , 0, qfalse  },
