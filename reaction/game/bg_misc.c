@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2003/01/08 04:46:26  jbravo
+// Wrote a new hackish model replacement system
+//
 // Revision 1.46  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -130,9 +133,10 @@ gitem_t bg_itemlist[] = {
 	 "weapon_knife",
 	 //"sound/weapons/knife/knife.wav",
 	 "sound/misc/am_pkup.wav",
-	 {"models/weapons2/knife/knife.md3", 0, 0, 0}
+	 {"models/weapons2/knife/knife.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	  0, 0, 0}
 	 ,
-	 "icons/iconw_knife",
+	 "icons/iconw_knife\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	 RQ3_KNIFE_NAME,
 	 1,
 	 IT_WEAPON,
@@ -145,10 +149,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_pistol",
 	 "sound/weapons/mk23/mk23slide.wav",
-	 {"models/weapons2/mk23/mk23.md3",
+	 {"models/weapons2/mk23/mk23.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_mk23",
+/* icon */ "icons/iconw_mk23\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_PISTOL_NAME,
 	 12,
 	 IT_WEAPON,
@@ -162,10 +166,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_m4",
 	 "sound/weapons/m4/m4slide.wav",
-	 {"models/weapons2/m4/m4.md3",
+	 {"models/weapons2/m4/m4.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m4",
+/* icon */ "icons/iconw_m4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_M4_NAME,
 	 24,
 	 IT_WEAPON,
@@ -179,10 +183,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_ssg3000",
 	 "sound/weapons/ssg3000/ssgin.wav",
-	 {"models/weapons2/ssg3000/ssg3000.md3",
+	 {"models/weapons2/ssg3000/ssg3000.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_ssg",
+/* icon */ "icons/iconw_ssg\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_SSG3000_NAME,
 	 6,
 	 IT_WEAPON,
@@ -196,10 +200,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_mp5",
 	 "sound/weapons/mp5/mp5slide.wav",
-	 {"models/weapons2/mp5/mp5.md3",
+	 {"models/weapons2/mp5/mp5.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_mp5",
+/* icon */ "icons/iconw_mp5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_MP5_NAME,
 	 30,
 	 IT_WEAPON,
@@ -213,10 +217,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_handcannon",
 	 "sound/weapons/handcannon/hcopen.wav",
-	 {"models/weapons2/handcannon/handcannon.md3",
+	 {"models/weapons2/handcannon/handcannon.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_sawedoff",
+/* icon */ "icons/iconw_handcannon\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_HANDCANNON_NAME,
 	 2,
 	 IT_WEAPON,
@@ -230,10 +234,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_m3",
 	 "sound/weapons/m3/m3in.wav",
-	 {"models/weapons2/m3/m3.md3",
+	 {"models/weapons2/m3/m3.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m3",
+/* icon */ "icons/iconw_m3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_M3_NAME,
 	 7,
 	 IT_WEAPON,
@@ -247,10 +251,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_akimbo",
 	 "sound/weapons/mk23/mk23slide.wav",
-	 {"models/weapons2/akimbo/akimbo.md3",
+	 {"models/weapons2/akimbo/akimbo.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_akimbo",
+/* icon */ "icons/iconw_akimbo\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_AKIMBO_NAME,
 	 24,
 	 IT_WEAPON,
@@ -265,10 +269,10 @@ gitem_t bg_itemlist[] = {
 	 "weapon_grenade",
 	 //"sound/grenade/tink2.wav",
 	 "sound/misc/am_pkup.wav",
-	 {"models/weapons2/grenade/grenade.md3",
+	 {"models/weapons2/grenade/grenade.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_gren",
+/* icon */ "icons/iconw_grenade\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
 /* pickup */ RQ3_GRENADE_NAME,
 	 1,
 	 IT_WEAPON,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2003/01/08 04:46:26  jbravo
+// Wrote a new hackish model replacement system
+//
 // Revision 1.52  2002/11/17 20:14:15  jbravo
 // Itembanning added
 //
@@ -2700,7 +2703,7 @@ BotSameTeam
 */
 int BotSameTeam(bot_state_t * bs, int entnum)
 {
-	char info1[1024], info2[1024];
+//	char info1[1024], info2[1024];
 	int team1, team2;
 
 	if (bs->client < 0 || bs->client >= MAX_CLIENTS) {

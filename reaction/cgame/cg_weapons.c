@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2003/01/08 04:46:26  jbravo
+// Wrote a new hackish model replacement system
+//
 // Revision 1.101  2002/12/05 23:11:29  blaze
 // Added item replacement code
 //
@@ -633,10 +636,6 @@ void CG_RegisterWeapon(int weaponNum)
 	vec3_t mins, maxs;
 	// QUARANTINE - Weapon Animations - Added Variable
 	char filename[MAX_QPATH];	//Used to open animation.cfg files
-	char mname[MAX_QPATH];
-	char md3name[MAX_QPATH];
-	char newname[MAX_QPATH];
-	char newicon[MAX_QPATH];
 	// END
 	int i;
 
@@ -666,40 +665,10 @@ void CG_RegisterWeapon(int weaponNum)
 	}
 
 	CG_RegisterItemVisuals(item - bg_itemlist);
-	strcpy(mname, item->world_model[0] + 16);
-	mname[strstr(mname, "/") - mname] = '\0';
-	strcpy(md3name, item->world_model[0] + 16 + strlen(mname) + 1);
-	// load cmodel before model so filecache works
-	if (!strcmp(mname, "knife")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_knife.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_knife.string) + 13, "icons/iconw_%s", cg_RQ3_knife.string);
-	} else if (!strcmp(mname, "mk23")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_mk23.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_mk23.string) + 13, "icons/iconw_%s", cg_RQ3_mk23.string);
-	} else if (!strcmp(mname, "m4")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_m4.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_m4.string) + 13, "icons/iconw_%s", cg_RQ3_m4.string);
-	} else if (!strcmp(mname, "ssg3000")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_ssg3000.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_ssg3000.string) + 13, "icons/iconw_%s", cg_RQ3_ssg3000.string);
-	} else if (!strcmp(mname, "mp5")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_mp5.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_mp5.string) + 13, "icons/iconw_%s", cg_RQ3_mp5.string);
-	} else if (!strcmp(mname, "handcannon")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_handcannon.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_handcannon.string) + 13, "icons/iconw_%s", cg_RQ3_handcannon.string);
-	} else if (!strcmp(mname, "m3")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_m3.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_m3.string) + 13, "icons/iconw_%s", cg_RQ3_m3.string);
-	} else if (!strcmp(mname, "akimbo")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_akimbo.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_akimbo.string) + 13, "icons/iconw_%s", cg_RQ3_akimbo.string);
-	} else if (!strcmp(mname, "grenade")) {
-		Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/%s", cg_RQ3_grenade.string, md3name);
-		Com_sprintf(newicon, strlen(cg_RQ3_grenade.string) + 13, "icons/iconw_%s", cg_RQ3_grenade.string);
-	}
 
-	weaponInfo->weaponModel = trap_R_RegisterModel(newname);
+	//
+	// load cmodel before model so filecache works
+	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0]);
 
 	// calc midpoint for rotation
 	trap_R_ModelBounds(weaponInfo->weaponModel, mins, maxs);
@@ -707,8 +676,8 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * (maxs[i] - mins[i]);
 	}
 
-	weaponInfo->weaponIcon = trap_R_RegisterShader(newicon);
-	weaponInfo->ammoIcon = trap_R_RegisterShader(newicon);
+	weaponInfo->weaponIcon = trap_R_RegisterShader(item->icon);
+	weaponInfo->ammoIcon = trap_R_RegisterShader(item->icon);
 
 	for (ammo = bg_itemlist + 1; ammo->classname; ammo++) {
 		if (ammo->giType == IT_AMMO && ammo->giTag == weaponNum) {
@@ -729,23 +698,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ammoIcon = trap_R_RegisterShader(ammo->icon);
 	}
 
-	strcpy(path, newname);
+	strcpy(path, item->world_model[0]);
 	COM_StripExtension(path, path);
 	strcat(path, "_flash.md3");
 	weaponInfo->flashModel = trap_R_RegisterModel(path);
 
-	strcpy(path, newname);
+	strcpy(path, item->world_model[0]);
 	COM_StripExtension(path, path);
 	strcat(path, "_barrel.md3");
 	weaponInfo->barrelModel = trap_R_RegisterModel(path);
 
-	strcpy(path, newname);
+	strcpy(path, item->world_model[0]);
 	COM_StripExtension(path, path);
 	strcat(path, "_hand.md3");
 	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
 	//Elder: added to cache 1st-person models
-	strcpy(path, newname);
+	strcpy(path, item->world_model[0]);
 	COM_StripExtension(path, path);
 	strcat(path, "_1st.md3");
 	weaponInfo->firstModel = trap_R_RegisterModel(path);
@@ -1005,67 +974,49 @@ void CG_RegisterItemVisuals(int itemNum)
 	
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
-	if (item->giType == IT_HOLDABLE)
-	{
-		if (item->giTag == HI_KEVLAR)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_kevlar.string));
+	if (item->giType == IT_HOLDABLE) {
+		if (item->giTag == HI_KEVLAR) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_kevlar.string));
 		}
-		if (item->giTag == HI_LASER)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_laser.string));
+		if (item->giTag == HI_LASER) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_laser.string));
 		}
-		if (item->giTag == HI_SILENCER)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_silencer.string));
+		if (item->giTag == HI_SILENCER) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_silencer.string));
 		}
-		if (item->giTag == HI_BANDOLIER)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_bandolier.string));
+		if (item->giTag == HI_BANDOLIER) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_bandolier.string));
 		}
-		if (item->giTag == HI_SLIPPERS)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_slippers.string));
+		if (item->giTag == HI_SLIPPERS) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_slippers.string));
 		}
-		if (item->giTag == HI_HELMET)
-		{
-			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_helmet.string));
+		if (item->giTag == HI_HELMET) {
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_helmet.string));
 		}
-	}
-	else
-	{
+	} else {
 		itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
 	}
-	if (item->giType == IT_HOLDABLE)
-	{
-		if (item->giTag == HI_KEVLAR)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_kevlar.string));
+	if (item->giType == IT_HOLDABLE) {
+		if (item->giTag == HI_KEVLAR) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_kevlar.string));
 		}
-		if (item->giTag == HI_LASER)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_laser.string));
+		if (item->giTag == HI_LASER) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_laser.string));
 		}
-		if (item->giTag == HI_SILENCER)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_silencer.string));
+		if (item->giTag == HI_SILENCER) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_silencer.string));
 		}
-		if (item->giTag == HI_BANDOLIER)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_bandolier.string));
+		if (item->giTag == HI_BANDOLIER) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_bandolier.string));
 		}
-		if (item->giTag == HI_SLIPPERS)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_slippers.string));
+		if (item->giTag == HI_SLIPPERS) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_slippers.string));
 		}
-		if (item->giTag == HI_HELMET)
-		{
-			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_helmet.string));
+		if (item->giTag == HI_HELMET) {
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s", cg_RQ3_helmet.string));
 		}
-	}
-	else
-	{
-			itemInfo->icon = trap_R_RegisterShader(item->icon);
+	} else {
+		itemInfo->icon = trap_R_RegisterShader(item->icon);
 	}
 
 	if (item->giType == IT_WEAPON) {

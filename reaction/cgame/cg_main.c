@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2003/01/08 04:46:26  jbravo
+// Wrote a new hackish model replacement system
+//
 // Revision 1.116  2002/12/06 07:31:41  blaze
 // changed the helmet default from helmet/helmet to helmet
 //
@@ -2164,6 +2167,106 @@ void CG_StartMusic(void)
 	trap_S_StartBackgroundTrack(parm1, parm2);
 }
 
+static qboolean JB_FileExists(const char *filename)
+{
+	int len;
+
+	len = trap_FS_FOpenFile(filename, 0, FS_READ);
+	if (len > 0) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+/*
+=================
+CG_ReplaceModels
+
+Hack by JBravo to replace world_models in bg_itemlist
+=================
+*/
+void CG_ReplaceModels(void)
+{
+	gitem_t *item;
+	char newname[MAX_QPATH], newicon[MAX_QPATH];
+
+	for (item = bg_itemlist + 1; item->classname; item++) {
+		if (!strcmp(item->classname, "weapon_knife")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/knife.md3", cg_RQ3_knife.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_knife.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_pistol")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/mk23.md3", cg_RQ3_mk23.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_mk23.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_m4")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/m4.md3", cg_RQ3_m4.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_m4.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_ssg3000")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/ssg3000.md3", cg_RQ3_ssg3000.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_ssg3000.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_mp5")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/mp5.md3", cg_RQ3_mp5.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_mp5.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_handcannon")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/handcannon.md3", cg_RQ3_handcannon.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_handcannon.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_m3")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/m3.md3", cg_RQ3_m3.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_m3.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_akimbo")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/akimbo.md3", cg_RQ3_akimbo.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_akimbo.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+		if (!strcmp(item->classname, "weapon_grenade")) {
+			Com_sprintf(newname, MAX_QPATH, "models/weapons2/%s/grenade.md3", cg_RQ3_grenade.string);
+			Com_sprintf(newicon, MAX_QPATH, "icons/iconw_%s", cg_RQ3_grenade.string);
+			if (JB_FileExists(newname) && (strlen(newname) < 59)) {
+				strcpy(bg_itemlist[item - bg_itemlist].world_model[0], newname);
+				strcpy(bg_itemlist[item - bg_itemlist].icon, newicon);
+			}
+		}
+	}
+
+}
+
 /*
 =================
 CG_Init
@@ -2196,6 +2299,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetPropB = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
 
 	CG_RegisterCvars();
+
+	CG_ReplaceModels();
 
 	CG_InitConsoleCommands();
 	//Blaze: Default weapon = Pistol

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2003/01/08 04:46:25  jbravo
+// Wrote a new hackish model replacement system
+//
 // Revision 1.33  2002/09/01 21:14:36  makro
 // Sky portal tweaks
 //
@@ -334,8 +337,7 @@ static void CG_Item(centity_t * cent)
 	entityState_t *es;
 	gitem_t *item;
 	int msec;
-	float frac;
-	float scale;
+	float frac, scale;
 	weaponInfo_t *wi;
 
 	es = &cent->currentState;
@@ -373,10 +375,6 @@ static void CG_Item(centity_t * cent)
 		trap_R_AddRefEntityToScene(&ent);
 		return;
 	}
-	// items bob up and down continuously
-//Blaze: Stop the bobbing
-//      scale = 0.005 + cent->currentState.number * 0.00001;
-//      cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
 
 	memset(&ent, 0, sizeof(ent));
 
@@ -391,18 +389,6 @@ static void CG_Item(centity_t * cent)
 		VectorCopy(cg.autoAngles, cent->lerpAngles);
 		AxisCopy(cg.autoAxis, ent.axis);
 	}
-
-	// autorotate at one of two speeds
-	//Blaze: no rotating
-	/*
-	   if ( item->giType == IT_HEALTH ) {
-	   VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
-	   AxisCopy( cg.autoAxisFast, ent.axis );
-	   } else {
-	   VectorCopy( cg.autoAngles, cent->lerpAngles );
-	   AxisCopy( cg.autoAxis, ent.axis );
-	   }
-	 */
 
 	if (item->giType == IT_WEAPON && item->giTag != WP_KNIFE &&
 	    (es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0)) {
@@ -512,16 +498,6 @@ static void CG_Item(centity_t * cent)
 	VectorScale(ent.axis[0], scale, ent.axis[0]);
 	VectorScale(ent.axis[1], scale, ent.axis[1]);
 	VectorScale(ent.axis[2], scale, ent.axis[2]);
-
-	//Blaze: Dont make models bigger
-	/*
-	   if ( item->giType == IT_WEAPON ) {
-	   VectorScale( ent.axis[0], 1.5, ent.axis[0] );
-	   VectorScale( ent.axis[1], 1.5, ent.axis[1] );
-	   VectorScale( ent.axis[2], 1.5, ent.axis[2] );
-	   ent.nonNormalizedAxes = qtrue;
-	   }
-	 */
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
