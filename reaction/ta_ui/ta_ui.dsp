@@ -39,8 +39,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release_TA"
-# PROP Intermediate_Dir "Release_TA"
+# PROP Output_Dir "D:\Work\rq3source\reaction\Release"
+# PROP Intermediate_Dir "D:\Work\rq3source\reaction\Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G6 /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /YX /FD /c
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /base:"0x40000000" /dll /map /machine:I386 /out:"../Release/uix86.dll"
-# ADD LINK32 /nologo /base:"0x40000000" /dll /map /machine:I386 /out:"../Release/uix86.dll"
+# ADD LINK32 /nologo /base:"0x40000000" /dll /map /machine:I386 /out:"D:\Work\rq3source\reaction\Release\uix86.dll"
 
 !ELSEIF  "$(CFG)" == "ui - Win32 Debug TA"
 

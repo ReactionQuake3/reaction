@@ -276,7 +276,6 @@
 	decoration
     }
 
-/*
 //Replacements
 
     itemdef {
@@ -317,7 +316,6 @@
 	visible 0
 	decoration
     }
-*/
 
 //Reset to defaults
 
@@ -326,7 +324,7 @@
 	group "topmenu"
 	type 1
 	background "menu/art/rq3-setup-defaults"
-	rect 528 12 32 32
+	rect 576 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
 	onFocus { show default_focus ; timefade default_focus forecolor 1 1 1 1 0 250 ;
@@ -339,7 +337,7 @@
 	name default_focus
 	background "menu/art/rq3-menu-focus"
 	forecolor 1 1 1 0
-	rect 528 12 32 32
+	rect 576 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 0
 	decoration
