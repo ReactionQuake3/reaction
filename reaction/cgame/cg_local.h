@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.154  2003/09/17 23:49:29  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.153  2003/09/10 21:40:35  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -891,6 +894,10 @@ typedef struct {
 // JBravo: unlagged
 #define NUM_SAVED_STATES (CMD_BACKUP + 2)
 
+//Makro - lens flares
+#define MAX_VISIBLE_FLARES	24
+#define NUM_FLARE_SHADERS	3
+
 typedef struct {
 	int clientFrame;	// incremented each frame
 
@@ -1144,6 +1151,9 @@ typedef struct {
 	//Makro - true if the user wants fastsky on. We'll force it to off for maps
 	//that have a _rq3_fog_color set
 	int wantsFastSky;
+	//Makro - used for flares
+	unsigned char flareShaderNum[MAX_VISIBLE_FLARES];
+	float flareShaderSize[MAX_VISIBLE_FLARES], flareColor[MAX_VISIBLE_FLARES][4];
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
@@ -1605,6 +1615,9 @@ typedef struct {
 	sfxHandle_t female_treportsound;
 	sfxHandle_t female_upsound;
 	sfxHandle_t female_click;
+
+	//Makro - lens flare shaders
+	qhandle_t flareShader[NUM_FLARE_SHADERS];
 } cgMedia_t;
 
 // The client game static (cgs) structure hold everything
@@ -1701,6 +1714,9 @@ typedef struct {
 	//Makro - "clear" color
 	vec3_t clearColor;
 	qboolean clearColorSet;
+	//Makro - sun flares
+	int lastSunTime, lastSunX, lastSunY, numFlares;
+	vec3_t sunDir;
 } cgs_t;
 
 //==============================================================================
@@ -2495,4 +2511,4 @@ int CG_NewParticleArea(int num);
 void CG_DrawBigPolygon(void);
 void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
-
+void CG_AddLensFlare();

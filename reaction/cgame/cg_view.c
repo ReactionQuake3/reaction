@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2003/09/17 23:49:29  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.37  2003/09/07 22:19:27  makro
 // Typo !
 //
@@ -1003,6 +1006,76 @@ static void CG_PlayBufferedSounds(void)
 
 //=========================================================================
 
+
+#define FLARE_FADEOUT_TIME	1000
+
+void CG_AddLensFlare()
+{
+	vec3_t dir, dp;
+	float PI180 = M_PI/180, hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2,
+		p, y, cx, cy;
+	int i, timeDelta = 0;
+	qboolean visible = qfalse;
+
+	VectorCopy(cgs.sunDir, dir);
+	dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
+	dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
+	dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
+	y = 90 - acos(dp[1])/PI180;
+	p = 90 - acos(dp[2])/PI180;
+	//if the sun is in fov
+	if (dp[0] > 0 && abs(y) <= hfovx && abs(p) <= hfovy) {
+		//do a trace
+		vec3_t end;
+		trace_t tr;
+
+		VectorMA(cg.refdef.vieworg, 16384, dir, end);
+		CG_Trace(&tr, cg.refdef.vieworg, NULL, NULL, end, 0, CONTENTS_SOLID);
+		//if we hit the sky
+		if (tr.surfaceFlags & SURF_SKY)
+		{
+			//get the screen co-ordinates for the sun
+			cx = (1.0f - (float)(y + hfovx)/cg.refdef.fov_x) * 640;
+			cy = (1.0f - (float)(p + hfovy)/cg.refdef.fov_y) * 480;
+			cgs.lastSunX = cx;
+			cgs.lastSunY = cy;
+			cgs.lastSunTime = cg.time;
+			visible = qtrue;
+		}
+		//Note - we could do more traces if we hit transparent objects instead
+		//of the sky for example, but that would slow things down
+	}
+	if (!visible && cgs.lastSunTime) {
+		timeDelta = cg.time - cgs.lastSunTime;
+		if (timeDelta > FLARE_FADEOUT_TIME)
+			cgs.lastSunTime = 0;
+	}
+	//add the sprites
+	if (visible || cgs.lastSunTime) {
+		float len = 0, fade = 1.0f;
+		VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
+		len = 2 * VectorNormalize(dir);
+		if (!visible)
+			fade = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
+		for (i=0; i<cgs.numFlares; i++) {
+			float color[4];
+			dp[2] = len / cgs.numFlares * (i+1);
+			dp[0] = cgs.lastSunX + dp[2] * dir[0];
+			dp[1] = cgs.lastSunY + dp[2] * dir[1];
+			color[0] = cg.flareColor[i][0];
+			color[1] = cg.flareColor[i][1];
+			color[2] = cg.flareColor[i][2];
+			color[3] = cg.flareColor[i][3];
+			if (!visible)
+				color[3] *= fade;
+			trap_R_SetColor(color);
+			CG_DrawPic(dp[0]-cg.flareShaderSize[i]/2.0f, dp[1]-cg.flareShaderSize[i]/2.0f, 
+				cg.flareShaderSize[i], cg.flareShaderSize[i], cgs.media.flareShader[cg.flareShaderNum[i]]);
+		}
+	}
+}
+
+
 /*
 =================
 CG_DrawActiveFrame
@@ -1014,6 +1087,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 {
 	int inwater;
 	int skyPortalMode = ADDENTS_NOSKYPORTAL;
+	float aviDemoFPS = 0;
 
 	//Blaze: for cheat detection
 	int i;
@@ -1153,7 +1227,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
 		}
 	}
-	
+
 	// actually issue the rendering calls
 	CG_DrawActive(stereoView);
 
@@ -1190,9 +1264,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		}
 	}
 	//Makro - like cl_avidemo, just that it uses JPEG's
-	if (atof(cg_RQ3_avidemo.string) > 0) {
+	aviDemoFPS = atof(cg_RQ3_avidemo.string);
+	if (aviDemoFPS > 0) {
 		//if it's time to take a screenshot
-		if (cg.time > cg.screenshotTime + (int) (1000.0f / atof(cg_RQ3_avidemo.string))) {
+		if (cg.time > cg.screenshotTime + (int) (1000.0f / aviDemoFPS)) {
 			trap_SendConsoleCommand("screenshotJPEG silent\n");
 			cg.screenshotTime = cg.time;
 		}

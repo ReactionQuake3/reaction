@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2003/09/17 23:49:29  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.140  2003/09/10 21:40:35  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -2263,6 +2266,10 @@ static void CG_RegisterGraphics(void)
 			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
 		}
 	}
+
+	//Makro - lens flare shaders
+	for (i=0; i<NUM_FLARE_SHADERS; i++)
+		cgs.media.flareShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/flare%.2d", i+1));
 
 	// register all the server specified models
 	for (i = 1; i < MAX_MODELS; i++) {

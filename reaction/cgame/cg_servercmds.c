@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2003/09/17 23:49:29  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.74  2003/09/10 21:40:35  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -440,9 +443,11 @@ static void CG_ParseWarmup(void)
 	cg.warmup = warmup;
 }
 
-//Makro - added
+//Makro - sky portal and lens flare
 void CG_ParseSkyPortal(const char *str)
 {
+	int n;
+	//sky portal
 	if (str && str[0] && Q_stricmp(str, "none")) {
 		cgs.skyPortalOrigin[0] = atof(Info_ValueForKey(str, "x"));
 		cgs.skyPortalOrigin[1] = atof(Info_ValueForKey(str, "y"));
@@ -450,6 +455,35 @@ void CG_ParseSkyPortal(const char *str)
 		cgs.skyPortalSet = qtrue;
 	} else {
 		cgs.skyPortalSet = qfalse;
+	}
+	//lens flare
+	n = atoi(Info_ValueForKey(str, "ln"));
+	if (n > 0) {
+		float alphamin, alphamax, sizemin, sizemax, dfactor = 0.5f;
+		int i;
+
+		cgs.numFlares = n;
+		cgs.sunDir[0] = atof(Info_ValueForKey(str, "lx"));
+		cgs.sunDir[1] = atof(Info_ValueForKey(str, "ly"));
+		cgs.sunDir[2] = atof(Info_ValueForKey(str, "lz"));
+		alphamin = atof(Info_ValueForKey(str, "lamin"));
+		alphamax = atof(Info_ValueForKey(str, "lamax"));
+		sizemin = atof(Info_ValueForKey(str, "lsmin"));
+		sizemax = atof(Info_ValueForKey(str, "lsmax"));
+
+		//generate flare parms
+		for (i=0; i<MAX_VISIBLE_FLARES; i++) {
+			cg.flareShaderNum[i] = rand() % NUM_FLARE_SHADERS;
+			//looks yucky, but oh well...
+			cg.flareShaderSize[i] = sizemin + random() * (sizemax - sizemin) *
+				(1.0f - dfactor * (1.0f - (i+1) / (float)MAX_VISIBLE_FLARES));
+			cg.flareColor[i][0] = 0.25f + random() * 0.75f;
+			cg.flareColor[i][1] = 0.25f + random() * 0.75f;
+			cg.flareColor[i][2] = 0.25f + random() * 0.75f;
+			cg.flareColor[i][3] = alphamin + random() * (alphamin - alphamax);
+		}
+	} else {
+		cgs.numFlares = 0;
 	}
 }
 
