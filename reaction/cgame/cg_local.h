@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/01/30 07:37:25  niceass
+// EnableBreath added for mappers (TA thing)
+//
 // Revision 1.41  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -1425,16 +1428,16 @@ extern	vmCvar_t		cg_blueTeamName;
 extern	vmCvar_t		cg_currentSelectedPlayer;
 extern	vmCvar_t		cg_currentSelectedPlayerName;
 extern	vmCvar_t		cg_singlePlayer;
-extern	vmCvar_t		cg_enableDust;
-extern	vmCvar_t		cg_enableBreath;
 extern	vmCvar_t		cg_singlePlayerActive;
 extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 extern	vmCvar_t		cg_obeliskRespawnDelay;
+extern	vmCvar_t		cg_enableDust;
 #endif
+// NiceAss: No longer part of the MissionPack
+extern	vmCvar_t		cg_enableBreath;
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
-
 // JBravo: To signal cgame that lca is in progress
 extern	vmCvar_t		RQ3_lca;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/01/30 07:37:25  niceass
+// EnableBreath added for mappers (TA thing)
+//
 // Revision 1.15  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -1726,10 +1729,11 @@ static void CG_HasteTrail( centity_t *cent ) {
 	smoke->leType = LE_SCALE_FADE;
 }
 
-#ifdef MISSIONPACK
+
 /*
 ===============
 CG_BreathPuffs
+// NiceAss: Used now. No londer MISSIONPACK
 ===============
 */
 static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
@@ -1763,6 +1767,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	ci->breathPuffTime = cg.time + 2000;
 }
 
+#ifdef MISSIONPACK
 /*
 ===============
 CG_DustTrail
@@ -2790,8 +2795,9 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
 
-#ifdef MISSIONPACK
+	// NiceAss: Outside the MISSIONPACK
 	CG_BreathPuffs(cent, &head);
+#ifdef MISSIONPACK
 
 	CG_DustTrail(cent);
 #endif
