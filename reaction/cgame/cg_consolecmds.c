@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2003/09/20 19:38:16  makro
+// Lens flares, what else ?
+//
 // Revision 1.55  2003/04/09 02:00:43  jbravo
 // Fixed team none in DM and some final cleanups for the 3.0 release
 //
@@ -282,8 +285,9 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-	CG_Printf("(%i %i %i) : %i\n", (int) cg.refdef.vieworg[0],
-		  (int) cg.refdef.vieworg[1], (int) cg.refdef.vieworg[2], (int) cg.refdefViewAngles[YAW]);
+	CG_Printf("(%i %i %i) : %.2f %.2f\n", (int) cg.refdef.vieworg[0],
+		  (int) cg.refdef.vieworg[1], (int) cg.refdef.vieworg[2],
+		  cg.refdefViewAngles[PITCH], cg.refdefViewAngles[YAW]);
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2003/09/20 19:38:16  makro
+// Lens flares, what else ?
+//
 // Revision 1.75  2003/09/19 00:54:23  makro
 // Flares again
 //
@@ -2646,6 +2649,9 @@ void CG_DrawActive(stereoFrame_t stereoView)
 		VectorMA(cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg);
 	}
 
+	//Makro - sun flare
+	CG_AddLensFlare(qtrue);
+
 	// draw 3D view
 	trap_R_RenderScene(&cg.refdef);
 
@@ -2660,6 +2666,6 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	// draw status bar and other floating elements
 	CG_Draw2D();
 
-	//Makro - lens flare
-	CG_AddLensFlare();
+	//Makro - reflection particles
+	CG_AddLensFlare(qfalse);
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.156  2003/09/20 19:38:16  makro
+// Lens flares, what else ?
+//
 // Revision 1.155  2003/09/18 19:05:10  makro
 // Lens flares
 //
@@ -1719,7 +1722,7 @@ typedef struct {
 	qboolean clearColorSet;
 	//Makro - sun flares
 	int lastSunTime, lastSunX, lastSunY, numFlares, sunFlareSize;
-	float sunAlpha;
+	float sunAlpha, flareFovFactor, flareFadeFactor;
 	vec3_t sunDir;
 } cgs_t;
 
@@ -2518,4 +2521,4 @@ int CG_NewParticleArea(int num);
 void CG_DrawBigPolygon(void);
 void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
-void CG_AddLensFlare();
+void CG_AddLensFlare(qboolean sun);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2003/09/20 19:38:16  makro
+// Lens flares, what else ?
+//
 // Revision 1.41  2003/09/19 21:22:52  makro
 // Flares
 //
@@ -1018,91 +1021,113 @@ static void CG_PlayBufferedSounds(void)
 
 #define FLARE_FADEOUT_TIME	600
 
-void CG_AddLensFlare()
+void CG_AddLensFlare(qboolean sun)
 {
 	vec3_t dir, dp;
-	float PI180 = M_PI/180, pitch, yaw, cx, cy,
-		hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2;
-	int i, timeDelta = 0;
-	qboolean visible = qfalse;
 
 	if (cgs.numFlares <= 0 && (cgs.sunFlareSize <= 0 || cgs.sunAlpha == 0))
 		return;
 
-	VectorCopy(cgs.sunDir, dir);
-	dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
-	dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
-	dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
-	yaw = 90.0f - acos(dp[1])/PI180;
-	pitch = 90.0f - acos(dp[2])/PI180;
-	//if the sun is in fov
-	if (dp[0] > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
-		//do a trace
+	if (sun)
+	{
+		float PI180 = M_PI/180, pitch, yaw, cx, cy,
+			hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2;
+		qboolean visible = qfalse;
 		vec3_t end;
 		trace_t tr;
+		int timeDelta = 0;
 
+		cgs.flareFadeFactor = 0.0f;
+
+		//do a trace in the direction of the sun
+		VectorCopy(cgs.sunDir, dir);
 		VectorMA(cg.refdef.vieworg, 16384, dir, end);
 		CG_Trace(&tr, cg.refdef.vieworg, NULL, NULL, end, 0, CONTENTS_SOLID);
-		//if we either hit the sky or did a full trace (most likely noclipping)
-		if ((tr.surfaceFlags & SURF_SKY) || tr.fraction == 1.0f)
+		//if we hit the sky
+		if (tr.surfaceFlags & SURF_SKY)
 		{
-			//get the screen co-ordinates of the sun
-			cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
-			cy = 240 * (1.0f - dp[2] / (cos(pitch * PI180) * tan(hfovy * PI180)));
-			cgs.lastSunX = cx;
-			cgs.lastSunY = cy;
-			cgs.lastSunTime = cg.time;
-			visible = qtrue;
+			dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
+			dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
+			dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
+			yaw = 90.0f - acos(dp[1])/PI180;
+			pitch = 90.0f - acos(dp[2])/PI180;
+			
+			//if the sun is in fov
+			if (dp[0] > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
+				//get the screen co-ordinates of the sun
+#if 0
+				cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
+				cy = 240 * (1.0f - dp[2] / (cos(pitch * PI180) * tan(hfovy * PI180)));
+#else
+				//if we really needed them to be accurate, those above would be best
+				//but we actually don't !
+				cx = 320 * (1.0f - dp[1]);
+				cy = 240 * (1.0f - dp[2]);
+#endif
+				cgs.lastSunX = cx;
+				cgs.lastSunY = cy;
+				cgs.lastSunTime = cg.time;
+				visible = qtrue;
+				cgs.flareFadeFactor = 1.0f;
+			}
+			//Note - we could do more traces if we hit transparent objects instead
+			//of the sky for example, but that would slow things down
 		}
-		//Note - we could do more traces if we hit transparent objects instead
-		//of the sky for example, but that would slow things down
-	}
-	if (!visible && cgs.lastSunTime) {
-		timeDelta = cg.time - cgs.lastSunTime;
-		if (timeDelta > FLARE_FADEOUT_TIME)
-			cgs.lastSunTime = 0;
-	}
-	//add the sprites
-	if (visible || cgs.lastSunTime) {
-		float len = 0, fade = 1.0f, color[4];
-		float fovFactor = 1.0f, size, hsize;
-
+		if (!visible && cgs.lastSunTime) {
+			timeDelta = cg.time - cgs.lastSunTime;
+			if (timeDelta > FLARE_FADEOUT_TIME)
+			{
+				cgs.lastSunTime = 0;
+				return;
+			}
+			cgs.flareFadeFactor = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
+		}
+		//global vars
 		if (cg.refdef.fov_x < 90)
-			fovFactor = 5 - 0.05f * cg.refdef.fov_x;
-		color[0] = color[1] = color[2] = color[3] = cgs.sunAlpha;
-		if (!visible) {
-			fade = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
-			color[0] *= fade;
-			color[1] *= fade;
-			color[2] *= fade;
-			color[3] *= fade;
-		}
-		//sun
-		if (cgs.sunFlareSize > 0 && cgs.sunAlpha > 0) {
-			size = cgs.sunFlareSize * fovFactor;
-			hsize = size/2;
-			trap_R_SetColor(color);
-			CG_DrawPic(cgs.lastSunX - hsize, cgs.lastSunY - hsize, size, size, cgs.media.sunFlareShader);
-		}
+			cgs.flareFovFactor = 5 - 0.05f * cg.refdef.fov_x;
+		else
+			cgs.flareFovFactor = 1.0f;
+		//finally, add the sun
+		if (cgs.sunFlareSize > 0 && cgs.sunAlpha > 0 && cgs.flareFadeFactor != 0.0f) {
+			refEntity_t ent;
 
-		//reflection particles
-		VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
-		len = 2 * VectorNormalize(dir);
-		for (i=0; i<cgs.numFlares; i++) {
-			size = cg.flareShaderSize[i] * fovFactor;
-			hsize = size/2.0f;
-			dp[2] = len / cgs.numFlares * (i+1);
-			dp[0] = cgs.lastSunX + dp[2] * dir[0];
-			dp[1] = cgs.lastSunY + dp[2] * dir[1];
-			color[0] = cg.flareColor[i][0];
-			color[1] = cg.flareColor[i][1];
-			color[2] = cg.flareColor[i][2];
-			color[3] = cg.flareColor[i][3];
-			if (!visible)
-				color[3] *= fade;
-			trap_R_SetColor(color);
-			CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
-				cgs.media.flareShader[cg.flareShaderNum[i]]);
+			memset(&ent, 0, sizeof(ent));
+			VectorCopy(tr.endpos, ent.origin);
+			ent.reType = RT_SPRITE;
+			ent.customShader = cgs.media.sunFlareShader;
+			//this function wouldn't be complete without some funny math
+			//this makes the sprite as big as the mapper wanted it to be
+			ent.radius = cgs.sunFlareSize * tr.fraction * 24.724346f;
+			ent.renderfx = RF_DEPTHHACK;
+			ent.shaderRGBA[0] = cgs.flareFadeFactor * cgs.sunAlpha * 255;
+			ent.shaderRGBA[1] = ent.shaderRGBA[0];
+			ent.shaderRGBA[2] = ent.shaderRGBA[0];
+			ent.shaderRGBA[3] = ent.shaderRGBA[0];
+			trap_R_AddRefEntityToScene(&ent);
+		}
+	} else {
+		//add the reflection particles
+		if (cgs.flareFadeFactor != 0.0f) {
+			float len = 0, color[4];
+			float size, hsize;
+			int i;
+			
+			VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
+			len = 2 * VectorNormalize(dir);
+			for (i=0; i<cgs.numFlares; i++) {
+				size = cg.flareShaderSize[i] * cgs.flareFovFactor;
+				hsize = size/2.0f;
+				dp[2] = len / cgs.numFlares * (i+1);
+				dp[0] = cgs.lastSunX + dp[2] * dir[0];
+				dp[1] = cgs.lastSunY + dp[2] * dir[1];
+				color[0] = cg.flareColor[i][0];
+				color[1] = cg.flareColor[i][1];
+				color[2] = cg.flareColor[i][2];
+				color[3] = cg.flareColor[i][3] * cgs.flareFadeFactor;
+				trap_R_SetColor(color);
+				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
+					cgs.media.flareShader[cg.flareShaderNum[i]]);
+			}
 		}
 	}
 }
