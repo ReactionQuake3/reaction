@@ -215,6 +215,10 @@ SOURCE=.\g_team.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\g_teamplay.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\g_trigger.c
 # End Source File
 # Begin Source File
@@ -332,6 +336,10 @@ SOURCE=.\g_public.h
 # Begin Source File
 
 SOURCE=.\g_team.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\g_teamplay.h
 # End Source File
 # Begin Source File
 
