@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/06/11 14:03:04  makro
+// Forgot (), heh
+//
 // Revision 1.42  2002/06/11 13:42:54  makro
 // Added a time limit for changing weapon modes for bots
 //
@@ -466,7 +469,7 @@ void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 		Cmd_New_Weapon( &g_entities[bs->entitynum] );
 	}
 
-	bs->weapoModeChange_time = FloatTime;
+	bs->weapoModeChange_time = FloatTime();
 }
 
 /*
