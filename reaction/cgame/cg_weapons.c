@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/06/05 09:40:10  niceass
+// tracer fix
+//
 // Revision 1.76  2002/06/03 01:09:33  niceass
 // silencer scale changes
 //
@@ -3798,7 +3801,7 @@ CG_CreateTracer
 void CG_CreateTracer( int entity, vec3_t start, vec3_t end ) {
 	localEntity_t	*le;
 	float	dist;
-	vec3_t dir;
+	vec3_t dir, end2;
 	vec3_t temp, midpoint;
 	float	tracerSpeed = 4200;
 
@@ -3809,9 +3812,9 @@ void CG_CreateTracer( int entity, vec3_t start, vec3_t end ) {
 		return;
 
 	// Stop right before the end
-	VectorMA( end, -cg_tracerLength.value, dir, end );
+	VectorMA( end, -cg_tracerLength.value, dir, end2 );
 
-	VectorSubtract( end, start, temp );
+	VectorSubtract( end2, start, temp );
 	dist = VectorLength( temp );
 
 	le = CG_AllocLocalEntity();
@@ -3824,9 +3827,9 @@ void CG_CreateTracer( int entity, vec3_t start, vec3_t end ) {
 	VectorCopy( start, le->pos.trBase );
 	VectorScale( dir, tracerSpeed, le->pos.trDelta );
 
-	midpoint[0] = ( start[0] + end[0] ) * 0.5;
-	midpoint[1] = ( start[1] + end[1] ) * 0.5;
-	midpoint[2] = ( start[2] + end[2] ) * 0.5;
+	midpoint[0] = ( start[0] + end2[0] ) * 0.5;
+	midpoint[1] = ( start[1] + end2[1] ) * 0.5;
+	midpoint[2] = ( start[2] + end2[2] ) * 0.5;
 	trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
 }
 
@@ -3950,7 +3953,6 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 
 			// draw a tracer
 			// Elder: only if not using SSG, check if this client is the source
-	
 			if (sourceEntityNum == cg.snap->ps.clientNum)
 			{
 				if (cg.snap->ps.weapon != WP_SSG3000 &&
