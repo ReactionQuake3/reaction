@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/06/13 22:37:18  slicer
+// small fix
+//
 // Revision 1.78  2002/06/13 20:59:35  slicer
 // Setting ( for real ) gender on DM
 //
@@ -2688,7 +2691,7 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 				G_Printf ("RQ3 config system: Found invalid skin\n");
 				return PARSING_ERROR;
 			}
-			if (!RQ3_Validatemodel(word_buff)) {
+			if (RQ3_Validatemodel(word_buff)!= -1) {
 				G_Printf ("RQ3 config system: The model is not a valid RQ3 model\n");
 				return PARSING_ERROR;
 			}
