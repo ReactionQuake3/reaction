@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/06/29 02:41:34  niceass
+// m4 kick fix
+//
 // Revision 1.70  2002/06/26 03:27:37  niceass
 // handcannon crash bug fixed
 //
@@ -1349,9 +1352,15 @@ void Weapon_M4_Fire(gentity_t * ent)
 	} else {
 		spread = M4_SPREAD;
 		//M4-kick stuff
-		ent->client->consecutiveShots++;
-		if (ent->client->consecutiveShots > 23)
-			ent->client->consecutiveShots = 23;
+
+		// NiceAss; Make it so M4 kickback doesn't happen
+		// if looking straight up
+		if (ent->client->ps.viewangles[0] > -85.0f) {
+			ent->client->consecutiveShots++;
+
+			if (ent->client->consecutiveShots > 23)
+				ent->client->consecutiveShots = 23;
+		}
 
 	}
 
