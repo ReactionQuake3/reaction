@@ -94,7 +94,7 @@ typedef struct
 } cr_line;
 
 cr_line credits[] = { // edit this as necessary for your credits
-	
+
 { "CAST", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "GRUNT", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
@@ -106,54 +106,83 @@ cr_line credits[] = { // edit this as necessary for your credits
 
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+
 { "REACTION QUAKE 3 TEAM", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
+
+// Programming
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "PROGRAMMING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "MALCOLM BECHARD", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "SCOTT BROOKS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "VICTOR CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "MALCOLM BECHARD (TSUNAMI)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "SCOTT BROOKS (BLAZE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "VICTOR CHOW (ELDER_MMHS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Additional programming -- snippets
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ADDITIONAL PROGRAMMING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "MICHAEL BRUCE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "DAN CHIN", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "MIKE CONNOR", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "MICHAEL BRUCE (AGTORANGE)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "DAN CHIN (LT. HAWKINS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "MIKE CONNOR (HOMER)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Artwork - models, textures, whatever
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ART", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "BRIAN MILLS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "MARK POTNICK", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "SONIC128", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "BRIAN MILLS (BIRDMAN)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "MARK POTNICK (CLOUD)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "FROST", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "R0OK", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "RYAN VANCE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "RYAN VANCE (BRAGOBLIN)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Additional artwork - a few extra things
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ADDITIONAL ART", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "VICTOR CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "DWAYNE DOUGLASS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "SONIC128", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "R0OK", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "VICTOR CHOW (ELDER_MMHS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Mappers
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "LEVEL DESIGN", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "KELLY RUSH", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "GREGORY SIMMONS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "WALTER SOMOL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "SZE IOR", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "KELLY RUSH (HEXYDES)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "WALTER SOMOL (JOHNNY_ROCKET)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "SZE IOR ", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "CENTURION", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SPYDER", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "MAKRO", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "SHAYMON", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Extra mappers/strictly ports
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "ADDITIONAL LEVEL DESIGN", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "GREGORY SIMMONS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "IRBY", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Sound guys
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "SOUND DESIGN", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "ERWIN PEIL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Organization -- rare :)
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "ORGANIZATION", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "LUCY", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "ERWIN PEIL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Additional organization -- past peeps
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "ADDITIONAL ORGANIZATION", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "LUCY", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Website
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "WEBSITE DESIGN", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "VICTOR CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "RICHARD WATT", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Beta Testers
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "TESTERS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "JOHN DOE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "PSYCHOTAKES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// TBC
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "..TO BE FINISHED..", UI_CENTER|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
@@ -161,45 +190,76 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 
+{ "REACTION QUAKE 3 CONTRIBUTIONS", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
+
+// Additional artwork -- handcannon, hands
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "ADDITIONAL ARTWORK", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "DWAYNE DOUGLASS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "T.T.I.", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Additional testers -- Elder's test subjects ;)
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "ADDITIONAL TESTING", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "WINSTON CHOW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "STEPHEN LOOI", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
+
 { "THE REACTION QUAKE 3 TEAM THANKS", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
+
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "A-TEAM REPRESENTATIVE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "ODDJOB", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "DWAYNE DOUGLASS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Coding help/ideas/snippets
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "CODING ASSISTANCE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
+{ "CODE3ARENA", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "IAIN MCGINNISS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "INOLEN", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "APOXOL", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "CODE 3 ARENA", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "JUZ'S SLIPGATE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "QUAKE3WORLD FORUMS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "ELDER'S TEST PIGGY", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "SHISHKABOB", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "QUAKE3WORLD FORUMS (MOD PROGRAMMING)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "WANG (ATF)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Fex for the public board
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "MESSAGEBOARD GOD", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "THE GREAT FEX", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Groups?
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "GROUPS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "ALL THE LITTLE PEOPLE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "FAMILY AND FRIENDS", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "THE A-TEAM (AQ2 DEVELOPERS)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Commodities -- food, drugs, you name it
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "COMMODITIES", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "MOUNTAIN DEW", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// Mapping help
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "MAPPING ASSISTANCE", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "QERADIANT.COM", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "GAMEDESIGN.NET", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "QUAKE3WORLD FORUMS (LEVEL EDITING)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+
+// The great webhosts
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "WEB HOSTS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
 { "TELEFRAGGED AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "FILEPLANET AND AFFILIATES", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
+// Fan sites?
+
 
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 
+// This point on: id credits -- try to match up with the latest PR
 { "id SOFTWARE", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "PROGRAMMERS", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
@@ -236,48 +296,8 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
 
+// TODO: make something better
 { "THIS HAS BEEN A REACTION QUAKE 3 TEAM PRODUCTION Copyright 2000 - 2001", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-
-/*
-{ "id SOFTWARE", UI_CENTER|UI_BIGFONT, &color_headertext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Programmers", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "John Carmack", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Robert A. Duffy", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Jim Dose'", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Art", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Adrian Carmack", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Kevin Cloud", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Kenneth Scott", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Seneca Menard", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Fred Nilsson", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Game Designer", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Graeme Devine", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Level Design", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Tim Willits", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Christian Antkow", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "Paul Jaquays", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "CEO", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Todd Hollenshead", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Director of Business Development", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Marty Stratton", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Biz Assist and id mom", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Donna Jackson", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Development Assistance", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Eric Webb", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-{ "Original Scrolling Credits Sequence", UI_RIGHT|UI_SMALLFONT, &color_headertext, FIXEDWIDTH },
-{ "Iain McGinniss", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
-{ "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },
-*/
 
   {NULL}
 };
