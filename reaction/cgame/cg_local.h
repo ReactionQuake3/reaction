@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/11 02:25:38  niceass
+// client gravity fix/tag shell ejection
+//
 // Revision 1.49  2002/02/28 05:41:54  blaze
 // weapons stats on client side
 //
@@ -254,6 +257,7 @@ typedef struct centity_s {
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
+	int				ejectBrass;			// NiceAss: set if the weapon should eject a shell
 	int				previousEvent;
 	int				teleportFlag;
 
@@ -518,7 +522,8 @@ typedef struct weaponInfo_s {
 	vec3_t			missileDlightColor;
 	int				missileRenderfx;
 
-	void			(*ejectBrassFunc)( centity_t * );
+	//void			(*ejectBrassFunc)( centity_t *, vec3_t, vec3_t );
+	localEntity_t	*(*ejectBrassFunc)( centity_t *cent );
 
 	float			trailRadius;
 	float			wiTrailTime;
@@ -1388,6 +1393,7 @@ extern	vmCvar_t		cg_stereoSeparation;
 extern	vmCvar_t		cg_lagometer;
 extern	vmCvar_t		cg_drawAttacker;
 extern	vmCvar_t		cg_synchronousClients;
+extern	vmCvar_t		cg_gravity;
 extern	vmCvar_t		cg_teamChatTime;
 extern	vmCvar_t		cg_teamChatHeight;
 extern	vmCvar_t		cg_stats;
