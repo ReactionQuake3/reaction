@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/05/07 05:06:56  niceass
+// physics tweaks
+//
 // Revision 1.12  2002/04/26 05:29:23  niceass
 // PHYSICS, Take 2
 //
@@ -72,18 +75,17 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	numbumps = 4;
 
 	VectorCopy (pm->ps->velocity, primal_velocity);
-
+	
 	if ( gravity ) {
 		VectorCopy( pm->ps->velocity, endVelocity );
 		endVelocity[2] -= pm->ps->gravity * pml.frametime;
 		pm->ps->velocity[2] = ( pm->ps->velocity[2] + endVelocity[2] ) * 0.5;
 		primal_velocity[2] = endVelocity[2];
-/*		if ( pml.groundPlane ) {
+		/*if ( pml.groundPlane ) {
 			// slide along the ground plane
 			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
 				pm->ps->velocity, OVERCLIP );
-		}
-*/
+		}*/
 	}
 
 	time_left = pml.frametime;
@@ -130,6 +132,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 		if (numplanes >= MAX_CLIP_PLANES) {
 			// this shouldn't really happen
+			Com_Printf("DEBUG: MAX_CLIP_PLANES\n");
 			VectorClear( pm->ps->velocity );
 			return qtrue;
 		}
@@ -251,23 +254,10 @@ void PM_StepSlideMove( qboolean gravity ) {
 
 	VectorCopy (pm->ps->origin, start_o);
 	VectorCopy (pm->ps->velocity, start_v);
-
-	if ( PM_SlideMove( gravity ) == 0 ) {
+	
+	if ( PM_SlideMove( gravity ) == 0 )
 		return;		// we got exactly where we wanted to go first try	
-	}
 
-	/*
-	VectorCopy(start_o, down);
-	down[2] -= STEPSIZE;
-	pm->trace (&trace, start_o, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
-	VectorSet(up, 0, 0, 1);
-
-	// never step up when you still have up velocity
-	if ( pm->ps->velocity[2] > 0 && (trace.fraction == 1.0 || 
-		DotProduct(trace.plane.normal, up) < 0.7)) {
-		return;
-	}
-	*/
 
 	VectorCopy (pm->ps->origin, down_o);
 	VectorCopy (pm->ps->velocity, down_v);
@@ -277,7 +267,9 @@ void PM_StepSlideMove( qboolean gravity ) {
 
 	// test the player position if they were a stepheight higher
 	pm->trace (&trace, up, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
-	if ( trace.allsolid ) return;		// can't step up
+	if ( trace.allsolid ) {
+		return;		// can't step up
+	}
 
 	// try slidemove from this position
 	VectorCopy (up, pm->ps->origin);
@@ -289,16 +281,16 @@ void PM_StepSlideMove( qboolean gravity ) {
 	VectorCopy (pm->ps->origin, down);
 	down[2] -= STEPSIZE;
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
-	if ( !trace.allsolid ) {
+	if ( !trace.allsolid )
 		VectorCopy (trace.endpos, pm->ps->origin);
-	}
-	
-	if ( trace.plane.normal[2] < 0.7f) {
+
+	if ( trace.plane.normal[2] < 0.7f )
+	{
 		VectorCopy (down_o, pm->ps->origin);
-		PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+		VectorCopy (down_v, pm->ps->velocity);
 		return;
 	}
-
+	
 	pm->ps->velocity[2] = down_v[2];
 
 	VectorCopy(pm->ps->origin, tmp);
