@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2002/06/10 23:32:03  slicer
+// Tweaked the weapon queuing
+//
 // Revision 1.125  2002/06/10 19:10:59  jbravo
 // Voting system fixed for TP
 //
@@ -2524,9 +2527,24 @@ void Cmd_Weapon(gentity_t *ent)
 		return;
 	}
 	ent->client->weapon_after_bandage_warned = qfalse;
-
+/*
 	//Can't use weapon while firing
-	if ( ent->client->ps.weaponTime > 0 || ent->client->ps.stats[STAT_RELOADTIME] > 0) {
+//	if ( ent->client->ps.weaponTime > 0 || ent->client->ps.stats[STAT_RELOADTIME] > 0) {
+
+		WEAPON_READY,		//sync with WP_ANIM_IDLE
+	WEAPON_COCKED,		//sync with WP_ANIM_EXTRA1 for grenade
+	WEAPON_RAISING,		//sync with WP_ANIM_ACTIVATE
+	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
+	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
+	WEAPON_RELOADING,	//sync with WP_ANIM_RELOAD
+	WEAPON_STALL,		//for delaying weapon fires (knife, grenade)
+	WEAPON_MODECHANGE,	// NiceAss: sync with WP_ANIM_EXTRA1 & WP_ANIM_EXTRA2 for knife.
+	WEAPON_BANDAGING	// NiceAss: Added to follow AQ2 and fix a bug.
+	*/
+	if(ent->client->ps.weaponstate  == WEAPON_RELOADING || 
+		  ent->client->ps.weaponstate  == WEAPON_FIRING ||
+		  ent->client->ps.weaponstate  == WEAPON_DROPPING ||
+		  ent->client->ps.weaponstate == WEAPON_RAISING) {
 	  ent->client->weapon_attempts++;
 		return;
 	}
