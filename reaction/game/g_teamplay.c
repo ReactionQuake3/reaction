@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/01/27 13:33:28  jbravo
+// Teamplay antistick system.
+//
 // Revision 1.4  2002/01/23 15:59:43  jbravo
 // Make use of NiceAsses ClearBodyQue() between rounds
 //
@@ -23,6 +26,7 @@
 #include "g_local.h"
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 char	*ConcatArgs( int start );
+int	touch[MAX_GENTITIES];
 
 void CheckTeamRules()
 {
@@ -382,7 +386,6 @@ void SpawnPlayers()
 	gclient_t	*client;
 	int		clientNum, i;
 
-	client->sess.teamSpawn = qtrue;
 	level.spawnPointsLocated = qfalse;
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
@@ -392,15 +395,17 @@ void SpawnPlayers()
 
 		client = player->client;
 		clientNum = client - level.clients;
+		client->sess.teamSpawn = qtrue;
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
 		} else if (client->sess.savedTeam == TEAM_BLUE) {
 			client->sess.sessionTeam = TEAM_BLUE;
 		}
+		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
+		client->sess.teamSpawn = qfalse;
 	}
-	client->sess.teamSpawn = qfalse;
 }
 
 /* Let the player Choose the weapon and/or item he wants */
@@ -549,4 +554,29 @@ void EquipPlayer (gentity_t *ent)
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
 	ent->client->uniqueItems = 1;
+}
+
+void UnstickPlayer( gentity_t *ent )
+{
+	int		i, num, count;
+	gentity_t	*hit;
+	vec3_t		mins, maxs;
+
+	count = 0;
+
+	VectorAdd( ent->client->ps.origin, (ent->r.mins + 10), mins );
+	VectorAdd( ent->client->ps.origin, (ent->r.maxs + 10), maxs );
+	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+
+	for (i=0 ; i<num ; i++) {
+		hit = &g_entities[touch[i]];
+		if ( hit->client && hit != ent ) {
+			count++;
+		}
+	}
+
+	if (count == 0) {
+		G_Printf ("making %s solid!\n", ent->client->pers.netname);
+		ent->client->ps.stats[STAT_RQ3] |= RQ3_PLAYERSOLID;
+	}
 }

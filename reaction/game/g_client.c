@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/01/27 13:33:28  jbravo
+// Teamplay antistick system.
+//
 // Revision 1.26  2002/01/23 15:26:31  niceass
 // body sinkage removed
 // weapon reset fixed
@@ -1053,6 +1056,9 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	client->pers.connected = CON_CONNECTING;
 
+// JBravo: Antistick
+	client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
+
 	// read or initialize the session data
 	if ( firstTime || level.newSession ) {
 		G_InitSessionData( client, userinfo );
@@ -1186,7 +1192,7 @@ void ClientSpawn(gentity_t *ent) {
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
 	int		eventSequence;
-	int			savedWeapon, savedItem;		// JBravo: to save weapon/item info
+	int		savedWeapon, savedItem, savedSolid;		// JBravo: to save weapon/item info
 	char	userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
@@ -1293,10 +1299,12 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: save weapon/item info
 	savedWeapon = client->teamplayWeapon;
 	savedItem = client->teamplayItem;
+//	savedSolid = client->IsSolid;
 
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
 
 // JBravo: restore weapon/item info
+//	client->IsSolid = savedSolid;
 	client->teamplayWeapon = savedWeapon;
 	client->teamplayItem = savedItem;
 

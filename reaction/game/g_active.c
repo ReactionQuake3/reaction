@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/01/27 13:33:28  jbravo
+// Teamplay antistick system.
+//
 // Revision 1.42  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1252,8 +1255,9 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 // JBravo: fixing telefragging and shit during spawnig.  (Thanks NiceAss! :)
-	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action)
-	{
+	if (g_gametype.integer == GT_TEAMPLAY &&
+		((ent->client->ps.stats[STAT_RQ3] & RQ3_PLAYERSOLID) != RQ3_PLAYERSOLID)) {
+		UnstickPlayer (ent);
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
 

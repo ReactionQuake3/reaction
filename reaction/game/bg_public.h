@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/01/27 13:33:28  jbravo
+// Teamplay antistick system.
+//
 // Revision 1.44  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -542,7 +545,7 @@ typedef enum {
 #define RQ3_LOCKRELOADS		128		// Lock-reloads at end of fast-reload cycle
 #define RQ3_QUEUERELOAD		256		// auto-reload if set
 #define RQ3_RELOADWEAPON1	512		// flag off EV_RELOAD_WEAPON1 event so no dupes occur
-
+#define RQ3_PLAYERSOLID		1024		// JBravo: Flag set when player is solid.
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/01/27 13:33:28  jbravo
+// Teamplay antistick system.
+//
 // Revision 1.13  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -467,7 +470,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 // JBravo: fixing telefragging and shit during spawing (Thanks NiceAss! :)
-	if (RQ3_lca.integer) {
+	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_PLAYERSOLID) != RQ3_PLAYERSOLID) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;
 	}
 
