@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/31 23:41:45  jbravo
+// Added the use command
+//
 // Revision 1.7  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -49,6 +52,7 @@ void CleanLevel();
 void CheckForUnevenTeams(gentity_t *player);
 void EquipPlayer (gentity_t *ent);
 void RQ3_Cmd_Choose_f(gentity_t *ent);
+void RQ3_Cmd_Use_f(gentity_t *ent);
 void RQ3_Cmd_Drop_f( gentity_t *ent );
 void UnstickPlayer( gentity_t *ent );
 void MakeSpectator( gentity_t *ent );

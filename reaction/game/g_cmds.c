@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/03/31 23:41:45  jbravo
+// Added the use command
+//
 // Revision 1.86  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -2950,6 +2953,8 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Choose_f (ent);
 	else if (Q_stricmp (cmd, "drop") == 0)
 		RQ3_Cmd_Drop_f (ent);
+	else if (Q_stricmp (cmd, "use") == 0)
+		RQ3_Cmd_Use_f (ent);
 // JBravo: adding radio
 	else if (Q_stricmp (cmd, "radiogender") == 0)
 		RQ3_Cmd_Radiogender_f (ent);

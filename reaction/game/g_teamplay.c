@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/31 23:41:45  jbravo
+// Added the use command
+//
 // Revision 1.50  2002/03/31 18:36:27  jbravo
 // Added $T (Near by teammates)
 //
@@ -648,7 +651,6 @@ void SpawnPlayers()
 /* Let the player Choose the weapon and/or item he wants */
 void RQ3_Cmd_Choose_f( gentity_t *ent )
 {
-//	char	cmd[MAX_STRING_CHARS];
 	char	*cmd;
 
 	if ( !ent->client ) {
@@ -1414,4 +1416,90 @@ void RQ3_SpectatorMode(gentity_t *ent)
 	trap_SendServerCommand(ent->client->ps.clientNum,
 			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"%s\n",
 			(ent->client->sess.spectatorState == SPECTATOR_FREE)? "FREE":"FOLLOW"));
+}
+
+void RQ3_Cmd_Use_f(gentity_t *ent)
+{
+	char	*cmd, buf[128];
+	int	weapon;
+
+	if (!ent->client) {
+		return;		// not fully in game yet
+	}
+
+	cmd = ConcatArgs(1);
+	weapon = WP_NONE;
+
+	if (Q_stricmp (cmd, RQ3_MP5_NAME) == 0 || Q_stricmp (cmd, "mp5") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) ) == (1 << WP_MP5)) {
+			weapon = WP_MP5;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_MP5_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_M3_NAME) == 0 || Q_stricmp (cmd, "m3") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) ) == (1 << WP_M3)) {
+			weapon = WP_M3;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_M3_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_M4_NAME) == 0 || Q_stricmp (cmd, "m4") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4)) {
+			weapon = WP_M4;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_M4_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp (cmd, "hc") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON)) {
+			weapon = WP_HANDCANNON;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_HANDCANNON_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp (cmd, "sniper") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000)) {
+			weapon = WP_SSG3000;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_SSG3000_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp (cmd, "akimbo") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) == (1 << WP_AKIMBO)) {
+			weapon = WP_AKIMBO;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, RQ3_PISTOL_NAME) == 0 || Q_stricmp (cmd, "pistol") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL) ) == (1 << WP_PISTOL)) {
+			weapon = WP_PISTOL;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, "throwing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE)) {
+			weapon = WP_KNIFE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			return;
+		}
+	} else if (Q_stricmp (cmd, "slashing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE)) {
+			weapon = WP_KNIFE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+		} else {
+			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			return;
+		}
+	}
+	if (weapon == WP_NONE) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Unknown item: %s\n\"", cmd));
+		return;
+	}
+	Com_sprintf (buf, sizeof(buf), "weapon %d\n", weapon);
+	trap_SendConsoleCommand(EXEC_APPEND, buf);
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/03/31 23:41:45  jbravo
+// Added the use command
+//
 // Revision 1.40  2002/03/31 17:41:03  makro
 // Changed IR vision to be more like AQ2
 //
@@ -955,6 +958,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("irvision");
 // JBravo: adding choose and drop commands.
 	trap_AddCommand ("choose");
+	trap_AddCommand ("use");
 	trap_AddCommand ("drop");
 // JBravo: for zcam
 	trap_AddCommand ("camera");
