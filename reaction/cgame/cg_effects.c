@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/08/21 07:09:54  jbravo
+// Removed an extra definition of the vtos call
+//
 // Revision 1.39  2002/07/22 07:27:21  niceass
 // better fog laser support
 //
@@ -1018,6 +1021,8 @@ This is just a convenience function
 for printing vectors
 =============
 */
+/*
+ * JBravo: this is unneccesary and causes compiler warnings for two definitions
 char *vtos(const vec3_t v)
 {
 	static int index;
@@ -1032,7 +1037,7 @@ char *vtos(const vec3_t v)
 
 	return s;
 }
-
+*/
 // JBravo: also for func_explosive
 /*
 ===================
