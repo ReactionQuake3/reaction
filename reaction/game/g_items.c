@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/10/28 02:42:25  jbravo
+// Fixed the HC+Bando bug.
+//
 // Revision 1.51  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -378,9 +381,10 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		if (ent->item->giTag == WP_HANDCANNON) {
 			other->client->numClips[WP_HANDCANNON] += 5;
 			other->client->numClips[WP_M3] += 5;
-			if (other->client->numClips[WP_HANDCANNON] > 13) {
-				other->client->numClips[WP_HANDCANNON] = 14;
-				other->client->numClips[WP_M3] = 14;
+			// JBravo: lets take the bando into account
+			if (other->client->numClips[WP_HANDCANNON] > 13 * bandolierFactor) {
+				other->client->numClips[WP_HANDCANNON] = 14 * bandolierFactor;
+				other->client->numClips[WP_M3] = 14 * bandolierFactor;
 			}
 		}
 	}
