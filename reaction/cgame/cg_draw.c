@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/06/29 21:58:54  niceass
+// big changes in cg_drawping
+//
 // Revision 1.53  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -664,6 +667,7 @@ CG_DrawFPSandPing
 ==================
 */
 #define	FPS_FRAMES	8			// NiceAss: Increased from 4 for a smoother average.
+#define PING_SNAPS 16
 
 static float CG_DrawFPSandPing(float y)
 {
@@ -677,6 +681,10 @@ static float CG_DrawFPSandPing(float y)
 	int t, frameTime, x = 0;
 	float Color[4];
 
+	static int Pings[PING_SNAPS];
+	static int currentSnapshotNum;
+
+
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
 	t = trap_Milliseconds();
@@ -686,7 +694,14 @@ static float CG_DrawFPSandPing(float y)
 	y += 4;
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
+
+	if (cg.latestSnapshotNum != currentSnapshotNum && cg.snap) {
+		Pings[index % PING_SNAPS] = cg.snap->ping;
+		currentSnapshotNum = cg.latestSnapshotNum;
+	}
+
 	index++;
+
 	if (index > FPS_FRAMES) {
 		// average multiple frames together to smooth changes out a bit
 		total = 0;
@@ -713,10 +728,20 @@ static float CG_DrawFPSandPing(float y)
 
 			x += 9;
 		}
+	}
 
-		// Draw ping here:
-		if (cg_drawPing.integer) {
-			s = va("%ims", cg.snap->ping);
+	// Draw ping here:
+	if (index > PING_SNAPS) {
+		int avgping = 0, l;
+
+		for (l = 0; l < PING_SNAPS; l++) {
+			avgping += Pings[l];
+		}
+
+		avgping /= PING_SNAPS;
+	
+		if (cg_drawPing.integer) {	
+			s = va("%ims", avgping);
 			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 			x += w;
 
@@ -727,8 +752,8 @@ static float CG_DrawFPSandPing(float y)
 			CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
 			CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
-		}	
-	}
+		}
+	}	
 
 	if (!cg_drawFPS.integer && !cg_drawPing.integer)
 		return y;
