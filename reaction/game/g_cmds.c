@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.153  2002/07/09 03:24:00  niceass
+// fixed team talk
+//
 // Revision 1.152  2002/07/08 04:25:02  niceass
 // changes to who can be seen dead. removed deaths
 //
@@ -1354,9 +1357,12 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 // JBravo: is the guy ignored ?
 	if (IsInIgnoreList(other, ent))
 		return;
-// JBravo: Dead people dont speak to the living...  or so Im told.
-	if (ent->health <= 0 && other->health > 0 && g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
+	
+	// JBravo: Dead people dont speak to the living...  or so Im told.
+	if ( !G_PlayerAlive( ent ) && G_PlayerAlive( other ) &&
+		g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
 		return;
+
 	trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 						      mode == SAY_TEAM ? "tchat" : "chat",
 						      name, Q_COLOR_ESCAPE, color, message));
