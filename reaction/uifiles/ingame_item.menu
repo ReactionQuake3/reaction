@@ -261,6 +261,25 @@
 	action { play "sound/misc/menu1.wav" ; exec "choose helmet" ; close ingame_item }
     }
 
+    itemdef {
+	name "helmet"
+	ownerdrawFlag UI_SHOW_ITEM6
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 120 148 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "6. Kevlar Helmet"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
 //Item preview
 //Background
 
