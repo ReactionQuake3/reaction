@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/04/05 18:52:26  makro
+// Cleaned things up a bit
+//
 // Revision 1.12  2002/04/04 18:06:44  makro
 // Improved door code. Bots reply to radio treport from teammates.
 // Improved reloading code.
@@ -75,6 +78,7 @@
 #include "../ui/menudef.h"
 
 //Makro - to get rid of the warnings
+bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
 void Cmd_Bandage (gentity_t *ent);
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );

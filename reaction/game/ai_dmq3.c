@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/04/05 18:52:26  makro
+// Cleaned things up a bit
+//
 // Revision 1.15  2002/04/04 18:06:44  makro
 // Improved door code. Bots reply to radio treport from teammates.
 // Improved reloading code.
@@ -1452,7 +1455,8 @@ BotTeamGoals
 ==================
 */
 void BotTeamGoals(bot_state_t *bs, int retreat) {
-	bot_goal_t *goal;
+	//Makro - unused
+	//bot_goal_t *goal;
 	if ( retreat ) {
 		if (gametype == GT_CTF) {
 			BotCTFRetreatGoals(bs);
