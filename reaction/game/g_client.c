@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/19 21:27:28  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.74  2002/05/13 07:29:14  jbravo
 // Fixed server chrasing on incorrect models in TP and also added default skins
 //
@@ -173,8 +176,8 @@
 // JBravo: fixme. Hack to use SelectInitialSpawnPoint() in ClientSpawn.
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
 
-//Blaze:for the breakable code
-char rq3_breakables[RQ3_MAX_BREAKABLES][80];
+//Blaze: for the breakables
+breakable_t rq3_breakables[RQ3_MAX_BREAKABLES];
 
 #define RQ3_NONAMEPLAYER		"Nameless"
 
@@ -1202,9 +1205,9 @@ int G_SendBreakableInfo(int clientNum)
   char cl_breakableinfo[128];
   for (i=0;i< RQ3_MAX_BREAKABLES; i++)
   {
-    if ( (strcmp(rq3_breakables[i],"") ) )
+    if ( (strcmp(rq3_breakables[i].name,"") ) )
     {
-      Com_sprintf(cl_breakableinfo, sizeof(cl_breakableinfo), "breakable %d %s\n",i,rq3_breakables[i]);
+      Com_sprintf(cl_breakableinfo, sizeof(cl_breakableinfo), "breakable %d %s %d %d\n",i,rq3_breakables[i].name, rq3_breakables[i].velocity, rq3_breakables[i].jump);
       trap_SendServerCommand(clientNum, va("%s",cl_breakableinfo));
     }
   }

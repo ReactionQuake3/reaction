@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/19 21:27:29  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.38  2002/05/12 13:37:25  makro
 // Bugs with entities
 //
@@ -83,7 +86,6 @@
 
 #include "g_local.h"
 
-extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 void G_ExplodeMissile( gentity_t *ent );
 //Makro - added
@@ -529,6 +531,8 @@ void SP_func_breakable( gentity_t *ent ) {
   int temp;
   int damage;
   int damage_radius;
+  int velocity;
+  int jump;
   char *name;
   
   // Make it appear as the brush
@@ -616,7 +620,7 @@ void SP_func_breakable( gentity_t *ent ) {
   //Com_Printf("ID (%d) ", id);
   if (G_SpawnString( "type", "", &name) )
   {
-    Q_strncpyz(rq3_breakables[id],name,80);
+    Q_strncpyz(rq3_breakables[id].name,name,80);
   }
   else
   {
@@ -625,7 +629,12 @@ void SP_func_breakable( gentity_t *ent ) {
     return;
   }
   //Com_Printf("type (%s)\n",name);
-  
+  G_SpawnInt( "force", "7", &velocity);
+  rq3_breakables[id].velocity = velocity;
+
+  G_SpawnInt( "buoyancy", "5", &jump);
+  rq3_breakables[id].jump = jump;
+
   amount = amount << 6;
   
   id = id & 0x0FFF;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/05/19 21:27:51  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.29  2002/04/29 06:14:10  niceass
 // pressure
 //
@@ -1122,9 +1125,9 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int number, int type, in
 		value = states[rand()%numstates];
 		
 		VectorCopy( playerOrigin, origin );
-		velocity[0] = crandom() * GLASS_VELOCITY;
-		velocity[1] = crandom() * GLASS_VELOCITY;
-		velocity[2] = GLASS_JUMP + crandom() * GLASS_VELOCITY;
+		velocity[0] = crandom() * 25 * cgs.media.breakables[id].velocity;
+		velocity[1] = crandom() * 25 * cgs.media.breakables[id].velocity;
+		velocity[2] = 25 * cgs.media.breakables[id].jump + crandom() * 25 * cgs.media.breakables[id].velocity;
 		//Elder: added
 		rotation[0] = crandom() * GLASS_VELOCITY;
 		rotation[1] = crandom() * GLASS_VELOCITY;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/19 21:27:51  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.38  2002/05/19 21:04:37  jbravo
 // Tkok popup system
 //
@@ -1284,7 +1287,8 @@ void CG_RQ3_Cmd () {
           Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
           RemoveColorEscapeSequences(playerName);
           
-          Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %s-%s-%d.%d.%d-%d.%d.%d\n", playerName, cgs.mapname, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          //Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %s-%s-%d.%d.%d-%d.%d.%d\n", playerName, cgs.mapname, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d_%s_%s\n", qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec, cgs.mapname, playerName);
           for (i=0;i<MAX_QPATH;i++)
           {
             switch (scrnshotName[i])
@@ -1319,7 +1323,8 @@ void CG_RQ3_Cmd () {
           trap_RealTime(&qtime);
           Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
           RemoveColorEscapeSequences(playerName);
-          Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %s-%d.%d.%d-%d.%d.%d\n", playerName, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          //Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %s-%d.%d.%d-%d.%d.%d\n", playerName, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %d-%d-%d_%d-%d-%d_%s_%s\n", qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec, cgs.mapname, playerName);
           for (i=0;i<MAX_QPATH;i++)
           {
             switch (scrnshotName[i])
@@ -1533,6 +1538,8 @@ static void CG_ServerCommand( void ) {
 			cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", CG_Argv(2)), qfalse);
 			cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", CG_Argv(2)), qfalse);
 			cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", CG_Argv(2)), qfalse);
+      cgs.media.breakables[id].velocity = atoi(CG_Argv(3));
+      cgs.media.breakables[id].jump = atoi(CG_Argv(4));
 			return;
 		} else {
 			CG_Printf("ID was %d\n",id);

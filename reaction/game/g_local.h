@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/05/19 21:27:28  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.80  2002/05/12 00:07:47  slicer
 // Added Normal Radio Flood Protection
 //
@@ -1010,6 +1013,13 @@ void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
 void ClientCommand( int clientNum );
+typedef struct {
+  char name[80];
+  int jump;
+  int velocity;
+} breakable_t;
+extern breakable_t rq3_breakables[RQ3_MAX_BREAKABLES];
+
 
 //
 // g_active.c
@@ -1185,6 +1195,9 @@ extern vmCvar_t g_RQ3_RefID;
 extern vmCvar_t g_RQ3_IniFile;
 extern vmCvar_t g_RQ3_ValidIniFile;
 extern vmCvar_t g_RQ3_NextMapID;
+
+
+
 
 //Slicer: Radio flood protect
 extern vmCvar_t		g_RQ3_radioRepeat;

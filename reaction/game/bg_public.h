@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/05/19 21:27:28  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.66  2002/05/19 21:04:37  jbravo
 // Tkok popup system
 //
@@ -166,7 +169,7 @@
 #define DLIGHT_STROBE		8
 
 //Blaze: Max number of breakables
-#define RQ3_MAX_BREAKABLES 10
+#define RQ3_MAX_BREAKABLES 16
 
 //Old debris definitions
 //Elder: debris bit parms to pass to break_glass - maybe I should enum this?

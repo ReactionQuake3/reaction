@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/05/19 21:27:51  blaze
+// added force and buoyancy to breakables
+//
 // Revision 1.78  2002/05/19 21:04:37  jbravo
 // Tkok popup system
 //
@@ -914,6 +917,8 @@ typedef struct {
   sfxHandle_t sound[3];
   sfxHandle_t exp_sound;
   qhandle_t shader;
+  int jump;
+  int velocity;
 } breakable_t;
 
 // all of the model, shader, and sound references that are
