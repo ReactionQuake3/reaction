@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/03/04 20:50:59  jbravo
+// No floating scores over dead bodies, triangles disabled, and no viewing
+// names of enemys just of teammates.
+//
 // Revision 1.24  2002/03/04 19:28:21  jbravo
 // Fixing follownames up as suggested in the forums.
 //
@@ -2281,6 +2285,12 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 
+// JBravo: Lets not show player names of opponents
+	if (cgs.clientinfo[cg.clientNum].team != cgs.clientinfo[cg.crosshairClientNum].team &&
+		cgs.gametype >= GT_TEAM) {
+		return;
+	}
+
 	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
 #ifdef MISSIONPACK
 	color[3] *= 0.5f;
@@ -2494,14 +2504,15 @@ static qboolean CG_DrawFollow( void ) {
 
 	CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
 
+// JBravo: if gametype >= team, append teamname to his name.
 	if ( cgs.gametype >= GT_TEAM ) {
 		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
 		if (team == TEAM_RED) {
 			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 1",
-				cgs.clientinfo[ cg.snap->ps.clientNum ].name,
+				cgs.clientinfo[cg.snap->ps.clientNum].name);
 		} else {
 			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 2",
-				cgs.clientinfo[ cg.snap->ps.clientNum ].name,
+				cgs.clientinfo[cg.snap->ps.clientNum].name);
 		}
 		x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
 		CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/03/04 20:50:59  jbravo
+// No floating scores over dead bodies, triangles disabled, and no viewing
+// names of enemys just of teammates.
+//
 // Revision 1.19  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -390,6 +394,11 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 
 	// only visualize for the client that scored
 	if (client != cg.predictedPlayerState.clientNum || cg_scorePlum.integer == 0) {
+		return;
+	}
+
+// JBravo: and not in team based games
+	if (cgs.gametype >= GT_TEAM) {
 		return;
 	}
 

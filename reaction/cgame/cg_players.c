@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/04 20:50:59  jbravo
+// No floating scores over dead bodies, triangles disabled, and no viewing
+// names of enemys just of teammates.
+//
 // Revision 1.18  2002/03/02 15:37:55  makro
 // Changed the 'breath' effect a bit (alpha+size).
 //
@@ -2189,6 +2193,11 @@ static void CG_PlayerSprites( centity_t *cent ) {
 
 	if ( cent->currentState.eFlags & EF_AWARD_CAP ) {
 		CG_PlayerFloatSprite( cent, cgs.media.medalCapture );
+		return;
+	}
+
+// JBravo: no triangles over teammates.
+	if (cgs.gametype == GT_TEAMPLAY) {
 		return;
 	}
 
