@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/08/22 05:00:01  blaze
+// Allow func_buttons to be unkickable too (set spawnflags to 8)
+//
 // Revision 1.118  2002/08/21 03:35:16  niceass
 // only get damage points if attacking a client
 //
@@ -1813,7 +1816,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		return;
 	}
 
-	if (targ->s.eType == ET_BREAKABLE && targ->unkickable == qtrue){
+	if ( (targ->s.eType == ET_BREAKABLE || targ->s.eType == ET_MOVER) && targ->unkickable == qtrue){
 		return;
 	}
 		

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/08/22 05:00:01  blaze
+// Allow func_buttons to be unkickable too (set spawnflags to 8)
+//
 // Revision 1.49  2002/07/31 19:56:32  makro
 // Fixed the code for doors with health and the wait key set to a negative value
 //
@@ -1936,7 +1939,13 @@ void SP_func_button(gentity_t * ent)
 	trap_SetBrushModel(ent, ent->model);
 
 	G_SpawnFloat("lip", "4", &lip);
-
+	
+	if (ent->spawnflags & 8) {
+		ent->unkickable = qtrue;
+	} else {
+		ent->unkickable = qfalse;
+	}
+	
 	G_SetMovedir(ent->s.angles, ent->movedir);
 	abs_movedir[0] = fabs(ent->movedir[0]);
 	abs_movedir[1] = fabs(ent->movedir[1]);
