@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2003/04/03 17:18:25  makro
+// dlights
+//
 // Revision 1.68  2003/03/29 16:01:36  jbravo
 // _skin cvars now fully removed. dlight code from Makro added. cvar
 // defaults fixed.
@@ -262,8 +265,6 @@ void SP_dlight(gentity_t * ent)
 	float light;
 	int r, g, b, i;
 
-//      int             style;
-
 	G_SpawnFloat("light", "300", &light);
 	G_SpawnVector("_color", "1 1 1", color);
 
@@ -274,19 +275,6 @@ void SP_dlight(gentity_t * ent)
 		ent->s.eventParm |= DLIGHT_FLICKER;
 	if (ent->spawnflags & 4)
 		ent->s.eventParm |= DLIGHT_PULSE;
-	//Makro - removed
-	/*
-	if (ent->spawnflags & 8)
-		ent->s.eventParm |= DLIGHT_STROBE;
-	*/
-
-	//Makro - added START_OFF flag
-/*	ent->use = use_dlight;
-	ent->unbreakable = qfalse;
-	if (ent->spawnflags & 8) {
-		ent->unbreakable = qtrue;
-		ent->use(ent, NULL, NULL);
-	} */
 
 	r = color[0] * 255;
 	if (r > 255) {
@@ -315,12 +303,9 @@ void SP_dlight(gentity_t * ent)
 	G_SpawnFloat("light2", "0", &light);
 	ent->s.weapon = light;
 
-//	ent->s.eType = ET_DLIGHT;
-//	ent->classname = "func_dlite";
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 
-	ent->classname = "func_dlite";
 	//Makro - added mover info
 	if (G_SpawnString("movertype", "none", &s)) {
 		if (!Q_stricmp(s, "bobbing")) {
@@ -374,6 +359,7 @@ void SP_dlight(gentity_t * ent)
 		ent->use(ent, NULL, NULL);
 	}
 
+	ent->s.eType = ET_DLIGHT;
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
