@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/05/15 03:43:09  niceass
+// ssg disarm fix
+//
 // Revision 1.63  2002/05/12 14:40:28  makro
 // Wood, brick & ceramic impact sounds
 //
@@ -384,7 +387,7 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_M4_DISARM_DELAY				500
 #define RQ3_MP5_DISARM_DELAY			400
 #define RQ3_HANDCANNON_DISARM_DELAY		400
-#define RQ3_SSG3000_DISARM_DELAY		150 //900 For some reason it's auto-used with WEAPON_RAISING
+#define RQ3_SSG3000_DISARM_DELAY		900 // For some reason it's auto-used with WEAPON_RAISING
 #define RQ3_AKIMBO_DISARM_DELAY			800
 #define RQ3_KNIFE_DISARM_DELAY			700
 #define RQ3_THROW_DISARM_DELAY			700
