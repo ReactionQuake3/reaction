@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/03 00:47:18  niceass
+// match scoreboard changes
+//
 // Revision 1.28  2002/05/27 17:47:19  jbravo
 // Fixes and cleanups
 //
@@ -198,17 +201,17 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 	
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, FillColor, Boarder);
 
-	
-	//cg_RQ3_matchmode	
-	//cg_RQ3_RefID
-	//cg_RQ3_team1ready
-	//cg_RQ3_team2ready
-	//ent->client->pers.sub
-
 	Com_sprintf(Tmp, 128, "%5i  %s", score->score, ci->name);
 	DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 27, TextColor);
 	Com_sprintf(Tmp, 128, "%4i  %4i  %6i", score->time, score->ping, score->damage);
 	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, TextColor);
+
+	if (score->captain && score->sub == 0)
+		DrawStripText(y, -(SB_FONTSIZEW * 10), SB_FONTSIZEH, "[CAPTAIN]", 100, colorWhite);
+	else if (score->sub && score->captain == 0)
+		DrawStripText(y, -(SB_FONTSIZEW * 6), SB_FONTSIZEH, "[SUB]", 100, colorWhite);
+	else if (score->sub && score->captain)
+		DrawStripText(y, -(SB_FONTSIZEW * 16), SB_FONTSIZEH, "[CAPTAIN] [SUB]", 100, colorWhite);
 }
 
 /*
@@ -220,10 +223,10 @@ CG_TeamScoreboard
 static int CG_TeamplayScoreboard(void) 
 {
 	clientInfo_t	*ci;
-	int		i; // subs;
+	int		i;
 
 	int		Reds, Blues, Spectators, Refs;
-//	int		RedSubs, BlueSubs;
+	int		RedSubs, BlueSubs;
 
 	float	Alpha;
 	score_t	*Score;
@@ -259,21 +262,41 @@ static int CG_TeamplayScoreboard(void)
 	MAKERGBA(BlueL, 0.0f, 0.0f, 0.8f, 0.4f * Alpha);
 	MAKERGBA(GreyL, 0.3f, 0.3f, 0.3f, 0.4f * Alpha);
 
-	Reds = Blues = Spectators = Refs = 0;
+	Reds = Blues = Spectators = Refs = RedSubs = BlueSubs = 0;
 
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
 		Score = &cg.scores[i];
 		ci = &cgs.clientinfo[ Score->client ];
+
 		if (cg_RQ3_matchmode.integer) {
 			if (Score->client == cg_RQ3_RefID.integer && ci->team == TEAM_SPECTATOR) continue;
 		}
-		if (ci->team == TEAM_RED) Reds++;
-		if (ci->team == TEAM_BLUE) Blues++;
-		if (ci->team == TEAM_SPECTATOR) Spectators++;
 
+		if (Score->sub == TEAM_RED) 
+			RedSubs++;
+		else if (Score->sub == TEAM_BLUE) 
+			BlueSubs++;
+		else if (ci->team == TEAM_RED) 
+			Reds++;
+		else if (ci->team == TEAM_BLUE) 
+			Blues++;
+
+		if (ci->team == TEAM_SPECTATOR) Spectators++;
 	}
 
 	y = 20;		// Starting height.
+
+	if ( cg_RQ3_matchmode.integer ) {
+		int mins, secs;
+		char Time[16];
+
+		mins = (int)floor(cg.matchTime / 60.0f);
+		secs = cg.matchTime - (mins * 60);		
+		Com_sprintf(Time, 16, "%d:%02d", mins, secs);
+
+		DrawRightStripText(y, SB_FONTSIZEH, va("Matchtime: %s", Time), 100, colorWhite);
+		y += SB_FONTSIZEH+SB_PADDING*2+2;
+	}
 
 	// MATCHMODE / TEAMPLAY for showing Referee
 	if ( cg_RQ3_matchmode.integer && cg_RQ3_RefID.integer >= 0) {
@@ -284,7 +307,7 @@ static int CG_TeamplayScoreboard(void)
 		y += SB_FONTSIZEH+SB_PADDING*4+2;
 	}
 
-	// NOT TEAMPLAY:
+	// DEATHMATCH:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, colorWhite);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, colorWhite);
@@ -308,13 +331,14 @@ static int CG_TeamplayScoreboard(void)
 	// *************** RED TEAM ***************
 	//trap_Cvar_VariableStringBuffer("g_RQ3_team1model", Tmp, sizeof(Tmp));
 
+
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, colorBlack);
 	trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
 	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, colorBlack);
 	
 	if ( cg_RQ3_matchmode.integer ) 
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",  
-			cg_RQ3_team1ready.integer ? "Ready" : "Not Ready", cg.teamScores[0]), 100, colorWhite);
+			cg.team1ready ? "Ready" : "Not Ready", cg.teamScores[0]), 100, colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, colorWhite);
 
@@ -323,30 +347,56 @@ static int CG_TeamplayScoreboard(void)
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 	DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, colorWhite);
 	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, colorWhite);
-	y += SB_FONTSIZEH+SB_PADDING*2+2;
+	y += SB_FONTSIZEH+SB_PADDING*2;
 
 	Ping = Frags = Damage = 0;
-	if (Reds) {
-		First = 0;
+	if (Reds || RedSubs) {
+		if (Reds) {
+			y += 2;
+			First = 0;
+			for ( i = 0 ; i < cg.numScores; i++ ) {
+				Score = &cg.scores[i];
+				ci = &cgs.clientinfo[ Score->client ];
+			
+				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 
-		for ( i = 0 ; i < cg.numScores; i++ ) {
-			Score = &cg.scores[i];
-			ci = &cgs.clientinfo[ Score->client ];
-		
-			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
+				if (ci->team == TEAM_RED && Score->sub == 0) {
+					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
+					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, colorBlack);
+					y += SB_FONTSIZEH+SB_PADDING*2;
+					Ping += Score->ping;
+					Frags += Score->score;
+					Damage += Score->damage;
+					First = 1;
 
-			if (ci->team == TEAM_RED) {
-				CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
-				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, colorBlack);
-				y += SB_FONTSIZEH+SB_PADDING*2;
-				Ping += Score->ping;
-				Frags += Score->score;
-				Damage += Score->damage;
-				First = 1;
-
+				}
 			}
+			DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL, colorBlack);
 		}
-		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL, colorBlack);
+
+		// SUBS
+		if (RedSubs) {
+			y += 2;
+			First = 0;
+			for ( i = 0 ; i < cg.numScores; i++ ) {
+				Score = &cg.scores[i];
+				ci = &cgs.clientinfo[ Score->client ];
+			
+				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
+
+				if (ci->team == TEAM_RED && Score->sub ) {
+					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
+					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, colorBlack);
+					y += SB_FONTSIZEH+SB_PADDING*2;
+					Ping += Score->ping;
+					Frags += Score->score;
+					Damage += Score->damage;
+					First = 1;
+
+				}
+			}
+			DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL, colorBlack);
+		}
 		
 		y += 2;
 		Com_sprintf(Tmp, 128, "%5d", Frags);
@@ -357,6 +407,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawCenterStripText(y, SB_FONTSIZEH, "Averages", 20, colorWhite);
 	}
 	else {
+		y += 2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedL, colorBlack);
 		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, colorWhite);
 	}
@@ -369,7 +420,7 @@ static int CG_TeamplayScoreboard(void)
 
 	if ( cg_RQ3_matchmode.integer ) 
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",  
-			cg_RQ3_team2ready.integer ? "Ready" : "Not Ready", cg.teamScores[1]), 100, colorWhite);
+			cg.team2ready ? "Ready" : "Not Ready", cg.teamScores[1]), 100, colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, colorWhite);
 
@@ -378,30 +429,54 @@ static int CG_TeamplayScoreboard(void)
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 	DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, colorWhite);
 	DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, colorWhite);
-	y += SB_FONTSIZEH+SB_PADDING*2+2;
+	y += SB_FONTSIZEH+SB_PADDING*2;
 
 	Ping = Frags = Damage = 0;
-	if (Blues) {
-		First = 0;
-		
-		for ( i = 0 ; i < cg.numScores; i++ ) {
-			Score = &cg.scores[i];
-			ci = &cgs.clientinfo[ Score->client ];
+	if (Blues || BlueSubs) {
+		if (Blues) {
+			y+=2;
+			First = 0;
+			for ( i = 0 ; i < cg.numScores; i++ ) {
+				Score = &cg.scores[i];
+				ci = &cgs.clientinfo[ Score->client ];
 
-			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
+				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 
-			if (ci->team == TEAM_BLUE) {
-				CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
-				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, colorBlack);
-				y += SB_FONTSIZEH+SB_PADDING*2;
-				Ping += Score->ping;
-				Frags += Score->score;
-				Damage += Score->damage;
-				First = 1;
+				if (ci->team == TEAM_BLUE && Score->sub == 0) {
+					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
+					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, colorBlack);
+					y += SB_FONTSIZEH+SB_PADDING*2;
+					Ping += Score->ping;
+					Frags += Score->score;
+					Damage += Score->damage;
+					First = 1;
+				}
 			}
+			DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL, colorBlack);
 		}
-		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL, colorBlack);
 
+		// SUBS:
+		if (BlueSubs) {
+			y += 2;
+			First = 0;
+			for ( i = 0 ; i < cg.numScores; i++ ) {
+				Score = &cg.scores[i];
+				ci = &cgs.clientinfo[ Score->client ];
+
+				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
+
+				if (ci->team == TEAM_BLUE && Score->sub ) {
+					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
+					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, colorBlack);
+					y += SB_FONTSIZEH+SB_PADDING*2;
+					Ping += Score->ping;
+					Frags += Score->score;
+					Damage += Score->damage;
+					First = 1;
+				}
+			}
+			DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL, colorBlack);
+		}
 		y += 2;
 
 		Com_sprintf(Tmp, 128, "%5d", Frags);
@@ -412,6 +487,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawCenterStripText(y, SB_FONTSIZEH, "Averages", 20, colorWhite);
 	}
 	else {
+		y+=2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueL, colorBlack);
 		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, colorWhite);
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/06/03 00:47:06  niceass
+// match scoreboard changes
+//
 // Revision 1.44  2002/06/02 22:23:57  makro
 // no message
 //
@@ -168,36 +171,25 @@ static void CG_ParseScores( void ) {
 
 	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
 	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
+	cg.team1ready = atoi( CG_Argv( 4 ) );
+	cg.team2ready = atoi( CG_Argv( 5 ) );
+	cg.matchTime = atoi( CG_Argv( 6 ) );
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
 		//Elder: Leave as-is ... sent zeros by server
-		//CG_Printf("client: %d\n", cg.scores[i].client);
-		cg.scores[i].client = atoi( CG_Argv( i * 14 + 4 ) );
-		cg.scores[i].score = atoi( CG_Argv( i * 14 + 5 ) );
-		cg.scores[i].ping = atoi( CG_Argv( i * 14 + 6 ) );
-		cg.scores[i].time = atoi( CG_Argv( i * 14 + 7 ) );
-		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 14 + 8 ) );
-		powerups = atoi( CG_Argv( i * 14 + 9 ) );
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
-		// Added deaths, replaced the place of impressiveCount
-		cg.scores[i].deaths = atoi(CG_Argv(i * 14 + 11));
-		// JBravo: Added damage, replaced the place of excellentCount
-		cg.scores[i].damage = atoi(CG_Argv(i * 14 + 12));
-		// JBravo: Added health, replaced the place of guantletCount
-		cg.scores[i].alive = atoi(CG_Argv(i * 14 + 13));
-		//Elder: these should be zero
-		//cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		//cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		//cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		//Slicer using first two for Matchmode	
-		//cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		//cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
-		cg.scores[i].captain = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].sub = atoi(CG_Argv(i * 14 + 15));
-
-		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
-		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
+		cg.scores[i].client = atoi( CG_Argv( i * 12 + 7 ) );
+		cg.scores[i].score = atoi( CG_Argv( i * 12 + 8 ) );
+		cg.scores[i].ping = atoi( CG_Argv( i * 12 + 9 ) );
+		cg.scores[i].time = atoi( CG_Argv( i * 12 + 10) );
+		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 12 + 11) );
+		powerups = atoi( CG_Argv( i * 12 + 12) );
+		cg.scores[i].accuracy = atoi(CG_Argv(i * 12 + 13));
+		cg.scores[i].deaths = atoi(CG_Argv(i * 12 + 14));
+		cg.scores[i].damage = atoi(CG_Argv(i * 12 + 15));
+		cg.scores[i].alive = atoi(CG_Argv(i * 12 + 16));
+		cg.scores[i].captain = atoi(CG_Argv(i * 12 + 17));
+		cg.scores[i].sub = atoi(CG_Argv(i * 12 + 18));
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
 			cg.scores[i].client = 0;

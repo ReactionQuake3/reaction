@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/06/03 00:49:07  niceass
+// match scoreboard changes
+//
 // Revision 1.61  2002/05/31 05:12:50  niceass
 // tpcountdown default 0!1@$@#%$
 //
@@ -379,7 +382,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
-	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse  },
 	//Slicer: radio protect
 	{ &g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0 , 0, qfalse  },
 	{ &g_RQ3_radioFloodTime, "g_RQ3_radioFloodTime", "2", 0 , 0, qfalse  },

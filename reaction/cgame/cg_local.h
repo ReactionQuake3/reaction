@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/06/03 00:48:10  niceass
+// match scoreboard changes
+//
 // Revision 1.83  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -492,22 +495,14 @@ typedef struct localEntity_s {
 typedef struct {
 	int				client;
 	int				score;
-	int				deaths;		// NiceAss: Added deaths
-	int				damage;		// JBravo: Added damage
-	int				alive;		// JBravo: Added flag to tell if player is alive
+	int				deaths;
+	int				damage;
+	int				alive;
 	int				ping;
 	int				time;
 	int				scoreFlags;
 	int				powerUps;
 	int				accuracy;
-	//Elder: no more of these
-	int				impressiveCount;
-	int				excellentCount;
-	int				guantletCount;
-	int				defendCount;
-	int				assistCount;
-	int				captures;
-	qboolean		perfect;
 	int				team;
 	//Slicer Matchmode
 	team_t			captain;
@@ -928,15 +923,21 @@ typedef struct {
 
 	int			records[REC_NUM_RECORDS];	// Blaze: for our statistics tracking
 	float		loadingMapPercent;			// NiceAss: Ranges from 0 to 1. Used on map load.
+
+	// NiceAss: Scoreboard MM stuff:
+	int			matchTime;
+	int			team1ready;
+	int			team2ready;
 } cg_t;
+
 //Blaze: struct to hold the func_breakable stuff
 typedef struct {
-  qhandle_t model[3];
-  sfxHandle_t sound[3];
-  sfxHandle_t exp_sound;
-  qhandle_t shader;
-  int jump;
-  int velocity;
+	qhandle_t model[3];
+	sfxHandle_t sound[3];
+	sfxHandle_t exp_sound;
+	qhandle_t shader;
+	int jump;
+	int velocity;
 } breakable_t;
 
 // all of the model, shader, and sound references that are

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/06/03 00:46:08  niceass
+// match scoreboard changes
+//
 // Revision 1.115  2002/06/02 00:13:39  makro
 // Spectators can vote in TP, not just call a vote
 //
@@ -298,16 +301,15 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 		}
 
 		Com_sprintf (entry, sizeof(entry),
-			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+			" %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 			cl->ps.persistant[PERS_KILLED],			// NiceAss: Added for scoreboard
 			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
-			cl->sess.sessionTeam != TEAM_SPECTATOR,	// JBravo:  Added for TP scoreboard
-			cl->sess.captain, //Slicer: Added for Matchmode Scoreboard
-			cl->sess.sub, //Slicer: Added for Matchmode Scoreboard
-			0,
-			0);
+			cl->sess.sessionTeam != TEAM_SPECTATOR,	// JBravo: Added for TP scoreboard
+			cl->sess.captain,						// Slicer: Added for Matchmode Scoreboard
+			cl->sess.sub							// Slicer: Added for Matchmode Scoreboard
+			);
 
 		j = strlen(entry);
 		if (stringlength + j > 1024)
@@ -316,9 +318,10 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 		stringlength += j;
 	}
 
-	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i%s", i,
-		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
-		string));
+	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i %i %i %i%s", i,
+		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], 
+		g_RQ3_team1ready.integer, g_RQ3_team2ready.integer,
+		(int)level.matchTime, string));
 }
 
 

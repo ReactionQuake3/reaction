@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/06/03 00:48:32  niceass
+// match scoreboard changes
+//
 // Revision 1.42  2002/05/19 18:32:11  jbravo
 // Made new cvars for regular xhair colors.
 //
@@ -1330,7 +1333,7 @@ static void CG_DrawUpperRight( void ) {
 	if ( cg_drawFPS.integer ) {
 		y = CG_DrawFPS( y );
 	}
-	if ( cg_drawTimer.integer || cg_RQ3_matchmode.integer) {
+	if ( cg_drawTimer.integer ) {
 		y = CG_DrawTimer( y );
 	}
 	if ( cg_drawAttacker.integer ) {
