@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.177  2003/02/27 03:58:35  jbravo
+// Fixed the FF system after adding TDM broke it. Added color to error messages
+//
 // Revision 1.176  2002/11/13 00:50:38  jbravo
 // Fixed item dropping, specmode selection on death and helmet probs.
 //
@@ -598,11 +601,11 @@ CheatsOk
 qboolean CheatsOk(gentity_t * ent)
 {
 	if (!g_cheats.integer) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Cheats are not enabled on this server.\n\""));
 		return qfalse;
 	}
 	if (ent->health <= 0) {
-		trap_SendServerCommand(ent - g_entities, va("print \"You must be alive to use this command.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You must be alive to use this command.\n\""));
 		return qfalse;
 	}
 	return qtrue;
@@ -660,13 +663,13 @@ int ClientNumberFromString(gentity_t * to, char *s)
 	if (s[0] >= '0' && s[0] <= '9') {
 		idnum = atoi(s);
 		if (idnum < 0 || idnum >= level.maxclients) {
-			trap_SendServerCommand(to - g_entities, va("print \"Bad client slot: %i\n\"", idnum));
+			trap_SendServerCommand(to - g_entities, va("print \"^1Bad client slot: %i\n\"", idnum));
 			return -1;
 		}
 
 		cl = &level.clients[idnum];
 		if (cl->pers.connected != CON_CONNECTED) {
-			trap_SendServerCommand(to - g_entities, va("print \"Client %i is not active\n\"", idnum));
+			trap_SendServerCommand(to - g_entities, va("print \"^1Client %i is not active\n\"", idnum));
 			return -1;
 		}
 		return idnum;
@@ -683,7 +686,7 @@ int ClientNumberFromString(gentity_t * to, char *s)
 		}
 	}
 
-	trap_SendServerCommand(to - g_entities, va("print \"User %s is not on the server\n\"", s));
+	trap_SendServerCommand(to - g_entities, va("print \"^1User %s is not on the server\n\"", s));
 	return -1;
 }
 
@@ -882,7 +885,7 @@ void Cmd_LevelShot_f(gentity_t * ent)
 	}
 	// doesn't work in single player
 	if (g_gametype.integer != 0) {
-		trap_SendServerCommand(ent - g_entities, "print \"Must be in g_gametype 0 for levelshot\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Must be in g_gametype 0 for levelshot\n\"");
 		return;
 	}
 
@@ -936,8 +939,6 @@ void Cmd_Kill_f(gentity_t * ent)
 		return;
 	}
 	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
-		trap_SendServerCommand(ent - g_entities,
-					"print \"Don't be a Jmmsbnd007 and at least wait until the round starts.\n\"");
 		return;
 	}
 	ent->flags &= ~FL_GODMODE;
@@ -1034,6 +1035,8 @@ void SetTeam(gentity_t * ent, char *s)
 			team = TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
+			trap_SendServerCommand(ent->client->ps.clientNum,
+				va("print \"^1%s is an illegal team. Putting you on the team with the least number of players.\n\"", s));
 			team = PickTeam(clientNum);
 		}
 
@@ -1283,7 +1286,7 @@ void Cmd_Team_f(gentity_t * ent)
 
 	if (ent->client->switchTeamTime > level.time) {
 		trap_SendServerCommand(ent - g_entities,
-				       "print \"May not switch teams more than once per 5 seconds.\n\"");
+				       "print \"^1May not switch teams more than once per 5 seconds.\n\"");
 		return;
 	}
 	// if they are playing a tournement game, count as a loss
@@ -1941,27 +1944,27 @@ void Cmd_CallVote_f(gentity_t * ent)
 	char arg2[MAX_STRING_TOKENS];
 
 	if (!g_allowVote.integer) {
-		trap_SendServerCommand(ent - g_entities, "print \"Voting not allowed here.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Voting not allowed here.\n\"");
 		return;
 	}
 	if (level.voteTime) {
-		trap_SendServerCommand(ent - g_entities, "print \"A vote is already in progress.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1A vote is already in progress.\n\"");
 		return;
 	}
 	//Makro - replaced the constant with a cvar
 	if (ent->client->pers.voteCount >= g_RQ3_maxClientVotes.integer) {
 		//Makro - added cvar info
-		trap_SendServerCommand(ent - g_entities, va("print \"You have called the maximum number of votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1You have called the maximum number of votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
 		return;
 	}
 // JBravo: Lets allow spectators to vote in TP
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer < GT_TEAM) {
-		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to call a vote as spectator.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Not allowed to call a vote as spectator.\n\"");
 		return;
 	}
 		//Slicer Matchmode
 	if(g_RQ3_matchmode.integer && ent->client->sess.captain == TEAM_FREE) {
-		trap_SendServerCommand(ent - g_entities, "print \"Only team Captains can start a vote.\n\"");	
+		trap_SendServerCommand(ent - g_entities, "print \"^1Only team Captains can start a vote.\n\"");	
 		return;
 	}
 	// make sure it is a valid command to vote on
@@ -1969,7 +1972,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	trap_Argv(2, arg2, sizeof(arg2));
 
 	if (strchr(arg1, ';') || strchr(arg2, ';')) {
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
 		return;
 	}
 	
@@ -1983,13 +1986,13 @@ void Cmd_CallVote_f(gentity_t * ent)
 			if (!Q_stricmp(arg1, "resetmatch")) {
 			} else if (!Q_stricmp(arg1, "clearscores")) {
 			} else {
-					trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
+					trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>,clearscores,resetmatch.\n\"");
 					return;
 			}
 		}
 		else {
-			trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 			trap_SendServerCommand(ent - g_entities, 
 				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
 		return;
@@ -2005,7 +2008,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	if (!Q_stricmp(arg1, "g_gametype")) {
 		i = atoi(arg2);
 		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF && i != GT_TEAM) {
-			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype. Valid gametypes are 0, 3, 4 and 5.\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0, 3, 4 and 5.\n\"");
 			return;
 		}
 
@@ -2016,13 +2019,13 @@ void Cmd_CallVote_f(gentity_t * ent)
 		// this allows a player to change maps, but not upset the map rotation
 
 		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
-			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", arg2));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not exist.\n\"", arg2));
 			return;
 		}
 
 		// NiceAss: Talk to NiceAss before you fix this crappy hack =)
 		if ( !G_FileSearch( va("scripts/%s.arena", arg2), "rq3ctb" ) && g_gametype.integer == GT_CTF ) {
-			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not support CTB.\n\"", arg2));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support CTB.\n\"", arg2));
 			return;
 		}
 
@@ -2072,17 +2075,17 @@ void Cmd_Vote_f(gentity_t * ent)
 		return;
 	}
 	if (ent->client->ps.eFlags & EF_VOTED) {
-		trap_SendServerCommand(ent - g_entities, "print \"Vote already cast.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Vote already cast.\n\"");
 		return;
 	}
 	//Makro - allow spectators to vote in TP
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer < GT_TEAM) {
-		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to vote as spectator.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Not allowed to vote as spectator.\n\"");
 		return;
 	}
 		//Slicer Matchmode
 	if(g_RQ3_matchmode.integer && ent->client->sess.captain == TEAM_FREE) {
-		trap_SendServerCommand(ent - g_entities, "print \"Only team Captains vote.\n\"");	
+		trap_SendServerCommand(ent - g_entities, "print \"^1Only team Captains vote.\n\"");	
 		return;
 	}
 	trap_SendServerCommand(ent - g_entities, "print \"Vote cast.\n\"");
@@ -2127,23 +2130,23 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 		return;
 
 	if (!g_allowVote.integer) {
-		trap_SendServerCommand(ent - g_entities, "print \"Voting not allowed here.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Voting not allowed here.\n\"");
 		return;
 	}
 
 	if (level.teamVoteTime[cs_offset]) {
-		trap_SendServerCommand(ent - g_entities, "print \"A team vote is already in progress.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1A team vote is already in progress.\n\"");
 		return;
 	}
 	//Makro - replaced the constant with a cvar
 	if (ent->client->pers.teamVoteCount >= g_RQ3_maxClientVotes.integer) {
 		//Makro - added cvar info
 		trap_SendServerCommand(ent - g_entities,
-				       va("print \"You have called the maximum number of team votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
+				       va("print \"^1You have called the maximum number of team votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
 		return;
 	}
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to call a vote as spectator.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Not allowed to call a vote as spectator.\n\"");
 		return;
 	}
 	// make sure it is a valid command to vote on
@@ -2156,7 +2159,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 	}
 
 	if (strchr(arg1, ';') || strchr(arg2, ';')) {
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
 		return;
 	}
 
@@ -2175,13 +2178,13 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 				i = atoi(arg2);
 				if (i < 0 || i >= level.maxclients) {
 					trap_SendServerCommand(ent - g_entities,
-							       va("print \"Bad client slot: %i\n\"", i));
+							       va("print \"^1Bad client slot: %i\n\"", i));
 					return;
 				}
 
 				if (!g_entities[i].inuse) {
 					trap_SendServerCommand(ent - g_entities,
-							       va("print \"Client %i is not active\n\"", i));
+							       va("print \"^1Client %i is not active\n\"", i));
 					return;
 				}
 			} else {
@@ -2200,7 +2203,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 				}
 				if (i >= level.maxclients) {
 					trap_SendServerCommand(ent - g_entities,
-							       va("print \"%s is not a valid player on your team.\n\"",
+							       va("print \"^1%s is not a valid player on your team.\n\"",
 								  arg2));
 					return;
 				}
@@ -2208,7 +2211,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 		}
 		Com_sprintf(arg2, sizeof(arg2), "%d", i);
 	} else {
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string.\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"Team vote commands are: leader <player>.\n\"");
 		return;
 	}
@@ -2304,7 +2307,7 @@ void Cmd_SetViewpos_f(gentity_t * ent)
 	int i;
 
 	if (!g_cheats.integer) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Cheats are not enabled on this server.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Cheats are not enabled on this server.\n\""));
 		return;
 	}
 	if (trap_Argc() != 5) {
@@ -2913,7 +2916,7 @@ void ClientCommand(int clientNum)
 		if (!G_SendCheatVars(clientNum))
 			Com_Printf("Error loading cvar cfg\n");
 	} else
-		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
+		trap_SendServerCommand(clientNum, va("print \"^1unknown cmd ^7%s\n\"", cmd));
 }
 
 /*

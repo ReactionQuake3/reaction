@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2003/02/27 03:58:35  jbravo
+// Fixed the FF system after adding TDM broke it. Added color to error messages
+//
 // Revision 1.131  2003/02/25 22:41:14  jbravo
 // Fixed a bug in item replacements. Removed "Beta" from the version.
 //
@@ -855,7 +858,7 @@ void G_UpdateCvars(void)
 				if (Q_stricmp(cv->cvarName, "g_gravity") == 0)
 					G_GravityChange();
 				if (cv->trackChange) {
-					trap_SendServerCommand(-1, va("print \"Server: %s changed to %s\n\"",
+					trap_SendServerCommand(-1, va("print \"^1Server: %s changed to %s\n\"",
 								      cv->cvarName, cv->vmCvar->string));
 				}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2003/02/27 03:58:35  jbravo
+// Fixed the FF system after adding TDM broke it. Added color to error messages
+//
 // Revision 1.131  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -1636,152 +1639,6 @@ int CheckArmor(gentity_t * ent, int damage, int dflags)
 }
 
 /*
-
-============
-
-G_LocationDamage
-Added by Duffman
-============
-
-*/
-/*Blaze: incorporated into the G_Damage function
-int G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, int take) {
-
-       vec3_t bulletPath;
-
-       vec3_t bulletAngle;
-
-       int clientHeight;
-       int clientFeetZ;
-       int clientRotation;
-       int bulletHeight;
-       int bulletRotation;     // Degrees rotation around client.
-
-                               // used to check Back of head vs. Face
-
-       int impactRotation;
-
-       // First things first.  If we're not damaging them, why are we here?
-
-       if (!take)
-               return 0;
-
-       // Point[2] is the REAL world Z. We want Z relative to the clients feet
-
-       // Where the feet are at [real Z]
-       clientFeetZ  = targ->r.currentOrigin[2] + targ->r.mins[2];
-       // How tall the client is [Relative Z]
-       clientHeight = targ->r.maxs[2] - targ->r.mins[2];
-       // Where the bullet struck [Relative Z]
-       bulletHeight = point[2] - clientFeetZ;
-
-       // Get a vector aiming from the client to the bullet hit
-       VectorSubtract(targ->r.currentOrigin, point, bulletPath);
-       // Convert it into PITCH, ROLL, YAW
-       vectoangles(bulletPath, bulletAngle);
-
-       clientRotation = targ->client->ps.viewangles[YAW];
-       bulletRotation = bulletAngle[YAW];
-
-       impactRotation = abs(clientRotation-bulletRotation);
-
-       impactRotation += 45; // just to make it easier to work with
-       impactRotation = impactRotation % 360; // Keep it in the 0-359 range
-
-       if (impactRotation < 90)
-               targ->client->lasthurt_location = LOCATION_BACK;
-       else if (impactRotation < 180)
-               targ->client->lasthurt_location = LOCATION_RIGHT;
-       else if (impactRotation < 270)
-               targ->client->lasthurt_location = LOCATION_FRONT;
-       else if (impactRotation < 360)
-               targ->client->lasthurt_location = LOCATION_LEFT;
-       else
-               targ->client->lasthurt_location = LOCATION_NONE;
-
-       // The upper body never changes height, just distance from the feet
-               if (bulletHeight > clientHeight - 2)
-                       targ->client->lasthurt_location |= LOCATION_HEAD;
-               else if (bulletHeight > clientHeight - 8)
-                       targ->client->lasthurt_location |= LOCATION_FACE;
-               else if (bulletHeight > clientHeight - 10)
-                       targ->client->lasthurt_location |= LOCATION_SHOULDER;
-               else if (bulletHeight > clientHeight - 16)
-                       targ->client->lasthurt_location |= LOCATION_CHEST;
-               else if (bulletHeight > clientHeight - 26)
-                       targ->client->lasthurt_location |= LOCATION_STOMACH;
-               else if (bulletHeight > clientHeight - 29)
-                       targ->client->lasthurt_location |= LOCATION_GROIN;
-               //else if (bulletHeight < 4)
-                //       targ->client->lasthurt_location |= LOCATION_FOOT;
-               else
-                       // The leg is the only thing that changes size when you duck,
-                       // so we check for every other parts RELATIVE location, and
-                       // whats left over must be the leg.
-                       targ->client->lasthurt_location |= LOCATION_LEG;
-
-               G_Printf("In loc damage: %d incomming\n",take);
-               // Check the location ignoring the rotation info
-               switch ( targ->client->lasthurt_location &
-                               ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) )
-               {
-               case (LOCATION_HEAD):
-				   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-				       take *= 1.8; //+ 1;
-					   break;
-				   }
-			   case	(LOCATION_FACE):
-				   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-				       take *= 1.8; //+ 1;
-                       break;
-				   }
-               case (LOCATION_SHOULDER):
-			       {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Chest Damage.\n\""));
-				       take *= 0.65;
-                       break;
-				   }
-			   case (LOCATION_CHEST):
-                   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Chest Damage.\n\""));
-				       take *= 0.65;
-                       break;
-				   }
-               case (LOCATION_STOMACH):
-				   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomac.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
-				       take *= 0.4;
-                       break;
-				   }
-			   case (LOCATION_GROIN):
-				   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomac.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
-				       take *= 0.4;
-                       break;
-				   }
-               case (LOCATION_LEG):
-			       {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
-				       take *= 0.25;
-                       break;
-				   }
-			   case (LOCATION_FOOT):
-                   {   trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^0 in the leg.\n\"", targ->client->pers.netname));
-					   trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
-				       take *= 0.25;
-                       break;
-				   }
-
-               }
-		G_Printf("In loc damage: %d outgoing\n",take);
-       return take;
-
-}
-*/
-// End Duffman
-/*
 ================
 RaySphereIntersections
 ================
@@ -1875,11 +1732,17 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	}
 	// NiceAss: Fixed pointer bug causing DLLs to crash
 	// JBravo: FF control
-	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
-	    targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
-	    ((g_gametype.integer == GT_TEAMPLAY && !g_friendlyFire.integer && level.team_round_going) ||
-	     (g_gametype.integer >= GT_TEAM && !g_friendlyFire.integer)))
-		return;
+	if (targ != attacker && attacker && targ && targ->client && attacker->client) {
+		if (g_gametype.integer >= GT_TEAM && targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam) {
+		    if (g_gametype.integer == GT_TEAMPLAY) {
+			    if (level.team_round_going && g_friendlyFire.integer == 0)
+				return;
+		    } else if (g_gametype.integer >= GT_TEAM) {
+			    if (g_friendlyFire.integer == 0)
+				return;
+		    }
+		}
+	}
 
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
@@ -2089,11 +1952,13 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		// if the attacker was on the same team
 		if (targ != attacker && OnSameTeam(targ, attacker)) {
 // JBravo: more FF tweaks
-			if (g_gametype.integer == GT_TEAMPLAY && g_friendlyFire.integer == 2 && level.team_round_going) {
-				return;
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				if (g_friendlyFire.integer == 2 && level.team_round_going)
+					return;
+			} else if (g_gametype.integer >= GT_TEAM) {
+				if (g_friendlyFire.integer == 2)
+					return;
 			}
-			if (g_gametype.integer >= GT_TEAM && g_friendlyFire.integer == 2)
-				return;
 			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
 			    || g_gametype.integer >= GT_TEAM)
 				Add_TeamWound(attacker, targ, mod);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2003/02/27 03:58:35  jbravo
+// Fixed the FF system after adding TDM broke it. Added color to error messages
+//
 // Revision 1.146  2002/11/17 20:14:15  jbravo
 // Itembanning added
 //
@@ -588,7 +591,7 @@ void CheckTeamRules()
 			} else {
 				if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 					//Slicer : Let's do a normal console print instead..
-					trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
+					trap_SendServerCommand(-1, "print \"^1Timelimit hit.\n\"");
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
 					//Slicer: Start Intermission
 					BeginIntermission();
@@ -1043,7 +1046,7 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 	}
 
 	if (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer) {
-		trap_SendServerCommand(ent - g_entities, va("print \"This Team DM mode does not allow you to choose weapons or items.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1This Team DM mode does not allow you to choose weapons or items.\n\""));
 		return;
 	}
 
@@ -1054,84 +1057,84 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 			ent->client->teamplayWeapon = WP_MP5;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_MP5_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_MP5_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_MP5_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_M3_NAME) == 0 || Q_stricmp(cmd, "m3") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_M3) {
 			ent->client->teamplayWeapon = WP_M3;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M3_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_M3_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_M3_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_M4_NAME) == 0 || Q_stricmp(cmd, "m4") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_M4) {
 			ent->client->teamplayWeapon = WP_M4;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M4_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_M4_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_M4_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp(cmd, "hc") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_HC) {
 			ent->client->teamplayWeapon = WP_HANDCANNON;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_HANDCANNON_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HANDCANNON_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_HANDCANNON_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp(cmd, "sniper") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_SNIPER) {
 			ent->client->teamplayWeapon = WP_SSG3000;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SSG3000_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_SSG3000_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp(cmd, "knives") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
 			ent->client->teamplayWeapon = WP_KNIFE;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_KNIFE_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_KNIFE_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp(cmd, "akimbo") == 0) {
 		if ((int) g_RQ3_weaponban.integer & WPF_DUAL) {
 			ent->client->teamplayWeapon = WP_AKIMBO;
 			trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_AKIMBO_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_AKIMBO_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_AKIMBO_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_KEVLAR_NAME) == 0 || Q_stricmp(cmd, "kevlar") == 0) {
 		if ((int) g_RQ3_weaponban.integer & ITF_KEVLAR) {
 			ent->client->teamplayItem = HI_KEVLAR;
 			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_KEVLAR_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_KEVLAR_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_LASER_NAME) == 0 || Q_stricmp(cmd, "laser") == 0) {
 		if ((int) g_RQ3_weaponban.integer & ITF_LASER) {
 			ent->client->teamplayItem = HI_LASER;
 			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_LASER_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_LASER_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_LASER_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_SLIPPERS_NAME) == 0 || Q_stricmp(cmd, "slippers") == 0) {
 		if ((int) g_RQ3_weaponban.integer & ITF_SLIPPERS) {
 			ent->client->teamplayItem = HI_SLIPPERS;
 			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SLIPPERS_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SLIPPERS_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_SLIPPERS_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_SILENCER_NAME) == 0 || Q_stricmp(cmd, "silencer") == 0) {
 		if ((int) g_RQ3_weaponban.integer & ITF_SILENCER) {
 			ent->client->teamplayItem = HI_SILENCER;
 			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SILENCER_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SILENCER_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_SILENCER_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_BANDOLIER_NAME) == 0 || Q_stricmp(cmd, "bandolier") == 0) {
 		if ((int) g_RQ3_weaponban.integer & ITF_BANDOLIER) {
 			ent->client->teamplayItem = HI_BANDOLIER;
 			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_BANDOLIER_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_BANDOLIER_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_HELMET_NAME) == 0 || Q_stricmp(cmd, "helmet") == 0) {
 		if (g_RQ3_haveHelmet.integer) {
@@ -1139,13 +1142,13 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 				ent->client->teamplayItem = HI_HELMET;
 				trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_HELMET_NAME));
 			} else {
-				trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
+				trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
 			}
 		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"^1%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
 		}
 	} else {
-		trap_SendServerCommand(ent - g_entities, va("print \"Invalid weapon or item choice.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Invalid weapon or item choice.\n\""));
 		return;
 	}
 }
@@ -1158,7 +1161,7 @@ void Cmd_Dropcase_f(gentity_t * ent)
 	if (!ent->client)
 		return;
 	if (!ent->client->ps.powerups[PW_REDFLAG] && !ent->client->ps.powerups[PW_BLUEFLAG]) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Go get the enemy case and try again.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Go get the enemy case and try again.\n\""));
 		return;
 	}
 	item = NULL;
@@ -1178,7 +1181,7 @@ void Cmd_Dropcase_f(gentity_t * ent)
 			ent->client->uniqueItems--;
 		}
 	} else {
-		trap_SendServerCommand(ent - g_entities, va("print \"Huh? You dont have a flag to drop!\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1Huh? You dont have a flag to drop!\n\""));
 	}
 
 }
@@ -1200,7 +1203,7 @@ void RQ3_Cmd_Drop_f(gentity_t * ent)
 	} else if (Q_stricmp(cmd, "case") == 0) {
 		Cmd_Dropcase_f(ent);
 	} else {
-		trap_SendServerCommand(ent - g_entities, va("print \"unknown item: %s\n\"", cmd));
+		trap_SendServerCommand(ent - g_entities, va("print \"^1unknown item: %s\n\"", cmd));
 	}
 }
 
@@ -1606,7 +1609,7 @@ void RQ3_Cmd_Radiogender_f(gentity_t * ent)
 		ent->client->radioGender = 1;
 	} else {
 		trap_SendServerCommand(ent - g_entities,
-				       "print \"Invalid gender selection, try 'male' or 'female'\n\"");
+				       "print \"^1Invalid gender selection, try 'male' or 'female'\n\"");
 	}
 }
 
@@ -1751,7 +1754,7 @@ qboolean CheckForFlood(gentity_t * ent)
 			if (ent->client->rd_Count >= g_RQ3_radioFlood.integer) {
 				trap_SendServerCommand(ent - g_entities,
 						       va
-						       ("print \"Radio Flood Detected, you are silenced for %i secs\n\"",
+						       ("print \"^1Radio Flood Detected, you are silenced for %i secs\n\"",
 							(int) g_RQ3_radioBan.integer));
 				ent->client->rd_mute = level.time + g_RQ3_radioBan.integer * 1000;
 				return qfalse;
@@ -1783,7 +1786,7 @@ qboolean CheckForRepeat(gentity_t * ent, int radioCode)
 				if (ent->client->rd_repCount == g_RQ3_radioRepeat.integer) {
 					trap_SendServerCommand(ent - g_entities,
 							       va
-							       ("print \"Radio Repeat Flood Detected, you are silenced for %i secs\n\"",
+							       ("print \"^1Radio Repeat Flood Detected, you are silenced for %i secs\n\"",
 								(int) g_RQ3_radioBan.integer));
 					ent->client->rd_mute = level.time + g_RQ3_radioBan.integer * 1000;
 				}
@@ -1813,7 +1816,7 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 	if (g_RQ3_lca.integer)
 		return;
 	if (ent->client->radioOff == qtrue) {
-		trap_SendServerCommand(ent - g_entities, "print \"Your radio is off!\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"^1Your radio is off!\n\"");
 		return;
 	}
 	if (ent->client->radioGender == 0) {
@@ -2385,9 +2388,9 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 
 	if (attacker->client->ff_warning == 0) {
 		attacker->client->ff_warning++;
-		trap_SendServerCommand(victim - g_entities, va("print \"You were hit by %s^7, your TEAMMATE!\n\"",
+		trap_SendServerCommand(victim - g_entities, va("print \"You were hit by %s^7, your ^1TEAMMATE!\n\"",
 							       attacker->client->pers.netname));
-		trap_SendServerCommand(attacker - g_entities, va("print \"You hit your TEAMMATE %s^7!\n\"",
+		trap_SendServerCommand(attacker - g_entities, va("print \"You hit your ^1TEAMMATE^7 %s^7!\n\"",
 								 victim->client->pers.netname));
 	}
 	attacker->client->team_wounds = (attacker->client->team_wounds_before + 1);
@@ -2401,15 +2404,15 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 					      attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
-				       ("print \"WARNING: You'll be temporarily banned if you continue wounding teammates!\n\""));
+				       ("print \"^1WARNING:^7 You'll be temporarily banned if you continue wounding teammates!\n\""));
 		return;
 	} else {
 		trap_SendServerCommand(-1,
-				       va("print \"Banning %s^7 for team wounding\n\"",
+				       va("print \"^1Banning^7 %s^7 for team wounding\n\"",
 					  attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
-				       ("print \"You've wounded teammates too many times, and are banned for %d %s.\n\"",
+				       ("print \"^1You've wounded teammates too many times, and are banned for %d %s.\n\"",
 					g_RQ3_twbanrounds.integer,
 					((g_RQ3_twbanrounds.integer > 1) ? "games" : "game")));
 		trap_GetUserinfo(attacker - g_entities, userinfo, sizeof(userinfo));
@@ -2435,20 +2438,20 @@ void Add_TeamKill(gentity_t * attacker)
 
 	if ((g_RQ3_maxteamkills.integer < 1) ||
 	    (attacker->client->team_kills < ((g_RQ3_maxteamkills.integer % 2) + g_RQ3_maxteamkills.integer / 2))) {
-		trap_SendServerCommand(attacker - g_entities, va("print \"You killed your TEAMMATE!\n\""));
+		trap_SendServerCommand(attacker - g_entities, va("print \"You killed your ^1TEAMMATE!\n\""));
 		return;
 	} else if (attacker->client->team_kills < g_RQ3_maxteamkills.integer) {
 		trap_SendServerCommand(-1, va("print \"%s^7 is in danger of being banned for killing teammates\n\"",
 					      attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
-				       ("print \"WARNING: You'll be temporarily banned if you continue killing teammates!\n\""));
+				       ("print \"^1WARNING:^7 You'll be temporarily banned if you continue killing teammates!\n\""));
 		return;
 	} else {
 		trap_SendServerCommand(-1,
-				       va("print \"Banning %s^7 for team killing\n\"", attacker->client->pers.netname));
+				       va("print \"^1Banning^7 %s^7 for team killing\n\"", attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
-				       va("print \"You've killed too many teammates, and are banned for %d %s.\n",
+				       va("print \"^1You've killed too many teammates, and are banned for %d %s.\n",
 					  g_RQ3_tkbanrounds.integer,
 					  ((g_RQ3_tkbanrounds.integer > 1) ? "games" : "game")));
 		trap_GetUserinfo(attacker - g_entities, userinfo, sizeof(userinfo));
@@ -2550,7 +2553,7 @@ void RQ3_AddOrDelIgnoreSubject(gentity_t * source, gentity_t * subject, qboolean
 		return;
 	if (!subject->client || !subject->inuse) {
 		trap_SendServerCommand(source - g_entities,
-				       va("print \"Only valid clients may be added to ignore list!\n\""));
+				       va("print \"^1Only valid clients may be added to ignore list!\n\""));
 		return;
 	}
 
@@ -2631,7 +2634,7 @@ void Cmd_Ignore_f(gentity_t * self)
 			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
 		else {
 			trap_SendServerCommand(self - g_entities,
-					       va("print \"Wait 5 seconds before ignoring again.\n\""));
+					       va("print \"^1Wait 5 seconds before ignoring again.\n\""));
 			return;
 		}
 	} else
@@ -2666,7 +2669,7 @@ void Cmd_Unignore_f(gentity_t * self)
 			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
 		else {
 			trap_SendServerCommand(self - g_entities,
-					       va("print \"Wait 5 seconds before ignoring again.\n\""));
+					       va("print \"^1Wait 5 seconds before ignoring again.\n\""));
 			return;
 		}
 	} else
@@ -2696,7 +2699,7 @@ void Cmd_Ignorenum_f(gentity_t * self)
 			trap_SendServerCommand(self - g_entities,
 					       va("print \"Use ignorelist to see who can be ignored.\n\""));
 	} else
-		trap_SendServerCommand(self - g_entities, va("print \"Used ignorenum with illegal number.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"^1Used ignorenum with illegal number.\n\""));
 }
 
 void Cmd_Ignoreclear_f(gentity_t * self)

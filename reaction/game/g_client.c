@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2003/02/27 03:58:35  jbravo
+// Fixed the FF system after adding TDM broke it. Added color to error messages
+//
 // Revision 1.123  2002/11/17 20:14:15  jbravo
 // Itembanning added
 //
@@ -1114,7 +1117,7 @@ void ClientUserinfoChanged(int clientNum)
 		gender = RQ3_Validatemodel(model2);
 		if (gender == -1) {
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \"Illegal player model (%s). Forcing change on server.\n\"",
+					       va("print \"^1Illegal player model (%s). Forcing change on server.\n\"",
 						  model2));
 			Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
 			Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
