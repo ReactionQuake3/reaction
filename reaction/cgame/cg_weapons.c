@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/01/12 15:18:20  jbravo
+// Added a fix from Niceass. (cg_drawgun affecting other player models)
+//
 // Revision 1.45  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1525,7 +1528,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if (cg.zoomed && ps)
 		return;
 
-	if (!cg_drawGun.integer) return;
+// JBravo: Adding a fix from NiceAss (cg_drawgun affecting other player models)
+	if (!cg_drawGun.integer && ps) return;
 
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
 
