@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/03/01 20:02:34  jbravo
+// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
+// makro
+//
 // Revision 1.61  2002/02/28 05:42:31  blaze
 // weapons stats on server side
 //
@@ -669,7 +673,7 @@ void SetTeam( gentity_t *ent, char *s )
 	int			team, oldTeam, clientNum;
 	gclient_t		*client;
 	spectatorState_t	specState;
-	int			specClient, teamLeader, teamsave;
+	int			specClient, teamLeader, teamsave, x;
 
 	//
 	// see what change is requested
@@ -846,6 +850,7 @@ void SetTeam( gentity_t *ent, char *s )
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
 	if (g_gametype.integer == GT_TEAMPLAY) {
+		x = RQ3TeamCount( -1, client->sess.savedTeam);
 		CheckForUnevenTeams(ent);
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;

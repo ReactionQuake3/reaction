@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/01 20:02:34  jbravo
+// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
+// makro
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -5761,6 +5765,10 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 vmCvar_t	ui_RQ3_model_command;
+// JBravo: teamcount cvars for Makro
+vmCvar_t	ui_RQ3_teamCount1;
+vmCvar_t	ui_RQ3_teamCount2;
+vmCvar_t	ui_RQ3_numSpectators;
 
 
 // bk001129 - made static to avoid aliasing
@@ -5885,7 +5893,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	//Makro - cvar for player model display
 	{ &ui_RQ3_model_command, "ui_RQ3_model_command", "0", CVAR_ARCHIVE},
-		
+	{ &ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
+	{ &ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
+	{ &ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM}
 };
 
 // bk001129 - made static to avoid aliasing

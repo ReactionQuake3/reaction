@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/01 20:02:34  jbravo
+// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
+// makro
+//
 // Revision 1.5  2002/02/24 00:54:12  makro
 // Even more fixes to the shortcut keys code.
 // Added more info to the header, too :)

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/01 20:02:34  jbravo
+// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
+// makro
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -124,6 +128,10 @@ extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 extern vmCvar_t ui_RQ3_model_command;
+// JBravo: teamcount cvars for Makro
+extern vmCvar_t ui_RQ3_teamCount1;
+extern vmCvar_t ui_RQ3_teamCount2;
+extern vmCvar_t ui_RQ3_numSpectators;
 
 
 //

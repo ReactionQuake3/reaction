@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/03/01 20:02:34  jbravo
+// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
+// makro
+//
 // Revision 1.23  2002/03/01 18:21:26  jbravo
 // Cleanups and removal of g_RQ3_sniperup
 //
@@ -441,6 +445,7 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 {
 	int	i;
 	int	count = 0;
+	char	buf[20];
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( i == ignoreClientNum ) {
@@ -456,6 +461,14 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 			count++;
 		}
 	}
+
+	Com_sprintf (buf, sizeof(buf), "%i", count);
+	if (team == TEAM_RED)
+		trap_Cvar_Set("ui_RQ3_teamCount1", buf);
+	else if (team == TEAM_BLUE)
+		trap_Cvar_Set("ui_RQ3_teamCount2", buf);
+	else if (team == TEAM_SPECTATOR || team == TEAM_FREE)	
+		trap_Cvar_Set("ui_RQ3_numSpectators", buf);
 
 	return count;
 }
