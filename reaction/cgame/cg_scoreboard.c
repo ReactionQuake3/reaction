@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/10/21 21:04:33  niceass
+// ref fix
+//
 // Revision 1.48  2002/10/21 21:01:49  niceass
 // ref ready code
 //
@@ -416,7 +419,7 @@ static int CG_TeamplayScoreboard(void)
 	BlueL[3] *= (0.8f * Alpha);
 	MAKERGBA(GreyL, 0.3f, 0.3f, 0.3f, 0.4f * Alpha);
 
-	Reds = Blues = Spectators = RedSubs = BlueSubs = refs = 0;
+	Reds = Blues = Spectators = RedSubs = BlueSubs = 0;
 
 	// Get totals for red/blue/spectators and subs
 	for (i = 0; i < cg.numScores; i++) {
