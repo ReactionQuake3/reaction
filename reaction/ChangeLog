@@ -1,4 +1,4 @@
-﻿# List fixes here for the 2.3 release
+# List fixes here for the 2.3 release
 
 * Added Itembanning
 * Fixed a bug in weaponbanning
@@ -45,7 +45,7 @@
 * Weapon banning implemented via the g_RQ3_weaponban cvar.
 * callvote and vote cmd's now know about CTB spectators and dead players.
 * MP5 headshots now deal the correct amount of damage.
-䨊牂癡㩯†桔獩映汩⁥獩猠牣睥摥甠⹰匠浯⁥潳瑲漠⁦畬楮⁸潦浲瑡ਿ‪摁敤⁤慷整⁲畳灰牯⁴潴瀠敲獳牵⁥湥楴楴獥⨊䌠敨正⁳慴獧戠晥牯⁥橥捥楴杮猠敨汬⁳潦⁲潭敤⁬敲汰捡浥湥⁴畳灰牯⹴
+* Added replacement options for items.
 
 
 
