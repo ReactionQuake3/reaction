@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/05/02 00:02:19  jbravo
+// Added a fix for the incorrect weapon at spawns
+//
 // Revision 1.30  2002/05/01 18:44:36  jbravo
 // Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
 // g_teamplay.c
@@ -1380,7 +1383,10 @@ static void CG_ServerCommand( void ) {
 		char	*cmd;
 		cmd = CG_ConcatArgs (1);
 		trap_SendConsoleCommand (cmd);
-//		CG_Printf ("Got the following cmd: %s\n", cmd);
+		return;
+	}
+	if (!strcmp(cmd, "setclientweapon")) {
+		cg.weaponSelect = atoi(CG_Argv(1));
 		return;
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/02 00:02:19  jbravo
+// Added a fix for the incorrect weapon at spawns
+//
 // Revision 1.72  2002/05/01 18:44:36  jbravo
 // Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
 // g_teamplay.c
@@ -922,14 +925,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
 			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
 	}
-	//Makro - equip bots, too
-	/*
-	if (ent->r.svFlags & SVF_BOT) {
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->uniqueWeapons = 0;
+	if (!(ent->r.svFlags & SVF_BOT)) {
+		trap_SendServerCommand(ent-g_entities, va("setclientweapon %i\n", ent->client->ps.weapon));
 	}
-	*/
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
