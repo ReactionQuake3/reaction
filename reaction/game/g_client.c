@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/05/21 23:16:30  blaze
+// Only send cheat vars on client connect instead of every spawn
+//
 // Revision 1.76  2002/05/20 04:59:33  jbravo
 // Lots of small fixes.
 //
@@ -1331,6 +1334,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
 
+  //Blaze: Send cheat cvars to client
+	if (!G_SendCheatVars(ent->s.clientNum))
+	{
+		Com_Printf("Error loading cvar cfg\n");
+		//return "Error_loading_cvar_cfg";
+	}
+
   //Blaze: Send out the breakable names to the clients
   if (!isBot && G_SendBreakableInfo(clientNum))
   {
@@ -1786,13 +1796,6 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: We should not have to call this during TP spawns
 	if (g_gametype.integer != GT_TEAMPLAY)
 		ClientEndFrame( ent );
-
-	//Blaze: Send cheat cvars to client
-	if (!G_SendCheatVars(ent->s.clientNum))
-	{
-		Com_Printf("Error loading cvar cfg\n");
-		//return "Error_loading_cvar_cfg";
-	}
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
