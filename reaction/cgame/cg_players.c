@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/08/27 06:56:15  niceass
+// BETA testing idea for wallhack code
+//
 // Revision 1.46  2002/08/27 05:46:58  niceass
 // change to anti-wallhack code
 //
@@ -2487,7 +2490,7 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 	for (i =0; i < 9; i++) {
 		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
 
-		if ( trace.fraction == 1 || (trace.contents & CONTENTS_TRANSLUCENT) || (trace.surfaceFlags & SURF_NODRAW)  )
+		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL ) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS ) )  )
 			return qtrue;
 	}
 
