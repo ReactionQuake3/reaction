@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/03/07 19:46:47  jbravo
+// No dropping weapons or items if bandaging
+//
 // Revision 1.67  2002/03/07 00:00:54  assimon
 // Added a skeleton referee suport, with some functional commands (map_restart and kick)
 //
@@ -2640,6 +2643,12 @@ void Cmd_DropWeapon_f( gentity_t *ent ) {
 
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
+// JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
+	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		return;
+	}
+
 	//Elder: remove zoom bits
 	//Cmd_Unzoom(ent);
 	//Throwing away return value here; high precedence weapon drop
@@ -2655,6 +2664,12 @@ void Cmd_DropItem_f( gentity_t *ent )
 {
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
+
+// JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
+	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		return;
+	}
 
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM])
 	{
