@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/07/01 02:56:15  blaze
+// moved the start demo code to where it prints the 20 seconds till match start
+//
 // Revision 1.117  2002/07/01 02:18:42  jbravo
 // Small fixes to CTB and possible fix for subs and limchasecam
 //
@@ -476,8 +479,7 @@ void CheckTeamRules()
 				G_AddEvent(player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
 
 			}
-			//Blaze: moved from below the G_AddEvent
-			trap_SendServerCommand(-1, va("rq3_cmd %i 0", STARTDEMO));
+
 			trap_SendServerCommand(-1, va("rq3_cmd %i 0", MAPSTART));
 		}
 
@@ -522,6 +524,8 @@ void CheckTeamRules()
 				trap_SendServerCommand(-1, "print \"The round will begin in 20 seconds!\n\"");
 				trap_SendServerCommand(-1, va("cp \"The round will begin in 20 seconds!\n\""));
 				level.team_round_countdown = (201 * level.fps) / 10;
+  			//Blaze: moved from below the G_AddEvent
+			  trap_SendServerCommand(-1, va("rq3_cmd %i 0", STARTDEMO));
 			}
 		}
 	} else {

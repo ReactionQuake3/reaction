@@ -6,51 +6,51 @@
 --------------------Configuration: game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP164.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC.tmp" with contents
 [
 /nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /D "DEBUG" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
-"C:\Games\Quake3\rq3source\reaction\game\ai_chat.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_cmd.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_dmnet.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_dmq3.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_main.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_team.c"
-"C:\Games\Quake3\rq3source\reaction\game\ai_vcmd.c"
-"C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
-"C:\Games\Quake3\rq3source\reaction\game\bg_pmove.c"
-"C:\Games\Quake3\rq3source\reaction\game\bg_slidemove.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_active.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_arenas.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_bot.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_client.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_cmds.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_combat.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_fileio.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_items.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_main.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_matchmode.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_mem.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_misc.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_missile.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_mover.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_session.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_spawn.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_svcmds.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_syscalls.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_target.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_team.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_teamplay.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_trigger.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_utils.c"
-"C:\Games\Quake3\rq3source\reaction\game\g_weapon.c"
-"C:\Games\Quake3\rq3source\reaction\game\q_math.c"
-"C:\Games\Quake3\rq3source\reaction\game\q_shared.c"
-"C:\Games\Quake3\rq3source\reaction\game\rxn_game.c"
-"C:\Games\Quake3\rq3source\reaction\game\zcam.c"
-"C:\Games\Quake3\rq3source\reaction\game\zcam_target.c"
+"C:\Development\reaction\game\ai_chat.c"
+"C:\Development\reaction\game\ai_cmd.c"
+"C:\Development\reaction\game\ai_dmnet.c"
+"C:\Development\reaction\game\ai_dmq3.c"
+"C:\Development\reaction\game\ai_main.c"
+"C:\Development\reaction\game\ai_team.c"
+"C:\Development\reaction\game\ai_vcmd.c"
+"C:\Development\reaction\game\bg_misc.c"
+"C:\Development\reaction\game\bg_pmove.c"
+"C:\Development\reaction\game\bg_slidemove.c"
+"C:\Development\reaction\game\g_active.c"
+"C:\Development\reaction\game\g_arenas.c"
+"C:\Development\reaction\game\g_bot.c"
+"C:\Development\reaction\game\g_client.c"
+"C:\Development\reaction\game\g_cmds.c"
+"C:\Development\reaction\game\g_combat.c"
+"C:\Development\reaction\game\g_fileio.c"
+"C:\Development\reaction\game\g_items.c"
+"C:\Development\reaction\game\g_main.c"
+"C:\Development\reaction\game\g_matchmode.c"
+"C:\Development\reaction\game\g_mem.c"
+"C:\Development\reaction\game\g_misc.c"
+"C:\Development\reaction\game\g_missile.c"
+"C:\Development\reaction\game\g_mover.c"
+"C:\Development\reaction\game\g_session.c"
+"C:\Development\reaction\game\g_spawn.c"
+"C:\Development\reaction\game\g_svcmds.c"
+"C:\Development\reaction\game\g_syscalls.c"
+"C:\Development\reaction\game\g_target.c"
+"C:\Development\reaction\game\g_team.c"
+"C:\Development\reaction\game\g_teamplay.c"
+"C:\Development\reaction\game\g_trigger.c"
+"C:\Development\reaction\game\g_utils.c"
+"C:\Development\reaction\game\g_weapon.c"
+"C:\Development\reaction\game\q_math.c"
+"C:\Development\reaction\game\q_shared.c"
+"C:\Development\reaction\game\rxn_game.c"
+"C:\Development\reaction\game\zcam.c"
+"C:\Development\reaction\game\zcam_target.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP164.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP165.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPD.tmp" with contents
 [
 kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:yes /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /debug /machine:I386 /def:".\game.def" /out:"..\Debug/qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
 \reactionoutput\ai_chat.obj
@@ -93,7 +93,7 @@ kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows 
 \reactionoutput\zcam.obj
 \reactionoutput\zcam_target.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP165.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPD.tmp"
 <h3>Output Window</h3>
 Compiling...
 ai_chat.c
@@ -111,7 +111,6 @@ g_arenas.c
 g_bot.c
 g_client.c
 g_cmds.c
-C:\Games\Quake3\rq3source\reaction\game\g_cmds.c(1087) : warning C4013: 'ResetKills' undefined; assuming extern returning int
 g_combat.c
 g_fileio.c
 g_items.c
@@ -142,7 +141,7 @@ Linking...
 
 
 <h3>Results</h3>
-qagamex86.dll - 0 error(s), 1 warning(s)
+qagamex86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
