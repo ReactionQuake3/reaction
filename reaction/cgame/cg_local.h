@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/08/24 08:01:11  niceass
+// new ref system for scoreboard
+//
 // Revision 1.116  2002/08/22 03:30:20  niceass
 // countdown code added
 //
@@ -583,6 +586,7 @@ typedef struct {
 	//Slicer Matchmode
 	team_t captain;
 	team_t sub;
+	qboolean referee;
 } score_t;
 
 //Blaze: WeaponStats Struct
