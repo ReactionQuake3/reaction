@@ -2263,6 +2263,8 @@ static void PM_LadderMove( void ) {
 		for (i=0 ; i<3 ; i++)
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove +
 				     scale * pml.right[i]*pm->cmd.rightmove; 
+		wishvel[0] /= 2;
+		wishvel[1] /= 2;
 		wishvel[2] += scale * pm->cmd.upmove;
 	}
 
