@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/05/27 06:51:54  niceass
+// FIXED SPELLING MISTACK
+//
 // Revision 1.39  2002/05/24 18:42:35  makro
 // Elevator stuff
 //
@@ -1267,7 +1270,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 			(ent->parent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN) {
 			//G_Printf("Using a door\n");
 			Use_BinaryMover( ent->parent, ent, other );
-			// NiceAss: Hackish, but oh well. Done so you can trigger multipul doors in an area.
+			// NiceAss: Hackish, but oh well. Done so you can trigger multiple doors in an area.
 			other->client->openDoor = 2;  
 		}
 	//}
