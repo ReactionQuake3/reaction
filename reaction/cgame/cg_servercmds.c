@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/10/21 21:03:32  niceass
+// ref ready code
+//
 // Revision 1.68  2002/10/21 21:01:49  niceass
 // ref ready code
 //
@@ -232,8 +235,8 @@ static void CG_ParseScores(void)
 	cg.teamScores[1] = atoi(CG_Argv(3));
 	cg.team1ready = atoi(CG_Argv(4));
 	cg.team2ready = atoi(CG_Argv(5));
-	cg.refready = atoi(CG_Argv(6));
-	cg.matchTime = atoi(CG_Argv(7));
+	cg.matchTime = atoi(CG_Argv(6));
+	cg.refready = atoi(CG_Argv(7));
 
 	memset(cg.scores, 0, sizeof(cg.scores));
 	for (i = 0; i < cg.numScores; i++) {
