@@ -1,6 +1,7 @@
 # List fixes here for the 3.0 release
 
 * Version now 3.0
+* Added votedelay on mapchanges via the g_RQ3_vote_waittime cvar.
 * Added the unlagged code.
 * Added replacement model functionality for ammo
 * Bots dont talk about flags any more.
