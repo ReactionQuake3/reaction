@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/18 21:58:53  blaze
+// cg_rq3_autoaction support
+//
 // Revision 1.36  2002/05/11 19:55:20  slicer
 // Added sub and captain to the scoreboard parser
 //
@@ -96,7 +99,7 @@
 
 //Blaze: holds the id to name mapping of the breakables
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
-
+extern int trap_RealTime(qtime_t *qtime);
 typedef struct {
 	const char *order;
 	int taskNum;
@@ -1189,14 +1192,40 @@ void CG_Radio(void) {
 		return;
 }
 /*
+==============
+RemoveColorEscapeSequences
+==============
+*/
+void RemoveColorEscapeSequences( char *text ) {
+	int i, l;
+
+	l = 0;
+	for ( i = 0; text[i]; i++ ) {
+		if (Q_IsColorString(&text[i])) {
+			i++;
+			continue;
+		}
+		if (text[i] > 0x7E)
+			continue;
+		text[l++] = text[i];
+	}
+	text[l] = '\0';
+}
+
+
+/*
 =================
 CG_RQ3_Cmd by sLiCeR
 This function will parse and handle several cmds in one ( rq3_cmd)
 =================
 */
 void CG_RQ3_Cmd () {
-	int cmd;
-	cmd = atoi(CG_Argv(1));
+	int cmd, i;
+  char scrnshotName[MAX_QPATH], playerName[MAX_NAME_LENGTH];
+  qtime_t qtime;
+
+
+  cmd = atoi(CG_Argv(1));
 
 	switch(cmd) {
 		case LIGHTS:
@@ -1243,9 +1272,74 @@ void CG_RQ3_Cmd () {
 		case ROUND:
 			trap_Cvar_Set("cg_RQ3_team_round_going", CG_Argv(1));
 			break;
+    case MAPSTART:
+      switch (cg_RQ3_autoAction.integer )
+      {
+        case 1:
+        case 3:
+          trap_RealTime(&qtime);
+          Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
+          RemoveColorEscapeSequences(playerName);
+          
+          Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %s-%s-%d.%d.%d-%d.%d.%d\n", playerName, cgs.mapname, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          for (i=0;i<MAX_QPATH;i++)
+          {
+            switch (scrnshotName[i])
+            {
+            case '>':
+            case '<':
+            case '"':
+            case '?':
+            case '*':
+            case ':':
+            case '\\':
+            case '/':
+            case '|':
+              scrnshotName[i] = '_';
+              break;
+            }
+          }
+          trap_SendConsoleCommand ("g_synchronousClients 1\n");
+          trap_SendConsoleCommand (scrnshotName);
+          trap_SendConsoleCommand ("g_synchronousClients 0\n");
+          break;
+      }
+      break;
 		case MAPEND:
 			cg.showScores = qtrue;
 			cg.scoreTPMode = 0;
+      switch (cg_RQ3_autoAction.integer )
+      {
+        case 3:
+          trap_SendConsoleCommand ("stoprecord\n");
+        case 2:
+          trap_RealTime(&qtime);
+          Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
+          RemoveColorEscapeSequences(playerName);
+          Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %s-%d.%d.%d-%d.%d.%d\n", playerName, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+          for (i=0;i<MAX_QPATH;i++)
+          {
+            switch (scrnshotName[i])
+            {
+            case '>':
+            case '<':
+            case '"':
+            case '?':
+            case '*':
+            case ':':
+            case '\\':
+            case '/':
+            case '|':
+              scrnshotName[i] = '_';
+              break;
+            }
+          }
+          trap_SendConsoleCommand (scrnshotName);
+          break;
+        case 1:
+          trap_SendConsoleCommand ("stoprecord\n");
+          break;
+      }
 			break;
 		case SETWEAPON:
 			cg.weaponSelect = atoi(CG_Argv(1));

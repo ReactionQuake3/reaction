@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/05/18 21:58:53  blaze
+// cg_rq3_autoaction support
+//
 // Revision 1.75  2002/05/18 03:55:35  niceass
 // many misc. changes
 //
@@ -1652,6 +1655,9 @@ extern	vmCvar_t		cg_obeliskRespawnDelay;
 extern	vmCvar_t		cg_enableBreath;
 // JBravo: ditto
 extern	vmCvar_t		cg_enableDust;
+
+//Blaze: to handle the auto actions
+extern  vmCvar_t	  cg_RQ3_autoAction;
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
 // JBravo: Teamplay cvars synched from game
