@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/02/08 18:59:01  slicer
+// Spec code changes
+//
 // Revision 1.46  2002/02/06 12:06:48  slicer
 // TP Scores bug fix
 //
@@ -477,10 +480,28 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
-	// attack button cycles through spectators
+	//Slicer - Changing this for aq2 way
+	// Jump button cycles throught spectators
+	if(client->sess.spectatorState == SPECTATOR_FOLLOW && ucmd->upmove ) {
+		Cmd_FollowCycle_f( ent, 1 );
+		ucmd->upmove = 0; 
+	}
+	// Attack Button cycles throught free view or follow
+	if((ucmd->buttons & BUTTON_ATTACK) && !( client->oldbuttons & BUTTON_ATTACK )) {
+		if (client->sess.spectatorState == SPECTATOR_FREE) {
+			client->sess.spectatorState = SPECTATOR_FOLLOW;
+			client->ps.pm_flags |= PMF_FOLLOW;
+			Cmd_FollowCycle_f( ent, 1 );
+		} else {
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->ps.pm_flags &= ~PMF_FOLLOW;	
+		}
+	}
+
+/*	// attack button cycles through spectators
 	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
 		Cmd_FollowCycle_f( ent, 1 );
-	}
+	}*/
 
 /*	if (client->ps.pm_flags & PMF_JUMP_HELD) {
 		G_Printf("upmove is true!\n");
@@ -1269,6 +1290,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
+
 	if ( pm.ps->pm_type == PM_DEAD ) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
