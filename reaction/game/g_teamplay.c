@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/03/03 03:11:37  jbravo
+// Use propper weapon anims on TP spawns
+//
 // Revision 1.25  2002/03/02 16:16:54  jbravo
 // Fixed the uneven team calculations
 //
@@ -642,6 +645,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
 		ent->client->ps.weapon = WP_SSG3000;
+		ent->client->ps.weaponTime = RQ3_SSG3000_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -652,6 +656,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
 		ent->client->ps.weapon = WP_MP5;
+		ent->client->ps.weaponTime = RQ3_MP5_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -662,6 +667,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
 		ent->client->ps.weapon = WP_M3;
+		ent->client->ps.weaponTime = RQ3_M3_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -672,6 +678,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
 		ent->client->ps.weapon = WP_M4;
+		ent->client->ps.weaponTime = RQ3_M4_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -682,6 +689,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
+		ent->client->ps.weaponTime = RQ3_AKIMBO_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
@@ -692,6 +700,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
 		ent->client->ps.weapon = WP_HANDCANNON;
+		ent->client->ps.weaponTime = RQ3_HANDCANNON_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -700,6 +709,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
+//		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
@@ -712,7 +722,11 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
 		ent->client->uniqueWeapons++;
 	}
-	ent->client->ps.weaponstate = WEAPON_RAISING;
+	if (ent->client->teamplayWeapon != WP_KNIFE) {
+		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
+			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
+		ent->client->ps.weaponstate = WEAPON_RAISING;
+	}
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
 	ent->client->uniqueItems = 1;

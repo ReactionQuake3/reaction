@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/03/03 03:11:37  jbravo
+// Use propper weapon anims on TP spawns
+//
 // Revision 1.43  2002/03/02 15:39:34  jbravo
 // Fixed team auto (PickTeam) up for TP
 //
@@ -1514,7 +1517,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 	// weapon animations
-	client->ps.generic1 = ( ( client->ps.generic1 & ANIM_TOGGLEBIT )
+	if (g_gametype.integer != GT_TEAMPLAY)
+		client->ps.generic1 = ( ( client->ps.generic1 & ANIM_TOGGLEBIT )
 									^ ANIM_TOGGLEBIT ) | WP_ANIM_IDLE;
 
 	if ( level.intermissiontime ) {
