@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2003/02/05 04:44:47  niceass
+// added support for tag_weapon2 (2 pistols for akimbo)
+//
 // Revision 1.103  2003/02/01 02:15:31  jbravo
 // Replacement models and items
 //
@@ -1145,16 +1148,6 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 }
 
 /*
-========================
-CG_AddWeaponWithPowerups
-========================
-*/
-static void CG_AddWeaponWithPowerups(refEntity_t * gun, int powerups)
-{
-	trap_R_AddRefEntityToScene(gun);
-}
-
-/*
 =============
 CG_AddPlayerWeapon
 
@@ -1163,9 +1156,13 @@ The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
-void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * cent, int team)
+void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * cent, int team )
 {
-	refEntity_t gun, flash, silencer, laser;
+	// gun2 is for tag_weapon2. atm, only another pistol for akimbo in thirdperson
+	refEntity_t gun1, gun2;
+	refEntity_t flash;
+	refEntity_t silencer, laser;
+
 	vec3_t angles;
 	weapon_t weaponNum;
 	weaponInfo_t *weapon;
@@ -1174,53 +1171,79 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 	weaponNum = cent->currentState.weapon;
 
-	CG_RegisterWeapon(weaponNum);
-	weapon = &cg_weapons[weaponNum];
+	CG_RegisterWeapon( weaponNum );
+	weapon = &cg_weapons[ weaponNum ];
 
 	// add the weapon
-	memset(&gun, 0, sizeof(gun));
-	VectorCopy(parent->lightingOrigin, gun.lightingOrigin);
-	gun.shadowPlane = parent->shadowPlane;
-	gun.renderfx = parent->renderfx;
-	gun.shaderRGBA[0] = 255;
-	gun.shaderRGBA[1] = 255;
-	gun.shaderRGBA[2] = 255;
-	gun.shaderRGBA[3] = 255;
+	memset( &gun1, 0, sizeof( gun1 ) );
+	memset( &gun2, 0, sizeof( gun2 ) );
+
+	VectorCopy( parent->lightingOrigin, gun1.lightingOrigin );
+	gun1.shadowPlane = parent->shadowPlane;
+	gun1.renderfx = parent->renderfx;
+	gun1.shaderRGBA[ 0 ] = 255;
+	gun1.shaderRGBA[ 1 ] = 255;
+	gun1.shaderRGBA[ 2 ] = 255;
+	gun1.shaderRGBA[ 3 ] = 255;
+	gun2.shadowPlane = parent->shadowPlane;
+	gun2.renderfx = parent->renderfx;
+	gun2.shaderRGBA[ 0 ] = 255;
+	gun2.shaderRGBA[ 1 ] = 255;
+	gun2.shaderRGBA[ 2 ] = 255;
+	gun2.shaderRGBA[ 3 ] = 255;
+
+	//Elder: We are in third person, use the third-person model (DEFAULT)
 	if (ps == NULL) {
-		//Elder: We are in third person, use the third-person model (DEFAULT)
-		gun.hModel = weapon->weaponModel;
-	} else {
-		//Elder: we are in first-person, use the first-person (NOT default) model
-		gun.hModel = weapon->firstModel;
+		orientation_t tag;
+
+		if ( weaponNum == WP_AKIMBO && trap_R_LerpTag(&tag, parent->hModel, 0, 0, 1, "tag_weapon2") ) {
+			gun1.hModel = cg_weapons[ WP_PISTOL ].weaponModel;
+			gun2.hModel = cg_weapons[ WP_PISTOL ].weaponModel;
+		}
+		else {
+			gun1.hModel = weapon->weaponModel;
+		}
+	} 
+	//Elder: we are in first-person, use the first-person (NOT default) model
+	else {
+		gun1.hModel = weapon->firstModel;
 	}
 
-	if (!gun.hModel) {
+	if ( !gun1.hModel ) {
 		return;
 	}
 
 	// JBravo: activate the custom skin, if any
-	if (weapon->customSkin)
-		gun.customSkin = weapon->customSkin;
+	if (weapon->customSkin) {
+		gun1.customSkin = weapon->customSkin;
+		// NiceAss: Use on the second pistol for akimbo
+		if ( gun2.hModel )
+			gun2.customSkin = weapon->customSkin;
 
-	if (!ps) {
 		// add weapon ready sound
 		cent->pe.lightningFiring = qfalse;
-		if ((cent->currentState.eFlags & EF_FIRING) && weapon->firingSound) {
+		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
-					       weapon->firingSound);
+			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+					       weapon->firingSound );
 			cent->pe.lightningFiring = qtrue;
-		} else if (weapon->readySound) {
-			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
-					       weapon->readySound);
+		} 
+		else if ( weapon->readySound ) {
+			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+					       weapon->readySound );
 		}
 	}
 
-	if (!ps) {
-		CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
-	} else {
-		CG_WeaponAnimation(cent, &gun.oldframe, &gun.frame, &gun.backlerp);
-		CG_PositionWeaponOnTag(&gun, parent, parent->hModel, "tag_weapon");
+	if ( !ps ) {
+		// Position the second pistol for akimbo if the model supports it
+		if ( gun2.hModel )
+			CG_PositionEntityOnTag(&gun2, parent, parent->hModel, "tag_weapon2");
+
+		CG_PositionEntityOnTag(&gun1, parent, parent->hModel, "tag_weapon");
+	}
+	else {
+		CG_WeaponAnimation( cent, &gun1.oldframe, &gun1.frame, &gun1.backlerp );
+		CG_PositionWeaponOnTag( &gun1, parent, parent->hModel, "tag_weapon" );
 
 		// Elder: Local sound events will sync perfectly here
 		// However, we must remember to ignore the ones pmove will generate
@@ -1237,7 +1260,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			int i = 0;
 			qboolean noSound = qfalse;
 
-			while (gun.frame != weapon->animationSounds->sfxInfo[i].frame) {
+			while (gun1.frame != weapon->animationSounds->sfxInfo[i].frame) {
 				if (++i == weapon->animationSounds->numFrames) {
 					noSound = qtrue;
 					break;
@@ -1245,12 +1268,12 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			}
 
 			// reset the current sound
-			if (cg.curSyncSound.played && cg.curSyncSound.frame != gun.frame)
+			if (cg.curSyncSound.played && cg.curSyncSound.frame != gun1.frame)
 				cg.curSyncSound.played = qfalse;
 
 			if (!noSound) {
 				// copy the struct to reset it
-				if (cg.curSyncSound.frame != gun.frame)
+				if (cg.curSyncSound.frame != gun1.frame)
 					cg.curSyncSound = weapon->animationSounds->sfxInfo[i];
 
 				if (cg.curSyncSound.played == qfalse) {
@@ -1263,17 +1286,19 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 	// Elder: break off here so we still have weapon animations on bolt out
 	// Elder: added ps so we see SSG in third-person zoomed
-	if (cg.zoomed && ps)
+	if ( cg.zoomed && ps )
 		return;
 
-// JBravo: Adding a fix from NiceAss (cg_drawgun affecting other player models)
-	if (!cg_drawGun.integer && ps)
+	// JBravo: Adding a fix from NiceAss (cg_drawgun affecting other player models)
+	if ( !cg_drawGun.integer && ps )
 		return;
 
-	CG_AddWeaponWithPowerups(&gun, cent->currentState.powerups);
+	trap_R_AddRefEntityToScene( &gun1 );
+	if ( gun2.hModel )
+		trap_R_AddRefEntityToScene( &gun2 );
 
 	// make sure we aren't looking at cg.predictedPlayerEntity for LG
-	nonPredictedCent = &cg_entities[cent->currentState.clientNum];
+	nonPredictedCent = &cg_entities[ cent->currentState.clientNum ];
 
 	// if the index of the nonPredictedCent is not the same as the clientNum
 	// then this is a fake player (like on teh single player podiums), so
@@ -1310,15 +1335,15 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		VectorScale(silencer.axis[1], scale, silencer.axis[1]);
 		VectorScale(silencer.axis[2], scale, silencer.axis[2]);
 
-		CG_PositionRotatedOffsetEntityOnTag(&silencer, &gun, weapon->firstModel, "tag_silencer", vec3_origin);
+		CG_PositionRotatedOffsetEntityOnTag(&silencer, &gun1, weapon->firstModel, "tag_silencer", vec3_origin);
 		// Offset weapon
 		VectorMA(silencer.origin, -7.2f, silencer.axis[1], silencer.origin);
 		VectorMA(silencer.origin, 10.0f, silencer.axis[1], silencerEnd);
 		silencer.nonNormalizedAxes = qtrue;
 
-		CG_AddWeaponWithPowerups(&silencer, cent->currentState.powerups);
+		trap_R_AddRefEntityToScene( &silencer );
 
-		// NiceAss: Add a puff of smoke at the end of the silencer when fired. Not alligned properly and looks bad.
+		// NiceAss: Add a puff of smoke at the end of the silencer when fired.
 		if (cent->muzzleFlashTime == -1) {
 			localEntity_t *smoke;
 			vec3_t up;
@@ -1328,8 +1353,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[2], silencerEnd);
 
 			VectorSet(up, 0.0f, 0.0f, 15.0f);
-			smoke =
-			    CG_SmokePuff(silencerEnd, up, 0.5f, 1, 1, 1, 0.5f, 300, cg.time, 0, 0,
+			smoke = CG_SmokePuff(silencerEnd, up, 0.5f, 1, 1, 1, 0.5f, 300, cg.time, 0, 0,
 					 cgs.media.shotgunSmokePuffShader);
 			smoke->leType = LE_SCALE_FADE;
 
@@ -1363,11 +1387,13 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		VectorScale(laser.axis[1], scale, laser.axis[1]);
 		VectorScale(laser.axis[2], scale, laser.axis[2]);
 
-		CG_PositionRotatedOffsetEntityOnTag(&laser, &gun, weapon->firstModel, "tag_laser", vec3_origin);
+		CG_PositionRotatedOffsetEntityOnTag(&laser, &gun1, weapon->firstModel, "tag_laser", vec3_origin);
 
 		laser.nonNormalizedAxes = qtrue;
-		CG_AddWeaponWithPowerups(&laser, cent->currentState.powerups);
+
+		trap_R_AddRefEntityToScene( &laser );	
 	}
+
 	// NiceAss: fix for brass ejecting on LCA
 	if (cg.lca)
 		cent->ejectBrassTime = 0;
@@ -1380,22 +1406,25 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 		shell = weapon->ejectBrassFunc(cent);
 
-		if (shell != NULL && trap_R_LerpTag(&tag, gun.hModel, 0, 0, 1, "tag_shell") ) {
+		if ( shell != NULL && trap_R_LerpTag(&tag, gun1.hModel, 0, 0, 1, "tag_shell") ) {
 			float speed = 1.0f;
 			int axis1 = 0, axis2 = 0;
 
-			if (ps) {
+			if ( ps ) {
 				if (weapon->item->giTag == WP_AKIMBO && !ps->stats[STAT_BURST])
-					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel,
-								      "tag_shell2");
+					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun1, gun1.hModel, "tag_shell2");
 				else
-					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel, "tag_shell");
-			} else {
-				if (weapon->item->giTag == WP_AKIMBO && cg.akimboFlash)
-					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel,
-								      "tag_shell2");
+					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun1, gun1.hModel, "tag_shell");
+			} 
+			else {
+				if (weapon->item->giTag == WP_AKIMBO && !cg.akimboFlash)
+					if ( gun2.hModel && trap_R_LerpTag(&tag, gun2.hModel, 0, 0, 1, "tag_shell") )
+						CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun2, gun2.hModel, "tag_shell");
+					else
+						CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun1, gun1.hModel, "tag_shell2");
 				else
-					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel, "tag_shell");
+					CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun1, gun1.hModel, "tag_shell");
+
 			}
 
 			VectorCopy(shell->refEntity.origin, shell->pos.trBase);
@@ -1412,13 +1441,14 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			VectorScale(shell->refEntity.axis[axis2], 160 * speed, shell->pos.trDelta);
 			VectorAdd(shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 		}
+
 		// All this code for a SECOND shell on the HC
-		if (weaponNum == WP_HANDCANNON && trap_R_LerpTag(&tag, gun.hModel, 0, 0, 1, "tag_shell2") ) {
+		if (weaponNum == WP_HANDCANNON && trap_R_LerpTag(&tag, gun1.hModel, 0, 0, 1, "tag_shell2") ) {
 			float speed = -1.0f;
 
 			shell = weapon->ejectBrassFunc(cent);
 			if (shell != NULL) {
-				CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun, gun.hModel, "tag_shell2");
+				CG_PositionRotatedEntityOnTag(&shell->refEntity, &gun1, gun1.hModel, "tag_shell2");
 
 				VectorCopy(shell->refEntity.origin, shell->pos.trBase);
 
@@ -1438,7 +1468,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		refEntity_t muzzle;
 
 		memset(&muzzle, 0, sizeof(muzzle));
-		CG_PositionEntityOnTag(&muzzle, &gun, weapon->weaponModel, "tag_flash");
+		CG_PositionEntityOnTag(&muzzle, &gun1, weapon->weaponModel, "tag_flash");
 
 		CG_DrawVisibleLaser(muzzle.origin, cent->currentState.clientNum, muzzle.axis[0]);
 	}
@@ -1478,27 +1508,33 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			if (ps->weapon == WP_AKIMBO) {
 				// choose tag for akimbos
 				if (ps->stats[STAT_BURST])
-					CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->firstModel, "tag_flash");
+					CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->firstModel, "tag_flash");
 				else
-					CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->firstModel, "tag_flash2");
+					CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->firstModel, "tag_flash2");
 			} else
-				CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->firstModel, "tag_flash");
+				CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->firstModel, "tag_flash");
 
 			// Make flash larger to compensate for depth hack
 			VectorScale(flash.axis[0], scale, flash.axis[0]);
 			VectorScale(flash.axis[1], scale, flash.axis[1]);
 			VectorScale(flash.axis[2], scale, flash.axis[2]);
 			flash.nonNormalizedAxes = qtrue;
-		} else {
+		} 
+		else {
 			//Elder: draw flash based on 3rd-person view
 			if (weapon->item->giTag == WP_AKIMBO) {
 				// choose tag for akimbos
 				if (cg.akimboFlash)
-					CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash");
-				else
-					CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash2");
-			} else
-				CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash");
+					CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->weaponModel, "tag_flash");
+				else {
+					if ( gun2.hModel )
+						CG_PositionRotatedEntityOnTag(&flash, &gun2, weapon->weaponModel, "tag_flash");
+					else
+						CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->weaponModel, "tag_flash2");
+				}
+			} 
+			else
+				CG_PositionRotatedEntityOnTag(&flash, &gun1, weapon->weaponModel, "tag_flash");
 		}
 		trap_R_AddRefEntityToScene(&flash);
 	} else {
@@ -1506,7 +1542,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		if (ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum) {
 			if (weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2]) {
 				if (!cg_drawGun.value)
-					trap_R_AddLightToScene(gun.origin, 300 + (rand() & 31),
+					trap_R_AddLightToScene(gun1.origin, 300 + (rand() & 31),
 							       weapon->flashDlightColor[0], weapon->flashDlightColor[1],
 							       weapon->flashDlightColor[2]);
 			}
