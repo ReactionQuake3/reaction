@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/06/21 21:03:15  niceass
+// quicker ssg after reload
+//
 // Revision 1.81  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -421,7 +424,7 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1800	//1100 Time into reload to enable fast-reloads
 #define RQ3_SSG3000_FAST_RELOAD_DELAY	600	// Fast reload time
 //#define RQ3_SSG3000_START_RELOAD_DELAY        1700    // Start index point of fast reload
-#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800	// Amount of time after all fast reloads
+#define RQ3_SSG3000_FINISH_RELOAD_DELAY	200	// Amount of time after all fast reloads. Was 800.
 
 #define RQ3_KNIFE_RELOAD_DELAY			0	// Elder: shouldn't need
 #define RQ3_GRENADE_RELOAD_DELAY		0	// Elder: shouldn't need
