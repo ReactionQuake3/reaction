@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.29  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -117,10 +121,12 @@ void G_ExplodeMissile(gentity_t * ent)
 		     ent->splashMethodOfDeath)) {
 			g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			// Elder: Statistics tracking
-			if (ent->s.weapon == WP_KNIFE && level.team_round_going)
+			if (ent->s.weapon == WP_KNIFE && 
+					((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 				g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 			//g_entities[ent->r.ownerNum].client->knifeHits++;
-			if (ent->s.weapon == WP_GRENADE && level.team_round_going)
+			if (ent->s.weapon == WP_GRENADE &&
+					((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 				g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 			//g_entities[ent->r.ownerNum].client->grenHits++;
 		}
@@ -171,10 +177,12 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 			if (LogAccuracyHit(other, &g_entities[ent->r.ownerNum])) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				// Elder: Statistics tracking
-				if (ent->s.weapon == WP_KNIFE && level.team_round_going)
+				if (ent->s.weapon == WP_KNIFE &&
+						((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 				//g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE && level.team_round_going)
+				if (ent->s.weapon == WP_GRENADE &&
+						((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 				//g_entities[ent->r.ownerNum].client->grenHits++;
 				hitClient = qtrue;
@@ -357,10 +365,12 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 			if (!hitClient) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				// Elder: Statistics tracking
-				if (ent->s.weapon == WP_KNIFE && level.team_round_going)
+				if (ent->s.weapon == WP_KNIFE &&
+						((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 				//g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE && level.team_round_going)
+				if (ent->s.weapon == WP_GRENADE &&
+						((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 				//g_entities[ent->r.ownerNum].client->grenHits++;
 			}
@@ -564,7 +574,7 @@ gentity_t *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	//Elder: grenade toggle distances/speeds
 	if (self->client) {
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			self->client->pers.records[REC_GRENADESHOTS]++;
 		if (self->client->ps.stats[STAT_HEALTH] <= 0 ||
 		    //              (self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
@@ -633,7 +643,7 @@ gentity_t *fire_knife(gentity_t * self, vec3_t start, vec3_t dir)
 	VectorCopy(dir, bolt->s.apos.trBase);
 	VectorCopy(dir, bolt->r.currentAngles);
 
-	if (self->client && level.team_round_going) {
+	if (self->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)) {
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_KNIFETHROWSHOTS]++;
 	}

@@ -58,6 +58,10 @@
 * Players can now use the kill cmd, plummet and kill teammates after rounds in tp without loosing frags.
 * Fixed message for players wearing a kevlar vest and get hiot by weapons other than the SSG
 * Added the Keanu male radio soundset.
+* Added a clientside cvar (cg_RQ3_SuicideLikeARealMan) to control frag lossage on suicides
+* Fixed stats for non-TP gametypes
+* Cleaned up server logging and added real timestamping to them.
+
 
 
 # List fixes here for the 2.1 release

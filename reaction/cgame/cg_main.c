@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.105  2002/08/28 18:52:09  jbravo
 // Added the Keanu male radio sound set.
 //
@@ -399,6 +403,7 @@ vmCvar_t cg_RQ3_tkokAutoPopup;
 // JBravo: radio cvars.
 vmCvar_t cg_RQ3_radiovoice_male;
 vmCvar_t cg_RQ3_radiovoice_female;
+vmCvar_t cg_RQ3_SuicideLikeARealMan;
 vmCvar_t cg_RQ3_dynamicRadio;
 
 // Slicer: for the Anti-Cheat System
@@ -645,8 +650,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE},
-  //Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
-  {&cg_RQ3_overlaycrosshair, "cg_RQ3_overlaycrosshair", "0", CVAR_ARCHIVE},
+//Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
+	{&cg_RQ3_overlaycrosshair, "cg_RQ3_overlaycrosshair", "0", CVAR_ARCHIVE},
 
 // JBravo: cvars for regular crosshairs and their colors
 // Makro - changed default color to white; it was 0/1/0/.75 before
@@ -657,6 +662,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_tkokAutoPopup, "cg_RQ3_tkokAutoPopup", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_radiovoice_male, "cg_RQ3_radiovoice_male", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_radiovoice_female, "cg_RQ3_radiovoice_female", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+	{&cg_RQ3_SuicideLikeARealMan, "cg_RQ3_SuicideLikeARealMan", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.123  2002/08/27 11:28:43  jbravo
 // Kevlar hits didnt tell the target who was shooting or of the kevlar got hit
 //
@@ -684,7 +688,7 @@ void SendObit(char *msg, gentity_t * deadguy, gentity_t * attacker)
 	int i;
 	gentity_t *other;
 
-	if (g_gametype.integer < GT_TEAM) {
+	if (g_gametype.integer != GT_TEAMPLAY) {
 		trap_SendServerCommand(-1, va("print \"%s\"", msg));
 	} else {
 		if (g_RQ3_showOwnKills.integer == 0) {
@@ -1183,7 +1187,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if ((self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
 	    (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE) {
 		// head kill
-		if (level.team_round_going) {
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 			self->client->pers.records[REC_HEADDEATHS]++;
 			if (attacker && attacker->client)
 				attacker->client->pers.records[REC_HEADKILLS]++;
@@ -1193,7 +1197,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	} else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 		   (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER) {
 		// chest kill
-		if (level.team_round_going) {
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 			self->client->pers.records[REC_CHESTDEATHS]++;
 			if (attacker && attacker->client)
 				attacker->client->pers.records[REC_CHESTKILLS]++;
@@ -1203,7 +1207,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	} else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 		   (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN) {
 		// stomach kill
-		if (level.team_round_going) {
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 			self->client->pers.records[REC_STOMACHDEATHS]++;
 			if (attacker && attacker->client)
 				attacker->client->pers.records[REC_STOMACHKILLS]++;
@@ -1213,7 +1217,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	} else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 		   (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT) {
 		// leg kill
-		if (level.team_round_going) {
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 			self->client->pers.records[REC_LEGDEATHS]++;
 			if (attacker && attacker->client)
 				attacker->client->pers.records[REC_LEGKILLS]++;
@@ -1221,7 +1225,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		PrintDeathMessage(self, attacker, LOC_LDAM, meansOfDeath);
 		hurt = LOC_LDAM;
 	} else {
-//              // non-location/world kill
+		// non-location/world kill
 		PrintDeathMessage(self, attacker, LOC_NOLOC, meansOfDeath);
 		hurt = 0;
 	}
@@ -1309,7 +1313,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		ResetKills(self);
 // JBravo: make it OK to frag teammates after rounds are over.
 		if (attacker == self) {
-			if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going) {
+			if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going && !self->client->SuicideLikeARealMan) {
 			} else
 				AddScore(attacker, self->r.currentOrigin, -1);
 		} else if (OnSameTeam(self, attacker)) {
@@ -1381,7 +1385,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
-		if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going) {
+		if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going && !self->client->SuicideLikeARealMan) {
 		} else
 			AddScore(self, self->r.currentOrigin, -1);
 	}
@@ -1399,7 +1403,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			self->client->pers.records[REC_SUICIDES]++;
 			self->client->pers.records[REC_KILLS]--;
 		}
-//              AddScore(self, self->r.currentOrigin, -1);
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			if (self->client->ps.powerups[PW_NEUTRALFLAG]) {	// only happens in One Flag CTF
 				Team_ReturnFlag(TEAM_FREE);

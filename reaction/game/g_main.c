@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.110  2002/08/27 01:25:22  jbravo
 // Fixed scoring in TOURNAMENT mode and made it a legit gametype.
 //
@@ -307,6 +311,7 @@
 
 #include "g_local.h"
 #include "zcam.h"
+#include "q_shared.h"
 
 level_locals_t level;
 
@@ -1688,24 +1693,22 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 {
 	va_list argptr;
 	char string[1024];
-	int min, tens, sec, i, l;
+	int i, l;
+	qtime_t now;
 
-	sec = level.time / 1000;
-	min = sec / 60;
-	sec -= min * 60;
-	tens = sec / 10;
-	sec -= tens * 10;
+	trap_RealTime(&now);
 
 	l = i = 0;
 
-	Com_sprintf(string, sizeof(string), "%3i:%i%i ", min, tens, sec);
+	string[0] = '\0';
+	Com_sprintf(string, sizeof(string), "[%02i:%02i:%02i] ", now.tm_hour, now.tm_min, now.tm_sec);
 
 	va_start(argptr, fmt);
-	vsprintf(string + 7, fmt, argptr);
+	vsprintf(string + 11, fmt, argptr);
 	va_end(argptr);
 
 	if (g_dedicated.integer) {
-		G_Printf("%s", string + 7);
+		G_Printf("%s", string + 11);
 	}
 
 	if (!level.logFile) {
@@ -1739,8 +1742,17 @@ void LogExit(const char *string)
 {
 	int i, numSorted;
 	gclient_t *cl;
+	qtime_t now;
+	char* names_day[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+	char* names_month[] = { "January", "February", "March", "April", "May", "June", "July", "August",
+				"September", "October", "November", "December" };
 
-	G_LogPrintf("Exit: %s\n", string);
+	trap_RealTime(&now);
+	G_LogPrintf("Game ending at %s %i %s %i %i:%i:%i : %s\n", names_day[now.tm_wday], now.tm_mday, names_month[now.tm_mon],
+			(now.tm_year)+1900, now.tm_hour, now.tm_min, now.tm_sec, string);
+	trap_SendServerCommand(-1, va("print \"Game ending at %s %i %s %i %i:%i:%i.\n\"", names_day[now.tm_wday],
+			now.tm_mday, names_month[now.tm_mon], (now.tm_year)+1900, now.tm_hour,
+			now.tm_min, now.tm_sec, string));
 
 	level.intermissionQueued = level.time;
 

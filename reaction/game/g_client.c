@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.112  2002/08/23 14:25:05  slicer
 // Added a new Referee System with multiple ref support
 //
@@ -1129,7 +1133,14 @@ void ClientUserinfoChanged(int clientNum)
 	} else {
 		client->radioSetFemale = atoi(s);
 	}
-	
+	// JBravo: Does the client get a frag reduced on suicides or not.
+	s = Info_ValueForKey(userinfo, "cg_RQ3_SuicideLikeARealMan");
+	if (!atoi(s)) {
+		client->SuicideLikeARealMan = 0;
+	} else {
+		client->SuicideLikeARealMan = atoi(s);
+	}
+
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		if (client->sess.sessionTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));

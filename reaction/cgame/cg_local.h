@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.121  2002/08/28 18:52:09  jbravo
 // Added the Keanu male radio sound set.
 //
@@ -1679,6 +1683,7 @@ extern vmCvar_t cg_RQ3_overlaycrosshair;
 extern vmCvar_t cg_RQ3_tkokAutoPopup;
 extern vmCvar_t cg_RQ3_radiovoice_male;
 extern vmCvar_t cg_RQ3_radiovoice_female;
+extern vmCvar_t cg_RQ3_SuicideLikeARealMan;
 extern vmCvar_t cg_RQ3_dynamicRadio;
 
 // Slicer: for the Anti-Cheat System

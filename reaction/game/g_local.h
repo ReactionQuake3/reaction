@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.119  2002/08/27 04:47:48  niceass
 // ref say added
 //
@@ -693,6 +697,7 @@ struct gclient_s {
 	int radioGender;
 	int radioSetMale;
 	int radioSetFemale;
+	int SuicideLikeARealMan;
 	qboolean radioOff;
 	int team_wounds;
 	int team_wounds_before;

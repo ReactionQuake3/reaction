@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/08/28 23:10:06  jbravo
+// Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
+// fixed stats for non-TP modes.
+//
 // Revision 1.78  2002/08/23 23:07:01  blaze
 // Should have fixed the unkickable thing breaking explosive breakables.
 //
@@ -556,7 +560,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 			if (LogAccuracyHit(traceEnt, ent)) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
-				if (level.team_round_going) {
+				if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 					switch (MOD) {
 					case MOD_PISTOL:
 						ent->client->pers.records[REC_MK23HITS]++;
@@ -746,18 +750,18 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 	//Elder: added
 	if (shotType == WP_M3) {
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			ent->client->pers.records[REC_M3SHOTS]++;
 		count = DEFAULT_M3_COUNT;
 	} else if (shotType == WP_HANDCANNON) {
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 4;
 	} else {
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 5;
@@ -784,7 +788,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 			hitClient = qtrue;
 			ent->client->accuracy_hits++;
 			// Elder: Statistics tracking
-			if (level.team_round_going) {
+			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 				switch (shotType) {
 				case WP_M3:
 					ent->client->pers.records[REC_M3HITS]++;
@@ -1031,7 +1035,7 @@ void Knife_Attack(gentity_t * self, int damage)
 	gentity_t *hitent;
 	gentity_t *tent;
 
-	if (self->client && level.team_round_going)
+	if (self->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
 
 	VectorMA(muzzle, KNIFE_RANGE, forward, end);
@@ -1064,7 +1068,7 @@ void Knife_Attack(gentity_t * self, int damage)
 		} else if (self->client->knife_sound == -2) {	// Hit player
 			tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
 			tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
-			if (self->client && level.team_round_going)
+			if (self->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 				self->client->pers.records[REC_KNIFESLASHHITS]++;
 		}
 		self->client->knife_sound = 0;
@@ -1397,7 +1401,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 	int Material;
 
 	// Elder: Statistics tracking
-	if (ent->client && level.team_round_going)
+	if (ent->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 		ent->client->pers.records[REC_SSG3000SHOTS]++;
 
 	VectorMA(muzzle, 8192 * 16, forward, end);
@@ -1634,7 +1638,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->client->accuracy_hits++;
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			ent->client->pers.records[REC_SSG3000HITS]++;
 		//ent->client->ssgHits++;
 	}
@@ -1882,7 +1886,7 @@ qboolean LogAccuracyHit(gentity_t * target, gentity_t * attacker)
 
 	if (target->client->ps.stats[STAT_HEALTH] <= 0) {
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			attacker->client->pers.records[REC_CORPSESHOTS]++;
 		return qfalse;
 	}
