@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/01 18:21:26  jbravo
+// Cleanups and removal of g_RQ3_sniperup
+//
 // Revision 1.22  2002/02/27 01:54:29  jbravo
 // More spectatorfixes and finally stopped all fallingdamage anims and
 // sounds during LCA.
@@ -601,7 +604,6 @@ void EquipPlayer (gentity_t *ent)
 
 	bandolierFactor = grenades = 0;
 
-	ent->client->ps.weapon = ent->client->teamplayWeapon;
 	ent->client->numClips[ WP_PISTOL ] = 1;			// extra clip of ammo for pistol
 	ent->client->ps.ammo[ WP_PISTOL] = RQ3_PISTOL_AMMO;
 	
@@ -612,16 +614,14 @@ void EquipPlayer (gentity_t *ent)
 		bandolierFactor = 1;
 	}
 
-	switch(ent->client->ps.weapon) {
+	switch(ent->client->teamplayWeapon) {
 	case WP_SSG3000:
-		if (g_RQ3_sniperup.integer == 0) {
-			ent->client->ps.weapon = WP_PISTOL;
-		}
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_SSG3000 );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
 		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
+		ent->client->ps.weapon = WP_SSG3000;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -631,6 +631,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
+		ent->client->ps.weapon = WP_MP5;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -640,6 +641,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
+		ent->client->ps.weapon = WP_M3;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -649,6 +651,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
+		ent->client->ps.weapon = WP_M4;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -658,6 +661,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
+		ent->client->ps.weapon = WP_AKIMBO;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
@@ -667,6 +671,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
+		ent->client->ps.weapon = WP_HANDCANNON;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 1;
 		break;
@@ -687,7 +692,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
 		ent->client->uniqueWeapons++;
 	}
-	ent->client->ps.weaponstate = WEAPON_READY;
+	ent->client->ps.weaponstate = WEAPON_RAISING;
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
 	ent->client->uniqueItems = 1;

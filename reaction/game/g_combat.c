@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/03/01 18:21:26  jbravo
+// Cleanups and removal of g_RQ3_sniperup
+//
 // Revision 1.45  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -1349,7 +1352,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// JBravo: FF control
 	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
 		targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
-		!g_friendlyFire.integer)
+		(!g_friendlyFire.integer && level.team_round_going))
 			return;
 
 	// the intermission has allready been qualified for, so don't
@@ -1606,7 +1609,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
 #endif
 // JBravo: more FF tweaks
-			if ( g_friendlyFire.integer == 2 ) {
+			if ( g_friendlyFire.integer == 2 && level.team_round_going ) {
 				return;
 			}
 		}

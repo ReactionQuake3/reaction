@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/03/01 18:21:26  jbravo
+// Cleanups and removal of g_RQ3_sniperup
+//
 // Revision 1.40  2002/02/27 01:54:29  jbravo
 // More spectatorfixes and finally stopped all fallingdamage anims and
 // sounds during LCA.
@@ -1428,8 +1431,8 @@ void ClientSpawn(gentity_t *ent) {
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
 	if(g_gametype.integer != GT_TEAMPLAY) {
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
-	client->numClips[WP_PISTOL] = 0;
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
+		client->numClips[WP_PISTOL] = 0;
 		client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
 	}
 
@@ -1464,8 +1467,8 @@ void ClientSpawn(gentity_t *ent) {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
 		// JBravo: we dont want the endless pistol in TP
 		if(g_gametype.integer != GT_TEAMPLAY) {
-		client->ps.weapon = WP_PISTOL;
-		client->ps.weaponstate = WEAPON_READY;
+			client->ps.weapon = WP_PISTOL;
+			client->ps.weaponstate = WEAPON_READY;
 		}
 	}
 
