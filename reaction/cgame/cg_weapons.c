@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/06/06 00:29:14  blaze
+// got rid of the out of ammo shader
+//
 // Revision 1.77  2002/06/05 09:40:10  niceass
 // tracer fix
 //
@@ -2098,9 +2101,9 @@ void CG_DrawWeaponSelect( void ) {
 		}
 
 		// no ammo cross on top
-		if ( !cg.snap->ps.ammo[ i ] ) {
-			CG_DrawPic( x, y, 32, 32, cgs.media.noammoShader );
-		}
+//		if ( !cg.snap->ps.ammo[ i ] ) {
+//			CG_DrawPic( x, y, 32, 32, cgs.media.noammoShader );
+//		}
 
 		x += 40;
 	}
