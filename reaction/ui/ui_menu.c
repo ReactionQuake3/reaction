@@ -11,38 +11,52 @@ MAIN MENU
 
 #include "ui_local.h"
 
-
 #define ID_SINGLEPLAYER			10
 #define ID_MULTIPLAYER			11
 #define ID_SETUP				12
 #define ID_DEMOS				13
 #define ID_CINEMATICS			14
-#define ID_TEAMARENA		15
+#define ID_TEAMARENA			15
 #define ID_MODS					16
 #define ID_EXIT					17
 
 #define MAIN_BANNER_MODEL				"models/mapobjects/banner/banner5.md3"
 #define MAIN_MENU_VERTICAL_SPACING		34
 
+//Elder: Define button images
+#define RQ3_START_BUTTON				"menu/art/rq3-menu-start.tga"
+#define RQ3_SETUP_BUTTON				"menu/art/rq3-menu-setup.tga"
+#define RQ3_DEMOS_BUTTON				"menu/art/rq3-menu-demos.tga"
+#define RQ3_MODS_BUTTON					"menu/art/rq3-menu-mods.tga"
+#define RQ3_EXIT_BUTTON					"menu/art/rq3-menu-exit.tga"
+#define RQ3_FOCUS_BUTTON				"menu/art/rq3-menu-focus.tga"
 
 typedef struct {
 	menuframework_s	menu;
+//Elder: Systematically replacing text with button pics
 //Blaze: No single player, cinematics, team arena, and banner model
 //	menutext_s		singleplayer;
-	menutext_s		multiplayer;
-	menutext_s		setup;
-	menutext_s		demos;
+//	menutext_s		multiplayer;
+//	menutext_s		setup;
+//	menutext_s		demos;
 //	menutext_s		cinematics;
 //	menutext_s		teamArena;
-	menutext_s		mods;
-	menutext_s		exit;
-
+//	menutext_s		mods;
+//	menutext_s		exit;
 //	qhandle_t		bannerModel;
+
+//Elder: RQ3 Button Images and status text
+	menubitmap_s	rq3_startbutton;
+	menubitmap_s	rq3_setupbutton;
+	menubitmap_s	rq3_demosbutton;
+	menubitmap_s	rq3_modsbutton;
+	menubitmap_s	rq3_exitbutton;
+
+	menutext_s		rq3_statustext;
 } mainmenu_t;
 
 
 static mainmenu_t s_main;
-
 
 /*
 =================
@@ -65,44 +79,84 @@ Main_MenuEvent
 =================
 */
 void Main_MenuEvent (void* ptr, int event) {
-	if( event != QM_ACTIVATED ) {
-		return;
+	//Elder: Added status messages on event focus
+	if ( event == QM_LOSTFOCUS ) {
+		s_main.rq3_statustext.string = "";
+	}
+	else if( event == QM_GOTFOCUS ) {
+		//get menu item id
+		switch( ((menucommon_s*)ptr)->id ) {
+		
+		case ID_MULTIPLAYER:
+			s_main.rq3_statustext.string = "Play Reaction Quake 3";
+			break;
+			
+		case ID_SETUP:
+			s_main.rq3_statustext.string = "Configure Reaction Quake 3";
+			break;	
+		
+		case ID_DEMOS:
+			s_main.rq3_statustext.string = "Playback in-game demos";
+			break;
+		
+		case ID_MODS:
+			s_main.rq3_statustext.string = "Change game modification";
+			break;
+		
+		case ID_EXIT:
+			s_main.rq3_statustext.string = "Exit Reaction Quake 3";
+			break;
+		
+		default:
+			s_main.rq3_statustext.string = "";
+			break;
+		}
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	else if( event == QM_ACTIVATED ) {
+		s_main.rq3_statustext.string = "";
+		switch( ((menucommon_s*)ptr)->id ) {
+
 //Blaze: This case nolonger exists
 //	case ID_SINGLEPLAYER:
 //		UI_SPLevelMenu();
 //		break;
 
-	case ID_MULTIPLAYER:
-		UI_ArenaServersMenu();
-		break;
+		case ID_MULTIPLAYER:
+			UI_ArenaServersMenu();
+			break;
 
-	case ID_SETUP:
-		UI_SetupMenu();
-		break;
+		case ID_SETUP:
+			UI_SetupMenu();
+			break;
 
-	case ID_DEMOS:
-		UI_DemosMenu();
-		break;
+		case ID_DEMOS:
+			UI_DemosMenu();
+			break;
+
 //Blaze: This case nolonger exists
 //	case ID_CINEMATICS:
 //		UI_CinematicsMenu();
 //		break;
 
-	case ID_MODS:
-		UI_ModsMenu();
-		break;
+		case ID_MODS:
+			UI_ModsMenu();
+			break;
+
 //Blaze: This case nolonger exists
 //	case ID_TEAMARENA:
 //		trap_Cvar_Set( "fs_game", "missionpack");
 //		trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
 //		break;
 
-	case ID_EXIT:
-		UI_ConfirmMenu( "EXIT GAME?", NULL, MainMenu_ExitAction );
-		break;
+		case ID_EXIT:
+			UI_ConfirmMenu( "EXIT REACTION?", NULL, MainMenu_ExitAction );
+			break;
+			
+		}
+	}
+	else {
+		return;
 	}
 }
 
@@ -115,6 +169,15 @@ MainMenu_Cache
 void MainMenu_Cache( void ) {
 	//Blaze: removed the banner
 	//s_main.bannerModel = trap_R_RegisterModel( MAIN_BANNER_MODEL );
+	
+	//Elder: cache button images
+	trap_R_RegisterShaderNoMip( RQ3_START_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_DEMOS_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_MODS_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_EXIT_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_FOCUS_BUTTON );
+	
 }
 
 
@@ -182,15 +245,20 @@ static void Main_MenuDraw( void ) {
 
 	trap_R_RenderScene( &refdef );
 */
-	// standard menu drawing
 
+	//Elder: "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+
+	// standard menu drawing
 	Menu_Draw( &s_main.menu );
 
 	if (uis.demoversion) {
 		UI_DrawProportionalString( 320, 372, "DEMO      FOR MATURE AUDIENCES      DEMO", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 400, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	} else {
-		UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
+		//Elder: Nudged slightly lower to accomodate status text
+		UI_DrawString( 320, 464, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	}
 }
 
@@ -222,6 +290,7 @@ static qboolean UI_TeamArenaExists( void ) {
 }
 qboolean trap_VerifyCDKey( const char *key, const char *chksum);
 
+
 /*
 ===============
 UI_MainMenu
@@ -232,6 +301,8 @@ and that local cinematics are killed
 ===============
 */
 void UI_MainMenu( void ) {
+	//Elder: "auto" x-alignment based on number of buttons
+	int		buttonCount = 0;
 	int		y;
 	qboolean teamArena = qfalse;
 	int		style = UI_CENTER | UI_DROPSHADOW;
@@ -256,10 +327,81 @@ void UI_MainMenu( void ) {
 	s_main.menu.fullscreen = qtrue;
 	s_main.menu.wrapAround = qtrue;
 	s_main.menu.showlogo = qtrue;
+	
 	//Blaze: Reaction menu
-	y = 0;
+	y = 12;
+	
+	//Elder: RQ3 Start Button
+	s_main.rq3_startbutton.generic.type			= MTYPE_BITMAP;
+	s_main.rq3_startbutton.generic.name			= RQ3_START_BUTTON;
+	s_main.rq3_startbutton.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_main.rq3_startbutton.generic.id			= ID_MULTIPLAYER;
+	s_main.rq3_startbutton.generic.callback		= Main_MenuEvent; 
+	s_main.rq3_startbutton.generic.x			= (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_main.rq3_startbutton.generic.y			= y;
+	s_main.rq3_startbutton.width				= RQ3_BUTTON_WIDTH;
+	s_main.rq3_startbutton.height				= RQ3_BUTTON_HEIGHT;
+	s_main.rq3_startbutton.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Setup Button
+	s_main.rq3_setupbutton.generic.type			= MTYPE_BITMAP;
+	s_main.rq3_setupbutton.generic.name			= RQ3_SETUP_BUTTON;
+	s_main.rq3_setupbutton.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_main.rq3_setupbutton.generic.id			= ID_SETUP;
+	s_main.rq3_setupbutton.generic.callback		= Main_MenuEvent; 
+	s_main.rq3_setupbutton.generic.x			= (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_main.rq3_setupbutton.generic.y			= y;
+	s_main.rq3_setupbutton.width				= RQ3_BUTTON_WIDTH;
+	s_main.rq3_setupbutton.height				= RQ3_BUTTON_HEIGHT;
+	s_main.rq3_setupbutton.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Demos Button
+	s_main.rq3_demosbutton.generic.type			= MTYPE_BITMAP;
+	s_main.rq3_demosbutton.generic.name			= RQ3_DEMOS_BUTTON;
+	s_main.rq3_demosbutton.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_main.rq3_demosbutton.generic.id			= ID_DEMOS;
+	s_main.rq3_demosbutton.generic.callback		= Main_MenuEvent; 
+	s_main.rq3_demosbutton.generic.x			= (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_main.rq3_demosbutton.generic.y			= y;
+	s_main.rq3_demosbutton.width				= RQ3_BUTTON_WIDTH;
+	s_main.rq3_demosbutton.height				= RQ3_BUTTON_HEIGHT;
+	s_main.rq3_demosbutton.focuspic				= RQ3_FOCUS_BUTTON;
+	
+	//Elder: RQ3 Mods Button
+	s_main.rq3_modsbutton.generic.type			= MTYPE_BITMAP;
+	s_main.rq3_modsbutton.generic.name			= RQ3_MODS_BUTTON;
+	s_main.rq3_modsbutton.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_main.rq3_modsbutton.generic.id			= ID_MODS;
+	s_main.rq3_modsbutton.generic.callback		= Main_MenuEvent; 
+	s_main.rq3_modsbutton.generic.x				= 640 - (RQ3_BUTTON_WIDTH + RQ3_BUTTON_PADDING);
+	s_main.rq3_modsbutton.generic.y				= y;
+	s_main.rq3_modsbutton.width					= RQ3_BUTTON_WIDTH;
+	s_main.rq3_modsbutton.height				= RQ3_BUTTON_HEIGHT;
+	s_main.rq3_modsbutton.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Exit Button
+	s_main.rq3_exitbutton.generic.type			= MTYPE_BITMAP;
+	s_main.rq3_exitbutton.generic.name			= RQ3_EXIT_BUTTON;
+	s_main.rq3_exitbutton.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_main.rq3_exitbutton.generic.id			= ID_EXIT;
+	s_main.rq3_exitbutton.generic.callback		= Main_MenuEvent; 
+	s_main.rq3_exitbutton.generic.x				= 640;
+	s_main.rq3_exitbutton.generic.y				= y;
+	s_main.rq3_exitbutton.width					= RQ3_BUTTON_WIDTH;
+	s_main.rq3_exitbutton.height				= RQ3_BUTTON_HEIGHT;
+	s_main.rq3_exitbutton.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Status Text
+	s_main.rq3_statustext.generic.type 			= MTYPE_TEXT;
+	s_main.rq3_statustext.generic.flags			= QMF_CENTER_JUSTIFY;
+	s_main.rq3_statustext.generic.x 			= RQ3_STATUSBAR_X;
+	s_main.rq3_statustext.generic.y 			= RQ3_STATUSBAR_Y;
+	s_main.rq3_statustext.string 				= "";
+	s_main.rq3_statustext.style 				= UI_CENTER|UI_SMALLFONT;
+	s_main.rq3_statustext.color 				= color_orange;
+	
+	/*Elder: Replaced by RQ3 buttons above
 	//Blaze: This menu nolonger exists
-	/*
 	s_main.singleplayer.generic.type		= MTYPE_PTEXT;
 	s_main.singleplayer.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_main.singleplayer.generic.x			= 320;
@@ -269,7 +411,6 @@ void UI_MainMenu( void ) {
 	s_main.singleplayer.string				= "SINGLE PLAYER";
 	s_main.singleplayer.color				= color_red;
 	s_main.singleplayer.style				= style;
-	*/
 
 	//Blaze: Reaction menu
 	//y += MAIN_MENU_VERTICAL_SPACING;
@@ -283,7 +424,7 @@ void UI_MainMenu( void ) {
 	s_main.multiplayer.string				= "MULTIPLAYER";
 	s_main.multiplayer.color				= color_red;
 	s_main.multiplayer.style				= style;
-
+	
 	//Blaze: Reaction Menu
 	//y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.setup.generic.type				= MTYPE_PTEXT;
@@ -309,7 +450,6 @@ void UI_MainMenu( void ) {
 
 	//y += MAIN_MENU_VERTICAL_SPACING;
 	//Blaze: This menu nolonger exists
-	/*
 	s_main.cinematics.generic.type			= MTYPE_PTEXT;
 	s_main.cinematics.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_main.cinematics.generic.x				= 350;//Blaze: Menu x loc
@@ -319,10 +459,9 @@ void UI_MainMenu( void ) {
 	s_main.cinematics.string				= "CINEMATICS";
 	s_main.cinematics.color					= color_red;
 	s_main.cinematics.style					= style;
-	*/
+	
 	
 	//Blaze: This menu nolonger exists
-	/*
 	if (UI_TeamArenaExists()) {
 		teamArena = qtrue;
 		y += MAIN_MENU_VERTICAL_SPACING;
@@ -336,7 +475,6 @@ void UI_MainMenu( void ) {
 		s_main.teamArena.color					= color_red;
 		s_main.teamArena.style					= style;
 	}
-	*/
 
 	//y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.mods.generic.type			= MTYPE_PTEXT;
@@ -360,19 +498,32 @@ void UI_MainMenu( void ) {
 	s_main.exit.color						= color_red;
 	s_main.exit.style						= style;
 
+	*/
+
+	//Elder: Add RQ3 Stuff
+	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_startbutton );
+	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_setupbutton );
+	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_demosbutton );
+	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_modsbutton );
+	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_exitbutton );
+	
+	Menu_AddItem( &s_main.menu, 	&s_main.rq3_statustext );
+
+	//Elder: Replaced by RQ3 Buttons above
+	//
 	//Blaze: This menu nolonger exists
 	//Menu_AddItem( &s_main.menu,	&s_main.singleplayer );
-	Menu_AddItem( &s_main.menu,	&s_main.multiplayer );
-	Menu_AddItem( &s_main.menu,	&s_main.setup );
-	Menu_AddItem( &s_main.menu,	&s_main.demos );
+	//Menu_AddItem( &s_main.menu,	&s_main.multiplayer );
+	//Menu_AddItem( &s_main.menu,	&s_main.setup );
+	//Menu_AddItem( &s_main.menu,	&s_main.demos );
 	//Blaze: This menu nolonger exists
 	//Menu_AddItem( &s_main.menu,	&s_main.cinematics );
 	//Blaze: This menu nolonger exists
 	//if (teamArena) {
 	//	Menu_AddItem( &s_main.menu,	&s_main.teamArena );
 	//}
-	Menu_AddItem( &s_main.menu,	&s_main.mods );
-	Menu_AddItem( &s_main.menu,	&s_main.exit );             
+	//Menu_AddItem( &s_main.menu,	&s_main.mods );
+	//Menu_AddItem( &s_main.menu,	&s_main.exit );             
 
 	trap_Key_SetCatcher( KEYCATCH_UI );
 	uis.menusp = 0;

@@ -2,12 +2,14 @@
 //
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"	
-#define ART_FIGHT0			"menu/art/load_0"
-#define ART_FIGHT1			"menu/art/load_1"
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
+//Elder: changed filenames
+#define ART_BACK0			"menu/art/rq3-menu-back.tga"
+#define ART_BACK1			"menu/art/rq3-menu-back-focus.tga"	
+#define ART_FIGHT0			"menu/art/rq3-menu-go.tga"
+#define ART_FIGHT1			"menu/art/rq3-menu-go-focus.tga"
+//Elder: removed
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
 
 #define MAX_MODS			64
 #define NAMEBUFSIZE			( MAX_MODS * 48 )
@@ -17,6 +19,9 @@
 #define ID_GO				11
 #define ID_LIST				12
 
+//Elder: RQ3 assets
+#define RQ3_MODS_ICON		"menu/art/rq3-menu-mods.tga"
+#define RQ3_MODS_TITLE		"menu/art/rq3-title-mods.jpg"
 
 typedef struct {
 	menuframework_s	menu;
@@ -25,11 +30,12 @@ typedef struct {
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
-	menutext_s      multim;
-	menutext_s		setupm;
-	menutext_s		demom;
-	menutext_s		modsm;
-	menutext_s		exitm;
+//Elder: Don't need these anymore
+//	menutext_s      multim;
+//	menutext_s		setupm;
+//	menutext_s		demom;
+//	menutext_s		modsm;
+//	menutext_s		exitm;
 
 	menulist_s		list;
 
@@ -44,6 +50,9 @@ typedef struct {
 
 	char			*descriptionList[MAX_MODS];
 	char			*fs_gameList[MAX_MODS];
+	
+	menubitmap_s	rq3_modsicon;
+	menubitmap_s	rq3_modstitle;
 } mods_t;
 
 static mods_t	s_mods;
@@ -163,6 +172,21 @@ static void UI_Mods_LoadMods( void ) {
 	}
 }
 
+/*
+===============
+Added by Elder
+UI_Mods_MenuDraw
+===============
+*/
+static void UI_Mods_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	
+	// standard menu drawing
+	Menu_Draw( &s_mods.menu );
+}
 
 /*
 ===============
@@ -174,6 +198,7 @@ static void UI_Mods_MenuInit( void ) {
 
 	memset( &s_mods, 0 ,sizeof(mods_t) );
 	UI_ModsMenu_Cache();//Blaze: Moved below the memset
+	s_mods.menu.draw = UI_Mods_MenuDraw;
 	s_mods.menu.wrapAround = qtrue;
 	s_mods.menu.fullscreen = qtrue;//Blaze: full screen
 	s_mods.menu.showlogo = qtrue;//Blaze: Show background logo
@@ -202,6 +227,8 @@ static void UI_Mods_MenuInit( void ) {
 	s_mods.framer.width				= 256;
 	s_mods.framer.height			= 334;
 */
+
+/* Elder: Don't need these either
 	s_mods.multim.generic.type	= MTYPE_PTEXT;
 	s_mods.multim.generic.flags = QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_mods.multim.generic.x		= 120;
@@ -241,27 +268,49 @@ static void UI_Mods_MenuInit( void ) {
 	s_mods.exitm.string			= "EXIT";
 	s_mods.exitm.color			= color_red;
 	s_mods.exitm.style			= UI_CENTER | UI_DROPSHADOW;
+*/
 
-	s_mods.back.generic.type		= MTYPE_BITMAP;
-	s_mods.back.generic.name		= ART_BACK0;
-	s_mods.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	s_mods.back.generic.id			= ID_BACK;
-	s_mods.back.generic.callback	= UI_Mods_MenuEvent;
-	s_mods.back.generic.x			= 0;
-	s_mods.back.generic.y			= 480-64;
-	s_mods.back.width				= 128;
-	s_mods.back.height				= 64;
-	s_mods.back.focuspic			= ART_BACK1;
+	//Elder: Info for mods icon
+	s_mods.rq3_modsicon.generic.type				= MTYPE_BITMAP;
+	s_mods.rq3_modsicon.generic.name				= RQ3_MODS_ICON;
+	s_mods.rq3_modsicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_mods.rq3_modsicon.generic.x					= 0;
+	s_mods.rq3_modsicon.generic.y					= 4;
+	s_mods.rq3_modsicon.width						= RQ3_ICON_WIDTH;
+	s_mods.rq3_modsicon.height						= RQ3_ICON_HEIGHT;
 
+	//Elder: Info for mods title
+	s_mods.rq3_modstitle.generic.type				= MTYPE_BITMAP;
+	s_mods.rq3_modstitle.generic.name				= RQ3_MODS_TITLE;
+	s_mods.rq3_modstitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_mods.rq3_modstitle.generic.x					= 64;
+	s_mods.rq3_modstitle.generic.y					= 12;
+	s_mods.rq3_modstitle.width						= 256;
+	s_mods.rq3_modstitle.height						= 32;
+
+	
+	//Back button
+	s_mods.back.generic.type				= MTYPE_BITMAP;
+	s_mods.back.generic.name				= ART_BACK0;
+	s_mods.back.generic.flags				= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_mods.back.generic.id					= ID_BACK;
+	s_mods.back.generic.callback			= UI_Mods_MenuEvent;
+	s_mods.back.generic.x					= 8;
+	s_mods.back.generic.y					= 480-44;
+	s_mods.back.width						= 32;
+	s_mods.back.height						= 32;
+	s_mods.back.focuspic					= ART_BACK1;
+	
+	//Elder: some metric changes
 	s_mods.go.generic.type			= MTYPE_BITMAP;
 	s_mods.go.generic.name			= ART_FIGHT0;
 	s_mods.go.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_mods.go.generic.id			= ID_GO;
 	s_mods.go.generic.callback		= UI_Mods_MenuEvent;
-	s_mods.go.generic.x				= 640;
-	s_mods.go.generic.y				= 480-64;
-	s_mods.go.width					= 128;
-	s_mods.go.height				= 64;
+	s_mods.go.generic.x				= 632;
+	s_mods.go.generic.y				= 480-44;
+	s_mods.go.width					= 64;
+	s_mods.go.height				= 32;
 	s_mods.go.focuspic				= ART_FIGHT1;
 
 	// scan for mods
@@ -270,7 +319,8 @@ static void UI_Mods_MenuInit( void ) {
 	s_mods.list.generic.callback	= UI_Mods_MenuEvent;
 	s_mods.list.generic.id			= ID_LIST;
 	s_mods.list.generic.x			= 320;
-	s_mods.list.generic.y			= 130;
+	//Elder: Readjusted height
+	s_mods.list.generic.y			= 64;
 	s_mods.list.width				= 48;
 	s_mods.list.height				= 14;
 
@@ -280,11 +330,16 @@ static void UI_Mods_MenuInit( void ) {
 //	Menu_AddItem( &s_mods.menu, &s_mods.banner );
 //	Menu_AddItem( &s_mods.menu, &s_mods.framel );
 //	Menu_AddItem( &s_mods.menu, &s_mods.framer );
-	Menu_AddItem( &s_mods.menu, &s_mods.multim );
-	Menu_AddItem( &s_mods.menu, &s_mods.setupm );
-	Menu_AddItem( &s_mods.menu, &s_mods.demom );
-	Menu_AddItem( &s_mods.menu, &s_mods.modsm );
-	Menu_AddItem( &s_mods.menu, &s_mods.exitm );
+//Elder: Don't need these
+//	Menu_AddItem( &s_mods.menu, &s_mods.multim );
+//	Menu_AddItem( &s_mods.menu, &s_mods.setupm );
+//	Menu_AddItem( &s_mods.menu, &s_mods.demom );
+//	Menu_AddItem( &s_mods.menu, &s_mods.modsm );
+//	Menu_AddItem( &s_mods.menu, &s_mods.exitm );
+
+	//Elder: Added
+	Menu_AddItem( &s_mods.menu, &s_mods.rq3_modsicon );
+	Menu_AddItem( &s_mods.menu, &s_mods.rq3_modstitle );
 
 	Menu_AddItem( &s_mods.menu, &s_mods.list );
 	Menu_AddItem( &s_mods.menu, &s_mods.back );
@@ -301,8 +356,12 @@ void UI_ModsMenu_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( ART_FIGHT0 );
 	trap_R_RegisterShaderNoMip( ART_FIGHT1 );
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//Elder: Removed
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//Elder: Added
+	trap_R_RegisterShaderNoMip( RQ3_MODS_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_MODS_TITLE );
 }
 
 

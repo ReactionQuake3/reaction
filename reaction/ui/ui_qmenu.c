@@ -11,6 +11,8 @@ sfxHandle_t menu_in_sound;
 sfxHandle_t menu_move_sound;
 sfxHandle_t menu_out_sound;
 sfxHandle_t menu_buzz_sound;
+//Elder: added
+sfxHandle_t menu_type_sound;
 sfxHandle_t menu_null_sound;
 //sfxHandle_t weaponChangeSound;
 
@@ -29,11 +31,16 @@ vec4_t color_orange	        = {1.00f, 0.43f, 0.00f, 1.00f};
 vec4_t color_red		    = {1.00, 0.00, 0.00, 1.00};
 vec4_t color_dim		    = {0.00, 0.00, 0.00, 0.25};
 
+//Elder: Added new colors
+vec4_t color_deepdim		= {0.00, 0.00, 0.00, 0.75};
+
 // current color scheme
 vec4_t pulse_color          = {1.00, 1.00, 1.00, 1.00};
 vec4_t text_color_disabled  = {0.50, 0.50, 0.50, 1.00};	// light gray
 vec4_t text_color_normal	= {1.00, 0.43f, 0.00, 1.00};	// light orange
-vec4_t text_color_highlight = {1.00, 1.00, 0.00, 1.00};	// bright yellow
+//Elder: modified
+vec4_t text_color_highlight = {1.00, 1.00, 1.00, 1.00};	// bright white
+//vec4_t text_color_highlight = {1.00, 1.00, 0.00, 1.00};	// bright yellow
 vec4_t listbar_color        = {1.00, 0.43f, 0.00, 0.30f};	// transluscent orange
 vec4_t text_color_status    = {1.00, 1.00, 1.00, 1.00};	// bright white	
 
@@ -1701,16 +1708,18 @@ void Menu_Cache( void )
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
 		// the blend effect turns to shit with the normal 
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menubackRagePro" );
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "rq3-menubackRagePro" );
 	} else {
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback" );
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "rq3-menuback" );
 	}
-	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menubacknologo" );
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "rq3-menubacknologo" );
 
 	menu_in_sound	= trap_S_RegisterSound( "sound/misc/menu1.wav", qfalse );
 	menu_move_sound	= trap_S_RegisterSound( "sound/misc/menu2.wav", qfalse );
 	menu_out_sound	= trap_S_RegisterSound( "sound/misc/menu3.wav", qfalse );
 	menu_buzz_sound	= trap_S_RegisterSound( "sound/misc/menu4.wav", qfalse );
+	//Elder: added
+	menu_type_sound	= trap_S_RegisterSound( "sound/misc/menu_type.wav", qfalse );
 	weaponChangeSound	= trap_S_RegisterSound( "sound/weapons/change.wav", qfalse );
 
 	// need a nonzero sound, make an empty sound for this

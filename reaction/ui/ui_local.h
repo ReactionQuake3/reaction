@@ -124,6 +124,17 @@ extern vmCvar_t	ui_cdkeychecked;
 #define QM_LOSTFOCUS			2
 #define QM_ACTIVATED			3
 
+// Elder: RQ3 Metric Definitions
+#define	RQ3_ICON_WIDTH			48
+#define	RQ3_ICON_HEIGHT			48
+#define RQ3_BUTTON_WIDTH		32
+#define RQ3_BUTTON_HEIGHT		32
+#define RQ3_STATUSBAR_X			320
+#define RQ3_STATUSBAR_Y			430
+//Elder: Padding 8 pixels on each side
+#define RQ3_BUTTON_PADDING		8
+
+
 typedef struct _tag_menuframework
 {
 	int	cursor;
@@ -251,6 +262,8 @@ extern sfxHandle_t	menu_move_sound;
 extern sfxHandle_t	menu_out_sound;
 extern sfxHandle_t	menu_buzz_sound;
 extern sfxHandle_t	menu_null_sound;
+//Elder: added
+extern sfxHandle_t	menu_type_sound;
 extern sfxHandle_t	weaponChangeSound;
 extern vec4_t		menu_text_color;
 extern vec4_t		menu_grayed_color;
@@ -266,6 +279,10 @@ extern vec4_t		color_blue;
 extern vec4_t		color_orange;
 extern vec4_t		color_red;
 extern vec4_t		color_dim;
+
+//Elder: added colours
+extern vec4_t		color_deepdim;
+
 extern vec4_t		name_color;
 extern vec4_t		list_color;
 extern vec4_t		listbar_color;

@@ -1,4 +1,5 @@
-set path=C:\quake3\bin_nt;%PATH%
+rem Vic removed path set
+rem set path=C:\quake3\bin_nt;%PATH%
 rem The following line is to circumvent MS Platform SDK install crap
 set include=
 mkdir vm
@@ -93,7 +94,6 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc% ../ui_mods.c
 @if errorlevel 1 goto quit
-
 
 q3asm -f ../ui
 :quit

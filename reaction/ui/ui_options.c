@@ -1,3 +1,4 @@
+//Elder note: It appears that Quake 3 doesn't use this menu anymore.
 /*
 =======================================================================
 
@@ -8,9 +9,9 @@ SYSTEM CONFIGURATION MENU
 
 #include "ui_local.h"
 
-
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
+//Elder: removed
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
 #define ART_BACK0			"menu/art/back_0"
 #define ART_BACK1			"menu/art/back_1"
 
@@ -29,11 +30,12 @@ typedef struct {
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
-	menutext_s		multim;
-	menutext_s		setupm;
-	menutext_s		demom;
-	menutext_s		modsm;
-	menutext_s		exitm;
+//Elder: removed for new interface
+//	menutext_s		multim;
+//	menutext_s		setupm;
+//	menutext_s		demom;
+//	menutext_s		modsm;
+//	menutext_s		exitm;
 
 	menutext_s		graphics;
 	menutext_s		display;
@@ -85,8 +87,9 @@ SystemConfig_Cache
 ===============
 */
 void SystemConfig_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//Elder: removed
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 }
@@ -138,6 +141,7 @@ void Options_MenuInit( void ) {
 	s_options.framer.width  	   = 256;
 	s_options.framer.height  	   = 334;
 */
+/*Elder: removed
 	s_options.multim.generic.type	= MTYPE_PTEXT;
 	s_options.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_options.multim.generic.x		= 120;
@@ -177,7 +181,7 @@ void Options_MenuInit( void ) {
 	s_options.exitm.string			= "EXIT";
 	s_options.exitm.color			= color_red;
 	s_options.exitm.style			= UI_CENTER | UI_DROPSHADOW;
-
+*/
 	y = 168;
 	s_options.graphics.generic.type		= MTYPE_PTEXT;
 	s_options.graphics.generic.flags	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -236,11 +240,12 @@ void Options_MenuInit( void ) {
 //	Menu_AddItem( &s_options.menu, ( void * ) &s_options.banner );
 //	Menu_AddItem( &s_options.menu, ( void * ) &s_options.framel );
 //	Menu_AddItem( &s_options.menu, ( void * ) &s_options.framer );
-	Menu_AddItem( &s_options.menu, &s_options.multim );
-	Menu_AddItem( &s_options.menu, &s_options.setupm );
-	Menu_AddItem( &s_options.menu, &s_options.demom );
-	Menu_AddItem( &s_options.menu, &s_options.modsm );
-	Menu_AddItem( &s_options.menu, &s_options.exitm );
+//Elder: removed
+//	Menu_AddItem( &s_options.menu, &s_options.multim );
+//	Menu_AddItem( &s_options.menu, &s_options.setupm );
+//	Menu_AddItem( &s_options.menu, &s_options.demom );
+//	Menu_AddItem( &s_options.menu, &s_options.modsm );
+//	Menu_AddItem( &s_options.menu, &s_options.exitm );
 	Menu_AddItem( &s_options.menu, ( void * ) &s_options.graphics );
 	Menu_AddItem( &s_options.menu, ( void * ) &s_options.display );
 	Menu_AddItem( &s_options.menu, ( void * ) &s_options.sound );

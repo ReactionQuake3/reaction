@@ -11,13 +11,14 @@ DEMOS MENU
 
 #include "ui_local.h"
 
-
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"	
-#define ART_GO0				"menu/art/play_0"
-#define ART_GO1				"menu/art/play_1"
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
+//Elder: changed to RQ3 graphics
+#define ART_BACK0			"menu/art/rq3-menu-back.tga"
+#define ART_BACK1			"menu/art/rq3-menu-back-focus.tga"	
+#define ART_GO0				"menu/art/rq3-menu-play.tga"
+#define ART_GO1				"menu/art/rq3-menu-play-focus.tga"
+//Elder: removed
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
 #define ART_ARROWS			"menu/art/arrows_horz_0"
 #define ART_ARROWLEFT		"menu/art/arrows_horz_left"
 #define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
@@ -34,6 +35,9 @@ DEMOS MENU
 #define ARROWS_WIDTH		128
 #define ARROWS_HEIGHT		48
 
+//Elder: RQ3 stuff
+#define RQ3_DEMOS_ICON		"menu/art/rq3-menu-demos.tga"
+#define RQ3_DEMOS_TITLE		"menu/art/rq3-title-demos.tga"
 
 typedef struct {
 	menuframework_s	menu;
@@ -42,11 +46,12 @@ typedef struct {
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
-	menutext_s		multim;
-	menutext_s		setupm;
-	menutext_s		demom;
-	menutext_s		modsm;
-	menutext_s		exitm;
+//Elder: Removed for new interface
+//	menutext_s		multim;
+//	menutext_s		setupm;
+//	menutext_s		demom;
+//	menutext_s		modsm;
+//	menutext_s		exitm;
 
 	menulist_s		list;
 
@@ -55,6 +60,9 @@ typedef struct {
 	menubitmap_s	right;
 	menubitmap_s	back;
 	menubitmap_s	go;
+
+	menubitmap_s	rq3_demosicon;
+	menubitmap_s	rq3_demostitle;
 
 	int				numDemos;
 	char			names[NAMEBUFSIZE];
@@ -108,6 +116,22 @@ static sfxHandle_t UI_DemosMenu_Key( int key ) {
 	return Menu_DefaultKey( &s_demos.menu, key );
 }
 
+/*
+===============
+Added by Elder
+Demos_MenuDraw
+===============
+*/
+static void Demos_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	
+	// standard menu drawing
+	Menu_Draw( &s_demos.menu );
+}
+
 
 /*
 ===============
@@ -123,7 +147,7 @@ static void Demos_MenuInit( void ) {
 	s_demos.menu.key = UI_DemosMenu_Key;
 
 	Demos_Cache();
-
+	s_demos.menu.draw = Demos_MenuDraw;
 	s_demos.menu.fullscreen = qtrue;
 	s_demos.menu.wrapAround = qtrue;
 	s_demos.menu.showlogo = qtrue;//Blaze: Show Background logo
@@ -153,6 +177,7 @@ static void Demos_MenuInit( void ) {
 	s_demos.framer.width			= 256;
 	s_demos.framer.height			= 334;
 */
+/*Elder: Removed for new interface
 	s_demos.multim.generic.type		= MTYPE_PTEXT;
 	s_demos.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_demos.multim.generic.x		= 120;
@@ -192,20 +217,38 @@ static void Demos_MenuInit( void ) {
 	s_demos.exitm.string			= "EXIT";
 	s_demos.exitm.color				= color_red;
 	s_demos.exitm.style				= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for demos icon
+	s_demos.rq3_demosicon.generic.type				= MTYPE_BITMAP;
+	s_demos.rq3_demosicon.generic.name				= RQ3_DEMOS_ICON;
+	s_demos.rq3_demosicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_demos.rq3_demosicon.generic.x					= 0;
+	s_demos.rq3_demosicon.generic.y					= 4;
+	s_demos.rq3_demosicon.width						= RQ3_ICON_WIDTH;
+	s_demos.rq3_demosicon.height					= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for demos title
+	s_demos.rq3_demostitle.generic.type				= MTYPE_BITMAP;
+	s_demos.rq3_demostitle.generic.name				= RQ3_DEMOS_TITLE;
+	s_demos.rq3_demostitle.generic.flags			= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_demos.rq3_demostitle.generic.x				= 64;
+	s_demos.rq3_demostitle.generic.y				= 12;
+	s_demos.rq3_demostitle.width					= 256;
+	s_demos.rq3_demostitle.height					= 32;
 
 	s_demos.arrows.generic.type		= MTYPE_BITMAP;
 	s_demos.arrows.generic.name		= ART_ARROWS;
 	s_demos.arrows.generic.flags	= QMF_INACTIVE;
 	s_demos.arrows.generic.x		= 320-ARROWS_WIDTH/2;
-	s_demos.arrows.generic.y		= 400;
+	s_demos.arrows.generic.y		= 430;
 	s_demos.arrows.width			= ARROWS_WIDTH;
 	s_demos.arrows.height			= ARROWS_HEIGHT;
 
 	s_demos.left.generic.type		= MTYPE_BITMAP;
 	s_demos.left.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
 	s_demos.left.generic.x			= 320-ARROWS_WIDTH/2;
-	s_demos.left.generic.y			= 400;
+	s_demos.left.generic.y			= 430;
 	s_demos.left.generic.id			= ID_LEFT;
 	s_demos.left.generic.callback	= Demos_MenuEvent;
 	s_demos.left.width				= ARROWS_WIDTH/2;
@@ -215,7 +258,7 @@ static void Demos_MenuInit( void ) {
 	s_demos.right.generic.type		= MTYPE_BITMAP;
 	s_demos.right.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
 	s_demos.right.generic.x			= 320;
-	s_demos.right.generic.y			= 400;
+	s_demos.right.generic.y			= 430;
 	s_demos.right.generic.id		= ID_RIGHT;
 	s_demos.right.generic.callback	= Demos_MenuEvent;
 	s_demos.right.width				= ARROWS_WIDTH/2;
@@ -227,10 +270,10 @@ static void Demos_MenuInit( void ) {
 	s_demos.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_demos.back.generic.id			= ID_BACK;
 	s_demos.back.generic.callback	= Demos_MenuEvent;
-	s_demos.back.generic.x			= 0;
-	s_demos.back.generic.y			= 480-64;
-	s_demos.back.width				= 128;
-	s_demos.back.height				= 64;
+	s_demos.back.generic.x			= 8;
+	s_demos.back.generic.y			= 480-44;
+	s_demos.back.width				= 32;
+	s_demos.back.height				= 32;
 	s_demos.back.focuspic			= ART_BACK1;
 
 	s_demos.go.generic.type			= MTYPE_BITMAP;
@@ -238,18 +281,18 @@ static void Demos_MenuInit( void ) {
 	s_demos.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_demos.go.generic.id			= ID_GO;
 	s_demos.go.generic.callback		= Demos_MenuEvent;
-	s_demos.go.generic.x			= 640;
-	s_demos.go.generic.y			= 480-64;
-	s_demos.go.width				= 128;
-	s_demos.go.height				= 64;
+	s_demos.go.generic.x			= 635;
+	s_demos.go.generic.y			= 480-44;
+	s_demos.go.width				= 32;
+	s_demos.go.height				= 32;
 	s_demos.go.focuspic				= ART_GO1;
 
 	s_demos.list.generic.type		= MTYPE_SCROLLLIST;
 	s_demos.list.generic.flags		= QMF_PULSEIFFOCUS;
 	s_demos.list.generic.callback	= Demos_MenuEvent;
 	s_demos.list.generic.id			= ID_LIST;
-	s_demos.list.generic.x			= 118;
-	s_demos.list.generic.y			= 130;
+	s_demos.list.generic.x			= 100;
+	s_demos.list.generic.y			= 64;
 	s_demos.list.width				= 16;
 	s_demos.list.height				= 14;
 	s_demos.list.numitems			= trap_FS_GetFileList( "demos", "dm3", s_demos.names, NAMEBUFSIZE );
@@ -283,11 +326,15 @@ static void Demos_MenuInit( void ) {
 //	Menu_AddItem( &s_demos.menu, &s_demos.banner );
 //	Menu_AddItem( &s_demos.menu, &s_demos.framel );
 //	Menu_AddItem( &s_demos.menu, &s_demos.framer );
-	Menu_AddItem( &s_demos.menu, &s_demos.multim );
-	Menu_AddItem( &s_demos.menu, &s_demos.setupm );
-	Menu_AddItem( &s_demos.menu, &s_demos.demom );
-	Menu_AddItem( &s_demos.menu, &s_demos.modsm );
-	Menu_AddItem( &s_demos.menu, &s_demos.exitm );
+//Elder: removed for new interface
+//	Menu_AddItem( &s_demos.menu, &s_demos.multim );
+//	Menu_AddItem( &s_demos.menu, &s_demos.setupm );
+//	Menu_AddItem( &s_demos.menu, &s_demos.demom );
+//	Menu_AddItem( &s_demos.menu, &s_demos.modsm );
+//	Menu_AddItem( &s_demos.menu, &s_demos.exitm );
+//Elder: new UI stuff
+	Menu_AddItem( &s_demos.menu, &s_demos.rq3_demosicon );
+	Menu_AddItem( &s_demos.menu, &s_demos.rq3_demostitle );
 
 	Menu_AddItem( &s_demos.menu, &s_demos.list );
 	Menu_AddItem( &s_demos.menu, &s_demos.arrows );
@@ -307,11 +354,15 @@ void Demos_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( ART_GO0 );
 	trap_R_RegisterShaderNoMip( ART_GO1 );
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//Elder: removed
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_ARROWS );
 	trap_R_RegisterShaderNoMip( ART_ARROWLEFT );
 	trap_R_RegisterShaderNoMip( ART_ARROWRIGHT );
+	//Elder: RQ3 stuff
+	trap_R_RegisterShaderNoMip( RQ3_DEMOS_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_DEMOS_TITLE );
 }
 
 /*

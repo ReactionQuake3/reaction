@@ -10,11 +10,11 @@ DISPLAY OPTIONS MENU
 
 #include "ui_local.h"
 
-
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
+//Elder: removed
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
+#define ART_BACK0			"menu/art/rq3-menu-back.tga"
+#define ART_BACK1			"menu/art/rq3-menu-back-focus.tga"
 
 #define ID_GRAPHICS			10
 #define ID_DISPLAY			11
@@ -23,7 +23,17 @@ DISPLAY OPTIONS MENU
 #define ID_BRIGHTNESS		14
 #define ID_SCREENSIZE		15
 #define ID_BACK				16
+//Elder: new options
+#define ID_OVERBRIGHT		17
 
+//Elder: RQ3 stuff
+#define RQ3_SYSTEM_ICON		"menu/art/rq3-setup-system.jpg"
+#define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.tga"
+#define RQ3_FOCUS_BUTTON	"menu/art/rq3-menu-focus.tga"
+#define RQ3_GRAPHICS_BUTTON	"menu/art/rq3-system-graphics.tga"
+#define RQ3_DISPLAY_BUTTON	"menu/art/rq3-system-display.tga"
+#define RQ3_SOUND_BUTTON	"menu/art/rq3-system-sound.tga"
+#define RQ3_NETWORK_BUTTON	"menu/art/rq3-system-network.tga"
 
 typedef struct {
 	menuframework_s	menu;
@@ -31,16 +41,29 @@ typedef struct {
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
-	menutext_s		multim;
-	menutext_s		setupm;
-	menutext_s		demom;
-	menutext_s		modsm;
-	menutext_s		exitm;
+//Elder: removed
+//	menutext_s		multim;
+//	menutext_s		setupm;
+//	menutext_s		demom;
+//	menutext_s		modsm;
+//	menutext_s		exitm;
 
-	menutext_s		graphics;
-	menutext_s		display;
-	menutext_s		sound;
-	menutext_s		network;
+//Elder: RQ3 stuff	
+	menubitmap_s	rq3_setuptitle;
+	menubitmap_s	rq3_systemicon;
+	menubitmap_s	rq3_graphics;
+	menubitmap_s	rq3_display;
+	menubitmap_s	rq3_sound;
+	menubitmap_s	rq3_network;
+	menutext_s		rq3_statustext;
+
+	menuradiobutton_s	rq3_overbright;
+
+//Elder: removed
+//	menutext_s		graphics;
+//	menutext_s		display;
+//	menutext_s		sound;
+//	menutext_s		network;
 
 	menuslider_s	brightness;
 	menuslider_s	screensize;
@@ -57,43 +80,107 @@ UI_DisplayOptionsMenu_Event
 =================
 */
 static void UI_DisplayOptionsMenu_Event( void* ptr, int event ) {
-	if( event != QM_ACTIVATED ) {
+	//Elder: for status bar
+	if( event == QM_LOSTFOCUS ) {
+		displayOptionsInfo.rq3_statustext.string = "";
 		return;
 	}
+	else if ( event == QM_GOTFOCUS ) {
+		switch( ((menucommon_s*)ptr)->id ) {
+		case ID_GRAPHICS:
+			displayOptionsInfo.rq3_statustext.string = "Change graphics settings";
+			break;
 
-	switch( ((menucommon_s*)ptr)->id ) {
-	case ID_GRAPHICS:
-		UI_PopMenu();
-		UI_GraphicsOptionsMenu();
-		break;
+		case ID_DISPLAY:
+			displayOptionsInfo.rq3_statustext.string = "Change display settings";
+			break;
 
-	case ID_DISPLAY:
-		break;
-
-	case ID_SOUND:
-		UI_PopMenu();
-		UI_SoundOptionsMenu();
-		break;
-
-	case ID_NETWORK:
-		UI_PopMenu();
-		UI_NetworkOptionsMenu();
-		break;
-
-	case ID_BRIGHTNESS:
-		trap_Cvar_SetValue( "r_gamma", displayOptionsInfo.brightness.curvalue / 10.0f );
-		break;
+		case ID_SOUND:
+			displayOptionsInfo.rq3_statustext.string = "Change sound settings";
+			break;
 	
-	case ID_SCREENSIZE:
-		trap_Cvar_SetValue( "cg_viewsize", displayOptionsInfo.screensize.curvalue * 10 );
-		break;
+		case ID_NETWORK:
+			displayOptionsInfo.rq3_statustext.string = "Change network settings";
+			break;
 
-	case ID_BACK:
-		UI_PopMenu();
-		break;
+		case ID_BRIGHTNESS:
+			displayOptionsInfo.rq3_statustext.string = "Adjust gamma correction";
+			break;
+		
+		case ID_SCREENSIZE:
+			displayOptionsInfo.rq3_statustext.string = "Adjust in-game screen size";
+			break;
+		
+		case ID_BACK:
+			displayOptionsInfo.rq3_statustext.string = "Return to setup menu";
+			break;
+
+		//Elder: added
+		case ID_OVERBRIGHT:
+			displayOptionsInfo.rq3_statustext.string = "Toggle over-bright bits (recommended: off)";
+			break;
+		
+		default:
+			displayOptionsInfo.rq3_statustext.string = "";
+			break;
+		}
+	}
+	else if( event == QM_ACTIVATED ) {
+		switch( ((menucommon_s*)ptr)->id ) {
+		
+		case ID_GRAPHICS:
+			UI_PopMenu();
+			UI_GraphicsOptionsMenu();
+			break;
+
+		case ID_DISPLAY:
+			break;
+
+		case ID_SOUND:
+			UI_PopMenu();
+			UI_SoundOptionsMenu();
+			break;
+
+		case ID_NETWORK:
+			UI_PopMenu();
+			UI_NetworkOptionsMenu();
+			break;
+
+		case ID_BRIGHTNESS:
+			trap_Cvar_SetValue( "r_gamma", displayOptionsInfo.brightness.curvalue / 10.0f );
+			break;
+	
+		case ID_SCREENSIZE:
+			trap_Cvar_SetValue( "cg_viewsize", displayOptionsInfo.screensize.curvalue * 10 );
+			break;
+		
+		//Elder: added
+		case ID_OVERBRIGHT:
+			trap_Cvar_SetValue( "r_overBrightBits", displayOptionsInfo.rq3_overbright.curvalue);
+			break;
+		
+		case ID_BACK:
+			UI_PopMenu();
+			break;
+		}
 	}
 }
 
+/*
+===============
+Added by Elder
+UI_NetworkOptionsMenu_Draw
+===============
+*/
+static void UI_DisplayOptionsMenu_Draw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	
+	// standard menu drawing
+	Menu_Draw( &displayOptionsInfo.menu );
+}
 
 /*
 ===============
@@ -101,11 +188,13 @@ UI_DisplayOptionsMenu_Init
 ===============
 */
 static void UI_DisplayOptionsMenu_Init( void ) {
-	int		y;
+	int		y = 12;
+	int		buttonCount = 0;
 
 	memset( &displayOptionsInfo, 0, sizeof(displayOptionsInfo) );
 
 	UI_DisplayOptionsMenu_Cache();
+	displayOptionsInfo.menu.draw	   = UI_DisplayOptionsMenu_Draw;
 	displayOptionsInfo.menu.wrapAround = qtrue;
 	displayOptionsInfo.menu.fullscreen = qtrue;
 	displayOptionsInfo.menu.showlogo   = qtrue;
@@ -134,6 +223,7 @@ static void UI_DisplayOptionsMenu_Init( void ) {
 	displayOptionsInfo.framer.width				= 256;
 	displayOptionsInfo.framer.height			= 334;
 */
+/* Elder: not needed anymore
 	displayOptionsInfo.multim.generic.type	= MTYPE_PTEXT;
 	displayOptionsInfo.multim.generic.flags = QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	displayOptionsInfo.multim.generic.x		= 120;
@@ -173,8 +263,84 @@ static void UI_DisplayOptionsMenu_Init( void ) {
 	displayOptionsInfo.exitm.string			= "EXIT";
 	displayOptionsInfo.exitm.color			= color_red;
 	displayOptionsInfo.exitm.style			= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for system icon
+	displayOptionsInfo.rq3_systemicon.generic.type				= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_systemicon.generic.name				= RQ3_SYSTEM_ICON;
+	displayOptionsInfo.rq3_systemicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	displayOptionsInfo.rq3_systemicon.generic.x					= 0;
+	displayOptionsInfo.rq3_systemicon.generic.y					= 4;
+	displayOptionsInfo.rq3_systemicon.width						= RQ3_ICON_WIDTH;
+	displayOptionsInfo.rq3_systemicon.height					= RQ3_ICON_HEIGHT;
 
+	//Elder: Info for setup title
+	displayOptionsInfo.rq3_setuptitle.generic.type				= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_setuptitle.generic.name				= RQ3_SETUP_TITLE;
+	displayOptionsInfo.rq3_setuptitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	displayOptionsInfo.rq3_setuptitle.generic.x					= 64;
+	displayOptionsInfo.rq3_setuptitle.generic.y					= 12;
+	displayOptionsInfo.rq3_setuptitle.width						= 256;
+	displayOptionsInfo.rq3_setuptitle.height					= 32;
+
+	//Elder: RQ3 Graphics Button
+	displayOptionsInfo.rq3_graphics.generic.type		= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_graphics.generic.name		= RQ3_GRAPHICS_BUTTON;
+	displayOptionsInfo.rq3_graphics.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	displayOptionsInfo.rq3_graphics.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	displayOptionsInfo.rq3_graphics.generic.y			= y;
+	displayOptionsInfo.rq3_graphics.generic.id			= ID_GRAPHICS;
+	displayOptionsInfo.rq3_graphics.generic.callback	= UI_DisplayOptionsMenu_Event;
+	displayOptionsInfo.rq3_graphics.width				= RQ3_BUTTON_WIDTH;
+	displayOptionsInfo.rq3_graphics.height				= RQ3_BUTTON_HEIGHT;
+	displayOptionsInfo.rq3_graphics.focuspic			= RQ3_FOCUS_BUTTON;
+	
+	//Elder: RQ3 Display Button
+	displayOptionsInfo.rq3_display.generic.type			= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_display.generic.name			= RQ3_DISPLAY_BUTTON;
+	displayOptionsInfo.rq3_display.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	displayOptionsInfo.rq3_display.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	displayOptionsInfo.rq3_display.generic.y			= y;
+	displayOptionsInfo.rq3_display.generic.id			= ID_DISPLAY;
+	displayOptionsInfo.rq3_display.generic.callback		= UI_DisplayOptionsMenu_Event;
+	displayOptionsInfo.rq3_display.width				= RQ3_BUTTON_WIDTH;
+	displayOptionsInfo.rq3_display.height				= RQ3_BUTTON_HEIGHT;
+	displayOptionsInfo.rq3_display.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Sound Button
+	displayOptionsInfo.rq3_sound.generic.type			= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_sound.generic.name			= RQ3_SOUND_BUTTON;
+	displayOptionsInfo.rq3_sound.generic.flags			= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	displayOptionsInfo.rq3_sound.generic.x				= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	displayOptionsInfo.rq3_sound.generic.y				= y;
+	displayOptionsInfo.rq3_sound.generic.id				= ID_SOUND;
+	displayOptionsInfo.rq3_sound.generic.callback		= UI_DisplayOptionsMenu_Event;
+	displayOptionsInfo.rq3_sound.width					= RQ3_BUTTON_WIDTH;
+	displayOptionsInfo.rq3_sound.height					= RQ3_BUTTON_HEIGHT;
+	displayOptionsInfo.rq3_sound.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Network Button
+	displayOptionsInfo.rq3_network.generic.type			= MTYPE_BITMAP;
+	displayOptionsInfo.rq3_network.generic.name			= RQ3_NETWORK_BUTTON;
+	displayOptionsInfo.rq3_network.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	displayOptionsInfo.rq3_network.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	displayOptionsInfo.rq3_network.generic.y			= y;
+	displayOptionsInfo.rq3_network.generic.id			= ID_NETWORK;
+	displayOptionsInfo.rq3_network.generic.callback		= UI_DisplayOptionsMenu_Event;
+	displayOptionsInfo.rq3_network.width				= RQ3_BUTTON_WIDTH;
+	displayOptionsInfo.rq3_network.height				= RQ3_BUTTON_HEIGHT;
+	displayOptionsInfo.rq3_network.focuspic				= RQ3_FOCUS_BUTTON;
+
+	//Elder: RQ3 Status Text
+	displayOptionsInfo.rq3_statustext.generic.type 		= MTYPE_TEXT;
+	displayOptionsInfo.rq3_statustext.generic.flags		= QMF_CENTER_JUSTIFY;
+	displayOptionsInfo.rq3_statustext.generic.x 		= RQ3_STATUSBAR_X;
+	displayOptionsInfo.rq3_statustext.generic.y 		= RQ3_STATUSBAR_Y;
+	displayOptionsInfo.rq3_statustext.string 			= "";
+	displayOptionsInfo.rq3_statustext.style 			= UI_CENTER|UI_SMALLFONT;
+	displayOptionsInfo.rq3_statustext.color 			= color_orange;
+
+	/*
 	displayOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	displayOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	displayOptionsInfo.graphics.generic.id			= ID_GRAPHICS;
@@ -214,62 +380,87 @@ static void UI_DisplayOptionsMenu_Init( void ) {
 	displayOptionsInfo.network.string				= "NETWORK";
 	displayOptionsInfo.network.style				= UI_RIGHT;
 	displayOptionsInfo.network.color				= color_red;
-
-	y = 240 - 1 * (BIGCHAR_HEIGHT+2);
+	*/
+	
+	//y = 240 - 1 * (BIGCHAR_HEIGHT+2);
 	displayOptionsInfo.brightness.generic.type		= MTYPE_SLIDER;
 	displayOptionsInfo.brightness.generic.name		= "Brightness:";
 	displayOptionsInfo.brightness.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	displayOptionsInfo.brightness.generic.callback	= UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.brightness.generic.id		= ID_BRIGHTNESS;
-	displayOptionsInfo.brightness.generic.x			= 400;
-	displayOptionsInfo.brightness.generic.y			= y;
+	displayOptionsInfo.brightness.generic.x			= 200;
+	displayOptionsInfo.brightness.generic.y			= 64;
 	displayOptionsInfo.brightness.minvalue			= 5;
 	displayOptionsInfo.brightness.maxvalue			= 20;
 	if( !uis.glconfig.deviceSupportsGamma ) {
 		displayOptionsInfo.brightness.generic.flags |= QMF_GRAYED;
 	}
 
-	y += BIGCHAR_HEIGHT+2;
+	//y += BIGCHAR_HEIGHT+2;
 	displayOptionsInfo.screensize.generic.type		= MTYPE_SLIDER;
 	displayOptionsInfo.screensize.generic.name		= "Screen Size:";
 	displayOptionsInfo.screensize.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	displayOptionsInfo.screensize.generic.callback	= UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.screensize.generic.id		= ID_SCREENSIZE;
-	displayOptionsInfo.screensize.generic.x			= 400;
-	displayOptionsInfo.screensize.generic.y			= y;
+	displayOptionsInfo.screensize.generic.x			= 200;
+	displayOptionsInfo.screensize.generic.y			= 64 + BIGCHAR_HEIGHT + 2;;
 	displayOptionsInfo.screensize.minvalue			= 3;
     displayOptionsInfo.screensize.maxvalue			= 10;
 
+	//Elder: added
+	displayOptionsInfo.rq3_overbright.generic.type		= MTYPE_RADIOBUTTON;
+	displayOptionsInfo.rq3_overbright.generic.name		= "Overbright Bits:";
+	displayOptionsInfo.rq3_overbright.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	displayOptionsInfo.rq3_overbright.generic.callback	= UI_DisplayOptionsMenu_Event;
+	displayOptionsInfo.rq3_overbright.generic.id		= ID_OVERBRIGHT;
+	displayOptionsInfo.rq3_overbright.generic.x			= 200;
+	displayOptionsInfo.rq3_overbright.generic.y			= 64 + 2 * (BIGCHAR_HEIGHT + 2);
+	
 	displayOptionsInfo.back.generic.type		= MTYPE_BITMAP;
 	displayOptionsInfo.back.generic.name		= ART_BACK0;
 	displayOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	displayOptionsInfo.back.generic.callback	= UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.back.generic.id			= ID_BACK;
-	displayOptionsInfo.back.generic.x			= 0;
-	displayOptionsInfo.back.generic.y			= 480-64;
-	displayOptionsInfo.back.width				= 128;
-	displayOptionsInfo.back.height				= 64;
+	displayOptionsInfo.back.generic.x			= 8;
+	displayOptionsInfo.back.generic.y			= 480-44;
+	displayOptionsInfo.back.width				= 32;
+	displayOptionsInfo.back.height				= 32;
 	displayOptionsInfo.back.focuspic			= ART_BACK1;
 
 //	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.banner );
 //	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.framel );
 //	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.framer );
+/* Elder: removed	
 	Menu_AddItem( &displayOptionsInfo.menu, &displayOptionsInfo.multim );
 	Menu_AddItem( &displayOptionsInfo.menu, &displayOptionsInfo.setupm );
 	Menu_AddItem( &displayOptionsInfo.menu, &displayOptionsInfo.demom );
 	Menu_AddItem( &displayOptionsInfo.menu, &displayOptionsInfo.modsm );
 	Menu_AddItem( &displayOptionsInfo.menu, &displayOptionsInfo.exitm );
-
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.graphics );
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.display );
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.sound );
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.network );
+*/
+	
+	//Elder: added
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_systemicon );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_setuptitle );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_graphics );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_display );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_sound );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_network );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_statustext );
+	
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.brightness );
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.screensize );
+	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.rq3_overbright );
+	
 	Menu_AddItem( &displayOptionsInfo.menu, ( void * ) &displayOptionsInfo.back );
 
 	displayOptionsInfo.brightness.curvalue  = trap_Cvar_VariableValue("r_gamma") * 10;
 	displayOptionsInfo.screensize.curvalue  = trap_Cvar_VariableValue( "cg_viewsize")/10;
+	//Elder: added
+	displayOptionsInfo.rq3_overbright.curvalue = trap_Cvar_VariableValue( "r_overbrightbits" ) != 0;
 }
 
 
@@ -279,10 +470,19 @@ UI_DisplayOptionsMenu_Cache
 ===============
 */
 void UI_DisplayOptionsMenu_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+//Elder: removed
+//	trap_R_RegisterShaderNoMip( ART_FRAMEL );
+//	trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
+//Elder: added
+	trap_R_RegisterShaderNoMip( RQ3_SYSTEM_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_TITLE );
+	trap_R_RegisterShaderNoMip( RQ3_GRAPHICS_BUTTON );	
+	trap_R_RegisterShaderNoMip( RQ3_DISPLAY_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_SOUND_BUTTON );	
+	trap_R_RegisterShaderNoMip( RQ3_NETWORK_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_FOCUS_BUTTON );
 }
 
 
@@ -294,5 +494,6 @@ UI_DisplayOptionsMenu
 void UI_DisplayOptionsMenu( void ) {
 	UI_DisplayOptionsMenu_Init();
 	UI_PushMenu( &displayOptionsInfo.menu );
-	Menu_SetCursorToItem( &displayOptionsInfo.menu, &displayOptionsInfo.display );
+	//Elder: shifted to .rq3_display
+	Menu_SetCursorToItem( &displayOptionsInfo.menu, &displayOptionsInfo.rq3_display );
 }

@@ -2,12 +2,14 @@
 //
 #include "ui_local.h"
 
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
+//#define ART_FRAMEL			"menu/art/frame2_l"
+//#define ART_FRAMER			"menu/art/frame1_r"
 #define ART_MODEL0			"menu/art/model_0"
 #define ART_MODEL1			"menu/art/model_1"
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
+#define ART_BACK0			"menu/art/rq3-menu-back.tga"
+#define ART_BACK1			"menu/art/rq3-menu-back-focus.tga"
+//#define ART_BACK0			"menu/art/back_0"
+//#define ART_BACK1			"menu/art/back_1"
 #define ART_FX_BASE			"menu/art/fx_base"
 #define ART_FX_BLUE			"menu/art/fx_blue"
 #define ART_FX_CYAN			"menu/art/fx_cyan"
@@ -16,6 +18,10 @@
 #define ART_FX_TEAL			"menu/art/fx_teal"
 #define ART_FX_WHITE		"menu/art/fx_white"
 #define ART_FX_YELLOW		"menu/art/fx_yel"
+
+//Elder: RQ3 stuff
+#define RQ3_SETUP_ICON		"menu/art/rq3-setup-player.jpg"
+#define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.tga"
 
 #define ID_NAME			10
 #define ID_HANDICAP		11
@@ -33,12 +39,17 @@ typedef struct {
 //	menutext_s			banner;
 //	menubitmap_s		framel;
 //	menubitmap_s		framer;
+/* Elder: removed
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
-
+*/
+	//Elder: RQ3 stuff	
+	menubitmap_s	rq3_setuptitle;
+	menubitmap_s	rq3_setupicon;	
+	
 	menubitmap_s		player;
 
 	menufield_s			name;
@@ -47,7 +58,7 @@ typedef struct {
 
 	menubitmap_s		back;
 	menubitmap_s		model;
-	menubitmap_s		item_null;
+	//menubitmap_s		item_null;
 
 	qhandle_t			fxBasePic;
 	qhandle_t			fxPic[7];
@@ -227,7 +238,7 @@ static void PlayerSettings_DrawPlayer( void *self ) {
 		UI_PlayerInfo_SetModel( &s_playersettings.playerinfo, buf );
 		strcpy( s_playersettings.playerModel, buf );
 
-		viewangles[YAW]   = 180 - 30;
+		viewangles[YAW]   = 180 - 60;
 		viewangles[PITCH] = 0;
 		viewangles[ROLL]  = 0;
 		//Blaze: Default draw of player, changed WP_MACHINEGUN to WP_PISTOL
@@ -333,6 +344,21 @@ static void PlayerSettings_MenuEvent( void* ptr, int event ) {
 	}
 }
 
+/*
+===============
+Added by Elder
+PlayerSettings_MenuDraw
+===============
+*/
+static void PlayerSettings_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	
+	// standard menu drawing
+	Menu_Draw( &s_playersettings.menu );
+}
 
 /*
 =================
@@ -346,6 +372,7 @@ static void PlayerSettings_MenuInit( void ) {
 
 	PlayerSettings_Cache();
 
+	s_playersettings.menu.draw		 = PlayerSettings_MenuDraw;
 	s_playersettings.menu.key        = PlayerSettings_MenuKey;
 	s_playersettings.menu.wrapAround = qtrue;
 	s_playersettings.menu.fullscreen = qtrue;
@@ -374,6 +401,7 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.framer.width         = 256;
 	s_playersettings.framer.height        = 334;
 */
+/* Elder: removed
 	s_playersettings.multim.generic.type	= MTYPE_PTEXT;
 	s_playersettings.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_playersettings.multim.generic.x		= 120;
@@ -414,7 +442,26 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.exitm.string			= "EXIT";
 	s_playersettings.exitm.color			= color_red;
 	s_playersettings.exitm.style			= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for system icon
+	s_playersettings.rq3_setupicon.generic.type					= MTYPE_BITMAP;
+	s_playersettings.rq3_setupicon.generic.name					= RQ3_SETUP_ICON;
+	s_playersettings.rq3_setupicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_playersettings.rq3_setupicon.generic.x					= 0;
+	s_playersettings.rq3_setupicon.generic.y					= 4;
+	s_playersettings.rq3_setupicon.width						= RQ3_ICON_WIDTH;
+	s_playersettings.rq3_setupicon.height						= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for setup title
+	s_playersettings.rq3_setuptitle.generic.type				= MTYPE_BITMAP;
+	s_playersettings.rq3_setuptitle.generic.name				= RQ3_SETUP_TITLE;
+	s_playersettings.rq3_setuptitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_playersettings.rq3_setuptitle.generic.x					= 64;
+	s_playersettings.rq3_setuptitle.generic.y					= 12;
+	s_playersettings.rq3_setuptitle.width						= 256;
+	s_playersettings.rq3_setuptitle.height						= 32;
+	
 	y = 144;
 	s_playersettings.name.generic.type			= MTYPE_FIELD;
 	s_playersettings.name.generic.flags			= QMF_NODEFAULTINIT;
@@ -478,27 +525,31 @@ static void PlayerSettings_MenuInit( void ) {
 	s_playersettings.back.generic.flags			= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_playersettings.back.generic.id			= ID_BACK;
 	s_playersettings.back.generic.callback		= PlayerSettings_MenuEvent;
-	s_playersettings.back.generic.x				= 0;
-	s_playersettings.back.generic.y				= 480-64;
-	s_playersettings.back.width					= 128;
-	s_playersettings.back.height				= 64;
+	s_playersettings.back.generic.x				= 8;
+	s_playersettings.back.generic.y				= 480-44;
+	s_playersettings.back.width					= 32;
+	s_playersettings.back.height				= 32;
 	s_playersettings.back.focuspic				= ART_BACK1;
 
-	s_playersettings.item_null.generic.type		= MTYPE_BITMAP;
-	s_playersettings.item_null.generic.flags	= QMF_LEFT_JUSTIFY|QMF_MOUSEONLY|QMF_SILENT;
-	s_playersettings.item_null.generic.x		= 0;
-	s_playersettings.item_null.generic.y		= 0;
-	s_playersettings.item_null.width			= 640;
-	s_playersettings.item_null.height			= 480;
+	//s_playersettings.item_null.generic.type		= MTYPE_BITMAP;
+	//s_playersettings.item_null.generic.flags	= QMF_LEFT_JUSTIFY|QMF_MOUSEONLY|QMF_SILENT;
+	//s_playersettings.item_null.generic.x		= 0;
+	//s_playersettings.item_null.generic.y		= 0;
+	//s_playersettings.item_null.width			= 640;
+	//s_playersettings.item_null.height			= 480;
 
 //	Menu_AddItem( &s_playersettings.menu, &s_playersettings.banner );
 //	Menu_AddItem( &s_playersettings.menu, &s_playersettings.framel );
 //	Menu_AddItem( &s_playersettings.menu, &s_playersettings.framer );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.multim );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.setupm );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.demom );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.modsm );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.exitm );
+//Elder: removed
+//	Menu_AddItem( &s_playersettings.menu, &s_playersettings.multim );
+//	Menu_AddItem( &s_playersettings.menu, &s_playersettings.setupm );
+//	Menu_AddItem( &s_playersettings.menu, &s_playersettings.demom );
+//	Menu_AddItem( &s_playersettings.menu, &s_playersettings.modsm );
+//	Menu_AddItem( &s_playersettings.menu, &s_playersettings.exitm );
+
+	Menu_AddItem( &s_playersettings.menu, &s_playersettings.rq3_setupicon );
+	Menu_AddItem( &s_playersettings.menu, &s_playersettings.rq3_setuptitle );
 
 	Menu_AddItem( &s_playersettings.menu, &s_playersettings.name );
 	Menu_AddItem( &s_playersettings.menu, &s_playersettings.handicap );
@@ -508,7 +559,7 @@ static void PlayerSettings_MenuInit( void ) {
 
 	Menu_AddItem( &s_playersettings.menu, &s_playersettings.player );
 
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.item_null );
+	//Menu_AddItem( &s_playersettings.menu, &s_playersettings.item_null );
 
 	PlayerSettings_SetMenuItems();
 }
@@ -520,12 +571,15 @@ PlayerSettings_Cache
 =================
 */
 void PlayerSettings_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_MODEL0 );
 	trap_R_RegisterShaderNoMip( ART_MODEL1 );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
+	
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_TITLE );
 
 	s_playersettings.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
 	s_playersettings.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );

@@ -11,8 +11,8 @@ CONFIRMATION MENU
 
 #include "ui_local.h"
 
-
-#define ART_CONFIRM_FRAME	"menu/art/cut_frame"
+//Elder: Removed for now
+//#define ART_CONFIRM_FRAME	"menu/art/cut_frame"
 
 #define ID_CONFIRM_NO		10
 #define ID_CONFIRM_YES		11
@@ -96,7 +96,13 @@ ConfirmMenu_Draw
 =================
 */
 static void ConfirmMenu_Draw( void ) {
-	UI_DrawNamedPic( 142, 118, 359, 256, ART_CONFIRM_FRAME );
+	
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	
+	//UI_DrawNamedPic( 142, 118, 359, 256, ART_CONFIRM_FRAME );
 	UI_DrawProportionalString( 320, 204, s_confirm.question, UI_CENTER|UI_INVERSE, color_red );
 	UI_DrawProportionalString( s_confirm.slashX, 265, "/", UI_LEFT|UI_INVERSE, color_red );
 
@@ -114,7 +120,8 @@ ConfirmMenu_Cache
 =================
 */
 void ConfirmMenu_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_CONFIRM_FRAME );
+	//Elder: Removed
+	//trap_R_RegisterShaderNoMip( ART_CONFIRM_FRAME );
 }
 
 

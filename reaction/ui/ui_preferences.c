@@ -11,13 +11,17 @@ GAME OPTIONS MENU
 
 #include "ui_local.h"
 
+//Elder: removed
+//#define ART_FRAMEL				"menu/art/frame2_l"
+//#define ART_FRAMER				"menu/art/frame1_r"
+#define ART_BACK0		"menu/art/rq3-menu-back.tga"
+#define ART_BACK1		"menu/art/rq3-menu-back-focus.tga"	
 
-#define ART_FRAMEL				"menu/art/frame2_l"
-#define ART_FRAMER				"menu/art/frame1_r"
-#define ART_BACK0				"menu/art/back_0"
-#define ART_BACK1				"menu/art/back_1"
+//Elder: RQ3 Setup assets
+#define RQ3_SETUP_ICON		"menu/art/rq3-setup-options.jpg"
+#define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.jpg"
 
-#define PREFERENCES_X_POS		360
+#define PREFERENCES_X_POS		200
 
 #define ID_CROSSHAIR			127
 #define ID_SIMPLEITEMS			128
@@ -34,6 +38,9 @@ GAME OPTIONS MENU
 
 #define	NUM_CROSSHAIRS			10
 
+//Elder: RQ3 stuff
+#define ID_MUZZLEFLASH			139
+
 
 typedef struct {
 	menuframework_s		menu;
@@ -41,11 +48,19 @@ typedef struct {
 //	menutext_s			banner;
 //	menubitmap_s		framel;
 //	menubitmap_s		framer;
-	menutext_s			multim;
-	menutext_s			setupm;
-	menutext_s			demom;
-	menutext_s			modsm;
-	menutext_s			exitm;
+//Elder: removed
+//	menutext_s			multim;
+//	menutext_s			setupm;
+//	menutext_s			demom;
+//	menutext_s			modsm;
+//	menutext_s			exitm;
+
+	//Elder: RQ3 Stuff
+	menubitmap_s	rq3_setupicon;
+	menubitmap_s	rq3_setuptitle;
+	menutext_s		rq3_statustext;
+
+	menuradiobutton_s	rq3_muzzleflash;
 
 	menulist_s			crosshair;
 	menuradiobutton_s	simpleitems;
@@ -74,6 +89,22 @@ static const char *teamoverlay_names[] =
 	0
 };
 
+/*
+===============
+Added by Elder
+Preferences_MenuDraw
+===============
+*/
+static void Preferences_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+		
+	// standard menu drawing
+	Menu_Draw( &s_preferences.menu );
+}
+
 static void Preferences_SetMenuItems( void ) {
 	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
 	s_preferences.simpleitems.curvalue		= trap_Cvar_VariableValue( "cg_simpleItems" ) != 0;
@@ -86,69 +117,139 @@ static void Preferences_SetMenuItems( void ) {
 	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue( "cg_forcemodel" ) != 0;
 	s_preferences.drawteamoverlay.curvalue	= Com_Clamp( 0, 3, trap_Cvar_VariableValue( "cg_drawTeamOverlay" ) );
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue( "cl_allowDownload" ) != 0;
+	//Elder: added
+	s_preferences.rq3_muzzleflash.curvalue	= trap_Cvar_VariableValue( "rxn_flash" ) != 0;
 }
 
 
-static void Preferences_Event( void* ptr, int notification ) {
-	if( notification != QM_ACTIVATED ) {
-		return;
+static void Preferences_Event( void* ptr, int event ) {
+	//Elder: Added status messages on event focus
+	if ( event == QM_LOSTFOCUS ) {
+		s_preferences.rq3_statustext.string = "";
+	}
+	else if ( event == QM_GOTFOCUS ) {
+		//get menu item id
+		switch( ((menucommon_s*)ptr)->id ) {
+
+		case ID_CROSSHAIR:
+			s_preferences.rq3_statustext.string = "Change regular crosshair style";
+			break;
+
+		case ID_SIMPLEITEMS:
+			s_preferences.rq3_statustext.string = "Enable 2D sprite items";
+			break;
+
+		case ID_HIGHQUALITYSKY:
+			s_preferences.rq3_statustext.string = "Enable high quality sky";
+			break;
+
+		case ID_EJECTINGBRASS:
+			s_preferences.rq3_statustext.string = "Enable shell ejections";
+			break;
+
+		case ID_WALLMARKS:
+			s_preferences.rq3_statustext.string = "Enable wall marks";
+			break;
+
+		case ID_DYNAMICLIGHTS:
+			s_preferences.rq3_statustext.string = "Enable dynamic lighting";
+			break;
+
+		case ID_IDENTIFYTARGET:
+			s_preferences.rq3_statustext.string = "Enable crosshair target identification";
+			break;
+
+		case ID_SYNCEVERYFRAME:
+			s_preferences.rq3_statustext.string = "Enable V-SYNC (recommended off)";
+			break;
+		
+		case ID_FORCEMODEL:
+			s_preferences.rq3_statustext.string = "Force player models to your own";
+			break;			
+
+		case ID_DRAWTEAMOVERLAY:
+			s_preferences.rq3_statustext.string = "Choose team overlay position";
+			break;
+
+		case ID_ALLOWDOWNLOAD:
+			s_preferences.rq3_statustext.string = "Allow automatic downloads from server";
+			break;
+
+		case ID_MUZZLEFLASH:
+			s_preferences.rq3_statustext.string = "Enable weapon muzzle flashes";
+			break;
+				
+		case ID_BACK:
+			s_preferences.rq3_statustext.string = "Return to main menu";
+			break;
+			
+		default:
+			s_preferences.rq3_statustext.string = "";
+			break;
+		}
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
-	case ID_CROSSHAIR:
-		s_preferences.crosshair.curvalue++;
-		if( s_preferences.crosshair.curvalue == NUM_CROSSHAIRS ) {
-			s_preferences.crosshair.curvalue = 0;
-		}
-		trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue );
-		break;
-
-	case ID_SIMPLEITEMS:
-		trap_Cvar_SetValue( "cg_simpleItems", s_preferences.simpleitems.curvalue );
-		break;
-
-	case ID_HIGHQUALITYSKY:
-		trap_Cvar_SetValue( "r_fastsky", !s_preferences.highqualitysky.curvalue );
-		break;
-
-	case ID_EJECTINGBRASS:
-		if ( s_preferences.brass.curvalue )
-			trap_Cvar_Reset( "cg_brassTime" );
-		else
-			trap_Cvar_SetValue( "cg_brassTime", 0 );
-		break;
-
-	case ID_WALLMARKS:
-		trap_Cvar_SetValue( "cg_marks", s_preferences.wallmarks.curvalue );
-		break;
-
-	case ID_DYNAMICLIGHTS:
-		trap_Cvar_SetValue( "r_dynamiclight", s_preferences.dynamiclights.curvalue );
-		break;		
-
-	case ID_IDENTIFYTARGET:
-		trap_Cvar_SetValue( "cg_drawCrosshairNames", s_preferences.identifytarget.curvalue );
-		break;
-
-	case ID_SYNCEVERYFRAME:
-		trap_Cvar_SetValue( "r_finish", s_preferences.synceveryframe.curvalue );
-		break;
-
-	case ID_FORCEMODEL:
-		trap_Cvar_SetValue( "cg_forcemodel", s_preferences.forcemodel.curvalue );
-		break;
-
-	case ID_DRAWTEAMOVERLAY:
-		trap_Cvar_SetValue( "cg_drawTeamOverlay", s_preferences.drawteamoverlay.curvalue );
-		break;
-
-	case ID_ALLOWDOWNLOAD:
-		trap_Cvar_SetValue( "cl_allowDownload", s_preferences.allowdownload.curvalue );
-		break;
-
-	case ID_BACK:
-		UI_PopMenu();
-		break;
+	else if ( event == QM_ACTIVATED ) {
+    	switch( ((menucommon_s*)ptr)->id ) {
+    	case ID_CROSSHAIR:
+    		s_preferences.crosshair.curvalue++;
+    		if( s_preferences.crosshair.curvalue == NUM_CROSSHAIRS ) {
+    			s_preferences.crosshair.curvalue = 0;
+    		}
+    		trap_Cvar_SetValue( "cg_drawCrosshair", s_preferences.crosshair.curvalue );
+    		break;
+    
+    	case ID_SIMPLEITEMS:
+    		trap_Cvar_SetValue( "cg_simpleItems", s_preferences.simpleitems.curvalue );
+    		break;
+    
+    	case ID_HIGHQUALITYSKY:
+    		trap_Cvar_SetValue( "r_fastsky", !s_preferences.highqualitysky.curvalue );
+    		break;
+    
+    	case ID_EJECTINGBRASS:
+    		if ( s_preferences.brass.curvalue )
+    			trap_Cvar_Reset( "cg_brassTime" );
+    		else
+    			trap_Cvar_SetValue( "cg_brassTime", 0 );
+    		break;
+    
+    	case ID_WALLMARKS:
+    		trap_Cvar_SetValue( "cg_marks", s_preferences.wallmarks.curvalue );
+    		break;
+    
+    	case ID_DYNAMICLIGHTS:
+    		trap_Cvar_SetValue( "r_dynamiclight", s_preferences.dynamiclights.curvalue );
+    		break;		
+    
+    	case ID_IDENTIFYTARGET:
+    		trap_Cvar_SetValue( "cg_drawCrosshairNames", s_preferences.identifytarget.curvalue );
+    		break;
+    
+    	case ID_SYNCEVERYFRAME:
+    		trap_Cvar_SetValue( "r_finish", s_preferences.synceveryframe.curvalue );
+    		break;
+    
+    	case ID_FORCEMODEL:
+    		trap_Cvar_SetValue( "cg_forcemodel", s_preferences.forcemodel.curvalue );
+    		break;
+    
+    	case ID_DRAWTEAMOVERLAY:
+    		trap_Cvar_SetValue( "cg_drawTeamOverlay", s_preferences.drawteamoverlay.curvalue );
+    		break;
+    
+    	case ID_ALLOWDOWNLOAD:
+    		trap_Cvar_SetValue( "cl_allowDownload", s_preferences.allowdownload.curvalue );
+    		break;
+    
+        case ID_MUZZLEFLASH:
+    		trap_Cvar_SetValue( "rxn_flash", s_preferences.allowdownload.curvalue );
+    		break;
+    
+    	case ID_BACK:
+    		UI_PopMenu();
+    		break;
+    	}
 	}
 }
 
@@ -208,7 +309,8 @@ static void Preferences_MenuInit( void ) {
 	memset( &s_preferences, 0 ,sizeof(preferences_t) );
 
 	Preferences_Cache();
-
+	//Elder: added draw function
+	s_preferences.menu.draw = Preferences_MenuDraw;
 	s_preferences.menu.wrapAround = qtrue;
 	s_preferences.menu.fullscreen = qtrue;
 	s_preferences.menu.showlogo   = qtrue;
@@ -236,6 +338,7 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.framer.width  	   = 256;
 	s_preferences.framer.height  	   = 334;
 */
+/* Elder: removed
 	s_preferences.multim.generic.type	= MTYPE_PTEXT;
 	s_preferences.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS|QMF_INACTIVE;
 	s_preferences.multim.generic.x		= 120;
@@ -275,9 +378,27 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.exitm.string			= "EXIT";
 	s_preferences.exitm.color			= color_red;
 	s_preferences.exitm.style			= UI_CENTER | UI_DROPSHADOW;
+*/
 
+	//Elder: Info for setup icon
+	s_preferences.rq3_setupicon.generic.type				= MTYPE_BITMAP;
+	s_preferences.rq3_setupicon.generic.name				= RQ3_SETUP_ICON;
+	s_preferences.rq3_setupicon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_preferences.rq3_setupicon.generic.x					= 0;
+	s_preferences.rq3_setupicon.generic.y					= 4;
+	s_preferences.rq3_setupicon.width						= RQ3_ICON_WIDTH;
+	s_preferences.rq3_setupicon.height						= RQ3_ICON_HEIGHT;
 
-	y = 144;
+	//Elder: Info for setup title
+	s_preferences.rq3_setuptitle.generic.type				= MTYPE_BITMAP;
+	s_preferences.rq3_setuptitle.generic.name				= RQ3_SETUP_TITLE;
+	s_preferences.rq3_setuptitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_preferences.rq3_setuptitle.generic.x					= 64;
+	s_preferences.rq3_setuptitle.generic.y					= 12;
+	s_preferences.rq3_setuptitle.width						= 256;
+	s_preferences.rq3_setuptitle.height						= 32;
+
+	y = 64;
 	s_preferences.crosshair.generic.type		= MTYPE_TEXT;
 	s_preferences.crosshair.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT|QMF_NODEFAULTINIT|QMF_OWNERDRAW;
 	s_preferences.crosshair.generic.x			= PREFERENCES_X_POS;
@@ -326,6 +447,15 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.dynamiclights.generic.id        = ID_DYNAMICLIGHTS;
 	s_preferences.dynamiclights.generic.x	      = PREFERENCES_X_POS;
 	s_preferences.dynamiclights.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.rq3_muzzleflash.generic.type            = MTYPE_RADIOBUTTON;
+	s_preferences.rq3_muzzleflash.generic.name	          = "Muzzle Flash:";
+	s_preferences.rq3_muzzleflash.generic.flags	          = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.rq3_muzzleflash.generic.callback        = Preferences_Event;
+	s_preferences.rq3_muzzleflash.generic.id              = ID_MUZZLEFLASH;
+	s_preferences.rq3_muzzleflash.generic.x	              = PREFERENCES_X_POS;
+	s_preferences.rq3_muzzleflash.generic.y	              = y;
 
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.identifytarget.generic.type     = MTYPE_RADIOBUTTON;
@@ -382,32 +512,47 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.allowdownload.generic.x	       = PREFERENCES_X_POS;
 	s_preferences.allowdownload.generic.y	       = y;
 
+	//Elder: RQ3 Status Text
+	s_preferences.rq3_statustext.generic.type 		= MTYPE_TEXT;
+	s_preferences.rq3_statustext.generic.flags		= QMF_CENTER_JUSTIFY;
+	s_preferences.rq3_statustext.generic.x 			= RQ3_STATUSBAR_X;
+	s_preferences.rq3_statustext.generic.y 			= RQ3_STATUSBAR_Y;
+	s_preferences.rq3_statustext.string 			= "";
+	s_preferences.rq3_statustext.style 				= UI_CENTER|UI_SMALLFONT;
+	s_preferences.rq3_statustext.color 				= color_orange;
+
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.back.generic.type	    = MTYPE_BITMAP;
 	s_preferences.back.generic.name     = ART_BACK0;
 	s_preferences.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_preferences.back.generic.callback = Preferences_Event;
 	s_preferences.back.generic.id	    = ID_BACK;
-	s_preferences.back.generic.x		= 0;
-	s_preferences.back.generic.y		= 480-64;
-	s_preferences.back.width  		    = 128;
-	s_preferences.back.height  		    = 64;
+	s_preferences.back.generic.x		= 8;
+	s_preferences.back.generic.y		= 480-44;
+	s_preferences.back.width  		    = 32;
+	s_preferences.back.height  		    = 32;
 	s_preferences.back.focuspic         = ART_BACK1;
 
 //	Menu_AddItem( &s_preferences.menu, &s_preferences.banner );
 //	Menu_AddItem( &s_preferences.menu, &s_preferences.framel );
 //	Menu_AddItem( &s_preferences.menu, &s_preferences.framer );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.multim );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.setupm );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.demom );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.modsm );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.exitm );
+//Elder: removed
+//	Menu_AddItem( &s_preferences.menu, &s_preferences.multim );
+//	Menu_AddItem( &s_preferences.menu, &s_preferences.setupm );
+//	Menu_AddItem( &s_preferences.menu, &s_preferences.demom );
+//	Menu_AddItem( &s_preferences.menu, &s_preferences.modsm );
+//	Menu_AddItem( &s_preferences.menu, &s_preferences.exitm );
+
+	//Elder: added
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_setupicon );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_setuptitle );
 
 	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshair );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.simpleitems );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.wallmarks );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.brass );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.dynamiclights );
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_muzzleflash );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.identifytarget );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.highqualitysky );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.synceveryframe );
@@ -416,6 +561,8 @@ static void Preferences_MenuInit( void ) {
 	Menu_AddItem( &s_preferences.menu, &s_preferences.allowdownload );
 
 	Menu_AddItem( &s_preferences.menu, &s_preferences.back );
+
+	Menu_AddItem( &s_preferences.menu, &s_preferences.rq3_statustext );
 
 	Preferences_SetMenuItems();
 }
@@ -429,10 +576,13 @@ Preferences_Cache
 void Preferences_Cache( void ) {
 	int		n;
 
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
+	//Elder: removed
+	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
+	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_SETUP_TITLE );
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
 		s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
 	}
