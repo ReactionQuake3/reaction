@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/05/12 19:15:47  jbravo
+// Added playerlist, did some cleanup on votes.
+//
 // Revision 1.48  2002/05/12 16:10:19  jbravo
 // Added unignore
 //
@@ -992,10 +995,11 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("radio_power");
 // JBravo: tkok
 	trap_AddCommand ("tkok");
+	trap_AddCommand ("playerlist");
 // JBravo: ignore
+	trap_AddCommand ("ignorenum");
 	trap_AddCommand ("ignore");
 	trap_AddCommand ("unignore");
-	trap_AddCommand ("ignorenum");
 	trap_AddCommand ("clearignorelist");
 // Slicer: Matchmode
 	trap_AddCommand ("captain");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/05/12 19:15:47  jbravo
+// Added playerlist, did some cleanup on votes.
+//
 // Revision 1.89  2002/05/12 16:10:19  jbravo
 // Added unignore
 //
@@ -2098,4 +2101,16 @@ void Cmd_Ignorenum_f (gentity_t *self) {
 void Cmd_Ignoreclear_f (gentity_t *self) {
 	RQ3_ClearIgnoreList (self);
 	trap_SendServerCommand(self-g_entities, va("print \"Your ignorelist is now clear.\n\""));
+}
+
+void Cmd_Playerlist_f (gentity_t *ent) {
+	gentity_t	*other;
+	int		i;
+
+	for (i = 0; i <= level.maxclients; i++) {
+		other = &g_entities[i];
+		if (!other->inuse || !other->client)
+			continue;
+		trap_SendServerCommand(ent-g_entities, va("print \"%i - %s\n\"", i, other->client->pers.netname));
+	}
 }

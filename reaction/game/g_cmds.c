@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/05/12 19:15:47  jbravo
+// Added playerlist, did some cleanup on votes.
+//
 // Revision 1.109  2002/05/12 16:10:19  jbravo
 // Added unignore
 //
@@ -1705,18 +1708,14 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		return;
 	}
 
-	if ( !Q_stricmp( arg1, "map_restart" ) ) {
-	} else if ( !Q_stricmp( arg1, "nextmap" ) ) {
-	} else if ( !Q_stricmp( arg1, "map" ) ) {
-	} else if ( !Q_stricmp( arg1, "g_gametype" ) ) {
-	} else if ( !Q_stricmp( arg1, "kick" ) ) {
-	} else if ( !Q_stricmp( arg1, "clientkick" ) ) {
-	} else if ( !Q_stricmp( arg1, "g_doWarmup" ) ) {
-	} else if ( !Q_stricmp( arg1, "timelimit" ) ) {
-	} else if ( !Q_stricmp( arg1, "fraglimit" ) ) {
+	if (!Q_stricmp(arg1, "nextmap")) {
+	} else if (!Q_stricmp(arg1, "map")) {
+	} else if (!Q_stricmp(arg1, "g_gametype")) {
+	} else if (!Q_stricmp(arg1, "kick")) {
+	} else if (!Q_stricmp(arg1, "clientkick")) {
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: map_restart, nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, g_doWarmup, timelimit <time>, fraglimit <frags>.\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"Vote commands are: nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>.\n\"" );
 		return;
 	}
 
@@ -1729,10 +1728,10 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) ) {
 		i = atoi( arg2 );
-		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i >= GT_MAX_GAME_TYPE) {
+		if (i != GT_FFA && i != GT_TEAM && i != GT_TEAMPLAY) {
 			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
 		return;
-	}
+		}
 
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %d", arg1, i );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s %s", arg1, gameNames[i] );
@@ -2882,6 +2881,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
+	else if (Q_stricmp (cmd, "playerlist") == 0)
+		Cmd_Playerlist_f( ent );
 //Slicer: matchmode
 	else if (Q_stricmp (cmd, "captain") == 0)
 		MM_Captain_f( ent );

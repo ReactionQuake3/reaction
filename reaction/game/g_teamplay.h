@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/05/12 19:15:47  jbravo
+// Added playerlist, did some cleanup on votes.
+//
 // Revision 1.16  2002/05/12 16:10:19  jbravo
 // Added unignore
 //
@@ -101,4 +104,5 @@ void Cmd_Ignore_f(gentity_t *ent);
 void Cmd_Unignore_f(gentity_t *ent);
 void Cmd_Ignorenum_f(gentity_t *ent);
 void Cmd_Ignoreclear_f(gentity_t *ent);
+void Cmd_Playerlist_f(gentity_t *ent);
 int  IsInIgnoreList(gentity_t *source, gentity_t *subject);
