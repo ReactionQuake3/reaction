@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/04/09 14:30:10  jbravo
+// Made cg_thirdPerson a CVAR_ROM, Made bots understand team aliases (1 and 2) and
+// made TP spawns more random.
+//
 // Revision 1.53  2002/04/07 12:49:53  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -364,7 +368,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
-	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0 },
+	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_ROM },
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE  },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE  },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE  },

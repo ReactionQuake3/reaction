@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/04/09 14:30:10  jbravo
+// Made cg_thirdPerson a CVAR_ROM, Made bots understand team aliases (1 and 2) and
+// made TP spawns more random.
+//
 // Revision 1.64  2002/04/07 17:50:54  makro
 // Abbey
 //
@@ -957,9 +961,9 @@ void ClientUserinfoChanged( int clientNum ) {
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey( userinfo, "team" );
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
+		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r") || !Q_stricmp(s, "1")) {
 			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
+		} else if (!Q_stricmp(s, "blue") || !Q_stricmp(s, "b") || !Q_stricmp(s, "2")) {
 			team = TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
@@ -1404,7 +1408,7 @@ void ClientSpawn(gentity_t *ent) {
 		if (!level.spawnPointsLocated) {
 			client->pers.initialSpawn = qfalse;
 			do {
-				level.team1spawnpoint = SelectInitialSpawnPoint(level.team1spawn_origin, level.team1spawn_angles);
+				level.team1spawnpoint = SelectSpawnPoint(vec3_origin, level.team1spawn_origin, level.team1spawn_angles);
 				if ((level.team1spawnpoint->flags & FL_NO_BOTS) && (ent->r.svFlags & SVF_BOT)) {
 					continue;
 				}
