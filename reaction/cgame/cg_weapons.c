@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/03/31 02:00:42  niceass
+// shell stuff
+//
 // Revision 1.58  2002/03/24 22:46:23  niceass
 // shell ejection stuff/handcannon fix
 //
@@ -1556,9 +1559,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	*/
 
 	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
-	if ( ps ) {
+	if ( ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
+		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000) ) {
 		float scale;
-		vec3_t angles;
+		vec3_t angles, Offset;
 
 		if (weaponNum == WP_PISTOL) scale = 0.6;
 		if (weaponNum == WP_SSG3000) scale = 0.9;
@@ -1574,7 +1578,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		angles[ROLL] = 0;
 		AnglesToAxis( angles, silencer.axis );
 
-		CG_PositionRotatedEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer");
+		Offset[0] += 7;
+
+		CG_PositionRotatedOffsetEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer", Offset);
 
 		VectorScale( silencer.axis[0], scale, silencer.axis[0] );
 		VectorScale( silencer.axis[1], scale, silencer.axis[1] );
@@ -1624,7 +1630,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			}
 
 			vectoangles( shell->refEntity.axis[axis], shell->angles.trBase);
-			VectorScale( shell->refEntity.axis[axis], 140 * speed, shell->pos.trDelta );
+			VectorScale( shell->refEntity.axis[axis], 160 * speed, shell->pos.trDelta );
 			VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 		}
 
@@ -1641,7 +1647,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = -0.5f;
 
 				vectoangles( shell->refEntity.axis[1], shell->angles.trBase);
-				VectorScale( shell->refEntity.axis[1], 140 * speed * 1.5, shell->pos.trDelta );
+				VectorScale( shell->refEntity.axis[1], 160 * speed * 1.5, shell->pos.trDelta );
 				VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 			}
 		}
