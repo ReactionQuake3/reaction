@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/06/21 15:04:55  makro
+// Health functionality for movers should be complete now
+//
 // Revision 1.99  2002/06/20 22:32:43  jbravo
 // Added last damaged player and fixed a test2 model problem (atrimum my ass :)
 // Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
@@ -1796,19 +1799,13 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 	// Makro - we should change some more stuff in here
 	// shootable doors / buttons don't actually have any health
-	if (targ->s.eType == ET_MOVER && targ->health < 0) {
+	// Makro - they do now !
+	if (targ->s.eType == ET_MOVER && targ->health <= 0) {
 		if (targ->use
 		    && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1 || (targ->spawnflags & 8))) {
 			targ->use(targ, inflictor, attacker);
 		}
-		/*
-		   //use the targets of the team master
-		   if (targ->teammaster && targ->teammaster != targ) {
-		   G_UseTargets(targ->teammaster, attacker);
-		   }
-		   //use own targets
-		   G_UseTargets(targ, attacker);
-		 */
+		targ->health = targ->health_saved;
 		return;
 	}
 	//Elder: from action source

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/06/21 15:04:55  makro
+// Health functionality for movers should be complete now
+//
 // Revision 1.47  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1033,6 +1036,11 @@ void InitMover(gentity_t * ent)
 	if (G_SpawnString("noise", "100", &sound)) {
 		ent->s.loopSound = G_SoundIndex(sound);
 	}
+
+	//Makro - added
+	G_SpawnInt("health", "0", &ent->health);
+	ent->health_saved = ent->health;
+	
 	// if the "color" or "light" keys are set, setup constantLight
 	lightSet = G_SpawnFloat("light", "100", &light);
 	colorSet = G_SpawnVector("color", "1 1 1", color);
@@ -1457,11 +1465,13 @@ void SP_func_door(gentity_t * ent)
 	InitMover(ent);
 
 	if (!(ent->flags & FL_TEAMSLAVE)) {
-		int health;
+		//int health;
 		int noSpecs = 0;
 
-		G_SpawnInt("health", "0", &health);
-		if (health) {
+		//G_SpawnInt("health", "0", &ent->health);
+		//Makro - added
+		//ent->health_saved = ent->health;
+		if (ent->health) {
 			ent->takedamage = qtrue;
 		}
 		//Makro - some doors don't need spectator triggers
@@ -1599,11 +1609,13 @@ void SP_func_door_rotating(gentity_t * ent)
 	InitRotator(ent);
 
 	if (!(ent->flags & FL_TEAMSLAVE)) {
-		int health;
+		//int health;
 		int noSpecs = 0;
 
-		G_SpawnInt("health", "0", &health);
-		if (health) {
+		//G_SpawnInt("health", "0", &ent->health);
+		//Makro - added
+		//ent->health_saved = ent->health;
+		if (ent->health) {
 			ent->takedamage = qtrue;
 		}
 		//Makro - some doors don't need spectator triggers

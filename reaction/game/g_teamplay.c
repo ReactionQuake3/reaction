@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/06/21 15:04:55  makro
+// Health functionality for movers should be complete now
+//
 // Revision 1.111  2002/06/20 22:32:43  jbravo
 // Added last damaged player and fixed a test2 model problem (atrimum my ass :)
 // Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
@@ -615,9 +618,13 @@ void CleanLevel()
 		if (!ent->item) {
 			if (!ent->classname)
 				continue;
+			//Makro - reset func_statics each round
 			if (!Q_stricmp(ent->classname, "func_static")) {
 				ent->count = (ent->spawnflags & 1);
 				ent->use(ent, NULL, NULL);
+			//Makro - reset door health each round
+			} else if (ent->s.eType == ET_MOVER && ent->takedamage) {
+				ent->health = ent->health_saved;
 			}
 			continue;
 		}
