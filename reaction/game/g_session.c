@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.6  2002/02/02 20:39:09  slicer
-// Matchmode: Adding Captains
+// Revision 1.7  2002/02/03 21:23:51  slicer
+// More Matchmode code and fixed 2 bugs in TP
 //
 // Revision 1.5  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
@@ -106,7 +106,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 
 	sess = &client->sess;
 
-	//Slicer : setting savedteam
+	//Slicer: init savedTeam also
+
 	sess->savedTeam = TEAM_SPECTATOR;
 
 	// initial team determination

@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.29  2002/02/02 20:39:09  slicer
-// Matchmode: Adding Captains
+// Revision 1.30  2002/02/03 21:23:51  slicer
+// More Matchmode code and fixed 2 bugs in TP
 //
 // Revision 1.28  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
@@ -1521,6 +1521,18 @@ void ClientDisconnect( int clientNum ) {
 	ent = g_entities + clientNum;
 	if ( !ent->client ) {
 		return;
+	}
+
+	//Slicer: matchmode
+	if(g_gametype.integer) {
+		switch(ent->client->pers.captain ) {
+				case TEAM_RED:
+					level.team1ready = qfalse;
+				break;
+				case TEAM_BLUE:
+					level.team2ready = qfalse;
+				break;
+		}
 	}
 
 	// stop any following clients

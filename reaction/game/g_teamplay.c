@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/02/03 21:23:51  slicer
+// More Matchmode code and fixed 2 bugs in TP
+//
 // Revision 1.7  2002/01/29 03:13:45  jbravo
 // Further fixes to antistick
 //
@@ -197,7 +200,8 @@ void MakeAllLivePlayersObservers()
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
-		if (!player->inuse)
+		//Slicer: Need to check if they are solid or not.
+		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
 			continue;
 		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
 		level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
@@ -355,6 +359,9 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
 			continue;
 		}
+		//Slicer: Matchmode - Subs don't count
+		if(g_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
+			continue;
 		if ( level.clients[i].sess.savedTeam == team ) {
 			count++;
 		}
@@ -397,6 +404,10 @@ void SpawnPlayers()
 		player = &g_entities[i];
 
 		if (!player->inuse)
+			continue;
+		//Slicer: Matchmode - Subs don't spawn
+
+		if(g_matchmode.integer && player->client->pers.sub != TEAM_FREE)
 			continue;
 
 		client = player->client;

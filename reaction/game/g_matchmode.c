@@ -35,8 +35,12 @@ void MM_Sub_f( gentity_t *ent) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be on a team for that\n\"");
 		return;
 	}
-	Com_Printf("%d \n",ent->client->pers.sub);
 	if(ent->client->pers.sub == TEAM_FREE) {
+			if (ent->client->ps.pm_type == PM_NORMAL) {
+				ent->flags &= ~FL_GODMODE;
+				ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
+				player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+			}
 			ent->client->pers.sub = ent->client->sess.savedTeam; 
 			trap_SendServerCommand( -1, va("print \"%s is now a Substitute for %s.\n\"",
 			ent->client->pers.netname,
@@ -89,15 +93,17 @@ void MM_Ready_f(gentity_t *ent) {
 				level.team1ready = qfalse;
 			else
 				level.team1ready = qtrue;
-			trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
+			trap_SendServerCommand( -1, va("cp \"%s is %s Ready.\n\"",
 			"Red Team",level.team1ready ? "": "no longer"));
+			//trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
+			//"Red Team",level.team1ready ? "": "no longer"));
 		}
 		else {
 			if(level.team2ready)
 				level.team2ready = qfalse;
 			else
 				level.team2ready = qtrue;
-			trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
+			trap_SendServerCommand( -1, va("cp \"%s is %s Ready.\n\"",
 			"Red Team",	level.team2ready ? "": "no longer"));
 		}
 	}

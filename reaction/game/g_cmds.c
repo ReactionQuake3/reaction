@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.45  2002/02/02 21:53:56  slicer
-// Matchmode stuff
+// Revision 1.46  2002/02/03 21:23:51  slicer
+// More Matchmode code and fixed 2 bugs in TP
 //
 // Revision 1.43  2002/02/02 16:34:02  slicer
 // Matchmode..
@@ -708,19 +708,17 @@ void SetTeam( gentity_t *ent, char *s ) {
 	}
 
 
-	//Slicer : Matchmode
+	//Slicer : Matchmode - If a captain changes team , that team is no longer ready
 	if(g_matchmode.integer) {
-		client->sess.savedTeam = team;
-
-		switch(team) {
-		case TEAM_RED:
-			level.team1ready = qfalse;
-			break;
-		case TEAM_BLUE:
-			level.team2ready = qfalse;
-			break;
+	//	client->sess.savedTeam = team;
+			switch(ent->client->pers.captain) {
+				case TEAM_RED:
+				level.team1ready = qfalse;
+				break;
+				case TEAM_BLUE:
+				level.team2ready = qfalse;
+				break;
 		}
-
 	}
 
 	// they go to the end of the line for tournements
