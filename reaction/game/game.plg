@@ -3,116 +3,108 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: game - Win32 Release--------------------
+--------------------Configuration: cgame - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP314.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6EE.tmp" with contents
 [
-/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
-"C:\Games\Quake3\rq3source\reaction\game\g_mover.c"
+/nologo /G6 /ML /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"Release/" /Fp"Release/cgame.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Games\Quake3\rq3source\reaction\cgame\cg_servercmds.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP314.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP315.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6EE.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6EF.tmp" with contents
 [
-kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:no /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /machine:I386 /def:".\game.def" /out:"..\Release/qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
-\reactionoutput\ai_chat.obj
-\reactionoutput\ai_cmd.obj
-\reactionoutput\ai_dmnet.obj
-\reactionoutput\ai_dmq3.obj
-\reactionoutput\ai_main.obj
-\reactionoutput\ai_team.obj
-\reactionoutput\ai_vcmd.obj
-\reactionoutput\bg_misc.obj
-\reactionoutput\bg_pmove.obj
-\reactionoutput\bg_slidemove.obj
-\reactionoutput\g_active.obj
-\reactionoutput\g_arenas.obj
-\reactionoutput\g_bot.obj
-\reactionoutput\g_client.obj
-\reactionoutput\g_cmds.obj
-\reactionoutput\g_combat.obj
-\reactionoutput\g_fileio.obj
-\reactionoutput\g_items.obj
-\reactionoutput\g_main.obj
-\reactionoutput\g_matchmode.obj
-\reactionoutput\g_mem.obj
-\reactionoutput\g_misc.obj
-\reactionoutput\g_missile.obj
-\reactionoutput\g_mover.obj
-\reactionoutput\g_session.obj
-\reactionoutput\g_spawn.obj
-\reactionoutput\g_svcmds.obj
-\reactionoutput\g_syscalls.obj
-\reactionoutput\g_target.obj
-\reactionoutput\g_team.obj
-\reactionoutput\g_teamplay.obj
-\reactionoutput\g_trigger.obj
-\reactionoutput\g_unlagged.obj
-\reactionoutput\g_utils.obj
-\reactionoutput\g_weapon.obj
-\reactionoutput\q_math.obj
-\reactionoutput\q_shared.obj
-\reactionoutput\rxn_game.obj
-\reactionoutput\zcam.obj
-\reactionoutput\zcam_target.obj
+/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:no /pdb:"Release/cgamex86.pdb" /map:"Release/cgamex86.map" /machine:I386 /def:".\cgame.def" /out:"../Release/cgamex86.dll" /implib:"Release/cgamex86.lib" 
+.\Release\bg_misc.obj
+.\Release\bg_pmove.obj
+.\Release\bg_slidemove.obj
+.\Release\cg_atmospheric.obj
+.\Release\cg_consolecmds.obj
+.\Release\cg_draw.obj
+.\Release\cg_drawtools.obj
+.\Release\cg_effects.obj
+.\Release\cg_ents.obj
+.\Release\cg_event.obj
+.\Release\cg_info.obj
+.\Release\cg_localents.obj
+.\Release\cg_main.obj
+.\Release\cg_marks.obj
+.\Release\cg_players.obj
+.\Release\cg_playerstate.obj
+.\Release\cg_predict.obj
+.\Release\cg_scoreboard.obj
+.\Release\cg_servercmds.obj
+.\Release\cg_snapshot.obj
+.\Release\cg_syscalls.obj
+.\Release\cg_unlagged.obj
+.\Release\cg_view.obj
+.\Release\cg_weapons.obj
+.\Release\q_math.obj
+.\Release\q_shared.obj
+.\Release\ui_shared.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP315.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6EF.tmp"
 <h3>Output Window</h3>
 Compiling...
-g_mover.c
+cg_servercmds.c
 Linking...
-   Creating library c:\reactionoutput/qagamex86.lib and object c:\reactionoutput/qagamex86.exp
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP319.tmp" with contents
+   Creating library Release/cgamex86.lib and object Release/cgamex86.exp
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6F3.tmp" with contents
 [
-/nologo /o"c:\reactionoutput/game.bsc" 
-\reactionoutput\ai_chat.sbr
-\reactionoutput\ai_cmd.sbr
-\reactionoutput\ai_dmnet.sbr
-\reactionoutput\ai_dmq3.sbr
-\reactionoutput\ai_main.sbr
-\reactionoutput\ai_team.sbr
-\reactionoutput\ai_vcmd.sbr
-\reactionoutput\bg_misc.sbr
-\reactionoutput\bg_pmove.sbr
-\reactionoutput\bg_slidemove.sbr
-\reactionoutput\g_active.sbr
-\reactionoutput\g_arenas.sbr
-\reactionoutput\g_bot.sbr
-\reactionoutput\g_client.sbr
-\reactionoutput\g_cmds.sbr
-\reactionoutput\g_combat.sbr
-\reactionoutput\g_fileio.sbr
-\reactionoutput\g_items.sbr
-\reactionoutput\g_main.sbr
-\reactionoutput\g_matchmode.sbr
-\reactionoutput\g_mem.sbr
-\reactionoutput\g_misc.sbr
-\reactionoutput\g_missile.sbr
-\reactionoutput\g_mover.sbr
-\reactionoutput\g_session.sbr
-\reactionoutput\g_spawn.sbr
-\reactionoutput\g_svcmds.sbr
-\reactionoutput\g_syscalls.sbr
-\reactionoutput\g_target.sbr
-\reactionoutput\g_team.sbr
-\reactionoutput\g_teamplay.sbr
-\reactionoutput\g_trigger.sbr
-\reactionoutput\g_unlagged.sbr
-\reactionoutput\g_utils.sbr
-\reactionoutput\g_weapon.sbr
-\reactionoutput\q_math.sbr
-\reactionoutput\q_shared.sbr
-\reactionoutput\rxn_game.sbr
-\reactionoutput\zcam.sbr
-\reactionoutput\zcam_target.sbr]
-Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP319.tmp"
+/nologo /o"Release/cgame.bsc" 
+.\Release\bg_misc.sbr
+.\Release\bg_pmove.sbr
+.\Release\bg_slidemove.sbr
+.\Release\cg_atmospheric.sbr
+.\Release\cg_consolecmds.sbr
+.\Release\cg_draw.sbr
+.\Release\cg_drawtools.sbr
+.\Release\cg_effects.sbr
+.\Release\cg_ents.sbr
+.\Release\cg_event.sbr
+.\Release\cg_info.sbr
+.\Release\cg_localents.sbr
+.\Release\cg_main.sbr
+.\Release\cg_marks.sbr
+.\Release\cg_players.sbr
+.\Release\cg_playerstate.sbr
+.\Release\cg_predict.sbr
+.\Release\cg_scoreboard.sbr
+.\Release\cg_servercmds.sbr
+.\Release\cg_snapshot.sbr
+.\Release\cg_syscalls.sbr
+.\Release\cg_unlagged.sbr
+.\Release\cg_view.sbr
+.\Release\cg_weapons.sbr
+.\Release\q_math.sbr
+.\Release\q_shared.sbr
+.\Release\ui_shared.sbr]
+Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP6F3.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
+cgamex86.dll - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: game - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
 qagamex86.dll - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: ui - Win32 Release TA--------------------
+</h3>
+<h3>Command Lines</h3>
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2003/09/19 21:25:10  makro
+// Flares (again!). Doors that open away from players.
+//
 // Revision 1.69  2003/09/18 23:28:44  jbravo
 // Adding G_acos()
 //
@@ -897,34 +900,40 @@ Added by Makro
 */
 void AdjustDoorDir(gentity_t *ent, gentity_t *activator)
 {
-	float angle, ld, lp;
-	vec3_t door, player, cross;
-	if (!ent || !activator || !activator->client)
-		return;
-	if (Q_stricmp(ent->classname, "func_door_rotating"))
+	float cross;
+	vec3_t door, player;
+	int x = 0, y = 1;
+	gentity_t *slave;
+
+	if (!activator || !activator->client)
 		return;
 	if (ent->moverState != ROTATOR_POS1)
 		return;
 	
-	VectorAdd(ent->r.mins, ent->r.maxs, door);
-	VectorScale(door, 0.5f, door);
-	VectorSubtract(activator->r.currentOrigin, door, player);
-	VectorSubtract(ent->r.currentOrigin, door, door);
-
-
-	door[2] = player[2] = 0;
-
-	CrossProduct(door, player, cross);
-	
-	if ( !(ld = VectorLength(door)) || !(lp = VectorLength(player)) )
-		return;
-	angle = G_acos(DotProduct(door, player) / (ld * lp));
-
-	if (cross[2] * ent->distance > 0)
-		G_Printf("Door: no need to reverse\n");
-	else
-		G_Printf("Door: need to reverse\n");
-
+	for (slave = ent; slave; slave = slave->teamchain)
+	{
+		VectorAdd(slave->r.absmin, slave->r.absmax, door);
+		VectorScale(door, 0.5f, door);
+		VectorSubtract(activator->r.currentOrigin, door, player);
+		VectorSubtract(slave->r.currentOrigin, door, door);
+		
+		//X axis ? swap X and Z then
+		if (slave->spawnflags & 16)
+			x = 2;
+		//Y axis ?
+		else if (slave->spawnflags & 32)
+			y = 2;
+		
+		cross = door[x] * player[y] - door[y] * player[x];
+		
+		if (cross * slave->distance < 0)
+		{
+			VectorNegate(slave->pos2, door);
+			VectorMA(door, 2.0f, slave->pos1, slave->pos2);
+			VectorNegate(slave->movedir, slave->movedir);
+			slave->distance *= -1;
+		}
+	}
 }
 
 /*
@@ -937,13 +946,7 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	int total;
 	int partial;
-	vec3_t dist;
-	float d;
 
-	//Makro - temp!!!
-	//AdjustDoorDir(ent, activator);
-
-	
 	// only the master should be used
 	if (ent->flags & FL_TEAMSLAVE) {
 		Use_BinaryMover(ent->teammaster, other, activator);
@@ -961,17 +964,11 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		return;
 	}
 
-	if (activator)
-	{
-		//Makro - check if we're too far away
-		VectorSubtract(ent->r.currentOrigin, activator->r.currentOrigin, dist);
-		d = VectorLength(dist);
-		//not for doors with health
-		if (!ent->takedamage && ent->mass && (d > ent->mass) )
-			return;
-	}
-
 	ent->activator = activator;
+
+	//Makro - reverse if needed
+	if ( (ent->spawnflags & SP_OPENAWAY) && !Q_stricmp(ent->classname, "func_door_rotating") )
+		AdjustDoorDir(ent, activator);
 
 	if (ent->moverState == MOVER_POS1) {
 		// start moving 50 msec later, becase if this was player

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2003/09/19 21:25:10  makro
+// Flares (again!). Doors that open away from players.
+//
 // Revision 1.80  2003/09/19 00:53:14  makro
 // Flares again
 //
@@ -494,6 +497,7 @@ void SP_misc_lens_flare(gentity_t *ent)
 	G_SpawnInt("sunsize", "0", &ent->mass);
 	G_SpawnFloat("sunalpha", "0.5", &ent->speed);
 
+	//this is so we can use the same values from
 	if (!ent->target) {
 		if (!G_SpawnVector("direction", "0 0 1", ent->s.origin2)) {
 			AngleVectors(ent->s.angles, ent->s.origin2, NULL, NULL);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2003/09/19 21:25:10  makro
+// Flares (again!). Doors that open away from players.
+//
 // Revision 1.91  2003/09/01 15:09:49  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -356,7 +359,7 @@ qboolean DoorKick(trace_t * trIn, gentity_t * ent, vec3_t origin, vec3_t forward
 {
 	gentity_t *traceEnt;
 	trace_t tr;
-	qboolean ok;
+	qboolean ok = qfalse;
 
 	traceEnt = &g_entities[trIn->entityNum];
 	if (Q_stricmp(traceEnt->classname, "func_door_rotating") == 0) {
@@ -371,14 +374,19 @@ qboolean DoorKick(trace_t * trIn, gentity_t * ent, vec3_t origin, vec3_t forward
 		VectorSubtract(origin, traceEnt->s.origin, d_forward);
 		crossProduct = d_forward[0] * d_right[1] - d_right[0] * d_forward[1];
 
-		// See if we are on the proper side to do it
-		// Makro - it didn't take into account moverstate
-		ok = ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) ||
-		    ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0);
-		if (traceEnt->moverState == ROTATOR_1TO2 || traceEnt->moverState == ROTATOR_POS2) {
-			ok = !ok;
+		//Makro - doors that open away from the player can be kicked from either side
+		if (traceEnt->spawnflags & SP_OPENAWAY) {
+			ok = qtrue;
+		} else {
+			// See if we are on the proper side to do it
+			//Makro - it didn't take into account moverstate
+			ok = ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) ||
+				((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0);
+			if (traceEnt->moverState == ROTATOR_1TO2 || traceEnt->moverState == ROTATOR_POS2) {
+				ok = !ok;
+			}
 		}
-		if (ok && !traceEnt->targetname) {
+		if (ok && !traceEnt->targetname && !traceEnt->takedamage) {
 			//Cmd_OpenDoor( ent );
 			//Makro - Cmd_OpenDoor opens ALL the doors near the kicked one
 			Use_BinaryMover(traceEnt, traceEnt, ent);

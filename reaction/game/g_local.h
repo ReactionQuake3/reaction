@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2003/09/19 21:25:10  makro
+// Flares (again!). Doors that open away from players.
+//
 // Revision 1.148  2003/09/18 23:28:44  jbravo
 // Adding G_acos()
 //
@@ -442,6 +445,7 @@ typedef enum {
 #define RQ3_CTF_RESPAWNTIME_DEFAULT	10000	// JBravo: time for weapons to respawn - up to 10s
 #define SP_AUTOOPEN			4	// Elder: revert to Q3 behaviour
 #define SP_DOORTOGGLE			8	// Elder: added to enable mover toggling
+#define SP_OPENAWAY			64		//Makro - door will always open away from the player
 #define MAXDOORTIME			100	// Elder: max time the opendoor key can stay open
 
 //Makro - moved weapon/item banning flags to bg_public.h so that the UI
