@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/07/02 09:16:12  makro
+// Added g_RQ3_version cvar for server browsers
+//
 // Revision 1.98  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -398,6 +401,9 @@ vmCvar_t g_enableDust;
 //Blaze let cvar.cfg be set by server admins
 vmCvar_t g_RQ3_cvarfile;
 
+//Makro - for server browsers
+vmCvar_t g_RQ3_version;
+
 // bk001129 - made static to avoid aliasing
 static cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -527,7 +533,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_IniFile, "g_RQ3_IniFile", "", CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
-	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse}
+	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
+	//Makro - for server browsers
+	{&g_RQ3_version, "g_RQ3_version", "Beta 2.1", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse}
 };
 
 // bk001129 - made static to avoid aliasing

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/07/02 09:16:12  makro
+// Added g_RQ3_version cvar for server browsers
+//
 // Revision 1.105  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -1293,6 +1296,9 @@ extern vmCvar_t g_RQ3_radioRepeatTime;
 extern vmCvar_t g_RQ3_radioBan;
 extern vmCvar_t g_RQ3_radioFlood;
 extern vmCvar_t g_RQ3_radioFloodTime;
+
+//Makro - for server browsers
+extern vmCvar_t g_RQ3_version;
 
 void trap_Printf(const char *fmt);
 void trap_Error(const char *fmt);
