@@ -5,11 +5,14 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/11/18 04:39:47  jbravo
+// Cleanup of cg_weapons.c
+//
 // Revision 1.113  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
 // Revision 1.112  2002/10/20 21:24:32  blaze
-// Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
+// Added cg_RQ3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
 //
 // Revision 1.111  2002/09/08 03:15:16  niceass
 // tracerchance now can be 0.0 to 0.4
@@ -80,7 +83,7 @@
 // drawping
 //
 // Revision 1.88  2002/06/21 23:20:34  blaze
-// cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
+// cg_RQ3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
 //
 // Revision 1.87  2002/06/21 21:05:35  niceass
 // laserfog stuff & removed unused cvar
@@ -393,15 +396,15 @@ vmCvar_t cg_RQ3_glasstime;
 vmCvar_t ogc_islame;
 
 //Blaze: replacement weapons
-vmCvar_t cg_rq3_knife;
-vmCvar_t cg_rq3_mk23;
-vmCvar_t cg_rq3_m4;
-vmCvar_t cg_rq3_ssg3000;
-vmCvar_t cg_rq3_mp5;
-vmCvar_t cg_rq3_handcannon;
-vmCvar_t cg_rq3_m3;
-vmCvar_t cg_rq3_akimbo;
-vmCvar_t cg_rq3_grenade;
+vmCvar_t cg_RQ3_knife;
+vmCvar_t cg_RQ3_mk23;
+vmCvar_t cg_RQ3_m4;
+vmCvar_t cg_RQ3_ssg3000;
+vmCvar_t cg_RQ3_mp5;
+vmCvar_t cg_RQ3_handcannon;
+vmCvar_t cg_RQ3_m3;
+vmCvar_t cg_RQ3_akimbo;
+vmCvar_t cg_RQ3_grenade;
 
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
@@ -630,15 +633,15 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE},
 	{&ogc_islame,"ogc_islame","1",CVAR_ROM},
 	//Blaze: replacement weapons
-	{&cg_rq3_knife, "cg_rq3_knife", "knife", CVAR_ARCHIVE},
-	{&cg_rq3_mk23, "cg_rq3_mk23", "mk23", CVAR_ARCHIVE},
-	{&cg_rq3_m4, "cg_rq3_m4", "m4", CVAR_ARCHIVE},
-	{&cg_rq3_ssg3000, "cg_rq3_ssg3000", "ssg3000", CVAR_ARCHIVE},
-	{&cg_rq3_mp5, "cg_rq3_mp5", "mp5", CVAR_ARCHIVE},
-	{&cg_rq3_handcannon, "cg_rq3_handcannon", "handcannon", CVAR_ARCHIVE},
-	{&cg_rq3_m3, "cg_rq3_m3", "m3", CVAR_ARCHIVE},
-	{&cg_rq3_akimbo, "cg_rq3_akimbo", "akimbo", CVAR_ARCHIVE},
-	{&cg_rq3_grenade, "cg_rq3_grenade", "grenade", CVAR_ARCHIVE},
+	{&cg_RQ3_knife, "cg_RQ3_knife", "knife", CVAR_ARCHIVE},
+	{&cg_RQ3_mk23, "cg_RQ3_mk23", "mk23", CVAR_ARCHIVE},
+	{&cg_RQ3_m4, "cg_RQ3_m4", "m4", CVAR_ARCHIVE},
+	{&cg_RQ3_ssg3000, "cg_RQ3_ssg3000", "ssg3000", CVAR_ARCHIVE},
+	{&cg_RQ3_mp5, "cg_RQ3_mp5", "mp5", CVAR_ARCHIVE},
+	{&cg_RQ3_handcannon, "cg_RQ3_handcannon", "handcannon", CVAR_ARCHIVE},
+	{&cg_RQ3_m3, "cg_RQ3_m3", "m3", CVAR_ARCHIVE},
+	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo", CVAR_ARCHIVE},
+	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here

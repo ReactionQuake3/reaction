@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2002/11/18 04:39:47  jbravo
+// Cleanup of cg_weapons.c
+//
 // Revision 1.129  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -12,7 +15,7 @@
 // no ref ready code
 //
 // Revision 1.127  2002/10/20 21:24:32  blaze
-// Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
+// Added cg_RQ3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
 //
 // Revision 1.126  2002/09/01 21:14:37  makro
 // Sky portal tweaks
@@ -99,7 +102,7 @@
 // change to foglaser
 //
 // Revision 1.100  2002/06/21 23:20:34  blaze
-// cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
+// cg_RQ3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
 //
 // Revision 1.99  2002/06/21 21:05:57  niceass
 // laserfog stuff & removed unused cvar
@@ -171,7 +174,7 @@
 // Made new cvars for regular xhair colors.
 //
 // Revision 1.76  2002/05/18 21:58:53  blaze
-// cg_rq3_autoaction support
+// cg_RQ3_autoaction support
 //
 // Revision 1.75  2002/05/18 03:55:35  niceass
 // many misc. changes
@@ -1679,15 +1682,15 @@ extern vmCvar_t cg_deferPlayers;
 extern vmCvar_t ogc_islame;
 
 //Blaze: replacement weapons
-extern vmCvar_t cg_rq3_knife;
-extern vmCvar_t cg_rq3_mk23;
-extern vmCvar_t cg_rq3_m4;
-extern vmCvar_t cg_rq3_ssg3000;
-extern vmCvar_t cg_rq3_mp5;
-extern vmCvar_t cg_rq3_handcannon;
-extern vmCvar_t cg_rq3_m3;
-extern vmCvar_t cg_rq3_akimbo;
-extern vmCvar_t cg_rq3_grenade;
+extern vmCvar_t cg_RQ3_knife;
+extern vmCvar_t cg_RQ3_mk23;
+extern vmCvar_t cg_RQ3_m4;
+extern vmCvar_t cg_RQ3_ssg3000;
+extern vmCvar_t cg_RQ3_mp5;
+extern vmCvar_t cg_RQ3_handcannon;
+extern vmCvar_t cg_RQ3_m3;
+extern vmCvar_t cg_RQ3_akimbo;
+extern vmCvar_t cg_RQ3_grenade;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;
