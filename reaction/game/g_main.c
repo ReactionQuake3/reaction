@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/06/23 15:22:53  slicer
+// Future 2.1 Matchmode Features - PART II
+//
 // Revision 1.95  2002/06/23 03:04:09  assimon
 // Added suport for callvote map <map> and ref map <map>.
 //
@@ -322,6 +325,7 @@ vmCvar_t g_listEntity;
 //Slicer: Matchmode
 vmCvar_t g_RQ3_matchmode;
 vmCvar_t g_RQ3_forceteamtalk;
+vmCvar_t g_RQ3_maxplayers;
 
 //Blaze: Reaction cvars
 vmCvar_t g_rxn_knifelimit;
@@ -464,7 +468,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
-	{&g_RQ3_forceteamtalk, "g_RQ3_forceteamtalk", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_forceteamtalk, "g_RQ3_forceteamtalk", "0", 0, 0, qtrue},
+	{&g_RQ3_maxplayers, "g_RQ3_maxplayers", "0", 0, 0, qtrue},
 	//Slicer: radio protect
 	{&g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0, 0, qfalse},
 	{&g_RQ3_radioFloodTime, "g_RQ3_radioFloodTime", "2", 0, 0, qfalse},

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/06/23 15:22:53  slicer
+// Future 2.1 Matchmode Features - PART II
+//
 // Revision 1.101  2002/06/23 03:04:09  assimon
 // Added suport for callvote map <map> and ref map <map>.
 //
@@ -1224,6 +1227,7 @@ extern vmCvar_t g_proxMineTimeout;
 //Slicer: Matchmode
 extern vmCvar_t g_RQ3_matchmode;
 extern vmCvar_t g_RQ3_forceteamtalk;
+extern vmCvar_t g_RQ3_maxplayers;
 
 //Blaze: Reaction cvars
 extern vmCvar_t g_rxn_knifelimit;

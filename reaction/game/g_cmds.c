@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2002/06/23 15:22:53  slicer
+// Future 2.1 Matchmode Features - PART II
+//
 // Revision 1.140  2002/06/23 03:04:09  assimon
 // Added suport for callvote map <map> and ref map <map>.
 //
@@ -911,7 +914,7 @@ void SetTeam(gentity_t * ent, char *s)
 	int team, oldTeam, clientNum;
 	gclient_t *client;
 	spectatorState_t specState = 0;
-	int specClient = 0, teamLeader, teamsave, x;
+	int specClient = 0, teamLeader, teamsave;
 
 	//
 	// see what change is requested
@@ -1079,8 +1082,13 @@ void SetTeam(gentity_t * ent, char *s)
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
 	if (g_gametype.integer == GT_TEAMPLAY) {
-		x = RQ3TeamCount(-1, client->sess.savedTeam);
-		x = RQ3TeamCount(-1, oldTeam);
+		if(g_RQ3_matchmode.integer && g_RQ3_maxplayers.integer > 0) {
+			if(RQ3TeamCount(-1, client->sess.savedTeam) > g_RQ3_maxplayers.integer) // If it overflows max players
+				//Make him a sub immeadiatly.
+				ent->client->sess.sub = client->sess.savedTeam; 
+		}
+		//Slicer: this was called to update the teamXcount cvars, no longer needed
+		//x = RQ3TeamCount(-1, oldTeam);
 		CheckForUnevenTeams(ent);
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;
@@ -1364,6 +1372,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 	char location[64];
 	int validation;
 
+
 	// Elder: validate the client
 	validation = RQ3_ValidateSay(ent);
 
@@ -1493,6 +1502,8 @@ Cmd_Say_f
 static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 {
 	char *p;
+	qboolean normaluser;
+
 
 	if (trap_Argc() < 2 && !arg0) {
 		return;
@@ -1505,8 +1516,21 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 	}
 
 	//Slicer Matchmode
-	if(g_RQ3_matchmode.integer && g_RQ3_forceteamtalk.integer == 2 && (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer))
-		mode = SAY_TEAM; // Force say_team for non captains / refs
+	if(g_RQ3_matchmode.integer) {
+		normaluser = (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer);
+		switch (g_RQ3_forceteamtalk.integer) {
+			case 1: //Only allow say_team when the game hasn't started
+				if(level.inGame && normaluser)
+					mode = SAY_TEAM;
+				break;
+			case 2:
+				if(normaluser)
+					mode = SAY_TEAM;
+				break;
+			default:
+				break;
+		}
+	}
 
 	G_Say(ent, NULL, mode, p);
 }
