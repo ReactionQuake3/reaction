@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.146  2002/11/17 20:14:15  jbravo
+// Itembanning added
+//
 // Revision 1.145  2002/11/13 00:50:38  jbravo
 // Fixed item dropping, specmode selection on death and helmet probs.
 //
@@ -1096,24 +1099,48 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_AKIMBO_NAME));
 		}
 	} else if (Q_stricmp(cmd, RQ3_KEVLAR_NAME) == 0 || Q_stricmp(cmd, "kevlar") == 0) {
-		ent->client->teamplayItem = HI_KEVLAR;
-		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
+		if ((int) g_RQ3_weaponban.integer & ITF_KEVLAR) {
+			ent->client->teamplayItem = HI_KEVLAR;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_KEVLAR_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_LASER_NAME) == 0 || Q_stricmp(cmd, "laser") == 0) {
-		ent->client->teamplayItem = HI_LASER;
-		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_LASER_NAME));
+		if ((int) g_RQ3_weaponban.integer & ITF_LASER) {
+			ent->client->teamplayItem = HI_LASER;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_LASER_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_LASER_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_SLIPPERS_NAME) == 0 || Q_stricmp(cmd, "slippers") == 0) {
-		ent->client->teamplayItem = HI_SLIPPERS;
-		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SLIPPERS_NAME));
+		if ((int) g_RQ3_weaponban.integer & ITF_SLIPPERS) {
+			ent->client->teamplayItem = HI_SLIPPERS;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SLIPPERS_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SLIPPERS_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_SILENCER_NAME) == 0 || Q_stricmp(cmd, "silencer") == 0) {
-		ent->client->teamplayItem = HI_SILENCER;
-		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SILENCER_NAME));
+		if ((int) g_RQ3_weaponban.integer & ITF_SILENCER) {
+			ent->client->teamplayItem = HI_SILENCER;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SILENCER_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_SILENCER_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_BANDOLIER_NAME) == 0 || Q_stricmp(cmd, "bandolier") == 0) {
-		ent->client->teamplayItem = HI_BANDOLIER;
-		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
+		if ((int) g_RQ3_weaponban.integer & ITF_BANDOLIER) {
+			ent->client->teamplayItem = HI_BANDOLIER;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_BANDOLIER_NAME));
+		}
 	} else if (Q_stricmp(cmd, RQ3_HELMET_NAME) == 0 || Q_stricmp(cmd, "helmet") == 0) {
 		if (g_RQ3_haveHelmet.integer) {
-			ent->client->teamplayItem = HI_HELMET;
-			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_HELMET_NAME));
+			if ((int) g_RQ3_weaponban.integer & ITF_HELMET) {
+				ent->client->teamplayItem = HI_HELMET;
+				trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_HELMET_NAME));
+			} else {
+				trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
+			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
 		}

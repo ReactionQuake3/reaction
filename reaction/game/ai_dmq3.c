@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/11/17 20:14:15  jbravo
+// Itembanning added
+//
 // Revision 1.51  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -2710,21 +2713,12 @@ int BotSameTeam(bot_state_t * bs, int entnum)
 	}
 	if (gametype >= GT_TEAM) {
 		//Makro - added teamplay code; changed some stuff
-		if (gametype != GT_TEAMPLAY) {
-			trap_GetConfigstring(CS_PLAYERS + bs->client, info1, sizeof(info1));
-			trap_GetConfigstring(CS_PLAYERS + entnum, info2, sizeof(info2));
-			//
-			team1 = atoi(Info_ValueForKey(info1, "t"));
-			team2 = atoi(Info_ValueForKey(info2, "t"));
-		} else {
-			team1 = g_entities[bs->client].client->sess.savedTeam;
-			team2 = g_entities[entnum].client->sess.savedTeam;
-		}
+		team1 = g_entities[bs->client].client->sess.savedTeam;
+		team2 = g_entities[entnum].client->sess.savedTeam;
 		if (team1 == TEAM_SPECTATOR || team2 == TEAM_SPECTATOR)
 			return qfalse;
 		if (team1 == team2)
 			return qtrue;
-
 	}
 	return qfalse;
 }

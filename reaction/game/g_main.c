@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/11/17 20:14:15  jbravo
+// Itembanning added
+//
 // Revision 1.127  2002/10/31 01:10:07  jbravo
 // Bumped the version to 2.3
 //
@@ -463,6 +466,7 @@ vmCvar_t g_RQ3_tkbanrounds;
 vmCvar_t g_RQ3_ppl_idletime;
 vmCvar_t g_RQ3_idleaction;
 vmCvar_t g_RQ3_weaponban;
+vmCvar_t g_RQ3_itemban;
 vmCvar_t g_RQ3_ctb_respawndelay;
 vmCvar_t g_RQ3_allWeapons;
 vmCvar_t g_RQ3_allItems;
@@ -615,6 +619,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_itemban, "g_RQ3_itemban", "63", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
@@ -2591,36 +2596,44 @@ void RQ3_StartUniqueItems(void)
 
 	G_Printf("RQ3_StartUniqueItems: Starting unique item spawn code...\n");
 
-	rq3_item = BG_FindItemForHoldable(HI_SLIPPERS);
-	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
-	Drop_Item(rq3_temp, rq3_item, angle);
-	angle += 30;
-
-	rq3_item = BG_FindItemForHoldable(HI_KEVLAR);
-	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
-	Drop_Item(rq3_temp, rq3_item, angle);
-	angle += 30;
-
-	rq3_item = BG_FindItemForHoldable(HI_SILENCER);
-	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
-	Drop_Item(rq3_temp, rq3_item, angle);
-	angle += 30;
-
-	rq3_item = BG_FindItemForHoldable(HI_BANDOLIER);
-	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
-	Drop_Item(rq3_temp, rq3_item, angle);
-	angle += 30;
-
-	rq3_item = BG_FindItemForHoldable(HI_LASER);
-	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
-	Drop_Item(rq3_temp, rq3_item, angle);
-	angle += 30;
-
-	if (g_RQ3_haveHelmet.integer) {
-		rq3_item = BG_FindItemForHoldable(HI_HELMET);
+	// JBravo: adding itembanning
+	if ((int) g_RQ3_weaponban.integer & ITF_SLIPPERS) {
+		rq3_item = BG_FindItemForHoldable(HI_SLIPPERS);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
+	}
+	if ((int) g_RQ3_weaponban.integer & ITF_KEVLAR) {
+		rq3_item = BG_FindItemForHoldable(HI_KEVLAR);
+		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		Drop_Item(rq3_temp, rq3_item, angle);
+		angle += 30;
+	}
+	if ((int) g_RQ3_weaponban.integer & ITF_SILENCER) {
+		rq3_item = BG_FindItemForHoldable(HI_SILENCER);
+		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		Drop_Item(rq3_temp, rq3_item, angle);
+		angle += 30;
+	}
+	if ((int) g_RQ3_weaponban.integer & ITF_BANDOLIER) {
+		rq3_item = BG_FindItemForHoldable(HI_BANDOLIER);
+		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		Drop_Item(rq3_temp, rq3_item, angle);
+		angle += 30;
+	}
+	if ((int) g_RQ3_weaponban.integer & ITF_LASER) {
+		rq3_item = BG_FindItemForHoldable(HI_LASER);
+		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		Drop_Item(rq3_temp, rq3_item, angle);
+		angle += 30;
+	}
+	if (g_RQ3_haveHelmet.integer) {
+		if ((int) g_RQ3_weaponban.integer & ITF_HELMET) {
+			rq3_item = BG_FindItemForHoldable(HI_HELMET);
+			rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+			Drop_Item(rq3_temp, rq3_item, angle);
+			angle += 30;
+		}
 	}
 }
 

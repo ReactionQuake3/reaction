@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2002/11/17 20:14:15  jbravo
+// Itembanning added
+//
 // Revision 1.130  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -397,6 +400,14 @@ typedef enum {
 #define WPF_DUAL			0x00000040	// 64
 #define WPF_KNIFE			0x00000080	// 128
 #define WPF_GRENADE			0x00000100	// 256
+
+// JBravo: adding itembanning
+#define ITF_SILENCER			0x00000001	// 1
+#define ITF_SLIPPERS			0x00000002	// 2
+#define ITF_BANDOLIER			0x00000004	// 4
+#define ITF_KEVLAR			0x00000008	// 8
+#define ITF_LASER			0x00000010	// 16
+#define ITF_HELMET			0x00000020	// 32
 
 //============================================================================
 
@@ -1390,6 +1401,7 @@ extern vmCvar_t g_RQ3_tkbanrounds;	// JBravo: no. of games team killers are bann
 extern vmCvar_t g_RQ3_ppl_idletime;	// JBravo: Seconds Idle before playing an insane sound
 extern vmCvar_t g_RQ3_idleaction;	// JBravo: what to do with Idlers. 0 = sound, 1 = team none, 2 = kick
 extern vmCvar_t g_RQ3_weaponban;	// JBravo: Bitmapped cvar for weaponbanning
+extern vmCvar_t g_RQ3_itemban;		// JBravo: Bitmapped cvar for itembanning
 extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb respawns
 extern vmCvar_t g_RQ3_allWeapons;	// JBravo: if set, TP/DM players get all the weapons
 extern vmCvar_t g_RQ3_allItems;		// JBravo: if set, TP/DM players get all the items

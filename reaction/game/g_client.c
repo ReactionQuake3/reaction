@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/11/17 20:14:15  jbravo
+// Itembanning added
+//
 // Revision 1.122  2002/11/13 00:50:38  jbravo
 // Fixed item dropping, specmode selection on death and helmet probs.
 //
@@ -1486,14 +1489,32 @@ void ClientBegin(int clientNum)
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (ent->r.svFlags & SVF_BOT) {
 			//Makro - changed to m4/laser from pistol/kevlar
-			if (!client->teamplayWeapon)
-				client->teamplayWeapon = WP_M4;
-			if (!client->teamplayItem)
+			if (!client->teamplayWeapon) {
+				if ((int) g_RQ3_weaponban.integer & WPF_M4) {
+					client->teamplayWeapon = WP_M4;
+				} else if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
+					client->teamplayWeapon = WP_PISTOL;
+				} else if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
+					client->teamplayWeapon = WP_KNIFE;
+				} else {
+					client->teamplayWeapon = WP_PISTOL;
+				}
+			}
+			if (!client->teamplayItem && ((int) g_RQ3_weaponban.integer & ITF_LASER))
 				client->teamplayItem = HI_LASER;
 		} else {
-			if (!client->teamplayWeapon)
-				client->teamplayWeapon = WP_MP5;
-			if (!client->teamplayItem)
+			if (!client->teamplayWeapon) {
+				if ((int) g_RQ3_weaponban.integer & WPF_MP5) {
+					client->teamplayWeapon = WP_MP5;
+				} else if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
+					client->teamplayWeapon = WP_PISTOL;
+				} else if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
+					client->teamplayWeapon = WP_KNIFE;
+				} else {
+					client->teamplayWeapon = WP_PISTOL;
+				}
+			}
+			if (!client->teamplayItem && ((int) g_RQ3_weaponban.integer & ITF_KEVLAR))
 				client->teamplayItem = HI_KEVLAR;
 		}
 		i = RQ3TeamCount(-1, client->sess.sessionTeam);
