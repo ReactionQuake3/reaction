@@ -4,6 +4,14 @@
 * added g_RQ3_ctb_respawndelay for delayed CTB respawns.
 * Fixed initial spawning in teammates for CTB
 * Changed rq3ctf to rq3ctb in .arena parsing code.
+* Fixed the MM settings menu to also work wnem connected to a remote server.
+* Removed colors from the nicks in MM commands
+* Added a map_restart after successful g_gametype votes.
+* UI now supports CTB as a valid gametype
+* Fixed the missing weapon/item menu in the player menu
+* Added g_RQ3_version and g_RQ3_showOwnKills to the about server menu
+* Fixed missing shader errors in the UI on numerous places.
+
 
 
 # List fixes here for the 2.1 release

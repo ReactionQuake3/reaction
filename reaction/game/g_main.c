@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/07/26 06:46:31  jbravo
+// Added a map_restart after successful callvote g_gametype votes.
+//
 // Revision 1.103  2002/07/24 02:17:38  jbravo
 // Added a respawn delay for CTB
 //
@@ -2177,16 +2180,17 @@ void CheckVote(void)
 {
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
 		level.voteExecuteTime = 0;
-		if( Q_stricmp(level.voteString, "cyclemap") == 0)
+		if (Q_stricmp(level.voteString, "cyclemap") == 0)
  			BeginIntermission();
-		else
-			if( Q_stricmp(level.voteString, "map") == 0){
+		else if (Q_stricmp(level.voteString, "map") == 0) {
 				trap_Cvar_Set("g_RQ3_ValidIniFile", "2");  // check this latter. This trap may not be necessary 
 				g_RQ3_ValidIniFile.integer = 2;
 				BeginIntermission();
-			}
-			else
-				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+		} else if (Q_stricmp(level.voteString, "g_gametype") == 0) {
+			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+		} else
+			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
 	if (!level.voteTime) {
 		return;
