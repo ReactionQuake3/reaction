@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/02/09 18:27:44  slicer
+// Spectator code: +attack button to change view, and jump to switch player
+//
 // Revision 1.48  2002/02/09 00:10:12  jbravo
 // Fixed spectator follow and free and updated zcam to 1.04 and added the
 // missing zcam files.
@@ -487,15 +490,15 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	//Slicer - Changing this for aq2 way
 	// Jump button cycles throught spectators
-	if(client->sess.spectatorState == SPECTATOR_FOLLOW && ucmd->upmove >=10 ) {
-		if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
-			client->ps.pm_flags |= PMF_JUMP_HELD;
-			Cmd_FollowCycle_f( ent, 1 );
+	if(client->sess.spectatorState == SPECTATOR_FOLLOW) {
+		if(ucmd->upmove >=10 ) {
+			if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
+				client->ps.pm_flags |= PMF_JUMP_HELD;
+				Cmd_FollowCycle_f( ent, 1 );
+			}
 		}
-	} else {
-		if (ucmd->upmove == 0) {
+		else
 			client->ps.pm_flags &= ~PMF_JUMP_HELD;
-		}
 	}
 	// Attack Button cycles throught free view or follow
 	if((ucmd->buttons & BUTTON_ATTACK) && !( client->oldbuttons & BUTTON_ATTACK )) {
@@ -1538,7 +1541,7 @@ SpectatorClientEndFrame
 */
 void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
-	int		savedPing, savedScore;
+	int		savedPing, savedScore,savedFlags;
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -1559,11 +1562,15 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 			// JBravo: saving score and ping to fix the scoreboard
 				savedPing = ent->client->ps.ping;
 				savedScore = ent->client->ps.persistant[PERS_SCORE];
+				//Slicer saving pm_flags
+				savedFlags = ent->client->ps.pm_flags;
 				ent->client->ps = cl->ps;
 				//Reposting score and ping.. 
 				if(g_gametype.integer == GT_TEAMPLAY) {
 					ent->client->ps.ping = savedPing;
 					ent->client->ps.persistant[PERS_SCORE] = savedScore;
+					//Slicer reposting pmflags
+					ent->client->ps.pm_flags = savedFlags;
 				}
 //				ent->client->ps.persistant[PERS_SCORE] = ent->client->savedpersistant[PERS_SCORE];
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
