@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/09/07 22:40:01  jbravo
+// Added a scaling ctb respawn system.  Fixed a bug that allowed players to
+// spawn before their team respawn with the team command.
+//
 // Revision 1.122  2002/09/02 02:21:41  niceass
 // removed spherical head detection
 //
@@ -847,6 +851,7 @@ typedef struct {
 // JBravo: for CTB
 	int team1respawn;
 	int team2respawn;
+	int ctb_respawndelay;
 	//Slicer: 
 	int team1gender;
 	int team2gender;

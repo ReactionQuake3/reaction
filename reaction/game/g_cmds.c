@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.167  2002/09/07 22:40:01  jbravo
+// Added a scaling ctb respawn system.  Fixed a bug that allowed players to
+// spawn before their team respawn with the team command.
+//
 // Revision 1.166  2002/09/04 00:16:17  makro
 // Fixed 'unselectable grenade shown in the inventory if you switch weapons
 // after pulling the pin' bug
@@ -1020,7 +1024,7 @@ void SetTeam(gentity_t * ent, char *s)
 	// decide if we will allow the change
 	//
 // JBravo: we use the savedTeam var because the player meight be dead.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		oldTeam = client->sess.savedTeam;
 	} else {
 		oldTeam = client->sess.sessionTeam;
@@ -1090,42 +1094,18 @@ void SetTeam(gentity_t * ent, char *s)
 	}
 
 	client->sess.teamLeader = qfalse;
-
-	// JBravo: no teamleader crap in teamplay mode.
-	// NiceAss: I see no reason for this in CTB or any other gametype.
-	/*
-	if ((team == TEAM_RED || team == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
-		teamLeader = TeamLeader(team);
-		// if there is no team leader or the team leader is a bot and this client is not a bot
-		if (teamLeader == -1
-		    || (!(g_entities[clientNum].r.svFlags & SVF_BOT) && (g_entities[teamLeader].r.svFlags & SVF_BOT))) {
-			SetLeader(team, clientNum);
-		}
-	}
-	*/
-	// make sure there is a team leader on the team the player came from
-
-	// JBravo: no teamleader crap in teamplay mode.
-	// NiceAss: I see no reason for this in CTB or any other gametype.
-	/*
-	if ((oldTeam == TEAM_RED || oldTeam == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
-		CheckTeamLeader(oldTeam);
-	}
-	*/
 	BroadcastTeamChange(client, oldTeam);
 
 	// get and distribute relevent paramters
 
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		if (g_RQ3_matchmode.integer && g_RQ3_maxplayers.integer > 0) {
 			if (RQ3TeamCount(-1, client->sess.savedTeam) > g_RQ3_maxplayers.integer) // If it overflows max players
 				//Make him a sub immeadiatly.
 				ent->client->sess.sub = client->sess.savedTeam; 
 		}
-		//Slicer: this was called to update the teamXcount cvars, no longer needed
-		//x = RQ3TeamCount(-1, oldTeam);
 		CheckForUnevenTeams(ent);
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;
@@ -1139,14 +1119,16 @@ void SetTeam(gentity_t * ent, char *s)
 			client->radioGender = level.team1gender;
 		else if (client->sess.savedTeam == TEAM_BLUE)
 			client->radioGender = level.team2gender;
-
-	} else {
 		if (g_gametype.integer == GT_CTF) {
-			CheckForUnevenTeams(ent);
-			CalculateRanks();
-			ResetKills(ent);
-			client->last_damaged_players[0] = '\0';
+			if (client->sess.savedTeam == TEAM_RED) {
+				if (level.team1respawn == 0)
+					ClientBegin(clientNum);
+			} else if (client->sess.savedTeam == TEAM_BLUE) {
+				if (level.team2respawn == 0)
+					ClientBegin(clientNum);
+			}
 		}
+	} else {
 		ClientUserinfoChanged(clientNum);
 		ClientBegin(clientNum);
 	}

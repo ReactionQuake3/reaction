@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2002/09/07 22:40:01  jbravo
+// Added a scaling ctb respawn system.  Fixed a bug that allowed players to
+// spawn before their team respawn with the team command.
+//
 // Revision 1.134  2002/08/30 15:27:10  jbravo
 // One more extra body fix
 //
@@ -1354,15 +1358,29 @@ void MakeSpectator(gentity_t * ent)
 		client->ps.pm_flags &= ~PMF_FOLLOW;
 		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 		client->ps.pm_type = PM_FREEZE;
+		if (g_RQ3_ctb_respawndelay.integer == 0) {
+			if (level.numPlayingClients <= 4)
+				level.ctb_respawndelay = 5;
+			else if (level.numPlayingClients <= 6)
+				level.ctb_respawndelay = 8;
+			else if (level.numPlayingClients <= 8)
+				level.ctb_respawndelay = 12;
+			else if (level.numPlayingClients <= 10)
+				level.ctb_respawndelay = 15;
+			else
+				level.ctb_respawndelay = 20;
+		} else {
+			level.ctb_respawndelay = g_RQ3_ctb_respawndelay.integer;
+		}
 		if (client->sess.savedTeam == TEAM_RED) {
 			if (level.team1respawn == 0) {
-				level.team1respawn = level.time + (g_RQ3_ctb_respawndelay.integer * 1000);
-				RQ3_StartTimer(TEAM_RED, g_RQ3_ctb_respawndelay.integer);
+				level.team1respawn = level.time + (level.ctb_respawndelay * 1000);
+				RQ3_StartTimer(TEAM_RED, level.ctb_respawndelay);
 			}
 		} else if (client->sess.savedTeam == TEAM_BLUE) {
 			if (level.team2respawn == 0) {
-				level.team2respawn = level.time + (g_RQ3_ctb_respawndelay.integer * 1000);
-				RQ3_StartTimer(TEAM_BLUE, g_RQ3_ctb_respawndelay.integer);
+				level.team2respawn = level.time + (level.ctb_respawndelay * 1000);
+				RQ3_StartTimer(TEAM_BLUE, level.ctb_respawndelay);
 			}
 		}
 		ClientSpawn(ent);
