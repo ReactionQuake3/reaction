@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/04/02 21:45:15  jbravo
+// change for makro
+//
 // Revision 1.54  2002/04/02 21:41:03  jbravo
 // But in new bot radio code.
 //
@@ -1072,8 +1075,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 					continue;
 				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
 					if (player->r.svFlags & SVF_BOT)
-						trap_SendServerCommand(player-g_entities, va("print \"radio %s %i\n\"",
-							ent->client->pers.netname, x));
+						trap_SendServerCommand(player-g_entities, va("print \"radio %s %s\n\"",
+							ent->client->pers.netname, radio_msgs[x].msg));
 					else
 						trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
 							ent->client->radioGender));
