@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/02 12:44:58  makro
+// Customizable color for the loading screen text. Bot stuff
+//
 // Revision 1.19  2002/04/30 12:23:35  jbravo
 // Warningfix
 //
@@ -702,6 +705,8 @@ Every map should have exactly one worldspawn.
 */
 void SP_worldspawn( void ) {
 	char	*s;
+	vec3_t	color;
+	char	info[MAX_INFO_STRING];
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -719,6 +724,13 @@ void SP_worldspawn( void ) {
 	G_SpawnString( "message", "", &s );
 	trap_SetConfigstring( CS_MESSAGE, s );				// map specific message
 
+	//Makro - color for the loading screen text
+	G_SpawnVector( "_color", "1 1 1", color );
+	Info_SetValueForKey(info, "red", va("%f", color[0]));
+	Info_SetValueForKey(info, "green", va("%f", color[1]));
+	Info_SetValueForKey(info, "blue", va("%f", color[2]));
+	trap_SetConfigstring( CS_LOADINGSCREEN, info );
+	
 	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
 	G_SpawnString( "gravity", "800", &s );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/05/02 12:44:58  makro
+// Customizable color for the loading screen text. Bot stuff
+//
 // Revision 1.22  2002/05/02 00:12:22  makro
 // Improved reloading and ammo handling for akimbo/hc
 //
@@ -308,6 +311,19 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	}
 	*/
 	BotMoveTo(bs, dir);
+}
+
+/*
+==================
+RQ3_Bot_GetWeaponInfo
+
+Added by Makro
+==================
+*/
+void RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, void  *weaponinfo) {
+	trap_BotGetWeaponInfo(weaponstate, weapon, weaponinfo);
+	//TODO: - set spreads here depending on what the player is doing - crouching, running etc.
+	//		- set grenade range
 }
 
 /*
@@ -1566,6 +1582,7 @@ void BotRQ3TPSeekGoals( bot_state_t *bs ) {
 	//no arrive message
 	//bs->arrive_time = 0;
 	//
+	bs->ctfroam_time = FloatTime() + CTF_ROAM_TIME;
 	BotVoiceChat(bs, bs->teammate, VOICECHAT_ONFOLLOW);
 	//get the team goal time
 	bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
@@ -2030,7 +2047,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_HANDCANNONAMMO] = amt;
 	//Blaze: Same ammo for Pistol and Akimbo Pistols
 	//bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
-	//Makro - same hack for akimbos
+	//Makro - same hack for akimbo
 	amt = bs->cur_ps.ammo[WP_AKIMBO] + ent->client->numClips[WP_AKIMBO] * RQ3_PISTOL_CLIP;
 	if (amt < 2)
 		amt = 0;
@@ -2349,6 +2366,9 @@ Added by Makro
 qboolean RQ3_Bot_CheckBandage( bot_state_t *bs ) {
 	qboolean doBandage = qfalse;
 
+	if ( (bs->flags & BFL_FIGHTSUICIDAL) == BFL_FIGHTSUICIDAL)
+		return qfalse;
+
 	if (bs->inventory[INVENTORY_HEALTH] > 20)
 		doBandage = (random() > (float) bs->inventory[INVENTORY_HEALTH] / 100.0f);
 	else
@@ -2367,13 +2387,14 @@ void BotBattleUseItems(bot_state_t *bs) {
 	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
 		if (RQ3_Bot_CheckBandage(bs))
 			//Makro - if not bandaging already
-			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING)
+			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 				Cmd_Bandage( &g_entities[bs->entitynum] );
-	/*
-	if (bot_developer.integer == 2) {
-		G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
-	}
-	*/
+				/*
+				if (bot_developer.integer == 2) {
+					G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
+				}
+				*/
+			}
 	}
 
 	if (bs->inventory[INVENTORY_HEALTH] < 40) {
@@ -2867,7 +2888,8 @@ int BotWantsToCamp(bot_state_t *bs) {
 	if (BotAggression(bs) < 50) return qfalse;
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
 	// Elder: changed a few of the numbers
-	if ((bs->inventory[INVENTORY_HANDCANNON] <= 0 || bs->inventory[INVENTORY_M3AMMO < 5]) &&
+	//Makro - fixed a typo - bs->inventory[INVENTORY_M3AMMO < 5]
+	if ((bs->inventory[INVENTORY_HANDCANNON] <= 0 || bs->inventory[INVENTORY_M3AMMO] < 5) &&
 		(bs->inventory[INVENTORY_M4] <= 0 || bs->inventory[INVENTORY_M4AMMO] < 10) &&
 		(bs->inventory[INVENTORY_SSG3000] <= 0 || bs->inventory[INVENTORY_SSG3000AMMO] < 6)) {
 		return qfalse;
@@ -3672,7 +3694,9 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	}
 
 	//get the weapon information
-	trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	//trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	//Makro - new function
+	RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi);
 	//get the weapon specific aim accuracy and or aim skill
 
 //Blaze: just gonna set the Characteristic aim to machinegun for all of these, but I am still doing the if's so we can edit it later for bot support
@@ -3697,20 +3721,23 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
 	}
 //Blaze: Reaction HandCannon
+//Makro - using shotgun accuracy for now
 	if (wi.number == WP_HANDCANNON) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
+		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1);
 	}
 //Blaze: Reaction Shotgun
+//Makro - using shotgun accuracy for now
 	if (wi.number == WP_M3) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
+		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1);
 	}
 //Blaze: Reaction Akimbo
 	if (wi.number == WP_AKIMBO) {
 		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
 	}
 //Blaze: Reaction Grenade
+//Makro - changed to grenade launcher accuracy
 	if (wi.number == WP_GRENADE) {
-		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
+		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER, 0, 1);
 	}
 	//
 	if (aim_accuracy <= 0) aim_accuracy = 0.0001f;
@@ -3962,7 +3989,9 @@ void BotCheckAttack(bot_state_t *bs) {
 	//
 	//Makro - we need the weapon info sooner
 	//get the weapon info
-	trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	//trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	//Makro - new function
+	RQ3_Bot_GetWeaponInfo(bs, bs->ws, bs->weaponnum, &wi);
 	reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;

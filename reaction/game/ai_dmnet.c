@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/05/02 12:44:58  makro
+// Customizable color for the loading screen text. Bot stuff
+//
 // Revision 1.18  2002/05/02 00:12:22  makro
 // Improved reloading and ammo handling for akimbo/hc
 //
@@ -1413,20 +1416,12 @@ int AINode_Stand(bot_state_t *bs) {
 			bs->standfindenemy_time = FloatTime() + BotChatTime(bs) + 0.1;
 			bs->stand_time = FloatTime() + BotChatTime(bs) + 0.1;
 		}
-		//Makro - if bot isn't bandaging already
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			//Makro - bot should bandage
-			if (bs->inventory[INVENTORY_HEALTH] > 60) {
-				willBandage = (random() < 0.3);
-			} else if (bs->inventory[INVENTORY_HEALTH] > 40) {
-				willBandage = (random() < 0.5);
-			} else if (bs->inventory[INVENTORY_HEALTH] > 20) {
-				willBandage = (random() < 0.7);
-			} else {
-				willBandage = qtrue;
-			}
-			if (willBandage) {
+
+		if (RQ3_Bot_CheckBandage(bs)) {
+			//Makro - if not bandaging already
+			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 				Cmd_Bandage( &g_entities[bs->entitynum] );
+				//Not 100% sure this will work, but oh well...
 				AIEnter_Battle_Retreat(bs, "stand: bandaging");
 			}
 		}

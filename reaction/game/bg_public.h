@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/05/02 12:44:58  makro
+// Customizable color for the loading screen text. Bot stuff
+//
 // Revision 1.59  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -416,7 +419,10 @@ extern radio_msg_t female_radio_msgs[];
 #define CS_SHADERSTATE			24
 #define CS_BOTINFO				25
 
-#define	CS_ITEMS			27		// string of 0's and 1's that tell which items are present
+#define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+
+//Makro - color for the loading screen text
+#define CS_LOADINGSCREEN		29
 
 #define	CS_MODELS			32
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
