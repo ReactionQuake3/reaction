@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2002/06/23 03:04:09  assimon
+// Added suport for callvote map <map> and ref map <map>.
+//
 // Revision 1.139  2002/06/21 00:05:55  slicer
 // Spectators can now use say_team to communicate among each others, DM and TP
 //
@@ -1879,14 +1882,19 @@ void Cmd_CallVote_f(gentity_t * ent)
 			return;
 		}
 
-		trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
+	/*	trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
 		if (*s) {
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s; set nextmap \"%s\"", arg1, arg2,
 				    s);
 		} else {
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
 		}
-		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
+	*/
+
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
+		Com_sprintf(level.voteMap, sizeof(level.voteMap), "%s", arg2);
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s %s", level.voteString, level.voteMap);
+
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
 //		char s[MAX_STRING_CHARS];
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/06/23 03:04:09  assimon
+// Added suport for callvote map <map> and ref map <map>.
+//
 // Revision 1.94  2002/06/21 21:02:30  niceass
 // worldspawn laserfog check
 //
@@ -17,7 +20,7 @@
 //
 // Revision 1.91  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
-//
+//o
 // Revision 1.90  2002/06/19 05:21:43  niceass
 // scoreboard stuff
 //
@@ -1500,7 +1503,8 @@ void BeginIntermission(void)
 		return;		// already active
 	}
 
-	trap_SendServerCommand(-1, va("print \"Next map in rotation is %s\n\"", g_RQ3_NextMap.string));
+	if ( g_RQ3_ValidIniFile.integer == 1 )
+		trap_SendServerCommand(-1, va("print \"Next map in rotation is %s\n\"", g_RQ3_NextMap.string));
 
 	// if in tournement mode, change the wins / losses
 	if (g_gametype.integer == GT_TOURNAMENT) {
@@ -2130,7 +2134,13 @@ void CheckVote(void)
 		if( Q_stricmp(level.voteString, "cyclemap") == 0)
  			BeginIntermission();
 		else
-			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+			if( Q_stricmp(level.voteString, "map") == 0){
+				trap_Cvar_Set("g_RQ3_ValidIniFile", "2");  // check this latter. This trap may not be necessary 
+				g_RQ3_ValidIniFile.integer = 2;
+				BeginIntermission();
+			}
+			else
+				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
 	if (!level.voteTime) {
 		return;
@@ -2558,6 +2568,17 @@ void RQ3_ReadInitFile()
 	fileHandle_t file;
 	char *buf;
 	int len;
+
+	if ( g_RQ3_ValidIniFile.integer == 3 ){		
+		trap_Cvar_Set( "g_RQ3_ValidIniFile", "1");
+		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteMap));
+		return;
+	}else
+	if ( g_RQ3_ValidIniFile.integer == 2 ){
+		trap_Cvar_Set( "g_RQ3_ValidIniFile", "1");
+		trap_SendConsoleCommand(EXEC_APPEND, va("%s %s\n", level.voteString, level.voteMap));
+		return;
+	}
 
 	len = trap_FS_FOpenFile(g_RQ3_IniFile.string, &file, FS_READ);
 

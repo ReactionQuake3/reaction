@@ -414,6 +414,7 @@ qboolean Ref_Auth(gentity_t * ent)
 void Ref_Command(gentity_t * ent)
 {
 	char com[MAX_TOKEN_CHARS];
+	char param[MAX_TOKEN_CHARS];
 	int cn;
 
 	cn = ent - g_entities;
@@ -433,6 +434,7 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"pause\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"cyclemap\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"lockSettings\n\"");
+		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
 		return;
 	} else if (Q_stricmp(com, "lockSettings") == 0) {
 		if(level.settingsLocked)
@@ -483,7 +485,23 @@ void Ref_Command(gentity_t * ent)
 		}
 	} else if (Q_stricmp(com, "cyclemap") == 0){
 		BeginIntermission();
-	} else
+	} else if (Q_stricmp(com, "map") == 0){
+		// get map name
+		trap_Argv(2, param, sizeof(param));
+		
+		if ( !G_FileExists(va("maps/%s.bsp", param)) ) {
+			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", param));
+			return;
+		}
+		else{
+			trap_Cvar_Set("g_RQ3_ValidIniFile", "3");
+			g_RQ3_ValidIniFile.integer = 3;
+			trap_SendServerCommand(-1, va("print \"Referee changed next map to: %s\n\"", param));
+			Com_sprintf(level.voteMap, sizeof(level.voteMap), "map %s",param); 
+			BeginIntermission();		
+		}
+	}
+	else
 		trap_SendServerCommand(ent - g_entities,
 				       "print \"Invalid Referee comand. Type ref help to see a list of available commands\n\"");
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/06/23 03:04:09  assimon
+// Added suport for callvote map <map> and ref map <map>.
+//
 // Revision 1.100  2002/06/21 21:02:49  niceass
 // worldspawn laserfog check
 //
@@ -698,9 +701,12 @@ typedef struct {
 	int follow1, follow2;	// clientNums for auto-follow spectators
 	int snd_fry;		// sound index for standing in lava
 	int warmupModificationCount;	// for detecting if g_warmup is changed
-	// voting state
+	// voting state	
 	char voteString[MAX_STRING_CHARS];
 	char voteDisplayString[MAX_STRING_CHARS];
+	// vote extras
+	char voteMap[MAX_STRING_CHARS];
+	
 	int voteTime;		// level.time vote was called
 	int voteExecuteTime;	// time the vote is executed
 	int voteYes;
