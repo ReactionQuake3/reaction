@@ -8,6 +8,7 @@
 	visible 0
 	fullscreen 0
 	rect 170 200 300 80
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
 	style WINDOW_STYLE_EMPTY
 	border 1
