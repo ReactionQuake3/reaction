@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2003/04/07 11:30:10  jbravo
+// Forgot a skin change for reactionmale
+//
 // Revision 1.58  2003/03/29 18:53:41  jbravo
 // Fixed ammo bug when dropping bandolier. Added color to more errormessages
 //
@@ -823,9 +826,9 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 			if (!CG_RegisterClientModelname
 			    (ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname)) {
 				if (ci->team == TEAM_BLUE)
-					Q_strncpyz(ci->skinName, "cyrus", sizeof(ci->skinName));
+					Q_strncpyz(ci->skinName, "robber", sizeof(ci->skinName));
 				else
-					Q_strncpyz(ci->skinName, "chowda", sizeof(ci->skinName));
+					Q_strncpyz(ci->skinName, "default", sizeof(ci->skinName));
 				if (!CG_RegisterClientModelname
 				    (ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname))
 					CG_Error("DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register",
