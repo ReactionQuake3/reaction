@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/04/26 03:57:51  niceass
+// took some old stuff out + small pressure stuff
+//
 // Revision 1.47  2002/04/23 06:00:32  niceass
 // pressure stuff
 //
@@ -1247,6 +1250,11 @@ void Knife_Attack ( gentity_t *self, int damage)
 		}
 		self->client->knife_sound = 0;
 	}
+
+	if ( hitent->s.eType == ET_PRESSURE ) {
+		// Pressure entity
+		tent = G_TempEntity2( tr.endpos, EV_PRESSURE_WATER, DirToByte(tr.plane.normal) );
+	}
 }
 
 //static int knives = 0;
@@ -1565,7 +1573,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	trace_t		trace;
 	gentity_t	*tent[MAX_SSG3000_HITS];
 	gentity_t	*tentWall;
-	gentity_t	*traceEnt;
+	gentity_t	*traceEnt = NULL;
 	int			damage;
 	int			i;
 	int			hits;
@@ -1757,10 +1765,11 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 		else if (Material == MAT_GLASS)
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
+		else if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
+			tentWall = G_TempEntity( trace.endpos, EV_PRESSURE_WATER );
 		else
-		{
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
-		}
+
 		tentWall->s.eventParm = DirToByte( trace.plane.normal );
 		tentWall->s.otherEntityNum = ent->s.number;
 	}
@@ -2504,9 +2513,6 @@ void Laser_Think( gentity_t *self )
 	trace_t		tr; //, tr2;
 	int			l=0, passent;
 	gentity_t	*traceEnt;
-	// NiceAss: For fog:
-//	gentity_t	*tent;
-//	vec3_t		fogStart;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
@@ -2552,15 +2558,6 @@ void Laser_Think( gentity_t *self )
 			continue;
 		}
 		
-		// We hit fog...
-		/*
-		if (!VectorCompare(tr.endpos, tr2.endpos)) {
-			VectorCopy(tr2.endpos, tr.endpos);
-			self->s.eFlags |= EF_FIRING;
-			self->s.otherEntityNum = self->parent->client->ps.clientNum;//self->parent->s.number;  // ->s.clientNum ???
-			break;
-		}
-*/
 		//Makro - new surfaceparm system
 		//if (!(tr.surfaceFlags & SURF_GLASS)) break;
 		if (!(GetMaterialFromFlag(tr.surfaceFlags) == MAT_GLASS)) break;
