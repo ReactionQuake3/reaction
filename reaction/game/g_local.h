@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.111  2002/07/24 02:17:38  jbravo
 // Added a respawn delay for CTB
 //
@@ -664,6 +667,8 @@ struct gclient_s {
 	int teamplayWeapon;
 	int teamplayItem;
 	int radioGender;
+	int radioSetMale;
+	int radioSetFemale;
 	qboolean radioOff;
 	int team_wounds;
 	int team_wounds_before;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.24  2002/07/13 22:42:18  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -1097,7 +1100,7 @@ static void CG_PlayBufferedSounds(void)
 			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
 			cg.soundBuffer[cg.soundBufferOut] = 0;
 			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
-			cg.soundTime = cg.time + 750;
+			cg.soundTime = cg.time + 1100;
 		}
 	}
 }

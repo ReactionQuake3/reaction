@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.125  2002/08/03 06:21:04  jbravo
 // Fixed the Akimbo ammo when akimbos are not the primary weapon
 //
@@ -1300,11 +1303,11 @@ void RQ3_Cmd_Radio_power_f(gentity_t * ent)
 	if (ent->client->radioOff == qfalse) {
 		ent->client->radioOff = qtrue;
 		trap_SendServerCommand(ent - g_entities, "cp \"Radio switched off\n\"");
-		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0", RADIO));
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0 0", RADIO));
 	} else {
 		ent->client->radioOff = qfalse;
 		trap_SendServerCommand(ent - g_entities, "cp \"Radio switched on\n\"");
-		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0", RADIO));
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0 0", RADIO));
 	}
 }
 
@@ -1530,20 +1533,25 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 	char msg[MAX_TOKEN_CHARS];
 	radio_msg_t *radio_msgs;
 	gentity_t *player;
-	int i, x, kills;
+	int i, x, kills, set;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->health <= 0)
 		return;
 	if (trap_Argc() < 2)
 		return;
+	if (g_RQ3_lca.integer)
+		return;
 	if (ent->client->radioOff == qtrue) {
 		trap_SendServerCommand(ent - g_entities, "print \"Your radio is off!\n\"");
 		return;
 	}
-	if (ent->client->radioGender == 0)
+	if (ent->client->radioGender == 0) {
 		radio_msgs = male_radio_msgs;
-	else
+		set = ent->client->radioSetMale;
+	} else {
 		radio_msgs = female_radio_msgs;
+		set = ent->client->radioSetFemale;
+	}
 
 	x = 0;
 
@@ -1567,13 +1575,13 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 						if (g_gametype.integer != GT_TEAMPLAY) {
 							if (player->client->sess.sessionTeam == ent->client->sess.sessionTeam)
 								trap_SendServerCommand(player - g_entities,
-										       va("rq3_cmd %i %i %i\n", RADIO,
-											  kills - 1, ent->client->radioGender));
+										       va("rq3_cmd %i %i %i %i\n", RADIO,
+											  kills - 1, ent->client->radioGender, set));
 						} else {
 							if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
 								trap_SendServerCommand(player - g_entities,
-										       va("rq3_cmd %i %i %i\n", RADIO,
-											  kills - 1, ent->client->radioGender));
+										       va("rq3_cmd %i %i %i %i\n", RADIO,
+											  kills - 1, ent->client->radioGender, set));
 						}
 					}
 				}
@@ -1593,8 +1601,8 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 										  radio_msgs[x].msg));
 						else
 							trap_SendServerCommand(player - g_entities,
-									       va("rq3_cmd %i %i %i\n", RADIO, x,
-										  ent->client->radioGender));
+									       va("rq3_cmd %i %i %i %i\n", RADIO, x,
+										  ent->client->radioGender, set));
 					}
 				} else {
 					if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
@@ -1605,8 +1613,8 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 										  radio_msgs[x].msg));
 						else
 							trap_SendServerCommand(player - g_entities,
-									       va("rq3_cmd %i %i %i\n", RADIO, x,
-										  ent->client->radioGender));
+									       va("rq3_cmd %i %i %i %i\n", RADIO, x,
+										  ent->client->radioGender, set));
 					}
 				}
 			}

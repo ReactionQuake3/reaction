@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.59  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -1113,12 +1116,27 @@ void CG_CvarSet(void)
 
 void CG_Radio(void)
 {
-	int sound, gender;
+	int sound, gender, set;
 
 	sound = atoi(CG_Argv(2));
 	gender = atoi(CG_Argv(3));
+	set = atoi(CG_Argv(4));
+
 	//Slicer optimization
-	if (!gender) {
+	if (cg_RQ3_dynamicRadio.integer) {
+		if (!gender) {
+			if (set == 0) {
+				CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+			} else if (set == 1) {
+				CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
+			} else if (set == 2) {
+				CG_AddBufferedSound(cgs.media.pikey_male_sounds[sound]);
+			} else if (set > 2) {
+				CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
+			}
+		} else
+			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
+	} else if (!gender) {
 		if (cg_RQ3_radiovoice_male.integer == 0) {
 			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
 		} else if (cg_RQ3_radiovoice_male.integer == 1) {
@@ -1129,7 +1147,7 @@ void CG_Radio(void)
 			CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
 		}
 	} else {
-			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
+		CG_AddBufferedSound(cgs.media.female_sounds[sound]);
 	}
 	return;
 }

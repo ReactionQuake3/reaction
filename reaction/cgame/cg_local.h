@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.113  2002/08/03 06:52:35  jbravo
 // Fixed the plost3 sound in all radiopaks and now damage is only tracked for
 // players you hit that are not on your team
@@ -1648,6 +1651,7 @@ extern vmCvar_t cg_RQ3_overlaycrosshair;
 extern vmCvar_t cg_RQ3_tkokAutoPopup;
 extern vmCvar_t cg_RQ3_radiovoice_male;
 extern vmCvar_t cg_RQ3_radiovoice_female;
+extern vmCvar_t cg_RQ3_dynamicRadio;
 
 // Slicer: for the Anti-Cheat System
 //extern  vmCvar_t      cg_RQ3_Auth;

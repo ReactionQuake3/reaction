@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.109  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -1107,7 +1110,20 @@ void ClientUserinfoChanged(int clientNum)
 		Q_strncpyz(model, Info_ValueForKey(userinfo, "model"), sizeof(model));
 		Q_strncpyz(headModel, Info_ValueForKey(userinfo, "headmodel"), sizeof(headModel));
 	}
-	//Com_Printf("%s model=(%s)\n",client->pers.netname, model);
+	// JBravo: set the radiosoundset
+	s = Info_ValueForKey(userinfo, "cg_RQ3_radiovoice_male");
+	if (!atoi(s)) {
+		client->radioSetMale = 0;
+	} else {
+		client->radioSetMale = atoi(s);
+	}
+	s = Info_ValueForKey(userinfo, "cg_RQ3_radiovoice_female");
+	if (!atoi(s)) {
+		client->radioSetFemale = 0;
+	} else {
+		client->radioSetFemale = atoi(s);
+	}
+	
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		if (client->sess.sessionTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
@@ -1628,6 +1644,7 @@ void ClientSpawn(gentity_t * ent)
 	int eventSequence;
 	int savedWeapon, savedItem, savedSpec;	// JBravo: to save weapon/item info
 	int savedRadiopower, savedRadiogender;	// JBravo: for radio.
+	int savedMaleSet, savedFemaleSet;	// JBravo: for soundset saves.
 	camera_t savedCamera;	// JBravo: to save camera stuff
 	char userinfo[MAX_INFO_STRING];
 
@@ -1732,6 +1749,8 @@ void ClientSpawn(gentity_t * ent)
 // JBravo: save radiosettings
 	savedRadiopower = client->radioOff;
 	savedRadiogender = client->radioGender;
+	savedMaleSet = client->radioSetMale;
+	savedFemaleSet = client->radioSetFemale;
 	memcpy(&savedCamera, &client->camera, sizeof(camera_t));
 
 	memset(client, 0, sizeof(*client));	// bk FIXME: Com_Memset?
@@ -1743,6 +1762,8 @@ void ClientSpawn(gentity_t * ent)
 // JBravo: restore radiosettings
 	client->radioOff = savedRadiopower;
 	client->radioGender = savedRadiogender;
+	client->radioSetMale = savedMaleSet;
+	client->radioSetFemale = savedFemaleSet;
 	memcpy(&client->camera, &savedCamera, sizeof(camera_t));
 
 	client->pers = saved;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/08/07 03:35:57  jbravo
+// Added dynamic radio and stopped all radio usage during lca
+//
 // Revision 1.101  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -384,8 +387,10 @@ vmCvar_t cg_RQ3_overlaycrosshair;
 
 // JBravo: cvar for tkok popup
 vmCvar_t cg_RQ3_tkokAutoPopup;
+// JBravo: radio cvars.
 vmCvar_t cg_RQ3_radiovoice_male;
 vmCvar_t cg_RQ3_radiovoice_female;
+vmCvar_t cg_RQ3_dynamicRadio;
 
 // Slicer: for the Anti-Cheat System
 //vmCvar_t      cg_RQ3_Auth;
@@ -638,8 +643,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_crosshairColorB, "cg_RQ3_crosshairColorB", "1.0", CVAR_ARCHIVE},
 	{&cg_RQ3_crosshairColorA, "cg_RQ3_crosshairColorA", "1.0", CVAR_ARCHIVE},
 	{&cg_RQ3_tkokAutoPopup, "cg_RQ3_tkokAutoPopup", "0", CVAR_ARCHIVE},
-	{&cg_RQ3_radiovoice_male, "cg_RQ3_radiovoice_male", "1", CVAR_ARCHIVE},
-	{&cg_RQ3_radiovoice_female, "cg_RQ3_radiovoice_female", "1", CVAR_ARCHIVE},
+	{&cg_RQ3_radiovoice_male, "cg_RQ3_radiovoice_male", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+	{&cg_RQ3_radiovoice_female, "cg_RQ3_radiovoice_female", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE},
