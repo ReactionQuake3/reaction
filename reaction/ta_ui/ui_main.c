@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2003/04/07 02:18:49  jbravo
+// Removed more unlagged stuff that was messing up impact marks and fixed a
+// booboo in the UI ssg xhair previews.
+//
 // Revision 1.71  2003/04/06 18:31:21  makro
 // SSG crosshairs
 //
@@ -4989,10 +4993,14 @@ static void UI_RunMenuScript(char **args)
 					else if (current >= NUM_SSGCROSSHAIRS)
 						current = 0;
 					if (instant) {
-						if (current == 0)
+/*						if (current == 0)
 							uiInfo.uiDC.Assets.SSGcrosshairShader =
 							    trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
 						else
+							uiInfo.uiDC.Assets.SSGcrosshairShader =
+							    trap_R_RegisterShaderNoMip(va
+										       ("gfx/rq3_hud/ssg2x-%i",
+											current)); */
 							uiInfo.uiDC.Assets.SSGcrosshairShader =
 							    trap_R_RegisterShaderNoMip(va
 										       ("gfx/rq3_hud/ssg2x-%i",
