@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/07/09 05:42:51  niceass
+// flag scoreboard changes
+//
 // Revision 1.40  2002/07/08 04:27:32  niceass
 // moved some code to game. Changed from head models to icons
 //
@@ -313,11 +316,11 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 		DrawStripText(y, -(SB_FONTSIZEW * 16), SB_FONTSIZEH, "[CAPTAIN] [SUB]", 100, colorWhite);
 
 	if (ci->powerups & ( 1 << PW_REDFLAG ) )
-		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 16, y, SB_FONTSIZEH + SB_PADDING * 2+1, 
-			SB_FONTSIZEH + SB_PADDING * 2+1, TEAM_RED, qfalse );
+		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 2, y, SB_FONTSIZEH + SB_PADDING * 2, 
+			SB_FONTSIZEH + SB_PADDING * 2, TEAM_RED, qfalse );
 	else if (ci->powerups & ( 1 << PW_BLUEFLAG ) )
-		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 16, y, SB_FONTSIZEH + SB_PADDING * 2+1,
-			SB_FONTSIZEH + SB_PADDING * 2+1, TEAM_BLUE, qfalse );
+		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 2, y, SB_FONTSIZEH + SB_PADDING * 2,
+			SB_FONTSIZEH + SB_PADDING * 2, TEAM_BLUE, qfalse );
 }
 
 /*
