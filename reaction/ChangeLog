@@ -38,3 +38,10 @@
 * Fixed the logging of Clients IP's when they connect.
 * Personal score grouped with team score on hud.
 * Scoreboard shows individual and team head models.
+* Spectators can now use say_team with [SPECTATOR] on their messages
+* MM: Added Color to all messages for better reading
+* MM: Added g_RQ3_forceteamtalk.
+* MM: Added "Settings" command code to use from a menu
+* MM: Added "lockSettings" as a referee command
+* MM: Added a "dmflags" like option to give/remove privileges to captains g_RQ3_mmflags
+* MM: Added g_RQ3_maxplayers to cap max players on a team
