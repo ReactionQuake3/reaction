@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/07/09 03:31:25  niceass
+// oops
+//
 // Revision 1.13  2002/07/09 03:23:14  niceass
 // added a alive function
 //
@@ -808,7 +811,7 @@ int G_PlayerAlive(gentity_t *ent)
 	}
 	else
 	{
-		if ( ent->health > 0 && ( ent->client->sess.sessionTeam == TEAM_RED || other->client->sess.sessionTeam == TEAM_BLUE ) )
+		if ( ent->health > 0 && ( ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE ) )
 			return qtrue;
 		else
 			return qfalse;
