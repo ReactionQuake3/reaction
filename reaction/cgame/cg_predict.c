@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/03/11 02:23:06  niceass
+// client gravity fix
+//
 // Revision 1.15  2002/02/26 02:58:47  jbravo
 // Fixing the spectator_free mode not being predicted in the client.
 //
@@ -709,7 +712,7 @@ void CG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 	case TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
 		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		result[2] -= 0.5 * cg.predictedPlayerState.gravity * deltaTime * deltaTime;		// FIXME: local gravity...
+		result[2] -= 0.5 * cg_gravity.value * deltaTime * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
 		Com_Error( ERR_DROP, "CG_EvaluateTrajectory: unknown trType: %i", tr->trTime );
@@ -752,7 +755,7 @@ void CG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 	case TR_GRAVITY:
 		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
 		VectorCopy( tr->trDelta, result );
-		result[2] -= cg.predictedPlayerState.gravity * deltaTime;		// FIXME: local gravity...
+		result[2] -= cg_gravity.value * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
 		Com_Error( ERR_DROP, "CG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );

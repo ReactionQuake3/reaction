@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/03/11 02:21:13  niceass
+// client gravity fix
+//
 // Revision 1.28  2002/03/07 14:29:12  slicer
 // Intermission ala aq2, when timelimit/roundlimit hits.
 //
@@ -211,7 +214,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	// Elder: slow down to 300?
 	{ &g_speed, "g_speed", "300", 0, 0, qtrue  },	// was 320
-	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
+	{ &g_gravity, "g_gravity", "800", CVAR_SYSTEMINFO, 0, qtrue  },		// shared with client (cg_gravity)
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
 	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
 	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },

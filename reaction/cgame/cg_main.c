@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/03/11 02:23:52  niceass
+// client gravity fix
+//
 // Revision 1.41  2002/03/07 19:50:48  makro
 // Made cg_RQ3_ssgCrosshair latched
 //
@@ -228,6 +231,7 @@ vmCvar_t	cg_bigFont;
 vmCvar_t	cg_noTaunt;
 vmCvar_t	cg_noProjectileTrail;
 vmCvar_t	cg_oldRail;
+vmCvar_t	cg_gravity;
 vmCvar_t	cg_oldRocket;
 vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
@@ -401,6 +405,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 // JBravo: added
 	{ &RQ3_lca, "RQ3_lca", "0", 0},
+	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &MM_team1, "MM_team1", "0", 0},
 	{ &MM_team2, "MM_team2", "0", 0}
