@@ -188,7 +188,7 @@ typedef enum {
 #define THROW_DAMAGE 			250	//Throwing Knife damage
 #define GRENADE_DAMAGE			170
 #define GRENADE_SPLASH_DAMAGE	170 
-#define GRENADE_SPLASH_RADIUS	340 //Splash damage * 2
+#define GRENADE_SPLASH_RADIUS	340 //340 Splash damage * 2
 
 #define PISTOL_SPREAD 			140
 #define MP5_SPREAD 				250
@@ -220,8 +220,10 @@ typedef enum {
 #define RQ3_HANDCANNON_DELAY	1200
 #define RQ3_SSG3000_DELAY		1400
 #define RQ3_SSG3000_BOLT_DELAY	1300// Elder: delay before zooming back in
-#define RQ3_AKIMBO_DELAY		500	// Elder: two delays: one for the total delay
-#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
+//#define RQ3_AKIMBO_DELAY		500	// Elder: two delays: one for the total delay
+//#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
+#define RQ3_AKIMBO_DELAY		200
+#define RQ3_AKIMBO_DELAY2		300
 #define RQ3_KNIFE_DELAY			800	
 #define RQ3_THROW_DELAY			800
 #define RQ3_GRENADE_DELAY		750	// Elder: I made this up
@@ -680,10 +682,27 @@ typedef enum {
 	REC_GRENADEDEATHS,
 	REC_KNIFETHROWDEATHS,
 	REC_KNIFESLASHDEATHS,
+	REC_KICKDEATHS,
 	REC_BLEEDDEATHS,
 	REC_FALLINGDEATHS,
 	REC_SUICIDES,			// e.g. for MPELP award, those loonies :)
 	REC_WORLDDEATHS,		// crushers, doors, etc.
+	// Kill tally
+	REC_HEADKILLS,
+	REC_CHESTKILLS,
+	REC_STOMACHKILLS,
+	REC_LEGKILLS,
+	REC_MK23KILLS,
+	REC_M3KILLS,
+	REC_MP5KILLS,
+	REC_M4KILLS,
+	REC_SSG3000KILLS,
+	REC_HANDCANNONKILLS,
+	REC_AKIMBOKILLS,
+	REC_GRENADEKILLS,
+	REC_KNIFETHROWKILLS,
+	REC_KNIFESLASHKILLS,
+	REC_KICKKILLS,
 	REC_STEALTHKILLS,		// this is a derived record -- remove?
 	// Movement tally - dunno about these ones since they are related to pmove
 	REC_CAMPCOUNT,
@@ -806,6 +825,7 @@ typedef enum {
 	EV_BULLET_HIT_KEVLAR,	// Elder: sparks
 	EV_SSG3000_HIT_FLESH,
 	EV_JUMPKICK,			// Elder: sound + jumpkick message
+	EV_EJECTBLOOD,			// Elder: when bleeding, every 2s release blood
 
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,

@@ -452,14 +452,22 @@ static qboolean PM_CheckJump( void ) {
 			pm->ps->velocity[2] += 135;
 		}
 		else
-			pm->ps->velocity[2] += 100; // More velocity
+			pm->ps->velocity[2] += 75; // More velocity ; was 100
 		if (pm->debugLevel) 
 			Com_Printf("^4Hit a double jump^7\n");
 //			Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 	}
-	pm->ps->stats[STAT_JUMPTIME] = 400; // Time that the second jump is within to get the higher jump
+	
+	// Time that the second jump is within to get the higher jump
+	if (pml.ladder == qtrue)
+	{
+		// Elder: more for ladder jumps
+		pm->ps->stats[STAT_JUMPTIME] = 500;
+	}
+	else
+		pm->ps->stats[STAT_JUMPTIME] = 250;	// 400
 	// end Blaze
 
 	PM_AddEvent( EV_JUMP );
@@ -1833,7 +1841,8 @@ static void PM_BeginWeaponChange( int weapon ) {
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4)
+			pm->ps->weapon == WP_M4 ||
+			pm->ps->weapon == WP_AKIMBO)
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
 	}
 
@@ -1850,7 +1859,8 @@ static void PM_BeginWeaponChange( int weapon ) {
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4)
+		pm->ps->weapon == WP_M4 ||
+		pm->ps->weapon == WP_AKIMBO)
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
@@ -1926,7 +1936,8 @@ static void PM_FinishWeaponChange( void ) {
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4)
+		pm->ps->weapon == WP_M4 ||
+		pm->ps->weapon == WP_AKIMBO)
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
@@ -1954,7 +1965,8 @@ static void PM_TorsoAnimation( void ) {
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4)
+			pm->ps->weapon == WP_M4 ||
+			pm->ps->weapon == WP_AKIMBO)
 			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
@@ -2355,6 +2367,20 @@ static void PM_Weapon( void ) {
 		}
 	}
 
+	// Elder: new akimbo code
+	if ( pm->ps->weapon == WP_AKIMBO )
+	{
+		if (pm->ps->ammo[WP_AKIMBO] == 0 && pm->ps->stats[STAT_BURST])
+		{
+			pm->ps->stats[STAT_BURST] = 0;
+			pm->cmd.buttons &= ~BUTTON_ATTACK;
+		}
+		else if (pm->ps->stats[STAT_BURST])
+		{
+			pm->cmd.buttons |= BUTTON_ATTACK;
+		}
+	}
+
 	// check for item using
 	// Elder: removed
 	/*
@@ -2407,7 +2433,8 @@ static void PM_Weapon( void ) {
 				 pm->ps->weapon == WP_M3 ||
 				 pm->ps->weapon == WP_HANDCANNON ||
 				 pm->ps->weapon == WP_SSG3000 ||
-				 pm->ps->weapon == WP_M4))
+				 pm->ps->weapon == WP_M4 ||
+				 pm->ps->weapon == WP_AKIMBO))
 				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 		}
 	}
@@ -2454,7 +2481,8 @@ static void PM_Weapon( void ) {
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4)
+			pm->ps->weapon == WP_M4 ||
+			pm->ps->weapon == WP_AKIMBO)
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
@@ -2544,12 +2572,17 @@ static void PM_Weapon( void ) {
 				pm->ps->weapon == WP_M3 ||
 				pm->ps->weapon == WP_HANDCANNON ||
 				pm->ps->weapon == WP_SSG3000 ||
-				pm->ps->weapon == WP_M4)
+				pm->ps->weapon == WP_M4 ||
+				pm->ps->weapon == WP_AKIMBO)
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
 	
 	pm->ps->weaponstate = WEAPON_FIRING;
+
+	// Elder: akimbo check to auto-fire the second bullet
+	//if ( pm->ps->weapon == WP_AKIMBO && pm->ps->stats[STAT_BURST] == 0)
+		//pm->ps->stats[STAT_BURST] = 1;
 
 	// Elder: increment stat if alt-fire mode --needs to be predicted as well
 	if ( (pm->ps->weapon == WP_M4 &&
@@ -2598,15 +2631,15 @@ static void PM_Weapon( void ) {
 		{
 			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
 		}
-		//Elder: remove one more bullet/shell if handcannon/akimbo
+		//Elder: remove one more bullet/shell if handcannon
 		else if (pm->ps->weapon == WP_HANDCANNON)
 		{
 			pm->ps->ammo[ WP_HANDCANNON ]--;
 		}
 		//Elder: take away an extra bullet if available - handled in g_weapon.c as well
-		else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
-			pm->ps->ammo[ WP_AKIMBO ] --;
-		}
+		//else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
+			//pm->ps->ammo[ WP_AKIMBO ] --;
+		//}
 
 		//Elder: sync bullets a la AQ2 style
 		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[WP_AKIMBO] < 12) {
@@ -2664,7 +2697,16 @@ static void PM_Weapon( void ) {
 		addTime = RQ3_M3_DELAY;
 		break;
 	case WP_AKIMBO:
-		addTime = RQ3_AKIMBO_DELAY;
+		if (pm->ps->stats[STAT_BURST])
+		{
+			addTime = RQ3_AKIMBO_DELAY2;
+			pm->ps->stats[STAT_BURST] = 0;
+		}
+		else
+		{
+			pm->ps->stats[STAT_BURST] = 1;
+			addTime = RQ3_AKIMBO_DELAY;
+		}
 		break;
 	case WP_GRENADE:
 		addTime = RQ3_GRENADE_DELAY;
@@ -3205,7 +3247,8 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4)
+		pm->ps->weapon == WP_M4 ||
+		pm->ps->weapon == WP_AKIMBO)
 		PM_WeaponAnimation();
 
 	// torso animation

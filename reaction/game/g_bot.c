@@ -590,7 +590,8 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	key = "model";
 	model = Info_ValueForKey( botinfo, key );
 	if ( !*model ) {
-		model = "visor/default";
+		// Elder: changed to our default
+		model = "grunt/resdog";
 	}
 	Info_SetValueForKey( userinfo, key, model );
 	key = "team_model";

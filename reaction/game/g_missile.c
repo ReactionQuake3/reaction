@@ -65,8 +65,13 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent
 			, ent->splashMethodOfDeath ) ) {
 			g_entities[ent->r.ownerNum].client->accuracy_hits++;
-			if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
-			if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
+			// Elder: Statistics tracking
+			if (ent->s.weapon == WP_KNIFE)
+				g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
+				//g_entities[ent->r.ownerNum].client->knifeHits++;
+			if (ent->s.weapon == WP_GRENADE)
+				g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
+				//g_entities[ent->r.ownerNum].client->grenHits++;
 		}
 	}
 	//Elder: huhh?
@@ -309,8 +314,13 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		if ( ent->damage ) {
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
-				if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
+				// Elder: Statistics tracking
+				if (ent->s.weapon == WP_KNIFE)
+					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
+					//g_entities[ent->r.ownerNum].client->knifeHits++;
+				if (ent->s.weapon == WP_GRENADE)
+					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
+					//g_entities[ent->r.ownerNum].client->grenHits++;
 				hitClient = qtrue;
 			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
@@ -515,8 +525,13 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			other, ent->splashMethodOfDeath ) ) {
 			if( !hitClient ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
-				if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE)g_entities[ent->r.ownerNum].client->grenHits++;
+				// Elder: Statistics tracking
+				if (ent->s.weapon == WP_KNIFE)
+					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
+					//g_entities[ent->r.ownerNum].client->knifeHits++;
+				if (ent->s.weapon == WP_GRENADE)
+					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
+					//g_entities[ent->r.ownerNum].client->grenHits++;
 			}
 		}
 	}
@@ -699,12 +714,22 @@ fire_grenade
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	gentity_t	*bolt;
 	int speed;
+	vec3_t up, right;
+
+	if (self->client)
+		AngleVectors( self->client->ps.viewangles, NULL, right, up);	
+	else
+	{
+		// just in case we put those shooters back
+		up[0] = up[1] = up[2] = 0;
+		right[0] = right[1] = right[2] = 0;
+	}
 
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
 	bolt->classname = "grenade";
-	bolt->nextthink = level.time + 2500;
+	bolt->nextthink = level.time + 2000; // Action had 2 seconds
 	bolt->think = G_ExplodeMissile;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -726,6 +751,9 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	
 	//Elder: grenade toggle distances/speeds
 	if ( self->client) {
+		// Elder: Statistics tracking
+		self->client->pers.records[REC_GRENADESHOTS]++;
+
 		if ( self->client->ps.stats[STAT_HEALTH] <= 0 ||
 			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 			//Always drop close range if dead or about to bandage
@@ -752,7 +780,10 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	}
 	
 	VectorScale( dir, speed, bolt->s.pos.trDelta );
+	VectorMA (bolt->s.pos.trDelta, 200 + crandom() * 10.0f, up, bolt->s.pos.trDelta);
+    VectorMA (bolt->s.pos.trDelta, crandom() * 10.0f, right, bolt->s.pos.trDelta);
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
+	
 
 	VectorCopy (start, bolt->r.currentOrigin);
 
@@ -792,6 +823,11 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 	VectorCopy (dir, bolt->s.apos.trBase);
 	VectorCopy (dir, bolt->r.currentAngles);
 
+	if (self->client)
+	{
+		// Elder: Statistics tracking
+		self->client->pers.records[REC_KNIFETHROWSHOTS]++;
+	}
 	//Elder: not needed anymore
 	//Saving stuff for Makro's knife equations
 	//VectorCopy( start, bolt->s.origin2);

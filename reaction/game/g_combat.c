@@ -340,6 +340,9 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 		return;
 	}
 
+	if (attacker->client)
+		attacker->client->pers.records[REC_GIBSHOTS]++;
+
 	GibEntity( self, 0 );
 }
 
@@ -586,6 +589,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if ( killer < 0 || killer >= MAX_CLIENTS ) {
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
+		// Elder: Statistics tracking
+		self->client->pers.records[REC_WORLDDEATHS]++;
 	}
 
 	if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
@@ -599,21 +604,129 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->pers.netname, obit );
 
 	// broadcast the death event to everyone
-	// Elder: use appropriate obit event
+	// Elder: use appropriate obit event and update statistics tracking
 	if ( (self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
 		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE )
+	{
+		// head kill
+		self->client->pers.records[REC_HEADDEATHS]++;
+		if (attacker && attacker->client)
+			attacker->client->pers.records[REC_HEADKILLS]++;
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_HEAD );
+	}
 	else if ( (self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER)
+	{
+		// chest kill
+		self->client->pers.records[REC_CHESTDEATHS]++;
+		if (attacker && attacker->client)
+			attacker->client->pers.records[REC_CHESTKILLS]++;
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_CHEST );
+	}
 	else if ( (self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN)
+	{
+		// stomach kill
+		self->client->pers.records[REC_STOMACHDEATHS]++;
+		if (attacker && attacker->client)
+			attacker->client->pers.records[REC_STOMACHKILLS]++;
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_STOMACH );
+	}
 	else if ( (self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT)
+	{
+		// leg kill
+		self->client->pers.records[REC_LEGDEATHS]++;
+		if (attacker && attacker->client)
+			attacker->client->pers.records[REC_LEGKILLS]++;
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_LEGS );
+	}
 	else
+	{
+		// non-location/world kill
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+	}
+
+	// Elder: Statistics tracking
+	switch ( meansOfDeath )
+	{
+		case MOD_KNIFE:
+			/*
+			if (attacker && attacker->client)
+			{
+				if ( attacker->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE )
+				{
+					attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
+					self->client->pers.records[REC_KNIFESLASHDEATHS]++;
+				}
+				else
+				{
+					attacker->client->pers.records[REC_KNIFETHROWKILLS]++;
+					self->client->pers.records[REC_KNIFETHROWDEATHS]++;
+				}
+			}
+			else
+			{
+				// just count it as a slash death if no attacker
+				self->client->pers.records[REC_KNIFESLASHDEATHS]++;
+			}
+			*/
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
+			self->client->pers.records[REC_KNIFESLASHDEATHS]++;
+			break;
+		case MOD_KNIFE_THROWN:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_KNIFETHROWKILLS]++;
+			self->client->pers.records[REC_KNIFETHROWDEATHS]++;
+			break;
+		case MOD_PISTOL:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_MK23KILLS]++;
+			self->client->pers.records[REC_MK23DEATHS]++;
+			break;
+		case MOD_M3:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_M3KILLS]++;
+			self->client->pers.records[REC_M3DEATHS]++;
+			break;
+		case MOD_M4:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_M4KILLS]++;
+			self->client->pers.records[REC_M4DEATHS]++;
+			break;
+		case MOD_MP5:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_MP5KILLS]++;
+			self->client->pers.records[REC_MP5DEATHS]++;
+			break;
+		case MOD_SNIPER:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_SSG3000KILLS]++;
+			self->client->pers.records[REC_SSG3000DEATHS]++;
+			break;
+		case MOD_HANDCANNON:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_HANDCANNONKILLS]++;
+			self->client->pers.records[REC_HANDCANNONDEATHS]++;
+			break;
+		case MOD_AKIMBO:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_AKIMBOKILLS]++;
+			self->client->pers.records[REC_AKIMBODEATHS]++;
+			break;
+		case MOD_GRENADE:
+		case MOD_GRENADE_SPLASH:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_GRENADEKILLS]++;
+			self->client->pers.records[REC_GRENADEDEATHS]++;
+			break;
+		case MOD_KICK:
+			if (attacker && attacker->client)
+				attacker->client->pers.records[REC_KICKKILLS]++;
+			self->client->pers.records[REC_KICKDEATHS]++;
+			break;
+	}
 
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
@@ -706,6 +819,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// if I committed suicide, the flag does not fall, it returns.
 	if (meansOfDeath == MOD_SUICIDE) {
+		// Elder: Statistics tracking
+		self->client->pers.records[REC_SUICIDES]++;
+
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );
 			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
@@ -741,36 +857,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			//RQ3_ResetItem(bg_itemlist[self->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag);
 			//self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 		//}
-		// Elder: weapons are smart enough to return themselves
-		/*
-		// Elder: obviously we don't worry about the pistol or knives here
-		weaponInventory = self->client->ps.stat[STAT_WEAPONS];
-		if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
-			RQ3_ResetWeapon( WP_M3 );
-			self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
-		}
-		
-		if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
-			RQ3_ResetWeapon( WP_M4 );
-			self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
-		}
-		
-		if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
-			RQ3_ResetWeapon( WP_MP5 );
-			self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
-		}
-		
-		if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
-			RQ3_ResetWeapon( WP_HANDCANNON );
-			self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
-		}
-		
-		if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
-			RQ3_ResetWeapon( WP_SSG3000 );
-			self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
-		}
-		self->client->uniqueWeapons = 0;
-		*/
 	}
 #ifdef MISSIONPACK
 	TossClientPersistantPowerups( self );
@@ -1620,13 +1706,29 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		       impactRotation = impactRotation % 360; // Keep it in the 0-359 range
 
 		       if (impactRotation < 90)
+			   {
+				   if (attacker->client)
+					   attacker->client->pers.records[REC_BACKSHOTS]++;
 	               targ->client->lasthurt_location = LOCATION_BACK;
+			   }
 		       else if (impactRotation < 180)
+			   {
+				   if (attacker->client)
+					   attacker->client->pers.records[REC_RIGHTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_RIGHT;
+			   }
 		       else if (impactRotation < 270)
+			   {
+				   if (attacker->client)
+					   attacker->client->pers.records[REC_FRONTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_FRONT;
+			   }
 		       else if (impactRotation < 360)
+			   {
+				   if (attacker->client)
+					   attacker->client->pers.records[REC_LEFTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_LEFT;
+			   }
 		       else
 			       targ->client->lasthurt_location = LOCATION_NONE;
 
@@ -1681,6 +1783,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					{
 						case LOCATION_HEAD: 
 						case LOCATION_FACE:
+							if (attacker->client)
+								attacker->client->pers.records[REC_HEADSHOTS]++;
 							//save headshot time for player_die
 							targ->client->headShotTime = level.time;
 
@@ -1705,6 +1809,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_SHOULDER: 
 						case LOCATION_CHEST:
+							if (attacker->client)
+								attacker->client->pers.records[REC_CHESTSHOTS]++;
 							//Vest stuff - is the knife supposed to be affected?
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
@@ -1744,12 +1850,16 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_STOMACH:
 						case LOCATION_GROIN:
+							if (attacker->client)
+								attacker->client->pers.records[REC_STOMACHSHOTS]++;
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
 							take *= 0.4;
 							break;
 						case LOCATION_LEG:
 						case LOCATION_FOOT: 
+							if (attacker->client)
+								attacker->client->pers.records[REC_LEGSHOTS]++;
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
 							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
@@ -1815,25 +1925,45 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
 			return;
-		}// else if ( targ->pain ) {
-		//	targ->pain (targ, attacker, take);
-		//}
+		// Elder: why was this commented out?
+		} else if ( targ->pain ) {
+			targ->pain (targ, attacker, take);
+		}
 	}
+	/*
+	// Elder: crash code because conditional was missing
 	if (client) 
 	{
-		if (!(targ->flags & FL_GODMODE) && (take)) targ->pain (targ, attacker, take);
+		if (!(targ->flags & FL_GODMODE) && (take))
+		{
+			// this one was missing
+			if (targ->pain)
+				targ->pain (targ, attacker, take);
+		}
 	}
+	
+	// Elder: this is commented out because of redundancy
 	if (take)
 	{
 	    if (targ->pain) targ->pain (targ, attacker, take);
 	}
-
+	*/
 
 	if (client)
 	{
 		if (client->lasthurt_location && bleeding)
 		{
-			client->bleeding += take * BLEED_TIME;
+			// Elder: use the server FPS
+			int realBleedTime;
+			
+			realBleedTime = trap_Cvar_VariableIntegerValue("sv_fps");
+			if (realBleedTime <= 0)
+				realBleedTime = BLEED_TIME;
+
+			client->bleeding += take * realBleedTime;
+
+			VectorSubtract (point, targ->r.absmax, targ->client->bleedloc_offset);
+
 			//G_Printf("(%d) = damage",damage);
 			//G_Printf("(%d) = bleeding",client->bleeding);
 		}
@@ -1956,8 +2086,10 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		if ( dist >= radius ) {
 			continue;
 		}
-
-		points = damage * ( 1.0 - dist / radius );
+		// Q2 radius damage
+		points = damage - 0.5f * dist;
+		// Q3 radius damage
+		//points = damage * ( 1.0 - dist / radius );
 
 		//Elder: reduce grenade damage if crouching
 		if (ent->r.maxs[2] < 20)

@@ -1046,6 +1046,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		savedPing;
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
+/*
 	int		knifeShots = 0;
 	int		knifeHits = 0;
 	int		mk23Shots = 0;
@@ -1064,7 +1065,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		akimboHits = 0;
 	int		grenShots = 0;
 	int		grenHits = 0;
-
+*/
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
@@ -1128,6 +1129,7 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
+	/*
 	knifeShots = client->knifeShots;
 	knifeHits = client->knifeHits;
 	mk23Shots = client->mk23Shots;
@@ -1144,6 +1146,7 @@ void ClientSpawn(gentity_t *ent) {
 	akimboHits = client->akimboHits;
 	grenShots = client->grenShots;
 	grenHits = client->grenHits;
+	*/
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];

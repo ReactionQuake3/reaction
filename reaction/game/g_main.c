@@ -64,6 +64,7 @@ vmCvar_t	g_listEntity;
 //Blaze: Reaction cvars
 vmCvar_t	g_rxn_knifelimit;
 vmCvar_t	g_RQ3_maxWeapons;
+vmCvar_t	g_RQ3_statLog;
 //Elder: spam protection cvars
 vmCvar_t	g_RQ3_messageMaxCount;
 vmCvar_t	g_RQ3_messageInterval;
@@ -171,6 +172,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Blaze: Reaction stuff
 	{ &g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1",0,0, qtrue},
+	{ &g_RQ3_statLog, "sv_RQ3_statLog", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
 	{ &g_RQ3_messageMaxCount, "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER, CVAR_ARCHIVE, 0, qfalse },
 	{ &g_RQ3_messageInterval, "sv_RQ3_messageInterval", SAY_PERIOD_TIME, CVAR_ARCHIVE, 0, qfalse },
 	{ &g_RQ3_messageMaxWarnings, "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS, CVAR_ARCHIVE, 0, qfalse },
@@ -1159,6 +1161,60 @@ void LogExit( const char *string ) {
 	}
 #endif
 
+		// Don't print bot statistics
+		if ( g_RQ3_statLog.integer && !(g_entities[cl - level.clients].r.svFlags & SVF_BOT) )
+		{
+			// Elder: Statistics tracking for server
+			G_LogPrintf( "-----------------------------------\n");
+			G_LogPrintf( "Reaction Quake 3 Statistics Results for client %i %s\n", level.sortedClients[i], cl->pers.netname );
+			G_LogPrintf( "Kicks: %i  kills %i  deaths %i\n", cl->pers.records[REC_KICKHITS],
+							cl->pers.records[REC_KICKKILLS], cl->pers.records[REC_KICKDEATHS]);
+			G_LogPrintf( "Knife Throw Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_KNIFETHROWHITS], cl->pers.records[REC_KNIFETHROWSHOTS],
+							cl->pers.records[REC_KNIFETHROWKILLS], cl->pers.records[REC_KNIFETHROWDEATHS]);
+			G_LogPrintf( "Knife Slash Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_KNIFESLASHHITS], cl->pers.records[REC_KNIFESLASHSHOTS],
+							cl->pers.records[REC_KNIFESLASHKILLS], cl->pers.records[REC_KNIFESLASHDEATHS]);
+			G_LogPrintf( "MK23 Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_MK23HITS], cl->pers.records[REC_MK23SHOTS],
+							cl->pers.records[REC_MK23KILLS], cl->pers.records[REC_MK23DEATHS]);
+			G_LogPrintf( "MP5 Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_MP5HITS], cl->pers.records[REC_MP5SHOTS],
+							cl->pers.records[REC_MP5KILLS], cl->pers.records[REC_MP5DEATHS]);
+			G_LogPrintf( "M4 Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_M4HITS], cl->pers.records[REC_M4SHOTS],
+							cl->pers.records[REC_M4KILLS], cl->pers.records[REC_M4DEATHS]);
+			G_LogPrintf( "M3 Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_M3HITS], cl->pers.records[REC_M3SHOTS],
+							cl->pers.records[REC_M3KILLS], cl->pers.records[REC_M3DEATHS]);
+			G_LogPrintf( "HC Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_HANDCANNONHITS], cl->pers.records[REC_HANDCANNONSHOTS],
+							cl->pers.records[REC_HANDCANNONKILLS], cl->pers.records[REC_HANDCANNONDEATHS]);
+			G_LogPrintf( "SSG3000 Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_SSG3000HITS], cl->pers.records[REC_SSG3000SHOTS],
+							cl->pers.records[REC_SSG3000KILLS], cl->pers.records[REC_SSG3000DEATHS]);
+			G_LogPrintf( "Akimbo Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_AKIMBOHITS], cl->pers.records[REC_AKIMBOSHOTS],
+							cl->pers.records[REC_AKIMBOKILLS], cl->pers.records[REC_AKIMBODEATHS]);
+			G_LogPrintf( "Grenade Stats: hits/shots %i/%i  kills %i  deaths %i\n",
+							cl->pers.records[REC_GRENADEHITS], cl->pers.records[REC_GRENADESHOTS],
+							cl->pers.records[REC_GRENADEKILLS], cl->pers.records[REC_GRENADEDEATHS]);
+			G_LogPrintf( "Location Shot Stats 1: head %i  chest %i  stomach %i  leg %i\n",
+							cl->pers.records[REC_HEADSHOTS], cl->pers.records[REC_CHESTSHOTS],
+							cl->pers.records[REC_STOMACHSHOTS], cl->pers.records[REC_LEGSHOTS]);
+			G_LogPrintf( "Location Shot Stats 2: front %i  back %i  left %i  right %i\n",
+							cl->pers.records[REC_FRONTSHOTS], cl->pers.records[REC_BACKSHOTS],
+							cl->pers.records[REC_LEFTSHOTS], cl->pers.records[REC_RIGHTSHOTS]);
+			G_LogPrintf( "Location Kill Stats: head %i  chest %i  stomach %i  leg %i\n",
+							cl->pers.records[REC_HEADKILLS], cl->pers.records[REC_CHESTKILLS],
+							cl->pers.records[REC_STOMACHKILLS], cl->pers.records[REC_LEGKILLS]);
+			G_LogPrintf( "Location Death Stats: head %i  chest %i  stomach %i  leg %i\n",
+							cl->pers.records[REC_HEADDEATHS], cl->pers.records[REC_CHESTDEATHS],
+							cl->pers.records[REC_STOMACHDEATHS], cl->pers.records[REC_LEGDEATHS]);
+			G_LogPrintf( "Morbid Stats: corpse shots %i  gib shots %i\n",
+							cl->pers.records[REC_CORPSESHOTS], cl->pers.records[REC_GIBSHOTS]);
+			G_LogPrintf( "-----------------------------------\n");
+		}
 	}
 
 #ifdef MISSIONPACK
@@ -1824,14 +1880,6 @@ start = trap_Milliseconds();
 	}
 end = trap_Milliseconds();
 
-	// Elder: added for unique items
-	//if (level.time - level.uniqueItemsTime >= 30000)
-	//if (level.time % 30000 < 1)
-	//{
-		//level.uniqueItemsTime = level.time;
-		//RQ3_CheckUniqueItems();
-	//}
-
 	// see if it is time to do a tournement restart
 	CheckTournament();
 
@@ -1862,9 +1910,9 @@ end = trap_Milliseconds();
 
 /*
 ==============
-Added by Elder
-
 RQ3_StartUniqueItems
+
+Added by Elder
 Spawns items at the beginning of a level
 ==============
 */
@@ -1900,10 +1948,5 @@ void RQ3_StartUniqueItems ( void )
 	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
 	Drop_Item (rq3_temp, rq3_item, angle);
 	angle += 30;
-
-	//rq3_item = BG_FindItem( "Kevlar Vest" );
-	//rq3_item = BG_FindItemForHoldable( HI_SLIPPERS );
-	//rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
-	//Drop_Item (rq3_temp, rq3_item, 0);
 }
 

@@ -98,6 +98,8 @@ qboolean JumpKick( gentity_t *ent )
 	else {
 		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
+		if (ent->client)
+			ent->client->pers.records[REC_KICKHITS]++;
 	}
 
 	// send blood impact + event stuff
@@ -335,8 +337,29 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	float		r;
 	float		u;
 	gentity_t		*tent;
+	gentity_t		*tent2;
 	gentity_t		*traceEnt;
 	int			i, passent;
+
+	// Elder: Statistics tracking
+	if (ent->client)
+	{
+		switch (MOD)
+		{
+			case MOD_PISTOL:
+				ent->client->pers.records[REC_MK23SHOTS]++;
+				break;
+			case MOD_M4:
+				ent->client->pers.records[REC_M4SHOTS]++;
+				break;
+			case MOD_MP5:
+				ent->client->pers.records[REC_MP5SHOTS]++;
+				break;
+			case MOD_AKIMBO:
+				ent->client->pers.records[REC_AKIMBOSHOTS]++;
+				break;
+		}
+	}
 
 	//Elder: removed - for some reason it's set to 0
 	//damage *= s_quadFactor;
@@ -397,25 +420,30 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			//tent->s.eventParm = traceEnt->s.number;
 			tent->s.eventParm = DirToByte(forward);
 			tent->s.otherEntityNum2 = traceEnt->s.number;
+			tent->s.otherEntityNum = ent->s.number;
 		}
 		if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
+				// Elder: Statistics tracking
 				switch (MOD)
 				{
-				case MOD_PISTOL:
-					ent->client->mk23Hits++;
-					break;
-				case MOD_M4:
-					ent->client->m4Hits++;
-					break;
-				case MOD_MP5:
-					ent->client->mp5Hits++;
-					break;
-				case MOD_AKIMBO:
-					ent->client->akimboHits++;
-					break;
+					case MOD_PISTOL:
+						ent->client->pers.records[REC_MK23HITS]++;
+						//ent->client->mk23Hits++;
+						break;
+					case MOD_M4:
+						ent->client->pers.records[REC_M4HITS]++;
+						//ent->client->m4Hits++;
+						break;
+					case MOD_MP5:
+						ent->client->pers.records[REC_MP5HITS]++;
+						//ent->client->mp5Hits++;
+						break;
+					case MOD_AKIMBO:
+						ent->client->pers.records[REC_AKIMBOHITS]++;
+						//ent->client->akimboHits++;
+						break;
 				}
-				
 
 		}
 	//Elder: *******************TEST CODE *****************
@@ -426,11 +454,13 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 				(tr.surfaceFlags & SURF_METAL2) ) {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.otherEntityNum = ent->s.number;
 	} else {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.otherEntityNum = ent->s.number;
 	}
-	tent->s.otherEntityNum = ent->s.number;
+	//tent->s.otherEntityNum = ent->s.number;
 	//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
 
 	if ( traceEnt->takedamage) {
@@ -456,10 +486,12 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		// FIXME: poor implementation
 		if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
 			if (traceEnt->client->kevlarHit == qfalse) {
-				tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+				tent2 = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
 				//tent->s.eventParm = traceEnt->s.number;
-				tent->s.eventParm = DirToByte(forward);
-				tent->s.otherEntityNum2 = traceEnt->s.number;
+				tent2->s.eventParm = DirToByte(forward);
+				tent2->s.otherEntityNum2 = traceEnt->s.number;
+				// Need this?
+				tent2->s.otherEntityNum = ent->s.number;
 			}
 			else
 				traceEnt->client->kevlarHit = qfalse;
@@ -597,12 +629,22 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 
 	//Elder: added
 	if (shotType == WP_M3)
+	{
+		// Elder: Statistics tracking
+		ent->client->pers.records[REC_M3SHOTS]++;
 		count = DEFAULT_M3_COUNT;
-	else if (shotType == WP_HANDCANNON) {
+	}
+	else if (shotType == WP_HANDCANNON)
+	{
+		// Elder: Statistics tracking
+		ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 4;
 	}
-	else {
+	else
+	{
+		// Elder: Statistics tracking
+		ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 5;
 	}
@@ -631,13 +673,16 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 		if( ShotgunPellet( origin, end, ent ) && !hitClient ) {
 			hitClient = qtrue;
 			ent->client->accuracy_hits++;
+			// Elder: Statistics tracking
 			switch (shotType)
 				{
 				case WP_M3:
-					ent->client->m3Hits++;
+					ent->client->pers.records[REC_M3HITS]++;
+					//ent->client->m3Hits++;
 					break;
 				case WP_HANDCANNON:
-					ent->client->hcHits++;
+					ent->client->pers.records[REC_HANDCANNONHITS]++;
+					//ent->client->hcHits++;
 					break;
 				}
 		}
@@ -1054,6 +1099,9 @@ void Knife_Attack ( gentity_t *self, int damage)
 	gentity_t *hitent;
 	gentity_t *tent;
 	
+	if (self->client)
+		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
+
 	VectorMA( muzzle, KNIFE_RANGE, forward, end );
     trap_Trace (&tr, muzzle, NULL, NULL, end, self->s.number, MASK_SHOT);
     hitent = &g_entities[ tr.entityNum ];    
@@ -1072,6 +1120,8 @@ void Knife_Attack ( gentity_t *self, int damage)
 				{
 					tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
 					tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
+					if (self->client)
+						self->client->pers.records[REC_KNIFESLASHHITS]++;
 				}
             }
 			else
@@ -1401,6 +1451,9 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	float		u;
 	float		spread;
 
+	// Elder: Statistics tracking
+	if (ent->client)
+		ent->client->pers.records[REC_SSG3000SHOTS]++;
 
 	VectorMA (muzzle, 8192*16, forward, end);
 
@@ -1595,7 +1648,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->client->accuracy_hits++;
-		ent->client->ssgHits++;
+		ent->client->pers.records[REC_SSG3000HITS]++;
+		//ent->client->ssgHits++;
 	}
 
 	//Elder: bolt action plus save last zoom
@@ -1770,10 +1824,10 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	Bullet_Fire( ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 
 	//Elder: reset plus added 1 bullet check
-	if (ent->client->weaponfireNextTime > 0 || ent->client->ps.ammo[WP_AKIMBO] < 2)
-		ent->client->weaponfireNextTime = 0;
-	else
-		ent->client->weaponfireNextTime = level.time + RQ3_AKIMBO_DELAY2;
+	//if (ent->client->weaponfireNextTime > 0 || ent->client->ps.ammo[WP_AKIMBO] < 2)
+		//ent->client->weaponfireNextTime = 0;
+	//else
+		//ent->client->weaponfireNextTime = level.time + RQ3_AKIMBO_DELAY2;
 
 	//Bullet_Fire( ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 }
@@ -1788,7 +1842,8 @@ void Weapon_Grenade_Fire(gentity_t *ent)
 	gentity_t	*m;
 
 	// extra vertical velocity
-	forward[2] += 0.5f;
+	// Elder: not present in AQ2
+	//forward[2] += 0.5f;
 	VectorNormalize( forward );
 
 	m = fire_grenade (ent, muzzle, forward);
@@ -1823,6 +1878,8 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	}
 
 	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
+		// Elder: Statistics tracking
+		attacker->client->pers.records[REC_CORPSESHOTS]++;
 		return qfalse;
 	}
 
@@ -1909,40 +1966,40 @@ void FireWeapon( gentity_t *ent ) {
 //Blaze: The functions get called when you shoot your gun
 	case WP_KNIFE:
 		Weapon_Knife_Fire (ent);
-		ent->client->knifeShots++;
+		//ent->client->knifeShots++;
 		break;
 	case WP_GRENADE:
 		Weapon_Grenade_Fire ( ent );
-		ent->client->grenShots++;
+		//ent->client->grenShots++;
 		break;
 	case WP_PISTOL:
 		Weapon_MK23_Fire ( ent );
-		ent->client->mk23Shots++;
+		//ent->client->mk23Shots++;
 		break;
 	case WP_M4:
 		Weapon_M4_Fire ( ent );
-		ent->client->m4Shots++;
+		//ent->client->m4Shots++;
 		break;
 	case WP_SSG3000:
 		//Weapon_SSG3000_FireOld( ent );
 		Weapon_SSG3000_Fire ( ent );
-		ent->client->ssgShots++;
+		//ent->client->ssgShots++;
 		break;
 	case WP_MP5:
 		Weapon_MP5_Fire ( ent );
-		ent->client->mp5Shots++;
+		//ent->client->mp5Shots++;
 		break;
 	case WP_HANDCANNON:
 		Weapon_HandCannon_Fire ( ent );
-		ent->client->hcShots++;
+		//ent->client->hcShots++;
 		break;
 	case WP_M3:
 		Weapon_M3_Fire ( ent );
-		ent->client->m3Shots++;
+		//ent->client->m3Shots++;
 		break;
 	case WP_AKIMBO:
 		Weapon_Akimbo_Fire ( ent );
-		ent->client->akimboShots++;
+		//ent->client->akimboShots++;
 		break;
 #ifdef MISSIONPACK
 	case WP_NAILGUN:

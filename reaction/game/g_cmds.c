@@ -1681,7 +1681,8 @@ void Cmd_Bandage (gentity_t *ent)
 			ent->client->ps.weapon == WP_M3 ||
 			ent->client->ps.weapon == WP_HANDCANNON ||
 			ent->client->ps.weapon == WP_SSG3000 ||
-			ent->client->ps.weapon == WP_M4)
+			ent->client->ps.weapon == WP_M4 ||
+			ent->client->ps.weapon == WP_AKIMBO)
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
@@ -1692,7 +1693,7 @@ void Cmd_Bandage (gentity_t *ent)
 			   ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
 		
 	
-		ent->client->ps.weaponTime += 6000;
+		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
         ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
@@ -2390,7 +2391,7 @@ void Cmd_PlayerStats_f( gentity_t *ent )
 {
 	//char textbuf[1024];
 	
-
+/*
 	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
 	trap_SendServerCommand( ent-g_entities, va("print \"| Weapon | Accuracy | Hits/Shots |\n\""));
@@ -2404,6 +2405,8 @@ void Cmd_PlayerStats_f( gentity_t *ent )
 	trap_SendServerCommand( ent-g_entities, va("print \"| HC     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->hcHits / (ent->client->hcShots ? ent->client->hcShots : 1)), ent->client->hcHits, ent->client->hcShots));
 	trap_SendServerCommand( ent-g_entities, va("print \"| SSG    |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->ssgHits / (ent->client->ssgShots ? ent->client->ssgShots : 1)), ent->client->ssgHits, ent->client->ssgShots));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
+*/
+
 }
 
 /*

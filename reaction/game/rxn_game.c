@@ -6,20 +6,30 @@ void CheckBleeding(gentity_t *targ)
 {
 	int damage;
 	int temp;
+	int realBleedTime;
+	gentity_t *tent;
+
+	// Elder: use the server's FPS as a basis for bleed time
+	realBleedTime = trap_Cvar_VariableIntegerValue( "sv_fps" );
+	// just safety check it
+	if (realBleedTime <= 0)
+		realBleedTime = BLEED_TIME;
 	
-	if (!(targ->client->bleeding) || (targ->health <=0)) return;	
+	if (!(targ->client->bleeding) || (targ->health <=0))
+		return;	
 	
-	temp = (int)(targ->client->bleeding * .2);
+	temp = (int)(targ->client->bleeding * 0.2f);
 	targ->client->bleeding -= temp;	
 	
-	if (temp <= 0) temp = 1;	
+	if (temp <= 0)
+		temp = 1;	
 
 	targ->client->bleed_remain += temp;	
-	damage = (int)(targ->client->bleed_remain/BLEED_TIME);
+	damage = (int)(targ->client->bleed_remain/realBleedTime);
 	
-	if (targ->client->bleed_remain >= BLEED_TIME)
+	if (targ->client->bleed_remain >= realBleedTime)
 	{
-		//G_Printf("Bleed Remain: %i\n", targ->client->bleed_remain);
+		//G_Printf("Bleed Remain: %i Server Time: %i\n", targ->client->bleed_remain, level.time);
 		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
 			 targ->client->bleedBandageCount < 1)
 		{
@@ -46,7 +56,21 @@ void CheckBleeding(gentity_t *targ)
 		}
 		else
 		{
-			targ->client->bleed_remain %= BLEED_TIME;
+			targ->client->bleed_remain %= realBleedTime;
+		}
+
+		if (targ->client->bleed_delay <= level.time)
+		{
+		  vec3_t bleedOrigin;
+		  
+		  targ->client->bleed_delay = level.time + 2000; // 2 seconds
+		  VectorAdd(targ->client->bleedloc_offset, targ->r.absmax, bleedOrigin);
+		  //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
+		  //EjectBlooder(ent, pos, pos);
+                        
+		  // do bleeding
+		  //tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
+
 		}
 	}
 }
@@ -71,8 +95,8 @@ void StartBandage(gentity_t *ent)
   if ( temp <= 0 )
     temp = 1;
   ent->client->bleed_remain += temp;
-  damage = (int)(ent->client->bleed_remain/BLEED_TIME);
-  if ( ent->client->bleed_remain >= BLEED_TIME )
+  damage = (int)(ent->client->bleed_remain/realBleedTime);
+  if ( ent->client->bleed_remain >= realBleedTime )
   {
     ent->health -= damage;
     if ( damage > 1 )
@@ -88,7 +112,7 @@ void StartBandage(gentity_t *ent)
     }
     else
     {
-      ent->client->bleed_remain %= BLEED_TIME;
+      ent->client->bleed_remain %= realBleedTime;
     }
     if (ent->client->bleeddelay <= level.time)
     {

@@ -12,11 +12,19 @@
 #define	GAMEVERSION	"reaction"
 
 #define BODY_QUEUE_SIZE		8
-//Blaze: How long someone bleeds for
-#define BLEED_TIME              10 // 10 = 1 second is time for losing 1 health at slowest bleed rate
-//Elder: Everyone knows you lose 6 health from the moment you start bandaging
-//Let's enforce that in-code because it's sometimes 7 or even 8 
-#define BLEED_BANDAGE			6
+
+// Blaze: How long someone bleeds for
+// Elder: This doesn't work the same as Q2 because clients and servers can
+// run independent "clocks."  Normal servers send snapshots every 50ms
+// (20 snapshots per second) so we double it from 10.
+// Ideally, this number should match the server's sv_fps cvar value for those
+// that run non-standard server frame rates.
+#define BLEED_TIME              20
+// Elder: Everyone knows you lose 6 health from the moment you start bandaging
+// Let's enforce that in-code because it's sometimes 7 or even 8 
+// Elder: LOL it's 3, dumb Elder!
+#define BLEED_BANDAGE			3
+#define BLEED_BANDAGE_TIME		5400	// 27 x 2
 
 // types of locations that can be hit
 #define LOC_HDAM 1 // head
@@ -263,7 +271,9 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+	
 	qboolean	hadUniqueWeapon[MAX_WEAPONS];	//Elder: for "ammo" in last gun
+
 	int			sayTime;			// Elder: say validation stuff
 	int			sayCount;
 	int			sayWarnings;		
@@ -271,6 +281,7 @@ typedef struct {
 	int			sayMuteTime;
 	qboolean	sayModerated;		// so warnings are not repeated for multi-line, same-frame messages
 
+	int			records[REC_NUM_RECORDS];	// Elder: for our statistics tracking
 } clientPersistant_t;
 
 
@@ -336,6 +347,7 @@ struct gclient_s {
 	//Blaze: For weapon stats
 	//Will need to pass these along in g_client to the new client after spawn
 	// Elder: to be merged into rq3Record_t for more comprehensive tracking
+	/*
 	int			knifeShots;
 	int			knifeHits;
 	int			mk23Shots;
@@ -354,7 +366,7 @@ struct gclient_s {
 	int			akimboHits;
 	int			grenShots;
 	int			grenHits;
-	
+	*/
 
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
@@ -392,21 +404,23 @@ struct gclient_s {
 	//Elder: C3A laser tutorial
 	gentity_t	*lasersight;			// lasersight OR flashlight if in use
 
-	int         bleeding; 			//Blaze: remaining points to bleed away
-	int			bleed_remain;		//Blaze: How much left to bleed
-	int			bleedloc; 			//Blaze: Where are we bleeding
+	// Bleeding server-only cvars
+	int         bleeding; 			// Blaze: remaining points to bleed away
+	int			bleed_remain;		// Blaze: How much left to bleed
+	int			bleedloc; 			// Blaze: Where are we bleeding
 	vec3_t		bleedloc_offset;	// Blaze: location of bleeding (from origin)
+	int			bleed_delay;		// Elder: time for next spurt of blood
 	vec3_t      bleednorm;
-	//qboolean	isBleeding;			//Blaze: is client bleeding
-//	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
-	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
-	int			bleedBandageCount;	//Elder: hack to restrict amount of bleeding to 6 points
+	//qboolean	isBleeding;			// Blaze: is client bleeding
+//	int			legDamage;			// Blaze: Client has leg damage - holds number of hits too
+	int			bleedtick;			// Blaze: Holds # of seconds till bleeding stops.
+	int			bleedBandageCount;	// Elder: hack to restrict amount of bleeding to 3 points
 	int			headShotTime;		// Elder: got headshot?
 
 	//Elder: server only needs to know for sniper spread - ARGH
 //	int			zoomed; 			// Hawkins (SSG zoom)
 	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)
-	int			shots;   			//Blaze: Number of shots fired so far with this weapon
+	int			shots;   			// Blaze: Number of shots fired so far with this weapon
 	
 	int			weaponfireNextTime;		// for akimbos
 	int			lastzoom;				// Elder: save last zoom state when firing
@@ -422,7 +436,6 @@ struct gclient_s {
 	int			uniqueItems;
 	int			killStreak;				// Elder: replaces the old STAT_STREAK
 	qboolean	kevlarHit;				// Elder: kevlar hit -- FIXME: poor implementation
-	//int		records[RECORD_TOTAL];	// Elder: for our awards when we implement it
 
 
 #ifdef MISSIONPACK
@@ -936,6 +949,7 @@ extern	vmCvar_t	g_proxMineTimeout;
 //Blaze: Reaction cvars
 extern	vmCvar_t	g_rxn_knifelimit;
 extern	vmCvar_t	g_RQ3_maxWeapons;
+extern	vmCvar_t	g_RQ3_statLog;
 //Elder: spam protection cvars
 extern	vmCvar_t	g_RQ3_messageMaxCount;		// Max messages in interval
 extern	vmCvar_t	g_RQ3_messageInterval;		// Time interval for spam check

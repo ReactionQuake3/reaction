@@ -1330,10 +1330,12 @@ void ClientThink_real( gentity_t *ent ) {
 	//Elder: added for akimbos and 3rb and sniper zoom
 	switch( ent->client->ps.weapon ) {
 	case WP_AKIMBO:
+		/*
 		if ( ent->client->weaponfireNextTime != 0 && 
 			level.time >= ent->client->weaponfireNextTime) {
 			FireWeapon( ent );
 		}
+		*/
 		break;
 	case WP_M3:
 		//Elder: try to do a fast reload if it's queued
@@ -1643,7 +1645,6 @@ void ClientEndFrame( gentity_t *ent ) {
 
 // Begin Duffman
 	// Update the clips Amount in weapon for the client
-	// Elder: the STAT takes precedence over the server-side only listing
     ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
 
 // End Duffman
@@ -1667,7 +1668,7 @@ void ClientEndFrame( gentity_t *ent ) {
 		(ent->client->ps.ammo[WP_M4] <= 0 || ent->client->ps.weaponstate != WEAPON_FIRING))
 	{
 		//Restore view after shots if not firing
-		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7);
+		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7f);
 		ent->client->consecutiveShots = 0;
 	}
 
