@@ -111,3 +111,4 @@ void MM_Ready_f(gentity_t *ent) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");	
 
 }
+

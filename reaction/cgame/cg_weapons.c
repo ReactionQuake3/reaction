@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/08 18:00:34  jbravo
+// Fixing "No newline at end of file" Warnings Linux keeps giving me
+//
 // Revision 1.47  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -4037,3 +4040,4 @@ void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir) {
 	VectorSubtract(end, start, delta);
 	VectorNormalize2(delta, viewDir);
 }
+

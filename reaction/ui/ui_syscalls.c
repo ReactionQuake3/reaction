@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/02/08 18:00:34  jbravo
+// Fixing "No newline at end of file" Warnings Linux keeps giving me
+//
 // Revision 1.4  2002/01/11 19:48:33  jbravo
 // Formatted the source in non DOS format.
 //
@@ -364,4 +367,3 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum);
 }
 
- 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/02/08 18:00:34  jbravo
+// Fixing "No newline at end of file" Warnings Linux keeps giving me
+//
 // Revision 1.19  2002/01/14 01:20:45  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -867,3 +870,4 @@ void G_GravityChange(void) {
 		}
 	}
 }
+
