@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/06/10 23:46:28  blaze
+// fixed the default sounds on doors
+//
 // Revision 1.44  2002/06/09 06:30:59  blaze
 // some changes to the default sounds on doors.
 //
@@ -1446,9 +1449,9 @@ void SP_func_door (gentity_t *ent) {
 
 	//Elder: can set sounds from here
   //Blaze: changed default path as per Sze
-	G_SpawnString( "soundstart", "sound/misc/silence.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/rdoor_stop.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/movers/rdoor_move.wav", &sSndMove );
+	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
