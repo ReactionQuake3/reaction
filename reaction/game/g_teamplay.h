@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/04/01 02:56:50  jbravo
+// Some sourcecode reformatting
+//
 // Revision 1.8  2002/03/31 23:41:45  jbravo
 // Added the use command
 //
@@ -53,12 +56,12 @@ void CheckForUnevenTeams(gentity_t *player);
 void EquipPlayer (gentity_t *ent);
 void RQ3_Cmd_Choose_f(gentity_t *ent);
 void RQ3_Cmd_Use_f(gentity_t *ent);
-void RQ3_Cmd_Drop_f( gentity_t *ent );
-void UnstickPlayer( gentity_t *ent );
-void MakeSpectator( gentity_t *ent );
-qboolean OKtoFollow( int clientnum );
-void RQ3_Cmd_Radio_f ( gentity_t *ent );
-void RQ3_Cmd_Radio_power_f ( gentity_t *ent );
-void RQ3_Cmd_Radiogender_f ( gentity_t *ent );
+void RQ3_Cmd_Drop_f(gentity_t *ent);
+void UnstickPlayer(gentity_t *ent);
+void MakeSpectator(gentity_t *ent);
+qboolean OKtoFollow(int clientnum);
+void RQ3_Cmd_Radio_f (gentity_t *ent);
+void RQ3_Cmd_Radio_power_f (gentity_t *ent);
+void RQ3_Cmd_Radiogender_f (gentity_t *ent);
 void ParseSayText (gentity_t * ent, char *text);
 void RQ3_SpectatorMode(gentity_t *ent);
