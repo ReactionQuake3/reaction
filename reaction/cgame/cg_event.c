@@ -5,8 +5,9 @@
 #include "cg_local.h"
 
 // for the voice chats
-#include "../ui/menudef.h"
-
+#ifdef MISSIONPACK // bk001205
+#include "../../ui/menudef.h"
+#endif
 //==========================================================================
 
 /*
@@ -1882,12 +1883,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Blaze: No Railgun
 		//cent->currentState.weapon = WP_RAILGUN;
 		// if the end was on a nomark surface, don't make an explosion
+		//CG_RailTrail( ci, es->origin2, es->pos.trBase );
 		if ( es->eventParm != 255 ) {
 			ByteToDir( es->eventParm, dir );
 			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT );
 		}
-		//Blaze: Dont need this
-		//CG_RailTrail( ci, es->origin2, es->pos.trBase );
 		break;
 
 	case EV_BULLET_HIT_WALL:
@@ -2232,6 +2232,11 @@ void CG_CheckEvents( centity_t *cent ) {
 		if ( cent->previousEvent ) {
 			return;	// already fired
 		}
+		// if this is a player event set the entity number of the client entity number
+		if ( cent->currentState.eFlags & EF_PLAYER_EVENT ) {
+			cent->currentState.number = cent->currentState.otherEntityNum;
+		}
+
 		cent->previousEvent = 1;
 
 		cent->currentState.event = cent->currentState.eType - ET_EVENTS;

@@ -29,6 +29,8 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 	float out;
 	glyphInfo_t *glyph;
 	float useScale;
+// FIXME: see ui_main.c, same problem
+//	const unsigned char *s = text;
 	const char *s = text;
 	fontInfo_t *font = &cgDC.Assets.textFont;
 	if (scale <= cg_smallFont.value) {
@@ -49,7 +51,7 @@ int CG_Text_Width(const char *text, float scale, int limit) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[*s];
+				glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
 				out += glyph->xSkip;
 				s++;
 				count++;
@@ -64,6 +66,8 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 	float max;
 	glyphInfo_t *glyph;
 	float useScale;
+// TTimo: FIXME
+//	const unsigned char *s = text;
 	const char *s = text;
 	fontInfo_t *font = &cgDC.Assets.textFont;
 	if (scale <= cg_smallFont.value) {
@@ -84,7 +88,7 @@ int CG_Text_Height(const char *text, float scale, int limit) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[*s];
+				glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
 	      if (max < glyph->height) {
 		      max = glyph->height;
 			  }
@@ -117,6 +121,8 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 	}
 	useScale = scale * font->glyphScale;
   if (text) {
+// TTimo: FIXME
+//		const unsigned char *s = text;
 		const char *s = text;
 		trap_R_SetColor( color );
 		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
@@ -126,7 +132,7 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
       //int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
       //float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
@@ -236,7 +242,7 @@ static void CG_DrawField (int x, int y, int width, int value) {
 		l--;
 	}
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ================
@@ -448,7 +454,7 @@ static void CG_DrawStatusBarHead( float x ) {
 	CG_DrawHead( x, 480 - size, size, size, 
 				cg.snap->ps.clientNum, angles );
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ================
@@ -460,7 +466,7 @@ CG_DrawStatusBarFlag
 static void CG_DrawStatusBarFlag( float x, int team ) {
 	CG_DrawFlagModel( x, 480 - ICON_SIZE, ICON_SIZE, ICON_SIZE, team, qfalse );
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ================
@@ -1030,14 +1036,14 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	}
 
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-		hcolor[0] = 1;
-		hcolor[1] = 0;
-		hcolor[2] = 0;
+		hcolor[0] = 1.0f;
+		hcolor[1] = 0.0f;
+		hcolor[2] = 0.0f;
 		hcolor[3] = 0.33f;
 	} else { // if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE )
-		hcolor[0] = 0;
-		hcolor[1] = 0;
-		hcolor[2] = 1;
+		hcolor[0] = 0.0f;
+		hcolor[1] = 0.0f;
+		hcolor[2] = 1.0f;
 		hcolor[3] = 0.33f;
 	}
 	trap_R_SetColor( hcolor );
@@ -1190,10 +1196,9 @@ static float CG_DrawScores( float y ) {
 	// draw from the right side to left
 	if ( cgs.gametype >= GT_TEAM ) {
 		x = 640;
-
-		color[0] = 0;
-		color[1] = 0;
-		color[2] = 1;
+		color[0] = 0.0f;
+		color[1] = 0.0f;
+		color[2] = 1.0f;
 		color[3] = 0.33f;
 		s = va( "%2i", s2 );
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
@@ -1215,10 +1220,9 @@ static float CG_DrawScores( float y ) {
 				}
 			}
 		}
-
-		color[0] = 1;
-		color[1] = 0;
-		color[2] = 0;
+		color[0] = 1.0f;
+		color[1] = 0.0f;
+		color[2] = 0.0f;
 		color[3] = 0.33f;
 		s = va( "%2i", s1 );
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
@@ -1282,9 +1286,9 @@ static float CG_DrawScores( float y ) {
 			w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
 			x -= w;
 			if ( !spectator && score == s2 && score != s1 ) {
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
+				color[0] = 1.0f;
+				color[1] = 0.0f;
+				color[2] = 0.0f;
 				color[3] = 0.33f;
 				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
 				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
@@ -1304,9 +1308,9 @@ static float CG_DrawScores( float y ) {
 			w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH + 8;
 			x -= w;
 			if ( !spectator && score == s1 ) {
-				color[0] = 0;
-				color[1] = 0;
-				color[2] = 1;
+				color[0] = 0.0f;
+				color[1] = 0.0f;
+				color[2] = 1.0f;
 				color[3] = 0.33f;
 				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
 				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
@@ -1331,7 +1335,7 @@ static float CG_DrawScores( float y ) {
 
 	return y1 - 8;
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ================
@@ -1352,7 +1356,9 @@ static float CG_DrawPowerups( float y ) {
 	float	size;
 	float	f;
 	static float colors[2][4] = { 
-		{ 0.2f, 1.0f, 0.2f, 1.0f } , { 1.0f, 0.2f, 0.2f, 1.0f } };
+    { 0.2f, 1.0f, 0.2f, 1.0f } , 
+    { 1.0f, 0.2f, 0.2f, 1.0f } 
+  };
 
 	ps = &cg.snap->ps;
 
@@ -1430,7 +1436,7 @@ static float CG_DrawPowerups( float y ) {
 
 	return y;
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 =====================
@@ -1452,7 +1458,7 @@ static void CG_DrawLowerRight( void ) {
 	y = CG_DrawScores( y );
 	y = CG_DrawPowerups( y );
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ===================
@@ -1484,7 +1490,7 @@ static int CG_DrawPickupItem( int y ) {
 	
 	return y;
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 =====================
@@ -1505,7 +1511,7 @@ static void CG_DrawLowerLeft( void ) {
 
 	y = CG_DrawPickupItem( y );
 }
-#endif
+#endif // MISSIONPACK
 
 
 //===========================================================================================
@@ -1550,19 +1556,19 @@ static void CG_DrawTeamInfo( void ) {
 		w += TINYCHAR_WIDTH * 2;
 
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-			hcolor[0] = 1;
-			hcolor[1] = 0;
-			hcolor[2] = 0;
+			hcolor[0] = 1.0f;
+			hcolor[1] = 0.0f;
+			hcolor[2] = 0.0f;
 			hcolor[3] = 0.33f;
 		} else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-			hcolor[0] = 0;
-			hcolor[1] = 0;
-			hcolor[2] = 1;
+			hcolor[0] = 0.0f;
+			hcolor[1] = 0.0f;
+			hcolor[2] = 1.0f;
 			hcolor[3] = 0.33f;
 		} else {
-			hcolor[0] = 0;
-			hcolor[1] = 1;
-			hcolor[2] = 0;
+			hcolor[0] = 0.0f;
+			hcolor[1] = 1.0f;
+			hcolor[2] = 0.0f;
 			hcolor[3] = 0.33f;
 		}
 
@@ -1570,8 +1576,8 @@ static void CG_DrawTeamInfo( void ) {
 		CG_DrawPic( CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar );
 		trap_R_SetColor( NULL );
 
-		hcolor[0] = hcolor[1] = hcolor[2] = 1.0;
-		hcolor[3] = 1.0;
+		hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
+		hcolor[3] = 1.0f;
 
 		for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
 			CG_DrawStringExt( CHATLOC_X + TINYCHAR_WIDTH, 
@@ -1581,7 +1587,7 @@ static void CG_DrawTeamInfo( void ) {
 		}
 	}
 }
-#endif
+#endif // MISSIONPACK
 
 /*
 ===================
@@ -1600,7 +1606,7 @@ static void CG_DrawHoldableItem( void ) {
 	}
 
 }
-#endif
+#endif // MISSIONPACK
 
 #ifdef MISSIONPACK
 /*
@@ -1608,7 +1614,7 @@ static void CG_DrawHoldableItem( void ) {
 CG_DrawPersistantPowerup
 ===================
 */
-/*
+#if 0 // sos001208 - DEAD
 static void CG_DrawPersistantPowerup( void ) { 
 	int		value;
 
@@ -1618,9 +1624,8 @@ static void CG_DrawPersistantPowerup( void ) {
 		CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2 - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
 	}
 }
-*/
-
 #endif
+#endif // MISSIONPACK
 
 
 /*
@@ -1768,18 +1773,18 @@ static void CG_DrawDisconnect( void ) {
 	int			cmdNum;
 	usercmd_t	cmd;
 	const char		*s;
-	int			w;
+	int			w;  // bk010215 - FIXME char message[1024];
 
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	trap_GetUserCmd( cmdNum, &cmd );
 	if ( cmd.serverTime <= cg.snap->ps.commandTime
-		|| cmd.serverTime > cg.time ) {	// special check for map_restart
+		|| cmd.serverTime > cg.time ) {	// special check for map_restart // bk 0102165 - FIXME
 		return;
 	}
 
 	// also add text in center of screen
-	s = "Connection Interrupted";
+	s = "Connection Interrupted"; // bk 010215 - FIXME
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 	CG_DrawBigString( 320 - w/2, 100, s, 1.0F);
 
@@ -1957,7 +1962,10 @@ CG_DrawCenterString
 static void CG_DrawCenterString( void ) {
 	char	*start;
 	int		l;
-	int		x, y, w;//Blaze: removed a ,h here
+	int		x, y, w;
+#ifdef MISSIONPACK // bk010221 - unused else
+  int h;
+#endif
 	float	*color;
 
 	if ( !cg.centerPrintTime ) {
@@ -2207,7 +2215,7 @@ static void CG_DrawCrosshairNames( void ) {
 
 	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
 #ifdef MISSIONPACK
-	color[3] *= 0.5;
+	color[3] *= 0.5f;
 	w = CG_Text_Width(name, 0.3f, 0);
 	CG_Text_Paint( 320 - w / 2, 190, 0.3f, color, name, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
 #else
@@ -2583,7 +2591,7 @@ static void CG_DrawWarmup( void ) {
 			cw = GIANT_WIDTH;
 		}
 		CG_DrawStringExt( 320 - w * cw/2, 25,s, colorWhite, 
-				qfalse, qtrue, cw, (int)(cw * 1.1), 0 );
+				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
 #endif
 	}
 
@@ -2682,6 +2690,11 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 
+/*
+	if (cg.cameraMode) {
+		return;
+	}
+*/
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		CG_DrawSpectator();
 		CG_DrawCrosshair();

@@ -603,6 +603,12 @@ CG_StartOrbit_f
 */
 
 static void CG_StartOrbit_f( void ) {
+	char var[MAX_TOKEN_CHARS];
+
+	trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
+	if ( !atoi(var) ) {
+		return;
+	}
 	if (cg_cameraOrbit.value != 0) {
 		trap_Cvar_Set ("cg_cameraOrbit", "0");
 		trap_Cvar_Set("cg_thirdPerson", "0");
@@ -614,6 +620,18 @@ static void CG_StartOrbit_f( void ) {
 	}
 }
 
+/*
+static void CG_Camera_f( void ) {
+	char name[1024];
+	trap_Argv( 1, name, sizeof(name));
+	if (trap_loadCamera(name)) {
+		cg.cameraMode = qtrue;
+		trap_startCamera(cg.time);
+	} else {
+		CG_Printf ("Unable to load camera %s\n",name);
+	}
+}
+*/
 
 /*
 ==================
@@ -741,8 +759,10 @@ static consoleCommand_t	commands[] = {
 	{ "scoresUp", CG_scrollScoresUp_f },
 #endif
 	{ "startOrbit", CG_StartOrbit_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers },
+	//{ "camera", CG_Camera_f },
+	{ "loaddeferred", CG_LoadDeferredPlayers }	
 };
+
 
 /*
 =================

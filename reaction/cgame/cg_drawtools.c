@@ -413,6 +413,10 @@ void CG_ColorForHealth( vec4_t hcolor ) {
 
 
 
+// bk001205 - code below duplicated in q3_ui/ui-atoms.c
+// bk001205 - FIXME: does this belong in ui_shared.c?
+// bk001205 - FIXME: HARD_LINKED flags not visible here
+#ifndef Q3_STATIC // bk001205 - q_shared defines not visible here 
 /*
 =================
 UI_DrawProportionalString2
@@ -682,7 +686,7 @@ UI_DrawBannerString
 static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 {
 	const char* s;
-	char	ch;
+	unsigned char	ch; // bk001204 : array subscript
 	float	ax;
 	float	ay;
 	float	aw;
@@ -792,7 +796,7 @@ int UI_ProportionalStringWidth( const char* str ) {
 static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset )
 {
 	const char* s;
-	char	ch;
+	unsigned char	ch; // bk001204 - unsigned
 	float	ax;
 	float	ay;
 	float	aw;
@@ -907,4 +911,4 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 
 	UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
 }
-
+#endif // Q3STATIC
