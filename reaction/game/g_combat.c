@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2003/04/26 02:03:51  jbravo
+// Helmet fixes
+//
 // Revision 1.138  2003/04/23 20:32:28  slicer
 // With allWeapon/allItems enable it won't toss weapons/items when you die
 //
@@ -2085,10 +2088,10 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					if ((targ->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) &&
 							mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
 						trap_SendServerCommand(attacker - g_entities,
-								va("print \"%s has a Kevlar Helmet - AIM FOR THE BODY!\n\"",
+								va("print \"%s^7 has a Kevlar Helmet - AIM FOR THE BODY!\n\"",
 									targ->client->pers.netname));
 						trap_SendServerCommand(targ - g_entities,
-								va("print \"Kevlar Helmet absorbed a part of %s's shot\n\"",
+								va("print \"Kevlar Helmet absorbed a part of %s^7's shot\n\"",
 									attacker->client->pers.netname));
 						tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
 						tent->s.eventParm = DirToByte(dir);
@@ -2096,17 +2099,19 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 						targ->client->kevlarHit = qtrue;
 						instant_dam = 1;
 						bleeding = 0;
+						break;
 					} else if ((targ->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) &&
 							mod == MOD_SNIPER) {
 						trap_SendServerCommand(attacker - g_entities,
-								va("print \"%s has a Kevlar Helmet, too bad you have AP rounds...\n\"",
+								va("print \"%s^7 has a Kevlar Helmet, too bad you have AP rounds...\n\"",
 									targ->client->pers.netname));
 						trap_SendServerCommand(targ - g_entities,
-								va("print \"Kevlar Helmet absorbed some of %s's AP sniper round\n\"",
+								va("print \"Kevlar Helmet absorbed some of %s^7's AP sniper round\n\"",
 									attacker->client->pers.netname));
 						take = (take * 0.325);
 						instant_dam = 1;
 						bleeding = 1;
+						break;
 					} else {
 						//save headshot time for player_die
 						targ->client->headShotTime = level.time;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.145  2003/04/26 02:03:51  jbravo
+// Helmet fixes
+//
 // Revision 1.144  2003/04/19 18:47:07  makro
 // CVAR_SERVERINFO flag added to g_RQ3_havehelmet cvar
 //
@@ -2381,6 +2384,9 @@ void CheckVote(void)
 	int kickclient;
 
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
+		if (g_gametype.integer == GT_TEAMPLAY && level.team_round_going &&
+			(Q_stricmp(level.voteString, "map") == 0))
+				return;
 		level.voteExecuteTime = 0;
 		Q_strncpyz(votestr, level.voteString, sizeof(votestr));
 		if (Q_stricmp(level.voteString, "cyclemap") == 0) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.151  2003/04/26 02:03:51  jbravo
+// Helmet fixes
+//
 // Revision 1.150  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -1850,12 +1853,18 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 	gentity_t *player;
 	int i, x, kills, set;
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->health <= 0)
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->health <= 0) {
+		trap_SendServerCommand(ent - g_entities, "print \"^1It's kind of hard to talk in the radio when you can't breathe anymore...\n\"");
 		return;
-	if (trap_Argc() < 2)
+	}
+	if (trap_Argc() < 2) {
+		trap_SendServerCommand(ent - g_entities, "print \"^1Say again ?   Radio command missing!\n\"");
 		return;
-	if (g_RQ3_lca.integer)
+	}
+	if (g_RQ3_lca.integer) {
+		trap_SendServerCommand(ent - g_entities, "print \"^1Announcer is busy talkin' now!\n\"");
 		return;
+	}
 	if (ent->client->radioOff == qtrue) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1Your radio is off!\n\"");
 		return;
@@ -1920,9 +1929,11 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 		}
 		x++;
 		// JBravo: no CTB sounds unless CTB mode is on.
-		if (g_gametype.integer != GT_CTF && x > 25)
-			return;
+		// JBravo: no, now they want CTB sounds in all gametypes.
+		//if (g_gametype.integer != GT_CTF && x > 25)
+		//	return;
 	}
+	trap_SendServerCommand(ent - g_entities, "print \"^1Where'd you train? You can't say that over the radio!\n\"");
 }
 
 char *SeekBufEnd(char *buf)

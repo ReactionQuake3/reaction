@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2003/04/26 02:03:51  jbravo
+// Helmet fixes
+//
 // Revision 1.74  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -3376,23 +3379,23 @@ typedef struct
 
 banInfo_t menuWeapBans[] =
 {
-	{WPF_MP5,				UI_SHOW_WEAP1},
-	{WPF_M3,				UI_SHOW_WEAP2},
-	{WPF_HC,				UI_SHOW_WEAP3},
-	{WPF_SNIPER,			UI_SHOW_WEAP4},
-	{WPF_M4,				UI_SHOW_WEAP5},
-	{WPF_KNIFE,				UI_SHOW_WEAP6},
+	{WPF_MP5,		UI_SHOW_WEAP1},
+	{WPF_M3,		UI_SHOW_WEAP2},
+	{WPF_HC,		UI_SHOW_WEAP3},
+	{WPF_SNIPER,		UI_SHOW_WEAP4},
+	{WPF_M4,		UI_SHOW_WEAP5},
+	{WPF_KNIFE,		UI_SHOW_WEAP6},
 	{WPF_DUAL | WPF_MK23,	UI_SHOW_WEAP7}
 };
 static const int menuWeapCount = sizeof(menuWeapBans)/sizeof(banInfo_t);
 banInfo_t menuItemBans[] =
 {
-	{ITF_KEVLAR,	UI_SHOW_ITEM1},
+	{ITF_KEVLAR,		UI_SHOW_ITEM1},
 	{ITF_LASER,		UI_SHOW_ITEM2},
-	{ITF_SLIPPERS,	UI_SHOW_ITEM3},
-	{ITF_SILENCER,	UI_SHOW_ITEM4},
-	{ITF_BANDOLIER,	UI_SHOW_ITEM5},
-	{ITF_HELMET,	UI_SHOW_ITEM6}
+	{ITF_SLIPPERS,		UI_SHOW_ITEM3},
+	{ITF_SILENCER,		UI_SHOW_ITEM4},
+	{ITF_BANDOLIER,		UI_SHOW_ITEM5},
+	{ITF_HELMET,		UI_SHOW_ITEM6}
 };
 static const int menuItemCount = sizeof(menuItemBans)/sizeof(banInfo_t);
 
@@ -3517,9 +3520,7 @@ static qboolean UI_OwnerDrawVisible(int flags)
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_DEMOAVAILABLE;
-		}/* else {
-			flags = 0;
-		}*/
+		}
 		//Makro - item/weapon banning
 		for (i=0; i<menuWeapCount; i++)
 			if (flags & menuWeapBans[i].uiFlag) {
@@ -3527,22 +3528,21 @@ static qboolean UI_OwnerDrawVisible(int flags)
 					vis = qfalse;
 				flags &= ~menuWeapBans[i].uiFlag;
 			}
-		for (i=0; i<menuItemCount; i++)
+		for (i=0; i<menuItemCount; i++) {
 			if (flags & menuItemBans[i].uiFlag) {
-				if (!(uiInfo.itemBan & menuItemBans[i].banFlag))
-					vis = qfalse;
 				//special check for the helmet
-				else if (menuItemBans[i].banFlag == ITF_HELMET)
-					if (trap_Cvar_VariableValue("g_gametype") != GT_TEAM || !trap_Cvar_VariableValue("g_RQ3_haveHelmet"))
-						vis = qfalse;
+				if (menuItemBans[i].banFlag == ITF_HELMET && (trap_Cvar_VariableValue("g_RQ3_haveHelmet") == 0))
+					vis = qfalse;
+				else if (!(uiInfo.itemBan & menuItemBans[i].banFlag))
+					vis = qfalse;
 				flags &= ~menuItemBans[i].uiFlag;
 			}
+		}
 		//Makro - added toggle flag
 		if (flags & UI_SHOW_TOGGLE) {
 			vis ^= 1;
 		}
 		flags = 0;
-	//}
 	return vis;
 }
 

@@ -370,7 +370,7 @@
 	rect 16 48 96 96
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_MODEL
-	asset_model "models/items/helmet/helmet.md3"
+	asset_model "models/items/helmet.md3"
 	model_origin 30 0 0
 	model_fovx 20
 	model_fovy 20
