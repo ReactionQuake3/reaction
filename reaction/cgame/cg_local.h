@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/07/19 04:32:42  niceass
+// added marker support for ctb
+//
 // Revision 1.106  2002/07/13 22:42:18  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -1121,6 +1124,8 @@ typedef struct {
 	// wall mark shaders
 	qhandle_t wakeMarkShader;
 	qhandle_t bloodMarkShader;
+	qhandle_t ctbXMark1;
+	qhandle_t ctbXMark2;
 	qhandle_t bulletMarkShader;
 	qhandle_t burnMarkShader;
 	qhandle_t holeMarkShader;

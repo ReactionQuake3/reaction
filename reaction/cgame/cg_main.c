@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/07/19 04:32:09  niceass
+// added marker support for ctb
+//
 // Revision 1.95  2002/07/13 22:42:18  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -1589,6 +1592,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
 	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
+	cgs.media.ctbXMark1 = trap_R_RegisterShader("ctbXMark1");
+	cgs.media.ctbXMark2 = trap_R_RegisterShader("ctbXMark2");
 	//Blaze: added for explosive boxes and grenades
 	cgs.media.grenadeExplosionShader = trap_R_RegisterShader("grenadeExplosion");
 	// Elder: added
