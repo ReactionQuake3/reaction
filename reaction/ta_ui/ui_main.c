@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2003/03/31 04:55:58  jbravo
+// Small UI replacements fixes.
+//
 // Revision 1.66  2003/03/31 01:23:54  jbravo
 // Fixing 2 compiler warnings
 //
@@ -268,7 +271,7 @@ static replacementSubtype_t replacementWeapons[] =
 	{"Mk23",		"mk23"},
 	{"M3",			"m3"},
 	{"MP5",			"mp5"},
-	{"Handcannon",	"handcannon"},
+	{"Handcannon",		"handcannon"},
 	{"SSG3000",		"ssg3000"},
 	{"M4",			"m4"},
 	{"Grenade",		"grenade"},
@@ -281,10 +284,10 @@ static const int replacementWeapCount = sizeof(replacementWeapons) / sizeof(repl
 static replacementSubtype_t replacementItems[] =
 {
 	{"Kevlar",		"kevlar"},
-	{"Bandolier",	"bandolier"},
-	{"Silencer",	"silencer"},
+	{"Bandolier",		"bandolier"},
+	{"Silencer",		"silencer"},
 	{"Laser",		"laser"},
-	{"Slippers",	"slippers"},
+	{"Slippers",		"slippers"},
 	{"Helmet",		"helmet"}
 };
 static const int replacementItemCount = sizeof(replacementItems) / sizeof(replacementSubtype_t);
@@ -2625,7 +2628,7 @@ void UI_LoadReplacement(int index)
 {
 	int len;
 	fileHandle_t f;
-	char buf[4096], *p, *text, skin[MAX_QPATH], model[MAX_QPATH];
+	char buf[4096], *p, *h, *text, skin[MAX_QPATH], model[MAX_QPATH], ammofix[MAX_QPATH];
 	const char *typeDir = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].cvarName;
 
 	uiInfo.replacements.Info[0]=0;
@@ -2662,11 +2665,26 @@ void UI_LoadReplacement(int index)
 	sscanf(p, "%f %f %f %f %f %f %i %i %i", &uiInfo.replacements.origin[0], &uiInfo.replacements.origin[1], &uiInfo.replacements.origin[2],
 		&uiInfo.replacements.angles[0], &uiInfo.replacements.angles[1], &uiInfo.replacements.angles[2],
 		&uiInfo.replacements.fovx, &uiInfo.replacements.fovy, &uiInfo.replacements.speed);
-	//Com_Printf("Model: %s\n", va("models/%s/%s/%s.md3", p, model, uiInfo.replacementType));
-	//Com_Printf("Skin : %s\n", va("models/%s/%s/%s.skin", p, model, skin));
-	uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
-	uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
-
+	//Com_Printf("Model: %s\n", va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
+	//Com_Printf("Skin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
+	if (!Q_stricmp(typeDir, "ammo")) {
+		Q_strncpyz(ammofix, uiInfo.replacements.Type, sizeof(uiInfo.replacements.Type));
+		h = ammofix + 5;
+		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, h));
+		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s.skin", typeDir, skin));
+		Com_Printf("AmmoModel: %s\n", va("models/%s/%s.md3", typeDir, h));
+		Com_Printf("AmmoSkin : %s\n", va("models/%s/%s.skin", typeDir, skin));
+	} else if (!Q_stricmp(typeDir, "items")) {
+		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, uiInfo.replacements.Type));
+		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, typeDir, skin));
+		Com_Printf("ItemModel: %s\n", va("models/%s/%s.md3", typeDir, uiInfo.replacements.Type));
+		Com_Printf("ItemSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, typeDir, skin));
+	} else {
+		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
+		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
+		Com_Printf("WeaponModel: %s\n", va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
+		Com_Printf("WeaponSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
+	}
 	//...replacement info
 	Q_strncpyz(uiInfo.replacements.Info, text, sizeof(uiInfo.replacements.Info));
 }
@@ -3046,6 +3064,8 @@ static void UI_DrawReplacementModel(rectDef_t *rect)
 	VectorAdd(origin, uiInfo.replacements.origin, origin);
 
 	ent.hModel = uiInfo.replacements.Model;
+// JBravo: Added so replacements work
+	ent.customSkin = uiInfo.replacements.Skin;
 	VectorCopy(origin, ent.origin);
 	VectorCopy(origin, ent.lightingOrigin);
 	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
