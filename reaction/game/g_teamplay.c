@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/05/20 05:11:56  jbravo
+// Fixed specmodes when nobody is alive
+//
 // Revision 1.93  2002/05/20 04:59:33  jbravo
 // Lots of small fixes.
 //
@@ -1087,7 +1090,11 @@ void MakeSpectator(gentity_t *ent)
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 		}
 	} else {
-		client->sess.spectatorState = client->specMode;
+		if (OKtoFollow (ent - g_entities)) {
+			client->sess.spectatorState = client->specMode;
+		} else {
+			client->sess.spectatorState = SPECTATOR_FREE;
+		}
 	}
 	ClientSpawn(ent);
 }
