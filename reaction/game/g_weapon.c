@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/12/20 14:29:47  jbravo
+// Activated the second barrel on the HC
+//
 // Revision 1.84  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -1568,7 +1571,9 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	tent2->s.otherEntityNum = ent->s.number;
 	tent2->s.angles2[1] += 5;
 	//Elder: note negative one
-	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1);
+	//JBravo: Yes, why is that ?  removing...
+//	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1);
+	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, WP_HANDCANNON);
 
 	//Elder: added for damage report
 	RQ3_ProduceShotgunDamageReport(ent);
