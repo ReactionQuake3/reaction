@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/07/21 18:47:27  niceass
+// weaponprediction cvar added
+//
 // Revision 1.24  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -636,6 +639,13 @@ void CG_PredictPlayerState(void)
 			cg_pmove.lca = qtrue;
 		else
 			cg_pmove.lca = qfalse;
+		
+		
+		if (cg_RQ3_predictWeapons.integer)
+			cg_pmove.predict = qtrue;
+		else
+			cg_pmove.predict = qfalse;
+
 		Pmove(&cg_pmove);
 
 		moved = qtrue;

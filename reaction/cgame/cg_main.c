@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/07/21 18:46:57  niceass
+// weaponprediction cvar added
+//
 // Revision 1.98  2002/07/20 02:25:53  jbravo
 // Added the AQDT CTB sounds to the base radio paks
 //
@@ -405,6 +408,10 @@ vmCvar_t cg_RQ3_bloodStyle;
 //NiceAss: Temporary boolean strobe cvar
 vmCvar_t cg_RQ3_strobe;
 
+//NiceAss: Predict weapon animations or not. Makes it like Q2 if disabled.
+vmCvar_t cg_RQ3_predictWeapons;
+
+
 //Makro: avidemo with jpegs
 vmCvar_t cg_RQ3_avidemo;
 vmCvar_t cg_drawFriend;
@@ -610,6 +617,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_bloodStyle, "cg_RQ3_bloodStyle", "0", CVAR_ARCHIVE},
+	{&cg_RQ3_predictWeapons, "cg_RQ3_predictWeapons", "1", CVAR_ARCHIVE},
 	{&cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{&cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},

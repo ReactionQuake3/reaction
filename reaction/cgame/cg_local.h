@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/07/21 18:46:32  niceass
+// weaponprediction cvar added
+//
 // Revision 1.109  2002/07/20 02:25:53  jbravo
 // Added the AQDT CTB sounds to the base radio paks
 //
@@ -1659,9 +1662,8 @@ extern vmCvar_t cg_RQ3_bloodStyle;
 
 //NiceAss: strobing weapons/items like quake 2
 extern vmCvar_t cg_RQ3_strobe;
+extern vmCvar_t cg_RQ3_predictWeapons;
 
-//Niceass: Q2-like prediction (or lack of)
-// extern       vmCvar_t                cg_RQ3_oldpredict;
 //Makro - avidemo with jpegs
 extern vmCvar_t cg_RQ3_avidemo;
 extern vmCvar_t cg_drawFriend;
