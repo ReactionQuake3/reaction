@@ -435,7 +435,9 @@ typedef struct {
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
+	//This one is needed by cgame
 	//void		(*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+	//This one is needed by game
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );

@@ -775,7 +775,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			break;
 
 		case EV_USE_ITEM2:		// medkit
-			ent->health = 125;// set health to 125 on med kit use ent->client->ps.stats[STAT_MAX_HEALTH] + 25;
+			ent->health = 125; //ent->client->ps.stats[STAT_MAX_HEALTH] + 25;
 
 			break;
 
@@ -965,10 +965,6 @@ void ThrowItem( gentity_t *ent )
 		client->uniqueItems--;
 	}
 }
-
-
-//Elder: wtf?
-
 
 /*
 ==============
