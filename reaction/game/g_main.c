@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/09/08 12:50:52  jbravo
+// Tuned the scaling ctb respawn system a bit and defaulted g_RQ3_ctb_respawndelay
+// to 0
+//
 // Revision 1.114  2002/09/02 00:06:33  slicer
 // Small fix on the g_RQ3_maxref cvar string
 //
@@ -577,7 +581,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "20", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},

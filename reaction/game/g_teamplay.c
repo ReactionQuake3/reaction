@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.136  2002/09/08 12:50:52  jbravo
+// Tuned the scaling ctb respawn system a bit and defaulted g_RQ3_ctb_respawndelay
+// to 0
+//
 // Revision 1.135  2002/09/07 22:40:01  jbravo
 // Added a scaling ctb respawn system.  Fixed a bug that allowed players to
 // spawn before their team respawn with the team command.
@@ -1362,13 +1366,13 @@ void MakeSpectator(gentity_t * ent)
 			if (level.numPlayingClients <= 4)
 				level.ctb_respawndelay = 5;
 			else if (level.numPlayingClients <= 6)
-				level.ctb_respawndelay = 8;
+				level.ctb_respawndelay = 6;
 			else if (level.numPlayingClients <= 8)
-				level.ctb_respawndelay = 12;
+				level.ctb_respawndelay = 7;
 			else if (level.numPlayingClients <= 10)
-				level.ctb_respawndelay = 15;
+				level.ctb_respawndelay = 8;
 			else
-				level.ctb_respawndelay = 20;
+				level.ctb_respawndelay = 10;
 		} else {
 			level.ctb_respawndelay = g_RQ3_ctb_respawndelay.integer;
 		}
