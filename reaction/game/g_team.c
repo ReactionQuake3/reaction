@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/02/26 03:32:02  jbravo
+// Fixed teamsay spilling over to members of the other team
+//
 // Revision 1.6  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -175,8 +178,15 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 		return qfalse;
 	}
 
-	if ( ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam ) {
-		return qtrue;
+// JBravo: fixing for TP
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (ent1->client->sess.savedTeam == ent2->client->sess.savedTeam) {
+			return qtrue;
+		}
+	} else {
+		if ( ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam ) {
+			return qtrue;
+		}
 	}
 
 	return qfalse;
