@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/18 06:20:39  blaze
+// noise tag will play sounds for trigger_push and target_push
+//
 // Revision 1.7  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -239,11 +242,17 @@ Pushes the activator in the direction.of angle, or towards a target apex.
 if "bouncepad", play bounce noise instead of windfly
 */
 void SP_target_push( gentity_t *self ) {
+  char *sound;
 	if (!self->speed) {
 		self->speed = 1000;
 	}
 	G_SetMovedir (self->s.angles, self->s.origin2);
 	VectorScale (self->s.origin2, self->speed, self->s.origin2);
+
+	if (G_SpawnString( "noise", "", &sound )) {;
+    G_Printf("^2Sound was %s\n",sound);
+		self->noise_index = G_SoundIndex( sound );
+	}
 
 	if ( self->spawnflags & 1 ) {
 		//Elder: edited for now TODO: let mappers use a key pair
