@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2003/03/22 20:19:20  jbravo
+// Item replacement fixes, tmp ban after votekicks and ignore now works on
+// players with colors.
+//
 // Revision 1.124  2003/03/10 01:32:35  jbravo
 // skin only replacements can now have icons of their own.
 //
@@ -2484,8 +2488,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_kevlar_model) && (strlen(RQ3_kevlar_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_kevlar_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading kevlar replacement model %s\n", cg_RQ3_kevlar.string);
+			if (strcmp(cg_RQ3_kevlar_skin.string, "default")) {
+				Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_kevlar_skin.string);
+				if (JB_FileExists(RQ3_kevlar_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
+				else
+					CG_Printf("^1Error loading kevlar replacement icon %s\n", cg_RQ3_kevlar_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "item_silencer") && strcmp(cg_RQ3_silencer.string, "silencer")) {
@@ -2494,8 +2504,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_silencer_model) && (strlen(RQ3_silencer_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_silencer_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading silencer replacement model %s\n", cg_RQ3_silencer.string);
+			if (strcmp(cg_RQ3_silencer_skin.string, "default")) {
+				Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_silencer_skin.string);
+				if (JB_FileExists(RQ3_silencer_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
+				else
+					CG_Printf("^1Error loading silencer replacement icon %s\n", cg_RQ3_silencer_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "item_laser") && strcmp(cg_RQ3_laser.string, "laser")) {
@@ -2504,8 +2520,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_laser_model) && (strlen(RQ3_laser_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_laser_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading laser replacement model %s\n", cg_RQ3_laser.string);
+			if (strcmp(cg_RQ3_laser_skin.string, "default")) {
+				Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_laser_skin.string);
+				if (JB_FileExists(RQ3_laser_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
+				else
+					CG_Printf("^1Error loading laser replacement icon %s\n", cg_RQ3_laser_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "item_bandolier") && strcmp(cg_RQ3_bandolier.string, "bandolier")) {
@@ -2514,8 +2536,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_bandolier_model) && (strlen(RQ3_bandolier_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_bandolier_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading bandolier replacement model %s\n", cg_RQ3_bandolier.string);
+			if (strcmp(cg_RQ3_bandolier_skin.string, "default")) {
+				Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_bandolier_skin.string);
+				if (JB_FileExists(RQ3_bandolier_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
+				else
+					CG_Printf("^1Error loading bandolier replacement icon %s\n", cg_RQ3_bandolier_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "item_slippers") && strcmp(cg_RQ3_slippers.string, "slippers")) {
@@ -2524,8 +2552,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_slippers_model) && (strlen(RQ3_slippers_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_slippers_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading slippers replacement model %s\n", cg_RQ3_slippers.string);
+			if (strcmp(cg_RQ3_slippers_skin.string, "default")) {
+				Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_slippers_skin.string);
+				if (JB_FileExists(RQ3_slippers_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
+				else
+					CG_Printf("^1Error loading slippers replacement icon %s\n", cg_RQ3_slippers_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "item_helmet") && strcmp(cg_RQ3_helmet.string, "helmet")) {
@@ -2534,8 +2568,14 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_helmet_model) && (strlen(RQ3_helmet_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_helmet_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading helmet replacement model %s\n", cg_RQ3_helmet.string);
+			if (strcmp(cg_RQ3_helmet_skin.string, "default")) {
+				Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_helmet_skin.string);
+				if (JB_FileExists(RQ3_helmet_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
+				else
+					CG_Printf("^1Error loading helmet replacement icon %s\n", cg_RQ3_helmet_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "ammo_mk23") && strcmp(cg_RQ3_ammo_mk23.string, "mk23")) {
@@ -2544,9 +2584,8 @@ void CG_ReplaceModels(void)
 			if (JB_FileExists(RQ3_ammo_mk23_model) && (strlen(RQ3_ammo_mk23_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mk23_model;
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mk23_icon;
-			} else {
+			} else
 				CG_Printf("^1Error loading mk23 ammo replacement model %s\n", cg_RQ3_ammo_mk23.string);
-			}
 		}
 		if (!strcmp(item->classname, "ammo_shells") && strcmp(cg_RQ3_ammo_shells.string, "shells")) {
 			Com_sprintf(RQ3_ammo_shells_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_shells.string);

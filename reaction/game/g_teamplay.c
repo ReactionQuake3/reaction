@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2003/03/22 20:19:20  jbravo
+// Item replacement fixes, tmp ban after votekicks and ignore now works on
+// players with colors.
+//
 // Revision 1.148  2003/03/21 11:32:04  jbravo
 // Added debugging to locate the bad gEnt crashes, added timelimit support
 // for CTB and TDM and fixed some typos
@@ -494,15 +498,21 @@ gentity_t *FindClientByPersName(char *name)
 {
 	int i;
 	gentity_t *other, *found;
+	char cleanname[MAX_NETNAME];
 
 	found = NULL;
+	cleanname[0] = '\0';
 	for (i = 0; i <= level.maxclients; i++) {
 		other = &g_entities[i];
 		if (!other->inuse)
 			continue;
-		if (other && other->client && (Q_stricmp(other->client->pers.netname, name) == 0)) {
-			found = other;
-			break;
+		if (other && other->client) {
+			strcpy(cleanname, other->client->pers.netname);
+			Q_CleanStr(cleanname);
+			if (Q_stricmp(name, cleanname) == 0) {
+				found = other;
+				break;
+			}
 		}
 	}
 	return (found);

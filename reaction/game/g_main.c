@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2003/03/22 20:19:20  jbravo
+// Item replacement fixes, tmp ban after votekicks and ignore now works on
+// players with colors.
+//
 // Revision 1.136  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -391,6 +395,7 @@
 #include "q_shared.h"
 
 int trap_RealTime(qtime_t * qtime);
+gentity_t *getEntByName(char *name);
 level_locals_t level;
 
 typedef struct {
@@ -2279,19 +2284,51 @@ CheckVote
 */
 void CheckVote(void)
 {
+	char userinfo[MAX_INFO_STRING], votestr[MAX_INFO_STRING];
+	char *value, *kicked;
+	gentity_t *ent;
+	int kickclient;
+
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
 		level.voteExecuteTime = 0;
-		if (Q_stricmp(level.voteString, "cyclemap") == 0)
+		Q_strncpyz(votestr, level.voteString, sizeof(votestr));
+		if (Q_stricmp(level.voteString, "cyclemap") == 0) {
 			BeginIntermission();
-		else if (Q_stricmp(level.voteString, "map") == 0) {
+		} else if (Q_stricmp(level.voteString, "map") == 0) {
 			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");	// check this latter. This trap may not be necessary 
 			g_RQ3_ValidIniFile.integer = 2;
 			BeginIntermission();
 		} else if (Q_stricmp(level.voteString, "g_gametype") == 0) {
 			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
-		} else
+		} else if (!Q_strncmp(votestr, "kick", 4)) {
+			kicked = strchr(votestr, '\"');
+			kicked++;
+			kicked[strlen(kicked) - 1] = '\0';
+			ent = getEntByName(kicked);
+			if (ent && ent->client) {
+				G_Printf("^1Adding temporary ban for %s\n", ent->client->pers.netname);
+				trap_GetUserinfo(ent - g_entities, userinfo, sizeof(userinfo));
+				value = Info_ValueForKey(userinfo, "ip");
+				AddIP(value);
+			}
 			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+		} else if (!Q_strncmp(votestr, "clientkick", 10)) {
+			kicked = strchr(votestr, '\"');
+			kicked++;
+			kicked[strlen(kicked) - 1] = '\0';
+			kickclient = atoi(kicked);
+			ent = g_entities + kickclient;
+			if (ent && ent->client) {
+				G_Printf("^1Adding temporary ban for %s\n", ent->client->pers.netname);
+				trap_GetUserinfo(ent - g_entities, userinfo, sizeof(userinfo));
+				value = Info_ValueForKey(userinfo, "ip");
+				AddIP(value);
+			}
+			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+		} else {
+			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+		}
 	}
 	if (!level.voteTime) {
 		return;
