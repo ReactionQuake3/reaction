@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.8  2002/02/09 00:10:12  jbravo
 // Fixed spectator follow and free and updated zcam to 1.04 and added the
 // missing zcam files.
@@ -125,6 +131,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	//Slicer: init savedTeam also
 
 	sess->savedTeam = TEAM_SPECTATOR;
+
+// JBravo: adding PERS_SAVEDTEAM
+	client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM ) {

@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.54  2002/02/23 16:55:09  jbravo
 // Added debugging to help find what was going with can't find item for weapon
 // error that crash the server.
@@ -1473,13 +1479,13 @@ void ClientThink_real( gentity_t *ent ) {
 		if (level.time > client->respawnTime) {
 			// forcerespawn is to prevent users from waiting out powerups
 			if (g_forcerespawn.integer > 0 &&
-				(level.time - client->respawnTime ) > g_forcerespawn.integer * 1000) {
-				if (g_gametype.integer == GT_TEAMPLAY) {
-					MakeSpectator(ent);
-				} else {
+				(level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 &&
+				g_gametype.integer != GT_TEAMPLAY) {
 					respawn( ent );
-				}
-				return;
+					return;
+			}
+			if (g_gametype.integer == GT_TEAMPLAY && level.time > client->respawnTime) {
+				MakeSpectator(ent);
 			}
 
 			// pressing attack or use is the normal respawn method

@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.44  2002/02/24 18:49:21  jbravo
 // Make it OK to frag teammates after rounds are over (no -1)
 //
@@ -910,21 +916,24 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 #endif
 
-	Cmd_Score_f(self);		// show scores
-	// send updated scores to any clients that are following this one,
-	// or they would get stale scoreboards
-	for (i = 0 ; i < level.maxclients ; i++) {
-		gclient_t	*client;
-
-		client = &level.clients[i];
-		if (client->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-		if (client->sess.sessionTeam != TEAM_SPECTATOR) {
-			continue;
-		}
-		if (client->sess.spectatorClient == self->s.number) {
-			Cmd_Score_f(g_entities + i);
+// JBravo: no need for automatic scoreboard on deaths.
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		Cmd_Score_f(self);		// show scores
+		// send updated scores to any clients that are following this one,
+		// or they would get stale scoreboards
+		for (i = 0 ; i < level.maxclients ; i++) {
+			gclient_t	*client;
+	
+			client = &level.clients[i];
+			if (client->pers.connected != CON_CONNECTED) {
+				continue;
+			}
+			if (client->sess.sessionTeam != TEAM_SPECTATOR) {
+				continue;
+			}
+			if (client->sess.spectatorClient == self->s.number) {
+				Cmd_Score_f(g_entities + i);
+			}
 		}
 	}
 
@@ -951,7 +960,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// g_forcerespawn may force spawning at some later time
 	// JBravo: we dont want automatic respawning of players in teamplay
 	if (g_gametype.integer == GT_TEAMPLAY) {
-		self->client->respawnTime = level.time + 400;
+		self->client->respawnTime = level.time + 1000;
 	} else {
 		self->client->respawnTime = level.time + 1700;
 	}

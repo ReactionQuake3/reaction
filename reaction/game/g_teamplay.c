@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.19  2002/02/24 18:12:19  jbravo
 // Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
 // it makes players spawn with the sniper up.
@@ -250,6 +256,7 @@ void MakeAllLivePlayersObservers()
 		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
 			continue;
 		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
+		level.clients[i].ps.persistant[PERS_SAVEDTEAM] = level.clients[i].sess.sessionTeam;
 		level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
 		level.clients[i].sess.spectatorState = SPECTATOR_FREE;
 	}
@@ -700,6 +707,7 @@ void MakeSpectator( gentity_t *ent )
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
 	client->sess.savedTeam = client->sess.sessionTeam;
+	client->ps.persistant[PERS_SAVEDTEAM] = client->sess.sessionTeam;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 	ClientSpawn(ent);

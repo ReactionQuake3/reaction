@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.54  2002/02/25 17:54:57  jbravo
 // Added [DEAD] tags infront of players names where appropriate and made
 // the server log conversation like AQ does.
@@ -728,6 +734,7 @@ void SetTeam( gentity_t *ent, char *s )
 		client->sess.sessionTeam = team;
 	} else if ( !client->sess.teamSpawn ) {
 		client->sess.savedTeam = team;
+		client->ps.persistant[PERS_SAVEDTEAM] = team;
 	} else {
 		client->sess.sessionTeam = team;
 	}

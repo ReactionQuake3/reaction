@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.46  2002/02/11 00:30:23  niceass
 // LCA fix
 //
@@ -569,6 +575,7 @@ typedef enum {
 	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
 	PERS_CAPTURES					// captures
 	*/
+	PERS_SAVEDTEAM,				// JBravo: for TP
 	PERS_WEAPONMODES				// Blaze: Holds the different weapond modes for the different guns see below for the defines to use
 } persEnum_t;
 //RQ3 Weapon modes - If the bit is set, then the weapon is in the more restrictive mode, as in if it's set to 1 it's semi, 3rnd burst, etc

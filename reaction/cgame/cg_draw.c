@@ -5,6 +5,12 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/02/25 19:41:53  jbravo
+// Fixed the use ESC and join menu to join teams when dead players are
+// spectating in TP mode.
+// Tuned the autorespawn system a bit.  Now dead ppl. are dead for a very
+// small time before they are made into spectators.
+//
 // Revision 1.20  2002/02/23 18:07:46  slicer
 // Changed Sniper code and Cam code
 //
@@ -2752,7 +2758,8 @@ static void CG_Draw2D( void ) {
 */
 	//Slicer: Adding HUD for follow spectating
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-		CG_DrawSpectator();
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_BLUE)
+			CG_DrawSpectator();
 		CG_DrawCrosshair();
 		CG_DrawCrosshairNames();
 	} else {
