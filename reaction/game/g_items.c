@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.50  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -796,7 +799,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		else
 			dropped->think = RQ3_DroppedWeaponThink;
 // JBravo: weapons and items go away faster in CTF
-		if (g_gametype.integer == GT_CTF)
+		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM)
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
 		else if (g_gametype.integer == GT_TEAMPLAY)
 			dropped->nextthink = 0;
@@ -811,7 +814,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		else
 			dropped->think = RQ3_DroppedItemThink;
 // JBravo: weapons and items go away faster in CTF
-		if (g_gametype.integer == GT_CTF)
+		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM)
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
 		else if (g_gametype.integer == GT_TEAMPLAY)
 			dropped->nextthink = 0;
@@ -1086,7 +1089,7 @@ void ClearRegisteredItems(void)
 	RegisterItem(BG_FindItemForHoldable(HI_LASER));
 	//Makro - all weapons should be loaded in teamplay
 	//JBravo: and CTF
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
 		RegisterItem(BG_FindItemForWeapon(WP_M3));
 		RegisterItem(BG_FindItemForWeapon(WP_MP5));
 		RegisterItem(BG_FindItemForWeapon(WP_HANDCANNON));
@@ -1484,7 +1487,7 @@ void RQ3_ResetItem(int itemTag)
 	float angle = rand() % 360;
 
 // JBravo: no resetting items in TP or CTB
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
+	if (g_gametype.integer >= GT_TEAM)
 		return;
 
 	switch (itemTag) {

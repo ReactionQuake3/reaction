@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.91  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -745,7 +748,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 				break;
 			}
 // JBravo: fix falling pain during lca
-			if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+			if (g_gametype.integer >= GT_TEAM && level.lights_camera_action) {
 				break;
 			}
 
@@ -776,7 +779,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 				break;
 			}
 // JBravo: fix falling pain during lca again
-			if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+			if (g_gametype.integer >= GT_TEAM && level.lights_camera_action) {
 				break;
 			}
 
@@ -949,7 +952,7 @@ void ThrowItem(gentity_t * ent)
 	gclient_t *client;
 	gitem_t *xr_item;
 	gentity_t *xr_drop;
-	int item;
+//	int item;
 
 	client = ent->client;
 
@@ -1277,12 +1280,12 @@ void ClientThink_real(gentity_t * ent)
 		if (ucmd->forwardmove == 0 && ucmd->rightmove == 0) {
 			if (client->idletime) {
 				if (level.time >= client->idletime + (g_RQ3_ppl_idletime.integer * 1000)) {
-					if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_idleaction.integer == 1 &&
+					if (g_gametype.integer >= GT_TEAM && g_RQ3_idleaction.integer == 1 &&
 						(ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
 						trap_SendServerCommand( -1, va("print \"Removing %s^7 from his team for excessive Idling\n\"", 
 								ent->client->pers.netname));
 						trap_SendServerCommand(ent - g_entities, "stuff team none\n");
-					} else if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_idleaction.integer == 2 &&
+					} else if (g_gametype.integer >= GT_TEAM && g_RQ3_idleaction.integer == 2 &&
 						(ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
 						trap_SendServerCommand( -1, va("print \"Kicking %s^7 for excessive Idling\n\"", 
 								ent->client->pers.netname));
@@ -1381,7 +1384,7 @@ void SpectatorClientEndFrame(gentity_t * ent)
 				//This will make the spectator get the client's stuff
 				ent->client->ps = cl->ps;
 				//Reposting score and ping.. 
-				if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+				if (g_gametype.integer >= GT_TEAM) {
 					for (i = 0; i < MAX_PERSISTANT; i++)
 						ent->client->ps.persistant[i] = savedPers[i];
 

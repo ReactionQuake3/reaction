@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.123  2002/10/26 18:29:17  jbravo
 // Added allweap and allitem funtionality.
 //
@@ -789,7 +792,7 @@ void G_RegisterCvars(void)
 	}
 // JBravo: lets disable the untested modes.
 	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
-	    g_gametype.integer != GT_TOURNAMENT) {
+	    g_gametype.integer != GT_TOURNAMENT && g_gametype.integer != GT_TEAM) {
 		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");
@@ -1063,7 +1066,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 	//Elder: spawn unique items.
 	// JBravo: unless we are in Teamplay
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+	if (g_gametype.integer < GT_TEAM) {
 		RQ3_StartUniqueItems();
 	}
 	// Elder: force sv_floodprotect to 0 -- remove when we finish
@@ -1084,7 +1087,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_SoundIndex("sound/player/gurp2.wav");
 	}
 // JBravo: reset teamplay stuff.
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
 		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
@@ -1116,7 +1119,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.team1respawn = level.team2respawn = 0;
 	}
 // Slicer: reset matchmode vars
-	if (g_RQ3_matchmode.integer && (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)) {
+	if (g_RQ3_matchmode.integer && g_gametype.integer >= GT_TEAM) {
 		level.refAmmount = 0;
 		for (i = 0; i < level.maxclients; i++) {
 			ent = &g_entities[i];
@@ -1664,7 +1667,7 @@ void BeginIntermission(void)
 		MoveClientToIntermission(client);
 		// JBravo: send the TP scoreboard to players
 		// NiceAss: And CTF
-		if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
+		if (g_gametype.integer >= GT_TEAM)
 			trap_SendServerCommand(i, va("rq3_cmd %i", MAPEND));
 	}
 
@@ -1990,7 +1993,7 @@ void CheckExitRules(void)
 		return;
 	}
 	//Slicer
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		//Let's check fraglimit here, everything else is on teamplay.c
 		if (g_fraglimit.integer > 0) {
 			for (i = 0; i < g_maxclients.integer; i++) {
@@ -2525,7 +2528,7 @@ void G_RunFrame(int levelTime)
 	CheckVote();
 
 	// JBravo: this is the main function in g_teamplay that does everything for TP and CTB
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
 		CheckTeamRules();
 	}
 	// Slicer: matchmode

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.22  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -94,7 +97,7 @@ void G_WriteClientSessionData(gclient_t * client)
 
 	//Slicer how about savedTeam ?!
 
-	if (!g_RQ3_matchmode.integer && (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)) {
+	if (!g_RQ3_matchmode.integer && g_gametype.integer >= GT_TEAM) {
 		//Reset teams on map changes / map_restarts, except on matchmode
 		client->sess.savedTeam = TEAM_SPECTATOR;
 	}
@@ -204,7 +207,7 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				sess->savedTeam = PickTeam(-1);
 				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
-			} else if (g_gametype.integer == GT_CTF) {
+			} else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
 				sess->savedTeam = PickTeam(-1);
 				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
 				sess->sessionTeam = sess->savedTeam;

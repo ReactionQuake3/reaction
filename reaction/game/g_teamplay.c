@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.141  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -1163,6 +1166,8 @@ void EquipPlayer(gentity_t * ent)
 
 	if ((int) g_RQ3_weaponban.integer & WPF_KNIFE) {
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
+		ent->client->weaponCount[WP_KNIFE] = 1;
+		ent->client->ps.ammo[WP_KNIFE] = 1;
 	}
 
 	switch (ent->client->teamplayWeapon) {
@@ -2268,7 +2273,7 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 	char userinfo[MAX_INFO_STRING];
 	char *value;
 
-	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client || !victim->client)
+	if (g_gametype.integer < GT_TEAM || !attacker->client || !victim->client)
 		return;
 
 	attacker->client->team_wounds++;
@@ -2315,8 +2320,7 @@ void Add_TeamKill(gentity_t * attacker)
 	char *value;
 
 	// NiceAss: No TKing in matchmode
-	if ((g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) || !attacker->client
-	    || g_RQ3_matchmode.integer)
+	if (g_gametype.integer < GT_TEAM || !attacker->client || g_RQ3_matchmode.integer)
 		return;
 
 	attacker->client->team_kills++;

@@ -81,6 +81,7 @@ void MM_RunFrame(void)
 		//Each Type has different ways of dealing things..
 	case (GT_TEAMPLAY):
 	case (GT_CTF):
+	case (GT_TEAM):
 		if (level.team_game_going && level.inGame)
 			level.matchTime += 1.0f / (float) fps;
 		break;
@@ -162,8 +163,8 @@ void MM_Ready_f(gentity_t * ent)
 		return;
 	}
 
-	if (level.inGame && g_gametype.integer == GT_CTF) {
-		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "CTB does not yet support un-readying your team after the match started\n\""));
+	if (level.inGame && (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM)) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This gametype does not yet support un-readying your team after the match started\n\""));
 		return;
 	}
 
@@ -405,7 +406,7 @@ void MM_ClearScores(qboolean clearTeamFlags)
 		ent->client->ps.persistant[PERS_KILLED] = 0;
 		ent->client->ps.persistant[PERS_DAMAGE_DELT] = 0;
 	}
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		level.teamScores[TEAM_RED] = 0;
 		level.teamScores[TEAM_BLUE] = 0;
 	}

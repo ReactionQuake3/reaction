@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/10/26 22:03:42  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.54  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -465,7 +468,7 @@ static qboolean CG_FindClientModelFile(char *filename, int length, clientInfo_t 
 			if (CG_FileExists(filename)) {
 				return qtrue;
 			}
-			if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
+			if (cgs.gametype >= GT_TEAM) {
 				Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", modelName, base, skinName,
 					    ext);
 			} else if (cgs.gametype >= GT_TEAM) {
@@ -551,7 +554,7 @@ static qboolean CG_FindClientHeadFile(char *filename, int length, clientInfo_t *
 			if (CG_FileExists(filename)) {
 				return qtrue;
 			}
-			if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
+			if (cgs.gametype >= GT_TEAM) {
 				Com_sprintf(filename, length, "models/players/%s/%s_%s.%s", headModelName, base,
 					    headSkinName, ext);
 			} else if (cgs.gametype >= GT_TEAM) {
@@ -2176,7 +2179,7 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 	refEntity_t ent;
 
 	// NiceAss: Don't draw floating sprites for enemies in TP
-	if ( cgs.gametype == GT_TEAMPLAY && 
+	if ( cgs.gametype >= GT_TEAM && 
 		 cgs.clientinfo[cent->currentState.clientNum].team != cg.snap->ps.persistant[PERS_SAVEDTEAM] &&
 		 ( cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || 
 		 cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE ) )
@@ -2253,7 +2256,7 @@ static void CG_PlayerSprites(centity_t * cent)
 		return;
 	}
 // JBravo: no triangles over teammates.
-	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
+	if (cgs.gametype >= GT_TEAM) {
 		return;
 	}
 

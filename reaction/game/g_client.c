@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.119  2002/10/26 18:29:17  jbravo
 // Added allweap and allitem funtionality.
 //
@@ -863,7 +866,7 @@ team_t PickTeam(int ignoreClientNum)
 {
 	int counts[TEAM_NUM_TEAMS];
 
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		counts[TEAM_BLUE] = RQ3TeamCount(ignoreClientNum, TEAM_BLUE);
 		counts[TEAM_RED] = RQ3TeamCount(ignoreClientNum, TEAM_RED);
 	} else {
@@ -1333,7 +1336,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	CalculateRanks();
 
 // JBravo: clients in TP begin as spectators
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
@@ -1382,7 +1385,7 @@ void ClientBegin(int clientNum)
 	ent->client = client;
 
 	//Slicer: Saving persistant and ping
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		savedPing = client->ps.ping;
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			savedPers[i] = client->ps.persistant[i];
@@ -1401,7 +1404,7 @@ void ClientBegin(int clientNum)
 	client->ps.eFlags = flags;
 
 	//Slicer: Repost score and ping 
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		client->ps.ping = savedPing;
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			client->ps.persistant[i] = savedPers[i];
@@ -1410,7 +1413,7 @@ void ClientBegin(int clientNum)
 	ClientSpawn(ent);
 
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
-	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+	if ((g_gametype.integer >= GT_TEAM) &&
 	    client->sess.sessionTeam != TEAM_RED && client->sess.sessionTeam != TEAM_BLUE) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
@@ -1450,7 +1453,7 @@ void ClientBegin(int clientNum)
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
 
 // JBravo: synching the cvars over to clients for the MM ingame menu.
-	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) && g_RQ3_matchmode.integer) {
+	if ((g_gametype.integer >= GT_TEAM) && g_RQ3_matchmode.integer) {
 		for (i = 0; i < 9; ++i) {
 			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %s %i", CVARSET, settings2[i],
 								    trap_Cvar_VariableIntegerValue(settings[i])));
@@ -1473,7 +1476,7 @@ void ClientBegin(int clientNum)
 	CalculateRanks();
 
 	// JBravo: default weapons
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (ent->r.svFlags & SVF_BOT) {
 			//Makro - changed to m4/laser from pistol/kevlar
@@ -1701,7 +1704,7 @@ void ClientSpawn(gentity_t * ent)
 
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+	if (g_gametype.integer == GT_FFA) {
 		if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
 			client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
 			client->numClips[WP_PISTOL] = 0;
@@ -1759,7 +1762,7 @@ void ClientSpawn(gentity_t * ent)
 	ent->client->ps.stats[STAT_RQ3] = 0;
 
 // JBravo: remember saved specmodes.
-	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+	if ((g_gametype.integer >= GT_TEAM) &&
 	    client->sess.sessionTeam == TEAM_SPECTATOR) {
 		if (client->specMode == SPECTATOR_FOLLOW || client->specMode == SPECTATOR_FREE) {
 			client->sess.spectatorState = client->specMode;
@@ -1785,7 +1788,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 	// weapon animations
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
+	if (g_gametype.integer == GT_FFA)
 		client->ps.generic1 = ((client->ps.generic1 & ANIM_TOGGLEBIT)
 				       ^ ANIM_TOGGLEBIT) | WP_ANIM_IDLE;
 
@@ -1799,7 +1802,7 @@ void ClientSpawn(gentity_t * ent)
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		// JBravo: Lets make sure we have the right weapons
-		if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) &&
+		if ((g_gametype.integer >= GT_TEAM) &&
 		    (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE)) {
 			EquipPlayer(ent);
 		} else {
@@ -1820,7 +1823,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
+	if (g_gametype.integer == GT_FFA)
 		ClientThink(ent - g_entities);
 
 	// positively link the client, even if the command times are weird
@@ -1831,7 +1834,7 @@ void ClientSpawn(gentity_t * ent)
 	}
 	// run the presend to set anything else
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
+	if (g_gametype.integer == GT_FFA)
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
 
@@ -1899,7 +1902,7 @@ void ClientDisconnect(int clientNum)
 		return;
 	}
 // JBravo: to keep the ui teamcount cvars right.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		oldTeam = ent->client->sess.sessionTeam;
 	}
 	//Slicer: matchmode
@@ -1973,7 +1976,7 @@ void ClientDisconnect(int clientNum)
 	CalculateRanks();
 
 // JBravo: to keep the ui teamcount cvars right.
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		i = RQ3TeamCount(-1, oldTeam);
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.174  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.173  2002/10/26 18:29:17  jbravo
 // Added allweap and allitem funtionality.
 //
@@ -942,7 +945,7 @@ void BroadcastTeamChange(gclient_t * client, int oldTeam)
 {
 // JBravo: change team names if teamplay
 
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		if (client->sess.savedTeam == TEAM_RED) {
 			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " joined %s.\n\"",
 						      client->pers.netname, g_RQ3_team1name.string));
@@ -989,7 +992,7 @@ void SetTeam(gentity_t * ent, char *s)
 	client = ent->client;
 	clientNum = client - level.clients;
 
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+	if (g_gametype.integer < GT_TEAM) {
 		specClient = 0;
 		specState = SPECTATOR_NOT;
 	}
@@ -1011,7 +1014,7 @@ void SetTeam(gentity_t * ent, char *s)
 		specState = SPECTATOR_FREE;
 	} else if (g_gametype.integer >= GT_TEAM) {
 		// if running a team game, assign player to one of the teams
-		if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+		if (g_gametype.integer < GT_TEAM) {
 			specState = SPECTATOR_NOT;
 		}
 		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r") || !Q_stricmp(s, "1")) {
@@ -1094,7 +1097,7 @@ void SetTeam(gentity_t * ent, char *s)
 	}
 
 // JBravo: lets set the correct var here.
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		client->sess.savedTeam = team;
 		client->ps.persistant[PERS_SAVEDTEAM] = team;
 	} else {
@@ -1121,7 +1124,7 @@ void SetTeam(gentity_t * ent, char *s)
 		client->sess.spectatorTime = level.time;
 	}
 // JBravo: not messing with spec system in TP during teamswitches
-	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
+	if (g_gametype.integer < GT_TEAM) {
 		client->sess.spectatorState = specState;
 		client->sess.spectatorClient = specClient;
 	}
@@ -1133,7 +1136,7 @@ void SetTeam(gentity_t * ent, char *s)
 
 // JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
 //         so the scoreboard will be correct.  Also check for uneven teams.
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+	if (g_gametype.integer >= GT_TEAM) {
 		if (g_RQ3_matchmode.integer && g_RQ3_maxplayers.integer > 0) {
 			if (RQ3TeamCount(-1, client->sess.savedTeam) > g_RQ3_maxplayers.integer) // If it overflows max players
 				//Make him a sub immeadiatly.
@@ -1339,7 +1342,7 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 	}
 	// first set them to spectator
 	// JBravo: Unless we are in teamplay. No need to mess with teams.
-	if (ent->client->sess.spectatorState == SPECTATOR_NOT && g_gametype.integer != GT_TEAMPLAY) {
+	if (ent->client->sess.spectatorState == SPECTATOR_NOT && g_gametype.integer < GT_TEAM) {
 		SetTeam(ent, "spectator");
 	}
 
@@ -1366,7 +1369,7 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir)
 			continue;
 		}
 // JBravo: limchasecam
-		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 &&
+		if (g_gametype.integer >= GT_TEAM && g_RQ3_limchasecam.integer != 0 &&
 		    ent->client->sess.savedTeam != level.clients[clientnum].sess.sessionTeam && ent->client->sess.referee == 0) {
 			G_Printf("SavedTeam = (%d)\n",ent->client->sess.savedTeam);
 			continue;
@@ -1982,8 +1985,8 @@ void Cmd_CallVote_f(gentity_t * ent)
 	// special case for g_gametype, check for bad values
 	if (!Q_stricmp(arg1, "g_gametype")) {
 		i = atoi(arg2);
-		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF) {
-			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype. Valid gametypes are 0, 4 and 5.\n\"");
+		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF && i != GT_TEAM) {
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype. Valid gametypes are 0, 3, 4 and 5.\n\"");
 			return;
 		}
 
@@ -2093,7 +2096,7 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 	char arg2[MAX_STRING_TOKENS];
 
 // JBravo: not wanted for TP
-	if (g_gametype.integer == GT_TEAMPLAY)
+	if (g_gametype.integer >= GT_TEAM)
 		return;
 
 	team = ent->client->sess.sessionTeam;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.69  2002/10/21 21:03:32  niceass
 // ref ready code
 //
@@ -681,7 +684,7 @@ static void CG_MapRestart(void)
 
 	// play the "fight" sound if this is a restart without warmup
 	// JBravo: unless we are in teamplay mode.
-	if (cgs.gametype == GT_TEAMPLAY)
+	if (cgs.gametype >= GT_TEAM)
 		return;
 	if (cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */ ) {
 		trap_S_StartLocalSound(cgs.media.countFightSound, CHAN_ANNOUNCER);

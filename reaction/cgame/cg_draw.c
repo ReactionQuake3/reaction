@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/10/26 22:03:42  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.67  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -686,7 +689,7 @@ static float CG_DrawScore(float y)
 
 	y += 4;
 
-	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF)
+	if (cgs.gametype >= GT_TEAM)
 		team = cg.snap->ps.persistant[PERS_SAVEDTEAM];
 	else
 		team = cg.snap->ps.persistant[PERS_TEAM];
@@ -2001,7 +2004,7 @@ static void CG_DrawSpectator(void)
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
+	if (cgs.gametype >= GT_TEAM) {
 		team = (cgs.gametype == GT_TEAMPLAY) ? cg.snap->ps.persistant[PERS_SAVEDTEAM] : cg.snap->ps.persistant[PERS_TEAM];
 		CG_TeamColor(team, Color);
 		Color[0] *= 0.7f;

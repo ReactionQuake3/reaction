@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2002/10/26 22:03:43  jbravo
+// Made TeamDM work RQ3 style.
+//
 // Revision 1.129  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -363,7 +366,7 @@ void AddScore(gentity_t * ent, vec3_t origin, int score)
 		ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	if (g_gametype.integer == GT_TEAM)
+	if (g_gametype.integer == GT_TEAM && score > 0)
 		level.teamScores[ent->client->ps.persistant[PERS_TEAM]] += score;
 	CalculateRanks();
 }
@@ -1169,7 +1172,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		return;
 	}
 // JBravo: lets not bother with those CTF functions in Teamplay
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_CTF) {
 		// check for an almost capture
 		CheckAlmostCapture(self, attacker);
 		// check for a player that almost brought in cubes
@@ -1353,7 +1356,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				Add_TeamKill(attacker);
 				trap_SendServerCommand(self - g_entities,
 						       va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
-			} else if (g_gametype.integer == GT_CTF) {
+			} else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
 				AddScore(attacker, self->r.currentOrigin, -1);
 				attacker->client->pers.records[REC_KILLS]--;
 				attacker->client->pers.records[REC_TEAMKILLS]++;
@@ -1376,7 +1379,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
 			// JBravo: Done ;)
-			if (g_gametype.integer == GT_FFA) {
+			if (g_gametype.integer == GT_FFA || g_gametype.integer == GT_TEAM) {
 				if (attacker->client->killStreak < 4)
 					AddScore(attacker, self->r.currentOrigin, 1);
 				else if (attacker->client->killStreak < 8) {
@@ -1431,7 +1434,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			self->client->pers.records[REC_SUICIDES]++;
 			self->client->pers.records[REC_KILLS]--;
 		}
-		if (g_gametype.integer != GT_TEAMPLAY) {
+		if (g_gametype.integer == GT_CTF) {
 			if (self->client->ps.powerups[PW_NEUTRALFLAG]) {	// only happens in One Flag CTF
 				Team_ReturnFlag(TEAM_FREE);
 				self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
@@ -1449,7 +1452,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if (!(contents & CONTENTS_NODROP)) {
 		TossClientItems(self);
 	} else {
-		if (g_gametype.integer != GT_TEAMPLAY) {
+		if (g_gametype.integer == GT_CTF) {
 			if (self->client->ps.powerups[PW_NEUTRALFLAG]) {	// only happens in One Flag CTF
 				Team_ReturnFlag(TEAM_FREE);
 			} else if (self->client->ps.powerups[PW_REDFLAG]) {	// only happens in standard CTF
@@ -1864,7 +1867,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		return;
 	}
 		
-	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+	if (g_gametype.integer >= GT_TEAM && level.lights_camera_action) {
 		return;		// JBravo: No dmg during LCA
 	}
 	// NiceAss: Fixed pointer bug causing DLLs to crash
@@ -1872,7 +1875,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
 	    targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
 	    ((g_gametype.integer == GT_TEAMPLAY && !g_friendlyFire.integer && level.team_round_going) ||
-	     (g_gametype.integer == GT_CTF && !g_friendlyFire.integer)))
+	     (g_gametype.integer >= GT_TEAM && !g_friendlyFire.integer)))
 		return;
 
 	// the intermission has allready been qualified for, so don't
@@ -2086,10 +2089,10 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			if (g_gametype.integer == GT_TEAMPLAY && g_friendlyFire.integer == 2 && level.team_round_going) {
 				return;
 			}
-			if (g_gametype.integer == GT_CTF && g_friendlyFire.integer == 2)
+			if (g_gametype.integer >= GT_TEAM && g_friendlyFire.integer == 2)
 				return;
 			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
-			    || g_gametype.integer == GT_CTF)
+			    || g_gametype.integer >= GT_TEAM)
 				Add_TeamWound(attacker, targ, mod);
 		}
 		// check for godmode
