@@ -55,4 +55,5 @@
 * The captain status no longer stays on people after mapchanges
 * Commands like "drop weapon ; use throwing combat knife" now work as expected.
 * Pressures are killed on LCA
-* Matchmode ping determine code in
+* Matchmode ping determination added to scoreboard
+* Player total and sub total added to the scoreboard
