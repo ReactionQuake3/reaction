@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/06/05 19:16:22  makro
+// Made bots choose the ssg in teamplay
+//
 // Revision 1.27  2002/06/01 13:37:02  makro
 // Tweaked bandaging code
 //
@@ -1521,10 +1524,10 @@ static RQ3_TPCombo_t RQ3_TPCombos[] = {
 	{WP_HANDCANNON,		HI_KEVLAR},
 	{WP_HANDCANNON,		HI_BANDOLIER},
 	{WP_HANDCANNON,		HI_SLIPPERS},
-//	{WP_SSG3000,		HI_SILENCER},
-//	{WP_SSG3000,		HI_KEVLAR},
-//	{WP_SSG3000,		HI_BANDOLIER},
-//	{WP_SSG3000,		HI_SLIPPERS},
+	{WP_SSG3000,		HI_SILENCER},
+	{WP_SSG3000,		HI_KEVLAR},
+	{WP_SSG3000,		HI_BANDOLIER},
+	{WP_SSG3000,		HI_SLIPPERS},
 	{WP_AKIMBO,			HI_KEVLAR},
 	{WP_AKIMBO,			HI_BANDOLIER}
 };
