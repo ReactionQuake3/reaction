@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/08/29 04:45:25  niceass
+// color changes for new outlined font
+//
 // Revision 1.46  2002/08/27 05:08:22  niceass
 // fix for ref
 //
@@ -498,7 +501,7 @@ static int CG_TeamplayScoreboard(void)
 
 	// *************** RED TEAM ***************
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, colorBlack);
-	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorBlack);
+	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorWhite);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Reds, RedSubs,
@@ -588,10 +591,10 @@ static int CG_TeamplayScoreboard(void)
 	// *************** BLUE TEAM ************
 	y += SB_FONTSIZEH * 2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, colorBlack);
-	if (cgs.gametype == GT_CTF)
+	//if (cgs.gametype == GT_CTF)
 		DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorWhite);
-	else
-		DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
+	//else
+	//	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Blues, BlueSubs,
@@ -679,7 +682,7 @@ static int CG_TeamplayScoreboard(void)
 
 		y += SB_FONTSIZEH * 2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyD, colorBlack);
-		DrawLeftStripText(y, SB_FONTSIZEH, "Spectators", 100, colorBlack);
+		DrawLeftStripText(y, SB_FONTSIZEH, "Spectators", 100, colorWhite);
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 
 		for (i = 0; i < cg.numScores; i++) {

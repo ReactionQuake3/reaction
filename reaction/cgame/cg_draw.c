@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/08/29 04:45:25  niceass
+// color changes for new outlined font
+//
 // Revision 1.63  2002/08/22 03:32:10  niceass
 // countdown code added
 //
@@ -732,12 +735,12 @@ static float CG_DrawScore(float y)
 	else
 		x = w;
 
-	MAKERGBA(BColor, 1.0f, 1.0f, 1.0f, 1.0f);
-	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+	//MAKERGBA(BColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	//CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
 
 	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
 
-	MAKERGBA(FColor, 0.0f, 0.0f, 0.0f, 1.0f);
+	MAKERGBA(FColor, 0.75f, 0.75f, 0.75f, 1.0f);
 	CG_DrawStringExt(631 - x, y + 2, s, FColor, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);	
 	//CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
 
