@@ -1,5 +1,7 @@
 # List fixes here for post 2.25
 
+* Fixed the chasecam so ref's will be able to use all the chasecam modes.
+
 * Fixed the cg_rq3_autoaction code up a bit more to show the map name, and a few other fixes
 
 # List fixes here for the 2.25 release
