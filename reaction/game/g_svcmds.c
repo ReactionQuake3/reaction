@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/20 04:59:33  jbravo
+// Lots of small fixes.
+//
 // Revision 1.8  2002/05/04 16:19:02  jbravo
 // Fixing the stuff cmd to work on dedicated servers.
 //
@@ -477,11 +480,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
-			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
+			trap_SendServerCommand( -1, va("print \"^1server: %s\n\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
 		// everything else will also be printed as a say command
-		trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(0) ) );
+		trap_SendServerCommand( -1, va("print \"^1server: %s\n\"", ConcatArgs(0) ) );
 		return qtrue;
 	}
 

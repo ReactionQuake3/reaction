@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/05/20 04:59:33  jbravo
+// Lots of small fixes.
+//
 // Revision 1.39  2002/05/19 21:27:51  blaze
 // added force and buoyancy to breakables
 //
@@ -1240,7 +1243,6 @@ void CG_RQ3_Cmd () {
 			cg.scoreTPMode = 0;
 			CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 			CG_Printf("\nLIGHTS...\n");
-//			trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
 			CG_AddBufferedSound(cgs.media.lightsSound);
 			break;
 		case CAMERA:
@@ -1258,7 +1260,6 @@ void CG_RQ3_Cmd () {
 			CG_SetTeamPlayers();
 			break;*/
 		case SELECTPISTOL:
-		//	CG_Printf("Selecting pistol\n");
 			if (cg.snap) {
 			switch (cg.snap->ps.weapon) {
 				case WP_PISTOL:
@@ -1278,79 +1279,75 @@ void CG_RQ3_Cmd () {
 		case ROUND:
 			trap_Cvar_Set("cg_RQ3_team_round_going", CG_Argv(1));
 			break;
-    case MAPSTART:
-      switch (cg_RQ3_autoAction.integer )
-      {
-        case 1:
-        case 3:
-          trap_RealTime(&qtime);
-          Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
-          RemoveColorEscapeSequences(playerName);
-          
-          //Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %s-%s-%d.%d.%d-%d.%d.%d\n", playerName, cgs.mapname, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
-          Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d_%s_%s\n", qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec, cgs.mapname, playerName);
-          for (i=0;i<MAX_QPATH;i++)
-          {
-            switch (scrnshotName[i])
-            {
-            case '>':
-            case '<':
-            case '"':
-            case '?':
-            case '*':
-            case ':':
-            case '\\':
-            case '/':
-            case '|':
-              scrnshotName[i] = '_';
-              break;
-            }
-          }
-          trap_SendConsoleCommand ("g_synchronousClients 1\n");
-          trap_SendConsoleCommand (scrnshotName);
-          trap_SendConsoleCommand ("g_synchronousClients 0\n");
-          break;
-      }
-      break;
+		case MAPSTART:
+			switch (cg_RQ3_autoAction.integer) {
+				case 1:
+				case 3:
+					trap_RealTime (&qtime);
+					Com_sprintf (playerName, sizeof(playerName), "%s", cgs.clientinfo->name);
+					RemoveColorEscapeSequences (playerName);
+					Com_sprintf (scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d_%s_%s\n", qtime.tm_year + 1900,
+						qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec, cgs.mapname, playerName);
+				for (i=0; i<MAX_QPATH; i++) {
+					switch (scrnshotName[i]) {
+						case '>':
+						case '<':
+						case '"':
+						case '?':
+						case '*':
+						case ':':
+						case '\\':
+						case '/':
+						case '|':
+							scrnshotName[i] = '_';
+							break;
+					}
+				}
+				trap_SendConsoleCommand ("g_synchronousClients 1\n");
+				trap_SendConsoleCommand (scrnshotName);
+				trap_SendConsoleCommand ("g_synchronousClients 0\n");
+				break;
+			}
+			break;
 		case MAPEND:
 			cg.showScores = qtrue;
 			cg.scoreTPMode = 0;
-      switch (cg_RQ3_autoAction.integer )
-      {
-        case 3:
-          trap_SendConsoleCommand ("stoprecord\n");
-        case 2:
-          trap_RealTime(&qtime);
-          Com_sprintf(playerName,sizeof(playerName),"%s",cgs.clientinfo->name);
-          RemoveColorEscapeSequences(playerName);
-          //Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %s-%d.%d.%d-%d.%d.%d\n", playerName, qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
-          Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %d-%d-%d_%d-%d-%d_%s_%s\n", qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec, cgs.mapname, playerName);
-          for (i=0;i<MAX_QPATH;i++)
-          {
-            switch (scrnshotName[i])
-            {
-            case '>':
-            case '<':
-            case '"':
-            case '?':
-            case '*':
-            case ':':
-            case '\\':
-            case '/':
-            case '|':
-              scrnshotName[i] = '_';
-              break;
-            }
-          }
-          trap_SendConsoleCommand (scrnshotName);
-          break;
-        case 1:
-          trap_SendConsoleCommand ("stoprecord\n");
-          break;
-      }
+			switch (cg_RQ3_autoAction.integer) {
+				case 3:
+					trap_SendConsoleCommand ("stoprecord\n");
+				case 2:
+					trap_RealTime(&qtime);
+					Com_sprintf(playerName, sizeof(playerName), "%s", cgs.clientinfo->name);
+					RemoveColorEscapeSequences(playerName);
+					Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %d-%d-%d_%d-%d-%d_%s_%s\n",
+						qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min,
+						qtime.tm_sec, cgs.mapname, playerName);
+					for (i=0; i<MAX_QPATH; i++) {
+						switch (scrnshotName[i]) {
+							case '>':
+							case '<':
+							case '"':
+							case '?':
+							case '*':
+							case ':':
+							case '\\':
+							case '/':
+							case '|':
+								scrnshotName[i] = '_';
+								break;
+						}
+					}
+					trap_SendConsoleCommand (scrnshotName);
+					break;
+				case 1:
+					trap_SendConsoleCommand ("stoprecord\n");
+					break;
+			}
 			break;
 		case SETWEAPON:
-			cg.weaponSelect = atoi(CG_Argv(1));
+			i = atoi(CG_Argv(1));
+			cg.weaponSelect = i;
+//			cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << i);
 			break;
 		case STUFF:
 			CG_Stuffcmd();

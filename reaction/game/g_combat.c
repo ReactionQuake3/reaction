@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/05/20 04:59:33  jbravo
+// Lots of small fixes.
+//
 // Revision 1.79  2002/05/19 21:04:37  jbravo
 // Tkok popup system
 //
@@ -819,7 +822,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 	if (attacker->client && attacker != target)
 		message[0] = '\0';
 	if (message[0] != '\0') {
-		Com_sprintf (death_msg, sizeof(death_msg), "%s %s\n", target->client->pers.netname, message);
+		Com_sprintf (death_msg, sizeof(death_msg), "%s^7 %s\n", target->client->pers.netname, message);
 		SendObit (death_msg, target, attacker);
 		return;
 	}
@@ -1082,7 +1085,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 			default:
 				Com_sprintf (message, sizeof(message), "died via unhandled MOD %i. Report this to JBravo", meansOfDeath);
 		}
-		Com_sprintf (death_msg, sizeof(death_msg), "%s%s %s%s\n", target->client->pers.netname, message,
+		Com_sprintf (death_msg, sizeof(death_msg), "%s^7%s %s^7%s\n", target->client->pers.netname, message,
 				attacker->client->pers.netname, message2);
 		SendObit (death_msg, target, attacker);
 	}
@@ -2307,8 +2310,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							attacker->client->pers.records[REC_CHESTSHOTS]++;
 						// Vest stuff - is the knife supposed to be affected?
 						// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
+						// JBravo: added mod != MOD_KNIFE so kevlar doesn't help against slashing knives either
 						if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR
-							&& mod != MOD_KNIFE_THROWN) {
+							&& mod != MOD_KNIFE_THROWN && mod != MOD_KNIFE) {
 							targ->client->kevlarHit = qtrue;
 							if (attacker->client->ps.weapon == WP_SSG3000) {
 								trap_SendServerCommand(attacker-g_entities, va("print \"%s ^7has a Kevlar Vest, too bad you have AP rounds...\n\"",
@@ -2317,7 +2321,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 											attacker->client->pers.netname));
 								take = take * 0.325;
 							} else {
-								if (mod != MOD_KNIFE) { // && mod != MOD_KNIFE_THROWN)
+								if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
 									trap_SendServerCommand(attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"",
 											targ->client->pers.netname));
 								} else {

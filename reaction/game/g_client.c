@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/05/20 04:59:33  jbravo
+// Lots of small fixes.
+//
 // Revision 1.75  2002/05/19 21:27:28  blaze
 // added force and buoyancy to breakables
 //
@@ -991,6 +994,7 @@ void ClientUserinfoChanged( int clientNum ) {
 				Com_sprintf (headModel, sizeof (headModel) , "%s/%s", model2, skin2);
 			} else {
 				Com_sprintf (model, sizeof (model) , "grunt/chowda");
+				Com_sprintf (headModel, sizeof (headModel) , "grunt/chowda");
 			}
 		} else {
 			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
@@ -1005,6 +1009,7 @@ void ClientUserinfoChanged( int clientNum ) {
 				Com_sprintf (headModel, sizeof (headModel) , "%s/%s", model2, skin2);
 			} else {
 				Com_sprintf (model, sizeof (model) , "grunt/cyrus");
+				Com_sprintf (headModel, sizeof (headModel) , "grunt/cyrus");
 			}
 		}
 	} else {

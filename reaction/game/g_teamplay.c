@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/05/20 04:59:33  jbravo
+// Lots of small fixes.
+//
 // Revision 1.92  2002/05/18 21:57:54  blaze
 // Transmit round start to clients
 // used for cg_rq3_autoaction
@@ -522,20 +525,17 @@ void MakeAllLivePlayersObservers()
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
-// JBravo: I dont agree. Why allow players that are already spectators to stay in follow
-// Mode or zcam mode when there are no other players to follow ?
-		//Slicer: Need to check if they are solid or not.
-//		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
-//			continue;
-		if (!player->inuse)
+		if (!player->inuse || !player->client)
 			continue;
-		//Slicer Adding this..
-		level.clients[i].ps.pm_type = PM_DEAD;
-		level.clients[i].ps.weapon = WP_NONE;
-
-		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
-		level.clients[i].ps.persistant[PERS_SAVEDTEAM] = level.clients[i].sess.sessionTeam;
-		StopFollowing (player);
+		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) {
+			StopFollowing (player);
+		} else {
+			//Slicer Adding this..
+			level.clients[i].ps.pm_type = PM_DEAD;
+			level.clients[i].ps.weapon = WP_NONE;
+			level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
+			StopFollowing (player);
+		}
 	}
 }
 
@@ -1520,6 +1520,7 @@ void GetLastKilledTarget (gentity_t * self, char * buf)
 
 	if (kills >= 0) {
 		strcpy (buf, self->client->lastkilled_client[0]->client->pers.netname);
+		strcat (buf, "^5");
 		if (kills > 0) {
 			for (i = 1; i < kills + 1; i++) {
 				if (i == kills) {
