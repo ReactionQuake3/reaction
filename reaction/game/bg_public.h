@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/06/16 17:37:59  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.78  2002/06/12 22:32:24  slicer
 // Even better way to improve the Cvar Anti-Cheat System
 //
@@ -649,9 +652,6 @@ void Pmove (pmove_t *pmove);
 typedef enum {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,				// Elder: Used to hold unique items in Reaction
-#ifdef MISSIONPACK
-	STAT_PERSISTANT_POWERUP,
-#endif
 	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,						// Elder: technically we don't need this anymore
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
@@ -724,9 +724,6 @@ typedef enum {
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
-#ifdef MISSIONPACK
-#define EF_TICKING			0x00000002		// used to make players play the prox mine ticking sound
-#endif
 #define EF_HANDCANNON_SMOKED 0x00000002		// Elder: HC Smoke
 #define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
 #define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
@@ -817,22 +814,6 @@ Combat Knife
 	WP_AKIMBO,
 	WP_KNIFE,
 	WP_GRENADE,
-/*
-	WP_KNIFE,
-	WP_PISTOL,
-	WP_M4,
-	WP_SSG3000,
-	WP_MP5,
-	WP_M3,
-	WP_HANDCANNON,
-	WP_AKIMBO,
-	WP_GRENADE,
-*/
-#ifdef MISSIONPACK
-	WP_NAILGUN,
-	WP_PROX_LAUNCHER,
-	WP_CHAINGUN,
-#endif
 
 	WP_NUM_WEAPONS
 } weapon_t;
@@ -1093,7 +1074,6 @@ typedef enum {
 	EV_PRESSURE,			// NiceAss: an entity under pressure
 	EV_SCOREPLUM,			// score plum
 
-//#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
 	EV_KAMIKAZE,			// kamikaze explodes
@@ -1102,7 +1082,6 @@ typedef enum {
 	EV_INVUL_IMPACT,		// invulnerability sphere impact
 	EV_JUICED,				// invulnerability juiced effect
 	EV_LIGHTNINGBOLT,		// lightning bolt bounced of invulnerability sphere
-//#endif
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -1284,13 +1263,6 @@ typedef enum {
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
-#ifdef MISSIONPACK
-	MOD_NAIL,
-	MOD_CHAINGUN,
-	MOD_PROXIMITY_MINE,
-	MOD_KAMIKAZE,
-	MOD_JUICED,
-#endif
 	MOD_GRAPPLE,
 	//Blaze: Reaction Deaths
 	MOD_KNIFE,

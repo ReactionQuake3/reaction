@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/06/16 17:38:00  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.30  2002/06/12 11:14:35  makro
 // Fixed knives/pistols not spawning bug
 //
@@ -260,11 +263,6 @@ void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
 void SP_func_door_rotating( gentity_t *ent );	// VALKYRIE: for rotating doors
-#ifdef MISSIONPACK
-void SP_team_blueobelisk( gentity_t *ent );
-void SP_team_redobelisk( gentity_t *ent );
-void SP_team_neutralobelisk( gentity_t *ent );
-#endif
 
 // JBravo: SP_item_botroam doesnt really exsist.
 // Makro - still, bots are supposed to use these
@@ -344,11 +342,6 @@ spawn_t	spawns[] = {
 	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
 	{"func_door_rotating", SP_func_door_rotating},	// VALKYRIE: for rotating doors
-#ifdef MISSIONPACK
-	{"team_redobelisk", SP_team_redobelisk},
-	{"team_blueobelisk", SP_team_blueobelisk},
-	{"team_neutralobelisk", SP_team_neutralobelisk},
-#endif
 
 //Blaze: Merged func_explosive into func_breakable
 //	{"func_explosive", SP_func_explosive},	// JBravo: for explosive.
@@ -632,19 +625,11 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		}
 	}
 
-#ifdef MISSIONPACK
-	G_SpawnInt( "notta", "0", &i );
-	if ( i ) {
-		G_FreeEntity( ent );
-		return;
-	}
-#else
 	G_SpawnInt( "notq3a", "0", &i );
 	if ( i ) {
 		G_FreeEntity( ent );
 		return;
 	}
-#endif
 
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
 		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {

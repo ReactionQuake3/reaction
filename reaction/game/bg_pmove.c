@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/06/16 17:37:59  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.77  2002/06/11 03:09:28  niceass
 // +attack cancels reloads
 //
@@ -3116,12 +3119,6 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_DropTimers();
 	CheckLadder();  // ARTHUR TOMLIN check and see if they're on a ladder
 
-#ifdef MISSIONPACK
-	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
-		PM_InvulnerabilityMove();
-	} else
-#endif
-		
 	if ( pm->ps->powerups[PW_FLIGHT] ) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/06/16 17:38:00  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.92  2002/06/13 17:01:30  slicer
 // Radio Gender changes according to model gender
 //
@@ -368,11 +371,6 @@ struct gentity_s {
 	gentity_t	*teamchain;		// next entity in team
 	gentity_t	*teammaster;		// master of the team
 
-#ifdef MISSIONPACK
-	int		kamikazeTime;
-	int		kamikazeShockTime;
-#endif
-
 	int		watertype;
 	int		waterlevel;
 	int		noise_index;
@@ -605,13 +603,6 @@ struct gclient_s {
 	qboolean		kevlarHit;		// Elder: kevlar hit -- FIXME: poor implementation
 	int			knife_sound;		// NiceAss: What did the player hit while slashing?
 
-#ifdef MISSIONPACK
-	gentity_t		*persistantPowerup;
-	int			portalID;
-	int			ammoTimes[WP_NUM_WEAPONS];
-	int			invulnerabilityTime;
-#endif
-
 	char			*areabits;
         struct camera_s		*camera;
 // JBravo adding TP stuff
@@ -727,9 +718,6 @@ typedef struct {
 	gentity_t		*locationHead;		// head of the location list
 	int			bodyQueIndex;		// dead bodies
 	gentity_t		*bodyQue[BODY_QUEUE_SIZE];
-#ifdef MISSIONPACK
-	int			portalSequence;
-#endif
 //	Slicer: Matchmode
 	float			matchTime;
 	qboolean		team1ready;
@@ -884,9 +872,6 @@ qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float
 int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir );
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossClientItems( gentity_t *self );
-#ifdef MISSIONPACK
-void TossClientPersistantPowerups( gentity_t *self );
-#endif
 void TossClientCubes( gentity_t *self );
 
 // damage flags
@@ -894,9 +879,6 @@ void TossClientCubes( gentity_t *self );
 #define DAMAGE_NO_ARMOR			0x00000002	// armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
-#ifdef MISSIONPACK
-#define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
-#endif
 //Elder: Changed from 0x00000016 to 0x00000020
 #define DAMAGE_NO_LOCATIONAL		0x00000020  // Generic damage (shotguns, grenades, kicks)
 
@@ -913,11 +895,6 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
 //gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir);
 //gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir);
 //gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir);
-#ifdef MISSIONPACK
-gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t right, vec3_t up );
-gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
-#endif
-
 
 //
 // g_mover.c
@@ -936,11 +913,6 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 // g_misc.c
 //
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
-#ifdef MISSIONPACK
-void DropPortalSource( gentity_t *ent );
-void DropPortalDestination( gentity_t *ent );
-#endif
-
 void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int mod, int damage );//Blaze: Breakable glass
 void G_RunDlight ( gentity_t *ent );	// Elder: dlight running
 void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
@@ -1008,9 +980,6 @@ qboolean G_FilterPacket (char *from);
 //
 void FireWeapon( gentity_t *ent );
 void ReloadWeapon ( gentity_t *ent, int stage );		// Elder: added
-#ifdef MISSIONPACK
-void G_StartKamikaze( gentity_t *ent );
-#endif
 
 //
 // p_hud.c
