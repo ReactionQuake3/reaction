@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2003/09/16 23:25:32  makro
+// trigger_multiple - new spawnflag, 3 new keys
+//
 // Revision 1.28  2003/09/08 19:19:20  makro
 // New code for respawning entities in TP
 //
@@ -93,6 +96,18 @@ void InitTrigger(gentity_t * self)
 	self->r.svFlags = SVF_NOCLIENT;
 }
 
+/*QUAKED trigger_multiple (.5 .5 .5) ? DOOR
+"wait" : Seconds between triggerings, 0.5 default, -1 = one time only.
+"random"	wait variance, default is 0
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+so, the basic time between firing is a random time between
+(wait - random) and (wait + random)
+*/
+
+#define SF_TRIGGER_MULTIPLE_RED		1
+#define SF_TRIGGER_MULTIPLE_BLUE	2
+#define SF_TRIGGER_MULTIPLE_DOOR	4
+
 // the wait time has passed, so set back up for another activation
 void multi_wait(gentity_t * ent)
 {
@@ -110,21 +125,30 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	}
 	//Makro - inactive trigger ?
 	if (ent->inactive) {
+		if (ent->soundInactive)
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundInactive);
+		if (ent->targetInactive)
+			G_UseEntities(ent, ent->targetInactive, activator);
 		return;
 	}
+	if (ent->spawnflags & SF_TRIGGER_MULTIPLE_DOOR)
+		if (!activator || !activator->client || !activator->client->openDoor)
+			return;
 	//Makro - added check; Q3 crashed in archives when playing
 	//with .dll's and shooting one of the barrels
 	if (activator != NULL) {
 		if (activator->client) {
-			if ((ent->spawnflags & 1) && activator->client->sess.sessionTeam != TEAM_RED) {
+			if ((ent->spawnflags & SF_TRIGGER_MULTIPLE_RED) && activator->client->sess.sessionTeam != TEAM_RED) {
 				return;
 			}
-			if ((ent->spawnflags & 2) && activator->client->sess.sessionTeam != TEAM_BLUE) {
+			if ((ent->spawnflags & SF_TRIGGER_MULTIPLE_BLUE) && activator->client->sess.sessionTeam != TEAM_BLUE) {
 				return;
 			}
 		}
 	}
 
+	if (ent->sound1to2)
+		G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound1to2);
 	G_UseTargets(ent, ent->activator);
 
 	if (ent->wait > 0) {
@@ -165,15 +189,10 @@ void Reset_Multi(gentity_t *ent)
 	ent->nextthink = 0;
 }
 
-/*QUAKED trigger_multiple (.5 .5 .5) ?
-"wait" : Seconds between triggerings, 0.5 default, -1 = one time only.
-"random"	wait variance, default is 0
-Variable sized repeatable trigger.  Must be targeted at one or more entities.
-so, the basic time between firing is a random time between
-(wait - random) and (wait + random)
-*/
 void SP_trigger_multiple(gentity_t * ent)
 {
+	char *s;
+
 	G_SpawnFloat("wait", "0.5", &ent->wait);
 	G_SpawnFloat("random", "0", &ent->random);
 
@@ -181,6 +200,14 @@ void SP_trigger_multiple(gentity_t * ent)
 		ent->random = ent->wait - FRAMETIME;
 		G_Printf("trigger_multiple has random >= wait\n");
 	}
+	//Makro - added
+	if (G_SpawnString("soundInactive", "", &s))
+		ent->soundInactive = G_SoundIndex(s);
+	if (G_SpawnString("noise", "", &s))
+		ent->sound1to2 = G_SoundIndex(s);
+	else if (G_SpawnString("sound", "", &s))
+		ent->sound1to2 = G_SoundIndex(s);
+
 
 	ent->touch = Touch_Multi;
 	ent->use = Use_Multi;

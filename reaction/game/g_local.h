@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2003/09/16 23:25:32  makro
+// trigger_multiple - new spawnflag, 3 new keys
+//
 // Revision 1.146  2003/09/08 19:19:19  makro
 // New code for respawning entities in TP
 //
@@ -1061,6 +1064,7 @@ void SanitizeString(char *in, char *out);
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);
 gentity_t *G_PickTarget(char *targetname);
+void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator);
 void G_UseTargets(gentity_t * ent, gentity_t * activator);
 void G_SetMovedir(vec3_t angles, vec3_t movedir);
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2003/09/16 23:25:32  makro
+// trigger_multiple - new spawnflag, 3 new keys
+//
 // Revision 1.65  2003/09/08 21:43:36  makro
 // Doors don't reset by default in TP
 //
@@ -167,8 +170,6 @@
 
 #include "g_local.h"
 void InitRotator(gentity_t * ent);
-//Makro - added
-void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator);
 
 /*
 ===============================================================================

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.189  2003/09/16 23:25:32  makro
+// trigger_multiple - new spawnflag, 3 new keys
+//
 // Revision 1.188  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -2471,6 +2474,8 @@ void Cmd_OpenDoor(gentity_t * ent)
 	if (ent->client->ps.stats[STAT_HEALTH] <= 0 || ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 
+	//Makro - doesn't look right to me. Doing it one single time should be enough
+	/*
 	while ((door = findradius(door, ent->r.currentOrigin, 100)) != NULL) {
 		if (Q_stricmp(door->classname, "func_door_rotating") == 0) {
 			ent->client->openDoor = qtrue;
@@ -2480,6 +2485,9 @@ void Cmd_OpenDoor(gentity_t * ent)
 			ent->client->openDoorTime = level.time;
 		}
 	}
+	*/
+	ent->client->openDoor = qtrue;
+	ent->client->openDoorTime = level.time;
 }
 
 /* Hawkins. Reaction weapon command */
