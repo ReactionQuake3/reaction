@@ -253,6 +253,7 @@ G_MissileImpact
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;
+	vec3_t			velocity;
 #ifdef MISSIONPACK
 	vec3_t			forward, impactpoint, bouncedir;
 	int				eFlags;
@@ -306,8 +307,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if (other->takedamage) {
 		// FIXME: wrong damage direction?
 		if ( ent->damage ) {
-			vec3_t	velocity;
-
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				if (ent->s.weapon == WP_KNIFE)g_entities[ent->r.ownerNum].client->knifeHits++;
@@ -318,12 +317,13 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if ( VectorLength( velocity ) == 0 ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
-
+			
 			//Elder: added
-			if ( !(ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE) ) {
+			//Blaze: Moved down into the section where it actually hits the glass, otherwise the breakable entity is gone when it checks for it
+			/*if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 							ent->s.origin, ent->damage, 0, ent->methodOfDeath);
-			}
+			}*/
 		}
 	}
 
@@ -433,7 +433,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			vec3_t temp;
 			vec3_t knifeOffset;
 			vec3_t knifeVelocity;
-
+			vec3_t origin;
 			//missed throw or hit func_breakable;
 			//spawn a knife at its trajectory end-point
 			xr_item = BG_FindItemForWeapon( WP_KNIFE );
@@ -442,9 +442,18 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			
 			if (other->s.eType == ET_BREAKABLE) {
 				VectorScale(knifeVelocity, -0.25, knifeVelocity);
+				//Blaze: Moved from above, now deal the damage to the glass, and let the knife drop
+				if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
+					BG_EvaluateTrajectory( &ent->s.pos, level.time, origin);
+					velocity[0] = 0;
+					velocity[1] = 0;
+					velocity[2] = 0;
+					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
+				}
+				
 
 				//breakable "hit"; make it fall to the ground
-				xr_drop = LaunchItem(xr_item, trace->endpos, knifeVelocity, FL_DROPPED_ITEM);
+				xr_drop = LaunchItem(xr_item, trace->endpos, velocity, FL_DROPPED_ITEM);
 
 				//but still set it as a thrown knife
 				//xr_drop->flags |= FL_THROWN_KNIFE;
