@@ -34,3 +34,4 @@
 * Fixed the UI team count cvars when someone disconnects.
 * Fixed the bandagebug
 * Added a feature to overlay normal crosshairsover the SSG crosshair
+* Fixed shots fired stats for non TP modes
