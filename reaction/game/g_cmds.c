@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/05/12 12:15:05  slicer
+// Added Referee command for captains
+//
 // Revision 1.107  2002/05/11 19:52:09  slicer
 // Added sub and captain to the scoreboard function
 //
@@ -2887,6 +2890,8 @@ void ClientCommand( int clientNum ) {
 		MM_TeamName_f(ent);
 	else if (Q_stricmp (cmd, "teammodel") == 0)
 		MM_TeamModel_f(ent);
+	else if (Q_stricmp (cmd, "referee") == 0)
+		MM_Referee_f(ent);
 // aasimon: referee for MM
 	else if (Q_stricmp (cmd, "reflogin") == 0)
 		Ref_Auth ( ent );

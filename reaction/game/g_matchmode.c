@@ -2,6 +2,22 @@
 // JBravo: for warnings
 int ClientNumberFromString(gentity_t *to, char *s);
 
+int refVotes[2]; // refVotes[0] is the clientnumber red team voted 
+				//	refVotes[1] is the clientnumber blue team voted 
+
+gentity_t* getEntByName ( char *name ){
+	gentity_t *ent;
+	int i;
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse)
+			continue;
+		if(!Q_stricmp(ent->client->pers.netname,name))
+			return ent;
+	}
+	return NULL;
+} 
+
 qboolean checkCaptain (team_t team) {
 	gentity_t	*ent;
 	int		i;
@@ -212,9 +228,61 @@ void MM_TeamName_f (gentity_t *ent) {
 //	aasimon: Referee Functions Definition, with some aid functions first
 //
 
+void checkRefVotes() {
+	gentity_t *ent;
+	char nr[2];
+	G_Printf("Vote Red: %i Vote Blue %i \n",refVotes[0],refVotes[1]);
+	if(refVotes[0] == refVotes[1]) {
+		ent = g_entities + refVotes[0];
+		Com_sprintf(nr, sizeof(nr), "%i", refVotes[0]);
+		trap_Cvar_Set("g_RQ3_RefID", nr);
+		trap_SendServerCommand( -1, va("cp \"%s is the new Referee.\n\"",ent->client->pers.netname));
+		refVotes[0] = refVotes[1] = -1;
+	}
+}
 
-// aasimon: perhaps in another place...but lets see
+/* Slicer - MM_Referee_f
+For captains to vote a referee*/
+void MM_Referee_f(gentity_t *ent) {
+	gentity_t *ref;
+	char *buff;
+	team_t captain;
+	
+	if(!g_RQ3_matchmode.integer)
+		return;
 
+	captain = ent->client->sess.captain;
+
+	if ( !g_RQ3_AllowRef.integer ){
+		trap_SendServerCommand( ent-g_entities, "print \"No Referee Allowed on this server\n\"" );
+		return;
+	}
+	if(trap_Argc()<2) {
+		if(Ref_Exists()) {
+			ref = g_entities + g_RQ3_RefID.integer;
+			trap_SendServerCommand(ent-g_entities,va("print \"Current Referee: %s\n\"",ref->client->pers.netname));
+		}
+		else
+			trap_SendServerCommand( ent-g_entities, "print \"No Referee currently assigned, use referee <name> to assign\n\"" );	
+		return;
+	}
+
+	if(captain != TEAM_FREE) {
+		buff = ConcatArgs( 1 );
+		if((ref = getEntByName(buff))!=NULL) {
+			refVotes[captain - 1] = ref-g_entities;		
+			trap_SendServerCommand(-1,va("print \"%s has voted %s for referee\n\"",ent->client->pers.netname,ref->client->pers.netname ));
+			checkRefVotes();
+		}
+		else {
+			trap_SendServerCommand( ent-g_entities, "print \"Invalid Player Name\n\"" );
+			return;
+		}
+	}
+	else
+		trap_SendServerCommand( ent-g_entities, "print \"You need to be a captain to assign a referee\n\"" );
+	
+}
 void MM_ClearScores (void) {
 	gentity_t	*ent;
 	int		i;
@@ -227,11 +295,11 @@ void MM_ClearScores (void) {
 		// aasimon: Clear only PERS info. Lata clear all REC information. See if more info is needed to be clean
 		ent->client->ps.persistant[PERS_SCORE] = 0;
 		ent->client->ps.persistant[PERS_KILLED] = 0;
-
-		if (g_gametype.integer == GT_TEAMPLAY) {
-			level.teamScores[TEAM_RED] = 0;
-			level.teamScores[TEAM_BLUE] = 0;
-		}
+		ent->client->ps.persistant[PERS_DAMAGE_DELT] = 0;
+	}
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		level.teamScores[TEAM_RED] = 0;
+		level.teamScores[TEAM_BLUE] = 0;
 	}
 } 
 
@@ -313,7 +381,7 @@ void Ref_Command (gentity_t *ent) {
 		// Theres a clean way to do this - add more help here (this is for example only) 
 		trap_SendServerCommand(ent-g_entities, "print \"kick player\n\"");
 		trap_SendServerCommand(ent-g_entities, "print \"map_restart\n\"");
-		trap_SendServerCommand(ent-g_entities, "print \"clear_scores\n\"");
+		trap_SendServerCommand(ent-g_entities, "print \"clearscores\n\"");
 		trap_SendServerCommand(ent-g_entities, "print \"pause\n\"");
 		return;
 	} else if (Q_stricmp (com, "kick") == 0) { // kick kick kick

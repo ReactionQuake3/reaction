@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/05/12 12:14:14  slicer
+// Added Referee command for captains
+//
 // Revision 1.46  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -996,6 +999,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("sub");
 	trap_AddCommand ("teamname");
 	trap_AddCommand ("teammodel");
+	trap_AddCommand ("referee");
 // aasimon: refeere mm
 	trap_AddCommand ("reflogin");
 	trap_AddCommand ("ref");

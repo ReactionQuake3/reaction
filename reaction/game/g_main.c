@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/05/12 12:15:05  slicer
+// Added Referee command for captains
+//
 // Revision 1.57  2002/05/12 00:07:47  slicer
 // Added Normal Radio Flood Protection
 //
@@ -891,6 +894,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.inGame = qfalse;
 		trap_Cvar_Set("g_RQ3_team1ready", "0");
 		trap_Cvar_Set("g_RQ3_team2ready", "0");
+		refVotes[0] = refVotes[1] = -1;
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
