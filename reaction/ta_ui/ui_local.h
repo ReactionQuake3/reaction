@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/06/09 18:56:53  makro
+// Removed teamcount cvars
+//
 // Revision 1.12  2002/06/09 15:35:23  makro
 // "wait" command is no longer executed before adding a bot
 // when starting a server from the UI
@@ -151,9 +154,10 @@ extern vmCvar_t ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 extern vmCvar_t ui_RQ3_modelCommand;
 //Makro - team counts for the join menu
-extern vmCvar_t ui_RQ3_teamCount1;
-extern vmCvar_t ui_RQ3_teamCount2;
-extern vmCvar_t ui_RQ3_numSpectators;
+//Handled in cgame now
+//extern vmCvar_t ui_RQ3_teamCount1;
+//extern vmCvar_t ui_RQ3_teamCount2;
+//extern vmCvar_t ui_RQ3_numSpectators;
 //Makro - weapon menu after joining a team
 extern vmCvar_t ui_RQ3_weapAfterJoin;
 //Makro - specify server option

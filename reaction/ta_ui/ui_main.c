@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/06/09 18:56:53  makro
+// Removed teamcount cvars
+//
 // Revision 1.29  2002/06/09 15:35:23  makro
 // "wait" command is no longer executed before adding a bot
 // when starting a server from the UI
@@ -6191,9 +6194,10 @@ vmCvar_t	ui_RQ3_ssgCrosshair;
 //Makro - activate the weapon menu after a team join
 vmCvar_t	ui_RQ3_weapAfterJoin;
 //Makro - team counts
-vmCvar_t	ui_RQ3_teamCount1;
-vmCvar_t	ui_RQ3_teamCount2;
-vmCvar_t	ui_RQ3_numSpectators;
+//Handled in cgame now
+//vmCvar_t	ui_RQ3_teamCount1;
+//vmCvar_t	ui_RQ3_teamCount2;
+//vmCvar_t	ui_RQ3_numSpectators;
 //Makro - specify server option
 vmCvar_t	ui_RQ3_joinAddress;
 vmCvar_t	ui_RQ3_joinPort;
@@ -6327,9 +6331,10 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
 	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "1", CVAR_ARCHIVE},
 	//Makro - team counts
-	{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},
-	{ &ui_RQ3_teamCount2, "g_RQ3_teamCount2", "0", 0},
-	{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0},
+	//Handled in cgame now
+	//{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},
+	//{ &ui_RQ3_teamCount2, "g_RQ3_teamCount2", "0", 0},
+	//{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0},
 	//Makro - specify server option
 	{ &ui_RQ3_joinAddress, "ui_RQ3_joinAddress", "", CVAR_ARCHIVE},
 	{ &ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE},
