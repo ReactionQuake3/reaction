@@ -1,5 +1,6 @@
 # List fixes here for the 2.3 release
 
+* Grenades now also included in the fixed FF system.
 * Fixed FF system.
 * Added color to important error messages
 * Added replacement model functionality for weapons and items
