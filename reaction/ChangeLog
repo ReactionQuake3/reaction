@@ -28,6 +28,9 @@
 * Added the dynamic radio system
 * Hacked the bufferedsound system so radio sound overlap less
 * No rcon stuff command alowed in matchmode
+* Ignorenum bug (ignoring player no. 0) fixed
+* Case carrier glowing removed.
+
 
 # List fixes here for the 2.1 release
 

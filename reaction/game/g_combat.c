@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/08/07 16:13:33  jbravo
+// Case carrier glowing removed. Ignorenum bug fixed
+//
 // Revision 1.114  2002/08/03 06:52:35  jbravo
 // Fixed the plost3 sound in all radiopaks and now damage is only tracked for
 // players you hit that are not on your team
@@ -341,37 +344,6 @@ void TossClientItems(gentity_t * self)
 
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
-
-	// make a special check to see if they are changing to a new
-	// weapon that isn't the mg or gauntlet.  Without this, a client
-	// can pick up a weapon, be killed, and not drop the weapon because
-	// their weapon change hasn't completed yet and they are still holding the MG.
-	//Blaze: No need to worry about the machinegun here so I removed weapon == WP_MACHINEGUN || or grappling hook so I removed this too
-	/*
-	   if ( weapon == WP_GRAPPLING_HOOK ) {
-	   if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
-	   weapon = self->client->pers.cmd.weapon;
-	   }
-	   if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
-	   weapon = WP_NONE;
-	   }
-	   }
-	 */
-//Blaze: dont need this check as we will be dropping everyhing, but just changed WP_MACHINEGUN to WP_PISTOL just in case, also removed grappling hook check
-	//Elder:
-	//don't drop akimbos (maybe drop another pistol), knives, or grenades
-	//and don't drop knife - that's handled later
-	//Maybe we should check the player's weapon inventory instead
-	/*
-	   if ( weapon != WP_GRENADE && weapon != WP_AKIMBO &&
-	   weapon != WP_KNIFE && weapon > WP_PISTOL && self->client->ps.ammo[ weapon ] ) {
-	   // find the item type for this weapon
-	   item = BG_FindItemForWeapon( weapon );
-
-	   // spawn the item
-	   Drop_Item( self, item, 0 );
-	   }
-	 */
 
 	//Elder: run through player STAT_WEAPONS and drop any unique weapons
 	//That way, we can also account for servers with extra weapons
@@ -1232,7 +1204,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	// Elder: Statistics tracking
 	//Blaze: make sure the game is in progress before recording stats
-	if (level.team_round_going) {
+	if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 		switch (meansOfDeath) {
 		case MOD_KNIFE:
 			if (attacker && attacker->client)
@@ -1296,7 +1268,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		}
 	}
 	self->enemy = attacker;
-	if (level.team_round_going) {
+	if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 		//Makro - crash bug fix
 		if ((self->client != NULL) && (attacker->client != NULL)) {
 			self->client->ps.persistant[PERS_KILLED]++;
@@ -1393,7 +1365,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	// Unless we are in teamplay
 	if (meansOfDeath == MOD_SUICIDE) {
 		// Elder: Statistics tracking
-		if (level.team_round_going) {
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
 			self->client->pers.records[REC_SUICIDES]++;
 			self->client->pers.records[REC_KILLS]--;
 		}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/08/07 16:13:33  jbravo
+// Case carrier glowing removed. Ignorenum bug fixed
+//
 // Revision 1.41  2002/07/22 06:30:52  niceass
 // cleaned up the powerup code
 //
@@ -2070,6 +2073,9 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 {
 	int powerups;
 	clientInfo_t *ci;
+
+	// JBravo: no glowing stuff in CTB
+	return;
 
 	powerups = cent->currentState.powerups;
 	if (!powerups) {

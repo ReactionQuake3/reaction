@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/08/07 16:13:33  jbravo
+// Case carrier glowing removed. Ignorenum bug fixed
+//
 // Revision 1.127  2002/08/07 03:49:44  jbravo
 // No rcon stuff use allowed in matchmode
 //
@@ -1038,7 +1041,39 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 	}
 }
 
-/* Drop weapon or Item ala. AQ */
+/* Drop weapon, Item or case ala. AQ */
+void Cmd_Dropcase_f(gentity_t * ent)
+{
+	gitem_t *item;
+
+	if (!ent->client)
+		return;
+	if (!ent->client->ps.powerups[PW_REDFLAG] && !ent->client->ps.powerups[PW_BLUEFLAG]) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Go get the enemy case and try again.\n\""));
+		return;
+	}
+	item = NULL;
+
+	if (ent->client->sess.sessionTeam == TEAM_RED) {
+		item = BG_FindItemForPowerup(PW_BLUEFLAG);
+		if (item) {
+			ent->client->ps.powerups[PW_BLUEFLAG] = 0;
+			dropWeapon(ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			ent->client->uniqueItems--;
+		}
+	} else if (ent->client->sess.sessionTeam == TEAM_BLUE) {
+		item = BG_FindItemForPowerup(PW_REDFLAG);
+		if (item) {
+			ent->client->ps.powerups[PW_REDFLAG] = 0;
+			dropWeapon(ent, item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			ent->client->uniqueItems--;
+		}
+	} else {
+		trap_SendServerCommand(ent - g_entities, va("print \"Huh? You dont have a flag to drop!\n\""));
+	}
+		
+}
+
 void RQ3_Cmd_Drop_f(gentity_t * ent)
 {
 	char cmd[MAX_TOKEN_CHARS];
@@ -1053,6 +1088,8 @@ void RQ3_Cmd_Drop_f(gentity_t * ent)
 		Cmd_DropItem_f(ent);
 	} else if (Q_stricmp(cmd, "weapon") == 0) {
 		Cmd_DropWeapon_f(ent);
+	} else if (Q_stricmp(cmd, "case") == 0) {
+		Cmd_Dropcase_f(ent);
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"unknown item: %s\n\"", cmd));
 	}
@@ -2434,7 +2471,7 @@ void Cmd_Ignorenum_f(gentity_t * self)
 	trap_Argv(1, arg, sizeof(arg));
 	i = atoi(arg);
 
-	if (i && i <= level.maxclients) {
+	if (i <= level.maxclients) {
 		target = &g_entities[i];
 		if (target && target->client && target != self && target->inuse)
 			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
