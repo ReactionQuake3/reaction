@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/11/09 14:13:32  makro
+// Added tdmMode info to the loading screen
+//
 // Revision 1.36  2002/08/29 04:42:40  blaze
 // Anti OGC code
 //
@@ -332,8 +335,9 @@ void CG_DrawInformation(void)
 	case GT_TOURNAMENT:
 		line = "TOURNAMENT";
 		break;
+	//Makro - added tdmMode
 	case GT_TEAM:
-		line = "TEAM DEATHMATCH";
+		line = (atoi(Info_ValueForKey(info, "g_RQ3_tdmMode")) != 0) ? "TEAM DEATHMATCH (CLASSIC)" : "TEAM DEATHMATCH (TP-STYLE)";
 		break;
 // JBravo: teamplay stuff.
 	case GT_TEAMPLAY:
@@ -365,7 +369,7 @@ void CG_DrawInformation(void)
 		line = va("%s / MATCHMODE", line);
 	s = Info_ValueForKey(sysInfo, "sv_pure");
 	if (atoi(s) == 0)
-		line = va("%s / SV_PURE DISABLED", line);
+		line = va("%s / SV_PURE OFF", line);
 	//Makro - custom color; changed from colorWhite
 	//CG_DrawSmallStringColor(x, y, line, color2);
 	CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);

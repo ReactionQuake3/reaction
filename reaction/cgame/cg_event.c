@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/11/09 14:13:32  makro
+// Added tdmMode info to the loading screen
+//
 // Revision 1.69  2002/10/30 20:04:33  jbravo
 // Adding helmet
 //
@@ -193,8 +196,8 @@ CG_UseItem
 */
 static void CG_UseItem(centity_t * cent)
 {
-	clientInfo_t *ci;
-	int itemNum, clientNum;
+	//clientInfo_t *ci;
+	int itemNum;
 	gitem_t *item;
 	entityState_t *es;
 
