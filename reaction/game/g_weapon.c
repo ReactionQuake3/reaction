@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/03/12 04:55:31  blaze
+// stats should only be recored when the round is in progress
+//
 // Revision 1.36  2002/03/03 02:20:58  jbravo
 // No kicking teammates in TP
 //
@@ -132,7 +135,7 @@ qboolean JumpKick( gentity_t *ent )
 	else {
 		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
-		if (ent->client)
+		if (ent->client && level.team_round_going)
 			ent->client->pers.records[REC_KICKHITS]++;
 	}
 
@@ -377,7 +380,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	int			i, passent;
 
 	// Elder: Statistics tracking
-	if (ent->client)
+	if (ent->client && level.team_round_going)
 	{
 		switch (MOD)
 		{
@@ -468,26 +471,28 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
-				switch (MOD)
-				{
-				case MOD_PISTOL:
-					ent->client->pers.records[REC_MK23HITS]++;
-					//ent->client->mk23Hits++;
-					break;
-				case MOD_M4:
-					ent->client->pers.records[REC_M4HITS]++;
-					//ent->client->m4Hits++;
-					break;
-				case MOD_MP5:
-					ent->client->pers.records[REC_MP5HITS]++;
-					//ent->client->mp5Hits++;
-					break;
-				case MOD_AKIMBO:
-					ent->client->pers.records[REC_AKIMBOHITS]++;
-					//ent->client->akimboHits++;
-					break;
-				}
-
+        if (level.team_round_going) 
+        {
+				  switch (MOD)
+				  {
+				  case MOD_PISTOL:
+  					ent->client->pers.records[REC_MK23HITS]++;
+					  //ent->client->mk23Hits++;
+					  break;
+				  case MOD_M4:
+  					ent->client->pers.records[REC_M4HITS]++;
+					  //ent->client->m4Hits++;
+					  break;
+				  case MOD_MP5:
+  					ent->client->pers.records[REC_MP5HITS]++;
+					  //ent->client->mp5Hits++;
+					  break;
+				  case MOD_AKIMBO:
+  					ent->client->pers.records[REC_AKIMBOHITS]++;
+					  //ent->client->akimboHits++;
+					  break;
+				  }
+        }
 			}
 			//Elder: *******************TEST CODE *****************
 			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
@@ -665,20 +670,20 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 	if (shotType == WP_M3)
 	{
 		// Elder: Statistics tracking
-		ent->client->pers.records[REC_M3SHOTS]++;
+		if (level.team_round_going) ent->client->pers.records[REC_M3SHOTS]++;
 		count = DEFAULT_M3_COUNT;
 	}
 	else if (shotType == WP_HANDCANNON)
 	{
 		// Elder: Statistics tracking
-		ent->client->pers.records[REC_HANDCANNONSHOTS]++;
+		if (level.team_round_going) ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 4;
 	}
 	else
 	{
 		// Elder: Statistics tracking
-		ent->client->pers.records[REC_HANDCANNONSHOTS]++;
+		if (level.team_round_going) ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 5;
 	}
@@ -708,17 +713,20 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 			hitClient = qtrue;
 			ent->client->accuracy_hits++;
 			// Elder: Statistics tracking
-			switch (shotType)
-				{
-				case WP_M3:
-					ent->client->pers.records[REC_M3HITS]++;
-					//ent->client->m3Hits++;
-					break;
-				case WP_HANDCANNON:
-					ent->client->pers.records[REC_HANDCANNONHITS]++;
-					//ent->client->hcHits++;
-					break;
+      if (level.team_round_going) 
+      {
+			  switch (shotType)
+  			{
+				  case WP_M3:
+  					ent->client->pers.records[REC_M3HITS]++;
+					  //ent->client->m3Hits++;
+					  break;
+			    case WP_HANDCANNON:
+  					ent->client->pers.records[REC_HANDCANNONHITS]++;
+	  				//ent->client->hcHits++;
+					  break;
 				}
+      }
 		}
 	}
 }
@@ -1133,7 +1141,7 @@ void Knife_Attack ( gentity_t *self, int damage)
 	gentity_t *hitent;
 	gentity_t *tent;
 
-	if (self->client)
+	if (self->client && level.team_round_going)
 		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
 
 	VectorMA( muzzle, KNIFE_RANGE, forward, end );
@@ -1171,7 +1179,7 @@ void Knife_Attack ( gentity_t *self, int damage)
 		else if (self->client->knife_sound == -2) { // Hit player
 			tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
 			tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
-			if (self->client)
+			if (self->client && level.team_round_going)
 				self->client->pers.records[REC_KNIFESLASHHITS]++;
 		}
 		self->client->knife_sound = 0;
@@ -1500,7 +1508,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	float		spread;
 
 	// Elder: Statistics tracking
-	if (ent->client)
+	if (ent->client && level.team_round_going)
 		ent->client->pers.records[REC_SSG3000SHOTS]++;
 
 	VectorMA (muzzle, 8192*16, forward, end);
@@ -1710,7 +1718,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->client->accuracy_hits++;
-		ent->client->pers.records[REC_SSG3000HITS]++;
+		if (level.team_round_going) ent->client->pers.records[REC_SSG3000HITS]++;
 		//ent->client->ssgHits++;
 	}
 
@@ -1941,7 +1949,7 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 
 	if( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
 		// Elder: Statistics tracking
-		attacker->client->pers.records[REC_CORPSESHOTS]++;
+		if (level.team_round_going) attacker->client->pers.records[REC_CORPSESHOTS]++;
 		return qfalse;
 	}
 

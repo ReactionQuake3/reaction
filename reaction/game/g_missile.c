@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/12 04:55:31  blaze
+// stats should only be recored when the round is in progress
+//
 // Revision 1.21  2002/01/14 01:20:45  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -85,10 +88,10 @@ void G_ExplodeMissile( gentity_t *ent ) {
 			, ent->splashMethodOfDeath ) ) {
 			g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			// Elder: Statistics tracking
-			if (ent->s.weapon == WP_KNIFE)
+			if (ent->s.weapon == WP_KNIFE && level.team_round_going)
 				g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 				//g_entities[ent->r.ownerNum].client->knifeHits++;
-			if (ent->s.weapon == WP_GRENADE)
+			if (ent->s.weapon == WP_GRENADE && level.team_round_going)
 				g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 				//g_entities[ent->r.ownerNum].client->grenHits++;
 		}
@@ -334,10 +337,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				// Elder: Statistics tracking
-				if (ent->s.weapon == WP_KNIFE)
+				if (ent->s.weapon == WP_KNIFE && level.team_round_going)
 					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 					//g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE)
+				if (ent->s.weapon == WP_GRENADE && level.team_round_going)
 					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 					//g_entities[ent->r.ownerNum].client->grenHits++;
 				hitClient = qtrue;
@@ -544,10 +547,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if( !hitClient ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				// Elder: Statistics tracking
-				if (ent->s.weapon == WP_KNIFE)
+				if (ent->s.weapon == WP_KNIFE && level.team_round_going)
 					g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
 					//g_entities[ent->r.ownerNum].client->knifeHits++;
-				if (ent->s.weapon == WP_GRENADE)
+				if (ent->s.weapon == WP_GRENADE && level.team_round_going)
 					g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
 					//g_entities[ent->r.ownerNum].client->grenHits++;
 			}
@@ -770,7 +773,7 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	//Elder: grenade toggle distances/speeds
 	if ( self->client) {
 		// Elder: Statistics tracking
-		self->client->pers.records[REC_GRENADESHOTS]++;
+		if (level.team_round_going) self->client->pers.records[REC_GRENADESHOTS]++;
 		if ( self->client->ps.stats[STAT_HEALTH] <= 0 ||
 			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
 			// NiceAss: Should catch any case of switching weapons with a grenade "cocked"
@@ -842,7 +845,7 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 	VectorCopy (dir, bolt->s.apos.trBase);
 	VectorCopy (dir, bolt->r.currentAngles);
 
-	if (self->client)
+	if (self->client && level.team_round_going)
 	{
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_KNIFETHROWSHOTS]++;

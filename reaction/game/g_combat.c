@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/12 04:55:31  blaze
+// stats should only be recored when the round is in progress
+//
 // Revision 1.48  2002/03/04 21:28:57  jbravo
 // Make spectators that are following someone who dies stop at the time of
 // death and not respawn somewhere else.
@@ -423,7 +426,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 		return;
 	}
 
-	if (attacker->client)
+	if (attacker->client && level.team_round_going)
 		attacker->client->pers.records[REC_GIBSHOTS]++;
 
 	GibEntity( self, 0 );
@@ -669,7 +672,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
 		// Elder: Statistics tracking
-		self->client->pers.records[REC_WORLDDEATHS]++;
+		if (level.team_round_going) self->client->pers.records[REC_WORLDDEATHS]++;
 	}
 
 	if (meansOfDeath < 0 || meansOfDeath >= sizeof(modNames) / sizeof(modNames[0])) {
@@ -688,36 +691,44 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE)
 	{
 		// head kill
-		self->client->pers.records[REC_HEADDEATHS]++;
-		if (attacker && attacker->client)
-			attacker->client->pers.records[REC_HEADKILLS]++;
+    if (level.team_round_going) 
+    {
+		  self->client->pers.records[REC_HEADDEATHS]++;
+		  if (attacker && attacker->client) attacker->client->pers.records[REC_HEADKILLS]++;
+    }
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_HEAD);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER)
 	{
 		// chest kill
-		self->client->pers.records[REC_CHESTDEATHS]++;
-		if (attacker && attacker->client)
-			attacker->client->pers.records[REC_CHESTKILLS]++;
+    if (level.team_round_going) 
+    {
+		  self->client->pers.records[REC_CHESTDEATHS]++;
+		  if (attacker && attacker->client)	attacker->client->pers.records[REC_CHESTKILLS]++;
+    }
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_CHEST);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN)
 	{
 		// stomach kill
-		self->client->pers.records[REC_STOMACHDEATHS]++;
-		if (attacker && attacker->client)
-			attacker->client->pers.records[REC_STOMACHKILLS]++;
+		if (level.team_round_going) 
+    {
+      self->client->pers.records[REC_STOMACHDEATHS]++;
+		  if (attacker && attacker->client) attacker->client->pers.records[REC_STOMACHKILLS]++;
+    }
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_STOMACH);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT)
 	{
 		// leg kill
-		self->client->pers.records[REC_LEGDEATHS]++;
-		if (attacker && attacker->client)
-			attacker->client->pers.records[REC_LEGKILLS]++;
+		if (level.team_round_going) 
+    {
+      self->client->pers.records[REC_LEGDEATHS]++;
+		  if (attacker && attacker->client) attacker->client->pers.records[REC_LEGKILLS]++;
+    }
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_LEGS);
 	}
 	else
@@ -727,77 +738,82 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// Elder: Statistics tracking
-	switch (meansOfDeath)
-	{
-		case MOD_KNIFE:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
-			self->client->pers.records[REC_KNIFESLASHDEATHS]++;
-			break;
-		case MOD_KNIFE_THROWN:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_KNIFETHROWKILLS]++;
-			self->client->pers.records[REC_KNIFETHROWDEATHS]++;
-			break;
-		case MOD_PISTOL:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_MK23KILLS]++;
-			self->client->pers.records[REC_MK23DEATHS]++;
-			break;
-		case MOD_M3:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_M3KILLS]++;
-			self->client->pers.records[REC_M3DEATHS]++;
-			break;
-		case MOD_M4:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_M4KILLS]++;
-			self->client->pers.records[REC_M4DEATHS]++;
-			break;
-		case MOD_MP5:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_MP5KILLS]++;
-			self->client->pers.records[REC_MP5DEATHS]++;
-			break;
-		case MOD_SNIPER:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_SSG3000KILLS]++;
-			self->client->pers.records[REC_SSG3000DEATHS]++;
-			break;
-		case MOD_HANDCANNON:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_HANDCANNONKILLS]++;
-			self->client->pers.records[REC_HANDCANNONDEATHS]++;
-			break;
-		case MOD_AKIMBO:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_AKIMBOKILLS]++;
-			self->client->pers.records[REC_AKIMBODEATHS]++;
-			break;
-		case MOD_GRENADE:
-		case MOD_GRENADE_SPLASH:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_GRENADEKILLS]++;
-			self->client->pers.records[REC_GRENADEDEATHS]++;
-			break;
-		case MOD_KICK:
-			if (attacker && attacker->client)
-				attacker->client->pers.records[REC_KICKKILLS]++;
-			self->client->pers.records[REC_KICKDEATHS]++;
-			break;
-// JBravo: adding a default here to catch potential bugs
-		default:
-			break;
-	}
-
+  //Blaze: make sure the game is in progress before recording stats
+  if (level.team_round_going) {
+  	switch (meansOfDeath)
+  	{
+		  case MOD_KNIFE:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
+			  self->client->pers.records[REC_KNIFESLASHDEATHS]++;
+			  break;
+		  case MOD_KNIFE_THROWN:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_KNIFETHROWKILLS]++;
+			  self->client->pers.records[REC_KNIFETHROWDEATHS]++;
+			  break;
+		  case MOD_PISTOL:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_MK23KILLS]++;
+			  self->client->pers.records[REC_MK23DEATHS]++;
+			  break;
+		  case MOD_M3:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_M3KILLS]++;
+			  self->client->pers.records[REC_M3DEATHS]++;
+			  break;
+		  case MOD_M4:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_M4KILLS]++;
+			  self->client->pers.records[REC_M4DEATHS]++;
+			  break;
+		  case MOD_MP5:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_MP5KILLS]++;
+			  self->client->pers.records[REC_MP5DEATHS]++;
+			  break;
+		  case MOD_SNIPER:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_SSG3000KILLS]++;
+			  self->client->pers.records[REC_SSG3000DEATHS]++;
+			  break;
+		  case MOD_HANDCANNON:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_HANDCANNONKILLS]++;
+			  self->client->pers.records[REC_HANDCANNONDEATHS]++;
+			  break;
+		  case MOD_AKIMBO:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_AKIMBOKILLS]++;
+			  self->client->pers.records[REC_AKIMBODEATHS]++;
+			  break;
+		  case MOD_GRENADE:
+		  case MOD_GRENADE_SPLASH:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_GRENADEKILLS]++;
+			  self->client->pers.records[REC_GRENADEDEATHS]++;
+			  break;
+		  case MOD_KICK:
+  			if (attacker && attacker->client)
+				  attacker->client->pers.records[REC_KICKKILLS]++;
+			  self->client->pers.records[REC_KICKDEATHS]++;
+			  break;
+  // JBravo: adding a default here to catch potential bugs
+	  	default:
+			  break;
+	  }//SWITCH
+  }//IF
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
 	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
 	self->enemy = attacker;
-	self->client->ps.persistant[PERS_KILLED]++;
-  //Blaze: Give the attacker 1 kill
-  attacker->client->pers.records[REC_KILLS]++;
+	if (level.team_round_going) 
+  {
+    self->client->ps.persistant[PERS_KILLED]++;
+    //Blaze: Give the attacker 1 kill
+    attacker->client->pers.records[REC_KILLS]++;
+  }
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
@@ -891,8 +907,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// Unless we are in teamplay
 	if (meansOfDeath == MOD_SUICIDE) {
 		// Elder: Statistics tracking
-		self->client->pers.records[REC_SUICIDES]++;
-    self->client->pers.records[REC_KILLS]--;
+		if (level.team_round_going) 
+    {
+      self->client->pers.records[REC_SUICIDES]++;
+      self->client->pers.records[REC_KILLS]--;
+    }
     AddScore(self, self->r.currentOrigin, -1);
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
@@ -1811,25 +1830,25 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		       if (impactRotation < 90)
 			   {
-				   if (attacker->client)
+				   if (attacker->client && level.team_round_going)
 					   attacker->client->pers.records[REC_BACKSHOTS]++;
 	               targ->client->lasthurt_location = LOCATION_BACK;
 			   }
 		       else if (impactRotation < 180)
 			   {
-				   if (attacker->client)
+				   if (attacker->client && level.team_round_going)
 					   attacker->client->pers.records[REC_RIGHTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_RIGHT;
 			   }
 		       else if (impactRotation < 270)
 			   {
-				   if (attacker->client)
+				   if (attacker->client && level.team_round_going)
 					   attacker->client->pers.records[REC_FRONTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_FRONT;
 			   }
 		       else if (impactRotation < 360)
 			   {
-				   if (attacker->client)
+				   if (attacker->client && level.team_round_going)
 					   attacker->client->pers.records[REC_LEFTSHOTS]++;
 			       targ->client->lasthurt_location = LOCATION_LEFT;
 			   }
@@ -1893,7 +1912,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					{
 						case LOCATION_HEAD:
 						case LOCATION_FACE:
-							if (attacker->client)
+							if (attacker->client && level.team_round_going)
 								attacker->client->pers.records[REC_HEADSHOTS]++;
 							//save headshot time for player_die
 							targ->client->headShotTime = level.time;
@@ -1919,7 +1938,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_SHOULDER:
 						case LOCATION_CHEST:
-							if (attacker->client)
+							if (attacker->client && level.team_round_going)
 								attacker->client->pers.records[REC_CHESTSHOTS]++;
 							//Vest stuff - is the knife supposed to be affected?
 							// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
@@ -1962,7 +1981,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_STOMACH:
 						case LOCATION_GROIN:
-							if (attacker->client)
+							if (attacker->client && level.team_round_going)
 								attacker->client->pers.records[REC_STOMACHSHOTS]++;
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
@@ -1970,7 +1989,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_LEG:
 						case LOCATION_FOOT:
-							if (attacker->client)
+							if (attacker->client && level.team_round_going)
 								attacker->client->pers.records[REC_LEGSHOTS]++;
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
