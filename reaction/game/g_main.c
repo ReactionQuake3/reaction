@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/05/23 03:07:10  blaze
+// Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
+//
 // Revision 1.58  2002/05/12 12:15:05  slicer
 // Added Referee command for captains
 //
@@ -1413,6 +1416,11 @@ void BeginIntermission( void ) {
 	// send the current scoring to all clients
 	if (g_gametype.integer != GT_TEAMPLAY)
 		SendScoreboardMessageToAllClients();
+
+  //Stop the demos
+  trap_SendServerCommand (-1, va("rq3_cmd %i",STOPDEMO));
+  //Take the screen shot
+  trap_SendServerCommand (-1, va("rq3_cmd %i",SCREENSHOT));
 
 }
 

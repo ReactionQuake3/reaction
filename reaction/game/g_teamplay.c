@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/05/23 03:07:10  blaze
+// Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
+//
 // Revision 1.95  2002/05/20 16:23:44  jbravo
 // Fixed spec problem when noone is alive. Fixed kicking teammates bug
 //
@@ -406,9 +409,12 @@ void CheckTeamRules()
 				if (!player->inuse)
 					continue;
 				G_AddEvent (player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
-        trap_SendServerCommand( -1, va("rq3_cmd %i 0", MAPSTART));
+        trap_SendServerCommand( i, va("rq3_cmd %i 0", STARTDEMO));    
 			}
+      //Blaze: moved from below the G_AddEvent
+      trap_SendServerCommand( -1, va("rq3_cmd %i 0", MAPSTART));
 		}
+    
 	}
 
 	level.rulecheckfrequency++;

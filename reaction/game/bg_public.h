@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/05/23 03:07:10  blaze
+// Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
+//
 // Revision 1.68  2002/05/21 04:58:27  blaze
 // kicked the reload bugs ass!
 //
@@ -281,7 +284,10 @@ enum {
 	SETWEAPON,
 	STUFF,
 	TKOK,
-	RADIO
+	RADIO,
+  STARTDEMO,
+  STOPDEMO,
+  SCREENSHOT
 };
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {
