@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/04/20 02:34:57  jbravo
+// Changed weapon and ammo classnames at Sze's request
+//
 // Revision 1.15  2002/04/03 15:51:01  jbravo
 // Small warning fixes
 //
@@ -352,33 +355,33 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		ent->classname = "ammo_shells";
 
   //Blaze: let us support RQ3_weapon name so radiant works nicer
-  if (!strcmp(ent->classname,"RQ3_weapon_knife"))
+  if (!strcmp(ent->classname,"RQ3weapon_knife"))
 		ent->classname = "weapon_knife";
-	else if (!strcmp(ent->classname,"RQ3_weapon_pistol"))
+	else if (!strcmp(ent->classname,"RQ3weapon_pistol"))
 		ent->classname = "weapon_pistol";
-	else if (!strcmp(ent->classname,"RQ3_weapon_m3"))
+	else if (!strcmp(ent->classname,"RQ3weapon_m3"))
 		ent->classname = "weapon_m3";
-	else if (!strcmp(ent->classname,"RQ3_weapon_mp5"))
+	else if (!strcmp(ent->classname,"RQ3weapon_mp5"))
 		ent->classname = "weapon_mp5";
-	else if (!strcmp(ent->classname,"RQ3_weapon_handcannon"))
+	else if (!strcmp(ent->classname,"RQ3weapon_handcannon"))
 		ent->classname = "weapon_handcannon";
-	else if (!strcmp(ent->classname,"RQ3_weapon_ssg3000"))
+	else if (!strcmp(ent->classname,"RQ3weapon_ssg3000"))
 		ent->classname = "weapon_ssg3000";
-	else if (!strcmp(ent->classname,"RQ3_weapon_m4"))
+	else if (!strcmp(ent->classname,"RQ3weapon_m4"))
 		ent->classname = "weapon_m4";
-	else if (!strcmp(ent->classname,"RQ3_weapon_grenade"))
+	else if (!strcmp(ent->classname,"RQ3weapon_grenade"))
 		ent->classname = "weapon_grenade";
 
 	//Elder: map Q3DM ammo -> RQ3 ammo
-	if (!strcmp(ent->classname,"RQ3_ammo_mk23"))
+	if (!strcmp(ent->classname,"RQ3ammo_mk23"))
 		ent->classname = "ammo_mk23";
-	else if (!strcmp(ent->classname, "RQ3_ammo_ssg3000"))
+	else if (!strcmp(ent->classname, "RQ3ammo_ssg3000"))
 		ent->classname = "ammo_ssg3000";
-	else if (!strcmp(ent->classname, "RQ3_ammo_mp5"))
+	else if (!strcmp(ent->classname, "RQ3ammo_mp5"))
 		ent->classname = "ammo_mp5";
-	else if (!strcmp(ent->classname, "RQ3_ammo_m4"))
+	else if (!strcmp(ent->classname, "RQ3ammo_m4"))
 		ent->classname = "ammo_m4";
-	else if (!strcmp(ent->classname, "RQ3_ammo_shells"))
+	else if (!strcmp(ent->classname, "RQ3ammo_shells"))
 		ent->classname = "ammo_shells";
 
 	/*
