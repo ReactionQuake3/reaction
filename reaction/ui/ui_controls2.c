@@ -286,10 +286,10 @@ static bind_t g_bindings[] =
 	{"messagemode3", 	"chat - target",	ID_CHAT3,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"messagemode4", 	"chat - attacker",	ID_CHAT4,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"bandage",	 		"Bandage",			ID_BANDAGE,		ANIM_IDLE,		-1,				-1,		-1, -1},
-	{"reload",			"Reload",			ID_RELOAD,		ANIM_RELOAD,	-1,				-1,		-1, -1},
+	{"+button5",		"Reload",			ID_RELOAD,		ANIM_RELOAD,	-1,				-1,		-1, -1},
 	{"weapon",			"Weapon Mode",		ID_WEAPON,		ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"opendoor",	 	"Open door",		ID_OPENDOOR,	ANIM_IDLE,		-1,				-1,		-1, -1},
-	{"dropweap",	 	"Drop Weapon",		ID_DROPWEAP,	ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"dropweapon",	 	"Drop Weapon",		ID_DROPWEAP,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropitem",	 	"Drop Item",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{(char*)NULL,		(char*)NULL,		0,				0,				-1,				-1,		-1,	-1},
 };
