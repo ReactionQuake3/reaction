@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.43  2003/02/27 19:52:34  makro
 // dlights
 //
@@ -667,7 +670,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 	if (g_gametype.integer == GT_SINGLE_PLAYER) {
 		G_SpawnInt("notsingle", "0", &i);
 		if (i) {
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 			return;
 		}
 	}
@@ -675,20 +678,20 @@ void G_SpawnGEntityFromSpawnVars(void)
 	if (g_gametype.integer >= GT_TEAM) {
 		G_SpawnInt("notteam", "0", &i);
 		if (i) {
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 			return;
 		}
 	} else {
 		G_SpawnInt("notfree", "0", &i);
 		if (i) {
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 			return;
 		}
 	}
 
 	G_SpawnInt("notq3a", "0", &i);
 	if (i) {
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 
@@ -698,7 +701,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 			s = strstr(value, gametypeName);
 			if (!s) {
-				G_FreeEntity(ent);
+				G_FreeEntity(ent, __LINE__, __FILE__);
 				return;
 			}
 		}
@@ -709,7 +712,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 	// if we didn't get a classname, don't bother spawning anything
 	if (!G_CallSpawn(ent)) {
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 	}
 
 	//Makro - is the entity in a sky portal ?

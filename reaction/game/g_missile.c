@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.33  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -396,7 +399,7 @@ void G_RunMissile(gentity_t * ent)
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
 				ent->parent->client->hook = NULL;
 			}
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 			return;
 		}
 		G_MissileImpact(ent, &tr);
@@ -503,7 +506,7 @@ gentity_t *fire_knife(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt = G_Spawn();
 	bolt->classname = "weapon_knife";
 	bolt->nextthink = level.time + 10000;
-	bolt->think = G_FreeEntity;
+	bolt->think = G_RealFreeEntity;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_KNIFE;

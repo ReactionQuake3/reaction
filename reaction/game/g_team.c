@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.17  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -552,7 +555,7 @@ gentity_t *Team_ResetFlag(int team)
 	ent = NULL;
 	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL) {
 		if (ent->flags & FL_DROPPED_ITEM)
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 		else {
 			rent = ent;
 			RespawnItem(ent);

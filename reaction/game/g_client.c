@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.133  2003/04/23 17:49:11  slicer
 // Fixed Crash Bug caused by merging 1.32 source code
 //
@@ -2023,7 +2026,7 @@ void ClientDisconnect(int clientNum)
 
 // JBravo: if the client had a laser, turn it off so it doesnt stay there forever.
 	if (ent->client->lasersight) {
-		G_FreeEntity(ent->client->lasersight);
+		G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
 		ent->client->lasersight = NULL;
 	}
 	// stop any following clients

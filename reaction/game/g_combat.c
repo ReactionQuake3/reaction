@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.139  2003/04/26 02:03:51  jbravo
 // Helmet fixes
 //
@@ -1193,7 +1196,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 		//JBravo: switch off the lasersight
 		if (self->client->lasersight) {
-			G_FreeEntity(self->client->lasersight);
+			G_FreeEntity(self->client->lasersight, __LINE__, __FILE__);
 			self->client->lasersight = NULL;
 		}
 		// JBravo: clear the gib flag

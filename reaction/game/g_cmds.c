@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.188  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.187  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -816,7 +819,7 @@ void Cmd_Give_f(gentity_t * ent)
 		memset(&trace, 0, sizeof(trace));
 		Touch_Item(it_ent, ent, &trace);
 		if (it_ent->inuse) {
-			G_FreeEntity(it_ent);
+			G_FreeEntity(it_ent, __LINE__, __FILE__);
 		}
 	}
 }

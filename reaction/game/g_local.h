@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.140  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -1044,7 +1047,8 @@ gentity_t *G_TempEntity(vec3_t origin, int event);
 //Elder: added
 gentity_t *G_TempEntity2(vec3_t origin, int event, int eParm);
 void G_Sound(gentity_t * ent, int channel, int soundIndex);
-void G_FreeEntity(gentity_t * e);
+void G_FreeEntity(gentity_t * e, int line, char *file);
+void G_RealFreeEntity(gentity_t * e);
 
 //Elder: added
 void RQ3_SaveZoomLevel(gentity_t * ent);

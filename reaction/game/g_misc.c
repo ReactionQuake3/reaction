@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.70  2003/04/19 15:27:31  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -212,7 +215,7 @@ Used as a positional target for calculations in the utilities (spotlights, etc),
 */
 void SP_info_null(gentity_t * self)
 {
-	G_FreeEntity(self);
+	G_FreeEntity(self, __LINE__, __FILE__);
 }
 
 /*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
@@ -233,7 +236,7 @@ Lights pointed at a target will be spotlights.
 */
 void SP_light(gentity_t * self)
 {
-	G_FreeEntity(self);
+	G_FreeEntity(self, __LINE__, __FILE__);
 }
 
 /*QUAKED light_d (0 1 0) (-8 -8 -8) (8 8 8) ADDITIVE FLICKER PULSE STROBE START_OFF
@@ -344,7 +347,7 @@ void SP_dlight(gentity_t * ent)
 			}
 			if (!ent->target) {
 				G_Printf("%s without a target at %s\n", ent->classname, vtos(ent->r.absmin));
-				G_FreeEntity(ent);
+				G_FreeEntity(ent, __LINE__, __FILE__);
 				return;
 			}
 			InitMover(ent);
@@ -458,7 +461,7 @@ void SP_misc_model(gentity_t * ent)
 	G_SetOrigin(ent, ent->s.origin);
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 #else
-	G_FreeEntity(ent);
+	G_FreeEntity(ent, __LINE__, __FILE__);
 #endif
 }
 
@@ -479,7 +482,7 @@ void locateCamera(gentity_t * ent)
 	if (!owner) {
 		//Makro - fixed typo (misc_partal_surface)
 		G_Printf("Couldn't find target for misc_portal_surface\n");
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 	ent->r.ownerNum = owner->s.number;
@@ -607,7 +610,7 @@ void SP_misc_sky_portal(gentity_t * ent)
 		} else {
 			G_Printf(S_COLOR_YELLOW "WARNING: misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
 			trap_SetConfigstring(CS_SKYPORTAL, "");
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 		}
 	} else {
 		ent->s.origin2[0] = atof(Info_ValueForKey(info, "x"));
@@ -882,13 +885,13 @@ void SP_func_breakable(gentity_t * ent)
 	G_SpawnString("id", "0", &id);
 	if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES) {
 		G_Printf("^2ERROR: ID too high\n");
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 	//Com_Printf("ID (%d) ", id);
 	if (!G_SpawnString("type", "", &name)) {
 		G_Printf("^2ERROR: broken breakable name (%s)\n", name);
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 	//Com_Printf("type (%s)\n",name);
@@ -1006,7 +1009,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 			func_breakable_die(ent, inflictor, attacker, damage, mod);
 		}
 		G_UseTargets(ent, ent->activator);
-		//G_FreeEntity( ent );
+		//G_FreeEntity( ent, __LINE__, __FILE__ );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch (shiftCount) {
 		case 0:
@@ -1073,7 +1076,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 			break;
 
 		}
-		//G_FreeEntity( ent );
+		//G_FreeEntity( ent, __LINE__, __FILE__ );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		tent = G_TempEntity2(impactPoint, EV_CHIP_GLASS, eParm);
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2003/04/26 22:33:07  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.25  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -122,7 +125,7 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 		// called while looping through area links...
 		ent->touch = 0;
 		ent->nextthink = level.time + FRAMETIME;
-		ent->think = G_FreeEntity;
+		ent->think = G_RealFreeEntity;
 	}
 }
 
@@ -174,7 +177,7 @@ trigger_always
 void trigger_always_think(gentity_t * ent)
 {
 	G_UseTargets(ent, ent);
-	G_FreeEntity(ent);
+	G_FreeEntity(ent, __LINE__, __FILE__);
 }
 
 /*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
@@ -255,7 +258,7 @@ void AimAtTarget(gentity_t * self)
 
 	ent = G_PickTarget(self->target);
 	if (!ent) {
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 
@@ -263,7 +266,7 @@ void AimAtTarget(gentity_t * self)
 	gravity = g_gravity.value;
 	time = sqrt(height / (.5 * gravity));
 	if (!time) {
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 	// set s.origin2 to the push velocity

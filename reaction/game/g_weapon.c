@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2003/04/26 22:33:07  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.88  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -1033,7 +1036,7 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 		//Blaze: Get rid of the knife if it hits the sky
 //                G_FreeEdict (ent);
 		//Elder: I think you want this
-		G_FreeEntity(ent);
+		G_FreeEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 
@@ -1086,7 +1089,7 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 		xr_drop->count = 1;
 	}
 
-	G_FreeEntity(ent);
+	G_FreeEntity(ent, __LINE__, __FILE__);
 }
 
 //gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
@@ -1811,7 +1814,7 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 	if (ent->client->ps.weapon != WP_PISTOL && ent->client->ps.weapon != WP_MP5 && ent->client->ps.weapon != WP_M4) {
 		//Kill laser if it exists
 		if (ent->client->lasersight) {
-			G_FreeEntity(ent->client->lasersight);
+			G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
 			ent->client->lasersight = NULL;
 		}
 		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
@@ -1819,7 +1822,7 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 	}
 	//Get rid of you?
 	if (ent->client->lasersight || enabled == qfalse) {
-		G_FreeEntity(ent->client->lasersight);
+		G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
 		ent->client->lasersight = NULL;
 		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		return;
@@ -1869,7 +1872,7 @@ void Laser_Think(gentity_t * self)
 		//Make sure you kill the reference before freeing the entity
 		self->parent->client->lasersight = NULL;
 		self->parent->client->ps.powerups[PW_LASERSIGHT] = 0;
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 	//Set Aiming Directions

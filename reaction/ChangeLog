@@ -10,6 +10,9 @@
 * Fixed a bug in the replacement code with grenades
 * In some circumstanses you would also get chest damage from a headshot
 * Bug in the UI radiobind code fixed.
+* In-game server browser now fixed to show RQ3 3.x games, yay!
+* Added an error message to the /radio command to let you know if your bind is messed up and you're trying to play a radio sound that does not exist
+* Allowed CTB radio sounds to also be played in other team-based modes
 
 # List fixes here for the 3.0 release
 

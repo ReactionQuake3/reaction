@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.57  2003/04/01 11:06:47  jbravo
 // Removed a debug message
 //
@@ -1187,7 +1190,7 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 			}
 		}
 		G_TempEntity(other->s.origin, EV_ITEM_POP);
-		G_FreeEntity(other);
+		G_FreeEntity(other, __LINE__, __FILE__);
 		return;
 	}
 
@@ -2160,7 +2163,7 @@ void SP_path_corner(gentity_t * self)
 
 	if (!self->targetname) {
 		G_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 	// path corners don't need to be linked in
@@ -2267,7 +2270,7 @@ void SP_func_train(gentity_t * self)
 
 	if (!self->target) {
 		G_Printf("func_train without a target at %s\n", vtos(self->r.absmin));
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 

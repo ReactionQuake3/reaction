@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.152  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.151  2003/04/26 02:03:51  jbravo
 // Helmet fixes
 //
@@ -800,7 +803,7 @@ void CleanLevel()
 			case WP_PISTOL:
 			case WP_KNIFE:
 			case WP_GRENADE:
-				G_FreeEntity(ent);
+				G_FreeEntity(ent, __LINE__, __FILE__);
 				break;
 			default:
 				break;
@@ -813,14 +816,14 @@ void CleanLevel()
 			case HI_BANDOLIER:
 			case HI_SLIPPERS:
 			case HI_HELMET:
-				G_FreeEntity(ent);
+				G_FreeEntity(ent, __LINE__, __FILE__);
 				break;
 			default:
 				break;
 			}
 		} else if (ent->item->giType == IT_AMMO) {
 			//Makro - added
-			G_FreeEntity(ent);
+			G_FreeEntity(ent, __LINE__, __FILE__);
 		}
 	}
 

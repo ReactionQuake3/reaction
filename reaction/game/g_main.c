@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.146  2003/04/26 15:23:57  jbravo
 // grenade replacement fix.  Version bumped to 3.1
 //
@@ -802,19 +805,19 @@ Written by JBravo to catch the bad gEnt bug
 void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
 {
 	if (ent == NULL) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a NULL ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a unaligned ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with s.number outof range from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 
 	trap_LinkEntity(ent);
@@ -823,19 +826,19 @@ void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
 void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
 {
 	if (ent == NULL) {
-		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 
 	trap_UnlinkEntity(ent);
@@ -844,19 +847,19 @@ void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
 void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file)
 {
 	if (ent == NULL) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
 	}
 
 	trap_AdjustAreaPortalState(ent, open);
@@ -2670,7 +2673,7 @@ void G_RunFrame(int levelTime)
 				}
 			}
 			if (ent->freeAfterEvent) {
-				G_FreeEntity(ent);
+				G_FreeEntity(ent, __LINE__, __FILE__);
 				continue;
 			} else if (ent->unlinkAfterEvent) {
 				// items that will respawn will hide themselves after their pickup event

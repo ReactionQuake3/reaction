@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2003/04/26 22:33:06  jbravo
+// Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
+//
 // Revision 1.11  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -480,7 +483,7 @@ void SP_target_activate(gentity_t * self)
 {
 	if (!self->target) {
 		G_Printf(S_COLOR_YELLOW "WARNING: target_activate with no target at %s^7\n", vtos(self->s.origin));
-		G_FreeEntity(self);
+		G_FreeEntity(self, __LINE__, __FILE__);
 		return;
 	}
 	self->use = target_activate_use;
