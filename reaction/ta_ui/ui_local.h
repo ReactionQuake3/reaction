@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/06/09 15:35:23  makro
+// "wait" command is no longer executed before adding a bot
+// when starting a server from the UI
+//
 // Revision 1.11  2002/05/29 13:30:19  makro
 // Weapon/join menu tweaks
 //
@@ -155,6 +159,8 @@ extern vmCvar_t ui_RQ3_weapAfterJoin;
 //Makro - specify server option
 extern vmCvar_t ui_RQ3_joinAddress;
 extern vmCvar_t ui_RQ3_joinPort;
+//Makro - demo name
+extern vmCvar_t ui_RQ3_demoName;
 
 
 //

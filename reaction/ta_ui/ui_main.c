@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/09 15:35:23  makro
+// "wait" command is no longer executed before adding a bot
+// when starting a server from the UI
+//
 // Revision 1.28  2002/06/05 19:17:07  makro
 // Squashed some bugs :)
 //
@@ -3560,9 +3564,9 @@ static void UI_RunMenuScript(char **args) {
 					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f blue\n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f blue\n", UI_GetBotNameByNumber(bot-2), skill);
 					} else {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -3575,9 +3579,9 @@ static void UI_RunMenuScript(char **args) {
 					//	Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f red\n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f red\n", UI_GetBotNameByNumber(bot-2), skill);
 					} else {
-						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -3824,6 +3828,9 @@ static void UI_RunMenuScript(char **args) {
 				int index = (int) (random() * (float) (UI_GetNumBots() - 1));
 				//Makro - don't add the bot instantly
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+		//Makro - record a demo
+		} else if (Q_stricmp(name, "recordDemo") == 0) {
+			trap_Cmd_ExecuteText( EXEC_APPEND, va("record %s", ui_RQ3_demoName.string) );
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource.integer != AS_FAVORITES) {
 				char name[MAX_NAME_LENGTH];
@@ -6190,6 +6197,8 @@ vmCvar_t	ui_RQ3_numSpectators;
 //Makro - specify server option
 vmCvar_t	ui_RQ3_joinAddress;
 vmCvar_t	ui_RQ3_joinPort;
+//Makro - demo name
+vmCvar_t	ui_RQ3_demoName;
 
 
 // bk001129 - made static to avoid aliasing
@@ -6323,7 +6332,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0},
 	//Makro - specify server option
 	{ &ui_RQ3_joinAddress, "ui_RQ3_joinAddress", "", CVAR_ARCHIVE},
-	{ &ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE}
+	{ &ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE},
+	//Makro - demo name
+	{ &ui_RQ3_demoName, "ui_RQ3_demoName", "", 0}
 };
 
 // bk001129 - made static to avoid aliasing
