@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/07/19 04:31:12  niceass
+// changed ef_dead for bot protection
+//
 // Revision 1.86  2002/07/16 04:09:44  niceass
 // skyportal compile fix
 //
@@ -749,8 +752,9 @@ typedef enum {
 #define RQ3_GRENMED			32	// Medium range grenade, if short and medium are both 1, then it is long range
 
 // entityState_t->eFlags
-#define	EF_DEAD				0x00000001	// don't draw a foe marker over players with EF_DEAD
-#define EF_HANDCANNON_SMOKED 0x00000002	// Elder: HC Smoke
+// NiceAss: I swapped these two for OGC protection. I hope it helps.
+#define EF_HANDCANNON_SMOKED 0x00000001	// Elder: HC Smoke
+#define	EF_DEAD				0x00000002	// don't draw a foe marker over players with EF_DEAD
 #define	EF_TELEPORT_BIT		0x00000004	// toggled every time the origin abruptly changes
 #define	EF_AWARD_EXCELLENT	0x00000008	// draw an excellent sprite
 #define EF_PLAYER_EVENT		0x00000010
@@ -1377,6 +1381,7 @@ typedef enum {
 	ET_TEAM,
 	ET_LASER,		// lasersight entity type
 	ET_DLIGHT,		// Elder: dynamic light entity
+	ET_DECAL,		// Stick a decal on the ground
 
 	ET_EVENTS		// any of the EV_* events can be added freestanding
 	    // by setting eType to ET_EVENTS + eventNum
