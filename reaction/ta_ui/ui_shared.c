@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2003/03/31 00:40:54  makro
+// Fixed a bug
+//
 // Revision 1.26  2003/03/31 00:23:18  makro
 // Replacements and stuff
 //
@@ -5290,6 +5293,7 @@ qboolean ItemParse_name(itemDef_t * item, int handle)
 qboolean ItemParse_shortcutKey(itemDef_t * item, int handle)
 {
 	const char *temp;
+	int c; 
 
 	if (!PC_String_Parse(handle, &temp)) {
 		item->window.shortcutKey = -1;
@@ -5297,7 +5301,11 @@ qboolean ItemParse_shortcutKey(itemDef_t * item, int handle)
 	}
 	//Com_Printf(S_COLOR_BLUE "^4MDEBUG: Shortcut key read: %s\n^7", item->window.shortcutKey);
 
-	item->window.shortcutKey = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
+	c = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
+	if (c>='A' && c<='Z')
+		c -= 'A'-'a';
+	item->window.shortcutKey = c;
+
 	return qtrue;
 }
 
