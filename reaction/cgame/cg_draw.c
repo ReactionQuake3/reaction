@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/03/04 19:28:21  jbravo
+// Fixing follownames up as suggested in the forums.
+//
 // Revision 1.23  2002/03/02 14:54:24  jbravo
 // Added the skin and model names to the name of the player thats being
 // followed, as in AQ
@@ -2489,19 +2492,24 @@ static qboolean CG_DrawFollow( void ) {
 	color[2] = 1;
 	color[3] = 1;
 
-	team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
-
-	Com_sprintf (combinedName, sizeof(combinedName), "%s\\%s/%s",
-		cgs.clientinfo[ cg.snap->ps.clientNum ].name,
-		cgs.clientinfo[ cg.snap->ps.clientNum ].modelName,
-		cgs.clientinfo[ cg.snap->ps.clientNum ].skinName);
-	
-
 	CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
 
-	x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
-
-	CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );
+	if ( cgs.gametype >= GT_TEAM ) {
+		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+		if (team == TEAM_RED) {
+			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 1",
+				cgs.clientinfo[ cg.snap->ps.clientNum ].name,
+		} else {
+			Com_sprintf (combinedName, sizeof(combinedName), "%s/Team 2",
+				cgs.clientinfo[ cg.snap->ps.clientNum ].name,
+		}
+		x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
+		CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );
+	} else {
+		name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
+		x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( combinedName ) );
+		CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
+	}
 
 	return qtrue;
 }
