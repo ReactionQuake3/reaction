@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/07/20 05:06:01  niceass
+// scoreboard remembering your team in CTB but lying is fixed
+//
 // Revision 1.17  2002/07/11 04:29:41  niceass
 // removed auto-joining teams for things like ctb
 //
@@ -132,9 +135,8 @@ void G_ReadSessionData(gclient_t * client)
 
 	// bk001205 - format issues
 
-	// NiceAss: I don't believe we want this. (Auto join a team when changing maps)
 	// Only noticable on non-roundbased games like CTB.
-	// client->sess.sessionTeam = (team_t) sessionTeam;
+	 client->sess.sessionTeam = (team_t) sessionTeam;
 
 	client->sess.spectatorState = (spectatorState_t) spectatorState;
 	client->sess.teamLeader = (qboolean) teamLeader;
@@ -142,6 +144,13 @@ void G_ReadSessionData(gclient_t * client)
 	client->sess.savedTeam = (team_t) savedTeam;
 	client->sess.captain = (team_t) captain;
 	client->sess.sub = (team_t) sub;
+
+	if (g_gametype.integer == GT_CTF) {
+		client->sess.sessionTeam = TEAM_SPECTATOR;
+		client->sess.savedTeam = TEAM_SPECTATOR;
+		client->sess.captain = TEAM_FREE;
+		client->sess.sub = TEAM_FREE;
+	}
 
 	camera_state_load(client);
 }
