@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2003/04/02 17:58:03  jbravo
+// Ammo skin only replacements now work.
+//
 // Revision 1.111  2003/03/29 23:04:56  jbravo
 // More post _skin cvar fixes
 //
@@ -1137,6 +1140,59 @@ void CG_RegisterItemVisuals(int itemNum)
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
 					Com_Printf("^1Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
+			}
+		}
+	}
+
+	if (item->giType == IT_AMMO) {
+		if (!strcmp(item->classname, "ammo_mk23")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mk23", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin", skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("^1Ammo skin load failure: %s\n", va("models/ammo/%s.skin", skin));
+			}
+		}
+		if (!strcmp(item->classname, "ammo_shells")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin", skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("^1Ammo skin load failure: %s\n", va("models/ammo/%s.skin", skin));
+			}
+		}
+		if (!strcmp(item->classname, "ammo_ssg3000")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_ssg3000", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin", skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("^1Ammo skin load failure: %s\n", va("models/ammo/%s.skin", skin));
+			}
+		}
+		if (!strcmp(item->classname, "ammo_mp5")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mp5", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin", skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("^1Ammo skin load failure: %s\n", va("models/ammo/%s.skin", skin));
+			}
+		}
+		if (!strcmp(item->classname, "ammo_m4")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m4", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin", skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("^1Ammo skin load failure: %s\n", va("models/ammo/%s.skin", skin));
 			}
 		}
 	}

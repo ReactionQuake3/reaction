@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2003/04/02 17:58:03  jbravo
+// Ammo skin only replacements now work.
+//
 // Revision 1.41  2003/03/28 22:25:10  makro
 // no message
 //
@@ -479,7 +482,7 @@ static void CG_Item(centity_t * cent)
 		if (wi->customSkin)
 			ent.customSkin = wi->customSkin;
 	}
-	if (item->giType == IT_HOLDABLE) {
+	if (item->giType == IT_HOLDABLE || item->giType == IT_AMMO) {
 		itemInfo = &cg_items[item - bg_itemlist];
 		if (itemInfo->customSkin)
 			ent.customSkin = itemInfo->customSkin;
