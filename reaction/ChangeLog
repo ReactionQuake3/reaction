@@ -45,6 +45,7 @@
 * Anti-wallhack code added
 * Countdown timer added for CTB respawning.
 * Fixed bug where rounds lasted half as long as g_RQ3_roundtimelimit was set to.
+* Q3F's atmospheric code added.
 
 # List fixes here for the 2.1 release
 
