@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/07/02 07:38:55  niceass
+// Added total players/subs & fixed ping bug
+//
 // Revision 1.38  2002/07/02 07:21:41  niceass
 // untested matchmode ping determination
 //
@@ -160,6 +163,9 @@ int TeamAveragePing(team_t team)
 			MaxPing1I = i;
 		}
 	}
+
+	if (!Players)
+		return 0;
 
 	for (i = 0; i < cg.numScores; i++) {
 		Score = &cg.scores[i];
@@ -384,12 +390,18 @@ static int CG_TeamplayScoreboard(void)
 	if (cg_RQ3_matchmode.integer) {
 		int mins, secs;
 		char Time[16];
+		char *pingFair;
 
 		mins = (int) floor(cg.matchTime / 60.0f);
 		secs = cg.matchTime - (mins * 60);
 		Com_sprintf(Time, 16, "%d:%02d", mins, secs);
 
-		DrawRightStripText(y, SB_FONTSIZEH, va("Matchtime: %s", Time), 100, colorWhite);
+		if (abs(TeamAveragePing(TEAM_RED) - TeamAveragePing(TEAM_BLUE)) <= 40)
+			pingFair = "PINGS FAIR";
+		else
+			pingFair = "PINGS UNFAIR";
+
+		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Matchtime: %s", pingFair, Time), 100, colorWhite);
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 	}
 
@@ -438,11 +450,11 @@ static int CG_TeamplayScoreboard(void)
 	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
-		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
+		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Reds, RedSubs,
 						     cg.team1ready ? "Ready" : "Not Ready", cg.teamScores[0]), 
 							 100, colorWhite);
 	else
-		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, colorWhite);
+		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - Wins: %d", Reds, RedSubs, cg.teamScores[0]), 100, colorWhite);
 
 
 	CG_ScoreBoardHead (TEAM_RED, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
@@ -528,11 +540,11 @@ static int CG_TeamplayScoreboard(void)
 	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
-		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
+		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Blues, BlueSubs,
 						       cg.team2ready ? "Ready" : "Not Ready", cg.teamScores[1]), 
 							   100, colorWhite);
 	else
-		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, colorWhite);
+		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - Wins: %d", Blues, BlueSubs, cg.teamScores[1]), 100, colorWhite);
 	
 	CG_ScoreBoardHead (TEAM_BLUE, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
 
