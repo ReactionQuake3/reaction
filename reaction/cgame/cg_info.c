@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/05/25 16:39:16  makro
+// Loading screen
+//
 // Revision 1.18  2002/05/25 10:40:31  makro
 // Loading screen
 //
@@ -368,9 +371,10 @@ void CG_DrawInformation( void ) {
 		}
 
 		//Makro - don't write unless there's something to write
-		if ( line[0] )
+		if ( line[0] ) {
 			CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
-		y -= LS_CHAR_HEIGHT;
+			y -= LS_CHAR_HEIGHT;
+		}
 	}
 
 	// BOTTOM //
