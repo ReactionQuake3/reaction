@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/05/29 13:30:19  makro
+// Weapon/join menu tweaks
+//
 // Revision 1.10  2002/04/30 11:56:54  makro
 // Stuff
 //
@@ -421,10 +424,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	//Makro - join menu
 	if ( Q_stricmp (cmd, "ui_RQ3_joinTeam") == 0 ) {
-		if ( trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
-			_UI_SetActiveMenu(UIMENU_RQ3_JOIN);
-		else
-			Com_Printf("Not playing a team-based game.\n");
+		_UI_SetActiveMenu(UIMENU_RQ3_JOIN);
 		return qtrue;
 	}
 

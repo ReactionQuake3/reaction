@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/29 13:30:19  makro
+// Weapon/join menu tweaks
+//
 // Revision 1.23  2002/05/19 21:31:22  makro
 // Stuff
 //
@@ -3716,6 +3719,14 @@ static void UI_RunMenuScript(char **args) {
 			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
 			//Makro - maybe a wait command will make the music volume get saved before exiting
 			trap_Cmd_ExecuteText( EXEC_APPEND, "wait ; quit\n");
+		//Makro - weapon menu after joining a team
+		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
+			//only in teamplay
+			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY) {
+				if (ui_RQ3_weapAfterJoin.integer) {
+					_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
+				}
+			}
 		} else if (Q_stricmp(name, "Controls") == 0) {
 		  trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
@@ -5776,7 +5787,11 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			trap_Key_SetCatcher( KEYCATCH_UI );
 			UI_BuildPlayerList();
 			Menus_CloseAll();
-			Menus_ActivateByName("ingame_join");
+			if ( trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
+				Menus_ActivateByName("ingame_join");
+			} else {
+				Menus_ActivateByName("ingame_join_dm");
+			}
 		  return;
 	  case UIMENU_RQ3_TKOK:
 		  trap_Cvar_Set( "cl_paused", "1" );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/05/29 13:30:19  makro
+// Weapon/join menu tweaks
+//
 // Revision 1.10  2002/05/19 15:45:03  makro
 // "Specify server" option
 //
@@ -147,6 +150,8 @@ extern vmCvar_t ui_RQ3_modelCommand;
 extern vmCvar_t ui_RQ3_teamCount1;
 extern vmCvar_t ui_RQ3_teamCount2;
 extern vmCvar_t ui_RQ3_numSpectators;
+//Makro - weapon menu after joining a team
+extern vmCvar_t ui_RQ3_weapAfterJoin;
 //Makro - specify server option
 extern vmCvar_t ui_RQ3_joinAddress;
 extern vmCvar_t ui_RQ3_joinPort;
