@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/01/31 02:25:31  jbravo
+// Adding limchasecam.
+//
 // Revision 1.39  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -870,6 +873,7 @@ Cmd_FollowCycle_f
 void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
+	int		chasemode;
 
 	// if they are playing a tournement game, count as a loss
 	if ( (g_gametype.integer == GT_TOURNAMENT )
@@ -886,6 +890,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
 	}
 
+	chasemode = trap_Cvar_VariableIntegerValue( "g_RQ3_limchasecam" );
 	clientnum = ent->client->sess.spectatorClient;
 	original = clientnum;
 	do {
@@ -904,6 +909,11 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 		// can't follow another spectator
 		if ( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR ) {
+			continue;
+		}
+
+// JBravo: limchasecam
+		if ( chasemode > 0 && ent->client->sess.savedTeam != level.clients[ clientnum ].sess.sessionTeam ) {
 			continue;
 		}
 

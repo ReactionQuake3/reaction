@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/01/31 02:25:31  jbravo
+// Adding limchasecam.
+//
 // Revision 1.17  2002/01/14 01:20:45  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -103,6 +106,7 @@ vmCvar_t	g_RQ3_messageProtect;
 vmCvar_t	g_RQ3_roundlimit;
 vmCvar_t	g_RQ3_roundtimelimit;
 vmCvar_t	g_RQ3_tgren;
+vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	RQ3_lca;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
@@ -219,6 +223,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_roundlimit, "g_RQ3_roundlimit", "0", 0, 0, qtrue},
 	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", 0, 0, qtrue},
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", 0, 0, qtrue},
+	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", 0, 0, qtrue},
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse}
 
 };

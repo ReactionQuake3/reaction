@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/01/31 02:25:31  jbravo
+// Adding limchasecam.
+//
 // Revision 1.36  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -1044,6 +1047,7 @@ extern	vmCvar_t	g_RQ3_messageProtect;		// Elder: 0 disable, non-zero enable
 extern	vmCvar_t	g_RQ3_roundlimit;		// JBravo: No. of rounds pr. map
 extern	vmCvar_t	g_RQ3_roundtimelimit;		// JBravo: Time pr. round
 extern	vmCvar_t	g_RQ3_tgren;			// JBravo: no. of team grenades
+extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limited to same team.
 extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 
 void	trap_Printf( const char *fmt );
