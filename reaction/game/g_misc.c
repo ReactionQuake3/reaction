@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2003/03/29 16:01:36  jbravo
+// _skin cvars now fully removed. dlight code from Makro added. cvar
+// defaults fixed.
+//
 // Revision 1.67  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -177,6 +181,12 @@ void G_ExplodeMissile(gentity_t * ent);
 
 //Makro - added
 void Think_SpawnNewDoorTrigger(gentity_t * ent);
+void InitMover(gentity_t * ent);
+void Use_Func_Train(gentity_t * ent, gentity_t * other, gentity_t * activator);
+void Think_BeginMoving(gentity_t * ent);
+void Reached_Train(gentity_t * ent);
+void Think_SetupTrainTargets(gentity_t * ent);
+
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
@@ -227,6 +237,13 @@ Set the color key for the intended color
 */
 void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
+	//if train
+	if (ent->count == 2) {
+		if (other->pathtarget && other->pathtarget[0]) {
+			Use_Func_Train(ent, other, activator);
+			return;
+		}
+	}
 	ent->unbreakable = !ent->unbreakable;
 	if (ent->unbreakable) {
 		ent->r.svFlags |= SVF_NOCLIENT;
@@ -241,6 +258,7 @@ void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 void SP_dlight(gentity_t * ent)
 {
 	vec3_t color;
+	char *s;
 	float light;
 	int r, g, b, i;
 
@@ -263,12 +281,12 @@ void SP_dlight(gentity_t * ent)
 	*/
 
 	//Makro - added START_OFF flag
-	ent->use = use_dlight;
+/*	ent->use = use_dlight;
 	ent->unbreakable = qfalse;
 	if (ent->spawnflags & 8) {
 		ent->unbreakable = qtrue;
 		ent->use(ent, NULL, NULL);
-	}
+	} */
 
 	r = color[0] * 255;
 	if (r > 255) {
@@ -282,7 +300,7 @@ void SP_dlight(gentity_t * ent)
 	if (b > 255) {
 		b = 255;
 	}
-	i = light / 4;
+	i = light / 8;
 	if (i > 255) {
 		i = 255;
 	}
@@ -291,16 +309,70 @@ void SP_dlight(gentity_t * ent)
 
 	//Makro - added frequency, phase and light2
 	G_SpawnFloat("frequency", "2", &light);
-	ent->s.frame = light * 1000;
+	ent->s.powerups = light * 1000;
 	G_SpawnFloat("phase", "0", &light);
-	ent->s.generic1 = light * 1000;
+	ent->s.otherEntityNum2 = light * 1000;
 	G_SpawnFloat("light2", "0", &light);
 	ent->s.weapon = light;
 
-	ent->s.eType = ET_DLIGHT;
-	ent->classname = "func_dlite";
+//	ent->s.eType = ET_DLIGHT;
+//	ent->classname = "func_dlite";
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+
+	ent->classname = "func_dlite";
+	//Makro - added mover info
+	if (G_SpawnString("movertype", "none", &s)) {
+		if (!Q_stricmp(s, "bobbing")) {
+			float height, heights[3];
+			float phase2;
+			int axis;
+
+			//bobbing
+			ent->count = 1;
+			G_SpawnFloat("speed", "4", &ent->speed);
+			G_SpawnFloat("height", "32", &height);
+			G_SpawnFloat("moverphase", "0", &phase2);
+			G_SpawnInt("axis", "2", &axis);
+			InitMover(ent);
+			VectorCopy(ent->s.origin, ent->s.pos.trBase);
+			VectorCopy(ent->s.origin, ent->r.currentOrigin);
+			ent->s.pos.trDuration = ent->speed * 1000;
+			ent->s.pos.trTime = ent->s.pos.trDuration * phase2;
+			ent->s.pos.trType = TR_SINE;
+			// set the axis of bobbing
+			if (G_SpawnVector("heights", "0 0 32", heights)) {
+				VectorCopy(heights, ent->s.pos.trDelta);
+			} else {
+				ent->s.pos.trDelta[axis%3] = height;
+			}
+		} else if (!Q_stricmp(s, "train")) {
+			//train
+			ent->count = 2;
+			VectorClear(ent->s.angles);
+			if (!ent->speed) {
+				ent->speed = 100;
+			}
+			if (!ent->target) {
+				G_Printf("%s without a target at %s\n", ent->classname, vtos(ent->r.absmin));
+				G_FreeEntity(ent);
+				return;
+			}
+			InitMover(ent);
+			ent->reached = Reached_Train;
+			// start trains on the second frame, to make sure their targets have had
+			// a chance to spawn
+			ent->nextthink = level.time + FRAMETIME;
+			ent->think = Think_SetupTrainTargets;
+		}
+	}
+	//Makro - added START_OFF flag
+	ent->use = use_dlight;
+	ent->unbreakable = qfalse;
+	if (ent->spawnflags & 8) {
+		ent->unbreakable = qtrue;
+		ent->use(ent, NULL, NULL);
+	}
 
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }

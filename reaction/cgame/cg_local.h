@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2003/03/29 16:01:36  jbravo
+// _skin cvars now fully removed. dlight code from Makro added. cvar
+// defaults fixed.
+//
 // Revision 1.139  2003/03/28 22:25:10  makro
 // no message
 //

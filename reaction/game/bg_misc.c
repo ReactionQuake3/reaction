@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2003/03/29 16:01:36  jbravo
+// _skin cvars now fully removed. dlight code from Makro added. cvar
+// defaults fixed.
+//
 // Revision 1.50  2003/03/28 22:26:24  makro
 // no message
 //
@@ -1612,7 +1616,7 @@ char *modelFromStr(char *s)
 	char *p, *out = s;
 	if (!s)
 		return NULL;
-	if ((p = strrchr(s, '/')) != NULL)
+	if ((p = Q_strrchr(s, '/')) != NULL)
 	{
 		*p=0;
 		out=va("%s", s);
@@ -1628,7 +1632,7 @@ char *skinFromStr(char *s)
 		return NULL;
 	if (!*s)
 		return va("");
-	if ((p = strrchr(s, '/')) != NULL)
+	if ((p = Q_strrchr(s, '/')) != NULL)
 		return p+1;
 	return va("default");
 }

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2003/03/29 16:01:36  jbravo
+// _skin cvars now fully removed. dlight code from Makro added. cvar
+// defaults fixed.
+//
 // Revision 1.128  2003/03/29 15:04:03  jbravo
 // Removing skin replacement cvars
 //
@@ -748,15 +752,15 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE},
 	{&ogc_islame,"ogc_islame","1",CVAR_ROM},
 	//Blaze: replacement weapons
-	{&cg_RQ3_knife, "cg_RQ3_knife", "knife", CVAR_ARCHIVE},
-	{&cg_RQ3_mk23, "cg_RQ3_mk23", "mk23", CVAR_ARCHIVE},
-	{&cg_RQ3_m4, "cg_RQ3_m4", "m4", CVAR_ARCHIVE},
-	{&cg_RQ3_ssg3000, "cg_RQ3_ssg3000", "ssg3000", CVAR_ARCHIVE},
-	{&cg_RQ3_mp5, "cg_RQ3_mp5", "mp5", CVAR_ARCHIVE},
-	{&cg_RQ3_handcannon, "cg_RQ3_handcannon", "handcannon", CVAR_ARCHIVE},
-	{&cg_RQ3_m3, "cg_RQ3_m3", "m3", CVAR_ARCHIVE},
-	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo", CVAR_ARCHIVE},
-	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade", CVAR_ARCHIVE},
+	{&cg_RQ3_knife, "cg_RQ3_knife", "knife/default", CVAR_ARCHIVE},
+	{&cg_RQ3_mk23, "cg_RQ3_mk23", "mk23/default", CVAR_ARCHIVE},
+	{&cg_RQ3_m4, "cg_RQ3_m4", "m4/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ssg3000, "cg_RQ3_ssg3000", "ssg3000/default", CVAR_ARCHIVE},
+	{&cg_RQ3_mp5, "cg_RQ3_mp5", "mp5/default", CVAR_ARCHIVE},
+	{&cg_RQ3_handcannon, "cg_RQ3_handcannon", "handcannon/default", CVAR_ARCHIVE},
+	{&cg_RQ3_m3, "cg_RQ3_m3", "m3/default", CVAR_ARCHIVE},
+	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo/default", CVAR_ARCHIVE},
+	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade/default", CVAR_ARCHIVE},
 	// JBravo: replacement skins
 /*	{&cg_RQ3_knife_skin, "cg_RQ3_knife_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_mk23_skin, "cg_RQ3_mk23_skin", "default", CVAR_ARCHIVE},
@@ -768,12 +772,12 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_akimbo_skin, "cg_RQ3_akimbo_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_grenade_skin, "cg_RQ3_grenade_skin", "default", CVAR_ARCHIVE}, */
 	//Blaze: replacement items
-	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier", CVAR_ARCHIVE},
-	{&cg_RQ3_kevlar, "cg_RQ3_kevlar", "kevlar", CVAR_ARCHIVE},
-	{&cg_RQ3_silencer, "cg_RQ3_silencer", "silencer", CVAR_ARCHIVE},
-	{&cg_RQ3_laser, "cg_RQ3_laser", "laser", CVAR_ARCHIVE},
-	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers", CVAR_ARCHIVE},
-	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet", CVAR_ARCHIVE},
+	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier/default", CVAR_ARCHIVE},
+	{&cg_RQ3_kevlar, "cg_RQ3_kevlar", "kevlar/default", CVAR_ARCHIVE},
+	{&cg_RQ3_silencer, "cg_RQ3_silencer", "silencer/default", CVAR_ARCHIVE},
+	{&cg_RQ3_laser, "cg_RQ3_laser", "laser/default", CVAR_ARCHIVE},
+	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers/default", CVAR_ARCHIVE},
+	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet/default", CVAR_ARCHIVE},
 	// JBravo: replacement skins
 /*	{&cg_RQ3_bandolier_skin, "cg_RQ3_bandolier_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_kevlar_skin, "cg_RQ3_kevlar_skin", "default", CVAR_ARCHIVE},
@@ -782,11 +786,11 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_slippers_skin, "cg_RQ3_slippers_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_helmet_skin, "cg_RQ3_helmet_skin", "default", CVAR_ARCHIVE}, */
 	// JBravo: replacement ammo
-	{&cg_RQ3_ammo_mk23, "cg_RQ3_ammo_mk23", "mk23", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_shells, "cg_RQ3_ammo_shells", "shells", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_mk23, "cg_RQ3_ammo_mk23", "mk23/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_shells, "cg_RQ3_ammo_shells", "shells/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4/default", CVAR_ARCHIVE},
 	// JBravo: replacement skins
 /*	{&cg_RQ3_ammo_mk23_skin, "cg_RQ3_ammo_mk23_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_shells_skin, "cg_RQ3_ammo_shells_skin", "default", CVAR_ARCHIVE},
