@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.32  2002/02/05 23:41:27  slicer
 // More on matchmode..
 //
@@ -1181,7 +1184,6 @@ void ClientBegin( int clientNum ) {
 		if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
 		if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
 	}
-
 }
 
 /*
@@ -1200,7 +1202,7 @@ void ClientSpawn(gentity_t *ent) {
 	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int		persistant[MAX_PERSISTANT];
+	int		persistant[MAX_PERSISTANT], savedpers[MAX_PERSISTANT];
 	gentity_t	*spawnPoint;
 	int		flags;
 	int		savedPing;
@@ -1308,18 +1310,17 @@ void ClientSpawn(gentity_t *ent) {
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
+		savedpers[i] = client->savedpersistant[i];
 	}
 	eventSequence = client->ps.eventSequence;
 
 // JBravo: save weapon/item info
 	savedWeapon = client->teamplayWeapon;
 	savedItem = client->teamplayItem;
-//	savedSolid = client->IsSolid;
 
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
 
 // JBravo: restore weapon/item info
-//	client->IsSolid = savedSolid;
 	client->teamplayWeapon = savedWeapon;
 	client->teamplayItem = savedItem;
 
@@ -1333,6 +1334,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
+		client->savedpersistant[i] = savedpers[i];
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn

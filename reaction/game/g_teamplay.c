@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.11  2002/02/05 23:41:27  slicer
 // More on matchmode..
 //
@@ -462,7 +465,7 @@ void SpawnPlayers()
 {
 	gentity_t	*player;
 	gclient_t	*client;
-	int		clientNum, i;
+	int		clientNum, i, x;
 
 	level.spawnPointsLocated = qfalse;
 	for (i = 0; i < level.maxclients; i++) {
@@ -477,6 +480,11 @@ void SpawnPlayers()
 
 		client = player->client;
 		clientNum = client - level.clients;
+
+//		for (x = 0 ; x < MAX_PERSISTANT ; x++) {
+//			client->ps.persistant[x] = client->savedpersistant[x];
+//		}
+
 		client->sess.teamSpawn = qtrue;
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
@@ -661,4 +669,18 @@ void UnstickPlayer( gentity_t *ent )
 	if (count == 0) {
 		ent->client->ps.stats[STAT_RQ3] |= RQ3_PLAYERSOLID;
 	}
+}
+
+void MakeSpectator( gentity_t *ent )
+{
+	gclient_t	*client;
+
+	client = ent->client;
+	CopyToBodyQue (ent);
+
+	client->weaponCount[ent->client->ps.weapon] = 0;
+	client->ps.stats[STAT_WEAPONS] = 0;
+	client->sess.savedTeam = client->sess.sessionTeam;
+	client->sess.sessionTeam = TEAM_SPECTATOR;
+	ClientSpawn(ent);
 }

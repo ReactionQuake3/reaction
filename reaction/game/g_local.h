@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.43  2002/02/05 23:41:27  slicer
 // More on matchmode..
 //
@@ -519,6 +522,7 @@ struct gclient_s {
 // JBravo adding TP stuff
 	int	teamplayWeapon;
 	int	teamplayItem;
+	int	savedpersistant[MAX_PERSISTANT];
 };
 
 

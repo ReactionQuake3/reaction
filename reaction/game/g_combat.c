@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.38  2002/02/05 10:45:31  jbravo
 // Cleaning up player_die and possibly fixing the scores
 //
@@ -603,6 +606,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		CheckAlmostScored( self, attacker );
 	}
 
+// JBravo: save client->ps so spectating wont zap it.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		for (i = 0 ; i < MAX_PERSISTANT ; i++) {
+			self->client->savedpersistant[i] = self->client->ps.persistant[i];
+		}
+	}
+
 #ifdef MISSIONPACK
 	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
 		self->client->ps.eFlags &= ~EF_TICKING;
@@ -923,7 +933,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
 	// JBravo: we dont want automatic respawning of players in teamplay
-	if (g_gametype.integer != GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		self->client->respawnTime = level.time + 400;
+	} else {
 		self->client->respawnTime = level.time + 1700;
 	}
 
@@ -980,16 +992,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	trap_LinkEntity (self);
-
-// JBravo: Save the dead players team status, and respawn his as a spectator.
-	if (g_gametype.integer == GT_TEAMPLAY) {
-		CopyToBodyQue (self);
-		self->client->weaponCount[self->client->ps.weapon] = 0;
-		self->client->ps.stats[STAT_WEAPONS] = 0;
-		self->client->sess.savedTeam = self->client->sess.sessionTeam;
-		self->client->sess.sessionTeam = TEAM_SPECTATOR;
-		ClientSpawn(self);
-	}
 }
 
 /*

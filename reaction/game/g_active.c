@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.44  2002/01/29 03:13:45  jbravo
 // Further fixes to antistick
 //
@@ -26,6 +29,9 @@
 //
 
 #include "g_local.h"
+// JBravo: need TP functions
+#include "g_teamplay.h"
+
 #ifdef  __ZCAM__
 #include "zcam.h"
 #endif /* __ZCAM__ */
@@ -472,6 +478,19 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
 		Cmd_FollowCycle_f( ent, 1 );
 	}
+
+/*	if (client->ps.pm_flags & PMF_JUMP_HELD) {
+		G_Printf("upmove is true!\n");
+		if (client->sess.spectatorState == SPECTATOR_FREE) {
+			client->sess.spectatorState = SPECTATOR_FOLLOW;
+			client->ps.pm_flags |= PMF_FOLLOW;
+			G_Printf("Setting specmode to follow!\n");
+		} else {
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+			G_Printf("Setting specmode to free!\n");
+		}
+	} */
 
 #ifdef  __ZCAM__
 	if ( client->sess.spectatorState == SPECTATOR_CAMERA_FLIC &&
@@ -1393,21 +1412,29 @@ void ClientThink_real( gentity_t *ent ) {
 	client->latched_buttons |= client->buttons & ~client->oldbuttons;
 
 	// check for respawning
-	// JBravo: we dont want to respawn players untill next round if teamplay.
-	if ( client->ps.stats[STAT_HEALTH] <= 0 && g_gametype.integer != GT_TEAMPLAY ) {
+	// JBravo: Lets make dead players into spectators.
+	if (client->ps.stats[STAT_HEALTH] <= 0) {
 		// wait for the attack button to be pressed
-		if ( level.time > client->respawnTime ) {
+		if (level.time > client->respawnTime) {
 			// forcerespawn is to prevent users from waiting out powerups
-			if ( g_forcerespawn.integer > 0 &&
-				( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 ) {
-				respawn( ent );
+			if (g_forcerespawn.integer > 0 &&
+				(level.time - client->respawnTime ) > g_forcerespawn.integer * 1000) {
+				if (g_gametype.integer == GT_TEAMPLAY) {
+					MakeSpectator(ent);
+				} else {
+					respawn( ent );
+				}
 				return;
 			}
 
 			// pressing attack or use is the normal respawn method
-			// JBravo: unless we are in Teamplay mode.
-			if ( (ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) && g_gametype.integer != GT_TEAMPLAY ) {
-				respawn( ent );
+			// JBravo: make'em spactate
+			if (ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) {
+				if (g_gametype.integer == GT_TEAMPLAY) {
+					MakeSpectator(ent);
+				} else {
+					respawn( ent );
+				}
 			}
 		}
 		return;
@@ -1472,6 +1499,7 @@ SpectatorClientEndFrame
 */
 void SpectatorClientEndFrame( gentity_t *ent ) {
 	gclient_t	*cl;
+	int		savedPing, savedScore;
 
 	// if we are doing a chase cam or a remote view, grab the latest info
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -1489,7 +1517,13 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 			cl = &level.clients[ clientNum ];
 			if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
 				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
+// JBravo: saving score and ping to fix the scoreboard
+				savedPing = ent->client->ps.ping;
+				savedScore = ent->client->ps.persistant[PERS_SCORE];
 				ent->client->ps = cl->ps;
+				ent->client->ps.ping = savedPing;
+//				ent->client->ps.persistant[PERS_SCORE] = savedScore;
+//				ent->client->ps.persistant[PERS_SCORE] = ent->client->savedpersistant[PERS_SCORE];
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				ent->client->ps.eFlags = flags;
 				return;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.3  2002/02/06 03:10:43  jbravo
+// Fix the instant spectate on death and an attempt to fix the scores
+//
 // Revision 1.2  2002/01/27 13:33:28  jbravo
 // Teamplay antistick system.
 //
@@ -35,3 +38,4 @@ void EquipPlayer (gentity_t *ent);
 void RQ3_Cmd_Choose_f(gentity_t *ent);
 void RQ3_Cmd_Drop_f( gentity_t *ent );
 void UnstickPlayer( gentity_t *ent );
+void MakeSpectator( gentity_t *ent );
