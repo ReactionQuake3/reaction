@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/10 08:17:08  niceass
+// many changes to scoreboard (deaths/second mode)
+//
 // Revision 1.47  2002/02/10 02:49:13  niceass
 // re-added zcam #define
 //
@@ -365,6 +368,7 @@ typedef struct localEntity_s {
 typedef struct {
 	int				client;
 	int				score;
+	int				deaths;		// NiceAss: Added deaths
 	int				ping;
 	int				time;
 	int				scoreFlags;
@@ -654,6 +658,7 @@ typedef struct {
 	qboolean	showScores;
 	qboolean	scoreBoardShowing;
 	int			scoreFadeTime;
+	int			scoreTPMode;
 	char		killerName[MAX_NAME_LENGTH];
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
 	int				spectatorLen;												// length of list

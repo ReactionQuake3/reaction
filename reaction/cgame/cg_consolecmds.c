@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/02/10 08:17:08  niceass
+// many changes to scoreboard (deaths/second mode)
+//
 // Revision 1.27  2002/02/09 00:10:12  jbravo
 // Fixed spectator follow and free and updated zcam to 1.04 and added the
 // missing zcam files.
@@ -222,7 +225,13 @@ static void CG_ScoresDown_f( void ) {
 #ifdef MISSIONPACK
 		CG_BuildSpectatorString();
 #endif
-	if ( cg.showScores == qfalse ) cg.scoreStartTime = cg.time;
+	if ( cg.time - cg.scoreFadeTime < 500 && !cg.showScores)
+		cg.scoreTPMode = (cg.scoreTPMode == 0) ? 1 : 0;			// Toggle
+	
+	if ( cg.time - cg.scoreFadeTime >= 500 && !cg.showScores)
+		cg.scoreTPMode = 0;
+
+	if ( !cg.showScores ) cg.scoreStartTime = cg.time;
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/02/10 08:17:08  niceass
+// many changes to scoreboard (deaths/second mode)
+//
 // Revision 1.15  2002/01/12 20:00:49  hal9000
 // Fixed a few more instances of strcmp(blah,NULL)
 //
@@ -87,8 +90,10 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 14 + 8 ) );
 		powerups = atoi( CG_Argv( i * 14 + 9 ) );
 		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
+		// Added deaths, replaced the place of impressiveCount
+		cg.scores[i].deaths = atoi(CG_Argv(i * 14 + 11));
 		//Elder: these should be zero
-		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
+		//cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
 		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
 		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
 		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));

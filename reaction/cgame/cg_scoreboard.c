@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/02/10 08:17:08  niceass
+// many changes to scoreboard (deaths/second mode)
+//
 // Revision 1.5  2002/02/04 00:23:05  niceass
 // New TP scoreboard
 //
@@ -71,7 +74,7 @@
 static qboolean localClient; // true if local client has been displayed
 
 // NiceAss:
-#define	SB_WIDTH				260  // 285
+#define	SB_WIDTH				280  // 285
 #define SB_START_HEIGHT			70
 #define SB_MIDDLE				(SCREEN_WIDTH/2)
 #define SB_LINE_WIDTH			1
@@ -234,6 +237,7 @@ static void CG_DrawTeamplayClientScore( int y, int x, score_t *score, float fade
 	clientInfo_t	*ci;
 	int iconx, headx;
 	float	hcolor[4];
+	int		size;
 
 	if ( score->client < 0 || score->client >= cgs.maxclients ) {
 		Com_Printf( "Bad score->client: %i\n", score->client );
@@ -242,7 +246,7 @@ static void CG_DrawTeamplayClientScore( int y, int x, score_t *score, float fade
 	
 	ci = &cgs.clientinfo[score->client];
 	
-	//CG_DrawSmallString( x, y, ci->name, fade );
+	// Name:
 	CG_DrawStringExt( x, y, ci->name, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 17);
 
 	if ( score->client == cg.snap->ps.clientNum ) {
@@ -250,14 +254,26 @@ static void CG_DrawTeamplayClientScore( int y, int x, score_t *score, float fade
 		CG_FillRect( x, y, SB_WIDTH-SB_PADDING*2, SMALLCHAR_HEIGHT, hcolor );
 	}
 
-	if (score->ping == -1)
-		Com_sprintf(string, sizeof(string),
-				"CONNECTING");
-	else
-		Com_sprintf(string, sizeof(string),
-				"%4i   %5i", score->ping, score->score);
+	if (cg.scoreTPMode) {
+		if (score->ping == -1)
+			Com_sprintf(string, sizeof(string),
+					"Connecting");
+		else
+			Com_sprintf(string, sizeof(string),
+					"%4i  %4i", score->ping, score->time);
+		size = 11;
+	}
+	else {
+		if (score->ping == -1)
+			Com_sprintf(string, sizeof(string),
+					"  Connecting");
+		else
+			Com_sprintf(string, sizeof(string),
+					"%5i  %6i", score->score, score->deaths);
+		size = 14;
+	}
 
-	CG_DrawSmallString( x+SB_WIDTH-(SMALLCHAR_WIDTH*13)-6, y, string, fade );
+	CG_DrawSmallString( x+SB_WIDTH-(SMALLCHAR_WIDTH*size)-6, y, string, fade );
 }
 
 
@@ -270,7 +286,7 @@ CG_TeamScoreboard -- By NiceAss
 static int CG_TeamplayScoreboard(int maxClients) 
 {
 	int		i, red, blue, spec;
-	float	color[4], Alpha;
+	float	color[4], Alpha, Alpha2;
 	score_t	*score;
 	clientInfo_t	*ci;
 	int		y;
@@ -279,6 +295,7 @@ static int CG_TeamplayScoreboard(int maxClients)
 
 	if (cg.time > cg.scoreStartTime+300) {
 		Alpha = (cos((cg.time-cg.scoreStartTime) / 400.0f) + 1.0f) * 0.25f + 0.5f;
+		Alpha2 = (cos((cg.time-cg.scoreStartTime) / 400.0f) + 1.0f) * 0.5f;
 	}
 	else {
 		Alpha = (float)(cg.time-cg.scoreStartTime)/(float)300;
@@ -300,7 +317,7 @@ static int CG_TeamplayScoreboard(int maxClients)
 	MAKERGBA(color, 1.0f, 0.5f, 0.5f, 0.7f * Alpha);
 	CG_FillRect(SB_MIDDLE - SB_WIDTH - 6, SB_START_HEIGHT, 
 				SB_WIDTH, SMALLCHAR_HEIGHT+(SB_PADDING*2), color);
-	MAKERGBA(color, 0.5f, 0.5f, 0.5f, 0.7f * Alpha);
+	MAKERGBA(color, 0.55f, 0.55f, 0.55f, 0.7f * Alpha);
 	CG_FillRect(SB_MIDDLE - SB_WIDTH - 6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*2), 
 				SB_WIDTH, SMALLCHAR_HEIGHT+(SB_PADDING*2), color);
 	MAKERGBA(color, 0.6f, 0.5f, 0.5f, 0.5f * Alpha);
@@ -314,23 +331,28 @@ static int CG_TeamplayScoreboard(int maxClients)
 			SB_WIDTH, (SMALLCHAR_HEIGHT+SB_PADDING*2), SB_LINE_WIDTH, color );
 
 	
-	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f * Alpha);
+	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f);
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_WIDTH+SB_PADDING-6, SB_START_HEIGHT+SB_PADDING,
 							"Team 1", color);
 
 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 0.8f);
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_WIDTH+SB_PADDING-6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
 							"Name", color);
-	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING-6-(SMALLCHAR_WIDTH*13), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
-							"Ping", color);
-	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING-6-(SMALLCHAR_WIDTH*6), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
-							"Frags", color);
+	if (cg.scoreTPMode) {
+		CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING-6-(SMALLCHAR_WIDTH*11), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
+								"Ping  Time", color);
+	}
+	else {
+		CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING-6-(SMALLCHAR_WIDTH*14), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
+								"Frags  Deaths", color);
+	}
+
 
 	// Blue:
 	MAKERGBA(color, 0.5f, 0.5f, 1.0f, 0.7f * Alpha);
 	CG_FillRect(SB_MIDDLE + 6, SB_START_HEIGHT, 
 				SB_WIDTH, SMALLCHAR_HEIGHT+(SB_PADDING*2), color);
-	MAKERGBA(color, 0.5f, 0.5f, 0.5f, 0.7f * Alpha);
+	MAKERGBA(color, 0.55f, 0.55f, 0.55f, 0.7f * Alpha);
 	CG_FillRect(SB_MIDDLE + 6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*2), 
 				SB_WIDTH, SMALLCHAR_HEIGHT+(SB_PADDING*2), color);
 	MAKERGBA(color, 0.5f, 0.5f, 0.6f, 0.5f * Alpha);
@@ -343,24 +365,27 @@ static int CG_TeamplayScoreboard(int maxClients)
 	CG_DrawCleanRect( SB_MIDDLE + 6, SB_START_HEIGHT + SMALLCHAR_HEIGHT+(SB_PADDING*2), 
 		SB_WIDTH, (SMALLCHAR_HEIGHT+SB_PADDING*2), SB_LINE_WIDTH, color );
 
-	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f * Alpha);
+	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f);
 	CG_DrawSmallStringColor(SB_MIDDLE+SB_PADDING+6, SB_START_HEIGHT+SB_PADDING,
 							"Team 2", color);
 
 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 0.8f);
 	CG_DrawSmallStringColor(SB_MIDDLE+SB_PADDING+6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
 							"Name", color);
-	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING+6+SB_WIDTH-(SMALLCHAR_WIDTH*13), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
-							"Ping", color);
-	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING+6+SB_WIDTH-(SMALLCHAR_WIDTH*6), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
-							"Frags", color);
+	if (cg.scoreTPMode) {
+		CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING+6+SB_WIDTH-(SMALLCHAR_WIDTH*11), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
+								"Ping  Time", color);
+	}
+	else {
+		CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING+6+SB_WIDTH-(SMALLCHAR_WIDTH*14), SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
+								"Frags  Deaths", color);
+	}
 
-
-	// Scores:
-	String = va("%d Won", cg.teamScores[0]);
+	String = va("Wins: %d ", cg.teamScores[0]);
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING-6-(SMALLCHAR_WIDTH*strlen(String)), 
 							SB_START_HEIGHT+SB_PADDING, String, color);
-	String = va("%d Won", cg.teamScores[1]);
+
+	String = va("Wins: %d ", cg.teamScores[1]);
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_PADDING+6+SB_WIDTH-(SMALLCHAR_WIDTH*strlen(String)), 
 							SB_START_HEIGHT+SB_PADDING, String, color);
 
