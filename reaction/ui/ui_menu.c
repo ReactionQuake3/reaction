@@ -510,6 +510,9 @@ void UI_MainMenu( void ) {
 	Menu_AddItem( &s_main.menu, ( void * )&s_main.rq3_exitbutton );
 	
 	Menu_AddItem( &s_main.menu, 	&s_main.rq3_statustext );
+	
+	// Start music
+	trap_Cmd_ExecuteText( EXEC_APPEND, "music music/rq3_title_intro music/rq3_title_loop\n" );
 
 	//Elder: Replaced by RQ3 Buttons above
 	//
