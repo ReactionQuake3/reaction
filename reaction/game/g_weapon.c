@@ -455,6 +455,10 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
 		tent->s.otherEntityNum = ent->s.number;
+	} else if ( tr.surfaceFlags & SURF_GLASS) {
+		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
+		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.otherEntityNum = ent->s.number;
 	} else {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -1231,7 +1235,10 @@ int RQ3_Spread (gentity_t *ent, int spread)
 	float xyspeed = (ent->client->ps.velocity[0]*ent->client->ps.velocity[0] + ent->client->ps.velocity[1]*ent->client->ps.velocity[1]);
 
 	//crouching
-	if (ent->client->ps.pm_flags & PMF_DUCKED)
+	//if (ent->client->ps.pm_flags & PMF_DUCKED)
+	// make sure player is actually on the ground
+	if (ent->client->ps.groundEntityNum != ENTITYNUM_NONE &&
+		ent->client->ps.pm_flags & PMF_DUCKED)
 		return (spread * 0.65);
 
 	//running
@@ -1256,7 +1263,6 @@ int RQ3_Spread (gentity_t *ent, int spread)
 		else
 			stage = 1;
 	}
-
 
 	return (int)(spread * factor[stage]);
 
@@ -1541,6 +1547,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 				if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
 					 (trace.surfaceFlags & SURF_METAL2) )
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
+				else if (trace.surfaceFlags & SURF_GLASS)
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
 				else
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
@@ -1602,6 +1610,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
 			 (trace.surfaceFlags & SURF_METAL2) )
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
+		else if (trace.surfaceFlags & SURF_GLASS)
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
 		else
 		{
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );

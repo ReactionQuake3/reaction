@@ -46,6 +46,63 @@ void SP_light( gentity_t *self ) {
 	G_FreeEntity( self );
 }
 
+/*QUAKED dlight (0 1 0) (-8 -8 -8) (8 8 8)
+Dynamic light entity.  Use sparingly.
+Q3 does not allow for manual light radius setup.
+Set the color key for the intended color
+"light" overrides the default 100 intensity.
+*/
+void SP_dlight( gentity_t *ent ) {
+	vec3_t	color;
+	float	light;
+	int		r, g, b, i;
+	int		style;
+
+	G_SpawnFloat( "light", "300", &light );
+	G_SpawnVector( "_color", "1 1 1", color );
+
+	// - set style bits in eventParm
+	if ( ent->spawnflags & 1 )
+		ent->s.eventParm |= DLIGHT_ADDITIVE;
+	if ( ent->spawnflags & 2 )
+		ent->s.eventParm |= DLIGHT_FLICKER;
+	if ( ent->spawnflags & 4 )
+		ent->s.eventParm |= DLIGHT_PULSE;
+	if ( ent->spawnflags & 8 )
+		ent->s.eventParm |= DLIGHT_STROBE;
+	
+	r = color[0] * 255;
+	if ( r > 255 ) {
+		r = 255;
+	}
+	g = color[1] * 255;
+	if ( g > 255 ) {
+		g = 255;
+	}
+	b = color[2] * 255;
+	if ( b > 255 ) {
+		b = 255;
+	}
+	i = light / 4;
+	if ( i > 255 ) {
+		i = 255;
+	}
+
+	ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+
+	ent->s.eType = ET_DLIGHT;
+	ent->classname = "dlight";
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorCopy( ent->s.origin, ent->r.currentOrigin);
+
+	trap_LinkEntity( ent );
+}
+
+// Nothing significant to do
+void G_RunDlight ( gentity_t *ent ) {
+	trap_LinkEntity( ent );
+}
+
 
 
 /*
@@ -444,6 +501,7 @@ void SP_func_breakable( gentity_t *ent ) {
     trap_LinkEntity (ent);
 }
 
+
 /*
 =================
 G_BreakGlass
@@ -513,8 +571,8 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
      			break;
 
      	}
-		G_Printf("(%f) (%f) (%f)\n", impactPoint[0], impactPoint[1], impactPoint[2]);
 		G_FreeEntity( ent );
+		G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
 		{
 			case 0:
@@ -530,10 +588,10 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 				G_Error("G_BreakGlass: shiftCount > 2\n");
 				break;
 		}
-
+		//G_Printf("eType: %i\n", tent->s.event & ~EV_EVENT_BITS);
      	//Elder: use TempEntity2 to stuff params
         //tent = G_TempEntity( center, EV_BREAK_GLASS );
- 	tent->s.eventParm = eParm;
+ 	//tent->s.eventParm = eParm;
  	}
 }
 

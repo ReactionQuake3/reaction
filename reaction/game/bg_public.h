@@ -66,6 +66,11 @@
 #define RQ3_DEBRIS_CONCRETE			0x00000400
 #define RQ3_DEBRIS_POPCAN			0x00000800
 
+// Elder: dynamic light switches
+#define DLIGHT_ADDITIVE		1
+#define DLIGHT_FLICKER		2
+#define DLIGHT_PULSE		4
+#define DLIGHT_STROBE		8
 
 //Old debris definitions
 //Elder: debris bit parms to pass to break_glass - maybe I should enum this?
@@ -136,10 +141,6 @@
 
 //Elder: confused?
 
-//Elder: used for STAT_KNIFE ... obsolete now
-//#define RQ3_KNIFE_SLASH			0
-//#define RQ3_KNIFE_THROW			1
-
 //Elder: from Action source, but changed defined names a bit
 #define RQ3_PISTOL_NAME 		"MK23 Pistol"
 #define RQ3_MP5_NAME 			"MP5/10 Submachinegun"
@@ -168,11 +169,6 @@ typedef enum {
 
 	RQ3_SOUND_TOTAL
 } rq3_sounds_t;
-
-//#define RQ3_SOUND_KICK			0
-//#define RQ3_SOUND_HEADSHOT		1
-//#define RQ3_SOUND_KNIFEDEATH	2
-//#define RQ3_SOUND_LCA			3 //lights, camera, action!
 
 //Elder: Weapon damage and spread stats
 #define PISTOL_DAMAGE 			90
@@ -498,9 +494,7 @@ typedef enum {
 #define RQ3_THROWWEAPON		32		// Present if dropping weapon via cmd or kicked away
 #define RQ3_FASTRELOADS		64		// Fast-reloads flag
 #define RQ3_LOCKRELOADS		128		// Lock-reloads at end of fast-reload cycle
-// Elder: reload status; 0 + 1 = stage 2
-//#define RQ3_RELOADSTAGE0	256
-//#define RQ3_RELOADSTAGE1	512
+#define RQ3_QUEUERELOAD		256		// auto-reload if set
 
 
 // player_state->persistant[] indexes
@@ -828,6 +822,7 @@ typedef enum {
 	EV_BULLET_HIT_WALL,
 	EV_BULLET_HIT_METAL,	// Elder: sparks
 	EV_BULLET_HIT_KEVLAR,	// Elder: sparks
+	EV_BULLET_HIT_GLASS,	// Elder: glass mark
 	EV_SSG3000_HIT_FLESH,
 	EV_JUMPKICK,			// Elder: sound + jumpkick message
 	EV_EJECTBLOOD,			// Elder: when bleeding, every 2s release blood
@@ -1159,6 +1154,7 @@ typedef enum {
 	ET_GRAPPLE,				// grapple hooked on wall
 	ET_TEAM,
 	ET_LASER,				// lasersight entity type
+	ET_DLIGHT,				// Elder: dynamic light entity
 
 	ET_EVENTS				// any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum

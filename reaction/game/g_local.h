@@ -723,6 +723,7 @@ void DropPortalDestination( gentity_t *ent );
 #endif
 
 void G_BreakGlass( gentity_t *ent, vec3_t point, int mod );//Blaze: Breakable glass
+void G_RunDlight ( gentity_t *ent );	// Elder: dlight running
 
 //
 // g_weapon.c
@@ -953,6 +954,8 @@ extern	vmCvar_t	g_proxMineTimeout;
 extern	vmCvar_t	g_rxn_knifelimit;
 extern	vmCvar_t	g_RQ3_maxWeapons;
 extern	vmCvar_t	g_RQ3_statLog;
+extern	vmCvar_t	g_RQ3_ejectBlood;
+extern	vmCvar_t	g_RQ3_respawnProtectTime;
 //Elder: spam protection cvars
 extern	vmCvar_t	g_RQ3_messageMaxCount;		// Max messages in interval
 extern	vmCvar_t	g_RQ3_messageInterval;		// Time interval for spam check

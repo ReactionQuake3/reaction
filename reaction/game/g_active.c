@@ -242,21 +242,31 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	if (waterlevel && 
 		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+		/*
 		if (ent->health > 0
 			&& ent->pain_debounce_time <= level.time	) {
-
+		*/
+		// Elder: changed around a bit -- using timestamp variable
+		if ( ent->health > 0 && level.time > ent->timestamp)
+		{
 			if ( envirosuit ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
+					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+						//30*waterlevel, 0, MOD_LAVA);
 					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						30*waterlevel, 0, MOD_LAVA);
+						3*waterlevel, 0, MOD_LAVA);
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
+					//G_Damage (ent, NULL, NULL, NULL, NULL, 
+						//10*waterlevel, 0, MOD_SLIME);
 					G_Damage (ent, NULL, NULL, NULL, NULL, 
-						10*waterlevel, 0, MOD_SLIME);
+						waterlevel, 0, MOD_SLIME);
 				}
+				// Elder: added
+				ent->timestamp = level.time + FRAMETIME;
 			}
 		}
 	}

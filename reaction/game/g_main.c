@@ -65,6 +65,8 @@ vmCvar_t	g_listEntity;
 vmCvar_t	g_rxn_knifelimit;
 vmCvar_t	g_RQ3_maxWeapons;
 vmCvar_t	g_RQ3_statLog;
+vmCvar_t	g_RQ3_ejectBlood;
+vmCvar_t	g_RQ3_respawnProtectTime;
 //Elder: spam protection cvars
 vmCvar_t	g_RQ3_messageMaxCount;
 vmCvar_t	g_RQ3_messageInterval;
@@ -171,14 +173,17 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Blaze: Reaction stuff
+	// Elder: these are explicit values set every time the game initializes
+	{ &g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART,0, qfalse},
 	{ &g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1",0,0, qtrue},
+	{ &g_RQ3_respawnProtectTime, "g_RQ3_respawnProtectTime", "2", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{ &g_RQ3_statLog, "sv_RQ3_statLog", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
-	{ &g_RQ3_messageMaxCount, "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER, CVAR_ARCHIVE, 0, qfalse },
-	{ &g_RQ3_messageInterval, "sv_RQ3_messageInterval", SAY_PERIOD_TIME, CVAR_ARCHIVE, 0, qfalse },
-	{ &g_RQ3_messageMaxWarnings, "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS, CVAR_ARCHIVE, 0, qfalse },
-	{ &g_RQ3_messageWarnTime, "sv_RQ3_messageWarnTime", SAY_WARNING_TIME, CVAR_ARCHIVE, 0, qfalse },
-	{ &g_RQ3_messageBanTime, "sv_RQ3_messageBanTime", SAY_BAN_TIME, CVAR_ARCHIVE, 0, qfalse },
-	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue}
+	{ &g_RQ3_messageMaxCount, "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER, 0, 0, qfalse },
+	{ &g_RQ3_messageInterval, "sv_RQ3_messageInterval", SAY_PERIOD_TIME, 0, 0, qfalse },
+	{ &g_RQ3_messageMaxWarnings, "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS, 0, 0, qfalse },
+	{ &g_RQ3_messageWarnTime, "sv_RQ3_messageWarnTime", SAY_WARNING_TIME, 0, 0, qfalse },
+	{ &g_RQ3_messageBanTime, "sv_RQ3_messageBanTime", SAY_BAN_TIME, 0, 0, qfalse },
+	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_SERVERINFO, 0, qtrue}
 
 };
 
@@ -1802,6 +1807,7 @@ start = trap_Milliseconds();
 		// clear events that are too old
 		if ( level.time - ent->eventTime > EVENT_VALID_MSEC ) {
 			if ( ent->s.event ) {
+				//G_Printf("Discarded: %i\n", ent->s.event & ~EV_EVENT_BITS);
 				ent->s.event = 0;	// &= EV_EVENT_BITS;
 				if ( ent->client ) {
 					ent->client->ps.externalEvent = 0;
@@ -1858,6 +1864,12 @@ start = trap_Milliseconds();
 
 		if ( ent->s.eType == ET_MOVER ) {
 			G_RunMover( ent );
+			continue;
+		}
+
+		// Elder: run dynamic lights
+		if ( ent->s.eType == ET_DLIGHT ) {
+			G_RunDlight( ent );
 			continue;
 		}
 

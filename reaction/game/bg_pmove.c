@@ -1257,9 +1257,11 @@ static void PM_CrashLand( void ) {
 */
 	//delta = vel + t * acc;
 	//Blaze: added to make it more like aq2
-	delta = pm->ps->velocity[2] - pml.previous_velocity[2];
+	//delta = pm->ps->velocity[2] - pml.previous_velocity[2];
+	// Elder: 300/320 factor included
+	delta = 0.9375f * (pm->ps->velocity[2] - pml.previous_velocity[2]);
 	delta = delta*delta * 0.0001;
-
+	
 	// ducking while falling doubles damage
 //	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 //		delta *= 2;
@@ -1319,19 +1321,23 @@ static void PM_CrashLand( void ) {
 	}
 	else if (delta > 20) 
 	{	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
-		{	PM_AddEvent( EV_FALL_SHORT_NOSOUND );
+		{	
+			PM_AddEvent( EV_FALL_SHORT_NOSOUND );
 			//Elder: added? useful? 
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
 		else
-		{	PM_AddEvent( EV_FALL_SHORT );
+		{	
+			PM_AddEvent( EV_FALL_SHORT );
 			//Elder: added? useful? 
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
 	}
 	else if (!(bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS))
 	{
-		PM_AddEvent( PM_FootstepForSurface() );
+		// Elder: don't spam sound events going up -- more like Q2 ladders as well
+		if (!pml.ladder || pm->ps->velocity[2] < 0)
+			PM_AddEvent( PM_FootstepForSurface() );
 		//Elder: added? useful? 
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
 	}
@@ -1463,7 +1469,9 @@ static void PM_GroundTrace( void ) {
 	}
 
 	// if the trace didn't hit anything, we are in free fall
-	if ( trace.fraction == 1.0 ) {
+	// Elder: added ladder check
+	if ( trace.fraction == 1.0 && !pml.ladder) {
+	//if ( trace.fraction == 1.0 ) {
 		PM_GroundTraceMissed();
 		pml.groundPlane = qfalse;
 		pml.walking = qfalse;
@@ -1491,7 +1499,8 @@ static void PM_GroundTrace( void ) {
 	}
 	
 	// slopes that are too steep will not be considered onground
-	if ( trace.plane.normal[2] < MIN_WALK_NORMAL ) {
+	// Elder: added ladder check
+	if ( trace.plane.normal[2] < MIN_WALK_NORMAL && !pml.ladder) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:steep\n", c_pmove);
 		}
@@ -1521,8 +1530,17 @@ static void PM_GroundTrace( void ) {
 		
 		PM_CrashLand();
 
+		// Elder: added ladder check
+		if (pml.ladder)
+		{
+			pml.groundPlane = qfalse;
+			pml.walking = qfalse;
+			return;
+		}
+
 		// don't do landing time if we were just going down a slope
 		if ( pml.previous_velocity[2] < -200 ) {
+			// Elder: maybe this is keeping the strafe jumping too tight?
 			// don't allow another jump for a little while
 			pm->ps->pm_flags |= PMF_TIME_LAND;
 			pm->ps->pm_time = 250;
@@ -1888,6 +1906,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
 	pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
 	pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
+	pm->ps->stats[STAT_RQ3] &= ~RQ3_QUEUERELOAD;
 
 	pm->ps->weaponstate = WEAPON_DROPPING;
 	
@@ -2033,10 +2052,10 @@ PM_WeaponAnimation
 ==============
 */
 static void PM_WeaponAnimation( void ) {
-	if (pm->ps->weaponstate == WEAPON_RELOADING)
-	{
-		PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
-	}
+	//if (pm->ps->weaponstate == WEAPON_RELOADING)
+	//{
+		//PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
+	//}
 	//else if (pm->ps->weaponstate == WEAPON_READY)
 		//PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 	//else if (pm->ps->weaponstate == WEAPON_DROPPING)
@@ -2065,6 +2084,7 @@ It is triggered by BUTTON_AFFIRMATIVE (bind +button5)
 static void PM_Reload( void )
 {
 	// int weapon = pm->ps->weapon;
+	int truePress = 0;
 
 	// only normal/noclip players can reload
 	if (pm->ps->pm_type > PM_NOCLIP)
@@ -2074,7 +2094,19 @@ static void PM_Reload( void )
 		pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
 		pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
 		pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
+		pm->ps->stats[STAT_RQ3] &= ~RQ3_QUEUERELOAD;
 		return;
+	}
+
+	// try to reload since it's queued
+	if ( pm->ps->stats[STAT_RQ3] & RQ3_QUEUERELOAD )
+	{
+		if ( (pm->cmd.buttons & BUTTON_AFFIRMATIVE) && !(pm->ps->pm_flags & PMF_RELOAD_HELD))
+			truePress = 1;
+
+		pm->ps->stats[STAT_RQ3] &= ~RQ3_QUEUERELOAD;
+		pm->ps->pm_flags &= ~PMF_RELOAD_HELD;
+		pm->cmd.buttons |= BUTTON_AFFIRMATIVE;
 	}
 
 	if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
@@ -2085,7 +2117,16 @@ static void PM_Reload( void )
 
 			// check for bursting or weapon delay
 			if (pm->ps->stats[STAT_BURST] > 0 || pm->ps->weaponTime > 0)
+			{
+				if (truePress && (pm->ps->weapon == WP_SSG3000 || pm->ps->weapon == WP_M3))
+				{
+					pm->ps->stats[STAT_RQ3] |= RQ3_FASTRELOADS;
+					pm->ps->stats[STAT_RELOADATTEMPTS]++;
+				}
+
+				pm->ps->stats[STAT_RQ3] |= RQ3_QUEUERELOAD;
 				return;
+			}
 
 			// check for bandaging
 			if (pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK)
@@ -2172,7 +2213,12 @@ static void PM_Reload( void )
 						break;
 				}
 
+				// start the animation off
+				if (pm->ps->weaponstate != WEAPON_RELOADING)
+					PM_StartWeaponAnim(WP_ANIM_RELOAD);
+
 				pm->ps->weaponstate = WEAPON_RELOADING;
+				
 				PM_AddEvent(EV_RELOAD_WEAPON0);
 				//Com_Printf("Starting reload\n");
 				return;
@@ -2270,8 +2316,11 @@ static void PM_Reload( void )
 					
 					
 					if (pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
-						PM_StartWeaponAnim(WP_ANIM_RELOAD);
-						//PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+					{
+						PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+						//PM_StartWeaponAnim(WP_ANIM_RELOAD);
+					}
+						
 					
 					if (pm->ps->stats[STAT_CLIPS] > 0)
 					{
@@ -2304,6 +2353,7 @@ static void PM_Reload( void )
 					// lock fast-reloads during finish delay
 					pm->ps->stats[STAT_RQ3] |= RQ3_LOCKRELOADS;
 					//Com_Printf("<<<<<<<<<<<<< Locking\n");
+					PM_StartWeaponAnim( WP_ANIM_EXTRA2 );
 				}
 
 				return;
@@ -3114,13 +3164,14 @@ void CheckLadder( void )
 		pml.ladder = qtrue;
 
 	// Elder: does this work?
+	/*
 	if (pml.ladder && pml.previous_ladder == qfalse)
 	{
 		if (pm->debugLevel)
 			Com_Printf("Hit ladder hard\n");
 		PM_CrashLand();
 	}
-
+	*/
 }
 
 
@@ -3291,7 +3342,8 @@ void PmoveSingle (pmove_t *pmove) {
 	} else if ( pm->waterlevel > 1 && !pml.ladder) { //Blaze: wtf, need to add a comment to make it a big enough change for cvs to notice
 		// swimming
 		PM_WaterMove();
-	} else if (pml.ladder) {	
+	// Elder: Added !(...) check below to prevent crouch spasms at bottom of ladders
+	} else if (pml.ladder && !(pm->ps->viewheight == CROUCH_VIEWHEIGHT && pm->ps->groundEntityNum != ENTITYNUM_NONE)) {	
 		PM_LadderMove();
 	} else if ( pml.walking ) {
 		// walking on ground

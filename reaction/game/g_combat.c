@@ -1332,6 +1332,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 #endif
+	// Elder: respawn protection -- only for gunfire though!
+	// No safety from falling!
+	if ( targ->client && inflictor &&
+		 level.time - targ->client->respawnTime < g_RQ3_respawnProtectTime.integer * 1000)
+		return;
 
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];

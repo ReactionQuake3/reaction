@@ -1333,6 +1333,7 @@ char *eventnames[] = {
 	"EV_BULLET_HIT_WALL",
 	"EV_BULLET_HIT_METAL",		// Elder: sparks
 	"EV_BULLET_HIT_KEVLAR",		// Elder: sparks
+	"EV_BULLET_HIT_GLASS",		// Elder: glass mark
 	"EV_SSG3000_HIT_FLESH",		// Elder: SSG3000 blood spray
 	"EV_JUMPKICK",				// Elder: sound + jumpkick message
 	"EV_EJECTBLOOD",			// Elder: when bleeding, every 2s release blood

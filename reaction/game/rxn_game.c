@@ -59,7 +59,7 @@ void CheckBleeding(gentity_t *targ)
 			targ->client->bleed_remain %= realBleedTime;
 		}
 
-		if (targ->client->bleed_delay <= level.time)
+		if (g_RQ3_ejectBlood.integer && targ->client->bleed_delay <= level.time)
 		{
 		  vec3_t bleedOrigin;
 		  
