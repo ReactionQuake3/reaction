@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/06/07 13:06:34  jbravo
+// Disabled all gametypes except FFA and TP
+//
 // Revision 1.64  2002/06/07 03:03:02  jbravo
 // More colorfixes
 //
@@ -615,6 +618,11 @@ void G_RegisterCvars( void ) {
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
 		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
 		trap_Cvar_Set( "g_gametype", "0" );
+	}
+// JBravo: lets disable the untested modes.
+	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY) {
+		G_Printf ("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n", g_gametype.integer);
+		trap_Cvar_Set ("g_gametype", "0");
 	}
 
 	level.warmupModificationCount = g_warmup.modificationCount;
