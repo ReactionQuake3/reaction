@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/27 06:57:16  niceass
+// reflection byte function for sparks
+//
 // Revision 1.7  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -765,7 +768,7 @@ void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
-
+int ReflectVectorByte(vec3_t dir, vec3_t plane);
 
 //=============================================
 

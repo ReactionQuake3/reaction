@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/05/27 06:55:02  niceass
+// reflection byte function for sparks
+//
 // Revision 1.5  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1298,4 +1301,13 @@ void PerpendicularVector( vec3_t dst, const vec3_t src )
 	VectorNormalize( dst );
 }
 
+// By NiceAss. Used for reflection of sparks on metal surfaces
+int ReflectVectorByte(vec3_t dir, vec3_t plane) {
+	vec3_t	final;
+	float	dot;
 
+	dot = DotProduct( dir, plane );
+	VectorMA( dir, -2*dot, plane, final );
+
+	return DirToByte(final);
+}
