@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/04/29 06:11:56  niceass
+// pressure stuff
+//
 // Revision 1.10  2002/04/23 06:07:23  niceass
 // pressure stuff
 //
@@ -844,7 +847,8 @@ void CG_AddPressureEntity ( localEntity_t *le ) {
 		//VectorMA(origin, 10, velocity, origin);
 
 		//CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, -8, 1 );
-		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, -8, 1 );
+		//CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 1, 1 );
+		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
 	}
 }
 
@@ -912,7 +916,7 @@ void CG_AddLocalEntities( void ) {
 			CG_AddScorePlum( le );
 			break;
 
-		case LE_PRESSURE_WATER:
+		case LE_PRESSURE:
 			CG_AddPressureEntity( le );
 
 #ifdef MISSIONPACK
