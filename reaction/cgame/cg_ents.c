@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/06/21 04:11:17  niceass
+// fog laser
+//
 // Revision 1.27  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1096,15 +1099,15 @@ static void CG_LaserSight(centity_t * cent)
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
 	if (cent->currentState.eventParm == 1) {
-		// NiceAss: Testing for foglasers... maybe i'll get this to work some day
-		//if (cent->currentState.eFlags & EF_FIRING) {
-		//      CG_LightningBolt( cent, cent->lerpOrigin );
-		//}
 		ent.reType = RT_SPRITE;
 		ent.radius = 3;
 		ent.rotation = 0;
 		ent.customShader = cgs.media.laserShader;
-		trap_R_AddRefEntityToScene(&ent);
+
+		// NiceAss: If the dot is in the fog, don't draw it unless it's your laser.
+		if ( !(trap_CM_PointContents(cent->lerpOrigin, 0) & CONTENTS_FOG) || 
+			cent->currentState.clientNum == cg.clientNum)
+			trap_R_AddRefEntityToScene(&ent);
 	} else {
 		trap_R_AddLightToScene(ent.origin, 200, 1, 1, 1);
 	}

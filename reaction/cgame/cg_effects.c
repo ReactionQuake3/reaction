@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/06/21 04:11:34  niceass
+// fog laser
+//
 // Revision 1.35  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1147,4 +1150,66 @@ void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed)
 	VectorCopy(dir, le->pos.trDelta);
 	le->startTime = cg.time;
 	le->endTime = le->startTime + 10000;
+}
+
+static void CG_VisibleLaser( vec3_t start, vec3_t finish ) {
+	refEntity_t re;
+
+//	re.shaderTime = cg.time / 1000.0f;
+	re.reType = RT_RAIL_CORE;
+	re.customShader = cgs.media.railCoreShader;
+
+	VectorCopy( start, re.origin );
+	VectorCopy( finish, re.oldorigin );
+	
+	re.shaderRGBA[0] = 255;
+	re.shaderRGBA[1] = 0;
+	re.shaderRGBA[2] = 0;
+	re.shaderRGBA[3] = 128;
+
+	AxisClear( re.axis );
+	
+	trap_R_AddRefEntityToScene( &re );
+}
+
+
+void CG_DrawVisibleLaser( vec3_t origin, int clientNum) {
+	int			num, sourceContentType, destContentType;
+	centity_t	*cent;
+	vec3_t		destination, start, end;
+	trace_t		trace;
+
+	for (num = 0; num < cg.snap->numEntities; num++) {
+		cent = &cg_entities[cg.snap->entities[num].number];
+		if (cent->currentState.eType == ET_LASER &&
+			cent->currentState.clientNum == clientNum ) {
+			VectorCopy(cent->lerpOrigin, destination);
+			break;
+		}
+	}
+
+	VectorCopy(origin, start);
+	VectorCopy(destination, end);
+
+	// Failed to find a laser dot that the player owns.
+	if (num == cg.snap->numEntities)
+		return;
+
+	sourceContentType = trap_CM_PointContents(start, 0);
+	destContentType = trap_CM_PointContents(end, 0);
+
+	// do a complete bubble trail if necessary
+	if ((sourceContentType == destContentType) && (sourceContentType & CONTENTS_FOG)) {
+		CG_VisibleLaser(start, end);
+	}
+	// bubble trail from water into air
+	else if ((sourceContentType & CONTENTS_FOG)) {
+		trap_CM_BoxTrace(&trace, end, start, NULL, NULL, 0, CONTENTS_FOG);
+		CG_VisibleLaser(start, trace.endpos);
+	}
+	// bubble trail from air into water
+	else if ((destContentType & CONTENTS_FOG)) {
+		trap_CM_BoxTrace(&trace, start, end, NULL, NULL, 0, CONTENTS_FOG);
+		CG_VisibleLaser(trace.endpos, end);
+	}
 }

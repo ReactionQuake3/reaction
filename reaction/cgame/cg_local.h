@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/06/21 04:10:59  niceass
+// fog laser
+//
 // Revision 1.97  2002/06/19 05:17:57  niceass
 // scoreboard stuff
 //
@@ -1902,6 +1905,7 @@ localEntity_t *CG_SmokePuff(const vec3_t p,
 void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
 void CG_SpawnEffect(vec3_t org);
 void CG_ScorePlum(int client, vec3_t org, int score);
+void CG_DrawVisibleLaser( vec3_t origin, int clientNum);
 
 //Blaze: for explosions
 void CG_Particle_Bleed(qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEntityNum, int duration);
