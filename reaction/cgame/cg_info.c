@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/28 03:10:50  jbravo
+// My fixups broke stuff
+//
 // Revision 1.23  2002/05/27 17:47:19  jbravo
 // Fixes and cleanups
 //
@@ -415,8 +418,7 @@ void CG_DrawInformation( void ) {
 		}
 
 		trap_R_SetColor(colorDkGrey);
-// JBravo: added = 0 to the bar on two lines
-		for (bar = 0; bar < 10; bar++) {
+		for (bar; bar < 10; bar++) {
 			CG_DrawPic(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, percentBox);
 		}
 	} else {
@@ -424,7 +426,7 @@ void CG_DrawInformation( void ) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
 		}
 
-		for (bar = 0; bar < 10; bar++) {
+		for (bar; bar < 10; bar++) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
 		}
 	}
