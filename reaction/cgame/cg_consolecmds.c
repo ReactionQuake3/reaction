@@ -115,6 +115,11 @@ static void CG_Reload_f (void) {
 		return;
 	}
 
+	//Elder: don't allow reloading until the weapon is free
+	//Don't cut-off here because we want to check for fast-reloads
+	//if (cg.snap->ps.weaponTime > 0)
+		//return;
+
 	//Elder: added to prevent bandaging while reloading
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You'll get to your weapon when you are finished bandaging!\n");

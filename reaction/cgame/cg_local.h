@@ -274,13 +274,14 @@ typedef struct {
 	int				scoreFlags;
 	int				powerUps;
 	int				accuracy;
+	//Elder: no more of these
 	int				impressiveCount;
 	int				excellentCount;
 	int				guantletCount;
 	int				defendCount;
 	int				assistCount;
 	int				captures;
-	qboolean	perfect;
+	qboolean		perfect;
 	int				team;
 } score_t;
 

@@ -56,7 +56,8 @@ static void CG_ParseScores( void ) {
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
-		//
+		//Elder: Leave as-is ... sent zeros by server
+		//CG_Printf("client: %d\n", cg.scores[i].client);
 		cg.scores[i].client = atoi( CG_Argv( i * 14 + 4 ) );
 		cg.scores[i].score = atoi( CG_Argv( i * 14 + 5 ) );
 		cg.scores[i].ping = atoi( CG_Argv( i * 14 + 6 ) );
@@ -64,6 +65,7 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 14 + 8 ) );
 		powerups = atoi( CG_Argv( i * 14 + 9 ) );
 		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
+		//Elder: these should be zero
 		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
 		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
 		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));

@@ -1596,6 +1596,11 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
+	//Elder: in the middle of firing, reloading or weapon-switching
+	if (cg.snap->ps.weaponTime > 0) {
+		return;
+	}
+
 	//Elder: added
 	//cg.zoomed = qfalse;
 	//cg.zoomLevel = 0;
@@ -1640,6 +1645,11 @@ void CG_PrevWeapon_f( void ) {
 	//Elder: added
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are too busy bandaging...\n");
+		return;
+	}
+
+	//Elder: in the middle of firing, reloading or weapon-switching
+	if (cg.snap->ps.weaponTime > 0) {
 		return;
 	}
 
@@ -2322,11 +2332,14 @@ Perform the same traces the server did to locate the
 hit splashes (FIXME: ranom seed isn't synce anymore)
 ================
 */
-static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum,qboolean ism3 ) {
+static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, int shotType ) {
 	int			i;
 	float		r, u;
 	vec3_t		end;
 	vec3_t		forward, right, up;
+
+	int			count;
+	int			hc_multipler;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information
@@ -2335,16 +2348,34 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum,qb
 	CrossProduct( forward, right, up );
 
 	// generate the "random" spread pattern
-	for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
-		if (ism3)
+
+	//Elder: added
+	if (shotType == WP_M3)
+		count = DEFAULT_M3_COUNT;
+	else if (shotType == WP_HANDCANNON) {
+		count = DEFAULT_HANDCANNON_COUNT;
+		hc_multipler = 4;
+	}
+	else {
+		count = DEFAULT_HANDCANNON_COUNT;
+		hc_multipler = 5;
+	}
+
+
+	for ( i = 0 ; i < count ; i++ ) {
+		if (shotType == WP_M3)
 		{
-			r = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
-			u = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
+			r = crandom() * DEFAULT_M3_HSPREAD * 16;
+			u = crandom() * DEFAULT_M3_VSPREAD * 16;
+			//r = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
+			//u = crandom() * DEFAULT_SHOTGUN_SPREAD * 16;
 		}
 		else
 		{
-			r = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
-			u = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
+			r = crandom() * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
+			u = crandom() * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
+//			r = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
+//			u = crandom() * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
 		}		VectorMA( origin, 8192 * 16, forward, end);
 		VectorMA (end, r, right, end);
 		VectorMA (end, u, up, end);
@@ -2376,15 +2407,16 @@ void CG_ShotgunFire( entityState_t *es, qboolean ism3) {
 			CG_SmokePuff( v, up, 32, 1, 1, 1, 0.33f, 900, cg.time, 0, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
 		}
 	}
+	//Elder: note param changes
 	if (ism3)	
 	{
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum,ism3);
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_M3);
 	}
 	else
 	{
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum,ism3);
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_HANDCANNON);
 		es->origin2[1] += 5;
-		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum,ism3);
+		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, -1 );
 	}
 }
 
