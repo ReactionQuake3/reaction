@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/05/12 16:10:19  jbravo
+// Added unignore
+//
 // Revision 1.88  2002/05/12 00:07:47  slicer
 // Added Normal Radio Flood Protection
 //
@@ -2020,8 +2023,43 @@ void Cmd_Ignore_f (gentity_t *self) {
 		trap_SendServerCommand(self-g_entities, va("print \"Usage: ignore <playername>.\n\""));
 		return;
 	}
+
 	trap_Argv(1, s, sizeof(s));
 	target = FindClientByPersName (s);
+	i = IsInIgnoreList (self, target);
+	if (i) {
+		trap_SendServerCommand(self-g_entities, va("print \"%s is already on your ignorelist.\n\"", s));
+		return;
+	}
+	if (target && target != self) {
+		if (level.framenum > (self->client->sess.ignore_time + 50))
+			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+		else {
+			trap_SendServerCommand(self-g_entities, va("print \"Wait 5 seconds before ignoring again.\n\""));
+			return;
+		}
+	} else
+		trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+}
+
+void Cmd_Unignore_f (gentity_t *self) {
+	gentity_t	*target;
+	char		s[128];
+	int		i;
+
+	i = trap_Argc ();
+	if (i < 2) {
+		trap_SendServerCommand(self-g_entities, va("print \"Usage: unignore <playername>.\n\""));
+		return;
+	}
+
+	trap_Argv(1, s, sizeof(s));
+	target = FindClientByPersName (s);
+	i = IsInIgnoreList (self, target);
+	if (!i) {
+		trap_SendServerCommand(self-g_entities, va("print \"%s is not on your ignore list..\n\"", s));
+		return;
+	}
 	if (target && target != self) {
 		if (level.framenum > (self->client->sess.ignore_time + 50))
 			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);

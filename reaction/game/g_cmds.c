@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/05/12 16:10:19  jbravo
+// Added unignore
+//
 // Revision 1.108  2002/05/12 12:15:05  slicer
 // Added Referee command for captains
 //
@@ -2944,6 +2947,8 @@ void ClientCommand( int clientNum ) {
 		Cmd_Ignorenum_f (ent);
 	else if (Q_stricmp (cmd, "ignore") == 0)
 		Cmd_Ignore_f (ent);
+	else if (Q_stricmp (cmd, "unignore") == 0)
+		Cmd_Unignore_f (ent);
 	else if (Q_stricmp (cmd, "clearignorelist") == 0)
 		Cmd_Ignoreclear_f (ent);
 // JBravo: adding tkok

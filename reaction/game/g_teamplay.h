@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/05/12 16:10:19  jbravo
+// Added unignore
+//
 // Revision 1.15  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -95,6 +98,7 @@ void RQ3_Cmd_Stuff(void);
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
 void setFFState(gentity_t *ent);
 void Cmd_Ignore_f(gentity_t *ent);
+void Cmd_Unignore_f(gentity_t *ent);
 void Cmd_Ignorenum_f(gentity_t *ent);
 void Cmd_Ignoreclear_f(gentity_t *ent);
 int  IsInIgnoreList(gentity_t *source, gentity_t *subject);

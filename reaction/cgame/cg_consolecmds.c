@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/05/12 16:10:19  jbravo
+// Added unignore
+//
 // Revision 1.47  2002/05/12 12:14:14  slicer
 // Added Referee command for captains
 //
@@ -991,6 +994,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("tkok");
 // JBravo: ignore
 	trap_AddCommand ("ignore");
+	trap_AddCommand ("unignore");
 	trap_AddCommand ("ignorenum");
 	trap_AddCommand ("clearignorelist");
 // Slicer: Matchmode
