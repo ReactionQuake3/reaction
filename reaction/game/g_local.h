@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.39  2002/01/31 23:51:18  slicer
+// Revision 1.40  2002/02/01 01:00:36  slicer
 // Adding Matchmode: just a few basics and files...
 //
 // Revision 1.38  2002/01/31 02:55:58  blaze
@@ -295,6 +295,7 @@ typedef struct {
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
+	//Slicer
 	team_t		sessionTeam;
 	team_t			savedTeam;		// JBravo: Used to hold the real team status of a player.
 	int			spectatorTime;		// for determining next-in-line to play
@@ -313,6 +314,9 @@ typedef struct {
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
+	//Slicer: Matchmode
+	team_t		captain;
+	team_t		sub;
 	clientConnected_t	connected;
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/02/01 01:00:36  slicer
+// Adding Matchmode: just a few basics and files...
+//
 // Revision 1.27  2002/01/27 13:33:28  jbravo
 // Teamplay antistick system.
 //
@@ -1124,6 +1127,11 @@ void ClientBegin( int clientNum ) {
 	ent->pain = 0;
 	ent->client = client;
 
+	//Slicer : Reseting matchmode vars
+	//Note: Each time a player changes team, this will also be called..
+	client->pers.captain = TEAM_FREE;
+	client->pers.sub = TEAM_FREE;
+
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
 	client->pers.teamState.state = TEAM_BEGIN;
@@ -1136,7 +1144,6 @@ void ClientBegin( int clientNum ) {
 	flags = client->ps.eFlags;
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
-
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
