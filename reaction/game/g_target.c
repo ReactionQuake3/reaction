@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2003/08/26 19:28:38  makro
+// target_speakers
+//
 // Revision 1.12  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -198,7 +201,7 @@ void SP_target_print(gentity_t * ent)
 
 //==========================================================
 
-/*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator
+/*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator nopvs
 "noise"		wav file to play
 
 A global sound will play full volume throughout the level.
@@ -257,6 +260,11 @@ void SP_target_speaker(gentity_t * ent)
 	ent->s.eventParm = ent->noise_index;
 	ent->s.frame = ent->wait * 10;
 	ent->s.clientNum = ent->random * 10;
+	//Makro - added
+	if ((ent->spawnflags & 3) && (ent->spawnflags & 16))
+		ent->s.weapon = 1;
+	else
+		ent->s.weapon = 0;
 
 	// check for prestarted looping sound
 	if (ent->spawnflags & 1) {

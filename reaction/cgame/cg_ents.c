@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2003/08/26 19:28:37  makro
+// target_speakers
+//
 // Revision 1.44  2003/08/10 20:13:26  makro
 // no message
 //
@@ -265,14 +268,15 @@ static void CG_EntityEffects(centity_t * cent)
 
 	// add loop sound
 	if (cent->currentState.loopSound) {
-		//Makro - maybe this will help with the speakers ?
-		//if (cent->currentState.eType != ET_SPEAKER) {
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
+		//Makro - for speakers, s.weapon == 1 => no PVS check
+		if (cent->currentState.eType != ET_SPEAKER || cent->currentState.weapon == 0) {
+			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				       cgs.gameSounds[cent->currentState.loopSound]);
-		//} else {
-		//      trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
-		//              cgs.gameSounds[ cent->currentState.loopSound ] );
-		//}
+		} else {
+		    //Makro - note: doesn't take into account PVS info
+			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+		              cgs.gameSounds[ cent->currentState.loopSound ] );
+		}
 	}
 
 	// constant light glow
