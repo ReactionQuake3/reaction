@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.52  2002/05/05 04:23:00  jbravo
 // Some MM fixes and cleanups
 //
@@ -564,8 +567,6 @@ void G_RegisterCvars( void ) {
 	if (remapped) {
 		G_RemapTeamShaders();
 	}
-
-	G_Printf("Testing\n");
 	// check some things
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
 		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.78  2002/05/05 04:23:00  jbravo
 // Some MM fixes and cleanups
 //
@@ -671,7 +674,7 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 			continue;
 		}
 		//Slicer: Matchmode - Subs don't count
-		if (g_RQ3_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
+		if (g_RQ3_matchmode.integer && level.clients[i].sess.sub != TEAM_FREE)
 			continue;
 		if (level.clients[i].sess.savedTeam == team) {
 			count++;
@@ -731,7 +734,7 @@ void SpawnPlayers()
 			continue;
 		//Slicer: Matchmode - Subs don't spawn
 
-		if (g_RQ3_matchmode.integer && player->client->pers.sub != TEAM_FREE)
+		if (g_RQ3_matchmode.integer && player->client->sess.sub != TEAM_FREE)
 			continue;
 // JBravo: lets not respawn spectators in free floating mode
 		if (player->client->sess.savedTeam == TEAM_SPECTATOR &&

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.75  2002/05/05 04:23:00  jbravo
 // Some MM fixes and cleanups
 //
@@ -378,6 +381,9 @@ typedef struct {
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
+	//Slicer Matchmode
+	team_t			captain;
+	team_t			sub;
 	team_t			sessionTeam;
 	team_t			savedTeam;		// JBravo: Used to hold the real team status of a player.
 	int			spectatorTime;		// for determining next-in-line to play
@@ -396,9 +402,6 @@ typedef struct {
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
-	//Slicer: Matchmode
-	team_t			captain;
-	team_t			sub;
 	clientConnected_t	connected;
 	// aasimon: No Need for this here, using a cvar to record the clientnumber of referee, so that map_restarts dont change 
 	// the referee

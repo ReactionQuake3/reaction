@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.13  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -71,7 +74,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		//Reset teams on map changes / map_restarts, except on matchmode
 		client->sess.savedTeam = TEAM_SPECTATOR;	
 	}
-	s = va("%i %i %i %i %i %i %i %i", 
+	s = va("%i %i %i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorTime,
 		client->sess.spectatorState,
@@ -80,7 +83,10 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		client->sess.losses,
 		client->sess.teamLeader,
 		//Adding saved Team
-		client->sess.savedTeam
+		client->sess.savedTeam,
+		client->sess.captain,
+		client->sess.sub
+		//Captain and sub
 		);
 
 
@@ -108,11 +114,13 @@ void G_ReadSessionData( gclient_t *client ) {
 	int sessionTeam;
 	//Slicer
 	int savedTeam;
+	int captain;
+	int sub;
 
 	var = va( "session%i", client - level.clients );
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 //Slicer: Reading savedTeam also.
-	sscanf( s, "%i %i %i %i %i %i %i %i",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i",
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorTime,
 		&spectatorState,              // bk010221 - format
@@ -120,7 +128,9 @@ void G_ReadSessionData( gclient_t *client ) {
 		&client->sess.wins,
 		&client->sess.losses,
 		&teamLeader,                   // bk010221 - format
-		&savedTeam
+		&savedTeam,
+		&captain,
+		&sub
 		);
 
 	// bk001205 - format issues
@@ -129,6 +139,8 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.teamLeader = (qboolean)teamLeader;
 	
 	client->sess.savedTeam = (team_t)savedTeam;
+	client->sess.captain = (team_t)captain;
+	client->sess.sub = (team_t)sub;
 
 	camera_state_load (client);
 }
@@ -150,6 +162,11 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	//Slicer: init savedTeam also
 
 	sess->savedTeam = TEAM_SPECTATOR;
+
+	//Slicer: init Matchmode stuff
+
+	sess->captain = TEAM_FREE;
+	sess->sub = TEAM_FREE;
 
 // JBravo: adding PERS_SAVEDTEAM
 	client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;

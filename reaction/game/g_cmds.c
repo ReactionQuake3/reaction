@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.102  2002/05/04 16:19:02  jbravo
 // Fixing the stuff cmd to work on dedicated servers.
 //
@@ -902,18 +905,18 @@ void SetTeam( gentity_t *ent, char *s )
 	//Slicer : Matchmode - If a captain changes team , that team is no longer ready
 	if(g_RQ3_matchmode.integer) {
 	//	client->sess.savedTeam = team;
-			switch(ent->client->pers.captain) {
+			switch(ent->client->sess.captain) {
 				case TEAM_RED:
 					trap_Cvar_Set("g_RQ3_team1ready", "0");
-					ent->client->pers.captain = TEAM_FREE;
 					break;
 				case TEAM_BLUE:
 					trap_Cvar_Set("g_RQ3_team2ready", "0");
-					ent->client->pers.captain = TEAM_FREE;
 					break;
 				default:
 					break;
 		}
+		ent->client->sess.captain = TEAM_FREE;
+		ent->client->sess.sub = TEAM_FREE;
 	}
 
 	// they go to the end of the line for tournements

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/05 15:51:16  slicer
+// Captain and subs get saved on map_restarts ( moved to "sess" )
+//
 // Revision 1.71  2002/05/03 18:09:20  makro
 // Bot stuff. Jump kicks
 //
@@ -1331,10 +1334,10 @@ void ClientBegin(int clientNum) {
 
 	//Slicer : Reseting matchmode vars
 	//Note: Each time a player changes team, this will also be called..
-	if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
-		client->pers.captain = TEAM_FREE;
-		client->pers.sub = TEAM_FREE;
-	}
+	//if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
+	//	client->sess.captain = TEAM_FREE;
+	//	client->sess.sub = TEAM_FREE;
+	//}
 
 	//Slicer: Saving persistant and ping
 	if (g_gametype.integer == GT_TEAMPLAY) {
@@ -1790,7 +1793,7 @@ void ClientDisconnect( int clientNum ) {
 
 	//Slicer: matchmode
 	if(g_RQ3_matchmode.integer) {
-		switch(ent->client->pers.captain ) {
+		switch(ent->client->sess.captain ) {
 				case TEAM_RED:
 					trap_Cvar_Set("g_RQ3_team1ready", "0");
 					break;
