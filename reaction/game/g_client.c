@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/11/13 00:50:38  jbravo
+// Fixed item dropping, specmode selection on death and helmet probs.
+//
 // Revision 1.121  2002/10/29 01:34:52  jbravo
 // Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 //
@@ -1536,6 +1539,7 @@ void ClientSpawn(gentity_t * ent)
 	// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
+
 	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
 		if (g_gametype.integer == GT_CTF &&
 		    (client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE)) {
@@ -1567,8 +1571,7 @@ void ClientSpawn(gentity_t * ent)
 		spawnPoint = SelectCTFSpawnPoint(client->sess.sessionTeam,
 						 client->pers.teamState.state, spawn_origin, spawn_angles);
 // JBravo: If we are in Teamplay mode, use the teamspawnpoints.
-	} else if (g_gametype.integer == GT_TEAMPLAY) {
-
+	} else if (g_gametype.integer == GT_TEAMPLAY || (g_gametype.integer == GT_TEAM && client->sess.teamSpawn)) {
 		// Freud: Assign the spawns from the spawning system (g_teamplay.c)
 		level.team1spawnpoint = level.teamplay_spawns[0];
 		level.team2spawnpoint = level.teamplay_spawns[1];
@@ -1865,7 +1868,12 @@ void ClientSpawn(gentity_t * ent)
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SILENCER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_BANDOLIER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SLIPPERS);
-		ent->client->uniqueItems = 5;
+		if (g_RQ3_haveHelmet.integer) {
+			ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_HELMET);
+			ent->client->uniqueItems = 6;
+		} else {
+			ent->client->uniqueItems = 5;
+		}
 	}
 
 // JBravo: lock the player down

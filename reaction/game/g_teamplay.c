@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.145  2002/11/13 00:50:38  jbravo
+// Fixed item dropping, specmode selection on death and helmet probs.
+//
 // Revision 1.144  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -637,15 +640,27 @@ void CheckTeamRules()
 
 void StartLCA()
 {
+	int i;
+	gentity_t *player;
+
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41 * level.fps) / 10;
 	G_LogPrintf("LIGHTS...\n");
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_TEAM) {
 		SpawnPlayers();
-	} else {
+	} else if (g_gametype.integer == GT_CTF) {
 		RQ3_Respawn_CTB_players(TEAM_RED);
 		RQ3_Respawn_CTB_players(TEAM_BLUE);
+		if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer ) {
+			for (i = 0; i < level.maxclients; i++) {
+				player = &g_entities[i];
+				if (!player->inuse || !player->client)
+					continue;
+				if (player->client->sess.sub != TEAM_FREE)
+					Cmd_FollowCycle_f(player, 1);
+			}
+		}
 	}
 	level.lights_delay = 4;
 }
@@ -1345,6 +1360,10 @@ void RQ3_Respawn_CTB_players(int team)
 		ent = &g_entities[i];
 		if (!ent->inuse || !ent->client)
 			continue;
+		if (g_RQ3_matchmode.integer && ent->client->sess.sub != TEAM_FREE)
+			continue;
+		if (ent->client->sess.savedTeam == TEAM_SPECTATOR && ent->client->specMode == SPECTATOR_FREE)
+			continue;
 		if (ent->client->sess.savedTeam == team && (ent->client->sess.spectatorState == SPECTATOR_FREE ||
 							    level.lights_camera_action)) {
 			ent->client->weaponCount[ent->client->ps.weapon] = ent->client->savedPSweapon;
@@ -1353,6 +1372,9 @@ void RQ3_Respawn_CTB_players(int team)
 			ent->client->ps.persistant[PERS_TEAM] = team;
 			ent->client->sess.spectatorState = SPECTATOR_NOT;
 			ent->client->specMode = SPECTATOR_NOT;
+			ent->client->idletime = 0;
+			ResetKills(ent);
+			ent->client->last_damaged_players[0] = '\0';
 			ClientSpawn(ent);
 		}
 	}
@@ -1365,12 +1387,13 @@ void MakeSpectator(gentity_t * ent)
 	int i;
 
 	client = ent->client;
+
 	if (g_gametype.integer == GT_TEAMPLAY && client->sess.sessionTeam == TEAM_SPECTATOR)
 		return;
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue(ent);
 
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer >= GT_TEAM) {
 		for (i = 0; i < level.maxclients; i++) {
 			follower = &g_entities[i];
 			if (!follower->inuse || !follower->client)
@@ -1384,6 +1407,7 @@ void MakeSpectator(gentity_t * ent)
 				Cmd_FollowCycle_f(follower, 1);
 		}
 	}
+
 	if (g_gametype.integer == GT_CTF) {
 		client->savedPSweapon = client->weaponCount[ent->client->ps.weapon];
 		client->savedSTAT = client->ps.stats[STAT_WEAPONS];
@@ -1445,13 +1469,46 @@ void MakeSpectator(gentity_t * ent)
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 		}
 	} else {
-		if (OKtoFollow(ent - g_entities)) {
-			client->sess.spectatorState = client->specMode;
-		} else {
+		if (client->specMode == SPECTATOR_NOT) {
 			client->ps.pm_flags &= ~PMF_FOLLOW;
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 			client->sess.spectatorState = SPECTATOR_FREE;
-			StopFollowing(ent);
+			client->specMode = SPECTATOR_FREE;
+		}
+		if (client->specMode == SPECTATOR_FOLLOW) {
+			if (OKtoFollow(ent - g_entities)) {
+				client->sess.spectatorState = SPECTATOR_FOLLOW;
+				client->ps.pm_flags |= PMF_FOLLOW;
+				client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+				ClientSpawn(ent);
+				Cmd_FollowCycle_f(ent, 1);
+				return;
+			} else {
+				client->sess.spectatorState = SPECTATOR_FREE;
+				client->ps.pm_flags &= ~PMF_FOLLOW;
+				client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			}
+		} 
+		if (client->specMode == SPECTATOR_ZCAM) {
+			if (OKtoFollow(ent - g_entities)) {
+				client->sess.spectatorState = SPECTATOR_ZCAM;
+				client->ps.pm_flags &= ~PMF_FOLLOW;
+				client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
+				ClientSpawn(ent);
+				if (client->camera->mode == CAMERA_MODE_SWING) {
+					CameraSwingCycle (ent, 1);
+				} else if (client->camera->mode == CAMERA_MODE_FLIC) {
+					CameraFlicBegin (ent);
+				} else {
+					client->camera->mode = CAMERA_MODE_SWING;
+					CameraSwingCycle (ent, 1);
+				}
+				return;
+			} else {
+				client->sess.spectatorState = SPECTATOR_FREE;
+				client->ps.pm_flags &= ~PMF_FOLLOW;
+				client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			}
 		}
 	}
 	ClientSpawn(ent);
@@ -1481,10 +1538,6 @@ qboolean OKtoFollow(int clientnum)
 			continue;
 		}
 
-		x++;
-	};
-	
-	if (x > 0) {
 		return qtrue;
 	}
 	return qfalse;

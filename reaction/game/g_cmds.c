@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.176  2002/11/13 00:50:38  jbravo
+// Fixed item dropping, specmode selection on death and helmet probs.
+//
 // Revision 1.175  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -1085,7 +1088,7 @@ void SetTeam(gentity_t * ent, char *s)
 	// execute the team change
 	//
 	//sLiCeR: Matchmode referee hear all protection
-	if(g_gametype.integer == GT_TEAMPLAY && (oldTeam == TEAM_FREE || oldTeam == TEAM_SPECTATOR) && (team == TEAM_RED || team == TEAM_BLUE))
+	if(g_gametype.integer >= GT_TEAM && (oldTeam == TEAM_FREE || oldTeam == TEAM_SPECTATOR) && (team == TEAM_RED || team == TEAM_BLUE))
 		ent->client->sess.refHear = qfalse;
 
 	// if the player was dead leave the body
@@ -1167,8 +1170,16 @@ void SetTeam(gentity_t * ent, char *s)
 		ClientUserinfoChanged(clientNum);
 		ClientBegin(clientNum);
 	}
-	if (g_gametype.integer == GT_CTF)
+	if (g_gametype.integer == GT_CTF || (g_gametype.integer == GT_TEAM && client->sess.savedTeam == TEAM_SPECTATOR))
 		MakeSpectator (ent);
+// JBravo: If the game is in progress, lets spawn players joining.
+	if (g_gametype.integer == GT_TEAM && level.team_round_going &&
+			(client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE)) {
+		client->ps.persistant[PERS_SAVEDTEAM] = client->sess.savedTeam;
+		client->ps.persistant[PERS_TEAM] = client->sess.savedTeam;
+		client->sess.sessionTeam = client->sess.savedTeam;
+		respawn (ent);
+	}
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/11/13 00:50:38  jbravo
+// Fixed item dropping, specmode selection on death and helmet probs.
+//
 // Revision 1.94  2002/10/30 21:24:47  jbravo
 // Minor helmet tweaking
 //
@@ -974,6 +977,7 @@ void ThrowItem(gentity_t * ent)
 				xr_drop->count = -1;
 				client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << client->teamplayItem);
 				client->uniqueItems--;
+				return;
 			}
 		}
 		if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
@@ -982,18 +986,21 @@ void ThrowItem(gentity_t * ent)
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_BANDOLIER);
 			client->uniqueItems--;
+			return;
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS)) {
 			xr_item = BG_FindItemForHoldable(HI_SLIPPERS);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_SLIPPERS);
 			client->uniqueItems--;
+			return;
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER)) {
 			xr_item = BG_FindItemForHoldable(HI_SILENCER);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_SILENCER);
 			client->uniqueItems--;
+			return;
 		// JBravo: adding the helmet :)
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) {
 			xr_item = BG_FindItemForHoldable(HI_HELMET);
@@ -1001,18 +1008,21 @@ void ThrowItem(gentity_t * ent)
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_HELMET);
 			client->uniqueItems--;
+			return;
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) {
 			xr_item = BG_FindItemForHoldable(HI_LASER);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_LASER);
 			client->uniqueItems--;
+			return;
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR)) {
 			xr_item = BG_FindItemForHoldable(HI_KEVLAR);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_KEVLAR);
 			client->uniqueItems--;
+			return;
 		}
 	}
 }
@@ -1172,11 +1182,11 @@ void ClientThink_real(gentity_t * ent)
 	}
 
 // JBravo: fixing telefragging and shit during spawnig.  (Thanks NiceAss! :)
-	if (g_gametype.integer == GT_TEAMPLAY &&
+	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_TEAM) &&
 	    ((ent->client->ps.stats[STAT_RQ3] & RQ3_PLAYERSOLID) != RQ3_PLAYERSOLID) && !level.lights_camera_action) {
 		UnstickPlayer(ent);
 	}
-	if (g_gametype.integer == GT_TEAMPLAY &&
+	if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_TEAM) &&
 	    ((ent->client->ps.stats[STAT_RQ3] & RQ3_PLAYERSOLID) != RQ3_PLAYERSOLID)) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
