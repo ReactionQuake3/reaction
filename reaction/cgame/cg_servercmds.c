@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/01/12 20:00:49  hal9000
+// Fixed a few more instances of strcmp(blah,NULL)
+//
 // Revision 1.14  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1104,7 +1107,7 @@ static void CG_ServerCommand( void ) {
 		//CG_Printf("1) %s %f %f\n", param, lowend, highend);
 		for (i=0;i<30; i++)
 		{
-			if (!strcmp(cheats[i].cvar, NULL))
+			if (!strcmp(cheats[i].cvar, ""))
 			{
 				Q_strncpyz( cheats[i].cvar, param, 40 );
 				cheats[i].high = highend;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/01/12 20:00:49  hal9000
+// Fixed a few more instances of strcmp(blah,NULL)
+//
 // Revision 1.16  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1244,7 +1247,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		//Blaze: Check for invalid video settings.
 		for(i=0;i<30;i++)
 		{
-			if (strcmp(cheats[i].cvar, NULL)!=0)
+			if (strcmp(cheats[i].cvar, "")!=0)
 			{
 				cvar_val = CG_Cvar_Get(cheats[i].cvar);
 				//CG_Printf("%s is set to %f\n",cheats[i].cvar, cvar_val);
