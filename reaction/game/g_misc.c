@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/05/21 14:19:26  makro
+// Printf's for misc_portal_surface setup errors
+//
 // Revision 1.41  2002/05/21 04:21:48  blaze
 // changed buoyancy to lift as per Sze
 //
@@ -357,9 +360,11 @@ void SP_misc_portal_surface(gentity_t *ent) {
 	//count - max pos
 	if (ent->spawnflags & 1) {
 		if (!G_SpawnInt("count", "0", &ent->count)) {
+			G_Printf("Cycling misc_portal_surface with no count at %s\n", vtos(ent->s.origin));
 			ent->spawnflags--;
 		} else {
 			if (ent->count < 2) {
+				G_Printf("Cycling misc_portal_surface with no count at %s\n", vtos(ent->s.origin));
 				ent->spawnflags--;
 			} else {
 				ent->size = 0;
