@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/05/15 12:46:32  makro
+// Small func_static change.Give ammo should now give grenades/knives
+//
 // Revision 1.110  2002/05/12 19:15:47  jbravo
 // Added playerlist, did some cleanup on votes.
 //
@@ -538,6 +541,8 @@ void Cmd_Give_f (gentity_t *ent)
 			//Makro - I want clips, dammit !
 			Add_Ammo(ent, i, 100, 1);
 		}
+		//Makro - added grenade + knife
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
 		if (!give_all)
 			return;
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/05/15 12:46:32  makro
+// Small func_static change.Give ammo should now give grenades/knives
+//
 // Revision 1.29  2002/05/13 04:41:26  makro
 // Bug with doors (mine !)
 //
@@ -2194,18 +2197,9 @@ void SP_func_static( gentity_t *ent ) {
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 	//Makro - added
-	if ( ent->spawnflags & 1 ) {
-		ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = CONTENTS_TRIGGER;
-		ent->r.svFlags |= SVF_NOCLIENT;
-		ent->count = 0;
-	} else {
-		ent->s.eFlags &= ~EF_NODRAW;
-		ent->r.contents = CONTENTS_SOLID;
-		ent->r.svFlags &= ~SVF_NOCLIENT;
-		ent->count = 1;
-	}
+	ent->count = (ent->spawnflags & 1);
 	ent->use = use_func_static;
+	ent->use(ent, NULL, NULL);
 	//end Makro
 }
 
