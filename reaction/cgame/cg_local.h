@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/06/21 21:05:57  niceass
+// laserfog stuff & removed unused cvar
+//
 // Revision 1.98  2002/06/21 04:10:59  niceass
 // fog laser
 //
@@ -1539,7 +1542,6 @@ extern vmCvar_t cg_autoswitch;
 extern vmCvar_t cg_ignore;
 extern vmCvar_t cg_simpleItems;
 extern vmCvar_t cg_fov;
-extern vmCvar_t cg_zoomFov;
 extern vmCvar_t cg_thirdPersonRange;
 extern vmCvar_t cg_thirdPersonAngle;
 extern vmCvar_t cg_thirdPerson;
@@ -1644,6 +1646,7 @@ extern vmCvar_t cg_trueLightning;
 
 // NiceAss: No longer part of the MissionPack
 extern vmCvar_t cg_enableBreath;
+extern vmCvar_t cg_enableLaserFog;
 
 // JBravo: ditto
 extern vmCvar_t cg_enableDust;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/21 21:05:35  niceass
+// laserfog stuff & removed unused cvar
+//
 // Revision 1.86  2002/06/19 05:20:01  niceass
 // scoreboard stuff
 //
@@ -284,7 +287,6 @@ vmCvar_t cg_autoswitch;
 vmCvar_t cg_ignore;
 vmCvar_t cg_simpleItems;
 vmCvar_t cg_fov;
-vmCvar_t cg_zoomFov;
 vmCvar_t cg_thirdPerson;
 vmCvar_t cg_thirdPersonRange;
 vmCvar_t cg_thirdPersonAngle;
@@ -416,6 +418,7 @@ vmCvar_t cg_RQ3_matchmode;
 
 // NiceAss: Taken out of the missionpack
 vmCvar_t cg_enableBreath;
+vmCvar_t cg_enableLaserFog;
 
 // JBravo: ditto
 vmCvar_t cg_enableDust;
@@ -431,7 +434,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_ignore, "cg_ignore", "0", 0},	// used for debugging
 	{&cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE},
 	{&cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE},
-	{&cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE},
 	{&cg_fov, "cg_fov", "90", CVAR_ARCHIVE},
 	{&cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE},
 	{&cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE},
@@ -507,6 +509,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_synchronousClients, "g_synchronousClients", "0", 0},	// communicated by systeminfo
 	// NiceAss: Taken out of the missionpack
 	{&cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
+	{&cg_enableLaserFog, "g_enableLaserFog", "1", CVAR_SERVERINFO},
 	// JBravo: ditto
 	{&cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 
