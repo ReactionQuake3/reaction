@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/08/18 15:10:32  makro
+// Temporarily disabled the call to specPrint
+//
 // Revision 1.19  2002/08/13 16:59:16  makro
 // Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
 //
@@ -713,7 +716,6 @@ static gentity_t *CameraSwingTarget(gentity_t * ent)
 
 // JBravo: take teamnames into account
 // JBravo: added who you are following to the zcam swing output.
-		/*
 		trap_SendServerCommand(ent->client->ps.clientNum,
 			va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sFollowing " S_COLOR_WHITE "%s" S_COLOR_RED "/"
 				S_COLOR_MAGENTA "%s\n%sTracking " S_COLOR_WHITE "%s" S_COLOR_RED "/"
@@ -721,12 +723,14 @@ static gentity_t *CameraSwingTarget(gentity_t * ent)
 				(target1st->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string,
 				color, target2nd->client->pers.netname,
 				(target2nd->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
-				*/
+		//Makro - new code; disabled till everything is in place (cgame)
+		/*
 		trap_SendServerCommand(ent->client->ps.clientNum,
 			va("specPrint \"%s\" \"%s\" \"%s\" \"%s\"\n", target1st->client->pers.netname,
 			(target1st->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string,
 			target2nd->client->pers.netname,
 			(target2nd->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
+			*/
 				
 /*		if (target2nd->client->sess.sessionTeam == TEAM_RED)
 			trap_SendServerCommand(ent->client->ps.clientNum,
