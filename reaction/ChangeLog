@@ -23,7 +23,9 @@
 * Damage is now only tracked for players hit that are not on your team.
 * Fixed constant gasping sound when you die in shallow water
 * Added a line to the zcam swing tracking message indicating who you are following
-
+* Blocked radio commands during LCA
+* Added the dynamic radio system
+* Hacked the bufferedsound system so radio sound overlap less
 
 # List fixes here for the 2.1 release
 
