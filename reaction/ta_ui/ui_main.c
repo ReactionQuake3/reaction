@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.63  2003/03/02 21:12:46  jbravo
 // Version bumped to 3.0.  Lets try and keep it list this.
 //
@@ -7339,7 +7342,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
 	{&ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "1", CVAR_ARCHIVE},
 	//Makro - model cvar
-	{&ui_RQ3_model, "model", "grunt/resdog", 0},
+	{&ui_RQ3_model, "model", "reactionmale/default", 0},
 	//Makro - team counts
 	//Handled in cgame now
 	//{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},

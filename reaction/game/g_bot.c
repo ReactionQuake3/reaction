@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.14  2002/08/20 20:07:21  jbravo
 // Fixed the bot_minplayer system.
 //
@@ -644,7 +647,7 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	model = Info_ValueForKey(botinfo, "model");
 	if (!*model) {
 		// Elder: changed to our default
-		model = "grunt/resdog";
+		model = "reactionmale/default";
 	}
 
 	Info_SetValueForKey(userinfo, "model", model);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.150  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.149  2003/03/22 20:19:20  jbravo
 // Item replacement fixes, tmp ban after votekicks and ignore now works on
 // players with colors.
@@ -1439,6 +1442,10 @@ void RQ3_Respawn_CTB_players(int team)
 			ent->client->idletime = 0;
 			ResetKills(ent);
 			ent->client->last_damaged_players[0] = '\0';
+			if (level.lights_camera_action)
+				ent->client->pers.teamState.state = TEAM_BEGIN;
+			else
+				ent->client->pers.teamState.state = TEAM_ACTIVE;
 			ClientSpawn(ent);
 		}
 	}

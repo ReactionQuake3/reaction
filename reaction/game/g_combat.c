@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.134  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -1184,7 +1187,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		return;
 	}
 // JBravo: unlagged
-	G_UnTimeShiftClient(self);
+//	G_UnTimeShiftClient(self);
 
 // JBravo: lets not bother with those CTF functions in Teamplay
 	if (g_gametype.integer == GT_CTF) {

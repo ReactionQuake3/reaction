@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.127  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -1110,14 +1113,14 @@ void ClientUserinfoChanged(int clientNum)
 			if (skin2) {
 				*skin2++ = '\0';
 			} else {
-				skin2 = "chowda";
+				skin2 = "default";
 			}
 			if (RQ3_Validatemodel(model2) != -1) {
 				Com_sprintf(model, sizeof(model), "%s/%s", model2, skin2);
 				Com_sprintf(headModel, sizeof(headModel), "%s/%s", model2, skin2);
 			} else {
-				Com_sprintf(model, sizeof(model), "grunt/chowda");
-				Com_sprintf(headModel, sizeof(headModel), "grunt/chowda");
+				Com_sprintf(model, sizeof(model), "reactionmale/default");
+				Com_sprintf(headModel, sizeof(headModel), "reactionmale/default");
 			}
 		} else {
 			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
@@ -1125,14 +1128,14 @@ void ClientUserinfoChanged(int clientNum)
 			if (skin2) {
 				*skin2++ = '\0';
 			} else {
-				skin2 = "cyrus";
+				skin2 = "robber";
 			}
 			if (RQ3_Validatemodel(model2) != -1) {
 				Com_sprintf(model, sizeof(model), "%s/%s", model2, skin2);
 				Com_sprintf(headModel, sizeof(headModel), "%s/%s", model2, skin2);
 			} else {
-				Com_sprintf(model, sizeof(model), "grunt/cyrus");
-				Com_sprintf(headModel, sizeof(headModel), "grunt/cyrus");
+				Com_sprintf(model, sizeof(model), "reactionmale/robber");
+				Com_sprintf(headModel, sizeof(headModel), "reactionmale/robber");
 			}
 		}
 	} else {
@@ -1150,8 +1153,8 @@ void ClientUserinfoChanged(int clientNum)
 			trap_SendServerCommand(ent - g_entities,
 					       va("print \"^1Illegal player model (%s). Forcing change on server.\n\"",
 						  model2));
-			Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
-			Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
+			Q_strncpyz(model, "reactionmale/default", sizeof("reactionmale/default"));
+			Q_strncpyz(headModel, "reactionmale/default", sizeof("reactionmale/default"));
 			client->radioGender = 0;	// Male
 		} else if (gender != GENDER_NEUTER)
 			client->radioGender = gender;
@@ -1396,11 +1399,11 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
 // JBravo: unlagged
-	if (g_delagHitscan.integer) {
+/*	if (g_delagHitscan.integer) {
 		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1ON!\n\"");
 	} else {
 		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1OFF!\n\"");
-	}
+	} */
 	return NULL;
 }
 

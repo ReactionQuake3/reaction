@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.70  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -529,7 +532,8 @@ static void CG_DrawStatusBar(void)
 
 	icon = cg_weapons[cg.predictedPlayerState.weapon].ammoIcon;
 	//Don't draw ammo icon if holding grenade or knife
-	if (icon && cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
+	//if (icon && cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
+	if (icon)
 		CG_DrawPic(252, 440, SMICON_SIZE, SMICON_SIZE, icon);
 
 	if (cent->currentState.weapon) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2003/03/28 10:36:03  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.6  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -1007,14 +1010,14 @@ static qboolean UI_RegisterClientSkin(playerInfo_t * pi, const char *modelName, 
 
 	if (!pi->legsSkin || !pi->torsoSkin || !pi->headSkin) {
 // JBravo: No need for errors if the skin doesnt exsist. Lets drop in a default instead.
-		Com_sprintf(filename, sizeof(filename), "models/players/grunt/lower_resdog.skin");
+		Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/lower_default.skin");
 		pi->legsSkin = trap_R_RegisterSkin(filename);
-		Com_sprintf(filename, sizeof(filename), "models/players/grunt/upper_resdog.skin");
+		Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/upper_default.skin");
 		pi->torsoSkin = trap_R_RegisterSkin(filename);
-		Com_sprintf(filename, sizeof(filename), "models/players/grunt/head_resdog.skin");
+		Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/head_default.skin");
 		pi->headSkin = trap_R_RegisterSkin(filename);
-		trap_Cvar_Set("model", "grunt/resdog");
-		trap_Cvar_Set("headmodel", "grunt/resdog");
+		trap_Cvar_Set("model", "reactionmale/default");
+		trap_Cvar_Set("headmodel", "reactionmale/default");
 	}
 
 	return qtrue;
@@ -1193,9 +1196,9 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		pi->legsModel = trap_R_RegisterModel(filename);
 		if (!pi->legsModel) {
 // JBravo: no errors on bad models. Defaults in stead.
-			Com_sprintf(filename, sizeof(filename), "models/players/grunt/lower.md3");
+			Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/lower.md3");
 			pi->legsModel = trap_R_RegisterModel(filename);
-			trap_Cvar_Set("model", "grunt/resdog");
+			trap_Cvar_Set("model", "reactionmale/default");
 			//Com_Printf("Failed to load model file %s\n", filename);
 			//return qfalse;
 		}
@@ -1208,9 +1211,9 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		pi->torsoModel = trap_R_RegisterModel(filename);
 		if (!pi->torsoModel) {
 // JBravo: no errors on bad models. Defaults in stead.
-			Com_sprintf(filename, sizeof(filename), "models/players/grunt/upper.md3");
+			Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/upper.md3");
 			pi->torsoModel = trap_R_RegisterModel(filename);
-			trap_Cvar_Set("model", "grunt/resdog");
+			trap_Cvar_Set("model", "reactionmale/default");
 			//Com_Printf("Failed to load model file %s\n", filename);
 			//return qfalse;
 		}
@@ -1229,9 +1232,9 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	}
 
 	if (!pi->headModel) {
-		Com_sprintf(filename, sizeof(filename), "models/players/grunt/head.md3");
+		Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/head.md3");
 		pi->headModel = trap_R_RegisterModel(filename);
-		trap_Cvar_Set("model", "grunt/resdog");
+		trap_Cvar_Set("model", "reactionmale/default");
 		//Com_Printf("Failed to load model file %s\n", filename);
 		//return qfalse;
 	}
@@ -1247,7 +1250,7 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 	if (!UI_ParseAnimationFile(filename, pi->animations)) {
 		Com_sprintf(filename, sizeof(filename), "models/players/characters/%s/animation.cfg", modelName);
 		if (!UI_ParseAnimationFile(filename, pi->animations)) {
-			Com_sprintf(filename, sizeof(filename), "models/players/grunt/animation.cfg");
+			Com_sprintf(filename, sizeof(filename), "models/players/reactionmale/animation.cfg");
 			if (!UI_ParseAnimationFile(filename, pi->animations)) {
 				Com_Printf("Failed to load animation file %s\n", filename);
 				return qfalse;

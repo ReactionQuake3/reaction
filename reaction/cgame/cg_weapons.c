@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.106  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -625,11 +628,12 @@ void CG_RegisterWeapon(int weaponNum)
 	int i;
 
 	qboolean weapAnimLoad = qtrue;
-	weaponInfo = &cg_weapons[weaponNum];
 
-	if (weaponNum == 0) {
+	if (weaponNum == 0 || weaponNum >= MAX_WEAPONS) {
 		return;
 	}
+
+	weaponInfo = &cg_weapons[weaponNum];
 
 	if (weaponInfo->registered) {
 		return;
@@ -729,8 +733,16 @@ void CG_RegisterWeapon(int weaponNum)
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
 				cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
 					cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
+			}
+		}
+		if (strcmp(cg_RQ3_ammo_mk23_skin.string, "default")) {
+			weaponInfo->ammocustomSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin",
+				cg_RQ3_ammo_mk23_skin.string));
+			if (!weaponInfo->ammocustomSkin) {
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/ammo/%s.skin",
+					cg_RQ3_ammo_mk23_skin.string));
 			}
 		}
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
@@ -2258,7 +2270,7 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 		}
 	}
 // JBravo: unlagged
-	CG_PredictWeaponEffects(cent);
+	//CG_PredictWeaponEffects(cent);
 }
 
 /*

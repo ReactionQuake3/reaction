@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.138  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -399,6 +402,7 @@
 
 int trap_RealTime(qtime_t * qtime);
 gentity_t *getEntByName(char *name);
+void AddIP(char *str);
 level_locals_t level;
 
 typedef struct {
@@ -648,8 +652,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_team1name, "g_RQ3_team1name", "Team 1", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_team2name, "g_RQ3_team2name", "Team 2", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
-	{&g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SYSTEMINFO, 0, qfalse},
-	{&g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SYSTEMINFO, 0, qfalse},
+	{&g_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", CVAR_SYSTEMINFO, 0, qfalse},
+	{&g_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_gib, "g_RQ3_gib", "1", CVAR_ARCHIVE, 0, qtrue},
@@ -2675,7 +2679,7 @@ void G_RunFrame(int levelTime)
 		G_RunThink(ent);
 	}
 // JBravo: unlagged
-	G_TimeShiftAllClients(level.previousTime, NULL);
+//	G_TimeShiftAllClients(level.previousTime, NULL);
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
 		if (!ent->inuse) {
@@ -2688,7 +2692,7 @@ void G_RunFrame(int levelTime)
 			G_RunMissile(ent);
 		}
 	}
-	G_UnTimeShiftAllClients(NULL);
+//	G_UnTimeShiftAllClients(NULL);
 
 	end = trap_Milliseconds();
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.180  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.179  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -1040,6 +1043,8 @@ void SetTeam(gentity_t * ent, char *s)
 			team = TEAM_RED;
 		} else if (!Q_stricmp(s, "blue") || !Q_stricmp(s, "b") || !Q_stricmp(s, "2")) {
 			team = TEAM_BLUE;
+		} else if (!Q_stricmp(s, "auto")) {
+			team = PickTeam(clientNum);
 		} else {
 			// pick the team with the least number of players
 			trap_SendServerCommand(ent->client->ps.clientNum,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.87  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -525,9 +528,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
 // JBravo: unlagged
-		G_DoTimeShiftFor(ent);
+//		G_DoTimeShiftFor(ent);
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-		G_UndoTimeShiftFor(ent);
+//		G_UndoTimeShiftFor(ent);
 
 		//Makro - saving the material flag to avoid useless calls to the GetMaterialFromFlag function
 		Material = GetMaterialFromFlag(tr.surfaceFlags);
@@ -741,7 +744,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 		hc_multipler = 5;
 	}
 
-	G_DoTimeShiftFor(ent);
+//	G_DoTimeShiftFor(ent);
 	// generate the "random" spread pattern
 	for (i = 0; i < count; i++) {
 		if (shotType == WP_M3) {
@@ -773,7 +776,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 			}
 		}
 	}
-	G_UndoTimeShiftFor(ent);
+//	G_UndoTimeShiftFor(ent);
 }
 
 void weapon_supershotgun_fire(gentity_t * ent)
@@ -823,7 +826,7 @@ void weapon_railgun_fire(gentity_t * ent)
 	VectorMA(muzzle, 8192, forward, end);
 
 	// trace only against the solids, so the railgun will go through people
-	G_DoTimeShiftFor(ent);
+//	G_DoTimeShiftFor(ent);
 	unlinked = 0;
 	hits = 0;
 	passent = ent->s.number;
@@ -847,7 +850,7 @@ void weapon_railgun_fire(gentity_t * ent)
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while (unlinked < MAX_RAIL_HITS);
-	G_UndoTimeShiftFor(ent);
+//	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
@@ -1282,7 +1285,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 	damage = SNIPER_DAMAGE;
 
 	// JBravo: unlagged NEW
-	G_DoTimeShiftFor(ent);
+//	G_DoTimeShiftFor(ent);
 	// trace only against the solids, so the SSG3000 will go through people
 	unlinked = 0;
 	hits = 0;
@@ -1378,7 +1381,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			unlinked++;
 		}
 	} while (unlinked < MAX_SSG3000_HITS);
-	G_UndoTimeShiftFor(ent);
+//	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.16  2002/09/29 16:06:45  jbravo
 // Work done at the HPWorld expo
 //
@@ -935,7 +938,6 @@ gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	gentity_t *spots[MAX_TEAM_SPAWN_POINTS];
 	char *classname;
 
-	// NiceAss: no longer use redplayer (people spawned in eachother)
 	if (teamstate == TEAM_BEGIN) {
 		if (team == TEAM_RED)
 			classname = "team_CTF_redplayer";

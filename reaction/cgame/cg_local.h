@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.137  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -391,12 +394,12 @@
 #define MAX_MODEL_LEN 128
 
 // Elder: changed to good ol' resdog
-#define	DEFAULT_MODEL			"grunt"
+#define	DEFAULT_MODEL			"reactionmale"
 // Elder: this is added
-#define	DEFAULT_SKIN			"resdog"
+#define	DEFAULT_SKIN			"default"
 
-#define	DEFAULT_TEAM_MODEL		"grunt"
-#define	DEFAULT_TEAM_HEAD		"grunt"
+#define	DEFAULT_TEAM_MODEL		"reactionmale"
+#define	DEFAULT_TEAM_HEAD		"reactionmale"
 
 // Elder: Changed
 #define DEFAULT_REDTEAM_NAME		"Reservoir Dogs"
@@ -776,6 +779,7 @@ typedef struct weaponInfo_s {
 	qhandle_t ammoIcon;
 
 	qhandle_t ammoModel;
+	qhandle_t ammocustomSkin;
 
 	qhandle_t missileModel;
 	sfxHandle_t missileSound;
@@ -1756,6 +1760,12 @@ extern vmCvar_t cg_RQ3_ammo_shells;
 extern vmCvar_t cg_RQ3_ammo_ssg3000;
 extern vmCvar_t cg_RQ3_ammo_mp5;
 extern vmCvar_t cg_RQ3_ammo_m4;
+// JBravo: replacement skins
+extern vmCvar_t cg_RQ3_ammo_mk23_skin;
+extern vmCvar_t cg_RQ3_ammo_shells_skin;
+extern vmCvar_t cg_RQ3_ammo_ssg3000_skin;
+extern vmCvar_t cg_RQ3_ammo_mp5_skin;
+extern vmCvar_t cg_RQ3_ammo_m4_skin;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;

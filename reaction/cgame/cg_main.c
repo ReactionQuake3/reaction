@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2003/03/28 10:36:02  jbravo
+// Tweaking the replacement system a bit.  Reactionmale now the default model
+//
 // Revision 1.126  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -494,6 +497,12 @@ vmCvar_t cg_RQ3_ammo_shells;
 vmCvar_t cg_RQ3_ammo_ssg3000;
 vmCvar_t cg_RQ3_ammo_mp5;
 vmCvar_t cg_RQ3_ammo_m4;
+// JBravo: replacement skin cvars
+vmCvar_t cg_RQ3_ammo_mk23_skin;
+vmCvar_t cg_RQ3_ammo_shells_skin;
+vmCvar_t cg_RQ3_ammo_ssg3000_skin;
+vmCvar_t cg_RQ3_ammo_mp5_skin;
+vmCvar_t cg_RQ3_ammo_m4_skin;
 
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
@@ -755,7 +764,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_m3_skin, "cg_RQ3_m3_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_akimbo_skin, "cg_RQ3_akimbo_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_grenade_skin, "cg_RQ3_grenade_skin", "default", CVAR_ARCHIVE},
-
 	//Blaze: replacement items
 	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier", CVAR_ARCHIVE},
 	{&cg_RQ3_kevlar, "cg_RQ3_kevlar", "kevlar", CVAR_ARCHIVE},
@@ -776,6 +784,12 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4", CVAR_ARCHIVE},
+	// JBravo: replacement skins
+	{&cg_RQ3_ammo_mk23_skin, "cg_RQ3_ammo_mk23_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_shells_skin, "cg_RQ3_ammo_shells_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_ssg3000_skin, "cg_RQ3_ammo_ssg3000_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_mp5_skin, "cg_RQ3_ammo_mp5_skin", "default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_m4_skin, "cg_RQ3_ammo_m4_skin", "default", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
@@ -861,8 +875,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 //      { &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{&cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{&cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
-	{&cg_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", 0},
-	{&cg_RQ3_team2model, "g_RQ3_team2model", "grunt/police", 0},
+	{&cg_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", 0},
+	{&cg_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", 0},
 	{&ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
 	{&ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
 	{&ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM},
@@ -935,6 +949,48 @@ void CG_RegisterCvars(void)
 	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
 	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE);
+
+	// JBravo: for defaults in weaponreplacements
+	if (!strcmp(cg_RQ3_mk23.string, "default"))
+		trap_Cvar_Set("cg_RQ3_mk23", "mk23");
+	if (!strcmp(cg_RQ3_knife.string, "default"))
+		trap_Cvar_Set("cg_RQ3_knife", "knife");
+	if (!strcmp(cg_RQ3_m4.string, "default"))
+		trap_Cvar_Set("cg_RQ3_m4", "m4");
+	if (!strcmp(cg_RQ3_ssg3000.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ssg3000", "ssg3000");
+	if (!strcmp(cg_RQ3_mp5.string, "default"))
+		trap_Cvar_Set("cg_RQ3_mp5", "mp5");
+	if (!strcmp(cg_RQ3_handcannon.string, "default"))
+		trap_Cvar_Set("cg_RQ3_handcannon", "handcannon");
+	if (!strcmp(cg_RQ3_m3.string, "default"))
+		trap_Cvar_Set("cg_RQ3_m3", "m3");
+	if (!strcmp(cg_RQ3_akimbo.string, "default"))
+		trap_Cvar_Set("cg_RQ3_akimbo", "akimbo");
+	if (!strcmp(cg_RQ3_grenade.string, "default"))
+		trap_Cvar_Set("cg_RQ3_grenade", "grenade");
+	if (!strcmp(cg_RQ3_kevlar.string, "default"))
+		trap_Cvar_Set("cg_RQ3_kevlar", "kevlar");
+	if (!strcmp(cg_RQ3_silencer.string, "default"))
+		trap_Cvar_Set("cg_RQ3_silencer", "silencer");
+	if (!strcmp(cg_RQ3_laser.string, "default"))
+		trap_Cvar_Set("cg_RQ3_laser", "laser");
+	if (!strcmp(cg_RQ3_bandolier.string, "default"))
+		trap_Cvar_Set("cg_RQ3_bandolier", "bandolier");
+	if (!strcmp(cg_RQ3_slippers.string, "default"))
+		trap_Cvar_Set("cg_RQ3_slippers", "slippers");
+	if (!strcmp(cg_RQ3_helmet.string, "default"))
+		trap_Cvar_Set("cg_RQ3_helmet", "helmet");
+	if (!strcmp(cg_RQ3_ammo_mk23.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ammo_mk23", "mk23");
+	if (!strcmp(cg_RQ3_ammo_shells.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ammo_shells", "shells");
+	if (!strcmp(cg_RQ3_ammo_ssg3000.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ammo_ssg3000", "ssg3000");
+	if (!strcmp(cg_RQ3_ammo_mp5.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ammo_mp5", "mp5");
+	if (!strcmp(cg_RQ3_ammo_m4.string, "default"))
+		trap_Cvar_Set("cg_RQ3_ammo_m4", "m4");
 }
 
 /*
@@ -2328,17 +2384,19 @@ Routine by JBravo to replace world_models in bg_itemlist
 void CG_ReplaceModels(void)
 {
 	gitem_t *item;
+	char str[256];
 
 	for (item = bg_itemlist + 1; item->classname; item++) {
 		if (!strcmp(item->classname, "weapon_knife")) {
-		       	if (strcmp(cg_RQ3_knife.string, "knife")) {
-				Com_sprintf(RQ3_knife_model, MAX_MODEL_LEN, "models/weapons2/%s/knife.md3", cg_RQ3_knife.string);
-				Com_sprintf(RQ3_knife_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_knife.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_knife", str, sizeof(str));
+		       	if (strcmp(str, "knife")) {
+				Com_sprintf(RQ3_knife_model, MAX_MODEL_LEN, "models/weapons2/%s/knife.md3", str);
+				Com_sprintf(RQ3_knife_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_knife_model) && (strlen(RQ3_knife_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_knife_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_knife_icon;
 				} else
-					CG_Printf("^1Error loading knife replacement model %s\n", cg_RQ3_knife.string);
+					CG_Printf("^1Error loading knife replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_knife_skin.string, "default")) {
 				Com_sprintf(RQ3_knife_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_knife_skin.string);
@@ -2349,14 +2407,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_pistol")) {
-			if (strcmp(cg_RQ3_mk23.string, "mk23")) {
-				Com_sprintf(RQ3_pistol_model, MAX_MODEL_LEN, "models/weapons2/%s/mk23.md3", cg_RQ3_mk23.string);
-				Com_sprintf(RQ3_pistol_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_mk23.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_mk23", str, sizeof(str));
+			if (strcmp(str, "mk23")) {
+				Com_sprintf(RQ3_pistol_model, MAX_MODEL_LEN, "models/weapons2/%s/mk23.md3", str);
+				Com_sprintf(RQ3_pistol_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_pistol_model) && (strlen(RQ3_pistol_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_pistol_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_pistol_icon;
 				} else
-					CG_Printf("^1Error loading pistol replacement model %s\n", cg_RQ3_mk23.string);
+					CG_Printf("^1Error loading pistol replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_mk23_skin.string, "default")) {
 				Com_sprintf(RQ3_pistol_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_mk23_skin.string);
@@ -2367,14 +2426,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_m4")) {
-			if (strcmp(cg_RQ3_m4.string, "m4")) {
-				Com_sprintf(RQ3_m4_model, MAX_MODEL_LEN, "models/weapons2/%s/m4.md3", cg_RQ3_m4.string);
-				Com_sprintf(RQ3_m4_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_m4.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_m4", str, sizeof(str));
+			if (strcmp(str, "m4")) {
+				Com_sprintf(RQ3_m4_model, MAX_MODEL_LEN, "models/weapons2/%s/m4.md3", str);
+				Com_sprintf(RQ3_m4_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_m4_model) && (strlen(RQ3_m4_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_m4_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_m4_icon;
 				} else
-					CG_Printf("^1Error loading m4 replacement model %s\n", cg_RQ3_m4.string);
+					CG_Printf("^1Error loading m4 replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_m4_skin.string, "default")) {
 				Com_sprintf(RQ3_m4_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_m4_skin.string);
@@ -2385,14 +2445,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_ssg3000")) {
-		       	if (strcmp(cg_RQ3_ssg3000.string, "ssg3000")) {
-				Com_sprintf(RQ3_ssg3000_model, MAX_MODEL_LEN, "models/weapons2/%s/ssg3000.md3", cg_RQ3_ssg3000.string);
-				Com_sprintf(RQ3_ssg3000_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_ssg3000.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ssg3000", str, sizeof(str));
+		       	if (strcmp(str, "ssg3000")) {
+				Com_sprintf(RQ3_ssg3000_model, MAX_MODEL_LEN, "models/weapons2/%s/ssg3000.md3", str);
+				Com_sprintf(RQ3_ssg3000_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_ssg3000_model) && (strlen(RQ3_ssg3000_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ssg3000_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ssg3000_icon;
 				} else
-					CG_Printf("^1Error loading ssg3000 replacement model %s\n", cg_RQ3_ssg3000.string);
+					CG_Printf("^1Error loading ssg3000 replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_ssg3000_skin.string, "default")) {
 				Com_sprintf(RQ3_ssg3000_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_ssg3000_skin.string);
@@ -2403,14 +2464,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_mp5")) {
-		       	if (strcmp(cg_RQ3_mp5.string, "mp5")) {
-				Com_sprintf(RQ3_mp5_model, MAX_MODEL_LEN, "models/weapons2/%s/mp5.md3", cg_RQ3_mp5.string);
-				Com_sprintf(RQ3_mp5_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_mp5.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_mp5", str, sizeof(str));
+		       	if (strcmp(str, "mp5")) {
+				Com_sprintf(RQ3_mp5_model, MAX_MODEL_LEN, "models/weapons2/%s/mp5.md3", str);
+				Com_sprintf(RQ3_mp5_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_mp5_model) && (strlen(RQ3_mp5_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_mp5_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_mp5_icon;
 				} else
-					CG_Printf("^1Error loading mp5 replacement model\n", cg_RQ3_mp5.string);
+					CG_Printf("^1Error loading mp5 replacement model\n", str);
 			}
 			if (strcmp(cg_RQ3_mp5_skin.string, "default")) {
 				Com_sprintf(RQ3_mp5_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_mp5_skin.string);
@@ -2421,14 +2483,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_handcannon")) {
-			if (strcmp(cg_RQ3_handcannon.string, "handcannon")) {
-				Com_sprintf(RQ3_handcannon_model, MAX_MODEL_LEN, "models/weapons2/%s/handcannon.md3", cg_RQ3_handcannon.string);
-				Com_sprintf(RQ3_handcannon_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_handcannon.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_handcannon", str, sizeof(str));
+			if (strcmp(str, "handcannon")) {
+				Com_sprintf(RQ3_handcannon_model, MAX_MODEL_LEN, "models/weapons2/%s/handcannon.md3", str);
+				Com_sprintf(RQ3_handcannon_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_handcannon_model) && (strlen(RQ3_handcannon_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_handcannon_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_handcannon_icon;
 				} else
-					CG_Printf("^1Error loading handcannon replacement model %s\n", cg_RQ3_handcannon.string);
+					CG_Printf("^1Error loading handcannon replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_handcannon_skin.string, "default")) {
 				Com_sprintf(RQ3_handcannon_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_handcannon_skin.string);
@@ -2439,14 +2502,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_m3")) {
-			if (strcmp(cg_RQ3_m3.string, "m3")) {
-				Com_sprintf(RQ3_m3_model, MAX_MODEL_LEN, "models/weapons2/%s/m3.md3", cg_RQ3_m3.string);
-				Com_sprintf(RQ3_m3_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_m3.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_m3", str, sizeof(str));
+			if (strcmp(str, "m3")) {
+				Com_sprintf(RQ3_m3_model, MAX_MODEL_LEN, "models/weapons2/%s/m3.md3", str);
+				Com_sprintf(RQ3_m3_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_m3_model) && (strlen(RQ3_m3_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_m3_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_m3_icon;
 				} else
-					CG_Printf("^1Error loading m3 replacement model %s\n", cg_RQ3_m3.string);
+					CG_Printf("^1Error loading m3 replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_m3_skin.string, "default")) {
 				Com_sprintf(RQ3_m3_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_m3_skin.string);
@@ -2457,14 +2521,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_akimbo")) {
-	       		if (strcmp(cg_RQ3_akimbo.string, "akimbo")) {
-				Com_sprintf(RQ3_akimbo_model, MAX_MODEL_LEN, "models/weapons2/%s/akimbo.md3", cg_RQ3_akimbo.string);
-				Com_sprintf(RQ3_akimbo_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_akimbo.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_akimbo", str, sizeof(str));
+	       		if (strcmp(str, "akimbo")) {
+				Com_sprintf(RQ3_akimbo_model, MAX_MODEL_LEN, "models/weapons2/%s/akimbo.md3", str);
+				Com_sprintf(RQ3_akimbo_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_akimbo_model) && (strlen(RQ3_akimbo_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_akimbo_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_akimbo_icon;
 				} else
-					CG_Printf("^1Error loading akimbo replacement model %s\n", cg_RQ3_akimbo.string);
+					CG_Printf("^1Error loading akimbo replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_akimbo_skin.string, "default")) {
 				Com_sprintf(RQ3_akimbo_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_akimbo_skin.string);
@@ -2475,14 +2540,15 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "weapon_grenade")) {
-		       	if (strcmp(cg_RQ3_grenade.string, "grenade")) {
-				Com_sprintf(RQ3_grenade_model, MAX_MODEL_LEN, "models/weapons2/%s/grenade.md3", cg_RQ3_grenade.string);
-				Com_sprintf(RQ3_grenade_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_grenade.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_grenade", str, sizeof(str));
+		       	if (strcmp(str, "grenade")) {
+				Com_sprintf(RQ3_grenade_model, MAX_MODEL_LEN, "models/weapons2/%s/grenade.md3", str);
+				Com_sprintf(RQ3_grenade_icon, MAX_MODEL_LEN, "icons/iconw_%s", str);
 				if (JB_FileExists(RQ3_grenade_model) && (strlen(RQ3_grenade_model) < MAX_MODEL_LEN)) {
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_grenade_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_grenade_icon;
 				} else
-					CG_Printf("^1Error loading grenade replacement model %s\n", cg_RQ3_grenade.string);
+					CG_Printf("^1Error loading grenade replacement model %s\n", str);
 			}
 			if (strcmp(cg_RQ3_grenade_skin.string, "default")) {
 				Com_sprintf(RQ3_grenade_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_grenade_skin.string);
@@ -2492,149 +2558,213 @@ void CG_ReplaceModels(void)
 					CG_Printf("^1Error loading grenade replacement icon %s\n", cg_RQ3_grenade_skin.string);
 			}
 		}
-		if (!strcmp(item->classname, "item_kevlar") && strcmp(cg_RQ3_kevlar.string, "kevlar")) {
-			Com_sprintf(RQ3_kevlar_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_kevlar.string);
-			Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_kevlar.string);
-			if (JB_FileExists(RQ3_kevlar_model) && (strlen(RQ3_kevlar_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_kevlar_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
-			} else
-				CG_Printf("^1Error loading kevlar replacement model %s\n", cg_RQ3_kevlar.string);
-			if (strcmp(cg_RQ3_kevlar_skin.string, "default")) {
-				Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_kevlar_skin.string);
-				if (JB_FileExists(RQ3_kevlar_icon))
+		if (!strcmp(item->classname, "item_kevlar")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_kevlar", str, sizeof(str));
+			if (strcmp(str, "kevlar")) {
+				Com_sprintf(RQ3_kevlar_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_kevlar_model) && (strlen(RQ3_kevlar_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_kevlar_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
-				else
-					CG_Printf("^1Error loading kevlar replacement icon %s\n", cg_RQ3_kevlar_skin.string);
+				} else
+					CG_Printf("^1Error loading kevlar replacement model %s\n", str);
+				if (strcmp(cg_RQ3_kevlar_skin.string, "default")) {
+					Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_kevlar_skin.string);
+					if (JB_FileExists(RQ3_kevlar_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
+					else
+						CG_Printf("^1Error loading kevlar replacement icon %s\n", cg_RQ3_kevlar_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "item_silencer") && strcmp(cg_RQ3_silencer.string, "silencer")) {
-			Com_sprintf(RQ3_silencer_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_silencer.string);
-			Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_silencer.string);
-			if (JB_FileExists(RQ3_silencer_model) && (strlen(RQ3_silencer_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_silencer_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
-			} else
-				CG_Printf("^1Error loading silencer replacement model %s\n", cg_RQ3_silencer.string);
-			if (strcmp(cg_RQ3_silencer_skin.string, "default")) {
-				Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_silencer_skin.string);
-				if (JB_FileExists(RQ3_silencer_icon))
+		if (!strcmp(item->classname, "item_silencer")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_silencer", str, sizeof(str));
+			if (strcmp(str, "silencer")) {
+				Com_sprintf(RQ3_silencer_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_silencer_model) && (strlen(RQ3_silencer_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_silencer_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
-				else
-					CG_Printf("^1Error loading silencer replacement icon %s\n", cg_RQ3_silencer_skin.string);
+				} else
+					CG_Printf("^1Error loading silencer replacement model %s\n", str);
+				if (strcmp(cg_RQ3_silencer_skin.string, "default")) {
+					Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_silencer_skin.string);
+					if (JB_FileExists(RQ3_silencer_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
+					else
+						CG_Printf("^1Error loading silencer replacement icon %s\n", cg_RQ3_silencer_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "item_laser") && strcmp(cg_RQ3_laser.string, "laser")) {
-			Com_sprintf(RQ3_laser_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_laser.string);
-			Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_laser.string);
-			if (JB_FileExists(RQ3_laser_model) && (strlen(RQ3_laser_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_laser_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
-			} else
-				CG_Printf("^1Error loading laser replacement model %s\n", cg_RQ3_laser.string);
-			if (strcmp(cg_RQ3_laser_skin.string, "default")) {
-				Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_laser_skin.string);
-				if (JB_FileExists(RQ3_laser_icon))
+		if (!strcmp(item->classname, "item_laser")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_laser", str, sizeof(str));
+			if (strcmp(str, "laser")) {
+				Com_sprintf(RQ3_laser_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_laser_model) && (strlen(RQ3_laser_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_laser_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
-				else
-					CG_Printf("^1Error loading laser replacement icon %s\n", cg_RQ3_laser_skin.string);
+				} else
+					CG_Printf("^1Error loading laser replacement model %s\n", str);
+				if (strcmp(cg_RQ3_laser_skin.string, "default")) {
+					Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_laser_skin.string);
+					if (JB_FileExists(RQ3_laser_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
+					else
+						CG_Printf("^1Error loading laser replacement icon %s\n", cg_RQ3_laser_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "item_bandolier") && strcmp(cg_RQ3_bandolier.string, "bandolier")) {
-			Com_sprintf(RQ3_bandolier_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_bandolier.string);
-			Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_bandolier.string);
-			if (JB_FileExists(RQ3_bandolier_model) && (strlen(RQ3_bandolier_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_bandolier_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
-			} else
-				CG_Printf("^1Error loading bandolier replacement model %s\n", cg_RQ3_bandolier.string);
-			if (strcmp(cg_RQ3_bandolier_skin.string, "default")) {
-				Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_bandolier_skin.string);
-				if (JB_FileExists(RQ3_bandolier_icon))
+		if (!strcmp(item->classname, "item_bandolier")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_bandolier", str, sizeof(str));
+			if (strcmp(str, "bandolier")) {
+				Com_sprintf(RQ3_bandolier_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_bandolier_model) && (strlen(RQ3_bandolier_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_bandolier_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
-				else
-					CG_Printf("^1Error loading bandolier replacement icon %s\n", cg_RQ3_bandolier_skin.string);
+				} else
+					CG_Printf("^1Error loading bandolier replacement model %s\n", str);
+				if (strcmp(cg_RQ3_bandolier_skin.string, "default")) {
+					Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_bandolier_skin.string);
+					if (JB_FileExists(RQ3_bandolier_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
+					else
+						CG_Printf("^1Error loading bandolier replacement icon %s\n", cg_RQ3_bandolier_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "item_slippers") && strcmp(cg_RQ3_slippers.string, "slippers")) {
-			Com_sprintf(RQ3_slippers_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_slippers.string);
-			Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_slippers.string);
-			if (JB_FileExists(RQ3_slippers_model) && (strlen(RQ3_slippers_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_slippers_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
-			} else
-				CG_Printf("^1Error loading slippers replacement model %s\n", cg_RQ3_slippers.string);
-			if (strcmp(cg_RQ3_slippers_skin.string, "default")) {
-				Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_slippers_skin.string);
-				if (JB_FileExists(RQ3_slippers_icon))
+		if (!strcmp(item->classname, "item_slippers")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_slippers", str, sizeof(str));
+			if (strcmp(str, "slippers")) {
+				Com_sprintf(RQ3_slippers_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_slippers_model) && (strlen(RQ3_slippers_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_slippers_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
-				else
-					CG_Printf("^1Error loading slippers replacement icon %s\n", cg_RQ3_slippers_skin.string);
+				} else
+					CG_Printf("^1Error loading slippers replacement model %s\n", str);
+				if (strcmp(cg_RQ3_slippers_skin.string, "default")) {
+					Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_slippers_skin.string);
+					if (JB_FileExists(RQ3_slippers_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
+					else
+						CG_Printf("^1Error loading slippers replacement icon %s\n", cg_RQ3_slippers_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "item_helmet") && strcmp(cg_RQ3_helmet.string, "helmet")) {
-			Com_sprintf(RQ3_helmet_model, MAX_MODEL_LEN, "models/items/%s.md3", cg_RQ3_helmet.string);
-			Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_helmet.string);
-			if (JB_FileExists(RQ3_helmet_model) && (strlen(RQ3_helmet_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_helmet_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
-			} else
-				CG_Printf("^1Error loading helmet replacement model %s\n", cg_RQ3_helmet.string);
-			if (strcmp(cg_RQ3_helmet_skin.string, "default")) {
-				Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_helmet_skin.string);
-				if (JB_FileExists(RQ3_helmet_icon))
+		if (!strcmp(item->classname, "item_helmet")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_helmet", str, sizeof(str));
+			if (strcmp(str, "helmet")) {
+				Com_sprintf(RQ3_helmet_model, MAX_MODEL_LEN, "models/items/%s.md3", str);
+				Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", str);
+				if (JB_FileExists(RQ3_helmet_model) && (strlen(RQ3_helmet_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_helmet_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
-				else
-					CG_Printf("^1Error loading helmet replacement icon %s\n", cg_RQ3_helmet_skin.string);
+				} else
+					CG_Printf("^1Error loading helmet replacement model %s\n", str);
+				if (strcmp(cg_RQ3_helmet_skin.string, "default")) {
+					Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_helmet_skin.string);
+					if (JB_FileExists(RQ3_helmet_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
+					else
+						CG_Printf("^1Error loading helmet replacement icon %s\n", cg_RQ3_helmet_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "ammo_mk23") && strcmp(cg_RQ3_ammo_mk23.string, "mk23")) {
-			Com_sprintf(RQ3_ammo_mk23_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_mk23.string);
-			Com_sprintf(RQ3_ammo_mk23_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mk23.string);
-			if (JB_FileExists(RQ3_ammo_mk23_model) && (strlen(RQ3_ammo_mk23_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mk23_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mk23_icon;
-			} else
-				CG_Printf("^1Error loading mk23 ammo replacement model %s\n", cg_RQ3_ammo_mk23.string);
-		}
-		if (!strcmp(item->classname, "ammo_shells") && strcmp(cg_RQ3_ammo_shells.string, "shells")) {
-			Com_sprintf(RQ3_ammo_shells_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_shells.string);
-			Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_shells.string);
-			if (JB_FileExists(RQ3_ammo_shells_model) && (strlen(RQ3_ammo_shells_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_shells_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
-			} else {
-				CG_Printf("^1Error loading shells ammo replacement model %s\n", cg_RQ3_ammo_shells.string);
+		if (!strcmp(item->classname, "ammo_mk23")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mk23", str, sizeof(str));
+			if (strcmp(str, "mk23")) {
+				Com_sprintf(RQ3_ammo_mk23_model, MAX_MODEL_LEN, "models/ammo/%s.md3", str);
+				Com_sprintf(RQ3_ammo_mk23_icon, MAX_MODEL_LEN, "icons/icona_%s", str);
+				if (JB_FileExists(RQ3_ammo_mk23_model) && (strlen(RQ3_ammo_mk23_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mk23_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mk23_icon;
+				} else
+					CG_Printf("^1Error loading mk23 ammo replacement model %s\n", str);
+				if (strcmp(cg_RQ3_ammo_mk23_skin.string, "default")) {
+					Com_sprintf(RQ3_ammo_mk23_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mk23_skin.string);
+					if (JB_FileExists(RQ3_ammo_mk23_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mk23_icon;
+					else
+						CG_Printf("^1Error loading mk23 ammo replacement icon %s\n", cg_RQ3_ammo_mk23_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "ammo_ssg3000") && strcmp(cg_RQ3_ammo_ssg3000.string, "ssg3000")) {
-			Com_sprintf(RQ3_ammo_ssg3000_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_ssg3000.string);
-			Com_sprintf(RQ3_ammo_ssg3000_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_ssg3000.string);
-			if (JB_FileExists(RQ3_ammo_ssg3000_model) && (strlen(RQ3_ammo_ssg3000_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_ssg3000_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_ssg3000_icon;
-			} else {
-				CG_Printf("^1Error loading ssg3000 ammo replacement model %s\n", cg_RQ3_ammo_ssg3000.string);
+		if (!strcmp(item->classname, "ammo_shells")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+			if (strcmp(str, "shells")) {
+				Com_sprintf(RQ3_ammo_shells_model, MAX_MODEL_LEN, "models/ammo/%s.md3", str);
+				Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", str);
+				if (JB_FileExists(RQ3_ammo_shells_model) && (strlen(RQ3_ammo_shells_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_shells_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
+				} else
+					CG_Printf("^1Error loading shells ammo replacement model %s\n", str);
+				if (strcmp(cg_RQ3_ammo_shells_skin.string, "default")) {
+					Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_shells_skin.string);
+					if (JB_FileExists(RQ3_ammo_shells_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
+					else
+						CG_Printf("^1Error loading shells ammo replacement icon %s\n", cg_RQ3_ammo_shells_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "ammo_mp5") && strcmp(cg_RQ3_ammo_mp5.string, "mp5")) {
-			Com_sprintf(RQ3_ammo_mp5_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_mp5.string);
-			Com_sprintf(RQ3_ammo_mp5_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mp5.string);
-			if (JB_FileExists(RQ3_ammo_mp5_model) && (strlen(RQ3_ammo_mp5_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mp5_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mp5_icon;
-			} else {
-				CG_Printf("^1Error loading mp5 ammo replacement model %s\n", cg_RQ3_ammo_mp5.string);
+		if (!strcmp(item->classname, "ammo_ssg3000")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_ssg3000", str, sizeof(str));
+			if (strcmp(str, "ssg3000")) {
+				Com_sprintf(RQ3_ammo_ssg3000_model, MAX_MODEL_LEN, "models/ammo/%s.md3", str);
+				Com_sprintf(RQ3_ammo_ssg3000_icon, MAX_MODEL_LEN, "icons/icona_%s", str);
+				if (JB_FileExists(RQ3_ammo_ssg3000_model) && (strlen(RQ3_ammo_ssg3000_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_ssg3000_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_ssg3000_icon;
+				} else
+					CG_Printf("^1Error loading ssg3000 ammo replacement model %s\n", str);
+				if (strcmp(cg_RQ3_ammo_ssg3000_skin.string, "default")) {
+					Com_sprintf(RQ3_ammo_ssg3000_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_ssg3000_skin.string);
+					if (JB_FileExists(RQ3_ammo_ssg3000_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_ssg3000_icon;
+					else
+						CG_Printf("^1Error loading ssg3000 ammo replacement icon %s\n", cg_RQ3_ammo_ssg3000_skin.string);
+				}
 			}
 		}
-		if (!strcmp(item->classname, "ammo_m4") && strcmp(cg_RQ3_ammo_m4.string, "m4")) {
-			Com_sprintf(RQ3_ammo_m4_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_m4.string);
-			Com_sprintf(RQ3_ammo_m4_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_m4.string);
-			if (JB_FileExists(RQ3_ammo_m4_model) && (strlen(RQ3_ammo_m4_model) < MAX_MODEL_LEN)) {
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_m4_model;
-				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m4_icon;
-			} else {
-				CG_Printf("^1Error loading m4 ammo replacement model %s\n", cg_RQ3_ammo_m4.string);
+		if (!strcmp(item->classname, "ammo_mp5")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mp5", str, sizeof(str));
+			if (strcmp(str, "mp5")) {
+				Com_sprintf(RQ3_ammo_mp5_model, MAX_MODEL_LEN, "models/ammo/%s.md3", str);
+				Com_sprintf(RQ3_ammo_mp5_icon, MAX_MODEL_LEN, "icons/icona_%s", str);
+				if (JB_FileExists(RQ3_ammo_mp5_model) && (strlen(RQ3_ammo_mp5_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mp5_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mp5_icon;
+				} else
+					CG_Printf("^1Error loading mp5 ammo replacement model %s\n", str);
+				if (strcmp(cg_RQ3_ammo_mp5_skin.string, "default")) {
+					Com_sprintf(RQ3_ammo_mp5_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mp5_skin.string);
+					if (JB_FileExists(RQ3_ammo_mp5_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mp5_icon;
+					else
+						CG_Printf("^1Error loading mp5 ammo replacement icon %s\n", cg_RQ3_ammo_mp5_skin.string);
+				}
+			}
+		}
+		if (!strcmp(item->classname, "ammo_m4")) {
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m4", str, sizeof(str));
+			if (strcmp(str, "m4")) {
+				Com_sprintf(RQ3_ammo_m4_model, MAX_MODEL_LEN, "models/ammo/%s.md3", str);
+				Com_sprintf(RQ3_ammo_m4_icon, MAX_MODEL_LEN, "icons/icona_%s", str);
+				if (JB_FileExists(RQ3_ammo_m4_model) && (strlen(RQ3_ammo_m4_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_m4_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m4_icon;
+				} else
+					CG_Printf("^1Error loading m4 ammo replacement model %s\n", str);
+				if (strcmp(cg_RQ3_ammo_m4_skin.string, "default")) {
+					Com_sprintf(RQ3_ammo_m4_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_m4_skin.string);
+					if (JB_FileExists(RQ3_ammo_m4_icon))
+						bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m4_icon;
+					else
+						CG_Printf("^1Error loading m4 ammo replacement icon %s\n", cg_RQ3_ammo_m4_skin.string);
+				}
 			}
 		}
 	}
