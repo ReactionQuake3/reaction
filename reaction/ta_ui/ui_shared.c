@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/31 13:23:25  makro
+// Cleaned things up a little
+//
 // Revision 1.10  2002/03/24 21:26:14  makro
 // no message
 //
@@ -3621,6 +3624,8 @@ static bind_t g_bindings[] =
 
 static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static configcvar_t g_configcvars[] =
 {
@@ -3635,6 +3640,7 @@ static configcvar_t g_configcvars[] =
 	{NULL,				0,					0}
 };
 #endif
+*/
 
 /*
 =================
@@ -3906,9 +3912,13 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 		if (down && (key == K_MOUSE1 || key == K_ENTER)) {
 			g_waitingForKey = qtrue;
 			g_bindItem = item;
-		//Makro - moved backspace code here
+		//Makro - moved backspace code here; added up/down functionality (wtf was this missing?)
 		} else if (key == K_BACKSPACE) {
 			UI_ClearBind(item->cvar);
+		} else if (key == K_UPARROW) {
+			Menu_SetPrevCursorItem(item->parent);
+		} else if (key == K_DOWNARROW) {
+			Menu_SetNextCursorItem(item->parent);
 		}
 		return qtrue;
 	}
@@ -6278,10 +6288,13 @@ displayContextDef_t *Display_GetContext() {
 	return DC;
 }
  
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static float captureX;
 static float captureY;
 #endif
+*/
 
 void *Display_CaptureItem(int x, int y) {
 	int i;

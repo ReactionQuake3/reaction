@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/31 13:23:26  makro
+// Cleaned things up a little
+//
 // Revision 1.7  2002/03/24 21:26:15  makro
 // no message
 //
@@ -85,6 +88,8 @@ void UI_StartDemoLoop( void ) {
 }
 
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static void NeedCDAction( qboolean result ) {
 	if ( !result ) {
@@ -100,6 +105,7 @@ static void NeedCDKeyAction( qboolean result ) {
 	}
 }
 #endif // MISSIONPACK
+*/
 
 char *UI_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS];

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/31 13:23:26  makro
+// Cleaned things up a little
+//
 // Revision 1.9  2002/03/25 13:51:14  makro
 // Added teamCount cvars
 //
@@ -138,9 +141,10 @@ static char* netnames[] = {
 	NULL
 };
 
-#ifndef MISSIONPACK // bk001206
-static char quake3worldMessage[] = "Visit www.quake3world.com - News, Community, Events, Files";
-#endif
+//Makro - not used anywhere
+//#ifndef MISSIONPACK // bk001206
+//static char quake3worldMessage[] = "Visit www.quake3world.com - News, Community, Events, Files";
+//#endif
 
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
@@ -1058,9 +1062,10 @@ void UI_Load() {
 }
 
 static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",NULL};
-#ifndef MISSIONPACK // bk001206
-static int numHandicaps = sizeof(handicapValues) / sizeof(const char*);
-#endif
+//Makro - not used anywhere
+//#ifndef MISSIONPACK // bk001206
+//static int numHandicaps = sizeof(handicapValues) / sizeof(const char*);
+//#endif
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
   int i, h;
@@ -1600,6 +1605,8 @@ static const int UI_AIIndex(const char *name) {
 }
 #endif
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static const int UI_AIIndexFromName(const char *name) {
 	int j;
@@ -1611,7 +1618,7 @@ static const int UI_AIIndexFromName(const char *name) {
 	return 0;
 }
 #endif
-
+*/
 
 #ifndef MISSIONPACK // bk001206
 static const char *UI_OpponentLeaderHead() {
@@ -1910,7 +1917,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 
 static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
 	int value = uiInfo.botIndex;
-	int game = trap_Cvar_VariableValue("g_gametype");
+	//int game = trap_Cvar_VariableValue("g_gametype");
 	const char *text = "";
 //Makro - using bot list instead of character list
 /*
@@ -2778,7 +2785,7 @@ static qboolean UI_OpponentName_HandleKey(int flags, float *special, int key) {
 static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 	//Makro - left/right support
 	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
-		int game = trap_Cvar_VariableValue("g_gametype");
+		//int game = trap_Cvar_VariableValue("g_gametype");
 		int value = uiInfo.botIndex;
 
 		if (key == K_MOUSE2 || key == K_LEFTARROW) {
@@ -2871,27 +2878,12 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
 }
 
 //Makro - for the SSG crosshair
-static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key) {
+//Not used yet
 /*
-	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
-		if (key == K_MOUSE2) {
-			uiInfo.currentCrosshair--;
-		} else {
-			uiInfo.currentCrosshair++;
-		}
-
-		if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
-			uiInfo.currentCrosshair = 0;
-		} else if (uiInfo.currentCrosshair < 0) {
-			uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
-		}
-		trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair)); 
-		return qtrue;
-	}
-*/
+static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key) {
 	return qfalse;
 }
-
+*/
 
 static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
 	//Makro - left/right support
@@ -5195,12 +5187,15 @@ static void UI_Pause(qboolean b) {
 	}
 }
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static int UI_OwnerDraw_Width(int ownerDraw) {
   // bk001205 - LCC missing return value
   return 0;
 }
 #endif
+*/
 
 static int UI_PlayCinematic(const char *name, float x, float y, float w, float h) {
   return trap_CIN_PlayCinematic(name, x, y, w, h, (CIN_loop | CIN_silent));
@@ -6195,6 +6190,9 @@ static void UI_StopServerRefresh( void )
 ArenaServers_MaxPing
 =================
 */
+
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static int ArenaServers_MaxPing( void ) {
 	int		maxPing;
@@ -6206,6 +6204,7 @@ static int ArenaServers_MaxPing( void ) {
 	return maxPing;
 }
 #endif
+*/
 
 /*
 =================

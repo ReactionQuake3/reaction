@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/03/31 13:23:26  makro
+// Cleaned things up a little
+//
 // Revision 1.4  2002/03/03 21:22:58  makro
 // no message
 //
@@ -33,10 +36,13 @@ static char		*ui_botInfos[MAX_BOTS];
 static int		ui_numArenas;
 static char		*ui_arenaInfos[MAX_ARENAS];
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static int		ui_numSinglePlayerArenas;
 static int		ui_numSpecialSinglePlayerArenas;
 #endif
+*/
 
 //Makro - grouping the gametypes parsed in .arena files
 typedef struct {
