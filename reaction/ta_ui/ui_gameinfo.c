@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/03 21:22:58  makro
+// no message
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -34,6 +37,34 @@ static char		*ui_arenaInfos[MAX_ARENAS];
 static int		ui_numSinglePlayerArenas;
 static int		ui_numSpecialSinglePlayerArenas;
 #endif
+
+//Makro - grouping the gametypes parsed in .arena files
+typedef struct {
+	char *Name;
+	int Value;
+} RQ3_GameType_t;
+
+static RQ3_GameType_t RQ3_GameTypes[] =
+{
+/*	{"ffa",				1 << GT_FFA},
+	{"tourney",			1 << GT_TOURNAMENT},
+	{"team",			1 << GT_TEAM},
+	{"rq3tp",			1 << GT_TEAMPLAY},
+	{"ctf",				1 << GT_CTF},
+	{"1fctf",			1 << GT_1FCTF},
+	{"obelisk",			1 << GT_OBELISK},
+	{"harvester",		1 << GT_HARVESTER},
+*/
+	{"rq3dm",			1 << GT_FFA},
+	{"rq3tdm",			1 << GT_TEAM},
+	{"rq3tp",			1 << GT_TEAMPLAY},
+	{"rq3ctf",			1 << GT_CTF},
+	{"none",			0}
+};
+
+static int UI_RQ3_DefaultArenaGameType = 1 << GT_FFA;
+//end Makro
+
 
 /*
 ===============
@@ -171,6 +202,8 @@ void UI_LoadArenas( void ) {
 
 		type = Info_ValueForKey( ui_arenaInfos[n], "type" );
 		// if no type specified, it will be treated as "ffa"
+		// Makro - I didn't like the old code, hehe
+/*
 		if( *type ) {
 			if( strstr( type, "ffa" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
@@ -192,6 +225,17 @@ void UI_LoadArenas( void ) {
 			}
 		} else {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
+		}
+*/
+		// Makro - new code
+		if (*type) {
+			for (i=0; RQ3_GameTypes[i].Value != 0; i++) {
+				if ( strstr( type, RQ3_GameTypes[i].Name ) ) {
+					uiInfo.mapList[uiInfo.mapCount].typeBits |= RQ3_GameTypes[i].Value;
+				}
+			}
+		} else {
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= UI_RQ3_DefaultArenaGameType;
 		}
 
 		uiInfo.mapCount++;

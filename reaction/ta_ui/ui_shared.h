@@ -5,9 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.6  2002/03/01 20:02:34  jbravo
-// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
-// makro
+// Revision 1.7  2002/03/03 21:22:58  makro
+// no message
 //
 // Revision 1.5  2002/02/24 00:54:12  makro
 // Even more fixes to the shortcut keys code.
@@ -111,6 +110,8 @@
 #define SLIDER_THUMB_WIDTH 12.0
 #define SLIDER_THUMB_HEIGHT 20.0
 #define	NUM_CROSSHAIRS			10
+//Makro - for the SSG crosshair preview
+#define	NUM_SSGCROSSHAIRS		6
 
 typedef struct {
   const char *command;
@@ -319,6 +320,8 @@ typedef struct {
 	qhandle_t fxBasePic;
   qhandle_t fxPic[7];
 	qhandle_t	crosshairShader[NUM_CROSSHAIRS];
+	//Makro - for the SSG crosshair preview
+	qhandle_t SSGcrosshairShader;
 
 } cachedAssets_t;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/03 21:22:58  makro
+// no message
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -134,7 +137,9 @@ typedef enum {
 	UIMENU_TEAM,
 	UIMENU_POSTGAME,
 //Makro - added weapon menu
-	UIMENU_RQ3_WEAPON
+	UIMENU_RQ3_WEAPON,
+//Makro - added join menu
+	UIMENU_RQ3_JOIN
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

@@ -5,9 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.4  2002/03/01 20:02:34  jbravo
-// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
-// makro
+// Revision 1.5  2002/03/03 21:22:58  makro
+// no message
 //
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
@@ -59,7 +58,7 @@ static const char *netSources[] = {
 static const int numNetSources = sizeof(netSources) / sizeof(const char*);
 
 static const serverFilter_t serverFilters[] = {
-//Makro - we just want Reaction servers in the server list
+//Makro - we only want Reaction servers in the server list
 /*	{"All", "" },
 	{"Quake 3 Arena", "" },
 	{"Team Arena", "missionpack" },
@@ -67,16 +66,17 @@ static const serverFilter_t serverFilters[] = {
 	{"Alliance", "alliance20" },
 	{"Weapons Factory Arena", "wfa" },
 	{"OSP", "osp" },*/
+	{"All", "" },
 	{"Reaction", "reaction" }
 };
 
 static const char *teamArenaGameTypes[] = {
-	"FFA",
+	"RQ3 DM",
 	"TOURNAMENT",
 	"SP",
 	"TEAM DM",
 //Makro - inserted teamplay
-	"TEAMPLAY",
+	"RQ3 TP",
 	"CTF",
 	"1FCTF",
 	"OVERLOAD",
@@ -242,6 +242,9 @@ void AssetCache() {
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
 		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
 	}
+
+	//Makro - for the SSG crosshair preview
+	uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
 
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
@@ -1282,17 +1285,20 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 	} else {
 		value -= 2;
 
+//Makro - using bot list instead of character list
+/*
 		if (ui_actualNetGameType.integer >= GT_TEAM) {
 			if (value >= uiInfo.characterCount) {
 				value = 0;
 			}
 			text = uiInfo.characterList[value].name;
 		} else {
+*/
 			if (value >= UI_GetNumBots()) {
 				value = 0;
 			}
 			text = UI_GetBotNameByNumber(value);
-		}
+		//}
 	}
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
@@ -1869,17 +1875,20 @@ static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textS
 	int value = uiInfo.botIndex;
 	int game = trap_Cvar_VariableValue("g_gametype");
 	const char *text = "";
+//Makro - using bot list instead of character list
+/*
 	if (game >= GT_TEAM) {
 		if (value >= uiInfo.characterCount) {
 			value = 0;
 		}
 		text = uiInfo.characterList[value].name;
 	} else {
+*/
 		if (value >= UI_GetNumBots()) {
 			value = 0;
 		}
 		text = UI_GetBotNameByNumber(value);
-	}
+//	}
   Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 }
 
@@ -1900,6 +1909,24 @@ static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
 	}
 	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
  	trap_R_SetColor( NULL );
+}
+
+//Makro - for the SSG crosshair preview
+static void UI_DrawSSGCrosshair(rectDef_t *rect) {
+ 	vec4_t color;
+
+	color[0] = trap_Cvar_VariableValue("cg_RQ3_ssgColorR");
+	color[1] = trap_Cvar_VariableValue("cg_RQ3_ssgColorG");
+	color[2] = trap_Cvar_VariableValue("cg_RQ3_ssgColorB");
+	color[3] = trap_Cvar_VariableValue("cg_RQ3_ssgColorA");
+	trap_R_SetColor( color );
+
+	if (uiInfo.currentSSGCrosshair < 0 || uiInfo.currentSSGCrosshair >= NUM_SSGCROSSHAIRS) {
+		uiInfo.currentSSGCrosshair = 0;
+	}
+
+	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.uiDC.Assets.SSGcrosshairShader);
+	trap_R_SetColor( NULL );
 }
 
 /*
@@ -2054,9 +2081,10 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	const char *lines[64];
 	int y, numLines, i;
 
-	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 30, textStyle);
-	Text_Paint(rect->x + 2, rect->y + 15, scale, color, va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), 0, 30, textStyle);
-	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 30, textStyle);
+	//Makro - changed from 30 to 48; changed pixelformat display from (x-bits) to (x)
+	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 48, textStyle);
+	Text_Paint(rect->x + 2, rect->y + 15, scale, color, va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), 0, 48, textStyle);
+	Text_Paint(rect->x + 2, rect->y + 30, scale, color, va ("PIXELFORMAT: color(%d) Z(%d) stencil(%d)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 48, textStyle);
 
 	// build null terminated extension strings
 	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 4096);
@@ -2239,6 +2267,10 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 			break;
 		case UI_CROSSHAIR:
 			UI_DrawCrosshair(&rect, scale, color);
+			break;
+		//Makro - adding SSG crosshair
+		case UI_SSG_CROSSHAIR:
+			UI_DrawSSGCrosshair(&rect);
 			break;
 		case UI_SELECTEDPLAYER:
 			UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
@@ -2589,6 +2621,8 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 			value++;
 		}
 
+//Makro - using bot list instead of character list
+/*
 		if (ui_actualNetGameType.integer >= GT_TEAM) {
 			if (value >= uiInfo.characterCount + 2) {
 				value = 0;
@@ -2596,12 +2630,13 @@ static qboolean UI_TeamMember_HandleKey(int flags, float *special, int key, qboo
 				value = uiInfo.characterCount + 2 - 1;
 			}
 		} else {
+*/
 			if (value >= UI_GetNumBots() + 2) {
 				value = 0;
 			} else if (value < 0) {
 				value = UI_GetNumBots() + 2 - 1;
 			}
-		}
+//		}
 
 		trap_Cvar_Set(cvar, va("%i", value));
     return qtrue;
@@ -2677,6 +2712,8 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 			value++;
 		}
 
+//Makro - using bot list instead of character list
+/*
 		if (game >= GT_TEAM) {
 			if (value >= uiInfo.characterCount + 2) {
 				value = 0;
@@ -2684,12 +2721,13 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 				value = uiInfo.characterCount + 2 - 1;
 			}
 		} else {
+*/
 			if (value >= UI_GetNumBots() + 2) {
 				value = 0;
 			} else if (value < 0) {
 				value = UI_GetNumBots() + 2 - 1;
 			}
-		}
+//		}
 		uiInfo.botIndex = value;
     return qtrue;
   }
@@ -2740,6 +2778,27 @@ static qboolean UI_Crosshair_HandleKey(int flags, float *special, int key) {
 	return qfalse;
 }
 
+//Makro - for the SSG crosshair
+static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key) {
+/*
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER) {
+		if (key == K_MOUSE2) {
+			uiInfo.currentCrosshair--;
+		} else {
+			uiInfo.currentCrosshair++;
+		}
+
+		if (uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
+			uiInfo.currentCrosshair = 0;
+		} else if (uiInfo.currentCrosshair < 0) {
+			uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
+		}
+		trap_Cvar_Set("cg_drawCrosshair", va("%d", uiInfo.currentCrosshair)); 
+		return qtrue;
+	}
+*/
+	return qfalse;
+}
 
 
 static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
@@ -2837,6 +2896,10 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 			UI_RedBlue_HandleKey(flags, special, key);
 			break;
 		case UI_CROSSHAIR:
+			UI_Crosshair_HandleKey(flags, special, key);
+			break;
+		//Makro - for the SSG crosshair
+		case UI_SSG_CROSSHAIR:
 			UI_Crosshair_HandleKey(flags, special, key);
 			break;
 		case UI_SELECTEDPLAYER:
@@ -3310,20 +3373,22 @@ static void UI_RunMenuScript(char **args) {
 			for (i = 0; i < PLAYERS_PER_TEAM; i++) {
 				int bot = trap_Cvar_VariableValue( va("ui_blueteam%i", i+1));
 				if (bot > 1) {
-					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
-					} else {
+					//Makro - using bot list instead of character list
+					//if (ui_actualNetGameType.integer >= GT_TEAM) {
+					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
+					//} else {
 						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
-					}
+					//}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 				bot = trap_Cvar_VariableValue( va("ui_redteam%i", i+1));
 				if (bot > 1) {
-					if (ui_actualNetGameType.integer >= GT_TEAM) {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
-					} else {
+					//Makro - using bot list instead of character list
+					//if (ui_actualNetGameType.integer >= GT_TEAM) {
+					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
+					//} else {
 						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
-					}
+					//}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 			}
@@ -3516,11 +3581,12 @@ static void UI_RunMenuScript(char **args) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
 		} else if (Q_stricmp(name, "addBot") == 0) {
-			if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-			} else {
+			//Makro - using bot list instead of character list
+			//if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
+			//	trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+			//} else {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-			}
+			//}
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource.integer != AS_FAVORITES) {
 				char name[MAX_NAME_LENGTH];
@@ -3855,7 +3921,9 @@ static void UI_BuildServerDisplayList(qboolean force) {
 	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof(uiInfo.serverStatus.motd) );
 	len = strlen(uiInfo.serverStatus.motd);
 	if (len == 0) {
-		strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
+		//Makro - changing from Team Arena to RQ3 beta2
+		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 beta 2 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	} 
 	if (len != uiInfo.serverStatus.motdLen) {
@@ -4440,7 +4508,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 					}
 				case SORT_MAP : return Info_ValueForKey(info, "mapname");
 				case SORT_CLIENTS : 
-					Com_sprintf( clientBuff, sizeof(clientBuff), "%s (%s)", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
+					Com_sprintf( clientBuff, sizeof(clientBuff), "%s / %s", Info_ValueForKey(info, "clients"), Info_ValueForKey(info, "sv_maxclients"));
 					return clientBuff;
 				case SORT_GAME : 
 					game = atoi(Info_ValueForKey(info, "gametype"));
@@ -4820,6 +4888,15 @@ static void UI_ParseTeamInfo(const char *teamFile) {
 
 
 static qboolean GameType_Parse(char **p, qboolean join) {
+/*
+//Sample section
+
+joingametypes {
+  { "All" -1 }
+  { "Free For All" 0 }
+  { "Teamplay" 4 } 
+}
+*/
 	char *token;
 
 	token = COM_ParseExt(p, qtrue);
@@ -4847,6 +4924,8 @@ static qboolean GameType_Parse(char **p, qboolean join) {
 
 		if (token[0] == '{') {
 			// two tokens per line, character name and sex
+			// Makro  - name and sex for gametypes ? Har har har
+			//          They probably mean "name" and "value", heh
 			if (join) {
 				if (!String_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType) || !Int_Parse(p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum)) {
 					return qfalse;
@@ -5262,6 +5341,8 @@ void _UI_Init( qboolean inGameLoad ) {
 	// sets defaults for ui temp cvars
 	uiInfo.effectsColor = gamecodetoui[(int)trap_Cvar_VariableValue("color1")-1];
 	uiInfo.currentCrosshair = (int)trap_Cvar_VariableValue("cg_drawCrosshair");
+	//Makro - for the SSG crosshair preview
+	uiInfo.currentSSGCrosshair = (int)trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair");
 	trap_Cvar_Set("ui_mousePitch", (trap_Cvar_VariableValue("m_pitch") >= 0) ? "0" : "1");
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
@@ -5417,6 +5498,13 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_weapon");
+		  return;
+	  case UIMENU_RQ3_JOIN:
+		  trap_Cvar_Set( "cl_paused", "1" );
+			trap_Key_SetCatcher( KEYCATCH_UI );
+			UI_BuildPlayerList();
+			Menus_CloseAll();
+			Menus_ActivateByName("ingame_join");
 		  return;
 	  }
   }
@@ -5765,10 +5853,11 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 vmCvar_t	ui_RQ3_model_command;
-// JBravo: teamcount cvars for Makro
-vmCvar_t	ui_RQ3_teamCount1;
-vmCvar_t	ui_RQ3_teamCount2;
-vmCvar_t	ui_RQ3_numSpectators;
+//Makro - for the SSG crosshair preview
+vmCvar_t	ui_RQ3_ssgCrosshair;
+//Makro - activate the weapon menu after a team join
+vmCvar_t	ui_RQ3_weapAfterJoin;
+
 
 
 // bk001129 - made static to avoid aliasing
@@ -5893,9 +5982,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	//Makro - cvar for player model display
 	{ &ui_RQ3_model_command, "ui_RQ3_model_command", "0", CVAR_ARCHIVE},
-	{ &ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
-	{ &ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
-	{ &ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM}
+	{ &ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
+	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "0", CVAR_ARCHIVE}
+
 };
 
 // bk001129 - made static to avoid aliasing

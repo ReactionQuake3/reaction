@@ -5,9 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.6  2002/03/01 20:02:34  jbravo
-// Added ui_RQ3_teamCount1, ui_RQ3_teamCount2 and ui_RQ3_numSpectators for
-// makro
+// Revision 1.7  2002/03/03 21:22:58  makro
+// no message
 //
 // Revision 1.5  2002/02/24 00:54:12  makro
 // Even more fixes to the shortcut keys code.
@@ -2646,6 +2645,20 @@ static rectDef_t *Item_CorrectedTextRect(itemDef_t *item) {
 	return &rect;
 }
 
+//Makro - function to determine whether or not an item is visible
+qboolean UI_RQ3_ActiveItem(itemDef_t *item) {
+
+	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
+		return qfalse;
+	}
+
+	if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) && !Item_EnableShowViaCvar(item, CVAR_SHOW)) {
+		return qfalse;
+	}
+
+	return (item->window.flags & WINDOW_VISIBLE); 
+}
+
 //Makro - search for items that have shortcuts
 qboolean UI_RQ3_TriggerShortcut(menuDef_t *menu, int key) {
 	int i;
@@ -2656,7 +2669,7 @@ qboolean UI_RQ3_TriggerShortcut(menuDef_t *menu, int key) {
 
 	if (DC->realTime >= UI_RQ3_lastCheckForShortcuts+UI_RQ3_ShortcutCheckDelay ) {
 		for (i = 0; i < menu->itemCount; i++) {
-			if ( menu->items[i]->window.shortcutKey == key ) {
+			if ( menu->items[i]->window.shortcutKey == key && UI_RQ3_ActiveItem(menu->items[i]) ) {
 				Item_Action(menu->items[i]);
 				return qtrue;
 			}
@@ -3274,8 +3287,9 @@ static bind_t g_bindings[] =
 	{"irvision",		-1,				-1,		-1, -1},
 //Makro - this one was missing
 	{"specialweapon",		-1,			-1,		-1, -1},
-//Makro - for the weapon/item menus
-	{"ui_RQ3_loadout",		-1,			-1,		-1,	-1}
+//Makro - for the weapon/item and join menus
+	{"ui_RQ3_loadout",		-1,			-1,		-1,	-1},
+	{"ui_RQ3_joinTeam",		-1,			-1,		-1,	-1}
 };
 
 
@@ -3708,12 +3722,12 @@ void Item_Model_Paint(itemDef_t *item) {
 	if (modelPtr->rotationSpeed) {
 		if (DC->realTime > item->window.nextTime) {
 			item->window.nextTime = DC->realTime + modelPtr->rotationSpeed;
-			//Makro - now we're using 3 angles, not jsut one
+			//Makro - now we're using 3 angles, not just one
 			//modelPtr->angle = (int)(modelPtr->angle + 1) % 360;
 			modelPtr->angles[0] = (int)(modelPtr->angles[0] + 1) % 360;
 		}
 	}
-	//Makro - now we're using 3 angles, not jsut one
+	//Makro - now we're using 3 angles, not just one
 	//VectorSet( angles, 0, modelPtr->angle, 0 );
 	angles[YAW] = modelPtr->angles[0];
 	angles[PITCH] = modelPtr->angles[1];

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/03 21:22:58  makro
+// no message
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -202,7 +205,8 @@
 #define CG_CAPTURES 69
 
 
-
+//Makro - for SSG crosshair selection
+#define UI_SSG_CROSSHAIR 150
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/03 21:22:58  makro
+// no message
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -349,7 +352,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 				trap_R_RemapShader(shader1, shader2, UI_Argv(3));
 				}
 			else
-			//Makro - if no delay is specified, use 0
+			//Makro - if no offset is specified, use 0
 			if (trap_Argc() == 3) {
 				char shader1[MAX_QPATH];
 				char shader2[MAX_QPATH];
@@ -358,7 +361,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 				trap_R_RemapShader(shader1, shader2, 0);
 				}
 			else
-				Com_Printf("Usage: remapShader <oldShader> <newShader> [delay]\n");	
+				Com_Printf("Usage: remapShader <oldShader> <newShader> [timeOffset]\n");	
 		}
 		else
 			Com_Printf("Shader remapping is cheat-protected\n");
@@ -391,8 +394,52 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		if ( trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY )
 			_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 		else
-			Com_Printf("Not playing teamplay\n");
+			Com_Printf("Not playing teamplay.\n");
 		return qtrue;
+	}
+
+	//Makro - join menu
+	if ( Q_stricmp (cmd, "ui_RQ3_joinTeam") == 0 ) {
+		if ( trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
+			_UI_SetActiveMenu(UIMENU_RQ3_JOIN);
+		else
+			Com_Printf("Not playing a team-based game.\n");
+		return qtrue;
+	}
+
+	//Makro - I've always wanted a command to inc/dec a cvar :)
+	if ( Q_stricmp (cmd, "inc") == 0 ) {
+		if (trap_Argc() >= 2) {
+			char cvar[MAX_CVAR_VALUE_STRING];
+			int amount = 1;
+			int max = 0;
+			int val;
+
+			Q_strncpyz(cvar, UI_Argv(1), sizeof(cvar));
+			val = (int) trap_Cvar_VariableValue(cvar);
+
+			if (trap_Argc() >= 3) {
+				amount = atoi(UI_Argv(2));
+				if (trap_Argc() >= 4) {
+					max = atoi(UI_Argv(3));
+				}
+			}
+			if (max != 0) {
+				trap_Cvar_SetValue(cvar, (val+amount) % max);
+			} else {
+				trap_Cvar_SetValue(cvar, val+amount);
+			}
+		} else {
+			Com_Printf("Usage: inc <cvarName> [amount] [max]\n");	
+		}
+		return qtrue;
+	}
+
+	if ( Q_stricmp (cmd, "error") == 0 ) {
+		if ( trap_Cvar_VariableValue("developer") == 1 ) {
+			Com_Error(ERR_DROP, "Info: Testing error menu. This text should be long enough to get wrapped. Ok, this should be enough. Hope you're not going to see this screen too often");
+		return qtrue;
+		}
 	}
 
 	return qfalse;

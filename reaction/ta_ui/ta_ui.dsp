@@ -158,7 +158,7 @@ SOURCE=.\keycodes.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\ui\menudef.h
+SOURCE=menudef.h
 # End Source File
 # Begin Source File
 
