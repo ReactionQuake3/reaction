@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/02/24 16:40:35  jbravo
+// Fixed a bug where the mode of knifes and grenades where reset to slashing
+// and short throw.
+//
 // Revision 1.16  2002/02/22 02:13:13  jbravo
 // Fixed a few bugs and did some cleanups
 //
@@ -577,14 +581,14 @@ void EquipPlayer (gentity_t *ent)
 	ent->client->ps.weapon = ent->client->teamplayWeapon;
 	ent->client->numClips[ WP_PISTOL ] = 1;			// extra clip of ammo for pistol
 	ent->client->ps.ammo[ WP_PISTOL] = RQ3_PISTOL_AMMO;
-	ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+//	ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
 	
 	if (ent->client->teamplayItem == HI_BANDOLIER) {
 		bandolierFactor = 2;
 		grenades = trap_Cvar_VariableIntegerValue( "g_RQ3_tgren" );
 		if (grenades > 0)
 			ent->client->ps.ammo[WP_GRENADE] = grenades;
-			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
+//			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
 	} else {
 		bandolierFactor = 1;
 	}
