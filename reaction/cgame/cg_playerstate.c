@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/03/13 18:41:18  slicer
+// Adjusted some of elder's unzoom code for the new sniper system ( server side )
+//
 // Revision 1.16  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -257,9 +260,10 @@ void CG_Respawn( void ) {
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
-	
+
+//Slicer: Done Server Side
 	//Elder: added to reset zoom stuff LOCALLY
-	CG_RQ3_Zoom1x();
+	//CG_RQ3_Zoom1x();
 
 }
 

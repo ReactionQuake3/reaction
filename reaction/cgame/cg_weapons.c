@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/13 18:41:18  slicer
+// Adjusted some of elder's unzoom code for the new sniper system ( server side )
+//
 // Revision 1.52  2002/03/11 03:25:41  jbravo
 // Minor fix for NA
 //
@@ -2050,8 +2053,9 @@ void CG_NextWeapon_f( void ) {
 	if ( i == 16 ) {
 		cg.weaponSelect = original;
 	}
+//Slicer: Done Server Side
 	else {
-		CG_RQ3_Zoom1x();
+//		CG_RQ3_Zoom1x();
 		trap_SendClientCommand("unzoom");
 	}
 }
@@ -2119,7 +2123,8 @@ void CG_PrevWeapon_f( void ) {
 		cg.weaponSelect = original;
 	}
 	else {
-		CG_RQ3_Zoom1x();
+//Slicer: Done Server Side
+		//CG_RQ3_Zoom1x();
 		trap_SendClientCommand("unzoom");
 	}
 }
@@ -2197,7 +2202,8 @@ void CG_SpecialWeapon_f( void ) {
 		cg.weaponSelect = original;
 	}
 	else {
-		CG_RQ3_Zoom1x();
+//Slicer: Done Server Side
+	//	CG_RQ3_Zoom1x();
 		trap_SendClientCommand("unzoom");
 	}
 }
@@ -2444,8 +2450,8 @@ void CG_Weapon_f( void ) {
 
 	//cg.zoomed = qfalse;
 	//cg.zoomLevel = 0;
-
-	CG_RQ3_Zoom1x();
+//Slicer : Done Server Side
+//	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("unzoom");
 	cg.weaponSelect = num;
 }

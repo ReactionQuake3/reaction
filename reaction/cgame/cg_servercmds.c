@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/03/13 18:41:18  slicer
+// Adjusted some of elder's unzoom code for the new sniper system ( server side )
+//
 // Revision 1.19  2002/03/03 21:44:01  blaze
 // weapon stats, done, beta test for bugs
 //
@@ -1230,7 +1233,8 @@ static void CG_ServerCommand( void ) {
 				default:
 					cg.weaponSelectTime = cg.time;
 					cg.weaponSelect = WP_PISTOL;
-					CG_RQ3_Zoom1x();
+				//Slicer: Done Server Side
+					//CG_RQ3_Zoom1x();
 					break;
 			}
 		}

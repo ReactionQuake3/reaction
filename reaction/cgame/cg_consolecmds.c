@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/13 18:41:18  slicer
+// Adjusted some of elder's unzoom code for the new sniper system ( server side )
+//
 // Revision 1.30  2002/03/07 00:03:00  assimon
 // Added some trap_AddComand for ref  cvars
 //
@@ -90,8 +93,8 @@ static void CG_DropWeapon_f (void) {
 		CG_Printf("You are too busy bandaging!\n");
 		return;
 	}
-
-	CG_RQ3_Zoom1x();
+//Slicer: Done Server Side
+//	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("dropweapon");
 }
 
@@ -168,10 +171,11 @@ static void CG_Bandage_f (void) {
 	//}
 	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 		return;
-
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
+//Slicer: Done Server Side
+/*	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
 		CG_RQ3_Zoom1x();
 	}
+	*/
 	trap_SendClientCommand("bandage");
 }
 

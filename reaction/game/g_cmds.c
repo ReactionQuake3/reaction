@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/03/13 18:40:52  slicer
+// Adjusted some of elder's unzoom code for the new sniper system ( server side )
+//
 // Revision 1.68  2002/03/07 19:46:47  jbravo
 // No dropping weapons or items if bandaging
 //
@@ -2650,7 +2653,7 @@ void Cmd_DropWeapon_f( gentity_t *ent ) {
 	}
 
 	//Elder: remove zoom bits
-	//Cmd_Unzoom(ent);
+	Cmd_Unzoom(ent);
 	//Throwing away return value here; high precedence weapon drop
 	ThrowWeapon( ent, qtrue );
 }
