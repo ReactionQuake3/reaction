@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.152  2002/07/08 04:25:02  niceass
+// changes to who can be seen dead. removed deaths
+//
 // Revision 1.151  2002/07/07 23:54:57  jbravo
 // Say and Say_team now resets the idle timer
 //
@@ -409,18 +412,29 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		// NiceAss: No one can see who is dead or alive in matchmode when alive.
 		// But if you are dead, you can see who is dead/alive on your team.
 		alive = cl->sess.sessionTeam != TEAM_SPECTATOR;
-		if (g_RQ3_matchmode.integer && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
-			alive = qtrue;
-		if (g_RQ3_matchmode.integer && ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-		    ent->client->sess.savedTeam != cl->sess.savedTeam)
-			alive = qtrue;
+		
+		if (g_gametype.integer >= GT_TEAM && level.team_round_going) {
+			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
+				alive = qtrue;
 
-		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i], cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime) / 60000, scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, cl->ps.persistant[PERS_KILLED],		// NiceAss: Added for scoreboard
-			    cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
-			    alive,					// JBravo: Added for TP scoreboard
-			    cl->sess.captain,				// Slicer: Added for Matchmode Scoreboard
-			    cl->sess.sub				// Slicer: Added for Matchmode Scoreboard
-		    );
+			if (g_RQ3_matchmode.integer && ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+				ent->client->sess.savedTeam != cl->sess.savedTeam)
+				alive = qtrue;
+		}
+
+		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", 
+			level.sortedClients[i], 
+			cl->ps.persistant[PERS_SCORE], 
+			ping, 
+			(level.time - cl->pers.enterTime) / 60000, 
+			scoreFlags, 
+			g_entities[level.sortedClients[i]].s.powerups, 
+			accuracy, 
+			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
+			alive,					// JBravo: Added for TP scoreboard
+			cl->sess.captain,				// Slicer: Added for Matchmode Scoreboard
+			cl->sess.sub				// Slicer: Added for Matchmode Scoreboard
+			);
 
 		j = strlen(entry);
 		if (stringlength + j > 1024)
