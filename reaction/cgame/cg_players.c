@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/01 18:09:55  makro
+// Disabled footsteps from animation.cfg files
+//
 // Revision 1.23  2002/04/23 11:24:06  jbravo
 // Removed a debug message and did some cleanups
 //
@@ -162,14 +165,18 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 				ci->footsteps = FOOTSTEP_NORMAL;
 			} else if ( !Q_stricmp( token, "boot" ) ) {
 				ci->footsteps = FOOTSTEP_BOOT;
+			//Makro - no need for these footsteps
+			/*
 			} else if ( !Q_stricmp( token, "flesh" ) ) {
 				ci->footsteps = FOOTSTEP_FLESH;
 			} else if ( !Q_stricmp( token, "mech" ) ) {
 				ci->footsteps = FOOTSTEP_MECH;
 			} else if ( !Q_stricmp( token, "energy" ) ) {
-				ci->footsteps = FOOTSTEP_ENERGY;
+				ci->footsteps = FOOTSTEP_ENERGY;*/
 			} else {
-				CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
+				//Makro - added developer 1 check
+				if (trap_Cvar_VariableValue("developer"))
+					CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
 			}
 			continue;
 		} else if ( !Q_stricmp( token, "headoffset" ) ) {
