@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/04/03 17:46:14  makro
+// Fixed one more thing
+//
 // Revision 1.13  2002/04/03 17:39:36  makro
 // Made bots handle incoming radio spam better
 //
@@ -4895,11 +4898,6 @@ void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 			if ( (willreply) && (FloatTime() > BOT_RADIO_REPLY_TIME + bs->radioresponse_time) && (bs->radioresponse_count < 20) ) {
 				char *sender = COM_ParseExt(&msg, qtrue);
 				qboolean responded = qfalse;
-
-				//Lazy bots
-				if ( random() < 0.5 ) {
-					sender = strlwr(sender);
-				}
 
 				if (strstr(msg, "treport")) {
 					//Team, report in
