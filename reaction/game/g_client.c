@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/09/02 03:30:53  jbravo
+// Hopefully fixed the skinhacking
+//
 // Revision 1.114  2002/08/30 01:09:06  jbravo
 // Semi fixed the bodies thing in CTB
 //
@@ -1045,21 +1048,12 @@ if desired.
 void ClientUserinfoChanged(int clientNum)
 {
 	gentity_t *ent;
-	int teamTask, teamLeader, team, health;
-	char *s;
-	char model[MAX_QPATH];
-	char headModel[MAX_QPATH];
-	char oldname[MAX_STRING_CHARS];
 	gclient_t *client;
-	char c1[MAX_INFO_STRING];
-	char c2[MAX_INFO_STRING];
-	char redTeam[MAX_INFO_STRING];
-	char blueTeam[MAX_INFO_STRING];
-	char userinfo[MAX_INFO_STRING];
-
-	// NiceAss: Added the following. Needed to prevent all models but "grunt"
+	int teamTask, teamLeader, team, health, gender;
+	char *s, model[MAX_QPATH], headModel[MAX_QPATH], oldname[MAX_STRING_CHARS];
+	char c1[MAX_INFO_STRING], c2[MAX_INFO_STRING], redTeam[MAX_INFO_STRING];
+	char blueTeam[MAX_INFO_STRING], userinfo[MAX_INFO_STRING];
 	char *skin2, model2[MAX_STRING_CHARS];
-	int gender;
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -1106,7 +1100,6 @@ void ClientUserinfoChanged(int clientNum)
 	if (client->pers.maxHealth < 1 || client->pers.maxHealth > 100) {
 		client->pers.maxHealth = 100;
 	}
-	//client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// set model
 	if (g_gametype.integer >= GT_TEAM) {
@@ -1137,8 +1130,8 @@ void ClientUserinfoChanged(int clientNum)
 		client->SuicideLikeARealMan = atoi(s);
 	}
 
-	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
-		if (client->sess.sessionTeam == TEAM_RED) {
+	if (g_gametype.integer >= GT_TEAM) {
+		if (client->sess.savedTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
 			skin2 = Q_strrchr(model2, '/');
 			if (skin2) {
@@ -1178,8 +1171,6 @@ void ClientUserinfoChanged(int clientNum)
 			skin2 = "default";
 		}
 
-		// Makro - adding abbey
-//              if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
 		// JBravo: Validating the model
 		gender = RQ3_Validatemodel(model2);
 		if (gender == -1) {
@@ -1207,51 +1198,6 @@ void ClientUserinfoChanged(int clientNum)
 		team = client->sess.sessionTeam;
 	}
 
-	//Slicer: for the anti-cheat system
-/*	s = Info_ValueForKey( userinfo, "cg_RQ3_auth" );
-
-	if(!atoi(s)) {
-		  //Blaze: Send cheat cvars to client
-		if (!G_SendCheatVars(clientNum))
-		{
-			Com_Printf("Error loading cvar cfg\n");
-			//return "Error_loading_cvar_cfg";
-		}
-		else {
-			// This didn't really worked...
-			/ *	G_Printf("Sending changed userinfo\n");
-				Info_SetValueForKey( userinfo, "cg_RQ3_auth", "1" );
-				// register the userinfo
-				trap_SetUserinfo( clientNum, userinfo );
-			trap_SendServerCommand( clientNum, va("rq3_cmd %i",AUTH));
-
-		}
-		
-		
-	}
-	*/
-
-/*	NOTE: all client side now
-
-	// team
-	switch( team ) {
-	case TEAM_RED:
-		ForceClientSkin(client, model, "red");
-//		ForceClientSkin(client, headModel, "red");
-		break;
-	case TEAM_BLUE:
-		ForceClientSkin(client, model, "blue");
-//		ForceClientSkin(client, headModel, "blue");
-		break;
-	}
-		// don't ever use a default skin in teamplay, it would just waste memory
-	// however bots will always join a team but they spawn in as spectator
-	if ( g_gametype.integer >= GT_TEAM && team == TEAM_SPECTATOR) {
-		ForceClientSkin(client, model, "red");
-//		ForceClientSkin(client, headModel, "red");
-	}
-*/
-
 	// teamInfo
 	s = Info_ValueForKey(userinfo, "teamoverlay");
 	if (!*s || atoi(s) != 0) {
@@ -1259,15 +1205,6 @@ void ClientUserinfoChanged(int clientNum)
 	} else {
 		client->pers.teamInfo = qfalse;
 	}
-	/*
-	   s = Info_ValueForKey( userinfo, "cg_pmove_fixed" );
-	   if ( !*s || atoi( s ) == 0 ) {
-	   client->pers.pmoveFixed = qfalse;
-	   }
-	   else {
-	   client->pers.pmoveFixed = qtrue;
-	   }
-	 */
 
 	// team task (0 = none, 1 = offence, 2 = defence)
 	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
@@ -1285,7 +1222,6 @@ void ClientUserinfoChanged(int clientNum)
 	// print scoreboards, display models, and play custom sounds
 	if (ent->r.svFlags & SVF_BOT) {
 		//Makro - adding teamplay weapon/item info for bots
-		//s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
 		s = va
 		    ("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\tpw\\%s\\tpi\\%s",
 		     client->pers.netname, team, model, headModel, c1, c2, client->pers.maxHealth, client->sess.wins,
