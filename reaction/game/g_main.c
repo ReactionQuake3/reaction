@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.107  2002/08/13 16:59:16  makro
 // Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
 //
@@ -552,7 +555,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "5", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "20", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
@@ -1060,6 +1063,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
 		level.num_potential_spawns[0] = 0;
 		level.num_potential_spawns[1] = 0;
+		level.team1respawn = level.team2respawn = 0;
 	}
 // Slicer: reset matchmode vars
 	if (g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
@@ -2557,6 +2561,18 @@ void G_RunFrame(int levelTime)
 
 	// for tracking changes
 	CheckCvars();
+
+	// JBravo: check for CTB respawns
+	if (g_gametype.integer == GT_CTF) {
+		if (level.team1respawn && level.time > level.team1respawn) {
+			RQ3_Respawn_CTB_players(TEAM_RED);
+			level.team1respawn = 0;
+		}
+		if (level.team2respawn && level.time > level.team2respawn) {
+			RQ3_Respawn_CTB_players(TEAM_BLUE);
+			level.team2respawn = 0;
+		}
+	}
 
 	if (g_listEntity.integer) {
 		for (i = 0; i < MAX_GENTITIES; i++) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.128  2002/08/07 16:13:33  jbravo
 // Case carrier glowing removed. Ignorenum bug fixed
 //
@@ -1255,6 +1258,43 @@ void UnstickPlayer(gentity_t * ent)
 	}
 }
 
+void RQ3_StartTimer (int team, int delay)
+{
+	int i;
+	gentity_t *ent;
+
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse || !ent->client)
+			continue;
+		if (!ent->client->pers.connected != CON_CONNECTED)
+			continue;
+		if (ent->client->sess.savedTeam == team)
+			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", CTBCOUNTDOWN, delay));
+	}
+}
+
+void RQ3_Respawn_CTB_players(int team)
+{
+	int i;
+	gentity_t *ent;
+
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse || !ent->client)
+			continue;
+		if (ent->client->sess.savedTeam == team && ent->client->sess.spectatorState == SPECTATOR_FREE) {
+			ent->client->weaponCount[ent->client->ps.weapon] = ent->client->savedPSweapon;
+			ent->client->ps.stats[STAT_WEAPONS] = ent->client->savedSTAT;
+			ent->client->sess.sessionTeam = team;
+			ent->client->ps.persistant[PERS_TEAM] = team;
+			ent->client->sess.spectatorState = SPECTATOR_NOT;
+			ent->client->specMode = SPECTATOR_NOT;
+			respawn(ent);
+		}
+	}
+}
+
 void MakeSpectator(gentity_t * ent)
 {
 	gclient_t *client;
@@ -1265,23 +1305,49 @@ void MakeSpectator(gentity_t * ent)
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue(ent);
 
-	for (i = 0; i < level.maxclients; i++) {
-		follower = &g_entities[i];
-		if (!follower->inuse || !follower->client)
-			continue;
-		if (follower->client->pers.connected != CON_CONNECTED)
-			continue;
-		if (follower->client->sess.sessionTeam != TEAM_SPECTATOR) 
-			continue;
-		if (follower->client->sess.spectatorClient == ent->s.number &&
-				follower->client->sess.spectatorState == SPECTATOR_FOLLOW)
-			Cmd_FollowCycle_f(follower, 1);
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		for (i = 0; i < level.maxclients; i++) {
+			follower = &g_entities[i];
+			if (!follower->inuse || !follower->client)
+				continue;
+			if (follower->client->pers.connected != CON_CONNECTED)
+				continue;
+			if (follower->client->sess.sessionTeam != TEAM_SPECTATOR) 
+				continue;
+			if (follower->client->sess.spectatorClient == ent->s.number &&
+					follower->client->sess.spectatorState == SPECTATOR_FOLLOW)
+				Cmd_FollowCycle_f(follower, 1);
+		}
 	}
-
+	if (g_gametype.integer == GT_CTF) {
+		client->savedPSweapon = client->weaponCount[ent->client->ps.weapon];
+		client->savedSTAT = client->ps.stats[STAT_WEAPONS];
+	}
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
+
+	if (g_gametype.integer == GT_CTF) {
+		client->sess.spectatorState = SPECTATOR_FREE;
+		client->specMode = SPECTATOR_FREE;
+		client->ps.pm_flags &= ~PMF_FOLLOW;
+		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		client->ps.pm_type = PM_FREEZE;
+		if (client->sess.savedTeam == TEAM_RED) {
+			if (level.team1respawn == 0) {
+				level.team1respawn = level.time + (g_RQ3_ctb_respawndelay.integer * 1000);
+				RQ3_StartTimer(TEAM_RED, g_RQ3_ctb_respawndelay.integer);
+			}
+		} else if (client->sess.savedTeam == TEAM_BLUE) {
+			if (level.team2respawn == 0) {
+				level.team2respawn = level.time + (g_RQ3_ctb_respawndelay.integer * 1000);
+				RQ3_StartTimer(TEAM_BLUE, g_RQ3_ctb_respawndelay.integer);
+			}
+		}
+		ClientSpawn(ent);
+		return;
+	}
 	if (ent->r.svFlags & SVF_BOT)
 		client->sess.spectatorState = SPECTATOR_FREE;
 	else if (g_RQ3_limchasecam.integer != 0) {

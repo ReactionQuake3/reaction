@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.110  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -1512,7 +1515,7 @@ void ClientBegin(int clientNum)
 	//}
 
 	//Slicer: Saving persistant and ping
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		savedPing = client->ps.ping;
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			savedPers[i] = client->ps.persistant[i];
@@ -1532,7 +1535,7 @@ void ClientBegin(int clientNum)
 	client->ps.eFlags = flags;
 
 	//Slicer: Repost score and ping 
-	if (g_gametype.integer == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 		client->ps.ping = savedPing;
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			client->ps.persistant[i] = savedPers[i];
@@ -1647,6 +1650,7 @@ void ClientSpawn(gentity_t * ent)
 	int savedMaleSet, savedFemaleSet;	// JBravo: for soundset saves.
 	camera_t savedCamera;	// JBravo: to save camera stuff
 	char userinfo[MAX_INFO_STRING];
+	char *classname;
 
 	//Slicer : Laser FIX
 
@@ -1661,8 +1665,26 @@ void ClientSpawn(gentity_t * ent)
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if (g_gametype.integer == GT_CTF && (client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE)) {
+			spawnPoint = NULL;
+			if (client->sess.savedTeam == TEAM_RED)
+				classname = "team_CTF_redflag";
+			else if (client->sess.savedTeam == TEAM_BLUE)
+				classname = "team_CTF_blueflag";
+			else
+				G_Printf("Wtf ? What team are U on boy ?\n");
+			
+			while ((spawnPoint = G_Find(spawnPoint, FOFS(classname), classname)) != NULL) {
+				if (!(spawnPoint->flags & FL_DROPPED_ITEM))
+					break;
+			}
+			if (spawnPoint) {
+				VectorCopy(spawnPoint->r.currentOrigin, spawn_origin);
+				VectorCopy(spawnPoint->s.angles, spawn_angles);
+				spawn_origin[2] += 30;
+			} 
+		} else if (VectorLength(ent->client->ps.origin) == 0.0f) {
 		// Origin is not set yet? Use a spawn point
-		if (VectorLength(ent->client->ps.origin) == 0.0f) {
 			spawnPoint = SelectSpectatorSpawnPoint(spawn_origin, spawn_angles);
 		}		// Have a set origin already? Use it. (where you died or changed to spectator)
 		else {
@@ -1950,6 +1972,11 @@ void ClientSpawn(gentity_t * ent)
 	if (g_gametype.integer != GT_TEAMPLAY)
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
+
+// JBravo: lock the player down
+	if (g_gametype.integer == GT_CTF && ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+			(ent->client->sess.savedTeam == TEAM_RED || ent->client->sess.savedTeam == TEAM_BLUE))
+		ent->client->ps.pm_type = PM_FREEZE;
 
 	// clear entity state values
 	BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.115  2002/08/21 03:36:04  niceass
 // move of some vector functions outside of just game
 //
@@ -686,6 +689,8 @@ struct gclient_s {
 	int ff_warning;
 	int team_kills;
 	int idletime;
+	int savedPSweapon;
+	int savedSTAT;
 	qboolean gibbed;
 
 	//Slicer Flood protect:
@@ -818,6 +823,9 @@ typedef struct {
 	vec3_t team2spawn_angles;
 	int fps;
 	int lights_delay;
+// JBravo: for CTB
+	int team1respawn;
+	int team2respawn;
 	//Slicer: 
 	int team1gender;
 	int team2gender;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.20  2002/06/22 00:19:57  jbravo
 // Cleanups for colors and stopped bots looking for team leaders in TP
 //
@@ -124,3 +127,4 @@ int IsInIgnoreList(gentity_t * source, gentity_t * subject);
 void RQ3_GetSpawnPoints (void);
 void ResetKills(gentity_t * ent);
 void AddKilledPlayer(gentity_t * self, gentity_t * ent);
+void RQ3_Respawn_CTB_players(int team);

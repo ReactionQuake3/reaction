@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.18  2002/07/20 05:06:01  niceass
 // scoreboard remembering your team in CTB but lying is fixed
 //
@@ -187,6 +190,10 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				sess->savedTeam = PickTeam(-1);
 				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
+			} else if (g_gametype.integer == GT_CTF) {
+				sess->savedTeam = PickTeam(-1);
+				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
+				sess->sessionTeam = sess->savedTeam;
 			} else
 				sess->sessionTeam = PickTeam(-1);
 			BroadcastTeamChange(client, -1);

@@ -37,7 +37,9 @@
 * Hitboxes now 100% AQ style
 * Removed cockingsounds from all weapons except the mk23, m4 and mp5
 * Fixed the bot_minplayer system.
-
+* Added spawnflag 8 to breakables to allow them to be unkickable
+* Created a CTB respawn Queue.
+* Added propper handling of players waiting for a respawn in CTB
 
 # List fixes here for the 2.1 release
 
@@ -111,4 +113,3 @@
 * Shell ejections on spawn in TP should be fixed
 * Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
 * Added CTB radio commands to all radio sets.
-* Added spawnflag 8 to breakables to allow them to be unkickable

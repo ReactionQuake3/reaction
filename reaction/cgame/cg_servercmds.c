@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.60  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -1174,6 +1177,11 @@ void RemoveColorEscapeSequences(char *text)
 	text[l] = '\0';
 }
 
+void CG_CtbCountDown(int delay)
+{
+	// NiceAss, do your magic here :)
+}
+
 /*
 =================
 CG_RQ3_Cmd by sLiCeR
@@ -1331,6 +1339,10 @@ void CG_RQ3_Cmd()
 		break;
 	case CVARSET:
 		CG_CvarSet();
+		break;
+	case CTBCOUNTDOWN:
+		i = atoi(CG_Argv(1));
+		CG_CtbCountDown(i);
 		break;
 	default:
 		break;

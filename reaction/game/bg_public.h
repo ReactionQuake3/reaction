@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.92  2002/08/21 03:43:57  niceass
 // allow clipvelocity outside of the bg_'s
 //
@@ -362,7 +365,8 @@ enum {
 	STOPDEMO,
 	SCREENSHOT,
 	OWNED,
-	CVARSET
+	CVARSET,
+	CTBCOUNTDOWN
 };
 
 //Elder: sound events for EV_RQ3_SOUND

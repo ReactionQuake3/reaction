@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.61  2002/08/07 04:46:20  niceass
 // ctb changes
 //
@@ -639,7 +642,7 @@ static float CG_DrawScore(float y)
 
 	y += 4;
 
-	if (cgs.gametype == GT_TEAMPLAY)
+	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF)
 		team = cg.snap->ps.persistant[PERS_SAVEDTEAM];
 	else
 		team = cg.snap->ps.persistant[PERS_TEAM];
@@ -1929,7 +1932,7 @@ static void CG_DrawSpectator(void)
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	if (cgs.gametype == GT_TEAMPLAY) {
+	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
 		CG_TeamColor(cg.snap->ps.persistant[PERS_SAVEDTEAM], Color);
 		Color[0] *= 0.7f;
 		Color[1] *= 0.7f;
@@ -1942,7 +1945,11 @@ static void CG_DrawSpectator(void)
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
 	CG_DrawCleanLine(0, 420, 640, 1, Color);
 
-	CG_DrawBigString(320 - 10 * 8, 425, "Spectating", 1.0F);
+	if (cgs.gametype == GT_CTF && (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED ||
+				cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE))
+		CG_DrawBigString(320 - 26 * 8, 425, "Waiting for a Team Respawn", 1.0F);
+	else
+		CG_DrawBigString(320 - 10 * 8, 425, "Spectating", 1.0F);
 
 	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE)
 		return;

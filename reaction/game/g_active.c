@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.86  2002/07/24 02:17:38  jbravo
 // Added a respawn delay for CTB
 //
@@ -494,7 +497,11 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 	}
 
 	if (client->sess.spectatorState == SPECTATOR_FREE) {
-		client->ps.pm_type = PM_SPECTATOR;
+		if (g_gametype.integer == GT_CTF && client->sess.spectatorState == SPECTATOR_FREE &&
+			(client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE))
+			client->ps.pm_type = PM_FREEZE;
+		else
+			client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
 
 		// set up for pmove
@@ -535,6 +542,10 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
+
+	if (g_gametype.integer == GT_CTF && client->sess.spectatorState == SPECTATOR_FREE &&
+		(client->sess.savedTeam == TEAM_RED || client->sess.savedTeam == TEAM_BLUE))
+		return;
 
 	// Attack Button cycles throught free view, follow or zcam
 	if ((ucmd->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) {
@@ -1189,16 +1200,16 @@ void ClientThink_real(gentity_t * ent)
 				respawn(ent);
 				return;
 			}
-			if (g_gametype.integer == GT_TEAMPLAY && level.time > client->respawnTime) {
+			if ((g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) && level.time > client->respawnTime) {
 				MakeSpectator(ent);
 			}
-			if (g_gametype.integer == GT_CTF) {
+/*			if (g_gametype.integer == GT_CTF) {
 				if (level.time > client->time_of_death + (g_RQ3_ctb_respawndelay.integer * 1000)) {
 					respawn(ent);
 				} else {
 					return;
 				}
-			}
+			} */
 			// pressing attack or use is the normal respawn method
 			// JBravo: make'em spactate
 			if (ucmd->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) {
@@ -1320,7 +1331,7 @@ void SpectatorClientEndFrame(gentity_t * ent)
 				//This will make the spectator get the client's stuff
 				ent->client->ps = cl->ps;
 				//Reposting score and ping.. 
-				if (g_gametype.integer == GT_TEAMPLAY) {
+				if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
 					for (i = 0; i < MAX_PERSISTANT; i++)
 						ent->client->ps.persistant[i] = savedPers[i];
 

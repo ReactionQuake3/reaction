@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.160  2002/08/21 07:00:07  jbravo
+// Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
+//
 // Revision 1.159  2002/08/17 01:56:31  jbravo
 // % vars now only work in say_team mode.
 //
@@ -1142,6 +1145,12 @@ void SetTeam(gentity_t * ent, char *s)
 			client->radioGender = level.team2gender;
 
 	} else {
+		if (g_gametype.integer == GT_CTF) {
+			CheckForUnevenTeams(ent);
+			CalculateRanks();
+			ResetKills(ent);
+			client->last_damaged_players[0] = '\0';
+		}
 		ClientUserinfoChanged(clientNum);
 		ClientBegin(clientNum);
 	}
