@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/04/23 06:03:05  niceass
+// scoreboard stuff
+//
 // Revision 1.95  2002/04/18 16:13:23  jbravo
 // Scoreboard now shows green for live players and white for dead.
 // Time should not get reset on deaths any more.
@@ -205,7 +208,7 @@ DeathmatchScoreboardMessage
 */ 
 void DeathmatchScoreboardMessage (gentity_t *ent) {
 	char		entry[1024], string[1400];
-	int		stringlength, i, j, alive;
+	int		stringlength, i, j;
 	gclient_t	*cl;
 	int		numSorted, scoreFlags, accuracy;
 
@@ -233,15 +236,13 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 			accuracy = 0;
 		}
 
-		alive = cl->sess.sessionTeam != TEAM_SPECTATOR ? 1 : 0;
-
 		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
-			cl->ps.persistant[PERS_KILLED],		// NiceAss: Added for TP scoreboard
-			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo:  Added for TP scoreboard
-			alive,					// JBravo:  Added for TP scoreboard
+			cl->ps.persistant[PERS_KILLED],			// NiceAss: Added for scoreboard
+			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
+			cl->sess.sessionTeam != TEAM_SPECTATOR,	// JBravo:  Added for TP scoreboard
 			0,
 			0,
 			0,
