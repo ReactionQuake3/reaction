@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/05/11 15:40:41  slicer
+// Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
+//
 // Revision 1.34  2002/05/09 02:43:12  jbravo
 // Fixing stuff and use cmd's
 //
@@ -1148,7 +1151,7 @@ void CG_Stuffcmd(void) {
 	cmd = CG_ConcatArgs (1);
 	trap_SendConsoleCommand (cmd);
 }
-void CG_SetTeamPlayers(void) {
+/*void CG_SetTeamPlayers(void) {
 		int	team, number;
 			char	teamz[64];
 
@@ -1157,13 +1160,13 @@ void CG_SetTeamPlayers(void) {
 		Com_sprintf (teamz, sizeof(teamz), "%i", number);
 
 		if (team == TEAM_RED)
-			trap_Cvar_Set("cg_RQ3_teamCount1", teamz);
+			trap_Cvar_Set("ui_RQ3_teamCount1", teamz);
 		else if (team == TEAM_BLUE)
-			trap_Cvar_Set("cg_RQ3_teamCount2", teamz);
+			trap_Cvar_Set("ui_RQ3_teamCount2", teamz);
 		else if (team == TEAM_SPECTATOR || team == TEAM_FREE)
-			trap_Cvar_Set("cg_RQ3_numSpectators", teamz);
+			trap_Cvar_Set("ui_RQ3_numSpectators", teamz);
 		return;
-}
+}*/
 
 void CG_Radio(void) {
 		int	sound, gender;
@@ -1209,9 +1212,9 @@ void CG_RQ3_Cmd () {
 			trap_Cvar_Set("cg_RQ3_lca", "0");
 			CG_AddBufferedSound(cgs.media.actionSound);
 			break;
-		case SETTEAMPLAYERS:
+		/*case SETTEAMPLAYERS:
 			CG_SetTeamPlayers();
-			break;
+			break;*/
 		case SELECTPISTOL:
 		//	CG_Printf("Selecting pistol\n");
 			if (cg.snap) {

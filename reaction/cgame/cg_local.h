@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/11 15:40:41  slicer
+// Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
+//
 // Revision 1.70  2002/05/09 06:45:14  niceass
 // New tracers
 //
@@ -1624,9 +1627,9 @@ extern	vmCvar_t		cg_RQ3_lca;
 extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
-extern	vmCvar_t		cg_RQ3_teamCount1;
-extern	vmCvar_t		cg_RQ3_teamCount2;
-extern	vmCvar_t		cg_RQ3_numSpectators;
+extern	vmCvar_t		ui_RQ3_teamCount1;
+extern	vmCvar_t		ui_RQ3_teamCount2;
+extern	vmCvar_t		ui_RQ3_numSpectators;
 //Slicer: matchmode team status cvars
 extern	vmCvar_t		cg_RQ3_RefID;
 extern	vmCvar_t		cg_RQ3_matchmode;

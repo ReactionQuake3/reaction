@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/05/11 15:40:41  slicer
+// Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
+//
 // Revision 1.60  2002/05/09 06:41:10  niceass
 // New tracers
 //
@@ -313,9 +316,9 @@ vmCvar_t	cg_RQ3_lca;
 vmCvar_t	cg_RQ3_team_round_going;
 vmCvar_t	cg_RQ3_team1name;
 vmCvar_t	cg_RQ3_team2name;
-vmCvar_t	cg_RQ3_teamCount1;
-vmCvar_t	cg_RQ3_teamCount2;
-vmCvar_t	cg_RQ3_numSpectators;
+vmCvar_t	ui_RQ3_teamCount1;
+vmCvar_t	ui_RQ3_teamCount2;
+vmCvar_t	ui_RQ3_numSpectators;
 
 //Slicer: matchmode team status cvars
 vmCvar_t	cg_RQ3_RefID;
@@ -482,9 +485,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{ &cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
-	{ &cg_RQ3_teamCount1, "cg_RQ3_teamCount1", "0", CVAR_ROM},
-	{ &cg_RQ3_teamCount2, "cg_RQ3_teamCount2", "0", CVAR_ROM},
-	{ &cg_RQ3_numSpectators, "cg_RQ3_numSpectators", "0", CVAR_ROM},
+	{ &ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
+	{ &ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
+	{ &ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM},
 	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},

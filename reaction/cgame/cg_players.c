@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/11 15:40:41  slicer
+// Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
+//
 // Revision 1.25  2002/05/01 18:56:02  makro
 // Small fix
 //
@@ -908,8 +911,35 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 
 	CG_LoadClientInfo( ci );
 }
+/* CG_UpdateTeamVars() by Slicer
 
+This is one attempt to update the team count cvars for the UI, each time
+a player changes it's userinfo ( team, name, etc )
 
+*/
+void CG_UpdateTeamVars() {
+	clientInfo_t	*ci;
+	int		i;
+	int		Reds, Blues, Spectators;
+	char v[2];
+
+	Reds = Blues = Spectators = 0;
+
+	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
+		if(!ci->infoValid)
+			continue;
+		if (ci->team == TEAM_RED) Reds++;
+		if (ci->team == TEAM_BLUE) Blues++;
+		if (ci->team == TEAM_SPECTATOR || ci->team == TEAM_FREE ) Spectators++;	
+	}
+	//CG_Printf("Reds: %i, Blues: %i, Spectators: %i\n",Reds, Blues, Spectators);
+	Com_sprintf(v,sizeof(v),"%i",Reds);
+	trap_Cvar_Set("ui_RQ3_teamCount1",v);
+	Com_sprintf(v,sizeof(v),"%i",Blues);
+	trap_Cvar_Set("ui_RQ3_teamCount2",v);
+	Com_sprintf(v,sizeof(v),"%i",Spectators);
+	trap_Cvar_Set("ui_RQ3_numSpectators",v);
+}
 /*
 ======================
 CG_NewClientInfo
@@ -933,6 +963,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// build into a temp buffer so the defer checks can use
 	// the old value
 	memset( &newInfo, 0, sizeof( newInfo ) );
+
 
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");
@@ -1091,6 +1122,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// replace whatever was there with the new one
 	newInfo.infoValid = qtrue;
 	*ci = newInfo;
+	CG_UpdateTeamVars();
 }
 
 
