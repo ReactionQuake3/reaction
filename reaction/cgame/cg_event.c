@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.65  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -455,6 +459,10 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 //      CG_CalcViewDir2(es->origin2, position, viewDir);
 
 	switch (event) {
+	case EV_INSANESOUND:
+		DEBUGNAME("EV_INSANESOUND");
+		trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.insanesounds[rand() & 7]);
+		break;
 		//
 		// movement generated events
 		//

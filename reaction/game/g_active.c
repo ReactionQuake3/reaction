@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.82  2002/07/02 19:15:17  jbravo
 // Drop weapon with akimbos now behaves like AQ, plus no suicides during LCA
 //
@@ -1217,6 +1221,32 @@ void ClientThink_real(gentity_t * ent)
 			}
 		}
 		return;
+	}
+// JBravo: Idle sounds
+	if (g_RQ3_ppl_idletime.integer) {
+		if (ucmd->forwardmove == 0 && ucmd->rightmove == 0) {
+			if (client->idletime) {
+				if (level.time >= client->idletime + (g_RQ3_ppl_idletime.integer *1000)) {
+					if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_idleaction.integer == 1 &&
+						(ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
+						trap_SendServerCommand( -1, va("print \"Removing %s^7 from his team for excessive Idling\n\"", 
+								ent->client->pers.netname));
+						trap_SendServerCommand(ent - g_entities, "stuff team none\n");
+					} else if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_idleaction.integer == 2 &&
+						(ent->client->sess.sessionTeam == TEAM_RED || ent->client->sess.sessionTeam == TEAM_BLUE)) {
+						trap_SendServerCommand( -1, va("print \"Kicking %s^7 for excessive Idling\n\"", 
+								ent->client->pers.netname));
+						trap_DropClient(ent - g_entities, "Dropped due to excessive Idling");
+					} else
+						G_TempEntity(ent->r.currentOrigin, EV_INSANESOUND);
+					client->idletime = 0;
+				}
+			} else {
+				client->idletime = level.time;
+			}
+		} else {
+			client->idletime = 0;
+		}
 	}
 	// perform once-a-second actions
 	ClientTimerActions(ent, msec);

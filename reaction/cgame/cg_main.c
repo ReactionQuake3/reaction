@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.92  2002/07/01 02:18:41  jbravo
 // Small fixes to CTB and possible fix for subs and limchasecam
 //
@@ -861,6 +865,16 @@ static void CG_RegisterSounds(void)
 	cgs.media.count1Sound = trap_S_RegisterSound("sound/feedback/one.wav", qtrue);
 	cgs.media.countFightSound = trap_S_RegisterSound("sound/feedback/fight.wav", qtrue);
 	cgs.media.countPrepareSound = trap_S_RegisterSound("sound/feedback/prepare.wav", qtrue);
+// JBravo: The insane sounds
+	cgs.media.insanesounds[0] = trap_S_RegisterSound("sound/insane/insane1.wav", qtrue);
+	cgs.media.insanesounds[1] = trap_S_RegisterSound("sound/insane/insane2.wav", qtrue);
+	cgs.media.insanesounds[2] = trap_S_RegisterSound("sound/insane/insane3.wav", qtrue);
+	cgs.media.insanesounds[3] = trap_S_RegisterSound("sound/insane/insane4.wav", qtrue);
+	cgs.media.insanesounds[4] = trap_S_RegisterSound("sound/insane/insane5.wav", qtrue);
+	cgs.media.insanesounds[5] = trap_S_RegisterSound("sound/insane/insane6.wav", qtrue);
+	cgs.media.insanesounds[6] = trap_S_RegisterSound("sound/insane/insane7.wav", qtrue);
+	cgs.media.insanesounds[7] = trap_S_RegisterSound("sound/insane/insane8.wav", qtrue);
+	cgs.media.insanesounds[8] = trap_S_RegisterSound("sound/insane/insane9.wav", qtrue);
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {
 // JBravo: registering the LCA sounds.
 		cgs.media.lightsSound = trap_S_RegisterSound("sound/lca/lights.wav", qtrue);

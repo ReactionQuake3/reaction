@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.83  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1088,6 +1092,7 @@ typedef enum {
 	EV_JUICED,		// invulnerability juiced effect
 	EV_LIGHTNINGBOLT,	// lightning bolt bounced of invulnerability sphere
 
+	EV_INSANESOUND,		// JBravo: for insanesounds
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
 	EV_TAUNT,

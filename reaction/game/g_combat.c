@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.108  2002/07/04 04:20:41  jbravo
 // Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
 // that where in eye spectating someone moved on to another player instantly on death.
@@ -530,7 +534,7 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 		return;
 	}
 
-	if (attacker->client && (g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
+	if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 		attacker->client->pers.records[REC_GIBSHOTS]++;
 
 	GibEntity(self, 0);

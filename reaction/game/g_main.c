@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.99  2002/07/02 09:16:12  makro
 // Added g_RQ3_version cvar for server browsers
 //
@@ -369,6 +373,8 @@ vmCvar_t g_RQ3_gib;
 vmCvar_t g_RQ3_maxteamkills;
 vmCvar_t g_RQ3_twbanrounds;
 vmCvar_t g_RQ3_tkbanrounds;
+vmCvar_t g_RQ3_ppl_idletime;
+vmCvar_t g_RQ3_idleaction;
 
 //Slicer: Team Status Cvars for MM
 //vmCvar_t      g_RQ3_team1ready;
@@ -520,6 +526,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.121  2002/07/04 04:20:41  jbravo
 // Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
 // that where in eye spectating someone moved on to another player instantly on death.
@@ -923,6 +927,7 @@ void SpawnPlayers()
 		clientNum = client - level.clients;
 
 		client->sess.teamSpawn = qtrue;
+		client->idletime = 0;
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
 			client->ps.persistant[PERS_TEAM] = TEAM_RED;
@@ -1938,7 +1943,6 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	if (weapon != WP_NONE) {
 		if (weapon == ent->client->ps.weapon)
 			return;
-		G_Printf("ps.weapon = %i, ps.weaponTime = %i\n", ent->client->ps.weapon, ent->client->ps.weaponTime);
 		if (ent->client->ps.weaponTime == 0)
 			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
 		Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);

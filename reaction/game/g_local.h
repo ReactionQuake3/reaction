@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.106  2002/07/02 09:16:12  makro
 // Added g_RQ3_version cvar for server browsers
 //
@@ -653,6 +657,7 @@ struct gclient_s {
 	int team_wounds_before;
 	int ff_warning;
 	int team_kills;
+	int idletime;
 	qboolean gibbed;
 
 	//Slicer Flood protect:
@@ -1261,20 +1266,22 @@ extern vmCvar_t g_RQ3_messageProtect;	// Elder: 0 disable, non-zero enable
 // JBravo
 extern vmCvar_t g_RQ3_roundlimit;	// JBravo: No. of rounds pr. map
 extern vmCvar_t g_RQ3_roundtimelimit;	// JBravo: Time pr. round
-extern vmCvar_t g_RQ3_tgren;	// JBravo: no. of team grenades
+extern vmCvar_t g_RQ3_tgren;		// JBravo: no. of team grenades
 extern vmCvar_t g_RQ3_limchasecam;	// JBravo: 0 = no chasecam limit, 1 = limited to same team.
-extern vmCvar_t g_RQ3_sniperup;	// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
+extern vmCvar_t g_RQ3_sniperup;		// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
 extern vmCvar_t g_RQ3_team1name;	// JBravo: cvar for the name of team 1
 extern vmCvar_t g_RQ3_team2name;	// JBravo: cvar for the name of team 2
 extern vmCvar_t g_RQ3_team1model;	// JBravo: team 1 model and skin
 extern vmCvar_t g_RQ3_team2model;	// JBravo: team 2 model and skin
 extern vmCvar_t g_RQ3_tpcountdown;	// JBravo: to disable the pregame countdown
-extern vmCvar_t g_RQ3_lca;	// JBravo: cvar to signal cgame that LCA is in progress
+extern vmCvar_t g_RQ3_lca;		// JBravo: cvar to signal cgame that LCA is in progress
 extern vmCvar_t g_RQ3_showOwnKills;	// JBravo: cvar to control if attaker sees his own obits and $K behavior
-extern vmCvar_t g_RQ3_gib;	// JBravo: cvar for gib control
+extern vmCvar_t g_RQ3_gib;		// JBravo: cvar for gib control
 extern vmCvar_t g_RQ3_maxteamkills;	// JBravo: Max teamkills
 extern vmCvar_t g_RQ3_twbanrounds;	// JBravo: no. of games team wounders are banned
 extern vmCvar_t g_RQ3_tkbanrounds;	// JBravo: no. of games team killers are banned
+extern vmCvar_t g_RQ3_ppl_idletime;	// JBravo: Seconds Idle before playing an insane sound
+extern vmCvar_t g_RQ3_idleaction;	// JBravo: what to do with Idlers. 0 = sound, 1 = team none, 2 = kick
 
 //Slicer: Team Status Cvars for MM
 //extern vmCvar_t       g_RQ3_team1ready;

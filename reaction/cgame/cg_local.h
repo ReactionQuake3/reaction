@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/07/07 18:36:13  jbravo
+// Added an AntiIdle system. Can play insane sounds for idle players, drop them
+// from teams or kick them.   Upped version to Beta 2.1
+//
 // Revision 1.103  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1344,6 +1348,7 @@ typedef struct {
 	sfxHandle_t cameraSound;
 	sfxHandle_t actionSound;
 	sfxHandle_t lca10_0Sound;
+	sfxHandle_t insanesounds[9];
 // JBravo: Radio sounds
 
 	//Slicer 
