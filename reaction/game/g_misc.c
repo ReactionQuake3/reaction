@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2003/08/31 14:48:33  jbravo
+// Code not compiling under linux fixed and a warning silenced.
+//
 // Revision 1.73  2003/08/10 20:13:26  makro
 // no message
 //
@@ -813,7 +816,7 @@ static void InitBreakable_Finish(gentity_t * ent)
 {
 	char info[MAX_INFO_STRING];
 
-	ent->think = NULL;
+	ent->think = 0;
 	ent->nextthink = 0;
 	if (ent->s.weapon < 0 || ent->s.weapon >= RQ3_MAX_BREAKABLES) {
 		G_Printf(S_COLOR_RED, "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.150  2003/08/31 14:48:33  jbravo
+// Code not compiling under linux fixed and a warning silenced.
+//
 // Revision 1.149  2003/08/10 20:13:26  makro
 // no message
 //
@@ -361,7 +364,7 @@
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
-#include "..\GAME\q_shared.h"	// Added by ClassView
+#include "../game/q_shared.h"	// Added by ClassView
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.
