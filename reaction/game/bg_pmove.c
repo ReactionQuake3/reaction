@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/03/02 08:03:14  niceass
+// look down movement bug fixed
+//
 // Revision 1.57  2002/02/27 01:54:28  jbravo
 // More spectatorfixes and finally stopped all fallingdamage anims and
 // sounds during LCA.
@@ -945,13 +948,25 @@ static void PM_WalkMove( void ) {
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
 
+	// project the forward and right directions onto the ground plane
+	pml.forward[2] = 0;
+	pml.right[2] = 0;
+
+	PM_ClipVelocity (pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP );
+	PM_ClipVelocity (pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP );
+	//
+	VectorNormalize (pml.forward);
+	VectorNormalize (pml.right);
+
 	for ( i = 0 ; i < 3 ; i++ ) {
-		wishvel[i] = scale*pml.forward[i]*fmove + scale*pml.right[i]*smove;
+		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	}
-	wishvel[2] = 0;
+	// when going up or down slopes the wish velocity should Not be zero
+	//	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
+	wishspeed *= scale;
 
 	// clamp the speed lower if ducking
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
