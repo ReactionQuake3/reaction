@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -145,7 +148,6 @@ typedef enum {
 
 	K_LAST_KEY		// this had better be <256!
 } keyNum_t;
-
 
 // The menu code needs to get both key and char events, but
 // to avoid duplicating the paths, the char events are just

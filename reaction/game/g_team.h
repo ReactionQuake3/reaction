@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.6  2002/06/16 17:38:00  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -55,16 +58,16 @@ const char *OtherTeamName(int team);
 const char *TeamColorString(int team);
 void AddTeamScore(vec3_t origin, int team, int score);
 
-void Team_DroppedFlagThink(gentity_t *ent);
-void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker);
-void Team_CheckHurtCarrier(gentity_t *targ, gentity_t *attacker);
+void Team_DroppedFlagThink(gentity_t * ent);
+void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker);
+void Team_CheckHurtCarrier(gentity_t * targ, gentity_t * attacker);
 void Team_InitGame(void);
 void Team_ReturnFlag(int team);
-void Team_FreeEntity(gentity_t *ent);
-gentity_t *SelectCTFSpawnPoint (team_t team, int teamstate, vec3_t origin, vec3_t angles);
-gentity_t *Team_GetLocation(gentity_t *ent);
-qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen);
-void TeamplayInfoMessage(gentity_t *ent);
+void Team_FreeEntity(gentity_t * ent);
+gentity_t *SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles);
+gentity_t *Team_GetLocation(gentity_t * ent);
+qboolean Team_GetLocationMsg(gentity_t * ent, char *loc, int loclen);
+void TeamplayInfoMessage(gentity_t * ent);
 void CheckTeamStatus(void);
 
-int Pickup_Team(gentity_t *ent, gentity_t *other);
+int Pickup_Team(gentity_t * ent, gentity_t * other);

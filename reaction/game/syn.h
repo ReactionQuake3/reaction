@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.5  2002/04/01 02:56:50  jbravo
 // Some sourcecode reformatting
 //
@@ -18,12 +21,12 @@
 //-----------------------------------------------------------------------------
 //===========================================================================
 //
-// Name:			syn.h
-// Function:		synonyms
-// Programmer:		Mr Elusive
-// Last update:		-
-// Tab Size:		4 (real tabs)
-// Notes:			-
+// Name:                        syn.h
+// Function:            synonyms
+// Programmer:          Mr Elusive
+// Last update:         -
+// Tab Size:            4 (real tabs)
+// Notes:                       -
 //===========================================================================
 
 #define CONTEXT_ALL			0xFFFFFFFF

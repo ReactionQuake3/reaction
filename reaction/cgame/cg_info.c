@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/06/16 20:06:13  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.32  2002/06/16 19:12:52  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -89,11 +92,10 @@
 #define MAX_LOADING_PLAYER_ICONS	16
 #define MAX_LOADING_ITEM_ICONS		26
 
-static int			loadingPlayerIconCount;
-static int			loadingItemIconCount;
-static qhandle_t	loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
-static qhandle_t	loadingItemIcons[MAX_LOADING_ITEM_ICONS];
-
+static int loadingPlayerIconCount;
+static int loadingItemIconCount;
+static qhandle_t loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
+static qhandle_t loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 
 /*
 ===================
@@ -129,8 +131,9 @@ CG_LoadingString
 
 ======================
 */
-void CG_LoadingString( const char *s ) {
-	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
+void CG_LoadingString(const char *s)
+{
+	Q_strncpyz(cg.infoScreenText, s, sizeof(cg.infoScreenText));
 
 	trap_UpdateScreen();
 }
@@ -140,16 +143,17 @@ void CG_LoadingString( const char *s ) {
 CG_LoadingItem
 ===================
 */
-void CG_LoadingItem( int itemNum ) {
-	gitem_t		*item;
+void CG_LoadingItem(int itemNum)
+{
+	gitem_t *item;
 
 	item = &bg_itemlist[itemNum];
-	
-	if ( item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS ) {
-		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip( item->icon );
+
+	if (item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS) {
+		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip(item->icon);
 	}
 
-	CG_LoadingString( item->pickup_name );
+	CG_LoadingString(item->pickup_name);
 }
 
 /*
@@ -157,52 +161,52 @@ void CG_LoadingItem( int itemNum ) {
 CG_LoadingClient
 ===================
 */
-void CG_LoadingClient( int clientNum ) {
-	const char		*info;
-	char			*skin;
-	char			personality[MAX_QPATH];
-	char			model[MAX_QPATH];
-	char			iconName[MAX_QPATH];
+void CG_LoadingClient(int clientNum)
+{
+	const char *info;
+	char *skin;
+	char personality[MAX_QPATH];
+	char model[MAX_QPATH];
+	char iconName[MAX_QPATH];
 
-	info = CG_ConfigString( CS_PLAYERS + clientNum );
+	info = CG_ConfigString(CS_PLAYERS + clientNum);
 
-	if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
-		Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
-		skin = Q_strrchr( model, '/' );
-		if ( skin ) {
+	if (loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS) {
+		Q_strncpyz(model, Info_ValueForKey(info, "model"), sizeof(model));
+		skin = Q_strrchr(model, '/');
+		if (skin) {
 			*skin++ = '\0';
 		} else {
 			skin = "default";
 		}
 
-		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
-		
-		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
-		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
-			Com_sprintf( iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+		Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin);
+
+		loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
+		if (!loadingPlayerIcons[loadingPlayerIconCount]) {
+			Com_sprintf(iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin);
+			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
 		}
-		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
+		if (!loadingPlayerIcons[loadingPlayerIconCount]) {
 			// Elder: changed
-			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, DEFAULT_SKIN );
+			Com_sprintf(iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, DEFAULT_SKIN);
 			//Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default" );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip( iconName );
+			loadingPlayerIcons[loadingPlayerIconCount] = trap_R_RegisterShaderNoMip(iconName);
 		}
-		if ( loadingPlayerIcons[loadingPlayerIconCount] ) {
+		if (loadingPlayerIcons[loadingPlayerIconCount]) {
 			loadingPlayerIconCount++;
 		}
 	}
 
-	Q_strncpyz( personality, Info_ValueForKey( info, "n" ), sizeof(personality) );
-	Q_CleanStr( personality );
+	Q_strncpyz(personality, Info_ValueForKey(info, "n"), sizeof(personality));
+	Q_CleanStr(personality);
 
-	if( cgs.gametype == GT_SINGLE_PLAYER ) {
-		trap_S_RegisterSound( va( "sound/player/announce/%s.wav", personality ), qtrue );
+	if (cgs.gametype == GT_SINGLE_PLAYER) {
+		trap_S_RegisterSound(va("sound/player/announce/%s.wav", personality), qtrue);
 	}
 
-	CG_LoadingString( personality );
+	CG_LoadingString(personality);
 }
-
 
 /*
 ====================
@@ -216,68 +220,72 @@ Draw all the status / pacifier stuff during level loading
 #define LS_CHAR_WIDTH			8
 #define LS_CHAR_HEIGHT			12
 
-void CG_DrawInformation( void ) {
-	const char	*s;
-	const char	*info;
-	const char	*sysInfo;
-	const char	*line;
-	int			x = 8, y, value, bar = 0;
-	qhandle_t	levelshot, shadow, clapper;
-	//qhandle_t	detail;
-	qhandle_t	percentBox;
-	char		buf[1024];
-	//qboolean	skipdetail;
-	vec4_t		color1 = {.75, .75, .75, 1}, color2 = {1, 1, 1, 1};
+void CG_DrawInformation(void)
+{
+	const char *s;
+	const char *info;
+	const char *sysInfo;
+	const char *line;
+	int x = 8, y, value, bar = 0;
+	qhandle_t levelshot, shadow, clapper;
 
-	info = CG_ConfigString( CS_SERVERINFO );
-	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
+	//qhandle_t     detail;
+	qhandle_t percentBox;
+	char buf[1024];
+
+	//qboolean      skipdetail;
+	vec4_t color1 = { .75, .75, .75, 1 }, color2 = {
+	1, 1, 1, 1};
+
+	info = CG_ConfigString(CS_SERVERINFO);
+	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
 	/* Makro - no longer used
-	//Makro - settings read from the worldspawn entity
-	s = CG_ConfigString( CS_LOADINGSCREEN );
-	color1[0] = atof(Info_ValueForKey(s, "r1"));
-	color1[1] = atof(Info_ValueForKey(s, "g1"));
-	color1[2] = atof(Info_ValueForKey(s, "b1"));
-	color2[0] = atof(Info_ValueForKey(s, "r2"));
-	color2[1] = atof(Info_ValueForKey(s, "g2"));
-	color2[2] = atof(Info_ValueForKey(s, "b2"));
-	color1[3] = color2[3] = 1;
-	skipdetail = ( atoi(Info_ValueForKey(s, "nodetail")) != 0 ); 
-	*/
+	   //Makro - settings read from the worldspawn entity
+	   s = CG_ConfigString( CS_LOADINGSCREEN );
+	   color1[0] = atof(Info_ValueForKey(s, "r1"));
+	   color1[1] = atof(Info_ValueForKey(s, "g1"));
+	   color1[2] = atof(Info_ValueForKey(s, "b1"));
+	   color2[0] = atof(Info_ValueForKey(s, "r2"));
+	   color2[1] = atof(Info_ValueForKey(s, "g2"));
+	   color2[2] = atof(Info_ValueForKey(s, "b2"));
+	   color1[3] = color2[3] = 1;
+	   skipdetail = ( atoi(Info_ValueForKey(s, "nodetail")) != 0 ); 
+	 */
 
-	s = Info_ValueForKey( info, "mapname" );
+	s = Info_ValueForKey(info, "mapname");
 	shadow = trap_R_RegisterShaderNoMip("ui/assets/rq3-main-shadow-1.tga");
-	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/load_%s.tga", s ) );
+	levelshot = trap_R_RegisterShaderNoMip(va("levelshots/load_%s.tga", s));
 	percentBox = trap_R_RegisterShaderNoMip("gfx/percent.tga");
 	//Makro - added
-	if ( !levelshot ) {
-		levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+	if (!levelshot) {
+		levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s.tga", s));
 	}
-	if ( !levelshot ) {
+	if (!levelshot) {
 		//Elder: changed
-		levelshot = trap_R_RegisterShaderNoMip( "levelshots/rq3-unknownmap.tga" );
+		levelshot = trap_R_RegisterShaderNoMip("levelshots/rq3-unknownmap.tga");
 		//skipdetail = qtrue;
 	}
-	trap_R_SetColor( NULL );
-	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
+	trap_R_SetColor(NULL);
+	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
 
 	/* Makro - removed
-	// blend a detail texture over it
-	//Elder: changed to RQ3 detail overlay
-	if (!skipdetail) {
-		detail = trap_R_RegisterShader( "rq3-levelShotDetail" );
-		trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
-	}
-	*/
+	   // blend a detail texture over it
+	   //Elder: changed to RQ3 detail overlay
+	   if (!skipdetail) {
+	   detail = trap_R_RegisterShader( "rq3-levelShotDetail" );
+	   trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
+	   }
+	 */
 
 	//Elder: "Letterbox" mask
 	//Makro - changed it a bit
-	CG_FillRect( 0, 0, SCREEN_WIDTH, LS_TOPMARGIN, colorBlack);
-	CG_FillRect( 0, LS_TOPMARGIN, SCREEN_WIDTH, 2, colorMdGrey);
-	CG_FillRect( 0, SCREEN_HEIGHT - LS_BOTTOMMARGIN, SCREEN_WIDTH, LS_BOTTOMMARGIN, colorBlack);
-	CG_FillRect( 0, SCREEN_HEIGHT - LS_BOTTOMMARGIN - 2, SCREEN_WIDTH, 2, colorMdGrey);
+	CG_FillRect(0, 0, SCREEN_WIDTH, LS_TOPMARGIN, colorBlack);
+	CG_FillRect(0, LS_TOPMARGIN, SCREEN_WIDTH, 2, colorMdGrey);
+	CG_FillRect(0, SCREEN_HEIGHT - LS_BOTTOMMARGIN, SCREEN_WIDTH, LS_BOTTOMMARGIN, colorBlack);
+	CG_FillRect(0, SCREEN_HEIGHT - LS_BOTTOMMARGIN - 2, SCREEN_WIDTH, 2, colorMdGrey);
 	//Makro - shadow
-	CG_DrawPic( 0, LS_TOPMARGIN + 2, 640, 12, shadow );
+	CG_DrawPic(0, LS_TOPMARGIN + 2, 640, 12, shadow);
 
 	//Elder: mapname
 	//Makro - removed
@@ -294,8 +302,8 @@ void CG_DrawInformation( void ) {
 	y = LS_TOPMARGIN - 8 - LS_CHAR_HEIGHT;
 
 	// map-specific message (long map name)
-	s = CG_ConfigString( CS_MESSAGE );
-	if ( s[0] ) {
+	s = CG_ConfigString(CS_MESSAGE);
+	if (s[0]) {
 		//Makro - allow color-coded text; also changed to use custom color instead of colorLtGrey
 		//CG_DrawSmallStringColor(x, y, s, colorMdGrey);
 		//CG_DrawStringExt(x, y, s, colorWhite, qtrue, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
@@ -303,10 +311,9 @@ void CG_DrawInformation( void ) {
 
 		y -= (2 * LS_CHAR_HEIGHT);
 	}
-
 	//y += LS_CHAR_HEIGHT;
 	// game type
-	switch ( cgs.gametype ) {
+	switch (cgs.gametype) {
 	case GT_FFA:
 		line = "CLASSIC ACTION DEATHMATCH";
 		break;
@@ -338,15 +345,15 @@ void CG_DrawInformation( void ) {
 	//line = Q_strupr(line);
 
 	// cheats warning
-	s = Info_ValueForKey( sysInfo, "sv_cheats" );
+	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	//Makro - didn't like this
 	//if ( s[0] == '1' ) {
-	if ( atoi(s) )
+	if (atoi(s))
 		line = va("%s / CHEATS ARE ENABLED", line);
 
-	if ( cg_RQ3_matchmode.integer )
+	if (cg_RQ3_matchmode.integer)
 		line = va("%s / MATCHMODE", line);
-		
+
 	//Makro - custom color; changed from colorWhite
 	//CG_DrawSmallStringColor(x, y, line, color2);
 	CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
@@ -354,85 +361,89 @@ void CG_DrawInformation( void ) {
 
 	line = "";
 	// pure server
-	s = Info_ValueForKey( sysInfo, "sv_pure" );
-	if ( atoi(s) ) {
-		if (line[0]) line = va("%s / ", line);
+	s = Info_ValueForKey(sysInfo, "sv_pure");
+	if (atoi(s)) {
+		if (line[0])
+			line = va("%s / ", line);
 		line = va("%sPURE SERVER", line);
 	}
 
-	value = atoi( Info_ValueForKey( info, "timelimit" ) );
-	if ( value ) {
+	value = atoi(Info_ValueForKey(info, "timelimit"));
+	if (value) {
 		line = va("TIMELIMIT %i", value);
 	}
 
-	if (cgs.gametype <= GT_TEAM ) {
-		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
-		if ( value ) {
-			if (line[0]) line = va("%s / ", line);
+	if (cgs.gametype <= GT_TEAM) {
+		value = atoi(Info_ValueForKey(info, "fraglimit"));
+		if (value) {
+			if (line[0])
+				line = va("%s / ", line);
 			line = va("%sFRAGLIMIT %i", line, value);
 		}
 	} else if (cgs.gametype == GT_TEAMPLAY) {
-		value = atoi( Info_ValueForKey( info, "g_RQ3_roundlimit" ) );
-		if ( value ) {
-			if (line[0]) line = va("%s / ", line);
+		value = atoi(Info_ValueForKey(info, "g_RQ3_roundlimit"));
+		if (value) {
+			if (line[0])
+				line = va("%s / ", line);
 			line = va("%sROUNDLIMIT %i", line, value);
 		}
 	} else {
-		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
-		if ( value ) {
-			if (line[0]) line = va("%s / ", line);
+		value = atoi(Info_ValueForKey(info, "capturelimit"));
+		if (value) {
+			if (line[0])
+				line = va("%s / ", line);
 			line = va("%sCAPTURELIMIT %i", line, value);
 		}
 	}
 
 	//Makro - don't write unless there's something to write
-	if ( line[0] ) {
+	if (line[0]) {
 		CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 		y -= LS_CHAR_HEIGHT;
 	}
 
 	line = "";
 	// don't print server lines if playing a local game
-	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
-	if ( !atoi( buf ) ) {
-	
+	trap_Cvar_VariableStringBuffer("sv_running", buf, sizeof(buf));
+	if (!atoi(buf)) {
+
 		// server hostname
-		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
+		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
 		if (buf[0] && Q_stricmp(buf, "noname")) {
 			line = va("%s", buf);
 		}
-
 		// server-specific message of the day
-		s = CG_ConfigString( CS_MOTD );
-		if ( s[0] ) {
-			if (line[0]) line = va("%s / ", line);
+		s = CG_ConfigString(CS_MOTD);
+		if (s[0]) {
+			if (line[0])
+				line = va("%s / ", line);
 			line = va("%s%s", line, s);
 		}
-
 		//Makro - don't write unless there's something to write
-		if ( line[0] ) {
+		if (line[0]) {
 			CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 			y -= LS_CHAR_HEIGHT;
 		}
 	}
-
 	// BOTTOM //
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	//y = SCREEN_HEIGHT - (int) (0.5 * (LS_BOTTOMMARGIN + LS_CHAR_HEIGHT));
 	y = SCREEN_HEIGHT - LS_BOTTOMMARGIN + 8;
-	if ( cg.infoScreenText[0] ) {
-		CG_DrawStringExt(x, y, va("LOADING... %s", Q_strupr(cg.infoScreenText)), color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
+	if (cg.infoScreenText[0]) {
+		CG_DrawStringExt(x, y, va("LOADING... %s", Q_strupr(cg.infoScreenText)), color2, qfalse, qfalse,
+				 LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 		//UI_DrawProportionalString(SCREEN_WIDTH - 8, y, va("LOADING... %s", Q_strupr(cg.infoScreenText)), UI_RIGHT, colorWhite);
 	} else {
-		CG_DrawStringExt(x, y, "AWAITING SNAPSHOT...", color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
+		CG_DrawStringExt(x, y, "AWAITING SNAPSHOT...", color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT,
+				 0);
 		//UI_DrawProportionalString(SCREEN_WIDTH - 8, y, "AWAITING SNAPSHOT...", UI_RIGHT, colorWhite);
 	}
 
 	//y += 24;
-	clapper = trap_R_RegisterShaderNoMip(va("levelshots/clapper_%s.tga", Info_ValueForKey( info, "mapname" )));
+	clapper = trap_R_RegisterShaderNoMip(va("levelshots/clapper_%s.tga", Info_ValueForKey(info, "mapname")));
 	if (clapper) {
 		y = LS_TOPMARGIN - 8 - LS_CHAR_HEIGHT;
 		CG_DrawPic(392, 296, 240, 180, clapper);
@@ -450,11 +461,11 @@ void CG_DrawInformation( void ) {
 		}
 	} else {
 		for (bar = 0; bar < ceil(cg.loadingMapPercent * 10) && bar < 10; bar++) {
-			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
+			CG_FillRect(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
 		}
 
 		for (; bar < 10; bar++) {
-			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
+			CG_FillRect(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
 		}
 	}
 

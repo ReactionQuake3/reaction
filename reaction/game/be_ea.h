@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -32,7 +35,7 @@
 //ClientCommand elementary actions
 void EA_Say(int client, char *str);
 void EA_SayTeam(int client, char *str);
-void EA_Command(int client, char *command );
+void EA_Command(int client, char *command);
 
 void EA_Action(int client, int action);
 void EA_Crouch(int client);
@@ -58,8 +61,9 @@ void EA_View(int client, vec3_t viewangles);
 
 //send regular input to the server
 void EA_EndRegular(int client, float thinktime);
-void EA_GetInput(int client, float thinktime, bot_input_t *input);
+void EA_GetInput(int client, float thinktime, bot_input_t * input);
 void EA_ResetInput(int client);
+
 //setup and shutdown routines
 int EA_Setup(void);
 void EA_Shutdown(void);

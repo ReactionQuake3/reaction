@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.56  2002/06/16 17:38:00  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -139,40 +142,39 @@
 
 #include "g_local.h"
 
+void G_ExplodeMissile(gentity_t * ent);
 
-void G_ExplodeMissile( gentity_t *ent );
 //Makro - added
-void Think_SpawnNewDoorTrigger( gentity_t *ent );
+void Think_SpawnNewDoorTrigger(gentity_t * ent);
 
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
 */
 
-
 /*QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
-void SP_info_camp( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+void SP_info_camp(gentity_t * self)
+{
+	G_SetOrigin(self, self->s.origin);
 }
-
 
 /*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
-void SP_info_null( gentity_t *self ) {
-	G_FreeEntity( self );
+void SP_info_null(gentity_t * self)
+{
+	G_FreeEntity(self);
 }
-
 
 /*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
 */
-void SP_info_notnull( gentity_t *self ){
-	G_SetOrigin( self, self->s.origin );
+void SP_info_notnull(gentity_t * self)
+{
+	G_SetOrigin(self, self->s.origin);
 }
-
 
 /*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) linear
 Non-displayed light.
@@ -181,8 +183,9 @@ Linear checbox gives linear falloff instead of inverse square
 Lights pointed at a target will be spotlights.
 "radius" overrides the default 64 unit radius of a spotlight at the target point.
 */
-void SP_light( gentity_t *self ) {
-	G_FreeEntity( self );
+void SP_light(gentity_t * self)
+{
+	G_FreeEntity(self);
 }
 
 /*QUAKED light_d (0 1 0) (-8 -8 -8) (8 8 8) ADDITIVE FLICKER PULSE STROBE START_OFF
@@ -191,7 +194,8 @@ Q3 does not allow for manual light radius setup.
 Set the color key for the intended color
 "light" overrides the default 100 intensity.
 */
-void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
+{
 	ent->unbreakable ^= 1;
 	if (ent->unbreakable) {
 		ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -200,27 +204,29 @@ void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	}
 }
 
-void SP_dlight( gentity_t *ent ) {
-	vec3_t	color;
-	float	light;
-	int		r, g, b, i;
-//	int		style;
+void SP_dlight(gentity_t * ent)
+{
+	vec3_t color;
+	float light;
+	int r, g, b, i;
 
-	G_SpawnFloat( "light", "300", &light );
-	G_SpawnVector( "_color", "1 1 1", color );
+//      int             style;
+
+	G_SpawnFloat("light", "300", &light);
+	G_SpawnVector("_color", "1 1 1", color);
 
 	// - set style bits in eventParm
-	if ( ent->spawnflags & 1 )
+	if (ent->spawnflags & 1)
 		ent->s.eventParm |= DLIGHT_ADDITIVE;
-	if ( ent->spawnflags & 2 )
+	if (ent->spawnflags & 2)
 		ent->s.eventParm |= DLIGHT_FLICKER;
-	if ( ent->spawnflags & 4 )
+	if (ent->spawnflags & 4)
 		ent->s.eventParm |= DLIGHT_PULSE;
-	if ( ent->spawnflags & 8 )
+	if (ent->spawnflags & 8)
 		ent->s.eventParm |= DLIGHT_STROBE;
 
 	//Makro - added START_OFF flag
-	if ( ent->spawnflags & 16 ) {
+	if (ent->spawnflags & 16) {
 		ent->unbreakable = 1;
 		ent->r.svFlags &= ~SVF_NOCLIENT;
 	} else {
@@ -228,40 +234,39 @@ void SP_dlight( gentity_t *ent ) {
 		ent->r.svFlags |= SVF_NOCLIENT;
 	}
 	ent->use = use_dlight;
-	
+
 	r = color[0] * 255;
-	if ( r > 255 ) {
+	if (r > 255) {
 		r = 255;
 	}
 	g = color[1] * 255;
-	if ( g > 255 ) {
+	if (g > 255) {
 		g = 255;
 	}
 	b = color[2] * 255;
-	if ( b > 255 ) {
+	if (b > 255) {
 		b = 255;
 	}
 	i = light / 4;
-	if ( i > 255 ) {
+	if (i > 255) {
 		i = 255;
 	}
 
-	ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+	ent->s.constantLight = r | (g << 8) | (b << 16) | (i << 24);
 
 	ent->s.eType = ET_DLIGHT;
 	ent->classname = "light_d";
 	ent->s.pos.trType = TR_STATIONARY;
-	VectorCopy( ent->s.origin, ent->r.currentOrigin);
+	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 
-	trap_LinkEntity( ent );
+	trap_LinkEntity(ent);
 }
 
 // Nothing significant to do
-void G_RunDlight ( gentity_t *ent ) {
-	trap_LinkEntity( ent );
+void G_RunDlight(gentity_t * ent)
+{
+	trap_LinkEntity(ent);
 }
-
-
 
 /*
 =================================================================================
@@ -271,29 +276,29 @@ TELEPORTERS
 =================================================================================
 */
 
-void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
-	gentity_t	*tent;
+void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
+{
+	gentity_t *tent;
 
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
-	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
+	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		tent = G_TempEntity(player->client->ps.origin, EV_PLAYER_TELEPORT_OUT);
 		tent->s.clientNum = player->s.clientNum;
 
-		tent = G_TempEntity( origin, EV_PLAYER_TELEPORT_IN );
+		tent = G_TempEntity(origin, EV_PLAYER_TELEPORT_IN);
 		tent->s.clientNum = player->s.clientNum;
 	}
-
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	trap_UnlinkEntity (player);
+	trap_UnlinkEntity(player);
 
-	VectorCopy ( origin, player->client->ps.origin );
+	VectorCopy(origin, player->client->ps.origin);
 	player->client->ps.origin[2] += 1;
 
 	// spit the player out
 	// AngleVectors( angles, player->client->ps.velocity, NULL, NULL );
 	// VectorScale( player->client->ps.velocity, 400, player->client->ps.velocity );
-	player->client->ps.pm_time = 160;		// hold time
+	player->client->ps.pm_time = 160;	// hold time
 	player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
 
 	// toggle the teleport bit so the client knows to not lerp
@@ -303,106 +308,105 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// SetClientViewAngle( player, angles );
 
 	// kill anything at the destination
-	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		G_KillBox (player);
+	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		G_KillBox(player);
 	}
-
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+	BG_PlayerStateToEntityState(&player->client->ps, &player->s, qtrue);
 
 	// use the precise origin for linking
-	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+	VectorCopy(player->client->ps.origin, player->r.currentOrigin);
 
-	if ( player->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		trap_LinkEntity (player);
+	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		trap_LinkEntity(player);
 	}
 }
-
 
 /*QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
 Point teleporters at these.
 Now that we don't have teleport destination pads, this is just
 an info_notnull
 */
-void SP_misc_teleporter_dest( gentity_t *ent ) {
+void SP_misc_teleporter_dest(gentity_t * ent)
+{
 }
-
 
 //===========================================================
 
 /*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .md3 file to display
 */
-void SP_misc_model( gentity_t *ent ) {
+void SP_misc_model(gentity_t * ent)
+{
 
 #if 0
-	ent->s.modelindex = G_ModelIndex( ent->model );
-	VectorSet (ent->mins, -16, -16, -16);
-	VectorSet (ent->maxs, 16, 16, 16);
-	trap_LinkEntity (ent);
+	ent->s.modelindex = G_ModelIndex(ent->model);
+	VectorSet(ent->mins, -16, -16, -16);
+	VectorSet(ent->maxs, 16, 16, 16);
+	trap_LinkEntity(ent);
 
-	G_SetOrigin( ent, ent->s.origin );
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
+	G_SetOrigin(ent, ent->s.origin);
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 #else
-	G_FreeEntity( ent );
+	G_FreeEntity(ent);
 #endif
 }
 
 //===========================================================
 
-void locateCamera( gentity_t *ent ) {
-	vec3_t		dir;
-	gentity_t	*target;
-	gentity_t	*owner;
+void locateCamera(gentity_t * ent)
+{
+	vec3_t dir;
+	gentity_t *target;
+	gentity_t *owner;
 
 	if (ent->spawnflags & 1) {
-		owner = G_Find(NULL, FOFS(targetname), va("%s%i", ent->target, ent->size+1));
+		owner = G_Find(NULL, FOFS(targetname), va("%s%i", ent->target, ent->size + 1));
 		ent->size = (ent->size + 1) % ent->count;
 	} else {
-		owner = G_PickTarget( ent->target );
+		owner = G_PickTarget(ent->target);
 	}
-	if ( !owner ) {
+	if (!owner) {
 		//Makro - fixed typo (misc_partal_surface)
-		G_Printf( "Couldn't find target for misc_portal_surface\n" );
-		G_FreeEntity( ent );
+		G_Printf("Couldn't find target for misc_portal_surface\n");
+		G_FreeEntity(ent);
 		return;
 	}
 	ent->r.ownerNum = owner->s.number;
 
 	// frame holds the rotate speed
-	if ( owner->spawnflags & 1 ) {
+	if (owner->spawnflags & 1) {
 		ent->s.frame = 25;
-	} else if ( owner->spawnflags & 2 ) {
+	} else if (owner->spawnflags & 2) {
 		ent->s.frame = 75;
 	}
-
 	// swing camera ?
-	if ( owner->spawnflags & 4 ) {
+	if (owner->spawnflags & 4) {
 		// set to 0 for no rotation at all
 		ent->s.powerups = 0;
-	}
-	else {
+	} else {
 		ent->s.powerups = 1;
 	}
 
 	// clientNum holds the rotate offset
 	ent->s.clientNum = owner->s.clientNum;
 
-	VectorCopy( owner->s.origin, ent->s.origin2 );
+	VectorCopy(owner->s.origin, ent->s.origin2);
 
 	// see if the portal_camera has a target
-	target = G_PickTarget( owner->target );
-	if ( target ) {
-		VectorSubtract( target->s.origin, owner->s.origin, dir );
-		VectorNormalize( dir );
+	target = G_PickTarget(owner->target);
+	if (target) {
+		VectorSubtract(target->s.origin, owner->s.origin, dir);
+		VectorNormalize(dir);
 	} else {
-		G_SetMovedir( owner->s.angles, dir );
+		G_SetMovedir(owner->s.angles, dir);
 	}
 
-	ent->s.eventParm = DirToByte( dir );
+	ent->s.eventParm = DirToByte(dir);
 }
 
-void use_misc_portal_surface( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void use_misc_portal_surface(gentity_t * ent, gentity_t * other, gentity_t * activator)
+{
 	locateCamera(ent);
 }
 
@@ -410,10 +414,11 @@ void use_misc_portal_surface( gentity_t *ent, gentity_t *other, gentity_t *activ
 The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
 This must be within 64 world units of the surface!
 */
-void SP_misc_portal_surface(gentity_t *ent) {
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
-	trap_LinkEntity (ent);
+void SP_misc_portal_surface(gentity_t * ent)
+{
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	trap_LinkEntity(ent);
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
@@ -436,8 +441,8 @@ void SP_misc_portal_surface(gentity_t *ent) {
 		}
 	}
 
-	if ( !ent->target ) {
-		VectorCopy( ent->s.origin, ent->s.origin2 );
+	if (!ent->target) {
+		VectorCopy(ent->s.origin, ent->s.origin2);
 	} else {
 		ent->think = locateCamera;
 		ent->nextthink = level.time + 100;
@@ -448,16 +453,17 @@ void SP_misc_portal_surface(gentity_t *ent) {
 The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
 "roll" an angle modifier to orient the camera around the target vector;
 */
-void SP_misc_portal_camera(gentity_t *ent) {
-	float	roll;
+void SP_misc_portal_camera(gentity_t * ent)
+{
+	float roll;
 
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
-	trap_LinkEntity (ent);
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	trap_LinkEntity(ent);
 
-	G_SpawnFloat( "roll", "0", &roll );
+	G_SpawnFloat("roll", "0", &roll);
 
-	ent->s.clientNum = roll/360.0 * 256;
+	ent->s.clientNum = roll / 360.0 * 256;
 }
 
 /*
@@ -468,30 +474,31 @@ void SP_misc_portal_camera(gentity_t *ent) {
 ======================================================================
 */
 
-void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	vec3_t		dir;
-	float		deg;
-	vec3_t		up, right;
+void Use_Shooter(gentity_t * ent, gentity_t * other, gentity_t * activator)
+{
+	vec3_t dir;
+	float deg;
+	vec3_t up, right;
 
 	// see if we have a target
-	if ( ent->enemy ) {
-		VectorSubtract( ent->enemy->r.currentOrigin, ent->s.origin, dir );
-		VectorNormalize( dir );
+	if (ent->enemy) {
+		VectorSubtract(ent->enemy->r.currentOrigin, ent->s.origin, dir);
+		VectorNormalize(dir);
 	} else {
-		VectorCopy( ent->movedir, dir );
+		VectorCopy(ent->movedir, dir);
 	}
 
 	// randomize a bit
-	PerpendicularVector( up, dir );
-	CrossProduct( up, dir, right );
+	PerpendicularVector(up, dir);
+	CrossProduct(up, dir, right);
 
 	deg = crandom() * ent->random;
-	VectorMA( dir, deg, up, dir );
+	VectorMA(dir, deg, up, dir);
 
 	deg = crandom() * ent->random;
-	VectorMA( dir, deg, right, dir );
+	VectorMA(dir, deg, right, dir);
 
-	VectorNormalize( dir );
+	VectorNormalize(dir);
 //Blaze: Use_Shooter does the code for the projectile weapons, and we dont have any of those
 /*	switch ( ent->s.weapon ) {
 	case WP_GRENADE_LAUNCHER:
@@ -505,34 +512,35 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		break;
 	}
 */
-	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
+	G_AddEvent(ent, EV_FIRE_WEAPON, 0);
 }
 
-
-static void InitShooter_Finish( gentity_t *ent ) {
-	ent->enemy = G_PickTarget( ent->target );
+static void InitShooter_Finish(gentity_t * ent)
+{
+	ent->enemy = G_PickTarget(ent->target);
 	ent->think = 0;
 	ent->nextthink = 0;
 }
 
-void InitShooter( gentity_t *ent, int weapon ) {
+void InitShooter(gentity_t * ent, int weapon)
+{
 	ent->use = Use_Shooter;
 	ent->s.weapon = weapon;
 
-	RegisterItem( BG_FindItemForWeapon( weapon ) );
+	RegisterItem(BG_FindItemForWeapon(weapon));
 
-	G_SetMovedir( ent->s.angles, ent->movedir );
+	G_SetMovedir(ent->s.angles, ent->movedir);
 
-	if ( !ent->random ) {
+	if (!ent->random) {
 		ent->random = 1.0;
 	}
-	ent->random = sin( M_PI * ent->random / 180 );
+	ent->random = sin(M_PI * ent->random / 180);
 	// target might be a moving object, so we can't set movedir for it
-	if ( ent->target ) {
+	if (ent->target) {
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
 	}
-	trap_LinkEntity( ent );
+	trap_LinkEntity(ent);
 }
 
 /*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
@@ -541,7 +549,7 @@ Fires at either the target or the current direction.
 */
 //Blaze: No need for this because no rocketlauncher
 //void SP_shooter_rocket( gentity_t *ent ) {
-//	InitShooter( ent, WP_ROCKET_LAUNCHER );
+//      InitShooter( ent, WP_ROCKET_LAUNCHER );
 //}
 
 /*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
@@ -550,7 +558,7 @@ Fires at either the target or the current direction.
 */
 //Blaze: No need for this because no plasma gun
 //void SP_shooter_plasma( gentity_t *ent ) {
-//	InitShooter( ent, WP_PLASMAGUN);
+//      InitShooter( ent, WP_PLASMAGUN);
 //}
 
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
@@ -559,45 +567,48 @@ Fires at either the target or the current direction.
 */
 //Blaze: No need for this because no grenade Launcher
 //void SP_shooter_grenade( gentity_t *ent ) {
-//	InitShooter( ent, WP_GRENADE_LAUNCHER);
+//      InitShooter( ent, WP_GRENADE_LAUNCHER);
 //}
 // Blaze: adding for func_breakable explosions
-void func_breakable_explode( gentity_t *self , vec3_t pos ) {
+void func_breakable_explode(gentity_t * self, vec3_t pos)
+{
 	int eParam;
-  gentity_t *tent;
-//	GibEntity( self, 0 );
+	gentity_t *tent;
+
+//      GibEntity( self, 0 );
 	eParam = self->s.eventParm;
 
-  tent = G_TempEntity2( pos, EV_EXPLODE_BREAKABLE, eParam);
+	tent = G_TempEntity2(pos, EV_EXPLODE_BREAKABLE, eParam);
 
-//	self->takedamage = qfalse;
-//	self->s.eType = ET_INVISIBLE;
-  self->exploded = qtrue;
+//      self->takedamage = qfalse;
+//      self->s.eType = ET_INVISIBLE;
+	self->exploded = qtrue;
 }
 
 // Blaze: adding for func_breakable explosions
 
-void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath)
 {
-  func_breakable_explode( self , self->s.origin );
-//	G_ExplodeMissile(self);
-	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
-  //	radius damage
-  trap_UnlinkEntity(self);
-  
+	func_breakable_explode(self, self->s.origin);
+//      G_ExplodeMissile(self);
+	G_RadiusDamage(self->s.origin, attacker, self->damage, self->damage_radius, self, meansOfDeath);
+	//    radius damage
+	trap_UnlinkEntity(self);
+
 }
 
-void Use_Breakable( gentity_t *self, gentity_t *other, gentity_t *activator ) {
-  //G_UseTargets (self, activator);  
+void Use_Breakable(gentity_t * self, gentity_t * other, gentity_t * activator)
+{
+	//G_UseTargets (self, activator);  
 //  if (self->explosive)
 //  {
-    //func_breakable_die( self,activator,activator,self->damage,MOD_TRIGGER_HURT);
-  //}
-  //else
-  //{
-  //make sure it breaks
-  self->health = 0;
-  G_BreakGlass( self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health );
+	//func_breakable_die( self,activator,activator,self->damage,MOD_TRIGGER_HURT);
+	//}
+	//else
+	//{
+	//make sure it breaks
+	self->health = 0;
+	G_BreakGlass(self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health);
 //  }
 }
 
@@ -628,155 +639,134 @@ Explosion graphic: breakables/type/explosion/texture
 Type is the value set in the type key. Texture is any texture(s) referenced by the explosion shader. The shader script should be added to yourmap.shader.  
  
 If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction Quake 3 for the proper format.
-*/ 
- 
+*/
 
-
-void SP_func_breakable( gentity_t *ent ) {
+void SP_func_breakable(gentity_t * ent)
+{
 	int health;
 	int amount;
-  int temp;
-  int damage;
-  int damage_radius;
+	int temp;
+	int damage;
+	int damage_radius;
 
-  char *id;
-  char *velocity;
-  char *jump;
-  char *name;
-  char breakinfo[MAX_INFO_STRING];
+	char *id;
+	char *velocity;
+	char *jump;
+	char *name;
+	char breakinfo[MAX_INFO_STRING];
 
-  // Make it appear as the brush
-  trap_SetBrushModel( ent, ent->model );
-    
+	// Make it appear as the brush
+	trap_SetBrushModel(ent, ent->model);
+
 	// Setup health of breakable
-  G_SpawnInt( "health", "0", &health );
-  if( health <= 0 )	
-  {
-    health = 5;
-  }
-  //G_Printf("Setting health to %d\n",health);
-  G_SpawnInt("damage","170", &damage);
+	G_SpawnInt("health", "0", &health);
+	if (health <= 0) {
+		health = 5;
+	}
+	//G_Printf("Setting health to %d\n",health);
+	G_SpawnInt("damage", "170", &damage);
 
 	ent->damage = damage;
 
-  G_SpawnInt("damage_radius","340", &damage_radius);
+	G_SpawnInt("damage_radius", "340", &damage_radius);
 
 	ent->damage_radius = damage_radius;
-  
-  ent->exploded = qfalse;
+
+	ent->exploded = qfalse;
 	// Setup amount type
-	G_SpawnInt( "amount", "0", &temp );  
-  //Com_Printf("Amount %d ", temp);
-	switch (temp)
-	{
-		case 0:
-			amount = 0;
-			break;
-		case 1:
-			amount = RQ3_DEBRIS_MEDIUM;
-			break;
-		case 2:
-			amount = RQ3_DEBRIS_HIGH;
-			break;
-		case 3:
-			amount = RQ3_DEBRIS_MEDIUM|RQ3_DEBRIS_HIGH;
-			break;
-		default:
-			amount = RQ3_DEBRIS_MEDIUM;
-			break;
+	G_SpawnInt("amount", "0", &temp);
+	//Com_Printf("Amount %d ", temp);
+	switch (temp) {
+	case 0:
+		amount = 0;
+		break;
+	case 1:
+		amount = RQ3_DEBRIS_MEDIUM;
+		break;
+	case 2:
+		amount = RQ3_DEBRIS_HIGH;
+		break;
+	case 3:
+		amount = RQ3_DEBRIS_MEDIUM | RQ3_DEBRIS_HIGH;
+		break;
+	default:
+		amount = RQ3_DEBRIS_MEDIUM;
+		break;
 	}
-	if ( ent->spawnflags & 1)
-  {
-    ent->chippable = qtrue;
-    //Com_Printf("Chippable ");
-  }
-  else
-  {
-    ent->chippable = qfalse;
-  }
+	if (ent->spawnflags & 1) {
+		ent->chippable = qtrue;
+		//Com_Printf("Chippable ");
+	} else {
+		ent->chippable = qfalse;
+	}
 
-  if ( ent->spawnflags & 2)
-  {
-    ent->unbreakable = qtrue;
-    //Com_Printf("Unbreakable ");
-  }
-  else
-  {
-    ent->unbreakable = qfalse;
-  }
-	
-  if ( ent->spawnflags & 4)
-  {
-    ent->explosive = qtrue;
-  }
-  else
-  {
-    ent->explosive = qfalse;
-  }
-  
-  if ( !ent->damage_radius )
-  {
-    ent->damage_radius=GRENADE_SPLASH_RADIUS;
-  }
-  ent->use = Use_Breakable;
+	if (ent->spawnflags & 2) {
+		ent->unbreakable = qtrue;
+		//Com_Printf("Unbreakable ");
+	} else {
+		ent->unbreakable = qfalse;
+	}
 
-  G_SpawnString( "id","0", &id);
-  if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES )
-  {
-    G_Printf("^2ERROR: ID too high\n");
-    G_FreeEntity( ent );
-    return;
-  }
-  //Com_Printf("ID (%d) ", id);
-  if (!G_SpawnString( "type", "", &name) )
-  {
-    G_Printf("^2ERROR: broken breakable name (%s)\n", name);
-    G_FreeEntity( ent );
-    return;
-  }
-  //Com_Printf("type (%s)\n",name);
-  G_SpawnString( "force", "7", &velocity);
+	if (ent->spawnflags & 4) {
+		ent->explosive = qtrue;
+	} else {
+		ent->explosive = qfalse;
+	}
 
+	if (!ent->damage_radius) {
+		ent->damage_radius = GRENADE_SPLASH_RADIUS;
+	}
+	ent->use = Use_Breakable;
 
-  G_SpawnString( "lift", "5", &jump);
+	G_SpawnString("id", "0", &id);
+	if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES) {
+		G_Printf("^2ERROR: ID too high\n");
+		G_FreeEntity(ent);
+		return;
+	}
+	//Com_Printf("ID (%d) ", id);
+	if (!G_SpawnString("type", "", &name)) {
+		G_Printf("^2ERROR: broken breakable name (%s)\n", name);
+		G_FreeEntity(ent);
+		return;
+	}
+	//Com_Printf("type (%s)\n",name);
+	G_SpawnString("force", "7", &velocity);
 
+	G_SpawnString("lift", "5", &jump);
 
-  amount = amount << 6;
-  
+	amount = amount << 6;
+
 	//Elder: merge the bits
- 	ent->s.eventParm = amount | (atoi(id) & 0x0FFF);
+	ent->s.eventParm = amount | (atoi(id) & 0x0FFF);
 
-  ent->health = health;
-  ent->health_saved = health;
-  ent->takedamage = qtrue;
+	ent->health = health;
+	ent->health_saved = health;
+	ent->takedamage = qtrue;
 
-
-  ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
+	ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
 	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
 	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
 
-  // Let it know it is a breakable object
-  ent->s.eType = ET_BREAKABLE;
+	// Let it know it is a breakable object
+	ent->s.eType = ET_BREAKABLE;
 
-  // If the mapper gave it a model, use it
-  if ( ent->model2 ) {
-      ent->s.modelindex2 = G_ModelIndex( ent->model2 );
-  }
+	// If the mapper gave it a model, use it
+	if (ent->model2) {
+		ent->s.modelindex2 = G_ModelIndex(ent->model2);
+	}
+	//Makro - added this so spectators can go through breakables
+	//ent->nextthink = level.time + FRAMETIME;
+	//ent->think = Think_SpawnNewDoorTrigger;
+	Info_SetValueForKey(breakinfo, "type", name);
+	Info_SetValueForKey(breakinfo, "velocity", velocity);
+	Info_SetValueForKey(breakinfo, "jump", jump);
+	Info_SetValueForKey(breakinfo, "id", id);
+	trap_SetConfigstring(CS_BREAKABLES + atoi(id), breakinfo);
 
-
-  //Makro - added this so spectators can go through breakables
-  //ent->nextthink = level.time + FRAMETIME;
-  //ent->think = Think_SpawnNewDoorTrigger;
-  Info_SetValueForKey( breakinfo, "type", name );
-  Info_SetValueForKey( breakinfo, "velocity", velocity );
-  Info_SetValueForKey( breakinfo, "jump", jump );
-  Info_SetValueForKey( breakinfo, "id", id );
-  trap_SetConfigstring( CS_BREAKABLES+atoi(id), breakinfo);
-  
-  trap_LinkEntity (ent);
+	trap_LinkEntity(ent);
 
 }
-
 
 /*
 =================
@@ -786,15 +776,16 @@ Create/process a breakable event entity
 Original by inolen, heavy modifications by Elder
 =================
 */
-void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, vec3_t point, int mod, int damage )
+void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, vec3_t point, int mod, int damage)
 {
-	gentity_t   *tent;
- 	vec3_t      size;
-    vec3_t      impactPoint;
- 	//Elder: for the bit-shifting
-	int			eParm;
-	int			shiftCount = 0;
-  
+	gentity_t *tent;
+	vec3_t size;
+	vec3_t impactPoint;
+
+	//Elder: for the bit-shifting
+	int eParm;
+	int shiftCount = 0;
+
 	//Elder:
 	//eventParm can only transmit as a byte (8-bits/255)
 	//So if we receive a huge one, we can knock it down (shift-op)
@@ -803,158 +794,156 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 	//This way, the mappers can use a single func_breakable
 	//while we process it on the server-side.
 	//Places to stuff: eventParm
-  eParm = ent->s.eventParm;
-  
- 	if( ent->health <= 0 ) {
+	eParm = ent->s.eventParm;
+
+	if (ent->health <= 0) {
 		//G_Printf("Original eParm: %i \n", ent->s.eventParm);
 		//Copy the first four bits and strip them out of the original
-	/*	eParm = ent->s.eventParm & 15;
-		ent->s.eventParm &= ~eParm;
-		
-		//Shift-op loop
-		while (ent->s.eventParm > 255)
-		{
-			shiftCount++;
-			ent->s.eventParm = ent->s.eventParm >> 4;
-		}
-		
-		eParm |= ent->s.eventParm;
-*/
+		/*      eParm = ent->s.eventParm & 15;
+		   ent->s.eventParm &= ~eParm;
+
+		   //Shift-op loop
+		   while (ent->s.eventParm > 255)
+		   {
+		   shiftCount++;
+		   ent->s.eventParm = ent->s.eventParm >> 4;
+		   }
+
+		   eParm |= ent->s.eventParm;
+		 */
 		//eParm should now be under 1 byte and shiftCount >= 0
 		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
-		
-        // Tell the program based on the gun if it was caused by splash damage
-     	switch( mod ) {
-     		//Elder: added + compacted
-     		case MOD_KNIFE:
-     		case MOD_KNIFE_THROWN:
-			  case MOD_MP5:
-     		case MOD_M4:
-     		case MOD_M3:
-     		case MOD_PISTOL:
-     		case MOD_HANDCANNON:
-     		case MOD_AKIMBO:
-     		case MOD_SNIPER:
-     		case MOD_GAUNTLET:
-     		case MOD_KICK:
-				//Use actual impact point
-     			VectorCopy(point, impactPoint);
-				break;
-     		default:
-     			//Splash damage weapons: use center of the glass
-				VectorSubtract(ent->r.maxs, ent->r.mins, size);
-				VectorScale(size, 0.5, size);
-				VectorAdd(ent->r.mins, size, impactPoint);
-     			break;
 
-     	}
-    
-    if (ent->explosive)
-    {
-      mod = MOD_TRIGGER_HURT;
-      func_breakable_die(ent, inflictor, attacker, damage, mod);
-    }
-    G_UseTargets (ent, ent->activator);
+		// Tell the program based on the gun if it was caused by splash damage
+		switch (mod) {
+			//Elder: added + compacted
+		case MOD_KNIFE:
+		case MOD_KNIFE_THROWN:
+		case MOD_MP5:
+		case MOD_M4:
+		case MOD_M3:
+		case MOD_PISTOL:
+		case MOD_HANDCANNON:
+		case MOD_AKIMBO:
+		case MOD_SNIPER:
+		case MOD_GAUNTLET:
+		case MOD_KICK:
+			//Use actual impact point
+			VectorCopy(point, impactPoint);
+			break;
+		default:
+			//Splash damage weapons: use center of the glass
+			VectorSubtract(ent->r.maxs, ent->r.mins, size);
+			VectorScale(size, 0.5, size);
+			VectorAdd(ent->r.mins, size, impactPoint);
+			break;
+
+		}
+
+		if (ent->explosive) {
+			mod = MOD_TRIGGER_HURT;
+			func_breakable_die(ent, inflictor, attacker, damage, mod);
+		}
+		G_UseTargets(ent, ent->activator);
 		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
-		switch ( shiftCount )
-		{
-			case 0:
-				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS1, eParm);
-				break;
-			case 1:
-				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS2, eParm);
-				break;
-			case 2:
-				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS3, eParm);
-				break;
-			default:
-				G_Error("G_BreakGlass: shiftCount > 2\n");
-				break;
+		switch (shiftCount) {
+		case 0:
+			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS1, eParm);
+			break;
+		case 1:
+			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS2, eParm);
+			break;
+		case 2:
+			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS3, eParm);
+			break;
+		default:
+			G_Error("G_BreakGlass: shiftCount > 2\n");
+			break;
 		}
 
 		//G_Printf("eType: %i\n", tent->s.event & ~EV_EVENT_BITS);
-     	//Elder: use TempEntity2 to stuff params
-        //tent = G_TempEntity( center, EV_BREAK_GLASS );
- 	//tent->s.eventParm = eParm;
-    //unlink it instead of freeing
-    trap_UnlinkEntity(ent);
+		//Elder: use TempEntity2 to stuff params
+		//tent = G_TempEntity( center, EV_BREAK_GLASS );
+		//tent->s.eventParm = eParm;
+		//unlink it instead of freeing
+		trap_UnlinkEntity(ent);
 
- 	}
-  else if(ent->chippable)
-  {
-    //Stil has some life left, so chip it
+	} else if (ent->chippable) {
+		//Stil has some life left, so chip it
 		//Copy the first four bits and strip them out of the original
 		/*eParm = ent->s.eventParm & 15;
-		ent->s.eventParm &= ~eParm;
-		
-		//Shift-op loop
-		while (ent->s.eventParm > 255)
-		{
-			shiftCount++;
-			ent->s.eventParm = ent->s.eventParm >> 4;
-		}
-		
-		eParm |= ent->s.eventParm;
-*/
+		   ent->s.eventParm &= ~eParm;
+
+		   //Shift-op loop
+		   while (ent->s.eventParm > 255)
+		   {
+		   shiftCount++;
+		   ent->s.eventParm = ent->s.eventParm >> 4;
+		   }
+
+		   eParm |= ent->s.eventParm;
+		 */
 		//eParm should now be under 1 byte and shiftCount >= 0
 		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
-		
-        // Tell the program based on the gun if it was caused by splash damage
-     	switch( mod ) {
-     		//Elder: added + compacted
-     		case MOD_KNIFE:
-     		case MOD_KNIFE_THROWN:
-			case MOD_MP5:
-     		case MOD_M4:
-     		case MOD_M3:
-     		case MOD_PISTOL:
-     		case MOD_HANDCANNON:
-     		case MOD_AKIMBO:
-     		case MOD_SNIPER:
-     		case MOD_GAUNTLET:
-     		case MOD_KICK:
-				//Use actual impact point
-     			VectorCopy(point, impactPoint);
-				break;
-     		default:
-     			//Splash damage weapons: use center of the glass
-				VectorSubtract(ent->r.maxs, ent->r.mins, size);
-				VectorScale(size, 0.5, size);
-				VectorAdd(ent->r.mins, size, impactPoint);
-     			break;
 
-     	}
+		// Tell the program based on the gun if it was caused by splash damage
+		switch (mod) {
+			//Elder: added + compacted
+		case MOD_KNIFE:
+		case MOD_KNIFE_THROWN:
+		case MOD_MP5:
+		case MOD_M4:
+		case MOD_M3:
+		case MOD_PISTOL:
+		case MOD_HANDCANNON:
+		case MOD_AKIMBO:
+		case MOD_SNIPER:
+		case MOD_GAUNTLET:
+		case MOD_KICK:
+			//Use actual impact point
+			VectorCopy(point, impactPoint);
+			break;
+		default:
+			//Splash damage weapons: use center of the glass
+			VectorSubtract(ent->r.maxs, ent->r.mins, size);
+			VectorScale(size, 0.5, size);
+			VectorAdd(ent->r.mins, size, impactPoint);
+			break;
+
+		}
 		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
-		tent = G_TempEntity2( impactPoint, EV_CHIP_GLASS, eParm);
+		tent = G_TempEntity2(impactPoint, EV_CHIP_GLASS, eParm);
 
-  }
+	}
 }
 
-void SP_func_pressure( gentity_t *ent ) {
+void SP_func_pressure(gentity_t * ent)
+{
 	char *type;
 
 	// Make it appear as the brush
-	trap_SetBrushModel( ent, ent->model );
-	trap_LinkEntity (ent);
+	trap_SetBrushModel(ent, ent->model);
+	trap_LinkEntity(ent);
 
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	VectorCopy(ent->s.origin, ent->s.pos.trBase);
+	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 	ent->s.eType = ET_PRESSURE;
 
-	G_SpawnInt( "speed", "0", &ent->mass);		// mass will hold speed... yeah...
-	G_SpawnString( "type", "steam", &type);
+	G_SpawnInt("speed", "0", &ent->mass);	// mass will hold speed... yeah...
+	G_SpawnString("type", "steam", &type);
 
-	if (ent->mass == 0) ent->mass = 200;
+	if (ent->mass == 0)
+		ent->mass = 200;
 
-	if (!Q_stricmp(type, "air"))				// bounce will hold pressure type... yeah...
+	if (!Q_stricmp(type, "air"))	// bounce will hold pressure type... yeah...
 		ent->bounce = 1;
 	else if (!Q_stricmp(type, "flame") || !Q_stricmp(type, "fire"))
 		ent->bounce = 2;
 	else if (!Q_stricmp(type, "water"))
 		ent->bounce = 3;
-	else	// steam is default
+	else			// steam is default
 		ent->bounce = 0;
 
 	// ent->s.frame holds type
@@ -962,16 +951,17 @@ void SP_func_pressure( gentity_t *ent ) {
 
 }
 
-void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {
+void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent)
+{
 	gentity_t *tent;
 
-	G_UseTargets (ent, ent->activator);	
+	G_UseTargets(ent, ent->activator);
 
-	tent = G_TempEntity( origin, EV_PRESSURE );
-	tent->s.eventParm = DirToByte( normal );
+	tent = G_TempEntity(origin, EV_PRESSURE);
+	tent->s.eventParm = DirToByte(normal);
 
-	tent->s.frame = ent->bounce;		// 1 = air, 2 = flame, 0 = steam
-	tent->s.powerups = ent->mass;		// speed of pressure
+	tent->s.frame = ent->bounce;	// 1 = air, 2 = flame, 0 = steam
+	tent->s.powerups = ent->mass;	// speed of pressure
 }
 
 /*
@@ -980,41 +970,42 @@ G_EvaluateTrajectory
 
 ================
 */
-void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
-	float		deltaTime;
-	float		phase;
+void G_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result)
+{
+	float deltaTime;
+	float phase;
 
-	switch( tr->trType ) {
+	switch (tr->trType) {
 	case TR_STATIONARY:
 	case TR_INTERPOLATE:
-		VectorCopy( tr->trBase, result );
+		VectorCopy(tr->trBase, result);
 		break;
 	case TR_LINEAR:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+		VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 		break;
 	case TR_SINE:
-		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = sin( deltaTime * M_PI * 2 );
-		VectorMA( tr->trBase, phase, tr->trDelta, result );
+		deltaTime = (atTime - tr->trTime) / (float) tr->trDuration;
+		phase = sin(deltaTime * M_PI * 2);
+		VectorMA(tr->trBase, phase, tr->trDelta, result);
 		break;
 	case TR_LINEAR_STOP:
-		if ( atTime > tr->trTime + tr->trDuration ) {
+		if (atTime > tr->trTime + tr->trDuration) {
 			atTime = tr->trTime + tr->trDuration;
 		}
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		if ( deltaTime < 0 ) {
+		deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+		if (deltaTime < 0) {
 			deltaTime = 0;
 		}
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
-		result[2] -= 0.5 * (float)g_gravity.integer * deltaTime * deltaTime;
+		deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+		VectorMA(tr->trBase, deltaTime, tr->trDelta, result);
+		result[2] -= 0.5 * (float) g_gravity.integer * deltaTime * deltaTime;
 		break;
 	default:
-		Com_Error( ERR_DROP, "G_EvaluateTrajectory: unknown trType: %i", tr->trTime );
+		Com_Error(ERR_DROP, "G_EvaluateTrajectory: unknown trType: %i", tr->trTime);
 		break;
 	}
 }
@@ -1026,38 +1017,39 @@ G_EvaluateTrajectoryDelta
 For determining velocity at a given time
 ================
 */
-void G_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
-	float	deltaTime;
-	float	phase;
+void G_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result)
+{
+	float deltaTime;
+	float phase;
 
-	switch( tr->trType ) {
+	switch (tr->trType) {
 	case TR_STATIONARY:
 	case TR_INTERPOLATE:
-		VectorClear( result );
+		VectorClear(result);
 		break;
 	case TR_LINEAR:
-		VectorCopy( tr->trDelta, result );
+		VectorCopy(tr->trDelta, result);
 		break;
 	case TR_SINE:
-		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
-		phase = cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
+		deltaTime = (atTime - tr->trTime) / (float) tr->trDuration;
+		phase = cos(deltaTime * M_PI * 2);	// derivative of sin = cos
 		phase *= 0.5;
-		VectorScale( tr->trDelta, phase, result );
+		VectorScale(tr->trDelta, phase, result);
 		break;
 	case TR_LINEAR_STOP:
-		if ( atTime > tr->trTime + tr->trDuration ) {
-			VectorClear( result );
+		if (atTime > tr->trTime + tr->trDuration) {
+			VectorClear(result);
 			return;
 		}
-		VectorCopy( tr->trDelta, result );
+		VectorCopy(tr->trDelta, result);
 		break;
 	case TR_GRAVITY:
-		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
-		VectorCopy( tr->trDelta, result );
-		result[2] -= (float)g_gravity.integer * deltaTime;
+		deltaTime = (atTime - tr->trTime) * 0.001;	// milliseconds to seconds
+		VectorCopy(tr->trDelta, result);
+		result[2] -= (float) g_gravity.integer * deltaTime;
 		break;
 	default:
-		Com_Error( ERR_DROP, "G_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+		Com_Error(ERR_DROP, "G_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime);
 		break;
 	}
 }
@@ -1068,18 +1060,17 @@ G_EvaluateTrajectoryDelta  - By NiceAss
 
 Will update all ET_MISSILE entities with TR_GRAVITY on a g_gravity change.
 ================*/
-void G_GravityChange(void) {
-	int			i;
-	gentity_t	*ent;
+void G_GravityChange(void)
+{
+	int i;
+	gentity_t *ent;
+
 	ent = &g_entities[0];
-	for (i=0 ; i<level.num_entities ; i++, ent++) {
-		if ( ent->s.pos.trType == TR_GRAVITY &&
-			ent->s.eType == ET_MISSILE ) 
-		{
-			G_EvaluateTrajectoryDelta( &ent->s.pos, level.time, ent->s.pos.trDelta );
-			VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+	for (i = 0; i < level.num_entities; i++, ent++) {
+		if (ent->s.pos.trType == TR_GRAVITY && ent->s.eType == ET_MISSILE) {
+			G_EvaluateTrajectoryDelta(&ent->s.pos, level.time, ent->s.pos.trDelta);
+			VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 			ent->s.pos.trTime = level.time;
 		}
 	}
 }
-

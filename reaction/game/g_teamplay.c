@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.106  2002/06/12 01:23:36  blaze
 // fix starting demos with autoaction
 //
@@ -347,26 +350,26 @@
 #include "g_local.h"
 #include "zcam.h"
 
-gitem_t	*BG_FindItemForHoldable( holdable_t pw );
-char	*ConcatArgs( int start );
-int	touch[MAX_GENTITIES];
-void	ResetKills(gentity_t *ent);
-void	ClearBodyQue (void);
-void	Cmd_DropItem_f(gentity_t *ent);
-void	Cmd_DropWeapon_f(gentity_t *ent);
-void	AddIP(char *str);
+gitem_t *BG_FindItemForHoldable(holdable_t pw);
+char *ConcatArgs(int start);
+int touch[MAX_GENTITIES];
+void ResetKills(gentity_t * ent);
+void ClearBodyQue(void);
+void Cmd_DropItem_f(gentity_t * ent);
+void Cmd_DropWeapon_f(gentity_t * ent);
+void AddIP(char *str);
 
-gentity_t *
-FindClientByPersName (char *name) {
-	int		i;
-	gentity_t	*other, *found;
+gentity_t *FindClientByPersName(char *name)
+{
+	int i;
+	gentity_t *other, *found;
 
 	found = NULL;
 	for (i = 0; i <= level.maxclients; i++) {
 		other = &g_entities[i];
 		if (!other->inuse)
 			continue;
-		if (other && other->client && (Q_stricmp (other->client->pers.netname, name) == 0)) {
+		if (other && other->client && (Q_stricmp(other->client->pers.netname, name) == 0)) {
 			found = other;
 			break;
 		}
@@ -376,8 +379,8 @@ FindClientByPersName (char *name) {
 
 void CheckTeamRules()
 {
-	int		winner, i, checked_tie = 0;
-	gentity_t	*player;
+	int winner, i, checked_tie = 0;
+	gentity_t *player;
 
 	//Slicer
 	if (level.intermissiontime)
@@ -418,14 +421,14 @@ void CheckTeamRules()
 		} else {
 			//Slicer: Adding Matchmode
 			if (g_RQ3_matchmode.integer) {
-				if(level.paused)
-					trap_SendServerCommand( -1, "cp \"Referee has paused the Game!\n\"");
+				if (level.paused)
+					trap_SendServerCommand(-1, "cp \"Referee has paused the Game!\n\"");
 				else if (level.team1ready && level.team2ready)
-					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
+					trap_SendServerCommand(-1, "cp \"Not enough players to play!\n\"");
 				else
-					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
+					trap_SendServerCommand(-1, "cp \"Both Teams Must Be Ready!\n\"");
 			} else
-				trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
+				trap_SendServerCommand(-1, "cp \"Not enough players to play!\n\"");
 
 			MakeAllLivePlayersObservers();
 			level.inGame = qfalse;
@@ -433,19 +436,19 @@ void CheckTeamRules()
 	} else {
 		if (level.team_round_countdown)
 			level.team_round_countdown--;
-		if (g_RQ3_tpcountdown.integer && level.team_round_countdown == (101*level.fps)/10) {
+		if (g_RQ3_tpcountdown.integer && level.team_round_countdown == (101 * level.fps) / 10) {
 			for (i = 0; i < level.maxclients; i++) {
 				player = &g_entities[i];
 				if (!player->inuse)
 					continue;
-				G_AddEvent (player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
+				G_AddEvent(player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
 
 			}
-      //Blaze: moved from below the G_AddEvent
-      trap_SendServerCommand( -1, va("rq3_cmd %i 0", STARTDEMO));    
-      trap_SendServerCommand( -1, va("rq3_cmd %i 0", MAPSTART));
+			//Blaze: moved from below the G_AddEvent
+			trap_SendServerCommand(-1, va("rq3_cmd %i 0", STARTDEMO));
+			trap_SendServerCommand(-1, va("rq3_cmd %i 0", MAPSTART));
 		}
-    
+
 	}
 
 	level.rulecheckfrequency++;
@@ -457,21 +460,20 @@ void CheckTeamRules()
 			//Slicer : Matchmode
 			if (g_RQ3_matchmode.integer) {
 				if (level.matchTime >= g_timelimit.integer * 60) {
-					level.inGame = level.team_round_going = level.team_round_countdown = 
-					level.team_game_going = level.matchTime = 0;
-						//Slicer: apparently not being used
+					level.inGame = level.team_round_going = level.team_round_countdown =
+					    level.team_game_going = level.matchTime = 0;
+					//Slicer: apparently not being used
 					//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 					level.team1ready = qfalse;
 					level.team2ready = qfalse;
-					MakeAllLivePlayersObservers ();
-					trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
+					MakeAllLivePlayersObservers();
+					trap_SendServerCommand(-1, "cp \"Match is OVER !!!.\n\"");
 					return;
 				}
-			}
-			else {
-				if (level.time - level.startTime >= g_timelimit.integer*60000) {
+			} else {
+				if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 					//Slicer : Let's do a normal console print instead..
-					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+					trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
 					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
 					//Slicer: apparently not being used
@@ -485,39 +487,39 @@ void CheckTeamRules()
 		if (!level.team_round_countdown) {
 			if (BothTeamsHavePlayers()) {
 				//Slicer let's print to the console too
-				trap_SendServerCommand( -1, "print \"The round will begin in 20 seconds!\n\"" );
-				trap_SendServerCommand( -1, va("cp \"The round will begin in 20 seconds!\n\""));
-				level.team_round_countdown = (201*level.fps)/10;
+				trap_SendServerCommand(-1, "print \"The round will begin in 20 seconds!\n\"");
+				trap_SendServerCommand(-1, va("cp \"The round will begin in 20 seconds!\n\""));
+				level.team_round_countdown = (201 * level.fps) / 10;
 			}
 		}
 	} else {
 		if ((winner = CheckForWinner()) != WINNER_NONE) {
 			if (!checked_tie) {
-				level.holding_on_tie_check = (50*level.fps)/10;
+				level.holding_on_tie_check = (50 * level.fps) / 10;
 				return;
 			}
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-				//Slicer: apparently not being used
+			//Slicer: apparently not being used
 			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
-			level.team_round_countdown = (71*level.fps)/10;
+			level.team_round_countdown = (71 * level.fps) / 10;
 			return;
 		}
 
 		if (g_RQ3_roundtimelimit.integer && (level.current_round_length > g_RQ3_roundtimelimit.integer * 600)) {
-			trap_SendServerCommand( -1, va("cp \"Round timelimit hit.\n\""));
+			trap_SendServerCommand(-1, va("cp \"Round timelimit hit.\n\""));
 			winner = CheckForForcedWinner();
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-				//Slicer: apparently not being used
+			//Slicer: apparently not being used
 			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
-			level.team_round_countdown = (71*level.fps)/10;
+			level.team_round_countdown = (71 * level.fps) / 10;
 			return;
 		}
 	}
@@ -527,24 +529,23 @@ void StartLCA()
 {
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
-	level.lights_camera_action = (41*level.fps)/10;
-	G_LogPrintf ("LIGHTS...\n");
+	level.lights_camera_action = (41 * level.fps) / 10;
+	G_LogPrintf("LIGHTS...\n");
 	SpawnPlayers();
 	level.lights_delay = 4;
 }
 
 void ContinueLCA()
 {
-	if (level.lights_camera_action == (21*level.fps)/10) {
-		G_LogPrintf ("CAMERA...\n");
+	if (level.lights_camera_action == (21 * level.fps) / 10) {
+		G_LogPrintf("CAMERA...\n");
 		trap_SendServerCommand(-1, va("rq3_cmd %i", CAMERA));
-	}
-	else if (level.lights_camera_action == 1) {
-		G_LogPrintf ("ACTION!\n");
+	} else if (level.lights_camera_action == 1) {
+		G_LogPrintf("ACTION!\n");
 		trap_SendServerCommand(-1, va("rq3_cmd %i", ACTION));
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
-			//Slicer: apparently not being used
+		//Slicer: apparently not being used
 		//trap_SendServerCommand(-1, va("rq3_cmd %i 1", ROUND));
 		level.current_round_length = 0;
 	}
@@ -556,45 +557,44 @@ qboolean BothTeamsHavePlayers()
 	int onteam1 = 0, onteam2 = 0;
 
 	//Slicer: Matchmode
-	if(g_RQ3_matchmode.integer && (!level.team1ready || !level.team2ready || level.paused))
+	if (g_RQ3_matchmode.integer && (!level.team1ready || !level.team2ready || level.paused))
 		return 0;
-	
 
-	onteam1 = RQ3TeamCount( -1, TEAM_RED );
-	onteam2 = RQ3TeamCount( -1, TEAM_BLUE );
+	onteam1 = RQ3TeamCount(-1, TEAM_RED);
+	onteam2 = RQ3TeamCount(-1, TEAM_BLUE);
 
 	return (onteam1 > 0 && onteam2 > 0);
 }
 
 void MakeAllLivePlayersObservers()
 {
-	gentity_t	*player;
-	int		i;
+	gentity_t *player;
+	int i;
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
 		if (!player->inuse || !player->client)
 			continue;
 		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) {
-			StopFollowing (player);
+			StopFollowing(player);
 		} else {
 			//Slicer Adding this..
 			level.clients[i].ps.pm_type = PM_DEAD;
 			level.clients[i].ps.weapon = WP_NONE;
 			level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
-			StopFollowing (player);
+			StopFollowing(player);
 		}
 	}
 }
 
 void CleanLevel()
 {
-	gentity_t	*ent;
-	int		i;
+	gentity_t *ent;
+	int i;
 
 	ClearBodyQue();
 	ent = &g_entities[MAX_CLIENTS];
-	for (i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++) {
+	for (i = MAX_CLIENTS; i < level.num_entities; i++, ent++) {
 		if (!ent->inuse)
 			continue;
 		if (!ent->item) {
@@ -607,7 +607,7 @@ void CleanLevel()
 			continue;
 		}
 		//Makro - added this for bots
-		if ( (ent->r.svFlags & SVF_NOCLIENT) && (ent->r.svFlags & SVF_BOTHACK) )
+		if ((ent->r.svFlags & SVF_NOCLIENT) && (ent->r.svFlags & SVF_BOTHACK))
 			continue;
 		if (ent->item->giType == IT_WEAPON) {
 			switch (ent->item->giTag) {
@@ -671,9 +671,9 @@ int CheckForWinner()
 
 int CheckForForcedWinner()
 {
-	int		onteam1 = 0, onteam2 = 0, i;
-	int		health1 = 0, health2 = 0;
-	gentity_t	*player;
+	int onteam1 = 0, onteam2 = 0, i;
+	int health1 = 0, health2 = 0;
+	gentity_t *player;
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
@@ -704,20 +704,20 @@ int CheckForForcedWinner()
 
 int WonGame(int winner)
 {
-	trap_SendServerCommand( -1, "print \"The round is over:\n\"" );
-	G_LogPrintf ("The round is over:\n");
+	trap_SendServerCommand(-1, "print \"The round is over:\n\"");
+	G_LogPrintf("The round is over:\n");
 
 	if (winner == WINNER_TIE) {
-		trap_SendServerCommand( -1, "print \"It was a tie, no points awarded!\n\"" );
-		G_LogPrintf ("It was a tie, no points awarded!\n");
+		trap_SendServerCommand(-1, "print \"It was a tie, no points awarded!\n\"");
+		G_LogPrintf("It was a tie, no points awarded!\n");
 	} else {
 		if (winner == WINNER_TEAM1) {
-			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team1name.string));
-			G_LogPrintf ("%s won!\n", g_RQ3_team1name.string);
+			trap_SendServerCommand(-1, va("print \"%s won!\n\"", g_RQ3_team1name.string));
+			G_LogPrintf("%s won!\n", g_RQ3_team1name.string);
 			level.teamScores[TEAM_RED]++;
 		} else {
-			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team2name.string));
-			G_LogPrintf ("%s won!\n", g_RQ3_team2name.string);
+			trap_SendServerCommand(-1, va("print \"%s won!\n\"", g_RQ3_team2name.string));
+			G_LogPrintf("%s won!\n", g_RQ3_team2name.string);
 			level.teamScores[TEAM_BLUE]++;
 		}
 	}
@@ -726,22 +726,21 @@ int WonGame(int winner)
 		//Slicer : Matchmode
 		if (g_RQ3_matchmode.integer) {
 			if (level.matchTime >= g_timelimit.integer * 60) {
-			SendEndMessage();
-			level.inGame = level.team_round_going = level.team_round_countdown = 
-			level.team_game_going = level.matchTime = 0;
+				SendEndMessage();
+				level.inGame = level.team_round_going = level.team_round_countdown =
+				    level.team_game_going = level.matchTime = 0;
 				//Slicer: apparently not being used
-			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
-			level.team1ready = qfalse;
-			level.team2ready = qfalse;
-			MakeAllLivePlayersObservers ();
-			return 1;
+				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+				level.team1ready = qfalse;
+				level.team2ready = qfalse;
+				MakeAllLivePlayersObservers();
+				return 1;
 			}
-		}
-		else {
-			if (level.time - level.startTime >= g_timelimit.integer*60000) {
-				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+		} else {
+			if (level.time - level.startTime >= g_timelimit.integer * 60000) {
+				trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					//Slicer: apparently not being used
+				//Slicer: apparently not being used
 				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
@@ -751,24 +750,25 @@ int WonGame(int winner)
 	}
 
 	if (g_RQ3_roundlimit.integer) {
-		if (level.teamScores[TEAM_RED] >= g_RQ3_roundlimit.integer || level.teamScores[TEAM_BLUE] >= g_RQ3_roundlimit.integer) {
-				//Slicer : Matchmode
+		if (level.teamScores[TEAM_RED] >= g_RQ3_roundlimit.integer
+		    || level.teamScores[TEAM_BLUE] >= g_RQ3_roundlimit.integer) {
+			//Slicer : Matchmode
 			if (g_RQ3_matchmode.integer) {
 				SendEndMessage();
-				level.inGame = level.team_round_going = level.team_round_countdown = 
-				level.team_game_going = level.matchTime = 0;
-					//Slicer: apparently not being used
+				level.inGame = level.team_round_going = level.team_round_countdown =
+				    level.team_game_going = level.matchTime = 0;
+				//Slicer: apparently not being used
 				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				level.team1ready = qfalse;
 				level.team2ready = qfalse;
-				MakeAllLivePlayersObservers ();
+				MakeAllLivePlayersObservers();
 				return 1;
 			} else {
 				//Slicer: Adding a normal console print..
-				trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
-				trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
+				trap_SendServerCommand(-1, "print \"Roundlimit hit.\n\"");
+				trap_SendServerCommand(-1, va("cp \"Roundlimit hit.\n\""));
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					//Slicer: apparently not being used
+				//Slicer: apparently not being used
 				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
@@ -779,12 +779,13 @@ int WonGame(int winner)
 	return 0;
 }
 
-team_t RQ3TeamCount( int ignoreClientNum, int team )
+team_t RQ3TeamCount(int ignoreClientNum, int team)
 {
-	int	i, count = 0;
-//	char	buf[64];
+	int i, count = 0;
 
-	for (i=0; i<level.maxclients; i++) {
+//      char    buf[64];
+
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == ignoreClientNum) {
 			continue;
 		}
@@ -812,10 +813,10 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 	return count;
 }
 
-void CheckForUnevenTeams(gentity_t *player)
+void CheckForUnevenTeams(gentity_t * player)
 {
-	int		i, onteam1 = 0, onteam2 = 0;
-	gentity_t	*ent;
+	int i, onteam1 = 0, onteam2 = 0;
+	gentity_t *ent;
 
 	for (i = 0; i < level.maxclients; i++) {
 		ent = &g_entities[i];
@@ -829,20 +830,24 @@ void CheckForUnevenTeams(gentity_t *player)
 
 	if (player->client->sess.savedTeam == TEAM_RED) {
 		if (onteam1 > onteam2)
-			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than %s\n\"",
-				onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s", g_RQ3_team2name.string));
+			trap_SendServerCommand(player - g_entities,
+					       va("print \"Your team now has %d more player%s than %s\n\"",
+						  onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s",
+						  g_RQ3_team2name.string));
 	} else if (player->client->sess.savedTeam == TEAM_BLUE) {
 		if (onteam2 > onteam1)
-			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than %s\n\"",
-				onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s", g_RQ3_team1name.string));
+			trap_SendServerCommand(player - g_entities,
+					       va("print \"Your team now has %d more player%s than %s\n\"",
+						  onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s",
+						  g_RQ3_team1name.string));
 	}
 }
 
 void SpawnPlayers()
 {
-	gentity_t	*player, *ent;
-	gclient_t	*client;
-	int		clientNum, i;
+	gentity_t *player, *ent;
+	gclient_t *client;
+	int clientNum, i;
 
 	level.spawnPointsLocated = qfalse;
 	for (i = 0; i < level.maxclients; i++) {
@@ -855,8 +860,7 @@ void SpawnPlayers()
 		if (g_RQ3_matchmode.integer && player->client->sess.sub != TEAM_FREE)
 			continue;
 // JBravo: lets not respawn spectators in free floating mode
-		if (player->client->sess.savedTeam == TEAM_SPECTATOR &&
-				player->client->specMode == SPECTATOR_FREE) {
+		if (player->client->sess.savedTeam == TEAM_SPECTATOR && player->client->specMode == SPECTATOR_FREE) {
 			continue;
 		}
 
@@ -874,30 +878,30 @@ void SpawnPlayers()
 			client->sess.spectatorState = SPECTATOR_NOT;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
-//		trap_SendServerCommand(player-g_entities, "lights");
+//              trap_SendServerCommand(player-g_entities, "lights");
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
 	}
 	//Blaze: May aswell respawn breakables here
-	for (i=0; i<level.num_entities; i++) {
+	for (i = 0; i < level.num_entities; i++) {
 		ent = &g_entities[i];
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
 			trap_LinkEntity(ent);
 
-      ent->exploded = qfalse;
-      ent->takedamage = qtrue;
-      ent->s.eType = ET_BREAKABLE;
-      ent->health = ent->health_saved;
+			ent->exploded = qfalse;
+			ent->takedamage = qtrue;
+			ent->s.eType = ET_BREAKABLE;
+			ent->health = ent->health_saved;
 		}
 	}
 }
 
 /* Let the player Choose the weapon and/or item he wants */
-void RQ3_Cmd_Choose_f( gentity_t *ent )
+void RQ3_Cmd_Choose_f(gentity_t * ent)
 {
-	char	*cmd;
+	char *cmd;
 
 	if (!ent->client) {
 		return;		// not fully in game yet
@@ -905,93 +909,93 @@ void RQ3_Cmd_Choose_f( gentity_t *ent )
 
 	cmd = ConcatArgs(1);
 
-	if (Q_stricmp (cmd, RQ3_MP5_NAME) == 0 || Q_stricmp (cmd, "mp5") == 0) {
+	if (Q_stricmp(cmd, RQ3_MP5_NAME) == 0 || Q_stricmp(cmd, "mp5") == 0) {
 		ent->client->teamplayWeapon = WP_MP5;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_MP5_NAME));
-	} else if (Q_stricmp (cmd, RQ3_M3_NAME) == 0 || Q_stricmp (cmd, "m3") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_MP5_NAME));
+	} else if (Q_stricmp(cmd, RQ3_M3_NAME) == 0 || Q_stricmp(cmd, "m3") == 0) {
 		ent->client->teamplayWeapon = WP_M3;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M3_NAME));
-	} else if (Q_stricmp (cmd, RQ3_M4_NAME) == 0 || Q_stricmp (cmd, "m4") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M3_NAME));
+	} else if (Q_stricmp(cmd, RQ3_M4_NAME) == 0 || Q_stricmp(cmd, "m4") == 0) {
 		ent->client->teamplayWeapon = WP_M4;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M4_NAME));
-	} else if (Q_stricmp (cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp (cmd, "hc") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_M4_NAME));
+	} else if (Q_stricmp(cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp(cmd, "hc") == 0) {
 		ent->client->teamplayWeapon = WP_HANDCANNON;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_HANDCANNON_NAME));
-	} else if (Q_stricmp (cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp (cmd, "sniper") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_HANDCANNON_NAME));
+	} else if (Q_stricmp(cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp(cmd, "sniper") == 0) {
 		ent->client->teamplayWeapon = WP_SSG3000;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
-	} else if (Q_stricmp (cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp (cmd, "knives") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
+	} else if (Q_stricmp(cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp(cmd, "knives") == 0) {
 		ent->client->teamplayWeapon = WP_KNIFE;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
-	} else if (Q_stricmp (cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp (cmd, "akimbo") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
+	} else if (Q_stricmp(cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp(cmd, "akimbo") == 0) {
 		ent->client->teamplayWeapon = WP_AKIMBO;
-		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_AKIMBO_NAME));
-	} else if (Q_stricmp (cmd, RQ3_KEVLAR_NAME) == 0 || Q_stricmp (cmd, "kevlar") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Weapon selected: %s\n\"", RQ3_AKIMBO_NAME));
+	} else if (Q_stricmp(cmd, RQ3_KEVLAR_NAME) == 0 || Q_stricmp(cmd, "kevlar") == 0) {
 		ent->client->teamplayItem = HI_KEVLAR;
-		trap_SendServerCommand(ent-g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
-	} else if (Q_stricmp (cmd, RQ3_LASER_NAME) == 0 || Q_stricmp (cmd, "laser") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_KEVLAR_NAME));
+	} else if (Q_stricmp(cmd, RQ3_LASER_NAME) == 0 || Q_stricmp(cmd, "laser") == 0) {
 		ent->client->teamplayItem = HI_LASER;
-		trap_SendServerCommand(ent-g_entities, va("print \"Item selected: %s\n\"", RQ3_LASER_NAME));
-	} else if (Q_stricmp (cmd, RQ3_SLIPPERS_NAME) == 0 || Q_stricmp (cmd, "slippers") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_LASER_NAME));
+	} else if (Q_stricmp(cmd, RQ3_SLIPPERS_NAME) == 0 || Q_stricmp(cmd, "slippers") == 0) {
 		ent->client->teamplayItem = HI_SLIPPERS;
-		trap_SendServerCommand(ent-g_entities, va("print \"Item selected: %s\n\"", RQ3_SLIPPERS_NAME));
-	} else if (Q_stricmp (cmd, RQ3_SILENCER_NAME) == 0 || Q_stricmp (cmd, "silencer") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SLIPPERS_NAME));
+	} else if (Q_stricmp(cmd, RQ3_SILENCER_NAME) == 0 || Q_stricmp(cmd, "silencer") == 0) {
 		ent->client->teamplayItem = HI_SILENCER;
-		trap_SendServerCommand(ent-g_entities, va("print \"Item selected: %s\n\"", RQ3_SILENCER_NAME));
-	} else if (Q_stricmp (cmd, RQ3_BANDOLIER_NAME) == 0 || Q_stricmp (cmd, "bandolier") == 0) {
+		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_SILENCER_NAME));
+	} else if (Q_stricmp(cmd, RQ3_BANDOLIER_NAME) == 0 || Q_stricmp(cmd, "bandolier") == 0) {
 		ent->client->teamplayItem = HI_BANDOLIER;
-		trap_SendServerCommand(ent-g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
+		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
 	} else {
-		trap_SendServerCommand(ent-g_entities, va("print \"Invalid weapon or item choice.\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Invalid weapon or item choice.\n\""));
 		return;
 	}
 }
 
 /* Drop weapon or Item ala. AQ */
-void RQ3_Cmd_Drop_f( gentity_t *ent )
+void RQ3_Cmd_Drop_f(gentity_t * ent)
 {
-	char	cmd[MAX_TOKEN_CHARS];
+	char cmd[MAX_TOKEN_CHARS];
 
 	if (!ent->client) {
-		return;			// not fully in game yet
+		return;		// not fully in game yet
 	}
 
-	trap_Argv (1, cmd, sizeof(cmd));
+	trap_Argv(1, cmd, sizeof(cmd));
 
-	if (Q_stricmp (cmd, "item") == 0) {
-		Cmd_DropItem_f (ent);
-	} else if (Q_stricmp (cmd, "weapon") == 0) {
-		Cmd_DropWeapon_f (ent);
+	if (Q_stricmp(cmd, "item") == 0) {
+		Cmd_DropItem_f(ent);
+	} else if (Q_stricmp(cmd, "weapon") == 0) {
+		Cmd_DropWeapon_f(ent);
 	} else {
-		trap_SendServerCommand(ent-g_entities, va("print \"unknown item: %s\n\"", cmd));
+		trap_SendServerCommand(ent - g_entities, va("print \"unknown item: %s\n\"", cmd));
 	}
 }
 
 /* Equip the player with the weapons and items he needs for the round. */
-void EquipPlayer (gentity_t *ent)
+void EquipPlayer(gentity_t * ent)
 {
-	int	bandolierFactor, grenades;
+	int bandolierFactor, grenades;
 
 	if (!ent->client || ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 		return;
 
 	bandolierFactor = grenades = 0;
 
-	ent->client->numClips[ WP_PISTOL ] = 1;			// extra clip of ammo for pistol
-	ent->client->ps.ammo[ WP_PISTOL] = RQ3_PISTOL_AMMO;
-	
+	ent->client->numClips[WP_PISTOL] = 1;	// extra clip of ammo for pistol
+	ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+
 	if (ent->client->teamplayItem == HI_BANDOLIER) {
 		bandolierFactor = 2;
-		grenades = trap_Cvar_VariableIntegerValue( "g_RQ3_tgren" );
+		grenades = trap_Cvar_VariableIntegerValue("g_RQ3_tgren");
 	} else {
 		bandolierFactor = 1;
 	}
 
 	switch (ent->client->teamplayWeapon) {
 	case WP_SSG3000:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_SSG3000);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_SSG3000] = RQ3_SSG3000_AMMO;
 		if (g_RQ3_sniperup.integer == 1) {
@@ -1005,9 +1009,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_MP5:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MP5 );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_MP5);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_MP5] = RQ3_MP5_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_MP5] = RQ3_MP5_AMMO;
 		ent->client->ps.weapon = WP_MP5;
@@ -1016,9 +1020,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M3:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M3 );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_M3);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_M3] = RQ3_M3_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_M3] = RQ3_M3_AMMO;
 		ent->client->ps.weapon = WP_M3;
@@ -1027,9 +1031,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_M4:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M4 );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_M4);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_M4] = RQ3_M4_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_M4] = RQ3_M4_AMMO;
 		ent->client->ps.weapon = WP_M4;
@@ -1038,9 +1042,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_AKIMBO:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_AKIMBO );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_AKIMBO);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
@@ -1049,9 +1053,9 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 0;
 		break;
 	case WP_HANDCANNON:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_HANDCANNON );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_HANDCANNON);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_KNIFE);
 		ent->client->numClips[WP_HANDCANNON] = RQ3_HANDCANNON_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[WP_HANDCANNON] = RQ3_HANDCANNON_AMMO;
 		ent->client->ps.weapon = WP_HANDCANNON;
@@ -1060,8 +1064,8 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 1;
 		break;
 	case WP_KNIFE:
-		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_KNIFE);
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_PISTOL);
 		ent->client->ps.ammo[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.weapon = WP_KNIFE;
 		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
@@ -1069,46 +1073,47 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->uniqueWeapons = 0;
 		break;
 	default:
-		G_Printf("%s had an illegal teamplay weapon %i!\n", ent->client->pers.netname, ent->client->teamplayWeapon);
+		G_Printf("%s had an illegal teamplay weapon %i!\n", ent->client->pers.netname,
+			 ent->client->teamplayWeapon);
 		break;
 	}
 
 	if (grenades > 0) {
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE );
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE);
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
 	}
 	if (ent->client->teamplayWeapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
-			ANIM_TOGGLEBIT) | WP_ANIM_THROWACTIVATE;
+					    ANIM_TOGGLEBIT) | WP_ANIM_THROWACTIVATE;
 	} else {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
-			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
+					    ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
 	}
 	if (!(ent->r.svFlags & SVF_BOT)) {
-		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i %i", SETWEAPON, ent->client->ps.weapon));
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, ent->client->ps.weapon));
 	}
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
-	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
+	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
 	ent->client->uniqueItems = 1;
 }
 
-void UnstickPlayer (gentity_t *ent)
+void UnstickPlayer(gentity_t * ent)
 {
-	int		i, num, count;
-	gentity_t	*hit;
-	vec3_t		mins, maxs;
+	int i, num, count;
+	gentity_t *hit;
+	vec3_t mins, maxs;
 
 	count = 0;
 
-	VectorAdd (ent->client->ps.origin, ent->r.mins, mins);
-	VectorAdd (ent->client->ps.origin, ent->r.maxs, maxs);
+	VectorAdd(ent->client->ps.origin, ent->r.mins, mins);
+	VectorAdd(ent->client->ps.origin, ent->r.maxs, maxs);
 
-	num = trap_EntitiesInBox (mins, maxs, touch, MAX_GENTITIES);
+	num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
 
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		hit = &g_entities[touch[i]];
-		if ( hit->client && hit != ent ) {
+		if (hit->client && hit != ent) {
 			count++;
 		}
 	}
@@ -1118,13 +1123,13 @@ void UnstickPlayer (gentity_t *ent)
 	}
 }
 
-void MakeSpectator(gentity_t *ent)
+void MakeSpectator(gentity_t * ent)
 {
-	gclient_t	*client;
+	gclient_t *client;
 
 	client = ent->client;
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
-		CopyToBodyQue (ent);
+		CopyToBodyQue(ent);
 
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
@@ -1133,7 +1138,7 @@ void MakeSpectator(gentity_t *ent)
 	if (ent->r.svFlags & SVF_BOT)
 		client->sess.spectatorState = SPECTATOR_FREE;
 	else if (g_RQ3_limchasecam.integer != 0) {
-		if (OKtoFollow (ent - g_entities)) {
+		if (OKtoFollow(ent - g_entities)) {
 			client->sess.spectatorState = SPECTATOR_FOLLOW;
 			client->specMode = SPECTATOR_FOLLOW;
 			client->ps.pm_flags |= PMF_FOLLOW;
@@ -1146,7 +1151,7 @@ void MakeSpectator(gentity_t *ent)
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 		}
 	} else {
-		if (OKtoFollow (ent - g_entities)) {
+		if (OKtoFollow(ent - g_entities)) {
 			client->sess.spectatorState = client->specMode;
 		} else {
 			client->ps.pm_flags &= ~PMF_FOLLOW;
@@ -1164,7 +1169,7 @@ qboolean OKtoFollow(int clientnum)
 
 	x = 0;
 
-	for (i = 0; i < level.maxclients ; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == clientnum) {
 			continue;
 		}
@@ -1175,7 +1180,7 @@ qboolean OKtoFollow(int clientnum)
 			continue;
 		}
 		if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_limchasecam.integer != 0 &&
-				level.clients[i].sess.sessionTeam != level.clients[clientnum].sess.savedTeam) {
+		    level.clients[i].sess.sessionTeam != level.clients[clientnum].sess.savedTeam) {
 			continue;
 		}
 		x++;
@@ -1186,183 +1191,241 @@ qboolean OKtoFollow(int clientnum)
 	return qfalse;
 }
 
-void RQ3_Cmd_Radio_power_f(gentity_t *ent)
+void RQ3_Cmd_Radio_power_f(gentity_t * ent)
 {
 	if (ent->client->radioOff == qfalse) {
 		ent->client->radioOff = qtrue;
-		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched off\n\"");
-		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i 25 0", RADIO));
+		trap_SendServerCommand(ent - g_entities, "cp \"Radio switched off\n\"");
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0", RADIO));
 	} else {
 		ent->client->radioOff = qfalse;
-		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched on\n\"");
-		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i 25 0", RADIO));
+		trap_SendServerCommand(ent - g_entities, "cp \"Radio switched on\n\"");
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i 25 0", RADIO));
 	}
 }
 
-void RQ3_Cmd_Radiogender_f(gentity_t *ent)
+void RQ3_Cmd_Radiogender_f(gentity_t * ent)
 {
-	char	arg[MAX_TOKEN_CHARS];
+	char arg[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() == 1) {
 		if (ent->client->radioGender == 0) {
-			trap_SendServerCommand(ent-g_entities, "print \"Radio gender currently set to male\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Radio gender currently set to male\n\"");
 			return;
 		} else {
-			trap_SendServerCommand(ent-g_entities, "print \"Radio gender currently set to female\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Radio gender currently set to female\n\"");
 			return;
 		}
 	}
 
 	trap_Argv(1, arg, sizeof(arg));
-	if (Q_stricmp (arg, "male") == 0) {
-		trap_SendServerCommand(ent-g_entities, "print \"Radio gender set to male\n\"");
+	if (Q_stricmp(arg, "male") == 0) {
+		trap_SendServerCommand(ent - g_entities, "print \"Radio gender set to male\n\"");
 		ent->client->radioGender = 0;
-	} else if (Q_stricmp (arg, "female") == 0) {
-		trap_SendServerCommand(ent-g_entities, "print \"Radio gender set to female\n\"");
+	} else if (Q_stricmp(arg, "female") == 0) {
+		trap_SendServerCommand(ent - g_entities, "print \"Radio gender set to female\n\"");
 		ent->client->radioGender = 1;
 	} else {
-		trap_SendServerCommand(ent-g_entities, "print \"Invalid gender selection, try 'male' or 'female'\n\"");
+		trap_SendServerCommand(ent - g_entities,
+				       "print \"Invalid gender selection, try 'male' or 'female'\n\"");
 	}
 }
 
 radio_msg_t male_radio_msgs[] = {
-	{ "1", 6 },
-	{ "2", 6 },
-	{ "3", 8 },
-	{ "4", 7 },
-	{ "5", 8 },
-	{ "6", 9 },
-	{ "7", 8 },
-	{ "8", 7 },
-	{ "9", 7 },
-	{ "10", 6 },
-	{ "back", 6 },
-	{ "cover", 7 },
-	{ "down", 13 },
-	{ "enemyd", 10 },
-	{ "enemys", 9 },
-	{ "forward", 6 },
-	{ "go", 6 },
-	{ "im_hit", 7 },
-	{ "left", 7 },
-	{ "reportin", 9 },
-	{ "right", 6 },
-	{ "taking_f", 22 },
-	{ "teamdown", 13 },
-	{ "treport", 12 },
-	{ "up", 4 },
-	{ "click", 4 },
-	{ "END", 0 }, // end of list delimiter
+	{"1", 6}
+	,
+	{"2", 6}
+	,
+	{"3", 8}
+	,
+	{"4", 7}
+	,
+	{"5", 8}
+	,
+	{"6", 9}
+	,
+	{"7", 8}
+	,
+	{"8", 7}
+	,
+	{"9", 7}
+	,
+	{"10", 6}
+	,
+	{"back", 6}
+	,
+	{"cover", 7}
+	,
+	{"down", 13}
+	,
+	{"enemyd", 10}
+	,
+	{"enemys", 9}
+	,
+	{"forward", 6}
+	,
+	{"go", 6}
+	,
+	{"im_hit", 7}
+	,
+	{"left", 7}
+	,
+	{"reportin", 9}
+	,
+	{"right", 6}
+	,
+	{"taking_f", 22}
+	,
+	{"teamdown", 13}
+	,
+	{"treport", 12}
+	,
+	{"up", 4}
+	,
+	{"click", 4}
+	,
+	{"END", 0}
+	,			// end of list delimiter
 };
 
 radio_msg_t female_radio_msgs[] = {
-	{ "1", 5 },
-	{ "2", 5 },
-	{ "3", 5 },
-	{ "4", 5 },
-	{ "5", 5 },
-	{ "6", 8 },
-	{ "7", 7 },
-	{ "8", 5 },
-	{ "9", 5 },
-	{ "10", 5 },
-	{ "back", 6 },
-	{ "cover", 5 },
-	{ "down", 6 },
-	{ "enemyd", 9 },
-	{ "enemys", 9 },
-	{ "forward", 8 },
-	{ "go", 6 },
-	{ "im_hit", 7 },
-	{ "left", 8 },
-	{ "reportin", 9 },
-	{ "right", 5 },
-	{ "taking_f", 22 },
-	{ "teamdown", 10 },
-	{ "treport", 12 },
-	{ "up", 6 },
-	{ "click", 6 },
-	{ "END", 0 }, // end of list delimiter
+	{"1", 5}
+	,
+	{"2", 5}
+	,
+	{"3", 5}
+	,
+	{"4", 5}
+	,
+	{"5", 5}
+	,
+	{"6", 8}
+	,
+	{"7", 7}
+	,
+	{"8", 5}
+	,
+	{"9", 5}
+	,
+	{"10", 5}
+	,
+	{"back", 6}
+	,
+	{"cover", 5}
+	,
+	{"down", 6}
+	,
+	{"enemyd", 9}
+	,
+	{"enemys", 9}
+	,
+	{"forward", 8}
+	,
+	{"go", 6}
+	,
+	{"im_hit", 7}
+	,
+	{"left", 8}
+	,
+	{"reportin", 9}
+	,
+	{"right", 5}
+	,
+	{"taking_f", 22}
+	,
+	{"teamdown", 10}
+	,
+	{"treport", 12}
+	,
+	{"up", 6}
+	,
+	{"click", 6}
+	,
+	{"END", 0}
+	,			// end of list delimiter
 };
+
 //Slicer Adding Flood Protection Functions
-qboolean CheckForFlood (gentity_t * ent)
+qboolean CheckForFlood(gentity_t * ent)
 {
 	//If he's muted..
-  if (ent->client->rd_mute) {
-      if (ent->client->rd_mute > level.time) // Still muted..
-		return qfalse;
-      else
-		ent->client->rd_mute = 0; // No longer muted..
-   }
-  if(!ent->client->rd_Count) {
+	if (ent->client->rd_mute) {
+		if (ent->client->rd_mute > level.time)	// Still muted..
+			return qfalse;
+		else
+			ent->client->rd_mute = 0;	// No longer muted..
+	}
+	if (!ent->client->rd_Count) {
 		ent->client->rd_time = level.time;
 		++ent->client->rd_Count;
-  }
-  else {
-	++ent->client->rd_Count;
-	if(level.time - ent->client->rd_time < g_RQ3_radioFloodTime.integer) {
-		if(ent->client->rd_Count >= g_RQ3_radioFlood.integer) {
-			trap_SendServerCommand(ent-g_entities, va("print \"Radio Flood Detected, you are silenced for %i secs\n\"",
-			      (int) g_RQ3_radioBan.integer));
-				 ent->client->rd_mute = level.time + g_RQ3_radioBan.integer*1000;
-			 return qfalse;
+	} else {
+		++ent->client->rd_Count;
+		if (level.time - ent->client->rd_time < g_RQ3_radioFloodTime.integer) {
+			if (ent->client->rd_Count >= g_RQ3_radioFlood.integer) {
+				trap_SendServerCommand(ent - g_entities,
+						       va
+						       ("print \"Radio Flood Detected, you are silenced for %i secs\n\"",
+							(int) g_RQ3_radioBan.integer));
+				ent->client->rd_mute = level.time + g_RQ3_radioBan.integer * 1000;
+				return qfalse;
+			}
+		} else {
+			ent->client->rd_Count = 0;
 		}
 	}
-	else {
-		ent->client->rd_Count = 0;
-	}
-  }
-  
-  return qtrue;
+
+	return qtrue;
 
 }
 
-
-qboolean CheckForRepeat (gentity_t *ent, int radioCode) {
-	int lastRadioCode;
-	//If he's muted..
-  if (ent->client->rd_mute) {
-      if (ent->client->rd_mute > level.time) // Still muted..
-		return qfalse;
-      else
-		ent->client->rd_mute = 0; // No longer muted..
-   }
-  lastRadioCode = ent->client->rd_lastRadio;
-
-  if (lastRadioCode == radioCode) { //He's trying to repeat it..
-	  if ((level.time - ent->client->rd_repTime ) < g_RQ3_radioRepeatTime.integer*1000) {
-		  if (++ent->client->rd_repCount >= g_RQ3_radioRepeat.integer) { //Busted
-			 if (ent->client->rd_repCount == g_RQ3_radioRepeat.integer) {
-				 trap_SendServerCommand(ent-g_entities, va("print \"Radio Repeat Flood Detected, you are silenced for %i secs\n\"",
-			      (int) g_RQ3_radioBan.integer));
-				 ent->client->rd_mute = level.time + g_RQ3_radioBan.integer*1000;
-			 }
-	      return qfalse;
-		  }
-	  }
-	  else
-		  ent->client->rd_repCount = 0;
-
-	  ent->client->rd_repTime = level.time;
-  }
-  ent->client->rd_lastRadio = radioCode;
-  ent->client->rd_repTime = level.time;
-  return qtrue;
-}
-
-void RQ3_Cmd_Radio_f(gentity_t *ent)
+qboolean CheckForRepeat(gentity_t * ent, int radioCode)
 {
-	char		msg[MAX_TOKEN_CHARS];
-	radio_msg_t	*radio_msgs;
-	gentity_t	*player;
-	int		i, x, kills;
+	int lastRadioCode;
+
+	//If he's muted..
+	if (ent->client->rd_mute) {
+		if (ent->client->rd_mute > level.time)	// Still muted..
+			return qfalse;
+		else
+			ent->client->rd_mute = 0;	// No longer muted..
+	}
+	lastRadioCode = ent->client->rd_lastRadio;
+
+	if (lastRadioCode == radioCode) {	//He's trying to repeat it..
+		if ((level.time - ent->client->rd_repTime) < g_RQ3_radioRepeatTime.integer * 1000) {
+			if (++ent->client->rd_repCount >= g_RQ3_radioRepeat.integer) {	//Busted
+				if (ent->client->rd_repCount == g_RQ3_radioRepeat.integer) {
+					trap_SendServerCommand(ent - g_entities,
+							       va
+							       ("print \"Radio Repeat Flood Detected, you are silenced for %i secs\n\"",
+								(int) g_RQ3_radioBan.integer));
+					ent->client->rd_mute = level.time + g_RQ3_radioBan.integer * 1000;
+				}
+				return qfalse;
+			}
+		} else
+			ent->client->rd_repCount = 0;
+
+		ent->client->rd_repTime = level.time;
+	}
+	ent->client->rd_lastRadio = radioCode;
+	ent->client->rd_repTime = level.time;
+	return qtrue;
+}
+
+void RQ3_Cmd_Radio_f(gentity_t * ent)
+{
+	char msg[MAX_TOKEN_CHARS];
+	radio_msg_t *radio_msgs;
+	gentity_t *player;
+	int i, x, kills;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 		return;
-	if (trap_Argc () < 2)
+	if (trap_Argc() < 2)
 		return;
 	if (ent->client->radioOff == qtrue) {
-		trap_SendServerCommand(ent-g_entities, "print \"Your radio is off!\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Your radio is off!\n\"");
 		return;
 	}
 	if (ent->client->radioGender == 0)
@@ -1377,21 +1440,22 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 	while (Q_stricmp(radio_msgs[x].msg, "END")) {
 		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
 			//Slicer Checking for flood protections
-			if(!CheckForRepeat(ent,x) || !CheckForFlood (ent))
+			if (!CheckForRepeat(ent, x) || !CheckForFlood(ent))
 				return;
 			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
 				kills = ent->client->killStreak;
 				ent->client->killStreak = 0;
-				if (kills >1 && kills <10) {
+				if (kills > 1 && kills < 10) {
 					for (i = 0; i < level.maxclients; i++) {
 						player = &g_entities[i];
 						if (!player->inuse)
 							continue;
-						if (IsInIgnoreList (player, ent))
+						if (IsInIgnoreList(player, ent))
 							continue;
 						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
-							trap_SendServerCommand(player-g_entities, va("rq3_cmd %i %i %i\n", RADIO,
-								kills-1, ent->client->radioGender));
+							trap_SendServerCommand(player - g_entities,
+									       va("rq3_cmd %i %i %i\n", RADIO,
+										  kills - 1, ent->client->radioGender));
 					}
 				}
 			}
@@ -1399,15 +1463,18 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 				player = &g_entities[i];
 				if (!player->inuse)
 					continue;
-				if (IsInIgnoreList (player, ent))
+				if (IsInIgnoreList(player, ent))
 					continue;
 				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
 					if (player->r.svFlags & SVF_BOT)
-						trap_SendServerCommand(player-g_entities, va("print \"radio %s %s\n\"",
-							ent->client->pers.netname, radio_msgs[x].msg));
+						trap_SendServerCommand(player - g_entities,
+								       va("print \"radio %s %s\n\"",
+									  ent->client->pers.netname,
+									  radio_msgs[x].msg));
 					else
-						trap_SendServerCommand(player-g_entities, va("rq3_cmd %i %i %i\n", RADIO, x,
-							ent->client->radioGender));
+						trap_SendServerCommand(player - g_entities,
+								       va("rq3_cmd %i %i %i\n", RADIO, x,
+									  ent->client->radioGender));
 				}
 			}
 			//Slicer lets return to stop the while if found..
@@ -1417,142 +1484,135 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 	}
 }
 
-char *SeekBufEnd (char *buf)
+char *SeekBufEnd(char *buf)
 {
 	while (*buf != 0)
 		buf++;
 	return buf;
 }
 
-void GetWeaponName (gentity_t * ent, char *buf)
+void GetWeaponName(gentity_t * ent, char *buf)
 {
 	if (ent->client->ps.weapon == WP_AKIMBO) {
-		strcpy (buf, RQ3_AKIMBO_NAME);
+		strcpy(buf, RQ3_AKIMBO_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_PISTOL) {
-		strcpy (buf, RQ3_PISTOL_NAME);
+		strcpy(buf, RQ3_PISTOL_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_MP5) {
-		strcpy (buf, RQ3_MP5_NAME);
+		strcpy(buf, RQ3_MP5_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_M4) {
-		strcpy (buf, RQ3_M4_NAME);
+		strcpy(buf, RQ3_M4_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_M3) {
-		strcpy (buf, RQ3_M3_NAME);
+		strcpy(buf, RQ3_M3_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_HANDCANNON) {
-		strcpy (buf, RQ3_HANDCANNON_NAME);
+		strcpy(buf, RQ3_HANDCANNON_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_SSG3000) {
-		strcpy (buf, RQ3_SSG3000_NAME);
+		strcpy(buf, RQ3_SSG3000_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_KNIFE) {
-		strcpy (buf, RQ3_KNIFE_NAME);
+		strcpy(buf, RQ3_KNIFE_NAME);
 		return;
 	} else if (ent->client->ps.weapon == WP_GRENADE) {
-		strcpy (buf, RQ3_GRENADE_NAME);
+		strcpy(buf, RQ3_GRENADE_NAME);
 		return;
 	} else {
-		strcpy (buf, "No Weapon");
+		strcpy(buf, "No Weapon");
 	}
 }
 
-void GetItemName (gentity_t * ent, char *buf)
+void GetItemName(gentity_t * ent, char *buf)
 {
 	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
-		strcpy (buf, RQ3_KEVLAR_NAME);
+		strcpy(buf, RQ3_KEVLAR_NAME);
 		return;
 	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER) {
-		strcpy (buf, RQ3_SILENCER_NAME);
+		strcpy(buf, RQ3_SILENCER_NAME);
 		return;
 	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS) {
-		strcpy (buf, RQ3_SLIPPERS_NAME);
+		strcpy(buf, RQ3_SLIPPERS_NAME);
 		return;
 	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
-		strcpy (buf, RQ3_BANDOLIER_NAME);
+		strcpy(buf, RQ3_BANDOLIER_NAME);
 		return;
 	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER) {
-		strcpy (buf, RQ3_LASER_NAME);
+		strcpy(buf, RQ3_LASER_NAME);
 		return;
 	} else {
-		strcpy (buf, "No Item");
+		strcpy(buf, "No Item");
 	}
 }
 
-void GetAmmo (gentity_t * ent, char *buf)
+void GetAmmo(gentity_t * ent, char *buf)
 {
 	int ammo;
 	char temp[1024];
 
 	switch (ent->client->ps.weapon) {
 	case WP_PISTOL:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
-			ent->client->ps.ammo[WP_PISTOL],
-			ent->client->numClips[WP_PISTOL]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra clips)",
+			    ent->client->ps.ammo[WP_PISTOL], ent->client->numClips[WP_PISTOL]);
+		strcpy(buf, temp);
 		return;
 	case WP_SSG3000:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra rounds)",
-			ent->client->ps.ammo[WP_SSG3000],
-			ent->client->numClips[WP_SSG3000]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra rounds)",
+			    ent->client->ps.ammo[WP_SSG3000], ent->client->numClips[WP_SSG3000]);
+		strcpy(buf, temp);
 		return;
 	case WP_MP5:
-		Com_sprintf (temp, sizeof(temp), "%i rounds (%i extra clips)",
-			ent->client->ps.ammo[WP_MP5],
-			ent->client->numClips[WP_MP5]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%i rounds (%i extra clips)",
+			    ent->client->ps.ammo[WP_MP5], ent->client->numClips[WP_MP5]);
+		strcpy(buf, temp);
 		return;
 	case WP_M4:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
-			ent->client->ps.ammo[WP_M4],
-			ent->client->numClips[WP_M4]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra clips)",
+			    ent->client->ps.ammo[WP_M4], ent->client->numClips[WP_M4]);
+		strcpy(buf, temp);
 		return;
 	case WP_M3:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra shells)",
-			ent->client->ps.ammo[WP_M3],
-			ent->client->numClips[WP_M3]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra shells)",
+			    ent->client->ps.ammo[WP_M3], ent->client->numClips[WP_M3]);
+		strcpy(buf, temp);
 		return;
 	case WP_HANDCANNON:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra shells)",
-			ent->client->ps.ammo[WP_HANDCANNON],
-			ent->client->numClips[WP_HANDCANNON]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra shells)",
+			    ent->client->ps.ammo[WP_HANDCANNON], ent->client->numClips[WP_HANDCANNON]);
+		strcpy(buf, temp);
 		return;
 	case WP_AKIMBO:
-		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
-			ent->client->ps.ammo[WP_AKIMBO],
-			ent->client->numClips[WP_AKIMBO]);
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d rounds (%d extra clips)",
+			    ent->client->ps.ammo[WP_AKIMBO], ent->client->numClips[WP_AKIMBO]);
+		strcpy(buf, temp);
 		return;
 	case WP_KNIFE:
 		ammo = ent->client->ps.ammo[WP_KNIFE];
-		Com_sprintf (temp, sizeof(temp), "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves");
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves");
+		strcpy(buf, temp);
 		return;
 	case WP_GRENADE:
 		ammo = ent->client->ps.ammo[WP_GRENADE];
-		Com_sprintf (temp, sizeof(temp), "%d grenade%s", ammo, (ammo == 1) ? "" : "s");
-		strcpy (buf, temp);
+		Com_sprintf(temp, sizeof(temp), "%d grenade%s", ammo, (ammo == 1) ? "" : "s");
+		strcpy(buf, temp);
 		return;
 	}
 }
 
-void ResetKills (gentity_t * ent)
+void ResetKills(gentity_t * ent)
 {
-	int	i;
+	int i;
 
 	for (i = 0; i < RQ3_MAXKILLS; i++) {
 		ent->client->lastkilled_client[i] = NULL;
 	}
 }
 
-int ReadKilledPlayers (gentity_t * ent)
+int ReadKilledPlayers(gentity_t * ent)
 {
-	int	results, i;
+	int results, i;
 
 	results = -1;
 	if (ent->client->lastkilled_client[0] != NULL) {
@@ -1566,11 +1626,11 @@ int ReadKilledPlayers (gentity_t * ent)
 		return -1;
 }
 
-void AddKilledPlayer (gentity_t * self, gentity_t * ent)
+void AddKilledPlayer(gentity_t * self, gentity_t * ent)
 {
-	int	kills;
+	int kills;
 
-	kills = ReadKilledPlayers (self);
+	kills = ReadKilledPlayers(self);
 	if (kills == RQ3_MAXKILLS || kills == -1) {
 		self->client->lastkilled_client[0] = ent;
 	} else {
@@ -1578,109 +1638,107 @@ void AddKilledPlayer (gentity_t * self, gentity_t * ent)
 	}
 }
 
-void GetLastKilledTarget (gentity_t * self, char * buf)
+void GetLastKilledTarget(gentity_t * self, char *buf)
 {
-	int	kills, i;
+	int kills, i;
 
-	kills = ReadKilledPlayers (self);
+	kills = ReadKilledPlayers(self);
 
 	if (kills >= 0) {
-		strcpy (buf, self->client->lastkilled_client[0]->client->pers.netname);
-		strcat (buf, "^5");
+		strcpy(buf, self->client->lastkilled_client[0]->client->pers.netname);
+		strcat(buf, "^5");
 		if (kills > 0) {
 			for (i = 1; i < kills + 1; i++) {
 				if (i == kills) {
-					strcat (buf, "^5 and ");
-					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
-					strcat (buf, "^5");
+					strcat(buf, "^5 and ");
+					strcat(buf, self->client->lastkilled_client[i]->client->pers.netname);
+					strcat(buf, "^5");
 				} else {
-					strcat (buf, "^5, ");
-					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
-					strcat (buf, "^5");
+					strcat(buf, "^5, ");
+					strcat(buf, self->client->lastkilled_client[i]->client->pers.netname);
+					strcat(buf, "^5");
 				}
 			}
 		}
-		ResetKills (self);
+		ResetKills(self);
 	} else {
-		strcpy (buf, "nobody");
+		strcpy(buf, "nobody");
 	}
 }
 
-void GetLastDamagedPart (gentity_t * self, char * buf)
+void GetLastDamagedPart(gentity_t * self, char *buf)
 {
-	switch (self->client->lasthurt_location &
-		~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT)) {
+	switch (self->client->lasthurt_location & ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT)) {
 	case LOCATION_HEAD:
 	case LOCATION_FACE:
-		strcpy (buf, "head");
+		strcpy(buf, "head");
 		self->client->lasthurt_location = 0;
 		return;
 	case LOCATION_SHOULDER:
 	case LOCATION_CHEST:
-		strcpy (buf, "chest");
+		strcpy(buf, "chest");
 		self->client->lasthurt_location = 0;
 		return;
 	case LOCATION_STOMACH:
 	case LOCATION_GROIN:
-		strcpy (buf, "stomach");
+		strcpy(buf, "stomach");
 		self->client->lasthurt_location = 0;
 		return;
 	case LOCATION_LEG:
 	case LOCATION_FOOT:
-		strcpy (buf, "legs");
+		strcpy(buf, "legs");
 		self->client->lasthurt_location = 0;
 		return;
 	case LOCATION_NONE:
 	default:
-		strcpy (buf, "nothing");
+		strcpy(buf, "nothing");
 	}
 }
 
 #define MAXNEAR 10
-void GetNearbyTeammates (gentity_t *self, char *buf)
+void GetNearbyTeammates(gentity_t * self, char *buf)
 {
-	char		nearby_teammates[MAXNEAR][MAX_NAME_LENGTH];
-	int		nearby_teammates_num, l;
-	gentity_t	*ent = NULL;
+	char nearby_teammates[MAXNEAR][MAX_NAME_LENGTH];
+	int nearby_teammates_num, l;
+	gentity_t *ent = NULL;
 
 	nearby_teammates_num = 0;
 
-	while ((ent = findradius (ent, self->s.origin, 1500)) != NULL) {
-		if (ent == self || !ent->client || !CanDamage (self, ent->r.currentOrigin) ||
-				(ent->client->sess.sessionTeam != self->client->sess.sessionTeam))
+	while ((ent = findradius(ent, self->s.origin, 1500)) != NULL) {
+		if (ent == self || !ent->client || !CanDamage(self, ent->r.currentOrigin) ||
+		    (ent->client->sess.sessionTeam != self->client->sess.sessionTeam))
 			continue;
-		strncpy (nearby_teammates[nearby_teammates_num],
-				ent->client->pers.netname, MAX_NAME_LENGTH - 1);
+		strncpy(nearby_teammates[nearby_teammates_num], ent->client->pers.netname, MAX_NAME_LENGTH - 1);
 		nearby_teammates[nearby_teammates_num][MAX_NAME_LENGTH - 1] = 0;
 		nearby_teammates_num++;
 		if (nearby_teammates_num >= MAXNEAR)
 			break;
 	}
 	if (nearby_teammates_num == 0) {
-		strcpy (buf, "nobody");
+		strcpy(buf, "nobody");
 		return;
 	}
 	for (l = 0; l < nearby_teammates_num; l++) {
 		if (l == 0) {
-			strcpy (buf, nearby_teammates[l]);
+			strcpy(buf, nearby_teammates[l]);
 		} else {
 			if (nearby_teammates_num == 2) {
-				strcat (buf, "^5 and ");
-				strcat (buf, nearby_teammates[l]);
+				strcat(buf, "^5 and ");
+				strcat(buf, nearby_teammates[l]);
 			} else {
 				if (l == (nearby_teammates_num - 1)) {
-					strcat (buf, "^5, and ");
-					strcat (buf, nearby_teammates[l]);
+					strcat(buf, "^5, and ");
+					strcat(buf, nearby_teammates[l]);
 				} else {
-					strcat (buf, "^5, ");
-					strcat (buf, nearby_teammates[l]);
+					strcat(buf, "^5, ");
+					strcat(buf, nearby_teammates[l]);
 				}
 			}
 		}
 	}
 }
 
-void ParseSayText (gentity_t *ent, char *text)
+void ParseSayText(gentity_t * ent, char *text)
 {
 	static char buf[1024], infobuf[1024];
 	char *p, *pbuf;
@@ -1696,45 +1754,45 @@ void ParseSayText (gentity_t *ent, char *text)
 		if (*p == '$') {
 			switch (*(p + 1)) {
 			case 'H':
-				Com_sprintf (infobuf, sizeof(infobuf), "%d", ent->health);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				Com_sprintf(infobuf, sizeof(infobuf), "%d", ent->health);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'A':
-				GetAmmo (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetAmmo(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'W':
-				GetWeaponName (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetWeaponName(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'I':
-				GetItemName (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetItemName(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'K':
-				GetLastKilledTarget (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetLastKilledTarget(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'D':
-				GetLastDamagedPart (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetLastDamagedPart(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 			case 'T':
-				GetNearbyTeammates (ent, infobuf);
-				strcpy (pbuf, infobuf);
-				pbuf = SeekBufEnd (pbuf);
+				GetNearbyTeammates(ent, infobuf);
+				strcpy(pbuf, infobuf);
+				pbuf = SeekBufEnd(pbuf);
 				p += 2;
 				continue;
 /*			case 'S':
@@ -1756,29 +1814,29 @@ void ParseSayText (gentity_t *ent, char *text)
 
 	*pbuf = 0;
 
-	strncpy (text, buf, 225);
+	strncpy(text, buf, 225);
 	text[225] = 0;
 }
 
-void RQ3_SpectatorMode(gentity_t *ent)
+void RQ3_SpectatorMode(gentity_t * ent)
 {
 	if (ent->r.svFlags & SVF_BOT)
 		return;
 
 	if (ent->client->sess.spectatorState == SPECTATOR_ZCAM)
 		trap_SendServerCommand(ent->client->ps.clientNum,
-			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"ZCAM-%s\n",
-			(ent->client->camera->mode == CAMERA_MODE_SWING)? "SWING":"FLIC"));
+				       va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW "ZCAM-%s\n",
+					  (ent->client->camera->mode == CAMERA_MODE_SWING) ? "SWING" : "FLIC"));
 	else
-	trap_SendServerCommand(ent->client->ps.clientNum,
-			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"%s\n",
-			(ent->client->sess.spectatorState == SPECTATOR_FREE)? "FREE":"FOLLOW"));
+		trap_SendServerCommand(ent->client->ps.clientNum,
+				       va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW "%s\n",
+					  (ent->client->sess.spectatorState == SPECTATOR_FREE) ? "FREE" : "FOLLOW"));
 }
 
-void RQ3_Cmd_Use_f(gentity_t *ent)
+void RQ3_Cmd_Use_f(gentity_t * ent)
 {
-	char	*cmd, buf[128];
-	int	weapon, i;
+	char *cmd, buf[128];
+	int weapon, i;
 
 	if (!ent->client) {
 		return;		// not fully in game yet
@@ -1787,79 +1845,80 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 	cmd = ConcatArgs(1);
 	weapon = WP_NONE;
 
-	if (Q_stricmp (cmd, RQ3_MP5_NAME) == 0 || Q_stricmp (cmd, "mp5") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) ) == (1 << WP_MP5)) {
+	if (Q_stricmp(cmd, RQ3_MP5_NAME) == 0 || Q_stricmp(cmd, "mp5") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5)) == (1 << WP_MP5)) {
 			weapon = WP_MP5;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_MP5_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_MP5_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_M3_NAME) == 0 || Q_stricmp (cmd, "m3") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) ) == (1 << WP_M3)) {
+	} else if (Q_stricmp(cmd, RQ3_M3_NAME) == 0 || Q_stricmp(cmd, "m3") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M3)) == (1 << WP_M3)) {
 			weapon = WP_M3;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_M3_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_M3_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_M4_NAME) == 0 || Q_stricmp (cmd, "m4") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4)) {
+	} else if (Q_stricmp(cmd, RQ3_M4_NAME) == 0 || Q_stricmp(cmd, "m4") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_M4)) == (1 << WP_M4)) {
 			weapon = WP_M4;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_M4_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_M4_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp (cmd, "hc") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON)) {
+	} else if (Q_stricmp(cmd, RQ3_HANDCANNON_NAME) == 0 || Q_stricmp(cmd, "hc") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON)) == (1 << WP_HANDCANNON)) {
 			weapon = WP_HANDCANNON;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_HANDCANNON_NAME));
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \"Out of item: %s\n\"", RQ3_HANDCANNON_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp (cmd, "sniper") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000)) {
+	} else if (Q_stricmp(cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp(cmd, "sniper") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000)) {
 			weapon = WP_SSG3000;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_SSG3000_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_SSG3000_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp (cmd, "akimbo") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) == (1 << WP_AKIMBO)) {
+	} else if (Q_stricmp(cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp(cmd, "akimbo") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO)) == (1 << WP_AKIMBO)) {
 			weapon = WP_AKIMBO;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_PISTOL_NAME) == 0 || Q_stricmp (cmd, "pistol") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL) ) == (1 << WP_PISTOL)) {
+	} else if (Q_stricmp(cmd, RQ3_PISTOL_NAME) == 0 || Q_stricmp(cmd, "pistol") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL)) == (1 << WP_PISTOL)) {
 			weapon = WP_PISTOL;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_AKIMBO_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, RQ3_GRENADE_NAME) == 0 || Q_stricmp (cmd, "grenade") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) ) == (1 << WP_GRENADE)) {
+	} else if (Q_stricmp(cmd, RQ3_GRENADE_NAME) == 0 || Q_stricmp(cmd, "grenade") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE)) == (1 << WP_GRENADE)) {
 			weapon = WP_GRENADE;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_GRENADE_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_GRENADE_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, "throwing combat knife") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE)) {
+	} else if (Q_stricmp(cmd, "throwing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
 			weapon = WP_KNIFE;
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, "slashing combat knife") == 0) {
-		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE)) {
+	} else if (Q_stricmp(cmd, "slashing combat knife") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
 			weapon = WP_KNIFE;
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
 		} else {
-			trap_SendServerCommand(ent-g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
 		}
-	} else if (Q_stricmp (cmd, "special") == 0) {
+	} else if (Q_stricmp(cmd, "special") == 0) {
 		for (i = WP_NUM_WEAPONS - 1; i > 0; i--) {
 			if (i == WP_KNIFE || i == WP_PISTOL || i == WP_AKIMBO || i == WP_GRENADE)
 				continue;
@@ -1869,25 +1928,25 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 			}
 		}
 		if (weapon == WP_NONE) {
-			trap_SendServerCommand(ent-g_entities, va("print \"You dont have a special weapon!\n\""));
+			trap_SendServerCommand(ent - g_entities, va("print \"You dont have a special weapon!\n\""));
 			return;
 		}
 	}
 	if (weapon == WP_NONE) {
-		trap_SendServerCommand(ent-g_entities, va("print \"Unknown item: %s\n\"", cmd));
+		trap_SendServerCommand(ent - g_entities, va("print \"Unknown item: %s\n\"", cmd));
 		return;
 	}
 	if (weapon == ent->client->ps.weapon)
 		return;
-	Com_sprintf (buf, sizeof(buf), "stuff weapon %d\n", weapon);
-	trap_SendServerCommand(ent-g_entities, buf);
-//	trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i weapon %i", STUFF, weapon));
+	Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
+	trap_SendServerCommand(ent - g_entities, buf);
+//      trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i weapon %i", STUFF, weapon));
 }
 
-void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
+void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 {
-	char	userinfo[MAX_INFO_STRING];
-	char	*value;
+	char userinfo[MAX_INFO_STRING];
+	char *value;
 
 	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || !victim->client)
 		return;
@@ -1896,10 +1955,10 @@ void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
 
 	if (attacker->client->ff_warning == 0) {
 		attacker->client->ff_warning++;
-		trap_SendServerCommand(victim-g_entities, va("print \"You were hit by %s, your TEAMMATE!\n\"",
-				attacker->client->pers.netname));
-		trap_SendServerCommand(attacker-g_entities, va("print \"You hit your TEAMMATE %s!\n\"",
-				victim->client->pers.netname));
+		trap_SendServerCommand(victim - g_entities, va("print \"You were hit by %s, your TEAMMATE!\n\"",
+							       attacker->client->pers.netname));
+		trap_SendServerCommand(attacker - g_entities, va("print \"You hit your TEAMMATE %s!\n\"",
+								 victim->client->pers.netname));
 	}
 	attacker->client->team_wounds = (attacker->client->team_wounds_before + 1);
 
@@ -1909,27 +1968,33 @@ void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
 		return;
 	} else if (attacker->client->team_wounds < (g_RQ3_maxteamkills.integer * 4)) {
 		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for wounding teammates\n\"",
-			attacker->client->pers.netname));
-		trap_SendServerCommand(attacker-g_entities, va("print \"WARNING: You'll be temporarily banned if you continue wounding teammates!\n\""));
+					      attacker->client->pers.netname));
+		trap_SendServerCommand(attacker - g_entities,
+				       va
+				       ("print \"WARNING: You'll be temporarily banned if you continue wounding teammates!\n\""));
 		return;
 	} else {
-		trap_SendServerCommand(-1, va("print \"Banning %s for team wounding\n\"", attacker->client->pers.netname));
-		trap_SendServerCommand(attacker-g_entities, va("print \"You've wounded teammates too many times, and are banned for %d %s.\n\"",
-				g_RQ3_twbanrounds.integer, ((g_RQ3_twbanrounds.integer > 1) ? "games" : "game")));
-		trap_GetUserinfo(attacker-g_entities, userinfo, sizeof(userinfo));
-		value = Info_ValueForKey (userinfo, "ip");
+		trap_SendServerCommand(-1,
+				       va("print \"Banning %s for team wounding\n\"", attacker->client->pers.netname));
+		trap_SendServerCommand(attacker - g_entities,
+				       va
+				       ("print \"You've wounded teammates too many times, and are banned for %d %s.\n\"",
+					g_RQ3_twbanrounds.integer,
+					((g_RQ3_twbanrounds.integer > 1) ? "games" : "game")));
+		trap_GetUserinfo(attacker - g_entities, userinfo, sizeof(userinfo));
+		value = Info_ValueForKey(userinfo, "ip");
 		AddIP(value);
-		trap_DropClient(attacker-g_entities, "Dropped due to team wounding");
+		trap_DropClient(attacker - g_entities, "Dropped due to team wounding");
 	}
 }
 
-void Add_TeamKill(gentity_t *attacker)
+void Add_TeamKill(gentity_t * attacker)
 {
-	char	userinfo[MAX_INFO_STRING];
-	char	*value;
-	
+	char userinfo[MAX_INFO_STRING];
+	char *value;
+
 	// NiceAss: No TKing in matchmode
-	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || g_RQ3_matchmode.integer )
+	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || g_RQ3_matchmode.integer)
 		return;
 
 	attacker->client->team_kills++;
@@ -1938,26 +2003,31 @@ void Add_TeamKill(gentity_t *attacker)
 		attacker->client->team_wounds = attacker->client->team_wounds_before;
 
 	if ((g_RQ3_maxteamkills.integer < 1) ||
-			(attacker->client->team_kills < ((g_RQ3_maxteamkills.integer % 2) + g_RQ3_maxteamkills.integer / 2))) {
-		trap_SendServerCommand(attacker-g_entities, va("print \"You killed your TEAMMATE!\n\""));
+	    (attacker->client->team_kills < ((g_RQ3_maxteamkills.integer % 2) + g_RQ3_maxteamkills.integer / 2))) {
+		trap_SendServerCommand(attacker - g_entities, va("print \"You killed your TEAMMATE!\n\""));
 		return;
 	} else if (attacker->client->team_kills < g_RQ3_maxteamkills.integer) {
 		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for killing teammates\n\"",
-			attacker->client->pers.netname));
-		trap_SendServerCommand(attacker-g_entities, va("print \"WARNING: You'll be temporarily banned if you continue killing teammates!\n\""));
+					      attacker->client->pers.netname));
+		trap_SendServerCommand(attacker - g_entities,
+				       va
+				       ("print \"WARNING: You'll be temporarily banned if you continue killing teammates!\n\""));
 		return;
 	} else {
-		trap_SendServerCommand(-1, va("print \"Banning %s for team killing\n\"", attacker->client->pers.netname));
-		trap_SendServerCommand(attacker-g_entities, va("print \"You've killed too many teammates, and are banned for %d %s.\n", g_RQ3_tkbanrounds.integer,
-			((g_RQ3_tkbanrounds.integer > 1) ? "games" : "game")));
-		trap_GetUserinfo(attacker-g_entities, userinfo, sizeof(userinfo));
-		value = Info_ValueForKey (userinfo, "ip");
+		trap_SendServerCommand(-1,
+				       va("print \"Banning %s for team killing\n\"", attacker->client->pers.netname));
+		trap_SendServerCommand(attacker - g_entities,
+				       va("print \"You've killed too many teammates, and are banned for %d %s.\n",
+					  g_RQ3_tkbanrounds.integer,
+					  ((g_RQ3_tkbanrounds.integer > 1) ? "games" : "game")));
+		trap_GetUserinfo(attacker - g_entities, userinfo, sizeof(userinfo));
+		value = Info_ValueForKey(userinfo, "ip");
 		AddIP(value);
-		trap_DropClient(attacker-g_entities, "Dropped due to team killing");
+		trap_DropClient(attacker - g_entities, "Dropped due to team killing");
 	}
 }
 
-void setFFState(gentity_t *ent)
+void setFFState(gentity_t * ent)
 {
 	if (ent && ent->client) {
 		ent->client->team_wounds_before = ent->client->team_wounds;
@@ -1965,59 +2035,60 @@ void setFFState(gentity_t *ent)
 	}
 }
 
-void RQ3_Cmd_TKOk (gentity_t *ent)
+void RQ3_Cmd_TKOk(gentity_t * ent)
 {
 	if (!ent->enemy || !ent->enemy->inuse || !ent->enemy->client || (ent == ent->enemy)) {
-		trap_SendServerCommand(ent-g_entities, va("print \"Nothing to forgive\n\""));
+		trap_SendServerCommand(ent - g_entities, va("print \"Nothing to forgive\n\""));
 	} else if (ent->client->sess.savedTeam == ent->enemy->client->sess.sessionTeam) {
 		if (ent->enemy->client->team_kills) {
-			trap_SendServerCommand(ent-g_entities, va("print \"You forgave %s\n\"",
-						ent->enemy->client->pers.netname));
-			trap_SendServerCommand(ent->enemy-g_entities, va("print \"%s forgave you\n",
-						ent->client->pers.netname));
+			trap_SendServerCommand(ent - g_entities, va("print \"You forgave %s\n\"",
+								    ent->enemy->client->pers.netname));
+			trap_SendServerCommand(ent->enemy - g_entities, va("print \"%s forgave you\n",
+									   ent->client->pers.netname));
 			ent->enemy->client->team_kills--;
 			if (ent->enemy->client->team_wounds)
 				ent->enemy->client->team_wounds /= 2;
 			ent->enemy = NULL;
 		}
 	} else {
-		trap_SendServerCommand(ent-g_entities, va("print \"That's very noble of you...\n\""));
-		trap_SendServerCommand( -1, va("print \"%s turned the other cheek\n\"",
-					ent->client->pers.netname));
+		trap_SendServerCommand(ent - g_entities, va("print \"That's very noble of you...\n\""));
+		trap_SendServerCommand(-1, va("print \"%s turned the other cheek\n\"", ent->client->pers.netname));
 	}
 
 	ent->enemy = NULL;
-}		
+}
 
-void RQ3_Cmd_Stuff (void)
+void RQ3_Cmd_Stuff(void)
 {
-	char	*cmd, user[128];
-	int	len, client;
+	char *cmd, user[128];
+	int len, client;
 
-	len = trap_Argc ();
+	len = trap_Argc();
 	if (len < 3) {
-		G_Printf ("Usage:  stuff <user id> <text>\n");
+		G_Printf("Usage:  stuff <user id> <text>\n");
 		return;
 	}
 
 	trap_Argv(1, user, sizeof(user));
 	if (user[0] < '0' || user[0] > '9') {
-		G_Printf ("Usage:  stuff <user id> <text>\n");
+		G_Printf("Usage:  stuff <user id> <text>\n");
 		return;
 	}
-	client = atoi (user);
+	client = atoi(user);
 	cmd = ConcatArgs(2);
 
 	trap_SendServerCommand(client, va("stuff %s\n", cmd));
-//	trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
+//      trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
 }
 
-int RQ3_FindFreeIgnoreListEntry (gentity_t *source) {
-	return (IsInIgnoreList (source, NULL));
+int RQ3_FindFreeIgnoreListEntry(gentity_t * source)
+{
+	return (IsInIgnoreList(source, NULL));
 }
 
-void RQ3_ClearIgnoreList (gentity_t *ent) {
-	int	i;
+void RQ3_ClearIgnoreList(gentity_t * ent)
+{
+	int i;
 
 	if (!ent->client)
 		return;
@@ -2025,8 +2096,9 @@ void RQ3_ClearIgnoreList (gentity_t *ent) {
 		ent->client->sess.ignorelist[i] = NULL;
 }
 
-int IsInIgnoreList (gentity_t *source, gentity_t *subject) {
-	int	i;
+int IsInIgnoreList(gentity_t * source, gentity_t * subject)
+{
+	int i;
 
 	if (!source || !source->client)
 		return 0;
@@ -2037,164 +2109,177 @@ int IsInIgnoreList (gentity_t *source, gentity_t *subject) {
 	return 0;
 }
 
-void RQ3_AddOrDelIgnoreSubject (gentity_t *source, gentity_t *subject, qboolean silent) {
-	int	i;
+void RQ3_AddOrDelIgnoreSubject(gentity_t * source, gentity_t * subject, qboolean silent)
+{
+	int i;
 
 	if (!source->client)
 		return;
 	if (!subject->client || !subject->inuse) {
-		trap_SendServerCommand(source-g_entities, va("print \"Only valid clients may be added to ignore list!\n\""));
+		trap_SendServerCommand(source - g_entities,
+				       va("print \"Only valid clients may be added to ignore list!\n\""));
 		return;
 	}
 
-	i = IsInIgnoreList (source, subject);
+	i = IsInIgnoreList(source, subject);
 
 	if (i) {
 		//subject is in ignore list, so delete it
 		source->client->sess.ignorelist[i] = NULL;
 		if (!silent) {
-			trap_SendServerCommand(source-g_entities, va("print \"%s was removed from ignore list.\n\"",
-						subject->client->pers.netname));
-			trap_SendServerCommand(subject-g_entities, va("print \"%s is no longer ignoring you.\n\"",
-						source->client->pers.netname));
+			trap_SendServerCommand(source - g_entities, va("print \"%s was removed from ignore list.\n\"",
+								       subject->client->pers.netname));
+			trap_SendServerCommand(subject - g_entities, va("print \"%s is no longer ignoring you.\n\"",
+									source->client->pers.netname));
 		}
 		source->client->sess.ignore_time = level.framenum;
 	} else {
 		//subject has to be added
-		i = RQ3_FindFreeIgnoreListEntry (source);
+		i = RQ3_FindFreeIgnoreListEntry(source);
 
 		if (!i) {
 			if (!silent)
-				trap_SendServerCommand(source-g_entities, va("print \"Sorry, ignore list is full!\n\""));
+				trap_SendServerCommand(source - g_entities,
+						       va("print \"Sorry, ignore list is full!\n\""));
 		} else {
 			//we've found a place
 			source->client->sess.ignorelist[i] = subject;
 			if (!silent) {
-				trap_SendServerCommand(source-g_entities, va("print \"%s was added to ignore list.\n\"",
-							subject->client->pers.netname));
-				trap_SendServerCommand(subject-g_entities, va("print \"%s ignores you.\n\"",
-							source->client->pers.netname));
+				trap_SendServerCommand(source - g_entities,
+						       va("print \"%s was added to ignore list.\n\"",
+							  subject->client->pers.netname));
+				trap_SendServerCommand(subject - g_entities,
+						       va("print \"%s ignores you.\n\"", source->client->pers.netname));
 			}
 		}
 	}
 }
 
-void RQ3__ClrIgnoresOn (gentity_t *target) {
-	gentity_t	*other;
-	int		i;
+void RQ3__ClrIgnoresOn(gentity_t * target)
+{
+	gentity_t *other;
+	int i;
 
 	for (i = 1; i <= level.maxclients; i++) {
 		other = &g_entities[i];
 		if (other->inuse && other->client) {
-			if (IsInIgnoreList (other, target))
-				RQ3_AddOrDelIgnoreSubject (other, target, qtrue);
+			if (IsInIgnoreList(other, target))
+				RQ3_AddOrDelIgnoreSubject(other, target, qtrue);
 		}
 	}
 }
 
-void Cmd_Ignore_f (gentity_t *self) {
-	gentity_t	*target;
-	char		s[128];
-	int		i;
+void Cmd_Ignore_f(gentity_t * self)
+{
+	gentity_t *target;
+	char s[128];
+	int i;
 
-	i = trap_Argc ();
+	i = trap_Argc();
 	if (i < 2) {
-		trap_SendServerCommand(self-g_entities, va("print \"Usage: ignore <playername>.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Usage: ignore <playername>.\n\""));
 		return;
 	}
 
 	trap_Argv(1, s, sizeof(s));
-	target = FindClientByPersName (s);
+	target = FindClientByPersName(s);
 	if (target == NULL) {
-		trap_SendServerCommand(self-g_entities, va("print \"%s: No such player..\n\"", s));
+		trap_SendServerCommand(self - g_entities, va("print \"%s: No such player..\n\"", s));
 		return;
 	}
-	i = IsInIgnoreList (self, target);
+	i = IsInIgnoreList(self, target);
 	if (i) {
-		trap_SendServerCommand(self-g_entities, va("print \"%s is already on your ignorelist.\n\"", s));
+		trap_SendServerCommand(self - g_entities, va("print \"%s is already on your ignorelist.\n\"", s));
 		return;
 	}
 	if (target && target != self) {
 		if (level.framenum > (self->client->sess.ignore_time + 50))
-			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
 		else {
-			trap_SendServerCommand(self-g_entities, va("print \"Wait 5 seconds before ignoring again.\n\""));
+			trap_SendServerCommand(self - g_entities,
+					       va("print \"Wait 5 seconds before ignoring again.\n\""));
 			return;
 		}
 	} else
-		trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
 }
 
-void Cmd_Unignore_f (gentity_t *self) {
-	gentity_t	*target;
-	char		s[128];
-	int		i;
+void Cmd_Unignore_f(gentity_t * self)
+{
+	gentity_t *target;
+	char s[128];
+	int i;
 
-	i = trap_Argc ();
+	i = trap_Argc();
 	if (i < 2) {
-		trap_SendServerCommand(self-g_entities, va("print \"Usage: unignore <playername>.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Usage: unignore <playername>.\n\""));
 		return;
 	}
 
 	trap_Argv(1, s, sizeof(s));
-	target = FindClientByPersName (s);
+	target = FindClientByPersName(s);
 	if (target == NULL) {
-		trap_SendServerCommand(self-g_entities, va("print \"%s: No such player..\n\"", s));
+		trap_SendServerCommand(self - g_entities, va("print \"%s: No such player..\n\"", s));
 		return;
 	}
-	i = IsInIgnoreList (self, target);
+	i = IsInIgnoreList(self, target);
 	if (!i) {
-		trap_SendServerCommand(self-g_entities, va("print \"%s is not on your ignore list..\n\"", s));
+		trap_SendServerCommand(self - g_entities, va("print \"%s is not on your ignore list..\n\"", s));
 		return;
 	}
 	if (target && target != self) {
 		if (level.framenum > (self->client->sess.ignore_time + 50))
-			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
 		else {
-			trap_SendServerCommand(self-g_entities, va("print \"Wait 5 seconds before ignoring again.\n\""));
+			trap_SendServerCommand(self - g_entities,
+					       va("print \"Wait 5 seconds before ignoring again.\n\""));
 			return;
 		}
 	} else
-		trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
 }
 
-void Cmd_Ignorenum_f (gentity_t *self) {
-	int		i;
-	gentity_t	*target;
-	char		arg[128];
+void Cmd_Ignorenum_f(gentity_t * self)
+{
+	int i;
+	gentity_t *target;
+	char arg[128];
 
-	i = trap_Argc ();
+	i = trap_Argc();
 	if (i < 2) {
-		trap_SendServerCommand(self-g_entities, va("print \"Usage: ignorenum <playernumber>.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Usage: ignorenum <playernumber>.\n\""));
 		return;
 	}
 
 	trap_Argv(1, arg, sizeof(arg));
-	i = atoi (arg);
+	i = atoi(arg);
 
 	if (i && i <= level.maxclients) {
 		target = &g_entities[i];
 		if (target && target->client && target != self && target->inuse)
-			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+			RQ3_AddOrDelIgnoreSubject(self, target, qfalse);
 		else
-			trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+			trap_SendServerCommand(self - g_entities,
+					       va("print \"Use ignorelist to see who can be ignored.\n\""));
 	} else
-		trap_SendServerCommand(self-g_entities, va("print \"Used ignorenum with illegal number.\n\""));
+		trap_SendServerCommand(self - g_entities, va("print \"Used ignorenum with illegal number.\n\""));
 }
 
-void Cmd_Ignoreclear_f (gentity_t *self) {
-	RQ3_ClearIgnoreList (self);
-	trap_SendServerCommand(self-g_entities, va("print \"Your ignorelist is now clear.\n\""));
+void Cmd_Ignoreclear_f(gentity_t * self)
+{
+	RQ3_ClearIgnoreList(self);
+	trap_SendServerCommand(self - g_entities, va("print \"Your ignorelist is now clear.\n\""));
 }
 
-void Cmd_Playerlist_f (gentity_t *ent) {
-	gentity_t	*other;
-	int		i;
+void Cmd_Playerlist_f(gentity_t * ent)
+{
+	gentity_t *other;
+	int i;
 
 	for (i = 0; i <= level.maxclients; i++) {
 		other = &g_entities[i];
 		if (!other->inuse || !other->client)
 			continue;
-		trap_SendServerCommand(ent-g_entities, va("print \"%i - %s\n\"", i, other->client->pers.netname));
+		trap_SendServerCommand(ent - g_entities, va("print \"%i - %s\n\"", i, other->client->pers.netname));
 	}
 }

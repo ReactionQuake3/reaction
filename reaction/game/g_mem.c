@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.5  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -19,38 +22,39 @@
 // g_mem.c
 //
 
-
 #include "g_local.h"
-
 
 #define POOLSIZE	(256 * 1024)
 
-static char		memoryPool[POOLSIZE];
-static int		allocPoint;
+static char memoryPool[POOLSIZE];
+static int allocPoint;
 
-void *G_Alloc( int size ) {
-	char	*p;
+void *G_Alloc(int size)
+{
+	char *p;
 
-	if ( g_debugAlloc.integer ) {
-		G_Printf( "G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ( ( size + 31 ) & ~31 ) );
+	if (g_debugAlloc.integer) {
+		G_Printf("G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ((size + 31) & ~31));
 	}
 
-	if ( allocPoint + size > POOLSIZE ) {
-	  G_Error( "G_Alloc: failed on allocation of %i bytes\n", size ); // bk010103 - was %u, but is signed
+	if (allocPoint + size > POOLSIZE) {
+		G_Error("G_Alloc: failed on allocation of %i bytes\n", size);	// bk010103 - was %u, but is signed
 		return NULL;
 	}
 
 	p = &memoryPool[allocPoint];
 
-	allocPoint += ( size + 31 ) & ~31;
+	allocPoint += (size + 31) & ~31;
 
 	return p;
 }
 
-void G_InitMemory( void ) {
+void G_InitMemory(void)
+{
 	allocPoint = 0;
 }
 
-void Svcmd_GameMem_f( void ) {
-	G_Printf( "Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE );
+void Svcmd_GameMem_f(void)
+{
+	G_Printf("Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE);
 }

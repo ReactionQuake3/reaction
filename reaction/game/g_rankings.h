@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.6  2002/06/16 17:38:00  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -320,4 +323,4 @@ Key digits:
 #define QGR_KEY_FLAG_PICKUP			1111110000
 #define QGR_KEY_FLAG_CAPTURE			1111110001
 
-#endif // _G_RANKINGS_H_
+#endif				// _G_RANKINGS_H_

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.5  2002/04/01 02:56:50  jbravo
 // Some sourcecode reformatting
 //
@@ -20,13 +23,12 @@
 //
 //===========================================================================
 //
-// Name:			chars.h
-// Function:		bot characteristics
-// Programmer:		Mr Elusive (MrElusive@idsoftware.com)
-// Last update:		1999-09-08
-// Tab Size:		4 (real tabs)
+// Name:                        chars.h
+// Function:            bot characteristics
+// Programmer:          Mr Elusive (MrElusive@idsoftware.com)
+// Last update:         1999-09-08
+// Tab Size:            4 (real tabs)
 //===========================================================================
-
 
 //========================================================
 //========================================================
@@ -117,7 +119,7 @@
 //tendency to jump using a weapon
 #define CHARACTERISTIC_WEAPONJUMPING			38	//float [0, 1]
 //tendency to use the grapple hook when available
-#define CHARACTERISTIC_GRAPPLE_USER			39	//float [0, 1]	//use this!!
+#define CHARACTERISTIC_GRAPPLE_USER			39	//float [0, 1]  //use this!!
 //========================================================
 //goal
 //========================================================
@@ -128,7 +130,7 @@
 //the self preservation of the bot (rockets near walls etc.)
 #define CHARACTERISTIC_SELFPRESERVATION			42	//float [0, 1]
 //how likely the bot is to take revenge
-#define CHARACTERISTIC_VENGEFULNESS			43	//float [0, 1]	//use this!!
+#define CHARACTERISTIC_VENGEFULNESS			43	//float [0, 1]  //use this!!
 //tendency to camp
 #define CHARACTERISTIC_CAMPER				44	//float [0, 1]
 //========================================================
@@ -139,4 +141,3 @@
 #define CHARACTERISTIC_ALERTNESS			46	//float [0, 1]
 //how much the bot fires it's weapon
 #define CHARACTERISTIC_FIRETHROTTLE			47	//float [0, 1]
-

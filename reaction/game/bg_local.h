@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -17,7 +20,7 @@
 //
 // bg_local.h -- local definitions for the bg (both games) files
 
-#define	MIN_WALK_NORMAL	0.7f		// can't walk on very steep slopes
+#define	MIN_WALK_NORMAL	0.7f	// can't walk on very steep slopes
 
 #define	STEPSIZE		18
 
@@ -32,52 +35,51 @@
 // pmove, just to make damn sure we don't have
 // any differences when running on client or server
 typedef struct {
-	vec3_t		forward, right, up;
-	float		frametime;
+	vec3_t forward, right, up;
+	float frametime;
 
-	int			msec;
+	int msec;
 
-	qboolean	walking;
-	qboolean	groundPlane;
-	trace_t		groundTrace;
-	qboolean    ladder; // We'll use this to tell when the player is on a ladder  (c3a tut)
-	qboolean	previous_ladder;	// Elder: need this to see if player was on ladder
-	qboolean	opendoor;
+	qboolean walking;
+	qboolean groundPlane;
+	trace_t groundTrace;
+	qboolean ladder;	// We'll use this to tell when the player is on a ladder  (c3a tut)
+	qboolean previous_ladder;	// Elder: need this to see if player was on ladder
+	qboolean opendoor;
 
-	float		impactSpeed;
+	float impactSpeed;
 
-	vec3_t		previous_origin;
-	vec3_t		previous_velocity;
-	int			previous_waterlevel;
+	vec3_t previous_origin;
+	vec3_t previous_velocity;
+	int previous_waterlevel;
 } pml_t;
 
-extern	pmove_t		*pm;
-extern	pml_t		pml;
+extern pmove_t *pm;
+extern pml_t pml;
 
 // movement parameters
-extern	float	pm_stopspeed;
-extern	float	pm_duckScale;
-extern	float	pm_swimScale;
-extern	float	pm_wadeScale;
+extern float pm_stopspeed;
+extern float pm_duckScale;
+extern float pm_swimScale;
+extern float pm_wadeScale;
 
-extern	float	pm_accelerate;
-extern	float	pm_airaccelerate;
-extern	float	pm_wateraccelerate;
-extern	float	pm_flyaccelerate;
+extern float pm_accelerate;
+extern float pm_airaccelerate;
+extern float pm_wateraccelerate;
+extern float pm_flyaccelerate;
 
-extern	float	pm_friction;
-extern	float	pm_waterfriction;
-extern	float	pm_flightfriction;
+extern float pm_friction;
+extern float pm_waterfriction;
+extern float pm_flightfriction;
 
-extern	int		c_pmove;
+extern int c_pmove;
 
-void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
-void PM_AddTouchEnt( int entityNum );
-void PM_AddEvent( int newEvent );
+void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);
+void PM_AddTouchEnt(int entityNum);
+void PM_AddEvent(int newEvent);
+
 //Elder: added
-void PM_AddEvent2( int newEvent, int eventParm );
+void PM_AddEvent2(int newEvent, int eventParm);
 
-qboolean	PM_SlideMove( qboolean gravity );
-void		PM_StepSlideMove( qboolean gravity );
-
-
+qboolean PM_SlideMove(qboolean gravity);
+void PM_StepSlideMove(qboolean gravity);

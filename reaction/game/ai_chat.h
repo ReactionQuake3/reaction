@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/16 20:06:13  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -30,31 +33,43 @@
  *****************************************************************************/
 
 //
-int BotChat_EnterGame(bot_state_t *bs);
-//
-int BotChat_ExitGame(bot_state_t *bs);
-//
-int BotChat_StartLevel(bot_state_t *bs);
-//
-int BotChat_EndLevel(bot_state_t *bs);
-//
-int BotChat_HitTalking(bot_state_t *bs);
-//
-int BotChat_HitNoDeath(bot_state_t *bs);
-//
-int BotChat_HitNoKill(bot_state_t *bs);
-//
-int BotChat_Death(bot_state_t *bs);
-//
-int BotChat_Kill(bot_state_t *bs);
-//
-int BotChat_EnemySuicide(bot_state_t *bs);
-//
-int BotChat_Random(bot_state_t *bs);
-// time the selected chat takes to type in
-float BotChatTime(bot_state_t *bs);
-// returns true if the bot can chat at the current position
-int BotValidChatPosition(bot_state_t *bs);
-// test the initial bot chats
-void BotChatTest(bot_state_t *bs);
+int BotChat_EnterGame(bot_state_t * bs);
 
+//
+int BotChat_ExitGame(bot_state_t * bs);
+
+//
+int BotChat_StartLevel(bot_state_t * bs);
+
+//
+int BotChat_EndLevel(bot_state_t * bs);
+
+//
+int BotChat_HitTalking(bot_state_t * bs);
+
+//
+int BotChat_HitNoDeath(bot_state_t * bs);
+
+//
+int BotChat_HitNoKill(bot_state_t * bs);
+
+//
+int BotChat_Death(bot_state_t * bs);
+
+//
+int BotChat_Kill(bot_state_t * bs);
+
+//
+int BotChat_EnemySuicide(bot_state_t * bs);
+
+//
+int BotChat_Random(bot_state_t * bs);
+
+// time the selected chat takes to type in
+float BotChatTime(bot_state_t * bs);
+
+// returns true if the bot can chat at the current position
+int BotValidChatPosition(bot_state_t * bs);
+
+// test the initial bot chats
+void BotChatTest(bot_state_t * bs);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/16 20:06:13  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -29,10 +32,8 @@
  *
  *****************************************************************************/
 
-void BotTeamAI(bot_state_t *bs);
-int BotGetTeamMateTaskPreference(bot_state_t *bs, int teammate);
-void BotSetTeamMateTaskPreference(bot_state_t *bs, int teammate, int preference);
-void BotVoiceChat(bot_state_t *bs, int toclient, char *voicechat);
-void BotVoiceChatOnly(bot_state_t *bs, int toclient, char *voicechat);
-
-
+void BotTeamAI(bot_state_t * bs);
+int BotGetTeamMateTaskPreference(bot_state_t * bs, int teammate);
+void BotSetTeamMateTaskPreference(bot_state_t * bs, int teammate, int preference);
+void BotVoiceChat(bot_state_t * bs, int toclient, char *voicechat);
+void BotVoiceChatOnly(bot_state_t * bs, int toclient, char *voicechat);

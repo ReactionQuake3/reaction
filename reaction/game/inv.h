@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.11  2002/06/16 17:38:00  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -157,7 +160,6 @@
 #define MODELINDEX_BANDOLIER		29
 #define MODELINDEX_SLIPPERS		30
 
-
 /*
 #define MODELINDEX_ARMORSHARD		1
 #define MODELINDEX_ARMORCOMBAT		2
@@ -248,6 +250,5 @@
 #define WEAPONINDEX_SSG3000				5
 #define WEAPONINDEX_M4					6
 #define WEAPONINDEX_AKIMBO				7
-#define WEAPONINDEX_KNIFE				8	
+#define WEAPONINDEX_KNIFE				8
 #define WEAPONINDEX_GRENADE				9
-

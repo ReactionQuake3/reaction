@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.4  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -32,8 +35,7 @@
 #define MAX_FILEPATH			144
 
 //bot settings
-typedef struct bot_settings_s
-{
+typedef struct bot_settings_s {
 	char characterfile[MAX_FILEPATH];
 	int skill;
 	char team[MAX_FILEPATH];
@@ -44,8 +46,7 @@ typedef struct bot_settings_s
 #define BSPTRACE
 
 //bsp_trace_t hit surface
-typedef struct bsp_surface_s
-{
+typedef struct bsp_surface_s {
 	char name[16];
 	int flags;
 	int value;
@@ -53,29 +54,27 @@ typedef struct bsp_surface_s
 
 //remove the bsp_trace_s structure definition l8r on
 //a trace is returned when a box is swept through the world
-typedef struct bsp_trace_s
-{
-	qboolean		allsolid;	// if true, plane is not valid
-	qboolean		startsolid;	// if true, the initial point was in a solid area
-	float			fraction;	// time completed, 1.0 = didn't hit anything
-	vec3_t			endpos;		// final position
-	cplane_t		plane;		// surface normal at impact
-	float			exp_dist;	// expanded plane distance
-	int				sidenum;	// number of the brush side hit
-	bsp_surface_t	surface;	// the hit point surface
-	int				contents;	// contents on other side of surface hit
-	int				ent;		// number of entity hit
+typedef struct bsp_trace_s {
+	qboolean allsolid;	// if true, plane is not valid
+	qboolean startsolid;	// if true, the initial point was in a solid area
+	float fraction;		// time completed, 1.0 = didn't hit anything
+	vec3_t endpos;		// final position
+	cplane_t plane;		// surface normal at impact
+	float exp_dist;		// expanded plane distance
+	int sidenum;		// number of the brush side hit
+	bsp_surface_t surface;	// the hit point surface
+	int contents;		// contents on other side of surface hit
+	int ent;		// number of entity hit
 } bsp_trace_t;
 
-#endif	// BSPTRACE
+#endif				// BSPTRACE
 
 // ai_main.c
-int		BotAISetupClient( int client, bot_settings_t *settings );
+int BotAISetupClient(int client, bot_settings_t * settings);
 
 //
 // imported functions used for the BotAI
 //
-
 
 // from the server
 /*

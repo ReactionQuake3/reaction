@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.17  2002/05/12 19:15:47  jbravo
 // Added playerlist, did some cleanup on votes.
 //
@@ -82,27 +85,27 @@ int WonGame(int winner);
 team_t RQ3TeamCount(int ignoreClientNum, int team);
 void SpawnPlayers();
 void CleanLevel();
-void CheckForUnevenTeams(gentity_t *player);
-void EquipPlayer (gentity_t *ent);
-void RQ3_Cmd_Choose_f(gentity_t *ent);
-void RQ3_Cmd_Use_f(gentity_t *ent);
-void RQ3_Cmd_Drop_f(gentity_t *ent);
-void UnstickPlayer(gentity_t *ent);
-void MakeSpectator(gentity_t *ent);
+void CheckForUnevenTeams(gentity_t * player);
+void EquipPlayer(gentity_t * ent);
+void RQ3_Cmd_Choose_f(gentity_t * ent);
+void RQ3_Cmd_Use_f(gentity_t * ent);
+void RQ3_Cmd_Drop_f(gentity_t * ent);
+void UnstickPlayer(gentity_t * ent);
+void MakeSpectator(gentity_t * ent);
 qboolean OKtoFollow(int clientnum);
-void RQ3_Cmd_Radio_f (gentity_t *ent);
-void RQ3_Cmd_Radio_power_f (gentity_t *ent);
-void RQ3_Cmd_Radiogender_f (gentity_t *ent);
-void ParseSayText (gentity_t * ent, char *text);
-void RQ3_SpectatorMode(gentity_t *ent);
-void Add_TeamKill(gentity_t *attacker);
-void RQ3_Cmd_TKOk(gentity_t *ent);
+void RQ3_Cmd_Radio_f(gentity_t * ent);
+void RQ3_Cmd_Radio_power_f(gentity_t * ent);
+void RQ3_Cmd_Radiogender_f(gentity_t * ent);
+void ParseSayText(gentity_t * ent, char *text);
+void RQ3_SpectatorMode(gentity_t * ent);
+void Add_TeamKill(gentity_t * attacker);
+void RQ3_Cmd_TKOk(gentity_t * ent);
 void RQ3_Cmd_Stuff(void);
-void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
-void setFFState(gentity_t *ent);
-void Cmd_Ignore_f(gentity_t *ent);
-void Cmd_Unignore_f(gentity_t *ent);
-void Cmd_Ignorenum_f(gentity_t *ent);
-void Cmd_Ignoreclear_f(gentity_t *ent);
-void Cmd_Playerlist_f(gentity_t *ent);
-int  IsInIgnoreList(gentity_t *source, gentity_t *subject);
+void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod);
+void setFFState(gentity_t * ent);
+void Cmd_Ignore_f(gentity_t * ent);
+void Cmd_Unignore_f(gentity_t * ent);
+void Cmd_Ignorenum_f(gentity_t * ent);
+void Cmd_Ignoreclear_f(gentity_t * ent);
+void Cmd_Playerlist_f(gentity_t * ent);
+int IsInIgnoreList(gentity_t * source, gentity_t * subject);

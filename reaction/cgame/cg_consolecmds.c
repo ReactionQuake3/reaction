@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/06/16 20:06:13  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.51  2002/06/16 19:12:51  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -107,17 +110,18 @@
 
 #include "cg_local.h"
 
-void CG_TargetCommand_f( void ) {
-	int		targetNum;
-	char	test[4];
+void CG_TargetCommand_f(void)
+{
+	int targetNum;
+	char test[4];
 
 	targetNum = CG_CrosshairPlayer();
-	if (!targetNum ) {
+	if (!targetNum) {
 		return;
 	}
 
-	trap_Argv( 1, test, 4 );
-	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	trap_Argv(1, test, 4);
+	trap_SendConsoleCommand(va("gc %i %i", targetNum, atoi(test)));
 }
 
 /*
@@ -193,33 +197,29 @@ check cases that are possible before sending
 the client command to reduce bandwidth use slightly
 =================
 */
-static void CG_Bandage_f (void) {
-	if ( !cg.snap ) {
+static void CG_Bandage_f(void)
+{
+	if (!cg.snap) {
 		return;
 	}
-
 	// if we are going into the intermission, don't do anything
-	if ( cg.intermissionStarted ) {
+	if (cg.intermissionStarted) {
 		return;
 	}
-
 	//Elder: spectator?
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
 		return;
 	}
-
 	//Elder: prevent "bandaging" when dead hehe
-	if ( cg.snap->ps.stats[STAT_HEALTH] < 0 ) {
+	if (cg.snap->ps.stats[STAT_HEALTH] < 0) {
 		CG_Printf("It's a bit too late to bandage yourself...\n");
 		return;
 	}
-
-//	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
+//      if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are already bandaging!\n");
 		return;
 	}
-
 	//Elder: don't allow bandaging when in the middle of bursts
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
@@ -227,8 +227,8 @@ static void CG_Bandage_f (void) {
 	//Elder: added to prevent bandaging while reloading or firing
 	//Moved below "already-bandaging" case and removed message
 	//if ( cg.snap->ps.weaponTime > 0 || cg.snap->ps.weaponstate == WEAPON_COCKED) {
-		//CG_Printf("You are too busy with your weapon!\n");
-		//return;
+	//CG_Printf("You are too busy with your weapon!\n");
+	//return;
 	//}
 	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 		return;
@@ -240,7 +240,6 @@ static void CG_Bandage_f (void) {
 	trap_SendClientCommand("bandage");
 }
 
-
 /*
 =================
 CG_SizeUp_f
@@ -248,10 +247,10 @@ CG_SizeUp_f
 Keybinding command
 =================
 */
-static void CG_SizeUp_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer+10)));
+static void CG_SizeUp_f(void)
+{
+	trap_Cvar_Set("cg_viewsize", va("%i", (int) (cg_viewsize.integer + 10)));
 }
-
 
 /*
 =================
@@ -260,10 +259,10 @@ CG_SizeDown_f
 Keybinding command
 =================
 */
-static void CG_SizeDown_f (void) {
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
+static void CG_SizeDown_f(void)
+{
+	trap_Cvar_Set("cg_viewsize", va("%i", (int) (cg_viewsize.integer - 10)));
 }
-
 
 /*
 =============
@@ -272,10 +271,10 @@ CG_Viewpos_f
 Debugging command to print the current position
 =============
 */
-static void CG_Viewpos_f (void) {
-	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
-		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
-		(int)cg.refdefViewAngles[YAW]);
+static void CG_Viewpos_f(void)
+{
+	CG_Printf("(%i %i %i) : %i\n", (int) cg.refdef.vieworg[0],
+		  (int) cg.refdef.vieworg[1], (int) cg.refdef.vieworg[2], (int) cg.refdefViewAngles[YAW]);
 }
 
 /*
@@ -285,9 +284,10 @@ CG_PlayerOrigin_f
 Debugging command to print player's origin
 =============
 */
-static void CG_PlayerOrigin_f (void) {
-	CG_Printf("(%i %i %i)\n", (int)cg.snap->ps.origin[0],
-		(int)cg.snap->ps.origin[1], (int)cg.snap->ps.origin[2]);
+static void CG_PlayerOrigin_f(void)
+{
+	CG_Printf("(%i %i %i)\n", (int) cg.snap->ps.origin[0],
+		  (int) cg.snap->ps.origin[1], (int) cg.snap->ps.origin[2]);
 }
 
 /*
@@ -321,12 +321,13 @@ static void CG_ScoresDown_f( void ) {
 }
 */
 
-static void CG_Scores_f ( void ) {
+static void CG_Scores_f(void)
+{
 
-	if ( cgs.gametype >= GT_TEAM ) {
-		if ( cg.showScores && cg.scoreTPMode == 1 ) {
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg.showScores && cg.scoreTPMode == 1) {
 			cg.showScores = qfalse;
-			cg.scoreFadeTime = 0; //cg.time;
+			cg.scoreFadeTime = 0;	//cg.time;
 			cg.scoreTPMode = 0;
 			return;
 		}
@@ -335,24 +336,23 @@ static void CG_Scores_f ( void ) {
 			cg.scoreTPMode = 1;
 			return;
 		}
-	}
-	else {
-		if ( cg.showScores ) {
+	} else {
+		if (cg.showScores) {
 			cg.showScores = qfalse;
-			cg.scoreFadeTime = 0; //cg.time;
+			cg.scoreFadeTime = 0;	//cg.time;
 			return;
 		}
 	}
 
-	if ( cg.scoresRequestTime + 2000 < cg.time ) {
+	if (cg.scoresRequestTime + 2000 < cg.time) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand( "score" );
+		trap_SendClientCommand("score");
 
 		// leave the current scores up if they were already
 		// displayed, but if this is the first hit, clear them out
-		if ( !cg.showScores ) {
+		if (!cg.showScores) {
 			cg.showScores = qtrue;
 			cg.scoreStartTime = cg.time;
 			cg.numScores = 0;
@@ -372,21 +372,19 @@ Turns on the players weapon stats
 =================================
 */
 static void CG_WeaponStatsUp_f(void)
-{	
-  if ( cg.wstatsRequestTime + 2000 < cg.time ) {
+{
+	if (cg.wstatsRequestTime + 2000 < cg.time) {
 		// the stats are more than two seconds out of data,
 		// so request new ones
 		cg.wstatsRequestTime = cg.time;
-		trap_SendClientCommand( "wstats" );
+		trap_SendClientCommand("wstats");
 	}
 
-	if (!cg.showWStats) 
-  {
-    cg.wstatsStartTime = cg.time;
-    cg.showWStats = qtrue;
-  }
+	if (!cg.showWStats) {
+		cg.wstatsStartTime = cg.time;
+		cg.showWStats = qtrue;
+	}
 }
-
 
 /*
 =================================
@@ -396,70 +394,73 @@ Turns off the players weapon stats
 */
 static void CG_WeaponStatsDown_f(void)
 {
-	if (cg.showWStats)
-  {
-    cg.showWStats = qfalse;
-  }
+	if (cg.showWStats) {
+		cg.showWStats = qfalse;
+	}
 }
 
-static void CG_TellTarget_f( void ) {
-	int		clientNum;
-	char	command[128];
-	char	message[128];
+static void CG_TellTarget_f(void)
+{
+	int clientNum;
+	char command[128];
+	char message[128];
 
 	clientNum = CG_CrosshairPlayer();
-	if ( clientNum == -1 ) {
+	if (clientNum == -1) {
 		return;
 	}
 
-	trap_Args( message, 128 );
-	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	trap_Args(message, 128);
+	Com_sprintf(command, 128, "tell %i %s", clientNum, message);
+	trap_SendClientCommand(command);
 }
 
-static void CG_TellAttacker_f( void ) {
-	int		clientNum;
-	char	command[128];
-	char	message[128];
+static void CG_TellAttacker_f(void)
+{
+	int clientNum;
+	char command[128];
+	char message[128];
 
 	clientNum = CG_LastAttacker();
-	if ( clientNum == -1 ) {
+	if (clientNum == -1) {
 		return;
 	}
 
-	trap_Args( message, 128 );
-	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	trap_Args(message, 128);
+	Com_sprintf(command, 128, "tell %i %s", clientNum, message);
+	trap_SendClientCommand(command);
 }
 
-static void CG_VoiceTellTarget_f( void ) {
-	int		clientNum;
-	char	command[128];
-	char	message[128];
+static void CG_VoiceTellTarget_f(void)
+{
+	int clientNum;
+	char command[128];
+	char message[128];
 
 	clientNum = CG_CrosshairPlayer();
-	if ( clientNum == -1 ) {
+	if (clientNum == -1) {
 		return;
 	}
 
-	trap_Args( message, 128 );
-	Com_sprintf( command, 128, "vtell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	trap_Args(message, 128);
+	Com_sprintf(command, 128, "vtell %i %s", clientNum, message);
+	trap_SendClientCommand(command);
 }
 
-static void CG_VoiceTellAttacker_f( void ) {
-	int		clientNum;
-	char	command[128];
-	char	message[128];
+static void CG_VoiceTellAttacker_f(void)
+{
+	int clientNum;
+	char command[128];
+	char message[128];
 
 	clientNum = CG_LastAttacker();
-	if ( clientNum == -1 ) {
+	if (clientNum == -1) {
 		return;
 	}
 
-	trap_Args( message, 128 );
-	Com_sprintf( command, 128, "vtell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	trap_Args(message, 128);
+	Com_sprintf(command, 128, "vtell %i %s", clientNum, message);
+	trap_SendClientCommand(command);
 }
 
 /*
@@ -468,15 +469,16 @@ CG_StartOrbit_f
 ==================
 */
 
-static void CG_StartOrbit_f( void ) {
+static void CG_StartOrbit_f(void)
+{
 	char var[MAX_TOKEN_CHARS];
 
-	trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
-	if ( !atoi(var) ) {
+	trap_Cvar_VariableStringBuffer("developer", var, sizeof(var));
+	if (!atoi(var)) {
 		return;
 	}
 	if (cg_cameraOrbit.value != 0) {
-		trap_Cvar_Set ("cg_cameraOrbit", "0");
+		trap_Cvar_Set("cg_cameraOrbit", "0");
 		trap_Cvar_Set("cg_thirdPerson", "0");
 	} else {
 		trap_Cvar_Set("cg_cameraOrbit", "5");
@@ -570,17 +572,17 @@ Makro: Made it so that the player
 ====================================
 */
 
-static void CG_IRVision_f ( void ) {
+static void CG_IRVision_f(void)
+{
 	const char *status = "enabled";
-	
+
 	cg.rq3_irvision = !(cg.rq3_irvision);
 
-	if ( !(cg.rq3_irvision) ) {
+	if (!(cg.rq3_irvision)) {
 		status = "disabled";
 	}
-	
-	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
-	{
+
+	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
 		CG_Printf(va("IR vision %s.\n", status));
 	} else {
 		CG_Printf(va("IR vision will be %s next time you get a bandolier.\n", status));
@@ -589,49 +591,47 @@ static void CG_IRVision_f ( void ) {
 	trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
 }
 
-
 typedef struct {
-	char	*cmd;
-	void	(*function)(void);
+	char *cmd;
+	void (*function) (void);
 } consoleCommand_t;
 
-static consoleCommand_t	commands[] = {
-	{ "testgun", CG_TestGun_f },
-	{ "testmodel", CG_TestModel_f },
-	{ "nextframe", CG_TestModelNextFrame_f },
-	{ "prevframe", CG_TestModelPrevFrame_f },
-	{ "nextskin", CG_TestModelNextSkin_f },
-	{ "prevskin", CG_TestModelPrevSkin_f },
-	{ "viewpos", CG_Viewpos_f },
-	{ "playerorigin", CG_PlayerOrigin_f },
+static consoleCommand_t commands[] = {
+	{"testgun", CG_TestGun_f},
+	{"testmodel", CG_TestModel_f},
+	{"nextframe", CG_TestModelNextFrame_f},
+	{"prevframe", CG_TestModelPrevFrame_f},
+	{"nextskin", CG_TestModelNextSkin_f},
+	{"prevskin", CG_TestModelPrevSkin_f},
+	{"viewpos", CG_Viewpos_f},
+	{"playerorigin", CG_PlayerOrigin_f},
 	//{ "+scores", CG_ScoresDown_f },
-	{ "scores", CG_Scores_f },
+	{"scores", CG_Scores_f},
 /*	{ "+zoom", CG_ZoomDown_f },				// hawkins not needed in Reaction
-	{ "-zoom", CG_ZoomUp_f },*/			
+	{ "-zoom", CG_ZoomUp_f },*/
 	//Blaze: Weapon stats
-	{ "+wstats", CG_WeaponStatsUp_f },
-	{ "-wstats", CG_WeaponStatsDown_f },
-	{ "sizeup", CG_SizeUp_f },
-	{ "sizedown", CG_SizeDown_f },
-	{ "weapnext", CG_NextWeapon_f },
-	{ "weapprev", CG_PrevWeapon_f },
-	{ "weapon", CG_Weapon_f },				// Elder: it's for RQ3 and Q3A
+	{"+wstats", CG_WeaponStatsUp_f},
+	{"-wstats", CG_WeaponStatsDown_f},
+	{"sizeup", CG_SizeUp_f},
+	{"sizedown", CG_SizeDown_f},
+	{"weapnext", CG_NextWeapon_f},
+	{"weapprev", CG_PrevWeapon_f},
+	{"weapon", CG_Weapon_f},	// Elder: it's for RQ3 and Q3A
 // JBravo: adding the drop command and unregistering the other two
-//	{ "dropitem", CG_DropItem_f },
-//	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
-	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
-	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
-	{ "tell_target", CG_TellTarget_f },
-	{ "tell_attacker", CG_TellAttacker_f },
-	{ "vtell_target", CG_VoiceTellTarget_f },
-	{ "vtell_attacker", CG_VoiceTellAttacker_f },
-	{ "tcmd", CG_TargetCommand_f },
-	{ "startOrbit", CG_StartOrbit_f },
+//      { "dropitem", CG_DropItem_f },
+//      { "dropweapon", CG_DropWeapon_f },              // Elder: added to reset zoom then goto server
+	{"bandage", CG_Bandage_f},	// Elder: added to reset zoom then goto server
+	{"specialweapon", CG_SpecialWeapon_f},	// Elder: select special weapon
+	{"tell_target", CG_TellTarget_f},
+	{"tell_attacker", CG_TellAttacker_f},
+	{"vtell_target", CG_VoiceTellTarget_f},
+	{"vtell_attacker", CG_VoiceTellAttacker_f},
+	{"tcmd", CG_TargetCommand_f},
+	{"startOrbit", CG_StartOrbit_f},
 	//{ "camera", CG_Camera_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers },
-	{ "irvision", CG_IRVision_f }
+	{"loaddeferred", CG_LoadDeferredPlayers},
+	{"irvision", CG_IRVision_f}
 };
-
 
 /*
 =================
@@ -641,14 +641,15 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-qboolean CG_ConsoleCommand( void ) {
-	const char	*cmd;
-	int		i;
+qboolean CG_ConsoleCommand(void)
+{
+	const char *cmd;
+	int i;
 
 	cmd = CG_Argv(0);
 
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
+	for (i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+		if (!Q_stricmp(cmd, commands[i].cmd)) {
 			commands[i].function();
 			return qtrue;
 		}
@@ -656,7 +657,6 @@ qboolean CG_ConsoleCommand( void ) {
 
 	return qfalse;
 }
-
 
 /*
 =================
@@ -666,90 +666,91 @@ Let the client system know about all of our commands
 so it can perform tab completion
 =================
 */
-void CG_InitConsoleCommands( void ) {
-	int		i;
+void CG_InitConsoleCommands(void)
+{
+	int i;
 
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		trap_AddCommand( commands[i].cmd );
+	for (i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+		trap_AddCommand(commands[i].cmd);
 	}
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	trap_AddCommand ("kill");
-	trap_AddCommand ("say");
-	trap_AddCommand ("say_team");
-	trap_AddCommand ("tell");
-	trap_AddCommand ("vsay");
-	trap_AddCommand ("vsay_team");
-	trap_AddCommand ("vtell");
-	trap_AddCommand ("vtaunt");
-	trap_AddCommand ("vosay");
-	trap_AddCommand ("vosay_team");
-	trap_AddCommand ("votell");
-	trap_AddCommand ("give");
-	trap_AddCommand ("god");
-	trap_AddCommand ("notarget");
-	trap_AddCommand ("noclip");
-	trap_AddCommand ("team");
-	trap_AddCommand ("follow");
-	trap_AddCommand ("levelshot");
-	trap_AddCommand ("addbot");
-	trap_AddCommand ("setviewpos");
-	trap_AddCommand ("callvote");
-	trap_AddCommand ("vote");
-	trap_AddCommand ("callteamvote");
-	trap_AddCommand ("teamvote");
-	trap_AddCommand ("stats");
-	trap_AddCommand ("teamtask");
+	trap_AddCommand("kill");
+	trap_AddCommand("say");
+	trap_AddCommand("say_team");
+	trap_AddCommand("tell");
+	trap_AddCommand("vsay");
+	trap_AddCommand("vsay_team");
+	trap_AddCommand("vtell");
+	trap_AddCommand("vtaunt");
+	trap_AddCommand("vosay");
+	trap_AddCommand("vosay_team");
+	trap_AddCommand("votell");
+	trap_AddCommand("give");
+	trap_AddCommand("god");
+	trap_AddCommand("notarget");
+	trap_AddCommand("noclip");
+	trap_AddCommand("team");
+	trap_AddCommand("follow");
+	trap_AddCommand("levelshot");
+	trap_AddCommand("addbot");
+	trap_AddCommand("setviewpos");
+	trap_AddCommand("callvote");
+	trap_AddCommand("vote");
+	trap_AddCommand("callteamvote");
+	trap_AddCommand("teamvote");
+	trap_AddCommand("stats");
+	trap_AddCommand("teamtask");
 	//Makro - fixed spelling
-	//trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
- 	trap_AddCommand ("loaddeferred");
-	trap_AddCommand ("opendoor");
- 	trap_AddCommand ("bandage");
-	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used
+	//trap_AddCommand ("loaddefered");      // spelled wrong, but not changing for demo
+	trap_AddCommand("loaddeferred");
+	trap_AddCommand("opendoor");
+	trap_AddCommand("bandage");
+	//trap_AddCommand ("drop");     // XRAY FMJ weap drop cmd - Elder: not used
 	//Elder: added to give drop weapon auto-complete
 // JBravo: no need for tab completion for those two
-//	trap_AddCommand ("dropweapon");
-//	trap_AddCommand ("dropitem");
+//      trap_AddCommand ("dropweapon");
+//      trap_AddCommand ("dropitem");
 	//Blaze: to get weapon stats
-	trap_AddCommand ("playerstats");
+	trap_AddCommand("playerstats");
 	//Elder: try this
-	trap_AddCommand ("weapon");
-	trap_AddCommand ("specialweapon");
+	trap_AddCommand("weapon");
+	trap_AddCommand("specialweapon");
 	//trap_AddCommand ("messagemode");
 	//trap_AddCommand ("messagemode2");
-	trap_AddCommand ("playerorigin");
-	trap_AddCommand ("irvision");
+	trap_AddCommand("playerorigin");
+	trap_AddCommand("irvision");
 // JBravo: adding choose and drop commands.
-	trap_AddCommand ("choose");
-	trap_AddCommand ("use");
-	trap_AddCommand ("drop");
-	trap_AddCommand ("unzoom");
+	trap_AddCommand("choose");
+	trap_AddCommand("use");
+	trap_AddCommand("drop");
+	trap_AddCommand("unzoom");
 // JBravo: for zcam
-	trap_AddCommand ("camera");
+	trap_AddCommand("camera");
 // JBravo: for radio
-	trap_AddCommand ("radio");
-	trap_AddCommand ("radiogender");
-	trap_AddCommand ("radio_power");
+	trap_AddCommand("radio");
+	trap_AddCommand("radiogender");
+	trap_AddCommand("radio_power");
 // JBravo: tkok
-	trap_AddCommand ("tkok");
-	trap_AddCommand ("playerlist");
+	trap_AddCommand("tkok");
+	trap_AddCommand("playerlist");
 // JBravo: ignore
-	trap_AddCommand ("ignorenum");
-	trap_AddCommand ("ignore");
-	trap_AddCommand ("unignore");
-	trap_AddCommand ("clearignorelist");
+	trap_AddCommand("ignorenum");
+	trap_AddCommand("ignore");
+	trap_AddCommand("unignore");
+	trap_AddCommand("clearignorelist");
 // Slicer: Matchmode
-	trap_AddCommand ("captain");
-	trap_AddCommand ("ready");
-	trap_AddCommand ("sub");
-	trap_AddCommand ("teamname");
-	trap_AddCommand ("teammodel");
-	trap_AddCommand ("referee");
+	trap_AddCommand("captain");
+	trap_AddCommand("ready");
+	trap_AddCommand("sub");
+	trap_AddCommand("teamname");
+	trap_AddCommand("teammodel");
+	trap_AddCommand("referee");
 // aasimon: refeere mm
-	trap_AddCommand ("reflogin");
-	trap_AddCommand ("ref");
-	trap_AddCommand ("refresign");
+	trap_AddCommand("reflogin");
+	trap_AddCommand("ref");
+	trap_AddCommand("refresign");
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.79  2002/06/16 17:37:59  jbravo
 // Removed the MISSIONPACK ifdefs and missionpack only code.
 //
@@ -154,14 +157,14 @@
 #define DEFAULT_M3_VSPREAD	800
 
 //Elder: this are uncertified
-//#define DEFAULT_SHOTGUN_SPREAD	700
-//#define DEFAULT_HANDCANNON_SPREAD	1400
-//#define DEFAULT_SHOTGUN_COUNT	11
+//#define DEFAULT_SHOTGUN_SPREAD        700
+//#define DEFAULT_HANDCANNON_SPREAD     1400
+//#define DEFAULT_SHOTGUN_COUNT 11
 #define DEFAULT_M3_COUNT		12
-#define DEFAULT_HANDCANNON_COUNT 17		//Elder: 17 per blast = 34 per shot
+#define DEFAULT_HANDCANNON_COUNT 17	//Elder: 17 per blast = 34 per shot
 
 //Elder: changing this will affect the cgame entity placement
-#define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
+#define	ITEM_RADIUS			15	// item sizes are needed for client side pickup detection
 
 #define	LIGHTNING_RANGE		768
 //Blaze: Distance the knife reaches
@@ -172,11 +175,11 @@
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
 #define	MINS_Z				-24
-//#define DEFAULT_VIEWHEIGHT	22
+//#define DEFAULT_VIEWHEIGHT    22
 #define	DEFAULT_VIEWHEIGHT	26
 //Elder: changed to 8 like AQ2 source
 //Elder: moved back to original viewheight
-//#define CROUCH_VIEWHEIGHT	8
+//#define CROUCH_VIEWHEIGHT     8
 #define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
 
@@ -309,24 +312,25 @@ enum {
 	//SETTEAMPLAYERS,
 	SELECTPISTOL,
 //Slicer: apparently not being used
-//	ROUND,
+//      ROUND,
 	MAPEND,
 	MAPSTART,
 	SETWEAPON,
 	STUFF,
 	TKOK,
 	RADIO,
-    STARTDEMO,
-    STOPDEMO,
-    SCREENSHOT
+	STARTDEMO,
+	STOPDEMO,
+	SCREENSHOT
 };
+
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {
 	RQ3_SOUND_KICK,
 	RQ3_SOUND_HEADSHOT,
 	RQ3_SOUND_KNIFEHIT,
 	RQ3_SOUND_KNIFEDEATH,
-	RQ3_SOUND_LCA,					//lights, camera, action!
+	RQ3_SOUND_LCA,		//lights, camera, action!
 	RQ3_SOUND_KEVLARHIT,
 	RQ3_SOUND_COUNTDOWN,
 
@@ -334,10 +338,9 @@ typedef enum {
 } rq3_sounds_t;
 
 // JBravo: radio. This part stolen from AQ
-typedef struct radio_msg_s
-{
-	char *msg;  // the msg name
-	int length; // length in server frames (ie tenths of a second), rounded up
+typedef struct radio_msg_s {
+	char *msg;		// the msg name
+	int length;		// length in server frames (ie tenths of a second), rounded up
 } radio_msg_t;
 
 extern radio_msg_t male_radio_msgs[];
@@ -349,7 +352,7 @@ extern radio_msg_t female_radio_msgs[];
 #define M4_DAMAGE 				90
 #define M3_DAMAGE 				17
 //Elder: wrong name
-//#define SHOTGUN_DAMAGE 			17
+//#define SHOTGUN_DAMAGE                        17
 #define HANDCANNON_DAMAGE 		20
 #define SNIPER_DAMAGE 			250
 #define AKIMBO_DAMAGE 			90
@@ -357,7 +360,7 @@ extern radio_msg_t female_radio_msgs[];
 #define THROW_DAMAGE 			250	//Throwing Knife damage
 #define GRENADE_DAMAGE			170
 #define GRENADE_SPLASH_DAMAGE	170
-#define GRENADE_SPLASH_RADIUS	340 //Damage * 2
+#define GRENADE_SPLASH_RADIUS	340	//Damage * 2
 
 #define PISTOL_SPREAD 			140
 #define MP5_SPREAD 				250
@@ -371,12 +374,11 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_M4_KICK				90
 #define RQ3_MP5_KICK			90
 #define RQ3_HANDCANNON_KICK		40
-#define RQ3_SNIPER_KICK			200 // but it seems to get multiplied by zero in the source
+#define RQ3_SNIPER_KICK			200	// but it seems to get multiplied by zero in the source
 #define RQ3_AKIMBO_KICK			90
 #define RQ3_KNIFE_KICK			0
 #define RQ3_THROW_KICK			50
 #define RQ3_GRENADE_KICK		200	// Elder: assumed
-
 
 //Elder: weaponTime constants (delay in milliseconds)
 //Kinda "derived" from the AQ2 source
@@ -388,14 +390,14 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_MP5_DELAY			100
 #define RQ3_HANDCANNON_DELAY	1200
 #define RQ3_SSG3000_DELAY		1400
-#define RQ3_SSG3000_BOLT_DELAY	1300// Elder: delay before zooming back in
-//#define RQ3_AKIMBO_DELAY		500	// Elder: two delays: one for the total delay
-//#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
+#define RQ3_SSG3000_BOLT_DELAY	1300	// Elder: delay before zooming back in
+//#define RQ3_AKIMBO_DELAY              500     // Elder: two delays: one for the total delay
+//#define RQ3_AKIMBO_DELAY2             200 // one for the time to start the second shot
 #define RQ3_AKIMBO_DELAY		100
 #define RQ3_AKIMBO_DELAY2		300
 #define RQ3_KNIFE_DELAY			800
-#define RQ3_THROW_DELAY			300 // NiceAss: Was 800, but much too slow.
-#define RQ3_KNIFE_SLASH_BURST   30  // NiceAss: For slashing every 30 ms. (Agt's arbitrary number of the day =))
+#define RQ3_THROW_DELAY			300	// NiceAss: Was 800, but much too slow.
+#define RQ3_KNIFE_SLASH_BURST   30	// NiceAss: For slashing every 30 ms. (Agt's arbitrary number of the day =))
 #define RQ3_GRENADE_DELAY		300	// NiceAss: Was 750, but much too slow.
 
 //Elder: reload delays
@@ -407,16 +409,16 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_AKIMBO_RELOAD_DELAY			2500
 
 #define RQ3_M3_RELOAD_DELAY				1100
-#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	700 // 700 Time into reload to enable fast-reloads
+#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	700	// 700 Time into reload to enable fast-reloads
 #define RQ3_M3_FAST_RELOAD_DELAY		500	// Fast reload time
-//#define RQ3_M3_START_RELOAD_DELAY		300 // Start index point of fast reload
-#define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
+//#define RQ3_M3_START_RELOAD_DELAY             300 // Start index point of fast reload
+#define RQ3_M3_FINISH_RELOAD_DELAY		300	// Amount of time after all fast reloads
 
 #define RQ3_SSG3000_RELOAD_DELAY		3100
-#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1800 //1100 Time into reload to enable fast-reloads
-#define RQ3_SSG3000_FAST_RELOAD_DELAY	600 // Fast reload time
-//#define RQ3_SSG3000_START_RELOAD_DELAY	1700	// Start index point of fast reload
-#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads
+#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1800	//1100 Time into reload to enable fast-reloads
+#define RQ3_SSG3000_FAST_RELOAD_DELAY	600	// Fast reload time
+//#define RQ3_SSG3000_START_RELOAD_DELAY        1700    // Start index point of fast reload
+#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800	// Amount of time after all fast reloads
 
 #define RQ3_KNIFE_RELOAD_DELAY			0	// Elder: shouldn't need
 #define RQ3_GRENADE_RELOAD_DELAY		0	// Elder: shouldn't need
@@ -424,7 +426,7 @@ extern radio_msg_t female_radio_msgs[];
 //Elder: each weapon also has a different weapon switch up delay... ugh bloody hell
 #define RQ3_PISTOL_ACTIVATE_DELAY		900
 #define RQ3_M3_ACTIVATE_DELAY			700
-#define RQ3_M4_ACTIVATE_DELAY			700  // 1000
+#define RQ3_M4_ACTIVATE_DELAY			700	// 1000
 #define RQ3_MP5_ACTIVATE_DELAY			1000
 #define RQ3_HANDCANNON_ACTIVATE_DELAY	600
 #define RQ3_SSG3000_ACTIVATE_DELAY		800
@@ -439,12 +441,11 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_M4_DISARM_DELAY				500
 #define RQ3_MP5_DISARM_DELAY			400
 #define RQ3_HANDCANNON_DISARM_DELAY		400
-#define RQ3_SSG3000_DISARM_DELAY		900 // For some reason it's auto-used with WEAPON_RAISING
+#define RQ3_SSG3000_DISARM_DELAY		900	// For some reason it's auto-used with WEAPON_RAISING
 #define RQ3_AKIMBO_DISARM_DELAY			800
 #define RQ3_KNIFE_DISARM_DELAY			700
 #define RQ3_THROW_DISARM_DELAY			700
-#define RQ3_GRENADE_DISARM_DELAY		300  //Elder: I made this up
-
+#define RQ3_GRENADE_DISARM_DELAY		300	//Elder: I made this up
 
 //Elder: special for grenade: speeds depending on distance select
 #define GRENADE_SHORT_SPEED		400
@@ -452,10 +453,10 @@ extern radio_msg_t female_radio_msgs[];
 #define GRENADE_LONG_SPEED		920
 
 //Elder: knife throw speed - from the AQ2 source
-#define THROW_SPEED                             1200  // NiceAss: Changed to 1100 (from 1200)
+#define THROW_SPEED                             1200	// NiceAss: Changed to 1100 (from 1200)
 
 //Elder: special flag needed in both games
-#define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
+#define FL_THROWN_KNIFE			0x00040000	// Elder: thrown knife special case
 
 //Elder: weapon modifications
 #define RQ3_WPMOD_SILENCER		1
@@ -473,9 +474,9 @@ extern radio_msg_t female_radio_msgs[];
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
 #define	CS_MUSIC			2
-#define	CS_MESSAGE			3		// from the map worldspawn's message field
-#define	CS_MOTD				4		// g_motd string for server message of the day
-#define	CS_WARMUP			5		// server time when the match will be restarted
+#define	CS_MESSAGE			3	// from the map worldspawn's message field
+#define	CS_MOTD				4	// g_motd string for server message of the day
+#define	CS_WARMUP			5	// server time when the match will be restarted
 #define	CS_SCORES1			6
 #define	CS_SCORES2			7
 #define CS_VOTE_TIME		8
@@ -489,16 +490,16 @@ extern radio_msg_t female_radio_msgs[];
 #define	CS_TEAMVOTE_NO			18
 
 #define	CS_GAME_VERSION			20
-#define	CS_LEVEL_START_TIME		21		// so the timer only shows the current level
-#define	CS_INTERMISSION			22		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS			23		// string indicating flag status in CTF
+#define	CS_LEVEL_START_TIME		21	// so the timer only shows the current level
+#define	CS_INTERMISSION			22	// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+#define CS_FLAGSTATUS			23	// string indicating flag status in CTF
 #define CS_SHADERSTATE			24
 #define CS_BOTINFO				25
 
-#define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+#define	CS_ITEMS				27	// string of 0's and 1's that tell which items are present
 
 //Makro - color for the loading screen text
-//#define CS_LOADINGSCREEN		29
+//#define CS_LOADINGSCREEN              29
 
 #define	CS_MODELS			32
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
@@ -515,15 +516,15 @@ extern radio_msg_t female_radio_msgs[];
 #endif
 
 typedef enum {
-	GT_FFA,				// free for all
+	GT_FFA,			// free for all
 	GT_TOURNAMENT,		// one on one tournament
 	GT_SINGLE_PLAYER,	// single player ffa
 
 	//-- team games go after this --
 
-	GT_TEAM,			// team deathmatch
+	GT_TEAM,		// team deathmatch
 	GT_TEAMPLAY,		// JBravo: The teamplay mode itself.
-	GT_CTF,				// capture the flag
+	GT_CTF,			// capture the flag
 	GT_1FCTF,
 	GT_OBELISK,
 	GT_HARVESTER,
@@ -546,7 +547,7 @@ movement on the server game.
 typedef enum {
 	PM_NORMAL,		// can accelerate and turn
 	PM_NOCLIP,		// noclip movement
-	PM_SPECTATOR,	// still run into walls
+	PM_SPECTATOR,		// still run into walls
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control
 	PM_INTERMISSION,	// no movement or status bar
@@ -587,12 +588,12 @@ typedef enum {
 // pmove->pm_flags
 #define	PMF_DUCKED			1
 #define	PMF_JUMP_HELD		2
-#define	PMF_BACKWARDS_JUMP	8		// go into backwards land
-#define	PMF_BACKWARDS_RUN	16		// coast down to backwards run
-#define	PMF_TIME_LAND		32		// pm_time is time before rejump
-#define	PMF_TIME_KNOCKBACK	64		// pm_time is an air-accelerate only time
-#define	PMF_TIME_WATERJUMP	256		// pm_time is waterjump
-#define	PMF_RESPAWNED		512		// clear after attack and jump buttons come up
+#define	PMF_BACKWARDS_JUMP	8	// go into backwards land
+#define	PMF_BACKWARDS_RUN	16	// coast down to backwards run
+#define	PMF_TIME_LAND		32	// pm_time is time before rejump
+#define	PMF_TIME_KNOCKBACK	64	// pm_time is an air-accelerate only time
+#define	PMF_TIME_WATERJUMP	256	// pm_time is waterjump
+#define	PMF_RESPAWNED		512	// clear after attack and jump buttons come up
 #define	PMF_USE_ITEM_HELD	1024
 #define PMF_GRAPPLE_PULL	2048	// pull towards grapple location
 #define PMF_FOLLOW			4096	// spectate following another player
@@ -605,145 +606,145 @@ typedef enum {
 #define	MAXTOUCH	32
 typedef struct {
 	// state (in / out)
-	playerState_t	*ps;
+	playerState_t *ps;
 
 	// command (in)
-	usercmd_t	cmd;
-	int			tracemask;			// collide against these types of surfaces
-	int			debugLevel;			// if set, diagnostic output will be printed
-	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
-	qboolean	gauntletHit;		// true if a gauntlet attack would actually hit something
+	usercmd_t cmd;
+	int tracemask;		// collide against these types of surfaces
+	int debugLevel;		// if set, diagnostic output will be printed
+	qboolean noFootsteps;	// if the game is setup for no footsteps by the server
+	qboolean gauntletHit;	// true if a gauntlet attack would actually hit something
 
-	int			framecount;
+	int framecount;
 
 	// results (out)
-	int			numtouch;
-	int			touchents[MAXTOUCH];
+	int numtouch;
+	int touchents[MAXTOUCH];
 
-	vec3_t		mins, maxs;			// bounding box size
+	vec3_t mins, maxs;	// bounding box size
 
-	int			watertype;
-	int			waterlevel;
+	int watertype;
+	int waterlevel;
 
-	float		xyspeed;
+	float xyspeed;
 
 	// for fixed msec Pmove
-	int			pmove_fixed;
-	int			pmove_msec;
+	int pmove_fixed;
+	int pmove_msec;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
-	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+	void (*trace) (trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
+		       int passEntityNum, int contentMask);
 
-	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+	int (*pointcontents) (const vec3_t point, int passEntityNum);
 // JBravo: lca info for the pm stuff
-	qboolean	lca;
+	qboolean lca;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
-void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
-void Pmove (pmove_t *pmove);
+void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd);
+void Pmove(pmove_t * pmove);
 
 //===================================================================================
-
 
 // player_state->stats[] indexes
 // NOTE: may not have more than 16
 typedef enum {
 	STAT_HEALTH,
-	STAT_HOLDABLE_ITEM,				// Elder: Used to hold unique items in Reaction
-	STAT_WEAPONS,					// 16 bit fields
-	STAT_ARMOR,						// Elder: technically we don't need this anymore
-	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
+	STAT_HOLDABLE_ITEM,	// Elder: Used to hold unique items in Reaction
+	STAT_WEAPONS,		// 16 bit fields
+	STAT_ARMOR,		// Elder: technically we don't need this anymore
+	STAT_DEAD_YAW,		// look this direction when dead (FIXME: get rid of?)
 
-
-	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-	//STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+	STAT_CLIENTS_READY,	// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
+	//STAT_MAX_HEALTH,                              // health / armor limit, changable by handicap
 
 	//These are RQ3-related specific stats
-	STAT_CLIPS,						// Num Clips player currently has
-	STAT_BURST, 					// number of shots in burst
-	STAT_JUMPTIME,					// Blaze: Double jump
-	STAT_RELOADTIME,				// Elder: Reload sound triggering and weapon switch override
-	STAT_RELOADATTEMPTS,			// Elder: For fast-reload queuing
-	STAT_WEAPONSTALLTIME,			// Elder: For delaying grenades, knife throwing, etc.
+	STAT_CLIPS,		// Num Clips player currently has
+	STAT_BURST,		// number of shots in burst
+	STAT_JUMPTIME,		// Blaze: Double jump
+	STAT_RELOADTIME,	// Elder: Reload sound triggering and weapon switch override
+	STAT_RELOADATTEMPTS,	// Elder: For fast-reload queuing
+	STAT_WEAPONSTALLTIME,	// Elder: For delaying grenades, knife throwing, etc.
 	STAT_FALLDAMAGE,
-	STAT_RQ3						// Blaze: Will hold a few flags for bandage, etc info
-	//STAT_STREAK,					// Elder: wasteful stat -- only used on server-side ATM
+	STAT_RQ3		// Blaze: Will hold a few flags for bandage, etc info
+	    //STAT_STREAK,                                  // Elder: wasteful stat -- only used on server-side ATM
 } statIndex_t;
 
 //STAT_RQ3 stat info
-#define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
+#define RQ3_LEGDAMAGE		1	//If this bit is set, the player has leg damage
 #define RQ3_BANDAGE_NEED	2
 #define RQ3_BANDAGE_WORK	4
 // Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
 #define RQ3_ZOOM_LOW		8
 #define RQ3_ZOOM_MED		16
-#define RQ3_THROWWEAPON		32		// Present if dropping weapon via cmd or kicked away
-#define RQ3_FASTRELOADS		64		// Fast-reloads flag
-#define RQ3_LOCKRELOADS		128		// Lock-reloads at end of fast-reload cycle
-#define RQ3_QUEUERELOAD		256		// auto-reload if set
-#define RQ3_RELOADWEAPON1	512		// flag off EV_RELOAD_WEAPON1 event so no dupes occur
-#define RQ3_PLAYERSOLID		1024		// JBravo: Flag set when player is solid.
-#define RQ3_ZCAM		2048		// JBravo: Flag to tell cgame when zcam is on.
+#define RQ3_THROWWEAPON		32	// Present if dropping weapon via cmd or kicked away
+#define RQ3_FASTRELOADS		64	// Fast-reloads flag
+#define RQ3_LOCKRELOADS		128	// Lock-reloads at end of fast-reload cycle
+#define RQ3_QUEUERELOAD		256	// auto-reload if set
+#define RQ3_RELOADWEAPON1	512	// flag off EV_RELOAD_WEAPON1 event so no dupes occur
+#define RQ3_PLAYERSOLID		1024	// JBravo: Flag set when player is solid.
+#define RQ3_ZCAM		2048	// JBravo: Flag to tell cgame when zcam is on.
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
 // cleared on respawn
 // NOTE: may not have more than 16
 typedef enum {
-	PERS_SCORE,						// !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
-	PERS_HITS,						// total points damage inflicted so damage beeps can sound on change
-	PERS_RANK,						// player rank or team rank
-	PERS_TEAM,						// player team
-	PERS_SPAWN_COUNT,				// incremented every respawn
-	PERS_PLAYEREVENTS,				// 16 bits that can be flipped for events
-	PERS_ATTACKER,					// clientnum of last damage inflicter
-	PERS_ATTACKEE_ARMOR,			// health/armor of last person we attacked
-	PERS_KILLED,					// count of the number of times you died
+	PERS_SCORE,		// !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+	PERS_HITS,		// total points damage inflicted so damage beeps can sound on change
+	PERS_RANK,		// player rank or team rank
+	PERS_TEAM,		// player team
+	PERS_SPAWN_COUNT,	// incremented every respawn
+	PERS_PLAYEREVENTS,	// 16 bits that can be flipped for events
+	PERS_ATTACKER,		// clientnum of last damage inflicter
+	PERS_ATTACKEE_ARMOR,	// health/armor of last person we attacked
+	PERS_KILLED,		// count of the number of times you died
 	// player awards tracking
 	/* Blaze: No need for these, may re-implement later if we want in a different form
-	PERS_IMPRESSIVE_COUNT,			// two railgun hits in a row
-	PERS_EXCELLENT_COUNT,			// two successive kills in a short amount of time
-	PERS_DEFEND_COUNT,				// defend awards
-	PERS_ASSIST_COUNT,				// assist awards
-	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
-	PERS_CAPTURES					// captures
-	*/
-	PERS_SAVEDTEAM,				// JBravo: for TP
-	PERS_DAMAGE_DELT,			// JBravo: Keeping track of damage.
-	PERS_WEAPONMODES				// Blaze: Holds the different weapond modes for the different guns see below for the defines to use
+	   PERS_IMPRESSIVE_COUNT,                       // two railgun hits in a row
+	   PERS_EXCELLENT_COUNT,                        // two successive kills in a short amount of time
+	   PERS_DEFEND_COUNT,                           // defend awards
+	   PERS_ASSIST_COUNT,                           // assist awards
+	   PERS_GAUNTLET_FRAG_COUNT,            // kills with the guantlet
+	   PERS_CAPTURES                                        // captures
+	 */
+	PERS_SAVEDTEAM,		// JBravo: for TP
+	PERS_DAMAGE_DELT,	// JBravo: Keeping track of damage.
+	PERS_WEAPONMODES	// Blaze: Holds the different weapond modes for the different guns see below for the defines to use
 } persEnum_t;
+
 //RQ3 Weapon modes - If the bit is set, then the weapon is in the more restrictive mode, as in if it's set to 1 it's semi, 3rnd burst, etc
-#define RQ3_MK23MODE		1		// Pistol modes
-#define RQ3_MP5MODE			2		// MP5 Modes
-#define RQ3_M4MODE			4		// M4 Modes
-#define RQ3_KNIFEMODE		8		// Knife Modes
-#define RQ3_GRENSHORT		16		// Short range grenade
-#define RQ3_GRENMED			32		// Medium range grenade, if short and medium are both 1, then it is long range
+#define RQ3_MK23MODE		1	// Pistol modes
+#define RQ3_MP5MODE			2	// MP5 Modes
+#define RQ3_M4MODE			4	// M4 Modes
+#define RQ3_KNIFEMODE		8	// Knife Modes
+#define RQ3_GRENSHORT		16	// Short range grenade
+#define RQ3_GRENMED			32	// Medium range grenade, if short and medium are both 1, then it is long range
 
 // entityState_t->eFlags
-#define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
-#define EF_HANDCANNON_SMOKED 0x00000002		// Elder: HC Smoke
-#define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
-#define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
+#define	EF_DEAD				0x00000001	// don't draw a foe marker over players with EF_DEAD
+#define EF_HANDCANNON_SMOKED 0x00000002	// Elder: HC Smoke
+#define	EF_TELEPORT_BIT		0x00000004	// toggled every time the origin abruptly changes
+#define	EF_AWARD_EXCELLENT	0x00000008	// draw an excellent sprite
 #define EF_PLAYER_EVENT		0x00000010
-#define	EF_BOUNCE			0x00000010		// for missiles
-#define	EF_BOUNCE_HALF		0x00000020		// for missiles
-#define	EF_AWARD_GAUNTLET	0x00000040		// draw a gauntlet sprite
-#define	EF_NODRAW			0x00000080		// may have an event, but no model (unspawned items)
-#define	EF_FIRING			0x00000100		// for lightning gun
-#define	EF_HEADLESS			0x00000200		// NiceAss: Replaced EF_KAMAKAZI
-#define	EF_MOVER_STOP		0x00000400		// will push otherwise
-#define EF_AWARD_CAP		0x00000800		// draw the capture sprite
-#define	EF_TALK				0x00001000		// draw a talk balloon
-#define	EF_CONNECTION		0x00002000		// draw a connection trouble sprite
-#define	EF_VOTED			0x00004000		// already cast a vote
-#define	EF_AWARD_IMPRESSIVE	0x00008000		// draw an impressive sprite
-#define	EF_AWARD_DEFEND		0x00010000		// draw a defend sprite
-#define	EF_AWARD_ASSIST		0x00020000		// draw a assist sprite
-#define EF_AWARD_DENIED		0x00040000		// denied
-#define EF_TEAMVOTED		0x00080000		// already cast a team vote
+#define	EF_BOUNCE			0x00000010	// for missiles
+#define	EF_BOUNCE_HALF		0x00000020	// for missiles
+#define	EF_AWARD_GAUNTLET	0x00000040	// draw a gauntlet sprite
+#define	EF_NODRAW			0x00000080	// may have an event, but no model (unspawned items)
+#define	EF_FIRING			0x00000100	// for lightning gun
+#define	EF_HEADLESS			0x00000200	// NiceAss: Replaced EF_KAMAKAZI
+#define	EF_MOVER_STOP		0x00000400	// will push otherwise
+#define EF_AWARD_CAP		0x00000800	// draw the capture sprite
+#define	EF_TALK				0x00001000	// draw a talk balloon
+#define	EF_CONNECTION		0x00002000	// draw a connection trouble sprite
+#define	EF_VOTED			0x00004000	// already cast a vote
+#define	EF_AWARD_IMPRESSIVE	0x00008000	// draw an impressive sprite
+#define	EF_AWARD_DEFEND		0x00010000	// draw a defend sprite
+#define	EF_AWARD_ASSIST		0x00020000	// draw a assist sprite
+#define EF_AWARD_DENIED		0x00040000	// denied
+#define EF_TEAMVOTED		0x00080000	// already cast a team vote
 
 // NOTE: may not have more than 16
 typedef enum {
@@ -760,7 +761,6 @@ typedef enum {
 	PW_BLUEFLAG,
 	PW_NEUTRALFLAG,
 
-
 	PW_SCOUT,
 	PW_GUARD,
 	PW_DOUBLER,
@@ -768,7 +768,6 @@ typedef enum {
 	PW_INVULNERABILITY,
 
 	PW_NUM_POWERUPS
-
 } powerup_t;
 
 //Elder: swapped around + full Bando name and typo fix on "slipers"
@@ -789,7 +788,6 @@ typedef enum {
 
 	HI_NUM_HOLDABLE
 } holdable_t;
-
 
 typedef enum {
 	WP_NONE,
@@ -817,7 +815,6 @@ Combat Knife
 
 	WP_NUM_WEAPONS
 } weapon_t;
-
 
 // Elder: for our end-level awards later on
 // I was just brainstorming a whole bunch of necessary records
@@ -878,8 +875,8 @@ typedef enum {
 	REC_KICKDEATHS,
 	REC_BLEEDDEATHS,
 	REC_FALLINGDEATHS,
-	REC_SUICIDES,			// e.g. for MPELP award, those loonies :)
-	REC_WORLDDEATHS,		// crushers, doors, etc.
+	REC_SUICIDES,		// e.g. for MPELP award, those loonies :)
+	REC_WORLDDEATHS,	// crushers, doors, etc.
 	// Kill tally
 	REC_HEADKILLS,
 	REC_CHESTKILLS,
@@ -896,29 +893,27 @@ typedef enum {
 	REC_KNIFETHROWKILLS,
 	REC_KNIFESLASHKILLS,
 	REC_KICKKILLS,
-	REC_STEALTHKILLS,		// this is a derived record -- remove?
+	REC_STEALTHKILLS,	// this is a derived record -- remove?
 	// Movement tally - dunno about these ones since they are related to pmove
 	REC_CAMPCOUNT,
 	REC_CROUCHCOUNT,
-	REC_JUMPCOUNT,			// e.g. rabbit or monkey award
+	REC_JUMPCOUNT,		// e.g. rabbit or monkey award
 	// Player interaction tally
-	REC_FRAGSTEALS,			// this is a derived record -- remove?
+	REC_FRAGSTEALS,		// this is a derived record -- remove?
 	REC_CHATCOUNT,
 	REC_GESTURECOUNT,
-  REC_KILLS,        //How many kills - different then score
-  //how many TK's
-  REC_TEAMKILLS,
+	REC_KILLS,		//How many kills - different then score
+	//how many TK's
+	REC_TEAMKILLS,
 	REC_NUM_RECORDS
 } rq3record_t;
-
 
 //Elder: added
 //
 //bg_misc.c
 //
-int ClipAmountForReload( int w );
-int ClipAmountForAmmo( int w );
-
+int ClipAmountForReload(int w);
+int ClipAmountForAmmo(int w);
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
@@ -945,16 +940,16 @@ typedef enum {
 
 	EV_FOOTSTEP,
 	EV_FOOTSTEP_METAL,
-	EV_FOOTSTEP_GRASS,		// Elder: new surfaces
+	EV_FOOTSTEP_GRASS,	// Elder: new surfaces
 	EV_FOOTSTEP_WOOD,
 	EV_FOOTSTEP_CARPET,
 	EV_FOOTSTEP_METAL2,
 	EV_FOOTSTEP_GRAVEL,
-	EV_FOOTSTEP_SNOW,		// JBravo: new surfaces
+	EV_FOOTSTEP_SNOW,	// JBravo: new surfaces
 	EV_FOOTSTEP_MUD,
 	EV_FOOTSTEP_WOOD2,
 	EV_FOOTSTEP_HARDMETAL,
-	EV_FOOTSTEP_LEAVES,		// Makro: new surfaces
+	EV_FOOTSTEP_LEAVES,	// Makro: new surfaces
 	EV_FOOTSTEP_CEMENT,
 	EV_FOOTSTEP_MARBLE,
 	EV_FOOTSTEP_SNOW2,
@@ -979,23 +974,23 @@ typedef enum {
 	EV_FALL_FAR,
 	EV_FALL_FAR_NOSOUND,
 
-	EV_JUMP_PAD,			// boing sound at origin, jump sound on player
+	EV_JUMP_PAD,		// boing sound at origin, jump sound on player
 
 	EV_JUMP,
-	EV_WATER_TOUCH,	// foot touches
-	EV_WATER_LEAVE,	// foot leaves
-	EV_WATER_UNDER,	// head touches
-	EV_WATER_CLEAR,	// head leaves
+	EV_WATER_TOUCH,		// foot touches
+	EV_WATER_LEAVE,		// foot leaves
+	EV_WATER_UNDER,		// head touches
+	EV_WATER_CLEAR,		// head leaves
 
-	EV_ITEM_PICKUP,			// normal item pickups are predictable
+	EV_ITEM_PICKUP,		// normal item pickups are predictable
 	EV_GLOBAL_ITEM_PICKUP,	// powerup / team sounds are broadcast to everyone
 
 	EV_NOAMMO,
 	EV_CHANGE_WEAPON,
 	EV_FIRE_WEAPON,
-	EV_RELOAD_WEAPON0,		// Elder: reload weapon sounds
-	EV_RELOAD_WEAPON1,		// Elder: reload weapon sounds
-	EV_RELOAD_WEAPON2,		// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON0,	// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON1,	// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON2,	// Elder: reload weapon sounds
 
 	EV_USE_ITEM0,
 	EV_USE_ITEM1,
@@ -1019,37 +1014,37 @@ typedef enum {
 	EV_PLAYER_TELEPORT_IN,
 	EV_PLAYER_TELEPORT_OUT,
 
-	EV_GRENADE_BOUNCE,		// eventParm will be the soundindex
+	EV_GRENADE_BOUNCE,	// eventParm will be the soundindex
 
 	EV_GENERAL_SOUND,
-	EV_GLOBAL_SOUND,		// no attenuation
+	EV_GLOBAL_SOUND,	// no attenuation
 	EV_GLOBAL_TEAM_SOUND,
-	EV_RQ3_SOUND,			// Elder: play local sounds - intended for kick
-	
-	EV_DMREWARD,				// Duffman: To display expotional reward messages.
+	EV_RQ3_SOUND,		// Elder: play local sounds - intended for kick
+
+	EV_DMREWARD,		// Duffman: To display expotional reward messages.
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
 	EV_BULLET_HIT_METAL,	// Elder: sparks
 	EV_BULLET_HIT_KEVLAR,	// Elder: sparks
 	EV_BULLET_HIT_GLASS,	// Elder: glass mark
-	EV_BULLET_HIT_WOOD,		// Makro: new sound
+	EV_BULLET_HIT_WOOD,	// Makro: new sound
 	EV_BULLET_HIT_BRICK,	// Makro: new sound
 	EV_BULLET_HIT_CERAMIC,	// Makro: new sound
 	EV_SSG3000_HIT_FLESH,
-	EV_JUMPKICK,			// Elder: sound + jumpkick message
-	EV_EJECTBLOOD,			// Elder: when bleeding, every 2s release blood
+	EV_JUMPKICK,		// Elder: sound + jumpkick message
+	EV_EJECTBLOOD,		// Elder: when bleeding, every 2s release blood
 
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
 	EV_MISSILE_MISS_METAL,
-	EV_KNIFE_MISS,			// Elder: knife slash stuff
+	EV_KNIFE_MISS,		// Elder: knife slash stuff
 	EV_RAILTRAIL,
 	EV_SHOTGUN,
 	EV_HANDCANNON,
-	EV_BULLET,				// otherEntity is the shooter
+	EV_BULLET,		// otherEntity is the shooter
 
-	EV_HEADSHOT,			// Elder: spray like SSG shot
+	EV_HEADSHOT,		// Elder: spray like SSG shot
 	EV_PAIN,
 	EV_DEATH1,
 	EV_DEATH2,
@@ -1064,24 +1059,24 @@ typedef enum {
 	EV_POWERUP_BATTLESUIT,
 	EV_POWERUP_REGEN,
 
-	EV_GIB_PLAYER,			// gib a previously living player
-	EV_GIB_PLAYER_HEADSHOT,		// JBravo: for sniper head shots
-	EV_GIB_PLAYER_STOMACH,		// JBravo: for sniper stomach shots
-	EV_BREAK_GLASS1,			// Blaze: Breakable glass
+	EV_GIB_PLAYER,		// gib a previously living player
+	EV_GIB_PLAYER_HEADSHOT,	// JBravo: for sniper head shots
+	EV_GIB_PLAYER_STOMACH,	// JBravo: for sniper stomach shots
+	EV_BREAK_GLASS1,	// Blaze: Breakable glass
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,
-	EV_CHIP_GLASS,			//Blaze: this even just breaks it a little bit.
-	EV_PRESSURE,			// NiceAss: an entity under pressure
-	EV_SCOREPLUM,			// score plum
+	EV_CHIP_GLASS,		//Blaze: this even just breaks it a little bit.
+	EV_PRESSURE,		// NiceAss: an entity under pressure
+	EV_SCOREPLUM,		// score plum
 
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
-	EV_KAMIKAZE,			// kamikaze explodes
-	EV_OBELISKEXPLODE,		// obelisk explodes
-	EV_OBELISKPAIN,			// obelisk is in pain
-	EV_INVUL_IMPACT,		// invulnerability sphere impact
-	EV_JUICED,				// invulnerability juiced effect
-	EV_LIGHTNINGBOLT,		// lightning bolt bounced of invulnerability sphere
+	EV_KAMIKAZE,		// kamikaze explodes
+	EV_OBELISKEXPLODE,	// obelisk explodes
+	EV_OBELISKPAIN,		// obelisk is in pain
+	EV_INVUL_IMPACT,	// invulnerability sphere impact
+	EV_JUICED,		// invulnerability juiced effect
+	EV_LIGHTNINGBOLT,	// lightning bolt bounced of invulnerability sphere
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -1092,9 +1087,7 @@ typedef enum {
 	EV_TAUNT_GETFLAG,
 	EV_TAUNT_GUARDBASE,
 	EV_TAUNT_PATROL
-
 } entity_event_t;
-
 
 typedef enum {
 	GTS_RED_CAPTURE,
@@ -1150,7 +1143,7 @@ typedef enum {
 
 	LEGS_TURN,
 //Blaze: Weapon reload animation
-//	WEAPON_RELOAD,
+//      WEAPON_RELOAD,
 
 	TORSO_GETFLAG,
 	TORSO_GUARDBASE,
@@ -1170,22 +1163,19 @@ typedef enum {
 	MAX_TOTALANIMATIONS
 } animNumber_t;
 
-
 typedef struct animation_s {
-	int		firstFrame;
-	int		numFrames;
-	int		loopFrames;			// 0 to numFrames
-	int		frameLerp;			// msec between frames
-	int		initialLerp;		// msec to get to first frame
-	int		reversed;			// true if animation is reversed
-	int		flipflop;			// true if animation should flipflop back to base
+	int firstFrame;
+	int numFrames;
+	int loopFrames;		// 0 to numFrames
+	int frameLerp;		// msec between frames
+	int initialLerp;	// msec to get to first frame
+	int reversed;		// true if animation is reversed
+	int flipflop;		// true if animation should flipflop back to base
 } animation_t;
-
 
 // flip the togglebit every time an animation
 // changes so a restart of the same anim can be detected
 #define	ANIM_TOGGLEBIT		128
-
 
 typedef enum {
 	TEAM_FREE,
@@ -1202,21 +1192,19 @@ typedef enum {
 // How many players on the overlay
 #define TEAM_MAXOVERLAY		32
 
-
 // Begin Duffman
 // Location Damage
 // Height layers
 #define LOCATION_NONE           0x00000000
 
-#define LOCATION_HEAD           0x00000001 // [F,B,L,R] Top of head
-#define LOCATION_FACE           0x00000002 // [F] Face [B,L,R] Head
-#define LOCATION_SHOULDER       0x00000004 // [L,R] Shoulder [F] Throat, [B] Neck
-#define LOCATION_CHEST          0x00000008 // [F] Chest [B] Back [L,R] Arm
-#define LOCATION_STOMACH        0x00000010 // [L,R] Sides [F] Stomach [B] Lower Back
-#define LOCATION_GROIN          0x00000020 // [F] Groin [B] Butt [L,R] Hip
-#define LOCATION_LEG            0x00000040 // [F,B,L,R] Legs
-#define LOCATION_FOOT           0x00000080 // [F,B,L,R] Bottom of Feet
-
+#define LOCATION_HEAD           0x00000001	// [F,B,L,R] Top of head
+#define LOCATION_FACE           0x00000002	// [F] Face [B,L,R] Head
+#define LOCATION_SHOULDER       0x00000004	// [L,R] Shoulder [F] Throat, [B] Neck
+#define LOCATION_CHEST          0x00000008	// [F] Chest [B] Back [L,R] Arm
+#define LOCATION_STOMACH        0x00000010	// [L,R] Sides [F] Stomach [B] Lower Back
+#define LOCATION_GROIN          0x00000020	// [F] Groin [B] Butt [L,R] Hip
+#define LOCATION_LEG            0x00000040	// [F,B,L,R] Legs
+#define LOCATION_FOOT           0x00000080	// [F,B,L,R] Bottom of Feet
 
 // Relative direction strike came from
 
@@ -1278,20 +1266,19 @@ typedef enum {
 	MOD_BLEEDING
 } meansOfDeath_t;
 
-
 //---------------------------------------------------------
 
 // gitem_t->type
 typedef enum {
 	IT_BAD,
-	IT_WEAPON,				// EFX: rotate + upscale + minlight
-	IT_AMMO,				// EFX: rotate
-	IT_ARMOR,				// EFX: rotate + minlight
-	IT_HEALTH,				// EFX: static external sphere + rotating internal
-	IT_POWERUP,				// instant on, timer based
-							// EFX: rotate + external ring that rotates
-	IT_HOLDABLE,			// single use, holdable item
-							// EFX: rotate + bob
+	IT_WEAPON,		// EFX: rotate + upscale + minlight
+	IT_AMMO,		// EFX: rotate
+	IT_ARMOR,		// EFX: rotate + minlight
+	IT_HEALTH,		// EFX: static external sphere + rotating internal
+	IT_POWERUP,		// instant on, timer based
+	// EFX: rotate + external ring that rotates
+	IT_HOLDABLE,		// single use, holdable item
+	// EFX: rotate + bob
 	IT_PERSISTANT_POWERUP,
 	IT_TEAM
 } itemType_t;
@@ -1299,34 +1286,34 @@ typedef enum {
 #define MAX_ITEM_MODELS 4
 
 typedef struct gitem_s {
-	char		*classname;	// spawning name
-	char		*pickup_sound;
-	char		*world_model[MAX_ITEM_MODELS];
+	char *classname;	// spawning name
+	char *pickup_sound;
+	char *world_model[MAX_ITEM_MODELS];
 
-	char		*icon;
-	char		*pickup_name;	// for printing on pickup
+	char *icon;
+	char *pickup_name;	// for printing on pickup
 
-	int			quantity;		// for ammo how much, or duration of powerup
-	itemType_t  giType;			// IT_* flags
+	int quantity;		// for ammo how much, or duration of powerup
+	itemType_t giType;	// IT_* flags
 
-	int			giTag;
+	int giTag;
 
-	char		*precaches;		// string of all models and images this item will use
-	char		*sounds;		// string of all sounds this item will use
+	char *precaches;	// string of all models and images this item will use
+	char *sounds;		// string of all sounds this item will use
 } gitem_t;
 
 // included in both the game dll and the client
-extern	gitem_t	bg_itemlist[];
-extern	int		bg_numItems;
+extern gitem_t bg_itemlist[];
+extern int bg_numItems;
 
-gitem_t	*BG_FindItem( const char *pickupName );
-gitem_t	*BG_FindItemForWeapon( weapon_t weapon );
-gitem_t	*BG_FindItemForPowerup( powerup_t pw );
-gitem_t	*BG_FindItemForHoldable( holdable_t pw );
+gitem_t *BG_FindItem(const char *pickupName);
+gitem_t *BG_FindItemForWeapon(weapon_t weapon);
+gitem_t *BG_FindItemForPowerup(powerup_t pw);
+gitem_t *BG_FindItemForHoldable(holdable_t pw);
+
 #define	ITEM_INDEX(x) ((x)-bg_itemlist)
 
-qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
-
+qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const playerState_t * ps);
 
 // g_dmflags->integer flags
 #define	DF_NO_FALLING			8
@@ -1342,7 +1329,6 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define	MASK_OPAQUE				(CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
 #define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE)
 
-
 //
 // entityState_t->eType
 //
@@ -1352,38 +1338,35 @@ typedef enum {
 	ET_ITEM,
 	ET_MISSILE,
 	ET_MOVER,
-	ET_BREAKABLE,	//Blaze: Breakable glass
-	ET_PRESSURE,	//NiceAss: Pressure entities
+	ET_BREAKABLE,		//Blaze: Breakable glass
+	ET_PRESSURE,		//NiceAss: Pressure entities
 	ET_BEAM,
 	ET_PORTAL,
 	ET_SPEAKER,
 	ET_PUSH_TRIGGER,
 	ET_TELEPORT_TRIGGER,
 	ET_INVISIBLE,
-	ET_GRAPPLE,				// grapple hooked on wall
+	ET_GRAPPLE,		// grapple hooked on wall
 	ET_TEAM,
-	ET_LASER,				// lasersight entity type
-	ET_DLIGHT,				// Elder: dynamic light entity
+	ET_LASER,		// lasersight entity type
+	ET_DLIGHT,		// Elder: dynamic light entity
 
-	ET_EVENTS				// any of the EV_* events can be added freestanding
-							// by setting eType to ET_EVENTS + eventNum
-							// this avoids having to set eFlags and eventNum
+	ET_EVENTS		// any of the EV_* events can be added freestanding
+	    // by setting eType to ET_EVENTS + eventNum
+	    // this avoids having to set eFlags and eventNum
 } entityType_t;
 
+void BG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result);
+void BG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result);
 
+void BG_AddPredictableEventToPlayerstate(int newEvent, int eventParm, playerState_t * ps);
 
-void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
-void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
+void BG_TouchJumpPad(playerState_t * ps, entityState_t * jumppad);
 
-void	BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
+void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean snap);
+void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * s, int time, qboolean snap);
 
-void	BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
-
-void	BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
-void	BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
-
-qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
-
+qboolean BG_PlayerTouchesItem(playerState_t * ps, entityState_t * item, int atTime);
 
 #define ARENAS_PER_TIER		4
 #define MAX_ARENAS			1024
@@ -1391,7 +1374,6 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 #define MAX_BOTS			1024
 #define MAX_BOTS_TEXT		8192
-
 
 // Kamikaze
 
@@ -1439,13 +1421,11 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define	MAT_BRICK				18
 #define	MAT_CERAMIC				19
 
-int GetMaterialFromFlag( int flag );
-qboolean IsMetalMat( int Material );
-qboolean IsMetalFlag( int flag );
-qboolean IsWoodMat( int Material );
-qboolean IsWoodFlag( int flag );
+int GetMaterialFromFlag(int flag);
+qboolean IsMetalMat(int Material);
+qboolean IsMetalFlag(int flag);
+qboolean IsWoodMat(int Material);
+qboolean IsWoodFlag(int flag);
 
-
-holdable_t CharToItem ( char *name, holdable_t defitem );
-weapon_t CharToWeapon ( char *name, weapon_t defweapon );
-
+holdable_t CharToItem(char *name, holdable_t defitem);
+weapon_t CharToWeapon(char *name, weapon_t defweapon);

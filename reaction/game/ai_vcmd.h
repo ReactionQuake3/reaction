@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/06/16 20:06:13  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -29,7 +32,5 @@
  *
  *****************************************************************************/
 
-int BotVoiceChatCommand(bot_state_t *bs, int mode, char *voicechat);
-void BotVoiceChat_Defend(bot_state_t *bs, int client, int mode);
-
-
+int BotVoiceChatCommand(bot_state_t * bs, int mode, char *voicechat);
+void BotVoiceChat_Defend(bot_state_t * bs, int client, int mode);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/06/16 20:06:14  jbravo
+// Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
+//
 // Revision 1.13  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -20,7 +23,7 @@
 
 //Elder: someone should comment this b/c it's hard to follow
 //Makes the damage "non-instant" like AQ2
-void CheckBleeding(gentity_t *targ)
+void CheckBleeding(gentity_t * targ)
 {
 	int damage;
 	int temp;
@@ -28,78 +31,70 @@ void CheckBleeding(gentity_t *targ)
 	gentity_t *tent;
 
 	// Elder: use the server's FPS as a basis for bleed time
-	realBleedTime = trap_Cvar_VariableIntegerValue( "sv_fps" );
+	realBleedTime = trap_Cvar_VariableIntegerValue("sv_fps");
 	// just safety check it
 	if (realBleedTime <= 0)
 		realBleedTime = BLEED_TIME;
 
-	if (!(targ->client->bleeding) || (targ->health <=0))
+	if (!(targ->client->bleeding) || (targ->health <= 0))
 		return;
 
 	// NiceAss: (10.0f / realBleedTime) is just (Q2 FPS / Q3 FPS)
-	temp = (int)(targ->client->bleeding * 0.2f * (10.0f / realBleedTime));
+	temp = (int) (targ->client->bleeding * 0.2f * (10.0f / realBleedTime));
 	targ->client->bleeding -= temp;
 
 	if (temp <= 0)
 		temp = 1;
 
 	targ->client->bleed_remain += temp;
-	damage = (int)(targ->client->bleed_remain/realBleedTime);
+	damage = (int) (targ->client->bleed_remain / realBleedTime);
 
-	if (targ->client->bleed_remain >= realBleedTime)
-	{
+	if (targ->client->bleed_remain >= realBleedTime) {
 		//G_Printf("Bleed Remain: %i Server Time: %i\n", targ->client->bleed_remain, level.time);
-	//	if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
-		if(	targ->client->ps.weaponstate == WEAPON_BANDAGING &&
-			 targ->client->bleedBandageCount < 1)
-		{
+		//      if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
+		if (targ->client->ps.weaponstate == WEAPON_BANDAGING && targ->client->bleedBandageCount < 1) {
 			//Elder: skip damage being dealt
 			//TODO: check bleed_remain again -- if it's > 11, then reset bleedBandageCount?
 			//That would probably remove the long-time AQ2 headshot bandage bug
-		}
-		else
-		{
+		} else {
 			targ->health -= damage;
 		}
 
 		//Elder: hack to count off health so we only lose 6 health on a bandage
-		if ( targ->client->ps.weaponstate == WEAPON_BANDAGING)
-		{
+		if (targ->client->ps.weaponstate == WEAPON_BANDAGING) {
 			//Start hack enforcement once we've ramped down to 1 health/second
 			if (targ->client->bleed_remain <= 10)
 				targ->client->bleedBandageCount--;
 		}
 
-		if (targ->health <= 0)
-		{
-			player_die(targ, &g_entities[targ->client->lasthurt_client], &g_entities[targ->client->lasthurt_client], damage, targ->client->lasthurt_mod);
-		}
-		else
-		{
+		if (targ->health <= 0) {
+			player_die(targ, &g_entities[targ->client->lasthurt_client],
+				   &g_entities[targ->client->lasthurt_client], damage, targ->client->lasthurt_mod);
+		} else {
 			targ->client->bleed_remain %= realBleedTime;
 		}
 
-		if (g_RQ3_ejectBlood.integer && targ->client->bleed_delay <= level.time)
-		{
-		  vec3_t bleedOrigin;
+		if (g_RQ3_ejectBlood.integer && targ->client->bleed_delay <= level.time) {
+			vec3_t bleedOrigin;
 
-		  targ->client->bleed_delay = level.time + 2000; // 2 seconds
-		  VectorAdd(targ->client->bleedloc_offset, targ->client->ps.origin, bleedOrigin);
-		  //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
-		  //EjectBlooder(ent, pos, pos);
+			targ->client->bleed_delay = level.time + 2000;	// 2 seconds
+			VectorAdd(targ->client->bleedloc_offset, targ->client->ps.origin, bleedOrigin);
+			//gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
+			//EjectBlooder(ent, pos, pos);
 
-		  // do bleeding
-		  tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
-		  tent->s.otherEntityNum = targ->s.clientNum;
+			// do bleeding
+			tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
+			tent->s.otherEntityNum = targ->s.clientNum;
 		}
 	}
 }
 
 //Elder: apparently does nothing and is unused
-void StartBandage(gentity_t *ent)
+void StartBandage(gentity_t * ent)
 {
 	ent->client->bleeding = 0;
 }
+
 /*
   int damage;
   int temp;
