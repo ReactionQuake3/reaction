@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2003/09/18 19:26:43  makro
+// no message
+//
 // Revision 1.67  2003/09/18 00:05:05  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -895,7 +898,7 @@ void AdjustDoorDir(gentity_t *ent, gentity_t *activator)
 	vec3_t door, player, cross;
 	if (!ent || !activator || !activator->client)
 		return;
-	if (stricmp(ent->classname, "func_door_rotating"))
+	if (Q_stricmp(ent->classname, "func_door_rotating"))
 		return;
 	if (ent->moverState != ROTATOR_POS1)
 		return;
