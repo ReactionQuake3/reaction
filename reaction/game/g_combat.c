@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/06/13 21:03:31  jbravo
+// MOre gibfixes
+//
 // Revision 1.94  2002/06/13 19:38:43  jbravo
 // Small gib fix
 //
@@ -533,6 +536,8 @@ GibEntity
 ==================
 */
 void GibEntity( gentity_t *self, int killer ) {
+	if (g_RQ3_gib.integer < 3)
+		return;
 	G_AddEvent( self, EV_GIB_PLAYER, killer );
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
