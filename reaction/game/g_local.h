@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.148  2003/09/18 23:28:44  jbravo
+// Adding G_acos()
+//
 // Revision 1.147  2003/09/16 23:25:32  makro
 // trigger_multiple - new spawnflag, 3 new keys
 //
@@ -1060,6 +1063,7 @@ int G_PlayerAlive(gentity_t *ent);
 void G_DebugSaveData(char *Data);
 qboolean G_FileSearch(char *Filename, char *Text);
 void SanitizeString(char *in, char *out);
+double G_acos(double x);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);

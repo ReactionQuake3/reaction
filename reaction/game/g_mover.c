@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2003/09/18 23:28:44  jbravo
+// Adding G_acos()
+//
 // Revision 1.68  2003/09/18 19:26:43  makro
 // no message
 //
@@ -915,7 +918,7 @@ void AdjustDoorDir(gentity_t *ent, gentity_t *activator)
 	
 	if ( !(ld = VectorLength(door)) || !(lp = VectorLength(player)) )
 		return;
-	angle = acos(DotProduct(door, player) / (ld * lp));
+	angle = G_acos(DotProduct(door, player) / (ld * lp));
 
 	if (cross[2] * ent->distance > 0)
 		G_Printf("Door: no need to reverse\n");
