@@ -1,6 +1,7 @@
 # List fixes here for the 3.0 release
 
 * Version now 3.0
+* Added the unlagged code.
 * Added replacement model functionality for ammo
 * Bots dont talk about flags any more.
 * The wepons menu now shows up where its supposed to (incl. TP style TDM)
