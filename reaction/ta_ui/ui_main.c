@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/09/01 12:30:29  makro
+// Small fixes
+//
 // Revision 1.48  2002/08/30 17:22:29  makro
 // Added clientNum info to the UI; made ref kick and referee ui scripts
 // use client nums instead of names
@@ -2322,29 +2325,30 @@ void UI_BuildIngameServerInfoList()
 		int matchmode = atoi(Info_ValueForKey(info, "g_RQ3_matchmode"));
 		int limit = atoi(Info_ValueForKey(info, "timelimit"));
 		
+		AddIngameLine("RQ3 Version", Info_ValueForKey(info, "g_RQ3_version"));
 		AddIngameLine("Host name", Info_ValueForKey(info, "sv_hostname"));
 		AddIngameLine("Map name", Info_ValueForKey(info, "mapname"));
 		AddIngameLine("Gametype", (char*)teamArenaGameNames[gametype]);
-		AddIngameLine("Time limit", (limit !=0 ) ? va("%s", limit) : "None");
+		AddIngameLine("Time limit", (limit !=0 ) ? va("%i", limit) : "None");
 		switch (gametype) {
 			case GT_TEAMPLAY:
 				{
 					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundlimit"));
-					AddIngameLine("Round limit", (limit !=0 ) ? va("%s", limit) : "None");
+					AddIngameLine("Round limit", (limit !=0 ) ? va("%i", limit) : "None");
 					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundtimelimit"));
-					AddIngameLine("Round time limit", (limit !=0 ) ? va("%s", limit) : "None");
+					AddIngameLine("Round time limit", (limit !=0 ) ? va("%i", limit) : "None");
 					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
 					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
 				}
 			case GT_CTF:
 				{
 					limit = atoi(Info_ValueForKey(info, "capturelimit"));
-					AddIngameLine("Capture limit", (limit !=0 ) ? va("%s", limit) : "None");
+					AddIngameLine("Capture limit", (limit !=0 ) ? va("%i", limit) : "None");
 				}
 			default:
 				{
 					limit = atoi(Info_ValueForKey(info, "fraglimit"));
-					AddIngameLine("Frag limit", (limit !=0 ) ? va("%s", limit) : "None");
+					AddIngameLine("Frag limit", (limit !=0 ) ? va("%i", limit) : "None");
 				}
 		}
 		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
@@ -2362,7 +2366,7 @@ void UI_BuildIngameServerInfoList()
 		AddIngameLine("Bot/min players", Info_ValueForKey(info, "bot_minplayers"));
 		AddIngameLine("Password required", (atoi(Info_ValueForKey(info, "g_needPass")) != 0) ? "Yes" : "No");
 		AddIngameLine("Protocol", Info_ValueForKey(info, "protocol"));
-		AddIngameLine("Version", Info_ValueForKey(info, "version"));
+		AddIngameLine("Q3 Version", Info_ValueForKey(info, "version"));
 	}
 }
 
@@ -2440,15 +2444,18 @@ static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color
 {
 	if (uiInfo.serverStatus.refreshActive) {
 		vec4_t lowLight, newColor;
+		int count = trap_LAN_GetServerCount(ui_netSource.integer);
 
 		lowLight[0] = 0.8 * color[0];
 		lowLight[1] = 0.8 * color[1];
 		lowLight[2] = 0.8 * color[2];
 		lowLight[3] = 0.8 * color[3];
+		if (count < 0) {
+			count = 0;
+		}
 		LerpColor(color, lowLight, newColor, 0.5 + 0.5 * sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
 		Text_Paint(rect->x, rect->y, scale, newColor,
-			   va("Getting info for %d servers (ESC to cancel)",
-			      trap_LAN_GetServerCount(ui_netSource.integer)), 0, 0, textStyle);
+			   va("Getting info for %d servers (ESC to cancel)", count), 0, 0, textStyle);
 	} else {
 		char buff[64];
 
@@ -7311,7 +7318,7 @@ static void UI_StartServerRefresh(qboolean full)
 	//Makro - added leading zero's
 	//trap_Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer), va("%s-%i, %i at %i:%i", MonthAbbrev[q.tm_mon],q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
 	trap_Cvar_Set(va("ui_lastServerRefresh_%i", ui_netSource.integer),
-		      va("%s-%i, %2d at %2d:%2d", MonthAbbrev[q.tm_mon], q.tm_mday, 1900 + q.tm_year, q.tm_hour,
+		      va("%s-%i, %d at %02i:%02i", MonthAbbrev[q.tm_mon], q.tm_mday, 1900 + q.tm_year, q.tm_hour,
 			 q.tm_min));
 
 	if (!full) {
