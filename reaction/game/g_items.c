@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/09/09 02:26:18  niceass
+// fixed drop case
+//
 // Revision 1.47  2002/09/07 23:30:43  jbravo
 // Dropped cases stay on the map for 45 seconds (was 30)
 //
@@ -633,7 +636,12 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		predict = qfalse;
 		break;
 	case IT_TEAM:
+		// NiceAss: can't pick it up if it's in mid-flight (someone dropped it)
+		if ( ent->s.pos.trDelta[2] != 0.0f )
+			return;
+		
 		respawn = Pickup_Team(ent, other);
+
 		break;
 	case IT_HOLDABLE:
 		//Elder: check to see if it's in mid-air
