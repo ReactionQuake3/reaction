@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/06/21 11:55:32  freud
+// Changed spawning system to move spawns up 9 pixels (q3 style)
+//
 // Revision 1.98  2002/06/20 22:32:43  jbravo
 // Added last damaged player and fixed a test2 model problem (atrimum my ass :)
 // Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
@@ -1632,6 +1635,9 @@ void ClientSpawn(gentity_t * ent)
 			VectorCopy(level.team2spawnpoint->s.angles, spawn_angles);
 			VectorCopy(level.team2spawnpoint->s.origin, spawn_origin);
 		}
+		// Freud: Quake3 moves spawns up 9 pixs?
+		spawn_origin[2] += 9;
+
 // End JBravo.
 	} else {
 		do {
