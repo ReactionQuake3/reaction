@@ -60,3 +60,4 @@
 * Bug with pistol clips for akimbo/pistol in TP fixed.
 * Drop weapon for akimbos now behaves like in AQ
 * No using the kill command during LCA
+* Subs are no longer ignored during TP spawns.  Now they are forced into following live players.
