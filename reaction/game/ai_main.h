@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/03/31 19:16:55  makro
+// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -108,6 +111,7 @@ typedef struct bot_activategoal_s
 	float start_time;						//time starting to activate something
 	float justused_time;					//time the goal was used
 	int shoot;								//true if bot has to shoot to activate
+	int openDoor;							//Makro - true if bot has to open a door
 	int weapon;								//weapon to be used for activation
 	vec3_t target;							//target to shoot at to activate something
 	vec3_t origin;							//origin of the blocking entity to activate

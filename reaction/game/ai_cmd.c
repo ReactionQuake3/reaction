@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/03/31 19:16:56  makro
+// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1519,6 +1522,8 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 	bot_goal_t goal;
 	char netname[MAX_MESSAGE_SIZE];
 	char *nearbyitems[] = {
+		//Makro - replacing with RQ3 names
+		/*
 		"Shotgun",
 		"Grenade Launcher",
 		"Rocket Launcher",
@@ -1534,6 +1539,21 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		"Flight",
 		"Armor",
 		"Heavy Armor",
+		*/
+		RQ3_PISTOL_NAME,
+		RQ3_M3_NAME,
+		RQ3_M4_NAME,
+		RQ3_MP5_NAME,
+		RQ3_HANDCANNON_NAME,
+		RQ3_SSG3000_NAME,
+		RQ3_AKIMBO_NAME,
+		RQ3_KNIFE_NAME,
+		RQ3_GRENADE_NAME,
+		RQ3_KEVLAR_NAME,
+		RQ3_LASER_NAME,
+		RQ3_SILENCER_NAME,
+		RQ3_SLIPPERS_NAME,
+		RQ3_BANDOLIER_NAME,
 		"Red Flag",
 		"Blue Flag",
 #ifdef MISSIONPACK

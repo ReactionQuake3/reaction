@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/31 19:16:55  makro
+// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+//
 // Revision 1.5  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1691,4 +1694,5 @@ int BotAIShutdown( int restart ) {
 	}
 	return qtrue;
 }
+
 

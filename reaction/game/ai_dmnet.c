@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/31 19:16:56  makro
+// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+//
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1489,6 +1492,31 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	goal = &bs->activatestack->goal;
 	// initialize target being visible to false
 	targetvisible = qfalse;
+	
+	//Makro - if the bot has to open a door
+	if (bs->activatestack->openDoor) {
+		int dist;
+
+		BotEntityInfo(goal->entitynum, &entinfo);
+		dist = Distance(bs->origin, entinfo.origin);
+
+		if (dist < 64) {
+			/*
+			if (bot_developer.integer == 2) {
+				G_Printf(va("^5BOT CODE: ^7Reached door at (%i %i %i) from (%i %i %i)\n",
+					(int) (bs->origin[0]), (int) (bs->origin[1]), (int) (bs->origin[2]),
+					(int) (entinfo.origin[0]), (int) (entinfo.origin[1]), (int) (entinfo.origin[2])));
+			}
+			*/
+			BotPopFromActivateGoalStack(bs);
+			//bs->activatestack->time = 0;
+			Cmd_OpenDoor( &g_entities[bs->entitynum] );
+			BotMoveTowardsEnt(bs, entinfo.origin, -80);
+			return qtrue;
+		}
+
+	}
+	
 	// if the bot has to shoot at a target to activate something
 	if (bs->activatestack->shoot) {
 		//
@@ -2372,6 +2400,16 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	//if the enemy is NOT visible for 4 seconds
 	if (bs->enemyvisible_time < FloatTime() - 4) {
 		AIEnter_Seek_LTG(bs, "battle retreat: lost enemy");
+		//Makro - bot retreating, enemy not in sight - a good time to bandage
+		if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+			/*
+			if (bot_developer.integer == 2) {
+				G_Printf("^5BOT CODE: ^7Bandaging\n");
+			}
+			*/
+			
+		}
 		return qfalse;
 	}
 	//else if the enemy is NOT visible

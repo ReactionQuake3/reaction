@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/31 19:16:56  makro
+// Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
+//
 // Revision 1.8  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
 // hacks to get bots to stop using knives only.
@@ -115,6 +118,53 @@ int red_numaltroutegoals;
 aas_altroutegoal_t blue_altroutegoals[MAX_ALTROUTEGOALS];
 int blue_numaltroutegoals;
 
+
+/*
+==================
+BotMoveTowardsEnt
+
+Added by Makro
+==================
+*/
+void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
+	vec3_t dir;
+	bot_goal_t goal;
+	bot_moveresult_t moveresult;
+
+	VectorClear(dir);
+	VectorSubtract(bs->origin, dest, dir);
+	VectorNormalize(dir);
+	if (dist < 0 ) {
+		VectorScale(dir, -1, dir);
+		dist = -dist;
+	}
+	VectorScale(dir, dist, dir);
+	VectorAdd(dir, bs->origin, dir);
+	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
+
+	//create goal
+	memset(&moveresult, 0, sizeof(moveresult));
+	goal.entitynum = 0;
+	VectorCopy(dir, goal.origin);
+	VectorSet(goal.mins, -8, -8, -8);
+	VectorSet(goal.maxs, 8, 8, 8);
+	goal.areanum = trap_AAS_PointAreaNum(goal.origin);
+	/*
+	if (bot_developer.integer == 2) {
+		G_Printf(va("^5BOT CODE: ^7Moving from (%i %i %i) towards entity at (%i %i %i) up to (%i %i %i)\n",
+			(int) bs->origin[0], (int) bs->origin[1], (int) bs->origin[2],
+			(int) dest[0], (int) dest[1], (int) dest[2],
+			(int) dir[0], (int) dir[1], (int) dir[2]));
+	}
+	*/
+	//initialize the movement state
+	BotSetupForMovement(bs);
+	//move towards the goal
+	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, TFL_DEFAULT);
+
+	//moveresult->failure = qfalse;
+	//VectorCopy(dir, moveresult->movedir);
+}
 
 /*
 ==================
@@ -1587,6 +1637,21 @@ void BotChooseWeapon(bot_state_t *bs) {
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
+
+	//Makro - gun is empty; if bot has extra clips - reload, otherwise switch to knife
+	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
+		if (g_entities[bs->entitynum].client->numClips[bs->weaponnum] >= 1 ) {
+			Cmd_Reload( &g_entities[bs->entitynum] );
+			/*
+			if (bot_developer.integer == 2) {
+				G_Printf("^5BOT CODE: ^7Reloading\n");
+			}
+			*/
+		} else {
+			bs->weaponnum = WP_KNIFE;
+			trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+		}
+	}
 }
 
 /*
@@ -2037,6 +2102,26 @@ BotBattleUseItems
 ==================
 */
 void BotBattleUseItems(bot_state_t *bs) {
+	qboolean doBandage = qfalse;
+	//Makro - bot was hit; if very low on health, bandage immediately, otherwise, bandage randomly
+	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
+		if (bs->inventory[INVENTORY_HEALTH] <= 20) {
+			doBandage = qtrue;
+		} else {
+			if ( (int) (random() * (float) (bs->inventory[INVENTORY_HEALTH])) == 0) {
+				doBandage = qtrue;
+			}
+		}
+	}
+	if (doBandage) {
+		Cmd_Bandage( &g_entities[bs->entitynum] );
+		/*
+		if (bot_developer.integer == 2) {
+			G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
+		}
+		*/
+	}
+
 	if (bs->inventory[INVENTORY_HEALTH] < 40) {
 		if (bs->inventory[INVENTORY_TELEPORTER] > 0) {
 			if (!BotCTFCarryingFlag(bs)
@@ -2574,11 +2659,19 @@ BotGoForPowerups
 void BotGoForPowerups(bot_state_t *bs) {
 
 	//don't avoid any of the powerups anymore
+	//Makro - replaced with Q3 items
+	/*
 	BotDontAvoid(bs, "Quad Damage");
 	BotDontAvoid(bs, "Regeneration");
 	BotDontAvoid(bs, "Battle Suit");
 	BotDontAvoid(bs, "Speed");
 	BotDontAvoid(bs, "Invisibility");
+	*/
+	BotDontAvoid(bs, RQ3_KEVLAR_NAME);
+	BotDontAvoid(bs, RQ3_LASER_NAME);
+	BotDontAvoid(bs, RQ3_BANDOLIER_NAME);
+	BotDontAvoid(bs, RQ3_SLIPPERS_NAME);
+	BotDontAvoid(bs, RQ3_SILENCER_NAME);
 	//BotDontAvoid(bs, "Flight");
 	//reset the long term goal time so the bot will go for the powerup
 	//NOTE: the long term goal type doesn't change
@@ -4026,6 +4119,79 @@ int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *act
 }
 
 /*
+====================================
+BotFuncBreakableGoal
+
+Added by Makro
+Basically a rip off of the previous
+function
+====================================
+*/
+int BotFuncBreakableGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activategoal) {
+	int modelindex, entitynum;
+	char model[MAX_INFO_STRING];
+	vec3_t mins, maxs, origin, angles;
+
+	//shoot at the func_breakable
+	trap_AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
+	if (!*model)
+		return qfalse;
+			modelindex = atoi(model+1);
+	if (!modelindex)
+		return qfalse;
+			VectorClear(angles);
+	entitynum = BotModelMinsMaxs(modelindex, ET_BREAKABLE, 0, mins, maxs);
+	//breakable origin
+	VectorAdd(mins, maxs, origin);
+	VectorScale(origin, 0.5, origin);
+	VectorCopy(origin, activategoal->target);
+	activategoal->shoot = qtrue;
+	activategoal->goal.entitynum = entitynum; //NOTE: this is the entity number of the shootable door
+	activategoal->goal.number = 0;
+	activategoal->goal.flags = 0;
+	VectorCopy(bs->origin, activategoal->goal.origin);
+	activategoal->goal.areanum = bs->areanum;
+	VectorSet(activategoal->goal.mins, -8, -8, -8);
+	VectorSet(activategoal->goal.maxs, 8, 8, 8);
+	return qtrue;
+}
+
+/*
+====================================
+BotFuncDoorRotatingActivateGoal
+
+Added by Makro
+====================================
+*/
+int BotFuncDoorRotatingActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activategoal) {
+	int modelindex, entitynum;
+	char model[MAX_INFO_STRING];
+	vec3_t mins, maxs, origin, angles;
+
+	trap_AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
+	if (!*model)
+		return qfalse;
+	modelindex = atoi(model+1);
+	if (!modelindex)
+		return qfalse;
+	VectorClear(angles);
+	entitynum = BotModelMinsMaxs(modelindex, ET_MOVER, 0, mins, maxs);
+	//door origin
+	VectorAdd(mins, maxs, origin);
+	VectorScale(origin, 0.5, origin);
+	activategoal->goal.entitynum = entitynum;
+	VectorCopy(origin, activategoal->target);
+	activategoal->openDoor = qtrue;
+	activategoal->goal.number = 0;
+	activategoal->goal.flags = 0;
+	VectorCopy(bs->origin, activategoal->goal.origin);
+	activategoal->goal.areanum = bs->areanum;
+	VectorSet(activategoal->goal.mins, -8, -8, -8);
+	VectorSet(activategoal->goal.maxs, 8, 8, 8);
+	return qtrue;
+}
+
+/*
 ==================
 BotTriggerMultipleGoal
 ==================
@@ -4238,6 +4404,13 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
  			modelindex = atoi(model+1);
 			if (modelindex) {
  			VectorClear(angles);
+				//Makro - this should help
+				Cmd_OpenDoor( &g_entities[bs->entitynum] );
+				/*
+				if (bot_developer.integer == 2) {
+					G_Printf("^5BOT CODE: ^7Blocked by a sliding door\n");
+				}
+				*/
 				BotModelMinsMaxs(modelindex, ET_MOVER, 0, absmins, absmaxs);
  			//
 				numareas = trap_AAS_BBoxAreas(absmins, absmaxs, areas, MAX_ACTIVATEAREAS*2);
@@ -4270,7 +4443,36 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 	}
 	//if it is some glass
  	if (!strcmp(classname, "func_breakable")) {
- 		return ent;
+ 		BotFuncBreakableGoal(bs, ent, activategoal);
+		//disable all areas the blocking entity is in
+		BotEnableActivateGoalAreas( activategoal, qfalse );
+		return ent;
+ 	}
+	//Makro - checking for rotating doors
+	if ( !strcmp(classname, "func_door_rotating") ) {
+		/*
+		if (bot_developer.integer == 2) {
+			G_Printf("^5BOT CODE: ^7Blocked by a rotating door\n");
+		}
+		*/
+		/*if ( trap_AAS_AreaReachability(bs->areanum) ) {
+			// disable all areas the blocking entity is in
+			BotEnableActivateGoalAreas( activategoal, qfalse );
+		}
+		*/
+		//if door is moving, wait till it stops
+		if ( g_entities[entitynum].moverState == ROTATOR_1TO2 || g_entities[entitynum].moverState == ROTATOR_2TO1 || (g_entities[entitynum].targetname) ) {
+			BotMoveTowardsEnt(bs, entinfo.origin, -80);
+			if ( g_entities[entitynum].targetname = NULL ) {
+				return 0;
+			}
+		} else {
+			//Cmd_OpenDoor( &g_entities[bs->entitynum] );
+			BotFuncDoorRotatingActivateGoal(bs, ent, activategoal);
+			//disable all areas the blocking entity is in
+			BotEnableActivateGoalAreas( activategoal, qfalse );
+			return ent;
+		}
  	}
 	// if the bot is blocked by or standing on top of a button
 	if (!strcmp(classname, "func_button")) {
