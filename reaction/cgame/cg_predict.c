@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/06/11 23:38:43  niceass
+// spectator fix
+//
 // Revision 1.21  2002/06/10 13:20:03  slicer
 // RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
 //
@@ -478,14 +481,11 @@ void CG_PredictPlayerState( void ) {
 	cg_pmove.ps = &cg.predictedPlayerState;
 	cg_pmove.trace = CG_Trace;
 	cg_pmove.pointcontents = CG_PointContents;
-	if ( cg_pmove.ps->pm_type == PM_DEAD ) {
-		cg_pmove.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	if ( cg_pmove.ps->pm_type == PM_DEAD || cg_pmove.ps->pm_type == PM_SPECTATOR ) {
+		cg_pmove.tracemask = 0; //NiceAss: User can go through anything. Before it was: MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
 	else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
-	}
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		cg_pmove.tracemask = 0;	// NiceAss: spectators can fly through everything
 	}
 
 	// JBravo: fixing telefragging and shit during spawing (Thanks NiceAss! :)
