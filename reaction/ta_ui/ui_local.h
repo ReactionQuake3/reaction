@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/07/02 09:51:29  makro
+// In-game server info code
+//
 // Revision 1.16  2002/06/28 20:08:42  makro
 // MM stuff
 //
@@ -188,6 +191,9 @@ extern vmCvar_t ui_RQ3_joinPort;
 
 //Makro - demo name
 extern vmCvar_t ui_RQ3_demoName;
+
+//Makro - in-game server info
+extern vmCvar_t ui_RQ3_ingameDetails;
 
 //
 // ui_qmenu.c
@@ -408,6 +414,8 @@ int UI_AdjustTimeByGame(int time);
 void UI_ShowPostGame(qboolean newHigh);
 void UI_ClearScores();
 void UI_LoadArenas(void);
+//Makro - added
+void UI_BuildIngameServerInfoList();
 
 //
 // ui_menu.c
@@ -895,6 +903,10 @@ typedef struct {
 
 	//Makro - music files currently being played
 	const char *playingIntro, *playingLoop;
+
+	//Makro - in-game server info
+	char ingameServerInfo[MAX_SERVERSTATUS_LINES][2][32];
+	int ingameServerInfoLineCount;
 
 } uiInfo_t;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/07/02 09:51:29  makro
+// In-game server info code
+//
 // Revision 1.13  2002/06/24 12:29:43  makro
 // Enabled weapon/item menus in CTF
 //
@@ -524,6 +527,11 @@ qboolean UI_ConsoleCommand(int realTime)
 			Com_Error(ERR_DROP, text);
 			return qtrue;
 		}
+	}
+
+	if (Q_stricmp(cmd, "serverinfo2") == 0) {
+		UI_BuildIngameServerInfoList();
+		return qtrue;
 	}
 
 	return qfalse;

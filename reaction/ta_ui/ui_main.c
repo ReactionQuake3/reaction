@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.40  2002/06/29 04:15:15  jbravo
-// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
+// Revision 1.41  2002/07/02 09:51:29  makro
+// In-game server info code
 //
 // Revision 1.39  2002/06/28 21:20:44  makro
 // More MM...
@@ -197,12 +197,12 @@ static const char *teamArenaGameTypes[] = {
 static int const numTeamArenaGameTypes = sizeof(teamArenaGameTypes) / sizeof(const char *);
 
 static const char *teamArenaGameNames[] = {
-	"RQ3 Deathmatch",
+	"Deathmatch",
 	"Tournament",
-	"RQ3 Deathmatch (SP)",
+	"Deathmatch (SP)",
 	"Team Deathmatch",
 //Makro - inserted teamplay
-	"RQ3 Teamplay",
+	"Teamplay",
 	"Capture the Briefcase",
 	"One Flag CTF",
 	"Overload",
@@ -2191,6 +2191,124 @@ static void UI_DrawSSGCrosshair(rectDef_t * rect)
 
 /*
 ===============
+UI_BuildIngameServerInfoList
+Added by Makro
+===============
+*/
+char *GetFirstWord(char **line)
+{
+	char *word;
+
+	if (!*line || !**line) {
+		return "";
+	} else {
+		char *s = strchr(*line, '\\');
+		if (!s) {
+			word = *line;
+			*line = 0;
+		} else {
+			*s = '\0';
+			word = *line;
+			*line = s + 1;
+		}
+		return word;
+	}
+}
+
+void AddIngameLine(char *key, char *val)
+{
+	if (uiInfo.ingameServerInfoLineCount >= MAX_SERVERSTATUS_LINES) {
+		return;
+	} else {
+		Q_strncpyz(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][0], key, sizeof(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][0]));
+		Q_strncpyz(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][1], val, sizeof(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][1]));
+		uiInfo.ingameServerInfoLineCount++;
+	}
+}
+
+void UI_BuildIngameServerInfoList()
+{
+	char info[MAX_INFO_STRING];
+	char *p, *key, *val;
+
+	memset(uiInfo.ingameServerInfo, 0, sizeof(uiInfo.ingameServerInfo));
+	uiInfo.ingameServerInfoLineCount = 0;
+
+	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+	//detailed info
+	if (trap_Cvar_VariableValue("ui_RQ3_ingameDetails")) {	
+		p = info;
+		while (*p == '\\')
+			p++;
+		// get the cvars
+		while (p && *p) {
+			key = GetFirstWord(&p);
+			val = GetFirstWord(&p);
+			//Q_strncpyz(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][0], key, sizeof(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][0]));
+			//Q_strncpyz(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][1], val, sizeof(uiInfo.ingameServerInfo[uiInfo.ingameServerInfoLineCount][1]));
+			//uiInfo.ingameServerInfoLineCount++;
+			AddIngameLine(key, val);
+			if (!key && !val)
+				break;
+			if (!*key && !*val)
+				break;
+			if (uiInfo.ingameServerInfoLineCount >= MAX_SERVERSTATUS_LINES)
+				break;
+		}
+	//basic info
+	} else {
+		//to avoid reading some stuff more than once
+		int gametype = atoi(Info_ValueForKey(info, "g_gametype"));
+		int matchmode = atoi(Info_ValueForKey(info, "g_RQ3_matchmode"));
+		int limit = atoi(Info_ValueForKey(info, "timelimit"));
+		
+		AddIngameLine("Host name", Info_ValueForKey(info, "sv_hostname"));
+		AddIngameLine("Map name", Info_ValueForKey(info, "mapname"));
+		AddIngameLine("Gametype", (char*)teamArenaGameNames[gametype]);
+		AddIngameLine("Time limit", (limit !=0 ) ? va("%s", limit) : "None");
+		switch (gametype) {
+			case GT_TEAMPLAY:
+				{
+					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundlimit"));
+					AddIngameLine("Round limit", (limit !=0 ) ? va("%s", limit) : "None");
+					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundtimelimit"));
+					AddIngameLine("Round time limit", (limit !=0 ) ? va("%s", limit) : "None");
+					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
+					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
+				}
+			case GT_CTF:
+				{
+					limit = atoi(Info_ValueForKey(info, "capturelimit"));
+					AddIngameLine("Capture limit", (limit !=0 ) ? va("%s", limit) : "None");
+				}
+			default:
+				{
+					limit = atoi(Info_ValueForKey(info, "fraglimit"));
+					AddIngameLine("Frag limit", (limit !=0 ) ? va("%s", limit) : "None");
+				}
+		}
+		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
+		if (matchmode) {
+			int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
+			int allowRef = atoi(Info_ValueForKey(info, "g_RQ3_allowRef"));
+			AddIngameLine("Allow referee", (allowRef != 0) ? "On" : "Off");
+			if (allowRef && refID != -1) {
+				char info2[MAX_INFO_STRING];
+				trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
+				AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
+			}
+		}
+		AddIngameLine("Max clients", Info_ValueForKey(info, "sv_maxClients"));
+		AddIngameLine("Bot/min players", Info_ValueForKey(info, "bot_minplayers"));
+		AddIngameLine("Password required", (atoi(Info_ValueForKey(info, "g_needPass")) != 0) ? "Yes" : "No");
+		AddIngameLine("Protocol", Info_ValueForKey(info, "protocol"));
+		AddIngameLine("Version", Info_ValueForKey(info, "version"));
+	}
+}
+
+
+/*
+===============
 UI_BuildPlayerList
 ===============
 */
@@ -3917,6 +4035,9 @@ static void UI_RunMenuScript(char **args)
 			trap_Cvar_SetValue("ui_RQ3_limchasecam", trap_Cvar_VariableValue("g_RQ3_limchasecam"));
 			trap_Cvar_SetValue("ui_RQ3_tgren", trap_Cvar_VariableValue("g_RQ3_tgren"));
 			trap_Cvar_SetValue("ui_RQ3_friendlyFire", trap_Cvar_VariableValue("g_friendlyFire"));
+		//Makro - build server info list
+		} else if (Q_stricmp(name, "refreshIngameServerInfo") == 0) {
+			UI_BuildIngameServerInfoList();
 		//Makro - change the SSG crosshair
 		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
 			int current, offset;
@@ -5047,6 +5168,9 @@ static int UI_FeederCount(float feederID)
 		return uiInfo.modCount;
 	} else if (feederID == FEEDER_DEMOS) {
 		return uiInfo.demoCount;
+	//Makro - improved in-game server info list
+	} else if (feederID == FEEDER_INGAME_SERVERINFO) {
+		return uiInfo.ingameServerInfoLineCount;
 	}
 	return 0;
 }
@@ -5244,6 +5368,13 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 	} else if (feederID == FEEDER_DEMOS) {
 		if (index >= 0 && index < uiInfo.demoCount) {
 			return uiInfo.demoList[index];
+		}
+	//Makro - improved in-game server info list
+	} else if (feederID == FEEDER_INGAME_SERVERINFO) {
+		if (index >= 0 && index < uiInfo.ingameServerInfoLineCount) {
+			if (column >= 0 && column <= 1) {
+				return uiInfo.ingameServerInfo[index][column];
+			}
 		}
 	}
 	return "";
@@ -6680,6 +6811,8 @@ vmCvar_t ui_RQ3_forceteamtalk;
 vmCvar_t ui_RQ3_limchasecam;
 vmCvar_t ui_RQ3_tgren;
 vmCvar_t ui_RQ3_friendlyFire;
+//Makro - in-game server info
+vmCvar_t ui_RQ3_ingameDetails;
 
 
 // bk001129 - made static to avoid aliasing
@@ -6827,7 +6960,9 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_forceteamtalk,		"ui_RQ3_forceteamtalk", "0", 0},
 	{&ui_RQ3_limchasecam,		"ui_RQ3_limchasecam", "0", 0},
 	{&ui_RQ3_tgren,				"ui_RQ3_tgren", "0", 0},
-	{&ui_RQ3_friendlyFire,		"ui_RQ3_friendlyFire", "0", 0}
+	{&ui_RQ3_friendlyFire,		"ui_RQ3_friendlyFire", "0", 0},
+	//Makro - in-game server info
+	{&ui_RQ3_ingameDetails,		"ui_RQ3_ingameDetails",	"0", CVAR_ARCHIVE}
 };
 
 // bk001129 - made static to avoid aliasing
