@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/08/21 03:53:09  niceass
+// enhanced particle system that allows particle reflection
+//
 // Revision 1.13  2002/08/21 03:45:36  niceass
 // enhanced particle system that supports bouncing
 //
@@ -351,6 +354,7 @@ typedef struct particle_s {
 	float reflectdistance;
 	vec3_t reflectnormal;
 	float mtime;
+	float epsilon;
 } cparticle_t;
 
 typedef enum {
@@ -1064,10 +1068,8 @@ void CG_AddParticles(void)
 	cparticle_t *active, *tail;
 	int type;
 	vec3_t rotate_ang;
-
 	trace_t tr;
 	vec3_t dist, end;
-	float dot;
 
 	if (!initparticles)
 		CG_ClearParticles();
@@ -1184,6 +1186,7 @@ void CG_AddParticles(void)
 
 		VectorSubtract(org, p->org, dist);
 
+		// reflection stuff
 		if ( VectorLength( dist ) > p->reflectdistance - 15 && p->reflectdistance ) {
 			float length;
 			length = VectorLength(p->vel);
@@ -1195,10 +1198,7 @@ void CG_AddParticles(void)
 			VectorNormalize(p->vel);
 			VectorScale(p->vel, length, p->vel);
 
-			//dot = DotProduct(p->vel, p->reflectnormal);
-			//VectorMA(p->vel, -2 * dot, p->reflectnormal, p->vel);
-
-			PM_ClipVelocity(p->vel, p->reflectnormal, p->vel, 1.2);
+			PM_ClipVelocity(p->vel, p->reflectnormal, p->vel, p->epsilon);
 			VectorCopy(org, p->org);
 
 			VectorMA(org, 300, p->vel, end);
@@ -2314,6 +2314,7 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	active_particles = p;
 	p->time = cg.time;
 	p->mtime = cg.time;
+	p->epsilon = 1.2f;
 
 	p->endtime = cg.time + duration;
 	p->startfade = cg.time;
