@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/09 05:16:17  niceass
+// pressure change
+//
 // Revision 1.86  2002/06/06 01:54:26  niceass
 // pressure change
 //
@@ -449,7 +452,8 @@ typedef enum {
 	LEF_SOUND2			 = 0x0008,			// sound 2 for kamikaze
 	LEF_STEAM			 = 0x0010,			// NiceAss: For pressure entities
 	LEF_FLAME			 = 0x0020,
-	LEF_WATER			 = 0x0040
+	LEF_AIR				 = 0x0040,
+	LEF_WATER			 = 0x0080
 } leFlag_t;
 
 typedef enum {
@@ -1084,8 +1088,11 @@ typedef struct {
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
-	qhandle_t	waterPressureShader;
+
+	// Pressure:
+	qhandle_t	waterPressureModel;
 	qhandle_t	flamePressureShader;
+
 	qhandle_t	bloodTrailShader;
 #ifdef MISSIONPACK
 	qhandle_t	nailPuffShader;
@@ -2242,7 +2249,7 @@ void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, 
 void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
 void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
-void	CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
+void	CG_ParticleAir (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
 void	CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader);
 
 extern qboolean		initparticles;

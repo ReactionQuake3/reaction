@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/06/09 05:15:40  niceass
+// pressure change
+//
 // Revision 1.15  2002/06/06 01:54:07  niceass
 // pressure change
 //
@@ -834,31 +837,49 @@ void CG_AddScorePlum( localEntity_t *le ) {
 void CG_AddPressureEntity ( localEntity_t *le ) {
 	vec3_t	velocity;
 	vec3_t  origin;
-
 	float	alpha;
-	int		l;
 
+	if (le->leFlags == LEF_WATER) {
+		return;
+		/*
+		refEntity_t	water;
+
+		memset( &water, 0, sizeof( water ) );
+
+		water.hModel = cgs.media.waterPressureModel;
+		water.renderfx = RF_NOSHADOW;
+		water.reType = RT_MODEL;
+
+		VectorCopy(le->pos.trBase, water.origin);
+
+		trap_R_AddRefEntityToScene( &water );
+		return;
+		*/
+	}
+	
 	alpha = -(cg.time - le->startTime) + (le->endTime - le->startTime);
 	alpha /= (le->endTime - le->startTime);
 
 	//steamSound!!!
 
-	for (l = 0; l < 1; l++) {
-		// steam:
+	// steam:
+	if (le->leFlags != LEF_AIR) {
 		VectorScale(le->pos.trDelta, le->size + rand() % 30, velocity);
 
 		velocity[0] += rand() % 40 - 20;
 		velocity[1] += rand() % 40 - 20;
-
-		VectorCopy(le->pos.trBase, origin);
-
-		if (le->leFlags == LEF_WATER)
-			CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
-		else if (le->leFlags == LEF_FLAME)
-			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.flamePressureShader );
-		else 
-			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.smokePuffShader );
 	}
+	else
+		VectorScale(le->pos.trDelta, le->size, velocity);
+
+	VectorCopy(le->pos.trBase, origin);
+
+	if (le->leFlags == LEF_AIR)
+		CG_ParticleAir(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
+	else if (le->leFlags == LEF_FLAME)
+		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.flamePressureShader );
+	else 
+		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.smokePuffShader );
 }
 
 /*

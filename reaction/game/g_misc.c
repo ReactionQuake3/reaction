@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/06/09 05:16:58  niceass
+// pressure change
+//
 // Revision 1.54  2002/06/05 23:39:40  blaze
 // unbreakables work properly.  Though I already commited this.
 //
@@ -942,10 +945,12 @@ void SP_func_pressure( gentity_t *ent ) {
 
 	if (ent->mass == 0) ent->mass = 200;
 
-	if (!Q_stricmp(type, "water"))				// bounce will hold pressure type... yeah...
+	if (!Q_stricmp(type, "air"))				// bounce will hold pressure type... yeah...
 		ent->bounce = 1;
 	else if (!Q_stricmp(type, "flame") || !Q_stricmp(type, "fire"))
 		ent->bounce = 2;
+	else if (!Q_stricmp(type, "water"))
+		ent->bounce = 3;
 	else	// steam is default
 		ent->bounce = 0;
 
@@ -962,7 +967,7 @@ void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {
 	tent = G_TempEntity( origin, EV_PRESSURE );
 	tent->s.eventParm = DirToByte( normal );
 
-	tent->s.frame = ent->bounce;		// 1 = water, 2 = flame, 0 = steam
+	tent->s.frame = ent->bounce;		// 1 = air, 2 = flame, 0 = steam
 	tent->s.powerups = ent->mass;		// speed of pressure
 }
 

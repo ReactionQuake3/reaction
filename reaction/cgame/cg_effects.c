@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/06/09 05:16:33  niceass
+// pressure change
+//
 // Revision 1.32  2002/06/03 00:39:29  blaze
 // dont make a sound when bouncing on the ground
 //
@@ -1350,9 +1353,11 @@ void CG_Pressure( vec3_t origin, vec3_t dir, int type, int speed )
 	le->leType = LE_PRESSURE;
 
 	if (type == 1) 
-		le->leFlags = LEF_WATER;
+		le->leFlags = LEF_AIR;
 	else if (type == 2) 
 		le->leFlags = LEF_FLAME;
+	else if (type == 3)
+		le->leFlags = LEF_WATER;
 	else
 		le->leFlags = LEF_STEAM;
 

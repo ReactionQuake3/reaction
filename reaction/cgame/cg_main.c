@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/06/09 05:14:40  niceass
+// pressure change
+//
 // Revision 1.75  2002/06/06 20:44:16  makro
 // Removed cheat protection for cg_gunX, Y and Z
 //
@@ -789,8 +792,8 @@ static void CG_RegisterSounds( void ) {
 	CG_LoadVoiceChats();
 #endif
 
-	// NiceAss: Used for pressure entities
-	cgs.media.steamSound = trap_S_RegisterSound( "sound/steam.wav", qtrue );
+	// NiceAss: Used for pressure entities. Not implemented yet.
+	// cgs.media.steamSound = trap_S_RegisterSound( "sound/steam.wav", qtrue );
 	cgs.media.oneMinuteSound = trap_S_RegisterSound( "sound/feedback/1_minute.wav", qtrue );
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound( "sound/feedback/5_minute.wav", qtrue );
 	cgs.media.suddenDeathSound = trap_S_RegisterSound( "sound/feedback/sudden_death.wav", qtrue );
@@ -1353,8 +1356,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
 
-	cgs.media.waterPressureShader = trap_R_RegisterShader( "waterpressure" ); // NiceAss: Used in pressure entities
 	cgs.media.flamePressureShader = trap_R_RegisterShader( "flamepressure" ); // NiceAss: Used in pressure entities
+	// cgs.media.waterPressureModel = trap_R_RegisterModel("models/mapobjects/reaction/watercone/watercode.md3");
 	
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 

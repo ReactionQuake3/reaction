@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/06/09 05:15:12  niceass
+// pressure change
+//
 // Revision 1.10  2002/06/06 01:53:26  niceass
 // pressure change
 //
@@ -2304,7 +2307,7 @@ void CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, 
 
 
 
-void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
+void CG_ParticleAir (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
 {
 	cparticle_t	*p;
 
@@ -2324,7 +2327,7 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	else
 		p->color = LIGHT_BLUE_WATER;
 
-	p->alpha = alpha * 0.5f;
+	p->alpha = alpha;
 	p->alphavel = p->alpha / ((p->endtime - p->startfade) * .0001f);
 
 	p->height = 1.0 * scale;
@@ -2332,7 +2335,7 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	p->endheight = 1.0 * scale;
 	p->endwidth = 1.0 * scale;
 	
-	p->pshader = cgs.media.waterPressureShader;
+	p->pshader = cgs.media.waterBubbleShader;
 
 	p->type = P_SMOKE;
 	
@@ -2343,11 +2346,11 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	p->vel[2] = vel[2] * speed;
 
 	p->accel[0] = p->accel[1] = 0;
-	p->accel[2] = -PARTICLE_GRAVITY * 4;
+	p->accel[2] = PARTICLE_GRAVITY * 8;
 
-	p->vel[0] += (crandom() * 12);
-	p->vel[1] += (crandom() * 12);
-	p->vel[2] += (20 + (crandom() * 10)) * speed;	
+	p->vel[0] += (crandom() * 40);
+	p->vel[1] += (crandom() * 40);
+	p->vel[2] += (20 + (crandom() * 40)) * speed;	
 }
 
 void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader)
