@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/06/10 18:38:40  makro
+// Changed default value for g_allowvote to 0
+//
 // Revision 1.68  2002/06/10 03:26:04  jbravo
 // Fixed two small errors
 //
@@ -375,7 +378,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
 	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
-	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
+	//Makro - changed default to 0
+	{ &g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
 #ifdef MISSIONPACK
