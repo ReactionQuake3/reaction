@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/03/21 15:02:05  jbravo
+// More teamname cleanups and fix for fraglines.
+//
 // Revision 1.55  2002/03/21 02:17:39  blaze
 // more func_explosive goodness
 //
@@ -1552,8 +1555,6 @@ extern	vmCvar_t		cg_enableBreath;
 extern cheat_cvar		cheats[30];
 // JBravo: To signal cgame that lca is in progress
 extern	vmCvar_t		RQ3_lca;
-extern	vmCvar_t		cg_RQ3_team1name;
-extern	vmCvar_t		cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;

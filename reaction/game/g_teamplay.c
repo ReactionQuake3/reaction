@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/03/21 15:02:05  jbravo
+// More teamname cleanups and fix for fraglines.
+//
 // Revision 1.38  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
 // hacks to get bots to stop using knives only.
@@ -552,12 +555,12 @@ void CheckForUnevenTeams(gentity_t *player)
 
 	if (player->client->sess.savedTeam == TEAM_RED) {
 		if (onteam1 > onteam2)
-			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 2\n\"",
-				onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s"));
+			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than %s\n\"",
+				onteam1 - onteam2, onteam1 - onteam2 == 1 ? "" : "s", g_RQ3_team2name.string));
 	} else if (player->client->sess.savedTeam == TEAM_BLUE) {
 		if (onteam2 > onteam1)
-			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than team 1\n\"",
-				onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s"));
+			trap_SendServerCommand(player-g_entities, va("print \"Your team now has %d more player%s than %s\n\"",
+				onteam2 - onteam1, onteam2 - onteam1 == 1 ? "" : "s", g_RQ3_team1name.string));
 	}
 }
 

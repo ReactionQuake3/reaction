@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/03/21 15:02:05  jbravo
+// More teamname cleanups and fix for fraglines.
+//
 // Revision 1.28  2002/03/17 21:32:23  jbravo
 // Fixed the dynamic teamnames system up a bit to reduce traffic
 //
@@ -2504,7 +2507,7 @@ static qboolean CG_DrawFollow( void ) {
 	vec4_t		color;
 	const char	*name;
 	int		team;
-	char		combinedName[512];
+	char		combinedName[512], teamname[128];
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
@@ -2520,11 +2523,13 @@ static qboolean CG_DrawFollow( void ) {
 	if ( cgs.gametype >= GT_TEAM ) {
 		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
 		if (team == TEAM_RED) {
+			trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
 			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
-				cgs.clientinfo[cg.snap->ps.clientNum].name, cg_RQ3_team1name.string);
+				cgs.clientinfo[cg.snap->ps.clientNum].name, teamname);
 		} else {
+			trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
 			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
-				cgs.clientinfo[cg.snap->ps.clientNum].name, cg_RQ3_team2name.string);
+				cgs.clientinfo[cg.snap->ps.clientNum].name, teamname);
 		}
 		x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
 		CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );

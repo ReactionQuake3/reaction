@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/03/21 15:02:05  jbravo
+// More teamname cleanups and fix for fraglines.
+//
 // Revision 1.44  2002/03/18 13:32:53  jbravo
 // Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
 // testing
@@ -449,8 +452,8 @@ static void CG_Obituary( entityState_t *ent ) {
 
 // JBravo: live players dont get fraglines.
 		if (message) {
-			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-							cg.snap->ps.clientNum == attacker))
+			if (cg.snap->ps.clientNum == target || cg.snap->ps.clientNum == attacker ||
+				cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 				CG_Printf( "%s %s %s%s\n",
 					targetName, message, attackerName, message2);
 			return;
@@ -659,8 +662,8 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 
 // JBravo: live players dont get fraglines.
 		if (message) {
-			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-							cg.snap->ps.clientNum == attacker))
+			if (cg.snap->ps.clientNum == target || cg.snap->ps.clientNum == attacker ||
+				cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 				CG_Printf( "%s %s %s%s\n",
 					targetName, message, attackerName, message2);
 			return;
@@ -842,8 +845,8 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 
 // JBravo: live players dont get fraglines.
 		if (message) {
-			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-							cg.snap->ps.clientNum == attacker))
+			if (cg.snap->ps.clientNum == target || cg.snap->ps.clientNum == attacker ||
+				cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 				CG_Printf( "%s %s %s%s\n",
 					targetName, message, attackerName, message2);
 			return;
@@ -1034,8 +1037,8 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 
 // JBravo: live players dont get fraglines.
 		if (message) {
-			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-							cg.snap->ps.clientNum == attacker))
+			if (cg.snap->ps.clientNum == target || cg.snap->ps.clientNum == attacker ||
+				cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 				CG_Printf( "%s %s %s%s\n",
 					targetName, message, attackerName, message2);
 			return;
@@ -1230,8 +1233,8 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 
 // JBravo: live players dont get fraglines.
 		if (message) {
-			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
-							cg.snap->ps.clientNum == attacker))
+			if (cg.snap->ps.clientNum == target || cg.snap->ps.clientNum == attacker ||
+				cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 				CG_Printf( "%s %s %s%s\n",
 					targetName, message, attackerName, message2);
 			return;
