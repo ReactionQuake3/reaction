@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/08 07:24:33  niceass
+// Double jumping added. Everything feels very good.
+//
 // Revision 1.70  2002/05/07 05:07:32  niceass
 // several physics fixes
 //
@@ -267,9 +270,9 @@ static void PM_Friction( void ) {
 	vel = pm->ps->velocity;
 
 	VectorCopy( vel, vec );
-	if ( pml.walking ) {
+	/*if ( pml.walking ) {
 		vec[2] = 0;	// ignore slope movement
-	}
+	}*/
 
 	speed = VectorLength(vec);
 	if (speed < 1) {
@@ -444,7 +447,11 @@ static qboolean PM_CheckJump( void ) {
 		return qfalse;
 	}
 
-	if (!pml.groundPlane) return qfalse;
+	if (!pml.groundPlane && !pml.walking) return qfalse;
+
+	if ( pm->debugLevel ) {
+		Com_Printf("%i:jump\n", c_pmove);
+	}
 
 	pml.groundPlane = qfalse;		// jumping away
 	pml.walking = qfalse;
@@ -1191,14 +1198,6 @@ static void PM_GroundTrace( void ) {
 	vec3_t		point;
 	trace_t		trace;
 
-	if (pm->ps->velocity[2] > 180)
-	{	// NiceAss: This is here for slope acceleration!
-		pml.groundPlane = qfalse;
-		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.walking = qfalse; // Maybe not needed?
-		return;
-	}
-	
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
 	point[2] = pm->ps->origin[2] - 0.25;
@@ -1221,6 +1220,8 @@ static void PM_GroundTrace( void ) {
 	}
 
 	// check if getting thrown off the ground
+	/*
+	// NiceAss: Comment out and you get double jumping =D
 	if ( pm->ps->velocity[2] > 0 && DotProduct( pm->ps->velocity, trace.plane.normal ) > 10 ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:kickoff\n", c_pmove);
@@ -1234,6 +1235,19 @@ static void PM_GroundTrace( void ) {
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		pml.groundPlane = qfalse;
 		pml.walking = qfalse;
+		return;
+	}
+	*/
+
+	if (pm->ps->velocity[2] > 180)
+	{	// NiceAss: This is here for slope acceleration!
+		if ( pm->debugLevel ) {
+			Com_Printf("%i:slopeslide\n", c_pmove);
+		}
+
+		pml.groundPlane = qfalse;
+		pm->ps->groundEntityNum = ENTITYNUM_NONE;
+		//pml.walking = qfalse; // Maybe not needed?
 		return;
 	}
 
