@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/06/26 03:27:37  niceass
+// handcannon crash bug fixed
+//
 // Revision 1.69  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -1743,9 +1746,10 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 {
 	gentity_t *tent, *tent2;
 
-// JBravo: ff
+	// JBravo: ff
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
+
 	//Elder: added for damage report
 	RQ3_InitShotgunDamageReport();
 
@@ -1755,7 +1759,7 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	SnapVector(tent->s.origin2);
 	tent->s.eventParm = rand() & 255;	// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
-  tent2->s.angles2[1] -= 5;
+	tent->s.angles2[1] -= 5;
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_HANDCANNON);
 
 	// send shotgun blast
