@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/08/26 00:41:52  makro
+// Presets menu + editor
+//
 // Revision 1.14  2002/07/02 09:51:29  makro
 // In-game server info code
 //
@@ -442,6 +445,11 @@ qboolean UI_ConsoleCommand(int realTime)
 			_UI_SetActiveMenu(UIMENU_RQ3_TKOK);
 		else
 			Com_Printf("Not playing a team-based game.\n");
+		return qtrue;
+	}
+	//Makro - presets menu
+	if (Q_stricmp(cmd, "ui_RQ3_presets") == 0) {
+		_UI_SetActiveMenu(UIMENU_RQ3_PRESETS);
 		return qtrue;
 	}
 	//Makro - I've always wanted a command to inc/dec a cvar :)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/08/26 00:41:53  makro
+// Presets menu + editor
+//
 // Revision 1.21  2002/06/16 20:06:15  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -236,8 +239,11 @@ int UI_RQ3_KeyNumFromChar(const char *keystr)
 	int i;
 
 	for (i = 0; RQ3_KeyAliases[i].Value != K_LAST_KEY; i++) {
-		if (Q_stricmp(RQ3_KeyAliases[i].Name, keystr) == 0) {
-			return RQ3_KeyAliases[i].Value;
+		//let's make sure we have valid strings
+		if (RQ3_KeyAliases[i].Name[0] && keystr && keystr[0]) {
+			if (Q_stricmp(RQ3_KeyAliases[i].Name, keystr) == 0) {
+				return RQ3_KeyAliases[i].Value;
+			}
 		}
 	}
 
@@ -3288,6 +3294,7 @@ qboolean UI_RQ3_TriggerShortcut(menuDef_t * menu, int key)
 		for (i = 0; i < menu->itemCount; i++) {
 			if (menu->items[i]->window.shortcutKey == key && UI_RQ3_IsActiveItem(menu->items[i])) {
 				Item_Action(menu->items[i]);
+				//Item_HandleKey(menu->items[i], K_ENTER, qtrue);
 				return qtrue;
 			}
 		}
@@ -3930,10 +3937,10 @@ static bind_t g_bindings[] = {
 	{"irvision", 'v', -1, -1, -1},
 //Makro - this one was missing
 	{"specialweapon", 'e', -1, -1, -1},
-//Makro - for the weapon/item, join and radio menus
+//Makro - for the weapon/item, join, presets and tkok menus
 	{"ui_RQ3_loadout", 'l', -1, -1, -1},
 	{"ui_RQ3_joinTeam", 'j', -1, -1, -1},
-	{"ui_RQ3_radio", -1, -1, -1, -1},
+	{"ui_RQ3_presets", -1, -1, -1, -1},
 	{"ui_RQ3_tkok", -1, -1, -1, -1},
 	{"screenshot", -1, -1, -1. - 1},
 	{"screenshotJPEG", K_F12, -1, -1. - 1}
@@ -7025,7 +7032,7 @@ static void Menu_CacheContents(menuDef_t * menu)
 			DC->registerSound(menu->soundName, qfalse);
 		}
 		//Makro - caching sound intro
-		if (menu->soundName && *menu->soundIntro) {
+		if (menu->soundIntro && *menu->soundIntro) {
 			DC->registerSound(menu->soundIntro, qfalse);
 		}
 	}

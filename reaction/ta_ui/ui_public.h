@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/08/26 00:41:52  makro
+// Presets menu + editor
+//
 // Revision 1.6  2002/06/16 20:06:15  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -146,7 +149,10 @@ typedef enum {
 	UIMENU_RQ3_WEAPON,
 //Makro - added join menu
 	UIMENU_RQ3_JOIN,
-	UIMENU_RQ3_TKOK
+//Makro - tkok yes/no menu
+	UIMENU_RQ3_TKOK,
+//Makro - radio presets menu
+	UIMENU_RQ3_PRESETS
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/08/26 00:41:52  makro
+// Presets menu + editor
+//
 // Revision 1.17  2002/07/02 09:51:29  makro
 // In-game server info code
 //
@@ -184,6 +187,37 @@ extern vmCvar_t ui_RQ3_forceteamtalk;
 extern vmCvar_t ui_RQ3_limchasecam;
 extern vmCvar_t ui_RQ3_tgren;
 extern vmCvar_t ui_RQ3_friendlyFire;
+//Makro - radio presets menu cvars
+//1
+extern vmCvar_t ui_RQ3_radioPreset1Desc;
+extern vmCvar_t ui_RQ3_radioPreset1Script;
+//2
+extern vmCvar_t ui_RQ3_radioPreset2Desc;
+extern vmCvar_t ui_RQ3_radioPreset2Script;
+//3
+extern vmCvar_t ui_RQ3_radioPreset3Desc;
+extern vmCvar_t ui_RQ3_radioPreset3Script;
+//4
+extern vmCvar_t ui_RQ3_radioPreset4Desc;
+extern vmCvar_t ui_RQ3_radioPreset4Script;
+//5
+extern vmCvar_t ui_RQ3_radioPreset5Desc;
+extern vmCvar_t ui_RQ3_radioPreset5Script;
+//6
+extern vmCvar_t ui_RQ3_radioPreset6Desc;
+extern vmCvar_t ui_RQ3_radioPreset6Script;
+//7
+extern vmCvar_t ui_RQ3_radioPreset7Desc;
+extern vmCvar_t ui_RQ3_radioPreset7Script;
+//8
+extern vmCvar_t ui_RQ3_radioPreset8Desc;
+extern vmCvar_t ui_RQ3_radioPreset8Script;
+//9
+extern vmCvar_t ui_RQ3_radioPreset9Desc;
+extern vmCvar_t ui_RQ3_radioPreset9Script;
+//10
+extern vmCvar_t ui_RQ3_radioPreset10Desc;
+extern vmCvar_t ui_RQ3_radioPreset10Script;
 
 //Makro - specify server option
 extern vmCvar_t ui_RQ3_joinAddress;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/08/26 00:41:52  makro
+// Presets menu + editor
+//
 // Revision 1.45  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -23,6 +26,9 @@
 // Revision 1.41  2002/07/02 09:51:29  makro
 // In-game server info code
 //
+// Revision 1.40  2002/06/29 04:15:15  jbravo 
+// CTF is now CTB.  no weapons while the case is in hand other than pistol or knife 
+// 
 // Revision 1.39  2002/06/28 21:20:44  makro
 // More MM...
 //
@@ -237,6 +243,27 @@ static const char *sortKeys[] = {
 	"Ping Time"
 };
 static const int numSortKeys = sizeof(sortKeys) / sizeof(const char *);
+
+//Makro - radio presets
+typedef struct {
+	vmCvar_t *Text, *Script;
+} radioPreset_t;
+radioPreset_t radioPresets[] =
+{
+	{&ui_RQ3_radioPreset1Desc, &ui_RQ3_radioPreset1Script},
+	{&ui_RQ3_radioPreset2Desc, &ui_RQ3_radioPreset2Script},
+	{&ui_RQ3_radioPreset3Desc, &ui_RQ3_radioPreset3Script},
+	{&ui_RQ3_radioPreset4Desc, &ui_RQ3_radioPreset4Script},
+	{&ui_RQ3_radioPreset5Desc, &ui_RQ3_radioPreset5Script},
+	{&ui_RQ3_radioPreset6Desc, &ui_RQ3_radioPreset6Script},
+	{&ui_RQ3_radioPreset7Desc, &ui_RQ3_radioPreset7Script},
+	{&ui_RQ3_radioPreset8Desc, &ui_RQ3_radioPreset8Script},
+	{&ui_RQ3_radioPreset9Desc, &ui_RQ3_radioPreset9Script},
+	{&ui_RQ3_radioPreset10Desc, &ui_RQ3_radioPreset10Script}
+};
+static const int numRadioPresets = sizeof(radioPresets) / sizeof(radioPreset_t);
+
+
 
 static char *netnames[] = {
 	"???",
@@ -1360,6 +1387,17 @@ static void UI_DrawTeamName(rectDef_t * rect, float scale, vec4_t color, qboolea
 	}
 }
 
+//Makro - added for radio presets
+static void UI_RQ3_DrawPreset(rectDef_t * rect, float scale, vec4_t color, int num, int textStyle)
+{
+	//char *text = "(empty)";
+	char *text = "\0";
+	if (radioPresets[num-1].Text->string[0]) {
+		text = radioPresets[num-1].Text->string;
+	}
+	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+}
+
 static void UI_DrawTeamMember(rectDef_t * rect, float scale, vec4_t color, qboolean blue, int num, int textStyle)
 {
 	// 0 - None
@@ -2304,14 +2342,14 @@ void UI_BuildIngameServerInfoList()
 		}
 		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
 		if (matchmode) {
-			int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
+			//int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
 			int allowRef = atoi(Info_ValueForKey(info, "g_RQ3_allowRef"));
 			AddIngameLine("Allow referee", (allowRef != 0) ? "On" : "Off");
-			if (allowRef && refID != -1) {
-				char info2[MAX_INFO_STRING];
-				trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
-				AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
-			}
+			//if (allowRef && refID != -1) {
+			//	char info2[MAX_INFO_STRING];
+			//	trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
+			//	AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
+			//}
 		}
 		AddIngameLine("Max clients", Info_ValueForKey(info, "sv_maxClients"));
 		AddIngameLine("Bot/min players", Info_ValueForKey(info, "bot_minplayers"));
@@ -2686,9 +2724,22 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	case UI_CROSSHAIR:
 		UI_DrawCrosshair(&rect, scale, color);
 		break;
-		//Makro - adding SSG crosshair
+	//Makro - adding SSG crosshair
 	case UI_SSG_CROSSHAIR:
 		UI_DrawSSGCrosshair(&rect);
+		break;
+	//Makro - radio presets
+	case UI_RQ3_RADIOPRESET1:
+	case UI_RQ3_RADIOPRESET2:
+	case UI_RQ3_RADIOPRESET3:
+	case UI_RQ3_RADIOPRESET4:
+	case UI_RQ3_RADIOPRESET5:
+	case UI_RQ3_RADIOPRESET6:
+	case UI_RQ3_RADIOPRESET7:
+	case UI_RQ3_RADIOPRESET8:
+	case UI_RQ3_RADIOPRESET9:
+	case UI_RQ3_RADIOPRESET10:
+		UI_RQ3_DrawPreset(&rect, scale, color, ownerDraw - UI_RQ3_RADIOPRESET1 + 1, textStyle);
 		break;
 	case UI_SELECTEDPLAYER:
 		UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
@@ -4053,6 +4104,22 @@ static void UI_RunMenuScript(char **args)
 		//Makro - build server info list
 		} else if (Q_stricmp(name, "refreshIngameServerInfo") == 0) {
 			UI_BuildIngameServerInfoList();
+		//Makro - run a preset command
+		} else if (Q_stricmp(name, "runPreset") == 0) {
+			int index;
+			if (Int_Parse(args, &index)) {
+				if (index >=1 && index <= numRadioPresets) {
+					char *cmd = radioPresets[index-1].Script->string;
+
+					if (cmd[0]) {
+						trap_Cmd_ExecuteText(EXEC_APPEND, va("%s\n", radioPresets[index-1].Script->string));
+					} else {
+						Com_Printf("Empty slot (%i)\n", index);
+					}
+				} else {
+					Com_Printf("Preset number out of range (%i)\n", index);
+				}
+			}
 		//Makro - change the SSG crosshair
 		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
 			int current, offset;
@@ -6422,6 +6489,7 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame");
 			return;
+		//Makro - RQ3 menus
 		case UIMENU_RQ3_WEAPON:
 			trap_Cvar_Set("cl_paused", "1");
 			trap_Key_SetCatcher(KEYCATCH_UI);
@@ -6446,6 +6514,13 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_tkok");
+			return;
+		case UIMENU_RQ3_PRESETS:
+			trap_Cvar_Set("cl_paused", "1");
+			trap_Key_SetCatcher(KEYCATCH_UI);
+			UI_BuildPlayerList();
+			Menus_CloseAll();
+			Menus_ActivateByName("ingame_presets");
 			return;
 		}
 	}
@@ -6828,6 +6903,38 @@ vmCvar_t ui_RQ3_tgren;
 vmCvar_t ui_RQ3_friendlyFire;
 //Makro - in-game server info
 vmCvar_t ui_RQ3_ingameDetails;
+//Makro - radio presets menu cvars
+//1
+vmCvar_t ui_RQ3_radioPreset1Desc;
+vmCvar_t ui_RQ3_radioPreset1Script;
+//2
+vmCvar_t ui_RQ3_radioPreset2Desc;
+vmCvar_t ui_RQ3_radioPreset2Script;
+//3
+vmCvar_t ui_RQ3_radioPreset3Desc;
+vmCvar_t ui_RQ3_radioPreset3Script;
+//4
+vmCvar_t ui_RQ3_radioPreset4Desc;
+vmCvar_t ui_RQ3_radioPreset4Script;
+//5
+vmCvar_t ui_RQ3_radioPreset5Desc;
+vmCvar_t ui_RQ3_radioPreset5Script;
+//6
+vmCvar_t ui_RQ3_radioPreset6Desc;
+vmCvar_t ui_RQ3_radioPreset6Script;
+//7
+vmCvar_t ui_RQ3_radioPreset7Desc;
+vmCvar_t ui_RQ3_radioPreset7Script;
+//8
+vmCvar_t ui_RQ3_radioPreset8Desc;
+vmCvar_t ui_RQ3_radioPreset8Script;
+//9
+vmCvar_t ui_RQ3_radioPreset9Desc;
+vmCvar_t ui_RQ3_radioPreset9Script;
+//10
+vmCvar_t ui_RQ3_radioPreset10Desc;
+vmCvar_t ui_RQ3_radioPreset10Script;
+
 
 
 // bk001129 - made static to avoid aliasing
@@ -6977,7 +7084,38 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_tgren,				"ui_RQ3_tgren", "0", 0},
 	{&ui_RQ3_friendlyFire,		"ui_RQ3_friendlyFire", "0", 0},
 	//Makro - in-game server info
-	{&ui_RQ3_ingameDetails,		"ui_RQ3_ingameDetails",	"0", CVAR_ARCHIVE}
+	{&ui_RQ3_ingameDetails,		"ui_RQ3_ingameDetails",	"0", CVAR_ARCHIVE},
+	//Makro - radio presets menu cvars
+	//1
+	{&ui_RQ3_radioPreset1Desc,		"ui_RQ3_radioPreset1Desc", "Enemy spotted", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset1Script,	"ui_RQ3_radioPreset1Script", "say_team Enemy spotted; radio enemys", CVAR_ARCHIVE},
+	//2
+	{&ui_RQ3_radioPreset2Desc,		"ui_RQ3_radioPreset2Desc", "Reporting in", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset2Script,	"ui_RQ3_radioPreset2Script", "say_team Reporting in with $W and $H health; radio reportin", CVAR_ARCHIVE},
+	//3
+	{&ui_RQ3_radioPreset3Desc,		"ui_RQ3_radioPreset3Desc", "Team, report in !", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset3Script,	"ui_RQ3_radioPreset3Script", "say_team Team, report in; radio treport", CVAR_ARCHIVE},
+	//4
+	{&ui_RQ3_radioPreset4Desc,		"ui_RQ3_radioPreset4Desc", "Go !", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset4Script,	"ui_RQ3_radioPreset4Script", "say_team Go !; radio go", CVAR_ARCHIVE},
+	//5
+	{&ui_RQ3_radioPreset5Desc,		"ui_RQ3_radioPreset5Desc", "I'm hit !", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset5Script,	"ui_RQ3_radioPreset5Script", "say_team I'm hit, I've got $H left !; radio imhit", CVAR_ARCHIVE},
+	//6
+	{&ui_RQ3_radioPreset6Desc,		"ui_RQ3_radioPreset6Desc", "I've got your back !", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset6Script,	"ui_RQ3_radioPreset6Script", "say_team I've got your back !; radio escort2", CVAR_ARCHIVE},
+	//7
+	{&ui_RQ3_radioPreset7Desc,		"ui_RQ3_radioPreset7Desc", "Teammate down", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset7Script,	"ui_RQ3_radioPreset7Script", "say_team Teammate down !; radio teamdown", CVAR_ARCHIVE},
+	//8
+	{&ui_RQ3_radioPreset8Desc,		"ui_RQ3_radioPreset8Desc", "Enemy down", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset8Script,	"ui_RQ3_radioPreset8Script", "say_team $K eliminated; radio enemyd", CVAR_ARCHIVE},
+	//9
+	{&ui_RQ3_radioPreset9Desc,		"ui_RQ3_radioPreset9Desc", "Right", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset9Script,	"ui_RQ3_radioPreset9Script", "say_team Right; radio right", CVAR_ARCHIVE},
+	//10
+	{&ui_RQ3_radioPreset10Desc,		"ui_RQ3_radioPreset10Desc", "", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset10Script,	"ui_RQ3_radioPreset10Script", "", CVAR_ARCHIVE}
 };
 
 // bk001129 - made static to avoid aliasing

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/08/26 00:41:52  makro
+// Presets menu + editor
+//
 // Revision 1.6  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -210,6 +213,18 @@
 
 //Makro - for SSG crosshair selection
 #define UI_SSG_CROSSHAIR 150
+
+//Makro - radio presets
+#define UI_RQ3_RADIOPRESET1 151
+#define UI_RQ3_RADIOPRESET2 152
+#define UI_RQ3_RADIOPRESET3 153
+#define UI_RQ3_RADIOPRESET4 154
+#define UI_RQ3_RADIOPRESET5 155
+#define UI_RQ3_RADIOPRESET6 156
+#define UI_RQ3_RADIOPRESET7 157
+#define UI_RQ3_RADIOPRESET8 158
+#define UI_RQ3_RADIOPRESET9 159
+#define UI_RQ3_RADIOPRESET10 160
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200
