@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/02/04 02:17:39  jbravo
+// scoreStartTime definition missing
+//
 // Revision 1.43  2002/02/04 00:11:12  slicer
 // Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
@@ -768,6 +771,8 @@ typedef struct {
 
 	sfxSyncInfo_t	curSyncSound;	// Shifts after a sound is played
 
+// JBravo: adding scoreStartTime for NiceAss
+	int		scoreStartTime;
 
 } cg_t;
 
