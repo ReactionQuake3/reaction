@@ -5,20 +5,7 @@ int ClientNumberFromString(gentity_t * to, char *s);
 int refVotes[2];		// refVotes[0] is the clientnumber red team voted 
 
 				//      refVotes[1] is the clientnumber blue team voted 
-/*
-#define S_COLOR_BLACK	"^0"
-#define S_COLOR_RED		"^1"
-#define S_COLOR_GREEN	"^2"
-#define S_COLOR_YELLOW	"^3"
-#define S_COLOR_BLUE	"^4"
-#define S_COLOR_CYAN	"^5"
-#define S_COLOR_MAGENTA	"^6"
-#define S_COLOR_WHITE	"^7"
-*/
-#define MM_OK_COLOR		S_COLOR_GREEN
-#define MM_DENY_COLOR	S_COLOR_RED	
-#define MM_NAMES_COLOR	S_COLOR_BLUE
-#define MM_OK_COLOR S_COLOR_GREEN
+
 void SendEndMessage()
 {
 
@@ -148,6 +135,11 @@ void MM_Ready_f(gentity_t * ent)
 	if (!g_RQ3_matchmode.integer)
 		return;
 
+	if(level.inGame && (g_RQ3_mmflags.integer & MMF_UNREADY) != MMF_UNREADY) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to un-ready your team after the match started\n\""));
+		return;
+	}
+
 	if (ent->client->sess.captain != TEAM_FREE) {
 		if (ent->client->sess.savedTeam == TEAM_RED) {
 			trap_SendServerCommand(-1, va("cp \"%s are%s Ready.\n\"",
@@ -192,6 +184,10 @@ void MM_TeamModel_f(gentity_t * ent)
 							    string));
 		return;
 	} else {
+		if((g_RQ3_mmflags.integer & MMF_TEAMMODEL) != MMF_TEAMMODEL) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change team model\n\""));
+		return;
+		}
 		if (ent->client->sess.captain == TEAM_FREE) {
 			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to be a captain for that\n\""));
 			return;
@@ -246,6 +242,11 @@ void MM_TeamName_f(gentity_t * ent)
 							    string));
 		return;
 	} else {
+
+		if((g_RQ3_mmflags.integer & MMF_TEAMNAME) != MMF_TEAMNAME) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change team name\n\""));
+		return;
+		}
 		if (ent->client->sess.captain == TEAM_FREE) {
 			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to be a captain for that\n\""));
 			return;
@@ -327,7 +328,10 @@ void MM_Referee_f(gentity_t * ent)
 					       va("print \""MM_DENY_COLOR"No Referee currently assigned, use "MM_NAMES_COLOR"referee <name>"MM_DENY_COLOR" to assign\n\""));
 		return;
 	}
-
+	if((g_RQ3_mmflags.integer & MMF_VOTEREF) != MMF_VOTEREF) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow captains to vote for a Referee\n\""));
+		return;
+	}
 	if (captain != TEAM_FREE) {
 		buff = ConcatArgs(1);
 		if ((ref = getEntByName(buff)) != NULL) {
@@ -563,6 +567,11 @@ void MM_Settings_f(gentity_t * ent) {
 	//Invalid Data SENT
 	if(trap_Argc()!= NR_SETTVARS)
 		return;
+
+	if((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change settings\n\""));
+		return;
+	}
 	if(ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Only Captains and Referees can change match Settings\n\""));
 		return;

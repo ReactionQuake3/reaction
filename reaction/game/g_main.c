@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/06/23 19:12:17  slicer
+// More Matchmode work
+//
 // Revision 1.96  2002/06/23 15:22:53  slicer
 // Future 2.1 Matchmode Features - PART II
 //
@@ -326,6 +329,7 @@ vmCvar_t g_listEntity;
 vmCvar_t g_RQ3_matchmode;
 vmCvar_t g_RQ3_forceteamtalk;
 vmCvar_t g_RQ3_maxplayers;
+vmCvar_t g_RQ3_mmflags;
 
 //Blaze: Reaction cvars
 vmCvar_t g_rxn_knifelimit;
@@ -469,6 +473,7 @@ static cvarTable_t gameCvarTable[] = {
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_forceteamtalk, "g_RQ3_forceteamtalk", "0", 0, 0, qtrue},
+	{&g_RQ3_mmflags, "g_RQ3_mmflags", "31", 0, 0, qtrue},
 	{&g_RQ3_maxplayers, "g_RQ3_maxplayers", "0", 0, 0, qtrue},
 	//Slicer: radio protect
 	{&g_RQ3_radioFlood, "g_RQ3_radioFlood", "3", 0, 0, qfalse},

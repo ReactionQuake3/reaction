@@ -1,3 +1,14 @@
+#define MM_OK_COLOR		S_COLOR_GREEN
+#define MM_DENY_COLOR	S_COLOR_RED	
+#define MM_NAMES_COLOR	S_COLOR_BLUE
+#define MM_OK_COLOR S_COLOR_GREEN
+
+//g_RQ3_mmflags
+#define MMF_TEAMNAME	1
+#define MMF_TEAMMODEL	2
+#define MMF_UNREADY		4
+#define MMF_SETTINGS	8
+#define MMF_VOTEREF		16
 
 void MM_RunFrame(void);
 void MM_Captain_f(gentity_t *);

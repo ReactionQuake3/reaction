@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/06/23 19:12:17  slicer
+// More Matchmode work
+//
 // Revision 1.102  2002/06/23 15:22:53  slicer
 // Future 2.1 Matchmode Features - PART II
 //
@@ -1228,6 +1231,7 @@ extern vmCvar_t g_proxMineTimeout;
 extern vmCvar_t g_RQ3_matchmode;
 extern vmCvar_t g_RQ3_forceteamtalk;
 extern vmCvar_t g_RQ3_maxplayers;
+extern vmCvar_t g_RQ3_mmflags;
 
 //Blaze: Reaction cvars
 extern vmCvar_t g_rxn_knifelimit;
