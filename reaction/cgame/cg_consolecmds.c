@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/03/24 22:51:30  niceass
+// scoreboard toggle changes
+//
 // Revision 1.35  2002/03/19 06:00:14  niceass
 // tab scoreboard quicky change to q2 way
 //
@@ -243,7 +246,7 @@ static void CG_PlayerOrigin_f (void) {
 		(int)cg.snap->ps.origin[1], (int)cg.snap->ps.origin[2]);
 }
 
-
+/*
 static void CG_ScoresDown_f( void ) {
 
 #ifdef MISSIONPACK
@@ -256,6 +259,7 @@ static void CG_ScoresDown_f( void ) {
 		cg.scoreTPMode = 0;
 
 	if ( !cg.showScores ) cg.scoreStartTime = cg.time;
+
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
@@ -274,19 +278,29 @@ static void CG_ScoresDown_f( void ) {
 		cg.showScores = qtrue;
 	}
 }
+*/
 
 static void CG_Scores_f ( void ) {
 
-	if ( cg.showScores && cg.scoreTPMode == 1 ) {
-		cg.showScores = qfalse;
-		cg.scoreFadeTime = 0; //cg.time;
-		cg.scoreTPMode = 0;
-		return;
-	}
+	if ( cgs.gametype >= GT_TEAM ) {
+		if ( cg.showScores && cg.scoreTPMode == 1 ) {
+			cg.showScores = qfalse;
+			cg.scoreFadeTime = 0; //cg.time;
+			cg.scoreTPMode = 0;
+			return;
+		}
 
-	if (cg.scoreTPMode == 0 && cg.showScores) {
-		cg.scoreTPMode = 1;
-		return;
+		if (cg.scoreTPMode == 0 && cg.showScores) {
+			cg.scoreTPMode = 1;
+			return;
+		}
+	}
+	else {
+		if ( cg.showScores ) {
+			cg.showScores = qfalse;
+			cg.scoreFadeTime = 0; //cg.time;
+			return;
+		}
 	}
 
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
