@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/05/26 06:17:27  makro
+// Loading screen again
+//
 // Revision 1.21  2002/05/26 05:15:16  niceass
 // pregress bar
 //
@@ -182,7 +185,6 @@ Draw all the status / pacifier stuff during level loading
 #define LS_CHAR_WIDTH			8
 #define LS_CHAR_HEIGHT			12
 
-
 void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info;
@@ -191,6 +193,7 @@ void CG_DrawInformation( void ) {
 	int			x = 8, y, value, bar = 0;
 	qhandle_t	levelshot, shadow;
 	//qhandle_t	detail;
+	qhandle_t	percentBox;
 	char		buf[1024];
 	qboolean	skipdetail;
 	vec4_t		color1 = {.75, .75, .75, 1}, color2 = {1, 1, 1, 1};
@@ -216,6 +219,7 @@ void CG_DrawInformation( void ) {
 	s = Info_ValueForKey( info, "mapname" );
 	shadow = trap_R_RegisterShaderNoMip("ui/assets/rq3-main-shadow-1.tga");
 	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+	percentBox = trap_R_RegisterShaderNoMip("gfx/percent.tga");
 	if ( !levelshot ) {
 		//Elder: changed
 		levelshot = trap_R_RegisterShaderNoMip( "levelshots/rq3-unknownmap.tga" );
@@ -399,14 +403,27 @@ void CG_DrawInformation( void ) {
 		//UI_DrawProportionalString(SCREEN_WIDTH - 8, y, "AWAITING SNAPSHOT...", UI_RIGHT, colorWhite);
 	}
 
-	y += 24;
+	//y += 24;
 
-	for (bar = 0; bar < ceil(cg.loadingMapPercent * 10); bar++) {
-		CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
+	if (percentBox) {
+		trap_R_SetColor(colorWhite);
+		for (bar = 0; bar < ceil(cg.loadingMapPercent * 10) && bar < 10; bar++) {
+			CG_DrawPic(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, percentBox);
+		}
+
+		trap_R_SetColor(colorDkGrey);
+		for (bar; bar < 10; bar++) {
+			CG_DrawPic(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, percentBox);
+		}
+	} else {
+		for (bar = 0; bar < ceil(cg.loadingMapPercent * 10) && bar < 10; bar++) {
+			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
+		}
+
+		for (bar; bar < 10; bar++) {
+			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
+		}
 	}
 
-	for (bar; bar < 10; bar++) {
-		CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
-	}
 }
 
