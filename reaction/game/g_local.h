@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/07/11 04:30:01  niceass
+// new func
+//
 // Revision 1.108  2002/07/09 03:24:30  niceass
 // added alive function
 //
@@ -897,6 +900,7 @@ void G_TeamCommand(team_t team, char *cmd);
 void G_KillBox(gentity_t * ent);
 gentity_t *G_Find(gentity_t * from, int fieldofs, const char *match);
 int G_PlayerAlive(gentity_t *ent);
+void G_DebugSaveData(char *Data);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);
