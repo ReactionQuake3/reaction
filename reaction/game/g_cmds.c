@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/06/03 05:56:04  jbravo
+// server used say for cmds issued during intermission
+//
 // Revision 1.116  2002/06/03 00:46:08  niceass
 // match scoreboard changes
 //
@@ -2861,7 +2864,9 @@ void ClientCommand( int clientNum ) {
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime) {
-		Cmd_Say_f (ent, qfalse, qtrue);
+// JBravo: this is just simply way out there.
+//		Cmd_Say_f (ent, qfalse, qtrue);
+		trap_SendServerCommand (ent-g_entities, va("print \"That command is not allowed during intermission\n\""));
 		return;
 	}
 
