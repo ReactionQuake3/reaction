@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.82  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -539,6 +542,8 @@ struct gclient_s {
 	int			timeResidual;
 	//Elder: C3A laser tutorial
 	gentity_t		*lasersight;		// lasersight OR flashlight if in use
+	// JBravo: sniperheadshots
+	qboolean		noHead;
 	// Bleeding server-only cvars
 	int        	 	bleeding; 		// Blaze: remaining points to bleed away
 	int			bleed_remain;		// Blaze: How much left to bleed
@@ -1183,9 +1188,7 @@ extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model and skin
 extern	vmCvar_t	g_RQ3_tpcountdown;		// JBravo: to disable the pregame countdown
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 extern	vmCvar_t	g_RQ3_printOwnObits;		// JBravo: cvar to control if attaker sees his own obits.
-//extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
-//extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
-//extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus
+extern	vmCvar_t	g_RQ3_gib;			// JBravo: cvar for gib control
 extern	vmCvar_t	g_RQ3_maxteamkills;		// JBravo: Max teamkills
 extern	vmCvar_t	g_RQ3_twbanrounds;		// JBravo: no. of games team wounders are banned
 extern	vmCvar_t	g_RQ3_tkbanrounds;		// JBravo: no. of games team killers are banned

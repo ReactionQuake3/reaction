@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.82  2002/05/27 06:50:37  niceass
 // headless code
 //
@@ -501,6 +504,11 @@ void GibEntity( gentity_t *self, int killer ) {
 	self->r.contents = 0;
 }
 
+// JBravo: head gibbing
+void GibEntity_Headshot (gentity_t *self, int killer) {
+	G_AddEvent (self, EV_GIB_PLAYER_HEADSHOT, 0);
+	self->client->noHead = qtrue;
+}
 /*
 ==================
 body_die
@@ -508,6 +516,10 @@ body_die
 */
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	if ( self->health > GIB_HEALTH ) {
+		return;
+	}
+// JBravo: Gib control
+	if (g_RQ3_gib.integer == 0) {
 		return;
 	}
 	if ( !g_blood.integer ) {
@@ -1503,19 +1515,29 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// remove powerups
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
-	// NiceAss: beheading =D
-	if ( meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM )
-		self->client->ps.eFlags |= EF_HEADLESS;
-
 	// JBravo: AQ style Sniper and HC gibbing
-	if ((meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM) || (meansOfDeath == MOD_HANDCANNON && self->health <= -15)) {
-		G_Printf("AQ GIB!\n");
-		self->client->ps.eFlags &= ~EF_HANDCANNON_SMOKED;
-		GibEntity (self, killer);
+	if (g_RQ3_gib.integer > 0) {
+		if (meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM) {
+			G_Printf("AQ GIB!\n");
+			if (g_RQ3_gib.integer == 1 || g_RQ3_gib.integer == 2) {
+				// NiceAss: beheading =D
+				self->client->ps.eFlags |= EF_HEADLESS;
+				GibEntity_Headshot (self, killer);
+			} else
+				GibEntity (self, killer);
+		} else {
+			self->client->noHead = qfalse;
+		}
+		if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1) { // && self->health <= -15) {
+			G_Printf("AQ GIB!\n");
+			self->client->noHead = qfalse;
+			trap_LinkEntity (self);
+			GibEntity (self, killer);
+		}
 	}
 
 	// never gib in a nodrop
-	if ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
+	if (g_RQ3_gib.integer >0 && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
 		// gib death
 		GibEntity( self, killer );
 	} else {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.72  2002/05/27 06:48:39  niceass
 // headless variable
 //
@@ -1065,6 +1068,7 @@ typedef enum {
 	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,			// gib a previously living player
+	EV_GIB_PLAYER_HEADSHOT,		// JBravo: for sniperheadshots
 	EV_BREAK_GLASS1,			// Blaze: Breakable glass
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.82  2002/05/27 07:02:11  niceass
 // reflection changes
 //
@@ -348,6 +351,7 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
+	qboolean		noHead;
 	//Blaze: for weapon animations
 	lerpFrame_t		weapon;
 } playerEntity_t;
@@ -1965,6 +1969,8 @@ void CG_Particle_Bleed (qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEn
 void CG_ShrapnelSpark( vec3_t source, vec3_t dest, float width, float length );
 
 void CG_GibPlayer( vec3_t playerOrigin );
+// JBravo: Sniperheadshots
+void CG_GibPlayerHeadshot (vec3_t playerOrigin);
 void CG_BigExplode( vec3_t playerOrigin );
 // Blaze: Breakable glass Elder: modified
 void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int number, int type, int isChip );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.58  2002/05/27 17:47:19  jbravo
 // Fixes and cleanups
 //
@@ -1468,6 +1471,28 @@ static void CG_DMRewardEvent( entityState_t *ent ) {
 
 }
 
+// JBravo: for sniper headshots
+#define	GIB_VELOCITY	250
+#define	GIB_JUMP	250
+void CG_GibPlayerHeadshot (vec3_t playerOrigin) {
+	vec3_t	origin, velocity;
+
+	if (!cg_blood.integer) {
+		return;
+	}
+
+	VectorCopy (playerOrigin, origin);
+	origin[2]+=25;
+	velocity[0] = crandom()*GIB_VELOCITY;
+	velocity[1] = crandom()*GIB_VELOCITY;
+	velocity[2] = GIB_JUMP + crandom()*GIB_VELOCITY;
+	if (rand() & 1) {
+		CG_LaunchGib (origin, velocity, cgs.media.gibSkull);
+	} else {
+		CG_LaunchGib (origin, velocity, cgs.media.gibBrain);
+	}
+}
+
 /*
 ==============
 CG_JumpKick
@@ -1555,7 +1580,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
-	CG_CalcViewDir2(es->origin2, position, viewDir);
+//	CG_CalcViewDir2(es->origin2, position, viewDir);
 
 	switch ( event ) {
 	//
@@ -2602,6 +2627,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
 //		}
 		CG_GibPlayer( cent->lerpOrigin );
+		break;
+	case EV_GIB_PLAYER_HEADSHOT:
+		DEBUGNAME("EV_GIB_PLAYER_HEADSHOT");
+		trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
+		cent->pe.noHead = qtrue;
+		CG_GibPlayerHeadshot( cent->lerpOrigin );
 		break;
 	case EV_BREAK_GLASS1:
  		DEBUGNAME("EV_BREAK_GLASS1");

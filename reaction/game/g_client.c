@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/05/28 01:17:01  jbravo
+// More gib fixes.  g_RQ3_gib added
+//
 // Revision 1.79  2002/05/27 06:50:01  niceass
 // further spawning and removed kamakazi
 //
@@ -1788,6 +1791,7 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: We should not have to call this during TP spawns
 	if (g_gametype.integer != GT_TEAMPLAY)
 		ClientEndFrame( ent );
+	ent->client->noHead=qfalse;
 
 	// clear entity state values
 	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
