@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/06/13 19:03:22  niceass
+// cg_forceModel teamplay fix.
+//
 // Revision 1.82  2002/06/12 22:31:59  slicer
 // Even better way to improve the Cvar Anti-Cheat System
 //
@@ -665,7 +668,7 @@ void CG_UpdateCvars( void ) {
 	}
 
 	// if force model changed
-	if ( forceModelModificationCount != cg_forceModel.modificationCount ) {
+	if ( forceModelModificationCount != cg_forceModel.modificationCount && cgs.gametype < GT_TEAM  ) {
 		forceModelModificationCount = cg_forceModel.modificationCount;
 		CG_ForceModelChange();
 	}

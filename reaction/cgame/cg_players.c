@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/06/13 19:03:22  niceass
+// cg_forceModel teamplay fix.
+//
 // Revision 1.30  2002/06/09 18:58:40  makro
 // no message
 //
@@ -1030,7 +1033,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-	if ( cg_forceModel.integer ) {
+	if ( cg_forceModel.integer && cgs.gametype < GT_TEAM ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
@@ -1074,7 +1077,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// head model
 	v = Info_ValueForKey( configstring, "hmodel" );
-	if ( cg_forceModel.integer ) {
+	if ( cg_forceModel.integer && cgs.gametype < GT_TEAM ) {
 		// forcemodel makes everyone use a single model
 		// to prevent load hitches
 		char modelStr[MAX_QPATH];
