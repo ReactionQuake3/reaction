@@ -368,7 +368,7 @@ typedef struct weaponInfo_s {
 	qhandle_t		barrelModel;
 	qhandle_t		flashModel;
 	//Elder: added third person model to weaponInfo structure
-	qhandle_t		thirdModel;
+	qhandle_t		firstModel;
 	
 
 	vec3_t			weaponMidpoint;		// so it will rotate centered instead of by tag
@@ -593,6 +593,11 @@ typedef struct {
 	float		damageTime;
 	float		damageX, damageY, damageValue;
 
+	//Elder: added for alpha pain blend
+	int			rq3_trueDamage;		//Q3 doesn't hold the actual damage amount in cg.damageValue
+	//float		rq3_lastPainAlpha;
+	float		rq3_blendTime;		//How long we take to fade out
+
 	// status bar head
 	float		headYaw;
 	float		headEndPitch;
@@ -711,7 +716,7 @@ typedef struct {
 	//Elder: akimbo stuff - since it's valid every game
 	qhandle_t	akimboModel;
 	qhandle_t	akimboFlashModel;
-	qhandle_t	akimbo3rdModel;
+	qhandle_t	akimbo1stModel;
 	qhandle_t	akimboHandModel;
 	
 
@@ -788,6 +793,14 @@ typedef struct {
 	qhandle_t	dishFlashModel;
 	qhandle_t	lightningExplosionModel;
 
+	// Elder: RQ3 item models
+
+	qhandle_t	rq3_kevlarModel;
+	qhandle_t	rq3_bandolierModel;
+	qhandle_t	rq3_silencerModel;
+	qhandle_t	rq3_laserModel;
+	qhandle_t	rq3_slippersModel;
+	
 	// weapon effect shaders
 	qhandle_t	railExplosionShader;
 	qhandle_t	plasmaExplosionShader;
@@ -988,10 +1001,11 @@ typedef struct {
 	sfxHandle_t	n_healthSound;
 	sfxHandle_t	hgrenb1aSound;
 	sfxHandle_t	hgrenb2aSound;
-	sfxHandle_t	wstbimplSound;
-	sfxHandle_t	wstbimpmSound;
-	sfxHandle_t	wstbimpdSound;
-	sfxHandle_t	wstbactvSound;
+	//Elder: removed
+	//sfxHandle_t	wstbimplSound;
+	//sfxHandle_t	wstbimpmSound;
+	//sfxHandle_t	wstbimpdSound;
+	//sfxHandle_t	wstbactvSound;
 
 } cgMedia_t;
 
@@ -1168,6 +1182,8 @@ extern	vmCvar_t		rxn_drawWeapon;
 extern  vmCvar_t		rxn_glasstime;
 //Elder: muzzle flash toggle
 extern  vmCvar_t		rxn_flash;
+//Elder: turn on or off alpha blending
+extern	vmCvar_t		rxn_painblend;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;

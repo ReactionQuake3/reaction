@@ -57,7 +57,8 @@ void CG_CheckAmmo( void ) {
 	if ( total == 0 ) {
 		cg.lowAmmoWarning = 2;
 	} else {
-		cg.lowAmmoWarning = 1;
+		//Elder: only allow completely empty ammo warning sounds
+		//cg.lowAmmoWarning = 1;
 	}
 
 	// play a sound on transitions
@@ -81,8 +82,17 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		dist;
 	float		yaw, pitch;
 
+	//Elder: removed
 	// show the attacking player's head and name in corner
-	cg.attackerTime = cg.time;
+	//cg.attackerTime = cg.time;
+
+	//Elder: added
+	cg.rq3_trueDamage = damage;
+	//Elder: memset in cg_main.c should let us increment safely
+	if (damage * 10 < 100)
+		cg.rq3_blendTime += 100;
+	else
+		cg.rq3_blendTime += damage * 10;
 
 	// the lower on health you are, the greater the view kick will be
 	health = cg.snap->ps.stats[STAT_HEALTH];

@@ -783,7 +783,8 @@ KNIFE ATTACKS
 ========================================================================
 */
 
-int Knife_Attack ( gentity_t *self, int damage)
+//Elder: changed to void function
+void Knife_Attack ( gentity_t *self, int damage)
 {    
     trace_t tr; 
     vec3_t end;
@@ -806,14 +807,18 @@ int Knife_Attack ( gentity_t *self, int damage)
         {            
             if (hitent->takedamage)            
             {
-               G_Damage (hitent, self, self, forward, tr.endpos, damage, 0, MOD_KNIFE );
-               return -2;
+				//Elder: no knock-back on knife slashes
+				G_Damage (hitent, self, self, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_KNIFE );
+				return;
+				//return -2;
             }        
         }
         else
-        return 0;
+        //return 0;
+		return;
     }
-    return 0; // we hit the sky, call it a miss
+	return;
+    //return 0; // we hit the sky, call it a miss
 } 
 
 static int knives = 0;

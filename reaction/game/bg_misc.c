@@ -185,13 +185,15 @@ gitem_t	bg_itemlist[] =
 /* precache */ "",
 /* sounds */ ""
 	},
+
 //Blaze: 3rd Person Models
+//Elder: 07/06/2001: Now known as 1st-person models!
 //Knife
 
 	{
-		"knife_3rd",
+		"knife_1st",
 		NULL,
-		{"models/weapons2/knife/knife_3rd.md3",0,0,0},
+		{"models/weapons2/knife/knife_1st.md3",0,0,0},
 		"icons/iconw_knife",
 		RQ3_KNIFE_NAME,
 		1,
@@ -203,9 +205,9 @@ gitem_t	bg_itemlist[] =
 
 //Pistol
 	{
-		"pistol_3rd",
+		"pistol_1st",
 		NULL,
-        { "models/weapons2/mk23/mk23_3rd.md3", 
+        { "models/weapons2/mk23/mk23_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_mk23",
 		RQ3_PISTOL_NAME,
@@ -218,9 +220,9 @@ gitem_t	bg_itemlist[] =
 
 //M4
 	{
-		"m4_3rd",
+		"m4_1st",
 		NULL,
-        { "models/weapons2/m4/m4_3rd.md3", 
+        { "models/weapons2/m4/m4_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_m4",
 		RQ3_M4_NAME,
@@ -233,9 +235,9 @@ gitem_t	bg_itemlist[] =
 
 //SSG3000
 	{
-		"ssg3000_3rd",
+		"ssg3000_1st",
 		NULL,
-        { "models/weapons2/ssg3000/ssg3000_3rd.md3", 
+        { "models/weapons2/ssg3000/ssg3000_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_ssg",
 		RQ3_SSG3000_NAME,
@@ -248,9 +250,9 @@ gitem_t	bg_itemlist[] =
 
 //MP5
 	{
-		"mp5_3rd",
+		"mp5_1st",
 		NULL,
-        { "models/weapons2/mp5/mp5_3rd.md3", 
+        { "models/weapons2/mp5/mp5_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_mp5",
 		RQ3_MP5_NAME,
@@ -263,9 +265,9 @@ gitem_t	bg_itemlist[] =
 
 //Handcannon
 	{
-		"handcannon_3rd",
+		"handcannon_1st",
 		NULL,
-        { "models/weapons2/handcannon/handcannon_3rd.md3", 
+        { "models/weapons2/handcannon/handcannon_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_sawedoff",
 		RQ3_HANDCANNON_NAME,
@@ -278,9 +280,9 @@ gitem_t	bg_itemlist[] =
 
 //Shotgun
 	{
-		"m3_3rd",
+		"m3_1st",
 		NULL,
-        { "models/weapons2/m3/m3_3rd.md3", 
+        { "models/weapons2/m3/m3_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_m3",
 		RQ3_M3_NAME,
@@ -293,9 +295,9 @@ gitem_t	bg_itemlist[] =
 
 //Akimbo Placeholder
 	{
-		"akimbo_3rd",
+		"akimbo_1st",
 		NULL,
-        { "models/weapons2/akimbo/akimbo_3rd.md3", 
+        { "models/weapons2/akimbo/akimbo_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_akimbo",
 		RQ3_AKIMBO_NAME,
@@ -309,9 +311,9 @@ gitem_t	bg_itemlist[] =
 
 //Grenade
 	{
-		"grenade_3rd",
+		"grenade_1st",
 		NULL,
-        { "models/weapons2/grenade/grenade_3rd.md3", 
+        { "models/weapons2/grenade/grenade_1st.md3", 
 		0, 0, 0},
 		"icons/iconw_gren",
 		RQ3_GRENADE_NAME,
@@ -466,16 +468,73 @@ Only in CTF games
 /* sounds */ ""
 	},
 
+	//Elder: RQ3 Items
 	{
 		"item_kevlar",
 		"sound/items/kevlar.wav",
 		{  "models/items/kevlar.md3",
 		0, 0, 0},
-		"icons/kevlar",
-		"Kevlar Vest",
+		"icons/iconi_kevlar",
+		RQ3_KEVLAR_NAME,
 		0,
 		IT_HOLDABLE,
 		HI_KEVLAR,
+		"",
+		""
+	},
+
+	{
+		"item_silencer",
+		"sound/items/silencer.wav",
+		{  "models/items/silencer.md3",
+		0, 0, 0},
+		"icons/iconi_silencer",
+		RQ3_SILENCER_NAME,
+		0,
+		IT_HOLDABLE,
+		HI_SILENCER,
+		"",
+		""
+	},
+
+	{
+		"item_laser",
+		"sound/items/laser.wav",
+		{  "models/items/laser.md3",
+		0, 0, 0},
+		"icons/iconi_laser",
+		RQ3_LASER_NAME,
+		0,
+		IT_HOLDABLE,
+		HI_LASER,
+		"",
+		""
+	},
+
+	{
+		"item_bandolier",
+		"sound/items/bandolier.wav",
+		{  "models/items/bandolier.md3",
+		0, 0, 0},
+		"icons/iconi_bandolier",
+		RQ3_BANDOLIER_NAME,
+		0,
+		IT_HOLDABLE,
+		HI_BANDOLIER,
+		"",
+		""
+	},
+
+	{
+		"item_slippers",
+		"sound/items/slippers.wav",
+		{  "models/items/slippers.md3",
+		0, 0, 0},
+		"icons/iconi_slippers",
+		RQ3_SLIPPERS_NAME,
+		0,
+		IT_HOLDABLE,
+		HI_SLIPPERS,
 		"",
 		""
 	},
@@ -718,12 +777,13 @@ Only in One Flag CTF games
 		IT_WEAPON,
 		WP_PROX_LAUNCHER,
 /* precache */ "",
-/* sounds */ "sound/weapons/proxmine/wstbtick.wav "
+//Elder: removing so we get rid of those error messages
+/* sounds */ /*"sound/weapons/proxmine/wstbtick.wav "
 			"sound/weapons/proxmine/wstbactv.wav "
 			"sound/weapons/proxmine/wstbimpl.wav "
 			"sound/weapons/proxmine/wstbimpm.wav "
 			"sound/weapons/proxmine/wstbimpd.wav "
-			"sound/weapons/proxmine/wstbactv.wav"
+			"sound/weapons/proxmine/wstbactv.wav"*/
 	},
 
 /*QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended

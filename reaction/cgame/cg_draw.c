@@ -2689,6 +2689,59 @@ static void CG_DrawTourneyScoreboard() {
 #endif
 }
 
+
+
+/*
+=====================
+CG_DrawDamageBlend
+
+Elder: Does a fullscreen alpha blend like Quake 2 when hurt
+=====================
+*/
+#define MAX_DAMAGE_ALPHA	0.75
+#define MAX_BLEND_TIME		1500
+static void CG_DrawDamageBlend()
+{
+	float dmg;
+	vec4_t damageColor;
+
+	//Leave if no true damage, disabled, or ragepro
+	if ( !cg.rq3_trueDamage || !rxn_painblend.integer ||
+		 cgs.glconfig.hardwareType == GLHW_RAGEPRO)
+	{
+		return;
+	}
+
+	//Clamp blend time
+	if (cg.rq3_blendTime > MAX_BLEND_TIME)
+		cg.rq3_blendTime = MAX_BLEND_TIME;
+
+	//Reset if we've gone past our blendTime
+	if (cg.time - cg.damageTime > cg.rq3_blendTime) {
+		//cg.rq3_trueDamage = 0;
+		cg.rq3_blendTime = 0;
+		return;
+	}
+
+	VectorCopy(colorRed, damageColor);
+	dmg = cg.rq3_trueDamage;
+	
+	//clamp at 100 health
+	if (dmg > 100)
+		dmg = 100;
+
+	damageColor[3] = MAX_DAMAGE_ALPHA * (dmg / 100.0) * (1.0 - (cg.time - cg.damageTime) / cg.rq3_blendTime);
+
+	if (damageColor[3] > MAX_DAMAGE_ALPHA)
+		damageColor[3] = MAX_DAMAGE_ALPHA;
+	else if (damageColor[3] < 0)
+		damageColor[3] = 0;
+
+	CG_FillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, damageColor);
+}
+
+
+
 /*
 =====================
 CG_DrawActive
@@ -2745,6 +2798,9 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	if ( separation != 0 ) {
 		VectorCopy( baseOrg, cg.refdef.vieworg );
 	}
+
+	// Elder: draw damage blend
+	CG_DrawDamageBlend();
 
 	// draw status bar and other floating elements
  	CG_Draw2D();

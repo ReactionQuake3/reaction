@@ -1764,18 +1764,20 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 #ifdef MISSIONPACK
 	case EV_PROXIMITY_MINE_STICK:
 		DEBUGNAME("EV_PROXIMITY_MINE_STICK");
+		//Elder: removed
 		if( es->eventParm & SURF_FLESH ) {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimplSound );
+			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimplSound );
 		} else 	if( es->eventParm & SURF_METALSTEPS ) {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpmSound );
+			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpmSound );
 		} else {
-			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpdSound );
+			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpdSound );
 		}
 		break;
 
 	case EV_PROXIMITY_MINE_TRIGGER:
 		DEBUGNAME("EV_PROXIMITY_MINE_TRIGGER");
-		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbactvSound );
+		//Elder: removed
+		//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbactvSound );
 		break;
 	case EV_KAMIKAZE:
 		DEBUGNAME("EV_KAMIKAZE");

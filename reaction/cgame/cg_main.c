@@ -142,6 +142,8 @@ vmCvar_t	rxn_drawWeapon;
 vmCvar_t	rxn_glasstime;
 //Elder: muzzle flash toggle
 vmCvar_t	rxn_flash;
+//Elder: turn on or off alpha blending
+vmCvar_t	rxn_painblend;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -295,7 +297,8 @@ cvarTable_t		cvarTable[] = {
 	{ &rxn_drawWeapon, "rxn_drawWeapon", "2", CVAR_ARCHIVE },
 	{ &rxn_glasstime, "rxn_glasstime", "0", CVAR_ARCHIVE },
 	//Elder: added
-	{ &rxn_flash, "rxn_flash", "1", CVAR_ARCHIVE }
+	{ &rxn_flash, "rxn_flash", "1", CVAR_ARCHIVE },
+	{ &rxn_painblend, "rxn_painblend", "1", CVAR_ARCHIVE }
 
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
@@ -754,10 +757,11 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.n_healthSound = trap_S_RegisterSound("sound/items/n_health.wav", qfalse );
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav", qfalse);
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
-	cgs.media.wstbimplSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpl.wav", qfalse);
-	cgs.media.wstbimpmSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpm.wav", qfalse);
-	cgs.media.wstbimpdSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpd.wav", qfalse);
-	cgs.media.wstbactvSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbactv.wav", qfalse);
+	//Elder: removed
+	//cgs.media.wstbimplSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpl.wav", qfalse);
+	//cgs.media.wstbimpmSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpm.wav", qfalse);
+	//cgs.media.wstbimpdSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpd.wav", qfalse);
+	//cgs.media.wstbactvSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbactv.wav", qfalse);
 
 }
 
@@ -975,8 +979,15 @@ static void CG_RegisterGraphics( void ) {
 	//Elder: akimbos - some of the stuff isn't in yet :p
 	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
  	cgs.media.akimboFlashModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_flash.md3" );
- 	cgs.media.akimbo3rdModel = trap_R_RegisterModel( "models/weapons2/akimbo_3rd.md3" );
+ 	cgs.media.akimbo1stModel = trap_R_RegisterModel( "models/weapons2/akimbo_1st.md3" );
 	cgs.media.akimboHandModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_hand.md3" );
+
+	//Elder: item cache
+	cgs.media.rq3_bandolierModel = trap_R_RegisterModel( "models/items/bandolier.md3" );
+	cgs.media.rq3_kevlarModel = trap_R_RegisterModel( "models/items/kevlar.md3" );
+	cgs.media.rq3_silencerModel = trap_R_RegisterModel( "models/items/silencer.md3" );
+	cgs.media.rq3_laserModel = trap_R_RegisterModel( "models/items/laser.md3" );
+	cgs.media.rq3_slippersModel = trap_R_RegisterModel( "models/items/slippers.md3" );
 
 	cgs.media.smoke2 = trap_R_RegisterModel( "models/weapons2/shells/s_shell.md3" );
 
@@ -1975,6 +1986,8 @@ void CG_EventHandling(int type) {
 
 
 void CG_KeyEvent(int key, qboolean down) {
+	//Elder: Let's see what we're pressing
+	//CG_Printf("Key: %i, isDown: %d\n", key, down);
 }
 
 void CG_MouseEvent(int x, int y) {

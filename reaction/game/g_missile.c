@@ -155,7 +155,8 @@ static void ProximityMine_Activate( gentity_t *ent ) {
 	ent->health = 1;
 	ent->die = ProximityMine_Die;
 
-	ent->s.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav" );
+	//Elder: removed
+	//ent->s.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav" );
 
 	// build the proximity trigger
 	trigger = G_Spawn ();
@@ -433,13 +434,15 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//missed throw or hit func_breakable;
 			//spawn a knife at its trajectory end-point
 			xr_item = BG_FindItemForWeapon( WP_KNIFE );
+
+			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);			
 			
 			if (other->s.eType == ET_BREAKABLE) {
-				VectorScale(trace->plane.normal, 10, knifeVelocity);
-				knifeVelocity[1] -= 50;
+				VectorScale(knifeVelocity, -0.25, knifeVelocity);
 
 				//breakable "hit"; make it fall to the ground
 				xr_drop = LaunchItem(xr_item, trace->endpos, knifeVelocity, FL_DROPPED_ITEM);
+
 				//but still set it as a thrown knife
 				//xr_drop->flags |= FL_THROWN_KNIFE;
 				
@@ -447,8 +450,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				//and transfer into shared entityState
 				VectorScale(trace->plane.normal, 16, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
-				VectorCopy(xr_drop->s.origin, temp);
-				VectorAdd(temp, knifeOffset, xr_drop->s.origin);
+				
+				//VectorCopy(xr_drop->s.origin, temp);
+				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
+				
 				VectorCopy(xr_drop->s.origin, xr_drop->r.currentOrigin);
 			}
 			else {
@@ -458,28 +463,24 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 				//Elder: make the knife stick out a bit more
 				//and transfer into shared entityState
-				VectorCopy(ent->s.pos.trDelta, temp);
+				VectorCopy(knifeVelocity, temp);
 				VectorNormalize(temp);
 				VectorScale(temp, -4, temp);
 				VectorAdd(trace->endpos, temp, knifeOffset);
-				VectorCopy(xr_drop->s.origin, temp);
-				VectorAdd(temp, knifeOffset, xr_drop->s.origin);
+				
+				//VectorCopy(xr_drop->s.origin, temp);
+				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
 			}
 			
-			//Elder: make the knife stick out a bit more
-			//and transfer into shared entityState
-			//VectorScale(trace->plane.normal, 4, temp);
-			//VectorAdd(trace->endpos, temp, knifeOffset);
-			//VectorCopy(xr_drop->s.origin, temp);
-			//VectorAdd(temp, knifeOffset, xr_drop->s.origin);
-
 			//Elder: transfer entity data into the shared entityState
 			//They are rotated on the client side in cg_ents.c
 			
 			//G_Printf("movedir: %s\n", vtos(ent->s.pos.trDelta));
 			xr_drop->s.eFlags = xr_drop->flags;
+
 			//vectoangles( trace->plane.normal, xr_drop->s.angles );
-			vectoangles( ent->s.pos.trDelta, xr_drop->s.angles );
+
+			vectoangles( knifeVelocity, xr_drop->s.angles);
 			xr_drop->s.angles[0] += 90;
 		}
 	}
@@ -599,6 +600,19 @@ void G_RunMissile( gentity_t *ent ) {
 			return;		// exploded
 		}
 	}
+
+	//Elder: make knife follow the trajectory - not real but oh well...
+	/* Done in CG_Missile locally to save bandwidth
+	if (ent->classname == "weapon_knife")
+	{
+		vec3_t knifeVelocity;
+
+		BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);			
+		vectoangles(knifeVelocity, ent->s.angles);
+		ent->s.angles[0] += level.time % 360;
+	}
+	*/
+
 #ifdef MISSIONPACK
 	// if the prox mine wasn't yet outside the player body
 	if (ent->s.weapon == WP_PROX_LAUNCHER && !ent->count) {
@@ -732,6 +746,12 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 
     gentity_t   *bolt;
 
+//	vec3_t gVec;
+
+//	gVec[0] = 0;
+//	gVec[1] = g_gravity.value;
+//	gVec[2] = 0;
+
     VectorNormalize (dir);
 
     bolt = G_Spawn();
@@ -756,6 +776,13 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
     VectorScale( dir, THROW_SPEED, bolt->s.pos.trDelta );
     SnapVector( bolt->s.pos.trDelta );          // save net bandwidth
     VectorCopy (start, bolt->r.currentOrigin);
+
+	VectorCopy (dir, bolt->s.apos.trBase);
+	VectorCopy (dir, bolt->r.currentAngles);
+
+	//Saving stuff for Makro's knife equations
+	VectorCopy( start, bolt->s.origin2);
+	VectorCopy( dir, bolt->s.angles2);
 
     return bolt;
 }

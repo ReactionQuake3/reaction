@@ -515,17 +515,18 @@ void CG_RegisterWeapon( int weaponNum ) {
 	//Elder: added to cache 3rd-person models (hopefully)
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension( path, path );
-	strcat( path, "_3rd.md3" );
-	weaponInfo->thirdModel = trap_R_RegisterModel( path );
+	//Elder: changed from _3rd to _1st
+	strcat( path, "_1st.md3" );
+	weaponInfo->firstModel = trap_R_RegisterModel( path );
 
 	if ( !weaponInfo->handsModel ) {
 		//Elder: WTF!?
 		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/m3/m3_hand.md3" );
 	}
 	
-	//Elder: if no _3rd model, point to the weaponModel... this may get funky :)
-	if ( !weaponInfo->thirdModel ) {
-		weaponInfo->thirdModel = weaponInfo->weaponModel;
+	//Elder: if no _1st model, point to the weaponModel... this may get funky :)
+	if ( !weaponInfo->firstModel ) {
+		weaponInfo->firstModel = weaponInfo->weaponModel;
 	}
 
 	weaponInfo->loopFireSound = qfalse;
@@ -737,7 +738,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 		
 	case WP_GRENADE:
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/grenade_3rd.md3" );
+		//Changed from _3rd
+		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/grenade.md3" );
 		weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
@@ -1099,8 +1101,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//}
 	if (ps == NULL)
 	{
-		//Elder: We are in third person, use the third-person model
-		gun.hModel = weapon->thirdModel;
+		//Elder: We are in third person, use the third-person model (DEFAULT)
+		gun.hModel = weapon->weaponModel;
 		
 			/* Elder: use the cached model above
 			switch (weaponNum)//Blaze: Used to make the third person weapon models different then 1st person
@@ -1140,8 +1142,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			*/
 	}
 	else {
-		//Elder: we are in first-person, use the first-person (default) model
-		gun.hModel = weapon->weaponModel;
+		//Elder: we are in first-person, use the first-person (NOT default) model
+		gun.hModel = weapon->firstModel;
 	}
 	
 	if (!gun.hModel) {
@@ -1289,11 +1291,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( rxn_flash.integer ) {
 		if (ps) {
 			//Elder: draw flash based on first-person view
-			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
 		}
 		else {
 			//Elder: draw flash based on 3rd-person view
-			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->thirdModel, "tag_flash");
+			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 		}
 		
 		trap_R_AddRefEntityToScene( &flash );

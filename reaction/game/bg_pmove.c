@@ -1185,6 +1185,8 @@ static void PM_CrashLand( void ) {
 		} 
 		else {
 			PM_AddEvent( PM_FootstepForSurface() );
+			//Elder: added? useful? 
+			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
 	}
 
@@ -1997,11 +1999,24 @@ static void PM_Weapon( void ) {
 			//G_Printf("Taking away ammo\n");
 			pm->ps->ammo[ pm->ps->weapon ]--;
 		}
+
+		//Elder: special weapon case handling
+
+		//Elder: remove knives from inventory if out of ammo
+		if (pm->ps->weapon == WP_KNIFE && pm->ps->ammo[ WP_KNIFE ] == 0)
+		{
+			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_KNIFE);
+		}
+		//Elder: remove grenade from inventory if out of ammo
+		else if (pm->ps->weapon == WP_GRENADE && pm->ps->ammo[ WP_GRENADE ] == 0)
+		{
+			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
+		}
 		//Elder: remove one more bullet/shell if handcannon/akimbo
-		if (pm->ps->weapon == WP_HANDCANNON) {
+		else if (pm->ps->weapon == WP_HANDCANNON)
+		{
 			pm->ps->ammo[ pm->ps->weapon ]--;
 		}
-
 		//Elder: take away an extra bullet if available - handled in g_weapon.c as well
 		else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
 			pm->ps->ammo[ WP_AKIMBO ] --;

@@ -1,22 +1,43 @@
 #include "g_local.h"
 
+//Elder: someone should comment this b/c it's hard to follow
+//Makes the damage "non-instant" like AQ2
 void CheckBleeding(gentity_t *targ)
 {
 	int damage;
 	int temp;
 	
 	if (!(targ->client->bleeding) || (targ->health <=0)) return;	
+	
 	temp = (int)(targ->client->bleeding * .2);
 	targ->client->bleeding -= temp;	
-	if (temp <= 0) temp=1;	
+	
+	if (temp <= 0) temp = 1;	
+
 	targ->client->bleed_remain += temp;	
 	damage = (int)(targ->client->bleed_remain/BLEED_TIME);
+	
 	if (targ->client->bleed_remain >= BLEED_TIME)
 	{
-		targ->health -= damage;
-		if (targ->health <=0)
+		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
+			 targ->client->bleedBandageCount < 1)
 		{
-			player_die(targ,&g_entities[targ->client->lasthurt_client],&g_entities[targ->client->lasthurt_client],damage,targ->client->lasthurt_mod);
+			//Elder: skip damage being dealt
+		}
+		else
+		{
+			targ->health -= damage;
+		}
+
+		//Elder: hack to count off health so we only lose 6 health on a bandage
+		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+		{
+			targ->client->bleedBandageCount--;
+		}
+
+		if (targ->health <= 0)
+		{
+			player_die(targ, &g_entities[targ->client->lasthurt_client], &g_entities[targ->client->lasthurt_client], damage, targ->client->lasthurt_mod);
 		}
 		else
 		{
@@ -25,7 +46,7 @@ void CheckBleeding(gentity_t *targ)
 	}
 }
 
-//Elder: apparently does nothing
+//Elder: apparently does nothing and is unused
 void StartBandage(gentity_t *ent)
 {
 	ent->client->bleeding = 0;

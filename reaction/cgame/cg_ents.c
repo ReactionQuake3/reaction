@@ -525,7 +525,18 @@ static void CG_Missile( centity_t *cent ) {
 
 	// spin as it moves
 	if ( s1->pos.trType != TR_STATIONARY ) {
-		RotateAroundDirection( ent.axis, cg.time / 4 );
+		//Spin knife like a wheel
+		if ( s1->weapon == WP_KNIFE ) {
+			vec3_t knifeVelocity;
+
+			BG_EvaluateTrajectoryDelta(&s1->pos, cg.time, knifeVelocity);			
+			vectoangles(knifeVelocity, cent->lerpAngles);
+			cent->lerpAngles[0] += cg.time / 6;
+
+			AnglesToAxis( cent->lerpAngles, ent.axis );
+		}
+		else
+			RotateAroundDirection( ent.axis, cg.time / 4 );
 	} else {
 #ifdef MISSIONPACK
 		if ( s1->weapon == WP_PROX_LAUNCHER ) {

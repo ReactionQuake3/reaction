@@ -520,7 +520,7 @@ typedef enum {
 
 } powerup_t;
 
-//Elder: swapped around
+//Elder: swapped around + full Bando name and typo fix on "slipers"
 typedef enum {
 	HI_NONE,
 
@@ -532,8 +532,8 @@ typedef enum {
 	HI_KEVLAR,
 	HI_LASER,
 	HI_SILENCER,
-	HI_BANDO,
-	HI_SLIPERS,
+	HI_BANDOLIER,
+	HI_SLIPPERS,
 
 	HI_NUM_HOLDABLE
 } holdable_t;

@@ -12,8 +12,11 @@
 #define	GAMEVERSION	"reaction"
 
 #define BODY_QUEUE_SIZE		8
-//Blaze: How long someone bleads for
+//Blaze: How long someone bleeds for
 #define BLEED_TIME              10 // 10 = 1 second is time for losing 1 health at slowest bleed rate
+//Elder: Everyone knows you lose 6 health from the moment you start bandaging
+//Let's enforce that in-code because it's sometimes 7 or even 8 
+#define BLEED_BANDAGE			6
 
 // types of locations that can be hit
 #define LOC_HDAM 1 // head
@@ -339,7 +342,8 @@ struct gclient_s {
 	//qboolean	isBleeding;			//Blaze: is client bleeding
 //	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
 	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
-	
+	int			bleedBandageCount;	//Elder: hack to restrict amount of bleeding to 6 points
+
 	//Elder: server only needs to know for sniper spread - ARGH
 //	int			zoomed; 			// Hawkins (SSG zoom)
 	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)

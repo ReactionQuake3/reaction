@@ -97,7 +97,7 @@ void TossClientItems( gentity_t *self ) {
 	*/
 	
 	//Elder: run through player STAT_WEAPONS and drop any unique weapons
-	//That way, we can also account for the bandolier automatically
+	//That way, we can also account for servers with extra weapons
 	//BTW, that means no cheating to get all weapons or it'll spawn mad!!
 	weaponInventory = self->client->ps.stats[STAT_WEAPONS];
 
@@ -113,6 +113,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_M3 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
+		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
 		angle += 30;
 	}
 	
@@ -120,6 +121,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_M4 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
+		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
 		angle += 30;
 	}
 	
@@ -127,6 +129,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_MP5 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
+		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
 		angle += 30;
 	}
 	
@@ -134,6 +137,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_HANDCANNON );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
+		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
 		angle += 30;
 	}
 	
@@ -141,6 +145,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_SSG3000 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
+		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
 		angle += 30;
 	}
 	
@@ -1372,9 +1377,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			targ->health, take, asave );
 	}
 
+
+	// Elder: moved below location damage
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
+	/*
 	if ( client ) {
 		if ( attacker ) {
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
@@ -1392,6 +1400,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			client->damage_fromWorld = qtrue;
 		}
 	}
+	*/
 
 	// See if it's the player hurting the emeny flag carrier
 #ifdef MISSIONPACK
@@ -1440,8 +1449,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						tookShellHit[playernum] = 1;
 				}
 				else {
-					//Grenade stuff
-					trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
+					//Grenade stuff - don't print if you hurt yourself
+					if (targ != attacker)
+						trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
 			}
 
@@ -1625,6 +1635,29 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
              targ->client->lasthurt_location = LOCATION_NONE;
 // End Duffman
 	}
+
+
+	// add to the damage inflicted on a player this frame
+	// the total will be turned into screen blends and view angle kicks
+	// at the end of the frame
+	if ( client ) {
+		if ( attacker ) {
+			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
+		} else {
+			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
+		}
+		client->damage_armor += asave;
+		client->damage_blood += take;
+		client->damage_knockback += knockback;
+		if ( dir ) {
+			VectorCopy ( dir, client->damage_from );
+			client->damage_fromWorld = qfalse;
+		} else {
+			VectorCopy ( targ->r.currentOrigin, client->damage_from );
+			client->damage_fromWorld = qtrue;
+		}
+	}
+
 
 	// do the damage
 	if (take) {

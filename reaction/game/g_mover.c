@@ -611,7 +611,6 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			// return to pos1 after a delay
 			ent->think = ReturnToPos1;
 			ent->nextthink = level.time + ent->wait;
-			;
 		}
 		
 		// fire targets
@@ -630,7 +629,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		}
 
 		// close areaportals
-		if ( ent->teammaster == ent || !ent->teammaster ) {
+		if ( ent->teammaster == ent || !ent->teammaster) {
 			trap_AdjustAreaPortalState( ent, qfalse );
 		}
 
@@ -727,7 +726,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 			MatchTeam( ent, MOVER_2TO1, level.time + 50);
 			if ( ent->sound1to2 ) {
 				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-			}			
+			}
 		}
 		else {
 			//Elder: normal Q3 door
@@ -1178,7 +1177,7 @@ void SP_func_door (gentity_t *ent) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/movers/doors/dr1_strt.wav", &sSndStart );
+	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
 	
@@ -1259,6 +1258,10 @@ void SP_func_door (gentity_t *ent) {
 		}
 	}
 
+	//Elder: open areaportals for start_open doors
+	if ( (ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster) ) {
+		trap_AdjustAreaPortalState( ent, qtrue );
+	}
 
 }
 
@@ -1293,7 +1296,7 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/movers/doors/dr1_strt.wav", &sSndStart );
+	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
 	

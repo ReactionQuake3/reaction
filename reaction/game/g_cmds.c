@@ -1647,9 +1647,11 @@ void Cmd_Bandage (gentity_t *ent)
 
 		ent->client->ps.weaponTime += 6000;
         ent->client->bleedtick = 4;
+		//Elder: added to track health to bleed off
+		ent->client->bleedBandageCount = BLEED_BANDAGE;
+
         //Elder: added
-        //ent->client->isBandaging = qtrue;
-		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
+        ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
 		//Elder: moved to g_active where it will be unset after 2 bleedticks
 		//ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}

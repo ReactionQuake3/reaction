@@ -189,21 +189,21 @@ void CG_DrawInformation( void ) {
 	//Elder: Initial y-position
 	y = 96;
 
-	// don't print server lines if playing a local game
-	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
-	if ( !atoi( buf ) ) {
-	
-		// map-specific message (long map name)
-		s = CG_ConfigString( CS_MESSAGE );
-		if ( s[0] ) {
+	// map-specific message (long map name)
+	s = CG_ConfigString( CS_MESSAGE );
+	if ( s[0] ) {
 		//UI_DrawProportionalString( 4, y, s,
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Q_strncpyz(buf, s, 1024);
 		//Q_CleanStr(buf);
 		CG_DrawSmallStringColor(x, y, s, colorWhite);
 		y += SMALLCHAR_HEIGHT;
-		}
-		
+	}
+
+	// don't print server lines if playing a local game
+	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
+	if ( !atoi( buf ) ) {
+	
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
 		Q_CleanStr(buf);

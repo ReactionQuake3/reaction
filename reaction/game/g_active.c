@@ -57,6 +57,8 @@ qboolean JumpKick( gentity_t *ent )
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
 	int			damage;
+	//Elder: for kick sound
+	qboolean	kickSuccess;
 
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
@@ -75,16 +77,8 @@ qboolean JumpKick( gentity_t *ent )
 		return qfalse;
 	}
 
-	DoorKick( &tr, ent, muzzle, forward );
+	kickSuccess = DoorKick( &tr, ent, muzzle, forward );
 	traceEnt = &g_entities[ tr.entityNum ];
-
-	// send blood impact
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.weapon = ent->s.weapon;
-	}
 
 	if ( !traceEnt->takedamage) {
 		return qfalse;
@@ -98,8 +92,39 @@ qboolean JumpKick( gentity_t *ent )
 	}
 
 	damage = 20;
-	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-		damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
+
+	//Elder: can't hit if crouching but can still hit "dead" bodies :)
+	if (traceEnt->client && traceEnt->health > 0 && traceEnt->r.maxs[2] < 20)
+    {
+		return qfalse;
+    }
+	else {
+		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
+	}
+
+	// send blood impact
+	if ( traceEnt->takedamage && traceEnt->client ) {
+		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+		tent->s.otherEntityNum = traceEnt->s.number;
+		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.weapon = ent->s.weapon;
+		kickSuccess = qtrue;
+	}
+
+	if (traceEnt->client && traceEnt->client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
+	{
+		//Elder: toss a unique weapon if kicked
+		//Todo: Need to make sure to cancel any reload attempts
+		//Todo: need to send a message to attacker and target about weapon kick
+		ThrowWeapon(traceEnt);
+		//trap_SendServerCommand( ent-g_entities, va("print \"You kicked %s's %s from his hands!\n\"", traceEnt->client->pers.netname, (traceEnt->client->ps.weapon)->pickup_name);
+		//trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
+				       
+	}
+
+
+
 
 	//Elder: for the kick
 	// do our special form of knockback here
@@ -111,8 +136,29 @@ qboolean JumpKick( gentity_t *ent )
         if (self->enemy->velocity[2] > 0)
                 self->enemy->groundentity = NULL;
 	*/
+	//Elder: kick knockback for AQ2 -- recall variable kick = 400
+	if (traceEnt->client)
+	{
+		//Elder: for kick knockback
+		vec3_t		size, vTemp;
+
+		//Make the "size" vector - hopefully this is right
+		VectorSubtract(traceEnt->r.maxs, traceEnt->r.mins, size);
+		G_Printf("Size: %s\n", vtos(size));
+		
+		VectorMA(traceEnt->r.absmin, 0.5, size, vTemp);
+		VectorSubtract(vTemp, tr.endpos, vTemp);
+		VectorNormalize(vTemp);
+		VectorMA(traceEnt->client->ps.velocity, 400, vTemp, traceEnt->client->ps.velocity);
+		if (traceEnt->client->ps.velocity[2] > 0)
+			traceEnt->s.groundEntityNum = ENTITYNUM_NONE;
+	}
+
+
 	//Elder: Our set of locally called sounds
-	G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+	if (kickSuccess)
+		G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+
 	return qtrue;
 }
 
@@ -137,6 +183,9 @@ void P_DamageFeedback( gentity_t *player ) {
 	}
 
 	// total points of damage shot at the player this frame
+	if (client->damage_blood > 0)
+		G_Printf("(%i) Damage_blood: %i\n", player->s.clientNum, client->damage_blood);
+
 	count = client->damage_blood + client->damage_armor;
 	if ( count == 0 ) {
 		return;		// didn't take any damage
@@ -221,7 +270,9 @@ void P_DamageFeedback( gentity_t *player ) {
 		//Elder: headshot sound
         case LOCATION_HEAD:
         case LOCATION_FACE:
-			G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			//Elder: takes more bandwidth but guarantees a headshot sound
+			G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
+			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
 			break;
 		default:
 			G_AddEvent( player, EV_PAIN, player->health );
@@ -338,7 +389,8 @@ G_SetClientSound
 void G_SetClientSound( gentity_t *ent ) {
 #ifdef MISSIONPACK
 	if( ent->s.eFlags & EF_TICKING ) {
-		ent->client->ps.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav");
+		//Elder: removed
+		//ent->client->ps.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav");
 	}
 	else
 #endif
@@ -621,6 +673,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		if ( client->ps.stats[STAT_ARMOR] > 100) {// max is 100 client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
 		}
+
 		//Blaze: Do bandaging stuff
 		if (ent->client->bleedtick > 1)
 		{
@@ -632,6 +685,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleed_remain = 0;
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
+			ent->client->bleedBandageCount = 0;
 			//Elder: added
 			//ent->client->isBandaging = qfalse;
 			//Elder: remove bandage work
@@ -750,8 +804,10 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			damage = ent->client->ps.stats[STAT_FALLDAMAGE];
 			VectorSet (dir, 0, 0, 1);
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
+			//Elder: added so we can trigger AQ2 pain blends
+			ent->client->ps.damageEvent++;
 			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
-
+			
 			break;
 
 		case EV_FIRE_WEAPON:
@@ -1475,7 +1531,8 @@ void ClientEndFrame( gentity_t *ent ) {
 	if (level.time % 30000 < 1)
 	{
 		G_Printf("Spawn an Item\n");
-		rq3_item = BG_FindItem( "Kevlar Vest" );
+		//rq3_item = BG_FindItem( "Kevlar Vest" );
+		rq3_item = BG_FindItemForHoldable( HI_KEVLAR );
 		rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
 		Drop_Item (rq3_temp, rq3_item, 0);
 	}
