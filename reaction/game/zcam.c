@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/08/03 19:27:37  jbravo
+// Made a booboo in my tracking message code
+//
 // Revision 1.17  2002/08/03 18:24:13  jbravo
 // Tweaked my zcam swing change a bit.
 //
@@ -711,9 +714,9 @@ static gentity_t *CameraSwingTarget(gentity_t * ent)
 			va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sFollowing " S_COLOR_WHITE "%s" S_COLOR_RED "/"
 				S_COLOR_MAGENTA "%s\n%sTracking " S_COLOR_WHITE "%s" S_COLOR_RED "/"
 				S_COLOR_MAGENTA "%s\n", color, target1st->client->pers.netname,
-				(target1st->client->sess.sessionTeam = TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string,
+				(target1st->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string,
 				color, target2nd->client->pers.netname,
-				(target2nd->client->sess.sessionTeam = TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
+				(target2nd->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
 				
 /*		if (target2nd->client->sess.sessionTeam == TEAM_RED)
 			trap_SendServerCommand(ent->client->ps.clientNum,
