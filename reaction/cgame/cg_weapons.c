@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/27 06:58:40  niceass
+// removed reflection stuff. Silencer stuff added
+//
 // Revision 1.72  2002/05/18 03:55:35  niceass
 // many misc. changes
 //
@@ -2809,7 +2812,7 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
-							vec3_t dir, vec3_t viewdir, impactSound_t soundType, int weapModification ) {
+							vec3_t dir, impactSound_t soundType, int weapModification ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -2832,10 +2835,8 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	int				contentType;
 
 	//Elder: for impact sparks
-	vec3_t			velocity, dir2;
+	vec3_t			velocity;
 	int				sparkCount;
-	float			dot;
-
 	int				i;
 
 	mark = 0;
@@ -3277,19 +3278,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 					color[3] = 192;
 					break;
 			}
-			
-			// NiceAss: Direction of bullet affects sparks
-			VectorCopy(dir, dir2);
-			if (weapon != WP_KNIFE) {
-				dot = DotProduct( viewdir, dir2 );
-				VectorMA( viewdir, -2*dot, dir2, dir2 );
-			}
 
 			// Elder: should probably dump this into another function
 			for ( i = 0; i < flashCount; i++ )
 			{
 				// introduce variance
-				VectorCopy( dir2, temp );
+				VectorCopy( dir, temp );
 				scale = crandom() + 1.8f;
 				temp[0] += (crandom() * 0.4f) - 0.2f;
 				temp[1] += (crandom() * 0.4f) - 0.2f;
@@ -3298,7 +3292,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				VectorCopy( temp, offsetDir );
 				VectorScale( temp, scale, temp );
 
-				le = CG_MakeExplosion( origin, dir2,
+				le = CG_MakeExplosion( origin, dir,
 							   mod,	shader,
 							   duration, isSprite );
 
@@ -3410,20 +3404,13 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			else
 				sparkCount = 15 + rand() % 15;
 
-			// NiceAss: Direction of bullet affects sparks
-			VectorCopy(dir, dir2);
-			if (weapon != WP_KNIFE) {
-				dot = DotProduct( viewdir, dir2 );
-				VectorMA( viewdir, -2*dot, dir2, dir2 );
-			}
-
 			// Generate the particles
 			for (i = 0; i < sparkCount; i++)
 			{
 				if (weapon == WP_KNIFE)
-					VectorScale(dir2, 50 + rand() % 10, velocity);
+					VectorScale(dir, 50 + rand() % 10, velocity);
 				else
-					VectorScale(dir2, 150 + rand() % 30, velocity);
+					VectorScale(dir, 150 + rand() % 30, velocity);
 				//random upwards sparks
 				if ( rand() % 5 < 1)
 					velocity[2] += 120 + rand() % 30;
@@ -3527,14 +3514,11 @@ We are not going to show every HC impact
 */
 static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWeapon ) {
 	trace_t		tr;
-	vec3_t viewDir;
 	int sourceContentType, destContentType;
 	//Makro
 	int			Material;
 
 	CG_Trace( &tr, start, NULL, NULL, end, skipNum, MASK_SHOT );
-
-	CG_CalcViewDir2(start, end, viewDir);
 
 	sourceContentType = trap_CM_PointContents( start, 0 );
 	destContentType = trap_CM_PointContents( tr.endpos, 0 );
@@ -3582,11 +3566,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			}
 		}
 		//else if ( tr.surfaceFlags & SURF_GLASS )
@@ -3594,11 +3578,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_GLASS, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_GLASS, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
 			}
 		}
 		//Makro - added
@@ -3606,11 +3590,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_WOOD, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_WOOD, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_WOOD, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_WOOD, 0 );
 			}
 		}
 		//Makro - added
@@ -3618,11 +3602,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_BRICK, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_BRICK, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_BRICK, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_BRICK, 0 );
 			}
 		}
 		//Makro - added
@@ -3630,11 +3614,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_CERAMIC, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_CERAMIC, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_CERAMIC, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_CERAMIC, 0 );
 			}
 		}
 		else
@@ -3642,11 +3626,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			// Elder: By default, the M3 and HC will spark on all surfaces
 			// Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			}
 			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 		}
@@ -3898,7 +3882,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			    qboolean flesh, int fleshEntityNum, impactSound_t soundType) {
 	trace_t trace;
 	int sourceContentType, destContentType;
-	vec3_t		start, viewAngle;
+	vec3_t		start;
 	centity_t	*cent;
 
 	// if the shooter is currently valid, calc a source point and possibly
@@ -3926,15 +3910,14 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 
 			// draw a tracer
 			// Elder: only if not using SSG, check if this client is the source
-			//CG_Tracer( start, end );
-
+	
 			if (sourceEntityNum == cg.snap->ps.clientNum)
 			{
-				if (cg.snap->ps.weapon != WP_SSG3000 )
+				if (cg.snap->ps.weapon != WP_SSG3000 &&
+					bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_SILENCER )
 				{
 					if ( random() < cg_tracerChance.value )
 						CG_CreateTracer( sourceEntityNum, start, end );
-			//			CG_Tracer( start, end );
 				}
 			}
 			else
@@ -3942,24 +3925,20 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 				cent = &cg_entities[sourceEntityNum];
 				if ( cent->currentValid && cent->currentState.weapon != WP_SSG3000 )
 				{
-					if ( random() < cg_tracerChance.value ) {
+					if ( random() < cg_tracerChance.value && cent->muzzleFlashTime != -1 ) {
 						CG_CreateTracer( sourceEntityNum, start, end );
-			//			CG_Tracer( start, end );
 					}
 				}
 			}
 		}
 	}
 
-	// NiceAss: Added for better sparking.
-	CG_CalcViewDir(sourceEntityNum, end, viewAngle);
-
 	// impact splash and mark
 	if ( flesh ) {
 		CG_Bleed( end, fleshEntityNum );
 	} else {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-		CG_MissileHitWall( WP_PISTOL, 0, end, normal, viewAngle, soundType, 0 );
+		CG_MissileHitWall( WP_PISTOL, 0, end, normal, soundType, 0 );
 	}
 
 }
@@ -4113,40 +4092,3 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		break;
 	}
 }
-
-
-
-/*
-=================
-CG_CalcViewAngle
-Added by NiceAss.
-
-Start not known. End known.
-Used for calculating a player's viewing angle.
-Currently used for spark directions (reflected off a plane).
-=================
-*/
-void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir) {
-	vec3_t delta, start;
-
-	CG_CalcMuzzlePoint(sourceEntityNum, start);
-	VectorSubtract(end, start, delta);
-	VectorNormalize2(delta, viewDir);
-}
-
-/*
-=================
-CG_CalcViewAngle2
-Added by NiceAss.
-
-Start known. End known.
-Used for calculating a player's viewing angle.
-Currently used for spark directions (reflected off a plane).
-=================
-*/
-void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir) {
-	vec3_t delta;
-	VectorSubtract(end, start, delta);
-	VectorNormalize2(delta, viewDir);
-}
-
