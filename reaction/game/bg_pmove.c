@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/07/08 04:34:41  niceass
+// oops, small mistake
+//
 // Revision 1.83  2002/07/08 04:34:15  niceass
 // changes to gravity and stuff
 //
@@ -1272,7 +1275,7 @@ static void PM_GroundTrace(void)
 	   }
 	 */
 
-	if (pm->ps->velocity[2] > 160) {	// NiceAss: This is here for slope acceleration!
+	if (pm->ps->velocity[2] > 180) {	// NiceAss: This is here for slope acceleration!
 		if (pm->debugLevel) {
 			Com_Printf("%i:slopeslide\n", c_pmove);
 		}
