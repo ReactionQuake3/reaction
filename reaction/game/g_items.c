@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.28  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -312,17 +315,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 		} else {
 			quantity = ent->item->quantity;
 		}
-		/* Elder: commented out
-		// dropped items and teamplay weapons always have full ammo
-		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
-			// respawning rules
-			// drop the quantity if the already have over the minimum
-			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
-				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
-			} else {
-				quantity = 1;		// only add a single shot
-			}
-		} */
 	}
 
 	// add the weapon if not knife or pistol
@@ -436,32 +428,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 			}
 		}
 	}
-
-	/*
-	if ( other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ||
-		 !(ent->flags & FL_THROWN_ITEM) ) {
-		other->client->ps.ammo[ent->item->giTag] = ammotoadd;
-		//Elder: add extra handcannon clips if it's "fresh"
-		if (ent->item->giTag == WP_HANDCANNON) {
-			other->client->numClips[ WP_HANDCANNON ] += 5;
-			other->client->numClips[ WP_M3 ] += 5;
-			if (other->client->numClips[ WP_HANDCANNON ] > 13) {
-				other->client->numClips[ WP_HANDCANNON ] = 14;
-				other->client->numClips[ WP_M3 ] = 14;
-			}
-		}
-	}
-	*/
-
-// End Duffman
-
-
-
-//Blaze: No hook
-/*
-	if (ent->item->giTag == WP_GRAPPLING_HOOK)
-		other->client->ps.ammo[ent->item->giTag] = -1; // unlimited ammo
-*/
 
 	// team deathmatch has slow weapon respawns
 	if ( g_gametype.integer == GT_TEAM ) {

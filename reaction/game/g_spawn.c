@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.7  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -330,11 +333,15 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	else if (!strcmp(ent->classname,"ammo_grenades")) ent->classname = "weapon_grenade";
 	*/
 	// check item spawn functions
+
+// JBravo: No weapons and items on the maps in teamplay
+	if (g_gametype.integer != GT_TEAMPLAY) {
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			G_SpawnItem( ent, item );
 			return qtrue;
 		}
+	}
 	}
 
 	// check normal spawn functions
@@ -452,7 +459,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "teamtournament"};
+// JBravo: added teamplay
+	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "teamplay", "ctf", "oneflag", "obelisk", "harvester", "teamtournament"};
 
 	// get the next free entity
 	ent = G_Spawn();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.42  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -155,6 +158,14 @@
 #define RQ3_HANDCANNON_AMMO		2
 #define RQ3_GRENADE_AMMO		1	//Elder: shouldn't need this value
 
+// JBravo: extra ammo for the guns in Teamplay.
+#define RQ3_SSG3000_EXTRA_AMMO		10
+#define RQ3_MP5_EXTRA_AMMO		1
+#define RQ3_M3_EXTRA_AMMO		7
+#define RQ3_M4_EXTRA_AMMO		1
+#define RQ3_AKIMBO_EXTRA_AMMO		2
+#define RQ3_HANDCANNON_EXTRA_AMMO	12
+
 //Elder: confused?
 
 //Elder: from Action source, but changed defined names a bit
@@ -182,6 +193,11 @@ typedef enum {
 	RQ3_SOUND_KNIFEDEATH,
 	RQ3_SOUND_LCA,					//lights, camera, action!
 	RQ3_SOUND_KEVLARHIT,
+// JBravo: LCA sounds
+	RQ3_SOUND_LIGHTS,
+	RQ3_SOUND_CAMERA,
+	RQ3_SOUND_ACTION,
+	RQ3_SOUND_COUNTDOWN,
 
 	RQ3_SOUND_TOTAL
 } rq3_sounds_t;
@@ -360,6 +376,7 @@ typedef enum {
 	//-- team games go after this --
 
 	GT_TEAM,			// team deathmatch
+	GT_TEAMPLAY,		// JBravo: The teamplay mode itself.
 	GT_CTF,				// capture the flag
 	GT_1FCTF,
 	GT_OBELISK,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.7  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -550,6 +553,11 @@ void G_KillBox (gentity_t *ent) {
 	int			touch[MAX_GENTITIES];
 	gentity_t	*hit;
 	vec3_t		mins, maxs;
+
+// JBravo attempting to stop telefrags
+	if (g_gametype.integer == GT_TEAMPLAY) { // && level.lights_camera_action) {
+		return;
+	}
 
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.24  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -19,6 +22,9 @@
 #ifdef __ZCAM__
 #include "zcam.h"
 #endif /* __ZCAM__ */
+
+// JBravo: fixme. Hack to use SelectInitialSpawnPoint() in ClientSpawn.
+gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
 
 #define RQ3_NONAMEPLAYER		"Nameless"
 
@@ -947,7 +953,8 @@ int G_SendCheatVars(int clientNum)
 			return qfalse;
 		}
 		Q_strncpyz( cheatVar, token, sizeof( cheatVar ) );
-		if ( !strcmp(token, NULL)) return qtrue;
+// Fix from hal9000. Was NULL in that strcmp
+		if ( !strcmp(token, "")) return qtrue;
 		token = COM_Parse( &text_p );
 		if ( !token ) break;
 		lowval = atof( token );
@@ -1041,7 +1048,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname) );
 	}
 
-	if ( g_gametype.integer >= GT_TEAM &&
+	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
 		client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BroadcastTeamChange( client, -1 );
 	}
@@ -1069,7 +1076,6 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	//gentity_t	*tent;
 	int			flags;
 
 	ent = g_entities + clientNum;
@@ -1100,18 +1106,14 @@ void ClientBegin( int clientNum ) {
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
-	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		// send event
-		//Elder: removed
-		//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		//tent->s.clientNum = ent->s.clientNum;
+// JBravo: if teamplay and the client has not been on teams, make them a spectator.
+	if ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) {
+		client->sess.sessionTeam = TEAM_SPECTATOR;
+	}
 
-		//Elder: moved after ClientSpawn call
-		//Elder: added to initialize weaponmodes
+	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
-		//Elder: debug
-		//G_Printf("In clientbegin- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
@@ -1122,6 +1124,13 @@ void ClientBegin( int clientNum ) {
 	// count current clients and rank for scoreboard
 	CalculateRanks();
 	//Blaze: load in the cvar.cfg file and send off the values to the currently connecting client.
+
+	// JBravo: default weapons
+
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		client->teamplayWeapon = WP_MP5;
+		client->teamplayItem = HI_KEVLAR;
+	}
 
 }
 
@@ -1147,31 +1156,33 @@ void ClientSpawn(gentity_t *ent) {
 	int		savedPing;
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
-/*
-	int		knifeShots = 0;
-	int		knifeHits = 0;
-	int		mk23Shots = 0;
-	int		mk23Hits = 0;
-	int		m4Shots =0;
-	int		m4Hits = 0;
-	int		mp5Shots = 0;
-	int		mp5Hits = 0;
-	int		m3Shots = 0;
-	int		m3Hits = 0;
-	int		hcShots = 0;
-	int		hcHits = 0;
-	int		ssgShots = 0;
-	int		ssgHits = 0;
-	int		akimboShots = 0;
-	int		akimboHits = 0;
-	int		grenShots = 0;
-	int		grenHits = 0;
-*/
 	int		eventSequence;
+	int			savedWeapon, savedItem;		// JBravo: to save weapon/item info
 	char	userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
 	client = ent->client;
+
+// JBravo: Check if team spawnpoints have been located. If not find a spot for each team ala AQ2.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (!level.spawnPointsLocated) {
+			client->pers.initialSpawn = qfalse;
+			do {
+				level.team1spawnpoint = SelectInitialSpawnPoint(level.team1spawn_origin, level.team1spawn_angles);
+				if ((level.team1spawnpoint->flags & FL_NO_BOTS) && (ent->r.svFlags & SVF_BOT)) {
+					continue;
+				}
+				if ((level.team1spawnpoint->flags & FL_NO_HUMANS) && !(ent->r.svFlags & SVF_BOT)) {
+					continue;
+				}
+				break;
+			} while ( 1 );
+			level.team2spawnpoint = SelectRandomFurthestSpawnPoint(level.team1spawnpoint->s.origin,
+				level.team2spawn_origin, level.team2spawn_angles);
+			level.spawnPointsLocated = qtrue;
+		}
+	}
+// End JBravo.
 
 	// find a spawn point
 	// do it before setting health back up, so farthest
@@ -1185,6 +1196,20 @@ void ClientSpawn(gentity_t *ent) {
 			client->sess.sessionTeam,
 			client->pers.teamState.state,
 			spawn_origin, spawn_angles);
+// JBravo: If we are in Teamplay mode, use the teamspawnpoints.
+	} else if (g_gametype.integer == GT_TEAMPLAY ) {
+		if (client->sess.sessionTeam == TEAM_RED) {
+			client->sess.spawnPoint = level.team1spawnpoint;
+			spawnPoint = level.team1spawnpoint;
+			VectorCopy (level.team1spawn_angles, spawn_angles);
+			VectorCopy (level.team1spawn_origin, spawn_origin);
+		} else {
+			client->sess.spawnPoint = level.team2spawnpoint;
+			spawnPoint = level.team2spawnpoint;
+			VectorCopy (level.team2spawn_angles, spawn_angles);
+			VectorCopy (level.team2spawn_origin, spawn_origin);
+		}
+// End JBravo.
 	} else {
 		do {
 			// the first spawn should be at a good looking spot
@@ -1230,31 +1255,21 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
-	/*
-	knifeShots = client->knifeShots;
-	knifeHits = client->knifeHits;
-	mk23Shots = client->mk23Shots;
-	mk23Hits = client->mk23Hits;
-	m4Shots = client->m4Shots;
-	m4Hits = client->m4Hits;
-	mp5Shots = client->mp5Shots;
-	mp5Hits = client->mp5Hits;
-	m3Shots = client->m3Shots;
-	m3Hits = client->m3Hits;
-	hcShots = client->hcShots;
-	hcHits = client->hcHits;
-	akimboShots = client->akimboShots;
-	akimboHits = client->akimboHits;
-	grenShots = client->grenShots;
-	grenHits = client->grenHits;
-	*/
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
 	}
 	eventSequence = client->ps.eventSequence;
 
+// JBravo: save weapon/item info
+	savedWeapon = client->teamplayWeapon;
+	savedItem = client->teamplayItem;
+
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
+
+// JBravo: restore weapon/item info
+	client->teamplayWeapon = savedWeapon;
+	client->teamplayItem = savedItem;
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -1306,25 +1321,12 @@ void ClientSpawn(gentity_t *ent) {
 #endif /* __ZCAM__ */
 
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
+// JBravo: Not in TP
+	if(g_gametype.integer != GT_TEAMPLAY) {
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
-	//Blaze: Set starting amo for the machine gun, different in teamplay and dm, we can remove this
-	/*
-
-	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
-	if ( g_gametype.integer == GT_TEAM ) {
-		client->ps.ammo[WP_MACHINEGUN] = 50;
-	} else {
-		client->ps.ammo[WP_MACHINEGUN] = 100;
-	}
-	*/
-
-// Begin Duffman
-	// Initial amount of ammo when spawning, this will be changed when weapons are added.
-	//Blaze: Changed from WP_MACHINEGUN to WP_PISTOL
-	//Elder: changed to Ammo function instead of Reload
-	client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
 	client->numClips[WP_PISTOL] = 0;
-// End Duffman
+		client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
+	}
 
 //Blaze: Changed WP_GAUNTLET to WP_KNIFE
 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
@@ -1355,9 +1357,11 @@ void ClientSpawn(gentity_t *ent) {
 
 		// force the base weapon up
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
+		// JBravo: we dont want the endless pistol in TP
+		if(g_gametype.integer != GT_TEAMPLAY) {
 		client->ps.weapon = WP_PISTOL;
 		client->ps.weaponstate = WEAPON_READY;
-
+		}
 	}
 
 	//Blaze: Set the opendoor flag to 0
@@ -1400,6 +1404,10 @@ void ClientSpawn(gentity_t *ent) {
 
 		// select the highest weapon number available, after any
 		// spawn given items have fired
+// JBravo: Lets make sure we have the right weapons
+		if (g_gametype.integer == GT_TEAMPLAY) {
+			EquipPlayer(ent);
+		} else {
 		client->ps.weapon = 1;
 		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
 			if ( i == WP_KNIFE )
@@ -1409,6 +1417,7 @@ void ClientSpawn(gentity_t *ent) {
 				break;
 			}
 		}
+	}
 	}
 
 	// run a client frame to drop exactly to the floor,

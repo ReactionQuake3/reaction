@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.32  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -2173,7 +2176,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			case RQ3_SOUND_KNIFEDEATH:
 				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.knifeDeathSound);
 				break;
-
+// JBravo: LCA soundevents.
+			case RQ3_SOUND_LIGHTS:
+				if ( es->number == cg.snap->ps.clientNum )
+					CG_AddBufferedSound(cgs.media.lightsSound);
+				break;
+			case RQ3_SOUND_CAMERA:
+				if ( es->number == cg.snap->ps.clientNum )
+					CG_AddBufferedSound(cgs.media.cameraSound);
+				break;
+			case RQ3_SOUND_ACTION:
+				if ( es->number == cg.snap->ps.clientNum )
+					CG_AddBufferedSound(cgs.media.actionSound);
+				break;
+			case RQ3_SOUND_COUNTDOWN:
+				trap_S_StartLocalSound( cgs.media.lca10_0Sound, CHAN_ANNOUNCER );
+				break;
     		default:
     			break;
 		}

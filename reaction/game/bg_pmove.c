@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.53  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -21,6 +24,9 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+
+// JBravo: the famous LCA cvar
+extern  vmCvar_t                RQ3_lca;
 
 pmove_t		*pm;
 pml_t		pml;
@@ -1865,6 +1871,7 @@ PM_BeginWeaponChange
 ===============
 */
 static void PM_BeginWeaponChange( int weapon ) {
+	//G_Printf("CHANGING WEAP TO: %i\n", weapon);
 	if ( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		return;
 	}
@@ -2681,6 +2688,7 @@ static void PM_Weapon( void ) {
 		}
 	}
 
+
 	//Elder: drop the primed grenade if bandaging
 	/*
 	if ( pm->ps->weapon == WP_GRENADE &&
@@ -2730,6 +2738,11 @@ static void PM_Weapon( void ) {
 			PM_StartTorsoAnim( TORSO_RAISE );
 			return;
 		}
+	}
+
+// JBravo: no shooting during LCA
+	if ( RQ3_lca.integer) {
+		return;
 	}
 
 	if ( pm->ps->weaponstate == WEAPON_RAISING &&

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.38  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1167,7 +1170,11 @@ typedef struct {
 	//sfxHandle_t	wstbimpmSound;
 	//sfxHandle_t	wstbimpdSound;
 	//sfxHandle_t	wstbactvSound;
-
+// JBravo: LCA sounds
+	sfxHandle_t	lightsSound;
+	sfxHandle_t	cameraSound;
+	sfxHandle_t	actionSound;
+	sfxHandle_t	lca10_0Sound;
 } cgMedia_t;
 
 
@@ -1409,6 +1416,9 @@ extern	vmCvar_t		cg_obeliskRespawnDelay;
 #endif
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
+
+// JBravo: To signal cgame that lca is in progress
+extern	vmCvar_t		RQ3_lca;
 
 //
 // cg_main.c

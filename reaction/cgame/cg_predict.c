@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.11  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -459,6 +462,12 @@ void CG_PredictPlayerState( void ) {
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
 	}
+
+// JBravo: fixing telefragging and shit during spawing (Thanks NiceAss! :)
+	if (RQ3_lca.integer) {
+		cg_pmove.tracemask &= ~CONTENTS_BODY;
+	}
+
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 
 	// save the state before the pmove so we can detect transitions

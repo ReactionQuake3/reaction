@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.34  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -224,6 +227,8 @@ vmCvar_t	cg_obeliskRespawnDelay;
 #endif
 //Blaze: cheat struct
 cheat_cvar	cheats[30];
+// JBravo: lca in progress cvar
+vmCvar_t	RQ3_lca;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -367,7 +372,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
+	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+// JBravo: added
+	{ &RQ3_lca, "RQ3_lca", "0", 0}
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
@@ -619,6 +626,12 @@ static void CG_RegisterSounds( void ) {
 #ifdef MISSIONPACK
 	cgs.media.countPrepareTeamSound = trap_S_RegisterSound( "sound/feedback/prepare_team.wav", qtrue );
 #endif
+// JBravo: registering the LCA sounds.
+	cgs.media.lightsSound = trap_S_RegisterSound( "sound/lca/lights.wav", qtrue );
+	cgs.media.cameraSound = trap_S_RegisterSound( "sound/lca/camera.wav", qtrue );
+	cgs.media.actionSound = trap_S_RegisterSound( "sound/lca/action.wav", qtrue );
+	cgs.media.lca10_0Sound = trap_S_RegisterSound( "sound/lca/10_0.wav", qtrue );
+
 
 	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
 

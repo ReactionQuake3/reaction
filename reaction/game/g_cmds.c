@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.38  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -526,12 +529,24 @@ Let everyone know about a team change
 */
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
+// JBravo: change team names if teamplay
+
 	if ( client->sess.sessionTeam == TEAM_RED ) {
+		if ( g_gametype.integer == GT_TEAMPLAY ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined team 1.\n\"",
+				client->pers.netname) );
+		} else {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 			client->pers.netname) );
+		}
 	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+		if ( g_gametype.integer == GT_TEAMPLAY ) {
+			trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined team 2.\n\"",
+				client->pers.netname));
+		} else {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
 		client->pers.netname));
+		}
 	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
 		trap_SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
 		client->pers.netname));
@@ -552,7 +567,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	int					clientNum;
 	spectatorState_t	specState;
 	int					specClient;
-	int					teamLeader;
+	int			teamLeader, teamsave;
 
 	//
 	// see what change is requested
@@ -573,15 +588,19 @@ void SetTeam( gentity_t *ent, char *s ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FOLLOW;
 		specClient = -2;
-	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) ) {
+
+// JBravo: adding aliases none for spectator, 1 for team red and 2 for team blue.
+	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) || !Q_stricmp( s, "none" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
 	} else if ( g_gametype.integer >= GT_TEAM ) {
 		// if running a team game, assign player to one of the teams
+		if ( g_gametype.integer != GT_TEAMPLAY ) {
 		specState = SPECTATOR_NOT;
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
+		}
+		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) || !Q_stricmp( s, "1") ) {
 			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
+		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) || !Q_stricmp( s, "2" ) ) {
 			team = TEAM_BLUE;
 		} else {
 			// pick the team with the least number of players
@@ -626,8 +645,18 @@ void SetTeam( gentity_t *ent, char *s ) {
 	//
 	// decide if we will allow the change
 	//
+// JBravo: we use the savedTeam var because the player meight be dead.
+	if ( g_gametype.integer == GT_TEAMPLAY ) {
+		oldTeam = client->sess.savedTeam;
+	} else {
 	oldTeam = client->sess.sessionTeam;
-	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
+	}
+	if ( team == oldTeam ) {
+		return;
+	}
+
+// JBravo: we want it to be OK to change from FREE to SPECTATOR without dieing.
+	if ( oldTeam == TEAM_FREE && team == TEAM_SPECTATOR ) {
 		return;
 	}
 
@@ -642,24 +671,37 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 	// he starts at 'base'
 	client->pers.teamState.state = TEAM_BEGIN;
-	if ( oldTeam != TEAM_SPECTATOR ) {
+
+// JBravo: if player is changing from FREE or SPECT. there is no need for violence.
+	if ( oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE ) {
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
 		player_die (ent, ent, ent, 100000, MOD_SUICIDE);
 
 	}
+
+// JBravo: lets set the correct var here.
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
+		client->sess.sessionTeam = team;
+	} else if ( !client->sess.teamSpawn ) {
+		client->sess.savedTeam = team;
+	} else {
+		client->sess.sessionTeam = team;
+	}
+
 	// they go to the end of the line for tournements
 	if ( team == TEAM_SPECTATOR ) {
 		client->sess.spectatorTime = level.time;
 	}
 
-	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
 
 	client->sess.teamLeader = qfalse;
-	if ( team == TEAM_RED || team == TEAM_BLUE ) {
+
+// JBravo: no teamleader crap in teamplay mode.
+	if ((team == TEAM_RED || team == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY ) {
 		teamLeader = TeamLeader( team );
 		// if there is no team leader or the team leader is a bot and this client is not a bot
 		if ( teamLeader == -1 || ( !(g_entities[clientNum].r.svFlags & SVF_BOT) && (g_entities[teamLeader].r.svFlags & SVF_BOT) ) ) {
@@ -667,14 +709,30 @@ void SetTeam( gentity_t *ent, char *s ) {
 		}
 	}
 	// make sure there is a team leader on the team the player came from
-	if ( oldTeam == TEAM_RED || oldTeam == TEAM_BLUE ) {
+
+// JBravo: no teamleader crap in teamplay mode.
+	if ((oldTeam == TEAM_RED || oldTeam == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
 		CheckTeamLeader( oldTeam );
 	}
 
+// JBravo: to avoid messages when players are killed and move to spectator team.
+	if ( client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE && g_gametype.integer != GT_TEAMPLAY ) {
 	BroadcastTeamChange( client, oldTeam );
+	}
 
 	// get and distribute relevent paramters
+
+// JBravo: save sessionTeam and then set it correctly for the call to ClientUserinfoChanged
+//         so the scoreboard will be correct.  Also check for uneven teams.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		CheckForUnevenTeams(ent);
+		teamsave = client->sess.sessionTeam;
+		client->sess.sessionTeam = client->sess.savedTeam;
+		ClientUserinfoChanged( clientNum );
+		client->sess.sessionTeam = teamsave;
+	} else {
 	ClientUserinfoChanged( clientNum );
+	}
 
 	ClientBegin( clientNum );
 }
@@ -706,6 +764,19 @@ void Cmd_Team_f( gentity_t *ent ) {
 	char		s[MAX_TOKEN_CHARS];
 
 	if ( trap_Argc() != 2 ) {
+
+// JBravo: lets keep the teamnames right.
+		if( g_gametype.integer == GT_TEAMPLAY ) {
+			oldTeam = ent->client->sess.savedTeam;
+			switch ( oldTeam ) {
+			case TEAM_BLUE:
+				trap_SendServerCommand( ent-g_entities, "print \"Team 2\n\"" );
+				break;
+			case TEAM_RED:
+				trap_SendServerCommand( ent-g_entities, "print \"Team 1\n\"" );
+				break;
+			}
+		} else {
 		oldTeam = ent->client->sess.sessionTeam;
 		switch ( oldTeam ) {
 		case TEAM_BLUE:
@@ -720,6 +791,7 @@ void Cmd_Team_f( gentity_t *ent ) {
 		case TEAM_SPECTATOR:
 			trap_SendServerCommand( ent-g_entities, "print \"Spectator team\n\"" );
 			break;
+		}
 		}
 		return;
 	}
@@ -805,7 +877,8 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		ent->client->sess.losses++;
 	}
 	// first set them to spectator
-	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
+	// JBravo: Unless we are in teamplay. No need to mess with teams.
+	if ( ent->client->sess.spectatorState == SPECTATOR_NOT && g_gametype.integer != GT_TEAMPLAY ) {
 		SetTeam( ent, "spectator" );
 	}
 
@@ -1273,6 +1346,9 @@ static const char *gameNames[] = {
 	"Tournament",
 	"Single Player",
 	"Team Deathmatch",
+
+// JBravo: duh ;)
+	"RQ3 teamplay",
 	"Capture the Flag",
 	"One Flag CTF",
 	"Overload",
@@ -2587,6 +2663,11 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "unzoom") == 0)
 		Cmd_Unzoom (ent);
 	// end hawkins
+// JBravo: adding the choose and drop commands.
+	else if (Q_stricmp (cmd, "choose") == 0)
+		RQ3_Cmd_Choose_f (ent);
+	else if (Q_stricmp (cmd, "drop") == 0)
+		RQ3_Cmd_Drop_f (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
 	//Elder: stuff for dropping items

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.33  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -67,6 +70,9 @@ qboolean JumpKick( gentity_t *ent )
 	//Elder: for kick sound
 	qboolean	kickSuccess;
 
+	if ( g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action ) {
+		return qfalse;		// JBravo: No kicking during LCA
+	}
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
 	CalcMuzzlePoint ( ent, forward, right, up, muzzle );

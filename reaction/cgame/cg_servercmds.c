@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.13  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -457,6 +460,9 @@ static void CG_MapRestart( void ) {
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
+	// JBravo: unless we are in teamplay mode.
+	if ( cgs.gametype == GT_TEAMPLAY )
+		return;
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
 		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );

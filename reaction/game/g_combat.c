@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.34  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -567,14 +570,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
     	// Hawkins put spread back and zoom out
 
-		//Elder: this wouldn't happen if you copy and paste carefully
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-
 		//Elder: remove zoom bits
 		Cmd_Unzoom(self);
         self->client->bleeding = 0;
-        //targ->client->bleedcount = 0;
         self->client->bleed_remain = 0;
         //Elder: added;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
@@ -592,10 +590,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		return;
 	}
 
+// JBravo: lets not bother with those CTF functions in Teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
 	// check for a player that almost brought in cubes
 	CheckAlmostScored( self, attacker );
+	}
 
 //Blaze: No Hook
 //	if (self->client && self->client->hook)
@@ -686,26 +687,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	switch ( meansOfDeath )
 	{
 		case MOD_KNIFE:
-			/*
-			if (attacker && attacker->client)
-			{
-				if ( attacker->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE )
-				{
-					attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
-					self->client->pers.records[REC_KNIFESLASHDEATHS]++;
-				}
-				else
-				{
-					attacker->client->pers.records[REC_KNIFETHROWKILLS]++;
-					self->client->pers.records[REC_KNIFETHROWDEATHS]++;
-				}
-			}
-			else
-			{
-				// just count it as a slash death if no attacker
-				self->client->pers.records[REC_KNIFESLASHDEATHS]++;
-			}
-			*/
 			if (attacker && attacker->client)
 				attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
 			self->client->pers.records[REC_KNIFESLASHDEATHS]++;
@@ -779,9 +760,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			// Increase number of kills this life for attacker
+			// JBravo: unless we are in teamplay
+			if ( g_gametype.integer != GT_TEAMPLAY ) {
 			attacker->client->killStreak++;
+			}
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
+			// Done ;)
 			if (attacker->client->killStreak < 4)
 				AddScore( attacker, self->r.currentOrigin, 1 );
 			else if (attacker->client->killStreak < 8)
@@ -850,13 +835,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// Add team bonuses
+	// JBravo: unless we are in teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	Team_FragBonuses(self, inflictor, attacker);
+	}
 
 	// if I committed suicide, the flag does not fall, it returns.
+	// Unless we are in teamplay
 	if (meansOfDeath == MOD_SUICIDE) {
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_SUICIDES]++;
-
+		if (g_gametype.integer != GT_TEAMPLAY) {
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );
 			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
@@ -870,6 +859,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			self->client->ps.powerups[PW_BLUEFLAG] = 0;
 		}
 	}
+	}
 
 	// if client is in a nodrop area, don't drop anything (but return CTF flags!)
 	contents = trap_PointContents( self->r.currentOrigin, -1 );
@@ -877,6 +867,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		TossClientItems( self );
 	}
 	else {
+		if (g_gametype.integer != GT_TEAMPLAY) {
 		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
 			Team_ReturnFlag( TEAM_FREE );
 		}
@@ -885,6 +876,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
 			Team_ReturnFlag(TEAM_BLUE);
+		}
 		}
 		// Elder: include immediate item and weapon return here -- but handled in G_RunItem?
 		//if ( self->client->ps.stats[STAT_HOLDABLE_ITEM] )
@@ -947,7 +939,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
+	// JBravo: we dont want automatic respawning of players in teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	self->client->respawnTime = level.time + 1700;
+	}
 
 	// remove powerups
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
@@ -1006,6 +1001,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	trap_LinkEntity (self);
+
+// JBravo: Save the dead players team status, and respawn his as a spectator.
+	if( g_gametype.integer == GT_TEAMPLAY ) {
+		CopyToBodyQue (self);
+		self->client->weaponCount[self->client->ps.weapon] = 0;
+		self->client->ps.stats[STAT_WEAPONS] = 0;
+		self->client->sess.savedTeam = self->client->sess.sessionTeam;
+		self->client->sess.sessionTeam = TEAM_SPECTATOR;
+		ClientSpawn( self );
+	}
 
 }
 
@@ -1307,7 +1312,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int			max;
     int         bleeding = 0; // damage causes bleeding
     int         instant_dam = 1;
-
 	vec3_t bulletPath;
     vec3_t bulletAngle;
 
@@ -1331,6 +1335,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if (!targ->takedamage) {
 		return;
 	}
+
+	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
+		return;		// JBravo: No dmg during LCA
+	}
+
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.33  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -266,11 +269,14 @@ typedef struct {
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
 	team_t		sessionTeam;
+	team_t			savedTeam;		// JBravo: Used to hold the real team status of a player.
 	int			spectatorTime;		// for determining next-in-line to play
 	spectatorState_t	spectatorState;
 	int			spectatorClient;	// for chasecam and follow mode
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
+	gentity_t		*spawnPoint;		// JBravo: This players spawnpoint
+	qboolean		teamSpawn;		// JBravo: This player is being spawned with his team.
 } clientSession_t;
 
 //
@@ -475,6 +481,9 @@ struct gclient_s {
 #ifdef  __ZCAM__
         struct camera_s *camera;
 #endif /* __ZCAM__ */
+// JBravo adding TP stuff
+	int	teamplayWeapon;
+	int	teamplayItem;
 };
 
 
@@ -572,6 +581,22 @@ typedef struct {
 #ifdef MISSIONPACK
 	int			portalSequence;
 #endif
+// JBravo adding TP
+	int		lights_camera_action;
+	qboolean	team_round_going;
+	int		holding_on_tie_check;
+	int		team_round_countdown;
+	qboolean	team_game_going;
+	int		rulecheckfrequency;
+	int		current_round_length;
+	qboolean	spawnPointsLocated;
+	gentity_t	*team1spawnpoint;
+	gentity_t	*team2spawnpoint;
+	vec3_t		team1spawn_origin;
+	vec3_t		team1spawn_angles;
+	vec3_t		team2spawn_origin;
+	vec3_t		team2spawn_angles;
+	int		fps;
 } level_locals_t;
 //
 // rxn_game.c
@@ -784,6 +809,9 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 //Elder: added because I use it in g_main.c and g_items.c for item spawning
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+// JBravo: need this for teamspawning
+gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
 void CopyToBodyQue( gentity_t *ent );
 void respawn (gentity_t *ent);
 void BeginIntermission (void);
@@ -924,6 +952,8 @@ void BotTestAAS(vec3_t origin);
 
 #include "g_team.h" // teamplay specific stuff
 
+// JBravo: Functions from g_teamplay.c
+#include "g_teamplay.h"
 
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];
@@ -993,6 +1023,11 @@ extern	vmCvar_t	g_RQ3_messageMaxWarnings;	// Max warning count
 extern	vmCvar_t	g_RQ3_messageWarnTime;		// Time for warning; 0 for no-penalty warning
 extern	vmCvar_t	g_RQ3_messageBanTime;		// Time for ban; 0 to kick
 extern	vmCvar_t	g_RQ3_messageProtect;		// Elder: 0 disable, non-zero enable
+// JBravo
+extern	vmCvar_t	g_RQ3_roundlimit;		// JBravo: No. of rounds pr. map
+extern	vmCvar_t	g_RQ3_roundtimelimit;		// JBravo: Time pr. round
+extern	vmCvar_t	g_RQ3_tgren;			// JBravo: no. of team grenades
+extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

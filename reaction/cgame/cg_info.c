@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.10  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -276,6 +279,10 @@ void CG_DrawInformation( void ) {
 		break;
 	case GT_TEAM:
 		s = "Team Deathmatch";
+		break;
+// JBravo: teamplay stuff.
+	case GT_TEAMPLAY:
+		s = "RQ3 Teamplay";
 		break;
 	case GT_CTF:
 		s = "Capture The Flag";

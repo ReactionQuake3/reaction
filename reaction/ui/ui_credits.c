@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.12  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -262,6 +265,8 @@ cr_line credits[] = { // edit this as necessary for your credits
 { "JUZ'S SLIPGATE", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "QUAKE3WORLD FORUMS (MOD PROGRAMMING)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 { "WANG (ATF)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "TOMAS EDWARDSSON (FREUD)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
+{ "JOHANN THORIRSSON (VONDIKALL)", UI_LEFT|UI_SMALLFONT, &color_maintext, FIXEDWIDTH },
 
 // Fex for the public board
 { "", UI_CENTER|UI_SMALLFONT, &color_blue, FIXEDWIDTH },

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.5  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1188,6 +1191,9 @@ const char *CG_GameTypeString() {
 		return "Free For All";
 	} else if ( cgs.gametype == GT_TEAM ) {
 		return "Team Deathmatch";
+// JBravo: Client gametype mapping for teamplay
+	} else if ( cgs.gametype == GT_TEAMPLAY ) {
+		return "RQ3 Teamplay";
 	} else if ( cgs.gametype == GT_CTF ) {
 		return "Capture the Flag";
 	} else if ( cgs.gametype == GT_1FCTF ) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/01/11 20:20:57  jbravo
+// Adding TP to main branch
+//
 // Revision 1.22  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -677,8 +680,9 @@ static consoleCommand_t	commands[] = {
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },				// Elder: it's for RQ3 and Q3A
-	{ "dropitem", CG_DropItem_f },
-	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
+// JBravo: adding the drop command and unregistering the other two
+//	{ "dropitem", CG_DropItem_f },
+//	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
 	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
 	{ "tell_target", CG_TellTarget_f },
@@ -794,8 +798,9 @@ void CG_InitConsoleCommands( void ) {
  	trap_AddCommand ("bandage");
 	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used
 	//Elder: added to give drop weapon auto-complete
-	trap_AddCommand ("dropweapon");
-	trap_AddCommand ("dropitem");
+// JBravo: no need for tab completion for those two
+//	trap_AddCommand ("dropweapon");
+//	trap_AddCommand ("dropitem");
 	//Blaze: to get weapon stats
 	trap_AddCommand ("playerstats");
 	//Elder: try this
@@ -805,4 +810,7 @@ void CG_InitConsoleCommands( void ) {
 	//trap_AddCommand ("messagemode2");
 	trap_AddCommand ("playerorigin");
 	trap_AddCommand ("irvision");
+// JBravo: adding choose and drop commands.
+	trap_AddCommand ("choose");
+	trap_AddCommand ("drop");
 }

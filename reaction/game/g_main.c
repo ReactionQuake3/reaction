@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.15  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -92,6 +95,11 @@ vmCvar_t	g_RQ3_messageMaxWarnings;
 vmCvar_t	g_RQ3_messageWarnTime;
 vmCvar_t	g_RQ3_messageBanTime;
 vmCvar_t	g_RQ3_messageProtect;
+// JBravo: adding TP cvars
+vmCvar_t	g_RQ3_roundlimit;
+vmCvar_t	g_RQ3_roundtimelimit;
+vmCvar_t	g_RQ3_tgren;
+vmCvar_t	RQ3_lca;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -202,7 +210,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_messageMaxWarnings, "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS, 0, 0, qfalse },
 	{ &g_RQ3_messageWarnTime, "sv_RQ3_messageWarnTime", SAY_WARNING_TIME, 0, 0, qfalse },
 	{ &g_RQ3_messageBanTime, "sv_RQ3_messageBanTime", SAY_BAN_TIME, 0, 0, qfalse },
-	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_SERVERINFO, 0, qtrue}
+	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_SERVERINFO, 0, qtrue},
+// JBravo: still with the TP cvars
+	{ &g_RQ3_roundlimit, "g_RQ3_roundlimit", "0", 0, 0, qtrue},
+	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", 0, 0, qtrue},
+	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", 0, 0, qtrue},
+	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse}
 
 };
 
@@ -517,7 +530,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	//Elder: spawn unique items.
+	// JBravo: unless we are in Teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	RQ3_StartUniqueItems();
+	}
 
 	// Elder: force sv_floodprotect to 0 -- remove when we finish
 	// recoding the weapon command and any other commands that may
@@ -536,6 +552,18 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 		G_SoundIndex( "sound/player/gurp1.wav" );
 		G_SoundIndex( "sound/player/gurp2.wav" );
+	}
+
+// JBravo: reset teamplay stuff.
+	if( g_gametype.integer == GT_TEAMPLAY ) {
+		level.team_round_countdown = 0;
+		level.rulecheckfrequency = 0;
+		level.lights_camera_action = 0;
+		level.holding_on_tie_check = 0;
+		level.current_round_length = 0;
+		level.team_game_going = 0;
+		level.team_round_going = 0;
+		level.fps = trap_Cvar_VariableIntegerValue( "sv_fps" );
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1815,7 +1843,7 @@ void G_RunFrame( int levelTime ) {
 	//gentity_t	*xr_drop;
 	//int			temp;
 	int			msec;
-int start, end;
+	int 		start, end;
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
@@ -1833,7 +1861,7 @@ int start, end;
 	//
 	// go through all allocated objects
 	//
-start = trap_Milliseconds();
+	start = trap_Milliseconds();
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
 		if ( !ent->inuse ) {
@@ -1910,15 +1938,15 @@ start = trap_Milliseconds();
 		}
 
 		if ( i < MAX_CLIENTS ) {
-			G_RunClient( ent );
+			G_RunClient( ent );    // Basicly calls ClientThink_real()
 			continue;
 		}
 
 		G_RunThink( ent );
 	}
-end = trap_Milliseconds();
+	end = trap_Milliseconds();
 
-start = trap_Milliseconds();
+	start = trap_Milliseconds();
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i=0 ; i < level.maxclients ; i++, ent++ ) {
@@ -1926,19 +1954,33 @@ start = trap_Milliseconds();
 			ClientEndFrame( ent );
 		}
 	}
-end = trap_Milliseconds();
+	end = trap_Milliseconds();
 
 	// see if it is time to do a tournement restart
+	// JBravo: no need if teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	CheckTournament();
+	}
 
 	// see if it is time to end the level
+	// JBravo: no need if teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	CheckExitRules();
+	}
 
 	// update to team status?
+	// JBravo: no need if teamplay
+	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	CheckTeamStatus();
+	}
 
 	// cancel vote if timed out
 	CheckVote();
+
+	// JBravo: this is the main function in g_teamplay that does everything
+	if ( g_gametype.integer == GT_TEAMPLAY ) {
+		CheckTeamRules();
+	}
 
 	// check team votes
 	CheckTeamVote( TEAM_RED );

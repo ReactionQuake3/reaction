@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -4475,7 +4478,8 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate) {
 #ifdef OBSTACLEDEBUG
 	ClientName(bs->client, netname, sizeof(netname));
 	BotAI_Print(PRT_MESSAGE, "%s: I'm blocked by model %d\n", netname, entinfo.modelindex);
-#endif OBSTACLEDEBUG
+// JBravo: silencing a compiler warning by commenting out text after endif
+#endif /* OBSTACLEDEBUG */
 	// if blocked by a bsp model and the bot wants to activate it
 	if (activate && entinfo.modelindex > 0 && entinfo.modelindex <= max_bspmodelindex) {
 		// find the bsp entity which should be activated in order to get the blocking entity out of the way

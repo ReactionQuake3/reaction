@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.5  2002/01/11 19:48:33  jbravo
 // Formatted the source in non DOS format.
 //
@@ -171,6 +174,7 @@ void TeamMain_MenuInit( void ) {
 
 	default:
 	case GT_TEAM:
+	case GT_TEAMPLAY:		// JBravo: Hmm ?
 	case GT_CTF:
 		s_teammain.joingame.generic.flags |= QMF_GRAYED;
 		break;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.7  2002/01/11 19:48:31  jbravo
 // Formatted the source in non DOS format.
 //
@@ -110,6 +113,7 @@ static const char *servertype_items[] = {
 	"All",
 	"Free For All",
 	"Team Deathmatch",
+	"RQ3 Teamplay",		// JBravo: added Teamplay
 	"Tournament",
 	"Capture the Flag",
 	0
@@ -129,6 +133,7 @@ static char* gamenames[] = {
 	"1v1",	// tournament
 	"SP ",	// single player
 	"Team DM",	// team deathmatch
+	"RQ3 Teamplay", // JBravo: teamplay
 	"CTF",	// capture the flag
 	"One Flag CTF",		// one flag ctf
 	"OverLoad",				// Overload
@@ -506,7 +511,7 @@ static void ArenaServers_UpdateMenu( void ) {
 			break;
 
 		case GAMES_TEAMPLAY:
-			if( servernodeptr->gametype != GT_TEAM ) {
+			if( servernodeptr->gametype != GT_TEAM || servernodeptr->gametype != GT_TEAMPLAY ) { // JBravo: Hmm ?
 				continue;
 			}
 			break;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.6  2002/01/11 19:48:31  jbravo
 // Formatted the source in non DOS format.
 //
@@ -104,11 +107,13 @@ static const char *gametype_items[] = {
 	"Team Deathmatch",
 	"Tournament",
 	"Capture the Flag",
+	"RQ3 Teamplay",
 	0
 };
 
-static int gametype_remap[] = {GT_FFA, GT_TEAM, GT_TOURNAMENT, GT_CTF};
-static int gametype_remap2[] = {0, 2, 0, 1, 3};
+// JBravo: adding teamplay to the starserver UI so the right maps appear
+static int gametype_remap[] = {GT_FFA, GT_TEAM, GT_TOURNAMENT, GT_CTF, GT_TEAMPLAY};
+static int gametype_remap2[] = {0, 2, 0, 1, 4, 3};
 
 
 static void UI_ServerOptionsMenu( qboolean multiplayer );
@@ -144,6 +149,12 @@ static int GametypeBits( char *string ) {
 
 		if( Q_stricmp( token, "single" ) == 0 ) {
 			bits |= 1 << GT_SINGLE_PLAYER;
+			continue;
+		}
+
+// JBravo: handle teamplay
+		if( Q_stricmp( token, "teamplay" ) == 0 ) {
+			bits |= 1 << GT_TEAMPLAY;
 			continue;
 		}
 
@@ -839,6 +850,13 @@ static void ServerOptions_Start( void ) {
 		trap_Cvar_SetValue( "ui_team_friendlt", friendlyfire );
 		break;
 
+// JBravo: teamplay
+	case GT_TEAMPLAY:
+		trap_Cvar_SetValue( "ui_team_fraglimit", fraglimit );
+		trap_Cvar_SetValue( "ui_team_timelimit", timelimit );
+		trap_Cvar_SetValue( "ui_team_friendlt", friendlyfire );
+		break;
+
 	case GT_CTF:
 		trap_Cvar_SetValue( "ui_ctf_fraglimit", fraglimit );
 		trap_Cvar_SetValue( "ui_ctf_timelimit", timelimit );
@@ -1106,7 +1124,7 @@ static void ServerOptions_InitBotNames( void ) {
 	if( s_serveroptions.gametype >= GT_TEAM ) {
 		Q_strncpyz( s_serveroptions.playerNameBuffers[1], "grunt", 16 );
 		Q_strncpyz( s_serveroptions.playerNameBuffers[2], "major", 16 );
-		if( s_serveroptions.gametype == GT_TEAM ) {
+		if( s_serveroptions.gametype == GT_TEAM || s_serveroptions.gametype == GT_TEAMPLAY ) {
 			Q_strncpyz( s_serveroptions.playerNameBuffers[3], "visor", 16 );
 		}
 		else {
@@ -1118,7 +1136,7 @@ static void ServerOptions_InitBotNames( void ) {
 		Q_strncpyz( s_serveroptions.playerNameBuffers[6], "sarge", 16 );
 		Q_strncpyz( s_serveroptions.playerNameBuffers[7], "grunt", 16 );
 		Q_strncpyz( s_serveroptions.playerNameBuffers[8], "major", 16 );
-		if( s_serveroptions.gametype == GT_TEAM ) {
+		if( s_serveroptions.gametype == GT_TEAM || s_serveroptions.gametype == GT_TEAMPLAY ) {
 			Q_strncpyz( s_serveroptions.playerNameBuffers[9], "visor", 16 );
 		}
 		else {
@@ -1205,6 +1223,13 @@ static void ServerOptions_SetMenuItems( void ) {
 		break;
 
 	case GT_TEAM:
+		Com_sprintf( s_serveroptions.fraglimit.field.buffer, 4, "%i", (int)Com_Clamp( 0, 999, trap_Cvar_VariableValue( "ui_team_fraglimit" ) ) );
+		Com_sprintf( s_serveroptions.timelimit.field.buffer, 4, "%i", (int)Com_Clamp( 0, 999, trap_Cvar_VariableValue( "ui_team_timelimit" ) ) );
+		s_serveroptions.friendlyfire.curvalue = (int)Com_Clamp( 0, 1, trap_Cvar_VariableValue( "ui_team_friendly" ) );
+		break;
+
+// JBravo: teamplay
+	case GT_TEAMPLAY:
 		Com_sprintf( s_serveroptions.fraglimit.field.buffer, 4, "%i", (int)Com_Clamp( 0, 999, trap_Cvar_VariableValue( "ui_team_fraglimit" ) ) );
 		Com_sprintf( s_serveroptions.timelimit.field.buffer, 4, "%i", (int)Com_Clamp( 0, 999, trap_Cvar_VariableValue( "ui_team_timelimit" ) ) );
 		s_serveroptions.friendlyfire.curvalue = (int)Com_Clamp( 0, 1, trap_Cvar_VariableValue( "ui_team_friendly" ) );

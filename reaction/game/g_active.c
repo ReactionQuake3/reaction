@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/01/11 20:20:58  jbravo
+// Adding TP to main branch
+//
 // Revision 1.41  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1119,11 +1122,9 @@ void ClientThink_real( gentity_t *ent ) {
 	// sanity check the command time to prevent speedup cheating
 	if ( ucmd->serverTime > level.time + 200 ) {
 		ucmd->serverTime = level.time + 200;
-//		G_Printf("serverTime <<<<<\n" );
 	}
 	if ( ucmd->serverTime < level.time - 1000 ) {
 		ucmd->serverTime = level.time - 1000;
-//		G_Printf("serverTime >>>>>\n" );
 	}
 
 	msec = ucmd->serverTime - client->ps.commandTime;
@@ -1199,29 +1200,11 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.speed *= 1.3;
 	}
 
-	// Let go of the hook if we aren't firing
-	//Blaze: No Hook in reaction
-	/*
-	if ( client->ps.weapon == WP_GRAPPLING_HOOK &&
-		client->hook && !( ucmd->buttons & BUTTON_ATTACK ) ) {
-		Weapon_HookFree(client->hook);
-	}
-	*/
-
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 
 	memset (&pm, 0, sizeof(pm));
 
-	// check for the hit-scan gauntlet, don't let the action
-	// go through as an attack unless it actually hits something
-	// Blaze: no need for the gauntlet check
-	/*
-	if ( client->ps.weapon == WP_GAUNTLET && !( ucmd->buttons & BUTTON_TALK ) &&
-		( ucmd->buttons & BUTTON_ATTACK ) && client->ps.weaponTime <= 0 ) {
-		pm.gauntletHit = CheckGauntletAttack( ent );
-	}
-	*/
 	if ( ent->flags & FL_FORCE_GESTURE ) {
 		ent->flags &= ~FL_FORCE_GESTURE;
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
@@ -1267,6 +1250,13 @@ void ClientThink_real( gentity_t *ent ) {
 	else {
 		pm.tracemask = MASK_PLAYERSOLID;
 	}
+
+// JBravo: fixing telefragging and shit during spawnig.  (Thanks NiceAss! :)
+	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action)
+	{
+		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
+	}
+
 	pm.trace = trap_Trace;
 	pm.pointcontents = trap_PointContents;
 	pm.debugLevel = g_debugMove.integer;
@@ -1392,7 +1382,8 @@ void ClientThink_real( gentity_t *ent ) {
 	client->latched_buttons |= client->buttons & ~client->oldbuttons;
 
 	// check for respawning
-	if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
+	// JBravo: we dont want to respawn players untill next round if teamplay.
+	if ( client->ps.stats[STAT_HEALTH] <= 0 && g_gametype.integer != GT_TEAMPLAY ) {
 		// wait for the attack button to be pressed
 		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
@@ -1403,7 +1394,8 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 
 			// pressing attack or use is the normal respawn method
-			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
+			// JBravo: unless we are in Teamplay mode.
+			if ( (ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE)) && g_gametype.integer != GT_TEAMPLAY ) {
 				respawn( ent );
 			}
 		}
