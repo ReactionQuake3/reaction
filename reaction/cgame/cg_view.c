@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2003/03/28 22:25:10  makro
+// no message
+//
 // Revision 1.30  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1210,6 +1213,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
 		}
 	}
+	//CG_DrawBigPolygon();
 
 	//Makro - draw sky portal first
 	//Note - doing it here means that sky portal entities won't get drawn. but at least the rest of the map looks ok :/

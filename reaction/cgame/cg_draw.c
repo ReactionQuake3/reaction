@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2003/03/28 22:25:10  makro
+// no message
+//
 // Revision 1.71  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -2528,9 +2531,11 @@ static void CG_DrawIRBlend()
 // If zbuffer is disabled, this should make it impossible to see?
 // By NiceAss (which means it probably doesn't work)
 void CG_DrawBigPolygon(void) {
-	vec3_t		end, forward, right, up;
+	vec3_t		end, forward, right, up, fogColor = {0, 0, 0};
 	polyVert_t	Corners[4];
-	float	Dist = 8192;//12288;
+	float	Dist = 2048;//12288;
+	//Makro - added
+	const char *info;
 	int		i;
 
 	AngleVectors(cg.refdefViewAngles, forward, right, up);
@@ -2556,10 +2561,22 @@ void CG_DrawBigPolygon(void) {
 	Corners[3].st[0] = 1;
 	Corners[3].st[1] = 0;
 
+	//Makro
+	info = CG_ConfigString(CS_FOGHULL);
+	if (info) {
+		if (info[0]) {
+			fogColor[0] = atof(Info_ValueForKey(info, "r"));
+			fogColor[1] = atof(Info_ValueForKey(info, "g"));
+			fogColor[2] = atof(Info_ValueForKey(info, "b"));
+			//CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
+			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
+		}
+	}
+
 	for (i = 0; i < 4; i++) {
-		Corners[i].modulate[0] = 255;
-		Corners[i].modulate[1] = 255;
-		Corners[i].modulate[2] = 255;
+		Corners[i].modulate[0] = 255 * fogColor[0];
+		Corners[i].modulate[1] = 255 * fogColor[1];
+		Corners[i].modulate[2] = 255 * fogColor[2];
 		Corners[i].modulate[3] = 255;
 	}
 

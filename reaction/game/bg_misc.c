@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2003/03/28 22:26:24  makro
+// no message
+//
 // Revision 1.49  2003/02/05 20:21:38  jbravo
 // Fixed the model replacement system.  Its no longer an ugly hack.
 //
@@ -1602,3 +1605,43 @@ qboolean IsWoodFlag(int flag)
 {
 	return IsWoodMat(GetMaterialFromFlag(flag));
 }
+
+//Makro - added
+char *modelFromStr(char *s)
+{
+	char *p, *out = s;
+	if (!s)
+		return NULL;
+	if ((p = strrchr(s, '/')) != NULL)
+	{
+		*p=0;
+		out=va("%s", s);
+		*p='/';
+	}
+	return out;
+}
+
+char *skinFromStr(char *s)
+{
+	char *p;
+	if (!s)
+		return NULL;
+	if (!*s)
+		return va("");
+	if ((p = strrchr(s, '/')) != NULL)
+		return p+1;
+	return va("default");
+}
+
+char *strchrstr(char *s, char *chars)
+{
+	if (!s || !chars)
+		return NULL;
+	while (*s)
+		if (strchr(chars, *s))
+			return s;
+		else
+			s++;
+	return NULL;
+}
+

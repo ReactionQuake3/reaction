@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2003/03/28 22:26:23  makro
+// no message
+//
 // Revision 1.55  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -2075,6 +2078,8 @@ void Reached_Train(gentity_t * ent)
 
 	// start it going
 	SetMoverState(ent, MOVER_1TO2, level.time);
+	//debug!!!
+	G_Printf("^4Got past SetMoverState\n\n");
 
 	// if there is a "wait" value on the target, don't start moving yet
 	if (next->wait) {
@@ -2462,6 +2467,7 @@ void SP_func_pendulum(gentity_t * ent)
 	}
 
 	freq = 1 / (M_PI * 2) * sqrt(g_gravity.value / (3 * length));
+	G_Printf("func_pendulum at %s: freq = %f\n", vtos(ent->s.origin), freq);
 
 	ent->s.pos.trDuration = (1000 / freq);
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2003/03/28 22:25:10  makro
+// no message
+//
 // Revision 1.138  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -1731,6 +1734,8 @@ extern vmCvar_t cg_RQ3_m3;
 extern vmCvar_t cg_RQ3_akimbo;
 extern vmCvar_t cg_RQ3_grenade;
 // JBravo: replacement skins
+//Makro - commented out
+/*
 extern vmCvar_t cg_RQ3_knife_skin;
 extern vmCvar_t cg_RQ3_mk23_skin;
 extern vmCvar_t cg_RQ3_m4_skin;
@@ -1740,6 +1745,7 @@ extern vmCvar_t cg_RQ3_handcannon_skin;
 extern vmCvar_t cg_RQ3_m3_skin;
 extern vmCvar_t cg_RQ3_akimbo_skin;
 extern vmCvar_t cg_RQ3_grenade_skin;
+*/
 //Blaze: replacement items
 extern vmCvar_t cg_RQ3_bandolier;
 extern vmCvar_t cg_RQ3_kevlar;
@@ -1748,12 +1754,15 @@ extern vmCvar_t cg_RQ3_laser;
 extern vmCvar_t cg_RQ3_slippers;
 extern vmCvar_t cg_RQ3_helmet;
 // JBravo: replacement skins
+//Makro - commented out
+/*
 extern vmCvar_t cg_RQ3_bandolier_skin;
 extern vmCvar_t cg_RQ3_kevlar_skin;
 extern vmCvar_t cg_RQ3_silencer_skin;
 extern vmCvar_t cg_RQ3_laser_skin;
 extern vmCvar_t cg_RQ3_slippers_skin;
 extern vmCvar_t cg_RQ3_helmet_skin;
+*/
 // JBravo: replacement ammo
 extern vmCvar_t cg_RQ3_ammo_mk23;
 extern vmCvar_t cg_RQ3_ammo_shells;
@@ -2445,3 +2454,6 @@ void CG_ParticleWater(vec3_t org, vec3_t vel, int duration, float alpha, float s
 
 extern qboolean initparticles;
 int CG_NewParticleArea(int num);
+
+//Makro - added
+void CG_DrawBigPolygon(void);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2003/03/28 22:25:10  makro
+// no message
+//
 // Revision 1.40  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -1229,35 +1232,33 @@ static void CG_Dlight(centity_t * cent)
 	//allows us to trigger them on off; SVF_NOCLIENT should've done this already, though
 	if (!(cent->currentState.eFlags & EF_NODRAW)) {
 		int cl;
-		float i, r, g, b;
+		float i, r, g, b, i2;
 
 		cl = cent->currentState.constantLight;
 		r = (cl & 255) / 255.0f;
 		g = ((cl >> 8) & 255) / 255.0f;
 		b = ((cl >> 16) & 255) / 255.0f;
-		i = (cl >> 24) & 255 * 4;
+		i = ((cl >> 24) & 255) * 8;
+		i2 = cent->currentState.weapon;
 
 		if (cent->currentState.eventParm & DLIGHT_FLICKER)
-			i += rand() % 100 - 50;
+			i += random() * (i2-i);
 
-		//Makro - old code
-		/*
-		if (cent->currentState.eventParm & DLIGHT_PULSE)
-			i *= 1.0f + sin(2 * M_PI * cg.time / 1000.0f);
-		*/
 		if (cent->currentState.eventParm & DLIGHT_PULSE)
 		{
-			float frequency = cent->currentState.frame / 1000.0f;
-			float phase = 2 * M_PI * (frequency * cg.time / 1000.0f + 2 * cent->currentState.generic1 / 1000.0f);
-			float i2 = cent->currentState.weapon;
-			i += sin(phase) * (i2-i);
+			float frequency = cent->currentState.powerups / 1000.0f;
+			float phase = 2 * M_PI * (frequency * cg.time / 1000.0f + cent->currentState.otherEntityNum2 / 1000.0f);
+			//CG_Printf("cgame: (%f %f %f) %f -> %f = ", r, g, b, i, i2);
+			i += (sin(phase) + 1) * (i2-i) / 2.0f;
+			//CG_Printf("%f\n", i);
 		}
 
 		if (cent->currentState.eventParm & DLIGHT_ADDITIVE)
 			trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);
 		else
 			trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+		//trap_R_AddLightToScene(cent->lerpOrigin, 500, 1, 1, 1);
 
-		//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
+		//CG_Printf("cgame: (%f %f %f)\n", cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]);
 	}
 }

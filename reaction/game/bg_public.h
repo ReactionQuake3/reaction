@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2003/03/28 22:26:24  makro
+// no message
+//
 // Revision 1.101  2003/03/09 19:49:39  niceass
 // Added torso animation for pistol
 //
@@ -1528,3 +1531,8 @@ holdable_t CharToItem(char *name, holdable_t defitem);
 weapon_t CharToWeapon(char *name, weapon_t defweapon);
 
 void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);
+
+//Makro - added
+char *modelFromStr(char *s);
+char *skinFromStr(char *s);
+char *strchrstr(char *s, char *chars);
