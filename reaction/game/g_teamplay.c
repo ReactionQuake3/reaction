@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/03/07 14:29:12  slicer
+// Intermission ala aq2, when timelimit/roundlimit hits.
+//
 // Revision 1.29  2002/03/05 02:08:16  jbravo
 // Fixed Unknown client command: Roundlimit bug
 //
@@ -115,6 +118,11 @@ void CheckTeamRules()
 	int checked_tie = 0;
 	gentity_t *player;
 
+	//Slicer
+	if(level.intermissiontime)
+		return;
+
+
 	level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
 
 	if (level.lights_camera_action) {
@@ -186,14 +194,20 @@ void CheckTeamRules()
 			}
 			else {
 				if (level.time - level.startTime >= g_timelimit.integer*60000) {
-					trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
+					//Slicer : Let's do a normal console print instead..
+					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+					//Slicer: Start Intermission
+					BeginIntermission();
 					return;
 				}
 			}
 		}
 		if (!level.team_round_countdown) {
 			if (BothTeamsHavePlayers()) {
+				//Slicer let's print to the console too
+				trap_SendServerCommand( -1, "print \"The round will begin in 20 seconds!\n\"" );
 				trap_SendServerCommand( -1, va("cp \"The round will begin in 20 seconds!\n\""));
 				level.team_round_countdown = (201*level.fps)/10;
 			}
@@ -428,6 +442,8 @@ int WonGame(int winner)
 			if(level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+				//Slicer: Start Intermission
+				BeginIntermission();
 				return 1;
 			}
 		}
@@ -446,8 +462,12 @@ int WonGame(int winner)
 				return 1;
 			}
 			else {
+			//Slicer: Adding a normal console print..
+			trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
 			trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+			//Slicer: Start Intermission
+			BeginIntermission();
 			return 1;
 			}
 		}

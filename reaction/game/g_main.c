@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/03/07 14:29:12  slicer
+// Intermission ala aq2, when timelimit/roundlimit hits.
+//
 // Revision 1.27  2002/03/07 01:38:36  assimon
 // Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
 //
@@ -1379,15 +1382,19 @@ The level will stay at the intermission for a minimum of 5 seconds
 If all players wish to continue, the level will then exit.
 If one or more players have not acknowledged the continue, the game will
 wait 10 seconds before going on.
+
+Slicer: This is changed for rq3. minimum of 5 secs showing scoreboard
+and then, if a player presses BUTTON_ATTACK, change the map
+
 =================
 */
 void CheckIntermissionExit( void ) {
-	int			ready, notReady;
+//	int			ready, notReady;
 	int			i;
 	gclient_t	*cl;
-	int			readyMask;
+//	int			readyMask;
 
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
+/*	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		return;
 	}
 
@@ -1423,12 +1430,24 @@ void CheckIntermissionExit( void ) {
 		}
 		cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
 	}
-
+*/
 	// never exit in less than five seconds
 	if ( level.time < level.intermissiontime + 5000 ) {
 		return;
 	}
 
+	for (i=0 ; i< g_maxclients.integer ; i++) {
+		cl = level.clients + i;
+		if ( cl->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
+			continue;
+		}
+		if(g_entities[cl->ps.clientNum].client->buttons & BUTTON_ATTACK)
+			ExitLevel();
+	}
+/*
 	// if nobody wants to go, clear timer
 	if ( !ready ) {
 		level.readyToExit = qfalse;
@@ -1454,6 +1473,7 @@ void CheckIntermissionExit( void ) {
 	}
 
 	ExitLevel();
+	*/
 }
 
 /*
@@ -1485,6 +1505,7 @@ CheckExitRules
 There will be a delay between the time the exit is qualified for
 and the time everyone is moved to the intermission spot, so you
 can see the last frag.
+
 =================
 */
 void CheckExitRules( void ) {
@@ -1496,6 +1517,9 @@ void CheckExitRules( void ) {
 		CheckIntermissionExit ();
 		return;
 	}
+	//Slicer
+	if(g_gametype.integer == GT_TEAMPLAY)
+		return;
 
 	if ( level.intermissionQueued ) {
 #ifdef MISSIONPACK
@@ -1518,8 +1542,7 @@ void CheckExitRules( void ) {
 		// always wait for sudden death
 				return;
 			}
-	//Slicer: Matchmode
-	if ( g_timelimit.integer && !level.warmupTime && !g_RQ3_matchmode.integer) {
+	if ( g_timelimit.integer && !level.warmupTime) {
 		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
 			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
 			LogExit( "Timelimit hit." );
@@ -1576,6 +1599,7 @@ void CheckExitRules( void ) {
 			return;
 		}
 	}
+	
 }
 
 
@@ -2036,9 +2060,10 @@ void G_RunFrame( int levelTime ) {
 
 	// see if it is time to end the level
 	// JBravo: no need if teamplay
-	if ( g_gametype.integer != GT_TEAMPLAY ) {
+	// Slicer: We will need it now for the rotation system..
+//	if ( g_gametype.integer != GT_TEAMPLAY ) {
 	CheckExitRules();
-	}
+//	}
 
 	// update to team status?
 	// JBravo: no need if teamplay
