@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/31 02:02:15  niceass
+// more random shell bouncing
+//
 // Revision 1.8  2002/03/16 21:49:45  niceass
 // All new shell ejection code
 //
@@ -219,10 +222,11 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 
 	// NiceAss: Make the reflection less perfect
 	VectorCopy( trace->plane.normal, normal );
+
 	if (le->leFlags == LEF_TUMBLE) {
-		normal[0] += crandom() * 0.1;
-		normal[1] += crandom() * 0.1;
-		normal[2] += crandom() * 0.1;
+		normal[0] += crandom() * 0.15;
+		normal[1] += crandom() * 0.15;
+		normal[2] += crandom() * 0.15;
 		VectorNormalize(normal);
 	}
 
