@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2002/08/30 15:27:10  jbravo
+// One more extra body fix
+//
 // Revision 1.133  2002/08/30 01:09:06  jbravo
 // Semi fixed the bodies thing in CTB
 //
@@ -1317,6 +1320,8 @@ void MakeSpectator(gentity_t * ent)
 	int i;
 
 	client = ent->client;
+	if (client->sess.sessionTeam == TEAM_SPECTATOR)
+		return;
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue(ent);
 
