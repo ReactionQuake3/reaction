@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/12/05 23:11:29  blaze
+// Added item replacement code
+//
 // Revision 1.100  2002/12/02 19:52:05  niceass
 // water pressure & shell ejection stuff
 //
@@ -997,15 +1000,73 @@ void CG_RegisterItemVisuals(int itemNum)
 	if (itemInfo->registered) {
 		return;
 	}
-
+	
 	item = &bg_itemlist[itemNum];
-
+	
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
-
-	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
-
-	itemInfo->icon = trap_R_RegisterShader(item->icon);
+	if (item->giType == IT_HOLDABLE)
+	{
+		if (item->giTag == HI_KEVLAR)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_kevlar.string));
+		}
+		if (item->giTag == HI_LASER)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_laser.string));
+		}
+		if (item->giTag == HI_SILENCER)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_silencer.string));
+		}
+		if (item->giTag == HI_BANDOLIER)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_bandolier.string));
+		}
+		if (item->giTag == HI_SLIPPERS)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_slippers.string));
+		}
+		if (item->giTag == HI_HELMET)
+		{
+			itemInfo->models[0] = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_helmet.string));
+		}
+	}
+	else
+	{
+		itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
+	}
+	if (item->giType == IT_HOLDABLE)
+	{
+		if (item->giTag == HI_KEVLAR)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_kevlar.string));
+		}
+		if (item->giTag == HI_LASER)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_laser.string));
+		}
+		if (item->giTag == HI_SILENCER)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_silencer.string));
+		}
+		if (item->giTag == HI_BANDOLIER)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_bandolier.string));
+		}
+		if (item->giTag == HI_SLIPPERS)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_slippers.string));
+		}
+		if (item->giTag == HI_HELMET)
+		{
+			itemInfo->icon = trap_R_RegisterShader(va("icons/iconi_%s",cg_RQ3_helmet.string));
+		}
+	}
+	else
+	{
+			itemInfo->icon = trap_R_RegisterShader(item->icon);
+	}
 
 	if (item->giType == IT_WEAPON) {
 		CG_RegisterWeapon(item->giTag);

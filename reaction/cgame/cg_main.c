@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/12/05 23:11:29  blaze
+// Added item replacement code
+//
 // Revision 1.114  2002/11/18 04:39:47  jbravo
 // Cleanup of cg_weapons.c
 //
@@ -406,6 +409,15 @@ vmCvar_t cg_RQ3_m3;
 vmCvar_t cg_RQ3_akimbo;
 vmCvar_t cg_RQ3_grenade;
 
+//Blaze: replacement items
+vmCvar_t cg_RQ3_bandolier;
+vmCvar_t cg_RQ3_kevlar;
+vmCvar_t cg_RQ3_silencer;
+vmCvar_t cg_RQ3_laser;
+vmCvar_t cg_RQ3_slippers;
+vmCvar_t cg_RQ3_helmet;
+
+
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
 
@@ -642,6 +654,14 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_m3, "cg_RQ3_m3", "m3", CVAR_ARCHIVE},
 	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo", CVAR_ARCHIVE},
 	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade", CVAR_ARCHIVE},
+
+	//Blaze: replacement items
+	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier", CVAR_ARCHIVE},
+	{&cg_RQ3_kevlar, "cg_RQ3_kevlar", "kevlar", CVAR_ARCHIVE},
+	{&cg_RQ3_silencer, "cg_RQ3_silencer", "silencer", CVAR_ARCHIVE},
+	{&cg_RQ3_laser, "cg_RQ3_laser", "laser", CVAR_ARCHIVE},
+	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers", CVAR_ARCHIVE},
+	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet/helmet", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
@@ -1875,13 +1895,13 @@ static void CG_RegisterGraphics(void)
 	cgs.media.akimboHandModel = trap_R_RegisterModel("models/weapons2/akimbo/akimbo_hand.md3");
 
 	//Elder: item cache
-	cgs.media.rq3_bandolierModel = trap_R_RegisterModel("models/items/bandolier.md3");
-	cgs.media.rq3_kevlarModel = trap_R_RegisterModel("models/items/kevlar.md3");
-	cgs.media.rq3_silencerModel = trap_R_RegisterModel("models/items/silencer.md3");
-	cgs.media.rq3_laserModel = trap_R_RegisterModel("models/items/laser.md3");
-	cgs.media.rq3_slippersModel = trap_R_RegisterModel("models/items/slippers.md3");
+	cgs.media.rq3_bandolierModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_bandolier.string));
+	cgs.media.rq3_kevlarModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_kevlar.string));
+	cgs.media.rq3_silencerModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_silencer.string));
+	cgs.media.rq3_laserModel = trap_R_RegisterModel(va("models/items/%s.md3", cg_RQ3_laser.string));
+	cgs.media.rq3_slippersModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_slippers.string));
 	// JBravo: adding the helmet
-	cgs.media.rq3_helmetModel = trap_R_RegisterModel("models/items/helmet/helmet.md3");
+	cgs.media.rq3_helmetModel = trap_R_RegisterModel(va("models/items/%s.md3",cg_RQ3_helmet.string));
 
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
 

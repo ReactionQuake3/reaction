@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2002/12/05 23:11:29  blaze
+// Added item replacement code
+//
 // Revision 1.131  2002/12/02 19:52:05  niceass
 // water pressure & shell ejection stuff
 //
@@ -1694,6 +1697,14 @@ extern vmCvar_t cg_RQ3_handcannon;
 extern vmCvar_t cg_RQ3_m3;
 extern vmCvar_t cg_RQ3_akimbo;
 extern vmCvar_t cg_RQ3_grenade;
+//Blaze: replacement items
+extern vmCvar_t cg_RQ3_bandolier;
+extern vmCvar_t cg_RQ3_kevlar;
+extern vmCvar_t cg_RQ3_silencer;
+extern vmCvar_t cg_RQ3_laser;
+extern vmCvar_t cg_RQ3_slippers;
+extern vmCvar_t cg_RQ3_helmet;
+
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;
