@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/10 21:42:44  blaze
+// allow RQ3_weapon_name to map to weapon_name to make radiant work better
+//
 // Revision 1.9  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -325,6 +328,36 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	else if (!strcmp(ent->classname, "ammo_bfg"))
 		ent->classname = "ammo_m4";
 	else if (!strcmp(ent->classname, "ammo_rockets"))
+		ent->classname = "ammo_shells";
+
+  //Blaze: let us support RQ3_weapon name so radiant works nicer
+  if (!strcmp(ent->classname,"RQ3_weapon_knife"))
+		ent->classname = "weapon_knife";
+	else if (!strcmp(ent->classname,"RQ3_weapon_pistol"))
+		ent->classname = "weapon_pistol";
+	else if (!strcmp(ent->classname,"RQ3_weapon_m3"))
+		ent->classname = "weapon_m3";
+	else if (!strcmp(ent->classname,"RQ3_weapon_mp5"))
+		ent->classname = "weapon_mp5";
+	else if (!strcmp(ent->classname,"RQ3_weapon_handcannon"))
+		ent->classname = "weapon_handcannon";
+	else if (!strcmp(ent->classname,"RQ3_weapon_ssg3000"))
+		ent->classname = "weapon_ssg3000";
+	else if (!strcmp(ent->classname,"RQ3_weapon_m4"))
+		ent->classname = "weapon_m4";
+	else if (!strcmp(ent->classname,"RQ3_weapon_grenade"))
+		ent->classname = "weapon_grenade";
+
+	//Elder: map Q3DM ammo -> RQ3 ammo
+	if (!strcmp(ent->classname,"RQ3_ammo_mk23"))
+		ent->classname = "ammo_mk23";
+	else if (!strcmp(ent->classname, "RQ3_ammo_ssg3000"))
+		ent->classname = "ammo_ssg3000";
+	else if (!strcmp(ent->classname, "RQ3_ammo_mp5"))
+		ent->classname = "ammo_mp5";
+	else if (!strcmp(ent->classname, "RQ3_ammo_m4"))
+		ent->classname = "ammo_m4";
+	else if (!strcmp(ent->classname, "RQ3_ammo_shells"))
 		ent->classname = "ammo_shells";
 
 	/*
