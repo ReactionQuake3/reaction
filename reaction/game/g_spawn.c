@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/08 11:41:48  makro
+// weapon_grenadelauncher = weapon_pistol
+//
 // Revision 1.28  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -390,6 +393,9 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		ent->classname = "weapon_m4";
 	else if (!strcmp(ent->classname,"ammo_grenades"))
 		ent->classname = "weapon_grenade";
+	//Makro - this was missing
+	else if (!strcmp(ent->classname,"weapon_grenadelauncher"))
+		ent->classname = "weapon_pistol";
 
 	//Elder: map Q3DM ammo -> RQ3 ammo
 	if (!strcmp(ent->classname,"ammo_bullets"))
