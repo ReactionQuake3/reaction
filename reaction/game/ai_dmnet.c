@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/05/01 05:32:45  makro
+// Bots reload akimbos/handcannons. Also, they can decide whether
+// or not an item in the ground is better than theirs
+//
 // Revision 1.16  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -88,7 +92,12 @@
 
 //Makro - to get rid of the warnings
 void Cmd_Bandage (gentity_t *ent);
+void Cmd_DropItem_f(gentity_t *ent);
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+
+int FindHumanTeamLeader(bot_state_t *bs);
+void BotVoiceChat_FollowMe(bot_state_t *bs, int client, int mode);
+
 //From ai_dmq3.c
 void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final);
 void BotAttack(bot_state_t *bs);
@@ -103,6 +112,15 @@ int numnodeswitches;
 char nodeswitch[MAX_NODESWITCHES+1][144];
 
 #define LOOKAHEAD_DISTANCE		300
+
+/*
+==================
+BotRespawn
+
+Added by Makro
+Replaces trap_EA_respawn
+==================
+*/
 
 /*
 ==================
@@ -259,6 +277,130 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 
 /*
 ==================
+RQ3_Bot_SpecialWeapon
+
+Added by Makro
+==================
+*/
+int RQ3_Bot_SpecialWeapon(bot_state_t *bs) {
+	return WP_NONE;
+}
+
+/*
+====================================
+RQ3_Bot_ComboScore
+
+Added by Makro
+Note - lots of factors should be
+considered here; they aren't :/
+====================================
+*/
+int RQ3_Bot_ComboScore(int weapon, holdable_t item)
+{
+	if (item != HI_KEVLAR || item != HI_LASER || item != HI_BANDOLIER ||
+		item != HI_SLIPPERS || item != HI_SILENCER)
+		return 0;
+	switch (weapon) {
+		//Shotgun
+		case WP_M3:
+			switch (item) {
+				case HI_KEVLAR:		return 100;
+				case HI_LASER:		return 30;
+				case HI_BANDOLIER:	return 80;
+				case HI_SILENCER:	return 30;
+				case HI_SLIPPERS:	return 80;
+			}
+			break;
+		//MP5
+		case WP_MP5:
+			switch (item) {
+				case HI_KEVLAR:		return 90;
+				case HI_LASER:		return 100;
+				case HI_BANDOLIER:	return 70;
+				case HI_SILENCER:	return 80;
+				case HI_SLIPPERS:	return 40;
+			}
+			break;
+		//HANDCANNON
+		case WP_HANDCANNON:
+			switch (item) {
+				case HI_KEVLAR:		return 90;
+				case HI_LASER:		return 30;
+				case HI_BANDOLIER:	return 90;
+				case HI_SILENCER:	return 30;
+				case HI_SLIPPERS:	return 90;
+			}
+			break;
+		//SSG3000
+		case WP_SSG3000:
+			switch (item) {
+				case HI_KEVLAR:		return 100;
+				case HI_LASER:		return 40;
+				case HI_BANDOLIER:	return 80;
+				case HI_SILENCER:	return 90;
+				case HI_SLIPPERS:	return 40;
+			}
+			break;
+		//M4
+		case WP_M4:
+			switch (item) {
+				case HI_KEVLAR:		return 100;
+				case HI_LASER:		return 90;
+				case HI_BANDOLIER:	return 80;
+				case HI_SILENCER:	return 30;
+				case HI_SLIPPERS:	return 40;
+			}
+			break;
+	}
+	return 0;
+}
+
+/*
+==================
+RQ3_Bot_NeedToDropStuff
+
+Added by Makro
+==================
+*/
+qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
+	//if the bot doesn't have an item or it didn't reach one
+	if (!g_entities[goal->entitynum].item)
+		return qfalse;
+	if ( bs->cur_ps.stats[STAT_HOLDABLE_ITEM] < 1 || bs->cur_ps.stats[STAT_HOLDABLE_ITEM] >= bg_numItems || g_entities[goal->entitynum].item->giType != IT_HOLDABLE)
+		return qfalse;
+	else
+	{
+		holdable_t	oldItem = bg_itemlist[bs->cur_ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+		holdable_t	newItem = g_entities[goal->entitynum].item->giTag;
+		int i, oldScore, newScore;
+		//if the two items are identical
+		if (oldItem == newItem) return qfalse;
+
+		newScore = oldScore = 0;
+		//check all the weapons
+		for (i = 0; i < MAX_WEAPONS; i++) {
+			//if the bot has the weapon
+			if ( bs->cur_ps.stats[STAT_WEAPONS] & (1 << i) ) {
+				//get the score for it
+				oldScore += RQ3_Bot_ComboScore(i, oldItem);
+				newScore += RQ3_Bot_ComboScore(i, newItem);
+			}
+		}
+
+		//FIXME - special code is needed for the bandolier, since throwing it away
+		//will also throw one of the weapons
+		if (newScore > oldScore) {
+			Cmd_DropItem_f( &g_entities[bs->entitynum] );
+			return qtrue;
+		}
+
+
+	}
+
+	return qfalse;
+}
+/*
+==================
 BotReachedGoal
 ==================
 */
@@ -267,7 +409,9 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 		//if touching the goal
 		if (trap_BotTouchingGoal(bs->origin, goal)) {
 			if (!(goal->flags & GFL_DROPPED)) {
+				//Makro - check if the bot picked up a better weapon or item
 				trap_BotSetAvoidGoalTime(bs->gs, goal->number, -1);
+				RQ3_Bot_NeedToDropStuff( bs , goal );
 			}
 			/*
 			if (g_entities[goal->entitynum].classname) {
@@ -1322,8 +1466,13 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 	bs->radioresponse_count = 0;
 
 	//set respawn state
-	bs->standfindenemy_time = FloatTime() + 5;
-	bs->stand_time = FloatTime() + 10;
+	if (gametype != GT_TEAMPLAY) {
+		bs->standfindenemy_time = FloatTime() + 5;
+		bs->stand_time = FloatTime() + 10;
+	} else {
+		bs->standfindenemy_time = FloatTime() + 1;
+		bs->check_time = bs->stand_time = FloatTime() + 2;
+	}
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;
 }
@@ -1341,15 +1490,6 @@ int AINode_Respawn(bot_state_t *bs) {
 		}
 		else {
 			trap_EA_Respawn(bs->client);
-			//Makro - maybe this will help in teamplay
-			if (gametype == GT_TEAMPLAY) {
-				gentity_t *spot = SelectRandomDeathmatchSpawnPoint();
-				aas_entityinfo_t entinfo;
-
-				BotEntityInfo(spot-g_entities, &entinfo);
-				BotMoveTo(bs, entinfo.origin);
-				//BotRoamGoal(bs, entinfo.origin);
-			}
 		}
 	}
 	else if (bs->respawn_time < FloatTime()) {

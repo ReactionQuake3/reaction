@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/01 05:32:45  makro
+// Bots reload akimbos/handcannons. Also, they can decide whether
+// or not an item in the ground is better than theirs
+//
 // Revision 1.20  2002/04/30 12:14:53  makro
 // Fixed a small warning
 //
@@ -165,21 +169,25 @@ void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
 
 /*
 ==================
-RQ3_Bot_ClipForWeapon
+RQ3_Bot_ClipsForWeapon
 
 Added by Makro
 ==================
 */
-int RQ3_Bot_ClipForWeapon( bot_state_t *bs, int weapon )
+int RQ3_Bot_ClipsForWeapon( bot_state_t *bs, int weapon )
 {
 	switch (weapon) {
 		case WP_PISTOL:
-		case WP_AKIMBO:
 			return bs->inventory[INVENTORY_PISTOLCLIP];
 			break;
+		case WP_AKIMBO:
+			return bs->inventory[INVENTORY_AKIMBOCLIP];
+			break;
 		case WP_M3:
-		case WP_HANDCANNON:
 			return bs->inventory[INVENTORY_M3CLIP];
+			break;
+		case WP_HANDCANNON:
+			return bs->inventory[INVENTORY_HANDCANNONCLIP];
 			break;
 		case WP_MP5:
 			return bs->inventory[INVENTORY_MP5CLIP];
@@ -199,6 +207,25 @@ int RQ3_Bot_ClipForWeapon( bot_state_t *bs, int weapon )
 
 /*
 ==================
+RQ3_Bot_CanReload
+
+Added by Makro
+==================
+*/
+qboolean RQ3_Bot_CanReload( bot_state_t *bs, int weapon ) {
+	int	clips = RQ3_Bot_ClipsForWeapon(bs, weapon);
+
+	//If no clips or not a valid weapon
+	if ( !clips || !(bs->cur_ps.stats[STAT_WEAPONS] & (1 << weapon)) ) return qfalse;
+
+	if (weapon == WP_AKIMBO || weapon == WP_HANDCANNON)
+		return (clips >= 2);
+	else
+		return qtrue;
+}
+
+/*
+==================
 BotAttack
 
 Added by Makro
@@ -212,8 +239,8 @@ void BotAttack(bot_state_t *bs) {
 	
 	//If the gun is empty
 	if ( (bs->cur_ps.ammo[bs->cur_ps.weapon]) == 0 ) {
-		//If bot has extra clips, reload
-		if ( RQ3_Bot_ClipForWeapon(bs, bs->cur_ps.weapon) >= 1 ) {
+		//If the bot has extra ammo
+		if ( RQ3_Bot_CanReload(bs, bs->cur_ps.weapon) >= 1 ) {
 			//Cmd_Reload( &g_entities[bs->entitynum] );
 			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 		}
