@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2003/09/01 15:17:52  jbravo
+// Made g_RQ3_haveHelmet a systeminfo cvar.
+//
 // Revision 1.148  2003/09/01 15:09:48  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -691,7 +694,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_allItems, "g_RQ3_allItems", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tdmMode, "g_RQ3_tdmMode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qtrue},
 	//Makro - added CVAR_SERVERINFO flag, it's needed for the UI
-	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_SYSTEMINFO, 0, qtrue},
 	{&g_RQ3_vote_waittime, "g_RQ3_vote_waittime", "15", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Makro - added CVAR_SERVERINFO flag, it's needed for the UI
