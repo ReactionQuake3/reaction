@@ -153,6 +153,9 @@ vmCvar_t	cg_RQ3_ssgColorB;
 vmCvar_t	cg_RQ3_ssgColorA;
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t	cg_RQ3_impactEffects;
+//Blaze: anouncer sounds
+vmCvar_t	cg_RQ3_anouncer;
+
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -315,7 +318,8 @@ cvarTable_t		cvarTable[] = {
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE },
-	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE }
+	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_anouncer, "cg_RQ3_anouncer", "1", CVAR_ARCHIVE },
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 

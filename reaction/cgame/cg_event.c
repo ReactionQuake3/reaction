@@ -2057,13 +2057,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					CG_AddBufferedSound(cgs.media.blueScoredSound);
 					break;
 				case GTS_REDTEAM_TOOK_LEAD:
-					CG_AddBufferedSound(cgs.media.redLeadsSound);
+					if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.redLeadsSound);
 					break;
 				case GTS_BLUETEAM_TOOK_LEAD:
-					CG_AddBufferedSound(cgs.media.blueLeadsSound);
+					if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound(cgs.media.blueLeadsSound);
 					break;
 				case GTS_TEAMS_ARE_TIED:
-					CG_AddBufferedSound( cgs.media.teamsTiedSound );
+					if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound( cgs.media.teamsTiedSound );
 					break;
 #ifdef MISSIONPACK
 				case GTS_KAMIKAZE:

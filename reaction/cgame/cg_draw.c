@@ -2597,13 +2597,13 @@ static void CG_DrawWarmup( void ) {
 		cg.warmupCount = sec;
 		switch ( sec ) {
 		case 0:
-			trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
 			break;
 		case 1:
-			trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
 			break;
 		case 2:
-			trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
 			break;
 		default:
 			break;

@@ -1209,6 +1209,8 @@ extern	vmCvar_t		cg_RQ3_ssgColorB;
 extern	vmCvar_t		cg_RQ3_ssgColorA;
 //Elder: smoke puffs, sparks, etc.
 extern	vmCvar_t		cg_RQ3_impactEffects;
+//Blaze: anouncer sounds
+extern	vmCvar_t		cg_RQ3_anouncer;
 
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;

@@ -162,11 +162,11 @@ static void CG_ParseWarmup( void ) {
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
 #ifdef MISSIONPACK
 		if (cgs.gametype >= GT_CTF && cgs.gametype <= GT_HARVESTER) {
-			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
 		} else
 #endif
 		{
-			trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
 		}
 	}
 
@@ -284,7 +284,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 #ifdef MISSIONPACK
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 #endif //MISSIONPACK
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
@@ -298,7 +298,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
 		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
 #ifdef MISSIONPACK
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
+		if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
 #endif
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
@@ -443,7 +443,7 @@ static void CG_MapRestart( void ) {
 
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
-		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
+		if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
 	}
 #ifdef MISSIONPACK
@@ -960,9 +960,9 @@ static void CG_ServerCommand( void ) {
 		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
 		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
-			trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
 		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
-			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
+			if (cg_RQ3_anouncer.integer == 1) trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
 		}
 #endif
 		return;
