@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/03/03 22:02:15  jbravo
+// Further attempts to stop "you fragged XXX" messages for spectators
+//
 // Revision 1.38  2002/03/02 20:16:58  jbravo
 // Stopping you fragged XXX messages for spectators in followmode.
 //
@@ -262,7 +265,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 #else
 // JBravo: attempting to stop these messages for spectators
-		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 #endif
 
@@ -569,7 +572,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		}
 		// print the text message as well
 // JBravo: attempting to stop these messages for spectators
-		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
@@ -782,7 +785,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 		}
 		// print the text message as well
 // JBravo: attempting to stop these messages for spectators
-		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
@@ -964,7 +967,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 		}
 		// print the text message as well
 // JBravo: attempting to stop these messages for spectators
-		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
@@ -1156,7 +1159,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 		}
 		// print the text message as well
 // JBravo: attempting to stop these messages for spectators
-		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
