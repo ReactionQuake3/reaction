@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/11 18:47:09  niceass
+// last fire animation fixed
+//
 // Revision 1.71  2002/05/08 07:24:33  niceass
 // Double jumping added. Everything feels very good.
 //
@@ -2496,6 +2499,7 @@ static void PM_Weapon( void ) {
 			// This should change pm->ps->generic1 so we can animate
 			// Elder: don't repeat if on semi-auto
 			// temp hack
+
 			if (pm->ps->weapon == WP_AKIMBO)
 			{
 				// don't repeat animation if on second akimbo shot
@@ -2507,9 +2511,9 @@ static void PM_Weapon( void ) {
 				}
 			}
 			else {
-				if ( pm->ps->ammo[pm->ps->weapon] > 1 )
+				if ( pm->ps->ammo[pm->ps->weapon] > 1 || pm->ps->weapon != WP_PISTOL )
 					PM_StartWeaponAnim( WP_ANIM_FIRE );
-				else if ( pm->ps->weapon == WP_PISTOL )
+				else
 					PM_StartWeaponAnim( WP_ANIM_EXTRA1 );		// Fix for last round fired
 			}
 		}
