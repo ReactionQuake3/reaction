@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/26 05:14:05  niceass
+// pressure stuff
+//
 // Revision 1.8  2002/04/29 06:13:31  niceass
 // small particle stuff
 //
@@ -2332,11 +2335,10 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	
 	VectorCopy(org, p->org);
 
-	p->vel[0] = vel[0];
-	p->vel[1] = vel[1];
-	p->vel[2] = vel[2];
+	p->vel[0] = vel[0] * speed;
+	p->vel[1] = vel[1] * speed;
+	p->vel[2] = vel[2] * speed;
 
-	// Elder: old settings
 	p->accel[0] = p->accel[1] = 0;
 	p->accel[2] = -PARTICLE_GRAVITY * 4;
 
@@ -2345,7 +2347,7 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	p->vel[2] += (20 + (crandom() * 10)) * speed;	
 }
 
-void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
+void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader)
 {
 	cparticle_t	*p;
 
@@ -2371,9 +2373,7 @@ void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	p->rotate = qtrue;
 	p->roll = crandom()*179;
 
-	p->pshader = cgs.media.smokePuffShader;
-
-	//cgs.media.grenadeExplosionShader
+	p->pshader = Shader;
 
 	p->type = P_SMOKE;
 	

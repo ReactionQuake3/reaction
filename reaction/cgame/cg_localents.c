@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/05/26 05:14:14  niceass
+// pressure stuff
+//
 // Revision 1.13  2002/05/18 03:55:35  niceass
 // many misc. changes
 //
@@ -232,7 +235,7 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 	float	dot;
 	int		hitTime;
 
-	// NiceAss: Make the reflection less perfect
+	// NiceAss: Make the reflection less perfect (for brass)
 	VectorCopy( trace->plane.normal, normal );
 
 	if (le->leFlags == LEF_TUMBLE) {
@@ -834,27 +837,24 @@ void CG_AddPressureEntity ( localEntity_t *le ) {
 
 	alpha = -(cg.time - le->startTime) + (le->endTime - le->startTime);
 	alpha /= (le->endTime - le->startTime);
-	//steamSound
-	for (l = 0; l < 1; l++) {
-/*
-		VectorScale(le->pos.trDelta, 200 + rand() % 30, velocity);
 
-		velocity[0] += rand() % 20 - 10;
-		velocity[1] += rand() % 20 - 10;
-		velocity[2] = 0;
-*/
+	//steamSound!!!
+
+	for (l = 0; l < 1; l++) {
 		// steam:
-		VectorScale(le->pos.trDelta, 200 + rand() % 30, velocity);
+		VectorScale(le->pos.trDelta, le->size + rand() % 30, velocity);
 
 		velocity[0] += rand() % 40 - 20;
 		velocity[1] += rand() % 40 - 20;
 
 		VectorCopy(le->pos.trBase, origin);
-		//VectorMA(origin, 10, velocity, origin);
 
-		//CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, -8, 1 );
-		//CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 1, 1 );
-		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
+		if (le->leFlags == LEF_WATER)
+			CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
+		else if (le->leFlags == LEF_FLAME)
+			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.grenadeExplosionShader );
+		else 
+			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.smokePuffShader );
 	}
 }
 
