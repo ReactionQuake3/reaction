@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/07/11 04:26:12  niceass
+// testing new cg_drawping code
+//
 // Revision 1.56  2002/07/09 05:44:08  niceass
 // ctb fixes
 //
@@ -151,6 +154,18 @@ char teamChat1[256];
 char teamChat2[256];
 
 
+
+#define	LAG_SAMPLES		128
+
+typedef struct {
+	int frameSamples[LAG_SAMPLES];
+	int frameCount;
+	int snapshotFlags[LAG_SAMPLES];
+	int snapshotSamples[LAG_SAMPLES];
+	int snapshotCount;
+} lagometer_t;
+
+lagometer_t lagometer;
 
 
 /*
@@ -690,15 +705,17 @@ static float CG_DrawFPSandPing(float y)
 	char *s;
 	int w;
 	static int previousTimes[FPS_FRAMES];
-	static int index, index2;
-	int i, total;
+	static int index;
+	int i, total, l;
 	int fps;
 	static int previous;
 	int t, frameTime, x = 0;
 	float Color[4];
 
-	static int Pings[PING_SNAPS];
+	/*static int Pings[PING_SNAPS];
 	static int currentSnapshotNum;
+	static int index2;*/
+	int avgping = 0;
 
 
 	// don't use serverTime, because that will be drifting to
@@ -711,11 +728,11 @@ static float CG_DrawFPSandPing(float y)
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
 
-	if (cg.latestSnapshotNum != currentSnapshotNum && cg.snap) {
+	/*if (cg.latestSnapshotNum != currentSnapshotNum && cg.snap) {
 		Pings[index2 % PING_SNAPS] = cg.snap->ping;
 		currentSnapshotNum = cg.latestSnapshotNum;
 		index2++;
-	}
+	}*/
 
 	index++;
 
@@ -748,29 +765,38 @@ static float CG_DrawFPSandPing(float y)
 	}
 
 	// Draw ping here:
-	if (index2 > PING_SNAPS) {
-		int avgping = 0, l;
+	//if (index2 > PING_SNAPS) {
 
-		for (l = 0; l < PING_SNAPS; l++) {
-			avgping += Pings[l];
+	if (cg_drawPing.integer) {	
+		for (i = 0; i < (LAG_SAMPLES / 2); i++) {
+			l = (lagometer.frameCount - 1 - i) & (LAG_SAMPLES - 1);
+			avgping += lagometer.snapshotSamples[i];
 		}
 
-		avgping /= PING_SNAPS;
-	
-		if (cg_drawPing.integer) {	
-			s = va("%ims", avgping);
-			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
-			x += w;
+		avgping /= (LAG_SAMPLES / 2);
 
-			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-			CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+		s = va("%ims", avgping);
+		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		x += w;
 
-			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-			CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+		i = (lagometer.frameCount - 1) & (LAG_SAMPLES - 1);
 
-			CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
-		}
-	}	
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+
+		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
+
+		if (lagometer.snapshotSamples[i] < 0)
+			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 1.0f);							// Red. Missed packet
+
+		if (lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
+			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
+
+		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+
+		CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+	}
+	//}	
 
 	if (!cg_drawFPS.integer && !cg_drawPing.integer)
 		return y;
@@ -1353,17 +1379,6 @@ LAGOMETER
 ===============================================================================
 */
 
-#define	LAG_SAMPLES		128
-
-typedef struct {
-	int frameSamples[LAG_SAMPLES];
-	int frameCount;
-	int snapshotFlags[LAG_SAMPLES];
-	int snapshotSamples[LAG_SAMPLES];
-	int snapshotCount;
-} lagometer_t;
-
-lagometer_t lagometer;
 
 /*
 ==============
