@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/29 20:56:23  niceass
+// Change to the way HC/Shotty act
+//
 // Revision 1.86  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -3450,10 +3453,26 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum, int shellWea
 	trace_t tr;
 	int sourceContentType, destContentType;
 
+	int l;
+	vec3_t t_start;
+
 	//Makro
 	int Material;
 
-	CG_Trace(&tr, start, NULL, NULL, end, skipNum, MASK_SHOT);
+	VectorCopy( start, t_start );
+
+	// NiceAss: Allow M3/HC shots to go through teammates
+	for (l = 0; l < 10; l++) {
+		CG_Trace(&tr, t_start, NULL, NULL, end, skipNum, MASK_SHOT);
+
+		if (tr.entityNum < MAX_CLIENTS && 
+			cgs.clientinfo[tr.entityNum].team == cg.snap->ps.persistant[PERS_SAVEDTEAM] ) {
+			VectorCopy ( tr.endpos, t_start );
+			skipNum = tr.entityNum;
+			continue;
+		}
+		break;
+	}
 
 	sourceContentType = trap_CM_PointContents(start, 0);
 	destContentType = trap_CM_PointContents(tr.endpos, 0);
