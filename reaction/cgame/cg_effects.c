@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2003/08/02 22:29:07  makro
+// Made underwater bubbles 3 times smaller
+//
 // Revision 1.41  2002/08/25 07:09:20  niceass
 // added "life" setting to func_pressure
 //
@@ -224,7 +227,8 @@ void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing)
 
 		re->reType = RT_SPRITE;
 		re->rotation = 0;
-		re->radius = 3;
+		//Makro - changed from 3
+		re->radius = 1;
 		re->customShader = cgs.media.waterBubbleShader;
 		re->shaderRGBA[0] = 0xff;
 		re->shaderRGBA[1] = 0xff;
