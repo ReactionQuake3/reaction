@@ -1171,6 +1171,13 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
         case IT_BAD:
             Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: IT_BAD" );
+        default:
+#ifndef Q3_VM
+#ifndef NDEBUG // bk0001204
+          Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType );
+#endif
+#endif
+         break;
 	}
 
 	return qfalse;
@@ -1505,18 +1512,16 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
 	if ( ps->externalEvent ) {
 		s->event = ps->externalEvent;
 		s->eventParm = ps->externalEventParm;
-	} else {
+	} else if ( ps->entityEventSequence < ps->eventSequence ) {
 		int		seq;
 
 		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
 		}
-		seq = (ps->entityEventSequence-1) & (MAX_PS_EVENTS-1);
+		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
 		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
-		if ( ps->entityEventSequence < ps->eventSequence ) {
-			ps->entityEventSequence++;
-		}
+		ps->entityEventSequence++;
 	}
 
 	s->weapon = ps->weapon;
@@ -1587,18 +1592,16 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	if ( ps->externalEvent ) {
 		s->event = ps->externalEvent;
 		s->eventParm = ps->externalEventParm;
-	} else {
+	} else if ( ps->entityEventSequence < ps->eventSequence ) {
 		int		seq;
 
 		if ( ps->entityEventSequence < ps->eventSequence - MAX_PS_EVENTS) {
 			ps->entityEventSequence = ps->eventSequence - MAX_PS_EVENTS;
 		}
-		seq = (ps->entityEventSequence-1) & (MAX_PS_EVENTS-1);
+		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
 		s->event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
 		s->eventParm = ps->eventParms[ seq ];
-		if ( ps->entityEventSequence < ps->eventSequence ) {
-			ps->entityEventSequence++;
-		}
+		ps->entityEventSequence++;
 	}
 
 	s->weapon = ps->weapon;

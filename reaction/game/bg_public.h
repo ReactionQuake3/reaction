@@ -321,8 +321,9 @@ typedef enum {
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
 #define	CS_PLAYERS			(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS		(CS_PLAYERS+MAX_CLIENTS)
+#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 
 
-#define CS_MAX				(CS_LOCATIONS+MAX_LOCATIONS)
+#define CS_MAX					(CS_PARTICLES+MAX_LOCATIONS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -434,7 +435,9 @@ typedef struct {
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
+	//void		(*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
+
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
 } pmove_t;
 
@@ -521,6 +524,7 @@ typedef enum {
 #endif
 #define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
 #define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
+#define EF_PLAYER_EVENT		0x00000010
 #define	EF_BOUNCE			0x00000010		// for missiles
 #define	EF_BOUNCE_HALF		0x00000020		// for missiles
 #define	EF_AWARD_GAUNTLET	0x00000040		// draw a gauntlet sprite
@@ -631,6 +635,8 @@ int ClipAmountForAmmo( int w );
 #define	EV_EVENT_BIT1		0x00000100
 #define	EV_EVENT_BIT2		0x00000200
 #define	EV_EVENT_BITS		(EV_EVENT_BIT1|EV_EVENT_BIT2)
+
+#define	EVENT_VALID_MSEC	300
 
 typedef enum {
 	EV_NONE,
@@ -813,14 +819,12 @@ typedef enum {
 //Blaze: Weapon reload animation
 //	WEAPON_RELOAD,
 
-#ifdef NEW_ANIMS
 	TORSO_GETFLAG,
 	TORSO_GUARDBASE,
 	TORSO_PATROL,
 	TORSO_FOLLOWME,
 	TORSO_AFFIRMATIVE,
 	TORSO_NEGATIVE,
-#endif
 
 	MAX_ANIMATIONS,
 

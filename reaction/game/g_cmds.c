@@ -581,7 +581,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 			}
 			if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
 				trap_SendServerCommand( ent->client->ps.clientNum, 
-					"cp \"Red team has too many players.\n\"" );
+					"cp \"Blue team has too many players.\n\"" );
 				return; // ignore the request
 			}
 
@@ -837,6 +837,9 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 	if (!other->client) {
+		return;
+	}
+	if ( other->client->pers.connected != CON_CONNECTED ) {
 		return;
 	}
 	if ( mode == SAY_TEAM  && !OnSameTeam(ent, other) ) {

@@ -572,6 +572,7 @@ ForceClientSkin
 Forces a client's skin (for teamplay)
 ===========
 */
+/*
 static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
 	char *p;
 
@@ -582,7 +583,7 @@ static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) 
 	Q_strcat(model, MAX_QPATH, "/");
 	Q_strcat(model, MAX_QPATH, skin);
 }
-
+*/
 
 /*
 ===========
@@ -688,6 +689,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
 	char	c1[MAX_INFO_STRING];
+	char	c2[MAX_INFO_STRING];
 	char	redTeam[MAX_INFO_STRING];
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
@@ -779,23 +781,26 @@ void ClientUserinfoChanged( int clientNum ) {
 		team = client->sess.sessionTeam;
 	}
 
+/*	NOTE: all client side now
+
 	// team
 	switch( team ) {
 	case TEAM_RED:
 		ForceClientSkin(client, model, "red");
-		ForceClientSkin(client, headModel, "red");
+//		ForceClientSkin(client, headModel, "red");
 		break;
 	case TEAM_BLUE:
 		ForceClientSkin(client, model, "blue");
-		ForceClientSkin(client, headModel, "blue");
+//		ForceClientSkin(client, headModel, "blue");
 		break;
 	}
 		// don't ever use a default skin in teamplay, it would just waste memory
 	// however bots will always join a team but they spawn in as spectator
 	if ( g_gametype.integer >= GT_TEAM && team == TEAM_SPECTATOR) {
 		ForceClientSkin(client, model, "red");
-		ForceClientSkin(client, headModel, "red");
+//		ForceClientSkin(client, headModel, "red");
 	}
+*/
 
 #ifdef MISSIONPACK
 	if (g_gametype.integer >= GT_TEAM) {
@@ -833,20 +838,22 @@ void ClientUserinfoChanged( int clientNum ) {
 	teamLeader = client->sess.teamLeader;
 
 	// colors
-	strcpy(c1, Info_ValueForKey( userinfo, "color" ));
+	strcpy(c1, Info_ValueForKey( userinfo, "color1" ));
+	strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
+
 	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, headModel, c1,
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, model, headModel, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
 	} else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1,
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, 
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
@@ -893,11 +900,13 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		return "Banned.";
 	}
 
-	// check for a password
-	value = Info_ValueForKey (userinfo, "password");
-	if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
-		strcmp( g_password.string, value) != 0) {
-		return "Invalid password";
+	if ( !( ent->r.svFlags & SVF_BOT ) ) {
+		// check for a password
+		value = Info_ValueForKey (userinfo, "password");
+		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
+			strcmp( g_password.string, value) != 0) {
+			return "Invalid password";
+		}
 	}
 
 	// they can connect
@@ -1037,12 +1046,8 @@ void ClientSpawn(gentity_t *ent) {
 	int		savedPing;
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
-	int		savedEvents[MAX_PS_EVENTS];
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
-
-	//To save the ammo stuff
-	//qboolean hadUniqueWeapon[MAX_WEAPONS];
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -1104,22 +1109,12 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
-	
-	//Elder: save unique weapon info
-	//for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
-		//hadUniqueWeapon[i] = client->hadUniqueWeapon[i];
-	//}
-
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
 	}
-	// also save the predictable events otherwise we might get double or dropped events
-	for (i = 0; i < MAX_PS_EVENTS; i++) {
-		savedEvents[i] = client->ps.events[i];
-	}
 	eventSequence = client->ps.eventSequence;
 
-	memset (client, 0, sizeof(*client));
+	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -1129,16 +1124,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
 	
-	//Elder: restore unique weapon info
-	//for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
-		//client->hadUniqueWeapon[i] = hadUniqueWeapon[i];
-	//}
-
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
-	}
-	for (i = 0; i < MAX_PS_EVENTS; i++) {
-		client->ps.events[i] = savedEvents[i];
 	}
 	client->ps.eventSequence = eventSequence;
 	// increment the spawncount so the client will detect the respawn
@@ -1169,8 +1156,6 @@ void ClientSpawn(gentity_t *ent) {
 	ent->watertype = 0;
 	ent->flags = 0;
 	
-	
-
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
 
@@ -1241,17 +1226,6 @@ void ClientSpawn(gentity_t *ent) {
 	client->inactivityTime = level.time + g_inactivity.integer * 1000;
 	client->latched_buttons = 0;
 
-	// Hawkins reset zoomed flag
-	//Elder: using new stat - it's cleared anyways below
-	//client->zoomed=0;
-	
-	//Elder: knife reset/initialize
-	//Elder: removed - set in ClientBegin
-	//client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
-
-	//Elder: reset isBandaging flag
-	//client->isBandaging = qfalse;
-
 	//Elder: reset all RQ3 non-persistent stats
 	ent->client->ps.stats[STAT_RQ3] = 0;
 	
@@ -1298,9 +1272,6 @@ void ClientSpawn(gentity_t *ent) {
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
-
-	//Elder: debug
-	//G_Printf("Just after respawn- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
 	// run the presend to set anything else
 	ClientEndFrame( ent );

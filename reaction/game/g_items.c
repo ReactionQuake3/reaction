@@ -114,7 +114,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		max = (int)(2 *  handicap);
@@ -131,7 +131,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -142,7 +142,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -151,7 +151,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;
@@ -161,7 +161,7 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( !handicap ) {
+		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
 		other->client->pers.maxHealth = handicap;

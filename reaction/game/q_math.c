@@ -133,6 +133,62 @@ float	Q_crandom( int *seed ) {
 	return 2.0 * ( Q_random( seed ) - 0.5 );
 }
 
+#ifdef __LCC__
+
+int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
+	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]) {
+		return 0;
+	}			
+	return 1;
+}
+
+vec_t VectorLength( const vec3_t v ) {
+	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
+vec_t VectorLengthSquared( const vec3_t v ) {
+	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
+vec_t Distance( const vec3_t p1, const vec3_t p2 ) {
+	vec3_t	v;
+
+	VectorSubtract (p2, p1, v);
+	return VectorLength( v );
+}
+
+vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 ) {
+	vec3_t	v;
+
+	VectorSubtract (p2, p1, v);
+	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+}
+
+// fast vector normalize routine that does not check to make sure
+// that length != 0, nor does it return length, uses rsqrt approximation
+void VectorNormalizeFast( vec3_t v )
+{
+	float ilength;
+
+	ilength = Q_rsqrt( DotProduct( v, v ) );
+
+	v[0] *= ilength;
+	v[1] *= ilength;
+	v[2] *= ilength;
+}
+
+void VectorInverse( vec3_t v ){
+	v[0] = -v[0];
+	v[1] = -v[1];
+	v[2] = -v[2];
+}
+
+void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross ) {
+	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
+	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
+	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
+}
+#endif
 
 //=======================================================
 
@@ -419,7 +475,11 @@ void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
 	vec3_t n;
 	float inv_denom;
 
-	inv_denom = 1.0F / DotProduct( normal, normal );
+	inv_denom =  DotProduct( normal, normal );
+#ifndef Q3_VM
+	assert( Q_fabs(inv_denom) != 0.0f ); // bk010122 - zero vectors get here
+#endif
+	inv_denom = 1.0f / inv_denom;
 
 	d = DotProduct( normal, p ) * inv_denom;
 
@@ -465,6 +525,7 @@ void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out )
 
 //============================================================================
 
+#if !idppc
 /*
 ** float q_rsqrt( float number )
 */
@@ -482,6 +543,11 @@ float Q_rsqrt( float number )
 	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
 //	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
+#ifndef Q3_VM
+#ifdef __linux__
+	assert( !isnan(y) ); // bk010122 - FPE?
+#endif
+#endif
 	return y;
 }
 
@@ -490,6 +556,7 @@ float Q_fabs( float f ) {
 	tmp &= 0x7FFFFFFF;
 	return * ( float * ) &tmp;
 }
+#endif
 
 //============================================================
 
@@ -650,8 +717,9 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 
 ==================
 */
-#if !(defined __linux__ && defined __i386__ && !defined C_ONLY)
-#if defined __LCC__ || defined C_ONLY || !id386
+#if !( (defined __linux__ || __FreeBSD__) && (defined __i386__) && (!defined C_ONLY)) // rb010123
+
+#if defined __LCC__ || defined C_ONLY || !id386 || defined __VECTORC
 
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
@@ -1002,15 +1070,6 @@ void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs ) {
 }
 
 
-int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
-	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]) {
-		return 0;
-	}
-			
-	return 1;
-}
-
-
 vec_t VectorNormalize( vec3_t v ) {
 	float	length, ilength;
 
@@ -1027,21 +1086,6 @@ vec_t VectorNormalize( vec3_t v ) {
 	return length;
 }
 
-//
-// fast vector normalize routine that does not check to make sure
-// that length != 0, nor does it return length
-//
-void VectorNormalizeFast( vec3_t v )
-{
-	float ilength;
-
-	ilength = Q_rsqrt( DotProduct( v, v ) );
-
-	v[0] *= ilength;
-	v[1] *= ilength;
-	v[2] *= ilength;
-}
-
 vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 	float	length, ilength;
 
@@ -1050,11 +1094,17 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out) {
 
 	if (length)
 	{
+#ifndef Q3_VM // bk0101022 - FPE related
+//	  assert( ((Q_fabs(v[0])!=0.0f) || (Q_fabs(v[1])!=0.0f) || (Q_fabs(v[2])!=0.0f)) );
+#endif
 		ilength = 1/length;
 		out[0] = v[0]*ilength;
 		out[1] = v[1]*ilength;
 		out[2] = v[2]*ilength;
 	} else {
+#ifndef Q3_VM // bk0101022 - FPE related
+//	  assert( ((Q_fabs(v[0])==0.0f) && (Q_fabs(v[1])==0.0f) && (Q_fabs(v[2])==0.0f)) );
+#endif
 		VectorClear( out );
 	}
 		
@@ -1095,41 +1145,6 @@ void _VectorScale( const vec3_t in, vec_t scale, vec3_t out ) {
 	out[0] = in[0]*scale;
 	out[1] = in[1]*scale;
 	out[2] = in[2]*scale;
-}
-
-void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross ) {
-	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
-	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
-	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
-}
-
-vec_t VectorLength( const vec3_t v ) {
-	return sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-}
-
-vec_t VectorLengthSquared( const vec3_t v ) {
-	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-}
-
-vec_t Distance( const vec3_t p1, const vec3_t p2 ) {
-	vec3_t	v;
-
-	VectorSubtract (p2, p1, v);
-	return VectorLength( v );
-}
-
-vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 ) {
-	vec3_t	v;
-
-	VectorSubtract (p2, p1, v);
-	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-}
-
-
-void VectorInverse( vec3_t v ){
-	v[0] = -v[0];
-	v[1] = -v[1];
-	v[2] = -v[2];
 }
 
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out ) {

@@ -1640,7 +1640,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							
 							//Setup headshot spray and sound
 							//Only do if not knife or SSG -- SSG has its own trail of blood
-							if (mod != MOD_SNIPER && mod != MOD_KNIFE && mode != MOD_KNIFE_THROWN)
+							if (mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
 							{
 								VectorAdd(targ->s.pos.trBase, line, line);
 								tent = G_TempEntity(line, EV_HEADSHOT);

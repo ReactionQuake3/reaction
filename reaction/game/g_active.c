@@ -807,6 +807,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 }
 
+#ifdef MISSIONPACK
 /*
 ==============
 StuckInOtherClient
@@ -847,7 +848,9 @@ static int StuckInOtherClient(gentity_t *ent) {
 	}
 	return qfalse;
 }
+#endif
 
+void BotTestSolid(vec3_t origin);
 /*
 =============
 ThrowWeapon
@@ -918,7 +921,7 @@ void ThrowWeapon( gentity_t *ent )
 }
 
 /*
-=============
+==============
 ThrowItem
 
 Used to toss an item much like weapons except a bit leaner
@@ -965,7 +968,42 @@ void ThrowItem( gentity_t *ent )
 
 
 //Elder: wtf?
-void BotTestSolid(vec3_t origin);
+
+
+/*
+==============
+SendPendingPredictableEvents
+==============
+*/
+void SendPendingPredictableEvents( playerState_t *ps ) {
+	gentity_t *t;
+	int event, seq;
+	int extEvent, number;
+
+	// if there are still events pending
+	if ( ps->entityEventSequence < ps->eventSequence ) {
+		// create a temporary entity for this event which is sent to everyone
+		// except the client who generated the event
+		seq = ps->entityEventSequence & (MAX_PS_EVENTS-1);
+		event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
+		// set external event to zero before calling BG_PlayerStateToEntityState
+		extEvent = ps->externalEvent;
+		ps->externalEvent = 0;
+		// create temporary entity for event
+		t = G_TempEntity( ps->origin, event );
+		number = t->s.number;
+		BG_PlayerStateToEntityState( ps, &t->s, qtrue );
+		t->s.number = number;
+		t->s.eType = ET_EVENTS + event;
+		t->s.eFlags |= EF_PLAYER_EVENT;
+		t->s.otherEntityNum = ps->clientNum;
+		// send to everyone except the client who generated the event
+		t->r.svFlags |= SVF_NOTSINGLECLIENT;
+		t->r.singleClient = ps->clientNum;
+		// set back external event
+		ps->externalEvent = extEvent;
+	}
+}
 
 /*
 ==============
@@ -1066,11 +1104,7 @@ void ClientThink_real( gentity_t *ent ) {
 	client->ps.gravity = g_gravity.value;
 
 	// set speed
-//Blaze: Where did this come from
-/*	if(client->legDamage < g_speed.value)
-		client->ps.speed = g_speed.value - client->legDamage;
-	else*/
-		client->ps.speed = g_speed.value;
+	client->ps.speed = g_speed.value;
 
 #ifdef MISSIONPACK
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
@@ -1081,7 +1115,6 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( client->ps.powerups[PW_HASTE] ) {
 		client->ps.speed *= 1.3;
 	}
-
 
 	// Let go of the hook if we aren't firing
 	//Blaze: No Hook in reaction
@@ -1242,6 +1275,8 @@ void ClientThink_real( gentity_t *ent ) {
 	else {
 	BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
 	}
+	SendPendingPredictableEvents( &ent->client->ps );
+
 	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
 		client->fireHeld = qfalse;		// for grapple
 	}
@@ -1371,6 +1406,7 @@ void ClientThink_real( gentity_t *ent ) {
 		return;
 	}
 
+	// perform once-a-second actions
 	ClientTimerActions( ent, msec );
 }
 
@@ -1464,9 +1500,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame( gentity_t *ent ) {
 	int			i;
 	clientPersistant_t	*pers;
-//	gitem_t		*rq3_item;
-//	gentity_t	*rq3_temp;
-	//vec3_t		spawn_origin, spawn_angles;
+
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		SpectatorClientEndFrame( ent );
 		return;
@@ -1591,6 +1625,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	else {
 	BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, qtrue );
 	}
+	SendPendingPredictableEvents( &ent->client->ps );
 
 	// set the bit for the reachability area the client is currently in
 //	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );

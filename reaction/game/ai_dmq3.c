@@ -200,18 +200,6 @@ qboolean EntityIsDead(aas_entityinfo_t *entinfo) {
 
 /*
 ==================
-EntityIsInvisible
-==================
-*/
-qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
-	if (entinfo->powerups & (1 << PW_INVIS)) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-==================
 EntityCarriesFlag
 ==================
 */
@@ -224,6 +212,22 @@ qboolean EntityCarriesFlag(aas_entityinfo_t *entinfo) {
 	if ( entinfo->powerups & ( 1 << PW_NEUTRALFLAG ) )
 		return qtrue;
 #endif
+	return qfalse;
+}
+
+/*
+==================
+EntityIsInvisible
+==================
+*/
+qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
+	// the flag is always visible
+	if (EntityCarriesFlag(entinfo)) {
+		return qfalse;
+	}
+	if (entinfo->powerups & (1 << PW_INVIS)) {
+		return qtrue;
+	}
 	return qfalse;
 }
 
@@ -1572,7 +1576,7 @@ void BotSetupForMovement(bot_state_t *bs) {
 	memset(&initmove, 0, sizeof(bot_initmove_t));
 	VectorCopy(bs->cur_ps.origin, initmove.origin);
 	VectorCopy(bs->cur_ps.velocity, initmove.velocity);
-	VectorCopy(bs->cur_ps.origin, initmove.viewoffset);
+	VectorClear(initmove.viewoffset);
 	initmove.viewoffset[2] += bs->cur_ps.viewheight;
 	initmove.entitynum = bs->entitynum;
 	initmove.client = bs->client;
@@ -2953,6 +2957,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			bs->enemysight_time = FloatTime();
 			bs->enemysuicide = qfalse;
 			bs->enemydeath_time = 0;
+			bs->enemyvisible_time = FloatTime();
 			return qtrue;
 	}
 	}
@@ -3021,6 +3026,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		else bs->enemysight_time = FloatTime();
 		bs->enemysuicide = qfalse;
 		bs->enemydeath_time = 0;
+		bs->enemyvisible_time = FloatTime();
 		return qtrue;
 	}
 	return qfalse;
@@ -3593,14 +3599,14 @@ void BotCheckAttack(bot_state_t *bs) {
 		}
 	}
 	//
+	//
+	VectorSubtract(bs->aimtarget, bs->eye, dir);
+	//
 	if (bs->weaponnum == WP_KNIFE) {
 		if (VectorLengthSquared(dir) > Square(60)) {
 		return;
 		}
 	}
-	//
-	VectorSubtract(bs->aimtarget, bs->eye, dir);
-	//
 	if (VectorLengthSquared(dir) < Square(100))
 		fov = 120;
 	else
@@ -3744,10 +3750,11 @@ void BotMapScripts(bot_state_t *bs) {
 BotSetMovedir
 ==================
 */
-vec3_t VEC_UP		= {0, -1,  0};
-vec3_t MOVEDIR_UP	= {0,  0,  1};
-vec3_t VEC_DOWN		= {0, -2,  0};
-vec3_t MOVEDIR_DOWN	= {0,  0, -1};
+// bk001205 - made these static
+static vec3_t VEC_UP		= {0, -1,  0};
+static vec3_t MOVEDIR_UP	= {0,  0,  1};
+static vec3_t VEC_DOWN		= {0, -2,  0};
+static vec3_t MOVEDIR_DOWN	= {0,  0, -1};
 
 void BotSetMovedir(vec3_t angles, vec3_t movedir) {
 	if (VectorCompare(angles, VEC_UP)) {
@@ -4147,7 +4154,7 @@ BotGetActivateGoal
 //#define OBSTACLEDEBUG
 
 int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activategoal) {
-	int i, ent, cur_entities[10], spawnflags, modelindex, areas[10], numareas, t;
+	int i, ent, cur_entities[10], spawnflags, modelindex, areas[MAX_ACTIVATEAREAS*2], numareas, t;
 	char model[MAX_INFO_STRING], tmpmodel[128];
 	char target[128], classname[128];
 	float health;
@@ -4201,13 +4208,29 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
  			VectorClear(angles);
 				BotModelMinsMaxs(modelindex, ET_MOVER, 0, absmins, absmaxs);
  			//
-				numareas = trap_AAS_BBoxAreas(absmins, absmaxs, areas, 10);
+				numareas = trap_AAS_BBoxAreas(absmins, absmaxs, areas, MAX_ACTIVATEAREAS*2);
+				// store the areas with reachabilities first
 				for (i = 0; i < numareas; i++) {
+					if (activategoal->numareas >= MAX_ACTIVATEAREAS)
+						break;
+					if ( !trap_AAS_AreaReachability(areas[i]) ) {
+						continue;
+					}
 					trap_AAS_AreaInfo(areas[i], &areainfo);
 					if (areainfo.contents & AREACONTENTS_MOVER) {
 						activategoal->areas[activategoal->numareas++] = areas[i];
+					}
+				}
+				// store any remaining areas
+				for (i = 0; i < numareas; i++) {
 						if (activategoal->numareas >= MAX_ACTIVATEAREAS)
 							break;
+					if ( trap_AAS_AreaReachability(areas[i]) ) {
+						continue;
+					}
+					trap_AAS_AreaInfo(areas[i], &areainfo);
+					if (areainfo.contents & AREACONTENTS_MOVER) {
+						activategoal->areas[activategoal->numareas++] = areas[i];
 					}
 				}
 			}
@@ -4217,33 +4240,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
  	if (!strcmp(classname, "func_breakable")) {
  		return ent;
  	}
-	//Blaze: This code is for bots, we will need to fix it later
-/*
-	else if (!strcmp(classname, "func_breakable")) {
- 			//shoot at the shootable door
- 			trap_AAS_ValueForBSPEpairKey(ent, "model", model, sizeof(model));
- 			modelindex = atoi(model+1);
- 			//if the model is not loaded
- 			if (!modelindex) return;
- 			VectorClear(angles);
- 			BotModelMinsMaxs(modelindex, ET_BREAKABLE, mins, maxs);
- 			//door origin
- 			VectorAdd(mins, maxs, origin);
- 			VectorScale(origin, 0.5, origin);
- 			//
- 			VectorSubtract(origin, bs->eye, movedir);
- 			vectoangles(movedir, moveresult->ideal_viewangles);
- 			moveresult->flags |= MOVERESULT_MOVEMENTVIEW;
- 			moveresult->flags |= MOVERESULT_MOVEMENTWEAPON;
- 			//select the machinegun and shoot
- 			trap_EA_SelectWeapon(bs->client, WEAPONINDEX_MACHINEGUN);
- 			if (bs->cur_ps.weapon == WEAPONINDEX_MACHINEGUN) {
- 				trap_EA_Attack(bs->client);
- 			}
- 			return;
- 	}
-*/
-  // if the bot is blocked by or standing on top of a button
+	// if the bot is blocked by or standing on top of a button
 	if (!strcmp(classname, "func_button")) {
 		return 0;
 	}
@@ -4362,7 +4359,7 @@ int BotGoForActivateGoal(bot_state_t *bs, bot_activategoal_t *activategoal) {
 	//
 	if (BotPushOntoActivateGoalStack(bs, activategoal)) {
 		// enter the activate entity AI node
-		AIEnter_Seek_ActivateEntity(bs);
+		AIEnter_Seek_ActivateEntity(bs, "BotGoForActivateGoal");
 		return qtrue;
 	}
 	else {
@@ -4693,7 +4690,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 							//remove the console message
 							trap_BotRemoveConsoleMessage(bs->cs, handle);
 							bs->stand_time = FloatTime() + BotChatTime(bs);
-							AIEnter_Stand(bs);
+							AIEnter_Stand(bs, "BotCheckConsoleMessages: reply chat");
 							//EA_Say(bs->client, bs->cs.chatmessage);
 							break;
 						}
@@ -4713,8 +4710,7 @@ BotCheckEvents
 */
 void BotCheckForGrenades(bot_state_t *bs, entityState_t *state) {
 	// if this is not a grenade
-	if (state->eType != ET_MISSILE || state->weapon != WP_GRENADE)
-		return;
+	if (state->eType != ET_MISSILE || state->weapon != WP_GRENADE) return;
 	// try to avoid the grenade
 	trap_BotAddAvoidSpot(bs->ms, state->pos.trBase, 160, AVOID_ALWAYS);
 }
@@ -5268,13 +5264,13 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	}
 	//if the bot has no ai node
 	if (!bs->ainode) {
-		AIEnter_Seek_LTG(bs);
+		AIEnter_Seek_LTG(bs, "BotDeathmatchAI: no ai node");
 	}
 	//if the bot entered the game less than 8 seconds ago
 	if (!bs->entergamechat && bs->entergame_time > FloatTime() - 8) {
 		if (BotChat_EnterGame(bs)) {
 			bs->stand_time = FloatTime() + BotChatTime(bs);
-			AIEnter_Stand(bs);
+			AIEnter_Stand(bs, "BotDeathmatchAI: chat enter game");
 		}
 		bs->entergamechat = qtrue;
 	}

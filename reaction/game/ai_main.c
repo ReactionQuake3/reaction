@@ -1626,11 +1626,6 @@ BotAISetup
 int BotAISetup( int restart ) {
 	int			errnum;
 
-#ifdef RANDOMIZE
-	srand((unsigned)time(NULL));
-#endif //RANDOMIZE
-
-
 	trap_Cvar_Register(&bot_thinktime, "bot_thinktime", "100", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_memorydump, "bot_memorydump", "0", CVAR_CHEAT);
 	trap_Cvar_Register(&bot_saveroutingcache, "bot_saveroutingcache", "0", CVAR_CHEAT);

@@ -23,7 +23,7 @@ typedef struct {
 	int		spawnTime;
 } botSpawnQueue_t;
 
-static int				botBeginDelay;
+//static int			botBeginDelay = 0;  // bk001206 - unused, init
 static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
@@ -612,10 +612,17 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 	Info_SetValueForKey( userinfo, "sex", s );
 
-	key = "color";
+	key = "color1";
 	s = Info_ValueForKey( botinfo, key );
 	if ( !*s ) {
 		s = "4";
+	}
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "color2";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s ) {
+		s = "5";
 	}
 	Info_SetValueForKey( userinfo, key, s );
 
@@ -648,7 +655,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		}
 	}
 	Info_SetValueForKey( userinfo, "characterfile", Info_ValueForKey( botinfo, "aifile" ) );
-	Info_SetValueForKey( userinfo, "skill", va( "%f", skill ) );
+	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
 	Info_SetValueForKey( userinfo, "team", team );
 
 	bot = &g_entities[ clientNum ];

@@ -223,6 +223,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 //	float		down_dist, up_dist;
 //	vec3_t		delta, delta2;
 	vec3_t		up, down;
+	float		stepSize;
 
 	VectorCopy (pm->ps->origin, start_o);
 	VectorCopy (pm->ps->velocity, start_v);
@@ -252,7 +253,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 	up[2] += STEPSIZE;
 
 	// test the player position if they were a stepheight higher
-	pm->trace (&trace, up, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+	pm->trace (&trace, start_o, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
 	if ( trace.allsolid ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend can't step\n", c_pmove);
@@ -260,21 +261,21 @@ void PM_StepSlideMove( qboolean gravity ) {
 		return;		// can't step up
 	}
 
+	stepSize = trace.endpos[2] - start_o[2];
 	// try slidemove from this position
-	VectorCopy (up, pm->ps->origin);
+	VectorCopy (trace.endpos, pm->ps->origin);
 	VectorCopy (start_v, pm->ps->velocity);
 
 	PM_SlideMove( gravity );
 
 	// push down the final amount
 	VectorCopy (pm->ps->origin, down);
-	down[2] -= STEPSIZE;
+	down[2] -= stepSize;
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
 	if ( !trace.allsolid ) {
 		VectorCopy (trace.endpos, pm->ps->origin);
 	}
 	if ( trace.fraction < 1.0 ) {
-//Blaze: Ramp jump test
 		PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
 	}
 

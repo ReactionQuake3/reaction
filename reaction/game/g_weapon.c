@@ -5,10 +5,6 @@
 
 #include "g_local.h"
 
-//Blaze: reaction weapon damage ratings & weapon spreads
-//Elder: moved to bg_public.h with the rest of the constants
-
-
 static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
 static	vec3_t	muzzle;
@@ -16,7 +12,7 @@ static	vec3_t	muzzle;
 //Elder: used for shell damage - we have no more malloc function so make it static?
 int tookShellHit[MAX_CLIENTS];
 
-#define NUM_NAILSHOTS 10
+#define NUM_NAILSHOTS 15
 
 /*
 ================

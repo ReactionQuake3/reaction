@@ -6,10 +6,9 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"Q3 1.27g"
+#define	Q3_VERSION		"Q3 1.29h"
 
 
-#define NEW_ANIMS
 #define MAX_TEAMNAME 32
 
 #ifdef _WIN32
@@ -35,10 +34,6 @@
 #pragma warning(disable : 4702)		// unreachable code
 #pragma warning(disable : 4711)		// selected for automatic inline expansion
 #pragma warning(disable : 4220)		// varargs matches remaining parameters
-#endif
-
-#if defined(ppc) || defined(__ppc) || defined(__ppc__) || defined(__POWERPC__)
-#define idppc 1 
 #endif
 
 /**********************************************************************
@@ -89,9 +84,19 @@
 #define id386	0
 #endif
 
+#if (defined(powerc) || defined(powerpc) || defined(ppc) || defined(__ppc) || defined(__ppc__)) && !defined(C_ONLY)
+#define idppc	1
+#else
+#define idppc	0
+#endif
+
 // for windows fastcall option
 
 #define	QDECL
+
+short   ShortSwap (short l);
+int		LongSwap (int l);
+float	FloatSwap (const float *f);
 
 //======================= WIN32 DEFINES =================================
 
@@ -117,31 +122,70 @@
 #endif
 #endif
 
+#define ID_INLINE __inline 
+
+static ID_INLINE short BigShort( short l) { return ShortSwap(l); }
+#define LittleShort
+static ID_INLINE int BigLong(int l) { LongSwap(l); }
+#define LittleLong
+static ID_INLINE float BigFloat(const float *l) { FloatSwap(l); }
+#define LittleFloat
 
 #define	PATH_SEP '\\'
 
 #endif
 
-//======================= MAC OS X SERVER DEFINES =====================
+//======================= MAC OS X DEFINES =====================
 
-#if defined(__MACH__) && defined(__APPLE__)
+#if defined(MACOS_X)
 
 #define MAC_STATIC
+#define __cdecl
+#define __declspec(x)
+#define stricmp strcasecmp
+#define ID_INLINE inline 
 
 #ifdef __ppc__
-#define CPUSTRING	"MacOSXS-ppc"
+#define CPUSTRING	"MacOSX-ppc"
 #elif defined __i386__
-#define CPUSTRING	"MacOSXS-i386"
+#define CPUSTRING	"MacOSX-i386"
 #else
-#define CPUSTRING	"MacOSXS-other"
+#define CPUSTRING	"MacOSX-other"
 #endif
 
 #define	PATH_SEP	'/'
 
-#define	GAME_HARD_LINKED
-#define	CGAME_HARD_LINKED
-#define	UI_HARD_LINKED
-#define	BOTLIB_HARD_LINKED
+#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
+#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
+
+static inline unsigned int __lwbrx(register void *addr, register int offset) {
+    register unsigned int word;
+    
+    asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
+    return word;
+}
+
+static inline unsigned short __lhbrx(register void *addr, register int offset) {
+    register unsigned short halfword;
+    
+    asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
+    return halfword;
+}
+
+static inline float __fctiw(register float f) {
+    register float fi;
+    
+    asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
+
+    return fi;
+}
+
+#define BigShort
+static inline short LittleShort(short l) { return ShortSwap(l); }
+#define BigLong
+static inline int LittleLong (int l) { return LongSwap(l); }
+#define BigFloat
+static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 
 #endif
 
@@ -150,18 +194,21 @@
 #ifdef __MACOS__
 
 #include <MacTypes.h>
-#define	MAC_STATIC	static
+#define	MAC_STATIC
+#define ID_INLINE inline 
 
 #define	CPUSTRING	"MacOS-PPC"
 
 #define	PATH_SEP ':'
 
-#define	GAME_HARD_LINKED
-#define	CGAME_HARD_LINKED
-#define	UI_HARD_LINKED
-#define	BOTLIB_HARD_LINKED
-
 void Sys_PumpEvents( void );
+
+#define BigShort
+static inline short LittleShort(short l) { return ShortSwap(l); }
+#define BigLong
+static inline int LittleLong (int l) { return LongSwap(l); }
+#define BigFloat
+static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 
 #endif
 
@@ -171,7 +218,11 @@ void Sys_PumpEvents( void );
 // just waste space and make big arrays static...
 #ifdef __linux__
 
-#define	MAC_STATIC
+// bk001205 - from Makefile
+#define stricmp strcasecmp
+
+#define	MAC_STATIC // bk: FIXME
+#define ID_INLINE inline 
 
 #ifdef __i386__
 #define	CPUSTRING	"linux-i386"
@@ -183,10 +234,71 @@ void Sys_PumpEvents( void );
 
 #define	PATH_SEP '/'
 
+// bk001205 - try
+#ifdef Q3_STATIC
+#define	GAME_HARD_LINKED
+#define	CGAME_HARD_LINKED
+#define	UI_HARD_LINKED
+#define	BOTLIB_HARD_LINKED
+#endif
+
+#if !idppc
+inline static short BigShort( short l) { return ShortSwap(l); }
+#define LittleShort
+inline static int BigLong(int l) { return LongSwap(l); }
+#define LittleLong
+inline static float BigFloat(const float *l) { return FloatSwap(l); }
+#define LittleFloat
+#else
+#define BigShort
+inline static short LittleShort(short l) { return ShortSwap(l); }
+#define BigLong
+inline static int LittleLong (int l) { return LongSwap(l); }
+#define BigFloat
+inline static float LittleFloat (const float *l) { return FloatSwap(l); }
+#endif
+
+#endif
+
+//======================= FreeBSD DEFINES =====================
+#ifdef __FreeBSD__ // rb010123
+
+#define stricmp strcasecmp
+
+#define MAC_STATIC
+#define ID_INLINE inline 
+
+#ifdef __i386__
+#define CPUSTRING       "freebsd-i386"
+#elif defined __axp__
+#define CPUSTRING       "freebsd-alpha"
+#else
+#define CPUSTRING       "freebsd-other"
+#endif
+
+#define	PATH_SEP '/'
+
+// bk010116 - omitted Q3STATIC (see Linux above), broken target
+
+#if !idppc
+static short BigShort( short l) { return ShortSwap(l); }
+#define LittleShort
+static int BigLong(int l) { LongSwap(l); }
+#define LittleLong
+static float BigFloat(const float *l) { FloatSwap(l); }
+#define LittleFloat
+#else
+#define BigShort
+static short LittleShort(short l) { return ShortSwap(l); }
+#define BigLong
+static int LittleLong (int l) { return LongSwap(l); }
+#define BigFloat
+static float LittleFloat (const float *l) { return FloatSwap(l); }
+#endif
+
 #endif
 
 //=============================================================
-
 
 typedef unsigned char 		byte;
 
@@ -214,7 +326,7 @@ typedef int		clipHandle_t;
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
-#define	MAX_STRING_TOKENS	256		// max tokens resulting from Cmd_TokenizeString
+#define	MAX_STRING_TOKENS	1024	// max tokens resulting from Cmd_TokenizeString
 #define	MAX_TOKEN_CHARS		1024	// max length of an individual token
 
 #define	MAX_INFO_STRING		1024
@@ -227,7 +339,11 @@ typedef int		clipHandle_t;
 
 
 #define	MAX_QPATH			64		// max length of a quake game pathname
+#ifdef PATH_MAX
+#define MAX_OSPATH			PATH_MAX
+#else
 #define	MAX_OSPATH			256		// max length of a filesystem pathname
+#endif
 
 #define	MAX_NAME_LENGTH		32		// max length of a client name
 
@@ -311,8 +427,13 @@ void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, in
 void *Hunk_Alloc( int size, ha_pref preference );
 #endif
 
+#if !( defined __VECTORC )
 void Com_Memset (void* dest, const int val, const size_t count);
 void Com_Memcpy (void* dest, const void* src, const size_t count);
+#else
+#define Com_Memset memset
+#define Com_Memcpy memcpy
+#endif
 
 #define CIN_system	1
 #define CIN_loop	2
@@ -414,10 +535,36 @@ extern	vec3_t	axisDefault[3];
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+#if idppc
+
+static inline float Q_rsqrt( float number ) {
+		float x = 0.5f * number;
+                float y;
+#ifdef __GNUC__            
+                asm("frsqrte %0,%1" : "=f" (y) : "f" (number));
+#else
+		y = __frsqrte( number );
+#endif
+		return y * (1.5f - (x * y * y));
+	}
+
+#ifdef __GNUC__            
+static inline float Q_fabs(float x) {
+    float abs_x;
+    
+    asm("fabs %0,%1" : "=f" (abs_x) : "f" (x));
+    return abs_x;
+}
+#else
+#define Q_fabs __fabsf
+#endif
+
+#else
 float Q_fabs( float f );
 float Q_rsqrt( float f );		// reciprocal square root
+#endif
 
-#define SQRTFAST( x ) ( 1.0f / Q_rsqrt( x ) )
+#define SQRTFAST( x ) ( (x) * Q_rsqrt( x ) )
 
 signed char ClampChar( int i );
 signed short ClampShort( int i );
@@ -454,6 +601,7 @@ typedef struct {
 	float	v[3];
 } vec3struct_t;
 #define VectorCopy(a,b)	*(vec3struct_t *)b=*(vec3struct_t *)a;
+#define ID_INLINE static
 #endif
 #endif
 
@@ -479,16 +627,83 @@ float NormalizeColor( const vec3_t in, vec3_t out );
 float RadiusFromBounds( const vec3_t mins, const vec3_t maxs );
 void ClearBounds( vec3_t mins, vec3_t maxs );
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
+
+#ifndef __LCC__
+static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
+	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]) {
+		return 0;
+	}			
+	return 1;
+}
+
+static ID_INLINE vec_t VectorLength( const vec3_t v ) {
+	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
+static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
+	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
+static ID_INLINE vec_t Distance( const vec3_t p1, const vec3_t p2 ) {
+	vec3_t	v;
+
+	VectorSubtract (p2, p1, v);
+	return VectorLength( v );
+}
+
+static ID_INLINE vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 ) {
+	vec3_t	v;
+
+	VectorSubtract (p2, p1, v);
+	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+}
+
+// fast vector normalize routine that does not check to make sure
+// that length != 0, nor does it return length, uses rsqrt approximation
+static ID_INLINE void VectorNormalizeFast( vec3_t v )
+{
+	float ilength;
+
+	ilength = Q_rsqrt( DotProduct( v, v ) );
+
+	v[0] *= ilength;
+	v[1] *= ilength;
+	v[2] *= ilength;
+}
+
+static ID_INLINE void VectorInverse( vec3_t v ){
+	v[0] = -v[0];
+	v[1] = -v[1];
+	v[2] = -v[2];
+}
+
+static ID_INLINE void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross ) {
+	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
+	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
+	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
+}
+
+#else
 int VectorCompare( const vec3_t v1, const vec3_t v2 );
+
 vec_t VectorLength( const vec3_t v );
+
 vec_t VectorLengthSquared( const vec3_t v );
+
 vec_t Distance( const vec3_t p1, const vec3_t p2 );
+
 vec_t DistanceSquared( const vec3_t p1, const vec3_t p2 );
+ 
+void VectorNormalizeFast( vec3_t v );
+
+void VectorInverse( vec3_t v );
+
 void CrossProduct( const vec3_t v1, const vec3_t v2, vec3_t cross );
+
+#endif
+
 vec_t VectorNormalize (vec3_t v);		// returns vector length
-void VectorNormalizeFast(vec3_t v);		// does NOT return vector length, uses rsqrt approximation
 vec_t VectorNormalize2( const vec3_t v, vec3_t out );
-void VectorInverse (vec3_t v);
 void Vector4Scale( const vec4_t in, vec_t scale, vec4_t out );
 void VectorRotate( vec3_t in, vec3_t matrix[3], vec3_t out );
 int Q_log2(int val);
@@ -640,17 +855,18 @@ typedef struct
 } qint64;
 
 //=============================================
-
+/*
 short	BigShort(short l);
 short	LittleShort(short l);
 int		BigLong (int l);
 int		LittleLong (int l);
 qint64  BigLong64 (qint64 l);
 qint64  LittleLong64 (qint64 l);
-float	BigFloat (float l);
-float	LittleFloat (float l);
+float	BigFloat (const float *l);
+float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
+*/
 char	* QDECL va(char *format, ...);
 
 //=============================================
@@ -1168,7 +1384,7 @@ typedef enum _flag_status {
 
 #define	MAX_GLOBAL_SERVERS			2048
 #define	MAX_OTHER_SERVERS			128
-#define MAX_PINGREQUESTS			16
+#define MAX_PINGREQUESTS			32
 #define MAX_SERVERSTATUSREQUESTS	16
 
 #define SAY_ALL		0

@@ -37,9 +37,9 @@
 #include "match.h"				//string matching types and vars
 
 // for the voice chats
-
-//Blaze: was there a extra ../ here?
-#include "../ui/menudef.h"
+#ifdef MISSIONPACK // bk001205
+#include "../../ui/menudef.h"
+#endif
 
 #define TIME_BETWEENCHATTING	25
 

@@ -79,7 +79,7 @@ void COM_DefaultExtension (char *path, int maxSize, const char *extension ) {
 
 ============================================================================
 */
-
+/*
 // can't just use function pointers, or dll linkage can
 // mess up when qcommon is included in multiple places
 static short	(*_BigShort) (short l);
@@ -88,8 +88,8 @@ static int		(*_BigLong) (int l);
 static int		(*_LittleLong) (int l);
 static qint64	(*_BigLong64) (qint64 l);
 static qint64	(*_LittleLong64) (qint64 l);
-static float	(*_BigFloat) (float l);
-static float	(*_LittleFloat) (float l);
+static float	(*_BigFloat) (const float *l);
+static float	(*_LittleFloat) (const float *l);
 
 short	BigShort(short l){return _BigShort(l);}
 short	LittleShort(short l) {return _LittleShort(l);}
@@ -97,8 +97,9 @@ int		BigLong (int l) {return _BigLong(l);}
 int		LittleLong (int l) {return _LittleLong(l);}
 qint64 	BigLong64 (qint64 l) {return _BigLong64(l);}
 qint64 	LittleLong64 (qint64 l) {return _LittleLong64(l);}
-float	BigFloat (float l) {return _BigFloat(l);}
-float	LittleFloat (float l) {return _LittleFloat(l);}
+float	BigFloat (const float *l) {return _BigFloat(l);}
+float	LittleFloat (const float *l) {return _LittleFloat(l);}
+*/
 
 short   ShortSwap (short l)
 {
@@ -153,26 +154,24 @@ qint64 Long64NoSwap (qint64 ll)
 	return ll;
 }
 
-float FloatSwap (float f)
-{
-	union
-	{
+typedef union {
 		float	f;
-		byte	b[4];
-	} dat1, dat2;
+    unsigned int i;
+} _FloatByteUnion;
 	
+float FloatSwap (const float *f) {
+	const _FloatByteUnion *in;
+	_FloatByteUnion out;
 	
-	dat1.f = f;
-	dat2.b[0] = dat1.b[3];
-	dat2.b[1] = dat1.b[2];
-	dat2.b[2] = dat1.b[1];
-	dat2.b[3] = dat1.b[0];
-	return dat2.f;
+	in = (_FloatByteUnion *)f;
+	out.i = LongSwap(in->i);
+
+	return out.f;
 }
 
-float FloatNoSwap (float f)
+float FloatNoSwap (const float *f)
 {
-	return f;
+	return *f;
 }
 
 /*
@@ -180,6 +179,7 @@ float FloatNoSwap (float f)
 Swap_Init
 ================
 */
+/*
 void Swap_Init (void)
 {
 	byte	swaptest[2] = {1,0};
@@ -209,7 +209,7 @@ void Swap_Init (void)
 	}
 
 }
-
+*/
 
 /*
 ============================================================================
@@ -293,55 +293,71 @@ static char *SkipWhitespace( char *data, qboolean *hasNewLines ) {
 }
 
 int COM_Compress( char *data_p ) {
-	char *datai, *datao;
-	int c, pc, size;
-	qboolean ws = qfalse;
+	char *in, *out;
+	int c;
+	qboolean newline = qfalse, whitespace = qfalse;
 
-	size = 0;
-	pc = 0;
-	datai = datao = data_p;
-	if (datai) {
-		while ((c = *datai) != 0) {
-			if (c == 13 || c == 10) {
-				*datao = c;
-				datao++;
-				ws = qfalse;
-				pc = c;
-				datai++;
-				size++;
+	in = out = data_p;
+	if (in) {
+		while ((c = *in) != 0) {
 			// skip double slash comments
-			} else if ( c == '/' && datai[1] == '/' ) {
-				while (*datai && *datai != '\n') {
-					datai++;
+			if ( c == '/' && in[1] == '/' ) {
+				while (*in && *in != '\n') {
+					in++;
 				}
-				ws = qfalse;
 			// skip /* */ comments
-			} else if ( c=='/' && datai[1] == '*' ) {
-				while ( *datai && ( *datai != '*' || datai[1] != '/' ) ) 
-				{
-					datai++;
-				}
-				if ( *datai ) 
-				{
-					datai += 2;
-				}
-				ws = qfalse;
+			} else if ( c == '/' && in[1] == '*' ) {
+				while ( *in && ( *in != '*' || in[1] != '/' ) ) 
+					in++;
+				if ( *in ) 
+					in += 2;
+                        // record when we hit a newline
+                        } else if ( c == '\n' || c == '\r' ) {
+                            newline = qtrue;
+                            in++;
+                        // record when we hit whitespace
+                        } else if ( c == ' ' || c == '\t') {
+                            whitespace = qtrue;
+                            in++;
+                        // an actual token
 			} else {
-				if (ws) {
-					*datao = ' ';
-					datao++;
+                            // if we have a pending newline, emit it (and it counts as whitespace)
+                            if (newline) {
+                                *out++ = '\n';
+                                newline = qfalse;
+                                whitespace = qfalse;
+                            } if (whitespace) {
+                                *out++ = ' ';
+                                whitespace = qfalse;
+                            }
+                            
+                            // copy quoted strings unmolested
+                            if (c == '"') {
+                                    *out++ = c;
+                                    in++;
+                                    while (1) {
+                                        c = *in;
+                                        if (c && c != '"') {
+                                            *out++ = c;
+                                            in++;
+                                        } else {
+                                            break;
+                                        }
 				}
-				*datao = c;
-				datao++;
-				datai++;
-				ws = qfalse;
-				pc = c;
-				size++;
+                                    if (c == '"') {
+                                        *out++ = c;
+                                        in++;
+				}
+			} else {
+                                *out = c;
+                                out++;
+                                in++;
+				}
 			}
 		}
 	}
-	*datao = 0;
-	return size;
+	*out = 0;
+	return out - data_p;
 }
 
 char *COM_ParseExt( char **data_p, qboolean allowLineBreaks )
@@ -673,6 +689,10 @@ Safe strncpy that ensures a trailing zero
 =============
 */
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
+  // bk001129 - also NULL dest
+  if ( !dest ) {
+    Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
+  }
 	if ( !src ) {
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
 	}
@@ -686,6 +706,18 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
                  
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
+	
+	// bk001129 - moved in 1.17 fix not in id codebase
+        if ( s1 == NULL ) {
+           if ( s2 == NULL )
+             return 0;
+           else
+             return -1;
+        }
+        else if ( s2==NULL )
+          return 1;
+
+
 	
 	do {
 		c1 = *s1++;
@@ -828,6 +860,11 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	}
 	if (len >= size) {
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
+#ifdef	_DEBUG
+		__asm {
+			int 3;
+		}
+#endif
 	}
 	Q_strncpyz (dest, bigbuffer, size );
 }
@@ -1142,7 +1179,8 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 		return;
 	}
 
-	strcat (s, newi);
+	strcat (newi, s);
+	strcpy (s, newi);
 }
 
 /*

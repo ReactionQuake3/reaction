@@ -467,6 +467,20 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		}
 	}
 
+#ifdef MISSIONPACK
+	G_SpawnInt( "notta", "0", &i );
+	if ( i ) {
+		G_FreeEntity( ent );
+		return;
+	}
+#else
+	G_SpawnInt( "notq3a", "0", &i );
+	if ( i ) {
+		G_FreeEntity( ent );
+		return;
+	}
+#endif
+
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
 		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[g_gametype.integer];
@@ -502,7 +516,7 @@ char *G_AddSpawnVarToken( const char *string ) {
 
 	l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-		G_Error( "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
+		G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
 	}
 
 	dest = level.spawnVarChars + level.numSpawnVarChars;
