@@ -112,35 +112,35 @@ void TossClientItems( gentity_t *self ) {
 	if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
 		item = BG_FindItemForWeapon( WP_M3 );
 		Drop_Item( self, item, angle);
-		self->client->hadUniqueWeapon[ WP_M3 ] = qfalse;
+		self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
 		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
 		item = BG_FindItemForWeapon( WP_M4 );
 		Drop_Item( self, item, angle);
-		self->client->hadUniqueWeapon[ WP_M4 ] = qfalse;
+		self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
 		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
 		item = BG_FindItemForWeapon( WP_MP5 );
 		Drop_Item( self, item, angle);
-		self->client->hadUniqueWeapon[ WP_MP5 ] = qfalse;
+		self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
 		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
 		item = BG_FindItemForWeapon( WP_HANDCANNON );
 		Drop_Item( self, item, angle);
-		self->client->hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
+		self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
 		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
 		item = BG_FindItemForWeapon( WP_SSG3000 );
 		Drop_Item( self, item, angle);
-		self->client->hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
+		self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
 		angle += 30;
 	}
 	

@@ -16,12 +16,20 @@
 
 #define	RANK_TIED_FLAG		0x4000
 
-//Elder: this are uncertified
-#define DEFAULT_SHOTGUN_SPREAD	700
-#define DEFAULT_HANDCANNON_SPREAD	1400
-#define DEFAULT_SHOTGUN_COUNT	11
+//Elder: Q2 shotgun spreads for handcannon
+#define DEFAULT_SHOTGUN_HSPREAD 1000
+#define DEFAULT_SHOTGUN_VSPREAD 500
+#define DEFAULT_M3_HSPREAD	800
+#define DEFAULT_M3_VSPREAD	800
 
-//Elder: changed this will affect the cgame entity placement
+//Elder: this are uncertified
+//#define DEFAULT_SHOTGUN_SPREAD	700
+//#define DEFAULT_HANDCANNON_SPREAD	1400
+//#define DEFAULT_SHOTGUN_COUNT	11
+#define DEFAULT_M3_COUNT		12
+#define DEFAULT_HANDCANNON_COUNT 17		//Elder: 17 per blast = 34 per shot
+
+//Elder: changing this will affect the cgame entity placement
 #define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
 
 #define	LIGHTNING_RANGE		768
@@ -180,28 +188,50 @@
 //Elder: reload delays
 //Also kinda "derived" from the AQ2 source
 #define RQ3_PISTOL_RELOAD_DELAY			1100
-
-#define RQ3_M3_RELOAD_DELAY				1100
-#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	800 // Time into reload to enable fast-reloads
-//#define RQ3_M3_START_RELOAD_DELAY		300 // Start index point of fast reload
-#define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
-#define RQ3_M3_FAST_RELOAD_DELAY		500	// Fast reload time
-
 #define RQ3_M4_RELOAD_DELAY				1900
 #define RQ3_MP5_RELOAD_DELAY			1800
 #define RQ3_HANDCANNON_RELOAD_DELAY		2100
+#define RQ3_AKIMBO_RELOAD_DELAY			2500
+
+#define RQ3_M3_RELOAD_DELAY				1100
+#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	700 // Time into reload to enable fast-reloads
+#define RQ3_M3_FAST_RELOAD_DELAY		500	// Fast reload time
+//#define RQ3_M3_START_RELOAD_DELAY		300 // Start index point of fast reload
+//#define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
 
 #define RQ3_SSG3000_RELOAD_DELAY		3100
-#define RQ3_SSG3000_ALLOW_RELOAD_DELAY	2300 // Time into reload to enable fast-reloads
-//#define RQ3_SSG3000_START_RELOAD_DELAY	1700	// Start index point of fast reload
-#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads
+#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	2200 // Time into reload to enable fast-reloads
 #define RQ3_SSG3000_FAST_RELOAD_DELAY	600 // Fast reload time
+//#define RQ3_SSG3000_START_RELOAD_DELAY	1700	// Start index point of fast reload
+//#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads
 
-#define RQ3_AKIMBO_RELOAD_DELAY			2500
 #define RQ3_KNIFE_RELOAD_DELAY			0	// Elder: shouldn't need
 #define RQ3_GRENADE_RELOAD_DELAY		0	// Elder: shouldn't need
 
-//Elder: each weapon also has a different weapon switch delay... ugh
+//Elder: each weapon also has a different weapon switch down delay and...
+#define RQ3_PISTOL_SWITCH1_DELAY		900	//300
+#define RQ3_M3_SWITCH1_DELAY			700	//600
+#define RQ3_M4_SWITCH1_DELAY			1000	//500
+#define RQ3_MP5_SWITCH1_DELAY			1000	//400
+#define RQ3_HANDCANNON_SWITCH1_DELAY	600	//400
+#define RQ3_SSG3000_SWITCH1_DELAY		800	//900
+#define RQ3_AKIMBO_SWITCH1_DELAY		600 //800
+#define RQ3_KNIFE_SWITCH1_DELAY			500	//700
+#define RQ3_THROW_SWITCH1_DELAY			500	//700
+#define RQ3_GRENADE_SWITCH1_DELAY		500	//300  Elder: I made this up
+
+//Elder: each weapon also has a different weapon switch up delay... ugh bloody hell
+#define RQ3_PISTOL_SWITCH2_DELAY		300
+#define RQ3_M3_SWITCH2_DELAY			600
+#define RQ3_M4_SWITCH2_DELAY			500
+#define RQ3_MP5_SWITCH2_DELAY			400
+#define RQ3_HANDCANNON_SWITCH2_DELAY	400
+#define RQ3_SSG3000_SWITCH2_DELAY		900
+#define RQ3_AKIMBO_SWITCH2_DELAY		800
+#define RQ3_KNIFE_SWITCH2_DELAY			700
+#define RQ3_THROW_SWITCH2_DELAY			700
+#define RQ3_GRENADE_SWITCH2_DELAY		300  //Elder: I made this up
+
 
 //Elder: special for grenade: speeds depending on distance select
 #define GRENADE_SHORT_SPEED		400

@@ -699,3 +699,42 @@ gentity_t *findradius (gentity_t *from, vec3_t org, float rad)
 	return NULL;
 }
 
+
+/*
+================
+Added by Elder
+
+RQ3_SaveZoomLevel
+
+Quick function to save the last zoom setting
+================
+*/
+void RQ3_SaveZoomLevel( gentity_t *ent ) {
+	if (ent->client) {
+		if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW)
+			ent->client->lastzoom |= RQ3_ZOOM_LOW;
+		if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
+			ent->client->lastzoom |= RQ3_ZOOM_MED;
+	}
+}
+
+/*
+================
+Added by Elder
+
+RQ3_isZoomed
+
+Quick function to determine if player is zoomed in
+================
+*/
+int RQ3_isZoomed( gentity_t *ent ) {
+	if (!ent->client) {
+		G_Error( "RQ3_isZoomed: passed non-client entity" );
+		return -1;
+	}
+	else {
+		return ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+				 (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED);
+	}
+}
+

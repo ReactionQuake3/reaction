@@ -1673,7 +1673,44 @@ static void PM_BeginWeaponChange( int weapon ) {
 
 	PM_AddEvent( EV_CHANGE_WEAPON );
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	pm->ps->weaponTime += 200;
+	//pm->ps->weaponTime += 200;
+	//Elder: dependent time for each weapon
+	switch (pm->ps->weapon) {
+	case WP_PISTOL:
+		pm->ps->weaponTime += RQ3_PISTOL_SWITCH1_DELAY;
+		break;
+	case WP_M3:
+		pm->ps->weaponTime += RQ3_M3_SWITCH1_DELAY;
+		break;
+	case WP_M4:
+		pm->ps->weaponTime += RQ3_M4_SWITCH1_DELAY;
+		break;
+	case WP_MP5:
+		pm->ps->weaponTime += RQ3_MP5_SWITCH1_DELAY;
+		break;
+	case WP_HANDCANNON:
+		pm->ps->weaponTime += RQ3_HANDCANNON_SWITCH1_DELAY;
+		break;
+	case WP_SSG3000:
+		pm->ps->weaponTime += RQ3_SSG3000_SWITCH1_DELAY;
+		break;
+	case WP_AKIMBO:
+		pm->ps->weaponTime += RQ3_AKIMBO_SWITCH1_DELAY;
+		break;
+	case WP_KNIFE:
+		pm->ps->weaponTime += RQ3_KNIFE_SWITCH1_DELAY;
+		break;
+	case WP_GRENADE:
+		pm->ps->weaponTime += RQ3_GRENADE_SWITCH1_DELAY;
+		break;
+	default:
+		//Elder: shouldn't be here
+		//G_Printf("PM_BeginWeaponChange: received bad weapon %d\n", pm->ps->weapon);
+		pm->ps->weaponTime += 600;
+		break;
+	}
+
+
 	PM_StartTorsoAnim( TORSO_DROP );
 
 }
@@ -1699,7 +1736,43 @@ static void PM_FinishWeaponChange( void ) {
 
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
-	pm->ps->weaponTime += 250;
+	//pm->ps->weaponTime += 250;
+	//Elder: weapon-dependent timing
+	switch (pm->ps->weapon) {
+	case WP_PISTOL:
+		pm->ps->weaponTime += RQ3_PISTOL_SWITCH2_DELAY;
+		break;
+	case WP_M3:
+		pm->ps->weaponTime += RQ3_M3_SWITCH2_DELAY;
+		break;
+	case WP_M4:
+		pm->ps->weaponTime += RQ3_M4_SWITCH2_DELAY;
+		break;
+	case WP_MP5:
+		pm->ps->weaponTime += RQ3_MP5_SWITCH2_DELAY;
+		break;
+	case WP_HANDCANNON:
+		pm->ps->weaponTime += RQ3_HANDCANNON_SWITCH2_DELAY;
+		break;
+	case WP_SSG3000:
+		pm->ps->weaponTime += RQ3_SSG3000_SWITCH2_DELAY;
+		break;
+	case WP_AKIMBO:
+		pm->ps->weaponTime += RQ3_AKIMBO_SWITCH2_DELAY;
+		break;
+	case WP_KNIFE:
+		pm->ps->weaponTime += RQ3_KNIFE_SWITCH2_DELAY;
+		break;
+	case WP_GRENADE:
+		pm->ps->weaponTime += RQ3_GRENADE_SWITCH2_DELAY;
+		break;
+	default:
+		//Elder: shouldn't be here
+		//G_Printf("PM_FinishWeaponChange: received bad weapon %d\n", pm->ps->weapon);
+		pm->ps->weaponTime += 750;
+		break;
+	}
+
 	PM_StartTorsoAnim( TORSO_RAISE );
 
 }
@@ -2239,6 +2312,7 @@ void PmoveSingle (pmove_t *pmove) {
 	pml.frametime = pml.msec * 0.001;
 
 	// update the viewangles
+	
 	PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
 	AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);

@@ -994,7 +994,9 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	if ( ent->damage ) {
 		G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
 	}
-	if ( ent->spawnflags & 4 ) {
+	//if ( ent->spawnflags & 4 ) {
+	//Elder: new crusher flag
+	if ( ent->spawnflags & 2 ) {
 		return;		// crushers don't reverse
 	}
 
@@ -1137,7 +1139,7 @@ NOMONSTER	monsters will not trigger this door
 
 //Elder: new one from GTKRadiant's entity.def plus Reaction stuff
 
-/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER x x x x AUTOOPEN TOGGLE
+/*QUAKED func_door (0 .5 .8) ? START_OPEN CRUSHER AUTO_OPEN TOGGLE
 Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it.
 -------- KEYS --------
 angle : determines the opening direction of door (up = -1, down = -2).
@@ -1155,14 +1157,14 @@ origin : alternate method of setting XYZ origin of .md3 model included with enti
 notfree : when set to 1, entity will not spawn in "Free for all" and "Tournament" modes.
 notteam : when set to 1, entity will not spawn in "Teamplay" and "CTF" modes.
 notsingle : when set to 1, entity will not spawn in Single Player mode (bot play mode).
+soundstart : path to sound file to play when door starts to open
 soundstop : path to sound file to play when door comes to a stop
 soundmove : path to sound file to play when door is moving
 -------- SPAWNFLAGS --------
 START_OPEN : the door will spawn in the open state and operate in reverse.
 CRUSHER : door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way.
-TOGGLE : door requires an opendoor toggle to work
+TOGGLE : door requires an opendoor toggle to open or close
 AUTOOPEN : door will open like traditional Q3 doors (like a motion sensor)
-Setting AUTOOPEN will make the doors act like traditional Q3A doors
 -------- NOTES --------
 Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.*/
 void SP_func_door (gentity_t *ent) {
@@ -1173,22 +1175,33 @@ void SP_func_door (gentity_t *ent) {
 	//Elder: added
 	char	*sSndMove;
 	char	*sSndStop;
+	char	*sSndStart;
 
-	//Elder: can set sounds from here?
-	//G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
-	//G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
+	//Elder: can set sounds from here
+	G_SpawnString( "soundstart", "sound/movers/doors/dr1_strt.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
+	
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
+	ent->soundPos1 = G_SoundIndex(sSndStart);
+	ent->soundPos2 = G_SoundIndex(sSndStop);
+	
+	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
+	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
 	ent->blocked = Blocked_Door;
 
 	//Elder: added for debugging purposes but doesn't show up (DOH)
+/*
 	if ( (ent->spawnflags & 1) == 1)
 		G_Printf("func_door Starting Open\n");
-	if ( (ent->spawnflags & 4) == 4)
+	if ( (ent->spawnflags & 2) == 2)
 		G_Printf("func_door CRUSHER\n");
 	if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE)
 		G_Printf("func_door is a Toggle\n");
+	if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
+		G_Printf("func_door is an auto-open\n");
+*/
 
 	// default speed of 400
 	if (!ent->speed)
@@ -1251,7 +1264,7 @@ void SP_func_door (gentity_t *ent) {
 
 // REACTION
 
-/*QUAKED func_door_rotating (0 .5 .8) START_OPEN REVERSE TOGGLE X_AXIS Y_AXIS
+/*QUAKED func_door_rotating (0 .5 .8) START_OPEN CRUSHER AUTO_OPEN TOGGLE X_AXIS Y_AXIS
 This is the rotating door... just as the name suggests it's a door that rotates
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
 REVERSE		if you want the door to open in the other direction, use this switch.
@@ -1268,18 +1281,36 @@ check either the X_AXIS or Y_AXIS box to change that.
 "speed"	 	how fast the door will open (degrees/second)
 "color"		constantLight color
 "light"		constantLight radius
+soundstart : path to sound file to play when door starts to open
+soundstop : path to sound file to play when door comes to a stop
+soundmove : path to sound file to play when door is moving
 */
 
 void SP_func_door_rotating ( gentity_t *ent ) {
-	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
-	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
+	//Elder: added
+	char	*sSndMove;
+	char	*sSndStop;
+	char	*sSndStart;
+
+	//Elder: can set sounds from here
+	G_SpawnString( "soundstart", "sound/movers/doors/dr1_strt.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
+	
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
+	ent->soundPos1 = G_SoundIndex(sSndStart);
+	ent->soundPos2 = G_SoundIndex(sSndStop);
+
+	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
+	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
 	ent->blocked = Blocked_Door;
 
 	// default speed of 120
 	if (!ent->speed)
 		ent->speed = 120;
-	
+
+/*
 	if ( ent->spawnflags & 1)
 		G_Printf("rotating door Starting Open\n");
 	if ( ent->spawnflags & 2)
@@ -1290,13 +1321,15 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 		G_Printf("rotating door on X_AXIS\n");
 	if ( ent->spawnflags & 16)
 		G_Printf("rotating door on Y_AXIS\n");
-
+*/
 
 	// if speed is negative, positize it and add reverse flag
+	// Elder: handled below in reverse direction
+	/*
 	if ( ent->speed < 0 ) {
 		ent->speed *= -1;
 		ent->spawnflags |= 2;
-	}
+	}*/
 
 	// default of 2 seconds
 	if (!ent->wait)
@@ -1307,17 +1340,21 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	VectorClear( ent->movedir );
 	VectorClear( ent->s.angles );
 	
-	if ( ent->spawnflags & 8 ) {
+	//Elder: changed from 8 - 16 and 16 - 32 respectively
+	if ( ent->spawnflags & 16 ) {
 		ent->movedir[2] = 1.0;
-	} else if ( ent->spawnflags & 16 ) {
+	} else if ( ent->spawnflags & 32 ) {
 		ent->movedir[0] = 1.0;
 	} else {
 		ent->movedir[1] = 1.0;
 	}
 
 	// reverse direction if necessary
-	if ( ent->spawnflags & 2 )
+	//if ( ent->spawnflags & 2 )
+	if (ent->speed < 0) {
+		ent->speed *= -1;
 		VectorNegate ( ent->movedir, ent->movedir );
+	}
 
 	// default distance of 90 degrees. This is something the mapper should not
 	// leave out, so we'll tell him if he does.

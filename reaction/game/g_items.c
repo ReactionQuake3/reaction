@@ -389,13 +389,17 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		break;
 	}
 	//Elder: conditional added to "restore" weapons
-	if ( other->client->hadUniqueWeapon[ent->item->giTag] == qfalse ||
+	if ( other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ||
 		 !((ent->flags & FL_THROWN_ITEM) == FL_THROWN_ITEM) ) {
 		other->client->ps.ammo[ent->item->giTag]= ammotoadd;
 		//Elder: add extra handcannon clips if it's "fresh"
 		if (ent->item->giTag == WP_HANDCANNON) {
 			other->client->numClips[ WP_HANDCANNON ] += 5;
 			other->client->numClips[ WP_M3 ] += 5;
+			if (other->client->numClips[ WP_HANDCANNON ] > 13) {
+				other->client->numClips[ WP_HANDCANNON ] = 14;
+				other->client->numClips[ WP_M3 ] = 14;
+			}
 		}
 	}
 
@@ -880,7 +884,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		G_SetOrigin( dropped, origin );
 
 		//reset back the dropped item case
-		dropped->flags = FL_DROPPED_ITEM;
+		//dropped->flags = FL_DROPPED_ITEM;
 		//dropped->s.eFlags |= EF_BOUNCE_HALF;
 	}
 	else {

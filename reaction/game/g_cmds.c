@@ -49,6 +49,29 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		}
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
 //Blaze: Removed because it uses the persistant stats stuff
+//Elder: played around with it...
+		//G_Printf("Clientnum: %d\n", level.sortedClients[i]);
+
+		Com_sprintf (entry, sizeof(entry),	
+			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
+			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
+			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0);
+			//cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
+			//cl->ps.persistant[PERS_EXCELLENT_COUNT],
+			//cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
+			//cl->ps.persistant[PERS_DEFEND_COUNT], 
+			//cl->ps.persistant[PERS_ASSIST_COUNT], 
+			//perfect,
+			//cl->ps.persistant[PERS_CAPTURES]);
+			
+
 /*		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
@@ -1685,138 +1708,288 @@ void Cmd_Reload( gentity_t *ent )       {
     		ent->client->ps.stats[STAT_WEAPONS], WP_KNIFE, WP_PISTOL, WP_M4, WP_SSG3000,
     		WP_MP5, WP_M3, WP_HANDCANNON, WP_AKIMBO, WP_GRENADE);
 	*/
-	switch(weapon) {
-	   case WP_KNIFE:
-		   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-		   return;
-		   break;
-	   case WP_PISTOL:
-		   delay = RQ3_PISTOL_RELOAD_DELAY;
-   		   if (ent->client->ps.ammo[weapon] >= RQ3_PISTOL_AMMO)
-		   {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   //Elder: was missing?
-	   case WP_M4:
-		   delay = RQ3_M4_RELOAD_DELAY;
-   		   if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO)
-		   {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;		   
-	   case WP_M3:
-		   ammotoadd += ent->client->ps.ammo[weapon];
-		   //Elder: temporarily using fast-loads
-		   delay = RQ3_M3_FAST_RELOAD_DELAY;
-		   if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
-		   {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   case WP_HANDCANNON:
-		   delay = RQ3_HANDCANNON_RELOAD_DELAY;
-		   if (ent->client->ps.ammo[weapon] >= RQ3_HANDCANNON_AMMO) {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   case WP_SSG3000:
-		   //Elder: temporarily using fast-loads
-		   delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
-		   ammotoadd += ent->client->ps.ammo[weapon];
-		   if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO) {
-		   	   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   case WP_AKIMBO:
-	   	   delay = RQ3_AKIMBO_RELOAD_DELAY;
-   		   if (ent->client->ps.ammo[weapon] >= RQ3_AKIMBO_AMMO) {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   case WP_MP5:
-		   delay = RQ3_MP5_RELOAD_DELAY;
-   		   if (ent->client->ps.ammo[weapon] >= RQ3_MP5_AMMO)
-		   {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   default:
-		   //Elder: shouldn't be here
-		   delay = 2500;
-   		   //Elder: changed function
-   		   if (ent->client->ps.ammo[weapon] >= ClipAmountForAmmo(weapon))
-		   {
-			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-			   return;
-		   }
-		   break;
-	   }
 
-		//Elder: added handcannon and akimbo conditional
-		if (ent->client->numClips[weapon] == 0) {
-	   		trap_SendServerCommand( ent-g_entities, va("print \"Out of ammo\n\""));
+	switch(weapon) {
+		case WP_KNIFE:
+			trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			return;
+			break;
+		case WP_PISTOL:
+			if (ent->client->ps.ammo[weapon] >= RQ3_PISTOL_AMMO)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			delay = RQ3_PISTOL_RELOAD_DELAY;
+			break;
+		//Elder: was missing?
+		case WP_M4:
+   			if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			
+			delay = RQ3_M4_RELOAD_DELAY;
+			break;		   
+		case WP_M3:
+			ammotoadd += ent->client->ps.ammo[weapon];
+
+			//Check to see if fastReloads is stale
+			if (level.time - ent->client->lastReloadTime > RQ3_M3_RELOAD_DELAY)
+				ent->client->fastReloads = 0;
+
+			if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
+			{
+				//reset fast reloads
+				ent->client->fastReloads = 0;
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+
+			//Check if it's already reloading
+			//ent->client->ps.weaponstate == WEAPON_RELOADING
+			if (ent->client->ps.weaponstate == WEAPON_DROPPING && ent->client->numClips[WP_M3] > 0)
+			{
+				/*
+				G_Printf("Time index: %d, FastReload- VirginStart: %d, WindowStart: %d, WindowEnd: %d\n",
+					level.time - ent->client->lastReloadTime,
+					RQ3_M3_ALLOW_FAST_RELOAD_DELAY,
+					RQ3_M3_FAST_RELOAD_DELAY,
+					RQ3_M3_RELOAD_DELAY);
+				*/
+				//Have we fast reloaded before?
+				if (ent->client->fastReloads) {
+					if (level.time - ent->client->lastReloadTime < RQ3_M3_FAST_RELOAD_DELAY)
+					{
+						//not enough time has passed for a fast reload attempt
+						//so discard the attempt
+						//G_Printf("Too soon: Discarded fast-reload attempt\n");
+						return;
+					}
+					else if (level.time - ent->client->lastReloadTime >= RQ3_M3_FAST_RELOAD_DELAY &&
+						level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
+					{
+						//gotcha
+						ent->client->fastReloads = 1;
+					}
+					else
+					{
+						//Missed the window of opportunity!
+						//Reset fastReloads
+						//G_Printf("Missed Window: disabling fast reloads\n");
+						ent->client->fastReloads = 0;
+					}
+				}
+				//Fast-reload virgin
+				else if (level.time - ent->client->lastReloadTime >= RQ3_M3_ALLOW_FAST_RELOAD_DELAY &&
+					level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
+					{
+						ent->client->fastReloads = 1;
+					}
+				else
+				{
+					//not enough time has passed for a fast reload attempt
+					//so discard the attempt
+					//G_Printf("Too soon: Discarded fast-reload attempt\n");
+					return;
+				}
+			}
+
+
+			//check for fast reloads
+			if (ent->client->fastReloads) {
+				//Fast reload
+				G_Printf("Using fast reloads\n");
+				delay = RQ3_M3_FAST_RELOAD_DELAY;
+				ent->client->fastReloads = 1;
+			}
+			else {
+				//Regular reload
+				G_Printf("Using regular reloads\n");
+				delay = RQ3_M3_RELOAD_DELAY;
+				ent->client->fastReloads = 0;
+			}
+
+			ent->client->lastReloadTime = level.time;
+			break;
+		case WP_HANDCANNON:
+			delay = RQ3_HANDCANNON_RELOAD_DELAY;
+			if (ent->client->ps.ammo[weapon] >= RQ3_HANDCANNON_AMMO) {
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			break;
+		case WP_SSG3000:
+			ammotoadd += ent->client->ps.ammo[weapon];
+
+			//Check to see if fastReloads is stale
+			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
+				ent->client->fastReloads = 0;
+
+			if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO)       
+			{
+				//reset fast reloads
+				ent->client->fastReloads = 0;
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+
+			//Check if it's already reloading
+			//ent->client->ps.weaponstate == WEAPON_RELOADING
+			if (ent->client->ps.weaponstate == WEAPON_DROPPING && ent->client->numClips[WP_SSG3000] > 0)
+			{
+				/*
+				G_Printf("Time index: %d, FastReload- VirginStart: %d, WindowStart: %d, WindowEnd: %d\n",
+					level.time - ent->client->lastReloadTime,
+					RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY,
+					RQ3_SSG3000_FAST_RELOAD_DELAY,
+					RQ3_SSG3000_RELOAD_DELAY);
+				*/
+				//Have we fast reloaded before?
+				if (ent->client->fastReloads) {
+					if (level.time - ent->client->lastReloadTime < RQ3_SSG3000_FAST_RELOAD_DELAY)
+					{
+						//not enough time has passed for a fast reload attempt
+						//so discard the attempt
+						//G_Printf("Too soon: Discarded fast-reload attempt\n");
+						return;
+					}
+					else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_FAST_RELOAD_DELAY &&
+						level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
+					{
+						//gotcha
+						ent->client->fastReloads = 1;
+					}
+					else
+					{
+						//Missed the window of opportunity!
+						//Reset fastReloads
+						//G_Printf("Missed Window: disabling fast reloads\n");
+						ent->client->fastReloads = 0;
+					}
+				}
+				//Fast-reload virgin
+				else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY &&
+					level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
+					{
+						ent->client->fastReloads = 1;
+					}
+				else
+				{
+					//not enough time has passed for a fast reload attempt
+					//so discard the attempt
+					//G_Printf("Too soon: Discarded fast-reload attempt\n");
+					return;
+				}
+			}
+
+			//check for fast reloads
+			if (ent->client->fastReloads) {
+				//Fast reload
+				G_Printf("Using fast reloads\n");
+				delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
+				ent->client->fastReloads = 1;
+			}
+			else {
+				//Regular reload
+				G_Printf("Using regular reloads\n");
+				delay = RQ3_SSG3000_RELOAD_DELAY;
+				ent->client->fastReloads = 0;
+			}
+
+			ent->client->lastReloadTime = level.time;
+			break;
+		case WP_AKIMBO:
+	   		delay = RQ3_AKIMBO_RELOAD_DELAY;
+   			if (ent->client->ps.ammo[weapon] >= RQ3_AKIMBO_AMMO) {
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			break;
+		case WP_MP5:
+			delay = RQ3_MP5_RELOAD_DELAY;
+   			if (ent->client->ps.ammo[weapon] >= RQ3_MP5_AMMO)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			break;
+		default:
+			//Elder: shouldn't be here
+			delay = 2500;
+   			//Elder: changed function
+   			if (ent->client->ps.ammo[weapon] >= ClipAmountForAmmo(weapon))
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+				return;
+			}
+			break;
 		}
-		else if ( (weapon == WP_HANDCANNON || weapon == WP_AKIMBO) && ent->client->numClips[weapon] < 2 ) {
-			trap_SendServerCommand( ent-g_entities, va("print \"Not enough of ammo\n\""));
-			return;
-		}
-   	   
+
+	//Elder: added handcannon and akimbo conditional
+	if (ent->client->numClips[weapon] == 0) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Out of ammo\n\""));
+		return;
+	}
+	else if ( (weapon == WP_HANDCANNON || weapon == WP_AKIMBO) && ent->client->numClips[weapon] < 2 ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Not enough of ammo\n\""));
+		return;
+	}
+
+	
+	//Save once only
+	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000) {
+		RQ3_SaveZoomLevel(ent);
 		//Elder: remove zoom bits
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+	}
 
-	   //ent->client->ps.weaponstate = WEAPON_RELOADING;
-       ent->client->ps.weaponstate = WEAPON_DROPPING;
-       ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
-               ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
-       ent->client->ps.weaponTime += delay;
+	//ent->client->ps.weaponstate = WEAPON_RELOADING;
+    ent->client->ps.weaponstate = WEAPON_DROPPING;
+    ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
+                                  ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+    ent->client->ps.weaponTime += delay;
        
-       // add ammo to weapon
-       //Elder: at this point there should be sufficient ammo requirements to reload
-		if (ent->client->numClips[weapon] > 0) {		
-			//Elder: more attempts to synchronize the mk23 and akimbos
-			if (weapon == WP_PISTOL && (ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
-				ent->client->ps.ammo[WP_AKIMBO] = ent->client->ps.ammo[WP_AKIMBO] - ent->client->ps.ammo[WP_PISTOL] + ammotoadd;
-				if (ent->client->ps.ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO) {
-					ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
-				}
-			}
-			else if (weapon == WP_AKIMBO) {
-				//Elder: refill the MK23 as well
-				ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
-			}
-
-			ent->client->ps.ammo[weapon] = ammotoadd;			
-	        ent->client->numClips[weapon]--;
-	        
-	        //Elder: remove an extra "clip" if it's the handcannon or akimbo
-	        if (weapon == WP_HANDCANNON || weapon == WP_AKIMBO)
-	        	ent->client->numClips[weapon]--;
-	        
-	        //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
-	        if (weapon == WP_M3) {
-				ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
-			}
-			else if (weapon == WP_HANDCANNON) { 
-				ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
-			}
-			else if(weapon == WP_PISTOL) {
-				ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
-			}
-			else if (weapon == WP_AKIMBO) { 
-				ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
+    //Elder: at this point there should be sufficient ammo requirements to reload
+	if (ent->client->numClips[weapon] > 0) {		
+		//Elder: more attempts to synchronize the mk23 and akimbos
+		if (weapon == WP_PISTOL && (ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
+			ent->client->ps.ammo[WP_AKIMBO] = ent->client->ps.ammo[WP_AKIMBO] - ent->client->ps.ammo[WP_PISTOL] + ammotoadd;
+			if (ent->client->ps.ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO) {
+				ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 			}
 		}
+		else if (weapon == WP_AKIMBO) {
+			//Elder: refill the MK23 as well
+			ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+		}
+
+		// add ammo to weapon
+		ent->client->ps.ammo[weapon] = ammotoadd;			
+        ent->client->numClips[weapon]--;
+	        
+        //Elder: remove an extra "clip" if it's the handcannon or akimbo
+        if (weapon == WP_HANDCANNON || weapon == WP_AKIMBO)
+        	ent->client->numClips[weapon]--;
+	        
+        //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
+        if (weapon == WP_M3) {
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+		}
+		else if (weapon == WP_HANDCANNON) { 
+			ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
+		}
+		else if(weapon == WP_PISTOL) {
+			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+		}
+		else if (weapon == WP_AKIMBO) { 
+			ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
+		}
+	}
 }
+
 /*
 ==================
  ClipAmountForWeapon for Cmd_Reload
@@ -1899,6 +2072,10 @@ void Cmd_Weapon(gentity_t *ent)
 		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
 		return;
 	}
+
+	//Can't reload while firing
+	if ( ent->client->ps.weaponTime > 0)
+		return;
 
 	//Elder: added brackets, and-ops and not-ops instead of logical ops
 	switch(ent->s.weapon){

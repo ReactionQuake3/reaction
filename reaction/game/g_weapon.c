@@ -318,13 +318,17 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 }
 
 // this should match CG_ShotgunPattern
-void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qboolean ism3 ) {
+void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, int shotType ) {
 	int			i;
 	float		r, u;
 	vec3_t		end;
 	vec3_t		forward, right, up;
 	int			oldScore;
 	qboolean	hitClient = qfalse;
+
+	//Elder: added
+	int			count;
+	int			hc_multipler;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information
@@ -334,17 +338,34 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, qb
 
 	oldScore = ent->client->ps.persistant[PERS_SCORE];
 
+	//Elder: added
+	if (shotType == WP_M3)
+		count = DEFAULT_M3_COUNT;
+	else if (shotType == WP_HANDCANNON) {
+		count = DEFAULT_HANDCANNON_COUNT;
+		hc_multipler = 4;
+	}
+	else {
+		count = DEFAULT_HANDCANNON_COUNT;
+		hc_multipler = 5;
+	}
+
+
 	// generate the "random" spread pattern
-	for ( i = 0 ; i < DEFAULT_SHOTGUN_COUNT ; i++ ) {
-		if (ism3)
+	for ( i = 0 ; i < count ; i++ ) {
+		if (shotType == WP_M3)
 		{
-			r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
-			u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			r = Q_crandom( &seed ) * DEFAULT_M3_HSPREAD * 16;
+			u = Q_crandom( &seed ) * DEFAULT_M3_VSPREAD * 16;
+			//r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
+			//u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_SPREAD * 16;
 		}
 		else
 		{
-			r = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
-			u = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
+			r = Q_crandom( &seed ) * DEFAULT_SHOTGUN_HSPREAD * 16 * 4;
+			u = Q_crandom( &seed ) * DEFAULT_SHOTGUN_VSPREAD * 16 * hc_multipler;
+			//r = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
+			//u = Q_crandom( &seed ) * DEFAULT_HANDCANNON_SPREAD * 16 * 4;
 		}
 
 		VectorMA( origin, 8192 * 16, forward, end);
@@ -368,7 +389,8 @@ void weapon_supershotgun_fire (gentity_t *ent) {
 	tent->s.eventParm = rand() & 255;		// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
 
-	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, qtrue );
+	//Elder: removed for now
+	//ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, qtrue );
 }
 
 
@@ -944,7 +966,13 @@ void Weapon_M4_Fire(gentity_t *ent)
 	else
 	{
 		spread = M4_SPREAD;
+		//M4-kick stuff
+		ent->client->consecutiveShots++;
+		if (ent->client->consecutiveShots > 23)
+			ent->client->consecutiveShots = 23;
+
 	}
+
 	Bullet_Fire( ent, RQ3Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
 	/*	
@@ -994,8 +1022,9 @@ void Weapon_SSG3000_Fire(gentity_t *ent)
 	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
 	//Elder: changed to use RQ3Spread as well
 	//Elder: using new stat
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
-		 (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+		 //(ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+	if (RQ3_isZoomed(ent)) {
 		spread = 0;
 	}
 	else {
@@ -1005,11 +1034,7 @@ void Weapon_SSG3000_Fire(gentity_t *ent)
 
 	//Elder: bolt action plus save last zoom
 	ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW)
-		ent->client->lastzoom |= RQ3_ZOOM_LOW;
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
-		ent->client->lastzoom |= RQ3_ZOOM_MED;
-
+	RQ3_SaveZoomLevel(ent);
 }
 
 /*
@@ -1049,7 +1074,7 @@ void Weapon_HandCannon_Fire(gentity_t *ent)
 	SnapVector( tent->s.origin2 );
 	tent->s.eventParm = rand() & 255;		// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
-	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent,qfalse );
+	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_HANDCANNON );
 
 	// send shotgun blast
 	tent2 = G_TempEntity( muzzle, EV_HANDCANNON );
@@ -1058,7 +1083,8 @@ void Weapon_HandCannon_Fire(gentity_t *ent)
 	tent2->s.eventParm = rand() & 255;		// seed for spread pattern
 	tent2->s.otherEntityNum = ent->s.number;
 	tent2->s.angles2[1] += 20;
-	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent,qfalse );
+	//Elder: note negative one
+	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1 );
 
 }
 /*
@@ -1078,7 +1104,7 @@ void Weapon_M3_Fire(gentity_t *ent)
 	tent->s.eventParm = rand() & 255;		// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
 
-	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, qtrue );
+	ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_M3 );
 }
 
 /*

@@ -881,7 +881,7 @@ void ThrowWeapon( gentity_t *ent )
 	//Elder: TODO: have to add a reloading case:
 	//weaponTime > 0 or weaponState == weapon_dropping?  Or both?
 	//Still firing
-	if (ucmd->buttons & BUTTON_ATTACK || client->ps.weaponTime > 0) {
+	if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0) {
 		return;
 	}
 	//Elder: Bandaging case
@@ -913,7 +913,7 @@ void ThrowWeapon( gentity_t *ent )
 		//client->ps.weapon = WP_PISTOL;
 		//Elder: Don't reset the weapon ammo
 		//client->ps.ammo[ weap ] = 0;
-		client->hadUniqueWeapon[weap] = qtrue;
+		client->pers.hadUniqueWeapon[weap] = qtrue;
 		trap_SendServerCommand( ent-g_entities, va("selectpistol"));		
 		
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
@@ -1204,6 +1204,17 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		}
+		/* else if (level.time - ent->client->lastReloadTime > ent->client->ps.weaponTime) {
+			//Elder: Too buggy at the moment
+			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
+				ent->client->fastReloads = 0;
+			
+			if (!ent->client->fastReloads) {
+				//Elder: For reloading
+				ent->client->ps.stats[STAT_RQ3] |= ent->client->lastzoom;
+				ent->client->lastzoom = 0;
+			}
+		} */
 		break;
 	//case WP_MP5:
 	case WP_M4:
@@ -1433,6 +1444,21 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
+
+	//Elder: M4 ride-up/kick -- condition for non-burst and ammo only
+	if ( ent->client->ps.weapon == WP_M4 && ent->client->ps.ammo[WP_M4] > 0 &&
+		(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE &&
+		(ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
+		{
+			//G_Printf("bullets: %d, viewangle: %f\n", ent->client->consecutiveShots, ent->client->ps.viewangles[0]);
+			ent->client->ps.delta_angles[0] = ANGLE2SHORT(ent->client->consecutiveShots * -0.7);
+		}
+	else
+		{
+		ent->client->ps.delta_angles[0] = 0;
+		ent->client->consecutiveShots = 0;
+		}
+	
 
 	G_SetClientSound (ent);
 

@@ -453,7 +453,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 			else {
 				//leave embedded in the wall
-				xr_drop = LaunchItem(xr_item, trace->endpos, 0, FL_THROWN_KNIFE);
+				xr_drop = LaunchItem(xr_item, trace->endpos, 0, FL_THROWN_KNIFE|FL_DROPPED_ITEM);
 				VectorClear( xr_drop->s.pos.trDelta );
 
 				//Elder: make the knife stick out a bit more
