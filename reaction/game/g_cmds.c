@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.139  2002/06/21 00:05:55  slicer
+// Spectators can now use say_team to communicate among each others, DM and TP
+//
 // Revision 1.138  2002/06/20 22:32:43  jbravo
 // Added last damaged player and fixed a test2 model problem (atrimum my ass :)
 // Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
@@ -1387,16 +1390,26 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 		return;
 	}
 
-	if (g_gametype.integer < GT_TEAM && mode == SAY_TEAM) {
-		mode = SAY_ALL;
-	}
+// Slicer: DM now has [SPECTATOR]
+//	if (g_gametype.integer < GT_TEAM && mode == SAY_TEAM) {
+//		mode = SAY_ALL;
+//	}
 // JBravo: adding below the [DEAD] tag infront of dead players names.
 	switch (mode) {
 	default:
 	case SAY_ALL:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			Com_sprintf(name, sizeof(name), "[DEAD] %s%c%c" EC ": ", ent->client->pers.netname,
+			if(g_gametype.integer < GT_TEAM) // DM, SPECTATOR
+				Com_sprintf(name, sizeof(name), "[SPECTATOR] %s%c%c" EC ": ", ent->client->pers.netname,
 				    Q_COLOR_ESCAPE, COLOR_WHITE);
+			else {
+				if(ent->client->sess.savedTeam == TEAM_SPECTATOR)
+					Com_sprintf(name, sizeof(name), "[SPECTATOR] %s%c%c" EC ": ", ent->client->pers.netname,
+						  Q_COLOR_ESCAPE, COLOR_WHITE);			
+				else
+					Com_sprintf(name, sizeof(name), "[DEAD] %s%c%c" EC ": ", ent->client->pers.netname,
+						  Q_COLOR_ESCAPE, COLOR_WHITE);
+			}
 		} else {
 			Com_sprintf(name, sizeof(name), "%s%c%c" EC ": ", ent->client->pers.netname, Q_COLOR_ESCAPE,
 				    COLOR_WHITE);
@@ -1405,8 +1418,17 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 		break;
 	case SAY_TEAM:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			Com_sprintf(name, sizeof(name), EC "[DEAD] (%s%c%c" EC ")" EC ": ",
+			if(g_gametype.integer < GT_TEAM) // DM, SPECTATOR
+			Com_sprintf(name, sizeof(name), EC "[SPECTATOR] (%s%c%c" EC ")" EC ": ",
 				    ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			else {
+				if(ent->client->sess.savedTeam == TEAM_SPECTATOR)
+					Com_sprintf(name, sizeof(name), EC "[SPECTATOR] (%s%c%c" EC ")" EC ": ",
+						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+				else
+					Com_sprintf(name, sizeof(name), EC "[DEAD] (%s%c%c" EC ")" EC ": ",
+						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			}
 		} else {
 			if (Team_GetLocationMsg(ent, location, sizeof(location)))
 				Com_sprintf(name, sizeof(name), EC "(%s%c%c" EC ") (%s)" EC ": ",
@@ -1501,6 +1523,10 @@ static void Cmd_Tell_f(gentity_t * ent)
 	if (trap_Argc() < 2) {
 		return;
 	}
+
+	//Slicer : no TELL FOR TP
+	if(!g_gametype.integer < GT_TEAM)
+		return;
 
 	trap_Argv(1, arg, sizeof(arg));
 	targetNum = atoi(arg);
