@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/03/04 21:28:57  jbravo
+// Make spectators that are following someone who dies stop at the time of
+// death and not respawn somewhere else.
+//
 // Revision 1.47  2002/03/03 21:46:26  blaze
 // weapon stats, done, beta test for bugs
 //
@@ -933,19 +937,27 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 // JBravo: no need for automatic scoreboard on deaths.
 	if (g_gametype.integer != GT_TEAMPLAY) {
 		Cmd_Score_f(self);		// show scores
-		// send updated scores to any clients that are following this one,
-		// or they would get stale scoreboards
-		for (i = 0 ; i < level.maxclients ; i++) {
-			gclient_t	*client;
-	
-			client = &level.clients[i];
-			if (client->pers.connected != CON_CONNECTED) {
-				continue;
-			}
-			if (client->sess.sessionTeam != TEAM_SPECTATOR) {
-				continue;
-			}
-			if (client->sess.spectatorClient == self->s.number) {
+	}
+	// send updated scores to any clients that are following this one,
+	// or they would get stale scoreboards
+	for (i = 0 ; i < level.maxclients ; i++) {
+		gclient_t	*client;
+		gentity_t	*follower;
+
+		client = &level.clients[i];
+		follower = &g_entities[i];
+
+		if (client->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (client->sess.sessionTeam != TEAM_SPECTATOR) {
+			continue;
+		}
+// JBravo: make clients that are following this one stop following.
+		if (client->sess.spectatorClient == self->s.number) {
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				StopFollowing(follower);
+			} else {
 				Cmd_Score_f(g_entities + i);
 			}
 		}
