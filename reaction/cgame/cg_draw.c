@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/04/06 21:43:58  makro
+// New surfaceparm system
+//
 // Revision 1.33  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -2203,7 +2206,8 @@ static void CG_DrawCrosshair(void) {
 			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS) &&
 			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_LOCKRELOADS) {
 			*/
-			int zoomMag;
+			//Makro - wasn't initialized, caused a warning in MSVC
+			int zoomMag = 0;
 
 			x = SCREEN_WIDTH / 2;
 			y = SCREEN_HEIGHT / 2;

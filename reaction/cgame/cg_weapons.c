@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/04/06 21:43:59  makro
+// New surfaceparm system
+//
 // Revision 1.64  2002/04/05 18:53:26  jbravo
 // Warning fixes
 //
@@ -74,7 +77,6 @@
 //
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
-
 
 
 /*
@@ -1589,8 +1591,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
 	if ( ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
 		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000) ) {
-		float scale;
-		vec3_t angles, Offset;
+		//Makro - wasn't initialized, caused a warning in MSVC
+		float scale = (float) 0.5;
+		vec3_t angles;
+		//Makro - wasn't initialized, caused a warning in MSVC
+		vec3_t Offset = {0, 0, 0};
 
 		if (weaponNum == WP_PISTOL) scale = (float)0.6;
 		if (weaponNum == WP_SSG3000) scale = (float)0.9;
@@ -3506,6 +3511,8 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 	trace_t		tr;
 	vec3_t viewDir;
 	int sourceContentType, destContentType;
+	//Makro
+	int			Material;
 
 	CG_Trace( &tr, start, NULL, NULL, end, skipNum, MASK_SHOT );
 
@@ -3550,7 +3557,10 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			// SURF_NOIMPACT will not make a flame puff or a mark
 			return;
 		}
-		if ( (tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) )
+		//Makro - new surfaceparm system
+		Material = GetMaterialFromFlag(tr.surfaceFlags);
+		//if ( (tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) )
+		if ( IsMetalMat(Material) )
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
@@ -3561,7 +3571,8 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
 			}
 		}
-		else if ( tr.surfaceFlags & SURF_GLASS )
+		//else if ( tr.surfaceFlags & SURF_GLASS )
+		else if ( Material == MAT_GLASS )
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)

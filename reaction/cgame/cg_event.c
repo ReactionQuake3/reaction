@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/04/06 21:43:58  makro
+// New surfaceparm system
+//
 // Revision 1.48  2002/04/03 03:13:48  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -489,7 +492,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	char		*message, *message2;
 	const char	*targetInfo, *attackerInfo;
 	char		targetName[32], attackerName[32];
-	gender_t	gender;
+	gender_t	gender = GENDER_MALE;
 	clientInfo_t	*ci;
 
 	target = ent->otherEntityNum;
@@ -884,7 +887,8 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	char		*message, *message2;
 	const char	*targetInfo, *attackerInfo;
 	char		targetName[32], attackerName[32];
-	gender_t	gender;
+	//Makro - wasn't initialized, caused a warning in MSVC
+	gender_t	gender = GENDER_MALE;
 	clientInfo_t	*ci;
 
 	target = ent->otherEntityNum;
@@ -1081,7 +1085,8 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 	const char	*attackerInfo;
 	char		targetName[32];
 	char		attackerName[32];
-	gender_t	gender;
+	//Makro - wasn't initialized, caused a warning in MSVC
+	gender_t	gender = GENDER_MALE;
 	clientInfo_t	*ci;
 
 	target = ent->otherEntityNum;
@@ -2023,7 +2028,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: removed
 		if( es->eventParm & SURF_FLESH ) {
 			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimplSound );
-		} else 	if( es->eventParm & SURF_METALSTEPS ) {
+		//Makro - new surfaceparm system
+		//} else 	if( es->eventParm & SURF_METALSTEPS ) {
+		} else 	if( IsMetalFlag(es->eventParm) ) {
 			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpmSound );
 		} else {
 			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpdSound );

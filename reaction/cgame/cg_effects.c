@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/04/06 21:43:58  makro
+// New surfaceparm system
+//
 // Revision 1.25  2002/04/03 15:51:01  jbravo
 // Small warning fixes
 //
@@ -1064,7 +1067,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int number, int type, in
   glassParm = glassParm >> 6;
   sound = cgs.media.breakables[id].sound[rand() % 3];
 	trap_S_StartSound( NULL, number, CHAN_BODY, sound );
-  bounceFactor = 0.3;
+  bounceFactor = (float) 0.3;
   
   if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM &&
 		 (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
