@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/06/21 21:02:30  niceass
+// worldspawn laserfog check
+//
 // Revision 1.93  2002/06/20 22:32:43  jbravo
 // Added last damaged player and fixed a test2 model problem (atrimum my ass :)
 // Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
@@ -373,6 +376,7 @@ vmCvar_t g_RQ3_radioFloodTime;
 
 // NiceAss: Taken out of the missionpack
 vmCvar_t g_enableBreath;
+vmCvar_t g_enableFogLaser;
 
 // JBravo: ditto
 vmCvar_t g_enableDust;
@@ -447,6 +451,7 @@ static cvarTable_t gameCvarTable[] = {
 
 	// NiceAss: Taken out of the missionpack
 	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qfalse},
+	{&g_enableBreath, "g_enableFogLaser", "1", CVAR_SERVERINFO, 0, qfalse},
 	// JBravo: ditto
 	{&g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qfalse},
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},

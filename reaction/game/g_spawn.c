@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/06/21 21:02:07  niceass
+// worldspawn laserfog check
+//
 // Revision 1.32  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -794,6 +797,10 @@ void SP_worldspawn(void)
 
 	G_SpawnString("enableBreath", "0", &s);
 	trap_Cvar_Set("g_enableBreath", s);
+
+	G_SpawnString("enableLaserFog", "1", &s);
+	trap_Cvar_Set("g_enableLaserFog", s);
+
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
