@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/01/23 15:26:31  niceass
+// body sinkage removed
+// weapon reset fixed
+//
 // Revision 1.25  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -347,6 +351,24 @@ void InitBodyQue (void) {
 }
 
 /*
+===============
+ClearBodyQue  -  By NiceAss
+===============
+*/
+void ClearBodyQue (void) {
+	int		i;
+	gentity_t	*ent;
+
+	level.bodyQueIndex = 0;
+	for (i=0; i<BODY_QUEUE_SIZE ; i++) {
+		ent = level.bodyQue[i];
+		trap_UnlinkEntity( ent );
+		ent->physicsObject = qfalse;
+	}
+}
+
+
+/*
 =============
 BodySink
 
@@ -354,6 +376,10 @@ After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
 void BodySink( gentity_t *ent ) {
+	// NiceAss: Prevent body sink in TP. Bodies will be removed at before LCA
+	if (g_gametype.integer == GT_TEAMPLAY)
+		return;
+
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
 		trap_UnlinkEntity( ent );
@@ -458,6 +484,8 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body->r.ownerNum = ent->s.number;
 
 	body->nextthink = level.time + 5000;
+	
+	// NiceAss: Prevent sinkage of the body in TP
 	body->think = BodySink;
 
 	body->die = body_die;
@@ -1128,8 +1156,9 @@ void ClientBegin( int clientNum ) {
 	// JBravo: default weapons
 
 	if (g_gametype.integer == GT_TEAMPLAY) {
-		client->teamplayWeapon = WP_MP5;
-		client->teamplayItem = HI_KEVLAR;
+		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
+		if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
+		if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
 	}
 
 }
@@ -1404,20 +1433,20 @@ void ClientSpawn(gentity_t *ent) {
 
 		// select the highest weapon number available, after any
 		// spawn given items have fired
-// JBravo: Lets make sure we have the right weapons
+		// JBravo: Lets make sure we have the right weapons
 		if (g_gametype.integer == GT_TEAMPLAY) {
 			EquipPlayer(ent);
 		} else {
-		client->ps.weapon = 1;
-		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
-			if ( i == WP_KNIFE )
-				continue;
-			if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) ) {
-				client->ps.weapon = i;
-				break;
+			client->ps.weapon = 1;
+			for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
+				if ( i == WP_KNIFE )
+					continue;
+				if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) ) {
+					client->ps.weapon = i;
+					break;
+				}
 			}
 		}
-	}
 	}
 
 	// run a client frame to drop exactly to the floor,
