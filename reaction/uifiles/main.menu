@@ -148,7 +148,7 @@
     itemDef {
 	name copyright
 	autowrapped
-	text "Reaction Quake 3 Beta 2.21\n"
+	text "Reaction Quake 3 Beta 2.25\n"
 	     "Copyright (c) 2000 - 2002 Reaction Quake 3 Team\n"
 	     "Quake III Arena (c) 1999 - 2000 id Software Inc."
 	style 0
