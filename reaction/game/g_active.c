@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/06/18 06:15:30  niceass
+// m4 kick now smooth
+//
 // Revision 1.78  2002/06/17 00:27:29  jbravo
 // Cleanup
 //
@@ -1397,7 +1400,7 @@ void ClientEndFrame(gentity_t * ent)
 	    (ent->client->ps.ammo[WP_M4] <= 0 || ent->client->ps.weaponstate != WEAPON_FIRING)) {
 		//Restore view after shots if not firing
 		ent->client->ps.delta_angles[0] =
-		    ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7f);
+		    ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.8);//-0.7f);
 		ent->client->consecutiveShots = 0;
 	}
 	// Check to reset our openDoor boolean

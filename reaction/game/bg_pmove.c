@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/06/18 06:15:30  niceass
+// m4 kick now smooth
+//
 // Revision 1.80  2002/06/18 05:18:55  niceass
 // adjustment to leg damage
 //
@@ -2155,15 +2158,14 @@ static void PM_Weapon(void)
 			pm->cmd.buttons |= BUTTON_ATTACK;
 		}
 	}
+
 	//NiceAss: I added this smoother M4 rise. Should this be used?
-	/*
-	   if ( ( pm->cmd.buttons & 1 || pm->ps->stats[STAT_BURST] ) && pm->ps->ammo[pm->ps->weapon]) {
-	   if ( pm->ps->weapon == WP_M4)
-	   {
-	   pm->ps->delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(pm->ps->delta_angles[0]) - 0.08);
-	   }
-	   }
-	 */
+//	if ( ( pm->cmd.buttons & BUTTON_ATTACK || pm->ps->stats[STAT_BURST] ) && pm->ps->ammo[pm->ps->weapon] ) {
+	if ( pm->ps->weaponstate == WEAPON_FIRING && pm->ps->ammo[pm->ps->weapon] ) {
+		if ( pm->ps->weapon == WP_M4) {
+			pm->ps->delta_angles[0] = pm->ps->delta_angles[0] - ANGLE2SHORT(0.13);
+		}
+	}
 
 	// make weapon function
 	if (pm->ps->weaponTime > 0) {
@@ -2254,6 +2256,7 @@ static void PM_Weapon(void)
 
 		return;
 	}
+
 	// NiceAss: Added for knife animation switch.
 	// At the moment, this is only used for changing knife-throw modes.
 	if (pm->ps->weaponstate == WEAPON_MODECHANGE) {
@@ -2388,10 +2391,6 @@ static void PM_Weapon(void)
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 
-	// Elder: akimbo check to auto-fire the second bullet
-	//if ( pm->ps->weapon == WP_AKIMBO && pm->ps->stats[STAT_BURST] == 0)
-	//pm->ps->stats[STAT_BURST] = 1;
-
 	// Elder: increment stat if alt-fire mode --needs to be predicted as well
 	if ((pm->ps->weapon == WP_M4 &&
 	     (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
@@ -2402,19 +2401,20 @@ static void PM_Weapon(void)
 	    (pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)) {
 		pm->ps->stats[STAT_BURST]++;
 	}
+
 	//Elder: M4 kick code
-	//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
+	/*
 	if (pm->ps->weapon == WP_M4 && ((pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE)) {
 		pm->ps->delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(pm->ps->delta_angles[0]) - 0.7);
 	}
+	*/
+
 	// take an ammo away if not infinite
 	if (pm->ps->ammo[pm->ps->weapon] != -1) {
-		//Blaze: Dont remove ammo for knife
 		//Elder: don't remove ammo if slashing knife
 		if (!
 		    (pm->ps->weapon == WP_KNIFE
 		     && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)) {
-			//G_Printf("Taking away ammo\n");
 			pm->ps->ammo[pm->ps->weapon]--;
 		}
 		//Elder: special weapon case handling
@@ -2431,10 +2431,6 @@ static void PM_Weapon(void)
 		else if (pm->ps->weapon == WP_HANDCANNON) {
 			pm->ps->ammo[WP_HANDCANNON]--;
 		}
-		//Elder: take away an extra bullet if available - handled in g_weapon.c as well
-		//else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
-		//pm->ps->ammo[ WP_AKIMBO ] --;
-		//}
 
 		//Elder: sync bullets a la AQ2 style
 		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[WP_AKIMBO] < 12) {
@@ -2443,6 +2439,7 @@ static void PM_Weapon(void)
 			pm->ps->ammo[WP_AKIMBO]--;
 		}
 	}
+
 	// fire weapon
 	//Elder: check for silencer
 	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
