@@ -10,7 +10,7 @@
     visible 0					// Visible on open
     focusColor RQ3_MAIN_FOCUSCOLOR		// Menu focus color for text and items
     timedItems 39
-    timerInterval 5500
+    timerInterval 3500
 
     fadeCycle 500					// how often fade happens in milliseconds
     fadeAmount 0.01				// amount to adjust alpha per cycle

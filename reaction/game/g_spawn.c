@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.49  2003/09/18 00:05:05  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -306,6 +309,7 @@ void SP_light(gentity_t * self);
 void SP_dlight(gentity_t * self);	// Elder: dlight entity
 void SP_misc_lens_flare(gentity_t *ent);	//Makro - lens flare
 void SP_func_shadow(gentity_t *ent);	//Makro - fake shadow
+void SP_misc_corona(gentity_t *ent);	//Makro - fake shadow
 void SP_info_null(gentity_t * self);
 void SP_info_notnull(gentity_t * self);
 void SP_info_camp(gentity_t * self);
@@ -396,6 +400,7 @@ spawn_t spawns[] = {
 	{"func_dlite", SP_dlight},	// Elder: dlight entity
 	{"light_d", SP_dlight},	//Makro - for compatibility with older maps
 	{"func_shadow", SP_func_shadow},	//Makro - fake shadow
+	{"misc_corona",	SP_misc_corona},	//Makro - coronas
 	{"misc_lens_flare", SP_misc_lens_flare}, //Makro - lens flare
 	{"path_corner", SP_path_corner},
 
@@ -699,8 +704,14 @@ void G_SpawnGEntityFromSpawnVars(void)
 			return;
 		}
 	}
+	//Makro - check for "notgametype" key
+	if (G_SpawnInt("notgametype", "0", &i)) {
+		if ((i & (1 << g_gametype.integer)) != 0) {
+			G_FreeEntity(ent, __LINE__, __FILE__);
+			return;
+		}
 	// check for "notteam" flag (GT_FFA, GT_TOURNAMENT, GT_SINGLE_PLAYER)
-	if (g_gametype.integer >= GT_TEAM) {
+	} else if (g_gametype.integer >= GT_TEAM) {
 		G_SpawnInt("notteam", "0", &i);
 		if (i) {
 			G_FreeEntity(ent, __LINE__, __FILE__);

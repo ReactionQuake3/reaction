@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.76  2003/09/20 19:38:16  makro
 // Lens flares, what else ?
 //
@@ -482,14 +485,31 @@ static void CG_DrawStatusBar(void)
 	vec4_t hcolor;
 	qhandle_t hicon;
 	qhandle_t icon;
-	int i;
+	//Makro - added x and y for weapon drawing
+	int i, x = 640 - SMICON_SIZE, y = 400;
 
+	//Makro - old values
+	/*
 	static float colors[4][4] = {
 		{0.0f, 1.0f, 0.0f, 1.0f},	// full green
 		{0.6f, 0.6f, 0.6f, 1.0f},	// firing
 		{0.8f, 0.8f, 0.0f, 1.0f},	// not maximum
 		{0.8f, 0.0f, 0.0f, 1.0f}
 	};			// out of ammo
+	*/
+	static float colors[5][4] = {
+		{1.0f, 1.0f, 1.0f, 1.0f},	// full green
+		{1.0f, 1.0f, 0.0f, 1.0f},	// firing
+		{0.7f, 0.7f, 0.7f, 1.0f},	// not maximum
+		{0.8f, 0.0f, 0.0f, 1.0f},	// out of ammo
+		{0.0f, 1.0f, 0.0f, 1.0f}	//Makro - reloading
+	};			
+	//Makro - health colors
+	static float hcolors[3][4] = {
+		{1.0f, 1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f}
+	};
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
@@ -507,14 +527,30 @@ static void CG_DrawStatusBar(void)
 	else
 		hicon = cgs.media.rq3_healthicon;
 
+	//Makro - old code
 	//Elder: dynamic health color ramps
 	//Blends from green to yellow to red algebraically
 	//100 - Green, 50 - Yellow, 25 - Red, 0 - Faded Red
 	//Note: These formulas are clamped from 0.0 to 1.0 algebraically
+	/*
 	hcolor[0] = (value > 50) * (-0.02 * value + 2.0) + (value <= 50) * 1;
 	hcolor[1] = (value > 25 && value <= 50) * (0.04 * value - 1.0) + (value > 50) * 1;
 	hcolor[2] = 0;
 	hcolor[3] = (value <= 25) * (0.01 * value + 0.75) + (value > 25) * 1;
+	*/
+	if (value > 50) {
+		float frac = (value - 50) / 50.0f, ifrac = (1.0f - frac);
+		hcolor[0] = frac * hcolors[0][0] + ifrac * hcolors[1][0];
+		hcolor[1] = frac * hcolors[0][1] + ifrac * hcolors[1][1];
+		hcolor[2] = frac * hcolors[0][2] + ifrac * hcolors[1][2];
+		hcolor[3] = frac * hcolors[0][3] + ifrac * hcolors[1][3];
+	} else {
+		float frac = value / 50.0f, ifrac = (1.0f - frac);
+		hcolor[0] = frac * hcolors[1][0] + ifrac * hcolors[2][0];
+		hcolor[1] = frac * hcolors[1][1] + ifrac * hcolors[2][1];
+		hcolor[2] = frac * hcolors[1][2] + ifrac * hcolors[2][2];
+		hcolor[3] = frac * hcolors[1][3] + ifrac * hcolors[2][3];
+	}
 
 	/* Elder: Old clamp routine for reference -- more efficient since less stack usage?
 	   for (i = 0; i < 4; i++) {
@@ -557,6 +593,9 @@ static void CG_DrawStatusBar(void)
 		// Select colour
 		if (cg.predictedPlayerState.weaponstate == WEAPON_FIRING && cg.predictedPlayerState.weaponTime > 100)
 			color = 1;
+		//Makro - added reloading check
+		else if (cg.predictedPlayerState.weaponstate == WEAPON_RELOADING)
+			color = 4;
 		else if (ps->ammo[cent->currentState.weapon] == 0)
 			color = 3;
 		else if (ps->ammo[cent->currentState.weapon] < ClipAmountForAmmo(cent->currentState.weapon))
@@ -578,27 +617,43 @@ static void CG_DrawStatusBar(void)
 	//if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 	//UI_DrawProportionalString( 10, 400, va("%i", cg.snap->ps.stats[STAT_RELOADTIME]), style, colors[2]);
 
-	//Elder: draw grenades, if any, on the side
-	if (cg.snap->ps.ammo[WP_GRENADE] > 0) {
-		icon = cg_weapons[WP_GRENADE].weaponIcon;
-		if (icon)
-			CG_DrawPic(640 - SMICON_SIZE, 360, SMICON_SIZE, SMICON_SIZE, icon);
-		UI_DrawProportionalString(580, 364, va("%d", cg.snap->ps.ammo[WP_GRENADE]), style, colors[0]);
-	}
 	//Elder: draw a special weapon, if any, on the side
 	for (i = 1; i < MAX_WEAPONS; i++) {
+		int flag = (1 << i);
 		if (i == WP_KNIFE || i == WP_PISTOL || i == WP_GRENADE || i == WP_AKIMBO)
 			continue;
 
-		if ((1 << i) == ((1 << i) & cg.snap->ps.stats[STAT_WEAPONS]))
-			break;
+		if (flag == (flag & cg.snap->ps.stats[STAT_WEAPONS]))
+		{
+			//Makro - old code
+			//break;
+			icon = cg_weapons[i].weaponIcon;
+			if (icon)
+			{
+				CG_DrawPic(x, y, SMICON_SIZE, SMICON_SIZE, icon);
+				y -= SMICON_SIZE;
+			}
+		}
 	}
 
+	//Elder: draw grenades, if any, on the side
+	//Makro - changed the code a bit; now it's drawn above the special weapons
+	if (cg.snap->ps.ammo[WP_GRENADE] > 0) {
+		icon = cg_weapons[WP_GRENADE].weaponIcon;
+		if (icon)
+			CG_DrawPic(x, y, SMICON_SIZE, SMICON_SIZE, icon);
+		UI_DrawProportionalString(x - 8, y, va("%d", cg.snap->ps.ammo[WP_GRENADE]), UI_RIGHT | UI_DROPSHADOW, colors[0]);
+		y -= SMICON_SIZE;
+	}
+
+	//Makro - old code
+	/*
 	if (i < MAX_WEAPONS) {
 		icon = cg_weapons[i].weaponIcon;
 		if (icon)
 			CG_DrawPic(640 - SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
 	}
+	*/
 }
 
 /*

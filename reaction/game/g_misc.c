@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.81  2003/09/19 21:25:10  makro
 // Flares (again!). Doors that open away from players.
 //
@@ -472,8 +475,8 @@ void SP_misc_lens_flare(gentity_t *ent)
 		G_Printf(S_COLOR_YELLOW"Warning: misc_lens_flare with count <0 at %s\n", vtos(ent->s.origin));
 		ent->count = 4;
 	}
-	G_SpawnInt("minsize", "16", &ent->damage);
-	G_SpawnInt("maxsize", "128", &ent->damage_radius);
+	G_SpawnInt("sizemin", "16", &ent->damage);
+	G_SpawnInt("sizemax", "128", &ent->damage_radius);
 
 	G_SpawnFloat("alphamin", "0.5", &f);
 	if (f > 1)
@@ -529,6 +532,14 @@ void SP_func_shadow(gentity_t *ent)
 	trap_SetConfigstring(CS_SHADOWS, info);
 
 	ent->s.eType = ET_SHADOW;
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+}
+
+
+void SP_misc_corona(gentity_t *ent)
+{
+	ent->s.eType = ET_CORONA;
+	//ent->r.svFlags = SVF_NOCLIENT;
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
@@ -942,7 +953,7 @@ void Use_Breakable(gentity_t * self, gentity_t * other, gentity_t * activator)
 }
 
 //Elder: Breakable anything!* -- we define, that is
-/*QUAKED func_breakable (0 .5 .8) ? CHIPPABLE UNBREAKABLE EXPLOSIVE 
+/*QUAKED func_breakable (0 .5 .8) CHIPPABLE UNBREAKABLE EXPLOSIVE UNKICKABLE TOUCHY
 Breakable object entity that breaks, chips or explodes when damaged. 
 -------- KEYS -------- 
 health : determines the strength of the glass (default 5). 
@@ -954,7 +965,8 @@ damage_radius : sets the maximum distance from the explosion players will take d
 -------- SPAWNFLAGS -------- 
 CHIPPABLE : little pieces will spawn when the entity is shot. 
 UNBREAKABLE : entity will never break. To make the entity chip, but never break, check the first two spawnflags. To make the entity chip and eventually break, only set the first spawnflag. 
-EXPLOSIVE : entity will explode. 
+EXPLOSIVE : entity will explode.
+TOUCHY : entity will break when touched. If damage is set to a non-zero value, it specifies the damage to be inflicted to the touching entity
 -------- NOTES -------- 
 Breakables are defined in sets by the 'type' key (e.g. type : glass, type : wood). Each type used in a map must be given a unique id number. Each entity of a particular type must have the same id number (i.e. if your first glass breakable has id : 1, then every glass breakable must have id : 1). To add custom breakables, use this format: 
  
@@ -997,6 +1009,13 @@ static void InitBreakable_Finish(gentity_t * ent)
 	}
 	ent->s.eventParm |= (ent->s.weapon & 0x0FFF);
 	ent->s.weapon = 0;
+}
+
+void Touch_Breakable(gentity_t * self, gentity_t * other, trace_t * trace)
+{
+	if (self->damage)
+		G_Damage(other, self, self, NULL, NULL, self->damage, 0, MOD_TRIGGER_HURT);
+	Use_Breakable(self, other, other);
 }
 
 void SP_func_breakable(gentity_t * ent)
@@ -1075,6 +1094,13 @@ void SP_func_breakable(gentity_t * ent)
 		ent->unkickable = qtrue;
 	} else {
 		ent->unkickable = qfalse;
+	}
+
+	//Makro - added
+	if (ent->spawnflags & 16) {
+		ent->touch = Touch_Breakable;
+	} else {
+		ent->touch = NULL;
 	}
 	
 	if (!ent->damage_radius) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.19  2003/07/30 16:05:46  makro
 // no message
 //
@@ -2153,18 +2156,19 @@ void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, 
 	p->time = cg.time;
 
 	p->endtime = cg.time + duration;
-	//p->startfade = cg.time + duration * 0.75;
+	p->startfade = cg.time + duration * 0.75;
 
-	p->color = GREY75;
-	p->alpha = 0.4f;
-	p->alphavel = 0;
+	//p->color = GREY75;
+	p->color = 0;
+	p->alpha = 0.8f;
+	p->alphavel = p->alpha / ((p->endtime - p->startfade) * .001f);
 
 	p->height = 4;
 	p->width = 4;
-	p->endheight = 8;
-	p->endwidth = 8;
+	p->endheight = 16;
+	p->endwidth = 16;
 
-	p->pshader = cgs.media.smokePuffAnimShader;
+	p->pshader = cgs.media.snowImpactShader;
 
 	p->type = P_SMOKE;
 
@@ -2177,12 +2181,12 @@ void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, 
 	p->vel[1] = vel[1];
 	p->vel[2] = vel[2];
 
-	p->accel[0] = crandom() * 6;
-	p->accel[1] = crandom() * 6;
+	p->accel[0] = crandom() * 4;
+	p->accel[1] = crandom() * 4;
 	p->accel[2] = -PARTICLE_GRAVITY * 4;
 
-	p->vel[0] += (crandom() * 12);
-	p->vel[1] += (crandom() * 12);
+	p->vel[0] += (crandom() * 8);
+	p->vel[1] += (crandom() * 8);
 	//p->vel[2] += (20 + (crandom() * 10)) * speed;
 
 }
@@ -2232,6 +2236,55 @@ void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y,
 	p->vel[0] += (crandom() * 12);
 	p->vel[1] += (crandom() * 12);
 	//p->vel[2] += (20 + (crandom() * 10)) * speed;
+
+}
+
+//Makro - wall
+void CG_ParticleHitWall(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale)
+{
+	cparticle_t *p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+
+	p->endtime = cg.time + duration;
+	p->startfade = cg.time + duration * 0.85;
+
+	p->color = 0;
+	p->alpha = 1.0f;
+	p->alphavel = 0;
+	p->roll = rand() % 179;
+
+	p->height = 3;
+	p->width = 3;
+	p->endheight = 2;
+	p->endwidth = 2;
+
+	p->pshader = cgs.media.particleImpactShader;
+
+	p->type = P_SMOKE;
+
+	VectorCopy(org, p->org);
+
+	p->org[0] += (crandom() * x);
+	p->org[1] += (crandom() * y);
+
+	p->vel[0] = vel[0];
+	p->vel[1] = vel[1];
+	p->vel[2] = vel[2];
+
+	p->accel[0] = crandom() * 6;
+	p->accel[1] = crandom() * 6;
+	p->accel[2] = -PARTICLE_GRAVITY * 4;
+
+	p->vel[0] += (crandom() * 24);
+	p->vel[1] += (crandom() * 24);
+	p->vel[2] += (crandom() * 24);
 
 }
 

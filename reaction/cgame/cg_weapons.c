@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.118  2003/07/30 16:05:46  makro
 // no message
 //
@@ -1491,7 +1494,7 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 			for (i=0; i<NUM_SILENCER_PUFFS; i++)
 			{
 				VectorScale(silencer.axis[1], -(20+random()*50), up);
-				smoke[i] = CG_SmokePuff(silencerEnd, up, 0.2f, 1, 1, 1, 0.2f, 200+random()*200, cg.time, 0, 0,
+				smoke[i] = CG_SmokePuff(silencerEnd, up, 0.2f, 1, 1, 1, 0.25f+crandom()*0.1f, 200+random()*200, cg.time, 0, 0,
 						 cgs.media.shotgunSmokePuffShader);
 				smoke[i]->leType = LE_MOVE_SCALE_FADE;
 				smoke[i]->lifeRate = 0.75 / (smoke[i]->endTime - smoke[i]->startTime);
@@ -2408,7 +2411,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	qhandle_t mod, mark, shader;
 	sfxHandle_t sfx;
 	float radius, light;
-	vec3_t lightColor, puffOrigin, puffOffset, puffDir, velocity;
+	vec3_t lightColor, puffDir, velocity;
 	localEntity_t *le, *smokePuff;
 	int r, duration, angle, contentType, sparkCount, i;
 	qboolean alphaFade, isSprite;
@@ -2680,18 +2683,40 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	//
 
 	//Elder: 75% of the time render a smoke puff
-	i = rand() % 4;
+	//Makro - I say we do it all the time
+	//i = rand() % 4;
 	//Makro - not for snow or grass surfaces
-	if (cg_RQ3_impactEffects.integer && i < 3 && soundType != IMPACTSOUND_SNOW && soundType != IMPACTSOUND_GRASS) {
+	//if (cg_RQ3_impactEffects.integer && i < 3 && soundType != IMPACTSOUND_SNOW && soundType != IMPACTSOUND_GRASS) {
+	if (cg_RQ3_impactEffects.integer && soundType != IMPACTSOUND_SNOW && soundType != IMPACTSOUND_GRASS) {
 		contentType = trap_CM_PointContents(origin, 0);
 		// no puff in water
 		if (!(contentType & CONTENTS_WATER)) {
+			int count = 0, speed = 0;
+			float size = 0;
 			switch (weapon) {
 			case WP_MP5:
+				count = 3;
+				size = 2.0f;
+				speed = 36;
+				break;
 			case WP_M4:
+				count = 5;
+				size = 4.5f;
+				speed = 64;
+				break;
 			case WP_PISTOL:
 			case WP_AKIMBO:
+				count = 4;
+				size = 3.0f;
+				speed = 48;
+				break;
 			case WP_SSG3000:
+				count = 5;
+				size = 6.0f;
+				speed = 80;
+				break;
+				/*
+				//Makro - old code
 				puffDir[0] = 0;
 				puffDir[1] = 0;
 				puffDir[2] = 16;
@@ -2707,8 +2732,29 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 							 650,
 							 cg.time, 0,
 							 LEF_PUFF_DONT_SCALE, cgs.media.smokePuffAnimShader);
+				*/
+			default:
 				break;
 			}
+			for (i=0; i<count; i++)
+			{
+				VectorScale(dir, speed + crandom() * 8, puffDir);
+				//VectorScale(silencer.axis[1], -(20+random()*50), up);
+				smokePuff = CG_SmokePuff(origin, puffDir, size+random()*size, .8f, .8f, .8f, 0.3f+crandom()*0.1f, 300+random()*150, cg.time-random()*100, cg.time+random()*200, 0,
+					cgs.media.shotgunSmokePuffShader);
+				smokePuff->leType = LE_MOVE_SCALE_FADE;
+				smokePuff->lifeRate = 1.0f / (smokePuff->endTime - smokePuff->startTime);
+			}
+		}
+	}
+	//Makro - particles for default, grass, wood, brick and ceramic materials
+	if (cg_RQ3_impactEffects.integer && (soundType == IMPACTSOUND_WOOD || soundType == IMPACTSOUND_DEFAULT || soundType == IMPACTSOUND_BRICK || soundType == IMPACTSOUND_CERAMIC || soundType == IMPACTSOUND_GRASS))
+	{
+		int count = rand() % 5;
+		for (i=0; i<count; i++)
+		{
+			VectorScale(dir, 96 + crandom() * 16, puffDir);
+			CG_ParticleHitWall(origin, puffDir, 300 + rand() % 250, 4, 4, -1, 1);
 		}
 	}
 	// Elder: Spark effect for metal surfaces

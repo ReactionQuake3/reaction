@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.56  2003/09/20 19:38:16  makro
 // Lens flares, what else ?
 //
@@ -604,6 +607,18 @@ static void CG_IRVision_f(void)
 	trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
 }
 
+//Makro - added
+static void CG_ReloadModel_f(void)
+{
+	int i = atoi(CG_Argv(1)), j = atoi(CG_Argv(2));
+
+	if (i == 0)
+	{
+		CG_ReplaceModels();
+		CG_RegisterWeapon(j);
+	}
+}
+
 typedef struct {
 	char *cmd;
 	void (*function) (void);
@@ -643,7 +658,8 @@ static consoleCommand_t commands[] = {
 	{"startOrbit", CG_StartOrbit_f},
 	//{ "camera", CG_Camera_f },
 	{"loaddeferred", CG_LoadDeferredPlayers},
-	{"irvision", CG_IRVision_f}
+	{"irvision", CG_IRVision_f},
+	{"reloadmodel", CG_ReloadModel_f}
 };
 
 /*

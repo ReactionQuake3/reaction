@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.157  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.156  2003/09/20 19:38:16  makro
 // Lens flares, what else ?
 //
@@ -1623,7 +1626,11 @@ typedef struct {
 	sfxHandle_t female_click;
 
 	//Makro - lens flare shaders
-	qhandle_t flareShader[NUM_FLARE_SHADERS], sunFlareShader;
+	qhandle_t flareShader[NUM_FLARE_SHADERS], sunFlareShader, coronaShader;
+	//Makro - snow impact effects
+	qhandle_t snowImpactShader;
+	//Makro - generic particle impact shader
+	qhandle_t particleImpactShader;
 } cgMedia_t;
 
 // The client game static (cgs) structure hold everything
@@ -1722,7 +1729,7 @@ typedef struct {
 	qboolean clearColorSet;
 	//Makro - sun flares
 	int lastSunTime, lastSunX, lastSunY, numFlares, sunFlareSize;
-	float sunAlpha, flareFovFactor, flareFadeFactor;
+	float sunAlpha, flareFovFactor, flareFadeFactor, flareForwardFactor;
 	vec3_t sunDir;
 } cgs_t;
 
@@ -2017,6 +2024,8 @@ void CG_RankRunFrame(void);
 void CG_SetScoreSelection(void *menu);
 score_t *CG_GetSelectedScore();
 void CG_BuildSpectatorString();
+
+void CG_ReplaceModels(void);
 
 //
 // cg_atmospheric.c
@@ -2521,4 +2530,5 @@ int CG_NewParticleArea(int num);
 void CG_DrawBigPolygon(void);
 void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
+void CG_ParticleHitWall(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_AddLensFlare(qboolean sun);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.47  2003/09/10 21:40:35  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -114,6 +117,7 @@
 static void CG_LaserSight(centity_t * cent);
 static void CG_Dlight(centity_t * cent);
 static void CG_FakeShadow(centity_t * cent);
+static void CG_Corona(centity_t * cent);
 
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
@@ -1081,6 +1085,9 @@ static void CG_AddCEntity(centity_t * cent)
 	case ET_DLIGHT:
 		CG_Dlight(cent);
 		break;
+	case ET_CORONA:
+		CG_Corona(cent);
+		break;
 	case ET_SHADOW:
 		CG_FakeShadow(cent);
 		break;
@@ -1266,4 +1273,22 @@ static void CG_Dlight(centity_t * cent)
 static void CG_FakeShadow(centity_t * cent)
 {
 	return;
+}
+
+static void CG_Corona(centity_t * cent)
+{
+	refEntity_t ent;
+	
+	memset(&ent, 0, sizeof(ent));
+	VectorCopy(cent->currentState.origin, ent.origin);
+	ent.reType = RT_SPRITE;
+	ent.customShader = cgs.media.coronaShader;
+	ent.radius = 32;
+	if (0)
+		ent.renderfx = RF_DEPTHHACK;
+	ent.shaderRGBA[0] = 255;
+	ent.shaderRGBA[1] = ent.shaderRGBA[0];
+	ent.shaderRGBA[2] = ent.shaderRGBA[0];
+	ent.shaderRGBA[3] = ent.shaderRGBA[0];
+	trap_R_AddRefEntityToScene(&ent);
 }

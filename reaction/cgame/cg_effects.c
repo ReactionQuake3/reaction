@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.42  2003/08/02 22:29:07  makro
 // Made underwater bubbles 3 times smaller
 //
@@ -106,6 +109,9 @@ Modified tracer code
 I really don't know what's going on half the time here :)
 ===============
 */
+
+void CG_CreateTracer(int entity, vec3_t start, vec3_t end);
+
 void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 {
 	vec3_t forward, right;
@@ -172,7 +178,8 @@ void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	trap_R_AddPolyToScene(cgs.media.tracerShader, 4, verts);
+	//trap_R_AddPolyToScene(cgs.media.tracerShader, 4, verts);
+	CG_CreateTracer(ENTITYNUM_WORLD, source, dest);
 
 	//midpoint[0] = ( start[0] + finish[0] ) * 0.5;
 	//midpoint[1] = ( start[1] + finish[1] ) * 0.5;

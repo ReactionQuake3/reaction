@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.143  2003/09/19 00:54:23  makro
 // Flares again
 //
@@ -2277,6 +2280,10 @@ static void CG_RegisterGraphics(void)
 	for (i=0; i<NUM_FLARE_SHADERS; i++)
 		cgs.media.flareShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/flare%02d", i+1));
 	cgs.media.sunFlareShader = trap_R_RegisterShaderNoMip("gfx/2d/sunflare");
+	cgs.media.coronaShader = trap_R_RegisterShaderNoMip("gfx/2d/corona");
+	//Makro - snow impact shader
+	cgs.media.snowImpactShader = trap_R_RegisterShader("snowimpact");
+	cgs.media.particleImpactShader = trap_R_RegisterShader("impactparticle");
 
 	// register all the server specified models
 	for (i = 1; i < MAX_MODELS; i++) {

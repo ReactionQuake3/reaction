@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.70  2003/09/19 21:25:10  makro
 // Flares (again!). Doors that open away from players.
 //
@@ -947,6 +950,33 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	int total;
 	int partial;
 
+	//Makro - 'LookAtMe' flag set ?
+	if ((ent->spawnflags & SP_LOOKATME) && activator && activator->client) {
+		trace_t tr;
+		vec3_t forward, right, up, muzzle, end;
+		gentity_t *hit;
+
+		// set aiming directions
+		AngleVectors(activator->client->ps.viewangles, forward, right, up);
+		CalcMuzzlePoint(activator, forward, right, up, muzzle);
+		// Elder: AQ2 offset
+		muzzle[2] -= (activator->client->ps.viewheight - 20);
+		VectorMA(muzzle, 8192, forward, end);
+		
+		trap_Trace(&tr, muzzle, NULL, NULL, end, activator->s.number, MASK_SHOT);
+
+		hit = g_entities + tr.entityNum;
+
+		if (!hit->teammaster) {
+			if (hit != ent)
+				return;
+		} else {
+			if (hit->teammaster != ent->teammaster)
+				return;
+		}
+
+	}
+
 	// only the master should be used
 	if (ent->flags & FL_TEAMSLAVE) {
 		Use_BinaryMover(ent->teammaster, other, activator);
@@ -1493,7 +1523,7 @@ NOMONSTER	monsters will not trigger this door
 
 //Elder: new one from GTKRadiant's entity.def plus Reaction stuff
 
-/*QUAKED func_door (0 .5 .8) ? START_OPEN CRUSHER AUTO_OPEN TOGGLE
+/*QUAKED func_door (0 .5 .8) ? START_OPEN CRUSHER AUTO_OPEN TOGGLE FOV
 Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it.
 -------- KEYS --------
 angle : determines the opening direction of door (up = -1, down = -2).
@@ -1643,7 +1673,7 @@ void SP_func_door(gentity_t * ent)
 
 // REACTION
 
-/*QUAKED func_door_rotating (0 .5 .8) START_OPEN CRUSHER AUTO_OPEN TOGGLE X_AXIS Y_AXIS
+/*QUAKED func_door_rotating (0 .5 .8) START_OPEN CRUSHER AUTO_OPEN TOGGLE X_AXIS Y_AXIS AWAY FOV
 This is the rotating door... just as the name suggests it's a door that rotates
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
 REVERSE		if you want the door to open in the other direction, use this switch.
@@ -2387,7 +2417,7 @@ void Reset_Func_Train(gentity_t *ent)
 	Think_BeginMoving(ent);
 }
 
-/*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
+/*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS NOINTERRUPT
 A train is a mover that moves between path_corner target points.
 Trains MUST HAVE AN ORIGIN BRUSH.
 The train spawns at the first target it is pointing at.

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.18  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -835,6 +838,13 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 		return 0;
 	}
 	
+
+	//Makro - adding "target" field
+	if (ent->target)
+	{
+		G_UseEntities(ent, ent->target, other);
+	}
+
 	// JBravo: no picking up [the enemy case-NiceAss] case if you have a two handed weapon.
 	if (other->client->ps.weapon != WP_PISTOL && other->client->ps.weapon != WP_KNIFE &&
 		team != cl->sess.sessionTeam && level.time - cl->flagMessageTime > 10000 ) {

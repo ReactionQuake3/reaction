@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2004/01/26 21:26:09  makro
+// no message
+//
 // Revision 1.13  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -479,7 +482,8 @@ typedef enum {
 #define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
 //Elder: changed to fit new font from 27
-#define PROP_HEIGHT				24
+//Makro - changed back
+#define PROP_HEIGHT				27
 #define PROP_SMALL_SIZE_SCALE	0.75
 
 #define BLINK_DIVISOR			200

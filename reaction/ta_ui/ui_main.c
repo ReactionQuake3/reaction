@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2004/01/26 21:26:09  makro
+// no message
+//
 // Revision 1.78  2003/09/01 15:09:49  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -306,7 +309,7 @@ static replacementSubtype_t replacementWeapons[] =
 	{"Mk23",		"mk23"},
 	{"M3",			"m3"},
 	{"MP5",			"mp5"},
-	{"Handcannon",		"handcannon"},
+	{"Handcannon",	"handcannon"},
 	{"SSG3000",		"ssg3000"},
 	{"M4",			"m4"},
 	{"Grenade",		"grenade"},
@@ -2659,6 +2662,60 @@ void UI_SelectReplacement(void)
 	{
 		trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), uiInfo.replacements.Cvars[uiInfo.replacements.Index]);
 		//Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
+		//if we have enough free memory
+		if (trap_MemoryRemaining() > 8000000)
+		{
+			gitem_t *item = NULL;
+			int type = -1;
+			switch (uiInfo.replacements.TypeIndex)
+			{
+				case 0:
+					switch (uiInfo.replacements.SubtypeIndex)
+					{
+						case 0:
+							type = WP_PISTOL;
+							break;
+						case 1:
+							type = WP_M3;
+							break;
+						case 2:
+							type = WP_MP5;
+							break;
+						case 3:
+							type = WP_HANDCANNON;
+							break;
+						case 4:
+							type = WP_SSG3000;
+							break;
+						case 5:
+							type = WP_M4;
+							break;
+						case 6:
+							type = WP_GRENADE;
+							break;
+						case 7:
+							type = WP_AKIMBO;
+							break;
+						case 8:
+							type = WP_KNIFE;
+							break;
+						default:
+							break;
+					}
+					if (type != -1)
+						item = BG_FindItemForWeapon(type);
+					break;
+				case 1:
+				case 2:
+					break;
+				default:
+					break;
+			}
+			if (item)
+			{
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("reloadmodel 0 %i\n", type));
+			}
+		}
 	}
 }
 

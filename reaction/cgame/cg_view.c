@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.42  2003/09/20 19:38:16  makro
 // Lens flares, what else ?
 //
@@ -1019,7 +1022,8 @@ static void CG_PlayBufferedSounds(void)
 //=========================================================================
 
 
-#define FLARE_FADEOUT_TIME	600
+#define FLARE_FADEOUT_TIME	200
+#define FLARE_BLIND_ALPHA	0.2f
 
 void CG_AddLensFlare(qboolean sun)
 {
@@ -1032,28 +1036,29 @@ void CG_AddLensFlare(qboolean sun)
 	{
 		float PI180 = M_PI/180, pitch, yaw, cx, cy,
 			hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2;
-		qboolean visible = qfalse;
 		vec3_t end;
 		trace_t tr;
-		int timeDelta = 0;
+		int timeDelta = 0, visible = 0;
 
 		cgs.flareFadeFactor = 0.0f;
 
-		//do a trace in the direction of the sun
 		VectorCopy(cgs.sunDir, dir);
+		dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
+		dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
+		dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
+
+		//do a trace in the direction of the sun
 		VectorMA(cg.refdef.vieworg, 16384, dir, end);
 		CG_Trace(&tr, cg.refdef.vieworg, NULL, NULL, end, 0, CONTENTS_SOLID);
 		//if we hit the sky
 		if (tr.surfaceFlags & SURF_SKY)
 		{
-			dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
-			dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
-			dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
 			yaw = 90.0f - acos(dp[1])/PI180;
 			pitch = 90.0f - acos(dp[2])/PI180;
 			
+			cgs.flareForwardFactor = dp[0];
 			//if the sun is in fov
-			if (dp[0] > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
+			if (cgs.flareForwardFactor > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
 				//get the screen co-ordinates of the sun
 #if 0
 				cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
@@ -1128,6 +1133,11 @@ void CG_AddLensFlare(qboolean sun)
 				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
 					cgs.media.flareShader[cg.flareShaderNum[i]]);
 			}
+			color[0] = color[1] = color[2] = 1.0f;
+			//Makro - too expensive ?
+			color[3] = cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
+			//color[3] = FLARE_BLIND_ALPHA * cgs.flareFadeFactor * (2.0f * cgs.flareForwardFactor - 1.0f);
+			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
 		}
 	}
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.190  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.189  2003/09/16 23:25:32  makro
 // trigger_multiple - new spawnflag, 3 new keys
 //
@@ -776,6 +779,8 @@ void Cmd_Give_f(gentity_t * ent)
 		ent->client->weaponCount[WP_M4] = 1;
 		ent->client->weaponCount[WP_AKIMBO] = 1;
 		ent->client->weaponCount[WP_HANDCANNON] = 1;
+		//Makro - added knives
+		ent->client->weaponCount[WP_KNIFE] = 1;
 		if (!give_all)
 			return;
 	}
@@ -798,7 +803,10 @@ void Cmd_Give_f(gentity_t * ent)
 	if (give_all || Q_stricmp(name, "ammo") == 0) {
 		for (i = 0; i < MAX_WEAPONS; i++) {
 			//Blaze: Give right amount of shots to each gun
-			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
+			if (i == WP_KNIFE)
+				ent->client->ps.ammo[i] = 10;
+			else
+				ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
 			//Makro - I want clips, dammit !
 			Add_Ammo(ent, i, 100, 1);
 		}

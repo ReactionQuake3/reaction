@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.134  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -1933,23 +1936,6 @@ void ClientSpawn(gentity_t * ent)
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
 
-// JBravo: adding allweapons.
-	if (g_RQ3_allWeapons.integer) {
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - (1 << WP_NONE);
-		ent->client->weaponCount[WP_SSG3000] = 1;
-		ent->client->weaponCount[WP_MP5] = 1;
-		ent->client->weaponCount[WP_M3] = 1;
-		ent->client->weaponCount[WP_M4] = 1;
-		ent->client->weaponCount[WP_AKIMBO] = 1;
-		ent->client->weaponCount[WP_HANDCANNON] = 1;
-		ent->client->uniqueWeapons = 5;
-		for (i = 0; i < MAX_WEAPONS; i++) {
-			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
-			Add_Ammo(ent, i, 100, 1);
-		}
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
-	}
-
 // JBravo: adding allitems.
 	if (g_RQ3_allItems.integer) {
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = (1 << HI_KEVLAR);
@@ -1963,6 +1949,29 @@ void ClientSpawn(gentity_t * ent)
 		} else {
 			ent->client->uniqueItems = 5;
 		}
+	}
+
+// JBravo: adding allweapons.
+	if (g_RQ3_allWeapons.integer) {
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - (1 << WP_NONE);
+		ent->client->weaponCount[WP_SSG3000] = 1;
+		ent->client->weaponCount[WP_MP5] = 1;
+		ent->client->weaponCount[WP_M3] = 1;
+		ent->client->weaponCount[WP_M4] = 1;
+		ent->client->weaponCount[WP_AKIMBO] = 1;
+		ent->client->weaponCount[WP_HANDCANNON] = 1;
+		ent->client->uniqueWeapons = 5;
+		//Makro - added knives
+		ent->client->weaponCount[WP_KNIFE] = 1;
+		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER))
+			ent->client->ps.ammo[WP_KNIFE] = 20;
+		else
+			ent->client->ps.ammo[WP_KNIFE] = 10;
+		for (i = 0; i < MAX_WEAPONS; i++) {
+			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
+			Add_Ammo(ent, i, 100, 1);
+		}
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
 	}
 
 // JBravo: lock the player down

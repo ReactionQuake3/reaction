@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2004/01/26 21:26:08  makro
+// no message
+//
 // Revision 1.108  2003/09/10 22:46:05  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -1471,8 +1474,9 @@ typedef enum {
 	ET_TEAM,
 	ET_LASER,		// lasersight entity type
 	ET_DLIGHT,		// Elder: dynamic light entity
-	ET_SHADOW,		//Makro - fake shadow
 	ET_DECAL,		// Stick a decal on the ground
+	ET_SHADOW,		//Makro - fake shadow
+	ET_CORONA,		//Makro - coronas
 
 	ET_EVENTS		// any of the EV_* events can be added freestanding
 	    // by setting eType to ET_EVENTS + eventNum
