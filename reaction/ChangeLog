@@ -16,3 +16,4 @@
 * Callvote map [mapname] new verifies the map exists before calling the vote.
 * Tweaked leg damage.
 * Smooth M4 rise.
+* TNG TP spawn system has been intergrated
