@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.62  2002/03/26 11:32:04  jbravo
 // Remember specstate between rounds.
 //
@@ -530,51 +533,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	client = ent->client;
 	clientNum = client - level.clients;
 
-	client->oldbuttons = client->buttons;
-	client->buttons = ucmd->buttons;
-
-	//Slicer - Changing this for aq2 way
-	// Jump button cycles throught spectators
-	if(client->sess.spectatorState == SPECTATOR_FOLLOW) {
-		if(ucmd->upmove >=10 ) {
-			if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
-				client->ps.pm_flags |= PMF_JUMP_HELD;
-				Cmd_FollowCycle_f( ent, 1 );
-			}
-		}
-		else
-			client->ps.pm_flags &= ~PMF_JUMP_HELD;
-	}
-	// Attack Button cycles throught free view or follow
-	if((ucmd->buttons & BUTTON_ATTACK) && !( client->oldbuttons & BUTTON_ATTACK )) {
-		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
-			client->sess.spectatorState = SPECTATOR_FOLLOW;
-			client->specMode = SPECTATOR_FOLLOW;
-			client->ps.pm_flags |= PMF_FOLLOW;
-			Cmd_FollowCycle_f( ent, 1 );
-		} else {
-			StopFollowing(ent);
-		}
-	}
-
-#ifdef  __ZCAM__
-//	client->ps.commandTime = ucmd->serverTime;
-//	client->oldbuttons = client->buttons;
-//	client->buttons = ucmd->buttons;
-
 	if (client->sess.spectatorState == SPECTATOR_ZCAM) {
-		if (g_gametype.integer != GT_TEAMPLAY) {
-			camera_think(ent);
-			return;
-		} else {
-			if (level.team_game_going == 1) {
-				camera_think(ent);
-				return;
-			}
-		}
+		client->ps.commandTime = ucmd->serverTime;
+		camera_think(ent);
 	}
-#endif
-	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
+
+	if (client->sess.spectatorState == SPECTATOR_FREE) {
 		client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
 
@@ -594,8 +558,52 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		G_TouchTriggers( ent );
 		trap_UnlinkEntity( ent );
 	}
-}
 
+	//Slicer - Changing this for aq2 way
+	// Jump button cycles throught spectators
+	if(client->sess.spectatorState == SPECTATOR_FOLLOW || client->sess.spectatorState == SPECTATOR_ZCAM) {
+		if(ucmd->upmove >=10 ) {
+			if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
+				client->ps.pm_flags |= PMF_JUMP_HELD;
+				if (client->sess.spectatorState == SPECTATOR_ZCAM)
+					CameraSwingCycle(ent, 1);
+				else
+					Cmd_FollowCycle_f(ent, 1);
+			}
+		}
+		else
+			client->ps.pm_flags &= ~PMF_JUMP_HELD;
+	}
+
+	client->oldbuttons = client->buttons;
+	client->buttons = ucmd->buttons;
+
+	// Attack Button cycles throught free view, follow or zcam
+	if((ucmd->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) {
+		if (client->sess.spectatorState == SPECTATOR_FREE) {
+			client->sess.spectatorState = SPECTATOR_ZCAM;
+			client->specMode = SPECTATOR_ZCAM;
+			client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+			CameraSwingCycle(ent, 1);
+			RQ3_SpectatorMode(ent);
+		} else if (client->sess.spectatorState == SPECTATOR_ZCAM && OKtoFollow(clientNum)) {
+			client->sess.spectatorState = SPECTATOR_FOLLOW;
+			client->specMode = SPECTATOR_FOLLOW;
+			client->ps.pm_flags |= PMF_FOLLOW;
+			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			Cmd_FollowCycle_f(ent, 1);
+			RQ3_SpectatorMode(ent);
+		} else {
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->specMode = SPECTATOR_FREE;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+			StopFollowing(ent);
+			RQ3_SpectatorMode(ent);
+		}
+	}
+}
 
 
 /*
@@ -1528,31 +1536,24 @@ void ClientThink( int clientNum ) {
 	// phone jack if they don't get any for a while
 	ent->client->lastCmdTime = level.time;
 
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
-#ifdef  __ZCAM__
 	     /* camera jitter fix (server side) */
 // JBravo: Take SPECTATOR_ZCAM into account
-	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer &&
+		(ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
 		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))
-#endif /* __ZCAM__ */
-		) {
-		ClientThink_real( ent );
+		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))) {
+			ClientThink_real( ent );
 	}
 }
 
 
 void G_RunClient( gentity_t *ent ) {
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
-#ifdef  __ZCAM__
 	     /* camera jitter fix (server side) */
 // JBravo: Take SPECTATOR_ZCAM into account
-	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer &&
+		(ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
 		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))
-#endif /* __ZCAM__ */
-	)
-	{
+		 ent->client->sess.spectatorState != SPECTATOR_ZCAM))) {
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.17  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -448,13 +451,10 @@ void CG_PredictPlayerState( void ) {
 
 
 	// demo playback just copies the moves
-	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW)
-#ifdef  __ZCAM__
-	     /* camera jitter fix (client side) */
-//	     || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
-	     || ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM)
-#endif /* __ZCAM__ */
-	) {
+	// JBravo: Zcam fix
+	/* camera jitter fix (client side) */
+	if (cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ||
+	     ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM)) {
 		CG_InterpolatePlayerState( qfalse );
 		return;
 	}

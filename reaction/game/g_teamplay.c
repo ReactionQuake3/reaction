@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.46  2002/03/26 11:32:05  jbravo
 // Remember specstate between rounds.
 //
@@ -610,6 +613,10 @@ void SpawnPlayers()
 		//Slicer: Matchmode - Subs don't spawn
 
 		if(g_RQ3_matchmode.integer && player->client->pers.sub != TEAM_FREE)
+			continue;
+// JBravo: lets not respawn spectators in free floating mode
+		if(player->client->sess.savedTeam == TEAM_SPECTATOR &&
+				player->client->specMode == SPECTATOR_FREE)
 			continue;
 
 		client = player->client;
@@ -1335,3 +1342,13 @@ void ParseSayText (gentity_t * ent, char *text)
 	text[225] = 0;
 }
 
+void RQ3_SpectatorMode(gentity_t *ent)
+{
+	if (ent->client->sess.spectatorState == SPECTATOR_ZCAM)
+		trap_SendServerCommand(ent->client->ps.clientNum,
+			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"ZCAM\n"));
+	else
+	trap_SendServerCommand(ent->client->ps.clientNum,
+			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"%s\n",
+			(ent->client->sess.spectatorState == SPECTATOR_FREE)? "FREE":"FOLLOW"));
+}

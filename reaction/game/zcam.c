@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.7  2002/03/03 02:04:15  jbravo
 // Zcam tewaking
 //
@@ -782,9 +785,15 @@ static gentity_t *CameraSwingTarget (gentity_t *ent)
       else
 	color = S_COLOR_GREEN;
 
-      trap_SendServerCommand( ent->client->ps.clientNum, 
-			      va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sTracking " S_COLOR_WHITE "%s\n",
-				 color, target2nd->client->pers.netname) );
+// JBravo: take teamnames into account
+      if (target2nd->client->sess.sessionTeam == TEAM_RED)
+	trap_SendServerCommand( ent->client->ps.clientNum, 
+			      va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sTracking " S_COLOR_WHITE "%s" S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n",
+				 color, target2nd->client->pers.netname, g_RQ3_team1name.string));
+      else if (target2nd->client->sess.sessionTeam == TEAM_BLUE)
+	trap_SendServerCommand( ent->client->ps.clientNum, 
+			      va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sTracking " S_COLOR_WHITE "%s" S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n",
+				 color, target2nd->client->pers.netname, g_RQ3_team2name.string));
     }
   
   return target2nd;

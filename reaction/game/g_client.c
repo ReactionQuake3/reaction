@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.54  2002/03/26 11:32:04  jbravo
 // Remember specstate between rounds.
 //
@@ -1274,9 +1277,7 @@ void ClientBegin( int clientNum ) {
 		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MP5MODE;
 		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_M4MODE;
 		client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
-#ifdef __ZCAM__
 		client->camera->mode = CAMERA_MODE_SWING;
-#endif
 	}
 
 	if (client->sess.sessionTeam != TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
@@ -1328,6 +1329,7 @@ void ClientSpawn(gentity_t *ent) {
 	int			eventSequence;
 	int			savedWeapon, savedItem, savedSpec;	// JBravo: to save weapon/item info
 	int			savedRadiopower, savedRadiogender;	// JBravo: for radio.
+	camera_t		savedCamera;				// JBravo: to save camera stuff
 	char			userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
@@ -1360,11 +1362,6 @@ void ClientSpawn(gentity_t *ent) {
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		spawnPoint = SelectSpectatorSpawnPoint (
 			spawn_origin, spawn_angles);
-// JBravo: remember saved specmodes.
-		if (g_gametype.integer == GT_TEAMPLAY) {
-			if (client->specMode == SPECTATOR_FOLLOW || client->specMode == SPECTATOR_FREE)
-				client->sess.spectatorState = client->specMode;
-		}
 	} else if (g_gametype.integer >= GT_CTF ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint (
@@ -1443,6 +1440,7 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: save radiosettings
 	savedRadiopower = client->radioOff;
 	savedRadiogender = client->radioGender;
+	memcpy (&savedCamera, &client->camera, sizeof(camera_t));
 
 	memset (client, 0, sizeof(*client)); // bk FIXME: Com_Memset?
 
@@ -1453,6 +1451,7 @@ void ClientSpawn(gentity_t *ent) {
 // JBravo: restore radiosettings
 	client->radioOff = savedRadiopower;
 	client->radioGender = savedRadiogender;
+	memcpy (&client->camera, &savedCamera, sizeof(camera_t));
 
 	client->pers = saved;
 	client->sess = savedSess;
@@ -1498,9 +1497,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.clientNum = index;
 
-#ifdef __ZCAM__
 	camera_begin (ent);
-#endif /* __ZCAM__ */
 
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
@@ -1560,6 +1557,19 @@ void ClientSpawn(gentity_t *ent) {
 
 	//Elder: reset all RQ3 non-persistent stats
 	ent->client->ps.stats[STAT_RQ3] = 0;
+
+// JBravo: remember saved specmodes.
+	if (g_gametype.integer == GT_TEAMPLAY && client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if (client->specMode == SPECTATOR_FOLLOW || client->specMode == SPECTATOR_FREE) {
+			client->sess.spectatorState = client->specMode;
+			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		}
+		if (client->specMode == SPECTATOR_ZCAM && client->sess.sessionTeam == TEAM_SPECTATOR) {
+			client->sess.spectatorState = client->specMode;
+			client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
+			client->ps.pm_flags &= ~PMF_FOLLOW;
+		}
+	}
 
 	//Elder: set weaponfireNextTime amount
 	client->weaponfireNextTime = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.31  2002/03/24 22:50:52  niceass
 // misc. 2d screen stuff changed
 //
@@ -2556,23 +2559,22 @@ static qboolean CG_DrawFollow( void ) {
 	color[2] = 1;
 	color[3] = 1;
 
-	CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
-
 // JBravo: if gametype >= team, append teamname to his name.
 	if ( cgs.gametype >= GT_TEAM ) {
 		team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
 		if (team == TEAM_RED) {
-			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
-				cgs.clientinfo[cg.snap->ps.clientNum].name,
-				cg_RQ3_team1name.string);
+			Com_sprintf (combinedName, sizeof(combinedName), "%sFollowing%s %s%s/%s%s", S_COLOR_RED,
+				S_COLOR_WHITE, cgs.clientinfo[cg.snap->ps.clientNum].name, S_COLOR_RED,
+				S_COLOR_MAGENTA, cg_RQ3_team2name.string);
 		} else {
-			Com_sprintf (combinedName, sizeof(combinedName), "%s/%s",
-				cgs.clientinfo[cg.snap->ps.clientNum].name,
-				cg_RQ3_team2name.string);
+			Com_sprintf (combinedName, sizeof(combinedName), "%sFollowing%s %s%s/%s%s", S_COLOR_RED,
+				S_COLOR_WHITE, cgs.clientinfo[cg.snap->ps.clientNum].name, S_COLOR_RED,
+				S_COLOR_MAGENTA, cg_RQ3_team2name.string);
 		}
-		x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
-		CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );
+		x = 0.5 * ( 640 - BIGCHAR_WIDTH * CG_DrawStrlen(combinedName));
+		CG_DrawStringExt( x, 372, combinedName, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 	} else {
+		CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
 		name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
 		x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( combinedName ) );
 		CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );

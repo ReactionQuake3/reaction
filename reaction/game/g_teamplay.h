@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.6  2002/03/14 23:54:12  jbravo
 // Added a variable system from AQ. Works the same except it uses $ for %
 //
@@ -54,3 +57,4 @@ void RQ3_Cmd_Radio_f ( gentity_t *ent );
 void RQ3_Cmd_Radio_power_f ( gentity_t *ent );
 void RQ3_Cmd_Radiogender_f ( gentity_t *ent );
 void ParseSayText (gentity_t * ent, char *text);
+void RQ3_SpectatorMode(gentity_t *ent);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.82  2002/03/26 11:32:05  jbravo
 // Remember specstate between rounds.
 //
@@ -158,38 +161,9 @@
 #include "../ui/menudef.h"			// for the voice chats
 //Blaze for door code
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
-// JBravo: for Stopfollowing
-void LookAtKiller(gentity_t *self, gentity_t *inflictor, gentity_t *attacker);
 //Blaze: Get amount of ammo a clip holds
 //Elder: def'd in bg_public.h
 //int ClipAmountForWeapon( int );
-
-// JBravo: debugging cmd
-void RQ3_Cmd_debugshit (gentity_t *ent)
-{
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_WEAPONS] = %i\n\"", 
-		ent->client->ps.stats[STAT_WEAPONS]));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weapon = %i\n\"", 
-		ent->client->ps.weapon));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->teamplayWeapon = %i\n\"", 
-		ent->client->teamplayWeapon));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weaponstate = %i\n\"", 
-		ent->client->ps.weaponstate));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weaponTime = %i\n\"", 
-		ent->client->ps.weaponTime));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->uniqueWeapons = %i\n\"", 
-		ent->client->uniqueWeapons));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->uniqueItems = %i\n\"", 
-		ent->client->uniqueItems));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->sess.sessionTeam = %i\n\"", 
-		ent->client->sess.sessionTeam));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->sess.savedTeam = %i\n\"", 
-		ent->client->sess.savedTeam));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK = %i\n\"", 
-		ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK));
-	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED = %i\n\"", 
-		ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED));
-}
 
 /*
 ==================
@@ -967,7 +941,7 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	gentity_t	*followee;
+	vec3_t		angle;
 
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -977,9 +951,9 @@ void StopFollowing( gentity_t *ent ) {
 	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
-	followee = &g_entities[ent->client->ps.clientNum];
 	ent->client->ps.clientNum = ent - g_entities;
-	LookAtKiller(ent, followee, followee);
+	angle[0] = angle[1] = angle[2] = 0.0;
+	SetClientViewAngle(ent, angle);
 }
 
 /*
@@ -2974,9 +2948,6 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Radio_power_f (ent);
 	else if (Q_stricmp (cmd, "radio") == 0)
 		RQ3_Cmd_Radio_f (ent);
-// JBravo: debugging cmd
-	else if (Q_stricmp (cmd, "debugshit") == 0)
-		RQ3_Cmd_debugshit (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
 	//Elder: stuff for dropping items

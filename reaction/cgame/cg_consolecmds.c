@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/03/30 02:29:43  jbravo
+// Lots of spectator code updates. Removed debugshit, added some color.
+//
 // Revision 1.36  2002/03/24 22:51:30  niceass
 // scoreboard toggle changes
 //
@@ -957,6 +960,4 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("reflogin");
 	trap_AddCommand ("ref");
 	trap_AddCommand ("refresign");
-// JBravo: debugging cmd
-	trap_AddCommand ("debugshit");
 }
