@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/26 05:15:16  niceass
+// pregress bar
+//
 // Revision 1.20  2002/05/26 05:00:19  makro
 // Loading screen
 //
@@ -185,9 +188,7 @@ void CG_DrawInformation( void ) {
 	const char	*info;
 	const char	*sysInfo;
 	char		*line;
-	int			x = 8;
-	int			y;
-	int			value;
+	int			x = 8, y, value, bar = 0;
 	qhandle_t	levelshot, shadow;
 	//qhandle_t	detail;
 	char		buf[1024];
@@ -397,7 +398,15 @@ void CG_DrawInformation( void ) {
 		CG_DrawStringExt(x, y, "AWAITING SNAPSHOT...", color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 		//UI_DrawProportionalString(SCREEN_WIDTH - 8, y, "AWAITING SNAPSHOT...", UI_RIGHT, colorWhite);
 	}
-	//y += LS_CHAR_HEIGHT;
 
+	y += 24;
+
+	for (bar = 0; bar < ceil(cg.loadingMapPercent * 10); bar++) {
+		CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
+	}
+
+	for (bar; bar < 10; bar++) {
+		CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
+	}
 }
 
