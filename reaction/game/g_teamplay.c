@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/02/24 18:12:19  jbravo
+// Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
+// it makes players spawn with the sniper up.
+//
 // Revision 1.18  2002/02/24 17:56:44  jbravo
 // Cleaned up EquipPlayer() and made snipers spawn with pistol in hand
 //
@@ -594,7 +598,9 @@ void EquipPlayer (gentity_t *ent)
 
 	switch(ent->client->ps.weapon) {
 	case WP_SSG3000:
-		ent->client->ps.weapon = WP_PISTOL;
+		if (g_RQ3_sniperup.integer == 0) {
+			ent->client->ps.weapon = WP_PISTOL;
+		}
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );

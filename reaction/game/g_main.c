@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/02/24 18:12:19  jbravo
+// Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
+// it makes players spawn with the sniper up.
+//
 // Revision 1.23  2002/02/10 04:55:28  jbravo
 // Fix #1 to zcam jitter.   More is probably needed.
 //
@@ -124,6 +128,7 @@ vmCvar_t	g_RQ3_roundlimit;
 vmCvar_t	g_RQ3_roundtimelimit;
 vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
+vmCvar_t	g_RQ3_sniperup;
 vmCvar_t	RQ3_lca;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
@@ -248,6 +253,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", 0, 0, qtrue},
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", 0, 0, qtrue},
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", 0, 0, qtrue},
+	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", 0, 0, qtrue},
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},

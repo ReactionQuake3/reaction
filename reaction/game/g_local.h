@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/24 18:12:19  jbravo
+// Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
+// it makes players spawn with the sniper up.
+//
 // Revision 1.47  2002/02/10 21:21:23  slicer
 // Saving persistant and other data on some events..
 //
@@ -1085,6 +1089,7 @@ extern	vmCvar_t	g_RQ3_roundlimit;		// JBravo: No. of rounds pr. map
 extern	vmCvar_t	g_RQ3_roundtimelimit;		// JBravo: Time pr. round
 extern	vmCvar_t	g_RQ3_tgren;			// JBravo: no. of team grenades
 extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limited to same team.
+extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
 extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
