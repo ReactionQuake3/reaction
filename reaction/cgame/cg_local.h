@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2003/02/05 20:21:38  jbravo
+// Fixed the model replacement system.  Its no longer an ugly hack.
+//
 // Revision 1.133  2003/02/01 02:15:31  jbravo
 // Replacement models and items
 //
@@ -375,7 +378,9 @@
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
 
-//#define       DEFAULT_MODEL                   "sarge"
+// JBravo: used to store replacement models
+#define MAX_MODEL_LEN 128
+
 // Elder: changed to good ol' resdog
 #define	DEFAULT_MODEL			"grunt"
 // Elder: this is added

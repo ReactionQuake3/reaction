@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2003/02/05 20:21:38  jbravo
+// Fixed the model replacement system.  Its no longer an ugly hack.
+//
 // Revision 1.48  2003/02/01 02:15:31  jbravo
 // Replacement models and items
 //
@@ -134,12 +137,11 @@ gitem_t bg_itemlist[] = {
 //Knife
 	{
 	 "weapon_knife",
-	 //"sound/weapons/knife/knife.wav",
 	 "sound/misc/am_pkup.wav",
-	 {"models/weapons2/knife/knife.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/knife/knife.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconw_knife\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconw_knife",
 	 RQ3_KNIFE_NAME,
 	 1,
 	 IT_WEAPON,
@@ -152,10 +154,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_pistol",
 	 "sound/weapons/mk23/mk23slide.wav",
-	 {"models/weapons2/mk23/mk23.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/mk23/mk23.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_mk23\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_mk23",
 /* pickup */ RQ3_PISTOL_NAME,
 	 12,
 	 IT_WEAPON,
@@ -169,10 +171,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_m4",
 	 "sound/weapons/m4/m4slide.wav",
-	 {"models/weapons2/m4/m4.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/m4/m4.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m4\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_m4",
 /* pickup */ RQ3_M4_NAME,
 	 24,
 	 IT_WEAPON,
@@ -186,10 +188,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_ssg3000",
 	 "sound/weapons/ssg3000/ssgin.wav",
-	 {"models/weapons2/ssg3000/ssg3000.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/ssg3000/ssg3000.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_ssg\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_ssg",
 /* pickup */ RQ3_SSG3000_NAME,
 	 6,
 	 IT_WEAPON,
@@ -203,10 +205,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_mp5",
 	 "sound/weapons/mp5/mp5slide.wav",
-	 {"models/weapons2/mp5/mp5.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/mp5/mp5.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_mp5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_mp5",
 /* pickup */ RQ3_MP5_NAME,
 	 30,
 	 IT_WEAPON,
@@ -220,10 +222,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_handcannon",
 	 "sound/weapons/handcannon/hcopen.wav",
-	 {"models/weapons2/handcannon/handcannon.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/handcannon/handcannon.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_handcannon\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_handcannon",
 /* pickup */ RQ3_HANDCANNON_NAME,
 	 2,
 	 IT_WEAPON,
@@ -237,10 +239,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_m3",
 	 "sound/weapons/m3/m3in.wav",
-	 {"models/weapons2/m3/m3.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/m3/m3.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_m3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_m3",
 /* pickup */ RQ3_M3_NAME,
 	 7,
 	 IT_WEAPON,
@@ -254,10 +256,10 @@ gitem_t bg_itemlist[] = {
 	{
 	 "weapon_akimbo",
 	 "sound/weapons/mk23/mk23slide.wav",
-	 {"models/weapons2/akimbo/akimbo.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/akimbo/akimbo.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_akimbo\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_akimbo",
 /* pickup */ RQ3_AKIMBO_NAME,
 	 24,
 	 IT_WEAPON,
@@ -272,10 +274,10 @@ gitem_t bg_itemlist[] = {
 	 "weapon_grenade",
 	 //"sound/grenade/tink2.wav",
 	 "sound/misc/am_pkup.wav",
-	 {"models/weapons2/grenade/grenade.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/weapons2/grenade/grenade.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconw_grenade\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+/* icon */ "icons/iconw_grenade",
 /* pickup */ RQ3_GRENADE_NAME,
 	 1,
 	 IT_WEAPON,
@@ -591,10 +593,10 @@ Only in CTF games
 	{
 	 "item_kevlar",
 	 "sound/items/kevlar.wav",
-	 {"models/items/kevlar.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/kevlar.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_kevlar\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_kevlar",
 	 RQ3_KEVLAR_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -606,10 +608,10 @@ Only in CTF games
 	{
 	 "item_silencer",
 	 "sound/items/silencer.wav",
-	 {"models/items/silencer.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/silencer.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_silencer\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_silencer",
 	 RQ3_SILENCER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -621,10 +623,10 @@ Only in CTF games
 	{
 	 "item_laser",
 	 "sound/items/laser.wav",
-	 {"models/items/laser.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/laser.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_laser\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_laser",
 	 RQ3_LASER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -636,10 +638,10 @@ Only in CTF games
 	{
 	 "item_bandolier",
 	 "sound/items/bandolier.wav",
-	 {"models/items/bandolier.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/bandolier.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_bandolier\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_bandolier",
 	 RQ3_BANDOLIER_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -651,10 +653,10 @@ Only in CTF games
 	{
 	 "item_slippers",
 	 "sound/items/slippers.wav",
-	 {"models/items/slippers.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/slippers.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_slippers\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_slippers",
 	 RQ3_SLIPPERS_NAME,
 	 0,
 	 IT_HOLDABLE,
@@ -666,10 +668,10 @@ Only in CTF games
 	{
 	 "item_helmet",
 	 "sound/items/slippers.wav",
-	 {"models/items/helmet.md3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 {"models/items/helmet.md3",
 	  0, 0, 0}
 	 ,
-	 "icons/iconi_helmet\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
+	 "icons/iconi_helmet",
 	 RQ3_HELMET_NAME,
 	 0,
 	 IT_HOLDABLE,
