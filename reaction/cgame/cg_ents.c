@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/21 21:06:20  niceass
+// laserfog stuff
+//
 // Revision 1.28  2002/06/21 04:11:17  niceass
 // fog laser
 //
@@ -1104,9 +1107,11 @@ static void CG_LaserSight(centity_t * cent)
 		ent.rotation = 0;
 		ent.customShader = cgs.media.laserShader;
 
-		// NiceAss: If the dot is in the fog, don't draw it unless it's your laser.
+		// NiceAss: If the dot is in the fog, don't draw it unless it's your laser or
+		// fog lasers are disabled.
 		if ( !(trap_CM_PointContents(cent->lerpOrigin, 0) & CONTENTS_FOG) || 
-			cent->currentState.clientNum == cg.clientNum)
+			cent->currentState.clientNum == cg.clientNum ||
+			!cg_enableLaserFog.integer )
 			trap_R_AddRefEntityToScene(&ent);
 	} else {
 		trap_R_AddLightToScene(ent.origin, 200, 1, 1, 1);

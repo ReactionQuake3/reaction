@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/06/21 21:06:56  niceass
+// laserfog stuff
+//
 // Revision 1.36  2002/06/21 04:11:34  niceass
 // fog laser
 //
@@ -1178,6 +1181,9 @@ void CG_DrawVisibleLaser( vec3_t origin, int clientNum) {
 	centity_t	*cent;
 	vec3_t		destination, start, end;
 	trace_t		trace;
+
+	if ( !cg_enableLaserFog.integer )
+		return;
 
 	for (num = 0; num < cg.snap->numEntities; num++) {
 		cent = &cg_entities[cg.snap->entities[num].number];
