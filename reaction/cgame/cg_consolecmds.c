@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/02/08 05:59:09  niceass
+// scoreboard timer thing added
+//
 // Revision 1.25  2002/02/03 21:24:12  slicer
 // More Matchmode code
 //
@@ -215,6 +218,7 @@ static void CG_ScoresDown_f( void ) {
 #ifdef MISSIONPACK
 		CG_BuildSpectatorString();
 #endif
+	if ( cg.showScores == qfalse ) cg.scoreStartTime = cg.time;
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
