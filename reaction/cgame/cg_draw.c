@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/08/29 14:24:26  niceass
+// new wallhack thing
+//
 // Revision 1.64  2002/08/29 04:45:25  niceass
 // color changes for new outlined font
 //
@@ -2488,6 +2491,47 @@ static void CG_DrawIRBlend()
 }
 */
 
+// If zbuffer is disabled, this should make it impossible to see?
+// By NiceAss (which means it probably doesn't work)
+void CG_DrawBigPolygon(void) {
+	vec3_t		end, forward, right, up;
+	polyVert_t	Corners[4];
+	float	Dist = 12288;
+	int		i;
+
+	AngleVectors(cg.refdefViewAngles, forward, right, up);
+	VectorMA(cg.refdef.vieworg, Dist, forward, end);
+
+	VectorMA(end, -Dist, right, Corners[0].xyz);
+	VectorMA(Corners[0].xyz, -Dist, up, Corners[0].xyz);
+	Corners[0].st[0] = 0;
+	Corners[0].st[1] = 0;
+
+	VectorMA(end, Dist, right, Corners[1].xyz);
+	VectorMA(Corners[1].xyz, -Dist, up, Corners[1].xyz);
+	Corners[1].st[0] = 0;
+	Corners[1].st[1] = 1;
+
+	VectorMA(end, Dist, right, Corners[2].xyz);
+	VectorMA(Corners[2].xyz, Dist, up, Corners[2].xyz);
+	Corners[2].st[0] = 1;
+	Corners[2].st[1] = 1;
+
+	VectorMA(end, -Dist, right, Corners[3].xyz);
+	VectorMA(Corners[3].xyz, Dist, up, Corners[3].xyz);
+	Corners[3].st[0] = 1;
+	Corners[3].st[1] = 0;
+
+	for (i = 0; i < 4; i++) {
+		Corners[i].modulate[0] = 255;
+		Corners[i].modulate[1] = 255;
+		Corners[i].modulate[2] = 255;
+		Corners[i].modulate[3] = 255;
+	}
+	
+	trap_R_AddPolyToScene(cgs.media.blackHackShader, 4, Corners);
+}
+
 /*
 =====================
 CG_DrawActive
@@ -2528,6 +2572,10 @@ void CG_DrawActive(stereoFrame_t stereoView)
 
 	// clear around the rendered view if sized down
 	CG_TileClear();
+
+	// NiceAss: Wallhack protection
+	if (cg.snap->ps.pm_type == PM_NORMAL)
+		CG_DrawBigPolygon();
 
 	// offset vieworg appropriately if we're doing stereo separation
 	VectorCopy(cg.refdef.vieworg, baseOrg);

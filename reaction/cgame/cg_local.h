@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/08/29 14:24:43  niceass
+// new wallhack thing
+//
 // Revision 1.123  2002/08/29 04:42:40  blaze
 // Anti OGC code
 //
@@ -1050,6 +1053,8 @@ typedef struct {
 	qhandle_t charsetPropGlow;
 	qhandle_t charsetPropB;
 	qhandle_t whiteShader;
+
+	qhandle_t blackHackShader;
 
 	qhandle_t redCubeModel;
 	qhandle_t blueCubeModel;
