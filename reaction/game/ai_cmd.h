@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/07/19 04:31:39  niceass
+// misc fixes/ctb changes
+//
 // Revision 1.5  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -35,4 +38,6 @@
 extern int notleader[MAX_CLIENTS];
 
 int BotMatchMessage(bot_state_t * bs, char *message);
+//#ifdef DEBUG
 void BotPrintTeamGoal(bot_state_t * bs);
+//#endif

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/07/19 04:31:39  niceass
+// misc fixes/ctb changes
+//
 // Revision 1.10  2002/07/02 20:22:35  jbravo
 // Changed the files to use the right ui.
 //
@@ -1566,8 +1569,8 @@ void BotMatch_WhereAreYou(bot_state_t * bs, bot_match_t * match)
 		RQ3_SILENCER_NAME,
 		RQ3_SLIPPERS_NAME,
 		RQ3_BANDOLIER_NAME,
-		"Red Flag",
-		"Blue Flag",
+		"Silver Case",
+		"Black Case",
 		NULL
 	};
 
