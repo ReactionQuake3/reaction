@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2003/04/26 10:37:02  slicer
+// Small fix from "radio imhit" to "radio im_hit"
+//
 // Revision 1.75  2003/04/26 02:03:51  jbravo
 // Helmet fixes
 //
@@ -8155,7 +8158,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_radioPreset4Script,	"ui_RQ3_radioPreset4Script", "say_team Go !; radio go", CVAR_ARCHIVE},
 	//5
 	{&ui_RQ3_radioPreset5Desc,		"ui_RQ3_radioPreset5Desc", "I'm hit !", CVAR_ARCHIVE},
-	{&ui_RQ3_radioPreset5Script,	"ui_RQ3_radioPreset5Script", "say_team I'm hit, I've got $H left !; radio imhit", CVAR_ARCHIVE},
+	{&ui_RQ3_radioPreset5Script,	"ui_RQ3_radioPreset5Script", "say_team I'm hit, I've got $H left !; radio im_hit", CVAR_ARCHIVE},
 	//6
 	{&ui_RQ3_radioPreset6Desc,		"ui_RQ3_radioPreset6Desc", "I've got your back !", CVAR_ARCHIVE},
 	{&ui_RQ3_radioPreset6Script,	"ui_RQ3_radioPreset6Script", "say_team I've got your back !; radio escort2", CVAR_ARCHIVE},
