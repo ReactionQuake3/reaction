@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/06/23 21:44:08  jbravo
+// Fixed shots fired stats for non TP modes and some cleanups
+//
 // Revision 1.66  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -441,7 +444,9 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 	int Material;
 
 	// Elder: Statistics tracking
-	if (ent->client && level.team_round_going) {
+	// JBravo: Take NON TP modes into account
+	if (ent->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) ||
+			  g_gametype.integer != GT_TEAMPLAY)) {
 		switch (MOD) {
 		case MOD_PISTOL:
 			ent->client->pers.records[REC_MK23SHOTS]++;

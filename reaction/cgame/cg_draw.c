@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/06/23 21:44:07  jbravo
+// Fixed shots fired stats for non TP modes and some cleanups
+//
 // Revision 1.49  2002/06/21 23:20:34  blaze
 // cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
 //
@@ -1610,7 +1613,7 @@ static void CG_DrawCrosshair(void)
 	//	return;
 	//}
 	//Slicer: Adding Crosshair to FOLLOW SPECS
-  drawSSG = 0;
+	drawSSG = 0;
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
 	}
@@ -1684,15 +1687,14 @@ static void CG_DrawCrosshair(void)
 			CG_DrawPic(x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
 
 			trap_R_SetColor(NULL);
-      drawSSG = 1;
+			drawSSG = 1;
 		}
 	}
 
 	//Slicer if no crosshair, and not using SSG, dont draw crosshair
 	if(!cg_drawCrosshair.integer)
 		return;
-  if (drawSSG == 0 || drawSSG == 1 && cg_RQ3_overlaycrosshair.integer == 1)
-  {
+	if (drawSSG == 0 || (drawSSG == 1 && cg_RQ3_overlaycrosshair.integer == 1)) {
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
 	CG_AdjustFrom640(&x, &y, &w, &h);
@@ -1702,7 +1704,7 @@ static void CG_DrawCrosshair(void)
 		ca = 0;
 	}
 	hShader = cgs.media.crosshairShader[ca % NUM_CROSSHAIRS];
-	//}
+
 	crosshairColor[0] = cg_RQ3_crosshairColorR.value;
 	crosshairColor[1] = cg_RQ3_crosshairColorG.value;
 	crosshairColor[2] = cg_RQ3_crosshairColorB.value;

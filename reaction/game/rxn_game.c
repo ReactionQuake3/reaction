@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/06/23 21:44:08  jbravo
+// Fixed shots fired stats for non TP modes and some cleanups
+//
 // Revision 1.15  2002/06/23 19:24:19  niceass
 // bandage bug fix
 //

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2002/06/23 21:44:08  jbravo
+// Fixed shots fired stats for non TP modes and some cleanups
+//
 // Revision 1.142  2002/06/23 19:27:18  niceass
 // bandage bug fix
 //
@@ -1902,7 +1905,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "map")) {
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
-		char s[MAX_STRING_CHARS];
+//		char s[MAX_STRING_CHARS];
 
 		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
 			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", arg2));
