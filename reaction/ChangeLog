@@ -26,3 +26,5 @@
 * Spectators can now use say_team to communicate among each others, DM and TP
 * Unzoom now plays the lens sound
 * Health functionality for movers should be complete now
+* Rezooming after quick reloading is much faster.
+* Visible laser in fog for all players but you.
