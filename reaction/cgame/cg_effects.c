@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/06/03 00:39:29  blaze
+// dont make a sound when bouncing on the ground
+//
 // Revision 1.31  2002/05/26 05:16:12  niceass
 // pressure
 //
@@ -1048,7 +1051,7 @@ void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
   	le->bounceFactor = bounce;
 	
   	le->leFlags = LEF_TUMBLE;
-  	le->leBounceSoundType = LEBS_BRASS;
+  	le->leBounceSoundType = LEBS_NONE;
   	le->leMarkType = LEMT_NONE;
 }
   
