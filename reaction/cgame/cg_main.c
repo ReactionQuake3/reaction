@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.112  2002/10/20 21:24:32  blaze
 // Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
 //
@@ -1874,6 +1877,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.rq3_silencerModel = trap_R_RegisterModel("models/items/silencer.md3");
 	cgs.media.rq3_laserModel = trap_R_RegisterModel("models/items/laser.md3");
 	cgs.media.rq3_slippersModel = trap_R_RegisterModel("models/items/slippers.md3");
+	// JBravo: adding the helmet
+	cgs.media.rq3_helmetModel = trap_R_RegisterModel("models/items/helmet/helmet.md3");
 
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
 

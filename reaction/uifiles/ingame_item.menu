@@ -142,6 +142,24 @@
 	action { play "sound/misc/menu1.wav" ; exec "choose bandolier" ; close ingame_item }
     }
 
+    itemdef {
+	name "helmet"
+	shortcutKey "6"
+	rect 120 148 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "6. Kevlar Helmet"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_helmet" }
+	action { play "sound/misc/menu1.wav" ; exec "choose helmet" ; close ingame_item }
+    }
+
 //Item preview
 //Background
 
@@ -184,9 +202,9 @@
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_MODEL
 	asset_model "models/items/laser.md3"
-	model_origin 24 0 0
-	model_fovx 60
-	model_fovy 60
+	model_origin 24 15 0
+	model_fovx 40
+	model_fovy 40
 	//textscale .75
 	model_rotation 10
 	model_angles 270 75 90
@@ -202,8 +220,8 @@
 	type ITEM_TYPE_MODEL
 	asset_model "models/items/silencer.md3"
 	model_origin 20 0 0
-	model_fovx 60
-	model_fovy 60
+	model_fovx 40
+	model_fovy 40
 	//textscale .75
 	model_rotation 10
 	model_angles 270 105 90
@@ -241,6 +259,23 @@
 	//textscale .75
 	model_rotation 10
 	model_angles 270 0 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name it_helmet
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/helmet/helmet.md3"
+	model_origin 30 0 0
+	model_fovx 20
+	model_fovy 20
+	//textscale .75
+	model_rotation 10
+	model_angles 180 0 0
 	decoration
 	visible 0
     }

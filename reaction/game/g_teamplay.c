@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.143  2002/10/29 01:34:52  jbravo
 // Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 //
@@ -748,6 +751,7 @@ void CleanLevel()
 			case HI_SILENCER:
 			case HI_BANDOLIER:
 			case HI_SLIPPERS:
+			case HI_HELMET:
 				G_FreeEntity(ent);
 				break;
 			default:
@@ -1091,6 +1095,13 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 	} else if (Q_stricmp(cmd, RQ3_BANDOLIER_NAME) == 0 || Q_stricmp(cmd, "bandolier") == 0) {
 		ent->client->teamplayItem = HI_BANDOLIER;
 		trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_BANDOLIER_NAME));
+	} else if (Q_stricmp(cmd, RQ3_HELMET_NAME) == 0 || Q_stricmp(cmd, "helmet") == 0) {
+		if (g_RQ3_haveHelmet.integer) {
+			ent->client->teamplayItem = HI_HELMET;
+			trap_SendServerCommand(ent - g_entities, va("print \"Item selected: %s\n\"", RQ3_HELMET_NAME));
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"%s is disabled on this server.\n\"", RQ3_HELMET_NAME));
+		}
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"Invalid weapon or item choice.\n\""));
 		return;
@@ -1847,6 +1858,9 @@ void GetItemName(gentity_t * ent, char *buf)
 		return;
 	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 <<  HI_LASER)) {
 		strcpy(buf, RQ3_LASER_NAME);
+		return;
+	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 <<  HI_HELMET)) {
+		strcpy(buf, RQ3_HELMET_NAME);
 		return;
 	} else {
 		strcpy(buf, "No Item");

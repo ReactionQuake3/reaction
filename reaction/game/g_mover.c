@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.51  2002/08/25 23:19:31  niceass
 // possible fix for ghost door problem
 //
@@ -1153,6 +1156,7 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 			case HI_KEVLAR:
 			case HI_SILENCER:
 			case HI_SLIPPERS:
+			case HI_HELMET:
 				RQ3_DroppedItemThink(other);
 				return;
 				break;

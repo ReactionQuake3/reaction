@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.97  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -358,6 +361,7 @@
 #define RQ3_BANDOLIER_NAME 		"Bandolier"
 #define RQ3_KEVLAR_NAME 		"Kevlar Vest"
 #define RQ3_LASER_NAME			"Lasersight"
+#define RQ3_HELMET_NAME			"Kevlar Helmet"
 
 enum {
 	LIGHTS,
@@ -829,16 +833,18 @@ typedef enum {
 	HI_NONE,
 
 	//TODO: remove the baseQ3 ones
-	HI_TELEPORTER,
+	// JBravo: dat wuz an easy one :)
+/*	HI_TELEPORTER,
 	HI_MEDKIT,
 	HI_KAMIKAZE,
 	HI_PORTAL,
-	HI_INVULNERABILITY,
+	HI_INVULNERABILITY, */
 	HI_KEVLAR,
 	HI_LASER,
 	HI_SILENCER,
 	HI_BANDOLIER,
 	HI_SLIPPERS,
+	HI_HELMET,
 
 	HI_NUM_HOLDABLE
 } holdable_t;

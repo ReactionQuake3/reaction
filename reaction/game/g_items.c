@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.53  2002/10/29 01:34:52  jbravo
 // Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 //
@@ -1094,6 +1097,9 @@ void ClearRegisteredItems(void)
 	RegisterItem(BG_FindItemForHoldable(HI_SILENCER));
 	RegisterItem(BG_FindItemForHoldable(HI_BANDOLIER));
 	RegisterItem(BG_FindItemForHoldable(HI_LASER));
+	// JBravo: adding the helmet
+	if (g_RQ3_haveHelmet.integer)
+		RegisterItem(BG_FindItemForHoldable(HI_HELMET));
 	//Makro - all weapons should be loaded in teamplay
 	//JBravo: and CTF
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
@@ -1466,6 +1472,7 @@ void RQ3_DroppedItemThink(gentity_t * ent)
 	case HI_SILENCER:
 	case HI_BANDOLIER:
 	case HI_SLIPPERS:
+	case HI_HELMET:
 		RQ3_ResetItem(ent->item->giTag);
 		G_FreeEntity(ent);
 		break;
@@ -1505,6 +1512,7 @@ void RQ3_ResetItem(int itemTag)
 	case HI_SILENCER:
 	case HI_BANDOLIER:
 	case HI_SLIPPERS:
+	case HI_HELMET:
 		//Free entity and reset position in unique item array
 		//level.uniqueItemsUsed &= ~(1 << ent->item->giTag);
 		rq3_item = BG_FindItemForHoldable(itemTag);

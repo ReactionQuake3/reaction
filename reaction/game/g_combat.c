@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.130  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -2193,29 +2196,55 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 				case LOCATION_HEAD:
 					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_HEADSHOTS]++;
-					//save headshot time for player_die
-					targ->client->headShotTime = level.time;
-
-					//Elder: reusing line so we don't have to declare more variables
-					line[0] = line[1] = 0;
-					line[2] = 20;
-					trap_SendServerCommand(attacker - g_entities,
-							       va("print \"You hit %s^7 in the head.\n\"",
-								  targ->client->pers.netname));
-					trap_SendServerCommand(targ - g_entities, va("print \"Head Damage.\n\""));
-
-					//Setup headshot spray and sound
-					//Only do if not knife or SSG -- SSG has its own trail of blood
-					if (mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
-						VectorAdd(targ->s.pos.trBase, line, line);
-						tent = G_TempEntity(line, EV_HEADSHOT);
+					// JBravo: helmet stuff
+					if ((targ->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) &&
+							mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
+						trap_SendServerCommand(attacker - g_entities,
+								va("print \"%s has a Kevlar Helmet - AIM FOR THE BODY!\n\"",
+									targ->client->pers.netname));
+						trap_SendServerCommand(targ - g_entities,
+								va("print \"Kevlar Helmet absorbed a part of %s's shot\n\"",
+									attacker->client->pers.netname));
+						tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
 						tent->s.eventParm = DirToByte(dir);
-						tent->s.otherEntityNum = targ->s.clientNum;
+						take = (take / 2);
+						targ->client->kevlarHit = qtrue;
+						instant_dam = 1;
+						bleeding = 0;
+					} else if ((targ->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) &&
+							mod == MOD_SNIPER) {
+						trap_SendServerCommand(attacker - g_entities,
+								va("print \"%s has a Kevlar Helmet, too bad you have AP rounds...\n\"",
+									targ->client->pers.netname));
+						trap_SendServerCommand(targ - g_entities,
+								va("print \"Kevlar Helmet absorbed some of %s's AP sniper round\n\"",
+									attacker->client->pers.netname));
+						take = (take * 0.325);
+						instant_dam = 1;
+						bleeding = 1;
+					} else {
+						//save headshot time for player_die
+						targ->client->headShotTime = level.time;
+
+						line[0] = line[1] = 0;
+						line[2] = 20;
+						trap_SendServerCommand(attacker - g_entities,
+								       va("print \"You hit %s^7 in the head.\n\"",
+									  targ->client->pers.netname));
+						trap_SendServerCommand(targ - g_entities, va("print \"Head Damage.\n\""));
+
+						//Setup headshot spray and sound
+						//Only do if not knife or SSG -- SSG has its own trail of blood
+						if (mod != MOD_SNIPER && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
+							VectorAdd(targ->s.pos.trBase, line, line);
+							tent = G_TempEntity(line, EV_HEADSHOT);
+							tent->s.eventParm = DirToByte(dir);
+							tent->s.otherEntityNum = targ->s.clientNum;
+						}
+						// JBravo: order is important
+						take = (take * 1.8) + 1;
+						break;
 					}
-					// JBravo: order is important
-					take = (take * 1.8) + 1;
-					//take *= 1.8 + 1;
-					break;
 				case LOCATION_CHEST:
 					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_CHESTSHOTS]++;

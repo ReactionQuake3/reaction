@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.175  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.174  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -738,7 +741,12 @@ void Cmd_Give_f(gentity_t * ent)
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SILENCER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_BANDOLIER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SLIPPERS);
-		ent->client->uniqueItems = 5;
+		if (g_RQ3_haveHelmet.integer) {
+			ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_HELMET);
+			ent->client->uniqueItems = 6;
+		} else {
+			ent->client->uniqueItems = 5;
+		}
 	}
 		
 	if (give_all || Q_stricmp(name, "ammo") == 0) {

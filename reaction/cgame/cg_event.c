@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/10/30 20:04:33  jbravo
+// Adding helmet
+//
 // Revision 1.68  2002/08/25 07:09:00  niceass
 // added "life" setting to func_pressure
 //
@@ -217,7 +220,8 @@ static void CG_UseItem(centity_t * cent)
 		trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.useNothingSound);
 		break;
 
-	case HI_TELEPORTER:
+// JBravo: getting rid of NON RQ3 items.
+/*	case HI_TELEPORTER:
 		break;
 
 	case HI_MEDKIT:
@@ -227,7 +231,7 @@ static void CG_UseItem(centity_t * cent)
 			ci->medkitUsageTime = cg.time;
 		}
 		trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.medkitSound);
-		break;
+		break; */
 	}
 
 }

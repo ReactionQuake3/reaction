@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.45  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -649,6 +652,21 @@ Only in CTF games
 	 0,
 	 IT_HOLDABLE,
 	 HI_SLIPPERS,
+	 "",
+	 ""}
+	,
+// JBravo: adding Helmet
+	{
+	 "item_helmet",
+	 "sound/items/slippers.wav",
+	 {"models/items/helmet/helmet.md3",
+	  0, 0, 0}
+	 ,
+	 "icons/iconi_helmet",
+	 RQ3_HELMET_NAME,
+	 0,
+	 IT_HOLDABLE,
+	 HI_HELMET,
 	 "",
 	 ""}
 	,
@@ -1490,6 +1508,8 @@ itemAlias_t itemAliases[] = {
 	{RQ3_LASER_NAME, HI_LASER},
 	{"laser", HI_LASER},
 	{RQ3_SILENCER_NAME, HI_SILENCER},
+	{RQ3_HELMET_NAME, HI_HELMET},
+	{"helmet", HI_HELMET},
 	{NULL, HI_KEVLAR}
 };
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.125  2002/10/29 01:34:52  jbravo
 // Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 //
@@ -461,6 +464,7 @@ vmCvar_t g_RQ3_ctb_respawndelay;
 vmCvar_t g_RQ3_allWeapons;
 vmCvar_t g_RQ3_allItems;
 vmCvar_t g_RQ3_tdmMode;
+vmCvar_t g_RQ3_haveHelmet;
 
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
@@ -605,6 +609,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_allWeapons, "g_RQ3_allWeapons", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_allItems, "g_RQ3_allItems", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tdmMode, "g_RQ3_tdmMode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
@@ -2607,6 +2612,13 @@ void RQ3_StartUniqueItems(void)
 	rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
 	Drop_Item(rq3_temp, rq3_item, angle);
 	angle += 30;
+
+	if (g_RQ3_haveHelmet.integer) {
+		rq3_item = BG_FindItemForHoldable(HI_HELMET);
+		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		Drop_Item(rq3_temp, rq3_item, angle);
+		angle += 30;
+	}
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.128  2002/10/21 21:01:09  niceass
 // no ref ready code
 //
@@ -1246,6 +1249,8 @@ typedef struct {
 	qhandle_t rq3_silencerModel;
 	qhandle_t rq3_laserModel;
 	qhandle_t rq3_slippersModel;
+	// JBravo: the helmet
+	qhandle_t rq3_helmetModel;
 
 	// weapon effect shaders
 	qhandle_t railExplosionShader;

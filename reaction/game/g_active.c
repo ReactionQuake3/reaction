@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/10/30 20:04:34  jbravo
+// Adding helmet
+//
 // Revision 1.92  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -988,12 +991,19 @@ void ThrowItem(gentity_t * ent)
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_SILENCER);
 			client->uniqueItems--;
+		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_HELMET)) {
+			xr_item = BG_FindItemForHoldable(HI_HELMET);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_HELMET);
+			client->uniqueItems--;
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) {
 			xr_item = BG_FindItemForHoldable(HI_LASER);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
 			xr_drop->count = -1;
 			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_LASER);
 			client->uniqueItems--;
+		// JBravo: adding the helmet :)
 		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR)) {
 			xr_item = BG_FindItemForHoldable(HI_KEVLAR);
 			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
