@@ -1469,7 +1469,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
 	}
 	else {
-		
+
 		CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
 		CG_PositionWeaponOnTag( &gun, parent, parent->hModel, "tag_weapon");
 
@@ -1489,7 +1489,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		{
 			int i = 0;
 			qboolean noSound = qfalse;
-			
+
 			while ( gun.frame != weapon->animationSounds->sfxInfo[i].frame )
 			{
 				if ( ++i == weapon->animationSounds->numFrames )
@@ -1512,7 +1512,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				if (cg.curSyncSound.played == qfalse)
 				{
 					cg.curSyncSound.played = qtrue;
-					
+
 					//CG_Printf("Playing a timed sound (%i %i %1.1f)\n", gun.frame, gun.oldframe, gun.backlerp);
 					trap_S_StartLocalSound ( cg.curSyncSound.sound, CHAN_WEAPON );
 				}
@@ -1707,13 +1707,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	//if ( cg.renderingThirdPerson || cg.cameraMode) {
 	if ( cg.renderingThirdPerson ) {
 		return;
-	}
-
-
-	// Added by NiceAss so sounds will be played even if the weapon isn't drawn.
-	if ( !cg_drawGun.integer && (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) != RQ3_THROWWEAPON) {
-		// NiceAss: TODO--Play sounds even if cg_drawGun.integer == 0 (helps the player know
-		//			when bandaging is completed.
 	}
 
 	// allow the gun to be completely removed
@@ -3958,7 +3951,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		{
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[2]);
 		}
-		
+
 		break;
 	default:
 		CG_Error("CG_ReloadWeapon: Reload stage > 2\n");

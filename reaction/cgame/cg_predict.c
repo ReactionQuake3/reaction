@@ -622,10 +622,6 @@ void CG_PredictPlayerState( void ) {
 		}
 	}
 
-	// NiceAss: Added to remove prediction (like q2).
-	if (cg_RQ3_oldpredict.integer)
-		return;
-
 	// fire events and other transition triggered things
 	CG_TransitionPlayerState( &cg.predictedPlayerState, &oldPlayerState );
 
