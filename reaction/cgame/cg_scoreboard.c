@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/06/20 02:27:30  jbravo
+// Now the scoreboard doesnt show whos alive and whos not when you are alive
+//
 // Revision 1.35  2002/06/19 05:21:20  niceass
 // scoreboard stuff
 //
@@ -205,7 +208,7 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 		FillColor[3] = 1;
 
 	// Dead?
-	if (!score->alive) {	// && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+	if (!score->alive && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 		TextColor[0] *= 0.5f;
 		TextColor[1] *= 0.5f;
 		TextColor[2] *= 0.5f;

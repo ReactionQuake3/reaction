@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2002/06/20 02:27:30  jbravo
+// Now the scoreboard doesnt show whos alive and whos not when you are alive
+//
 // Revision 1.134  2002/06/19 18:18:09  jbravo
 // Small cleanups for compiler warnings
 //
@@ -366,11 +369,11 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		    ent->client->sess.savedTeam != cl->sess.savedTeam)
 			alive = qtrue;
 
-		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i], cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime) / 60000, scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, cl->ps.persistant[PERS_KILLED],	// NiceAss: Added for scoreboard
+		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i], cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime) / 60000, scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, cl->ps.persistant[PERS_KILLED],		// NiceAss: Added for scoreboard
 			    cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
-			    alive,	// JBravo: Added for TP scoreboard
-			    cl->sess.captain,	// Slicer: Added for Matchmode Scoreboard
-			    cl->sess.sub	// Slicer: Added for Matchmode Scoreboard
+			    alive,					// JBravo: Added for TP scoreboard
+			    cl->sess.captain,				// Slicer: Added for Matchmode Scoreboard
+			    cl->sess.sub				// Slicer: Added for Matchmode Scoreboard
 		    );
 
 		j = strlen(entry);
