@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/07/08 04:34:15  niceass
+// changes to gravity and stuff
+//
 // Revision 1.82  2002/06/29 02:50:58  niceass
 // m4 kick fix and removed ladder stuff
 //
@@ -712,10 +715,12 @@ static void PM_AirMove(void)
 
 	// project moves down to flat plane
 
+	/* REMOVED. WAS IN 2.0.
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
 	VectorNormalize(pml.forward);
 	VectorNormalize(pml.right);
+	*/
 
 	for (i = 0; i < 2; i++) {
 		wishvel[i] = pml.forward[i] * fmove * scale + pml.right[i] * smove * scale;
@@ -737,6 +742,7 @@ static void PM_AirMove(void)
 	   pm->ps->velocity, OVERCLIP );
 	   }
 	 */
+	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	PM_StepSlideMove(qtrue);
 }
 
@@ -814,10 +820,10 @@ static void PM_WalkMove(void)
 	// project the forward and right directions onto the ground plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
-
+	
 	PM_ClipVelocity(pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP);
 	PM_ClipVelocity(pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP);
-	//
+
 	VectorNormalize(pml.forward);
 	VectorNormalize(pml.right);
 
@@ -825,7 +831,8 @@ static void PM_WalkMove(void)
 		wishvel[i] = pml.forward[i] * fmove + pml.right[i] * smove;
 	}
 	// when going up or down slopes the wish velocity should Not be zero
-	//      wishvel[2] = 0;
+	// NiceAss: Changed from 2.0. Was commented out.
+	wishvel[2] = 0;
 
 	VectorCopy(wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
@@ -855,14 +862,20 @@ static void PM_WalkMove(void)
 		accelerate = pm_accelerate;
 	}
 
+	// NiceAss: Changed from 2.0. Wasn't here before.
+	if (pm->ps->velocity[2] < 0)
+		pm->ps->velocity[2] = 0;
+
 	PM_Accelerate(wishdir, wishspeed, accelerate);
 
 	if (pm->ps->velocity[2] < 0)
 		pm->ps->velocity[2] = 0;
 
+
 	if ((pml.groundTrace.surfaceFlags & SURF_SLICK) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	}
+
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
@@ -1239,6 +1252,7 @@ static void PM_GroundTrace(void)
 		pml.walking = qfalse;
 		return;
 	}
+
 	// check if getting thrown off the ground
 	/*
 	   // NiceAss: Comment out and you get double jumping =D
@@ -1258,16 +1272,17 @@ static void PM_GroundTrace(void)
 	   }
 	 */
 
-	if (pm->ps->velocity[2] > 180) {	// NiceAss: This is here for slope acceleration!
+	if (pm->ps->velocity[2] > 160) {	// NiceAss: This is here for slope acceleration!
 		if (pm->debugLevel) {
 			Com_Printf("%i:slopeslide\n", c_pmove);
 		}
 
 		pml.groundPlane = qfalse;
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		//pml.walking = qfalse; // Maybe not needed?
+		pml.walking = qfalse;
 		return;
 	}
+	
 	// slopes that are too steep will not be considered onground
 	// Elder: added ladder check
 	if (trace.plane.normal[2] < MIN_WALK_NORMAL && !pml.ladder) {
