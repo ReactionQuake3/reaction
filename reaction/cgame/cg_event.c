@@ -465,6 +465,69 @@ void CG_PainEvent( centity_t *cent, int health ) {
 }
 
 
+/*
+=============
+CG_DMRewardEvent
+
+Used to display the frag rewards for getting many frags in a row during a DM game.
+
+=============
+*/
+
+static void CG_DMRewardEvent( entityState_t *ent ) {
+
+	int			mod;
+	int			target, attacker;
+	char		*message;
+	char		*message2;
+	const char	*targetInfo;
+	const char	*attackerInfo;
+	char		targetName[32];
+	char		attackerName[32];
+	gender_t	gender;
+	clientInfo_t	*ci;
+
+	target = ent->otherEntityNum;
+	attacker = ent->otherEntityNum2;
+	mod = ent->eventParm;
+
+	if ( target < 0 || target >= MAX_CLIENTS ) {
+		CG_Error( "CG_Obituary: target out of range" );
+	}
+	ci = &cgs.clientinfo[target];
+
+	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+		attacker = ENTITYNUM_WORLD;
+		attackerInfo = NULL;
+	} else {
+		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+	}
+
+	targetInfo = CG_ConfigString( CS_PLAYERS + target );
+	if ( !targetInfo ) {
+		return;
+	}
+
+	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
+	strcat( targetName, S_COLOR_WHITE );
+	if ((mod > 3) && (mod < 8))
+		message = "2";
+	else if (mod < 16) 
+		message = "4";
+	else if (mod < 32)
+		message = "8";
+	else 
+		message = "16";
+	
+	if (message) {
+		CG_Printf( "%s has %d kills in a row and receives %s frags for the kill!\n",
+                        targetName, mod, message);
+		return;
+	}
+
+
+}
+
 
 /*
 ==============
@@ -1023,6 +1086,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     		default:
     			break;
 		}
+		break;
+
+	case EV_DMREWARD:
+		DEBUGNAME("EV_DMREWARD");
+		CG_DMRewardEvent( es );
 		break;
 
 	case EV_GLOBAL_TEAM_SOUND:	// play from the player's head so it never diminishes
