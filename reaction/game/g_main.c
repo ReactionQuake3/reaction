@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2003/04/19 18:47:07  makro
+// CVAR_SERVERINFO flag added to g_RQ3_havehelmet cvar
+//
 // Revision 1.143  2003/04/19 15:27:31  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -675,7 +678,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_allWeapons, "g_RQ3_allWeapons", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_allItems, "g_RQ3_allItems", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tdmMode, "g_RQ3_tdmMode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qtrue},
-	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE, 0, qtrue},
+	//Makro - added CVAR_SERVERINFO flag, it's needed for the UI
+	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 	{&g_RQ3_vote_waittime, "g_RQ3_vote_waittime", "15", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Makro - added CVAR_SERVERINFO flag, it's needed for the UI
