@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/01/27 14:02:51  jbravo
+// Make the right effect when rounds hit the new SURF_HARDMETAL surface.
+//
 // Revision 1.34  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -480,7 +483,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
 			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
 			//tent->s.eventParm = DirToByte( tr.plane.normal );
-		} else if ( (tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) ) {
+		} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
