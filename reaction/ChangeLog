@@ -45,3 +45,4 @@
 * MM: Added "lockSettings" as a referee command
 * MM: Added a "dmflags" like option to give/remove privileges to captains g_RQ3_mmflags
 * MM: Added g_RQ3_maxplayers to cap max players on a team
+* Added the dmflag spawn farthest.
