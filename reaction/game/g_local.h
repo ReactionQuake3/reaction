@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/06/13 17:01:30  slicer
+// Radio Gender changes according to model gender
+//
 // Revision 1.91  2002/06/11 01:43:08  blaze
 // g_rq3_cvarfile allows you to change which file holds the restricted cvars
 //
@@ -750,6 +753,9 @@ typedef struct {
 	vec3_t			team2spawn_angles;
 	int			fps;
 	int			lights_delay;
+	//Slicer: 
+	int			team1gender;
+	int			team2gender;
 } level_locals_t;
 //
 // rxn_game.c

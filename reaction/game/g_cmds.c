@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/06/13 17:01:30  slicer
+// Radio Gender changes according to model gender
+//
 // Revision 1.127  2002/06/12 22:32:24  slicer
 // Even better way to improve the Cvar Anti-Cheat System
 //
@@ -1048,6 +1051,12 @@ void SetTeam (gentity_t *ent, char *s) {
 		client->sess.sessionTeam = client->sess.savedTeam;
 		ClientUserinfoChanged (clientNum);
 		client->sess.sessionTeam = teamsave;
+		//Slicer: Changing radio gender according to models
+		if(client->sess.savedTeam == TEAM_RED)
+			client->radioGender = level.team1gender;
+		else if(client->sess.savedTeam == TEAM_BLUE)
+			client->radioGender = level.team2gender;
+
 	} else {
 		ClientUserinfoChanged (clientNum);
 		ClientBegin (clientNum);

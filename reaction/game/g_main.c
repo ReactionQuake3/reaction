@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/06/13 17:01:30  slicer
+// Radio Gender changes according to model gender
+//
 // Revision 1.74  2002/06/12 15:01:01  slicer
 // Removed g_RQ3_matchmode from USERINFO
 //
@@ -818,6 +821,8 @@ G_InitGame
 
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int		i;
+	char model[MAX_STRING_CHARS],model2[MAX_STRING_CHARS];
+	char *s;
 
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
@@ -937,6 +942,27 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 // JBravo: reset teamplay stuff.
 	if( g_gametype.integer == GT_TEAMPLAY ) {
+
+		//Slicer: Default Radio Gender according to MODEL gender
+		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
+		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
+		s = Q_strrchr(model, '/');
+		if(s)
+			*s++ = '\0';
+		s = Q_strrchr(model2, '/');
+		if(s)
+			*s++ = '\0';
+
+		for (i=0; i <MAXMODELS; i++) {
+			if (!Q_stricmp (legitmodels[i].name,model)) {
+				if(legitmodels[i].gender != GENDER_NEUTER)
+					level.team1gender = legitmodels[i].gender; 
+			}
+		    if (!Q_stricmp (legitmodels[i].name,model2)) {
+				if(legitmodels[i].gender != GENDER_NEUTER)
+					level.team2gender = legitmodels[i].gender; 
+			}
+		}
 		level.team_round_countdown = 0;
 		level.rulecheckfrequency = 0;
 		level.lights_camera_action = 0;
