@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/17 23:43:43  slicer
+// Made Bots visible again at DM
+//
 // Revision 1.51  2002/03/17 02:03:48  jbravo
 // Fixed a bug where a players laser would stay in the map after he disconnects
 //
@@ -1159,6 +1162,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		ClientUserinfoChanged( clientNum );
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 	}
+	else
+		ClientUserinfoChanged( clientNum );
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
