@@ -72,6 +72,28 @@ void RXN_RampMunge ( void ) {
         }
 }
 */
+/* [QUARANTINE] - Weapon Animations
+===================
+PM_StartWeaponAnim, PM_ContinueWeaponAnim
+===================
+*/
+static void PM_StartWeaponAnim( int anim ) {
+	if ( pm->ps->pm_type >= PM_DEAD ) {
+		return;
+	}
+
+	pm->ps->generic1 = ( ( pm->ps->generic1 & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+}
+
+static void PM_ContinueWeaponAnim( int anim ) {
+	if ( ( pm->ps->generic1 & ~ANIM_TOGGLEBIT ) == anim ) {
+		return;
+	}
+
+	PM_StartWeaponAnim( anim );
+}
+// END
+
 /*
 ===============
 PM_AddEvent
@@ -1830,10 +1852,28 @@ static void PM_TorsoAnimation( void ) {
 		} else {
 			PM_ContinueTorsoAnim( TORSO_STAND );
 		}
+		// QUARANTINE - Weapon Animation
+		// Should always draw the weapon when it is just ready
+//		PM_ContinueWeaponAnim( WP_ANIM_READY );
+
 		return;
 	}
 }
 
+/*
+==============
+PM_WeaponAnimation
+
+==============
+*/
+static void PM_WeaponAnimation( void ) {
+	if (pm->ps->weaponstate == WEAPON_RELOADING)
+	{
+		PM_StartWeaponAnim( WP_ANIM_RELOAD );
+		pm->ps->weaponstate = WEAPON_READY;
+	}
+	return;
+}
 
 /*
 ==============
@@ -1894,6 +1934,7 @@ static void PM_Weapon( void ) {
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
+	
 	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
 			//Elder TODO: if switching weapons, fire off the grenade "instantly"
@@ -1927,7 +1968,8 @@ static void PM_Weapon( void ) {
 	if ( pm->ps->weaponTime > 0 ) {
 		return;
 	}
-
+	//Com_Printf("Weaponstate (%d)\n", pm->ps->weaponstate);
+	
 	// change weapon if time
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		PM_FinishWeaponChange();
@@ -1941,6 +1983,10 @@ static void PM_Weapon( void ) {
 		} else {
 			PM_StartTorsoAnim( TORSO_STAND );
 		}
+		// QUARANTINE - Weapon Animation
+		// Should always draw the weapon when it is just ready
+//		PM_StartWeaponAnim( WP_ANIM_READY );
+
 		return;
 	}
 
@@ -1979,6 +2025,7 @@ static void PM_Weapon( void ) {
 		}
 	}
 
+
 	/*
 	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
 		pm->ps->weaponTime = 0;
@@ -2008,6 +2055,9 @@ static void PM_Weapon( void ) {
 	} else {
 		PM_StartTorsoAnim( TORSO_ATTACK );
 	}
+	// QUARANTINE - Weapon animations
+	// This should change pm->ps->generic1 so we can animate
+	PM_StartWeaponAnim( WP_ANIM_FIRE );
 
 	// Elder: the client side portion is in
 	// Homer: if weapon can set to be burst mode, check for burst value
@@ -2570,6 +2620,8 @@ void PmoveSingle (pmove_t *pmove) {
 	// weapons
 	PM_Weapon();
 
+	//weapon animations(rq3 specific)
+	PM_WeaponAnimation();
 	// torso animation
 	PM_TorsoAnimation();
 

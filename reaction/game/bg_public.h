@@ -356,9 +356,16 @@ typedef enum {
 	WEAPON_COCKED,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
-	WEAPON_FIRING//,
-	//WEAPON_RELOADING
+	WEAPON_FIRING,
+	WEAPON_RELOADING
 } weaponstate_t;
+//Blaze: for the weapon animation states
+typedef enum {
+	//WP_ANIM_READY,
+	WP_ANIM_FIRE,
+	WP_ANIM_RELOAD,
+	MAX_WEAPON_ANIMATIONS
+} wpAnimNumber_t;
 
 // pmove->pm_flags
 #define	PMF_DUCKED			1

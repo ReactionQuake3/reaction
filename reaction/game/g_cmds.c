@@ -1778,7 +1778,7 @@ void Cmd_Reload( gentity_t *ent )       {
 
 			//Check if it's already reloading
 			//ent->client->ps.weaponstate == WEAPON_RELOADING
-			if (ent->client->ps.weaponstate == WEAPON_DROPPING && ent->client->numClips[WP_M3] > 0)
+			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_M3] > 0)
 			{
 				/*
 				G_Printf("Time index: %d, FastReload- VirginStart: %d, WindowStart: %d, WindowEnd: %d\n",
@@ -1873,7 +1873,7 @@ void Cmd_Reload( gentity_t *ent )       {
 
 			//Check if it's already reloading
 			//ent->client->ps.weaponstate == WEAPON_RELOADING
-			if (ent->client->ps.weaponstate == WEAPON_DROPPING && ent->client->numClips[WP_SSG3000] > 0)
+			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_SSG3000] > 0)
 			{
 				/*
 				G_Printf("Time index: %d, FastReload- VirginStart: %d, WindowStart: %d, WindowEnd: %d\n",
@@ -1991,9 +1991,9 @@ void Cmd_Reload( gentity_t *ent )       {
 	}
 
 	//ent->client->ps.weaponstate = WEAPON_RELOADING;
-    ent->client->ps.weaponstate = WEAPON_DROPPING;
-    ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
-                                  ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+    ent->client->ps.weaponstate = WEAPON_RELOADING;
+    //ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
+    //                              ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
     ent->client->ps.weaponTime += delay;
        
     //Elder: at this point there should be sufficient ammo requirements to reload

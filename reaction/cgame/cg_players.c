@@ -866,6 +866,33 @@ PLAYER ANIMATION
 
 =============================================================================
 */
+/* [QUARANTINE] - Weapon Animations
+===============
+CG_SetWeaponLerpFrame
+
+may include ANIM_TOGGLEBIT
+===============
+*/
+static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation ) 
+{
+	animation_t *anim;
+
+	lf->animationNumber = newAnimation;
+	newAnimation &= ~ANIM_TOGGLEBIT;
+
+	if ( newAnimation < 0 || newAnimation >= MAX_WEAPON_ANIMATIONS ) {
+		CG_Error( "Bad weapon animation number: %i", newAnimation );
+	}
+
+	anim = &cg_weapons[cg.snap->ps.weapon].animations[ newAnimation ];
+
+	lf->animation = anim;
+	lf->animationTime = lf->frameTime + anim->initialLerp;
+
+	if ( cg_debugAnim.integer ) {
+		CG_Printf( "Weapon Anim: %i\n", newAnimation );
+	}
+}
 
 
 /*
@@ -903,7 +930,7 @@ Sets cg.snap, cg.oldFrame, and cg.backlerp
 cg.time should be between oldFrameTime and frameTime after exit
 ===============
 */
-static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale ) {
+static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale, qboolean weaponAnim ) {
 	int			f, numFrames;
 	animation_t	*anim;
 
@@ -915,7 +942,11 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 
 	// see if the animation sequence is switching
 	if ( newAnimation != lf->animationNumber || !lf->animation ) {
-		CG_SetLerpFrameAnimation( ci, lf, newAnimation );
+		if (weaponAnim) {
+			CG_SetWeaponLerpFrame( ci, lf, newAnimation );
+		} else {
+			CG_SetLerpFrameAnimation( ci, lf, newAnimation );
+		}
 	}
 
 	// if we have passed the current frame, move it to
@@ -997,6 +1028,43 @@ static void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationN
 	lf->oldFrame = lf->frame = lf->animation->firstFrame;
 }
 
+/* [QUARANTINE] - Weapon Animations
+===============
+CG_WeaponAnimation
+
+This is called from cg_weapons.c
+===============
+*/
+void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *weaponBackLerp ) 
+{
+	clientInfo_t *ci;
+	int clientNum;
+
+	clientNum = cent->currentState.clientNum;
+
+	if ( cg_noPlayerAnims.integer ) {
+		*weaponOld = *weapon = 0;
+		return;
+	}
+
+	ci = &cgs.clientinfo[ clientNum ];
+
+	CG_RunLerpFrame( ci, &cent->pe.weapon, cent->currentState.generic1, 1, qtrue );
+
+	// QUARANTINE - Debug - Animations
+	#if 0
+	if(cent->pe.weapon.oldFrame || cent->pe.weapon.frame || cent->pe.weapon.backlerp) {
+		CG_Printf("weaponOld: %i weaponFrame: %i weaponBack: %i\n", 
+		cent->pe.weapon.oldFrame, cent->pe.weapon.frame, cent->pe.weapon.backlerp);
+	}
+	#endif
+
+	*weaponOld = cent->pe.weapon.oldFrame;
+	*weapon = cent->pe.weapon.frame;
+	*weaponBackLerp = cent->pe.weapon.backlerp;
+
+}
+// END
 
 /*
 ===============
@@ -1026,16 +1094,16 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 	// do the shuffle turn frames locally
 	if ( cent->pe.legs.yawing && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) == LEGS_IDLE ) {
-		CG_RunLerpFrame( ci, &cent->pe.legs, LEGS_TURN, speedScale );
+		CG_RunLerpFrame( ci, &cent->pe.legs, LEGS_TURN, speedScale, qfalse );
 	} else {
-		CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale );
+		CG_RunLerpFrame( ci, &cent->pe.legs, cent->currentState.legsAnim, speedScale, qfalse );
 	}
 
 	*legsOld = cent->pe.legs.oldFrame;
 	*legs = cent->pe.legs.frame;
 	*legsBackLerp = cent->pe.legs.backlerp;
 
-	CG_RunLerpFrame( ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale );
+	CG_RunLerpFrame( ci, &cent->pe.torso, cent->currentState.torsoAnim, speedScale, qfalse );
 
 	*torsoOld = cent->pe.torso.oldFrame;
 	*torso = cent->pe.torso.frame;
@@ -1496,7 +1564,7 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hSkin, refEntity_t *torso 
 	angles[YAW] = cent->pe.flag.yawAngle;
 	// lerp the flag animation frames
 	ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-	CG_RunLerpFrame( ci, &cent->pe.flag, flagAnim, 1 );
+	CG_RunLerpFrame( ci, &cent->pe.flag, flagAnim, 1, qfalse );
 	flag.oldframe = cent->pe.flag.oldFrame;
 	flag.frame = cent->pe.flag.frame;
 	flag.backlerp = cent->pe.flag.backlerp;

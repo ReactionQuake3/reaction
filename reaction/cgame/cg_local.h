@@ -144,6 +144,8 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
+	//Blaze: for weapon animations
+	lerpFrame_t		weapon;
 } playerEntity_t;
 
 //=================================================
@@ -372,6 +374,10 @@ typedef struct weaponInfo_s {
 	qhandle_t		flashModel;
 	//Elder: added third person model to weaponInfo structure
 	qhandle_t		firstModel;
+	//Blaze: for animations
+	qhandle_t		animHandModel;
+	animation_t animations[MAX_WEAPON_ANIMATIONS];
+
 	
 
 	vec3_t			weaponMidpoint;		// so it will rotate centered instead of by tag
@@ -1391,7 +1397,8 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName );
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
 							qhandle_t parentModel, char *tagName );
-
+//Blaze: for weapon animations
+void CG_PositionWeaponOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName );
 
 
 //
@@ -1498,6 +1505,11 @@ void CG_DrawInformation( void );
 //
 qboolean CG_DrawOldScoreboard( void );
 void CG_DrawOldTourneyScoreboard( void );
+
+//
+// cg_players.c
+//
+void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *weaponBackLerp );
 
 //
 // cg_consolecmds.c
