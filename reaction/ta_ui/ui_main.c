@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/25 13:51:14  makro
+// Added teamCount cvars
+//
 // Revision 1.8  2002/03/24 21:26:14  makro
 // no message
 //
@@ -5991,6 +5994,10 @@ vmCvar_t	ui_RQ3_modelCommand;
 vmCvar_t	ui_RQ3_ssgCrosshair;
 //Makro - activate the weapon menu after a team join
 vmCvar_t	ui_RQ3_weapAfterJoin;
+//Makro - team counts
+vmCvar_t	ui_RQ3_teamCount1;
+vmCvar_t	ui_RQ3_teamCount2;
+vmCvar_t	ui_RQ3_numSpectators;
 
 
 
@@ -6117,8 +6124,11 @@ static cvarTable_t		cvarTable[] = {
 	//Makro - cvar for player model display
 	{ &ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", CVAR_ARCHIVE},
 	{ &ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
-	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "0", CVAR_ARCHIVE}
-
+	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "0", CVAR_ARCHIVE},
+	//Makro - team counts
+	{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},
+	{ &ui_RQ3_teamCount2, "g_RQ3_teamCount2", "0", 0},
+	{ &ui_RQ3_numSpectators, "g_RQ3_numSpectators", "0", 0}
 };
 
 // bk001129 - made static to avoid aliasing
