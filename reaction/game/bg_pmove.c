@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/07 05:07:32  niceass
+// several physics fixes
+//
 // Revision 1.69  2002/05/01 21:14:59  jbravo
 // Misc fixes
 //
@@ -805,34 +808,21 @@ static void PM_WalkMove( void ) {
 		accelerate = pm_accelerate;
 	}
 
-	pm->ps->velocity[2] = 0;
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 
-	if (pm->ps->gravity > 0) 
-		pm->ps->velocity[2] = 0; 
-	else {
-		if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-			pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-		}
+	if (pm->ps->velocity[2] < 0) pm->ps->velocity[2] = 0;
+
+	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	}
 
-	/*
-	vel = VectorLength(pm->ps->velocity);
-
-	// slide along the ground plane
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
-		pm->ps->velocity, OVERCLIP );
-
-	// don't decrease velocity when going up or down a slope
-	VectorNormalize(pm->ps->velocity);
-	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
-	*/
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
 	}
 
 	PM_StepSlideMove( qfalse );
+
 }
 
 
@@ -1256,7 +1246,7 @@ static void PM_GroundTrace( void ) {
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.groundPlane = qtrue;
+		pml.groundPlane = qfalse; //qtrue;
 		pml.walking = qfalse;
 		return;
 	}
