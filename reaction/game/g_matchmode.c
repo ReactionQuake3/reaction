@@ -40,7 +40,7 @@ void MM_RunFrame (void) {
 	//Each Type has different ways of dealing things..
 	case (GT_TEAMPLAY):
 		if (level.team_game_going && level.inGame)
-			level.matchTime += 1/fps;
+			level.matchTime += 1.0f/(float)fps;
 		break;
 	}
 }
