@@ -269,6 +269,7 @@ static bind_t g_bindings[] =
 	{"+zoom", 			"zoom view",		ID_ZOOMVIEW,	ANIM_IDLE,		-1,				-1,		-1, -1},
 //Blaze: Reaction Weapon binds
 //Jbravo: order is important.
+//Elder: my comment isn't important heh :)
 	{"weapon 1",		"MK23",			ID_WEAPON2,	ANIM_WEAPON2,	'2',	-1,	-1, -1},
 	{"weapon 2",		"Shotgun",		ID_WEAPON7,	ANIM_WEAPON7,	'7',	-1,	-1, -1},
 	{"weapon 3",		"MP5",			ID_WEAPON5,	ANIM_WEAPON5,	'5',	-1,	-1, -1},
