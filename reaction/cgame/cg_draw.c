@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/07/19 04:34:48  niceass
+// drawping fixed
+//
 // Revision 1.58  2002/07/16 04:31:18  niceass
 // I think I fixed cg_drawping
 //
@@ -768,11 +771,9 @@ static float CG_DrawFPSandPing(float y)
 	}
 
 	// Draw ping here:
-	//if (index2 > PING_SNAPS) {
-
 	if (cg_drawPing.integer) {	
 		for (i = 0; i < (LAG_SAMPLES / 2); i++) {
-			l = lagometer.frameCount - 1 - i;
+			l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - i;
 			if (l < 0) l += LAG_SAMPLES;
 
 			if (lagometer.snapshotSamples[l] >= 0)  {
@@ -781,13 +782,16 @@ static float CG_DrawFPSandPing(float y)
 			}
 		}
 
-		avgping /= num;
+		if (num)
+			avgping /= num;
+		else
+			avgping = 0;
 
 		s = va("%ims", avgping);
 		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 		x += w;
 
-		l = lagometer.frameCount - 1;
+		l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - 1;
 		if (l < 0) l += LAG_SAMPLES;
 
 		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
@@ -807,8 +811,7 @@ static float CG_DrawFPSandPing(float y)
 
 		CG_DrawStringExt(631 - x, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
-	//}	
-
+	
 	if (!cg_drawFPS.integer && !cg_drawPing.integer)
 		return y;
 
