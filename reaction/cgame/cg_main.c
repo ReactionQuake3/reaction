@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/08/29 10:26:46  jbravo
+// Blaze's commit nuked my keanu code and Suicide code in this file only.
+// Its fixed now.
+//
 // Revision 1.108  2002/08/29 05:55:28  blaze
 // changed ogc_islame from archive to ROM
 //
@@ -405,6 +409,7 @@ vmCvar_t cg_RQ3_tkokAutoPopup;
 // JBravo: radio cvars.
 vmCvar_t cg_RQ3_radiovoice_male;
 vmCvar_t cg_RQ3_radiovoice_female;
+vmCvar_t cg_RQ3_SuicideLikeARealMan;
 vmCvar_t cg_RQ3_dynamicRadio;
 
 // Slicer: for the Anti-Cheat System
@@ -652,8 +657,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE},
-  //Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
-  {&cg_RQ3_overlaycrosshair, "cg_RQ3_overlaycrosshair", "0", CVAR_ARCHIVE},
+//Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
+	{&cg_RQ3_overlaycrosshair, "cg_RQ3_overlaycrosshair", "0", CVAR_ARCHIVE},
 
 // JBravo: cvars for regular crosshairs and their colors
 // Makro - changed default color to white; it was 0/1/0/.75 before
@@ -664,6 +669,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_tkokAutoPopup, "cg_RQ3_tkokAutoPopup", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_radiovoice_male, "cg_RQ3_radiovoice_male", "1", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_radiovoice_female, "cg_RQ3_radiovoice_female", "1", CVAR_USERINFO | CVAR_ARCHIVE},
+	{&cg_RQ3_SuicideLikeARealMan, "cg_RQ3_SuicideLikeARealMan", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_RQ3_dynamicRadio, "cg_RQ3_dynamicRadio", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE},
@@ -1204,6 +1210,63 @@ static void CG_RegisterSounds(void)
 		cgs.media.pirate_male_sounds[53] = trap_S_RegisterSound("sound/newradio/pirate/plost1.wav", qtrue);
 		cgs.media.pirate_male_sounds[54] = trap_S_RegisterSound("sound/newradio/pirate/plost2.wav", qtrue);
 		cgs.media.pirate_male_sounds[55] = trap_S_RegisterSound("sound/newradio/pirate/plost3.wav", qtrue);
+		cgs.media.keanu_male_sounds[0] = trap_S_RegisterSound("sound/newradio/keanu/1.wav", qtrue);
+		cgs.media.keanu_male_sounds[1] = trap_S_RegisterSound("sound/newradio/keanu/2.wav", qtrue);
+		cgs.media.keanu_male_sounds[2] = trap_S_RegisterSound("sound/newradio/keanu/3.wav", qtrue);
+		cgs.media.keanu_male_sounds[3] = trap_S_RegisterSound("sound/newradio/keanu/4.wav", qtrue);
+		cgs.media.keanu_male_sounds[4] = trap_S_RegisterSound("sound/newradio/keanu/5.wav", qtrue);
+		cgs.media.keanu_male_sounds[5] = trap_S_RegisterSound("sound/newradio/keanu/6.wav", qtrue);
+		cgs.media.keanu_male_sounds[6] = trap_S_RegisterSound("sound/newradio/keanu/7.wav", qtrue);
+		cgs.media.keanu_male_sounds[7] = trap_S_RegisterSound("sound/newradio/keanu/8.wav", qtrue);
+		cgs.media.keanu_male_sounds[8] = trap_S_RegisterSound("sound/newradio/keanu/9.wav", qtrue);
+		cgs.media.keanu_male_sounds[9] = trap_S_RegisterSound("sound/newradio/keanu/10.wav", qtrue);
+		cgs.media.keanu_male_sounds[10] = trap_S_RegisterSound("sound/newradio/keanu/back.wav", qtrue);
+		cgs.media.keanu_male_sounds[11] = trap_S_RegisterSound("sound/newradio/keanu/cover.wav", qtrue);
+		cgs.media.keanu_male_sounds[12] = trap_S_RegisterSound("sound/newradio/keanu/down.wav", qtrue);
+		cgs.media.keanu_male_sounds[13] = trap_S_RegisterSound("sound/newradio/keanu/enemyd.wav", qtrue);
+		cgs.media.keanu_male_sounds[14] = trap_S_RegisterSound("sound/newradio/keanu/enemys.wav", qtrue);
+		cgs.media.keanu_male_sounds[15] = trap_S_RegisterSound("sound/newradio/keanu/forward.wav", qtrue);
+		cgs.media.keanu_male_sounds[16] = trap_S_RegisterSound("sound/newradio/keanu/go.wav", qtrue);
+		cgs.media.keanu_male_sounds[17] = trap_S_RegisterSound("sound/newradio/keanu/im_hit.wav", qtrue);
+		cgs.media.keanu_male_sounds[18] = trap_S_RegisterSound("sound/newradio/keanu/left.wav", qtrue);
+		cgs.media.keanu_male_sounds[19] = trap_S_RegisterSound("sound/newradio/keanu/reportin.wav", qtrue);
+		cgs.media.keanu_male_sounds[20] = trap_S_RegisterSound("sound/newradio/keanu/right.wav", qtrue);
+		cgs.media.keanu_male_sounds[21] = trap_S_RegisterSound("sound/newradio/keanu/taking_f.wav", qtrue);
+		cgs.media.keanu_male_sounds[22] = trap_S_RegisterSound("sound/newradio/keanu/teamdown.wav", qtrue);
+		cgs.media.keanu_male_sounds[23] = trap_S_RegisterSound("sound/newradio/keanu/treport.wav", qtrue);
+		cgs.media.keanu_male_sounds[24] = trap_S_RegisterSound("sound/newradio/keanu/up.wav", qtrue);
+		cgs.media.keanu_male_sounds[25] = trap_S_RegisterSound("sound/radio/click.wav", qtrue);
+		cgs.media.keanu_male_sounds[26] = trap_S_RegisterSound("sound/newradio/keanu/backup1.wav", qtrue);
+		cgs.media.keanu_male_sounds[27] = trap_S_RegisterSound("sound/newradio/keanu/backup2.wav", qtrue);
+		cgs.media.keanu_male_sounds[28] = trap_S_RegisterSound("sound/newradio/keanu/backup3.wav", qtrue);
+		cgs.media.keanu_male_sounds[29] = trap_S_RegisterSound("sound/newradio/keanu/chit1.wav", qtrue);
+		cgs.media.keanu_male_sounds[30] = trap_S_RegisterSound("sound/newradio/keanu/chit2.wav", qtrue);
+		cgs.media.keanu_male_sounds[31] = trap_S_RegisterSound("sound/newradio/keanu/chit3.wav", qtrue);
+		cgs.media.keanu_male_sounds[32] = trap_S_RegisterSound("sound/newradio/keanu/deliv1.wav", qtrue);
+		cgs.media.keanu_male_sounds[33] = trap_S_RegisterSound("sound/newradio/keanu/deliv2.wav", qtrue);
+		cgs.media.keanu_male_sounds[34] = trap_S_RegisterSound("sound/newradio/keanu/deliv3.wav", qtrue);
+		cgs.media.keanu_male_sounds[35] = trap_S_RegisterSound("sound/newradio/keanu/ecdown1.wav", qtrue);
+		cgs.media.keanu_male_sounds[36] = trap_S_RegisterSound("sound/newradio/keanu/ecdown2.wav", qtrue);
+		cgs.media.keanu_male_sounds[37] = trap_S_RegisterSound("sound/newradio/keanu/ecdown3.wav", qtrue);
+		cgs.media.keanu_male_sounds[38] = trap_S_RegisterSound("sound/newradio/keanu/enepak1.wav", qtrue);
+		cgs.media.keanu_male_sounds[39] = trap_S_RegisterSound("sound/newradio/keanu/enepak2.wav", qtrue);
+		cgs.media.keanu_male_sounds[40] = trap_S_RegisterSound("sound/newradio/keanu/enepak3.wav", qtrue);
+		cgs.media.keanu_male_sounds[41] = trap_S_RegisterSound("sound/newradio/keanu/escort1.wav", qtrue);
+		cgs.media.keanu_male_sounds[42] = trap_S_RegisterSound("sound/newradio/keanu/escort2.wav", qtrue);
+		cgs.media.keanu_male_sounds[43] = trap_S_RegisterSound("sound/newradio/keanu/escort3.wav", qtrue);
+		cgs.media.keanu_male_sounds[44] = trap_S_RegisterSound("sound/newradio/keanu/gotpak1.wav", qtrue);
+		cgs.media.keanu_male_sounds[45] = trap_S_RegisterSound("sound/newradio/keanu/gotpak2.wav", qtrue);
+		cgs.media.keanu_male_sounds[46] = trap_S_RegisterSound("sound/newradio/keanu/gotpak3.wav", qtrue);
+		cgs.media.keanu_male_sounds[47] = trap_S_RegisterSound("sound/newradio/keanu/guard1.wav", qtrue);
+		cgs.media.keanu_male_sounds[48] = trap_S_RegisterSound("sound/newradio/keanu/guard2.wav", qtrue);
+		cgs.media.keanu_male_sounds[49] = trap_S_RegisterSound("sound/newradio/keanu/guard3.wav", qtrue);
+		cgs.media.keanu_male_sounds[50] = trap_S_RegisterSound("sound/newradio/keanu/incoming1.wav", qtrue);
+		cgs.media.keanu_male_sounds[51] = trap_S_RegisterSound("sound/newradio/keanu/incoming2.wav", qtrue);
+		cgs.media.keanu_male_sounds[52] = trap_S_RegisterSound("sound/newradio/keanu/incoming3.wav", qtrue);
+		cgs.media.keanu_male_sounds[53] = trap_S_RegisterSound("sound/newradio/keanu/plost1.wav", qtrue);
+		cgs.media.keanu_male_sounds[54] = trap_S_RegisterSound("sound/newradio/keanu/plost2.wav", qtrue);
+		cgs.media.keanu_male_sounds[55] = trap_S_RegisterSound("sound/newradio/keanu/plost3.wav", qtrue);
+
 		cgs.media.female_sounds[0] = trap_S_RegisterSound("sound/radio/female/1.wav", qtrue);
 		cgs.media.female_sounds[1] = trap_S_RegisterSound("sound/radio/female/2.wav", qtrue);
 		cgs.media.female_sounds[2] = trap_S_RegisterSound("sound/radio/female/3.wav", qtrue);
