@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/02/23 18:07:18  slicer
+// Changed Sniper code and Cam code
+//
 // Revision 1.52  2002/02/22 02:13:13  jbravo
 // Fixed a few bugs and did some cleanups
 //
@@ -799,6 +802,8 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
+	//Slicer - Removing any zoom bits he might have gainned
+	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;

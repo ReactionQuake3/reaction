@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/02/23 18:07:46  slicer
+// Changed Sniper code and Cam code
+//
 // Revision 1.48  2002/02/08 18:00:34  jbravo
 // Fixing "No newline at end of file" Warnings Linux keeps giving me
 //
@@ -2358,9 +2361,16 @@ void CG_Weapon_f( void ) {
 		}
 
 		if (cg.snap->ps.weapon == WP_SSG3000) {
-			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
+			//Slicer- Changing Sniper stuff- some to game.
+
+	/*		trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
 			if (cg_RQ3_ssgZoomAssist.integer)
 				CG_RQ3_Zoom();
+				*/
+			//Let's sound it..
+			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
+			//Save the time..
+			cg.zoomTime = cg.time;
 		}
 		else if (cg.snap->ps.weapon == WP_GRENADE)
 		{

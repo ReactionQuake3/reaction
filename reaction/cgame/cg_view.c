@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/02/23 18:07:46  slicer
+// Changed Sniper code and Cam code
+//
 // Revision 1.17  2002/01/12 20:00:49  hal9000
 // Fixed a few more instances of strcmp(blah,NULL)
 //
@@ -587,7 +590,8 @@ static int CG_CalcFov( void ) {
 		// account for zooms
 //	zoomFov = cg_zoomFov.value;
 */
-	if (cg_RQ3_ssgZoomAssist.integer == 0)
+	//Slicer - Let's always do a SyncZoom
+//	if (cg_RQ3_ssgZoomAssist.integer == 0)
 		CG_RQ3_SyncZoom();
 
 	//SSG3000 zoom handling
@@ -721,6 +725,7 @@ static int CG_CalcFov( void ) {
 		}
 	}
 */
+
 	if ( cg.snap->ps.weapon == WP_SSG3000)
 	{
 		//switching zoom

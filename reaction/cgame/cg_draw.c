@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/02/23 18:07:46  slicer
+// Changed Sniper code and Cam code
+//
 // Revision 1.19  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
 //
@@ -2083,8 +2086,8 @@ static void CG_DrawCrosshair(void) {
 	if ( !cg_drawCrosshair.integer ) {
 		return;
 	}
-
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+	//Slicer: Adding Crosshair to FOLLOW SPECS
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
 	}
 
@@ -2747,7 +2750,8 @@ static void CG_Draw2D( void ) {
 		return;
 	}
 */
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	//Slicer: Adding HUD for follow spectating
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		CG_DrawSpectator();
 		CG_DrawCrosshair();
 		CG_DrawCrosshairNames();
