@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.39  2002/03/03 22:02:15  jbravo
 // Further attempts to stop "you fragged XXX" messages for spectators
 //
@@ -672,7 +675,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	}
 
 	// we don't know what it was
-	CG_Printf( "%s died.\n", targetName );
+	CG_Printf( "%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
 
 

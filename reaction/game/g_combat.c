@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.49  2002/03/12 04:55:31  blaze
 // stats should only be recored when the round is in progress
 //
@@ -816,8 +819,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
 
 	if (attacker && attacker->client) {
-		attacker->client->lastkilled_client = self->s.number;
-
+//		attacker->client->lastkilled_client = self->s.number;
+// JBravo: Add multiple last killed system.
+		AddKilledPlayer(attacker, self);
+		ResetKills(self);
 // JBravo: make it OK to frag teammates after rounds are over.
 		if (attacker == self || OnSameTeam (self, attacker)) {
 			if (level.team_round_going) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.48  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -1430,7 +1433,8 @@ void ClientSpawn(gentity_t *ent) {
 //	client->areabits = savedAreaBits;
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
-	client->lastkilled_client = -1;
+//	client->lastkilled_client = -1;
+	client->lastkilled_client[0] = NULL;
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];

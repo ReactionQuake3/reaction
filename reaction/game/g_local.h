@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.51  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -464,7 +467,9 @@ struct gclient_s {
 	int			grenHits;
 	*/
 
-	int			lastkilled_client;	// last client that this client killed
+//	int			lastkilled_client;	// last client that this client killed
+	gentity_t		*lastkilled_client[5];	// JBravo: last 5 clients that this client killed
+	int			num_kills;		// JBravo: Number of killed players in TP.
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
 

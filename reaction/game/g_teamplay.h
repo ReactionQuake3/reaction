@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.5  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -50,3 +53,4 @@ qboolean OKtoFollow( int clientnum );
 void RQ3_Cmd_Radio_f ( gentity_t *ent );
 void RQ3_Cmd_Radio_power_f ( gentity_t *ent );
 void RQ3_Cmd_Radiogender_f ( gentity_t *ent );
+void ParseSayText (gentity_t * ent, char *text);

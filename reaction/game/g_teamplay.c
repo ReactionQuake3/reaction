@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.32  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -117,6 +120,7 @@
 gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 char	*ConcatArgs( int start );
 int	touch[MAX_GENTITIES];
+void	ResetKills(gentity_t *ent);
 
 void CheckTeamRules()
 {
@@ -273,7 +277,6 @@ void ContinueLCA()
 	else if (level.lights_camera_action == 1) {
 		trap_SendServerCommand( -1, "action");
 		trap_Cvar_Set("RQ3_lca", "0");
-
 		level.team_round_going = 1;
 		level.current_round_length = 0;
 	}
@@ -940,7 +943,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 	char		msg[MAX_TOKEN_CHARS];
 	radio_msg_t	*radio_msgs;
 	gentity_t	*player;
-	int		i, x;
+	int		i, x, kills;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
 		return;
@@ -961,6 +964,20 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 
 	while (Q_stricmp(radio_msgs[x].msg, "END")) {
 		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
+			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
+				kills = ReadKilledPlayers (ent);
+				ResetKills (ent);
+				if (kills >=1 && kills <10) {
+					for (i = 0; i < level.maxclients; i++) {
+						player = &g_entities[i];
+						if (!player->inuse)
+							continue;
+						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
+							trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"",
+								kills, ent->client->radioGender));
+					}
+				}
+			}
 			for (i = 0; i < level.maxclients; i++) {
 				player = &g_entities[i];
 				if (!player->inuse)
@@ -972,5 +989,289 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 		}
 		x++;
 	}
+}
+
+char *SeekBufEnd (char *buf)
+{
+	while (*buf != 0)
+		buf++;
+	return buf;
+}
+
+void GetWeaponName (gentity_t * ent, char *buf)
+{
+	if (ent->client->ps.weapon == WP_AKIMBO) {
+		strcpy (buf, RQ3_AKIMBO_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_PISTOL) {
+		strcpy (buf, RQ3_PISTOL_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_MP5) {
+		strcpy (buf, RQ3_MP5_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_M4) {
+		strcpy (buf, RQ3_M4_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_M3) {
+		strcpy (buf, RQ3_M3_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_HANDCANNON) {
+		strcpy (buf, RQ3_HANDCANNON_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_SSG3000) {
+		strcpy (buf, RQ3_SSG3000_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_KNIFE) {
+		strcpy (buf, RQ3_KNIFE_NAME);
+		return;
+	} else if (ent->client->ps.weapon == WP_GRENADE) {
+		strcpy (buf, RQ3_GRENADE_NAME);
+		return;
+	} else {
+		strcpy (buf, "No Weapon");
+	}
+}
+
+void GetItemName (gentity_t * ent, char *buf)
+{
+	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
+		strcpy (buf, RQ3_KEVLAR_NAME);
+		return;
+	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER) {
+		strcpy (buf, RQ3_SILENCER_NAME);
+		return;
+	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS) {
+		strcpy (buf, RQ3_SLIPPERS_NAME);
+		return;
+	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
+		strcpy (buf, RQ3_BANDOLIER_NAME);
+		return;
+	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER) {
+		strcpy (buf, RQ3_LASER_NAME);
+		return;
+	} else {
+		strcpy (buf, "No Item");
+	}
+}
+
+void GetAmmo (gentity_t * ent, char *buf)
+{
+	int ammo;
+	char temp[1024];
+
+	switch (ent->client->ps.weapon) {
+	case WP_PISTOL:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
+			ent->client->ps.ammo[WP_PISTOL],
+			ent->client->numClips[WP_PISTOL]);
+		strcpy (buf, temp);
+		return;
+	case WP_SSG3000:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra rounds)",
+			ent->client->ps.ammo[WP_SSG3000],
+			ent->client->numClips[WP_SSG3000]);
+		strcpy (buf, temp);
+		return;
+	case WP_MP5:
+		Com_sprintf (temp, sizeof(temp), "%i rounds (%i extra clips)",
+			ent->client->ps.ammo[WP_MP5],
+			ent->client->numClips[WP_MP5]);
+		strcpy (buf, temp);
+		return;
+	case WP_M4:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
+			ent->client->ps.ammo[WP_M4],
+			ent->client->numClips[WP_M4]);
+		strcpy (buf, temp);
+		return;
+	case WP_M3:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra shells)",
+			ent->client->ps.ammo[WP_M3],
+			ent->client->numClips[WP_M3]);
+		strcpy (buf, temp);
+		return;
+	case WP_HANDCANNON:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra shells)",
+			ent->client->ps.ammo[WP_HANDCANNON],
+			ent->client->numClips[WP_HANDCANNON]);
+		strcpy (buf, temp);
+		return;
+	case WP_AKIMBO:
+		Com_sprintf (temp, sizeof(temp), "%d rounds (%d extra clips)",
+			ent->client->ps.ammo[WP_AKIMBO],
+			ent->client->numClips[WP_AKIMBO]);
+		strcpy (buf, temp);
+		return;
+	case WP_KNIFE:
+		ammo = ent->client->ps.ammo[WP_KNIFE];
+		Com_sprintf (temp, sizeof(temp), "%d kni%s", ammo, (ammo == 1) ? "fe" : "ves");
+		strcpy (buf, temp);
+		return;
+	case WP_GRENADE:
+		ammo = ent->client->ps.ammo[WP_GRENADE];
+		Com_sprintf (temp, sizeof(temp), "%d grenade%s", ammo, (ammo == 1) ? "" : "s");
+		strcpy (buf, temp);
+		return;
+	}
+}
+
+void ResetKills (gentity_t * ent)
+{
+	int	i;
+
+	for (i = 0; i < 5; i++) {
+		ent->client->lastkilled_client[i] = NULL;
+	}
+}
+
+int ReadKilledPlayers (gentity_t * ent)
+{
+	int	results, i;
+
+	results = -1;
+	if (ent->client->lastkilled_client[0]) {
+		for (i = 0; i < 5; i++) {
+			if (ent->client->lastkilled_client[i]) {
+				results++;
+			}
+		}
+		return results;
+	} else
+		return -1;
+}
+
+void AddKilledPlayer (gentity_t * self, gentity_t * ent)
+{
+	int	kills;
+
+	kills = ReadKilledPlayers (self);
+	if (kills == 5 || kills == -1) {
+		self->client->lastkilled_client[0] = ent;
+	} else {
+		self->client->lastkilled_client[kills + 1] = ent;
+	}
+}
+
+void GetLastKilledTarget (gentity_t * self, char * buf)
+{
+	int	kills, i;
+
+	kills = ReadKilledPlayers (self);
+
+	if (kills >= 0) {
+		strcpy (buf, self->client->lastkilled_client[0]->client->pers.netname);
+		if (kills > 0) {
+			for (i = 1; i < kills + 1; i++) {
+				if (i == kills) {
+					strcat (buf, " and ");
+					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
+				} else {
+					strcat (buf, ", ");
+					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
+				}
+			}
+		}
+		ResetKills (self);
+	} else {
+		strcpy (buf, "nobody");
+	}
+}
+
+void GetLastDamagedPart (gentity_t * self, char * buf)
+{
+	switch (self->client->lasthurt_location &
+		~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT)) {
+	case LOCATION_HEAD:
+	case LOCATION_FACE:
+		strcpy (buf, "head");
+		self->client->lasthurt_location = 0;
+		return;
+	case LOCATION_SHOULDER:
+	case LOCATION_CHEST:
+		strcpy (buf, "chest");
+		self->client->lasthurt_location = 0;
+		return;
+	case LOCATION_STOMACH:
+	case LOCATION_GROIN:
+		strcpy (buf, "stomach");
+		self->client->lasthurt_location = 0;
+		return;
+	case LOCATION_LEG:
+	case LOCATION_FOOT:
+		strcpy (buf, "legs");
+		self->client->lasthurt_location = 0;
+		return;
+	case LOCATION_NONE:
+	default:
+		strcpy (buf, "nothing");
+	}
+}
+
+void ParseSayText (gentity_t * ent, char *text)
+{
+	static char buf[1024], infobuf[1024];
+	char *p, *pbuf;
+
+	p = text;
+	pbuf = buf;
+	*pbuf = 0;
+
+	while (*p != 0) {
+		if ((pbuf - buf) > 225) {
+			break;
+		}
+		if (*p == '$') {
+			switch (*(p + 1)) {
+			case 'H':
+				Com_sprintf (infobuf, sizeof(infobuf), "%d", ent->health);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'A':
+				GetAmmo (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'W':
+				GetWeaponName (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'I':
+				GetItemName (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'K':
+				GetLastKilledTarget (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'D':
+				GetLastDamagedPart (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+/*			case 'P':
+				GetLastDamagedPlayers (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue; */
+			}
+		}
+		*pbuf++ = *p++;
+	}
+
+	*pbuf = 0;
+
+	strncpy (text, buf, 225);
+	text[225] = 0;
 }
 

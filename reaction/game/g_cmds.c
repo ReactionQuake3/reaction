@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/03/14 23:54:12  jbravo
+// Added a variable system from AQ. Works the same except it uses $ for %
+//
 // Revision 1.70  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -1169,10 +1172,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	case SAY_ALL:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 			Com_sprintf (name, sizeof(name), "[DEAD] %s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			G_LogPrintf( "[DEAD] %s: %s\n", ent->client->pers.netname, chatText );
+//			G_LogPrintf( "[DEAD] %s: %s\n", ent->client->pers.netname, chatText );
 		} else {
 			Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			G_LogPrintf( "%s: %s\n", ent->client->pers.netname, chatText );
+//			G_LogPrintf( "%s: %s\n", ent->client->pers.netname, chatText );
 		}
 		color = COLOR_GREEN;
 		break;
@@ -1185,7 +1188,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
 					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 			}
-			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
+//			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
 		} else {
 			if (Team_GetLocationMsg(ent, location, sizeof(location)))
 				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
@@ -1193,7 +1196,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			else
 				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			G_LogPrintf( "(%s): %s\n", ent->client->pers.netname, chatText );
+//			G_LogPrintf( "(%s): %s\n", ent->client->pers.netname, chatText );
 		}
 		color = COLOR_CYAN;
 		break;
@@ -1210,6 +1213,11 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_MAGENTA;
 		break;
+	}
+
+// JBravo: Parsing % vars here
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		ParseSayText (ent, (char *)chatText);
 	}
 
 	Q_strncpyz( text, chatText, sizeof(text) );
@@ -1432,7 +1440,9 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	}
 
 	// insult someone who just killed you
-	if (ent->enemy && ent->enemy->client && ent->enemy->client->lastkilled_client == ent->s.number) {
+//	if (ent->enemy && ent->enemy->client && ent->enemy->client->lastkilled_client == ent->s.number) {
+// JBravo: adding the multiple killed system.
+	if (ent->enemy && ent->enemy->client && ent->enemy->client->lastkilled_client[0] == ent) {
 		// i am a dead corpse
 		if (!(ent->enemy->r.svFlags & SVF_BOT)) {
 			G_Voice( ent, ent->enemy, SAY_TELL, VOICECHAT_DEATHINSULT, qfalse );
@@ -1444,8 +1454,11 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 		return;
 	}
 	// insult someone you just killed
-	if (ent->client->lastkilled_client >= 0 && ent->client->lastkilled_client != ent->s.number) {
-		who = g_entities + ent->client->lastkilled_client;
+//	if (ent->client->lastkilled_client >= 0 && ent->client->lastkilled_client != ent->s.number) {
+// JBravo: adding the multiple killed system.
+	if (ent->client->lastkilled_client[0]->s.number >= 0 && ent->client->lastkilled_client[0]->s.number != ent->s.number) {
+//		who = g_entities + ent->client->lastkilled_client;
+		who = ent->client->lastkilled_client[0];
 		if (who->client) {
 			// who is the person I just killed
 			if (who->client->lasthurt_mod == MOD_GAUNTLET) {
@@ -1463,7 +1476,9 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 					G_Voice( ent, ent, SAY_TELL, VOICECHAT_KILLINSULT, qfalse );
 				}
 			}
-			ent->client->lastkilled_client = -1;
+//			ent->client->lastkilled_client = -1;
+// JBravo: adding the multiple killed system.
+			ent->client->lastkilled_client[0] = NULL;
 			return;
 		}
 	}
