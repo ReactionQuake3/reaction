@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/06/26 03:28:36  niceass
+// upper right HUD scores updated quickly
+//
 // Revision 1.114  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -748,6 +751,9 @@ int WonGame(int winner)
 			level.teamScores[TEAM_BLUE]++;
 		}
 	}
+
+	// NiceAss: This should keep the client updated with teamscores promptly.
+	CalculateRanks();
 
 	if (g_timelimit.integer) {
 		//Slicer : Matchmode
