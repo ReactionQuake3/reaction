@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/06/12 03:37:38  blaze
+// some fixes for the add bot code
+//
 // Revision 1.10  2002/06/02 22:23:27  makro
 // no message
 //
@@ -616,45 +619,42 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		Info_SetValueForKey( userinfo, "handicap", "90" );
 	}
 
-	key = "model";
-	model = Info_ValueForKey( botinfo, key );
+	
+	model = Info_ValueForKey( botinfo, "model" );
 	if ( !*model ) {
 		// Elder: changed to our default
 		model = "grunt/resdog";
 	}
-	Info_SetValueForKey( userinfo, key, model );
-	key = "team_model";
-	Info_SetValueForKey( userinfo, key, model );
 
-	key = "headmodel";
-	headmodel = Info_ValueForKey( botinfo, key );
+  Info_SetValueForKey( userinfo, "model", model );
+  	
+	Info_SetValueForKey( userinfo, "team_model", model );
+
+	headmodel = Info_ValueForKey( botinfo, "headmodel" );
 	if ( !*headmodel ) {
 		headmodel = model;
 	}
-	Info_SetValueForKey( userinfo, key, headmodel );
-	key = "team_headmodel";
-	Info_SetValueForKey( userinfo, key, headmodel );
+	Info_SetValueForKey( userinfo, "headmodel", headmodel );
+	
+	Info_SetValueForKey( userinfo, "team_headmodel", headmodel );
 
-	key = "gender";
-	s = Info_ValueForKey( botinfo, key );
+	s = Info_ValueForKey( botinfo, "gender" );
 	if ( !*s ) {
 		s = "male";
 	}
 	Info_SetValueForKey( userinfo, "sex", s );
 
-	key = "color1";
-	s = Info_ValueForKey( botinfo, key );
+	s = Info_ValueForKey( botinfo, "color1");
 	if ( !*s ) {
 		s = "4";
 	}
-	Info_SetValueForKey( userinfo, key, s );
+	Info_SetValueForKey( userinfo, "color1", s );
 
-	key = "color2";
-	s = Info_ValueForKey( botinfo, key );
+	s = Info_ValueForKey( botinfo, "color2" );
 	if ( !*s ) {
 		s = "5";
 	}
-	Info_SetValueForKey( userinfo, key, s );
+	Info_SetValueForKey( userinfo, "color2", s );
 
 	s = Info_ValueForKey(botinfo, "aifile");
 	if (!*s ) {
@@ -906,7 +906,6 @@ static void G_LoadBotsFromFile( char *filename ) {
 	trap_FS_Read( buf, len, f );
 	buf[len] = 0;
 	trap_FS_FCloseFile( f );
-
 	g_numBots += G_ParseInfos( buf, MAX_BOTS - g_numBots, &g_botInfos[g_numBots] );
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/06/12 03:37:38  blaze
+// some fixes for the add bot code
+//
 // Revision 1.72  2002/06/11 01:43:08  blaze
 // g_rq3_cvarfile allows you to change which file holds the restricted cvars
 //
@@ -733,17 +736,20 @@ void RQ3_loadmodels (void)
 	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, sizeof(dirlist));
 	dirptr  = dirlist;
 	modelcount = 0;
+  
 	for (i=0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
 		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
 		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
 			continue;
+    Com_Printf("models (%s)\n",dirptr);
 		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
 		if (file) {
 			trap_FS_Read(buf, len, file);
 			buf[len] = 0;
 			text_p = buf;
 			trap_FS_FCloseFile (file);
+      Com_Printf("Adding %s as a legit model\n",dirptr);
 			Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
 			for (j=0; j < 3; j++) {
 				token = COM_Parse(&text_p);

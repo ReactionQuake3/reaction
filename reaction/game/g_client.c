@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/06/12 03:37:38  blaze
+// some fixes for the add bot code
+//
 // Revision 1.88  2002/06/11 23:37:27  blaze
 // moved the cheat cvars to be sent at a different time, should work better
 //
@@ -1030,7 +1033,7 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
-
+  //Com_Printf("%s model=(%s)\n",client->pers.netname, model);
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		if (client->sess.sessionTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
