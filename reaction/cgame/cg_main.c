@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/03/17 21:32:23  jbravo
+// Fixed the dynamic teamnames system up a bit to reduce traffic
+//
 // Revision 1.45  2002/03/16 21:49:08  niceass
 // All new shell ejection code
 //
@@ -260,6 +263,8 @@ vmCvar_t	cg_enableDust;
 cheat_cvar	cheats[30];
 // JBravo: lca in progress cvar
 vmCvar_t	RQ3_lca;
+vmCvar_t	cg_RQ3_team1name;
+vmCvar_t	cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
 vmCvar_t	MM_team1;
 vmCvar_t	MM_team2;
@@ -366,6 +371,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 #endif
+// JBravo: dynamic teamnames.
+	{ &cg_RQ3_team1name, "g_RQ3_team1name", "Swat", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
+	{ &cg_RQ3_team2name, "g_RQ3_team2name", "Robbers", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO },
 	// NiceAss: Taken out of the missionpack
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/03/17 21:32:23  jbravo
+// Fixed the dynamic teamnames system up a bit to reduce traffic
+//
 // Revision 1.13  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -314,7 +317,6 @@ static int CG_TeamplayScoreboard(int maxClients)
 	int		y;
 	int		size, players;
 	char	*String;
-	char	teamname[128];
 
 	if (cg.time > cg.scoreStartTime+300) {
 		Alpha = (cos((cg.time-cg.scoreStartTime) / 400.0f) + 1.0f) * 0.25f + 0.5f;
@@ -355,9 +357,8 @@ static int CG_TeamplayScoreboard(int maxClients)
 
 	
 	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f);
-	trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_WIDTH+SB_PADDING-6, SB_START_HEIGHT+SB_PADDING,
-							teamname, color);
+							cg_RQ3_team1name.string, color);
 
 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 0.8f);
 	CG_DrawSmallStringColor(SB_MIDDLE-SB_WIDTH+SB_PADDING-6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 
@@ -390,9 +391,8 @@ static int CG_TeamplayScoreboard(int maxClients)
 		SB_WIDTH, (SMALLCHAR_HEIGHT+SB_PADDING*2), SB_LINE_WIDTH, color );
 
 	MAKERGBA(color, 0.0f, 0.0f, 0.0f, 1.0f);
-	trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
 	CG_DrawSmallStringColor(SB_MIDDLE+SB_PADDING+6, SB_START_HEIGHT+SB_PADDING,
-							teamname, color);
+							cg_RQ3_team2name.string, color);
 
 	MAKERGBA(color, 1.0f, 1.0f, 1.0f, 0.8f);
 	CG_DrawSmallStringColor(SB_MIDDLE+SB_PADDING+6, SB_START_HEIGHT+SMALLCHAR_HEIGHT+(SB_PADDING*3), 

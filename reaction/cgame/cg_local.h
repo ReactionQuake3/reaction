@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/03/17 21:32:23  jbravo
+// Fixed the dynamic teamnames system up a bit to reduce traffic
+//
 // Revision 1.53  2002/03/16 21:50:09  niceass
 // All new shell ejection code
 //
@@ -1546,6 +1549,8 @@ extern	vmCvar_t		cg_enableBreath;
 extern cheat_cvar		cheats[30];
 // JBravo: To signal cgame that lca is in progress
 extern	vmCvar_t		RQ3_lca;
+extern	vmCvar_t		cg_RQ3_team1name;
+extern	vmCvar_t		cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;
