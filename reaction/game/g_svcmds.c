@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/06/10 17:40:52  slicer
+// Added MM's ClearScores command as console cmd also
+//
 // Revision 1.9  2002/05/20 04:59:33  jbravo
 // Lots of small fixes.
 //
@@ -470,6 +473,11 @@ qboolean	ConsoleCommand( void ) {
 // JBravo: adding a stuff cmd.
 	if (Q_stricmp (cmd, "stuff") == 0) {
 		RQ3_Cmd_Stuff();
+		return qtrue;
+	}
+//sLiCeR: adding a clearScores
+	if (Q_stricmp (cmd, "clearscores") == 0) {
+		MM_ClearScores();
 		return qtrue;
 	}
 
