@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/08/23 14:25:05  slicer
+// Added a new Referee System with multiple ref support
+//
 // Revision 1.111  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -1471,10 +1474,10 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	}
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
-
+/* Slicer - no no !! this can't be here ! 
 // JBravo: cleaning up stuff
 	client->sess.sub = TEAM_FREE;
-	client->sess.captain = TEAM_FREE;
+	client->sess.captain = TEAM_FREE;*/
 	return NULL;
 }
 
@@ -2026,8 +2029,8 @@ void ClientDisconnect(int clientNum)
 		}
 	}
 	// aasimon: Referee. If player is referee, clean ref 
-	if (clientNum == g_RQ3_RefID.integer)
-		trap_Cvar_Set("g_RQ3_RefID", "-1");
+	/*if (clientNum == g_RQ3_RefID.integer)
+		trap_Cvar_Set("g_RQ3_RefID", "-1");*/
 
 // JBravo: if the client had a laser, turn it off so it doesnt stay there forever.
 	if (ent->client->lasersight) {

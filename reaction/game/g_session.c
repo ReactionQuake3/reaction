@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/08/23 14:25:05  slicer
+// Added a new Referee System with multiple ref support
+//
 // Revision 1.19  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -89,13 +92,13 @@ void G_WriteClientSessionData(gclient_t * client)
 		//Reset teams on map changes / map_restarts, except on matchmode
 		client->sess.savedTeam = TEAM_SPECTATOR;
 	}
-	s = va("%i %i %i %i %i %i %i %i %i %i",
+	s = va("%i %i %i %i %i %i %i %i %i %i %i",
 	       client->sess.sessionTeam,
 	       client->sess.spectatorTime,
 	       client->sess.spectatorState,
 	       client->sess.spectatorClient, client->sess.wins, client->sess.losses, client->sess.teamLeader,
 	       //Adding saved Team
-	       client->sess.savedTeam, client->sess.captain, client->sess.sub
+	       client->sess.savedTeam, client->sess.captain, client->sess.sub,client->sess.referee 
 	       //Captain and sub
 	    );
 
@@ -127,14 +130,15 @@ void G_ReadSessionData(gclient_t * client)
 	int savedTeam;
 	int captain;
 	int sub;
+	int ref;
 
 	var = va("session%i", client - level.clients);
 	trap_Cvar_VariableStringBuffer(var, s, sizeof(s));
 //Slicer: Reading savedTeam also.
-	sscanf(s, "%i %i %i %i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
+	sscanf(s, "%i %i %i %i %i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format
 	       &client->sess.spectatorTime, &spectatorState,	// bk010221 - format
 	       &client->sess.spectatorClient, &client->sess.wins, &client->sess.losses, &teamLeader,	// bk010221 - format
-	       &savedTeam, &captain, &sub);
+	       &savedTeam, &captain, &sub, &ref);
 
 	// bk001205 - format issues
 
@@ -147,6 +151,7 @@ void G_ReadSessionData(gclient_t * client)
 	client->sess.savedTeam = (team_t) savedTeam;
 	client->sess.captain = (team_t) captain;
 	client->sess.sub = (team_t) sub;
+	client->sess.referee = ref;
 
 	if (g_gametype.integer == GT_CTF) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -180,6 +185,7 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 
 	sess->captain = TEAM_FREE;
 	sess->sub = TEAM_FREE;
+	sess->referee = 0;
 
 // JBravo: adding PERS_SAVEDTEAM
 	client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;

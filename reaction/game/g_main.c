@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/08/23 14:25:05  slicer
+// Added a new Referee System with multiple ref support
+//
 // Revision 1.108  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -408,7 +411,8 @@ vmCvar_t g_RQ3_ctb_respawndelay;
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
 vmCvar_t g_RQ3_RefPass;
-vmCvar_t g_RQ3_RefID;
+//vmCvar_t g_RQ3_RefID;
+vmCvar_t g_RQ3_maxRefs;
 
 // aasimon: ini stuff
 vmCvar_t g_RQ3_IniFile;
@@ -564,8 +568,9 @@ static cvarTable_t gameCvarTable[] = {
 	//{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{&g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
-	{&g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
-	{&g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_ARCHIVE, 0, qfalse},
+	//{&g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_maxRefs, "	g_RQ3_maxRefs", "1", CVAR_SERVERINFO, 0, qtrue},
 	// aasimon: stuff for da ini file
 	{&g_RQ3_IniFile, "g_RQ3_IniFile", "", CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
@@ -1073,7 +1078,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		level.team2ready = qfalse;
 		level.paused = qfalse;
 		level.settingsLocked = qfalse;
-		refVotes[0] = refVotes[1] = -1;
+		refVotes[0] = refVotes[1] = NULL;
 	}
 
 	if (trap_Cvar_VariableIntegerValue("bot_enable")) {

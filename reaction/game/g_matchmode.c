@@ -2,7 +2,7 @@
 // JBravo: for warnings
 int ClientNumberFromString(gentity_t * to, char *s);
 
-int refVotes[2];		// refVotes[0] is the clientnumber red team voted 
+gentity_t *refVotes[2];		// refVotes[0] is the clientnumber red team voted 
 
 				//      refVotes[1] is the clientnumber blue team voted 
 
@@ -20,6 +20,21 @@ void SendEndMessage()
 				  level.teamScores[TEAM_BLUE]));
 	trap_SendServerCommand(-1, va("print \"Total Match Time: %d:%02d \n\"", mins, secs));
 }
+
+int getNumberOfRefs() {
+	gentity_t *ent;
+	int i,count;
+	count = 0;
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse)
+			continue;
+		if(ent->client->sess.referee)
+			++count;
+	}
+	return count;
+}
+
 gentity_t *getEntByName(char *name)
 {
 	gentity_t *ent;
@@ -288,16 +303,15 @@ void MM_TeamName_f(gentity_t * ent)
 
 void checkRefVotes()
 {
-	gentity_t *ent;
-	char nr[4];
+//	gentity_t *ent;
+//	char nr[4];
 
-	G_Printf("Vote Red: %i Vote Blue %i \n", refVotes[0], refVotes[1]);
+	//G_Printf("Vote Red: %i Vote Blue %i \n", refVotes[0], refVotes[1]);
 	if (refVotes[0] == refVotes[1]) {
-		ent = g_entities + refVotes[0];
-		Com_sprintf(nr, sizeof(nr), "%i", refVotes[0]);
-		trap_Cvar_Set("g_RQ3_RefID", nr);
-		trap_SendServerCommand(-1, va("cp \"%s is the new Referee.\n\"", ent->client->pers.netname));
-		refVotes[0] = refVotes[1] = -1;
+	//	ent = g_entities + refVotes[0];
+		refVotes[0]->client->sess.referee = 1;
+		trap_SendServerCommand(-1, va("cp \"%s is now a Referee.\n\"", refVotes[0]->client->pers.netname));
+		refVotes[0] = refVotes[1] = NULL;
 	}
 }
 
@@ -318,34 +332,42 @@ void MM_Referee_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"No Referee Allowed on this server\n\""));
 		return;
 	}
+	if (captain == TEAM_FREE) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Only captains can vote a referee\n\""));
+		return;
+	}
 	if (trap_Argc() < 2) {
-		if (Ref_Exists()) {
+		/*if (Ref_Exists()) {
 			ref = g_entities + g_RQ3_RefID.integer;
 			trap_SendServerCommand(ent - g_entities,
 					       va("print \"Current Referee: %s\n\"", ref->client->pers.netname));
 		} else
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \""MM_DENY_COLOR"No Referee currently assigned, use referee <name>"MM_DENY_COLOR" to assign\n\""));
+					       va("print \""MM_DENY_COLOR"No Referee currently assigned, use referee <name>"MM_DENY_COLOR" to assign\n\""));*/
+		trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_DENY_COLOR"Use referee <name> to vote a referee\n\""));
 		return;
 	}
 	if((g_RQ3_mmflags.integer & MMF_VOTEREF) != MMF_VOTEREF) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow captains to vote for a Referee\n\""));
 		return;
 	}
-	if (captain != TEAM_FREE) {
-		buff = ConcatArgs(1);
-		if ((ref = getEntByName(buff)) != NULL) {
-			refVotes[captain - 1] = ref - g_entities;
-			trap_SendServerCommand(-1,
-					       va("print \""MM_OK_COLOR"%s has voted %s"MM_OK_COLOR" for referee\n\"",
-						  ent->client->pers.netname, ref->client->pers.netname));
-			checkRefVotes();
-		} else {
-			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Invalid Player Name\n\""));
-			return;
-		}
-	} else
-		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to be a captain to assign a referee\n\""));
+	if(getNumberOfRefs() == g_RQ3_maxRefs.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Too many referees already on the server\n\""));
+		return;
+	}
+	buff = ConcatArgs(1);
+	if ((ref = getEntByName(buff)) != NULL) {
+		refVotes[captain - 1] = ref;
+		trap_SendServerCommand(-1,
+				       va("print \""MM_OK_COLOR"%s has voted %s"MM_OK_COLOR" for referee\n\"",
+					  ent->client->pers.netname, ref->client->pers.netname));
+		checkRefVotes();
+	} else {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Invalid Player Name\n\""));
+		return;
+	}
+
 
 }
 void MM_ClearScores(qboolean clearTeamFlags)
@@ -373,7 +395,7 @@ void MM_ClearScores(qboolean clearTeamFlags)
 }
 
 // aasimon: checks for a ref
-qboolean Ref_Exists(void)
+/*qboolean Ref_Exists(void)
 {
 
 	if (g_RQ3_RefID.integer == -1)
@@ -381,19 +403,23 @@ qboolean Ref_Exists(void)
 	else
 		return qtrue;
 }
-
+*/
 //
 //      aasimon: Ref Auth. Do some kind of logging (ip's etc)
 //
 qboolean Ref_Auth(gentity_t * ent)
 {
 	char pass[MAX_TOKEN_CHARS];
-	int cn;
-	char teste[2];
+//	int cn;
+//	char teste[2];
 
 	if (!g_RQ3_AllowRef.integer) {
 		// No ref allowed on the server - HELLO!!!!! FIREMAN CARS????
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"No Referee Allowed on this server\n\""));
+		return qfalse;
+	}
+	if(!g_RQ3_matchmode.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"This server is not running match mode\n\""));
 		return qfalse;
 	}
 
@@ -402,7 +428,7 @@ qboolean Ref_Auth(gentity_t * ent)
 		return qfalse;
 	}
 
-	if (Ref_Exists()) {
+/*	if (Ref_Exists()) {
 		// One ref per match
 		cn = ent - g_entities;
 
@@ -413,13 +439,28 @@ qboolean Ref_Auth(gentity_t * ent)
 
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Referee already set on this server\n\""));
 		return qfalse;
+	}*/
+	if(getNumberOfRefs() == g_RQ3_maxRefs.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Too many referees already on the server\n\""));
+		return qfalse;
 	}
-
+	if (ent->client->sess.referee) {
+			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You are already the referee\n\""));
+			return qfalse;
+	}
 	trap_Argv(1, pass, sizeof(pass));
+	
 
 	// Does a simple plain text auth 
 
 	if (Q_stricmp(pass, g_RQ3_RefPass.string) == 0) {
+		ent->client->sess.referee = 1;
+		trap_SendServerCommand(-1,
+				       va("print \"%s "MM_OK_COLOR"is now a Referee\n\"",
+					  ent->client->pers.netname));
+		return qtrue;
+	}
+/*	if (Q_stricmp(pass, g_RQ3_RefPass.string) == 0) {
 		cn = ent - g_entities;
 		Com_sprintf(teste, 3, "%i", cn);
 		trap_Cvar_Set("g_RQ3_RefID", teste);
@@ -428,7 +469,7 @@ qboolean Ref_Auth(gentity_t * ent)
 					  ent->client->pers.netname));
 		return qtrue;
 	}
-
+*/
 	trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Invalid Referee Password\n\""));
 
 	return qfalse;
@@ -460,8 +501,8 @@ void Ref_Command(gentity_t * ent)
 	char param[MAX_TOKEN_CHARS];
 	int cn;
 
-	cn = ent - g_entities;
-	if (cn != g_RQ3_RefID.integer) {
+	//cn = ent - g_entities;
+	if (!ent->client->sess.referee) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You are not a referee\n\""));
 		return;
 	}
@@ -561,13 +602,10 @@ void Ref_Command(gentity_t * ent)
 
 void Ref_Resign(gentity_t * ent)
 {
-	if (ent - g_entities != g_RQ3_RefID.integer) {
-		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You are not a referee\n\""));
-		return;
+	if (ent->client->sess.referee) {
+		ent->client->sess.referee = 0;
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_OK_COLOR"You resign from your referee status\n\""));
 	}
-
-	trap_Cvar_Set("g_RQ3_RefID", "-1");
-	trap_SendServerCommand(ent - g_entities, va("print \""MM_OK_COLOR"You resign from your referee status\n\""));
 }
 
 /*
@@ -606,7 +644,7 @@ void MM_Settings_f(gentity_t * ent) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change settings\n\""));
 		return;
 	}
-	if (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer) {
+	if (ent->client->sess.captain == TEAM_FREE && !ent->client->sess.referee) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Only Captains and Referees can change match Settings\n\""));
 		return;
 	}

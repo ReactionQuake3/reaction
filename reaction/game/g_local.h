@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/08/23 14:25:05  slicer
+// Added a new Referee System with multiple ref support
+//
 // Revision 1.116  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -510,6 +513,7 @@ typedef gentity_t *ignorelist_t[MAXIGNORE];
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
 	//Slicer Matchmode
+	int referee;
 	team_t captain;
 	team_t sub;
 	team_t sessionTeam;
@@ -1331,7 +1335,8 @@ extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb resp
 //aasimon: Ref System for MM
 extern vmCvar_t g_RQ3_AllowRef;
 extern vmCvar_t g_RQ3_RefPass;
-extern vmCvar_t g_RQ3_RefID;
+//extern vmCvar_t g_RQ3_RefID;
+extern vmCvar_t g_RQ3_maxRefs;
 
 // aasimon: ini stuff
 extern vmCvar_t g_RQ3_IniFile;

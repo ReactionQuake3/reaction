@@ -27,4 +27,4 @@ qboolean Ref_Exists(void);
 qboolean Ref_Auth(gentity_t *);	// No need to return a boolean in this context
 void Ref_Command(gentity_t *);
 void Ref_Resign(gentity_t *);
-extern int refVotes[2];
+extern gentity_t* refVotes[2];

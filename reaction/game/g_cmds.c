@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.161  2002/08/23 14:25:05  slicer
+// Added a new Referee System with multiple ref support
+//
 // Revision 1.160  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -445,8 +448,8 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 				ent->client->sess.savedTeam != cl->sess.savedTeam)
 				alive = qtrue;
 		}
-
-		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i", 
+	//MUDANCA ADICIONEI UM INTEIRO
+		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", 
 			level.sortedClients[i], 
 			cl->ps.persistant[PERS_SCORE], 
 			ping, 
@@ -457,7 +460,8 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
 			alive,					// JBravo: Added for TP scoreboard
 			cl->sess.captain,				// Slicer: Added for Matchmode Scoreboard
-			cl->sess.sub				// Slicer: Added for Matchmode Scoreboard
+			cl->sess.sub,				// Slicer: Added for Matchmode Scoreboard
+			cl->sess.referee
 			);
 
 		j = strlen(entry);
@@ -466,11 +470,11 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		strcpy(string + stringlength, entry);
 		stringlength += j;
 	}
-
-	trap_SendServerCommand(ent - g_entities, va("scores %i %i %i %i %i %i %i%s", i,
+	//MUDANCA !!! REMOVI O ULTIMO INTEIRO
+	trap_SendServerCommand(ent - g_entities, va("scores %i %i %i %i %i %i%s", i,
 						    level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 						    level.team1ready, level.team2ready,
-						    (int) level.matchTime, g_RQ3_RefID.integer, string));
+						    (int) level.matchTime, string));
 }
 
 /*
@@ -1558,7 +1562,7 @@ static void Cmd_Say_f(gentity_t * ent, int mode, qboolean arg0)
 
 	//Slicer Matchmode
 	if (g_RQ3_matchmode.integer) {
-		normaluser = (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer);
+		normaluser = (ent->client->sess.captain == TEAM_FREE && !ent->client->sess.referee);
 		switch (g_RQ3_forceteamtalk.integer) {
 		case 1: //Only allow say_team when the game hasn't started
 			if (level.inGame && normaluser)
