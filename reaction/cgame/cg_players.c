@@ -1087,23 +1087,24 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 		CG_Error( "Bad weapon animation number: %i", newAnimation );
 	}
 
-	anim = &cg_weapons[cg.snap->ps.weapon].animations[ newAnimation ];
+	// Elder: selecting the right weapon animation
+	if (newAnimation == WP_ANIM_ACTIVATE)
+		anim = &cg_weapons[cg.weaponSelect].animations[ newAnimation ];
+	else
+		anim = &cg_weapons[cg.snap->ps.weapon].animations[ newAnimation ];
 
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + anim->initialLerp;
 
 	if ( cg_debugAnim.integer ) {
 		CG_Printf( "Weapon Anim: %i\n", newAnimation );
+		// Elder: more info
+		CG_Printf( "Snap Weapon: %i\n", cg.snap->ps.weapon);
+		CG_Printf( "Desired Weapon: %i\n", cg.weaponSelect);
 	}
 
-	//Elder: reset frame?
-	if ( cg_debugAnim.integer ) {
-		CG_Printf("Anim: %d, Old lf->frame %d, New lf->frame: %d\n",
-						newAnimation, lf->frame, anim->firstFrame);
-	}
-
-	lf->oldFrame = lf->frame;
-	lf->frame = anim->firstFrame;
+	//Elder: reset frame so there is no lerping between new animations
+	lf->oldFrame = lf->frame = lf->animation->firstFrame;
 	
 }
 
@@ -1157,20 +1158,22 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 	// see if the animation sequence is switching
 	if ( newAnimation != lf->animationNumber || !lf->animation ) {
 		if (weaponAnim) {
+			lf->frameTime = lf->oldFrameTime = cg.time;
 			CG_SetWeaponLerpFrame( ci, lf, newAnimation );
-			resetAnim = qtrue;
+			//resetAnim = qtrue;
 		} else {
 			CG_SetLerpFrameAnimation( ci, lf, newAnimation );
 		}
 	}
 
 	// Elder's chunk of debug code
+	/*
 	if (weaponAnim && cg_debugAnim.integer)
 	{
 		CG_Printf("(%d)==================\n", cg.time);
 		CG_Printf("lf->frame (%d), lf->frameTime (%d),\n", lf->frame, lf->frameTime);
 		CG_Printf("lf->oldFrame (%d), lf->oldFrameTime (%d),\n", lf->oldFrame, lf->oldFrameTime);
-	}
+	}*/
 
 	// if we have passed the current frame, move it to
 	// oldFrame and calculate a new frame
@@ -1195,6 +1198,7 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 		if (anim->flipflop) {
 			numFrames *= 2;
 		}
+
 		if ( f >= numFrames ) {
 			f -= numFrames;
 			if ( anim->loopFrames ) {
@@ -1215,9 +1219,9 @@ static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation
 		}
 		else {
 			//Elder's stuff
-			if (resetAnim)
-				lf->frame = anim->firstFrame;
-			else
+			//if (resetAnim)
+				//lf->frame = anim->firstFrame;
+			//else
 				lf->frame = anim->firstFrame + f;
 		}
 		if ( cg.time > lf->frameTime ) {
@@ -1256,6 +1260,7 @@ static void CG_ClearLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int animationN
 	lf->oldFrame = lf->frame = lf->animation->firstFrame;
 }
 
+
 /* [QUARANTINE] - Weapon Animations
 ===============
 CG_WeaponAnimation
@@ -1280,7 +1285,8 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 	CG_RunLerpFrame( ci, &cent->pe.weapon, cent->currentState.generic1, 1, qtrue );
 
 	// QUARANTINE - Debug - Animations
-	#if 0
+	#if 1
+	if (cg_debugAnim.integer)
 	if(cent->pe.weapon.oldFrame || cent->pe.weapon.frame || cent->pe.weapon.backlerp) {
 		CG_Printf("weaponOld: %i weaponFrame: %i weaponBack: %i\n", 
 		cent->pe.weapon.oldFrame, cent->pe.weapon.frame, cent->pe.weapon.backlerp);
@@ -2226,6 +2232,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		//}
 
+	
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
 			if (team == TEAM_RED)
@@ -2245,13 +2252,16 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		}
 
-		//Elder: IR Vision
-		if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
-			cg.rq3_irvision && !(state->eFlags & EF_DEAD))
+		//Elder: IR Vision -- only on players
+		if (state->eType == ET_PLAYER)
 		{
-				//Temporary heh
-				ent->customShader = cgs.media.quadShader;
-				trap_R_AddRefEntityToScene( ent );
+			if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
+				cg.rq3_irvision && !(state->eFlags & EF_DEAD))
+			{
+					//Temporary heh
+					ent->customShader = cgs.media.quadShader;
+					trap_R_AddRefEntityToScene( ent );
+			}
 		}
 		
 	}

@@ -1460,6 +1460,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_GRASS ][rand()&3] );
 		}
 		break;
+	case EV_FOOTSTEP_WOOD:
+		DEBUGNAME("EV_FOOTSTEP_WOOD");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_WOOD ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_CARPET:
+		DEBUGNAME("EV_FOOTSTEP_CARPET");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_CARPET ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_METAL2:
+		DEBUGNAME("EV_FOOTSTEP_METAL2");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_METAL2 ][rand()&3] );
+		}
+		break;
 	case EV_FOOTSPLASH:
 		DEBUGNAME("EV_FOOTSPLASH");
 		if (cg_footsteps.integer) {

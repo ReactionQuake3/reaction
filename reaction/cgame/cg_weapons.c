@@ -811,6 +811,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -1422,7 +1423,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 
 	// allow the gun to be completely removed
-	if ( !cg_drawGun.integer ) {
+	// Elder: don't draw if throwing
+	if ( !cg_drawGun.integer || (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
 //Blaze: Removed these
 //		vec3_t		origin;
 
@@ -1503,7 +1505,10 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	//if ( ps->weapon != WP_PISTOL && ps->weapon != WP_M3)
 	//{
 		// map torso animations to weapon animations
-		if ( cg_gun_frame.integer || ps->weapon == WP_PISTOL || ps->weapon == WP_M3 || ps->weapon == WP_HANDCANNON) {
+		if ( cg_gun_frame.integer ||
+			 ps->weapon == WP_PISTOL ||
+			 ps->weapon == WP_M3 ||
+			 ps->weapon == WP_HANDCANNON) {
 			// development tool
 			hand.frame = hand.oldframe = cg_gun_frame.integer;
 			hand.backlerp = 0;
@@ -2912,7 +2917,7 @@ static void CG_LocalLaser ()
 	if (tr.fraction != 1)
 		VectorMA(tr.endpos,-4, forward, tr.endpos);
 
-	
+	VectorCopy(re->origin, re->oldorigin);
 	VectorCopy(tr.endpos, re->origin);
 	//VectorCopy(tr.endpos, cg.laserEnt->pos.trBase);
 	//BG_EvaluateTrajectory(&cg.laserEnt->pos, cg.time, re->origin);

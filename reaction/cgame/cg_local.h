@@ -92,7 +92,11 @@ typedef enum {
 	FOOTSTEP_ENERGY,
 	FOOTSTEP_METAL,
 	FOOTSTEP_SPLASH,
-	FOOTSTEP_GRASS,		// Elder: new surface sounds
+	// Elder: new surface sounds
+	FOOTSTEP_GRASS,		
+	FOOTSTEP_WOOD,
+	FOOTSTEP_CARPET,
+	FOOTSTEP_METAL2,
 
 	FOOTSTEP_TOTAL
 } footstep_t;
