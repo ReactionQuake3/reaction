@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/27 06:50:58  niceass
+// removed kamakazi code
+//
 // Revision 1.37  2002/05/18 14:52:16  makro
 // Bot stuff. Other stuff. Just... stuff :p
 //
@@ -230,11 +233,6 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 	{
 		Laser_Gen(other, qtrue);
 	}
-
-/*	Blaze: No Kamikazie
-	if( ent->item->giTag == HI_KAMIKAZE ) {
-		other->client->ps.eFlags |= EF_KAMIKAZE;
-	}*/
 
 	//Elder: our unique items don't respawn
 	return -1;
