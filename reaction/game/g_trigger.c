@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/06/04 20:53:19  makro
+// Trigger_pushes can now be teamed up
+//
 // Revision 1.19  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -184,6 +187,11 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
+	//Makro - too soon to activate ?
+	if (level.time < self->s.powerups) {
+		return;
+	}
+
 	//Makro - bot only triggers
 	if ( self->spawnflags & 1 ) {
 		if ( !(other->r.svFlags & SVF_BOT) ) {
@@ -192,6 +200,15 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	BG_TouchJumpPad( &other->client->ps, &self->s );
+	//Makro - team up trigger_pushes
+	if (self->pathtarget) {
+		gentity_t	*loop = NULL;
+		for (loop = G_Find2(NULL, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget); loop; G_Find2(loop, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget)) {
+			//Makro - delay 5 seconds before triggering another trigger_push from the same "team"
+			loop->s.powerups = level.time + 5;
+		}
+	}
+
 }
 
 
