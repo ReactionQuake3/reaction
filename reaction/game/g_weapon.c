@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/05/24 18:47:02  makro
+// Jump kicks
+//
 // Revision 1.59  2002/05/20 16:25:48  makro
 // Triggerable cameras
 //
@@ -185,8 +188,9 @@ qboolean JumpKick (gentity_t *ent) {
 	if (traceEnt == NULL)
 		return qfalse;
 
-	if (!traceEnt->takedamage)
-		return qfalse;
+	//Makro - removed
+	//if (!traceEnt->takedamage)
+	//	return qfalse;
 
 	//Makro - this was a few lines below
 	damage = 20;
