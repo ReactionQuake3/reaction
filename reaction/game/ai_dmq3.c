@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/05/02 00:12:22  makro
+// Improved reloading and ammo handling for akimbo/hc
+//
 // Revision 1.21  2002/05/01 05:32:45  makro
 // Bots reload akimbos/handcannons. Also, they can decide whether
 // or not an item in the ground is better than theirs
@@ -294,7 +297,7 @@ Added by Makro
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	vec3_t dir;
 
-	//VectorTargetDist(bs->origin, dest, dist, dir);
+	VectorTargetDist(bs->origin, dest, dist, dir);
 	//dir[2] = bs->origin[2];
 	/*
 	if (bot_developer.integer == 2) {
@@ -1519,6 +1522,62 @@ void BotHarvesterRetreatGoals(bot_state_t *bs) {
 
 /*
 ==================
+BotRQ3TPSeekGoals
+
+Added by Makro  
+==================
+*/
+void BotRQ3TPSeekGoals( bot_state_t *bs ) {
+	int		firstBot = 0, firstHuman = 0, leader = 0, i;
+	
+	//if the bot already has a goal	
+	if (bs->ltgtype)
+		return;
+
+	//find the first human/bot teammates
+	for ( i=0; i<MAX_CLIENTS; i++ ) {
+		if ( !(g_entities[i].inuse) || !(g_entities[i].client) )
+			continue;
+		if (!BotSameTeam(bs, i))
+			continue;
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			if (i != bs->entitynum)
+				firstBot = i;
+		} else {
+			firstHuman = i;
+		}
+		if (firstHuman && firstBot)
+			break;
+	}
+
+	if (firstHuman)
+		leader = firstHuman;
+	else if (firstBot)
+		leader = firstBot;
+	else
+		return;
+
+	//the team mate
+	bs->teammate = leader;
+	bs->decisionmaker = bs->client;
+	bs->ordered = qfalse;
+	//no message
+	bs->teammessage_time = 0;
+	//no arrive message
+	//bs->arrive_time = 0;
+	//
+	BotVoiceChat(bs, bs->teammate, VOICECHAT_ONFOLLOW);
+	//get the team goal time
+	bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
+	bs->ltgtype = LTG_TEAMACCOMPANY;
+	bs->formation_dist = 3.5 * 32;		//3.5 meter
+	BotSetTeamStatus(bs);
+
+	return;
+}
+
+/*
+==================
 BotTeamGoals
 ==================
 */
@@ -1557,6 +1616,10 @@ void BotTeamGoals(bot_state_t *bs, int retreat) {
 			BotHarvesterSeekGoals(bs);
 		}
 #endif
+		//Makro - decide what to do in TP mode
+		else if (gametype == GT_TEAMPLAY) {
+			BotRQ3TPSeekGoals(bs);
+		}
 	}
 	// reset the order time which is used to see if
 	// we decided to refuse an order
@@ -1926,11 +1989,12 @@ BotUpdateInventory
 ==================
 */
 void BotUpdateInventory(bot_state_t *bs) {
-	int oldinventory[MAX_ITEMS];
-	gentity_t *ent = &g_entities[bs->entitynum];
+	int			oldinventory[MAX_ITEMS];
+	gentity_t	*ent = &g_entities[bs->entitynum];
+	int			amt = 0;
 
 	//DEBUG STUFF
-	qboolean	showInfo = (trap_Cvar_VariableIntegerValue("bot_RQ3_report") != 0);
+	//qboolean	showInfo = (trap_Cvar_VariableIntegerValue("bot_RQ3_report") != 0);
 
 	
 	memcpy(oldinventory, bs->inventory, sizeof(oldinventory));
@@ -1959,10 +2023,18 @@ void BotUpdateInventory(bot_state_t *bs) {
 	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
 	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3];
 	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3] + ent->client->numClips[WP_M3];
-	bs->inventory[INVENTORY_HANDCANNONAMMO] = bs->cur_ps.ammo[WP_HANDCANNON] + ent->client->numClips[WP_HANDCANNON];
+	amt = bs->cur_ps.ammo[WP_HANDCANNON] + ent->client->numClips[WP_HANDCANNON];
+	//Makro - hackish, but oh well... bots shouldn't want to use a HC when they only have one shell left
+	if (amt < 2)
+		amt = 0;
+	bs->inventory[INVENTORY_HANDCANNONAMMO] = amt;
 	//Blaze: Same ammo for Pistol and Akimbo Pistols
 	//bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
-	bs->inventory[INVENTORY_AKIMBOAMMO] = bs->cur_ps.ammo[WP_AKIMBO] + ent->client->numClips[WP_AKIMBO] * RQ3_PISTOL_CLIP;
+	//Makro - same hack for akimbos
+	amt = bs->cur_ps.ammo[WP_AKIMBO] + ent->client->numClips[WP_AKIMBO] * RQ3_PISTOL_CLIP;
+	if (amt < 2)
+		amt = 0;
+	bs->inventory[INVENTORY_AKIMBOAMMO] = amt;
 	bs->inventory[INVENTORY_GRENADEAMMO] = bs->cur_ps.ammo[WP_GRENADE];
 	
 //	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
@@ -2013,6 +2085,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_AKIMBOCLIP] = ent->client->numClips[WP_AKIMBO];
 	bs->inventory[INVENTORY_GRENADECLIP] = ent->client->numClips[WP_GRENADE];
 	
+	/*
 	if (showInfo) {
 		BotAI_Print(PRT_MESSAGE, "Inventory for %s :\n-----------------\n", ent->client->pers.netname);
 		BotAI_Print(PRT_MESSAGE, "KNIFE :   %i / %i\n", bs->inventory[INVENTORY_KNIFE], bs->inventory[INVENTORY_KNIFEAMMO]);
@@ -2025,7 +2098,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 		BotAI_Print(PRT_MESSAGE, "M26 G :   %i / %i\n", bs->inventory[INVENTORY_GRENADE], bs->inventory[INVENTORY_GRENADEAMMO]);
 		trap_Cvar_Set("bot_RQ3_report", "0");
 	}
-	
+	*/
 	BotCheckItemPickup(bs, oldinventory);
 }
 
@@ -2268,31 +2341,39 @@ void BotUseInvulnerability(bot_state_t *bs) {
 
 /*
 ==================
+RQ3_Bot_CheckBandage
+
+Added by Makro
+==================
+*/
+qboolean RQ3_Bot_CheckBandage( bot_state_t *bs ) {
+	qboolean doBandage = qfalse;
+
+	if (bs->inventory[INVENTORY_HEALTH] > 20)
+		doBandage = (random() > (float) bs->inventory[INVENTORY_HEALTH] / 100.0f);
+	else
+		doBandage = qtrue;
+
+	return doBandage;
+}
+
+/*
+==================
 BotBattleUseItems
 ==================
 */
 void BotBattleUseItems(bot_state_t *bs) {
-	qboolean doBandage = qfalse;
 	//Makro - bot was hit; if very low on health, bandage immediately, otherwise, bandage randomly
 	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
-		if (bs->inventory[INVENTORY_HEALTH] <= 20) {
-			doBandage = qtrue;
-		} else {
-			if ( (int) (random() * (float) (bs->inventory[INVENTORY_HEALTH])) == 0) {
-				doBandage = qtrue;
-			}
-		}
+		if (RQ3_Bot_CheckBandage(bs))
+			//Makro - if not bandaging already
+			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING)
+				Cmd_Bandage( &g_entities[bs->entitynum] );
+	/*
+	if (bot_developer.integer == 2) {
+		G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
 	}
-	if (doBandage) {
-		//Makro - if not bandaging already
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
-		}
-		/*
-		if (bot_developer.integer == 2) {
-			G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
-		}
-		*/
+	*/
 	}
 
 	if (bs->inventory[INVENTORY_HEALTH] < 40) {
@@ -5143,7 +5224,7 @@ void BotCheckConsoleMessages(bot_state_t *bs) {
 		radio  = BotCheckRadioMessage(bs, m.message, handle);
 		if ( radio ) {
 			//The bot needs at least two seconds to reply
-			if ( FloatTime() > (m.time + 2 + random()) ) {
+			if ( FloatTime() > (m.time + 2 + random() * 2) ) {
 				BotReplyToRadioMessage(bs, m.message, handle);
 				//remove the console message
 				trap_BotRemoveConsoleMessage(bs->cs, handle);

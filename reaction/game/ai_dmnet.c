@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/05/02 00:12:22  makro
+// Improved reloading and ammo handling for akimbo/hc
+//
 // Revision 1.17  2002/05/01 05:32:45  makro
 // Bots reload akimbos/handcannons. Also, they can decide whether
 // or not an item in the ground is better than theirs
@@ -309,6 +312,7 @@ int RQ3_Bot_ComboScore(int weapon, holdable_t item)
 				case HI_BANDOLIER:	return 80;
 				case HI_SILENCER:	return 30;
 				case HI_SLIPPERS:	return 80;
+				default:			return 0;
 			}
 			break;
 		//MP5
@@ -319,6 +323,7 @@ int RQ3_Bot_ComboScore(int weapon, holdable_t item)
 				case HI_BANDOLIER:	return 70;
 				case HI_SILENCER:	return 80;
 				case HI_SLIPPERS:	return 40;
+				default:			return 0;
 			}
 			break;
 		//HANDCANNON
@@ -329,6 +334,7 @@ int RQ3_Bot_ComboScore(int weapon, holdable_t item)
 				case HI_BANDOLIER:	return 90;
 				case HI_SILENCER:	return 30;
 				case HI_SLIPPERS:	return 90;
+				default:			return 0;
 			}
 			break;
 		//SSG3000
@@ -339,6 +345,7 @@ int RQ3_Bot_ComboScore(int weapon, holdable_t item)
 				case HI_BANDOLIER:	return 80;
 				case HI_SILENCER:	return 90;
 				case HI_SLIPPERS:	return 40;
+				default:			return 0;
 			}
 			break;
 		//M4
@@ -349,6 +356,7 @@ int RQ3_Bot_ComboScore(int weapon, holdable_t item)
 				case HI_BANDOLIER:	return 80;
 				case HI_SILENCER:	return 30;
 				case HI_SLIPPERS:	return 40;
+				default:			return 0;
 			}
 			break;
 	}
@@ -364,37 +372,41 @@ Added by Makro
 */
 qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 	//if the bot doesn't have an item or it didn't reach one
-	if (!g_entities[goal->entitynum].item)
+	if ( !g_entities[goal->entitynum].item )
 		return qfalse;
-	if ( bs->cur_ps.stats[STAT_HOLDABLE_ITEM] < 1 || bs->cur_ps.stats[STAT_HOLDABLE_ITEM] >= bg_numItems || g_entities[goal->entitynum].item->giType != IT_HOLDABLE)
-		return qfalse;
-	else
-	{
-		holdable_t	oldItem = bg_itemlist[bs->cur_ps.stats[STAT_HOLDABLE_ITEM]].giTag;
-		holdable_t	newItem = g_entities[goal->entitynum].item->giTag;
-		int i, oldScore, newScore;
-		//if the two items are identical
-		if (oldItem == newItem) return qfalse;
+	//if the bot can pick up an item
+	if ( g_entities[goal->entitynum].item->giType == IT_HOLDABLE ) {
+		if ( bs->cur_ps.stats[STAT_HOLDABLE_ITEM] < 1 || bs->cur_ps.stats[STAT_HOLDABLE_ITEM] >= bg_numItems )
+			return qfalse;
+		else {
+			holdable_t	oldItem = bg_itemlist[bs->cur_ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+			holdable_t	newItem = g_entities[goal->entitynum].item->giTag;
+			int i, oldScore, newScore;
+			//if the two items are identical
+			if ( oldItem == newItem ) return qfalse;
 
-		newScore = oldScore = 0;
-		//check all the weapons
-		for (i = 0; i < MAX_WEAPONS; i++) {
-			//if the bot has the weapon
-			if ( bs->cur_ps.stats[STAT_WEAPONS] & (1 << i) ) {
-				//get the score for it
-				oldScore += RQ3_Bot_ComboScore(i, oldItem);
-				newScore += RQ3_Bot_ComboScore(i, newItem);
+			newScore = oldScore = 0;
+			//check all the weapons
+			for ( i = 0; i < MAX_WEAPONS; i++ ) {
+				//if the bot has the weapon
+				if ( bs->cur_ps.stats[STAT_WEAPONS] & (1 << i) ) {
+					//get the score for it
+					oldScore += RQ3_Bot_ComboScore(i, oldItem);
+					newScore += RQ3_Bot_ComboScore(i, newItem);
+				}
+			}
+
+			//FIXME - special code is needed for the bandolier, since throwing it away
+			//will also throw one of the weapons
+			if (newScore > oldScore) {
+				Cmd_DropItem_f( &g_entities[bs->entitynum] );
+				return qtrue;
 			}
 		}
-
-		//FIXME - special code is needed for the bandolier, since throwing it away
-		//will also throw one of the weapons
-		if (newScore > oldScore) {
-			Cmd_DropItem_f( &g_entities[bs->entitynum] );
-			return qtrue;
-		}
-
-
+	//if the bot can pick up a weapon
+	} else if ( g_entities[goal->entitynum].item->giType == IT_WEAPON ) {
+		//Code coming soon :P
+		return qfalse;
 	}
 
 	return qfalse;
