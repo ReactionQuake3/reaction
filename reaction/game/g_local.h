@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.64  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -520,6 +524,10 @@ struct gclient_s {
 	int			teamplayItem;
 	int			radioGender;
 	qboolean		radioOff;
+	int			team_wounds;
+	int			team_wounds_before;
+	int			ff_warning;
+	int			team_kills;
 };
 
 
@@ -1069,6 +1077,9 @@ extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in prog
 extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus
+extern	vmCvar_t	g_RQ3_maxteamkills;		// JBravo: Max teamkills
+extern	vmCvar_t	g_RQ3_twbanrounds;		// JBravo: no. of games team wounders are banned
+extern	vmCvar_t	g_RQ3_tkbanrounds;		// JBravo: no. of games team killers are banned
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;

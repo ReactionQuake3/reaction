@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.41  2002/03/31 23:41:45  jbravo
 // Added the use command
 //
@@ -960,6 +964,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("choose");
 	trap_AddCommand ("use");
 	trap_AddCommand ("drop");
+	trap_AddCommand ("unzoom");
 // JBravo: for zcam
 	trap_AddCommand ("camera");
 // JBravo: for radio

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.41  2002/04/02 00:28:10  slicer
 // Reduced the "arc" knife does
 //
@@ -1408,6 +1412,8 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	//VectorNormalize( forward );
 
 	//m = Knife_Throw(ent, muzzle, forward, THROW_DAMAGE, 1200);
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	m = fire_knife(ent, muzzle, forward);
 //	m->damage *= s_quadFactor;
 //	m->splashDamage *= s_quadFactor;
@@ -1439,6 +1445,8 @@ void Weapon_M4_Fire(gentity_t *ent)
 
 	}
 
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	Bullet_Fire( ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
 	/*
@@ -1474,6 +1482,8 @@ void Weapon_MK23_Fire(gentity_t *ent)
 	{
 		spread = PISTOL_SPREAD;
 	}
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	Bullet_Fire( ent, RQ3_Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
 }
 
@@ -1494,6 +1504,8 @@ void Weapon_SSG3000_FireOld(gentity_t *ent)
 	{
 		spread = RQ3_Spread(ent, SNIPER_SPREAD);
 	}
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	Bullet_Fire( ent, spread, SNIPER_DAMAGE, MOD_SNIPER);
 
 	//Elder: bolt action plus save last zoom
@@ -1772,6 +1784,8 @@ void Weapon_MP5_Fire(gentity_t *ent)
 		spread = MP5_SPREAD;
 	}
 
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	Bullet_Fire( ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }
@@ -1784,6 +1798,8 @@ void Weapon_HandCannon_Fire(gentity_t *ent)
 {
 	gentity_t		*tent, *tent2;
 
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	//Elder: added for damage report
 	RQ3_InitShotgunDamageReport();
 
@@ -1818,6 +1834,8 @@ void Weapon_M3_Fire(gentity_t *ent)
 	//Blaze: call to shotgun fire function here
 	gentity_t		*tent;
 
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	//Elder: added for damage report
 	RQ3_InitShotgunDamageReport();
 
@@ -1916,6 +1934,8 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	float spread;
 	//Blaze: Will need 2 of these
 	spread = AKIMBO_SPREAD;
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	Bullet_Fire( ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 
 	//Elder: reset plus added 1 bullet check
@@ -1941,6 +1961,8 @@ void Weapon_Grenade_Fire(gentity_t *ent)
 	//forward[2] += 0.5f;
 	VectorNormalize( forward );
 
+// JBravo: ff
+	if (g_gametype.integer == GT_TEAMPLAY) setFFState(ent);
 	m = fire_grenade (ent, muzzle, forward);
 	//Elder: removed
 	//m->damage *= s_quadFactor;

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.9  2002/04/01 02:56:50  jbravo
 // Some sourcecode reformatting
 //
@@ -65,3 +69,6 @@ void RQ3_Cmd_Radio_power_f (gentity_t *ent);
 void RQ3_Cmd_Radiogender_f (gentity_t *ent);
 void ParseSayText (gentity_t * ent, char *text);
 void RQ3_SpectatorMode(gentity_t *ent);
+void Add_TeamKill(gentity_t *attacker);
+void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
+void setFFState(gentity_t *ent);

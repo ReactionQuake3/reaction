@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.56  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -834,13 +838,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		AddKilledPlayer(attacker, self);
 		ResetKills(self);
 // JBravo: make it OK to frag teammates after rounds are over.
-		if (attacker == self || OnSameTeam (self, attacker)) {
+		if (attacker == self)
+		       AddScore(attacker, self->r.currentOrigin, -1);
+		else if (OnSameTeam (self, attacker)) {
 			if (level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
 				//If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
 				attacker->client->pers.records[REC_KILLS]--;
 				//Also, increment the TK's record
 				attacker->client->pers.records[REC_TEAMKILLS]++;
+				Add_TeamKill(attacker);
 			}
 		} else {
 			// Increase number of kills this life for attacker
@@ -1614,6 +1621,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			if (g_friendlyFire.integer == 2 && level.team_round_going) {
 				return;
 			}
+			if (level.team_round_going)
+				Add_TeamWound(attacker, targ, mod);
 		}
 #ifdef MISSIONPACK
 		if (mod == MOD_PROXIMITY_MINE) {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.55  2002/04/02 21:45:15  jbravo
 // change for makro
 //
@@ -843,7 +847,6 @@ void EquipPlayer (gentity_t *ent)
 	if (grenades > 0) {
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE );
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
-//		ent->client->uniqueWeapons++;
 	}
 	if (ent->client->teamplayWeapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
@@ -1546,4 +1549,84 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 		return;
 	Com_sprintf (buf, sizeof(buf), "weapon %d\n", weapon);
 	trap_SendConsoleCommand(EXEC_APPEND, buf);
+}
+
+void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
+{
+	char	userinfo[MAX_INFO_STRING];
+	char	*value;
+
+	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || !victim->client)
+		return;
+
+	attacker->client->team_wounds++;
+
+	if (attacker->client->ff_warning == 0) {
+		attacker->client->ff_warning++;
+		trap_SendServerCommand(victim-g_entities, va("print \"You were hit by %s, your TEAMMATE!\n\"",
+				attacker->client->pers.netname));
+		trap_SendServerCommand(attacker-g_entities, va("print \"You hit your TEAMMATE %s!\n\"",
+				victim->client->pers.netname));
+	}
+	attacker->client->team_wounds = (attacker->client->team_wounds_before + 1);
+
+	if (g_RQ3_maxteamkills.integer < 1)
+		return;
+	if (attacker->client->team_wounds < (g_RQ3_maxteamkills.integer * 3)) {
+		return;
+	} else if (attacker->client->team_wounds < (g_RQ3_maxteamkills.integer * 4)) {
+		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for wounding teammates\n\"",
+			attacker->client->pers.netname));
+		trap_SendServerCommand(attacker-g_entities, va("print \"WARNING: You'll be temporarily banned if you continue wounding teammates!\n\""));
+		return;
+	} else {
+		trap_SendServerCommand(-1, va("print \"Banning %s for team wounding\n\"", attacker->client->pers.netname));
+		trap_SendServerCommand(attacker-g_entities, va("print \"You've wounded teammates too many times, and are banned for %d %s.\n\"",
+				g_RQ3_twbanrounds.integer, ((g_RQ3_twbanrounds.integer > 1) ? "games" : "game")));
+		trap_GetUserinfo(attacker-g_entities, userinfo, sizeof(userinfo));
+		value = Info_ValueForKey (userinfo, "ip");
+		AddIP(value);
+		trap_DropClient(attacker-g_entities, "Dropped due to team wounding");
+	}
+}
+
+void Add_TeamKill(gentity_t *attacker)
+{
+	char	userinfo[MAX_INFO_STRING];
+	char	*value;
+
+	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client)
+		return;
+
+	attacker->client->team_kills++;
+
+	if (attacker->client->team_wounds > attacker->client->team_wounds_before)
+		attacker->client->team_wounds = attacker->client->team_wounds_before;
+
+	if ((g_RQ3_maxteamkills.integer < 1) ||
+			(attacker->client->team_kills < ((g_RQ3_maxteamkills.integer % 2) + g_RQ3_maxteamkills.integer / 2))) {
+		trap_SendServerCommand(attacker-g_entities, va("print \"You killed your TEAMMATE!\n\""));
+		return;
+	} else if (attacker->client->team_kills < g_RQ3_maxteamkills.integer) {
+		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for killing teammates\n\"",
+			attacker->client->pers.netname));
+		trap_SendServerCommand(attacker-g_entities, va("print \"WARNING: You'll be temporarily banned if you continue killing teammates!\n\""));
+		return;
+	} else {
+		trap_SendServerCommand(-1, va("print \"Banning %s for team killing\n\"", attacker->client->pers.netname));
+		trap_SendServerCommand(attacker-g_entities, va("print \"You've killed too many teammates, and are banned for %d %s.\n", g_RQ3_tkbanrounds.integer,
+			((g_RQ3_tkbanrounds.integer > 1) ? "games" : "game")));
+		trap_GetUserinfo(attacker-g_entities, userinfo, sizeof(userinfo));
+		value = Info_ValueForKey (userinfo, "ip");
+		AddIP(value);
+		trap_DropClient(attacker-g_entities, "Dropped due to team killing");
+	}
+}
+
+void setFFState(gentity_t *ent)
+{
+	if (ent && ent->client) {
+		ent->client->team_wounds_before = ent->client->team_wounds;
+		ent->client->ff_warning = 0;
+	}
 }

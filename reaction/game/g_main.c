@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/04/03 09:26:47  jbravo
+// New FF system. Warns and then finally kickbans teamwounders and
+// teamkillers
+//
 // Revision 1.41  2002/04/02 04:18:58  jbravo
 // Made the TP scoreboard go down at round beginig (not for spectators) and
 // pop up at intermission.  Also added special to the use command
@@ -187,6 +191,9 @@ vmCvar_t	g_RQ3_team2name;
 vmCvar_t	g_RQ3_teamCount1;
 vmCvar_t	g_RQ3_teamCount2;
 vmCvar_t	g_RQ3_numSpectators;
+vmCvar_t	g_RQ3_maxteamkills;
+vmCvar_t	g_RQ3_twbanrounds;
+vmCvar_t	g_RQ3_tkbanrounds;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
 vmCvar_t	RQ3_team2;
@@ -326,6 +333,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_lca, "g_RQ3_lca", "0", 0, 0, qfalse},
+	{ &g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", 0, 0, qfalse},
 	{ &RQ3_team2, "RQ3_team2", "0", 0, 0, qfalse},
