@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/12/02 19:52:05  niceass
+// water pressure & shell ejection stuff
+//
 // Revision 1.99  2002/11/18 04:39:47  jbravo
 // Cleanup of cg_weapons.c
 //
@@ -1313,10 +1316,11 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	// The handcannon hacks have ruined my beautiful code =(
 	if (cg.time > cent->ejectBrassTime && cent->ejectBrassTime && weapon->ejectBrassFunc &&
 	    (ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum)) {
+		orientation_t tag;
 
 		shell = weapon->ejectBrassFunc(cent);
 
-		if (shell != NULL) {
+		if (shell != NULL && trap_R_LerpTag(&tag, gun.hModel, 0, 0, 1, "tag_shell") ) {
 			float speed = 1.0f;
 			int axis1 = 0, axis2 = 0;
 
@@ -1350,7 +1354,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			VectorAdd(shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
 		}
 		// All this code for a SECOND shell on the HC
-		if (weaponNum == WP_HANDCANNON) {
+		if (weaponNum == WP_HANDCANNON && trap_R_LerpTag(&tag, gun.hModel, 0, 0, 1, "tag_shell2") ) {
 			float speed = -1.0f;
 
 			shell = weapon->ejectBrassFunc(cent);

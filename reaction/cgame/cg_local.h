@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2002/12/02 19:52:05  niceass
+// water pressure & shell ejection stuff
+//
 // Revision 1.130  2002/11/18 04:39:47  jbravo
 // Cleanup of cg_weapons.c
 //
@@ -2347,6 +2350,7 @@ void CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, f
 void CG_ParticleExplosion(char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 void CG_ParticleAir(vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
 void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader);
+void CG_ParticleWater(vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
 
 extern qboolean initparticles;
 int CG_NewParticleArea(int num);

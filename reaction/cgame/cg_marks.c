@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/12/02 19:52:05  niceass
+// water pressure & shell ejection stuff
+//
 // Revision 1.16  2002/08/25 23:20:18  niceass
 // steam looks/acts better
 //
@@ -2357,4 +2360,52 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	VectorSubtract(org, tr.endpos, dist);
 	p->reflectdistance = VectorLength(dist);
 	VectorCopy(tr.plane.normal, p->reflectnormal);
+}
+
+void CG_ParticleWater(vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
+{
+	cparticle_t *p;
+
+	if (!free_particles)
+		return;
+
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+	p->mtime = cg.time;
+
+	p->endtime = cg.time + duration;
+	p->startfade = cg.time + duration / 1.5;
+
+	if (rand() % 2)
+		p->color = DARK_BLUE_WATER;
+	else
+		p->color = LIGHT_BLUE_WATER;
+
+	p->alpha = alpha;
+	p->alphavel = p->alpha / ((p->endtime - p->startfade) * .0001f);
+
+	p->height = scale;
+	p->width = scale;
+	p->endheight = scale;
+	p->endwidth = scale;
+
+	p->pshader = cgs.media.smokePuffShader;
+
+	p->type = P_SMOKE;
+
+	VectorCopy(org, p->org);
+
+	p->vel[0] = vel[0] * speed;
+	p->vel[1] = vel[1] * speed;
+	p->vel[2] = vel[2] * speed;
+
+	p->accel[0] = p->accel[1] = 0;
+	p->accel[2] = -PARTICLE_GRAVITY * 8;
+
+	p->vel[0] += (crandom() * 40);
+	p->vel[1] += (crandom() * 40);
+	p->vel[2] += (20 + (crandom() * 40)) * speed;
 }

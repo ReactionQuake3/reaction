@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/12/02 19:52:05  niceass
+// water pressure & shell ejection stuff
+//
 // Revision 1.20  2002/08/25 07:08:18  niceass
 // added "life" setting to func_pressure
 //
@@ -274,7 +277,7 @@ void CG_ReflectVelocity(localEntity_t * le, trace_t * trace)
 
 	// check for stop, making sure that even on low FPS systems it doesn't bobble
 	if (trace->allsolid || VectorLength(le->pos.trDelta) < 30.0) {
-		// NiceAss: I don't know what this crap is, but it didn't work too well no sloped surfaces
+		// NiceAss: I don't know what this crap is, but it didn't work too well on sloped surfaces
 		/*( trace->plane.normal[2] > 0 && 
 		   ( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) ) {
 		 */
@@ -675,31 +678,13 @@ void CG_AddPressureEntity(localEntity_t * le)
 	if (cg.lca)
 		CG_FreeLocalEntity(le);
 
-	if (le->leFlags == LEF_WATER) {
-		return;
-		/*
-		   refEntity_t  water;
-
-		   memset( &water, 0, sizeof( water ) );
-
-		   water.hModel = cgs.media.waterPressureModel;
-		   water.renderfx = RF_NOSHADOW;
-		   water.reType = RT_MODEL;
-
-		   VectorCopy(le->pos.trBase, water.origin);
-
-		   trap_R_AddRefEntityToScene( &water );
-		   return;
-		 */
-	}
-
 	alpha = -(cg.time - le->startTime) + (le->endTime - le->startTime);
 	alpha /= (le->endTime - le->startTime);
 
 	//steamSound!!!
 
 	// steam:
-	if (le->leFlags != LEF_AIR) {
+	if ( le->leFlags != LEF_AIR && le->leFlags != LEF_WATER ) {
 		VectorScale(le->pos.trDelta, le->size + rand() % 30, velocity);
 
 		velocity[0] += rand() % 40 - 20;
@@ -714,6 +699,8 @@ void CG_AddPressureEntity(localEntity_t * le)
 	else if (le->leFlags == LEF_FLAME)
 		CG_ParticleSteam(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1,
 				cgs.media.flamePressureShader);
+	else if (le->leFlags == LEF_WATER)
+		CG_ParticleWater(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 1, 2);
 	else
 		CG_ParticleSteam(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1, 
 				cgs.media.smokePuffShader);
