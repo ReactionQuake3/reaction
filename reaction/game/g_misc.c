@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.66  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -299,14 +302,14 @@ void SP_dlight(gentity_t * ent)
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
 // Nothing significant to do
 void G_RunDlight(gentity_t * ent)
 {
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 */
 
@@ -332,7 +335,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 		tent->s.clientNum = player->s.clientNum;
 	}
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	trap_UnlinkEntity(player);
+	trap_RQ3UnlinkEntity(player, __LINE__, __FILE__);
 
 	VectorCopy(origin, player->client->ps.origin);
 	player->client->ps.origin[2] += 1;
@@ -363,7 +366,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 	VectorCopy(player->client->ps.origin, player->r.currentOrigin);
 
 	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
-		trap_LinkEntity(player);
+		trap_RQ3LinkEntity(player, __LINE__, __FILE__);
 	}
 }
 
@@ -388,7 +391,7 @@ void SP_misc_model(gentity_t * ent)
 	ent->s.modelindex = G_ModelIndex(ent->model);
 	VectorSet(ent->mins, -16, -16, -16);
 	VectorSet(ent->maxs, 16, 16, 16);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	G_SetOrigin(ent, ent->s.origin);
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
@@ -463,7 +466,7 @@ void SP_misc_portal_surface(gentity_t * ent)
 {
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
@@ -504,7 +507,7 @@ void SP_misc_portal_camera(gentity_t * ent)
 
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	G_SpawnFloat("roll", "0", &roll);
 
@@ -520,7 +523,7 @@ void SP_misc_sky_portal(gentity_t * ent)
 	ent->r.svFlags |= SVF_PORTAL;
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	if (!info[0]) {
 		gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
@@ -628,7 +631,7 @@ void InitShooter(gentity_t * ent, int weapon)
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
 	}
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
@@ -683,7 +686,7 @@ void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * att
 	if (self->damage > 0 && self->damage_radius > 0)
 		G_RadiusDamage(self->s.origin, attacker, self->damage, self->damage_radius, self, meansOfDeath);
 	//    radius damage
-	trap_UnlinkEntity(self);
+	trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 
 }
 
@@ -860,7 +863,7 @@ void SP_func_breakable(gentity_t * ent)
 	Info_SetValueForKey(breakinfo, "id", id);
 	trap_SetConfigstring(CS_BREAKABLES + atoi(id), breakinfo);
 
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 }
 
@@ -963,7 +966,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 		//tent = G_TempEntity( center, EV_BREAK_GLASS );
 		//tent->s.eventParm = eParm;
 		//unlink it instead of freeing
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 
 	} else if (ent->chippable) {
 		//Stil has some life left, so chip it
@@ -1021,7 +1024,7 @@ void SP_func_pressure(gentity_t * ent)
 
 	// Make it appear as the brush
 	trap_SetBrushModel(ent, ent->model);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);

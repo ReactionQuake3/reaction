@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.19  2002/08/24 07:58:15  niceass
 // moved sanitizestring to g_util
 //
@@ -462,7 +465,7 @@ Marks the entity as free
 void G_FreeEntity(gentity_t * ed)
 {
 
-	trap_UnlinkEntity(ed);	// unlink from world
+	trap_RQ3UnlinkEntity(ed, __LINE__, __FILE__);	// unlink from world
 
 	if (ed->neverFree) {
 		return;
@@ -500,7 +503,7 @@ gentity_t *G_TempEntity(vec3_t origin, int event)
 	G_SetOrigin(e, snapped);
 
 	// find cluster for PVS
-	trap_LinkEntity(e);
+	trap_RQ3LinkEntity(e, __LINE__, __FILE__);
 
 	return e;
 }
@@ -529,7 +532,7 @@ gentity_t *G_TempEntity2(vec3_t origin, int event, int eParm)
 	G_SetOrigin(e, snapped);
 
 	// find cluster for PVS
-	trap_LinkEntity(e);
+	trap_RQ3LinkEntity(e, __LINE__, __FILE__);
 
 	return e;
 }

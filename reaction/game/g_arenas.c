@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.9  2002/09/24 05:06:16  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -160,7 +163,7 @@ static gentity_t *SpawnModelOnVictoryPad(gentity_t * pad, vec3_t offset, gentity
 
 	G_SetOrigin(body, vec);
 
-	trap_LinkEntity(body);
+	trap_RQ3LinkEntity(body, __LINE__, __FILE__);
 
 	body->count = place;
 
@@ -281,7 +284,7 @@ static gentity_t *SpawnPodium(void)
 
 	VectorSubtract(level.intermission_origin, podium->r.currentOrigin, vec);
 	podium->s.apos.trBase[YAW] = vectoyaw(vec);
-	trap_LinkEntity(podium);
+	trap_RQ3LinkEntity(podium, __LINE__, __FILE__);
 
 	podium->think = PodiumPlacementThink;
 	podium->nextthink = level.time + 100;

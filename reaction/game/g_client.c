@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.126  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -666,7 +669,7 @@ void ClearBodyQue(void)
 	level.bodyQueIndex = 0;
 	for (i = 0; i < BODY_QUEUE_SIZE; i++) {
 		ent = level.bodyQue[i];
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 		ent->physicsObject = qfalse;
 	}
 }
@@ -686,7 +689,7 @@ void BodySink(gentity_t * ent)
 
 	if (level.time - ent->timestamp > 6500) {
 		// the body ques are never actually freed, they are just unlinked
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 		ent->physicsObject = qfalse;
 		return;
 	}
@@ -707,7 +710,7 @@ void CopyToBodyQue(gentity_t * ent)
 	gentity_t *body;
 	int contents;
 
-	trap_UnlinkEntity(ent);
+	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 
 	// if client is in a nodrop area, don't leave the body
 	contents = trap_PointContents(ent->s.origin, -1);
@@ -718,7 +721,7 @@ void CopyToBodyQue(gentity_t * ent)
 	body = level.bodyQue[level.bodyQueIndex];
 	level.bodyQueIndex = (level.bodyQueIndex + 1) % BODY_QUEUE_SIZE;
 
-	trap_UnlinkEntity(body);
+	trap_RQ3UnlinkEntity(body, __LINE__, __FILE__);
 
 	body->s = ent->s;
 
@@ -786,7 +789,7 @@ void CopyToBodyQue(gentity_t * ent)
 	}
 
 	VectorCopy(body->s.pos.trBase, body->r.currentOrigin);
-	trap_LinkEntity(body);
+	trap_RQ3LinkEntity(body, __LINE__, __FILE__);
 }
 
 //======================================================================
@@ -1422,7 +1425,7 @@ void ClientBegin(int clientNum)
 	client = level.clients + clientNum;
 
 	if (ent->r.linked) {
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 	}
 
 	G_InitGentity(ent);
@@ -1803,7 +1806,7 @@ void ClientSpawn(gentity_t * ent)
 
 	} else {
 		G_KillBox(ent);
-		trap_LinkEntity(ent);
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 		// force the base weapon up
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
@@ -1898,7 +1901,7 @@ void ClientSpawn(gentity_t * ent)
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue);
 		VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
-		trap_LinkEntity(ent);
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 	}
 	// run the presend to set anything else
 // JBravo: We should not have to call this during TP spawns
@@ -2036,7 +2039,7 @@ void ClientDisconnect(int clientNum)
 		ClientUserinfoChanged(level.sortedClients[0]);
 	}
 
-	trap_UnlinkEntity(ent);
+	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";

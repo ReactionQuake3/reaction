@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.137  2003/03/22 20:19:20  jbravo
 // Item replacement fixes, tmp ban after votekicks and ignore now works on
 // players with colors.
@@ -763,6 +766,68 @@ void QDECL G_Error(const char *fmt, ...)
 	va_end(argptr);
 
 	trap_Error(text);
+}
+
+/*
+================
+trap_RQ3LinkEntity, trap_RQ3UnlinkEntity and trap_RQ3AdjustAreaPortalState
+Written by JBravo to catch the bad gEnt bug
+// if (!((((btye*)ent - (byte*)g_entities)) % sizeof(gentity_t))
+// ((((btye*)ent - (byte*)g_entities)) / sizeof(gentity_t)))
+================
+*/
+void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
+{
+	if (ent == NULL) {
+		G_Printf("^1trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+	}
+	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		G_Printf("^1trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+	}
+	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		G_Printf("^1trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+	}
+
+	trap_LinkEntity(ent);
+}
+
+void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
+{
+	if (ent == NULL) {
+		G_Printf("^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
+	}
+	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		G_Printf("^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
+	}
+	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		G_Printf("^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
+	}
+
+	trap_UnlinkEntity(ent);
+}
+
+void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file)
+{
+	if (ent == NULL) {
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
+	}
+	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
+	}
+	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
+		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
+	}
+
+	trap_AdjustAreaPortalState(ent, open);
 }
 
 /*
@@ -2575,7 +2640,7 @@ void G_RunFrame(int levelTime)
 			} else if (ent->unlinkAfterEvent) {
 				// items that will respawn will hide themselves after their pickup event
 				ent->unlinkAfterEvent = qfalse;
-				trap_UnlinkEntity(ent);
+				trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 			}
 		}
 		// temporary entities don't think

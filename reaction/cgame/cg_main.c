@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.125  2003/03/22 20:19:20  jbravo
 // Item replacement fixes, tmp ban after votekicks and ignore now works on
 // players with colors.
@@ -2300,11 +2303,18 @@ void CG_StartMusic(void)
 static qboolean JB_FileExists(const char *filename)
 {
 	int len;
+	char hack[MAX_QPATH];
 
-	len = trap_FS_FOpenFile(filename, 0, FS_READ);
-	if (len > 0) {
+	Com_sprintf(hack, MAX_QPATH, "%s", filename);
+	len = trap_FS_FOpenFile(hack, 0, FS_READ);
+	if (len > 0)
 		return qtrue;
-	}
+
+	Com_sprintf(hack, MAX_QPATH, "%s.tga", filename);
+	len = trap_FS_FOpenFile(hack, 0, FS_READ);
+	if (len > 0)
+		return qtrue;
+
 	return qfalse;
 }
 
@@ -2425,7 +2435,7 @@ void CG_ReplaceModels(void)
 				if (JB_FileExists(RQ3_handcannon_icon))
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_handcannon_icon;
 				else
-					CG_Printf("^1Error loading handcannonmp5 replacement icon %s\n", cg_RQ3_handcannon_skin.string);
+					CG_Printf("^1Error loading handcannon replacement icon %s\n", cg_RQ3_handcannon_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "weapon_m3")) {
@@ -2461,7 +2471,7 @@ void CG_ReplaceModels(void)
 				if (JB_FileExists(RQ3_akimbo_icon))
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_akimbo_icon;
 				else
-					CG_Printf("^1Error loading akimbom3 replacement icon %s\n", cg_RQ3_akimbo_skin.string);
+					CG_Printf("^1Error loading akimbo replacement icon %s\n", cg_RQ3_akimbo_skin.string);
 			}
 		}
 		if (!strcmp(item->classname, "weapon_grenade")) {

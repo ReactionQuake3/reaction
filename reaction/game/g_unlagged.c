@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.2  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.1  2003/03/09 21:32:23  jbravo
 // *** empty log message ***
 //
@@ -190,7 +193,7 @@ void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * de
 				trap_SendServerCommand(debugger - g_entities, msg);
 			}
 			// this will recalculate absmin and absmax
-			trap_LinkEntity(ent);
+			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 		} else {
 			// we wrapped, so grab the earliest
 			VectorCopy(ent->client->history[k].currentOrigin, ent->r.currentOrigin);
@@ -198,7 +201,7 @@ void G_TimeShiftClient(gentity_t * ent, int time, qboolean debug, gentity_t * de
 			VectorCopy(ent->client->history[k].maxs, ent->r.maxs);
 
 			// this will recalculate absmin and absmax
-			trap_LinkEntity(ent);
+			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 		}
 	} else {
 		// this only happens when the client is using a negative timenudge, because that
@@ -297,7 +300,7 @@ void G_UnTimeShiftClient(gentity_t * ent)
 		ent->client->saved.leveltime = 0;
 
 		// this will recalculate absmin and absmax
-		trap_LinkEntity(ent);
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 	}
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.86  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -840,7 +843,7 @@ void weapon_railgun_fire(gentity_t * ent)
 			break;	// we hit something solid enough to stop the beam
 		}
 		// unlink this entity, so the next trace will go past it
-		trap_UnlinkEntity(traceEnt);
+		trap_RQ3UnlinkEntity(traceEnt, __LINE__, __FILE__);
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while (unlinked < MAX_RAIL_HITS);
@@ -848,7 +851,7 @@ void weapon_railgun_fire(gentity_t * ent)
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
-		trap_LinkEntity(unlinkedEntities[i]);
+		trap_RQ3LinkEntity(unlinkedEntities[i], __LINE__, __FILE__);
 	}
 
 	// the final trace endpos will be the terminal point of the rail trail
@@ -1370,7 +1373,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 
 		if (hitBreakable == qfalse ||
 			OnSameTeam(traceEnt, ent) ) {
-			trap_UnlinkEntity(traceEnt);
+			trap_RQ3UnlinkEntity(traceEnt, __LINE__, __FILE__);
 			unlinkedEntities[unlinked] = traceEnt;
 			unlinked++;
 		}
@@ -1379,7 +1382,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
-		trap_LinkEntity(unlinkedEntities[i]);
+		trap_RQ3LinkEntity(unlinkedEntities[i], __LINE__, __FILE__);
 	}
 
 	// snap the endpos to integers to save net bandwidth, but nudged towards the line
@@ -1885,7 +1888,7 @@ void Laser_Think(gentity_t * self)
 		//Did you not hit anything?
 		if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY) {
 			self->nextthink = level.time + 10;
-			trap_UnlinkEntity(self);
+			trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 			return;
 		}
 
@@ -1905,7 +1908,7 @@ void Laser_Think(gentity_t * self)
 
 	vectoangles(tr.plane.normal, self->s.angles);
 
-	trap_LinkEntity(self);
+	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 
 	//Prep next move
 	self->nextthink = level.time + 10;

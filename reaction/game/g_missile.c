@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.32  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -137,7 +140,7 @@ void G_ExplodeMissile(gentity_t * ent)
 	}
 	//Elder: huhh?
 	//G_Printf("exploding knife\n");
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
@@ -228,8 +231,8 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
 		VectorCopy(ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 
-		trap_LinkEntity(ent);
-		trap_LinkEntity(nent);
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_RQ3LinkEntity(nent, __LINE__, __FILE__);
 
 		return;
 	}
@@ -348,7 +351,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		}
 	}
 
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
@@ -384,7 +387,7 @@ void G_RunMissile(gentity_t * ent)
 		VectorCopy(tr.endpos, ent->r.currentOrigin);
 	}
 
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	if (tr.fraction != 1) {
 		// never explode or bounce on sky

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.133  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1544,14 +1547,14 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				//GibEntity (self, killer);
 				G_TempEntity(self->r.currentOrigin, EV_GIB_PLAYER);
 				self->client->gibbed = qtrue;
-				trap_UnlinkEntity(self);
+				trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 			}
 		} else if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1 && self->health <= -15) {
 			self->client->noHead = qfalse;
 			//GibEntity (self, killer);
 			G_TempEntity(self->r.currentOrigin, EV_GIB_PLAYER);
 			self->client->gibbed = qtrue;
-			trap_UnlinkEntity(self);
+			trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 		}
 	}
 	// never gib in a nodrop
@@ -1605,7 +1608,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	// JBravo: lets not relink players that have been gibbed here.
 	if (!self->client->gibbed)
-		trap_LinkEntity(self);
+		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 }
 
 /*

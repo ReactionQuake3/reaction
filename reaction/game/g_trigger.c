@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.24  2002/07/22 06:32:27  niceass
 // cleaned up the powerup code
 //
@@ -157,7 +160,7 @@ void SP_trigger_multiple(gentity_t * ent)
 	ent->use = Use_Multi;
 
 	InitTrigger(ent);
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
@@ -299,7 +302,7 @@ void SP_trigger_push(gentity_t * self)
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
 	self->nextthink = level.time + FRAMETIME;
-	trap_LinkEntity(self);
+	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 }
 
 void Use_target_push(gentity_t * self, gentity_t * other, gentity_t * activator)
@@ -418,7 +421,7 @@ void SP_trigger_teleport(gentity_t * self)
 	self->s.eType = ET_TELEPORT_TRIGGER;
 	self->touch = trigger_teleporter_touch;
 
-	trap_LinkEntity(self);
+	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 }
 
 /*
@@ -444,9 +447,9 @@ NO_PROTECTION	*nothing* stops the damage
 void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 {
 	if (self->r.linked) {
-		trap_UnlinkEntity(self);
+		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 	} else {
-		trap_LinkEntity(self);
+		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 	}
 }
 
@@ -500,10 +503,10 @@ void SP_trigger_hurt(gentity_t * self)
 
 	// link in to the world if starting active
 	if (!(self->spawnflags & 1)) {
-		trap_LinkEntity(self);
+		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 	} else {
 		//Makro - added
-		trap_UnlinkEntity(self);
+		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 	}
 }
 

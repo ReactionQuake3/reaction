@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.97  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -553,7 +556,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		VectorCopy(client->ps.origin, ent->s.origin);
 
 		G_TouchTriggers(ent);
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 	}
 // JBravo: Lets not allow bots to use any specmode other than FREE
 	if (ent->r.svFlags & SVF_BOT)
@@ -1300,7 +1303,7 @@ void ClientThink_real(gentity_t * ent)
 	// link entity now, after any personal teleporters have been used
 	// JBravo: this call reactivates gibbed players.
 	if (!ent->client->gibbed)
-		trap_LinkEntity(ent);
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 	if (!ent->client->noclip) {
 		G_TouchTriggers(ent);
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.136  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -1244,6 +1247,11 @@ void QDECL G_Error(const char *fmt, ...);
 
 //Elder: added
 void RQ3_StartUniqueItems(void);
+
+// JBravo: added
+void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file);
+void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file);
+void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file);
 
 // aasimon: init stuff
 void RQ3_ReadInitFile(void);

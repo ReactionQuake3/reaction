@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2003/03/22 20:29:26  jbravo
+// wrapping linkent and unlinkent calls
+//
 // Revision 1.10  2003/01/06 00:23:29  makro
 // no message
 //
@@ -66,7 +69,7 @@ void Use_Target_Give(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
-		trap_UnlinkEntity(t);
+		trap_RQ3UnlinkEntity(t, __LINE__, __FILE__);
 	}
 }
 
@@ -267,7 +270,7 @@ void SP_target_speaker(gentity_t * ent)
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
-	trap_LinkEntity(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 //==========================================================
@@ -302,7 +305,7 @@ void target_laser_think(gentity_t * self)
 
 	VectorCopy(tr.endpos, self->s.origin2);
 
-	trap_LinkEntity(self);
+	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
 	self->nextthink = level.time + FRAMETIME;
 }
 
@@ -315,7 +318,7 @@ void target_laser_on(gentity_t * self)
 
 void target_laser_off(gentity_t * self)
 {
-	trap_UnlinkEntity(self);
+	trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 	self->nextthink = 0;
 }
 
