@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/04/29 06:17:20  niceass
+// small change to pressure system
+//
 // Revision 1.71  2002/04/28 11:03:46  slicer
 // Added "teammodel" for Matchmode, Referee "pause" command
 //
@@ -850,6 +853,7 @@ void G_RunDlight ( gentity_t *ent );	// Elder: dlight running
 void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void G_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 void G_GravityChange(void);
+void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent);
 
 //
 // g_weapon.c

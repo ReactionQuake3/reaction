@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/04/29 06:16:27  niceass
+// small change to pressure system
+//
 // Revision 1.25  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -533,6 +536,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 				//VectorCopy(xr_drop->s.origin, temp);
 				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
+
+				if ( other->s.eType == ET_PRESSURE )
+					G_CreatePressure(xr_drop->s.origin, trace->plane.normal, &g_entities[trace->entityNum]);
 			}
 
 			//Elder: transfer entity data into the shared entityState

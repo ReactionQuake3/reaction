@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/04/29 06:16:58  niceass
+// small change to pressure system
+//
 // Revision 1.32  2002/04/23 06:01:58  niceass
 // pressure stuff
 //
@@ -780,10 +783,29 @@ void SP_func_pressure( gentity_t *ent ) {
 	G_Printf("Creating Pressure entity\n");
 	trap_SetBrushModel( ent, ent->model );
 	trap_LinkEntity (ent);
+
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
 	ent->s.eType = ET_PRESSURE;
-	ent->damage = 2;
+
+	G_SpawnInt( "speed", "0", &ent->size);
+
+	// ent->spawnflags
+	// flame, steam, water
+
+	// ent->s.frame holds type
+	// ent->s.powerups holds speed
+}
+
+void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {
+	gentity_t *tent;
+
+	tent = G_TempEntity( origin, EV_PRESSURE );
+	tent->s.eventParm = DirToByte( normal );
+
+	tent->s.frame = ent->spawnflags;	// 1 = water, 2 = steam, 4 = fire
+	tent->s.powerups = ent->size;		// speed of pressure
+	G_Printf("Game: %d and %d\n", tent->s.frame, tent->s.powerups);
 }
 
 

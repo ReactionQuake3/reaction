@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/04/29 06:17:39  niceass
+// small change to pressure system
+//
 // Revision 1.57  2002/04/23 06:04:12  niceass
 // pressure stuff
 //
@@ -997,7 +1000,7 @@ typedef enum {
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,
 	EV_CHIP_GLASS,			//Blaze: this even just breaks it a little bit.
-	EV_PRESSURE_WATER,		//NiceAss: Shot an ent under pressure with water
+	EV_PRESSURE,			// NiceAss: an entity under pressure
 	EV_SCOREPLUM,			// score plum
 
 //#ifdef MISSIONPACK

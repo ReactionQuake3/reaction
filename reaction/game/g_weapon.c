@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/04/29 06:16:10  niceass
+// small change to pressure system
+//
 // Revision 1.48  2002/04/26 03:57:51  niceass
 // took some old stuff out + small pressure stuff
 //
@@ -570,7 +573,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			tent->s.otherEntityNum = ent->s.number;
 		} else if ( traceEnt->s.eType == ET_PRESSURE ) {
 			// Pressure entities
-			tent = G_TempEntity2( tr.endpos, EV_PRESSURE_WATER, DirToByte(tr.plane.normal) );
+			G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -1253,7 +1256,7 @@ void Knife_Attack ( gentity_t *self, int damage)
 
 	if ( hitent->s.eType == ET_PRESSURE ) {
 		// Pressure entity
-		tent = G_TempEntity2( tr.endpos, EV_PRESSURE_WATER, DirToByte(tr.plane.normal) );
+		G_CreatePressure(tr.endpos, tr.plane.normal, hitent);
 	}
 }
 
@@ -1765,13 +1768,14 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 		else if (Material == MAT_GLASS)
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
-		else if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
-			tentWall = G_TempEntity( trace.endpos, EV_PRESSURE_WATER );
 		else
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
 		tentWall->s.eventParm = DirToByte( trace.plane.normal );
 		tentWall->s.otherEntityNum = ent->s.number;
+
+		if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
+			G_CreatePressure(trace.endpos, trace.plane.normal, traceEnt);
 	}
 
 	// send railgun beam effect
