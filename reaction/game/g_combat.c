@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/02/05 10:45:31  jbravo
+// Cleaning up player_die and possibly fixing the scores
+//
 // Revision 1.37  2002/01/31 01:53:30  jbravo
 // FF/no-FF fixes. g_friendlyFire 0 = no FF, 1 = FF, 2 = no FF + knockback
 //
@@ -560,53 +563,46 @@ player_die
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
 	gentity_t	*DMReward;
-	int			anim;
-	int			contents;
-	int			killer;
-	int			i;
+	int		anim, contents, killer, i;
 	char		*killerName, *obit;
 
 	//Blaze: Stop bleeding when dead
-    if ( self->client )
-    {
+	if ( self->client )
+	{
 		//Elder: drop the primed grenade
 		if (self->client->ps.weapon == WP_GRENADE &&
 			self->client->ps.weaponstate == WEAPON_COCKED) {
 			FireWeapon(self);
 		}
-    	// Hawkins put spread back and zoom out
-
+		// Hawkins put spread back and zoom out
 		//Elder: remove zoom bits
 		Cmd_Unzoom(self);
-        self->client->bleeding = 0;
-        self->client->bleed_remain = 0;
-        //Elder: added;
+		self->client->bleeding = 0;
+		self->client->bleed_remain = 0;
+		//Elder: added;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
 		self->client->killStreak = 0;
 
 		//Elder: stop reload attempts
 		self->client->reloadAttempts = 0;
-    }
-	if ( self->client->ps.pm_type == PM_DEAD ) {
+	}
+	if (self->client->ps.pm_type == PM_DEAD) {
 		return;
 	}
 
-	if ( level.intermissiontime ) {
+	if (level.intermissiontime) {
 		return;
 	}
 
 // JBravo: lets not bother with those CTF functions in Teamplay
-	if ( g_gametype.integer != GT_TEAMPLAY ) {
-	// check for an almost capture
-	CheckAlmostCapture( self, attacker );
-	// check for a player that almost brought in cubes
-	CheckAlmostScored( self, attacker );
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		// check for an almost capture
+		CheckAlmostCapture( self, attacker );
+		// check for a player that almost brought in cubes
+		CheckAlmostScored( self, attacker );
 	}
 
-//Blaze: No Hook
-//	if (self->client && self->client->hook)
-//		Weapon_HookFree(self->client->hook);
 #ifdef MISSIONPACK
 	if ((self->client->ps.eFlags & EF_TICKING) && self->activator) {
 		self->client->ps.eFlags &= ~EF_TICKING;
@@ -616,9 +612,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 #endif
 	self->client->ps.pm_type = PM_DEAD;
 
-	if ( attacker ) {
+	if (attacker) {
 		killer = attacker->s.number;
-		if ( attacker->client ) {
+		if (attacker->client) {
 			killerName = attacker->client->pers.netname;
 		} else {
 			killerName = "<non-client>";
@@ -628,17 +624,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		killerName = "<world>";
 	}
 
-	if ( killer < 0 || killer >= MAX_CLIENTS ) {
+	if (killer < 0 || killer >= MAX_CLIENTS) {
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_WORLDDEATHS]++;
 	}
 
-	if ( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) ) {
+	if (meansOfDeath < 0 || meansOfDeath >= sizeof(modNames) / sizeof(modNames[0])) {
 		obit = "<bad obituary>";
 	} else {
-		obit = modNames[ meansOfDeath ];
+		obit = modNames[meansOfDeath];
 	}
 
 	G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n",
@@ -647,50 +643,50 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// broadcast the death event to everyone
 	// Elder: use appropriate obit event and update statistics tracking
-	if ( (self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
-		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE )
+	if ((self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
+		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE)
 	{
 		// head kill
 		self->client->pers.records[REC_HEADDEATHS]++;
 		if (attacker && attacker->client)
 			attacker->client->pers.records[REC_HEADKILLS]++;
-		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_HEAD );
+		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_HEAD);
 	}
-	else if ( (self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
+	else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER)
 	{
 		// chest kill
 		self->client->pers.records[REC_CHESTDEATHS]++;
 		if (attacker && attacker->client)
 			attacker->client->pers.records[REC_CHESTKILLS]++;
-		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_CHEST );
+		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_CHEST);
 	}
-	else if ( (self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
+	else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN)
 	{
 		// stomach kill
 		self->client->pers.records[REC_STOMACHDEATHS]++;
 		if (attacker && attacker->client)
 			attacker->client->pers.records[REC_STOMACHKILLS]++;
-		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_STOMACH );
+		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_STOMACH);
 	}
-	else if ( (self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
+	else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT)
 	{
 		// leg kill
 		self->client->pers.records[REC_LEGDEATHS]++;
 		if (attacker && attacker->client)
 			attacker->client->pers.records[REC_LEGKILLS]++;
-		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_LEGS );
+		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_LEGS);
 	}
 	else
 	{
 		// non-location/world kill
-		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
+		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY);
 	}
 
 	// Elder: Statistics tracking
-	switch ( meansOfDeath )
+	switch (meansOfDeath)
 	{
 		case MOD_KNIFE:
 			if (attacker && attacker->client)
@@ -748,93 +744,89 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->pers.records[REC_KICKKILLS]++;
 			self->client->pers.records[REC_KICKDEATHS]++;
 			break;
+// JBravo: adding a default here to catch potential bugs
+		default:
+			G_Printf("Unknown Means of Death!\n");
+			break;
 	}
 
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
 	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
-
 	self->enemy = attacker;
-
 	self->client->ps.persistant[PERS_KILLED]++;
 
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
 
-		if ( attacker == self || OnSameTeam (self, attacker ) ) {
-			AddScore( attacker, self->r.currentOrigin, -1 );
+		if (attacker == self || OnSameTeam (self, attacker)) {
+			AddScore(attacker, self->r.currentOrigin, -1);
 		} else {
 			// Increase number of kills this life for attacker
 			// JBravo: unless we are in teamplay
-			if ( g_gametype.integer != GT_TEAMPLAY ) {
-			attacker->client->killStreak++;
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				attacker->client->killStreak = 0;
+				AddScore(attacker, self->r.currentOrigin, 1);
+			} else {
+				attacker->client->killStreak++;
 			}
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
-			// Done ;)
-			if (attacker->client->killStreak < 4)
-				AddScore( attacker, self->r.currentOrigin, 1 );
-			else if (attacker->client->killStreak < 8)
-			{	AddScore( attacker, self->r.currentOrigin, 2 );
-				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
-				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->killStreak;
-				DMReward->r.svFlags = SVF_BROADCAST;
+			// JBravo: Done ;)
+			if (g_gametype.integer != GT_TEAMPLAY) {
+				if (attacker->client->killStreak < 4)
+					AddScore(attacker, self->r.currentOrigin, 1);
+				else if (attacker->client->killStreak < 8) {
+					AddScore(attacker, self->r.currentOrigin, 2);
+					DMReward = G_TempEntity(self->r.currentOrigin, EV_DMREWARD);
+					DMReward->s.otherEntityNum2 = killer;
+					DMReward->s.eventParm = attacker->client->killStreak;
+					DMReward->r.svFlags = SVF_BROADCAST;
+				}
+				else if (attacker->client->killStreak < 16) {
+					AddScore(attacker, self->r.currentOrigin, 4);
+					DMReward = G_TempEntity(self->r.currentOrigin, EV_DMREWARD);
+					DMReward->s.otherEntityNum2 = killer;
+					DMReward->s.eventParm = attacker->client->killStreak;
+					DMReward->r.svFlags = SVF_BROADCAST;
+				}
+				else if (attacker->client->killStreak < 32) {
+					AddScore(attacker, self->r.currentOrigin, 8);
+					DMReward = G_TempEntity(self->r.currentOrigin, EV_DMREWARD);
+					DMReward->s.otherEntityNum2 = killer;
+					DMReward->s.eventParm = attacker->client->killStreak;
+					DMReward->r.svFlags = SVF_BROADCAST;
+				}
+				else
+				{
+					AddScore(attacker, self->r.currentOrigin, 16);
+					DMReward = G_TempEntity(self->r.currentOrigin, EV_DMREWARD);
+					DMReward->s.otherEntityNum2 = killer;
+					DMReward->s.eventParm = attacker->client->killStreak;
+					DMReward->r.svFlags = SVF_BROADCAST;
+				}
 			}
-			else if (attacker->client->killStreak < 16)
-			{	AddScore( attacker, self->r.currentOrigin, 4 );
-				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
-				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->killStreak;
-				DMReward->r.svFlags = SVF_BROADCAST;
-			}
-			else if (attacker->client->killStreak < 32)
-			{	AddScore( attacker, self->r.currentOrigin, 8 );
-				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
-				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->killStreak;
-			    DMReward->r.svFlags = SVF_BROADCAST;
-			}
-			else
-			{	AddScore( attacker, self->r.currentOrigin, 16 );
-				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
-				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->killStreak;
-				DMReward->r.svFlags = SVF_BROADCAST;
-			}
-
-			//if( meansOfDeath == MOD_GAUNTLET ) {
 			//Elder: changed to knife slash heh
-			if( meansOfDeath == MOD_KNIFE ) {
-				// play humiliation on player
-				//Blaze: Removed because it uses the persistant stats stuff
-				//attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-
+			if(meansOfDeath == MOD_KNIFE) {
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 				// also play humiliation on target
-
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
 			}
 
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
 			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
-				// play excellent on player
-				//Blaze: Removed because it uses the persistant stats stuff
-				//attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
-
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
 			attacker->client->lastKillTime = level.time;
-
 		}
 	} else {
 		AddScore( self, self->r.currentOrigin, -1 );
@@ -842,8 +834,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// Add team bonuses
 	// JBravo: unless we are in teamplay
-	if ( g_gametype.integer != GT_TEAMPLAY ) {
-	Team_FragBonuses(self, inflictor, attacker);
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		Team_FragBonuses(self, inflictor, attacker);
 	}
 
 	// if I committed suicide, the flag does not fall, it returns.
@@ -852,44 +844,37 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_SUICIDES]++;
 		if (g_gametype.integer != GT_TEAMPLAY) {
-		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
-			Team_ReturnFlag( TEAM_FREE );
-			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
+				Team_ReturnFlag( TEAM_FREE );
+				self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+			}
+			else if ( self->client->ps.powerups[PW_REDFLAG] ) {	// only happens in standard CTF
+				Team_ReturnFlag( TEAM_RED );
+				self->client->ps.powerups[PW_REDFLAG] = 0;
+			}
+			else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
+				Team_ReturnFlag( TEAM_BLUE );
+				self->client->ps.powerups[PW_BLUEFLAG] = 0;
+			}
 		}
-		else if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
-			Team_ReturnFlag( TEAM_RED );
-			self->client->ps.powerups[PW_REDFLAG] = 0;
-		}
-		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
-			Team_ReturnFlag( TEAM_BLUE );
-			self->client->ps.powerups[PW_BLUEFLAG] = 0;
-		}
-	}
 	}
 
 	// if client is in a nodrop area, don't drop anything (but return CTF flags!)
 	contents = trap_PointContents( self->r.currentOrigin, -1 );
-	if ( !( contents & CONTENTS_NODROP ) ) {
-		TossClientItems( self );
-	}
-	else {
+	if ( !(contents & CONTENTS_NODROP)) {
+		TossClientItems(self);
+	} else {
 		if (g_gametype.integer != GT_TEAMPLAY) {
-		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
-			Team_ReturnFlag( TEAM_FREE );
+			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
+				Team_ReturnFlag( TEAM_FREE );
+			}
+			else if ( self->client->ps.powerups[PW_REDFLAG] ) {	// only happens in standard CTF
+				Team_ReturnFlag(TEAM_RED);
+			}
+			else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
+				Team_ReturnFlag(TEAM_BLUE);
+			}
 		}
-		else if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
-			Team_ReturnFlag(TEAM_RED);
-		}
-		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
-			Team_ReturnFlag(TEAM_BLUE);
-		}
-		}
-		// Elder: include immediate item and weapon return here -- but handled in G_RunItem?
-		//if ( self->client->ps.stats[STAT_HOLDABLE_ITEM] )
-		//{
-			//RQ3_ResetItem(bg_itemlist[self->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag);
-			//self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-		//}
 	}
 #ifdef MISSIONPACK
 	TossClientPersistantPowerups( self );
@@ -898,70 +883,62 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 #endif
 
-	Cmd_Score_f( self );		// show scores
+	Cmd_Score_f(self);		// show scores
 	// send updated scores to any clients that are following this one,
 	// or they would get stale scoreboards
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for (i = 0 ; i < level.maxclients ; i++) {
 		gclient_t	*client;
 
 		client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED ) {
+		if (client->pers.connected != CON_CONNECTED) {
 			continue;
 		}
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+		if (client->sess.sessionTeam != TEAM_SPECTATOR) {
 			continue;
 		}
-		if ( client->sess.spectatorClient == self->s.number ) {
-			Cmd_Score_f( g_entities + i );
+		if (client->sess.spectatorClient == self->s.number) {
+			Cmd_Score_f(g_entities + i);
 		}
 	}
 
 	self->takedamage = qtrue;	// can still be gibbed
-
 	self->s.weapon = WP_NONE;
 	self->s.powerups = 0;
 
-
 	// Elder: HC smoke
-	//G_Printf("player_die: damage_knockback: %i\n", self->client->damage_knockback);
-	if (meansOfDeath == MOD_HANDCANNON && self->client->damage_knockback > RQ3_HANDCANNON_KICK * 4)  //self->client->ps.stats[STAT_HEALTH] < -50)
-	{
-		//G_Printf("Smoked\n");
+	if (meansOfDeath == MOD_HANDCANNON && self->client->damage_knockback > RQ3_HANDCANNON_KICK * 4) {
 		self->client->ps.eFlags |= EF_HANDCANNON_SMOKED;
 	}
 
-
 	self->r.contents = CONTENTS_CORPSE;
-
 	self->s.angles[0] = 0;
 	self->s.angles[2] = 0;
-	LookAtKiller (self, inflictor, attacker);
 
-	VectorCopy( self->s.angles, self->client->ps.viewangles );
+	LookAtKiller (self, inflictor, attacker);
+	VectorCopy(self->s.angles, self->client->ps.viewangles);
 
 	self->s.loopSound = 0;
-
 	self->r.maxs[2] = -8;
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
 	// JBravo: we dont want automatic respawning of players in teamplay
-	if ( g_gametype.integer != GT_TEAMPLAY ) {
-	self->client->respawnTime = level.time + 1700;
+	if (g_gametype.integer != GT_TEAMPLAY) {
+		self->client->respawnTime = level.time + 1700;
 	}
 
 	// remove powerups
-	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
 	// never gib in a nodrop
-	if ( (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
+	if ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE) {
 		// gib death
 		GibEntity( self, killer );
 	} else {
 		// normal death
 		static int i;
 
-		switch ( i ) {
+		switch (i) {
 		case 0:
 			anim = BOTH_DEATH1;
 			break;
@@ -976,20 +953,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		// for the no-blood option, we need to prevent the health
 		// from going to gib level
-		if ( self->health <= GIB_HEALTH ) {
+		if (self->health <= GIB_HEALTH) {
 			self->health = GIB_HEALTH+1;
 		}
 
 		self->client->ps.legsAnim =
-			( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+			((self->client->ps.legsAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 		self->client->ps.torsoAnim =
-			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
+			((self->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 
 		// Elder: only do death sounds if not hit in the head
-		//G_Printf("Shot Diff: %i\n", level.time - self->client->headShotTime);
-
-		//if ((self->client->lasthurt_location & LOCATION_HEAD) != LOCATION_HEAD &&
-			//(self->client->lasthurt_location & LOCATION_FACE) != LOCATION_FACE &&
 		if (level.time - self->client->headShotTime > 400)
 			G_AddEvent( self, EV_DEATH1 + i, killer );
 
@@ -1001,7 +974,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 #ifdef MISSIONPACK
 		if (self->s.eFlags & EF_KAMIKAZE) {
-			Kamikaze_DeathTimer( self );
+			Kamikaze_DeathTimer(self);
 		}
 #endif
 	}
@@ -1009,17 +982,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	trap_LinkEntity (self);
 
 // JBravo: Save the dead players team status, and respawn his as a spectator.
-	if( g_gametype.integer == GT_TEAMPLAY ) {
+	if (g_gametype.integer == GT_TEAMPLAY) {
 		CopyToBodyQue (self);
 		self->client->weaponCount[self->client->ps.weapon] = 0;
 		self->client->ps.stats[STAT_WEAPONS] = 0;
 		self->client->sess.savedTeam = self->client->sess.sessionTeam;
 		self->client->sess.sessionTeam = TEAM_SPECTATOR;
-		ClientSpawn( self );
+		ClientSpawn(self);
 	}
-
 }
-
 
 /*
 ================
