@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/07/11 04:32:24  niceass
+// misc CTB changes for joining a team or becoming a spectator on map load. Also team check before weapon equip
+//
 // Revision 1.105  2002/07/09 05:42:18  niceass
 // small change to userinfo
 //
@@ -1124,7 +1127,6 @@ void ClientUserinfoChanged(int clientNum)
 			}
 		}
 	} else {
-		// NiceAss: temporary hack to prevent non-grunt models:
 		Q_strncpyz(model2, model, sizeof(model));
 		skin2 = Q_strrchr(model2, '/');
 		if (skin2) {
@@ -1146,7 +1148,6 @@ void ClientUserinfoChanged(int clientNum)
 			client->radioGender = 0;	// Male
 		} else if (gender != GENDER_NEUTER)
 			client->radioGender = gender;
-		// End of temporary hack.
 	}
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
@@ -1417,7 +1418,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		G_LogPrintf("%s@%s connected (clientNum %i)\n", client->pers.netname, ipaddr, clientNum);
 	}
 
-	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
+	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
 	    client->sess.sessionTeam != TEAM_SPECTATOR) {
 		BroadcastTeamChange(client, -1);
 	}
@@ -1510,8 +1511,8 @@ void ClientBegin(int clientNum)
 	ClientSpawn(ent);
 
 // JBravo: if teamplay and the client has not been on teams, make them a spectator.
-	if (g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED
-	    && client->sess.savedTeam != TEAM_BLUE) {
+	if ( ( g_gametype.integer == GT_TEAMPLAY && client->sess.savedTeam != TEAM_RED && client->sess.savedTeam != TEAM_BLUE ) || 
+		( g_gametype.integer == GT_CTF && client->sess.sessionTeam != TEAM_RED && client->sess.sessionTeam != TEAM_BLUE ) ) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;
 		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
@@ -1858,7 +1859,8 @@ void ClientSpawn(gentity_t * ent)
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		// JBravo: Lets make sure we have the right weapons
-		if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF) {
+		if ( ( g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF ) &&
+			( client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE ) ) {
 			EquipPlayer(ent);
 		} else {
 			client->ps.weapon = 1;
