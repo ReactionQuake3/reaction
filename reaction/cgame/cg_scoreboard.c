@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/08/24 07:59:48  niceass
+// new ref system
+//
 // Revision 1.44  2002/08/07 04:44:23  niceass
 // ctb changes
 //
@@ -234,7 +237,7 @@ void DrawStrip(int y, int Height, qboolean Fill, qboolean Top, qboolean Bottom, 
 
 void DrawLeftStripText(int y, int Height, char *Text, int maxChars, float *Color)
 {
-	CG_DrawStringExt((SCREEN_WIDTH - SB_WIDTH) / 2 + 2, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qtrue,	// Force color?
+	CG_DrawStringExt((SCREEN_WIDTH - SB_WIDTH) / 2 + 2, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qtrue,
 			 qfalse,	// Shadow?
 			 SB_FONTSIZEW,	// charWidth
 			 SB_FONTSIZEH,	// charHeight
@@ -243,7 +246,7 @@ void DrawLeftStripText(int y, int Height, char *Text, int maxChars, float *Color
 
 void DrawStripText(int y, int x, int Height, char *Text, int maxChars, float *Color)
 {
-	CG_DrawStringExt((SCREEN_WIDTH - SB_WIDTH) / 2 + x, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qtrue,	// Force color?
+	CG_DrawStringExt((SCREEN_WIDTH - SB_WIDTH) / 2 + x, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qfalse,
 			 qfalse,	// Shadow?
 			 SB_FONTSIZEW,	// charWidth
 			 SB_FONTSIZEH,	// charHeight
@@ -255,7 +258,7 @@ void DrawRightStripText(int y, int Height, char *Text, int maxChars, float *Colo
 	int Len;
 
 	Len = CG_DrawStrlen(Text);
-	CG_DrawStringExt(((SCREEN_WIDTH + SB_WIDTH) / 2) - (Len * SB_FONTSIZEW) - 2, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qtrue,	// Force color?
+	CG_DrawStringExt(((SCREEN_WIDTH + SB_WIDTH) / 2) - (Len * SB_FONTSIZEW) - 2, y + (Height + SB_PADDING * 2 - SB_FONTSIZEH) / 2, Text, Color, qtrue,
 			 qfalse,	// Shadow?
 			 SB_FONTSIZEW,	// charWidth
 			 SB_FONTSIZEH,	// charHeight
@@ -276,7 +279,7 @@ void DrawCenterStripText(int y, int Height, char *Text, int maxChars, float *Col
 
 static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, float *Boarder, float *Color)
 {
-	char Tmp[128];
+	char Tmp[128], MMstr[128];
 	clientInfo_t *ci;
 	float FillColor[4], TextColor[4];
 	int l;
@@ -317,12 +320,18 @@ static void CG_DrawTeamplayClientScore(int y, score_t * score, float *Fill, floa
 		DrawRightStripText(y, SB_FONTSIZEH, "CONNECTING     ", 100, TextColor);
 	}
 
-	if (score->captain && score->sub == 0)
-		DrawStripText(y, -(SB_FONTSIZEW * 10), SB_FONTSIZEH, "[CAPTAIN]", 100, colorWhite);
-	else if (score->sub && score->captain == 0)
-		DrawStripText(y, -(SB_FONTSIZEW * 6), SB_FONTSIZEH, "[SUB]", 100, colorWhite);
-	else if (score->sub && score->captain)
-		DrawStripText(y, -(SB_FONTSIZEW * 16), SB_FONTSIZEH, "[CAPTAIN] [SUB]", 100, colorWhite);
+
+	memset(MMstr, 0, sizeof(MMstr));
+
+	if (score->referee)
+		strcat(MMstr, "^3[REF]^7");
+	if (score->captain)
+		strcat(MMstr, "[CAPTAIN]");
+	if (score->sub)
+		strcat(MMstr, "[SUB]");
+
+	if ( CG_DrawStrlen(MMstr) )
+		DrawStripText(y, -(SB_FONTSIZEW * ((signed)CG_DrawStrlen(MMstr) + 1)), SB_FONTSIZEH, MMstr, 100, colorWhite);
 
 	if (ci->powerups & ( 1 << PW_REDFLAG ) )
 		CG_DrawFlagModel( (SCREEN_WIDTH + SB_WIDTH) / 2 + 2, y, SB_FONTSIZEH + SB_PADDING * 2, 
@@ -343,7 +352,7 @@ static int CG_TeamplayScoreboard(void)
 	clientInfo_t *ci;
 	int i;
 
-	int Reds, Blues, Spectators, Refs;
+	int Reds, Blues, Spectators;
 	int RedSubs, BlueSubs;
 
 	float Alpha;
@@ -402,7 +411,7 @@ static int CG_TeamplayScoreboard(void)
 	//MAKERGBA(BlueL, 0.0f, 0.0f, 0.8f, 0.4f * Alpha);
 	MAKERGBA(GreyL, 0.3f, 0.3f, 0.3f, 0.4f * Alpha);
 
-	Reds = Blues = Spectators = Refs = RedSubs = BlueSubs = 0;
+	Reds = Blues = Spectators = RedSubs = BlueSubs = 0;
 
 	// Get totals for red/blue/spectators and subs
 	for (i = 0; i < cg.numScores; i++) {
@@ -443,6 +452,7 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	// NiceAss: Matchmode stuff for showing Referee
+	/*
 	if (cg_RQ3_matchmode.integer && cg.refID >= 0) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
 		ci = &cgs.clientinfo[cg.refID];
@@ -450,6 +460,7 @@ static int CG_TeamplayScoreboard(void)
 		DrawRightStripText(y, SB_FONTSIZEH, ci->name, 30, colorBlack);
 		y += SB_FONTSIZEH + SB_PADDING * 4 + 2;
 	}
+	*/
 
 	// NiceAss: Deathmatch scoreboard:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
@@ -479,7 +490,7 @@ static int CG_TeamplayScoreboard(void)
 		}
 		DrawStrip(y - (SB_FONTSIZEH + SB_PADDING * 2), SB_FONTSIZEH, qfalse, qfalse, qtrue, GreyL, colorWhite);
 
-		return Reds + Blues + ceil(Spectators / 2) + Refs;
+		return Reds + Blues + ceil(Spectators / 2);
 	}
 
 	// *************** RED TEAM ***************
@@ -680,6 +691,14 @@ static int CG_TeamplayScoreboard(void)
 			else
 				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, colorBlack);
 
+			if (Score->referee) {
+				if (Alternate == 1)
+					DrawStripText(y, -(SB_FONTSIZEW * 6), SB_FONTSIZEH, "^3[REF]^7", 100, colorWhite);
+				else
+					DrawStripText(y, ((SCREEN_WIDTH + SB_WIDTH) / 2) + SB_FONTSIZEW, SB_FONTSIZEH, "^3[REF]^7", 100, colorWhite);
+			}
+			
+			
 			if (Alternate == 1) {
 				DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, colorWhite);
 			} else {
@@ -697,7 +716,7 @@ static int CG_TeamplayScoreboard(void)
 			DrawStrip(y, SB_FONTSIZEH, qfalse, qfalse, qtrue, GreyL, colorBlack);
 	}
 
-	return Reds + Blues + ceil(Spectators / 2) + Refs;
+	return Reds + Blues + ceil(Spectators / 2);
 }
 
 /*
