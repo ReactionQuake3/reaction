@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2003/03/31 01:23:54  jbravo
+// Fixing 2 compiler warnings
+//
 // Revision 1.65  2003/03/31 00:23:18  makro
 // Replacements and stuff
 //
@@ -2611,7 +2614,7 @@ void UI_BuildReplacementList(const char *type)
 	for (i = 0; i < numfiles && uiInfo.replacements.Count < MAX_UI_REPLACEMENTS; i++, fileptr += filelen + 1)
 	{
 		filelen = strlen(fileptr);
-		if (strnicmp(fileptr, va("%s_", type), strlen(type)+1))
+		if (Q_stricmpn(fileptr, va("%s_", type), strlen(type)+1))
 			continue;
 		UI_AddReplacement(va("models/replacements/%s", fileptr));
 	}

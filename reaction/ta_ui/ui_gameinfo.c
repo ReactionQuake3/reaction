@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2003/03/31 01:23:54  jbravo
+// Fixing 2 compiler warnings
+//
 // Revision 1.10  2002/09/08 13:14:47  makro
 // New code added for the callvote menu map list
 //
@@ -80,7 +83,7 @@ static RQ3_GameType_t RQ3_GameTypes[] = {
 	{"none", 0}
 };
 
-static int UI_RQ3_DefaultArenaGameType = 1 << GT_FFA;
+// static int UI_RQ3_DefaultArenaGameType = 1 << GT_FFA;
 
 //end Makro
 
