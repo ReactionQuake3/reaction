@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/04/26 03:39:34  jbravo
+// added tkok, fixed players always leaving zcam modes when player thats
+// beeing tracked dies
+//
 // Revision 1.27  2002/04/23 06:10:10  niceass
 // some good tabbing
 //

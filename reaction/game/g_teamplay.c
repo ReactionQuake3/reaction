@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/04/26 03:39:34  jbravo
+// added tkok, fixed players always leaving zcam modes when player thats
+// beeing tracked dies
+//
 // Revision 1.64  2002/04/23 11:24:06  jbravo
 // Removed a debug message and did some cleanups
 //
@@ -1677,3 +1681,27 @@ void setFFState(gentity_t *ent)
 		ent->client->ff_warning = 0;
 	}
 }
+
+void RQ3_Cmd_TKOk (gentity_t *ent)
+{
+	if (!ent->enemy || !ent->enemy->inuse || !ent->enemy->client || (ent == ent->enemy)) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Nothing to forgive\n\""));
+	} else if (ent->client->sess.savedTeam == ent->enemy->client->sess.sessionTeam) {
+		if (ent->enemy->client->team_kills) {
+			trap_SendServerCommand(ent-g_entities, va("print \"You forgave %s\n\"",
+						ent->enemy->client->pers.netname));
+			trap_SendServerCommand(ent->enemy-g_entities, va("print \"%s forgave you\n",
+						ent->client->pers.netname));
+			ent->enemy->client->team_kills--;
+			if (ent->enemy->client->team_wounds)
+				ent->enemy->client->team_wounds /= 2;
+			ent->enemy = NULL;
+		}
+	} else {
+		trap_SendServerCommand(ent-g_entities, va("print \"That's very noble of you...\n\""));
+		trap_SendServerCommand( -1, va("print \"%s turned the other cheek\n\"",
+					ent->client->pers.netname));
+	}
+
+	ent->enemy = NULL;
+}		

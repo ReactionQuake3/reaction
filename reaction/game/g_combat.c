@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/04/26 03:39:34  jbravo
+// added tkok, fixed players always leaving zcam modes when player thats
+// beeing tracked dies
+//
 // Revision 1.62  2002/04/24 04:25:14  jbravo
 // No rewards (humiliation on dead player or Icon on attacker) for knife kills
 //
@@ -1012,8 +1016,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 // JBravo: make clients that are following this one stop following.
 		if (client->sess.spectatorClient == self->s.number) {
 			if (g_gametype.integer == GT_TEAMPLAY) {
-//				StopFollowing(follower);
-				Cmd_FollowCycle_f(follower, 1);
+				if (client->sess.spectatorState != SPECTATOR_ZCAM)
+					Cmd_FollowCycle_f(follower, 1);
 			} else {
 				Cmd_Score_f(g_entities + i);
 			}

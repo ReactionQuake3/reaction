@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/04/26 03:39:34  jbravo
+// added tkok, fixed players always leaving zcam modes when player thats
+// beeing tracked dies
+//
 // Revision 1.43  2002/04/07 12:49:53  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -974,6 +978,8 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("radio");
 	trap_AddCommand ("radiogender");
 	trap_AddCommand ("radio_power");
+// JBravo: tkok
+	trap_AddCommand ("tkok");
 // Slicer: Matchmode
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");

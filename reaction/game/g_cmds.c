@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/04/26 03:39:34  jbravo
+// added tkok, fixed players always leaving zcam modes when player thats
+// beeing tracked dies
+//
 // Revision 1.96  2002/04/23 06:03:05  niceass
 // scoreboard stuff
 //
@@ -2883,6 +2887,9 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Radio_f (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
+// JBravo: adding tkok
+	else if (Q_stricmp (cmd, "tkok") == 0)
+		RQ3_Cmd_TKOk (ent);
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );
