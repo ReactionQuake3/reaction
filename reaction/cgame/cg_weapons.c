@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2003/04/13 21:58:00  slicer
+// Added a Zoom Sensitivity Lock during fire sequence of ssg; removed unnecessary code
+//
 // Revision 1.115  2003/04/06 23:20:18  niceass
 // changes to what models 3rd person akimbos use
 //
@@ -2055,7 +2058,7 @@ void CG_RQ3_SaveZoomLevel()
 
 //Elder: This should identical to the portion inside
 //the weapon function in g_cmds.c
-void CG_RQ3_Zoom(void)
+/*void CG_RQ3_Zoom(void)
 {
 	//Elder: reworked SSG zoom
 	if (cg.snap->ps.weapon == WP_SSG3000) {
@@ -2080,8 +2083,8 @@ void CG_RQ3_Zoom(void)
 		cg.zoomTime = cg.time;
 	}
 }
-
-//Elder: reset locally and send server message
+*/
+/*//Elder: reset locally and send server message
 void CG_RQ3_Zoom1x()
 {
 	if (cg_RQ3_ssgZoomAssist.integer) {
@@ -2090,7 +2093,7 @@ void CG_RQ3_Zoom1x()
 		cg.zoomTime = cg.time;
 	}
 }
-
+*/
 int CG_RQ3_GetGrenadeMode()
 {
 	int grenMode = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2003/04/13 21:58:00  slicer
+// Added a Zoom Sensitivity Lock during fire sequence of ssg; removed unnecessary code
+//
 // Revision 1.143  2003/04/07 18:21:34  niceass
 // teamplay irvision
 //
@@ -934,6 +937,7 @@ typedef struct {
 
 	// zoom key
 	qboolean zooming;	//Slicer: flag to determine when to set zoomTime
+	qboolean zoomSensLock; //Slicer: to lock sensitivity when firing
 	qboolean zoomed;	// Determines first-person weapon drawing
 	int zoomLevel;		// Zoom LEVEL! -- uses zoom bits like STAT_RQ3
 	int lastZoomLevel;	// Save last zoom state
@@ -2109,8 +2113,8 @@ void CG_SpecialWeapon_f(void);
 
 void CG_RQ3_SyncZoom(void);
 void CG_RQ3_SaveZoomLevel();
-void CG_RQ3_Zoom(void);		//Elder: just threw it in
-void CG_RQ3_Zoom1x();
+//void CG_RQ3_Zoom(void);		//Elder: just threw it in
+//void CG_RQ3_Zoom1x();
 int CG_RQ3_GetGrenadeMode();
 void CG_RQ3_GrenadeMode();
 
