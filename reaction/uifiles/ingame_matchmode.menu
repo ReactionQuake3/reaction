@@ -7,7 +7,7 @@
 	visible 0
 	fullscreen 0
 	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	rect 296 64 216 264
+	rect 296 64 140 140
 	disableColor  .5 .5 .5 1
 	focusColor 1 .75 0 1			// Menu focus color for text and items
 	style 1
@@ -17,7 +17,7 @@
 //Window
 
     itemdef {
-	rect 0 0 216 264
+	rect 0 0 140 140
 	style WINDOW_STYLE_FILLED
 	backcolor Ig_Window_Color
 	visible 1
@@ -28,7 +28,7 @@
     }
 
     itemdef {
-	rect 97 1 120 24
+	rect 21 1 120 24
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/rq3-ingame-title"
 	visible 1
@@ -36,7 +36,7 @@
     }
 
     itemdef {
-	rect 97 1 120 24
+	rect 21 1 120 24
 	style WINDOW_STYLE_EMPTY
 	forecolor Ig_Window_TitleColor
 	textstyle ITEM_TEXTSTYLE_NORMAL
@@ -44,7 +44,7 @@
 	textalign ITEM_ALIGN_LEFT
 	textalignx 24
 	textaligny 16
-	text "MM settings"
+	text "Matchmode"
 	visible 1
 	decoration
     }
@@ -53,193 +53,56 @@
 
     // SETTINGS //
 
-    // Time limit
+    // Sub
     itemdef {
 	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Time Limit:"
-	cvar "ui_RQ3_timelimit"
-	maxchars 4
+	type ITEM_TYPE_BUTTON
+	text "S. Sub"
+	shortcutKey "S"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
 	rect 20 48 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
 	textaligny 14
 	textscale .225
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu1.wav" }
+	action { play "sound/misc/menu1.wav" ; exec "sub" ; uiScript closeingame }
     }
 
-    // Round limit
+    // Captain
     itemdef {
 	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Round Limit:"
-	cvar "ui_RQ3_roundlimit"
-	maxchars 4
+	type ITEM_TYPE_BUTTON
+	text "C. Captain"
+	shortcutKey "C"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
 	rect 20 68 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
 	textaligny 14
 	textscale .225
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu1.wav" }
+	action { play "sound/misc/menu1.wav" ; close ingame_matchmode ; open ingame_matchmode_captain }
     }
 
-    // Round time limit
+    // Referee
     itemdef {
 	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Round Time Limit:"
-	cvar "ui_RQ3_roundtimelimit"
-	maxchars 4
+	type ITEM_TYPE_BUTTON
+	text "R. Referee"
+	shortcutKey "R"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
 	rect 20 88 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
 	textaligny 14
 	textscale .225
 	forecolor 1 1 1 1
 	visible 1
-	action { play "sound/misc/menu1.wav" }
+	action { play "sound/misc/menu1.wav" ; close ingame_matchmode ; open ingame_matchmode_referee }
     }
 
-    // Frag limit
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Frag Limit:"
-	cvar "ui_RQ3_fraglimit"
-	maxchars 4
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 108 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    // Max players
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Max Players:"
-	cvar "ui_RQ3_maxplayers"
-	maxchars 4
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 128 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    // Force team talk
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MULTI
-	text "Force Team Talk:"
-	cvar "ui_RQ3_forceteamtalk"
-	cvarFloatList { "Off" 0 "Match only" 1 "Always" 2 }
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 148 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    // Limit chase cam
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MULTI
-	text "Limit Chase Cam:"
-	cvar "ui_RQ3_limchasecam"
-	cvarFloatList { "No" 0 "Team only" 1 "Eyes only" 2 }
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 168 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    // Tgren
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_NUMERICFIELD
-	text "Bandolier Grenades:"
-	cvar "ui_RQ3_tgren"
-	maxchars 4
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 188 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    // Friendly fire
-    itemdef {
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MULTI
-	text "Friendly Fire:"
-	cvar "ui_RQ3_friendlyFire"
-	cvarFloatList { "On" 1 "Knockback" 2 "Off" 0 }
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 20 208 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 112
-	textaligny 14
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
-	action { play "sound/misc/menu1.wav" }
-    }
-
-
-    // OK //
-
-    itemdef {
-	name ok
-	rect 136 232 64 20
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 32
-	textaligny 14
-	text "Ok"
-	shortcutKey "O"
-	border 1
-	bordersize 1
-	backcolor Ig_Sub_Color1
-	forecolor Ig_Sub_TextColor
-	bordercolor Ig_Sub_BorderColor1
-	visible 1
-	action { play "sound/misc/menu1.wav" ; uiScript "sendMMsettings" ; uiScript closeingame }
-	//action { exec "screenshotJPEG" }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
-    }
 }
 }
