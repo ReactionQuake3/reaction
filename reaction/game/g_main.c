@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.77  2002/06/13 20:16:16  slicer
-// Setting gender on DM also
+// Revision 1.78  2002/06/13 20:59:35  slicer
+// Setting ( for real ) gender on DM
 //
 // Revision 1.76  2002/06/13 19:46:18  assimon
 // Map defined in cfg is now played with main/team cvar settings
@@ -713,21 +713,21 @@ JBravo: Makes sure we have a legit RQ3 model
 
 legitmodel_t	legitmodels[MAXMODELS];
 
-qboolean RQ3_Validatemodel (char *model) {
-	qboolean	valid;
+int RQ3_Validatemodel (char *model) {
+	int		gender;
 	int		i;
 
-	valid = qfalse;
+	gender = -1;
 
 	for (i=0; i <MAXMODELS; i++) {
 		if (*legitmodels[i].name == 0)
 			break;
 		if (!Q_stricmp (legitmodels[i].name, model)) {
-			valid = qtrue;
+			gender = legitmodels[i].gender;
 			break;
 		}
 	}
-	return valid;
+	return gender;
 }
 
 /*
@@ -806,7 +806,8 @@ void RQ3_loadmodels (void)
 						else if (!Q_stricmp(token, "female"))
 							legitmodels[modelcount].gender = GENDER_FEMALE;
 						else if (!Q_stricmp(token, "neuter"))
-							legitmodels[modelcount].gender = GENDER_NEUTER;
+							//slicer no NEUTER
+							legitmodels[modelcount].gender = GENDER_MALE;
 						else
 							break;
 					else
@@ -945,7 +946,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		G_SoundIndex( "sound/player/gurp1.wav" );
 		G_SoundIndex( "sound/player/gurp2.wav" );
 	}
-//Slicer: Default Radio Gender according to MODEL gender
+
+// JBravo: reset teamplay stuff.
+	if( g_gametype.integer == GT_TEAMPLAY ) {
+
+		//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
 		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
 		s = Q_strrchr(model, '/');
@@ -957,16 +962,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		for (i=0; i <MAXMODELS; i++) {
 			if (!Q_stricmp (legitmodels[i].name,model)) {
-				if(legitmodels[i].gender != GENDER_NEUTER)
 					level.team1gender = legitmodels[i].gender; 
 			}
 		    if (!Q_stricmp (legitmodels[i].name,model2)) {
-				if(legitmodels[i].gender != GENDER_NEUTER)
 					level.team2gender = legitmodels[i].gender; 
 			}
 		}
-// JBravo: reset teamplay stuff.
-	if( g_gametype.integer == GT_TEAMPLAY ) {
 		level.team_round_countdown = 0;
 		level.rulecheckfrequency = 0;
 		level.lights_camera_action = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/06/13 20:59:35  slicer
+// Setting ( for real ) gender on DM
+//
 // Revision 1.91  2002/06/12 22:32:24  slicer
 // Even better way to improve the Cvar Anti-Cheat System
 //
@@ -231,7 +234,7 @@ breakable_t rq3_breakables[RQ3_MAX_BREAKABLES];
 
 // JBravo: for models
 extern legitmodel_t    legitmodels[MAXMODELS];
-qboolean RQ3_Validatemodel (char *model);
+int RQ3_Validatemodel (char *model);
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -968,6 +971,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	userinfo[MAX_INFO_STRING];
 	// NiceAss: Added the following. Needed to prevent all models but "grunt"
 	char	*skin2, model2[MAX_STRING_CHARS];
+	int		gender;
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -1049,7 +1053,7 @@ void ClientUserinfoChanged( int clientNum ) {
 			} else {
 				skin2 = "chowda";
 			}
-			if (RQ3_Validatemodel(model2)) {
+			if (RQ3_Validatemodel(model2)!= -1) {
 				Com_sprintf (model, sizeof (model) , "%s/%s", model2, skin2);
 				Com_sprintf (headModel, sizeof (headModel) , "%s/%s", model2, skin2);
 			} else {
@@ -1085,11 +1089,16 @@ void ClientUserinfoChanged( int clientNum ) {
 		// Makro - adding abbey
 //		if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
 		// JBravo: Validating the model
-		if (!RQ3_Validatemodel(model2)) {
+		gender = RQ3_Validatemodel(model2);
+		if (gender == -1) {
 			trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model (%s). Forcing change on server.\n\"", model2));
 			Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
 			Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
+			client->radioGender = 0; // Male
 		}
+		else
+			if(gender != GENDER_NEUTER)
+				client->radioGender = gender;
 		// End of temporary hack.
 	}
 	// bots set their team a few frames later
