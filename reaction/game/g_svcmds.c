@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/02/26 03:58:19  jbravo
+// Added a newline to the say messages from the server
+//
 // Revision 1.5  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -462,11 +465,11 @@ qboolean	ConsoleCommand( void ) {
 
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
-			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );
+			trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(1) ) );
 			return qtrue;
 		}
 		// everything else will also be printed as a say command
-		trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(0) ) );
+		trap_SendServerCommand( -1, va("print \"server: %s\n\"", ConcatArgs(0) ) );
 		return qtrue;
 	}
 
