@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2003/09/10 22:46:05  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.76  2003/09/08 19:19:19  makro
 // New code for respawning entities in TP
 //
@@ -409,6 +413,32 @@ void G_RunDlight(gentity_t * ent)
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 */
+
+
+
+/*QUAKED func_shadow (0 1 0) (-8 -8 -8) (8 8 8) ?
+*/
+
+void SP_func_shadow(gentity_t *ent)
+{
+	char info[MAX_INFO_STRING];
+	//copied from InitTrigger	
+	if (!VectorCompare(ent->s.angles, vec3_origin))
+		G_SetMovedir(ent->s.angles, ent->movedir);
+
+	trap_SetBrushModel(ent, ent->model);
+	ent->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
+	//ent->r.svFlags = SVF_NOCLIENT;
+	ent->s.eFlags |= EF_NODRAW;
+
+	Info_SetValueForKey(info, "num", "1");
+	Info_SetValueForKey(info, "1", ent->pathtarget);
+	trap_SetConfigstring(CS_SHADOWS, info);
+
+	ent->s.eType = ET_SHADOW;
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+}
+
 
 /*
 =================================================================================

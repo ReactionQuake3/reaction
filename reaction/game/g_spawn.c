@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2003/09/10 22:46:05  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.47  2003/09/08 19:19:20  makro
 // New code for respawning entities in TP
 //
@@ -297,6 +301,7 @@ void SP_target_push(gentity_t * ent);
 
 void SP_light(gentity_t * self);
 void SP_dlight(gentity_t * self);	// Elder: dlight entity
+void SP_func_shadow(gentity_t *ent);	//Makro - fake shadow
 void SP_info_null(gentity_t * self);
 void SP_info_notnull(gentity_t * self);
 void SP_info_camp(gentity_t * self);
@@ -386,6 +391,7 @@ spawn_t spawns[] = {
 	{"light", SP_light},
 	{"func_dlite", SP_dlight},	// Elder: dlight entity
 	{"light_d", SP_dlight},	//Makro - for compatibility with older maps
+	{"func_shadow", SP_func_shadow},	//Makro - fake shadow
 	{"path_corner", SP_path_corner},
 
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},

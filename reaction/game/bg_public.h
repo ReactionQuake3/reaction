@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2003/09/10 22:46:05  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.107  2003/07/30 16:05:46  makro
 // no message
 //
@@ -609,6 +613,7 @@ extern radio_msg_t female_radio_msgs[];
 #define	CS_ITEMS				27	// string of 0's and 1's that tell which items are present
 #define CS_ATMOSEFFECT			28	// q3f: Atmospheric effect, if any.
 
+#define CS_SHADOWS			29
 //Makro - color for the loading screen text
 //#define CS_LOADINGSCREEN              29
 //Makro - sky portals !
@@ -1466,6 +1471,7 @@ typedef enum {
 	ET_TEAM,
 	ET_LASER,		// lasersight entity type
 	ET_DLIGHT,		// Elder: dynamic light entity
+	ET_SHADOW,		//Makro - fake shadow
 	ET_DECAL,		// Stick a decal on the ground
 
 	ET_EVENTS		// any of the EV_* events can be added freestanding
