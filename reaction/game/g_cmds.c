@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.91  2002/04/07 12:49:10  slicer
-// Added 'teamname' command for MM, and tweaked the cvar system.
+// Revision 1.92  2002/04/07 12:57:36  slicer
+// Small fix on Matchmode Captain system
 //
 // Revision 1.90  2002/04/07 03:22:48  jbravo
 // Tweaks and crashbug fixes
@@ -896,9 +896,11 @@ void SetTeam( gentity_t *ent, char *s )
 			switch(ent->client->pers.captain) {
 				case TEAM_RED:
 					trap_Cvar_Set("g_RQ3_team1ready", "0");
+					ent->client->pers.captain = TEAM_FREE;
 					break;
 				case TEAM_BLUE:
 					trap_Cvar_Set("g_RQ3_team2ready", "0");
+					ent->client->pers.captain = TEAM_FREE;
 					break;
 				default:
 					break;
