@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/03/18 04:37:10  jbravo
+// Removing locations from teamtalk on dead players.
+//
 // Revision 1.75  2002/03/18 01:22:35  slicer
 // bandage bleedtick back to original
 //
@@ -1222,13 +1225,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	case SAY_TEAM:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			if (Team_GetLocationMsg(ent, location, sizeof(location))) {
-				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC") (%s)"EC": ",
-					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
-			} else {
-				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
-					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-			}
+			Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
+				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 //			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
 		} else {
 			if (Team_GetLocationMsg(ent, location, sizeof(location)))
