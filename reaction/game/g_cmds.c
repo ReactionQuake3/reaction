@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/03/07 00:00:54  assimon
+// Added a skeleton referee suport, with some functional commands (map_restart and kick)
+//
 // Revision 1.66  2002/03/03 21:46:26  blaze
 // weapon stats, done, beta test for bugs
 //
@@ -2835,6 +2838,13 @@ void ClientCommand( int clientNum ) {
 		MM_Ready_f( ent );
 	else if (Q_stricmp (cmd, "sub") == 0)
 		MM_Sub_f( ent );
+// aasimon: referee for MM
+	else if (Q_stricmp (cmd, "reflogin") == 0)
+		Ref_Auth ( ent );
+	else if (Q_stricmp (cmd, "ref") == 0)
+		Ref_Command ( ent );
+	else if (Q_stricmp (cmd, "refresign") == 0)
+		Ref_Resign ( ent );
 
 // Begin Duffman
 	else if (Q_stricmp (cmd, "reload") == 0)

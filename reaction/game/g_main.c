@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/03/07 00:00:54  assimon
+// Added a skeleton referee suport, with some functional commands (map_restart and kick)
+//
 // Revision 1.25  2002/03/01 18:50:26  makro
 // Added CVAR_ARCHIVE flag to some g_RQ3 cvars
 //
@@ -136,6 +139,10 @@ vmCvar_t	RQ3_lca;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
 vmCvar_t	RQ3_team2;
+// aasimon: Ref System for MM
+vmCvar_t	g_RQ3_AllowRef;
+vmCvar_t	g_RQ3_RefPass;
+ 
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -261,7 +268,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse}
+	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	// aasimon: Ref system for MM
+	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
+	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse}
 
 };
 
@@ -439,6 +449,7 @@ void G_RegisterCvars( void ) {
 		G_RemapTeamShaders();
 	}
 
+	G_Printf("Testing\n");
 	// check some things
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
 		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );

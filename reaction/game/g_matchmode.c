@@ -12,6 +12,7 @@ qboolean checkCaptain(team_t team) {
 	}
 	return qfalse;
 }
+
 void MM_RunFrame(void) {
 	int fps;
 	
@@ -26,6 +27,7 @@ void MM_RunFrame(void) {
 
 	}
 }
+
 void MM_Sub_f( gentity_t *ent) {
 	if(!g_RQ3_matchmode.integer)
 		return;
@@ -51,6 +53,7 @@ void MM_Sub_f( gentity_t *ent) {
 			ent->client->sess.savedTeam==TEAM_BLUE ? "Blue Team": "Red Team"));	
 	}
 }
+
 void MM_Captain_f( gentity_t *ent ) {
 	if(!g_RQ3_matchmode.integer)
 		return;
@@ -81,6 +84,7 @@ void MM_Captain_f( gentity_t *ent ) {
 			trap_SendServerCommand(ent-g_entities, "print \"Your team already has a Captain\n\"");	
 	}
 }
+
 void MM_Ready_f(gentity_t *ent) {
 	if(!g_RQ3_matchmode.integer)
 		return;
@@ -112,3 +116,152 @@ void MM_Ready_f(gentity_t *ent) {
 
 }
 
+//
+//	aasimon: Referee Functions Definition, with some aid functions first
+//
+
+
+// aasimon: perhaps in another place...but lets see
+
+void MM_ClearScores ( void ){
+	gentity_t *ent;
+	int i;
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse)
+			continue;
+
+		// aasimon: Clear only PERS info. Lata clear all REC information. See if more info is needed to be clean
+		ent->client->ps.persistant[PERS_SCORE] = 0;
+		ent->client->ps.persistant[PERS_KILLED] = 0;
+
+		if ( g_gametype.integer == GT_TEAMPLAY ){
+			level.teamScores[TEAM_RED] = 0;
+			level.teamScores[TEAM_BLUE] = 0;
+		}
+	}
+} 
+
+
+// aasimon: checks for a ref
+qboolean Ref_Exists( void ){
+	gentity_t *ent;
+	int i;
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent->inuse)
+			continue;
+		if(ent->client->pers.referee == qtrue)
+			return qtrue;	
+	}
+	return qfalse;
+}
+
+//
+//	aasimon: Ref Auth. Do some kind of logging (ip's etc)
+//
+qboolean Ref_Auth( gentity_t *ent ){
+	char pass[MAX_TOKEN_CHARS];
+
+	if ( !g_RQ3_AllowRef.integer ){
+		// No ref allowed on the server - HELLO!!!!! FIREMAN CARS????
+		trap_SendServerCommand( ent-g_entities, "print \"No Referee Allowed on this server\n\"" );
+		return qfalse;
+	}
+
+	if ( Q_stricmp(g_RQ3_RefPass.string, "") == 0){
+		trap_SendServerCommand( ent-g_entities, "print \"No Referee Password Set on this server\n\"" );
+		return qfalse;
+	} 
+	
+	if ( Ref_Exists() ){
+		// One ref per match
+		if ( ent->client->pers.referee ){
+			trap_SendServerCommand ( ent-g_entities, "print \"You are already the referee\n\"" );
+			return qfalse;
+		}
+
+		trap_SendServerCommand( ent-g_entities, "print \"Referee already set on this server\n\"" );
+		return qfalse;
+	}
+
+
+	trap_Argv( 1, pass, sizeof( pass ) );
+
+	// Does a simple plain text auth 
+
+	if ( Q_stricmp (pass, g_RQ3_RefPass.string) == 0) {
+		ent->client->pers.referee = qtrue;
+		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " is the new Referee\n\"", ent->client->pers.netname) );
+		return qtrue;
+	} 
+
+	trap_SendServerCommand( ent-g_entities, "print \"Invalid Referee Password\n\"" );
+	
+	return qfalse;
+}
+
+//
+//	aasimon: processes comands sent from the referee
+//
+void	Ref_Command ( gentity_t *ent){
+	char com[MAX_TOKEN_CHARS];
+	int cn;
+
+	if (!ent->client->pers.referee) {
+		trap_SendServerCommand( ent-g_entities, "print \"You are not a referee\n\"" );
+		return;
+	}
+
+	trap_Argv ( 1, com, sizeof ( com ) );
+
+	// nice strcmp for each comand (borring, wheres my beer?)
+	if ( Q_stricmp (com, "help") == 0){
+		// Theres a clean way to do this - add more help here (this is for example only) 
+		trap_SendServerCommand( ent-g_entities, "print \"kick player\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"map_restart\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"clear_scores\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"timeout\n\"" );
+		return;
+
+	} else if ( Q_stricmp (com, "kick") == 0) { // kick kick kick
+		trap_Argv ( 2, com, sizeof ( com ) );
+		if ( Q_stricmp (com, "") == 0 ){
+			trap_SendServerCommand( ent-g_entities, "print \"You must name a player. Use: ref kick <player_name>\n\"" );
+			return;
+		}
+	
+		cn = ClientNumberFromString( ent, com );
+		if ( cn == -1 ){
+			trap_SendServerCommand( ent-g_entities, va("print \"%s" S_COLOR_WHITE " is not on the server\n\"", com) );
+			return;
+		}
+		trap_DropClient( cn, "was kicked by the referee" );
+		
+	
+	} else if( Q_stricmp (com, "clearscores") == 0 ){
+		MM_ClearScores();
+		return;
+	} else if (Q_stricmp (com, "map_restart") == 0 ){
+		// this is having problems, namely diference from rcon map_restart or using this trap
+		// Ok here it goes: doing map_restart with players IN THE GAME forces them to specs but
+		// the scoreboard still shows the players in the team.
+		// Second thing is: remove the stupid 5-4-3-2-1 if doing map_restart i (with i > 0)
+
+		trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		return;
+	}
+	else
+		trap_SendServerCommand( ent-g_entities, "print \"Invalid Referee comand. Type ref help to see a list of available commands\n\"" );
+	
+}
+
+void	Ref_Resign ( gentity_t *ent ){
+	if (!ent->client->pers.referee) {
+		trap_SendServerCommand( ent-g_entities, "print \"You are not a referee\n\"" );
+		return;
+	}
+
+	ent->client->pers.referee = qfalse;
+	trap_SendServerCommand ( ent-g_entities, "print \"You resign from your referee status\n\"");
+}

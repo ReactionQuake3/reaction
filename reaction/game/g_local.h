@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/07 00:00:54  assimon
+// Added a skeleton referee suport, with some functional commands (map_restart and kick)
+//
 // Revision 1.48  2002/02/24 18:12:19  jbravo
 // Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
 // it makes players spawn with the sniper up.
@@ -339,6 +342,9 @@ typedef struct {
 	team_t		captain;
 	team_t		sub;
 	clientConnected_t	connected;
+	// aasimon: Ref indicator for MM
+	qboolean	referee;
+
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
 	qboolean	initialSpawn;		// the first spawn should be at a cool location
@@ -1094,6 +1100,9 @@ extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progre
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;
+//aasimon: Ref System for MM
+extern vmCvar_t g_RQ3_AllowRef;
+extern vmCvar_t g_RQ3_RefPass;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
