@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2003/03/29 17:00:11  jbravo
+// More replacement hiccups after skin cvars where removed
+//
 // Revision 1.108  2003/03/29 15:04:03  jbravo
 // Removing skin replacement cvars
 //
@@ -623,7 +626,7 @@ void CG_RegisterWeapon(int weaponNum)
 {
 	weaponInfo_t *weaponInfo;
 	gitem_t *item, *ammo;
-	char path[MAX_QPATH];
+	char path[MAX_QPATH], str[MAX_TOKEN_CHARS];
 	char *model, *skin;
 	vec3_t mins, maxs;
 	// QUARANTINE - Weapon Animations - Added Variable
@@ -734,8 +737,9 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/mk23/mk23reload.wav", qfalse);
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_mk23.string);
-		skin = skinFromStr(cg_RQ3_mk23.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_mk23", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -770,8 +774,9 @@ void CG_RegisterWeapon(int weaponNum)
 		    trap_R_RegisterModel(va("models/weapons2/%s/knife.md3", cg_RQ3_knife.string));
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_knife.string);
-		skin = skinFromStr(cg_RQ3_knife.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_knife", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -795,8 +800,9 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_m4.string);
-		skin = skinFromStr(cg_RQ3_m4.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_m4", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -831,8 +837,9 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_ssg3000.string);
-		skin = skinFromStr(cg_RQ3_ssg3000.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_ssg3000", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -863,8 +870,9 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_mp5.string);
-		skin = skinFromStr(cg_RQ3_mp5.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_mp5", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -897,8 +905,9 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_handcannon.string);
-		skin = skinFromStr(cg_RQ3_handcannon.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_handcannon", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -929,8 +938,9 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_m3.string);
-		skin = skinFromStr(cg_RQ3_m3.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_m3", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -964,8 +974,9 @@ void CG_RegisterWeapon(int weaponNum)
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_akimbo.string);
-		skin = skinFromStr(cg_RQ3_akimbo.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_akimbo", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -999,8 +1010,9 @@ void CG_RegisterWeapon(int weaponNum)
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		model = modelFromStr(cg_RQ3_grenade.string);
-		skin = skinFromStr(cg_RQ3_grenade.string);
+		trap_Cvar_VariableStringBuffer("cg_RQ3_grenade", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
@@ -1040,7 +1052,7 @@ void CG_RegisterItemVisuals(int itemNum)
 {
 	itemInfo_t *itemInfo;
 	gitem_t *item;
-	char *model, *skin;
+	char *model, *skin, str[MAX_TOKEN_CHARS];
 
 	itemInfo = &cg_items[itemNum];
 	if (itemInfo->registered) {
@@ -1060,8 +1072,9 @@ void CG_RegisterItemVisuals(int itemNum)
 // JBravo: replacement skins for items
 	if (item->giType == IT_HOLDABLE) {
 		if (!strcmp(item->classname, "item_kevlar")) {
-			model = modelFromStr(cg_RQ3_kevlar.string);
-			skin = skinFromStr(cg_RQ3_kevlar.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_kevlar", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
@@ -1069,8 +1082,9 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "item_silencer")) {
-			model = modelFromStr(cg_RQ3_silencer.string);
-			skin = skinFromStr(cg_RQ3_silencer.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_silencer", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
@@ -1078,8 +1092,9 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "item_laser")) {
-			model = modelFromStr(cg_RQ3_laser.string);
-			skin = skinFromStr(cg_RQ3_laser.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_laser", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
@@ -1087,8 +1102,9 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "item_bandolier")) {
-			model = modelFromStr(cg_RQ3_bandolier.string);
-			skin = skinFromStr(cg_RQ3_bandolier.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_bandolier", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
@@ -1096,8 +1112,9 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "item_slippers")) {
-			model = modelFromStr(cg_RQ3_slippers.string);
-			skin = skinFromStr(cg_RQ3_slippers.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_slippers", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)
@@ -1105,8 +1122,9 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "item_helmet")) {
-			model = modelFromStr(cg_RQ3_helmet.string);
-			skin = skinFromStr(cg_RQ3_helmet.string);
+			trap_Cvar_VariableStringBuffer("cg_RQ3_helmet", str, sizeof(str));
+			model = modelFromStr(str);
+			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
 				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
 				if (!itemInfo->customSkin)

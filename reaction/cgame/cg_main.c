@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2003/03/29 17:00:11  jbravo
+// More replacement hiccups after skin cvars where removed
+//
 // Revision 1.129  2003/03/29 16:01:36  jbravo
 // _skin cvars now fully removed. dlight code from Makro added. cvar
 // defaults fixed.
@@ -940,7 +943,7 @@ void CG_RegisterCvars(void)
 {
 	int i;
 	cvarTable_t *cv;
-	char var[MAX_TOKEN_CHARS];
+	char var[MAX_TOKEN_CHARS], str[MAX_TOKEN_CHARS];
 	char *model;
 
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
@@ -959,64 +962,84 @@ void CG_RegisterCvars(void)
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE);
 
 	// JBravo: for defaults in weaponreplacements
-	model = modelFromStr(cg_RQ3_mk23.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_mk23", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_mk23", "mk23/default");
-	model = modelFromStr(cg_RQ3_knife.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_knife", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_knife", "knife/default");
-	model = modelFromStr(cg_RQ3_m4.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_m4", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_m4", "m4/default");
-	model = modelFromStr(cg_RQ3_ssg3000.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ssg3000", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ssg3000", "ssg3000/default");
-	model = modelFromStr(cg_RQ3_mp5.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_mp5", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_mp5", "mp5/default");
-	model = modelFromStr(cg_RQ3_handcannon.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_handcannon", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_handcannon", "handcannon/default");
-	model = modelFromStr(cg_RQ3_m3.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_m3", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_m3", "m3/default");
-	model = modelFromStr(cg_RQ3_akimbo.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_akimbo", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_akimbo", "akimbo/default");
-	model = modelFromStr(cg_RQ3_grenade.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_grenade", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_grenade", "grenade/default");
-	model = modelFromStr(cg_RQ3_kevlar.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_kevlar", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_kevlar", "kevlar/default");
-	model = modelFromStr(cg_RQ3_silencer.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_silencer", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_silencer", "silencer/default");
-	model = modelFromStr(cg_RQ3_laser.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_laser", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_laser", "laser/default");
-	model = modelFromStr(cg_RQ3_bandolier.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_bandolier", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_bandolier", "bandolier/default");
-	model = modelFromStr(cg_RQ3_slippers.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_slippers", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_slippers", "slippers/default");
-	model = modelFromStr(cg_RQ3_helmet.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_helmet", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_helmet", "helmet/default");
-	model = modelFromStr(cg_RQ3_ammo_mk23.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mk23", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_mk23", "mk23/default");
-	model = modelFromStr(cg_RQ3_ammo_shells.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_shells", "shells/default");
-	model = modelFromStr(cg_RQ3_ammo_ssg3000.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_ssg3000", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_ssg3000", "ssg3000/default");
-	model = modelFromStr(cg_RQ3_ammo_mp5.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_mp5", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_mp5", "mp5/default");
-	model = modelFromStr(cg_RQ3_ammo_m4.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m4", str, sizeof(str));
+	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_m4", "m4/default");
 }
@@ -1937,7 +1960,7 @@ static void CG_RegisterGraphics(void)
 {
 	int i, num = 0;
 	char items[MAX_ITEMS + 1];
-	char *model;
+	char *model, str[MAX_TOKEN_CHARS];
 
 	static char *sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
@@ -2119,18 +2142,24 @@ static void CG_RegisterGraphics(void)
 	cgs.media.akimboHandModel = trap_R_RegisterModel("models/weapons2/akimbo/akimbo_hand.md3");
 
 	//Elder: item cache
-	model = modelFromStr(cg_RQ3_bandolier.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_bandolier", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_bandolierModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
-	model = modelFromStr(cg_RQ3_kevlar.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_kevlar", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_kevlarModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
-	model = modelFromStr(cg_RQ3_silencer.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_silencer", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_silencerModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
-	model = modelFromStr(cg_RQ3_laser.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_laser", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_laserModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
-	model = modelFromStr(cg_RQ3_slippers.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_slippers", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_slippersModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
 	// JBravo: adding the helmet
-	model = modelFromStr(cg_RQ3_helmet.string);
+	trap_Cvar_VariableStringBuffer("cg_RQ3_helmet", str, sizeof(str));
+	model = modelFromStr(str);
 	cgs.media.rq3_helmetModel = trap_R_RegisterModel(va("models/items/%s.md3", model));
 
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
@@ -2419,7 +2448,7 @@ Routine by JBravo to replace world_models in bg_itemlist
 void CG_ReplaceModels(void)
 {
 	gitem_t *item;
-	char str[256];
+	char str[MAX_TOKEN_CHARS];
 	char *model, *skin;
 
 	for (item = bg_itemlist + 1; item->classname; item++) {
