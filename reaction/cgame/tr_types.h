@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.5  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -196,16 +199,27 @@ typedef struct {
 	qboolean smpActive;	// dual processor
 } glconfig_t;
 
-#if !defined _WIN32
+// FIXME: VM should be OS agnostic .. in theory
 
-#define _3DFX_DRIVER_NAME	"libMesaVoodooGL.so"
-#define OPENGL_DRIVER_NAME	"libGL.so"
+/*
+#ifdef Q3_VM
 
-#else
+#define _3DFX_DRIVER_NAME      "Voodoo"
+#define OPENGL_DRIVER_NAME     "Default"
+
+#elif defined(_WIN32)
+*/
+
+#if defined(Q3_VM) || defined(_WIN32)
 
 #define _3DFX_DRIVER_NAME	"3dfxvgl"
 #define OPENGL_DRIVER_NAME	"opengl32"
 
-#endif				// !defined _WIN32
+#else
 
+#define _3DFX_DRIVER_NAME	"libMesaVoodooGL.so"
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=524
+#define OPENGL_DRIVER_NAME	"libGL.so.1"
+
+#endif				// !defined _WIN32
 #endif				// __TR_TYPES_H

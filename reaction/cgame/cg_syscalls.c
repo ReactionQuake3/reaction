@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.8  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -23,6 +26,10 @@
 //
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
+#ifdef Q3_VM
+#error "Do not use in VM build"
+#endif
+
 #include "cg_local.h"
 
 static int (QDECL * syscall) (int arg, ...) = (int (QDECL *) (int, ...)) -1;
@@ -108,6 +115,11 @@ void trap_FS_Write(const void *buffer, int len, fileHandle_t f)
 void trap_FS_FCloseFile(fileHandle_t f)
 {
 	syscall(CG_FS_FCLOSEFILE, f);
+}
+
+int trap_FS_Seek(fileHandle_t f, long offset, int origin)
+{
+	return syscall(CG_FS_SEEK, f, offset, origin);
 }
 
 void trap_SendConsoleCommand(const char *text)

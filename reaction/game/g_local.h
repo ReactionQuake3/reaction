@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.139  2003/04/19 15:27:31  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -1484,6 +1487,7 @@ void trap_FS_Read(void *buffer, int len, fileHandle_t f);
 void trap_FS_Write(const void *buffer, int len, fileHandle_t f);
 void trap_FS_FCloseFile(fileHandle_t f);
 int trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
+int trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
 void trap_SendConsoleCommand(int exec_when, const char *text);
 void trap_Cvar_Register(vmCvar_t * cvar, const char *var_name, const char *value, int flags);
 void trap_Cvar_Update(vmCvar_t * cvar);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.6  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -157,6 +160,8 @@ typedef enum {
 	CG_GET_ENTITY_TOKEN,
 	CG_R_ADDPOLYSTOSCENE,
 	CG_R_INPVS,
+	// 1.32
+	CG_FS_SEEK,
 
 /*
 	CG_LOADCAMERA,

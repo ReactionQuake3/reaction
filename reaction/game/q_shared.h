@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.12  2003/03/09 21:30:39  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -36,7 +39,8 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define	Q3_VERSION		"Q3 1.29h"
+#define	Q3_VERSION		"Q3 1.32b"
+// 1.32 released 7-10-2002
 #define MAX_LATENT_CMDS		64
 
 #define MAX_TEAMNAME 32
@@ -510,6 +514,14 @@ void *Hunk_AllocDebug(int size, ha_pref preference, char *label, char *file, int
 void *Hunk_Alloc(int size, ha_pref preference);
 #endif
 
+#ifdef __linux__
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
+// custom Snd_Memset implementation for glibc memset bug workaround
+void Snd_Memset(void *dest, const int val, const size_t count);
+#else
+#define Snd_Memset Com_Memset
+#endif
+
 #if !( defined __VECTORC )
 void Com_Memset(void *dest, const int val, const size_t count);
 void Com_Memcpy(void *dest, const void *src, const size_t count);
@@ -686,7 +698,7 @@ typedef struct {
 	float v[3];
 } vec3struct_t;
 
-#define VectorCopy(a,b)	*(vec3struct_t *)b=*(vec3struct_t *)a;
+#define VectorCopy(a,b)	(*(vec3struct_t *)b=*(vec3struct_t *)a)
 // JBravo: ID_INLINE get defined again.  Error....
 #undef ID_INLINE
 #define ID_INLINE static
@@ -1154,7 +1166,7 @@ typedef enum {
 #define	MAX_GENTITIES		(1<<GENTITYNUM_BITS)
 
 // entitynums are communicated with GENTITY_BITS, so any reserved
-// values thatare going to be communcated over the net need to
+// values that are going to be communcated over the net need to
 // also be in this range
 #define	ENTITYNUM_NONE		(MAX_GENTITIES-1)
 #define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
@@ -1440,6 +1452,7 @@ typedef struct qtime_s {
 } qtime_t;
 
 // server browser sources
+// TTimo: AS_MPLAYER is no longer used
 #define AS_LOCAL			0
 #define AS_MPLAYER		1
 #define AS_GLOBAL			2
@@ -1464,9 +1477,9 @@ typedef enum _flag_status {
 	FLAG_DROPPED
 } flagStatus_t;
 
-#define	MAX_GLOBAL_SERVERS			2048
-#define	MAX_OTHER_SERVERS			128
-#define MAX_PINGREQUESTS			32
+#define	MAX_GLOBAL_SERVERS		4096
+#define	MAX_OTHER_SERVERS		128
+#define MAX_PINGREQUESTS		32
 #define MAX_SERVERSTATUSREQUESTS	16
 
 #define SAY_ALL		0

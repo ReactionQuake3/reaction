@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.131  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -1217,7 +1220,8 @@ void ClientUserinfoChanged(int clientNum)
 
 	trap_SetConfigstring(CS_PLAYERS + clientNum, s);
 
-// JBravo: ugly in the logs.  Enable to debug if necessary
+	// this is not the userinfo, more like the configstring actually
+	// JBravo: ugly in the logs.  Enable to debug if necessary
 //      G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 }
 
@@ -1322,14 +1326,20 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	ent = &g_entities[clientNum];
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
+	// IP filtering
+	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
+	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
 	// check to see if they are on the banned IP list
 	ip = Info_ValueForKey(userinfo, "ip");
 	strcpy(ipaddr, ip);
 	if (G_FilterPacket(ip)) {
-		return "Banned.";
+		return "You are banned from this server..";
 	}
 
-	if (!(ent->r.svFlags & SVF_BOT)) {
+	// we don't check password for bots and local client
+	// NOTE: local client <-> "ip" "localhost"
+	// this means this client is not running in our current process
+	if (!(ent->r.svFlags & SVF_BOT) && (strcmp(value, "localhost") != 0)) {
 		// check for a password
 		value = Info_ValueForKey(userinfo, "password");
 		if (g_password.string[0] && Q_stricmp(g_password.string, "none") &&

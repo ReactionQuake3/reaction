@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.73  2003/04/13 16:56:22  makro
 // In-game browser was showing "reaction" servers instead of "rq3" ones
 //
@@ -607,9 +610,6 @@ int Text_Width(const char *text, float scale, int limit)
 	glyphInfo_t *glyph;
 	float useScale;
 
-// TTimo: FIXME: use const unsigned char to avoid getting a warning in linux debug (.so) when using glyph = &font->glyphs[*s];
-// but use const char to build with lcc..
-// const unsigned char *s = text; // bk001206 - unsigned
 	const char *s = text;
 	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
 
@@ -631,7 +631,7 @@ int Text_Width(const char *text, float scale, int limit)
 				s += 2;
 				continue;
 			} else {
-				glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+				glyph = &font->glyphs[(int) *s];
 				out += glyph->xSkip;
 				s++;
 				count++;
@@ -647,9 +647,6 @@ int Text_Height(const char *text, float scale, int limit)
 	float max;
 	glyphInfo_t *glyph;
 	float useScale;
-
-// TTimo: FIXME
-//      const unsigned char *s = text; // bk001206 - unsigned
 	const char *s = text;	// bk001206 - unsigned
 	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
 
@@ -1869,7 +1866,7 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 
 static void UI_DrawNetSource(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	if (ui_netSource.integer < 0 || ui_netSource.integer > uiInfo.numGameTypes) {
+	if (ui_netSource.integer < 0 || ui_netSource.integer > numNetSources) {
 		ui_netSource.integer = 0;
 	}
 	Text_Paint(rect->x, rect->y, scale, color, va("Source: %s", netSources[ui_netSource.integer]), 0, 0, textStyle);
@@ -2916,7 +2913,7 @@ static void UI_DrawKeyBindStatus(rectDef_t * rect, float scale, vec4_t color, in
 static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	char *eptr;
-	char buff[4096];
+	char buff[1024];
 	const char *lines[64];
 	int y, numLines, i;
 
@@ -2931,7 +2928,7 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 		      uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 48, textStyle);
 
 	// build null terminated extension strings
-	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 4096);
+	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 1024);
 	eptr = buff;
 	y = rect->y + 45;
 	numLines = 0;
@@ -3846,8 +3843,12 @@ static qboolean UI_NetSource_HandleKey(int flags, float *special, int key)
 
 		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			ui_netSource.integer--;
+			if (ui_netSource.integer == AS_MPLAYER)
+				ui_netSource.integer--;
 		} else {
 			ui_netSource.integer++;
+			if (ui_netSource.integer == AS_MPLAYER)
+				ui_netSource.integer++;
 		}
 
 		if (ui_netSource.integer >= numNetSources) {
@@ -5446,9 +5447,14 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);
-			} else {
-				Com_Printf("unknown UI script %s\n", name);
 			}
+		} else if (Q_stricmp(name, "setPbClStatus") == 0) {
+			int stat;
+
+			if (Int_Parse(args, &stat))
+				trap_SetPbClStatus(stat);
+		} else {
+			Com_Printf("unknown UI script %s\n", name);
 		}
 	}
 }
@@ -6316,7 +6322,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		return UI_SelectedMap(index, &actual);
 	} else if (feederID == FEEDER_SERVERS) {
 		if (index >= 0 && index < uiInfo.serverStatus.numDisplayServers) {
-			int ping, game;
+			int ping, game, punkbuster;
 
 			if (lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000) {
 				trap_LAN_GetServerInfo(ui_netSource.integer, uiInfo.serverStatus.displayServers[index],
@@ -6340,13 +6346,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 							    netnames[atoi(Info_ValueForKey(info, "nettype"))]);
 						return hostname;
 					} else {
-						if (atoi(Info_ValueForKey(info, "sv_allowAnonymous")) != 0) {	// anonymous server
-							Com_sprintf(hostname, sizeof(hostname), "(A) %s",
-								    Info_ValueForKey(info, "hostname"));
-						} else {
-							Com_sprintf(hostname, sizeof(hostname), "%s",
-								    Info_ValueForKey(info, "hostname"));
-						}
+						Com_sprintf(hostname, sizeof(hostname), "%s",
+							Info_ValueForKey(info, "hostname"));
 						return hostname;
 					}
 				}
@@ -6368,6 +6369,13 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 					return "...";
 				} else {
 					return Info_ValueForKey(info, "ping");
+				}
+			case SORT_PUNKBUSTER:
+				punkbuster = atoi(Info_ValueForKey(info, "punkbuster"));
+				if (punkbuster) {
+					return "Yes";
+				} else {
+					return "No";
 				}
 			}
 		}
@@ -7551,6 +7559,59 @@ void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *t
 	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
+void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vec4_t color, const char *str, float adjust)
+{
+	int width;
+	char *s1, *s2, *s3;
+	char c_bcp;
+	char buf[1024];
+
+	if (!str || str[0] == '\0')
+		return;
+
+	Q_strncpyz(buf, str, sizeof(buf));
+	s1 = s2 = s3 = buf;
+
+	while (1) {
+		do {
+			s3++;
+		} while (*s3 != ' ' && *s3 != '\0');
+		c_bcp = *s3;
+		*s3 = '\0';
+		width = Text_Width(s1, scale, 0);
+		*s3 = c_bcp;
+		if (width > xmax) {
+			if (s1 == s2) {
+				// fuck, don't have a clean cut, we'll overflow
+				s2 = s3;
+			}
+			*s2 = '\0';
+			Text_PaintCenter(x, y, scale, color, s1, adjust);
+			y += ystep;
+			if (c_bcp == '\0') {
+				// that was the last word
+				// we could start a new loop, but that wouldn't be much use
+				// even if the word is too long, we would overflow it (see above)
+				// so just print it now if needed
+				s2++;
+				if (*s2 != '\0')        // if we are printing an overflowing line we have s2 == s3
+					Text_PaintCenter(x, y, scale, color, s2, adjust);
+				break;
+			}
+			s2++;
+			s1 = s2;
+			s3 = s2;
+		} else {
+			s2 = s3;
+			if (c_bcp == '\0')      // we reached the end
+			{
+				Text_PaintCenter(x, y, scale, color, s1, adjust);
+				break;
+			}
+		}
+	}
+}
+
 static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, float yStart, float scale)
 {
 	static char dlText[] = "Downloading:";
@@ -7675,13 +7736,13 @@ void UI_DrawConnectScreen(qboolean overlay)
 		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, text, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
-	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
-
 	// display global MOTD at bottom
 	Text_PaintCenter(centerPoint, 600, scale, colorWhite, Info_ValueForKey(cstate.updateInfoString, "motd"), 0);
 	// print any server info (server full, bad version, etc)
 	if (cstate.connState < CA_CONNECTED) {
-		Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0);
+//		Text_PaintCenter(centerPoint, yStart + 176, scale, colorWhite, cstate.messageString, 0);
+		Text_PaintCenter_AutoWrapped(centerPoint, yStart + 176, 630, 20, scale, colorWhite,
+					cstate.messageString, 0);
 	}
 
 	if (lastConnState > cstate.connState) {

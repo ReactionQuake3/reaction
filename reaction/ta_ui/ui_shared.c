@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.29  2003/04/06 18:31:21  makro
 // SSG crosshairs
 //
@@ -1463,6 +1466,23 @@ void Script_Open(itemDef_t * item, char **args)
 	}
 }
 
+void Script_ConditionalOpen(itemDef_t * item, char **args)
+{
+	const char *cvar;
+	const char *name1;
+	const char *name2;
+	float val;
+
+	if (String_Parse(args, &cvar) && String_Parse(args, &name1) && String_Parse(args, &name2)) {
+		val = DC->getCVarValue(cvar);
+		if (val == 0.f) {
+			Menus_OpenByName(name2);
+		} else {
+			Menus_OpenByName(name1);
+		}
+	}
+}
+
 void Script_Close(itemDef_t * item, char **args)
 {
 	const char *name;
@@ -1686,6 +1706,8 @@ commandDef_t commandList[] = {
 	,			// works on this
 	{"open", &Script_Open}
 	,			// nenu
+	{"conditionalopen", &Script_ConditionalOpen}
+	,			// menu
 	{"close", &Script_Close}
 	,			// menu
 	{"setasset", &Script_SetAsset}

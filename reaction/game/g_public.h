@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.8  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -34,6 +37,9 @@
 // in entityStates (level eType), so the game must explicitly flag
 // special server behaviors
 #define	SVF_NOCLIENT		0x00000001	// don't send entity to clients, even if it has effects
+// TTimo
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=551
+#define SVF_CLIENTMASK		0x00000002
 #define SVF_BOT			0x00000008	// set if the entity is a bot
 #define	SVF_BROADCAST		0x00000020	// send to all connected clients
 #define	SVF_PORTAL		0x00000040	// merge a second pvs at origin2 into snapshots
@@ -57,7 +63,9 @@ typedef struct {
 	int linkcount;
 
 	int svFlags;		// SVF_NOCLIENT, SVF_BROADCAST, etc
-	int singleClient;	// only send to this client when SVF_SINGLECLIENT is set
+	// only send to this client when SVF_SINGLECLIENT is set
+	// if SVF_CLIENTMASK is set, use bitmask for clients to send to (maxclients must be <= 32, up to the mod to enforce this)
+	int singleClient;
 
 	qboolean bmodel;	// if false, assume an explicit mins / maxs bounding box
 	// only set by trap_SetBrushModel
@@ -214,6 +222,9 @@ typedef enum {
 
 	G_TRACECAPSULE,		// ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
 	G_ENTITY_CONTACTCAPSULE,	// ( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
+
+	// 1.32
+	G_FS_SEEK,
 
 	BOTLIB_SETUP = 200,	// ( void );
 	BOTLIB_SHUTDOWN,	// ( void );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.134  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -708,7 +711,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_centertime, "cg_centertime", "3", CVAR_CHEAT},
 	{&cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
 	{&cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE},
-	{&cg_bobup, "cg_bobup", "0.005", CVAR_ARCHIVE},
+	{&cg_bobup, "cg_bobup", "0.005", CVAR_CHEAT},
 	{&cg_bobpitch, "cg_bobpitch", "0.002", CVAR_ARCHIVE},
 	{&cg_bobroll, "cg_bobroll", "0.002", CVAR_ARCHIVE},
 	{&cg_swingSpeed, "cg_swingSpeed", "0.3", CVAR_CHEAT},

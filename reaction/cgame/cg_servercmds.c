@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.71  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -742,6 +745,7 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 	char *token;
 	voiceChat_t *voiceChats;
 	qboolean compress;
+	sfxHandle_t sound;
 
 	compress = qtrue;
 	if (cg_buildScript.integer) {
@@ -809,9 +813,9 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 			}
 			if (!Q_stricmp(token, "}"))
 				break;
+			sound = trap_S_RegisterSound(token, compress);
 			voiceChats[voiceChatList->numVoiceChats].sounds[voiceChats[voiceChatList->numVoiceChats].
-									numSounds] =
-			    trap_S_RegisterSound(token, compress);
+					numSounds] = sound;
 			token = COM_ParseExt(p, qtrue);
 			if (!token || token[0] == 0) {
 				return qtrue;
@@ -819,7 +823,8 @@ int CG_ParseVoiceChats(const char *filename, voiceChatList_t * voiceChatList, in
 			Com_sprintf(voiceChats[voiceChatList->numVoiceChats].
 				    chats[voiceChats[voiceChatList->numVoiceChats].numSounds], MAX_CHATSIZE, "%s",
 				    token);
-			voiceChats[voiceChatList->numVoiceChats].numSounds++;
+			if (sound)
+				voiceChats[voiceChatList->numVoiceChats].numSounds++;
 			if (voiceChats[voiceChatList->numVoiceChats].numSounds >= MAX_VOICESOUNDS)
 				break;
 		}

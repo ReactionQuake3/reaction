@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2003/04/19 17:41:26  jbravo
+// Applied changes that where in 1.29h -> 1.32b gamecode.
+//
 // Revision 1.7  2002/08/26 00:41:52  makro
 // Presets menu + editor
 //
@@ -125,6 +128,9 @@ typedef enum {
 	UI_LAN_GETSERVERPING,
 	UI_LAN_SERVERISVISIBLE,
 	UI_LAN_COMPARESERVERS,
+	// 1.32
+	UI_FS_SEEK,
+	UI_SET_PBCLSTATUS,
 
 	UI_MEMSET = 100,
 	UI_MEMCPY,
@@ -160,6 +166,7 @@ typedef enum {
 #define SORT_CLIENTS		2
 #define SORT_GAME			3
 #define SORT_PING			4
+#define SORT_PUNKBUSTER		5
 
 typedef enum {
 	UI_GETAPIVERSION = 0,	// system reserved
