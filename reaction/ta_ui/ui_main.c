@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/09/08 19:46:46  makro
+// Commented out the code that filters servers based on gametype
+//
 // Revision 1.51  2002/09/08 13:14:47  makro
 // New code added for the callvote menu map list
 //
@@ -4893,6 +4896,8 @@ static void UI_BuildServerDisplayList(qboolean force)
 				}
 			}
 
+			//Makro - don't need filtering by gametype right now; we should re-enable this when we have more servers
+			/*
 			if (uiInfo.joinGameTypes[ui_joinGameType.integer].gtEnum != -1) {
 				game = atoi(Info_ValueForKey(info, "gametype"));
 				if (game != uiInfo.joinGameTypes[ui_joinGameType.integer].gtEnum) {
@@ -4900,6 +4905,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 					continue;
 				}
 			}
+			*/
 			//Makro - changed check
 			//if (ui_serverFilterType.integer > 0) {
 			if (serverFilters[ui_serverFilterType.integer].basedir[0]) {
