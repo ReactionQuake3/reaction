@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/08/27 07:28:11  niceass
+// shuttup
+//
 // Revision 1.49  2002/08/27 07:02:09  niceass
 // terrain fix?
 //
@@ -2496,9 +2499,9 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 	for (i =0; i < 9; i++) {
 		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
 
-		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL ) ) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS ) ) )
+		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL )) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS )) )
 			// Terrain has all 3 of these set. Assume it's terrain if all 3 are this way
-			if ( !(trace.surfaceFlags & (SURF_NOLIGHTMAP & SURF_NOMARKS & SURF_NODRAW)) )
+			if ( !(trace.surfaceFlags & (SURF_NOLIGHTMAP | SURF_NOMARKS | SURF_NODRAW)) )
 				return qtrue;
 	}
 
