@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/05/05 15:18:03  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.52  2002/05/03 18:09:20  makro
 // Bot stuff. Jump kicks
 //
@@ -2086,6 +2090,12 @@ LogAccuracyHit
 ===============
 */
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+	//Makro - some checks; Q3 crashed with .dlls
+	//when shooting one of the barrels in archives
+	if (target == NULL || attacker == NULL) {
+		return qfalse;
+	}
+
 	if( !target->takedamage ) {
 		return qfalse;
 	}

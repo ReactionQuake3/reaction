@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/05 15:18:02  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.25  2002/04/03 15:51:01  jbravo
 // Small warning fixes
 //
@@ -2136,17 +2140,45 @@ STATIC
 */
 
 
-/*QUAKED func_static (0 .5 .8) ?
+/*QUAKED func_static (0 .5 .8) ? START_OFF
 A bmodel that just sits there, doing nothing.  Can be used for conditional walls and models.
 "model2"	.md3 model to also draw
 "color"		constantLight color
 "light"		constantLight radius
 */
+//Makro - added for triggerable func_statics
+void use_func_static( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	ent->count ^= 1;
+	if ( ent->count ) {
+		ent->s.eFlags &= ~EF_NODRAW;
+		ent->r.contents = CONTENTS_SOLID;
+		ent->r.svFlags &= ~SVF_NOCLIENT;
+	} else {
+		ent->s.eFlags |= EF_NODRAW;
+		ent->r.contents = CONTENTS_TRIGGER;
+		ent->r.svFlags |= SVF_NOCLIENT;
+	}
+}
+
 void SP_func_static( gentity_t *ent ) {
 	trap_SetBrushModel( ent, ent->model );
 	InitMover( ent );
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	//Makro - added
+	if ( ent->spawnflags & 1 ) {
+		ent->s.eFlags |= EF_NODRAW;
+		ent->r.contents = CONTENTS_TRIGGER;
+		ent->r.svFlags |= SVF_NOCLIENT;
+		ent->count = 0;
+	} else {
+		ent->s.eFlags &= ~EF_NODRAW;
+		ent->r.contents = CONTENTS_SOLID;
+		ent->r.svFlags &= ~SVF_NOCLIENT;
+		ent->count = 1;
+	}
+	ent->use = use_func_static;
+	//end Makro
 }
 
 

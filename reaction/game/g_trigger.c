@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/05 15:18:03  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.8  2002/03/18 06:20:39  blaze
 // noise tag will play sounds for trigger_push and target_push
 //
@@ -46,14 +50,18 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 		return;		// can't retrigger until the wait is over
 	}
 
-	if ( activator->client ) {
-		if ( ( ent->spawnflags & 1 ) &&
-			activator->client->sess.sessionTeam != TEAM_RED ) {
-			return;
-		}
-		if ( ( ent->spawnflags & 2 ) &&
-			activator->client->sess.sessionTeam != TEAM_BLUE ) {
-			return;
+	//Makro - added check; Q3 crashed in archives when playing
+	//with .dll's and shooting one of the barrels
+	if ( activator != NULL ) {
+		if ( activator->client ) {
+			if ( ( ent->spawnflags & 1 ) &&
+				activator->client->sess.sessionTeam != TEAM_RED ) {
+				return;
+			}
+			if ( ( ent->spawnflags & 2 ) &&
+				activator->client->sess.sessionTeam != TEAM_BLUE ) {
+				return;
+			}
 		}
 	}
 

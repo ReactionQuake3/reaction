@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/05/05 15:18:02  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.22  2002/05/04 16:13:04  makro
 // Bots
 //
@@ -22,7 +26,7 @@
 //
 // Revision 1.17  2002/05/01 05:32:45  makro
 // Bots reload akimbos/handcannons. Also, they can decide whether
-// or not an item in the ground is better than theirs
+// or not an item on the ground is better than theirs
 //
 // Revision 1.16  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
@@ -439,6 +443,9 @@ qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 		if (RQ3_Bot_CanReload(bs, dropWeapon)) return qfalse;
 		//Makro - the current weapon is empty, drop it
 		Cmd_DropWeapon_f( &g_entities[bs->entitynum] );
+#ifdef DEBUG
+		BotAI_Print(PRT_MESSAGE, "droppping weapon %i\n", dropWeapon);
+#endif //DEBUG
 
 		return qtrue;
 	}
@@ -1796,13 +1803,16 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 			targetvisible = qtrue;
 			// if holding the right weapon
 			// Makro - or if no weapon is set for the goal
-			if (bs->cur_ps.weapon == bs->activatestack->weapon || bs->activatestack->weapon == WP_NONE) {
+			if (bs->cur_ps.weapon == bs->activatestack->weapon || bs->activatestack->noWeapon) {
 				VectorSubtract(bs->activatestack->target, bs->eye, dir);
 				vectoangles(dir, ideal_viewangles);
 				// if the bot is pretty close with it's aim
 				if (InFieldOfVision(bs->viewangles, 20, ideal_viewangles)) {
 					//Makro - using custom function to allow in-combat reloads
 					//trap_EA_Attack(bs->client);
+#ifdef DEBUG
+					BotAI_Print(PRT_MESSAGE, "attacking an entity; weapon  = %i, required = %i\n", bs->cur_ps.weapon, bs->activatestack->weapon);
+#endif //DEBUG
 					BotAttack(bs);
 				}
 			}
@@ -1814,7 +1824,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		BotEntityInfo(goal->entitynum, &entinfo);
 		// if the entity the bot shoots at moved
 		// Makro - or if the entity is no longer in use - for func_breakables
-		if (!VectorCompare(bs->activatestack->origin, entinfo.origin) || !(g_entities[entinfo.number].inuse)) {
+		if (!VectorCompare(bs->activatestack->origin, entinfo.origin) || !(g_entities[entinfo.number].r.linked)) {
 #ifdef DEBUG
 			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
 #endif //DEBUG

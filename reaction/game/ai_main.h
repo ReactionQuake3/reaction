@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/05 15:18:02  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.7  2002/04/05 03:12:28  makro
 // Radio stuff
 //
@@ -119,6 +123,8 @@ typedef struct bot_activategoal_s
 	int shoot;								//true if bot has to shoot to activate
 	int openDoor;							//Makro - true if bot has to open a door
 	int weapon;								//weapon to be used for activation
+	qboolean noWeapon;						//Makro - true if a weapon is NOT needed for
+											//activation - breakables can be shot with any weapon
 	vec3_t target;							//target to shoot at to activate something
 	vec3_t origin;							//origin of the blocking entity to activate
 	int areas[MAX_ACTIVATEAREAS];			//routing areas disabled by blocking entity

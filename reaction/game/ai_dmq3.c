@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/05/05 15:18:02  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.28  2002/05/04 16:13:04  makro
 // Bots
 //
@@ -28,7 +32,7 @@
 //
 // Revision 1.21  2002/05/01 05:32:45  makro
 // Bots reload akimbos/handcannons. Also, they can decide whether
-// or not an item in the ground is better than theirs
+// or not an item on the ground is better than theirs
 //
 // Revision 1.20  2002/04/30 12:14:53  makro
 // Fixed a small warning
@@ -354,12 +358,13 @@ qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, voi
 	//if the weapon is not valid
 	if (weapon <= WP_NONE || weapon >= 	WP_NUM_WEAPONS) {
 #ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "weapon not ready (%i)\n", bs->cur_ps.weapon);
-#endif //DEBUG
+		BotAI_Print(PRT_MESSAGE, "Bot_GetWeaponInfo: weapon number out of range (%i)\n", weapon);
+#else //DEBUG
 		if (trap_Cvar_VariableIntegerValue("developer")) {
 			BotAI_Print(PRT_ERROR, "Bot_GetWeaponInfo: weapon number out of range (%i)\n", weapon);
 		}
 		return qfalse;
+#endif
 	} else {
 		weaponinfo_t *wi;
 		trap_BotGetWeaponInfo(weaponstate, weapon, weaponinfo);
@@ -1901,6 +1906,70 @@ int BotSynonymContext(bot_state_t *bs) {
 	}
 #endif
 	return context;
+}
+
+/*
+====================================
+RQ3_Bot_WeaponFitness
+
+Added by Makro
+We have to take into account factors
+that the trap calls don't seem to
+====================================
+*/
+#define Score_M3_1		50
+#define Score_M3_2		65
+#define Score_M3_3		80
+
+#define Score_HC_1		50
+#define Score_HC_2		65
+#define Score_HC_3		80
+
+int RQ3_Bot_WeaponFitness(bot_state_t *bs, int weapon)
+{
+	int dist = bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
+			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT];
+
+	if (bs->cur_ps.ammo[weapon] <= 0 && !RQ3_Bot_CanReload(bs, weapon))
+		return 0;
+
+	switch (weapon) {
+		case WP_PISTOL:
+			return 70;
+		case WP_AKIMBO:
+			return 80;
+		case WP_M3:
+			{
+				if (dist > 1000)
+					return (int) (Score_M3_1 * 1000 / dist);
+				else if (dist > 500)
+					return Score_M3_2;
+				else
+					return Score_M3_3;
+			}
+		case WP_HANDCANNON:
+			{
+				if (dist > 500)
+					return 0;
+				else if (dist > 200)
+					return 50;
+				else if (dist > 100)
+					return 50;
+				else
+					return 80;
+			}
+		default:
+			return 0;
+	}
+}
+/*
+======================
+RQ3_Bot_ChooseWeapon
+
+Added by Makro
+======================
+*/
+void RQ3_Bot_ChooseBestFightWeapon(bot_state_t *bs) {
 }
 
 /*
@@ -4511,7 +4580,8 @@ int BotFuncBreakableGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activa
 	activategoal->goal.entitynum = entitynum;
 	activategoal->goal.number = 0;
 	activategoal->goal.flags = 0;
-	activategoal->weapon = WP_NONE;
+	//activategoal->weapon = WP_NUM_WEAPONS;
+	activategoal->noWeapon = qtrue;
 	//Makro - hmm, not quite sure this is right, but they did it for func_doors
 	VectorCopy(bs->origin, activategoal->goal.origin);
 	activategoal->goal.areanum = bs->areanum;
@@ -5702,9 +5772,20 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 		case EV_FOOTSPLASH:
 		case EV_FOOTWADE:
 		case EV_SWIM:
+			break;
 		case EV_FALL_SHORT:
 		case EV_FALL_MEDIUM:
-		case EV_FALL_FAR:
+		case EV_FALL_FAR:				// Makro - check for falling damage
+			{
+				int		skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+				if (random() > (1.0f - skill)) {
+					if ((bs->cur_ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
+						 (bs->cur_ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
+						//Makro - this is the attack skill, we should be using the overall skill
+						Cmd_Bandage( &g_entities[bs->entitynum] );
+					}
+				}
+			}
 		case EV_STEP_4:
 		case EV_STEP_8:
 		case EV_STEP_12:

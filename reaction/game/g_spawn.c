@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/05 15:18:02  makro
+// Fixed some crash bugs. Bot stuff. Triggerable func_statics.
+// Made flags only spawn in CTF mode
+//
 // Revision 1.23  2002/05/04 06:28:58  makro
 // no message
 //
@@ -439,8 +443,16 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	//Makro - new code
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
-			G_SpawnItem( ent, item );
-			return qtrue;
+			//only spawn flags in CTF mode
+			if ( item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG ) {
+				if (g_gametype.integer == GT_CTF) {
+					G_SpawnItem( ent, item );
+					return qtrue;
+				}
+			} else {
+				G_SpawnItem( ent, item );
+				return qtrue;
+			}
 		}
 	}
 
