@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/12/09 00:58:49  makro
+// Items are now disabled from the weapon/item menus in teamplay
+// games if they are banned from the server
+//
 // Revision 1.57  2002/11/09 14:17:51  makro
 // Cleaned up about menu code
 // Made the weapon menu unavailable in TDM if g_RQ3_tdmMode is not 0
@@ -2828,11 +2832,50 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 
 }
 
+typedef struct
+{
+	int banFlag, uiFlag;
+} banInfo_t;
+
+banInfo_t menuWeapBans[] =
+{
+	{WPF_MP5,				UI_SHOW_WEAP1},
+	{WPF_M3,				UI_SHOW_WEAP2},
+	{WPF_HC,				UI_SHOW_WEAP3},
+	{WPF_SNIPER,			UI_SHOW_WEAP4},
+	{WPF_M4,				UI_SHOW_WEAP5},
+	{WPF_KNIFE,				UI_SHOW_WEAP6},
+	{WPF_DUAL | WPF_MK23,	UI_SHOW_WEAP7}
+};
+static const int menuWeapCount = sizeof(menuWeapBans)/sizeof(banInfo_t);
+banInfo_t menuItemBans[] =
+{
+	{ITF_KEVLAR,	UI_SHOW_ITEM1},
+	{ITF_LASER,		UI_SHOW_ITEM2},
+	{ITF_SLIPPERS,	UI_SHOW_ITEM3},
+	{ITF_SILENCER,	UI_SHOW_ITEM4},
+	{ITF_BANDOLIER,	UI_SHOW_ITEM5},
+	{ITF_HELMET,	UI_SHOW_ITEM6}
+};
+static const int menuItemCount = sizeof(menuItemBans)/sizeof(banInfo_t);
+
+/* Makro - this was ugly
+static int menuWeapons[] = {WPF_MP5, WPF_M3, WPF_HC, WPF_SNIPER, WPF_M4, WPF_KNIFE, WPF_GRENADE};
+static int menuWeapFlags[] = {UI_SHOW_WEAP1, UI_SHOW_WEAP2, UI_SHOW_WEAP3, UI_SHOW_WEAP4, UI_SHOW_WEAP5, UI_SHOW_WEAP6, UI_SHOW_WEAP7};
+static const int menuWeapCount = sizeof(menuWeapons)/sizeof(int);
+static int menuItems[] = {ITF_KEVLAR, ITF_LASER, ITF_SLIPPERS, ITF_SILENCER, ITF_BANDOLIER, ITF_HELMET};
+static int menuItemFlags[] = {UI_SHOW_ITEM1, UI_SHOW_ITEM2, UI_SHOW_ITEM3, UI_SHOW_ITEM4, UI_SHOW_ITEM5, UI_SHOW_ITEM6};
+static const int menuItemCount = sizeof(menuItems)/sizeof(int);
+*/
+
 static qboolean UI_OwnerDrawVisible(int flags)
 {
 	qboolean vis = qtrue;
 
-	while (flags) {
+	//Makro - was this really needed ?
+	//while (flags) {
+		//Makro - added
+		int i;
 
 		if (flags & UI_SHOW_FFA) {
 			if (trap_Cvar_VariableValue("g_gametype") != GT_FFA) {
@@ -2937,10 +2980,32 @@ static qboolean UI_OwnerDrawVisible(int flags)
 				vis = qfalse;
 			}
 			flags &= ~UI_SHOW_DEMOAVAILABLE;
-		} else {
+		}/* else {
 			flags = 0;
+		}*/
+		//Makro - item/weapon banning
+		for (i=0; i<menuWeapCount; i++)
+			if (flags & menuWeapBans[i].uiFlag) {
+				if (!(uiInfo.weapBan & menuWeapBans[i].banFlag))
+					vis = qfalse;
+				flags &= ~menuWeapBans[i].uiFlag;
+			}
+		for (i=0; i<menuItemCount; i++)
+			if (flags & menuItemBans[i].uiFlag) {
+				if (!(uiInfo.itemBan & menuItemBans[i].banFlag))
+					vis = qfalse;
+				//special check for the helmet
+				else if (menuItemBans[i].banFlag == ITF_HELMET)
+					if (trap_Cvar_VariableValue("g_gametype") != GT_TEAM || !trap_Cvar_VariableValue("g_RQ3_haveHelmet"))
+						vis = qfalse;
+				flags &= ~menuItemBans[i].uiFlag;
+			}
+		//Makro - added toggle flag
+		if (flags & UI_SHOW_TOGGLE) {
+			vis ^= 1;
 		}
-	}
+		flags = 0;
+	//}
 	return vis;
 }
 
@@ -4264,6 +4329,12 @@ static void UI_RunMenuScript(char **args)
 			trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
 			strncpy(team1Name, UI_Cvar_VariableString("g_RQ3_team1Name"), sizeof(team1Name));
 			strncpy(team2Name, UI_Cvar_VariableString("g_RQ3_team2Name"), sizeof(team2Name));
+		//Makro - update weapon/item banning info
+		} else if (Q_stricmp(name, "updateItemBans") == 0) {
+			char info[MAX_INFO_STRING];
+			trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+			uiInfo.weapBan = atoi(Info_ValueForKey(info, "g_RQ3_weaponBan"));
+			uiInfo.itemBan = atoi(Info_ValueForKey(info, "g_RQ3_itemBan"));
 		} else if (Q_stricmp(name, "saveControls") == 0) {
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
@@ -6338,6 +6409,9 @@ UI_Init
 void _UI_Init(qboolean inGameLoad)
 {
 	const char *menuSet;
+	//Makro - added
+	char info[MAX_INFO_STRING];
+	//
 	int start;
 
 	//uiInfo.inGameLoad = inGameLoad;
@@ -6480,6 +6554,11 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.skillIndex = 2;
 	//Makro - set default net filter index to 0
 	trap_Cvar_Set("ui_serverFilterType", "0");
+
+	//Makro - read item/weapon banning info
+	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+	uiInfo.weapBan = atoi(Info_ValueForKey(info, "g_RQ3_weaponBan"));
+	uiInfo.itemBan = atoi(Info_ValueForKey(info, "g_RQ3_itemBan"));
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;

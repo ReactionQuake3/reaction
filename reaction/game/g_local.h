@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2002/12/09 00:58:49  makro
+// Items are now disabled from the weapon/item menus in teamplay
+// games if they are banned from the server
+//
 // Revision 1.131  2002/11/17 20:14:15  jbravo
 // Itembanning added
 //
@@ -390,24 +394,8 @@ typedef enum {
 #define SP_DOORTOGGLE			8	// Elder: added to enable mover toggling
 #define MAXDOORTIME			100	// Elder: max time the opendoor key can stay open
 
-// JBravo: adding weaponbanning
-#define WPF_MK23			0x00000001	// 1
-#define WPF_MP5				0x00000002	// 2
-#define WPF_M4				0x00000004	// 4
-#define WPF_M3				0x00000008	// 8
-#define WPF_HC				0x00000010	// 16
-#define WPF_SNIPER			0x00000020	// 32
-#define WPF_DUAL			0x00000040	// 64
-#define WPF_KNIFE			0x00000080	// 128
-#define WPF_GRENADE			0x00000100	// 256
-
-// JBravo: adding itembanning
-#define ITF_SILENCER			0x00000001	// 1
-#define ITF_SLIPPERS			0x00000002	// 2
-#define ITF_BANDOLIER			0x00000004	// 4
-#define ITF_KEVLAR			0x00000008	// 8
-#define ITF_LASER			0x00000010	// 16
-#define ITF_HELMET			0x00000020	// 32
+//Makro - moved weapon/item banning flags to bg_public.h so that the UI
+//		  can use them, too
 
 //============================================================================
 

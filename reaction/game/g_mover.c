@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/12/09 00:58:49  makro
+// Items are now disabled from the weapon/item menus in teamplay
+// games if they are banned from the server
+//
 // Revision 1.52  2002/10/30 20:04:34  jbravo
 // Adding helmet
 //
@@ -2279,7 +2283,14 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 //Makro - added for triggerable func_statics
 void use_func_static(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	ent->count ^= 1;
+	//Makro - added "pathtarget" checks
+	if (!Q_stricmp(ent->pathtarget, "on"))
+		ent->count = 1;
+	else
+		if (!Q_stricmp(ent->pathtarget, "off"))
+			ent->count = 0;
+		else
+			ent->count ^= 1;
 	if (ent->count) {
 		ent->s.eFlags &= ~EF_NODRAW;
 		ent->r.contents = CONTENTS_SOLID;

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2002/12/09 00:58:49  makro
+// Items are now disabled from the weapon/item menus in teamplay
+// games if they are banned from the server
+//
 // Revision 1.128  2002/11/17 20:14:15  jbravo
 // Itembanning added
 //
@@ -618,8 +622,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_tdmMode, "g_RQ3_tdmMode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qtrue},
 	{&g_RQ3_haveHelmet, "g_RQ3_haveHelmet", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_itemban, "g_RQ3_itemban", "63", CVAR_ARCHIVE, 0, qtrue},
+	//Makro - added CVAR_SERVERINFO flag, it's needed for the UI
+	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&g_RQ3_itemban, "g_RQ3_itemban", "63", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM

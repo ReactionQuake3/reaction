@@ -12,7 +12,7 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { play "sound/misc/menu1.wav" ; setFocus kevlar }
+	onOpen { play "sound/misc/menu1.wav" ; setFocus kevlar ; uiScript "updateItemBans" }
 	onEsc { play "sound/misc/menu2.wav" ; close ingame_item }
 
 //Window
@@ -54,6 +54,7 @@
 
     itemdef {
 	shortcutKey "1"
+	ownerdrawFlag UI_SHOW_ITEM1
 	name "kevlar"
 	rect 120 48 128 16
 	style WINDOW_STYLE_EMPTY
@@ -71,7 +72,27 @@
     }
 
     itemdef {
+	ownerdrawFlag UI_SHOW_ITEM1
+	ownerdrawFlag UI_SHOW_TOGGLE
+	name "kevlar"
+	rect 120 48 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "1. Kevlar Vest"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	shortcutKey "2"
+	ownerdrawFlag UI_SHOW_ITEM2
 	name "laser"
 	rect 120 68 128 16
 	style WINDOW_STYLE_EMPTY
@@ -89,7 +110,27 @@
     }
 
     itemdef {
+	ownerdrawFlag UI_SHOW_ITEM2
+	ownerdrawFlag UI_SHOW_TOGGLE
+	name "laser"
+	rect 120 68 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "2. Lasersight"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "slippers"
+	ownerdrawFlag UI_SHOW_ITEM3
 	shortcutKey "3"
 	rect 120 88 128 16
 	style WINDOW_STYLE_EMPTY
@@ -107,7 +148,27 @@
     }
 
     itemdef {
+	name "slippers"
+	ownerdrawFlag UI_SHOW_ITEM3
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 120 88 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "3. Stealth Slippers"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	shortcutKey "4"
+	ownerdrawFlag UI_SHOW_ITEM4
 	name "silencer"
 	rect 120 108 128 16
 	style WINDOW_STYLE_EMPTY
@@ -125,7 +186,27 @@
     }
 
     itemdef {
+	ownerdrawFlag UI_SHOW_ITEM4
+	ownerdrawFlag UI_SHOW_TOGGLE
+	name "silencer"
+	rect 120 108 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "4. Silencer"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "bandolier"
+	ownerdrawFlag UI_SHOW_ITEM5
 	shortcutKey "5"
 	rect 120 128 128 16
 	style WINDOW_STYLE_EMPTY
@@ -143,7 +224,27 @@
     }
 
     itemdef {
+	name "bandolier"
+	ownerdrawFlag UI_SHOW_ITEM5
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 120 128 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "5. Bandolier"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "helmet"
+	ownerdrawFlag UI_SHOW_ITEM6
 	shortcutKey "6"
 	rect 120 148 128 16
 	style WINDOW_STYLE_EMPTY

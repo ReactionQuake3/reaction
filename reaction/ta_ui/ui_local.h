@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/12/09 00:58:49  makro
+// Items are now disabled from the weapon/item menus in teamplay
+// games if they are banned from the server
+//
 // Revision 1.21  2002/11/09 14:17:51  makro
 // Cleaned up about menu code
 // Made the weapon menu unavailable in TDM if g_RQ3_tdmMode is not 0
@@ -964,6 +968,9 @@ typedef struct {
 	//Makro - in-game server info
 	char ingameServerInfo[MAX_SERVERSTATUS_LINES][2][32];
 	int ingameServerInfoLineCount;
+
+	//Makro - weapon/item bans
+	int weapBan, itemBan;
 
 } uiInfo_t;
 

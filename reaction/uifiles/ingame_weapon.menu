@@ -12,7 +12,7 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { play "sound/misc/menu1.wav" ; setFocus mp5 }
+	onOpen { play "sound/misc/menu1.wav" ; setFocus mp5 ; uiScript "updateItemBans" }
 	onEsc { play "sound/misc/menu2.wav" ; close ingame_weapon }
 
 //Window
@@ -54,6 +54,7 @@
 
     itemdef {
 	shortcutKey "1"
+	ownerdrawFlag UI_SHOW_WEAP1
 	name "mp5"
 	rect 152 48 160 16
 	style WINDOW_STYLE_EMPTY
@@ -71,8 +72,28 @@
     }
 
     itemdef {
-	shortcutKey "2"
+	ownerdrawFlag UI_SHOW_WEAP1
+	ownerdrawFlag UI_SHOW_TOGGLE
+	name "mp5"
+	rect 152 48 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "1. MP5/10 Submachinegun"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+    
+
+    itemdef {
 	name "m3"
+	shortcutKey "2"
+	ownerdrawFlag UI_SHOW_WEAP2
 	rect 152 68 160 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
@@ -89,7 +110,27 @@
     }
 
     itemdef {
+	name "m3"
+	ownerdrawFlag UI_SHOW_WEAP2
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 68 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "2. M3 Super 90 Assault Shotgun"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "hc"
+	ownerdrawFlag UI_SHOW_WEAP3
 	shortcutKey "3"
 	rect 152 88 160 16
 	style WINDOW_STYLE_EMPTY
@@ -107,7 +148,27 @@
     }
 
     itemdef {
+	name "hc"
+	ownerdrawFlag UI_SHOW_WEAP3
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 88 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "3. Handcannon"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "sniper"
+	ownerdrawFlag UI_SHOW_WEAP4
 	shortcutKey "4"
 	rect 152 108 160 16
 	style WINDOW_STYLE_EMPTY
@@ -125,7 +186,27 @@
     }
 
     itemdef {
+	name "sniper"
+	ownerdrawFlag UI_SHOW_WEAP4
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 108 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "4. Sniper Rifle"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "m4"
+	ownerdrawFlag UI_SHOW_WEAP5
 	shortcutKey "5"
 	rect 152 128 160 16
 	style WINDOW_STYLE_EMPTY
@@ -143,7 +224,27 @@
     }
 
     itemdef {
+	name "m4"
+	ownerdrawFlag UI_SHOW_WEAP5
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 128 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "5. M4 Assault Rifle"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "knives"
+	ownerdrawFlag UI_SHOW_WEAP6
 	shortcutKey "6"
 	rect 152 148 160 16
 	style WINDOW_STYLE_EMPTY
@@ -161,7 +262,27 @@
     }
 
     itemdef {
+	name "knives"
+	ownerdrawFlag UI_SHOW_WEAP6
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 148 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "6. Combat Knives"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
+    }
+
+
+    itemdef {
 	name "akimbo"
+	ownerdrawFlag UI_SHOW_WEAP7
 	shortcutKey "7"
 	rect 152 168 160 16
 	style WINDOW_STYLE_EMPTY
@@ -176,6 +297,24 @@
 	visible 1
 	onFocus { hide weapons ; show "wp_akimbo" }
 	action { exec "choose akimbo" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "akimbo"
+	ownerdrawFlag UI_SHOW_WEAP7
+	ownerdrawFlag UI_SHOW_TOGGLE
+	rect 152 168 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_TEXT
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "7.  Dual Mk23 Pistols"
+	forecolor .5 .5 .5 .5
+	visible 1
+	decoration
     }
 
 //Weapon preview
