@@ -1603,6 +1603,8 @@ void Cmd_Bandage (gentity_t *ent)
 
 		ent->client->ps.weaponTime += 6000;
         ent->client->bleedtick = 4;
+        //Elder: added
+        ent->client->isBandaging = qtrue;
 	}
 	else
 	{
@@ -1625,6 +1627,12 @@ void Cmd_Reload( gentity_t *ent )       {
 	int weapon;       
     int ammotoadd;
     int delay;
+
+	//Elder: added
+	if (ent->client->isBandaging) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		return;
+	}
        
     weapon = ent->client->ps.weapon;
     //Elder: changed to new function
@@ -1892,10 +1900,16 @@ void Cmd_Weapon(gentity_t *ent)
 	case WP_KNIFE:
 		// toggle throwing/slashing
 		ent->client->throwKnife = !(ent->client->throwKnife);
-		if (ent->client->throwKnife)
+		if (ent->client->throwKnife) {
+			//Elder: added
+			ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
-		else
+		}
+		else {
+			//Elder: we're gonna use this to flag throw or slash with the knife
+			ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to slashing.\n\""));
+		}
 		break;
 	case WP_HANDCANNON:
 		// nothing

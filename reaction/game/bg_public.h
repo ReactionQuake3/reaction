@@ -94,6 +94,34 @@
 
 //Elder: confused?
 
+//Elder: used for STAT_KNIFE ...
+#define RQ3_KNIFE_SLASH			0
+#define RQ3_KNIFE_THROW			1
+
+//Elder: from Action source, but changed defined names a bit
+#define RQ3_PISTOL_NAME 		"MK23 Pistol"
+#define RQ3_MP5_NAME 			"MP5/10 Submachinegun"
+#define RQ3_M4_NAME 			"M4 Assault Rifle"
+#define RQ3_M3_NAME 			"M3 Super 90 Assault Shotgun"
+#define RQ3_HANDCANNON_NAME 	"Handcannon"
+#define RQ3_SSG3000_NAME 		"Sniper Rifle"
+#define RQ3_AKIMBO_NAME 		"Dual MK23 Pistols"
+#define RQ3_KNIFE_NAME 			"Combat Knife"
+#define RQ3_GRENADE_NAME 		"M26 Fragmentation Grenade"
+
+#define RQ3_SILENCER_NAME 		"Silencer"
+#define RQ3_SLIPPERS_NAME 		"Stealth Slippers"
+#define RQ3_BANDOLIER_NAME 		"Bandolier"
+#define RQ3_KEVLAR_NAME 		"Kevlar Vest"
+#define RQ3_LASER_NAME			"Lasersight"
+
+//Elder: sound events for EV_RQ3_SOUND
+#define RQ3_SOUND_KICK			0
+#define RQ3_SOUND_HEADSHOT		1
+#define RQ3_SOUND_KNIFEDEATH	2
+#define RQ3_SOUND_LCA			3 //lights, camera, action!
+
+
 
 //
 // config strings are a general means of communicating variable length strings
@@ -251,7 +279,7 @@ typedef enum {
 	STAT_PERSISTANT_POWERUP,
 #endif
 	STAT_WEAPONS,					// 16 bit fields
-	STAT_ARMOR,				
+	STAT_ARMOR,						// Elder: technically we don't need this anymore - maybe for vest
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 // Begin Duffman
 	STAT_CLIPS,                     // Num Clips player currently has
@@ -264,6 +292,7 @@ typedef enum {
 	STAT_UNIQUEWEAPONS,
 	STAT_FALLDAMAGE,
 	STAT_BANDAGE,				//Elder: holds bandage need
+	STAT_KNIFE,					//Elder: knife throwing -- wasteful?  then later rename STAT_RQ3 or something and use bits
 } statIndex_t;
 
 

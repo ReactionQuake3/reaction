@@ -59,6 +59,8 @@ void TossClientItems( gentity_t *self ) {
 	float		angle;
 	int			i;
 	gentity_t	*drop;
+	//Elder: added
+	int			weaponInventory;
 
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
@@ -78,13 +80,59 @@ void TossClientItems( gentity_t *self ) {
 		}
 	}
 	*/
-//Blaze: dont need this check as we will be droping everyhing, but just changed WP_MACHINEGUN to WP_PISTOL just in case, also removed grappling hook check
-	if ( weapon > WP_PISTOL && self->client->ps.ammo[ weapon ] ) {
+//Blaze: dont need this check as we will be dropping everyhing, but just changed WP_MACHINEGUN to WP_PISTOL just in case, also removed grappling hook check
+	//Elder:
+	//don't drop akimbos (maybe drop another pistol), knives, or grenades
+	//and don't drop knife - that's handled later
+	//Maybe we should check the player's weapon inventory instead
+	/*
+	if ( weapon != WP_GRENADE && weapon != WP_AKIMBO && 
+		weapon != WP_KNIFE && weapon > WP_PISTOL && self->client->ps.ammo[ weapon ] ) {
 		// find the item type for this weapon
 		item = BG_FindItemForWeapon( weapon );
 
 		// spawn the item
 		Drop_Item( self, item, 0 );
+	}
+	*/
+	
+	//Elder: run through player STAT_WEAPONS and drop any unique weapons
+	//That way, we can also account for the bandolier automatically
+	//BTW, that means no cheating to get all weapons or it'll spawn mad!!
+	weaponInventory = self->client->ps.stats[STAT_WEAPONS];
+	
+	if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
+		item = BG_FindItemForWeapon( WP_M3 );
+		Drop_Item( self, item, 0);
+	}
+	
+	if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
+		item = BG_FindItemForWeapon( WP_M4 );
+		Drop_Item( self, item, 0);
+	}
+	
+	if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
+		item = BG_FindItemForWeapon( WP_MP5 );
+		Drop_Item( self, item, 0);
+	}
+	
+	if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
+		item = BG_FindItemForWeapon( WP_HANDCANNON );
+		Drop_Item( self, item, 0);
+	}
+	
+	if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
+		item = BG_FindItemForWeapon( WP_SSG3000 );
+		Drop_Item( self, item, 0);
+	}
+	
+	//Elder: Always drop the pistol
+	item = BG_FindItemForWeapon( WP_PISTOL );
+	Drop_Item (self, item, 0);
+	//Elder: drop a knife if player has at least one
+	if ( self->client->ps.ammo[ WP_KNIFE ] > 0) {
+		item = BG_FindItemForWeapon( WP_KNIFE );
+		Drop_Item (self, item, 0);
 	}
 
 	// drop all the powerups if not in teamplay
@@ -450,6 +498,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
         self->client->bleed_remain = 0;
+        //Elder: added;
+        self->client->isBandaging = qfalse;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -991,6 +1041,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
     vec3_t bulletAngle;
 
+	//Elder: added for M3 and Pistols
+	vec_t dist;
+	vec3_t line;
 
     int clientHeight;
     int clientFeetZ;
@@ -1021,6 +1074,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 #endif
+
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
@@ -1042,6 +1096,34 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( targ->s.eType == ET_MOVER && targ->health <= 0 ) {
 		return;
 	}
+
+    //Elder: from action source
+    // damage reduction for shotgun and mk23/akimbo
+    // if far away, reduce it to original action levels
+    //Note: doesn't handle shots on non-clients (e.g. breakables)
+    if (targ->client && inflictor->client) {
+    	if ( mod == MOD_M3) {
+    		VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line );
+        	dist = VectorLength( line );
+        	if ( dist > 450.0 ) {
+				damage = damage - 2;
+			}			
+		} 
+    	else if ( mod == MOD_PISTOL || mod == MOD_AKIMBO ) {
+        	VectorSubtract(targ->client->ps.origin, inflictor->client->ps.origin, line );
+        	dist = VectorLength( line );
+        	// G_Printf("Distance from target: %f\n", dist);
+        	if ( dist > 600.0 && dist < 1400.0 ) {
+				// G_Printf("Damage reduced to 2/3\n");        	
+            	damage = (int)(damage * 2/3);
+        	}
+        	//Elder: added >= ... 1400.0 is a magic number for perfect shots if not in :)
+        	else if ( dist >= 1400.0 ) {
+        		// G_Printf("Damage reduced to 1/2\n");
+            	damage = (int)(damage * 1/2);
+        	}
+    	}
+    }
 
 	//Blaze: If we shot a breakable item subtract the damage from its health and try to break it
  	if ( targ->s.eType == ET_BREAKABLE ) {
@@ -1080,6 +1162,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		VectorNormalize(dir);
 	}
 
+	//Elder: this is a simplifed knockback calc - Action has a radically different one.
 	knockback = damage;
 	if ( knockback > 200 ) {
 		knockback = 200;
@@ -1104,6 +1187,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		mass = 200;
 
+		//Elder: Q2 uses a hardcoded value of 500 for non-rocket jumps
+		//Q3 uses g_knockback.value ... default 1000
 		VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
 		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
 
@@ -1330,6 +1415,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						{   
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
+							//Elder: headshot sound moved to g_active.c
+							//if ( mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN ) {
+								//G_Printf("play headshot sound\n");
+								//G_AddEvent ( targ, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
+							//}
 							take *= 1.8; //+ 1;
 							break;
 						}	   
@@ -1337,6 +1427,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						{   
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
+							//Elder: headshot sound - no events here
+							//if ( mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN ) {
+								//G_Printf("play headshot sound\n");
+								//G_AddEvent ( targ, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
+							//}
 							take *= 1.8; //+ 1;
 							break;
 						}	
@@ -1409,12 +1504,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 			
 		if ( targ->health <= 0 ) {
-			if ( client )
-				targ->flags |= FL_NO_KNOCKBACK;
-
-			if (targ->health < -999)
+			//Elder: removed so we can play with bodies :)
+			//if ( client ) {
+				//targ->flags |= FL_NO_KNOCKBACK;
+			//}
+			if (targ->health < -999) {
 				targ->health = -999;
-
+			}
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
 			return;

@@ -102,7 +102,7 @@ qboolean JumpKick( gentity_t *ent )
 		damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
 
 	//Elder: Our set of locally called sounds
-	G_AddEvent ( ent, EV_RQ3_SOUND, 0);
+	G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
 	return qtrue;
 }
 
@@ -151,10 +151,30 @@ void P_DamageFeedback( gentity_t *player ) {
 		client->ps.damageYaw = angles[YAW]/360.0 * 256;
 	}
 
-	// play an apropriate pain sound
+	
+	/*
+	G_Printf("Lasthurt: %d, Head: %d, Face: %d, And-Op: %d\n", 
+			client->lasthurt_location, 
+			LOCATION_HEAD, LOCATION_FACE,
+			client->lasthurt_location & ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) );
+	*/
+	
+	// play an appropriate pain sound
 	if ( (level.time > player->pain_debounce_time) && !(player->flags & FL_GODMODE) ) {
 		player->pain_debounce_time = level.time + 700;
-		G_AddEvent( player, EV_PAIN, player->health );
+		
+		switch ( client->lasthurt_location & 
+             ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) ) {
+		//Elder: headshot sound
+        case LOCATION_HEAD:
+        case LOCATION_FACE:
+			G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			break;
+		default:
+			G_AddEvent( player, EV_PAIN, player->health );
+			break;
+		}
+		
 		client->ps.damageEvent++;
 	}
 
@@ -559,6 +579,8 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleed_remain = 0;
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
+			//Elder: added
+			ent->client->isBandaging = qfalse;
 //			ent->client->ps.weaponTime += 2500;
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
@@ -840,25 +862,40 @@ void ThrowWeapon( gentity_t *ent )
 
 	//if( client->ps.weapon == WP_KNIFE || client->ps.weapon == WP_PISTOL || client->ps.weapon == WP_GRENADE || ( ucmd->buttons & BUTTON_ATTACK ))
 	//	return;
-	//Elder: better change conditional to include bandaging case... re: "You are too busy bandaging..."
-	if (ucmd->buttons & BUTTON_ATTACK) return;
-	weap=0;
+
+	//Still firing
+	if (ucmd->buttons & BUTTON_ATTACK) {
+		return;
+	}
+	//Elder: Bandaging case
+	else if (client->isBandaging) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		return;
+	}
+
+	weap = 0;
 	if (client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
 	{
 		weap = client->ps.stats[STAT_WEAPONS];
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) )== (1 << WP_M4)) weap = WP_M4;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) )== (1 << WP_M3)) weap = WP_M3;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) )== (1 << WP_MP5)) weap = WP_MP5;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) )== (1 << WP_HANDCANNON)) weap = WP_HANDCANNON;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) )== (1 << WP_SSG3000)) weap = WP_SSG3000;
+		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4))
+			weap = WP_M4;
+		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) ) == (1 << WP_M3))
+			weap = WP_M3;
+		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) ) == (1 << WP_MP5))
+			weap = WP_MP5;
+		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON))
+			weap = WP_HANDCANNON;
+		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000))
+			weap = WP_SSG3000;
 		if (weap == 0 ) return;
 		xr_item = BG_FindItemForWeapon( weap );
 	
-		//Elder: do you really want to do this?
-		client->ps.ammo[ weap ] = 0;
-
-		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
+		//Elder: moved up
 		client->ps.weapon = WP_PISTOL;
+		client->ps.ammo[ weap ] = 0;
+		
+		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
+		//client->ps.weapon = WP_PISTOL;
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
 		client->ps.stats[STAT_UNIQUEWEAPONS]--;

@@ -67,7 +67,8 @@ void G_ExplodeMissile( gentity_t *ent ) {
 			g_entities[ent->r.ownerNum].client->accuracy_hits++;
 		}
 	}
-	G_Printf("exploding knife\n");
+	//Elder: huhh?
+	//G_Printf("exploding knife\n");
 	trap_LinkEntity( ent );
 }
 
@@ -255,14 +256,25 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 #endif
 	other = &g_entities[trace->entityNum];
 
-	// check for bounce
-	if ( !other->takedamage &&
+	//Elder: no grenade explosion on impact
+	if ( ent->s.weapon == WP_GRENADE &&
 		( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
 		G_BounceMissile( ent, trace );
 		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 		return;
 	}
 
+	//Elder: regular Q3 grenades
+	// check for bounce
+	/*
+	if ( !other->takedamage &&
+		( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
+		G_BounceMissile( ent, trace );
+		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
+		return;
+	}
+	*/
+	
 #ifdef MISSIONPACK
 	if ( other->takedamage ) {
 		if ( ent->s.weapon != WP_PROX_LAUNCHER ) {

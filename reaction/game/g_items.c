@@ -321,7 +321,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		//Someone can optimize this code later, but for now, it works.
 		if ( !(other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
 			//give akimbo
-			G_Printf("Dual MK23 pistols\n");
+			//G_Printf("Dual MK23 pistols\n");
+			trap_SendServerCommand( other-g_entities, va("print \"%s^7\n\"", RQ3_AKIMBO_NAME) );
 			other->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_AKIMBO );
 			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
 			ammotoadd = other->client->ps.ammo[WP_PISTOL];
@@ -329,7 +330,8 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		//Elder: Already have akimbo - technically should have pistol
 		else if (other->client->numClips[ WP_PISTOL ] < 2) {
 			//give an extra clip - make < 2 + 2 * hasBandolier(0/1) or something for bando when it's in
-			G_Printf("Picked up an extra clip\n");
+			//G_Printf("Picked up an extra clip\n");
+			trap_SendServerCommand( other-g_entities, va("print \"Picked up an extra clip^7\n\"" ) );
 			other->client->numClips[ WP_PISTOL ]++;
 			other->client->numClips[ WP_AKIMBO ]++;
 			ammotoadd = other->client->ps.ammo[WP_PISTOL];
@@ -565,6 +567,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	predict = other->client->pers.predictItemPickup;
 
+	//Elder: should check if the item was recently thrown ... if it was, then
+	//don't allow it to be picked up ... or something like that
+
 	// call the item-specific pickup function
 	switch( ent->item->giType ) {
 	case IT_WEAPON:
@@ -623,10 +628,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			break;
 		}
 		//Blaze: Check and see if it's a unique weapon, and if so make sure they dont have too many already
-		if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 || ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON || ent->item->giTag == WP_SSG3000)
-		{
-			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer)
-			{
+		if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 ||
+			ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON ||
+			ent->item->giTag == WP_SSG3000) {
+			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer) {
 				return;
 			}
 		}
@@ -634,7 +639,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Weapon(ent, other);
 		respawn = -1; //Dont respawn weapons
 		
-		if (ent->item->giTag == WP_GRENADE) 
+		//Elder: added pistol condition
+		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL) 
 		{
 //			G_Printf("Grenade Pickedup (%d)\n",respawn);	
 			respawn = 30;
@@ -814,6 +820,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	G_SetOrigin( dropped, origin );
 	dropped->s.pos.trType = TR_GRAVITY;
 	dropped->s.pos.trTime = level.time;
+	//Elder: should change to a constant velocity for weapons
 	VectorCopy( velocity, dropped->s.pos.trDelta );
 
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
@@ -825,7 +832,19 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->think = Team_DroppedFlagThink;
 		dropped->nextthink = level.time + 30000;
 		Team_CheckDroppedItem( dropped );
-	} else { // auto-remove after 30 seconds
+	}
+
+	//Elder: Reaction Unique Weapons in deathmatch - respawn in 30 seconds
+	//Don't forget to condition it when we get teamplay in
+	else if ( item->giType == IT_WEAPON &&
+		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL && 
+		item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE ) {
+		dropped->think = RQ3_DroppedWeaponThink;
+		//Elder: don't want to wait forever while testing :)
+		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
+	}
+
+	else { // auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
@@ -1275,3 +1294,115 @@ void G_RunItem( gentity_t *ent ) {
 	G_BounceItem( ent, &tr );
 }
 
+/*
+==============
+Added by Elder
+
+RQ3_DroppedWeaponThink
+Get the item name from the entity and forward
+it to RQ3_ResetWeapon to find and respawn
+
+This is like respawning CTF flags in baseq3
+==============
+*/
+void RQ3_DroppedWeaponThink(gentity_t *ent) {
+	int	weaponNum = WP_NONE;
+
+	switch (ent->item->giTag) {
+    	case WP_MP5:
+    	case WP_M4:
+    	case WP_M3:
+    	case WP_HANDCANNON:
+    	case WP_SSG3000:
+    		weaponNum = ent->item->giTag;
+    		break;
+    		
+    	case WP_PISTOL:
+    	case WP_KNIFE:
+    	case WP_AKIMBO:
+    	case WP_GRENADE:
+    	default:
+    		//Elder: shouldn't have to come here
+    		G_Printf("DroppedWeaponThink: Out of range weapon %d\n", ent->item->giTag);
+    		return;
+    		break;
+	}
+	//Elder: flag the item we want to remove
+	ent->flags |= FL_RQ3_JUNKITEM;
+	RQ3_ResetWeapon( weaponNum );
+	// Reset Weapon will delete this entity
+}
+
+/*
+==============
+Added by Elder
+
+RQ3_ResetWeapon
+Respawn a unique weapon
+
+Similar to CTF Flag reset
+A little quirky - maybe someone can fine-tune this!
+Bugs:
+The weapon may not return to its original location if there is
+more than one of the type.  It just finds the closest empty spot
+and respawns it.
+==============
+*/
+void RQ3_ResetWeapon( int weapon ) {
+	char *c;
+	gentity_t *ent; //, *rent = NULL;
+	int numRespawned = 0;
+	int numRemoved = 0;
+	
+	switch (weapon) {
+	case WP_M3:
+		c = "weapon_m3";
+		break;
+	case WP_M4:
+		c = "weapon_m4";
+		break;	
+	case WP_MP5:
+		c = "weapon_mp5";
+		break;
+	case WP_SSG3000:
+		c = "weapon_ssg3000";
+		break;
+	case WP_HANDCANNON:
+		c = "weapon_handcannon";
+		break;
+	default:
+		//Elder: shouldn't be here
+		G_Printf("RQ3_ResetWeapon: Received bad weapon: %d\n", weapon);
+		break;
+	}
+
+	ent = NULL;
+	//Elder: here's the solution and another problem to RQ3 weapon respawns
+	while ((ent = G_Find (ent, FOFS(classname), c)) != NULL) {
+		//if it's a dropped copy, free it
+		//if (ent->flags & FL_DROPPED_ITEM) {
+		//Elder: only release if it's past the
+		//default respawn time and is flagged
+		if (numRemoved < 1 &&
+			(ent->flags & FL_DROPPED_ITEM) == FL_DROPPED_ITEM &&
+			(ent->flags & FL_RQ3_JUNKITEM) == FL_RQ3_JUNKITEM &&
+			level.time - ent->timestamp >= RQ3_RESPAWNTIME_DEFAULT) {
+			G_FreeEntity(ent);
+			numRemoved++;
+		}
+		else {
+			//rent = ent;
+			//Elder: only respawn if it's a "taken" item
+			//It won't necessarily respawn the gun in its original spot if there's
+			//more than one, but it will put it in an empty location... good enough?
+			if ( (ent->r.svFlags & SVF_NOCLIENT) == SVF_NOCLIENT &&
+				 (ent->s.eFlags & EF_NODRAW) == EF_NODRAW &&
+				ent->r.contents == 0 && numRespawned < 1) {
+				RespawnItem(ent);
+				numRespawned++;
+				}
+		}
+	}
+	
+	//return rent;
+}

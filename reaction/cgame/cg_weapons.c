@@ -433,7 +433,8 @@ CG_GrenadeTrail
 ==========================
 */
 static void CG_GrenadeTrail( centity_t *ent, const weaponInfo_t *wi ) {
-	CG_RocketTrail( ent, wi );
+	//Elder: removed smoke trail
+	//CG_RocketTrail( ent, wi );
 }
 
 
@@ -1724,6 +1725,8 @@ void CG_Weapon_f( void ) {
 	if ( trap_Argc() == 1 ) {
 	//Elder: if SSG, use local zooming THEN forward to server for stats
 		if (cg.snap->ps.weapon == WP_SSG3000) {
+			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.lensSound);
+			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
 			CG_RXN_Zoom();
 			}
 

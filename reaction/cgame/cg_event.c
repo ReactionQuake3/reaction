@@ -1002,10 +1002,25 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	
 	case EV_RQ3_SOUND:
 		DEBUGNAME("EV_RQ3_SOUND");
-		//CG_Printf("EV_RQ3_SOUND\n");
-		if (es->eventParm == 0) {
-			//CG_Printf("EV_RQ3_SOUND: Kick\n");
-			trap_S_StartSound( NULL, es->number, CHAN_VOICE, cgs.media.kickSound);
+		//CG_Printf("EV_RQ3_SOUND: %d\n", es->eventParm);
+		switch (es->eventParm) {
+    		case RQ3_SOUND_KICK:
+    			//CG_Printf("EV_RQ3_SOUND: Kick\n");
+    			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kickSound);
+    			break;
+    		case RQ3_SOUND_HEADSHOT:
+    			//CG_Printf("EV_RQ3_SOUND: Headshot\n");
+    			//Elder: extra blood - synched with sound
+    			//CG_Bleed( position, es->number );   				
+    			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
+    			break;
+    		case RQ3_SOUND_LCA:
+    			//CG_Printf("EV_RQ3_SOUND: Lights, Camera, Action\n");
+    			//Global sound
+    			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);
+    			break;
+    		default:
+    			break;
 		}
 		break;
 
@@ -1128,7 +1143,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_PAIN:
 		// local player sounds are triggered in CG_CheckLocalSounds,
 		// so ignore events on the player
-		DEBUGNAME("EV_PAIN");
+		DEBUGNAME("EV_PAIN");/*
+		if ( es->eventParm == -99999 ) {
+			CG_Printf("EV_PAIN: Headshot\n");
+			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
+		}*/
 		if ( cent->currentState.number != cg.snap->ps.clientNum ) {
 			CG_PainEvent( cent, es->eventParm );
 		}

@@ -612,8 +612,12 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound( "sound/player/gibimp2.wav", qfalse );
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound( "sound/player/gibimp3.wav", qfalse );
 
-	//Elder: kick sound
+	//Elder: RQ3 sounds
 	cgs.media.kickSound = trap_S_RegisterSound( "sound/misc/kick.wav", qfalse);
+	cgs.media.lensSound = trap_S_RegisterSound( "sound/misc/lens.wav", qfalse);
+	cgs.media.headshotSound = trap_S_RegisterSound( "sound/misc/headshot.wav", qfalse);
+	cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
+	
 
 #ifdef MISSIONPACK
 	cgs.media.useInvulnerabilitySound = trap_S_RegisterSound( "sound/items/invul_activate.wav", qfalse );

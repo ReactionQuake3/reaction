@@ -5,6 +5,27 @@
 
 #include "g_local.h"
 
+//Blaze: reaction weapon damage ratings & weapon spreads
+//Elder: moved to the top
+#define PISTOL_DAMAGE 			90
+#define MP5_DAMAGE 				55
+#define M4_DAMAGE 				90
+#define M3_DAMAGE 				17
+//Elder: wrong name
+//#define SHOTGUN_DAMAGE 			17
+#define HANDCANNON_DAMAGE 		20
+#define SNIPER_DAMAGE 			250
+#define AKIMBO_DAMAGE 			90
+#define SLASH_DAMAGE 			200//Shashing knife damage
+#define THROW_DAMAGE 			250//Throwing Knife damage
+
+#define PISTOL_SPREAD 			140
+#define MP5_SPREAD 				250
+#define M4_SPREAD 				300
+#define SNIPER_SPREAD 			425
+#define AKIMBO_SPREAD     		300
+
+
 static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
 static	vec3_t	muzzle;
@@ -135,23 +156,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 #define MACHINEGUN_SPREAD	200
 #define	MACHINEGUN_DAMAGE	7
 #define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
-//Blaze: reaction weapon damage ratings & weapon spreads
 
-#define PISTOL_DAMAGE 90
-#define MP5_DAMAGE 55
-#define M4_DAMAGE 90
-#define SHOTGUN_DAMAGE 17
-#define HANDCANNON_DAMAGE 20
-#define SNIPER_DAMAGE 250
-#define AKIMBO_DAMAGE 90
-#define SLASH_DAMAGE 200//Shashing knife damage
-#define THROW_DAMAGE 250//Throwing Knife damage
-
-#define PISTOL_SPREAD 140
-#define MP5_SPREAD 250
-#define M4_SPREAD 300
-#define SNIPER_SPREAD 425
-#define AKIMBO_SPREAD     300
 
 void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	trace_t		tr;
@@ -283,7 +288,18 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	}
 
 	if ( traceEnt->takedamage) {
-		damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
+		//Elder: added to discern handcannon and m3 damage
+		if (ent->client && ent->client->ps.weapon == WP_HANDCANNON ) {
+			//G_Printf("Firing handcannon\n");
+			damage = HANDCANNON_DAMAGE;
+			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_HANDCANNON);
+		}
+		else {
+			//G_Printf("Firing M3\n");
+			damage = M3_DAMAGE;
+			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_M3);
+		}
+		//damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
 #ifdef MISSIONPACK
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -306,7 +322,8 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 		}
 	}
 #else
-			G_Damage( traceEnt, ent, ent, forward, tr.endpos,	damage, 0, MOD_SHOTGUN);
+			//Elder: moved into if conditional above
+			//G_Damage( traceEnt, ent, ent, forward, tr.endpos,	damage, 0, MOD_SHOTGUN);
 				if( LogAccuracyHit( traceEnt, ent ) ) {
 					return qtrue;
 				}
@@ -793,80 +810,77 @@ static int knives = 0;
 
 void knife_touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 {
-        vec3_t          origin;
-		gitem_t		*xr_item;
-		gentity_t	*xr_drop;
+    vec3_t          origin;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+
 G_Printf("Knife Touched Something\n");
 
         
-        if (other == ent->parent)
-                return;
+    if (other == ent->parent)
+		return;
         
-        if (trace && (trace->surfaceFlags & SURF_SKY))
-        {
-			//Blaze: Get rid of the knife if it hits the sky
+	if (trace && (trace->surfaceFlags & SURF_SKY)) {
+	//Blaze: Get rid of the knife if it hits the sky
 //                G_FreeEdict (ent);
-                return;
-        }
+		//Elder: I think you want this
+		G_FreeEntity(ent);
+		return;
+    }
         
-        if (ent->parent->client)
-        {
-			//Blaze: Play the clank hit noise
-//                gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
-//                PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
-        }
+	if (ent->parent->client) {
+		//Blaze: Play the clank hit noise
+//      gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/clank.wav"), 1, ATTN_NORM, 0);
+//      PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+	}
         
-        // calculate position for the explosion entity
+    // calculate position for the explosion entity
 
-        VectorMA (ent->s.origin, -0.02, ent->s.origin2, origin);
+	VectorMA (ent->s.origin, -0.02, ent->s.origin2, origin);
         
 //glass fx
-        if (0 == Q_stricmp(other->classname, "func_explosive"))
-          {
-            // ignore it, so it can bounce
-            return;
-          }
-        else
+    if (0 == Q_stricmp(other->classname, "func_explosive")) {
+        // ignore it, so it can bounce
+        return;
+    }
+	else
 // ---
-        if (other->takedamage)
-        {
-                G_Damage (other, ent, ent, ent->s.origin2, ent->s.origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
-        }
-        else
-        {
+    if (other->takedamage) {
+		G_Damage (other, ent, ent, ent->s.origin2, ent->s.origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
+    }
+    else {
             
-                        // code to manage excess knives in the game, guarantees that
-                        // no more than knifelimit knives will be stuck in walls.  
-                        // if knifelimit == 0 then it won't be in effect and it can
-                        // start removing knives even when less than the limit are
-                        // out there.
-                    /*    if ( g_rxn_knifelimit.value != 0 )
-                        {
-                                knives++;
-                                
-                                if (knives > g_rxn_knifelimit.value)
-                                        knives = 1;
-                                
-                                knife = FindEdictByClassnum ("weapon_Knife", knives);
-                                
-                                if (knife)
-                                {               
-                                        knife->nextthink = level.time + .1;
-                                }
-                                
-                        }   */  
+                // code to manage excess knives in the game, guarantees that
+                // no more than knifelimit knives will be stuck in walls.  
+                // if knifelimit == 0 then it won't be in effect and it can
+                // start removing knives even when less than the limit are
+                // out there.
+            /*    if ( g_rxn_knifelimit.value != 0 )
+                {
+                        knives++;
+                        
+                        if (knives > g_rxn_knifelimit.value)
+                                knives = 1;
+                        
+                        knife = FindEdictByClassnum ("weapon_Knife", knives);
+                        
+                        if (knife)
+                        {               
+                                knife->nextthink = level.time + .1;
+                        }
+                        
+                }   */  
 		
-			xr_item = BG_FindItemForWeapon( WP_KNIFE );
-			
+	//spawn a knife in the object
+	//Elder: todo - rotate the knife model so it's collinear with trajectory
+	//and eliminate the jittering
+	xr_item = BG_FindItemForWeapon( WP_KNIFE );
+	//xr_drop = dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+	xr_drop = dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM);
+	xr_drop->count = 1;
+	}
 
-			xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
-			xr_drop->count =1;
-
-
-
-
-		}
-        G_FreeEntity (ent);
+    G_FreeEntity (ent);
 }
 
 //gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
@@ -933,11 +947,15 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	gentity_t	*m;
 
 // Homer: if client is supposed to be slashing, go to that function instead
-	if ( !ent->client->throwKnife )
-	{
+	if ( !ent->client->throwKnife ) {
+		//Elder: added
+		ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
 		Knife_Attack(ent,SLASH_DAMAGE);
 		return;
 	}
+
+	//Elder: added
+	ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
 
 	// extra vertical velocity
 	forward[2] += 0.2f;
@@ -949,8 +967,6 @@ void Weapon_Knife_Fire(gentity_t *ent)
 //	m->damage *= s_quadFactor;
 //	m->splashDamage *= s_quadFactor;
 // ^^^^ Homer: got quad?
-
-	
 
 }
 

@@ -826,6 +826,9 @@ typedef struct {
 
 	// sounds
 	sfxHandle_t	kickSound;		//Elder: kick sound
+	sfxHandle_t	headshotSound;	//Elder: splat
+	sfxHandle_t	lcaSound;		//Elder: lights, camera, action!
+	sfxHandle_t	lensSound;		//Elder: sniper lens zoom
 	sfxHandle_t	quadSound;
 	sfxHandle_t	tracerSound;
 	sfxHandle_t	selectSound;

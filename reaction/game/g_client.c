@@ -1222,6 +1222,11 @@ void ClientSpawn(gentity_t *ent) {
 	// Hawkins reset zoomed flag
 	client->zoomed=0;
 	
+	//Elder: knife reset/initialize
+	client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
+
+	//Elder: reset isBandaging flag
+	client->isBandaging = qfalse;
 
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;

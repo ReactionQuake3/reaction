@@ -462,6 +462,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 }
 
 
+//Elder: we need one that sprays blood
 /*
 =================
 CG_Bleed
@@ -692,13 +693,16 @@ void CG_BigExplode( vec3_t playerOrigin ) {
 	CG_LaunchExplode( origin, velocity, cgs.media.smoke2 );
 }
 
+  #define	GLASS_VELOCITY	175
+  #define	GLASS_JUMP		125
+
   /*
   ==================
   CG_LaunchGlass
   ==================
   */
   //Elder: might want to rotate the model randomly or do it in break glass
-  void CG_LaunchGlass( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
+  void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation, qhandle_t hModel ) {
   	localEntity_t	*le;
   	refEntity_t		*re;
   
@@ -719,6 +723,13 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   	VectorCopy( velocity, le->pos.trDelta );
   	le->pos.trTime = cg.time;
   
+  	//Elder: added
+  	//VectorCopy( origin, le->angles.trBase );
+  	VectorCopy( velocity, le->angles.trBase );
+  	le->angles.trBase[2] = le->angles.trBase[2] - GLASS_JUMP;
+  	VectorCopy( rotation, le->angles.trDelta );
+  	le->angles.trTime = cg.time;
+  
   	le->bounceFactor = 0.3f;
   
   	le->leFlags = LEF_TUMBLE;
@@ -733,10 +744,9 @@ void CG_BigExplode( vec3_t playerOrigin ) {
   Generated a bunch of glass shards launching out from the glass location
   ===================
   */
-  #define	GLASS_VELOCITY	175
-  #define	GLASS_JUMP		125
+  
 void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
-  	vec3_t	origin, velocity;
+  	vec3_t	origin, velocity, rotation;
     int     value;
   	int     count = 40;					// How many shards to generate
   	int     states[] = {1,2,3};			// The array of possible numbers
@@ -801,20 +811,23 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
       	// number every time a piece of glass is broken.
       	value = states[rand()%numstates];
       	VectorCopy( playerOrigin, origin );
-      	velocity[0] = crandom()*GLASS_VELOCITY;
-      	velocity[1] = crandom()*GLASS_VELOCITY;
-      	velocity[2] = GLASS_JUMP + crandom()*GLASS_VELOCITY;
-      	  	
+      	velocity[0] = crandom() * GLASS_VELOCITY;
+      	velocity[1] = crandom() * GLASS_VELOCITY;
+      	velocity[2] = GLASS_JUMP + crandom() * GLASS_VELOCITY;
+		//Elder: added
+		rotation[0] = crandom() * GLASS_VELOCITY;
+		rotation[1] = crandom() * GLASS_VELOCITY;
+		rotation[2] = crandom() * GLASS_VELOCITY;
       	switch (value) {
       	case 1:
       		// If our random number was 1, generate the 1st shard piece
-          	CG_LaunchGlass( origin, velocity, debris1 );
+          	CG_LaunchGlass( origin, velocity, rotation, debris1 );
           	break;
       	case 2:
-      		CG_LaunchGlass( origin, velocity, debris2 );
+      		CG_LaunchGlass( origin, velocity, rotation, debris2 );
           	break;
       	case 3:
-      		CG_LaunchGlass( origin, velocity, debris3 );
+      		CG_LaunchGlass( origin, velocity, rotation, debris3 );
       		break;
       	}
   	}

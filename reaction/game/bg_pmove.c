@@ -1548,6 +1548,7 @@ static void PM_FinishWeaponChange( void ) {
 	int		weapon;
 
 	weapon = pm->cmd.weapon;
+
 	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
 		weapon = WP_NONE;
 	}
@@ -1688,7 +1689,7 @@ static void PM_Weapon( void ) {
 		PM_StartTorsoAnim( TORSO_ATTACK );
 	}
 
-	//Elder: works great server side, but client needs to predict it
+	// Elder: the client side portion is in
 	// Homer: if weapon can set to be burst mode, check for burst value
 	// M4
 	if ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) {
@@ -1717,10 +1718,11 @@ static void PM_Weapon( void ) {
 	// take an ammo away if not infinite
 	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
 		//Blaze: Dont remove ammo for knife
-		//Elder: can't access throwKnife?
-		//if ( pm->ps->weapon != WP_KNIFE)
+		//Elder: don't remove ammo if slashing knife
+		if ( !(pm->ps->weapon == WP_KNIFE && pm->ps->stats[STAT_KNIFE] == RQ3_KNIFE_SLASH) ) {
+			//G_Printf("Taking away ammo\n");
 			pm->ps->ammo[ pm->ps->weapon ]--;
-		
+		}
 		//Elder: remove one more bullet/shell if handcannon/akimbo
 		if (pm->ps->weapon == WP_HANDCANNON || pm->ps->weapon == WP_AKIMBO) {
 			pm->ps->ammo[ pm->ps->weapon ]--;

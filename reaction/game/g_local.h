@@ -43,6 +43,7 @@
 //Elder: err - this looks funny... should it be 0x00010000 ?
 //#define FL_THROWN_ITEM			0x00016000  // XRAY FMJ weapon throwing
 #define FL_THROWN_ITEM			0x00010000  // XRAY FMJ weapon throwing
+#define FL_RQ3_JUNKITEM			0x00020000	// Elder: the item we want to remove
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -59,6 +60,8 @@ typedef enum {
 } moverState_t;
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
+
+#define RQ3_RESPAWNTIME_DEFAULT		30000	// Elder: time for weapons to respawn
 
 //============================================================================
 
@@ -327,8 +330,8 @@ struct gclient_s {
 	int			bleedloc; //Blaze: Where are we bleeding
 	vec3_t		bleedloc_offset;// Blaze: location of bleeding (from origin)
 	vec3_t      bleednorm;
-	//qboolean	isbleeding;//Blaze: is client bleeding
-	int			legDamage;//Blaze: Client has leg damage
+	//qboolean	isBleeding;//Blaze: is client bleeding
+	int			legDamage;//Blaze: Client has leg damage - holds number of hits too
 	int			bleedtick;//Blaze: Holds # of seconds till bleeding stops.
 	//Elder: server only needs to know for sniper spread - ARGH
 	int			zoomed; // Hawkins (SSG zoom)
@@ -341,6 +344,7 @@ struct gclient_s {
 	int 			m4_3rb;    // M4 to 3rb
 	int 			grenRange; // range to throw grenade (short/medium/long)
 	int 			throwKnife; // knife to throwing
+	qboolean		isBandaging;	//Elder: player in the process of bandaging
 	// end Homer
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
@@ -502,6 +506,11 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 void ClearRegisteredItems( void );
 void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
+
+//Elder: added
+void RQ3_DroppedWeaponThink(gentity_t *ent);
+void RQ3_ResetWeapon( int weapon );
+
 
 //
 // g_utils.c
