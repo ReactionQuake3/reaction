@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/26 05:29:38  niceass
+// PHYSICS, Take 2
+//
 // Revision 1.67  2002/04/20 15:03:47  makro
 // More footstep sounds, a few other things
 //
@@ -94,44 +97,7 @@ float	pm_ladderfriction = 3000;
 
 
 int		c_pmove = 0;
-/*
-// rxn - agt
-// Not used now, but will be used when the numbers are finalized.
-float   rxn_rampAccelerate = 130;
-float   rxn_rampAccelerateVert = 110;
 
-
-===============
-RXN_RampMunge
-
-===============
-*/
-/*
-void RXN_RampMunge ( void ) {
-        vec3_t          owishdir;
-        int             i;
-//        char    raustring[25];
-//        char    rafstring[25];
-        float   acc;
-        float   upacc;
-//        int             goodslope;
-
-
-        upacc = rxn_rampAccelerate;
-        acc = rxn_rampAccelerateVert;
-
-        if (pml.groundTrace.plane.normal[2] < 1.0 && pml.groundTrace.plane.normal[2] > 0.7) {
-                if (VectorLength(pm->ps->velocity) > 200) {
-                        VectorCopy(pm->ps->velocity, owishdir);
-                        VectorNormalize(owishdir);
-                        for (i=0 ; i<3 ; i++) {
-                                pm->ps->velocity[i] += acc * owishdir[i];
-                        }
-                        pm->ps->velocity[2] += upacc;
-                }
-        }
-}
-*/
 /* [QUARANTINE] - Weapon Animations
 ===================
 PM_StartWeaponAnim, PM_ContinueWeaponAnim
@@ -311,7 +277,7 @@ static void PM_Friction( void ) {
 
 	// apply ground friction
 	if ( pm->waterlevel <= 1 ) {
-		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) ) {
+		if ( pml.walking && !(pml.groundTrace.surfaceFlags & SURF_SLICK) && pm->ps->groundEntityNum) {
 			// if getting knocked back, no friction
 			if ( ! (pm->ps->pm_flags & PMF_TIME_KNOCKBACK) ) {
 				control = speed < pm_stopspeed ? pm_stopspeed : speed;
@@ -472,58 +438,24 @@ static qboolean PM_CheckJump( void ) {
 		return qfalse;
 	}
 
+	if (!pml.groundPlane) return qfalse;
+
 	pml.groundPlane = qfalse;		// jumping away
 	pml.walking = qfalse;
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
-	// Blaze: check for double jump
+	pm->ps->velocity[2] += JUMP_VELOCITY;
 
-	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
-		pm->ps->velocity[2] += JUMP_VELOCITY;
-		// Elder: ladder jump boost
-		if (pml.ladder == qtrue)
-		{
-			if (pm->debugLevel)
-				Com_Printf("^3Ladder jump boost^7\n");
-			pm->ps->velocity[2] += 135;
-		}
-		else
-			pm->ps->velocity[2] += 75; // More velocity ; was 100
-		if (pm->debugLevel)
-			Com_Printf("^4Hit a double jump^7\n");
-			//Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
-	} else {
-		pm->ps->velocity[2] += JUMP_VELOCITY;
-		if (pm->ps->velocity[2] < JUMP_VELOCITY)
-			pm->ps->velocity[2] = JUMP_VELOCITY;
-	}
-
-	// Time that the second jump is within to get the higher jump
-	if (pml.ladder == qtrue)
-	{
-		// Elder: more for ladder jumps
-		pm->ps->stats[STAT_JUMPTIME] = 500;
-	}
-	else
-		pm->ps->stats[STAT_JUMPTIME] = 250;	// 400
-	// end Blaze
+	if (pm->ps->velocity[2] < JUMP_VELOCITY)
+		pm->ps->velocity[2] = JUMP_VELOCITY;
 
 	PM_AddEvent( EV_JUMP );
 
-// JBravo: we dont want backflips.
 	PM_ForceLegsAnim( LEGS_JUMP );
 	pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-/*	if ( pm->cmd.forwardmove >= 0 ) {
-		PM_ForceLegsAnim( LEGS_JUMP );
-		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-	} else {
-		PM_ForceLegsAnim( LEGS_JUMPB );
-		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-	} */
 
 	return qtrue;
-
 }
 
 /*
@@ -614,20 +546,7 @@ static void PM_WaterMove( void ) {
 		PM_WaterJumpMove();
 		return;
 	}
-#if 0
-	// jump = head for surface
-	if ( pm->cmd.upmove >= 10 ) {
-		if (pm->ps->velocity[2] > -300) {
-			if ( pm->watertype == CONTENTS_WATER ) {
-				pm->ps->velocity[2] = 100;
-			} else if (pm->watertype == CONTENTS_SLIME) {
-				pm->ps->velocity[2] = 80;
-			} else {
-				pm->ps->velocity[2] = 50;
-			}
-		}
-	}
-#endif
+
 	PM_Friction ();
 
 	scale = PM_CmdScale( &pm->cmd );
@@ -658,6 +577,8 @@ static void PM_WaterMove( void ) {
 	if ( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0 ) {
 		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+			pm->ps->velocity, OVERCLIP );
 
 		VectorNormalize(pm->ps->velocity);
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
@@ -665,22 +586,6 @@ static void PM_WaterMove( void ) {
 
 	PM_StepSlideMove( qfalse );
 }
-
-#ifdef MISSIONPACK
-/*
-===================
-PM_InvulnerabilityMove
-
-Only with the invulnerability powerup
-===================
-*/
-static void PM_InvulnerabilityMove( void ) {
-	pm->cmd.forwardmove = 0;
-	pm->cmd.rightmove = 0;
-	pm->cmd.upmove = 0;
-	VectorClear(pm->ps->velocity);
-}
-#endif
 
 /*
 ===================
@@ -737,41 +642,48 @@ static void PM_AirMove( void ) {
 	vec3_t		wishdir;
 	float		wishspeed;
 	float		scale;
-	float		maxspeed;
+	usercmd_t	cmd;
 
+	PM_CheckJump();
 	PM_Friction();
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
 
-	scale = PM_CmdScale( &pm->cmd );
+	cmd = pm->cmd;
+	scale = PM_CmdScale( &cmd );
 
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
 
+	// project moves down to flat plane
+
+	pml.forward[2] = 0;
+	pml.right[2] = 0;
+	VectorNormalize (pml.forward);
+	VectorNormalize (pml.right);
+
 	for ( i = 0 ; i < 2 ; i++ ) {
-		wishvel[i] = scale*pml.forward[i]*fmove + scale*pml.right[i]*smove;
+		wishvel[i] = pml.forward[i]*fmove*scale + pml.right[i]*smove*scale;
 	}
 	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
-
-	if (pm->ps->pm_flags & PMF_DUCKED)
-		maxspeed = 100;		// the ducking speed
-	else
-		maxspeed = pm_maxspeed;
-
-	if (wishspeed > maxspeed) {
-		VectorScale (wishvel, maxspeed/wishspeed, wishvel);
-		wishspeed = maxspeed;
-	}
+	//wishspeed *= scale;
 
 	// not on ground, so little effect on velocity
 	PM_Accelerate (wishdir, wishspeed, pm_airaccelerate);
 
-	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-	PM_StepSlideMove ( qfalse );
+	// we may have a ground plane that is very steep, even
+	// though we don't have a groundentity
+	// slide along the steep plane
+	/*if ( pml.groundPlane ) {
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+			pm->ps->velocity, OVERCLIP );
+	}
+	*/
+	PM_StepSlideMove ( qtrue );
 }
 
 /*
@@ -799,139 +711,6 @@ static void PM_GrappleMove( void ) {
 
 	pml.groundPlane = qfalse;
 }
-/*
-===================================
-PM_LimpMove
-Movement while you have leg damage
-===================================
-// JBravo: apparently this isnt used.
-*/
-/*
-static void PM_LimpMove( void)
-{
-	int			i;
-	vec3_t		wishvel;
-	float		fmove, smove;
-	vec3_t		wishdir;
-	float		wishspeed;
-	float		scale;
-	usercmd_t	cmd;
-	float		accelerate;
-	float		vel;
-
-	//Com_Printf("(%d)(%d)(%d)\n", pm->cmd.serverTime, pm->ps->commandTime, pm->ps->pm_time );
-
-	if ( pm->cmd.serverTime % 1000 > 333)
-	{
-		// Com_Printf("(%d)\n",pm->cmd.serverTime % 1000);
-		if ( PM_CheckJump () ) {
-			// jumped away
-			if ( pm->waterlevel > 1 ) {
-				PM_WaterMove();
-			} else {
-				PM_AirMove();
-			}
-			return;
-		}
-
-	PM_Friction ();
-
-	fmove = pm->cmd.forwardmove;
-	smove = pm->cmd.rightmove;
-
-	cmd = pm->cmd;
-	scale = PM_CmdScale( &cmd );
-
-	// set the movementDir so clients can rotate the legs for strafing
-	PM_SetMovementDir();
-
-	// project moves down to flat plane
-//Blaze: ram jump test
-	pml.forward[2] = 0;
-	pml.right[2] = 0;
-
-	// project the forward and right directions onto the ground plane
-//Blaze: ramp jumping test
-	PM_ClipVelocity (pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP );
-	PM_ClipVelocity (pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP );
-	//
-//Blaze: Ramp jump test
-	VectorNormalize (pml.forward);
-	VectorNormalize (pml.right);
-
-	for ( i = 0 ; i < 3 ; i++ ) {
-		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
-	}
-	// when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
-
-	VectorCopy (wishvel, wishdir);
-	wishspeed = VectorNormalize(wishdir);
-	wishspeed *= scale;
-
-	// clamp the speed lower if ducking
-	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-		if ( wishspeed > pm->ps->speed * pm_duckScale ) {
-			wishspeed = pm->ps->speed * pm_duckScale;
-		}
-	}
-
-	// clamp the speed lower if wading or walking on the bottom
-	if ( pm->waterlevel ) {
-		float	waterScale;
-
-		waterScale = pm->waterlevel / 3.0;
-		waterScale = 1.0 - ( 1.0 - pm_swimScale ) * waterScale;
-		if ( wishspeed > pm->ps->speed * waterScale ) {
-			wishspeed = pm->ps->speed * waterScale;
-		}
-	}
-
-	// when a player gets hit, they temporarily lose
-	// full control, which allows them to be moved a bit
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		accelerate = pm_airaccelerate;
-	} else {
-		accelerate = pm_accelerate;
-	}
-
-	PM_Accelerate (wishdir, wishspeed, accelerate);
-
-	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-	} else {
-		// don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
-	}
-
-	vel = VectorLength(pm->ps->velocity);
-
-	// slide along the ground plane
-//Blaze: ramp jump test
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
-		pm->ps->velocity, OVERCLIP );
-
-	// don't decrease velocity when going up or down a slope
-	VectorNormalize(pm->ps->velocity);
-	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
-
-	// don't do anything if standing still
-	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
-		return;
-	}
-
-	PM_StepSlideMove( qfalse );
-
-	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-	}
-
-
-}
-*/
 
 /*
 ===================
@@ -948,7 +727,6 @@ static void PM_WalkMove( void ) {
 	float		scale;
 	usercmd_t	cmd;
 	float		accelerate;
-//	float		vel;
 
 	if ( pm->waterlevel > 2 && DotProduct( pml.forward, pml.groundTrace.plane.normal ) > 0 ) {
 		// begin swimming
@@ -1025,19 +803,27 @@ static void PM_WalkMove( void ) {
 	}
 
 	pm->ps->velocity[2] = 0;
-
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 
-	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
-		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+	if (pm->ps->gravity > 0) 
+		pm->ps->velocity[2] = 0; 
+	else {
+		if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
+			pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+		}
 	}
 
-	if (pm->ps->gravity < 0)
-		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+	/*
+	vel = VectorLength(pm->ps->velocity);
 
+	// slide along the ground plane
+	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		pm->ps->velocity, OVERCLIP );
+
+	// don't decrease velocity when going up or down a slope
+	VectorNormalize(pm->ps->velocity);
+	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+	*/
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
@@ -1243,48 +1029,16 @@ static void PM_CrashLand( void ) {
 	//float		a, b, c, den;
 	int			damage;
 
-// JBravo: no falling at all during LCA in Teamplay
+	// JBravo: no falling at all during LCA in Teamplay
 	if (pm->lca) {
 		return;
 	}
 
-	// decide which landing animation to use
-// JBravo: we dont want backflips.
 	PM_ForceLegsAnim( LEGS_LAND );
-/*	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
-		PM_ForceLegsAnim( LEGS_LANDB );
-	} else {
-		PM_ForceLegsAnim( LEGS_LAND );
-	} */
 
-	pm->ps->legsTimer = TIMER_LAND;
-
-	// calculate the exact velocity on landing
-	/*dist = pm->ps->origin[2] - pml.previous_origin[2];
-	vel = pml.previous_velocity[2];
-	acc = -pm->ps->gravity;
-
-	a = acc / 2;
-	b = vel;
-	c = -dist;
-
-	den =  b * b - 4 * a * c;
-	if ( den < 0 ) {
-		return;
-	}
-	t = (-b - sqrt( den ) ) / ( 2 * a );
-*/
-	//delta = vel + t * acc;
-	//Blaze: added to make it more like aq2
-	//delta = pm->ps->velocity[2] - pml.previous_velocity[2];
 	// Elder: 300/320 factor included
 	delta = 0.9375f * (pm->ps->velocity[2] - pml.previous_velocity[2]);
 	delta = delta*delta * 0.0001;
-
-	// ducking while falling doubles damage
-//	if ( pm->ps->pm_flags & PMF_DUCKED ) {
-//		delta *= 2;
-//	}
 
 	// never take falling damage if completely underwater
 	if ( pm->waterlevel == 3 ) {
@@ -1303,24 +1057,16 @@ static void PM_CrashLand( void ) {
 		return;
 	}
 
-	// create a local entity event to play the sound
-
-	// SURF_NODAMAGE is used for bounce pads where you don't ever
-	// want to take damage or play a crunch sound
-
-
 	if (delta > 30)
 	{
-
-		//Com_Printf("delta =(%f), delta - 30 = (%f), damage = (%d)",delta,delta-30,(int)(((delta-30)/2)));
 		damage = (int)(((delta-30)/2));
 		if (damage < 1)  damage = 1;
 		damage *= 10;
 
 
 		if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
-				//Blaze lots of changes to make it more like aq2
-				// this is a pain grunt, so don't play it if dead
+			//Blaze lots of changes to make it more like aq2
+			// this is a pain grunt, so don't play it if dead
 			if ( pm->ps->stats[STAT_HEALTH] > 0 && damage > 0) {
 					if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
 						PM_AddEvent( EV_FALL_FAR_NOSOUND );
@@ -1364,23 +1110,6 @@ static void PM_CrashLand( void ) {
 	// start footstep cycle over
 	pm->ps->bobCycle = 0;
 }
-
-/*
-=============
-PM_CheckStuck
-=============
-*/
-/*
-void PM_CheckStuck(void) {
-	trace_t trace;
-
-	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
-	if (trace.allsolid) {
-		//Elder: LMAO! WTF is this?
-		//int shit = qtrue;
-	}
-}
-*/
 
 /*
 =============
@@ -1449,16 +1178,8 @@ static void PM_GroundTraceMissed( void ) {
 
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 		if ( trace.fraction == 1.0 ) {
-// JBravo: we dont want backflips.
 			PM_ForceLegsAnim( LEGS_JUMP );
 			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-/*			if ( pm->cmd.forwardmove >= 0 ) {
-				PM_ForceLegsAnim( LEGS_JUMP );
-				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-			} else {
-				PM_ForceLegsAnim( LEGS_JUMPB );
-				pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-			} */
 		}
 	}
 
@@ -1484,7 +1205,7 @@ static void PM_GroundTrace( void ) {
 		pml.walking = qfalse; // Maybe not needed?
 		return;
 	}
-
+	
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
 	point[2] = pm->ps->origin[2] - 0.25;
@@ -1498,10 +1219,8 @@ static void PM_GroundTrace( void ) {
 			return;
 	}
 
-	// if the trace didn't hit anything, we are in free fall
-	// Elder: added ladder check
+	// if the trace didn't hit anything and not on ladder, we are in free fall 
 	if ( trace.fraction == 1.0 && !pml.ladder) {
-	//if ( trace.fraction == 1.0 ) {
 		PM_GroundTraceMissed();
 		pml.groundPlane = qfalse;
 		pml.walking = qfalse;
@@ -1513,17 +1232,11 @@ static void PM_GroundTrace( void ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:kickoff\n", c_pmove);
 		}
+
 		// go into jump animation
-// JBravo: we dont want backflips.
 		PM_ForceLegsAnim( LEGS_JUMP );
 		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-/*		if ( pm->cmd.forwardmove >= 0 ) {
-			PM_ForceLegsAnim( LEGS_JUMP );
-			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
-		} else {
-			PM_ForceLegsAnim( LEGS_JUMPB );
-			pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-		} */
+
 
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		pml.groundPlane = qfalse;
@@ -1540,8 +1253,7 @@ static void PM_GroundTrace( void ) {
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-//		pml.groundPlane = qtrue; // NiceAss
-		pml.groundPlane = qfalse;
+		pml.groundPlane = qtrue;
 		pml.walking = qfalse;
 		return;
 	}
@@ -1564,7 +1276,6 @@ static void PM_GroundTrace( void ) {
 
 		PM_CrashLand();
 
-		// Elder: added ladder check
 		if (pml.ladder)
 		{
 			pml.groundPlane = qfalse;
@@ -1574,7 +1285,6 @@ static void PM_GroundTrace( void ) {
 
 		// don't do landing time if we were just going down a slope
 		if ( pml.previous_velocity[2] < -200 ) {
-			// Elder: maybe this is keeping the strafe jumping too tight?
 			// don't allow another jump for a little while
 			pm->ps->pm_flags |= PMF_TIME_LAND;
 			pm->ps->pm_time = 250;
@@ -1582,9 +1292,6 @@ static void PM_GroundTrace( void ) {
 	}
 
 	pm->ps->groundEntityNum = trace.entityNum;
-
-	// don't reset the z velocity for slopes
-//	pm->ps->velocity[2] = 0;
 
 	PM_AddTouchEnt( trace.entityNum );
 }
@@ -1706,9 +1413,7 @@ static void PM_CheckDuck (void)
 		}
 	}
 
-	// Elder: don't allow mid-air "crouching"
-	// Removed because it was causing problems -- WTF is the "jump" flag?
-	if (pm->ps->pm_flags & PMF_DUCKED )// && pm->ps->groundEntityNum != ENTITYNUM_NONE)
+	if (pm->ps->pm_flags & PMF_DUCKED )
 	{
 		pm->maxs[2] = 16;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
@@ -1940,19 +1645,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 			break;
 		}
 
-		//Elder: temp hack
-		/*
-		if (pm->ps->weapon == WP_PISTOL ||
-			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_AKIMBO ||
-			pm->ps->weapon == WP_GRENADE ||
-			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-			PM_StartWeaponAnim(WP_ANIM_DISARM);
-		else
-		*/
+
 		if ( pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
 			PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
 		else {
@@ -1980,21 +1673,6 @@ static void PM_BeginWeaponChange( int weapon ) {
 	}
 
 	pm->ps->weaponstate = WEAPON_DROPPING;
-
-
-	//Elder: temp hack
-	/*
-	if (pm->ps->weapon == WP_PISTOL ||
-		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_MP5 ||
-		pm->ps->weapon == WP_AKIMBO ||
-		pm->ps->weapon == WP_GRENADE ||
-		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-		PM_StartWeaponAnim(WP_ANIM_DISARM);
-	else*/
 
 	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
@@ -2043,7 +1721,6 @@ static void PM_FinishWeaponChange( void ) {
 
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
-	//pm->ps->weaponTime += 250;
 	//Elder: weapon-dependent timing
 	switch (pm->ps->weapon)	{
 	case WP_PISTOL:
@@ -2080,20 +1757,6 @@ static void PM_FinishWeaponChange( void ) {
 		break;
 	}
 
-	//Elder: temp hack
-	/*
-	if (pm->ps->weapon == WP_PISTOL ||
-		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_MP5 ||
-		pm->ps->weapon == WP_AKIMBO ||
-		pm->ps->weapon == WP_GRENADE ||
-		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
-	*/
-	/*else*/
 	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
 	else
@@ -2118,21 +1781,8 @@ static void PM_TorsoAnimation( void ) {
 		}
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
-		//Elder: temp hack
 		if (pm->ps->ammo[pm->ps->weapon] == 0)
 			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
-		/*
-		else if (pm->ps->weapon == WP_PISTOL ||
-			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_MP5 ||
-			pm->ps->weapon == WP_AKIMBO ||
-			pm->ps->weapon == WP_GRENADE ||
-			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-			PM_ContinueWeaponAnim(WP_ANIM_IDLE);
-		*/
 		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
 		else
@@ -2143,28 +1793,6 @@ static void PM_TorsoAnimation( void ) {
 		return;
 	}
 }
-
-/*
-==============
-PM_WeaponAnimation
-JBravo: this isnt used either.
-==============
-*/
-/*
-static void PM_WeaponAnimation( void ) {
-	//if (pm->ps->weaponstate == WEAPON_RELOADING)
-	//{
-		//PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
-	//}
-	//else if (pm->ps->weaponstate == WEAPON_READY)
-		//PM_ContinueWeaponAnim( WP_ANIM_IDLE );
-	//else if (pm->ps->weaponstate == WEAPON_DROPPING)
-		//PM_ContinueWeaponAnim( WP_ANIM_DISARM );
-	//else if (pm->ps->weaponstate == WEAPON_RAISING)
-		//PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
-	return;
-}
-*/
 
 /*
 ==============
@@ -2615,28 +2243,6 @@ static void PM_Weapon( void ) {
 		}
 	}
 
-	// check for item using
-	// Elder: removed
-	/*
-	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
-		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
-
-			//  Blaze: No more medkit
-			//if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
-				//&& pm->ps->stats[STAT_HEALTH] >= (125) ) { //medikit check pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
-				// don't use medkit if at max health
-			//} else {
-				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
-				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
-				pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
-			//}
-			return;
-		}
-	} else {
-		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
-	}
-	*/
-
 	//NiceAss: I added this smoother M4 rise. Should this be used?
 	/*
 	if ( ( pm->cmd.buttons & 1 || pm->ps->stats[STAT_BURST] ) && pm->ps->ammo[pm->ps->weapon]) {
@@ -2646,11 +2252,6 @@ static void PM_Weapon( void ) {
 		}
 	}
 	*/
-
-	// NiceAss: Sorta a hack, but it looks better.
-/*	if ( pm->ps->weapon == WP_PISTOL && pm->ps->ammo[WP_PISTOL] == 0 && pm->ps->weaponTime < RQ3_PISTOL_DELAY*.3 ) {
-		PM_StartWeaponAnim( WP_ANIM_EMPTY );
-	}*/
 
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 ) {
@@ -2689,18 +2290,6 @@ static void PM_Weapon( void ) {
 				if (pm->ps->ammo[pm->ps->weapon] == 0) {
 					PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
 				}
-				/*
-				else if (pm->ps->weapon == WP_PISTOL ||
-					pm->ps->weapon == WP_M3 ||
-					pm->ps->weapon == WP_HANDCANNON ||
-					pm->ps->weapon == WP_SSG3000 ||
-					pm->ps->weapon == WP_M4 ||
-					pm->ps->weapon == WP_MP5 ||
-					pm->ps->weapon == WP_AKIMBO ||
-					pm->ps->weapon == WP_GRENADE ||
-					(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
-				*/
 				else if (pm->ps->weapon == WP_KNIFE &&
 						 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 					PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
@@ -2710,23 +2299,6 @@ static void PM_Weapon( void ) {
 			}
 		}
 	}
-
-
-	//Elder: drop the primed grenade if bandaging
-	/*
-	if ( pm->ps->weapon == WP_GRENADE &&
-		 pm->ps->ammo[WP_GRENADE] > 0 &&
-		//
-		//pm->ps->weaponstate == WEAPON_DROPPING &&
-		(pm->cmd.buttons & 1) &&
-		(pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
-	{
-		PM_AddEvent( EV_FIRE_WEAPON );
-		pm->ps->ammo[WP_GRENADE]--;
-		if (pm->ps->ammo[WP_GRENADE] == 0)
-			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
-	}*/
-
 
 	// Elder: added STAT_RELOADTIME and STAT_WEAPONSTALLTIME check
 	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0 ||
@@ -2771,25 +2343,11 @@ static void PM_Weapon( void ) {
 		} else {
 			PM_StartTorsoAnim( TORSO_STAND );
 		}
-		// QUARANTINE - Weapon Animation
-		// Should always draw the weapon when it is just ready
-//		PM_StartWeaponAnim( WP_ANIM_READY );
 		// temp hack
 		if (pm->ps->ammo[pm->ps->weapon] == 0) {
 			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
 		}
-		/*
-		else if (pm->ps->weapon == WP_PISTOL ||
-			pm->ps->weapon == WP_M3 ||
-			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000 ||
-			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_MP5 ||
-			pm->ps->weapon == WP_AKIMBO ||
-			pm->ps->weapon == WP_GRENADE ||
-			(pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-			PM_StartWeaponAnim( WP_ANIM_IDLE );
-		*/
+
 		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 			PM_StartWeaponAnim( WP_ANIM_THROWIDLE );
 		else
@@ -2808,7 +2366,6 @@ static void PM_Weapon( void ) {
 	if (pm->lca) {
 		return;
 	}
-
 
 	// Elder: fire on release - based on code from inolen
 	// check for fire
@@ -2841,25 +2398,6 @@ static void PM_Weapon( void ) {
 			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
 			return;
 		}
-
-		/*
-		else if ( pm->ps->weapon == WP_KNIFE &&
-				 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
-		{
-			if ( pm->ps->weaponstate == WEAPON_READY )
-			{
-				pm->ps->weaponstate = WEAPON_STALL;
-				pm->ps->stats[STAT_WEAPONSTALLTIME] = 200;
-				PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
-				return;
-			}
-			else if ( pm->ps->weaponstate == WEAPON_STALL )
-			{
-				pm->ps->stats[STAT_WEAPONSTALLTIME] = 0;
-				pm->ps->weaponstate = WEAPON_READY;
-			}
-		}
-		*/
 	}
 
 	// check for fireA release
@@ -2917,22 +2455,6 @@ static void PM_Weapon( void ) {
 		}
 	}
 
-	/*
-	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
-		pm->ps->weaponTime = 0;
-		pm->ps->weaponstate = WEAPON_READY;
-		// Homer: not firing, reset burst value (cheaper than a non-zero check)
-		//Elder: reset only if the max amount has been shot
-		//if ( pm->ps->weapon == WP_PISTOL) {
-			pm->ps->stats[STAT_BURST] = 0;
-		//}
-		//else if ( ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) ||
-			//( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) ) {
-			//pm->ps->stats[STAT_BURST] = 0;
-		//}
-		return;
-	}*/
-
 	// check for out of ammo
 	if ( ! pm->ps->ammo[ pm->ps->weapon ]) {
 		PM_AddEvent( EV_NOAMMO );
@@ -2950,23 +2472,6 @@ static void PM_Weapon( void ) {
 	//Elder: custom player model fire animations go here
 	// start the animation even if out of ammo -- Elder: NO WAY
 	if ( pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE ) {
-		// the gauntlet only "fires" when it actually hits something
-//		if ( !pm->gauntletHit ) {
-//			pm->ps->weaponTime = 0;
-//			pm->ps->weaponstate = WEAPON_READY;
-//			return;
-//		}
-		// Elder: animations initiated after stall complete
-		/*
-		if ( pm->ps->weapon == WP_GRENADE ||
-			(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
-			PM_ContinueWeaponAnim( WP_ANIM_FIRE );
-		else
-		{
-			//PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
-			PM_ContinueWeaponAnim( WP_ANIM_THROWFIRE );
-		}
-		*/
 		if ( pm->ps->weapon == WP_KNIFE &&
 			 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
 				// Modified by agt for slash "bursting"
@@ -2995,13 +2500,6 @@ static void PM_Weapon( void ) {
 				}
 			}
 			else {
-				/* if (pm->ps->weapon == WP_PISTOL ||
-				pm->ps->weapon == WP_M3 ||
-				pm->ps->weapon == WP_HANDCANNON ||
-				pm->ps->weapon == WP_SSG3000 ||
-				pm->ps->weapon == WP_M4 ||
-				pm->ps->weapon == WP_MP5 ||
-				pm->ps->weapon == WP_GRENADE) */
 				if ( pm->ps->ammo[pm->ps->weapon] > 1 )
 					PM_StartWeaponAnim( WP_ANIM_FIRE );
 				else if ( pm->ps->weapon == WP_PISTOL )
@@ -3038,13 +2536,6 @@ static void PM_Weapon( void ) {
 	{
 		pm->ps->delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(pm->ps->delta_angles[0]) - 0.7);
 	}
-
-	//if ( ! pm->ps->ammo[ pm->ps->weapon ] ||
-		//pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ pm->ps->weapon ] == 1) {
-		//PM_AddEvent( EV_NOAMMO );
-		//pm->ps->weaponTime += 500;
-		//return;
-	//}
 
 
 	// take an ammo away if not infinite
@@ -3160,29 +2651,8 @@ static void PM_Weapon( void ) {
 	case WP_GRENADE:
 		addTime = RQ3_GRENADE_DELAY;
 		break;
-#ifdef MISSIONPACK
-	case WP_NAILGUN:
-		addTime = 1000;
-		break;
-	case WP_PROX_LAUNCHER:
-		addTime = 800;
-		break;
-	case WP_CHAINGUN:
-		addTime = 30;
-		break;
-#endif
 	}
 
-#ifdef MISSIONPACK
-	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
-		addTime /= 1.5;
-	}
-	else
-	if( bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
-		addTime /= 1.3;
-  }
-  else
-#endif
 	if ( pm->ps->powerups[PW_HASTE] ) {
 		addTime /= 1.3;
 	}
@@ -3210,38 +2680,6 @@ static void PM_Animate( void ) {
 			pm->ps->torsoTimer = TIMER_GESTURE;
 			PM_AddEvent( EV_TAUNT );
 		}
-#ifdef MISSIONPACK
-	} else if ( pm->cmd.buttons & BUTTON_GETFLAG ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_GETFLAG );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_GUARDBASE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_GUARDBASE );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_PATROL ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_PATROL );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_FOLLOWME ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_FOLLOWME );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_AFFIRMATIVE);
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_NEGATIVE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_NEGATIVE );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-#endif
 	}
 }
 
@@ -3645,11 +3083,7 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_InvulnerabilityMove();
 	} else
 #endif
-	// Blaze: Double Jump
-		if (pm->ps->stats[STAT_JUMPTIME] > 0)
-			pm->ps->stats[STAT_JUMPTIME] -= pml.msec;
-	// Blaze
-
+		
 	if ( pm->ps->powerups[PW_FLIGHT] ) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();
@@ -3681,7 +3115,6 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_AirMove();
 	}
 
-
 	PM_Animate();
 
 	// set groundentity, watertype, and waterlevel
@@ -3691,20 +3124,6 @@ void PmoveSingle (pmove_t *pmove) {
 	// weapons
 	PM_Reload();
 	PM_Weapon();
-
-	//weapon animations(rq3 specific)
-	//Elder: temp hack to avoid messing up fast-reloads
-	/*
-	if (pm->ps->weapon == WP_PISTOL ||
-		pm->ps->weapon == WP_M3 ||
-		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000 ||
-		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_AKIMBO ||
-		pm->ps->weapon == WP_GRENADE ||
-		pm->ps->weapon == WP_KNIFE)
-		PM_WeaponAnimation();
-	*/
 
 	// torso animation
 	PM_TorsoAnimation();
