@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.137  2002/06/20 21:06:07  freud
 // Added playing of lens.wav when using the unzoom command
 //
@@ -1077,6 +1081,8 @@ void SetTeam(gentity_t * ent, char *s)
 		ClientUserinfoChanged(clientNum);
 		CalculateRanks();
 		client->sess.sessionTeam = teamsave;
+		ResetKills (ent);
+		client->last_damaged_players[0] = '\0';
 		//Slicer: Changing radio gender according to models
 		if (client->sess.savedTeam == TEAM_RED)
 			client->radioGender = level.team1gender;

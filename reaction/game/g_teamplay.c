@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.110  2002/06/20 02:27:30  jbravo
 // Now the scoreboard doesnt show whos alive and whos not when you are alive
 //
@@ -890,6 +894,8 @@ void SpawnPlayers()
 			client->sess.spectatorState = SPECTATOR_NOT;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
+		ResetKills (player);
+		client->last_damaged_players[0] = '\0';
 //              trap_SendServerCommand(player-g_entities, "lights");
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
@@ -1750,6 +1756,16 @@ void GetNearbyTeammates(gentity_t * self, char *buf)
 	}
 }
 
+void GetLastDamagedPlayers (gentity_t * ent, char *buf)
+{
+	if (ent->client->last_damaged_players[0] == '\0')
+		strcpy(buf, "nobody");
+	else
+		strcpy(buf, ent->client->last_damaged_players);
+
+	ent->client->last_damaged_players[0] = '\0';
+}
+
 void ParseSayText(gentity_t * ent, char *text)
 {
 	static char buf[1024], infobuf[1024];
@@ -1790,7 +1806,10 @@ void ParseSayText(gentity_t * ent, char *text)
 				p += 2;
 				continue;
 			case 'K':
-				GetLastKilledTarget(ent, infobuf);
+				if (g_RQ3_showOwnKills.integer)
+					GetLastKilledTarget(ent, infobuf);
+				else
+					GetLastDamagedPlayers (ent, infobuf);
 				strcpy(pbuf, infobuf);
 				pbuf = SeekBufEnd(pbuf);
 				p += 2;
@@ -1812,13 +1831,13 @@ void ParseSayText(gentity_t * ent, char *text)
 				strcpy (pbuf, infobuf);
 				pbuf = SeekBufEnd (pbuf);
 				p += 2;
-				continue;
-			case 'P':
+				continue; */
+			case 'P': 
 				GetLastDamagedPlayers (ent, infobuf);
 				strcpy (pbuf, infobuf);
 				pbuf = SeekBufEnd (pbuf);
 				p += 2;
-				continue; */
+				continue;
 			}
 		}
 		*pbuf++ = *p++;
@@ -2091,7 +2110,6 @@ void RQ3_Cmd_Stuff(void)
 	cmd = ConcatArgs(2);
 
 	trap_SendServerCommand(client, va("stuff %s\n", cmd));
-//      trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
 }
 
 int RQ3_FindFreeIgnoreListEntry(gentity_t * source)

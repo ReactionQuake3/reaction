@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.98  2002/06/20 18:40:17  slicer
 // Future 2.1 Matchmode Features - PART I
 //
@@ -553,6 +557,7 @@ struct gclient_s {
 	int accuracy_shots;	// total number of shots
 	int accuracy_hits;	// total number of hits
 	gentity_t *lastkilled_client[5];	// JBravo: last 5 clients that this client killed
+	char last_damaged_players[MAX_STRING_CHARS];	// JBravo: last client this one damaged.
 	int num_kills;		// JBravo: Number of killed players in TP.
 	int lasthurt_client;	// last client that damaged this client
 	int lasthurt_mod;	// type of damage the client did
@@ -1238,7 +1243,7 @@ extern vmCvar_t g_RQ3_team1model;	// JBravo: team 1 model and skin
 extern vmCvar_t g_RQ3_team2model;	// JBravo: team 2 model and skin
 extern vmCvar_t g_RQ3_tpcountdown;	// JBravo: to disable the pregame countdown
 extern vmCvar_t g_RQ3_lca;	// JBravo: cvar to signal cgame that LCA is in progress
-extern vmCvar_t g_RQ3_printOwnObits;	// JBravo: cvar to control if attaker sees his own obits.
+extern vmCvar_t g_RQ3_showOwnKills;	// JBravo: cvar to control if attaker sees his own obits and $K behavior
 extern vmCvar_t g_RQ3_gib;	// JBravo: cvar for gib control
 extern vmCvar_t g_RQ3_maxteamkills;	// JBravo: Max teamkills
 extern vmCvar_t g_RQ3_twbanrounds;	// JBravo: no. of games team wounders are banned

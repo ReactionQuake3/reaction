@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.92  2002/06/20 18:40:17  slicer
 // Future 2.1 Matchmode Features - PART I
 //
@@ -340,7 +344,7 @@ vmCvar_t g_RQ3_team2name;
 vmCvar_t g_RQ3_team1model;
 vmCvar_t g_RQ3_team2model;
 vmCvar_t g_RQ3_tpcountdown;
-vmCvar_t g_RQ3_printOwnObits;
+vmCvar_t g_RQ3_showOwnKills;
 vmCvar_t g_RQ3_gib;
 vmCvar_t g_RQ3_maxteamkills;
 vmCvar_t g_RQ3_twbanrounds;
@@ -483,7 +487,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse},
-	{&g_RQ3_printOwnObits, "g_RQ3_printOwnObits", "0", CVAR_ARCHIVE, 0, qfalse},
+	{&g_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_gib, "g_RQ3_gib", "1", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_lca, "g_RQ3_lca", "0", CVAR_ROM, 0, qfalse},
 	{&g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},

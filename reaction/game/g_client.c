@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.97  2002/06/19 18:18:09  jbravo
 // Small cleanups for compiler warnings
 //
@@ -1071,7 +1075,7 @@ void ClientUserinfoChanged(int clientNum)
 			} else {
 				skin2 = "cyrus";
 			}
-			if (RQ3_Validatemodel(model2)) {
+			if (RQ3_Validatemodel(model2) != -1) {
 				Com_sprintf(model, sizeof(model), "%s/%s", model2, skin2);
 				Com_sprintf(headModel, sizeof(headModel), "%s/%s", model2, skin2);
 			} else {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/06/20 22:32:43  jbravo
+// Added last damaged player and fixed a test2 model problem (atrimum my ass :)
+// Changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and it also controls $K
+//
 // Revision 1.98  2002/06/16 20:09:42  niceass
 // knockback fix
 //
@@ -639,7 +643,7 @@ void SendObit(char *msg, gentity_t * deadguy, gentity_t * attacker)
 	if (g_gametype.integer < GT_TEAM) {
 		trap_SendServerCommand(-1, va("print \"%s\"", msg));
 	} else {
-		if (g_RQ3_printOwnObits.integer == 0) {
+		if (g_RQ3_showOwnKills.integer == 0) {
 			for (i = 0; i < level.maxclients; i++) {
 				other = &g_entities[i];
 				if (!other->inuse || !other->client)
@@ -2249,6 +2253,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += 100;
 			else
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+				Com_sprintf(attacker->client->last_damaged_players, sizeof(attacker->client->last_damaged_players),
+						"%s^7", targ->client->pers.netname);
 		}
 		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
