@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/06/29 21:58:14  niceass
+// no more enemy bubbles
+//
 // Revision 1.37  2002/06/25 06:11:36  niceass
 // flag positioning enhancement! (F.P.E.)
 //
@@ -2147,6 +2150,13 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 {
 	int rf;
 	refEntity_t ent;
+
+	// NiceAss: Don't draw floating sprites for enemies in TP
+	if ( cgs.gametype >= GT_TEAM && 
+		 cgs.clientinfo[cent->currentState.clientNum].team != cg.snap->ps.persistant[PERS_SAVEDTEAM] &&
+		 ( cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || 
+		 cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE ) )
+		 return;
 
 	if (cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson) {
 		rf = RF_THIRD_PERSON;	// only show in mirrors
