@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/06/23 23:09:20  niceass
+// modified upper right scores
+//
 // Revision 1.50  2002/06/23 21:44:07  jbravo
 // Fixed shots fired stats for non TP modes and some cleanups
 //
@@ -585,49 +588,67 @@ static float CG_DrawScore(float y)
 {
 	char *s;
 	int w, x;
-	float Color[4];
+	float BColor[4], FColor[4];
 
 	y += 4;
 
+	// What about spectator?
+	MAKERGBA(FColor, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	if (cgs.gametype >= GT_TEAM) {
+		// The other team:
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+			s = va("%i", cgs.scores2);							// Blue
+			MAKERGBA(BColor, 0.0f, 0.0f, 1.0f, 0.4f);
+		}
+		else {
+			s = va("%i", cgs.scores1);							// Red
+			MAKERGBA(BColor, 1.0f, 0.0f, 0.0f, 0.4f);
+		}
+
+		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		x = w;
+
+		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
+		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
+	
+		// Your team:
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+			s = va("%i", cgs.scores1);							// Red
+			MAKERGBA(BColor, 1.0f, 0.0f, 0.0f, 0.4f);
+		}
+		else {
+			s = va("%i", cgs.scores2);							// Blue
+			MAKERGBA(BColor, 0.0f, 0.0f, 1.0f, 0.4f);
+		}
+
+		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		x += w + 9;
+
+		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
+		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
+	}
+
 	s = va("%i", cg.snap->ps.persistant[PERS_SCORE]);
 	w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
-	x = w;
 
-	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+	if (cgs.gametype >= GT_TEAM) {
+		x += w + 5;
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_SPECTATOR)
+			x += 4;
+	}
+	else
+		x = w;
 
-	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+	MAKERGBA(BColor, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+
+	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
 
 	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
 
-	if (cgs.gametype >= GT_TEAM) {
-		// blue team
-		s = va("%i", cgs.scores2);
-		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
-		x += w + 10;
-
-		MAKERGBA(Color, 0.0f, 0.0f, 1.0f, 0.4f);
-		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
-
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
-
-		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
-
-		// red team
-		s = va("%i", cgs.scores1);
-		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
-		x += w + 10;
-
-		MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 0.4f);
-		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
-
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
-
-		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
-	}
 
 	return y + SMALLCHAR_HEIGHT + 4;
 }
