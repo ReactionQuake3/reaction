@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/03/02 14:54:24  jbravo
+// Added the skin and model names to the name of the player thats being
+// followed, as in AQ
+//
 // Revision 1.63  2002/03/01 20:22:31  jbravo
 // Fixed a small booboo with the teamcounts
 //
@@ -1087,7 +1091,7 @@ static void G_SayTo(gentity_t *ent, gentity_t *other, int mode, int color, const
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
 		(other->client->sess.sessionTeam == TEAM_RED ||
 		 other->client->sess.sessionTeam == TEAM_BLUE) &&
-		 g_gametype.integer == GT_TEAMPLAY) {
+		 level.team_round_going && g_gametype.integer == GT_TEAMPLAY) {
 		return;
 	}
 

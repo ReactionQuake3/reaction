@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/02 14:54:24  jbravo
+// Added the skin and model names to the name of the player thats being
+// followed, as in AQ
+//
 // Revision 1.22  2002/02/28 05:41:54  blaze
 // weapons stats on client side
 //
@@ -2474,6 +2478,8 @@ static qboolean CG_DrawFollow( void ) {
 	float		x;
 	vec4_t		color;
 	const char	*name;
+	int		team;
+	char		combinedName[512];
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
@@ -2483,18 +2489,22 @@ static qboolean CG_DrawFollow( void ) {
 	color[2] = 1;
 	color[3] = 1;
 
+	team = cgs.clientinfo[ cg.snap->ps.clientNum ].team;
+
+	Com_sprintf (combinedName, sizeof(combinedName), "%s\\%s/%s",
+		cgs.clientinfo[ cg.snap->ps.clientNum ].name,
+		cgs.clientinfo[ cg.snap->ps.clientNum ].modelName,
+		cgs.clientinfo[ cg.snap->ps.clientNum ].skinName);
+	
 
 	CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
 
-	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
+	x = 0.5 * ( 640 - GIANT_WIDTH -16 * CG_DrawStrlen( combinedName ) );
 
-	x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
-
-	CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
+	CG_DrawStringExt( x, 40, combinedName, color, qtrue, qtrue, GIANT_WIDTH - 16, GIANT_HEIGHT - 16, 0 );
 
 	return qtrue;
 }
-
 
 
 /*

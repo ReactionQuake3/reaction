@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/03/02 14:54:24  jbravo
+// Added the skin and model names to the name of the player thats being
+// followed, as in AQ
+//
 // Revision 1.41  2002/03/01 18:21:26  jbravo
 // Cleanups and removal of g_RQ3_sniperup
 //
@@ -1156,7 +1160,7 @@ void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
 	int			flags;
-	int savedPing,i;
+	int savedPing, i;
 	int savedPers[MAX_PERSISTANT];
 
 	ent = g_entities + clientNum;
@@ -1237,6 +1241,7 @@ void ClientBegin( int clientNum ) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
 		if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
+		i = RQ3TeamCount( -1, client->sess.sessionTeam);
 	}
 }
 
@@ -1571,7 +1576,7 @@ server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
-	int			i;
+	int		oldTeam, i;
 
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet
@@ -1580,6 +1585,11 @@ void ClientDisconnect( int clientNum ) {
 	ent = g_entities + clientNum;
 	if ( !ent->client ) {
 		return;
+	}
+
+// JBravo: to keep the ui teamcount cvars right.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		oldTeam = ent->client->sess.sessionTeam;
 	}
 
 	//Slicer: matchmode
@@ -1646,6 +1656,11 @@ void ClientDisconnect( int clientNum ) {
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
+
+// JBravo: to keep the ui teamcount cvars right.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		i = RQ3TeamCount( -1, oldTeam);
+	}
 
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum, qfalse );
