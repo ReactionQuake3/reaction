@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/04/30 12:14:53  makro
+// Fixed a small warning
+//
 // Revision 1.19  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -191,9 +194,6 @@ int RQ3_Bot_ClipForWeapon( bot_state_t *bs, int weapon )
 			return 0;
 			break;
 	}
-
-	//not needed, but oh well...
-	return 0;
 }
 
 
