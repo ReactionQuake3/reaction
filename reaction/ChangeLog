@@ -64,3 +64,7 @@
 * Dead players could talk to the living during the time before they respawned as spectators.
 * Spectators in in-eyes mode now witness the death of the player they follow before moving on
 * Added g_RQ3_ppl_idletime and g_RQ3_idleaction cvars.
+* Changed scoreboard to icon instead of a 3d player head
+* Minor changes to physics
+* Minor changes to who can be seen as dead and alive in the scoreboard
+* Shell ejections on spawn in TP should be fixed
