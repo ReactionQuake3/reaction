@@ -1,0 +1,43 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: ui - Win32 vector--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC38.tmp" with contents
+[
+/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /Fp"ui___Win32_vector/ui.pch" /YX /Fo"ui___Win32_vector/" /Fd"ui___Win32_vector/" /FD /c 
+"C:\reaction\ta_ui\ui_players.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC38.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC39.tmp" with contents
+[
+/nologo /base:"0x40000000" /dll /incremental:no /pdb:"ui___Win32_vector/uix86.pdb" /map:"ui___Win32_vector/uix86.map" /machine:I386 /def:".\ui.def" /out:"../Release_TA/uix86.dll" /implib:"ui___Win32_vector/uix86.lib" 
+.\ui___Win32_vector\bg_misc.obj
+.\ui___Win32_vector\q_math.obj
+.\ui___Win32_vector\q_shared.obj
+.\ui___Win32_vector\ui_atoms.obj
+.\ui___Win32_vector\ui_gameinfo.obj
+.\ui___Win32_vector\ui_main.obj
+.\ui___Win32_vector\ui_players.obj
+.\ui___Win32_vector\ui_shared.obj
+.\ui___Win32_vector\ui_syscalls.obj
+.\ui___Win32_vector\ui_util.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPC39.tmp"
+<h3>Output Window</h3>
+Compiling...
+ui_players.c
+C:\reaction\ta_ui\ui_players.c(678) : warning C4101: 'barrel' : unreferenced local variable
+Linking...
+   Creating library ui___Win32_vector/uix86.lib and object ui___Win32_vector/uix86.exp
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

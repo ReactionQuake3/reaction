@@ -1,0 +1,2278 @@
+ uix86
+
+ Timestamp is 3c350090 (Thu Jan 03 18:08:32 2002)
+
+ Preferred load address is 40000000
+
+ Start         Length     Name                   Class
+ 0001:00000000 0001dcdaH .text                   CODE
+ 0002:00000000 000000a8H .idata$5                DATA
+ 0002:000000a8 00000647H .rdata                  DATA
+ 0002:000006f0 00000014H .idata$2                DATA
+ 0002:00000704 00000014H .idata$3                DATA
+ 0002:00000718 000000a8H .idata$4                DATA
+ 0002:000007c0 000002d2H .idata$6                DATA
+ 0002:00000aa0 00000056H .edata                  DATA
+ 0003:00000000 00000004H .CRT$XCA                DATA
+ 0003:00000004 00000004H .CRT$XCZ                DATA
+ 0003:00000008 00000004H .CRT$XIA                DATA
+ 0003:0000000c 00000008H .CRT$XIC                DATA
+ 0003:00000014 00000004H .CRT$XIZ                DATA
+ 0003:00000018 00000004H .CRT$XPA                DATA
+ 0003:0000001c 00000004H .CRT$XPX                DATA
+ 0003:00000020 00000004H .CRT$XPZ                DATA
+ 0003:00000024 00000004H .CRT$XTA                DATA
+ 0003:00000028 00000004H .CRT$XTZ                DATA
+ 0003:00000030 000074fcH .data                   DATA
+ 0003:00007530 001bc070H .bss                    DATA
+
+  Address         Publics by Value              Rva+Base     Lib:Object
+
+ 0001:00000000       _AnglesToAxis              40001000 f   q_math.obj
+ 0001:00000050       _AxisClear                 40001050 f   q_math.obj
+ 0001:00000080       _Q_fabs                    40001080 f   q_math.obj
+ 0001:000000a0       _AngleSubtract             400010a0 f   q_math.obj
+ 0001:000000f0       _AnglesSubtract            400010f0 f   q_math.obj
+ 0001:00000140       _AngleMod                  40001140 f   q_math.obj
+ 0001:00000170       _MatrixMultiply            40001170 f   q_math.obj
+ 0001:00000260       _AngleVectors              40001260 f   q_math.obj
+ 0001:000003b0       _Com_Clamp                 400013b0 f   q_shared.obj
+ 0001:000003e0       _COM_StripExtension        400013e0 f   q_shared.obj
+ 0001:00000410       _COM_Parse                 40001410 f   q_shared.obj
+ 0001:00000420       _COM_Compress              40001420 f   q_shared.obj
+ 0001:00000510       _COM_ParseExt              40001510 f   q_shared.obj
+ 0001:00000680       _Q_strncpyz                40001680 f   q_shared.obj
+ 0001:000006e0       _Q_stricmpn                400016e0 f   q_shared.obj
+ 0001:00000770       _Q_stricmp                 40001770 f   q_shared.obj
+ 0001:000007a0       _Q_strupr                  400017a0 f   q_shared.obj
+ 0001:000007d0       _Q_strcat                  400017d0 f   q_shared.obj
+ 0001:00000820       _Q_CleanStr                40001820 f   q_shared.obj
+ 0001:00000870       _Com_sprintf               40001870 f   q_shared.obj
+ 0001:000008f0       _va                        400018f0 f   q_shared.obj
+ 0001:00000930       _Info_ValueForKey          40001930 f   q_shared.obj
+ 0001:00000a20       _Info_RemoveKey            40001a20 f   q_shared.obj
+ 0001:00000b20       _Info_SetValueForKey       40001b20 f   q_shared.obj
+ 0001:00000cf0       _Com_Error                 40001cf0 f   ui_atoms.obj
+ 0001:00000d30       _Com_Printf                40001d30 f   ui_atoms.obj
+ 0001:00000d70       _UI_Argv                   40001d70 f   ui_atoms.obj
+ 0001:00000d90       _UI_Cvar_VariableString    40001d90 f   ui_atoms.obj
+ 0001:00000db0       _UI_SetBestScores          40001db0 f   ui_atoms.obj
+ 0001:00001110       _UI_LoadBestScores         40002110 f   ui_atoms.obj
+ 0001:00001220       _UI_ClearScores            40002220 f   ui_atoms.obj
+ 0001:000012f0       _UI_ConsoleCommand         400022f0 f   ui_atoms.obj
+ 0001:00001860       _UI_AdjustFrom640          40002860 f   ui_atoms.obj
+ 0001:000018a0       _UI_DrawHandlePic          400028a0 f   ui_atoms.obj
+ 0001:00001960       _UI_FillRect               40002960 f   ui_atoms.obj
+ 0001:000019c0       _UI_SetColor               400029c0 f   ui_atoms.obj
+ 0001:000019d0       _UI_ParseInfos             400029d0 f   ui_gameinfo.obj
+ 0001:00001bc0       _UI_LoadArenas             40002bc0 f   ui_gameinfo.obj
+ 0001:00001ff0       _UI_LoadBots               40002ff0 f   ui_gameinfo.obj
+ 0001:000021f0       _UI_GetBotInfoByNumber     400031f0 f   ui_gameinfo.obj
+ 0001:00002220       _UI_GetNumBots             40003220 f   ui_gameinfo.obj
+ 0001:00002230       _UI_GetBotNameByNumber     40003230 f   ui_gameinfo.obj
+ 0001:00002260       _vmMain                    40003260 f   ui_main.obj
+ 0001:00002340       _AssetCache                40003340 f   ui_main.obj
+ 0001:00002490       __UI_DrawSides             40003490 f   ui_main.obj
+ 0001:00002520       __UI_DrawTopBottom         40003520 f   ui_main.obj
+ 0001:000025b0       __UI_DrawRect              400035b0 f   ui_main.obj
+ 0001:00002600       _Text_Width                40003600 f   ui_main.obj
+ 0001:000026b0       _Text_Height               400036b0 f   ui_main.obj
+ 0001:00002780       _Text_PaintChar            40003780 f   ui_main.obj
+ 0001:000027f0       _Text_Paint                400037f0 f   ui_main.obj
+ 0001:00002a40       _Text_PaintWithCursor      40003a40 f   ui_main.obj
+ 0001:00002d60       _UI_ShowPostGame           40003d60 f   ui_main.obj
+ 0001:00002db0       __UI_Refresh               40003db0 f   ui_main.obj
+ 0001:00002eb0       __UI_Shutdown              40003eb0 f   ui_main.obj
+ 0001:00002ec0       _GetMenuBuffer             40003ec0 f   ui_main.obj
+ 0001:00002f60       _Asset_Parse               40003f60 f   ui_main.obj
+ 0001:000033b0       _UI_Report                 400043b0 f   ui_main.obj
+ 0001:000033c0       _UI_ParseMenu              400043c0 f   ui_main.obj
+ 0001:00003470       _Load_Menu                 40004470 f   ui_main.obj
+ 0001:000034f0       _UI_LoadMenus              400044f0 f   ui_main.obj
+ 0001:000035d0       _UI_Load                   400045d0 f   ui_main.obj
+ 0001:00003670       _UI_ServersSort            40004670 f   ui_main.obj
+ 0001:000036e0       _UI_hasSkinForBase         400046e0 f   ui_main.obj
+ 0001:00004970       __UI_Init                  40005970 f   ui_main.obj
+ 0001:0000c310       __UI_KeyEvent              4000d310 f   ui_main.obj
+ 0001:0000c390       __UI_MouseEvent            4000d390 f   ui_main.obj
+ 0001:0000c410       _UI_LoadNonIngame          4000d410 f   ui_main.obj
+ 0001:0000c450       __UI_SetActiveMenu         4000d450 f   ui_main.obj
+ 0001:0000c5e0       __UI_IsFullscreen          4000d5e0 f   ui_main.obj
+ 0001:0000c5f0       _Text_PaintCenter          4000d5f0 f   ui_main.obj
+ 0001:0000c640       _UI_DrawConnectScreen      4000d640 f   ui_main.obj
+ 0001:0000ce80       _UI_RegisterCvars          4000de80 f   ui_main.obj
+ 0001:0000cec0       _UI_UpdateCvars            4000dec0 f   ui_main.obj
+ 0001:0000d1b0       _UI_DrawPlayer             4000e1b0 f   ui_players.obj
+ 0001:0000e510       _UI_RegisterClientModelname 4000f510 f   ui_players.obj
+ 0001:0000ee40       _UI_PlayerInfo_SetModel    4000fe40 f   ui_players.obj
+ 0001:0000eeb0       _UI_PlayerInfo_SetInfo     4000feb0 f   ui_players.obj
+ 0001:0000f110       _UI_Alloc                  40010110 f   ui_shared.obj
+ 0001:0000f160       _UI_InitMemory             40010160 f   ui_shared.obj
+ 0001:0000f170       _UI_OutOfMemory            40010170 f   ui_shared.obj
+ 0001:0000f180       _String_Alloc              40010180 f   ui_shared.obj
+ 0001:0000f2f0       _String_Report             400102f0 f   ui_shared.obj
+ 0001:0000f370       _String_Init               40010370 f   ui_shared.obj
+ 0001:0000f3d0       _PC_SourceError            400103d0 f   ui_shared.obj
+ 0001:0000f440       _LerpColor                 40010440 f   ui_shared.obj
+ 0001:0000f4b0       _Float_Parse               400104b0 f   ui_shared.obj
+ 0001:0000f4e0       _PC_Float_Parse            400104e0 f   ui_shared.obj
+ 0001:0000f590       _Color_Parse               40010590 f   ui_shared.obj
+ 0001:0000f5d0       _PC_Color_Parse            400105d0 f   ui_shared.obj
+ 0001:0000f610       _Int_Parse                 40010610 f   ui_shared.obj
+ 0001:0000f640       _PC_Int_Parse              40010640 f   ui_shared.obj
+ 0001:0000f6e0       _Rect_Parse                400106e0 f   ui_shared.obj
+ 0001:0000f740       _PC_Rect_Parse             40010740 f   ui_shared.obj
+ 0001:0000f7a0       _String_Parse              400107a0 f   ui_shared.obj
+ 0001:0000f7d0       _PC_String_Parse           400107d0 f   ui_shared.obj
+ 0001:0000f820       _PC_Script_Parse           40010820 f   ui_shared.obj
+ 0001:0000f940       _Init_Display              40010940 f   ui_shared.obj
+ 0001:0000f950       _GradientBar_Paint         40010950 f   ui_shared.obj
+ 0001:0000f990       _Window_Init               40010990 f   ui_shared.obj
+ 0001:0000f9c0       _Fade                      400109c0 f   ui_shared.obj
+ 0001:0000fa40       _Window_Paint              40010a40 f   ui_shared.obj
+ 0001:0000fe80       _Item_SetScreenCoords      40010e80 f   ui_shared.obj
+ 0001:0000fed0       _Item_UpdatePosition       40010ed0 f   ui_shared.obj
+ 0001:0000ff30       _Menu_UpdatePosition       40010f30 f   ui_shared.obj
+ 0001:0000ffb0       _Menu_PostParse            40010fb0 f   ui_shared.obj
+ 0001:0000fff0       _Menu_ClearFocus           40010ff0 f   ui_shared.obj
+ 0001:00010060       _IsVisible                 40011060 f   ui_shared.obj
+ 0001:00010080       _Rect_ContainsPoint        40011080 f   ui_shared.obj
+ 0001:000100d0       _Menu_ItemsMatchingGroup   400110d0 f   ui_shared.obj
+ 0001:00010140       _Menu_GetMatchingItemByNumber 40011140 f   ui_shared.obj
+ 0001:000101c0       _Script_SetColor           400111c0 f   ui_shared.obj
+ 0001:00010290       _Script_SetAsset           40011290 f   ui_shared.obj
+ 0001:000102b0       _Script_SetBackground      400112b0 f   ui_shared.obj
+ 0001:000102e0       _Menu_FindItemByName       400112e0 f   ui_shared.obj
+ 0001:00010340       _Script_SetTeamColor       40011340 f   ui_shared.obj
+ 0001:00010390       _Script_SetItemColor       40011390 f   ui_shared.obj
+ 0001:000104b0       _Menu_ShowItemByName       400114b0 f   ui_shared.obj
+ 0001:00010530       _Menu_FadeItemByName       40011530 f   ui_shared.obj
+ 0001:00010590       _Menus_FindByName          40011590 f   ui_shared.obj
+ 0001:000105e0       _Menus_OpenByName          400115e0 f   ui_shared.obj
+ 0001:000105f0       _Menus_CloseByName         400115f0 f   ui_shared.obj
+ 0001:00010660       _Menus_CloseAll            40011660 f   ui_shared.obj
+ 0001:000106a0       _Script_Show               400116a0 f   ui_shared.obj
+ 0001:000106e0       _Script_Hide               400116e0 f   ui_shared.obj
+ 0001:00010720       _Script_FadeIn             40011720 f   ui_shared.obj
+ 0001:00010760       _Script_FadeOut            40011760 f   ui_shared.obj
+ 0001:000107a0       _Script_Open               400117a0 f   ui_shared.obj
+ 0001:000107d0       _Script_Close              400117d0 f   ui_shared.obj
+ 0001:00010800       _Menu_TransitionItemByName 40011800 f   ui_shared.obj
+ 0001:00010950       _Script_Transition         40011950 f   ui_shared.obj
+ 0001:00010a30       _Menu_OrbitItemByName      40011a30 f   ui_shared.obj
+ 0001:00010aa0       _Script_Orbit              40011aa0 f   ui_shared.obj
+ 0001:00010b50       _Script_SetFocus           40011b50 f   ui_shared.obj
+ 0001:00010be0       _Script_SetPlayerModel     40011be0 f   ui_shared.obj
+ 0001:00010c10       _Script_SetPlayerHead      40011c10 f   ui_shared.obj
+ 0001:00010c40       _Script_SetCvar            40011c40 f   ui_shared.obj
+ 0001:00010c90       _Script_Exec               40011c90 f   ui_shared.obj
+ 0001:00010cd0       _Script_Play               40011cd0 f   ui_shared.obj
+ 0001:00010d10       _Script_playLooped         40011d10 f   ui_shared.obj
+ 0001:00010d50       _Item_RunScript            40011d50 f   ui_shared.obj
+ 0001:00010e40       _Item_EnableShowViaCvar    40011e40 f   ui_shared.obj
+ 0001:00010f60       _Item_SetFocus             40011f60 f   ui_shared.obj
+ 0001:00011100       _Item_ListBox_MaxScroll    40012100 f   ui_shared.obj
+ 0001:00011160       _Item_ListBox_ThumbPosition 40012160 f   ui_shared.obj
+ 0001:00011210       _Item_ListBox_ThumbDrawPosition 40012210 f   ui_shared.obj
+ 0001:00011320       _Item_Slider_ThumbPosition 40012320 f   ui_shared.obj
+ 0001:000113b0       _Item_Slider_OverSlider    400123b0 f   ui_shared.obj
+ 0001:00011410       _Item_ListBox_OverLB       40012410 f   ui_shared.obj
+ 0001:00011690       _Item_ListBox_MouseEnter   40012690 f   ui_shared.obj
+ 0001:000117c0       _Item_MouseEnter           400127c0 f   ui_shared.obj
+ 0001:00011900       _Item_MouseLeave           40012900 f   ui_shared.obj
+ 0001:00011950       _Item_SetMouseOver         40012950 f   ui_shared.obj
+ 0001:00011980       _Item_OwnerDraw_HandleKey  40012980 f   ui_shared.obj
+ 0001:000119c0       _Item_ListBox_HandleKey    400129c0 f   ui_shared.obj
+ 0001:00011d80       _Item_YesNo_HandleKey      40012d80 f   ui_shared.obj
+ 0001:00011e30       _Item_Multi_CountSettings  40012e30 f   ui_shared.obj
+ 0001:00011e50       _Item_Multi_FindCvarByValue 40012e50 f   ui_shared.obj
+ 0001:00011f20       _Item_Multi_Setting        40012f20 f   ui_shared.obj
+ 0001:00011ff0       _Item_Multi_HandleKey      40012ff0 f   ui_shared.obj
+ 0001:00012140       _Item_TextField_HandleKey  40013140 f   ui_shared.obj
+ 0001:00012580       _Item_StartCapture         40013580 f   ui_shared.obj
+ 0001:000129e0       _Item_StopCapture          400139e0 f   ui_shared.obj
+ 0001:000129f0       _Item_Slider_HandleKey     400139f0 f   ui_shared.obj
+ 0001:00012b60       _Item_HandleKey            40013b60 f   ui_shared.obj
+ 0001:00012c80       _Item_Action               40013c80 f   ui_shared.obj
+ 0001:00012ca0       _Menu_SetPrevCursorItem    40013ca0 f   ui_shared.obj
+ 0001:00012d80       _Menu_SetNextCursorItem    40013d80 f   ui_shared.obj
+ 0001:00012e60       _Menus_Activate            40013e60 f   ui_shared.obj
+ 0001:00012fa0       _Display_VisibleMenuCount  40013fa0 f   ui_shared.obj
+ 0001:00012fd0       _Menus_HandleOOBClick      40013fd0 f   ui_shared.obj
+ 0001:000130d0       _Menu_HandleKey            400140d0 f   ui_shared.obj
+ 0001:00013630       _ToWindowCoords            40014630 f   ui_shared.obj
+ 0001:00013660       _Item_SetTextExtents       40014660 f   ui_shared.obj
+ 0001:00013810       _Item_TextColor            40014810 f   ui_shared.obj
+ 0001:000139f0       _Item_Text_AutoWrapped_Paint 400149f0 f   ui_shared.obj
+ 0001:00013be0       _Item_Text_Wrapped_Paint   40014be0 f   ui_shared.obj
+ 0001:00013d30       _Item_Text_Paint           40014d30 f   ui_shared.obj
+ 0001:00013e10       _Item_TextField_Paint      40014e10 f   ui_shared.obj
+ 0001:00014010       _Item_YesNo_Paint          40015010 f   ui_shared.obj
+ 0001:000141d0       _Item_Multi_Paint          400151d0 f   ui_shared.obj
+ 0001:00014340       _Controls_GetConfig        40015340 f   ui_shared.obj
+ 0001:00014410       _Controls_SetConfig        40015410 f   ui_shared.obj
+ 0001:00014480       _Controls_SetDefaults      40015480 f   ui_shared.obj
+ 0001:000144b0       _BindingIDFromName         400154b0 f   ui_shared.obj
+ 0001:00014500       _BindingFromName           40015500 f   ui_shared.obj
+ 0001:00014600       _Item_Slider_Paint         40015600 f   ui_shared.obj
+ 0001:00014790       _Item_Bind_Paint           40015790 f   ui_shared.obj
+ 0001:00014960       _Display_KeyBindPending    40015960 f   ui_shared.obj
+ 0001:00014970       _Item_Bind_HandleKey       40015970 f   ui_shared.obj
+ 0001:00014b90       _AdjustFrom640             40015b90 f   ui_shared.obj
+ 0001:00014be0       _Item_Model_Paint          40015be0 f   ui_shared.obj
+ 0001:00014e50       _Item_ListBox_Paint        40015e50 f   ui_shared.obj
+ 0001:00015590       _Item_OwnerDraw_Paint      40016590 f   ui_shared.obj
+ 0001:00015950       _Item_Paint                40016950 f   ui_shared.obj
+ 0001:00015d40       _Menu_Init                 40016d40 f   ui_shared.obj
+ 0001:00015da0       _Menu_GetFocused           40016da0 f   ui_shared.obj
+ 0001:00015de0       _Menu_SetFeederSelection   40016de0 f   ui_shared.obj
+ 0001:00015ea0       _Menus_AnyFullScreenVisible 40016ea0 f   ui_shared.obj
+ 0001:00015ed0       _Menus_ActivateByName      40016ed0 f   ui_shared.obj
+ 0001:00015f50       _Item_Init                 40016f50 f   ui_shared.obj
+ 0001:00015f80       _Menu_HandleMouseMove      40016f80 f   ui_shared.obj
+ 0001:00016110       _Menu_Paint                40017110 f   ui_shared.obj
+ 0001:00016230       _Item_ValidateTypeData     40017230 f   ui_shared.obj
+ 0001:00016300       _KeywordHash_Key           40017300 f   ui_shared.obj
+ 0001:00016370       _KeywordHash_Add           40017370 f   ui_shared.obj
+ 0001:00016390       _KeywordHash_Find          40017390 f   ui_shared.obj
+ 0001:000163d0       _ItemParse_name            400173d0 f   ui_shared.obj
+ 0001:000163f0       _ItemParse_focusSound      400173f0 f   ui_shared.obj
+ 0001:00016430       _ItemParse_text            40017430 f   ui_shared.obj
+ 0001:00016430       _MenuParse_soundLoop       40017430 f   ui_shared.obj
+ 0001:00016450       _ItemParse_group           40017450 f   ui_shared.obj
+ 0001:00016470       _ItemParse_asset_model     40017470 f   ui_shared.obj
+ 0001:000164d0       _ItemParse_asset_shader    400174d0 f   ui_shared.obj
+ 0001:00016510       _ItemParse_model_origin    40017510 f   ui_shared.obj
+ 0001:00016570       _ItemParse_model_rotation  40017570 f   ui_shared.obj
+ 0001:000165a0       _ItemParse_model_angle     400175a0 f   ui_shared.obj
+ 0001:000165d0       _ItemParse_rect            400175d0 f   ui_shared.obj
+ 0001:000165f0       _ItemParse_style           400175f0 f   ui_shared.obj
+ 0001:000165f0       _MenuParse_style           400175f0 f   ui_shared.obj
+ 0001:00016610       _ItemParse_decoration      40017610 f   ui_shared.obj
+ 0001:00016620       _ItemParse_notselectable   40017620 f   ui_shared.obj
+ 0001:00016660       _ItemParse_wrapped         40017660 f   ui_shared.obj
+ 0001:00016680       _ItemParse_autowrapped     40017680 f   ui_shared.obj
+ 0001:000166a0       _ItemParse_horizontalscroll 400176a0 f   ui_shared.obj
+ 0001:000166c0       _ItemParse_type            400176c0 f   ui_shared.obj
+ 0001:000166f0       _ItemParse_model_fovx      400176f0 f   ui_shared.obj
+ 0001:000166f0       _ItemParse_elementwidth    400176f0 f   ui_shared.obj
+ 0001:00016720       _ItemParse_model_fovy      40017720 f   ui_shared.obj
+ 0001:00016720       _ItemParse_elementheight   40017720 f   ui_shared.obj
+ 0001:00016750       _ItemParse_special         40017750 f   ui_shared.obj
+ 0001:00016750       _ItemParse_feeder          40017750 f   ui_shared.obj
+ 0001:00016770       _ItemParse_elementtype     40017770 f   ui_shared.obj
+ 0001:000167b0       _ItemParse_columns         400177b0 f   ui_shared.obj
+ 0001:00016880       _ItemParse_bordersize      40017880 f   ui_shared.obj
+ 0001:00016880       _MenuParse_borderSize      40017880 f   ui_shared.obj
+ 0001:000168a0       _ItemParse_ownerdraw       400178a0 f   ui_shared.obj
+ 0001:000168d0       _MenuParse_fadeCycle       400178d0 f   ui_shared.obj
+ 0001:000168d0       _ItemParse_align           400178d0 f   ui_shared.obj
+ 0001:000168f0       _ItemParse_textalign       400178f0 f   ui_shared.obj
+ 0001:00016910       _ItemParse_textalignx      40017910 f   ui_shared.obj
+ 0001:00016910       _MenuParse_fadeAmount      40017910 f   ui_shared.obj
+ 0001:00016930       _ItemParse_textaligny      40017930 f   ui_shared.obj
+ 0001:00016950       _ItemParse_textscale       40017950 f   ui_shared.obj
+ 0001:00016970       _ItemParse_textstyle       40017970 f   ui_shared.obj
+ 0001:00016990       _ItemParse_backcolor       40017990 f   ui_shared.obj
+ 0001:00016990       _MenuParse_backcolor       40017990 f   ui_shared.obj
+ 0001:000169e0       _MenuParse_forecolor       400179e0 f   ui_shared.obj
+ 0001:000169e0       _ItemParse_forecolor       400179e0 f   ui_shared.obj
+ 0001:00016a30       _MenuParse_bordercolor     40017a30 f   ui_shared.obj
+ 0001:00016a30       _ItemParse_bordercolor     40017a30 f   ui_shared.obj
+ 0001:00016a80       _MenuParse_outlinecolor    40017a80 f   ui_shared.obj
+ 0001:00016a80       _ItemParse_outlinecolor    40017a80 f   ui_shared.obj
+ 0001:00016aa0       _ItemParse_background      40017aa0 f   ui_shared.obj
+ 0001:00016aa0       _MenuParse_background      40017aa0 f   ui_shared.obj
+ 0001:00016ae0       _ItemParse_cinematic       40017ae0 f   ui_shared.obj
+ 0001:00016ae0       _MenuParse_cinematic       40017ae0 f   ui_shared.obj
+ 0001:00016b00       _ItemParse_doubleClick     40017b00 f   ui_shared.obj
+ 0001:00016b40       _ItemParse_onFocus         40017b40 f   ui_shared.obj
+ 0001:00016b60       _ItemParse_leaveFocus      40017b60 f   ui_shared.obj
+ 0001:00016b80       _ItemParse_mouseEnter      40017b80 f   ui_shared.obj
+ 0001:00016ba0       _ItemParse_mouseExit       40017ba0 f   ui_shared.obj
+ 0001:00016bc0       _ItemParse_mouseEnterText  40017bc0 f   ui_shared.obj
+ 0001:00016be0       _ItemParse_mouseExitText   40017be0 f   ui_shared.obj
+ 0001:00016c00       _ItemParse_action          40017c00 f   ui_shared.obj
+ 0001:00016c20       _ItemParse_cvarTest        40017c20 f   ui_shared.obj
+ 0001:00016c40       _ItemParse_cvar            40017c40 f   ui_shared.obj
+ 0001:00016c90       _ItemParse_maxChars        40017c90 f   ui_shared.obj
+ 0001:00016ce0       _ItemParse_maxPaintChars   40017ce0 f   ui_shared.obj
+ 0001:00016d30       _ItemParse_cvarFloat       40017d30 f   ui_shared.obj
+ 0001:00016da0       _ItemParse_cvarStrList     40017da0 f   ui_shared.obj
+ 0001:00016ea0       _ItemParse_cvarFloatList   40017ea0 f   ui_shared.obj
+ 0001:00016f90       _ItemParse_addColorRange   40017f90 f   ui_shared.obj
+ 0001:00017010       _ItemParse_ownerdrawFlag   40018010 f   ui_shared.obj
+ 0001:00017010       _MenuParse_ownerdrawFlag   40018010 f   ui_shared.obj
+ 0001:00017040       _ItemParse_enableCvar      40018040 f   ui_shared.obj
+ 0001:00017070       _ItemParse_disableCvar     40018070 f   ui_shared.obj
+ 0001:000170b0       _ItemParse_showCvar        400180b0 f   ui_shared.obj
+ 0001:000170f0       _ItemParse_hideCvar        400180f0 f   ui_shared.obj
+ 0001:00017130       _Item_SetupKeywordHash     40018130 f   ui_shared.obj
+ 0001:00017170       _Item_Parse                40018170 f   ui_shared.obj
+ 0001:00017240       _Item_InitControls         40018240 f   ui_shared.obj
+ 0001:00017270       _MenuParse_font            40018270 f   ui_shared.obj
+ 0001:000172d0       _MenuParse_name            400182d0 f   ui_shared.obj
+ 0001:00017310       _MenuParse_fullscreen      40018310 f   ui_shared.obj
+ 0001:00017330       _MenuParse_rect            40018330 f   ui_shared.obj
+ 0001:00017350       _MenuParse_visible         40018350 f   ui_shared.obj
+ 0001:00017350       _ItemParse_visible         40018350 f   ui_shared.obj
+ 0001:00017380       _MenuParse_onOpen          40018380 f   ui_shared.obj
+ 0001:000173a0       _MenuParse_onClose         400183a0 f   ui_shared.obj
+ 0001:000173c0       _MenuParse_onESC           400183c0 f   ui_shared.obj
+ 0001:000173e0       _ItemParse_border          400183e0 f   ui_shared.obj
+ 0001:000173e0       _MenuParse_border          400183e0 f   ui_shared.obj
+ 0001:00017400       _MenuParse_focuscolor      40018400 f   ui_shared.obj
+ 0001:00017450       _MenuParse_disablecolor    40018450 f   ui_shared.obj
+ 0001:000174a0       _MenuParse_ownerdraw       400184a0 f   ui_shared.obj
+ 0001:000174c0       _MenuParse_popup           400184c0 f   ui_shared.obj
+ 0001:000174e0       _MenuParse_outOfBounds     400184e0 f   ui_shared.obj
+ 0001:00017500       _MenuParse_fadeClamp       40018500 f   ui_shared.obj
+ 0001:00017520       _MenuParse_itemDef         40018520 f   ui_shared.obj
+ 0001:000175c0       _Menu_SetupKeywordHash     400185c0 f   ui_shared.obj
+ 0001:00017600       _Menu_Parse                40018600 f   ui_shared.obj
+ 0001:000176e0       _Menu_New                  400186e0 f   ui_shared.obj
+ 0001:00017730       _Menu_Count                40018730 f   ui_shared.obj
+ 0001:00017740       _Menu_PaintAll             40018740 f   ui_shared.obj
+ 0001:00017800       _Menu_Reset                40018800 f   ui_shared.obj
+ 0001:00017810       _Display_MouseMove         40018810 f   ui_shared.obj
+ 0001:000178d0       _Display_CacheAll          400188d0 f   ui_shared.obj
+ 0001:00017a80       _dllEntry                  40018a80 f   ui_syscalls.obj
+ 0001:00017a90       _PASSFLOAT                 40018a90 f   ui_syscalls.obj
+ 0001:00017aa0       _trap_Print                40018aa0 f   ui_syscalls.obj
+ 0001:00017ac0       _trap_Error                40018ac0 f   ui_syscalls.obj
+ 0001:00017ae0       _trap_Milliseconds         40018ae0 f   ui_syscalls.obj
+ 0001:00017af0       _trap_Cvar_Register        40018af0 f   ui_syscalls.obj
+ 0001:00017b10       _trap_Cvar_Update          40018b10 f   ui_syscalls.obj
+ 0001:00017b30       _trap_Cvar_Set             40018b30 f   ui_syscalls.obj
+ 0001:00017b50       _trap_Cvar_VariableValue   40018b50 f   ui_syscalls.obj
+ 0001:00017b70       _trap_Cvar_VariableStringBuffer 40018b70 f   ui_syscalls.obj
+ 0001:00017b90       _trap_Cvar_SetValue        40018b90 f   ui_syscalls.obj
+ 0001:00017bb0       _trap_Argc                 40018bb0 f   ui_syscalls.obj
+ 0001:00017bc0       _trap_Argv                 40018bc0 f   ui_syscalls.obj
+ 0001:00017be0       _trap_Cmd_ExecuteText      40018be0 f   ui_syscalls.obj
+ 0001:00017c00       _trap_FS_FOpenFile         40018c00 f   ui_syscalls.obj
+ 0001:00017c20       _trap_FS_Read              40018c20 f   ui_syscalls.obj
+ 0001:00017c40       _trap_FS_Write             40018c40 f   ui_syscalls.obj
+ 0001:00017c60       _trap_FS_FCloseFile        40018c60 f   ui_syscalls.obj
+ 0001:00017c80       _trap_FS_GetFileList       40018c80 f   ui_syscalls.obj
+ 0001:00017ca0       _trap_R_RegisterModel      40018ca0 f   ui_syscalls.obj
+ 0001:00017cc0       _trap_R_RegisterSkin       40018cc0 f   ui_syscalls.obj
+ 0001:00017ce0       _trap_R_RegisterFont       40018ce0 f   ui_syscalls.obj
+ 0001:00017d00       _trap_R_RegisterShaderNoMip 40018d00 f   ui_syscalls.obj
+ 0001:00017d20       _trap_R_ClearScene         40018d20 f   ui_syscalls.obj
+ 0001:00017d30       _trap_R_AddRefEntityToScene 40018d30 f   ui_syscalls.obj
+ 0001:00017d50       _trap_R_AddLightToScene    40018d50 f   ui_syscalls.obj
+ 0001:00017da0       _trap_R_RenderScene        40018da0 f   ui_syscalls.obj
+ 0001:00017dc0       _trap_R_SetColor           40018dc0 f   ui_syscalls.obj
+ 0001:00017de0       _trap_R_DrawStretchPic     40018de0 f   ui_syscalls.obj
+ 0001:00017e70       _trap_R_ModelBounds        40018e70 f   ui_syscalls.obj
+ 0001:00017e90       _trap_CM_LerpTag           40018e90 f   ui_syscalls.obj
+ 0001:00017ed0       _trap_S_StartLocalSound    40018ed0 f   ui_syscalls.obj
+ 0001:00017ef0       _trap_S_RegisterSound      40018ef0 f   ui_syscalls.obj
+ 0001:00017f10       _trap_Key_KeynumToStringBuf 40018f10 f   ui_syscalls.obj
+ 0001:00017f30       _trap_Key_GetBindingBuf    40018f30 f   ui_syscalls.obj
+ 0001:00017f50       _trap_Key_SetBinding       40018f50 f   ui_syscalls.obj
+ 0001:00017f70       _trap_Key_GetOverstrikeMode 40018f70 f   ui_syscalls.obj
+ 0001:00017f80       _trap_Key_SetOverstrikeMode 40018f80 f   ui_syscalls.obj
+ 0001:00017fa0       _trap_Key_ClearStates      40018fa0 f   ui_syscalls.obj
+ 0001:00017fb0       _trap_Key_GetCatcher       40018fb0 f   ui_syscalls.obj
+ 0001:00017fc0       _trap_Key_SetCatcher       40018fc0 f   ui_syscalls.obj
+ 0001:00017fe0       _trap_GetClientState       40018fe0 f   ui_syscalls.obj
+ 0001:00018000       _trap_GetGlconfig          40019000 f   ui_syscalls.obj
+ 0001:00018020       _trap_GetConfigString      40019020 f   ui_syscalls.obj
+ 0001:00018040       _trap_LAN_GetServerCount   40019040 f   ui_syscalls.obj
+ 0001:00018060       _trap_LAN_GetServerAddressString 40019060 f   ui_syscalls.obj
+ 0001:00018080       _trap_LAN_GetServerInfo    40019080 f   ui_syscalls.obj
+ 0001:000180a0       _trap_LAN_GetServerPing    400190a0 f   ui_syscalls.obj
+ 0001:000180c0       _trap_LAN_ServerStatus     400190c0 f   ui_syscalls.obj
+ 0001:000180e0       _trap_LAN_SaveCachedServers 400190e0 f   ui_syscalls.obj
+ 0001:000180f0       _trap_LAN_LoadCachedServers 400190f0 f   ui_syscalls.obj
+ 0001:00018100       _trap_LAN_ResetPings       40019100 f   ui_syscalls.obj
+ 0001:00018120       _trap_LAN_MarkServerVisible 40019120 f   ui_syscalls.obj
+ 0001:00018140       _trap_LAN_ServerIsVisible  40019140 f   ui_syscalls.obj
+ 0001:00018160       _trap_LAN_UpdateVisiblePings 40019160 f   ui_syscalls.obj
+ 0001:00018180       _trap_LAN_AddServer        40019180 f   ui_syscalls.obj
+ 0001:000181a0       _trap_LAN_RemoveServer     400191a0 f   ui_syscalls.obj
+ 0001:000181c0       _trap_LAN_CompareServers   400191c0 f   ui_syscalls.obj
+ 0001:000181f0       _trap_GetCDKey             400191f0 f   ui_syscalls.obj
+ 0001:00018210       _trap_SetCDKey             40019210 f   ui_syscalls.obj
+ 0001:00018230       _trap_PC_LoadSource        40019230 f   ui_syscalls.obj
+ 0001:00018250       _trap_PC_FreeSource        40019250 f   ui_syscalls.obj
+ 0001:00018270       _trap_PC_ReadToken         40019270 f   ui_syscalls.obj
+ 0001:00018290       _trap_PC_SourceFileAndLine 40019290 f   ui_syscalls.obj
+ 0001:000182b0       _trap_S_StopBackgroundTrack 400192b0 f   ui_syscalls.obj
+ 0001:000182c0       _trap_S_StartBackgroundTrack 400192c0 f   ui_syscalls.obj
+ 0001:000182e0       _trap_RealTime             400192e0 f   ui_syscalls.obj
+ 0001:00018300       _trap_CIN_PlayCinematic    40019300 f   ui_syscalls.obj
+ 0001:00018330       _trap_CIN_StopCinematic    40019330 f   ui_syscalls.obj
+ 0001:00018350       _trap_CIN_RunCinematic     40019350 f   ui_syscalls.obj
+ 0001:00018370       _trap_CIN_DrawCinematic    40019370 f   ui_syscalls.obj
+ 0001:00018390       _trap_CIN_SetExtents       40019390 f   ui_syscalls.obj
+ 0001:000183c0       _trap_R_RemapShader        400193c0 f   ui_syscalls.obj
+ 0001:000183e0       _trap_VerifyCDKey          400193e0 f   ui_syscalls.obj
+ 0001:00018400       __fpmath                   40019400 f   LIBC:fpinit.obj
+ 0001:00018417       __fpclear                  40019417 f   LIBC:fpinit.obj
+ 0001:00018418       __cfltcvt_init             40019418 f   LIBC:fpinit.obj
+ 0001:00018450       __ftol                     40019450 f   LIBC:ftol.obj
+ 0001:00018477       _vsprintf                  40019477 f   LIBC:vsprintf.obj
+ 0001:000184c8       _atof                      400194c8 f   LIBC:atof.obj
+ 0001:00018520       _strncpy                   40019520 f   LIBC:strncpy.obj
+ 0001:0001861e       _tolower                   4001961e f   LIBC:tolower.obj
+ 0001:000186e9       _toupper                   400196e9 f   LIBC:toupper.obj
+ 0001:000187c0       __chkstk                   400197c0 f   LIBC:chkstk.obj
+ 0001:000187c0       __alloca_probe             400197c0 f   LIBC:chkstk.obj
+ 0001:00018800       _strchr                    40019800 f   LIBC:strchr.obj
+ 0001:00018806       ___from_strstr_to_strchr   40019806 f   LIBC:strchr.obj
+ 0001:000188bc       _atol                      400198bc f   LIBC:atox.obj
+ 0001:00018947       _atoi                      40019947 f   LIBC:atox.obj
+ 0001:00018960       _strstr                    40019960 f   LIBC:strstr.obj
+ 0001:000189e0       _qsort                     400199e0 f   LIBC:qsort.obj
+ 0001:00018bae       _rand                      40019bae f   LIBC:rand.obj
+ 0001:00018bd0       _memmove                   40019bd0 f   LIBC:memmove.obj
+ 0001:00018f05       __CRT_INIT@12              40019f05 f   LIBC:dllcrt0.obj
+ 0001:00018fbd       __DllMainCRTStartup@12     40019fbd f   LIBC:dllcrt0.obj
+ 0001:0001905a       __amsg_exit                4001a05a f   LIBC:dllcrt0.obj
+ 0001:0001908d       __setdefaultprecision      4001a08d f   LIBC:fp8.obj
+ 0001:0001909f       __ms_p5_test_fdiv          4001a09f f   LIBC:testfdiv.obj
+ 0001:000190dd       __ms_p5_mp_test_fdiv       4001a0dd f   LIBC:testfdiv.obj
+ 0001:00019106       __forcdecpt                4001a106 f   LIBC:cvt.obj
+ 0001:00019160       __cropzeros                4001a160 f   LIBC:cvt.obj
+ 0001:000191ae       __positive                 4001a1ae f   LIBC:cvt.obj
+ 0001:000191c6       __fassign                  4001a1c6 f   LIBC:cvt.obj
+ 0001:00019204       __cftoe                    4001a204 f   LIBC:cvt.obj
+ 0001:00019308       __cftof                    4001a308 f   LIBC:cvt.obj
+ 0001:000193e6       __cftog                    4001a3e6 f   LIBC:cvt.obj
+ 0001:000194cb       __cfltcvt                  4001a4cb f   LIBC:cvt.obj
+ 0001:00019541       __flsbuf                   4001a541 f   LIBC:_flsbuf.obj
+ 0001:00019656       __output                   4001a656 f   LIBC:output.obj
+ 0001:00019e60       __fltin                    4001ae60 f   LIBC:cfin.obj
+ 0001:00019f00       _strlen                    4001af00 f   LIBC:strlen.obj
+ 0001:00019f7b       __isctype                  4001af7b f   LIBC:isctype.obj
+ 0001:00019ff0       ___crtLCMapStringA         4001aff0 f   LIBC:a_map.obj
+ 0001:0001a240       __allmul                   4001b240 f   LIBC:llmul.obj
+ 0001:0001a274       __cinit                    4001b274 f   LIBC:crt0dat.obj
+ 0001:0001a2a1       __exit                     4001b2a1 f   LIBC:crt0dat.obj
+ 0001:0001a2b2       __cexit                    4001b2b2 f   LIBC:crt0dat.obj
+ 0001:0001a374       __heap_init                4001b374 f   LIBC:heapinit.obj
+ 0001:0001a3b0       __heap_term                4001b3b0 f   LIBC:heapinit.obj
+ 0001:0001a425       __ioinit                   4001b425 f   LIBC:ioinit.obj
+ 0001:0001a5d0       __ioterm                   4001b5d0 f   LIBC:ioinit.obj
+ 0001:0001a5f3       __setenvp                  4001b5f3 f   LIBC:stdenvp.obj
+ 0001:0001a6ac       __setargv                  4001b6ac f   LIBC:stdargv.obj
+ 0001:0001a8f9       ___crtGetEnvironmentStringsA 4001b8f9 f   LIBC:a_env.obj
+ 0001:0001aa2b       _DllMain@12                4001ba2b f   LIBC:dllmain.obj
+ 0001:0001aa4b       __FF_MSGBANNER             4001ba4b f   LIBC:crt0msg.obj
+ 0001:0001aa84       __NMSG_WRITE               4001ba84 f   LIBC:crt0msg.obj
+ 0001:0001abd7       __control87                4001bbd7 f   LIBC:ieee87.obj
+ 0001:0001ac0c       __controlfp                4001bc0c f   LIBC:ieee87.obj
+ 0001:0001ad3d       __ZeroTail                 4001bd3d f   LIBC:intrncvt.obj
+ 0001:0001ad86       __IncMan                   4001bd86 f   LIBC:intrncvt.obj
+ 0001:0001addc       __RoundMan                 4001bddc f   LIBC:intrncvt.obj
+ 0001:0001ae68       __CopyMan                  4001be68 f   LIBC:intrncvt.obj
+ 0001:0001ae83       __FillZeroMan              4001be83 f   LIBC:intrncvt.obj
+ 0001:0001ae8f       __IsZeroMan                4001be8f f   LIBC:intrncvt.obj
+ 0001:0001aeaa       __ShrMan                   4001beaa f   LIBC:intrncvt.obj
+ 0001:0001af37       __ld12cvt                  4001bf37 f   LIBC:intrncvt.obj
+ 0001:0001b0a3       __ld12tod                  4001c0a3 f   LIBC:intrncvt.obj
+ 0001:0001b0b9       __ld12tof                  4001c0b9 f   LIBC:intrncvt.obj
+ 0001:0001b0cf       __atodbl                   4001c0cf f   LIBC:intrncvt.obj
+ 0001:0001b0fc       __atoflt                   4001c0fc f   LIBC:intrncvt.obj
+ 0001:0001b130       _strcpy                    4001c130 f   LIBC:strcat.obj
+ 0001:0001b140       _strcat                    4001c140 f   LIBC:strcat.obj
+ 0001:0001b220       __fptostr                  4001c220 f   LIBC:_fptostr.obj
+ 0001:0001b297       __fltout                   4001c297 f   LIBC:cfout.obj
+ 0001:0001b2fb       ___dtold                   4001c2fb f   LIBC:cfout.obj
+ 0001:0001b3c0       _memset                    4001c3c0 f   LIBC:memset.obj
+ 0001:0001b418       __fptrap                   4001c418 f   LIBC:crt0fp.obj
+ 0001:0001b421       __lseek                    4001c421 f   LIBC:lseek.obj
+ 0001:0001b4bb       __write                    4001c4bb f   LIBC:write.obj
+ 0001:0001b668       __getbuf                   4001c668 f   LIBC:_getbuf.obj
+ 0001:0001b6ac       __isatty                   4001c6ac f   LIBC:isatty.obj
+ 0001:0001b6d2       ___initstdio               4001c6d2 f   LIBC:_file.obj
+ 0001:0001b777       ___endstdio                4001c777 f   LIBC:_file.obj
+ 0001:0001b78b       _wctomb                    4001c78b f   LIBC:wctomb.obj
+ 0001:0001b800       __aulldiv                  4001c800 f   LIBC:ulldiv.obj
+ 0001:0001b870       __aullrem                  4001c870 f   LIBC:ullrem.obj
+ 0001:0001b8e5       ___strgtold12              4001c8e5 f   LIBC:strgtold.obj
+ 0001:0001bdb6       ___crtGetStringTypeA       4001cdb6 f   LIBC:a_str.obj
+ 0001:0001bf00       __global_unwind2           4001cf00 f   LIBC:exsup.obj
+ 0001:0001bf42       __local_unwind2            4001cf42 f   LIBC:exsup.obj
+ 0001:0001bf9a       __NLG_Return2              4001cf9a f   LIBC:exsup.obj
+ 0001:0001bfaa       __abnormal_termination     4001cfaa f   LIBC:exsup.obj
+ 0001:0001bfcd       __NLG_Notify1              4001cfcd f   LIBC:exsup.obj
+ 0001:0001bfd6       __NLG_Notify               4001cfd6 f   LIBC:exsup.obj
+ 0001:0001bfe9       __NLG_Dispatch             4001cfe9 f   LIBC:exsup.obj
+ 0001:0001bff8       __except_handler3          4001cff8 f   LIBC:exsup3.obj
+ 0001:0001c0b5       __seh_longjmp_unwind@4     4001d0b5 f   LIBC:exsup3.obj
+ 0001:0001c0d0       ___sbh_heap_init           4001d0d0 f   LIBC:sbheap.obj
+ 0001:0001c10e       ___sbh_find_block          4001d10e f   LIBC:sbheap.obj
+ 0001:0001c139       ___sbh_free_block          4001d139 f   LIBC:sbheap.obj
+ 0001:0001c464       ___sbh_alloc_block         4001d464 f   LIBC:sbheap.obj
+ 0001:0001c76d       ___sbh_alloc_new_region    4001d76d f   LIBC:sbheap.obj
+ 0001:0001c81e       ___sbh_alloc_new_group     4001d81e f   LIBC:sbheap.obj
+ 0001:0001c919       _malloc                    4001d919 f   LIBC:malloc.obj
+ 0001:0001c92b       __nh_malloc                4001d92b f   LIBC:malloc.obj
+ 0001:0001c957       __heap_alloc               4001d957 f   LIBC:malloc.obj
+ 0001:0001c98d       _free                      4001d98d f   LIBC:free.obj
+ 0001:0001c9bc       __setmbcp                  4001d9bc f   LIBC:mbctype.obj
+ 0001:0001cd80       ___initmbctable            4001dd80 f   LIBC:mbctype.obj
+ 0001:0001cda0       _memcpy                    4001dda0 f   LIBC:memcpy.obj
+ 0001:0001d0d5       ___crtMessageBoxA          4001e0d5 f   LIBC:crtmbox.obj
+ 0001:0001d15e       ___addl                    4001e15e f   LIBC:mantold.obj
+ 0001:0001d17f       ___add_12                  4001e17f f   LIBC:mantold.obj
+ 0001:0001d1dd       ___shl_12                  4001e1dd f   LIBC:mantold.obj
+ 0001:0001d20b       ___shr_12                  4001e20b f   LIBC:mantold.obj
+ 0001:0001d238       ___mtold12                 4001e238 f   LIBC:mantold.obj
+ 0001:0001d2ff       _$I10_OUTPUT               4001e2ff f   LIBC:x10fout.obj
+ 0001:0001d592       __dosmaperr                4001e592 f   LIBC:dosmap.obj
+ 0001:0001d5f9       __free_osfhnd              4001e5f9 f   LIBC:osfinfo.obj
+ 0001:0001d673       __get_osfhandle            4001e673 f   LIBC:osfinfo.obj
+ 0001:0001d6b0       _calloc                    4001e6b0 f   LIBC:calloc.obj
+ 0001:0001d72d       __fcloseall                4001e72d f   LIBC:closeall.obj
+ 0001:0001d785       _fflush                    4001e785 f   LIBC:fflush.obj
+ 0001:0001d7c0       __flush                    4001e7c0 f   LIBC:fflush.obj
+ 0001:0001d81c       __flushall                 4001e81c f   LIBC:fflush.obj
+ 0001:0001d892       ___ld12mul                 4001e892 f   LIBC:tenpow.obj
+ 0001:0001dab2       ___multtenpow12            4001eab2 f   LIBC:tenpow.obj
+ 0001:0001db2e       __callnewh                 4001eb2e f   LIBC:handler.obj
+ 0001:0001db49       _fclose                    4001eb49 f   LIBC:fclose.obj
+ 0001:0001db9f       __commit                   4001eb9f f   LIBC:commit.obj
+ 0001:0001dbf6       __close                    4001ebf6 f   LIBC:close.obj
+ 0001:0001dca9       __freebuf                  4001eca9 f   LIBC:_freebuf.obj
+ 0001:0001dcd4       _RtlUnwind@16              4001ecd4 f   kernel32:KERNEL32.dll
+ 0002:00000000       __imp__GetEnvironmentStrings@0 4001f000     kernel32:KERNEL32.dll
+ 0002:00000004       __imp__GetVersion@0        4001f004     kernel32:KERNEL32.dll
+ 0002:00000008       __imp__GetProcAddress@8    4001f008     kernel32:KERNEL32.dll
+ 0002:0000000c       __imp__GetModuleHandleA@4  4001f00c     kernel32:KERNEL32.dll
+ 0002:00000010       __imp__WideCharToMultiByte@32 4001f010     kernel32:KERNEL32.dll
+ 0002:00000014       __imp__MultiByteToWideChar@24 4001f014     kernel32:KERNEL32.dll
+ 0002:00000018       __imp__LCMapStringA@24     4001f018     kernel32:KERNEL32.dll
+ 0002:0000001c       __imp__LCMapStringW@24     4001f01c     kernel32:KERNEL32.dll
+ 0002:00000020       __imp__ExitProcess@4       4001f020     kernel32:KERNEL32.dll
+ 0002:00000024       __imp__TerminateProcess@8  4001f024     kernel32:KERNEL32.dll
+ 0002:00000028       __imp__GetCurrentProcess@0 4001f028     kernel32:KERNEL32.dll
+ 0002:0000002c       __imp__HeapDestroy@4       4001f02c     kernel32:KERNEL32.dll
+ 0002:00000030       __imp__HeapCreate@12       4001f030     kernel32:KERNEL32.dll
+ 0002:00000034       __imp__VirtualFree@12      4001f034     kernel32:KERNEL32.dll
+ 0002:00000038       __imp__HeapFree@12         4001f038     kernel32:KERNEL32.dll
+ 0002:0000003c       __imp__SetHandleCount@4    4001f03c     kernel32:KERNEL32.dll
+ 0002:00000040       __imp__GetStdHandle@4      4001f040     kernel32:KERNEL32.dll
+ 0002:00000044       __imp__GetFileType@4       4001f044     kernel32:KERNEL32.dll
+ 0002:00000048       __imp__GetStartupInfoA@4   4001f048     kernel32:KERNEL32.dll
+ 0002:0000004c       __imp__GetModuleFileNameA@12 4001f04c     kernel32:KERNEL32.dll
+ 0002:00000050       __imp__FreeEnvironmentStringsA@4 4001f050     kernel32:KERNEL32.dll
+ 0002:00000054       __imp__FreeEnvironmentStringsW@4 4001f054     kernel32:KERNEL32.dll
+ 0002:00000058       __imp__GetCommandLineA@0   4001f058     kernel32:KERNEL32.dll
+ 0002:0000005c       __imp__GetEnvironmentStringsW@0 4001f05c     kernel32:KERNEL32.dll
+ 0002:00000060       __imp__DisableThreadLibraryCalls@4 4001f060     kernel32:KERNEL32.dll
+ 0002:00000064       __imp__WriteFile@20        4001f064     kernel32:KERNEL32.dll
+ 0002:00000068       __imp__GetLastError@0      4001f068     kernel32:KERNEL32.dll
+ 0002:0000006c       __imp__SetFilePointer@16   4001f06c     kernel32:KERNEL32.dll
+ 0002:00000070       __imp__GetStringTypeA@20   4001f070     kernel32:KERNEL32.dll
+ 0002:00000074       __imp__GetStringTypeW@16   4001f074     kernel32:KERNEL32.dll
+ 0002:00000078       __imp__RtlUnwind@16        4001f078     kernel32:KERNEL32.dll
+ 0002:0000007c       __imp__HeapAlloc@12        4001f07c     kernel32:KERNEL32.dll
+ 0002:00000080       __imp__VirtualAlloc@16     4001f080     kernel32:KERNEL32.dll
+ 0002:00000084       __imp__HeapReAlloc@16      4001f084     kernel32:KERNEL32.dll
+ 0002:00000088       __imp__GetCPInfo@8         4001f088     kernel32:KERNEL32.dll
+ 0002:0000008c       __imp__GetACP@0            4001f08c     kernel32:KERNEL32.dll
+ 0002:00000090       __imp__GetOEMCP@0          4001f090     kernel32:KERNEL32.dll
+ 0002:00000094       __imp__LoadLibraryA@4      4001f094     kernel32:KERNEL32.dll
+ 0002:00000098       __imp__SetStdHandle@8      4001f098     kernel32:KERNEL32.dll
+ 0002:0000009c       __imp__FlushFileBuffers@4  4001f09c     kernel32:KERNEL32.dll
+ 0002:000000a0       __imp__CloseHandle@4       4001f0a0     kernel32:KERNEL32.dll
+ 0002:000000a4       \177KERNEL32_NULL_THUNK_DATA 4001f0a4     kernel32:KERNEL32.dll
+ 0002:000000a8       __real@4@00000000000000000000 4001f0a8     bg_misc.obj
+ 0002:000000b0       __real@8@3ffe8000000000000000 4001f0b0     bg_misc.obj
+ 0002:000000b8       __real@4@3ff7b60b60b60b60b800 4001f0b8     q_math.obj
+ 0002:000000bc       __real@4@4000c90fdb0000000000 4001f0bc     q_math.obj
+ 0002:000000c0       __real@4@4007b400000000000000 4001f0c0     q_math.obj
+ 0002:000000c4       __real@4@3fff8000000000000000 4001f0c4     q_math.obj
+ 0002:000000c8       __real@4@3ffe8000000000000000 4001f0c8     q_math.obj
+ 0002:000000cc       __real@4@c006b400000000000000 4001f0cc     q_math.obj
+ 0002:000000d0       __real@4@4006b400000000000000 4001f0d0     q_math.obj
+ 0002:000000d8       __real@8@3ff7b400000000000000 4001f0d8     q_math.obj
+ 0002:000000e0       __real@8@4006b60b60b60b60b800 4001f0e0     q_math.obj
+ 0002:000000e8       __real@4@bfff8000000000000000 4001f0e8     q_math.obj
+ 0002:000000ec       __real@4@3ff98efa350000000000 4001f0ec     q_math.obj
+ 0002:000000f0       __real@4@3ff583126e978d4fe000 4001f0f0     ui_atoms.obj
+ 0002:00000148       __real@4@4002a000000000000000 4001f148     ui_main.obj
+ 0002:0000014c       __real@4@4002f000000000000000 4001f14c     ui_main.obj
+ 0002:00000150       __real@4@40029000000000000000 4001f150     ui_main.obj
+ 0002:00000154       __real@4@40028000000000000000 4001f154     ui_main.obj
+ 0002:00000158       __real@4@4001e000000000000000 4001f158     ui_main.obj
+ 0002:0000015c       __real@4@4002e000000000000000 4001f15c     ui_main.obj
+ 0002:00000160       __real@4@4002d000000000000000 4001f160     ui_main.obj
+ 0002:00000164       __real@4@40008000000000000000 4001f164     ui_main.obj
+ 0002:00000168       __real@4@40018000000000000000 4001f168     ui_main.obj
+ 0002:0000016c       __real@4@4002c000000000000000 4001f16c     ui_main.obj
+ 0002:00000170       __real@8@3fffaaaaaaaaaaaaa800 4001f170     ui_main.obj
+ 0002:00000178       __real@8@3ff5ccccccccccccd000 4001f178     ui_main.obj
+ 0002:00000180       __real@8@3ff68888888888888800 4001f180     ui_main.obj
+ 0002:00000188       __real@4@40038000000000000000 4001f188     ui_main.obj
+ 0002:00000190       __real@8@3fff8000000000000000 4001f190     ui_main.obj
+ 0002:00000198       __real@8@3ffeccccccccccccd000 4001f198     ui_main.obj
+ 0002:000001a0       __real@4@4000c000000000000000 4001f1a0     ui_main.obj
+ 0002:000001a4       __real@4@4002b000000000000000 4001f1a4     ui_main.obj
+ 0002:000001a8       __real@4@4004b400000000000000 4001f1a8     ui_main.obj
+ 0002:000001ac       __real@4@4003f000000000000000 4001f1ac     ui_main.obj
+ 0002:000001b0       __real@4@400afa00000000000000 4001f1b0     ui_main.obj
+ 0002:000001b4       __real@4@400b9c40000000000000 4001f1b4     ui_main.obj
+ 0002:000001b8       __real@4@40078800000000000000 4001f1b8     ui_main.obj
+ 0002:000001bc       __real@4@4006a000000000000000 4001f1bc     ui_main.obj
+ 0002:000001c0       __real@4@4006d800000000000000 4001f1c0     ui_main.obj
+ 0002:000001c4       __real@4@40068800000000000000 4001f1c4     ui_main.obj
+ 0002:000001c8       __real@4@4006f800000000000000 4001f1c8     ui_main.obj
+ 0002:000001cc       __real@4@4006c000000000000000 4001f1cc     ui_main.obj
+ 0002:000001d0       __real@4@4005e000000000000000 4001f1d0     ui_main.obj
+ 0002:000001d4       __real@4@4005c800000000000000 4001f1d4     ui_players.obj
+ 0002:000001d8       __real@8@40049cccccccccccc800 4001f1d8     ui_players.obj
+ 0002:000001e0       __real@4@4005e52ee00000000000 4001f1e0     ui_players.obj
+ 0002:000001e4       __real@4@3ff88efa355555555800 4001f1e4     ui_players.obj
+ 0002:000001e8       __real@4@3ffc9000000000000000 4001f1e8     ui_players.obj
+ 0002:000001f0       __real@8@4004e000000000000000 4001f1f0     ui_players.obj
+ 0002:000001f8       __real@4@3ff6cde32e147ae14800 4001f1f8     ui_players.obj
+ 0002:00000200       __real@8@3ffec000000000000000 4001f200     ui_players.obj
+ 0002:00000208       __real@8@3ffd8000000000000000 4001f208     ui_players.obj
+ 0002:00000210       __real@4@c003b000000000000000 4001f210     ui_players.obj
+ 0002:00000214       __real@4@c004b400000000000000 4001f214     ui_players.obj
+ 0002:00000218       __real@4@4003b000000000000000 4001f218     ui_players.obj
+ 0002:00000220       __real@8@3ff8a3d70a3d70a3d800 4001f220     ui_players.obj
+ 0002:00000228       __real@4@4004c000000000000000 4001f228     ui_players.obj
+ 0002:0000022c       __real@4@4008fa00000000000000 4001f22c     ui_players.obj
+ 0002:00000234       __real@4@3feb8000000000000000 4001f234     ui_shared.obj
+ 0002:00000238       __real@4@3fecaaaaaaaaaaaaa800 4001f238     ui_shared.obj
+ 0002:00000240       __real@8@00000000000000000000 4001f240     ui_shared.obj
+ 0002:00000248       __real@8@40038000000000000000 4001f248     ui_shared.obj
+ 0002:00000250       __real@8@40008000000000000000 4001f250     ui_shared.obj
+ 0002:00000258       __real@8@40048000000000000000 4001f258     ui_shared.obj
+ 0002:00000260       __real@8@40028000000000000000 4001f260     ui_shared.obj
+ 0002:00000268       __real@8@40038800000000000000 4001f268     ui_shared.obj
+ 0002:00000270       __real@8@4005c000000000000000 4001f270     ui_shared.obj
+ 0002:00000278       __real@8@4001c000000000000000 4001f278     ui_shared.obj
+ 0002:00000280       __real@8@3ff8aaaaaaaaaaaaa800 4001f280     ui_shared.obj
+ 0002:00000288       __real@4@3ff8aaaaaaaaaaaaa800 4001f288     ui_shared.obj
+ 0002:0000028c       __real@4@4001c000000000000000 4001f28c     ui_shared.obj
+ 0002:00000290       __real@4@3ffecccccd0000000000 4001f290     ui_shared.obj
+ 0002:00000298       __real@8@4000eece540f4898d000 4001f298     ui_shared.obj
+ 0002:000002a0       __real@8@bffe8000000000000000 4001f2a0     ui_shared.obj
+ 0002:000002a8       __real@8@40018000000000000000 4001f2a8     ui_shared.obj
+ 0002:000002b0       __real@8@4002f000000000000000 4001f2b0     ui_shared.obj
+ 0002:000002b8       __real@8@3ffad677500000000000 4001f2b8     ui_shared.obj
+ 0002:000002c0       __real@8@4015800bf60000000000 4001f2c0     LIBC:testfdiv.obj
+ 0002:000002c8       __real@8@4014bffffc0000000000 4001f2c8     LIBC:testfdiv.obj
+ 0002:000002d0       ??_C@_0BK@JEGK@IsProcessorFeaturePresent?$AA@ 4001f2d0     LIBC:testfdiv.obj
+ 0002:000002ec       ??_C@_08OBID@KERNEL32?$AA@ 4001f2ec     LIBC:testfdiv.obj
+ 0002:000002f8       ??_C@_05OFLO@e?$CL000?$AA@ 4001f2f8     LIBC:cvt.obj
+ 0002:00000300       ___lookuptable             4001f300     LIBC:output.obj
+ 0002:0000035c       ??_C@_1O@POHA@?$AA?$CI?$AAn?$AAu?$AAl?$AAl?$AA?$CJ?$AA?$AA@ 4001f35c     LIBC:output.obj
+ 0002:0000036c       ??_C@_06ONKE@?$CInull?$CJ?$AA@ 4001f36c     LIBC:output.obj
+ 0002:00000374       ??_C@_01A@?$AA?$AA@        4001f374     LIBC:a_map.obj
+ 0002:00000378       ??_C@_13A@?$AA?$AA?$AA?$AA@ 4001f378     LIBC:a_map.obj
+ 0002:00000398       ??_C@_0P@GGKG@runtime?5error?5?$AA@ 4001f398     LIBC:crt0msg.obj
+ 0002:000003a8       ??_C@_02PIMC@?$AN?6?$AA@   4001f3a8     LIBC:crt0msg.obj
+ 0002:000003ac       ??_C@_0O@DELO@TLOSS?5error?$AN?6?$AA@ 4001f3ac     LIBC:crt0msg.obj
+ 0002:000003bc       ??_C@_0N@OMLL@SING?5error?$AN?6?$AA@ 4001f3bc     LIBC:crt0msg.obj
+ 0002:000003cc       ??_C@_0P@OJAK@DOMAIN?5error?$AN?6?$AA@ 4001f3cc     LIBC:crt0msg.obj
+ 0002:000003dc       ??_C@_0CF@EANP@R6028?$AN?6?9?5unable?5to?5initialize?5he@ 4001f3dc     LIBC:crt0msg.obj
+ 0002:00000404       ??_C@_0DF@ECGN@R6027?$AN?6?9?5not?5enough?5space?5for?5lo@ 4001f404     LIBC:crt0msg.obj
+ 0002:0000043c       ??_C@_0DF@FKAC@R6026?$AN?6?9?5not?5enough?5space?5for?5st@ 4001f43c     LIBC:crt0msg.obj
+ 0002:00000474       ??_C@_0CG@DPMN@R6025?$AN?6?9?5pure?5virtual?5function?5c@ 4001f474     LIBC:crt0msg.obj
+ 0002:0000049c       ??_C@_0DF@CKIP@R6024?$AN?6?9?5not?5enough?5space?5for?5_o@ 4001f49c     LIBC:crt0msg.obj
+ 0002:000004d4       ??_C@_0CJ@GGOE@R6019?$AN?6?9?5unable?5to?5open?5console?5@ 4001f4d4     LIBC:crt0msg.obj
+ 0002:00000500       ??_C@_0CB@LBOB@R6018?$AN?6?9?5unexpected?5heap?5error?$AN?6@ 4001f500     LIBC:crt0msg.obj
+ 0002:00000524       ??_C@_0CN@FPEG@R6017?$AN?6?9?5unexpected?5multithread?5@ 4001f524     LIBC:crt0msg.obj
+ 0002:00000554       ??_C@_0CM@OBIC@R6016?$AN?6?9?5not?5enough?5space?5for?5th@ 4001f554     LIBC:crt0msg.obj
+ 0002:00000580       ??_C@_0CB@HPAL@?$AN?6abnormal?5program?5termination?$AN?6@ 4001f580     LIBC:crt0msg.obj
+ 0002:000005a4       ??_C@_0CM@JOOB@R6009?$AN?6?9?5not?5enough?5space?5for?5en@ 4001f5a4     LIBC:crt0msg.obj
+ 0002:000005d0       ??_C@_0CK@OIBL@R6008?$AN?6?9?5not?5enough?5space?5for?5ar@ 4001f5d0     LIBC:crt0msg.obj
+ 0002:000005fc       ??_C@_0CF@LKPB@R6002?$AN?6?9?5floating?5point?5not?5load@ 4001f5fc     LIBC:crt0msg.obj
+ 0002:00000624       ??_C@_0CF@JPDF@Microsoft?5Visual?5C?$CL?$CL?5Runtime?5Lib@ 4001f624     LIBC:crt0msg.obj
+ 0002:0000064c       ??_C@_02JJJH@?6?6?$AA@     4001f64c     LIBC:crt0msg.obj
+ 0002:00000650       ??_C@_0BK@DEOK@Runtime?5Error?$CB?6?6Program?3?5?$AA@ 4001f650     LIBC:crt0msg.obj
+ 0002:0000066c       ??_C@_0BH@NNCD@?$DMprogram?5name?5unknown?$DO?$AA@ 4001f66c     LIBC:crt0msg.obj
+ 0002:00000694       ??_C@_0BD@NJFP@GetLastActivePopup?$AA@ 4001f694     LIBC:crtmbox.obj
+ 0002:000006a8       ??_C@_0BA@GILI@GetActiveWindow?$AA@ 4001f6a8     LIBC:crtmbox.obj
+ 0002:000006b8       ??_C@_0M@PKCK@MessageBoxA?$AA@ 4001f6b8     LIBC:crtmbox.obj
+ 0002:000006c4       ??_C@_0L@HKL@user32?4dll?$AA@ 4001f6c4     LIBC:crtmbox.obj
+ 0002:000006d0       ??_C@_06PAPI@1?$CDQNAN?$AA@ 4001f6d0     LIBC:x10fout.obj
+ 0002:000006d8       ??_C@_05BGNL@1?$CDINF?$AA@ 4001f6d8     LIBC:x10fout.obj
+ 0002:000006e0       ??_C@_05EDPF@1?$CDIND?$AA@ 4001f6e0     LIBC:x10fout.obj
+ 0002:000006e8       ??_C@_06LKFM@1?$CDSNAN?$AA@ 4001f6e8     LIBC:x10fout.obj
+ 0002:000006f0       __IMPORT_DESCRIPTOR_KERNEL32 4001f6f0     kernel32:KERNEL32.dll
+ 0002:00000704       __NULL_IMPORT_DESCRIPTOR   4001f704     kernel32:KERNEL32.dll
+ 0003:00000000       ___xc_a                    40020000     LIBC:crt0init.obj
+ 0003:00000004       ___xc_z                    40020004     LIBC:crt0init.obj
+ 0003:00000008       ___xi_a                    40020008     LIBC:crt0init.obj
+ 0003:00000014       ___xi_z                    40020014     LIBC:crt0init.obj
+ 0003:00000018       ___xp_a                    40020018     LIBC:crt0init.obj
+ 0003:00000020       ___xp_z                    40020020     LIBC:crt0init.obj
+ 0003:00000024       ___xt_a                    40020024     LIBC:crt0init.obj
+ 0003:00000028       ___xt_z                    40020028     LIBC:crt0init.obj
+ 0003:00000030       _bg_itemlist               40020030     bg_misc.obj
+ 0003:000006b0       _bg_numItems               400206b0     bg_misc.obj
+ 0003:000006b4       _eventnames                400206b4     bg_misc.obj
+ 0003:00000854       ??_C@_08DFDJ@EV_TAUNT?$AA@ 40020854     bg_misc.obj
+ 0003:00000860       ??_C@_0BE@BDJC@EV_STOPLOOPINGSOUND?$AA@ 40020860     bg_misc.obj
+ 0003:00000874       ??_C@_0O@BDBB@EV_DEBUG_LINE?$AA@ 40020874     bg_misc.obj
+ 0003:00000884       ??_C@_0BB@MBOB@EV_LIGHTNINGBOLT?$AA@ 40020884     bg_misc.obj
+ 0003:00000898       ??_C@_09JFKJ@EV_JUICED?$AA@ 40020898     bg_misc.obj
+ 0003:000008a4       ??_C@_0BA@GDOI@EV_INVUL_IMPACT?$AA@ 400208a4     bg_misc.obj
+ 0003:000008b4       ??_C@_0BC@POAK@EV_OBELISKEXPLODE?$AA@ 400208b4     bg_misc.obj
+ 0003:000008c8       ??_C@_0M@KIDO@EV_KAMIKAZE?$AA@ 400208c8     bg_misc.obj
+ 0003:000008d4       ??_C@_0BK@KGMO@EV_PROXIMITY_MINE_TRIGGER?$AA@ 400208d4     bg_misc.obj
+ 0003:000008f0       ??_C@_0BI@LIAD@EV_PROXIMITY_MINE_STICK?$AA@ 400208f0     bg_misc.obj
+ 0003:00000908       ??_C@_0N@CDHP@EV_SCOREPLUM?$AA@ 40020908     bg_misc.obj
+ 0003:00000918       ??_C@_0BA@BIIL@EV_BREAK_GLASS3?$AA@ 40020918     bg_misc.obj
+ 0003:00000928       ??_C@_0BA@LCBM@EV_BREAK_GLASS2?$AA@ 40020928     bg_misc.obj
+ 0003:00000938       ??_C@_0BA@ENKF@EV_BREAK_GLASS1?$AA@ 40020938     bg_misc.obj
+ 0003:00000948       ??_C@_0O@CIDG@EV_GIB_PLAYER?$AA@ 40020948     bg_misc.obj
+ 0003:00000958       ??_C@_0BB@LKNF@EV_POWERUP_REGEN?$AA@ 40020958     bg_misc.obj
+ 0003:0000096c       ??_C@_0BG@KJJ@EV_POWERUP_BATTLESUIT?$AA@ 4002096c     bg_misc.obj
+ 0003:00000984       ??_C@_0BA@EMDG@EV_POWERUP_QUAD?$AA@ 40020984     bg_misc.obj
+ 0003:00000994       ??_C@_0BB@EDFG@EV_OBITUARY_LEGS?$AA@ 40020994     bg_misc.obj
+ 0003:000009a8       ??_C@_0BE@MKJJ@EV_OBITUARY_STOMACH?$AA@ 400209a8     bg_misc.obj
+ 0003:000009bc       ??_C@_0BC@MINI@EV_OBITUARY_CHEST?$AA@ 400209bc     bg_misc.obj
+ 0003:000009d0       ??_C@_0BB@FNHE@EV_OBITUARY_HEAD?$AA@ 400209d0     bg_misc.obj
+ 0003:000009e4       ??_C@_0M@MMOI@EV_OBITUARY?$AA@ 400209e4     bg_misc.obj
+ 0003:000009f0       ??_C@_09EH@EV_DEATH3?$AA@  400209f0     bg_misc.obj
+ 0003:000009fc       ??_C@_09KKNA@EV_DEATH2?$AA@ 400209fc     bg_misc.obj
+ 0003:00000a08       ??_C@_09FFGJ@EV_DEATH1?$AA@ 40020a08     bg_misc.obj
+ 0003:00000a14       ??_C@_07MFPI@EV_PAIN?$AA@  40020a14     bg_misc.obj
+ 0003:00000a1c       ??_C@_0M@IIFM@EV_HEADSHOT?$AA@ 40020a1c     bg_misc.obj
+ 0003:00000a28       ??_C@_09PBG@EV_BULLET?$AA@ 40020a28     bg_misc.obj
+ 0003:00000a34       ??_C@_0O@CBGF@EV_HANDCANNON?$AA@ 40020a34     bg_misc.obj
+ 0003:00000a44       ??_C@_0L@PELA@EV_SHOTGUN?$AA@ 40020a44     bg_misc.obj
+ 0003:00000a50       ??_C@_0N@FBDJ@EV_RAILTRAIL?$AA@ 40020a50     bg_misc.obj
+ 0003:00000a60       ??_C@_0O@FONL@EV_KNIFE_MISS?$AA@ 40020a60     bg_misc.obj
+ 0003:00000a70       ??_C@_0BG@KLM@EV_MISSILE_MISS_METAL?$AA@ 40020a70     bg_misc.obj
+ 0003:00000a88       ??_C@_0BA@FHCK@EV_MISSILE_MISS?$AA@ 40020a88     bg_misc.obj
+ 0003:00000a98       ??_C@_0P@GMEB@EV_MISSILE_HIT?$AA@ 40020a98     bg_misc.obj
+ 0003:00000aa8       ??_C@_0O@KAOD@EV_EJECTBLOOD?$AA@ 40020aa8     bg_misc.obj
+ 0003:00000ab8       ??_C@_0M@OCGO@EV_JUMPKICK?$AA@ 40020ab8     bg_misc.obj
+ 0003:00000ac4       ??_C@_0BF@KNPJ@EV_SSG3000_HIT_FLESH?$AA@ 40020ac4     bg_misc.obj
+ 0003:00000adc       ??_C@_0BE@DNF@EV_BULLET_HIT_GLASS?$AA@ 40020adc     bg_misc.obj
+ 0003:00000af0       ??_C@_0BF@LMO@EV_BULLET_HIT_KEVLAR?$AA@ 40020af0     bg_misc.obj
+ 0003:00000b08       ??_C@_0BE@JJIA@EV_BULLET_HIT_METAL?$AA@ 40020b08     bg_misc.obj
+ 0003:00000b1c       ??_C@_0BD@FCGB@EV_BULLET_HIT_WALL?$AA@ 40020b1c     bg_misc.obj
+ 0003:00000b30       ??_C@_0BE@OJNL@EV_BULLET_HIT_FLESH?$AA@ 40020b30     bg_misc.obj
+ 0003:00000b44       ??_C@_0M@LEJO@EV_DMREWARD?$AA@ 40020b44     bg_misc.obj
+ 0003:00000b50       ??_C@_0N@HDLO@EV_RQ3_SOUND?$AA@ 40020b50     bg_misc.obj
+ 0003:00000b60       ??_C@_0BF@GBCB@EV_GLOBAL_TEAM_SOUND?$AA@ 40020b60     bg_misc.obj
+ 0003:00000b78       ??_C@_0BA@DICP@EV_GLOBAL_SOUND?$AA@ 40020b78     bg_misc.obj
+ 0003:00000b88       ??_C@_0BB@PHBP@EV_GENERAL_SOUND?$AA@ 40020b88     bg_misc.obj
+ 0003:00000b9c       ??_C@_0BC@MNAB@EV_GRENADE_BOUNCE?$AA@ 40020b9c     bg_misc.obj
+ 0003:00000bb0       ??_C@_0BH@CBAJ@EV_PLAYER_TELEPORT_OUT?$AA@ 40020bb0     bg_misc.obj
+ 0003:00000bc8       ??_C@_0BG@JACO@EV_PLAYER_TELEPORT_IN?$AA@ 40020bc8     bg_misc.obj
+ 0003:00000be0       ??_C@_0M@FEGJ@EV_ITEM_POP?$AA@ 40020be0     bg_misc.obj
+ 0003:00000bec       ??_C@_0BA@KOE@EV_ITEM_RESPAWN?$AA@ 40020bec     bg_misc.obj
+ 0003:00000bfc       ??_C@_0O@PBJJ@EV_USE_ITEM15?$AA@ 40020bfc     bg_misc.obj
+ 0003:00000c0c       ??_C@_0O@FLAO@EV_USE_ITEM14?$AA@ 40020c0c     bg_misc.obj
+ 0003:00000c1c       ??_C@_0O@OOL@EV_USE_ITEM13?$AA@ 40020c1c     bg_misc.obj
+ 0003:00000c2c       ??_C@_0O@KEHM@EV_USE_ITEM12?$AA@ 40020c2c     bg_misc.obj
+ 0003:00000c3c       ??_C@_0O@FLMF@EV_USE_ITEM11?$AA@ 40020c3c     bg_misc.obj
+ 0003:00000c4c       ??_C@_0O@PBFC@EV_USE_ITEM10?$AA@ 40020c4c     bg_misc.obj
+ 0003:00000c5c       ??_C@_0N@JGCE@EV_USE_ITEM9?$AA@ 40020c5c     bg_misc.obj
+ 0003:00000c6c       ??_C@_0N@DMLD@EV_USE_ITEM8?$AA@ 40020c6c     bg_misc.obj
+ 0003:00000c7c       ??_C@_0N@DNOO@EV_USE_ITEM7?$AA@ 40020c7c     bg_misc.obj
+ 0003:00000c8c       ??_C@_0N@JHHJ@EV_USE_ITEM6?$AA@ 40020c8c     bg_misc.obj
+ 0003:00000c9c       ??_C@_0N@GIMA@EV_USE_ITEM5?$AA@ 40020c9c     bg_misc.obj
+ 0003:00000cac       ??_C@_0N@MCFH@EV_USE_ITEM4?$AA@ 40020cac     bg_misc.obj
+ 0003:00000cbc       ??_C@_0N@JHLC@EV_USE_ITEM3?$AA@ 40020cbc     bg_misc.obj
+ 0003:00000ccc       ??_C@_0N@DNCF@EV_USE_ITEM2?$AA@ 40020ccc     bg_misc.obj
+ 0003:00000cdc       ??_C@_0N@MCJM@EV_USE_ITEM1?$AA@ 40020cdc     bg_misc.obj
+ 0003:00000cec       ??_C@_0N@GIAL@EV_USE_ITEM0?$AA@ 40020cec     bg_misc.obj
+ 0003:00000cfc       ??_C@_0BC@LPPI@EV_RELOAD_WEAPON2?$AA@ 40020cfc     bg_misc.obj
+ 0003:00000d10       ??_C@_0BC@EAEB@EV_RELOAD_WEAPON1?$AA@ 40020d10     bg_misc.obj
+ 0003:00000d24       ??_C@_0BC@OKNG@EV_RELOAD_WEAPON0?$AA@ 40020d24     bg_misc.obj
+ 0003:00000d38       ??_C@_0P@HOLG@EV_FIRE_WEAPON?$AA@ 40020d38     bg_misc.obj
+ 0003:00000d48       ??_C@_0BB@OKAK@EV_CHANGE_WEAPON?$AA@ 40020d48     bg_misc.obj
+ 0003:00000d5c       ??_C@_09MIBL@EV_NOAMMO?$AA@ 40020d5c     bg_misc.obj
+ 0003:00000d68       ??_C@_0BG@LBJI@EV_GLOBAL_ITEM_PICKUP?$AA@ 40020d68     bg_misc.obj
+ 0003:00000d80       ??_C@_0P@DDBJ@EV_ITEM_PICKUP?$AA@ 40020d80     bg_misc.obj
+ 0003:00000d90       ??_C@_0P@HGEE@EV_WATER_CLEAR?$AA@ 40020d90     bg_misc.obj
+ 0003:00000da0       ??_C@_0P@PGNG@EV_WATER_UNDER?$AA@ 40020da0     bg_misc.obj
+ 0003:00000db0       ??_C@_0P@KHGF@EV_WATER_LEAVE?$AA@ 40020db0     bg_misc.obj
+ 0003:00000dc0       ??_C@_0P@NPME@EV_WATER_TOUCH?$AA@ 40020dc0     bg_misc.obj
+ 0003:00000dd0       ??_C@_07MBMN@EV_JUMP?$AA@  40020dd0     bg_misc.obj
+ 0003:00000dd8       ??_C@_0M@ONMG@EV_JUMP_PAD?$AA@ 40020dd8     bg_misc.obj
+ 0003:00000de4       ??_C@_0BE@OAMH@EV_FALL_FAR_NOSOUND?$AA@ 40020de4     bg_misc.obj
+ 0003:00000df8       ??_C@_0M@FCFB@EV_FALL_FAR?$AA@ 40020df8     bg_misc.obj
+ 0003:00000e04       ??_C@_0BH@EOP@EV_FALL_MEDIUM_NOSOUND?$AA@ 40020e04     bg_misc.obj
+ 0003:00000e1c       ??_C@_0P@DAAM@EV_FALL_MEDIUM?$AA@ 40020e1c     bg_misc.obj
+ 0003:00000e2c       ??_C@_0BG@NOKD@EV_FALL_SHORT_NOSOUND?$AA@ 40020e2c     bg_misc.obj
+ 0003:00000e44       ??_C@_0O@MOHH@EV_FALL_SHORT?$AA@ 40020e44     bg_misc.obj
+ 0003:00000e54       ??_C@_0L@BPHB@EV_STEP_16?$AA@ 40020e54     bg_misc.obj
+ 0003:00000e60       ??_C@_0L@LFCN@EV_STEP_12?$AA@ 40020e60     bg_misc.obj
+ 0003:00000e6c       ??_C@_09GNLK@EV_STEP_8?$AA@ 40020e6c     bg_misc.obj
+ 0003:00000e78       ??_C@_09JDFO@EV_STEP_4?$AA@ 40020e78     bg_misc.obj
+ 0003:00000e84       ??_C@_07JIKK@EV_SWIM?$AA@  40020e84     bg_misc.obj
+ 0003:00000e8c       ??_C@_0M@FIHK@EV_FOOTWADE?$AA@ 40020e8c     bg_misc.obj
+ 0003:00000e98       ??_C@_0O@KHFI@EV_FOOTSPLASH?$AA@ 40020e98     bg_misc.obj
+ 0003:00000ea8       ??_C@_0BD@EOFK@EV_FOOTSTEP_METAL2?$AA@ 40020ea8     bg_misc.obj
+ 0003:00000ebc       ??_C@_0BD@BJDC@EV_FOOTSTEP_CARPET?$AA@ 40020ebc     bg_misc.obj
+ 0003:00000ed0       ??_C@_0BB@EBKA@EV_FOOTSTEP_WOOD?$AA@ 40020ed0     bg_misc.obj
+ 0003:00000ee4       ??_C@_0BC@NOII@EV_FOOTSTEP_GRASS?$AA@ 40020ee4     bg_misc.obj
+ 0003:00000ef8       ??_C@_0BC@OEIA@EV_FOOTSTEP_METAL?$AA@ 40020ef8     bg_misc.obj
+ 0003:00000f0c       ??_C@_0M@EJAF@EV_FOOTSTEP?$AA@ 40020f0c     bg_misc.obj
+ 0003:00000f18       ??_C@_07NDDD@EV_NONE?$AA@  40020f18     bg_misc.obj
+ 0003:00000f20       ??_C@_0BB@PGLE@Stealth?5Slippers?$AA@ 40020f20     bg_misc.obj
+ 0003:00000f34       ??_C@_0BF@BFG@icons?1iconi_slippers?$AA@ 40020f34     bg_misc.obj
+ 0003:00000f4c       ??_C@_0BK@PNKF@models?1items?1slippers?4md3?$AA@ 40020f4c     bg_misc.obj
+ 0003:00000f68       ??_C@_0BJ@BCHJ@sound?1items?1slippers?4wav?$AA@ 40020f68     bg_misc.obj
+ 0003:00000f84       ??_C@_0O@HEEF@item_slippers?$AA@ 40020f84     bg_misc.obj
+ 0003:00000f94       ??_C@_09COCH@Bandolier?$AA@ 40020f94     bg_misc.obj
+ 0003:00000fa0       ??_C@_0BG@LOMK@icons?1iconi_bandolier?$AA@ 40020fa0     bg_misc.obj
+ 0003:00000fb8       ??_C@_0BL@EBCM@models?1items?1bandolier?4md3?$AA@ 40020fb8     bg_misc.obj
+ 0003:00000fd4       ??_C@_0BK@NJMG@sound?1items?1bandolier?4wav?$AA@ 40020fd4     bg_misc.obj
+ 0003:00000ff0       ??_C@_0P@NILP@item_bandolier?$AA@ 40020ff0     bg_misc.obj
+ 0003:00001000       ??_C@_0L@OLAC@Lasersight?$AA@ 40021000     bg_misc.obj
+ 0003:0000100c       ??_C@_0BC@ECEO@icons?1iconi_laser?$AA@ 4002100c     bg_misc.obj
+ 0003:00001020       ??_C@_0BH@OIPK@models?1items?1laser?4md3?$AA@ 40021020     bg_misc.obj
+ 0003:00001038       ??_C@_0BG@NONL@sound?1items?1laser?4wav?$AA@ 40021038     bg_misc.obj
+ 0003:00001050       ??_C@_0L@PGOP@item_laser?$AA@ 40021050     bg_misc.obj
+ 0003:0000105c       ??_C@_08HEGP@Silencer?$AA@ 4002105c     bg_misc.obj
+ 0003:00001068       ??_C@_0BF@JJBB@icons?1iconi_silencer?$AA@ 40021068     bg_misc.obj
+ 0003:00001080       ??_C@_0BK@GEHE@models?1items?1silencer?4md3?$AA@ 40021080     bg_misc.obj
+ 0003:0000109c       ??_C@_0BJ@ILKI@sound?1items?1silencer?4wav?$AA@ 4002109c     bg_misc.obj
+ 0003:000010b8       ??_C@_0O@OMAC@item_silencer?$AA@ 400210b8     bg_misc.obj
+ 0003:000010c8       ??_C@_0M@EEPB@Kevlar?5Vest?$AA@ 400210c8     bg_misc.obj
+ 0003:000010d4       ??_C@_0BD@EPCG@icons?1iconi_kevlar?$AA@ 400210d4     bg_misc.obj
+ 0003:000010e8       ??_C@_0BI@FNNH@models?1items?1kevlar?4md3?$AA@ 400210e8     bg_misc.obj
+ 0003:00001100       ??_C@_0BH@IOOE@sound?1items?1kevlar?4wav?$AA@ 40021100     bg_misc.obj
+ 0003:00001118       ??_C@_0M@KKJC@item_kevlar?$AA@ 40021118     bg_misc.obj
+ 0003:00001124       ??_C@_09DHIB@Blue?5Flag?$AA@ 40021124     bg_misc.obj
+ 0003:00001130       ??_C@_0BB@NLLL@icons?1iconf_blu1?$AA@ 40021130     bg_misc.obj
+ 0003:00001144       ??_C@_0BI@ILPD@models?1flags?1b_flag?4md3?$AA@ 40021144     bg_misc.obj
+ 0003:0000115c       ??_C@_0BC@GPLF@team_CTF_blueflag?$AA@ 4002115c     bg_misc.obj
+ 0003:00001170       ??_C@_08CLEI@Red?5Flag?$AA@ 40021170     bg_misc.obj
+ 0003:0000117c       ??_C@_0BB@DADK@icons?1iconf_red1?$AA@ 4002117c     bg_misc.obj
+ 0003:00001190       ??_C@_0BI@HHNH@models?1flags?1r_flag?4md3?$AA@ 40021190     bg_misc.obj
+ 0003:000011a8       ??_C@_0BB@FOCB@team_CTF_redflag?$AA@ 400211a8     bg_misc.obj
+ 0003:000011bc       ??_C@_07FPJA@M4?5Clip?$AA@ 400211bc     bg_misc.obj
+ 0003:000011c4       ??_C@_0BD@NNPH@icons?1icona_m4clip?$AA@ 400211c4     bg_misc.obj
+ 0003:000011d8       ??_C@_0BD@OKPH@models?1ammo?1m4?4md3?$AA@ 400211d8     bg_misc.obj
+ 0003:000011ec       ??_C@_07LEJD@ammo_m4?$AA@  400211ec     bg_misc.obj
+ 0003:000011f4       ??_C@_08OBEB@MP5?5Clip?$AA@ 400211f4     bg_misc.obj
+ 0003:00001200       ??_C@_0BE@IFOP@icons?1icona_mp5clip?$AA@ 40021200     bg_misc.obj
+ 0003:00001214       ??_C@_0BE@LKND@models?1ammo?1mp5?4md3?$AA@ 40021214     bg_misc.obj
+ 0003:00001228       ??_C@_08HNOA@ammo_mp5?$AA@ 40021228     bg_misc.obj
+ 0003:00001234       ??_C@_0P@KHML@AP?5Sniper?5Ammo?$AA@ 40021234     bg_misc.obj
+ 0003:00001244       ??_C@_0BE@OAPL@icons?1icona_ssgammo?$AA@ 40021244     bg_misc.obj
+ 0003:00001258       ??_C@_0BI@IOGG@models?1ammo?1ssg3000?4md3?$AA@ 40021258     bg_misc.obj
+ 0003:00001270       ??_C@_0N@DDAI@ammo_ssg3000?$AA@ 40021270     bg_misc.obj
+ 0003:00001280       ??_C@_0P@LFM@Shotgun?5Shells?$AA@ 40021280     bg_misc.obj
+ 0003:00001290       ??_C@_0BD@LBNP@icons?1icona_shells?$AA@ 40021290     bg_misc.obj
+ 0003:000012a4       ??_C@_0BD@IKAN@models?1ammo?1m3?4md3?$AA@ 400212a4     bg_misc.obj
+ 0003:000012b8       ??_C@_0M@MOIJ@ammo_shells?$AA@ 400212b8     bg_misc.obj
+ 0003:000012c4       ??_C@_09ENLD@MK23?5Clip?$AA@ 400212c4     bg_misc.obj
+ 0003:000012d0       ??_C@_0BF@OOMI@icons?1icona_mk23clip?$AA@ 400212d0     bg_misc.obj
+ 0003:000012e8       ??_C@_0BF@KCPM@models?1ammo?1mk23?4md3?$AA@ 400212e8     bg_misc.obj
+ 0003:00001300       ??_C@_09JOF@ammo_mk23?$AA@ 40021300     bg_misc.obj
+ 0003:0000130c       ??_C@_0CI@DNKN@models?1weapons2?1grenade?1grenade_@ 4002130c     bg_misc.obj
+ 0003:00001334       ??_C@_0M@KHFK@grenade_1st?$AA@ 40021334     bg_misc.obj
+ 0003:00001340       ??_C@_0CG@CIA@models?1weapons2?1akimbo?1akimbo_1s@ 40021340     bg_misc.obj
+ 0003:00001368       ??_C@_0L@DJPM@akimbo_1st?$AA@ 40021368     bg_misc.obj
+ 0003:00001374       ??_C@_0BO@NHGO@models?1weapons2?1m3?1m3_1st?4md3?$AA@ 40021374     bg_misc.obj
+ 0003:00001394       ??_C@_06GODC@m3_1st?$AA@   40021394     bg_misc.obj
+ 0003:0000139c       ??_C@_0CO@JDDM@models?1weapons2?1handcannon?1handc@ 4002139c     bg_misc.obj
+ 0003:000013cc       ??_C@_0P@FCGD@handcannon_1st?$AA@ 400213cc     bg_misc.obj
+ 0003:000013dc       ??_C@_0CA@OION@models?1weapons2?1mp5?1mp5_1st?4md3?$AA@ 400213dc     bg_misc.obj
+ 0003:000013fc       ??_C@_07NHM@mp5_1st?$AA@   400213fc     bg_misc.obj
+ 0003:00001404       ??_C@_0CI@PLEA@models?1weapons2?1ssg3000?1ssg3000_@ 40021404     bg_misc.obj
+ 0003:0000142c       ??_C@_0M@CDPK@ssg3000_1st?$AA@ 4002142c     bg_misc.obj
+ 0003:00001438       ??_C@_0BO@JJAD@models?1weapons2?1m4?1m4_1st?4md3?$AA@ 40021438     bg_misc.obj
+ 0003:00001458       ??_C@_06OMI@m4_1st?$AA@    40021458     bg_misc.obj
+ 0003:00001460       ??_C@_0CC@MHFN@models?1weapons2?1mk23?1mk23_1st?4md@ 40021460     bg_misc.obj
+ 0003:00001484       ??_C@_0L@KAGG@pistol_1st?$AA@ 40021484     bg_misc.obj
+ 0003:00001490       ??_C@_0CE@GPLK@models?1weapons2?1knife?1knife_1st?4@ 40021490     bg_misc.obj
+ 0003:000014b4       ??_C@_09OLJK@knife_1st?$AA@ 400214b4     bg_misc.obj
+ 0003:000014c0       ??_C@_0BK@MDCB@M26?5Fragmentation?5Grenade?$AA@ 400214c0     bg_misc.obj
+ 0003:000014dc       ??_C@_0BB@JOOP@icons?1iconw_gren?$AA@ 400214dc     bg_misc.obj
+ 0003:000014f0       ??_C@_0CE@EDED@models?1weapons2?1grenade?1grenade?4@ 400214f0     bg_misc.obj
+ 0003:00001514       ??_C@_0P@DHPO@weapon_grenade?$AA@ 40021514     bg_misc.obj
+ 0003:00001524       ??_C@_0BC@DHCA@Dual?5MK23?5Pistols?$AA@ 40021524     bg_misc.obj
+ 0003:00001538       ??_C@_0BD@GKAN@icons?1iconw_akimbo?$AA@ 40021538     bg_misc.obj
+ 0003:0000154c       ??_C@_0CC@DEM@models?1weapons2?1akimbo?1akimbo?4md@ 4002154c     bg_misc.obj
+ 0003:00001570       ??_C@_0O@BCLM@weapon_akimbo?$AA@ 40021570     bg_misc.obj
+ 0003:00001580       ??_C@_0BM@IFGG@M3?5Super?590?5Assault?5Shotgun?$AA@ 40021580     bg_misc.obj
+ 0003:0000159c       ??_C@_0P@DGFD@icons?1iconw_m3?$AA@ 4002159c     bg_misc.obj
+ 0003:000015ac       ??_C@_0BK@HPEJ@models?1weapons2?1m3?1m3?4md3?$AA@ 400215ac     bg_misc.obj
+ 0003:000015c8       ??_C@_0BK@GKI@sound?1weapons?1m3?1m3in?4wav?$AA@ 400215c8     bg_misc.obj
+ 0003:000015e4       ??_C@_09GGNK@weapon_m3?$AA@ 400215e4     bg_misc.obj
+ 0003:000015f0       ??_C@_0L@CNIE@Handcannon?$AA@ 400215f0     bg_misc.obj
+ 0003:000015fc       ??_C@_0BF@IGOM@icons?1iconw_sawedoff?$AA@ 400215fc     bg_misc.obj
+ 0003:00001614       ??_C@_0CK@JEHE@models?1weapons2?1handcannon?1handc@ 40021614     bg_misc.obj
+ 0003:00001640       ??_C@_0CE@FBHN@sound?1weapons?1handcannon?1hcopen?4@ 40021640     bg_misc.obj
+ 0003:00001664       ??_C@_0BC@FJDL@weapon_handcannon?$AA@ 40021664     bg_misc.obj
+ 0003:00001678       ??_C@_0BF@LJAA@MP5?110?5Submachinegun?$AA@ 40021678     bg_misc.obj
+ 0003:00001690       ??_C@_0BA@BADH@icons?1iconw_mp5?$AA@ 40021690     bg_misc.obj
+ 0003:000016a0       ??_C@_0BM@PCPA@models?1weapons2?1mp5?1mp5?4md3?$AA@ 400216a0     bg_misc.obj
+ 0003:000016bc       ??_C@_0BP@MEEK@sound?1weapons?1mp5?1mp5slide?4wav?$AA@ 400216bc     bg_misc.obj
+ 0003:000016dc       ??_C@_0L@LEGH@weapon_mp5?$AA@ 400216dc     bg_misc.obj
+ 0003:000016e8       ??_C@_0N@CKAL@Sniper?5Rifle?$AA@ 400216e8     bg_misc.obj
+ 0003:000016f8       ??_C@_0BA@CPPO@icons?1iconw_ssg?$AA@ 400216f8     bg_misc.obj
+ 0003:00001708       ??_C@_0CE@GOME@models?1weapons2?1ssg3000?1ssg3000?4@ 40021708     bg_misc.obj
+ 0003:0000172c       ??_C@_0CA@JDEG@sound?1weapons?1ssg3000?1ssgin?4wav?$AA@ 4002172c     bg_misc.obj
+ 0003:0000174c       ??_C@_0P@EKDN@weapon_ssg3000?$AA@ 4002174c     bg_misc.obj
+ 0003:0000175c       ??_C@_0BB@NMPE@M4?5Assault?5Rifle?$AA@ 4002175c     bg_misc.obj
+ 0003:00001770       ??_C@_0P@GDLG@icons?1iconw_m4?$AA@ 40021770     bg_misc.obj
+ 0003:00001780       ??_C@_0BK@OHHK@models?1weapons2?1m4?1m4?4md3?$AA@ 40021780     bg_misc.obj
+ 0003:0000179c       ??_C@_0BN@HLLI@sound?1weapons?1m4?1m4slide?4wav?$AA@ 4002179c     bg_misc.obj
+ 0003:000017bc       ??_C@_09DDDP@weapon_m4?$AA@ 400217bc     bg_misc.obj
+ 0003:000017c8       ??_C@_0M@JLIE@MK23?5Pistol?$AA@ 400217c8     bg_misc.obj
+ 0003:000017d4       ??_C@_0BB@OEII@icons?1iconw_mk23?$AA@ 400217d4     bg_misc.obj
+ 0003:000017e8       ??_C@_0BO@CLBM@models?1weapons2?1mk23?1mk23?4md3?$AA@ 400217e8     bg_misc.obj
+ 0003:00001808       ??_C@_0CB@HMBI@sound?1weapons?1mk23?1mk23slide?4wav@ 40021808     bg_misc.obj
+ 0003:0000182c       ??_C@_0O@ENGF@weapon_pistol?$AA@ 4002182c     bg_misc.obj
+ 0003:0000183c       ??_C@_0N@KJMB@Combat?5Knife?$AA@ 4002183c     bg_misc.obj
+ 0003:0000184c       ??_C@_0BC@FKII@icons?1iconw_knife?$AA@ 4002184c     bg_misc.obj
+ 0003:00001860       ??_C@_0CA@DGAC@models?1weapons2?1knife?1knife?4md3?$AA@ 40021860     bg_misc.obj
+ 0003:00001880       ??_C@_0BH@EMHN@sound?1misc?1am_pkup?4wav?$AA@ 40021880     bg_misc.obj
+ 0003:00001898       ??_C@_0N@OLHB@weapon_knife?$AA@ 40021898     bg_misc.obj
+ 0003:000018a8       _axisDefault               400218a8     q_math.obj
+ 0003:000018cc       _colorBlack                400218cc     q_math.obj
+ 0003:000018dc       _colorRed                  400218dc     q_math.obj
+ 0003:000018ec       _colorGreen                400218ec     q_math.obj
+ 0003:000018fc       _colorBlue                 400218fc     q_math.obj
+ 0003:0000190c       _colorYellow               4002190c     q_math.obj
+ 0003:0000191c       _colorMagenta              4002191c     q_math.obj
+ 0003:0000192c       _colorCyan                 4002192c     q_math.obj
+ 0003:0000193c       _colorWhite                4002193c     q_math.obj
+ 0003:0000194c       _colorLtGrey               4002194c     q_math.obj
+ 0003:0000195c       _colorMdGrey               4002195c     q_math.obj
+ 0003:0000196c       _colorDkGrey               4002196c     q_math.obj
+ 0003:0000197c       _g_color_table             4002197c     q_math.obj
+ 0003:000019fc       _bytedirs                  400219fc     q_math.obj
+ 0003:00002194       ??_C@_02DILL@?$CFs?$AA@    40022194     q_shared.obj
+ 0003:00002198       ??_C@_0BJ@GDCK@Q_strncpyz?3?5destsize?5?$DM?51?$AA@ 40022198     q_shared.obj
+ 0003:000021b4       ??_C@_0BF@OBLI@Q_strncpyz?3?5NULL?5src?$AA@ 400221b4     q_shared.obj
+ 0003:000021cc       ??_C@_0BG@BANA@Q_strncpyz?3?5NULL?5dest?$AA@ 400221cc     q_shared.obj
+ 0003:000021e4       ??_C@_0BN@PKJG@Q_strcat?3?5already?5overflowed?$AA@ 400221e4     q_shared.obj
+ 0003:00002204       ??_C@_0CD@KCEE@Com_sprintf?3?5overflow?5of?5?$CFi?5in?5?$CF@ 40022204     q_shared.obj
+ 0003:00002228       ??_C@_0CC@NDC@Com_sprintf?3?5overflowed?5bigbuffe@ 40022228     q_shared.obj
+ 0003:0000224c       ??_C@_0CG@FAFH@Info_ValueForKey?3?5oversize?5infos@ 4002224c     q_shared.obj
+ 0003:00002274       ??_C@_0CE@CNEE@Info_RemoveKey?3?5oversize?5infostr@ 40022274     q_shared.obj
+ 0003:00002298       ??_C@_0CD@MJE@Can?8t?5use?5keys?5or?5values?5with?5a?5@ 40022298     q_shared.obj
+ 0003:000022bc       ??_C@_0CL@GPCB@Can?8t?5use?5keys?5or?5values?5with?5a?5@ 400222bc     q_shared.obj
+ 0003:000022e8       ??_C@_0CD@NLGB@Can?8t?5use?5keys?5or?5values?5with?5a?5@ 400222e8     q_shared.obj
+ 0003:0000230c       ??_C@_0BN@DPCF@Info?5string?5length?5exceeded?6?$AA@ 4002230c     q_shared.obj
+ 0003:0000232c       ??_C@_06GNBE@?2?$CFs?2?$CFs?$AA@ 4002232c     q_shared.obj
+ 0003:00002334       ??_C@_0CJ@GBHP@Info_SetValueForKey?3?5oversize?5in@ 40022334     q_shared.obj
+ 0003:00002360       ??_C@_0BC@PIHH@ui_scoreCaptures2?$AA@ 40022360     ui_atoms.obj
+ 0003:00002374       ??_C@_0O@EDCJ@ui_scoreTime2?$AA@ 40022374     ui_atoms.obj
+ 0003:00002384       ??_C@_0BG@FLMK@ui_scoreShutoutBonus2?$AA@ 40022384     ui_atoms.obj
+ 0003:0000239c       ??_C@_0BE@IGME@ui_scoreSkillBonus2?$AA@ 4002239c     ui_atoms.obj
+ 0003:000023b0       ??_C@_0BD@HABN@ui_scoreTimeBonus2?$AA@ 400223b0     ui_atoms.obj
+ 0003:000023c4       ??_C@_0O@PGJL@ui_scoreBase2?$AA@ 400223c4     ui_atoms.obj
+ 0003:000023d4       ??_C@_0O@JBEK@ui_scoreTeam2?$AA@ 400223d4     ui_atoms.obj
+ 0003:000023e4       ??_C@_0BB@BFJK@ui_scorePerfect2?$AA@ 400223e4     ui_atoms.obj
+ 0003:000023f8       ??_C@_0P@EIAL@ui_scoreScore2?$AA@ 400223f8     ui_atoms.obj
+ 0003:00002408       ??_C@_0BD@KOGJ@ui_scoreGauntlets2?$AA@ 40022408     ui_atoms.obj
+ 0003:0000241c       ??_C@_0BB@FBJJ@ui_scoreAssists2?$AA@ 4002241c     ui_atoms.obj
+ 0003:00002430       ??_C@_0BB@MBHG@ui_scoreDefends2?$AA@ 40022430     ui_atoms.obj
+ 0003:00002444       ??_C@_0BE@NFEC@ui_scoreExcellents2?$AA@ 40022444     ui_atoms.obj
+ 0003:00002458       ??_C@_0BF@BMAK@ui_scoreImpressives2?$AA@ 40022458     ui_atoms.obj
+ 0003:00002470       ??_C@_0BC@MNKF@ui_scoreAccuracy2?$AA@ 40022470     ui_atoms.obj
+ 0003:00002484       ??_C@_0BB@MJAA@ui_scoreCaptures?$AA@ 40022484     ui_atoms.obj
+ 0003:00002498       ??_C@_0N@JHLI@ui_scoreTime?$AA@ 40022498     ui_atoms.obj
+ 0003:000024a8       ??_C@_09CCOG@?$CF02i?3?$CF02i?$AA@ 400224a8     ui_atoms.obj
+ 0003:000024b4       ??_C@_0BF@HEPG@ui_scoreShutoutBonus?$AA@ 400224b4     ui_atoms.obj
+ 0003:000024cc       ??_C@_0BD@HKKL@ui_scoreSkillBonus?$AA@ 400224cc     ui_atoms.obj
+ 0003:000024e0       ??_C@_0BC@KDGH@ui_scoreTimeBonus?$AA@ 400224e0     ui_atoms.obj
+ 0003:000024f4       ??_C@_0N@CFMC@ui_scoreBase?$AA@ 400224f4     ui_atoms.obj
+ 0003:00002504       ??_C@_0N@PEBB@ui_scoreTeam?$AA@ 40022504     ui_atoms.obj
+ 0003:00002514       ??_C@_08IHPJ@?$CFi?5to?5?$CFi?$AA@ 40022514     ui_atoms.obj
+ 0003:00002520       ??_C@_0BA@CEDK@ui_scorePerfect?$AA@ 40022520     ui_atoms.obj
+ 0003:00002530       ??_C@_0O@LFGD@ui_scoreScore?$AA@ 40022530     ui_atoms.obj
+ 0003:00002540       ??_C@_0BC@NHKN@ui_scoreGauntlets?$AA@ 40022540     ui_atoms.obj
+ 0003:00002554       ??_C@_0BA@CHDI@ui_scoreAssists?$AA@ 40022554     ui_atoms.obj
+ 0003:00002564       ??_C@_0BA@MIDO@ui_scoreDefends?$AA@ 40022564     ui_atoms.obj
+ 0003:00002574       ??_C@_0BD@PMII@ui_scoreExcellents?$AA@ 40022574     ui_atoms.obj
+ 0003:00002588       ??_C@_0BE@LENF@ui_scoreImpressives?$AA@ 40022588     ui_atoms.obj
+ 0003:0000259c       ??_C@_02JAFN@?$CFi?$AA@    4002259c     ui_atoms.obj
+ 0003:000025a0       ??_C@_0BB@BLDH@ui_scoreAccuracy?$AA@ 400225a0     ui_atoms.obj
+ 0003:000025b4       ??_C@_04NEPN@?$CFi?$CF?$CF?$AA@ 400225b4     ui_atoms.obj
+ 0003:000025bc       ??_C@_0BC@FDGG@demos?1?$CFs_?$CFd?4dm_?$CFd?$AA@ 400225bc     ui_atoms.obj
+ 0003:000025d0       ??_C@_08OEPO@protocol?$AA@ 400225d0     ui_atoms.obj
+ 0003:000025dc       ??_C@_0BB@LFEM@games?1?$CFs_?$CFi?4game?$AA@ 400225dc     ui_atoms.obj
+ 0003:000025f0       ??_C@_08KADP@games?1?$CFs?$AA@ 400225f0     ui_atoms.obj
+ 0003:000025fc       ??_C@_05GJAJ@games?$AA@    400225fc     ui_atoms.obj
+ 0003:00002604       ??_C@_04OAFI@game?$AA@     40022604     ui_atoms.obj
+ 0003:0000260c       ??_C@_08KOD@ui_cdkey?$AA@  4002260c     ui_atoms.obj
+ 0003:00002618       ??_C@_0O@DMPO@ui_teamOrders?$AA@ 40022618     ui_atoms.obj
+ 0003:00002628       ??_C@_08IEIM@ui_cache?$AA@ 40022628     ui_atoms.obj
+ 0003:00002634       ??_C@_08BBIO@postgame?$AA@ 40022634     ui_atoms.obj
+ 0003:00002640       ??_C@_0M@BAF@remapShader?$AA@ 40022640     ui_atoms.obj
+ 0003:0000264c       ??_C@_07BIKN@ui_load?$AA@  4002264c     ui_atoms.obj
+ 0003:00002654       ??_C@_09MMPF@ui_report?$AA@ 40022654     ui_atoms.obj
+ 0003:00002660       ??_C@_07LNAI@ui_test?$AA@  40022660     ui_atoms.obj
+ 0003:00002668       ??_C@_0P@DIBC@g_friendlyFire?$AA@ 40022668     ui_atoms.obj
+ 0003:00002678       ??_C@_0BA@OFEE@ui_friendlyFire?$AA@ 40022678     ui_atoms.obj
+ 0003:00002688       ??_C@_07OEHJ@sv_pure?$AA@  40022688     ui_atoms.obj
+ 0003:00002690       ??_C@_07BMGH@ui_pure?$AA@  40022690     ui_atoms.obj
+ 0003:00002698       ??_C@_08NLLD@g_Warmup?$AA@ 40022698     ui_atoms.obj
+ 0003:000026a4       ??_C@_09BOME@ui_Warmup?$AA@ 400226a4     ui_atoms.obj
+ 0003:000026b0       ??_C@_0L@HEIK@g_doWarmup?$AA@ 400226b0     ui_atoms.obj
+ 0003:000026bc       ??_C@_0M@DAFB@ui_doWarmup?$AA@ 400226bc     ui_atoms.obj
+ 0003:000026c8       ??_C@_0N@DNNE@cg_drawTimer?$AA@ 400226c8     ui_atoms.obj
+ 0003:000026d8       ??_C@_0N@KEFN@ui_drawTimer?$AA@ 400226d8     ui_atoms.obj
+ 0003:000026e8       ??_C@_09DPJO@fraglimit?$AA@ 400226e8     ui_atoms.obj
+ 0003:000026f4       ??_C@_0BB@HNJA@ui_saveFragLimit?$AA@ 400226f4     ui_atoms.obj
+ 0003:00002708       ??_C@_0N@ELFE@capturelimit?$AA@ 40022708     ui_atoms.obj
+ 0003:00002718       ??_C@_0BE@LMJK@ui_saveCaptureLimit?$AA@ 40022718     ui_atoms.obj
+ 0003:0000272c       ??_C@_09DOO@g_spSkill?$AA@ 4002272c     ui_atoms.obj
+ 0003:00002738       ??_C@_0BC@JPHM@ui_matchStartTime?$AA@ 40022738     ui_atoms.obj
+ 0003:0000274c       ??_C@_0L@IEJM@g_gametype?$AA@ 4002274c     ui_atoms.obj
+ 0003:00002758       ??_C@_07DOCO@mapname?$AA@  40022758     ui_atoms.obj
+ 0003:00002760       ??_C@_0BE@NIAP@Max?5infos?5exceeded?6?$AA@ 40022760     ui_gameinfo.obj
+ 0003:00002774       ??_C@_0BI@FBJM@Missing?5?$HL?5in?5info?5file?6?$AA@ 40022774     ui_gameinfo.obj
+ 0003:0000278c       ??_C@_02MECO@?$CFd?$AA@    4002278c     ui_gameinfo.obj
+ 0003:00002790       ??_C@_0BN@HAGP@Unexpected?5end?5of?5info?5file?6?$AA@ 40022790     ui_gameinfo.obj
+ 0003:000027b0       ??_C@_06CENM@?$DMNULL?$DO?$AA@ 400227b0     ui_gameinfo.obj
+ 0003:000027b8       ??_C@_01KCD@?$HN?$AA@      400227b8     ui_gameinfo.obj
+ 0003:000027bc       ??_C@_01PFFB@?$HL?$AA@     400227bc     ui_gameinfo.obj
+ 0003:000027c0       ??_C@_09MIOM@harvester?$AA@ 400227c0     ui_gameinfo.obj
+ 0003:000027cc       ??_C@_08CGI@overload?$AA@  400227cc     ui_gameinfo.obj
+ 0003:000027d8       ??_C@_07BODI@oneflag?$AA@  400227d8     ui_gameinfo.obj
+ 0003:000027e0       ??_C@_03HGOC@ctf?$AA@      400227e0     ui_gameinfo.obj
+ 0003:000027e4       ??_C@_07FLNA@tourney?$AA@  400227e4     ui_gameinfo.obj
+ 0003:000027ec       ??_C@_03HOLH@ffa?$AA@      400227ec     ui_gameinfo.obj
+ 0003:000027f0       ??_C@_04PIKN@type?$AA@     400227f0     ui_gameinfo.obj
+ 0003:000027f8       ??_C@_0O@CJGC@levelshots?1?$CFs?$AA@ 400227f8     ui_gameinfo.obj
+ 0003:00002808       ??_C@_08CLHC@longname?$AA@ 40022808     ui_gameinfo.obj
+ 0003:00002814       ??_C@_03HKIL@map?$AA@      40022814     ui_gameinfo.obj
+ 0003:00002818       ??_C@_0DJ@JCGB@?$FO3WARNING?3?5not?5anough?5memory?5in?5@ 40022818     ui_gameinfo.obj
+ 0003:00002854       ??_C@_0BC@LFAD@?$CFi?5arenas?5parsed?6?$AA@ 40022854     ui_gameinfo.obj
+ 0003:00002868       ??_C@_08CJIE@scripts?1?$AA@ 40022868     ui_gameinfo.obj
+ 0003:00002874       ??_C@_07DJDJ@scripts?$AA@  40022874     ui_gameinfo.obj
+ 0003:0000287c       ??_C@_06BFIE@?4arena?$AA@  4002287c     ui_gameinfo.obj
+ 0003:00002884       ??_C@_0BD@HCGB@scripts?1arenas?4txt?$AA@ 40022884     ui_gameinfo.obj
+ 0003:00002898       ??_C@_0N@DNGO@g_arenasFile?$AA@ 40022898     ui_gameinfo.obj
+ 0003:000028a8       ??_C@_0CO@CPGF@?$FO1file?5too?5large?3?5?$CFs?5is?5?$CFi?0?5max?5@ 400228a8     ui_gameinfo.obj
+ 0003:000028d8       ??_C@_0BG@FOLB@?$FO1file?5not?5found?3?5?$CFs?6?$AA@ 400228d8     ui_gameinfo.obj
+ 0003:000028f0       ??_C@_0BA@PAJG@?$CFi?5bots?5parsed?6?$AA@ 400228f0     ui_gameinfo.obj
+ 0003:00002900       ??_C@_04GDJG@?4bot?$AA@    40022900     ui_gameinfo.obj
+ 0003:00002908       ??_C@_0BB@CNHD@scripts?1bots?4txt?$AA@ 40022908     ui_gameinfo.obj
+ 0003:0000291c       ??_C@_0L@MOAL@g_botsFile?$AA@ 4002291c     ui_gameinfo.obj
+ 0003:00002928       ??_C@_0BK@DPGC@?$FO1Invalid?5bot?5number?3?5?$CFi?6?$AA@ 40022928     ui_gameinfo.obj
+ 0003:00002944       ??_C@_04OPJK@name?$AA@     40022944     ui_gameinfo.obj
+ 0003:0000294c       ??_C@_05JLIK@Sarge?$AA@    4002294c     ui_gameinfo.obj
+ 0003:00002af0       _serverStatusCvars         40022af0     ui_main.obj
+ 0003:00003264       ??_C@_04CCAJ@7000?$AA@     40023264     ui_main.obj
+ 0003:0000326c       ??_C@_0BH@NIAB@ui_serverStatusTimeOut?$AA@ 4002326c     ui_main.obj
+ 0003:00003284       ??_C@_08GPLH@g_warmup?$AA@ 40023284     ui_main.obj
+ 0003:00003290       ??_C@_0BF@HHLG@ui_teamArenaFirstRun?$AA@ 40023290     ui_main.obj
+ 0003:000032a8       ??_C@_0BA@IGMC@ui_recordSPDemo?$AA@ 400232a8     ui_main.obj
+ 0003:000032b8       ??_C@_0L@JNBO@ui?1hud?4txt?$AA@ 400232b8     ui_main.obj
+ 0003:000032c4       ??_C@_0M@PLPH@cg_hudFiles?$AA@ 400232c4     ui_main.obj
+ 0003:000032d0       ??_C@_0L@CIKM@ui_q3model?$AA@ 400232d0     ui_main.obj
+ 0003:000032dc       ??_C@_0O@BDIN@ui_findPlayer?$AA@ 400232dc     ui_main.obj
+ 0003:000032ec       ??_C@_03CFIK@0?44?$AA@     400232ec     ui_main.obj
+ 0003:000032f0       ??_C@_0L@PHAP@ui_bigFont?$AA@ 400232f0     ui_main.obj
+ 0003:000032fc       ??_C@_04KIIB@0?425?$AA@    400232fc     ui_main.obj
+ 0003:00003304       ??_C@_0N@BFNN@ui_smallFont?$AA@ 40023304     ui_main.obj
+ 0003:00003314       ??_C@_0BA@JNKC@ui_captureLimit?$AA@ 40023314     ui_main.obj
+ 0003:00003324       ??_C@_0N@GJDM@ui_fragLimit?$AA@ 40023324     ui_main.obj
+ 0003:00003334       ??_C@_05OKNA@00?300?$AA@   40023334     ui_main.obj
+ 0003:0000333c       ??_C@_06BDGL@0?5to?50?$AA@ 4002333c     ui_main.obj
+ 0003:00003344       ??_C@_0BG@NDMH@ui_singlePlayerActive?$AA@ 40023344     ui_main.obj
+ 0003:0000335c       ??_C@_0BH@LKMF@ui_lastServerRefresh_3?$AA@ 4002335c     ui_main.obj
+ 0003:00003374       ??_C@_0BH@BAFC@ui_lastServerRefresh_2?$AA@ 40023374     ui_main.obj
+ 0003:0000338c       ??_C@_0BH@OPOL@ui_lastServerRefresh_1?$AA@ 4002338c     ui_main.obj
+ 0003:000033a4       ??_C@_0BH@EFHM@ui_lastServerRefresh_0?$AA@ 400233a4     ui_main.obj
+ 0003:000033bc       ??_C@_0BG@LHHJ@cg_selectedPlayerName?$AA@ 400233bc     ui_main.obj
+ 0003:000033d4       ??_C@_0BC@GPGL@cg_selectedPlayer?$AA@ 400233d4     ui_main.obj
+ 0003:000033e8       ??_C@_0BD@EKKH@ui_currentOpponent?$AA@ 400233e8     ui_main.obj
+ 0003:000033fc       ??_C@_0M@OFHE@ui_mapIndex?$AA@ 400233fc     ui_main.obj
+ 0003:00003408       ??_C@_0BB@NBAN@ui_currentNetMap?$AA@ 40023408     ui_main.obj
+ 0003:0000341c       ??_C@_0O@NNJD@ui_currentMap?$AA@ 4002341c     ui_main.obj
+ 0003:0000342c       ??_C@_0P@HLFM@ui_currentTier?$AA@ 4002342c     ui_main.obj
+ 0003:0000343c       ??_C@_0N@CJKD@ui?1menus?4txt?$AA@ 4002343c     ui_main.obj
+ 0003:0000344c       ??_C@_0N@CCOP@ui_menuFiles?$AA@ 4002344c     ui_main.obj
+ 0003:0000345c       ??_C@_0N@FOCG@ui_netSource?$AA@ 4002345c     ui_main.obj
+ 0003:0000346c       ??_C@_0N@FODF@ui_blueteam5?$AA@ 4002346c     ui_main.obj
+ 0003:0000347c       ??_C@_0N@PEKC@ui_blueteam4?$AA@ 4002347c     ui_main.obj
+ 0003:0000348c       ??_C@_0N@KBEH@ui_blueteam3?$AA@ 4002348c     ui_main.obj
+ 0003:0000349c       ??_C@_0N@LNA@ui_blueteam2?$AA@ 4002349c     ui_main.obj
+ 0003:000034ac       ??_C@_0N@PEGJ@ui_blueteam1?$AA@ 400234ac     ui_main.obj
+ 0003:000034bc       ??_C@_0M@FEFM@ui_redteam5?$AA@ 400234bc     ui_main.obj
+ 0003:000034c8       ??_C@_0M@POML@ui_redteam4?$AA@ 400234c8     ui_main.obj
+ 0003:000034d4       ??_C@_0M@KLCO@ui_redteam3?$AA@ 400234d4     ui_main.obj
+ 0003:000034e0       ??_C@_0M@BLJ@ui_redteam2?$AA@ 400234e0     ui_main.obj
+ 0003:000034ec       ??_C@_0M@POAA@ui_redteam1?$AA@ 400234ec     ui_main.obj
+ 0003:000034f8       ??_C@_0BF@NJJM@ui_actualNetGametype?$AA@ 400234f8     ui_main.obj
+ 0003:00003510       ??_C@_0P@GHL@ui_netGametype?$AA@ 40023510     ui_main.obj
+ 0003:00003520       ??_C@_0BA@OCOI@ui_joinGametype?$AA@ 40023520     ui_main.obj
+ 0003:00003530       ??_C@_01ECJ@3?$AA@         40023530     ui_main.obj
+ 0003:00003534       ??_C@_0M@MAEH@ui_gametype?$AA@ 40023534     ui_main.obj
+ 0003:00003540       ??_C@_0N@DJCD@ui_dedicated?$AA@ 40023540     ui_main.obj
+ 0003:00003550       ??_C@_0M@GOIA@ui_blueteam?$AA@ 40023550     ui_main.obj
+ 0003:0000355c       ??_C@_0L@HLK@ui_redteam?$AA@ 4002355c     ui_main.obj
+ 0003:00003568       ??_C@_07EIFO@Stroggs?$AA@  40023568     ui_main.obj
+ 0003:00003570       ??_C@_0BA@IJAC@ui_opponentName?$AA@ 40023570     ui_main.obj
+ 0003:00003580       ??_C@_06BCHF@Pagans?$AA@   40023580     ui_main.obj
+ 0003:00003588       ??_C@_0M@GHFF@ui_teamName?$AA@ 40023588     ui_main.obj
+ 0003:00003594       ??_C@_0P@EEOO@ui_initialized?$AA@ 40023594     ui_main.obj
+ 0003:000035a4       ??_C@_08OFPL@ui_debug?$AA@ 400235a4     ui_main.obj
+ 0003:000035b0       ??_C@_06LLKL@ui_new?$AA@   400235b0     ui_main.obj
+ 0003:000035b8       ??_C@_0BA@IOOA@ui_cdkeychecked?$AA@ 400235b8     ui_main.obj
+ 0003:000035c8       ??_C@_08HEJP@server16?$AA@ 400235c8     ui_main.obj
+ 0003:000035d4       ??_C@_08ILCG@server15?$AA@ 400235d4     ui_main.obj
+ 0003:000035e0       ??_C@_08CBLB@server14?$AA@ 400235e0     ui_main.obj
+ 0003:000035ec       ??_C@_08HEFE@server13?$AA@ 400235ec     ui_main.obj
+ 0003:000035f8       ??_C@_08NOMD@server12?$AA@ 400235f8     ui_main.obj
+ 0003:00003604       ??_C@_08CBHK@server11?$AA@ 40023604     ui_main.obj
+ 0003:00003610       ??_C@_08ILON@server10?$AA@ 40023610     ui_main.obj
+ 0003:0000361c       ??_C@_07CJHJ@server9?$AA@  4002361c     ui_main.obj
+ 0003:00003624       ??_C@_07IDOO@server8?$AA@  40023624     ui_main.obj
+ 0003:0000362c       ??_C@_07ICLD@server7?$AA@  4002362c     ui_main.obj
+ 0003:00003634       ??_C@_07CICE@server6?$AA@  40023634     ui_main.obj
+ 0003:0000363c       ??_C@_07NHJN@server5?$AA@  4002363c     ui_main.obj
+ 0003:00003644       ??_C@_07HNAK@server4?$AA@  40023644     ui_main.obj
+ 0003:0000364c       ??_C@_07CIOP@server3?$AA@  4002364c     ui_main.obj
+ 0003:00003654       ??_C@_07ICHI@server2?$AA@  40023654     ui_main.obj
+ 0003:0000365c       ??_C@_07HNMB@server1?$AA@  4002365c     ui_main.obj
+ 0003:00003664       ??_C@_08PKCG@cg_marks?$AA@ 40023664     ui_main.obj
+ 0003:00003670       ??_C@_0BG@JAIH@cg_drawCrosshairNames?$AA@ 40023670     ui_main.obj
+ 0003:00003688       ??_C@_0BB@BIJH@cg_drawCrosshair?$AA@ 40023688     ui_main.obj
+ 0003:0000369c       ??_C@_04IIFP@2500?$AA@     4002369c     ui_main.obj
+ 0003:000036a4       ??_C@_0N@OGMG@cg_brassTime?$AA@ 400236a4     ui_main.obj
+ 0003:000036b4       ??_C@_0BE@KEME@ui_browserShowEmpty?$AA@ 400236b4     ui_main.obj
+ 0003:000036c8       ??_C@_0BD@BNEL@ui_browserShowFull?$AA@ 400236c8     ui_main.obj
+ 0003:000036dc       ??_C@_01FBMM@4?$AA@        400236dc     ui_main.obj
+ 0003:000036e0       ??_C@_0BC@GCMK@ui_browserSortKey?$AA@ 400236e0     ui_main.obj
+ 0003:000036f4       ??_C@_0BD@DAGN@ui_browserGameType?$AA@ 400236f4     ui_main.obj
+ 0003:00003708       ??_C@_0BB@DABH@ui_browserMaster?$AA@ 40023708     ui_main.obj
+ 0003:0000371c       ??_C@_0P@NMKH@ui_spSelection?$AA@ 4002371c     ui_main.obj
+ 0003:0000372c       ??_C@_01KOLO@2?$AA@        4002372c     ui_main.obj
+ 0003:00003730       ??_C@_0L@NJFG@g_spVideos?$AA@ 40023730     ui_main.obj
+ 0003:0000373c       ??_C@_0L@JCO@g_spAwards?$AA@ 4002373c     ui_main.obj
+ 0003:00003748       ??_C@_0M@FHEC@g_spScores5?$AA@ 40023748     ui_main.obj
+ 0003:00003754       ??_C@_0M@PNNF@g_spScores4?$AA@ 40023754     ui_main.obj
+ 0003:00003760       ??_C@_0M@KIDA@g_spScores3?$AA@ 40023760     ui_main.obj
+ 0003:0000376c       ??_C@_0M@CKH@g_spScores2?$AA@ 4002376c     ui_main.obj
+ 0003:00003778       ??_C@_0M@PNBO@g_spScores1?$AA@ 40023778     ui_main.obj
+ 0003:00003784       ??_C@_0BA@JAAL@ui_ctf_friendly?$AA@ 40023784     ui_main.obj
+ 0003:00003794       ??_C@_0BB@LBEJ@ui_ctf_timelimit?$AA@ 40023794     ui_main.obj
+ 0003:000037a8       ??_C@_01KPCI@8?$AA@        400237a8     ui_main.obj
+ 0003:000037ac       ??_C@_0BE@OMKO@ui_ctf_capturelimit?$AA@ 400237ac     ui_main.obj
+ 0003:000037c0       ??_C@_01FBAH@1?$AA@        400237c0     ui_main.obj
+ 0003:000037c4       ??_C@_0BB@KGEM@ui_team_friendly?$AA@ 400237c4     ui_main.obj
+ 0003:000037d8       ??_C@_0BC@FPHP@ui_team_timelimit?$AA@ 400237d8     ui_main.obj
+ 0003:000037ec       ??_C@_0BC@BDI@ui_team_fraglimit?$AA@ 400237ec     ui_main.obj
+ 0003:00003800       ??_C@_0BF@PJDA@ui_tourney_timelimit?$AA@ 40023800     ui_main.obj
+ 0003:00003818       ??_C@_0BF@KHHH@ui_tourney_fraglimit?$AA@ 40023818     ui_main.obj
+ 0003:00003830       ??_C@_01PLJA@0?$AA@        40023830     ui_main.obj
+ 0003:00003834       ??_C@_0BB@DFEB@ui_ffa_timelimit?$AA@ 40023834     ui_main.obj
+ 0003:00003848       ??_C@_0BB@GLAG@ui_ffa_fraglimit?$AA@ 40023848     ui_main.obj
+ 0003:0000385c       ??_C@_09GBNJ@timelimit?$AA@ 4002385c     ui_main.obj
+ 0003:00003868       ??_C@_07BPOH@version?$AA@  40023868     ui_main.obj
+ 0003:00003870       ??_C@_03DIFO@Map?$AA@      40023870     ui_main.obj
+ 0003:00003874       ??_C@_09OPDC@Game?5type?$AA@ 40023874     ui_main.obj
+ 0003:00003880       ??_C@_09PIAF@Game?5name?$AA@ 40023880     ui_main.obj
+ 0003:0000388c       ??_C@_08NPAP@gamename?$AA@ 4002388c     ui_main.obj
+ 0003:00003898       ??_C@_07DPCC@Address?$AA@  40023898     ui_main.obj
+ 0003:000038a0       ??_C@_04EFNI@Name?$AA@     400238a0     ui_main.obj
+ 0003:000038a8       ??_C@_0M@IHPH@sv_hostname?$AA@ 400238a8     ui_main.obj
+ 0003:000038b4       ??_C@_01PLFL@5?$AA@        400238b4     ui_main.obj
+ 0003:000038b8       ??_C@_02FCMB@10?$AA@       400238b8     ui_main.obj
+ 0003:000038bc       ??_C@_02FCAK@15?$AA@       400238bc     ui_main.obj
+ 0003:000038c0       ??_C@_02GJDO@20?$AA@       400238c0     ui_main.obj
+ 0003:000038c4       ??_C@_02GJPF@25?$AA@       400238c4     ui_main.obj
+ 0003:000038c8       ??_C@_02HPJE@30?$AA@       400238c8     ui_main.obj
+ 0003:000038cc       ??_C@_02HPFP@35?$AA@       400238cc     ui_main.obj
+ 0003:000038d0       ??_C@_02BOMB@40?$AA@       400238d0     ui_main.obj
+ 0003:000038d4       ??_C@_02BOAK@45?$AA@       400238d4     ui_main.obj
+ 0003:000038d8       ??_C@_02IGL@50?$AA@        400238d8     ui_main.obj
+ 0003:000038dc       ??_C@_02IKA@55?$AA@        400238dc     ui_main.obj
+ 0003:000038e0       ??_C@_02DDJE@60?$AA@       400238e0     ui_main.obj
+ 0003:000038e4       ??_C@_02DDFP@65?$AA@       400238e4     ui_main.obj
+ 0003:000038e8       ??_C@_02CFDO@70?$AA@       400238e8     ui_main.obj
+ 0003:000038ec       ??_C@_02CFPF@75?$AA@       400238ec     ui_main.obj
+ 0003:000038f0       ??_C@_02PBDP@80?$AA@       400238f0     ui_main.obj
+ 0003:000038f4       ??_C@_02PBPE@85?$AA@       400238f4     ui_main.obj
+ 0003:000038f8       ??_C@_02OHJF@90?$AA@       400238f8     ui_main.obj
+ 0003:000038fc       ??_C@_02OHFO@95?$AA@       400238fc     ui_main.obj
+ 0003:00003900       ??_C@_04COF@None?$AA@      40023900     ui_main.obj
+ 0003:00003908       ??_C@_03NPAN@IPX?$AA@      40023908     ui_main.obj
+ 0003:0000390c       ??_C@_03ECDD@UDP?$AA@      4002390c     ui_main.obj
+ 0003:00003910       ??_C@_03NMFM@?$DP?$DP?$DP?$AA@ 40023910     ui_main.obj
+ 0003:00003914       ??_C@_09IFBH@Ping?5Time?$AA@ 40023914     ui_main.obj
+ 0003:00003920       ??_C@_09EFHA@Game?5Type?$AA@ 40023920     ui_main.obj
+ 0003:0000392c       ??_C@_0BC@KDHP@Open?5Player?5Spots?$AA@ 4002392c     ui_main.obj
+ 0003:00003940       ??_C@_08LMHB@Map?5Name?$AA@ 40023940     ui_main.obj
+ 0003:0000394c       ??_C@_0M@MEML@Server?5Name?$AA@ 4002394c     ui_main.obj
+ 0003:00003958       ??_C@_0BA@HANA@Team?5Tournament?$AA@ 40023958     ui_main.obj
+ 0003:00003968       ??_C@_09IBOJ@Harvester?$AA@ 40023968     ui_main.obj
+ 0003:00003974       ??_C@_08HLK@Overload?$AA@  40023974     ui_main.obj
+ 0003:00003980       ??_C@_0N@DCK@One?5Flag?5CTF?$AA@ 40023980     ui_main.obj
+ 0003:00003990       ??_C@_0BB@EEMI@Capture?5the?5Flag?$AA@ 40023990     ui_main.obj
+ 0003:000039a4       ??_C@_0BA@MBBA@Team?5Deathmatch?$AA@ 400239a4     ui_main.obj
+ 0003:000039b4       ??_C@_0O@IEE@Single?5Player?$AA@ 400239b4     ui_main.obj
+ 0003:000039c4       ??_C@_0L@MDJG@Tournament?$AA@ 400239c4     ui_main.obj
+ 0003:000039d0       ??_C@_0N@EEDI@Free?5For?5All?$AA@ 400239d0     ui_main.obj
+ 0003:000039e0       ??_C@_0P@PNKB@TEAMTOURNAMENT?$AA@ 400239e0     ui_main.obj
+ 0003:000039f0       ??_C@_09IJAE@HARVESTER?$AA@ 400239f0     ui_main.obj
+ 0003:000039fc       ??_C@_08KIF@OVERLOAD?$AA@  400239fc     ui_main.obj
+ 0003:00003a08       ??_C@_05JODG@1FCTF?$AA@    40023a08     ui_main.obj
+ 0003:00003a10       ??_C@_03LDIF@CTF?$AA@      40023a10     ui_main.obj
+ 0003:00003a14       ??_C@_07HJFK@TEAM?5DM?$AA@ 40023a14     ui_main.obj
+ 0003:00003a1c       ??_C@_02PHED@SP?$AA@       40023a1c     ui_main.obj
+ 0003:00003a20       ??_C@_0L@ICHO@TOURNAMENT?$AA@ 40023a20     ui_main.obj
+ 0003:00003a2c       ??_C@_03LLNA@FFA?$AA@      40023a2c     ui_main.obj
+ 0003:00003a30       ??_C@_03JJFK@osp?$AA@      40023a30     ui_main.obj
+ 0003:00003a34       ??_C@_03FMDN@OSP?$AA@      40023a34     ui_main.obj
+ 0003:00003a38       ??_C@_03NML@wfa?$AA@       40023a38     ui_main.obj
+ 0003:00003a3c       ??_C@_0BG@HLAE@Weapons?5Factory?5Arena?$AA@ 40023a3c     ui_main.obj
+ 0003:00003a54       ??_C@_0L@KFLB@alliance20?$AA@ 40023a54     ui_main.obj
+ 0003:00003a60       ??_C@_08KCBK@Alliance?$AA@ 40023a60     ui_main.obj
+ 0003:00003a6c       ??_C@_05HBEB@arena?$AA@    40023a6c     ui_main.obj
+ 0003:00003a74       ??_C@_0N@NINB@Rocket?5Arena?$AA@ 40023a74     ui_main.obj
+ 0003:00003a84       ??_C@_0M@KMFB@missionpack?$AA@ 40023a84     ui_main.obj
+ 0003:00003a90       ??_C@_0L@DDNN@Team?5Arena?$AA@ 40023a90     ui_main.obj
+ 0003:00003a9c       ??_C@_0O@LNNA@Quake?53?5Arena?$AA@ 40023a9c     ui_main.obj
+ 0003:00003aac       ??_C@_03EOHB@All?$AA@      40023aac     ui_main.obj
+ 0003:00003ab0       ??_C@_09DLMA@Favorites?$AA@ 40023ab0     ui_main.obj
+ 0003:00003abc       ??_C@_08IGDG@Internet?$AA@ 40023abc     ui_main.obj
+ 0003:00003ac8       ??_C@_07IIOC@Mplayer?$AA@  40023ac8     ui_main.obj
+ 0003:00003ad0       ??_C@_05PHNP@Local?$AA@    40023ad0     ui_main.obj
+ 0003:00003ad8       ??_C@_09HEBF@Nightmare?$AA@ 40023ad8     ui_main.obj
+ 0003:00003ae4       ??_C@_08IEMG@Hardcore?$AA@ 40023ae4     ui_main.obj
+ 0003:00003af0       ??_C@_0P@PDMK@Hurt?5Me?5Plenty?$AA@ 40023af0     ui_main.obj
+ 0003:00003b00       ??_C@_0M@JFCJ@Bring?5It?5On?$AA@ 40023b00     ui_main.obj
+ 0003:00003b0c       ??_C@_09CEKA@I?5Can?5Win?$AA@ 40023b0c     ui_main.obj
+ 0003:00003b18       ??_C@_03PGJO@Dec?$AA@      40023b18     ui_main.obj
+ 0003:00003b1c       ??_C@_03PDLM@Nov?$AA@      40023b1c     ui_main.obj
+ 0003:00003b20       ??_C@_03BLHK@Oct?$AA@      40023b20     ui_main.obj
+ 0003:00003b24       ??_C@_03DPFM@Sep?$AA@      40023b24     ui_main.obj
+ 0003:00003b28       ??_C@_03CMCH@Aug?$AA@      40023b28     ui_main.obj
+ 0003:00003b2c       ??_C@_03OBKI@Jul?$AA@      40023b2c     ui_main.obj
+ 0003:00003b30       ??_C@_03LEIG@Jun?$AA@      40023b30     ui_main.obj
+ 0003:00003b34       ??_C@_03MGHB@May?$AA@      40023b34     ui_main.obj
+ 0003:00003b38       ??_C@_03MJJM@Apr?$AA@      40023b38     ui_main.obj
+ 0003:00003b3c       ??_C@_03GNHA@Mar?$AA@      40023b3c     ui_main.obj
+ 0003:00003b40       ??_C@_03PICE@Feb?$AA@      40023b40     ui_main.obj
+ 0003:00003b44       ??_C@_03IEIF@Jan?$AA@      40023b44     ui_main.obj
+ 0003:00003b48       ??_C@_0CE@JCOP@sound?1feedback?1voc_newhighscore?4@ 40023b48     ui_main.obj
+ 0003:00003b6c       ??_C@_0BD@LP@gfx?12d?1crosshair?$CFc?$AA@ 40023b6c     ui_main.obj
+ 0003:00003b80       ??_C@_0BL@KBPG@ui?1assets?1sliderbutt_1?4tga?$AA@ 40023b80     ui_main.obj
+ 0003:00003b9c       ??_C@_0BG@LGNH@ui?1assets?1slider2?4tga?$AA@ 40023b9c     ui_main.obj
+ 0003:00003bb4       ??_C@_0BO@CMKH@ui?1assets?1scrollbar_thumb?4tga?$AA@ 40023bb4     ui_main.obj
+ 0003:00003bd4       ??_C@_0CE@NPCJ@ui?1assets?1scrollbar_arrow_right?4@ 40023bd4     ui_main.obj
+ 0003:00003bf8       ??_C@_0CD@GKON@ui?1assets?1scrollbar_arrow_left?4t@ 40023bf8     ui_main.obj
+ 0003:00003c1c       ??_C@_0CD@GIIF@ui?1assets?1scrollbar_arrow_up_a?4t@ 40023c1c     ui_main.obj
+ 0003:00003c40       ??_C@_0CE@HLNK@ui?1assets?1scrollbar_arrow_dwn_a?4@ 40023c40     ui_main.obj
+ 0003:00003c64       ??_C@_0BI@JMFI@ui?1assets?1scrollbar?4tga?$AA@ 40023c64     ui_main.obj
+ 0003:00003c7c       ??_C@_0BC@HEAD@menu?1art?1fx_white?$AA@ 40023c7c     ui_main.obj
+ 0003:00003c90       ??_C@_0BB@EGCG@menu?1art?1fx_cyan?$AA@ 40023c90     ui_main.obj
+ 0003:00003ca4       ??_C@_0BB@MDFA@menu?1art?1fx_blue?$AA@ 40023ca4     ui_main.obj
+ 0003:00003cb8       ??_C@_0BB@EFBC@menu?1art?1fx_teal?$AA@ 40023cb8     ui_main.obj
+ 0003:00003ccc       ??_C@_0BA@LEB@menu?1art?1fx_grn?$AA@ 40023ccc     ui_main.obj
+ 0003:00003cdc       ??_C@_0BA@IDL@menu?1art?1fx_yel?$AA@ 40023cdc     ui_main.obj
+ 0003:00003cec       ??_C@_0BA@DKAN@menu?1art?1fx_red?$AA@ 40023cec     ui_main.obj
+ 0003:00003cfc       ??_C@_0BB@DOFG@menu?1art?1fx_base?$AA@ 40023cfc     ui_main.obj
+ 0003:00003d10       ??_C@_0BL@JLLI@ui?1assets?1gradientbar2?4tga?$AA@ 40023d10     ui_main.obj
+ 0003:00003d2c       ??_C@_0O@NBEJ@sv_killserver?$AA@ 40023d2c     ui_main.obj
+ 0003:00003d3c       ??_C@_0P@LBPA@cg_thirdPerson?$AA@ 40023d3c     ui_main.obj
+ 0003:00003d4c       ??_C@_0P@JCFN@cg_cameraOrbit?$AA@ 40023d4c     ui_main.obj
+ 0003:00003d5c       ??_C@_0DD@HHCO@?$FO1menu?5file?5too?5large?3?5?$CFs?5is?5?$CFi?0@ 40023d5c     ui_main.obj
+ 0003:00003d90       ??_C@_0CK@PLBB@?$FO1menu?5file?5not?5found?3?5?$CFs?0?5using@ 40023d90     ui_main.obj
+ 0003:00003dbc       ??_C@_0M@PIBK@shadowColor?$AA@ 40023dbc     ui_main.obj
+ 0003:00003dc8       ??_C@_07DFFP@shadowY?$AA@  40023dc8     ui_main.obj
+ 0003:00003dd0       ??_C@_07JPMI@shadowX?$AA@  40023dd0     ui_main.obj
+ 0003:00003dd8       ??_C@_0L@LGOP@fadeAmount?$AA@ 40023dd8     ui_main.obj
+ 0003:00003de4       ??_C@_09NJPJ@fadeCycle?$AA@ 40023de4     ui_main.obj
+ 0003:00003df0       ??_C@_09CHPO@fadeClamp?$AA@ 40023df0     ui_main.obj
+ 0003:00003dfc       ??_C@_06BMBC@cursor?$AA@   40023dfc     ui_main.obj
+ 0003:00003e04       ??_C@_0O@PFID@menuBuzzSound?$AA@ 40023e04     ui_main.obj
+ 0003:00003e14       ??_C@_0P@JIO@itemFocusSound?$AA@ 40023e14     ui_main.obj
+ 0003:00003e24       ??_C@_0O@NJLO@menuExitSound?$AA@ 40023e24     ui_main.obj
+ 0003:00003e34       ??_C@_0P@LOEF@menuEnterSound?$AA@ 40023e34     ui_main.obj
+ 0003:00003e44       ??_C@_0M@HKEK@gradientbar?$AA@ 40023e44     ui_main.obj
+ 0003:00003e50       ??_C@_07IIMN@bigFont?$AA@  40023e50     ui_main.obj
+ 0003:00003e58       ??_C@_09EHNF@smallFont?$AA@ 40023e58     ui_main.obj
+ 0003:00003e64       ??_C@_04IBNA@font?$AA@     40023e64     ui_main.obj
+ 0003:00003e6c       ??_C@_07OLOI@menudef?$AA@  40023e6c     ui_main.obj
+ 0003:00003e74       ??_C@_0P@GOKM@assetGlobalDef?$AA@ 40023e74     ui_main.obj
+ 0003:00003e84       ??_C@_0BG@JOKH@Parsing?5menu?5file?3?$CFs?6?$AA@ 40023e84     ui_main.obj
+ 0003:00003e9c       ??_C@_0CG@HFHD@UI?5menu?5load?5time?5?$DN?5?$CFd?5milli?5sec@ 40023e9c     ui_main.obj
+ 0003:00003ec4       ??_C@_08DLFP@loadmenu?$AA@ 40023ec4     ui_main.obj
+ 0003:00003ed0       ??_C@_0EC@MGCC@?$FO1default?5menu?5file?5not?5found?3?5u@ 40023ed0     ui_main.obj
+ 0003:00003f14       ??_C@_0CK@BILA@?$FO3menu?5file?5not?5found?3?5?$CFs?0?5using@ 40023f14     ui_main.obj
+ 0003:00003f40       ??_C@_0N@IDDB@gameinfo?4txt?$AA@ 40023f40     ui_main.obj
+ 0003:00003f50       ??_C@_0DD@KOPG@models?1players?1characters?1?$CFs?1?$CFs?1@ 40023f50     ui_main.obj
+ 0003:00003f84       ??_C@_0CI@MJFI@models?1players?1?$CFs?1?$CFs?1lower_defau@ 40023f84     ui_main.obj
+ 0003:00003fac       ??_C@_0CB@LAMP@?$CFd?5server?$CFs?5found?5with?5player?5?$CFs@ 40023fac     ui_main.obj
+ 0003:00003fd0       ??_C@_01KBOJ@s?$AA@        40023fd0     ui_main.obj
+ 0003:00003fd4       ??_C@_0BB@FDJK@no?5servers?5found?$AA@ 40023fd4     ui_main.obj
+ 0003:00003fe8       ??_C@_08NNNB@hostname?$AA@ 40023fe8     ui_main.obj
+ 0003:00003ff4       ??_C@_0BD@PAH@searching?5?$CFd?1?$CFd?4?4?4?$AA@ 40023ff4     ui_main.obj
+ 0003:00004008       ??_C@_0BA@JBGP@searching?5?$CFd?4?4?4?$AA@ 40024008     ui_main.obj
+ 0003:00004018       ??_C@_0BK@CNCH@cl_serverStatusResendTime?$AA@ 40024018     ui_main.obj
+ 0003:00004034       ??_C@_04LBKD@ping?$AA@     40024034     ui_main.obj
+ 0003:0000403c       ??_C@_05FILO@score?$AA@    4002403c     ui_main.obj
+ 0003:00004044       ??_C@_03EBLA@num?$AA@      40024044     ui_main.obj
+ 0003:00004048       ??_C@_0BB@NPPN@ui_opponentModel?$AA@ 40024048     ui_main.obj
+ 0003:0000405c       ??_C@_06NKNH@?$CFs?4roq?$AA@ 4002405c     ui_main.obj
+ 0003:00004064       ??_C@_09MLPD@headmodel?$AA@ 40024064     ui_main.obj
+ 0003:00004070       ??_C@_05LHJL@model?$AA@    40024070     ui_main.obj
+ 0003:00004078       ??_C@_0P@KCPO@team_headmodel?$AA@ 40024078     ui_main.obj
+ 0003:00004088       ??_C@_03EOPG@?$CK?$CFs?$AA@ 40024088     ui_main.obj
+ 0003:0000408c       ??_C@_0L@MKIK@team_model?$AA@ 4002408c     ui_main.obj
+ 0003:00004098       ??_C@_04EFJD@maps?$AA@     40024098     ui_main.obj
+ 0003:000040a0       ??_C@_0O@OJNM@joingametypes?$AA@ 400240a0     ui_main.obj
+ 0003:000040b0       ??_C@_09FCB@gametypes?$AA@ 400240b0     ui_main.obj
+ 0003:000040bc       ??_C@_0CI@EAE@Too?5many?5game?5types?0?5last?5one?5re@ 400240bc     ui_main.obj
+ 0003:000040e4       ??_C@_0CM@MFAE@Too?5many?5net?5game?5types?0?5last?5on@ 400240e4     ui_main.obj
+ 0003:00004110       ??_C@_0CD@EGBA@Too?5many?5maps?0?5last?5one?5replaced@ 40024110     ui_main.obj
+ 0003:00004134       ??_C@_0BE@GKFF@levelshots?1?$CFs_small?$AA@ 40024134     ui_main.obj
+ 0003:00004148       ??_C@_0BF@HDNO@ui_actualNetGameType?$AA@ 40024148     ui_main.obj
+ 0003:00004160       ??_C@_0P@FDBH@debug_protocol?$AA@ 40024160     ui_main.obj
+ 0003:00004170       ??_C@_0O@BKGD@s_musicvolume?$AA@ 40024170     ui_main.obj
+ 0003:00004180       ??_C@_03IPBN@0?45?$AA@     40024180     ui_main.obj
+ 0003:00004184       ??_C@_08POHF@s_volume?$AA@ 40024184     ui_main.obj
+ 0003:00004190       ??_C@_03NLGO@0?48?$AA@     40024190     ui_main.obj
+ 0003:00004194       ??_C@_0BF@PDIO@ui_TeamArenaFirstRun?$AA@ 40024194     ui_main.obj
+ 0003:000041ac       ??_C@_0O@JOCD@ui_mousePitch?$AA@ 400241ac     ui_main.obj
+ 0003:000041bc       ??_C@_07FHKJ@m_pitch?$AA@  400241bc     ui_main.obj
+ 0003:000041c4       ??_C@_06MPHL@color1?$AA@   400241c4     ui_main.obj
+ 0003:000041cc       ??_C@_0O@JLA@ui?1ingame?4txt?$AA@ 400241cc     ui_main.obj
+ 0003:000041dc       ??_C@_0N@BCMD@teaminfo?4txt?$AA@ 400241dc     ui_main.obj
+ 0003:000041ec       ??_C@_05GMF@white?$AA@     400241ec     ui_main.obj
+ 0003:000041f4       ??_C@_0BD@OBFN@menu?1art?13_cursor2?$AA@ 400241f4     ui_main.obj
+ 0003:00004208       ??_C@_0BI@OCOD@ui_lastServerRefresh_?$CFi?$AA@ 40024208     ui_main.obj
+ 0003:00004220       ??_C@_0DJ@HMPK@Press?5ENTER?5or?5CLICK?5to?5change?0?5@ 40024220     ui_main.obj
+ 0003:0000425c       ??_C@_0CO@HKPN@Waiting?5for?5new?5key?4?4?4?5Press?5ESC@ 4002425c     ui_main.obj
+ 0003:0000428c       ??_C@_0L@CFIE@Filter?3?5?$CFs?$AA@ 4002428c     ui_main.obj
+ 0003:00004298       ??_C@_0L@JHHK@Source?3?5?$CFs?$AA@ 40024298     ui_main.obj
+ 0003:000042a4       ??_C@_0N@HJPC@ui_redteam?$CFi?$AA@ 400242a4     ui_main.obj
+ 0003:000042b4       ??_C@_05GLLD@Human?$AA@    400242b4     ui_main.obj
+ 0003:000042bc       ??_C@_06POIF@?$CFi?4?5?$CFs?$AA@ 400242bc     ui_main.obj
+ 0003:000042c4       ??_C@_06KOE@Closed?$AA@    400242c4     ui_main.obj
+ 0003:000042cc       ??_C@_0O@FAPI@ui_blueteam?$CFi?$AA@ 400242cc     ui_main.obj
+ 0003:000042dc       ??_C@_03GOGG@Red?$AA@      400242dc     ui_main.obj
+ 0003:000042e0       ??_C@_0L@KNPI@ui_redTeam?$AA@ 400242e0     ui_main.obj
+ 0003:000042ec       ??_C@_06HNNJ@?$CFs?3?5?$CFs?$AA@ 400242ec     ui_main.obj
+ 0003:000042f4       ??_C@_04KPAE@Blue?$AA@     400242f4     ui_main.obj
+ 0003:000042fc       ??_C@_0M@MEMC@ui_blueTeam?$AA@ 400242fc     ui_main.obj
+ 0003:00004308       ??_C@_08GAKB@handicap?$AA@ 40024308     ui_main.obj
+ 0003:00004314       ??_C@_0P@KMDJ@ui_netGameType?$AA@ 40024314     ui_main.obj
+ 0003:00004324       ??_C@_0BA@EIKK@ui_joinGameType?$AA@ 40024324     ui_main.obj
+ 0003:00004334       ??_C@_07PLND@?$CFs_name?$AA@ 40024334     ui_main.obj
+ 0003:0000433c       ??_C@_08FLHL@?$CFs_metal?$AA@ 4002433c     ui_main.obj
+ 0003:00004348       ??_C@_0BE@GNPF@menu?1art?1unknownmap?$AA@ 40024348     ui_main.obj
+ 0003:0000435c       ??_C@_0L@POLC@ui_Q3Model?$AA@ 4002435c     ui_main.obj
+ 0003:00004368       ??_C@_08DBOH@Tier?3?5?$CFs?$AA@ 40024368     ui_main.obj
+ 0003:00004374       ??_C@_01FMOK@n?$AA@        40024374     ui_main.obj
+ 0003:00004378       ??_C@_0O@KKJL@sv_maxclients?$AA@ 40024378     ui_main.obj
+ 0003:00004388       ??_C@_01PEAM@t?$AA@        40024388     ui_main.obj
+ 0003:0000438c       ??_C@_02EGDA@tl?$AA@       4002438c     ui_main.obj
+ 0003:00004390       ??_C@_0BB@LPDI@Refresh?5Time?3?5?$CFs?$AA@ 40024390     ui_main.obj
+ 0003:000043a4       ??_C@_0CM@HCKH@Getting?5info?5for?5?$CFd?5servers?5?$CIESC@ 400243a4     ui_main.obj
+ 0003:000043d0       ??_C@_0DI@JPN@PIXELFORMAT?3?5color?$CI?$CFd?9bits?$CJ?5Z?$CI?$CFd@ 400243d0     ui_main.obj
+ 0003:00004408       ??_C@_0BA@NJP@VERSION?3?5?$CFs?3?5?$CFs?$AA@ 40024408     ui_main.obj
+ 0003:00004418       ??_C@_0L@BDEK@VENDOR?3?5?$CFs?$AA@ 40024418     ui_main.obj
+ 0003:00004424       ??_C@_0M@GKAF@ui_gameType?$AA@ 40024424     ui_main.obj
+ 0003:00004430       ??_C@_0BF@CCCG@ui_actualnetGameType?$AA@ 40024430     ui_main.obj
+ 0003:00004448       ??_C@_08ENDO@Everyone?$AA@ 40024448     ui_main.obj
+ 0003:00004454       ??_C@_04CJJD@team?$AA@     40024454     ui_main.obj
+ 0003:0000445c       ??_C@_0BG@CPMB@unknown?5UI?5script?5?$CFs?6?$AA@ 4002445c     ui_main.obj
+ 0003:00004474       ??_C@_06MHN@update?$AA@    40024474     ui_main.obj
+ 0003:0000447c       ??_C@_0M@NMOO@ui_glCustom?$AA@ 4002447c     ui_main.obj
+ 0003:00004488       ??_C@_08NEJB@glCustom?$AA@ 40024488     ui_main.obj
+ 0003:00004494       ??_C@_0M@IPJJ@voiceOrders?$AA@ 40024494     ui_main.obj
+ 0003:000044a0       ??_C@_0BA@BNHK@voiceOrdersTeam?$AA@ 400244a0     ui_main.obj
+ 0003:000044b0       ??_C@_01BJG@?6?$AA@        400244b0     ui_main.obj
+ 0003:000044b4       ??_C@_06PJND@orders?$AA@   400244b4     ui_main.obj
+ 0003:000044bc       ??_C@_0BD@LKGE@ui_favoriteAddress?$AA@ 400244bc     ui_main.obj
+ 0003:000044d0       ??_C@_0BA@LKKN@ui_favoriteName?$AA@ 400244d0     ui_main.obj
+ 0003:000044e0       ??_C@_0P@MLIJ@createFavorite?$AA@ 400244e0     ui_main.obj
+ 0003:000044f0       ??_C@_0P@KCGB@deleteFavorite?$AA@ 400244f0     ui_main.obj
+ 0003:00004500       ??_C@_0BK@ONBH@Added?5favorite?5server?5?$CFs?6?$AA@ 40024500     ui_main.obj
+ 0003:0000451c       ??_C@_0BE@FKHC@Favorite?5list?5full?6?$AA@ 4002451c     ui_main.obj
+ 0003:00004530       ??_C@_0BK@ICN@Favorite?5already?5in?5list?6?$AA@ 40024530     ui_main.obj
+ 0003:0000454c       ??_C@_04HKJD@addr?$AA@     4002454c     ui_main.obj
+ 0003:00004554       ??_C@_0M@NEBA@addFavorite?$AA@ 40024554     ui_main.obj
+ 0003:00004560       ??_C@_0BB@HHDC@addbot?5?$CFs?5?$CFi?5?$CFs?6?$AA@ 40024560     ui_main.obj
+ 0003:00004574       ??_C@_06NBDE@addBot?$AA@   40024574     ui_main.obj
+ 0003:0000457c       ??_C@_0BI@JLMF@callteamvote?5leader?5?$CFs?6?$AA@ 4002457c     ui_main.obj
+ 0003:00004594       ??_C@_0L@MPAB@voteLeader?$AA@ 40024594     ui_main.obj
+ 0003:000045a0       ??_C@_0BI@CGDD@callvote?5g_gametype?5?$CFi?6?$AA@ 400245a0     ui_main.obj
+ 0003:000045b8       ??_C@_08EBDL@voteGame?$AA@ 400245b8     ui_main.obj
+ 0003:000045c4       ??_C@_0BC@EBIH@callvote?5kick?5?$CFs?6?$AA@ 400245c4     ui_main.obj
+ 0003:000045d8       ??_C@_08HDH@voteKick?$AA@  400245d8     ui_main.obj
+ 0003:000045e4       ??_C@_0BB@KFEE@callvote?5map?5?$CFs?6?$AA@ 400245e4     ui_main.obj
+ 0003:000045f8       ??_C@_07BJCK@voteMap?$AA@  400245f8     ui_main.obj
+ 0003:00004600       ??_C@_0M@HNOC@closeingame?$AA@ 40024600     ui_main.obj
+ 0003:0000460c       ??_C@_0O@BCJJ@SkirmishStart?$AA@ 4002460c     ui_main.obj
+ 0003:0000461c       ??_C@_0N@GMDF@nextSkirmish?$AA@ 4002461c     ui_main.obj
+ 0003:0000462c       ??_C@_0L@PCJM@ServerSort?$AA@ 4002462c     ui_main.obj
+ 0003:00004638       ??_C@_0M@PFMJ@disconnect?6?$AA@ 40024638     ui_main.obj
+ 0003:00004644       ??_C@_05MGBF@Leave?$AA@    40024644     ui_main.obj
+ 0003:0000464c       ??_C@_0M@INK@setup_menu2?$AA@ 4002464c     ui_main.obj
+ 0003:00004658       ??_C@_09ENJF@cl_paused?$AA@ 40024658     ui_main.obj
+ 0003:00004664       ??_C@_08KDLE@Controls?$AA@ 40024664     ui_main.obj
+ 0003:00004670       ??_C@_04FKOI@quit?$AA@     40024670     ui_main.obj
+ 0003:00004678       ??_C@_04PAKK@Quit?$AA@     40024678     ui_main.obj
+ 0003:00004680       ??_C@_0BG@FGNK@FoundPlayerJoinServer?$AA@ 40024680     ui_main.obj
+ 0003:00004698       ??_C@_0M@HMCF@connect?5?$CFs?6?$AA@ 40024698     ui_main.obj
+ 0003:000046a4       ??_C@_0L@IGJO@JoinServer?$AA@ 400246a4     ui_main.obj
+ 0003:000046b0       ??_C@_0L@JAJG@FindPlayer?$AA@ 400246b0     ui_main.obj
+ 0003:000046bc       ??_C@_0BI@KEFF@FoundPlayerServerStatus?$AA@ 400246bc     ui_main.obj
+ 0003:000046d4       ??_C@_0N@BCDN@ServerStatus?$AA@ 400246d4     ui_main.obj
+ 0003:000046e4       ??_C@_0N@CLPB@UpdateFilter?$AA@ 400246e4     ui_main.obj
+ 0003:000046f4       ??_C@_0M@IHBO@StopRefresh?$AA@ 400246f4     ui_main.obj
+ 0003:00004700       ??_C@_04HBMH@main?$AA@     40024700     ui_main.obj
+ 0003:00004708       ??_C@_0L@MKND@joinserver?$AA@ 40024708     ui_main.obj
+ 0003:00004714       ??_C@_09HAKO@closeJoin?$AA@ 40024714     ui_main.obj
+ 0003:00004720       ??_C@_06MFAK@Quake3?$AA@   40024720     ui_main.obj
+ 0003:00004728       ??_C@_08MODM@demo?5?$CFs?6?$AA@ 40024728     ui_main.obj
+ 0003:00004734       ??_C@_07PEBN@RunDemo?$AA@  40024734     ui_main.obj
+ 0003:0000473c       ??_C@_0N@CLPL@vid_restart?$DL?$AA@ 4002473c     ui_main.obj
+ 0003:0000474c       ??_C@_07CCMH@fs_game?$AA@  4002474c     ui_main.obj
+ 0003:00004754       ??_C@_06MEDC@RunMod?$AA@   40024754     ui_main.obj
+ 0003:0000475c       ??_C@_0BE@IEGH@cinematic?5?$CFs?4roq?52?6?$AA@ 4002475c     ui_main.obj
+ 0003:00004770       ??_C@_09FAHF@playMovie?$AA@ 40024770     ui_main.obj
+ 0003:0000477c       ??_C@_08MHCE@LoadMods?$AA@ 4002477c     ui_main.obj
+ 0003:00004788       ??_C@_0L@DFCD@LoadMovies?$AA@ 40024788     ui_main.obj
+ 0003:00004794       ??_C@_09GNOB@LoadDemos?$AA@ 40024794     ui_main.obj
+ 0003:000047a0       ??_C@_0M@ELBC@demo?5?$CFs_?$CFi?6?$AA@ 400247a0     ui_main.obj
+ 0003:000047ac       ??_C@_09NJNF@RunSPDemo?$AA@ 400247ac     ui_main.obj
+ 0003:000047b8       ??_C@_0O@LNIF@RefreshFilter?$AA@ 400247b8     ui_main.obj
+ 0003:000047c8       ??_C@_0P@GEI@RefreshServers?$AA@ 400247c8     ui_main.obj
+ 0003:000047d8       ??_C@_0M@FDCJ@resetScores?$AA@ 400247d8     ui_main.obj
+ 0003:000047e4       ??_C@_0N@FCCK@loadGameInfo?$AA@ 400247e4     ui_main.obj
+ 0003:000047f4       ??_C@_0BB@CNGM@com_errorMessage?$AA@ 400247f4     ui_main.obj
+ 0003:00004808       ??_C@_0L@OAAB@clearError?$AA@ 40024808     ui_main.obj
+ 0003:00004814       ??_C@_0N@NKFG@loadControls?$AA@ 40024814     ui_main.obj
+ 0003:00004824       ??_C@_0N@NAEC@saveControls?$AA@ 40024824     ui_main.obj
+ 0003:00004834       ??_C@_0N@NGED@createserver?$AA@ 40024834     ui_main.obj
+ 0003:00004844       ??_C@_0L@MLDI@loadArenas?$AA@ 40024844     ui_main.obj
+ 0003:00004850       ??_C@_0CE@JDCD@CD?5Key?5does?5not?5appear?5to?5be?5val@ 40024850     ui_main.obj
+ 0003:00004874       ??_C@_0O@HBCE@ui_cdkeyvalid?$AA@ 40024874     ui_main.obj
+ 0003:00004884       ??_C@_0BM@HKGM@CD?5Key?5Appears?5to?5be?5valid?4?$AA@ 40024884     ui_main.obj
+ 0003:000048a0       ??_C@_0O@INBB@cdkeychecksum?$AA@ 400248a0     ui_main.obj
+ 0003:000048b0       ??_C@_05LEGH@cdkey?$AA@    400248b0     ui_main.obj
+ 0003:000048b8       ??_C@_0M@JHKA@verifyCDKey?$AA@ 400248b8     ui_main.obj
+ 0003:000048c4       ??_C@_06GOHI@cdkey4?$AA@   400248c4     ui_main.obj
+ 0003:000048cc       ??_C@_06DLJN@cdkey3?$AA@   400248cc     ui_main.obj
+ 0003:000048d4       ??_C@_06JBAK@cdkey2?$AA@   400248d4     ui_main.obj
+ 0003:000048dc       ??_C@_06GOLD@cdkey1?$AA@   400248dc     ui_main.obj
+ 0003:000048e4       ??_C@_08JNHE@getCDKey?$AA@ 400248e4     ui_main.obj
+ 0003:000048f0       ??_C@_0N@HKPM@vid_restart?6?$AA@ 400248f0     ui_main.obj
+ 0003:00004900       ??_C@_0BA@PAKE@com_introPlayed?$AA@ 40024900     ui_main.obj
+ 0003:00004910       ??_C@_0O@HHFK@cvar_restart?6?$AA@ 40024910     ui_main.obj
+ 0003:00004920       ??_C@_0BC@LCK@exec?5default?4cfg?6?$AA@ 40024920     ui_main.obj
+ 0003:00004934       ??_C@_0O@NKMP@resetDefaults?$AA@ 40024934     ui_main.obj
+ 0003:00004944       ??_C@_08GDMH@skirmish?$AA@ 40024944     ui_main.obj
+ 0003:00004950       ??_C@_0N@IPFA@updateSPMenu?$AA@ 40024950     ui_main.obj
+ 0003:00004960       ??_C@_0P@GPEG@addbot?5?$CFs?5?$CFf?5?6?$AA@ 40024960     ui_main.obj
+ 0003:00004970       ??_C@_0BB@BGOC@addbot?5?$CFs?5?$CFf?5?$CFs?6?$AA@ 40024970     ui_main.obj
+ 0003:00004984       ??_C@_0O@HICP@sv_maxClients?$AA@ 40024984     ui_main.obj
+ 0003:00004994       ??_C@_0BG@JEJC@wait?5?$DL?5wait?5?$DL?5map?5?$CFs?6?$AA@ 40024994     ui_main.obj
+ 0003:000049ac       ??_C@_0L@IABJ@g_blueTeam?$AA@ 400249ac     ui_main.obj
+ 0003:000049b8       ??_C@_09HGDN@g_redTeam?$AA@ 400249b8     ui_main.obj
+ 0003:000049c4       ??_C@_09GLCL@dedicated?$AA@ 400249c4     ui_main.obj
+ 0003:000049d0       ??_C@_0M@KMDD@StartServer?$AA@ 400249d0     ui_main.obj
+ 0003:000049dc       ??_C@_08DILD@$modlist?$AA@ 400249dc     ui_main.obj
+ 0003:000049e8       ??_C@_04ECDH@?4roq?$AA@    400249e8     ui_main.obj
+ 0003:000049f0       ??_C@_05HENO@video?$AA@    400249f0     ui_main.obj
+ 0003:000049f8       ??_C@_03BNAJ@roq?$AA@      400249f8     ui_main.obj
+ 0003:000049fc       ??_C@_06MDNJ@?4dm_?$CFd?$AA@ 400249fc     ui_main.obj
+ 0003:00004a04       ??_C@_05IECP@demos?$AA@    40024a04     ui_main.obj
+ 0003:00004a0c       ??_C@_05KHBM@dm_?$CFd?$AA@ 40024a0c     ui_main.obj
+ 0003:00004a14       ??_C@_0BC@OJMJ@wait?55?$DL?5team?5Red?6?$AA@ 40024a14     ui_main.obj
+ 0003:00004a28       ??_C@_0BH@DIEO@addbot?5?$CFs?5?$CFf?5?$CFs?5?$CFi?5?$CFs?6?$AA@ 40024a28     ui_main.obj
+ 0003:00004a40       ??_C@_0BL@DKH@wait?5?$DL?5addbot?5?$CFs?5?$CFf?5?0?5?$CFi?5?6?$AA@ 40024a40     ui_main.obj
+ 0003:00004a5c       ??_C@_0BE@ILNL@ui_recordSPDemoName?$AA@ 40024a5c     ui_main.obj
+ 0003:00004a70       ??_C@_05PKED@?$CFs_?$CFi?$AA@ 40024a70     ui_main.obj
+ 0003:00004a78       ??_C@_0O@CPCK@ui_maxClients?$AA@ 40024a78     ui_main.obj
+ 0003:00004a88       ??_C@_0M@PIPO@ui_scoreMap?$AA@ 40024a88     ui_main.obj
+ 0003:00004a94       ??_C@_05EMDJ@James?$AA@    40024a94     ui_main.obj
+ 0003:00004a9c       ??_C@_0BJ@CJFK@GL_LINEAR_MIPMAP_NEAREST?$AA@ 40024a9c     ui_main.obj
+ 0003:00004ab8       ??_C@_0O@NECO@r_texturemode?$AA@ 40024ab8     ui_main.obj
+ 0003:00004ac8       ??_C@_0BI@KDJA@GL_LINEAR_MIPMAP_LINEAR?$AA@ 40024ac8     ui_main.obj
+ 0003:00004ae0       ??_C@_0L@FKLD@cg_shadows?$AA@ 40024ae0     ui_main.obj
+ 0003:00004aec       ??_C@_0O@HBPE@r_inGameVideo?$AA@ 40024aec     ui_main.obj
+ 0003:00004afc       ??_C@_09EAFD@r_fastSky?$AA@ 40024afc     ui_main.obj
+ 0003:00004b08       ??_C@_0O@NENM@r_texturebits?$AA@ 40024b08     ui_main.obj
+ 0003:00004b18       ??_C@_06JIMO@r_mode?$AA@   40024b18     ui_main.obj
+ 0003:00004b20       ??_C@_08JJKE@r_picmip?$AA@ 40024b20     ui_main.obj
+ 0003:00004b2c       ??_C@_0O@LABA@r_vertexlight?$AA@ 40024b2c     ui_main.obj
+ 0003:00004b3c       ??_C@_0N@PAGI@r_fullScreen?$AA@ 40024b3c     ui_main.obj
+ 0003:00004b4c       ??_C@_0P@CKPN@r_subdivisions?$AA@ 40024b4c     ui_main.obj
+ 0003:00004b5c       ??_C@_09JPMG@r_lodbias?$AA@ 40024b5c     ui_main.obj
+ 0003:00004b68       ??_C@_0O@HKDF@r_stencilbits?$AA@ 40024b68     ui_main.obj
+ 0003:00004b78       ??_C@_0M@PLLC@r_depthbits?$AA@ 40024b78     ui_main.obj
+ 0003:00004b84       ??_C@_0M@EIBE@r_colorbits?$AA@ 40024b84     ui_main.obj
+ 0003:00004b90       ??_C@_0L@MGIJ@ui_GetName?$AA@ 40024b90     ui_main.obj
+ 0003:00004b9c       ??_C@_0N@EJPP@cl_packetdup?$AA@ 40024b9c     ui_main.obj
+ 0003:00004bac       ??_C@_0O@PADL@cl_maxpackets?$AA@ 40024bac     ui_main.obj
+ 0003:00004bbc       ??_C@_04MMDE@rate?$AA@     40024bbc     ui_main.obj
+ 0003:00004bc4       ??_C@_0L@GEJP@ui_setRate?$AA@ 40024bc4     ui_main.obj
+ 0003:00004bd0       ??_C@_07MBOA@ui_Name?$AA@  40024bd0     ui_main.obj
+ 0003:00004bd8       ??_C@_0L@JFIF@ui_SetName?$AA@ 40024bd8     ui_main.obj
+ 0003:00004be4       ??_C@_08MIDI@gametype?$AA@ 40024be4     ui_main.obj
+ 0003:00004bf0       ??_C@_07JEGC@clients?$AA@  40024bf0     ui_main.obj
+ 0003:00004bf8       ??_C@_0BH@ONDN@Welcome?5to?5Team?5Arena?$CB?$AA@ 40024bf8     ui_main.obj
+ 0003:00004c10       ??_C@_0O@IJGJ@cl_motdString?$AA@ 40024c10     ui_main.obj
+ 0003:00004c20       ??_C@_03NAME@?4?4?4?$AA@   40024c20     ui_main.obj
+ 0003:00004c24       ??_C@_07PCHH@Unknown?$AA@  40024c24     ui_main.obj
+ 0003:00004c2c       ??_C@_07CABH@?$CFs?5?$CI?$CFs?$CJ?$AA@ 40024c2c     ui_main.obj
+ 0003:00004c34       ??_C@_06GPJK@?$CIA?$CJ?5?$CFs?$AA@ 40024c34     ui_main.obj
+ 0003:00004c3c       ??_C@_0BC@FLEH@sv_allowAnonymous?$AA@ 40024c3c     ui_main.obj
+ 0003:00004c50       ??_C@_07BAAL@?$CFs?5?$FL?$CFs?$FN?$AA@ 40024c50     ui_main.obj
+ 0003:00004c58       ??_C@_07IMLC@nettype?$AA@  40024c58     ui_main.obj
+ 0003:00004c60       ??_C@_07ILJB@aliases?$AA@  40024c60     ui_main.obj
+ 0003:00004c68       ??_C@_0L@KGF@characters?$AA@ 40024c68     ui_main.obj
+ 0003:00004c74       ??_C@_05HDMA@teams?$AA@    40024c74     ui_main.obj
+ 0003:00004c7c       ??_C@_0CF@DJGK@Too?5many?5teams?0?5last?5team?5replac@ 40024c7c     ui_main.obj
+ 0003:00004ca4       ??_C@_0CD@PLED@Loaded?5team?5?$CFs?5with?5team?5icon?5?$CFs@ 40024ca4     ui_main.obj
+ 0003:00004cc8       ??_C@_0CP@GAHB@Too?5many?5characters?0?5last?5charac@ 40024cc8     ui_main.obj
+ 0003:00004cf8       ??_C@_0BJ@OAMF@Loaded?5?$CFs?5character?5?$CFs?4?6?$AA@ 40024cf8     ui_main.obj
+ 0003:00004d14       ??_C@_04JGMG@male?$AA@     40024d14     ui_main.obj
+ 0003:00004d1c       ??_C@_05OPOH@Janet?$AA@    40024d1c     ui_main.obj
+ 0003:00004d24       ??_C@_06BKEF@female?$AA@   40024d24     ui_main.obj
+ 0003:00004d2c       ??_C@_0CJ@GMHB@models?1players?1heads?1?$CFs?1icon_def@ 40024d2c     ui_main.obj
+ 0003:00004d58       ??_C@_0CI@MMBD@Too?5many?5aliases?0?5last?5alias?5rep@ 40024d58     ui_main.obj
+ 0003:00004d80       ??_C@_0DC@LODL@Loaded?5character?5alias?5?$CFs?5using?5@ 40024d80     ui_main.obj
+ 0003:00004db4       ??_C@_0BF@FNPL@models?1players?1?$CFs?1?$CFs?$AA@ 40024db4     ui_main.obj
+ 0003:00004dcc       ??_C@_05LELA@?$CFs?1?$CFs?$AA@ 40024dcc     ui_main.obj
+ 0003:00004dd4       ??_C@_0N@PJBD@icon_default?$AA@ 40024dd4     ui_main.obj
+ 0003:00004de4       ??_C@_08KLBB@icon_red?$AA@ 40024de4     ui_main.obj
+ 0003:00004df0       ??_C@_09HEMB@icon_blue?$AA@ 40024df0     ui_main.obj
+ 0003:00004dfc       ??_C@_05GENK@icon_?$AA@    40024dfc     ui_main.obj
+ 0003:00004e04       ??_C@_0BC@JCPL@models?1players?1?$CFs?$AA@ 40024e04     ui_main.obj
+ 0003:00004e18       ??_C@_03ONFK@tga?$AA@      40024e18     ui_main.obj
+ 0003:00004e1c       ??_C@_02OOND@?4?4?$AA@     40024e1c     ui_main.obj
+ 0003:00004e20       ??_C@_01PJCK@?4?$AA@       40024e20     ui_main.obj
+ 0003:00004e24       ??_C@_0P@MHP@models?1players?$AA@ 40024e24     ui_main.obj
+ 0003:00004e34       ??_C@_01FDLN@?1?$AA@       40024e34     ui_main.obj
+ 0003:00004e38       ??_C@_06MIPP@ingame?$AA@   40024e38     ui_main.obj
+ 0003:00004e40       ??_C@_09JGBN@endofgame?$AA@ 40024e40     ui_main.obj
+ 0003:00004e4c       ??_C@_0O@OPOK@error_popmenu?$AA@ 40024e4c     ui_main.obj
+ 0003:00004e5c       ??_C@_0BJ@LHKC@Awaiting?5connection?4?4?4?$CFi?$AA@ 40024e5c     ui_main.obj
+ 0003:00004e78       ??_C@_0BI@EGDO@Awaiting?5challenge?4?4?4?$CFi?$AA@ 40024e78     ui_main.obj
+ 0003:00004e90       ??_C@_0BG@FJIE@Awaiting?5gamestate?4?4?4?$AA@ 40024e90     ui_main.obj
+ 0003:00004ea8       ??_C@_0BA@COHM@cl_downloadName?$AA@ 40024ea8     ui_main.obj
+ 0003:00004eb8       ??_C@_04JPGO@motd?$AA@     40024eb8     ui_main.obj
+ 0003:00004ec0       ??_C@_0BB@EPPK@Connecting?5to?5?$CFs?$AA@ 40024ec0     ui_main.obj
+ 0003:00004ed4       ??_C@_0P@JAPP@Starting?5up?4?4?4?$AA@ 40024ed4     ui_main.obj
+ 0003:00004ee4       ??_C@_09FBHK@localhost?$AA@ 40024ee4     ui_main.obj
+ 0003:00004ef0       ??_C@_0L@OKFN@Loading?5?$CFs?$AA@ 40024ef0     ui_main.obj
+ 0003:00004efc       ??_C@_07OFDN@Connect?$AA@  40024efc     ui_main.obj
+ 0003:00004f04       ??_C@_06ILBJ@?$CFs?1Sec?$AA@ 40024f04     ui_main.obj
+ 0003:00004f0c       ??_C@_0M@MGID@?$CI?$CFs?5copied?$CJ?$AA@ 40024f0c     ui_main.obj
+ 0003:00004f18       ??_C@_0L@LLJI@estimating?$AA@ 40024f18     ui_main.obj
+ 0003:00004f24       ??_C@_0BC@FCKF@?$CI?$CFs?5of?5?$CFs?5copied?$CJ?$AA@ 40024f24     ui_main.obj
+ 0003:00004f38       ??_C@_09DPKA@?$CFs?5?$CI?$CFd?$CF?$CF?$CJ?$AA@ 40024f38     ui_main.obj
+ 0003:00004f44       ??_C@_0BA@ILNM@cl_downloadTime?$AA@ 40024f44     ui_main.obj
+ 0003:00004f54       ??_C@_0BB@GOLA@cl_downloadCount?$AA@ 40024f54     ui_main.obj
+ 0003:00004f68       ??_C@_0BA@HKJO@cl_downloadSize?$AA@ 40024f68     ui_main.obj
+ 0003:00004f78       ??_C@_08MBAJ@?$CFd?5bytes?$AA@ 40024f78     ui_main.obj
+ 0003:00004f84       ??_C@_05NJKA@?$CFd?5KB?$AA@ 40024f84     ui_main.obj
+ 0003:00004f8c       ??_C@_08JAMA@?4?$CF02d?5MB?$AA@ 40024f8c     ui_main.obj
+ 0003:00004f98       ??_C@_08IMB@?4?$CF02d?5GB?$AA@ 40024f98     ui_main.obj
+ 0003:00004fa4       ??_C@_06HLEN@?$CFd?5sec?$AA@ 40024fa4     ui_main.obj
+ 0003:00004fac       ??_C@_0O@IDNP@?$CFd?5min?5?$CFd?5sec?$AA@ 40024fac     ui_main.obj
+ 0003:00004fbc       ??_C@_0N@FNDP@?$CFd?5hr?5?$CFd?5min?$AA@ 40024fbc     ui_main.obj
+ 0003:00004fcc       ??_C@_0EC@DHNG@?$CFd?5servers?5not?5listed?5due?5to?5pac@ 40024fcc     ui_main.obj
+ 0003:00005010       ??_C@_0L@KDHM@cl_maxPing?$AA@ 40025010     ui_main.obj
+ 0003:0000501c       ??_C@_0CP@FKMD@?$CFd?5servers?5listed?5in?5browser?5wit@ 4002501c     ui_main.obj
+ 0003:0000504c       ??_C@_0CA@BBKF@globalservers?5?$CFd?5?$CFd?5full?5empty?6?$AA@ 4002504c     ui_main.obj
+ 0003:0000506c       ??_C@_0CA@LBHK@globalservers?5?$CFd?5?$CFs?5full?5empty?6?$AA@ 4002506c     ui_main.obj
+ 0003:0000508c       ??_C@_0O@GNNJ@localservers?6?$AA@ 4002508c     ui_main.obj
+ 0003:0000509c       ??_C@_0BD@KFAC@?$CFs?9?$CFi?0?5?$CFi?5at?5?$CFi?3?$CFi?$AA@ 4002509c     ui_main.obj
+ 0003:000050b0       ??_C@_0BB@GJFJ@sprites?1balloon3?$AA@ 400250b0     ui_players.obj
+ 0003:000050c4       ??_C@_09ONMF@tag_flash?$AA@ 400250c4     ui_players.obj
+ 0003:000050d0       ??_C@_0L@FMME@tag_weapon?$AA@ 400250d0     ui_players.obj
+ 0003:000050dc       ??_C@_08JGJE@tag_head?$AA@ 400250dc     ui_players.obj
+ 0003:000050e8       ??_C@_09ECJI@tag_torso?$AA@ 400250e8     ui_players.obj
+ 0003:000050f4       ??_C@_0L@LKFC@_flash?4md3?$AA@ 400250f4     ui_players.obj
+ 0003:00005100       ??_C@_0BJ@MCPI@Bad?5animation?5number?3?5?$CFi?$AA@ 40025100     ui_players.obj
+ 0003:0000511c       ??_C@_0CC@OHOC@Failed?5to?5load?5animation?5file?5?$CFs@ 4002511c     ui_players.obj
+ 0003:00005140       ??_C@_0CL@BGHG@models?1players?1characters?1?$CFs?1ani@ 40025140     ui_players.obj
+ 0003:0000516c       ??_C@_0CA@ELJL@models?1players?1?$CFs?1animation?4cfg?$AA@ 4002516c     ui_players.obj
+ 0003:0000518c       ??_C@_0CD@LDNL@Failed?5to?5load?5skin?5file?3?5?$CFs?5?3?5?$CF@ 4002518c     ui_players.obj
+ 0003:000051b0       ??_C@_0BL@MPJF@models?1players?1?$CFs?1head?4md3?$AA@ 400251b0     ui_players.obj
+ 0003:000051cc       ??_C@_0BP@ONKG@models?1players?1heads?1?$CFs?1?$CFs?4md3?$AA@ 400251cc     ui_players.obj
+ 0003:000051ec       ??_C@_0CH@EPOD@models?1players?1characters?1?$CFs?1upp@ 400251ec     ui_players.obj
+ 0003:00005214       ??_C@_0BM@CCGI@models?1players?1?$CFs?1upper?4md3?$AA@ 40025214     ui_players.obj
+ 0003:00005230       ??_C@_0BO@ELEH@Failed?5to?5load?5model?5file?5?$CFs?6?$AA@ 40025230     ui_players.obj
+ 0003:00005250       ??_C@_0CH@EJNE@models?1players?1characters?1?$CFs?1low@ 40025250     ui_players.obj
+ 0003:00005278       ??_C@_0BM@CEFP@models?1players?1?$CFs?1lower?4md3?$AA@ 40025278     ui_players.obj
+ 0003:00005294       ??_C@_07FMEP@default?$AA@  40025294     ui_players.obj
+ 0003:0000529c       ??_C@_04DNEF@head?$AA@     4002529c     ui_players.obj
+ 0003:000052a4       ??_C@_04OFAC@skin?$AA@     400252a4     ui_players.obj
+ 0003:000052ac       ??_C@_0CL@OMPN@models?1players?1characters?1?$CFs?1upp@ 400252ac     ui_players.obj
+ 0003:000052d8       ??_C@_0CO@COHI@models?1players?1characters?1?$CFs?1?$CFs?1@ 400252d8     ui_players.obj
+ 0003:00005308       ??_C@_0CA@LBBA@models?1players?1?$CFs?1upper_?$CFs?4skin?$AA@ 40025308     ui_players.obj
+ 0003:00005328       ??_C@_0CD@BJOH@models?1players?1?$CFs?1?$CFs?1upper_?$CFs?4sk@ 40025328     ui_players.obj
+ 0003:0000534c       ??_C@_0CL@FOH@models?1players?1characters?1?$CFs?1low@ 4002534c     ui_players.obj
+ 0003:00005378       ??_C@_0CO@MHGC@models?1players?1characters?1?$CFs?1?$CFs?1@ 40025378     ui_players.obj
+ 0003:000053a8       ??_C@_0CA@FIAK@models?1players?1?$CFs?1lower_?$CFs?4skin?$AA@ 400253a8     ui_players.obj
+ 0003:000053c8       ??_C@_0CD@PAPN@models?1players?1?$CFs?1?$CFs?1lower_?$CFs?4sk@ 400253c8     ui_players.obj
+ 0003:000053ec       ??_C@_0BN@CCLB@models?1players?1?$CFs?$CFs?1?$CFs_?$CFs?4?$CFs?$AA@ 400253ec     ui_players.obj
+ 0003:0000540c       ??_C@_0BP@LDPA@models?1players?1?$CFs?$CFs?1?$CFs?$CFs_?$CFs?4?$CFs?$AA@ 4002540c     ui_players.obj
+ 0003:0000542c       ??_C@_0CA@FJKM@models?1players?1?$CFs?$CFs?1?$CFs?1?$CFs_?$CFs?4?$CFs?$AA@ 4002542c     ui_players.obj
+ 0003:0000544c       ??_C@_0CC@JGIM@models?1players?1?$CFs?$CFs?1?$CFs?1?$CFs?$CFs_?$CFs?4?$CF@ 4002544c     ui_players.obj
+ 0003:00005470       ??_C@_06HFOO@heads?1?$AA@  40025470     ui_players.obj
+ 0003:00005478       ??_C@_0CB@GMGP@Error?5parsing?5animation?5file?3?5?$CFs@ 40025478     ui_players.obj
+ 0003:0000549c       ??_C@_0BK@LJDE@unknown?5token?5?8?$CFs?8?5is?5?$CFs?6?$AA@ 4002549c     ui_players.obj
+ 0003:000054b8       ??_C@_03CJDB@sex?$AA@      400254b8     ui_players.obj
+ 0003:000054bc       ??_C@_0L@EPMP@headoffset?$AA@ 400254bc     ui_players.obj
+ 0003:000054c8       ??_C@_09EDIM@footsteps?$AA@ 400254c8     ui_players.obj
+ 0003:000054d4       ??_C@_0BC@GFDL@File?5?$CFs?5too?5long?6?$AA@ 400254d4     ui_players.obj
+ 0003:000054f0       _commandList               400254f0     ui_shared.obj
+ 0003:00005590       _scriptCommandCount        40025590     ui_shared.obj
+ 0003:00005ba8       _itemParseKeywords         40025ba8     ui_shared.obj
+ 0003:00005ea0       _menuParseKeywords         40025ea0     ui_shared.obj
+ 0003:00005ffc       ??_C@_05MAFJ@popup?$AA@    40025ffc     ui_shared.obj
+ 0003:00006004       ??_C@_07ECDN@itemDef?$AA@  40026004     ui_shared.obj
+ 0003:0000600c       ??_C@_09HCCM@soundLoop?$AA@ 4002600c     ui_shared.obj
+ 0003:00006018       ??_C@_0BB@MOPP@outOfBoundsClick?$AA@ 40026018     ui_shared.obj
+ 0003:0000602c       ??_C@_0N@FBO@disablecolor?$AA@ 4002602c     ui_shared.obj
+ 0003:0000603c       ??_C@_0L@DGCP@focuscolor?$AA@ 4002603c     ui_shared.obj
+ 0003:00006048       ??_C@_0L@BFH@borderSize?$AA@ 40026048     ui_shared.obj
+ 0003:00006054       ??_C@_05FJPJ@onESC?$AA@    40026054     ui_shared.obj
+ 0003:0000605c       ??_C@_07FOJA@onClose?$AA@  4002605c     ui_shared.obj
+ 0003:00006064       ??_C@_06FIME@onOpen?$AA@   40026064     ui_shared.obj
+ 0003:0000606c       ??_C@_0L@EMDO@fullscreen?$AA@ 4002606c     ui_shared.obj
+ 0003:00006078       ??_C@_0M@DMAO@doubleclick?$AA@ 40026078     ui_shared.obj
+ 0003:00006084       ??_C@_09OMPE@cinematic?$AA@ 40026084     ui_shared.obj
+ 0003:00006090       ??_C@_08JGBG@hideCvar?$AA@ 40026090     ui_shared.obj
+ 0003:0000609c       ??_C@_08PCJD@showCvar?$AA@ 4002609c     ui_shared.obj
+ 0003:000060a8       ??_C@_0M@CNDG@disableCvar?$AA@ 400260a8     ui_shared.obj
+ 0003:000060b4       ??_C@_08DKMB@cvarTest?$AA@ 400260b4     ui_shared.obj
+ 0003:000060c0       ??_C@_0L@MJLB@enableCvar?$AA@ 400260c0     ui_shared.obj
+ 0003:000060cc       ??_C@_0O@NNMB@ownerdrawFlag?$AA@ 400260cc     ui_shared.obj
+ 0003:000060dc       ??_C@_0O@CDOD@addColorRange?$AA@ 400260dc     ui_shared.obj
+ 0003:000060ec       ??_C@_0O@ELIM@cvarFloatList?$AA@ 400260ec     ui_shared.obj
+ 0003:000060fc       ??_C@_0M@IIKB@cvarStrList?$AA@ 400260fc     ui_shared.obj
+ 0003:00006108       ??_C@_09KJMH@cvarFloat?$AA@ 40026108     ui_shared.obj
+ 0003:00006114       ??_C@_0L@JDLB@focusSound?$AA@ 40026114     ui_shared.obj
+ 0003:00006120       ??_C@_0O@FKFJ@maxPaintChars?$AA@ 40026120     ui_shared.obj
+ 0003:00006130       ??_C@_08GEDH@maxChars?$AA@ 40026130     ui_shared.obj
+ 0003:0000613c       ??_C@_04PJHA@cvar?$AA@     4002613c     ui_shared.obj
+ 0003:00006144       ??_C@_07LCAN@special?$AA@  40026144     ui_shared.obj
+ 0003:0000614c       ??_C@_06GIFC@action?$AA@   4002614c     ui_shared.obj
+ 0003:00006154       ??_C@_0O@NBIL@mouseExitText?$AA@ 40026154     ui_shared.obj
+ 0003:00006164       ??_C@_0P@KHGM@mouseEnterText?$AA@ 40026164     ui_shared.obj
+ 0003:00006174       ??_C@_09BADD@mouseExit?$AA@ 40026174     ui_shared.obj
+ 0003:00006180       ??_C@_0L@OCDD@mouseEnter?$AA@ 40026180     ui_shared.obj
+ 0003:0000618c       ??_C@_0L@FHLI@leaveFocus?$AA@ 4002618c     ui_shared.obj
+ 0003:00006198       ??_C@_07OIME@onFocus?$AA@  40026198     ui_shared.obj
+ 0003:000061a0       ??_C@_0L@OBMO@background?$AA@ 400261a0     ui_shared.obj
+ 0003:000061ac       ??_C@_0N@DIIC@outlinecolor?$AA@ 400261ac     ui_shared.obj
+ 0003:000061bc       ??_C@_0M@JJHA@bordercolor?$AA@ 400261bc     ui_shared.obj
+ 0003:000061c8       ??_C@_09EBJE@forecolor?$AA@ 400261c8     ui_shared.obj
+ 0003:000061d4       ??_C@_09KOCJ@backcolor?$AA@ 400261d4     ui_shared.obj
+ 0003:000061e0       ??_C@_09DINF@textstyle?$AA@ 400261e0     ui_shared.obj
+ 0003:000061ec       ??_C@_09CGJF@textscale?$AA@ 400261ec     ui_shared.obj
+ 0003:000061f8       ??_C@_0L@GCHO@textaligny?$AA@ 400261f8     ui_shared.obj
+ 0003:00006204       ??_C@_0L@MIOJ@textalignx?$AA@ 40026204     ui_shared.obj
+ 0003:00006210       ??_C@_09BLL@textalign?$AA@ 40026210     ui_shared.obj
+ 0003:0000621c       ??_C@_05KLFA@align?$AA@    4002621c     ui_shared.obj
+ 0003:00006224       ??_C@_09NHP@ownerdraw?$AA@ 40026224     ui_shared.obj
+ 0003:00006230       ??_C@_07IHCG@visible?$AA@  40026230     ui_shared.obj
+ 0003:00006238       ??_C@_0L@KLBF@bordersize?$AA@ 40026238     ui_shared.obj
+ 0003:00006244       ??_C@_06MNIN@border?$AA@   40026244     ui_shared.obj
+ 0003:0000624c       ??_C@_07FLIA@columns?$AA@  4002624c     ui_shared.obj
+ 0003:00006254       ??_C@_0M@FEMJ@elementtype?$AA@ 40026254     ui_shared.obj
+ 0003:00006260       ??_C@_06HFPC@feeder?$AA@   40026260     ui_shared.obj
+ 0003:00006268       ??_C@_0O@CIAP@elementheight?$AA@ 40026268     ui_shared.obj
+ 0003:00006278       ??_C@_0N@ELB@elementwidth?$AA@ 40026278     ui_shared.obj
+ 0003:00006288       ??_C@_0BB@JAFN@horizontalscroll?$AA@ 40026288     ui_shared.obj
+ 0003:0000629c       ??_C@_0M@GJFH@autowrapped?$AA@ 4002629c     ui_shared.obj
+ 0003:000062a8       ??_C@_07HEIC@wrapped?$AA@  400262a8     ui_shared.obj
+ 0003:000062b0       ??_C@_0O@IJLD@notselectable?$AA@ 400262b0     ui_shared.obj
+ 0003:000062c0       ??_C@_0L@PHND@decoration?$AA@ 400262c0     ui_shared.obj
+ 0003:000062cc       ??_C@_05JCDO@style?$AA@    400262cc     ui_shared.obj
+ 0003:000062d4       ??_C@_04IMHF@rect?$AA@     400262d4     ui_shared.obj
+ 0003:000062dc       ??_C@_0M@PNFM@model_angle?$AA@ 400262dc     ui_shared.obj
+ 0003:000062e8       ??_C@_0P@HBDA@model_rotation?$AA@ 400262e8     ui_shared.obj
+ 0003:000062f8       ??_C@_0L@MKGE@model_fovy?$AA@ 400262f8     ui_shared.obj
+ 0003:00006304       ??_C@_0L@GAPD@model_fovx?$AA@ 40026304     ui_shared.obj
+ 0003:00006310       ??_C@_0N@CGDA@model_origin?$AA@ 40026310     ui_shared.obj
+ 0003:00006320       ??_C@_0N@LOPC@asset_shader?$AA@ 40026320     ui_shared.obj
+ 0003:00006330       ??_C@_0M@EHKI@asset_model?$AA@ 40026330     ui_shared.obj
+ 0003:0000633c       ??_C@_05GCOD@group?$AA@    4002633c     ui_shared.obj
+ 0003:00006344       ??_C@_04LHJL@text?$AA@     40026344     ui_shared.obj
+ 0003:0000634c       ??_C@_0M@HPFF@cl_freelook?$AA@ 4002634c     ui_shared.obj
+ 0003:00006358       ??_C@_08MAF@m_filter?$AA@  40026358     ui_shared.obj
+ 0003:00006364       ??_C@_0O@LFMM@joy_threshold?$AA@ 40026364     ui_shared.obj
+ 0003:00006374       ??_C@_0M@JGHL@in_joystick?$AA@ 40026374     ui_shared.obj
+ 0003:00006380       ??_C@_0M@CKB@sensitivity?$AA@ 40026380     ui_shared.obj
+ 0003:0000638c       ??_C@_0O@LDOP@cg_autoswitch?$AA@ 4002638c     ui_shared.obj
+ 0003:0000639c       ??_C@_06HIKK@cl_run?$AA@   4002639c     ui_shared.obj
+ 0003:000063a4       ??_C@_0N@BFGA@messagemode4?$AA@ 400263a4     ui_shared.obj
+ 0003:000063b4       ??_C@_0N@EAIF@messagemode3?$AA@ 400263b4     ui_shared.obj
+ 0003:000063c4       ??_C@_0N@OKBC@messagemode2?$AA@ 400263c4     ui_shared.obj
+ 0003:000063d4       ??_C@_0M@KMFF@messagemode?$AA@ 400263d4     ui_shared.obj
+ 0003:000063e0       ??_C@_0L@HNGG@scoresDown?$AA@ 400263e0     ui_shared.obj
+ 0003:000063ec       ??_C@_08KKN@scoresUp?$AA@  400263ec     ui_shared.obj
+ 0003:000063f8       ??_C@_0O@PANO@tauntGauntlet?$AA@ 400263f8     ui_shared.obj
+ 0003:00006408       ??_C@_0BB@KEAB@tauntDeathInsult?$AA@ 40026408     ui_shared.obj
+ 0003:0000641c       ??_C@_0L@OHDB@tauntTaunt?$AA@ 4002641c     ui_shared.obj
+ 0003:00006428       ??_C@_0M@OCOL@tauntPraise?$AA@ 40026428     ui_shared.obj
+ 0003:00006434       ??_C@_0BA@CBNM@tauntKillInsult?$AA@ 40026434     ui_shared.obj
+ 0003:00006444       ??_C@_0M@MJPP@taskSuicide?$AA@ 40026444     ui_shared.obj
+ 0003:00006450       ??_C@_0M@LMNO@taskOwnFlag?$AA@ 40026450     ui_shared.obj
+ 0003:0000645c       ??_C@_0L@GOC@taskEscort?$AA@ 4002645c     ui_shared.obj
+ 0003:00006468       ??_C@_0N@IBEF@taskRetrieve?$AA@ 40026468     ui_shared.obj
+ 0003:00006478       ??_C@_0L@HBLJ@taskFollow?$AA@ 40026478     ui_shared.obj
+ 0003:00006484       ??_C@_08FHNA@taskCamp?$AA@ 40026484     ui_shared.obj
+ 0003:00006490       ??_C@_0L@LHOG@taskPatrol?$AA@ 40026490     ui_shared.obj
+ 0003:0000649c       ??_C@_0M@LIOO@taskDefense?$AA@ 4002649c     ui_shared.obj
+ 0003:000064a8       ??_C@_0M@BBN@taskOffense?$AA@ 400264a8     ui_shared.obj
+ 0003:000064b4       ??_C@_09NAAF@denyOrder?$AA@ 400264b4     ui_shared.obj
+ 0003:000064c0       ??_C@_0N@KCI@confirmOrder?$AA@ 400264c0     ui_shared.obj
+ 0003:000064d0       ??_C@_09CGNC@nextOrder?$AA@ 400264d0     ui_shared.obj
+ 0003:000064dc       ??_C@_0P@NPAA@nextTeamMember?$AA@ 400264dc     ui_shared.obj
+ 0003:000064ec       ??_C@_0P@HAG@prevTeamMember?$AA@ 400264ec     ui_shared.obj
+ 0003:000064fc       ??_C@_08EHKG@?$CLbutton4?$AA@ 400264fc     ui_shared.obj
+ 0003:00006508       ??_C@_08BCED@?$CLbutton3?$AA@ 40026508     ui_shared.obj
+ 0003:00006514       ??_C@_08FDMA@weapnext?$AA@ 40026514     ui_shared.obj
+ 0003:00006520       ??_C@_08KKEF@weapprev?$AA@ 40026520     ui_shared.obj
+ 0003:0000652c       ??_C@_07KANK@?$CLattack?$AA@ 4002652c     ui_shared.obj
+ 0003:00006534       ??_C@_09IBOJ@weapon?513?$AA@ 40026534     ui_shared.obj
+ 0003:00006540       ??_C@_09CLHO@weapon?512?$AA@ 40026540     ui_shared.obj
+ 0003:0000654c       ??_C@_09NEMH@weapon?511?$AA@ 4002654c     ui_shared.obj
+ 0003:00006558       ??_C@_09HOFA@weapon?510?$AA@ 40026558     ui_shared.obj
+ 0003:00006564       ??_C@_08JEPH@weapon?59?$AA@ 40026564     ui_shared.obj
+ 0003:00006570       ??_C@_08DOGA@weapon?58?$AA@ 40026570     ui_shared.obj
+ 0003:0000657c       ??_C@_08DPDN@weapon?57?$AA@ 4002657c     ui_shared.obj
+ 0003:00006588       ??_C@_08JFKK@weapon?56?$AA@ 40026588     ui_shared.obj
+ 0003:00006594       ??_C@_08GKBD@weapon?55?$AA@ 40026594     ui_shared.obj
+ 0003:000065a0       ??_C@_08MAIE@weapon?54?$AA@ 400265a0     ui_shared.obj
+ 0003:000065ac       ??_C@_08JFGB@weapon?53?$AA@ 400265ac     ui_shared.obj
+ 0003:000065b8       ??_C@_08DPPG@weapon?52?$AA@ 400265b8     ui_shared.obj
+ 0003:000065c4       ??_C@_08MAEP@weapon?51?$AA@ 400265c4     ui_shared.obj
+ 0003:000065d0       ??_C@_05MPDD@?$CLzoom?$AA@ 400265d0     ui_shared.obj
+ 0003:000065d8       ??_C@_0L@EKJH@centerview?$AA@ 400265d8     ui_shared.obj
+ 0003:000065e4       ??_C@_06NEOC@?$CLmlook?$AA@ 400265e4     ui_shared.obj
+ 0003:000065ec       ??_C@_09GHKO@?$CLlookdown?$AA@ 400265ec     ui_shared.obj
+ 0003:000065f8       ??_C@_07BGBD@?$CLlookup?$AA@ 400265f8     ui_shared.obj
+ 0003:00006600       ??_C@_07OJLO@?$CLstrafe?$AA@ 40026600     ui_shared.obj
+ 0003:00006608       ??_C@_06FOLA@?$CLright?$AA@ 40026608     ui_shared.obj
+ 0003:00006610       ??_C@_05IFMH@?$CLleft?$AA@ 40026610     ui_shared.obj
+ 0003:00006618       ??_C@_09IMNG@?$CLmovedown?$AA@ 40026618     ui_shared.obj
+ 0003:00006624       ??_C@_07KFJC@?$CLmoveup?$AA@ 40026624     ui_shared.obj
+ 0003:0000662c       ??_C@_0L@DMHD@?$CLmoveright?$AA@ 4002662c     ui_shared.obj
+ 0003:00006638       ??_C@_09EGDL@?$CLmoveleft?$AA@ 40026638     ui_shared.obj
+ 0003:00006644       ??_C@_05NMMM@?$CLback?$AA@ 40026644     ui_shared.obj
+ 0003:0000664c       ??_C@_08HLLP@?$CLforward?$AA@ 4002664c     ui_shared.obj
+ 0003:00006658       ??_C@_06FAHP@?$CLspeed?$AA@ 40026658     ui_shared.obj
+ 0003:00006660       ??_C@_08LINE@?$CLbutton2?$AA@ 40026660     ui_shared.obj
+ 0003:0000666c       ??_C@_07POBG@?$CLscores?$AA@ 4002666c     ui_shared.obj
+ 0003:00006674       ??_C@_05MGDL@orbit?$AA@    40026674     ui_shared.obj
+ 0003:0000667c       ??_C@_0L@FLKC@playlooped?$AA@ 4002667c     ui_shared.obj
+ 0003:00006688       ??_C@_04HNFE@play?$AA@     40026688     ui_shared.obj
+ 0003:00006690       ??_C@_04DBD@exec?$AA@      40026690     ui_shared.obj
+ 0003:00006698       ??_C@_07IEFL@setcvar?$AA@  40026698     ui_shared.obj
+ 0003:000066a0       ??_C@_0L@EKMP@transition?$AA@ 400266a0     ui_shared.obj
+ 0003:000066ac       ??_C@_0O@KFCI@setplayerhead?$AA@ 400266ac     ui_shared.obj
+ 0003:000066bc       ??_C@_0P@EBAD@setplayermodel?$AA@ 400266bc     ui_shared.obj
+ 0003:000066cc       ??_C@_08ENEG@setfocus?$AA@ 400266cc     ui_shared.obj
+ 0003:000066d8       ??_C@_0N@NBGB@setteamcolor?$AA@ 400266d8     ui_shared.obj
+ 0003:000066e8       ??_C@_0N@FMFL@setitemcolor?$AA@ 400266e8     ui_shared.obj
+ 0003:000066f8       ??_C@_0O@JPBI@setbackground?$AA@ 400266f8     ui_shared.obj
+ 0003:00006708       ??_C@_08NJGD@setasset?$AA@ 40026708     ui_shared.obj
+ 0003:00006714       ??_C@_05JMGP@close?$AA@    40026714     ui_shared.obj
+ 0003:0000671c       ??_C@_04KHOB@open?$AA@     4002671c     ui_shared.obj
+ 0003:00006724       ??_C@_08BLBN@setcolor?$AA@ 40026724     ui_shared.obj
+ 0003:00006730       ??_C@_04DDN@hide?$AA@      40026730     ui_shared.obj
+ 0003:00006738       ??_C@_04DDJJ@show?$AA@     40026738     ui_shared.obj
+ 0003:00006740       ??_C@_07FOED@fadeout?$AA@  40026740     ui_shared.obj
+ 0003:00006748       ??_C@_06DKEJ@fadein?$AA@   40026748     ui_shared.obj
+ 0003:00006750       ??_C@_0CD@OLMO@UI_Alloc?3?5Failure?4?5Out?5of?5memory@ 40026750     ui_shared.obj
+ 0003:00006774       ??_C@_0DG@NIMK@Memory?5Pool?5is?5?$CF?41f?$CF?$CF?5full?0?5?$CFi?5b@ 40026774     ui_shared.obj
+ 0003:000067ac       ??_C@_0DG@BMAK@String?5Pool?5is?5?$CF?41f?$CF?$CF?5full?0?5?$CFi?5b@ 400267ac     ui_shared.obj
+ 0003:000067e4       ??_C@_0BC@FMMM@?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?9?6?$AA@ 400267e4     ui_shared.obj
+ 0003:000067f8       ??_C@_0BJ@PDFG@Memory?1String?5Pool?5Info?6?$AA@ 400267f8     ui_shared.obj
+ 0003:00006814       ??_C@_0BK@DHCJ@?$FO1ERROR?3?5?$CFs?0?5line?5?$CFd?3?5?$CFs?6?$AA@ 40026814     ui_shared.obj
+ 0003:00006830       ??_C@_0BN@JLBP@expected?5float?5but?5found?5?$CFs?6?$AA@ 40026830     ui_shared.obj
+ 0003:00006850       ??_C@_0BP@CPFA@expected?5integer?5but?5found?5?$CFs?6?$AA@ 40026850     ui_shared.obj
+ 0003:00006870       ??_C@_01FCOA@?5?$AA@       40026870     ui_shared.obj
+ 0003:00006874       ??_C@_04JBBA@?$CC?$CFs?$CC?$AA@ 40026874     ui_shared.obj
+ 0003:0000687c       ??_C@_05MBGP@?$CFs?5?$DL?5?$AA@ 4002687c     ui_shared.obj
+ 0003:00006884       ??_C@_02JBAA@?$CFf?$AA@    40026884     ui_shared.obj
+ 0003:00006888       ??_C@_0BI@JGJP@slider?5handle?5key?5exit?6?$AA@ 40026888     ui_shared.obj
+ 0003:000068a0       ??_C@_0M@JDIP@screenshot?6?$AA@ 400268a0     ui_shared.obj
+ 0003:000068ac       ??_C@_09KOCP@developer?$AA@ 400268ac     ui_shared.obj
+ 0003:000068b8       ??_C@_02JOHD@No?$AA@       400268b8     ui_shared.obj
+ 0003:000068bc       ??_C@_03PEHN@Yes?$AA@      400268bc     ui_shared.obj
+ 0003:000068c0       ??_C@_0M@GOEP@in_restart?6?$AA@ 400268c0     ui_shared.obj
+ 0003:000068cc       ??_C@_04CJAC@?5or?5?$AA@   400268cc     ui_shared.obj
+ 0003:000068d4       ??_C@_05FAED@FIXME?$AA@    400268d4     ui_shared.obj
+ 0003:000068dc       ??_C@_0BO@JKJO@end?5of?5file?5inside?5menu?5item?6?$AA@ 400268dc     ui_shared.obj
+ 0003:000068fc       ??_C@_0CE@BCLC@couldn?8t?5parse?5menu?5item?5keyword@ 400268fc     ui_shared.obj
+ 0003:00006920       ??_C@_0BN@LAOO@unknown?5menu?5item?5keyword?5?$CFs?$AA@ 40026920     ui_shared.obj
+ 0003:00006940       ??_C@_0BP@NHLM@couldn?8t?5parse?5menu?5keyword?5?$CFs?$AA@ 40026940     ui_shared.obj
+ 0003:00006960       ??_C@_0BJ@HCBH@end?5of?5file?5inside?5menu?6?$AA@ 40026960     ui_shared.obj
+ 0003:0000697c       ??_C@_0BI@PMHL@unknown?5menu?5keyword?5?$CFs?$AA@ 4002697c     ui_shared.obj
+ 0003:00006994       ??_C@_07LFOI@fps?3?5?$CFf?$AA@ 40026994     ui_shared.obj
+ 0003:000069a0       __fltused                  400269a0     LIBC:fpinit.obj
+ 0003:000069a4       __ldused                   400269a4     LIBC:fpinit.obj
+ 0003:000069a8       __FPinit                   400269a8     LIBC:fpinit.obj
+ 0003:000069ac       __FPmtinit                 400269ac     LIBC:fpinit.obj
+ 0003:000069b0       __FPmtterm                 400269b0     LIBC:fpinit.obj
+ 0003:000069d0       __aexit_rtn                400269d0     LIBC:dllcrt0.obj
+ 0003:000069d4       __cfltcvt_tab              400269d4     LIBC:cmiscdat.obj
+ 0003:000069ec       ___nullstring              400269ec     LIBC:output.obj
+ 0003:000069f0       ___wnullstring             400269f0     LIBC:output.obj
+ 0003:00006a00       __pctype                   40026a00     LIBC:ctype.obj
+ 0003:00006a04       __pwctype                  40026a04     LIBC:ctype.obj
+ 0003:00006a08       __ctype                    40026a08     LIBC:ctype.obj
+ 0003:00006c0c       ___mb_cur_max              40026c0c     LIBC:nlsdata1.obj
+ 0003:00006c10       ___decimal_point           40026c10     LIBC:nlsdata1.obj
+ 0003:00006c14       ___decimal_point_length    40026c14     LIBC:nlsdata1.obj
+ 0003:00006c20       __amblksiz                 40026c20     LIBC:heapinit.obj
+ 0003:00006c28       ___badioinfo               40026c28     LIBC:ioinit.obj
+ 0003:00006cf0       __iob                      40026cf0     LIBC:_file.obj
+ 0003:00006f70       __NLG_Destination          40026f70     LIBC:exsup.obj
+ 0003:00006f80       ___sbh_threshold           40026f80     LIBC:sbheap.obj
+ 0003:00007080       __XcptActTab               40027080     LIBC:winxfltr.obj
+ 0003:000070f8       __First_FPE_Indx           400270f8     LIBC:winxfltr.obj
+ 0003:000070fc       __Num_FPE                  400270fc     LIBC:winxfltr.obj
+ 0003:00007100       __XcptActTabCount          40027100     LIBC:winxfltr.obj
+ 0003:00007104       __fpecode                  40027104     LIBC:winxfltr.obj
+ 0003:00007270       __pow10pos                 40027270     LIBC:constpow.obj
+ 0003:000073d0       __pow10neg                 400273d0     LIBC:constpow.obj
+ 0003:00007530       ??_C@_00A@?$AA@            40027530     bg_misc.obj
+ 0003:00007570       _vec3_origin               40027570     q_math.obj
+ 0003:0001df88       _newUI                     4003df88     ui_atoms.obj
+ 0003:000299d4       _frameCount                400499d4     ui_main.obj
+ 0003:000299d8       _defaultMenu               400499d8     ui_main.obj
+ 0003:0018da3c       _DC                        401ada3c     ui_shared.obj
+ 0003:0018da50       _menuCount                 401ada50     ui_shared.obj
+ 0003:0018da54       _openMenuCount             401ada54     ui_shared.obj
+ 0003:0018da6c       ___fastflag                401ada6c     LIBC:fpinit.obj
+ 0003:0018da70       __adjust_fdiv              401ada70     LIBC:fpinit.obj
+ 0003:0018da78       __aenvptr                  401ada78     LIBC:dllcrt0.obj
+ 0003:0018da7c       __wenvptr                  401ada7c     LIBC:dllcrt0.obj
+ 0003:0018da80       ___error_mode              401ada80     LIBC:dllcrt0.obj
+ 0003:0018da84       ___app_type                401ada84     LIBC:dllcrt0.obj
+ 0003:0018dab4       ___lc_handle               401adab4     LIBC:nlsdata2.obj
+ 0003:0018dacc       ___lc_codepage             401adacc     LIBC:nlsdata2.obj
+ 0003:0018dad0       ___lc_collate_cp           401adad0     LIBC:nlsdata2.obj
+ 0003:0018dad4       _errno                     401adad4     LIBC:crt0dat.obj
+ 0003:0018dad8       __doserrno                 401adad8     LIBC:crt0dat.obj
+ 0003:0018dadc       __umaskval                 401adadc     LIBC:crt0dat.obj
+ 0003:0018dae0       __osver                    401adae0     LIBC:crt0dat.obj
+ 0003:0018dae4       __winver                   401adae4     LIBC:crt0dat.obj
+ 0003:0018dae8       __winmajor                 401adae8     LIBC:crt0dat.obj
+ 0003:0018daec       __winminor                 401adaec     LIBC:crt0dat.obj
+ 0003:0018daf0       ___argc                    401adaf0     LIBC:crt0dat.obj
+ 0003:0018daf4       ___argv                    401adaf4     LIBC:crt0dat.obj
+ 0003:0018daf8       ___wargv                   401adaf8     LIBC:crt0dat.obj
+ 0003:0018dafc       __environ                  401adafc     LIBC:crt0dat.obj
+ 0003:0018db00       ___initenv                 401adb00     LIBC:crt0dat.obj
+ 0003:0018db04       __wenviron                 401adb04     LIBC:crt0dat.obj
+ 0003:0018db08       ___winitenv                401adb08     LIBC:crt0dat.obj
+ 0003:0018db0c       __pgmptr                   401adb0c     LIBC:crt0dat.obj
+ 0003:0018db10       __wpgmptr                  401adb10     LIBC:crt0dat.obj
+ 0003:0018db14       __exitflag                 401adb14     LIBC:crt0dat.obj
+ 0003:0018db18       __C_Termination_Done       401adb18     LIBC:crt0dat.obj
+ 0003:0018db1c       __C_Exit_Done              401adb1c     LIBC:crt0dat.obj
+ 0003:0018dc28       __adbgmsg                  401adc28     LIBC:crt0msg.obj
+ 0003:0018dc60       __cflush                   401adc60     LIBC:_file.obj
+ 0003:0018dc78       __pxcptinfoptrs            401adc78     LIBC:winxfltr.obj
+ 0003:0018dc7c       __newmode                  401adc7c     LIBC:_newmode.obj
+ 0003:0018dc80       ?_pnhHeap@@3P6AHI@ZA       401adc80     LIBC:handler.obj
+ 0003:0018dca0       _menuStack                 401adca0     <common>
+ 0003:0018dce0       _Menus                     401adce0     <common>
+ 0003:00197de0       _menuParseKeywordHash      401b7de0     <common>
+ 0003:001985e0       _g_nameBind1               401b85e0     <common>
+ 0003:00198600       _g_nameBind2               401b8600     <common>
+ 0003:00198620       _itemParseKeywordHash      401b8620     <common>
+ 0003:00198e20       _weaponChangeSound         401b8e20     <common>
+ 0003:00198e40       _ui_Q3Model                401b8e40     <common>
+ 0003:00198f60       _ui_ctf_capturelimit       401b8f60     <common>
+ 0003:00199080       _ui_currentOpponent        401b9080     <common>
+ 0003:001991a0       _ui_netSource              401b91a0     <common>
+ 0003:001992c0       _ui_arenasFile             401b92c0     <common>
+ 0003:001993e0       _ui_menuFiles              401b93e0     <common>
+ 0003:00199500       _ui_botsFile               401b9500     <common>
+ 0003:00199620       _ui_drawCrosshairNames     401b9620     <common>
+ 0003:00199740       _ui_hudFiles               401b9740     <common>
+ 0003:00199860       _ui_singlePlayerActive     401b9860     <common>
+ 0003:00199980       _ui_scoreCaptures          401b9980     <common>
+ 0003:00199aa0       _ui_scoreSkillBonus        401b9aa0     <common>
+ 0003:00199bc0       _ui_ctf_friendly           401b9bc0     <common>
+ 0003:00199ce0       _ui_blueteam5              401b9ce0     <common>
+ 0003:00199e00       _ui_scoreExcellents        401b9e00     <common>
+ 0003:00199f20       _ui_blueteam4              401b9f20     <common>
+ 0003:0019a040       _ui_blueteam3              401ba040     <common>
+ 0003:0019a160       _ui_blueteam2              401ba160     <common>
+ 0003:0019a280       _ui_blueteam1              401ba280     <common>
+ 0003:0019a3a0       _ui_scoreTime              401ba3a0     <common>
+ 0003:0019a4c0       _ui_redteam5               401ba4c0     <common>
+ 0003:0019a5e0       _ui_redteam4               401ba5e0     <common>
+ 0003:0019a700       _ui_redteam3               401ba700     <common>
+ 0003:0019a820       _ui_redteam2               401ba820     <common>
+ 0003:0019a940       _ui_redteam1               401ba940     <common>
+ 0003:0019aa60       _ui_joinGameType           401baa60     <common>
+ 0003:0019ab80       _ui_browserGameType        401bab80     <common>
+ 0003:0019aca0       _ui_currentMap             401baca0     <common>
+ 0003:0019adc0       _ui_tourney_timelimit      401badc0     <common>
+ 0003:0019aee0       _ui_opponentName           401baee0     <common>
+ 0003:0019b000       _ui_serverFilterType       401bb000     <common>
+ 0003:0019b120       _ui_marks                  401bb120     <common>
+ 0003:0019b240       _ui_mapIndex               401bb240     <common>
+ 0003:0019b360       _ui_team_timelimit         401bb360     <common>
+ 0003:0019b480       _ui_spVideos               401bb480     <common>
+ 0003:0019b5a0       _ui_cdkeychecked           401bb5a0     <common>
+ 0003:0019b6c0       _ui_currentNetMap          401bb6c0     <common>
+ 0003:0019b7e0       _uiInfo                    401bb7e0     <common>
+ 0003:001bcec0       _ui_server10               401dcec0     <common>
+ 0003:001bcfe0       _ui_server11               401dcfe0     <common>
+ 0003:001bd100       _ui_server12               401dd100     <common>
+ 0003:001bd220       _ui_server13               401dd220     <common>
+ 0003:001bd340       _ui_server14               401dd340     <common>
+ 0003:001bd460       _ui_server15               401dd460     <common>
+ 0003:001bd580       _ui_server16               401dd580     <common>
+ 0003:001bd6a0       _ui_initialized            401dd6a0     <common>
+ 0003:001bd7c0       _ui_scoreGauntlets         401dd7c0     <common>
+ 0003:001bd8e0       _ui_currentTier            401dd8e0     <common>
+ 0003:001bda00       _ui_gameType               401dda00     <common>
+ 0003:001bdb20       _ui_spAwards               401ddb20     <common>
+ 0003:001bdc40       _ui_scoreShutoutBonus      401ddc40     <common>
+ 0003:001bdd60       _ui_teamName               401ddd60     <common>
+ 0003:001bde80       _ui_browserMaster          401dde80     <common>
+ 0003:001bdfa0       _ui_ffa_fraglimit          401ddfa0     <common>
+ 0003:001be0c0       _ui_lastServerRefresh_1    401de0c0     <common>
+ 0003:001be1e0       _ui_lastServerRefresh_0    401de1e0     <common>
+ 0003:001be300       _ui_lastServerRefresh_3    401de300     <common>
+ 0003:001be420       _ui_lastServerRefresh_2    401de420     <common>
+ 0003:001be540       _ui_team_friendly          401de540     <common>
+ 0003:001be660       _ui_dedicated              401de660     <common>
+ 0003:001be780       _ui_spScores1              401de780     <common>
+ 0003:001be8a0       _ui_spScores3              401de8a0     <common>
+ 0003:001be9c0       _ui_spScores2              401de9c0     <common>
+ 0003:001beae0       _ui_spScores5              401deae0     <common>
+ 0003:001bec00       _ui_spScores4              401dec00     <common>
+ 0003:001bed20       _ui_bigFont                401ded20     <common>
+ 0003:001bee40       _ui_blueteam               401dee40     <common>
+ 0003:001bef60       _ui_findPlayer             401def60     <common>
+ 0003:001bf080       _ui_realCaptureLimit       401df080     <common>
+ 0003:001bf1a0       _ui_spSelection            401df1a0     <common>
+ 0003:001bf2c0       _ui_serverStatusTimeOut    401df2c0     <common>
+ 0003:001bf3e0       _ui_server4                401df3e0     <common>
+ 0003:001bf500       _ui_server3                401df500     <common>
+ 0003:001bf620       _ui_server6                401df620     <common>
+ 0003:001bf740       _ui_server5                401df740     <common>
+ 0003:001bf860       _ui_server2                401df860     <common>
+ 0003:001bf980       _ui_server1                401df980     <common>
+ 0003:001bfaa0       _ui_server8                401dfaa0     <common>
+ 0003:001bfbc0       _ui_server7                401dfbc0     <common>
+ 0003:001bfce0       _ui_server9                401dfce0     <common>
+ 0003:001bfe00       _ui_ctf_timelimit          401dfe00     <common>
+ 0003:001bff20       _ui_teamArenaFirstRun      401dff20     <common>
+ 0003:001c0040       _ui_tourney_fraglimit      401e0040     <common>
+ 0003:001c0160       _ui_scoreScore             401e0160     <common>
+ 0003:001c0280       _ui_ffa_timelimit          401e0280     <common>
+ 0003:001c03a0       _ui_brassTime              401e03a0     <common>
+ 0003:001c04c0       _ui_actualNetGameType      401e04c0     <common>
+ 0003:001c05e0       _ui_smallFont              401e05e0     <common>
+ 0003:001c0700       _ui_redteam                401e0700     <common>
+ 0003:001c0820       _ui_scoreAccuracy          401e0820     <common>
+ 0003:001c0940       _ui_realWarmUp             401e0940     <common>
+ 0003:001c0a60       _ui_netGameType            401e0a60     <common>
+ 0003:001c0b80       _ui_recordSPDemo           401e0b80     <common>
+ 0003:001c0ca0       _ui_scoreTeam              401e0ca0     <common>
+ 0003:001c0dc0       _ui_new                    401e0dc0     <common>
+ 0003:001c0ee0       _ui_team_fraglimit         401e0ee0     <common>
+ 0003:001c1000       _ui_scoreAssists           401e1000     <common>
+ 0003:001c1120       _ui_scoreDefends           401e1120     <common>
+ 0003:001c1240       _ui_browserShowFull        401e1240     <common>
+ 0003:001c1360       _ui_scorePerfect           401e1360     <common>
+ 0003:001c1480       _ui_drawCrosshair          401e1480     <common>
+ 0003:001c15a0       _ui_debug                  401e15a0     <common>
+ 0003:001c16c0       _ui_browserSortKey         401e16c0     <common>
+ 0003:001c17e0       _ui_fragLimit              401e17e0     <common>
+ 0003:001c1900       _ui_spSkill                401e1900     <common>
+ 0003:001c1a20       _ui_scoreImpressives       401e1a20     <common>
+ 0003:001c1b40       _ui_selectedPlayerName     401e1b40     <common>
+ 0003:001c1c60       _ui_browserShowEmpty       401e1c60     <common>
+ 0003:001c1d80       _ui_scoreBase              401e1d80     <common>
+ 0003:001c1ea0       _ui_scoreTimeBonus         401e1ea0     <common>
+ 0003:001c1fc0       _ui_selectedPlayer         401e1fc0     <common>
+ 0003:001c20e0       _ui_captureLimit           401e20e0     <common>
+ 0003:001c21f0       _ui_numBots                401e21f0     <common>
+ 0003:001c21f4       ___mbcodepage              401e21f4     <common>
+ 0003:001c2200       ___mbulinfo                401e2200     <common>
+ 0003:001c220c       ___ismbcodepage            401e220c     <common>
+ 0003:001c2220       __mbcasemap                401e2220     <common>
+ 0003:001c2320       __mbctype                  401e2320     <common>
+ 0003:001c2424       ___mblcid                  401e2424     <common>
+ 0003:001c2428       ___sbh_sizeHeaderList      401e2428     <common>
+ 0003:001c242c       ___sbh_indGroupDefer       401e242c     <common>
+ 0003:001c2430       ___sbh_pHeaderScan         401e2430     <common>
+ 0003:001c2434       ___sbh_pHeaderDefer        401e2434     <common>
+ 0003:001c2438       ___sbh_cntHeaderList       401e2438     <common>
+ 0003:001c243c       ___sbh_pHeaderList         401e243c     <common>
+ 0003:001c2440       ___piob                    401e2440     <common>
+ 0003:001c2460       __bufin                    401e2460     <common>
+ 0003:001c3460       __nstream                  401e3460     <common>
+ 0003:001c3480       ___pioinfo                 401e3480     <common>
+ 0003:001c3580       __nhandle                  401e3580     <common>
+ 0003:001c3584       __crtheap                  401e3584     <common>
+ 0003:001c3588       ___env_initialized         401e3588     <common>
+ 0003:001c358c       ___mbctype_initialized     401e358c     <common>
+ 0003:001c3590       ___onexitend               401e3590     <common>
+ 0003:001c3594       ___onexitbegin             401e3594     <common>
+ 0003:001c3598       __acmdln                   401e3598     <common>
+ 0003:001c359c       __pRawDllMain              401e359c     <common>
+
+ entry point at        0001:00018fbd
+
+ Static symbols
+
+ 0001:0000f2b0       _hashForString             400102b0 f   ui_shared.obj
+ 0001:00010620       _Menu_RunCloseScript       40011620 f   ui_shared.obj
+ 0001:00012710       _Scroll_ListBox_AutoFunc   40013710 f   ui_shared.obj
+ 0001:00012780       _Scroll_ListBox_ThumbFunc  40013780 f   ui_shared.obj
+ 0001:00012930       _Scroll_Slider_ThumbFunc   40013930 f   ui_shared.obj
+ 0001:00012ed0       _Display_CloseCinematics   40013ed0 f   ui_shared.obj
+ 0001:00012f00       _Menu_CloseCinematics      40013f00 f   ui_shared.obj
+ 0001:00012f70       _Window_CloseCinematic     40013f70 f   ui_shared.obj
+ 0001:000135b0       _Item_CorrectedTextRect    400145b0 f   ui_shared.obj
+ 0001:00014390       _Controls_GetKeyAssignment 40015390 f   ui_shared.obj
+ 0001:00017900       _Menu_CacheContents        40018900 f   ui_shared.obj
+ 0001:00017970       _Window_CacheContents      40018970 f   ui_shared.obj
+ 0001:000179b0       _Item_CacheContents        400189b0 f   ui_shared.obj
+ 0001:000179c0       _Menu_OverActiveItem       400189c0 f   ui_shared.obj
+ 0001:0000d7e0       _UI_PositionEntityOnTag    4000e7e0 f   ui_players.obj
+ 0001:0000d890       _UI_PositionRotatedEntityOnTag 4000e890 f   ui_players.obj
+ 0001:0000d940       _UI_PlayerAnimation        4000e940 f   ui_players.obj
+ 0001:0000da20       _UI_TorsoSequencing        4000ea20 f   ui_players.obj
+ 0001:0000dac0       _UI_PlayerInfo_SetWeapon   4000eac0 f   ui_players.obj
+ 0001:0000dd10       _UI_ForceTorsoAnim         4000ed10 f   ui_players.obj
+ 0001:0000dd60       _UI_SetTorsoAnim           4000ed60 f   ui_players.obj
+ 0001:0000dda0       _UI_LegsSequencing         4000eda0 f   ui_players.obj
+ 0001:0000de20       _UI_ForceLegsAnim          4000ee20 f   ui_players.obj
+ 0001:0000de50       _UI_SetLegsAnim            4000ee50 f   ui_players.obj
+ 0001:0000de90       _UI_RunLerpFrame           4000ee90 f   ui_players.obj
+ 0001:0000df90       _UI_SetLerpFrameAnimation  4000ef90 f   ui_players.obj
+ 0001:0000dfe0       _UI_PlayerAngles           4000efe0 f   ui_players.obj
+ 0001:0000e1a0       _UI_SwingAngles            4000f1a0 f   ui_players.obj
+ 0001:0000e300       _UI_MovedirAdjustment      4000f300 f   ui_players.obj
+ 0001:0000e4a0       _UI_PlayerFloatSprite      4000f4a0 f   ui_players.obj
+ 0001:0000e880       _UI_RegisterClientSkin     4000f880 f   ui_players.obj
+ 0001:0000ea70       _UI_FindClientHeadFile     4000fa70 f   ui_players.obj
+ 0001:0000ebd0       _UI_FileExists             4000fbd0 f   ui_players.obj
+ 0001:0000ebf0       _UI_ParseAnimationFile     4000fbf0 f   ui_players.obj
+ 0001:000036b0       _UI_ServersQsortCompare    400046b0 f   ui_main.obj
+ 0001:00003770       _UI_BuildFindPlayerList    40004770 f   ui_main.obj
+ 0001:00003b50       _UI_GetServerStatusInfo    40004b50 f   ui_main.obj
+ 0001:00003e40       _UI_SortServerStatusInfo   40004e40 f   ui_main.obj
+ 0001:00003f10       _stristr                   40004f10 f   ui_main.obj
+ 0001:00003f90       _UI_BuildServerStatus      40004f90 f   ui_main.obj
+ 0001:00004040       _UI_FeederSelection        40005040 f   ui_main.obj
+ 0001:000044d0       _UI_SelectedMap            400054d0 f   ui_main.obj
+ 0001:00004520       _UI_SelectedHead           40005520 f   ui_main.obj
+ 0001:00004570       _UI_ParseGameInfo          40005570 f   ui_main.obj
+ 0001:00004630       _GameType_Parse            40005630 f   ui_main.obj
+ 0001:00004780       _MapList_Parse             40005780 f   ui_main.obj
+ 0001:00004da0       _UI_OwnerDrawWidth         40005da0 f   ui_main.obj
+ 0001:00005100       _UI_TeamIndexFromName      40006100 f   ui_main.obj
+ 0001:00005150       _UI_OwnerDraw              40006150 f   ui_main.obj
+ 0001:000057d0       _UI_DrawHandicap           400067d0 f   ui_main.obj
+ 0001:00005840       _UI_DrawClanName           40006840 f   ui_main.obj
+ 0001:00005880       _UI_DrawGameType           40006880 f   ui_main.obj
+ 0001:000058c0       _UI_DrawNetGameType        400068c0 f   ui_main.obj
+ 0001:00005930       _UI_DrawJoinGameType       40006930 f   ui_main.obj
+ 0001:00005990       _UI_DrawClanLogo           40006990 f   ui_main.obj
+ 0001:00005a60       _UI_DrawClanCinematic      40006a60 f   ui_main.obj
+ 0001:00005ba0       _UI_DrawPreviewCinematic   40006ba0 f   ui_main.obj
+ 0001:00005c40       _UI_DrawSkill              40006c40 f   ui_main.obj
+ 0001:00005ca0       _UI_DrawTeamName           40006ca0 f   ui_main.obj
+ 0001:00005d30       _UI_DrawTeamMember         40006d30 f   ui_main.obj
+ 0001:00005de0       _UI_DrawEffects            40006de0 f   ui_main.obj
+ 0001:00005e60       _UI_DrawMapPreview         40006e60 f   ui_main.obj
+ 0001:00005f30       _UI_DrawMapTimeToBeat      40006f30 f   ui_main.obj
+ 0001:00005fe0       _UI_DrawMapCinematic       40006fe0 f   ui_main.obj
+ 0001:00006100       _UI_DrawPlayerModel        40007100 f   ui_main.obj
+ 0001:00006300       _UI_DrawNetSource          40007300 f   ui_main.obj
+ 0001:00006360       _UI_DrawNetMapPreview      40007360 f   ui_main.obj
+ 0001:000063b0       _UI_DrawNetMapCinematic    400073b0 f   ui_main.obj
+ 0001:00006450       _UI_DrawNetFilter          40007450 f   ui_main.obj
+ 0001:000064b0       _UI_DrawTier               400074b0 f   ui_main.obj
+ 0001:00006510       _UI_DrawTierMap            40007510 f   ui_main.obj
+ 0001:00006590       _UI_DrawTierMapName        40007590 f   ui_main.obj
+ 0001:00006610       _UI_EnglishMapName         40007610 f   ui_main.obj
+ 0001:00006660       _UI_DrawTierGameType       40007660 f   ui_main.obj
+ 0001:000066e0       _UI_DrawOpponent           400076e0 f   ui_main.obj
+ 0001:00006810       _UI_DrawPlayerLogo         40007810 f   ui_main.obj
+ 0001:000068c0       _UI_DrawPlayerLogoMetal    400078c0 f   ui_main.obj
+ 0001:00006970       _UI_DrawPlayerLogoName     40007970 f   ui_main.obj
+ 0001:00006a20       _UI_DrawOpponentLogo       40007a20 f   ui_main.obj
+ 0001:00006ad0       _UI_DrawOpponentLogoMetal  40007ad0 f   ui_main.obj
+ 0001:00006b80       _UI_DrawOpponentLogoName   40007b80 f   ui_main.obj
+ 0001:00006c30       _UI_DrawAllMapsSelection   40007c30 f   ui_main.obj
+ 0001:00006c90       _UI_DrawOpponentName       40007c90 f   ui_main.obj
+ 0001:00006cd0       _UI_DrawBotName            40007cd0 f   ui_main.obj
+ 0001:00006d50       _UI_DrawBotSkill           40007d50 f   ui_main.obj
+ 0001:00006d90       _UI_DrawRedBlue            40007d90 f   ui_main.obj
+ 0001:00006dd0       _UI_DrawCrosshair          40007dd0 f   ui_main.obj
+ 0001:00006e30       _UI_DrawSelectedPlayer     40007e30 f   ui_main.obj
+ 0001:00006ea0       _UI_BuildPlayerList        40007ea0 f   ui_main.obj
+ 0001:000070c0       _UI_DrawServerRefreshDate  400080c0 f   ui_main.obj
+ 0001:00007200       _UI_DrawServerMOTD         40008200 f   ui_main.obj
+ 0001:00007420       _Text_Paint_Limit          40008420 f   ui_main.obj
+ 0001:00007600       _UI_DrawKeyBindStatus      40008600 f   ui_main.obj
+ 0001:00007640       _UI_DrawGLInfo             40008640 f   ui_main.obj
+ 0001:000078a0       _UI_OwnerDrawVisible       400088a0 f   ui_main.obj
+ 0001:00007aa0       _UI_OwnerDrawHandleKey     40008aa0 f   ui_main.obj
+ 0001:00007d40       _UI_Handicap_HandleKey     40008d40 f   ui_main.obj
+ 0001:00007dd0       _UI_Effects_HandleKey      40008dd0 f   ui_main.obj
+ 0001:00007e40       _UI_ClanName_HandleKey     40008e40 f   ui_main.obj
+ 0001:00007f00       _UI_GameType_HandleKey     40008f00 f   ui_main.obj
+ 0001:00008030       _UI_SetCapFragLimits       40009030 f   ui_main.obj
+ 0001:000080c0       _UI_NetGameType_HandleKey  400090c0 f   ui_main.obj
+ 0001:00008180       _UI_JoinGameType_HandleKey 40009180 f   ui_main.obj
+ 0001:00008200       _UI_Skill_HandleKey        40009200 f   ui_main.obj
+ 0001:00008280       _UI_TeamName_HandleKey     40009280 f   ui_main.obj
+ 0001:00008320       _UI_TeamMember_HandleKey   40009320 f   ui_main.obj
+ 0001:000083e0       _UI_NetSource_HandleKey    400093e0 f   ui_main.obj
+ 0001:00008490       _UI_NetFilter_HandleKey    40009490 f   ui_main.obj
+ 0001:00008520       _UI_OpponentName_HandleKey 40009520 f   ui_main.obj
+ 0001:00008560       _UI_NextOpponent           40009560 f   ui_main.obj
+ 0001:000085c0       _UI_PriorOpponent          400095c0 f   ui_main.obj
+ 0001:00008620       _UI_BotName_HandleKey      40009620 f   ui_main.obj
+ 0001:000086e0       _UI_BotSkill_HandleKey     400096e0 f   ui_main.obj
+ 0001:00008750       _UI_RedBlue_HandleKey      40009750 f   ui_main.obj
+ 0001:00008790       _UI_Crosshair_HandleKey    40009790 f   ui_main.obj
+ 0001:00008810       _UI_SelectedPlayer_HandleKey 40009810 f   ui_main.obj
+ 0001:000088c0       _UI_GetValue               400098c0 f   ui_main.obj
+ 0001:000088d0       _UI_LoadTeams              400098d0 f   ui_main.obj
+ 0001:00008930       _UI_RunMenuScript          40009930 f   ui_main.obj
+ 0001:00009dc0       _UI_LoadMods               4000adc0 f   ui_main.obj
+ 0001:00009e70       _UI_LoadMovies             4000ae70 f   ui_main.obj
+ 0001:00009f30       _UI_LoadDemos              4000af30 f   ui_main.obj
+ 0001:0000a050       _UI_StartSkirmish          4000b050 f   ui_main.obj
+ 0001:0000a590       _UI_AIFromName             4000b590 f   ui_main.obj
+ 0001:0000a5e0       _UI_SetNextMap             4000b5e0 f   ui_main.obj
+ 0001:0000a630       _UI_Update                 4000b630 f   ui_main.obj
+ 0001:0000ab90       _UI_GetTeamColor           4000bb90 f   ui_main.obj
+ 0001:0000aba0       _UI_MapCountByGameType     4000bba0 f   ui_main.obj
+ 0001:0000ac20       _UI_HeadCountByTeam        4000bc20 f   ui_main.obj
+ 0001:0000ae00       _UI_BuildServerDisplayList 4000be00 f   ui_main.obj
+ 0001:0000b0e0       _UI_RemoveServerFromDisplayList 4000c0e0 f   ui_main.obj
+ 0001:0000b130       _UI_BinaryServerInsertion  4000c130 f   ui_main.obj
+ 0001:0000b1b0       _UI_InsertServerIntoDisplayList 4000c1b0 f   ui_main.obj
+ 0001:0000b1f0       _UI_FeederCount            4000c1f0 f   ui_main.obj
+ 0001:0000b360       _UI_GetIndexFromSelection  4000c360 f   ui_main.obj
+ 0001:0000b390       _UI_FeederItemText         4000c390 f   ui_main.obj
+ 0001:0000b7e0       _UI_FeederItemImage        4000c7e0 f   ui_main.obj
+ 0001:0000b8f0       _UI_ParseTeamInfo          4000c8f0 f   ui_main.obj
+ 0001:0000b9c0       _Team_Parse                4000c9c0 f   ui_main.obj
+ 0001:0000bbc0       _Character_Parse           4000cbc0 f   ui_main.obj
+ 0001:0000bd90       _Alias_Parse               4000cd90 f   ui_main.obj
+ 0001:0000beb0       _UI_Pause                  4000ceb0 f   ui_main.obj
+ 0001:0000bf00       _UI_PlayCinematic          4000cf00 f   ui_main.obj
+ 0001:0000bf40       _UI_StopCinematic          4000cf40 f   ui_main.obj
+ 0001:0000c010       _UI_DrawCinematic          4000d010 f   ui_main.obj
+ 0001:0000c050       _UI_RunCinematicFrame      4000d050 f   ui_main.obj
+ 0001:0000c060       _UI_BuildQ3Model_List      4000d060 f   ui_main.obj
+ 0001:0000c8e0       _UI_DisplayDownloadInfo    4000d8e0 f   ui_main.obj
+ 0001:0000cc50       _UI_ReadableSize           4000dc50 f   ui_main.obj
+ 0001:0000cdb0       _UI_PrintTime              4000ddb0 f   ui_main.obj
+ 0001:0000cef0       _UI_StopServerRefresh      4000def0 f   ui_main.obj
+ 0001:0000cf60       _UI_DoServerRefresh        4000df60 f   ui_main.obj
+ 0001:0000d000       _UI_StartServerRefresh     4000e000 f   ui_main.obj
+ 0001:0000d180       _UI_UpdatePendingPings     4000e180 f   ui_main.obj
+ 0001:00001f10       _UI_LoadArenasFromFile     40002f10 f   ui_gameinfo.obj
+ 0001:00002110       _UI_LoadBotsFromFile       40003110 f   ui_gameinfo.obj
+ 0001:00001480       _UI_Cache_f                40002480 f   ui_atoms.obj
+ 0001:00001490       _UI_CalcPostGameStats      40002490 f   ui_atoms.obj
+ 0001:00000640       _SkipWhitespace            40001640 f   q_shared.obj
+ 0001:0001d825       _flsall                    4001e825 f   LIBC:fflush.obj
+ 0001:0001ce10       LeadUp1                    4001de10 f   LIBC:memcpy.obj
+ 0001:0001ce3c       LeadUp2                    4001de3c f   LIBC:memcpy.obj
+ 0001:0001ce60       LeadUp3                    4001de60 f   LIBC:memcpy.obj
+ 0001:0001cedf       UnwindUp0                  4001dedf f   LIBC:memcpy.obj
+ 0001:0001cecc       UnwindUp1                  4001decc f   LIBC:memcpy.obj
+ 0001:0001cec4       UnwindUp2                  4001dec4 f   LIBC:memcpy.obj
+ 0001:0001cebc       UnwindUp3                  4001debc f   LIBC:memcpy.obj
+ 0001:0001ceb4       UnwindUp4                  4001deb4 f   LIBC:memcpy.obj
+ 0001:0001ceac       UnwindUp5                  4001deac f   LIBC:memcpy.obj
+ 0001:0001cea4       UnwindUp6                  4001dea4 f   LIBC:memcpy.obj
+ 0001:0001ce9c       UnwindUp7                  4001de9c f   LIBC:memcpy.obj
+ 0001:0001cef8       TrailUp0                   4001def8 f   LIBC:memcpy.obj
+ 0001:0001cf00       TrailUp1                   4001df00 f   LIBC:memcpy.obj
+ 0001:0001cf0c       TrailUp2                   4001df0c f   LIBC:memcpy.obj
+ 0001:0001cf20       TrailUp3                   4001df20 f   LIBC:memcpy.obj
+ 0001:0001cf98       LeadDown1                  4001df98 f   LIBC:memcpy.obj
+ 0001:0001cfb8       LeadDown2                  4001dfb8 f   LIBC:memcpy.obj
+ 0001:0001cfe0       LeadDown3                  4001dfe0 f   LIBC:memcpy.obj
+ 0001:0001d034       UnwindDown7                4001e034 f   LIBC:memcpy.obj
+ 0001:0001d03c       UnwindDown6                4001e03c f   LIBC:memcpy.obj
+ 0001:0001d044       UnwindDown5                4001e044 f   LIBC:memcpy.obj
+ 0001:0001d04c       UnwindDown4                4001e04c f   LIBC:memcpy.obj
+ 0001:0001d054       UnwindDown3                4001e054 f   LIBC:memcpy.obj
+ 0001:0001d05c       UnwindDown2                4001e05c f   LIBC:memcpy.obj
+ 0001:0001d064       UnwindDown1                4001e064 f   LIBC:memcpy.obj
+ 0001:0001d077       UnwindDown0                4001e077 f   LIBC:memcpy.obj
+ 0001:0001d090       TrailDown0                 4001e090 f   LIBC:memcpy.obj
+ 0001:0001d098       TrailDown1                 4001e098 f   LIBC:memcpy.obj
+ 0001:0001d0a8       TrailDown2                 4001e0a8 f   LIBC:memcpy.obj
+ 0001:0001d0bc       TrailDown3                 4001e0bc f   LIBC:memcpy.obj
+ 0001:0001cb55       _getSystemCP               4001db55 f   LIBC:mbctype.obj
+ 0001:0001cb9f       _CPtoLCID                  4001db9f f   LIBC:mbctype.obj
+ 0001:0001cbd2       _setSBCS                   4001dbd2 f   LIBC:mbctype.obj
+ 0001:0001cbfb       _setSBUpLow                4001dbfb f   LIBC:mbctype.obj
+ 0001:0001bf18       _gu_return                 4001cf18 f   LIBC:exsup.obj
+ 0001:0001bf20       __unwind_handler           4001cf20 f   LIBC:exsup.obj
+ 0001:0001ac22       __abstract_cw              4001bc22 f   LIBC:ieee87.obj
+ 0001:0001acb4       __hw_cw                    4001bcb4 f   LIBC:ieee87.obj
+ 0001:0001a745       _parse_cmdline             4001b745 f   LIBC:stdargv.obj
+ 0001:0001a2c1       _doexit                    4001b2c1 f   LIBC:crt0dat.obj
+ 0001:0001a35a       __initterm                 4001b35a f   LIBC:crt0dat.obj
+ 0001:0001a214       _strncnt                   4001b214 f   LIBC:a_map.obj
+ 0001:00019d97       _write_char                4001ad97 f   LIBC:output.obj
+ 0001:00019dcc       _write_multi_char          4001adcc f   LIBC:output.obj
+ 0001:00019dfd       _write_string              4001adfd f   LIBC:output.obj
+ 0001:00019e35       _get_int_arg               4001ae35 f   LIBC:output.obj
+ 0001:00019e42       _get_int64_arg             4001ae42 f   LIBC:output.obj
+ 0001:00019e52       _get_short_arg             4001ae52 f   LIBC:output.obj
+ 0001:00019481       __cftoe_g                  4001a481 f   LIBC:cvt.obj
+ 0001:000194a8       __cftof_g                  4001a4a8 f   LIBC:cvt.obj
+ 0001:0001951c       __shift                    4001a51c f   LIBC:cvt.obj
+ 0001:00018c40       LeadUp1                    40019c40 f   LIBC:memmove.obj
+ 0001:00018c6c       LeadUp2                    40019c6c f   LIBC:memmove.obj
+ 0001:00018c90       LeadUp3                    40019c90 f   LIBC:memmove.obj
+ 0001:00018d0f       UnwindUp0                  40019d0f f   LIBC:memmove.obj
+ 0001:00018cfc       UnwindUp1                  40019cfc f   LIBC:memmove.obj
+ 0001:00018cf4       UnwindUp2                  40019cf4 f   LIBC:memmove.obj
+ 0001:00018cec       UnwindUp3                  40019cec f   LIBC:memmove.obj
+ 0001:00018ce4       UnwindUp4                  40019ce4 f   LIBC:memmove.obj
+ 0001:00018cdc       UnwindUp5                  40019cdc f   LIBC:memmove.obj
+ 0001:00018cd4       UnwindUp6                  40019cd4 f   LIBC:memmove.obj
+ 0001:00018ccc       UnwindUp7                  40019ccc f   LIBC:memmove.obj
+ 0001:00018d28       TrailUp0                   40019d28 f   LIBC:memmove.obj
+ 0001:00018d30       TrailUp1                   40019d30 f   LIBC:memmove.obj
+ 0001:00018d3c       TrailUp2                   40019d3c f   LIBC:memmove.obj
+ 0001:00018d50       TrailUp3                   40019d50 f   LIBC:memmove.obj
+ 0001:00018dc8       LeadDown1                  40019dc8 f   LIBC:memmove.obj
+ 0001:00018de8       LeadDown2                  40019de8 f   LIBC:memmove.obj
+ 0001:00018e10       LeadDown3                  40019e10 f   LIBC:memmove.obj
+ 0001:00018e64       UnwindDown7                40019e64 f   LIBC:memmove.obj
+ 0001:00018e6c       UnwindDown6                40019e6c f   LIBC:memmove.obj
+ 0001:00018e74       UnwindDown5                40019e74 f   LIBC:memmove.obj
+ 0001:00018e7c       UnwindDown4                40019e7c f   LIBC:memmove.obj
+ 0001:00018e84       UnwindDown3                40019e84 f   LIBC:memmove.obj
+ 0001:00018e8c       UnwindDown2                40019e8c f   LIBC:memmove.obj
+ 0001:00018e94       UnwindDown1                40019e94 f   LIBC:memmove.obj
+ 0001:00018ea7       UnwindDown0                40019ea7 f   LIBC:memmove.obj
+ 0001:00018ec0       TrailDown0                 40019ec0 f   LIBC:memmove.obj
+ 0001:00018ec8       TrailDown1                 40019ec8 f   LIBC:memmove.obj
+ 0001:00018ed8       TrailDown2                 40019ed8 f   LIBC:memmove.obj
+ 0001:00018eec       TrailDown3                 40019eec f   LIBC:memmove.obj
+ 0001:00018b34       _shortsort                 40019b34 f   LIBC:qsort.obj
+ 0001:00018b82       _swap                      40019b82 f   LIBC:qsort.obj
+
+ 784 bytes saved through ICF
+

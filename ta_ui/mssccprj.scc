@@ -1,0 +1,5 @@
+SCC = This is a Source Code Control file
+
+[ui.dsp]
+SCC_Aux_Path = "\\Purgatory\Purgatory\idSourceControl"
+SCC_Project_Name = "$/MissionPack/code/ui", RLGAAAAA
