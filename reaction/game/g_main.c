@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/03/17 20:53:44  slicer
+// Small fix on CheckExitRules
+//
 // Revision 1.32  2002/03/17 01:44:39  jbravo
 // Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
 // DM.  Only DM problem I can see is that bots are invisible.
@@ -1536,23 +1539,27 @@ void CheckExitRules( void ) {
 		return;
 	}
 	//Slicer
-	if(g_gametype.integer == GT_TEAMPLAY && g_fraglimit.integer > 0) {
-		for ( i=0 ; i< g_maxclients.integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
-				continue;
-			}
-			if ( cl->sess.savedTeam == TEAM_SPECTATOR ) {
-				continue;
-			}
-			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
-				LogExit( "Fraglimit hit." );
-				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
-					cl->pers.netname ) );
-				//Slicer: Start Intermission
-				BeginIntermission();
+	if(g_gametype.integer == GT_TEAMPLAY) {
+		//Let's check fraglimit here, everything else is on teamplay.c
+		if(g_fraglimit.integer > 0) {
+			for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+				cl = level.clients + i;
+				if ( cl->pers.connected != CON_CONNECTED ) {
+					continue;
+				}
+				if ( cl->sess.savedTeam == TEAM_SPECTATOR ) {
+					continue;
+				}
+				if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
+					LogExit( "Fraglimit hit." );
+					trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
+						cl->pers.netname ) );
+					//Slicer: Start Intermission
+					BeginIntermission();
+				}
 			}
 		}
+		//let's return if teamplay.
 	return;
 	}
 
