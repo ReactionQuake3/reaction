@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/03/17 13:41:28  jbravo
+// Added a debug cmd to print out stuff when bugs occor
+//
 // Revision 1.72  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -129,6 +132,30 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
 //Blaze: Get amount of ammo a clip holds
 //Elder: def'd in bg_public.h
 //int ClipAmountForWeapon( int );
+
+// JBravo: debugging cmd
+void RQ3_Cmd_debugshit (gentity_t *ent)
+{
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_WEAPONS] = %i\n\"", 
+		ent->client->ps.stats[STAT_WEAPONS]));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weapon = %i\n\"", 
+		ent->client->ps.weapon));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->teamplayWeapon = %i\n\"", 
+		ent->client->teamplayWeapon));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weaponstate = %i\n\"", 
+		ent->client->ps.weaponstate));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.weaponTime = %i\n\"", 
+		ent->client->ps.weaponTime));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->uniqueWeapons = %i\n\"", 
+		ent->client->uniqueWeapons));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->uniqueItems = %i\n\"", 
+		ent->client->uniqueItems));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->sess.sessionTeam = %i\n\"", 
+		ent->client->sess.sessionTeam));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->sess.savedTeam = %i\n\"", 
+		ent->client->sess.savedTeam));
+}
+
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -2922,6 +2949,9 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Radio_power_f (ent);
 	else if (Q_stricmp (cmd, "radio") == 0)
 		RQ3_Cmd_Radio_f (ent);
+// JBravo: debugging cmd
+	else if (Q_stricmp (cmd, "debugshit") == 0)
+		RQ3_Cmd_debugshit (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
 	//Elder: stuff for dropping items

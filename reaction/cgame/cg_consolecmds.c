@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/03/17 13:41:28  jbravo
+// Added a debug cmd to print out stuff when bugs occor
+//
 // Revision 1.32  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -904,4 +907,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("reflogin");
 	trap_AddCommand ("ref");
 	trap_AddCommand ("refresign");
+// JBravo: debugging cmd
+	trap_AddCommand ("debugshit");
 }
