@@ -41,9 +41,10 @@
 #define	VOTE_TIME			30000	// 30 seconds before vote times out
 
 #define	MINS_Z				-24
-#define	DEFAULT_VIEWHEIGHT	26
+#define DEFAULT_VIEWHEIGHT	22
+//#define	DEFAULT_VIEWHEIGHT	26
 //Elder: changed to 8 like AQ2 source BUT is it sync-ed?
-#define CROUCH_VIEWHEIGHT 8
+#define CROUCH_VIEWHEIGHT	8
 //#define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
 
@@ -284,8 +285,9 @@ typedef enum {
 //Elder: special flag needed in both games
 #define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
 
-//Elder: weapon modifications -- right now only silencer
+//Elder: weapon modifications
 #define RQ3_WPMOD_SILENCER		1
+#define RQ3_WPMOD_KNIFESLASH	2
 
 //
 // config strings are a general means of communicating variable length strings
@@ -735,6 +737,7 @@ typedef enum {
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
 	EV_MISSILE_MISS_METAL,
+	EV_KNIFE_MISS,			// Elder: knife slash stuff
 	EV_RAILTRAIL,
 	EV_SHOTGUN,
 	EV_HANDCANNON,

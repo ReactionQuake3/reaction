@@ -1353,6 +1353,7 @@ char *eventnames[] = {
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",
 	"EV_MISSILE_MISS_METAL",
+	"EV_KNIFE_MISS",			// Elder: knife slash stuff
 	"EV_RAILTRAIL",
 	"EV_SHOTGUN",
 	"EV_HANDCANNON",

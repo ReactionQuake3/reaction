@@ -1429,6 +1429,9 @@ void G_RunItem( gentity_t *ent ) {
 			//Elder: force-call the weaponthink function
 			RQ3_DroppedWeaponThink(ent);
 		}
+		else if (ent->item && ent->item->giType == IT_HOLDABLE) {
+			RQ3_DroppedItemThink(ent);
+		}
 		else {
 			G_FreeEntity( ent );
 		}
@@ -1558,11 +1561,11 @@ void RQ3_ResetWeapon( int weapon ) {
 
 /*
 ==============
-Added by Elder
-
 RQ3_DroppedItemThink
-Items respawn themselves after a period of time
-Based on the AQ2 item code which was based off Q2 CTF techs
+
+  
+Added by Elder
+Support function for RQ3_ResetItem
 ==============
 */
 void RQ3_DroppedItemThink(gentity_t *ent) {
@@ -1577,13 +1580,8 @@ void RQ3_DroppedItemThink(gentity_t *ent) {
 		case HI_SILENCER:
 		case HI_BANDOLIER:
 		case HI_SLIPPERS:
-			//Free entity and reset position in unique item array
-			//level.uniqueItemsUsed &= ~(1 << ent->item->giTag);
-			rq3_item = BG_FindItemForHoldable( ent->item->giTag );
-			rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
+			RQ3_ResetItem( ent->item->giTag );
 			G_FreeEntity(ent);
-			Drop_Item (rq3_temp, rq3_item, angle);
-			//G_Printf("RQ3_DroppedItemThink: Freeing item entity + respawning\n");
     		break;
     	default:
     		//Elder: shouldn't have to come here
@@ -1592,3 +1590,43 @@ void RQ3_DroppedItemThink(gentity_t *ent) {
     		break;
 	}
 }
+
+/*
+==============
+RQ3_ResetItem
+
+  
+Added by Elder
+Items respawn themselves after a period of time
+Based on the AQ2 item code which was based off Q2 CTF techs
+This can be called directly when a player dies in a CONTENTS_NODROP area
+==============
+*/
+void RQ3_ResetItem ( int itemTag )
+{
+	gitem_t		*rq3_item;
+	gentity_t	*rq3_temp;
+	float		angle = rand() % 360;
+
+	switch ( itemTag )
+	{
+		case HI_KEVLAR:
+		case HI_LASER:
+		case HI_SILENCER:
+		case HI_BANDOLIER:
+		case HI_SLIPPERS:
+			//Free entity and reset position in unique item array
+			//level.uniqueItemsUsed &= ~(1 << ent->item->giTag);
+			rq3_item = BG_FindItemForHoldable( itemTag );
+			rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
+			Drop_Item (rq3_temp, rq3_item, angle);
+			//G_Printf("RQ3_DroppedItemThink: Freeing item entity + respawning\n");
+    		break;
+    	default:
+    		//Elder: shouldn't have to come here
+    		G_Printf ("RQ3_ResetItem: Out of range or invalid item %d\n", itemTag);
+    		break;
+	}
+}
+
+

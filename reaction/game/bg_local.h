@@ -26,6 +26,7 @@ typedef struct {
 	qboolean	groundPlane;
 	trace_t		groundTrace;
 	qboolean    ladder; // We'll use this to tell when the player is on a ladder  (c3a tut)
+	qboolean	previous_ladder;	// Elder: need this to see if player was on ladder
 	qboolean	opendoor;
 
 	float		impactSpeed;

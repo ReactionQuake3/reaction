@@ -597,6 +597,7 @@ void SaveRegisteredItems( void );
 void RQ3_DroppedItemThink(gentity_t *ent);
 void RQ3_DroppedWeaponThink(gentity_t *ent);
 void RQ3_ResetWeapon( int weapon );
+void RQ3_ResetItem ( int itemTag );
 
 
 //

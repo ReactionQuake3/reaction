@@ -734,8 +734,43 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
 			Team_ReturnFlag(TEAM_BLUE);
-		//Elder: include immediate item and weapon return here
 		}
+		// Elder: include immediate item and weapon return here -- but handled in G_RunItem?
+		//if ( self->client->ps.stats[STAT_HOLDABLE_ITEM] )
+		//{
+			//RQ3_ResetItem(bg_itemlist[self->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag);
+			//self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+		//}
+		// Elder: weapons are smart enough to return themselves
+		/*
+		// Elder: obviously we don't worry about the pistol or knives here
+		weaponInventory = self->client->ps.stat[STAT_WEAPONS];
+		if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
+			RQ3_ResetWeapon( WP_M3 );
+			self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
+		}
+		
+		if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
+			RQ3_ResetWeapon( WP_M4 );
+			self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
+		}
+		
+		if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
+			RQ3_ResetWeapon( WP_MP5 );
+			self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
+		}
+		
+		if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
+			RQ3_ResetWeapon( WP_HANDCANNON );
+			self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
+		}
+		
+		if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
+			RQ3_ResetWeapon( WP_SSG3000 );
+			self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
+		}
+		self->client->uniqueWeapons = 0;
+		*/
 	}
 #ifdef MISSIONPACK
 	TossClientPersistantPowerups( self );
@@ -1527,7 +1562,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						tookShellHit[playernum] = 1;
 				}
 				else {
-					//Grenade stuff - don't print if you hurt yourself
+					// Grenade stuff - don't print if you hurt yourself
+					// We could re-use the shotgun report for grenades
 					if (targ != attacker)
 						trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
@@ -1664,20 +1700,24 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
 								if (attacker->client->ps.weapon == WP_SSG3000)
 								{
-									trap_SendServerCommand(attacker-g_entities, va("print \"%s has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
-                                    trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s's AP sniper round\n\"",attacker->client->pers.netname));
+									trap_SendServerCommand(attacker-g_entities, va("print \"%s ^7has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
+                                    trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s^7's AP sniper round\n\"",attacker->client->pers.netname));
                                     take = take * 0.325;
 								}
 								else
 								{
-									trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));	
-									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s shot\n\"", attacker->client->pers.netname ));
+									if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
+										trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));	
+									else
+										trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
+									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s ^7shot\n\"", attacker->client->pers.netname ));
 									take = take/10;
 									instant_dam = 1;
 									bleeding = 0;
 								}
 								//Kevlar sound
-								tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
+								if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
+									tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
 							}
 							else
 							{

@@ -443,8 +443,17 @@ static qboolean PM_CheckJump( void ) {
 	
 	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
-		pm->ps->velocity[2] += 100; // More velocity
-//		if (pm->debugLevel) 
+		// Elder: ladder jump boost
+		if (pml.ladder == qtrue)
+		{
+			if (pm->debugLevel)
+				Com_Printf("^3Ladder jump boost^7\n");
+			pm->ps->velocity[2] += 135;
+		}
+		else
+			pm->ps->velocity[2] += 100; // More velocity
+		if (pm->debugLevel) 
+			Com_Printf("^4Hit a double jump^7\n");
 //			Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
 		pm->ps->velocity[2] = JUMP_VELOCITY;
@@ -2517,6 +2526,12 @@ static void PM_LadderMove( void ) {
 	float scale;
 	float vel;
 
+	// Elder: ladder jump crap
+	trace_t	tr;
+	vec3_t	lookAhead;
+	vec3_t	trEndTest;
+
+
 	PM_Friction ();
 
 	scale = PM_CmdScale( &pm->cmd );
@@ -2544,6 +2559,34 @@ static void PM_LadderMove( void ) {
 		wishspeed = pm->ps->speed * pm_ladderScale;
 	}
 
+	// Elder: ladder jump crap
+	lookAhead[0] = pml.forward[0];
+	lookAhead[1] = pml.forward[1];
+	lookAhead[2] = 0;
+	VectorNormalize (lookAhead);
+	// Calculate end point
+	VectorMA (pm->ps->origin, 1, lookAhead, trEndTest);
+	trEndTest[2] += 20;
+	// Calculate start point
+	VectorCopy(pm->ps->origin, lookAhead);
+	lookAhead[2] += 16;
+
+	pm->trace (&tr, lookAhead, pm->mins, pm->maxs, trEndTest,
+				pm->ps->clientNum, MASK_PLAYERSOLID);
+
+	if (tr.fraction == 1 || !(tr.surfaceFlags & SURF_LADDER))
+	{
+		// good conditions -- now we can set up a double jump on the ladder
+		if (pm->debugLevel)
+			Com_Printf("Ladder jump conditions met...\n");
+		if (PM_CheckJump())
+		{
+			if (pm->debugLevel)
+				Com_Printf("Trying airmove ladder jump...\n");
+		}
+	}
+	// End ladder jump crap
+
 	PM_Accelerate (wishdir, wishspeed, pm_ladderAccelerate);
 
 	// This SHOULD help us with sloped ladders, but it remains untested.
@@ -2559,6 +2602,8 @@ static void PM_LadderMove( void ) {
 	}
 
 	PM_SlideMove( qfalse ); // move without gravity
+	// Elder: stop legs from animating
+	PM_ForceLegsAnim( LEGS_IDLE );
 }
 
 
@@ -2571,18 +2616,33 @@ void CheckLadder( void )
 {
 	vec3_t flatforward,spot;
 	trace_t trace;
+
 	pml.ladder = qfalse;
+	pml.previous_ladder = qfalse;
 	// check for ladder
 	flatforward[0] = pml.forward[0];
 	flatforward[1] = pml.forward[1];
 	flatforward[2] = 0;
 	VectorNormalize (flatforward);
+
+	// Elder: Previously on ladder? Does this work?
+	VectorMA (pml.previous_origin, 1, flatforward, spot);
+	pm->trace (&trace, pml.previous_origin, pm->mins, pm->maxs, spot,
+		pm->ps->clientNum, MASK_PLAYERSOLID);
+
+	if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
+		pml.previous_ladder = qtrue;
+
 	VectorMA (pm->ps->origin, 1, flatforward, spot);
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, spot,
 		pm->ps->clientNum, MASK_PLAYERSOLID);
 
 	if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
 		pml.ladder = qtrue;
+
+	// Elder: does this work?
+	if (pml.ladder && pml.previous_ladder)
+		PM_CrashLand();
 
 }
 

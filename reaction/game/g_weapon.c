@@ -1056,7 +1056,7 @@ void Knife_Attack ( gentity_t *self, int damage)
 			else
 			{
 				//Elder TODO: take into account surface flags for clank
-				tent = G_TempEntity(tr.endpos, EV_MISSILE_MISS);
+				tent = G_TempEntity(tr.endpos, EV_KNIFE_MISS);
 				tent->s.eventParm = DirToByte(tr.plane.normal);
 				tent->s.weapon = WP_KNIFE;
 			}
