@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.61  2002/03/11 01:45:46  jbravo
 // Bye bye backflips! :)
 //
@@ -2165,7 +2168,11 @@ static void PM_Reload( void )
 			}
 
 			// check for bandaging
-			if (pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK)
+/*			if (pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK)
+				return;
+*/
+			//Slicer
+			if(pm->ps->weaponstate == WEAPON_BANDAGING)
 				return;
 
 			// check for full clip or non-reloadable weapons
@@ -2668,7 +2675,7 @@ static void PM_Weapon( void ) {
 
 
 	// change weapon if time
-	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
+	if ( pm->ps->weaponstate == WEAPON_DROPPING || pm->ps->weaponstate == WEAPON_BANDAGING ) {
 		PM_FinishWeaponChange();
 		return;
 	}

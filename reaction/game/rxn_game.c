@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.12  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -46,7 +49,8 @@ void CheckBleeding(gentity_t *targ)
 	if (targ->client->bleed_remain >= realBleedTime)
 	{
 		//G_Printf("Bleed Remain: %i Server Time: %i\n", targ->client->bleed_remain, level.time);
-		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
+	//	if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
+		if(	targ->client->ps.weaponstate == WEAPON_BANDAGING &&
 			 targ->client->bleedBandageCount < 1)
 		{
 			//Elder: skip damage being dealt
@@ -59,7 +63,7 @@ void CheckBleeding(gentity_t *targ)
 		}
 
 		//Elder: hack to count off health so we only lose 6 health on a bandage
-		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+		if ( targ->client->ps.weaponstate == WEAPON_BANDAGING)
 		{
 			//Start hack enforcement once we've ramped down to 1 health/second
 			if (targ->client->bleed_remain <= 10)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.58  2002/03/02 12:24:30  jbravo
 // Removed some debugging messages
 //
@@ -704,7 +707,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleedtick = 0;
 			ent->client->bleedBandageCount = 0;
 			//Elder: remove bandage work
-			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
+		//	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
@@ -1810,7 +1813,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 	else {
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
+//		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
 
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.52  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
 // hacks to get bots to stop using knives only.
@@ -628,7 +631,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->bleeding = 0;
 		self->client->bleed_remain = 0;
 		//Elder: added;
-		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
+//		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
 		self->client->killStreak = 0;
 

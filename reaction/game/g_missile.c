@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.22  2002/03/12 04:55:31  blaze
 // stats should only be recored when the round is in progress
 //
@@ -775,7 +778,8 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 		// Elder: Statistics tracking
 		if (level.team_round_going) self->client->pers.records[REC_GRENADESHOTS]++;
 		if ( self->client->ps.stats[STAT_HEALTH] <= 0 ||
-			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
+	//		(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
+			self->client->ps.weaponstate == WEAPON_BANDAGING ||
 			// NiceAss: Should catch any case of switching weapons with a grenade "cocked"
 			self->client->ps.weaponstate == WEAPON_DROPPING ) {
 			//Always drop close range if dead or about to bandage

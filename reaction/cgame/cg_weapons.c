@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/03/18 19:19:08  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.54  2002/03/16 21:48:39  niceass
 // All new shell ejection code
 //
@@ -1997,7 +2000,8 @@ void CG_NextWeapon_f( void ) {
 	}
 
 	//Elder: added
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
@@ -2064,7 +2068,8 @@ void CG_PrevWeapon_f( void ) {
 	}
 
 	//Elder: added
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+// if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
@@ -2138,7 +2143,8 @@ void CG_SpecialWeapon_f( void ) {
 	}
 
 	//Elder: added
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
@@ -2353,7 +2359,8 @@ void CG_Weapon_f( void ) {
 	}
 
 	//Elder: added to prevent weapon switching while bandaging
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}

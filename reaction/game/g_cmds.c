@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/03/18 19:18:39  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.78  2002/03/18 13:39:24  jbravo
 // Spectators in TP can now use callvote
 //
@@ -2001,7 +2004,12 @@ void Cmd_Bandage (gentity_t *ent)
 		return;
 
 	//Elder: added so you can't "rebandage"
-	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+/*	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
+		return;
+	}
+*/
+	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
 		return;
 	}
@@ -2012,7 +2020,7 @@ void Cmd_Bandage (gentity_t *ent)
 		Cmd_Unzoom(ent);
 
 		//Elder: added
-		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
+//		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
 
 		//Elder: drop the primed grenade
 		//Moved weapon switch to bg_pmove.c
@@ -2021,8 +2029,9 @@ void Cmd_Bandage (gentity_t *ent)
 			FireWeapon(ent);
 			ent->client->ps.ammo[WP_GRENADE]--;
 		}
-
-		ent->client->ps.weaponstate = WEAPON_DROPPING;
+//slicer
+	//	ent->client->ps.weaponstate = WEAPON_DROPPING;
+		ent->client->ps.weaponstate = WEAPON_BANDAGING;
 
 		if (ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
@@ -2063,7 +2072,8 @@ void Cmd_Reload( gentity_t *ent )
 	//G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
 
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		ent->client->fastReloads = 0;
 		ent->client->reloadAttempts = 0;
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
@@ -2483,7 +2493,8 @@ void Cmd_Weapon(gentity_t *ent)
 
 	//Elder: added since cgame doesn't actually know if its bandaging
 	//if (ent->client->isBandaging == qtrue) {
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
 		return;
 	}
@@ -2683,7 +2694,8 @@ void Cmd_DropWeapon_f( gentity_t *ent ) {
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 // JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
-	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
@@ -2705,7 +2717,8 @@ void Cmd_DropItem_f( gentity_t *ent )
 		return;
 
 // JBravo: no dropping stuff while bandaging. Fix dedicated to GoKu and JesterRace :)
-	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}

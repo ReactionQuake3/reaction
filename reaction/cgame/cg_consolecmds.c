@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/03/18 19:19:08  slicer
+// Fixed bandage bugs ( i hope )
+//
 // Revision 1.33  2002/03/17 13:41:28  jbravo
 // Added a debug cmd to print out stuff when bugs occor
 //
@@ -94,7 +97,8 @@ static void CG_DropWeapon_f (void) {
 		return;
 	}
 
-	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+//	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING)
 	{
 		CG_Printf("You are too busy bandaging!\n");
 		return;
@@ -160,7 +164,8 @@ static void CG_Bandage_f (void) {
 		return;
 	}
 
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+//	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
 		CG_Printf("You are already bandaging!\n");
 		return;
 	}
