@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/06/29 02:50:58  niceass
+// m4 kick fix and removed ladder stuff
+//
 // Revision 1.81  2002/06/18 06:15:30  niceass
 // m4 kick now smooth
 //
@@ -2159,13 +2162,13 @@ static void PM_Weapon(void)
 		}
 	}
 
-	//NiceAss: I added this smoother M4 rise. Should this be used?
-//	if ( ( pm->cmd.buttons & BUTTON_ATTACK || pm->ps->stats[STAT_BURST] ) && pm->ps->ammo[pm->ps->weapon] ) {
-	if ( pm->ps->weaponstate == WEAPON_FIRING && pm->ps->ammo[pm->ps->weapon] ) {
-		if ( pm->ps->weapon == WP_M4) {
-			pm->ps->delta_angles[0] = pm->ps->delta_angles[0] - ANGLE2SHORT(0.13);
-		}
+	//NiceAss: I added this for smooth M4 rise
+	if (pm->ps->weaponstate == WEAPON_FIRING && pm->ps->ammo[pm->ps->weapon] &&
+		pm->ps->weapon == WP_M4 && !pm->ps->stats[STAT_BURST] && 
+		!(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE)) {
+			pm->ps->delta_angles[0] -= ANGLE2SHORT(0.13);
 	}
+
 
 	// make weapon function
 	if (pm->ps->weaponTime > 0) {
@@ -2739,19 +2742,12 @@ void CheckLadder(void)
 	trace_t trace;
 
 	pml.ladder = qfalse;
-	pml.previous_ladder = qfalse;
+
 	// check for ladder
 	flatforward[0] = pml.forward[0];
 	flatforward[1] = pml.forward[1];
 	flatforward[2] = 0;
 	VectorNormalize(flatforward);
-
-	// Elder: Previously on ladder? Does this work?
-	VectorMA(pml.previous_origin, 1, flatforward, spot);
-	pm->trace(&trace, pml.previous_origin, pm->mins, pm->maxs, spot, pm->ps->clientNum, MASK_PLAYERSOLID);
-
-	if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
-		pml.previous_ladder = qtrue;
 
 	VectorMA(pm->ps->origin, 1, flatforward, spot);
 	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, spot, pm->ps->clientNum, MASK_PLAYERSOLID);
