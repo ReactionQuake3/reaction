@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/03/27 17:20:38  jbravo
+// Workaround to the bandage bug :)
+//
 // Revision 1.63  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -1961,16 +1964,25 @@ PM_FinishWeaponChange
 ===============
 */
 static void PM_FinishWeaponChange( void ) {
-	int		weapon;
+	int		weapon, savedWeap;
 
 	weapon = pm->cmd.weapon;
 
+// JBravo: debug for the bandage bug
+	savedWeap = pm->ps->weapon;
+
 	if ( weapon < WP_NONE || weapon >= WP_NUM_WEAPONS ) {
-		weapon = WP_NONE;
+		Com_Printf("BANDAGEBUG: (1) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
+				weapon);
+		weapon = savedWeap;
+//		weapon = WP_NONE;
 	}
 
 	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
-		weapon = WP_NONE;
+		Com_Printf("BANDAGEBUG: (2) weapon is %d and cmd.weapon is %d. Reverting to previous weapon\n", pm->ps->weapon,
+				weapon);
+		weapon = savedWeap;
+//		weapon = WP_NONE;
 	}
 
 	//Remove grenade/knife if out of ammo
