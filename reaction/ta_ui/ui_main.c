@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/06/28 20:30:35  makro
+// MM
+//
 // Revision 1.37  2002/06/28 20:08:42  makro
 // MM stuff
 //
@@ -3888,15 +3891,15 @@ static void UI_RunMenuScript(char **args)
 		//Makro - send the matchmode settings to the server
 		} else if (Q_stricmp(name, "sendMMsettings") == 0) {
 			trap_Cmd_ExecuteText(EXEC_APPEND, va("settings %i %i %i %i %i %i %i %i %i",
-				(int) trap_Cvar_VariableValue("timelimit"),
-				(int) trap_Cvar_VariableValue("g_RQ3_roundlimit"),
-				(int) trap_Cvar_VariableValue("g_RQ3_roundtimelimit"),
-				(int) trap_Cvar_VariableValue("fraglimit"),
-				(int) trap_Cvar_VariableValue("g_RQ3_maxplayers"),
-				(int) trap_Cvar_VariableValue("g_RQ3_forceteamtalk"),
-				(int) trap_Cvar_VariableValue("g_RQ3_limchasecam"),
-				(int) trap_Cvar_VariableValue("g_RQ3_tgren"),
-				(int) trap_Cvar_VariableValue("g_friendlyFire")));
+			ui_RQ3_timelimit.integer,
+			ui_RQ3_roundlimit.integer,
+			ui_RQ3_roundtimelimit.integer,
+			ui_RQ3_fraglimit.integer,
+			ui_RQ3_maxplayers.integer,
+			ui_RQ3_forceteamtalk.integer,
+			ui_RQ3_limchasecam.integer,
+			ui_RQ3_tgren.integer,
+			ui_RQ3_friendlyFire.integer));
 		//Makro - sync ui MM cvars with the real ones
 		} else if (Q_stricmp(name, "readMMsettings") == 0) {
 			ui_RQ3_timelimit.integer = (int) trap_Cvar_VariableValue("timelimit");
