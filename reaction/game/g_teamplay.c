@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2002/08/22 03:29:07  niceass
+// bug fix in countdown code
+//
 // Revision 1.129  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -1267,10 +1270,13 @@ void RQ3_StartTimer (int team, int delay)
 		ent = &g_entities[i];
 		if (!ent->inuse || !ent->client)
 			continue;
-		if (!ent->client->pers.connected != CON_CONNECTED)
+
+		if (ent->client->pers.connected != CON_CONNECTED)
 			continue;
-		if (ent->client->sess.savedTeam == team)
+
+		if (ent->client->sess.savedTeam == team) {
 			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", CTBCOUNTDOWN, delay));
+		}
 	}
 }
 
