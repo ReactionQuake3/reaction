@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/06/09 04:59:20  blaze
+// RQ3_MAX_BREAKABLES upped from 16 to 64
+//
 // Revision 1.74  2002/05/28 01:46:58  jbravo
 // Added stomach gibbing
 //
@@ -190,7 +193,7 @@
 #define DLIGHT_STROBE		8
 
 //Blaze: Max number of breakables
-#define RQ3_MAX_BREAKABLES 16
+#define RQ3_MAX_BREAKABLES 64
 
 //Old debris definitions
 //Elder: debris bit parms to pass to break_glass - maybe I should enum this?
