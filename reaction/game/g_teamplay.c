@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/03/18 12:25:10  jbravo
+// Live players dont get fraglines, except their own. Cleanups and some
+// hacks to get bots to stop using knives only.
+//
 // Revision 1.37  2002/03/17 16:38:57  jbravo
 // Colored nicks fucked up the string in $K messages.
 //
@@ -779,6 +783,11 @@ void EquipPlayer (gentity_t *ent)
 	} else {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
 			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
+	}
+	if (ent->r.svFlags & SVF_BOT) {
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->uniqueWeapons = 0;
 	}
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 

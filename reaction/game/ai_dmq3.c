@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/18 12:25:10  jbravo
+// Live players dont get fraglines, except their own. Cleanups and some
+// hacks to get bots to stop using knives only.
+//
 // Revision 1.7  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1577,7 +1581,9 @@ void BotChooseWeapon(bot_state_t *bs) {
 	else {
 		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
 		if (bs->weaponnum != newweaponnum) bs->weaponchange_time = FloatTime();
-		bs->weaponnum = newweaponnum;
+// JBravo: test hack
+//		bs->weaponnum = newweaponnum;
+		bs->weaponnum = WP_PISTOL;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
@@ -1629,7 +1635,8 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 #ifdef MISSIONPACK
 	int offence, leader;
 
-	if (gametype <= GT_TEAM)
+//	if (gametype <= GT_TEAM)
+	if (gametype <= GT_TEAMPLAY)
 		return;
 
 	offence = -1;

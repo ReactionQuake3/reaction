@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/03/18 12:25:10  jbravo
+// Live players dont get fraglines, except their own. Cleanups and some
+// hacks to get bots to stop using knives only.
+//
 // Revision 1.42  2002/03/17 01:44:39  jbravo
 // Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
 // DM.  Only DM problem I can see is that bots are invisible.
@@ -107,15 +111,12 @@ CG_Obituary
 =============
 */
 static void CG_Obituary( entityState_t *ent ) {
-	int			mod;
-	int			n; //Elder: for random messages
-	int			target, attacker;
-	char		*message;
-	char		*message2;
+	int		mod, target, attacker;
+	int		n;		//Elder: for random messages
+	char		*message, *message2;
 	const char	*targetInfo;
 	const char	*attackerInfo;
-	char		targetName[32];
-	char		attackerName[32];
+	char		targetName[32], attackerName[32];
 	gender_t	gender;
 	clientInfo_t	*ci;
 
@@ -123,12 +124,12 @@ static void CG_Obituary( entityState_t *ent ) {
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
 
-	if ( target < 0 || target >= MAX_CLIENTS ) {
-		CG_Error( "CG_Obituary: target out of range" );
+	if (target < 0 || target >= MAX_CLIENTS) {
+		CG_Error("CG_Obituary: target out of range");
 	}
 	ci = &cgs.clientinfo[target];
 
-	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+	if (attacker < 0 || attacker >= MAX_CLIENTS) {
 		attacker = ENTITYNUM_WORLD;
 		attackerInfo = NULL;
 	} else {
@@ -202,15 +203,6 @@ static void CG_Obituary( entityState_t *ent ) {
 			else
 				message = "didn't throw his grenade far enough";
 			break;
-			/*
-			if ( gender == GENDER_FEMALE )
-				message = "tripped on her own grenade";
-			else if ( gender == GENDER_NEUTER )
-				message = "tripped on its own grenade";
-			else
-				message = "tripped on his own grenade";
-			break;
-			*/
 		case MOD_ROCKET_SPLASH:
 			if ( gender == GENDER_FEMALE )
 				message = "blew herself up";
@@ -253,9 +245,9 @@ static void CG_Obituary( entityState_t *ent ) {
 	}
 
 	//Blaze: This allows for the falling damage message to pass through if someone attacked them
-	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker == target)) message = NULL;
 	if (message) {
-		CG_Printf( "%s %s.\n", targetName, message);
+		CG_Printf("%s %s.\n", targetName, message);
 		return;
 	}
 
@@ -370,7 +362,7 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		case MOD_PISTOL:
 			message = "was shot by";
-            message2 = "'s Mark 23 Pistol";
+			message2 = "'s Mark 23 Pistol";
 			break;
 		case MOD_M4:
 			message = "was shot by";
@@ -386,26 +378,20 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		case MOD_M3:
 			n = rand() % 2 + 1;
-			if (n == 1)
-            {
+			if (n == 1) {
 				message = "accepts";
 				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
-			}
-            else
-            {
+			} else {
 				message = "is full of buckshot from";
 				message2 = "'s M3 Super 90 Assault Shotgun";
 			}
 			break;
 		case MOD_HANDCANNON:
 			n = rand() % 2 + 1;
-			if (n == 1)
-            {
+			if (n == 1) {
 				message = "ate";
 				message2 = "'s sawed-off 12 gauge";
-			}
-            else
-            {
+			} else {
 				message = "is full of buckshot from";
 				message2 = "'s sawed off shotgun";
 			}
@@ -415,17 +401,14 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		case MOD_KICK:
 			n = rand() % 3 + 1;
-			if (n == 1)
-            {
+			if (n == 1) {
 				if (gender == GENDER_NEUTER)
-               		message = "got its ass kicked by";
+					message = "got its ass kicked by";
 				else if (gender == GENDER_FEMALE)
 					message = "got her ass kicked by";
 				else
 					message = "got his ass kicked by";
-			}
-			else if (n == 2)
-			{
+			} else if (n == 2) {
 				message = "couldn't remove";
 				if (gender == GENDER_NEUTER)
 					message2 = "'s boot from its ass";
@@ -433,9 +416,7 @@ static void CG_Obituary( entityState_t *ent ) {
 					message2 = "'s boot from her ass";
 				else
 					message2 = "'s boot from his ass";
-            }
-			else
-			{
+			} else {
 				if (gender == GENDER_NEUTER)
 					message = "had a Bruce Lee put on it by";
 				else if (gender == GENDER_FEMALE)
@@ -462,9 +443,12 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		}
 
+// JBravo: live players dont get fraglines.
 		if (message) {
-			CG_Printf( "%s %s %s%s\n",
-				targetName, message, attackerName, message2);
+			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+							cg.snap->ps.clientNum == attacker))
+				CG_Printf( "%s %s %s%s\n",
+					targetName, message, attackerName, message2);
 			return;
 		}
 	}
@@ -482,14 +466,10 @@ CG_Obituary_Head
 =============
 */
 static void CG_Obituary_Head( entityState_t *ent ) {
-	int			mod;
-	int			target, attacker;
-	char		*message;
-	char		*message2;
-	const char	*targetInfo;
-	const char	*attackerInfo;
-	char		targetName[32];
-	char		attackerName[32];
+	int		mod, target, attacker;
+	char		*message, *message2;
+	const char	*targetInfo, *attackerInfo;
+	char		targetName[32], attackerName[32];
 	gender_t	gender;
 	clientInfo_t	*ci;
 
@@ -497,30 +477,30 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
 
-	if ( target < 0 || target >= MAX_CLIENTS ) {
-		CG_Error( "CG_Obituary: target out of range" );
+	if (target < 0 || target >= MAX_CLIENTS) {
+		CG_Error("CG_Obituary: target out of range");
 	}
 	ci = &cgs.clientinfo[target];
 
-	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
+	if (attacker < 0 || attacker >= MAX_CLIENTS) {
 		attacker = ENTITYNUM_WORLD;
 		attackerInfo = NULL;
 	} else {
-		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
+		attackerInfo = CG_ConfigString(CS_PLAYERS + attacker);
 	}
 
-	targetInfo = CG_ConfigString( CS_PLAYERS + target );
-	if ( !targetInfo ) {
+	targetInfo = CG_ConfigString(CS_PLAYERS + target);
+	if (!targetInfo) {
 		return;
 	}
-	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
-	strcat( targetName, S_COLOR_WHITE );
+	Q_strncpyz(targetName, Info_ValueForKey(targetInfo, "n"), sizeof(targetName) - 2);
+	strcat(targetName, S_COLOR_WHITE);
 
 	message2 = "";
 
 	// check for single client messages
 
-	switch( mod ) {
+	switch(mod) {
 	case MOD_SUICIDE:
 		message = "suicides";
 		break;
@@ -564,17 +544,17 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		}
 	}
 
-	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker == target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
 	}
 
 	// check for kill messages from the current clientNum
-	if ( attacker == cg.snap->ps.clientNum ) {
+	if (attacker == cg.snap->ps.clientNum) {
 		char	*s;
 
-		if ( cgs.gametype < GT_TEAM ) {
+		if (cgs.gametype < GT_TEAM) {
 			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
@@ -586,7 +566,6 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
-
 
 	// check for double client messages
 	if ( !attackerInfo ) {
@@ -601,7 +580,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		}
 	}
 
-	if ( attacker != ENTITYNUM_WORLD ) {
+	if (attacker != ENTITYNUM_WORLD) {
 		switch (mod) {
 		case MOD_PISTOL:
 			if (gender == GENDER_FEMALE)
@@ -625,17 +604,14 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			message2 = "'s akimbo Mark 23 pistols";
 			break;
 		case MOD_SNIPER:
-			if (cg.refdef.fov_x < 90)
-			{
+			if (cg.refdef.fov_x < 90) {
 				if (gender == GENDER_NEUTER)
 					message = "saw the sniper bullet go through its scope thanks to";
 				else if (gender == GENDER_FEMALE)
 					message = "saw the sniper bullet go through her scope thanks to";
 				else
 					message = "saw the sniper bullet go through his scope thanks to";
-			}
-			else
-			{
+			} else {
 				message = "caught a sniper bullet between the eyes from";
 			}
 			break;
@@ -675,9 +651,12 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			break;
 		}
 
+// JBravo: live players dont get fraglines.
 		if (message) {
-			CG_Printf( "%s %s %s%s\n",
-				targetName, message, attackerName, message2);
+			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+							cg.snap->ps.clientNum == attacker))
+				CG_Printf( "%s %s %s%s\n",
+					targetName, message, attackerName, message2);
 			return;
 		}
 	}
@@ -696,14 +675,10 @@ CG_Obituary_Chest
 =============
 */
 static void CG_Obituary_Chest( entityState_t *ent ) {
-	int			mod;
-	int			target, attacker;
-	char		*message;
-	char		*message2;
-	const char	*targetInfo;
-	const char	*attackerInfo;
-	char		targetName[32];
-	char		attackerName[32];
+	int		mod, target, attacker;
+	char		*message, *message2;
+	const char	*targetInfo, *attackerInfo;
+	char		targetName[32], attackerName[32];
 	gender_t	gender;
 	clientInfo_t	*ci;
 
@@ -859,9 +834,12 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			break;
 		}
 
+// JBravo: live players dont get fraglines.
 		if (message) {
-			CG_Printf( "%s %s %s%s\n",
-				targetName, message, attackerName, message2);
+			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+							cg.snap->ps.clientNum == attacker))
+				CG_Printf( "%s %s %s%s\n",
+					targetName, message, attackerName, message2);
 			return;
 		}
 	}
@@ -879,14 +857,10 @@ CG_Obituary_Stomach
 =============
 */
 static void CG_Obituary_Stomach( entityState_t *ent ) {
-	int			mod;
-	int			target, attacker;
-	char		*message;
-	char		*message2;
-	const char	*targetInfo;
-	const char	*attackerInfo;
-	char		targetName[32];
-	char		attackerName[32];
+	int		mod, target, attacker;
+	char		*message, *message2;
+	const char	*targetInfo, *attackerInfo;
+	char		targetName[32], attackerName[32];
 	gender_t	gender;
 	clientInfo_t	*ci;
 
@@ -1052,9 +1026,12 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 			break;
 		}
 
+// JBravo: live players dont get fraglines.
 		if (message) {
-			CG_Printf( "%s %s %s%s\n",
-				targetName, message, attackerName, message2);
+			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+							cg.snap->ps.clientNum == attacker))
+				CG_Printf( "%s %s %s%s\n",
+					targetName, message, attackerName, message2);
 			return;
 		}
 	}
@@ -1245,9 +1222,12 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			break;
 		}
 
+// JBravo: live players dont get fraglines.
 		if (message) {
-			CG_Printf( "%s %s %s%s\n",
-				targetName, message, attackerName, message2);
+			if (target != attacker && (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ||
+							cg.snap->ps.clientNum == attacker))
+				CG_Printf( "%s %s %s%s\n",
+					targetName, message, attackerName, message2);
 			return;
 		}
 	}

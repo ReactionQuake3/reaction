@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/18 12:25:10  jbravo
+// Live players dont get fraglines, except their own. Cleanups and some
+// hacks to get bots to stop using knives only.
+//
 // Revision 1.5  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1978,6 +1982,8 @@ void BotTeamAI(bot_state_t *bs) {
 	//give orders
 	switch(gametype) {
 		case GT_TEAM:
+// JBravo
+		case GT_TEAMPLAY:
 		{
 			if (bs->numteammates != numteammates || bs->forceorders) {
 				bs->teamgiveorders_time = FloatTime();

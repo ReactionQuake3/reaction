@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/18 12:25:10  jbravo
+// Live players dont get fraglines, except their own. Cleanups and some
+// hacks to get bots to stop using knives only.
+//
 // Revision 1.51  2002/03/17 03:35:29  jbravo
 // More radio tewaks and cleanups.
 //
@@ -694,60 +698,49 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// broadcast the death event to everyone
 	// Elder: use appropriate obit event and update statistics tracking
 	if ((self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
-		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE)
-	{
+		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE) {
 		// head kill
-    if (level.team_round_going) 
-    {
+		if (level.team_round_going) {
 		  self->client->pers.records[REC_HEADDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_HEADKILLS]++;
-    }
+		}
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_HEAD);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
-			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER)
-	{
+			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER) {
 		// chest kill
-    if (level.team_round_going) 
-    {
+		if (level.team_round_going) {
 		  self->client->pers.records[REC_CHESTDEATHS]++;
 		  if (attacker && attacker->client)	attacker->client->pers.records[REC_CHESTKILLS]++;
-    }
+		}
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_CHEST);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
-			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN)
-	{
+			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN) {
 		// stomach kill
-		if (level.team_round_going) 
-    {
-      self->client->pers.records[REC_STOMACHDEATHS]++;
+		if (level.team_round_going) {
+		  self->client->pers.records[REC_STOMACHDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_STOMACHKILLS]++;
-    }
+		}
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_STOMACH);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
-			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT)
-	{
+			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT) {
 		// leg kill
-		if (level.team_round_going) 
-    {
-      self->client->pers.records[REC_LEGDEATHS]++;
+		if (level.team_round_going) {
+		  self->client->pers.records[REC_LEGDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_LEGKILLS]++;
-    }
+		}
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_LEGS);
-	}
-	else
-	{
+	} else {
 		// non-location/world kill
 		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY);
 	}
 
 	// Elder: Statistics tracking
-  //Blaze: make sure the game is in progress before recording stats
-  if (level.team_round_going) {
-  	switch (meansOfDeath)
-  	{
+	//Blaze: make sure the game is in progress before recording stats
+	if (level.team_round_going) {
+  		switch (meansOfDeath) {
 		  case MOD_KNIFE:
   			if (attacker && attacker->client)
 				  attacker->client->pers.records[REC_KNIFESLASHKILLS]++;
@@ -807,22 +800,20 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   // JBravo: adding a default here to catch potential bugs
 	  	default:
 			  break;
-	  }//SWITCH
-  }//IF
+		}
+	}
 	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
 	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
 	self->enemy = attacker;
-	if (level.team_round_going) 
-  {
-    self->client->ps.persistant[PERS_KILLED]++;
-    //Blaze: Give the attacker 1 kill
-    attacker->client->pers.records[REC_KILLS]++;
-  }
+	if (level.team_round_going) {
+		self->client->ps.persistant[PERS_KILLED]++;
+		//Blaze: Give the attacker 1 kill
+		attacker->client->pers.records[REC_KILLS]++;
+	}
 
 	if (attacker && attacker->client) {
-//		attacker->client->lastkilled_client = self->s.number;
 // JBravo: Add multiple last killed system.
 		AddKilledPlayer(attacker, self);
 		ResetKills(self);
@@ -830,10 +821,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if (attacker == self || OnSameTeam (self, attacker)) {
 			if (level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
-        //If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
-        attacker->client->pers.records[REC_KILLS]--;
-        //Also, increment the TK's record
-        attacker->client->pers.records[REC_TEAMKILLS]++;
+				//If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
+				attacker->client->pers.records[REC_KILLS]--;
+				//Also, increment the TK's record
+				attacker->client->pers.records[REC_TEAMKILLS]++;
 			}
 		} else {
 			// Increase number of kills this life for attacker
@@ -915,12 +906,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// Unless we are in teamplay
 	if (meansOfDeath == MOD_SUICIDE) {
 		// Elder: Statistics tracking
-		if (level.team_round_going) 
-    {
-      self->client->pers.records[REC_SUICIDES]++;
-      self->client->pers.records[REC_KILLS]--;
-    }
-    AddScore(self, self->r.currentOrigin, -1);
+		if (level.team_round_going) {
+			self->client->pers.records[REC_SUICIDES]++;
+			self->client->pers.records[REC_KILLS]--;
+		}
+		AddScore(self, self->r.currentOrigin, -1);
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
 				Team_ReturnFlag( TEAM_FREE );
@@ -983,7 +973,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 // JBravo: make clients that are following this one stop following.
 		if (client->sess.spectatorClient == self->s.number) {
 			if (g_gametype.integer == GT_TEAMPLAY) {
-				StopFollowing(follower);
+//				StopFollowing(follower);
+				Cmd_FollowCycle_f(follower, 1);
 			} else {
 				Cmd_Score_f(g_entities + i);
 			}
