@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/09/09 02:30:12  niceass
+// updated version
+//
 // Revision 1.116  2002/09/09 01:04:57  niceass
 // ctb voting fixed
 //
@@ -602,7 +605,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "Beta 2.2", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_version, "g_RQ3_version", "Beta 2.25", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	//Makro - max votes per client
 	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };
