@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/07/22 06:32:27  niceass
+// cleaned up the powerup code
+//
 // Revision 1.23  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -306,9 +309,6 @@ void Use_target_push(gentity_t * self, gentity_t * other, gentity_t * activator)
 	}
 
 	if (activator->client->ps.pm_type != PM_NORMAL) {
-		return;
-	}
-	if (activator->client->ps.powerups[PW_FLIGHT]) {
 		return;
 	}
 

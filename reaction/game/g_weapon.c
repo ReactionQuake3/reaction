@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/07/22 06:32:15  niceass
+// cleaned up the powerup code
+//
 // Revision 1.75  2002/07/09 05:41:23  niceass
 // fix to kicking in CTB
 //
@@ -156,7 +159,6 @@ int GetMaterialFromFlag(int flag);
 qboolean IsMetalMat(int Material);
 qboolean IsMetalFlag(int flag);
 
-static float s_quadFactor;
 static vec3_t forward, right, up;
 static vec3_t muzzle;
 
@@ -272,17 +274,7 @@ qboolean JumpKick(gentity_t * ent)
 	}
 	//end Makro
 
-	//Makro - client check
-	if (ent->client) {
-		if (ent->client->ps.powerups[PW_QUAD]) {
-			G_AddEvent(ent, EV_POWERUP_QUAD, 0);
-			s_quadFactor = g_quadfactor.value;
-		} else {
-			s_quadFactor = 1;
-		}
-	}
 	//Makro - moved some code up by a few lines to allow breakables to be kicked
-
 	if (traceEnt->client != NULL && traceEnt->takedamage) {
 		tent = G_TempEntity(tr.endpos, EV_JUMPKICK);
 		tent->s.otherEntityNum = traceEnt->s.number;
@@ -412,14 +404,7 @@ qboolean CheckGauntletAttack(gentity_t * ent)
 		return qfalse;
 	}
 
-	if (ent->client->ps.powerups[PW_QUAD]) {
-		G_AddEvent(ent, EV_POWERUP_QUAD, 0);
-		s_quadFactor = g_quadfactor.value;
-	} else {
-		s_quadFactor = 1;
-	}
-
-	damage = 50 * s_quadFactor;
+	damage = 50;
 	G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_GAUNTLET);
 
 	return qtrue;
@@ -493,9 +478,6 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 			break;
 		}
 	}
-	//Elder: removed - for some reason it's set to 0
-	//damage *= s_quadFactor;
-
 	/* Original AQ2 code
 	   vectoangles (aimdir, dir);
 	   AngleVectors (dir, forward, right, up);
@@ -675,26 +657,6 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 /*
 ======================================================================
 
-BFG
-
-======================================================================
-*/
-//Blaze: No more BFG
-/*
-void BFG_Fire ( gentity_t *ent ) {
-	gentity_t	*m;
-
-	m = fire_bfg (ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
-
-//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
-}
-*/
-
-/*
-======================================================================
-
 SHOTGUN
 
 ======================================================================
@@ -850,68 +812,6 @@ void weapon_supershotgun_fire(gentity_t * ent)
 /*
 ======================================================================
 
-GRENADE LAUNCHER
-
-======================================================================
-*/
-//Blaze: No more grenade launcher, no need for fire function
-/*
-void weapon_grenadelauncher_fire (gentity_t *ent) {
-	gentity_t	*m;
-
-	// extra vertical velocity
-	forward[2] += 0.2f;
-	VectorNormalize( forward );
-
-	m = fire_grenade (ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
-
-//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
-}
-*/
-/*
-======================================================================
-
-ROCKET
-
-======================================================================
-*/
-//Blaze: No more rocket launcher, no need for this function
-/*
-void Weapon_RocketLauncher_Fire (gentity_t *ent) {
-	gentity_t	*m;
-
-	m = fire_rocket (ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
-
-//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
-}
-*/
-
-/*
-======================================================================
-
-PLASMA GUN
-
-======================================================================
-*/
-//Blaze: No plasma gun, no need for this function
-/*
-void Weapon_Plasmagun_Fire (gentity_t *ent) {
-	gentity_t	*m;
-
-	m = fire_plasma (ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
-
-//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
-}
-*/
-/*
-======================================================================
-
 RAILGUN
 
 ======================================================================
@@ -936,7 +836,7 @@ void weapon_railgun_fire(gentity_t * ent)
 	int passent;
 	gentity_t *unlinkedEntities[MAX_RAIL_HITS];
 
-	damage = 100 * s_quadFactor;
+	damage = 100;
 
 	VectorMA(muzzle, 8192, forward, end);
 
@@ -1075,7 +975,7 @@ void Weapon_LightningFire(gentity_t * ent)
 	gentity_t *traceEnt, *tent;
 	int damage, i, passent;
 
-	damage = 8 * s_quadFactor;
+	damage = 8;
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
@@ -1360,11 +1260,8 @@ void Weapon_Knife_Fire(gentity_t * ent)
 // JBravo: ff
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
-	m = fire_knife(ent, muzzle, forward);
-//      m->damage *= s_quadFactor;
-//      m->splashDamage *= s_quadFactor;
-// ^^^^ Homer: got quad?
 
+	m = fire_knife(ent, muzzle, forward);
 }
 
 /*
@@ -1517,7 +1414,6 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 		VectorMA(end, u, up, end);
 	}
 
-	//damage = 100 * s_quadFactor;
 	damage = SNIPER_DAMAGE;
 
 	//VectorMA (muzzle, 8192*16, forward, end);
@@ -1942,12 +1838,10 @@ void Weapon_Grenade_Fire(gentity_t * ent)
 // JBravo: ff
 	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
 		setFFState(ent);
+	
 	m = fire_grenade(ent, muzzle, forward);
-	//Elder: removed
-	//m->damage *= s_quadFactor;
-	//m->splashDamage *= s_quadFactor;
 
-//      VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );      // "real" physics
+	//      VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );      // "real" physics
 
 }
 
@@ -2033,14 +1927,6 @@ FireWeapon
 */
 void FireWeapon(gentity_t * ent)
 {
-	/* Homer: got quad?
-	   if (ent->client->ps.powerups[PW_QUAD] ) {
-	   s_quadFactor = g_quadfactor.value;
-	   } else { */
-	//Elder: uncommented so it won't be zero!
-	s_quadFactor = 1;
-	//}
-
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	//Blaze: dont record accuracy for knife
 //      if( ent->s.weapon != WP_KNIFE) {

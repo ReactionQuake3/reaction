@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/07/22 06:33:04  niceass
+// cleaned up the powerup code
+//
 // Revision 1.84  2002/07/21 18:48:06  niceass
 // weapon prediction stuff
 //
@@ -264,7 +267,6 @@ Check for lava / slime contents and drowning
 */
 void P_WorldEffects(gentity_t * ent)
 {
-	qboolean envirosuit;
 	int waterlevel;
 
 	if (ent->client->noclip) {
@@ -274,16 +276,11 @@ void P_WorldEffects(gentity_t * ent)
 
 	waterlevel = ent->waterlevel;
 
-	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
-
 	//
 	// check for drowning
 	//
 	if (waterlevel == 3) {
-		// envirosuit give air
-		if (envirosuit) {
-			ent->client->airOutTime = level.time + 10000;
-		}
+
 		// if out of air, start drowning
 		if (ent->client->airOutTime < level.time) {
 			// drown!
@@ -320,19 +317,15 @@ void P_WorldEffects(gentity_t * ent)
 	if (waterlevel && (ent->watertype & (CONTENTS_LAVA | CONTENTS_SLIME))) {
 		// Elder: changed around a bit -- using timestamp variable
 		if (ent->health > 0 && level.time > ent->timestamp) {
-			if (envirosuit) {
-				G_AddEvent(ent, EV_POWERUP_BATTLESUIT, 0);
-			} else {
-				if (ent->watertype & CONTENTS_LAVA) {
-					G_Damage(ent, NULL, NULL, NULL, NULL, 3 * waterlevel, 0, MOD_LAVA);
-				}
-
-				if (ent->watertype & CONTENTS_SLIME) {
-					G_Damage(ent, NULL, NULL, NULL, NULL, waterlevel, 0, MOD_SLIME);
-				}
-				// Elder: added
-				ent->timestamp = level.time + FRAMETIME;
+			if (ent->watertype & CONTENTS_LAVA) {
+				G_Damage(ent, NULL, NULL, NULL, NULL, 3 * waterlevel, 0, MOD_LAVA);
 			}
+
+			if (ent->watertype & CONTENTS_SLIME) {
+				G_Damage(ent, NULL, NULL, NULL, NULL, waterlevel, 0, MOD_SLIME);
+			}
+			// Elder: added
+			ent->timestamp = level.time + FRAMETIME;
 		}
 	}
 }
@@ -636,26 +629,9 @@ void ClientTimerActions(gentity_t * ent, int msec)
 	while (client->timeResidual >= 1000) {
 		client->timeResidual -= 1000;
 
-		// regenerate
-		if (client->ps.powerups[PW_REGEN]) {
-			if (ent->health < 100) {	//max health 100 client->ps.stats[STAT_MAX_HEALTH]) {
-				ent->health += 15;
-				if (ent->health > 110) {	//max health is 100x1.1   client->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
-					ent->health = 110;	//max health is 100x1.1 client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			} else if (ent->health < 200) {	//max health is 200 in this case client->ps.stats[STAT_MAX_HEALTH] * 2) {
-				ent->health += 5;
-				if (ent->health > 200) {	// max health is 200 client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-					ent->health = 200;	//max health is 200 client->ps.stats[STAT_MAX_HEALTH] * 2;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-		} else {
-			// count down health when over max
-			if (ent->health > 100) {	//max is 100 client->ps.stats[STAT_MAX_HEALTH] ) {
-				ent->health--;
-			}
+		// count down health when over max
+		if (ent->health > 100) {	//max is 100 client->ps.stats[STAT_MAX_HEALTH] ) {
+			ent->health--;
 		}
 
 		// count down armor when over max
@@ -1086,9 +1062,6 @@ void ClientThink_real(gentity_t * ent)
 	// set speed
 	client->ps.speed = g_speed.value;
 
-	if (client->ps.powerups[PW_HASTE]) {
-		client->ps.speed *= 1.3;
-	}
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/07/22 06:31:47  niceass
+// cleaned up the powerup code
+//
 // Revision 1.12  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -90,17 +93,7 @@
 #define INVENTORY_KAMIKAZE		32
 #define INVENTORY_PORTAL		33
 #define INVENTORY_INVULNERABILITY	34
-#define INVENTORY_QUAD			35
-#define INVENTORY_ENVIRONMENTSUIT	36
-#define INVENTORY_HASTE			37
-#define INVENTORY_INVISIBILITY		38
-#define INVENTORY_REGEN			39
-#define INVENTORY_FLIGHT		40
-#define INVENTORY_SCOUT			41
-#define INVENTORY_GUARD			42
-#define INVENTORY_DOUBLER		43
-#define INVENTORY_AMMOREGEN		44
-
+//
 #define INVENTORY_REDFLAG		45
 #define INVENTORY_BLUEFLAG		46
 #define INVENTORY_NEUTRALFLAG		47

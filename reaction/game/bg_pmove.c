@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/07/22 06:33:58  niceass
+// cleaned up the powerup code
+//
 // Revision 1.86  2002/07/21 18:52:39  niceass
 // weapon prediction stuff
 //
@@ -360,10 +363,6 @@ static void PM_Friction(void)
 	// apply water friction even if just wading
 	if (pm->waterlevel) {
 		drop += speed * pm_waterfriction * pm->waterlevel * pml.frametime;
-	}
-	// apply flying friction
-	if (pm->ps->powerups[PW_FLIGHT]) {
-		drop += speed * pm_flightfriction * pml.frametime;
 	}
 
 	if (pml.ladder)		// If they're on a ladder...
@@ -1399,21 +1398,6 @@ static void PM_CheckDuck(void)
 	trace_t trace;
 	vec3_t point;		// NiceAss: Added for FUNKY CODE ALERT section
 
-	if (pm->ps->powerups[PW_INVULNERABILITY]) {
-		if (pm->ps->pm_flags & PMF_INVULEXPAND) {
-			// invulnerability sphere has a 42 units radius
-			VectorSet(pm->mins, -42, -42, -42);
-			VectorSet(pm->maxs, 42, 42, 42);
-		} else {
-			VectorSet(pm->mins, -15, -15, MINS_Z);
-			VectorSet(pm->maxs, 15, 15, 16);
-		}
-		pm->ps->pm_flags |= PMF_DUCKED;
-		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
-		return;
-	}
-	pm->ps->pm_flags &= ~PMF_INVULEXPAND;
-
 	pm->mins[0] = -15;
 	pm->mins[1] = -15;
 
@@ -1486,10 +1470,6 @@ static void PM_Footsteps(void)
 			   + pm->ps->velocity[1] * pm->ps->velocity[1]);
 
 	if (pm->ps->groundEntityNum == ENTITYNUM_NONE) {
-
-		if (pm->ps->powerups[PW_INVULNERABILITY]) {
-			PM_ContinueLegsAnim(LEGS_IDLECR);
-		}
 		// airborne leaves position in cycle intact, but doesn't advance
 		if (pm->waterlevel > 1) {
 			PM_ContinueLegsAnim(LEGS_SWIM);
@@ -2539,10 +2519,6 @@ static void PM_Weapon(void)
 		break;
 	}
 
-	if (pm->ps->powerups[PW_HASTE]) {
-		addTime /= 1.3;
-	}
-
 	pm->ps->weaponTime += addTime;
 
 	//Auto-switch when out of ammo with grenade or knife
@@ -2938,10 +2914,7 @@ void PmoveSingle(pmove_t * pmove)
 	PM_DropTimers();
 	CheckLadder();		// ARTHUR TOMLIN check and see if they're on a ladder
 
-	if (pm->ps->powerups[PW_FLIGHT]) {
-		// flight powerup doesn't allow jump and has different friction
-		PM_FlyMove();
-	} else if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
+	if (pm->ps->pm_flags & PMF_GRAPPLE_PULL) {
 		PM_GrappleMove();
 		// We can wiggle a bit
 		PM_AirMove();

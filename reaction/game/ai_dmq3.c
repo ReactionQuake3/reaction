@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/07/22 06:34:46  niceass
+// cleaned up the powerup code
+//
 // Revision 1.49  2002/07/02 20:22:35  jbravo
 // Changed the files to use the right ui.
 //
@@ -768,9 +771,7 @@ qboolean EntityIsInvisible(aas_entityinfo_t * entinfo)
 	if (EntityCarriesFlag(entinfo)) {
 		return qfalse;
 	}
-	if (entinfo->powerups & (1 << PW_INVIS)) {
-		return qtrue;
-	}
+
 	return qfalse;
 }
 
@@ -807,9 +808,6 @@ EntityHasQuad
 */
 qboolean EntityHasQuad(aas_entityinfo_t * entinfo)
 {
-	if (entinfo->powerups & (1 << PW_QUAD)) {
-		return qtrue;
-	}
 	return qfalse;
 }
 
@@ -1815,12 +1813,6 @@ void BotUpdateInventory(bot_state_t * bs)
 	bs->inventory[INVENTORY_HEALTH] = bs->cur_ps.stats[STAT_HEALTH];
 	//bs->inventory[INVENTORY_TELEPORTER] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_TELEPORTER;
 	//bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
-	bs->inventory[INVENTORY_QUAD] = bs->cur_ps.powerups[PW_QUAD] != 0;
-	bs->inventory[INVENTORY_ENVIRONMENTSUIT] = bs->cur_ps.powerups[PW_BATTLESUIT] != 0;
-	bs->inventory[INVENTORY_HASTE] = bs->cur_ps.powerups[PW_HASTE] != 0;
-	bs->inventory[INVENTORY_INVISIBILITY] = bs->cur_ps.powerups[PW_INVIS] != 0;
-	bs->inventory[INVENTORY_REGEN] = bs->cur_ps.powerups[PW_REGEN] != 0;
-	bs->inventory[INVENTORY_FLIGHT] = bs->cur_ps.powerups[PW_FLIGHT] != 0;
 	bs->inventory[INVENTORY_REDFLAG] = bs->cur_ps.powerups[PW_REDFLAG] != 0;
 	bs->inventory[INVENTORY_BLUEFLAG] = bs->cur_ps.powerups[PW_BLUEFLAG] != 0;
 
@@ -2143,14 +2135,6 @@ BotAggression
 */
 float BotAggression(bot_state_t * bs)
 {
-	//if the bot has quad
-	if (bs->inventory[INVENTORY_QUAD]) {
-		//if the bot is not holding the gauntlet or the enemy is really nearby
-		//Blaze: Check for knife probably same logic as slashing as gauntlet???
-		if (bs->weaponnum != WP_KNIFE || bs->inventory[ENEMY_HORIZONTAL_DIST] < 80) {
-			return 70;
-		}
-	}
 	//if the enemy is located way higher than the bot
 	if (bs->inventory[ENEMY_HEIGHT] > 200)
 		return 0;
@@ -5173,11 +5157,6 @@ BotCheckAir
 */
 void BotCheckAir(bot_state_t * bs)
 {
-	if (bs->inventory[INVENTORY_ENVIRONMENTSUIT] <= 0) {
-		if (trap_AAS_PointContents(bs->eye) & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) {
-			return;
-		}
-	}
 	bs->lastair_time = FloatTime();
 }
 

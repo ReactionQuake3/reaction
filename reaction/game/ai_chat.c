@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/07/22 06:35:03  niceass
+// cleaned up the powerup code
+//
 // Revision 1.8  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -489,11 +492,7 @@ int BotValidChatPosition(bot_state_t * bs)
 	//if the bot is dead all positions are valid
 	if (BotIsDead(bs))
 		return qtrue;
-	//never start chatting with a powerup
-	if (bs->inventory[INVENTORY_QUAD] ||
-	    bs->inventory[INVENTORY_HASTE] ||
-	    bs->inventory[INVENTORY_INVISIBILITY] || bs->inventory[INVENTORY_REGEN] || bs->inventory[INVENTORY_FLIGHT])
-		return qfalse;
+
 	//must be on the ground
 	//if (bs->cur_ps.groundEntityNum != ENTITYNUM_NONE) return qfalse;
 	//do not chat if in lava or slime

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/07/22 06:30:52  niceass
+// cleaned up the powerup code
+//
 // Revision 1.40  2002/07/11 16:29:16  makro
 // Dust has a different color for snow surfaces now
 //
@@ -1506,11 +1509,7 @@ static void CG_PlayerAnimation(centity_t * cent, int *legsOld, int *legs, float 
 		return;
 	}
 
-	if (cent->currentState.powerups & (1 << PW_HASTE)) {
-		speedScale = 1.5;
-	} else {
-		speedScale = 1;
-	}
+	speedScale = 1;
 
 	ci = &cgs.clientinfo[clientNum];
 
@@ -1798,39 +1797,6 @@ static void CG_HCSmokeTrail(centity_t * cent)
 
 /*
 ===============
-CG_HasteTrail
-===============
-*/
-static void CG_HasteTrail(centity_t * cent)
-{
-	localEntity_t *smoke;
-	vec3_t origin;
-	int anim;
-
-	if (cent->trailTime > cg.time) {
-		return;
-	}
-	anim = cent->pe.legs.animationNumber & ~ANIM_TOGGLEBIT;
-	if (anim != LEGS_RUN && anim != LEGS_BACK) {
-		return;
-	}
-
-	cent->trailTime += 100;
-	if (cent->trailTime < cg.time) {
-		cent->trailTime = cg.time;
-	}
-
-	VectorCopy(cent->lerpOrigin, origin);
-	origin[2] -= 16;
-
-	smoke = CG_SmokePuff(origin, vec3_origin, 8, 1, 1, 1, 1, 500, cg.time, 0, 0, cgs.media.hastePuffShader);
-
-	// use the optimized local entity add
-	smoke->leType = LE_SCALE_FADE;
-}
-
-/*
-===============
 CG_BreathPuffs
 // NiceAss: Used now. No londer MISSIONPACK
 ===============
@@ -2109,15 +2075,6 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	if (!powerups) {
 		return;
 	}
-	// quad gives a dlight
-	if (powerups & (1 << PW_QUAD)) {
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1);
-	}
-	// flight plays a looped sound
-	if (powerups & (1 << PW_FLIGHT)) {
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flightSound);
-	}
-
 	ci = &cgs.clientinfo[cent->currentState.clientNum];
 	// redflag
 	if (powerups & (1 << PW_REDFLAG)) {
@@ -2145,10 +2102,6 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 			CG_TrailItem(cent, cgs.media.neutralFlagModel, torso);
 		}
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 1.0, 1.0);
-	}
-	// haste leaves smoke trails
-	if (powerups & (1 << PW_HASTE)) {
-		CG_HasteTrail(cent);
 	}
 	// Elder: HC Smoke
 	//if ( powerups & ( 1 << PW_HANDCANNON_SMOKED) ) {
@@ -2282,10 +2235,7 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane)
 	if (cg_shadows.integer == 0) {
 		return qfalse;
 	}
-	// no shadows when invisible
-	if (cent->currentState.powerups & (1 << PW_INVIS)) {
-		return qfalse;
-	}
+
 	// send a trace down from the player to the ground
 	VectorCopy(cent->lerpOrigin, end);
 	end[2] -= SHADOW_DISTANCE;
@@ -2413,48 +2363,25 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int team)
 {
 
-	if (state->powerups & (1 << PW_INVIS)) {
-		ent->customShader = cgs.media.invisShader;
-		trap_R_AddRefEntityToScene(ent);
-	} else {
-		/*
-		   if ( state->eFlags & EF_KAMIKAZE ) {
-		   if (team == TEAM_BLUE)
-		   ent->customShader = cgs.media.blueKamikazeShader;
-		   else
-		   ent->customShader = cgs.media.redKamikazeShader;
-		   trap_R_AddRefEntityToScene( ent );
-		   }
-		   else { */
-		trap_R_AddRefEntityToScene(ent);
-		//}
+	/*
+	   if ( state->eFlags & EF_KAMIKAZE ) {
+	   if (team == TEAM_BLUE)
+	   ent->customShader = cgs.media.blueKamikazeShader;
+	   else
+	   ent->customShader = cgs.media.redKamikazeShader;
+	   trap_R_AddRefEntityToScene( ent );
+	   }
+	   else { */
+	trap_R_AddRefEntityToScene(ent);
+	//}
 
-		if (state->powerups & (1 << PW_QUAD)) {
-			if (team == TEAM_RED)
-				ent->customShader = cgs.media.redQuadShader;
-			else
-				ent->customShader = cgs.media.quadShader;
+	//Elder: IR Vision -- only on players that are alive
+	if (state->eType == ET_PLAYER) {
+		if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
+			cg.rq3_irvision && !(state->eFlags & EF_DEAD)) {
+			ent->customShader = cgs.media.irPlayerShader;
 			trap_R_AddRefEntityToScene(ent);
 		}
-		if (state->powerups & (1 << PW_REGEN)) {
-			if (((cg.time / 100) % 10) == 1) {
-				ent->customShader = cgs.media.regenShader;
-				trap_R_AddRefEntityToScene(ent);
-			}
-		}
-		if (state->powerups & (1 << PW_BATTLESUIT)) {
-			ent->customShader = cgs.media.battleSuitShader;
-			trap_R_AddRefEntityToScene(ent);
-		}
-		//Elder: IR Vision -- only on players that are alive
-		if (state->eType == ET_PLAYER) {
-			if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
-			    cg.rq3_irvision && !(state->eFlags & EF_DEAD)) {
-				ent->customShader = cgs.media.irPlayerShader;
-				trap_R_AddRefEntityToScene(ent);
-			}
-		}
-
 	}
 }
 

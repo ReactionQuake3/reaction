@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/07/22 06:31:32  niceass
+// cleaned up the powerup code
+//
 // Revision 1.59  2002/07/19 04:34:48  niceass
 // drawping fixed
 //
@@ -1865,10 +1868,7 @@ static void CG_ScanForCrosshairEntity(void)
 	if (content & CONTENTS_FOG) {
 		return;
 	}
-	// if the player is invisible, don't show it
-	if (cg_entities[trace.entityNum].currentState.powerups & (1 << PW_INVIS)) {
-		return;
-	}
+	
 	// update the fade timer
 	cg.crosshairClientNum = trace.entityNum;
 	cg.crosshairClientTime = cg.time;

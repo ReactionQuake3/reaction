@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/07/22 06:34:13  niceass
+// cleaned up the powerup code
+//
 // Revision 1.43  2002/07/01 02:18:42  jbravo
 // Small fixes to CTB and possible fix for subs and limchasecam
 //
@@ -1158,10 +1161,6 @@ char *eventnames[] = {
 	"EV_OBITUARY_STOMACH",
 	"EV_OBITUARY_LEGS",
 
-	"EV_POWERUP_QUAD",
-	"EV_POWERUP_BATTLESUIT",
-	"EV_POWERUP_REGEN",
-
 	"EV_GIB_PLAYER",	// gib a previously living player
 	"EV_BREAK_GLASS1",	// Blaze: Breakable glass
 	"EV_BREAK_GLASS2",
@@ -1230,10 +1229,7 @@ void BG_TouchJumpPad(playerState_t * ps, entityState_t * jumppad)
 	if (ps->pm_type != PM_NORMAL) {
 		return;
 	}
-	// flying characters don't hit bounce pads
-	if (ps->powerups[PW_FLIGHT]) {
-		return;
-	}
+
 	//Makro - disable all this for bot only triggers
 	if (!jumppad->powerups) {
 		// if we didn't hit this same jumppad the previous frame

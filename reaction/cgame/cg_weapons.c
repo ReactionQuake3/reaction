@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/07/22 06:30:12  niceass
+// cleaned up the powerup code
+//
 // Revision 1.90  2002/07/13 22:42:18  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -1375,22 +1378,7 @@ CG_AddWeaponWithPowerups
 */
 static void CG_AddWeaponWithPowerups(refEntity_t * gun, int powerups)
 {
-	// add powerup effects
-	if (powerups & (1 << PW_INVIS)) {
-		gun->customShader = cgs.media.invisShader;
-		trap_R_AddRefEntityToScene(gun);
-	} else {
-		trap_R_AddRefEntityToScene(gun);
-
-		if (powerups & (1 << PW_BATTLESUIT)) {
-			gun->customShader = cgs.media.battleWeaponShader;
-			trap_R_AddRefEntityToScene(gun);
-		}
-		if (powerups & (1 << PW_QUAD)) {
-			gun->customShader = cgs.media.quadWeaponShader;
-			trap_R_AddRefEntityToScene(gun);
-		}
-	}
+	trap_R_AddRefEntityToScene(gun);
 }
 
 /*
@@ -1749,6 +1737,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 		cent->ejectBrassTime = 0;
 	}
+
 
 	if ( cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		refEntity_t muzzle;
@@ -2715,10 +2704,6 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 	   }
 	 */
 
-	// play quad sound if needed
-	if (cent->currentState.powerups & (1 << PW_QUAD)) {
-		trap_S_StartSound(NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound);
-	}
 	//Elder: silencer stuff
 	if (weapModification == RQ3_WPMOD_SILENCER) {
 		trap_S_StartSound(NULL, ent->number, CHAN_WEAPON, cgs.media.silencerSound);

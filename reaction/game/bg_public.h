@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/07/22 06:33:34  niceass
+// cleaned up the powerup code
+//
 // Revision 1.88  2002/07/21 18:48:24  niceass
 // weapon prediction stuff
 //
@@ -629,7 +632,7 @@ typedef enum {
 #define PMF_GRAPPLE_PULL	2048	// pull towards grapple location
 #define PMF_FOLLOW			4096	// spectate following another player
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
-#define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
+// NiceAss: Room for something right here, value 16384
 #define PMF_RELOAD_HELD		32768	// Elder: new reload code
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
@@ -783,22 +786,9 @@ typedef enum {
 typedef enum {
 	PW_NONE,
 
-	PW_QUAD,
-	PW_BATTLESUIT,
-	PW_HASTE,
-	PW_INVIS,
-	PW_REGEN,
-	PW_FLIGHT,
-
 	PW_REDFLAG,
 	PW_BLUEFLAG,
 	PW_NEUTRALFLAG,
-
-	PW_SCOUT,
-	PW_GUARD,
-	PW_DOUBLER,
-	PW_AMMOREGEN,
-	PW_INVULNERABILITY,
 
 	PW_NUM_POWERUPS
 } powerup_t;
@@ -1087,10 +1077,6 @@ typedef enum {
 	EV_OBITUARY_CHEST,
 	EV_OBITUARY_STOMACH,
 	EV_OBITUARY_LEGS,
-
-	EV_POWERUP_QUAD,
-	EV_POWERUP_BATTLESUIT,
-	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,		// gib a previously living player
 	EV_GIB_PLAYER_HEADSHOT,	// JBravo: for sniper head shots

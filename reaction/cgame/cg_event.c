@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/07/22 06:31:11  niceass
+// cleaned up the powerup code
+//
 // Revision 1.66  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -1336,30 +1339,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		//
 		// powerup events
 		//
-	case EV_POWERUP_QUAD:
-		DEBUGNAME("EV_POWERUP_QUAD");
-		if (es->number == cg.snap->ps.clientNum) {
-			cg.powerupActive = PW_QUAD;
-			cg.powerupTime = cg.time;
-		}
-		trap_S_StartSound(NULL, es->number, CHAN_ITEM, cgs.media.quadSound);
-		break;
-	case EV_POWERUP_BATTLESUIT:
-		DEBUGNAME("EV_POWERUP_BATTLESUIT");
-		if (es->number == cg.snap->ps.clientNum) {
-			cg.powerupActive = PW_BATTLESUIT;
-			cg.powerupTime = cg.time;
-		}
-		trap_S_StartSound(NULL, es->number, CHAN_ITEM, cgs.media.protectSound);
-		break;
-	case EV_POWERUP_REGEN:
-		DEBUGNAME("EV_POWERUP_REGEN");
-		if (es->number == cg.snap->ps.clientNum) {
-			cg.powerupActive = PW_REGEN;
-			cg.powerupTime = cg.time;
-		}
-		trap_S_StartSound(NULL, es->number, CHAN_ITEM, cgs.media.regenSound);
-		break;
 
 	case EV_GIB_PLAYER:
 		DEBUGNAME("EV_GIB_PLAYER");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/07/22 06:32:43  niceass
+// cleaned up the powerup code
+//
 // Revision 1.5  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -813,29 +816,6 @@ void G_RankPickupPowerup(int self, int powerup)
 	}
 
 	trap_RankReportInt(self, -1, QGR_KEY_POWERUP, 1, 1);
-
-	switch (powerup) {
-	case PW_QUAD:
-		trap_RankReportInt(self, -1, QGR_KEY_QUAD, 1, 1);
-		break;
-	case PW_BATTLESUIT:
-		trap_RankReportInt(self, -1, QGR_KEY_SUIT, 1, 1);
-		break;
-	case PW_HASTE:
-		trap_RankReportInt(self, -1, QGR_KEY_HASTE, 1, 1);
-		break;
-	case PW_INVIS:
-		trap_RankReportInt(self, -1, QGR_KEY_INVIS, 1, 1);
-		break;
-	case PW_REGEN:
-		trap_RankReportInt(self, -1, QGR_KEY_REGEN, 1, 1);
-		break;
-	case PW_FLIGHT:
-		trap_RankReportInt(self, -1, QGR_KEY_FLIGHT, 1, 1);
-		break;
-	default:
-		break;
-	}
 }
 
 /*
