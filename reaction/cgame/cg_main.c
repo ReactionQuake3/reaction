@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/02/26 04:02:53  jbravo
+// Getting rid of the triangles over teammates heads by making cg_drawFriend's
+// default 0
+//
 // Revision 1.38  2002/02/04 00:11:12  slicer
 // Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
@@ -320,7 +324,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO },
 	{ &cg_stats, "cg_stats", "0", 0 },
-	{ &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
+	{ &cg_drawFriend, "cg_drawFriend", "0", CVAR_ARCHIVE },
 	{ &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
 	{ &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
