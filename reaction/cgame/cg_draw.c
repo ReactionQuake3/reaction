@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/08/30 06:23:57  niceass
+// disabled wallhack protection #2!!!
+//
 // Revision 1.65  2002/08/29 14:24:26  niceass
 // new wallhack thing
 //
@@ -2496,7 +2499,7 @@ static void CG_DrawIRBlend()
 void CG_DrawBigPolygon(void) {
 	vec3_t		end, forward, right, up;
 	polyVert_t	Corners[4];
-	float	Dist = 12288;
+	float	Dist = 8192;//12288;
 	int		i;
 
 	AngleVectors(cg.refdefViewAngles, forward, right, up);
@@ -2528,6 +2531,8 @@ void CG_DrawBigPolygon(void) {
 		Corners[i].modulate[2] = 255;
 		Corners[i].modulate[3] = 255;
 	}
+
+	//  CS_FOGHULL
 	
 	trap_R_AddPolyToScene(cgs.media.blackHackShader, 4, Corners);
 }
@@ -2574,8 +2579,8 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	CG_TileClear();
 
 	// NiceAss: Wallhack protection
-	if (cg.snap->ps.pm_type == PM_NORMAL)
-		CG_DrawBigPolygon();
+	//if (cg.snap->ps.pm_type == PM_NORMAL)
+	//	CG_DrawBigPolygon();
 
 	// offset vieworg appropriately if we're doing stereo separation
 	VectorCopy(cg.refdef.vieworg, baseOrg);
