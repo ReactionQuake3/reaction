@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/29 21:57:18  niceass
+// shotgun fixes
+//
 // Revision 1.87  2002/06/29 20:56:23  niceass
 // Change to the way HC/Shotty act
 //
@@ -3453,20 +3456,21 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum, int shellWea
 	trace_t tr;
 	int sourceContentType, destContentType;
 
-	int l;
+	int l, playerNum;
 	vec3_t t_start;
 
 	//Makro
 	int Material;
 
 	VectorCopy( start, t_start );
+	playerNum = skipNum;
 
 	// NiceAss: Allow M3/HC shots to go through teammates
 	for (l = 0; l < 10; l++) {
 		CG_Trace(&tr, t_start, NULL, NULL, end, skipNum, MASK_SHOT);
 
-		if (tr.entityNum < MAX_CLIENTS && 
-			cgs.clientinfo[tr.entityNum].team == cg.snap->ps.persistant[PERS_SAVEDTEAM] ) {
+		if (tr.entityNum < MAX_CLIENTS && cgs.gametype >= GT_TEAM &&
+			cgs.clientinfo[tr.entityNum].team == cgs.clientinfo[playerNum].team ) {
 			VectorCopy ( tr.endpos, t_start );
 			skipNum = tr.entityNum;
 			continue;
