@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/06/17 15:27:41  slicer
+// Added the fix for the FOV bug when selecting the ssg at spawn
+//
 // Revision 1.25  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -270,6 +273,12 @@ A respawn happened this snapshot
 */
 void CG_Respawn(void)
 {
+
+	//Slicer: Force Reset the FOV to 90
+
+	cg.zoomLevel = 0;
+	cg.lastZoomLevel = 0;
+
 	//int i=0;
 	//float cvar_val;
 	// no error decay on player movement
