@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/06/17 03:30:33  jbravo
+// More color fixes
+//
 // Revision 1.107  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1955,9 +1958,9 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 
 	if (attacker->client->ff_warning == 0) {
 		attacker->client->ff_warning++;
-		trap_SendServerCommand(victim - g_entities, va("print \"You were hit by %s, your TEAMMATE!\n\"",
+		trap_SendServerCommand(victim - g_entities, va("print \"You were hit by %s^7, your TEAMMATE!\n\"",
 							       attacker->client->pers.netname));
-		trap_SendServerCommand(attacker - g_entities, va("print \"You hit your TEAMMATE %s!\n\"",
+		trap_SendServerCommand(attacker - g_entities, va("print \"You hit your TEAMMATE %s^7!\n\"",
 								 victim->client->pers.netname));
 	}
 	attacker->client->team_wounds = (attacker->client->team_wounds_before + 1);
@@ -1967,7 +1970,7 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 	if (attacker->client->team_wounds < (g_RQ3_maxteamkills.integer * 3)) {
 		return;
 	} else if (attacker->client->team_wounds < (g_RQ3_maxteamkills.integer * 4)) {
-		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for wounding teammates\n\"",
+		trap_SendServerCommand(-1, va("print \"%s^7 is in danger of being banned for wounding teammates\n\"",
 					      attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
@@ -1975,7 +1978,7 @@ void Add_TeamWound(gentity_t * attacker, gentity_t * victim, int mod)
 		return;
 	} else {
 		trap_SendServerCommand(-1,
-				       va("print \"Banning %s for team wounding\n\"", attacker->client->pers.netname));
+				       va("print \"Banning %s^7 for team wounding\n\"", attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
 				       ("print \"You've wounded teammates too many times, and are banned for %d %s.\n\"",
@@ -2007,7 +2010,7 @@ void Add_TeamKill(gentity_t * attacker)
 		trap_SendServerCommand(attacker - g_entities, va("print \"You killed your TEAMMATE!\n\""));
 		return;
 	} else if (attacker->client->team_kills < g_RQ3_maxteamkills.integer) {
-		trap_SendServerCommand(-1, va("print \"%s is in danger of being banned for killing teammates\n\"",
+		trap_SendServerCommand(-1, va("print \"%s^7 is in danger of being banned for killing teammates\n\"",
 					      attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va
@@ -2015,7 +2018,7 @@ void Add_TeamKill(gentity_t * attacker)
 		return;
 	} else {
 		trap_SendServerCommand(-1,
-				       va("print \"Banning %s for team killing\n\"", attacker->client->pers.netname));
+				       va("print \"Banning %s^7 for team killing\n\"", attacker->client->pers.netname));
 		trap_SendServerCommand(attacker - g_entities,
 				       va("print \"You've killed too many teammates, and are banned for %d %s.\n",
 					  g_RQ3_tkbanrounds.integer,
@@ -2043,7 +2046,7 @@ void RQ3_Cmd_TKOk(gentity_t * ent)
 		if (ent->enemy->client->team_kills) {
 			trap_SendServerCommand(ent - g_entities, va("print \"You forgave %s\n\"",
 								    ent->enemy->client->pers.netname));
-			trap_SendServerCommand(ent->enemy - g_entities, va("print \"%s forgave you\n",
+			trap_SendServerCommand(ent->enemy - g_entities, va("print \"%s^7 forgave you\n",
 									   ent->client->pers.netname));
 			ent->enemy->client->team_kills--;
 			if (ent->enemy->client->team_wounds)
@@ -2052,7 +2055,7 @@ void RQ3_Cmd_TKOk(gentity_t * ent)
 		}
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"That's very noble of you...\n\""));
-		trap_SendServerCommand(-1, va("print \"%s turned the other cheek\n\"", ent->client->pers.netname));
+		trap_SendServerCommand(-1, va("print \"%s^7 turned the other cheek\n\"", ent->client->pers.netname));
 	}
 
 	ent->enemy = NULL;
@@ -2127,9 +2130,9 @@ void RQ3_AddOrDelIgnoreSubject(gentity_t * source, gentity_t * subject, qboolean
 		//subject is in ignore list, so delete it
 		source->client->sess.ignorelist[i] = NULL;
 		if (!silent) {
-			trap_SendServerCommand(source - g_entities, va("print \"%s was removed from ignore list.\n\"",
+			trap_SendServerCommand(source - g_entities, va("print \"%s^7 was removed from ignore list.\n\"",
 								       subject->client->pers.netname));
-			trap_SendServerCommand(subject - g_entities, va("print \"%s is no longer ignoring you.\n\"",
+			trap_SendServerCommand(subject - g_entities, va("print \"%s^7 is no longer ignoring you.\n\"",
 									source->client->pers.netname));
 		}
 		source->client->sess.ignore_time = level.framenum;
@@ -2146,10 +2149,10 @@ void RQ3_AddOrDelIgnoreSubject(gentity_t * source, gentity_t * subject, qboolean
 			source->client->sess.ignorelist[i] = subject;
 			if (!silent) {
 				trap_SendServerCommand(source - g_entities,
-						       va("print \"%s was added to ignore list.\n\"",
+						       va("print \"%s^7 was added to ignore list.\n\"",
 							  subject->client->pers.netname));
 				trap_SendServerCommand(subject - g_entities,
-						       va("print \"%s ignores you.\n\"", source->client->pers.netname));
+						       va("print \"%s^7 ignores you.\n\"", source->client->pers.netname));
 			}
 		}
 	}
@@ -2280,6 +2283,6 @@ void Cmd_Playerlist_f(gentity_t * ent)
 		other = &g_entities[i];
 		if (!other->inuse || !other->client)
 			continue;
-		trap_SendServerCommand(ent - g_entities, va("print \"%i - %s\n\"", i, other->client->pers.netname));
+		trap_SendServerCommand(ent - g_entities, va("print \"%i - %s^7\n\"", i, other->client->pers.netname));
 	}
 }
