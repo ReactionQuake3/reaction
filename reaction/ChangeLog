@@ -12,7 +12,7 @@
 * cg_tracerchance now can be adjusted. Anything above 0.4 is capped internally. For fo0d, basically.
 * Fixed semi-auto pistol w/ predictweapons set to 0 bug. Also made predictweapons predict less when set to 0 (even more like Quake 2).
 * Bug with in-game server browser fixed that caused most RQ3 servers to be filtered out.
-
+* "Drop case" added.
 
 # List fixes here for the 2.2 release
 
