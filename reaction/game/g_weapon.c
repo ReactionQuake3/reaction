@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/31 19:15:21  makro
+// Door kicking - ignore doors with targetnames
+//
 // Revision 1.39  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -224,6 +227,8 @@ qboolean JumpKick( gentity_t *ent )
 	return qtrue;
 }
 
+//qboolean Ent_DoorFront( trace_t *trIn
+
 qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward )
 {
 	gentity_t *traceEnt;
@@ -251,7 +256,7 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 		if (traceEnt->moverState == ROTATOR_1TO2 || traceEnt->moverState == ROTATOR_POS2) {
 			ok = !ok;
 		}
-		if ( ok )
+		if ( ok && !(traceEnt->targetname) )
 		{
 			//Cmd_OpenDoor( ent );
 			//Makro - Cmd_OpenDoor opens ALL the doors near the kicked one
