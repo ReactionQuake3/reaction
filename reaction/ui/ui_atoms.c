@@ -422,6 +422,8 @@ static int propMapB[26][3] = {
 #define PROPB_SPACE_WIDTH	12
 #define PROPB_HEIGHT		36
 
+// bk001205 - code below duplicated in cgame/cg_drawtools.c
+// bk001205 - FIXME: does this belong in ui_shared.c?
 /*
 =================
 UI_DrawBannerString
@@ -430,7 +432,7 @@ UI_DrawBannerString
 static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 {
 	const char* s;
-	char	ch;
+	unsigned char	ch; // bk001204 - unsigned
 	float	ax;
 	float	ay;
 	float	aw;
@@ -540,10 +542,10 @@ int UI_ProportionalStringWidth( const char* str ) {
 static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset )
 {
 	const char* s;
-	char	ch;
+	unsigned char	ch; // bk001204 - unsigned
 	float	ax;
 	float	ay;
-	float	aw;
+	float	aw = 0; // bk001204 - init
 	float	ah;
 	float	frow;
 	float	fcol;
@@ -829,6 +831,8 @@ static void NeedCDKeyAction( qboolean result ) {
 	}
 }
 
+// bk001205 - for LCC
+typedef void (*voidfunc_f)(void);
 
 void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	// this should be the ONLY way the menu system is brought up
@@ -843,10 +847,10 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		UI_MainMenu();
 		return;
 	case UIMENU_NEED_CD:
-		UI_ConfirmMenu( "Insert the CD", NULL, NeedCDAction );
+		UI_ConfirmMenu( "Insert the CD", (voidfunc_f)NULL, NeedCDAction );
 		return;
 	case UIMENU_BAD_CD_KEY:
-		UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
+		UI_ConfirmMenu( "Bad CD Key", (voidfunc_f)NULL, NeedCDKeyAction );
 		return;
 	case UIMENU_INGAME:
 		/*
@@ -857,6 +861,15 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		trap_Cvar_Set( "cl_paused", "1" );
 		UI_InGameMenu();
 		return;
+		
+	// bk001204
+	case UIMENU_TEAM:
+	case UIMENU_POSTGAME:
+	default:
+#ifndef NDEBUG
+	  Com_Printf("UI_SetActiveMenu: bad enum %d\n", menu );
+#endif
+	  break;
 	}
 }
 

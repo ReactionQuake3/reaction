@@ -13,7 +13,7 @@ MULTIPLAYER MENU (SERVER BROWSER)
 
 
 #define MAX_GLOBALSERVERS		128
-#define MAX_PINGREQUESTS		16
+#define MAX_PINGREQUESTS		32
 #define MAX_ADDRESSLENGTH		64
 #define MAX_HOSTNAMELENGTH		22
 #define MAX_MAPNAMELENGTH		16
@@ -39,7 +39,6 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define ART_UNKNOWNMAP			"menu/art/unknownmap"
 #define ART_REMOVE0				"menu/art/delete_0"
 #define ART_REMOVE1				"menu/art/delete_1"
-#define GLOBALRANKINGS_LOGO		"menu/art/gr/grlogo"
 
 #define ID_MASTER			10
 #define ID_GAMETYPE			11
@@ -127,7 +126,6 @@ static char* netnames[] = {
 };
 
 static char quake3worldMessage[] = "Visit www.quake3world.com - News, Community, Events, Files";
-static char globalRankingsMessage[] = "Visit www.globalrankings.com - you kick ass, we'll take names";
 
 typedef struct {
 	char	adrstr[MAX_ADDRESSLENGTH];
@@ -136,7 +134,7 @@ typedef struct {
 
 typedef struct servernode_s {
 	char	adrstr[MAX_ADDRESSLENGTH];
-	char	hostname[MAX_HOSTNAMELENGTH];
+	char	hostname[MAX_HOSTNAMELENGTH+3];
 	char	mapname[MAX_MAPNAMELENGTH];
 	int		numclients;
 	int		maxclients;
@@ -199,12 +197,6 @@ typedef struct {
 	int					refreshtime;
 	char				favoriteaddresses[MAX_FAVORITESERVERS][MAX_ADDRESSLENGTH];
 	int					numfavoriteaddresses;
-
-
-	menubitmap_s	grlogo;
-	menubitmap_s	grletters;
-	menutext_s		league;
-	menutext_s		practice;
 
 } arenaservers_t;
 
@@ -383,9 +375,6 @@ static void ArenaServers_UpdateMenu( void ) {
 			}
 			else {
 				g_arenaservers.statusbar.string = "";
-			}
-			if (!(g_arenaservers.grlogo.generic.flags & QMF_HIDDEN)) {
-				g_arenaservers.statusbar.string = globalRankingsMessage;
 			}
 
 		}
@@ -626,6 +615,9 @@ static void ArenaServers_Insert( char* adrstr, char* info, int pingtime )
 	servernodeptr->pingtime   = pingtime;
 	servernodeptr->minPing    = atoi( Info_ValueForKey( info, "minPing") );
 	servernodeptr->maxPing    = atoi( Info_ValueForKey( info, "maxPing") );
+	if (atoi( Info_ValueForKey( info, "sv_allowAnonymous")) != 0 ) {
+		Com_sprintf(servernodeptr->hostname, MAX_HOSTNAMELENGTH, "(A)%s", servernodeptr->hostname);
+	}
 
 	/*
 	s = Info_ValueForKey( info, "nettype" );
@@ -654,7 +646,7 @@ static void ArenaServers_Insert( char* adrstr, char* info, int pingtime )
 		i = 12;
 	}
 	if( *s ) {
-		servernodeptr->gametype = -1;
+		servernodeptr->gametype = i;//-1;
 		Q_strncpyz( servernodeptr->gamename, s, sizeof(servernodeptr->gamename) );
 	}
 	else {
@@ -842,7 +834,7 @@ static void ArenaServers_DoRefresh( void )
 	}
 
 	// trigger at 10Hz intervals
-	g_arenaservers.nextpingtime = uis.realtime + 50;
+	g_arenaservers.nextpingtime = uis.realtime + 10;
 
 	// process ping results
 	maxPing = ArenaServers_MaxPing();
@@ -1269,7 +1261,7 @@ static void ArenaServers_MenuInit( void ) {
 	int			type;
 	int			y;
 	static char	statusbuffer[MAX_STATUSLENGTH];
-	static char leaguebuffer[MAX_LEAGUELENGTH];
+//	static char leaguebuffer[MAX_LEAGUELENGTH]; // TTimo: unused
 
 	// zero set all our globals
 	memset( &g_arenaservers, 0 ,sizeof(arenaservers_t) );
@@ -1330,36 +1322,6 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.exitm.string			= "EXIT";
 	g_arenaservers.exitm.color			= color_red;
 	g_arenaservers.exitm.style			= UI_CENTER | UI_DROPSHADOW;
-	
-	g_arenaservers.grlogo.generic.type  = MTYPE_BITMAP;
-	g_arenaservers.grlogo.generic.name  = GLOBALRANKINGS_LOGO;
-	g_arenaservers.grlogo.generic.flags = QMF_INACTIVE|QMF_HIDDEN;
-	g_arenaservers.grlogo.generic.x		= 530;
-	g_arenaservers.grlogo.generic.y		= 40;
-	g_arenaservers.grlogo.width			= 32;
-	g_arenaservers.grlogo.height		= 64;
-	
-	
-	g_arenaservers.league.generic.type		= MTYPE_TEXT;
-	g_arenaservers.league.generic.flags		= QMF_HIDDEN;
-	g_arenaservers.league.generic.x			= g_arenaservers.grlogo.generic.x +
-											  (g_arenaservers.grlogo.width / 2);
-	g_arenaservers.league.generic.y			= g_arenaservers.grlogo.generic.y +
-											  g_arenaservers.grlogo.height + 2;
-	g_arenaservers.league.string			= leaguebuffer;
-	g_arenaservers.league.style				= UI_CENTER|UI_SMALLFONT;
-	g_arenaservers.league.color				= menu_text_color;
-	
-
-	g_arenaservers.practice.generic.type	= MTYPE_TEXT;
-	g_arenaservers.practice.generic.flags	= QMF_HIDDEN;
-	g_arenaservers.practice.generic.x		= g_arenaservers.grlogo.generic.x +
-											  (g_arenaservers.grlogo.width / 2);
-	g_arenaservers.practice.generic.y		= g_arenaservers.grlogo.generic.y + 6;
-	g_arenaservers.practice.string			= "practice";
-	g_arenaservers.practice.style			= UI_CENTER|UI_SMALLFONT;
-	g_arenaservers.practice.color			= menu_text_color;
-	
 	
 	y = 80;
 	g_arenaservers.master.generic.type			= MTYPE_SPINCONTROL;
@@ -1550,10 +1512,6 @@ static void ArenaServers_MenuInit( void ) {
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.modsm );
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.exitm );
 
-	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.grlogo );
-	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.league );
-	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.practice );
-
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.master );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.gametype );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.sortkey );
@@ -1621,8 +1579,6 @@ void ArenaServers_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_ARROWS_UP );
 	trap_R_RegisterShaderNoMip( ART_ARROWS_DOWN );
 	trap_R_RegisterShaderNoMip( ART_UNKNOWNMAP );
-
-	trap_R_RegisterShaderNoMip( GLOBALRANKINGS_LOGO );
 }
 
 

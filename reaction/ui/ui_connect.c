@@ -63,6 +63,15 @@ static void UI_DisplayDownloadInfo( const char *downloadName ) {
 	downloadCount = trap_Cvar_VariableValue( "cl_downloadCount" );
 	downloadTime = trap_Cvar_VariableValue( "cl_downloadTime" );
 
+#if 0 // bk010104
+	fprintf( stderr, "\n\n-----------------------------------------------\n");
+	fprintf( stderr, "DB: downloadSize:  %16d\n", downloadSize );
+	fprintf( stderr, "DB: downloadCount: %16d\n", downloadCount );
+	fprintf( stderr, "DB: downloadTime:  %16d\n", downloadTime );  
+  	fprintf( stderr, "DB: UI realtime:   %16d\n", uis.realtime );	// bk
+	fprintf( stderr, "DB: UI frametime:  %16d\n", uis.frametime );	// bk
+#endif
+
 	leftWidth = width = UI_ProportionalStringWidth( dlText ) * UI_ProportionalSizeScale( style );
 	width = UI_ProportionalStringWidth( etaText ) * UI_ProportionalSizeScale( style );
 	if (width > leftWidth) leftWidth = width;
@@ -90,11 +99,20 @@ static void UI_DisplayDownloadInfo( const char *downloadName ) {
 		UI_DrawProportionalString( leftWidth, 192, 
 			va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white );
 	} else {
+	  // bk010108
+	  //float elapsedTime = (float)(uis.realtime - downloadTime); // current - start (msecs)
+	  //elapsedTime = elapsedTime * 0.001f; // in seconds
+	  //if ( elapsedTime <= 0.0f ) elapsedTime == 0.0f;
 		if ((uis.realtime - downloadTime) / 1000) {
 			xferRate = downloadCount / ((uis.realtime - downloadTime) / 1000);
+		  //xferRate = (int)( ((float)downloadCount) / elapsedTime);
 		} else {
 			xferRate = 0;
 		}
+
+	  //fprintf( stderr, "DB: elapsedTime:  %16.8f\n", elapsedTime );	// bk
+	  //fprintf( stderr, "DB: xferRate:   %16d\n", xferRate );	// bk
+
 		UI_ReadableSize( xferRateBuf, sizeof xferRateBuf, xferRate );
 
 		// Extrapolate estimated completion time
@@ -102,8 +120,10 @@ static void UI_DisplayDownloadInfo( const char *downloadName ) {
 			int n = downloadSize / xferRate; // estimated time for entire d/l in secs
 
 			// We do it in K (/1024) because we'd overflow around 4MB
-			UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf, 
-				(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
+			n = (n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000;
+			
+			UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf, n ); // bk010104
+				//(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
 			UI_DrawProportionalString( leftWidth, 160, 
 				dlTimeBuf, style, color_white );

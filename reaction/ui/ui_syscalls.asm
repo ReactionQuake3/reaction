@@ -62,8 +62,8 @@ equ	trap_PC_LoadSource						-59
 equ trap_PC_FreeSource						-60
 equ trap_PC_ReadToken						-61
 equ trap_PC_SourceFileAndLine				-62
-equ trap_S_StartBackgroundTrack				-63
-equ trap_S_StopBackgroundTrack				-64
+equ trap_S_StopBackgroundTrack				-63
+equ trap_S_StartBackgroundTrack				-64
 equ trap_RealTime							-65
 equ trap_LAN_GetServerCount					-66
 equ trap_LAN_GetServerAddressString			-67
@@ -86,7 +86,6 @@ equ trap_LAN_ServerStatus					-83
 equ trap_LAN_GetServerPing					-84
 equ trap_LAN_ServerIsVisible				-85
 equ trap_LAN_CompareServers					-86
-
 
 
 equ	memset					-101

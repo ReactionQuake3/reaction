@@ -101,6 +101,7 @@ static void UI_Mods_ParseInfos( char *modDir, char *modDesc ) {
 }
 
 
+#if 0 // bk001204 - unused
 /*
 ===============
 UI_Mods_LoadModsFromFile
@@ -133,6 +134,7 @@ static void UI_Mods_LoadModsFromFile( char *filename ) {
 
 	UI_Mods_ParseInfos( filename, buf );
 }
+#endif
 
 
 /*

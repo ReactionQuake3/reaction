@@ -81,6 +81,9 @@ static void InGame_QuitAction( qboolean result ) {
 InGame_Event
 =================
 */
+// bk001205 - for LCC
+typedef void (*voidfunc_f)(void);
+
 void InGame_Event( void *ptr, int notification ) {
 	if( notification != QM_ACTIVATED ) {
 		return;
@@ -100,11 +103,11 @@ void InGame_Event( void *ptr, int notification ) {
 		break;
 
 	case ID_RESTART:
-		UI_ConfirmMenu( "RESTART ARENA?", NULL, InGame_RestartAction );
+		UI_ConfirmMenu( "RESTART ARENA?", (voidfunc_f)NULL, InGame_RestartAction );
 		break;
 
 	case ID_QUIT:
-		UI_ConfirmMenu( "EXIT GAME?", NULL, InGame_QuitAction );
+		UI_ConfirmMenu( "EXIT GAME?",  (voidfunc_f)NULL, InGame_QuitAction );
 		break;
 
 	case ID_SERVERINFO:
@@ -314,7 +317,7 @@ void InGame_Cache( void ) {
 /*
 =================
 UI_InGameMenu
-=====================
+=================
 */
 void UI_InGameMenu( void ) {
 	// force as top level menu

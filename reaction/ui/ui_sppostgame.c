@@ -312,6 +312,11 @@ static void UI_SPPostgameMenu_MenuDraw( void ) {
 	if( postgameMenuInfo.phase == 2 ) {
 		timer = uis.realtime - postgameMenuInfo.starttime;
 		if( timer >= ( postgameMenuInfo.numAwards * AWARD_PRESENTATION_TIME ) ) {
+
+			if( timer < 5000 ) {
+				return;
+			}
+
 			postgameMenuInfo.phase = 3;
 			postgameMenuInfo.starttime = uis.realtime;
 		}
@@ -392,8 +397,8 @@ void UI_SPPostgameMenu_Cache( void ) {
 	}
 
 	if( buildscript ) {
-		trap_S_RegisterSound( "music music/loss.wav", qfalse );
-		trap_S_RegisterSound( "music music/win.wav", qfalse );
+		trap_S_RegisterSound( "music/loss.wav", qfalse );
+		trap_S_RegisterSound( "music/win.wav", qfalse );
 		trap_S_RegisterSound( "sound/player/announce/youwin.wav", qfalse );
 	}
 }

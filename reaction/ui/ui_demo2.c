@@ -85,7 +85,8 @@ static void Demos_MenuEvent( void *ptr, int event ) {
 	switch( ((menucommon_s*)ptr)->id ) {
 	case ID_GO:
 		UI_ForceMenuOff ();
-		trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo %s.dm3\n", s_demos.list.itemnames[s_demos.list.curvalue] ) );
+		trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo %s\n",
+								s_demos.list.itemnames[s_demos.list.curvalue]) );
 		break;
 
 	case ID_BACK:
@@ -143,7 +144,7 @@ Demos_MenuInit
 static void Demos_MenuInit( void ) {
 	int		i;
 	int		len;
-	char	*demoname;
+	char	*demoname, extension[32];
 
 	memset( &s_demos, 0 ,sizeof(demos_t) );
 	s_demos.menu.key = UI_DemosMenu_Key;
@@ -297,7 +298,8 @@ static void Demos_MenuInit( void ) {
 	s_demos.list.generic.y			= 64;
 	s_demos.list.width				= 16;
 	s_demos.list.height				= 14;
-	s_demos.list.numitems			= trap_FS_GetFileList( "demos", "dm3", s_demos.names, NAMEBUFSIZE );
+	Com_sprintf(extension, sizeof(extension), "dm_%d", (int)trap_Cvar_VariableValue( "protocol" ) );
+	s_demos.list.numitems			= trap_FS_GetFileList( "demos", extension, s_demos.names, NAMEBUFSIZE );
 	s_demos.list.itemnames			= (const char **)s_demos.demolist;
 	s_demos.list.columns			= 3;
 
