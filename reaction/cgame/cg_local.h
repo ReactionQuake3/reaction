@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/07/08 04:25:29  niceass
+// removed deaths
+//
 // Revision 1.104  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -532,7 +535,6 @@ typedef struct localEntity_s {
 typedef struct {
 	int client;
 	int score;
-	int deaths;
 	int damage;
 	int alive;
 	int ping;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/07/08 04:28:55  niceass
+// removed deaths
+//
 // Revision 1.55  2002/07/02 20:22:35  jbravo
 // Changed the files to use the right ui.
 //
@@ -198,18 +201,17 @@ static void CG_ParseScores(void)
 	memset(cg.scores, 0, sizeof(cg.scores));
 	for (i = 0; i < cg.numScores; i++) {
 		//Elder: Leave as-is ... sent zeros by server
-		cg.scores[i].client = atoi(CG_Argv(i * 12 + 8));
-		cg.scores[i].score = atoi(CG_Argv(i * 12 + 9));
-		cg.scores[i].ping = atoi(CG_Argv(i * 12 + 10));
-		cg.scores[i].time = atoi(CG_Argv(i * 12 + 11));
-		cg.scores[i].scoreFlags = atoi(CG_Argv(i * 12 + 12));
-		powerups = atoi(CG_Argv(i * 12 + 13));
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 12 + 14));
-		cg.scores[i].deaths = atoi(CG_Argv(i * 12 + 15));
-		cg.scores[i].damage = atoi(CG_Argv(i * 12 + 16));
-		cg.scores[i].alive = atoi(CG_Argv(i * 12 + 17));
-		cg.scores[i].captain = atoi(CG_Argv(i * 12 + 18));
-		cg.scores[i].sub = atoi(CG_Argv(i * 12 + 19));
+		cg.scores[i].client = atoi(CG_Argv(i * 11 + 8));
+		cg.scores[i].score = atoi(CG_Argv(i * 11 + 9));
+		cg.scores[i].ping = atoi(CG_Argv(i * 11 + 10));
+		cg.scores[i].time = atoi(CG_Argv(i * 11 + 11));
+		cg.scores[i].scoreFlags = atoi(CG_Argv(i * 11 + 12));
+		powerups = atoi(CG_Argv(i * 11 + 13));
+		cg.scores[i].accuracy = atoi(CG_Argv(i * 11 + 14));
+		cg.scores[i].damage = atoi(CG_Argv(i * 11 + 15));
+		cg.scores[i].alive = atoi(CG_Argv(i * 11 + 16));
+		cg.scores[i].captain = atoi(CG_Argv(i * 11 + 17));
+		cg.scores[i].sub = atoi(CG_Argv(i * 11 + 18));
 
 		if (cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS) {
 			cg.scores[i].client = 0;
