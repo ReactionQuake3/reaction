@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/09/01 21:15:47  makro
+// no message
+//
 // Revision 1.15  2002/08/26 00:41:52  makro
 // Presets menu + editor
 //
@@ -518,6 +521,7 @@ qboolean UI_ConsoleCommand(int realTime)
 	}
 */
 
+	/*
 	if (Q_stricmp(cmd, "error") == 0) {
 		if (trap_Cvar_VariableValue("developer") == 1) {
 			char text[MAX_CVAR_VALUE_STRING];
@@ -525,22 +529,18 @@ qboolean UI_ConsoleCommand(int realTime)
 			memset(text, 0, sizeof(text));
 
 			if (trap_Argc() == 1) {
-				//Q_strcat(text, sizeof(text), "INFO: Testing error menu. Type 'error [msg]' in the console with developer set to 1 to see this screen");
+				//Q_strcat(text, sizeof(text), "INFO: Testing error menu. Type 'error [msg]' in the console to see this screen. This command is only available when developer is set to 1");
 				Q_strcat(text, sizeof(text),
-					 "Could not download \"maps/reactionmall.pk3\" because autodownloading is disabled on the server\n\nThe server you are connecting to is not a pure server, set autodownload to No in your settings and you might be able to join the game anyway.\n");
+					 "Could not download \"maps/longmapname.pk3\" because autodownloading is disabled on the server\n\nThe server you are connecting to is not a pure server, set autodownload to No in your settings and you might be able to join the game anyway.\n");
 			} else {
-				Q_strncpyz(text, UI_Argv(1), sizeof(text));
+				Q_strncpyz(text, ConcatArgs(1), sizeof(text));
 			}
 
 			Com_Error(ERR_DROP, text);
 			return qtrue;
 		}
 	}
-
-	if (Q_stricmp(cmd, "serverinfo2") == 0) {
-		UI_BuildIngameServerInfoList();
-		return qtrue;
-	}
+	*/
 
 	return qfalse;
 }
