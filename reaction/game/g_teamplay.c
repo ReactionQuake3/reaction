@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/31 18:36:27  jbravo
+// Added $T (Near by teammates)
+//
 // Revision 1.49  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1277,7 +1280,51 @@ void GetLastDamagedPart (gentity_t * self, char * buf)
 	}
 }
 
-void ParseSayText (gentity_t * ent, char *text)
+#define MAXNEAR 10
+void GetNearbyTeammates (gentity_t *self, char *buf)
+{
+	char		nearby_teammates[MAXNEAR][MAX_NAME_LENGTH];
+	int		nearby_teammates_num, l;
+	gentity_t	*ent;
+
+	nearby_teammates_num = 0;
+
+	while ((ent = findradius (ent, self->s.origin, 1500)) != NULL) {
+		if (ent == self || !ent->client || !CanDamage (self, ent->r.currentOrigin) ||
+				(ent->client->sess.sessionTeam != self->client->sess.sessionTeam))
+			continue;
+		strncpy (nearby_teammates[nearby_teammates_num],
+				ent->client->pers.netname, MAX_NAME_LENGTH - 1);
+		nearby_teammates[nearby_teammates_num][MAX_NAME_LENGTH - 1] = 0;
+		nearby_teammates_num++;
+		if (nearby_teammates_num >= MAXNEAR)
+			break;
+	}
+	if (nearby_teammates_num == 0) {
+		strcpy (buf, "nobody");
+		return;
+	}
+	for (l = 0; l < nearby_teammates_num; l++) {
+		if (l == 0) {
+			strcpy (buf, nearby_teammates[l]);
+		} else {
+			if (nearby_teammates_num == 2) {
+				strcat (buf, "^5 and ");
+				strcat (buf, nearby_teammates[l]);
+			} else {
+				if (l == (nearby_teammates_num - 1)) {
+					strcat (buf, "^5, and ");
+					strcat (buf, nearby_teammates[l]);
+				} else {
+					strcat (buf, "^5, ");
+					strcat (buf, nearby_teammates[l]);
+				}
+			}
+		}
+	}
+}
+
+void ParseSayText (gentity_t *ent, char *text)
 {
 	static char buf[1024], infobuf[1024];
 	char *p, *pbuf;
@@ -1328,7 +1375,19 @@ void ParseSayText (gentity_t * ent, char *text)
 				pbuf = SeekBufEnd (pbuf);
 				p += 2;
 				continue;
-/*			case 'P':
+			case 'T':
+				GetNearbyTeammates (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+/*			case 'S':
+				GetSightedLocation (ent, infobuf);
+				strcpy (pbuf, infobuf);
+				pbuf = SeekBufEnd (pbuf);
+				p += 2;
+				continue;
+			case 'P':
 				GetLastDamagedPlayers (ent, infobuf);
 				strcpy (pbuf, infobuf);
 				pbuf = SeekBufEnd (pbuf);
