@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/02/26 20:55:00  jbravo
+// No more bubbles over dead players corpses
+//
 // Revision 1.16  2002/01/30 07:37:25  niceass
 // EnableBreath added for mappers (TA thing)
 //
@@ -2148,7 +2151,8 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		return;
 	}
 
-	if ( cent->currentState.eFlags & EF_TALK ) {
+// JBravo: stopping talk bubbles appearing over dead peoples heads
+	if ((cent->currentState.eFlags & EF_TALK) && !(cent->currentState.eFlags & EF_DEAD)) {
 		CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
 		return;
 	}
