@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/05/24 18:41:34  makro
+// Loading screen
+//
 // Revision 1.16  2002/05/02 23:04:59  makro
 // Loading screen. Jump kicks
 //
@@ -162,10 +165,14 @@ CG_DrawInformation
 Draw all the status / pacifier stuff during level loading
 ====================
 */
+#define LOADING_SCREEN_TOPMARGIN		64
+#define LOADING_SCREEN_BOTTOMMARGIN		32
+
 void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info;
 	const char	*sysInfo;
+	const char	*line;
 	int			x = 8;
 	int			y;
 	int			value;
@@ -198,7 +205,6 @@ void CG_DrawInformation( void ) {
 		//Elder: changed
 		levelshot = trap_R_RegisterShaderNoMip( "levelshots/rq3-unknownmap.tga" );
 		skipdetail = qtrue;
-		//levelshot = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
 	trap_R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
@@ -212,15 +218,16 @@ void CG_DrawInformation( void ) {
 
 	//Elder: "Letterbox" mask
 	//Makro - changed it a bit
-	CG_FillRect( 0, 0, SCREEN_WIDTH, 56, colorBlack);
-	CG_FillRect( 0, 426, SCREEN_WIDTH, 54, colorBlack);
-	CG_FillRect( 0, 56, SCREEN_WIDTH, 2, colorMdGrey);
-	CG_FillRect( 0, 426, SCREEN_WIDTH, 2, colorMdGrey);
+	CG_FillRect( 0, 0, SCREEN_WIDTH, LOADING_SCREEN_TOPMARGIN, colorBlack);
+	CG_FillRect( 0, LOADING_SCREEN_TOPMARGIN, SCREEN_WIDTH, 2, colorMdGrey);
+	CG_FillRect( 0, SCREEN_HEIGHT - LOADING_SCREEN_BOTTOMMARGIN, SCREEN_WIDTH, LOADING_SCREEN_BOTTOMMARGIN, colorBlack);
+	CG_FillRect( 0, SCREEN_HEIGHT - LOADING_SCREEN_BOTTOMMARGIN - 2, SCREEN_WIDTH, 2, colorMdGrey);
 	//Makro - shadow
-	CG_DrawPic( 0, 58, 640, 12, shadow );
+	CG_DrawPic( 0, LOADING_SCREEN_TOPMARGIN + 2, 640, 12, shadow );
 
 	//Elder: mapname
-	UI_DrawProportionalString(x, 26, s, UI_LEFT|UI_DROPSHADOW, colorDkGrey);
+	//Makro - removed
+	//UI_DrawProportionalString(x, 26, s, UI_LEFT|UI_DROPSHADOW, colorDkGrey);
 	//CG_DrawBigStringColor(4, 24, s, color_red);
 
 	//Elder: removed
@@ -229,33 +236,25 @@ void CG_DrawInformation( void ) {
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
+	y = SCREEN_HEIGHT - (int) (0.5 * (LOADING_SCREEN_BOTTOMMARGIN + SMALLCHAR_HEIGHT));
 	if ( cg.infoScreenText[0] ) {
-		//UI_DrawProportionalString( 320, 128-32, va("Loading... %s", cg.infoScreenText),
-			//UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		CG_DrawSmallStringColor(x, 434, va("LOADING... %s", Q_strupr(cg.infoScreenText)), colorWhite);
+		CG_DrawSmallStringColor(x, y, va("LOADING... %s", Q_strupr(cg.infoScreenText)), colorWhite);
 	} else {
-		//UI_DrawProportionalString( 320, 128-32, "Awaiting snapshot...",
-			//UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		CG_DrawSmallStringColor( x, 434, "AWAITING SNAPSHOT...", colorWhite);
+		CG_DrawSmallStringColor( x, y, "AWAITING SNAPSHOT...", colorWhite);
 	}
 
 	// draw info string information
 
-	//y = 180-32;
 	//Elder: Initial y-position
-	y = 96;
+	y = 8;
 
 	// map-specific message (long map name)
 	s = CG_ConfigString( CS_MESSAGE );
 	if ( s[0] ) {
-		//UI_DrawProportionalString( 4, y, s,
-			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		//Q_strncpyz(buf, s, 1024);
-		//Q_CleanStr(buf);
-		
 		//Makro - allow color-coded texts; also changed to use custom color instead of colorLtGrey
 		//CG_DrawSmallStringColor(x, y, s, colorMdGrey);
 		CG_DrawStringExt(x, y, s, color1, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		//CG_DrawStringExt(x, y, s, colorWhite, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 
 		y += SMALLCHAR_HEIGHT;
 	}
@@ -267,8 +266,6 @@ void CG_DrawInformation( void ) {
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey( info, "sv_hostname" ), 1024);
 		Q_CleanStr(buf);
-		//UI_DrawProportionalString( x, y, buf,
-			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Makro - custom color; changed from colorWhite
 		CG_DrawSmallStringColor(x, y, buf, color2);
 		y += SMALLCHAR_HEIGHT;
@@ -276,8 +273,6 @@ void CG_DrawInformation( void ) {
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-			//UI_DrawProportionalString( 4, y, "Pure Server",
-				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			//Makro - custom color; changed from colorWhite
 			CG_DrawSmallStringColor(x, y, "PURE SERVER", color2);
 			y += SMALLCHAR_HEIGHT;
@@ -291,93 +286,81 @@ void CG_DrawInformation( void ) {
 			y += PROP_HEIGHT;
 		}
 
-		// some extra space after hostname and motd
-		//y += 10;
 	}
 
-	// cheats warning
-	s = Info_ValueForKey( sysInfo, "sv_cheats" );
-	if ( s[0] == '1' ) {
-		//UI_DrawProportionalString( x, y, "CHEATS ARE ENABLED",
-			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		//Makro - custom color; changed from colorWhite
-		CG_DrawSmallStringColor(x, y, "CHEATS ARE ENABLED", color2);
-		y += SMALLCHAR_HEIGHT;
-	}
-
-	y += SMALLCHAR_HEIGHT;
+	//y += SMALLCHAR_HEIGHT;
 	// game type
 	switch ( cgs.gametype ) {
 	case GT_FFA:
-		s = "CLASSIC ACTION DEATHMATCH";
+		line = "CLASSIC ACTION DEATHMATCH";
 		break;
 	case GT_SINGLE_PLAYER:
-		s = "Single Player";
+		line = "Single Player";
 		break;
 	case GT_TOURNAMENT:
-		s = "Tournament";
+		line = "Tournament";
 		break;
 	case GT_TEAM:
-		s = "Team Deathmatch";
+		line = "Team Deathmatch";
 		break;
 // JBravo: teamplay stuff.
 	case GT_TEAMPLAY:
 		//Makro - changed from RQ3 Teamplay
-		s = "CLASSIC ACTION TEAMPLAY";
+		line = "CLASSIC ACTION TEAMPLAY";
 		break;
 	case GT_CTF:
-		s = "Capture The Flag";
+		line = "Capture The Flag";
 		break;
 #ifdef MISSIONPACK
 	case GT_1FCTF:
-		s = "One Flag CTF";
+		line = "One Flag CTF";
 		break;
 	case GT_OBELISK:
-		s = "Overload";
+		line = "Overload";
 		break;
 	case GT_HARVESTER:
-		s = "Harvester";
+		line = "Harvester";
 		break;
 #endif
 	default:
-		s = "Unknown Gametype";
+		line = "Unknown Gametype";
 		break;
 	}
-	//UI_DrawProportionalString( x, y, s,
-		//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-	//Makro - custom color; changed from colorWhite
-	CG_DrawSmallStringColor(x, y, s, color2);
-	y += SMALLCHAR_HEIGHT;
+	// cheats warning
+	s = Info_ValueForKey( sysInfo, "sv_cheats" );
+	if ( s[0] == '1' ) {
+		line = va("%s / CHEATS ARE ENABLED", line);
+	}
 		
+	//Makro - custom color; changed from colorWhite
+	CG_DrawSmallStringColor(x, y, line, color2);
+	y += SMALLCHAR_HEIGHT;
+
+	line = "";
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-		//UI_DrawProportionalString( x, y, va( "timelimit %i", value ),
-			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-		//Makro - custom color; changed from colorWhite
-		CG_DrawSmallStringColor(x, y, va( "TIMELIMIT %i", value ), color2);
-		y += SMALLCHAR_HEIGHT;
+		line = va("TIMELIMIT %i", value);
 	}
 
 	if (cgs.gametype < GT_CTF ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-			//UI_DrawProportionalString( x, y, va( "fraglimit %i", value ),
-				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-			//Makro - custom color; changed from colorWhite
-			CG_DrawSmallStringColor(x, y, va( "FRAGLIMIT %i", value ), color2);
-			y += SMALLCHAR_HEIGHT;
+			if (line[0] != '\0') line = va("%s /", line);
+			line = va("%s FRAGLIMIT %i", line, value);
 		}
 	}
 
 	if (cgs.gametype >= GT_CTF) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
-			//UI_DrawProportionalString( x, y, va( "capturelimit %i", value ),
-				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
-			//Makro - custom color; changed from colorWhite
-			CG_DrawSmallStringColor(x, y, va( "CAPTURELIMIT %i", value ), color2);
-			y += SMALLCHAR_HEIGHT;
+			if (line[0] != '\0') line = va("%s /", line);
+			line = va("%s CAPTURELIMIT %i", line, value);
 		}
 	}
+
+	//Makro - custom color; changed from colorWhite
+	CG_DrawSmallStringColor(x, y, line, color2);
+	y += SMALLCHAR_HEIGHT;
+
 }
 
