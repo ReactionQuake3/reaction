@@ -21,6 +21,7 @@ g_client
 g_cmds
 g_combat
 g_items
+g_matchmode
 g_mem
 g_misc
 g_missile

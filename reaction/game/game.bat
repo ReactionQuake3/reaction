@@ -51,6 +51,8 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc%  ../g_items.c
 @if errorlevel 1 goto quit
+%cc%  ../g_matchmode.c
+@if errorlevel 1 goto quit
 %cc%  ../g_mem.c
 @if errorlevel 1 goto quit
 %cc%  ../g_misc.c

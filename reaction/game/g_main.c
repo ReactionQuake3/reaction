@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/01/31 23:51:18  slicer
+// Adding Matchmode: just a few basics and files...
+//
 // Revision 1.18  2002/01/31 02:25:31  jbravo
 // Adding limchasecam.
 //
@@ -89,6 +92,8 @@ vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
+//Slicer: Matchmode
+vmCvar_t		g_matchmode;
 //Blaze: Reaction cvars
 vmCvar_t	g_rxn_knifelimit;
 vmCvar_t	g_RQ3_maxWeapons;
@@ -207,6 +212,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
+	//Slicer: Matchmode
+	{ &g_matchmode, "g_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	//Blaze: Reaction stuff
 	// Elder: these are explicit values set every time the game initializes
 	{ &g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART,0, qfalse},
@@ -573,6 +580,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.team_game_going = 0;
 		level.team_round_going = 0;
 		level.fps = trap_Cvar_VariableIntegerValue( "sv_fps" );
+	}
+// Slicer: reset matchmode vars
+	if(g_matchmode.integer) {
+		level.matchTime = 0;
+		level.team1ready = qfalse;
+		level.team2ready = qfalse;
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1990,6 +2003,9 @@ void G_RunFrame( int levelTime ) {
 	if ( g_gametype.integer == GT_TEAMPLAY ) {
 		CheckTeamRules();
 	}
+	// Slicer: matchmode
+	if(g_matchmode.integer )
+		MM_RunFrame();
 
 	// check team votes
 	CheckTeamVote( TEAM_RED );

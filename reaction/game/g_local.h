@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/01/31 23:51:18  slicer
+// Adding Matchmode: just a few basics and files...
+//
 // Revision 1.38  2002/01/31 02:55:58  blaze
 // some basic work with the trains/elevators
 //
@@ -37,6 +40,8 @@
 #include "bg_public.h"
 #include "g_public.h"
 
+//Slicer: MatchMode
+#include "g_matchmode.h"
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
@@ -603,6 +608,10 @@ typedef struct {
 #ifdef MISSIONPACK
 	int			portalSequence;
 #endif
+//	Slicer: Matchmode
+	float	matchTime;
+	qboolean team1ready;
+	qboolean team2ready;
 // JBravo adding TP
 	int		lights_camera_action;
 	qboolean	team_round_going;
@@ -1035,6 +1044,8 @@ extern	vmCvar_t	g_enableDust;
 extern	vmCvar_t	g_enableBreath;
 extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
+//Slicer: Matchmode
+extern vmCvar_t		g_matchmode;
 //Blaze: Reaction cvars
 extern	vmCvar_t	g_rxn_knifelimit;
 extern	vmCvar_t	g_RQ3_maxWeapons;
