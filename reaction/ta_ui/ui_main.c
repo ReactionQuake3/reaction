@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2003/03/31 05:54:20  jbravo
+// More replacementhacks
+//
 // Revision 1.67  2003/03/31 04:55:58  jbravo
 // Small UI replacements fixes.
 //
@@ -296,7 +299,7 @@ static const int replacementItemCount = sizeof(replacementItems) / sizeof(replac
 static replacementSubtype_t replacementAmmo[] =
 {
 	{"Mk23",		"ammo_mk23"},
-	{"Shells",		"ammo_shells"},
+	{"Shells",		"ammo_m3"},
 	{"SSG3000",		"ammo_ssg3000"},
 	{"MP5",			"ammo_mp5"},
 	{"M4",			"ammo_m4"}
@@ -2628,7 +2631,7 @@ void UI_LoadReplacement(int index)
 {
 	int len;
 	fileHandle_t f;
-	char buf[4096], *p, *h, *text, skin[MAX_QPATH], model[MAX_QPATH], ammofix[MAX_QPATH];
+	char buf[4096], *p, *text, skin[MAX_QPATH], model[MAX_QPATH];
 	const char *typeDir = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].cvarName;
 
 	uiInfo.replacements.Info[0]=0;
@@ -2668,17 +2671,15 @@ void UI_LoadReplacement(int index)
 	//Com_Printf("Model: %s\n", va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
 	//Com_Printf("Skin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
 	if (!Q_stricmp(typeDir, "ammo")) {
-		Q_strncpyz(ammofix, uiInfo.replacements.Type, sizeof(uiInfo.replacements.Type));
-		h = ammofix + 5;
-		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, h));
+		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, model));
 		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s.skin", typeDir, skin));
-		Com_Printf("AmmoModel: %s\n", va("models/%s/%s.md3", typeDir, h));
+		Com_Printf("AmmoModel: %s\n", va("models/%s/%s.md3", typeDir, model));
 		Com_Printf("AmmoSkin : %s\n", va("models/%s/%s.skin", typeDir, skin));
 	} else if (!Q_stricmp(typeDir, "items")) {
-		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, uiInfo.replacements.Type));
-		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, typeDir, skin));
-		Com_Printf("ItemModel: %s\n", va("models/%s/%s.md3", typeDir, uiInfo.replacements.Type));
-		Com_Printf("ItemSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, typeDir, skin));
+		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, model));
+		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
+		Com_Printf("ItemModel: %s\n", va("models/%s/%s.md3", typeDir, model));
+		Com_Printf("ItemSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
 	} else {
 		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
 		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
