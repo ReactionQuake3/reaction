@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/02 01:16:30  blaze
+// weapons stats- reordered where the mp5 was to make it more consistant with the weapon selection page
+//
 // Revision 1.8  2002/02/28 06:09:23  blaze
 // weapons stats on server side - spelling fixed, and forgot ssg3000 and kicks
 //
@@ -848,11 +851,11 @@ void CG_DrawWeaponStats(void)
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
-							"M3", color);
+							"MP5", color);
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
-							"MP5", color);
+							"M3", color);
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
@@ -902,12 +905,12 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%.1f%%",100 * (float)cg.records[REC_M3HITS]/(cg.records[REC_M3SHOTS] ? cg.records[REC_M3SHOTS] : 1));
+  Com_sprintf(String, sizeof(String),	"%.1f%%",100 * (float)cg.records[REC_MP5HITS]/(cg.records[REC_MP5SHOTS] ? cg.records[REC_MP5SHOTS] : 1));
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%.1f%%",100 * (float)cg.records[REC_MP5HITS]/(cg.records[REC_MP5SHOTS] ? cg.records[REC_MP5SHOTS] : 1));
+  Com_sprintf(String, sizeof(String),	"%.1f%%",100 * (float)cg.records[REC_M3HITS]/(cg.records[REC_M3SHOTS] ? cg.records[REC_M3SHOTS] : 1));
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
@@ -961,12 +964,12 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3HITS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5HITS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3HITS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
@@ -1023,12 +1026,12 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5SHOTS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3SHOTS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
@@ -1080,12 +1083,12 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3KILLS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5KILLS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3KILLS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
@@ -1142,12 +1145,12 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_MP5DEATHS]);
+  Com_sprintf(String, sizeof(String),	"%d",cg.records[REC_M3DEATHS]);
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * offset, WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							String, color);
