@@ -2128,7 +2128,7 @@ void CG_FireWeapon( centity_t *cent ) {
 		trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
-	if ent->client->ps.
+	
 		// play a sound
 		for ( c = 0 ; c < 4 ; c++ ) {
 			if ( !weap->flashSound[c] ) {
