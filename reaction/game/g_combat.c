@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/10/04 20:52:39  jbravo
+// Think I finally have the mp5 damage right
+//
 // Revision 1.127  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -2098,8 +2101,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	save = 0;
 
 	// save some from armor
-	asave = CheckArmor(targ, take, dflags);
-	take -= asave;
+	// JBravo: armor ?  dont think so.
+//	asave = CheckArmor(targ, take, dflags);
+//	take -= asave;
 
 	if (g_debugDamage.integer) {
 		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
@@ -2198,7 +2202,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 						tent->s.eventParm = DirToByte(dir);
 						tent->s.otherEntityNum = targ->s.clientNum;
 					}
-					take *= 1.8 + 1;	//+ 1;
+					// JBravo: order is important
+					take = (take * 1.8) + 1;
+					//take *= 1.8 + 1;
 					break;
 				case LOCATION_CHEST:
 					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
