@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/02/24 17:56:44  jbravo
+// Cleaned up EquipPlayer() and made snipers spawn with pistol in hand
+//
 // Revision 1.17  2002/02/24 16:40:35  jbravo
 // Fixed a bug where the mode of knifes and grenades where reset to slashing
 // and short throw.
@@ -581,44 +584,62 @@ void EquipPlayer (gentity_t *ent)
 	ent->client->ps.weapon = ent->client->teamplayWeapon;
 	ent->client->numClips[ WP_PISTOL ] = 1;			// extra clip of ammo for pistol
 	ent->client->ps.ammo[ WP_PISTOL] = RQ3_PISTOL_AMMO;
-//	ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
 	
 	if (ent->client->teamplayItem == HI_BANDOLIER) {
 		bandolierFactor = 2;
 		grenades = trap_Cvar_VariableIntegerValue( "g_RQ3_tgren" );
-		if (grenades > 0)
-			ent->client->ps.ammo[WP_GRENADE] = grenades;
-//			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
 	} else {
 		bandolierFactor = 1;
 	}
 
 	switch(ent->client->ps.weapon) {
 	case WP_SSG3000:
+		ent->client->ps.weapon = WP_PISTOL;
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
 		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
 		break;
 	case WP_MP5:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MP5 );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
 		break;
 	case WP_M3:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M3 );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
 		break;
 	case WP_M4:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M4 );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
 		break;
 	case WP_AKIMBO:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_AKIMBO );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
 		break;
 	case WP_HANDCANNON:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_HANDCANNON );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
 		break;
 	case WP_KNIFE:
+		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
+		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
 		break;
 	default:
@@ -626,11 +647,10 @@ void EquipPlayer (gentity_t *ent)
 	}
 	ent->client->weaponCount[ent->client->ps.weapon] = 1;
 	ent->client->uniqueWeapons = 1;
-	ent->client->ps.stats[STAT_WEAPONS] = ( 1 << ent->client->ps.weapon );
-	ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-	ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-	if(grenades > 0) {
+
+	if (grenades > 0) {
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE );
+		ent->client->ps.ammo[WP_GRENADE] = grenades;
 		ent->client->uniqueWeapons++;
 	}
 	ent->client->ps.weaponstate = WEAPON_READY;
