@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/06/07 03:03:02  jbravo
+// More colorfixes
+//
 // Revision 1.63  2002/06/05 23:36:39  niceass
 // "ready" command lag fix
 //
@@ -2101,11 +2104,11 @@ void SetLeader(int team, int client) {
 	int i;
 
 	if ( level.clients[client].pers.connected == CON_DISCONNECTED ) {
-		PrintTeam(team, va("print \"%s is not connected\n\"", level.clients[client].pers.netname) );
+		PrintTeam(team, va("print \"%s^7 is not connected\n\"", level.clients[client].pers.netname) );
 		return;
 	}
 	if (level.clients[client].sess.sessionTeam != team) {
-		PrintTeam(team, va("print \"%s is not on the team anymore\n\"", level.clients[client].pers.netname) );
+		PrintTeam(team, va("print \"%s^7 is not on the team anymore\n\"", level.clients[client].pers.netname) );
 		return;
 	}
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -2118,7 +2121,7 @@ void SetLeader(int team, int client) {
 	}
 	level.clients[client].sess.teamLeader = qtrue;
 	ClientUserinfoChanged( client );
-	PrintTeam(team, va("print \"%s is the new team leader\n\"", level.clients[client].pers.netname) );
+	PrintTeam(team, va("print \"%s^7 is the new team leader\n\"", level.clients[client].pers.netname) );
 }
 
 /*
