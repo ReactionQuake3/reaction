@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/29 03:52:21  niceass
+// LAM code
+//
 // Revision 1.74  2002/05/27 17:47:19  jbravo
 // Fixes and cleanups
 //
@@ -1423,7 +1426,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 //	Blaze: Can remove this because no more spinning barrel
 //	refEntity_t	barrel;
 	refEntity_t	flash;
-	refEntity_t silencer;
+	refEntity_t silencer, laser;
 	vec3_t		angles;
 	weapon_t	weaponNum;
 	weaponInfo_t	*weapon;
@@ -1649,8 +1652,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		// Offset weapon
 		VectorMA(silencer.origin, -7.2f, silencer.axis[1], silencer.origin);
 		VectorMA(silencer.origin, 10.0f, silencer.axis[1], silencerEnd);
+		silencer.nonNormalizedAxes = qtrue;
 
-		flash.nonNormalizedAxes = qtrue;
 		CG_AddWeaponWithPowerups( &silencer, cent->currentState.powerups );
 
 		/*
@@ -1669,6 +1672,37 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		*/
 	}
+
+	if ( ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_M4 ) ) {
+		float	scale = 0.0f;
+		vec3_t	angles;
+
+		if (weaponNum == WP_PISTOL) scale = 0.66f;
+		if (weaponNum == WP_MP5) scale = 0.675f;
+		if (weaponNum == WP_M4) scale = 0.79f;
+
+		memset( &laser, 0, sizeof( laser ) );
+		laser.hModel = cgs.media.rq3_laserModel;
+		laser.shadowPlane = parent->shadowPlane;
+		laser.renderfx = parent->renderfx;
+
+		angles[YAW] = 90;
+		angles[PITCH] = 0;
+		angles[ROLL] = 0;
+		AnglesToAxis( angles, laser.axis );
+
+		VectorScale( laser.axis[0], scale, laser.axis[0] );
+		VectorScale( laser.axis[1], scale, laser.axis[1] );
+		VectorScale( laser.axis[2], scale, laser.axis[2] );
+
+		CG_PositionRotatedOffsetEntityOnTag( &laser, &gun, weapon->firstModel, "tag_laser", vec3_origin);
+
+		laser.nonNormalizedAxes = qtrue;
+		CG_AddWeaponWithPowerups( &laser, cent->currentState.powerups );
+	}
+
+
 
 	// NiceAss: Tag locations used for shell ejection
 	// The handcannon hacks have ruined my beautiful code =(
