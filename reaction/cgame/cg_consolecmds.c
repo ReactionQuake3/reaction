@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/31 17:41:03  makro
+// Changed IR vision to be more like AQ2
+//
 // Revision 1.39  2002/03/31 13:52:48  jbravo
 // More cleanups
 //
@@ -763,35 +766,33 @@ static void CG_SayTeam_f ( void ) {
 */
 
 /*
-==================
+====================================
 CG_IRVision_f
 
 Elder: Attempt to turn on IR Vision
-==================
+Makro: Made it so that the player
+       can use this even if he
+	   doesn't have a bandolier
+====================================
 */
 
 static void CG_IRVision_f ( void ) {
+	const char *status = "enabled";
+	
+	cg.rq3_irvision = !(cg.rq3_irvision);
 
+	if ( !(cg.rq3_irvision) ) {
+		status = "disabled";
+	}
+	
 	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
 	{
-		if (cg.rq3_irvision)
-		{
-			CG_Printf("IR vision disabled.\n");
-			cg.rq3_irvision = qfalse;
-		}
-		else
-		{
-			CG_Printf("IR vision enabled.\n");
-			cg.rq3_irvision = qtrue;
-		}
-		
-		trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
-	}
-	else
-	{
-		CG_Printf("You do not have IR goggles.\n");
+		CG_Printf(va("IR vision %s.\n", status));
+	} else {
+		CG_Printf(va("IR vision will be %s next time you get a bandolier.\n", status));
 	}
 
+	trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
 }
 
 
