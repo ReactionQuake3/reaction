@@ -37,9 +37,9 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	
+
 	numbumps = 4;
-	
+
 	VectorCopy (pm->ps->velocity, primal_velocity);
 
 	if ( gravity ) {
@@ -50,7 +50,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		if ( pml.groundPlane ) {
 			// slide along the ground plane
 		//Blaze: ramp jump test
-			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+			PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 				pm->ps->velocity, OVERCLIP );
 		}
 	}
@@ -125,7 +125,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		//
 
 		// find a plane that it enters
-		
+
 		for ( i = 0 ; i < numplanes ; i++ ) {
 			into = DotProduct( pm->ps->velocity, planes[i] );
 			if ( into >= 0.1 ) {
@@ -195,7 +195,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 			VectorCopy( endClipVelocity, endVelocity );
 			break;
 		}
-		
+
 	}
 
 	if ( gravity ) {
@@ -229,7 +229,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 	VectorCopy (pm->ps->velocity, start_v);
 
 	if ( PM_SlideMove( gravity ) == 0 ) {
-		return;		// we got exactly where we wanted to go first try	
+		return;		// we got exactly where we wanted to go first try
 	}
 
 	VectorCopy(start_o, down);
@@ -242,7 +242,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 /*		if ( pm->ps->stats[STAT_JUMPTIME] <= 0) //Blaze: Removed to stop a little skip, it used to nead this, but mabey 1.27 fixed this
 		{
 			Com_Printf("Jump Check\n");
-			return; // Blaze RE: Allow step up or second jump while jumping	
+			return; // Blaze RE: Allow step up or second jump while jumping
 		}*/
 	}
 
@@ -289,7 +289,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:bend\n", c_pmove);
 		}
-	} else 
+	} else
 #endif
 	{
 		// use the step move

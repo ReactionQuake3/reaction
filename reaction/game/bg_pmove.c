@@ -350,10 +350,10 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	normal = pml.groundTrace.plane.normal[2];
 	if (normal > 0)
 	{
-		Com_Printf("(%f)",wishspeed);
+		// Com_Printf("(%f)",wishspeed);
 		temp = wishspeed;
 		wishspeed *= (2 - normal);
-		Com_Printf(" (%f) (%f)\n", wishspeed-temp, normal);
+		// Com_Printf(" (%f) (%f)\n", wishspeed-temp, normal);
 	}
 	//Blaze: end new ramp jump code
 	VectorScale( wishdir, wishspeed, wishVelocity );
@@ -486,7 +486,7 @@ static qboolean PM_CheckJump( void ) {
 			pm->ps->velocity[2] += 75; // More velocity ; was 100
 		if (pm->debugLevel)
 			Com_Printf("^4Hit a double jump^7\n");
-//			Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
+			//Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 	}
@@ -829,7 +829,7 @@ static void PM_LimpMove( void)
 
 	if ( pm->cmd.serverTime % 1000 > 333)
 	{
-		Com_Printf("(%d)\n",pm->cmd.serverTime % 1000);
+		// Com_Printf("(%d)\n",pm->cmd.serverTime % 1000);
 		if ( PM_CheckJump () ) {
 			// jumped away
 			if ( pm->waterlevel > 1 ) {
@@ -2702,7 +2702,7 @@ static void PM_Weapon( void ) {
 				return;
 		}
 		// Elder: stall the thrown knife action
-		
+
 		else if ( pm->ps->weapon == WP_KNIFE && pm->ps->weaponstate != WEAPON_STALL &&
 				  pm->ps->stats[STAT_WEAPONSTALLTIME] <= 0 &&
 				  !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
@@ -2712,7 +2712,7 @@ static void PM_Weapon( void ) {
 			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
 			return;
 		}
-		
+
 		/*
 		else if ( pm->ps->weapon == WP_KNIFE &&
 				 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
@@ -2733,7 +2733,7 @@ static void PM_Weapon( void ) {
 		*/
 	}
 
-	
+
 
 
 
@@ -2765,7 +2765,7 @@ static void PM_Weapon( void ) {
 				return;
 			}
 		}
-		
+
 		else if ( pm->ps->weapon == WP_KNIFE &&
 					!(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		{
@@ -2782,7 +2782,7 @@ static void PM_Weapon( void ) {
 				return;
 			}
 		}
-		
+
 		else
 		{
 			// else if they arn't pressing attack, then they just are running around

@@ -52,7 +52,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 //Elder: played around with it...
 		//G_Printf("Clientnum: %d\n", level.sortedClients[i]);
 
-		Com_sprintf (entry, sizeof(entry),	
+		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
@@ -65,22 +65,22 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			0);
 			//cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 			//cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			//cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
-			//cl->ps.persistant[PERS_DEFEND_COUNT], 
-			//cl->ps.persistant[PERS_ASSIST_COUNT], 
+			//cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
+			//cl->ps.persistant[PERS_DEFEND_COUNT],
+			//cl->ps.persistant[PERS_ASSIST_COUNT],
 			//perfect,
 			//cl->ps.persistant[PERS_CAPTURES]);
-			
+
 
 /*		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
+			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], 
-			cl->ps.persistant[PERS_DEFEND_COUNT], 
-			cl->ps.persistant[PERS_ASSIST_COUNT], 
+			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
+			cl->ps.persistant[PERS_DEFEND_COUNT],
+			cl->ps.persistant[PERS_ASSIST_COUNT],
 			perfect,
 			cl->ps.persistant[PERS_CAPTURES]);
 			*/
@@ -91,7 +91,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		stringlength += j;
 	}
 
-	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i, 
+	trap_SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i,
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 		string ) );
 }
@@ -265,13 +265,13 @@ void Cmd_Give_f (gentity_t *ent)
 
 	if (give_all || Q_stricmp(name, "weapons") == 0)
 	{
-		//Blaze: Removed ( 1 << WP_GRAPPLING_HOOK ) - 
+		//Blaze: Removed ( 1 << WP_GRAPPLING_HOOK ) -
 		//I have no clue what that does
 		//Elder: basically it sets all the STAT_WEAPONS bits to 1 EXCEPT for WP_NONE and
 		//the initial bit (I don't know what that is)
 		//http://www.iota-six.freeserve.co.uk/c/bitwise.htm
 		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_NONE );
-			
+
 		if (!give_all)
 			return;
 	}
@@ -439,7 +439,7 @@ void Cmd_LevelShot_f( gentity_t *ent ) {
 
 	// doesn't work in single player
 	if ( g_gametype.integer != 0 ) {
-		trap_SendServerCommand( ent-g_entities, 
+		trap_SendServerCommand( ent-g_entities,
 			"print \"Must be in g_gametype 0 for levelshot\n\"" );
 		return;
 	}
@@ -578,12 +578,12 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 			// We allow a spread of two
 			if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
-				trap_SendServerCommand( ent->client->ps.clientNum, 
+				trap_SendServerCommand( ent->client->ps.clientNum,
 					"cp \"Red team has too many players.\n\"" );
 				return; // ignore the request
 			}
 			if ( team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1 ) {
-				trap_SendServerCommand( ent->client->ps.clientNum, 
+				trap_SendServerCommand( ent->client->ps.clientNum,
 					"cp \"Blue team has too many players.\n\"" );
 				return; // ignore the request
 			}
@@ -600,7 +600,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	if ( (g_gametype.integer == GT_TOURNAMENT)
 		&& level.numNonSpectatorClients >= 2 ) {
 		team = TEAM_SPECTATOR;
-	} else if ( g_maxGameClients.integer > 0 && 
+	} else if ( g_maxGameClients.integer > 0 &&
 		level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 		team = TEAM_SPECTATOR;
 	}
@@ -670,8 +670,8 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
-	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
-	ent->client->sess.sessionTeam = TEAM_SPECTATOR;	
+	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
+	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
@@ -855,7 +855,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 		return;
 	}
 
-	trap_SendServerCommand( other-g_entities, va("%s \"%s%c%c%s\"", 
+	trap_SendServerCommand( other-g_entities, va("%s \"%s%c%c%s\"",
 		mode == SAY_TEAM ? "tchat" : "chat",
 		name, Q_COLOR_ESCAPE, color, message));
 }
@@ -870,7 +870,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
-	
+
 	int			validation;
 
 	// Elder: validate the client
@@ -913,10 +913,10 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	case SAY_TEAM:
 		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
 		if (Team_GetLocationMsg(ent, location, sizeof(location)))
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ", 
+			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
 		else
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ", 
+			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 		color = COLOR_CYAN;
 		break;
@@ -1369,9 +1369,9 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	ent->client->ps.eFlags |= EF_VOTED;
 
 	trap_SetConfigstring( CS_VOTE_TIME, va("%i", level.voteTime ) );
-	trap_SetConfigstring( CS_VOTE_STRING, level.voteDisplayString );	
+	trap_SetConfigstring( CS_VOTE_STRING, level.voteDisplayString );
 	trap_SetConfigstring( CS_VOTE_YES, va("%i", level.voteYes ) );
-	trap_SetConfigstring( CS_VOTE_NO, va("%i", level.voteNo ) );	
+	trap_SetConfigstring( CS_VOTE_NO, va("%i", level.voteNo ) );
 }
 
 /*
@@ -1406,7 +1406,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 		trap_SetConfigstring( CS_VOTE_YES, va("%i", level.voteYes ) );
 	} else {
 		level.voteNo++;
-		trap_SetConfigstring( CS_VOTE_NO, va("%i", level.voteNo ) );	
+		trap_SetConfigstring( CS_VOTE_NO, va("%i", level.voteNo ) );
 	}
 
 	// a majority will be determined in CheckVote, which will also account
@@ -1462,7 +1462,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		return;
 	}
-       
+
 	if ( !Q_stricmp( arg1, "leader" ) ) {
 		char netname[MAX_NETNAME], leader[MAX_NETNAME];
 
@@ -1581,7 +1581,7 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 		trap_SetConfigstring( CS_TEAMVOTE_YES + cs_offset, va("%i", level.teamVoteYes[cs_offset] ) );
 	} else {
 		level.teamVoteNo[cs_offset]++;
-		trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );	
+		trap_SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );
 	   }
 
 	// a majority will be determined in TeamCheckVote, which will also account
@@ -1668,7 +1668,7 @@ void Cmd_Bandage (gentity_t *ent)
 
 		//Elder: added
         ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
-		
+
 		//Elder: drop the primed grenade
 		//Moved weapon switch to bg_pmove.c
 		if (ent->client->ps.weapon == WP_GRENADE &&
@@ -1691,18 +1691,18 @@ void Cmd_Bandage (gentity_t *ent)
 			ent->client->ps.weapon == WP_GRENADE ||
 			(ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		{
-			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
 		else */
 		if (ent->client->ps.weapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		{
-			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_THROWDISARM;
 		}
 		else
 		{
-			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
 
@@ -1711,8 +1711,8 @@ void Cmd_Bandage (gentity_t *ent)
 		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
 			   ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
 		*/
-		
-	
+
+
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
         ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
@@ -1728,7 +1728,7 @@ void Cmd_Bandage (gentity_t *ent)
 ==================
  Cmd_Reload
  Added by Duffman
- 
+
  Fastreloads:
  a_cmds in action source for proper behavior.
  void Cmd_Reload_f (edict_t *ent)
@@ -1736,7 +1736,7 @@ void Cmd_Bandage (gentity_t *ent)
 */
 void Cmd_Reload( gentity_t *ent )
 {
-	int weapon;       
+	int weapon;
     int ammotoadd;
     int delay = 0;
 
@@ -1760,8 +1760,8 @@ void Cmd_Reload( gentity_t *ent )
 	weapon = ent->client->ps.weapon;
     //Elder: changed to new function
     ammotoadd = ClipAmountForReload(weapon);
-	   
-    /*if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))       
+
+    /*if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))
 		{   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
         	return;
         }*/
@@ -1793,9 +1793,9 @@ void Cmd_Reload( gentity_t *ent )
 				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 				return;
 			}
-			
+
 			delay = RQ3_M4_RELOAD_DELAY;
-			break;		   
+			break;
 		case WP_M3:
 			ammotoadd += ent->client->ps.ammo[weapon];
 
@@ -1803,7 +1803,7 @@ void Cmd_Reload( gentity_t *ent )
 			if (level.time - ent->client->lastReloadTime > RQ3_M3_RELOAD_DELAY)
 				ent->client->fastReloads = 0;
 
-			if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
+			if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)
 			{
 				//reset fast reloads and attempts
 				ent->client->fastReloads = 0;
@@ -1866,7 +1866,7 @@ void Cmd_Reload( gentity_t *ent )
 				//Fast reload
 				//G_Printf("Using fast reloads\n");
 				//Toggle the first-person reload animation so it will start again
-				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 											^ ANIM_TOGGLEBIT ) | WP_ANIM_RELOAD;
 				delay = RQ3_M3_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
@@ -1903,7 +1903,7 @@ void Cmd_Reload( gentity_t *ent )
 			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
 				ent->client->fastReloads = 0;
 
-			if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO)       
+			if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO)
 			{
 				//reset fast reloads and attempts
 				ent->client->fastReloads = 0;
@@ -1964,7 +1964,7 @@ void Cmd_Reload( gentity_t *ent )
 			if (ent->client->fastReloads) {
 				//Fast reload
 				//G_Printf("Using fast reloads\n");
-				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 											^ ANIM_TOGGLEBIT ) | WP_ANIM_RELOAD;
 				delay = RQ3_SSG3000_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
@@ -2028,9 +2028,9 @@ void Cmd_Reload( gentity_t *ent )
 	{
 		return;
 	}
-				
 
-	
+
+
 	//Save once only
 	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000)
 	{
@@ -2048,10 +2048,10 @@ void Cmd_Reload( gentity_t *ent )
 
 	// Elder: handled in pmove now
     // ent->client->ps.weaponTime += delay;
-	
-       
+
+
     //Elder: at this point there should be sufficient ammo requirements to reload
-	if (ent->client->numClips[weapon] > 0) {		
+	if (ent->client->numClips[weapon] > 0) {
 		//Elder: more attempts to synchronize the mk23 and akimbos
 		if (weapon == WP_PISTOL && (ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
 			ent->client->ps.ammo[WP_AKIMBO] = ent->client->ps.ammo[WP_AKIMBO] - ent->client->ps.ammo[WP_PISTOL] + ammotoadd;
@@ -2065,24 +2065,24 @@ void Cmd_Reload( gentity_t *ent )
 		}
 
 		// add ammo to weapon
-		ent->client->ps.ammo[weapon] = ammotoadd;			
+		ent->client->ps.ammo[weapon] = ammotoadd;
         ent->client->numClips[weapon]--;
-	        
+
         //Elder: remove an extra "clip" if it's the handcannon or akimbo
         if (weapon == WP_HANDCANNON || weapon == WP_AKIMBO)
         	ent->client->numClips[weapon]--;
-	        
+
         //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
         if (weapon == WP_M3) {
-			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
 		}
-		else if (weapon == WP_HANDCANNON) { 
+		else if (weapon == WP_HANDCANNON) {
 			ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
 		}
 		else if(weapon == WP_PISTOL) {
-			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL];
 		}
-		else if (weapon == WP_AKIMBO) { 
+		else if (weapon == WP_AKIMBO) {
 			ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
 		}
 	}
@@ -2199,7 +2199,7 @@ void Cmd_Weapon(gentity_t *ent)
 			//Elder: zoom 6x
 			//G_Printf("Server: 6x\n");
 			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_LOW;
-		}	
+		}
 		else if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
 			//Elder: zoom 4x
 			//G_Printf("Server: 4x\n");
@@ -2264,7 +2264,7 @@ void Cmd_Weapon(gentity_t *ent)
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
 		}
-		else 
+		else
 		{
 			//Elder: we're gonna use this to flag throw or slash with the knife
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
@@ -2306,7 +2306,7 @@ void Cmd_Weapon(gentity_t *ent)
 			G_Printf("Cmd_Weapon_f: Received bad grenade toggle\n");
 		}
 		/* Elder: debugging code
-		G_Printf("Grenade toggle- Short: %d, Medium: %d, Long: %d\n", 
+		G_Printf("Grenade toggle- Short: %d, Medium: %d, Long: %d\n",
 				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT,
 				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED,
 				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
@@ -2345,7 +2345,7 @@ Cmd_DropWeapon_f XRAY FMJ
 =================
 */
 void Cmd_DropWeapon_f( gentity_t *ent ) {
-	
+
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 	//Elder: remove zoom bits
@@ -2410,7 +2410,7 @@ PlayerStats
 void Cmd_PlayerStats_f( gentity_t *ent )
 {
 	//char textbuf[1024];
-	
+
 /*
 	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
@@ -2552,7 +2552,7 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "bandage") == 0)
 		Cmd_Bandage( ent );
 	//End Blaze
-	// Hawkins 
+	// Hawkins
 	else if (Q_stricmp (cmd, "weapon") == 0)
 		Cmd_Weapon (ent);
 	else if (Q_stricmp (cmd, "unzoom") == 0)
@@ -2567,7 +2567,7 @@ void ClientCommand( int clientNum ) {
 	{
 		Cmd_PlayerStats_f( ent );
 	}
-	
+
 	else
 		trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }
@@ -2594,7 +2594,7 @@ int RQ3_ValidateSay ( gentity_t *ent )
 	int		intervalTime;
 	int		maxWarnings;
 	int		maxMessages;
-	
+
 	if (g_RQ3_messageProtect.integer == 0)
 		return SAY_OK;
 
@@ -2672,14 +2672,14 @@ int RQ3_ValidateSay ( gentity_t *ent )
 		level.time - ent->client->pers.sayTime < intervalTime * 1000)
 	{
 		ent->client->pers.sayMuteTime = level.time;
-		
+
 		// determine penalty level
 		if (ent->client->pers.sayWarnings >= maxWarnings)
 		{
 			// bans never reset, but warnings do
 			ent->client->pers.sayBans++;
 			ent->client->pers.sayWarnings = 0;
-			
+
 			// kick if no ban time is set
 			if (banTime == 0)
 				trap_DropClient(ent->s.clientNum, "Dropped due to chat abuse");
@@ -2692,7 +2692,7 @@ int RQ3_ValidateSay ( gentity_t *ent )
 			return SAY_WARNING;
 		}
 	}
-	
+
 	// regular say check
 	if (level.time - ent->client->pers.sayTime > intervalTime * 1000)
 	{
@@ -2703,6 +2703,6 @@ int RQ3_ValidateSay ( gentity_t *ent )
 	}
 
 	ent->client->pers.sayCount++;
-		
+
 	return SAY_OK;
 }

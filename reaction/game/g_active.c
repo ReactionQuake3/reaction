@@ -1328,7 +1328,7 @@ void ClientThink_real( gentity_t *ent ) {
 			 ent->client->fastReloads &&
 			 ent->client->reloadAttempts > 0)
 		{
-			G_Printf("(%i) ClientThink: attempting M3 fast-reload...\n", ent->s.clientNum);
+			//G_Printf("(%i) ClientThink: attempting M3 fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
 		}
 		break;
@@ -1338,7 +1338,7 @@ void ClientThink_real( gentity_t *ent ) {
 			 ent->client->fastReloads &&
 			 ent->client->reloadAttempts > 0)
 		{
-			G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
+			//G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
 		}
 		break;

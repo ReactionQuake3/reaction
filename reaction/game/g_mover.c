@@ -680,7 +680,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		//Also added "touch" and "takedamage" check so we are only abusing doors
 		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) { //||
 			//ent->touch || (ent->takedamage == qtrue) ) {
-			G_Printf("Sliding Toggle Door used\n");
+			//G_Printf("Sliding Toggle Door used\n");
 		}
 		else {
 			// return to pos1 after a delay
@@ -722,7 +722,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		//if ( ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) ||
 		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) { //||
 			//ent->touch || (ent->takedamage == qtrue) ) {
-			G_Printf("Rotating Toggle Door used\n");
+			//G_Printf("Rotating Toggle Door used\n");
 		}
 		else {
 			// return to apos1 after a delay
