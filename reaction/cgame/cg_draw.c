@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/07/16 04:31:18  niceass
+// I think I fixed cg_drawping
+//
 // Revision 1.57  2002/07/11 04:26:12  niceass
 // testing new cg_drawping code
 //
@@ -709,7 +712,7 @@ static float CG_DrawFPSandPing(float y)
 	int i, total, l;
 	int fps;
 	static int previous;
-	int t, frameTime, x = 0;
+	int t, frameTime, x = 0, num = 0;
 	float Color[4];
 
 	/*static int Pings[PING_SNAPS];
@@ -769,32 +772,40 @@ static float CG_DrawFPSandPing(float y)
 
 	if (cg_drawPing.integer) {	
 		for (i = 0; i < (LAG_SAMPLES / 2); i++) {
-			l = (lagometer.frameCount - 1 - i) & (LAG_SAMPLES - 1);
-			avgping += lagometer.snapshotSamples[i];
+			l = lagometer.frameCount - 1 - i;
+			if (l < 0) l += LAG_SAMPLES;
+
+			if (lagometer.snapshotSamples[l] >= 0)  {
+				avgping += lagometer.snapshotSamples[l];
+				num++;
+			}
 		}
 
-		avgping /= (LAG_SAMPLES / 2);
+		avgping /= num;
 
 		s = va("%ims", avgping);
 		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 		x += w;
 
-		i = (lagometer.frameCount - 1) & (LAG_SAMPLES - 1);
+		l = lagometer.frameCount - 1;
+		if (l < 0) l += LAG_SAMPLES;
 
 		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
-		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
-
-		if (lagometer.snapshotSamples[i] < 0)
-			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 1.0f);							// Red. Missed packet
-
-		if (lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
-			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
-
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
 		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-		CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+
+		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
+
+		if (lagometer.snapshotSamples[l] < 0)
+			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 1.0f);							// Red. Missed packet
+
+		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
+			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
+
+		CG_DrawStringExt(631 - x, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
 	//}	
 
