@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/05/13 06:17:20  jbravo
+// Ignore fix
+//
 // Revision 1.90  2002/05/12 19:15:47  jbravo
 // Added playerlist, did some cleanup on votes.
 //
@@ -2029,6 +2032,10 @@ void Cmd_Ignore_f (gentity_t *self) {
 
 	trap_Argv(1, s, sizeof(s));
 	target = FindClientByPersName (s);
+	if (target == NULL) {
+		trap_SendServerCommand(self-g_entities, va("print \"%s: No such player..\n\"", s));
+		return;
+	}
 	i = IsInIgnoreList (self, target);
 	if (i) {
 		trap_SendServerCommand(self-g_entities, va("print \"%s is already on your ignorelist.\n\"", s));
@@ -2058,6 +2065,10 @@ void Cmd_Unignore_f (gentity_t *self) {
 
 	trap_Argv(1, s, sizeof(s));
 	target = FindClientByPersName (s);
+	if (target == NULL) {
+		trap_SendServerCommand(self-g_entities, va("print \"%s: No such player..\n\"", s));
+		return;
+	}
 	i = IsInIgnoreList (self, target);
 	if (!i) {
 		trap_SendServerCommand(self-g_entities, va("print \"%s is not on your ignore list..\n\"", s));
