@@ -268,6 +268,20 @@ static void CG_Item( centity_t *cent ) {
 //		AxisCopy( cg.autoAxis, ent.axis );
 //	}
 
+	if (item->giType == IT_WEAPON && item->giTag != WP_KNIFE &&
+		(es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0) ) {
+		vec3_t          myvec;
+
+		//Elder: old fashioned AQ2 weapon drop rotating-style code :)
+		//It's out here because the wi calculations mess up the lerpOrigin
+		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+		AxisCopy( cg.autoAxisFast, ent.axis );
+
+		VectorCopy(ent.axis[1], myvec);
+		VectorNegate(ent.axis[2], ent.axis[1]);
+		VectorCopy(myvec, ent.axis[2]);
+	}
+
 	wi = NULL;
 	// the weapons have their origin where they attatch to player
 	// models, so we need to offset them or they will rotate
@@ -300,12 +314,15 @@ static void CG_Item( centity_t *cent ) {
 		else
 			cent->lerpOrigin[2] -= 14;
 	//	cent->lerpOrigin[2] += 8;	// an extra height boost
-    // Blaze: rotate the gun by 90 degrees to place it on the ground
-        VectorCopy(ent.axis[1], myvec);
-        VectorNegate(ent.axis[2], ent.axis[1]);
-        VectorCopy(myvec, ent.axis[2]);
-
+    
+		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0) {
+			// Blaze: rotate the gun by 90 degrees to place it on the ground
+			VectorCopy(ent.axis[1], myvec);
+			VectorNegate(ent.axis[2], ent.axis[1]);
+			VectorCopy(myvec, ent.axis[2]);
+		}
 	}
+
 	//Elder: what the heck is this?
 	if (item->giType == IT_AMMO)
 		cent->lerpOrigin[2]-=12;
@@ -1038,6 +1055,7 @@ void CG_AddPacketEntities( void ) {
 	cg.autoAngles[2] = 0;
 
 	cg.autoAnglesFast[0] = 0;
+	//Elder: restored for weapon rotation
 	cg.autoAnglesFast[1] = ( cg.time & 1023 ) * 360 / 1024.0f;
 	cg.autoAnglesFast[2] = 0;
 
