@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/08/27 04:46:33  niceass
+// ref say added
+//
 // Revision 1.10  2002/08/21 03:42:36  niceass
 // move of some vector functions outside of just game
 //
@@ -1463,6 +1466,7 @@ typedef enum _flag_status {
 #define SAY_ALL		0
 #define SAY_TEAM	1
 #define SAY_TELL	2
+#define SAY_REF		3
 
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2

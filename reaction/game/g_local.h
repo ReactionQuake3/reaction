@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/08/27 04:47:48  niceass
+// ref say added
+//
 // Revision 1.118  2002/08/24 07:58:37  niceass
 // moved sanitizestring to g_util
 //
@@ -886,6 +889,7 @@ void Cmd_FollowCycle_f(gentity_t * ent, int dir);
 void Cmd_Unzoom(gentity_t * ent);
 void Cmd_OpenDoor(gentity_t * ent);
 void Cmd_Weapon(gentity_t * ent);
+void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText);
 
 //Elder: C3A laser tutorial
 void Laser_Gen(gentity_t * ent, qboolean enabled);

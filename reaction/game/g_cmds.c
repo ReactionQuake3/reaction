@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.163  2002/08/27 04:48:13  niceass
+// ref say added
+//
 // Revision 1.162  2002/08/24 07:58:49  niceass
 // moved sanitizestring to g_util
 //
@@ -1447,11 +1450,12 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 					Com_sprintf(name, sizeof(name), "[DEAD] %s%c%c" EC ": ", ent->client->pers.netname,
 						  Q_COLOR_ESCAPE, COLOR_WHITE);
 			}
+			color = COLOR_GREEN;
 		} else {
 			Com_sprintf(name, sizeof(name), "%s%c%c" EC ": ", ent->client->pers.netname, Q_COLOR_ESCAPE,
 				    COLOR_WHITE);
+			color = COLOR_GREEN;
 		}
-		color = COLOR_GREEN;
 		break;
 	case SAY_TEAM:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
@@ -1491,6 +1495,10 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 			Com_sprintf(name, sizeof(name), EC "[%s%c%c" EC "]" EC ": ", ent->client->pers.netname,
 				    Q_COLOR_ESCAPE, COLOR_WHITE);
 		color = COLOR_MAGENTA;
+		break;
+	case SAY_REF:
+		Com_sprintf(name, sizeof(name), "[REFEREE] %s%c%c" EC ": ", ent->client->pers.netname,
+		    Q_COLOR_ESCAPE, COLOR_WHITE);
 		break;
 	}
 

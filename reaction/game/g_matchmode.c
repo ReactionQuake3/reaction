@@ -499,7 +499,8 @@ void Ref_Command(gentity_t * ent)
 {
 	char com[MAX_TOKEN_CHARS];
 	char param[MAX_TOKEN_CHARS];
-	int cn;
+	char arg2[MAX_STRING_CHARS];
+	int cn, i;
 
 	//cn = ent - g_entities;
 	if (!ent->client->sess.referee) {
@@ -520,6 +521,7 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print\"lockSettings\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"resetMatch\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
+		trap_SendServerCommand(ent - g_entities, "print\"say <text>\n\"");
 		return;
 	} else if (Q_stricmp(com, "resetMatch") == 0) {
 		MM_ResetMatch();
@@ -594,6 +596,16 @@ void Ref_Command(gentity_t * ent)
 			Com_sprintf(level.voteMap, sizeof(level.voteMap), "map %s",param); 
 			BeginIntermission();		
 		}
+	}
+	else if (Q_stricmp(com, "say") == 0) {
+		arg2[0] = '\0';
+		for (i = 2; i < trap_Argc(); i++) {
+			if (i > 2)
+				strcat(arg2, " ");
+			trap_Argv(i, &arg2[strlen(arg2)], sizeof(arg2) - strlen(arg2));
+		}
+
+		G_Say(ent, NULL, SAY_REF, arg2);
 	}
 	else
 		trap_SendServerCommand(ent - g_entities,
