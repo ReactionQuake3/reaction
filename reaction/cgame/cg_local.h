@@ -11,11 +11,19 @@
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
+// NiceAss: Taken out until later.
+// #define __ZCAM__
+
 #ifdef MISSIONPACK
 #define CG_FONT_THRESHOLD 0.1
 #endif
 
 #define	POWERUP_BLINKS		5
+
+// NiceAss: Weapon scales
+#define WEAPON_KNIFE_SCALE	1.5
+#define WEAPON_GUN_SCALE 	1.2
+#define WEAPON_OTHER_SCALE	1.0
 
 #define	POWERUP_BLINK_TIME	1000
 #define	FADE_TIME			200
@@ -1344,8 +1352,10 @@ extern	vmCvar_t		cg_RQ3_laserAssist;
 extern	vmCvar_t		cg_RQ3_anouncer;
 //Elder: different blood types
 extern	vmCvar_t		cg_RQ3_bloodStyle;
+//NiceAss: strobing weapons/items like quake 2
+extern	vmCvar_t		cg_RQ3_strobe;
 //Niceass: Q2-like prediction (or lack of)
-extern	vmCvar_t		cg_RQ3_oldpredict;
+// extern	vmCvar_t		cg_RQ3_oldpredict;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
 extern	vmCvar_t		cg_noVoiceChats;
@@ -1569,7 +1579,7 @@ void CG_RegisterItemVisuals( int itemNum );
 void CG_FireWeapon( centity_t *cent, int weapModification );
 void CG_ReloadWeapon( centity_t *cent, int reloadStage );	//Elder: added
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
-						vec3_t dir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
+						vec3_t dir, vec3_t viewdir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, impactSound_t soundType);
@@ -1582,7 +1592,6 @@ void CG_DrawWeaponSelect( void );
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 void CG_CheckLaser ();				//Elder: check laser to see if it's our own
-
 
 //
 // cg_marks.c

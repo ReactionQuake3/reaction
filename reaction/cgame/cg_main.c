@@ -167,8 +167,8 @@ vmCvar_t	cg_RQ3_laserAssist;
 vmCvar_t	cg_RQ3_anouncer;
 //Elder: different blood types
 vmCvar_t	cg_RQ3_bloodStyle;
-//NiceAss: Q2-like prediction
-vmCvar_t	cg_RQ3_oldpredict;
+//NiceAss: Temporary boolean strobe cvar
+vmCvar_t	cg_RQ3_strobe;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
 vmCvar_t	cg_noVoiceChats;
@@ -332,6 +332,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_glasstime, "cg_RQ3_glasstime", "0", CVAR_ARCHIVE },
 	// Elder: added
 	{ &cg_RQ3_flash, "cg_RQ3_flash", "1", CVAR_ARCHIVE },
+	// NiceAss: added
+	{ &cg_RQ3_strobe, "cg_RQ3_strobe", "0", CVAR_ARCHIVE },
 	{ &cg_RQ3_painblend, "cg_RQ3_painblend", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgZoomAssist, "cg_RQ3_ssgZoomAssist", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivityAuto, "cg_RQ3_ssgSensitivityAuto", "1", CVAR_ARCHIVE },
@@ -350,10 +352,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldRail, "cg_oldRail", "1", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
-	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
+	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE}
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
-	// NiceAss: Added:
-	{ &cg_RQ3_oldpredict, "cg_RQ3_oldpredict", "0", CVAR_ARCHIVE}
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -791,7 +791,7 @@ static void CG_RegisterSounds( void ) {
 	}
 
 	for ( i = 1 ; i < MAX_SOUNDS ; i++ ) {
-		soundName = CG_ConfigString( CS_SOUNDS+i );
+        soundName = CG_ConfigString( CS_SOUNDS+i );
 		if ( !soundName[0] ) {
 			break;
 		}
@@ -1226,6 +1226,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.slashMarkShader = trap_R_RegisterShader( "gfx/damage/slash_mrk" );
 	cgs.media.glassMarkShader = trap_R_RegisterShader( "gfx/damage/glass_mrk" );
 	cgs.media.metalMarkShader = trap_R_RegisterShader( "gfx/damage/metal_mrk" );
+
+	// NiceAss: for foglaser
+	cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

@@ -75,7 +75,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	
+
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -204,6 +204,7 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		}
 	}
+
 	//Blaze: This allows for the falling damage message to pass through if someone attacked them
 	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
@@ -216,7 +217,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		char	*s;
 
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
@@ -225,9 +226,9 @@ static void CG_Obituary( entityState_t *ent ) {
 #ifdef MISSIONPACK
 		if (!(cg_singlePlayerActive.integer && cg_cameraOrbit.integer)) {
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		} 
+		}
 #else
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 #endif
 
 		// print the text message as well
@@ -338,12 +339,12 @@ static void CG_Obituary( entityState_t *ent ) {
 			n = rand() % 2 + 1;
 			if (n == 1)
             {
-				message = "accepts"; 
+				message = "accepts";
 				message2 = "'s M3 Super 90 Assault Shotgun in hole-y matrimony";
 			}
             else
             {
-				message = "is full of buckshot from"; 
+				message = "is full of buckshot from";
 				message2 = "'s M3 Super 90 Assault Shotgun";
 			}
 			break;
@@ -351,12 +352,12 @@ static void CG_Obituary( entityState_t *ent ) {
 			n = rand() % 2 + 1;
 			if (n == 1)
             {
-				message = "ate"; 
+				message = "ate";
 				message2 = "'s sawed-off 12 gauge";
 			}
             else
             {
-				message = "is full of buckshot from"; 
+				message = "is full of buckshot from";
 				message2 = "'s sawed off shotgun";
 			}
 			break;
@@ -387,9 +388,9 @@ static void CG_Obituary( entityState_t *ent ) {
 			else
 			{
 				if (gender == GENDER_NEUTER)
-					message = "had a Bruce Lee put on it by"; 
+					message = "had a Bruce Lee put on it by";
 				else if (gender == GENDER_FEMALE)
-					message = "had a Bruce Lee put on her by";                                      
+					message = "had a Bruce Lee put on her by";
 				else
 					message = "had a Bruce Lee put on him by";
 				message2 = ", with a quickness";
@@ -413,7 +414,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
+			CG_Printf( "%s %s %s%s\n",
 				targetName, message, attackerName, message2);
 			return;
 		}
@@ -446,7 +447,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	
+
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -513,6 +514,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			break;
 		}
 	}
+
 	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
@@ -524,14 +526,16 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		char	*s;
 
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
+
 
 	// check for double client messages
 	if ( !attackerInfo ) {
@@ -576,7 +580,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 					message = "saw the sniper bullet go through its scope thanks to";
 				else if (gender == GENDER_FEMALE)
 					message = "saw the sniper bullet go through her scope thanks to";
-				else 
+				else
 					message = "saw the sniper bullet go through his scope thanks to";
 			}
 			else
@@ -586,11 +590,11 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			break;
 		case MOD_KNIFE:
 			if (gender == GENDER_NEUTER)
-				message = "had its throat slit by";                                                                  
+				message = "had its throat slit by";
 			else if (gender == GENDER_FEMALE)
-				message = "had her throat slit by";                                                                  
-			else 
-				message = "had his throat slit by";                                                                  
+				message = "had her throat slit by";
+			else
+				message = "had his throat slit by";
 			break;
 		case MOD_KNIFE_THROWN:
 			message = "caught";
@@ -621,7 +625,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
+			CG_Printf( "%s %s %s%s\n",
 				targetName, message, attackerName, message2);
 			return;
 		}
@@ -655,7 +659,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	
+
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -721,6 +725,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			break;
 		}
 	}
+
 	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
@@ -732,13 +737,14 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 		char	*s;
 
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
@@ -801,7 +807,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
+			CG_Printf( "%s %s %s%s\n",
 				targetName, message, attackerName, message2);
 			return;
 		}
@@ -834,7 +840,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-	
+
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -911,13 +917,14 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 		char	*s;
 
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
@@ -991,7 +998,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
+			CG_Printf( "%s %s %s%s\n",
 				targetName, message, attackerName, message2);
 			return;
 		}
@@ -1088,6 +1095,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			break;
 		}
 	}
+
 	if (!(attacker == ENTITYNUM_WORLD || attacker == target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
@@ -1099,13 +1107,14 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 		char	*s;
 
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You fragged %s\n%s place with %i", targetName,
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
@@ -1154,10 +1163,10 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			if (gender == GENDER_NEUTER)
 				message = "had its legs cut off thanks to";
 			else if (gender == GENDER_FEMALE)
-				message = "had her legs cut off thanks to"; 
+				message = "had her legs cut off thanks to";
 			else
-				message = "had his legs cut off thanks to";                                                                                                                                                                                    
-                                                
+				message = "had his legs cut off thanks to";
+
 			message2 = "'s flying knife";
 			break;
 		case MOD_HANDCANNON:
@@ -1180,7 +1189,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 		}
 
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
+			CG_Printf( "%s %s %s%s\n",
 				targetName, message, attackerName, message2);
 			return;
 		}
@@ -1204,7 +1213,7 @@ static void CG_UseItem( centity_t *cent ) {
 	entityState_t *es;
 
 	es = &cent->currentState;
-	
+
 	itemNum = (es->event & ~EV_EVENT_BITS) - EV_USE_ITEM0;
 	if ( itemNum < 0 || itemNum > HI_NUM_HOLDABLE ) {
 		itemNum = 0;
@@ -1300,7 +1309,7 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	} else {
 		snd = "*pain100_1.wav";
 	}
-	trap_S_StartSound( NULL, cent->currentState.number, CHAN_VOICE, 
+	trap_S_StartSound( NULL, cent->currentState.number, CHAN_VOICE,
 		CG_CustomSound( cent->currentState.number, snd ) );
 
 	// save pain time for programitic twitch animation
@@ -1342,13 +1351,13 @@ static void CG_DMRewardEvent( entityState_t *ent ) {
 	strcat( attackerName, S_COLOR_WHITE );
 	if ((mod > 3) && (mod < 8))
 		message = "2";
-	else if (mod < 16) 
+	else if (mod < 16)
 		message = "4";
 	else if (mod < 32)
 		message = "8";
-	else 
+	else
 		message = "16";
-	
+
 	if (message) {
 		CG_Printf( "%s has %d kills in a row and receives %s frags for the kill!\n",
                         attackerName, mod, message);
@@ -1422,14 +1431,14 @@ also called by CG_CheckPlayerstateEvents
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t	*es;
 	int				event;
-	vec3_t			dir;
+	vec3_t			dir, viewDir;
 	const char		*s;
 	int				clientNum;
 	clientInfo_t	*ci;
 
 	es = &cent->currentState;
 	event = es->event & ~EV_EVENT_BITS;
-	
+
 	if ( cg_debugEvents.integer ) {
 		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
 	}
@@ -1445,6 +1454,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
+	CG_CalcViewDir2(es->origin2, position, viewDir);
+
 	switch ( event ) {
 	//
 	// movement generated events
@@ -1452,21 +1463,21 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FOOTSTEP:
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ ci->footsteps ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_METAL:
 		DEBUGNAME("EV_FOOTSTEP_METAL");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_METAL ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_GRASS:
 		DEBUGNAME("EV_FOOTSTEP_GRASS");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_GRASS ][rand()&3] );
 		}
 		break;
@@ -1474,7 +1485,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FOOTSTEP_GRAVEL:
 		DEBUGNAME("EV_FOOTSTEP_GRAVEL");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_GRAVEL ][rand()&3] );
 		}
 		break;
@@ -1482,42 +1493,42 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FOOTSTEP_WOOD:
 		DEBUGNAME("EV_FOOTSTEP_WOOD");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_WOOD ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_CARPET:
 		DEBUGNAME("EV_FOOTSTEP_CARPET");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_CARPET ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSTEP_METAL2:
 		DEBUGNAME("EV_FOOTSTEP_METAL2");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_METAL2 ][rand()&3] );
 		}
 		break;
 	case EV_FOOTSPLASH:
 		DEBUGNAME("EV_FOOTSPLASH");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
 	case EV_FOOTWADE:
 		DEBUGNAME("EV_FOOTWADE");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
 	case EV_SWIM:
 		DEBUGNAME("EV_SWIM");
 		if (cg_footsteps.integer) {
-			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_SPLASH ][rand()&3] );
 		}
 		break;
@@ -1525,9 +1536,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_FALL_SHORT:
 		DEBUGNAME("EV_FALL_SHORT");
-		
+
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.landSound );
-		
+
 
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
@@ -1537,7 +1548,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 	case EV_FALL_SHORT_NOSOUND:
 		DEBUGNAME("EV_FALL_SHORT_NOSOUND");
-		
+
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
 			cg.landChange = -8;
@@ -1547,9 +1558,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FALL_MEDIUM:
 		DEBUGNAME("EV_FALL_MEDIUM");
 		// use normal pain sound
-	
+
 		trap_S_StartSound( NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*pain100_1.wav" ) );
-		
+
 
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			// smooth landing z changes
@@ -1569,9 +1580,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_FALL_FAR:
 		DEBUGNAME("EV_FALL_FAR");
-	
+
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
-		
+
 
 		cent->pe.painTime = cg.time;	// don't play a pain sound right after this
 		if ( clientNum == cg.predictedPlayerState.clientNum ) {
@@ -1634,17 +1645,18 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			vec3_t			up = {0, 0, 1};
 
 
-			smoke = CG_SmokePuff( cent->lerpOrigin, up, 
-						  32, 
+			smoke = CG_SmokePuff( cent->lerpOrigin, up,
+						  32,
 						  1, 1, 1, 0.33f,
-						  1000, 
+						  1000,
 						  cg.time, 0,
-						  LEF_PUFF_DONT_SCALE, 
+						  LEF_PUFF_DONT_SCALE,
 						  cgs.media.smokePuffShader );
 		}
 
 		// boing sound at origin, jump sound on player
-		trap_S_StartSound ( cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound );
+		// NiceAss: Allow for custom jump sounds. I have no clue what I am doing.
+		if (es->eventParm) trap_S_StartSound ( cent->lerpOrigin, -1, CHAN_VOICE, cgs.gameSounds[ es->eventParm ]); //cgs.media.jumpPadSound );
 		//Blaze: Get rid of jump noises
 //		trap_S_StartSound (NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*jump1.wav" ) );
 		break;
@@ -1960,7 +1972,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_SCOREPLUM");
 		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
 		break;
-
 	//
 	// missile impacts
 	//
@@ -1973,18 +1984,18 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_MISSILE_MISS:
 		DEBUGNAME("EV_MISSILE_MISS");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, 0 );
+		CG_MissileHitWall( es->weapon, 0, position, dir, viewDir, IMPACTSOUND_DEFAULT, 0 );
 		break;
 
 	case EV_MISSILE_MISS_METAL:
 		DEBUGNAME("EV_MISSILE_MISS_METAL");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL, 0 );
+		CG_MissileHitWall( es->weapon, 0, position, dir, viewDir, IMPACTSOUND_METAL, 0 );
 		break;
 	case EV_KNIFE_MISS:
 		DEBUGNAME("EV_KNIFE_MISS");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL, RQ3_WPMOD_KNIFESLASH );
+		CG_MissileHitWall( es->weapon, 0, position, dir, viewDir, IMPACTSOUND_METAL, RQ3_WPMOD_KNIFESLASH );
 		break;
 
 	case EV_RAILTRAIL:
@@ -1995,7 +2006,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//CG_RailTrail( ci, es->origin2, es->pos.trBase );
 		if ( es->eventParm != 255 ) {
 			ByteToDir( es->eventParm, dir );
-			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, IMPACTSOUND_DEFAULT, 0 );
+			CG_MissileHitWall( es->weapon, es->clientNum, position, dir, viewDir, IMPACTSOUND_DEFAULT, 0 );
 		}
 		break;
 
@@ -2113,7 +2124,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
-	
+
 	case EV_RQ3_SOUND:
 		DEBUGNAME("EV_RQ3_SOUND");
 		switch (es->eventParm) {
@@ -2128,7 +2139,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     		case RQ3_SOUND_HEADSHOT:
     			//CG_Printf("EV_RQ3_SOUND: Headshot\n");
     			//Elder: extra blood - synched with sound
-    			//CG_Bleed( position, es->number );   				
+    			//CG_Bleed( position, es->number );
     			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
     			break;
 			*/
@@ -2147,7 +2158,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			case RQ3_SOUND_KNIFEDEATH:
 				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.knifeDeathSound);
 				break;
-			
+
     		default:
     			break;
 		}
@@ -2198,7 +2209,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					else {
 					if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
 #ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF) 
+							if (cgs.gametype == GT_1FCTF)
 								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 							else
 #endif
@@ -2301,7 +2312,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEATH2:
 	case EV_DEATH3:
 		DEBUGNAME("EV_DEATHx");
-		trap_S_StartSound( NULL, es->number, CHAN_VOICE, 
+		trap_S_StartSound( NULL, es->number, CHAN_VOICE,
 				CG_CustomSound( es->number, va("*death%i.wav", event - EV_DEATH1 + 1) ) );
 		break;
 

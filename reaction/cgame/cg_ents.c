@@ -15,11 +15,11 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
-	
+
 	// lerp the tag
 	trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
@@ -71,7 +71,7 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
@@ -138,10 +138,10 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// add loop sound
 	if ( cent->currentState.loopSound ) {
 		if (cent->currentState.eType != ET_SPEAKER) {
-			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		} else {
-			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		}
 	}
@@ -239,7 +239,7 @@ static void CG_Item( centity_t *cent ) {
 	gitem_t			*item;
 	int				msec;
 	float			frac;
-//	float			scale;
+	float			scale;
 	weaponInfo_t	*wi;
 
 	es = &cent->currentState;
@@ -269,7 +269,7 @@ static void CG_Item( centity_t *cent ) {
 		}
 		else if (item->giType == IT_HOLDABLE)
 			ent.radius = 10;
-		else 
+		else
 			ent.radius = 6;
 		//ent.radius = 14;
 		ent.customShader = cg_items[es->modelindex].icon;
@@ -322,7 +322,7 @@ static void CG_Item( centity_t *cent ) {
 		//It's out here because the wi calculations mess up the lerpOrigin
 		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
 		AxisCopy( cg.autoAxisFast, ent.axis );
-		
+
 		VectorCopy(ent.axis[1], myvec);
 		VectorNegate(ent.axis[2], ent.axis[1]);
 		VectorCopy(myvec, ent.axis[2]);
@@ -344,26 +344,26 @@ static void CG_Item( centity_t *cent ) {
 	// models, so we need to offset them or they will rotate
 	// eccentricly
 	//Elder: added knife conditional
-	if ( item->giType == IT_WEAPON && 
+	if ( item->giType == IT_WEAPON &&
 		!(item->giTag == WP_KNIFE && ( (es->eFlags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) ) {
 
 		vec3_t          myvec;
-		
+
 		// Elder: bad hack -- but oh well.
 		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0)
 			AnglesToAxis(es->angles, ent.axis);
 
-		//CG_Printf("Should not be in here if it's a thrown knife\n");		
+		//CG_Printf("Should not be in here if it's a thrown knife\n");
 		wi = &cg_weapons[item->giTag];
-		cent->lerpOrigin[0] -= 
+		cent->lerpOrigin[0] -=
 			wi->weaponMidpoint[0] * ent.axis[0][0] +
 			wi->weaponMidpoint[1] * ent.axis[1][0] +
 			wi->weaponMidpoint[2] * ent.axis[2][0];
-		cent->lerpOrigin[1] -= 
+		cent->lerpOrigin[1] -=
 			wi->weaponMidpoint[0] * ent.axis[0][1] +
 			wi->weaponMidpoint[1] * ent.axis[1][1] +
 			wi->weaponMidpoint[2] * ent.axis[2][1];
-		cent->lerpOrigin[2] -= 
+		cent->lerpOrigin[2] -=
 			wi->weaponMidpoint[0] * ent.axis[0][2] +
 			wi->weaponMidpoint[1] * ent.axis[1][2] +
 			wi->weaponMidpoint[2] * ent.axis[2][2];
@@ -375,7 +375,7 @@ static void CG_Item( centity_t *cent ) {
 			cent->lerpOrigin[2] -= 14;
 
 		//	cent->lerpOrigin[2] += 8;	// an extra height boost
-    
+
 		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0)
 		{
 			// Blaze: rotate the gun by 90 degrees to place it on the ground
@@ -414,7 +414,7 @@ static void CG_Item( centity_t *cent ) {
 	// items without glow textures need to keep a minimum light value
 	// so they are always visible
 	if ( ( item->giType == IT_WEAPON ) ||
-		 ( item->giType == IT_ARMOR ) || 
+		 ( item->giType == IT_ARMOR ) ||
 		 ( item->giType == IT_AMMO) ||
 		 ( item->giType == IT_HOLDABLE) ) {
 		ent.renderfx |= RF_MINLIGHT;
@@ -423,12 +423,17 @@ static void CG_Item( centity_t *cent ) {
 	// increase the size of the weapons when they are presented as items
 
 	// Elder: only for knives, which are hard to spot
+	// NiceAss: Scale code modified for weapons too.
 	if ( item->giTag == WP_KNIFE )
-	{
-		VectorScale( ent.axis[0], 1.2f, ent.axis[0] );
-		VectorScale( ent.axis[1], 1.2f, ent.axis[1] );
-		VectorScale( ent.axis[2], 1.2f, ent.axis[2] );
-	}
+		scale = WEAPON_KNIFE_SCALE;
+	else if ( item->giType == IT_WEAPON && item->giTag != WP_KNIFE )
+		scale = WEAPON_GUN_SCALE;
+	else
+		scale = WEAPON_OTHER_SCALE;
+
+	VectorScale( ent.axis[0], scale, ent.axis[0] );
+	VectorScale( ent.axis[1], scale, ent.axis[1] );
+	VectorScale( ent.axis[2], scale, ent.axis[2] );
 
 	//Blaze: Dont make models bigger
 	/*
@@ -456,13 +461,17 @@ static void CG_Item( centity_t *cent ) {
 	trap_R_AddRefEntityToScene(&ent);
 
 	// add strobe effect -- should make this toggle?
-	if ( ( item->giType == IT_WEAPON ) ||
-		 ( item->giType == IT_ARMOR ) || 
-		 ( item->giType == IT_AMMO) ||
-		 ( item->giType == IT_HOLDABLE) ) {
+	// NiceAss: Temp Cvar usage for strobe shader.
+	if ( ( item->giType == IT_WEAPON ||
+		 item->giType == IT_ARMOR ||
+		 item->giType == IT_AMMO ||
+		 item->giType == IT_HOLDABLE ) && 
+		 cg_RQ3_strobe.integer == 1 ) {
 		ent.customShader = cgs.media.itemStrobeShader;
 		trap_R_AddRefEntityToScene(&ent);
 	}
+
+
 
 #ifdef MISSIONPACK
 	if ( item->giType == IT_WEAPON && wi->barrelModel ) {
@@ -486,7 +495,7 @@ static void CG_Item( centity_t *cent ) {
 #endif
 
 	// accompanying rings / spheres for powerups
-	if ( !cg_simpleItems.integer ) 
+	if ( !cg_simpleItems.integer )
 	{
 		vec3_t spinAngles;
 
@@ -502,7 +511,7 @@ static void CG_Item( centity_t *cent ) {
 					spinAngles[1] = ( cg.time & 1023 ) * 360 / -1024.0f;
 				}
 				AnglesToAxis( spinAngles, ent.axis );
-				
+
 				// scale up if respawning
 				if ( frac != 1.0 ) {
 					VectorScale( ent.axis[0], frac, ent.axis[0] );
@@ -539,7 +548,7 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( s1->angles, cent->lerpAngles);
 
 	// add trails
-	if ( weapon->missileTrailFunc ) 
+	if ( weapon->missileTrailFunc )
 	{
 		weapon->missileTrailFunc( cent, weapon );
 	}
@@ -556,13 +565,13 @@ static void CG_Missile( centity_t *cent ) {
 
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
 			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
 	}
 */
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
 			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
 	}
 
@@ -614,11 +623,16 @@ static void CG_Missile( centity_t *cent ) {
 		if ( s1->weapon == WP_KNIFE ) {
 			vec3_t knifeVelocity;
 
-			BG_EvaluateTrajectoryDelta(&s1->pos, cg.time, knifeVelocity);			
+			BG_EvaluateTrajectoryDelta(&s1->pos, cg.time, knifeVelocity);
 			vectoangles(knifeVelocity, cent->lerpAngles);
-			cent->lerpAngles[0] += cg.time / 6;
+			cent->lerpAngles[0] += cg.time; // was / 6
 
 			AnglesToAxis( cent->lerpAngles, ent.axis );
+
+			// NiceAss: Added for scaling of the knife in flight and not just when sticking in a wall.
+			VectorScale( ent.axis[0], WEAPON_KNIFE_SCALE, ent.axis[0] );
+			VectorScale( ent.axis[1], WEAPON_KNIFE_SCALE, ent.axis[1] );
+			VectorScale( ent.axis[2], WEAPON_KNIFE_SCALE, ent.axis[2] );
 		}
 		else
 			RotateAroundDirection( ent.axis, cg.time / 4 );
@@ -899,7 +913,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
 	if ( cent != &cg.predictedPlayerEntity ) {
-		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, 
+		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum,
 		cg.snap->serverTime, cg.time, cent->lerpOrigin );
 	}
 }
@@ -1150,7 +1164,7 @@ void CG_AddPacketEntities( void ) {
 			cg.frameInterpolation = (float)( cg.time - cg.snap->serverTime ) / delta;
 		}
 	} else {
-		cg.frameInterpolation = 0;	// actually, it should never be used, because 
+		cg.frameInterpolation = 0;	// actually, it should never be used, because
 									// no entities should be marked as interpolating
 	}
 
@@ -1189,6 +1203,7 @@ CG_LaserSight
 
 Creates the laser dot
 Elder's Note: Client does not use this if the dot is his/her own -- see CG_LocalLaser
+NiceAss's Note: Lies?! It seems to for me =P I don't even think CG_LocalLaser gets called...
 ==================
 */
 
@@ -1203,6 +1218,10 @@ static void CG_LaserSight( centity_t *cent )  {
 
 	if (cent->currentState.eventParm == 1)
 	{
+		// NiceAss: Testing for foglasers... maybe i'll get this to work some day
+		//if (cent->currentState.eFlags & EF_FIRING) {
+		//	CG_LightningBolt( cent, cent->lerpOrigin );
+		//}
 		ent.reType = RT_SPRITE;
 		ent.radius = 3;
 		ent.rotation = 0;
@@ -1247,3 +1266,37 @@ static void CG_Dlight( centity_t *cent )  {
 	//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
 }
 
+
+/*
+=================
+CG_CalcViewAngle
+Added by NiceAss.
+
+Start not known. End known.
+Used for calculating a player's viewing angle.
+Currently used for spark directions (reflected off a plane).
+=================
+*/
+void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir) {
+	vec3_t delta, start;
+
+	CG_CalcMuzzlePoint(sourceEntityNum, start);
+	VectorSubtract(end, start, delta);
+	VectorNormalize2(delta, viewDir);
+}
+
+/*
+=================
+CG_CalcViewAngle2
+Added by NiceAss.
+
+Start known. End known.
+Used for calculating a player's viewing angle.
+Currently used for spark directions (reflected off a plane).
+=================
+*/
+void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir) {
+	vec3_t delta;
+	VectorSubtract(end, start, delta);
+	VectorNormalize2(delta, viewDir);
+}

@@ -1211,6 +1211,8 @@ different than the muzzle point used for determining hits.
 The cent should be the non-predicted cent if it is from the player,
 so the endpoint will reflect the simulated strike (lagging the predicted
 angle)
+
+NiceAss; I've torn this function up with testing... ignore it =P
 ===============
 */
 static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
@@ -1218,24 +1220,23 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	refEntity_t		beam;
 	vec3_t			forward;
 	vec3_t			muzzlePoint, endPoint;
+	centity_t		*client;
 //Blaze: LG No longer exists
 //	if ( cent->currentState.weapon != WP_LIGHTNING ) {
 //		return;
 //	}
 
 	memset( &beam, 0, sizeof( beam ) );
+	//client = &cg_entities[cg.predictedPlayerState.clientNum];
+
+	//CG_Printf("%d \n", cg.predictedPlayerState.clientNum);
 
 	// find muzzle point for this frame
-	VectorCopy( cent->lerpOrigin, muzzlePoint );
+	//BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 	AngleVectors( cent->lerpAngles, forward, NULL, NULL );
 
-	// FIXME: crouch
-	muzzlePoint[2] += DEFAULT_VIEWHEIGHT;
-
-	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
-
 	// project forward by the lightning range
-	VectorMA( muzzlePoint, LIGHTNING_RANGE, forward, endPoint );
+	VectorMA( muzzlePoint, 8192, forward, endPoint );
 
 	// see if it hit a wall
 	CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint,
@@ -1254,23 +1255,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 
 	// add the impact flare if it hit something
 	if ( trace.fraction < 1.0 ) {
-		vec3_t	angles;
-		vec3_t	dir;
 
-		VectorSubtract( beam.oldorigin, beam.origin, dir );
-		VectorNormalize( dir );
-
-		memset( &beam, 0, sizeof( beam ) );
-		beam.hModel = cgs.media.lightningExplosionModel;
-
-		VectorMA( trace.endpos, -16, dir, beam.origin );
-
-		// make a random orientation
-		angles[0] = rand() % 360;
-		angles[1] = rand() % 360;
-		angles[2] = rand() % 360;
-		AnglesToAxis( angles, beam.axis );
-		trap_R_AddRefEntityToScene( &beam );
 	}
 }
 
@@ -1574,6 +1559,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 	*/
 
+	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
+
+
 	//Elder: re-added to fix loss of muzzle flashes!
 	// impulse flash
 	if ( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash ) {
@@ -1663,7 +1651,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		// add lightning bolt
 		//Blaze: No need for this
-		//CG_LightningBolt( nonPredictedCent, flash.origin );
 
 		// add rail trail
 		//Blaze: no need for this
@@ -1690,6 +1677,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	float		fovOffset;
 	vec3_t		angles;
 	weaponInfo_t	*weapon;
+	// remove this:
+	vec3_t		origin;
+
 	//Blaze: Reaction vars for gun positions
 	float rxn_gunx, rxn_guny, rxn_gunz;
 
@@ -1715,14 +1705,12 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	//Blaze: removed cg_drawGun checks and moved into other code.
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_THROWWEAPON) == RQ3_THROWWEAPON) {
 //Blaze: Removed these
-//		vec3_t		origin;
-
-//		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
+		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
 			// special hack for lightning gun...
-//			VectorCopy( cg.refdef.vieworg, origin );
-//			VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
-//			CG_LightningBolt( &cg_entities[ps->clientNum], origin );
-//		}
+			//VectorCopy( cg.refdef.vieworg, origin );
+			//VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
+			//CG_LightningBolt( &cg_entities[ps->clientNum], origin );
+		}
 		return;
 	}
 
@@ -2481,6 +2469,14 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 		cg.snap->ps.stats[STAT_BURST] > 0 ) {
 		return;
 	}
+	// KNIFE
+	// NicEass: This is if the knife slash is not the first (2,3,4,5)
+	if (weapModification == RQ3_WPMOD_KNIFENOMARK) {
+		return;
+	}
+	/*if ( cg.snap->ps.weapon == WP_KNIFE ) // { && cg.snap->ps.stats[STAT_BURST] > 0 ) {
+		return;
+	}*/
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
@@ -2518,7 +2514,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	{
 		trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, cgs.media.silencerSound );
 	}
-	else
+	else// if (cg.snap->ps.weapon != WP_KNIFE) 
 	{
 		// play a sound
 		for ( c = 0 ; c < 4 ; c++ ) {
@@ -2760,7 +2756,7 @@ Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
-							vec3_t dir, impactSound_t soundType, int weapModification ) {
+							vec3_t dir, vec3_t viewdir, impactSound_t soundType, int weapModification ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -2783,8 +2779,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	int				contentType;
 
 	//Elder: for impact sparks
-	vec3_t			velocity;
+	vec3_t			velocity, dir2;
 	int				sparkCount;
+	float			dot;
 
 	int				i;
 
@@ -3193,12 +3190,19 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 					color[3] = 192;
 					break;
 			}
+			
+			// NiceAss: Direction of bullet affects sparks
+			VectorCopy(dir, dir2);
+			if (weapon != WP_KNIFE) {
+				dot = DotProduct( viewdir, dir2 );
+				VectorMA( viewdir, -2*dot, dir2, dir2 );
+			}
 
 			// Elder: should probably dump this into another function
 			for ( i = 0; i < flashCount; i++ )
 			{
 				// introduce variance
-				VectorCopy( dir, temp );
+				VectorCopy( dir2, temp );
 				scale = crandom() + 1.8f;
 				temp[0] += (crandom() * 0.4f) - 0.2f;
 				temp[1] += (crandom() * 0.4f) - 0.2f;
@@ -3207,7 +3211,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				VectorCopy( temp, offsetDir );
 				VectorScale( temp, scale, temp );
 
-				le = CG_MakeExplosion( origin, dir,
+				le = CG_MakeExplosion( origin, dir2,
 							   mod,	shader,
 							   duration, isSprite );
 
@@ -3319,20 +3323,29 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			else
 				sparkCount = 15 + rand() % 15;
 
+			// NiceAss: Direction of bullet affects sparks
+			VectorCopy(dir, dir2);
+			if (weapon != WP_KNIFE) {
+				dot = DotProduct( viewdir, dir2 );
+				VectorMA( viewdir, -2*dot, dir2, dir2 );
+			}
+
 			// Generate the particles
 			for (i = 0; i < sparkCount; i++)
 			{
 				if (weapon == WP_KNIFE)
-					VectorScale(dir, 50 + rand() % 10, velocity);
+					VectorScale(dir2, 50 + rand() % 10, velocity);
 				else
-					VectorScale(dir, 150 + rand() % 30, velocity);
+					VectorScale(dir2, 150 + rand() % 30, velocity);
 				//random upwards sparks
 				if ( rand() % 5 < 1)
 					velocity[2] += 120 + rand() % 30;
 
 				velocity[0] += rand() % 50 - 25;
 				velocity[1] += rand() % 50 - 25;
-				CG_ParticleSparks(origin, velocity, 100 + rand() % 120, 2, 2, -4, 1);
+//				CG_ParticleSparks(origin, velocity, 100 + rand() % 120, 2, 2, -4, 1);
+				// NiceAss: Longer life, faster sparks == more eye candy! =)
+				CG_ParticleSparks(origin, velocity, 150 + rand() % 120, 2, 2, -5, 1);
 			}
 		}
 	}
@@ -3426,9 +3439,12 @@ We are not going to show every HC impact
 */
 static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWeapon ) {
 	trace_t		tr;
+	vec3_t viewDir;
 	int sourceContentType, destContentType;
 
 	CG_Trace( &tr, start, NULL, NULL, end, skipNum, MASK_SHOT );
+
+	CG_CalcViewDir2(start, end, viewDir);
 
 	sourceContentType = trap_CM_PointContents( start, 0 );
 	destContentType = trap_CM_PointContents( tr.endpos, 0 );
@@ -3473,22 +3489,22 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
 			}
 		}
 		else if ( tr.surfaceFlags & SURF_GLASS )
 		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_GLASS, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_GLASS, 0 );
 			}
 		}
 		else
@@ -3496,11 +3512,11 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			// Elder: By default, the M3 and HC will spark on all surfaces
 			// Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
-				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
 			{
 				//Elder: show only approximately every other impact mark
-				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_METAL, 0 );
 			}
 			//CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT, 0 );
 		}
@@ -3751,7 +3767,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			    qboolean flesh, int fleshEntityNum, impactSound_t soundType) {
 	trace_t trace;
 	int sourceContentType, destContentType;
-	vec3_t		start;
+	vec3_t		start, viewAngle;
 	centity_t	*cent;
 
 	// if the shooter is currently valid, calc a source point and possibly
@@ -3800,12 +3816,15 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 		}
 	}
 
+	// NiceAss: Added for better sparking.
+	CG_CalcViewDir(sourceEntityNum, end, viewAngle);
+
 	// impact splash and mark
 	if ( flesh ) {
 		CG_Bleed( end, fleshEntityNum );
 	} else {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-		CG_MissileHitWall( WP_PISTOL, 0, end, normal, soundType, 0 );
+		CG_MissileHitWall( WP_PISTOL, 0, end, normal, viewAngle, soundType, 0 );
 	}
 
 }

@@ -31,7 +31,7 @@ static int CG_ValidOrder(const char *p) {
 	int i;
 	for (i = 0; i < numValidOrders; i++) {
 		if (Q_stricmp(p, validOrders[i].order) == 0) {
-			return validOrders[i].taskNum;
+			return validOrders[i].taskNum;7
 		}
 	}
 	return -1;
@@ -305,7 +305,7 @@ static void CG_ConfigStringModified( void ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
 		cgs.gameModels[ num-CS_MODELS ] = trap_R_RegisterModel( str );
-	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_MODELS ) {
+	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {
 		if ( str[0] != '*' ) {	// player specific sounds don't register here
 			cgs.gameSounds[ num-CS_SOUNDS] = trap_S_RegisterSound( str, qfalse );
 		}
@@ -327,7 +327,7 @@ static void CG_ConfigStringModified( void ) {
 	else if ( num == CS_SHADERSTATE ) {
 		CG_ShaderStateChanged();
 	}
-		
+
 }
 
 
@@ -1056,13 +1056,13 @@ static void CG_ServerCommand( void ) {
 		cg.levelShot = qtrue;
 		return;
 	}
-	//Blaze: Dont think q3 can do 
+	//Blaze: Dont think q3 can do
 	/*if ( !strcmp( cmd, "numCheatVars" ) )
 	{//set and clear the cheatvar structure
 		int		numCheats;
 		numCheats = atoi(CG_Argv(1));
-		
-		return;		
+
+		return;
 	}*/
 
 	if ( !strcmp( cmd, "delCheatVar" ) )
@@ -1076,7 +1076,7 @@ static void CG_ServerCommand( void ) {
 		char param[128];
 		int i;
 		float lowend, highend;
-		
+
 		Q_strncpyz( param, CG_Argv(1), 128 );
 		lowend = atof(CG_Argv(2));
 		highend = atof(CG_Argv(3));

@@ -649,7 +649,7 @@ static void CG_LoadClientInfo( clientInfo_t *ci ) {
 	}
 #endif
 	modelloaded = qtrue;
-	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname ) ) {		
+	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname ) ) {
 		if ( cg_buildScript.integer ) {
 			CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
 		}
@@ -759,8 +759,8 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 		if ( !Q_stricmp( ci->modelName, match->modelName )
 			&& !Q_stricmp( ci->skinName, match->skinName )
 			&& !Q_stricmp( ci->headModelName, match->headModelName )
-			&& !Q_stricmp( ci->headSkinName, match->headSkinName ) 
-			&& !Q_stricmp( ci->blueTeam, match->blueTeam ) 
+			&& !Q_stricmp( ci->headSkinName, match->headSkinName )
+			&& !Q_stricmp( ci->blueTeam, match->blueTeam )
 			&& !Q_stricmp( ci->redTeam, match->redTeam )
 			&& (cgs.gametype < GT_TEAM || ci->team == match->team) ) {
 			// this clientinfo is identical, so use it's handles
@@ -1077,7 +1077,7 @@ CG_SetWeaponLerpFrame
 may include ANIM_TOGGLEBIT
 ===============
 */
-static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation ) 
+static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation )
 {
 	animation_t *anim;
 
@@ -1106,7 +1106,7 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 
 	//Elder: reset frame so there is no lerping between new animations
 	lf->oldFrame = lf->frame = lf->animation->firstFrame;
-	
+
 }
 
 
@@ -1269,13 +1269,13 @@ CG_WeaponAnimation
 This is called from cg_weapons.c
 ===============
 */
-void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *weaponBackLerp ) 
+void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *weaponBackLerp )
 {
 	clientInfo_t *ci;
 	int clientNum;
 	int stateAnimNum;
 	int weapAnimNum;
-	
+
 	clientNum = cent->currentState.clientNum;
 
 	if ( cg_noPlayerAnims.integer ) {
@@ -1284,7 +1284,7 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 	}
 
 	ci = &cgs.clientinfo[ clientNum ];
-	
+
 	// Elder: FIXME? - hack hehe
 	// Compare master copy with existing animation frames
 	// The only time when they are supposed to be mismatched is when
@@ -1332,7 +1332,7 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 	#if 0
 	if (cg_debugAnim.integer)
 	if(cent->pe.weapon.oldFrame || cent->pe.weapon.frame || cent->pe.weapon.backlerp) {
-		CG_Printf("weaponOld: %i weaponFrame: %i weaponBack: %i\n", 
+		CG_Printf("weaponOld: %i weaponFrame: %i weaponBack: %i\n",
 		cent->pe.weapon.oldFrame, cent->pe.weapon.frame, cent->pe.weapon.backlerp);
 	}
 	#endif
@@ -1418,7 +1418,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 	if ( !*swinging ) {
 		return;
 	}
-	
+
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
@@ -1512,7 +1512,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 	// --------- yaw -------------
 
 	// allow yaw to drift a bit
-	if ( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE 
+	if ( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE
 		|| ( cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT ) != TORSO_STAND  ) {
 		// if not standing still, always point all in the same direction
 		cent->pe.torso.yawing = qtrue;	// always center
@@ -1619,7 +1619,7 @@ static void CG_HCSmokeTrail( centity_t *cent ) {
 	vec3_t			velocity;
 	int				anim;
 	int				smokeTime;
-	
+
 	if ( cg_noProjectileTrail.integer || cent->trailTime > cg.time ) {
 		return;
 	}
@@ -1636,7 +1636,7 @@ static void CG_HCSmokeTrail( centity_t *cent ) {
 	{
 		velocity[0] = rand() % 10 - 5;
 		velocity[1] = rand() % 8 - 4;
-		velocity[2] = 24 + rand() % 40;	
+		velocity[2] = 24 + rand() % 40;
 		cent->trailTime += 350;
 		smokeTime = 2250 + rand() % 250;
 	}
@@ -1655,11 +1655,11 @@ static void CG_HCSmokeTrail( centity_t *cent ) {
 
 	VectorCopy( cent->lerpOrigin, origin );
 	origin[2] -= 6;
-	
-	smoke = CG_SmokePuff( origin, velocity, 
-				  20 + rand() % 4, 
+
+	smoke = CG_SmokePuff( origin, velocity,
+				  20 + rand() % 4,
 				  1, 1, 1, 0.33f,
-				  smokeTime, 
+				  smokeTime,
 				  cg.time,
 				  0,
 				  0,
@@ -1695,10 +1695,10 @@ static void CG_HasteTrail( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, origin );
 	origin[2] -= 16;
 
-	smoke = CG_SmokePuff( origin, vec3_origin, 
-				  8, 
+	smoke = CG_SmokePuff( origin, vec3_origin,
+				  8,
 				  1, 1, 1, 1,
-				  500, 
+				  500,
 				  cg.time,
 				  0,
 				  0,
@@ -2161,7 +2161,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	}
 
 	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-	if ( !(cent->currentState.eFlags & EF_DEAD) && 
+	if ( !(cent->currentState.eFlags & EF_DEAD) &&
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM) {
 		if (cg_drawFriend.integer) {
@@ -2218,11 +2218,11 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	alpha = 1.0 - trace.fraction;
 
 	// bk0101022 - hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
+	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f )
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
+	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
 		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, 24, qtrue );
 
 	return qtrue;
@@ -2344,7 +2344,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		//}
 
-	
+
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
 			if (team == TEAM_RED)
@@ -2374,7 +2374,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 					trap_R_AddRefEntityToScene( ent );
 			}
 		}
-		
+
 	}
 }
 
@@ -2401,7 +2401,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 			verts[i].modulate[2] = ambientLight[2];
 			verts[i].modulate[3] = 255;
 			continue;
-		} 
+		}
 		j = ( ambientLight[0] + incoming * directedLight[0] );
 		if ( j > 255 ) {
 			j = 255;
@@ -2482,7 +2482,7 @@ void CG_Player( centity_t *cent ) {
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
-	
+
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
 		 &torso.oldframe, &torso.frame, &torso.backlerp );
@@ -2563,7 +2563,7 @@ void CG_Player( centity_t *cent ) {
 			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
 			dir[2] = 15 + sin(angle) * 8;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			dir[2] = 0;
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
@@ -2641,7 +2641,7 @@ void CG_Player( centity_t *cent ) {
 			dir[1] = cos(angle) * 20;
 			dir[2] = 0;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
 			VectorSet(skull.axis[2], 0, 0, 1);
@@ -2764,6 +2764,12 @@ void CG_Player( centity_t *cent ) {
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
 
+	// NiceAss will have fun here: Big head mode!
+	//VectorScale( head.axis[0], 4.0f, head.axis[0] );
+	//VectorScale( head.axis[1], 4.0f, head.axis[1] );
+	//VectorScale( head.axis[2], 4.0f, head.axis[2] );
+	// End of fun
+
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
 
 #ifdef MISSIONPACK
@@ -2798,7 +2804,7 @@ A player just came into view or teleported, so reset all animation info
 */
 void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->errorTime = -99999;		// guarantee no error decay added
-	cent->extrapolated = qfalse;	
+	cent->extrapolated = qfalse;
 
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.legs, cent->currentState.legsAnim );
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.torso, cent->currentState.torsoAnim );

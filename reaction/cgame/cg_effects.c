@@ -181,8 +181,8 @@ void CG_SpawnEffect( vec3_t org ) {
 #endif
 }
 
-
 #ifdef MISSIONPACK
+
 /*
 ===============
 CG_LightningBoltBeam
