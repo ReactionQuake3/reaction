@@ -48,10 +48,6 @@ static void CG_DropWeapon_f (void) {
 		return;
 	}
 
-	//Elder: don't allow weapon dropping when in the middle of bursts
-	if (cg.snap->ps.stats[STAT_BURST] > 0)
-		return;
-
 	if ((cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
 	{
 		CG_Printf("You are too busy bandaging!\n");
@@ -84,10 +80,6 @@ static void CG_DropItem_f (void) {
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
-
-	//Elder: don't allow item dropping when in the middle of bursts
-	//if (cg.snap->ps.stats[STAT_BURST] > 0)
-		//return;
 
 	trap_SendClientCommand("dropitem");
 }

@@ -418,6 +418,7 @@ static void CG_Item( centity_t *cent ) {
 		 ( item->giType == IT_AMMO) ||
 		 ( item->giType == IT_HOLDABLE) ) {
 		ent.renderfx |= RF_MINLIGHT;
+		//ent.customShader = cgs.media.itemStrobeShader;
 	}
 
 	// increase the size of the weapons when they are presented as items

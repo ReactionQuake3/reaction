@@ -665,7 +665,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.kickSound = trap_S_RegisterSound( "sound/misc/kick.wav", qfalse);
 	cgs.media.lensSound = trap_S_RegisterSound( "sound/misc/lens.wav", qfalse);
 	cgs.media.headshotSound = trap_S_RegisterSound( "sound/misc/headshot.wav", qfalse);
-	cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
+	//cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
 	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencershot.wav", qfalse);
 	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/vest.wav", qfalse);
 	cgs.media.weapToggleSound = trap_S_RegisterSound( "sound/misc/click.wav", qfalse);
@@ -962,6 +962,7 @@ static void CG_RegisterGraphics( void ) {
 
 	// Elder: RQ3 misc. shaders
 	cgs.media.irPlayerShader = trap_R_RegisterShader("powerups/irdetail");
+	cgs.media.itemStrobeShader = trap_R_RegisterShader("rq3-itemstrobe");
 
 #ifdef MISSIONPACK
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {

@@ -2125,7 +2125,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			*/
     		case RQ3_SOUND_LCA:
     			//Global sound
-    			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);
+    			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);
     			break;
 			case RQ3_SOUND_KEVLARHIT:
 				//TODO: make sparks from hit position

@@ -608,8 +608,8 @@ static void CG_DrawStatusBar( void ) {
 	}
 
 	// Elder: temporary
-	if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
-		UI_DrawProportionalString( 10, 400, va("%i", cg.snap->ps.stats[STAT_RELOADTIME]), style, colors[2]);
+	//if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
+		//UI_DrawProportionalString( 10, 400, va("%i", cg.snap->ps.stats[STAT_RELOADTIME]), style, colors[2]);
 
 	//Elder: draw grenades, if any, on the side
 	if (cg.snap->ps.ammo[ WP_GRENADE ] > 0)

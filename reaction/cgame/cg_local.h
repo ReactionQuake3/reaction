@@ -403,18 +403,16 @@ typedef struct {
 #define MAX_OTHER_SOUNDS		5
 
 #define MAX_ANIM_SOUNDS			16
-// Singly-linked list
 
 struct sfxSyncInfo_s {
 	int				frame;
 	sfxHandle_t		sound;
 	qboolean		played;
-	//struct sfxSyncInfo_s	*next;
 };
 
 typedef struct sfxSyncInfo_s sfxSyncInfo_t;
 
-typedef struct sfxWeapTiming_s {
+typedef struct {
 	int				numFrames;
 	sfxSyncInfo_t	sfxInfo[MAX_ANIM_SOUNDS];
 }	sfxWeapTiming_t;
@@ -462,19 +460,11 @@ typedef struct weaponInfo_s {
 
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
-
-	sfxWeapTiming_t	animationSounds[MAX_ANIM_SOUNDS];
+	
 	// Elder: sounds to queue
-	/*	
-	sfxSyncInfo_t	activateSound[2];	// last one is an endpoint node
-	sfxSyncInfo_t	disarmSound[2];		// last one is an endpoint node
-	sfxSyncInfo_t	reloadSounds[MAX_RELOAD_SOUNDS];
-	sfxSyncInfo_t	otherSounds[MAX_OTHER_SOUNDS];
-	*/
-	// Deprecated
-	sfxHandle_t		reloadSound1;		// Elder: for various reload stages such as
-	sfxHandle_t		reloadSound2;		// Clip in, clip out, sliding, sliding bolt,
-	sfxHandle_t		reloadSound3;		// etc.  Three should be enough
+	sfxWeapTiming_t	animationSounds[MAX_ANIM_SOUNDS];
+	sfxHandle_t		worldReloadSound[3];
+
 	qboolean		loopFireSound;
 } weaponInfo_t;
 
@@ -850,6 +840,9 @@ typedef struct {
 	qhandle_t	backTileShader;
 	qhandle_t	noammoShader;
 
+	//Elder: item strobe to increase brightness
+	qhandle_t	itemStrobeShader;
+
 	//Elder: C3A Laser tutorial
 	qhandle_t	laserShader;
 
@@ -967,7 +960,7 @@ typedef struct {
 	// sounds
 	sfxHandle_t	kickSound;		//Elder: kick sound
 	sfxHandle_t	headshotSound;	//Elder: splat
-	sfxHandle_t	lcaSound;		//Elder: lights, camera, action!
+	//sfxHandle_t	lcaSound;		//Elder: lights, camera, action!
 	sfxHandle_t	lensSound;		//Elder: sniper lens zoom
 	sfxHandle_t silencerSound;
 	sfxHandle_t kevlarHitSound;
