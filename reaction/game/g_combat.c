@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/06/13 19:38:43  jbravo
+// Small gib fix
+//
 // Revision 1.93  2002/06/11 23:40:18  jbravo
 // Made the head sphere larger
 //
@@ -1562,7 +1565,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// never gib in a nodrop
-	if (g_RQ3_gib.integer > 0 && !self->client->gibbed && ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)) {
+	if ((g_RQ3_gib.integer > 3 && !self->client->gibbed && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer)) || meansOfDeath == MOD_SUICIDE) {
 		// gib death
 		GibEntity( self, killer );
 	} else if (self->client->gibbed) {
