@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.155  2003/09/18 19:05:10  makro
+// Lens flares
+//
 // Revision 1.154  2003/09/17 23:49:29  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -1617,7 +1620,7 @@ typedef struct {
 	sfxHandle_t female_click;
 
 	//Makro - lens flare shaders
-	qhandle_t flareShader[NUM_FLARE_SHADERS];
+	qhandle_t flareShader[NUM_FLARE_SHADERS], sunFlareShader;
 } cgMedia_t;
 
 // The client game static (cgs) structure hold everything
@@ -1715,7 +1718,8 @@ typedef struct {
 	vec3_t clearColor;
 	qboolean clearColorSet;
 	//Makro - sun flares
-	int lastSunTime, lastSunX, lastSunY, numFlares;
+	int lastSunTime, lastSunX, lastSunY, numFlares, sunFlareSize;
+	float sunAlpha;
 	vec3_t sunDir;
 } cgs_t;
 
@@ -2148,6 +2152,9 @@ void CG_SetEntitySoundPosition(centity_t * cent);
 #define ADDENTS_NOSKYPORTAL		-1
 #define ADDENTS_NORMAL			0
 #define ADDENTS_SKYPORTAL		1
+//Makro - longest define in the history of mankind ?
+#define GET_ZOOM_LEVEL ((cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW && (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) ? 6 : ((cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) ? 4 : ((cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) ? 2 : 1
+
 void CG_AddPacketEntities(int mode);
 void CG_Beam(centity_t * cent);
 void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);

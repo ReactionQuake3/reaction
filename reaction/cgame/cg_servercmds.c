@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2003/09/18 19:05:10  makro
+// Lens flares
+//
 // Revision 1.75  2003/09/17 23:49:29  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -459,17 +462,19 @@ void CG_ParseSkyPortal(const char *str)
 	//lens flare
 	n = atoi(Info_ValueForKey(str, "ln"));
 	if (n > 0) {
-		float alphamin, alphamax, sizemin, sizemax, dfactor = 0.5f;
+		float alphamin, alphamax, sizemin, sizemax, dfactor = 0.75f;
 		int i;
 
 		cgs.numFlares = n;
 		cgs.sunDir[0] = atof(Info_ValueForKey(str, "lx"));
 		cgs.sunDir[1] = atof(Info_ValueForKey(str, "ly"));
 		cgs.sunDir[2] = atof(Info_ValueForKey(str, "lz"));
-		alphamin = atof(Info_ValueForKey(str, "lamin"));
-		alphamax = atof(Info_ValueForKey(str, "lamax"));
+		alphamin = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lamin")));
+		alphamax = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lamax")));
 		sizemin = atof(Info_ValueForKey(str, "lsmin"));
 		sizemax = atof(Info_ValueForKey(str, "lsmax"));
+		cgs.sunFlareSize = atoi(Info_ValueForKey(str, "lsun"));
+		cgs.sunAlpha = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lsa")));
 
 		//generate flare parms
 		for (i=0; i<MAX_VISIBLE_FLARES; i++) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2003/09/18 19:05:10  makro
+// Lens flares
+//
 // Revision 1.141  2003/09/17 23:49:29  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -2270,6 +2273,7 @@ static void CG_RegisterGraphics(void)
 	//Makro - lens flare shaders
 	for (i=0; i<NUM_FLARE_SHADERS; i++)
 		cgs.media.flareShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/flare%.2d", i+1));
+	cgs.media.sunFlareShader = trap_R_RegisterShaderNoMip("gfx/2d/sunflare");
 
 	// register all the server specified models
 	for (i = 1; i < MAX_MODELS; i++) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2003/09/18 19:08:40  makro
+// Lens flares
+//
 // Revision 1.78  2003/09/18 00:05:05  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -421,7 +424,7 @@ void G_RunDlight(gentity_t * ent)
 /*QUAKED misc_lens_flare (0 1 0) (-8 -8 -8) (8 8 8) ?
 */
 
-void Think_Flare_Target(gentity_t *ent)
+void Think_SetupFlare(gentity_t *ent)
 {
 	char  info[MAX_INFO_STRING]={0};
 	vec3_t dir;
@@ -438,8 +441,8 @@ void Think_Flare_Target(gentity_t *ent)
 	} else {
 		VectorCopy(ent->s.origin2, dir);
 	}
-	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 	VectorNormalize(dir);
+	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 
 	Info_SetValueForKey(info, "ln", va("%d", ent->count));
 	Info_SetValueForKey(info, "lx", va("%f", dir[0]));
@@ -449,6 +452,8 @@ void Think_Flare_Target(gentity_t *ent)
 	Info_SetValueForKey(info, "lamax", va("%f", ent->health_saved/1000.0f));
 	Info_SetValueForKey(info, "lsmin", va("%d", ent->damage));
 	Info_SetValueForKey(info, "lsmax", va("%d", ent->damage_radius));
+	Info_SetValueForKey(info, "lsun", va("%d", ent->mass));
+	Info_SetValueForKey(info, "lsa", va("%f", ent->speed));
 	trap_SetConfigstring(CS_SKYPORTAL, info);
 	
 	G_FreeEntity(ent, __LINE__, __FILE__);
@@ -465,10 +470,26 @@ void SP_misc_lens_flare(gentity_t *ent)
 	G_SpawnInt("maxsize", "128", &ent->damage_radius);
 
 	G_SpawnFloat("alphamin", "0.5", &f);
+	if (f > 1)
+		f = 1;
+	else if (f < 0)
+		f = 0;
 	ent->health = f * 1000;
 	
 	G_SpawnFloat("alphamax", "1", &f);
+	if (f > 1)
+		f = 1;
+	else if (f < 0)
+		f = 0;
 	ent->health_saved = f * 1000;
+	if (ent->health_saved < ent->health) {
+		int tmp = ent->health_saved;
+		ent->health_saved = ent->health;
+		ent->health = tmp;
+	}
+
+	G_SpawnInt("sunsize", "0", &ent->mass);
+	G_SpawnFloat("sunalpha", "0.5", &ent->speed);
 
 	if (!ent->target) {
 		if (!G_SpawnVector("direction", "0 0 1", ent->s.origin2)) {
@@ -476,7 +497,7 @@ void SP_misc_lens_flare(gentity_t *ent)
 		}
 	}
 
-	ent->think = Think_Flare_Target;
+	ent->think = Think_SetupFlare;
 	ent->nextthink = level.time + FRAMETIME;
 }
 
@@ -710,9 +731,16 @@ void SP_misc_portal_camera(gentity_t * ent)
 void Think_SetupSkyPortal(gentity_t *ent)
 {
 	char  info[MAX_INFO_STRING]={0};
+	qboolean isSet = qfalse;
+	int n = 0;
+	
 	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
-
-	if (!info[0]) {
+	if (info[0]) {
+		n = atoi(Info_ValueForKey(info, "n"));
+		if (n)
+			isSet = qtrue;
+	}
+	if (!isSet) {
 		gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
 	
 		//G_Printf("^1 SKY PORTAL !!!\n");
@@ -736,7 +764,7 @@ void Think_SetupSkyPortal(gentity_t *ent)
 		ent->s.origin2[0] = atof(Info_ValueForKey(info, "x"));
 		ent->s.origin2[1] = atof(Info_ValueForKey(info, "y"));
 		ent->s.origin2[2] = atof(Info_ValueForKey(info, "z"));
-		ent->r.ownerNum = atoi(Info_ValueForKey(info, "n"));
+		ent->r.ownerNum = n;
 	}
 	
 	ent->nextthink = 0;

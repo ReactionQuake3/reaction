@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2003/09/18 19:05:10  makro
+// Lens flares
+//
 // Revision 1.38  2003/09/17 23:49:29  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -1012,8 +1015,8 @@ static void CG_PlayBufferedSounds(void)
 void CG_AddLensFlare()
 {
 	vec3_t dir, dp;
-	float PI180 = M_PI/180, hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2,
-		p, y, cx, cy;
+	float PI180 = M_PI/180, pitch, yaw, cx, cy,
+		hfovx = cg.refdef.fov_x/2, hfovy = cg.refdef.fov_y/2;
 	int i, timeDelta = 0;
 	qboolean visible = qfalse;
 
@@ -1021,22 +1024,28 @@ void CG_AddLensFlare()
 	dp[0] = DotProduct(dir, cg.refdef.viewaxis[0]);
 	dp[1] = DotProduct(dir, cg.refdef.viewaxis[1]);
 	dp[2] = DotProduct(dir, cg.refdef.viewaxis[2]);
-	y = 90 - acos(dp[1])/PI180;
-	p = 90 - acos(dp[2])/PI180;
+	yaw = 90.0f - acos(dp[1])/PI180;
+	pitch = 90.0f - acos(dp[2])/PI180;
 	//if the sun is in fov
-	if (dp[0] > 0 && abs(y) <= hfovx && abs(p) <= hfovy) {
+	if (dp[0] > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
 		//do a trace
 		vec3_t end;
 		trace_t tr;
 
 		VectorMA(cg.refdef.vieworg, 16384, dir, end);
 		CG_Trace(&tr, cg.refdef.vieworg, NULL, NULL, end, 0, CONTENTS_SOLID);
-		//if we hit the sky
-		if (tr.surfaceFlags & SURF_SKY)
+		//if we either hit the sky or did a full trace (most likely noclipping)
+		if ((tr.surfaceFlags & SURF_SKY) || tr.fraction == 1.0f)
 		{
-			//get the screen co-ordinates for the sun
-			cx = (1.0f - (float)(y + hfovx)/cg.refdef.fov_x) * 640;
-			cy = (1.0f - (float)(p + hfovy)/cg.refdef.fov_y) * 480;
+			//get the screen co-ordinates of the sun
+			//cx = (1.0f - (float)(y + hfovx)/cg.refdef.fov_x) * 640;
+			//cy = (1.0f - (float)(p + hfovy)/cg.refdef.fov_y) * 480;
+			//cx = 320 * (1 - dp[1] / sin(hfovx * PI180));
+			//cy = 240 * (1 - dp[2] / sin(hfovy * PI180));
+			//cx = 320 * (1 - (float)yaw / hfovx);
+			//cy = 240 * (1 - (float)pitch / hfovy);
+			cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
+			cy = 240 * (1.0f - dp[2] / (cos(pitch * PI180) * tan(hfovy * PI180)));
 			cgs.lastSunX = cx;
 			cgs.lastSunY = cy;
 			cgs.lastSunTime = cg.time;
@@ -1052,13 +1061,31 @@ void CG_AddLensFlare()
 	}
 	//add the sprites
 	if (visible || cgs.lastSunTime) {
-		float len = 0, fade = 1.0f;
+		float len = 0, fade = 1.0f, color[4];
+		float fovFactor = 1.0f, size, hsize;
+
+		if (cg.refdef.fov_x < 90)
+			fovFactor = 5 - 0.05f * cg.refdef.fov_x;
+		color[0] = color[1] = color[2] = 1.0f;
+		color[3] = cgs.sunAlpha;
+		if (!visible) {
+			fade = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
+			color[3] *= fade;
+		}
+		//sun
+		if (cgs.sunFlareSize > 0) {
+			size = cgs.sunFlareSize * fovFactor;
+			hsize = size/2;
+			trap_R_SetColor(color);
+			CG_DrawPic(cgs.lastSunX - hsize, cgs.lastSunY - hsize, size, size, cgs.media.sunFlareShader);
+		}
+
+		//reflection particles
 		VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
 		len = 2 * VectorNormalize(dir);
-		if (!visible)
-			fade = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
 		for (i=0; i<cgs.numFlares; i++) {
-			float color[4];
+			size = cg.flareShaderSize[i] * fovFactor;
+			hsize = size/2.0f;
 			dp[2] = len / cgs.numFlares * (i+1);
 			dp[0] = cgs.lastSunX + dp[2] * dir[0];
 			dp[1] = cgs.lastSunY + dp[2] * dir[1];
@@ -1069,8 +1096,8 @@ void CG_AddLensFlare()
 			if (!visible)
 				color[3] *= fade;
 			trap_R_SetColor(color);
-			CG_DrawPic(dp[0]-cg.flareShaderSize[i]/2.0f, dp[1]-cg.flareShaderSize[i]/2.0f, 
-				cg.flareShaderSize[i], cg.flareShaderSize[i], cgs.media.flareShader[cg.flareShaderNum[i]]);
+			CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
+				cgs.media.flareShader[cg.flareShaderNum[i]]);
 		}
 	}
 }
