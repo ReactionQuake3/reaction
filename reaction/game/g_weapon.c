@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/08/23 23:07:01  blaze
+// Should have fixed the unkickable thing breaking explosive breakables.
+//
 // Revision 1.77  2002/07/22 07:27:02  niceass
 // better fog laser support
 //
@@ -245,7 +248,7 @@ qboolean JumpKick(gentity_t * ent)
 	//Makro - this was a few lines below
 	damage = 20;
 
-	if (traceEnt->s.eType == ET_BREAKABLE && (traceEnt->spawnflags & 8) == 8) {
+	if ((traceEnt->s.eType == ET_BREAKABLE || traceEnt->s.eType == ET_MOVER) && traceEnt->unkickable == qtrue )  {
 		return qfalse;
 	}
 

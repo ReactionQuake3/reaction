@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/08/23 23:07:01  blaze
+// Should have fixed the unkickable thing breaking explosive breakables.
+//
 // Revision 1.119  2002/08/22 05:00:01  blaze
 // Allow func_buttons to be unkickable too (set spawnflags to 8)
 //
@@ -1813,10 +1816,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	vec_t dist;
 
 	if (!targ->takedamage) {
-		return;
-	}
-
-	if ( (targ->s.eType == ET_BREAKABLE || targ->s.eType == ET_MOVER) && targ->unkickable == qtrue){
 		return;
 	}
 		
