@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.136  2003/04/23 17:49:38  slicer
 // Added new cvar cg_RQ3_ssgZoomSensLock
 //
@@ -2243,7 +2246,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.glassMarkShader = trap_R_RegisterShader("gfx/damage/glass_mrk");
 	cgs.media.metalMarkShader = trap_R_RegisterShader("gfx/damage/metal_mrk");
 	// Makro - added
-	//cgs.media.tileMarkShader = trap_R_RegisterShader("gfx/damage/tile_mrk");
+	cgs.media.snowMarkShader = trap_R_RegisterShader("gfx/damage/snow_mrk");
 
 	// NiceAss: for foglaser
 	cgs.media.railCoreShader = trap_R_RegisterShader("fogLaser");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.72  2003/03/28 22:25:10  makro
 // no message
 //
@@ -2456,19 +2459,20 @@ static void CG_DrawTourneyScoreboard()
 CG_DrawDamageBlend
 
 Elder: Does a fullscreen alpha blend like Quake 2 when hurt
+Makro - changed to 0..1 instead of 0/1
 =====================
 */
 #define MAX_DAMAGE_ALPHA	0.75
 #define MAX_BLEND_TIME		1500
 static void CG_DrawDamageBlend()
 {
-	float dmg;
+	float dmg, blend = Com_Clamp(0, 1, cg_RQ3_painblend.value);
 	vec4_t damageColor;
 
 	//CG_Printf("CG_DrawDamageBlend: trueDamage (%i)\n", cg.rq3_trueDamage);
 
 	//Leave if no true damage, disabled, or ragepro
-	if (!cg_RQ3_painblend.integer)
+	if (!blend)
 		return;
 
 	if (!cg.rq3_trueDamage || cgs.glconfig.hardwareType == GLHW_RAGEPRO)
@@ -2492,7 +2496,7 @@ static void CG_DrawDamageBlend()
 	if (dmg > 100)
 		dmg = 100;
 
-	damageColor[3] = MAX_DAMAGE_ALPHA * (dmg / 100.0) * (1.0 - (cg.time - cg.damageTime) / cg.rq3_blendTime);
+	damageColor[3] = blend * MAX_DAMAGE_ALPHA * (dmg / 100.0) * (1.0 - (cg.time - cg.damageTime) / cg.rq3_blendTime);
 
 	if (damageColor[3] > MAX_DAMAGE_ALPHA)
 		damageColor[3] = MAX_DAMAGE_ALPHA;

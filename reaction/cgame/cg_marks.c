@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.18  2003/03/29 18:53:41  jbravo
 // Fixed ammo bug when dropping bandolier. Added color to more errormessages
 //
@@ -324,6 +327,8 @@ void CG_AddMarks(void)
 #define GREY75		4
 #define LIGHT_BLUE_WATER	5
 #define DARK_BLUE_WATER		6
+//Makro - added
+#define GRASS		7
 
 typedef struct particle_s {
 	struct particle_s *next;
@@ -674,6 +679,9 @@ void CG_AddParticleToScene(cparticle_t * p, vec3_t org, float alpha)
 			VectorSet(color, 0.8f, 0.8f, 1.0f);
 		else if (p->color == DARK_BLUE_WATER)
 			VectorSet(color, 0.6f, 0.8f, 1.0f);
+		//Makro - added
+		else if (p->color == GRASS)
+			VectorSet(color, 0.4f, 0.5f, 0.4f);
 		else if (p->color == GREY75) {
 			float len;
 			float greyit;
@@ -2128,6 +2136,102 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 
 	p->accel[0] = crandom() * 4;
 	p->accel[1] = crandom() * 4;
+
+}
+
+//Makro - snow
+void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale)
+{
+	cparticle_t *p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+
+	p->endtime = cg.time + duration;
+	//p->startfade = cg.time + duration * 0.75;
+
+	p->color = GREY75;
+	p->alpha = 0.4f;
+	p->alphavel = 0;
+
+	p->height = 4;
+	p->width = 4;
+	p->endheight = 8;
+	p->endwidth = 8;
+
+	p->pshader = cgs.media.smokePuffAnimShader;
+
+	p->type = P_SMOKE;
+
+	VectorCopy(org, p->org);
+
+	p->org[0] += (crandom() * x);
+	p->org[1] += (crandom() * y);
+
+	p->vel[0] = vel[0];
+	p->vel[1] = vel[1];
+	p->vel[2] = vel[2];
+
+	p->accel[0] = crandom() * 6;
+	p->accel[1] = crandom() * 6;
+	p->accel[2] = -PARTICLE_GRAVITY * 4;
+
+	p->vel[0] += (crandom() * 12);
+	p->vel[1] += (crandom() * 12);
+	//p->vel[2] += (20 + (crandom() * 10)) * speed;
+
+}
+
+//Makro - grass
+void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale)
+{
+	cparticle_t *p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+
+	p->endtime = cg.time + duration;
+	p->startfade = cg.time + duration * 0.75;
+
+	p->color = GRASS;
+	p->alpha = 0.5f;
+	p->alphavel = 0;
+
+	p->height = 4;
+	p->width = 4;
+	p->endheight = 8;
+	p->endwidth = 8;
+
+	p->pshader = cgs.media.smokePuffShader;
+
+	p->type = P_SMOKE;
+
+	VectorCopy(org, p->org);
+
+	p->org[0] += (crandom() * x);
+	p->org[1] += (crandom() * y);
+
+	p->vel[0] = vel[0];
+	p->vel[1] = vel[1];
+	p->vel[2] = vel[2];
+
+	p->accel[0] = crandom() * 6;
+	p->accel[1] = crandom() * 6;
+	p->accel[2] = -PARTICLE_GRAVITY * 4;
+
+	p->vel[0] += (crandom() * 12);
+	p->vel[1] += (crandom() * 12);
+	//p->vel[2] += (20 + (crandom() * 10)) * speed;
 
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.26  2002/06/17 15:27:41  slicer
 // Added the fix for the FOV bug when selecting the ssg at spawn
 //
@@ -568,7 +571,8 @@ void CG_TransitionPlayerState(playerState_t * ps, playerState_t * ops)
 		*ops = *ps;
 	}
 	// damage events (player is getting wounded)
-	if (ps->damageEvent != ops->damageEvent && ps->damageCount) {
+	//Makro - not if wearing kevlar
+	if (ps->damageEvent != ops->damageEvent && ps->damageCount && !(cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR))) {
 		CG_DamageFeedback(ps->damageYaw, ps->damagePitch, ps->damageCount);
 	}
 	// respawning

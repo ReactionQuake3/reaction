@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.58  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -889,8 +892,12 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		return;
 	}
 
-	//Makro - do nothing if the mover is not active
+	//Makro - if the mover is not active
 	if (ent->inactive) {
+		//play "inactive" sound, if set
+		if (ent->soundInactive) {
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundInactive);
+		}
 		return;
 	}
 
@@ -1437,12 +1444,17 @@ void SP_func_door(gentity_t * ent)
 	char *sSndMove;
 	char *sSndStop;
 	char *sSndStart;
+	//Makro - added
+	char *sSndInactive;
 
 	//Elder: can set sounds from here
 	//Blaze: changed default path as per Sze
 	G_SpawnString("soundstart", "sound/movers/door_start.wav", &sSndStart);
 	G_SpawnString("soundstop", "sound/movers/door_stop.wav", &sSndStop);
 	G_SpawnString("soundmove", "sound/misc/silence.wav", &sSndMove);
+	//Makro - for inactive doors
+	if (G_SpawnString("soundinactive", "", &sSndInactive))
+		ent->soundInactive = G_SoundIndex(sSndInactive);
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
@@ -1561,6 +1573,8 @@ void SP_func_door_rotating(gentity_t * ent)
 	char *sSndMove;
 	char *sSndStop;
 	char *sSndStart;
+	//Makro - added
+	char *sSndInactive;
 
 	//Elder: can set sounds from here
 	G_SpawnString("soundstart", "sound/movers/rdoor_stop.wav", &sSndStart);
@@ -1570,6 +1584,9 @@ void SP_func_door_rotating(gentity_t * ent)
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
 	ent->soundPos2 = G_SoundIndex(sSndStop);
+	//Makro - for inactive doors
+	if (G_SpawnString("soundinactive", "", &sSndInactive))
+		ent->soundInactive = G_SoundIndex(sSndInactive);
 
 	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");

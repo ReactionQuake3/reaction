@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.148  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.147  2003/04/23 17:49:38  slicer
 // Added new cvar cg_RQ3_ssgZoomSensLock
 //
@@ -486,7 +489,9 @@ typedef enum {
 	//Makro - added
 	IMPACTSOUND_BRICK,
 	IMPACTSOUND_WOOD,
-	IMPACTSOUND_CERAMIC
+	IMPACTSOUND_CERAMIC,
+	IMPACTSOUND_SNOW,
+	IMPACTSOUND_GRASS
 } impactSound_t;
 
 //Blaze: anti cheat stuff
@@ -1286,8 +1291,8 @@ typedef struct {
 	qhandle_t slashMarkShader;
 	qhandle_t glassMarkShader;
 	qhandle_t metalMarkShader;
-	// Makro - new mark
-	//qhandle_t tileMarkShader;
+	//Makro - new mark
+	qhandle_t snowMarkShader;
 
 	// powerup shaders
 	qhandle_t quadShader;
@@ -2455,3 +2460,6 @@ int CG_NewParticleArea(int num);
 
 //Makro - added
 void CG_DrawBigPolygon(void);
+void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
+void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
+

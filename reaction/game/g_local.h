@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.141  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -472,6 +475,8 @@ struct gentity_s {
 	int sound2to1;
 	int soundPos2;
 	int soundLoop;
+	//Makro - added
+	int soundInactive;
 	gentity_t *parent;
 	gentity_t *nextTrain;
 	gentity_t *prevTrain;

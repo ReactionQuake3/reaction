@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.60  2003/04/07 18:21:34  niceass
 // teamplay irvision
 //
@@ -1950,7 +1953,7 @@ static void CG_DustTrail(centity_t * cent)
 		return;
 	//Makro - if the surface has a snow texture, use a different color for the dust puff
 	Material = GetMaterialFromFlag(tr.surfaceFlags);
-	if (Material == MAT_SNOW || Material == MAT_SNOW2) {
+	if (IsSnowMat(Material)) {
 		color[0] = color[1] = color[2] = 1.0f;
 	}
 

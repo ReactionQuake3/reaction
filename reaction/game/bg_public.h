@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.106  2003/04/26 15:23:57  jbravo
 // grenade replacement fix.  Version bumped to 3.1
 //
@@ -1137,6 +1140,8 @@ typedef enum {
 	EV_BULLET_HIT_WOOD,	// Makro: new sound
 	EV_BULLET_HIT_BRICK,	// Makro: new sound
 	EV_BULLET_HIT_CERAMIC,	// Makro: new sound
+	EV_BULLET_HIT_SNOW,	// Makro: new fx
+	EV_BULLET_HIT_GRASS,	// Makro: new fx
 	EV_SSG3000_HIT_FLESH,
 	EV_JUMPKICK,		// Elder: sound + jumpkick message
 	EV_EJECTBLOOD,		// Elder: when bleeding, every 2s release blood
@@ -1543,6 +1548,8 @@ qboolean IsMetalMat(int Material);
 qboolean IsMetalFlag(int flag);
 qboolean IsWoodMat(int Material);
 qboolean IsWoodFlag(int flag);
+qboolean IsSnowMat(int Material);
+qboolean IsSnowFlag(int flag);
 
 holdable_t CharToItem(char *name, holdable_t defitem);
 weapon_t CharToWeapon(char *name, weapon_t defweapon);

@@ -1,5 +1,6 @@
 # List fixes here for the 3.1 release
 
+* No more 
 * Added a Zoom Sensitivity Lock during fire sequence of ssg to improve aiming
 * Added local cvar cg_RQ3_ssgZoomSensLock to enable or disable the feature above (default enable)
 * Upgraded the gamesource RQ3 is built on from 1.29h to 1.32b
@@ -16,8 +17,8 @@
 
 # List fixes here for the 3.0 release
 
-* It is now possible to soectate in DM.
-* Added cg_RQ3_zcam_stfu to stop zcam printing who its following or tracking.
+* It is now possible to spectate in DM.
+* Added cg_RQ3_zcam_stfu to stop zcam printing who it's following or tracking.
 * Fixed bug where dropping the bandolier would not reduce amount of ammo
 * Its now impossible to change nicks to avoide votekicks.
 * Reactionmale is now the default model
@@ -46,14 +47,14 @@
 * Fixed the UI to report correct teamnames in the join menu.
 * Bumped the version to 2.3
 * Added a helmet. (g_RQ3_haveHelmet 1 to activate it)
-* Repositioned the lasersight in the UI item preview. Its now centered.
+* Repositioned the lasersight in the UI item preview. It's now centered.
 * Resized the Lasersight and Silencer in the UI item preview.
 * Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 * Added cg_RQ3_weaponname (cg_RQ3_knife, cg_RQ3_mk23, etc) to allow people to implement weapon replacements.
 * Fixed the HC+Bandolier ammo bug
 * TeamDM is now working RQ3 style.
 * Added g_RQ3_allWeapons and g_RQ3_allItems.
-* Enhanced the give command so give all now gives all items. give items now exsists also.
+* Enhanced the give command so give all now gives all items. give items now exists also.
 * Added PunkBuster client and server support to the UI
 * Replaced the item code.  We now can do multiple items. g_RQ3_maxItems controls how many
 * MM: Changed g_RQ3_refPass to g_RQ3_RefPassword

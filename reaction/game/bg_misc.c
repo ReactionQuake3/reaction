@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.54  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -1182,6 +1185,8 @@ char *eventnames[] = {
 	"EV_BULLET_HIT_WOOD",	// Makro: new sound
 	"EV_BULLET_HIT_BRICK",	// Makro: new sound
 	"EV_BULLET_HIT_CERAMIC",	// Makro: new sound
+	"EV_BULLET_HIT_SNOW",	// Makro: new fx
+	"EV_BULLET_HIT_GRASS",	// Makro: new fx
 	"EV_SSG3000_HIT_FLESH",	// Elder: SSG3000 blood spray
 	"EV_JUMPKICK",		// Elder: sound + jumpkick message
 	"EV_EJECTBLOOD",	// Elder: when bleeding, every 2s release blood
@@ -1617,6 +1622,20 @@ qboolean IsWoodMat(int Material)
 qboolean IsWoodFlag(int flag)
 {
 	return IsWoodMat(GetMaterialFromFlag(flag));
+}
+
+//snow
+qboolean IsSnowMat(int Material)
+{
+	if (Material == MAT_SNOW || Material == MAT_SNOW2) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+qboolean IsSnowFlag(int flag)
+{
+	return IsSnowMat(GetMaterialFromFlag(flag));
 }
 
 //Makro - added

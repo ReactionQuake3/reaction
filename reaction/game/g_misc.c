@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.71  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -765,8 +768,12 @@ void Use_Breakable(gentity_t * self, gentity_t * other, gentity_t * activator)
 	//else
 	//{
 	//make sure it breaks
-	self->health = 0;
-	G_BreakGlass(self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health);
+	//Makro - added check
+	if (!self->exploded)
+	{
+		self->health = 0;
+		G_BreakGlass(self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health);
+	}
 //  }
 }
 

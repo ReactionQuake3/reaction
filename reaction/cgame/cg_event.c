@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.72  2003/04/07 02:18:49  jbravo
 // Removed more unlagged stuff that was messing up impact marks and fixed a
 // booboo in the UI ssg xhair previews.
@@ -456,6 +459,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 	vec3_t dir;		//, viewDir;
 	const char *s;
 	int clientNum;
+	//Makro - added
+	int soundType;
 	clientInfo_t *ci;
 
 	es = &cent->currentState;
@@ -992,8 +997,14 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		break;
 	case EV_KNIFE_MISS:
 		DEBUGNAME("EV_KNIFE_MISS");
+		if (es->powerups == MAT_GRASS)
+			soundType = IMPACTSOUND_GRASS;
+		else if (IsSnowMat(es->powerups))
+			soundType = IMPACTSOUND_SNOW;
+		else
+			soundType = IMPACTSOUND_METAL;
 		ByteToDir(es->eventParm, dir);
-		CG_MissileHitWall(es->weapon, 0, position, dir, IMPACTSOUND_METAL, RQ3_WPMOD_KNIFESLASH);
+		CG_MissileHitWall(es->weapon, 0, position, dir, soundType, RQ3_WPMOD_KNIFESLASH);
 		break;
 
 	case EV_RAILTRAIL:
@@ -1045,6 +1056,20 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		DEBUGNAME("EV_BULLET_HIT_CERAMIC");
 		ByteToDir(es->eventParm, dir);
 		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_CERAMIC);
+		break;
+
+		//Makro - added
+	case EV_BULLET_HIT_SNOW:
+		DEBUGNAME("EV_BULLET_HIT_SNOW");
+		ByteToDir(es->eventParm, dir);
+		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_SNOW);
+		break;
+
+		//Makro - added
+	case EV_BULLET_HIT_GRASS:
+		DEBUGNAME("EV_BULLET_HIT_GRASS");
+		ByteToDir(es->eventParm, dir);
+		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_GRASS);
 		break;
 
 	case EV_BULLET_HIT_KEVLAR:

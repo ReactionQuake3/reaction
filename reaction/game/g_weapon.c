@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2003/07/30 16:05:47  makro
+// no message
+//
 // Revision 1.89  2003/04/26 22:33:07  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -596,6 +599,18 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
 			tent->s.clientNum = ent->s.clientNum;
+			//Makro - new fx
+		} else if (IsSnowMat(Material)) {
+			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_SNOW);
+			tent->s.eventParm = DirToByte(tr.plane.normal);
+			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
+			//Makro - new fx
+		} else if (Material == MAT_GRASS) {
+			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_GRASS);
+			tent->s.eventParm = DirToByte(tr.plane.normal);
+			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
 		} else {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
@@ -1003,6 +1018,8 @@ void Knife_Attack(gentity_t * self, int damage)
 			tent = G_TempEntity(tr.endpos, EV_KNIFE_MISS);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.weapon = WP_KNIFE;
+			//Makro - added
+			tent->s.powerups = GetMaterialFromFlag(tr.surfaceFlags);;
 		} else if (self->client->knife_sound == -2) {	// Hit player
 			tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
 			tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
@@ -1318,6 +1335,10 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
 			else if (Material == MAT_CERAMIC)
 				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
+			else if (IsSnowMat(Material))
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_SNOW);
+			else if (Material == MAT_GRASS)
+				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_GRASS);
 			else
 				tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 
@@ -1356,6 +1377,10 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
 				else if (Material == MAT_CERAMIC)
 					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
+				else if (IsSnowMat(Material))
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_SNOW);
+				else if (Material == MAT_GRASS)
+					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_GRASS);
 				else
 					tent = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 
@@ -1409,6 +1434,10 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_BRICK);
 		else if (Material == MAT_CERAMIC)
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_CERAMIC);
+		else if (IsSnowMat(Material))
+			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_SNOW);
+		else if (Material == MAT_GRASS)
+			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_GRASS);
 		else
 			tentWall = G_TempEntity(trace.endpos, EV_BULLET_HIT_WALL);
 

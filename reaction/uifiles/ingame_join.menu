@@ -7,7 +7,7 @@
 	visible 0
 	fullscreen 0
 	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	rect 184 64 140 140
+	rect 176 64 180 140
 	disableColor  .5 .5 .5 1
 	focusColor 1 .75 0 1			// Menu focus color for text and items
 	style 1
@@ -17,7 +17,7 @@
 //Window
 
     itemdef {
-	rect 0 0 140 140
+	rect 0 0 180 140
 	style WINDOW_STYLE_FILLED
 	backcolor Ig_Window_Color
 	visible 1
@@ -28,7 +28,7 @@
     }
 
     itemdef {
-	rect 21 1 120 24
+	rect 61 1 120 24
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/rq3-ingame-title"
 	visible 1
@@ -36,7 +36,7 @@
     }
 
     itemdef {
-	rect 21 1 120 24
+	rect 61 1 120 24
 	style WINDOW_STYLE_EMPTY
 	forecolor Ig_Window_TitleColor
 	textstyle ITEM_TEXTSTYLE_NORMAL
@@ -61,7 +61,7 @@
 	//type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 8 36 128 20
+	rect 8 36 132 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -78,7 +78,7 @@
 	type ITEM_TYPE_NUMERICFIELD
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 100 36 32 20
+	rect 140 36 32 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -98,7 +98,7 @@
 	//type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 8 56 128 20
+	rect 8 56 132 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -115,7 +115,7 @@
 	type ITEM_TYPE_NUMERICFIELD
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 100 56 32 20
+	rect 140 56 32 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -134,7 +134,7 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 8 76 128 20
+	rect 8 76 132 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -153,7 +153,7 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 8 96 128 20
+	rect 8 96 132 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18
@@ -170,7 +170,7 @@
 	type ITEM_TYPE_NUMERICFIELD
 	style WINDOW_STYLE_EMPTY
 	textstyle ITEM_TEXTSTYLE_NORMAL
-	rect 100 96 32 20
+	rect 140 96 32 20
 	textalign ITEM_ALIGN_LEFT
 	textalignx 16
 	textaligny 18

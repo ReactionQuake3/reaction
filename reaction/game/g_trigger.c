@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.26  2003/04/26 22:33:07  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -101,6 +104,10 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	ent->activator = activator;
 	if (ent->nextthink) {
 		return;		// can't retrigger until the wait is over
+	}
+	//Makro - inactive trigger ?
+	if (ent->inactive) {
+		return;
 	}
 	//Makro - added check; Q3 crashed in archives when playing
 	//with .dll's and shooting one of the barrels

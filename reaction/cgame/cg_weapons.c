@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2003/07/30 16:05:46  makro
+// no message
+//
 // Revision 1.117  2003/04/26 15:23:57  jbravo
 // grenade replacement fix.  Version bumped to 3.1
 //
@@ -1467,18 +1470,32 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 		trap_R_AddRefEntityToScene( &silencer );
 
 		// NiceAss: Add a puff of smoke at the end of the silencer when fired.
+		//Makro - changed a bit, might look cooler
 		if (cent->muzzleFlashTime == -1) {
-			localEntity_t *smoke;
+			#define NUM_SILENCER_PUFFS 3
+			localEntity_t *smoke[NUM_SILENCER_PUFFS];
+			int i;
 			vec3_t up;
 
 			// Move the puff over to center on silencer end.
 			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[1], silencerEnd);
 			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[2], silencerEnd);
 
+			/*
 			VectorSet(up, 0.0f, 0.0f, 15.0f);
 			smoke = CG_SmokePuff(silencerEnd, up, 0.5f, 1, 1, 1, 0.5f, 300, cg.time, 0, 0,
 					 cgs.media.shotgunSmokePuffShader);
 			smoke->leType = LE_SCALE_FADE;
+			*/
+			//VectorSet(up, 0.0f, 45.0f, 0.0f);
+			for (i=0; i<NUM_SILENCER_PUFFS; i++)
+			{
+				VectorScale(silencer.axis[1], -(20+random()*50), up);
+				smoke[i] = CG_SmokePuff(silencerEnd, up, 0.2f, 1, 1, 1, 0.2f, 200+random()*200, cg.time, 0, 0,
+						 cgs.media.shotgunSmokePuffShader);
+				smoke[i]->leType = LE_MOVE_SCALE_FADE;
+				smoke[i]->lifeRate = 0.75 / (smoke[i]->endTime - smoke[i]->startTime);
+			}
 
 			cent->muzzleFlashTime = 0;
 		}
@@ -2469,6 +2486,12 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_ceramicric2;
 			else
 				sfx = cgs.media.sfx_ceramicric3;
+		}
+		//Makro - added
+		else if (soundType == IMPACTSOUND_SNOW) {
+			radius = 3;
+			mark = cgs.media.snowMarkShader;
+			sfx = cgs.media.footsteps[FOOTSTEP_SNOW2][rand()%4];
 		} else {
 			mark = cgs.media.bulletMarkShader;
 			if (r == 0)
@@ -2485,15 +2508,18 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 		duration = 200;
 		mod = cgs.media.hitSparkModel;
 		shader = cgs.media.hitSparkShader;
+		sfx = 0;
+		radius = 4;
 		if (soundType == IMPACTSOUND_GLASS)
 			mark = cgs.media.glassMarkShader;
 		else if (soundType == IMPACTSOUND_METAL)
 			mark = cgs.media.metalMarkShader;
 		//Makro - added
-		else
+		else if (soundType == IMPACTSOUND_SNOW) {
+			mark = cgs.media.snowMarkShader;
+			radius = 2;
+		} else
 			mark = cgs.media.bulletMarkShader;
-		sfx = 0;
-		radius = 4;
 		break;
 
 	case WP_GRENADE:
@@ -2511,8 +2537,15 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 			duration = 100;
 			mod = cgs.media.hitSparkModel;
 			shader = cgs.media.hitSparkShader;
-			mark = cgs.media.slashMarkShader;
-			sfx = cgs.media.knifeClankSound;
+			//Makro - added for snow/grass
+			if (soundType == IMPACTSOUND_GRASS) {
+				sfx = cgs.media.footsteps[FOOTSTEP_GRASS][rand()%4];
+			} else if (soundType == IMPACTSOUND_SNOW) {
+				sfx = cgs.media.footsteps[FOOTSTEP_SNOW][rand()%4];
+			} else {
+				mark = cgs.media.slashMarkShader;
+				sfx = cgs.media.knifeClankSound;
+			}
 			radius = rand() % 4 + 6;
 		} else {
 			duration = 180;
@@ -2626,12 +2659,16 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	//
 	// impact mark
 	//
-	alphaFade = (mark == cgs.media.energyMarkShader /* || mark == cgs.media.tileMarkShader */ );	// plasma fades alpha, all others fade color
+	alphaFade = (mark == cgs.media.energyMarkShader  || mark == cgs.media.snowMarkShader );	// plasma fades alpha, all others fade color
 
 	// Elder: Our knife slashes are vertical
-	if (weapon == WP_KNIFE)
-		angle = random() * 90;
-	else
+	if (weapon == WP_KNIFE) {
+		//Makro - changed
+		//angle = random() * 90;
+		angle = -45 + random() * 90;
+		if (angle < 0)
+			angle +=360;
+	} else
 		angle = random() * 360;
 
 	if (mark)
@@ -2644,7 +2681,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 
 	//Elder: 75% of the time render a smoke puff
 	i = rand() % 4;
-	if (cg_RQ3_impactEffects.integer && i < 3) {
+	//Makro - not for snow or grass surfaces
+	if (cg_RQ3_impactEffects.integer && i < 3 && soundType != IMPACTSOUND_SNOW && soundType != IMPACTSOUND_GRASS) {
 		contentType = trap_CM_PointContents(origin, 0);
 		// no puff in water
 		if (!(contentType & CONTENTS_WATER)) {
@@ -2699,6 +2737,50 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 				velocity[1] += rand() % 50 - 25;
 				// NiceAss: Longer life, faster sparks == more eye candy! =)
 				CG_ParticleSparks(origin, velocity, 150 + rand() % 120, 2, 2, -5, 1);
+			}
+		}
+	}
+	//Makro: snow surfaces
+	if (cg_RQ3_impactEffects.integer && soundType == IMPACTSOUND_SNOW) {
+		if (weapon != WP_GRENADE) {
+			if (weapon == WP_M3 || weapon == WP_HANDCANNON)
+				sparkCount = 5 + rand() % 5;
+			else if (weapon == WP_KNIFE)
+				sparkCount = 10 + rand() % 10;
+			else if (weapon == WP_SSG3000)
+				sparkCount = 25 + rand() % 20;
+			else
+				sparkCount = 15 + rand() % 15;
+
+			// Generate the particles
+			for (i = 0; i < sparkCount; i++) {
+				if (weapon == WP_KNIFE)
+					VectorScale(dir, 60 + rand() % 20, velocity);
+				else
+					VectorScale(dir, 75 + rand() % 25, velocity);
+				CG_ParticleHitSnow(origin, velocity, 500 + rand() % 150, 2, 2, -5, 1);
+			}
+		}
+	}
+	//Makro: grass surfaces
+	if (cg_RQ3_impactEffects.integer && soundType == IMPACTSOUND_GRASS) {
+		if (weapon != WP_GRENADE) {
+			if (weapon == WP_M3 || weapon == WP_HANDCANNON)
+				sparkCount = 5 + rand() % 5;
+			else if (weapon == WP_KNIFE)
+				sparkCount = 10 + rand() % 10;
+			else if (weapon == WP_SSG3000)
+				sparkCount = 25 + rand() % 20;
+			else
+				sparkCount = 15 + rand() % 15;
+
+			// Generate the particles
+			for (i = 0; i < sparkCount; i++) {
+				if (weapon == WP_KNIFE)
+					VectorScale(dir, 60 + rand() % 20, velocity);
+				else
+					VectorScale(dir, 75 + rand() % 25, velocity);
+				CG_ParticleHitGrass(origin, velocity, 500 + rand() % 150, 2, 2, -5, 1);
 			}
 		}
 	}
@@ -2868,6 +2950,26 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum, int shellWea
 			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall(WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_CERAMIC, 0);
+			}
+		}
+		//Makro - added
+		else if (IsSnowMat(Material)) {
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall(WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_SNOW, 0);
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall(WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_SNOW, 0);
+			}
+		}
+		//Makro - added
+		else if (Material == MAT_GRASS) {
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall(WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GRASS, 0);
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall(WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GRASS, 0);
 			}
 		} else {
 			// Elder: By default, the M3 and HC will spark on all surfaces
