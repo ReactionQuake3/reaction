@@ -74,8 +74,8 @@
     itemDef {
 	name sectionMap
 	group grpSections
-	text "Map"
-	shortcutKey "M"
+	text "Map. 1"
+	shortcutKey "1"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_FILLED
@@ -98,8 +98,8 @@
     itemDef {
 	name sectionKick
 	group grpSections
-	text "Kick"
-	shortcutKey "K"
+	text "Kick. 2"
+	shortcutKey "2"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_FILLED
@@ -122,8 +122,8 @@
     itemDef {
 	name sectionType
 	group grpSections
-	text "Type"
-	shortcutKey "T"
+	text "Type. 3"
+	shortcutKey "3"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_FILLED

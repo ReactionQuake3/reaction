@@ -640,6 +640,7 @@
     itemDef {
 	name page3
 	group grpGame
+	shortcutkey ","
 	rect 107 108 16 16
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/arrow_left_white"
@@ -655,6 +656,7 @@
     itemDef {
 	name page3
 	group grpGame
+	shortcutkey "."
 	rect 179 108 16 16
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/arrow_right_white"
@@ -719,7 +721,7 @@
 	style 1
 	text "Replace:"
 	ownerdraw UI_RQ3_REPLACEMENTTYPE
-	rect 103 194 96 16
+	rect 103 216 96 16
 	textalign ITEM_ALIGN_LEFT
 	textalignx 4
 	textaligny 14
@@ -736,7 +738,7 @@
 	style 1
 	text "Type:"
 	ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
-	rect 103 210 96 16
+	rect 208 216 96 16
 	textalign ITEM_ALIGN_LEFT
 	textalignx 4
 	textaligny 14
