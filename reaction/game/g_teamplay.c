@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/06/10 14:02:52  slicer
+// Removed rq3_cmd : ROUND
+//
 // Revision 1.104  2002/06/08 10:51:42  slicer
 // Added a better end message for MM matches
 //
@@ -452,7 +455,8 @@ void CheckTeamRules()
 				if (level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
-					trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+						//Slicer: apparently not being used
+					//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 					level.team1ready = qfalse;
 					level.team2ready = qfalse;
 					MakeAllLivePlayersObservers ();
@@ -466,7 +470,8 @@ void CheckTeamRules()
 					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+					//Slicer: apparently not being used
+					//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 					//Slicer: Start Intermission
 					BeginIntermission();
 					return;
@@ -490,7 +495,8 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+				//Slicer: apparently not being used
+			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -503,7 +509,8 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+				//Slicer: apparently not being used
+			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -533,7 +540,8 @@ void ContinueLCA()
 		trap_SendServerCommand(-1, va("rq3_cmd %i", ACTION));
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
-		trap_SendServerCommand(-1, va("rq3_cmd %i 1", ROUND));
+			//Slicer: apparently not being used
+		//trap_SendServerCommand(-1, va("rq3_cmd %i 1", ROUND));
 		level.current_round_length = 0;
 	}
 	level.lights_camera_action--;
@@ -717,7 +725,8 @@ int WonGame(int winner)
 			SendEndMessage();
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
-			trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+				//Slicer: apparently not being used
+			//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 			level.team1ready = qfalse;
 			level.team2ready = qfalse;
 			MakeAllLivePlayersObservers ();
@@ -728,7 +737,8 @@ int WonGame(int winner)
 			if (level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+					//Slicer: apparently not being used
+				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -743,7 +753,8 @@ int WonGame(int winner)
 				SendEndMessage();
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
-				trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+					//Slicer: apparently not being used
+				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				level.team1ready = qfalse;
 				level.team2ready = qfalse;
 				MakeAllLivePlayersObservers ();
@@ -753,7 +764,8 @@ int WonGame(int winner)
 				trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
 				trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
+					//Slicer: apparently not being used
+				//trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;

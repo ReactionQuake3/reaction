@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/06/10 14:03:47  slicer
+// Removed rq3_cmd : ROUND
+//
 // Revision 1.75  2002/06/09 04:59:20  blaze
 // RQ3_MAX_BREAKABLES upped from 16 to 64
 //
@@ -296,16 +299,17 @@ enum {
 	ACTION,
 	SETTEAMPLAYERS,
 	SELECTPISTOL,
-	ROUND,
+//Slicer: apparently not being used
+//	ROUND,
 	MAPEND,
 	MAPSTART,
 	SETWEAPON,
 	STUFF,
 	TKOK,
 	RADIO,
-  STARTDEMO,
-  STOPDEMO,
-  SCREENSHOT
+    STARTDEMO,
+    STOPDEMO,
+    SCREENSHOT
 };
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {
