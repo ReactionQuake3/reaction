@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/05/27 17:47:19  jbravo
+// Fixes and cleanups
+//
 // Revision 1.22  2002/05/26 06:17:27  makro
 // Loading screen again
 //
@@ -412,7 +415,8 @@ void CG_DrawInformation( void ) {
 		}
 
 		trap_R_SetColor(colorDkGrey);
-		for (bar; bar < 10; bar++) {
+// JBravo: added = 0 to the bar on two lines
+		for (bar = 0; bar < 10; bar++) {
 			CG_DrawPic(SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, percentBox);
 		}
 	} else {
@@ -420,7 +424,7 @@ void CG_DrawInformation( void ) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorWhite);
 		}
 
-		for (bar; bar < 10; bar++) {
+		for (bar = 0; bar < 10; bar++) {
 			CG_FillRect( SCREEN_WIDTH - (11 - bar) * 10, y, 8, 8, colorDkGrey);
 		}
 	}

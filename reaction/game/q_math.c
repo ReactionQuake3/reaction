@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/27 17:47:19  jbravo
+// Fixes and cleanups
+//
 // Revision 1.6  2002/05/27 06:55:02  niceass
 // reflection byte function for sparks
 //

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/05/27 17:47:19  jbravo
+// Fixes and cleanups
+//
 // Revision 1.27  2002/05/27 07:00:09  niceass
 // misc changes
 //
@@ -217,10 +220,10 @@ CG_TeamScoreboard
 static int CG_TeamplayScoreboard(void) 
 {
 	clientInfo_t	*ci;
-	int		i, subs;
+	int		i; // subs;
 
 	int		Reds, Blues, Spectators, Refs;
-	int		RedSubs, BlueSubs;
+//	int		RedSubs, BlueSubs;
 
 	float	Alpha;
 	score_t	*Score;
