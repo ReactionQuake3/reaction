@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/05/09 02:43:12  jbravo
+// Fixing stuff and use cmd's
+//
 // Revision 1.83  2002/05/07 13:35:45  jbravo
 // Fixed the double lights for spectators and made the use cmd use rq3_cmd
 // and made scoreboard not revieal whos alive or dead to live players.
@@ -1582,7 +1585,7 @@ void RQ3_SpectatorMode(gentity_t *ent)
 
 void RQ3_Cmd_Use_f(gentity_t *ent)
 {
-	char	*cmd;
+	char	*cmd, buf[128];
 	int	weapon, i;
 
 	if (!ent->client) {
@@ -1684,7 +1687,9 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 	}
 	if (weapon == ent->client->ps.weapon)
 		return;
-	trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i weapon %i\n", STUFF, weapon));
+	Com_sprintf (buf, sizeof(buf), "stuff weapon %d\n", weapon);
+	trap_SendServerCommand(ent-g_entities, buf);
+//	trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i weapon %i", STUFF, weapon));
 }
 
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
@@ -1810,5 +1815,6 @@ void RQ3_Cmd_Stuff (void)
 	client = atoi (user);
 	cmd = ConcatArgs(2);
 
-	trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
+	trap_SendServerCommand(client, va("stuff %s\n", cmd));
+//	trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
 }

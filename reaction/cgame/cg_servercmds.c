@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/05/09 02:43:12  jbravo
+// Fixing stuff and use cmd's
+//
 // Revision 1.33  2002/05/07 15:04:56  slicer
 // Removed a debug message left behind..
 //
@@ -1261,38 +1264,38 @@ static void CG_ServerCommand( void ) {
 
 	cmd = CG_Argv(0);
 
-	if ( !cmd[0] ) {
+	if (!cmd[0]) {
 		// server claimed the command
 		return;
 	}
 
-	if ( !strcmp( cmd, "cp" ) ) {
+	if (!strcmp(cmd, "cp")) {
 		CG_CenterPrint( CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		return;
 	}
 
-	if ( !strcmp( cmd, "cs" ) ) {
+	if (!strcmp(cmd, "cs")) {
 		CG_ConfigStringModified();
 		return;
 	}
 
-	if ( !strcmp( cmd, "print" ) ) {
-		CG_Printf( "%s", CG_Argv(1) );
+	if (!strcmp( cmd, "print")) {
+		CG_Printf("%s", CG_Argv(1));
 #ifdef MISSIONPACK
 		cmd = CG_Argv(1);			// yes, this is obviously a hack, but so is the way we hear about
-									// votes passing or failing
-		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
-			trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
-		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
-			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
+							// votes passing or failing
+		if (!Q_stricmpn(cmd, "vote failed", 11) || !Q_stricmpn(cmd, "team vote failed", 16)) {
+			trap_S_StartLocalSound(cgs.media.voteFailed, CHAN_ANNOUNCER);
+		} else if (!Q_stricmpn(cmd, "vote passed", 11) || !Q_stricmpn(cmd, "team vote passed", 16)) {
+			trap_S_StartLocalSound(cgs.media.votePassed, CHAN_ANNOUNCER);
 		}
 #endif
 		return;
 	}
 
-	if ( !strcmp( cmd, "chat" ) ) {
-		if ( !cg_teamChatsOnly.integer ) {
-			trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+	if (!strcmp(cmd, "chat")) {
+		if (!cg_teamChatsOnly.integer) {
+			trap_S_StartLocalSound (cgs.media.talkSound, CHAN_LOCAL_SOUND);
 			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );
 			CG_Printf( "%s\n", text );
@@ -1328,12 +1331,12 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-  if ( !strcmp( cmd, "wstats" ) ) {
+	if ( !strcmp( cmd, "wstats" ) ) {
 		CG_ParseWeaponStats();
 		return;
 	}
 
-  if ( !strcmp( cmd, "wstats2" ) ) {
+	if ( !strcmp( cmd, "wstats2" ) ) {
 		CG_ParseWeaponStats2();
 		return;
 	}
@@ -1348,7 +1351,7 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-  if ( Q_stricmp (cmd, "remapShader") == 0 ) {
+	if ( Q_stricmp (cmd, "remapShader") == 0 ) {
 		if (trap_Argc() == 4) {
 			trap_R_RemapShader(CG_Argv(1), CG_Argv(2), CG_Argv(3));
 		}
@@ -1375,14 +1378,14 @@ static void CG_ServerCommand( void ) {
 		return;
 	}*/
 
-	if ( !strcmp( cmd, "delCheatVar" ) )
-	{//remove a cvar from the list of cheat variables
-	 //not needed now, mabey later?
+	if (!strcmp( cmd, "delCheatVar")) {
+		//remove a cvar from the list of cheat variables
+		 //not needed now, mabey later?
 		return;
 	}
 
-	if ( !strcmp( cmd, "addCheatVar" ) )
-	{//add a cvar from the list of cheat variables
+	if (!strcmp(cmd, "addCheatVar")) {
+		//add a cvar from the list of cheat variables
 		char param[128];
 		int i;
 		float lowend, highend;
@@ -1405,35 +1408,39 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if ( !strcmp( cmd, "breakable" ) )
-  {
-    int id;
-    id = atoi(CG_Argv(1));
-    if (id >= 0 && id < RQ3_MAX_BREAKABLES)
-    {
-      //Com_Printf("Registering breakable %s ID=%d\n",CG_Argv(2), id);
-      //Blaze: Breakable stuff - register the models, sounds, and explosion shader
-	    cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",CG_Argv(2)) );
- 	    cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",CG_Argv(2)) );
- 	    cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",CG_Argv(2)) );
-      cgs.media.breakables[id].shader = trap_R_RegisterShader( va("breakable_%s_explosion",CG_Argv(2)) );
-      cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", CG_Argv(2)), qfalse );
-      cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", CG_Argv(2)), qfalse );
-      cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", CG_Argv(2)), qfalse );
-      cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", CG_Argv(2)), qfalse );
-      return;
-    }
-    else
-    {
-      CG_Printf("ID was %d\n",id);
-    }
-    return;
-    
-  }
- if(!strcmp(cmd,"rq3_cmd")) {
-	  CG_RQ3_Cmd();
-	  return;
-  }
+	if (!strcmp(cmd, "breakable")) {
+		int id;
+		id = atoi(CG_Argv(1));
+		if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
+			//Com_Printf("Registering breakable %s ID=%d\n",CG_Argv(2), id);
+			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
+			cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",CG_Argv(2)));
+ 			cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",CG_Argv(2)));
+ 			cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",CG_Argv(2)));
+			cgs.media.breakables[id].shader = trap_R_RegisterShader( va("breakable_%s_explosion",CG_Argv(2)));
+			cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", CG_Argv(2)), qfalse);
+			cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", CG_Argv(2)), qfalse);
+			cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", CG_Argv(2)), qfalse);
+			cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", CG_Argv(2)), qfalse);
+			return;
+		} else {
+			CG_Printf("ID was %d\n",id);
+		}
+		return;
+	}
+
+	if (!strcmp(cmd, "rq3_cmd")) {
+		CG_RQ3_Cmd();
+		return;
+	}
+
+	if (!strcmp(cmd, "stuff")) {
+		char	*cmd;
+
+		cmd = CG_ConcatArgs (1);
+		trap_SendConsoleCommand (cmd);
+		return;
+	}
 
 	CG_Printf( "Unknown client game command: %s\n", cmd );
 }
