@@ -80,7 +80,7 @@
 	cvarTest "g_gameType"
 	hideCvar { "0" ; "1" ; "2" ; "3" ; "4" }
 	maxPaintChars 12
-	cvar capturelimit
+	cvar cg_RQ3_capturelimit
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -96,10 +96,10 @@
 	type 4
 	style 0
 	text "Frag Limit:"
-	cvarTest "g_gametype"
-	showCvar { "0" ; "1" ; "2" ; "3" }
+//	cvarTest "g_gametype"
+//	showCvar { "0" ; "1" ; "2" ; "3" }
 	maxPaintChars 12
-	cvar fraglimit
+	cvar cg_RQ3_fraglimit
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -116,7 +116,7 @@
 	style 0
 	text "Time Limit:"
 	maxPaintChars 12
-	cvar timelimit
+	cvar cg_RQ3_timelimit
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -204,7 +204,7 @@
 	type 4
 	style 0
 	text "Host Name:"
-	cvar sv_hostname
+	cvar cg_RQ3_hostname
 	maxPaintChars 12
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
@@ -221,7 +221,7 @@
 	type 11
 	style 0
 	text "Password Required:"
-	cvar g_needpass
+	cvar cg_RQ3_needpass
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -237,7 +237,7 @@
 	type 4
 	style 0
 	text "DM Flags:"
-	cvar dmflags
+	cvar cg_RQ3_dmflags
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -253,7 +253,7 @@
 	type 11
 	style 0
 	text "Bot/Min Players:"
-	cvar bot_minplayers
+	cvar cg_RQ3_bot_minplayers
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
 	textaligny 12
@@ -286,7 +286,7 @@
 	type 11
 	style 0
 	text "Show Own Kills:"
-	cvar g_RQ3_showOwnKills
+	cvar cg_RQ3_showOwnKills
 	maxPaintChars 32
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 128
