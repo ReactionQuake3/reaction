@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.72  2002/05/05 15:51:16  slicer
 // Captain and subs get saved on map_restarts ( moved to "sess" )
 //
@@ -1078,10 +1081,13 @@ void ClientUserinfoChanged( int clientNum ) {
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+		//Makro - adding teamplay weapon/item info for bots
+		//s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d\\tpw\\%s\\tpi\\%s",
 			client->pers.netname, team, model, headModel, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
-			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
+			//Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
+			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader, Info_ValueForKey(userinfo, "tpw"), Info_ValueForKey(userinfo, "tpi"));
 	} else {
 		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
 			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,

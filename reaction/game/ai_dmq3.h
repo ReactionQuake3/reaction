@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.6  2002/05/02 23:05:25  makro
 // Loading screen. Jump kicks. Bot stuff
 //
@@ -186,11 +189,12 @@ void BotMapScripts(bot_state_t *bs);
 //RQ3 bot functions
 qboolean RQ3_Bot_CheckBandage( bot_state_t *bs );
 qboolean RQ3_Bot_CanReload( bot_state_t *bs, int weapon );
+int RQ3_Bot_NeedToBandage( bot_state_t *bs);
 void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final);
 void BotAttack(bot_state_t *bs);
 bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
-
+char *BotGetUserInfoKey(bot_state_t *bs, char *key);
 
 //ctf flags
 #define CTF_FLAG_NONE		0

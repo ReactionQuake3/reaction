@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.23  2002/05/05 15:18:02  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -1466,6 +1469,7 @@ int AINode_Stand(bot_state_t *bs) {
 				Cmd_Bandage( &g_entities[bs->entitynum] );
 				//Not 100% sure this will work, but oh well...
 				AIEnter_Battle_Retreat(bs, "stand: bandaging");
+				return qfalse;
 			}
 		}
 	}
@@ -1487,6 +1491,35 @@ int AINode_Stand(bot_state_t *bs) {
 	//
 	return qtrue;
 }
+
+typedef struct {
+	weapon_t	weapon;
+	holdable_t	item;
+} RQ3_TPCombo_t;
+
+static RQ3_TPCombo_t RQ3_TPCombos[] = {
+	{WP_M4,				HI_LASER},
+	{WP_M4,				HI_KEVLAR},
+	{WP_M4,				HI_BANDOLIER},
+	{WP_MP5,			HI_LASER},
+	{WP_MP5,			HI_SILENCER},
+	{WP_MP5,			HI_KEVLAR},
+	{WP_MP5,			HI_BANDOLIER},
+	{WP_M3,				HI_KEVLAR},
+	{WP_M3,				HI_BANDOLIER},
+	{WP_M3,				HI_SLIPPERS},
+	{WP_HANDCANNON,		HI_KEVLAR},
+	{WP_HANDCANNON,		HI_BANDOLIER},
+	{WP_HANDCANNON,		HI_SLIPPERS},
+//	{WP_SSG3000,		HI_SILENCER},
+//	{WP_SSG3000,		HI_KEVLAR},
+//	{WP_SSG3000,		HI_BANDOLIER},
+//	{WP_SSG3000,		HI_SLIPPERS},
+	{WP_AKIMBO,			HI_KEVLAR},
+	{WP_AKIMBO,			HI_BANDOLIER}
+};
+
+static int num_RQ3_TPCombos = sizeof(RQ3_TPCombos) / sizeof(RQ3_TPCombo_t);
 
 /*
 ==================
@@ -1516,18 +1549,34 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 	bs->radioresponse_count = 0;
 
 	//set respawn state
+	//Makro - special code for TP; played a little with those numbers
 	if (gametype != GT_TEAMPLAY) {
-		bs->standfindenemy_time = FloatTime() + 5;
+		bs->standfindenemy_time = FloatTime() + 3;
 		bs->stand_time = FloatTime() + 10;
+		bs->check_time = FloatTime() + 4;
 	} else {
-		//Makro - hackish, but oh well...
-		gentity_t	*ent = SelectRandomDeathmatchSpawnPoint();
-		if (ent) {
-			VectorCopy(ent->r.currentOrigin, bs->lastenemyorigin);
-			bs->lastenemyareanum = trap_AAS_PointAreaNum(ent->r.currentOrigin);
-		}
+		weapon_t tpW = WP_NONE + atoi(BotGetUserInfoKey(bs, "tpw"));
+		holdable_t tpI = HI_NONE + atoi(BotGetUserInfoKey(bs, "tpi"));
+		int index = 0;
+
 		bs->standfindenemy_time = bs->check_time = FloatTime() + 1;
 		bs->stand_time = 5;
+		//don't use the same combo all the time
+		if (random() > 0.3f) {
+			//choose a random weapon/item
+			index = (int) (random() * (num_RQ3_TPCombos - 0.1));
+			tpW = RQ3_TPCombos[index].weapon;
+			tpI = RQ3_TPCombos[index].item;
+		}
+		if (tpW <= WP_NONE || tpW >= WP_NUM_WEAPONS || tpI <= HI_NONE || tpI >= HI_NUM_HOLDABLE) {
+#ifdef DEBUG
+			BotAI_Print(PRT_WARNING, "Bad combo %i/%i, index is %i\n", tpW, tpI, index);
+#endif
+			tpW = WP_M4;
+			tpI = HI_LASER;
+		}
+		g_entities[bs->entitynum].client->teamplayWeapon = tpW;
+		g_entities[bs->entitynum].client->teamplayItem = tpI;
 	}
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;
@@ -1573,14 +1622,19 @@ BotSelectActivateWeapon
 */
 int BotSelectActivateWeapon(bot_state_t *bs) {
 	//
+	//Makro - I'm pretty sure it should be WP_ and not WEAPONINDEX_
 	if (bs->inventory[INVENTORY_PISTOL] > 0 && bs->inventory[INVENTORY_PISTOLAMMO] > 0)
-		return WEAPONINDEX_PISTOL;
+//		return WEAPONINDEX_PISTOL;
+		return WP_PISTOL;
 	else if (bs->inventory[INVENTORY_M3] > 0 && bs->inventory[INVENTORY_M3AMMO] > 0)
-		return WEAPONINDEX_M3;
+//		return WEAPONINDEX_M3;
+		return WP_M3;
 	else if (bs->inventory[INVENTORY_M4] > 0 && bs->inventory[INVENTORY_M4AMMO] > 0)
-		return WEAPONINDEX_M4;
+//		return WEAPONINDEX_M4;
+		return WP_M4;
 	else if (bs->inventory[INVENTORY_MP5] > 0 && bs->inventory[INVENTORY_MP5AMMO] > 0)
-		return WEAPONINDEX_MP5;
+//		return WEAPONINDEX_MP5;
+		return WP_MP5;
 #ifdef MISSIONPACK
 	else if (bs->inventory[INVENTORY_CHAINGUN] > 0 && bs->inventory[INVENTORY_BELT] > 0)
 		return WEAPONINDEX_CHAINGUN;
@@ -1588,11 +1642,14 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 		return WEAPONINDEX_NAILGUN;
 #endif
 	else if (bs->inventory[INVENTORY_SSG3000] > 0 && bs->inventory[INVENTORY_SSG3000AMMO] > 0)
-		return WEAPONINDEX_SSG3000;
+//		return WEAPONINDEX_SSG3000;
+		return WP_SSG3000;
 	else if (bs->inventory[INVENTORY_HANDCANNON] > 0 && bs->inventory[INVENTORY_M3AMMO] > 0)
-		return WEAPONINDEX_HANDCANNON;
+//		return WEAPONINDEX_HANDCANNON;
+		return WP_HANDCANNON;
 	else if (bs->inventory[INVENTORY_AKIMBO] > 0 && bs->inventory[INVENTORY_AKIMBOAMMO] > 0)
-		return WEAPONINDEX_AKIMBO;
+//		return WEAPONINDEX_AKIMBO;
+		return WP_AKIMBO;
 	else {
 		return -1;
 	}
@@ -1680,7 +1737,9 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 			// if the bot has a weapon that does splash damage
 			//Blaze: Just grenades
 			if (bs->inventory[INVENTORY_GRENADE] > 0 && bs->inventory[INVENTORY_GRENADEAMMO] > 0)
-				moveresult->weapon = WEAPONINDEX_GRENADE;
+				//Makro - changing to WP_ constants
+				//moveresult->weapon = WEAPONINDEX_GRENADE;
+				moveresult->weapon = WP_GRENADE;
 			/*else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
 				moveresult->weapon = WEAPONINDEX_ROCKET_LAUNCHER;
 			else if (bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 0)
@@ -1718,7 +1777,15 @@ AIEnter_Seek_ActivateEntity
 ==================
 */
 void AIEnter_Seek_ActivateEntity(bot_state_t *bs, char *s) {
+	int damage = RQ3_Bot_NeedToBandage(bs);
+
 	BotRecordNodeSwitch(bs, "activate entity", "", s);
+	//Makro - check if the bot needs to bandage
+	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+		}
+	}
 	bs->ainode = AINode_Seek_ActivateEntity;
 }
 
@@ -1960,6 +2027,7 @@ AIEnter_Seek_NBG
 void AIEnter_Seek_NBG(bot_state_t *bs, char *s) {
 	bot_goal_t goal;
 	char buf[144];
+	int damage = RQ3_Bot_NeedToBandage(bs);
 
 	if (trap_BotGetTopGoal(bs->gs, &goal)) {
 		trap_BotGoalName(goal.number, buf, 144);
@@ -1968,6 +2036,13 @@ void AIEnter_Seek_NBG(bot_state_t *bs, char *s) {
 	else {
 		BotRecordNodeSwitch(bs, "seek NBG", "no goal", s);
 	}
+	//Makro - check if the bot needs to bandage
+	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+		}
+	}
+	bs->ainode = AINode_Seek_ActivateEntity;
 	bs->ainode = AINode_Seek_NBG;
 }
 
@@ -2093,6 +2168,7 @@ AIEnter_Seek_LTG
 void AIEnter_Seek_LTG(bot_state_t *bs, char *s) {
 	bot_goal_t goal;
 	char buf[144];
+	int damage = RQ3_Bot_NeedToBandage(bs);
 
 	if (trap_BotGetTopGoal(bs->gs, &goal)) {
 		trap_BotGoalName(goal.number, buf, 144);
@@ -2100,6 +2176,12 @@ void AIEnter_Seek_LTG(bot_state_t *bs, char *s) {
 	}
 	else {
 		BotRecordNodeSwitch(bs, "seek LTG", "no goal", s);
+	}
+	//Makro - check if the bot needs to bandage
+	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+		}
 	}
 	bs->ainode = AINode_Seek_LTG;
 }
@@ -2280,12 +2362,18 @@ AIEnter_Battle_Fight
 void AIEnter_Battle_Fight(bot_state_t *bs, char *s) {
 	BotRecordNodeSwitch(bs, "battle fight", "", s);
 	trap_BotResetLastAvoidReach(bs->ms);
+	//Makro - check if the bot has leg damage
+	if (RQ3_Bot_NeedToBandage(bs) == 2) {
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+		}
+	}
 	bs->ainode = AINode_Battle_Fight;
 }
 
 /*
 ==================
-AIEnter_Battle_Fight
+AIEnter_Battle_SuicidalFight
 ==================
 */
 void AIEnter_Battle_SuicidalFight(bot_state_t *bs, char *s) {
@@ -2338,6 +2426,14 @@ int AINode_Battle_Fight(bot_state_t *bs) {
 	if (bs->enemydeath_time) {
 		if (bs->enemydeath_time < FloatTime() - 1.0) {
 			bs->enemydeath_time = 0;
+			//Makro - check if the bot needs to bandage
+			if (RQ3_Bot_NeedToBandage(bs) != 0) {
+				if (RQ3_Bot_CheckBandage(bs)) {
+					if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+						Cmd_Bandage( &g_entities[bs->entitynum] );
+					}
+				}
+			}//
 			if (bs->enemysuicide) {
 				BotChat_EnemySuicide(bs);
 			}
@@ -2683,28 +2779,36 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 	}
 	//if the enemy is NOT visible for 4 seconds
 	if (bs->enemyvisible_time < FloatTime() - 4) {
-		AIEnter_Seek_LTG(bs, "battle retreat: lost enemy");
 		//Makro - bot retreating, enemy not in sight - a good time to bandage
 		if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
 			//If not bandaging already
 			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 				Cmd_Bandage( &g_entities[bs->entitynum] );
 			}
-			/*
-			if (bot_developer.integer == 2) {
-				G_Printf("^5BOT CODE: ^7Bandaging\n");
-			}
-			*/
-			
 		}
+		AIEnter_Seek_LTG(bs, "battle retreat: lost enemy");
 		return qfalse;
 	}
 	//else if the enemy is NOT visible
 	else if (bs->enemyvisible_time < FloatTime()) {
 		//if there is another enemy
 		if (BotFindEnemy(bs, -1)) {
+			//if the bot has leg damage
+			if (RQ3_Bot_NeedToBandage(bs) == 2) {
+				//If the bot wants to bandage and not bandaging already
+				if (bs->cur_ps.weaponstate != WEAPON_BANDAGING && RQ3_Bot_CheckBandage(bs)) {
+					Cmd_Bandage( &g_entities[bs->entitynum] );
+				}
+			}
 			AIEnter_Battle_Fight(bs, "battle retreat: another enemy");
 			return qfalse;
+		} else {
+			if (RQ3_Bot_NeedToBandage(bs) != 0) {
+			//If not bandaging already
+				if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+					Cmd_Bandage( &g_entities[bs->entitynum] );
+				}
+			}
 		}
 	}
 	//

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.9  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -224,20 +227,31 @@
 #define MODELINDEX_CHAINGUN		51
 */
 
-//
-#define WEAPONINDEX_KNIFE		1
-#define WEAPONINDEX_PISTOL		2
-#define WEAPONINDEX_M4			3
-#define WEAPONINDEX_SSG3000		4
-#define WEAPONINDEX_MP5			5
-#define WEAPONINDEX_HANDCANNON		6
-#define WEAPONINDEX_M3			7
-#define WEAPONINDEX_AKIMBO		8
-#define WEAPONINDEX_GRENADE		9
 /*
 #define WEAPONINDEX_GRAPPLING_HOOK	10
 #define WEAPONINDEX_NAILGUN		11
 #define WEAPONINDEX_PROXLAUNCHER	12
 #define WEAPONINDEX_CHAINGUN		13
 */
+//Makro - these were messed up
+/*
+#define WEAPONINDEX_KNIFE				1
+#define WEAPONINDEX_PISTOL				2
+#define WEAPONINDEX_M3					3
+#define WEAPONINDEX_GRENADE				4
+#define WEAPONINDEX_HANDCANNON				5
+#define WEAPONINDEX_AKIMBO				6
+#define WEAPONINDEX_SSG3000				7
+#define WEAPONINDEX_MP5					8
+#define WEAPONINDEX_M4					9
+*/
+#define WEAPONINDEX_PISTOL				1
+#define WEAPONINDEX_M3					2
+#define WEAPONINDEX_MP5					3
+#define WEAPONINDEX_HANDCANNON			4
+#define WEAPONINDEX_SSG3000				5
+#define WEAPONINDEX_M4					6
+#define WEAPONINDEX_AKIMBO				7
+#define WEAPONINDEX_KNIFE				8	
+#define WEAPONINDEX_GRENADE				9
 

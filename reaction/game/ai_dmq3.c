@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.29  2002/05/05 15:18:02  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -261,9 +264,6 @@ void BotAttack(bot_state_t *bs) {
 	
 	//Makro - if the weapon isn't ready, stop
 	if (bs->cur_ps.weaponstate != WEAPON_READY) {
-#ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "weapon not ready (%i)\n", bs->cur_ps.weapon);
-#endif //DEBUG
 		return;
 	}
 	
@@ -401,6 +401,20 @@ void BotSetUserInfo(bot_state_t *bs, char *key, char *value) {
 	Info_SetValueForKey(userinfo, key, value);
 	trap_SetUserinfo(bs->client, userinfo);
 	ClientUserinfoChanged( bs->client );
+}
+
+/*
+==================
+BotGetUserInfoKey
+
+Added by Makro
+==================
+*/
+char *BotGetUserInfoKey(bot_state_t *bs, char *key) {
+	char userinfo[MAX_INFO_STRING];
+
+	trap_GetUserinfo(bs->client, userinfo, sizeof(userinfo));
+	return Info_ValueForKey(userinfo, key);
 }
 
 /*
@@ -1925,39 +1939,41 @@ that the trap calls don't seem to
 #define Score_HC_2		65
 #define Score_HC_3		80
 
-int RQ3_Bot_WeaponFitness(bot_state_t *bs, int weapon)
+#define PLAYER_SIZE_X	30.0f
+#define PLAYER_SIZE_Y	49.0f
+
+float RQ3_Bot_WeaponFitness(bot_state_t *bs, int weapon)
 {
 	int dist = bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
 			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT];
+	if (dist <= 0) {
+		dist = 8;
+	}
 
+	//no ammo
 	if (bs->cur_ps.ammo[weapon] <= 0 && !RQ3_Bot_CanReload(bs, weapon))
 		return 0;
 
+	//psx * psy / ((hs * d / 8192) * (vs * d / 8192))
 	switch (weapon) {
 		case WP_PISTOL:
-			return 70;
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((PISTOL_SPREAD * dist / 8192) * (PISTOL_SPREAD * dist / 8192)) * bs->inventory[INVENTORY_PISTOLAMMO] * PISTOL_DAMAGE;
 		case WP_AKIMBO:
-			return 80;
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((PISTOL_SPREAD * dist / 8192) * (PISTOL_SPREAD * dist / 8192)) * bs->inventory[INVENTORY_AKIMBOAMMO] * PISTOL_DAMAGE;
 		case WP_M3:
-			{
-				if (dist > 1000)
-					return (int) (Score_M3_1 * 1000 / dist);
-				else if (dist > 500)
-					return Score_M3_2;
-				else
-					return Score_M3_3;
-			}
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((DEFAULT_M3_HSPREAD * dist / 8192) * (DEFAULT_M3_VSPREAD * dist / 8192)) * bs->inventory[INVENTORY_M3AMMO] * M3_DAMAGE * 10;
 		case WP_HANDCANNON:
-			{
-				if (dist > 500)
-					return 0;
-				else if (dist > 200)
-					return 50;
-				else if (dist > 100)
-					return 50;
-				else
-					return 80;
-			}
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((DEFAULT_SHOTGUN_HSPREAD * dist / 8192) * (DEFAULT_SHOTGUN_VSPREAD * dist / 8192)) * bs->inventory[INVENTORY_HANDCANNONAMMO] * HANDCANNON_DAMAGE * 10;
+		case WP_M4:
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((M4_SPREAD * dist / 8192) * (M4_SPREAD * dist / 8192)) * bs->inventory[INVENTORY_M4AMMO] * M4_DAMAGE;
+		case WP_MP5:
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((MP5_SPREAD * dist / 8192) * (MP5_SPREAD * dist / 8192)) * bs->inventory[INVENTORY_MP5AMMO] * MP5_DAMAGE;
+		case WP_SSG3000:
+			return (float) PLAYER_SIZE_X * PLAYER_SIZE_Y / ((SNIPER_SPREAD * dist / 8192) * (SNIPER_SPREAD * dist / 8192)) * bs->inventory[INVENTORY_SSG3000AMMO] * SNIPER_DAMAGE;
+		case WP_KNIFE:
+			return 0.1f;
+		case WP_GRENADE:
+			return 1.0f;
 		default:
 			return 0;
 	}
@@ -1969,7 +1985,17 @@ RQ3_Bot_ChooseWeapon
 Added by Makro
 ======================
 */
-void RQ3_Bot_ChooseBestFightWeapon(bot_state_t *bs) {
+int RQ3_Bot_ChooseBestFightWeapon(bot_state_t *bs) {
+	/*
+	int i;
+
+	for (i=WP_NONE+1; i<WP_NUM_WEAPONS; i++) {
+		if ((bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)) == (1 << i)) {
+			BotAI_Print(PRT_MESSAGE, "Weapon %i: %f\n", i, RQ3_Bot_WeaponFitness(bs, i));
+		}
+	}
+	*/
+	return trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
 }
 
 /*
@@ -1991,7 +2017,9 @@ void BotChooseWeapon(bot_state_t *bs) {
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
 	else {
-		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
+		//Makro - new function
+		//newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
+		newweaponnum = RQ3_Bot_ChooseBestFightWeapon(bs);
 		if (bs->weaponnum != newweaponnum) bs->weaponchange_time = FloatTime();
 // JBravo: test hack
 // Makro - test unhack :P
@@ -2492,6 +2520,21 @@ void BotUseInvulnerability(bot_state_t *bs) {
 
 /*
 ==================
+RQ3_Bot_NeedToBandage
+
+Added by Makro
+==================
+*/
+int RQ3_Bot_NeedToBandage( bot_state_t *bs) {
+	if ((bs->cur_ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) 
+		return 1;
+	if  ((bs->cur_ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
+		return 2;
+	return 0;
+}
+
+/*
+==================
 RQ3_Bot_CheckBandage
 
 Added by Makro
@@ -2518,18 +2561,16 @@ BotBattleUseItems
 */
 void BotBattleUseItems(bot_state_t *bs) {
 	//Makro - bot was hit; if very low on health, bandage immediately, otherwise, bandage randomly
+	/*
 	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
 		if (RQ3_Bot_CheckBandage(bs))
 			//Makro - if not bandaging already
 			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
 				Cmd_Bandage( &g_entities[bs->entitynum] );
-				/*
-				if (bot_developer.integer == 2) {
-					G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));
-				}
-				*/
 			}
 	}
+	*/
+	//On second though, bots shouldn't bandage at all during combat
 
 	if (bs->inventory[INVENTORY_HEALTH] < 40) {
 		if (bs->inventory[INVENTORY_TELEPORTER] > 0) {
@@ -5772,16 +5813,16 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 		case EV_FOOTSPLASH:
 		case EV_FOOTWADE:
 		case EV_SWIM:
-			break;
 		case EV_FALL_SHORT:
+			break;
 		case EV_FALL_MEDIUM:
-		case EV_FALL_FAR:				// Makro - check for falling damage
+		case EV_FALL_FAR:
+		case EV_FALL_FAR_NOSOUND:		// Makro - check for falling damage
 			{
-				int		skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+				//Makro - this is the attack skill, we should be using the overall skill
+				int	skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
 				if (random() > (1.0f - skill)) {
-					if ((bs->cur_ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
-						 (bs->cur_ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
-						//Makro - this is the attack skill, we should be using the overall skill
+					if (RQ3_Bot_NeedToBandage(bs) == 2) {
 						Cmd_Bandage( &g_entities[bs->entitynum] );
 					}
 				}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/10 13:21:53  makro
+// Mainly bot stuff. Also fixed a couple of crash bugs
+//
 // Revision 1.8  2002/05/03 18:09:20  makro
 // Bot stuff. Jump kicks
 //
@@ -682,18 +685,20 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
 	Info_SetValueForKey( userinfo, "team", team );
 
+	if ( g_gametype.integer == GT_TEAMPLAY ) {
+		//Makro - load custom weapon/item from bot file
+		tpWeapon = CharToWeapon(Info_ValueForKey(botinfo, "weapon"), WP_M4);
+		tpItem = CharToItem(Info_ValueForKey(botinfo, "item"), HI_LASER);
+	}
+	Info_SetValueForKey( userinfo, "tpw", va("%i", tpWeapon - WP_NONE) );
+	Info_SetValueForKey( userinfo, "tpi", va("%i", tpItem - HI_NONE) );
+
 	bot = &g_entities[ clientNum ];
 	bot->r.svFlags |= SVF_BOT;
 	bot->inuse = qtrue;
 
 	// register the userinfo
 	trap_SetUserinfo( clientNum, userinfo );
-
-	if ( g_gametype.integer == GT_TEAMPLAY ) {
-		//Makro - load custom weapon/item from bot file
-		tpWeapon = CharToWeapon(Info_ValueForKey(botinfo, "weapon"), WP_M4);
-		tpItem = CharToItem(Info_ValueForKey(botinfo, "item"), HI_LASER);
-	}
 
 	// have it connect to the game as a normal client
 	if ( ClientConnect( clientNum, qtrue, qtrue ) ) {
