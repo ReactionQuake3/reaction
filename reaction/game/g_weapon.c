@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/06/29 20:58:10  niceass
+// shoot through teammates
+//
 // Revision 1.71  2002/06/29 02:41:34  niceass
 // m4 kick fix
 //
@@ -538,13 +541,14 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 		}
 
 		if (traceEnt->takedamage && traceEnt->client) {
-			if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR) {
+			/*if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR && 
+				!OnSameTeam(traceEnt, ent) || (g_friendlyFire.integer > 0 && OnSameTeam(traceEnt, ent)) ) {
 				tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
 				//tent->s.eventParm = traceEnt->s.number;
 				tent->s.eventParm = DirToByte(forward);
 				tent->s.otherEntityNum2 = traceEnt->s.number;
 				tent->s.otherEntityNum = ent->s.number;
-			}
+			}*/
 			if (LogAccuracyHit(traceEnt, ent)) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
@@ -618,12 +622,16 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 		}
 
 		if (traceEnt->takedamage) {
+			if (traceEnt->client)
+				traceEnt->client->kevlarHit = qfalse;
+
 			G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD);
 
 			// FIXME: poor implementation
-			if (traceEnt->client
-			    && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
-				if (traceEnt->client->kevlarHit == qfalse) {
+			if (traceEnt->client && traceEnt->client->kevlarHit == qfalse ) {
+			    //&& bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
+				if ( !OnSameTeam(traceEnt, ent) || (OnSameTeam(traceEnt, ent) && g_friendlyFire.integer > 0) ) {
+
 					tent2 = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
 					//tent->s.eventParm = traceEnt->s.number;
 					tent2->s.eventParm = DirToByte(forward);
@@ -633,13 +641,15 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 				}
 			}
 			// NiceAss: Added so the M4 will shoot through bodies
-			if (MOD == MOD_M4 && traceEnt->client && traceEnt->client->kevlarHit == qfalse) {
-				VectorCopy(tr.endpos, muzzle);
-				passent = tr.entityNum;
-				continue;
+			if ( traceEnt->client || ent->client) {
+				if ( (MOD == MOD_M4 && traceEnt->client->kevlarHit == qfalse) ||
+					// NiceAss: And you can shoot through teammates
+					OnSameTeam(traceEnt, ent) ) {
+					VectorCopy(tr.endpos, muzzle);
+					passent = tr.entityNum;
+					continue;
+				}
 			}
-			if (traceEnt->client)
-				traceEnt->client->kevlarHit = qfalse;
 		}
 		break;
 	}
@@ -708,11 +718,15 @@ qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t * ent)
 				damage = M3_DAMAGE;
 				G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_M3);
 			}
-			//damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
-			//Elder: moved into if conditional above
-			//G_Damage( traceEnt, ent, ent, forward, tr.endpos,     damage, 0, MOD_SHOTGUN);
+
 			if (LogAccuracyHit(traceEnt, ent)) {
 				return qtrue;
+			}
+			
+			if ( OnSameTeam(traceEnt, ent) ) {
+				VectorCopy( tr.endpos, tr_start );
+				passent = tr.entityNum;
+				continue;
 			}
 		}
 		return qfalse;
@@ -1455,7 +1469,6 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 	gentity_t *unlinkedEntities[MAX_SSG3000_HITS];
 
 	qboolean hitBreakable;
-	qboolean hitKevlar;
 	float r;
 	float u;
 	float spread;
@@ -1501,7 +1514,6 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 		//Elder: need to store this flag because
 		//the entity may get wiped out in G_Damage
 		hitBreakable = qfalse;
-		hitKevlar = qfalse;
 
 		//G_Printf("(%d) SSG: Trapping trace\n", level.time);
 
@@ -1537,6 +1549,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, 0, 0, MOD_SNIPER);
 			return;
 		}
+
 		// NiceAss: Special hit-detection stuff for the head
 		if (traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, trace.endpos) == qfalse) {
 			// It actually didn't hit anything...
@@ -1556,19 +1569,17 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 				hitBreakable = qtrue;
 			}
 			// send impacts
-			if (traceEnt->client) {
+			if (traceEnt->client ) {
 				//if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
 				//{
-				tent[unlinked] = G_TempEntity(trace.endpos, EV_SSG3000_HIT_FLESH);
-				tent[unlinked]->s.eventParm = DirToByte(forward);
-				tent[unlinked]->s.otherEntityNum2 = traceEnt->s.number;
-				tent[unlinked]->s.otherEntityNum = ent->s.number;
+				if ( !OnSameTeam(traceEnt, ent) || (OnSameTeam(traceEnt, ent) && g_friendlyFire.integer > 0) ) {
+					tent[unlinked] = G_TempEntity(trace.endpos, EV_SSG3000_HIT_FLESH);
+					tent[unlinked]->s.eventParm = DirToByte(forward);
+					tent[unlinked]->s.otherEntityNum2 = traceEnt->s.number;
+					tent[unlinked]->s.otherEntityNum = ent->s.number;
+				}
 				//}
 				//tent[unlinked]->s.eventParm = traceEnt->s.number;
-				//Check to see if we've hit kevlar -- FIXME: wrong way to do it
-				if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
-					hitKevlar = qtrue;
-
 			} else {
 				// impact type
 				//Makro - new surfaceparm system
@@ -1600,27 +1611,19 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			}
 			//G_Printf("(%d) SSG: Doing damage to target\n", level.time);
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_SNIPER);
-			// FIXME: poor implementation
-			/*
-			   if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
-			   {
-			   // reset kevlar flag
-			   traceEnt->client->kevlarHit = qfalse;
-			   // set SSG kevlar flag so we stop piercing
-			   hitKevlar = qtrue;
-			   }
-			 */
 		}
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
-		if (hitKevlar || (hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID))) {
+
+		// traceEnt->client->kevlarHit ||
+		if ( hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID) ) {
+			// G_Printf("hitKev %d   hitBreak %d  contents %d\n", traceEnt->client->kevlarHit, hitBreakable, trace.contents);
 			//G_Printf("(%d) SSG: did not hit breakable and hit solid, exiting loop\n", level.time);
 			break;	// we hit something solid enough to stop the beam
 		}
-		//G_Printf("(%d) SSG: Unlinking trace entity\n", level.time);
-		// unlink this entity, so the next trace will go past it
-		//Breakables may have broken already already
-		if (hitBreakable == qfalse) {
+
+		if (hitBreakable == qfalse ||
+			OnSameTeam(traceEnt, ent) ) {
 			trap_UnlinkEntity(traceEnt);
 			unlinkedEntities[unlinked] = traceEnt;
 			unlinked++;
