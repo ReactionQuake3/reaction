@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2003/04/09 02:00:43  jbravo
+// Fixed team none in DM and some final cleanups for the 3.0 release
+//
 // Revision 1.140  2003/03/29 15:04:03  jbravo
 // Removing skin replacement cvars
 //
@@ -936,7 +939,7 @@ void G_RegisterCvars(void)
 	}
 // JBravo: lets disable the untested modes.
 	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
-	    g_gametype.integer != GT_TOURNAMENT && g_gametype.integer != GT_TEAM) {
+	    g_gametype.integer != GT_TEAM) {
 		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");

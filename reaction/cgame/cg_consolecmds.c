@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2003/04/09 02:00:43  jbravo
+// Fixed team none in DM and some final cleanups for the 3.0 release
+//
 // Revision 1.54  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -760,5 +763,5 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("reflogin");
 	trap_AddCommand("ref");
 	trap_AddCommand("refresign");
-	trap_AddCommand("debugshit");
+//	trap_AddCommand("debugshit");
 }

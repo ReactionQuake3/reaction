@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2003/04/09 02:00:43  jbravo
+// Fixed team none in DM and some final cleanups for the 3.0 release
+//
 // Revision 1.129  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -1408,6 +1411,15 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	}
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
+// JBravo: ditto
+	if (g_gametype.integer == GT_FFA) {
+		client->sess.sessionTeam = TEAM_FREE;
+		client->sess.savedTeam = TEAM_FREE;
+		client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+		client->sess.spectatorState = SPECTATOR_NOT;
+		client->specMode = SPECTATOR_NOT;
+	}
+
 // JBravo: unlagged
 /*	if (g_delagHitscan.integer) {
 		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1ON!\n\"");
@@ -1495,12 +1507,13 @@ void ClientBegin(int clientNum)
 		client->camera->mode = CAMERA_MODE_SWING;
 	}
 
-	if (g_gametype.integer == GT_FFA) {
+// JBravo: moved this up to clientconnect so DM players can join the spectator team.
+/*	if (g_gametype.integer == GT_FFA) {
 		client->sess.sessionTeam = TEAM_FREE;
 		client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 		client->sess.spectatorState = SPECTATOR_NOT;
 		client->specMode = SPECTATOR_NOT;
-	}
+	} */
 
 	if (client->sess.sessionTeam != TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;	//set to short range

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.185  2003/04/09 02:00:43  jbravo
+// Fixed team none in DM and some final cleanups for the 3.0 release
+//
 // Revision 1.184  2003/03/30 00:36:03  jbravo
 // Grenadebug when dropping bandolier
 //
@@ -811,10 +814,10 @@ void Cmd_Give_f(gentity_t * ent)
 	}
 }
 
-void RQ3_Cmd_debugshit (gentity_t * ent)
+/*void RQ3_Cmd_debugshit (gentity_t * ent)
 {
 	G_Printf("STAT_HOLDABLE_ITEM is %d, uniqueItems is %d\n", ent->client->ps.stats[STAT_HOLDABLE_ITEM], ent->client->uniqueItems);
-}
+} */
 /*
 ==================
 Cmd_God_f
@@ -2955,8 +2958,8 @@ void ClientCommand(int clientNum)
 // JBravo: adding tkok
 	else if (Q_stricmp(cmd, "tkok") == 0)
 		RQ3_Cmd_TKOk(ent);
-	else if (Q_stricmp(cmd, "debugshit") == 0)
-		RQ3_Cmd_debugshit(ent);
+//	else if (Q_stricmp(cmd, "debugshit") == 0)
+//		RQ3_Cmd_debugshit(ent);
 	//Elder: stuff for dropping items
 	else if (Q_stricmp(cmd, "dropitem") == 0)
 		Cmd_DropItem_f(ent);

@@ -1,5 +1,6 @@
 # List fixes here for the 3.0 release
 
+* It is now possible to soectate in DM.
 * Added cg_RQ3_zcam_stfu to stop zcam printing who its following or tracking.
 * Fixed bug where dropping the bandolier would not reduce amount of ammo
 * Its now impossible to change nicks to avoide votekicks.
@@ -22,7 +23,7 @@
 * Added Itembanning
 * Fixed a bug in weaponbanning
 * Fixed bugs screaming about teamkills in TDM and CTB
-* Fixed a bug where all items could be dropped.
+* Fixed a bug where all items could be dropped at once.
 * Tweaked helmet control.
 * Fixed a bug that forced players into follow mode spec after death.
 * Lots of TDM fixes.
