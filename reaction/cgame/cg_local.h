@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/08/03 06:52:35  jbravo
+// Fixed the plost3 sound in all radiopaks and now damage is only tracked for
+// players you hit that are not on your team
+//
 // Revision 1.112  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -1382,11 +1386,11 @@ typedef struct {
 // JBravo: Radio sounds
 
 	//Slicer 
-	sfxHandle_t male_sounds[55];
-	sfxHandle_t new_male_sounds[55];
-	sfxHandle_t pikey_male_sounds[55];
-	sfxHandle_t pirate_male_sounds[55];
-	sfxHandle_t female_sounds[55];
+	sfxHandle_t male_sounds[56];
+	sfxHandle_t new_male_sounds[56];
+	sfxHandle_t pikey_male_sounds[56];
+	sfxHandle_t pirate_male_sounds[56];
+	sfxHandle_t female_sounds[56];
 
 	sfxHandle_t steamSound;
 	sfxHandle_t male_1sound;

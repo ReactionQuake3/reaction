@@ -19,6 +19,8 @@
 * Doors with health and the "wait" key set to a negative value should work as expected now
 * MM: Added "resetMatch" for rcon and referee use, to reset the current server Match Stuff
 * Fixed the Akimbo ammo when akimbos are not the primary weapon.
+* Fixed plost3 radio sounds in all radiopaks.
+* Damage is now only tracked for players hit that are not on your team.
 
 
 # List fixes here for the 2.1 release

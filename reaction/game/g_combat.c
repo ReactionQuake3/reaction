@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/08/03 06:52:35  jbravo
+// Fixed the plost3 sound in all radiopaks and now damage is only tracked for
+// players you hit that are not on your team
+//
 // Revision 1.113  2002/07/31 19:56:32  makro
 // Fixed the code for doors with health and the wait key set to a negative value
 //
@@ -2313,10 +2317,16 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (take) {
 		// JBravo: for Damage delt tracking
 		if (attacker && attacker->client && targ->health > 0) {
-			if (mod == MOD_TELEFRAG)
+			if (mod == MOD_TELEFRAG) {
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += 100;
-			else
-				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+			} else {
+				if (g_gametype.integer >= GT_TEAM) {
+					if (attacker->client->sess.sessionTeam != targ->client->sess.sessionTeam)
+						attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+				} else {
+					attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+				}
+			}
 			//Makro - crash bug fix
 			if (targ && targ->client) {
 				Com_sprintf(attacker->client->last_damaged_players, sizeof(attacker->client->last_damaged_players),
