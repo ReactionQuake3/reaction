@@ -109,6 +109,7 @@ void PM_AddEvent( int newEvent ) {
 PM_AddEvent
 
 Elder: stuffs event parameters
+Be careful because you are stuffing the player
 ===============
 */
 void PM_AddEvent2( int newEvent, int eventParm ) {
@@ -1831,16 +1832,25 @@ static void PM_BeginWeaponChange( int weapon ) {
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000)
+			pm->ps->weapon == WP_SSG3000 ||
+			pm->ps->weapon == WP_M4)
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
 	}
-	
+
+	// Elder: cancel reload stuff here
+	pm->ps->stats[STAT_RELOADTIME] = 0;
+	pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+	pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
+	pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
+
 	pm->ps->weaponstate = WEAPON_DROPPING;
+	
 	//Elder: temp hack
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000)
+		pm->ps->weapon == WP_SSG3000 ||
+		pm->ps->weapon == WP_M4)
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
@@ -1915,7 +1925,8 @@ static void PM_FinishWeaponChange( void ) {
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000)
+		pm->ps->weapon == WP_SSG3000 ||
+		pm->ps->weapon == WP_M4)
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
@@ -1942,7 +1953,8 @@ static void PM_TorsoAnimation( void ) {
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000)
+			pm->ps->weapon == WP_SSG3000 ||
+			pm->ps->weapon == WP_M4)
 			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
@@ -1969,6 +1981,298 @@ static void PM_WeaponAnimation( void ) {
 		//PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
 	return;
 }
+
+
+/*
+==============
+PM_Reload
+
+Added by Elder
+What a mess this is :/
+FIXME: This is poorly implemented
+
+Does reload stuff like fast-reloads, sound events,
+some ammo synchronization, etc.
+Clip management is handled on the server (ReloadWeapon)
+because we can't store all the clips in a playerstate (nor should we)
+It is triggered by BUTTON_AFFIRMATIVE (bind +button5)
+==============
+*/
+static void PM_Reload( void )
+{
+	// int weapon = pm->ps->weapon;
+
+	// only normal/noclip players can reload
+	if (pm->ps->pm_type > PM_NOCLIP)
+	{
+		pm->ps->pm_flags &= ~PMF_RELOAD_HELD;
+		pm->ps->stats[STAT_RELOADTIME] = 0;
+		pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+		pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
+		pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
+		return;
+	}
+
+	if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
+		if ( !(pm->ps->pm_flags & PMF_RELOAD_HELD) )
+		{
+			// prevent throttling
+			pm->ps->pm_flags |= PMF_RELOAD_HELD;
+
+			// check for bursting or weapon delay
+			if (pm->ps->stats[STAT_BURST] > 0 || pm->ps->weaponTime > 0)
+				return;
+
+			// check for bandaging
+			if (pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK)
+				return;
+
+			// check for full clip or non-reloadable weapons
+			if (pm->ps->ammo[pm->ps->weapon] == ClipAmountForAmmo(pm->ps->weapon) ||
+				pm->ps->weapon == WP_KNIFE ||
+				pm->ps->weapon == WP_GRENADE)
+			{
+				//Com_Printf("No need to reload.\n");
+				return;
+			}
+
+			// check for insufficient ammo
+			if (pm->ps->stats[STAT_CLIPS] <= 0)
+			{
+				//Com_Printf("Out of ammo.\n");
+				return;
+			}
+			else if (pm->ps->weapon == WP_HANDCANNON ||
+					 pm->ps->weapon == WP_AKIMBO)
+			{
+				if (pm->ps->stats[STAT_CLIPS] < 2)
+				{
+					//Com_Printf("Not enough ammo.\n");
+					return;
+				}
+			}
+
+			// check for fast-reload interrupt
+			if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000)
+			{
+				if (pm->ps->stats[STAT_RELOADTIME] > 0) {
+					if ( pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS )
+					{
+						Com_Printf("============= Locked out in fast-reload interrupt\n");
+					}
+					else
+					{
+						//if (pm->ps->ammo[pm->ps->weapon] + pm->ps->stats[STAT_RELOADATTEMPTS] < ClipAmountForAmmo(pm->ps->weapon) &&
+							//pm->ps->stats[STAT_RELOADATTEMPTS] < pm->ps->stats[STAT_CLIPS])
+						if (pm->ps->stats[STAT_RELOADATTEMPTS] < ClipAmountForAmmo(pm->ps->weapon))
+						{
+							//Com_Printf("Hit fast-reload entrance\n");
+							// add to reload queue and enable fast-reloads flag
+							pm->ps->stats[STAT_RQ3] |= RQ3_FASTRELOADS;
+							pm->ps->stats[STAT_RELOADATTEMPTS]++;
+							Com_Printf("======== Reload attempts: %i ========\n", pm->ps->stats[STAT_RELOADATTEMPTS]);
+						}
+						return;
+					}
+				}
+			}
+
+			// fresh reload
+			if (pm->ps->stats[STAT_RELOADTIME] == 0)
+			{
+				// set reload time according to weapon
+				switch (pm->ps->weapon)
+				{
+					case WP_PISTOL:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_PISTOL_RELOAD_DELAY;
+						break;
+					case WP_AKIMBO:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_AKIMBO_RELOAD_DELAY;
+						break;
+					case WP_M3:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_M3_RELOAD_DELAY;
+						pm->ps->stats[STAT_RELOADATTEMPTS]++;
+						break;
+					case WP_M4:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_M4_RELOAD_DELAY;
+						break;
+					case WP_MP5:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_MP5_RELOAD_DELAY;
+						break;
+					case WP_HANDCANNON:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_HANDCANNON_RELOAD_DELAY;
+						break;
+					case WP_SSG3000:
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_SSG3000_RELOAD_DELAY;
+						pm->ps->stats[STAT_RELOADATTEMPTS]++;
+						break;
+				}
+
+				pm->ps->weaponstate = WEAPON_RELOADING;
+				PM_AddEvent(EV_RELOAD_WEAPON0);
+				//Com_Printf("Starting reload\n");
+				return;
+			}
+		}
+	}
+	else
+	{
+		pm->ps->pm_flags &= ~PMF_RELOAD_HELD;
+	}
+	
+	// in-progress reload
+	if (pm->ps->stats[STAT_RELOADTIME] > 0)
+	{
+		pm->ps->stats[STAT_RELOADTIME] -= pml.msec;
+		
+		// process any fast-reload stuff here
+		if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) {
+			if ((pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) && pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
+			{
+				if (pm->ps->weapon == WP_M3)
+				{
+					// knock down reload time if doing fast-reloads
+					if (pm->ps->stats[STAT_RELOADTIME] > RQ3_M3_FAST_RELOAD_DELAY)
+					{
+						//Com_Printf("Reducing reload time\n");
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_M3_FAST_RELOAD_DELAY;
+					}
+				}
+				else
+				{
+					// knock down reload time if doing fast-reloads
+					if (pm->ps->stats[STAT_RELOADTIME] > RQ3_SSG3000_FAST_RELOAD_DELAY)
+					{
+						//Com_Printf("Reducing reload time\n");
+						pm->ps->stats[STAT_RELOADTIME] = RQ3_SSG3000_FAST_RELOAD_DELAY;
+					}
+				}
+			}
+		}
+
+		// insert stage 1 sound events here; check against the reload time
+
+		// finished reload
+		if (pm->ps->stats[STAT_RELOADTIME] <= 0)
+		{
+			int ammotoadd;
+			
+			ammotoadd = ClipAmountForReload(pm->ps->weapon);
+			if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000)
+			{
+				// need to also check here because of fast-reloads
+				if (ammotoadd + pm->ps->ammo[pm->ps->weapon] > ClipAmountForAmmo(pm->ps->weapon) ||
+					pm->ps->stats[STAT_CLIPS] <= 0)
+				{
+					ammotoadd = pm->ps->ammo[pm->ps->weapon];
+					pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+				}
+				else
+					ammotoadd += pm->ps->ammo[pm->ps->weapon];
+			}
+
+			// akimbo and MK23 synchronization
+			if (pm->ps->weapon == WP_AKIMBO)
+			{
+				pm->ps->ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+			}
+			else if (pm->ps->weapon == WP_PISTOL &&
+					(pm->ps->stats[STAT_WEAPONS] & (1 << WP_AKIMBO)))
+			{
+				// weird?  That's because we gave one pistol a full clip
+				pm->ps->ammo[WP_AKIMBO] = pm->ps->ammo[WP_AKIMBO] - pm->ps->ammo[WP_PISTOL] + ammotoadd;
+				if (pm->ps->ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO)
+					pm->ps->ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
+			}
+			
+			if ( !(pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS) )
+				pm->ps->ammo[pm->ps->weapon] = ammotoadd;
+
+			// handle continuous fast-reloads		
+			if ((pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) && 
+				(pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) )//&&
+				//pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
+			{
+				if ( !(pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS) &&
+					 pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
+				{
+					//Com_Printf("Fast-reload cycle repeating\n");
+					if (pm->ps->weapon == WP_M3)
+						pm->ps->stats[STAT_RELOADTIME] += RQ3_M3_FAST_RELOAD_DELAY;
+					else
+						pm->ps->stats[STAT_RELOADTIME] += RQ3_SSG3000_FAST_RELOAD_DELAY;
+
+					pm->ps->stats[STAT_RELOADATTEMPTS]--;
+					
+					
+					if (pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
+						PM_StartWeaponAnim(WP_ANIM_RELOAD);
+						//PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+					
+					if (pm->ps->stats[STAT_CLIPS] > 0)
+					{
+						Com_Printf("Sending event from continuous fast-reloads\n");
+						PM_AddEvent(EV_RELOAD_WEAPON2);
+					}
+					else
+					{
+						Com_Printf("Negative event prevented\n");
+						pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+					}
+
+				}
+				else
+				{
+					Com_Printf("============= Locked out in continuous fast-reloads\n");
+				}
+
+				// finishing up fast reloads
+				if ((pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) &&
+					 pm->ps->stats[STAT_RELOADATTEMPTS] == 0)
+				{
+					//Com_Printf("Fast-reload cycle ending\n");
+					if (pm->ps->weapon == WP_M3)
+						pm->ps->stats[STAT_RELOADTIME] += RQ3_M3_FINISH_RELOAD_DELAY;
+					else
+						pm->ps->stats[STAT_RELOADTIME] += RQ3_SSG3000_FINISH_RELOAD_DELAY;
+
+					pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
+					// lock fast-reloads during finish delay
+					pm->ps->stats[STAT_RQ3] |= RQ3_LOCKRELOADS;
+					Com_Printf("<<<<<<<<<<<<< Locking\n");
+				}
+
+				return;
+			}
+			
+			// normal reload case
+			//else
+			//{
+				// unlock
+				if (pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS)
+				{
+					Com_Printf(">>>>>>>>>>>>> Unlocking\n");
+					pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
+				}
+				else
+				{
+					Com_Printf("Sending event from normal reload\n");
+					PM_AddEvent(EV_RELOAD_WEAPON2);
+				}
+
+				//Com_Printf("Finished reload\n");
+				pm->ps->stats[STAT_RELOADTIME] = 0;
+				pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+			//}
+	
+		} // end finish reload
+	
+	} // end in-progress reload
+
+}
+
+
 
 /*
 ==============
@@ -2102,7 +2406,8 @@ static void PM_Weapon( void ) {
 				(pm->ps->weapon == WP_PISTOL ||
 				 pm->ps->weapon == WP_M3 ||
 				 pm->ps->weapon == WP_HANDCANNON ||
-				 pm->ps->weapon == WP_SSG3000))
+				 pm->ps->weapon == WP_SSG3000 ||
+				 pm->ps->weapon == WP_M4))
 				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 		}
 	}
@@ -2122,11 +2427,11 @@ static void PM_Weapon( void ) {
 			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
 	}*/
 		 
-
-	if ( pm->ps->weaponTime > 0 ) {
+	// Elder: added STAT_RELOADTIME check
+	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0) {
 		return;
 	}
-	//Com_Printf("Weaponstate (%d)\n", pm->ps->weaponstate);
+	
 	
 	// change weapon if time
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
@@ -2148,7 +2453,8 @@ static void PM_Weapon( void ) {
 		if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
-			pm->ps->weapon == WP_SSG3000)
+			pm->ps->weapon == WP_SSG3000 ||
+			pm->ps->weapon == WP_M4)
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
@@ -2233,10 +2539,12 @@ static void PM_Weapon( void ) {
 			// QUARANTINE - Weapon animations
 			// This should change pm->ps->generic1 so we can animate
 			// Elder: don't repeat if on semi-auto
+			// temp hack
 			if (pm->ps->weapon == WP_PISTOL ||
 				pm->ps->weapon == WP_M3 ||
 				pm->ps->weapon == WP_HANDCANNON ||
-				pm->ps->weapon == WP_SSG3000)
+				pm->ps->weapon == WP_SSG3000 ||
+				pm->ps->weapon == WP_M4)
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
@@ -2293,7 +2601,7 @@ static void PM_Weapon( void ) {
 		//Elder: remove one more bullet/shell if handcannon/akimbo
 		else if (pm->ps->weapon == WP_HANDCANNON)
 		{
-			pm->ps->ammo[ pm->ps->weapon ]--;
+			pm->ps->ammo[ WP_HANDCANNON ]--;
 		}
 		//Elder: take away an extra bullet if available - handled in g_weapon.c as well
 		else if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ WP_AKIMBO ] > 0) {
@@ -2301,7 +2609,7 @@ static void PM_Weapon( void ) {
 		}
 
 		//Elder: sync bullets a la AQ2 style
-		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[pm->ps->weapon] < 12) {
+		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[WP_AKIMBO] < 12) {
 			pm->ps->ammo[WP_PISTOL] = pm->ps->ammo[WP_AKIMBO];
 		}
 		else if (pm->ps->weapon == WP_PISTOL && pm->ps->ammo[WP_AKIMBO] > 0) {
@@ -2538,8 +2846,42 @@ static void PM_LadderMove( void ) {
 	vec3_t	lookAhead;
 	vec3_t	trEndTest;
 
+// New experimental jump code -- not too good
+#if 0
+	// Elder: ladder jump crap
+	lookAhead[0] = pml.forward[0];
+	lookAhead[1] = pml.forward[1];
+	lookAhead[2] = 0;
+	VectorNormalize (lookAhead);
+	// Calculate end point
+	VectorMA (pm->ps->origin, 1, lookAhead, trEndTest);
+	//trEndTest[2] += 20;
+	trEndTest[2] += 6;
+	// Calculate start point
+	VectorCopy(pm->ps->origin, lookAhead);
+	//lookAhead[2] += 16;
+	lookAhead[2] += 2;
+
+	pm->trace (&tr, lookAhead, pm->mins, pm->maxs, trEndTest,
+				pm->ps->clientNum, MASK_PLAYERSOLID);
+
+	if (tr.fraction == 1 || !(tr.surfaceFlags & SURF_LADDER))
+	{
+		// good conditions -- now we can set up a double jump on the ladder
+		if (pm->debugLevel)
+			Com_Printf("Ladder jump conditions met...\n");
+		if (pm->ps->stats[STAT_JUMPTIME] > 0 && PM_CheckJump())
+		{
+			if (pm->debugLevel)
+				Com_Printf("Trying ladder jump...\n");
+			pml.ladder = qfalse;
+		}
+	}
+	// End ladder jump crap
+#endif
 
 	PM_Friction ();
+	//pml.ladder = qtrue;
 
 	scale = PM_CmdScale( &pm->cmd );
 
@@ -2566,6 +2908,8 @@ static void PM_LadderMove( void ) {
 		wishspeed = pm->ps->speed * pm_ladderScale;
 	}
 
+// Old ladder jump code -- right now it works better
+#if 1
 	// Elder: ladder jump crap
 	lookAhead[0] = pml.forward[0];
 	lookAhead[1] = pml.forward[1];
@@ -2589,11 +2933,12 @@ static void PM_LadderMove( void ) {
 		if (PM_CheckJump())
 		{
 			if (pm->debugLevel)
-				Com_Printf("Trying airmove ladder jump...\n");
+				Com_Printf("Trying ladder jump...\n");
 		}
 	}
 	// End ladder jump crap
-
+#endif
+	
 	PM_Accelerate (wishdir, wishspeed, pm_ladderAccelerate);
 
 	// This SHOULD help us with sloped ladders, but it remains untested.
@@ -2610,7 +2955,7 @@ static void PM_LadderMove( void ) {
 
 	PM_SlideMove( qfalse ); // move without gravity
 	// Elder: stop legs from animating
-	PM_ForceLegsAnim( LEGS_IDLE );
+	PM_ForceLegsAnim( LEGS_JUMP );
 }
 
 
@@ -2648,8 +2993,12 @@ void CheckLadder( void )
 		pml.ladder = qtrue;
 
 	// Elder: does this work?
-	if (pml.ladder && pml.previous_ladder)
+	if (pml.ladder && pml.previous_ladder == qfalse)
+	{
+		if (pm->debugLevel)
+			Com_Printf("Hit ladder hard\n");
 		PM_CrashLand();
+	}
 
 }
 
@@ -2847,6 +3196,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_SetWaterLevel();
 
 	// weapons
+	PM_Reload();
 	PM_Weapon();
 
 	//weapon animations(rq3 specific)
@@ -2854,7 +3204,8 @@ void PmoveSingle (pmove_t *pmove) {
 	if (pm->ps->weapon == WP_PISTOL ||
 		pm->ps->weapon == WP_M3 ||
 		pm->ps->weapon == WP_HANDCANNON ||
-		pm->ps->weapon == WP_SSG3000)
+		pm->ps->weapon == WP_SSG3000 ||
+		pm->ps->weapon == WP_M4)
 		PM_WeaponAnimation();
 
 	// torso animation

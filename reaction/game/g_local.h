@@ -335,6 +335,7 @@ struct gclient_s {
 	int			accuracy_hits;		// total number of hits
 	//Blaze: For weapon stats
 	//Will need to pass these along in g_client to the new client after spawn
+	// Elder: to be merged into rq3Record_t for more comprehensive tracking
 	int			knifeShots;
 	int			knifeHits;
 	int			mk23Shots;
@@ -410,6 +411,7 @@ struct gclient_s {
 	int			weaponfireNextTime;		// for akimbos
 	int			lastzoom;				// Elder: save last zoom state when firing
 
+	// These are now obsolete with the new reload code
 	int			fastReloads;			// Elder: for queuing M3/SSG reloads
 	int			lastReloadTime;			// Elder: for queuing M3/SSG reloads
 	int			reloadAttempts;			// Elder: for queuing M3/SSG reloads
@@ -418,6 +420,8 @@ struct gclient_s {
 	int			consecutiveShots;		// Elder: for M4 ride-up/kick
 	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var
 	int			uniqueItems;
+	int			killStreak;				// Elder: replaces the old STAT_STREAK
+	qboolean	kevlarHit;				// Elder: kevlar hit -- FIXME: poor implementation
 	//int		records[RECORD_TOTAL];	// Elder: for our awards when we implement it
 
 
@@ -758,6 +762,7 @@ qboolean G_FilterPacket (char *from);
 // g_weapon.c
 //
 void FireWeapon( gentity_t *ent );
+void ReloadWeapon ( gentity_t *ent, int stage );		// Elder: added
 #ifdef MISSIONPACK
 void G_StartKamikaze( gentity_t *ent );
 #endif

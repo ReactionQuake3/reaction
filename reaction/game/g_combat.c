@@ -541,7 +541,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         //Elder: added;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
-		self->client->ps.stats[STAT_STREAK] = 0;
+		self->client->killStreak = 0;
 
 		//Elder: stop reload attempts
 		self->client->reloadAttempts = 0;
@@ -631,37 +631,37 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
 			// Increase number of kills this life for attacker
-			attacker->client->ps.stats[STAT_STREAK]++;
+			attacker->client->killStreak++;
 			// DM reward scoring, should add an if statement to get around this when
 			// we add teamplay.
-			if (attacker->client->ps.stats[STAT_STREAK] < 4) 
+			if (attacker->client->killStreak < 4) 
 				AddScore( attacker, self->r.currentOrigin, 1 );	
-			else if (attacker->client->ps.stats[STAT_STREAK] < 8)
+			else if (attacker->client->killStreak < 8)
 			{	AddScore( attacker, self->r.currentOrigin, 2 );
 				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
 				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->s.eventParm = attacker->client->killStreak;
 				DMReward->r.svFlags = SVF_BROADCAST;
 			}
-			else if (attacker->client->ps.stats[STAT_STREAK] < 16) 
+			else if (attacker->client->killStreak < 16) 
 			{	AddScore( attacker, self->r.currentOrigin, 4 );
 				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
 				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->s.eventParm = attacker->client->killStreak;
 				DMReward->r.svFlags = SVF_BROADCAST;
 			}
-			else if (attacker->client->ps.stats[STAT_STREAK] < 32) 
+			else if (attacker->client->killStreak < 32) 
 			{	AddScore( attacker, self->r.currentOrigin, 8 );
 				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
 				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->s.eventParm = attacker->client->killStreak;
 			    DMReward->r.svFlags = SVF_BROADCAST;
 			}
 			else
 			{	AddScore( attacker, self->r.currentOrigin, 16 );
 				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
 				DMReward->s.otherEntityNum2 = killer;
-				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->s.eventParm = attacker->client->killStreak;
 				DMReward->r.svFlags = SVF_BROADCAST;
 			}
 
@@ -681,7 +681,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
 			}
-
+			
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
 			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
@@ -801,6 +801,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->s.weapon = WP_NONE;
 	self->s.powerups = 0;
+	
+	
+	// Elder: HC smoke
+	//G_Printf("player_die: damage_knockback: %i\n", self->client->damage_knockback);
+	if (meansOfDeath == MOD_HANDCANNON && self->client->damage_knockback > RQ3_HANDCANNON_KICK * 4)  //self->client->ps.stats[STAT_HEALTH] < -50)
+	{
+		//G_Printf("Smoked\n");
+		self->client->ps.eFlags |= EF_HANDCANNON_SMOKED;
+	}
+	
+	
 	self->r.contents = CONTENTS_CORPSE;
 
 	self->s.angles[0] = 0;
@@ -1697,6 +1708,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							//Vest stuff - is the knife supposed to be affected?
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
+								targ->client->kevlarHit = qtrue;
 								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
 								if (attacker->client->ps.weapon == WP_SSG3000)
 								{
@@ -1717,7 +1729,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 								}
 								//Kevlar sound
 								if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN)
-									tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
+								{
+									tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
+									tent->s.eventParm = DirToByte(dir);
+									//tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
+								}
 							}
 							else
 							{
@@ -1792,6 +1808,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			//if ( client ) {
 				//targ->flags |= FL_NO_KNOCKBACK;
 			//}
+
 			if (targ->health < -999) {
 				targ->health = -999;
 			}

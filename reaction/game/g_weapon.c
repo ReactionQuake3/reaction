@@ -326,7 +326,6 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 #define	MACHINEGUN_DAMAGE	7
 #define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
 
-
 void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	trace_t		tr;
 	vec3_t		end;
@@ -392,8 +391,13 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 
 	// send bullet impact
 	if ( traceEnt->takedamage && traceEnt->client ) {
-		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
+		if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
+		{
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+			//tent->s.eventParm = traceEnt->s.number;
+			tent->s.eventParm = DirToByte(forward);
+			tent->s.otherEntityNum2 = traceEnt->s.number;
+		}
 		if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
 				switch (MOD)
@@ -418,6 +422,10 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	//} else if ( tr.surfaceFlags & SURF_GRASS ) {
 		//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
 		//tent->s.eventParm = DirToByte( tr.plane.normal );
+	} else if ( (tr.surfaceFlags & SURF_METALSTEPS) ||
+				(tr.surfaceFlags & SURF_METAL2) ) {
+		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
+		tent->s.eventParm = DirToByte( tr.plane.normal );
 	} else {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -444,6 +452,19 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 #endif
 		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 			damage, 0, MOD);
+		
+		// FIXME: poor implementation
+		if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
+			if (traceEnt->client->kevlarHit == qfalse) {
+				tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
+				//tent->s.eventParm = traceEnt->s.number;
+				tent->s.eventParm = DirToByte(forward);
+				tent->s.otherEntityNum2 = traceEnt->s.number;
+			}
+			else
+				traceEnt->client->kevlarHit = qfalse;
+		}
+
 #ifdef MISSIONPACK
 			}
 #endif
@@ -1431,13 +1452,15 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		
 		traceEnt = &g_entities[ trace.entityNum ];
 		
-		if ( traceEnt->takedamage ) {
+		if ( traceEnt->takedamage )
+		{
 			//G_Printf("(%d) SSG: hit damagable entity\n", level.time);
 			
 			//flag hitBreakable - bullets go through even
 			//if it doesn't "shatter" - but that's usually
 			//not the case
-			if ( traceEnt->s.eType == ET_BREAKABLE ) {
+			if ( traceEnt->s.eType == ET_BREAKABLE )
+			{
 				//G_Printf("(%d) SSG: Hit a breakable\n", level.time);
 				hitBreakable = qtrue;
 			}
@@ -1445,29 +1468,51 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			// send impacts
 			if ( traceEnt->client )
 			{
+				//if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
+				//{
 				tent[unlinked] = G_TempEntity( trace.endpos, EV_SSG3000_HIT_FLESH );
-				//tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
-				tent[unlinked]->s.eventParm = traceEnt->s.number;
-				//Check to see if we've hit kevlar
+				tent[unlinked]->s.eventParm = DirToByte( forward );
+				tent[unlinked]->s.otherEntityNum2 = traceEnt->s.number;
+				tent[unlinked]->s.otherEntityNum = ent->s.number;
+				//}
+				//tent[unlinked]->s.eventParm = traceEnt->s.number;
+				//Check to see if we've hit kevlar -- FIXME: wrong way to do it
 				if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 					hitKevlar = qtrue;
 
 			}
 			else
 			{
-				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
-				tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
-			}
-			tent[unlinked]->s.otherEntityNum = ent->s.number;
+				// impact type
+				if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
+					 (trace.surfaceFlags & SURF_METAL2) )
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
+				else
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
-			if( LogAccuracyHit( traceEnt, ent ) ) {
+				tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
+				tent[unlinked]->s.otherEntityNum = ent->s.number;
+			}
+
+			if( LogAccuracyHit( traceEnt, ent ) )
+			{
 				hits++;
 			}
 
 			//G_Printf("(%d) SSG: Doing damage to target\n", level.time);
 			G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_SNIPER);
+			// FIXME: poor implementation
+			/*
+			if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
+			{
+				// reset kevlar flag
+				traceEnt->client->kevlarHit = qfalse;
+				// set SSG kevlar flag so we stop piercing
+				hitKevlar = qtrue;
+			}
+			*/
 		}
-
+			
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
 		if ( hitKevlar || (hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID))) {
@@ -1500,7 +1545,13 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	// no explosion at end if SURF_NOIMPACT
 	if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
 	{
-		tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+		if ( (trace.surfaceFlags & SURF_METALSTEPS) || 
+			 (trace.surfaceFlags & SURF_METAL2) )
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
+		else
+		{
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+		}
 		tentWall->s.eventParm = DirToByte( trace.plane.normal );
 		tentWall->s.otherEntityNum = ent->s.number;
 	}
@@ -2273,3 +2324,39 @@ void Laser_Think( gentity_t *self )
 	self->nextthink = level.time + 10;
 }
 
+
+/*
+=================
+ReloadWeapon
+
+Added by Elder
+Handles server-side management of numclips
+=================
+*/
+void ReloadWeapon ( gentity_t *ent, int stage )
+{
+
+	if (stage == 2)
+	{
+		G_Printf("Hit server-side reload\n");
+		ent->client->numClips[ent->client->ps.weapon]--;
+		// remove an extra clip if using HC or Akimbos
+		if (ent->client->ps.weapon == WP_HANDCANNON ||
+			ent->client->ps.weapon == WP_AKIMBO)
+			ent->client->numClips[ent->client->ps.weapon]--;
+
+	    //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
+		if (ent->client->ps.weapon == WP_M3) {
+			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+		}
+		else if (ent->client->ps.weapon == WP_HANDCANNON) { 
+			ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
+		}
+		else if(ent->client->ps.weapon == WP_PISTOL) {
+			ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+		}
+		else if (ent->client->ps.weapon == WP_AKIMBO) { 
+			ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
+		}
+	}
+}

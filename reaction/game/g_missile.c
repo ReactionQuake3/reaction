@@ -427,6 +427,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	//Elder: knife handling routines go HERE, not in g_main.c !!!
 	if (ent->s.weapon == WP_KNIFE) {
 		if ( other->takedamage && other->client) {
+			// Elder: must add it in here if we remove it from above
+			
+			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, ent->s.origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
 			//hit a player - send the gurgle or embedding sound event
 		}
 		else {

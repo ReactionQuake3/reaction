@@ -152,6 +152,21 @@ void P_DamageFeedback( gentity_t *player ) {
 
 	client->ps.damageCount = count;
 
+	// Elder: HC Smoke
+	/*
+	if (client->lasthurt_mod == MOD_HANDCANNON)
+	{
+		G_Printf("Feedback: damage_blood: %i, damage_knockback: %i\n",
+			client->damage_blood, client->damage_knockback);
+	}
+	*/
+	if (client->lasthurt_mod == MOD_HANDCANNON &&
+		client->damage_blood >= 120 &&
+		client->damage_knockback >= RQ3_HANDCANNON_KICK * 6)
+	{
+		client->ps.eFlags |= EF_HANDCANNON_SMOKED;
+	}
+
 	//
 	// clear totals
 	//
@@ -698,7 +713,18 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 		case EV_FIRE_WEAPON:
 			FireWeapon( ent );
 			break;
-	
+	/*
+		case EV_RELOAD_WEAPON0:
+			ReloadWeapon ( ent, 0 );
+			break;
+		case EV_RELOAD_WEAPON1:
+			ReloadWeapon ( ent, 1 );
+			break;
+	*/
+		case EV_RELOAD_WEAPON2:
+			ReloadWeapon ( ent, 2 );
+			break;
+
 		case EV_CHANGE_WEAPON:
 			//Elder: not a good place to put stuff
 			//ent->client->zoomed=0;
@@ -1613,15 +1639,13 @@ void ClientEndFrame( gentity_t *ent ) {
 	} else {
 		ent->s.eFlags &= ~EF_CONNECTION;
 	}
-	// Blaze: Do Bleed
-//	if(ent->client->bleeding)
-//			CheckBleeding(ent);	// perform once-a-second actions
-	
-	//Elder: moved unique item spawning to new function called RQ3_CheckUniqueItems
-	
+
+
 // Begin Duffman
-	//Update the clips Amount in weapon for the client
+	// Update the clips Amount in weapon for the client
+	// Elder: the STAT takes precedence over the server-side only listing
     ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
+
 // End Duffman
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 

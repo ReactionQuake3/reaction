@@ -999,29 +999,45 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client
 	if ( !other->client ) {
 		// except CTF flags!!!!
-		if( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {
+		if ( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {
 			Team_DroppedFlagThink( other );
 			return;
 		}
-		// Elder: added to handle weapons in door paths - 
-		// later we'll need to handle items here too
-		if( other->s.eType == ET_ITEM && other->item->giType == IT_WEAPON ) {
-			switch ( other->item->giTag ) {
-			case WP_MP5:
-			case WP_M4:
-			case WP_M3:
-			case WP_HANDCANNON:
-			case WP_SSG3000:
-				RQ3_DroppedWeaponThink( other );
-				return;
-			case WP_GRENADE:
-			case WP_PISTOL:
-			case WP_KNIFE:
-			case WP_AKIMBO:
-			default:
-				break;
+		// Elder: added to handle items and weapons in door paths 
+		if ( other->s.eType == ET_ITEM && other->item->giType == IT_WEAPON)
+		{
+			switch ( other->item->giTag )
+			{
+				case WP_MP5:
+				case WP_M4:
+				case WP_M3:
+				case WP_HANDCANNON:
+				case WP_SSG3000:
+					RQ3_DroppedWeaponThink( other );
+					return;
+					break;
+				case WP_GRENADE:
+				case WP_PISTOL:
+				case WP_KNIFE:
+				case WP_AKIMBO:
+				default:
+					break;
 			}
-
+		}
+		if ( other->s.eType == ET_ITEM && other->item->giType == IT_HOLDABLE) {
+			switch ( other->item->giTag )
+			{
+				case HI_LASER:
+				case HI_BANDOLIER:
+				case HI_KEVLAR:
+				case HI_SILENCER:
+				case HI_SLIPPERS:
+					RQ3_DroppedItemThink( other );
+					return;
+					break;
+				default:
+					break;
+			}
 		}
 		G_TempEntity( other->s.origin, EV_ITEM_POP );
 		G_FreeEntity( other );

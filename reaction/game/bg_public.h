@@ -388,6 +388,8 @@ typedef enum {
 	WP_ANIM_DISARM,
 	WP_ANIM_ACTIVATE,
 	//WP_ANIM_EMPTY,
+	//WP_ANIM_EXTRA1,
+	//WP_ANIM_EXTRA2,
 	MAX_WEAPON_ANIMATIONS
 } wpAnimNumber_t;
 
@@ -405,6 +407,7 @@ typedef enum {
 #define PMF_FOLLOW			4096	// spectate following another player
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
+#define PMF_RELOAD_HELD		32768	// Elder: new reload code
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -460,7 +463,7 @@ typedef enum {
 	STAT_PERSISTANT_POWERUP,
 #endif
 	STAT_WEAPONS,					// 16 bit fields
-	STAT_ARMOR,						// Elder: technically we don't need this anymore - maybe for vest
+	STAT_ARMOR,						// Elder: technically we don't need this anymore
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 
 	
@@ -469,22 +472,28 @@ typedef enum {
 
 	//These are RQ3-related specific stats	
 	STAT_CLIPS,						// Num Clips player currently has
-	STAT_STREAK,
 	STAT_BURST, 					// number of shots in burst
-	STAT_JUMPTIME,					// Blaze RE: Double jump
-	//STAT_UNIQUEWEAPONS,			// Elder - wasteful stat - moved to gclient_s
+	STAT_JUMPTIME,					// Blaze: Double jump
+	STAT_RELOADTIME,				// Elder: Reload sound triggering and weapon switch override
+	STAT_RELOADATTEMPTS,			// Elder: For fast-reload queuing
 	STAT_FALLDAMAGE,
-	STAT_RQ3,						// Blaze: Will hold a few flags for bandage, etc info
+	STAT_RQ3						// Blaze: Will hold a few flags for bandage, etc info
+	//STAT_STREAK,					// Elder: wasteful stat -- only used on server-side ATM
 } statIndex_t;
 
 //STAT_RQ3 stat info 
 #define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
 #define RQ3_BANDAGE_NEED	2
 #define RQ3_BANDAGE_WORK	4
-//Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
+// Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
 #define RQ3_ZOOM_LOW		8
 #define RQ3_ZOOM_MED		16
-#define RQ3_THROWWEAPON		32		//Present if dropping weapon via cmd or kicked away
+#define RQ3_THROWWEAPON		32		// Present if dropping weapon via cmd or kicked away
+#define RQ3_FASTRELOADS		64		// Fast-reloads flag
+#define RQ3_LOCKRELOADS		128		// Lock-reloads at end of fast-reload cycle
+// Elder: reload status; 0 + 1 = stage 2
+//#define RQ3_RELOADSTAGE0	256
+//#define RQ3_RELOADSTAGE1	512
 
 
 // player_state->persistant[] indexes
@@ -525,6 +534,7 @@ typedef enum {
 #ifdef MISSIONPACK
 #define EF_TICKING			0x00000002		// used to make players play the prox mine ticking sound
 #endif
+#define EF_HANDCANNON_SMOKED 0x00000002		// Elder: HC Smoke
 #define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
 #define	EF_AWARD_EXCELLENT	0x00000008		// draw an excellent sprite
 #define EF_PLAYER_EVENT		0x00000010
@@ -559,6 +569,7 @@ typedef enum {
 	PW_REDFLAG,
 	PW_BLUEFLAG,
 	PW_NEUTRALFLAG,
+
 
 	PW_SCOUT,
 	PW_GUARD,
@@ -612,20 +623,78 @@ typedef enum {
 	WP_NUM_WEAPONS
 } weapon_t;
 
+
 // Elder: for our end-level awards later on
+// I was just brainstorming a whole bunch of necessary records
+// This should probably be defined in g_local.h because it
+// will almost be exclusively for the server to utilize
+// We can send config strings to the individual players
+// for their own review and the global config string would
+// contain the global ones with rewards
 typedef enum {
-	RECORD_HEADSHOTS,
-	RECORD_CHESTSHOTS,
-	RECORD_STOMACHSHOTS,
-	RECORD_LEGSHOTS,
-	RECORD_FALLINGDEATHS,
-	RECORD_CAMPCOUNT,
-	RECORD_JUMPCOUNT,			// e.g. rabbit or monkey award
-	RECORD_SUICIDES,			// e.g. for MPELP award
-	RECORD_STEALTHKILLS,
-	RECORD_FRAGSTEALS,
-	
-	RECORD_TOTAL
+	// Location-hit tally - Where this player shot at
+	REC_HEADSHOTS,
+	REC_CHESTSHOTS,
+	REC_STOMACHSHOTS,
+	REC_LEGSHOTS,
+	REC_FRONTSHOTS,
+	REC_BACKSHOTS,
+	REC_LEFTSHOTS,
+	REC_RIGHTSHOTS,
+	REC_CORPSESHOTS,	// sickos - takes precedence over above records on carcasses
+	REC_GIBSHOTS,		// sickos - takes precedence over above records on carcasses
+	// Weapon usage tally
+	REC_MP5SHOTS,
+	REC_M4SHOTS,
+	REC_MK23SHOTS,
+	REC_SSG3000SHOTS,
+	REC_HANDCANNONSHOTS,
+	REC_M3SHOTS,
+	REC_AKIMBOSHOTS,
+	REC_GRENADESHOTS,
+	REC_KNIFETHROWSHOTS,
+	REC_KNIFESLASHSHOTS,
+	REC_MK23HITS,
+	REC_M3HITS,
+	REC_MP5HITS,
+	REC_M4HITS,
+	REC_SSG3000HITS,
+	REC_HANDCANNONHITS,
+	REC_AKIMBOHITS,
+	REC_GRENADEHITS,
+	REC_KNIFETHROWHITS,
+	REC_KNIFESLASHHITS,
+	REC_KICKHITS,
+	// Death tally
+	REC_HEADDEATHS,
+	REC_CHESTDEATHS,
+	REC_STOMACHDEATHS,
+	REC_LEGDEATHS,
+	REC_MK23DEATHS,
+	REC_M3DEATHS,
+	REC_MP5DEATHS,
+	REC_M4DEATHS,
+	REC_SSG3000DEATHS,
+	REC_HANDCANNONDEATHS,
+	REC_AKIMBODEATHS,
+	REC_GRENADEDEATHS,
+	REC_KNIFETHROWDEATHS,
+	REC_KNIFESLASHDEATHS,
+	REC_BLEEDDEATHS,
+	REC_FALLINGDEATHS,
+	REC_SUICIDES,			// e.g. for MPELP award, those loonies :)
+	REC_WORLDDEATHS,		// crushers, doors, etc.
+	REC_STEALTHKILLS,		// this is a derived record -- remove?
+	// Movement tally - dunno about these ones since they are related to pmove
+	REC_CAMPCOUNT,
+	REC_CROUCHCOUNT,
+	REC_JUMPCOUNT,			// e.g. rabbit or monkey award
+	// Player interaction tally
+	REC_FRAGSTEALS,			// this is a derived record -- remove?
+	REC_CHATCOUNT,
+	REC_GESTURECOUNT,
+
+	REC_NUM_RECORDS
 } rq3record_t;
 
 
@@ -696,7 +765,9 @@ typedef enum {
 	EV_NOAMMO,
 	EV_CHANGE_WEAPON,
 	EV_FIRE_WEAPON,
-	EV_RELOAD_WEAPON,		// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON0,		// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON1,		// Elder: reload weapon sounds
+	EV_RELOAD_WEAPON2,		// Elder: reload weapon sounds
 	
 	EV_USE_ITEM0,
 	EV_USE_ITEM1,
@@ -731,6 +802,8 @@ typedef enum {
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
+	EV_BULLET_HIT_METAL,	// Elder: sparks
+	EV_BULLET_HIT_KEVLAR,	// Elder: sparks
 	EV_SSG3000_HIT_FLESH,
 	EV_JUMPKICK,			// Elder: sound + jumpkick message
 

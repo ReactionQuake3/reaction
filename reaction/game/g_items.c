@@ -202,12 +202,9 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 void Add_Ammo (gentity_t *ent, int weapon, int count, int bandolierFactor)
 {
-	
 	//Blaze: Reaction stuff, add to clip when picking up ammo packs
 	//Elder: Modified to use constants def'd in bg_public.h
 	ent->client->numClips[weapon] += count;
-
-
 	
 	switch (weapon)
 	{
@@ -1300,6 +1297,8 @@ be on an entity that hasn't spawned yet.
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
+
+	//TODO: check spawn angles; client-side should make use of them too
 
 	RegisterItem( item );
 	if ( G_ItemDisabled(item) )

@@ -1312,7 +1312,9 @@ char *eventnames[] = {
 	"EV_NOAMMO",
 	"EV_CHANGE_WEAPON",
 	"EV_FIRE_WEAPON",
-	"EV_RELOAD_WEAPON,"			// Elder: reload weapon sounds
+	"EV_RELOAD_WEAPON0",			// Elder: reload weapon sounds
+	"EV_RELOAD_WEAPON1",			// Elder: reload weapon sounds
+	"EV_RELOAD_WEAPON2",			// Elder: reload weapon sounds
 
 	"EV_USE_ITEM0",
 	"EV_USE_ITEM1",
@@ -1347,8 +1349,10 @@ char *eventnames[] = {
 
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
-	"EV_SSG3000_HIT_FLESH",		//Elder: SSG3000 blood spray
-	"EV_JUMPKICK",				//Elder: sound + jumpkick message
+	"EV_BULLET_HIT_METAL",		// Elder: sparks
+	"EV_BULLET_HIT_KEVLAR",		// Elder: sparks
+	"EV_SSG3000_HIT_FLESH",		// Elder: SSG3000 blood spray
+	"EV_JUMPKICK",				// Elder: sound + jumpkick message
 
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",

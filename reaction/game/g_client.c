@@ -1228,7 +1228,7 @@ void ClientSpawn(gentity_t *ent) {
 	// health will count down towards max_health
 	ent->health = client->ps.stats[STAT_HEALTH] = 100;// max health of 100 client->ps.stats[STAT_MAX_HEALTH];//Blaze: removed * 1.25 becase we wanna start at 100 health
 	// reset streak count
-	client->ps.stats[STAT_STREAK] = 0;
+	client->killStreak = 0;
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 
