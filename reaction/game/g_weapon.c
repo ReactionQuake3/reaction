@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/07/22 07:27:02  niceass
+// better fog laser support
+//
 // Revision 1.76  2002/07/22 06:32:15  niceass
 // cleaned up the powerup code
 //
@@ -2006,14 +2009,18 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 			G_FreeEntity(ent->client->lasersight);
 			ent->client->lasersight = NULL;
 		}
+		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		return;
 	}
 	//Get rid of you?
 	if (ent->client->lasersight || enabled == qfalse) {
 		G_FreeEntity(ent->client->lasersight);
 		ent->client->lasersight = NULL;
+		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		return;
 	}
+
+	ent->client->ps.powerups[PW_LASERSIGHT] = INT_MAX;
 
 	las = G_Spawn();
 
@@ -2056,6 +2063,7 @@ void Laser_Think(gentity_t * self)
 	     self->parent->client->ps.weapon != WP_MP5 && self->parent->client->ps.weapon != WP_M4)) {
 		//Make sure you kill the reference before freeing the entity
 		self->parent->client->lasersight = NULL;
+		self->parent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		G_FreeEntity(self);
 		return;
 	}

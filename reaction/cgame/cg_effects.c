@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/07/22 07:27:21  niceass
+// better fog laser support
+//
 // Revision 1.38  2002/06/23 04:36:27  niceass
 // change to foglaser
 //
@@ -1180,45 +1183,37 @@ static void CG_VisibleLaser( vec3_t start, vec3_t finish ) {
 
 
 void CG_DrawVisibleLaser( vec3_t origin, int clientNum, vec3_t dir) {
-	int			num, sourceContentType, destContentType;
-	centity_t	*cent;
+	int			sourceContentType, destContentType;
 	vec3_t		start, end;
 	trace_t		trace;
 
 	if ( !cg_enableLaserFog.integer )
 		return;
 
-	for (num = 0; num < cg.snap->numEntities; num++) {
-		cent = &cg_entities[cg.snap->entities[num].number];
-		if (cent->currentState.eType == ET_LASER &&
-			cent->currentState.clientNum == clientNum ) {
-			break;
-		}
-	}
-
-	// Failed to find a laser dot that the player owns.
-	if (num == cg.snap->numEntities)
+	// NiceAss: This user does not have a lasersight
+	if (!( cg_entities[clientNum].currentState.powerups & (1 << PW_LASERSIGHT) ))
 		return;
 
 	VectorCopy(origin, start);
 
 	VectorMA(origin, 8192 * 16, dir, end);
-	trap_CM_BoxTrace(&trace, start, end, NULL, NULL, 0, MASK_SHOT);
+	//trap_CM_BoxTrace(&trace, start, end, NULL, NULL, clientNum, MASK_ALL); //MASK_SHOT);
+	CG_Trace(&trace, start, NULL, NULL, end, clientNum, MASK_ALL);
 	VectorCopy(trace.endpos, end);
 
 	sourceContentType = trap_CM_PointContents(start, 0);
 	destContentType = trap_CM_PointContents(end, 0);
 
-	// do a complete bubble trail if necessary
+	// do a complete laser if necessary
 	if ((sourceContentType == destContentType) && (sourceContentType & CONTENTS_FOG)) {
 		CG_VisibleLaser(start, end);
 	}
-	// bubble trail from water into air
+	// laser from fog into air
 	else if ((sourceContentType & CONTENTS_FOG)) {
 		trap_CM_BoxTrace(&trace, end, start, NULL, NULL, 0, CONTENTS_FOG);
 		CG_VisibleLaser(start, trace.endpos);
 	}
-	// bubble trail from air into water
+	// laser from air into fog
 	else if ((destContentType & CONTENTS_FOG)) {
 		trap_CM_BoxTrace(&trace, start, end, NULL, NULL, 0, CONTENTS_FOG);
 		CG_VisibleLaser(trace.endpos, end);

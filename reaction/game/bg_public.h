@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/07/22 07:26:43  niceass
+// better fog laser support
+//
 // Revision 1.89  2002/07/22 06:33:34  niceass
 // cleaned up the powerup code
 //
@@ -785,6 +788,8 @@ typedef enum {
 // NOTE: may not have more than 16
 typedef enum {
 	PW_NONE,
+
+	PW_LASERSIGHT,
 
 	PW_REDFLAG,
 	PW_BLUEFLAG,
