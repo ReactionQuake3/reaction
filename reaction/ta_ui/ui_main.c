@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/11/09 14:17:51  makro
+// Cleaned up about menu code
+// Made the weapon menu unavailable in TDM if g_RQ3_tdmMode is not 0
+//
 // Revision 1.56  2002/11/09 13:05:02  makro
 // g_RQ3_teamXname cvars are now used in the join menu
 //
@@ -2322,16 +2326,17 @@ void AddIngameLine(char *key, char *val)
 
 void UI_BuildIngameServerInfoList()
 {
-	char info[MAX_INFO_STRING];
+	char serverInfo[MAX_INFO_STRING], systemInfo[MAX_INFO_STRING];
 	char *p, *key, *val;
 
 	memset(uiInfo.ingameServerInfo, 0, sizeof(uiInfo.ingameServerInfo));
 	uiInfo.ingameServerInfoLineCount = 0;
 
-	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+	trap_GetConfigString(CS_SERVERINFO, serverInfo, sizeof(serverInfo));
+	trap_GetConfigString(CS_SYSTEMINFO, systemInfo, sizeof(systemInfo));
 	//detailed info
 	if (trap_Cvar_VariableValue("ui_RQ3_ingameDetails")) {	
-		p = info;
+		p = serverInfo;
 		while (*p == '\\')
 			p++;
 		// get the cvars
@@ -2352,43 +2357,42 @@ void UI_BuildIngameServerInfoList()
 	//basic info
 	} else {
 		//to avoid reading some stuff more than once
-		int gametype = atoi(Info_ValueForKey(info, "g_gametype"));
-		int matchmode = atoi(Info_ValueForKey(info, "g_RQ3_matchmode"));
-		int limit = atoi(Info_ValueForKey(info, "timelimit"));
-		int tdmMode = atoi(Info_ValueForKey(info, "g_RQ3_tdmMode"));
+		int gametype = atoi(Info_ValueForKey(serverInfo, "g_gametype"));
+		int matchmode = atoi(Info_ValueForKey(serverInfo, "g_RQ3_matchmode"));
+		int limit = atoi(Info_ValueForKey(serverInfo, "timelimit"));
 		
-		AddIngameLine("RQ3 Version", Info_ValueForKey(info, "g_RQ3_version"));
-		AddIngameLine("Host name", Info_ValueForKey(info, "sv_hostname"));
-		AddIngameLine("Map name", Info_ValueForKey(info, "mapname"));
+		AddIngameLine("RQ3 Version", Info_ValueForKey(serverInfo, "g_RQ3_version"));
+		AddIngameLine("Host name", Info_ValueForKey(serverInfo, "sv_hostname"));
+		AddIngameLine("Map name", Info_ValueForKey(serverInfo, "mapname"));
 		AddIngameLine("Gametype", (char*)teamArenaGameNames[gametype]);
 		AddIngameLine("Time limit", (limit !=0 ) ? va("%i", limit) : "None");
 		switch (gametype) {
 			case GT_TEAMPLAY:
 				{
-					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundlimit"));
+					limit = atoi(Info_ValueForKey(serverInfo, "g_RQ3_roundlimit"));
 					AddIngameLine("Round limit", (limit !=0 ) ? va("%i", limit) : "None");
-					limit = atoi(Info_ValueForKey(info, "g_RQ3_roundtimelimit"));
+					limit = atoi(Info_ValueForKey(serverInfo, "g_RQ3_roundtimelimit"));
 					AddIngameLine("Round time limit", (limit !=0 ) ? va("%i", limit) : "None");
-					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
-					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
+					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(serverInfo, "g_RQ3_team1Name"), Info_ValueForKey(systemInfo, "g_RQ3_team1model")));
+					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(serverInfo, "g_RQ3_team2Name"), Info_ValueForKey(systemInfo, "g_RQ3_team2model")));
 					break;
 				}
 			case GT_TEAM:
 				{
-					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
-					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
-					AddIngameLine("TeamDM Mode", (tdmMode != 0) ? "Classic" : "TP style");
+					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(serverInfo, "g_RQ3_team1Name"), Info_ValueForKey(systemInfo, "g_RQ3_team1model")));
+					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(serverInfo, "g_RQ3_team2Name"), Info_ValueForKey(systemInfo, "g_RQ3_team2model")));
+					AddIngameLine("TeamDM Mode", (atoi(Info_ValueForKey(serverInfo, "g_RQ3_tdmMode")) != 0) ? "Classic" : "TP style");
 					break;
 				}
 			case GT_CTF:
 				{
-					limit = atoi(Info_ValueForKey(info, "capturelimit"));
+					limit = atoi(Info_ValueForKey(serverInfo, "capturelimit"));
 					AddIngameLine("Capture limit", (limit !=0 ) ? va("%i", limit) : "None");
 					break;
 				}
 			default:
 				{
-					limit = atoi(Info_ValueForKey(info, "fraglimit"));
+					limit = atoi(Info_ValueForKey(serverInfo, "fraglimit"));
 					AddIngameLine("Frag limit", (limit !=0 ) ? va("%i", limit) : "None");
 					break;
 				}
@@ -2396,19 +2400,19 @@ void UI_BuildIngameServerInfoList()
 		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
 		if (matchmode) {
 			//int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
-			int allowRef = atoi(Info_ValueForKey(info, "g_RQ3_allowRef"));
-			AddIngameLine("Allow referee", (allowRef != 0) ? "On" : "Off");
+			int allowRef = atoi(Info_ValueForKey(serverInfo, "g_RQ3_allowRef"));
+			AddIngameLine("Allow referee", (allowRef != 0) ? va("Yes (%i max)", atoi(Info_ValueForKey(serverInfo, "g_RQ3_maxRefs"))) : "No");
 			//if (allowRef && refID != -1) {
 			//	char info2[MAX_INFO_STRING];
 			//	trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
 			//	AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
 			//}
 		}
-		AddIngameLine("Max clients", Info_ValueForKey(info, "sv_maxClients"));
-		AddIngameLine("Bot/min players", Info_ValueForKey(info, "bot_minplayers"));
-		AddIngameLine("Password required", (atoi(Info_ValueForKey(info, "g_needPass")) != 0) ? "Yes" : "No");
-		AddIngameLine("Protocol", Info_ValueForKey(info, "protocol"));
-		AddIngameLine("Q3 Version", Info_ValueForKey(info, "version"));
+		AddIngameLine("Max clients", Info_ValueForKey(serverInfo, "sv_maxClients"));
+		AddIngameLine("Bot/min players", Info_ValueForKey(serverInfo, "bot_minplayers"));
+		AddIngameLine("Password required", (atoi(Info_ValueForKey(serverInfo, "g_needPass")) != 0) ? "Yes" : "No");
+		AddIngameLine("Protocol", Info_ValueForKey(serverInfo, "protocol"));
+		AddIngameLine("Q3 Version", Info_ValueForKey(serverInfo, "version"));
 	}
 }
 
@@ -4395,12 +4399,13 @@ static void UI_RunMenuScript(char **args)
 			//Makro - maybe a wait command will make the music volume get saved before exiting
 			trap_Cmd_ExecuteText(EXEC_APPEND, "wait ; quit\n");
 			//Makro - weapon menu after joining a team
-		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
-			//only in teamplay
-			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF ||
-					trap_Cvar_VariableValue("g_gametype") == GT_TEAM) {
-				if (ui_RQ3_weapAfterJoin.integer) {
-					_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
+		} else if (Q_stricmp(name, "weapAfterJoin") == 0)
+			{
+				//only in teamplay
+				if (UI_RQ3_WeaponMenuAccess())
+				{
+					if (ui_RQ3_weapAfterJoin.integer) {
+						_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 				}
 			}
 		} else if (Q_stricmp(name, "Controls") == 0) {
@@ -4861,7 +4866,7 @@ UI_BuildServerDisplayList
 */
 static void UI_BuildServerDisplayList(qboolean force)
 {
-	int i, count, clients, maxClients, ping, game, len, visible;
+	int i, count, clients, maxClients, ping, len, visible;
 	char info[MAX_STRING_CHARS];
 
 //      qboolean startRefresh = qtrue; TTimo: unused

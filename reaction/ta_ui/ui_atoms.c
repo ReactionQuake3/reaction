@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/11/09 14:17:51  makro
+// Cleaned up about menu code
+// Made the weapon menu unavailable in TDM if g_RQ3_tdmMode is not 0
+//
 // Revision 1.17  2002/10/29 01:34:52  jbravo
 // Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
 //
@@ -356,6 +360,22 @@ static void UI_CalcPostGameStats()
 
 }
 
+//Makro - returns qtrue if the player can access the WeaponMenu
+qboolean UI_RQ3_WeaponMenuAccess()
+{
+	char info[MAX_INFO_STRING];
+	int game, tdmMode;
+
+	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+	game = atoi(Info_ValueForKey(info, "g_gametype"));
+	tdmMode = atoi(Info_ValueForKey(info, "g_RQ3_tdmMode"));
+
+	if (game == GT_TEAMPLAY || game == GT_CTF || (game == GT_TEAM && !tdmMode))
+	   return qtrue;
+	else
+		return qfalse;
+}
+
 /*
 =================
 UI_ConsoleCommand
@@ -434,11 +454,10 @@ qboolean UI_ConsoleCommand(int realTime)
 	}
 	//Makro - adding popup for choose commands
 	if (Q_stricmp(cmd, "ui_RQ3_loadout") == 0) {
-		if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF ||
-				trap_Cvar_VariableValue("g_gametype") == GT_TEAM)
+		if (UI_RQ3_WeaponMenuAccess())
 			_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 		else
-			Com_Printf("Not playing teamplay.\n");
+			Com_Printf("Weapon/item menus are not available in this gametype.\n");
 		return qtrue;
 	}
 	//Makro - join menu

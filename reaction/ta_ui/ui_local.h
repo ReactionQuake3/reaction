@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/11/09 14:17:51  makro
+// Cleaned up about menu code
+// Made the weapon menu unavailable in TDM if g_RQ3_tdmMode is not 0
+//
 // Revision 1.20  2002/08/30 17:22:28  makro
 // Added clientNum info to the UI; made ref kick and referee ui scripts
 // use client nums instead of names
@@ -707,6 +711,9 @@ typedef struct {
 	qboolean demoversion;
 	qboolean firstdraw;
 } uiStatic_t;
+
+//Makro - added
+qboolean UI_RQ3_WeaponMenuAccess();
 
 // new ui stuff
 #define UI_NUMFX 7
