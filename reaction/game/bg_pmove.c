@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/09/04 00:16:17  makro
+// Fixed 'unselectable grenade shown in the inventory if you switch weapons
+// after pulling the pin' bug
+//
 // Revision 1.88  2002/08/03 07:04:18  jbravo
 // Fixed constant gasping sound when you die in shallow water
 //
@@ -2208,6 +2212,10 @@ static void PM_Weapon(void)
 				if (pm->predict)
 					PM_AddEvent2(EV_FIRE_WEAPON, RQ3_WPMOD_GRENADEDROP);
 				pm->ps->ammo[WP_GRENADE]--;
+				//Makro - if this is the last grenade, remove the weapon from the inventory
+				if (pm->ps->ammo[WP_GRENADE] <= 0) {
+					pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+				}
 			}
 			PM_BeginWeaponChange(pm->cmd.weapon);
 		} else {

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.166  2002/09/04 00:16:17  makro
+// Fixed 'unselectable grenade shown in the inventory if you switch weapons
+// after pulling the pin' bug
+//
 // Revision 1.165  2002/08/27 04:53:46  niceass
 // one more woops
 //
@@ -2297,6 +2301,10 @@ void Cmd_Bandage(gentity_t * ent)
 		if (ent->client->ps.weapon == WP_GRENADE && ent->client->ps.weaponstate == WEAPON_COCKED) {
 			FireWeapon(ent);
 			ent->client->ps.ammo[WP_GRENADE]--;
+			//Makro - if this is the last grenade, remove the weapon from the inventory
+			if (ent->client->ps.ammo[WP_GRENADE] <= 0) {
+				ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+			}
 		}
 //slicer
 		ent->client->ps.weaponstate = WEAPON_BANDAGING;
