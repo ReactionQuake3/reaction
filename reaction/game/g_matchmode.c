@@ -145,7 +145,12 @@ void MM_ClearScores ( void ){
 
 // aasimon: checks for a ref
 qboolean Ref_Exists( void ){
-	gentity_t *ent;
+
+	if (g_RQ3_RefID.integer == -1)
+		return qfalse;
+	else
+		return qtrue;
+/*	gentity_t *ent;
 	int i;
 	for (i = 0; i < level.maxclients; i++) {
 		ent = &g_entities[i];
@@ -155,13 +160,17 @@ qboolean Ref_Exists( void ){
 			return qtrue;	
 	}
 	return qfalse;
-}
+*/
+ }
+
 
 //
 //	aasimon: Ref Auth. Do some kind of logging (ip's etc)
 //
 qboolean Ref_Auth( gentity_t *ent ){
 	char pass[MAX_TOKEN_CHARS];
+	int cn;
+	char teste[2];
 
 	if ( !g_RQ3_AllowRef.integer ){
 		// No ref allowed on the server - HELLO!!!!! FIREMAN CARS????
@@ -176,7 +185,9 @@ qboolean Ref_Auth( gentity_t *ent ){
 	
 	if ( Ref_Exists() ){
 		// One ref per match
-		if ( ent->client->pers.referee ){
+		cn = ent-g_entities;
+
+		if ( cn == g_RQ3_RefID.integer){
 			trap_SendServerCommand ( ent-g_entities, "print \"You are already the referee\n\"" );
 			return qfalse;
 		}
@@ -191,7 +202,9 @@ qboolean Ref_Auth( gentity_t *ent ){
 	// Does a simple plain text auth 
 
 	if ( Q_stricmp (pass, g_RQ3_RefPass.string) == 0) {
-		ent->client->pers.referee = qtrue;
+		cn = ent-g_entities;
+		Com_sprintf(teste, 3, "%i", cn);
+		trap_Cvar_Set("g_RQ3_RefID", teste);
 		trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " is the new Referee\n\"", ent->client->pers.netname) );
 		return qtrue;
 	} 
@@ -208,7 +221,8 @@ void	Ref_Command ( gentity_t *ent){
 	char com[MAX_TOKEN_CHARS];
 	int cn;
 
-	if (!ent->client->pers.referee) {
+	cn = ent-g_entities; 
+	if (cn != g_RQ3_RefID.integer) {
 		trap_SendServerCommand( ent-g_entities, "print \"You are not a referee\n\"" );
 		return;
 	}
@@ -257,11 +271,11 @@ void	Ref_Command ( gentity_t *ent){
 }
 
 void	Ref_Resign ( gentity_t *ent ){
-	if (!ent->client->pers.referee) {
+	if (ent-g_entities != g_RQ3_RefID.integer) {
 		trap_SendServerCommand( ent-g_entities, "print \"You are not a referee\n\"" );
 		return;
 	}
 
-	ent->client->pers.referee = qfalse;
+	trap_Cvar_Set("g_RQ3_RefID", "-1");
 	trap_SendServerCommand ( ent-g_entities, "print \"You resign from your referee status\n\"");
 }

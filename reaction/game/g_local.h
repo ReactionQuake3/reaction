@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/07 01:38:36  assimon
+// Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
+//
 // Revision 1.49  2002/03/07 00:00:54  assimon
 // Added a skeleton referee suport, with some functional commands (map_restart and kick)
 //
@@ -342,8 +345,9 @@ typedef struct {
 	team_t		captain;
 	team_t		sub;
 	clientConnected_t	connected;
-	// aasimon: Ref indicator for MM
-	qboolean	referee;
+	// aasimon: No Need for this here, using a cvar to record the clientnumber of referee, so that map_restarts dont change 
+	// the referee
+	// qboolean	referee;
 
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
@@ -1103,6 +1107,7 @@ extern vmCvar_t	RQ3_team2;
 //aasimon: Ref System for MM
 extern vmCvar_t g_RQ3_AllowRef;
 extern vmCvar_t g_RQ3_RefPass;
+extern vmCvar_t g_RQ3_RefID;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/03/07 01:38:36  assimon
+// Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
+//
 // Revision 1.45  2002/03/03 13:49:28  jbravo
 // Initializing weapon modes on connect.
 //
@@ -1625,6 +1628,11 @@ void ClientDisconnect( int clientNum ) {
 				break;
 		}
 	}
+
+	// aasimon: Referee. If player is referee, clean ref 
+	if(clientNum == g_RQ3_RefID.integer)
+		trap_Cvar_Set("g_RQ3_RefID", "-1");
+		
 
 	// stop any following clients
 	for ( i = 0 ; i < level.maxclients ; i++ ) {

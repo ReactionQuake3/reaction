@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/03/07 01:38:36  assimon
+// Changed Ref System. New cvar added - g_RQ3_RefID. Now referee is peserved even on map changes or map_restarts.
+//
 // Revision 1.26  2002/03/07 00:00:54  assimon
 // Added a skeleton referee suport, with some functional commands (map_restart and kick)
 //
@@ -142,6 +145,7 @@ vmCvar_t	RQ3_team2;
 // aasimon: Ref System for MM
 vmCvar_t	g_RQ3_AllowRef;
 vmCvar_t	g_RQ3_RefPass;
+vmCvar_t	g_RQ3_RefID;
  
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
@@ -269,9 +273,10 @@ static cvarTable_t		gameCvarTable[] = {
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	// aasimon: Ref system for MM
+	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
-	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse}
+	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
+	{ &g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse}
 
 };
 
