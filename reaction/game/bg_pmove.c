@@ -2,7 +2,7 @@
 //
 // bg_pmove.c -- both games player movement code
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
- 
+
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
@@ -30,7 +30,7 @@ float	pm_friction = 6.0f;
 float	pm_waterfriction = 1.0f;
 float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
-float	pm_ladderfriction = 3000;  
+float	pm_ladderfriction = 3000;
 
 
 int		c_pmove = 0;
@@ -205,7 +205,7 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 	int		i;
 
 	backoff = DotProduct (in, normal);
-	
+
 	if ( backoff < 0 ) {
 		backoff *= overbounce;
 	} else {
@@ -231,9 +231,9 @@ static void PM_Friction( void ) {
 	float	*vel;
 	float	speed, newspeed, control;
 	float	drop;
-	
+
 	vel = pm->ps->velocity;
-	
+
 	VectorCopy( vel, vec );
 	if ( pml.walking ) {
 		vec[2] = 0;	// ignore slope movement
@@ -270,9 +270,9 @@ static void PM_Friction( void ) {
 		drop += speed*pm_flightfriction*pml.frametime;
 	}
 
-	if ( pml.ladder ) // If they're on a ladder... 
+	if ( pml.ladder ) // If they're on a ladder...
 	{
-		drop += speed*pm_ladderfriction*pml.frametime;  // Add ladder friction! 
+		drop += speed*pm_ladderfriction*pml.frametime;  // Add ladder friction!
 	}
 
 	if ( pm->ps->pm_type == PM_SPECTATOR) {
@@ -309,9 +309,9 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	//trace_t		trace;
 	float		normal;
 	float		temp;
-	
+
 	normal = pml.groundTrace.plane.normal[2];
-	if (normal > 0) 
+	if (normal > 0)
 	{
 		temp = wishspeed;
 		wishspeed *= (2 - normal);
@@ -326,9 +326,9 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	if (accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-	
+
 	for (i=0 ; i<3 ; i++) {
-		pm->ps->velocity[i] += accelspeed*wishdir[i];	
+		pm->ps->velocity[i] += accelspeed*wishdir[i];
 	}
 #else
 	// proper way (avoids strafe jump maxspeed bug), but feels bad
@@ -346,9 +346,9 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	//point[2] = pm->ps->origin[2] - 0.25;
 
 	//pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-	
+
 	normal = pml.groundTrace.plane.normal[2];
-	if (normal > 0) 
+	if (normal > 0)
 	{
 		Com_Printf("(%f)",wishspeed);
 		temp = wishspeed;
@@ -439,7 +439,7 @@ static void PM_SetMovementDir( void ) {
 			pm->ps->movementDir = 1;
 		} else if ( pm->ps->movementDir == 6 ) {
 			pm->ps->movementDir = 7;
-		} 
+		}
 	}
 }
 
@@ -472,7 +472,7 @@ static qboolean PM_CheckJump( void ) {
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
 	// Blaze: check for double jump
-	
+
 	if (pm->ps->stats[STAT_JUMPTIME] > 0) {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 		// Elder: ladder jump boost
@@ -484,13 +484,13 @@ static qboolean PM_CheckJump( void ) {
 		}
 		else
 			pm->ps->velocity[2] += 75; // More velocity ; was 100
-		if (pm->debugLevel) 
+		if (pm->debugLevel)
 			Com_Printf("^4Hit a double jump^7\n");
 //			Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
 	}
-	
+
 	// Time that the second jump is within to get the higher jump
 	if (pml.ladder == qtrue)
 	{
@@ -648,7 +648,7 @@ static void PM_WaterMove( void ) {
 		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
 //Blaze: Ramp jump test
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 
 		VectorNormalize(pm->ps->velocity);
@@ -765,7 +765,7 @@ static void PM_AirMove( void ) {
 	// slide along the steep plane
 	//Blaze: ramp jump test
 	if ( pml.groundPlane ) {
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 	}
 
@@ -824,7 +824,7 @@ static void PM_LimpMove( void)
 	usercmd_t	cmd;
 	float		accelerate;
 	float		vel;
-	
+
 	//Com_Printf("(%d)(%d)(%d)\n", pm->cmd.serverTime, pm->ps->commandTime, pm->ps->pm_time );
 
 	if ( pm->cmd.serverTime % 1000 > 333)
@@ -917,7 +917,7 @@ static void PM_LimpMove( void)
 
 	// slide along the ground plane
 //Blaze: ramp jump test
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 		pm->ps->velocity, OVERCLIP );
 
 	// don't decrease velocity when going up or down a slope
@@ -928,13 +928,13 @@ static void PM_LimpMove( void)
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
 	}
-	
+
 	PM_StepSlideMove( qfalse );
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
 
 	}
-	
+
 
 }
 
@@ -966,7 +966,7 @@ static void PM_WalkMove( void ) {
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 	*/
 	//Com_Printf("(%f)",trace.plane.normal[2]);
-	
+
 	//Blaze: end new ramp jump code
 	if ( pm->waterlevel > 2 && DotProduct( pml.forward, pml.groundTrace.plane.normal ) > 0 ) {
 		// begin swimming
@@ -990,7 +990,7 @@ static void PM_WalkMove( void ) {
 		}
 		return;
 	}
-	
+
 	PM_Friction ();
 
 	fmove = pm->cmd.forwardmove;
@@ -1074,7 +1074,7 @@ static void PM_WalkMove( void ) {
 //	Com_Printf("(%f)\n", vel);
 	// slide along the ground plane
 //Blaze: ramp jump test
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 		pm->ps->velocity, OVERCLIP );
 
 	// don't decrease velocity when going up or down a slope
@@ -1085,11 +1085,11 @@ static void PM_WalkMove( void ) {
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
 	}
-	
+
 	PM_StepSlideMove( qfalse );
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-	
+
 
 }
 
@@ -1164,7 +1164,7 @@ static void PM_NoclipMove( void ) {
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
-	
+
 	for (i=0 ; i<3 ; i++)
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	wishvel[2] += pm->cmd.upmove;
@@ -1261,7 +1261,7 @@ static void PM_CrashLand( void ) {
 	// Elder: 300/320 factor included
 	delta = 0.9375f * (pm->ps->velocity[2] - pml.previous_velocity[2]);
 	delta = delta*delta * 0.0001;
-	
+
 	// ducking while falling doubles damage
 //	if ( pm->ps->pm_flags & PMF_DUCKED ) {
 //		delta *= 2;
@@ -1297,8 +1297,8 @@ static void PM_CrashLand( void ) {
 		damage = (int)(((delta-30)/2));
 		if (damage < 1)  damage = 1;
 		damage *= 10;
-		
-		
+
+
 		if ( !(pml.groundTrace.surfaceFlags & SURF_NODAMAGE) )  {
 				//Blaze lots of changes to make it more like aq2
 				// this is a pain grunt, so don't play it if dead
@@ -1307,29 +1307,29 @@ static void PM_CrashLand( void ) {
 						PM_AddEvent( EV_FALL_FAR_NOSOUND );
 					else
 						PM_AddEvent( EV_FALL_FAR );
-					
-						
+
+
 					pm->ps->stats[STAT_FALLDAMAGE] = damage;
 			}
-			else 
+			else
 			{
 				PM_AddEvent( PM_FootstepForSurface() );
-				//Elder: added? useful? 
+				//Elder: added? useful?
 				pm->ps->stats[STAT_FALLDAMAGE] = 0;
 			}
 		}
 	}
-	else if (delta > 20) 
+	else if (delta > 20)
 	{	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
-		{	
+		{
 			PM_AddEvent( EV_FALL_SHORT_NOSOUND );
-			//Elder: added? useful? 
+			//Elder: added? useful?
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
 		else
-		{	
+		{
 			PM_AddEvent( EV_FALL_SHORT );
-			//Elder: added? useful? 
+			//Elder: added? useful?
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
 	}
@@ -1338,7 +1338,7 @@ static void PM_CrashLand( void ) {
 		// Elder: don't spam sound events going up -- more like Q2 ladders as well
 		if (!pml.ladder || pm->ps->velocity[2] < 0)
 			PM_AddEvent( PM_FootstepForSurface() );
-		//Elder: added? useful? 
+		//Elder: added? useful?
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
 	}
 
@@ -1497,7 +1497,7 @@ static void PM_GroundTrace( void ) {
 		pml.walking = qfalse;
 		return;
 	}
-	
+
 	// slopes that are too steep will not be considered onground
 	// Elder: added ladder check
 	if ( trace.plane.normal[2] < MIN_WALK_NORMAL && !pml.ladder) {
@@ -1527,7 +1527,7 @@ static void PM_GroundTrace( void ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:Land\n", c_pmove);
 		}
-		
+
 		PM_CrashLand();
 
 		// Elder: added ladder check
@@ -1575,7 +1575,7 @@ static void PM_SetWaterLevel( void ) {
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] + MINS_Z + 1;	
+	point[2] = pm->ps->origin[2] + MINS_Z + 1;
 	cont = pm->pointcontents( point, pm->ps->clientNum );
 
 	if ( cont & MASK_WATER ) {
@@ -1608,6 +1608,7 @@ Sets mins, maxs, and pm->ps->viewheight
 static void PM_CheckDuck (void)
 {
 	trace_t	trace;
+	vec3_t point;	// NiceAss: Added for FUNKY CODE ALERT section
 
 	if ( pm->ps->powerups[PW_INVULNERABILITY] ) {
 		if ( pm->ps->pm_flags & PMF_INVULEXPAND ) {
@@ -1640,6 +1641,21 @@ static void PM_CheckDuck (void)
 		return;
 	}
 
+	// NiceAss: FUNKY CODE ALERT!
+	// Check to see if there is ground below. No? then you can't duck...
+	point[0] = pm->ps->origin[0];
+	point[1] = pm->ps->origin[1];
+	point[2] = pm->ps->origin[2] - 0.25;
+
+	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+
+	if ( trace.fraction == 1.0 && !pml.ladder) {
+		pm->maxs[2] = 32;
+		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+		return;
+	}
+	// End of funky code alert
+
 	if (pm->cmd.upmove < 0)
 	{	// duck
 		pm->ps->pm_flags |= PMF_DUCKED;
@@ -1668,6 +1684,7 @@ static void PM_CheckDuck (void)
 		pm->maxs[2] = 32;
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 	}
+
 }
 
 
@@ -1716,7 +1733,7 @@ static void PM_Footsteps( void ) {
 		}
 		return;
 	}
-	
+
 
 	footstep = qfalse;
 
@@ -1836,7 +1853,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
 		return;
 	}
-	
+
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		return;
 	}
@@ -1919,7 +1936,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	pm->ps->stats[STAT_BURST] = 0;
 
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	
+
 	//Elder: temp hack
 	/*
 	if (pm->ps->weapon == WP_PISTOL ||
@@ -2024,7 +2041,7 @@ static void PM_FinishWeaponChange( void ) {
 		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
 	else
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
-	
+
 	PM_StartTorsoAnim( TORSO_RAISE );
 
 }
@@ -2244,7 +2261,7 @@ static void PM_Reload( void )
 					PM_StartWeaponAnim(WP_ANIM_RELOAD);
 
 				pm->ps->weaponstate = WEAPON_RELOADING;
-				
+
 				PM_AddEvent(EV_RELOAD_WEAPON0);
 				//Com_Printf("Starting reload\n");
 				return;
@@ -2255,12 +2272,12 @@ static void PM_Reload( void )
 	{
 		pm->ps->pm_flags &= ~PMF_RELOAD_HELD;
 	}
-	
+
 	// in-progress reload
 	if (pm->ps->stats[STAT_RELOADTIME] > 0)
 	{
 		pm->ps->stats[STAT_RELOADTIME] -= pml.msec;
-		
+
 		// process any fast-reload stuff here
 		if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) {
 			if ((pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) && pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
@@ -2287,7 +2304,7 @@ static void PM_Reload( void )
 		}
 
 		// insert stage 1 sound events here; check against the reload time
-		
+
 		// Special handcannon shell ejection hack
 		if ( pm->ps->weapon == WP_HANDCANNON &&
 			 !(pm->ps->stats[STAT_RQ3] & RQ3_RELOADWEAPON1) &&
@@ -2301,7 +2318,7 @@ static void PM_Reload( void )
 		if (pm->ps->stats[STAT_RELOADTIME] <= 0)
 		{
 			int ammotoadd;
-			
+
 			ammotoadd = ClipAmountForReload(pm->ps->weapon);
 			if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000)
 			{
@@ -2329,12 +2346,12 @@ static void PM_Reload( void )
 				if (pm->ps->ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO)
 					pm->ps->ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 			}
-			
+
 			if ( !(pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS) )
 				pm->ps->ammo[pm->ps->weapon] = ammotoadd;
 
-			// handle continuous fast-reloads		
-			if ((pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) && 
+			// handle continuous fast-reloads
+			if ((pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) &&
 				(pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) )//&&
 				//pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
 			{
@@ -2348,8 +2365,8 @@ static void PM_Reload( void )
 						pm->ps->stats[STAT_RELOADTIME] += RQ3_SSG3000_FAST_RELOAD_DELAY;
 
 					pm->ps->stats[STAT_RELOADATTEMPTS]--;
-					
-					
+
+
 					if (pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
 					{
 						PM_StartWeaponAnim(WP_ANIM_EXTRA1);
@@ -2393,7 +2410,7 @@ static void PM_Reload( void )
 
 				return;
 			}
-			
+
 			// normal reload case
 			//else
 			//{
@@ -2415,9 +2432,9 @@ static void PM_Reload( void )
 				pm->ps->stats[STAT_RQ3] &= ~RQ3_RELOADWEAPON1;
 				pm->ps->weaponstate = WEAPON_READY;
 			//}
-	
+
 		} // end finish reload
-	
+
 	} // end in-progress reload
 
 }
@@ -2457,7 +2474,7 @@ static void PM_Weapon( void ) {
 
 	//Elder: New 3rb Code
 	//force fire button down if STAT_BURST is < proper amount
-	//Otherwise release the button 
+	//Otherwise release the button
 	if ( (pm->ps->weapon == WP_M4 &&
 		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
 		 (pm->ps->weapon == WP_MP5 &&
@@ -2487,7 +2504,7 @@ static void PM_Weapon( void ) {
 	}
 
 	//Elder: New semi-auto code
-	if ( pm->ps->weapon == WP_PISTOL && 
+	if ( pm->ps->weapon == WP_PISTOL &&
 		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
 	{
 		if (pm->ps->ammo[WP_PISTOL] == 0)
@@ -2555,7 +2572,7 @@ static void PM_Weapon( void ) {
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
-	
+
 	// Elder: modified so that a dropweapon command is high precedence
 
 	//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING) {
@@ -2614,14 +2631,14 @@ static void PM_Weapon( void ) {
 		if (pm->ps->ammo[WP_GRENADE] == 0)
 			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
 	}*/
-		 
+
 	// Elder: added STAT_RELOADTIME and STAT_WEAPONSTALLTIME check
 	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0 ||
 		 pm->ps->stats[STAT_WEAPONSTALLTIME] > 0) {
 		return;
 	}
-	
-	
+
+
 	// change weapon if time
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		PM_FinishWeaponChange();
@@ -2660,7 +2677,7 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
-	
+
 	// Elder: fire on release - based on code from inolen
 	// check for fire
 	// if they are pressing attack and their current weapon is the grenade
@@ -2790,7 +2807,7 @@ static void PM_Weapon( void ) {
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
-	
+
 	pm->ps->weaponstate = WEAPON_FIRING;
 
 	// Elder: akimbo check to auto-fire the second bullet
@@ -2865,7 +2882,7 @@ static void PM_Weapon( void ) {
 
 
 
-	
+
 	// fire weapon
 	//Elder: check for silencer
 	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
@@ -3084,7 +3101,7 @@ void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd ) {
 PM_LadderMove()
 by: Calrathan [Arthur Tomlin]
 
-Right now all I know is that this works for VERTICAL ladders. 
+Right now all I know is that this works for VERTICAL ladders.
 Ladders with angles on them (urban2 for AQ2) haven't been tested.
 ===================
 */
@@ -3141,7 +3158,7 @@ static void PM_LadderMove( void ) {
 	scale = PM_CmdScale( &pm->cmd );
 
 	// user intentions [what the user is attempting to do]
-	if ( !scale ) { 
+	if ( !scale ) {
 		wishvel[0] = 0;
 		wishvel[1] = 0;
 		wishvel[2] = 0;
@@ -3149,7 +3166,7 @@ static void PM_LadderMove( void ) {
 	else {   // if they're trying to move... lets calculate it
 		for (i=0 ; i<3 ; i++)
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove +
-				     scale * pml.right[i]*pm->cmd.rightmove; 
+				     scale * pml.right[i]*pm->cmd.rightmove;
 		//Elder: changed from a factor of 2 to 10
 		wishvel[0] /= PM_LADDER_MOVE_REDUCTION;
 		wishvel[1] /= PM_LADDER_MOVE_REDUCTION;
@@ -3193,15 +3210,15 @@ static void PM_LadderMove( void ) {
 	}
 	// End ladder jump crap
 #endif
-	
+
 	PM_Accelerate (wishdir, wishspeed, pm_ladderAccelerate);
 
 	// This SHOULD help us with sloped ladders, but it remains untested.
 	if ( pml.groundPlane && DotProduct( pm->ps->velocity,
 		pml.groundTrace.plane.normal ) < 0 ) {
 		vel = VectorLength(pm->ps->velocity);
-		// slide along the ground plane [the ladder section under our feet] 
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		// slide along the ground plane [the ladder section under our feet]
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 
 		VectorNormalize(pm->ps->velocity);
@@ -3305,7 +3322,7 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	// clear the respawned flag if attack and use are cleared
-	if ( pm->ps->stats[STAT_HEALTH] > 0 && 
+	if ( pm->ps->stats[STAT_HEALTH] > 0 &&
 		!( pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) ) ) {
 		pm->ps->pm_flags &= ~PMF_RESPAWNED;
 	}
@@ -3343,7 +3360,7 @@ void PmoveSingle (pmove_t *pmove) {
 	pml.frametime = pml.msec * 0.001;
 
 	// update the viewangles
-	
+
 	PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
 	AngleVectors (pm->ps->viewangles, pml.forward, pml.right, pml.up);
@@ -3365,7 +3382,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
 	}
-	
+
 	if ( pm->ps->pm_type == PM_SPECTATOR ) {
 		PM_CheckDuck ();
 		PM_FlyMove ();
@@ -3427,7 +3444,7 @@ void PmoveSingle (pmove_t *pmove) {
 		// swimming
 		PM_WaterMove();
 	// Elder: Added !(...) check below to prevent crouch spasms at bottom of ladders
-	} else if (pml.ladder && !(pm->ps->viewheight == CROUCH_VIEWHEIGHT && pm->ps->groundEntityNum != ENTITYNUM_NONE)) {	
+	} else if (pml.ladder && !(pm->ps->viewheight == CROUCH_VIEWHEIGHT && pm->ps->groundEntityNum != ENTITYNUM_NONE)) {
 		PM_LadderMove();
 	} else if ( pml.walking ) {
 		// walking on ground
@@ -3437,7 +3454,7 @@ void PmoveSingle (pmove_t *pmove) {
 			pm->ps->velocity[0] = (int)((float)pm->ps->velocity[0] * 0.66);
 			pm->ps->velocity[1] = (int)((float)pm->ps->velocity[1] * 0.66);
 			pm->ps->velocity[2] = (int)((float)pm->ps->velocity[2] * 0.66);
-			
+
 			// pm->ps->speed = 0; //Dosent work
 		}
 	} else {
