@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/06/12 19:59:39  jbravo
+// Removed unused variables
+//
 // Revision 1.22  2002/06/05 20:09:17  jbravo
 // Never commit uncompiled code! :)
 //
@@ -381,7 +384,7 @@ CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
-	int			highScore, health, armor, reward;
+	int			health, armor, reward;
 //	sfxHandle_t sfx;
 
 	// don't play the sounds if the player just changed teams

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/06/12 19:59:39  jbravo
+// Removed unused variables
+//
 // Revision 1.11  2002/06/12 03:37:38  blaze
 // some fixes for the add bot code
 //
@@ -577,7 +580,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	int				clientNum;
 	char			*botinfo;
 	gentity_t		*bot;
-	char			*key;
 	char			*s;
 	char			*botname;
 	char			*model;
