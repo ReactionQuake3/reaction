@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/05/18 03:55:35  niceass
+// many misc. changes
+//
 // Revision 1.40  2002/05/13 05:24:54  jbravo
 // the ssg color cvars now also control normal xhair color
 //
@@ -1324,7 +1327,7 @@ static void CG_DrawUpperRight( void ) {
 	if ( cg_drawFPS.integer ) {
 		y = CG_DrawFPS( y );
 	}
-	if ( cg_drawTimer.integer ) {
+	if ( cg_drawTimer.integer || cg_RQ3_matchmode.integer) {
 		y = CG_DrawTimer( y );
 	}
 	if ( cg_drawAttacker.integer ) {

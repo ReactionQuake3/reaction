@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/18 03:55:35  niceass
+// many misc. changes
+//
 // Revision 1.74  2002/05/12 14:39:48  makro
 // Wood, brick & ceramic impact sounds
 //
@@ -396,7 +399,7 @@ typedef enum {
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_PRESSURE,
-	LE_MOVING_TRACER,
+	LE_TRACER,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/18 03:55:35  niceass
+// many misc. changes
+//
 // Revision 1.71  2002/05/12 14:39:48  makro
 // Wood, brick & ceramic impact sounds
 //
@@ -166,6 +169,46 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 
 	return qtrue;
 }
+
+/*
+======================
+CG_CalcMuzzlePoint
+======================
+*/
+static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
+	vec3_t		forward;
+	centity_t	*cent;
+	int			anim;
+
+	if ( entityNum == cg.snap->ps.clientNum ) {
+		VectorCopy( cg.snap->ps.origin, muzzle );
+		muzzle[2] += cg.snap->ps.viewheight;
+		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
+		VectorMA( muzzle, 14, forward, muzzle );
+		return qtrue;
+	}
+
+	cent = &cg_entities[entityNum];
+	if ( !cent->currentValid ) {
+		return qfalse;
+	}
+
+	VectorCopy( cent->currentState.pos.trBase, muzzle );
+
+	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
+	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
+		muzzle[2] += CROUCH_VIEWHEIGHT;
+	} else {
+		muzzle[2] += DEFAULT_VIEWHEIGHT;
+	}
+
+	VectorMA( muzzle, 14, forward, muzzle );
+
+	return qtrue;
+
+}
+
 
 
 /* [QUARANTINE] - Weapon Animations - CG_ParseWeaponAnimFile
@@ -330,41 +373,6 @@ localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 	//}
 	return le;
 }
-
-
-#ifdef MISSIONPACK
-/*
-==========================
-CG_NailgunEjectBrass
-==========================
-*/
-static void CG_NailgunEjectBrass( centity_t *cent ) {
-	localEntity_t	*smoke;
-	vec3_t			origin;
-	vec3_t			v[3];
-	vec3_t			offset;
-	vec3_t			xoffset;
-	vec3_t			up;
-
-	AnglesToAxis( cent->lerpAngles, v );
-
-	offset[0] = 0;
-	offset[1] = -12;
-	offset[2] = 24;
-
-	xoffset[0] = offset[0] * v[0][0] + offset[1] * v[1][0] + offset[2] * v[2][0];
-	xoffset[1] = offset[0] * v[0][1] + offset[1] * v[1][1] + offset[2] * v[2][1];
-	xoffset[2] = offset[0] * v[0][2] + offset[1] * v[1][2] + offset[2] * v[2][2];
-	VectorAdd( cent->lerpOrigin, xoffset, origin );
-
-	VectorSet( up, 0, 0, 64 );
-
-	smoke = CG_SmokePuff( origin, up, 32, 1, 1, 1, 0.33f, 700, cg.time, 0, 0, cgs.media.smokePuffShader );
-	// use the optimized local entity add
-	smoke->leType = LE_SCALE_FADE;
-}
-#endif
-
 
 /*
 ==========================
@@ -1607,13 +1615,14 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
 	if ( ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
-		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000) ) {
+		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000 ) ) {
 		//Makro - wasn't initialized, caused a warning in MSVC
-		float scale = 0.0f;
-		vec3_t angles;
+		vec3_t	silencerEnd;
+		float	scale = 0.0f;
+		vec3_t	angles;
 
 		if (weaponNum == WP_PISTOL) scale = 1.2f;
-		if (weaponNum == WP_SSG3000) scale = 1.8f;
+		if (weaponNum == WP_SSG3000) scale = 2.0f;
 		if (weaponNum == WP_MP5) scale = 1.7f;
 
 		memset( &silencer, 0, sizeof( silencer ) );
@@ -1633,9 +1642,26 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		CG_PositionRotatedOffsetEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer", vec3_origin);
 		// Offset weapon
 		VectorMA(silencer.origin, -7.2f, silencer.axis[1], silencer.origin);
+		VectorMA(silencer.origin, 10.0f, silencer.axis[1], silencerEnd);
 
 		flash.nonNormalizedAxes = qtrue;
 		CG_AddWeaponWithPowerups( &silencer, cent->currentState.powerups );
+
+		/*
+		NiceAss: Add a puff of smoke at the end of the silencer when fired. Not alligned properly and looks bad.
+		if (cent->muzzleFlashTime == -1) {
+			localEntity_t	*smoke;
+			vec3_t			up;
+
+			silencerEnd[2] += 5.0f;
+
+			VectorSet(up, 0.0f, 0.0f, 15.0f);
+			smoke = CG_SmokePuff( silencerEnd, up, 0.75f, 1, 1, 1, 0.75f, 300, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader );
+			smoke->leType = LE_SCALE_FADE;
+
+			cent->muzzleFlashTime = 0;
+		}
+		*/
 	}
 
 	// NiceAss: Tag locations used for shell ejection
@@ -1672,7 +1698,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 			if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = 0.5f;
 
-			if ( weaponNum == WP_HANDCANNON ) {
+			if (weaponNum == WP_HANDCANNON) {
 				speed = -speed * 1.5;		// horrible hacks
 				axis = 1;
 			}
@@ -2603,7 +2629,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	entityState_t *ent;
 	int				c, i;
 	weaponInfo_t	*weap;
-	
+
 	ent = &cent->currentState;
 	if ( ent->weapon == WP_NONE ) {
 		return;
@@ -2656,9 +2682,9 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
 	if (weapModification != RQ3_WPMOD_SILENCER)
-	{
 		cent->muzzleFlashTime = cg.time;
-	}
+	else
+		cent->muzzleFlashTime = -1;
 
 	// Elder: choose alternate muzzle flashes for 3rd-person views
 	if (ent->weapon == WP_AKIMBO) {
@@ -2706,70 +2732,6 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 			}
 		}
 	}
-	//Elder: TODO: eject sync with animation for M3 and only eject for HC when reloading
-	// do brass ejection
-	//if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
-	//	weap->ejectBrassFunc( cent );
-	//}
-
-	/*
-	// MK23
-		//Calculate the kick angles
-        for (i=1 ; i<3 ; i++)
-        {
-                ent->client->kick_origin[i] = crandom() * 0.35;
-                ent->client->kick_angles[i] = crandom() * 0.7;
-        }
-        ent->client->kick_origin[0] = crandom() * 0.35;
-
-	// Akimbo
-        //Calculate the kick angles
-        for (i=1 ; i<3 ; i++)
-        {
-                ent->client->kick_origin[i] = crandom() * 0.25;
-                ent->client->kick_angles[i] = crandom() * 0.5;
-        }
-        ent->client->kick_origin[0] = crandom() * 0.35;
-
-	// Handcannon
-		AngleVectors (ent->client->v_angle, forward, right, NULL);
-
-        VectorScale (forward, -2, ent->client->kick_origin);
-        ent->client->kick_angles[0] = -2;
-
-	// Knives
-	    AngleVectors (ent->client->v_angle, forward, right, NULL);
-
-        VectorScale (forward, -2, ent->client->kick_origin);
-        ent->client->kick_angles[0] = -2;
-
-	// M3
-	    AngleVectors (ent->client->v_angle, forward, right, NULL);
-
-        VectorScale (forward, -2, ent->client->kick_origin);
-        ent->client->kick_angles[0] = -2;
-
-    // M4 -- we already add the ride-up angles in pmove
-		//Calculate the kick angles
-        for (i=1 ; i<3 ; i++)
-        {
-                ent->client->kick_origin[i] = crandom() * 0.25;
-                ent->client->kick_angles[i] = crandom() * 0.5;
-        }
-        ent->client->kick_origin[0] = crandom() * 0.35;
-
-	// MP5
-	    //Calculate the kick angles
-        for (i=1 ; i<3 ; i++)
-        {
-                ent->client->kick_origin[i] = crandom() * 0.25;
-                ent->client->kick_angles[i] = crandom() * 0.5;
-        }
-        ent->client->kick_origin[0] = crandom() * 0.35;
-
-    // SSG3000 has no kick
-	*/
-
 
 	// View kicks -- note this doesn't affect aim which is handled on the server-side
 	// even though it probably should
@@ -3795,47 +3757,6 @@ void CG_ShotgunFire( entityState_t *es, qboolean ism3) {
 	}
 }
 
-
-
-/*
-======================
-CG_CalcMuzzlePoint
-======================
-*/
-static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
-	vec3_t		forward;
-	centity_t	*cent;
-	int			anim;
-
-	if ( entityNum == cg.snap->ps.clientNum ) {
-		VectorCopy( cg.snap->ps.origin, muzzle );
-		muzzle[2] += cg.snap->ps.viewheight;
-		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
-		VectorMA( muzzle, 14, forward, muzzle );
-		return qtrue;
-	}
-
-	cent = &cg_entities[entityNum];
-	if ( !cent->currentValid ) {
-		return qfalse;
-	}
-
-	VectorCopy( cent->currentState.pos.trBase, muzzle );
-
-	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
-	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
-	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
-		muzzle[2] += CROUCH_VIEWHEIGHT;
-	} else {
-		muzzle[2] += DEFAULT_VIEWHEIGHT;
-	}
-
-	VectorMA( muzzle, 14, forward, muzzle );
-
-	return qtrue;
-
-}
-
 /*
 ============================================================================
 
@@ -3846,51 +3767,42 @@ BULLETS
 
 /*
 ===============
-CG_SpawnTracer
-"Borrowed" most of this from Wolf. Hope this is legal =D
+CG_CreateTracer
 	- NiceAss
 ===============
 */
-void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
+void CG_CreateTracer( int entity, vec3_t start, vec3_t end ) {
 	localEntity_t	*le;
 	float	dist;
 	vec3_t dir;
-	vec3_t start, end, temp, midpoint;
+	vec3_t temp, midpoint;
 	float	tracerSpeed = 4200;
-
-	VectorCopy( pstart, start );
-	VectorCopy( pend, end );
 
 	VectorSubtract( end, start, dir );
 	dist = VectorNormalize( dir );
 
-	if (dist < 2 * cg_tracerLength.value)
-		return;	// segment isnt long enough, dont bother
+	if (dist < 1.5 * cg_tracerLength.value)
+		return;
 
-	if (!CG_CalcMuzzlePoint( sourceEnt, start ) ) {
-		return;	// Not a player
-	}
-
-	// subtract the length of the tracer from the end point, so we dont go through the end point
+	// Stop right before the end
 	VectorMA( end, -cg_tracerLength.value, dir, end );
 
 	VectorSubtract( end, start, temp );
 	dist = VectorLength( temp );
 
 	le = CG_AllocLocalEntity();
-	le->leType = LE_MOVING_TRACER;
-	le->startTime = cg.time - (cg.frametime ? (rand()%cg.frametime)/2 : 0);
-	le->endTime = le->startTime + 1000.0 * dist / tracerSpeed;
+	le->leType = LE_TRACER;
+	le->startTime = cg.time;
+	le->endTime = le->startTime + 1000.0 * (dist / tracerSpeed);
 
 	le->pos.trType = TR_LINEAR;
 	le->pos.trTime = le->startTime;
 	VectorCopy( start, le->pos.trBase );
 	VectorScale( dir, tracerSpeed, le->pos.trDelta );
 
-
-	midpoint[0] = ( pstart[0] + pend[0] ) * 0.5;
-	midpoint[1] = ( pstart[1] + pend[1] ) * 0.5;
-	midpoint[2] = ( pstart[2] + pend[2] ) * 0.5;
+	midpoint[0] = ( start[0] + end[0] ) * 0.5;
+	midpoint[1] = ( start[1] + end[1] ) * 0.5;
+	midpoint[2] = ( start[2] + end[2] ) * 0.5;
 	trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
 }
 
@@ -4015,22 +3927,23 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 			// draw a tracer
 			// Elder: only if not using SSG, check if this client is the source
 			//CG_Tracer( start, end );
+
 			if (sourceEntityNum == cg.snap->ps.clientNum)
 			{
-				if (cg.snap->ps.weapon != WP_SSG3000)
+				if (cg.snap->ps.weapon != WP_SSG3000 )
 				{
 					if ( random() < cg_tracerChance.value )
-						CG_SpawnTracer( sourceEntityNum, start, end );
+						CG_CreateTracer( sourceEntityNum, start, end );
 			//			CG_Tracer( start, end );
 				}
 			}
 			else
 			{
 				cent = &cg_entities[sourceEntityNum];
-				if ( cent->currentValid && cent->currentState.weapon != WP_SSG3000)
+				if ( cent->currentValid && cent->currentState.weapon != WP_SSG3000 )
 				{
 					if ( random() < cg_tracerChance.value ) {
-						CG_SpawnTracer( sourceEntityNum, start, end );
+						CG_CreateTracer( sourceEntityNum, start, end );
 			//			CG_Tracer( start, end );
 					}
 				}

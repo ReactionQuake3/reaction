@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/05/18 03:55:35  niceass
+// many misc. changes
+//
 // Revision 1.64  2002/05/13 05:24:54  jbravo
 // the ssg color cvars now also control normal xhair color
 //
@@ -1203,7 +1206,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
-	cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
+	//cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
 	cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );

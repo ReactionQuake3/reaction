@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/05/18 03:55:35  niceass
+// many misc. changes
+//
 // Revision 1.12  2002/05/09 06:42:06  niceass
 // New tracers
 //
@@ -858,14 +861,15 @@ void CG_AddPressureEntity ( localEntity_t *le ) {
 /*
 ================
 CG_AddMovingTracer
-"Borrowed" this from Wolf, hope this is legal =D
-		- NiceAss
+	- NiceAss
 ================
 */
-void CG_AddMovingTracer( localEntity_t *le ) {
+void CG_AddTracer( localEntity_t *le ) {
 	vec3_t start, end, dir;
 
-	BG_EvaluateTrajectory( &le->pos, cg.time, start );
+	//BG_EvaluateTrajectory( &le->pos, cg.time, start );
+	VectorMA(le->pos.trBase, (cg.time - le->pos.trTime) / 1000.0f, le->pos.trDelta, start);
+
 	VectorNormalize2( le->pos.trDelta, dir );
 	VectorMA( start, cg_tracerLength.value, dir, end );
 
@@ -903,8 +907,8 @@ void CG_AddLocalEntities( void ) {
 		case LE_MARK:
 			break;
 
-		case LE_MOVING_TRACER:
-			CG_AddMovingTracer( le );
+		case LE_TRACER:
+			CG_AddTracer( le );
 			break;
 
 		case LE_SPRITE_EXPLOSION:
