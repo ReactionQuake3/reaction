@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2004/01/28 23:26:33  makro
+// Made flares additive
+//
 // Revision 1.43  2004/01/26 21:26:08  makro
 // no message
 //
@@ -1120,15 +1123,16 @@ void CG_AddLensFlare(qboolean sun)
 			VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
 			len = 2 * VectorNormalize(dir);
 			for (i=0; i<cgs.numFlares; i++) {
+				float alpha = cg.flareColor[i][3] * cgs.flareFadeFactor;
 				size = cg.flareShaderSize[i] * cgs.flareFovFactor;
 				hsize = size/2.0f;
 				dp[2] = len / cgs.numFlares * (i+1);
 				dp[0] = cgs.lastSunX + dp[2] * dir[0];
 				dp[1] = cgs.lastSunY + dp[2] * dir[1];
-				color[0] = cg.flareColor[i][0];
-				color[1] = cg.flareColor[i][1];
-				color[2] = cg.flareColor[i][2];
-				color[3] = cg.flareColor[i][3] * cgs.flareFadeFactor;
+				color[0] = cg.flareColor[i][0] * alpha;
+				color[1] = cg.flareColor[i][1] * alpha;
+				color[2] = cg.flareColor[i][2] * alpha;
+				color[3] = 1.0f;
 				trap_R_SetColor(color);
 				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
 					cgs.media.flareShader[cg.flareShaderNum[i]]);
