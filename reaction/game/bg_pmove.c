@@ -882,7 +882,7 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 */
-
+//Blaze: Cant jump while someone has leg damage
 	if ( !((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) && PM_CheckJump () ) {
 		// jumped away
 		if ( pm->waterlevel > 1 ) {
