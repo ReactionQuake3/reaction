@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/08/21 03:43:57  niceass
+// allow clipvelocity outside of the bg_'s
+//
 // Revision 1.91  2002/07/26 06:21:43  jbravo
 // Fixed the MM settings stuff so it works on remote servers also.
 // Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
@@ -1461,3 +1464,5 @@ qboolean IsWoodFlag(int flag);
 
 holdable_t CharToItem(char *name, holdable_t defitem);
 weapon_t CharToWeapon(char *name, weapon_t defweapon);
+
+void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/08/21 03:43:23  niceass
+// allow clipvelocity outside of the bg_'s
+//
 // Revision 1.8  2002/06/29 02:51:16  niceass
 // removed ladder stuff
 //
@@ -77,7 +80,6 @@ extern float pm_flightfriction;
 
 extern int c_pmove;
 
-void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce);
 void PM_AddTouchEnt(int entityNum);
 void PM_AddEvent(int newEvent);
 
