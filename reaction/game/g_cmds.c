@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/04/07 03:22:48  jbravo
+// Tweaks and crashbug fixes
+//
 // Revision 1.89  2002/04/05 18:53:26  jbravo
 // Warning fixes
 //
@@ -1514,7 +1517,8 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	// insult someone you just killed
 //	if (ent->client->lastkilled_client >= 0 && ent->client->lastkilled_client != ent->s.number) {
 // JBravo: adding the multiple killed system.
-	if (ent->client->lastkilled_client[0]->s.number >= 0 && ent->client->lastkilled_client[0]->s.number != ent->s.number) {
+	if (ent->client->lastkilled_client[0] != NULL && ent->client->lastkilled_client[0]->s.number >= 0 &&
+			ent->client->lastkilled_client[0]->s.number != ent->s.number) {
 //		who = g_entities + ent->client->lastkilled_client;
 		who = ent->client->lastkilled_client[0];
 		if (who->client) {

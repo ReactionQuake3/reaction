@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/04/07 03:22:48  jbravo
+// Tweaks and crashbug fixes
+//
 // Revision 1.59  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -679,7 +682,7 @@ void SpawnPlayers()
   for (i=0;i<level.num_entities; i++)
   {
     ent = &g_entities[i];
-    if (!strcmp(ent->classname,"func_breakable")) 
+    if (ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) 
     {
       //re-link all unlinked breakables
       trap_LinkEntity(ent);
@@ -1455,6 +1458,9 @@ void ParseSayText (gentity_t *ent, char *text)
 
 void RQ3_SpectatorMode(gentity_t *ent)
 {
+	if (ent->r.svFlags & SVF_BOT)
+		return;
+
 	if (ent->client->sess.spectatorState == SPECTATOR_ZCAM)
 		trap_SendServerCommand(ent->client->ps.clientNum,
 			va("print \"\n" S_COLOR_MAGENTA "Spectator Mode-" S_COLOR_YELLOW"ZCAM-%s\n",

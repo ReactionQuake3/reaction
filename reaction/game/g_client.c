@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/04/07 03:22:48  jbravo
+// Tweaks and crashbug fixes
+//
 // Revision 1.61  2002/04/05 18:53:26  jbravo
 // Warning fixes
 //
@@ -1231,8 +1234,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		client->specMode = SPECTATOR_FREE;
 		client->ps.pm_flags &= ~PMF_FOLLOW;
 		client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
+		camera_begin(ent);
 		client->camera->mode = CAMERA_MODE_SWING;
-		RQ3_SpectatorMode(ent);
 	}
 
   //Blaze: Send out the breakable names to the clients
@@ -1347,8 +1350,13 @@ void ClientBegin(int clientNum) {
 	// JBravo: default weapons
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
-		if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
-		if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
+		if (ent->r.svFlags & SVF_BOT) {
+			if (!client->teamplayWeapon) client->teamplayWeapon = WP_PISTOL;
+			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
+		} else {
+			if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
+			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
+		}
 		i = RQ3TeamCount( -1, client->sess.sessionTeam);
 	}
 }
@@ -1688,7 +1696,7 @@ void ClientSpawn(gentity_t *ent) {
 	//Blaze: Send cheat cvars to client
 	if (!G_SendCheatVars(ent->s.clientNum))
 	{
-		Com_Printf("Error loading cvar cfg");
+		Com_Printf("Error loading cvar cfg\n");
 		//return "Error_loading_cvar_cfg";
 	}
 

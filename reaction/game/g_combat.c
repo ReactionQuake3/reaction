@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/04/07 03:22:48  jbravo
+// Tweaks and crashbug fixes
+//
 // Revision 1.58  2002/04/06 20:47:24  niceass
 // fall damage bug fix
 //
@@ -1890,9 +1893,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	// do the damage
 	if (take) {
-		// G_Printf("(%d) taken as damage\n",take);
 		// JBravo: for Damage delt tracking
-		if (attacker && attacker->client) attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+		if (attacker && attacker->client && targ->health > 0)
+			attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
 		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
