@@ -16,7 +16,7 @@
 * UI model preview is fixed.
 * UI model preview and selection now controls DM gametype models, not team models.
 * Added a radiosoundset selection dialog to the UI
-
+* Doors with health and the "wait" key set to a negative value should work as expected now
 
 
 # List fixes here for the 2.1 release
