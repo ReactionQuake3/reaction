@@ -2311,7 +2311,7 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_AirMove();
 	} else if (pm->ps->pm_flags & PMF_TIME_WATERJUMP) {
 		PM_WaterJumpMove();
-	} else if ( pm->waterlevel > 1 ) {
+	} else if ( pm->waterlevel > 1 && !pml.ladder) {
 		// swimming
 		PM_WaterMove();
 	} else if (pml.ladder) {	
