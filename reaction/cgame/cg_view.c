@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2003/04/23 17:49:38  slicer
+// Added new cvar cg_RQ3_ssgZoomSensLock
+//
 // Revision 1.33  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -710,7 +713,7 @@ static int CG_CalcFov(void)
 		else {
 			fov_x = CG_RQ3_GetFov();
 			//Slicer: if the weapon is about to go to firing sequence, lock the zoomSensitivity
-			if(cg.snap->ps.weaponstate == WEAPON_FIRING)
+			if(cg.snap->ps.weaponstate == WEAPON_FIRING && cg_RQ3_ssgZoomSensLock.value)
 				cg.zoomSensLock = qtrue;
 
 			if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.zoomFirstReturn != ZOOM_OUT) {

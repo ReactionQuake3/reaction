@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2003/04/23 17:49:38  slicer
+// Added new cvar cg_RQ3_ssgZoomSensLock
+//
 // Revision 1.146  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -1785,10 +1788,10 @@ extern vmCvar_t cg_RQ3_flash;
 
 //Elder: toggle alpha blending
 extern vmCvar_t cg_RQ3_painblend;
-
+//Slicer: no longer being used
 //Elder: toggle client-side zoom assist
-extern vmCvar_t cg_RQ3_ssgZoomAssist;
-
+//extern vmCvar_t cg_RQ3_ssgZoomAssist;
+extern vmCvar_t cg_RQ3_ssgZoomSensLock;
 //Elder: crosshair colours!
 extern vmCvar_t cg_RQ3_ssgColorR;
 extern vmCvar_t cg_RQ3_ssgColorG;

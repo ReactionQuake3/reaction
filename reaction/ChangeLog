@@ -1,6 +1,7 @@
 # List fixes here for the 3.1 release
 
 * Added a Zoom Sensitivity Lock during fire sequence of ssg to improve aiming
+* Added local cvar cg_RQ3_ssgZoomSensLock to enable or disable the feature above (default enable)
 * Upgraded the gamesource RQ3 is built on from 1.29h to 1.32b
 * Removed most of the unlagged stuff. Only optimized prediction and smooth clients remains.
 
