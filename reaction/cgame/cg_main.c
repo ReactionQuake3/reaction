@@ -151,6 +151,11 @@ vmCvar_t	cg_RQ3_ssgColorR;
 vmCvar_t	cg_RQ3_ssgColorG;
 vmCvar_t	cg_RQ3_ssgColorB;
 vmCvar_t	cg_RQ3_ssgColorA;
+//Elder: SSG unique sensitivities
+vmCvar_t	cg_RQ3_ssgSensitivityAuto;
+vmCvar_t	cg_RQ3_ssgSensitivity2x;
+vmCvar_t	cg_RQ3_ssgSensitivity4x;
+vmCvar_t	cg_RQ3_ssgSensitivity6x;
 //Elder: smoke puffs, sparks, etc.
 vmCvar_t	cg_RQ3_impactEffects;
 //Elder: toggle client-side laser drawing
@@ -324,6 +329,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_flash, "cg_RQ3_flash", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_painblend, "cg_RQ3_painblend", "1", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgZoomAssist, "cg_RQ3_ssgZoomAssist", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgSensitivityAuto, "cg_RQ3_ssgSensitivityAuto", "1", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgSensitivity2x, "cg_RQ3_ssgSensitivity2x", "0.4", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgSensitivity4x, "cg_RQ3_ssgSensitivity4x", "0.2", CVAR_ARCHIVE },
+	{ &cg_RQ3_ssgSensitivity6x, "cg_RQ3_ssgSensitivity6x", "0.1", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorR, "cg_RQ3_ssgColorR", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
@@ -791,6 +800,9 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sfx_metalric1 = trap_S_RegisterSound ("sound/world/impactmetal01.wav", qfalse);
 	cgs.media.sfx_metalric2 = trap_S_RegisterSound ("sound/world/impactmetal02.wav", qfalse);
 	cgs.media.sfx_metalric3 = trap_S_RegisterSound ("sound/world/impactmetal03.wav", qfalse);
+	cgs.media.sfx_glassric1 = trap_S_RegisterSound ("sound/world/impactglass01.wav", qfalse);
+	cgs.media.sfx_glassric2 = trap_S_RegisterSound ("sound/world/impactglass02.wav", qfalse);
+	cgs.media.sfx_glassric3 = trap_S_RegisterSound ("sound/world/impactglass03.wav", qfalse);
 	
 	cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
@@ -1157,6 +1169,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodMarkShader = trap_R_RegisterShader( "bloodMark" );
 	// Elder: added
 	cgs.media.slashMarkShader = trap_R_RegisterShader( "gfx/damage/slash_mrk" );
+	cgs.media.glassMarkShader = trap_R_RegisterShader( "gfx/damage/glass_mrk" );
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

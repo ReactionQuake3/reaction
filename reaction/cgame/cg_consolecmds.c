@@ -149,91 +149,6 @@ static void CG_Bandage_f (void) {
 
 /*
 =================
-CG_ReloadReset_f
-
-Elder: reset reload depressed flag
-=================
-*/
-static void CG_ReloadReset_f (void) {
-	//CG_Printf("Releasing Reload\n");
-	cg.rq3_reloadDown = qfalse;
-}
-
-
-/*
-=================
-CG_Reload_f
-
-Elder: reset local zoom, then proceed with server action
-Note: most of this doesn't work if it's a +button style
-=================
-*/
-static void CG_Reload_f (void) {
-	centity_t	*cent;
-	cent = &cg_entities[cg.snap->ps.clientNum];
-	
-	if ( !cg.snap ) {
-		//CG_Printf("No snapshot: normally exiting\n");
-		return;
-	}
-	
-	// if we are going into the intermission, don't do anything
-	if ( cg.intermissionStarted ) {
-		return;
-	}
-
-	///Elder: spectator?
-	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
-		return;
-	}
-
-	//Elder: don't allow reloading when in the middle of bursts
-	if (cg.snap->ps.stats[STAT_BURST] > 0)
-		return;
-
-	if (cg.rq3_reloadDown == qtrue)
-	{
-		//CG_Printf("Reload down... exiting\n");
-		return;
-	}
-
-	cg.rq3_reloadDown = qtrue;
-
-	//Elder: prevent "reloading" when dead hehe
-	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
-		CG_Printf("Nothing to reload - you are dead.\n");
-		return;
-	}
-
-	//Elder: don't allow reloading until the weapon is free
-	//Don't cut-off here because we want to check for fast-reloads
-	//if (cg.snap->ps.weaponTime > 0)
-		//return;
-
-	//Elder: added to prevent bandaging while reloading
-	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		CG_Printf("You'll get to your weapon when you are finished bandaging!\n");
-		return;
-	}
-
-	//Elder: no clips, or full chamber means no reload
-	//CG_Printf("currentState.weapon: %d, clipamount: %d\n", cent->currentState.weapon, ClipAmountForAmmo(cent->currentState.weapon));
-	if (cg.snap->ps.stats[STAT_CLIPS] &&
-		cg.snap->ps.ammo[cent->currentState.weapon] < ClipAmountForAmmo(cent->currentState.weapon) ) {
-		//cg.zoomed = 0;
-		//cg.zoomLevel = 0;
-	}
-
-	//Elder: reset "no ammo" switch in view
-	if (cg.snap->ps.weapon == WP_SSG3000 && cg.zoomFirstReturn == -1)
-		cg.zoomFirstReturn = 0;
-
-	//CG_Printf("Sending reload command to server\n");
-	trap_SendClientCommand("reload");
-}
-
-/*
-=================
 CG_SizeUp_f
 
 Keybinding command
@@ -758,14 +673,7 @@ static consoleCommand_t	commands[] = {
 	{ "dropitem", CG_DropItem_f },
 	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
-	{ "+reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
-	{ "-reload", CG_ReloadReset_f},			// Elder: added to stop auto-throttle
 	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
-	//Elder: added for manual sv_floodProtect check
-	//{ "messagemode", CG_Say_f },
-	//{ "messagemode2", CG_SayTeam_f },
-	//{ "say", CG_Say_f },
-	//{ "say_team", CG_SayTeam_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
@@ -875,7 +783,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
-	trap_AddCommand ("reload");
  	trap_AddCommand ("opendoor");
  	trap_AddCommand ("bandage");
 	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used

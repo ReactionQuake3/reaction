@@ -16,16 +16,17 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 	int				len;
 	int				i;
 	char			*token;
-	float			fps;
+//	float			fps;
 	int				skip;	// Elder: What's this for?
 	char			text[20000];
 	fileHandle_t	f;
-	animation_t		*animations;
-	sfxSyncInfo_t	*reloadSounds;
-	
+	//animation_t		*animations;
+	//sfxSyncInfo_t	*reloadSounds;
+	sfxWeapTiming_t	*weapTiming;
 
-	animations = weapon->animations;
-	reloadSounds = weapon->reloadSounds;
+	//animations = weapon->animations;
+	//reloadSounds = weapon->reloadSounds;
+	weapTiming = weapon->animationSounds;
 
 	// load the file
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -44,7 +45,39 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 	text_p = text;
 	// Elder: uhh, what was this for?
 	skip = 0; // quite the compiler warning
+
+	for ( i = 0; i < MAX_ANIM_SOUNDS; i++ )
+	{
+		// Grab frame number
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		// Add it to the array
+		if ( atoi( token ) )
+		{
+			Com_Printf("(%i): %s\n", i, token);
+			weapTiming->sfxInfo[i].frame = atoi(token);
+		}
+		else
+			break;
+			//return qfalse;
+
+		// Grab sound file path
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+			//return qfalse;
+
+		Com_Printf("(%i): %s\n", i, token);
+		weapTiming->sfxInfo[i].sound = trap_S_RegisterSound( token, qfalse );
+	}
 	
+	// Store total number
+	weapTiming->numFrames = i;
+	Com_Printf("Total Frames: %i\n", weapTiming->numFrames);
+
+	return qtrue;
+
+	// Old crap code
+	/*	
 	// read information for each phase of a reload
 	for ( i = 0 ; i < MAX_RELOAD_SOUNDS ; i++ )
 	{ 
@@ -130,6 +163,7 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 	}
 		
 	return qtrue;
+	*/
 }
 
 /* [QUARANTINE] - Weapon Animations - CG_ParseWeaponAnimFile
@@ -890,9 +924,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mk23/mk23out.wav", qfalse );
-		//weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mk23/mk23in.wav", qfalse );
-		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mk23/mk23slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		
 		// Load the animation information
@@ -908,17 +939,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 			Com_sprintf( filename, sizeof(filename), "models/weapons2/mk23/sound.cfg" );
 			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
-			}
-			else {
-				// Temporarily print the info
-				int k;
-				Com_Printf("Sync Sound Status:\n");
-				for (k = 0; k < MAX_RELOAD_SOUNDS; k++)
-				{
-					Com_Printf("%i: Frame %i  Has sfxHandle: %s\n",
-							k, weaponInfo->reloadSounds[k].frame,
-							weaponInfo->reloadSounds[k].sound? "yes":"no");
-				}
 			}
 		}
 		else
@@ -951,8 +971,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m4/m4out.wav", qfalse );
-		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m4/animation.cfg" );
@@ -969,6 +987,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		} else {
 			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
+
 		break;
 		
 	case WP_SSG3000:
@@ -976,13 +995,20 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgbolt.wav", qfalse );
-		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgin.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgbolt.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/ssg3000/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+		}
+		
+		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/ssg3000/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 		
@@ -991,9 +1017,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mp5/mp5out.wav", qfalse );
-		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mp5/mp5in.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mp5/mp5slide.wav", qfalse );
+		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mp5/mp5out.wav", qfalse );
+		//weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mp5/mp5in.wav", qfalse );
+		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mp5/mp5slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
 		
@@ -1004,25 +1030,44 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/handcannon/hcopen.wav", qfalse );
-		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/handcannon/hcout.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/handcannon/hcclose.wav", qfalse );
 		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
 		}
+
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+		}
+
 		break;
 		
 	case WP_M3:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m3/m3in.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
+		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
 		}
+
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+		}
+
 		break;
 		
 	case WP_AKIMBO:
@@ -1030,10 +1075,6 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0.5f );
 		// Elder: no more pseudo-dual sound needed :)
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
-		//Elder: changed to use pseudo-dual sound
-		//weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
-		//weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/akimbo/akimbofire.wav", qfalse );
-		
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/akimbo/animation.cfg" );
@@ -1051,6 +1092,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		} else {
 			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
+
 		break;
 		
 	case WP_GRENADE:
@@ -1061,7 +1103,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/gren_throw.wav", qfalse );
+		//weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/gren_throw.wav", qfalse );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 
 		// Load the animation information
@@ -1069,6 +1111,15 @@ void CG_RegisterWeapon( int weaponNum ) {
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
+		}
+		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/grenade/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 
@@ -1489,33 +1540,47 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		// Temp hack because it isn't fully implemented
 		if ( weapon->item->giTag == WP_PISTOL ||
 			 weapon->item->giTag == WP_AKIMBO ||
-			 weapon->item->giTag == WP_M4)
+			 weapon->item->giTag == WP_M4 ||
+			 weapon->item->giTag == WP_M3 ||
+			 weapon->item->giTag == WP_HANDCANNON ||
+			 weapon->item->giTag == WP_SSG3000 ||
+			 weapon->item->giTag == WP_GRENADE)
 		{
-			if ( ps->weaponstate == WEAPON_RELOADING ) {
-				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
-					cg.curSyncSound = &weapon->reloadSounds[0];
-			}
-			else if ( ps->weaponstate == WEAPON_RAISING ) {
-				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
-					cg.curSyncSound = &weapon->activateSound[0];
-			}
-			else if ( ps->weaponstate == WEAPON_DROPPING ) {
-				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
-					cg.curSyncSound = &weapon->disarmSound[0];
+			int i = 0;
+			qboolean noSound = qfalse;
+
+			while ( gun.frame != weapon->animationSounds->sfxInfo[i].frame )
+			{
+				if ( ++i == weapon->animationSounds->numFrames )
+				{
+					noSound = qtrue;
+					break;
+				}
 			}
 
-			if (cg.curSyncSound && cg.curSyncSound->frame == gun.frame) {
-				if ( cg.curSyncSound->sound ) {
+			// reset the current sound
+			if (cg.curSyncSound.played && cg.curSyncSound.frame != gun.frame)
+				cg.curSyncSound.played = qfalse;
+
+			if (!noSound)
+			{
+				// copy the struct to reset it
+				if (cg.curSyncSound.frame != gun.frame )
+					cg.curSyncSound = weapon->animationSounds->sfxInfo[i];
+
+				if (cg.curSyncSound.played == qfalse)
+				{
+					cg.curSyncSound.played = qtrue;
 					CG_Printf("Playing a timed sound (%i %i %1.1f)\n", gun.frame, gun.oldframe, gun.backlerp);
-					trap_S_StartLocalSound ( cg.curSyncSound->sound, CHAN_WEAPON );
-					cg.curSyncSound = cg.curSyncSound->next;
+					trap_S_StartLocalSound ( cg.curSyncSound.sound, CHAN_WEAPON );
 				}
 			}
 		}
 	} 
 
 	// Elder: break off here so we still have weapon animations on bolt out
-	if (cg.zoomed)
+	// Elder: added ps so we see SSG in third-person zoomed
+	if (cg.zoomed && ps)
 		return;
 
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
@@ -2018,9 +2083,11 @@ void CG_PrevWeapon_f( void ) {
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	/*
 	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
 		return;
 	}
+	*/
 
 	//Elder: added
 	//cg.zoomed = qfalse;
@@ -2089,9 +2156,11 @@ void CG_SpecialWeapon_f( void ) {
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	/*
 	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
 		return;
 	}
+	*/
 
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
@@ -2299,10 +2368,12 @@ void CG_Weapon_f( void ) {
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
 
+	/*
 	//Elder: in the middle of firing, reloading or weapon-switching
 	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0) {
 		return;
 	}
+	*/
 
 
 	///Elder: spectator?
@@ -2312,6 +2383,11 @@ void CG_Weapon_f( void ) {
 
 	// Hawkins (give 'weapon' dual meaning)
 	if ( trap_Argc() == 1 ) {
+		//Elder: in the middle of firing, reloading or weapon-switching
+		if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0) {
+			return;
+		}
+
 		if (cg.snap->ps.weapon == WP_SSG3000) {
 			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.lensSound);
 			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
@@ -2777,7 +2853,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_M4:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
 		if (soundType == IMPACTSOUND_METAL)
@@ -2788,6 +2867,16 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_metalric2;
 			} else {
 				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else if (soundType == IMPACTSOUND_GLASS)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_glassric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_glassric2;
+			} else {
+				sfx = cgs.media.sfx_glassric3;
 			}
 		}
 		else
@@ -2807,7 +2896,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_PISTOL:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
 		if (soundType == IMPACTSOUND_METAL)
@@ -2818,6 +2910,16 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_metalric2;
 			} else {
 				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else if (soundType == IMPACTSOUND_GLASS)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_glassric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_glassric2;
+			} else {
+				sfx = cgs.media.sfx_glassric3;
 			}
 		}
 		else
@@ -2835,7 +2937,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_SSG3000:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
 		if (soundType == IMPACTSOUND_METAL)
@@ -2846,6 +2951,16 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_metalric2;
 			} else {
 				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else if (soundType == IMPACTSOUND_GLASS)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_glassric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_glassric2;
+			} else {
+				sfx = cgs.media.sfx_glassric3;
 			}
 		}
 		else
@@ -2863,7 +2978,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_AKIMBO:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
 		if (soundType == IMPACTSOUND_METAL)
@@ -2874,6 +2992,16 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_metalric2;
 			} else {
 				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else if (soundType == IMPACTSOUND_GLASS)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_glassric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_glassric2;
+			} else {
+				sfx = cgs.media.sfx_glassric3;
 			}
 		}
 		else
@@ -2893,7 +3021,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_MP5:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
 		if (soundType == IMPACTSOUND_METAL)
@@ -2904,6 +3035,16 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				sfx = cgs.media.sfx_metalric2;
 			} else {
 				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else if (soundType == IMPACTSOUND_GLASS)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_glassric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_glassric2;
+			} else {
+				sfx = cgs.media.sfx_glassric3;
 			}
 		}
 		else
@@ -2922,14 +3063,20 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	case WP_M3:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 		sfx = 0;
 		radius = 4;
 		break;
 	case WP_HANDCANNON:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
+		if (soundType == IMPACTSOUND_GLASS)
+			mark = cgs.media.glassMarkShader;
+		else
+			mark = cgs.media.bulletMarkShader;
 		sfx = 0;
 		radius = 4;
 		break;
@@ -3233,6 +3380,17 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
 			}				
+		}
+		else if ( tr.surfaceFlags & SURF_GLASS )
+		{
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_GLASS, 0 );
+			}
 		}
 		else
 		{
@@ -3671,7 +3829,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 	}
 	
 	weap = &cg_weapons[ ent->weapon ];
-
+/*
 	switch (reloadStage)
 	{
 		case 0:
@@ -3709,4 +3867,5 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 			CG_Error("CG_ReloadWeapon: Reload stage > 2\n");
 			break;
 	}
+*/
 }

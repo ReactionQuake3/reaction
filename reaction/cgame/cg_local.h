@@ -117,7 +117,9 @@ typedef enum {
 typedef enum {
 	IMPACTSOUND_DEFAULT,
 	IMPACTSOUND_METAL,
-	IMPACTSOUND_FLESH
+	IMPACTSOUND_FLESH,
+	// rq3 onwards
+	IMPACTSOUND_GLASS
 } impactSound_t;
 
 
@@ -399,14 +401,23 @@ typedef struct {
 // Elder: maximum sizes
 #define MAX_RELOAD_SOUNDS		5
 #define MAX_OTHER_SOUNDS		5
-// Circular, singly-linked list
+
+#define MAX_ANIM_SOUNDS			16
+// Singly-linked list
+
 struct sfxSyncInfo_s {
 	int				frame;
 	sfxHandle_t		sound;
-	struct sfxSyncInfo_s	*next;
+	qboolean		played;
+	//struct sfxSyncInfo_s	*next;
 };
 
 typedef struct sfxSyncInfo_s sfxSyncInfo_t;
+
+typedef struct sfxWeapTiming_s {
+	int				numFrames;
+	sfxSyncInfo_t	sfxInfo[MAX_ANIM_SOUNDS];
+}	sfxWeapTiming_t;
 
 
 // each WP_* weapon enum has an associated weaponInfo_t
@@ -447,16 +458,19 @@ typedef struct weaponInfo_s {
 
 	float			trailRadius;
 	float			wiTrailTime;
+	
 
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
 
+	sfxWeapTiming_t	animationSounds[MAX_ANIM_SOUNDS];
 	// Elder: sounds to queue
+	/*	
 	sfxSyncInfo_t	activateSound[2];	// last one is an endpoint node
 	sfxSyncInfo_t	disarmSound[2];		// last one is an endpoint node
 	sfxSyncInfo_t	reloadSounds[MAX_RELOAD_SOUNDS];
 	sfxSyncInfo_t	otherSounds[MAX_OTHER_SOUNDS];
-
+	*/
 	// Deprecated
 	sfxHandle_t		reloadSound1;		// Elder: for various reload stages such as
 	sfxHandle_t		reloadSound2;		// Clip in, clip out, sliding, sliding bolt,
@@ -527,6 +541,8 @@ typedef struct {
 	int			time;			// this is the time value that the client
 								// is rendering at.
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
+
+	int			cvarCheckTime;	// Elder: used for cvar cheat interval cycling
 
 	int			physicsTime;	// either cg.snap->time or cg.nextSnap->time
 
@@ -668,7 +684,6 @@ typedef struct {
 	//Elder: added for alpha pain blend
 	int			rq3_trueDamage;		//Q3 doesn't hold the actual damage amount in cg.damageValue
 	float		rq3_blendTime;		//How long we take to fade out
-	qboolean	rq3_reloadDown;		//Flag to check if reload is pressed
 
 	// status bar head
 	float		headYaw;
@@ -714,8 +729,9 @@ typedef struct {
 	qboolean		rq3_irvision;	// Elder: enabled IR vision
 	int				akimboFlash;	// Alternate between two tags for flash (0 or 1)
 	
-	sfxSyncInfo_t	*curSyncSound;	// Shifts after a sound is played
+	sfxSyncInfo_t	curSyncSound;	// Shifts after a sound is played
 
+	
 } cg_t;
 
 
@@ -871,6 +887,7 @@ typedef struct {
 
 	// Elder: rq3 marks
 	qhandle_t	slashMarkShader;
+	qhandle_t	glassMarkShader;
 
 	// powerup shaders
 	qhandle_t	quadShader;
@@ -975,6 +992,10 @@ typedef struct {
 	sfxHandle_t	sfx_metalric1;
 	sfxHandle_t	sfx_metalric2;
 	sfxHandle_t	sfx_metalric3;
+	// Elder: Glass ricochet sounds
+	sfxHandle_t	sfx_glassric1;
+	sfxHandle_t	sfx_glassric2;
+	sfxHandle_t	sfx_glassric3;
 
 	sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
@@ -1306,6 +1327,11 @@ extern	vmCvar_t		cg_RQ3_ssgColorR;
 extern	vmCvar_t		cg_RQ3_ssgColorG;
 extern	vmCvar_t		cg_RQ3_ssgColorB;
 extern	vmCvar_t		cg_RQ3_ssgColorA;
+//Elder: SSG unique sensitivities
+extern	vmCvar_t		cg_RQ3_ssgSensitivityAuto;
+extern	vmCvar_t		cg_RQ3_ssgSensitivity2x;
+extern	vmCvar_t		cg_RQ3_ssgSensitivity4x;
+extern	vmCvar_t		cg_RQ3_ssgSensitivity6x;
 //Elder: smoke puffs, sparks, etc.
 extern	vmCvar_t		cg_RQ3_impactEffects;
 //Elder: toggle client-side laser drawing

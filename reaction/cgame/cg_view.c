@@ -573,6 +573,8 @@ static int CG_CalcFov( void ) {
 		CG_RQ3_SyncZoom();
 	
 	//SSG3000 zoom handling
+/*
+	// old code
 	if ( cg.snap->ps.weapon == WP_SSG3000)
 	{
 		//switching zoom
@@ -700,6 +702,140 @@ static int CG_CalcFov( void ) {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 		}
 	}
+*/
+	if ( cg.snap->ps.weapon == WP_SSG3000)
+	{
+		//switching zoom
+		if (cg.zoomLevel != cg.lastZoomLevel)
+		{
+			fov_x = CG_RQ3_GetLastFov();
+			//Get desired zoom FOV based on current FOV
+			if (cg.zoomLevel == 0)
+			{
+				zoomFov = 90;
+				cg.zoomed = qfalse;
+			}
+			else
+			{
+				switch ((int)fov_x)
+				{
+					case 20:
+						zoomFov = 10;
+						cg.zoomed = qtrue;
+						break;
+					case 45:
+						zoomFov = 20;
+						cg.zoomed = qtrue;
+						break;
+					case 90:
+						zoomFov = 45;
+						cg.zoomed = qtrue;
+						break;
+					case 10:
+					default:
+						zoomFov = 90;
+						cg.zoomed = qfalse;
+						break;
+				}
+			}
+
+			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+			if ( f > 1.0 || cg.zoomFirstReturn == ZOOM_OUT)
+			{
+				//finished zoom switch
+				cg.lastZoomLevel = cg.zoomLevel;
+				fov_x = zoomFov;
+			}
+			else
+				fov_x = fov_x + f * ( zoomFov - fov_x );
+		}
+		//Idle state
+		else if (cg.snap->ps.weaponTime == 0 && cg.snap->ps.weaponstate == WEAPON_READY)
+		{
+			fov_x = CG_RQ3_GetFov();
+			if (fov_x == 90)
+				cg.zoomed = qfalse;
+			else
+				cg.zoomed = qtrue;
+
+			if (cg.lowAmmoWarning)
+				cg.zoomFirstReturn = ZOOM_OUTOFAMMO;
+			else
+				cg.zoomFirstReturn = ZOOM_IDLE;
+		}
+		//Zoom back in after a reload or fire
+		else if (cg.snap->ps.weaponTime < ZOOM_TIME &&
+				 !(cg.snap->ps.weaponstate == WEAPON_DROPPING ||
+				  cg.snap->ps.weaponstate == WEAPON_RAISING ) &&
+				 cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME &&
+				 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS))
+		{	
+			if (cg.zoomFirstReturn == ZOOM_OUT)
+			{
+				cg.zoomTime = cg.time;
+				if (cg.lowAmmoWarning)
+					cg.zoomFirstReturn = ZOOM_OUTOFAMMO;
+				else
+					cg.zoomFirstReturn = ZOOM_IDLE;
+			}
+
+			fov_x = 90;
+			zoomFov = CG_RQ3_GetFov();
+
+			if (zoomFov == 90)
+				cg.zoomed = qfalse;
+			else
+				cg.zoomed = qtrue;
+
+			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+			if ( f > 1.0 ) //|| cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
+				fov_x = zoomFov;
+			else
+				fov_x = fov_x + f * ( zoomFov - fov_x );	
+				//fov_x = zoomFov + f * ( fov_x - zoomFov );
+		}
+		//first time after a shot, reload, or weapon switch - zoom out
+		else
+		{
+			fov_x = CG_RQ3_GetFov();
+
+			if (cg.snap->ps.weaponstate == WEAPON_RELOADING &&
+				cg.zoomFirstReturn != ZOOM_OUT)
+			{
+				cg.zoomTime = cg.time;
+				cg.zoomFirstReturn = ZOOM_OUT;
+			}
+			else if (cg.zoomFirstReturn == ZOOM_IDLE &&
+					 !(cg.snap->ps.weaponstate == WEAPON_DROPPING || cg.snap->ps.weaponstate == WEAPON_RAISING))
+			{
+				cg.zoomTime = cg.time;
+				cg.zoomFirstReturn = ZOOM_OUT;
+			}
+		
+			
+			if (cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
+			{
+				zoomFov = fov_x;
+				f = 1.0f;		// don't bother zooming out
+			}
+			else
+			{
+				zoomFov = 90;
+				f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
+			}
+
+			if ( f > 1.0 )
+			{
+				fov_x = zoomFov;
+				if (fov_x == 90)
+					cg.zoomed = qfalse;
+				else
+					cg.zoomed = qtrue;
+			}
+			else
+				fov_x = fov_x + f * ( zoomFov - fov_x );
+		}
+	}
 	//Using anything but the SSG3000
 	else
 	{
@@ -731,11 +867,27 @@ static int CG_CalcFov( void ) {
 	cg.refdef.fov_y = fov_y;
 
 
-	//	user-defined sensitivities!
 	if ( !cg.zoomed ) {
 		cg.zoomSensitivity = 1;
 	} else {
-		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		if ( cg_RQ3_ssgSensitivityAuto.integer )
+			cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+		else
+		{
+			// Use user-defined sensitivites
+			switch ( (int)fov_x )
+			{
+				case 45:
+					cg.zoomSensitivity = cg_RQ3_ssgSensitivity2x.value;
+					break;
+				case 20:
+					cg.zoomSensitivity = cg_RQ3_ssgSensitivity4x.value;
+					break;
+				case 10:
+					cg.zoomSensitivity = cg_RQ3_ssgSensitivity6x.value;
+					break;
+			}
+		}
 	}
 
 	return inwater;
@@ -1068,8 +1220,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 
-	if ((cg.time - cgs.levelStartTime) / 10000 == 1)
+	//if ((cg.time - cgs.levelStartTime) / 10000 == 1)
+	// Elder: working timer implementation
+	if (cg.time > cg.cvarCheckTime)
 	{
+		//cg.cvarCheckTime = cg.time + 5000 + rand() % 6000;
+		cg.cvarCheckTime = cg.time + 10000;
 		//Blaze: Check for invalid video settings.
 		for(i=0;i<30;i++)
 		{
@@ -1079,7 +1235,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				//CG_Printf("%s is set to %f\n",cheats[i].cvar, cvar_val);
 				if ( cvar_val < cheats[i].low || cvar_val > cheats[i].high) 
 				{
-					CG_Printf("This server restricts %s to be between %f and %f\n",cheats[i].cvar,cheats[i].low, cheats[i].high);
+					CG_Printf("This server restricts %s to be between %1.11f and %1.11f\n",cheats[i].cvar,cheats[i].low, cheats[i].high);
 					trap_SendConsoleCommand(va("disconnect\n"));
 				}
 				

@@ -1778,9 +1778,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_CHANGE_WEAPON:
 		DEBUGNAME("EV_CHANGE_WEAPON");
 		//Elder: TODO: change to appropriate weapon "in" sound
-		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );
-		//Elder: removed
-		//CG_RQ3_Zoom(0);
+		//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.selectSound );
 		break;
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");
@@ -1993,6 +1991,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		ByteToDir( es->eventParm, dir );
 		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_METAL);
 		break;
+
+	case EV_BULLET_HIT_GLASS:
+		DEBUGNAME("EV_BULLET_HIT_GLASS");
+		ByteToDir( es->eventParm, dir );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_GLASS);
+		break;
+
 
 	case EV_BULLET_HIT_KEVLAR:
 		DEBUGNAME("EV_BULLET_HIT_KEVLAR");

@@ -1329,7 +1329,7 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 	CG_RunLerpFrame( ci, &cent->pe.weapon, cent->currentState.generic1, 1, qtrue );
 
 	// QUARANTINE - Debug - Animations
-	#if 1
+	#if 0
 	if (cg_debugAnim.integer)
 	if(cent->pe.weapon.oldFrame || cent->pe.weapon.frame || cent->pe.weapon.backlerp) {
 		CG_Printf("weaponOld: %i weaponFrame: %i weaponBack: %i\n", 

@@ -5,6 +5,7 @@
 #include "cg_local.h"
 
 static void CG_LaserSight( centity_t *cent );
+static void CG_Dlight( centity_t *cent );
 
 /*
 ======================
@@ -147,7 +148,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 
 	// constant light glow
-	if ( cent->currentState.constantLight ) {
+	if ( cent->currentState.constantLight && cent->currentState.eType != ET_DLIGHT) {
 		int		cl;
 		int		i, r, g, b;
 
@@ -156,6 +157,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 		g = ( cl >> 8 ) & 255;
 		b = ( cl >> 16 ) & 255;
 		i = ( ( cl >> 24 ) & 255 ) * 4;
+
 		trap_R_AddLightToScene( cent->lerpOrigin, i, r, g, b );
 	}
 
@@ -255,7 +257,21 @@ static void CG_Item( centity_t *cent ) {
 		memset( &ent, 0, sizeof( ent ) );
 		ent.reType = RT_SPRITE;
 		VectorCopy( cent->lerpOrigin, ent.origin );
-		ent.radius = 14;
+		// Elder: lower them slightly
+		ent.origin[2] -= 6;
+		// Elder: make auto-sprites smaller, especially grenades and knifes
+		if (item->giType == IT_WEAPON)
+		{
+			if (item->giTag == WP_GRENADE || item->giTag == WP_KNIFE)
+				ent.radius = 4;
+			else
+				ent.radius = 14;
+		}
+		else if (item->giType == IT_HOLDABLE)
+			ent.radius = 10;
+		else 
+			ent.radius = 6;
+		//ent.radius = 14;
 		ent.customShader = cg_items[es->modelindex].icon;
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
@@ -382,10 +398,13 @@ static void CG_Item( centity_t *cent ) {
 		frac = 1.0;
 	}
 
+	// Elder: special items and ammo should have minimum light too
 	// items without glow textures need to keep a minimum light value
 	// so they are always visible
 	if ( ( item->giType == IT_WEAPON ) ||
-		 ( item->giType == IT_ARMOR ) ) {
+		 ( item->giType == IT_ARMOR ) || 
+		 ( item->giType == IT_AMMO) ||
+		 ( item->giType == IT_HOLDABLE) ) {
 		ent.renderfx |= RF_MINLIGHT;
 	}
 
@@ -1008,6 +1027,7 @@ static void CG_TeamBase( centity_t *cent ) {
 #endif
 }
 
+
 /*
 ===============
 CG_AddCEntity
@@ -1072,7 +1092,9 @@ static void CG_AddCEntity( centity_t *cent ) {
 		//if (!cg_RQ3_laserAssist.integer || cent->currentState.clientNum != cg.snap->ps.clientNum)
 		CG_LaserSight( cent );
 		break;
-
+	case ET_DLIGHT:
+		CG_Dlight( cent );
+		break;
 	}
 }
 
@@ -1161,3 +1183,37 @@ static void CG_LaserSight( centity_t *cent )  {
 		trap_R_AddLightToScene(ent.origin, 200, 1, 1, 1);
 	}
 }
+
+
+/*
+=================
+CG_Dlight
+Added by Elder.
+
+Use sparingly.
+=================
+*/
+static void CG_Dlight( centity_t *cent )  {
+	int		cl;
+	float		i, r, g, b;
+
+	cl = cent->currentState.constantLight;
+	r = ( cl & 255 ) / 255.0f;
+	g = ( ( cl >> 8 ) & 255 ) / 255.0f;
+	b = ( ( cl >> 16 ) & 255 ) / 255.0f;
+	i = ( cl >> 24 ) & 255 * 4;
+
+	if ( cent->currentState.eventParm & DLIGHT_FLICKER )
+		i += rand() % 100 - 50;
+
+	if ( cent->currentState.eventParm & DLIGHT_PULSE )
+		i *= 1.0f + sin( 2 * M_PI * cg.time / 1000.0f );
+
+	if ( cent->currentState.eventParm & DLIGHT_ADDITIVE)
+		trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);
+	else
+		trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+
+	//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
+}
+
