@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/15 13:58:35  makro
+// Health for movers
+//
 // Revision 1.73  2002/05/15 05:38:36  niceass
 // Knife fix and disabled new headshot code
 //
@@ -1892,6 +1895,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	if (targ->s.eType == ET_MOVER && targ->health <= 0) {
+		//Makro - added
+		if (targ->use) targ->use(targ, inflictor, attacker);
 		return;
 	}
 
