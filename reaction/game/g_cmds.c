@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/01/31 02:52:49  blaze
+// some basic work on the trains/elevators
+//
 // Revision 1.40  2002/01/31 02:25:31  jbravo
 // Adding limchasecam.
 //
@@ -2525,22 +2528,20 @@ PlayerStats
 void Cmd_PlayerStats_f( gentity_t *ent )
 {
 	//char textbuf[1024];
-
-/*
+	
 	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
-	trap_SendServerCommand( ent-g_entities, va("print \"| Weapon | Accuracy | Hits/Shots |\n\""));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Weapon  | Accuracy | Hits/Shots |\n\""));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
-	trap_SendServerCommand( ent-g_entities, va("print \"| Knife  |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->knifeHits / (ent->client->knifeShots ? ent->client->knifeShots : 1)), ent->client->knifeHits, ent->client->knifeShots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| MK23   |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->mk23Hits / (ent->client->mk23Shots ? ent->client->mk23Shots : 1)), ent->client->mk23Hits, ent->client->mk23Shots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| Akimbo |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->akimboHits / (ent->client->akimboShots ? ent->client->akimboShots : 1)), ent->client->akimboHits, ent->client->akimboShots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| M4     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->m4Hits / (ent->client->m4Shots ? ent->client->m4Shots : 1)), ent->client->m4Hits, ent->client->m4Shots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| MP5    |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->mp5Hits / (ent->client->mp5Shots ? ent->client->mp5Shots : 1)), ent->client->mp5Hits, ent->client->mp5Shots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| M3     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->m3Hits / (ent->client->m3Shots ? ent->client->m3Shots : 1)), ent->client->m3Hits, ent->client->m3Shots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| HC     |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->hcHits / (ent->client->hcShots ? ent->client->hcShots : 1)), ent->client->hcHits, ent->client->hcShots));
-	trap_SendServerCommand( ent-g_entities, va("print \"| SSG    |    %.1f   |     %d/%d    |\n\"", (float)(ent->client->ssgHits / (ent->client->ssgShots ? ent->client->ssgShots : 1)), ent->client->ssgHits, ent->client->ssgShots));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Knife(T)|      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_KNIFETHROWHITS] / (ent->client->pers.records[REC_KNIFETHROWSHOTS] ? ent->client->pers.records[REC_KNIFETHROWSHOTS] : 1)), (float)ent->client->pers.records[REC_KNIFETHROWHITS], (float)ent->client->pers.records[REC_KNIFETHROWSHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| MK23    |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_MK23HITS] / (ent->client->pers.records[REC_MK23SHOTS] ? ent->client->pers.records[REC_MK23SHOTS] : 1)), (float)ent->client->pers.records[REC_MK23HITS], (float)ent->client->pers.records[REC_MK23SHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| Akimbo  |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_AKIMBOHITS] / (ent->client->pers.records[REC_AKIMBOSHOTS] ? ent->client->pers.records[REC_AKIMBOSHOTS] : 1)), (float)ent->client->pers.records[REC_AKIMBOHITS], (float)ent->client->pers.records[REC_AKIMBOSHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| M4      |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_M4HITS] / (ent->client->pers.records[REC_M4SHOTS] ? ent->client->pers.records[REC_M4SHOTS] : 1)), (float)ent->client->pers.records[REC_M4HITS], (float)ent->client->pers.records[REC_M4SHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| MP5     |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_MP5HITS] / (ent->client->pers.records[REC_MP5SHOTS] ? ent->client->pers.records[REC_MP5SHOTS] : 1)), (float)ent->client->pers.records[REC_MP5HITS], (float)ent->client->pers.records[REC_MP5SHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| M3      |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_M3HITS] / (ent->client->pers.records[REC_M3SHOTS] ? ent->client->pers.records[REC_M3SHOTS] : 1)), (float)ent->client->pers.records[REC_M3HITS], (float)ent->client->pers.records[REC_M3SHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| HC      |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_HANDCANNONHITS] / (ent->client->pers.records[REC_HANDCANNONSHOTS] ? ent->client->pers.records[REC_HANDCANNONSHOTS] : 1)), (float)ent->client->pers.records[REC_HANDCANNONHITS], (float)ent->client->pers.records[REC_HANDCANNONSHOTS]));
+	trap_SendServerCommand( ent-g_entities, va("print \"| SSG     |      %.0f   |  %.0f/%.0f \n\"", (100*(float)ent->client->pers.records[REC_SSG3000HITS] / (ent->client->pers.records[REC_SSG3000SHOTS] ? ent->client->pers.records[REC_SSG3000SHOTS] : 1)), (float)ent->client->pers.records[REC_SSG3000HITS], (float)ent->client->pers.records[REC_SSG3000SHOTS]));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
-*/
 
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/01/31 02:50:18  blaze
+// some basic work on the trains/elevators
+//
 // Revision 1.20  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -784,6 +787,25 @@ Use_BinaryMover
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	int		total;
 	int		partial;
+	//Blaze: Holds the train entity
+	gentity_t *temp;
+	if ( ent->pathtarget != NULL )
+	{
+		G_Printf("The pathtarget is %s\n",ent->pathtarget);
+		temp = NULL;
+		temp = G_Find(temp,FOFS(targetname),ent->target);
+		if ( !temp )
+		{
+			G_Printf("Could not find the train %s that button points to\n", ent->target);
+		}
+		else
+		{
+			temp->nextTrain = G_Find(NULL, FOFS(targetname),ent->pathtarget);
+			//Blaze
+			//G_Printf("^2pathtarget: %s target: %s targetname: %s\n",ent->pathtarget, ent->target, ent->targetname);
+			//G_Printf("^2%s\n", ent->nextTrain->targetname);
+		}
+	}
 
 	// only the master should be used
 	if ( ent->flags & FL_TEAMSLAVE ) {
@@ -1829,13 +1851,14 @@ When a button is touched, it moves some distance in the direction of it's angle,
 "health"	if set, the button must be killed instead of touched
 "color"		constantLight color
 "light"		constantLight radius
+"pathtarget" stores the target for a train
 */
 void SP_func_button( gentity_t *ent ) {
 	vec3_t		abs_movedir;
 	float		distance;
 	vec3_t		size;
 	float		lip;
-
+	char		*s;
 	ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
 
 	if ( !ent->speed ) {
@@ -1852,6 +1875,10 @@ void SP_func_button( gentity_t *ent ) {
 
 	// calculate second position
 	trap_SetBrushModel( ent, ent->model );
+
+	if ( G_SpawnString( "pathtarget","", &s) ) {
+		strcpy(ent->pathtarget, s);
+	}
 
 	G_SpawnFloat( "lip", "4", &lip );
 
@@ -1923,6 +1950,11 @@ void Reached_Train( gentity_t *ent ) {
 
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
+	//Blaze: Spam out some info about where the train is
+	//G_Printf("^1Reached Reached_Train %s %s\n", next->targetname, next->target);
+	//G_Printf("^3Train is at (%f %f %f) or (%f %f %f)\n",ent->s.origin[0],ent->s.origin[1],ent->s.origin[2], ent->pos1[0], ent->pos1[1], ent->pos1[2]);
+	//G_Printf("^2NextTrain  Origin(%f, %f, %f) Next Origin (%f, %f, %f)\n", next->nextTrain->s.origin[0], next->nextTrain->s.origin[1], next->nextTrain->s.origin[2], next->s.origin[0], next->s.origin[1], next->s.origin[2]);
+	
 	VectorCopy( next->s.origin, ent->pos1 );
 	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
 
@@ -1952,6 +1984,13 @@ void Reached_Train( gentity_t *ent ) {
 	// if there is a "wait" value on the target, don't start moving yet
 	if ( next->wait ) {
 		ent->nextthink = level.time + next->wait * 1000;
+		ent->think = Think_BeginMoving;
+		ent->s.pos.trType = TR_STATIONARY;
+	}
+	//Blaze: If the wait is less then 0, dont nextthing
+	if (next->wait < 0)
+	{
+		ent->nextthink = 0;
 		ent->think = Think_BeginMoving;
 		ent->s.pos.trType = TR_STATIONARY;
 	}
@@ -2016,6 +2055,12 @@ Target: next path corner and other targets to fire
 "wait" seconds to wait before behining move to next corner
 */
 void SP_path_corner( gentity_t *self ) {
+
+	//Blaze Print out some info for the path corners
+	//G_Printf("^1Ent Wait = %f %s %s\n", self->wait, self->targetname, self->target);
+
+	//G_Printf("^2path_corner Origin(%f, %f, %f)", self->s.origin[0], self->s.origin[1], self->s.origin[2]);
+
 	if ( !self->targetname ) {
 		G_Printf ("path_corner with no targetname at %s\n", vtos(self->s.origin));
 		G_FreeEntity( self );
