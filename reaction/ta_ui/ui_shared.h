@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/06/22 19:20:57  makro
+// Changed number of custom SSG crosshairs to 6
+//
 // Revision 1.13  2002/06/16 20:06:15  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -128,7 +131,7 @@
 #define SLIDER_THUMB_HEIGHT 20.0
 #define	NUM_CROSSHAIRS			10
 //Makro - for the SSG crosshair preview
-#define	NUM_SSGCROSSHAIRS		5
+#define	NUM_SSGCROSSHAIRS		6
 
 typedef struct {
 	const char *command;
