@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2003/03/31 15:17:58  makro
+// Replacements system tweaks.
+// Fixed some other bugs.
+//
 // Revision 1.68  2003/03/31 05:54:20  jbravo
 // More replacementhacks
 //
@@ -2598,9 +2602,28 @@ void UI_AddReplacement(char *filename)
 
 		//line 2 - cvar value
 		Q_strncpyz(uiInfo.replacements.Cvars[uiInfo.replacements.Count], GetLine(&text), sizeof(uiInfo.replacements.Cvars[uiInfo.replacements.Count]));
-		if (!Q_stricmp(UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type)), text))
+		if (!strcmp(UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type)), uiInfo.replacements.Cvars[uiInfo.replacements.Count]))
+		{
 			uiInfo.replacements.Index = uiInfo.replacements.Count;
+		}
 		uiInfo.replacements.Count++;
+	}
+}
+
+void UI_SelectReplacement(void)
+{
+	char *currentCvar = UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type));
+
+	if (uiInfo.replacements.Count <= 0)
+		return;
+
+	uiInfo.replacements.Index %= uiInfo.replacements.Count;
+
+	//if the model isn't already selected
+	if (strcmp(currentCvar, uiInfo.replacements.Cvars[uiInfo.replacements.Index]))
+	{
+		trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), uiInfo.replacements.Cvars[uiInfo.replacements.Index]);
+		Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
 	}
 }
 
@@ -2632,6 +2655,7 @@ void UI_LoadReplacement(int index)
 	int len;
 	fileHandle_t f;
 	char buf[4096], *p, *text, skin[MAX_QPATH], model[MAX_QPATH];
+	char *currentCvar = UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type));
 	const char *typeDir = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].cvarName;
 
 	uiInfo.replacements.Info[0]=0;
@@ -2660,8 +2684,13 @@ void UI_LoadReplacement(int index)
 	Q_strncpyz(model, modelFromStr(p), sizeof(model));
 	if (!Q_stricmp(model, "default"))
 		Q_strncpyz(model, uiInfo.replacements.Type, sizeof(model));
+	if (!strcmp(currentCvar, p))
+	{
+		Q_strcat(uiInfo.replacements.Name, sizeof(uiInfo.replacements.Name), " (*)");
+	}
+	
 	Q_strncpyz(skin, skinFromStr(p), sizeof(skin));
-	trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), p);
+	//trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), p);
 
 	//line 3 - co-ordinates
 	p = GetLine(&text);
@@ -2673,18 +2702,18 @@ void UI_LoadReplacement(int index)
 	if (!Q_stricmp(typeDir, "ammo")) {
 		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, model));
 		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s.skin", typeDir, skin));
-		Com_Printf("AmmoModel: %s\n", va("models/%s/%s.md3", typeDir, model));
-		Com_Printf("AmmoSkin : %s\n", va("models/%s/%s.skin", typeDir, skin));
+		//Com_Printf("AmmoModel: %s\n", va("models/%s/%s.md3", typeDir, model));
+		//Com_Printf("AmmoSkin : %s\n", va("models/%s/%s.skin", typeDir, skin));
 	} else if (!Q_stricmp(typeDir, "items")) {
 		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s.md3", typeDir, model));
 		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
-		Com_Printf("ItemModel: %s\n", va("models/%s/%s.md3", typeDir, model));
-		Com_Printf("ItemSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
+		//Com_Printf("ItemModel: %s\n", va("models/%s/%s.md3", typeDir, model));
+		//Com_Printf("ItemSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
 	} else {
 		uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
 		uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
-		Com_Printf("WeaponModel: %s\n", va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
-		Com_Printf("WeaponSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
+		//Com_Printf("WeaponModel: %s\n", va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
+		//Com_Printf("WeaponSkin : %s\n", va("models/%s/%s/%s.skin", typeDir, model, skin));
 	}
 	//...replacement info
 	Q_strncpyz(uiInfo.replacements.Info, text, sizeof(uiInfo.replacements.Info));
@@ -3055,7 +3084,11 @@ static void UI_DrawReplacementModel(rectDef_t *rect)
 	//adjust = 360 % (int)((float)uis.realtime / 1000);
 	//VectorSet( angles, 0, 0, 1 );
 
-	VectorCopy(uiInfo.replacements.angles, angles);
+	//changed for Birdman...
+	//VectorCopy(uiInfo.replacements.angles, angles);
+	angles[YAW] = uiInfo.replacements.angles[0];
+	angles[PITCH] = uiInfo.replacements.angles[1];
+	angles[ROLL] = uiInfo.replacements.angles[2];
 	// rotation
 	if (uiInfo.replacements.speed) {
 		angles[YAW] += uiInfo.replacements.speed * uiInfo.uiDC.realTime / 1000.0f;
@@ -5359,6 +5392,9 @@ static void UI_RunMenuScript(char **args)
 					index = uiInfo.replacements.Count-1;
 				UI_LoadReplacement(index);
 			}
+		//Makro - select replacement
+		} else if (Q_stricmp(name, "selectReplacement") == 0) {
+			UI_SelectReplacement();
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2003/03/31 15:17:58  makro
+// Replacements system tweaks.
+// Fixed some other bugs.
+//
 // Revision 1.27  2003/03/31 00:40:54  makro
 // Fixed a bug
 //
@@ -1114,6 +1118,9 @@ void Script_SetColor(itemDef_t * item, char **args)
 				}
 				(*out)[i] = f;
 			}
+			//Makro - if the item was fading, stop the fading process
+			if (item->window.timeFade.active)
+				item->window.timeFade.active = qfalse;
 		}
 	}
 }
@@ -1205,6 +1212,9 @@ void Script_SetItemColor(itemDef_t * item, char **args)
 					for (i = 0; i < 4; i++) {
 						(*out)[i] = color[i];
 					}
+					//Makro - if the item was fading, stop the fading process
+					if (item2->window.timeFade.active)
+						item2->window.timeFade.active = qfalse;
 				}
 			}
 		}
