@@ -431,6 +431,7 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"map_restart\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"clearscores\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"pause\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"cyclemap\n\"");
 		return;
 	} else if (Q_stricmp(com, "kick") == 0) {	// kick kick kick
 		trap_Argv(2, com, sizeof(com));
@@ -473,6 +474,8 @@ void Ref_Command(gentity_t * ent)
 			} else
 				trap_SendServerCommand(ent - g_entities, "print \"No game is going..");
 		}
+	} else if (Q_stricmp(com, "cyclemap") == 0){
+		BeginIntermission();
 	} else
 		trap_SendServerCommand(ent - g_entities,
 				       "print \"Invalid Referee comand. Type ref help to see a list of available commands\n\"");

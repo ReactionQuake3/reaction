@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/06/18 03:57:38  jbravo
+// Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
+//
 // Revision 1.11  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -475,6 +478,11 @@ qboolean ConsoleCommand(void)
 
 	if (Q_stricmp(cmd, "listip") == 0) {
 		trap_SendConsoleCommand(EXEC_NOW, "g_banIPs\n");
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "cyclemap") == 0 ) {
+		BeginIntermission();
 		return qtrue;
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2002/06/18 03:57:38  jbravo
+// Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
+//
 // Revision 1.131  2002/06/17 16:57:39  jbravo
 // Items can now be dropped during bandaging
 //
@@ -1788,7 +1791,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 		return;
 	}
 
-	if (!Q_stricmp(arg1, "nextmap")) {
+	if (!Q_stricmp(arg1, "cyclemap")) {
 	} else if (!Q_stricmp(arg1, "map")) {
 	} else if (!Q_stricmp(arg1, "g_gametype")) {
 	} else if (!Q_stricmp(arg1, "kick")) {
@@ -1796,7 +1799,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else {
 		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
 		trap_SendServerCommand(ent - g_entities,
-				       "print \"Vote commands are: nextmap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>.\n\"");
+				       "print \"Vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>.\n\"");
 		return;
 	}
 
@@ -1828,15 +1831,15 @@ void Cmd_CallVote_f(gentity_t * ent)
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s %s", arg1, arg2);
 		}
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
-	} else if (!Q_stricmp(arg1, "nextmap")) {
+	} else if (!Q_stricmp(arg1, "cyclemap")) {
 		char s[MAX_STRING_CHARS];
 
-		trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
+		/*trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
 		if (!*s) {
 			trap_SendServerCommand(ent - g_entities, "print \"nextmap not set.\n\"");
 			return;
-		}
-		Com_sprintf(level.voteString, sizeof(level.voteString), "vstr nextmap");
+		}*/
+		Com_sprintf(level.voteString, sizeof(level.voteString), "cyclemap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	} else {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);

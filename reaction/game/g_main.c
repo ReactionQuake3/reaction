@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/18 03:57:38  jbravo
+// Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
+//
 // Revision 1.87  2002/06/17 16:57:39  jbravo
 // Items can now be dropped during bandaging
 //
@@ -2098,7 +2101,10 @@ void CheckVote(void)
 {
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
 		level.voteExecuteTime = 0;
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+		if( Q_stricmp(level.voteString, "cyclemap") == 0)
+ 			BeginIntermission();
+		else
+			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
 	if (!level.voteTime) {
 		return;
