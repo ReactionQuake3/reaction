@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2003/09/07 22:19:27  makro
+// Typo !
+//
 // Revision 1.36  2003/09/07 19:51:40  makro
 // no message
 //
@@ -1010,7 +1013,7 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
 	int inwater;
-	int skyPortalMode = ADDENT_NOSKYPORTAL;
+	int skyPortalMode = ADDENTS_NOSKYPORTAL;
 
 	//Blaze: for cheat detection
 	int i;
