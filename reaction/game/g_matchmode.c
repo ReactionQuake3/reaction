@@ -1,4 +1,6 @@
 #include "g_local.h"
+// JBravo: for warnings
+int ClientNumberFromString(gentity_t *to, char *s);
 
 qboolean checkCaptain(team_t team) {
 	gentity_t *ent;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.20  2002/03/31 02:03:35  niceass
 // new testing tag command
 //
@@ -129,7 +132,7 @@ void CG_PositionRotatedOffsetEntityOnTag( refEntity_t *entity, const refEntity_t
 							qhandle_t parentModel, char *tagName, vec3_t Offset ) {
 	int				i;
 	orientation_t	lerped;
-	vec3_t			tempAxis[3], tmp;
+	vec3_t			tempAxis[3]; //, tmp;
 
 //AxisClear( entity->axis );
 	// lerp the tag

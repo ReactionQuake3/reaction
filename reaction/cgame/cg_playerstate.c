@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.18  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -350,7 +353,9 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 ==================
 pushReward
 ==================
+// JBravo: apparently not used.
 */
+/*
 static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
 		cg.rewardStack++;
@@ -359,6 +364,7 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 		cg.rewardCount[cg.rewardStack] = rewardCount;
 	}
 }
+*/
 
 /*
 ==================
@@ -367,7 +373,7 @@ CG_CheckLocalSounds
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	int			highScore, health, armor, reward;
-	sfxHandle_t sfx;
+//	sfxHandle_t sfx;
 
 	// don't play the sounds if the player just changed teams
 	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {

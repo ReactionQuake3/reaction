@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.9  2002/03/30 19:33:29  jbravo
 // Made CameraFlicBegin and CameraSwingCycle non static for M$ VC
 //
@@ -229,7 +232,7 @@ static gentity_t *ClosestVisible (gentity_t *ent, float maxrange, qboolean pvs)
 static int NumPlayers (void)
 {
   int i, count = 0;
-  gentity_t *current;
+//  gentity_t *current;
 
   for (i = 0; i < level.maxclients; i++) 
     {
@@ -251,7 +254,7 @@ static int NumPlayers (void)
 
 static void PointCamAtOrigin (gentity_t *ent, vec3_t location)
 {
-  int i;
+//  int i;
   vec3_t diff, angles;
 
   VectorSubtract(location, ent->client->ps.origin, diff);
@@ -262,7 +265,7 @@ static void PointCamAtOrigin (gentity_t *ent, vec3_t location)
 
 static void PointCamAtTarget (gentity_t *ent)
 {
-  int i;
+//  int i;
   vec3_t diff, angles;
   float difference;
 
@@ -341,11 +344,11 @@ static void FindCamPos (gentity_t *ent, float angle, vec3_t offset_position, vec
 
 static void RepositionAtTarget (gentity_t *ent, vec3_t offset_position)
 {
-  int i;
+//  int i;
   vec3_t diff;
   vec3_t cam_pos;
   trace_t trace;
-  camera_t *camera;
+//  camera_t *camera;
   qboolean snapto = qfalse; // snapto towards target when jumping to new position
 
   ent->client->camera->flic_watching_the_wall = qfalse;
@@ -447,7 +450,7 @@ static void RepositionAtTarget (gentity_t *ent, vec3_t offset_position)
 
 static void RepositionAtOrigin (gentity_t *ent, vec3_t offset_position)
 {
-  int i;
+//  int i;
   vec3_t cam_pos;
   trace_t trace;
 
@@ -559,7 +562,7 @@ static void SwitchToNewTarget (gentity_t *ent, gentity_t *new_target)
 
 static void CameraFlicThink (gentity_t *ent)
 {
-  int clientID;
+//  int clientID;
   vec3_t camera_offset;
   int num_visible;
   gentity_t *new_target;
@@ -693,7 +696,7 @@ void CameraFlicBegin (gentity_t *ent)
 
 static void CameraStaticThink (gentity_t *ent)
 {
-  int i;
+//  int i;
   trace_t trace;
   vec3_t end_floor, end_ceiling;
   static vec3_t	mins = { -4, -4, -4 };
@@ -966,8 +969,8 @@ static void CameraSwingThink (gentity_t *ent)
   gentity_t *target;
   vec3_t forward, right;
   trace_t trace;
-  trace_t trace_left, trace_right;
-  int i;
+//  trace_t trace_left, trace_right;
+//  int i;
   vec3_t oldgoal;
   vec3_t angles;
   vec3_t viewangles;

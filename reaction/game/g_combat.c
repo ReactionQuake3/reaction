@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.54  2002/03/30 17:37:48  jbravo
 // Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
 //
@@ -83,7 +86,9 @@
 // g_combat.c
 
 #include "g_local.h"
-
+// JBravo: for warnings.
+void AddKilledPlayer (gentity_t * self, gentity_t * ent);
+void ResetKills(gentity_t *ent);
 
 /*
 ============
@@ -1362,7 +1367,7 @@ dflags		these flags are used to control how T_Damage works
 void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
 	gclient_t	*client;
-	int		take, save, asave, knockback, max;
+	int		take, save, asave, knockback; //, max;
 	int		bleeding = 0, instant_dam = 1;
 	vec3_t		bulletPath, bulletAngle, line;
 	vec_t		dist;
@@ -1654,10 +1659,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			// First things first.  If we're not damaging them, why are we here?
 			// Elder: removed M3, handcannon, and grenades from location damage code
 
-			if (take && mod == MOD_M3 ||
-				mod == MOD_HANDCANNON ||
-				mod == MOD_GRENADE ||
-				mod == MOD_GRENADE_SPLASH) {
+			if (take && (mod == MOD_M3 || mod == MOD_HANDCANNON ||
+				mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH)) {
 				bleeding = 1;
 				instant_dam = 0;
 
@@ -1676,9 +1679,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					if (targ != attacker)
 						trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
-			} else if (take && mod == MOD_PISTOL || mod == MOD_M4 ||
+			} else if (take && (mod == MOD_PISTOL || mod == MOD_M4 ||
 				mod == MOD_SNIPER || mod == MOD_MP5 || mod == MOD_AKIMBO ||
-				mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN) {
+				mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN)) {
 				bleeding = 1;
 				instant_dam = 0;
 

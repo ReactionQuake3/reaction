@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.48  2002/03/30 17:37:49  jbravo
 // Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
 //
@@ -172,6 +175,9 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 char	*ConcatArgs( int start );
 int	touch[MAX_GENTITIES];
 void	ResetKills(gentity_t *ent);
+void	ClearBodyQue (void);
+void	Cmd_DropItem_f(gentity_t *ent);
+void	Cmd_DropWeapon_f(gentity_t *ent);
 
 void CheckTeamRules()
 {
@@ -309,9 +315,6 @@ void CheckTeamRules()
 
 void StartLCA()
 {
-	int i;
-	gentity_t *player;
-
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41*level.fps)/10;
@@ -322,9 +325,6 @@ void StartLCA()
 
 void ContinueLCA()
 {
-	int i;
-	gentity_t *player;
-
 	if (level.lights_camera_action == (21*level.fps)/10) {
 		trap_SendServerCommand( -1, "camera");
 	}
@@ -356,7 +356,7 @@ qboolean BothTeamsHavePlayers()
 void MakeAllLivePlayersObservers()
 {
 	gentity_t	*player;
-	int		saveteam, i;
+	int		i;
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
@@ -580,7 +580,6 @@ void CheckForUnevenTeams(gentity_t *player)
 {
 	int		i, onteam1 = 0, onteam2 = 0;
 	gentity_t	*ent;
-	char		buffer[1024];
 
 	for (i = 0; i < level.maxclients; i++) {
 		ent = &g_entities[i];
@@ -607,7 +606,7 @@ void SpawnPlayers()
 {
 	gentity_t	*player;
 	gclient_t	*client;
-	int		clientNum, i, x;
+	int		clientNum, i;
 
 	level.spawnPointsLocated = qfalse;
 	for (i = 0; i < level.maxclients; i++) {
@@ -648,7 +647,6 @@ void RQ3_Cmd_Choose_f( gentity_t *ent )
 {
 //	char	cmd[MAX_STRING_CHARS];
 	char	*cmd;
-	int	len, c;
 
 	if ( !ent->client ) {
 		return;		// not fully in game yet

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.13  2002/03/24 21:24:51  makro
 // Added a drop-shadow effect to the loading screen
 //
@@ -41,7 +44,9 @@ static qhandle_t	loadingItemIcons[MAX_LOADING_ITEM_ICONS];
 ===================
 CG_DrawLoadingIcons
 ===================
+// JBravo: apparently not used.
 */
+/*
 static void CG_DrawLoadingIcons( void ) {
 	int		n;
 	int		x, y;
@@ -61,7 +66,7 @@ static void CG_DrawLoadingIcons( void ) {
 		CG_DrawPic( x, y, 32, 32, loadingItemIcons[n] );
 	}
 }
-
+*/
 
 /*
 ======================

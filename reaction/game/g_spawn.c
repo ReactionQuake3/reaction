@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.12  2002/03/23 05:17:43  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -205,7 +208,7 @@ void SP_team_blueobelisk( gentity_t *ent );
 void SP_team_redobelisk( gentity_t *ent );
 void SP_team_neutralobelisk( gentity_t *ent );
 #endif
-void SP_item_botroam( gentity_t *ent ) {};
+//void SP_item_botroam( gentity_t *ent ) {};
 // JBravo: adding explosive
 void SP_func_explosive (gentity_t *self);
 
@@ -284,7 +287,7 @@ spawn_t	spawns[] = {
 	{"team_neutralobelisk", SP_team_neutralobelisk},
 #endif
 	{"func_explosive", SP_func_explosive},	// JBravo: for explosive.
-	{"item_botroam", SP_item_botroam},
+//	{"item_botroam", SP_item_botroam},
 
 	{0, 0}
 };

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.56  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -1321,7 +1324,7 @@ void ClientSpawn(gentity_t *ent) {
 	int			i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int			persistant[MAX_PERSISTANT], savedpers[MAX_PERSISTANT];
+	int			persistant[MAX_PERSISTANT];
 	gentity_t		*spawnPoint;
 	int			flags;
 	int			savedPing;
@@ -1682,10 +1685,12 @@ void ClientDisconnect( int clientNum ) {
 		switch(ent->client->pers.captain ) {
 				case TEAM_RED:
 					trap_Cvar_Set("RQ3_team1", "0");
-				break;
+					break;
 				case TEAM_BLUE:
 					trap_Cvar_Set("RQ3_team2", "0");
-				break;
+					break;
+				default:
+					break;
 		}
 	}
 

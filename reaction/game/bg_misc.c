@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.30  2002/03/02 12:24:30  jbravo
 // Removed some debugging messages
 //
@@ -870,7 +873,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 // JBravo: fix for HoldableItem not found error during mapchanges.
 // I dont understand why this gets called with pw == 0 during map changes.
 	if (pw == 0)
-		return;
+		return NULL;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
 		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw ) {
@@ -1461,8 +1464,6 @@ BG_TouchJumpPad
 ========================
 */
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
-	vec3_t	angles;
-	float p;
 	int effectNum;
 
 	// spectators don't use jump pads

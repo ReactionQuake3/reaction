@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.24  2002/03/20 22:58:54  blaze
 // changed dlight to light_d
 //
@@ -91,7 +94,7 @@ void SP_dlight( gentity_t *ent ) {
 	vec3_t	color;
 	float	light;
 	int		r, g, b, i;
-	int		style;
+//	int		style;
 
 	G_SpawnFloat( "light", "300", &light );
 	G_SpawnVector( "_color", "1 1 1", color );

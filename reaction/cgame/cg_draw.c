@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.32  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -67,6 +70,9 @@
 // active (after loading) gameplay
 
 #include "cg_local.h"
+
+// JBravo: warning fix
+void CG_DrawWeaponStats(void);
 
 #ifdef MISSIONPACK
 #include "../ui/ui_shared.h"
@@ -462,9 +468,10 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 /*
 ================
 CG_DrawStatusBarHead
-
 ================
+// JBravo: apparently not used.
 */
+/*
 #ifndef MISSIONPACK
 
 static void CG_DrawStatusBarHead( float x ) {
@@ -518,18 +525,21 @@ static void CG_DrawStatusBarHead( float x ) {
 				cg.snap->ps.clientNum, angles );
 }
 #endif // MISSIONPACK
+*/
 
 /*
 ================
 CG_DrawStatusBarFlag
-
 ================
+// JBravo: apparently not used.
 */
+/*
 #ifndef MISSIONPACK
 static void CG_DrawStatusBarFlag( float x, int team ) {
 	CG_DrawFlagModel( x, 480 - ICON_SIZE, ICON_SIZE, ICON_SIZE, team, qfalse );
 }
 #endif // MISSIONPACK
+*/
 
 /*
 ================
@@ -572,11 +582,11 @@ static void CG_DrawStatusBar( void ) {
 	playerState_t	*ps;
 	int			value;//, value2;
 	vec4_t		hcolor;
-	vec3_t		angles;
-	vec3_t		origin;
+//	vec3_t		angles;
+//	vec3_t		origin;
 	qhandle_t	hicon;
 	qhandle_t	icon;
-	qhandle_t	model;
+//	qhandle_t	model;
 //#ifdef MISSIONPACK
 //	qhandle_t	handle;
 //#endif
@@ -1265,6 +1275,8 @@ CG_DrawScores
 Draw the small two score display
 =================
 */
+// JBravo: apparently not used.
+/*
 #ifndef MISSIONPACK
 static float CG_DrawScores( float y ) {
 	const char	*s;
@@ -1423,6 +1435,7 @@ static float CG_DrawScores( float y ) {
 	return y1 - 8;
 }
 #endif // MISSIONPACK
+*/
 
 /*
 ================
@@ -2991,7 +3004,9 @@ CG_DrawIRBlend
 Elder: Small red tint
 Note: This sucks - causes 10fps drop on my system so don't use it
 =====================
+// JBravo: apparently not used.
 */
+/*
 static void CG_DrawIRBlend()
 {
 	vec4_t irColor;
@@ -3006,7 +3021,7 @@ static void CG_DrawIRBlend()
 		CG_FillRect(0,0,SCREEN_WIDTH, SCREEN_HEIGHT, irColor);
 	}
 }
-
+*/
 
 /*
 =====================

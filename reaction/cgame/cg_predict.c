@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.18  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -278,7 +281,7 @@ CG_TouchItem
 ===================
 */
 static void CG_TouchItem( centity_t *cent ) {
-	gitem_t		*item;
+//	gitem_t		*item;
 //Blaze: No item prediction
 	return;
 // JBravo - Compiler warnings over unreached code.

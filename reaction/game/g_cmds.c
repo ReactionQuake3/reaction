@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.85  2002/03/30 23:20:10  jbravo
 // Added damage in scoreboard.
 //
@@ -877,11 +880,13 @@ void SetTeam( gentity_t *ent, char *s )
 	//	client->sess.savedTeam = team;
 			switch(ent->client->pers.captain) {
 				case TEAM_RED:
-				trap_Cvar_Set("RQ3_team1", "0");
-				break;
+					trap_Cvar_Set("RQ3_team1", "0");
+					break;
 				case TEAM_BLUE:
-				trap_Cvar_Set("RQ3_team2", "0");
-				break;
+					trap_Cvar_Set("RQ3_team2", "0");
+					break;
+				default:
+					break;
 		}
 	}
 

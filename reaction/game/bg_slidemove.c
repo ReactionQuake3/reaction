@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.10  2002/02/04 02:05:28  jbravo
 // removed an extraneous return value from a void routine
 //
@@ -144,10 +147,10 @@ void PM_StepSlideMove ( qboolean gravity )
 	vec3_t		up, down;
 
 	// use the step move
-	vec3_t		old_normal;
+/*	vec3_t		old_normal;
 	float		delta0;
 	float		delta1;
-	float		delta2;
+	float		delta2; */
 	vec3_t		tmp_o;
 
 	VectorCopy (pm->ps->origin, start_o);

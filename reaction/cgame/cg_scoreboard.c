@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.20  2002/03/31 02:01:32  niceass
 // fixes and changes
 //
@@ -61,7 +64,7 @@
 // cg_scoreboard -- draw the scoreboard on top of the game screen
 #include "cg_local.h"
 
-static qboolean localClient; // true if local client has been displayed
+//static qboolean localClient; // true if local client has been displayed
 
 #define SB_WIDTH		330
 #define SB_FONTSIZEW	7

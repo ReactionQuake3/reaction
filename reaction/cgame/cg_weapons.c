@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.59  2002/03/31 02:00:42  niceass
 // shell stuff
 //
@@ -204,10 +207,10 @@ CG_MachineGunEjectBrass
 localEntity_t *CG_MachineGunEjectBrass( centity_t *cent ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
-	vec3_t			velocity, xvelocity;
-	vec3_t			offset, xoffset;
-	float			waterScale = 1.0f;
-	vec3_t			v[3];
+//	vec3_t			velocity, xvelocity;
+//	vec3_t			offset, xoffset;
+//	float			waterScale = 1.0f;
+//	vec3_t			v[3];
 
 	if ( cg_brassTime.integer <= 0 ) {
 		return NULL;
@@ -250,11 +253,11 @@ CG_ShotgunEjectBrass
 localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
-	vec3_t			velocity, xvelocity;
-	vec3_t			offset, xoffset;
-	vec3_t			v[3];
-	int				i;//, isHC;
-	float	waterScale = 1.0f;
+//	vec3_t			velocity, xvelocity;
+//	vec3_t			offset, xoffset;
+//	vec3_t			v[3];
+//	int				i;//, isHC;
+//	float	waterScale = 1.0f;
 
 	//if (cent->currentState.weapon == WP_HANDCANNON)
 	//	isHC=1;
@@ -446,6 +449,8 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
 CG_RocketTrail
 ==========================
 */
+// JBravo: not used
+/*
 static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	int		step;
 	vec3_t	origin, lastPos;
@@ -507,6 +512,7 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	}
 
 }
+*/
 
 #ifdef MISSIONPACK
 /*
@@ -582,6 +588,8 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 CG_NailTrail
 ==========================
 */
+// JBravo: apparently not used.
+/*
 static void CG_PlasmaTrail( centity_t *cent, const weaponInfo_t *wi ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -672,6 +680,8 @@ static void CG_PlasmaTrail( centity_t *cent, const weaponInfo_t *wi ) {
 	le->angles.trDelta[2] = 0;
 
 }
+*/
+
 /*
 ==========================
 CG_GrappleTrail
@@ -713,12 +723,14 @@ void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi ) {
 /*
 ==========================
 CG_GrenadeTrail
+JBravo: not used
 ==========================
 */
+/*
 static void CG_GrenadeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	CG_RocketTrail( ent, wi );
 }
-
+*/
 
 /*
 =================
@@ -1117,9 +1129,10 @@ VIEW WEAPON
 /*
 =================
 CG_MapTorsoToWeaponFrame
-
+// JBravo: not used.
 =================
 */
+/*
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
 	// change weapon
@@ -1143,7 +1156,7 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
 	return 0;
 }
-
+*/
 
 /*
 ==============
@@ -1211,8 +1224,8 @@ angle)
 NiceAss; I've torn this function up with testing... ignore it =P
 ===============
 */
+/*
 static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
-	/*
 	trace_t		trace;
 	refEntity_t		beam;
 	vec3_t			forward;
@@ -1254,9 +1267,8 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	if ( trace.fraction < 1.0 ) {
 
 	}
-	*/
 }
-
+*/
 
 /*
 ===============
@@ -1266,6 +1278,8 @@ Origin will be the exact tag point, which is slightly
 different than the muzzle point used for determining hits.
 ===============
 */
+// JBravo: not used.
+/*
 static void CG_SpawnRailTrail( centity_t *cent, vec3_t origin ) {
 	clientInfo_t	*ci;
 
@@ -1281,13 +1295,15 @@ static void CG_SpawnRailTrail( centity_t *cent, vec3_t origin ) {
 	//Blaze: No Rail Trail
 	//CG_RailTrail( ci, origin, cent->pe.railgunImpact );
 }
-
+*/
 
 /*
 ======================
 CG_MachinegunSpinAngle
 ======================
 */
+// JBravo: not used.
+/*
 #define		SPIN_SPEED	0.9
 #define		COAST_TIME	1000
 static float	CG_MachinegunSpinAngle( centity_t *cent ) {
@@ -1320,7 +1336,7 @@ static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 
 	return angle;
 }
-
+*/
 
 /*
 ========================

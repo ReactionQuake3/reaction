@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.64  2002/03/27 17:20:38  jbravo
 // Workaround to the bandage bug :)
 //
@@ -90,7 +93,7 @@ int		c_pmove = 0;
 float   rxn_rampAccelerate = 130;
 float   rxn_rampAccelerateVert = 110;
 
-/*
+
 ===============
 RXN_RampMunge
 
@@ -794,7 +797,9 @@ static void PM_GrappleMove( void ) {
 PM_LimpMove
 Movement while you have leg damage
 ===================================
+// JBravo: apparently this isnt used.
 */
+/*
 static void PM_LimpMove( void)
 {
 	int			i;
@@ -919,7 +924,7 @@ static void PM_LimpMove( void)
 
 
 }
-
+*/
 
 /*
 ===================
@@ -2099,9 +2104,10 @@ static void PM_TorsoAnimation( void ) {
 /*
 ==============
 PM_WeaponAnimation
-
+JBravo: this isnt used either.
 ==============
 */
+/*
 static void PM_WeaponAnimation( void ) {
 	//if (pm->ps->weaponstate == WEAPON_RELOADING)
 	//{
@@ -2115,7 +2121,7 @@ static void PM_WeaponAnimation( void ) {
 		//PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
 	return;
 }
-
+*/
 
 /*
 ==============
@@ -2926,11 +2932,9 @@ static void PM_Weapon( void ) {
 		PM_StartTorsoAnim( TORSO_ATTACK2 );
 	} else {
 		// Elder: don't repeat if semi-auto
-		if ( !(pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] ||
-			   pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ||
-			   pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2) )
-
-		{
+		if (!(pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST]) ||
+		    !(pm->ps->weapon == WP_M4     && pm->ps->stats[STAT_BURST] > 2) ||
+		    !(pm->ps->weapon == WP_MP5    && pm->ps->stats[STAT_BURST] > 2)) {
 			PM_StartTorsoAnim( TORSO_ATTACK );
 
 			// QUARANTINE - Weapon animations

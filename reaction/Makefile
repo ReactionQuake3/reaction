@@ -174,7 +174,7 @@ VENDOR=unknown
 endif #alpha test
 
 BASE_CFLAGS=-pipe
-DEBUG_CFLAGS=$(BASE_CFLAGS) -g -pg
+DEBUG_CFLAGS=$(BASE_CFLAGS) -g -pg -Wall
 DEPEND_CFLAGS= -MM
 
 ifeq ($(ARCH),axp)

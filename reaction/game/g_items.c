@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.30  2002/01/14 01:20:45  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -1600,9 +1603,9 @@ Support function for RQ3_ResetItem
 ==============
 */
 void RQ3_DroppedItemThink(gentity_t *ent) {
-	gitem_t		*rq3_item;
-	gentity_t	*rq3_temp;
-	float		angle = rand() % 360;
+//	gitem_t		*rq3_item;
+//	gentity_t	*rq3_temp;
+//	float		angle = rand() % 360;
 
 	switch (ent->item->giTag)
 	{

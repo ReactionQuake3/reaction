@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.38  2002/03/30 15:25:57  makro
 // Fixed door kicking
 //
@@ -34,6 +37,8 @@
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
+// JBravo: for warnings
+void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator);
 
 static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
@@ -1447,7 +1452,7 @@ MK23 Attack
 */
 void Weapon_MK23_Fire(gentity_t *ent)
 {
-	int		i;
+//	int		i;
 	float	spread;
 
 	// Homer: increment burst if needed
@@ -2416,12 +2421,12 @@ void Laser_Gen( gentity_t *ent, qboolean enabled )	{
 void Laser_Think( gentity_t *self )
 {
 	vec3_t		end, start, forward, up;
-	trace_t		tr, tr2;
+	trace_t		tr; //, tr2;
 	int			l=0, passent;
 	gentity_t	*traceEnt;
 	// NiceAss: For fog:
-	gentity_t	*tent;
-	vec3_t		fogStart;
+//	gentity_t	*tent;
+//	vec3_t		fogStart;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||

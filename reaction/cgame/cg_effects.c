@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.22  2002/03/21 02:17:39  blaze
 // more func_explosive goodness
 //
@@ -1252,7 +1255,7 @@ void CG_BreakBreakable( centity_t *cent, int eParam ) {
   int				sparkCount;
 	int		i, mass, material;
 	float		tension, bouncyness, size;
-	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
+//	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
 
 	mass = ((eParam >> 4) & 0x0F) + 1;
 	tension = 0.25 * (((eParam >> 2) & 0x03) + 1);

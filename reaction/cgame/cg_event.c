@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.46  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -64,6 +67,8 @@
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
 #include "cg_local.h"
+// JBravo: warning fix
+void CG_BreakBreakable(centity_t *cent, int eParam);
 
 // for the voice chats
 #ifdef MISSIONPACK // bk001205

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.22  2002/03/21 04:27:53  blaze
 // more func_explosive goodness
 //
@@ -61,7 +64,7 @@ G_TestEntityPosition
 gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	trace_t	tr;
 	int		mask;
-	vec3_t	origin2;
+//	vec3_t		origin2;
 
 	if ( ent->clipmask ) {
 		mask = ent->clipmask;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/03/31 03:31:24  jbravo
+// Compiler warning cleanups
+//
 // Revision 1.20  2002/03/23 05:50:47  jbravo
 // Moved enableDust out of the missionpack
 //
@@ -1182,7 +1185,7 @@ cg.time should be between oldFrameTime and frameTime after exit
 static void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale, qboolean weaponAnim ) {
 	int			f, numFrames;
 	animation_t	*anim;
-	qboolean	resetAnim = qfalse;
+//	qboolean	resetAnim = qfalse;
 
 	// debugging tool to get no animations
 	if ( cg_animSpeed.integer == 0 ) {
