@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/05/10 07:47:23  jbravo
+// Forgot grenade obits
+//
 // Revision 1.68  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -899,6 +902,14 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 					Q_strncpyz (message2, "'s sawed off shotgun", sizeof(message2));
 				}
 				break;
+			case MOD_GRENADE:
+				Q_strncpyz (message, " ate", sizeof(message));
+				Q_strncpyz (message2, "'s grenade", sizeof(message2));
+				break;
+			case MOD_GRENADE_SPLASH:
+				Q_strncpyz (message, " was shredded by", sizeof(message));
+				Q_strncpyz (message2, "'s shrapnel", sizeof(message2));
+				break;
 			case MOD_SNIPER:
 				switch (location) {
 					case LOC_HDAM:
@@ -1037,7 +1048,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 				}
 				break;
 			default:
-				Q_strncpyz (message, " died by some unknown method. TELL THIS TO JB!!!", sizeof(message));
+				Com_sprintf (message, sizeof(message), "died via unhandled MOD %i. Report this to JBravo", meansOfDeath);
 		}
 		Com_sprintf (death_msg, sizeof(death_msg), "%s%s %s%s\n", target->client->pers.netname, message,
 				attacker->client->pers.netname, message2);
