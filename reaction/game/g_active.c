@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/03/30 02:54:24  jbravo
+// MOre spec tweaks and a scoreboard fix
+//
 // Revision 1.63  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -580,7 +583,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	// Attack Button cycles throught free view, follow or zcam
 	if((ucmd->buttons & BUTTON_ATTACK) && !(client->oldbuttons & BUTTON_ATTACK)) {
-		if (client->sess.spectatorState == SPECTATOR_FREE) {
+		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_ZCAM;
 			client->specMode = SPECTATOR_ZCAM;
 			client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
@@ -594,7 +597,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 			client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 			Cmd_FollowCycle_f(ent, 1);
 			RQ3_SpectatorMode(ent);
-		} else {
+		} else if (client->sess.spectatorState == SPECTATOR_FOLLOW) {
 			client->sess.spectatorState = SPECTATOR_FREE;
 			client->specMode = SPECTATOR_FREE;
 			client->ps.pm_flags &= ~PMF_FOLLOW;

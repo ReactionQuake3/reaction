@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/03/30 02:54:24  jbravo
+// MOre spec tweaks and a scoreboard fix
+//
 // Revision 1.17  2002/03/24 22:57:27  niceass
 // VERY big scoreboard changes
 //
@@ -269,10 +272,12 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	y += 2;
-	Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Reds), Frags, Damage);
-	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
-	DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
-	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+	if (Reds) {
+		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Reds), Frags, Damage);
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
+		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
+		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+	}
 	y += SB_FONTSIZEH+SB_PADDING*2;
 
 	// *************** BLUE TEAM ************
@@ -315,10 +320,12 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	y += 2;
-	Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Blues), Frags, Damage );
-	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
-	DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
-	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+	if (Blues) {
+		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Blues), Frags, Damage );
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
+		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
+		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
+	}
 	y += SB_FONTSIZEH+SB_PADDING*2;
 
 	// *************** SPECTATORS ************
