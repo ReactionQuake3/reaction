@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/04/02 00:28:10  slicer
+// Reduced the "arc" knife does
+//
 // Revision 1.40  2002/03/31 19:15:21  makro
 // Door kicking - ignore doors with targetnames
 //
@@ -1398,7 +1401,8 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	}
 
 	// extra vertical velocity
-	forward[2] += 0.2f;
+	//Slicer reduced from 0.2 to 0.1
+	forward[2] += 0.1f;
 
 	//Elder: already done in  Knife_Throw
 	//VectorNormalize( forward );
