@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/06/12 15:29:53  slicer
+// Improved and fixed the Anti-Cheat System
+//
 // Revision 1.76  2002/06/10 14:03:47  slicer
 // Removed rq3_cmd : ROUND
 //
@@ -297,7 +300,7 @@ enum {
 	LIGHTS,
 	CAMERA,
 	ACTION,
-	SETTEAMPLAYERS,
+	//SETTEAMPLAYERS,
 	SELECTPISTOL,
 //Slicer: apparently not being used
 //	ROUND,
@@ -309,7 +312,8 @@ enum {
 	RADIO,
     STARTDEMO,
     STOPDEMO,
-    SCREENSHOT
+    SCREENSHOT,
+	AUTH
 };
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {

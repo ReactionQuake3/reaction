@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/12 15:29:53  slicer
+// Improved and fixed the Anti-Cheat System
+//
 // Revision 1.89  2002/06/12 03:37:38  blaze
 // some fixes for the add bot code
 //
@@ -1102,6 +1105,31 @@ void ClientUserinfoChanged( int clientNum ) {
 		team = client->sess.sessionTeam;
 	}
 
+
+	//Slicer: for the anti-cheat system
+	s = Info_ValueForKey( userinfo, "cg_RQ3_auth" );
+
+	if(!atoi(s)) {
+		  //Blaze: Send cheat cvars to client
+		if (!G_SendCheatVars(clientNum))
+		{
+			Com_Printf("Error loading cvar cfg\n");
+			//return "Error_loading_cvar_cfg";
+		}
+		else {
+			// This didn't really worked...
+			/*	G_Printf("Sending changed userinfo\n");
+				Info_SetValueForKey( userinfo, "cg_RQ3_auth", "1" );
+				// register the userinfo
+				trap_SetUserinfo( clientNum, userinfo );*/
+			trap_SendServerCommand( clientNum, va("rq3_cmd %i",AUTH));
+
+		}
+			
+		
+	}
+
+
 /*	NOTE: all client side now
 
 	// team
@@ -1487,12 +1515,6 @@ void ClientBegin(int clientNum) {
 			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
 		}
 		i = RQ3TeamCount( -1, client->sess.sessionTeam);
-	}
-  //Blaze: Send cheat cvars to client
-	if (!G_SendCheatVars(clientNum))
-	{
-		Com_Printf("Error loading cvar cfg\n");
-		//return "Error_loading_cvar_cfg";
 	}
 
 }

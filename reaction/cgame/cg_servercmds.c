@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/06/12 15:30:24  slicer
+// Improved and fixed the Anti-Cheat System
+//
 // Revision 1.48  2002/06/10 20:56:38  niceass
 // scoreboard fix
 //
@@ -1276,6 +1279,9 @@ void CG_RQ3_Cmd () {
 		/*case SETTEAMPLAYERS:
 			CG_SetTeamPlayers();
 			break;*/
+		//Slicer: for the anti-cheat system
+		case AUTH:
+			trap_Cvar_Set("cg_RQ3_auth","1");
 		case SELECTPISTOL:
 			if (cg.snap) {
 			switch (cg.snap->ps.weapon) {
