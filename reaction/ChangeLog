@@ -4,6 +4,7 @@
 * Added local cvar cg_RQ3_ssgZoomSensLock to enable or disable the feature above (default enable)
 * Upgraded the gamesource RQ3 is built on from 1.29h to 1.32b
 * Removed most of the unlagged stuff. Only optimized prediction and smooth clients remains.
+* With allWeapon/allItems enable it won't toss weapons/items when you die
 
 # List fixes here for the 3.0 release
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2003/04/23 20:32:28  slicer
+// With allWeapon/allItems enable it won't toss weapons/items when you die
+//
 // Revision 1.137  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -413,6 +416,10 @@ void TossClientItems(gentity_t * self)
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->s.weapon;
 
+	//Slicer: don't drop weapons with all weapons enable.. 
+	if(g_RQ3_allWeapons.integer)
+		return;
+
 	//Elder: run through player STAT_WEAPONS and drop any unique weapons
 	//That way, we can also account for servers with extra weapons
 	//BTW, that means no cheating to get all weapons or it'll spawn mad!!
@@ -478,6 +485,7 @@ void TossClientItems(gentity_t * self)
 			self->client->uniqueWeapons--;
 			angle += 30;
 			self->client->weaponCount[WP_SSG3000]--;
+			
 		}
 	}
 	//Elder: Always drop the pistol
@@ -493,7 +501,9 @@ void TossClientItems(gentity_t * self)
 		Drop_Item(self, item, angle);
 		angle += 30;
 	}
-
+	//Slicer: don't drop Items with all weapons enable.. 
+	if(g_RQ3_allItems.integer)
+		return;
 	// JBravo: drop all items in the new item system.
 	for (i = HI_NUM_HOLDABLE - 1; i > 0; i--) {
 		if (self->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << i)) {
