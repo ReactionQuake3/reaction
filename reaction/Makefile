@@ -48,6 +48,7 @@ GOBJ = \
 	$(GDIRNAME)/rxn_game.o
 
 CGOBJ = \
+	$(CGDIRNAME)/cg_main.o \
 	$(GDIRNAME)/bg_misc.o \
 	$(GDIRNAME)/bg_pmove.o \
 	$(GDIRNAME)/bg_slidemove.o \
@@ -61,7 +62,6 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_event.o \
 	$(CGDIRNAME)/cg_info.o \
 	$(CGDIRNAME)/cg_localents.o \
-	$(CGDIRNAME)/cg_main.o \
 	$(CGDIRNAME)/cg_marks.o \
 	$(CGDIRNAME)/cg_players.o \
 	$(CGDIRNAME)/cg_playerstate.o \
