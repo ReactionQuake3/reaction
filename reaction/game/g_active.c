@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/02/26 02:58:47  jbravo
+// Fixing the spectator_free mode not being predicted in the client.
+//
 // Revision 1.55  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -1525,9 +1528,11 @@ void ClientThink( int clientNum ) {
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
 #ifdef  __ZCAM__
 	     /* camera jitter fix (server side) */
-	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
-		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR
-		     && ent->client->sess.spectatorState == SPECTATOR_FOLLOW))
+// JBravo: Take SPECTATOR_ZCAM into account
+	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+		(ent->client->sess.spectatorState == SPECTATOR_FOLLOW ||
+		 ent->client->sess.spectatorState == SPECTATOR_FREE)))
 #endif /* __ZCAM__ */
 		) {
 		ClientThink_real( ent );
@@ -1537,12 +1542,14 @@ void ClientThink( int clientNum ) {
 
 void G_RunClient( gentity_t *ent ) {
 	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
-	#ifdef  __ZCAM__
+#ifdef  __ZCAM__
 	     /* camera jitter fix (server side) */
-	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
-		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR
-		     && ent->client->sess.spectatorState == SPECTATOR_FOLLOW))
-	#endif /* __ZCAM__ */
+// JBravo: Take SPECTATOR_ZCAM into account
+	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
+		(ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+		(ent->client->sess.spectatorState == SPECTATOR_FOLLOW ||
+		 ent->client->sess.spectatorState == SPECTATOR_FREE)))
+#endif /* __ZCAM__ */
 	)
 	{
 		return;

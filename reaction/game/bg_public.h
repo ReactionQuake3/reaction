@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/26 02:58:47  jbravo
+// Fixing the spectator_free mode not being predicted in the client.
+//
 // Revision 1.47  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -551,6 +554,7 @@ typedef enum {
 #define RQ3_QUEUERELOAD		256		// auto-reload if set
 #define RQ3_RELOADWEAPON1	512		// flag off EV_RELOAD_WEAPON1 event so no dupes occur
 #define RQ3_PLAYERSOLID		1024		// JBravo: Flag set when player is solid.
+#define RQ3_ZCAM		2048		// JBravo: Flag to tell cgame when zcam is on.
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't

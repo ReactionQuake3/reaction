@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/02/26 02:58:47  jbravo
+// Fixing the spectator_free mode not being predicted in the client.
+//
 // Revision 1.37  2002/02/10 21:21:22  slicer
 // Saving persistant and other data on some events..
 //
@@ -1082,6 +1085,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 // JBravo: Antistick
 	client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
+	client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 
 	// read or initialize the session data
 	if ( firstTime || level.newSession ) {

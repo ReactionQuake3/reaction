@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/02/26 02:58:47  jbravo
+// Fixing the spectator_free mode not being predicted in the client.
+//
 // Revision 1.14  2002/01/27 13:33:28  jbravo
 // Teamplay antistick system.
 //
@@ -442,7 +445,8 @@ void CG_PredictPlayerState( void ) {
 	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW)
 #ifdef  __ZCAM__
 	     /* camera jitter fix (client side) */
-	     || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+//	     || (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+	     || ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM)
 #endif /* __ZCAM__ */
 	) {
 		CG_InterpolatePlayerState( qfalse );
