@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.150  2002/07/04 04:20:41  jbravo
+// Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
+// that where in eye spectating someone moved on to another player instantly on death.
+//
 // Revision 1.149  2002/07/02 20:22:35  jbravo
 // Changed the files to use the right ui.
 //
@@ -1334,13 +1338,8 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 	if (IsInIgnoreList(other, ent))
 		return;
 // JBravo: Dead people dont speak to the living...  or so Im told.
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
-	    (other->client->sess.sessionTeam == TEAM_RED ||
-	     other->client->sess.sessionTeam == TEAM_BLUE) &&
-	    level.team_round_going && g_gametype.integer == GT_TEAMPLAY) {
+	if (ent->health <= 0 && other->health > 0 && g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
 		return;
-	}
-
 	trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
 						      mode == SAY_TEAM ? "tchat" : "chat",
 						      name, Q_COLOR_ESCAPE, color, message));
@@ -2686,6 +2685,8 @@ void ClientCommand(int clientNum)
 		MM_TeamModel_f(ent);
 	else if (Q_stricmp(cmd, "referee") == 0)
 		MM_Referee_f(ent);
+	else if (Q_stricmp(cmd, "settings") == 0)
+		MM_Settings_f(ent);
 // aasimon: referee for MM
 	else if (Q_stricmp(cmd, "reflogin") == 0)
 		Ref_Auth(ent);

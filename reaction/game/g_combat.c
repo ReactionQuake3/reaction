@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/07/04 04:20:41  jbravo
+// Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
+// that where in eye spectating someone moved on to another player instantly on death.
+//
 // Revision 1.107  2002/07/02 03:41:59  jbravo
 // Fixed a 2 frags pr kill bug, the use cmd now cancels weaponchanges in progress
 // and fixed the captain status lingering on people after switching from MM
@@ -526,7 +530,7 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 		return;
 	}
 
-	if (attacker->client && level.team_round_going)
+	if (attacker->client && (g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 		attacker->client->pers.records[REC_GIBSHOTS]++;
 
 	GibEntity(self, 0);
@@ -1141,7 +1145,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
 		// Elder: Statistics tracking
-		if (level.team_round_going)
+		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
 			self->client->pers.records[REC_WORLDDEATHS]++;
 	}
 
@@ -1410,10 +1414,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	// or they would get stale scoreboards
 	for (i = 0; i < level.maxclients; i++) {
 		gclient_t *client;
-		gentity_t *follower;
 
 		client = &level.clients[i];
-		follower = &g_entities[i];
 
 		if (client->pers.connected != CON_CONNECTED) {
 			continue;
@@ -1422,13 +1424,9 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			continue;
 		}
 // JBravo: make clients that are following this one stop following.
-		if (client->sess.spectatorClient == self->s.number) {
-			if (g_gametype.integer == GT_TEAMPLAY) {
-				if (client->sess.spectatorState == SPECTATOR_FOLLOW)
-					Cmd_FollowCycle_f(follower, 1);
-			} else {
-				Cmd_Score_f(g_entities + i);
-			}
+// JBravo: Moved the code to move followers over to MakeSpectator.
+		if (g_gametype.integer != GT_TEAMPLAY) {
+			Cmd_Score_f(g_entities + i);
 		}
 	}
 

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/07/04 04:20:41  jbravo
+// Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
+// that where in eye spectating someone moved on to another player instantly on death.
+//
 // Revision 1.14  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -191,18 +195,6 @@ static float asinf(float x)
 static camera_t cameras[MAX_CLIENTS];
 
 /* local functions */
-/*
-// JBravo: Not used anymore.
-static void CameraShowMode (gentity_t *ent)
-{
-  if (ent->client->camera->mode == CAMERA_MODE_SWING)
-    ent->client->camera->swing_msg_time = level.time + SWING_MSG_TIME;
-
-  trap_SendServerCommand( ent->client->ps.clientNum, 
-			  va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" S_COLOR_MAGENTA "Camera Mode-" S_COLOR_YELLOW"%s\n",
-			     (ent->client->camera->mode == CAMERA_MODE_FLIC)? "FLIC":"SWING") );
-} 
-*/
 
 static gentity_t *ClosestVisible(gentity_t * ent, float maxrange, qboolean pvs)
 {
@@ -236,28 +228,17 @@ static int NumPlayers(void)
 {
 	int i, count = 0;
 
-//  gentity_t *current;
-
 	for (i = 0; i < level.maxclients; i++) {
-// JBravo: zcam team fixes
-/*      if (g_gametype.integer == GT_TEAMPLAY) {
-	if (level.clients[i].pers.connected == CON_CONNECTED 
-		&& level.clients[i].sess.savedTeam != TEAM_SPECTATOR) {
-	  count ++;
-	}
-      } else { */
 		if (level.clients[i].pers.connected == CON_CONNECTED
 		    && level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) {
 			count++;
 		}
-//      }
 	}
 	return count;
 }
 
 static void PointCamAtOrigin(gentity_t * ent, vec3_t location)
 {
-//  int i;
 	vec3_t diff, angles;
 
 	VectorSubtract(location, ent->client->ps.origin, diff);
@@ -267,7 +248,6 @@ static void PointCamAtOrigin(gentity_t * ent, vec3_t location)
 
 static void PointCamAtTarget(gentity_t * ent)
 {
-//  int i;
 	vec3_t diff, angles;
 	float difference;
 
@@ -333,12 +313,10 @@ static void FindCamPos(gentity_t * ent, float angle, vec3_t offset_position, vec
 
 static void RepositionAtTarget(gentity_t * ent, vec3_t offset_position)
 {
-//  int i;
 	vec3_t diff;
 	vec3_t cam_pos;
 	trace_t trace;
 
-//  camera_t *camera;
 	qboolean snapto = qfalse;	// snapto towards target when jumping to new position
 
 	ent->client->camera->flic_watching_the_wall = qfalse;
@@ -437,7 +415,6 @@ static void RepositionAtTarget(gentity_t * ent, vec3_t offset_position)
 
 static void RepositionAtOrigin(gentity_t * ent, vec3_t offset_position)
 {
-//  int i;
 	vec3_t cam_pos;
 	trace_t trace;
 
@@ -524,7 +501,6 @@ static void SwitchToNewTarget(gentity_t * ent, gentity_t * new_target)
 
 static void CameraFlicThink(gentity_t * ent)
 {
-//  int clientID;
 	vec3_t camera_offset;
 	int num_visible;
 	gentity_t *new_target;
@@ -634,7 +610,6 @@ void CameraFlicBegin(gentity_t * ent)
 
 static void CameraStaticThink(gentity_t * ent)
 {
-//  int i;
 	trace_t trace;
 	vec3_t end_floor, end_ceiling;
 	static vec3_t mins = { -4, -4, -4 };
@@ -898,9 +873,6 @@ static void CameraSwingThink(gentity_t * ent)
 	gentity_t *target;
 	vec3_t forward, right;
 	trace_t trace;
-
-//  trace_t trace_left, trace_right;
-//  int i;
 	vec3_t oldgoal;
 	vec3_t angles;
 	vec3_t viewangles;
@@ -1102,25 +1074,7 @@ void camera_disconnect(gentity_t * ent)
 
 void camera_think(gentity_t * ent)
 {
-/*  if ( (ent->client->buttons & BUTTON_ATTACK ) 
-       && ! (ent->client->oldbuttons & BUTTON_ATTACK ) ) 
-    {
-      CameraSwingCycle (ent, 1);
-    }
-
-  if ( (ent->client->buttons & BUTTON_USE_HOLDABLE ) 
-       && ! (ent->client->oldbuttons & BUTTON_USE_HOLDABLE ) ) 
-    {
-      if (ent->client->camera->mode == CAMERA_MODE_FLIC)
-	{
-	  CameraSwingCycle (ent, 1);
-	}
-      else 
-	{
-	  CameraFlicBegin (ent);
-	}
-    } */
-
+// JBravo: removed zcam mode switching code. Handled AQ style in g_active.c
 	if (NumPlayers() == 0) {
 		CameraStaticThink(ent);
 		return;

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/07/04 04:20:41  jbravo
+// Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
+// that where in eye spectating someone moved on to another player instantly on death.
+//
 // Revision 1.120  2002/07/02 18:30:53  makro
 // Fixed bug with akimbo/pistol clips in TP
 //
@@ -1190,10 +1194,25 @@ void UnstickPlayer(gentity_t * ent)
 void MakeSpectator(gentity_t * ent)
 {
 	gclient_t *client;
+	gentity_t *follower;
+	int i;
 
 	client = ent->client;
 	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue(ent);
+
+	for (i = 0; i < level.maxclients; i++) {
+		follower = &g_entities[i];
+		if (!follower->inuse || !follower->client)
+			continue;
+		if (follower->client->pers.connected != CON_CONNECTED)
+			continue;
+		if (follower->client->sess.sessionTeam != TEAM_SPECTATOR) 
+			continue;
+		if (follower->client->sess.spectatorClient == ent->s.number &&
+				follower->client->sess.spectatorState == SPECTATOR_FOLLOW)
+			Cmd_FollowCycle_f(follower, 1);
+	}
 
 	client->weaponCount[ent->client->ps.weapon] = 0;
 	client->ps.stats[STAT_WEAPONS] = 0;
@@ -1296,117 +1315,63 @@ void RQ3_Cmd_Radiogender_f(gentity_t * ent)
 }
 
 radio_msg_t male_radio_msgs[] = {
-	{"1", 6}
-	,
-	{"2", 6}
-	,
-	{"3", 8}
-	,
-	{"4", 7}
-	,
-	{"5", 8}
-	,
-	{"6", 9}
-	,
-	{"7", 8}
-	,
-	{"8", 7}
-	,
-	{"9", 7}
-	,
-	{"10", 6}
-	,
-	{"back", 6}
-	,
-	{"cover", 7}
-	,
-	{"down", 13}
-	,
-	{"enemyd", 10}
-	,
-	{"enemys", 9}
-	,
-	{"forward", 6}
-	,
-	{"go", 6}
-	,
-	{"im_hit", 7}
-	,
-	{"left", 7}
-	,
-	{"reportin", 9}
-	,
-	{"right", 6}
-	,
-	{"taking_f", 22}
-	,
-	{"teamdown", 13}
-	,
-	{"treport", 12}
-	,
-	{"up", 4}
-	,
-	{"click", 4}
-	,
-	{"END", 0}
-	,			// end of list delimiter
+	{"1", 6},
+	{"2", 6},
+	{"3", 8},
+	{"4", 7},
+	{"5", 8},
+	{"6", 9},
+	{"7", 8},
+	{"8", 7},
+	{"9", 7},
+	{"10", 6},
+	{"back", 6},
+	{"cover", 7},
+	{"down", 13},
+	{"enemyd", 10},
+	{"enemys", 9},
+	{"forward", 6},
+	{"go", 6},
+	{"im_hit", 7},
+	{"left", 7},
+	{"reportin", 9},
+	{"right", 6},
+	{"taking_f", 22},
+	{"teamdown", 13},
+	{"treport", 12},
+	{"up", 4},
+	{"click", 4},
+	{"END", 0},		// end of list delimiter
 };
 
 radio_msg_t female_radio_msgs[] = {
-	{"1", 5}
-	,
-	{"2", 5}
-	,
-	{"3", 5}
-	,
-	{"4", 5}
-	,
-	{"5", 5}
-	,
-	{"6", 8}
-	,
-	{"7", 7}
-	,
-	{"8", 5}
-	,
-	{"9", 5}
-	,
-	{"10", 5}
-	,
-	{"back", 6}
-	,
-	{"cover", 5}
-	,
-	{"down", 6}
-	,
-	{"enemyd", 9}
-	,
-	{"enemys", 9}
-	,
-	{"forward", 8}
-	,
-	{"go", 6}
-	,
-	{"im_hit", 7}
-	,
-	{"left", 8}
-	,
-	{"reportin", 9}
-	,
-	{"right", 5}
-	,
-	{"taking_f", 22}
-	,
-	{"teamdown", 10}
-	,
-	{"treport", 12}
-	,
-	{"up", 6}
-	,
-	{"click", 6}
-	,
-	{"END", 0}
-	,			// end of list delimiter
+	{"1", 5},
+	{"2", 5},
+	{"3", 5},
+	{"4", 5},
+	{"5", 5},
+	{"6", 8},
+	{"7", 7},
+	{"8", 5},
+	{"9", 5},
+	{"10", 5},
+	{"back", 6},
+	{"cover", 5},
+	{"down", 6},
+	{"enemyd", 9},
+	{"enemys", 9},
+	{"forward", 8},
+	{"go", 6},
+	{"im_hit", 7},
+	{"left", 8},
+	{"reportin", 9},
+	{"right", 5},
+	{"taking_f", 22},
+	{"teamdown", 10},
+	{"treport", 12},
+	{"up", 6},
+	{"click", 6},
+	{"END", 0},		// end of list delimiter
 };
 
 //Slicer Adding Flood Protection Functions
@@ -1484,7 +1449,7 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 	gentity_t *player;
 	int i, x, kills;
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->health <= 0)
 		return;
 	if (trap_Argc() < 2)
 		return;
@@ -1973,7 +1938,9 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	if (weapon != WP_NONE) {
 		if (weapon == ent->client->ps.weapon)
 			return;
-		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
+		G_Printf("ps.weapon = %i, ps.weaponTime = %i\n", ent->client->ps.weapon, ent->client->ps.weaponTime);
+		if (ent->client->ps.weaponTime == 0)
+			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
 		Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
 		trap_SendServerCommand(ent - g_entities, buf);
 		return;
@@ -2050,7 +2017,8 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	}
 	if (weapon == ent->client->ps.weapon)
 		return;
-	trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
+	if (ent->client->ps.weaponTime == 0)
+		trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %i", SETWEAPON, weapon));
 	Com_sprintf(buf, sizeof(buf), "stuff weapon %d\n", weapon);
 	trap_SendServerCommand(ent - g_entities, buf);
 }

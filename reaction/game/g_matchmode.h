@@ -18,6 +18,7 @@ void MM_ClearScores(void);
 void MM_TeamName_f(gentity_t *);
 void MM_TeamModel_f(gentity_t *);
 void MM_Referee_f(gentity_t *);
+void MM_Settings_f(gentity_t *);
 void SendEndMessage();
 
 // aasimon: Declarations for Ref system 
