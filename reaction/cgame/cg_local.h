@@ -877,6 +877,7 @@ typedef struct {
 	sfxHandle_t	lensSound;		//Elder: sniper lens zoom
 	sfxHandle_t silencerSound;
 	sfxHandle_t kevlarHitSound;
+	sfxHandle_t	weapToggleSound;
 
 	sfxHandle_t	quadSound;
 	sfxHandle_t	tracerSound;
@@ -1503,7 +1504,7 @@ void CG_BigExplode( vec3_t playerOrigin );
 void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type );
 void CG_Bleed( vec3_t origin, int entityNum );
 //Elder: for SSG shots
-void CG_BleedSpray ( vec3_t origin, vec3_t dir, int entityNum );
+void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,

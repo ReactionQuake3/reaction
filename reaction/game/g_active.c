@@ -128,13 +128,17 @@ void P_DamageFeedback( gentity_t *player ) {
 		//Elder: headshot sound
         case LOCATION_HEAD:
         case LOCATION_FACE:
-			tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			//Elder: do nothing -- sound is handled in g_combat.c again
+			//tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
 			//Elder: takes more bandwidth but guarantees a headshot sound
 			//G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
 			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
 			break;
+		/*
 		case LOCATION_CHEST:
+		case LOCATION_SHOULDER:
 			//Play metal impact if vest was hit
+			
 			if (client->damage_vest == qtrue)
 			{
 				tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
@@ -143,6 +147,7 @@ void P_DamageFeedback( gentity_t *player ) {
 			else
 				G_AddEvent( player, EV_PAIN, player->health );
 			break;
+		*/
 		default:
 			G_AddEvent( player, EV_PAIN, player->health );
 			break;
@@ -675,6 +680,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
+			ent->client->ps.damageCount += damage;
 			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
 			
 			break;
@@ -693,6 +699,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
+			ent->client->ps.damageCount += damage;
 			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
 			
 			break;
@@ -1569,29 +1576,9 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	if ( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER )
 	{
-		//Disable laser if switching weapons, bandaging, etc.
-		if (ent->client->lasersight && 
-			(ent->client->ps.weaponstate == WEAPON_DROPPING ||
-			 ent->client->ps.weaponstate == WEAPON_RELOADING))
-		{	
-			Laser_Gen(ent, qfalse);
-		}
-		//Using M4/MP5/MK23 but not on yet so turn it on
-		else if (ent->client->lasersight == NULL &&
-			(ent->client->ps.weapon == WP_M4 ||
-			 ent->client->ps.weapon == WP_MP5 ||
-			 ent->client->ps.weapon == WP_PISTOL))
-		{
+		//Try to turn the laser on if it's off
+		if (ent->client->lasersight == NULL)
 			Laser_Gen(ent, qtrue);
-		}
-		//Not using M4/MP5/MK23 -- turn it off
-		else if (ent->client->lasersight &&
-				!( ent->client->ps.weapon == WP_M4 ||
-				ent->client->ps.weapon == WP_MP5 ||
-				ent->client->ps.weapon == WP_PISTOL))
-		{
-			Laser_Gen(ent, qfalse);
-		}
 	}		
 
 

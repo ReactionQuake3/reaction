@@ -1135,10 +1135,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int			knockback;
 	int			max;
     int         bleeding = 0; // damage causes bleeding
-
     int         instant_dam = 1;
-	vec3_t bulletPath;
 
+	vec3_t bulletPath;
     vec3_t bulletAngle;
 
 	//Elder: added for M3 and Pistols
@@ -1151,6 +1150,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     int bulletHeight;
     int bulletRotation;     // Degrees rotation around client.
     int impactRotation;
+
+	gentity_t	*tent;
+
 #ifdef MISSIONPACK
 	vec3_t		bouncedir, impactpoint;
 #endif
@@ -1621,44 +1623,34 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7\n\"", targ->client->pers.netname));
 				}
 				else */
-			   if (1)
+				if (1)
 				{
 					switch ( targ->client->lasthurt_location & 
                           ~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) )
 					{
-						case (LOCATION_HEAD): 
-						{   
+						case LOCATION_HEAD: 
+						case LOCATION_FACE:
+							//Elder: reusing line so we don't have to declare more variables
+							line[0] = 0;
+							line[1] = 0;
+							line[2] = 20;
+							
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-							//Elder: headshot sound moved to g_active.c
-							//if ( mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN ) {
-								//G_Printf("play headshot sound\n");
-								//G_AddEvent ( targ, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
-							//}
+							
+							//Setup headshot spray and sound
+							//Only do if not knife or SSG -- SSG has its own trail of blood
+							if (mod != MOD_SNIPER && mod != MOD_KNIFE && mode != MOD_KNIFE_THROWN)
+							{
+								VectorAdd(targ->s.pos.trBase, line, line);
+								tent = G_TempEntity(line, EV_HEADSHOT);
+								tent->s.eventParm = DirToByte(dir);
+								tent->s.otherEntityNum = targ->s.clientNum;
+							}
 							take *= 1.8; //+ 1;
 							break;
-						}	   
-						case	(LOCATION_FACE):
-						{   
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-							//Elder: headshot sound - no events here
-							//if ( mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN ) {
-								//G_Printf("play headshot sound\n");
-								//G_AddEvent ( targ, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);
-							//}
-							take *= 1.8; //+ 1;
-							break;
-						}	
-						case (LOCATION_SHOULDER): 
-						{   
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the chest.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Chest Damage.\n\""));
-							take *= 0.65;
-							break;
-						}
-						case (LOCATION_CHEST):
-						{   
+						case LOCATION_SHOULDER: 
+						case LOCATION_CHEST:
 							//Vest stuff
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
@@ -1676,8 +1668,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 									instant_dam = 1;
 									bleeding = 0;
 								}
+								//Kevlar sound
+								tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
 								//Elder: flag for sound in feedback
-								targ->client->damage_vest = qtrue;
+								//targ->client->damage_vest = qtrue;
 							}
 							else
 							{
@@ -1686,38 +1680,19 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 								take *= 0.65;
 							}
 							break;
-						}
-						case (LOCATION_STOMACH):
-						{   
+						case LOCATION_STOMACH:
+						case LOCATION_GROIN:
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
 							take *= 0.4;
 							break;
-						}   
-						case (LOCATION_GROIN):
-						{   
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the stomach.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Stomach Damage.\n\""));
-							take *= 0.4;
-							break;
-						}
-						case (LOCATION_LEG):
-						{
-							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
-							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
-							take *= 0.25;
-							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
-							break;
-						}
-						case (LOCATION_FOOT): 
-						{   
+						case LOCATION_LEG:
+						case LOCATION_FOOT: 
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the leg.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Leg Damage.\n\""));
 							targ->client->ps.stats[STAT_RQ3] |= RQ3_LEGDAMAGE;
 							take *= 0.25;
-							break;
-						}
-				               
+							break;			               
 					}
 				}
 			//			   G_Printf("In loc damage: %d outgoing\n",take);

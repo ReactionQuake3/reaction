@@ -2776,19 +2776,22 @@ static void CG_DrawDamageBlend()
 	float dmg;
 	vec4_t damageColor;
 
-	//Leave if no true damage, disabled, or ragepro
-	if ( !cg.rq3_trueDamage || !cg_RQ3_painblend.integer ||
-		 cgs.glconfig.hardwareType == GLHW_RAGEPRO)
-	{
-		return;
-	}
+	//CG_Printf("CG_DrawDamageBlend: trueDamage (%i)\n", cg.rq3_trueDamage);
 
+	//Leave if no true damage, disabled, or ragepro
+	if (!cg_RQ3_painblend.integer)
+		return;
+
+	if ( !cg.rq3_trueDamage || cgs.glconfig.hardwareType == GLHW_RAGEPRO)
+		return;
+	
 	//Clamp blend time
 	if (cg.rq3_blendTime > MAX_BLEND_TIME)
 		cg.rq3_blendTime = MAX_BLEND_TIME;
 
 	//Reset if we've gone past our blendTime
-	if (cg.time - cg.damageTime > cg.rq3_blendTime) {
+	if (cg.time - cg.damageTime > cg.rq3_blendTime)
+	{
 		//cg.rq3_trueDamage = 0;
 		cg.rq3_blendTime = 0;
 		return;

@@ -296,7 +296,7 @@ struct gclient_s {
 	int			damage_knockback;	// impact damage
 	vec3_t		damage_from;		// origin for vector calculation
 	qboolean	damage_fromWorld;	// if true, don't use the damage_from vector
-	qboolean	damage_vest;		// Elder: if true, play the vest-hit sound
+	//qboolean	damage_vest;		// Elder: if true, play the vest-hit sound
 
 	int			accurateCount;		// for "impressive" reward sound
 

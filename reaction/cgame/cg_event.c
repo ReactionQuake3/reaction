@@ -1943,20 +1943,20 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	
 	case EV_RQ3_SOUND:
 		DEBUGNAME("EV_RQ3_SOUND");
-		//CG_Printf("EV_RQ3_SOUND: %d\n", es->eventParm);
 		switch (es->eventParm) {
     		case RQ3_SOUND_KICK:
-    			//CG_Printf("EV_RQ3_SOUND: Kick\n");
     			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kickSound);
     			break;
+			//Elder: handled in EV_HEADSHOT now
+			/*
     		case RQ3_SOUND_HEADSHOT:
     			//CG_Printf("EV_RQ3_SOUND: Headshot\n");
     			//Elder: extra blood - synched with sound
     			//CG_Bleed( position, es->number );   				
     			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
     			break;
+			*/
     		case RQ3_SOUND_LCA:
-    			//CG_Printf("EV_RQ3_SOUND: Lights, Camera, Action\n");
     			//Global sound
     			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);
     			break;
@@ -2089,6 +2089,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			break;
 		}
+
+	case EV_HEADSHOT:
+		//Elder: headshot spray + sound
+		DEBUGNAME("EV_HEADSHOT");
+		//trap_S_StartSound( es->pos.trBase, es->number, CHAN_AUTO, cgs.media.headshotSound);
+		trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
+		ByteToDir(es->eventParm, dir);
+		VectorAdd(es->pos.trBase, dir, dir);
+		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum, 8);
+		break;
 
 	case EV_PAIN:
 		// local player sounds are triggered in CG_CheckLocalSounds,

@@ -181,7 +181,7 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 	//other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item->giTag;
 	other->client->uniqueItems++;
 
-	//Fire up the laser if it's picked up
+	//Try to fire up the laser if it's picked up
 	if (ent->item->giTag == HI_LASER)
 	{
 		Laser_Gen(other, qtrue);

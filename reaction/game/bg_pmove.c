@@ -1880,6 +1880,9 @@ static void PM_TorsoAnimation( void ) {
 		}
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
+		//Elder: temp hack
+		if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
+			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
 		return;
@@ -1895,9 +1898,17 @@ PM_WeaponAnimation
 static void PM_WeaponAnimation( void ) {
 	if (pm->ps->weaponstate == WEAPON_RELOADING)
 	{
-		PM_StartWeaponAnim( WP_ANIM_RELOAD );
-		pm->ps->weaponstate = WEAPON_READY;
+		PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
+		//Elder - using the above now
+		//PM_StartWeaponAnim( WP_ANIM_RELOAD );
+		//Elder: only reason it's like this is b/c reloading causes WEAPON_DROPPING
+		//and we can't see the weapon -- but this screws with fast-reloads
+		//Remedy is to not call a TORSO_DROP in Cmd_Reload
+		//pm->ps->weaponstate = WEAPON_READY;
 	}
+	else if (pm->ps->weaponstate == WEAPON_READY)
+		PM_ContinueWeaponAnim( WP_ANIM_IDLE );
+
 	return;
 }
 
@@ -2015,7 +2026,8 @@ static void PM_Weapon( void ) {
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
 //		PM_StartWeaponAnim( WP_ANIM_READY );
-
+		if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
+			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
 
@@ -2084,26 +2096,7 @@ static void PM_Weapon( void ) {
 	} else {
 		PM_StartTorsoAnim( TORSO_ATTACK );
 	}
-	// QUARANTINE - Weapon animations
-	// This should change pm->ps->generic1 so we can animate
-	PM_StartWeaponAnim( WP_ANIM_FIRE );
-
-	// Elder: the client side portion is in
-	// Homer: if weapon can set to be burst mode, check for burst value
-	// M4
-	//if ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) {
-		//return;
-	//}
-	// MP5
-	//if ( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) {
-		//return;
-	//}
-	// MK23
-	//if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] > 0 ) {
-		//return;
-	//}
-	// end Homer
-
+	
 	pm->ps->weaponstate = WEAPON_FIRING;
 
 	// check for out of ammo
@@ -2112,6 +2105,10 @@ static void PM_Weapon( void ) {
 		pm->ps->weaponTime += 500;
 		return;
 	}
+
+	// QUARANTINE - Weapon animations
+	// This should change pm->ps->generic1 so we can animate
+	PM_StartWeaponAnim( WP_ANIM_FIRE );
 
 
 	//Elder: M4 kick code
@@ -2660,7 +2657,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	//weapon animations(rq3 specific)
 	//Elder: hack to avoid messing up fast-reloads
-	if (pm->ps->weapon == WP_PISTOL)
+	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
 		PM_WeaponAnimation();
 
 	// torso animation

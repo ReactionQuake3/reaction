@@ -1829,6 +1829,8 @@ void Cmd_Reload( gentity_t *ent )       {
 			if (ent->client->fastReloads) {
 				//Fast reload
 				//G_Printf("Using fast reloads\n");
+				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+											^ ANIM_TOGGLEBIT ) | WP_ANIM_RELOAD;
 				delay = RQ3_M3_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
 			}
@@ -1993,7 +1995,8 @@ void Cmd_Reload( gentity_t *ent )       {
 	//ent->client->ps.weaponstate = WEAPON_RELOADING;
     ent->client->ps.weaponstate = WEAPON_RELOADING;
 	//Elder: temporary hack to drop weapon if it's not the MK23
-	if (ent->client->ps.weapon != WP_PISTOL)
+	if (ent->client->ps.weapon != WP_PISTOL &&
+		ent->client->ps.weapon != WP_M3)
 	{
 		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
 									^ ANIM_TOGGLEBIT )      | TORSO_DROP;
@@ -2354,6 +2357,7 @@ void Cmd_DropItem_f( gentity_t *ent )
 				if (ent->client->numClips[WP_GRENADE] > RQ3_GRENADE_MAXCLIP)
 					ent->client->numClips[WP_GRENADE] = RQ3_GRENADE_MAXCLIP;
 		}
+		//Force laser off
 		else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER)
 			Laser_Gen(ent, qfalse);
 

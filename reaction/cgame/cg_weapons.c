@@ -670,6 +670,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+		}
 		break;
 		
 	case WP_AKIMBO:
@@ -758,24 +762,28 @@ CG_MapTorsoToWeaponFrame
 */
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
-	// change weapon
-	if ( frame >= ci->animations[TORSO_DROP].firstFrame 
-		&& frame < ci->animations[TORSO_DROP].firstFrame + 9 ) {
-		return frame - ci->animations[TORSO_DROP].firstFrame + 6;
-	}
+	//Elder: another hack
+	if (ci->curWeapon != WP_PISTOL && ci->curWeapon != WP_M3)
+	{
+		// change weapon
+		if ( frame >= ci->animations[TORSO_DROP].firstFrame 
+			&& frame < ci->animations[TORSO_DROP].firstFrame + 9 ) {
+			return frame - ci->animations[TORSO_DROP].firstFrame + 6;
+		}
+		
 
-	// stand attack
-	if ( frame >= ci->animations[TORSO_ATTACK].firstFrame 
-		&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6 ) {
-		return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
-	}
+		// stand attack
+		if ( frame >= ci->animations[TORSO_ATTACK].firstFrame 
+			&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6 ) {
+			return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
+		}
 
-	// stand attack 2
-	if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame 
-		&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6 ) {
-		return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
+		// stand attack 2
+		if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame 
+			&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6 ) {
+			return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
+		}
 	}
-	
 	return 0;
 }
 
@@ -1927,6 +1935,7 @@ void CG_Weapon_f( void ) {
 		else
 		{
 			//do weapon select sound
+			trap_S_StartLocalSound( cgs.media.weapToggleSound, CHAN_ITEM);
 		}
 		trap_SendClientCommand("weapon");
 		//Elder: added to get out of function at this point
@@ -2096,6 +2105,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 			}
 		}
 	}
+	//Elder: TODO: eject sync with animation for M3 and only eject for HC when reloading
 	// do brass ejection
 	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
 		weap->ejectBrassFunc( cent );
@@ -2853,7 +2863,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 	if ( flesh ) {
 		//Elder: added
 		if ( armorPiercing && CG_CalcMuzzlePoint( sourceEntityNum, start))
-			CG_BleedSpray(start, end, fleshEntityNum);
+			CG_BleedSpray(start, end, fleshEntityNum, 16);
 		else
 			CG_Bleed( end, fleshEntityNum );
 	} else {

@@ -1346,6 +1346,7 @@ char *eventnames[] = {
 	"EV_HANDCANNON",
 	"EV_BULLET",				// otherEntity is the shooter
 
+	"EV_HEADSHOT",			// Elder: spray like SSG shot
 	"EV_PAIN",
 	"EV_DEATH1",
 	"EV_DEATH2",

@@ -226,7 +226,7 @@ typedef enum {
 
 //Elder: reload delays
 //Also kinda "derived" from the AQ2 source
-#define RQ3_PISTOL_RELOAD_DELAY			1100
+#define RQ3_PISTOL_RELOAD_DELAY			2100
 #define RQ3_M4_RELOAD_DELAY				1900
 #define RQ3_MP5_RELOAD_DELAY			1800
 #define RQ3_HANDCANNON_RELOAD_DELAY		2100
@@ -379,6 +379,10 @@ typedef enum {
 	//WP_ANIM_READY,
 	WP_ANIM_FIRE,
 	WP_ANIM_RELOAD,
+	WP_ANIM_IDLE,
+	//WP_ANIM_ACTIVATE,
+	//WP_ANIM_DISARM,
+	//WP_ANIM_FIRE2,
 	MAX_WEAPON_ANIMATIONS
 } wpAnimNumber_t;
 
@@ -708,6 +712,7 @@ typedef enum {
 	EV_HANDCANNON,
 	EV_BULLET,				// otherEntity is the shooter
 
+	EV_HEADSHOT,			// Elder: spray like SSG shot
 	EV_PAIN,
 	EV_DEATH1,
 	EV_DEATH2,

@@ -2100,8 +2100,22 @@ void Laser_Gen( gentity_t *ent, qboolean enabled )	{
 	//Elder: force it to laser
 	int type = 1;
 
+	// First, if it's not the right weapon, leave
+	if ( ent->client->ps.weapon != WP_PISTOL && 
+		 ent->client->ps.weapon != WP_MP5 &&
+		 ent->client->ps.weapon != WP_M4 )
+	{
+		//Kill laser if it exists
+		if (ent->client->lasersight)
+		{
+			G_FreeEntity( ent->client->lasersight );
+			ent->client->lasersight = NULL;
+		}
+		return;
+	}
+
 	//Get rid of you?
-	if ( ent->client->lasersight && !enabled)
+	if ( ent->client->lasersight || enabled == qfalse)
 	{
 		G_FreeEntity( ent->client->lasersight );
 		ent->client->lasersight = NULL;
@@ -2139,8 +2153,14 @@ void Laser_Think( gentity_t *self )
 	vec3_t		end, start, forward, up;
 	trace_t		tr;
 
-	//If Player Dies, You Die -> now thanks to Camouflage!
-	if (self->parent->client->ps.pm_type == PM_DEAD)  {
+	//If the player dies, or wrong weapon, kill the dot
+	if (self->parent->client->ps.pm_type == PM_DEAD ||
+		(self->parent->client->ps.weapon != WP_PISTOL &&
+		self->parent->client->ps.weapon != WP_MP5 &&
+		self->parent->client->ps.weapon != WP_M4))
+	{
+		//Make sure you kill the reference before freeing the entity
+		self->parent->client->lasersight = NULL;
 		G_FreeEntity(self);
 		return;
 	}

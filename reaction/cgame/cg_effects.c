@@ -471,7 +471,7 @@ Based on bubble trail code + other stuff
 =================
 */
 #define MAX_SPRAY_BURSTS	16
-void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum )
+void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 {
 	//vec3_t		dir;
 	vec3_t		trueEnd;
@@ -484,10 +484,14 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum )
 	int			i;
 	int			spacing = 30;
 	int			bloodCount = 0;
-
+	
 	if ( !cg_blood.integer ) {
 		return;
 	}
+
+	//Clamp number so we don't generate too many blood entities
+	if (numBursts > MAX_SPRAY_BURSTS)
+		numBursts = MAX_SPRAY_BURSTS;
 
 	VectorCopy (end, move);
 	VectorSubtract (end, start, vec);
@@ -513,10 +517,10 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum )
 	VectorScale (vec, spacing, vec);
 	
 
-	for ( ; i < len; i += spacing )
+	for ( ; i < len ; i += spacing )
 	{
 		//restrict amount of spurts
-		if (bloodCount++ > MAX_SPRAY_BURSTS)
+		if (bloodCount++ > numBursts)
 			break;
 
 		blood = CG_SmokePuff(move, velocity, 8,

@@ -644,6 +644,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
 	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencershot.wav", qfalse);
 	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/vest.wav", qfalse);
+	cgs.media.weapToggleSound = trap_S_RegisterSound( "sound/misc/click.wav", qfalse);
 
 
 #ifdef MISSIONPACK
