@@ -6,3 +6,5 @@
 * Fixed the base votingsystem. Still needs a cleanup
 * Fixed the respawning of dead players weapons and items in TP
 * Fixed to allow > 16 breakables
+* Recoded the AI for changing weapon modes. Bots can now zoom in/out with the SSG.
+* Made it possible to add random bots when starting a game from the UI
