@@ -75,7 +75,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-
+	
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -204,7 +204,8 @@ static void CG_Obituary( entityState_t *ent ) {
 			break;
 		}
 	}
-
+	//Blaze: This allows for the falling damage message to pass through if someone attacked them
+	if (attacker != ENTITYNUM_WORLD) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -244,7 +245,6 @@ static void CG_Obituary( entityState_t *ent ) {
 			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
 		}
 	}
-
 	if ( attacker != ENTITYNUM_WORLD ) {
 		switch (mod) {
 		case MOD_GRAPPLE:
@@ -446,7 +446,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-
+	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -513,7 +513,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			break;
 		}
 	}
-
+	if (attacker != ENTITYNUM_WORLD) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -612,6 +612,9 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			message = "tried to invade";
 			message2 = "'s personal space";
 			break;
+		case MOD_FALLING:
+			message = "was taught how to fly by";
+			break;
 		default:
 			message = "was killed by";
 			break;
@@ -652,7 +655,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-
+	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -718,7 +721,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			break;
 		}
 	}
-
+	if (attacker != ENTITYNUM_WORLD) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -789,6 +792,9 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			message = "tried to invade";
 			message2 = "'s personal space";
 			break;
+		case MOD_FALLING:
+			message = "was taught how to fly by";
+			break;
 		default:
 			message = "was killed by";
 			break;
@@ -828,7 +834,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-
+	CG_Printf("(%s) (%s) (%d) (%d)\n",targetName, attackerName,target,attacker);
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -894,7 +900,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 			break;
 		}
 	}
-
+	if (attacker != ENTITYNUM_WORLD) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -976,6 +982,9 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 			message = "tried to invade";
 			message2 = "'s personal space";
 			break;
+		case MOD_FALLING:
+			message = "was taught how to fly by";
+			break;
 		default:
 			message = "was killed by";
 			break;
@@ -1015,7 +1024,6 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
 	mod = ent->eventParm;
-
 	if ( target < 0 || target >= MAX_CLIENTS ) {
 		CG_Error( "CG_Obituary: target out of range" );
 	}
@@ -1034,7 +1042,6 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 	}
 	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
 	strcat( targetName, S_COLOR_WHITE );
-
 	message2 = "";
 
 	// check for single client messages
@@ -1081,7 +1088,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			break;
 		}
 	}
-
+	if (attacker != ENTITYNUM_WORLD) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -1163,6 +1170,9 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 		case MOD_TELEFRAG:
 			message = "tried to invade";
 			message2 = "'s personal space";
+			break;
+		case MOD_FALLING:
+			message = "was taught how to fly by";
 			break;
 		default:
 			message = "was killed by";

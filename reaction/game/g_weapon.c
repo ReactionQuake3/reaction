@@ -120,6 +120,7 @@ qboolean JumpKick( gentity_t *ent )
 		tent->s.otherEntityNum2 = ent->s.number;
 		tent->s.eventParm = DirToByte( tr.plane.normal );
 		tent->s.weapon = 0;
+		
 
 		if (traceEnt->client->uniqueWeapons > 0)
 		{

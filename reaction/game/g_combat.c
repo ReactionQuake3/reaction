@@ -541,7 +541,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	char		*killerName, *obit;
 	
-	
 	//Blaze: Stop bleeding when dead
     if ( self->client )
     {
@@ -1308,11 +1307,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     int impactRotation;
 
 	gentity_t	*tent;
-
+	
 #ifdef MISSIONPACK
 	vec3_t		bouncedir, impactpoint;
 #endif
-
 	if (!targ->takedamage) {
 		return;
 	}
@@ -1341,6 +1339,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
+	
 	if ( !attacker ) {
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}

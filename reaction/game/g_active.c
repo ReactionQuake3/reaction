@@ -697,7 +697,14 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
 			ent->client->ps.damageCount += damage;
-			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			if (ent->client->lasthurt_mod != 0)
+			{
+				G_Damage (ent, &g_entities[ent->client->lasthurt_client], &g_entities[ent->client->lasthurt_client], NULL, NULL, damage, 0, MOD_FALLING);
+			}
+			else
+			{
+				G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			}
 			
 			break;
 
@@ -716,7 +723,14 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
 			ent->client->ps.damageCount += damage;
-			G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			if (ent->client->lasthurt_mod != 0)
+			{
+				G_Damage (ent, &g_entities[ent->client->lasthurt_client], &g_entities[ent->client->lasthurt_client], NULL, NULL, damage, 0, MOD_FALLING);
+			}
+			else
+			{
+				G_Damage (ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING);
+			}
 			
 			break;
 
