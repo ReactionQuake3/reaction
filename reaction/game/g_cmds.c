@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/02/10 22:02:06  niceass
+// took some debug info out
+//
 // Revision 1.50  2002/02/10 08:16:12  niceass
 // added deaths to the scoreboard
 //
@@ -96,7 +99,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
 //Blaze: Removed because it uses the persistant stats stuff
 //Elder: played around with it...
-		G_Printf("Clientnum: %s is %d\n", cl->pers.netname, cl->ps.persistant[PERS_KILLED]);
+//		G_Printf("Clientnum: %s is %d\n", cl->pers.netname, cl->ps.persistant[PERS_KILLED]);
 
 		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
