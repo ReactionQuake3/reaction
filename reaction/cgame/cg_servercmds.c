@@ -1040,6 +1040,29 @@ static void CG_ServerCommand( void ) {
 	}
 */				
 
+	if ( !strcmp( cmd, "selectpistol") ) {
+		//CG_Printf("Selecting pistol\n");
+		//trap_SendConsoleCommand(va("cmd weapon %i\n", WP_PISTOL));
+		//Elder: condensed version of Cmd_Weapon
+		if (cg.snap) {
+			switch (cg.snap->ps.weapon) {
+				case WP_PISTOL:
+				case WP_KNIFE:
+				case WP_AKIMBO:
+				case WP_GRENADE:
+					break;
+				default:
+					cg.weaponSelectTime = cg.time;
+					cg.weaponSelect = WP_PISTOL;
+					cg.zoomed = qfalse;
+					cg.zoomLevel = 0;
+					trap_SendClientCommand("unzoom");
+					break;
+			}
+		}
+		return;
+	}
+
 	CG_Printf( "Unknown client game command: %s\n", cmd );
 }
 
