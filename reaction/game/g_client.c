@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/05/25 16:31:18  blaze
+// moved breakable stuff over to config strings
+//
 // Revision 1.77  2002/05/21 23:16:30  blaze
 // Only send cheat vars on client connect instead of every spawn
 //
@@ -1200,27 +1203,6 @@ int G_SendCheatVars(int clientNum)
 	}
 	return qtrue;
 }
-/*
-===============
-G_SendBreakableInfo
-sends out info to the clients about the breakables to load
-===============
-*/
-
-int G_SendBreakableInfo(int clientNum)
-{
-  int i;
-  char cl_breakableinfo[128];
-  for (i=0;i< RQ3_MAX_BREAKABLES; i++)
-  {
-    if ( (strcmp(rq3_breakables[i].name,"") ) )
-    {
-      Com_sprintf(cl_breakableinfo, sizeof(cl_breakableinfo), "breakable %d %s %d %d\n",i,rq3_breakables[i].name, rq3_breakables[i].velocity, rq3_breakables[i].jump);
-      trap_SendServerCommand(clientNum, va("%s",cl_breakableinfo));
-    }
-  }
-  return 0;
-}
 
 /*
 ===========
@@ -1342,10 +1324,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 
   //Blaze: Send out the breakable names to the clients
-  if (!isBot && G_SendBreakableInfo(clientNum))
-  {
-    Com_Printf("Error sending breakable info to client\n");
-  }
+  //Blaze: moved to configstring
+  //if (!isBot && G_SendBreakableInfo(clientNum))
+  //{
+  //  Com_Printf("Error sending breakable info to client\n");
+  //}
 	// for statistics
 //	client->areabits = areabits;
 //	if ( !client->areabits )

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/25 16:31:18  blaze
+// moved breakable stuff over to config strings
+//
 // Revision 1.70  2002/05/25 10:40:31  makro
 // Loading screen
 //
@@ -477,8 +480,10 @@ extern radio_msg_t female_radio_msgs[];
 #define	CS_PLAYERS			(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS		(CS_PLAYERS+MAX_CLIENTS)
 #define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
+//Blaze: Storing breakables in config strings now
+#define CS_BREAKABLES (CS_PARTICLES+MAX_LOCATIONS)
 
-#define CS_MAX					(CS_PARTICLES+MAX_LOCATIONS)
+#define CS_MAX					(CS_BREAKABLES+RQ3_MAX_BREAKABLES)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS

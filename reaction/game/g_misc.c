@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/05/25 16:31:18  blaze
+// moved breakable stuff over to config strings
+//
 // Revision 1.45  2002/05/23 18:37:50  makro
 // Bots should crouch more often when they attack with a SSG
 // Made this depend on skill. Also, elevator stuff
@@ -572,14 +575,16 @@ If you wish to add a custom breakable to your map, please include your mapname (
 void SP_func_breakable( gentity_t *ent ) {
 	int health;
 	int amount;
-  int id;
   int temp;
   int damage;
   int damage_radius;
-  int velocity;
-  int jump;
+
+  char *id;
+  char *velocity;
+  char *jump;
   char *name, *s;
-  
+  char breakinfo[MAX_INFO_STRING];
+
   // Make it appear as the brush
   trap_SetBrushModel( ent, ent->model );
     
@@ -655,36 +660,31 @@ void SP_func_breakable( gentity_t *ent ) {
   }
   ent->use = Use_Breakable;
 
-  G_SpawnInt( "id","0", &id);
-  if (id < 0 || id >= RQ3_MAX_BREAKABLES )
+  G_SpawnString( "id","0", &id);
+  if (atoi(id) < 0 || atoi(id) >= RQ3_MAX_BREAKABLES )
   {
     G_Printf("^2ERROR: ID too high\n");
     G_FreeEntity( ent );
     return;
   }
   //Com_Printf("ID (%d) ", id);
-  if (G_SpawnString( "type", "", &name) )
-  {
-    Q_strncpyz(rq3_breakables[id].name,name,80);
-  }
-  else
+  if (!G_SpawnString( "type", "", &name) )
   {
     G_Printf("^2ERROR: broken breakable name (%s)\n", name);
     G_FreeEntity( ent );
     return;
   }
   //Com_Printf("type (%s)\n",name);
-  G_SpawnInt( "force", "7", &velocity);
-  rq3_breakables[id].velocity = velocity;
+  G_SpawnString( "force", "7", &velocity);
 
-  G_SpawnInt( "lift", "5", &jump);
-  rq3_breakables[id].jump = jump;
+
+  G_SpawnString( "lift", "5", &jump);
+
 
   amount = amount << 6;
   
-  id = id & 0x0FFF;
 	//Elder: merge the bits
- 	ent->s.eventParm = amount | id ;
+ 	ent->s.eventParm = amount | (atoi(id) & 0x0FFF);
 
   ent->health = health;
   ent->takedamage = qtrue;
@@ -702,12 +702,23 @@ void SP_func_breakable( gentity_t *ent ) {
       ent->s.modelindex2 = G_ModelIndex( ent->model2 );
   }
 
+
+  //Makro - added this so spectators can go through breakables
+  //ent->nextthink = level.time + FRAMETIME;
+  //ent->think = Think_SpawnNewDoorTrigger;
+  Info_SetValueForKey( breakinfo, "type", name );
+  Info_SetValueForKey( breakinfo, "velocity", velocity );
+  Info_SetValueForKey( breakinfo, "jump", jump );
+  Info_SetValueForKey( breakinfo, "id", id );
+  trap_SetConfigstring( CS_BREAKABLES+atoi(id), breakinfo);
+  
   trap_LinkEntity (ent);
 
 	//Makro - added for elevators
 	if (G_SpawnString( "pathtarget","", &s)) {
 		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
 	}
+
 }
 
 
