@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/04/14 21:50:55  makro
+// Stuff
+//
 // Revision 1.12  2002/04/11 20:57:19  makro
 // Tweaked onShow script handling; added onFirstShow script
 //
@@ -1461,6 +1464,11 @@ void Script_playLooped(itemDef_t *item, char **args) {
 	}
 }
 
+//Makro - stop background track
+void Script_stopMusic(itemDef_t *item, char **args) {
+	DC->stopBackgroundTrack();
+}
+
 //Makro - timer scripts
 void Script_StartTimer(itemDef_t *item, char **args) {
 	menuDef_t *menu = (menuDef_t*) item->parent;
@@ -1514,6 +1522,8 @@ commandDef_t commandList[] =
   {"exec", &Script_Exec},           // group/name
   {"play", &Script_Play},           // group/name
   {"playlooped", &Script_playLooped},           // group/name
+  //Makro - stop background track
+  {"stopMusic", &Script_stopMusic},
   {"orbit", &Script_Orbit}                      // group/name
 };
 
@@ -2282,7 +2292,7 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
 					ok = qtrue;
 				}
 			} else {
-				if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+				if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
 					ok = qtrue;
 				}
 			}
@@ -2290,11 +2300,23 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key) {
 	}
 	
 	if (ok) {
-		int current = Item_Multi_FindCvarByValue(item) + 1;
+		int current;
 		int max = Item_Multi_CountSettings(item);
 		
-		if (key == K_LEFTARROW) {
-			current -= 2;
+		switch (key) {
+			case K_LEFTARROW:
+			case K_MOUSE2:
+				current = Item_Multi_FindCvarByValue(item) - 1;
+				break;
+			case K_HOME:
+				current = 0;
+				break;
+			case K_END:
+				current = max-1;
+				break;
+			default:
+				current = Item_Multi_FindCvarByValue(item) + 1;
+				break;
 		}
 
 		if ( current < 0 ) {

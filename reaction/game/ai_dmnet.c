@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/04/14 21:49:52  makro
+// Stuff
+//
 // Revision 1.14  2002/04/06 21:42:19  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -1586,7 +1589,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 			//bs->activatestack->time = 0;
 			Cmd_OpenDoor( &g_entities[bs->entitynum] );
 			BotMoveTowardsEnt(bs, entinfo.origin, -64);
-			return qtrue;
+			return qfalse;
 		}
 
 	}

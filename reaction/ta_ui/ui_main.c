@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/04/14 21:50:55  makro
+// Stuff
+//
 // Revision 1.15  2002/04/07 17:51:49  makro
 // Abbey
 //
@@ -3202,7 +3205,8 @@ static void UI_LoadDemos() {
 			if (!Q_stricmp(demoname +  len - strlen(demoExt), demoExt)) {
 				demoname[len-strlen(demoExt)] = '\0';
 			}
-			Q_strupr(demoname);
+			//Makro - bad for linux users
+			//Q_strupr(demoname);
 			uiInfo.demoList[i] = String_Alloc(demoname);
 			demoname += len + 1;
 		}
@@ -3449,6 +3453,10 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 8, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
 			trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
+			//Makro - client password
+			if ( (int) trap_Cvar_VariableValue("dedicated") == 0 ) {
+				trap_Cvar_Set("password", UI_Cvar_VariableString("g_password"));
+			}
 			trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
 			skill = trap_Cvar_VariableValue( "g_spSkill" );
 			// set max clients based on spots
@@ -3481,7 +3489,7 @@ static void UI_RunMenuScript(char **args) {
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Blue");
 					//} else {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -3491,7 +3499,7 @@ static void UI_RunMenuScript(char **args) {
 					//if (ui_actualNetGameType.integer >= GT_TEAM) {
 					//	Com_sprintf( buff, sizeof(buff), "addbot %s %f %s\n", uiInfo.characterList[bot-2].name, skill, "Red");
 					//} else {
-						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						Com_sprintf( buff, sizeof(buff), "wait; addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					//}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -3589,7 +3597,10 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName);
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
 		} else if (Q_stricmp(name, "RunDemo") == 0) {
-			trap_Cmd_ExecuteText( EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
+			//Makro - missing check
+			if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
+			}
 		} else if (Q_stricmp(name, "Quake3") == 0) {
 			trap_Cvar_Set( "fs_game", "");
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
@@ -3702,6 +3713,11 @@ static void UI_RunMenuScript(char **args) {
 				//Makro - don't add the bot instantly
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			//}
+		//Makro - add random bot
+		} else if (Q_stricmp(name, "addRandomBot") == 0) {
+				int index = (int) (random() * (float) (UI_GetNumBots() - 1));
+				//Makro - don't add the bot instantly
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource.integer != AS_FAVORITES) {
 				char name[MAX_NAME_LENGTH];
