@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/02/08 05:52:18  niceass
+// cg_drawcleanrect declaration added.
+//
 // Revision 1.45  2002/02/05 23:42:06  slicer
 // More on matchmode..
 //
@@ -1525,6 +1528,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
+void CG_DrawCleanRect( float x, float y, float width, float height, float size, const float *color );
 
 
 //
