@@ -30,6 +30,7 @@ g_spawn
 g_svcmds
 g_target
 g_team
+g_teamplay
 g_trigger
 g_utils
 g_weapon

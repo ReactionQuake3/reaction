@@ -69,6 +69,8 @@ set cc=call ..\compile.bat
 @if errorlevel 1 goto quit
 %cc%  ../g_team.c
 @if errorlevel 1 goto quit
+%cc%  ../g_teamplay.c
+@if errorlevel 1 goto quit
 %cc%  ../g_trigger.c
 @if errorlevel 1 goto quit
 %cc%  ../g_utils.c
