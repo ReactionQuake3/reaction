@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2002/08/24 22:46:50  niceass
+// roundtimelimit bug fixed
+//
 // Revision 1.130  2002/08/22 03:29:07  niceass
 // bug fix in countdown code
 //
@@ -584,7 +587,7 @@ void CheckTeamRules()
 			return;
 		}
 
-		if (g_RQ3_roundtimelimit.integer && (level.current_round_length > g_RQ3_roundtimelimit.integer * 600)) {
+		if (g_RQ3_roundtimelimit.integer && (level.current_round_length > g_RQ3_roundtimelimit.integer * 60 * level.fps)) {
 			trap_SendServerCommand(-1, va("cp \"Round timelimit hit.\n\""));
 			winner = CheckForForcedWinner();
 			if (WonGame(winner))
