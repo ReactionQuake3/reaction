@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.43  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -4033,15 +4037,15 @@ static void UI_RunMenuScript(char **args)
 			ui_RQ3_friendlyFire.integer));
 		//Makro - sync ui MM cvars with the real ones
 		} else if (Q_stricmp(name, "readMMsettings") == 0) {
-			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("timelimit"));
-			trap_Cvar_SetValue("ui_RQ3_roundlimit", trap_Cvar_VariableValue("g_RQ3_roundlimit"));
-			trap_Cvar_SetValue("ui_RQ3_roundtimelimit", trap_Cvar_VariableValue("g_RQ3_roundtimelimit"));
-			trap_Cvar_SetValue("ui_RQ3_fraglimit", trap_Cvar_VariableValue("fraglimit"));
-			trap_Cvar_SetValue("ui_RQ3_maxplayers", trap_Cvar_VariableValue("g_RQ3_maxplayers"));
-			trap_Cvar_SetValue("ui_RQ3_forceteamtalk", trap_Cvar_VariableValue("g_RQ3_forceteamtalk"));
-			trap_Cvar_SetValue("ui_RQ3_limchasecam", trap_Cvar_VariableValue("g_RQ3_limchasecam"));
-			trap_Cvar_SetValue("ui_RQ3_tgren", trap_Cvar_VariableValue("g_RQ3_tgren"));
-			trap_Cvar_SetValue("ui_RQ3_friendlyFire", trap_Cvar_VariableValue("g_friendlyFire"));
+			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("cg_RQ3_timelimit"));
+			trap_Cvar_SetValue("ui_RQ3_roundlimit", trap_Cvar_VariableValue("cg_RQ3_roundlimit"));
+			trap_Cvar_SetValue("ui_RQ3_roundtimelimit", trap_Cvar_VariableValue("cg_RQ3_roundtimelimit"));
+			trap_Cvar_SetValue("ui_RQ3_fraglimit", trap_Cvar_VariableValue("cg_RQ3_fraglimit"));
+			trap_Cvar_SetValue("ui_RQ3_maxplayers", trap_Cvar_VariableValue("cg_RQ3_maxplayers"));
+			trap_Cvar_SetValue("ui_RQ3_forceteamtalk", trap_Cvar_VariableValue("cg_RQ3_forceteamtalk"));
+			trap_Cvar_SetValue("ui_RQ3_limchasecam", trap_Cvar_VariableValue("cg_RQ3_limchasecam"));
+			trap_Cvar_SetValue("ui_RQ3_tgren", trap_Cvar_VariableValue("cg_RQ3_tgren"));
+			trap_Cvar_SetValue("ui_RQ3_friendlyFire", trap_Cvar_VariableValue("cg_RQ3_friendlyFire"));
 		//Makro - build server info list
 		} else if (Q_stricmp(name, "refreshIngameServerInfo") == 0) {
 			UI_BuildIngameServerInfoList();

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.107  2002/07/16 04:09:14  niceass
 // stupid team scoreboard fix
 //
@@ -283,6 +287,9 @@ breakable_t rq3_breakables[RQ3_MAX_BREAKABLES];
 // JBravo: for models
 extern legitmodel_t legitmodels[MAXMODELS];
 int RQ3_Validatemodel(char *model);
+
+extern char *settings[];
+extern char *settings2[];
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -1545,6 +1552,14 @@ void ClientBegin(int clientNum)
 		}
 	}
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
+
+// JBravo: synching the cvars over to clients for the MM ingame menu.
+	if (g_gametype.integer == GT_TEAMPLAY && g_RQ3_matchmode.integer) {
+		for (i = 0; i < 9 ; ++i) {
+			trap_SendServerCommand(ent - g_entities, va("rq3_cmd %i %s %i", CVARSET, settings2[i],
+						trap_Cvar_VariableIntegerValue(settings[i])));
+		}
+	}
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.110  2002/07/21 18:46:32  niceass
 // weaponprediction cvar added
 //
@@ -1719,6 +1723,17 @@ extern vmCvar_t cg_RQ3_team2model;
 extern vmCvar_t ui_RQ3_teamCount1;
 extern vmCvar_t ui_RQ3_teamCount2;
 extern vmCvar_t ui_RQ3_numSpectators;
+
+// JBravo: MM ingame menu cvars.
+extern vmCvar_t cg_RQ3_timelimit;
+extern vmCvar_t cg_RQ3_roundlimit;
+extern vmCvar_t cg_RQ3_roundtimelimit;
+extern vmCvar_t cg_RQ3_fraglimit;
+extern vmCvar_t cg_RQ3_maxplayers;
+extern vmCvar_t cg_RQ3_forceteamtalk;
+extern vmCvar_t cg_RQ3_limchasecam;
+extern vmCvar_t cg_RQ3_tgren;
+extern vmCvar_t cg_RQ3_friendlyFire;
 
 //Slicer: matchmode team status cvars
 //extern        vmCvar_t                cg_RQ3_RefID;

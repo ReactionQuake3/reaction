@@ -269,7 +269,7 @@ void MM_TeamName_f(gentity_t * ent)
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team1name", buff);
-			trap_SendServerCommand(-1, va("print \"New Team 1 Name: "MM_NAMES_COLOR"%s\n\"", buff));
+			trap_SendServerCommand(-1, va("print \"New Team 1 Name: %s\n\"", buff));
 		} else {
 			if (level.team2ready) {
 				trap_SendServerCommand(ent - g_entities,
@@ -277,7 +277,7 @@ void MM_TeamName_f(gentity_t * ent)
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team2name", buff);
-			trap_SendServerCommand(-1, va("print \"New Team 2 Name: "MM_NAMES_COLOR"%s\n\"", buff));
+			trap_SendServerCommand(-1, va("print \"New Team 2 Name: %s\n\"", buff));
 		}
 	}
 }
@@ -322,10 +322,10 @@ void MM_Referee_f(gentity_t * ent)
 		if (Ref_Exists()) {
 			ref = g_entities + g_RQ3_RefID.integer;
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \"Current Referee: "MM_NAMES_COLOR"%s\n\"", ref->client->pers.netname));
+					       va("print \"Current Referee: %s\n\"", ref->client->pers.netname));
 		} else
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \""MM_DENY_COLOR"No Referee currently assigned, use "MM_NAMES_COLOR"referee <name>"MM_DENY_COLOR" to assign\n\""));
+					       va("print \""MM_DENY_COLOR"No Referee currently assigned, use referee <name>"MM_DENY_COLOR" to assign\n\""));
 		return;
 	}
 	if((g_RQ3_mmflags.integer & MMF_VOTEREF) != MMF_VOTEREF) {
@@ -337,7 +337,7 @@ void MM_Referee_f(gentity_t * ent)
 		if ((ref = getEntByName(buff)) != NULL) {
 			refVotes[captain - 1] = ref - g_entities;
 			trap_SendServerCommand(-1,
-					       va("print \""MM_OK_COLOR"%s has voted "MM_NAMES_COLOR"%s"MM_OK_COLOR" for referee\n\"",
+					       va("print \""MM_OK_COLOR"%s has voted %s"MM_OK_COLOR" for referee\n\"",
 						  ent->client->pers.netname, ref->client->pers.netname));
 			checkRefVotes();
 		} else {
@@ -421,7 +421,7 @@ qboolean Ref_Auth(gentity_t * ent)
 		Com_sprintf(teste, 3, "%i", cn);
 		trap_Cvar_Set("g_RQ3_RefID", teste);
 		trap_SendServerCommand(-1,
-				       va("print \""MM_NAMES_COLOR"%s "MM_OK_COLOR"is the new Referee\n\"",
+				       va("print \"%s "MM_OK_COLOR"is the new Referee\n\"",
 					  ent->client->pers.netname));
 		return qtrue;
 	}
@@ -475,14 +475,14 @@ void Ref_Command(gentity_t * ent)
 		trap_Argv(2, com, sizeof(com));
 		if (Q_stricmp(com, "") == 0) {
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \""MM_DENY_COLOR"You must name a player. Use: "MM_NAMES_COLOR"ref kick <player_name>\n\""));
+					       va("print \""MM_DENY_COLOR"You must name a player. Use: ref kick <player_name>\n\""));
 			return;
 		}
 
 		cn = ClientNumberFromString(ent, com);
 		if (cn == -1) {
 			trap_SendServerCommand(ent - g_entities,
-					       va("print \""MM_NAMES_COLOR"%s "MM_DENY_COLOR"is not on the server\n\"", com));
+					       va("print \"%s "MM_DENY_COLOR"is not on the server\n\"", com));
 			return;
 		}
 		trap_DropClient(cn, "was kicked by the referee");
@@ -525,7 +525,7 @@ void Ref_Command(gentity_t * ent)
 		else{
 			trap_Cvar_Set("g_RQ3_ValidIniFile", "3");
 			g_RQ3_ValidIniFile.integer = 3;
-			trap_SendServerCommand(-1, va("print \""MM_OK_COLOR"Referee changed next map to: "MM_NAMES_COLOR"%s\n\"", param));
+			trap_SendServerCommand(-1, va("print \""MM_OK_COLOR"Referee changed next map to: %s\n\"", param));
 			Com_sprintf(level.voteMap, sizeof(level.voteMap), "map %s",param); 
 			BeginIntermission();		
 		}
@@ -560,8 +560,11 @@ Force Team Talk
 */
 #define NR_SETTVARS 9
 
-const char *settings[] = {"timelimit","g_RQ3_roundlimit","g_RQ3_roundtimelimit","fraglimit","g_RQ3_maxplayers","g_RQ3_forceteamtalk",
-								"g_RQ3_limchasecam","g_RQ3_tgren","g_friendlyFire"};
+const char *settings[] = {"timelimit", "g_RQ3_roundlimit", "g_RQ3_roundtimelimit", "fraglimit", "g_RQ3_maxplayers",
+				"g_RQ3_forceteamtalk", "g_RQ3_limchasecam","g_RQ3_tgren","g_friendlyFire"};
+// JBravo: adding settings2 for cvars to set in the client for the MM ingame menu.
+const char *settings2[] = {"cg_RQ3_timelimit", "cg_RQ3_roundlimit", "cg_RQ3_roundtimelimit", "cg_RQ3_fraglimit",
+				"cg_RQ3_maxplayers", "cg_RQ3_forceteamtalk", "cg_RQ3_limchasecam", "cg_RQ3_tgren", "cg_RQ3_friendlyFire"};
 
 void MM_Settings_f(gentity_t * ent) {
 	int i;
@@ -571,34 +574,36 @@ void MM_Settings_f(gentity_t * ent) {
 		return;
 
 	//Invalid Data SENT
-	if(trap_Argc()-1!= NR_SETTVARS) {
+	if (trap_Argc() -1 != NR_SETTVARS) {
 		return;
 	}
 
-	if((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS) {
+	if ((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change settings\n\""));
 		return;
 	}
-	if(ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer) {
+	if (ent->client->sess.captain == TEAM_FREE && ent - g_entities != g_RQ3_RefID.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Only Captains and Referees can change match Settings\n\""));
 		return;
 	}
 	//Game has begun
-	if(level.inGame) {
+	if (level.inGame) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Settings can only be changed before a game starts\n\""));
 		return;
 	}
 	//Referee locked settings
-	if(level.settingsLocked) {
+	if (level.settingsLocked) {
 			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Settings are currently locked, only Referee can unlock them\n\""));
 			return;
 	}
 
-	for(i = 0; i < NR_SETTVARS; ++i) {
+	for (i = 0; i < NR_SETTVARS; ++i) {
 		trap_Argv(i+1, str, sizeof(str));
 		trap_Cvar_Set(settings[i],str);
+		// JBravo: setting the cvars in cgame now.
+		trap_SendServerCommand(-1, va("rq3_cmd %i %s %s", CVARSET, settings2[i], str));
 	}
 
-	trap_SendServerCommand(-1,va("print \""MM_OK_COLOR"Match Settings have been changed by "MM_NAMES_COLOR"%s\n\"",ent->client->pers.netname));
+	trap_SendServerCommand(-1,va("print \""MM_OK_COLOR"Match Settings have been changed by %s\n\"",ent->client->pers.netname));
 
 }

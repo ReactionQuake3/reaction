@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.90  2002/07/22 07:26:43  niceass
 // better fog laser support
 //
@@ -354,7 +358,8 @@ enum {
 	STARTDEMO,
 	STOPDEMO,
 	SCREENSHOT,
-	OWNED
+	OWNED,
+	CVARSET
 };
 
 //Elder: sound events for EV_RQ3_SOUND

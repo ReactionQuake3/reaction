@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.58  2002/07/20 02:25:53  jbravo
 // Added the AQDT CTB sounds to the base radio paks
 //
@@ -1079,6 +1083,17 @@ void CG_Stuffcmd(void)
 	trap_SendConsoleCommand(cmd);
 }
 
+// JBravo: generic cvar setting command.  Used from game
+void CG_CvarSet(void)
+{
+	char cvar[128], value[128];
+
+	Q_strncpyz(cvar, CG_Argv(2), 128);
+	Q_strncpyz(value, CG_Argv(3), 128);
+
+	trap_Cvar_Set(cvar, value);
+}
+
 /*void CG_SetTeamPlayers(void) {
 		int	team, number;
 			char	teamz[64];
@@ -1295,6 +1310,10 @@ void CG_RQ3_Cmd()
 	case OWNED:
 		if (cg_RQ3_anouncer.integer == 1)
 			CG_AddBufferedSound(cgs.media.humiliationSound);
+		break;
+	case CVARSET:
+		CG_CvarSet();
+		break;
 	default:
 		break;
 	}

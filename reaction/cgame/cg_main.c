@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/07/26 06:21:43  jbravo
+// Fixed the MM settings stuff so it works on remote servers also.
+// Removed the MM_NAMES_COLOR since it broke on nicks with color in them.
+//
 // Revision 1.99  2002/07/21 18:46:57  niceass
 // weaponprediction cvar added
 //
@@ -471,6 +475,17 @@ vmCvar_t cg_enableLaserFog;
 // JBravo: ditto
 vmCvar_t cg_enableDust;
 
+// JBravo: cvars for the MM ingame menu
+vmCvar_t cg_RQ3_timelimit;
+vmCvar_t cg_RQ3_roundlimit;
+vmCvar_t cg_RQ3_roundtimelimit;
+vmCvar_t cg_RQ3_fraglimit;
+vmCvar_t cg_RQ3_maxplayers;
+vmCvar_t cg_RQ3_forceteamtalk;
+vmCvar_t cg_RQ3_limchasecam;
+vmCvar_t cg_RQ3_tgren;
+vmCvar_t cg_RQ3_friendlyFire;
+
 typedef struct {
 	vmCvar_t *vmCvar;
 	char *cvarName;
@@ -640,6 +655,16 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_gravity, "g_gravity", "800", 0},
 	//Slicer: Team Status Cvars for MM
 	{&cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
+	// JBravo: more MM ingame cvars.
+	{&cg_RQ3_timelimit, "cg_RQ3_timelimit", "0", CVAR_ROM},
+	{&cg_RQ3_roundlimit, "cg_RQ3_roundlimit", "0", CVAR_ROM},
+	{&cg_RQ3_roundtimelimit, "cg_RQ3_roundtimelimit", "0", CVAR_ROM},
+	{&cg_RQ3_fraglimit, "cg_RQ3_fraglimit", "0", CVAR_ROM},
+	{&cg_RQ3_maxplayers, "cg_RQ3_maxplayers", "0", CVAR_ROM},
+	{&cg_RQ3_forceteamtalk, "cg_RQ3_forceteamtalk", "0", CVAR_ROM},
+	{&cg_RQ3_limchasecam, "cg_RQ3_limchasecam", "0", CVAR_ROM},
+	{&cg_RQ3_tgren, "cg_RQ3_tgren", "0", CVAR_ROM},
+	{&cg_RQ3_friendlyFire, "cg_RQ3_friendlyFire", "0", CVAR_ROM},
 	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 
 //      { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
