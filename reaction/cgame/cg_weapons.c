@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2003/03/29 15:04:03  jbravo
+// Removing skin replacement cvars
+//
 // Revision 1.107  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -621,6 +624,7 @@ void CG_RegisterWeapon(int weaponNum)
 	weaponInfo_t *weaponInfo;
 	gitem_t *item, *ammo;
 	char path[MAX_QPATH];
+	char *model, *skin;
 	vec3_t mins, maxs;
 	// QUARANTINE - Weapon Animations - Added Variable
 	char filename[MAX_QPATH];	//Used to open animation.cfg files
@@ -729,34 +733,27 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/mk23/mk23fire.wav", qfalse);
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound("sound/weapons/mk23/mk23reload.wav", qfalse);
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_mk23_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_mk23.string);
+		skin = skinFromStr(cg_RQ3_mk23.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_mk23.string, cg_RQ3_mk23_skin.string));
-			}
-		}
-		if (strcmp(cg_RQ3_ammo_mk23_skin.string, "default")) {
-			weaponInfo->ammocustomSkin = trap_R_RegisterSkin (va("models/ammo/%s.skin",
-				cg_RQ3_ammo_mk23_skin.string));
-			if (!weaponInfo->ammocustomSkin) {
-				Com_Printf("^1Weapon skin load failure: %s\n", va("models/ammo/%s.skin",
-					cg_RQ3_ammo_mk23_skin.string));
+				Com_Printf("^1Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_mk23.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_mk23.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -772,16 +769,17 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->missileModel =
 		    trap_R_RegisterModel(va("models/weapons2/%s/knife.md3", cg_RQ3_knife.string));
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_knife_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_knife.string, cg_RQ3_knife_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_knife.string);
+		skin = skinFromStr(cg_RQ3_knife.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_knife.string, cg_RQ3_knife_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_knife.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
@@ -796,22 +794,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_m4_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_m4.string, cg_RQ3_m4_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_m4.string);
+		skin = skinFromStr(cg_RQ3_m4.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_m4.string, cg_RQ3_m4_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_m4.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_m4.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -831,21 +830,22 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_ssg3000_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_ssg3000.string, cg_RQ3_ssg3000_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_ssg3000.string);
+		skin = skinFromStr(cg_RQ3_ssg3000.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_ssg3000.string, cg_RQ3_ssg3000_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_ssg3000.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_ssg3000.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -862,22 +862,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_mp5_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_mp5.string, cg_RQ3_mp5_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_mp5.string);
+		skin = skinFromStr(cg_RQ3_mp5.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_mp5.string, cg_RQ3_mp5_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_mp5.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_mp5.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -895,23 +896,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_handcannon_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_handcannon.string, cg_RQ3_handcannon_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_handcannon.string);
+		skin = skinFromStr(cg_RQ3_handcannon.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_handcannon.string, cg_RQ3_handcannon_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_handcannon.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg",
-				    cg_RQ3_handcannon.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -927,22 +928,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->worldReloadSound[1] = trap_S_RegisterSound("sound/weapons/m3/m3in.wav", qfalse);
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_m3_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_m3.string, cg_RQ3_m3_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_m3.string);
+		skin = skinFromStr(cg_RQ3_m3.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_m3.string, cg_RQ3_m3_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_m3.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_m3.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -961,22 +963,23 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion");
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_akimbo_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_akimbo.string, cg_RQ3_akimbo_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_akimbo.string);
+		skin = skinFromStr(cg_RQ3_akimbo.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_akimbo.string, cg_RQ3_akimbo_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_akimbo.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_akimbo.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -995,23 +998,24 @@ void CG_RegisterWeapon(int weaponNum)
 		//Blaze: Make sure we load this as we may have exploding crates
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		// JBravo: skin replacements
-		if (strcmp(cg_RQ3_grenade_skin.string, "default")) {
-			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin",
-				cg_RQ3_grenade.string, cg_RQ3_grenade_skin.string));
+		// Makro - no longer using skin cvars
+		model = modelFromStr(cg_RQ3_grenade.string);
+		skin = skinFromStr(cg_RQ3_grenade.string);
+		if (strcmp(skin, "default")) {
+			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
-				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin",
-					cg_RQ3_grenade.string, cg_RQ3_grenade_skin.string));
+				Com_Printf("Weapon skin load failure: %s\n", va("models/weapons2/%s/%s.skin", model, skin));
 			}
 		}
 		// Load the animation information
-		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", cg_RQ3_grenade.string);
+		Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/animation.cfg", model);
 		if (!CG_ParseWeaponAnimFile(filename, weaponInfo)) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
-			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", cg_RQ3_grenade.string);
+			Com_sprintf(filename, sizeof(filename), "models/weapons2/%s/sound.cfg", model);
 			if (!CG_ParseWeaponSoundFile(filename, weaponInfo)) {
 				Com_Printf("Failed to load weapon sound file %s\n", filename);
 			}
@@ -1036,6 +1040,7 @@ void CG_RegisterItemVisuals(int itemNum)
 {
 	itemInfo_t *itemInfo;
 	gitem_t *item;
+	char *model, *skin;
 
 	itemInfo = &cg_items[itemNum];
 	if (itemInfo->registered) {
@@ -1054,52 +1059,58 @@ void CG_RegisterItemVisuals(int itemNum)
 	}
 // JBravo: replacement skins for items
 	if (item->giType == IT_HOLDABLE) {
-		if (!strcmp(item->classname, "item_kevlar") && strcmp(cg_RQ3_kevlar_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
+		if (!strcmp(item->classname, "item_kevlar")) {
+			model = modelFromStr(cg_RQ3_kevlar.string);
+			skin = skinFromStr(cg_RQ3_kevlar.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
-		if (!strcmp(item->classname, "item_silencer") && strcmp(cg_RQ3_silencer_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_silencer.string, cg_RQ3_silencer_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_kevlar.string, cg_RQ3_kevlar_skin.string));
+		if (!strcmp(item->classname, "item_silencer")) {
+			model = modelFromStr(cg_RQ3_silencer.string);
+			skin = skinFromStr(cg_RQ3_silencer.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
-		if (!strcmp(item->classname, "item_laser") && strcmp(cg_RQ3_laser_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_laser.string, cg_RQ3_laser_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_laser.string, cg_RQ3_laser_skin.string));
+		if (!strcmp(item->classname, "item_laser")) {
+			model = modelFromStr(cg_RQ3_laser.string);
+			skin = skinFromStr(cg_RQ3_laser.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
-		if (!strcmp(item->classname, "item_bandolier") && strcmp(cg_RQ3_bandolier_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_bandolier.string, cg_RQ3_bandolier_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_bandolier.string, cg_RQ3_bandolier_skin.string));
+		if (!strcmp(item->classname, "item_bandolier")) {
+			model = modelFromStr(cg_RQ3_bandolier.string);
+			skin = skinFromStr(cg_RQ3_bandolier.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
-		if (!strcmp(item->classname, "item_slippers") && strcmp(cg_RQ3_slippers_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_slippers.string, cg_RQ3_slippers_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_slippers.string, cg_RQ3_slippers_skin.string));
+		if (!strcmp(item->classname, "item_slippers")) {
+			model = modelFromStr(cg_RQ3_slippers.string);
+			skin = skinFromStr(cg_RQ3_slippers.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
-		if (!strcmp(item->classname, "item_helmet") && strcmp(cg_RQ3_helmet_skin.string, "default")) {
-			itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin",
-				cg_RQ3_helmet.string, cg_RQ3_helmet_skin.string));
-			if (!itemInfo->customSkin) {
-				Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin",
-					cg_RQ3_helmet.string, cg_RQ3_helmet_skin.string));
+		if (!strcmp(item->classname, "item_helmet")) {
+			model = modelFromStr(cg_RQ3_helmet.string);
+			skin = skinFromStr(cg_RQ3_helmet.string);
+			if (strcmp(skin, "default")) {
+				itemInfo->customSkin = trap_R_RegisterSkin (va("models/items/%s/%s.skin", model, skin));
+				if (!itemInfo->customSkin)
+					Com_Printf("Item skin load failure: %s\n", va("models/items/%s/%s.skin", model, skin));
 			}
 		}
 	}

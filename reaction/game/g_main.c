@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2003/03/29 15:04:03  jbravo
+// Removing skin replacement cvars
+//
 // Revision 1.139  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -783,14 +786,17 @@ Written by JBravo to catch the bad gEnt bug
 void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
 {
 	if (ent == NULL) {
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a NULL ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_LinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a unaligned ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_LinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with s.number outof range from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_LinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
 	}
@@ -801,14 +807,17 @@ void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
 void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
 {
 	if (ent == NULL) {
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_UnlinkEntity got called with a NULL ent from line %d of file %s\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_UnlinkEntity got called with a unaligned ent from line %d of file %s\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_UnlinkEntity got called with s.number outof range from line %d of file %s\n", line, file);
 	}
@@ -819,14 +828,17 @@ void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
 void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file)
 {
 	if (ent == NULL) {
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s\n", line, file);
 	}
 	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s\n", line, file);
 	}
 	if (ent->s.number <0 || ent->s.number > level.num_entities) {
+		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n\"", line, file));
 		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
 		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s\n", line, file);
 	}
