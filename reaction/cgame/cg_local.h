@@ -92,6 +92,7 @@ typedef enum {
 	FOOTSTEP_ENERGY,
 	FOOTSTEP_METAL,
 	FOOTSTEP_SPLASH,
+	FOOTSTEP_GRASS,		// Elder: new surface sounds
 
 	FOOTSTEP_TOTAL
 } footstep_t;
@@ -377,16 +378,13 @@ typedef struct weaponInfo_s {
 	gitem_t			*item;
 
 	qhandle_t		handsModel;			// the hands don't actually draw, they just position the weapon
-	qhandle_t		weaponModel;
+	qhandle_t		weaponModel;		// Third-person/world model
 	qhandle_t		barrelModel;
 	qhandle_t		flashModel;
-	//Elder: added third person model to weaponInfo structure
-	qhandle_t		firstModel;
-	//Blaze: for animations
-	qhandle_t		animHandModel;
-	animation_t animations[MAX_WEAPON_ANIMATIONS];
-
 	
+	qhandle_t		firstModel;			//Elder: view model
+	qhandle_t		animHandModel;		//Blaze: for animations
+	animation_t animations[MAX_WEAPON_ANIMATIONS];
 
 	vec3_t			weaponMidpoint;		// so it will rotate centered instead of by tag
 
@@ -413,6 +411,9 @@ typedef struct weaponInfo_s {
 
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
+	sfxHandle_t		reloadSound1;		// Elder: for various reload stages such as
+	sfxHandle_t		reloadSound2;		// Clip in, clip out, sliding, sliding bolt,
+	sfxHandle_t		reloadSound3;		// etc.  Three should be enough
 	qboolean		loopFireSound;
 } weaponInfo_t;
 
@@ -661,6 +662,7 @@ typedef struct {
 	
 	qboolean		laserSight;	//Whether to draw local laser sight
 	localEntity_t	*laserEnt;	//Local model -- NULL if not in-use
+	qboolean		rq3_irvision;	// Elder: enabled IR vision
 
 } cg_t;
 
@@ -1462,6 +1464,7 @@ void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
 void CG_FireWeapon( centity_t *cent, int weapModification );
+void CG_ReloadWeapon( centity_t *cent, int reloadStage );	//Elder: added
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );

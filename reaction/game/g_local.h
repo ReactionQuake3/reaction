@@ -392,6 +392,7 @@ struct gclient_s {
 	int			fastReloads;			// Elder: for queuing M3/SSG reloads
 	int			lastReloadTime;			// Elder: for queuing M3/SSG reloads
 	int			reloadAttempts;			// Elder: for queuing M3/SSG reloads
+	int			reloadStage;			
 	
 	int			consecutiveShots;		// Elder: for M4 ride-up/kick
 	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var

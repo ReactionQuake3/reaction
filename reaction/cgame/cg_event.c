@@ -1402,6 +1402,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_METAL ][rand()&3] );
 		}
 		break;
+	case EV_FOOTSTEP_GRASS:
+		DEBUGNAME("EV_FOOTSTEP_GRASS");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
+				cgs.media.footsteps[ FOOTSTEP_GRASS ][rand()&3] );
+		}
+		break;
 	case EV_FOOTSPLASH:
 		DEBUGNAME("EV_FOOTSPLASH");
 		if (cg_footsteps.integer) {
@@ -1679,7 +1686,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_NOAMMO");
 		//Elder: Only play on non-grenade/knife
 		//Todo: use "out of ammo sound" for specific gun?
-		switch ( cg.snap->ps.weapon )
+		switch ( cent->currentState.weapon )
 		{
 			case WP_GRENADE:
 			case WP_KNIFE:
@@ -1704,14 +1711,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: modified
 		CG_FireWeapon( cent, es->eventParm );
 		break;
-
-	// Reaction Zoom
-	/*
-	case EV_ZOOM:
-		DEBUGNAME("EV_ZOOM");
-		CG_rxn_zoom(es->eventParm);
+	case EV_RELOAD_WEAPON:
+		DEBUGNAME("EV_RELOAD_WEAPON");
+		CG_ReloadWeapon( cent, es->eventParm );
 		break;
-	*/
 	case EV_USE_ITEM0:
 		DEBUGNAME("EV_USE_ITEM0");
 		CG_UseItem( cent );
@@ -1964,6 +1967,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				//TODO: make sparks from hit position
 				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
 				break;
+			//case RQ3_SOUND_RELOAD_PISTOL:
+				//trap_S_StartSound( es->pos.trBase, es->number, CHAN_AUTO, cgs.media.reloadmk23Sound);
+				//break;
     		default:
     			break;
 		}
@@ -2094,7 +2100,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: headshot spray + sound
 		DEBUGNAME("EV_HEADSHOT");
 		//trap_S_StartSound( es->pos.trBase, es->number, CHAN_AUTO, cgs.media.headshotSound);
-		trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
+		trap_S_StartSound( cent->lerpOrigin, es->number, CHAN_AUTO, cgs.media.headshotSound);
 		ByteToDir(es->eventParm, dir);
 		VectorAdd(es->pos.trBase, dir, dir);
 		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum, 8);

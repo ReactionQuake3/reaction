@@ -519,9 +519,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char		*killerName, *obit;
 	
 	
-	//Elder: Can't send events.
-	//G_AddEvent(self,EV_ZOOM,0);
-	
 	//Blaze: Stop bleeding when dead
     if ( self->client )
     {
@@ -538,14 +535,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		//Elder: remove zoom bits
 		Cmd_Unzoom(self);
-		//self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		//self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-		//self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
         self->client->bleed_remain = 0;
         //Elder: added;
-        //self->client->isBandaging = qfalse;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
 		self->client->ps.stats[STAT_STREAK] = 0;
@@ -607,13 +600,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// broadcast the death event to everyone
 	// Elder: use appropriate obit event
-	if ( (self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD)
+	if ( (self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
+		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE )
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_HEAD );
-	else if ( (self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST)
+	else if ( (self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
+			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER)
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_CHEST );
-	else if ( (self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH)
+	else if ( (self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
+			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN)
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_STOMACH );
-	else if ( (self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG)
+	else if ( (self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
+			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT)
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY_LEGS );
 	else
 		ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
@@ -737,6 +734,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
 			Team_ReturnFlag(TEAM_BLUE);
+		//Elder: include immediate item and weapon return here
 		}
 	}
 #ifdef MISSIONPACK
@@ -1662,7 +1660,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                                     take = take * 0.325;
 								}
 								else
-								{	trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));	
+								{
+									trap_SendServerCommand( attacker-g_entities, va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"", targ->client->pers.netname));	
 									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s shot\n\"", attacker->client->pers.netname ));
 									take = take/10;
 									instant_dam = 1;

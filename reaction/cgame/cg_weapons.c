@@ -733,10 +733,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 	strcat( path, "_hand.md3" );
 	weaponInfo->handsModel = trap_R_RegisterModel( path );
 
-	//Elder: added to cache 3rd-person models (hopefully)
+	//Elder: added to cache 1st-person models
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension( path, path );
-	//Elder: changed from _3rd to _1st
 	strcat( path, "_1st.md3" );
 	weaponInfo->firstModel = trap_R_RegisterModel( path );
 
@@ -757,22 +756,26 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mk23/mk23out.wav", qfalse );
+		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mk23/mk23in.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mk23/mk23slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/mk23/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 		}
-
 		break;
 		
 	case WP_KNIFE:
+		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/slash.wav", qfalse );
 		weaponInfo->missileModel = trap_R_RegisterModel("models/weapons2/knife/knife.md3");
+
 		//weaponInfo->missileTrailFunc = CG_GrenadeTrail;
-		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
-		weaponInfo->wiTrailTime = 700;
-		weaponInfo->trailRadius = 32;
+		//weaponInfo->wiTrailTime = 700;
+		//weaponInfo->trailRadius = 32;
 		break;
 		
 	case WP_M4:
@@ -780,6 +783,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m4/m4out.wav", qfalse );
+		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
 		
@@ -811,6 +816,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_M3:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m3/m3in.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
@@ -832,7 +838,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_GRENADE:
 		//Changed from _3rd
 		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/grenade.md3" );
-		weaponInfo->missileTrailFunc = CG_GrenadeTrail;
+		//Elder: removed for the last time!! ;
+		//weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
@@ -904,28 +911,25 @@ CG_MapTorsoToWeaponFrame
 */
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
-	//Elder: another hack
-	if (ci->curWeapon != WP_PISTOL && ci->curWeapon != WP_M3)
-	{
-		// change weapon
-		if ( frame >= ci->animations[TORSO_DROP].firstFrame 
-			&& frame < ci->animations[TORSO_DROP].firstFrame + 9 ) {
-			return frame - ci->animations[TORSO_DROP].firstFrame + 6;
-		}
-		
-
-		// stand attack
-		if ( frame >= ci->animations[TORSO_ATTACK].firstFrame 
-			&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6 ) {
-			return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
-		}
-
-		// stand attack 2
-		if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame 
-			&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6 ) {
-			return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
-		}
+	// change weapon
+	if ( frame >= ci->animations[TORSO_DROP].firstFrame 
+		&& frame < ci->animations[TORSO_DROP].firstFrame + 9 ) {
+		return frame - ci->animations[TORSO_DROP].firstFrame + 6;
 	}
+	
+
+	// stand attack
+	if ( frame >= ci->animations[TORSO_ATTACK].firstFrame 
+		&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6 ) {
+		return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
+	}
+
+	// stand attack 2
+	if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame 
+		&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6 ) {
+		return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
+	}
+
 	return 0;
 }
 
@@ -1199,43 +1203,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	{
 		//Elder: We are in third person, use the third-person model (DEFAULT)
 		gun.hModel = weapon->weaponModel;
-		
-			/* Elder: use the cached model above
-			switch (weaponNum)//Blaze: Used to make the third person weapon models different then 1st person
-			{
-			case 0:
-				//gun.hModel = trap_R_RegisterModel( "models/weapons2/mk23/3rd_mk23.md3" );
-				//No Case zero
-				break;
-			case 1:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/knife/3rd_knife.md3");
-				break;
-			case 2:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/mk23/3rd_mk23.md3");
-				break;
-			case 3:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/m4/3rd_m4.md3");
-				break;
-			case 4:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/ssg3000/3rd_ssg3000.md3");
-				break;
-			case 5:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/mp5/3rd_mp5.md3");
-				break;
-			case 6:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/m3/3rd_m3.md3");
-				break;
-			case 7:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/handcannon/3rd_handcannon.md3");
-				break;
-			case 8:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/mk23/3rd_mk23.md3");
-				break;
-			case 9:
-				gun.hModel = trap_R_RegisterModel("models/weapons2/grenade/3rd_grenade.md3");
-				break;
-			}
-			*/
 	}
 	else {
 		//Elder: we are in first-person, use the first-person (NOT default) model
@@ -1528,18 +1495,22 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	AnglesToAxis( angles, hand.axis );
 
-	// map torso animations to weapon animations
-	if ( cg_gun_frame.integer ) {
-		// development tool
-		hand.frame = hand.oldframe = cg_gun_frame.integer;
-		hand.backlerp = 0;
-	} else {
-		// get clientinfo for animation map
-		ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-		hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame );
-		hand.oldframe = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.oldFrame );
-		hand.backlerp = cent->pe.torso.backlerp;
-	}
+	//Elder: temp hack
+	//if ( ps->weapon != WP_PISTOL && ps->weapon != WP_M3)
+	//{
+		// map torso animations to weapon animations
+		if ( cg_gun_frame.integer || ps->weapon == WP_PISTOL || ps->weapon == WP_M3) {
+			// development tool
+			hand.frame = hand.oldframe = cg_gun_frame.integer;
+			hand.backlerp = 0;
+		} else {
+				// get clientinfo for animation map
+				ci = &cgs.clientinfo[ cent->currentState.clientNum ];
+				hand.frame = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.frame );
+				hand.oldframe = CG_MapTorsoToWeaponFrame( ci, cent->pe.torso.oldFrame );
+				hand.backlerp = cent->pe.torso.backlerp;
+		}
+	//}
 
 	hand.hModel = weapon->handsModel;
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
@@ -2243,7 +2214,8 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType ) {
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, 
+							vec3_t dir, impactSound_t soundType ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -2957,3 +2929,66 @@ void CG_CheckLaser()
 	}
 }
 
+
+/*
+==================
+CG_ReloadWeapon
+
+Elder: Does local reload effects like
+reload shell drops, sounds, etc.
+==================
+*/
+void CG_ReloadWeapon (centity_t *cent, int reloadStage)
+{
+	entityState_t *ent;
+	weaponInfo_t	*weap;
+
+	ent = &cent->currentState;
+	if ( ent->weapon == WP_NONE ) {
+		return;
+	}
+	if ( ent->weapon >= WP_NUM_WEAPONS ) {
+		CG_Error( "CG_ReloadWeapon: ent->weapon >= WP_NUM_WEAPONS" );
+		return;
+	}
+	
+	weap = &cg_weapons[ ent->weapon ];
+
+	switch (reloadStage)
+	{
+		case 0:
+			if (weap->reloadSound1)
+			{
+				if (ent->clientNum == cg.snap->ps.clientNum)
+					trap_S_StartLocalSound(weap->reloadSound1, CHAN_AUTO);
+				else
+					trap_S_StartSound(cent->lerpOrigin, ent->number,
+										CHAN_AUTO, weap->reloadSound1);
+			}
+			break;
+		case 1:
+			if (weap->reloadSound2)
+			{
+				if (ent->clientNum == cg.snap->ps.clientNum)
+					trap_S_StartLocalSound(weap->reloadSound2, CHAN_AUTO);
+				else
+					trap_S_StartSound(cent->lerpOrigin, ent->number,
+										CHAN_AUTO, weap->reloadSound2);
+			}
+			//TODO: drop handcannon shells here
+			break;
+		case 2:
+			if (weap->reloadSound3)
+			{
+				if (ent->clientNum == cg.snap->ps.clientNum)
+					trap_S_StartLocalSound(weap->reloadSound3, CHAN_AUTO);
+				else
+					trap_S_StartSound(cent->lerpOrigin, ent->number,
+										CHAN_AUTO, weap->reloadSound3);
+			}
+			break;
+		default:
+			CG_Error("CG_ReloadWeapon: Reload stage > 2\n");
+			break;
+	}
+}

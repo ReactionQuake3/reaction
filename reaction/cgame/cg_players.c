@@ -1095,6 +1095,14 @@ static void CG_SetWeaponLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAni
 	if ( cg_debugAnim.integer ) {
 		CG_Printf( "Weapon Anim: %i\n", newAnimation );
 	}
+
+	//Elder: reset frame?
+	if ( cg_debugAnim.integer ) {
+		CG_Printf("Anim: %d, Old lf->frame %d, New lf->frame: %d\n",
+						newAnimation, lf->frame, anim->firstFrame);
+	}
+	lf->frame = anim->firstFrame;
+	
 }
 
 
@@ -2219,6 +2227,16 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			ent->customShader = cgs.media.battleSuitShader;
 			trap_R_AddRefEntityToScene( ent );
 		}
+
+		//Elder: IR Vision
+		if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
+			cg.rq3_irvision && !(state->eFlags & EF_DEAD))
+		{
+				//Temporary heh
+				ent->customShader = cgs.media.quadShader;
+				trap_R_AddRefEntityToScene( ent );
+		}
+		
 	}
 }
 

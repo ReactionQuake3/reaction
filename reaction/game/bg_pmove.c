@@ -1144,6 +1144,10 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
 		return EV_FOOTSTEP_METAL;
 	}
+	//Elder: added for footstep support
+	if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
+		return EV_FOOTSTEP_GRASS;
+	}
 	return EV_FOOTSTEP;
 }
 
@@ -1283,6 +1287,7 @@ void PM_CheckStuck(void) {
 
 	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, pm->ps->origin, pm->ps->clientNum, pm->tracemask);
 	if (trace.allsolid) {
+		//Elder: LMAO! WTF is this?
 		//int shit = qtrue;
 	}
 }
@@ -1758,31 +1763,31 @@ static void PM_BeginWeaponChange( int weapon ) {
 	//Elder: dependent time for each weapon
 	switch (pm->ps->weapon) {
 	case WP_PISTOL:
-		pm->ps->weaponTime += RQ3_PISTOL_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_PISTOL_DISARM_DELAY;
 		break;
 	case WP_M3:
-		pm->ps->weaponTime += RQ3_M3_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_M3_DISARM_DELAY;
 		break;
 	case WP_M4:
-		pm->ps->weaponTime += RQ3_M4_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_M4_DISARM_DELAY;
 		break;
 	case WP_MP5:
-		pm->ps->weaponTime += RQ3_MP5_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_MP5_DISARM_DELAY;
 		break;
 	case WP_HANDCANNON:
-		pm->ps->weaponTime += RQ3_HANDCANNON_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_HANDCANNON_DISARM_DELAY;
 		break;
 	case WP_SSG3000:
-		pm->ps->weaponTime += RQ3_SSG3000_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_SSG3000_DISARM_DELAY;
 		break;
 	case WP_AKIMBO:
-		pm->ps->weaponTime += RQ3_AKIMBO_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_AKIMBO_DISARM_DELAY;
 		break;
 	case WP_KNIFE:
-		pm->ps->weaponTime += RQ3_KNIFE_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_KNIFE_DISARM_DELAY;
 		break;
 	case WP_GRENADE:
-		pm->ps->weaponTime += RQ3_GRENADE_SWITCH1_DELAY;
+		pm->ps->weaponTime += RQ3_GRENADE_DISARM_DELAY;
 		break;
 	default:
 		//Elder: shouldn't be here
@@ -1791,6 +1796,9 @@ static void PM_BeginWeaponChange( int weapon ) {
 		break;
 	}
 
+	//Elder: temp hack
+	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
+		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
 
@@ -1826,33 +1834,33 @@ static void PM_FinishWeaponChange( void ) {
 	pm->ps->weaponstate = WEAPON_RAISING;
 	//pm->ps->weaponTime += 250;
 	//Elder: weapon-dependent timing
-	switch (pm->ps->weapon) {
+	switch (pm->ps->weapon)	{
 	case WP_PISTOL:
-		pm->ps->weaponTime += RQ3_PISTOL_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_PISTOL_ACTIVATE_DELAY;
 		break;
 	case WP_M3:
-		pm->ps->weaponTime += RQ3_M3_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_M3_ACTIVATE_DELAY;
 		break;
 	case WP_M4:
-		pm->ps->weaponTime += RQ3_M4_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_M4_ACTIVATE_DELAY;
 		break;
 	case WP_MP5:
-		pm->ps->weaponTime += RQ3_MP5_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_MP5_ACTIVATE_DELAY;
 		break;
 	case WP_HANDCANNON:
-		pm->ps->weaponTime += RQ3_HANDCANNON_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_HANDCANNON_ACTIVATE_DELAY;
 		break;
 	case WP_SSG3000:
-		pm->ps->weaponTime += RQ3_SSG3000_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_SSG3000_ACTIVATE_DELAY;
 		break;
 	case WP_AKIMBO:
-		pm->ps->weaponTime += RQ3_AKIMBO_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_AKIMBO_ACTIVATE_DELAY;
 		break;
 	case WP_KNIFE:
-		pm->ps->weaponTime += RQ3_KNIFE_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_KNIFE_ACTIVATE_DELAY;
 		break;
 	case WP_GRENADE:
-		pm->ps->weaponTime += RQ3_GRENADE_SWITCH2_DELAY;
+		pm->ps->weaponTime += RQ3_GRENADE_ACTIVATE_DELAY;
 		break;
 	default:
 		//Elder: shouldn't be here
@@ -1860,6 +1868,10 @@ static void PM_FinishWeaponChange( void ) {
 		pm->ps->weaponTime += 750;
 		break;
 	}
+
+	//Elder: temp hack
+	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
+		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
 
@@ -1900,16 +1912,13 @@ static void PM_WeaponAnimation( void ) {
 	if (pm->ps->weaponstate == WEAPON_RELOADING)
 	{
 		PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
-		//Elder - using the above now
-		//PM_StartWeaponAnim( WP_ANIM_RELOAD );
-		//Elder: only reason it's like this is b/c reloading causes WEAPON_DROPPING
-		//and we can't see the weapon -- but this screws with fast-reloads
-		//Remedy is to not call a TORSO_DROP in Cmd_Reload
-		//pm->ps->weaponstate = WEAPON_READY;
 	}
 	else if (pm->ps->weaponstate == WEAPON_READY)
 		PM_ContinueWeaponAnim( WP_ANIM_IDLE );
-
+	else if (pm->ps->weaponstate == WEAPON_DROPPING)
+		PM_ContinueWeaponAnim( WP_ANIM_DISARM );
+	else if (pm->ps->weaponstate == WEAPON_RAISING)
+		PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
 	return;
 }
 
@@ -1987,6 +1996,13 @@ static void PM_Weapon( void ) {
 			}
 
 			PM_BeginWeaponChange( pm->cmd.weapon );
+		}
+		else
+		{
+			//Elder: added
+			if (pm->ps->weaponstate == WEAPON_READY &&
+				(pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3))
+				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 		}
 	}
 
@@ -2084,10 +2100,17 @@ static void PM_Weapon( void ) {
 		return;
 	}*/
 
-	//Elder: custom fire animations go here
-	// start the animation even if out of ammo
+	// check for out of ammo
+	if ( ! pm->ps->ammo[ pm->ps->weapon ]) {
+		PM_AddEvent( EV_NOAMMO );
+		pm->ps->weaponTime += 500;
+		return;
+	}
+	
+	//Elder: custom player model fire animations go here
+	// start the animation even if out of ammo -- Elder: NO WAY
 	if ( pm->ps->weapon == WP_KNIFE ) {
-		// the guantlet only "fires" when it actually hits something
+		// the gauntlet only "fires" when it actually hits something
 //		if ( !pm->gauntletHit ) {
 //			pm->ps->weaponTime = 0;
 //			pm->ps->weaponstate = WEAPON_READY;
@@ -2095,22 +2118,23 @@ static void PM_Weapon( void ) {
 //		}
 		PM_StartTorsoAnim( TORSO_ATTACK2 );
 	} else {
-		PM_StartTorsoAnim( TORSO_ATTACK );
+		// Elder: don't repeat if semi-auto
+		if ( !(pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] ||
+			   pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ||
+			   pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2) )
+
+		{
+			PM_StartTorsoAnim( TORSO_ATTACK );
+
+			// QUARANTINE - Weapon animations
+			// This should change pm->ps->generic1 so we can animate
+			// Elder: don't repeat if on semi-auto
+			if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3)
+				PM_StartWeaponAnim( WP_ANIM_FIRE );
+		}
 	}
 	
 	pm->ps->weaponstate = WEAPON_FIRING;
-
-	// check for out of ammo
-	if ( ! pm->ps->ammo[ pm->ps->weapon ]) {
-		PM_AddEvent( EV_NOAMMO );
-		pm->ps->weaponTime += 500;
-		return;
-	}
-
-	// QUARANTINE - Weapon animations
-	// This should change pm->ps->generic1 so we can animate
-	PM_StartWeaponAnim( WP_ANIM_FIRE );
-
 
 	//Elder: M4 kick code
 	//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);

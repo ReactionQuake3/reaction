@@ -243,6 +243,7 @@ void CG_Respawn( void ) {
 	
 	//Elder: added to reset zoom stuff LOCALLY
 	CG_RQ3_Zoom1x();
+
 }
 
 extern char *eventnames[];

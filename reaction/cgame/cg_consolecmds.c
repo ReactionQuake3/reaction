@@ -80,8 +80,8 @@ static void CG_DropItem_f (void) {
 	}
 
 	//Elder: don't allow item dropping when in the middle of bursts
-	if (cg.snap->ps.stats[STAT_BURST] > 0)
-		return;
+	//if (cg.snap->ps.stats[STAT_BURST] > 0)
+		//return;
 
 	trap_SendClientCommand("dropitem");
 }
@@ -97,7 +97,6 @@ the client command to reduce bandwidth use slightly
 */
 static void CG_Bandage_f (void) {
 	if ( !cg.snap ) {
-		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
 
@@ -119,8 +118,6 @@ static void CG_Bandage_f (void) {
 
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are already bandaging!\n");
-		//cg.zoomed = 0;
-		//cg.zoomLevel = 0;
 		return;
 	}
 
@@ -134,6 +131,9 @@ static void CG_Bandage_f (void) {
 		//CG_Printf("You are too busy with your weapon!\n");
 		//return;
 	//}
+	if (cg.snap->ps.weaponTime > 0)
+		return;
+
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {
 		CG_RQ3_Zoom1x();
 	}
@@ -191,7 +191,7 @@ static void CG_Reload_f (void) {
 		return;
 	}
 
-	//cg.rq3_reloadDown = qtrue;
+	cg.rq3_reloadDown = qtrue;
 
 	//Elder: prevent "reloading" when dead hehe
 	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
@@ -693,6 +693,38 @@ static void CG_SayTeam_f ( void ) {
 	trap_SendClientCommand("say_team");
 }
 
+/*
+==================
+CG_IRVision_f
+
+Elder: Attempt to turn on IR Vision
+==================
+*/
+
+static void CG_IRVision_f ( void ) {
+
+	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
+	{
+		if (cg.rq3_irvision)
+		{
+			CG_Printf("IR vision enabled.\n");
+			cg.rq3_irvision = qfalse;
+		}
+		else
+		{
+			CG_Printf("IR vision disabled.\n");
+			cg.rq3_irvision = qtrue;
+		}
+		
+		trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
+	}
+	else
+	{
+		CG_Printf("You do not have IR goggles.\n");
+	}
+
+}
+
 
 typedef struct {
 	char	*cmd;
@@ -761,7 +793,8 @@ static consoleCommand_t	commands[] = {
 #endif
 	{ "startOrbit", CG_StartOrbit_f },
 	//{ "camera", CG_Camera_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers }	
+	{ "loaddeferred", CG_LoadDeferredPlayers },
+	{ "irvision", CG_IRVision_f }
 };
 
 
@@ -851,4 +884,5 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("messagemode");
 	trap_AddCommand ("messagemode2");
 	trap_AddCommand ("playerorigin");
+	trap_AddCommand ("irvision");
 }

@@ -396,11 +396,16 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 				
 
 		}
+	//Elder: *******************TEST CODE *****************
+	//} else if ( tr.surfaceFlags & SURF_GRASS ) {
+		//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
+		//tent->s.eventParm = DirToByte( tr.plane.normal );
 	} else {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 		tent->s.eventParm = DirToByte( tr.plane.normal );
 	}
 	tent->s.otherEntityNum = ent->s.number;
+	//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
 
 	if ( traceEnt->takedamage) {
 #ifdef MISSIONPACK
@@ -2185,8 +2190,9 @@ void Laser_Think( gentity_t *self )
 	vec3_t		end, start, forward, up;
 	trace_t		tr;
 
-	//If the player dies, or wrong weapon, kill the dot
+	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
+		self->parent->client->ps.pm_type == PM_SPECTATOR ||
 		(self->parent->client->ps.weapon != WP_PISTOL &&
 		self->parent->client->ps.weapon != WP_MP5 &&
 		self->parent->client->ps.weapon != WP_M4))

@@ -1278,6 +1278,7 @@ char *eventnames[] = {
 
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",
+	"EV_FOOTSTEP_GRASS",		// Elder: grass stuff
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
 	"EV_SWIM",
@@ -1308,7 +1309,7 @@ char *eventnames[] = {
 	"EV_NOAMMO",
 	"EV_CHANGE_WEAPON",
 	"EV_FIRE_WEAPON",
-	"EV_ZOOM",		// activates weapon command
+	"EV_RELOAD_WEAPON,"			// Elder: reload weapon sounds
 
 	"EV_USE_ITEM0",
 	"EV_USE_ITEM1",

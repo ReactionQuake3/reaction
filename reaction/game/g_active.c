@@ -22,7 +22,7 @@ global pain sound events for all clients.
 ===============
 */
 void P_DamageFeedback( gentity_t *player ) {
-	gentity_t	*tent;
+//	gentity_t	*tent;
 	gclient_t	*client;
 	float	count, side;
 	vec3_t	angles, v;
@@ -560,14 +560,11 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
 			ent->client->bleedBandageCount = 0;
-			//Elder: added
-			//ent->client->isBandaging = qfalse;
 			//Elder: remove bandage work
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
 
-//			ent->client->ps.weaponTime += 2500;
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
 
@@ -925,35 +922,22 @@ void ThrowWeapon( gentity_t *ent )
 ThrowItem
 
 Used to toss an item much like weapons except a bit leaner
+You can throw items ANY time (firing, bandaging, etc.)
 =============
 */
 
 void ThrowItem( gentity_t *ent )
 {
 	gclient_t	*client;
-	usercmd_t	*ucmd;
 	gitem_t		*xr_item;
 	gentity_t	*xr_drop;
 	int item;
 
 	client = ent->client;
-	ucmd = &ent->client->pers.cmd;
 
-	//Elder: TODO: have to add a reloading case:
 	//itemonTime > 0 or itemonState == itemon_dropping?  Or both?
-	//Still firing
-	if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0) {
-		return;
-	}
-
-	//Elder: Bandaging case
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
-		return;
-	}
-
-		
 	//item = 0;
+
 	if (client->uniqueItems > 0)
 	{
 		item = bg_itemlist[client->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
@@ -1334,40 +1318,6 @@ void ClientThink_real( gentity_t *ent ) {
 			G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
 		}		
-		/*
-		if ( ent->client->weaponfireNextTime != 0 && 
-			level.time >= ent->client->weaponfireNextTime) {
-			//Elder: restore last zoom and clear the variable
-			ent->client->ps.stats[STAT_RQ3] |= ent->client->lastzoom;
-			ent->client->lastzoom = 0;
-			ent->client->weaponfireNextTime = 0;
-		}
-		else if (level.time < ent->client->weaponfireNextTime) {
-			//Elder: stay in 1x until bolt is ready
-			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-		}*/
-		/* else if (level.time - ent->client->lastReloadTime > ent->client->ps.weaponTime) {
-			//Elder: Too buggy at the moment
-			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
-				ent->client->fastReloads = 0;
-			
-			if (!ent->client->fastReloads) {
-				//Elder: For reloading
-				ent->client->ps.stats[STAT_RQ3] |= ent->client->lastzoom;
-				ent->client->lastzoom = 0;
-			}
-		} */
-		break;
-	//case WP_MP5:
-	case WP_M4:
-		/*
-		if (ent->client->weaponfireNextTime != 0 &&
-			level.time >= ent->client->weaponfireNextTime) {
-			//Burst three shots and subtract ammo accordingly
-			FireWeapon(ent);
-			ent->client->ps.ammo[WP_M4]--;
-		}*/
 		break;
 	default:
 		break;
@@ -1484,6 +1434,98 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 	}
 }
 
+
+/*
+==============
+RQ3_ClientReloadStages
+
+Added by Elder
+
+Check to see if any reload events need
+to occur and dispatch if necessary
+This would be completely client-side
+except other players need to hear the reloading
+==============
+*/
+/* // Elder -- bad code -- and should go in pmove anyways
+static void RQ3_ClientReloadStages ( gentity_t *ent )
+{
+	gentity_t	*tent;
+
+	// no events for dead people
+	if (ent->client->ps.pm_type == PM_DEAD)
+	{
+		ent->client->reloadStage = -1;
+		return;
+	}
+
+	if ( ent->client->ps.weaponstate == WEAPON_RELOADING &&
+		 ent->client->ps.weaponTime > 0)
+	{
+		switch (ent->client->ps.weapon)
+		{
+			//Elder: hardcoded timing values :p
+			case WP_PISTOL:
+				if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 1900 &&
+					ent->client->reloadStage == 1)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 2);
+					ent->client->reloadStage = 2;
+				}
+				else if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 1500 &&
+						ent->client->reloadStage == 0)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 1);
+					ent->client->reloadStage = 1;
+				}
+				else if (ent->client->ps.weaponTime < RQ3_PISTOL_RELOAD_DELAY - 100 &&
+						ent->client->reloadStage == -1)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
+					ent->client->reloadStage = 0;
+				}
+				break;
+
+			case WP_M3:
+				if ( ent->client->ps.weaponTime % RQ3_M3_RELOAD_DELAY < RQ3_M3_RELOAD_DELAY - 500 &&
+					ent->client->reloadStage == -1)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
+					ent->client->reloadStage = 0;
+				}
+				break;
+			case WP_M4:
+				if (ent->client->ps.weaponTime < RQ3_M4_RELOAD_DELAY - 1600 &&
+						ent->client->reloadStage == 0)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 1);
+					ent->client->reloadStage = 1;
+				}
+				else if (ent->client->ps.weaponTime < RQ3_M4_RELOAD_DELAY - 300 &&
+						ent->client->reloadStage == -1)
+				{
+					tent = G_TempEntity2(ent->client->ps.origin, EV_RELOAD_WEAPON, 0);
+					ent->client->reloadStage = 0;
+				}
+				break;
+		}
+
+		if (tent)
+		{
+			tent->s.weapon = ent->client->ps.weapon;
+			tent->s.clientNum = ent->client->ps.clientNum;
+		}
+
+	}
+	else if (ent->client->reloadStage != -1)
+	{
+		// Reset reload stage
+		ent->client->reloadStage = -1;
+	}
+
+}
+*/
+
 /*
 ==============
 ClientEndFrame
@@ -1586,16 +1628,7 @@ void ClientEndFrame( gentity_t *ent ) {
 	
 	//Moved to pmove.c
 	//Elder: M4 ride-up/kick -- condition for non-burst and ammo only
-	//if ( ent->client->ps.weapon == WP_M4 && ent->client->ps.ammo[WP_M4] > 0 &&
-		//(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE &&
-		//ent->client->ps.weaponstate == WEAPON_FIRING)
-		//(ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
-	//{
-		//G_Printf("bullets: %d, viewangle: %f\n", ent->client->consecutiveShots, ent->client->ps.viewangles[0]);	
-		//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
-	//}
-	//else if (ent->client->consecutiveShots)
-
+	
 	if (ent->client->consecutiveShots &&
 		(ent->client->ps.ammo[WP_M4] <= 0 || ent->client->ps.weaponstate != WEAPON_FIRING))
 	{
@@ -1611,6 +1644,7 @@ void ClientEndFrame( gentity_t *ent ) {
 			Laser_Gen(ent, qtrue);
 	}		
 
+	//RQ3_ClientReloadStages(ent);
 
 	G_SetClientSound (ent);
 

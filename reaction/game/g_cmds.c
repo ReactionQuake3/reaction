@@ -1620,23 +1620,12 @@ void Cmd_Stats_f( gentity_t *ent ) {
 */
 void Cmd_Bandage (gentity_t *ent)
 {
-	// Zoom out when bandaging.
-	//if( ent->client->zoomed ){
-		//ent->client->zoomed = 0;
-	//}
-
-		//Elder: can't use events
-		//G_AddEvent(ent,EV_ZOOM,0);
-	//}
-
 	//Elder: added so you can't "rebandage"
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-	//if (ent->client->isBandaging == qtrue) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
 		return;
 	}
 
-	//if (ent->client->bleeding || (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
 		 (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
@@ -1652,26 +1641,26 @@ void Cmd_Bandage (gentity_t *ent)
 			ent->client->ps.weaponstate == WEAPON_COCKED) {
 			FireWeapon(ent);
 			ent->client->ps.ammo[WP_GRENADE]--;
-			//if (ent->client->ps.ammo[WP_GRENADE] == 0)
-			//{
-				//ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
-				//ent->client->ps.weapon = WP_PISTOL;
-				//trap_SendServerCommand( ent-g_entities, "selectpistol" );
-			//}
 		}
 
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
-        ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
-               ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
 
+		//Elder: temp hack
+		if (ent->client->ps.weapon == WP_PISTOL || ent->client->ps.weapon == WP_M3)
+		{
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
+		}
+
+		//Elder: always lower the player model
+		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
+			   ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+		
 	
 		ent->client->ps.weaponTime += 6000;
         ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
-
-		//Elder: moved to g_active where it will be unset after 2 bleedticks
-		//ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}
 	else
 	{
@@ -1683,14 +1672,14 @@ void Cmd_Bandage (gentity_t *ent)
 ==================
  Cmd_Reload
  Added by Duffman
+ 
+ Fastreloads:
+ a_cmds in action source for proper behavior.
+ void Cmd_Reload_f (edict_t *ent)
 ==================
 */
-void Cmd_Reload( gentity_t *ent )       {
-	// whoever does reloading, dont' forget fast reloading for ssg and M3 (reloading several
-	// at a time reduces delay between each shell/round
-	// a_cmds in action source for proper behavior.
-	// void Cmd_Reload_f (edict_t *ent)
-
+void Cmd_Reload( gentity_t *ent )
+{
 	int weapon;       
     int ammotoadd;
     int delay = 0;
@@ -1698,7 +1687,6 @@ void Cmd_Reload( gentity_t *ent )       {
 	//G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
 
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
-	//if (ent->client->isBandaging == qtrue) {
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		ent->client->fastReloads = 0;
 		ent->client->reloadAttempts = 0;
@@ -1710,11 +1698,7 @@ void Cmd_Reload( gentity_t *ent )       {
 	if ( ent->client->ps.stats[STAT_BURST] > 0)
 		return;
 
-	//Elder: release fire button
-	//if ( (ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
-		//ent->client->buttons &= ~BUTTON_ATTACK;
-
-    weapon = ent->client->ps.weapon;
+	weapon = ent->client->ps.weapon;
     //Elder: changed to new function
     ammotoadd = ClipAmountForReload(weapon);
 	   
@@ -1723,17 +1707,7 @@ void Cmd_Reload( gentity_t *ent )       {
         	return;
         }*/
 
-   	// Hawkins: Zoom out when reloading.
-   	//Elder: shouldn't need to know about it
-    // To Do: Must remember to zoom back in
-    //if( ent->client->zoomed ){
-		//ent->client->zoomed=0;
-	//}
-
-	//Elder: can't use events
-	//G_AddEvent(ent,EV_ZOOM,0);
-    
-    //Elder: serious debug code
+   	//Elder: serious debug code
     /*
     G_Printf("STAT: %d, KNIFE: %d, MK23: %d, M4: %d, SSG: %d, MP5: %d, M3: %d, HC: %d, AKIMBO: %d, GREN: %d\n",
     		ent->client->ps.stats[STAT_WEAPONS], WP_KNIFE, WP_PISTOL, WP_M4, WP_SSG3000,
@@ -1814,7 +1788,7 @@ void Cmd_Reload( gentity_t *ent )       {
 					}
 				}
 				//Fast-reload virgin
-				else if (level.time - ent->client->lastReloadTime >= RQ3_M3_ALLOW_FAST_RELOAD_DELAY &&
+				else if (//level.time - ent->client->lastReloadTime >= RQ3_M3_ALLOW_FAST_RELOAD_DELAY &&
 						 level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
 				{
 					ent->client->fastReloads = 1;
@@ -1832,10 +1806,13 @@ void Cmd_Reload( gentity_t *ent )       {
 			if (ent->client->fastReloads) {
 				//Fast reload
 				//G_Printf("Using fast reloads\n");
+				//Toggle the first-person reload animation so it will start again
 				ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 											^ ANIM_TOGGLEBIT ) | WP_ANIM_RELOAD;
 				delay = RQ3_M3_FAST_RELOAD_DELAY;
 				ent->client->fastReloads = 1;
+				//Elder: reset reload stage so we can hear sound
+				ent->client->reloadStage = -1;
 			}
 			else {
 				//Regular reload
@@ -1911,7 +1888,7 @@ void Cmd_Reload( gentity_t *ent )       {
 					}
 				}
 				//Fast-reload virgin
-				else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY &&
+				else if (//level.time - ent->client->lastReloadTime >= RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY &&
 						 level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
 				{
 					ent->client->fastReloads = 1;
@@ -1974,8 +1951,8 @@ void Cmd_Reload( gentity_t *ent )       {
 			break;
 		}
 
-	//Elder: added handcannon and akimbo conditional
-	if (ent->client->numClips[weapon] == 0) {
+	// Elder: added handcannon and akimbo conditional
+	if (ent->client->numClips[weapon] == 0)	{
 		ent->client->fastReloads = 0;
 		ent->client->reloadAttempts = 0;
 		trap_SendServerCommand( ent-g_entities, va("print \"Out of ammo\n\""));
@@ -1985,25 +1962,29 @@ void Cmd_Reload( gentity_t *ent )       {
 		trap_SendServerCommand( ent-g_entities, va("print \"Not enough ammo\n\""));
 		return;
 	}
+	// Elder: check if still in recoil
+	else if ( ent->client->ps.weaponTime > 0 && !ent->client->fastReloads )
+	{
+		return;
+	}
+				
 
 	
 	//Save once only
-	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000) {
+	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000)
+	{
 		RQ3_SaveZoomLevel(ent);
-		//Elder: remove zoom bits
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 	}
 
-	//ent->client->ps.weaponstate = WEAPON_RELOADING;
     ent->client->ps.weaponstate = WEAPON_RELOADING;
 	//Elder: temporary hack to drop weapon if it's not the MK23
-	if (ent->client->ps.weapon != WP_PISTOL &&
-		ent->client->ps.weapon != WP_M3)
-	{
+	//if (ent->client->ps.weapon != WP_PISTOL &&
+		//ent->client->ps.weapon != WP_M3)
+	//{
 		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
 									^ ANIM_TOGGLEBIT )      | TORSO_DROP;
-	}
+	//}
+
     ent->client->ps.weaponTime += delay;
        
     //Elder: at this point there should be sufficient ammo requirements to reload
@@ -2308,18 +2289,15 @@ Cmd_DropWeapon_f XRAY FMJ
 void Cmd_DropWeapon_f( gentity_t *ent ) {
 
 	//Elder: added
-    //if (ent->client->isBandaging == qtrue) {
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	{
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
 		return;
 	}
-	else {
+	else
+	{
 		//Elder: remove zoom bits
 		Cmd_Unzoom(ent);
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-		//ent->client->zoomed=0;
-		//G_AddEvent(ent,EV_ZOOM,0);
 		ThrowWeapon( ent );
 	}
 }
@@ -2331,12 +2309,7 @@ Cmd_DropItem_f
 */
 void Cmd_DropItem_f( gentity_t *ent )
 {
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
-	{
-		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
-		return;
-	}
-	else
+	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM])
 	{
 		//Elder: reset item totals if using bandolier
 		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)

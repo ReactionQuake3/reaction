@@ -247,29 +247,29 @@ typedef enum {
 #define RQ3_KNIFE_RELOAD_DELAY			0	// Elder: shouldn't need
 #define RQ3_GRENADE_RELOAD_DELAY		0	// Elder: shouldn't need
 
-//Elder: each weapon also has a different weapon switch down delay and...
-#define RQ3_PISTOL_SWITCH1_DELAY		900	//300
-#define RQ3_M3_SWITCH1_DELAY			700	//600
-#define RQ3_M4_SWITCH1_DELAY			1000	//500
-#define RQ3_MP5_SWITCH1_DELAY			1000	//400
-#define RQ3_HANDCANNON_SWITCH1_DELAY	600	//400
-#define RQ3_SSG3000_SWITCH1_DELAY		800	//900
-#define RQ3_AKIMBO_SWITCH1_DELAY		600 //800
-#define RQ3_KNIFE_SWITCH1_DELAY			500	//700
-#define RQ3_THROW_SWITCH1_DELAY			500	//700
-#define RQ3_GRENADE_SWITCH1_DELAY		500	//300  Elder: I made this up
-
 //Elder: each weapon also has a different weapon switch up delay... ugh bloody hell
-#define RQ3_PISTOL_SWITCH2_DELAY		300
-#define RQ3_M3_SWITCH2_DELAY			600
-#define RQ3_M4_SWITCH2_DELAY			500
-#define RQ3_MP5_SWITCH2_DELAY			400
-#define RQ3_HANDCANNON_SWITCH2_DELAY	400
-#define RQ3_SSG3000_SWITCH2_DELAY		150 //900 For some reason it's auto-used with WEAPON_RAISING
-#define RQ3_AKIMBO_SWITCH2_DELAY		800
-#define RQ3_KNIFE_SWITCH2_DELAY			700
-#define RQ3_THROW_SWITCH2_DELAY			700
-#define RQ3_GRENADE_SWITCH2_DELAY		300  //Elder: I made this up
+#define RQ3_PISTOL_ACTIVATE_DELAY		900
+#define RQ3_M3_ACTIVATE_DELAY			700	
+#define RQ3_M4_ACTIVATE_DELAY			1000
+#define RQ3_MP5_ACTIVATE_DELAY			1000
+#define RQ3_HANDCANNON_ACTIVATE_DELAY	600	
+#define RQ3_SSG3000_ACTIVATE_DELAY		800	
+#define RQ3_AKIMBO_ACTIVATE_DELAY		600 
+#define RQ3_KNIFE_ACTIVATE_DELAY		500	
+#define RQ3_THROW_ACTIVATE_DELAY		500	
+#define RQ3_GRENADE_ACTIVATE_DELAY		500	//300  Elder: I made this up
+
+//Elder: each weapon also has a different weapon switch down delay and...
+#define RQ3_PISTOL_DISARM_DELAY			300
+#define RQ3_M3_DISARM_DELAY				600
+#define RQ3_M4_DISARM_DELAY				500
+#define RQ3_MP5_DISARM_DELAY			400
+#define RQ3_HANDCANNON_DISARM_DELAY		400
+#define RQ3_SSG3000_DISARM_DELAY		150 //900 For some reason it's auto-used with WEAPON_RAISING
+#define RQ3_AKIMBO_DISARM_DELAY			800
+#define RQ3_KNIFE_DISARM_DELAY			700
+#define RQ3_THROW_DISARM_DELAY			700
+#define RQ3_GRENADE_DISARM_DELAY		300  //Elder: I made this up
 
 
 //Elder: special for grenade: speeds depending on distance select
@@ -368,21 +368,22 @@ typedef enum {
 } pmtype_t;
 
 typedef enum {
-	WEAPON_READY,
+	WEAPON_READY,		//sync with WP_ANIM_IDLE
 	WEAPON_COCKED,
-	WEAPON_RAISING,
-	WEAPON_DROPPING,
-	WEAPON_FIRING,
-	WEAPON_RELOADING
+	WEAPON_RAISING,		//sync with WP_ANIM_ACTIVATE
+	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
+	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
+	WEAPON_RELOADING	//sync with WP_ANIM_RELOAD
 } weaponstate_t;
+
 //Blaze: for the weapon animation states
 typedef enum {
 	//WP_ANIM_READY,
 	WP_ANIM_FIRE,
 	WP_ANIM_RELOAD,
 	WP_ANIM_IDLE,
-	//WP_ANIM_ACTIVATE,
-	//WP_ANIM_DISARM,
+	WP_ANIM_DISARM,
+	WP_ANIM_ACTIVATE,
 	//WP_ANIM_FIRE2,
 	MAX_WEAPON_ANIMATIONS
 } wpAnimNumber_t;
@@ -642,6 +643,7 @@ typedef enum {
 
 	EV_FOOTSTEP,
 	EV_FOOTSTEP_METAL,
+	EV_FOOTSTEP_GRASS,	// Elder: new surfaces
 	EV_FOOTSPLASH,
 	EV_FOOTWADE,
 	EV_SWIM,
@@ -672,7 +674,7 @@ typedef enum {
 	EV_NOAMMO,
 	EV_CHANGE_WEAPON,
 	EV_FIRE_WEAPON,
-	//EV_ZOOM,		// SSG zoom(reaction)
+	EV_RELOAD_WEAPON,		// Elder: reload weapon sounds
 	
 	EV_USE_ITEM0,
 	EV_USE_ITEM1,

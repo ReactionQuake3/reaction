@@ -1792,9 +1792,11 @@ static void CG_DrawDisconnect( void ) {
 	if ( ( cg.time >> 9 ) & 1 ) {
 		return;
 	}
-
-	x = 640 - 48;
-	y = 480 - 48;
+	//Elder: changed position
+	x = 0;
+	y = 0;
+	//x = 640 - 48;
+	//y = 480 - 48;
 
 	CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga" ) );
 }
@@ -1827,8 +1829,11 @@ static void CG_DrawLagometer( void ) {
 	x = 640 - 48;
 	y = 480 - 144;
 #else
-	x = 640 - 48;
-	y = 480 - 48;
+	//Elder: changed position
+	x = 0;
+	y = 0;
+	//x = 640 - 48;
+	//y = 480 - 48;
 #endif
 
 	trap_R_SetColor( NULL );

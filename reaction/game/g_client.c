@@ -1278,7 +1278,7 @@ void ClientSpawn(gentity_t *ent) {
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
-
+	
 	if ( level.intermissiontime ) {
 		MoveClientToIntermission( ent );
 	} else {
