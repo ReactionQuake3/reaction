@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/05 19:53:10  niceass
+// gib fix
+//
 // Revision 1.89  2002/06/05 15:17:51  jbravo
 // Gibbed players now vanish (gibs with them tho :() and suicide is no
 // longer -2 frags.  Added Obit handling for telefrags and better handling
@@ -1541,7 +1544,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 		} else if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1 && self->health <= -15) {
 			self->client->noHead = qfalse;
-			GibEntity (self, killer);
+			//GibEntity (self, killer);
+			G_TempEntity( self->r.currentOrigin, EV_GIB_PLAYER );
 			self->client->gibbed = qtrue;
 			trap_UnlinkEntity (self);
 		}
