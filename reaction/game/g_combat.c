@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/06/23 18:29:21  jbravo
+// Suicides now always gib.
+//
 // Revision 1.102  2002/06/22 00:12:53  jbravo
 // Cleanup
 //
@@ -1456,11 +1459,15 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		}
 	}
 	// never gib in a nodrop
-	if ((g_RQ3_gib.integer > 3 && !self->client->gibbed
-	     && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer))
-	    || meansOfDeath == MOD_SUICIDE) {
+	if (g_RQ3_gib.integer > 3 && !self->client->gibbed
+	     && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer)) {
 		// gib death
 		GibEntity(self, killer);
+	} else if (meansOfDeath == MOD_SUICIDE) {
+		G_AddEvent(self, EV_GIB_PLAYER, killer);
+		self->takedamage = qfalse;
+		self->s.eType = ET_INVISIBLE;
+		self->r.contents = 0;
 	} else if (self->client->gibbed) {
 		self->client->gibbed = qtrue;	// JBravo:  Basicly do nothing
 	} else {
