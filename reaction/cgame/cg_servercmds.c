@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/09/17 20:17:12  blaze
+// Fixed up the cg_rq3_autoaction to include the map name, and removed the player name since it was broken anyways
+//
 // Revision 1.65  2002/08/28 18:52:09  jbravo
 // Added the Keanu male radio sound set.
 //
@@ -1271,8 +1274,8 @@ void CG_RQ3_Cmd()
 		case 1:
 		case 3:
 			trap_RealTime(&qtime);
-			Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d\n",
-				    qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec);
+			Com_sprintf(scrnshotName, sizeof(scrnshotName), "record %d-%d-%d_%d-%d-%d%s\n",
+				    qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min, qtime.tm_sec,strstr(cgs.mapname,"/"));
 			for (i = 0; i < MAX_QPATH; i++) {
 				switch (scrnshotName[i]) {
 				case '>':
@@ -1312,9 +1315,9 @@ void CG_RQ3_Cmd()
 			trap_RealTime(&qtime);
 			Com_sprintf(playerName, sizeof(playerName), "%s", cgs.clientinfo->name);
 			RemoveColorEscapeSequences(playerName);
-			Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %d-%d-%d_%d-%d-%d_%s_%s\n",
+			Com_sprintf(scrnshotName, sizeof(scrnshotName), "screenshotjpeg %d-%d-%d_%d-%d-%d%s\n",
 				    qtime.tm_year + 1900, qtime.tm_mon + 1, qtime.tm_mday, qtime.tm_hour, qtime.tm_min,
-				    qtime.tm_sec, cgs.mapname, playerName);
+				    qtime.tm_sec, strstr(cgs.mapname,"/"));
 			for (i = 0; i < MAX_QPATH; i++) {
 				switch (scrnshotName[i]) {
 				case '>':
@@ -1325,6 +1328,7 @@ void CG_RQ3_Cmd()
 				case ':':
 				case '\\':
 				case '/':
+				case '&':
 				case '|':
 					scrnshotName[i] = '_';
 					break;
