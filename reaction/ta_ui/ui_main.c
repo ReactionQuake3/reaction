@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/04/22 18:40:58  makro
+// Model validation
+//
 // Revision 1.17  2002/04/20 15:06:28  makro
 // Cool stuff :p
 //
@@ -256,6 +259,22 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 	return -1;
 }
 
+/*
+==========================
+UI_FileExists
+
+Makro - moved from ui_players.c
+==========================
+*/
+qboolean	UI_FileExists(const char *filename) {
+	int len;
+
+	len = trap_FS_FOpenFile( filename, 0, FS_READ );
+	if (len>0) {
+		return qtrue;
+	}
+	return qfalse;
+}
 
 
 void AssetCache() {
@@ -5338,9 +5357,13 @@ static void UI_BuildQ3Model_List( void )
 
 		// NiceAss:
 		// Makro - added abbey
-		if (strcmp(dirptr,"grunt") && strcmp(dirptr, "abbey"))
+		//if (strcmp(dirptr,"grunt") && strcmp(dirptr, "abbey"))
+		//	continue;
+
+		// Makro - new code
+		if (!UI_FileExists(va("models/players/%s/rq3model.cfg", dirptr)))
 			continue;
-			
+		
 		// iterate all skin files in directory
 		numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "tga", filelist, 2048 );
 		fileptr  = filelist;
@@ -5360,7 +5383,8 @@ static void UI_BuildQ3Model_List( void )
 				}
 				dirty = 0;
 				for(k=0;k<uiInfo.q3HeadCount;k++) {
-					if (!Q_stricmp(scratch, uiInfo.q3HeadNames[uiInfo.q3HeadCount])) {
+					//Makro - changed from uiInfo.q3HeadNames[uiInfo.q3HeadCount] !
+					if (!Q_stricmp(scratch, uiInfo.q3HeadNames[k])) {
 						dirty = 1;
 						break;
 					}

@@ -6,7 +6,7 @@
 --------------------Configuration: ui - Win32 Release TA--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15F9.tmp" with contents
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP183E.tmp" with contents
 [
 /nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /Fp"Release_TA/ta_ui.pch" /YX /Fo"Release_TA/" /Fd"Release_TA/" /FD /c 
 "C:\Games\Quake3\rq3source\reaction\game\bg_misc.c"
@@ -20,8 +20,8 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15F9.tmp" with cont
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_syscalls.c"
 "C:\Games\Quake3\rq3source\reaction\ta_ui\ui_util.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15F9.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15FA.tmp" with contents
+Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP183E.tmp" 
+Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP183F.tmp" with contents
 [
 /nologo /base:"0x40000000" /dll /incremental:no /pdb:"Release_TA/uix86.pdb" /map:"Release_TA/uix86.map" /machine:I386 /def:".\ui.def" /out:"uix86.dll" /implib:"Release_TA/uix86.lib" 
 .\Release_TA\bg_misc.obj
@@ -35,7 +35,7 @@ Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15FA.tmp" with cont
 .\Release_TA\ui_syscalls.obj
 .\Release_TA\ui_util.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15FA.tmp"
+Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP183F.tmp"
 <h3>Output Window</h3>
 Compiling...
 bg_misc.c

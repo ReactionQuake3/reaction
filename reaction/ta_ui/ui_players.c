@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/04/22 18:40:58  makro
+// Model validation
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -894,21 +897,6 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	trap_R_AddLightToScene( origin, 500, 1.0, 0.0, 0.0 );
 
 	trap_R_RenderScene( &refdef );
-}
-
-/*
-==========================
-UI_FileExists
-==========================
-*/
-static qboolean	UI_FileExists(const char *filename) {
-	int len;
-
-	len = trap_FS_FOpenFile( filename, 0, FS_READ );
-	if (len>0) {
-		return qtrue;
-	}
-	return qfalse;
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/04/22 18:40:58  makro
+// Model validation
+//
 // Revision 1.8  2002/04/20 15:06:28  makro
 // Cool stuff :p
 //
@@ -508,6 +511,8 @@ extern void DriverInfo_Cache( void );
 //
 // ui_players.c
 //
+qboolean	UI_FileExists(const char *filename);
+
 
 //FIXME ripped from cg_local.h
 typedef struct {
