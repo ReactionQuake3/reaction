@@ -18,4 +18,6 @@
 * Smooth M4 rise.
 * TNG TP spawn system has been intergrated
 * Scoreboard no longer shows who's dead and whos not while you are alive.
+* Added the 'lens' sound when using "unzoom" for SSG
+* Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
 

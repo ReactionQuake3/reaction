@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/06/20 21:25:06  slicer
+// Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
+//
 // Revision 1.47  2002/06/17 04:59:50  niceass
 // redid the voting. Hope you like it.
 //
@@ -1599,9 +1602,10 @@ static void CG_DrawCrosshair(void)
 	int ca, i;
 	vec4_t crosshairColor;
 
-	if (!cg_drawCrosshair.integer) {
-		return;
-	}
+	//Slicer: HOW ABOUT SSG SCOPE !! GAHHH !!!!! - moved below
+	//if (!cg_drawCrosshair.integer) {
+	//	return;
+	//}
 	//Slicer: Adding Crosshair to FOLLOW SPECS
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
@@ -1679,7 +1683,10 @@ static void CG_DrawCrosshair(void)
 			return;
 		}
 	}
-	//else {
+	else {
+	//Slicer if no crosshair, and not using SSG, dont draw crosshair
+	if(!cg_drawCrosshair.integer)
+		return;
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
 	CG_AdjustFrom640(&x, &y, &w, &h);
@@ -1705,6 +1712,7 @@ static void CG_DrawCrosshair(void)
 	trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
 			      y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, hShader);
 	trap_R_SetColor(NULL);
+	}
 }
 
 /*
@@ -1750,9 +1758,10 @@ static void CG_DrawCrosshairNames(void)
 	char *name;
 	float w;
 
-	if (!cg_drawCrosshair.integer) {
+	//Slicer, on RQ3 it doesnt depend on crosshair
+	/*if (!cg_drawCrosshair.integer) {
 		return;
-	}
+	}*/
 	if (!cg_drawCrosshairNames.integer) {
 		return;
 	}
