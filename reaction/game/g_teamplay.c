@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/06/05 23:39:40  blaze
+// unbreakables work properly.  Though I already commited this.
+//
 // Revision 1.101  2002/06/04 07:20:48  niceass
 // no moreTKing in MM
 //
@@ -860,9 +863,11 @@ void SpawnPlayers()
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
 			trap_LinkEntity(ent);
-			ent->exploded = qfalse;
-			ent->takedamage = qtrue;
-			ent->s.eType = ET_BREAKABLE;
+
+      ent->exploded = qfalse;
+      ent->takedamage = qtrue;
+      ent->s.eType = ET_BREAKABLE;
+      ent->health = ent->health_saved;
 		}
 	}
 }

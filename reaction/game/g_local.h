@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/05 23:39:40  blaze
+// unbreakables work properly.  Though I already commited this.
+//
 // Revision 1.87  2002/06/03 05:24:31  niceass
 // spectator changes
 //
@@ -329,6 +332,8 @@ struct gentity_s {
 	int			last_move_time;
 
 	int			health;
+  //Blaze: hold the health so when we respawn it, the health is set properly
+  int     health_saved;
   //Blaze: holds if we can "chip" off peices
   qboolean chippable;
   //true if we cant break it

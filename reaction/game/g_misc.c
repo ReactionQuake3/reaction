@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/06/05 23:39:40  blaze
+// unbreakables work properly.  Though I already commited this.
+//
 // Revision 1.53  2002/06/03 00:40:25  blaze
 // some more breakables fixes(ssg chips)
 //
@@ -738,6 +741,7 @@ void SP_func_breakable( gentity_t *ent ) {
  	ent->s.eventParm = amount | (atoi(id) & 0x0FFF);
 
   ent->health = health;
+  ent->health_saved = health;
   ent->takedamage = qtrue;
 
 
