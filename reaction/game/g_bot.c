@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/03 18:09:20  makro
+// Bot stuff. Jump kicks
+//
 // Revision 1.7  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -571,8 +574,8 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	char			*model;
 	char			*headmodel;
 	char			userinfo[MAX_INFO_STRING];
-	weapon_t		tpWeapon = WP_MP5;
-	holdable_t		tpItem = HI_KEVLAR;
+	weapon_t		tpWeapon = WP_M4;
+	holdable_t		tpItem = HI_LASER;
 
 	// get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );
@@ -688,8 +691,8 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	if ( g_gametype.integer == GT_TEAMPLAY ) {
 		//Makro - load custom weapon/item from bot file
-		tpWeapon = CharToWeapon(Info_ValueForKey(botinfo, "weapon"), WP_MP5);
-		tpItem = CharToItem(Info_ValueForKey(botinfo, "item"), HI_KEVLAR);
+		tpWeapon = CharToWeapon(Info_ValueForKey(botinfo, "weapon"), WP_M4);
+		tpItem = CharToItem(Info_ValueForKey(botinfo, "item"), HI_LASER);
 	}
 
 	// have it connect to the game as a normal client

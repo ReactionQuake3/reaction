@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/05/03 18:09:20  makro
+// Bot stuff. Jump kicks
+//
 // Revision 1.51  2002/05/02 23:05:25  makro
 // Loading screen. Jump kicks. Bot stuff
 //
@@ -133,6 +136,15 @@ qboolean JumpKick( gentity_t *ent )
 	if ( g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action ) {
 		return qfalse;		// JBravo: No kicking during LCA
 	}
+
+	//Makro - added
+	if ( ent == NULL ) {
+		return qfalse;
+	}
+	if ( ent->client == NULL ) {
+		return qfalse;
+	}
+
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
 	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
@@ -154,6 +166,12 @@ qboolean JumpKick( gentity_t *ent )
 
 	kickSuccess = DoorKick( &tr, ent, muzzle, forward );
 	traceEnt = &g_entities[ tr.entityNum ];
+
+// JBravo: some sanity checks on the traceEnt
+// Makro - this check made the sound only play when a client is hit
+//	if (traceEnt == NULL || traceEnt->client == NULL)
+	if (traceEnt == NULL)
+		return qfalse;
 
 	if ( !traceEnt->takedamage) {
 		return qfalse;
@@ -178,19 +196,15 @@ qboolean JumpKick( gentity_t *ent )
 	}
 	//end Makro
 
-// JBravo: some sanity checks on the traceEnt
-// Makro - this check made the sound only play when a client is hit
-//	if (traceEnt == NULL || traceEnt->client == NULL)
-	if (traceEnt == NULL)
-		return qfalse;
-
 // JBravo: no kicking teammates while rounds are going
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		//Makro - client check here
-		if (ent->client)
+		if (traceEnt->client != NULL && ent->client != NULL) {
 			if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
-				level.team_round_going)
+				level.team_round_going) {
 					return qfalse;
+			}
+		}
 	}
 
 	//Makro - client check
@@ -216,7 +230,7 @@ qboolean JumpKick( gentity_t *ent )
 	}
 	*/
 
-	if (traceEnt->client && traceEnt->takedamage)
+	if (traceEnt->client != NULL && traceEnt->takedamage)
 	{
 		tent = G_TempEntity( tr.endpos, EV_JUMPKICK );
 		tent->s.otherEntityNum = traceEnt->s.number;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/03 18:09:19  makro
+// Bot stuff. Jump kicks
+//
 // Revision 1.24  2002/05/02 23:05:25  makro
 // Loading screen. Jump kicks. Bot stuff
 //
@@ -116,6 +119,7 @@
 //Makro - to get rid of the warnings
 void Cmd_Bandage (gentity_t *ent);
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText );
+gentity_t *SelectRandomDeathmatchSpawnPoint( void );
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -282,15 +286,19 @@ bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest) {
 	//initialize the movement state
 	BotSetupForMovement(bs);
 	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
-
+	trap_BotPushGoal(bs->gs, &goal);
 	//move towards the goal
-	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, TFL_DEFAULT);
+	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if movement failed
 	if (moveresult.failure) {
+		//G_Printf("BotMoveTo: moveresult.failure = 1\n");
+		//G_Printf("BotMoveTo: moveresult.blocked = %i\n", moveresult.blocked);
+		//G_Printf("BotMoveTo: moveresult.type = %i\n", moveresult.type);
 		//reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
 		bs->activatestack->time = 0;
 	}
+	//G_Printf("BotMoveTo: moveresult.flags = %i\n", moveresult.flags);
 	return moveresult;
 }
 /*
@@ -328,6 +336,9 @@ qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, voi
 
 	//if the weapon is not valid
 	if (weapon <= WP_NONE || weapon >= 	WP_NUM_WEAPONS) {
+		if (trap_Cvar_VariableIntegerValue("developer")) {
+			BotAI_Print(PRT_ERROR, "Bot_GetWeaponInfo: weapon number out of range (%i)\n", weapon);
+		}
 		return qfalse;
 	} else {
 		weaponinfo_t *wi;
@@ -1572,15 +1583,16 @@ Added by Makro
 ==================
 */
 void BotRQ3TPSeekGoals( bot_state_t *bs ) {
-	int		firstBot = 0, firstHuman = 0, leader = 0, i;
+	int		firstBot = -1, firstHuman = -1, leader = -1, i;
 	static int maxclients;
+
+	//if the bot already has a goal
+	if (bs->ltgtype || bs->ltg_time < FloatTime())
+		return;
 
 	if (!maxclients)
 		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
 	
-	//if the bot already has a goal	
-	if (bs->ltgtype)
-		return;
 
 	//find the first human/bot teammates
 	for ( i=0; i < MAX_CLIENTS && i < maxclients; i++ ) {
@@ -1598,9 +1610,9 @@ void BotRQ3TPSeekGoals( bot_state_t *bs ) {
 			break;
 	}
 
-	if (firstHuman)
+	if (firstHuman != -1)
 		leader = firstHuman;
-	else if (firstBot)
+	else if (firstBot != -1)
 		leader = firstBot;
 	else
 		return;
@@ -5203,7 +5215,7 @@ void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 			}
 
 			//Bots won't reply to ALL radio messages; they do have a life, you know
-			if ( (willreply) && (FloatTime() > BOT_RADIO_REPLY_TIME + bs->radioresponse_time) && (bs->radioresponse_count < 20) ) {
+			if ( (willreply) && (FloatTime() > BOT_RADIO_REPLY_TIME + bs->radioresponse_time) /*&& (bs->radioresponse_count < 20)*/ ) {
 				char *sender = COM_ParseExt(&msg, qtrue);
 				qboolean responded = qfalse;
 
@@ -5218,6 +5230,17 @@ void BotReplyToRadioMessage( bot_state_t *bs, char *msg, int handle ) {
 					G_Say( &g_entities[bs->entitynum], NULL, SAY_TEAM, va("%s, I have a $W with $A ammo and $H health", sender));
 					responded = qtrue;
 				}
+
+				/*
+				if (strstr(msg, "im_hit")) {
+					int senderId = ClientFromName(sender);
+					if (senderId != -1) {
+						BotMoveTo(bs, g_entities[senderId].r.currentOrigin);
+						G_Printf("%s: coming over to %s\n", g_entities[bs->entitynum].client->pers.netname, g_entities[senderId].client->pers.netname);
+						responded = qtrue;
+					}
+				}
+				*/
 
 				if (responded) {
 					bs->radioresponse_time = FloatTime();

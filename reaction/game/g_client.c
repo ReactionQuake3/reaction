@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/03 18:09:20  makro
+// Bot stuff. Jump kicks
+//
 // Revision 1.70  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -1399,9 +1402,9 @@ void ClientBegin(int clientNum) {
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (ent->r.svFlags & SVF_BOT) {
-			//Makro - changed from WP_PISTOL to WP_MP5
-			if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
-			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
+			//Makro - changed to m4/laser from pistol/kevlar
+			if (!client->teamplayWeapon) client->teamplayWeapon = WP_M4;
+			if (!client->teamplayItem) client->teamplayItem = HI_LASER;
 		} else {
 			if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
 			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/05/03 18:09:19  makro
+// Bot stuff. Jump kicks
+//
 // Revision 1.20  2002/05/02 23:05:25  makro
 // Loading screen. Jump kicks. Bot stuff
 //
@@ -372,15 +375,19 @@ Added by Makro
 */
 qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 	float attack_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
+	int	itemType = IT_BAD;
 
 	//check the bot skill
 	if ( random() < (1 - attack_skill) ) return qfalse;
 	
-	//if the bot doesn't have an item or it didn't reach one
+	//if the bot doesn't have an item
 	if ( !g_entities[goal->entitynum].item )
+		//no need to worry about dropping it
 		return qfalse;
+
+	itemType = g_entities[goal->entitynum].item->giType;
 	//if the bot can pick up an item
-	if ( g_entities[goal->entitynum].item->giType == IT_HOLDABLE ) {
+	if ( itemType == IT_HOLDABLE ) {
 		if ( bs->cur_ps.stats[STAT_HOLDABLE_ITEM] < 1 || bs->cur_ps.stats[STAT_HOLDABLE_ITEM] >= bg_numItems )
 			return qfalse;
 		else {
@@ -393,10 +400,17 @@ qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 			//if the bot drops the bandolier a weapon might be dropped, too
 			if ( oldItem == HI_BANDOLIER && g_entities[bs->entitynum].client->uniqueWeapons > g_RQ3_maxWeapons.integer )
 				dropWeapon = RQ3_Bot_WeaponToDrop(bs);
+			if (dropWeapon != WP_NONE) {
+				//if the bot doesn't have any ammo for the dropped weapon
+				if (bs->cur_ps.ammo[dropWeapon] <= 0 && !RQ3_Bot_CanReload(bs, dropWeapon)) {
+					//it shouldn't care whether or not it's dropped
+					dropWeapon = WP_NONE;
+				}
+			}
 
 			newScore = oldScore = 0;
 			//check all the weapons
-			for ( i = WP_NONE+1; i < MAX_WEAPONS; i++ ) {
+			for ( i = 0; i < MAX_WEAPONS; i++ ) {
 				//if the bot has the weapon
 				if ( bs->cur_ps.stats[STAT_WEAPONS] & (1 << i) ) {
 					//get the score for it
@@ -414,7 +428,7 @@ qboolean RQ3_Bot_NeedToDropStuff(bot_state_t *bs, bot_goal_t *goal) {
 			}
 		}
 	//if the bot can pick up a weapon
-	} else if ( g_entities[goal->entitynum].item->giType == IT_WEAPON ) {
+	} else if ( itemType == IT_WEAPON ) {
 		int		dropWeapon = RQ3_Bot_WeaponToDrop(bs);
 
 		if (dropWeapon == WP_NONE) return qfalse;
@@ -1491,8 +1505,14 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 		bs->standfindenemy_time = FloatTime() + 5;
 		bs->stand_time = FloatTime() + 10;
 	} else {
-		bs->standfindenemy_time = FloatTime() + 1;
-		bs->check_time = bs->stand_time = FloatTime() + 2;
+		//Makro - hackish, but oh well...
+		gentity_t	*ent = SelectRandomDeathmatchSpawnPoint();
+		if (ent) {
+			VectorCopy(ent->r.currentOrigin, bs->lastenemyorigin);
+			bs->lastenemyareanum = trap_AAS_PointAreaNum(ent->r.currentOrigin);
+		}
+		bs->standfindenemy_time = bs->check_time = FloatTime() + 1;
+		bs->stand_time = 5;
 	}
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;
