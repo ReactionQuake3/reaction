@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/07/19 04:30:31  niceass
+// decals below cases and some other changes
+//
 // Revision 1.42  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -1070,15 +1073,50 @@ void G_CheckTeamItems(void)
 
 	if (g_gametype.integer == GT_CTF) {
 		gitem_t *item;
+		gentity_t *flag, *ent;
 
 		// check for the two flags
-		item = BG_FindItem("Red Flag");
+		item = BG_FindItem("Silver Case");
 		if (!item || !itemRegistered[item - bg_itemlist]) {
-			G_Printf(S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map");
+			G_Printf(S_COLOR_YELLOW "WARNING: No team_CTF_redflag in map\n");
 		}
-		item = BG_FindItem("Blue Flag");
+		item = BG_FindItem("Black Case");
 		if (!item || !itemRegistered[item - bg_itemlist]) {
-			G_Printf(S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map");
+			G_Printf(S_COLOR_YELLOW "WARNING: No team_CTF_blueflag in map\n");
+		}
+
+		// NiceAss: Find the red flag
+		flag = NULL;
+		while ((flag = G_Find(flag, FOFS(classname), "team_CTF_redflag")) != NULL) {
+			if (!(flag->flags & FL_DROPPED_ITEM))
+				break;
+		}
+		if (flag) {
+			// Red team decal X
+			ent = G_Spawn();
+			ent->classname = "Decal";
+			ent->s.eType = ET_DECAL;
+			ent->s.pos.trType = TR_STATIONARY;
+			ent->s.modelindex = TEAM_RED;
+			G_SetOrigin(ent, flag->s.origin);
+			trap_LinkEntity(ent);
+		}
+
+		// NiceAss: Find the blue flag
+		flag = NULL;
+		while ((flag = G_Find(flag, FOFS(classname), "team_CTF_blueflag")) != NULL) {
+			if (!(flag->flags & FL_DROPPED_ITEM))
+				break;
+		}
+		if (flag) {
+			// Red team decal X
+			ent = G_Spawn();
+			ent->classname = "Decal";
+			ent->s.eType = ET_DECAL;
+			ent->s.pos.trType = TR_STATIONARY;
+			ent->s.modelindex = TEAM_BLUE;
+			G_SetOrigin(ent, flag->s.origin);
+			trap_LinkEntity(ent);
 		}
 	}
 }
