@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/01 18:56:02  makro
+// Small fix
+//
 // Revision 1.24  2002/05/01 18:09:55  makro
 // Disabled footsteps from animation.cfg files
 //
@@ -121,6 +124,8 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	float		fps;
 	int			skip;
 	char		text[20000];
+	char		var[MAX_TOKEN_CHARS];
+
 	fileHandle_t	f;
 	animation_t *animations;
 
@@ -175,7 +180,8 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 				ci->footsteps = FOOTSTEP_ENERGY;*/
 			} else {
 				//Makro - added developer 1 check
-				if (trap_Cvar_VariableValue("developer"))
+				trap_Cvar_VariableStringBuffer( "developer", var, sizeof( var ) );
+				if ( atoi(var) )
 					CG_Printf( "Bad footsteps parm in %s: %s\n", filename, token );
 			}
 			continue;
