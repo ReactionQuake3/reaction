@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.182  2003/03/28 13:10:36  jbravo
+// *** empty log message ***
+//
 // Revision 1.181  2003/03/28 13:05:18  jbravo
 // No nickchanging to avoid getting votekicked.
 //
@@ -2072,7 +2075,6 @@ void Cmd_CallVote_f(gentity_t * ent)
 			Com_sprintf(level.voteString, sizeof(level.voteString), "clientkick \"%i\"", kickNum);
 			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s \"%s\"", arg1, arg2);
 		} else {
-			G_Printf("Fuck, no client\n");
 			Com_sprintf(level.voteString, sizeof(level.voteString), "%s \"%s\"", arg1, arg2);
 			Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 		}
