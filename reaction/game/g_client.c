@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/10/26 18:29:17  jbravo
+// Added allweap and allitem funtionality.
+//
 // Revision 1.118  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -1831,6 +1834,33 @@ void ClientSpawn(gentity_t * ent)
 	if (g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF)
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
+
+// JBravo: adding allweapons.
+	if (g_RQ3_allWeapons.integer) {
+		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - (1 << WP_NONE);
+		ent->client->weaponCount[WP_SSG3000] = 1;
+		ent->client->weaponCount[WP_MP5] = 1;
+		ent->client->weaponCount[WP_M3] = 1;
+		ent->client->weaponCount[WP_M4] = 1;
+		ent->client->weaponCount[WP_AKIMBO] = 1;
+		ent->client->weaponCount[WP_HANDCANNON] = 1;
+		ent->client->uniqueWeapons = 5;
+		for (i = 0; i < MAX_WEAPONS; i++) {
+			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
+			Add_Ammo(ent, i, 100, 1);
+		}
+		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
+	}
+
+// JBravo: adding allitems.
+	if (g_RQ3_allItems.integer) {
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = (1 << HI_KEVLAR);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_LASER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SILENCER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_BANDOLIER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SLIPPERS);
+		ent->client->uniqueItems = 5;
+	}
 
 // JBravo: lock the player down
 	if (g_gametype.integer == GT_CTF && ent->client->sess.sessionTeam == TEAM_SPECTATOR &&

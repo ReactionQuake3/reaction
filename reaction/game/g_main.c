@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/10/26 18:29:17  jbravo
+// Added allweap and allitem funtionality.
+//
 // Revision 1.122  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -449,6 +452,8 @@ vmCvar_t g_RQ3_ppl_idletime;
 vmCvar_t g_RQ3_idleaction;
 vmCvar_t g_RQ3_weaponban;
 vmCvar_t g_RQ3_ctb_respawndelay;
+vmCvar_t g_RQ3_allWeapons;
+vmCvar_t g_RQ3_allItems;
 
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
@@ -590,6 +595,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_allWeapons, "g_RQ3_allWeapons", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_allItems, "g_RQ3_allItems", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins

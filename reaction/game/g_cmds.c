@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.173  2002/10/26 18:29:17  jbravo
+// Added allweap and allitem funtionality.
+//
 // Revision 1.172  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -732,6 +735,7 @@ void Cmd_Give_f(gentity_t * ent)
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SILENCER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_BANDOLIER);
 		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SLIPPERS);
+		ent->client->uniqueItems = 5;
 	}
 		
 	if (give_all || Q_stricmp(name, "ammo") == 0) {

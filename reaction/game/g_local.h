@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.128  2002/10/26 18:29:17  jbravo
+// Added allweap and allitem funtionality.
+//
 // Revision 1.127  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -1382,6 +1385,8 @@ extern vmCvar_t g_RQ3_ppl_idletime;	// JBravo: Seconds Idle before playing an in
 extern vmCvar_t g_RQ3_idleaction;	// JBravo: what to do with Idlers. 0 = sound, 1 = team none, 2 = kick
 extern vmCvar_t g_RQ3_weaponban;	// JBravo: Bitmapped cvar for weaponbanning
 extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb respawns
+extern vmCvar_t g_RQ3_allWeapons;	// JBravo: if set, TP/DM players get all the weapons
+extern vmCvar_t g_RQ3_allItems;		// JBravo: if set, TP/DM players get all the items
 
 //Slicer: Team Status Cvars for MM
 //extern vmCvar_t       g_RQ3_team1ready;
