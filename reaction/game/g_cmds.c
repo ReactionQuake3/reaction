@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/06/03 19:21:16  niceass
+// matchmode scoreboard changes. untested
+//
 // Revision 1.117  2002/06/03 05:56:04  jbravo
 // server used say for cmds issued during intermission
 //
@@ -278,6 +281,7 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 	int		stringlength, i, j;
 	gclient_t	*cl;
 	int		numSorted, scoreFlags, accuracy;
+	int		alive;
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -303,13 +307,20 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 			accuracy = 0;
 		}
 
+		// NiceAss: No one can see who is dead or alive in matchmode when alive.
+		// But if you are dead, you can see who is dead/alive on your team.
+		alive = cl->sess.sessionTeam != TEAM_SPECTATOR;
+		if (g_RQ3_matchmode.integer && ent->client->sess.sessionTeam != TEAM_SPECTATOR ) alive = qtrue;
+		if (g_RQ3_matchmode.integer && ent->client->sess.sessionTeam == TEAM_SPECTATOR && 
+			ent->client->sess.savedTeam != cl->sess.savedTeam ) alive = qtrue;
+
 		Com_sprintf (entry, sizeof(entry),
 			" %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 			cl->ps.persistant[PERS_KILLED],			// NiceAss: Added for scoreboard
 			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
-			cl->sess.sessionTeam != TEAM_SPECTATOR,	// JBravo: Added for TP scoreboard
+			alive,									// JBravo: Added for TP scoreboard
 			cl->sess.captain,						// Slicer: Added for Matchmode Scoreboard
 			cl->sess.sub							// Slicer: Added for Matchmode Scoreboard
 			);
