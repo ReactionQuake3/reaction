@@ -111,3 +111,4 @@
 * Shell ejections on spawn in TP should be fixed
 * Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
 * Added CTB radio commands to all radio sets.
+* Added spawnflag 8 to breakables to allow them to be unkickable
