@@ -1,6 +1,6 @@
 # List fixes here for the 2.3 release
 
-* Problem fixed in the bullet fireing code that affected the otherwise good hitboxes.
+* Problem fixed in the bullet firing code that affected the otherwise good hitboxes.
 * Sky portal code tweaked for better performance. Now it's also possible to have sky portals with animated textures
 * Fixed "unselectable grenade shown in the inventory if you switch weapons after pulling the pin" bug
 * Fixed a bug that prevented headless player models from being rendered
@@ -9,6 +9,7 @@
 * Fixed a bug where players could get past the teamspawns in CTB by using the team command.
 * Dropped cases stay on the map for 45 seconds now. (was 30 seconds)
 * SSG accuracy bug fixed.
+* cg_tracerchance now can be adjusted. Anything above 0.4 is set to 0.4. For fo0d.
 
 
 # List fixes here for the 2.2 release
