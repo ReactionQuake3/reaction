@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.24  2002/02/02 21:57:58  slicer
-// Matchmode stuff
+// Revision 1.25  2002/02/03 21:24:12  slicer
+// More Matchmode code
 //
 // Revision 1.23  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
