@@ -33,6 +33,7 @@
 * MM: Changed Voting system to allow only captains to vote/callvote
 * MM: Added "clearscores" and "resetmatch" to vote command list
 * Each client can call a maximum of g_RQ3_maxClientVotes votes/team votes (default: 3)
+* Hitboxes now 100% AQ style
 
 
 # List fixes here for the 2.1 release

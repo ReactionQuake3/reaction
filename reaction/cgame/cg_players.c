@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/08/18 20:26:35  jbravo
+// New hitboxes.  Fixed CTB awards (flags)
+//
 // Revision 1.42  2002/08/07 16:13:33  jbravo
 // Case carrier glowing removed. Ignorenum bug fixed
 //
@@ -2074,9 +2077,6 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 	int powerups;
 	clientInfo_t *ci;
 
-	// JBravo: no glowing stuff in CTB
-	return;
-
 	powerups = cent->currentState.powerups;
 	if (!powerups) {
 		return;
@@ -2089,7 +2089,8 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		} else {
 			CG_TrailItem(cent, cgs.media.redFlagModel, torso);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 0.2f, 0.2f);
+// JBravo: no glowing in RQ3
+//		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 0.2f, 0.2f);
 	}
 	// blueflag
 	if (powerups & (1 << PW_BLUEFLAG)) {
@@ -2098,7 +2099,8 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		} else {
 			CG_TrailItem(cent, cgs.media.blueFlagModel, torso);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1.0);
+// JBravo: no glowing in RQ3
+//		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1.0);
 	}
 	// neutralflag
 	if (powerups & (1 << PW_NEUTRALFLAG)) {
@@ -2107,12 +2109,9 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		} else {
 			CG_TrailItem(cent, cgs.media.neutralFlagModel, torso);
 		}
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 1.0, 1.0);
+// JBravo: no glowing in RQ3
+//		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 1.0, 1.0);
 	}
-	// Elder: HC Smoke
-	//if ( powerups & ( 1 << PW_HANDCANNON_SMOKED) ) {
-	//CG_HCSmokeTrail( cent );
-	//}
 }
 
 /*

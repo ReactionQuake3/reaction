@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/08/18 20:26:35  jbravo
+// New hitboxes.  Fixed CTB awards (flags)
+//
 // Revision 1.115  2002/08/07 16:13:33  jbravo
 // Case carrier glowing removed. Ignorenum bug fixed
 //
@@ -522,7 +525,8 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 		return;
 	}
 
-	if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
+	if (attacker->client
+	    && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 		attacker->client->pers.records[REC_GIBSHOTS]++;
 
 	GibEntity(self, 0);
@@ -1300,7 +1304,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				attacker->client->pers.records[REC_TEAMKILLS]++;
 				Add_TeamKill(attacker);
 				trap_SendServerCommand(self - g_entities,
-							va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
+						       va("rq3_cmd %i %s", TKOK, attacker->client->pers.netname));
 			}
 		} else {
 			// Increase number of kills this life for attacker
@@ -1454,7 +1458,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if (g_gametype.integer == GT_CTF) {
 		self->client->time_of_death = level.time;
 	}
-
 	// remove powerups
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
@@ -1481,7 +1484,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	}
 	// never gib in a nodrop
 	if (g_RQ3_gib.integer > 3 && !self->client->gibbed
-	     && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer)) {
+	    && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer)) {
 		// gib death
 		GibEntity(self, killer);
 	} else if (meansOfDeath == MOD_SUICIDE) {
@@ -1775,17 +1778,30 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
+void VerifyHeadShot(vec3_t point, vec3_t dir, float height, vec3_t newpoint)
+{
+	vec3_t normdir, normdir2;
+
+	VectorNormalize2(dir, normdir);
+	VectorScale(normdir, height, normdir2);
+	VectorAdd(point, normdir2, newpoint);
+}
+
+#define LEG_DAMAGE (height/2.2) - abs(targ->r.mins[2]) - 3  // -1.545455
+#define STOMACH_DAMAGE (height/1.8) - abs(targ->r.mins[2])  // 7.111111
+#define CHEST_DAMAGE (height/1.4) - abs(targ->r.mins[2])    // 16.000000
+#define HEAD_HEIGHT 12.0
+
 void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	      vec3_t dir, vec3_t point, int damage, int dflags, int mod)
 {
 	gclient_t *client;
-	int take, save, asave, knockback;	//, max;
-	int bleeding = 0, instant_dam = 1;
-	vec3_t bulletPath, bulletAngle, line;
-	vec_t dist;
-	int clientHeight, clientFeetZ, clientRotation, bulletHeight;
-	int bulletRotation, impactRotation;
 	gentity_t *tent;
+	int take, save, asave, knockback;
+	int bleeding = 0, instant_dam = 1, height;
+	float z_rel, targ_maxs2, from_top;
+	vec3_t line, new_point;
+	vec_t dist;
 
 	if (!targ->takedamage) {
 		return;
@@ -1799,7 +1815,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
 	    targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
 	    ((g_gametype.integer == GT_TEAMPLAY && !g_friendlyFire.integer && level.team_round_going) ||
-	    		(g_gametype.integer == GT_CTF && !g_friendlyFire.integer)))
+	     (g_gametype.integer == GT_CTF && !g_friendlyFire.integer)))
 		return;
 
 	// the intermission has allready been qualified for, so don't
@@ -1822,9 +1838,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}
 
-	if (targ->client)
-		targ->client->kevlarHit = qfalse;
-
 	/* old code
 	   if (targ->s.eType == ET_MOVER && targ->health <= 0) {
 	   //Makro - added
@@ -1839,7 +1852,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		targ->health -= damage;
 		if (targ->health <= 0) {
 			if (targ->use
-			    && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1 || (targ->spawnflags & 8))) {
+			    && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1
+				|| (targ->spawnflags & 8))) {
 				targ->use(targ, inflictor, attacker);
 			}
 			if (targ->wait < 0) {
@@ -1952,7 +1966,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// This was added when the possibility of missing was added from spherical head detection.
 	// We don't want someone flying back from a sniper to the head when it actually missed!
 	// Hal: Make sure we have valid pointers before accessing them
-	if ((dir != NULL) && (point != NULL) && G_HitPlayer(targ, dir, point)) {
+	if ((dir != NULL) && (point != NULL)) {
 		// figure momentum add, even if the damage won't be taken
 		if (knockback && targ->client) {
 			vec3_t kvel, flydir;
@@ -2017,7 +2031,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			}
 			if (g_gametype.integer == GT_CTF && g_friendlyFire.integer == 2)
 				return;
-			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer == GT_CTF)
+			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
+			    || g_gametype.integer == GT_CTF)
 				Add_TeamWound(attacker, targ, mod);
 		}
 		// check for godmode
@@ -2047,12 +2062,11 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (g_gametype.integer == GT_CTF) {
 		Team_CheckHurtCarrier(targ, attacker);
 	}
-
+	// aasimon: start calculations for hit location determination
 	if (targ->client) {
 		// set the last client who damaged the target
 		targ->client->lasthurt_client = attacker->s.number;
 		targ->client->lasthurt_mod = mod;
-		// Begin Duffman
 		// Modify the damage for location damage
 
 		if (point && targ && targ->health > 0 && attacker && take) {
@@ -2084,75 +2098,38 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			} else if (take && (mod == MOD_PISTOL || mod == MOD_M4 ||
 					    mod == MOD_SNIPER || mod == MOD_MP5 || mod == MOD_AKIMBO ||
 					    mod == MOD_KNIFE || mod == MOD_KNIFE_THROWN)) {
+
 				bleeding = 1;
 				instant_dam = 0;
 
-				// Point[2] is the REAL world Z. We want Z relative to the clients feet
-				// Where the feet are at [real Z]
-				clientFeetZ = targ->r.currentOrigin[2] + targ->r.mins[2];
-				// How tall the client is [Relative Z]
-				clientHeight = targ->r.maxs[2] - targ->r.mins[2];
-				// Where the bullet struck [Relative Z]
-				bulletHeight = point[2] - clientFeetZ;
-				// Get a vector aiming from the client to the bullet hit
-				VectorSubtract(targ->r.currentOrigin, point, bulletPath);
-				// Convert it into PITCH, ROLL, YAW
-				vectoangles(bulletPath, bulletAngle);
-				clientRotation = targ->client->ps.viewangles[YAW];
-				bulletRotation = bulletAngle[YAW];
+				// JBravo: calulate where the bullet hit
+				targ->client->lasthurt_location = 0;
+				targ_maxs2 = targ->r.maxs[2];
+				height = abs(targ->r.mins[2]) + targ_maxs2;
+				z_rel = point[2] - targ->r.currentOrigin[2];
+				from_top = targ_maxs2 - z_rel;
 
-				impactRotation = abs(clientRotation - bulletRotation);
+				//G_Printf("z_rel = %f, height = %d, from_top = %f\n", z_rel, height, from_top);
 
-				impactRotation += 45;	// just to make it easier to work with
-				impactRotation = impactRotation % 360;	// Keep it in the 0-359 range
-
-				if (impactRotation < 90) {
-					if (attacker->client && level.team_round_going)
-						attacker->client->pers.records[REC_BACKSHOTS]++;
-					targ->client->lasthurt_location = LOCATION_BACK;
-				} else if (impactRotation < 180) {
-					if (attacker->client && level.team_round_going)
-						attacker->client->pers.records[REC_RIGHTSHOTS]++;
-					targ->client->lasthurt_location = LOCATION_RIGHT;
-				} else if (impactRotation < 270) {
-					if (attacker->client && level.team_round_going)
-						attacker->client->pers.records[REC_FRONTSHOTS]++;
-					targ->client->lasthurt_location = LOCATION_FRONT;
-				} else if (impactRotation < 360) {
-					if (attacker->client && level.team_round_going)
-						attacker->client->pers.records[REC_LEFTSHOTS]++;
-					targ->client->lasthurt_location = LOCATION_LEFT;
-				} else
-					targ->client->lasthurt_location = LOCATION_NONE;
-
-				// NiceAss: Added for better head hit-detection.
-				if (!G_HitPlayer(targ, dir, point) && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
-					// NiceAss: It didn't intersect the sphere (head) and it's above the shoulders so it hit the air.
-					return;
+				if (from_top < 2 * HEAD_HEIGHT) {
+					VerifyHeadShot (point, dir, HEAD_HEIGHT, new_point);
+					VectorSubtract (new_point, targ->r.currentOrigin, new_point);
+					if ((targ_maxs2 - new_point[2]) < HEAD_HEIGHT
+							&& (abs(new_point[1])) < HEAD_HEIGHT*.8
+							&& (abs(new_point[0])) < HEAD_HEIGHT*.8) {
+						targ->client->lasthurt_location = LOCATION_HEAD;
+					}
 				}
-				// The upper body never changes height, just distance from the feet
-				if (bulletHeight > clientHeight - 2)
-					targ->client->lasthurt_location |= LOCATION_HEAD;
-				else if (bulletHeight > clientHeight - 8)
-					targ->client->lasthurt_location |= LOCATION_FACE;
-				else if (bulletHeight > clientHeight - 10)
-					targ->client->lasthurt_location |= LOCATION_SHOULDER;
-				else if (bulletHeight > clientHeight - 16)
-					targ->client->lasthurt_location |= LOCATION_CHEST;
-				else if (bulletHeight > clientHeight - 26)
-					targ->client->lasthurt_location |= LOCATION_STOMACH;
-				else if (bulletHeight > clientHeight - 29)
-					targ->client->lasthurt_location |= LOCATION_GROIN;
-				else
-					// The leg is the only thing that changes size when you duck,
-					// so we check for every other parts RELATIVE location, and
-					// whats left over must be the leg.
-					targ->client->lasthurt_location |= LOCATION_LEG;
+				if (z_rel < LEG_DAMAGE) {
+					targ->client->lasthurt_location = LOCATION_LEG;
+				} else if (z_rel < STOMACH_DAMAGE) {
+					targ->client->lasthurt_location = LOCATION_STOMACH;
+				} else if (targ->client->lasthurt_location == 0){
+					targ->client->lasthurt_location = LOCATION_CHEST;
+				}
 
-				switch (targ->client->lasthurt_location &
-					~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT)) {
+				switch (targ->client->lasthurt_location) {
 				case LOCATION_HEAD:
-				case LOCATION_FACE:
 					if (attacker->client && level.team_round_going)
 						attacker->client->pers.records[REC_HEADSHOTS]++;
 					//save headshot time for player_die
@@ -2176,7 +2153,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					}
 					take *= 1.8;	//+ 1;
 					break;
-				case LOCATION_SHOULDER:
 				case LOCATION_CHEST:
 					if (attacker->client && level.team_round_going)
 						attacker->client->pers.records[REC_CHESTSHOTS]++;
@@ -2233,7 +2209,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					}
 					break;
 				case LOCATION_STOMACH:
-				case LOCATION_GROIN:
 					if (attacker->client && level.team_round_going)
 						attacker->client->pers.records[REC_STOMACHSHOTS]++;
 					trap_SendServerCommand(attacker - g_entities,
@@ -2247,7 +2222,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					}
 					break;
 				case LOCATION_LEG:
-				case LOCATION_FOOT:
 					if (attacker->client && level.team_round_going)
 						attacker->client->pers.records[REC_LEGSHOTS]++;
 					trap_SendServerCommand(attacker - g_entities,
@@ -2258,12 +2232,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					take *= 0.25;
 					break;
 				}
-//                      G_Printf("In loc damage: %d outgoing\n",take);
 			}
-//              take = G_LocationDamage(point, targ, attacker, take);
 		} else
 			targ->client->lasthurt_location = LOCATION_NONE;
-// End Duffman
 	}
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
@@ -2301,8 +2272,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			}
 			//Makro - crash bug fix
 			if (targ && targ->client) {
-				Com_sprintf(attacker->client->last_damaged_players, sizeof(attacker->client->last_damaged_players),
-						"%s^7", targ->client->pers.netname);
+				Com_sprintf(attacker->client->last_damaged_players,
+					    sizeof(attacker->client->last_damaged_players), "%s^7",
+					    targ->client->pers.netname);
 			}
 		}
 		if (instant_dam) {
@@ -2407,7 +2379,7 @@ qboolean G_HitPlayer(gentity_t * targ, vec3_t dir, vec3_t point)
 	VectorMA(s_origin, 3.2, s_forward, s_origin);	// Move origin of sphere foreward a little (better centerage of the head)
 
 // JBravo: changed the head radius to 10.  was 6
-	if (!RaySphereIntersections(s_origin, 10, point, dir, s_intersections) && bulletHeight > clientHeight - 8) {
+	if (!RaySphereIntersections(s_origin, 8, point, dir, s_intersections) && bulletHeight > clientHeight - 8) {
 		// NiceAss: It didn't intersect the sphere and it's above the shoulders so it hit the air.
 		return qfalse;
 	}
