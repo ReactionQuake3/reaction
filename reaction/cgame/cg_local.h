@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/02/05 23:42:06  slicer
+// More on matchmode..
+//
 // Revision 1.44  2002/02/04 02:17:39  jbravo
 // scoreStartTime definition missing
 //
@@ -1449,8 +1452,8 @@ extern cheat_cvar		cheats[30];
 // JBravo: To signal cgame that lca is in progress
 extern	vmCvar_t		RQ3_lca;
 //Slicer: matchmode team status cvars
-extern vmCvar_t	MM_team1;
-extern vmCvar_t	MM_team2;
+extern vmCvar_t	RQ3_team1;
+extern vmCvar_t	RQ3_team2;
 
 //
 // cg_main.c

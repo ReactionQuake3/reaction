@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/02/05 23:41:27  slicer
+// More on matchmode..
+//
 // Revision 1.20  2002/02/04 00:10:49  slicer
 // Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
@@ -96,7 +99,7 @@ vmCvar_t	pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 //Slicer: Matchmode
-vmCvar_t		g_matchmode;
+vmCvar_t	g_RQ3_matchmode;
 //Blaze: Reaction cvars
 vmCvar_t	g_rxn_knifelimit;
 vmCvar_t	g_RQ3_maxWeapons;
@@ -117,8 +120,8 @@ vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	RQ3_lca;
 //Slicer: Team Status Cvars for MM
-vmCvar_t	MM_team1;
-vmCvar_t	MM_team2;
+vmCvar_t	RQ3_team1;
+vmCvar_t	RQ3_team2;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -219,7 +222,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
-	{ &g_matchmode, "g_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	//Blaze: Reaction stuff
 	// Elder: these are explicit values set every time the game initializes
 	{ &g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART,0, qfalse},
@@ -239,8 +242,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", 0, 0, qtrue},
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
-	{ &MM_team1, "MM_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &MM_team2, "MM_team2", "0", CVAR_SYSTEMINFO, 0, qfalse}
+	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse}
 
 };
 
@@ -591,10 +594,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		level.fps = trap_Cvar_VariableIntegerValue( "sv_fps" );
 	}
 // Slicer: reset matchmode vars
-	if(g_matchmode.integer) {
+	if(g_RQ3_matchmode.integer) {
 		level.matchTime = 0;
-		trap_Cvar_Set("MM_team1", "0");
-		trap_Cvar_Set("MM_team2", "0");
+		level.inGame = qfalse;
+		trap_Cvar_Set("RQ3_team1", "0");
+		trap_Cvar_Set("RQ3_team2", "0");
 	}
 
 	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1477,8 +1481,8 @@ void CheckExitRules( void ) {
 		// always wait for sudden death
 				return;
 			}
-
-	if ( g_timelimit.integer && !level.warmupTime ) {
+	//Slicer: Matchmode
+	if ( g_timelimit.integer && !level.warmupTime && !g_RQ3_matchmode.integer) {
 		if ( level.time - level.startTime >= g_timelimit.integer*60000 ) {
 			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"");
 			LogExit( "Timelimit hit." );
@@ -2013,7 +2017,7 @@ void G_RunFrame( int levelTime ) {
 		CheckTeamRules();
 	}
 	// Slicer: matchmode
-	if(g_matchmode.integer )
+	if(g_RQ3_matchmode.integer )
 		MM_RunFrame();
 
 	// check team votes

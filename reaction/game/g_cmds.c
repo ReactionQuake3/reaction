@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/05 23:41:27  slicer
+// More on matchmode..
+//
 // Revision 1.47  2002/02/04 00:10:49  slicer
 // Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
@@ -709,14 +712,14 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 
 	//Slicer : Matchmode - If a captain changes team , that team is no longer ready
-	if(g_matchmode.integer) {
+	if(g_RQ3_matchmode.integer) {
 	//	client->sess.savedTeam = team;
 			switch(ent->client->pers.captain) {
 				case TEAM_RED:
-				trap_Cvar_Set("MM_team1", "0");
+				trap_Cvar_Set("RQ3_team1", "0");
 				break;
 				case TEAM_BLUE:
-				trap_Cvar_Set("MM_team2", "0");
+				trap_Cvar_Set("RQ3_team2", "0");
 				break;
 		}
 	}

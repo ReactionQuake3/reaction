@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/02/05 23:41:27  slicer
+// More on matchmode..
+//
 // Revision 1.10  2002/02/05 10:04:41  jbravo
 // Debugging message gone and cleanup of Antistick routinr
 //
@@ -71,10 +74,21 @@ void CheckTeamRules()
 		level.team_round_countdown = 0;
 		if (BothTeamsHavePlayers()) {
 			level.team_game_going = 1;
+			level.inGame = qtrue;
 			StartLCA();
 		} else {
-			trap_SendServerCommand( -1, va("cp \"Not enough players to play!\n\""));
+			//Slicer: Adding Matchmode
+			if(g_RQ3_matchmode.integer) {
+				if(RQ3_team1.integer && RQ3_team2.integer)
+					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
+				else
+					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
+			}
+			else
+				trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
+
 			MakeAllLivePlayersObservers();
+			level.inGame = qfalse;
 		}
 	} else {
 		if (level.team_round_countdown)
@@ -95,10 +109,24 @@ void CheckTeamRules()
 
 	if (!level.team_round_going) {
 		if (g_timelimit.integer) {
-			if (level.time - level.startTime >= g_timelimit.integer*60000) {
-				trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
-				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				return;
+			//Slicer : Matchmode
+			if(g_RQ3_matchmode.integer) {
+				if(level.matchTime >= g_timelimit.integer * 60) {
+					level.inGame = level.team_round_going = level.team_round_countdown = 
+					level.team_game_going = level.matchTime = 0;
+					trap_Cvar_Set("RQ3_Team1", "0");
+					trap_Cvar_Set("RQ3_Team2", "0");
+					MakeAllLivePlayersObservers ();
+					trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
+					return;
+				}
+			}
+			else {
+				if (level.time - level.startTime >= g_timelimit.integer*60000) {
+					trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
+					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+					return;
+				}
 			}
 		}
 		if (!level.team_round_countdown) {
@@ -192,6 +220,11 @@ void ContinueLCA()
 qboolean BothTeamsHavePlayers()
 {
 	int onteam1 = 0, onteam2 = 0;
+
+	//Slicer: Matchmode
+	if(g_RQ3_matchmode.integer && (!RQ3_team1.integer || !RQ3_team2.integer))
+		return 0;
+	
 
 	onteam1 = RQ3TeamCount( -1, TEAM_RED );
 	onteam2 = RQ3TeamCount( -1, TEAM_BLUE );
@@ -335,18 +368,44 @@ int WonGame(int winner)
 	}
 
 	if (g_timelimit.integer) {
-		if (level.time - level.startTime >= g_timelimit.integer*60000) {
-			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
-			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-			return 1;
+		//Slicer : Matchmode
+		if(g_RQ3_matchmode.integer) {
+			if(level.matchTime >= g_timelimit.integer * 60) {
+			level.inGame = level.team_round_going = level.team_round_countdown = 
+			level.team_game_going = level.matchTime = 0;
+			trap_Cvar_Set("RQ3_Team1", "0");
+			trap_Cvar_Set("RQ3_Team2", "0");
+			MakeAllLivePlayersObservers ();
+			trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
+			return;
+			}
+		}
+		else {
+			if(level.time - level.startTime >= g_timelimit.integer*60000) {
+				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
+				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+				return 1;
+			}
 		}
 	}
 
 	if (g_RQ3_roundlimit.integer) {
 		if (level.teamScores[TEAM_RED] >= g_RQ3_roundlimit.integer || level.teamScores[TEAM_BLUE] >= g_RQ3_roundlimit.integer) {
+				//Slicer : Matchmode
+			if(g_RQ3_matchmode.integer) {
+				level.inGame = level.team_round_going = level.team_round_countdown = 
+				level.team_game_going = level.matchTime = 0;
+				trap_Cvar_Set("RQ3_Team1", "0");
+				trap_Cvar_Set("RQ3_Team2", "0");
+				MakeAllLivePlayersObservers ();
+				trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
+				return 1;
+			}
+			else {
 			trap_SendServerCommand( -1, "Roundlimit hit.\n\"" );
 			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
 			return 1;
+			}
 		}
 	}
 
@@ -366,7 +425,7 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 			continue;
 		}
 		//Slicer: Matchmode - Subs don't count
-		if(g_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
+		if(g_RQ3_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
 			continue;
 		if ( level.clients[i].sess.savedTeam == team ) {
 			count++;
@@ -413,7 +472,7 @@ void SpawnPlayers()
 			continue;
 		//Slicer: Matchmode - Subs don't spawn
 
-		if(g_matchmode.integer && player->client->pers.sub != TEAM_FREE)
+		if(g_RQ3_matchmode.integer && player->client->pers.sub != TEAM_FREE)
 			continue;
 
 		client = player->client;

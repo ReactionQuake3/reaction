@@ -1,7 +1,5 @@
 #include "g_local.h"
 
-/* Slicer - This will work on all MatchMode Aspects..
-timers, votes, etc etc. Called on each Frame*/
 qboolean checkCaptain(team_t team) {
 	gentity_t *ent;
 	int i;
@@ -22,14 +20,14 @@ void MM_RunFrame(void) {
 	switch(g_gametype.integer) {
 	//Each Type has different ways of dealing things..
 	case(GT_TEAMPLAY):
-		if(level.team_game_going) // This will need changes..
+		if(level.team_game_going && level.inGame)
 			level.matchTime += 1/fps;
 		break;
 
 	}
 }
 void MM_Sub_f( gentity_t *ent) {
-	if(!g_matchmode.integer)
+	if(!g_RQ3_matchmode.integer)
 		return;
 	if(ent->client->sess.savedTeam == TEAM_SPECTATOR || ent->client->sess.savedTeam == TEAM_FREE ) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be on a team for that\n\"");
@@ -54,20 +52,20 @@ void MM_Sub_f( gentity_t *ent) {
 	}
 }
 void MM_Captain_f( gentity_t *ent ) {
-	if(!g_matchmode.integer)
+	if(!g_RQ3_matchmode.integer)
 		return;
 	if(ent->client->sess.savedTeam == TEAM_SPECTATOR || ent->client->sess.savedTeam == TEAM_FREE ) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be on a team for that\n\"");
 		return;
 	}
 	if(ent->client->pers.captain  == TEAM_RED) {
-			trap_Cvar_Set("MM_team1", "0");
+			trap_Cvar_Set("RQ3_team1", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 			ent->client->pers.netname,"Red Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
 	}
 	else if(ent->client->pers.captain == TEAM_BLUE) {
-			trap_Cvar_Set("MM_team2", "0");
+			trap_Cvar_Set("RQ3_team2", "0");
 			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 				ent->client->pers.netname,"Blue Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
@@ -84,28 +82,28 @@ void MM_Captain_f( gentity_t *ent ) {
 	}
 }
 void MM_Ready_f(gentity_t *ent) {
-	if(!g_matchmode.integer)
+	if(!g_RQ3_matchmode.integer)
 		return;
 
 	if(ent->client->pers.captain != TEAM_FREE) {
 		if(ent->client->sess.savedTeam == TEAM_RED) {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			"Red Team",MM_team1.integer == 0 ? "": "no longer"));
+			"Red Team",RQ3_team1.integer == 0 ? "": "no longer"));
 			
-			if(MM_team1.integer)
-				trap_Cvar_Set("MM_Team1", "0");
+			if(RQ3_team1.integer)
+				trap_Cvar_Set("RQ3_Team1", "0");
 			else
-				trap_Cvar_Set("MM_Team1", "1");
+				trap_Cvar_Set("RQ3_Team1", "1");
 
 		}
 		else {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			"Blue Team",MM_team2.integer == 0 ? "": " no longer"));
+			"Blue Team",RQ3_team2.integer == 0 ? "": " no longer"));
 
-			if(MM_team2.integer)
-					trap_Cvar_Set("MM_Team2", "0");
+			if(RQ3_team2.integer)
+					trap_Cvar_Set("RQ3_Team2", "0");
 			else
-				trap_Cvar_Set("MM_Team2", "1");
+				trap_Cvar_Set("RQ3_Team2", "1");
 			
 		}
 	}

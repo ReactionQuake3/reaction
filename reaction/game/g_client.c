@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/02/05 23:41:27  slicer
+// More on matchmode..
+//
 // Revision 1.31  2002/02/04 00:10:49  slicer
 // Matchmode: Teams Ready/Not Ready goes by cvar MM_team1/2
 //
@@ -1132,7 +1135,7 @@ void ClientBegin( int clientNum ) {
 
 	//Slicer : Reseting matchmode vars
 	//Note: Each time a player changes team, this will also be called..
-	if(g_matchmode.integer ) {
+	if(g_RQ3_matchmode.integer ) {
 		client->pers.captain = TEAM_FREE;
 		client->pers.sub = TEAM_FREE;
 	}
@@ -1527,10 +1530,10 @@ void ClientDisconnect( int clientNum ) {
 	if(g_gametype.integer) {
 		switch(ent->client->pers.captain ) {
 				case TEAM_RED:
-					trap_Cvar_Set("MM_team1", "0");
+					trap_Cvar_Set("RQ3_team1", "0");
 				break;
 				case TEAM_BLUE:
-					trap_Cvar_Set("MM_team2", "0");
+					trap_Cvar_Set("RQ3_team2", "0");
 				break;
 		}
 	}
