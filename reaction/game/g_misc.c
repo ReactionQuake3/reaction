@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/04/20 23:54:55  blaze
+// opps, breabable fix
+//
 // Revision 1.29  2002/04/08 20:14:34  blaze
 // func_breakable explode fix
 //
@@ -502,8 +505,11 @@ void SP_func_breakable( gentity_t *ent ) {
     
 	// Setup health of breakable
   G_SpawnInt( "health", "0", &health );
-  if( health <= 0 )	health = 5;
-
+  if( health <= 0 )	
+  {
+    health = 5;
+  }
+  G_Printf("Setting health to %d\n",health);
   G_SpawnInt("damage","170", &damage);
 
 	ent->damage = damage;
@@ -706,6 +712,9 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
      	//Elder: use TempEntity2 to stuff params
         //tent = G_TempEntity( center, EV_BREAK_GLASS );
  	//tent->s.eventParm = eParm;
+    //unlink it instead of freeing
+    trap_UnlinkEntity(ent);
+
  	}
   else if(ent->chippable)
   {
@@ -756,8 +765,6 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 		tent = G_TempEntity2( impactPoint, EV_CHIP_GLASS, eParm);
 
   }
-  //unlink it instead of freeing
-  trap_UnlinkEntity(ent);
 }
 
 

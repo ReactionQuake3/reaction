@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/04/20 23:54:55  blaze
+// opps, breabable fix
+//
 // Revision 1.59  2002/04/07 03:22:48  jbravo
 // Tweaks and crashbug fixes
 //
@@ -1475,8 +1478,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   {
     if (!targ->unbreakable)
     {
-
-    targ->health -= damage;
+      targ->health -= damage;
     }
  		G_BreakGlass( targ, inflictor, attacker, point, mod, damage );
  		return;
