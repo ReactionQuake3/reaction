@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/17 02:03:48  jbravo
+// Fixed a bug where a players laser would stay in the map after he disconnects
+//
 // Revision 1.50  2002/03/17 01:44:39  jbravo
 // Fixed the "xxx died" fraglines, did some code cleanups andalmost fixed
 // DM.  Only DM problem I can see is that bots are invisible.
@@ -1656,7 +1659,12 @@ void ClientDisconnect( int clientNum ) {
 	// aasimon: Referee. If player is referee, clean ref 
 	if(clientNum == g_RQ3_RefID.integer)
 		trap_Cvar_Set("g_RQ3_RefID", "-1");
-		
+
+// JBravo: if the client had a laser, turn it off so it doesnt stay there forever.
+	if (ent->client->lasersight) {
+		G_FreeEntity(ent->client->lasersight);
+		ent->client->lasersight = NULL;
+	}
 
 	// stop any following clients
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
