@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/07/19 04:29:18  niceass
+// typo fix
+//
 // Revision 1.36  2002/07/13 22:43:59  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -394,6 +397,7 @@ qboolean G_CallSpawn(gentity_t * ent)
 		G_Printf("G_CallSpawn: NULL classname\n");
 		return qfalse;
 	}
+	
 	//Blaze: allow for Reaction specific spawns to be used
 	//Elder: map Q3DM weapons -> RQ3 weapons
 	if (!strcmp(ent->classname, "weapon_gauntlet"))
@@ -446,11 +450,10 @@ qboolean G_CallSpawn(gentity_t * ent)
 	else if (!strcmp(ent->classname, "RQ3weapon_grenade"))
 		ent->classname = "weapon_grenade";
 	// JBravo: Briefcases
-	else if (!strcmp(ent->classname, "RQ3case_blaxk"))
+	else if (!strcmp(ent->classname, "RQ3case_black"))
 		ent->classname = "team_CTF_blueflag";
 	else if (!strcmp(ent->classname, "RQ3case_silver"))
 		ent->classname = "team_CTF_redflag";
-
 	//Elder: map Q3DM ammo -> RQ3 ammo
 	if (!strcmp(ent->classname, "RQ3ammo_mk23"))
 		ent->classname = "ammo_mk23";
@@ -487,6 +490,7 @@ qboolean G_CallSpawn(gentity_t * ent)
 	   }
 	   } */
 	//Makro - new code
+
 	for (item = bg_itemlist + 1; item->classname; item++) {
 		if (!strcmp(item->classname, ent->classname)) {
 			//only spawn flags in CTF mode
