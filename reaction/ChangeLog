@@ -1,3 +1,7 @@
+# List fixes here for post 2.25
+
+* Fixed the cg_rq3_autoaction code up a bit more to show the map name, and a few other fixes
+
 # List fixes here for the 2.25 release
 
 * Problem fixed in the bullet firing code that affected the otherwise good hitboxes.
@@ -154,3 +158,7 @@
 * Shell ejections on spawn in TP should be fixed
 * Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
 * Added CTB radio commands to all radio sets.
+<<<<<<< ChangeLog
+* Added spawnflag 8 to breakables and func_buttons to allow them to be unkickable
+=======
+>>>>>>> 1.87
