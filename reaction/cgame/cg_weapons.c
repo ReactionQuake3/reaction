@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/07/08 04:41:12  niceass
+// no more shell ejection on LCA, I hope
+//
 // Revision 1.88  2002/06/29 21:57:18  niceass
 // shotgun fixes
 //
@@ -1676,6 +1679,10 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		laser.nonNormalizedAxes = qtrue;
 		CG_AddWeaponWithPowerups(&laser, cent->currentState.powerups);
 	}
+
+	// NiceAss: fix for brass ejecting on LCA
+	if (cg.lca)
+		cent->ejectBrassTime = 0;
 
 	// NiceAss: Tag locations used for shell ejection
 	// The handcannon hacks have ruined my beautiful code =(
