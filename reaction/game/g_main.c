@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/09/02 00:06:33  slicer
+// Small fix on the g_RQ3_maxref cvar string
+//
 // Revision 1.113  2002/08/30 00:00:16  makro
 // Sky portals
 //
@@ -585,7 +588,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{&g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_ARCHIVE, 0, qfalse},
 	//{&g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
-	{&g_RQ3_maxRefs, "	g_RQ3_maxRefs", "1", CVAR_SERVERINFO, 0, qtrue},
+	{&g_RQ3_maxRefs, "g_RQ3_maxRefs", "1", CVAR_SERVERINFO, 0, qtrue},
 	// aasimon: stuff for da ini file
 	{&g_RQ3_IniFile, "g_RQ3_IniFile", "", CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
