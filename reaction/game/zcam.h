@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/30 17:59:27  jbravo
+// Forgot a * on *ent
+//
 // Revision 1.6  2002/03/30 17:57:48  jbravo
 // Two functions added to zcam.h for g_active.c
 //
@@ -43,7 +46,7 @@ void camera_begin (gentity_t *ent);
 void camera_disconnect (gentity_t *ent);
 void camera_think (gentity_t *ent);
 void camera_cmd (gentity_t *ent);
-void CameraFlicBegin (gentity_t ent);
+void CameraFlicBegin (gentity_t *ent);
 void CameraSwingCycle (gentity_t *ent, int dir);
 
 // JBravo: moved from zcam.c to here:
