@@ -499,6 +499,7 @@ player_die
 */
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
+	gentity_t	*DMReward;
 	int			anim;
 	int			contents;
 	int			killer;
@@ -529,6 +530,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         //self->client->isBandaging = qfalse;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
+		self->client->ps.stats[STAT_STREAK] = 0;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -599,7 +601,38 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
-			AddScore( attacker, self->r.currentOrigin, 1 );
+
+			attacker->client->ps.stats[STAT_STREAK]++;
+			if (attacker->client->ps.stats[STAT_STREAK] < 4) 
+				AddScore( attacker, self->r.currentOrigin, 1 );	
+			else if (attacker->client->ps.stats[STAT_STREAK] < 8)
+			{	AddScore( attacker, self->r.currentOrigin, 2 );
+				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
+				DMReward->s.otherEntityNum2 = killer;
+				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->r.svFlags = SVF_BROADCAST;
+			}
+			else if (attacker->client->ps.stats[STAT_STREAK] < 16) 
+			{	AddScore( attacker, self->r.currentOrigin, 4 );
+				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
+				DMReward->s.otherEntityNum2 = killer;
+				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->r.svFlags = SVF_BROADCAST;
+			}
+			else if (attacker->client->ps.stats[STAT_STREAK] < 32) 
+			{	AddScore( attacker, self->r.currentOrigin, 8 );
+				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
+				DMReward->s.otherEntityNum2 = killer;
+				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+			    DMReward->r.svFlags = SVF_BROADCAST;
+			}
+			else
+			{	AddScore( attacker, self->r.currentOrigin, 16 );
+				DMReward = G_TempEntity(self->r.currentOrigin ,EV_DMREWARD);
+				DMReward->s.otherEntityNum2 = killer;
+				DMReward->s.eventParm = attacker->client->ps.stats[STAT_STREAK];
+				DMReward->r.svFlags = SVF_BROADCAST;
+			}
 
 			if( meansOfDeath == MOD_GAUNTLET ) {
 				
