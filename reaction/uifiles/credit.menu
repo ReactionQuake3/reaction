@@ -540,8 +540,8 @@
 	textscale .35
 	textalignx 120
 	textaligny 140
-	text "Erwin Peil"
-	text "Andre Beardsley-Dusette"
+	text "Erwin Peil\n"
+	     "Andre Beardsley-Dusette"
 	autowrapped
 	textheight 24
 	visible 1
@@ -558,8 +558,8 @@
 	textscale .35
 	textalignx 100
 	textaligny 140
-	text "SpecOps"
-	text "Nicodem-X"
+	text "SpecOps\n"
+	     "Nicodem-X"
 	autowrapped
 	textheight 24
 	visible 1
@@ -1023,7 +1023,9 @@
 	textalignx 120
 	textaligny 80
 	text "A-TEAM REPRESENTATIVE\n\n"
-	     "Dwayne Douglass"
+	     "Dwayne Douglass\n\n\n"
+	     "ZCam Author\n\n"
+	     "Avi 'Zung!' Rozen"
 	autowrapped
 	visible 1
 	decoration
