@@ -1359,7 +1359,9 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame( gentity_t *ent ) {
 	int			i;
 	clientPersistant_t	*pers;
-
+	gitem_t		*rq3_item;
+	gentity_t	*rq3_temp;
+	vec3_t		spawn_origin, spawn_angles;
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		SpectatorClientEndFrame( ent );
 		return;
@@ -1427,7 +1429,13 @@ void ClientEndFrame( gentity_t *ent ) {
 	// Blaze: Do Bleed
 //	if(ent->client->bleeding)
 //			CheckBleeding(ent);	// perform once-a-second actions
-
+	if (level.time % 30000 < 1)
+	{
+		G_Printf("Spawn an Item\n");
+		rq3_item = BG_FindItem( "Kevlar Vest" );
+		rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
+		Drop_Item (rq3_temp, rq3_item, 0);
+	}
 // Begin Duffman
 	//Update the clips Amount in weapon for the client
     ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
