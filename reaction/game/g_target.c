@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2003/01/05 22:36:50  makro
+// Added "inactive" field for entities
+// New "target_activate" entity
+//
 // Revision 1.8  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -430,6 +434,43 @@ void target_kill_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 void SP_target_kill(gentity_t * self)
 {
 	self->use = target_kill_use;
+}
+
+//==========================================================
+
+/*QUAKED target_activate (.5 .5 .5) (-8 -8 -8) (8 8 8)
+Activates/de-activates entities
+Added by Makro
+*/
+void target_activate_use(gentity_t * self, gentity_t * other, gentity_t * activator)
+{
+	gentity_t	*loop = NULL;
+	int action = 0;
+
+	if (!Q_stricmp(self->pathtarget, "on")) {
+		action = 1;
+	} else if (!Q_stricmp(self->pathtarget, "off")) {
+		action = 2;
+	}
+
+	for (loop = G_Find(NULL, FOFS(targetname), self->target); loop; G_Find(loop, FOFS(targetname), self->target)) {
+		switch (action) {
+			case 1:
+				loop->inactive = 0;
+				break;
+			case 2:
+				loop->inactive = 1;
+				break;
+			default:
+				loop->inactive = !loop->inactive;
+				break;
+		}
+	}
+}
+
+void SP_target_activate(gentity_t * self)
+{
+	self->use = target_activate_use;
 }
 
 /*QUAKED target_position (0 0.5 0) (-4 -4 -4) (4 4 4)

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2003/01/05 22:36:50  makro
+// Added "inactive" field for entities
+// New "target_activate" entity
+//
 // Revision 1.53  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -870,6 +874,11 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	// only the master should be used
 	if (ent->flags & FL_TEAMSLAVE) {
 		Use_BinaryMover(ent->teammaster, other, activator);
+		return;
+	}
+
+	//Makro - do nothing if the mover is not active
+	if (ent->inactive) {
 		return;
 	}
 

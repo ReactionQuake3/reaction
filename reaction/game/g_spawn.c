@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2003/01/05 22:36:50  makro
+// Added "inactive" field for entities
+// New "target_activate" entity
+//
 // Revision 1.40  2002/09/01 21:15:08  makro
 // Sky portal tweaks
 //
@@ -218,6 +222,7 @@ field_t fields[] = {
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
 	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
+	{"inactive", FOFS(inactive), F_INT},	// Makro - for func_trains
 	{NULL}
 };
 
@@ -263,6 +268,8 @@ void SP_target_score(gentity_t * ent);
 void SP_target_teleporter(gentity_t * ent);
 void SP_target_relay(gentity_t * ent);
 void SP_target_kill(gentity_t * ent);
+//Makro - added
+void SP_target_activate(gentity_t * ent);
 void SP_target_position(gentity_t * ent);
 void SP_target_location(gentity_t * ent);
 void SP_target_push(gentity_t * ent);
@@ -349,6 +356,8 @@ spawn_t spawns[] = {
 	{"target_teleporter", SP_target_teleporter},
 	{"target_relay", SP_target_relay},
 	{"target_kill", SP_target_kill},
+	//Makro - added
+	{"target_activate", SP_target_activate},
 	{"target_position", SP_target_position},
 	{"target_location", SP_target_location},
 	{"target_push", SP_target_push},

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/01/05 22:36:50  makro
+// Added "inactive" field for entities
+// New "target_activate" entity
+//
 // Revision 1.132  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -511,6 +515,8 @@ struct gentity_s {
 	float distance;		// VALKYRIE: for rotating door
 	//Blaze: Holds the target set by a button
 	char *pathtarget;
+	//Makro - added
+	int inactive;
 };
 
 typedef enum {
