@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.154  2002/07/09 05:41:48  niceass
+// scoreboard fix
+//
 // Revision 1.153  2002/07/09 03:24:00  niceass
 // fixed team talk
 //
@@ -425,7 +428,7 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 				alive = qtrue;
 		}
 
-		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", 
+		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i", 
 			level.sortedClients[i], 
 			cl->ps.persistant[PERS_SCORE], 
 			ping, 
@@ -1033,6 +1036,7 @@ void SetTeam(gentity_t * ent, char *s)
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
 		player_die(ent, ent, ent, 100000, MOD_SUICIDE);
 	}
+
 // JBravo: lets set the correct var here.
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		client->sess.savedTeam = team;
