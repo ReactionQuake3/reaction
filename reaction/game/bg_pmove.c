@@ -1199,6 +1199,10 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
 		return EV_FOOTSTEP_GRASS;
 	}
+	
+	//if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
+		//return EV_FOOTSTEP_GRAVEL;
+	//}
 
 	if ( pml.groundTrace.surfaceFlags & SURF_WOOD ) {
 		return EV_FOOTSTEP_WOOD;
