@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/04/03 15:29:24  jbravo
+// Those __ZCAM__ ifdefs keep creaping back in :)
+//
 // Revision 1.69  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -107,7 +110,6 @@
 //-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-#define __ZCAM__
 #include "g_local.h"
 // JBravo: need TP functions
 #include "g_teamplay.h"
