@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/06/06 18:08:01  makro
+// Removed pathtarget code for trigger_pushes for now
+//
 // Revision 1.21  2002/06/04 21:35:40  makro
 // Updated trigger_push code
 //
@@ -186,14 +189,17 @@ trigger_push
 
 void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 
+	if (!other || !self)
+		return;
+	
 	if ( !other->client ) {
 		return;
 	}
 
 	//Makro - too soon to activate ?
-	if (level.time < self->s.powerups) {
+	/*if (level.time < self->s.legsAnim) {
 		return;
-	}
+	}*/
 
 	//Makro - bot only triggers
 	if ( self->spawnflags & 1 ) {
@@ -203,18 +209,22 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	BG_TouchJumpPad( &other->client->ps, &self->s );
-	//Makro - team up trigger_pushes
+	//Makro - "team up" trigger_pushes
+	//something is broken here :/
+	/*
 	if (self->pathtarget) {
-		gentity_t	*loop = NULL;
-		for (loop = G_Find2(NULL, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget); loop; G_Find2(loop, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget)) {
-			//Makro - delay 5 seconds before triggering another trigger_push from the same "team"
-			if (self->distance) {
-				loop->s.powerups = level.time + self->distance * 1000;
-			} else {
-				loop->s.powerups = level.time + 5 * 1000;
+		if (self->pathtarget[0]) {
+			gentity_t	*loop = NULL;
+			for (loop = G_Find2(NULL, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget); loop; G_Find2(loop, FOFS(classname), self->classname, FOFS(pathtarget), self->pathtarget)) {
+				//Makro - delay 5 seconds before triggering another trigger_push from the same "team"
+				if (self->distance) {
+					loop->s.legsAnim = level.time + self->distance * 1000;
+				} else {
+					loop->s.legsAnim = level.time + 5 * 1000;
+				}
 			}
 		}
-	}
+	}*/
 
 }
 
@@ -280,9 +290,6 @@ void SP_trigger_push( gentity_t *self ) {
 	//Makro - for bot-only triggers
 	if ( !(self->spawnflags & 1) ) {
 		self->r.svFlags &= ~SVF_NOCLIENT;
-		self->s.powerups = 0;
-	} else {
-		self->s.powerups = 1;
 	}
 	self->s.powerups = (self->spawnflags & 1);
 	self->s.eType = ET_PUSH_TRIGGER;

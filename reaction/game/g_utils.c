@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/06/06 18:08:01  makro
+// Removed pathtarget code for trigger_pushes for now
+//
 // Revision 1.10  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -189,6 +192,8 @@ gentity_t *G_Find2 (gentity_t *from, int fieldofs, const char *match, int fieldo
 
 	for (ent = G_Find(from, fieldofs, match); ent; ent = G_Find(ent, fieldofs, match)) {
 		char *s = *(char **) ((byte *)ent + fieldofs2);
+		if (!s)
+			continue;
 		if (!Q_stricmp(s, match2))
 			return ent;
 	}
