@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/04/30 12:23:35  jbravo
+// Warningfix
+//
 // Revision 1.18  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -227,7 +230,7 @@ void SP_team_neutralobelisk( gentity_t *ent );
 
 // JBravo: SP_item_botroam doesnt really exsist.
 // Makro - still, bots are supposed to use these
-void SP_item_botroam( gentity_t *ent ) {};
+void SP_item_botroam( gentity_t *ent );
 //Blaze: merged func_explosive into func_breakable
 
 // JBravo: adding explosive
@@ -315,6 +318,11 @@ spawn_t	spawns[] = {
 
 	{0, 0}
 };
+
+// JBravo: Compiler warning shutup
+void SP_item_botroam (gentity_t *ent) {
+	return;
+}
 
 /*
 ===============
