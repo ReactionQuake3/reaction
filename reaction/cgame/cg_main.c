@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2003/02/16 21:39:09  makro
+// Fixed "timelimit is read only" on local servers error
+//
 // Revision 1.119  2003/02/05 20:21:38  jbravo
 // Fixed the model replacement system.  Its no longer an ugly hack.
 //
@@ -588,10 +591,11 @@ vmCvar_t cg_enableLaserFog;
 vmCvar_t cg_enableDust;
 
 // JBravo: cvars for the MM ingame menu
-vmCvar_t cg_RQ3_timelimit;
+//Makro - removed timelimit/fraglimit cvars - they were causing problems on local servers
+//vmCvar_t cg_RQ3_timelimit;
 vmCvar_t cg_RQ3_roundlimit;
 vmCvar_t cg_RQ3_roundtimelimit;
-vmCvar_t cg_RQ3_fraglimit;
+//vmCvar_t cg_RQ3_fraglimit;
 vmCvar_t cg_RQ3_maxplayers;
 vmCvar_t cg_RQ3_forceteamtalk;
 vmCvar_t cg_RQ3_limchasecam;
@@ -818,10 +822,11 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	//Slicer: Team Status Cvars for MM
 	{&cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
 	// JBravo: more MM ingame cvars.
-	{&cg_RQ3_timelimit, "timelimit", "0", CVAR_ROM},
+	//Makro - removed timelimit/fraglimit cvars - they were causing problems on local servers
+	//{&cg_RQ3_timelimit, "cg_RQ#timelimit", "0", CVAR_ROM},
 	{&cg_RQ3_roundlimit, "cg_RQ3_roundlimit", "0", CVAR_ROM},
 	{&cg_RQ3_roundtimelimit, "cg_RQ3_roundtimelimit", "0", CVAR_ROM},
-	{&cg_RQ3_fraglimit, "fraglimit", "0", CVAR_ROM},
+	//{&cg_RQ3_fraglimit, "fraglimit", "0", CVAR_ROM},
 	{&cg_RQ3_maxplayers, "cg_RQ3_maxplayers", "0", CVAR_ROM},
 	{&cg_RQ3_forceteamtalk, "cg_RQ3_forceteamtalk", "0", CVAR_ROM},
 	{&cg_RQ3_limchasecam, "cg_RQ3_limchasecam", "0", CVAR_ROM},

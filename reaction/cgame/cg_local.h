@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2003/02/16 21:39:09  makro
+// Fixed "timelimit is read only" on local servers error
+//
 // Revision 1.134  2003/02/05 20:21:38  jbravo
 // Fixed the model replacement system.  Its no longer an ugly hack.
 //
@@ -1854,10 +1857,11 @@ extern vmCvar_t ui_RQ3_teamCount2;
 extern vmCvar_t ui_RQ3_numSpectators;
 
 // JBravo: MM ingame menu cvars.
-extern vmCvar_t cg_RQ3_timelimit;
+//Makro - removed timelimit/fraglimit cvars - they were causing problems on local servers
+//extern vmCvar_t cg_RQ3_timelimit;
 extern vmCvar_t cg_RQ3_roundlimit;
 extern vmCvar_t cg_RQ3_roundtimelimit;
-extern vmCvar_t cg_RQ3_fraglimit;
+//extern vmCvar_t cg_RQ3_fraglimit;
 extern vmCvar_t cg_RQ3_maxplayers;
 extern vmCvar_t cg_RQ3_forceteamtalk;
 extern vmCvar_t cg_RQ3_limchasecam;

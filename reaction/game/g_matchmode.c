@@ -826,7 +826,8 @@ Force Team Talk
 const char *settings[] = {"timelimit", "g_RQ3_roundlimit", "g_RQ3_roundtimelimit", "fraglimit", "g_RQ3_maxplayers",
 				"g_RQ3_forceteamtalk", "g_RQ3_limchasecam","g_RQ3_tgren","g_friendlyFire"};
 // JBravo: adding settings2 for cvars to set in the client for the MM ingame menu.
-const char *settings2[] = {"cg_RQ3_timelimit", "cg_RQ3_roundlimit", "cg_RQ3_roundtimelimit", "cg_RQ3_fraglimit",
+//Makro - changed cg_RQ3_timelimit/fraglimit cvars - they were causing problems on local servers
+const char *settings2[] = {"timelimit", "cg_RQ3_roundlimit", "cg_RQ3_roundtimelimit", "fraglimit",
 				"cg_RQ3_maxplayers", "cg_RQ3_forceteamtalk", "cg_RQ3_limchasecam", "cg_RQ3_tgren", "cg_RQ3_friendlyFire"};
 
 void MM_Settings_f(gentity_t * ent) {

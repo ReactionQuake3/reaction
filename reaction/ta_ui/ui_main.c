@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2003/02/16 21:39:10  makro
+// Fixed "timelimit is read only" on local servers error
+//
 // Revision 1.59  2003/02/13 21:19:51  makro
 // no message
 //
@@ -4276,10 +4279,10 @@ static void UI_RunMenuScript(char **args)
 			trap_Cmd_ExecuteText(EXEC_APPEND, va("teammodel \"%s\"\n", ui_RQ3_teamModel.string));
 		//Makro - sync ui MM cvars with the real ones
 		} else if (Q_stricmp(name, "readMMsettings") == 0) {
-			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("cg_RQ3_timelimit"));
+			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("timelimit"));
 			trap_Cvar_SetValue("ui_RQ3_roundlimit", trap_Cvar_VariableValue("cg_RQ3_roundlimit"));
 			trap_Cvar_SetValue("ui_RQ3_roundtimelimit", trap_Cvar_VariableValue("cg_RQ3_roundtimelimit"));
-			trap_Cvar_SetValue("ui_RQ3_fraglimit", trap_Cvar_VariableValue("cg_RQ3_fraglimit"));
+			trap_Cvar_SetValue("ui_RQ3_fraglimit", trap_Cvar_VariableValue("fraglimit"));
 			trap_Cvar_SetValue("ui_RQ3_maxplayers", trap_Cvar_VariableValue("cg_RQ3_maxplayers"));
 			trap_Cvar_SetValue("ui_RQ3_forceteamtalk", trap_Cvar_VariableValue("cg_RQ3_forceteamtalk"));
 			trap_Cvar_SetValue("ui_RQ3_limchasecam", trap_Cvar_VariableValue("cg_RQ3_limchasecam"));
