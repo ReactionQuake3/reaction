@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/29 06:11:28  niceass
+// centerprint, pressure and matchmode stuff
+//
 // Revision 1.67  2002/04/23 06:08:24  niceass
 // scoreboard stuff
 //
@@ -369,7 +372,7 @@ typedef enum {
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
-	LE_PRESSURE_WATER,
+	LE_PRESSURE,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -754,6 +757,7 @@ typedef struct {
 	int			centerPrintY;
 	char		centerPrint[1024];
 	int			centerPrintLines;
+	int			centerPrintMaxLen;
 
 	// low ammo warning state
 	int			lowAmmoWarning;		// 1 = low, 2 = empty
@@ -1614,6 +1618,8 @@ extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
+extern	vmCvar_t		cg_RQ3_RefID;
+extern	vmCvar_t		cg_RQ3_matchmode;
 extern	vmCvar_t		cg_RQ3_team1ready;
 extern	vmCvar_t		cg_RQ3_team2ready;
 
@@ -1887,7 +1893,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,
 								qboolean isSprite );
 
-void CG_PressureWater( vec3_t origin, vec3_t dir );
+void CG_Pressure( vec3_t origin, vec3_t dir, centity_t *cent );
 
 //
 // cg_snapshot.c
