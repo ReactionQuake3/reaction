@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/02/26 21:59:10  jbravo
+// Fixed death on switching teams while dead
+//
 // Revision 1.38  2002/02/26 02:58:47  jbravo
 // Fixing the spectator_free mode not being predicted in the client.
 //
@@ -1085,6 +1088,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 // JBravo: Antistick
 	client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
+// JBravo: Clear zcam flag for cgame
 	client->ps.stats[STAT_RQ3] &= ~RQ3_ZCAM;
 
 	// read or initialize the session data
@@ -1117,6 +1121,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+
+// JBravo: clients in TP begin as spectators
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		client->sess.sessionTeam = TEAM_SPECTATOR;
+		client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
+	}
 
 	// for statistics
 //	client->areabits = areabits;
@@ -1194,11 +1204,11 @@ void ClientBegin( int clientNum ) {
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 		client->sess.spectatorState = SPECTATOR_FREE;
 #ifdef __ZCAM__
-		client->camera->mode = CAMERA_MODE_FLIC;
+		client->camera->mode = CAMERA_MODE_SWING;
 #endif
 	}
 
-	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	if (client->sess.sessionTeam != TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
 		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
 

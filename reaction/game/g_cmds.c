@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/02/26 21:59:10  jbravo
+// Fixed death on switching teams while dead
+//
 // Revision 1.58  2002/02/26 04:59:10  jbravo
 // Fixed teamswitching and team broadcasting
 //
@@ -731,14 +734,12 @@ void SetTeam( gentity_t *ent, char *s )
 	client->pers.teamState.state = TEAM_BEGIN;
 
 // JBravo: if player is changing from FREE or SPECT. there is no need for violence.
-	//Slicer: If he's dead no need for violence too
-	if ((oldTeam != TEAM_SPECTATOR && oldTeam != TEAM_FREE) && 
-		ent->client->ps.pm_type == PM_NORMAL) {
+	if (client->sess.sessionTeam != TEAM_SPECTATOR && client->sess.sessionTeam != TEAM_FREE &&
+		client->ps.pm_type == PM_NORMAL) {
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
 		player_die (ent, ent, ent, 100000, MOD_SUICIDE);
-
 	}
 
 // JBravo: lets set the correct var here.
