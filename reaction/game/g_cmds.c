@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2002/06/20 21:06:07  freud
+// Added playing of lens.wav when using the unzoom command
+//
 // Revision 1.136  2002/06/20 18:40:17  slicer
 // Future 2.1 Matchmode Features - PART I
 //
@@ -2757,6 +2760,11 @@ void Cmd_New_Weapon(gentity_t * ent)
 // Hawkins make sure spread comes back
 void Cmd_Unzoom(gentity_t * ent)
 {
+	// Freud, play zooming sounds for unzoom
+	if (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW ||
+			ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED)
+		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/lens.wav"));
+
 	//G_Printf("Got to Cmd_Unzoom\n");
 	//Elder: added
 	//if (ent->client->isBandaging == qtrue) {
@@ -2766,10 +2774,12 @@ void Cmd_Unzoom(gentity_t * ent)
 	//}
 	//else {
 	//Elder: remove zoom bits
+	
 	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 	//ent->client->zoomed = 0;
 	//}
+
 }
 
 /*
