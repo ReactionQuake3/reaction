@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/08/21 03:42:36  niceass
+// move of some vector functions outside of just game
+//
 // Revision 1.9  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -953,6 +956,9 @@ float	LittleFloat (const float *l);
 void	Swap_Init (void);
 */
 char *QDECL va(char *format, ...);
+float *tv(float x, float y, float z);
+char *vtos(const vec3_t v);
+
 
 //=============================================
 

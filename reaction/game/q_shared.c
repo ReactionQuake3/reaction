@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/08/21 03:42:20  niceass
+// move of some vector functions outside of just game
+//
 // Revision 1.6  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -897,6 +900,55 @@ char *QDECL va(char *format, ...)
 	va_end(argptr);
 
 	return buf;
+}
+
+/*
+=============
+TempVector
+
+This is just a convenience function
+for making temporary vectors for function calls
+=============
+*/
+float *tv(float x, float y, float z)
+{
+	static int index;
+	static vec3_t vecs[8];
+	float *v;
+
+	// use an array so that multiple tempvectors won't collide
+	// for a while
+	v = vecs[index];
+	index = (index + 1) & 7;
+
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+
+	return v;
+}
+
+/*
+=============
+VectorToString
+
+This is just a convenience function
+for printing vectors
+=============
+*/
+char *vtos(const vec3_t v)
+{
+	static int index;
+	static char str[8][32];
+	char *s;
+
+	// use an array so that multiple vtos won't collide
+	s = str[index];
+	index = (index + 1) & 7;
+
+	Com_sprintf(s, 32, "(%.3f %.3f %.3f)", v[0], v[1], v[2]);
+
+	return s;
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/08/21 03:42:04  niceass
+// move of some vector functions outside of just game
+//
 // Revision 1.17  2002/07/19 04:28:39  niceass
 // no end line fix
 //
@@ -307,54 +310,6 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 	}
 }
 
-/*
-=============
-TempVector
-
-This is just a convenience function
-for making temporary vectors for function calls
-=============
-*/
-float *tv(float x, float y, float z)
-{
-	static int index;
-	static vec3_t vecs[8];
-	float *v;
-
-	// use an array so that multiple tempvectors won't collide
-	// for a while
-	v = vecs[index];
-	index = (index + 1) & 7;
-
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-
-	return v;
-}
-
-/*
-=============
-VectorToString
-
-This is just a convenience function
-for printing vectors
-=============
-*/
-char *vtos(const vec3_t v)
-{
-	static int index;
-	static char str[8][32];
-	char *s;
-
-	// use an array so that multiple vtos won't collide
-	s = str[index];
-	index = (index + 1) & 7;
-
-	Com_sprintf(s, 32, "(%i %i %i)", (int) v[0], (int) v[1], (int) v[2]);
-
-	return s;
-}
 
 /*
 ===============
