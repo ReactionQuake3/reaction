@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/04/29 06:12:40  niceass
+// client matchmode stuff
+//
 // Revision 1.57  2002/04/23 06:06:57  niceass
 // pressure stuff
 //
@@ -306,6 +309,8 @@ vmCvar_t	cg_RQ3_team1name;
 vmCvar_t	cg_RQ3_team2name;
 
 //Slicer: matchmode team status cvars
+vmCvar_t	cg_RQ3_RefID;
+vmCvar_t	cg_RQ3_matchmode;
 vmCvar_t	cg_RQ3_team1ready;
 vmCvar_t	cg_RQ3_team2ready;
 // NiceAss: Taken out of the missionpack
@@ -470,8 +475,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
 	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
+	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
 	{ &cg_RQ3_team1ready, "g_RQ3_team1ready", "0", 0},
-	{ &cg_RQ3_team2ready, "g_RQ3_team2ready", "0", 0}
+	{ &cg_RQ3_team2ready, "g_RQ3_team2ready", "0", 0},
+	{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
+	
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
