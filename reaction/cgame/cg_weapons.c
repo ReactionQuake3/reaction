@@ -36,7 +36,7 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 	trap_FS_Read( text, len, f );
 	text[len] = 0;
 	trap_FS_FCloseFile( f );
-	
+
 	// parse the text
 	text_p = text;
 	// Elder: uhh, what was this for?
@@ -65,7 +65,7 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 		//Com_Printf("(%i): %s\n", i, token);
 		weapTiming->sfxInfo[i].sound = trap_S_RegisterSound( token, qfalse );
 	}
-	
+
 	// Store total number
 	weapTiming->numFrames = i;
 	//Com_Printf("Total Frames: %i\n", weapTiming->numFrames);
@@ -79,7 +79,7 @@ static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *wea
 CG_ParseWeaponAnimFile
 ==========================
 */
-static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weapon ) 
+static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weapon )
 {
 	char *text_p;
 	int len;
@@ -105,22 +105,22 @@ static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weap
 	trap_FS_Read( text, len, f );
 	text[len] = 0;
 	trap_FS_FCloseFile( f );
-	
+
 	// parse the text
 	text_p = text;
 	skip = 0; // quite the compiler warning
-	
+
 	// read information for each frame
-	for ( i = 0 ; i < MAX_WEAPON_ANIMATIONS ; i++ ) { 
+	for ( i = 0 ; i < MAX_WEAPON_ANIMATIONS ; i++ ) {
 		token = COM_Parse( &text_p );
 		if ( !token ) break;
 		animations[i].firstFrame = atoi( token );
 		token = COM_Parse( &text_p );
 		if ( !token ) break;
-		animations[i].numFrames = atoi( token ); 
+		animations[i].numFrames = atoi( token );
 		token = COM_Parse( &text_p );
 		if ( !token ) break;
-		animations[i].loopFrames = atoi( token ); 
+		animations[i].loopFrames = atoi( token );
 		token = COM_Parse( &text_p );
 		if ( !token ) break;
 		fps = atof( token );
@@ -131,7 +131,7 @@ static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weap
 	if ( i != MAX_WEAPON_ANIMATIONS ) {
 		CG_Printf( "Error parsing weapon animation file: %s", filename );
 		return qfalse;
-	} 
+	}
 
 	return qtrue;
 }
@@ -173,6 +173,11 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 	offset[0] = 8;
 	offset[1] = -4;
 	offset[2] = 24;
+
+	// NiceAss: Added for better starting location of brass
+	if (cg.predictedPlayerState.pm_flags & PMF_DUCKED) {
+		offset[2] -= 14;
+	}
 
 	xoffset[0] = offset[0] * v[0][0] + offset[1] * v[1][0] + offset[2] * v[2][0];
 	xoffset[1] = offset[0] * v[0][1] + offset[1] * v[1][1] + offset[2] * v[2][1];
@@ -257,6 +262,11 @@ static void CG_ShotgunEjectBrass( centity_t *cent ) {
 		offset[1] = 0;
 		offset[2] = 24;
 
+		// NiceAss: Added for better starting location of brass
+		if (cg.predictedPlayerState.pm_flags & PMF_DUCKED) {
+			offset[2] -= 14;
+		}
+
 		xoffset[0] = offset[0] * v[0][0] + offset[1] * v[1][0] + offset[2] * v[2][0];
 		xoffset[1] = offset[0] * v[0][1] + offset[1] * v[1][1] + offset[2] * v[2][1];
 		xoffset[2] = offset[0] * v[0][2] + offset[1] * v[1][2] + offset[2] * v[2][2];
@@ -335,14 +345,14 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
 	vec3_t axis[36], move, move2, next_move, vec, temp;
 	float  len;
 	int    i, j, skip;
- 
+
 	localEntity_t	*le;
 	refEntity_t		*re;
 
 #define RADIUS   4
 #define ROTATION 1
 #define SPACING  5
- 
+
 	start[2] -= 4;
 	VectorCopy (start, move);
 	VectorSubtract (end, start, vec);
@@ -351,7 +361,7 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
 	for (i = 0 ; i < 36; i++) {
 		RotatePointAroundVector(axis[i], vec, temp, i * 10);//banshee 2.4 was 10
 	}
- 
+
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 
@@ -363,7 +373,7 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
 	re->shaderTime = cg.time / 1000.0f;
 	re->reType = RT_RAIL_CORE;
 	re->customShader = cgs.media.railCoreShader;
-	
+
 	VectorCopy( start, re->origin );
 	VectorCopy( end, re->oldorigin );
 
@@ -390,7 +400,7 @@ void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end ) {
 		return;
 	}
 	skip = -1;
- 
+
 	j = 18;
     for (i = 0; i < len; i += SPACING) {
 		if (i != skip) {
@@ -489,13 +499,13 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	for ( ; t <= ent->trailTime ; t += step ) {
 		BG_EvaluateTrajectory( &es->pos, t, lastPos );
 
-		smoke = CG_SmokePuff( lastPos, up, 
-					  wi->trailRadius, 
+		smoke = CG_SmokePuff( lastPos, up,
+					  wi->trailRadius,
 					  1, 1, 1, 0.33f,
-					  wi->wiTrailTime, 
+					  wi->wiTrailTime,
 					  t,
 					  0,
-					  0, 
+					  0,
 					  cgs.media.smokePuffShader );
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
@@ -557,13 +567,13 @@ static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	for ( ; t <= ent->trailTime ; t += step ) {
 		BG_EvaluateTrajectory( &es->pos, t, lastPos );
 
-		smoke = CG_SmokePuff( lastPos, up, 
-					  wi->trailRadius, 
+		smoke = CG_SmokePuff( lastPos, up,
+					  wi->trailRadius,
 					  1, 1, 1, 0.33f,
-					  wi->wiTrailTime, 
+					  wi->wiTrailTime,
 					  t,
 					  0,
-					  0, 
+					  0,
 					  cgs.media.nailPuffShader );
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
@@ -746,7 +756,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	memset( weaponInfo, 0, sizeof( *weaponInfo ) );
 	weaponInfo->registered = qtrue;
-	
+
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
 		if ( item->giType == IT_WEAPON && item->giTag == weaponNum ) {
 			weaponInfo->item = item;
@@ -815,7 +825,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	if ( !weaponInfo->handsModel ) {
 		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
 	}
-	
+
 	//Elder: if no _1st model, point to the weaponModel... this may get funky :)
 	if ( !weaponInfo->firstModel ) {
 		// Added warning message
@@ -824,7 +834,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 
 	weaponInfo->loopFireSound = qfalse;
-	
+
 	switch ( weaponNum ) {
 
 	//Blaze: Reaction Pistol
@@ -834,7 +844,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23reload.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-		
+
 		// Load the animation information
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/mk23/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
@@ -856,7 +866,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 
 		break;
-		
+
 	case WP_KNIFE:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/slash.wav", qfalse );
@@ -874,7 +884,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		//weaponInfo->wiTrailTime = 700;
 		//weaponInfo->trailRadius = 32;
 		break;
-		
+
 	case WP_M4:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
@@ -882,7 +892,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4reload.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-		
+
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m4/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -899,7 +909,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 
 		break;
-		
+
 	case WP_SSG3000:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
@@ -913,7 +923,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 		}
-		
+
 		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
 		if (weapAnimLoad) {
 			Com_sprintf( filename, sizeof(filename), "models/weapons2/ssg3000/sound.cfg" );
@@ -924,7 +934,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
-		
+
 	case WP_MP5:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
@@ -932,13 +942,13 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5reload.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-		
+
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/mp5/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
 		}
-		
+
 		if (weapAnimLoad) {
 			Com_sprintf( filename, sizeof(filename), "models/weapons2/mp5/sound.cfg" );
 			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
@@ -948,7 +958,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
-		
+
 	case WP_HANDCANNON:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
@@ -957,7 +967,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcreload.wav", qfalse );
 		//weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-		
+
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -974,13 +984,13 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 
 		break;
-		
+
 	case WP_M3:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
 		weaponInfo->worldReloadSound[1] = trap_S_RegisterSound( "sound/weapons/m3/m3in.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
-		
+
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -997,7 +1007,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 
 		break;
-		
+
 	case WP_AKIMBO:
 		//Elder: added
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0.5f );
@@ -1023,7 +1033,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 
 		break;
-		
+
 	case WP_GRENADE:
 		//Use the projectile model
 		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/gren_projectile.md3" );
@@ -1091,7 +1101,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	//
 	// powerups have an accompanying ring or sphere
 	//
-	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH || 
+	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH ||
 		item->giType == IT_ARMOR || item->giType == IT_HOLDABLE ) {
 		if ( item->world_model[1] ) {
 			itemInfo->models[1] = trap_R_RegisterModel( item->world_model[1] );
@@ -1117,20 +1127,20 @@ CG_MapTorsoToWeaponFrame
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame ) {
 
 	// change weapon
-	if ( frame >= ci->animations[TORSO_DROP].firstFrame 
+	if ( frame >= ci->animations[TORSO_DROP].firstFrame
 		&& frame < ci->animations[TORSO_DROP].firstFrame + 9 ) {
 		return frame - ci->animations[TORSO_DROP].firstFrame + 6;
 	}
-	
+
 
 	// stand attack
-	if ( frame >= ci->animations[TORSO_ATTACK].firstFrame 
+	if ( frame >= ci->animations[TORSO_ATTACK].firstFrame
 		&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6 ) {
 		return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
 	}
 
 	// stand attack 2
-	if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame 
+	if ( frame >= ci->animations[TORSO_ATTACK2].firstFrame
 		&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6 ) {
 		return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
 	}
@@ -1169,7 +1179,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 	if ( delta < LAND_DEFLECT_TIME ) {
 		origin[2] += cg.landChange*0.25 * delta / LAND_DEFLECT_TIME;
 	} else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
-		origin[2] += cg.landChange*0.25 * 
+		origin[2] += cg.landChange*0.25 *
 			(LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
 	}
 
@@ -1228,7 +1238,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	VectorMA( muzzlePoint, LIGHTNING_RANGE, forward, endPoint );
 
 	// see if it hit a wall
-	CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, 
+	CG_Trace( &trace, muzzlePoint, vec3_origin, vec3_origin, endPoint,
 		cent->currentState.number, MASK_SHOT );
 
 	// this is the endpoint
@@ -1389,13 +1399,13 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// set custom shading for railgun refire rate
 	//if ( ps ) {
 		//Blaze: No Railgun
-		//if ( cg.predictedPlayerState.weapon == WP_RAILGUN 
+		//if ( cg.predictedPlayerState.weapon == WP_RAILGUN
 		//	&& cg.predictedPlayerState.weaponstate == WEAPON_FIRING ) {
 		//	float	f;
 
 		//	f = (float)cg.predictedPlayerState.weaponTime / 1500;
 		//	gun.shaderRGBA[1] = 0;
-		//	gun.shaderRGBA[0] = 
+		//	gun.shaderRGBA[0] =
 		//	gun.shaderRGBA[2] = 255 * ( 1.0 - f );
 		//} else {
 			gun.shaderRGBA[0] = 255;
@@ -1413,7 +1423,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		//Elder: we are in first-person, use the first-person (NOT default) model
 		gun.hModel = weapon->firstModel;
 	}
-	
+
 	if (!gun.hModel) {
 		return;
 	}
@@ -1453,8 +1463,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			//VectorScale(parent->axis[2], frac, parent->axis[2]);
 		}
 		*/
-		
-	//}	
+
+	//}
 	if ( !ps ) {
 		CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
 	}
@@ -1506,7 +1516,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				}
 			}
 		}
-	} 
+	}
 
 	// Elder: break off here so we still have weapon animations on bolt out
 	// Elder: added ps so we see SSG in third-person zoomed
@@ -1549,7 +1559,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//Blaze: no more of these
 	/*
 	if ( ( weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET || weaponNum == WP_GRAPPLING_HOOK )
-		&& ( nonPredictedCent->currentState.eFlags & EF_FIRING ) ) 
+		&& ( nonPredictedCent->currentState.eFlags & EF_FIRING ) )
 	{
 		// continuous flash
 	} else {
@@ -1567,16 +1577,16 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 
 	memset( &flash, 0, sizeof( flash ) );
-	
+
 	VectorCopy( parent->lightingOrigin, flash.lightingOrigin );
 	flash.shadowPlane = parent->shadowPlane;
 	flash.renderfx = parent->renderfx;
-	
+
 	flash.hModel = weapon->flashModel;
 	if (!flash.hModel) {
 		return;
 	}
-	
+
 	angles[YAW] = 0;
 	angles[PITCH] = 0;
 	angles[ROLL] = crandom() * 10;
@@ -1596,7 +1606,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	*/
 	//Blaze: No flash
 	//Elder: Yes flash - try this
-	
+
 	//Elder: add conditional here so the dlight is still drawn when cg_RQ3_flash is 0
 	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
@@ -1631,7 +1641,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			else
 				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 		}
-		
+
 		trap_R_AddRefEntityToScene( &flash );
 	}
 	else {
@@ -1645,7 +1655,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		return;
 	}
-	
+
 	if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		// add lightning bolt
 		//Blaze: No need for this
@@ -1720,9 +1730,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	// don't draw if testing a gun model
 	if ( cg.testGun ) {
 		return;
-	}	
+	}
 //Blaze start: Reaction gun positioning
-	rxn_gunx = cg_gun_x.value; 
+	rxn_gunx = cg_gun_x.value;
 	rxn_guny = cg_gun_y.value;
 	rxn_gunz = cg_gun_z.value;
 	//Blaze: Gun xyz coords changes
@@ -2055,7 +2065,7 @@ void CG_PrevWeapon_f( void ) {
 /*
 ===============
 Added by Elder
-  
+
 CG_SpecialWeapon_f
 ===============
 */
@@ -2082,7 +2092,7 @@ void CG_SpecialWeapon_f( void ) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
-	
+
 	//Elder: don't allow weapon switching when in the middle of bursts
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
@@ -2196,7 +2206,7 @@ void CG_RQ3_Zoom( void ) {
 		else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
 			//Elder: zoom 6x
 			cg.zoomLevel |= RQ3_ZOOM_LOW;
-		}	
+		}
 		else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
 			//Elder: zoom 4x
 			cg.zoomLevel |= RQ3_ZOOM_MED;
@@ -2206,7 +2216,7 @@ void CG_RQ3_Zoom( void ) {
 			//Elder: zoom 2x
 			cg.zoomLevel |= RQ3_ZOOM_LOW;
 		}
-		
+
 		cg.zoomTime = cg.time;
 	}
 
@@ -2220,7 +2230,7 @@ void CG_RQ3_Zoom( void ) {
 		}
 		else {
 			cg.zoomed = qtrue;
-			CG_Printf("Zoomed to %dx\n", cg.zoomLevel * 2);	
+			CG_Printf("Zoomed to %dx\n", cg.zoomLevel * 2);
 		}
 		cg.zoomTime = cg.time;
 	}
@@ -2244,7 +2254,7 @@ int CG_RQ3_GetGrenadeMode()
 
 	if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
 		grenMode |= RQ3_GRENSHORT;
-	
+
 	if ( (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		grenMode |= RQ3_GRENMED;
 
@@ -2280,7 +2290,7 @@ Used with Q3's internal weapon switching "e.g. weapon 10"
 */
 void CG_Weapon_f( void ) {
 	int num;
-	
+
 	if ( !cg.snap ) {
 		//CG_Printf("No snapshot: normally exiting\n");
 		return;
@@ -2296,7 +2306,7 @@ void CG_Weapon_f( void ) {
 		CG_Printf("You are too busy bandaging...\n");
 		return;
 	}
-	
+
 	//Elder: don't allow weapon switching when in the middle of bursts
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
@@ -2337,7 +2347,7 @@ void CG_Weapon_f( void ) {
 			trap_S_StartLocalSound( cgs.media.weapToggleSound, CHAN_ITEM);
 		}
 		trap_SendClientCommand("weapon");
-		
+
 		//Elder: added to get out of function at this point
 		return;
 	}
@@ -2349,7 +2359,7 @@ void CG_Weapon_f( void ) {
 	}
 
 	//Elder: this point on is the regular Q3 weapon function - weird
-	
+
 	cg.weaponSelectTime = cg.time;
 
 	if ( ! ( cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << num ) ) ) {
@@ -2361,10 +2371,10 @@ void CG_Weapon_f( void ) {
 		//CG_Printf("Selecting SSG\n");
 		return;
 	}
-	
+
 	//cg.zoomed = qfalse;
 	//cg.zoomLevel = 0;
-	
+
 	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("unzoom");
 	cg.weaponSelect = num;
@@ -2397,7 +2407,7 @@ void CG_OutOfAmmoChange( void ) {
 	//Elder: we'll have to change this to
 	//a) show the empty gun animation if gun's ammo = 0
 	//b) NOT auto-switch to another weapon
-	
+
 	for ( i = 15 ; i > 0 ; i-- ) {
 		if ( CG_WeaponSelectable( i ) ) {
 			cg.weaponSelect = i;
@@ -2437,12 +2447,12 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
-	
+
 	weap = &cg_weapons[ ent->weapon ];
 
 	//Elder: added to supress burst mode flashes + sounds when 'predicting'
 	// M4
-	if ( cg.snap->ps.weapon == WP_M4 && 
+	if ( cg.snap->ps.weapon == WP_M4 &&
 		 (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE &&
 		 cg.snap->ps.stats[STAT_BURST] > 2 )
 	{
@@ -2519,7 +2529,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
 		weap->ejectBrassFunc( cent );
 	}
-	
+
 	/*
 	// MK23
 		//Calculate the kick angles
@@ -2584,7 +2594,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	if (ent->clientNum == cg.snap->ps.clientNum)
 	{
 		vec3_t forward;
-		
+
 		switch ( cg.snap->ps.weapon )
 		{
 			case WP_KNIFE:
@@ -2738,7 +2748,7 @@ CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, 
+void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 							vec3_t dir, impactSound_t soundType, int weapModification ) {
 	qhandle_t		mod;
 	qhandle_t		mark;
@@ -2753,14 +2763,14 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	qboolean		isSprite;
 	int				duration;
 	int				angle;
-	
+
 	//Elder: for impact smoke marks
 	localEntity_t	*smokePuff;
 	vec3_t			puffOrigin;
 	vec3_t			puffOffset;
 	vec3_t			puffDir;
 	int				contentType;
-	
+
 	//Elder: for impact sparks
 	vec3_t			velocity;
 	int				sparkCount;
@@ -2789,9 +2799,9 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		case WP_SSG3000:
 			mod = cgs.media.bulletFlashModel;
 			shader = cgs.media.bulletExplosionShader;
-			radius = 8;			
+			radius = 8;
 			r = rand() & 3;
-			
+
 			if (soundType == IMPACTSOUND_METAL)
 			{
 				mark = cgs.media.metalMarkShader;
@@ -3060,7 +3070,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			light = 350;	//300
 			isSprite = qtrue;
 			break;
-		
+
 		case WP_KNIFE:
 			/*
 			mod = cgs.media.dishFlashModel;
@@ -3109,7 +3119,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	// create the explosion
 	//
 	if ( mod ) {
-		le = CG_MakeExplosion( origin, dir, 
+		le = CG_MakeExplosion( origin, dir,
 							   mod,	shader,
 							   duration, isSprite );
 		le->light = light;
@@ -3127,7 +3137,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	// impact mark
 	//
 	alphaFade = (mark == cgs.media.energyMarkShader);	// plasma fades alpha, all others fade color
-	
+
 	//Blaze: No more railgun
 	/*
 	if ( weapon == WP_RAILGUN ) {
@@ -3138,7 +3148,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		CG_ImpactMark( mark, origin, dir, random()*360, color[0],color[1], color[2],1, alphaFade, radius, qfalse );
 	} else {
 	*/
-	
+
 	// Elder: Our knife slashes are vertical
 	if (weapon == WP_KNIFE)
 		angle = random() * 90;
@@ -3153,7 +3163,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	//
 	// impact visual effects
 	//
-	
+
 	//Elder: 75% of the time render a smoke puff
 	i = rand() % 4;
 	if (cg_RQ3_impactEffects.integer && i < 3)
@@ -3161,7 +3171,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		contentType = trap_CM_PointContents( origin, 0 );
 		// no puff in water
 		if ( !( contentType & CONTENTS_WATER ) ) {
-			switch ( weapon ) {	
+			switch ( weapon ) {
 				case WP_MP5:
 				case WP_M4:
 				case WP_PISTOL:
@@ -3176,12 +3186,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 					VectorNegate(puffOffset, puffOffset);
 					VectorScale(puffOffset, 13, puffOffset);
 					VectorSubtract(origin, puffOffset, puffOrigin);
-					smokePuff = CG_SmokePuff( puffOrigin, puffDir, 
-							  (int)(random() * 100) % 4 + 13, 
+					smokePuff = CG_SmokePuff( puffOrigin, puffDir,
+							  (int)(random() * 100) % 4 + 13,
 							  1, 1, 1, 0.25f,
-							  650, 
+							  650,
 							  cg.time, 0,
-							  LEF_PUFF_DONT_SCALE, 
+							  LEF_PUFF_DONT_SCALE,
 							  cgs.media.smokePuffAnimShader );
 					break;
 			}
@@ -3233,7 +3243,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			VectorScale (dir, rand() % 200, velocity);
 			velocity[0] += rand() % 200 - 100;
 			velocity[1] += rand() % 200 - 100;
-			
+
 			if (i % 8 == 7)
 			{
 				// Add shrapnel trace effect
@@ -3250,12 +3260,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		puffDir[1] = 0;
 		puffDir[2] = 20;
 		origin[2] -= 16;
-		smokePuff = CG_SmokePuff( origin, puffDir, 
-				  rand() % 12 + 48, 
+		smokePuff = CG_SmokePuff( origin, puffDir,
+				  rand() % 12 + 48,
 				  1, 1, 1, 0.4f,
-				  1750, 
+				  1750,
 				  cg.time, 0,
-				  0, 
+				  0,
 				  cgs.media.smokePuffShader );
 	}
 }
@@ -3268,7 +3278,7 @@ CG_MissileHitPlayer
 */
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum ) {
 	CG_Bleed( origin, entityNum );
-	
+
 	// some weapons will make an explosion with the blood, while
 	// others will just make the blood
 	//Blaze: None of these are valid
@@ -3361,7 +3371,7 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			{
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL, 0 );
-			}				
+			}
 		}
 		else if ( tr.surfaceFlags & SURF_GLASS )
 		{
@@ -3481,7 +3491,7 @@ void CG_ShotgunFire( entityState_t *es, qboolean ism3) {
 		}
 	}
 	//Elder: note param changes
-	if (ism3)	
+	if (ism3)
 	{
 		CG_ShotgunPattern( es->pos.trBase, es->origin2, es->otherEntityNum, WP_M3, es->eventParm);
 	}
@@ -3708,7 +3718,7 @@ static void CG_LocalLaser ()
 	vec3_t			end;
 	refEntity_t		*re;
 	trace_t			tr;
-	
+
 	//Create the laser entity if it's not there
 	if (cg.laserSight == qfalse)
 	{
@@ -3740,7 +3750,7 @@ static void CG_LocalLaser ()
 	}
 
 	CG_Trace(&tr, muzzle, NULL, NULL, end, cg.predictedPlayerState.clientNum, CONTENTS_SOLID);
-	
+
 	//Set position of laser dot
 	if (tr.fraction != 1)
 		VectorMA(tr.endpos,-4, forward, tr.endpos);
@@ -3749,7 +3759,7 @@ static void CG_LocalLaser ()
 	VectorCopy(tr.endpos, re->origin);
 	//VectorCopy(tr.endpos, cg.laserEnt->pos.trBase);
 	//BG_EvaluateTrajectory(&cg.laserEnt->pos, cg.time, re->origin);
-	
+
 	//Boost the endTime
 	cg.laserEnt->endTime += 10000;
 
@@ -3811,7 +3821,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		CG_Error( "CG_ReloadWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
-	
+
 	weap = &cg_weapons[ent->weapon];
 	switch ( reloadStage )
 	{
@@ -3823,7 +3833,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 	case 1:
 		if (weap->worldReloadSound[1] && ent->clientNum != cg.snap->ps.clientNum)
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[1]);
-		
+
 		if ( ent->weapon == WP_HANDCANNON )
 			CG_ShotgunEjectBrass( cent );
 
@@ -3831,7 +3841,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 	case 2:
 		if (weap->worldReloadSound[2] && ent->clientNum != cg.snap->ps.clientNum)
 			trap_S_StartSound(cent->lerpOrigin, ent->number, CHAN_AUTO, weap->worldReloadSound[2]);
-		
+
 		break;
 	default:
 		CG_Error("CG_ReloadWeapon: Reload stage > 2\n");
