@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/11 02:22:45  niceass
+// tag shell ejections
+//
 // Revision 1.50  2002/02/24 20:49:07  slicer
 // Follow Spect Players- Draws the gun
 //
@@ -172,7 +175,7 @@ static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weap
 CG_MachineGunEjectBrass
 ==========================
 */
-static void CG_MachineGunEjectBrass( centity_t *cent ) {
+localEntity_t *CG_MachineGunEjectBrass( centity_t *cent ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
 	vec3_t			velocity, xvelocity;
@@ -181,14 +184,14 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 	vec3_t			v[3];
 
 	if ( cg_brassTime.integer <= 0 ) {
-		return;
+		return NULL;
 	}
 
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 
 	velocity[0] = 0;
-	velocity[1] = -50 + 40 * crandom();
+	velocity[1] = -100 + 50 * crandom();
 	velocity[2] = 100 + 50 * crandom();
 
 	le->leType = LE_FRAGMENT;
@@ -223,9 +226,11 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 	xvelocity[0] = velocity[0] * v[0][0] + velocity[1] * v[1][0] + velocity[2] * v[2][0];
 	xvelocity[1] = velocity[0] * v[0][1] + velocity[1] * v[1][1] + velocity[2] * v[2][1];
 	xvelocity[2] = velocity[0] * v[0][2] + velocity[1] * v[1][2] + velocity[2] * v[2][2];
+
 	VectorScale( xvelocity, waterScale, le->pos.trDelta );
 
 	AxisCopy( axisDefault, re->axis );
+
 	re->hModel = cgs.media.machinegunBrassModel;
 
 	le->bounceFactor = 0.4 * waterScale;
@@ -235,13 +240,18 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 	le->angles.trBase[0] = rand()&31;
 	le->angles.trBase[1] = rand()&31;
 	le->angles.trBase[2] = rand()&31;
-	le->angles.trDelta[0] = 2;
-	le->angles.trDelta[1] = 1;
-	le->angles.trDelta[2] = 0;
+
+	le->angles.trBase[0] = 5+rand()&10;
+	le->angles.trBase[1] = 2+rand()&5;
+	le->angles.trBase[2] = 0;
+//	le->angles.trDelta[0] = 2;
+//	le->angles.trDelta[1] = 1;
+//	le->angles.trDelta[2] = 0;
 
 	le->leFlags = LEF_TUMBLE;
 	le->leBounceSoundType = LEBS_BRASS;
 	le->leMarkType = LEMT_NONE;
+	return le;
 }
 
 /*
@@ -249,20 +259,22 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 CG_ShotgunEjectBrass
 ==========================
 */
-static void CG_ShotgunEjectBrass( centity_t *cent ) {
+//static void CG_ShotgunEjectBrass( centity_t *cent, vec3_t origin, vec3_t axis[3] ) {
+localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
 	vec3_t			velocity, xvelocity;
 	vec3_t			offset, xoffset;
 	vec3_t			v[3];
 	int				i, isHC;
+
 	if (cent->currentState.weapon == WP_HANDCANNON)
 		isHC=1;
 	else
 		isHC=0;
 
 	if ( cg_brassTime.integer <= 0 ) {
-		return;
+		return NULL;
 	}
 
 	for ( i = 0; i < isHC + 1; i++ ) {
@@ -301,7 +313,9 @@ static void CG_ShotgunEjectBrass( centity_t *cent ) {
 		xoffset[1] = offset[0] * v[0][1] + offset[1] * v[1][1] + offset[2] * v[2][1];
 		xoffset[2] = offset[0] * v[0][2] + offset[1] * v[1][2] + offset[2] * v[2][2];
 		VectorAdd( cent->lerpOrigin, xoffset, re->origin );
+
 		VectorCopy( re->origin, le->pos.trBase );
+
 		if ( CG_PointContents( re->origin, -1 ) & CONTENTS_WATER ) {
 			waterScale = 0.10f;
 		}
@@ -309,6 +323,7 @@ static void CG_ShotgunEjectBrass( centity_t *cent ) {
 		xvelocity[0] = velocity[0] * v[0][0] + velocity[1] * v[1][0] + velocity[2] * v[2][0];
 		xvelocity[1] = velocity[0] * v[0][1] + velocity[1] * v[1][1] + velocity[2] * v[2][1];
 		xvelocity[2] = velocity[0] * v[0][2] + velocity[1] * v[1][2] + velocity[2] * v[2][2];
+
 		VectorScale( xvelocity, waterScale, le->pos.trDelta );
 
 		AxisCopy( axisDefault, re->axis );
@@ -329,6 +344,7 @@ static void CG_ShotgunEjectBrass( centity_t *cent ) {
 		le->leBounceSoundType = LEBS_BRASS;
 		le->leMarkType = LEMT_NONE;
 	}
+	return le;
 }
 
 
@@ -1392,15 +1408,14 @@ sound should only be done on the world model case.
 */
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team ) {
 	refEntity_t	gun;
-//Blaze: Can remove this because no more spinning barrel
+//	Blaze: Can remove this because no more spinning barrel
 //	refEntity_t	barrel;
 	refEntity_t	flash;
 	vec3_t		angles;
-//	float		frac;
 	weapon_t	weaponNum;
 	weaponInfo_t	*weapon;
 	centity_t	*nonPredictedCent;
-//	int	col;
+	localEntity_t *shell;
 
 	weaponNum = cent->currentState.weapon;
 
@@ -1594,12 +1609,25 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
 
+	// NiceAss: Tag locations used for shell ejection
+	if ( cent->ejectBrass && weapon->ejectBrassFunc &&
+		( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) ) {
+		shell = weapon->ejectBrassFunc( cent );
+		if ( shell && ( weaponNum == WP_PISTOL || weaponNum == WP_MP5 ) ) {
+			CG_PositionRotatedEntityOnTag( &shell->refEntity, &gun, gun.hModel, "tag_shell");
+			VectorCopy( shell->refEntity.origin, shell->pos.trBase );
+			vectoangles( shell->refEntity.axis[0], shell->angles.trBase);
+		}	
+		cent->ejectBrass = qfalse;
+	}
 
 	//Elder: re-added to fix loss of muzzle flashes!
 	// impulse flash
+
 	if ( cg.time - cent->muzzleFlashTime > MUZZLE_FLASH_TIME && !cent->pe.railgunFlash ) {
 		return;
 	}
+
 
 	memset( &flash, 0, sizeof( flash ) );
 
@@ -1633,6 +1661,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//Elder: Yes flash - try this
 
 	//Elder: add conditional here so the dlight is still drawn when cg_RQ3_flash is 0
+
 	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
 			// Elder: draw flash based on first-person view
@@ -1666,7 +1695,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			else
 				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 		}
-
 		trap_R_AddRefEntityToScene( &flash );
 	}
 	else {
@@ -2477,7 +2505,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	entityState_t *ent;
 	int				c, i;
 	weaponInfo_t	*weap;
-
+	
 	ent = &cent->currentState;
 	if ( ent->weapon == WP_NONE ) {
 		return;
@@ -2510,13 +2538,16 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 		return;
 	}
 	// KNIFE
-	// NicEass: This is if the knife slash is not the first (2,3,4,5)
+	// NiceAss: This is if the knife slash is not the first (2,3,4,5)
 	if (weapModification == RQ3_WPMOD_KNIFENOMARK) {
 		return;
 	}
 	/*if ( cg.snap->ps.weapon == WP_KNIFE ) // { && cg.snap->ps.stats[STAT_BURST] > 0 ) {
 		return;
 	}*/
+
+	// NiceAss:
+	cent->ejectBrass = qtrue;
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
@@ -2573,9 +2604,9 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	}
 	//Elder: TODO: eject sync with animation for M3 and only eject for HC when reloading
 	// do brass ejection
-	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
-		weap->ejectBrassFunc( cent );
-	}
+	//if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
+	//	weap->ejectBrassFunc( cent );
+	//}
 
 	/*
 	// MK23
@@ -4003,7 +4034,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		}
 
 		if ( ent->weapon == WP_HANDCANNON )
-			CG_ShotgunEjectBrass( cent );
+			CG_ShotgunEjectBrass( cent, NULL, NULL );
 		break;
 	case 2:
 		if (weap->worldReloadSound[2] && ent->clientNum != cg.snap->ps.clientNum)
