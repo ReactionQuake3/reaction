@@ -26,6 +26,7 @@
 * Blocked radio commands during LCA
 * Added the dynamic radio system
 * Hacked the bufferedsound system so radio sound overlap less
+* No rcon stuff alowed in matchmode
 
 # List fixes here for the 2.1 release
 

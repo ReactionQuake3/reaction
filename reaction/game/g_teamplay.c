@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2002/08/07 03:49:44  jbravo
+// No rcon stuff use allowed in matchmode
+//
 // Revision 1.126  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -2236,6 +2239,9 @@ void RQ3_Cmd_Stuff(void)
 {
 	char *cmd, user[128];
 	int len, client;
+
+	if (g_RQ3_matchmode.integer)
+		return;
 
 	len = trap_Argc();
 	if (len < 3) {
