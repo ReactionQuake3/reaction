@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2003/09/10 21:40:35  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.46  2003/09/07 19:51:39  makro
 // no message
 //
@@ -109,6 +113,7 @@
 
 static void CG_LaserSight(centity_t * cent);
 static void CG_Dlight(centity_t * cent);
+static void CG_FakeShadow(centity_t * cent);
 
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
@@ -1076,6 +1081,9 @@ static void CG_AddCEntity(centity_t * cent)
 	case ET_DLIGHT:
 		CG_Dlight(cent);
 		break;
+	case ET_SHADOW:
+		CG_FakeShadow(cent);
+		break;
 	}
 }
 
@@ -1253,4 +1261,9 @@ static void CG_Dlight(centity_t * cent)
 
 		//CG_Printf("cgame: (%f %f %f)\n", cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]);
 	}
+}
+
+static void CG_FakeShadow(centity_t * cent)
+{
+	return;
 }

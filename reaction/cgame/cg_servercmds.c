@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2003/09/10 21:40:35  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.73  2003/08/10 20:13:26  makro
 // no message
 //
@@ -488,6 +492,10 @@ void CG_SetConfigValues(void)
 	CG_ParseFogHull( CG_ConfigString(CS_FOGHULL) );
 	//Makro - sky portal
 	CG_ParseSkyPortal( CG_ConfigString(CS_SKYPORTAL) );
+	//Makro - fake shadows
+	s = Info_ValueForKey(CG_ConfigString(CS_SHADOWS), "1");
+	if (s && *s)
+		trap_R_RegisterShaderNoMip(s);
 }
 
 /*

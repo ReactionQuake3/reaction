@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2003/09/10 21:40:35  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.139  2003/09/01 15:09:48  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -589,6 +593,9 @@ vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro: avidemo with jpegs
 vmCvar_t cg_RQ3_avidemo;
+//Makro - fastsky
+vmCvar_t cg_fastSky;
+vmCvar_t cg_RQ3_wantFastSky;
 vmCvar_t cg_drawFriend;
 vmCvar_t cg_teamChatsOnly;
 vmCvar_t cg_noVoiceChats;
@@ -861,6 +868,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	//Makro - avidemo with jpegs
 	{&cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0},
+	//Makro - fastsky
+	{&cg_fastSky, "r_fastSky", "0", CVAR_ARCHIVE},
+	{&cg_RQ3_wantFastSky, "cg_RQ3_wantFastSky", "0", CVAR_ARCHIVE},
 // JBravo: added
 //Slicer: no longer needed.
 //      { &cg_RQ3_lca, "cg_RQ3_lca", "0", CVAR_ROM},
@@ -1052,6 +1062,8 @@ void CG_UpdateCvars(void)
 {
 	int i;
 	cvarTable_t *cv;
+	//Makro - added
+	int fastSkyModCount = cg_fastSky.modificationCount;
 
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 // JBravo: unlagged
@@ -1062,6 +1074,22 @@ void CG_UpdateCvars(void)
 	}
 
 	// check for modications here
+
+	//Makro - lock r_fastsky on maps with global fog
+	if (cg_fastSky.modificationCount != fastSkyModCount)
+	{
+		char buf[256]={0};
+		trap_Cvar_VariableStringBuffer("r_fastSky", buf, sizeof(buf));
+		if (cgs.clearColorSet) {
+			if (atoi(buf)) {
+				CG_Printf("Fast sky cannot be used on this map.\n");
+				trap_Cvar_Set("r_fastSky", "0");
+				trap_Cvar_Update(&cg_fastSky);
+			}
+		} else {
+			trap_Cvar_Set("cg_RQ3_wantFastSky", buf);
+		}
+	}
 
 	// If team overlay is on, ask for updates from the server.  If its off,
 	// let the server know so we don't receive it
@@ -2935,6 +2963,17 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	//Slicer: For the anti-cheat system
 	//trap_Cvar_Set("cg_RQ3_Auth","0");
 	trap_SendClientCommand("SendCheatCvars");
+	//Makro - check if the map has a _rq3_fog_color
+	if (cgs.clearColorSet) {
+		char buf[256]={0};
+		trap_Cvar_VariableStringBuffer("r_fastSky", buf, sizeof(buf));
+		trap_Cvar_Set("cg_RQ3_wantFastSky", buf);
+		trap_Cvar_Set("r_fastSky", "0");
+	} else {
+		char buf[256]={0};
+		trap_Cvar_VariableStringBuffer("cg_RQ3_wantFastSky", buf, sizeof(buf));
+		trap_Cvar_Set("r_fastSky", buf);
+	}
 }
 
 /*
@@ -2948,6 +2987,11 @@ void CG_Shutdown(void)
 {
 	// some mods may need to do cleanup work here,
 	// like closing files or archiving session data
+	
+	//Makro - reset fastsky
+	char buf[256]={0};
+	trap_Cvar_VariableStringBuffer("cg_RQ3_wantFastSky", buf, sizeof(buf));
+	trap_Cvar_Set("r_fastSky", buf);
 }
 
 /*

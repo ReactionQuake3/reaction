@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.153  2003/09/10 21:40:35  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.152  2003/09/07 19:51:40  makro
 // no message
 //
@@ -1137,6 +1141,9 @@ typedef struct {
 	int lastServerTime;
 	playerState_t savedPmoveStates[NUM_SAVED_STATES];
 	int stateHead, stateTail;
+	//Makro - true if the user wants fastsky on. We'll force it to off for maps
+	//that have a _rq3_fog_color set
+	int wantsFastSky;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
@@ -1873,6 +1880,9 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
+//Makro - fastsky
+extern vmCvar_t cg_fastSky;
+extern vmCvar_t cg_RQ3_wantFastSky;
 //extern vmCvar_t cg_smoothClients;
 extern vmCvar_t pmove_fixed;
 extern vmCvar_t pmove_msec;

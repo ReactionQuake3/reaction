@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2003/09/10 21:40:35  makro
+// Cooler breath puffs. Locked r_fastSky on maps with global fog.
+// Some other things I can't remember.
+//
 // Revision 1.62  2003/09/01 15:09:48  jbravo
 // Cleanups, crashbug fix and version bumped to 3.2
 //
@@ -1880,11 +1884,19 @@ CG_BreathPuffs
 // NiceAss: Used now. No londer MISSIONPACK
 ===============
 */
+#define NUM_BREATH_PUFFS		4
+#define BREATH_PUFF_LIFE		1100
+#define BREATH_PUFF_LIFE_EXTRA	400
+#define BREATH_PUFF_ALPHA		0.4
+#define BREATH_PUFF_SIZE		8
+#define BREATH_PUFF
+
 static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 {
 	clientInfo_t *ci;
-	vec3_t up, origin;
-	int contents;
+	vec3_t dir, origin;
+	int contents, i;
+	localEntity_t *puff[NUM_BREATH_PUFFS];
 
 	ci = &cgs.clientinfo[cent->currentState.number];
 
@@ -1905,13 +1917,29 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 		return;
 	}
 
-	VectorSet(up, 0, 0, 8);
-	VectorMA(head->origin, 8, head->axis[0], origin);
-	VectorMA(origin, -4, head->axis[2], origin);
+	//VectorSet(up, 0, 0, 8);
+	VectorMA(head->origin, 6, head->axis[0], origin);
+	VectorMA(origin, -2, head->axis[2], origin);
 	//Makro - the damn thing was too big !
 	//Changed 'radius' from 16 to 8 and alpha from 1 to 0.4
-	CG_SmokePuff(origin, up, 8, 1, 1, 1, 0.4f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE,
-		     cgs.media.shotgunSmokePuffShader);
+	//CG_SmokePuff(origin, up, 8, 1, 1, 1, 0.4f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE,
+	//	     cgs.media.shotgunSmokePuffShader);
+
+	//cool new code
+	for (i=0; i<NUM_BREATH_PUFFS; i++)
+	{
+		VectorCopy(head->axis[0], dir);
+		//forward
+		VectorMA(dir, crandom() * 0.3f, head->axis[0], dir);
+		//left-right
+		VectorMA(dir, crandom() * 0.3f, head->axis[1], dir);
+		//up-down
+		VectorMA(dir, -0.3f + crandom() * 0.3f, head->axis[2], dir);
+		VectorScale(dir, 3+random()*3, dir);
+		puff[i] = CG_SmokePuff(origin, dir, 3.5f+crandom()*0.5f, 1, 1, 1, 0.15f+crandom()*0.05f, 1000+random()*500, cg.time, 0,
+			LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader);
+	}
+	
 	ci->breathPuffTime = cg.time + 2000;
 }
 
@@ -2258,8 +2286,9 @@ static qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane)
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
+	//Makro - 24 is too big, changing to 20
 	CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-		      cent->pe.legs.yawAngle, alpha, alpha, alpha, 1, qfalse, 24, qtrue);
+		      cent->pe.legs.yawAngle, alpha, alpha, alpha, 1, qfalse, 20, qtrue);
 
 	return qtrue;
 }
