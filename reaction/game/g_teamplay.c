@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.79  2002/05/05 15:51:16  slicer
-// Captain and subs get saved on map_restarts ( moved to "sess" )
+// Revision 1.80  2002/05/05 16:51:36  slicer
+// Fixed a problem on MakeAllPlayersObservers()
 //
 // Revision 1.78  2002/05/05 04:23:00  jbravo
 // Some MM fixes and cleanups
@@ -473,6 +473,10 @@ void MakeAllLivePlayersObservers()
 		//Slicer: Need to check if they are solid or not.
 		if (!player->inuse || player->client->ps.pm_type != PM_NORMAL)
 			continue;
+		//Slicer Adding this..
+		level.clients[i].ps.pm_type = PM_DEAD;
+		level.clients[i].ps.weapon = WP_NONE;
+
 		level.clients[i].sess.savedTeam = level.clients[i].sess.sessionTeam;
 		level.clients[i].ps.persistant[PERS_SAVEDTEAM] = level.clients[i].sess.sessionTeam;
 		level.clients[i].sess.sessionTeam = TEAM_SPECTATOR;
