@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/02/26 03:46:53  jbravo
+// Range can now be set on grenades.
+//
 // Revision 1.56  2002/02/26 01:10:19  jbravo
 // Dead people cant speak to the living any more.
 //
@@ -2489,6 +2492,12 @@ void Cmd_Weapon(gentity_t *ent)
 		// nothing
 		break;
 	case WP_GRENADE:
+// JBravo: Fix for uninitialized grenade mode
+		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == 0 &&
+			(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == 0) {
+			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED;
+		}
 		// short, medium, long throws
 		if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
 			 (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
