@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/06/12 17:05:14  slicer
+// Fixed a couple of problems related to the sniper zooming
+//
 // Revision 1.79  2002/06/11 21:50:51  niceass
 // HC changes
 //
@@ -2546,6 +2549,13 @@ void CG_Weapon_f( void ) {
 	//	}
 
 		if (cg.snap->ps.weapon == WP_SSG3000) {
+		//Slicer : had to comment this, it caused a bug on the zooming, and it really didn't make much sense for lagged players
+			//	has it would get out of synch !
+
+		//Save the time..
+		//	cg.zoomTime = cg.time;
+
+
 			//Slicer- Changing Sniper stuff- some to game.
 
 	/*		trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
@@ -2554,8 +2564,7 @@ void CG_Weapon_f( void ) {
 				*/
 			//Let's sound it..
 		//	trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
-			//Save the time..
-			cg.zoomTime = cg.time;
+
 		}
 	/*	else if (cg.snap->ps.weapon == WP_GRENADE)
 		{
