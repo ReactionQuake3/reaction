@@ -2689,16 +2689,20 @@ static void PM_Weapon( void ) {
 	{
 		if ( pm->ps->weapon == WP_GRENADE )
 		{
-			// NiceAss: Add a delay so the pin-pull animation can complete.
-			if (pm->ps->weaponstate != WEAPON_COCKED) {
+			if ( pm->ps->weaponstate == WEAPON_READY )
+			{
+				// NiceAss: Add a delay so the pin-pull animation can complete.
 				pm->ps->weaponTime = 800;
+				// put it in the "cocked" position and play the pin-pull animation
+				pm->ps->weaponstate = WEAPON_COCKED;
+				PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
+				return;
 			}
-			// put it in the "cocked" position and play the pin-pull animation
-			pm->ps->weaponstate = WEAPON_COCKED;
-			PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
-			return;
+			else if ( pm->ps->weaponstate == WEAPON_COCKED )
+				return;
 		}
 		// Elder: stall the thrown knife action
+		
 		else if ( pm->ps->weapon == WP_KNIFE && pm->ps->weaponstate != WEAPON_STALL &&
 				  pm->ps->stats[STAT_WEAPONSTALLTIME] <= 0 &&
 				  !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
@@ -2708,25 +2712,77 @@ static void PM_Weapon( void ) {
 			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
 			return;
 		}
+		
+		/*
+		else if ( pm->ps->weapon == WP_KNIFE &&
+				 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
+		{
+			if ( pm->ps->weaponstate == WEAPON_READY )
+			{
+				pm->ps->weaponstate = WEAPON_STALL;
+				pm->ps->stats[STAT_WEAPONSTALLTIME] = 200;
+				PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
+				return;
+			}
+			else if ( pm->ps->weaponstate == WEAPON_STALL )
+			{
+				pm->ps->stats[STAT_WEAPONSTALLTIME] = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+			}
+		}
+		*/
 	}
+
+	
+
+
 
 	// check for fireA release
 	// if they aren't pressing attack
-	if (!(pm->cmd.buttons & 1)) {
+	if ( !(pm->cmd.buttons & 1) ) {
 		// if we had them cocked and then they aren't pressing it then
 		// that means they released it
-		if (pm->ps->weaponstate == WEAPON_STALL) {
-			// set to be able to fire
-			pm->ps->weaponstate = WEAPON_READY;
+		if ( pm->ps->weapon == WP_GRENADE )
+		{
+			if ( pm->ps->weaponstate == WEAPON_COCKED )
+			{
+				// Stall for the toss motion
+				pm->ps->weaponstate = WEAPON_STALL;
+				pm->ps->stats[STAT_WEAPONSTALLTIME] = 300;
+				PM_StartWeaponAnim( WP_ANIM_FIRE );
+				return;
+			}
+			else if ( pm->ps->weaponstate == WEAPON_STALL )
+			{
+				// set to be able to fire
+				pm->ps->weaponstate = WEAPON_READY;
+			}
+			else
+			{
+				// else if they arn't pressing attack, then they just are running around
+				pm->ps->weaponTime = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+				return;
+			}
 		}
-		else if (pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
-			// Stall for the toss motion
-			pm->ps->weaponstate = WEAPON_STALL;
-			pm->ps->stats[STAT_WEAPONSTALLTIME] = 300;
-			PM_StartWeaponAnim( WP_ANIM_FIRE );
-			return;
-			//pm->ps->weaponstate = WEAPON_READY;
+		
+		else if ( pm->ps->weapon == WP_KNIFE &&
+					!(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		{
+			if ( pm->ps->weaponstate == WEAPON_STALL )
+			{
+				pm->ps->stats[STAT_WEAPONSTALLTIME] = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+			}
+			else
+			{
+				// else if they arn't pressing attack, then they just are running around
+				pm->ps->weaponTime = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+				return;
+			}
 		}
+		
 		else
 		{
 			// else if they arn't pressing attack, then they just are running around

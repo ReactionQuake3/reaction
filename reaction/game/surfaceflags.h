@@ -64,4 +64,4 @@
 #define SURF_CARPET				0x200000
 #define SURF_METAL2				0x400000
 #define SURF_GLASS				0x800000 // not really a surface; more for marks
-
+//#define SURF_GRAVEL				0x1000000
