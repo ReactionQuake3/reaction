@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/06/15 15:02:05  makro
+// Recoded AI for weapon mode switching. Bots can now zoom with the sg
+//
 // Revision 1.43  2002/06/11 14:03:04  makro
 // Forgot (), heh
 //
@@ -411,6 +414,23 @@ int RQ3_Bot_GetWeaponMode(bot_state_t *bs, int weapon)
 				return 0;
 			}
 		}
+		case WP_SSG3000:
+		{
+			//6x
+			if ( (bs->cur_ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED &&
+				(bs->cur_ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ) {
+				return 3;
+			//4x
+			} else if ( (bs->cur_ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+				return 2;
+			//2x
+			} else if ( (bs->cur_ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ) {
+				return 1;
+			//unzoomed
+			} else {
+				return 0;
+			}
+		}
 		default:
 			return 0;
 	}
@@ -424,18 +444,25 @@ Added by Makro
 ==================
 */
 void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
-	int i, modeCount, oldMode, press;
+	//int i, modeCount, oldMode, press;
 	float reactionTime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 
+	//invalid weapon
+	if (weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
+		return;
+	
+	/* Makro - old code
 	//not holding the right weapon
 	if (weapon != bs->cur_ps.weapon)
 		return;
+	*/
 
 	//too soon ?
 	//TODO: array with weapon mode change times for individual weapons ?
-	if (FloatTime() < bs->weapoModeChange_time + 2 - reactionTime)
+	if (FloatTime() < bs->weaponModeChange_time + 2 - reactionTime)
 		return;
 
+	/* Old code
 	switch (bs->cur_ps.weapon) {
 		case WP_PISTOL:
 		case WP_KNIFE:
@@ -443,9 +470,11 @@ void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 			break;
 		case WP_MP5:
 		case WP_M4:
-		case WP_SSG3000:
 		case WP_GRENADE:
 			modeCount = 3;
+			break;
+		case WP_SSG3000:
+			modeCount = 4;
 			break;
 		default:
 			modeCount = 1;
@@ -468,8 +497,12 @@ void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 		//Cmd_Weapon( &g_entities[bs->entitynum] );
 		Cmd_New_Weapon( &g_entities[bs->entitynum] );
 	}
+	*/
 
-	bs->weapoModeChange_time = FloatTime();
+	//new code
+	bs->weapMode[weapon] = mode;
+
+	bs->weaponModeChange_time = FloatTime();
 }
 
 /*
@@ -2123,8 +2156,15 @@ BotChooseWeapon
 void BotChooseWeapon(bot_state_t *bs) {
 	int newweaponnum;
 	//distance from the enemy
-	int dist = sqrt(bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
+	int dist;
+	
+	if (bs->enemy != -1) {
+		dist = sqrt(bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
 			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT]);
+	} else {
+		dist = 8;
+	}
+
 	if (dist <= 0) {
 		dist = 8;
 	}
@@ -2150,6 +2190,14 @@ void BotChooseWeapon(bot_state_t *bs) {
 			} else {
 				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
 			}
+		} else if (bs->weaponnum == WP_SSG3000) {
+			//2x
+			if (bs->enemy != -1 && dist > 600) {
+				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 1);
+			//unzoomed
+			} else {
+				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
+			}
 		}
 	}
 	else {
@@ -2174,6 +2222,14 @@ void BotChooseWeapon(bot_state_t *bs) {
 			//short range
 			} else {
 				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
+			}
+		} else if (bs->weaponnum == WP_SSG3000) {
+			//2x
+			if (bs->enemy != -1 && dist > 600) {
+				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 1);
+			//unzoomed
+			} else {
+				RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
 			}
 		}
 	}
@@ -2436,6 +2492,16 @@ void BotUpdateInventory(bot_state_t *bs) {
 	}
 	*/
 	BotCheckItemPickup(bs, oldinventory);
+
+	//Makro - new weapon mode switching code
+	if (RQ3_Bot_GetWeaponMode(bs, bs->cur_ps.weapon) != bs->weapMode[bs->cur_ps.weapon]) {
+		if (bs->weaponModeClick_time + 0.1 < FloatTime()) {
+			if (bs->cur_ps.weaponstate == WEAPON_READY) {
+				Cmd_New_Weapon(&g_entities[bs->entitynum]);
+			}
+			bs->weaponModeClick_time = FloatTime();
+		}
+	}
 }
 
 /*
@@ -2723,6 +2789,11 @@ void RQ3_Bot_IdleActions( bot_state_t *bs ) {
 	int ammo = bs->cur_ps.ammo[bs->cur_ps.weapon];
 	int weapon = bs->cur_ps.weapon;
 	//float reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
+
+	//always unzoom SSG when idle
+	if (RQ3_Bot_GetWeaponMode(bs, WP_SSG3000)) {
+		RQ3_Bot_SetWeaponMode(bs, WP_SSG3000, 0);
+	}
 
 	//too soon to reload/bandage again ?
 	if (bs->idleAction_time > FloatTime())
