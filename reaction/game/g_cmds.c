@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/06/05 04:57:50  niceass
+// "team" command fix
+//
 // Revision 1.118  2002/06/03 19:21:16  niceass
 // matchmode scoreboard changes. untested
 //
@@ -1067,10 +1070,10 @@ void Cmd_Team_f (gentity_t *ent) {
 		if (g_gametype.integer == GT_TEAMPLAY) {
 			oldTeam = ent->client->sess.savedTeam;
 			switch (oldTeam) {
-			case TEAM_BLUE:
+			case TEAM_RED:
 				trap_SendServerCommand( ent-g_entities, va("print \"You are a member of %s\n\"", g_RQ3_team1name.string));
 				break;
-			case TEAM_RED:
+			case TEAM_BLUE:
 				trap_SendServerCommand( ent-g_entities, va("print \"You are a member of %s\n\"", g_RQ3_team2name.string));
 				break;
 			case TEAM_SPECTATOR:
