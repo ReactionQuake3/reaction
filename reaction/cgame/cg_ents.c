@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2003/02/27 20:51:14  makro
+// no message
+//
 // Revision 1.36  2003/02/27 19:52:34  makro
 // dlights
 //
@@ -1185,7 +1188,7 @@ static void CG_Dlight(centity_t * cent)
 		if (cent->currentState.eventParm & DLIGHT_PULSE)
 		{
 			float frequency = cent->currentState.frame / 1000.0f;
-			float phase = 2 * M_PI * (frequency * cg.time / 1000.0f + cent->currentState.generic1 / 1000.0f);
+			float phase = 2 * M_PI * (frequency * cg.time / 1000.0f + 2 * cent->currentState.generic1 / 1000.0f);
 			float i2 = cent->currentState.weapon;
 			i += sin(phase) * (i2-i);
 		}
