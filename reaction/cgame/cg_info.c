@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/06/08 11:41:01  makro
+// The loading screen code will now look for
+// levelshots/load_mapname.tga first
+//
 // Revision 1.29  2002/06/03 19:19:43  niceass
 // matchmode change
 //
@@ -216,7 +220,7 @@ void CG_DrawInformation( void ) {
 	//qhandle_t	detail;
 	qhandle_t	percentBox;
 	char		buf[1024];
-	qboolean	skipdetail;
+	//qboolean	skipdetail;
 	vec4_t		color1 = {.75, .75, .75, 1}, color2 = {1, 1, 1, 1};
 
 	skipdetail = qfalse;
@@ -239,12 +243,16 @@ void CG_DrawInformation( void ) {
 
 	s = Info_ValueForKey( info, "mapname" );
 	shadow = trap_R_RegisterShaderNoMip("ui/assets/rq3-main-shadow-1.tga");
-	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/load_%s.tga", s ) );
 	percentBox = trap_R_RegisterShaderNoMip("gfx/percent.tga");
+	//Makro - added
+	if ( !levelshot ) {
+		levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+	}
 	if ( !levelshot ) {
 		//Elder: changed
 		levelshot = trap_R_RegisterShaderNoMip( "levelshots/rq3-unknownmap.tga" );
-		skipdetail = qtrue;
+		//skipdetail = qtrue;
 	}
 	trap_R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
