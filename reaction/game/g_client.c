@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/06/05 22:09:21  niceass
+// bot fix. NOT MY FAULT
+//
 // Revision 1.84  2002/06/04 08:25:44  niceass
 // cgame team fix. (when you change your name, etc)
 //
@@ -1084,7 +1087,7 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 	}
 	else {
-		team = client->sess.savedTeam;
+		team = client->sess.sessionTeam;
 	}
 
 /*	NOTE: all client side now
@@ -1708,12 +1711,12 @@ void ClientSpawn(gentity_t *ent) {
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 
+	// the respawned flag will be cleared after the attack and jump keys come up
+	client->ps.pm_flags |= PMF_RESPAWNED;
+	
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-
-	// the respawned flag will be cleared after the attack and jump keys come up
-	client->ps.pm_flags |= PMF_RESPAWNED;
 
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 
