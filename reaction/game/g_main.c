@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/03/14 23:14:19  slicer
+// Added Fraglimit checks on TP ( !!! )
+//
 // Revision 1.29  2002/03/11 02:21:13  niceass
 // client gravity fix
 //
@@ -1521,8 +1524,25 @@ void CheckExitRules( void ) {
 		return;
 	}
 	//Slicer
-	if(g_gametype.integer == GT_TEAMPLAY)
-		return;
+	if(g_gametype.integer == GT_TEAMPLAY) {
+		for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+			cl = level.clients + i;
+			if ( cl->pers.connected != CON_CONNECTED ) {
+				continue;
+			}
+			if ( cl->sess.savedTeam == TEAM_SPECTATOR ) {
+				continue;
+			}
+			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
+				LogExit( "Fraglimit hit." );
+				trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
+					cl->pers.netname ) );
+				//Slicer: Start Intermission
+				BeginIntermission();
+			}
+		}
+	return;
+	}
 
 	if ( level.intermissionQueued ) {
 #ifdef MISSIONPACK
