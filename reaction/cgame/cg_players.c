@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/03/02 15:37:55  makro
+// Changed the 'breath' effect a bit (alpha+size).
+//
 // Revision 1.17  2002/02/26 20:55:00  jbravo
 // No more bubbles over dead players corpses
 //
@@ -1766,7 +1769,9 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	VectorSet( up, 0, 0, 8 );
 	VectorMA(head->origin, 8, head->axis[0], origin);
 	VectorMA(origin, -4, head->axis[2], origin);
-	CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
+	//Makro - the damn thing was too big !
+	//Changed 'radius' from 16 to 8 and alpha from 1 to 0.4
+	CG_SmokePuff( origin, up, 8, 1, 1, 1, 0.4f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
 	ci->breathPuffTime = cg.time + 2000;
 }
 
