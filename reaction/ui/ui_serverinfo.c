@@ -2,15 +2,17 @@
 //
 #include "ui_local.h"
 
-#define SERVERINFO_FRAMEL	"menu/art/frame2_l"
-#define SERVERINFO_FRAMER	"menu/art/frame1_r"
-#define SERVERINFO_BACK0	"menu/art/back_0"
-#define SERVERINFO_BACK1	"menu/art/back_1"
+//#define SERVERINFO_FRAMEL	"menu/art/frame2_l"
+//#define SERVERINFO_FRAMER	"menu/art/frame1_r"
+//#define SERVERINFO_BACK0	"menu/art/back_0"
+//#define SERVERINFO_BACK1	"menu/art/back_1"
+#define SERVERINFO_BACK0		"menu/art/rq3-menu-back.tga"
+#define SERVERINFO_BACK1		"menu/art/rq3-menu-back-focus.tga"	
 
 static char* serverinfo_artlist[] =
 {
-	SERVERINFO_FRAMEL,	
-	SERVERINFO_FRAMER,
+	//SERVERINFO_FRAMEL,	
+	//SERVERINFO_FRAMER,
 	SERVERINFO_BACK0,
 	SERVERINFO_BACK1,
 	NULL
@@ -111,7 +113,15 @@ static void ServerInfo_MenuDraw( void )
 	char			value[MAX_INFO_VALUE];
 	int				y;
 
-	y = SCREEN_HEIGHT/2 - s_serverinfo.numlines*(SMALLCHAR_HEIGHT)/2 - 20;
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+
+	//y = SCREEN_HEIGHT/2 - s_serverinfo.numlines*(SMALLCHAR_HEIGHT)/2 - 54; //20;
+	y = 56;
 	s = s_serverinfo.info;
 	while ( s ) {
 		Info_NextPair( &s, key, value );
@@ -209,7 +219,7 @@ void UI_ServerInfoMenu( void )
 	s_serverinfo.add.generic.callback = ServerInfo_Event;
 	s_serverinfo.add.generic.id	      = ID_ADD;
 	s_serverinfo.add.generic.x		  = 320;
-	s_serverinfo.add.generic.y		  = 371;
+	s_serverinfo.add.generic.y		  = 480 - 36;
 	s_serverinfo.add.string  		  = "ADD TO FAVORITES";
 	s_serverinfo.add.style  		  = UI_CENTER|UI_SMALLFONT;
 	s_serverinfo.add.color			  =	color_red;
@@ -222,10 +232,10 @@ void UI_ServerInfoMenu( void )
 	s_serverinfo.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_serverinfo.back.generic.callback = ServerInfo_Event;
 	s_serverinfo.back.generic.id	   = ID_BACK;
-	s_serverinfo.back.generic.x		   = 0;
-	s_serverinfo.back.generic.y		   = 480-64;
-	s_serverinfo.back.width  		   = 128;
-	s_serverinfo.back.height  		   = 64;
+	s_serverinfo.back.generic.x		   = 8;
+	s_serverinfo.back.generic.y		   = 480-44;
+	s_serverinfo.back.width  		   = 32;
+	s_serverinfo.back.height  		   = 32;
 	s_serverinfo.back.focuspic         = SERVERINFO_BACK1;
 
 	trap_GetConfigString( CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING );

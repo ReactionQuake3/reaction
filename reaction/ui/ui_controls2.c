@@ -116,6 +116,7 @@ typedef struct
 #define ID_OPENDOOR		37
 #define ID_DROPWEAP		38
 #define ID_DROPITEM		39
+#define ID_IRVISION		40
 
 // all others
 #define ID_FREELOOK		40
@@ -250,6 +251,7 @@ typedef struct
 	menuaction_s		opendoor;
 	menuaction_s		dropweap;
 	menuaction_s		dropitem;
+	menuaction_s		irvision;
 	
 	menuradiobutton_s	joyenable;
 	menuslider_s		joythreshold;
@@ -311,10 +313,11 @@ static bind_t g_bindings[] =
 	{"messagemode4", 	"chat - attacker",	ID_CHAT4,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"bandage",	 		"Bandage",			ID_BANDAGE,		ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"+button5",		"Reload",			ID_RELOAD,		ANIM_RELOAD,	-1,				-1,		-1, -1},
-	{"weapon",			"Weapon mode",		ID_WEAPON,		ANIM_IDLE,		-1,				-1,		-1, -1},
-	{"opendoor",	 	"Open door",		ID_OPENDOOR,	ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"weapon",			"Weapon Mode",		ID_WEAPON,		ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"opendoor",	 	"Open Door",		ID_OPENDOOR,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropweapon",	 	"Drop Weapon",		ID_DROPWEAP,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{"dropitem",	 	"Drop Item",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
+	{"irvision",	 	"IR Vision",		ID_DROPITEM,	ANIM_IDLE,		-1,				-1,		-1, -1},
 	{(char*)NULL,		(char*)NULL,		0,				0,				-1,				-1,		-1,	-1},
 };
 
@@ -403,6 +406,7 @@ static menucommon_s *g_reaction_controls[] = {
 	(menucommon_s *)&s_controls.opendoor,
 	(menucommon_s *)&s_controls.dropweap,
 	(menucommon_s *)&s_controls.dropitem,
+	(menucommon_s *)&s_controls.irvision,
 	NULL,
 
 };
@@ -1910,6 +1914,12 @@ static void Controls_MenuInit( void )
 	s_controls.dropitem.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.dropitem.generic.id		= ID_DROPITEM;
 
+	s_controls.irvision.generic.type	= MTYPE_ACTION;
+	s_controls.irvision.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.irvision.generic.callback = Controls_ActionEvent;
+	s_controls.irvision.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.irvision.generic.id		= ID_IRVISION;
+
 	s_controls.joyenable.generic.type      = MTYPE_RADIOBUTTON;
 	s_controls.joyenable.generic.flags	   = QMF_SMALLFONT;
 	s_controls.joyenable.generic.x	       = SCREEN_WIDTH/2;
@@ -2018,7 +2028,7 @@ static void Controls_MenuInit( void )
 	Menu_AddItem( &s_controls.menu, &s_controls.opendoor );
 	Menu_AddItem( &s_controls.menu, &s_controls.dropweap );
 	Menu_AddItem( &s_controls.menu, &s_controls.dropitem );
-
+	Menu_AddItem( &s_controls.menu, &s_controls.irvision );
 
 	Menu_AddItem( &s_controls.menu, &s_controls.back );
 

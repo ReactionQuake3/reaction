@@ -12,12 +12,15 @@ START SERVER MENU *****
 #include "ui_local.h"
 
 
-#define GAMESERVER_BACK0		"menu/art/back_0"
-#define GAMESERVER_BACK1		"menu/art/back_1"
+//#define GAMESERVER_BACK0		"menu/art/back_0"
+//#define GAMESERVER_BACK1		"menu/art/back_1"
+#define GAMESERVER_BACK0		"menu/art/rq3-menu-back.tga"
+#define GAMESERVER_BACK1		"menu/art/rq3-menu-back-focus.tga"	
+
 #define GAMESERVER_NEXT0		"menu/art/next_0"
 #define GAMESERVER_NEXT1		"menu/art/next_1"
-#define GAMESERVER_FRAMEL		"menu/art/frame2_l"
-#define GAMESERVER_FRAMER		"menu/art/frame1_r"
+//#define GAMESERVER_FRAMEL		"menu/art/frame2_l"
+//#define GAMESERVER_FRAMER		"menu/art/frame1_r"
 #define GAMESERVER_SELECT		"menu/art/maps_select"
 #define GAMESERVER_SELECTED		"menu/art/maps_selected"
 #define GAMESERVER_FIGHT0		"menu/art/fight_0"
@@ -361,6 +364,18 @@ static void StartServer_LevelshotDraw( void *self ) {
 }
 
 
+static void StartServer_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &s_startserver.menu );
+}
+
 /*
 =================
 StartServer_MenuInit
@@ -377,6 +392,7 @@ static void StartServer_MenuInit( void ) {
 
 	StartServer_Cache();
 
+	s_startserver.menu.draw = StartServer_MenuDraw;
 	s_startserver.menu.wrapAround = qtrue;
 	s_startserver.menu.fullscreen = qtrue;
 	s_startserver.menu.showlogo   = qtrue;
@@ -492,7 +508,7 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.arrows.generic.name  = GAMESERVER_ARROWS;
 	s_startserver.arrows.generic.flags = QMF_INACTIVE;
 	s_startserver.arrows.generic.x	   = 260;
-	s_startserver.arrows.generic.y	   = 400;
+	s_startserver.arrows.generic.y	   = 388;
 	s_startserver.arrows.width  	   = 128;
 	s_startserver.arrows.height  	   = 32;
 
@@ -501,7 +517,7 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.prevpage.generic.callback = StartServer_MenuEvent;
 	s_startserver.prevpage.generic.id	    = ID_PREVPAGE;
 	s_startserver.prevpage.generic.x		= 260;
-	s_startserver.prevpage.generic.y		= 400;
+	s_startserver.prevpage.generic.y		= 388;
 	s_startserver.prevpage.width  		    = 64;
 	s_startserver.prevpage.height  		    = 32;
 	s_startserver.prevpage.focuspic         = GAMESERVER_ARROWSL;
@@ -511,7 +527,7 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.nextpage.generic.callback = StartServer_MenuEvent;
 	s_startserver.nextpage.generic.id	    = ID_NEXTPAGE;
 	s_startserver.nextpage.generic.x		= 321;
-	s_startserver.nextpage.generic.y		= 400;
+	s_startserver.nextpage.generic.y		= 388;
 	s_startserver.nextpage.width  		    = 64;
 	s_startserver.nextpage.height  		    = 32;
 	s_startserver.nextpage.focuspic         = GAMESERVER_ARROWSR;
@@ -529,10 +545,10 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_startserver.back.generic.callback = StartServer_MenuEvent;
 	s_startserver.back.generic.id	    = ID_STARTSERVERBACK;
-	s_startserver.back.generic.x		= 0;
-	s_startserver.back.generic.y		= 480-64;
-	s_startserver.back.width  		    = 128;
-	s_startserver.back.height  		    = 64;
+	s_startserver.back.generic.x		= 8;
+	s_startserver.back.generic.y		= 480-44;
+	s_startserver.back.width  		    = 32;
+	s_startserver.back.height  		    = 32;
 	s_startserver.back.focuspic         = GAMESERVER_BACK1;
 
 	s_startserver.next.generic.type	    = MTYPE_BITMAP;
@@ -540,10 +556,10 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.next.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_startserver.next.generic.callback = StartServer_MenuEvent;
 	s_startserver.next.generic.id	    = ID_STARTSERVERNEXT;
-	s_startserver.next.generic.x		= 640;
-	s_startserver.next.generic.y		= 480-64;
-	s_startserver.next.width  		    = 128;
-	s_startserver.next.height  		    = 64;
+	s_startserver.next.generic.x		= 640-8;
+	s_startserver.next.generic.y		= 480-44;
+	s_startserver.next.width  		    = 64;
+	s_startserver.next.height  		    = 32;
 	s_startserver.next.focuspic         = GAMESERVER_NEXT1;
 
 	s_startserver.item_null.generic.type	= MTYPE_BITMAP;
@@ -1253,6 +1269,18 @@ static void PlayerName_Draw( void *item ) {
 }
 
 
+static void ServerOptions_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &s_serveroptions.menu );
+}
+
 /*
 =================
 ServerOptions_MenuInit
@@ -1270,6 +1298,7 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 
 	ServerOptions_Cache();
 
+	s_serveroptions.menu.draw = ServerOptions_MenuDraw;
 	s_serveroptions.menu.wrapAround = qtrue;
 	s_serveroptions.menu.fullscreen = qtrue;
 	s_serveroptions.menu.showlogo   = qtrue;
@@ -1424,10 +1453,10 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_serveroptions.back.generic.callback = ServerOptions_Event;
 	s_serveroptions.back.generic.id	      = ID_BACK;
-	s_serveroptions.back.generic.x		  = 0;
-	s_serveroptions.back.generic.y		  = 480-64;
-	s_serveroptions.back.width  		  = 128;
-	s_serveroptions.back.height  		  = 64;
+	s_serveroptions.back.generic.x		  = 8;
+	s_serveroptions.back.generic.y		  = 480-44;
+	s_serveroptions.back.width  		  = 32;
+	s_serveroptions.back.height  		  = 32;
 	s_serveroptions.back.focuspic         = GAMESERVER_BACK1;
 
 	s_serveroptions.next.generic.type	  = MTYPE_BITMAP;
@@ -1447,10 +1476,10 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 	s_serveroptions.go.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_serveroptions.go.generic.callback = ServerOptions_Event;
 	s_serveroptions.go.generic.id	    = ID_GO;
-	s_serveroptions.go.generic.x		= 640;
-	s_serveroptions.go.generic.y		= 480-64;
-	s_serveroptions.go.width  		    = 128;
-	s_serveroptions.go.height  		    = 64;
+	s_serveroptions.go.generic.x		= 640-8;
+	s_serveroptions.go.generic.y		= 480-44;
+	s_serveroptions.go.width  		    = 64;
+	s_serveroptions.go.height  		    = 32;
 	s_serveroptions.go.focuspic         = GAMESERVER_FIGHT1;
 
 	Menu_AddItem( &s_serveroptions.menu, &s_serveroptions.banner );
@@ -1531,8 +1560,11 @@ BOT SELECT MENU *****
 */
 
 
-#define BOTSELECT_BACK0			"menu/art/back_0"
-#define BOTSELECT_BACK1			"menu/art/back_1"
+//#define BOTSELECT_BACK0			"menu/art/back_0"
+//#define BOTSELECT_BACK1			"menu/art/back_1"
+#define BOTSELECT_BACK0		"menu/art/rq3-menu-back.tga"
+#define BOTSELECT_BACK1		"menu/art/rq3-menu-back-focus.tga"	
+
 #define BOTSELECT_ACCEPT0		"menu/art/accept_0"
 #define BOTSELECT_ACCEPT1		"menu/art/accept_1"
 #define BOTSELECT_SELECT		"menu/art/opponents_select"
@@ -1857,11 +1889,24 @@ void UI_BotSelectMenu_Cache( void ) {
 }
 
 
+static void UI_BotSelectMenu_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &botSelectInfo.menu );
+}
+
 static void UI_BotSelectMenu_Init( char *bot ) {
 	int		i, j, k;
 	int		x, y;
 
 	memset( &botSelectInfo, 0 ,sizeof(botSelectInfo) );
+	botSelectInfo.menu.draw = UI_BotSelectMenu_MenuDraw;
 	botSelectInfo.menu.wrapAround = qtrue;
 	botSelectInfo.menu.fullscreen = qtrue;
 	botSelectInfo.menu.showlogo	  = qtrue;//Blaze: show bg logo
@@ -1947,20 +1992,20 @@ static void UI_BotSelectMenu_Init( char *bot ) {
 	botSelectInfo.back.generic.name		= BOTSELECT_BACK0;
 	botSelectInfo.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	botSelectInfo.back.generic.callback	= UI_BotSelectMenu_BackEvent;
-	botSelectInfo.back.generic.x		= 0;
-	botSelectInfo.back.generic.y		= 480-64;
-	botSelectInfo.back.width			= 128;
-	botSelectInfo.back.height			= 64;
+	botSelectInfo.back.generic.x		= 8;
+	botSelectInfo.back.generic.y		= 480-44;
+	botSelectInfo.back.width			= 32;
+	botSelectInfo.back.height			= 32;
 	botSelectInfo.back.focuspic			= BOTSELECT_BACK1;
 
 	botSelectInfo.go.generic.type		= MTYPE_BITMAP;
 	botSelectInfo.go.generic.name		= BOTSELECT_ACCEPT0;
 	botSelectInfo.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	botSelectInfo.go.generic.callback	= UI_BotSelectMenu_SelectEvent;
-	botSelectInfo.go.generic.x			= 640;
-	botSelectInfo.go.generic.y			= 480-64;
-	botSelectInfo.go.width				= 128;
-	botSelectInfo.go.height				= 64;
+	botSelectInfo.go.generic.x			= 640-8;
+	botSelectInfo.go.generic.y			= 480-44;
+	botSelectInfo.go.width				= 64;
+	botSelectInfo.go.height				= 32;
 	botSelectInfo.go.focuspic			= BOTSELECT_ACCEPT1;
 
 	Menu_AddItem( &botSelectInfo.menu, &botSelectInfo.banner );
