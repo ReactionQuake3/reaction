@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/03/07 00:03:00  assimon
+// Added some trap_AddComand for ref  cvars
+//
 // Revision 1.29  2002/02/28 05:41:54  blaze
 // weapons stats on client side
 //
@@ -886,4 +889,8 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");
 	trap_AddCommand ("sub");
+// aasimon: refeere mm
+	trap_AddCommand ("reflogin");
+	trap_AddCommand ("ref");
+	trap_AddCommand ("refresign");
 }
