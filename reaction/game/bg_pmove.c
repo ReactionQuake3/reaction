@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/08/03 07:04:18  jbravo
+// Fixed constant gasping sound when you die in shallow water
+//
 // Revision 1.87  2002/07/22 06:33:58  niceass
 // cleaned up the powerup code
 //
@@ -2964,7 +2967,9 @@ void PmoveSingle(pmove_t * pmove)
 	PM_Footsteps();
 
 	// entering / leaving water splashes
-	PM_WaterEvents();
+	// JBravo: only if you are alive
+	if (pm->ps->stats[STAT_HEALTH] > 0)
+		PM_WaterEvents();
 
 	// snap some parts of playerstate to save network bandwidth
 	trap_SnapVector(pm->ps->velocity);

@@ -21,6 +21,7 @@
 * Fixed the Akimbo ammo when akimbos are not the primary weapon.
 * Fixed plost3 radio sounds in all radiopaks.
 * Damage is now only tracked for players hit that are not on your team.
+* Fixed constant gasping sound when you die in shallow water
 
 
 # List fixes here for the 2.1 release
