@@ -466,6 +466,21 @@ Only in CTF games
 /* sounds */ ""
 	},
 
+	{
+		"item_kevlar",
+		"sound/items/kevlar.wav",
+		{  "models/items/kevlar.md3",
+		0, 0, 0},
+		"icons/kevlar",
+		"Kevlar Vest",
+		0,
+		IT_HOLDABLE,
+		HI_KEVLAR,
+		"",
+		""
+	},
+
+
 #ifdef MISSIONPACK
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
