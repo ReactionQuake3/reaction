@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/05/11 19:52:09  slicer
+// Added sub and captain to the scoreboard function
+//
 // Revision 1.106  2002/05/10 08:10:18  jbravo
 // Fixed a bug in the Obit system and a give (weapons or all) bug
 //
@@ -276,8 +279,8 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 			cl->ps.persistant[PERS_KILLED],			// NiceAss: Added for scoreboard
 			cl->ps.persistant[PERS_DAMAGE_DELT],	// JBravo: Added for scoreboard
 			cl->sess.sessionTeam != TEAM_SPECTATOR,	// JBravo:  Added for TP scoreboard
-			0,
-			0,
+			cl->sess.captain, //Slicer: Added for Matchmode Scoreboard
+			cl->sess.sub, //Slicer: Added for Matchmode Scoreboard
 			0,
 			0);
 
