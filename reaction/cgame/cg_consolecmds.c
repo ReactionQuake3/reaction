@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.53  2002/06/23 23:32:29  jbravo
 // Fixed logging of clients IP addresses.
 //
@@ -585,7 +588,7 @@ static void CG_IRVision_f(void)
 		status = "disabled";
 	}
 
-	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
+	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
 		CG_Printf(va("IR vision %s.\n", status));
 	} else {
 		CG_Printf(va("IR vision will be %s next time you get a bandolier.\n", status));
@@ -757,4 +760,5 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("reflogin");
 	trap_AddCommand("ref");
 	trap_AddCommand("refresign");
+	trap_AddCommand("debugshit");
 }

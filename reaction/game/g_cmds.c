@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.172  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.171  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -722,6 +725,15 @@ void Cmd_Give_f(gentity_t * ent)
 			return;
 	}
 
+	if (give_all || Q_stricmp(name, "items") == 0) {
+		// JBravo: for the new items system
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = (1 << HI_KEVLAR);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_LASER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SILENCER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_BANDOLIER);
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << HI_SLIPPERS);
+	}
+		
 	if (give_all || Q_stricmp(name, "ammo") == 0) {
 		for (i = 0; i < MAX_WEAPONS; i++) {
 			//Blaze: Give right amount of shots to each gun
@@ -754,6 +766,10 @@ void Cmd_Give_f(gentity_t * ent)
 	}
 }
 
+void RQ3_Cmd_debugshit (gentity_t * ent)
+{
+	G_Printf("STAT_HOLDABLE_ITEM is %d, uniqueItems is %d\n", ent->client->ps.stats[STAT_HOLDABLE_ITEM], ent->client->uniqueItems);
+}
 /*
 ==================
 Cmd_God_f
@@ -2581,7 +2597,8 @@ void Cmd_DropItem_f(gentity_t * ent)
 
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM]) {
 		//Elder: reset item totals if using bandolier
-		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
+		//JBravo: New multiple items code.
+		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
 			if (ent->client->numClips[WP_SSG3000] > RQ3_SSG3000_EXTRA_AMMO)
 				ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO;
 			if (ent->client->numClips[WP_M3] > RQ3_M3_EXTRA_AMMO)
@@ -2604,7 +2621,7 @@ void Cmd_DropItem_f(gentity_t * ent)
 			}
 		}
 		//Force laser off
-		else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER)
+		else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER))
 			Laser_Gen(ent, qfalse);
 		ThrowItem(ent);
 	}
@@ -2857,6 +2874,8 @@ void ClientCommand(int clientNum)
 // JBravo: adding tkok
 	else if (Q_stricmp(cmd, "tkok") == 0)
 		RQ3_Cmd_TKOk(ent);
+	else if (Q_stricmp(cmd, "debugshit") == 0)
+		RQ3_Cmd_debugshit(ent);
 	//Elder: stuff for dropping items
 	else if (Q_stricmp(cmd, "dropitem") == 0)
 		Cmd_DropItem_f(ent);

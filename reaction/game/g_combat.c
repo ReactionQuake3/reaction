@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.128  2002/10/04 20:52:39  jbravo
 // Think I finally have the mp5 damage right
 //
@@ -374,10 +377,9 @@ Toss the weapon and powerups for the killed player
 */
 void TossClientItems(gentity_t * self)
 {
-	gitem_t *item;
-	int weapon;
+	gitem_t *item, *dropitem;
+	int weapon, i;
 	float angle;
-	int i;
 	gentity_t *drop;
 
 	//Elder: added
@@ -467,10 +469,15 @@ void TossClientItems(gentity_t * self)
 		angle += 30;
 	}
 
-	if (self->client->ps.stats[STAT_HOLDABLE_ITEM]) {
-		Drop_Item(self, &bg_itemlist[self->client->ps.stats[STAT_HOLDABLE_ITEM]], angle);
-		angle += 30;
+	// JBravo: drop all items in the new item system.
+	for (i = HI_NUM_HOLDABLE - 1; i > 0; i--) {
+		if (self->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << i)) {
+			dropitem = BG_FindItemForHoldable(i);
+			Drop_Item(self, dropitem, angle);
+			angle += 30;
+		}
 	}
+
 	// drop all the powerups if not in teamplay
 	if (g_gametype.integer != GT_TEAM) {
 		angle = 45;
@@ -2212,7 +2219,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					// Vest stuff - is the knife supposed to be affected?
 					// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
 					// JBravo: added mod != MOD_KNIFE so kevlar doesn't help against slashing knives either
-					if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR &&
+					// JBravo: the new itemscode.
+					if ((targ->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR)) &&
 					    mod != MOD_KNIFE_THROWN && mod != MOD_KNIFE) {
 						targ->client->kevlarHit = qtrue;
 						if (attacker->client->ps.weapon == WP_SSG3000) {

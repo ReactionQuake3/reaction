@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.82  2002/09/24 05:06:17  blaze
 // fixed spectating so ref\'s can now use all the chasecam modes.
 //
@@ -1148,7 +1151,7 @@ int RQ3_Spread(gentity_t * ent, int spread)
 		stage = 1;
 
 	//added laser advantage
-	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+	if ((ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) &&
 	    (ent->client->ps.weapon == WP_PISTOL ||
 	     ent->client->ps.weapon == WP_MP5 || ent->client->ps.weapon == WP_M4)) {
 		//G_Printf("Using laser advantage\n");

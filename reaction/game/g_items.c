@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.49  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -177,7 +180,8 @@ int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 {
 	//Elder: why it's implemented like this I have no idea
 	//JBravo: Neiter do I :(   Sucks Monks Nads this way :(
-	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
+	//JBravo: Monks nads are safe now due to my new items code :)
+	other->client->ps.stats[STAT_HOLDABLE_ITEM] |= (1 << ent->item->giTag);
 	other->client->uniqueItems++;
 
 	//Try to fire up the laser if it's picked up
@@ -517,7 +521,7 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 
 	predict = other->client->pers.predictItemPickup;
 
-	if (bg_itemlist[other->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
+	if (other->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER))
 		bandolierFactor = 2;
 	else
 		bandolierFactor = 1;
@@ -644,8 +648,7 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		break;
 	case IT_HOLDABLE:
 		//Elder: check to see if it's in mid-air
-		if (other->client->uniqueItems >= 1 ||	//g_RQ3_maxWeapons.integer ||
-		    ent->s.pos.trDelta[2] != 0)
+		if (other->client->uniqueItems >= g_RQ3_maxItems.integer || ent->s.pos.trDelta[2] != 0)
 			return;
 		respawn = Pickup_Holdable(ent, other);
 		break;

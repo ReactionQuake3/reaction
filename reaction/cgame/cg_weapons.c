@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.97  2002/10/20 21:24:32  blaze
 // Added cg_rq3_gunname cvars.  These can be used to choose weapon replacements.  You will need 3 icons that I will upload to the ftp.  These should go in the next pk3
 //
@@ -818,7 +821,7 @@ void CG_RegisterWeapon(int weaponNum)
 	char md3name[MAX_QPATH];
 	char newname[MAX_QPATH];
 	char newicon[MAX_QPATH];
-	char teststuff[MAX_QPATH];
+//	char teststuff[MAX_QPATH];
 	// END
 
 	int i;
@@ -1659,7 +1662,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	 */
 
 	//CG_LightningBolt( nonPredictedCent, parent->lightingOrigin );
-	if (ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
+	if (ps && (cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER)) &&
 	    (weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000)) {
 		//Makro - wasn't initialized, caused a warning in MSVC
 		vec3_t silencerEnd;
@@ -1712,7 +1715,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 		}
 	}
 
-	if (ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+	if (ps && (cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) &&
 	    (weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_M4)) {
 		float scale = 0.0f;
 		vec3_t angles;
@@ -3926,7 +3929,7 @@ void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal,
 			// Elder: only if not using SSG, check if this client is the source
 			if (sourceEntityNum == cg.snap->ps.clientNum) {
 				if (cg.snap->ps.weapon != WP_SSG3000 &&
-				    bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_SILENCER) {
+				    (cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER))) {
 					if (random() < chance)
 						CG_CreateTracer(sourceEntityNum, start, end);
 				}
@@ -4023,7 +4026,7 @@ Broken until I find a way to lerp an entity without a cent
 void CG_CheckLaser()
 {
 	//Elder: check for local laser
-	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+	if ((cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) &&
 	    cg_RQ3_laserAssist.integer &&
 	    (cg.snap->ps.weapon == WP_PISTOL || cg.snap->ps.weapon == WP_MP5 || cg.snap->ps.weapon == WP_M4)) {
 		CG_LocalLaser();

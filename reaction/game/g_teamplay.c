@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.140  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -1254,8 +1257,7 @@ void EquipPlayer(gentity_t * ent)
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
 	if (ent->client->teamplayItem) {
-		ent->client->ps.stats[STAT_HOLDABLE_ITEM] =
-		    BG_FindItemForHoldable(ent->client->teamplayItem) - bg_itemlist;
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = (1 << ent->client->teamplayItem);
 		ent->client->uniqueItems = 1;
 	} else {
 		G_Printf("%s had an illegal teamplay item [%i]!\n", ent->client->pers.netname,
@@ -1815,19 +1817,19 @@ void GetWeaponName(gentity_t * ent, char *buf)
 
 void GetItemName(gentity_t * ent, char *buf)
 {
-	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
+	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR)) {
 		strcpy(buf, RQ3_KEVLAR_NAME);
 		return;
-	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER) {
+	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER)) {
 		strcpy(buf, RQ3_SILENCER_NAME);
 		return;
-	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS) {
+	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS)) {
 		strcpy(buf, RQ3_SLIPPERS_NAME);
 		return;
-	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER) {
+	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 <<  HI_BANDOLIER)) {
 		strcpy(buf, RQ3_BANDOLIER_NAME);
 		return;
-	} else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER) {
+	} else if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 <<  HI_LASER)) {
 		strcpy(buf, RQ3_LASER_NAME);
 		return;
 	} else {

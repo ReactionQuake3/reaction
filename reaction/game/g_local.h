@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.127  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.126  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -1344,6 +1347,7 @@ extern vmCvar_t g_RQ3_mmflags;
 //Blaze: Reaction cvars
 extern vmCvar_t g_rxn_knifelimit;
 extern vmCvar_t g_RQ3_maxWeapons;
+extern vmCvar_t g_RQ3_maxItems;
 extern vmCvar_t g_RQ3_statLog;
 extern vmCvar_t g_RQ3_ejectBlood;
 extern vmCvar_t g_RQ3_respawnProtectTime;

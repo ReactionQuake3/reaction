@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.90  2002/09/08 23:25:09  niceass
 // made cg_rq3_predictweapons even more like quake 2, and it's simpler
 //
@@ -1135,7 +1138,8 @@ static void PM_CrashLand(void)
 			//Blaze lots of changes to make it more like aq2
 			// this is a pain grunt, so don't play it if dead
 			if (pm->ps->stats[STAT_HEALTH] > 0 && damage > 0) {
-				if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)
+				// JBravo: new multiple itemcode
+				if (pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))
 					PM_AddEvent(EV_FALL_FAR_NOSOUND);
 				else
 					PM_AddEvent(EV_FALL_FAR);
@@ -1148,7 +1152,8 @@ static void PM_CrashLand(void)
 			}
 		}
 	} else if (delta > 20) {
-		if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS) {
+		// JBravo: new multiple itemcode
+		if (pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS)) {
 			PM_AddEvent(EV_FALL_SHORT_NOSOUND);
 			//Elder: added? useful?
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
@@ -1157,7 +1162,8 @@ static void PM_CrashLand(void)
 			//Elder: added? useful?
 			pm->ps->stats[STAT_FALLDAMAGE] = 0;
 		}
-	} else if (!(bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)) {
+		// JBravo: new multiple itemcode
+	} else if (!(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
 		// Elder: don't spam sound events going up -- more like Q2 ladders as well
 		if (!pml.ladder || pm->ps->velocity[2] < 0)
 			PM_AddEvent(PM_FootstepForSurface());
@@ -1549,7 +1555,8 @@ static void PM_Footsteps(void)
 			//Elder: we can check for slippers here!
 			// on ground will only play sounds if running
 			if ((footstep && !pm->noFootsteps)
-			    && !(bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SLIPPERS)) {
+			// JBravo: new multiple itemcode
+			    && !(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
 				PM_AddEvent(PM_FootstepForSurface());
 			}
 		} else if (pm->waterlevel == 1) {
@@ -2472,7 +2479,8 @@ static void PM_Weapon(void)
 	// NiceAss: Check to see if this is game or cgame
 	//if (pm->predict) {
 		//Elder: check for silencer
-		if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
+		// JBravo: new multiple itemcode
+		if ((pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER)) &&
 			(pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_MP5 || pm->ps->weapon == WP_SSG3000)) {
 			PM_AddEvent2(EV_FIRE_WEAPON, RQ3_WPMOD_SILENCER);
 		} else if (pm->ps->stats[STAT_BURST] > 1 && pm->ps->weapon == WP_KNIFE &&

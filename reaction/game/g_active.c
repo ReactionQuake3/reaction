@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.90  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -953,14 +956,48 @@ void ThrowItem(gentity_t * ent)
 	//itemonTime > 0 or itemonState == itemon_dropping?  Or both?
 	//item = 0;
 
+	// JBravo: New drop item code for multiple items.
 	if (client->uniqueItems > 0) {
-		item = bg_itemlist[client->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
-		xr_item = BG_FindItemForHoldable(item);
-		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-		//Elder: Just going to re-use the dropWeapon function
-		xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
-		xr_drop->count = -1;	// XRAY FMJ 0 is already taken, -1 means no ammo
-		client->uniqueItems--;
+		if (g_gametype.integer >= GT_TEAM) {
+			if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << client->teamplayItem)) {
+				xr_item = BG_FindItemForHoldable(client->teamplayItem);
+				xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+				xr_drop->count = -1;
+				client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << client->teamplayItem);
+				client->uniqueItems--;
+			}
+		}
+		if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
+			xr_item = BG_FindItemForHoldable(HI_BANDOLIER);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_BANDOLIER);
+			client->uniqueItems--;
+		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS)) {
+			xr_item = BG_FindItemForHoldable(HI_SLIPPERS);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_SLIPPERS);
+			client->uniqueItems--;
+		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_SILENCER)) {
+			xr_item = BG_FindItemForHoldable(HI_SILENCER);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_SILENCER);
+			client->uniqueItems--;
+		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) {
+			xr_item = BG_FindItemForHoldable(HI_LASER);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_LASER);
+			client->uniqueItems--;
+		} else if (client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_KEVLAR)) {
+			xr_item = BG_FindItemForHoldable(HI_KEVLAR);
+			xr_drop = dropWeapon(ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM);
+			xr_drop->count = -1;
+			client->ps.stats[STAT_HOLDABLE_ITEM] &= ~(1 << HI_KEVLAR);
+			client->uniqueItems--;
+		}
 	}
 }
 
@@ -1464,7 +1501,8 @@ void ClientEndFrame(gentity_t * ent)
 		ent->client->openDoorTime = 0;
 	}
 
-	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER) {
+	// JBravo: multiple items
+	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_LASER)) {
 		//Try to turn the laser on if it's off
 		if (ent->client->lasersight == NULL)
 			Laser_Gen(ent, qtrue);

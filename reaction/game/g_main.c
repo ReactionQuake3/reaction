@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.121  2002/10/21 21:00:39  slicer
 // New MM features and bug fixes
 //
@@ -412,6 +415,7 @@ vmCvar_t g_RQ3_mmflags;
 //Blaze: Reaction cvars
 vmCvar_t g_rxn_knifelimit;
 vmCvar_t g_RQ3_maxWeapons;
+vmCvar_t g_RQ3_maxItems;
 vmCvar_t g_RQ3_statLog;
 vmCvar_t g_RQ3_ejectBlood;
 vmCvar_t g_RQ3_respawnProtectTime;
@@ -557,6 +561,7 @@ static cvarTable_t gameCvarTable[] = {
 	// Elder: these are explicit values set every time the game initializes
 	{&g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse},
 	{&g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1", 0, 0, qtrue},
+	{&g_RQ3_maxItems, "g_RQ3_maxItems", "1", 0, 0, qtrue},
 	{&g_RQ3_respawnProtectTime, "g_RQ3_respawnProtectTime", "2", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
 	{&g_RQ3_statLog, "sv_RQ3_statLog", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_messageMaxCount, "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER, 0, 0, qfalse},

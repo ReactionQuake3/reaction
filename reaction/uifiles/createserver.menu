@@ -218,7 +218,7 @@
 	maxChars 32
 	maxPaintChars 8
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 108 168 20
+	rect 212 98 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -236,7 +236,7 @@
 	text "Pure Server:"
 	cvar "sv_pure"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 128 168 20
+	rect 212 118 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -254,7 +254,7 @@
 	text "Auto Download:"
 	cvar "sv_allowdownload"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 148 168 20
+	rect 212 138 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -272,7 +272,7 @@
 	text "Enable Voting:"
 	cvar "g_allowvote"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 168 168 20
+	rect 212 158 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -291,7 +291,7 @@
 	cvar "sv_maxclients"
 	maxchars 4
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 188 168 20
+	rect 212 178 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -310,7 +310,7 @@
 	cvar "sv_maxping"
 	maxchars 4
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 208 168 20
+	rect 212 198 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -329,7 +329,7 @@
 	cvar "sv_minping"
 	maxchars 4
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 228 168 20
+	rect 212 218 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -348,7 +348,7 @@
 	cvar "sv_maxrate"
 	maxchars 5
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 248 168 20
+	rect 212 238 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -367,7 +367,7 @@
 	cvar "sv_reconnectlimit"
 	maxchars 4
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 268 168 20
+	rect 212 258 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -385,7 +385,7 @@
 	text "Synchronous Client:"
 	cvar "g_synchronousclients"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 288 168 20
+	rect 212 278 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -403,7 +403,7 @@
 	text "Require Password:"
 	cvar "g_needpassword"
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 308 168 20
+	rect 212 298 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -423,7 +423,7 @@
 	maxChars 32
 	maxPaintChars 8
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 328 168 20
+	rect 212 318 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -442,7 +442,7 @@
 	cvar "ui_dedicated"
 	cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
 	textstyle ITEM_TEXTSTYLE_SHADOWED
-	rect 212 348 168 20
+	rect 212 338 168 20
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 100
 	textaligny 14
@@ -455,7 +455,7 @@
 
     itemdef {
 	name global
-	rect 212 368 168 20
+	rect 212 358 168 20
 	style WINDOW_STYLE_EMPTY
 	ownerdraw UI_NETGAMETYPE
 	text "Game Type:"
@@ -467,6 +467,24 @@
 	forecolor 1 1 1 1
 	visible 1
 	action { play "sound/misc/menu1.wav" }
+    }
+
+    // Punkbuster
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Punkbuster enabled:"
+	cvar "sv_punkbuster"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 378 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
     }
 
     //Window

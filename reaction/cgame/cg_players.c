@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.53  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -2428,7 +2431,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 
 	//Elder: IR Vision -- only on players that are alive
 	if (state->eType == ET_PLAYER) {
-		if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
+		if ((cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) &&
 			cg.rq3_irvision && !(state->eFlags & EF_DEAD)) {
 			ent->customShader = cgs.media.irPlayerShader;
 			trap_R_AddRefEntityToScene(ent);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.66  2002/08/30 06:23:57  niceass
 // disabled wallhack protection #2!!!
 //
@@ -1359,15 +1362,27 @@ CG_DrawHoldableItem
 */
 static void CG_DrawHoldableItem(void)
 {
-	int value;
+	int value, item;
 
-	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
-	if (value) {
+	item = 0;
+// JBravo: new items code.  The order here is the same as in g_active so you
+// drop the same item that you see on your HUD.
+	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_BANDOLIER))
+		item = HI_BANDOLIER;
+	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_SLIPPERS))
+		item = HI_SLIPPERS;
+	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_SILENCER))
+		item = HI_SILENCER;
+	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_LASER))
+		item = HI_LASER;
+	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_KEVLAR))
+		item = HI_KEVLAR;
+
+	if (item) {
+		value = BG_FindItemForHoldable(item) - bg_itemlist;
 		CG_RegisterItemVisuals(value);
-		//CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
 		CG_DrawPic(640 - SMICON_SIZE, 440, SMICON_SIZE, SMICON_SIZE, cg_items[value].icon);
 	}
-
 }
 
 /*

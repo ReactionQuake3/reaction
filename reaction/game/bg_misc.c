@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/10/26 00:37:18  jbravo
+// New multiple item code and added PB support to the UI
+//
 // Revision 1.44  2002/07/22 06:34:13  niceass
 // cleaned up the powerup code
 //
@@ -928,9 +931,10 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t * ent, const play
 
 	case IT_HOLDABLE:
 		// can only hold one item at a time
-		if (ps->stats[STAT_HOLDABLE_ITEM]) {
+		// JBravo: I beg to differ
+/*		if (ps->stats[STAT_HOLDABLE_ITEM]) {
 			return qfalse;
-		}
+		} */
 		return qtrue;
 
 	case IT_BAD:
