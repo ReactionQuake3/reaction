@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.155  2002/07/11 04:31:07  niceass
+// removed team leaders in all gametypes and changed some text from centerprint to console print
+//
 // Revision 1.154  2002/07/09 05:41:48  niceass
 // scoreboard fix
 //
@@ -903,16 +906,16 @@ void BroadcastTeamChange(gclient_t * client, int oldTeam)
 		}
 	} else {
 		if (client->sess.sessionTeam == TEAM_RED) {
-			trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " joined the red team.\n\"",
 						      client->pers.netname));
 		} else if (client->sess.sessionTeam == TEAM_BLUE) {
-			trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
 						      client->pers.netname));
 		} else if (client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
-			trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
 						      client->pers.netname));
 		} else if (client->sess.sessionTeam == TEAM_FREE) {
-			trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
+			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " joined the battle.\n\"",
 						      client->pers.netname));
 		}
 	}
@@ -928,7 +931,8 @@ void SetTeam(gentity_t * ent, char *s)
 	int team, oldTeam, clientNum;
 	gclient_t *client;
 	spectatorState_t specState = 0;
-	int specClient = 0, teamLeader, teamsave;
+	int specClient = 0, teamsave;
+	//int teamLeader;
 
 	//
 	// see what change is requested
@@ -1076,7 +1080,9 @@ void SetTeam(gentity_t * ent, char *s)
 
 	client->sess.teamLeader = qfalse;
 
-// JBravo: no teamleader crap in teamplay mode.
+	// JBravo: no teamleader crap in teamplay mode.
+	// NiceAss: I see no reason for this in CTB or any other gametype.
+	/*
 	if ((team == TEAM_RED || team == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
 		teamLeader = TeamLeader(team);
 		// if there is no team leader or the team leader is a bot and this client is not a bot
@@ -1085,12 +1091,16 @@ void SetTeam(gentity_t * ent, char *s)
 			SetLeader(team, clientNum);
 		}
 	}
+	*/
 	// make sure there is a team leader on the team the player came from
 
-// JBravo: no teamleader crap in teamplay mode.
+	// JBravo: no teamleader crap in teamplay mode.
+	// NiceAss: I see no reason for this in CTB or any other gametype.
+	/*
 	if ((oldTeam == TEAM_RED || oldTeam == TEAM_BLUE) && g_gametype.integer != GT_TEAMPLAY) {
 		CheckTeamLeader(oldTeam);
 	}
+	*/
 	BroadcastTeamChange(client, oldTeam);
 
 	// get and distribute relevent paramters
