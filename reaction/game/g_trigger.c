@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2003/09/08 19:19:20  makro
+// New code for respawning entities in TP
+//
 // Revision 1.27  2003/07/30 16:05:46  makro
 // no message
 //
@@ -130,9 +133,15 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	} else {
 		// we can't just remove (self) here, because this is a touch function
 		// called while looping through area links...
+		//Makro - we no longer remove the entity, we just make it inactive
+		//otherwise, we would only be able to use it during the first
+		//round in TP games
+		/*
 		ent->touch = 0;
 		ent->nextthink = level.time + FRAMETIME;
 		ent->think = G_RealFreeEntity;
+		*/
+		ent->inactive = 1;
 	}
 }
 
@@ -147,6 +156,13 @@ void Touch_Multi(gentity_t * self, gentity_t * other, trace_t * trace)
 		return;
 	}
 	multi_trigger(self, other);
+}
+
+void Reset_Multi(gentity_t *ent)
+{
+	ent->inactive = ent->unbreakable;
+	ent->think = 0;
+	ent->nextthink = 0;
 }
 
 /*QUAKED trigger_multiple (.5 .5 .5) ?
@@ -168,6 +184,8 @@ void SP_trigger_multiple(gentity_t * ent)
 
 	ent->touch = Touch_Multi;
 	ent->use = Use_Multi;
+	ent->unbreakable = ent->inactive;
+	ent->reset = Reset_Multi;
 
 	InitTrigger(ent);
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2003/09/08 19:19:20  makro
+// New code for respawning entities in TP
+//
 // Revision 1.13  2003/08/26 19:28:38  makro
 // target_speakers
 //
@@ -213,9 +216,29 @@ Multiple identical looping sounds will just increase volume without any speed co
 "wait" : Seconds between auto triggerings, 0 = don't auto trigger
 "random"	wait variance, default is 0
 */
+void reset_target_speaker(gentity_t *ent)
+{
+	//looped on
+	if (ent->spawnflags & 1)
+		ent->s.loopSound = ent->noise_index;
+	//looped off
+	else if (ent->spawnflags & 2)
+		ent->s.loopSound = 0;
+}
+
 void Use_Target_Speaker(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	if (ent->spawnflags & 3) {	// looping sound toggles
+		//Makro - check the pathtarget of the triggering entity
+		if (other->pathtarget) {
+			if (!Q_stricmp(other->pathtarget, "on")) {
+				ent->s.loopSound = ent->noise_index;
+				return;
+			} else if (!Q_stricmp(other->pathtarget, "off")) {
+				ent->s.loopSound = 0;
+				return;
+			}
+		}
 		if (ent->s.loopSound)
 			ent->s.loopSound = 0;	// turn it off
 		else
@@ -270,7 +293,8 @@ void SP_target_speaker(gentity_t * ent)
 	if (ent->spawnflags & 1) {
 		ent->s.loopSound = ent->noise_index;
 	}
-
+	
+	ent->reset = reset_target_speaker;
 	ent->use = Use_Target_Speaker;
 
 	if (ent->spawnflags & 4) {

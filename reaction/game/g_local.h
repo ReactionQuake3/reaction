@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.146  2003/09/08 19:19:19  makro
+// New code for respawning entities in TP
+//
 // Revision 1.145  2003/09/07 20:02:51  makro
 // no message
 //
@@ -511,6 +514,9 @@ struct gentity_s {
 	void (*use) (gentity_t * self, gentity_t * other, gentity_t * activator);
 	void (*pain) (gentity_t * self, gentity_t * attacker, int damage);
 	void (*die) (gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod);
+	//Makro - called at the begining of the round in TP
+	void (*reset) (gentity_t *self);
+	qboolean noreset;	//Makro - if set to 1, this entity will not respawn in TP
 
 	int pain_debounce_time;
 	int fly_sound_debounce_time;	// wind tunnel
@@ -977,6 +983,8 @@ qboolean G_SpawnInt(const char *key, const char *defaultString, int *out);
 qboolean G_SpawnVector(const char *key, const char *defaultString, float *out);
 void G_SpawnEntitiesFromString(void);
 char *G_NewString(const char *string);
+//Makro - bot hack
+void G_BotOnlyItem(gentity_t *ent);
 
 //
 // g_cmds.c
@@ -1024,6 +1032,8 @@ int ArmorIndex(gentity_t * ent);
 //Elder: added bandolier factor
 void Add_Ammo(gentity_t * ent, int weapon, int count, int bandolierfactor);
 void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace);
+//Makro - added
+void G_ResetItem(gentity_t *ent);
 
 void ClearRegisteredItems(void);
 void RegisterItem(gitem_t * item);

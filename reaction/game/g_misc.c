@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2003/09/08 19:19:19  makro
+// New code for respawning entities in TP
+//
 // Revision 1.75  2003/09/07 20:02:51  makro
 // no message
 //
@@ -266,7 +269,14 @@ void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 			return;
 		}
 	}
-	ent->unbreakable = !ent->unbreakable;
+	ent->unbreakable ^= 1;
+	if (other)
+		if (other->pathtarget)
+			if (!Q_stricmp(other->pathtarget, "off"))
+				ent->unbreakable = 0;
+			else if (!Q_stricmp(other->pathtarget, "on"))
+				ent->unbreakable = 1;
+
 	if (ent->unbreakable) {
 		ent->r.svFlags |= SVF_NOCLIENT;
 		ent->s.eFlags |= EF_NODRAW;
@@ -275,6 +285,15 @@ void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		ent->s.eFlags &= ~EF_NODRAW;
 	}
 	//G_Printf("\nUsing dlight: %d\n\n", ent->unbreakable);
+}
+
+void reset_dlight(gentity_t *ent)
+{
+	ent->unbreakable = 0;
+	if (ent->spawnflags & 8) {
+		ent->unbreakable = 1;
+		ent->use(ent, NULL, NULL);
+	}
 }
 
 void SP_dlight(gentity_t * ent)
@@ -370,11 +389,12 @@ void SP_dlight(gentity_t * ent)
 			ent->think = Think_SetupTrainTargets;
 		}
 	}
-	//Makro - added START_OFF flag
 	ent->use = use_dlight;
-	ent->unbreakable = qfalse;
+	ent->reset = reset_dlight;
+	//Makro - added START_OFF flag
+	ent->unbreakable = 0;
 	if (ent->spawnflags & 8) {
-		ent->unbreakable = qtrue;
+		ent->unbreakable = 1;
 		ent->use(ent, NULL, NULL);
 	}
 
@@ -823,6 +843,16 @@ Type is the value set in the type key. Texture is any texture(s) referenced by t
 If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction Quake 3 for the proper format.
 */
 
+void reset_breakable(gentity_t *ent)
+{
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	
+	ent->exploded = qfalse;
+	ent->takedamage = qtrue;
+	ent->s.eType = ET_BREAKABLE;
+	ent->health = ent->health_saved;
+}
+
 static void InitBreakable_Finish(gentity_t * ent)
 {
 	char info[MAX_INFO_STRING];
@@ -968,6 +998,9 @@ void SP_func_breakable(gentity_t * ent)
 
 	// Let it know it is a breakable object
 	ent->s.eType = ET_BREAKABLE;
+
+	//Makro - reset function
+	ent->reset = reset_breakable;
 
 	// If the mapper gave it a model, use it
 	if (ent->model2) {

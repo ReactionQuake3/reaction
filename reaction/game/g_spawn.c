@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2003/09/08 19:19:20  makro
+// New code for respawning entities in TP
+//
 // Revision 1.46  2003/09/07 20:02:51  makro
 // no message
 //
@@ -238,8 +241,9 @@ field_t fields[] = {
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
 	{"targetinactive", FOFS(targetInactive), F_LSTRING},	// Makro - target to be fired when inactive
 	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
-	{"inactive", FOFS(inactive), F_INT},	// Makro - added
+	{"inactive", FOFS(inactive), F_INT},	// Makro - for inactive objects
 	{"activatename", FOFS(activatename), F_LSTRING},
+	{"noreset", FOFS(noreset), F_INT},	//Makro - for entities that shouldn't respawn in TP
 	{NULL}
 };
 
@@ -529,16 +533,19 @@ qboolean G_CallSpawn(gentity_t * ent)
 
 	for (item = bg_itemlist + 1; item->classname; item++) {
 		if (!strcmp(item->classname, ent->classname)) {
-			//only spawn flags in CTF mode
+			//if it's a flag
 			if (item->giType == IT_TEAM && (item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG)) {
-	// JBravo: no spawning in CTF
+				//only spawn it in CTF
 				if (g_gametype.integer == GT_CTF) {
 					G_SpawnItem(ent, item);
-					return qtrue;
 				}
+				return qtrue;
 			} else {
-				if (g_gametype.integer != GT_CTF)
+				// JBravo: no spawning in CTF
+				if (g_gametype.integer != GT_CTF) {
 					G_SpawnItem(ent, item);
+					G_BotOnlyItem(ent);
+				}
 				return qtrue;
 			}
 		}
@@ -856,14 +863,14 @@ void SP_worldspawn(void)
 	   trap_SetConfigstring( CS_LOADINGSCREEN, info );
 	 */
 	
-	//Makro - fog hull
-	G_SpawnVector("_rq3_fog_color", "0 0 0", color);
-	memset(info, 0, sizeof(info));
-	Info_SetValueForKey(info, "r", va("%f", color[0]));
-	Info_SetValueForKey(info, "g", va("%f", color[1]));
-	Info_SetValueForKey(info, "b", va("%f", color[2]));
-	//G_Printf("^4 FOG HULL: %s\n", vtos(color));
-	trap_SetConfigstring( CS_FOGHULL, info );
+	//Makro - fog hull replacement
+	if (G_SpawnVector("_rq3_fog_color", "0 0 0", color)) {
+		memset(info, 0, sizeof(info));
+		Info_SetValueForKey(info, "r", va("%f", color[0]));
+		Info_SetValueForKey(info, "g", va("%f", color[1]));
+		Info_SetValueForKey(info, "b", va("%f", color[2]));
+		trap_SetConfigstring( CS_FOGHULL, info );
+	}
 
 	trap_SetConfigstring(CS_MOTD, g_motd.string);	// message of the day
 

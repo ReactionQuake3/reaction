@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2003/09/08 19:19:19  makro
+// New code for respawning entities in TP
+//
 // Revision 1.56  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -778,6 +781,8 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 	dropped->r.contents = CONTENTS_TRIGGER;
 
 	dropped->touch = Touch_Item;
+	//Makro - added for TP
+	dropped->reset = G_ResetItem;
 
 	//Elder: suspend thrown knives so they don't jitter
 	//G_Printf("xr_flags: %d, condition: %d\n", xr_flags, (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE);
@@ -1006,17 +1011,6 @@ void FinishSpawningItem(gentity_t * ent)
 		ent->think = RespawnItem;
 		return;
 	}
-	//Makro - for bots and TP
-	if (ent != NULL) {
-		if (ent->item != NULL) {
-			if (ent->item->giType == IT_WEAPON || ent->item->giType == IT_AMMO) {
-				if (g_gametype.integer == GT_TEAMPLAY) {
-					ent->r.svFlags |= MASK_BOTHACK;
-					ent->s.eFlags |= EF_NODRAW;
-				}
-			}
-		}
-	}
 
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
@@ -1179,6 +1173,71 @@ int G_ItemDisabled(gitem_t * item)
 
 /*
 ============
+G_ResetItem
+
+Removes unneeded items at the begining
+of TeamPlay rounds
+Added by Makro
+============
+*/
+void G_ResetItem(gentity_t *ent)
+{
+	//Makro - if the item is used for bot navigation, do nothing
+	//if ((ent->r.svFlags & MASK_BOTHACK) == MASK_BOTHACK)
+	//	return;
+	//if not, simply remove it from the map
+	if (ent->item->giType == IT_WEAPON) {
+		switch (ent->item->giTag) {
+		case WP_MP5:
+		case WP_M4:
+		case WP_M3:
+		case WP_HANDCANNON:
+		case WP_SSG3000:
+		case WP_PISTOL:
+		case WP_KNIFE:
+		case WP_GRENADE:
+			G_FreeEntity(ent, __LINE__, __FILE__);
+			break;
+		default:
+			break;
+		}
+	} else if (ent->item->giType == IT_HOLDABLE) {
+		switch (ent->item->giTag) {
+		case HI_KEVLAR:
+		case HI_LASER:
+		case HI_SILENCER:
+		case HI_BANDOLIER:
+		case HI_SLIPPERS:
+		case HI_HELMET:
+			G_FreeEntity(ent, __LINE__, __FILE__);
+			break;
+		default:
+			break;
+		}
+	} else if (ent->item->giType == IT_AMMO) {
+		G_FreeEntity(ent, __LINE__, __FILE__);
+	}
+}
+
+//Makro - bot hack ! will keep the items in a map in TP mode, but make them
+//invisible and unusable
+void G_BotOnlyItem(gentity_t *ent)
+{
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (ent != NULL) {
+			if (ent->item != NULL) {
+				if (ent->item->giType == IT_WEAPON || ent->item->giType == IT_AMMO) {
+					ent->r.svFlags |= MASK_BOTHACK;
+					ent->s.eFlags |= EF_NODRAW;
+					ent->noreset = 1;
+				}
+			}
+		}
+	}
+}
+
+/*
+============
 G_SpawnItem
 
 Sets the clipping size and plants the object on the floor.
@@ -1204,6 +1263,8 @@ void G_SpawnItem(gentity_t * ent, gitem_t * item)
 	// spawns until the third frame so they can ride trains
 	ent->nextthink = level.time + FRAMETIME * 2;
 	ent->think = FinishSpawningItem;
+	//Makro - respawn function
+	ent->reset = G_ResetItem;
 
 	ent->physicsBounce = 0.50;	// items are bouncy
 

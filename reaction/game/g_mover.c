@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2003/09/08 19:19:19  makro
+// New code for respawning entities in TP
+//
 // Revision 1.63  2003/09/07 20:02:51  makro
 // no message
 //
@@ -1403,7 +1406,7 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 		trap_RQ3LinkEntity(other, __LINE__, __FILE__);
 	}
 	//Makro - some doors shouldn't have triggers for spectators
-	if (!ent->unbreakable) {
+	if (!ent->explosive) {
 		// NiceAss: This trigger will be for spectators
 		// NiceAss: Undo the stretched box size
 		// expand
@@ -1437,6 +1440,27 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 void Think_MatchTeam(gentity_t * ent)
 {
 	MatchTeam(ent, ent->moverState, level.time);
+}
+
+//Makro - respawns doors in TP
+void reset_door(gentity_t *ent)
+{
+	//Makro - if on a team and the team master doesn't respawn
+	if (ent->teammaster)
+		if (ent->teammaster->noreset)
+			return;
+	ent->health = ent->health_saved;
+	if (ent->health)
+		ent->takedamage = qtrue;
+	ent->inactive = ent->unbreakable;
+	if (!Q_stricmp(ent->classname, "func_door"))
+		SetMoverState(ent, MOVER_POS1, level.time);
+	else
+		SetMoverState(ent, ROTATOR_POS1, level.time);
+	//Elder: open areaportals for start_open doors
+	if ((ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster)) {
+		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+	}
 }
 
 //Elder: old func_door Radiant comment
@@ -1577,6 +1601,9 @@ void SP_func_door(gentity_t * ent)
 
 	InitMover(ent);
 
+	if (ent->health)
+		ent->takedamage = qtrue;
+
 	if (!(ent->flags & FL_TEAMSLAVE)) {
 		//int health;
 		int noSpecs = 0;
@@ -1584,13 +1611,10 @@ void SP_func_door(gentity_t * ent)
 		//G_SpawnInt("health", "0", &ent->health);
 		//Makro - added
 		//ent->health_saved = ent->health;
-		if (ent->health) {
-			ent->takedamage = qtrue;
-		}
 		//Makro - some doors don't need spectator triggers
 		G_SpawnInt("nospectators", "0", &noSpecs);
-		//hijacking unbreakable field
-		ent->unbreakable = noSpecs;
+		//hijacking explosive field
+		ent->explosive = noSpecs;
 		ent->think = Think_SpawnNewDoorTrigger;
 		ent->nextthink = level.time + FRAMETIME;
 	}
@@ -1598,6 +1622,10 @@ void SP_func_door(gentity_t * ent)
 	if ((ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster)) {
 		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
 	}
+
+	//Makro - added
+	ent->unbreakable = ent->inactive;
+	ent->reset = reset_door;
 
 }
 
@@ -1746,8 +1774,8 @@ void SP_func_door_rotating(gentity_t * ent)
 		}
 		//Makro - some doors don't need spectator triggers
 		G_SpawnInt("nospectators", "0", &noSpecs);
-		//hijacking unbreakable field
-		ent->unbreakable = noSpecs;
+		//hijacking explosive field
+		ent->explosive = noSpecs;
 		ent->think = Think_SpawnNewDoorTrigger;
 		ent->nextthink = level.time + FRAMETIME;
 	}
@@ -1757,6 +1785,9 @@ void SP_func_door_rotating(gentity_t * ent)
 		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
 	}
 
+	//Makro - added
+	ent->unbreakable = ent->inactive;
+	ent->reset = reset_door;
 }
 
 /*
@@ -2333,6 +2364,15 @@ void Use_Func_Train(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	 */
 }
 
+void Reset_Func_Train(gentity_t *ent)
+{
+	ent->nextTrain = G_Find2(NULL, FOFS(targetname), ent->target, FOFS(classname), "path_corner");
+	if (!ent->nextTrain)
+		return;
+	VectorClear(ent->r.currentAngles);
+	Think_BeginMoving(ent);
+}
+
 /*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
 A train is a mover that moves between path_corner target points.
 Trains MUST HAVE AN ORIGIN BRUSH.
@@ -2382,6 +2422,7 @@ void SP_func_train(gentity_t * self)
 	//Makro - added
 	self->use = Use_Func_Train;
 	self->blocked = Blocked_Door;
+	self->reset = Reset_Func_Train;
 }
 
 /*
@@ -2399,17 +2440,10 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 "light"		constantLight radius
 */
 //Makro - added for triggerable func_statics
-void use_func_static(gentity_t * ent, gentity_t * other, gentity_t * activator)
+
+void SetFuncStaticState(gentity_t *ent, qboolean state)
 {
-	//Makro - added "pathtarget" checks
-	if (!Q_stricmp(ent->pathtarget, "on"))
-		ent->count = 1;
-	else
-		if (!Q_stricmp(ent->pathtarget, "off"))
-			ent->count = 0;
-		else
-			ent->count ^= 1;
-	if (ent->count) {
+	if (state) {
 		ent->s.eFlags &= ~EF_NODRAW;
 		ent->r.contents = CONTENTS_SOLID;
 		ent->r.svFlags &= ~SVF_NOCLIENT;
@@ -2420,6 +2454,28 @@ void use_func_static(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	}
 }
 
+void use_func_static(gentity_t * ent, gentity_t * other, gentity_t * activator)
+{
+	//Makro - added "pathtarget" checks
+	if (other && other->pathtarget) {
+		if (!Q_stricmp(other->pathtarget, "on"))
+			ent->count = 1;
+		else if (!Q_stricmp(other->pathtarget, "off"))
+			ent->count = 0;
+		else
+			ent->count ^= 1;
+	} else {
+			ent->count ^= 1;
+	}
+	SetFuncStaticState(ent, ent->count);
+}
+
+void reset_func_static(gentity_t *self)
+{
+	self->count = (self->spawnflags & 1);
+	self->use(self, NULL, NULL);
+}
+
 void SP_func_static(gentity_t * ent)
 {
 	trap_SetBrushModel(ent, ent->model);
@@ -2427,10 +2483,9 @@ void SP_func_static(gentity_t * ent)
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 	//Makro - added
-	ent->count = (ent->spawnflags & 1);
 	ent->use = use_func_static;
-	ent->use(ent, NULL, NULL);
-	//end Makro
+	ent->reset = reset_func_static;
+	ent->reset(ent);
 }
 
 /*

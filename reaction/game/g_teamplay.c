@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.153  2003/09/08 19:19:20  makro
+// New code for respawning entities in TP
+//
 // Revision 1.152  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -774,57 +777,10 @@ void CleanLevel()
 
 	ClearBodyQue();
 	ent = &g_entities[MAX_CLIENTS];
+	//Makro - call the reset function for all the entities in the map
 	for (i = MAX_CLIENTS; i < level.num_entities; i++, ent++) {
-		if (!ent->inuse)
-			continue;
-		if (!ent->item) {
-			if (!ent->classname)
-				continue;
-			//Makro - reset func_statics each round
-			if (!Q_stricmp(ent->classname, "func_static")) {
-				ent->count = (ent->spawnflags & 1);
-				ent->use(ent, NULL, NULL);
-				//Makro - reset door health each round
-			} else if (ent->s.eType == ET_MOVER && ent->takedamage) {
-				ent->health = ent->health_saved;
-			}
-			continue;
-		}
-		//Makro - added this for bots
-		if ((ent->r.svFlags & SVF_NOCLIENT) && (ent->r.svFlags & SVF_BOTHACK))
-			continue;
-		if (ent->item->giType == IT_WEAPON) {
-			switch (ent->item->giTag) {
-			case WP_MP5:
-			case WP_M4:
-			case WP_M3:
-			case WP_HANDCANNON:
-			case WP_SSG3000:
-			case WP_PISTOL:
-			case WP_KNIFE:
-			case WP_GRENADE:
-				G_FreeEntity(ent, __LINE__, __FILE__);
-				break;
-			default:
-				break;
-			}
-		} else if (ent->item->giType == IT_HOLDABLE) {
-			switch (ent->item->giTag) {
-			case HI_KEVLAR:
-			case HI_LASER:
-			case HI_SILENCER:
-			case HI_BANDOLIER:
-			case HI_SLIPPERS:
-			case HI_HELMET:
-				G_FreeEntity(ent, __LINE__, __FILE__);
-				break;
-			default:
-				break;
-			}
-		} else if (ent->item->giType == IT_AMMO) {
-			//Makro - added
-			G_FreeEntity(ent, __LINE__, __FILE__);
-		}
+			if (ent->reset && !ent->noreset)
+				ent->reset(ent);
 	}
 
 }
@@ -1013,7 +969,7 @@ void CheckForUnevenTeams(gentity_t * player)
 
 void SpawnPlayers()
 {
-	gentity_t *player, *ent;
+	gentity_t *player;
 	gclient_t *client;
 	int clientNum, i;
 
@@ -1065,6 +1021,8 @@ void SpawnPlayers()
 		}
 	}
 	//Blaze: May aswell respawn breakables here
+	//Makro - using a generic respawn function for all the entities now
+	/*
 	for (i = 0; i < level.num_entities; i++) {
 		ent = &g_entities[i];
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
@@ -1077,6 +1035,7 @@ void SpawnPlayers()
 			ent->health = ent->health_saved;
 		}
 	}
+	*/
 }
 
 /* Let the player Choose the weapon and/or item he wants */
