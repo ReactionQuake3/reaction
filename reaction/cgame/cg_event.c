@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/03/02 20:16:58  jbravo
+// Stopping you fragged XXX messages for spectators in followmode.
+//
 // Revision 1.37  2002/02/11 00:30:02  niceass
 // LCA fix
 //
@@ -258,7 +261,9 @@ static void CG_Obituary( entityState_t *ent ) {
 			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		}
 #else
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
+// JBravo: attempting to stop these messages for spectators
+		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 #endif
 
 		// print the text message as well
@@ -563,7 +568,9 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
+// JBravo: attempting to stop these messages for spectators
+		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 
@@ -774,7 +781,9 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
+// JBravo: attempting to stop these messages for spectators
+		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
@@ -954,7 +963,9 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
+// JBravo: attempting to stop these messages for spectators
+		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
@@ -1144,7 +1155,9 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			s = va("You fragged %s", targetName );
 		}
 		// print the text message as well
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
+// JBravo: attempting to stop these messages for spectators
+		if (!(cg.snap->ps.pm_type & PMF_FOLLOW))
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.25, (BIGCHAR_WIDTH+SMALLCHAR_WIDTH)*.5 );
 	}
 
 	// check for double client messages
