@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2003/04/06 18:31:21  makro
+// SSG crosshairs
+//
 // Revision 1.28  2003/03/31 15:17:58  makro
 // Replacements system tweaks.
 // Fixed some other bugs.
@@ -2646,6 +2649,15 @@ qboolean Item_TextField_HandleKey(itemDef_t * item, int key)
 					editPtr->paintOffset++;
 					return qtrue;
 				}
+				//int maxChars = Text_maxPaintChars(buff+editPtr->paintOffset, item->textscale, item->window.rect.w+item->textalignx);
+				/*
+					if (editPtr->maxPaintChars && item->cursorPos >= maxChars
+				    && item->cursorPos < len) {
+					item->cursorPos++;
+					editPtr->paintOffset++;
+					return qtrue;
+				}
+				*/
 				if (item->cursorPos < len) {
 					item->cursorPos++;
 				}
@@ -2669,10 +2681,16 @@ qboolean Item_TextField_HandleKey(itemDef_t * item, int key)
 			}
 
 			if (key == K_END || key == K_KP_END) {	// ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
+				//int maxChars = Text_maxPaintChars(buff+editPtr->paintOffset, item->textscale, item->window.rect.w+item->textalignx);
 				item->cursorPos = len;
 				if (item->cursorPos > editPtr->maxPaintChars) {
 					editPtr->paintOffset = len - editPtr->maxPaintChars;
 				}
+				/*
+				if (item->cursorPos > maxChars) {
+					editPtr->paintOffset = len - maxChars;
+				}
+				*/
 				return qtrue;
 			}
 
@@ -3788,6 +3806,7 @@ void Item_TextField_Paint(itemDef_t * item)
 	int offset;
 	menuDef_t *parent = (menuDef_t *) item->parent;
 	editFieldDef_t *editPtr = (editFieldDef_t *) item->typeData;
+	//int maxChars = Text_maxPaintChars(buff+editPtr->paintOffset, item->textscale, item->window.rect.w+item->textalignx);
 
 	Item_Text_Paint(item);
 
@@ -3818,9 +3837,18 @@ void Item_TextField_Paint(itemDef_t * item)
 		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
 				       newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
 				       cursor, editPtr->maxPaintChars, item->textStyle);
+		/*
+		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
+				       newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
+				       cursor, maxChars, item->textStyle);
+		*/
 	} else {
 		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
 			     buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle);
+		/*
+		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
+			     buff + editPtr->paintOffset, 0, maxChars, item->textStyle);
+		*/
 	}
 
 }

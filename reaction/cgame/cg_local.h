@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2003/04/06 18:28:30  makro
+// SSG crosshairs
+//
 // Revision 1.141  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -395,7 +398,8 @@
 #define	GIANT_WIDTH			32
 #define	GIANT_HEIGHT		48
 
-#define	NUM_CROSSHAIRS		10
+//Makro - moved to bg_public.h
+//#define	NUM_CROSSHAIRS		10
 
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16

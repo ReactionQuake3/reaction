@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2003/04/06 18:31:22  makro
+// SSG crosshairs
+//
 // Revision 1.17  2003/03/31 00:23:18  makro
 // Replacements and stuff
 //
@@ -138,9 +141,10 @@
 #define SLIDER_HEIGHT 16.0
 #define SLIDER_THUMB_WIDTH 12.0
 #define SLIDER_THUMB_HEIGHT 20.0
-#define	NUM_CROSSHAIRS			10
-//Makro - for the SSG crosshair preview
-#define	NUM_SSGCROSSHAIRS		6
+//Makro - moved to bg_public.h
+//#define	NUM_CROSSHAIRS			10
+////Makro - for the SSG crosshair preview
+//#define	NUM_SSGCROSSHAIRS		6
 
 typedef struct {
 	const char *command;
@@ -504,6 +508,8 @@ qboolean Menus_AnyFullScreenVisible();
 void Menus_Activate(menuDef_t * menu);
 //Makro - select the right player model icon
 void UI_RQ3_SelectPlayerIcon(menuDef_t *menu);
+//Makro - added
+int Text_maxPaintChars(char *text, float scale, float width);
 
 displayContextDef_t *Display_GetContext();
 void *Display_CaptureItem(int x, int y);

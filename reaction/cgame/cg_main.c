@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2003/04/06 18:28:30  makro
+// SSG crosshairs
+//
 // Revision 1.131  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -2151,6 +2154,12 @@ static void CG_RegisterGraphics(void)
 	//Elder: C3A laser tutorial
 	cgs.media.laserShader = trap_R_RegisterShader("sprites/laser");
 
+	//Makro - new code
+	i = cg_RQ3_ssgCrosshair.integer % NUM_SSGCROSSHAIRS;
+	cgs.media.ssgCrosshair[0] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", i));
+	cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg4x-%i", i));
+	cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg6x-%i", i));
+	/*
 	//Elder: added for sniper crosshairs
 	switch (cg_RQ3_ssgCrosshair.integer) {
 	case 0:
@@ -2189,6 +2198,7 @@ static void CG_RegisterGraphics(void)
 		cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg6x");
 		break;
 	}
+	*/
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_health");
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_healthwarning");

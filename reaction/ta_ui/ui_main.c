@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2003/04/06 18:31:21  makro
+// SSG crosshairs
+//
 // Revision 1.70  2003/03/31 21:02:30  makro
 // no message
 //
@@ -543,12 +546,8 @@ void AssetCache()
 	}
 
 	//Makro - for the SSG crosshair preview
-	ssg = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair");
-	if (ssg <= 0 || ssg >= NUM_SSGCROSSHAIRS) {
-		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
-	} else {
-		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", ssg));
-	}
+	ssg = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair") % NUM_SSGCROSSHAIRS;
+	uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", ssg));
 
 	//Makro - for drop shadows
 	for (n = 0; n < 4; n++) {
@@ -675,6 +674,23 @@ int Text_Height(const char *text, float scale, int limit)
 		}
 	}
 	return max * useScale;
+}
+
+//Makro - added
+int Text_maxPaintChars(char *text, float scale, float width)
+{
+	char buf[1024];
+	int l;
+
+	if (!text)
+		return 0;
+
+	Q_strncpyz(buf, text, sizeof(buf));
+	l = strlen(buf);
+	while (l>=0 && Text_Width(buf, scale, 0) > width)
+		buf[--l]=0;
+
+	return l;
 }
 
 void Text_PaintChar(float x, float y, float width, float height, float scale, float s, float t, float s2, float t2,
@@ -3992,7 +4008,7 @@ static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key)
 	//Makro - left/right support
 	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW
 	    || key == K_RIGHTARROW) {
-		int current = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair"), offset = 1;
+		int current = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair") % NUM_SSGCROSSHAIRS, offset = 1;
 
 		if (key == K_MOUSE2 || key == K_LEFTARROW) {
 			offset = -1;
@@ -4006,11 +4022,7 @@ static qboolean UI_SSG_Crosshair_HandleKey(int flags, float *special, int key)
 
 		trap_Cvar_SetValue("cg_RQ3_ssgCrosshair", (float) current);
 
-		if (current == 0)
-			uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip("gfx/rq3_hud/ssg2x");
-		else
-			uiInfo.uiDC.Assets.SSGcrosshairShader =
-			    trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", current));
+		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", current));
 
 		return qtrue;
 	}
@@ -4971,7 +4983,7 @@ static void UI_RunMenuScript(char **args)
 				if (String_Parse(args, &name2)) {
 					qboolean instant = (Q_stricmp(name2, "instant") == 0);
 
-					current = (int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair") + offset;
+					current = ((int) trap_Cvar_VariableValue("cg_RQ3_ssgCrosshair") + offset) % NUM_SSGCROSSHAIRS;
 					if (current < 0)
 						current = NUM_SSGCROSSHAIRS - 1;
 					else if (current >= NUM_SSGCROSSHAIRS)
