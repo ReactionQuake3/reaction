@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/06/21 23:20:34  blaze
+// cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
+//
 // Revision 1.99  2002/06/21 21:05:57  niceass
 // laserfog stuff & removed unused cvar
 //
@@ -1585,6 +1588,9 @@ extern vmCvar_t cg_RQ3_crosshairColorR;
 extern vmCvar_t cg_RQ3_crosshairColorG;
 extern vmCvar_t cg_RQ3_crosshairColorB;
 extern vmCvar_t cg_RQ3_crosshairColorA;
+
+//Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
+extern vmCvar_t cg_RQ3_overlaycrosshair;
 
 // JBravo: cvar for tkok popups
 extern vmCvar_t cg_RQ3_tkokAutoPopup;

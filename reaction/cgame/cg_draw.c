@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/06/21 23:20:34  blaze
+// cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
+//
 // Revision 1.48  2002/06/20 21:25:06  slicer
 // Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
 //
@@ -1599,7 +1602,7 @@ static void CG_DrawCrosshair(void)
 	qhandle_t hShader;
 	float f;
 	float x, y;
-	int ca, i;
+	int ca, i, drawSSG;
 	vec4_t crosshairColor;
 
 	//Slicer: HOW ABOUT SSG SCOPE !! GAHHH !!!!! - moved below
@@ -1607,6 +1610,7 @@ static void CG_DrawCrosshair(void)
 	//	return;
 	//}
 	//Slicer: Adding Crosshair to FOLLOW SPECS
+  drawSSG = 0;
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return;
 	}
@@ -1680,13 +1684,15 @@ static void CG_DrawCrosshair(void)
 			CG_DrawPic(x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
 
 			trap_R_SetColor(NULL);
-			return;
+      drawSSG = 1;
 		}
 	}
-	else {
+
 	//Slicer if no crosshair, and not using SSG, dont draw crosshair
 	if(!cg_drawCrosshair.integer)
 		return;
+  if (drawSSG == 0 || drawSSG == 1 && cg_RQ3_overlaycrosshair.integer == 1)
+  {
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
 	CG_AdjustFrom640(&x, &y, &w, &h);

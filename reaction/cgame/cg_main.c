@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/21 23:20:34  blaze
+// cg_rq3_overlaycrosshair when set to 1 will draw your non zoomed crosshair overtop of your ssg crosshair
+//
 // Revision 1.87  2002/06/21 21:05:35  niceass
 // laserfog stuff & removed unused cvar
 //
@@ -332,6 +335,9 @@ vmCvar_t cg_RQ3_crosshairColorG;
 vmCvar_t cg_RQ3_crosshairColorB;
 vmCvar_t cg_RQ3_crosshairColorA;
 
+//Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
+vmCvar_t cg_RQ3_overlaycrosshair;
+
 // JBravo: cvar for tkok popup
 vmCvar_t cg_RQ3_tkokAutoPopup;
 
@@ -552,6 +558,9 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE},
 	{&cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE},
+  //Blaze: allow regular crosshair to be overlaid ontop of the ssg crosshair
+  {&cg_RQ3_overlaycrosshair, "cg_RQ3_overlaycrosshair", "0", CVAR_ARCHIVE},
+
 // JBravo: cvars for regular crosshairs and their colors
 // Makro - changed default color to white; it was 0/1/0/.75 before
 	{&cg_RQ3_crosshairColorR, "cg_RQ3_crosshairColorR", "1.0", CVAR_ARCHIVE},
