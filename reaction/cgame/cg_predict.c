@@ -120,9 +120,12 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 /*
 ================
 CG_Trace
+
+Elder: changed header - added 'const' to mins and maxs so VMs can compile
+Also check cg_syscalls.c and cg_local.h
 ================
 */
-void	CG_Trace( trace_t *result, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, 
+void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
 					 int skipNumber, int mask ) {
 	trace_t	t;
 

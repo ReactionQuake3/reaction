@@ -123,7 +123,7 @@ int		trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const
 }
 
 void	trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-						  vec3_t mins, vec3_t maxs,
+						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask ) {
 	syscall( CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask );
 }
