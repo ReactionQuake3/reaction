@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/09/02 02:21:41  niceass
+// removed spherical head detection
+//
 // Revision 1.121  2002/08/30 00:00:16  makro
 // Sky portals
 //
@@ -993,7 +996,6 @@ const char *BuildShaderStateConfig();
 //
 // g_combat.c
 //
-qboolean G_HitPlayer(gentity_t * targ, vec3_t dir, vec3_t point);	// Added by NiceAss for new head hit-detection
 qboolean CanDamage(gentity_t * targ, vec3_t origin);
 void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, vec3_t dir, vec3_t point, int damage,
 	      int dflags, int mod);
