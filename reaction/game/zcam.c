@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/05/09 20:58:30  jbravo
+// New Obit system and a warning cleanup in zcam
+//
 // Revision 1.12  2002/05/06 00:35:49  jbravo
 // Small fixes to misc stuff
 //
@@ -193,7 +196,8 @@ static float asinf (float x)
 static camera_t cameras[MAX_CLIENTS];
 
 /* local functions */
-
+/*
+// JBravo: Not used anymore.
 static void CameraShowMode (gentity_t *ent)
 {
   if (ent->client->camera->mode == CAMERA_MODE_SWING)
@@ -202,7 +206,8 @@ static void CameraShowMode (gentity_t *ent)
   trap_SendServerCommand( ent->client->ps.clientNum, 
 			  va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" S_COLOR_MAGENTA "Camera Mode-" S_COLOR_YELLOW"%s\n",
 			     (ent->client->camera->mode == CAMERA_MODE_FLIC)? "FLIC":"SWING") );
-}
+} 
+*/
 
 static gentity_t *ClosestVisible (gentity_t *ent, float maxrange, qboolean pvs)
 {

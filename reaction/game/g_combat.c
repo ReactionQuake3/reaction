@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/05/09 20:58:30  jbravo
+// New Obit system and a warning cleanup in zcam
+//
 // Revision 1.66  2002/05/06 00:35:49  jbravo
 // Small fixes to misc stuff
 //
@@ -653,6 +656,394 @@ void CheckAlmostScored( gentity_t *self, gentity_t *attacker ) {
 
 /*
 ==================
+SendObit
+JBravo: actually send the messages
+==================
+*/
+void SendObit (char *msg, gentity_t *deadguy, gentity_t *attacker) {
+	int		i;
+	gentity_t	*other;
+	
+	if (g_gametype.integer < GT_TEAM) {
+		trap_SendServerCommand( -1, va("print \"%s\"", msg));
+	} else {
+		if (g_RQ3_printOwnObits.integer == 0) {
+			for (i = 0; i < level.maxclients; i++) {
+				other = &g_entities[i];
+				if (!other->inuse || !other->client)
+					continue;
+				if (deadguy != other && level.team_round_going && other->client->sess.sessionTeam != TEAM_SPECTATOR)
+					continue;
+				trap_SendServerCommand (other-g_entities, va("print \"%s\"", msg));
+			}
+		} else {
+			for (i = 0; i < level.maxclients; i++) {
+				other = &g_entities[i];
+				if (!other->inuse || !other->client)
+					continue;
+				if (deadguy != other && other != attacker &&
+						level.team_round_going && other->client->sess.sessionTeam != TEAM_SPECTATOR)
+					continue;
+				trap_SendServerCommand (other-g_entities, va("print \"%s\"", msg));
+			}
+		}
+	}
+}
+			
+/*
+==================
+PrintDeathMessage
+JBravo: new Obit system
+==================
+*/
+void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, int meansOfDeath) {
+	int	n, gender;
+	char	message[128], message2[128], death_msg[512];
+	
+	gender = target->client->radioGender;
+	message[0] = message2[0] = '\0';
+
+	switch (meansOfDeath) {
+                case MOD_SUICIDE:
+			Q_strncpyz (message, "suicides", sizeof(message));
+			break;
+		case MOD_FALLING:
+			if (gender == GENDER_FEMALE)
+				Q_strncpyz (message, "plummets to her death", sizeof(message));
+			else if (gender == GENDER_NEUTER)
+				Q_strncpyz (message, "plummets to its death", sizeof(message));
+			else
+				Q_strncpyz (message, "plummets to his death", sizeof(message));
+			break;
+		case MOD_CRUSH:
+			Q_strncpyz (message, "was flattened", sizeof(message));
+			break;
+		case MOD_WATER:
+			Q_strncpyz (message, "sank like a rock", sizeof(message));
+			break;
+		case MOD_SLIME:
+			Q_strncpyz (message, "melted", sizeof(message));
+			break;
+		case MOD_LAVA:
+			Q_strncpyz (message, "does a back flip into the lava", sizeof(message));
+			break;
+		case MOD_TARGET_LASER:
+			Q_strncpyz (message, "saw the light", sizeof(message));
+			break;
+		case MOD_TRIGGER_HURT:
+			Q_strncpyz (message, "was in the wrong place", sizeof(message));
+			break;
+		case MOD_BLEEDING:
+			Q_strncpyz (message, "bleeds to death", sizeof(message));
+			break;
+		default:
+			message[0] = '\0';
+			break;
+	}
+	if (attacker == target) {
+		switch (meansOfDeath) {
+			case MOD_GRENADE_SPLASH:
+				if (gender == GENDER_FEMALE)
+					Q_strncpyz (message, "didn't throw her grenade far enough", sizeof(message));
+				else if (gender == GENDER_NEUTER)
+					Q_strncpyz (message, "didn't throw its grenade far enough", sizeof(message));
+				else
+					Q_strncpyz (message, "didn't throw his grenade far enough", sizeof(message));
+				break;
+			case MOD_ROCKET_SPLASH:
+				if (gender == GENDER_FEMALE)
+					Q_strncpyz (message, "blew herself up", sizeof(message));
+				else if (gender == GENDER_NEUTER)
+					Q_strncpyz (message, "blew itself up", sizeof(message));
+				else
+					Q_strncpyz (message, "blew himself up", sizeof(message));
+				break;
+			case MOD_PLASMA_SPLASH:
+				if (gender == GENDER_FEMALE)
+					Q_strncpyz (message, "melted herself", sizeof(message));
+				else if (gender == GENDER_NEUTER)
+					Q_strncpyz (message, "melted itself", sizeof(message));
+				else
+					Q_strncpyz (message, "melted himself", sizeof(message));
+				break;
+			case MOD_BFG_SPLASH:
+				Q_strncpyz (message, "should have used a smaller gun", sizeof(message));
+				break;
+			default:
+				if (gender == GENDER_FEMALE)
+					Q_strncpyz (message, "killed herself", sizeof(message));
+				else if (gender == GENDER_NEUTER)
+					Q_strncpyz (message, "killed itself", sizeof(message));
+				else
+					Q_strncpyz (message, "killed himself", sizeof(message));
+				break;
+		}
+	}
+	if (attacker->client || attacker != target)
+		message[0] = '\0';
+	if (message[0] != '\0') {
+		Com_sprintf (death_msg, sizeof(death_msg), "%s %s\n", target->client->pers.netname, message);
+		SendObit (death_msg, target, attacker);
+		return;
+	}
+
+	if (attacker->client) {
+		switch (meansOfDeath) {
+			case MOD_FALLING:
+				Q_strncpyz (message, "was taught how to fly by", sizeof(message));
+				break;
+			case MOD_PISTOL:
+				switch (location) {
+					case LOC_HDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " has a hole in its head from", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " has a hole in her head from", sizeof(message));
+						else
+							Q_strncpyz (message, " has a hole in his head from", sizeof(message));
+						Q_strncpyz (message2, "'s Mark 23 pistol", sizeof(message2));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " loses a vital chest organ thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s Mark 23 pistol", sizeof(message2));
+						break;
+					case LOC_SDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " loses its lunch to", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " loses her lunch to", sizeof(message));
+						else
+							Q_strncpyz (message, " loses his lunch to", sizeof(message));
+						Q_strncpyz (message2, "'s .45 caliber pistol round", sizeof(message));
+						break;
+					case LOC_LDAM:
+						Q_strncpyz (message, " is legless because of", sizeof(message));
+						Q_strncpyz (message2, "'s Mark 23 pistol", sizeof(message2));
+						break;
+					default:
+						Q_strncpyz (message, "was shot by", sizeof(message));
+						Q_strncpyz (message2, "'s Mark 23 Pistol", sizeof(message2));
+				}
+				break;
+			case MOD_MP5:
+				switch (location) {
+					case LOC_HDAM:
+						Q_strncpyz (message, "'s brains are on the wall thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s 10mm MP5/10 round", sizeof(message));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " feels some chest pain via", sizeof(message));
+						Q_strncpyz (message2, "'s MP5/10 Submachinegun", sizeof(message));
+						break;
+					case LOC_SDAM:
+						Q_strncpyz (message, " needs some Pepto Bismol after", sizeof(message));
+						Q_strncpyz (message2, "'s 10mm MP5 round", sizeof(message2));
+						break;
+					case LOC_LDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " had its legs blown off thanks to", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " had her legs blown off thanks to", sizeof(message));
+						else
+							Q_strncpyz (message, " had his legs blown off thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s MP5/10 Submachinegun", sizeof(message2));
+						break;
+					default:
+						Q_strncpyz (message, " was shot by", sizeof(message));
+						Q_strncpyz (message2, "'s MP5/10 Submachinegun", sizeof(message2));
+				}
+				break;
+			case MOD_M4:
+				switch (location) {
+					case LOC_HDAM:
+						Q_strncpyz (message, " had a makeover by", sizeof(message));
+						Q_strncpyz (message2, "'s M4 Assault Rifle", sizeof(message2));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " feels some heart burn thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s M4 Assault Rifle", sizeof(message2));
+						break;
+					case LOC_SDAM:
+						Q_strncpyz (message, " has an upset stomach thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s M4 Assault Rifle", sizeof(message2));
+						break;
+					case LOC_LDAM:
+						Q_strncpyz (message, " is now shorter thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s M4 Assault Rifle", sizeof(message2));
+						break;
+					default:
+						Q_strncpyz (message, " was shot by", sizeof(message));
+						Q_strncpyz (message2, "'s M4 Assault Rifle", sizeof(message2));
+				}
+				break;
+			case MOD_M3:
+				n = rand() % 2 + 1;
+				if (n == 1) {
+					Q_strncpyz (message, " accepts", sizeof(message));
+					Q_strncpyz (message2, "'s M3 Super 90 Assault Shotgun in hole-y matrimony", sizeof(message2));
+				} else {
+					Q_strncpyz (message, " is full of buckshot from", sizeof(message));
+					Q_strncpyz (message2, "'s M3 Super 90 Assault Shotgun", sizeof(message2));
+				}
+				break;
+			case MOD_HANDCANNON:
+				n = rand() % 2 + 1;
+				if (n == 1) {
+					Q_strncpyz (message, " ate", sizeof(message));
+					Q_strncpyz (message2, "'s sawed-off 12 gauge", sizeof(message2));
+				} else {
+					Q_strncpyz (message, " is full of buckshot from", sizeof(message));
+					Q_strncpyz (message2, "'s sawed off shotgun", sizeof(message2));
+				}
+				break;
+			case MOD_SNIPER:
+				switch (location) {
+					case LOC_HDAM:
+						if (RQ3_isZoomed(target)) {
+							if (gender == GENDER_NEUTER)
+								Q_strncpyz (message, " saw the sniper bullet go through its scope thanks to", sizeof(message));
+							else if (gender == GENDER_FEMALE)
+								Q_strncpyz (message, " saw the sniper bullet go through her scope thanks to", sizeof(message));
+							else
+								Q_strncpyz (message, " saw the sniper bullet go through his scope thanks to", sizeof(message));
+						} else {
+							Q_strncpyz (message, " caught a sniper bullet between the eyes from", sizeof(message));
+						}
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " was picked off by", sizeof(message));
+						break;
+					case LOC_SDAM:
+						Q_strncpyz (message, " was sniped in the stomach by", sizeof(message));
+						break;
+					case LOC_LDAM:
+						Q_strncpyz (message, " was shot in the legs by", sizeof(message));
+						break;
+					default:
+						Q_strncpyz (message, " was sniped by", sizeof(message));
+				}
+			case MOD_AKIMBO:
+				switch (location) {
+					case LOC_HDAM:
+						Q_strncpyz (message, " was trepanned by", sizeof(message));
+						Q_strncpyz (message2, "'s akimbo Mark 23 pistols", sizeof(message2));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " was John Woo'd by", sizeof(message));
+						break;
+					case LOC_SDAM:
+						Q_strncpyz (message, " needs some new kidneys thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s akimbo Mark 23 pistols", sizeof(message2));
+						break;
+					case LOC_LDAM:
+						Q_strncpyz (message, " was shot in the legs by", sizeof(message));
+						Q_strncpyz (message2, "'s akimbo Mark 23 pistols", sizeof(message2));
+						break;
+					default:
+						Q_strncpyz (message, " was shot by", sizeof(message));
+						Q_strncpyz (message2, "'s pair of Mark 23 Pistols", sizeof(message2));
+				}
+				break;
+			case MOD_KNIFE:
+				switch (location) {
+					case LOC_HDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " had its throat slit by", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " had her throat slit by", sizeof(message));
+						else
+							Q_strncpyz (message, " had his throat slit by", sizeof(message));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, " had open heart surgery, compliments of", sizeof(message));
+						break;
+					case LOC_SDAM:
+						Q_strncpyz (message, " was gutted by", sizeof(message));
+						break;
+					case LOC_LDAM:
+						Q_strncpyz (message, " was stabbed repeatedly in the legs by", sizeof(message));
+						break;
+					default:
+						Q_strncpyz (message, " was slashed apart by", sizeof(message));
+						Q_strncpyz (message2, "'s Combat Knife", sizeof(message2));
+				}
+				break;
+			case MOD_KNIFE_THROWN:
+				switch (location) {
+					case LOC_HDAM:
+						Q_strncpyz (message, " caught", sizeof(message));
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message2, "'s flying knife with its forehead", sizeof(message2));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message2, "'s flying knife with her forehead", sizeof(message2));
+						else
+							Q_strncpyz (message2, "'s flying knife with his forehead", sizeof(message2));
+						break;
+					case LOC_CDAM:
+						Q_strncpyz (message, "'s ribs don't help against", sizeof(message));
+						Q_strncpyz (message2, "'s flying knife", sizeof(message2));
+						break;
+					case LOC_SDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " sees the contents of its own stomach thanks to", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " sees the contents of her own stomach thanks to", sizeof(message));
+						else
+							Q_strncpyz (message, " sees the contents of his own stomach thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s flying knife", sizeof(message2));
+						break;
+					case LOC_LDAM:
+						if (gender == GENDER_NEUTER)
+							Q_strncpyz (message, " had its legs cut off thanks to", sizeof(message));
+						else if (gender == GENDER_FEMALE)
+							Q_strncpyz (message, " had her legs cut off thanks to", sizeof(message));
+						else
+							Q_strncpyz (message, " had his legs cut off thanks to", sizeof(message));
+						Q_strncpyz (message2, "'s flying knife", sizeof(message2));
+						break;
+					default:
+						Q_strncpyz (message, " was hit by", sizeof(message));
+						Q_strncpyz (message2, "'s flying Combat Knife", sizeof(message2));
+				}
+				break;
+			case MOD_KICK:
+				n = rand() % 3 + 1;
+				if (n == 1) {
+					if (gender == GENDER_NEUTER)
+						Q_strncpyz (message, " got its ass kicked by", sizeof(message));
+					else if (gender == GENDER_FEMALE)
+						Q_strncpyz (message, " got her ass kicked by", sizeof(message));
+					else
+						Q_strncpyz (message, " got his ass kicked by", sizeof(message));
+				} else if (n == 2) {
+					Q_strncpyz (message, " couldn't remove", sizeof(message));
+					if (gender == GENDER_NEUTER)
+						Q_strncpyz (message2, "'s boot from its ass", sizeof(message2));
+					else if (gender == GENDER_FEMALE)
+						Q_strncpyz (message2, "'s boot from her ass", sizeof(message2));
+					else
+						Q_strncpyz (message2, "'s boot from his ass", sizeof(message2));
+				} else {
+					if (gender == GENDER_NEUTER)
+						Q_strncpyz (message, " had a Bruce Lee put on it by", sizeof(message));
+					else if (gender == GENDER_FEMALE)
+						Q_strncpyz (message, " had a Bruce Lee put on her by", sizeof(message));
+					else
+						Q_strncpyz (message, " had a Bruce Lee put on him by", sizeof(message));
+					Q_strncpyz (message2, ", with a quickness", sizeof(message2));
+				}
+				break;
+			default:
+				Q_strncpyz (message, " died by some unknown method. TELL THIS TO JB!!!", sizeof(message));
+		}
+		Com_sprintf (death_msg, sizeof(death_msg), "%s%s %s%s\n", target->client->pers.netname, message,
+				attacker->client->pers.netname, message2);
+		SendObit (death_msg, target, attacker);
+	}
+}
+
+/*
+==================
 player_die
 ==================
 */
@@ -745,6 +1136,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// broadcast the death event to everyone
 	// Elder: use appropriate obit event and update statistics tracking
+	// JBravo: Im redoing the Obits.
+
 	if ((self->client->lasthurt_location & LOCATION_HEAD) == LOCATION_HEAD ||
 		 (self->client->lasthurt_location & LOCATION_FACE) == LOCATION_FACE) {
 		// head kill
@@ -752,7 +1145,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  self->client->pers.records[REC_HEADDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_HEADKILLS]++;
 		}
-		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_HEAD);
+		PrintDeathMessage (self, attacker, LOC_HDAM, meansOfDeath);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_CHEST) == LOCATION_CHEST ||
 			  (self->client->lasthurt_location & LOCATION_SHOULDER) == LOCATION_SHOULDER) {
@@ -761,7 +1154,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  self->client->pers.records[REC_CHESTDEATHS]++;
 		  if (attacker && attacker->client)	attacker->client->pers.records[REC_CHESTKILLS]++;
 		}
-		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_CHEST);
+		PrintDeathMessage (self, attacker, LOC_CDAM, meansOfDeath);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_STOMACH) == LOCATION_STOMACH ||
 			  (self->client->lasthurt_location & LOCATION_GROIN) == LOCATION_GROIN) {
@@ -770,7 +1163,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  self->client->pers.records[REC_STOMACHDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_STOMACHKILLS]++;
 		}
-		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_STOMACH);
+		PrintDeathMessage (self, attacker, LOC_SDAM, meansOfDeath);
 	}
 	else if ((self->client->lasthurt_location & LOCATION_LEG) == LOCATION_LEG ||
 			  (self->client->lasthurt_location & LOCATION_FOOT) == LOCATION_FOOT) {
@@ -779,10 +1172,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		  self->client->pers.records[REC_LEGDEATHS]++;
 		  if (attacker && attacker->client) attacker->client->pers.records[REC_LEGKILLS]++;
 		}
-		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY_LEGS);
+		PrintDeathMessage (self, attacker, LOC_LDAM, meansOfDeath);
 	} else {
-		// non-location/world kill
-		ent = G_TempEntity(self->r.currentOrigin, EV_OBITUARY);
+//		// non-location/world kill
+		PrintDeathMessage (self, attacker, LOC_NOLOC, meansOfDeath);
 	}
 
 	// Elder: Statistics tracking
@@ -850,10 +1243,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			  break;
 		}
 	}
-	ent->s.eventParm = meansOfDeath;
+/*	ent->s.eventParm = meansOfDeath;
 	ent->s.otherEntityNum = self->s.number;
 	ent->s.otherEntityNum2 = killer;
-	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
+	ent->r.svFlags = SVF_BROADCAST;	// send to everyone */
 	self->enemy = attacker;
 	if (level.team_round_going) {
 		//Makro - crash bug fix

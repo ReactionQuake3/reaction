@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/05/09 20:58:30  jbravo
+// New Obit system and a warning cleanup in zcam
+//
 // Revision 1.76  2002/05/05 15:51:16  slicer
 // Captain and subs get saved on map_restarts ( moved to "sess" )
 //
@@ -167,6 +170,7 @@
 #define BLEED_BANDAGE_TIME		5400	// 27 x 2
 
 // types of locations that can be hit
+#define LOC_NOLOC			0	// non-location/world kill
 #define LOC_HDAM			1	// head
 #define LOC_CDAM			2	// chest
 #define LOC_SDAM			3	// stomach
@@ -1138,6 +1142,7 @@ extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model and skin
 extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model and skin
 extern	vmCvar_t	g_RQ3_tpcountdown;		// JBravo: to disable the pregame countdown
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
+extern	vmCvar_t	g_RQ3_printOwnObits;		// JBravo: cvar to control if attaker sees his own obits.
 //extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 //extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
 //extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus

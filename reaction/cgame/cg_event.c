@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/05/09 20:58:30  jbravo
+// New Obit system and a warning cleanup in zcam
+//
 // Revision 1.53  2002/05/02 23:04:59  makro
 // Loading screen. Jump kicks
 //
@@ -143,6 +146,8 @@ const char	*CG_PlaceString( int rank ) {
 CG_Obituary
 =============
 */
+// JBravo: moved to game and done right ;)
+/*
 static void CG_Obituary( entityState_t *ent ) {
 	int		mod, target, attacker;
 	int		n;		//Elder: for random messages
@@ -490,6 +495,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	// we don't know what it was
 	CG_Printf( "(CG_Obituary)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
+*/
 
 /*
 =============
@@ -499,6 +505,7 @@ Slim version of main obit
 CG_Obituary_Head
 =============
 */
+/*
 static void CG_Obituary_Head( entityState_t *ent ) {
 	int		mod, target, attacker;
 	char		*message, *message2;
@@ -701,7 +708,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 	// we don't know what it was
 	CG_Printf( "(CG_Obituary_Head)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
-
+*/
 
 /*
 =============
@@ -711,6 +718,7 @@ Slim version of main obit
 CG_Obituary_Chest
 =============
 */
+/*
 static void CG_Obituary_Chest( entityState_t *ent ) {
 	int		mod, target, attacker;
 	char		*message, *message2;
@@ -885,7 +893,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 	// we don't know what it was
 	CG_Printf( "(CG_Obituary_Chest)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
-
+*/
 /*
 =============
 Added by Elder
@@ -894,6 +902,7 @@ Slim version of main obit
 CG_Obituary_Stomach
 =============
 */
+/*
 static void CG_Obituary_Stomach( entityState_t *ent ) {
 	int		mod, target, attacker;
 	char		*message, *message2;
@@ -1079,7 +1088,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 	// we don't know what it was
 	CG_Printf( "(CG_Obituary_Stomach)%s died and the mod is %i. Tell this to JB\n", targetName, mod );
 }
-
+*/
 /*
 =============
 Added by Elder
@@ -1088,6 +1097,7 @@ Slim version of main obit
 CG_Obituary_Legs
 =============
 */
+/*
 static void CG_Obituary_Legs( entityState_t *ent ) {
 	int			mod;
 	int			target, attacker;
@@ -1279,7 +1289,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 }
 
 //==========================================================================
-
+*/
 /*
 ===============
 CG_UseItem
@@ -2469,48 +2479,49 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_OBITUARY:
 		DEBUGNAME("EV_OBITUARY");
-		CG_Obituary( es );
+// JBravo: not used
+//		CG_Obituary( es );
 		break;
 	//Elder: location events
 	case EV_OBITUARY_HEAD:
 		DEBUGNAME("EV_OBITUARY_HEAD");
 // JBravo: the following mod's dont have locations and are not handled in the location Orbits
-		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+/*		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
 		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
 			CG_Obituary( es );
 		} else {
 			CG_Obituary_Head( es );
-		}
+		} */
 		break;
 	case EV_OBITUARY_CHEST:
 		DEBUGNAME("EV_OBITUARY_CHEST");
 // JBravo: the following mod's dont have locations and are not handled in the location Orbits
-		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+/*		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
 		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
 			CG_Obituary( es );
 		} else {
 			CG_Obituary_Chest( es );
-		}
+		} */
 		break;
 	case EV_OBITUARY_STOMACH:
 		DEBUGNAME("EV_OBITUARY_STOMACH");
 // JBravo: the following mod's dont have locations and are not handled in the location Orbits
-		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+/*		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
 		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
 			CG_Obituary( es );
 		} else {
 			CG_Obituary_Stomach( es );
-		}
+		} */
 		break;
 	case EV_OBITUARY_LEGS:
 		DEBUGNAME("EV_OBITUARY_LEGS");
 // JBravo: the following mod's dont have locations and are not handled in the location Orbits
-		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
+/*		if (es->eventParm == MOD_HANDCANNON || es->eventParm == MOD_M3 ||
 		    es->eventParm == MOD_KICK || es->eventParm == MOD_GRENADE || es->eventParm == MOD_GRENADE_SPLASH) {
 			CG_Obituary( es );
 		} else {
 			CG_Obituary_Legs( es );
-		}
+		} */
 		break;
 	//
 	// powerup events

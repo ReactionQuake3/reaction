@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/05/09 20:58:30  jbravo
+// New Obit system and a warning cleanup in zcam
+//
 // Revision 1.54  2002/05/06 21:41:01  slicer
 // Added rq3_cmd
 //
@@ -228,6 +231,7 @@ vmCvar_t	g_RQ3_team2name;
 vmCvar_t	g_RQ3_team1model;
 vmCvar_t	g_RQ3_team2model;
 vmCvar_t	g_RQ3_tpcountdown;
+vmCvar_t	g_RQ3_printOwnObits;
 //vmCvar_t	g_RQ3_teamCount1;
 //vmCvar_t	g_RQ3_teamCount2;
 //vmCvar_t	g_RQ3_numSpectators;
@@ -377,6 +381,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_printOwnObits, "g_RQ3_printOwnObits", "0", CVAR_ARCHIVE, 0, qfalse },
 //	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
 //	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
 //	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },
