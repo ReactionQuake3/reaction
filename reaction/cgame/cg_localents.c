@@ -166,9 +166,9 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			int r = rand()&3;
 			sfxHandle_t	s;
 
-			if ( r < 2 ) {
+			if ( r == 0 ) {
 				s = cgs.media.gibBounce1Sound;
-			} else if ( r == 2 ) {
+			} else if ( r == 1 ) {
 				s = cgs.media.gibBounce2Sound;
 			} else {
 				s = cgs.media.gibBounce3Sound;
@@ -842,6 +842,7 @@ void CG_AddLocalEntities( void ) {
 		case LE_SCOREPLUM:
 			CG_AddScorePlum( le );
 			break;
+
 #ifdef MISSIONPACK
 		case LE_KAMIKAZE:
 			CG_AddKamikaze( le );

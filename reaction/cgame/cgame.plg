@@ -6,37 +6,14 @@
 --------------------Configuration: cgame - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP10F.tmp" with contents
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2EA.tmp" with contents
 [
 /nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR"Debug/" /Fp"Debug/cgame.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
-"c:\reaction\game\bg_misc.c"
-"c:\reaction\game\bg_pmove.c"
-"c:\reaction\game\bg_slidemove.c"
-"c:\reaction\cgame\cg_consolecmds.c"
-"c:\reaction\cgame\cg_draw.c"
-"c:\reaction\cgame\cg_drawtools.c"
-"c:\reaction\cgame\cg_effects.c"
-"c:\reaction\cgame\cg_ents.c"
-"c:\reaction\cgame\cg_event.c"
-"c:\reaction\cgame\cg_info.c"
-"c:\reaction\cgame\cg_localents.c"
-"c:\reaction\cgame\cg_main.c"
-"c:\reaction\cgame\cg_marks.c"
-"c:\reaction\cgame\cg_players.c"
-"c:\reaction\cgame\cg_playerstate.c"
-"c:\reaction\cgame\cg_predict.c"
-"c:\reaction\cgame\cg_scoreboard.c"
-"c:\reaction\cgame\cg_servercmds.c"
-"c:\reaction\cgame\cg_snapshot.c"
-"c:\reaction\cgame\cg_syscalls.c"
-"c:\reaction\cgame\cg_view.c"
 "c:\reaction\cgame\cg_weapons.c"
-"c:\reaction\game\q_math.c"
-"c:\reaction\game\q_shared.c"
 "c:\reaction\ui\ui_shared.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP10F.tmp" 
-Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP110.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2EA.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2EB.tmp" with contents
 [
 /nologo /base:"0x30000000" /subsystem:windows /dll /incremental:yes /pdb:"Debug/cgamex86.pdb" /map:"Debug/cgamex86.map" /debug /machine:I386 /def:".\cgame.def" /out:"../Debug/cgamex86.dll" /implib:"Debug/cgamex86.lib" 
 .\Debug\bg_misc.obj
@@ -65,51 +42,18 @@ Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP110.tmp" with con
 .\Debug\q_shared.obj
 .\Debug\ui_shared.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP110.tmp"
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP2EB.tmp"
 <h3>Output Window</h3>
 Compiling...
-bg_misc.c
-bg_pmove.c
-bg_slidemove.c
-cg_consolecmds.c
-cg_draw.c
-c:\reaction\cgame\cg_draw.c(506) : warning C4101: 'angles' : unreferenced local variable
-c:\reaction\cgame\cg_draw.c(507) : warning C4101: 'origin' : unreferenced local variable
-c:\reaction\cgame\cg_draw.c(500) : warning C4101: 'color' : unreferenced local variable
-cg_drawtools.c
-cg_effects.c
-cg_ents.c
-cg_event.c
-cg_info.c
-cg_localents.c
-cg_main.c
-cg_marks.c
-cg_players.c
-c:\reaction\cgame\cg_players.c(1056) : error C2198: 'CG_RunLerpFrame' : too few actual parameters
-c:\reaction\cgame\cg_players.c(1058) : error C2198: 'CG_RunLerpFrame' : too few actual parameters
-c:\reaction\cgame\cg_players.c(1065) : error C2198: 'CG_RunLerpFrame' : too few actual parameters
-c:\reaction\cgame\cg_players.c(1526) : error C2198: 'CG_RunLerpFrame' : too few actual parameters
-cg_playerstate.c
-c:\reaction\cgame\cg_playerstate.c(345) : warning C4101: 'sfx' : unreferenced local variable
-cg_predict.c
-cg_scoreboard.c
-cg_servercmds.c
-cg_snapshot.c
-cg_syscalls.c
-cg_view.c
 cg_weapons.c
-c:\reaction\cgame\cg_weapons.c(560) : warning C4013: 'CG_ParseWeaponAnimFile' undefined; assuming extern returning int
-c:\reaction\cgame\cg_weapons.c(957) : warning C4101: 'frac' : unreferenced local variable
-c:\reaction\cgame\cg_weapons.c(1907) : warning C4101: 'i' : unreferenced local variable
-q_math.c
-q_shared.c
 ui_shared.c
-Error executing cl.exe.
+Linking...
+   Creating library Debug/cgamex86.lib and object Debug/cgamex86.exp
 
 
 
 <h3>Results</h3>
-cgamex86.dll - 4 error(s), 7 warning(s)
+cgamex86.dll - 0 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

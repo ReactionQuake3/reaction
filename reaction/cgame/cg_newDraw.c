@@ -1,4 +1,7 @@
 
+#ifndef MISSIONPACK // bk001204
+#error This file not be used for classic Q3A.
+#endif
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
@@ -148,7 +151,7 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
-	if ( draw2D || !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) { // bk001206 - parentheses
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
   } else if (cg_draw3dIcons.integer) {
 	  VectorClear( angles );
@@ -185,12 +188,15 @@ static void CG_DrawPlayerArmorValue(rectDef_t *rect, float scale, vec4_t color, 
 	}
 }
 
+#ifndef MISSIONPACK // bk001206 
 static float healthColors[4][4] = { 
 //		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
-		{ 1, 0.69f, 0, 1.0f } ,		// normal
+  // bk0101016 - float const
+  { 1.0f, 0.69f, 0.0f, 1.0f } ,		// normal
 		{ 1.0f, 0.2f, 0.2f, 1.0f },		// low health
-		{0.5f, 0.5f, 0.5f, 1},			// weapon firing
-		{ 1, 1, 1, 1 } };			// health > 100
+  { 0.5f, 0.5f, 0.5f, 1.0f},		// weapon firing
+  { 1.0f, 1.0f, 1.0f, 1.0f } };		// health > 100
+#endif
 
 static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 	centity_t	*cent;
@@ -201,7 +207,7 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
-	if ( draw2D || !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
+	if ( draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer) ) { // bk001206 - parentheses
 	  qhandle_t	icon;
     icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
 		if ( icon ) {
@@ -783,6 +789,10 @@ static void CG_OneFlagStatus(rectDef_t *rect) {
 
 static void CG_DrawCTFPowerUp(rectDef_t *rect) {
 	int		value;
+
+	if (cgs.gametype < GT_CTF) {
+		return;
+	}
 	value = cg.snap->ps.stats[STAT_PERSISTANT_POWERUP];
 	if ( value ) {
 		CG_RegisterItemVisuals( value );
@@ -1047,7 +1057,7 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	}
 
 	if (flags & CG_SHOW_HEALTHOK) {
-		if (cg.snap->ps.stats[STAT_HEALTH] > 25) {
+		if (cg.snap->ps.stats[STAT_HEALTH] >= 25) {
 			return qtrue;
 		}
 	}
@@ -1183,6 +1193,8 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 	vec4_t newColor;
 	glyphInfo_t *glyph;
   if (text) {
+// TTimo: FIXME
+//    const unsigned char *s = text; // bk001206 - unsigned
 		const char *s = text;
 		float max = *maxX;
 		float useScale;
@@ -1200,7 +1212,7 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 		}
 		count = 0;
 		while (s && *s && count < len) {
-			glyph = &font->glyphs[*s];
+			glyph = &font->glyphs[(int)*s]; // TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -1803,17 +1815,17 @@ void CG_RunMenuScript(char **args) {
 
 void CG_GetTeamColor(vec4_t *color) {
   if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-    (*color)[0] = 1;
-    (*color)[3] = .25f;
-    (*color)[1] = (*color)[2] = 0;
+    (*color)[0] = 1.0f;
+    (*color)[3] = 0.25f;
+    (*color)[1] = (*color)[2] = 0.0f;
   } else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-    (*color)[0] = (*color)[1] = 0;
-    (*color)[2] = 1;
-    (*color)[3] = .25f;
+    (*color)[0] = (*color)[1] = 0.0f;
+    (*color)[2] = 1.0f;
+    (*color)[3] = 0.25f;
   } else {
-    (*color)[0] = (*color)[2] = 0;
-    (*color)[1] = .17f;
-    (*color)[3] = .25f;
+    (*color)[0] = (*color)[2] = 0.0f;
+    (*color)[1] = 0.17f;
+    (*color)[3] = 0.25f;
 	}
 }
 

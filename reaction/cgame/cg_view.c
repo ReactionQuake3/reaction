@@ -710,6 +710,10 @@ static void CG_DamageBlendBlob( void ) {
 		return;
 	}
 
+	//if (cg.cameraMode) {
+	//	return;
+	//}
+
 	// ragePro systems can't fade blends, so don't obscure the screen
 	if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
 		return;
@@ -720,6 +724,7 @@ static void CG_DamageBlendBlob( void ) {
 	if ( t <= 0 || t >= maxTime ) {
 		return;
 	}
+
 
 	memset( &ent, 0, sizeof( ent ) );
 	ent.reType = RT_SPRITE;
@@ -759,7 +764,20 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
-
+/*
+	if (cg.cameraMode) {
+		vec3_t origin, angles;
+		if (trap_getCameraInfo(cg.time, &origin, &angles)) {
+			VectorCopy(origin, cg.refdef.vieworg);
+			angles[ROLL] = 0;
+			VectorCopy(angles, cg.refdefViewAngles);
+			AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
+			return CG_CalcFov();
+		} else {
+			cg.cameraMode = qfalse;
+		}
+	}
+*/
 	// intermission view
 	if ( ps->pm_type == PM_INTERMISSION ) {
 		VectorCopy( ps->origin, cg.refdef.vieworg );
@@ -938,6 +956,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
+		CG_AddParticles ();
 		CG_AddLocalEntities();
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );

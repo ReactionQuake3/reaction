@@ -171,6 +171,8 @@ typedef struct centity_s {
 	int				dustTrailTime;
 	int				miscTime;
 
+	int				snapShotTime;	// last time this entity was found in a snapshot
+
 	playerEntity_t	pe;
 
 	int				errorTime;		// decay the error from this time
@@ -308,7 +310,8 @@ typedef struct {
 
 	int				botSkill;		// 0 = not bot, 1-5 = bot
 
-	vec3_t			color;
+	vec3_t			color1;
+	vec3_t			color2;
 
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
@@ -342,6 +345,8 @@ typedef struct {
 	qboolean		deferred;
 
 	qboolean		newAnims;		// true if using the new mission pack animations
+	qboolean		fixedlegs;		// true if legs yaw is always the same as torso yaw
+	qboolean		fixedtorso;		// true if torso never changes yaw
 
 	vec3_t			headOffset;		// move head in icon views
 	footstep_t		footsteps;
@@ -589,6 +594,11 @@ typedef struct {
 	int			soundTime;
 	qhandle_t	soundBuffer[MAX_SOUNDBUFFER];
 
+	// for voice chat buffer
+	int			voiceChatTime;
+	int			voiceChatBufferIn;
+	int			voiceChatBufferOut;
+
 	// warmup countdown
 	int			warmup;
 	int			warmupCount;
@@ -635,6 +645,9 @@ typedef struct {
 	float		xyspeed;
 	int     nextOrbitTime;
 
+	//qboolean cameraMode;		// if rendering from a loaded camera
+
+
 	// development tool
 	refEntity_t		testModelEntity;
 	char			testModelName[MAX_QPATH];
@@ -673,7 +686,7 @@ typedef struct {
 	qhandle_t	redFlagShader[3];
 	qhandle_t	blueFlagShader[3];
 	qhandle_t	flagShader[4];
-#ifdef NEW_ANIMS
+
 	qhandle_t	flagPoleModel;
 	qhandle_t	flagFlapModel;
 
@@ -685,6 +698,7 @@ typedef struct {
 	qhandle_t	blueFlagBaseModel;
 	qhandle_t	neutralFlagBaseModel;
 
+#ifdef MISSIONPACK
 	qhandle_t	overloadBaseModel;
 	qhandle_t	overloadTargetModel;
 	qhandle_t	overloadLightsModel;
@@ -855,6 +869,7 @@ typedef struct {
 	qhandle_t	dustPuffShader;
 	qhandle_t	heartShader;
 #endif
+	qhandle_t	invulnerabilityPowerupModel;
 
 	// scoreboard headers
 	qhandle_t	scoreboardName;
@@ -1246,6 +1261,11 @@ extern	vmCvar_t		cg_cameraMode;
 extern  vmCvar_t		cg_smallFont;
 extern  vmCvar_t		cg_bigFont;
 extern	vmCvar_t		cg_noTaunt;
+extern	vmCvar_t		cg_noProjectileTrail;
+extern	vmCvar_t		cg_oldRail;
+extern	vmCvar_t		cg_oldRocket;
+extern	vmCvar_t		cg_oldPlasma;
+extern	vmCvar_t		cg_trueLightning;
 #ifdef MISSIONPACK
 extern	vmCvar_t		cg_redTeamName;
 extern	vmCvar_t		cg_blueTeamName;
@@ -1388,7 +1408,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 //
 void CG_BuildSolidList( void );
 int	CG_PointContents( const vec3_t point, int passEntityNum );
-void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void CG_Trace( trace_t *result, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, 
 					 int skipNumber, int mask );
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
@@ -1618,7 +1638,7 @@ clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );
 int			trap_CM_PointContents( const vec3_t p, clipHandle_t model );
 int			trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
 void		trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-					  const vec3_t mins, const vec3_t maxs,
+					  vec3_t mins, vec3_t maxs,
 					  clipHandle_t model, int brushmask );
 void		trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 					  const vec3_t mins, const vec3_t maxs,
@@ -1668,6 +1688,7 @@ void		trap_R_AddRefEntityToScene( const refEntity_t *re );
 // polys are intended for simple wall marks, not really for doing
 // significant construction
 void		trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts );
+void		trap_R_AddPolysToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int numPolys );
 void		trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 int			trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 void		trap_R_RenderScene( const refdef_t *fd );
@@ -1730,7 +1751,7 @@ typedef enum {
   SYSTEM_PRINT,
   CHAT_PRINT,
   TEAMCHAT_PRINT
-};
+} q3print_t; // bk001201 - warning: useless keyword or type name in empty declaration
 
 
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
@@ -1740,4 +1761,25 @@ void trap_CIN_DrawCinematic (int handle);
 void trap_CIN_SetExtents (int handle, int x, int y, int w, int h);
 
 void trap_SnapVector( float *v );
+
+qboolean	trap_loadCamera(const char *name);
+void		trap_startCamera(int time);
+qboolean	trap_getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+
+qboolean	trap_GetEntityToken( char *buffer, int bufferSize );
+
+void	CG_ClearParticles (void);
+void	CG_AddParticles (void);
+void	CG_ParticleSnow (qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
+void	CG_ParticleSmoke (qhandle_t pshader, centity_t *cent);
+void	CG_AddParticleShrapnel (localEntity_t *le);
+void	CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent);
+void	CG_ParticleBulletDebris (vec3_t	org, vec3_t vel, int duration);
+void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
+void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
+void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
+extern qboolean		initparticles;
+int CG_NewParticleArea ( int num );
+
 
