@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/06/11 01:43:08  blaze
+// g_rq3_cvarfile allows you to change which file holds the restricted cvars
+//
 // Revision 1.86  2002/06/07 19:07:08  slicer
 // removed cvars for teamXready, replaced by level.teamXready
 //
@@ -1193,20 +1196,20 @@ int G_SendCheatVars(int clientNum)
 	char *token;
 	char text[20000];
 	fileHandle_t f;
-	char *filename = "cvar.cfg";
+
 	char cheatVar[40], cl_cheatvar[128];
 	float lowval, highval;
 
 	//NiceAss: Added so /devmap will not have the client check cvars. Lie to the server that it loaded fine =)
 	if (g_cheats.integer) return qtrue;
-
+  
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = trap_FS_FOpenFile( g_RQ3_cvarfile.string, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		G_Printf( "File %s too long\n", filename );
+		G_Printf( "File %s too long\n", g_RQ3_cvarfile.string);
 		return qfalse;
 	}
 

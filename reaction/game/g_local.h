@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/06/11 01:43:08  blaze
+// g_rq3_cvarfile allows you to change which file holds the restricted cvars
+//
 // Revision 1.90  2002/06/09 23:18:49  assimon
 // Add coments to the init parser. Added Message before intermition telling next map. New cvar: g_RQ3_NextMap
 //
@@ -1198,6 +1201,7 @@ extern	vmCvar_t	g_RQ3_maxWeapons;
 extern	vmCvar_t	g_RQ3_statLog;
 extern	vmCvar_t	g_RQ3_ejectBlood;
 extern	vmCvar_t	g_RQ3_respawnProtectTime;
+extern  vmCvar_t  g_RQ3_cvarfile;
 //Elder: spam protection cvars
 extern	vmCvar_t	g_RQ3_messageMaxCount;		// Max messages in interval
 extern	vmCvar_t	g_RQ3_messageInterval;		// Time interval for spam check

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/06/11 01:43:08  blaze
+// g_rq3_cvarfile allows you to change which file holds the restricted cvars
+//
 // Revision 1.71  2002/06/10 23:53:32  assimon
 // Fixed buffer overflow. (commented the printing of the ini file contents)
 //
@@ -320,7 +323,8 @@ vmCvar_t	g_proxMineTimeout;
 vmCvar_t	g_enableBreath;
 // JBravo: ditto
 vmCvar_t	g_enableDust;
-
+//Blaze let cvar.cfg be set by server admins
+vmCvar_t  g_RQ3_cvarfile;
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
@@ -448,6 +452,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
+  //Blaze: let cvar.cfg be set by the server admins
+  { &g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
 	//{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", 0, 0, qfalse},
 	//{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
