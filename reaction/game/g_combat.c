@@ -513,6 +513,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//Blaze: Stop bleeding when dead
     if ( self->client )
     {
+		//Elder: drop the primed grenade
+		if (self->client->ps.weapon == WP_GRENADE &&
+			self->client->ps.weaponstate == WEAPON_COCKED) {
+			FireWeapon(self);
+		}
     	// Hawkins put spread back and zoom out
 		
 		//Elder: this wouldn't happen if you copy and paste carefully

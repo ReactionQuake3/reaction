@@ -2038,6 +2038,11 @@ void Cmd_OpenDoor(gentity_t *ent)
 {
 	//Use_BinaryMover( ent->parent, ent, other );
 	gentity_t *door = NULL;
+
+	//Don't open doors if intermission or dead
+	if (level.intermissiontime || ent->client->ps.stats[STAT_HEALTH] <= 0)
+		return;
+
 	while ((door = findradius(door,ent->r.currentOrigin,100)) != NULL)
 	{
 		if (Q_stricmp (door->classname, "func_door_rotating") == 0) {
@@ -2116,8 +2121,8 @@ void Cmd_Weapon(gentity_t *ent)
 
 		//Elder: don't print - will broadcast to server
 		//G_Printf("zoomlevel = %d\n",ent->client->zoomed);
-
 		//G_AddEvent(ent,EV_ZOOM,ent->client->zoomed);
+
 		break;
 	case WP_PISTOL:
 		// semiauto toggle (increase accuracy)
@@ -2220,7 +2225,6 @@ void Cmd_Weapon(gentity_t *ent)
 		break;
 	}
 
-
 }
 
 
@@ -2230,7 +2234,7 @@ void Cmd_Unzoom(gentity_t *ent){
 	//Elder: added
     //if (ent->client->isBandaging == qtrue) {
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+		//trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
 		return;
 	}
 	else {

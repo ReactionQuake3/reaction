@@ -91,7 +91,7 @@ static void CG_Bandage_f (void) {
 
 	//Elder: added to prevent bandaging while reloading or firing
 	//Moved below "already-bandaging" case and removed message
-	if ( cg.snap->ps.weaponTime > 0 ) {
+	if ( cg.snap->ps.weaponTime > 0 || cg.snap->ps.weaponstate == WEAPON_COCKED) {
 		//CG_Printf("You are too busy with your weapon!\n");
 		return;
 	}
@@ -560,6 +560,7 @@ static consoleCommand_t	commands[] = {
 	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
 	{ "reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
+	{ "specialweapon", CG_SpecialWeapon_f },	// Elder: select special weapon
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
@@ -674,4 +675,5 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("dropweapon");
 	//Elder: try this
 	trap_AddCommand ("weapon");
+	trap_AddCommand ("specialweapon");
 }

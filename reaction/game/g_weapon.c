@@ -1018,7 +1018,7 @@ void Weapon_MK23_Fire(gentity_t *ent)
 SSG3000 Attack
 ============
 */
-void Weapon_SSG3000_Fire(gentity_t *ent)
+void Weapon_SSG3000_FireOld(gentity_t *ent)
 {
 	float spread;
 	//Elder: Don't print - will broadcast to server
@@ -1039,6 +1039,141 @@ void Weapon_SSG3000_Fire(gentity_t *ent)
 	ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
 	RQ3_SaveZoomLevel(ent);
 }
+
+/*
+=================
+Elder:
+This is based on the railgun code
+
+weapon_ssg3000_fire
+=================
+*/
+#define	MAX_SSG3000_HITS	5
+void Weapon_SSG3000_Fire (gentity_t *ent) {
+	vec3_t		end;
+	trace_t		trace;
+	gentity_t	*tent;
+	gentity_t	*traceEnt;
+	int			damage;
+	int			i;
+	int			hits;
+	int			unlinked;
+	int			passent;
+	qboolean	hitBreakable;
+	gentity_t	*unlinkedEntities[MAX_SSG3000_HITS];
+
+	//damage = 100 * s_quadFactor;
+	damage = SNIPER_DAMAGE;
+
+	VectorMA (muzzle, 8192, forward, end);
+
+	// trace only against the solids, so the SSG3000 will go through people
+	unlinked = 0;
+	hits = 0;
+	passent = ent->s.number;
+	G_Printf("NewSSG3000: Start\n");
+	do {
+		//Elder: need to store this flag because
+		//the entity may get wiped out in G_Damage
+		hitBreakable = qfalse;
+
+		trap_Trace (&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT );
+		if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL ) {
+			break;
+		}
+		traceEnt = &g_entities[ trace.entityNum ];
+		if ( traceEnt->takedamage ) {
+
+			//flag hitBreakable - bullets go through even
+			//if it doesn't "shatter" - but that's usually
+			//not the case
+			if ( traceEnt->s.eType == ET_BREAKABLE ) {
+				hitBreakable = qtrue;
+			}
+
+			if( LogAccuracyHit( traceEnt, ent ) ) {
+				hits++;
+			}
+			G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_SNIPER);
+		}
+		//Elder: go through non-solids and breakables
+		//If we ever wanted to "shoot through walls" we'd do stuff here
+		if ( hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID)) {
+			break;		// we hit something solid enough to stop the beam
+		}
+
+		// unlink this entity, so the next trace will go past it
+		trap_UnlinkEntity( traceEnt );
+		unlinkedEntities[unlinked] = traceEnt;
+		unlinked++;
+	} while ( unlinked < MAX_SSG3000_HITS );
+
+	// link back in any entities we unlinked
+	for ( i = 0 ; i < unlinked ; i++ ) {
+		trap_LinkEntity( unlinkedEntities[i] );
+	}
+
+	// the final trace endpos will be the terminal point of the rail trail
+
+	// snap the endpos to integers to save net bandwidth, but nudged towards the line
+	SnapVectorTowards( trace.endpos, muzzle );
+
+	// send bullet impact
+	if ( traceEnt->takedamage && traceEnt->client ) {
+		//Elder: should probably change to something more spectacular
+		tent = G_TempEntity( trace.endpos, EV_BULLET_HIT_FLESH );
+		tent->s.eventParm = traceEnt->s.number;
+		if( LogAccuracyHit( traceEnt, ent ) ) {
+				ent->client->accuracy_hits++;
+		}
+	} else {
+		tent = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+		tent->s.eventParm = DirToByte( trace.plane.normal );
+	}
+	tent->s.otherEntityNum = ent->s.number;
+
+
+	// send railgun beam effect
+	//tent = G_TempEntity( trace.endpos, EV_RAILTRAIL );
+
+	// set player number for custom colors on the railtrail
+	//tent->s.clientNum = ent->s.clientNum;
+
+	//VectorCopy( muzzle, tent->s.origin2 );
+	// move origin a bit to come closer to the drawn gun muzzle
+	//VectorMA( tent->s.origin2, 4, right, tent->s.origin2 );
+	//VectorMA( tent->s.origin2, -1, up, tent->s.origin2 );
+
+	// no explosion at end if SURF_NOIMPACT, but still make the trail
+	//if ( trace.surfaceFlags & SURF_NOIMPACT ) {
+		//tent->s.eventParm = 255;	// don't make the explosion at the end
+	//} else {
+		//tent->s.eventParm = DirToByte( trace.plane.normal );
+	//}
+	//tent->s.clientNum = ent->s.clientNum;
+
+	// give the shooter a reward sound if they have made two railgun hits in a row
+	if ( hits == 0 ) {
+		// complete miss
+		ent->client->accurateCount = 0;
+	} else {
+		// check for "impressive" reward sound
+		ent->client->accurateCount += hits;
+		if ( ent->client->accurateCount >= 3 ) {
+			ent->client->accurateCount -= 3;
+
+			//Blaze: Removed because it uses the persistant stats stuff
+			//ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+			// add the sprite over the player's head
+			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
+			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
+		}
+		ent->client->accuracy_hits++;
+	}
+
+}
+
 
 /*
 ============

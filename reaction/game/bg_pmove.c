@@ -1598,6 +1598,7 @@ static void PM_Footsteps( void ) {
 	// if we just crossed a cycle boundary, play an apropriate footstep event
 	if ( ( ( old + 64 ) ^ ( pm->ps->bobCycle + 64 ) ) & 128 ) {
 		if ( pm->waterlevel == 0 ) {
+			//Elder: we can check for slippers here!
 			// on ground will only play sounds if running
 			if ( footstep && !pm->noFootsteps ) {
 				PM_AddEvent( PM_FootstepForSurface() );
@@ -1855,6 +1856,14 @@ static void PM_Weapon( void ) {
 	// again if lowering or raising
 	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
+			//Elder TODO: if switching weapons, fire off the grenade "instantly"
+			if ( pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
+				pm->ps->weaponstate = WEAPON_FIRING;
+				pm->cmd.buttons &= ~BUTTON_ATTACK;
+				PM_AddEvent( EV_FIRE_WEAPON );
+				pm->ps->ammo[WP_GRENADE]--;
+			}
+
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}
 	}
@@ -1879,7 +1888,37 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	// Elder: fire on release - based on code from inolen
 	// check for fire
+	// if they are pressing attack and their current weapon is the railgun
+	if ((pm->cmd.buttons & 1) && (pm->ps->weapon == WP_GRENADE) ) {
+		pm->ps->weaponTime = 0;
+		// put it in the "cocked" position
+		pm->ps->weaponstate = WEAPON_COCKED;
+		return;
+	}
+
+	// check for fire release
+	// if they aren't pressing attack
+	if (!(pm->cmd.buttons & 1)) {
+		// if we had them cocked and then they aren't pressing it then
+		// that means they released it
+		if (pm->ps->weaponstate == WEAPON_COCKED) {
+			// set to be able to fire
+			pm->ps->weaponstate = WEAPON_READY;
+		}
+		else
+		{
+			// else if they arn't pressing attack, then they just are running around
+			pm->ps->weaponTime = 0;
+			pm->ps->weaponstate = WEAPON_READY;
+			
+			pm->ps->stats[STAT_BURST] = 0;
+			return;
+		}
+	}
+
+	/*
 	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
@@ -1893,7 +1932,7 @@ static void PM_Weapon( void ) {
 			//pm->ps->stats[STAT_BURST] = 0;
 		//}
 		return;
-	}
+	}*/
 
 	//Elder: custom fire animations go here
 	// start the animation even if out of ammo

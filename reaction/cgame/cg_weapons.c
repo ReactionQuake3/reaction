@@ -1563,10 +1563,15 @@ CG_WeaponSelectable
 ===============
 */
 static qboolean CG_WeaponSelectable( int i ) {
-	//Blaze: Check the amount of clips too for the weapon rotate code
-	if ( !cg.snap->ps.ammo[i] && !cg.snap->ps.stats[STAT_CLIPS] ) {
+	//Elder: never switch to empty grenades/knives
+	if ( !cg.snap->ps.ammo[i] && (i == WP_GRENADE || i == WP_KNIFE) ) {
 		return qfalse;
 	}
+	//Blaze: Check the amount of clips too for the weapon rotate code
+	//Elder: this won't work plus AQ2 lets you select empty weapons
+	//if ( !cg.snap->ps.ammo[i] && !cg.snap->ps.stats[STAT_CLIPS] ) {
+		//return qfalse;
+	//}
 	if ( ! (cg.snap->ps.stats[ STAT_WEAPONS ] & ( 1 << i ) ) ) {
 		return qfalse;
 	}
@@ -1590,6 +1595,11 @@ void CG_NextWeapon_f( void ) {
 		return;
 	}
 
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
 	//Elder: added
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are too busy bandaging...\n");
@@ -1597,7 +1607,9 @@ void CG_NextWeapon_f( void ) {
 	}
 
 	//Elder: in the middle of firing, reloading or weapon-switching
-	if (cg.snap->ps.weaponTime > 0) {
+	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
+	//if (cg.snap->ps.weaponTime > 0) {
 		return;
 	}
 
@@ -1624,6 +1636,9 @@ void CG_NextWeapon_f( void ) {
 	if ( i == 16 ) {
 		cg.weaponSelect = original;
 	}
+	else {
+		trap_SendClientCommand("unzoom");
+	}
 }
 
 /*
@@ -1642,6 +1657,11 @@ void CG_PrevWeapon_f( void ) {
 		return;
 	}
 
+// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
 	//Elder: added
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		CG_Printf("You are too busy bandaging...\n");
@@ -1649,7 +1669,8 @@ void CG_PrevWeapon_f( void ) {
 	}
 
 	//Elder: in the middle of firing, reloading or weapon-switching
-	if (cg.snap->ps.weaponTime > 0) {
+	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
 		return;
 	}
 
@@ -1676,7 +1697,76 @@ void CG_PrevWeapon_f( void ) {
 	if ( i == 16 ) {
 		cg.weaponSelect = original;
 	}
+	else {
+		trap_SendClientCommand("unzoom");
+	}
 }
+
+
+/*
+===============
+Added by Elder
+  
+CG_SpecialWeapon_f
+===============
+*/
+void CG_SpecialWeapon_f( void ) {
+	int		i;
+	int		original;
+
+	if ( !cg.snap ) {
+		return;
+	}
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		return;
+	}
+
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
+	//Elder: added
+	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		CG_Printf("You are too busy bandaging...\n");
+		return;
+	}
+
+	//Elder: in the middle of firing, reloading or weapon-switching
+	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
+		return;
+	}
+
+	cg.weaponSelectTime = cg.time;
+	original = cg.weaponSelect;
+
+	for ( i = 0 ; i < 16 ; i++ ) {
+		cg.weaponSelect++;
+		if ( cg.weaponSelect == 16 ) {
+			cg.weaponSelect = 0;
+		}
+
+		//Skip normal weapons
+		switch (cg.weaponSelect) {
+		case WP_PISTOL:
+		case WP_KNIFE:
+		case WP_GRENADE:
+			continue;
+		}
+
+		if ( CG_WeaponSelectable( cg.weaponSelect ) ) {
+			break;
+		}
+	}
+	if ( i == 16 ) {
+		cg.weaponSelect = original;
+	}
+	else {
+		trap_SendClientCommand("unzoom");
+	}
+}
+
 
 //Elder: for returning to the zoom state in ps stats
 void CG_RQ3_QuickZoom ( void ) {

@@ -59,6 +59,12 @@
 #define RQ3_DEBRIS_CONCRETE	0x00000400
 //#define RQ3_DEBRIS_POPCAN	0x00000800
 
+//Elder: debris variations
+#define RQ3_DEBRIS_VAR0		0x00001000
+#define RQ3_DEBRIS_VAR1		0x00002000
+#define RQ3_DEBRIS_VAR2		0x00004000
+#define RQ3_DEBRIS_VAR3		0x00008000
+
 //Elder: to stop some of the hardcoding
 //This is some ammo amounts per clip/item pick up
 #define RQ3_SSG3000_CLIP		6
@@ -326,7 +332,8 @@ typedef enum {
 } pmtype_t;
 
 typedef enum {
-	WEAPON_READY, 
+	WEAPON_READY,
+	WEAPON_COCKED,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
 	WEAPON_FIRING//,

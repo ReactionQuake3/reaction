@@ -394,10 +394,21 @@ void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
     VectorScale(size, 0.5, size);
     VectorAdd(ent->r.mins, size, center);
  	
+	//Elder:
+	//eventParm can only hold a byte (8-bits/255)
+	//So if we receive a huge one, we can knock it down (and-op)
+	//and count the number of times
+	//Once it's below 255, we can send a more appropriate event
+	//This way, the mappers can use a single func_breakable
+	//while we process it on the server-side.
+	//Besides, any bit-op is fast.
+	//Places to stuff: eventParm, generic1
+
  	// If the glass has no more life, BREAK IT
  	if( ent->health <= 0 ) {
  		//Elder: using event param to specify debris type
 		eParm = ent->s.eventParm;
+		
 		G_Printf("eParm: %d\n", eParm);
 		//Elder: free it after the eventParm assignment
  		G_FreeEntity( ent );
