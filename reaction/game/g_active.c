@@ -128,6 +128,8 @@ void P_DamageFeedback( gentity_t *player ) {
 		//Elder: headshot sound
         case LOCATION_HEAD:
         case LOCATION_FACE:
+			if (client->lasthurt_mod == MOD_KNIFE || client->lasthurt_mod == MOD_KNIFE_THROWN)
+				G_AddEvent( player, EV_RQ3_SOUND, RQ3_SOUND_KNIFEDEATH);
 			//Elder: do nothing -- sound is handled in g_combat.c again
 			//tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
 			//Elder: takes more bandwidth but guarantees a headshot sound
@@ -137,15 +139,7 @@ void P_DamageFeedback( gentity_t *player ) {
 		/*
 		case LOCATION_CHEST:
 		case LOCATION_SHOULDER:
-			//Play metal impact if vest was hit
-			
-			if (client->damage_vest == qtrue)
-			{
-				tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
-				client->damage_vest = qfalse;
-			}
-			else
-				G_AddEvent( player, EV_PAIN, player->health );
+			G_AddEvent( player, EV_PAIN, player->health );
 			break;
 		*/
 		default:
@@ -853,10 +847,11 @@ void BotTestSolid(vec3_t origin);
 ThrowWeapon
 
 XRAY FMJ
+Returns the number of the weapon thrown
 =============
 */
 
-void ThrowWeapon( gentity_t *ent )
+int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 {
 	gclient_t	*client;
 	usercmd_t	*ucmd;
@@ -875,15 +870,16 @@ void ThrowWeapon( gentity_t *ent )
 	//Elder: TODO: have to add a reloading case:
 	//weaponTime > 0 or weaponState == weapon_dropping?  Or both?
 	//Still firing
-	if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0) {
-		return;
-	}
-	//Elder: Bandaging case
+	if (!forceThrow)
+		if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0)
+			return 0;
+
+	//Elder: Bandaging case -- handled in cgame
 	//else if (client->isBandaging) {
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
-		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
-		return;
-	}
+	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		//trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		//return;
+	//}
 
 		
 	weap = 0;
@@ -900,7 +896,9 @@ void ThrowWeapon( gentity_t *ent )
 			weap = WP_HANDCANNON;
 		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000))
 			weap = WP_SSG3000;
-		if (weap == 0 ) return;
+		if (weap == 0 )
+			return 0;
+
 		xr_item = BG_FindItemForWeapon( weap );
 	
 		//Elder: Send a server command instead of force-setting
@@ -915,6 +913,8 @@ void ThrowWeapon( gentity_t *ent )
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
 		client->uniqueWeapons--;
 	}
+
+	return weap;
 }
 
 /*
@@ -1123,9 +1123,11 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
 	}
 
+	//**************Elder: moved to bg_pmove.c (PM_Weapon)************//
 	//Elder: New 3rb Code
 	//force fire button down if STAT_BURST is < proper amount
 	//Otherwise release the button 
+	/*
 	if ( (client->ps.weapon == WP_M4 &&
 		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
 		 (client->ps.weapon == WP_MP5 &&
@@ -1172,6 +1174,7 @@ void ClientThink_real( gentity_t *ent ) {
 			client->ps.stats[STAT_BURST] = 0;
 		}
 	}
+	*/
 
 #ifdef MISSIONPACK
 	// check for invulnerability expansion before doing the Pmove
@@ -1635,6 +1638,14 @@ void ClientEndFrame( gentity_t *ent ) {
 		//Restore view after shots if not firing
 		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7);
 		ent->client->consecutiveShots = 0;
+	}
+
+	// Check to reset our openDoor boolean
+	if ( ent->client->openDoorTime &&
+		 level.time - ent->client->openDoorTime > MAXDOORTIME )
+	{
+		ent->client->openDoor = qfalse;
+		ent->client->openDoorTime = 0;
 	}
 
 	if ( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER )

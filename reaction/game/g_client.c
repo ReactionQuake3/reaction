@@ -1253,6 +1253,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	//Blaze: Set the opendoor flag to 0
 	client->openDoor = qfalse;
+	client->openDoorTime = 0;
 
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;

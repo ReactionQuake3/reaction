@@ -867,6 +867,29 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
+	
+	int			validation;
+
+	// Elder: validate the client
+	validation = RQ3_ValidateSay( ent );
+
+	if (validation != SAY_OK)
+	{
+		// Only send one message for the initial offense
+		if (ent->client->pers.sayMuteTime == level.time)
+		{
+			if (validation == SAY_WARNING)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^3WARNING ^7(%i seconds).\n\"", SAY_WARNING_TIME));
+			}
+			else if (validation == SAY_BAN)
+			{
+				trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^1BAN ^7(%i seconds).\n\"", SAY_BAN_TIME));
+			}
+		}
+
+		return;
+	}
 
 	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
 		mode = SAY_ALL;
@@ -2082,10 +2105,11 @@ void Cmd_OpenDoor(gentity_t *ent)
 	{
 		if (Q_stricmp (door->classname, "func_door_rotating") == 0) {
 			ent->client->openDoor = qtrue;
-			//ent->client->ps.stats[STAT_OPENDOOR] = 1;
+			ent->client->openDoorTime = level.time;
 		}
 		else if (Q_stricmp (door->classname, "func_door") == 0) {
 			ent->client->openDoor = qtrue;
+			ent->client->openDoorTime = level.time;
 		}
 	}
 }
@@ -2288,18 +2312,19 @@ Cmd_DropWeapon_f XRAY FMJ
 */
 void Cmd_DropWeapon_f( gentity_t *ent ) {
 
-	//Elder: added
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
-	{
-		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
-		return;
-	}
-	else
-	{
+	//Elder: added -- checked in cgame
+	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	//{
+		//trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
+		//return;
+	//}
+	//else
+	//{
 		//Elder: remove zoom bits
 		Cmd_Unzoom(ent);
-		ThrowWeapon( ent );
-	}
+		//Throwing away return here
+		ThrowWeapon( ent, qfalse );
+	//}
 }
 
 /*
@@ -2347,7 +2372,7 @@ PlayerStats
 */
 void Cmd_PlayerStats_f( gentity_t *ent )
 {
-	char textbuf[1024];
+	//char textbuf[1024];
 	
 
 	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
@@ -2505,4 +2530,71 @@ void ClientCommand( int clientNum ) {
 	}
 	else
 		trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
+}
+
+
+/*
+===============
+RQ3_ValidateSay
+
+Added by Elder
+Ensure that the client is not spamming because we need
+sv_floodProtect off for fast reloads and what-not.
+It's not perfect (ideally we'd cut them off in cgame
+but messagemodes by-pass it), but at least it prevents
+spam from reaching other clients.
+===============
+*/
+
+int RQ3_ValidateSay ( gentity_t *ent )
+{
+	int timeCheck;
+
+	if (ent->client->pers.sayWarnings)
+		timeCheck = SAY_WARNING_TIME * 1000;
+	else
+		timeCheck = SAY_BAN_TIME * 1000;
+
+	// check if already warned/banned
+	if (ent->client->pers.sayMuteTime &&
+		level.time - ent->client->pers.sayMuteTime < timeCheck)
+	{
+		if (ent->client->pers.sayWarnings)
+			return SAY_WARNING;
+		else
+			return SAY_BAN;
+	}
+
+	// check if a flooder
+	if (ent->client->pers.sayCount >= SAY_MAX_NUMBER &&
+		level.time - ent->client->pers.sayTime < SAY_PERIOD_TIME * 1000)
+	{
+		ent->client->pers.sayMuteTime = level.time;
+		
+		// determine penalty level
+		if (ent->client->pers.sayWarnings >= SAY_MAX_WARNINGS)
+		{
+			// bans never reset, but warnings do
+			ent->client->pers.sayBans++;
+			ent->client->pers.sayWarnings = 0;
+			return SAY_BAN;
+		}
+		else
+		{
+			ent->client->pers.sayWarnings++;
+			return SAY_WARNING;
+		}
+	}
+	
+	// regular say check
+	if (level.time - ent->client->pers.sayTime > SAY_PERIOD_TIME * 1000)
+	{
+		ent->client->pers.sayCount = 0;
+		ent->client->pers.sayTime = level.time;
+		ent->client->pers.sayMuteTime = 0;
+	}
+
+	ent->client->pers.sayCount++;
+		
+	return SAY_OK;
 }

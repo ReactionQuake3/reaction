@@ -1345,6 +1345,7 @@ char *eventnames[] = {
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
 	"EV_SSG3000_HIT_FLESH",		//Elder: SSG3000 blood spray
+	"EV_JUMPKICK",				//Elder: sound + jumpkick message
 
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",

@@ -160,6 +160,7 @@
 typedef enum {
 	RQ3_SOUND_KICK,
 	RQ3_SOUND_HEADSHOT,
+	RQ3_SOUND_KNIFEHIT,
 	RQ3_SOUND_KNIFEDEATH,
 	RQ3_SOUND_LCA,					//lights, camera, action!
 	RQ3_SOUND_KEVLARHIT,
@@ -710,6 +711,7 @@ typedef enum {
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
 	EV_SSG3000_HIT_FLESH,
+	EV_JUMPKICK,			// Elder: sound + jumpkick message
 
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,

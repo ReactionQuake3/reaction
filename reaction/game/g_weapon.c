@@ -35,7 +35,7 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 /*
 ======================================================================
 
-RQ3 Jump Kick
+RQ3_JumpKick
 Moved from g_active.c to g_weapon.c
 Because it is a weapon!
 
@@ -54,18 +54,19 @@ qboolean JumpKick( gentity_t *ent )
 	
 	// set aiming directions
 	AngleVectors (ent->client->ps.viewangles, forward, right, up);
-
 	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+	// Elder: AQ2 offset
+	muzzle[2] -= (ent->client->ps.viewheight - 20);
+	VectorMA (muzzle, 25, forward, end);
+	//VectorMA (muzzle, 32, forward, end);
 	
-	VectorMA (muzzle, 32, forward, end);
-
 	//VectorCopy( ent->s.origin, muzzle );
 	//muzzle[2] += 32;
 	// the muzzle really isn't the right point to test the jumpkick from
 	
 	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-	//trap_Trace (&tr, ent->s.origin, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_SHOT);
 	//trap_Trace (&tr, ent->s.origin, NULL, NULL, end, ent->s.number, MASK_SHOT);
+
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return qfalse;
 	}
@@ -99,26 +100,41 @@ qboolean JumpKick( gentity_t *ent )
 			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
 	}
 
-	// send blood impact
+	// send blood impact + event stuff
+	/*
 	if ( traceEnt->takedamage && traceEnt->client ) {
-		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+		//tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+		tent = G_TempEntity( tr.endpos, EV_JUMPKICK );
 		tent->s.otherEntityNum = traceEnt->s.number;
 		tent->s.eventParm = DirToByte( tr.plane.normal );
 		tent->s.weapon = ent->s.weapon;
 	}
+	*/
 
-	if (traceEnt->client && traceEnt->client->uniqueWeapons > 0)
+	if (traceEnt->client && traceEnt->takedamage)
 	{
-		//Elder: toss a unique weapon if kicked
-		//Todo: Need to make sure to cancel any reload attempts
-		//Todo: need to send a message to attacker and target about weapon kick
-		Cmd_Unzoom(traceEnt);
-		ThrowWeapon(traceEnt);
-		//trap_SendServerCommand( ent-g_entities, va("print \"You kicked %s's %s from his hands!\n\"", traceEnt->client->pers.netname, (traceEnt->client->ps.weapon)->pickup_name);
-		//trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-				       
-	}
+		tent = G_TempEntity( tr.endpos, EV_JUMPKICK );
+		tent->s.otherEntityNum = traceEnt->s.number;
+		tent->s.otherEntityNum2 = ent->s.number;
+		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.weapon = 0;
 
+		if (traceEnt->client->uniqueWeapons > 0)
+		{
+			//Elder: toss a unique weapon if kicked
+			//Need to make sure to cancel any reload attempts - test this
+			Cmd_Unzoom(traceEnt);
+			traceEnt->client->fastReloads = 0;
+			traceEnt->client->reloadAttempts = 0;
+			traceEnt->client->ps.weaponTime = 0;
+
+			//Set the entity's weapon to the target's weapon before he/she throws it
+			tent->s.weapon = ThrowWeapon(traceEnt, qtrue);
+		}
+		
+		// Don't need other sound event
+		kickSuccess = qfalse;
+	}
 
 
 
@@ -153,7 +169,9 @@ qboolean JumpKick( gentity_t *ent )
 
 	//Elder: Our set of locally called sounds
 	if (kickSuccess)
+	{
 		G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+	}
 
 	return qtrue;
 }
@@ -1012,20 +1030,16 @@ void Knife_Attack ( gentity_t *self, int damage)
 {    
     trace_t tr; 
     vec3_t end;
-//	vec3_t start;
-//	vec3_t aimdir;
 	gentity_t *hitent;
-	int passent;
+	gentity_t *tent;
 	
-	
-    //VectorMA (start, 90, aimdir, end);                       
-	passent = self->s.number;
 	VectorMA( muzzle, KNIFE_RANGE, forward, end );
-    trap_Trace (&tr,muzzle, NULL, NULL, end, passent, MASK_SHOT);
+    trap_Trace (&tr, muzzle, NULL, NULL, end, self->s.number, MASK_SHOT);
     hitent = &g_entities[ tr.entityNum ];    
 	
-        // don't need to check for water
-    if (!((tr.surfaceFlags) && (tr.surfaceFlags & SURF_SKY)))    
+    // don't need to check for water
+    //if (!((tr.surfaceFlags) && (tr.surfaceFlags & SURF_SKY)))    
+	if (!(tr.surfaceFlags & SURF_SKY))    
     {
         if (tr.fraction < 1.0)        
         {            
@@ -1033,19 +1047,24 @@ void Knife_Attack ( gentity_t *self, int damage)
             {
 				//Elder: no knock-back on knife slashes
 				G_Damage (hitent, self, self, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_KNIFE );
-				return;
-				//return -2;
-            }        
+				if (hitent->client)
+				{
+					tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
+					tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
+				}
+            }
+			else
+			{
+				//Elder TODO: take into account surface flags for clank
+				tent = G_TempEntity(tr.endpos, EV_MISSILE_MISS);
+				tent->s.eventParm = DirToByte(tr.plane.normal);
+				tent->s.weapon = WP_KNIFE;
+			}
         }
-        else
-        //return 0;
-		return;
     }
-	return;
-    //return 0; // we hit the sky, call it a miss
 } 
 
-static int knives = 0;
+//static int knives = 0;
 
 
 //Elder: this function does not appear to be in use
@@ -1258,7 +1277,7 @@ void Weapon_M4_Fire(gentity_t *ent)
 	// Homer: increment burst if needed
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE )
 	{
-		ent->client->ps.stats[STAT_BURST]++;
+		//ent->client->ps.stats[STAT_BURST]++;
 		spread = M4_SPREAD * 0.7;
 	}
 	else
@@ -1298,7 +1317,7 @@ void Weapon_MK23_Fire(gentity_t *ent)
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE )
 	{
 		spread = PISTOL_SPREAD * 0.7;
-		ent->client->ps.stats[STAT_BURST]++;
+		//ent->client->ps.stats[STAT_BURST]++;
 	}
 	else
 	{
@@ -1316,16 +1335,13 @@ SSG3000 Attack
 void Weapon_SSG3000_FireOld(gentity_t *ent)
 {
 	float spread;
-	//Elder: Don't print - will broadcast to server
-	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
 	//Elder: changed to use RQ3_Spread as well
-	//Elder: using new stat
-	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
-		 //(ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
-	if (RQ3_isZoomed(ent)) {
+	if (RQ3_isZoomed(ent))
+	{
 		spread = 0;
 	}
-	else {
+	else
+	{
 		spread = RQ3_Spread(ent, SNIPER_SPREAD);
 	}
 	Bullet_Fire( ent, spread, SNIPER_DAMAGE, MOD_SNIPER);
@@ -1359,6 +1375,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	gentity_t	*unlinkedEntities[MAX_SSG3000_HITS];
 
 	qboolean	hitBreakable;
+	qboolean	hitKevlar;
 	float		r;
 	float		u;
 	float		spread;
@@ -1367,14 +1384,22 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	VectorMA (muzzle, 8192*16, forward, end);
 
 	//Elder: added to assist in zoom crap
-	if (RQ3_isZoomed(ent)) {
+	if (RQ3_isZoomed(ent))
+	{
 		spread = 0;
 	}
-	else  {
-		spread = RQ3_Spread(ent, SNIPER_SPREAD);
+	else
+	{
+		/*
 		r = random() * M_PI * 2.0f;
 		u = sin(r) * crandom() * spread * 16;
 		r = cos(r) * crandom() * spread * 16;
+		VectorMA (end, r, right, end);
+		VectorMA (end, u, up, end);
+		*/
+		spread = RQ3_Spread(ent, SNIPER_SPREAD);
+		u = crandom() * spread * 16;
+		r = crandom() * spread * 16;
 		VectorMA (end, r, right, end);
 		VectorMA (end, u, up, end);
 	}
@@ -1394,6 +1419,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		//Elder: need to store this flag because
 		//the entity may get wiped out in G_Damage
 		hitBreakable = qfalse;
+		hitKevlar = qfalse;
 
 		//G_Printf("(%d) SSG: Trapping trace\n", level.time);
 
@@ -1422,6 +1448,10 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 				tent[unlinked] = G_TempEntity( trace.endpos, EV_SSG3000_HIT_FLESH );
 				//tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
 				tent[unlinked]->s.eventParm = traceEnt->s.number;
+				//Check to see if we've hit kevlar
+				if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
+					hitKevlar = qtrue;
+
 			}
 			else
 			{
@@ -1440,7 +1470,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 
 		//Elder: go through non-solids and breakables
 		//If we ever wanted to "shoot through walls" we'd do stuff here
-		if ( hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID)) {
+		if ( hitKevlar || (hitBreakable == qfalse && (trace.contents & CONTENTS_SOLID))) {
 			//G_Printf("(%d) SSG: did not hit breakable and hit solid, exiting loop\n", level.time);
 			break;		// we hit something solid enough to stop the beam
 		}
@@ -1535,7 +1565,7 @@ void Weapon_MP5_Fire(gentity_t *ent)
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE )
 	{
 		spread = MP5_SPREAD * 0.7;
-		ent->client->ps.stats[STAT_BURST]++;
+		//ent->client->ps.stats[STAT_BURST]++;
 	}
 	else
 	{
@@ -1620,51 +1650,60 @@ void RQ3_InitShotgunDamageReport( void )
 	memset(tookShellHit, 0, MAX_CLIENTS * sizeof(int));	
 }
 
-//Elder: almost straight out of the AQ2 source
+//Elder: similar to AQ2 source
+#define MAX_NAME_REPORTS	8
 void RQ3_ProduceShotgunDamageReport(gentity_t *self)
 {
-	
-	int		l;
-    int		total_to_print = 0;
+	int		i;
+    int		totalNames = 0;
 	int		printed = 0;
-    static char textbuf[1024];
+    char	textbuf[1024];
+	gclient_t	*hitClient;
 
-    for (l = 1; l <= g_maxclients.integer; l++)
+    //for (l = 1; l <= g_maxclients.integer; l++)
+	
+	// Run through array to see if anyone was hit
+	for (i = 0; i < MAX_CLIENTS; i++)
+    {
+		if (tookShellHit[i])
+			totalNames++;
+	}
+
+    if (totalNames)
+    {
+		// Clamp number of names to report
+		if (totalNames > MAX_NAME_REPORTS)
+			totalNames = MAX_NAME_REPORTS;
+
+		//Q_strncpyz(textbuf, "You hit", sizeof(textbuf));
+		strcpy(textbuf, "You hit ");
+        for (i = 0; i < MAX_CLIENTS; i++)
         {
-			if (tookShellHit[l - 1])
-				total_to_print++;
-        }
-
-        if (total_to_print)
-        {
-			if (total_to_print > 10)
-				total_to_print = 10;
-
-			strcpy(textbuf, "You hit ");
-            for (l = 1; l <= g_maxclients.integer; l++)
+			if (tookShellHit[i])
             {
-			    if (tookShellHit[l - 1])
-                {
-				    if (printed == (total_to_print - 1))
-                    {
-					    if (total_to_print == 2)
-							strcat(textbuf, " and ");
-                        else if (total_to_print != 1)
-                            strcat(textbuf, ", and ");
-                    }
-                    else if (printed)
-                        strcat(textbuf, ", ");
-
-					strcat(textbuf, g_entities[l].client->pers.netname);
-                    //strcat(textbuf, g_edicts[l].client->pers.netname);
-                        printed++;
+				//grammar set
+				if (printed == (totalNames - 1))
+                {		
+					if (totalNames == 2)
+						Q_strcat(textbuf, sizeof(textbuf), "^7 and ");
+                    else if (totalNames != 1)
+                        Q_strcat(textbuf, sizeof(textbuf), "^7, and ");
                 }
-                if (printed == total_to_print)
-					break;
+                else if (printed)
+					Q_strcat(textbuf, sizeof(textbuf), "^7, ");
+				
+				//add to text buffer
+				hitClient = g_entities[i].client;
+				Q_strcat(textbuf, sizeof(textbuf), hitClient->pers.netname);
+                printed++;
             }
-				trap_SendServerCommand( self-g_entities, va("print \"%s^7\n\"", textbuf));
-                //gi.cprintf(self, PRINT_HIGH, "%s\n", textbuf);
+
+            if (printed == totalNames)
+				break;
         }
+		trap_SendServerCommand( self-g_entities, va("print \"%s^7.\n\"", textbuf));
+		//gi.cprintf(self, PRINT_HIGH, "%s\n", textbuf);
+    }
 }
 
 /*

@@ -1095,6 +1095,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 			//G_Printf("Using a door\n");
 			Use_BinaryMover( ent->parent, ent, other );
 			other->client->openDoor = qfalse;
+			other->client->openDoorTime = 0;
 		}
 	}
 }

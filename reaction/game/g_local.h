@@ -69,6 +69,8 @@ typedef enum {
 #define SP_AUTOOPEN			4				// Elder: revert to Q3 behaviour
 #define SP_DOORTOGGLE		8				// Elder: added to enable mover toggling
 
+#define MAXDOORTIME			100				// Elder: max time the opendoor key can stay open
+
 //============================================================================
 
 typedef struct gentity_s gentity_t;
@@ -261,9 +263,31 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
-	qboolean		hadUniqueWeapon[MAX_WEAPONS];	//Elder: for "ammo" in last gun
+	qboolean	hadUniqueWeapon[MAX_WEAPONS];	//Elder: for "ammo" in last gun
+	int			sayTime;			// Elder: say validation stuff
+	int			sayCount;
+	int			sayWarnings;		
+	int			sayBans;
+	int			sayMuteTime;
 
 } clientPersistant_t;
+
+
+// Elder: spam prevention defaults
+#define SAY_MAX_NUMBER		6
+#define SAY_MAX_WARNINGS	3
+#define SAY_PERIOD_TIME		3			// Elder: in seconds
+#define SAY_WARNING_TIME	15
+#define SAY_BAN_TIME		60			// Technically should drop client
+
+typedef enum
+{
+	SAY_BAN,
+	SAY_WARNING,
+	SAY_OK,
+
+	SAY_TOTAL
+} sayValidations_t;
 
 
 // this structure is cleared on each ClientSpawn(),
@@ -329,7 +353,7 @@ struct gclient_s {
 	int			lasthurt_mod;		// type of damage the client did
 
 // Begin Duffman
-	int             lasthurt_location;      // Where the client was hit.
+	int         lasthurt_location;      // Where the client was hit.
 // End Duffman
 
 	// timers
@@ -345,15 +369,16 @@ struct gclient_s {
 	qboolean	fireHeld;			// used for hook
 	gentity_t	*hook;				// grapple hook if out
 
-        int			switchTeamTime;		// time the player switched teams
+    int			switchTeamTime;		// time the player switched teams
 // Begin Duffman
-   int  numClips[MAX_WEAPONS];   	 // Number of clips each weapon has
+	int			numClips[MAX_WEAPONS];   	 // Number of clips each weapon has
 // End Duffman   
 	
-   qboolean openDoor;//Blaze: used to hold if someone has hit opendoor key
+	qboolean	openDoor;			//Blaze: used to hold if someone has hit opendoor key
+	int			openDoorTime;
+
 	// timeResidual is used to handle events that happen every second
 	// like health / armor countdowns and regeneration
-
 	int			timeResidual;
 
 	//Elder: C3A laser tutorial
@@ -374,25 +399,13 @@ struct gclient_s {
 	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)
 	int			shots;   			//Blaze: Number of shots fired so far with this weapon
 	
-	// Homer: weaponstate vars for Cmd_Weapon
-	// make these a single bitmask? worth the effort?
-	// Moved to PERS_WEAPONMODES in bg_public.h
-/*	int 			mk23semi; 		// pistol to semi-auto	
-	int 			mp5_3rb;  		// MP5 to 3rb
-	int 			m4_3rb;    		// M4 to 3rb
-	int 			grenRange; 		// range to throw grenade (short/medium/long)
-	int 			throwKnife; 	// knife to throwing
-	*/
-	//qboolean		isBandaging;	//Elder: player in the process of bandaging
-	// end Homer
-	
 	int			weaponfireNextTime;		// for akimbos
 	int			lastzoom;				// Elder: save last zoom state when firing
 
 	int			fastReloads;			// Elder: for queuing M3/SSG reloads
 	int			lastReloadTime;			// Elder: for queuing M3/SSG reloads
 	int			reloadAttempts;			// Elder: for queuing M3/SSG reloads
-	int			reloadStage;			
+	int			reloadStage;			// Elder: 0, 1, 2 for sound queuing - move to stats?
 	
 	int			consecutiveShots;		// Elder: for M4 ride-up/kick
 	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var
@@ -407,6 +420,7 @@ struct gclient_s {
 
 	char		*areabits;
 };
+
 
 // Begin Duffman
    int G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, int take);
@@ -510,7 +524,7 @@ typedef struct {
 void CheckBleeding(gentity_t *targ);
 void StartBandage(gentity_t *ent);
 
-void ThrowWeapon( gentity_t *ent );
+int ThrowWeapon( gentity_t *ent, qboolean forceThrow );
 void ThrowItem( gentity_t *ent );
 gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags );  // XRAY FMJ
 //Blaze Reaction knife stuff
@@ -540,7 +554,8 @@ void Cmd_OpenDoor(gentity_t *ent);
 //Elder: C3A laser tutorial
 void Laser_Gen (gentity_t *ent, qboolean enabled);
 void Laser_Think( gentity_t *self );
-
+//Elder: anti-spam stuff
+int RQ3_ValidateSay ( gentity_t *ent );
 //Elder: commented out for Homer
 //void toggleSemi(gentity_t *ent);
 

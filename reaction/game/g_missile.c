@@ -322,8 +322,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//Elder: added
 			if ( !(ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE) ) {
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
-				ent->s.origin, ent->damage, 
-				0, ent->methodOfDeath);
+							ent->s.origin, ent->damage, 0, ent->methodOfDeath);
 			}
 		}
 	}
@@ -753,12 +752,6 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 
     gentity_t   *bolt;
 
-//	vec3_t gVec;
-
-//	gVec[0] = 0;
-//	gVec[1] = g_gravity.value;
-//	gVec[2] = 0;
-
     VectorNormalize (dir);
 
     bolt = G_Spawn();
@@ -787,9 +780,10 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 	VectorCopy (dir, bolt->s.apos.trBase);
 	VectorCopy (dir, bolt->r.currentAngles);
 
+	//Elder: not needed anymore
 	//Saving stuff for Makro's knife equations
-	VectorCopy( start, bolt->s.origin2);
-	VectorCopy( dir, bolt->s.angles2);
+	//VectorCopy( start, bolt->s.origin2);
+	//VectorCopy( dir, bolt->s.angles2);
 
     return bolt;
 }

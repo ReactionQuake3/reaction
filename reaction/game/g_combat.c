@@ -817,7 +817,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->ps.torsoAnim = 
 			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 
-		G_AddEvent( self, EV_DEATH1 + i, killer );
+		// Elder: only do death sounds if not hit in the head
+		if ((self->client->lasthurt_location & LOCATION_HEAD) != LOCATION_HEAD &&
+			(self->client->lasthurt_location & LOCATION_FACE) != LOCATION_FACE )
+			G_AddEvent( self, EV_DEATH1 + i, killer );
 
 		// the body can still be gibbed
 		self->die = body_die;
@@ -1227,7 +1230,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 	//Blaze: If we shot a breakable item subtract the damage from its health and try to break it
  	if ( targ->s.eType == ET_BREAKABLE ) {
-         targ->health -= damage;
+        targ->health -= damage;
  		G_BreakGlass( targ, point, mod );
  		return;
  	}
@@ -1516,8 +1519,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					//Elder: do shotgun report like AQ2
 					int playernum = targ - g_entities;
 					
-					playernum--;
-					if (playernum >= 0 && playernum <= MAX_CLIENTS - 1)
+					//playernum--;
+					if (playernum >= 0 && playernum < MAX_CLIENTS)
 						tookShellHit[playernum] = 1;
 				}
 				else {
@@ -1649,7 +1652,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 							break;
 						case LOCATION_SHOULDER: 
 						case LOCATION_CHEST:
-							//Vest stuff
+							//Vest stuff - is the knife supposed to be affected?
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
 								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
@@ -1669,8 +1672,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 								}
 								//Kevlar sound
 								tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
-								//Elder: flag for sound in feedback
-								//targ->client->damage_vest = qtrue;
 							}
 							else
 							{

@@ -1953,6 +1953,56 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	//Elder: New 3rb Code
+	//force fire button down if STAT_BURST is < proper amount
+	//Otherwise release the button 
+	if ( (pm->ps->weapon == WP_M4 &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
+		 (pm->ps->weapon == WP_MP5 &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE))
+	{
+		int weaponNum = pm->ps->weapon;
+
+		if (pm->ps->ammo[weaponNum] == 0)
+		{
+			pm->ps->stats[STAT_BURST] = 0;
+		}
+		else if (pm->cmd.buttons & BUTTON_ATTACK)// && client->ps.stats[STAT_BURST] > 0)
+		{
+			if ( pm->ps->stats[STAT_BURST] >= 0 && pm->ps->stats[STAT_BURST] < 3)
+				pm->cmd.buttons |= BUTTON_ATTACK;
+			else
+				pm->cmd.buttons &= ~BUTTON_ATTACK;
+		}
+		else if (pm->ps->stats[STAT_BURST] > 2)
+		{
+			pm->ps->stats[STAT_BURST] = 0;
+			pm->ps->weaponTime += 300;
+		}
+		//Don't need?
+		else if (pm->ps->stats[STAT_BURST] > 0)
+			pm->cmd.buttons |= BUTTON_ATTACK;
+	}
+
+	//Elder: New semi-auto code
+	if ( pm->ps->weapon == WP_PISTOL && 
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
+	{
+		if (pm->ps->ammo[WP_PISTOL] == 0)
+		{
+			pm->ps->stats[STAT_BURST] = 0;
+		}
+		else if ((pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->stats[STAT_BURST])
+		{
+			pm->cmd.buttons &= ~BUTTON_ATTACK;
+		}
+		else if (pm->ps->stats[STAT_BURST])
+		{
+			pm->ps->weaponTime += 200;
+			pm->ps->stats[STAT_BURST] = 0;
+		}
+	}
+
 	// check for item using
 	// Elder: removed
 	/*
@@ -2083,7 +2133,6 @@ static void PM_Weapon( void ) {
 		}
 	}
 
-
 	/*
 	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
 		pm->ps->weaponTime = 0;
@@ -2135,6 +2184,17 @@ static void PM_Weapon( void ) {
 	}
 	
 	pm->ps->weaponstate = WEAPON_FIRING;
+
+	// Elder: increment stat if alt-fire mode --needs to be predicted as well
+	if ( (pm->ps->weapon == WP_M4 &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
+		 (pm->ps->weapon == WP_MP5 &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE) ||
+		 (pm->ps->weapon == WP_PISTOL &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE))
+	{
+		pm->ps->stats[STAT_BURST]++;
+	}
 
 	//Elder: M4 kick code
 	//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);

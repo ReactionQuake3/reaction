@@ -468,7 +468,7 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 	//Once it's below 255, we can send a more appropriate event
 	//This way, the mappers can use a single func_breakable
 	//while we process it on the server-side.
-	//Places to stuff: eventParm, generic1
+	//Places to stuff: eventParm
 
  	if( ent->health <= 0 ) {
 		//G_Printf("Original eParm: %i \n", ent->s.eventParm);
