@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/03/25 14:55:00  jbravo
+// teamCount cvars for Makro
+//
 // Revision 1.56  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -1131,6 +1134,9 @@ extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 extern	vmCvar_t	g_RQ3_team_round_going;		// JBravo: cvar to signal cgame that a round is in progress
+extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
+extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
+extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/03/25 14:55:01  jbravo
+// teamCount cvars for Makro
+//
 // Revision 1.43  2002/03/24 06:06:53  jbravo
 // Some tweaks and cleanups
 //
@@ -554,11 +557,11 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 
 	Com_sprintf (buf, sizeof(buf), "%i", count);
 	if (team == TEAM_RED)
-		trap_Cvar_Set("ui_RQ3_teamCount1", buf);
+		trap_Cvar_Set("g_RQ3_teamCount1", buf);
 	else if (team == TEAM_BLUE)
-		trap_Cvar_Set("ui_RQ3_teamCount2", buf);
+		trap_Cvar_Set("g_RQ3_teamCount2", buf);
 	else if (team == TEAM_SPECTATOR || team == TEAM_FREE)	
-		trap_Cvar_Set("ui_RQ3_numSpectators", buf);
+		trap_Cvar_Set("g_RQ3_numSpectators", buf);
 
 	return count;
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/03/25 14:55:00  jbravo
+// teamCount cvars for Makro
+//
 // Revision 1.37  2002/03/24 06:06:53  jbravo
 // Some tweaks and cleanups
 //
@@ -174,6 +177,9 @@ vmCvar_t	g_RQ3_lca;
 vmCvar_t	g_RQ3_team_round_going;
 vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
+vmCvar_t	g_RQ3_teamCount1;
+vmCvar_t	g_RQ3_teamCount2;
+vmCvar_t	g_RQ3_numSpectators;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
 vmCvar_t	RQ3_team2;
@@ -309,6 +315,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
+	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_SYSTEMINFO, 0, qfalse },
+	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_SYSTEMINFO, 0, qfalse },
+	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_SYSTEMINFO, 0, qfalse },
 	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &g_RQ3_team_round_going, "g_RQ3_team_round_going", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
