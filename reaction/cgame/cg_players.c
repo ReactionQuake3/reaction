@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2003/04/07 18:21:34  niceass
+// teamplay irvision
+//
 // Revision 1.59  2003/04/07 11:30:10  jbravo
 // Forgot a skin change for reactionmale
 //
@@ -2367,7 +2370,14 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 	if (state->eType == ET_PLAYER) {
 		if ((cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) &&
 			cg.rq3_irvision && !(state->eFlags & EF_DEAD)) {
-			ent->customShader = cgs.media.irPlayerShader;
+
+			// NiceAss: On your team
+			if (cgs.gametype >= GT_TEAM && cg.snap->ps.persistant[PERS_TEAM] == cgs.clientinfo[state->clientNum].team )
+				ent->customShader = cgs.media.irPlayerShaderFriendly;
+			// Not on your team
+			else
+				ent->customShader = cgs.media.irPlayerShader;
+
 			trap_R_AddRefEntityToScene(ent);
 		}
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2003/04/07 18:21:34  niceass
+// teamplay irvision
+//
 // Revision 1.142  2003/04/06 18:28:30  makro
 // SSG crosshairs
 //
@@ -1286,6 +1289,7 @@ typedef struct {
 
 	// Elder: rq3 misc shaders
 	qhandle_t irPlayerShader;
+	qhandle_t irPlayerShaderFriendly;
 
 	// weapon effect models
 	qhandle_t bulletFlashModel;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/04/07 18:21:34  niceass
+// teamplay irvision
+//
 // Revision 1.132  2003/04/06 18:28:30  makro
 // SSG crosshairs
 //
@@ -2010,6 +2013,7 @@ static void CG_RegisterGraphics(void)
 
 	// Elder: RQ3 misc. shaders
 	cgs.media.irPlayerShader = trap_R_RegisterShader("powerups/irdetail");
+	cgs.media.irPlayerShaderFriendly = trap_R_RegisterShader("powerups/irdetailfriendly");
 	cgs.media.itemStrobeShader = trap_R_RegisterShader("rq3-itemstrobe");
 
 	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
