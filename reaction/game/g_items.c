@@ -912,7 +912,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	if( xr_flags & FL_THROWN_ITEM) {
 		dropped->clipmask = MASK_SHOT; // XRAY FMJ
 		dropped->s.pos.trTime = level.time - 50;	// move a bit on the very first frame
-		VectorScale( velocity, 500, dropped->s.pos.trDelta ); // 700
+		VectorScale( velocity, 400, dropped->s.pos.trDelta ); // 700 500
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce= 0;
 	}
