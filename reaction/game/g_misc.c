@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/05/21 04:21:48  blaze
+// changed buoyancy to lift as per Sze
+//
 // Revision 1.40  2002/05/20 16:25:48  makro
 // Triggerable cameras
 //
@@ -661,7 +664,7 @@ void SP_func_breakable( gentity_t *ent ) {
   G_SpawnInt( "force", "7", &velocity);
   rq3_breakables[id].velocity = velocity;
 
-  G_SpawnInt( "buoyancy", "5", &jump);
+  G_SpawnInt( "lift", "5", &jump);
   rq3_breakables[id].jump = jump;
 
   amount = amount << 6;
