@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/29 06:10:09  niceass
+// visible silencer
+//
 // Revision 1.66  2002/04/07 02:10:42  niceass
 // shell ejection bug fixed
 //
@@ -1595,14 +1598,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
 		( weaponNum == WP_PISTOL || weaponNum == WP_MP5 || weaponNum == WP_SSG3000) ) {
 		//Makro - wasn't initialized, caused a warning in MSVC
-		float scale = (float) 0.5;
+		float scale = 0.0f;
 		vec3_t angles;
-		//Makro - wasn't initialized, caused a warning in MSVC
-		vec3_t Offset = {0, 0, 0};
 
-		if (weaponNum == WP_PISTOL) scale = (float)0.6;
-		if (weaponNum == WP_SSG3000) scale = (float)0.9;
-		if (weaponNum == WP_MP5) scale = (float)1.0;
+		if (weaponNum == WP_PISTOL) scale = (float)1.2;
+		if (weaponNum == WP_SSG3000) scale = (float)1.8;
+		if (weaponNum == WP_MP5) scale = (float)2.0;
 
 		memset( &silencer, 0, sizeof( silencer ) );
 		silencer.hModel = cgs.media.rq3_silencerModel;
@@ -1614,16 +1615,15 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		angles[ROLL] = 0;
 		AnglesToAxis( angles, silencer.axis );
 
-		Offset[0] += 7;
-
-		CG_PositionRotatedOffsetEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer", Offset);
-
 		VectorScale( silencer.axis[0], scale, silencer.axis[0] );
 		VectorScale( silencer.axis[1], scale, silencer.axis[1] );
 		VectorScale( silencer.axis[2], scale, silencer.axis[2] );
 
+		CG_PositionRotatedOffsetEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer", vec3_origin);
+		VectorMA(silencer.origin, -7.2f, silencer.axis[1], silencer.origin);
+
 		flash.nonNormalizedAxes = qtrue;
-		//CG_AddWeaponWithPowerups( &silencer, cent->currentState.powerups );
+		CG_AddWeaponWithPowerups( &silencer, cent->currentState.powerups );
 	}
 
 	// NiceAss: Tag locations used for shell ejection
