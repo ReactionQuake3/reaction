@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/05/20 16:25:48  makro
+// Triggerable cameras
+//
 // Revision 1.39  2002/05/19 21:27:29  blaze
 // added force and buoyancy to breakables
 //
@@ -283,9 +286,15 @@ void locateCamera( gentity_t *ent ) {
 	gentity_t	*target;
 	gentity_t	*owner;
 
-	owner = G_PickTarget( ent->target );
+	if (ent->spawnflags & 1) {
+		owner = G_Find(NULL, FOFS(targetname), va("%s%i", ent->target, ent->size+1));
+		ent->size = (ent->size + 1) % ent->count;
+	} else {
+		owner = G_PickTarget( ent->target );
+	}
 	if ( !owner ) {
-		G_Printf( "Couldn't find target for misc_partal_surface\n" );
+		//Makro - fixed typo (misc_partal_surface)
+		G_Printf( "Couldn't find target for misc_portal_surface\n" );
 		G_FreeEntity( ent );
 		return;
 	}
@@ -324,7 +333,11 @@ void locateCamera( gentity_t *ent ) {
 	ent->s.eventParm = DirToByte( dir );
 }
 
-/*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
+void use_misc_portal_surface( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	locateCamera(ent);
+}
+
+/*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8) CYCLE
 The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
 This must be within 64 world units of the surface!
 */
@@ -335,6 +348,22 @@ void SP_misc_portal_surface(gentity_t *ent) {
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
+
+	//Makro - option to cycle through targets
+	//size - current pos
+	//count - max pos
+	if (ent->spawnflags & 1) {
+		if (!G_SpawnInt("count", "0", &ent->count)) {
+			ent->spawnflags--;
+		} else {
+			if (ent->count < 2) {
+				ent->spawnflags--;
+			} else {
+				ent->size = 0;
+				ent->use = use_misc_portal_surface;
+			}
+		}
+	}
 
 	if ( !ent->target ) {
 		VectorCopy( ent->s.origin, ent->s.origin2 );

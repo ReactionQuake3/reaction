@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/05/20 16:25:48  makro
+// Triggerable cameras
+//
 // Revision 1.8  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -217,7 +220,6 @@ gentity_t *G_PickTarget (char *targetname)
 
 	return choice[rand() % num_choices];
 }
-
 
 /*
 ==============================

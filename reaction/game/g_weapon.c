@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/05/20 16:25:48  makro
+// Triggerable cameras
+//
 // Revision 1.58  2002/05/20 16:23:44  jbravo
 // Fixed spec problem when noone is alive. Fixed kicking teammates bug
 //
@@ -2578,7 +2581,7 @@ void Laser_Think( gentity_t *self )
 	int			l=0, passent;
 	gentity_t	*traceEnt;
 	//Makro - added
-	int			contents;
+	//int			contents;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
