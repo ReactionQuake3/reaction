@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/04/07 19:23:41  jbravo
+// Yet another crashbug fixed.
+//
 // Revision 1.43  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -134,6 +137,10 @@ qboolean JumpKick( gentity_t *ent )
 	if ( !traceEnt->takedamage) {
 		return qfalse;
 	}
+
+// JBravo: some sanity checks on the traceEnt
+	if (traceEnt == NULL || traceEnt->client == NULL)
+		return qfalse;
 
 // JBravo: no kicking teammates while rounds are going
 	if (g_gametype.integer == GT_TEAMPLAY) {
