@@ -541,6 +541,7 @@
 	textalignx 120
 	textaligny 140
 	text "Erwin Peil"
+	text "Andre Beardsley-Dusette"
 	autowrapped
 	textheight 24
 	visible 1
@@ -558,6 +559,7 @@
 	textalignx 100
 	textaligny 140
 	text "SpecOps"
+	text "Nicodem-X"
 	autowrapped
 	textheight 24
 	visible 1
