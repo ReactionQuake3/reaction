@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/21 04:58:27  blaze
+// kicked the reload bugs ass!
+//
 // Revision 1.72  2002/05/06 21:41:01  slicer
 // Added rq3_cmd
 //
@@ -1490,15 +1493,17 @@ void ClientThink_real( gentity_t *ent ) {
 	//Elder: someone added
 	if ( bJumping )	JumpKick( ent );
 
+  //Blaze: Remove all this stuff
+  /*
 	//Elder: added for akimbos and 3rb and sniper zoom
 	switch( ent->client->ps.weapon ) {
 	case WP_AKIMBO:
-		/*
-		if ( ent->client->weaponfireNextTime != 0 &&
-			level.time >= ent->client->weaponfireNextTime) {
-			FireWeapon( ent );
-		}
-		*/
+		
+		//if ( ent->client->weaponfireNextTime != 0 &&
+		//	level.time >= ent->client->weaponfireNextTime) {
+		//	FireWeapon( ent );
+		//}
+		
 		break;
 	case WP_M3:
 		//Elder: try to do a fast reload if it's queued
@@ -1523,7 +1528,7 @@ void ClientThink_real( gentity_t *ent ) {
 	default:
 		break;
 	}
-
+*/
 	// save results of triggers and client events
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;

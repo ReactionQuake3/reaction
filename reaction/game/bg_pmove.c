@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/21 04:58:27  blaze
+// kicked the reload bugs ass!
+//
 // Revision 1.73  2002/05/11 19:18:20  makro
 // Sand surfaceparm
 //
@@ -1905,11 +1908,12 @@ static void PM_Reload( void )
 					return;
 				}
 			}
-
+      
 			// check for fast-reload interrupt
 			if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000)
 			{
-				if (pm->ps->stats[STAT_RELOADTIME] > 0) {
+				if (pm->ps->stats[STAT_RELOADTIME] > 0)// && (pm->ps->weapon == WP_M3 && pm->ps->stats[STAT_RELOADTIME] <  RQ3_M3_RELOAD_DELAY - RQ3_M3_ALLOW_FAST_RELOAD_DELAY || pm->ps->weapon == WP_SSG3000 && pm->ps->stats[STAT_RELOADTIME] < RQ3_SSG3000_RELOAD_DELAY - RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY)) 
+        {
 					if ( pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS )
 					{
 						//Com_Printf("============= Locked out in fast-reload interrupt\n");
@@ -1918,10 +1922,11 @@ static void PM_Reload( void )
 					{
 						//if (pm->ps->ammo[pm->ps->weapon] + pm->ps->stats[STAT_RELOADATTEMPTS] < ClipAmountForAmmo(pm->ps->weapon) &&
 							//pm->ps->stats[STAT_RELOADATTEMPTS] < pm->ps->stats[STAT_CLIPS])
-						if (pm->ps->stats[STAT_RELOADATTEMPTS] < ClipAmountForAmmo(pm->ps->weapon))
+						if (pm->ps->stats[STAT_RELOADATTEMPTS] < (ClipAmountForAmmo(pm->ps->weapon) - pm->ps->ammo[pm->ps->weapon]) ) //only let them cue up enough shots to fill the gun
 						{
 							//Com_Printf("Hit fast-reload entrance\n");
 							// add to reload queue and enable fast-reloads flag
+              
 							pm->ps->stats[STAT_RQ3] |= RQ3_FASTRELOADS;
 							pm->ps->stats[STAT_RELOADATTEMPTS]++;
 							//Com_Printf("======== Reload attempts: %i ========\n", pm->ps->stats[STAT_RELOADATTEMPTS]);
@@ -1988,10 +1993,11 @@ static void PM_Reload( void )
 		if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) {
 			if ((pm->ps->stats[STAT_RQ3] & RQ3_FASTRELOADS) && pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
 			{
+        //Com_Printf("reloadtime (%d)\n",pm->ps->stats[STAT_RELOADTIME]);
 				if (pm->ps->weapon == WP_M3)
 				{
 					// knock down reload time if doing fast-reloads
-					if (pm->ps->stats[STAT_RELOADTIME] > RQ3_M3_FAST_RELOAD_DELAY)
+					if (pm->ps->stats[STAT_RELOADTIME] < RQ3_M3_ALLOW_FAST_RELOAD_DELAY && pm->ps->stats[STAT_RELOADTIME] > RQ3_M3_FAST_RELOAD_DELAY)
 					{
 						//Com_Printf("Reducing reload time\n");
 						pm->ps->stats[STAT_RELOADTIME] = RQ3_M3_FAST_RELOAD_DELAY;
@@ -2000,7 +2006,7 @@ static void PM_Reload( void )
 				else
 				{
 					// knock down reload time if doing fast-reloads
-					if (pm->ps->stats[STAT_RELOADTIME] > RQ3_SSG3000_FAST_RELOAD_DELAY)
+					if (pm->ps->stats[STAT_RELOADTIME] < RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY && pm->ps->stats[STAT_RELOADTIME] > RQ3_SSG3000_FAST_RELOAD_DELAY)
 					{
 						//Com_Printf("Reducing reload time\n");
 						pm->ps->stats[STAT_RELOADTIME] = RQ3_SSG3000_FAST_RELOAD_DELAY;
@@ -2076,7 +2082,7 @@ static void PM_Reload( void )
 
 					if (pm->ps->stats[STAT_RELOADATTEMPTS] > 0)
 					{
-						PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+						PM_StartWeaponAnim( WP_ANIM_EXTRA1 );
 						//PM_StartWeaponAnim(WP_ANIM_RELOAD);
 					}
 

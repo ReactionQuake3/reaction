@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/05/21 04:58:27  blaze
+// kicked the reload bugs ass!
+//
 // Revision 1.67  2002/05/19 21:27:28  blaze
 // added force and buoyancy to breakables
 //
@@ -367,13 +370,13 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_AKIMBO_RELOAD_DELAY			2500
 
 #define RQ3_M3_RELOAD_DELAY				1100
-#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	200 // 700 Time into reload to enable fast-reloads
+#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	700 // 700 Time into reload to enable fast-reloads
 #define RQ3_M3_FAST_RELOAD_DELAY		500	// Fast reload time
 //#define RQ3_M3_START_RELOAD_DELAY		300 // Start index point of fast reload
 #define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
 
 #define RQ3_SSG3000_RELOAD_DELAY		3100
-#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1400 //2200 Time into reload to enable fast-reloads
+#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1800 //1100 Time into reload to enable fast-reloads
 #define RQ3_SSG3000_FAST_RELOAD_DELAY	600 // Fast reload time
 //#define RQ3_SSG3000_START_RELOAD_DELAY	1700	// Start index point of fast reload
 #define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads

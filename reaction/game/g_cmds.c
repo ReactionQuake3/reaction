@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/05/21 04:58:28  blaze
+// kicked the reload bugs ass!
+//
 // Revision 1.112  2002/05/19 17:50:33  jbravo
 // Team fixes for DM
 //
@@ -2122,13 +2125,14 @@ void Cmd_Bandage (gentity_t *ent)
  void Cmd_Reload_f (edict_t *ent)
 ==================
 */
+/* Dont need this code any more
 void Cmd_Reload( gentity_t *ent )
 {
 	int weapon, ammotoadd, delay = 0;
 
 	if (ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
-
+  
 
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
 	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
@@ -2184,7 +2188,7 @@ void Cmd_Reload( gentity_t *ent )
 			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_M3] > 0) {
 				//Have we fast reloaded before?
 				if (ent->client->fastReloads) {
-					if (level.time - ent->client->lastReloadTime < RQ3_M3_FAST_RELOAD_DELAY) {
+					if (level.time - ent->client->lastReloadTime < RQ3_M3_ALLOW_FAST_RELOAD_DELAY) {
 						//not enough time has passed for a fast-reload attempt so ignore it
 						return;
 					} else if (level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY) {
@@ -2253,7 +2257,7 @@ void Cmd_Reload( gentity_t *ent )
 			if (ent->client->ps.weaponstate == WEAPON_RELOADING && ent->client->numClips[WP_SSG3000] > 0) {
 				//Have we fast reloaded before?
 				if (ent->client->fastReloads) {
-					if (level.time - ent->client->lastReloadTime < RQ3_SSG3000_FAST_RELOAD_DELAY) {
+					if (level.time - ent->client->lastReloadTime < RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY) {
 						//not enough time has passed for a fast-reload attempt so ignore it
 						return;
 					} else if (level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY) {
@@ -2375,6 +2379,7 @@ void Cmd_Reload( gentity_t *ent )
 		}
 	}
 }
+*/
 
 /*
 ==================
