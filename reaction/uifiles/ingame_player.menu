@@ -117,8 +117,10 @@
 	backcolor Ig_Sub_Color1
 	forecolor Ig_Sub_TextColor
 	bordercolor Ig_Sub_BorderColor1
-	cvarTest "g_gameType"
-	showCvar { "4" ; "5" }
+//	cvarTest "g_gameType"
+//	showCvar { "4" ; "5" }
+	cvarTest "g_RQ3_tdmMode"
+	showCvar { "0" }
 	visible 1
 	action { play "sound/misc/menu1.wav" ; close "ingame_player" ; open "ingame_weapon" }
 	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
