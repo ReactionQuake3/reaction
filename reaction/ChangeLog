@@ -47,6 +47,7 @@
 * Fixed bug where rounds lasted half as long as g_RQ3_roundtimelimit was set to.
 * Q3F's atmospheric code added.
 * Smoke puff added to silencer shots.
+* Added "Life" setting to func_pressure. Default 200.
 
 # List fixes here for the 2.1 release
 
