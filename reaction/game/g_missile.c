@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/04/05 18:53:26  jbravo
+// Warning fixes
+//
 // Revision 1.23  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -737,7 +740,7 @@ fire_grenade
 */
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	gentity_t	*bolt;
-	int speed;
+	int speed = 0;
 	vec3_t up, right;
 
 	if (self->client)

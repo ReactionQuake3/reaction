@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/04/05 18:53:26  jbravo
+// Warning fixes
+//
 // Revision 1.32  2002/04/04 11:20:27  makro
 // Pre-caching all weapons in TP
 //
@@ -1546,7 +1549,7 @@ and respawns it.
 ==============
 */
 void RQ3_ResetWeapon( int weapon ) {
-	char *c;
+	char *c ="";
 	gentity_t *ent; //, *rent = NULL;
 	int numRespawned = 0;
 	int numRemoved = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/04/05 18:53:26  jbravo
+// Warning fixes
+//
 // Revision 1.60  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -1257,7 +1260,7 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin(int clientNum) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	int		flags, savedPing, i;
+	int		flags, savedPing = 0, i;
 	int 		savedPers[MAX_PERSISTANT];
 
 	ent = g_entities + clientNum;
@@ -1709,7 +1712,7 @@ server system housekeeping.
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
-	int		oldTeam, i;
+	int		oldTeam = 0, i;
 
 	// cleanup if we are kicking a bot that
 	// hasn't spawned yet

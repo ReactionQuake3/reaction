@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/05 18:53:26  jbravo
+// Warning fixes
+//
 // Revision 1.63  2002/04/03 03:13:49  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -3599,8 +3602,8 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 	vec3_t		end;
 	vec3_t		forward, right, up;
 
-	int			count;
-	int			hc_multipler;
+	int		count;
+	int		hc_multipler = 0;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information

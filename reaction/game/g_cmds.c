@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/04/05 18:53:26  jbravo
+// Warning fixes
+//
 // Revision 1.88  2002/04/01 22:23:14  slicer
 // Added "weapon" command buffering | Solved Gren Mode Bug
 //
@@ -754,8 +757,8 @@ void SetTeam( gentity_t *ent, char *s )
 {
 	int			team, oldTeam, clientNum;
 	gclient_t		*client;
-	spectatorState_t	specState;
-	int			specClient, teamLeader, teamsave, x;
+	spectatorState_t	specState = 0;
+	int			specClient = 0, teamLeader, teamsave, x;
 
 	//
 	// see what change is requested
