@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.18  2002/05/29 13:49:26  makro
 // Elevators/doors
 //
@@ -54,18 +58,12 @@
 
 
 void InitTrigger( gentity_t *self ) {
-	char *s;
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
 
 	trap_SetBrushModel( self, self->model );
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
-
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &s)) {
-		Q_strncpyz(self->pathtarget, s, sizeof(self->pathtarget));
-	}
 }
 
 

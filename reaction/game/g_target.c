@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.6  2002/05/23 18:37:50  makro
 // Bots should crouch more often when they attack with a SSG
 // Made this depend on skill. Also, elevator stuff
@@ -104,7 +108,6 @@ void Use_Target_Delay( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 }
 
 void SP_target_delay( gentity_t *ent ) {
-	char	*s;
 
 	// check delay for backwards compatability
 	if ( !G_SpawnFloat( "delay", "0", &ent->wait ) ) {
@@ -113,11 +116,6 @@ void SP_target_delay( gentity_t *ent ) {
 
 	if ( !ent->wait ) {
 		ent->wait = 1;
-	}
-
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &s)) {
-		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
 	}
 
 	ent->use = Use_Target_Delay;
@@ -409,11 +407,6 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 }
 
 void SP_target_relay (gentity_t *self) {
-	char	*s;
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &s)) {
-		Q_strncpyz(self->pathtarget, s, sizeof(self->pathtarget));
-	}
 	self->use = target_relay_use;
 }
 

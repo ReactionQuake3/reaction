@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.37  2002/05/27 06:47:22  niceass
 // removed some kamakazi stuff
 //
@@ -2297,7 +2301,9 @@ void BotUpdateInventory(bot_state_t *bs) {
 	memcpy(oldinventory, bs->inventory, sizeof(oldinventory));
 	//armor
 	bs->inventory[INVENTORY_ARMOR] = bs->cur_ps.stats[STAT_ARMOR];
-	//weapons
+
+	// WEAPONS //
+	
 	//Blaze: Reaction Weapons
 	bs->inventory[INVENTORY_KNIFE] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) != 0;
 	bs->inventory[INVENTORY_PISTOL] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL)) != 0;
@@ -2308,30 +2314,48 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_M3] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_M3)) != 0;
 	bs->inventory[INVENTORY_AKIMBO] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO)) != 0;
 	bs->inventory[INVENTORY_GRENADE] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE)) != 0;
-	//ammo
+
+	// CLIPS //
+
+	//Makro - adding clip info
+	//Note - this stuff is also added to the ammo info, so bots know they still have ammo for their guns
+	bs->inventory[INVENTORY_KNIFECLIP] = ent->client->numClips[WP_KNIFE];
+	bs->inventory[INVENTORY_PISTOLCLIP] = ent->client->numClips[WP_PISTOL];
+	bs->inventory[INVENTORY_M3CLIP] = ent->client->numClips[WP_M3];
+	bs->inventory[INVENTORY_SSG3000CLIP] = ent->client->numClips[WP_SSG3000];
+	bs->inventory[INVENTORY_MP5CLIP] = ent->client->numClips[WP_MP5];
+	bs->inventory[INVENTORY_M4CLIP] = ent->client->numClips[WP_M4];
+	amt = ent->client->numClips[WP_HANDCANNON];
+	if (amt < 2)
+		amt = 0;
+	bs->inventory[INVENTORY_HANDCANNONCLIP] = amt;
+	amt = ent->client->numClips[WP_AKIMBO];
+	if (amt < 2)
+		amt = 0;
+	bs->inventory[INVENTORY_AKIMBOCLIP] = amt;
+	bs->inventory[INVENTORY_GRENADECLIP] = ent->client->numClips[WP_GRENADE];
+
+	// AMMO //
+
 	//Makro - clips should be taken into account
-	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_PISTOL] + ent->client->numClips[WP_PISTOL] * RQ3_PISTOL_CLIP;
+	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_PISTOL] + bs->inventory[INVENTORY_PISTOLCLIP] * RQ3_PISTOL_CLIP;
 	bs->inventory[INVENTORY_KNIFEAMMO] = bs->cur_ps.ammo[WP_KNIFE];
-	bs->inventory[INVENTORY_M4AMMO] = bs->cur_ps.ammo[WP_M4] + ent->client->numClips[WP_M4] * RQ3_M4_CLIP;
-	bs->inventory[INVENTORY_SSG3000AMMO] = bs->cur_ps.ammo[WP_SSG3000] + ent->client->numClips[WP_SSG3000];
-	bs->inventory[INVENTORY_MP5AMMO] = bs->cur_ps.ammo[WP_MP5] + ent->client->numClips[WP_MP5] * RQ3_MP5_CLIP;
+	bs->inventory[INVENTORY_M4AMMO] = bs->cur_ps.ammo[WP_M4] + bs->inventory[INVENTORY_M4CLIP] * RQ3_M4_CLIP;
+	bs->inventory[INVENTORY_SSG3000AMMO] = bs->cur_ps.ammo[WP_SSG3000] + bs->inventory[INVENTORY_SSG3000CLIP];
+	bs->inventory[INVENTORY_MP5AMMO] = bs->cur_ps.ammo[WP_MP5] + bs->inventory[INVENTORY_MP5CLIP] * RQ3_MP5_CLIP;
 	//Blaze: Same ammo for shotgun and handcannon
 	//Makro - this was odd
 	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
 	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3];
-	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3] + ent->client->numClips[WP_M3];
-	amt = bs->cur_ps.ammo[WP_HANDCANNON] + ent->client->numClips[WP_HANDCANNON];
+	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3] + bs->inventory[INVENTORY_M3CLIP];
+	amt = bs->cur_ps.ammo[WP_HANDCANNON] + bs->inventory[INVENTORY_HANDCANNONCLIP];
 	//Makro - hackish, but oh well... bots shouldn't want to use a HC when they only have one shell left
 	if (amt < 2)
 		amt = 0;
 	bs->inventory[INVENTORY_HANDCANNONAMMO] = amt;
 	//Blaze: Same ammo for Pistol and Akimbo Pistols
 	//bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
-	//Makro - same hack for akimbo
-	amt = bs->cur_ps.ammo[WP_AKIMBO] + ent->client->numClips[WP_AKIMBO] * RQ3_PISTOL_CLIP;
-	if (amt < 2)
-		amt = 0;
-	bs->inventory[INVENTORY_AKIMBOAMMO] = amt;
+	bs->inventory[INVENTORY_AKIMBOAMMO] = bs->cur_ps.ammo[WP_AKIMBO] + bs->inventory[INVENTORY_AKIMBOCLIP] * RQ3_PISTOL_CLIP;
 	bs->inventory[INVENTORY_GRENADEAMMO] = bs->cur_ps.ammo[WP_GRENADE];
 	
 //	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
@@ -2370,18 +2394,6 @@ void BotUpdateInventory(bot_state_t *bs) {
 	}
 #endif
 
-	//Makro - adding clip info
-	//Note - this stuff is also added to the ammo info, so bots know they still have ammo for their guns
-	bs->inventory[INVENTORY_KNIFECLIP] = ent->client->numClips[WP_KNIFE];
-	bs->inventory[INVENTORY_PISTOLCLIP] = ent->client->numClips[WP_PISTOL];
-	bs->inventory[INVENTORY_M3CLIP] = ent->client->numClips[WP_M3];
-	bs->inventory[INVENTORY_SSG3000CLIP] = ent->client->numClips[WP_SSG3000];
-	bs->inventory[INVENTORY_MP5CLIP] = ent->client->numClips[WP_MP5];
-	bs->inventory[INVENTORY_M4CLIP] = ent->client->numClips[WP_M4];
-	bs->inventory[INVENTORY_HANDCANNONCLIP] = ent->client->numClips[WP_HANDCANNON];
-	bs->inventory[INVENTORY_AKIMBOCLIP] = ent->client->numClips[WP_AKIMBO];
-	bs->inventory[INVENTORY_GRENADECLIP] = ent->client->numClips[WP_GRENADE];
-	
 	/*
 	if (showInfo) {
 		BotAI_Print(PRT_MESSAGE, "Inventory for %s :\n-----------------\n", ent->client->pers.netname);
@@ -2644,10 +2656,10 @@ Added by Makro
 ==================
 */
 int RQ3_Bot_NeedToBandage( bot_state_t *bs) {
-	if ((bs->cur_ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) 
-		return 1;
 	if  ((bs->cur_ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 		return 2;
+	if ((bs->cur_ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) 
+		return 1;
 	return 0;
 }
 
@@ -2670,6 +2682,45 @@ qboolean RQ3_Bot_CheckBandage( bot_state_t *bs ) {
 		doBandage = qtrue;
 
 	return doBandage;
+}
+
+/*
+==================
+RQ3_Bot_RQ3_Bot_IdleActions
+
+Added by Makro
+==================
+*/
+void RQ3_Bot_IdleActions( bot_state_t *bs ) {
+	int damage = RQ3_Bot_NeedToBandage(bs);
+	int ammo = bs->cur_ps.ammo[bs->cur_ps.weapon];
+	int weapon = bs->cur_ps.weapon;
+	//float reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
+
+	//too soon to reload/bandage again ?
+	if (bs->idleAction_time > FloatTime())
+		return;
+
+
+	//check if the bot needs to bandage
+	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+			bs->idleAction_time = FloatTime() + 4;
+			return;
+		}
+	}
+
+	//check if the bot needs to reload
+	if (ammo == 0 || (weapon == WP_SSG3000 && ammo < RQ3_SSG3000_AMMO) || (weapon == WP_M3 && ammo < RQ3_M3_AMMO)) {
+		if (RQ3_Bot_CanReload(bs, weapon)) {
+			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+			bs->idleAction_time = FloatTime() + 1;
+			return;
+		}
+	}
+
+	return;
 }
 
 /*

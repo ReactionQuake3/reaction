@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.7  2002/05/10 13:21:53  makro
 // Mainly bot stuff. Also fixed a couple of crash bugs
 //
@@ -186,7 +190,8 @@ int BotPointAreaNum(vec3_t origin);
 //
 void BotMapScripts(bot_state_t *bs);
 
-//RQ3 bot functions
+// RQ3 bot functions //
+
 qboolean RQ3_Bot_CheckBandage( bot_state_t *bs );
 qboolean RQ3_Bot_CanReload( bot_state_t *bs, int weapon );
 int RQ3_Bot_NeedToBandage( bot_state_t *bs);
@@ -195,6 +200,7 @@ void BotAttack(bot_state_t *bs);
 bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
 char *BotGetUserInfoKey(bot_state_t *bs, char *key);
+void RQ3_Bot_IdleActions( bot_state_t *bs );
 
 //ctf flags
 #define CTF_FLAG_NONE		0

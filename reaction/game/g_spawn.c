@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.27  2002/05/25 10:40:31  makro
 // Loading screen
 //
@@ -175,7 +179,7 @@ field_t fields[] = {
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
-	//{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
+	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
 	{NULL}
 };
 

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.49  2002/05/29 13:49:25  makro
 // Elevators/doors
 //
@@ -163,12 +167,21 @@ void SP_light( gentity_t *self ) {
 	G_FreeEntity( self );
 }
 
-/*QUAKED light_d (0 1 0) (-8 -8 -8) (8 8 8)
+/*QUAKED light_d (0 1 0) (-8 -8 -8) (8 8 8) ADDITIVE FLICKER PULSE STROBE START_OFF
 Dynamic light entity.  Use sparingly.
 Q3 does not allow for manual light radius setup.
 Set the color key for the intended color
 "light" overrides the default 100 intensity.
 */
+void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+	ent->unbreakable ^= 1;
+	if (ent->unbreakable) {
+		ent->r.svFlags &= ~SVF_NOCLIENT;
+	} else {
+		ent->r.svFlags |= SVF_NOCLIENT;
+	}
+}
+
 void SP_dlight( gentity_t *ent ) {
 	vec3_t	color;
 	float	light;
@@ -187,6 +200,16 @@ void SP_dlight( gentity_t *ent ) {
 		ent->s.eventParm |= DLIGHT_PULSE;
 	if ( ent->spawnflags & 8 )
 		ent->s.eventParm |= DLIGHT_STROBE;
+
+	//Makro - added START_OFF flag
+	if ( ent->spawnflags & 16 ) {
+		ent->unbreakable = 1;
+		ent->r.svFlags &= ~SVF_NOCLIENT;
+	} else {
+		ent->unbreakable = 0;
+		ent->r.svFlags |= SVF_NOCLIENT;
+	}
+	ent->use = use_dlight;
 	
 	r = color[0] * 255;
 	if ( r > 255 ) {
@@ -591,7 +614,7 @@ void SP_func_breakable( gentity_t *ent ) {
   char *id;
   char *velocity;
   char *jump;
-  char *name, *s;
+  char *name;
   char breakinfo[MAX_INFO_STRING];
 
   // Make it appear as the brush
@@ -722,11 +745,6 @@ void SP_func_breakable( gentity_t *ent ) {
   trap_SetConfigstring( CS_BREAKABLES+atoi(id), breakinfo);
   
   trap_LinkEntity (ent);
-
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &s)) {
-		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
-	}
 
 }
 
@@ -887,7 +905,6 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 
 void SP_func_pressure( gentity_t *ent ) {
 	char *type;
-	char	*s;
 
 	// Make it appear as the brush
 	trap_SetBrushModel( ent, ent->model );
@@ -912,10 +929,6 @@ void SP_func_pressure( gentity_t *ent ) {
 	// ent->s.frame holds type
 	// ent->s.powerups holds speed
 
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &s)) {
-		Q_strncpyz(ent->pathtarget, s, sizeof(ent->pathtarget));
-	}
 }
 
 void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {

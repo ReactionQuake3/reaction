@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.83  2002/05/28 01:17:01  jbravo
 // More gib fixes.  g_RQ3_gib added
 //
@@ -352,7 +356,7 @@ struct gentity_s {
 	gitem_t		*item;			// for bonus items
 	float		distance;		// VALKYRIE: for rotating door
 	//Blaze: Holds the target set by a button
-	char		pathtarget[32];
+	char		*pathtarget;
 };
 
 

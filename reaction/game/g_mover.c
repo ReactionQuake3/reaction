@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.42  2002/05/29 19:49:21  makro
 // Option to disable spectator triggers for doors
 //
@@ -1125,12 +1129,6 @@ void InitMover( gentity_t *ent ) {
 	if ( ent->s.pos.trDuration <= 0 ) {
 		ent->s.pos.trDuration = 1;
 	}
-
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &sound)) {
-		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
-	}
-
 }
 
 
@@ -1755,11 +1753,6 @@ void InitRotator( gentity_t *ent ) {
 	ent->s.apos.trDuration = angle * 1000 / ent->speed;
 	if ( ent->s.apos.trDuration <= 0 ) {
 		ent->s.apos.trDuration = 1;
-	}
-
-	//Makro - added for elevators
-	if (G_SpawnString( "pathtarget","", &sound)) {
-		Q_strncpyz(ent->pathtarget, sound, sizeof(ent->pathtarget));
 	}
 }
 

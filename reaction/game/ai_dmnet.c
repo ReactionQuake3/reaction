@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/30 21:18:28  makro
+// Bots should reload/bandage when roaming around
+// Added "pathtarget" key to all the entities
+//
 // Revision 1.25  2002/05/11 14:22:06  makro
 // Func_statics now reset at the beginning of each round
 //
@@ -1780,15 +1784,9 @@ AIEnter_Seek_ActivateEntity
 ==================
 */
 void AIEnter_Seek_ActivateEntity(bot_state_t *bs, char *s) {
-	int damage = RQ3_Bot_NeedToBandage(bs);
-
 	BotRecordNodeSwitch(bs, "activate entity", "", s);
-	//Makro - check if the bot needs to bandage
-	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
-		}
-	}
+	//Makro - check if the bot needs to reload/bandage
+	RQ3_Bot_IdleActions(bs);
 	bs->ainode = AINode_Seek_ActivateEntity;
 }
 
@@ -2030,7 +2028,6 @@ AIEnter_Seek_NBG
 void AIEnter_Seek_NBG(bot_state_t *bs, char *s) {
 	bot_goal_t goal;
 	char buf[144];
-	int damage = RQ3_Bot_NeedToBandage(bs);
 
 	if (trap_BotGetTopGoal(bs->gs, &goal)) {
 		trap_BotGoalName(goal.number, buf, 144);
@@ -2039,13 +2036,8 @@ void AIEnter_Seek_NBG(bot_state_t *bs, char *s) {
 	else {
 		BotRecordNodeSwitch(bs, "seek NBG", "no goal", s);
 	}
-	//Makro - check if the bot needs to bandage
-	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
-		}
-	}
-	bs->ainode = AINode_Seek_ActivateEntity;
+	//Makro - check if the bot needs to reload/bandage
+	RQ3_Bot_IdleActions(bs);
 	bs->ainode = AINode_Seek_NBG;
 }
 
@@ -2084,6 +2076,10 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	}
 	//map specific code
 	BotMapScripts(bs);
+
+	//Makro - check if the bot needs to reload/bandage
+	RQ3_Bot_IdleActions(bs);
+
 	//no enemy
 	bs->enemy = -1;
 	//if the bot has no goal
@@ -2171,8 +2167,6 @@ AIEnter_Seek_LTG
 void AIEnter_Seek_LTG(bot_state_t *bs, char *s) {
 	bot_goal_t goal;
 	char buf[144];
-	int damage = RQ3_Bot_NeedToBandage(bs);
-
 	if (trap_BotGetTopGoal(bs->gs, &goal)) {
 		trap_BotGoalName(goal.number, buf, 144);
 		BotRecordNodeSwitch(bs, "seek LTG", buf, s);
@@ -2180,12 +2174,8 @@ void AIEnter_Seek_LTG(bot_state_t *bs, char *s) {
 	else {
 		BotRecordNodeSwitch(bs, "seek LTG", "no goal", s);
 	}
-	//Makro - check if the bot needs to bandage
-	if (damage == 2 || ((damage == 1) && RQ3_Bot_CheckBandage(bs))) {
-		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
-		}
-	}
+	//Makro - check if the bot needs to reload/bandage
+	RQ3_Bot_IdleActions(bs);
 	bs->ainode = AINode_Seek_LTG;
 }
 
@@ -2234,6 +2224,10 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//map specific code
 	BotMapScripts(bs);
+
+	//Makro - check if the bot needs to reload/bandage
+	RQ3_Bot_IdleActions(bs);
+	
 	//no enemy
 	bs->enemy = -1;
 	//
