@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/04/28 11:01:21  slicer
+// Added "teammodel" command for Matchmode
+//
 // Revision 1.44  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -985,6 +988,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("ready");
 	trap_AddCommand ("sub");
 	trap_AddCommand ("teamname");
+	trap_AddCommand ("teammodel");
 // aasimon: refeere mm
 	trap_AddCommand ("reflogin");
 	trap_AddCommand ("ref");
