@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/09/08 00:34:26  jbravo
+// Bumped version to 2.21
+//
 // Revision 1.49  2002/09/01 12:30:29  makro
 // Small fixes
 //
@@ -4799,7 +4802,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 Beta 2.2 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 Beta 2.21 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {
