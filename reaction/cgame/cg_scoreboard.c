@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/12 02:21:06  niceass
+// Matchmode scoreboard features
+//
 // Revision 1.25  2002/05/07 13:35:45  jbravo
 // Fixed the double lights for spectators and made the use cmd use rq3_cmd
 // and made scoreboard not revieal whos alive or dead to live players.
@@ -195,12 +198,6 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 	//cg_RQ3_team1ready
 	//cg_RQ3_team2ready
 	//ent->client->pers.sub
-	if (cg_RQ3_matchmode.integer) {
-		if (score->client == cg_RQ3_RefID.integer) {
-			MAKERGBA(TextColor, 0, 1, 0, 1);
-		}
-	}
-
 
 	Com_sprintf(Tmp, 128, "%5i  %s", score->score, ci->name);
 	DrawLeftStripText(y, SB_FONTSIZEH, Tmp, 27, TextColor);
@@ -217,8 +214,11 @@ CG_TeamScoreboard
 static int CG_TeamplayScoreboard(void) 
 {
 	clientInfo_t	*ci;
-	int		i;
+	int		i, subs;
+
 	int		Reds, Blues, Spectators, Refs;
+	int		RedSubs, BlueSubs;
+
 	float	Alpha;
 	score_t	*Score;
 	int		y;
@@ -228,7 +228,7 @@ static int CG_TeamplayScoreboard(void)
 	char	Tmp[128];
 
 	vec4_t	White, Black, RedL, BlueL, GreyL, BlackL;
-	vec4_t	RedD, BlueD, GreyD, Green;
+	vec4_t	RedD, BlueD, GreyD;
 
 	if (cg.time > cg.scoreStartTime+300) {
 		Alpha = cos((cg.time-cg.scoreStartTime) / 400.0f) * 0.15f + 0.85f;
@@ -248,7 +248,6 @@ static int CG_TeamplayScoreboard(void)
 
 	MAKERGBA(White, 1.0f, 1.0f, 1.0f, 1.0f);
 	MAKERGBA(Black, 0.0f, 0.0f, 0.0f, 1.0f);
-	MAKERGBA(Green, 0.0f, 1.0f, 0.0f, 1.0f);
 	MAKERGBA(BlackL, 0.0f, 0.0f, 0.0f, 0.8f * Alpha);
 	MAKERGBA(RedD, 0.8f, 0.0f,0.0f, 0.8f * Alpha);
 	MAKERGBA(BlueD, 0.0f, 0.0f, 0.8f, 0.8f * Alpha);
@@ -262,13 +261,27 @@ static int CG_TeamplayScoreboard(void)
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
 		Score = &cg.scores[i];
 		ci = &cgs.clientinfo[ Score->client ];
+		if (cg_RQ3_matchmode.integer) {
+			if (Score->client == cg_RQ3_RefID.integer && ci->team == TEAM_SPECTATOR) continue;
+		}
 		if (ci->team == TEAM_RED) Reds++;
 		if (ci->team == TEAM_BLUE) Blues++;
 		if (ci->team == TEAM_SPECTATOR) Spectators++;
+
 	}
 
 	y = 20;		// Starting height.
 
+	// MATCHMODE / TEAMPLAY for showing Referee
+	if ( cg_RQ3_matchmode.integer && cg_RQ3_RefID.integer >= 0) {
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
+		ci = &cgs.clientinfo[ cg_RQ3_RefID.integer ];
+		DrawLeftStripText(y, SB_FONTSIZEH, "Referee:", 100, Black);
+		DrawRightStripText(y, SB_FONTSIZEH, ci->name, 30, Black);
+		y += SB_FONTSIZEH+SB_PADDING*4+2;
+	}
+
+	// NOT TEAMPLAY:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, White);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, White);
@@ -279,7 +292,6 @@ static int CG_TeamplayScoreboard(void)
 		for ( i = 0 ; i < cg.numScores; i++ ) {
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
-
 			CG_DrawTeamplayClientScore(y, Score, GreyL, White, White);
 			if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, White);
 			y += SB_FONTSIZEH+SB_PADDING*2;
@@ -292,12 +304,17 @@ static int CG_TeamplayScoreboard(void)
 
 	// *************** RED TEAM ***************
 	//trap_Cvar_VariableStringBuffer("g_RQ3_team1model", Tmp, sizeof(Tmp));
-	//CG_Printf("Red: %s\n", Tmp);
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, Black);
 	trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
 	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, Black);
-	DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, White);
+	
+	if ( cg_RQ3_matchmode.integer ) 
+		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",  
+			cg_RQ3_team1ready.integer ? "Ready" : "Not Ready", cg.teamScores[0]), 100, White);
+	else
+		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, White);
+
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
@@ -312,6 +329,8 @@ static int CG_TeamplayScoreboard(void)
 		for ( i = 0 ; i < cg.numScores; i++ ) {
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
+		
+			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 
 			if (ci->team == TEAM_RED) {
 				CG_DrawTeamplayClientScore(y, Score, RedL, Black, White);
@@ -344,7 +363,13 @@ static int CG_TeamplayScoreboard(void)
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, Black);
 	trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
 	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, Black);
-	DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, White);
+
+	if ( cg_RQ3_matchmode.integer ) 
+		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",  
+			cg_RQ3_team2ready.integer ? "Ready" : "Not Ready", cg.teamScores[1]), 100, White);
+	else
+		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, White);
+
 	y += SB_FONTSIZEH+SB_PADDING*2+2;
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
@@ -359,6 +384,8 @@ static int CG_TeamplayScoreboard(void)
 		for ( i = 0 ; i < cg.numScores; i++ ) {
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
+
+			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 
 			if (ci->team == TEAM_BLUE) {
 				CG_DrawTeamplayClientScore(y, Score, BlueL, Black, White);
@@ -400,15 +427,14 @@ static int CG_TeamplayScoreboard(void)
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
 
+			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
+
 			if (ci->team == TEAM_SPECTATOR) {
 				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, Black);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, Black);
 
 				if (Alternate == 1) {
-					if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer)
-						DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, Green);
-					else
-						DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, White);
+					DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, White);
 				}
 				else {
 					DrawRightStripText(y, SB_FONTSIZEH, ci->name, 20, White);
