@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/06/16 19:12:52  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.80  2002/06/12 17:05:14  slicer
 // Fixed a couple of problems related to the sniper zooming
 //
@@ -587,75 +590,6 @@ static void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 }
 */
-
-#ifdef MISSIONPACK
-/*
-==========================
-CG_NailTrail
-==========================
-*/
-static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
-	int		step;
-	vec3_t	origin, lastPos;
-	int		t;
-	int		startTime, contents;
-	int		lastContents;
-	entityState_t	*es;
-	vec3_t	up;
-	localEntity_t	*smoke;
-
-	if ( cg_noProjectileTrail.integer ) {
-		return;
-	}
-
-	up[0] = 0;
-	up[1] = 0;
-	up[2] = 0;
-
-	step = 50;
-
-	es = &ent->currentState;
-	startTime = ent->trailTime;
-	t = step * ( (startTime + step) / step );
-
-	CG_EvaluateTrajectory( &es->pos, cg.time, origin );
-	contents = CG_PointContents( origin, -1 );
-
-	// if object (e.g. grenade) is stationary, don't toss up smoke
-	if ( es->pos.trType == TR_STATIONARY ) {
-		ent->trailTime = cg.time;
-		return;
-	}
-
-	CG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
-	lastContents = CG_PointContents( lastPos, -1 );
-
-	ent->trailTime = cg.time;
-
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		if ( contents & lastContents & CONTENTS_WATER ) {
-			CG_BubbleTrail( lastPos, origin, 8 );
-		}
-		return;
-	}
-
-	for ( ; t <= ent->trailTime ; t += step ) {
-		CG_EvaluateTrajectory( &es->pos, t, lastPos );
-
-		smoke = CG_SmokePuff( lastPos, up,
-					  wi->trailRadius,
-					  1, 1, 1, 0.33f,
-					  wi->wiTrailTime,
-					  t,
-					  0,
-					  0,
-					  cgs.media.nailPuffShader );
-		// use the optimized local entity add
-		smoke->leType = LE_SCALE_FADE;
-	}
-
-}
-#endif
 
 /*
 ==========================
@@ -1401,11 +1335,6 @@ static float	CG_MachinegunSpinAngle( centity_t *cent ) {
 		cent->pe.barrelTime = cg.time;
 		cent->pe.barrelAngle = AngleMod( angle );
 		cent->pe.barrelSpinning = !!(cent->currentState.eFlags & EF_FIRING);
-#ifdef MISSIONPACK
-		if ( cent->currentState.weapon == WP_CHAINGUN && !cent->pe.barrelSpinning ) {
-			trap_S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, trap_S_RegisterSound( "sound/weapons/vulcan/wvulwind.wav", qfalse ) );
-		}
-#endif
 	}
 
 	return angle;
@@ -3544,11 +3473,6 @@ void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum )
 	switch ( weapon ) {
 	case WP_GRENADE_LAUNCHER:
 	case WP_ROCKET_LAUNCHER:
-#ifdef MISSIONPACK
-	case WP_NAILGUN:
-	case WP_CHAINGUN:
-	case WP_PROX_LAUNCHER:
-#endif
 		CG_MissileHitWall( weapon, 0, origin, dir, IMPACTSOUND_FLESH, 0 );
 		break;
 	default:

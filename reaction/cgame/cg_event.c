@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/06/16 19:12:52  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.63  2002/06/05 23:53:05  jbravo
 // Color fixes for player names
 //
@@ -118,11 +121,6 @@
 // JBravo: warning fix
 void CG_BreakBreakable(centity_t *cent, int eParam, int number);
 
-// for the voice chats
-#ifdef MISSIONPACK // bk001205
-#include "../../ui/menudef.h"
-#endif
-
 void CG_LaunchGib (vec3_t origin, vec3_t velocity, qhandle_t hModel);
 	
 //==========================================================================
@@ -216,17 +214,6 @@ static void CG_UseItem( centity_t *cent ) {
 		}
 		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.medkitSound );
 		break;
-
-#ifdef MISSIONPACK
-	case HI_KAMIKAZE:
-		break;
-
-	case HI_PORTAL:
-		break;
-	case HI_INVULNERABILITY:
-		trap_S_StartSound (NULL, es->number, CHAN_BODY, cgs.media.useInvulnerabilitySound );
-		break;
-#endif
 	}
 
 }
@@ -755,32 +742,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_TAUNT");
 		trap_S_StartSound (NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
 		break;
-#ifdef MISSIONPACK
-	case EV_TAUNT_YES:
-		DEBUGNAME("EV_TAUNT_YES");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_YES);
-		break;
-	case EV_TAUNT_NO:
-		DEBUGNAME("EV_TAUNT_NO");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_NO);
-		break;
-	case EV_TAUNT_FOLLOWME:
-		DEBUGNAME("EV_TAUNT_FOLLOWME");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_FOLLOWME);
-		break;
-	case EV_TAUNT_GETFLAG:
-		DEBUGNAME("EV_TAUNT_GETFLAG");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_ONGETFLAG);
-		break;
-	case EV_TAUNT_GUARDBASE:
-		DEBUGNAME("EV_TAUNT_GUARDBASE");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_ONDEFENSE);
-		break;
-	case EV_TAUNT_PATROL:
-		DEBUGNAME("EV_TAUNT_PATROL");
-		CG_VoiceChatLocal(SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_ONPATROL);
-		break;
-#endif
 	case EV_WATER_TOUCH:
 		DEBUGNAME("EV_WATER_TOUCH");
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.watrInSound );
@@ -816,22 +777,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			if ( item->giType == IT_POWERUP || item->giType == IT_TEAM) {
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.n_healthSound );
 			} else if (item->giType == IT_PERSISTANT_POWERUP) {
-#ifdef MISSIONPACK
-				switch (item->giTag ) {
-					case PW_SCOUT:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.scoutSound );
-					break;
-					case PW_GUARD:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.guardSound );
-					break;
-					case PW_DOUBLER:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.doublerSound );
-					break;
-					case PW_AMMOREGEN:
-						trap_S_StartSound (NULL, es->number, CHAN_AUTO,	cgs.media.ammoregenSound );
-					break;
-				}
-#endif
 			} else if (item->giType == IT_HOLDABLE) {
 				// Elder: we want sounds for unique item pickup
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	trap_S_RegisterSound( item->pickup_sound, qfalse ) );
@@ -1009,52 +954,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.hgrenb2aSound );
 		}
 		break;
-
-#ifdef MISSIONPACK
-	case EV_PROXIMITY_MINE_STICK:
-		DEBUGNAME("EV_PROXIMITY_MINE_STICK");
-		//Elder: removed
-		if( es->eventParm & SURF_FLESH ) {
-			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimplSound );
-		//Makro - new surfaceparm system
-		//} else 	if( es->eventParm & SURF_METALSTEPS ) {
-		} else 	if( IsMetalFlag(es->eventParm) ) {
-			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpmSound );
-		} else {
-			//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbimpdSound );
-		}
-		break;
-
-	case EV_PROXIMITY_MINE_TRIGGER:
-		DEBUGNAME("EV_PROXIMITY_MINE_TRIGGER");
-		//Elder: removed
-		//trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.wstbactvSound );
-		break;
-	case EV_KAMIKAZE:
-		DEBUGNAME("EV_KAMIKAZE");
-		CG_KamikazeEffect( cent->lerpOrigin );
-		break;
-	case EV_OBELISKEXPLODE:
-		DEBUGNAME("EV_OBELISKEXPLODE");
-		CG_ObeliskExplode( cent->lerpOrigin, es->eventParm );
-		break;
-	case EV_OBELISKPAIN:
-		DEBUGNAME("EV_OBELISKPAIN");
-		CG_ObeliskPain( cent->lerpOrigin );
-		break;
-	case EV_INVUL_IMPACT:
-		DEBUGNAME("EV_INVUL_IMPACT");
-		CG_InvulnerabilityImpact( cent->lerpOrigin, cent->currentState.angles );
-		break;
-	case EV_JUICED:
-		DEBUGNAME("EV_JUICED");
-		CG_InvulnerabilityJuiced( cent->lerpOrigin );
-		break;
-	case EV_LIGHTNINGBOLT:
-		DEBUGNAME("EV_LIGHTNINGBOLT");
-		CG_LightningBoltBeam(es->origin2, es->pos.trBase);
-		break;
-#endif
 	case EV_SCOREPLUM:
 		DEBUGNAME("EV_SCOREPLUM");
 		CG_ScorePlum( cent->currentState.otherEntityNum, cent->lerpOrigin, cent->currentState.time );
@@ -1319,19 +1218,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					}
 					else {
 					if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
-#ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
-							else
-#endif
 						 	CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
 						else if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
-#ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
-							else
-#endif
  							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
 						}
 					}
@@ -1342,19 +1231,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					}
 					else {
 						if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
-#ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
-							else
-#endif
 							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 						}
 						else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
-#ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
-							else
-#endif
 							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
 						}
 					}
@@ -1385,11 +1264,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				case GTS_TEAMS_ARE_TIED:
 					if (cg_RQ3_anouncer.integer == 1) CG_AddBufferedSound( cgs.media.teamsTiedSound );
 					break;
-#ifdef MISSIONPACK
-				case GTS_KAMIKAZE:
-					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
-					break;
-#endif
 				default:
 					break;
 			}

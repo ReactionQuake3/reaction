@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/06/16 19:12:52  jbravo
+// Removed the MISSIONPACK ifdefs and missionpack only code.
+//
 // Revision 1.31  2002/06/08 14:07:52  makro
 // no message
 //
@@ -324,17 +327,6 @@ void CG_DrawInformation( void ) {
 	case GT_CTF:
 		line = "CAPTURE THE FLAG";
 		break;
-#ifdef MISSIONPACK
-	case GT_1FCTF:
-		line = "ONE FLAG CTF";
-		break;
-	case GT_OBELISK:
-		line = "OVERLOAD";
-		break;
-	case GT_HARVESTER:
-		line = "HARVESTER";
-		break;
-#endif
 	default:
 		line = "UNKNOWN GAMETYPE";
 		break;
