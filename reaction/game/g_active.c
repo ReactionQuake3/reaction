@@ -583,10 +583,6 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		{
 			G_Printf("Bleedtick (%d) getting lowered by one (%d)\n", ent->client->bleedtick, client->timeResidual);
 			ent->client->bleedtick--;
-			//Elder: added
-			if (ent->client->bleedtick == 2) {
-				ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
-			}
 		}
 		else if (ent->client->bleedtick == 1)
 		{
@@ -595,6 +591,9 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleedtick = 0;
 			//Elder: added
 			ent->client->isBandaging = qfalse;
+			//Elder: moved from somewhere - err, g_cmds.c I think
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
+			
 //			ent->client->ps.weaponTime += 2500;
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
@@ -1376,7 +1375,14 @@ void ClientEndFrame( gentity_t *ent ) {
 
 //Elder: bleeding
 	//TODO: add in when you get leg damage
-	ent->client->ps.stats[STAT_BANDAGE] = ent->client->bleeding; // + ent->client->legDamage;
+	//ent->client->ps.stats[STAT_RQ3] &= RQ3_LEGDAMAGE;
+	if (ent->client->bleeding ||
+		(ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
+		ent->client->ps.stats[STAT_BANDAGE] = 1;
+	}
+	else {
+		ent->client->ps.stats[STAT_BANDAGE] = 0;
+	}
 
 	G_SetClientSound (ent);
 
