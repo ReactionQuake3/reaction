@@ -1890,7 +1890,7 @@ static void PM_Weapon( void ) {
 
 	// Elder: fire on release - based on code from inolen
 	// check for fire
-	// if they are pressing attack and their current weapon is the railgun
+	// if they are pressing attack and their current weapon is the grenade
 	if ((pm->cmd.buttons & 1) && (pm->ps->weapon == WP_GRENADE) ) {
 		pm->ps->weaponTime = 0;
 		// put it in the "cocked" position
@@ -1971,6 +1971,14 @@ static void PM_Weapon( void ) {
 		PM_AddEvent( EV_NOAMMO );
 		pm->ps->weaponTime += 500;
 		return;
+	}
+
+
+	//Elder: M4 kick code
+	//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
+	if ( pm->ps->weapon == WP_M4 && ((pm->ps->persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE) )
+	{
+		pm->ps->delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(pm->ps->delta_angles[0]) - 0.7);
 	}
 
 	//if ( ! pm->ps->ammo[ pm->ps->weapon ] ||

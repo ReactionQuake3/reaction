@@ -961,7 +961,7 @@ and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum ) {
 	gentity_t	*ent;
 	gclient_t	*client;
-	gentity_t	*tent;
+	//gentity_t	*tent;
 	int			flags;
 
 	ent = g_entities + clientNum;
@@ -989,12 +989,6 @@ void ClientBegin( int clientNum ) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
 
-	//Elder: added to initialize weaponmodes
-	client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
-	client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
-	//Elder: debug
-	//G_Printf("In clientbegin- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
-
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
@@ -1002,7 +996,14 @@ void ClientBegin( int clientNum ) {
 		// send event
 		//Elder: removed
 		//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		tent->s.clientNum = ent->s.clientNum;
+		//tent->s.clientNum = ent->s.clientNum;
+
+		//Elder: moved after ClientSpawn call
+		//Elder: added to initialize weaponmodes
+		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
+		client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
+		//Elder: debug
+		//G_Printf("In clientbegin- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
@@ -1253,8 +1254,10 @@ void ClientSpawn(gentity_t *ent) {
 
 	//Elder: reset all RQ3 non-persistent stats
 	ent->client->ps.stats[STAT_RQ3] = 0;
+	
 	//Elder: set weaponfireNextTime amount
 	client->weaponfireNextTime = 0;
+
 	//Elder: Initialize fast reloads stuff
 	client->fastReloads = 0;
 	client->lastReloadTime = 0;

@@ -1497,17 +1497,22 @@ void ClientEndFrame( gentity_t *ent ) {
 	}
 
 	
+	//Moved to pmove.c
 	//Elder: M4 ride-up/kick -- condition for non-burst and ammo only
-	if ( ent->client->ps.weapon == WP_M4 && ent->client->ps.ammo[WP_M4] > 0 &&
-		(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE &&
-		(ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
-	{
+	//if ( ent->client->ps.weapon == WP_M4 && ent->client->ps.ammo[WP_M4] > 0 &&
+		//(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) != RQ3_M4MODE &&
+		//ent->client->ps.weaponstate == WEAPON_FIRING)
+		//(ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
+	//{
 		//G_Printf("bullets: %d, viewangle: %f\n", ent->client->consecutiveShots, ent->client->ps.viewangles[0]);	
-		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
-	}
-	else if (ent->client->consecutiveShots)
+		//ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - 0.7);
+	//}
+	//else if (ent->client->consecutiveShots)
+
+	if (ent->client->consecutiveShots &&
+		(ent->client->ps.ammo[WP_M4] <= 0 || ent->client->ps.weaponstate != WEAPON_FIRING))
 	{
-		//Restore view after shots
+		//Restore view after shots if not firing
 		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7);
 		ent->client->consecutiveShots = 0;
 	}

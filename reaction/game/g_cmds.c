@@ -1681,7 +1681,11 @@ void Cmd_Reload( gentity_t *ent )       {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
-       
+
+	//Elder: release fire button
+	//if ( (ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
+		//ent->client->buttons &= ~BUTTON_ATTACK;
+
     weapon = ent->client->ps.weapon;
     //Elder: changed to new function
     ammotoadd = ClipAmountForReload(weapon);
