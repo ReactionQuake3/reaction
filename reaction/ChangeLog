@@ -36,6 +36,7 @@
 * % vars are now only expanded for say_team messages.
 * Hitboxes now 100% AQ style
 * Removed cockingsounds from all weapons except the mk23, m4 and mp5
+* Fixed the bot_minplayer system.
 
 
 # List fixes here for the 2.1 release

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/08/20 20:07:21  jbravo
+// Fixed the bot_minplayer system.
+//
 // Revision 1.13  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -368,8 +371,12 @@ int G_CountHumanPlayers(int team)
 		if (g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) {
 			continue;
 		}
-		if (team >= 0 && cl->sess.sessionTeam != team) {
-			continue;
+		if (g_gametype.integer >= GT_TEAM) {
+			if (team >= 0 && cl->sess.savedTeam != team) 
+				continue;
+		} else {
+			if (team >= 0 && cl->sess.sessionTeam != team) 
+				continue;
 		}
 		num++;
 	}
@@ -395,8 +402,12 @@ int G_CountBotPlayers(int team)
 		if (!(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT)) {
 			continue;
 		}
-		if (team >= 0 && cl->sess.sessionTeam != team) {
-			continue;
+		if (g_gametype.integer >= GT_TEAM) {
+			if (team >= 0 && cl->sess.savedTeam != team)
+				continue;
+		} else {
+			if (team >= 0 && cl->sess.sessionTeam != team)
+				continue;
 		}
 		num++;
 	}
