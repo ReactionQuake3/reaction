@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/23 00:21:44  jbravo
+// Cleanups of the new model code.  Removed the spectator bar for zcam modes.
+//
 // Revision 1.67  2002/04/22 02:27:57  jbravo
 // Dynamic model recognition
 //
@@ -158,6 +161,7 @@ char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 // JBravo: for models
 extern legitmodel_t    legitmodels[MAXMODELS];
+qboolean RQ3_Validatemodel (char *model);
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -869,7 +873,6 @@ void ClientUserinfoChanged( int clientNum ) {
 	int		teamTask, teamLeader, team, health;
 	char	*s;
 	char	model[MAX_QPATH];
-	char	skin[MAX_QPATH];
 	char	headModel[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
@@ -954,11 +957,11 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		if (client->sess.sessionTeam == TEAM_RED) {
-			Com_sprintf (model, sizeof (model) , "%s/%s", g_RQ3_team1model.string, g_RQ3_team1skin.string);
-			Com_sprintf (headModel, sizeof (headModel) , "%s/%s", g_RQ3_team1model.string, g_RQ3_team1skin.string);
+			Com_sprintf (model, sizeof (model) , "%s", g_RQ3_team1model.string);
+			Com_sprintf (headModel, sizeof (headModel) , "%s", g_RQ3_team1model.string);
 		} else {
-			Com_sprintf (model, sizeof (model) , "%s/%s", g_RQ3_team2model.string, g_RQ3_team2skin.string);
-			Com_sprintf (headModel, sizeof (headModel) , "%s/%s", g_RQ3_team2model.string, g_RQ3_team2skin.string);
+			Com_sprintf (model, sizeof (model) , "%s", g_RQ3_team2model.string);
+			Com_sprintf (headModel, sizeof (headModel) , "%s", g_RQ3_team2model.string);
 		}
 	} else {
 		// NiceAss: temporary hack to prevent non-grunt models:
@@ -971,7 +974,9 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 
 		// Makro - adding abbey
-		if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
+//		if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
+		// JBravo: Validating the model
+		if (!RQ3_Validatemodel(model2)) {
 			trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model (%s). Forcing change on server.\n\"", model2));
 			Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
 			Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));

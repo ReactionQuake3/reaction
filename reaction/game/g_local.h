@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/04/23 00:21:44  jbravo
+// Cleanups of the new model code.  Removed the spectator bar for zcam modes.
+//
 // Revision 1.69  2002/04/22 16:43:34  blaze
 // Hey look, breakables explode now!  :)
 //
@@ -1110,10 +1113,8 @@ extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limite
 extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
 extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
-extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model
-extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model
-extern	vmCvar_t	g_RQ3_team1skin;		// JBravo: team 1 skin
-extern	vmCvar_t	g_RQ3_team2skin;		// JBravo: team 2 skin
+extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model and skin
+extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model and skin
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus

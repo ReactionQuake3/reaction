@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/04/23 00:21:44  jbravo
+// Cleanups of the new model code.  Removed the spectator bar for zcam modes.
+//
 // Revision 1.34  2002/04/06 21:43:58  makro
 // New surfaceparm system
 //
@@ -2868,7 +2871,10 @@ static void CG_Draw2D( void ) {
 		cg.predictedPlayerState.pm_type == PM_SPECTATOR) {
 		//if (cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_RED && cg.snap->ps.persistant[PERS_SAVEDTEAM] != TEAM_BLUE)
 		// cg.predictedPlayerState.pm_type == PM_SPECTATOR
-		CG_DrawSpectator();
+// JBravo: no spectator bar for zcam modes.
+		if (!(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM)) {
+			CG_DrawSpectator();
+		}
 		CG_DrawCrosshair();
 		CG_DrawCrosshairNames();
 	} else {
