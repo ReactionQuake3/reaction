@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/05/25 07:12:34  blaze
+// moved breakables into a configstring so they work in demos
+//
 // Revision 1.68  2002/05/21 14:59:11  makro
 // cg_RQ3_avidemo
 //
@@ -1163,7 +1166,46 @@ static void CG_RegisterSounds( void ) {
 
 
 //===================================================================================
+/*
+=================
+CG_RegisterBreakables
 
+  This function registers the breakables
+=================
+*/
+static void CG_RegisterBreakables(void){
+	int i,id;
+	const char *breakInfo;
+  const char *name;
+  CG_Printf("In registerbreakables\n");
+  for (i=0;i < RQ3_MAX_BREAKABLES; i++)
+  {
+		breakInfo = CG_ConfigString( CS_BREAKABLES+i );
+		if ( !breakInfo[0]) {
+			continue;
+		}
+    
+		id = atoi(Info_ValueForKey(breakInfo, "id"));
+		if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
+      name = Info_ValueForKey(breakInfo,"type");
+			Com_Printf("Registering breakable %s ID=%d\n",name, id);
+			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
+			cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",name));
+ 			cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",name));
+ 			cgs.media.breakables[id].model[2] = trap_R_RegisterModel( va("breakables/%s/models/break3.md3",name));
+			cgs.media.breakables[id].shader = trap_R_RegisterShader( va("breakable_%s_explosion",name));
+			cgs.media.breakables[id].sound[0] = trap_S_RegisterSound( va("breakables/%s/sounds/break1.wav", name), qfalse);
+			cgs.media.breakables[id].sound[1] = trap_S_RegisterSound( va("breakables/%s/sounds/break2.wav", name), qfalse);
+			cgs.media.breakables[id].sound[2] = trap_S_RegisterSound( va("breakables/%s/sounds/break3.wav", name), qfalse);
+			cgs.media.breakables[id].exp_sound = trap_S_RegisterSound( va("breakables/%s/sounds/explosion.wav", name), qfalse);
+      cgs.media.breakables[id].velocity = atoi(Info_ValueForKey(breakInfo,"velocity"));
+      cgs.media.breakables[id].jump = atoi(Info_ValueForKey(breakInfo,"jump"));
+		} else {
+			CG_Printf("ID was %d\n",id);
+		}
+
+  }
+}
 
 /*
 =================
@@ -2408,6 +2450,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_LoadingString( "graphics" );
 
 	CG_RegisterGraphics();
+
+  //Blaze: Load breakables
+  CG_LoadingString( "breakables" );
+
+  CG_RegisterBreakables();
 
 	CG_LoadingString( "clients" );
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/05/25 07:12:34  blaze
+// moved breakables into a configstring so they work in demos
+//
 // Revision 1.42  2002/05/23 03:06:56  blaze
 // Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
 //
@@ -1539,11 +1542,12 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	if (!strcmp(cmd, "breakable")) {
+//Blaze: Moved to a config string to allow breakables to work in a demo
+/*	if (!strcmp(cmd, "breakable")) {
 		int id;
 		id = atoi(CG_Argv(1));
 		if (id >= 0 && id < RQ3_MAX_BREAKABLES) {
-			//Com_Printf("Registering breakable %s ID=%d\n",CG_Argv(2), id);
+			Com_Printf("Registering breakable %s ID=%d\n",CG_Argv(2), id);
 			//Blaze: Breakable stuff - register the models, sounds, and explosion shader
 			cgs.media.breakables[id].model[0] = trap_R_RegisterModel( va("breakables/%s/models/break1.md3",CG_Argv(2)));
  			cgs.media.breakables[id].model[1] = trap_R_RegisterModel( va("breakables/%s/models/break2.md3",CG_Argv(2)));
@@ -1561,7 +1565,7 @@ static void CG_ServerCommand( void ) {
 		}
 		return;
 	}
-
+*/
 	if (!strcmp(cmd, "rq3_cmd")) {
 		CG_RQ3_Cmd();
 		return;
