@@ -15,7 +15,7 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { uiScript loadArenas ; hide grpcallVote ; show map }
+	onOpen { uiScript loadVoteArenas ; hide grpcallVote ; show map }
 
 //Window
 
