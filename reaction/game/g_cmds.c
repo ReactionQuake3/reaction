@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.144  2002/06/23 23:32:29  jbravo
+// Fixed logging of clients IP addresses.
+//
 // Revision 1.143  2002/06/23 21:44:08  jbravo
 // Fixed shots fired stats for non TP modes and some cleanups
 //
@@ -3178,6 +3181,8 @@ void ClientCommand(int clientNum)
 		Cmd_DropWeapon_f(ent);
 // JBravo: adding ignore
 	else if (Q_stricmp(cmd, "ignorenum") == 0)
+		Cmd_Ignorenum_f(ent);
+	else if (Q_stricmp(cmd, "unignorenum") == 0)
 		Cmd_Ignorenum_f(ent);
 	else if (Q_stricmp(cmd, "ignore") == 0)
 		Cmd_Ignore_f(ent);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/06/23 23:32:29  jbravo
+// Fixed logging of clients IP addresses.
+//
 // Revision 1.99  2002/06/21 11:55:32  freud
 // Changed spawning system to move spawns up 9 pixels (q3 style)
 //
@@ -1319,7 +1322,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
 	char *value, *ip;
 	gclient_t *client;
-	char userinfo[MAX_INFO_STRING];
+	char userinfo[MAX_INFO_STRING], ipaddr[64];
 	gentity_t *ent;
 
 	ent = &g_entities[clientNum];
@@ -1327,6 +1330,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	// check to see if they are on the banned IP list
 	ip = Info_ValueForKey(userinfo, "ip");
+	strcpy(ipaddr, ip);
 	if (G_FilterPacket(ip)) {
 		return "Banned.";
 	}
@@ -1365,10 +1369,6 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 			return "BotConnectfailed";
 		}
 	}
-	// get and distribute relevent paramters
-	// JBravo: make this more like AQ. Moved it down a bit.
-//      G_LogPrintf( "ClientConnect: %i\n", clientNum );
-
 // slicer : make sessionTeam = to savedTeam for scoreboard on cgame
 // JBravo: only for teamplay. Could break DM
 	if (g_gametype.integer == GT_TEAMPLAY) {
@@ -1380,7 +1380,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if (firstTime) {
 		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
-		G_LogPrintf("%s@%s connected (clientNum %i)\n", client->pers.netname, ip, clientNum);
+		G_LogPrintf("%s@%s connected (clientNum %i)\n", client->pers.netname, ipaddr, clientNum);
 	}
 
 	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
@@ -1403,17 +1403,6 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	}
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
-
-	//Blaze: Send out the breakable names to the clients
-	//Blaze: moved to configstring
-	//if (!isBot && G_SendBreakableInfo(clientNum))
-	//{
-	//  Com_Printf("Error sending breakable info to client\n");
-	//}
-	// for statistics
-//      client->areabits = areabits;
-//      if ( !client->areabits )
-//              client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
 
 	return NULL;
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/06/23 23:32:29  jbravo
+// Fixed logging of clients IP addresses.
+//
 // Revision 1.52  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -739,6 +742,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("playerlist");
 // JBravo: ignore
 	trap_AddCommand("ignorenum");
+	trap_AddCommand("unignorenum");
 	trap_AddCommand("ignore");
 	trap_AddCommand("unignore");
 	trap_AddCommand("clearignorelist");
