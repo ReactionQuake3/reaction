@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/07/11 04:26:46  niceass
+// new debug function to save a string to a file
+//
 // Revision 1.14  2002/07/09 03:31:25  niceass
 // oops
 //
@@ -815,5 +818,17 @@ int G_PlayerAlive(gentity_t *ent)
 			return qtrue;
 		else
 			return qfalse;
+	}
+}
+
+/*
+	Want to save data right before RQ3 crashes? Ues this =D
+*/
+void G_DebugSaveData(char *Data) {
+	fileHandle_t f;
+
+	if (trap_FS_FOpenFile("debugout.txt", &f, FS_WRITE) >= 0) {
+		trap_FS_Write(Data, strlen(Data), f);
+		trap_FS_FCloseFile(f);
 	}
 }
