@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/03/18 13:32:53  jbravo
+// Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
+// testing
+//
 // Revision 1.76  2002/03/18 04:37:10  jbravo
 // Removing locations from teamtalk on dead players.
 //
@@ -1993,19 +1997,18 @@ void Cmd_Bandage (gentity_t *ent)
 		return;
 
 	//Elder: added so you can't "rebandage"
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
 		return;
 	}
 
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
-		 (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
-	{
+	if ((ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
+		 (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
 		//Elder: remove zoom bits
 		Cmd_Unzoom(ent);
 
 		//Elder: added
-        ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
+		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
 
 		//Elder: drop the primed grenade
 		//Moved weapon switch to bg_pmove.c
@@ -2017,47 +2020,19 @@ void Cmd_Bandage (gentity_t *ent)
 
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
 
-		//Elder: temp hack
-		/*
-		if (ent->client->ps.weapon == WP_PISTOL ||
-			ent->client->ps.weapon == WP_M3 ||
-			ent->client->ps.weapon == WP_HANDCANNON ||
-			ent->client->ps.weapon == WP_SSG3000 ||
-			ent->client->ps.weapon == WP_M4 ||
-			ent->client->ps.weapon == WP_MP5 ||
-			ent->client->ps.weapon == WP_AKIMBO ||
-			ent->client->ps.weapon == WP_GRENADE ||
-			(ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
-		{
-			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
-										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
-		}
-		else */
-		if (ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
-		{
+		if (ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_THROWDISARM;
-		}
-		else
-		{
+		} else {
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
-
-		//Elder: always lower the player model -- removed
-		/*
-		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
-			   ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
-		*/
-
 
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
         	ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
-	}
-	else
-	{
+	} else {
 		trap_SendServerCommand( ent-g_entities, va("print \"No need to bandage.\n\""));
 	}
 }

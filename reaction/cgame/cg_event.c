@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/03/18 13:32:53  jbravo
+// Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
+// testing
+//
 // Revision 1.43  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
 // hacks to get bots to stop using knives only.
@@ -604,7 +608,9 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			message2 = "'s akimbo Mark 23 pistols";
 			break;
 		case MOD_SNIPER:
-			if (cg.refdef.fov_x < 90) {
+// JBravo: fixing these fraglines for players that dont have a sniper
+//			if (cg.refdef.fov_x < 90) {
+			if (cgs.clientinfo[target].curWeapon == WP_SSG3000) {
 				if (gender == GENDER_NEUTER)
 					message = "saw the sniper bullet go through its scope thanks to";
 				else if (gender == GENDER_FEMALE)

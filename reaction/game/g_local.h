@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/03/18 13:32:53  jbravo
+// Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
+// testing
+//
 // Revision 1.54  2002/03/17 03:35:29  jbravo
 // More radio tewaks and cleanups.
 //
@@ -106,7 +110,8 @@
 // Let's enforce that in-code because it's sometimes 7 or even 8
 // Elder: LOL it's 3, dumb Elder!
 #define BLEED_BANDAGE			3
-#define BLEED_BANDAGE_TIME		5400	// 27 x 2
+//#define BLEED_BANDAGE_TIME		5400	// 27 x 2
+#define BLEED_BANDAGE_TIME		5600	// 27 x 2
 
 // types of locations that can be hit
 #define LOC_HDAM 1 // head
