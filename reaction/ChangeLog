@@ -5,3 +5,4 @@
 * LaserSight bug is fixed.
 * Fixed the base votingsystem. Still needs a cleanup
 * Fixed the respawning of dead players weapons and items in TP
+* Fixed to allow > 16 breakables
