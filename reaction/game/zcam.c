@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/08/03 07:49:49  jbravo
+// Added a line to the zcam swing tracking message indicating who you are following
+//
 // Revision 1.15  2002/07/04 04:20:41  jbravo
 // Fixed my weaponchange cancel in the Use cmd, and fixed the bug where players
 // that where in eye spectating someone moved on to another player instantly on death.
@@ -700,16 +703,17 @@ static gentity_t *CameraSwingTarget(gentity_t * ent)
 			color = S_COLOR_GREEN;
 
 // JBravo: take teamnames into account
+// JBravo: added who you are following to the zcam swing output.
 		if (target2nd->client->sess.sessionTeam == TEAM_RED)
 			trap_SendServerCommand(ent->client->ps.clientNum,
 					       va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sTracking " S_COLOR_WHITE "%s"
-						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n", color,
-						  target2nd->client->pers.netname, g_RQ3_team1name.string));
+						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n%sFollowing " S_COLOR_WHITE "%s", color,
+						  target2nd->client->pers.netname, g_RQ3_team1name.string, color, target1st->client->pers.netname));
 		else if (target2nd->client->sess.sessionTeam == TEAM_BLUE)
 			trap_SendServerCommand(ent->client->ps.clientNum,
 					       va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sTracking " S_COLOR_WHITE "%s"
-						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n", color,
-						  target2nd->client->pers.netname, g_RQ3_team2name.string));
+						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n%sFollowing " S_COLOR_WHITE "%s", color,
+						  target2nd->client->pers.netname, g_RQ3_team2name.string, color, target1st->client->pers.netname));
 	}
 
 	return target2nd;

@@ -22,6 +22,7 @@
 * Fixed plost3 radio sounds in all radiopaks.
 * Damage is now only tracked for players hit that are not on your team.
 * Fixed constant gasping sound when you die in shallow water
+* Added a line to the zcam swing tracking message indicating who you are following
 
 
 # List fixes here for the 2.1 release
