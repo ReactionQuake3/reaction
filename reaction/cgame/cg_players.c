@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/07/09 06:08:09  niceass
+// fixes and changes to ctb
+//
 // Revision 1.38  2002/06/29 21:58:14  niceass
 // no more enemy bubbles
 //
@@ -1937,7 +1940,8 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel, refEntity_t *torso)
 	*/
 
 	// NiceAss: This way kicks more ass
-	refEntity_t flag;
+	refEntity_t	flag;
+	vec3_t		angles;
 
 	// show the flag pole model
 	memset(&flag, 0, sizeof(flag));
@@ -1947,19 +1951,21 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel, refEntity_t *torso)
 	VectorCopy(torso->lightingOrigin, flag.lightingOrigin);
 	flag.shadowPlane = torso->shadowPlane;
 	flag.renderfx = torso->renderfx;
+	
+	angles[YAW] = 140;
+	AnglesToAxis(angles, flag.axis);
 
 	// THE hack. Position the flag where the head is
-	CG_PositionEntityOnTag(&flag, torso, torso->hModel, "tag_head");
+	CG_PositionRotatedEntityOnTag(&flag, torso, torso->hModel, "tag_head");
 
-	// 50% smaller.
-	VectorScale(flag.axis[0], 0.5, flag.axis[0]);
-	VectorScale(flag.axis[1], 0.5, flag.axis[1]);
-	VectorScale(flag.axis[2], 0.5, flag.axis[2]);
-
-	// Move the flag back a little
-	VectorMA(flag.origin, -40, flag.axis[0], flag.origin);
+	// Move the flag forward a little
+	VectorMA(flag.origin, -17, flag.axis[0], flag.origin);
 	// Move the flag down  a little
-	VectorMA(flag.origin, -40, flag.axis[2], flag.origin);
+	VectorMA(flag.origin, -14, flag.axis[2], flag.origin);
+
+	VectorScale(flag.axis[0], 0.8f, flag.axis[0]);
+	VectorScale(flag.axis[1], 0.8f, flag.axis[1]);
+	VectorScale(flag.axis[2], 0.8f, flag.axis[2]);
 
 	trap_R_AddRefEntityToScene(&flag);
 }
@@ -2152,7 +2158,7 @@ static void CG_PlayerFloatSprite(centity_t * cent, qhandle_t shader)
 	refEntity_t ent;
 
 	// NiceAss: Don't draw floating sprites for enemies in TP
-	if ( cgs.gametype >= GT_TEAM && 
+	if ( cgs.gametype == GT_TEAMPLAY && 
 		 cgs.clientinfo[cent->currentState.clientNum].team != cg.snap->ps.persistant[PERS_SAVEDTEAM] &&
 		 ( cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED || 
 		 cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE ) )
