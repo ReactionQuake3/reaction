@@ -62,7 +62,7 @@
 * Cleaned up server logging and added real timestamping to them.
 * MM: "referee" voting command and ref's "kick" user command now uses player's numbers instead of names
 * Added support for sky portals
-
+* Greatly enhanced UI functionality for matchmode
 
 # List fixes here for the 2.1 release
 
