@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/05/02 23:04:59  makro
+// Loading screen. Jump kicks
+//
 // Revision 1.52  2002/04/29 06:14:57  niceass
 // pressure
 //
@@ -1492,8 +1495,7 @@ static void CG_JumpKick ( entityState_t *ent )
 	}
 
 	// everyone hears this
-	// Makro - I didn't ! Changed from CHAN_AUTO
-	trap_S_StartSound(NULL, ent->number, CHAN_BODY, cgs.media.kickSound);
+	trap_S_StartSound(NULL, ent->number, CHAN_AUTO, cgs.media.kickSound);
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/05/02 23:04:59  makro
+// Loading screen. Jump kicks
+//
 // Revision 1.15  2002/05/02 12:44:07  makro
 // Customizable color for the loading screen text
 //
@@ -170,12 +173,23 @@ void CG_DrawInformation( void ) {
 	qhandle_t	detail;
 	char		buf[1024];
 	qboolean	skipdetail;
-	vec4_t		color = {1, 1, 1, 1};
+	vec4_t		color1 = {.75, .75, .75, 1}, color2 = {1, 1, 1, 1};
 
 	skipdetail = qfalse;
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
+
+	//Makro - settings read from the worldspawn entity
+	s = CG_ConfigString( CS_LOADINGSCREEN );
+	color1[0] = atof(Info_ValueForKey(s, "r1"));
+	color1[1] = atof(Info_ValueForKey(s, "g1"));
+	color1[2] = atof(Info_ValueForKey(s, "b1"));
+	color2[0] = atof(Info_ValueForKey(s, "r2"));
+	color2[1] = atof(Info_ValueForKey(s, "g2"));
+	color2[2] = atof(Info_ValueForKey(s, "b2"));
+	color1[3] = color2[3] = 1;
+	skipdetail = ( atoi(Info_ValueForKey(s, "nodetail")) != 0 ); 
 
 	s = Info_ValueForKey( info, "mapname" );
 	shadow = trap_R_RegisterShaderNoMip("ui/assets/rq3-main-shadow-1.tga");
@@ -239,19 +253,12 @@ void CG_DrawInformation( void ) {
 		//Q_strncpyz(buf, s, 1024);
 		//Q_CleanStr(buf);
 		
-		//Makro - allow color-coded texts
+		//Makro - allow color-coded texts; also changed to use custom color instead of colorLtGrey
 		//CG_DrawSmallStringColor(x, y, s, colorMdGrey);
-		CG_DrawStringExt(x, y, s, colorLtGrey, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(x, y, s, color1, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 
 		y += SMALLCHAR_HEIGHT;
 	}
-
-	//Makro - get the text color
-	s = CG_ConfigString( CS_LOADINGSCREEN );
-	color[0] = atof(Info_ValueForKey(s, "red"));
-	color[1] = atof(Info_ValueForKey(s, "green"));
-	color[2] = atof(Info_ValueForKey(s, "blue"));
-	color[3] = 1;
 
 	// don't print server lines if playing a local game
 	trap_Cvar_VariableStringBuffer( "sv_running", buf, sizeof( buf ) );
@@ -263,7 +270,7 @@ void CG_DrawInformation( void ) {
 		//UI_DrawProportionalString( x, y, buf,
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Makro - custom color; changed from colorWhite
-		CG_DrawSmallStringColor(x, y, buf, color);
+		CG_DrawSmallStringColor(x, y, buf, color2);
 		y += SMALLCHAR_HEIGHT;
 
 		// pure server
@@ -272,7 +279,7 @@ void CG_DrawInformation( void ) {
 			//UI_DrawProportionalString( 4, y, "Pure Server",
 				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			//Makro - custom color; changed from colorWhite
-			CG_DrawSmallStringColor(x, y, "PURE SERVER", color);
+			CG_DrawSmallStringColor(x, y, "PURE SERVER", color2);
 			y += SMALLCHAR_HEIGHT;
 		}
 
@@ -280,7 +287,7 @@ void CG_DrawInformation( void ) {
 		s = CG_ConfigString( CS_MOTD );
 		if ( s[0] ) {
 			//Makro - custom color; changed from colorWhite
-			UI_DrawProportionalString( x, 360, s, UI_LEFT|UI_SMALLFONT, color );
+			UI_DrawProportionalString( x, 360, s, UI_LEFT|UI_SMALLFONT, color2 );
 			y += PROP_HEIGHT;
 		}
 
@@ -294,7 +301,7 @@ void CG_DrawInformation( void ) {
 		//UI_DrawProportionalString( x, y, "CHEATS ARE ENABLED",
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Makro - custom color; changed from colorWhite
-		CG_DrawSmallStringColor(x, y, "CHEATS ARE ENABLED", color);
+		CG_DrawSmallStringColor(x, y, "CHEATS ARE ENABLED", color2);
 		y += SMALLCHAR_HEIGHT;
 	}
 
@@ -339,7 +346,7 @@ void CG_DrawInformation( void ) {
 	//UI_DrawProportionalString( x, y, s,
 		//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 	//Makro - custom color; changed from colorWhite
-	CG_DrawSmallStringColor(x, y, s, color);
+	CG_DrawSmallStringColor(x, y, s, color2);
 	y += SMALLCHAR_HEIGHT;
 		
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
@@ -347,7 +354,7 @@ void CG_DrawInformation( void ) {
 		//UI_DrawProportionalString( x, y, va( "timelimit %i", value ),
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Makro - custom color; changed from colorWhite
-		CG_DrawSmallStringColor(x, y, va( "TIMELIMIT %i", value ), color);
+		CG_DrawSmallStringColor(x, y, va( "TIMELIMIT %i", value ), color2);
 		y += SMALLCHAR_HEIGHT;
 	}
 
@@ -357,7 +364,7 @@ void CG_DrawInformation( void ) {
 			//UI_DrawProportionalString( x, y, va( "fraglimit %i", value ),
 				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			//Makro - custom color; changed from colorWhite
-			CG_DrawSmallStringColor(x, y, va( "FRAGLIMIT %i", value ), color);
+			CG_DrawSmallStringColor(x, y, va( "FRAGLIMIT %i", value ), color2);
 			y += SMALLCHAR_HEIGHT;
 		}
 	}
@@ -368,7 +375,7 @@ void CG_DrawInformation( void ) {
 			//UI_DrawProportionalString( x, y, va( "capturelimit %i", value ),
 				//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 			//Makro - custom color; changed from colorWhite
-			CG_DrawSmallStringColor(x, y, va( "CAPTURELIMIT %i", value ), color);
+			CG_DrawSmallStringColor(x, y, va( "CAPTURELIMIT %i", value ), color2);
 			y += SMALLCHAR_HEIGHT;
 		}
 	}
