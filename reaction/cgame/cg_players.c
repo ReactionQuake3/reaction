@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/07/11 16:29:16  makro
+// Dust has a different color for snow surfaces now
+//
 // Revision 1.39  2002/07/09 06:08:09  niceass
 // fixes and changes to ctb
 //
@@ -1879,6 +1882,9 @@ static void CG_DustTrail(centity_t * cent)
 	localEntity_t *dust;
 	vec3_t end, vel;
 	trace_t tr;
+	//Makro - added
+	vec4_t color = {.8f, .8f, 0.7f, 0.33f};
+	int Material;
 
 	if (!cg_enableDust.integer)
 		return;
@@ -1903,12 +1909,17 @@ static void CG_DustTrail(centity_t * cent)
 
 	if (!(tr.surfaceFlags & SURF_DUST))
 		return;
+	//Makro - if the surface has a snow texture, use a different color for the dust puff
+	Material = GetMaterialFromFlag(tr.surfaceFlags);
+	if (Material == MAT_SNOW || Material == MAT_SNOW2) {
+		color[0] = color[1] = color[2] = 1.0f;
+	}
 
 	VectorCopy(cent->currentState.pos.trBase, end);
 	end[2] -= 16;
 
 	VectorSet(vel, 0, 0, -30);
-	dust = CG_SmokePuff(end, vel, 24, .8f, .8f, 0.7f, 0.33f, 500, cg.time, 0, 0, cgs.media.dustPuffShader);
+	dust = CG_SmokePuff(end, vel, 24, color[0], color[1], color[2], color[3], 500, cg.time, 0, 0, cgs.media.dustPuffShader);
 }
 
 /*
