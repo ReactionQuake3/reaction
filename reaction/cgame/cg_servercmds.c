@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/14 16:04:26  slicer
+// Optimization on radio parsing
+//
 // Revision 1.21  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -1266,7 +1269,13 @@ static void CG_ServerCommand( void ) {
 
 		sound = atoi(CG_Argv(1));
 		gender = atoi(CG_Argv(2));
-
+		//Slicer optimization
+		if(!gender)	CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+		
+		else 
+			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
+		return;
+		/*
 		if (sound == 0) {
 			if (!gender)
 				CG_AddBufferedSound(cgs.media.male_1sound);
@@ -1400,6 +1409,7 @@ static void CG_ServerCommand( void ) {
 		}
 
 		return;
+		*/
 	}
 
 	CG_Printf( "Unknown client game command: %s\n", cmd );

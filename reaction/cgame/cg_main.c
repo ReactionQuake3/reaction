@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/03/14 16:04:26  slicer
+// Optimization on radio parsing
+//
 // Revision 1.43  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -670,58 +673,59 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.actionSound = trap_S_RegisterSound( "sound/lca/action.wav", qtrue );
 		cgs.media.lca10_0Sound = trap_S_RegisterSound( "sound/lca/10_0.wav", qtrue );
 // JBravo: and the radio sounds
-		cgs.media.male_1sound = trap_S_RegisterSound( "sound/radio/male/1.wav", qtrue );
-		cgs.media.male_2sound = trap_S_RegisterSound( "sound/radio/male/2.wav", qtrue );
-		cgs.media.male_3sound = trap_S_RegisterSound( "sound/radio/male/3.wav", qtrue );
-		cgs.media.male_4sound = trap_S_RegisterSound( "sound/radio/male/4.wav", qtrue );
-		cgs.media.male_5sound = trap_S_RegisterSound( "sound/radio/male/5.wav", qtrue );
-		cgs.media.male_6sound = trap_S_RegisterSound( "sound/radio/male/6.wav", qtrue );
-		cgs.media.male_7sound = trap_S_RegisterSound( "sound/radio/male/7.wav", qtrue );
-		cgs.media.male_8sound = trap_S_RegisterSound( "sound/radio/male/8.wav", qtrue );
-		cgs.media.male_9sound = trap_S_RegisterSound( "sound/radio/male/9.wav", qtrue );
-		cgs.media.male_10sound = trap_S_RegisterSound( "sound/radio/male/10.wav", qtrue );
-		cgs.media.male_backsound = trap_S_RegisterSound( "sound/radio/male/back.wav", qtrue );
-		cgs.media.male_coversound = trap_S_RegisterSound( "sound/radio/male/cover.wav", qtrue );
-		cgs.media.male_downsound = trap_S_RegisterSound( "sound/radio/male/down.wav", qtrue );
-		cgs.media.male_enemydsound = trap_S_RegisterSound( "sound/radio/male/enemyd.wav", qtrue );
-		cgs.media.male_enemyssound = trap_S_RegisterSound( "sound/radio/male/enemys.wav", qtrue );
-		cgs.media.male_forwardsound = trap_S_RegisterSound( "sound/radio/male/forward.wav", qtrue );
-		cgs.media.male_gosound = trap_S_RegisterSound( "sound/radio/male/go.wav", qtrue );
-		cgs.media.male_im_hitsound = trap_S_RegisterSound( "sound/radio/male/im_hit.wav", qtrue );
-		cgs.media.male_leftsound = trap_S_RegisterSound( "sound/radio/male/left.wav", qtrue );
-		cgs.media.male_reportinsound = trap_S_RegisterSound( "sound/radio/male/reportin.wav", qtrue );
-		cgs.media.male_rightsound = trap_S_RegisterSound( "sound/radio/male/right.wav", qtrue );
-		cgs.media.male_taking_fsound = trap_S_RegisterSound( "sound/radio/male/taking_f.wav", qtrue );
-		cgs.media.male_teamdownsound = trap_S_RegisterSound( "sound/radio/male/teamdown.wav", qtrue );
-		cgs.media.male_treportsound = trap_S_RegisterSound( "sound/radio/male/treport.wav", qtrue );
-		cgs.media.male_upsound = trap_S_RegisterSound( "sound/radio/male/up.wav", qtrue );
-		cgs.media.male_click = trap_S_RegisterSound( "sound/radio/click.wav", qtrue );
-		cgs.media.female_1sound = trap_S_RegisterSound( "sound/radio/female/1.wav", qtrue );
-		cgs.media.female_2sound = trap_S_RegisterSound( "sound/radio/female/2.wav", qtrue );
-		cgs.media.female_3sound = trap_S_RegisterSound( "sound/radio/female/3.wav", qtrue );
-		cgs.media.female_4sound = trap_S_RegisterSound( "sound/radio/female/4.wav", qtrue );
-		cgs.media.female_5sound = trap_S_RegisterSound( "sound/radio/female/5.wav", qtrue );
-		cgs.media.female_6sound = trap_S_RegisterSound( "sound/radio/female/6.wav", qtrue );
-		cgs.media.female_7sound = trap_S_RegisterSound( "sound/radio/female/7.wav", qtrue );
-		cgs.media.female_8sound = trap_S_RegisterSound( "sound/radio/female/8.wav", qtrue );
-		cgs.media.female_9sound = trap_S_RegisterSound( "sound/radio/female/9.wav", qtrue );
-		cgs.media.female_10sound = trap_S_RegisterSound( "sound/radio/female/10.wav", qtrue );
-		cgs.media.female_backsound = trap_S_RegisterSound( "sound/radio/female/back.wav", qtrue );
-		cgs.media.female_coversound = trap_S_RegisterSound( "sound/radio/female/cover.wav", qtrue );
-		cgs.media.female_downsound = trap_S_RegisterSound( "sound/radio/female/down.wav", qtrue );
-		cgs.media.female_enemydsound = trap_S_RegisterSound( "sound/radio/female/enemyd.wav", qtrue );
-		cgs.media.female_enemyssound = trap_S_RegisterSound( "sound/radio/female/enemys.wav", qtrue );
-		cgs.media.female_forwardsound = trap_S_RegisterSound( "sound/radio/female/forward.wav", qtrue );
-		cgs.media.female_gosound = trap_S_RegisterSound( "sound/radio/female/go.wav", qtrue );
-		cgs.media.female_im_hitsound = trap_S_RegisterSound( "sound/radio/female/im_hit.wav", qtrue );
-		cgs.media.female_leftsound = trap_S_RegisterSound( "sound/radio/female/left.wav", qtrue );
-		cgs.media.female_reportinsound = trap_S_RegisterSound( "sound/radio/female/reportin.wav", qtrue );
-		cgs.media.female_rightsound = trap_S_RegisterSound( "sound/radio/female/right.wav", qtrue );
-		cgs.media.female_taking_fsound = trap_S_RegisterSound( "sound/radio/female/taking_f.wav", qtrue );
-		cgs.media.female_teamdownsound = trap_S_RegisterSound( "sound/radio/female/teamdown.wav", qtrue );
-		cgs.media.female_treportsound = trap_S_RegisterSound( "sound/radio/female/treport.wav", qtrue );
-		cgs.media.female_upsound = trap_S_RegisterSound( "sound/radio/female/up.wav", qtrue );
-		cgs.media.female_click = trap_S_RegisterSound( "sound/radio/click.wav", qtrue );
+		//Slicer: optimization.
+		cgs.media.male_sounds[0] = trap_S_RegisterSound( "sound/radio/male/1.wav", qtrue );
+		cgs.media.male_sounds[1] = trap_S_RegisterSound( "sound/radio/male/2.wav", qtrue );
+		cgs.media.male_sounds[2] = trap_S_RegisterSound( "sound/radio/male/3.wav", qtrue );
+		cgs.media.male_sounds[3] = trap_S_RegisterSound( "sound/radio/male/4.wav", qtrue );
+		cgs.media.male_sounds[4] = trap_S_RegisterSound( "sound/radio/male/5.wav", qtrue );
+		cgs.media.male_sounds[5] = trap_S_RegisterSound( "sound/radio/male/6.wav", qtrue );
+		cgs.media.male_sounds[6] = trap_S_RegisterSound( "sound/radio/male/7.wav", qtrue );
+		cgs.media.male_sounds[7] = trap_S_RegisterSound( "sound/radio/male/8.wav", qtrue );
+		cgs.media.male_sounds[8] = trap_S_RegisterSound( "sound/radio/male/9.wav", qtrue );
+		cgs.media.male_sounds[9] = trap_S_RegisterSound( "sound/radio/male/10.wav", qtrue );
+		cgs.media.male_sounds[10] = trap_S_RegisterSound( "sound/radio/male/back.wav", qtrue );
+		cgs.media.male_sounds[11] = trap_S_RegisterSound( "sound/radio/male/cover.wav", qtrue );
+		cgs.media.male_sounds[12]= trap_S_RegisterSound( "sound/radio/male/down.wav", qtrue );
+		cgs.media.male_sounds[13] = trap_S_RegisterSound( "sound/radio/male/enemyd.wav", qtrue );
+		cgs.media.male_sounds[14] = trap_S_RegisterSound( "sound/radio/male/enemys.wav", qtrue );
+		cgs.media.male_sounds[15] = trap_S_RegisterSound( "sound/radio/male/forward.wav", qtrue );
+		cgs.media.male_sounds[16] = trap_S_RegisterSound( "sound/radio/male/go.wav", qtrue );
+		cgs.media.male_sounds[17] = trap_S_RegisterSound( "sound/radio/male/im_hit.wav", qtrue );
+		cgs.media.male_sounds[18] = trap_S_RegisterSound( "sound/radio/male/left.wav", qtrue );
+		cgs.media.male_sounds[19] = trap_S_RegisterSound( "sound/radio/male/reportin.wav", qtrue );
+		cgs.media.male_sounds[20] = trap_S_RegisterSound( "sound/radio/male/right.wav", qtrue );
+		cgs.media.male_sounds[21] = trap_S_RegisterSound( "sound/radio/male/taking_f.wav", qtrue );
+		cgs.media.male_sounds[22] = trap_S_RegisterSound( "sound/radio/male/teamdown.wav", qtrue );
+		cgs.media.male_sounds[23] = trap_S_RegisterSound( "sound/radio/male/treport.wav", qtrue );
+		cgs.media.male_sounds[24] = trap_S_RegisterSound( "sound/radio/male/up.wav", qtrue );
+		cgs.media.male_sounds[25] = trap_S_RegisterSound( "sound/radio/click.wav", qtrue );
+		cgs.media.female_sounds[0] = trap_S_RegisterSound( "sound/radio/female/1.wav", qtrue );
+		cgs.media.female_sounds[1] = trap_S_RegisterSound( "sound/radio/female/2.wav", qtrue );
+		cgs.media.female_sounds[2] = trap_S_RegisterSound( "sound/radio/female/3.wav", qtrue );
+		cgs.media.female_sounds[3] = trap_S_RegisterSound( "sound/radio/female/4.wav", qtrue );
+		cgs.media.female_sounds[4] = trap_S_RegisterSound( "sound/radio/female/5.wav", qtrue );
+		cgs.media.female_sounds[5] = trap_S_RegisterSound( "sound/radio/female/6.wav", qtrue );
+		cgs.media.female_sounds[6] = trap_S_RegisterSound( "sound/radio/female/7.wav", qtrue );
+		cgs.media.female_sounds[7] = trap_S_RegisterSound( "sound/radio/female/8.wav", qtrue );
+		cgs.media.female_sounds[8] = trap_S_RegisterSound( "sound/radio/female/9.wav", qtrue );
+		cgs.media.female_sounds[9] = trap_S_RegisterSound( "sound/radio/female/10.wav", qtrue );
+		cgs.media.female_sounds[10] = trap_S_RegisterSound( "sound/radio/female/back.wav", qtrue );
+		cgs.media.female_sounds[11] = trap_S_RegisterSound( "sound/radio/female/cover.wav", qtrue );
+		cgs.media.female_sounds[12] = trap_S_RegisterSound( "sound/radio/female/down.wav", qtrue );
+		cgs.media.female_sounds[13] = trap_S_RegisterSound( "sound/radio/female/enemyd.wav", qtrue );
+		cgs.media.female_sounds[14] = trap_S_RegisterSound( "sound/radio/female/enemys.wav", qtrue );
+		cgs.media.female_sounds[15] = trap_S_RegisterSound( "sound/radio/female/forward.wav", qtrue );
+		cgs.media.female_sounds[16] = trap_S_RegisterSound( "sound/radio/female/go.wav", qtrue );
+		cgs.media.female_sounds[17] = trap_S_RegisterSound( "sound/radio/female/im_hit.wav", qtrue );
+		cgs.media.female_sounds[18] = trap_S_RegisterSound( "sound/radio/female/left.wav", qtrue );
+		cgs.media.female_sounds[19] = trap_S_RegisterSound( "sound/radio/female/reportin.wav", qtrue );
+		cgs.media.female_sounds[20] = trap_S_RegisterSound( "sound/radio/female/right.wav", qtrue );
+		cgs.media.female_sounds[21] = trap_S_RegisterSound( "sound/radio/female/taking_f.wav", qtrue );
+		cgs.media.female_sounds[22] = trap_S_RegisterSound( "sound/radio/female/teamdown.wav", qtrue );
+		cgs.media.female_sounds[23] = trap_S_RegisterSound( "sound/radio/female/treport.wav", qtrue );
+		cgs.media.female_sounds[24] = trap_S_RegisterSound( "sound/radio/female/up.wav", qtrue );
+		cgs.media.female_sounds[25] = trap_S_RegisterSound( "sound/radio/click.wav", qtrue );
 
 		cgs.media.captureAwardSound = trap_S_RegisterSound( "sound/teamplay/flagcapture_yourteam.wav", qtrue );
 		cgs.media.redLeadsSound = trap_S_RegisterSound( "sound/feedback/redleads.wav", qtrue );

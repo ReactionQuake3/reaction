@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/14 16:04:26  slicer
+// Optimization on radio parsing
+//
 // Revision 1.51  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -1237,6 +1240,11 @@ typedef struct {
 	sfxHandle_t	actionSound;
 	sfxHandle_t	lca10_0Sound;
 // JBravo: Radio sounds
+
+	//Slicer 
+	sfxHandle_t male_sounds[26];
+	sfxHandle_t female_sounds[26];
+
 	sfxHandle_t	male_1sound;
 	sfxHandle_t	male_2sound;
 	sfxHandle_t	male_3sound;
