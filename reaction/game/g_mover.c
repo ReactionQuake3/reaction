@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/05/16 06:57:54  makro
+// Doors with health (again !), bot-only trigger_pushes
+//
 // Revision 1.30  2002/05/15 12:46:32  makro
 // Small func_static change.Give ammo should now give grenades/knives
 //
@@ -1250,8 +1253,10 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	int			i, best;
 
 	// set all of the slaves as shootable
+	// Makro - why ?
 	for ( other = ent ; other ; other = other->teamchain ) {
-		other->takedamage = qtrue;
+		//other->takedamage = qtrue;
+		other->takedamage = ent->takedamage;
 	}
 
 	// find the bounds of everything on the team

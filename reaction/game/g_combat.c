@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/05/16 06:57:54  makro
+// Doors with health (again !), bot-only trigger_pushes
+//
 // Revision 1.75  2002/05/15 17:13:22  makro
 // Restored Q3A code for movers with health
 //
@@ -1904,12 +1907,18 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;
 	}*/
 
-	// Makro - pasted back from the original code
+	// Makro - we should change some more stuff in here
 	// shootable doors / buttons don't actually have any health
-	if ( targ->s.eType == ET_MOVER ) {
-		if ( targ->use && targ->moverState == MOVER_POS1 ) {
+	if ( targ->s.eType == ET_MOVER && targ->health < 0) {
+		if ( targ->use && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1) ) {
 			targ->use( targ, inflictor, attacker );
 		}
+		//use the targets of the team master
+		if (targ->teammaster && targ->teammaster != targ) {
+			G_UseTargets(targ->teammaster, attacker);
+		}
+		//use own targets
+		G_UseTargets(targ, attacker);
 		return;
 	}
 

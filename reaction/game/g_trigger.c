@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/05/16 06:57:54  makro
+// Doors with health (again !), bot-only trigger_pushes
+//
 // Revision 1.12  2002/05/11 22:01:41  makro
 // Trigger_hurt
 //
@@ -161,6 +164,13 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
+	//Makro - bot only triggers
+	if ( self->spawnflags & 1 ) {
+		if ( !(other->r.svFlags & SVF_BOT) ) {
+			return;
+		}
+	}
+
 	BG_TouchJumpPad( &other->client->ps, &self->s );
 }
 
@@ -207,7 +217,7 @@ void AimAtTarget( gentity_t *self ) {
 }
 
 
-/*QUAKED trigger_push (.5 .5 .5) ?
+/*QUAKED trigger_push (.5 .5 .5) ? BOT_ONLY
 Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
@@ -266,8 +276,9 @@ void SP_target_push( gentity_t *self ) {
 	G_SetMovedir (self->s.angles, self->s.origin2);
 	VectorScale (self->s.origin2, self->speed, self->s.origin2);
 
-	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {;
-    G_Printf("^2Sound was %s\n",sound);
+	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {
+		//Makro - debug message, no longer needed
+		//G_Printf("^2Sound was %s\n",sound);
 		self->noise_index = G_SoundIndex( sound );
 	}
 
