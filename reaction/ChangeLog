@@ -37,3 +37,4 @@
 * Fixed shots fired stats for non TP modes.
 * Fixed the logging of Clients IP's when they connect.
 * Personal score grouped with team score on hud.
+* Scoreboard shows individual and team head models.
