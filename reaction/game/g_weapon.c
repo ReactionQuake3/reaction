@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.42  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -47,8 +50,14 @@
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
+#include "surfaceflags.h"
 // JBravo: for warnings
 void Use_BinaryMover(gentity_t *ent, gentity_t *other, gentity_t *activator);
+
+//Makro - to get the new surfaceparm system to work :/
+int GetMaterialFromFlag( int flag );
+qboolean IsMetalMat( int Material );
+qboolean IsMetalFlag( int flag );
 
 static	float	s_quadFactor;
 static	vec3_t	forward, right, up;
@@ -406,6 +415,8 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	gentity_t		*tent2;
 	gentity_t		*traceEnt;
 	int			i, passent;
+	//Makro
+	int				Material;
 
 	// Elder: Statistics tracking
 	if (ent->client && level.team_round_going)
@@ -470,6 +481,9 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	for (i = 0; i < 10; i++) {
 
 		trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		//Makro - saving the material flag to avoid useless calls to the GetMaterialFromFlag function
+		Material = GetMaterialFromFlag(tr.surfaceFlags);
+
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			return;
 		}
@@ -526,11 +540,14 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
 			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
 			//tent->s.eventParm = DirToByte( tr.plane.normal );
-		} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
+		//Makro - new surfaceparm system
+		//} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
+		} else if (IsMetalMat(Material)) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
-		} else if ( tr.surfaceFlags & SURF_GLASS) {
+		//} else if ( tr.surfaceFlags & SURF_GLASS) {
+		} else if ( Material == MAT_GLASS ) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
@@ -684,7 +701,8 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent, in
 
 	//Elder: added
 	int			count;
-	int			hc_multipler;
+	//Makro - wasn't initialized, caused a warning in MSVC
+	int			hc_multipler = 4;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information
@@ -1543,6 +1561,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	float		r;
 	float		u;
 	float		spread;
+	//Makro
+	int			Material;
 
 	// Elder: Statistics tracking
 	if (ent->client && level.team_round_going)
@@ -1640,10 +1660,13 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			else
 			{
 				// impact type
-				if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
-					 (trace.surfaceFlags & SURF_METAL2) )
+				//Makro - new surfaceparm system
+				Material = GetMaterialFromFlag(trace.surfaceFlags);
+				//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
+				//	 (trace.surfaceFlags & SURF_METAL2) )
+				if ( IsMetalMat(Material) )
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
-				else if (trace.surfaceFlags & SURF_GLASS)
+				else if (Material == MAT_GLASS)
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
 				else
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
@@ -1701,12 +1724,15 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 
 	// send wall bullet impact
 	// no explosion at end if SURF_NOIMPACT
+	Material = GetMaterialFromFlag(trace.surfaceFlags);
 	if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
 	{
-		if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
-			 (trace.surfaceFlags & SURF_METAL2) )
+		//Makro - new surfaceparm system
+		//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
+		//	 (trace.surfaceFlags & SURF_METAL2) )
+		if (IsMetalMat(Material))
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
-		else if (trace.surfaceFlags & SURF_GLASS)
+		else if (Material == MAT_GLASS)
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
 		else
 		{
@@ -2512,7 +2538,9 @@ void Laser_Think( gentity_t *self )
 			break;
 		}
 */
-		if (!(tr.surfaceFlags & SURF_GLASS)) break;
+		//Makro - new surfaceparm system
+		//if (!(tr.surfaceFlags & SURF_GLASS)) break;
+		if (!(GetMaterialFromFlag(tr.surfaceFlags) == MAT_GLASS)) break;
 		VectorMA(tr.endpos, 10, forward, start); // Nudge it forward a little bit
 	}
 	

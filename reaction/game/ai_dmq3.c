@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/04/06 21:42:19  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.16  2002/04/05 18:52:26  makro
 // Cleaned things up a bit
 //
@@ -142,7 +145,6 @@ int red_numaltroutegoals;
 aas_altroutegoal_t blue_altroutegoals[MAX_ALTROUTEGOALS];
 int blue_numaltroutegoals;
 
-
 //Makro - the vector located on the line from src to dest dist units away
 void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
 	VectorClear(final);
@@ -163,11 +165,12 @@ void BotAttack(bot_state_t *bs) {
 	//If the gun is empty
 	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
 		//If bot has extra clips, reload
-		if (g_entities[bs->entitynum].client->numClips[bs->weaponnum] >= 1 ) {
+		if ( (g_entities[bs->entitynum].client->numClips[bs->weaponnum]) >= 1 ) {
 			//Cmd_Reload( &g_entities[bs->entitynum] );
 			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 		}
 	} else {
+		//Gun is not empty
 		trap_EA_Attack(bs->client);
 	}
 }
@@ -2189,7 +2192,10 @@ void BotBattleUseItems(bot_state_t *bs) {
 		}
 	}
 	if (doBandage) {
-		Cmd_Bandage( &g_entities[bs->entitynum] );
+		//Makro - if not bandaging already
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			Cmd_Bandage( &g_entities[bs->entitynum] );
+		}
 		/*
 		if (bot_developer.integer == 2) {
 			G_Printf(va("^5BOT CODE: ^7Bandaging with %i health\n", bs->inventory[INVENTORY_HEALTH]));

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.4  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -203,3 +206,5 @@ extern bot_goal_t redobelisk;
 extern bot_goal_t blueobelisk;
 extern bot_goal_t neutralobelisk;
 #endif
+
+

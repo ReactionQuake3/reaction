@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/04/06 21:42:19  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.6  2002/04/04 18:06:44  makro
 // Improved door code. Bots reply to radio treport from teammates.
 // Improved reloading code.
@@ -1066,7 +1069,8 @@ void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match) {
 	BotAI_BotInitialChat(bs, "keepinmind", teammatename, NULL);
 	trap_BotEnterChat(bs->cs, teammate, CHAT_TELL);
 	BotVoiceChatOnly(bs, teammate, VOICECHAT_YES);
-	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+	//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+	//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 
 /*
@@ -1302,6 +1306,7 @@ void BotMatch_Suicide(bot_state_t *bs, bot_match_t *match) {
 	client = ClientFromName(netname);
 	//
 	BotVoiceChat(bs, client, VOICECHAT_TAUNT);
+	//Makro - ACTION_AFFIRMATIVE = reload in RQ3
 	trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.54  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -1333,4 +1336,23 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define KAMI_SHOCKWAVE_MAXRADIUS		1320
 #define KAMI_BOOMSPHERE_MAXRADIUS		720
 #define KAMI_SHOCKWAVE2_MAXRADIUS		704
+
+//Makro - for the new surfaceparm system
+
+#define MAT_DEFAULT				0
+#define MAT_METALSTEPS			1
+#define MAT_GRAVEL				2
+#define MAT_WOOD				4
+#define MAT_CARPET				8
+#define MAT_METAL2				16
+#define MAT_GLASS				32
+#define MAT_GRASS				64
+#define MAT_SNOW				128
+#define MAT_MUD					256
+#define MAT_WOOD2				512
+#define MAT_HARDMETAL			1024
+
+int GetMaterialFromFlag( int flag );
+qboolean IsMetalMat( int Material );
+qboolean IsMetalFlag( int flag );
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/04/06 21:42:19  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.13  2002/04/05 18:52:26  makro
 // Cleaned things up a bit
 //
@@ -78,11 +81,14 @@
 #include "../ui/menudef.h"
 
 //Makro - to get rid of the warnings
-bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
-void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
 void Cmd_Bandage (gentity_t *ent);
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+//From ai_dmq3.c
+void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final);
 void BotAttack(bot_state_t *bs);
+bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest);
+void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
+
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
@@ -377,7 +383,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			BotAI_BotInitialChat(bs, "help_start", EasyClientName(bs->teammate, netname, sizeof(netname)), NULL);
 			trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
 			BotVoiceChatOnly(bs, bs->decisionmaker, VOICECHAT_YES);
-			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+			//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+			//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			bs->teammessage_time = 0;
 		}
 		//if trying to help the team mate for more than a minute
@@ -422,7 +429,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			BotAI_BotInitialChat(bs, "accompany_start", EasyClientName(bs->teammate, netname, sizeof(netname)), NULL);
 			trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
 			BotVoiceChatOnly(bs, bs->decisionmaker, VOICECHAT_YES);
-			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+			//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+			//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			bs->teammessage_time = 0;
 		}
 		//if accompanying the companion for 3 minutes
@@ -624,7 +632,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			BotAI_BotInitialChat(bs, "getitem_start", buf, NULL);
 			trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
 			BotVoiceChatOnly(bs, bs->decisionmaker, VOICECHAT_YES);
-			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+			//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+			//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			bs->teammessage_time = 0;
 		}
 		//set the bot goal
@@ -656,7 +665,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				BotAI_BotInitialChat(bs, "camp_start", EasyClientName(bs->teammate, netname, sizeof(netname)), NULL);
 				trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
 				BotVoiceChatOnly(bs, bs->decisionmaker, VOICECHAT_YES);
-				trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+				//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+				//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			}
 			bs->teammessage_time = 0;
 		}
@@ -738,7 +748,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			BotAI_BotInitialChat(bs, "patrol_start", buf, NULL);
 			trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
 			BotVoiceChatOnly(bs, bs->decisionmaker, VOICECHAT_YES);
-			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+			//Makro - ACTION_AFFIRMATIVE = reload in RQ3
+			//trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 			bs->teammessage_time = 0;
 		}
 		//
@@ -1232,12 +1243,30 @@ AINode_Stand
 ==================
 */
 int AINode_Stand(bot_state_t *bs) {
+	qboolean willBandage = qfalse;
 
 	//if the bot's health decreased
 	if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
 		if (BotChat_HitTalking(bs)) {
 			bs->standfindenemy_time = FloatTime() + BotChatTime(bs) + 0.1;
 			bs->stand_time = FloatTime() + BotChatTime(bs) + 0.1;
+		}
+		//Makro - if bot isn't bandaging already
+		if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+			//Makro - bot should bandage
+			if (bs->inventory[INVENTORY_HEALTH] > 60) {
+				willBandage = (random() < 0.3);
+			} else if (bs->inventory[INVENTORY_HEALTH] > 40) {
+				willBandage = (random() < 0.5);
+			} else if (bs->inventory[INVENTORY_HEALTH] > 20) {
+				willBandage = (random() < 0.7);
+			} else {
+				willBandage = qtrue;
+			}
+			if (willBandage) {
+				Cmd_Bandage( &g_entities[bs->entitynum] );
+				AIEnter_Battle_Retreat(bs, "stand: bandaging");
+			}
 		}
 	}
 	if (bs->standfindenemy_time < FloatTime()) {
@@ -1287,6 +1316,8 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 	bs->radioresponse_count = 0;
 
 	//set respawn state
+	bs->standfindenemy_time = FloatTime() + 5;
+	bs->stand_time = FloatTime() + 10;
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;
 }
@@ -1311,7 +1342,6 @@ int AINode_Respawn(bot_state_t *bs) {
 
 				BotEntityInfo(spot-g_entities, &entinfo);
 				BotMoveTo(bs, entinfo.origin);
-
 			}
 		}
 	}
@@ -2448,7 +2478,10 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		AIEnter_Seek_LTG(bs, "battle retreat: lost enemy");
 		//Makro - bot retreating, enemy not in sight - a good time to bandage
 		if (bs->lastframe_health > bs->inventory[INVENTORY_HEALTH]) {
-			Cmd_Bandage( &g_entities[bs->entitynum] );
+			//If not bandaging already
+			if (bs->cur_ps.weaponstate != WEAPON_BANDAGING) {
+				Cmd_Bandage( &g_entities[bs->entitynum] );
+			}
 			/*
 			if (bot_developer.integer == 2) {
 				G_Printf("^5BOT CODE: ^7Bandaging\n");

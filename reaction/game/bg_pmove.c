@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.65  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -58,6 +61,7 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
+
 
 pmove_t		*pm;
 pml_t		pml;
@@ -1135,48 +1139,63 @@ Returns an event number apropriate for the groundsurface
 ================
 */
 static int PM_FootstepForSurface( void ) {
+	int Material = GetMaterialFromFlag(pml.groundTrace.surfaceFlags);
+	
 	if ( pml.groundTrace.surfaceFlags & SURF_NOSTEPS ) {
 		return 0;
 	}
-	if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
+	//Makro - new surfaceparm system
+	//if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
+	if ( Material == MAT_METALSTEPS ) {
 		return EV_FOOTSTEP_METAL;
 	}
 	//Elder: added for footstep support
-	if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
+	if ( Material == MAT_GRASS ) {
 		return EV_FOOTSTEP_GRASS;
 	}
 
 // JBravo: re-enables Gravel.
-	if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
+	//Makro - new surfaceparm system
+	//if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
+	if ( Material == MAT_GRAVEL ) {
 		return EV_FOOTSTEP_GRAVEL;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_WOOD ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_WOOD ) {
+	if ( Material == MAT_WOOD ) {
 		return EV_FOOTSTEP_WOOD;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_CARPET ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_CARPET ) {
+	if ( Material == MAT_CARPET ) {
 		return EV_FOOTSTEP_CARPET;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_METAL2 ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_METAL2 ) {
+	if ( Material == MAT_METAL2 ) {
 		return EV_FOOTSTEP_METAL2;
 	}
 
 // JBravo: Begin adding new sounds
-	if ( pml.groundTrace.surfaceFlags & SURF_SNOW ) {
+	//Makro - new surfaceparm system
+	//if ( pml.groundTrace.surfaceFlags & SURF_SNOW ) {
+	if ( Material == MAT_SNOW ) {
 		return EV_FOOTSTEP_SNOW;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_MUD ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_MUD ) {
+	if ( Material == MAT_MUD ) {
 		return EV_FOOTSTEP_MUD;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_WOOD2 ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_WOOD2 ) {
+	if ( Material == MAT_WOOD2 ) {
 		return EV_FOOTSTEP_WOOD2;
 	}
 
-	if ( pml.groundTrace.surfaceFlags & SURF_HARDMETAL ) {
+	//if ( pml.groundTrace.surfaceFlags & SURF_HARDMETAL ) {
+	if ( Material == MAT_HARDMETAL ) {
 		return EV_FOOTSTEP_HARDMETAL;
 	}
 // JBravo: end adding new sounds
@@ -3726,5 +3745,51 @@ void Pmove (pmove_t *pmove) {
 
 	//PM_CheckStuck();
 
+}
+/*
+=====================
+  SURFACEPARM STUFF
+=====================
+*/
+
+int MatFlags[] =
+{
+	SURF_METALSTEPS,
+	SURF_GRAVEL,
+	SURF_WOOD,
+	SURF_CARPET,
+	SURF_METAL2,
+	SURF_GLASS,
+	SURF_GRASS,
+	SURF_SNOW,
+	SURF_MUD,
+	SURF_WOOD2,
+	SURF_HARDMETAL
+};
+
+#define MatFlagCount			11
+
+int GetMaterialFromFlag( int flag ) {
+	int Material = 0;
+	int i = 0;
+
+	for (i = 0; i < MatFlagCount; i++) {
+		if ( (flag & MatFlags[i]) ) {
+			Material += (1 << i);
+		}
+	}
+
+	return Material;
+}
+
+qboolean IsMetalMat( int Material ) {
+	if (Material == MAT_METALSTEPS || Material == MAT_METAL2 || Material == MAT_HARDMETAL) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+qboolean IsMetalFlag( int flag ) {
+	return IsMetalMat(GetMaterialFromFlag(flag));
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.58  2002/04/05 06:50:25  blaze
 // breakables should now respawn when the round restarts( when g_teamplay:SpawnPlayers() is called to be exact)
 //
@@ -1331,7 +1334,7 @@ void GetNearbyTeammates (gentity_t *self, char *buf)
 {
 	char		nearby_teammates[MAXNEAR][MAX_NAME_LENGTH];
 	int		nearby_teammates_num, l;
-	gentity_t	*ent;
+	gentity_t	*ent = NULL;
 
 	nearby_teammates_num = 0;
 

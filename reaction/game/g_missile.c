@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/04/06 21:42:20  makro
+// Changes to bot code. New surfaceparm system.
+//
 // Revision 1.24  2002/04/05 18:53:26  jbravo
 // Warning fixes
 //
@@ -29,6 +32,12 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+//Makro - to get the new surfaceparm system to work :/
+#include "surfaceflags.h"
+
+int GetMaterialFromFlag( int flag );
+qboolean IsMetalMat( int Material );
+qboolean IsMetalFlag( int flag );
 
 #define	MISSILE_PRESTEP_TIME	50
 
@@ -455,7 +464,9 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if ( other->takedamage && other->client ) {
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
 		ent->s.otherEntityNum = other->s.number;
-	} else if( trace->surfaceFlags & SURF_METALSTEPS ) {
+	//Makro - new surfaceparm system
+	//} else if( trace->surfaceFlags & SURF_METALSTEPS ) {
+	} else if( IsMetalFlag(trace->surfaceFlags) ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_METAL, DirToByte( trace->plane.normal ) );
 	} else {
 		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( trace->plane.normal ) );
