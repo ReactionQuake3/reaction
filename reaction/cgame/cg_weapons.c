@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/05/01 03:28:07  niceass
+// mp5 scale change for silencer
+//
 // Revision 1.67  2002/04/29 06:10:09  niceass
 // visible silencer
 //
@@ -1488,7 +1491,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
 	}
 	else {
-
 		CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
 		CG_PositionWeaponOnTag( &gun, parent, parent->hModel, "tag_weapon");
 
@@ -1601,9 +1603,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		float scale = 0.0f;
 		vec3_t angles;
 
-		if (weaponNum == WP_PISTOL) scale = (float)1.2;
-		if (weaponNum == WP_SSG3000) scale = (float)1.8;
-		if (weaponNum == WP_MP5) scale = (float)2.0;
+		if (weaponNum == WP_PISTOL) scale = 1.2f;
+		if (weaponNum == WP_SSG3000) scale = 1.8f;
+		if (weaponNum == WP_MP5) scale = 1.7f;
 
 		memset( &silencer, 0, sizeof( silencer ) );
 		silencer.hModel = cgs.media.rq3_silencerModel;
@@ -1620,6 +1622,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		VectorScale( silencer.axis[2], scale, silencer.axis[2] );
 
 		CG_PositionRotatedOffsetEntityOnTag( &silencer, &gun, weapon->firstModel, "tag_silencer", vec3_origin);
+		// Offset weapon
 		VectorMA(silencer.origin, -7.2f, silencer.axis[1], silencer.origin);
 
 		flash.nonNormalizedAxes = qtrue;
