@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/06/22 00:12:53  jbravo
+// Cleanup
+//
 // Revision 1.101  2002/06/21 16:54:15  makro
 // Crash bug fix
 //
@@ -230,9 +233,6 @@
 // g_combat.c
 
 #include "g_local.h"
-// JBravo: for warnings.
-void AddKilledPlayer(gentity_t * self, gentity_t * ent);
-void ResetKills(gentity_t * ent);
 
 /*
 ============
