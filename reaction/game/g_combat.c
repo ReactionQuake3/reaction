@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/06/05 15:17:51  jbravo
+// Gibbed players now vanish (gibs with them tho :() and suicide is no
+// longer -2 frags.  Added Obit handling for telefrags and better handling
+// for unhandled mod's
+//
 // Revision 1.88  2002/06/03 05:31:31  niceass
 // kill message fixed
 //
@@ -1102,8 +1107,14 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 					Q_strncpyz (message2, ", with a quickness", sizeof(message2));
 				}
 				break;
+			case MOD_TELEFRAG:
+				Q_strncpyz (message, " tried to invade", sizeof(message));
+				Q_strncpyz (message2, "'s personal space", sizeof(message2));
+				break;
 			default:
-				Com_sprintf (message, sizeof(message), "died via unhandled MOD %i. Report this to JBravo", meansOfDeath);
+				Q_strncpyz (message, " died.", sizeof(message));
+				break;
+//				Com_sprintf (message, sizeof(message), "died via unhandled MOD %i. Report this to JBravo", meansOfDeath);
 		}
 		Com_sprintf (death_msg, sizeof(death_msg), "%s^7%s %s^7%s\n", target->client->pers.netname, message,
 				attacker->client->pers.netname, message2);
@@ -1337,9 +1348,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		AddKilledPlayer(attacker, self);
 		ResetKills(self);
 // JBravo: make it OK to frag teammates after rounds are over.
-		if (attacker == self)
+		if (attacker == self) {
 		       AddScore(attacker, self->r.currentOrigin, -1);
-		else if (OnSameTeam (self, attacker)) {
+		} else if (OnSameTeam (self, attacker)) {
 			if (level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
 				//If the kill was a TK, remove 1 from REC_KILLS to negate the one given earlyier
@@ -1394,27 +1405,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 					DMReward->r.svFlags = SVF_BROADCAST;
 				}
 			}
-			//Elder: changed to knife slash heh
-			// JBravo: nobody wants this in RQ3
-/*			if(meansOfDeath == MOD_KNIFE) {
-				// add the sprite over the player's head
-				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
-				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-
-				// also play humiliation on target
-				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
-			} */
-
-			// check for two kills in a short amount of time
-			// if this is close enough to the last kill, give a reward sound
-// JBravo: not now.
-/*			if ( level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME ) {
-				// add the sprite over the player's head
-				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
-				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-			} */
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
@@ -1435,7 +1425,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			self->client->pers.records[REC_SUICIDES]++;
 			self->client->pers.records[REC_KILLS]--;
 		}
-		AddScore(self, self->r.currentOrigin, -1);
+//		AddScore(self, self->r.currentOrigin, -1);
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {	// only happens in One Flag CTF
 				Team_ReturnFlag( TEAM_FREE );

@@ -5,6 +5,11 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/06/05 15:17:51  jbravo
+// Gibbed players now vanish (gibs with them tho :() and suicide is no
+// longer -2 frags.  Added Obit handling for telefrags and better handling
+// for unhandled mod's
+//
 // Revision 1.74  2002/06/03 05:25:37  niceass
 // spectator changes
 //
@@ -1479,7 +1484,9 @@ void ClientThink_real( gentity_t *ent ) {
 	ClientEvents( ent, oldEventSequence );
 
 	// link entity now, after any personal teleporters have been used
-	trap_LinkEntity (ent);
+	// JBravo: this call reactivates gibbed players.
+	if (!ent->client->gibbed)
+		trap_LinkEntity (ent);
 	if ( !ent->client->noclip ) {
 		G_TouchTriggers( ent );
 	}
