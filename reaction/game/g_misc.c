@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/05/27 06:51:20  niceass
+// pressure support for targets
+//
 // Revision 1.47  2002/05/26 05:16:56  niceass
 // pressure
 //
@@ -907,6 +910,8 @@ void SP_func_pressure( gentity_t *ent ) {
 
 void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t *ent) {
 	gentity_t *tent;
+
+	G_UseTargets (ent, ent->activator);	
 
 	tent = G_TempEntity( origin, EV_PRESSURE );
 	tent->s.eventParm = DirToByte( normal );
