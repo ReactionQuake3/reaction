@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/08/25 07:09:00  niceass
+// added "life" setting to func_pressure
+//
 // Revision 1.67  2002/07/22 06:31:11  niceass
 // cleaned up the powerup code
 //
@@ -1384,7 +1387,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 	case EV_PRESSURE:
 		DEBUGNAME("EV_PRESSURE");
 		ByteToDir(es->eventParm, dir);
-		CG_Pressure(position, dir, es->frame, es->powerups);
+		CG_Pressure(position, dir, es->frame, es->powerups, es->constantLight);
 		break;
 
 	case EV_STOPLOOPINGSOUND:

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/08/25 07:08:18  niceass
+// added "life" setting to func_pressure
+//
 // Revision 1.19  2002/07/02 07:22:10  niceass
 // kill pressures at LCA
 //
@@ -707,12 +710,13 @@ void CG_AddPressureEntity(localEntity_t * le)
 	VectorCopy(le->pos.trBase, origin);
 
 	if (le->leFlags == LEF_AIR)
-		CG_ParticleAir(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1);
+		CG_ParticleAir(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1);
 	else if (le->leFlags == LEF_FLAME)
-		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1,
-				 cgs.media.flamePressureShader);
+		CG_ParticleSteam(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1,
+				cgs.media.flamePressureShader);
 	else
-		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.smokePuffShader);
+		CG_ParticleSteam(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1, 
+				cgs.media.smokePuffShader);
 }
 
 /*

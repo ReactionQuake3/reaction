@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.119  2002/08/25 07:08:41  niceass
+// added "life" setting to func_pressure
+//
 // Revision 1.118  2002/08/25 00:45:24  niceass
 // q3f atmosphere
 //
@@ -569,8 +572,11 @@ typedef struct localEntity_s {
 	leBounceSoundType_t leBounceSoundType;
 
 	refEntity_t refEntity;
-// JBravo: for func_explosive
+	
+	// JBravo: for func_explosive
 	float size;
+	// NiceAss: for func_pressure
+	int life;
 } localEntity_t;
 
 //======================================================================
@@ -2039,7 +2045,7 @@ void CG_EjectBloodSplat(vec3_t origin, vec3_t velocity, int amount, int duration
 localEntity_t *CG_MakeExplosion(vec3_t origin, vec3_t dir,
 				qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite);
 
-void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed);
+void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed, int life);
 
 //
 // cg_snapshot.c

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/08/25 07:07:42  niceass
+// added "life" setting to func_pressure
+//
 // Revision 1.60  2002/08/21 02:56:08  blaze
 // added spawnflags 8 for breakables, lets mappers turn off kicking
 //
@@ -978,11 +981,9 @@ void SP_func_pressure(gentity_t * ent)
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 	ent->s.eType = ET_PRESSURE;
 
-	G_SpawnInt("speed", "0", &ent->mass);	// mass will hold speed... yeah...
+	G_SpawnInt("speed", "200", &ent->mass);	// mass will hold speed... yeah...
+	G_SpawnInt("life", "200", &ent->tension);  // hmm..
 	G_SpawnString("type", "steam", &type);
-
-	if (ent->mass == 0)
-		ent->mass = 200;
 
 	if (!Q_stricmp(type, "air"))	// bounce will hold pressure type... yeah...
 		ent->bounce = 1;
@@ -1009,6 +1010,7 @@ void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent)
 
 	tent->s.frame = ent->bounce;	// 1 = air, 2 = flame, 0 = steam
 	tent->s.powerups = ent->mass;	// speed of pressure
+	tent->s.constantLight = ent->tension; // 200 default. Life of steam
 }
 
 /*

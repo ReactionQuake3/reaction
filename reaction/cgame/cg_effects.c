@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/08/25 07:09:20  niceass
+// added "life" setting to func_pressure
+//
 // Revision 1.40  2002/08/21 07:09:54  jbravo
 // Removed an extra definition of the vtos call
 //
@@ -1140,7 +1143,7 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 
 }
 
-void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed)
+void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed, int life)
 {
 	localEntity_t *le;
 	refEntity_t *re;
@@ -1159,6 +1162,7 @@ void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed)
 		le->leFlags = LEF_STEAM;
 
 	le->size = (float) speed;	// Size holds the speed.... yes...
+	le->life = life;
 
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(dir, le->pos.trDelta);
