@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/06/02 22:23:57  makro
+// no message
+//
 // Revision 1.43  2002/05/25 07:12:34  blaze
 // moved breakables into a configstring so they work in demos
 //
@@ -1492,7 +1495,9 @@ static void CG_ServerCommand( void ) {
 	}
 
 	// loaddeferred can be both a servercmd and a consolecmd
-	if ( !strcmp( cmd, "loaddefered" ) ) {	// FIXME: spelled wrong, but not changing for demo
+	//Makro - fixed spelling
+	//if ( !strcmp( cmd, "loaddefered" ) ) {	// FIXME: spelled wrong, but not changing for demo
+	if ( !strcmp( cmd, "loaddeferred" ) ) {		
 		CG_LoadDeferredPlayers();
 		return;
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/06/02 22:23:57  makro
+// no message
+//
 // Revision 1.49  2002/05/12 19:15:47  jbravo
 // Added playerlist, did some cleanup on votes.
 //
@@ -965,8 +968,10 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("teamvote");
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
-	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
- 	trap_AddCommand ("opendoor");
+	//Makro - fixed spelling
+	//trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
+ 	trap_AddCommand ("loaddeferred");
+	trap_AddCommand ("opendoor");
  	trap_AddCommand ("bandage");
 	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used
 	//Elder: added to give drop weapon auto-complete

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/06/02 22:23:27  makro
+// no message
+//
 // Revision 1.9  2002/05/10 13:21:53  makro
 // Mainly bot stuff. Also fixed a couple of crash bugs
 //
@@ -780,7 +783,9 @@ void Svcmd_AddBot_f( void ) {
 	// go ahead and load the bot's media immediately
 	if ( level.time - level.startTime > 1000 &&
 		trap_Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
+		//Makro - fixed spelling
+		//trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
+		trap_SendServerCommand( -1, "loaddeferred\n" );
 	}
 }
 
