@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/04/22 16:43:34  blaze
+// Hey look, breakables explode now!  :)
+//
 // Revision 1.60  2002/04/20 23:54:55  blaze
 // opps, breabable fix
 //
@@ -1397,7 +1400,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef MISSIONPACK
 	vec3_t		bouncedir, impactpoint;
 #endif
-	
+
 	if (!targ->takedamage) {
 		return;
 	}
@@ -1480,7 +1483,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     {
       targ->health -= damage;
     }
- 		G_BreakGlass( targ, inflictor, attacker, point, mod, damage );
+ 		if (targ->exploded == qfalse) G_BreakGlass( targ, inflictor, attacker, point, mod, damage );
  		return;
 	}
 

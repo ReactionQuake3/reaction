@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/04/22 16:43:34  blaze
+// Hey look, breakables explode now!  :)
+//
 // Revision 1.30  2002/04/20 23:54:55  blaze
 // opps, breabable fix
 //
@@ -444,6 +447,7 @@ void func_breakable_explode( gentity_t *self , vec3_t pos ) {
 	self->s.eType = ET_INVISIBLE;
 	self->r.contents = 0;
 	self->s.solid = 0;
+  self->exploded = qtrue;
 }
 
 // Blaze: adding for func_breakable explosions
@@ -451,11 +455,10 @@ void func_breakable_explode( gentity_t *self , vec3_t pos ) {
 void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
   
-	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
-
   func_breakable_explode( self , self->s.origin );
 	G_ExplodeMissile(self);
-//	radius damage
+	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
+  //	radius damage
   
 }
 
@@ -518,7 +521,7 @@ void SP_func_breakable( gentity_t *ent ) {
 
 	ent->damage_radius = damage_radius;
   
-
+  ent->exploded = qfalse;
 	// Setup amount type
 	G_SpawnInt( "amount", "0", &temp );  
 
@@ -642,6 +645,7 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 	//while we process it on the server-side.
 	//Places to stuff: eventParm
   eParm = ent->s.eventParm;
+  
  	if( ent->health <= 0 ) {
 		//G_Printf("Original eParm: %i \n", ent->s.eventParm);
 		//Copy the first four bits and strip them out of the original
@@ -685,9 +689,10 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
      			break;
 
      	}
-    if (ent->explosive && strcmp(g_entities[ENTITYNUM_WORLD].classname,"worldspawn"))
+    if (ent->explosive)
     {
       mod = MOD_TRIGGER_HURT;
+      
       func_breakable_die(ent, inflictor, attacker, damage, mod);
     }
 		//G_FreeEntity( ent );

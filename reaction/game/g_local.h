@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/04/22 16:43:34  blaze
+// Hey look, breakables explode now!  :)
+//
 // Revision 1.68  2002/04/22 02:27:57  jbravo
 // Dynamic model recognition
 //
@@ -277,6 +280,8 @@ struct gentity_s {
   qboolean unbreakable;
   //true if it's explosive
   qboolean	explosive;
+  //True if it's already been exploded
+  qboolean  exploded;
 
   qboolean	takedamage;
 	int		damage;
