@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/06/29 02:51:16  niceass
+// removed ladder stuff
+//
 // Revision 1.7  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -44,7 +47,7 @@ typedef struct {
 	qboolean groundPlane;
 	trace_t groundTrace;
 	qboolean ladder;	// We'll use this to tell when the player is on a ladder  (c3a tut)
-	qboolean previous_ladder;	// Elder: need this to see if player was on ladder
+	//qboolean previous_ladder;	// Elder: need this to see if player was on ladder
 	qboolean opendoor;
 
 	float impactSpeed;
