@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/06/05 23:36:07  niceass
+// "ready" command lag fix
+//
 // Revision 1.84  2002/06/03 00:48:10  niceass
 // match scoreboard changes
 //
@@ -1710,8 +1713,6 @@ extern	vmCvar_t		ui_RQ3_numSpectators;
 //Slicer: matchmode team status cvars
 extern	vmCvar_t		cg_RQ3_RefID;
 extern	vmCvar_t		cg_RQ3_matchmode;
-extern	vmCvar_t		cg_RQ3_team1ready;
-extern	vmCvar_t		cg_RQ3_team2ready;
 
 
 //

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/06/05 23:35:42  niceass
+// "ready" command lag fix
+//
 // Revision 1.70  2002/05/26 05:12:11  niceass
 // gravity fix and progress bar stuff
 //
@@ -359,8 +362,6 @@ vmCvar_t	ui_RQ3_numSpectators;
 //Slicer: matchmode team status cvars
 vmCvar_t	cg_RQ3_RefID;
 vmCvar_t	cg_RQ3_matchmode;
-vmCvar_t	cg_RQ3_team1ready;
-vmCvar_t	cg_RQ3_team2ready;
 // NiceAss: Taken out of the missionpack
 vmCvar_t	cg_enableBreath;
 // JBravo: ditto
@@ -535,8 +536,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_gravity, "g_gravity", "800", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
-	{ &cg_RQ3_team1ready, "g_RQ3_team1ready", "0", 0},
-	{ &cg_RQ3_team2ready, "g_RQ3_team2ready", "0", 0},
 	{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 	
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }

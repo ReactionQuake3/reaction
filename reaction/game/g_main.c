@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/06/05 23:36:39  niceass
+// "ready" command lag fix
+//
 // Revision 1.62  2002/06/03 00:49:07  niceass
 // match scoreboard changes
 //
@@ -420,8 +423,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
-	{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", 0, 0, qfalse},
+	{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
