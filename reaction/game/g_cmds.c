@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/02/26 01:10:19  jbravo
+// Dead people cant speak to the living any more.
+//
 // Revision 1.55  2002/02/25 19:41:53  jbravo
 // Fixed the use ESC and join menu to join teams when dead players are
 // spectating in TP mode.
@@ -996,7 +999,7 @@ G_Say
 ==================
 */
 
-static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ) {
+static void G_SayTo(gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message) {
 	if (!other) {
 		return;
 	}
@@ -1016,6 +1019,13 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	if ( (g_gametype.integer == GT_TOURNAMENT )
 		&& other->client->sess.sessionTeam == TEAM_FREE
 		&& ent->client->sess.sessionTeam != TEAM_FREE ) {
+		return;
+	}
+// JBravo: Dead people dont speak to the living...  or so Im told.
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
+		(other->client->sess.sessionTeam == TEAM_RED ||
+		 other->client->sess.sessionTeam == TEAM_BLUE) &&
+		 g_gametype.integer == GT_TEAMPLAY) {
 		return;
 	}
 
@@ -1081,12 +1091,13 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		break;
 	case SAY_TEAM:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
-			if (Team_GetLocationMsg(ent, location, sizeof(location)))
+			if (Team_GetLocationMsg(ent, location, sizeof(location))) {
 				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC") (%s)"EC": ",
 					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
-			else
+			} else {
 				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
 					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			}
 			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
 		} else {
 			if (Team_GetLocationMsg(ent, location, sizeof(location)))
@@ -1116,8 +1127,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 
 	Q_strncpyz( text, chatText, sizeof(text) );
 
-	if ( target ) {
-		G_SayTo( ent, target, mode, color, name, text );
+	if (target) {
+		G_SayTo(ent, target, mode, color, name, text);
 		return;
 	}
 
@@ -1129,7 +1140,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	// send it to all the apropriate clients
 	for (j = 0; j < level.maxclients; j++) {
 		other = &g_entities[j];
-		G_SayTo( ent, other, mode, color, name, text );
+		G_SayTo(ent, other, mode, color, name, text);
 	}
 }
 
