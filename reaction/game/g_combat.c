@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/05/27 06:50:37  niceass
+// headless code
+//
 // Revision 1.81  2002/05/21 17:55:26  jbravo
 // Telefrags gave attacker 100000 dmg.
 //
@@ -492,24 +495,6 @@ GibEntity
 ==================
 */
 void GibEntity( gentity_t *self, int killer ) {
-	gentity_t *ent;
-	int i;
-
-	//if this entity still has kamikaze
-	if (self->s.eFlags & EF_KAMIKAZE) {
-		// check if there is a kamikaze timer around for this owner
-		for (i = 0; i < MAX_GENTITIES; i++) {
-			ent = &g_entities[i];
-			if (!ent->inuse)
-				continue;
-			if (ent->activator != self)
-				continue;
-			if (strcmp(ent->classname, "kamikaze timer"))
-				continue;
-			G_FreeEntity(ent);
-			break;
-		}
-	}
 	G_AddEvent( self, EV_GIB_PLAYER, killer );
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
@@ -1518,11 +1503,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// remove powerups
 	memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
-// JBravo: AQ style Sniper and HC gibbing
+	// NiceAss: beheading =D
+	if ( meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM )
+		self->client->ps.eFlags |= EF_HEADLESS;
+
+	// JBravo: AQ style Sniper and HC gibbing
 	if ((meansOfDeath == MOD_SNIPER && hurt == LOC_HDAM) || (meansOfDeath == MOD_HANDCANNON && self->health <= -15)) {
 		G_Printf("AQ GIB!\n");
 		self->client->ps.eFlags &= ~EF_HANDCANNON_SMOKED;
-		self->s.eFlags &= ~EF_KAMIKAZE;
 		GibEntity (self, killer);
 	}
 
@@ -1567,12 +1555,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		// globally cycle through the different death animations
 		i = ( i + 1 ) % 3;
-
-#ifdef MISSIONPACK
-		if (self->s.eFlags & EF_KAMIKAZE) {
-			Kamikaze_DeathTimer(self);
-		}
-#endif
 	}
 
 	trap_LinkEntity (self);
