@@ -30,6 +30,8 @@
 * No rcon stuff command alowed in matchmode
 * Ignorenum bug (ignoring player no. 0) fixed
 * Case carrier glowing removed.
+* MM: Changed Voting system to allow only captains to vote/callvote
+* MM: Added "clearscores" and "resetmatch" to vote command list
 
 
 # List fixes here for the 2.1 release

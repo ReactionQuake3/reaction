@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.157  2002/08/07 20:49:21  slicer
+// Adapted Vote system to Matchmode
+//
 // Revision 1.156  2002/07/16 04:08:28  niceass
 // temporary hack solution for map rotation and ctb
 //
@@ -1865,7 +1868,6 @@ void Cmd_CallVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"Voting not allowed here.\n\"");
 		return;
 	}
-
 	if (level.voteTime) {
 		trap_SendServerCommand(ent - g_entities, "print \"A vote is already in progress.\n\"");
 		return;
@@ -1879,6 +1881,11 @@ void Cmd_CallVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to call a vote as spectator.\n\"");
 		return;
 	}
+		//Slicer Matchmode
+	if(g_RQ3_matchmode.integer && ent->client->sess.captain == TEAM_FREE) {
+		trap_SendServerCommand(ent - g_entities, "print \"Only team Captains can start a vote.\n\"");	
+		return;
+	}
 	// make sure it is a valid command to vote on
 	trap_Argv(1, arg1, sizeof(arg1));
 	trap_Argv(2, arg2, sizeof(arg2));
@@ -1887,17 +1894,28 @@ void Cmd_CallVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
 		return;
 	}
-
-	if (!Q_stricmp(arg1, "cyclemap")) {
+	
+	if (!Q_stricmp(arg1, "cyclemap")) {	
 	} else if (!Q_stricmp(arg1, "map")) {
 	} else if (!Q_stricmp(arg1, "g_gametype")) {
 	} else if (!Q_stricmp(arg1, "kick")) {
 	} else if (!Q_stricmp(arg1, "clientkick")) {
 	} else {
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
-		trap_SendServerCommand(ent - g_entities, 
-			"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
+		if(g_RQ3_matchmode.integer) {
+			if (!Q_stricmp(arg1, "resetmatch")) {
+			} else if (!Q_stricmp(arg1, "clearscores")) {
+			} else {
+					trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
+					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>,clearscores,resetmatch.\n\"");
+					return;
+			}
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
+			trap_SendServerCommand(ent - g_entities, 
+				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
 		return;
+		}
 	}
 
 	// if there is still a vote to be executed
@@ -1982,7 +2000,11 @@ void Cmd_Vote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"Not allowed to vote as spectator.\n\"");
 		return;
 	}
-
+		//Slicer Matchmode
+	if(g_RQ3_matchmode.integer && ent->client->sess.captain == TEAM_FREE) {
+		trap_SendServerCommand(ent - g_entities, "print \"Only team Captains vote.\n\"");	
+		return;
+	}
 	trap_SendServerCommand(ent - g_entities, "print \"Vote cast.\n\"");
 
 	ent->client->ps.eFlags |= EF_VOTED;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/08/07 20:49:21  slicer
+// Adapted Vote system to Matchmode
+//
 // Revision 1.105  2002/07/26 22:28:38  jbravo
 // Fixed the server about menu, made the UI handle illegal models and skins
 // better.
@@ -1378,7 +1381,6 @@ void CalculateRanks(void)
 			}
 		}
 	}
-
 	qsort(level.sortedClients, level.numConnectedClients, sizeof(level.sortedClients[0]), SortRanks);
 
 	// set the rank value for all clients that are connected and not spectators
@@ -2202,11 +2204,11 @@ void CheckVote(void)
 	if (level.time - level.voteTime >= VOTE_TIME) {
 		trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 	} else {
-		if (level.voteYes > level.numVotingClients / 2) {
+		if ((g_RQ3_matchmode.integer ? level.voteYes == 2 : (level.voteYes > level.numVotingClients / 2))) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
 			level.voteExecuteTime = level.time + 3000;
-		} else if (level.voteNo >= level.numVotingClients / 2) {
+		} else if ((g_RQ3_matchmode.integer ? level.voteNo == 1 : level.voteNo >= level.numVotingClients / 2)) {
 			// same behavior as a timeout
 			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
 		} else {
