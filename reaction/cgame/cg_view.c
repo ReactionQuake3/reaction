@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.29  2002/09/01 21:14:37  makro
 // Sky portal tweaks
 //
@@ -1139,6 +1142,9 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 	//end Blaze
 	cg.time = serverTime;
+// JBravo: unlagged
+	cg.time -= cg_latentSnaps.integer * (1000 / sv_fps.integer);
+
 	cg.demoPlayback = demoPlayback;
 
 	// update cvars

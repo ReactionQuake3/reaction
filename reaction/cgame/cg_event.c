@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.70  2002/11/09 14:13:32  makro
 // Added tdmMode info to the loading screen
 //
@@ -1003,85 +1006,122 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 	case EV_BULLET_HIT_WALL:
 		DEBUGNAME("EV_BULLET_HIT_WALL");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_DEFAULT);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+			// do nothing, because it was already predicted
+			// Com_Printf("Ignoring bullet event\n");
+		} else {
+			// do the bullet, because it wasn't predicted
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_DEFAULT);
+			//Com_Printf("Non-predicted bullet\n");
+		}
 		break;
 
 	case EV_BULLET_HIT_METAL:
 		DEBUGNAME("EV_BULLET_HIT_METAL");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_METAL);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_METAL);
+		}
 		break;
 
 	case EV_BULLET_HIT_GLASS:
 		DEBUGNAME("EV_BULLET_HIT_GLASS");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_GLASS);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_GLASS);
+		}
 		break;
 
 		//Makro - added
 	case EV_BULLET_HIT_WOOD:
 		DEBUGNAME("EV_BULLET_HIT_WOOD");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_WOOD);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_WOOD);
+		}
 		break;
 
 		//Makro - added
 	case EV_BULLET_HIT_BRICK:
 		DEBUGNAME("EV_BULLET_HIT_BRICK");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_BRICK);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_BRICK);
+		}
 		break;
 
 		//Makro - added
 	case EV_BULLET_HIT_CERAMIC:
 		DEBUGNAME("EV_BULLET_HIT_CERAMIC");
-		ByteToDir(es->eventParm, dir);
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_CERAMIC);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_CERAMIC);
+		}
 		break;
 
 	case EV_BULLET_HIT_KEVLAR:
 		DEBUGNAME("EV_BULLET_HIT_KEVLAR");
-		ByteToDir(es->eventParm, dir);
-		VectorScale(dir, -1, dir);
-		trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
-		if (cg_RQ3_impactEffects.integer) {
-			vec3_t velocity;
-			vec3_t origin;
-			int sparkCount;
-			int i;
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			VectorScale(dir, -1, dir);
+			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
+			if (cg_RQ3_impactEffects.integer) {
+				vec3_t velocity, origin;
+				int sparkCount, i;
 
-			sparkCount = 20 + rand() % 15;
-			VectorCopy(es->pos.trBase, origin);
-			origin[2] += 12;
-			// Generate the particles
-			for (i = 0; i < sparkCount; i++) {
-				VectorScale(dir, 150 + rand() % 30, velocity);
-				//random upwards sparks
-				if (rand() % 5 < 1)
-					velocity[2] += 120 + rand() % 30;
+				sparkCount = 20 + rand() % 15;
+				VectorCopy(es->pos.trBase, origin);
+				origin[2] += 12;
+				// Generate the particles
+				for (i = 0; i < sparkCount; i++) {
+					VectorScale(dir, 150 + rand() % 30, velocity);
+					//random upwards sparks
+					if (rand() % 5 < 1)
+						velocity[2] += 120 + rand() % 30;
 
-				velocity[0] += rand() % 80 - 40;
-				velocity[1] += rand() % 80 - 40;
-				CG_ParticleSparks(origin, velocity, 150 + rand() % 120, 2, 2, -4, 1);
+					velocity[0] += rand() % 80 - 40;
+					velocity[1] += rand() % 80 - 40;
+					CG_ParticleSparks(origin, velocity, 150 + rand() % 120, 2, 2, -4, 1);
+				}
 			}
 		}
 		break;
 
 	case EV_BULLET_HIT_FLESH:
 		DEBUGNAME("EV_BULLET_HIT_FLESH");
-		//ByteToDir( es->eventParm, dir );
-		//Elder: added additional param
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			//ByteToDir( es->eventParm, dir );
+			//Elder: added additional param
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
+		}
 		break;
-
 	case EV_SSG3000_HIT_FLESH:
 		DEBUGNAME("EV_SSG3000_HIT_FLESH");
-		ByteToDir(es->eventParm, dir);
-		//Elder: added additional param
-		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
-		VectorAdd(es->pos.trBase, dir, dir);
-		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum2, 10);
+		if (es->clientNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 2)) {
+		} else {
+			ByteToDir(es->eventParm, dir);
+			//Elder: added additional param
+			CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
+			VectorAdd(es->pos.trBase, dir, dir);
+			CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum2, 10);
+		}
 		break;
 
 	case EV_JUMPKICK:
@@ -1105,12 +1145,20 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 	case EV_SHOTGUN:
 		DEBUGNAME("EV_SHOTGUN");
-		CG_ShotgunFire(es, qtrue);
+		if (es->otherEntityNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4)) {
+		} else {
+			CG_ShotgunFire(es, qtrue);
+		}
 		break;
 
 	case EV_HANDCANNON:
-		DEBUGNAME("EV_SHOTGUN");
-		CG_ShotgunFire(es, qfalse);
+		DEBUGNAME("EV_HANDCANNON");
+		if (es->otherEntityNum == cg.predictedPlayerState.clientNum &&
+				cgs.delagHitscan && (cg_delag.integer & 1 || cg_delag.integer & 4)) {
+		} else {
+			CG_ShotgunFire(es, qfalse);
+		}
 		break;
 
 	case EV_GENERAL_SOUND:
@@ -1141,16 +1189,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case RQ3_SOUND_KICK:
 			trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.kickSound);
 			break;
-
-			//Elder: handled in EV_HEADSHOT now
-			/*
-			   case RQ3_SOUND_HEADSHOT:
-			   //CG_Printf("EV_RQ3_SOUND: Headshot\n");
-			   //Elder: extra blood - synched with sound
-			   //CG_Bleed( position, es->number );
-			   trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.headshotSound);
-			   break;
-			 */
 		case RQ3_SOUND_LCA:
 			//Global sound
 			//trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);

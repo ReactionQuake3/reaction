@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.70  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -397,6 +400,9 @@ void CG_ParseServerinfo(void)
 	trap_Cvar_Set("g_redTeam", cgs.redTeam);
 	Q_strncpyz(cgs.blueTeam, Info_ValueForKey(info, "g_blueTeam"), sizeof(cgs.blueTeam));
 	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+// JBravo: unlagged
+	cgs.delagHitscan = atoi(Info_ValueForKey(info, "g_delagHitscan"));
+	trap_Cvar_Set("g_delagHitscan", va("%i", cgs.delagHitscan));
 }
 
 /*

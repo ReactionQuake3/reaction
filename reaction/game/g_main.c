@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.134  2003/03/02 21:12:46  jbravo
 // Version bumped to 3.0.  Lets try and keep it list this.
 //
@@ -517,6 +520,13 @@ vmCvar_t g_enableFogLaser;
 // JBravo: ditto
 vmCvar_t g_enableDust;
 
+// JBravo: unlagged
+vmCvar_t g_delagHitscan;
+vmCvar_t g_unlaggedVersion;
+vmCvar_t g_truePing;
+vmCvar_t g_lightningDamage;
+vmCvar_t sv_fps;
+
 //Blaze let cvar.cfg be set by server admins
 vmCvar_t g_RQ3_cvarfile;
 
@@ -587,6 +597,11 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{&pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
+	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
+	{&g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue},
+	{&g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue},
+	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
 	{&g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{&g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qfalse},
@@ -2530,10 +2545,10 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-		if (ent->s.eType == ET_MISSILE) {
+/*		if (ent->s.eType == ET_MISSILE) {
 			G_RunMissile(ent);
 			continue;
-		}
+		} */
 
 		if (ent->s.eType == ET_ITEM || ent->physicsObject) {
 			G_RunItem(ent);
@@ -2552,6 +2567,22 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
+// JBravo: unlagged
+	G_TimeShiftAllClients(level.previousTime, NULL);
+	ent = &g_entities[0];
+	for (i=0 ; i<level.num_entities ; i++, ent++) {
+		if (!ent->inuse) {
+			continue;
+		}
+		if (ent->freeAfterEvent) {
+			continue;
+		}
+		if (ent->s.eType == ET_MISSILE) {
+			G_RunMissile(ent);
+		}
+	}
+	G_UnTimeShiftAllClients(NULL);
+
 	end = trap_Milliseconds();
 
 	start = trap_Milliseconds();
@@ -2613,6 +2644,7 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
+	level.frameStartTime = trap_Milliseconds();
 }
 
 /*

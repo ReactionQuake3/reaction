@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.135  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.134  2003/01/06 00:23:29  makro
 // no message
 //
@@ -595,6 +598,7 @@ typedef struct {
 //
 #define MAX_NETNAME		36
 #define	MAX_VOTE_COUNT		3
+#define NUM_PING_SAMPLES	64
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
@@ -625,7 +629,27 @@ typedef struct {
 	int sayMuteTime;
 	qboolean sayModerated;	// so warnings are not repeated for multi-line, same-frame messages
 	int records[REC_NUM_RECORDS];	// Elder: for our statistics tracking
+// JBravo: unlagged
+	int delag;
+	int debugDelag;
+	int cmdTimeNudge;
+	int latentSnaps;
+	int latentCmds;
+	int plOut;
+	usercmd_t cmdqueue[MAX_LATENT_CMDS];
+	int cmdhead;
+	int realPing;
+	int pingsamples[NUM_PING_SAMPLES];
+	int samplehead;
 } clientPersistant_t;
+
+// JBravo: unlagged
+#define NUM_CLIENT_HISTORY	17
+typedef struct {
+	vec3_t mins, maxs;
+	vec3_t currentOrigin;
+	int leveltime;
+} clientHistory_t;
 
 struct camera_s;
 
@@ -660,7 +684,7 @@ struct gclient_s {
 	clientSession_t sess;
 	qboolean readyToExit;	// wishes to leave the intermission
 	qboolean noclip;
-	int lastCmdTime;	// level.time of last usercmd_t, for EF_CONNECTION
+//	int lastCmdTime;	// level.time of last usercmd_t, for EF_CONNECTION
 	// we can't just use pers.lastCommand.time, because
 	// of the g_sycronousclients case
 	int buttons;
@@ -773,6 +797,13 @@ struct gclient_s {
 // JBravo: time of death for delayed CTB respawns
 	int time_of_death;
 	int flagMessageTime;// NiceAss: Newb message for pistol/knife w/ enemy case
+// JBravo: unlagged
+	int attackTime;
+	int historyHead;
+	clientHistory_t history[NUM_CLIENT_HISTORY];
+	clientHistory_t saved;
+	int frameOffset;
+	int lastUpdateFrame;
 };
 
 // JBravo: for model loading
@@ -910,7 +941,7 @@ typedef struct {
 	qboolean teams_assigned[MAX_TEAMS];
 	gentity_t *potential_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
 	gentity_t *used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
-
+	int frameStartTime;
 } level_locals_t;
 
 //
@@ -1111,8 +1142,18 @@ qboolean G_FileExists(char *filename);
 //
 qboolean LogAccuracyHit(gentity_t * target, gentity_t * attacker);
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
-void SnapVectorTowards(vec3_t v, vec3_t to);
+//void SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean CheckGauntletAttack(gentity_t * ent);
+
+// JBrabo: unlagged - g_unlagged.c
+void G_ResetHistory(gentity_t *ent);
+void G_StoreHistory(gentity_t *ent);
+void G_TimeShiftAllClients(int time, gentity_t *skip);
+void G_UnTimeShiftAllClients(gentity_t *skip);
+void G_DoTimeShiftFor(gentity_t *ent);
+void G_UndoTimeShiftFor(gentity_t *ent);
+void G_UnTimeShiftClient(gentity_t *client);
+void G_PredictPlayerMove(gentity_t *ent, float frametime);
 
 //void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace);
 //Blaze: No need for these because no gauntlet
@@ -1355,6 +1396,13 @@ extern vmCvar_t g_enableBreath;
 extern vmCvar_t g_enableFogLaser;
 extern vmCvar_t g_singlePlayer;
 extern vmCvar_t g_proxMineTimeout;
+
+// JBravo: unlagged
+extern vmCvar_t g_delagHitscan;
+extern vmCvar_t g_unlaggedVersion;
+extern vmCvar_t g_truePing;
+extern vmCvar_t g_lightningDamage;
+extern vmCvar_t sv_fps;
 
 //Slicer: Matchmode
 extern vmCvar_t g_RQ3_matchmode;

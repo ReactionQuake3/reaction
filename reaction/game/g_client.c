@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.124  2003/02/27 03:58:35  jbravo
 // Fixed the FF system after adding TDM broke it. Added color to error messages
 //
@@ -1020,6 +1023,28 @@ void ClientUserinfoChanged(int clientNum)
 		client->pers.predictItemPickup = qtrue;
 	}
 
+	// JBravo: unlagged
+	s = Info_ValueForKey(userinfo, "cg_delag");
+	if (!atoi(s)) {
+		client->pers.delag = 0; 
+	} else { 
+		client->pers.delag = atoi(s);
+	}
+	s = Info_ValueForKey(userinfo, "cg_cmdTimeNudge");
+	client->pers.cmdTimeNudge = atoi(s);
+	s = Info_ValueForKey(userinfo, "cg_debugDelag");
+	if (!atoi(s)) {
+		client->pers.debugDelag = qfalse;
+	} else {
+		client->pers.debugDelag = qtrue;
+	}
+	s = Info_ValueForKey(userinfo, "cg_latentSnaps");
+	client->pers.latentSnaps = atoi(s);
+	s = Info_ValueForKey(userinfo, "cg_latentCmds");
+	client->pers.latentCmds = atoi(s);
+	s = Info_ValueForKey(userinfo, "cg_plOut");
+	client->pers.plOut = atoi(s);
+	
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey(userinfo, "name");
@@ -1364,6 +1389,12 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	}
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
+// JBravo: unlagged
+	if (g_delagHitscan.integer) {
+		trap_SendServerCommand(clientNum, "print \"^1This server is Unlagged: full lag compensation is ON!\n\"");
+	} else {
+		trap_SendServerCommand(clientNum, "print \"^1This server is Unlagged: full lag compensation is OFF!\n\"");
+	}
 	return NULL;
 }
 
@@ -1645,6 +1676,10 @@ void ClientSpawn(gentity_t * ent)
 	// and never clear the voted flag
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
 	flags ^= EF_TELEPORT_BIT;
+
+	// JBravo: unlagged
+	G_ResetHistory(ent);
+	ent->client->saved.leveltime = 0;
 
 	// clear everything but the persistant data
 

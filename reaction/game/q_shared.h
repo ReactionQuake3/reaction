@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2003/03/09 21:30:39  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.11  2002/08/27 04:46:33  niceass
 // ref say added
 //
@@ -34,6 +37,7 @@
 // A user mod should never modify this file
 
 #define	Q3_VERSION		"Q3 1.29h"
+#define MAX_LATENT_CMDS		64
 
 #define MAX_TEAMNAME 32
 
@@ -695,6 +699,8 @@ typedef struct {
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
+void SnapVectorTowards(vec3_t v, vec3_t to);
+
 // just in case you do't want to use the macros
 vec_t _DotProduct(const vec3_t v1, const vec3_t v2);
 void _VectorSubtract(const vec3_t veca, const vec3_t vecb, vec3_t out);

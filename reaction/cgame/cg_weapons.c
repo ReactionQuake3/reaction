@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.105  2003/03/08 10:04:12  niceass
 // small code change. should make no difference
 //
@@ -2254,6 +2257,8 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 			break;
 		}
 	}
+// JBravo: unlagged
+	CG_PredictWeaponEffects(cent);
 }
 
 /*
@@ -2768,7 +2773,7 @@ Perform the same traces the server did to locate the
 hit splashes
 ================
 */
-static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int otherEntNum, int shotType, int seed)
+void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int otherEntNum, int shotType, int seed)
 {
 	int i, count;
 	float r, u;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.54  2003/02/27 07:33:58  jbravo
 // Bots stfy about flags.  Its cases.  Teamname fixes. TP style TP fixes.
 //
@@ -2918,6 +2921,11 @@ int BotFindEnemy(bot_state_t * bs, int curenemy)
 		if (EntityIsInvisible(&entinfo) && !EntityIsShooting(&entinfo)) {
 			continue;
 		}
+// JBravo: unlagged
+		if (g_entities[i].flags & FL_NOTARGET) {
+			continue;
+		}
+
 		//if not an easy fragger don't shoot at chatting players
 		if (easyfragger < 0.5 && EntityIsChatting(&entinfo))
 			continue;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.38  2003/03/08 09:58:08  niceass
 // Changes to make my "position on tag with offset" work correctly with orientation matrices crap for CTB tag_weapon2
 //
@@ -876,16 +879,20 @@ CG_CalcEntityLerpPositions
 */
 static void CG_CalcEntityLerpPositions(centity_t * cent)
 {
+// JBravo: unlagged
+	int timeshift = 0;
 
+	// this is done server-side now - cg_smoothClients is undefined
+	// players will always be TR_INTERPOLATE
 	// if this player does not want to see extrapolated players
-	if (!cg_smoothClients.integer) {
+/*	if (!cg_smoothClients.integer) {
 		// make sure the clients use TR_INTERPOLATE
 		if (cent->currentState.number < MAX_CLIENTS) {
 			cent->currentState.pos.trType = TR_INTERPOLATE;
 			cent->nextState.pos.trType = TR_INTERPOLATE;
 		}
 	}
-
+*/
 	if (cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE) {
 		CG_InterpolateEntityPosition(cent);
 		return;
@@ -897,9 +904,40 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		CG_InterpolateEntityPosition(cent);
 		return;
 	}
+	if (cent->currentState.number < MAX_CLIENTS &&
+			cent->currentState.clientNum != cg.predictedPlayerState.clientNum) {
+		cent->currentState.pos.trType = TR_LINEAR_STOP;
+		cent->currentState.pos.trTime = cg.snap->serverTime;
+		cent->currentState.pos.trDuration = 1000 / sv_fps.integer;
+	}
+
+	if (cent->currentState.eType == ET_MISSILE) {
+		// if it's one of ours
+		if (cent->currentState.otherEntityNum == cg.clientNum) {
+			timeshift = 1000 / sv_fps.integer;
+		}
+	}
+	
 	// just use the current frame and evaluate as best we can
-	CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
-	CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+//	CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+//	CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time + timeshift, cent->lerpOrigin);
+	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time + timeshift, cent->lerpAngles);
+
+	if (timeshift != 0) {
+		trace_t tr;
+		vec3_t lastOrigin;
+
+		BG_EvaluateTrajectory (&cent->currentState.pos, cg.time, lastOrigin);
+		CG_Trace(&tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin, cent->currentState.number, MASK_SHOT);
+
+		// don't let the projectile go through the floor
+		if (tr.fraction < 1.0f) {
+			cent->lerpOrigin[0] = lastOrigin[0] + tr.fraction * (cent->lerpOrigin[0] - lastOrigin[0]);
+			cent->lerpOrigin[1] = lastOrigin[1] + tr.fraction * (cent->lerpOrigin[1] - lastOrigin[1]);
+			cent->lerpOrigin[2] = lastOrigin[2] + tr.fraction * (cent->lerpOrigin[2] - lastOrigin[2]);
+		}
+	}
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
@@ -1071,7 +1109,7 @@ void CG_AddPacketEntities(int mode)
 			}
 		} else {
 			cg.frameInterpolation = 0;	// actually, it should never be used, because
-			// no entities7 should be marked as interpolating
+			// no entities should be marked as interpolating
 		}
 
 		// the auto-rotating items will all have the same axis
@@ -1094,6 +1132,17 @@ void CG_AddPacketEntities(int mode)
 
 		// lerp the non-predicted value for lightning gun origins
 		CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
+// JBravo: unlagged
+		if (cg.nextSnap) {
+			for (num = 0 ; num < cg.nextSnap->numEntities ; num++) {
+				cent = &cg_entities[cg.nextSnap->entities[num].number];
+				if (cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL) {
+					CG_TransitionEntity(cent);
+					cent->interpolate = qtrue;
+					CG_AddCEntity(cent);
+				}
+			}
+		}
 	}
 
 	if (mode != -1) {
@@ -1114,7 +1163,9 @@ void CG_AddPacketEntities(int mode)
 	} else {
 		for (num = 0; num < cg.snap->numEntities; num++) {
 			cent = &cg_entities[cg.snap->entities[num].number];
-			CG_AddCEntity(cent);
+			if (!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL)) {
+				CG_AddCEntity(cent);
+			}
 		}
 	}
 }

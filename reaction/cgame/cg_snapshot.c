@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.6  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -52,7 +55,7 @@ CG_TransitionEntity
 cent->nextState is moved to cent->currentState and events are fired
 ===============
 */
-static void CG_TransitionEntity(centity_t * cent)
+void CG_TransitionEntity(centity_t * cent)
 {
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
@@ -269,6 +272,17 @@ static snapshot_t *CG_ReadNextSnapshot(void)
 		cgs.processedSnapshotNum++;
 		r = trap_GetSnapshot(cgs.processedSnapshotNum, dest);
 
+// JBravo: unlagged
+		if (cg_latentSnaps.integer && r) {
+			int i = 0, time = dest->serverTime;
+			while (dest->serverTime > time - cg_latentSnaps.integer * (1000 / sv_fps.integer)) {
+				if (!(r = trap_GetSnapshot(cgs.processedSnapshotNum - i, dest))) {
+					break;
+				}
+				i++;
+			}
+		}
+
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if (cg.snap && r && dest->serverTime == cg.snap->serverTime) {
 			//continue;
@@ -323,7 +337,11 @@ void CG_ProcessSnapshots(void)
 	if (n != cg.latestSnapshotNum) {
 		if (n < cg.latestSnapshotNum) {
 			// this should never happen
-			CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+			if (cg_latentSnaps.integer) {
+				CG_Printf("WARNING: CG_ProcessSnapshots: n < cg.latestSnapshotNum\n");
+			} else {
+				CG_Error("CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+			}
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -361,7 +379,11 @@ void CG_ProcessSnapshots(void)
 
 			// if time went backwards, we have a level restart
 			if (cg.nextSnap->serverTime < cg.snap->serverTime) {
-				CG_Error("CG_ProcessSnapshots: Server time went backwards");
+				if (cg_latentSnaps.integer) {
+					CG_Printf("WARNING: CG_ProcessSnapshots: Server time went backwards\n");
+				} else {
+					CG_Error("CG_ProcessSnapshots: Server time went backwards");
+				}
 			}
 		}
 		// if our time is < nextFrame's, we have a nice interpolating state

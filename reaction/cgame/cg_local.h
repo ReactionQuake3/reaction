@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.137  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.136  2003/02/27 08:10:20  jbravo
 // Added replacement model functionality for ammo
 //
@@ -829,6 +832,9 @@ typedef struct {
 
 #define MAX_PREDICTED_EVENTS	16
 
+// JBravo: unlagged
+#define NUM_SAVED_STATES (CMD_BACKUP + 2)
+
 typedef struct {
 	int clientFrame;	// incremented each frame
 
@@ -1073,6 +1079,11 @@ typedef struct {
 	int refready;
 
 	int CTBcountdowntime;
+// JBravo: unlagged
+	int lastPredictedCommand;
+	int lastServerTime;
+	playerState_t savedPmoveStates[NUM_SAVED_STATES];
+	int stateHead, stateTail;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
@@ -1620,7 +1631,8 @@ typedef struct {
 
 	// media
 	cgMedia_t media;
-
+// JBravo: unlagged
+	int delagHitscan;
 } cgs_t;
 
 //==============================================================================
@@ -1815,7 +1827,7 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-extern vmCvar_t cg_smoothClients;
+//extern vmCvar_t cg_smoothClients;
 extern vmCvar_t pmove_fixed;
 extern vmCvar_t pmove_msec;
 
@@ -1834,6 +1846,19 @@ extern vmCvar_t cg_oldRail;
 extern vmCvar_t cg_oldRocket;
 extern vmCvar_t cg_oldPlasma;
 extern vmCvar_t cg_trueLightning;
+
+// JBravo: unlagged
+extern vmCvar_t cg_delag;
+extern vmCvar_t cg_debugDelag;
+extern vmCvar_t cg_drawBBox;
+extern vmCvar_t cg_cmdTimeNudge;
+extern vmCvar_t sv_fps;
+extern vmCvar_t cg_projectileNudge;
+extern vmCvar_t cg_optimizePrediction;
+extern vmCvar_t cl_timeNudge;
+extern vmCvar_t cg_latentSnaps;
+extern vmCvar_t cg_latentCmds;
+extern vmCvar_t cg_plOut;
 
 // NiceAss: No longer part of the MissionPack
 extern vmCvar_t cg_enableBreath;
@@ -1890,6 +1915,10 @@ extern vmCvar_t cg_RQ3_matchmode;
 // q3f atmospheric stuff:
 extern  	vmCvar_t  	  	cg_atmosphericEffects;
 extern  	vmCvar_t  	  	cg_lowEffects;
+
+void CG_PredictWeaponEffects(centity_t *cent);
+void CG_AddBoundingBox(centity_t *cent);
+qboolean CG_Cvar_ClampInt(const char *name, vmCvar_t *vmCvar, int min, int max);
 
 //
 // cg_main.c
@@ -2161,6 +2190,7 @@ void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed, int life);
 // cg_snapshot.c
 //
 void CG_ProcessSnapshots(void);
+void CG_TransitionEntity(centity_t *cent);
 
 //
 // cg_info.c

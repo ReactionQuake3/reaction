@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.56  2003/03/08 10:02:23  niceass
 // CTB briefcases in 3rd person now utilize tag_weapon2
 //
@@ -2640,6 +2643,8 @@ void CG_Player(centity_t * cent)
 	if (cent->currentState.eFlags & EF_HANDCANNON_SMOKED) {
 		CG_HCSmokeTrail(cent);
 	}
+// JBravo: unlagged
+	CG_AddBoundingBox(cent);
 }
 
 //=====================================================================

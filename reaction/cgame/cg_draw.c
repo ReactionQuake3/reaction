@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.69  2002/10/30 21:24:47  jbravo
 // Minor helmet tweaking
 //
@@ -1568,7 +1571,8 @@ static void CG_DrawLagometer(void)
 	int color;
 	float vscale;
 
-	if (!cg_lagometer.integer || cgs.localServer) {
+// JBravo: unlagged
+	if (!cg_lagometer.integer /*|| cgs.localServer*/) {
 		CG_DrawDisconnect();
 		return;
 	}

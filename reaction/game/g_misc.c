@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.65  2003/02/27 19:52:34  makro
 // dlights
 //
@@ -342,6 +345,9 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 
 	// toggle the teleport bit so the client knows to not lerp
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
+
+	// JBravo: unlagged
+	G_ResetHistory(player);
 
 	// set angles
 	// SetClientViewAngle( player, angles );

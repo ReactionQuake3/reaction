@@ -48,6 +48,7 @@ GOBJ = \
 	$(GDIRNAME)/rxn_game.o \
 	$(GDIRNAME)/g_teamplay.o \
 	$(GDIRNAME)/g_matchmode.o \
+	$(GDIRNAME)/g_unlagged.o \
 	$(GDIRNAME)/zcam.o \
 	$(GDIRNAME)/zcam_target.o
 
@@ -75,6 +76,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_snapshot.o \
 	$(CGDIRNAME)/cg_view.o \
 	$(CGDIRNAME)/cg_atmospheric.o \
+	$(CGDIRNAME)/cg_unlagged.o \
 	$(CGDIRNAME)/cg_weapons.o
   
 UIOBJ = \

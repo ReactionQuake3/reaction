@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2003/03/09 21:30:39  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.7  2002/08/21 03:42:20  niceass
 // move of some vector functions outside of just game
 //
@@ -1270,3 +1273,16 @@ void Info_SetValueForKey_Big(char *s, const char *key, const char *value)
 }
 
 //====================================================================
+// JBravo: moved from g_weapon.c
+void SnapVectorTowards( vec3_t v, vec3_t to )
+{
+	int i;
+
+	for (i = 0 ; i < 3 ; i++) {
+		if ( to[i] <= v[i] ) {
+			v[i] = (int)v[i];
+		} else {
+			v[i] = (int)v[i] + 1;
+		}
+	}
+}

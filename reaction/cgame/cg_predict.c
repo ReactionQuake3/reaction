@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.25  2002/07/21 18:47:27  niceass
 // weaponprediction cvar added
 //
@@ -415,6 +418,135 @@ static void CG_TouchTriggerPrediction(void)
 	}
 }
 
+// JBravo: unlagged
+#define ABS(x) ((x) < 0 ? (-(x)) : (x))
+
+static int IsUnacceptableError( playerState_t *ps, playerState_t *pps ) {
+	vec3_t delta;
+	int i;
+
+	if (pps->pm_type != ps->pm_type ||
+			pps->pm_flags != ps->pm_flags ||
+			pps->pm_time != ps->pm_time) {
+		return 1;
+	}
+
+	VectorSubtract(pps->origin, ps->origin, delta);
+	if (VectorLengthSquared( delta ) > 0.1f * 0.1f) {
+		if (cg_showmiss.integer) {
+			CG_Printf("delta: %.2f  ", VectorLength(delta));
+		}
+		return 2;
+	}
+
+	VectorSubtract(pps->velocity, ps->velocity, delta);
+	if (VectorLengthSquared( delta ) > 0.1f * 0.1f) {
+		if (cg_showmiss.integer) {
+			CG_Printf("delta: %.2f  ", VectorLength(delta));
+		}
+		return 3;
+	}
+
+	if (pps->weaponTime != ps->weaponTime ||
+			pps->gravity != ps->gravity ||
+			pps->speed != ps->speed ||
+			pps->delta_angles[0] != ps->delta_angles[0] ||
+			pps->delta_angles[1] != ps->delta_angles[1] ||
+			pps->delta_angles[2] != ps->delta_angles[2] ||
+			pps->groundEntityNum != ps->groundEntityNum) {
+		return 4;
+	}
+
+	if (pps->legsTimer != ps->legsTimer ||
+			pps->legsAnim != ps->legsAnim ||
+			pps->torsoTimer != ps->torsoTimer ||
+			pps->torsoAnim != ps->torsoAnim ||
+			pps->movementDir != ps->movementDir) {
+		return 5;
+	}
+
+	VectorSubtract(pps->grapplePoint, ps->grapplePoint, delta);
+	if (VectorLengthSquared(delta) > 0.1f * 0.1f) {
+		return 6;
+	}
+
+	if (pps->eFlags != ps->eFlags) {
+		return 7;
+	}
+
+	if (pps->eventSequence != ps->eventSequence) {
+		return 8;
+	}
+
+	for (i = 0; i < MAX_PS_EVENTS; i++) {
+		if (pps->events[i] != ps->events[i] ||
+				pps->eventParms[i] != ps->eventParms[i]) {
+			return 9;
+		}
+	}
+
+	if (pps->externalEvent != ps->externalEvent ||
+			pps->externalEventParm != ps->externalEventParm ||
+			pps->externalEventTime != ps->externalEventTime) {
+		return 10;
+	}
+
+	if (pps->clientNum != ps->clientNum ||
+			pps->weapon != ps->weapon ||
+			pps->weaponstate != ps->weaponstate) {
+		return 11;
+	}
+
+	if (ABS(pps->viewangles[0] - ps->viewangles[0]) > 1.0f ||
+			ABS(pps->viewangles[1] - ps->viewangles[1]) > 1.0f ||
+			ABS(pps->viewangles[2] - ps->viewangles[2]) > 1.0f) {
+		return 12;
+	}
+
+	if (pps->viewheight != ps->viewheight) {
+		return 13;
+	}
+
+	if (pps->damageEvent != ps->damageEvent ||
+			pps->damageYaw != ps->damageYaw ||
+			pps->damagePitch != ps->damagePitch ||
+			pps->damageCount != ps->damageCount) {
+		return 14;
+	}
+
+	for (i = 0; i < MAX_STATS; i++) {
+		if (pps->stats[i] != ps->stats[i]) {
+			return 15;
+		}
+	}
+
+	for (i = 0; i < MAX_PERSISTANT; i++) {
+		if (pps->persistant[i] != ps->persistant[i]) {
+			return 16;
+		}
+	}
+
+	for (i = 0; i < MAX_POWERUPS; i++) {
+		if (pps->powerups[i] != ps->powerups[i]) {
+			return 17;
+		}
+	}
+
+	for (i = 0; i < MAX_WEAPONS; i++) {
+		if (pps->ammo[i] != ps->ammo[i]) {
+			return 18;
+		}
+	}
+
+	if (pps->generic1 != ps->generic1 ||
+			pps->loopSound != ps->loopSound ||
+			pps->jumppad_ent != ps->jumppad_ent) {
+		return 19;
+	}
+
+	return 0;
+}
+
 /*
 =================
 CG_PredictPlayerState
@@ -448,6 +580,9 @@ void CG_PredictPlayerState(void)
 	qboolean moved;
 	usercmd_t oldestCmd;
 	usercmd_t latestCmd;
+// JBravo: unlagged
+	int stateIndex, predictCmd;
+	int numPredicted = 0, numPlayedBack = 0;
 
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
@@ -528,6 +663,44 @@ void CG_PredictPlayerState(void)
 
 	cg_pmove.pmove_fixed = pmove_fixed.integer;	// | cg_pmove_fixed.integer;
 	cg_pmove.pmove_msec = pmove_msec.integer;
+
+// JBravo: unlagged
+	if (cg_optimizePrediction.integer && !cg_latentCmds.integer) {
+		if (cg.nextFrameTeleport || cg.thisFrameTeleport) {
+			cg.lastPredictedCommand = 0;
+			cg.stateTail = cg.stateHead;
+			predictCmd = current - CMD_BACKUP + 1;
+		} else if (cg.physicsTime == cg.lastServerTime) {
+			predictCmd = cg.lastPredictedCommand + 1;
+		} else {
+			int i;
+			qboolean error = qtrue;
+
+			for (i = cg.stateHead; i != cg.stateTail; i = (i + 1) % NUM_SAVED_STATES) {
+				if (cg.savedPmoveStates[i].commandTime == cg.predictedPlayerState.commandTime) {
+					int errorcode = IsUnacceptableError(&cg.predictedPlayerState, &cg.savedPmoveStates[i]);
+					if (errorcode) {
+						if (cg_showmiss.integer) {
+							CG_Printf("errorcode %d at %d\n", errorcode, cg.time);
+						}
+						break;
+					}
+					*cg_pmove.ps = cg.savedPmoveStates[i];
+					cg.stateHead = (i + 1) % NUM_SAVED_STATES;
+					predictCmd = cg.lastPredictedCommand + 1;
+					error = qfalse;
+					break;
+				}
+			}
+			if (error) {
+				cg.lastPredictedCommand = 0;
+				cg.stateTail = cg.stateHead;
+				predictCmd = current - CMD_BACKUP + 1;
+			}
+		}
+		cg.lastServerTime = cg.physicsTime;
+		stateIndex = cg.stateHead;
+	}
 
 	// run cmds
 	moved = qfalse;
@@ -610,28 +783,6 @@ void CG_PredictPlayerState(void)
 			    ((cg_pmove.cmd.serverTime + pmove_msec.integer -
 			      1) / pmove_msec.integer) * pmove_msec.integer;
 		}
-		//Elder: predict bursting here
-		/*
-		   if ( (cg.snap->ps.weapon == WP_M4 &&
-		   (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
-		   (cg.snap->ps.weapon == WP_MP5 &&
-		   (cg.snap->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE))
-		   {
-		   if (cg_pmove.cmd.buttons & BUTTON_ATTACK)// && client->ps.stats[STAT_BURST] > 0)
-		   {
-		   if ( cg.snap->ps.stats[STAT_BURST] >= 0 && cg.snap->ps.stats[STAT_BURST] < 3)
-		   cg_pmove.cmd.buttons |= BUTTON_ATTACK;
-		   else
-		   cg_pmove.cmd.buttons &= ~BUTTON_ATTACK;
-		   }
-		   else if (cg.snap->ps.stats[STAT_BURST] > 2)
-		   {
-		   cg.snap->ps.stats[STAT_BURST] = 0;
-		   cg.snap->ps.weaponTime += 500;
-		   }
-		   else if (cg.snap->ps.stats[STAT_BURST] > 0)
-		   cg_pmove.cmd.buttons |= BUTTON_ATTACK;
-		   } */
 
 // JBravo: setting lca in pm if needed
 		//if (cg_RQ3_lca.integer == 1)
@@ -646,7 +797,30 @@ void CG_PredictPlayerState(void)
 		else
 			cg_pmove.predict = qfalse;
 
-		Pmove(&cg_pmove);
+// JBravo: unlagged
+		if (cg_optimizePrediction.integer && !cg_latentCmds.integer) {
+			if (cmdNum >= predictCmd || (stateIndex + 1) % NUM_SAVED_STATES == cg.stateHead) {
+				Pmove (&cg_pmove);
+				numPredicted++;
+				cg.lastPredictedCommand = cmdNum;
+				if ((stateIndex + 1) % NUM_SAVED_STATES != cg.stateHead) {
+					cg.savedPmoveStates[stateIndex] = *cg_pmove.ps;
+					stateIndex = (stateIndex + 1) % NUM_SAVED_STATES;
+					cg.stateTail = stateIndex;
+				}
+			} else {
+				numPlayedBack++;
+				if (cg_showmiss.integer &&
+						cg.savedPmoveStates[stateIndex].commandTime != cg_pmove.cmd.serverTime) {
+					CG_Printf("saved state miss\n");
+				}
+				*cg_pmove.ps = cg.savedPmoveStates[stateIndex];
+				stateIndex = (stateIndex + 1) % NUM_SAVED_STATES;
+			}
+		} else {
+			Pmove (&cg_pmove);
+			numPredicted++;
+		}
 
 		moved = qtrue;
 

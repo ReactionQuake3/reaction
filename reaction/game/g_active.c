@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.95  2002/11/13 00:50:38  jbravo
 // Fixed item dropping, specmode selection on death and helmet probs.
 //
@@ -1099,6 +1102,49 @@ void ClientThink_real(gentity_t * ent)
 	if (ucmd->serverTime < level.time - 1000) {
 		ucmd->serverTime = level.time - 1000;
 	}
+// JBravo: unlagged
+	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
+	if (client->pers.plOut) {
+		float thresh = (float)client->pers.plOut / 100.0f;
+		if (random() < thresh) {
+			return;
+		}
+	}
+	client->pers.pingsamples[client->pers.samplehead] = level.previousTime + client->frameOffset - ucmd->serverTime;
+	client->pers.samplehead++;
+	if ( client->pers.samplehead >= NUM_PING_SAMPLES ) {
+		client->pers.samplehead -= NUM_PING_SAMPLES;
+	}
+
+	if (g_truePing.integer) {
+		int i, sum = 0;
+
+		for (i = 0; i < NUM_PING_SAMPLES; i++) {
+			sum += client->pers.pingsamples[i];
+		}
+		client->pers.realPing = sum / NUM_PING_SAMPLES;
+	} else {
+		client->pers.realPing = client->ps.ping;
+	}
+	if (client->pers.latentCmds) {
+		int time = ucmd->serverTime;
+
+		int cmdindex = client->pers.cmdhead - client->pers.latentCmds - 1;
+		while (cmdindex < 0) {
+			cmdindex += MAX_LATENT_CMDS;
+		}
+		client->pers.cmd = client->pers.cmdqueue[cmdindex];
+		client->pers.realPing += time - ucmd->serverTime;
+	}
+	client->attackTime = ucmd->serverTime;
+	client->lastUpdateFrame = level.framenum;
+	if (client->pers.latentSnaps) {
+		client->pers.realPing += client->pers.latentSnaps * (1000 / sv_fps.integer);
+		client->attackTime -= client->pers.latentSnaps * (1000 / sv_fps.integer);
+	}
+	if (client->pers.realPing < 0) {
+		client->pers.realPing = 0;
+	}
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -1220,11 +1266,12 @@ void ClientThink_real(gentity_t * ent)
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
 	}
-	if (g_smoothClients.integer) {
+/*	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
 	} else {
 		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+	} */
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	SendPendingPredictableEvents(&ent->client->ps);
 
 	if (!(ent->client->ps.eFlags & EF_FIRING)) {
@@ -1344,7 +1391,7 @@ void ClientThink(int clientNum)
 
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while
-	ent->client->lastCmdTime = level.time;
+	// ent->client->lastCmdTime = level.time;
 
 	/* camera jitter fix (server side) */
 // JBravo: Take SPECTATOR_ZCAM into account
@@ -1450,6 +1497,7 @@ void ClientEndFrame(gentity_t * ent)
 {
 	int i;
 	clientPersistant_t *pers;
+	int frames;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 		SpectatorClientEndFrame(ent);
@@ -1491,11 +1539,11 @@ void ClientEndFrame(gentity_t * ent)
 	P_DamageFeedback(ent);
 
 	// add the EF_CONNECTION flag if we haven't gotten commands recently
-	if (level.time - ent->client->lastCmdTime > 1000) {
+/*	if (level.time - ent->client->lastCmdTime > 1000) {
 		ent->s.eFlags |= EF_CONNECTION;
 	} else {
 		ent->s.eFlags &= ~EF_CONNECTION;
-	}
+	} */
 
 // Begin Duffman
 	// Update the clips Amount in weapon for the client
@@ -1540,10 +1588,25 @@ void ClientEndFrame(gentity_t * ent)
 	G_SetClientSound(ent);
 
 	// set the latest infor
-	if (g_smoothClients.integer) {
+/*	if (g_smoothClients.integer) {
 		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
 	} else {
 		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+	} */
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	SendPendingPredictableEvents(&ent->client->ps);
+
+	// JBravo: unlagged
+	ent->client->ps.eFlags &= ~EF_CONNECTION;
+	frames = level.framenum - ent->client->lastUpdateFrame - 1;
+	if (frames > 2) {
+		frames = 2;
+		ent->client->ps.eFlags |= EF_CONNECTION;
+		ent->s.eFlags |= EF_CONNECTION;
+	}
+	if (frames > 0 && g_smoothClients.integer) {
+		G_PredictPlayerMove(ent, (float)frames / sv_fps.integer);
+		SnapVector(ent->s.pos.trBase);
+	}
+	G_StoreHistory(ent);
 }

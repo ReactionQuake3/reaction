@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.178  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.177  2003/02/27 03:58:35  jbravo
 // Fixed the FF system after adding TDM broke it. Added color to error messages
 //
@@ -477,7 +480,8 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		if (cl->pers.connected == CON_CONNECTING) {
 			ping = -1;
 		} else {
-			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+			//ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
 		}
 
 		if (cl->accuracy_shots) {

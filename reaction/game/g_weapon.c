@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.85  2002/12/20 14:29:47  jbravo
 // Activated the second barrel on the HC
 //
@@ -456,6 +459,8 @@ rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
+// JBravo: unlagged. moved to q_shared.c
+/*
 void SnapVectorTowards(vec3_t v, vec3_t to)
 {
 	int i;
@@ -467,7 +472,7 @@ void SnapVectorTowards(vec3_t v, vec3_t to)
 			v[i] = (int) v[i] + 1;
 		}
 	}
-}
+} */
 
 #define MACHINEGUN_SPREAD	200
 #define	MACHINEGUN_DAMAGE	7
@@ -483,6 +488,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 	gentity_t *tent2;
 	gentity_t *traceEnt;
 	int i, passent;
+//	int seed = ent->client->attackTime % 256;
 
 	//Makro
 	int Material;
@@ -506,33 +512,6 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 			break;
 		}
 	}
-	/* Original AQ2 code
-	   vectoangles (aimdir, dir);
-	   AngleVectors (dir, forward, right, up);
-
-	   r = crandom()*hspread;
-	   u = crandom()*vspread;
-	   VectorMA (start, 8192, forward, end);
-	   VectorMA (end, r, right, end);
-	   VectorMA (end, u, up, end);
-	 */
-
-	/* More AQ2 code to implement
-	   // change bullet's course when it enters water
-	   VectorSubtract (end, start, dir);
-	   vectoangles (dir, dir);
-	   AngleVectors (dir, forward, right, up);
-	   r = crandom()*hspread*2;
-	   u = crandom()*vspread*2;
-	   VectorMA (water_start, 8192, forward, end);
-	   VectorMA (end, r, right, end);
-	   VectorMA (end, u, up, end);
-	 */
-
-	//Elder: original Q3 code -- note the first line and its use to reduce spread
-	//r = random() * M_PI * 2.0f;
-	//u = sin(r) * crandom() * spread * 16;
-	//r = cos(r) * crandom() * spread * 16;
 
 	u = crandom() * spread;
 	r = crandom() * spread;
@@ -542,8 +521,11 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
-
+// JBravo: unlagged
+		G_DoTimeShiftFor(ent);
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		G_UndoTimeShiftFor(ent);
+
 		//Makro - saving the material flag to avoid useless calls to the GetMaterialFromFlag function
 		Material = GetMaterialFromFlag(tr.surfaceFlags);
 
@@ -556,24 +538,7 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards(tr.endpos, muzzle);
 
-		// NiceAss: Special hit-detection stuff for the head
-		/*
-		if (traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse) {
-			VectorCopy(tr.endpos, muzzle);
-			passent = tr.entityNum;
-			continue;
-		}
-		*/
-
 		if (traceEnt->takedamage && traceEnt->client) {
-			/*if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR && 
-				!OnSameTeam(traceEnt, ent) || (g_friendlyFire.integer > 0 && OnSameTeam(traceEnt, ent)) ) {
-				tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
-				//tent->s.eventParm = traceEnt->s.number;
-				tent->s.eventParm = DirToByte(forward);
-				tent->s.otherEntityNum2 = traceEnt->s.number;
-				tent->s.otherEntityNum = ent->s.number;
-			}*/
 			if (LogAccuracyHit(traceEnt, ent)) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
@@ -581,64 +546,53 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 					switch (MOD) {
 					case MOD_PISTOL:
 						ent->client->pers.records[REC_MK23HITS]++;
-						//ent->client->mk23Hits++;
 						break;
 					case MOD_M4:
 						ent->client->pers.records[REC_M4HITS]++;
-						//ent->client->m4Hits++;
 						break;
 					case MOD_MP5:
 						ent->client->pers.records[REC_MP5HITS]++;
-						//ent->client->mp5Hits++;
 						break;
 					case MOD_AKIMBO:
 						ent->client->pers.records[REC_AKIMBOHITS]++;
-						//ent->client->akimboHits++;
 						break;
 					}
 				}
 			}
-			//Elder: *******************TEST CODE *****************
-			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
-			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
-			//tent->s.eventParm = DirToByte( tr.plane.normal );
-			//Makro - new surfaceparm system
-			//} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
 		} else if (IsMetalMat(Material)) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_METAL);
 			tent->s.eventParm = ReflectVectorByte(forward, tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
-			//} else if ( tr.surfaceFlags & SURF_GLASS) {
+			tent->s.clientNum = ent->s.clientNum;
 		} else if (Material == MAT_GLASS) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_GLASS);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
-			//Makro - moved the pressure code out of these if's
-			//} else if ( traceEnt->s.eType == ET_PRESSURE ) {
-			//      // Pressure entities
-			//      G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
+			tent->s.clientNum = ent->s.clientNum;
 			//Makro - new sounds
 		} else if (IsWoodMat(Material)) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WOOD);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
 			//Makro - new sounds
 		} else if (Material == MAT_BRICK) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_BRICK);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
 			//Makro - new sounds
 		} else if (Material == MAT_CERAMIC) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_CERAMIC);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
 		} else {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.otherEntityNum = ent->s.number;
+			tent->s.clientNum = ent->s.clientNum;
 		}
-		//tent->s.otherEntityNum = ent->s.number;
-		//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
 
 		//Makro - moved the pressure code out of these if's
 		if (traceEnt->s.eType == ET_PRESSURE) {
@@ -667,10 +621,10 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 			}
 			// NiceAss: Added so the M4 will shoot through bodies
 			// Makro - changed from || to &&. Q3 crashed before
-			if ( traceEnt->client && ent->client) {
-				if ( (MOD == MOD_M4 && traceEnt->client->kevlarHit == qfalse) ||
+			if (traceEnt->client && ent->client) {
+				if ((MOD == MOD_M4 && traceEnt->client->kevlarHit == qfalse) ||
 					// NiceAss: And you can shoot through teammates
-					OnSameTeam(traceEnt, ent) ) {
+					OnSameTeam(traceEnt, ent)) {
 					VectorCopy(tr.endpos, muzzle);
 					passent = tr.entityNum;
 					continue;
@@ -784,6 +738,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 		hc_multipler = 5;
 	}
 
+	G_DoTimeShiftFor(ent);
 	// generate the "random" spread pattern
 	for (i = 0; i < count; i++) {
 		if (shotType == WP_M3) {
@@ -815,6 +770,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 			}
 		}
 	}
+	G_UndoTimeShiftFor(ent);
 }
 
 void weapon_supershotgun_fire(gentity_t * ent)
@@ -864,6 +820,7 @@ void weapon_railgun_fire(gentity_t * ent)
 	VectorMA(muzzle, 8192, forward, end);
 
 	// trace only against the solids, so the railgun will go through people
+	G_DoTimeShiftFor(ent);
 	unlinked = 0;
 	hits = 0;
 	passent = ent->s.number;
@@ -887,6 +844,7 @@ void weapon_railgun_fire(gentity_t * ent)
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while (unlinked < MAX_RAIL_HITS);
+	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
@@ -1212,7 +1170,6 @@ void Weapon_M4_Fire(gentity_t * ent)
 
 	// Homer: increment burst if needed
 	if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
-		//ent->client->ps.stats[STAT_BURST]++;
 		spread = M4_SPREAD * 0.7;
 	} else {
 		spread = M4_SPREAD;
@@ -1232,19 +1189,8 @@ void Weapon_M4_Fire(gentity_t * ent)
 // JBravo: ff
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
+
 	Bullet_Fire(ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
-
-	/*
-	   if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
-	   //Elder: burst three shots
-	   if (ent->client->weaponfireNextTime > 0 && ent->client->ps.stats[STAT_BURST] > 2) {
-	   ent->client->weaponfireNextTime = 0;
-	   }
-	   else {
-	   ent->client->weaponfireNextTime = level.time + RQ3_M4_DELAY;
-	   }
-	   } */
-
 }
 
 /*
@@ -1309,23 +1255,11 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 {
 	vec3_t end;
 	trace_t trace;
-	gentity_t *tent;//[MAX_SSG3000_HITS];
-	gentity_t *tentWall;
-	gentity_t *traceEnt = NULL;
-	int damage;
-	int i;
-	int hits;
-	int unlinked;
-	int passent;
+	gentity_t *tent, *tentWall, *traceEnt = NULL;
 	gentity_t *unlinkedEntities[MAX_SSG3000_HITS];
-
+	int damage, i, hits, unlinked, passent, Material;
 	qboolean hitBreakable;
-	float r;
-	float u;
-	float spread;
-
-	//Makro
-	int Material;
+	float r, u, spread;
 
 	// Elder: Statistics tracking
 	if (ent->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
@@ -1344,6 +1278,8 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 
 	damage = SNIPER_DAMAGE;
 
+	// JBravo: unlagged NEW
+	G_DoTimeShiftFor(ent);
 	// trace only against the solids, so the SSG3000 will go through people
 	unlinked = 0;
 	hits = 0;
@@ -1382,17 +1318,6 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			G_Damage(traceEnt, ent, ent, forward, trace.endpos, 0, 0, MOD_SNIPER);
 			return;
 		}
-
-		// NiceAss: Special hit-detection stuff for the head
-		/*
-		if (traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, trace.endpos) == qfalse) {
-			// It actually didn't hit anything...
-			trap_UnlinkEntity(traceEnt);
-			unlinkedEntities[unlinked] = traceEnt;
-			unlinked++;
-			continue;
-		}
-		*/
 
 		if (traceEnt->takedamage) {
 			//flag hitBreakable - bullets go through even
@@ -1450,6 +1375,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 			unlinked++;
 		}
 	} while (unlinked < MAX_SSG3000_HITS);
+	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
@@ -1534,6 +1460,7 @@ void Weapon_MP5_Fire(gentity_t * ent)
 // JBravo: ff
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
+
 	Bullet_Fire(ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }
@@ -1718,9 +1645,6 @@ void Weapon_Grenade_Fire(gentity_t * ent)
 		setFFState(ent);
 	
 	m = fire_grenade(ent, muzzle, forward);
-
-	//      VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );      // "real" physics
-
 }
 
 /*
@@ -1956,7 +1880,6 @@ void Laser_Think(gentity_t * self)
 
 		//Trace Position
 		trap_Trace(&tr, start, NULL, NULL, end, passent, MASK_SHOT);
-		//trap_Trace (&tr2, start, NULL, NULL, end, passent, MASK_SHOT|CONTENTS_FOG);
 		traceEnt = &g_entities[tr.entityNum];
 
 		//Did you not hit anything?
@@ -1965,28 +1888,10 @@ void Laser_Think(gentity_t * self)
 			trap_UnlinkEntity(self);
 			return;
 		}
-		// It "hit" a player, but actually missed (thanks to new headshot code!)
-		/*
-		if ((traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse)) {
-			passent = tr.entityNum;
-			continue;
-		}
-		*/
 
 		//Makro - new surfaceparm system
-		//if (!(tr.surfaceFlags & SURF_GLASS)) break;
 		if (!(GetMaterialFromFlag(tr.surfaceFlags) == MAT_GLASS))
 			break;
-		/*
-		   //Makro - don't go through brushes that aren't detail/trans
-		   //contents = trap_PointContents(tr.endpos, -1);
-		   contents = tr.contents;
-		   if (contents & CONTENTS_SOLID) {
-		   if ( !(contents & (CONTENTS_TRANSLUCENT | CONTENTS_DETAIL)) ) {
-		   break;
-		   }
-		   }
-		 */
 		VectorMA(tr.endpos, 10, forward, start);	// Nudge it forward a little bit
 	}
 
@@ -2018,12 +1923,10 @@ void ReloadWeapon(gentity_t * ent, int stage)
 {
 
 	if (stage == 1 && (ent->client->ps.weapon == WP_SSG3000 || ent->client->ps.weapon == WP_M3)) {
-		//G_Printf("Hit server-side reload stage 1\n");
 		if (ent->client->ps.weapon == WP_M3)
 			ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
 		ent->client->numClips[ent->client->ps.weapon]--;
 	} else if (stage == 2) {
-		//G_Printf("Hit server-side reload stage 2\n");
 		ent->client->numClips[ent->client->ps.weapon]--;
 		// remove an extra clip if using HC or Akimbos
 		if (ent->client->ps.weapon == WP_HANDCANNON || ent->client->ps.weapon == WP_AKIMBO)

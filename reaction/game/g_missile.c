@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.31  2002/09/29 16:06:45  jbravo
 // Work done at the HPWorld expo
 //
@@ -127,11 +130,9 @@ void G_ExplodeMissile(gentity_t * ent)
 			if (ent->s.weapon == WP_KNIFE && 
 					((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 				g_entities[ent->r.ownerNum].client->pers.records[REC_KNIFETHROWHITS]++;
-			//g_entities[ent->r.ownerNum].client->knifeHits++;
 			if (ent->s.weapon == WP_GRENADE &&
 					((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 				g_entities[ent->r.ownerNum].client->pers.records[REC_GRENADEHITS]++;
-			//g_entities[ent->r.ownerNum].client->grenHits++;
 		}
 	}
 	//Elder: huhh?
@@ -162,16 +163,6 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		G_AddEvent(ent, EV_GRENADE_BOUNCE, 0);
 		return;
 	}
-	//Elder: regular Q3 grenades
-	// check for bounce
-	/*
-	   if ( !other->takedamage &&
-	   ( ent->s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
-	   G_BounceMissile( ent, trace );
-	   G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
-	   return;
-	   }
-	 */
 
 	// impact damage
 	if (other->takedamage) {
@@ -194,12 +185,6 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 			if (VectorLength(velocity) == 0) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
-			//Elder: added
-			//Blaze: Moved down into the section where it actually hits the glass, otherwise the breakable entity is gone when it checks for it
-			/*if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
-			   G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
-			   ent->s.origin, ent->damage, 0, ent->methodOfDeath);
-			   } */
 		}
 	}
 
@@ -295,23 +280,6 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 				// And cut the velocity down.
 				VectorScale(ent->s.pos.trDelta, .2, ent->s.pos.trDelta);
 				return;
-				/*  OLD METHOD
-				   //breakable "hit"; make it fall to the ground
-				   xr_drop = LaunchItem(xr_item, trace->endpos, velocity, FL_DROPPED_ITEM);
-
-				   //but still set it as a thrown knife
-				   //xr_drop->flags |= FL_THROWN_KNIFE;
-
-				   //Elder: move the knife back a bit more
-				   //and transfer into shared entityState
-				   VectorScale(trace->plane.normal, 16, temp);
-				   VectorAdd(trace->endpos, temp, knifeOffset);
-
-				   //VectorCopy(xr_drop->s.origin, temp);
-				   VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
-
-				   VectorCopy(xr_drop->s.origin, xr_drop->r.currentOrigin);
-				 */
 			} else {
 				//leave embedded in the wall
 				xr_drop = LaunchItem(xr_item, trace->endpos, 0, FL_THROWN_KNIFE | FL_DROPPED_ITEM);
@@ -385,43 +353,6 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 
 /*
 ================
-G_ExplodeMissile
-
-Explode a missile without an impact
-================
-*/
-/*
-void G_ExplodeMissile( gentity_t *ent ) {
-	vec3_t		dir;
-	vec3_t		origin;
-
-	G_EvaluateTrajectory( &ent->s.pos, level.time, origin );
-	SnapVector( origin );
-	G_SetOrigin( ent, origin );
-
-	// we don't have a valid direction, so just point straight up
-	dir[0] = dir[1] = 0;
-	dir[2] = 1;
-
-	ent->s.eType = ET_GENERAL;
-	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
-
-	ent->freeAfterEvent = qtrue;
-
-	// splash damage
-	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, NULL
-			, ent->splashMethodOfDeath ) ) {
-			g_entities[ent->r.ownerNum].client->ps.persistant[PERS_ACCURACY_HITS]++;
-		}
-	}
-
-	trap_LinkEntity( ent );
-}
-*/
-
-/*
-================
 G_RunMissile
 ================
 */
@@ -470,65 +401,11 @@ void G_RunMissile(gentity_t * ent)
 			return;	// exploded
 		}
 	}
-	//Elder: make knife follow the trajectory - not real but oh well...
-	/* Done in CG_Missile locally to save bandwidth
-	   if (ent->classname == "weapon_knife")
-	   {
-	   vec3_t knifeVelocity;
-
-	   G_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
-	   vectoangles(knifeVelocity, ent->s.angles);
-	   ent->s.angles[0] += level.time % 360;
-	   }
-	 */
 
 	// check think function after bouncing
 	G_RunThink(ent);
 }
 
-//=============================================================================
-
-/*
-=================
-fire_plasma
-
-=================
-*/
-//Blaze: No plasma gun so no need for this function
-/*
-gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "plasma";
-	bolt->nextthink = level.time + 10000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_PLASMAGUN;
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 20;
-	bolt->splashDamage = 15;
-	bolt->splashRadius = 20;
-	bolt->methodOfDeath = MOD_PLASMA;
-	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-	bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 2000, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-*/
 //=============================================================================
 
 /*
@@ -561,6 +438,7 @@ gentity_t *fire_grenade(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->s.weapon = WP_GRENADE;
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = GRENADE_DAMAGE;	//probably only used on a direct hit
 	bolt->splashDamage = GRENADE_SPLASH_DAMAGE;	//Blaze: Reaction Grenade Damage
@@ -627,6 +505,7 @@ gentity_t *fire_knife(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_KNIFE;
 	bolt->r.ownerNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 	bolt->parent = self;
 	bolt->damage = THROW_DAMAGE;
 	bolt->splashDamage = 0;
@@ -649,133 +528,6 @@ gentity_t *fire_knife(gentity_t * self, vec3_t start, vec3_t dir)
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_KNIFETHROWSHOTS]++;
 	}
-	// bolt->s.pos.trDelta[2] *= .85;
-
-	//Elder: not needed anymore
-	//Saving stuff for Makro's knife equations
-	//VectorCopy( start, bolt->s.origin2);
-	//VectorCopy( dir, bolt->s.angles2);
 
 	return bolt;
 }
-
-//=============================================================================
-
-/*
-=================
-fire_bfg
-=================
-*/
-//Blaze: no bfg
-/*
-gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "bfg";
-	bolt->nextthink = level.time + 10000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_BFG;
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 120;
-	bolt->methodOfDeath = MOD_BFG;
-	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-	bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 2000, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-*/
-//=============================================================================
-
-/*
-=================
-fire_rocket
-=================
-*/
-//Blaze: No need for this since there are no rockets
-/*
-gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*bolt;
-
-	VectorNormalize (dir);
-
-	bolt = G_Spawn();
-	bolt->classname = "rocket";
-	bolt->nextthink = level.time + 15000;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	bolt->s.weapon = WP_ROCKET_LAUNCHER;
-	bolt->r.ownerNum = self->s.number;
-	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 100;
-	bolt->splashRadius = 120;
-	bolt->methodOfDeath = MOD_ROCKET;
-	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-	bolt->target_ent = NULL;
-
-	bolt->s.pos.trType = TR_LINEAR;
-	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 900, bolt->s.pos.trDelta );
-	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, bolt->r.currentOrigin);
-
-	return bolt;
-}
-*/
-/*
-=================
-fire_grapple
-=================
-*/
-//Blaze: no need for this since no grapple
-/*
-gentity_t *fire_grapple (gentity_t *self, vec3_t start, vec3_t dir) {
-	gentity_t	*hook;
-
-	VectorNormalize (dir);
-
-	hook = G_Spawn();
-	hook->classname = "hook";
-	hook->nextthink = level.time + 10000;
-	hook->think = Weapon_HookFree;
-	hook->s.eType = ET_MISSILE;
-	hook->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	hook->s.weapon = WP_GRAPPLING_HOOK;
-	hook->r.ownerNum = self->s.number;
-	hook->methodOfDeath = MOD_GRAPPLE;
-	hook->clipmask = MASK_SHOT;
-	hook->parent = self;
-	hook->target_ent = NULL;
-
-	hook->s.pos.trType = TR_LINEAR;
-	hook->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
-	hook->s.otherEntityNum = self->s.number; // use to match beam in client
-	VectorCopy( start, hook->s.pos.trBase );
-	VectorScale( dir, 800, hook->s.pos.trDelta );
-	SnapVector( hook->s.pos.trDelta );			// save net bandwidth
-	VectorCopy (start, hook->r.currentOrigin);
-
-	self->client->hook = hook;
-
-	return hook;
-}
-*/

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.132  2003/02/27 03:58:35  jbravo
 // Fixed the FF system after adding TDM broke it. Added color to error messages
 //
@@ -1177,6 +1180,9 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	if (level.intermissiontime) {
 		return;
 	}
+// JBravo: unlagged
+	G_UnTimeShiftClient(self);
+
 // JBravo: lets not bother with those CTF functions in Teamplay
 	if (g_gametype.integer == GT_CTF) {
 		// check for an almost capture

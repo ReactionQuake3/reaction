@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2003/03/09 21:30:38  jbravo
+// Adding unlagged.   Still needs work.
+//
 // Revision 1.122  2003/02/27 08:10:20  jbravo
 // Added replacement model functionality for ammo
 //
@@ -555,7 +558,7 @@ vmCvar_t cg_noVoiceChats;
 vmCvar_t cg_noVoiceText;
 vmCvar_t cg_hudFiles;
 vmCvar_t cg_scorePlum;
-vmCvar_t cg_smoothClients;
+//vmCvar_t cg_smoothClients;
 vmCvar_t pmove_fixed;
 
 //vmCvar_t      cg_pmove_fixed;
@@ -576,6 +579,19 @@ vmCvar_t cg_gravity;
 vmCvar_t cg_oldRocket;
 vmCvar_t cg_oldPlasma;
 vmCvar_t cg_trueLightning;
+
+// JBravo: unlagged
+vmCvar_t cg_delag;
+vmCvar_t cg_debugDelag;
+vmCvar_t cg_drawBBox;
+vmCvar_t cg_cmdTimeNudge;
+vmCvar_t sv_fps;
+vmCvar_t cg_projectileNudge;
+vmCvar_t cg_optimizePrediction;
+vmCvar_t cl_timeNudge;
+vmCvar_t cg_latentSnaps;
+vmCvar_t cg_latentCmds;
+vmCvar_t cg_plOut;
 
 //Blaze: cheat struct
 cheat_cvar cheats[30];
@@ -769,7 +785,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{&cg_timescale, "timescale", "1", 0},
 	{&cg_scorePlum, "cg_scorePlums", "1", CVAR_USERINFO | CVAR_ARCHIVE},
-	{&cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
+//	{&cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{&cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
 
 	{&pmove_fixed, "pmove_fixed", "0", 0},
@@ -863,8 +879,20 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_bot_minplayers, "bot_minplayers", "0", CVAR_ROM},
 	{&cg_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ROM},
 	// q3f atmospheric stuff:
-	{ &cg_atmosphericEffects, "cg_atmosphericEffects", "1", CVAR_ARCHIVE },
-	{ &cg_lowEffects, "cg_lowEffects", "0", CVAR_ARCHIVE },
+	{&cg_atmosphericEffects, "cg_atmosphericEffects", "1", CVAR_ARCHIVE},
+	{&cg_lowEffects, "cg_lowEffects", "0", CVAR_ARCHIVE},
+// JBravo: unlagged
+	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
+	{&cg_debugDelag, "cg_debugDelag", "0", CVAR_USERINFO | CVAR_CHEAT},
+	{&cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT},
+	{&cg_cmdTimeNudge, "cg_cmdTimeNudge", "0", CVAR_ARCHIVE | CVAR_USERINFO},
+	{&sv_fps, "sv_fps", "20", 0},
+	{&cg_projectileNudge, "cg_projectileNudge", "0", CVAR_ARCHIVE},
+	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
+	{&cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE},
+	{&cg_latentSnaps, "cg_latentSnaps", "0", CVAR_USERINFO | CVAR_CHEAT},
+	{&cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT},
+	{&cg_plOut, "cg_plOut", "0", CVAR_USERINFO | CVAR_CHEAT},
 
 	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 	//{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
@@ -930,6 +958,18 @@ void CG_UpdateCvars(void)
 	cvarTable_t *cv;
 
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
+// JBravo: unlagged
+		if (cv->vmCvar == &cg_cmdTimeNudge) {
+			CG_Cvar_ClampInt(cv->cvarName, cv->vmCvar, 0, 999);
+		} else if (cv->vmCvar == &cl_timeNudge) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, -50, 50);
+		} else if (cv->vmCvar == &cg_latentSnaps) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 10);
+		} else if (cv->vmCvar == &cg_latentCmds) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, MAX_LATENT_CMDS - 1);
+		} else if (cv->vmCvar == &cg_plOut) {
+			CG_Cvar_ClampInt( cv->cvarName, cv->vmCvar, 0, 100);
+		}
 		trap_Cvar_Update(cv->vmCvar);
 	}
 
