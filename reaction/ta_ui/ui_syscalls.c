@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/03/31 14:14:42  makro
+// Cleaned up a little more
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -381,4 +384,3 @@ qboolean trap_VerifyCDKey( const char *key, const char *chksum) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum);
 }
 
- 

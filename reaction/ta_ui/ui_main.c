@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/31 14:14:42  makro
+// Cleaned up a little more
+//
 // Revision 1.10  2002/03/31 13:23:26  makro
 // Cleaned things up a little
 //
@@ -1593,6 +1596,8 @@ static const char *UI_AIFromName(const char *name) {
 	return "James";
 }
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static const int UI_AIIndex(const char *name) {
 	int j;
@@ -1605,8 +1610,6 @@ static const int UI_AIIndex(const char *name) {
 }
 #endif
 
-//Makro - not used anywhere
-/*
 #ifndef MISSIONPACK // bk001206
 static const int UI_AIIndexFromName(const char *name) {
 	int j;
@@ -1627,6 +1630,8 @@ static const char *UI_OpponentLeaderHead() {
 }
 #endif
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static const char *UI_OpponentLeaderModel() {
 	int i;
@@ -1639,7 +1644,7 @@ static const char *UI_OpponentLeaderModel() {
 	return "James";
 }
 #endif
-
+*/
 
 static qboolean updateOpponentModel = qtrue;
 static void UI_DrawOpponent(rectDef_t *rect) {
