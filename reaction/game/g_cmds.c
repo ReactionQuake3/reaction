@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2002/06/18 09:23:23  niceass
+// small callvote upgrade
+//
 // Revision 1.132  2002/06/18 03:57:38  jbravo
 // Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
 //
@@ -1797,9 +1800,9 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "kick")) {
 	} else if (!Q_stricmp(arg1, "clientkick")) {
 	} else {
-		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
-		trap_SendServerCommand(ent - g_entities,
-				       "print \"Vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>.\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote command.\n\"");
+		trap_SendServerCommand(ent - g_entities, 
+			"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
 		return;
 	}
 
@@ -1822,6 +1825,11 @@ void Cmd_CallVote_f(gentity_t * ent)
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
 		char s[MAX_STRING_CHARS];
+
+		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
+			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", arg2));
+			return;
+		}
 
 		trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
 		if (*s) {
