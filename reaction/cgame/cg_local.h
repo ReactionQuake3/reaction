@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.68  2002/04/29 06:11:28  niceass
 // centerprint, pressure and matchmode stuff
 //
@@ -1617,6 +1620,9 @@ extern	vmCvar_t		cg_RQ3_lca;
 extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
+extern	vmCvar_t		cg_RQ3_teamCount1;
+extern	vmCvar_t		cg_RQ3_teamCount2;
+extern	vmCvar_t		cg_RQ3_numSpectators;
 //Slicer: matchmode team status cvars
 extern	vmCvar_t		cg_RQ3_RefID;
 extern	vmCvar_t		cg_RQ3_matchmode;

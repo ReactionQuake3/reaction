@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.72  2002/04/29 06:17:20  niceass
 // small change to pressure system
 //
@@ -1124,9 +1127,9 @@ extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
 extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model and skin
 extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model and skin
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
-extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
-extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
-extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus
+//extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
+//extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus
+//extern	vmCvar_t	g_RQ3_numSpectators;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_maxteamkills;		// JBravo: Max teamkills
 extern	vmCvar_t	g_RQ3_twbanrounds;		// JBravo: no. of games team wounders are banned
 extern	vmCvar_t	g_RQ3_tkbanrounds;		// JBravo: no. of games team killers are banned

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.49  2002/04/30 01:23:05  jbravo
 // Changed the server logging to be more like a normal AQ server.  Cleaned
 // all colors from the logs.
@@ -212,9 +215,9 @@ vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
 vmCvar_t	g_RQ3_team1model;
 vmCvar_t	g_RQ3_team2model;
-vmCvar_t	g_RQ3_teamCount1;
-vmCvar_t	g_RQ3_teamCount2;
-vmCvar_t	g_RQ3_numSpectators;
+//vmCvar_t	g_RQ3_teamCount1;
+//vmCvar_t	g_RQ3_teamCount2;
+//vmCvar_t	g_RQ3_numSpectators;
 vmCvar_t	g_RQ3_maxteamkills;
 vmCvar_t	g_RQ3_twbanrounds;
 vmCvar_t	g_RQ3_tkbanrounds;
@@ -360,9 +363,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SERVERINFO, 0, qfalse },
-	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
-	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
-	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },
+//	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
+//	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
+//	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },
 	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_ROM, 0, qfalse},
 	{ &g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},

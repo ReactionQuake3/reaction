@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.58  2002/04/29 06:12:40  niceass
 // client matchmode stuff
 //
@@ -307,6 +310,9 @@ vmCvar_t	cg_RQ3_lca;
 vmCvar_t	cg_RQ3_team_round_going;
 vmCvar_t	cg_RQ3_team1name;
 vmCvar_t	cg_RQ3_team2name;
+vmCvar_t	cg_RQ3_teamCount1;
+vmCvar_t	cg_RQ3_teamCount2;
+vmCvar_t	cg_RQ3_numSpectators;
 
 //Slicer: matchmode team status cvars
 vmCvar_t	cg_RQ3_RefID;
@@ -473,6 +479,9 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{ &cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
+	{ &cg_RQ3_teamCount1, "cg_RQ3_teamCount1", "0", CVAR_ROM},
+	{ &cg_RQ3_teamCount2, "cg_RQ3_teamCount2", "0", CVAR_ROM},
+	{ &cg_RQ3_numSpectators, "cg_RQ3_numSpectators", "0", CVAR_ROM},
 	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.69  2002/04/30 01:23:05  jbravo
 // Changed the server logging to be more like a normal AQ server.  Cleaned
 // all colors from the logs.
@@ -615,7 +618,7 @@ int WonGame(int winner)
 team_t RQ3TeamCount( int ignoreClientNum, int team )
 {
 	int	i, count = 0;
-	char	buf[20];
+	char	buf[64];
 
 	for (i=0; i<level.maxclients; i++) {
 		if (i == ignoreClientNum) {
@@ -632,14 +635,16 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 		}
 	}
 
-	Com_sprintf (buf, sizeof(buf), "%i", count);
+/*	Com_sprintf (buf, sizeof(buf), "%i", count);
 	if (team == TEAM_RED)
 		trap_Cvar_Set("g_RQ3_teamCount1", buf);
 	else if (team == TEAM_BLUE)
 		trap_Cvar_Set("g_RQ3_teamCount2", buf);
 	else if (team == TEAM_SPECTATOR || team == TEAM_FREE)	
-		trap_Cvar_Set("g_RQ3_numSpectators", buf);
+		trap_Cvar_Set("g_RQ3_numSpectators", buf); */
 
+	Com_sprintf (buf, sizeof(buf), "setteamplayers %i %i\n", team, count);
+	trap_SendServerCommand(-1, buf);
 	return count;
 }
 

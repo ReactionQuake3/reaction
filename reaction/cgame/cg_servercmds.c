@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/04/30 11:20:12  jbravo
+// Redid the teamcount cvars.
+//
 // Revision 1.28  2002/04/18 16:13:23  jbravo
 // Scoreboard now shows green for live players and white for dead.
 // Time should not get reset on deaths any more.
@@ -1338,7 +1341,25 @@ static void CG_ServerCommand( void ) {
 		cg.showScores = qtrue;
 		cg.scoreTPMode = 0;
 		return;
-	}	
+	}
+// JBravo: Number of players hack.
+	if (!strcmp(cmd, "setteamplayers")) {
+		int	team, number;
+		char	teamz[64];
+
+		team = atoi(CG_Argv(1));
+		number = atoi(CG_Argv(2));
+		Com_sprintf (teamz, sizeof(teamz), "%i", number);
+
+		if (team == TEAM_RED)
+			trap_Cvar_Set("cg_RQ3_teamCount1", teamz);
+		else if (team == TEAM_BLUE)
+			trap_Cvar_Set("cg_RQ3_teamCount2", teamz);
+		else if (team == TEAM_SPECTATOR || team == TEAM_FREE)
+			trap_Cvar_Set("cg_RQ3_numSpectators", teamz);
+		return;
+	}
+
 // JBravo: radio. This implementation rules. Used to suck :)
 	if (!strcmp(cmd, "playradiosound")) {
 		int	sound, gender;
