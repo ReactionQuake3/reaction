@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/08/25 03:34:11  niceass
+// puff added to silencer
+//
 // Revision 1.91  2002/07/22 06:30:12  niceass
 // cleaned up the powerup code
 //
@@ -1623,21 +1626,21 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 		CG_AddWeaponWithPowerups(&silencer, cent->currentState.powerups);
 
-		/*
-		   NiceAss: Add a puff of smoke at the end of the silencer when fired. Not alligned properly and looks bad.
-		   if (cent->muzzleFlashTime == -1) {
-		   localEntity_t        *smoke;
-		   vec3_t                       up;
+		// NiceAss: Add a puff of smoke at the end of the silencer when fired. Not alligned properly and looks bad.
+		if (cent->muzzleFlashTime == -1) {
+			localEntity_t	*smoke;
+			vec3_t			up;
 
-		   silencerEnd[2] += 5.0f;
+			// Move the puff over to center on silencer end.
+			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[1], silencerEnd);
+			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[2], silencerEnd);
 
-		   VectorSet(up, 0.0f, 0.0f, 15.0f);
-		   smoke = CG_SmokePuff( silencerEnd, up, 0.75f, 1, 1, 1, 0.75f, 300, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader );
-		   smoke->leType = LE_SCALE_FADE;
+			VectorSet(up, 0.0f, 0.0f, 15.0f);
+			smoke = CG_SmokePuff( silencerEnd, up, 0.5f, 1, 1, 1, 0.75f, 400, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader );
+			smoke->leType = LE_SCALE_FADE;
 
-		   cent->muzzleFlashTime = 0;
-		   }
-		 */
+			cent->muzzleFlashTime = 0;
+		}
 	}
 
 	if (ps && bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
