@@ -2025,8 +2025,8 @@ static void CG_DrawCrosshair(void) {
 		( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
 		(cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
 		int zoomMag;
-		x = 640 / 2;
-		y = 480 / 2;
+		x = SCREEN_WIDTH / 2;
+		y = SCREEN_HEIGHT / 2;
 
 		//derive zoom level - seems complicated but they're only bit comparisions
 		if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&

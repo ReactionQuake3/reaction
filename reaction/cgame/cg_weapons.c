@@ -1750,6 +1750,7 @@ void CG_SpecialWeapon_f( void ) {
 		//Skip normal weapons
 		switch (cg.weaponSelect) {
 		case WP_PISTOL:
+		case WP_AKIMBO:
 		case WP_KNIFE:
 		case WP_GRENADE:
 			continue;
