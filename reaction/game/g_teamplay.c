@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/29 01:15:07  jbravo
+// Think I fixed the lights.wav thing
+//
 // Revision 1.66  2002/04/28 11:03:46  slicer
 // Added "teammodel" for Matchmode, Referee "pause" command
 //
@@ -372,9 +375,10 @@ void StartLCA()
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41*level.fps)/10;
+	trap_SendServerCommand( -1, "lights");
 	SpawnPlayers();
 
-	trap_SendServerCommand( -1, "lights");
+//	trap_SendServerCommand( -1, "lights");
 }
 
 void ContinueLCA()
