@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/08/25 23:19:31  niceass
+// possible fix for ghost door problem
+//
 // Revision 1.50  2002/08/22 05:00:01  blaze
 // Allow func_buttons to be unkickable too (set spawnflags to 8)
 //
@@ -1416,6 +1419,9 @@ void SP_func_door(gentity_t * ent)
 	ent->soundPos1 = G_SoundIndex(sSndStart);
 	ent->soundPos2 = G_SoundIndex(sSndStop);
 
+	// NiceAss: Possible fix for ghost door problem. Maybe laggy
+	ent->r.svFlags |= SVF_BROADCAST;
+
 	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
@@ -1538,6 +1544,9 @@ void SP_func_door_rotating(gentity_t * ent)
 
 	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
+
+	// NiceAss: Possible fix for ghost door problem. Maybe laggy
+	ent->r.svFlags |= SVF_BROADCAST;
 
 	ent->blocked = Blocked_Door;
 
