@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/08/28 02:06:21  blaze
+// Add SV_PURE DISABLED when connecting to a server with pure disabled.  It still prints PURE SERVER when it\'s enabled, but clients may not notice it when it\'s gone.
+//
 // Revision 1.34  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -357,7 +360,9 @@ void CG_DrawInformation(void)
 
 	if (cg_RQ3_matchmode.integer)
 		line = va("%s / MATCHMODE", line);
-
+	s = Info_ValueForKey(sysInfo, "sv_pure");
+	if (atoi(s) == 0)
+		line = va("%s / SV_PURE DISABLED", line);
 	//Makro - custom color; changed from colorWhite
 	//CG_DrawSmallStringColor(x, y, line, color2);
 	CG_DrawStringExt(x, y, line, color2, qfalse, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
