@@ -1314,7 +1314,7 @@ extern	vmCvar_t		cg_blood;
 extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_deferPlayers;
 //Blaze: Reaction weapon positions
-extern	vmCvar_t		cg_RQ3_drawWeapon;
+//extern	vmCvar_t		cg_RQ3_drawWeapon;
 //Blaze: how long the glass stays around for
 extern  vmCvar_t		cg_RQ3_glasstime;
 //Elder: muzzle flash toggle

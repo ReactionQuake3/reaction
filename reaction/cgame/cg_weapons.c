@@ -1731,7 +1731,10 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	if ( cg.testGun ) {
 		return;
 	}
-//Blaze start: Reaction gun positioning
+
+	// Elder: temporarily removed because we never used it anyways
+	/*
+	//Blaze start: Reaction gun positioning
 	rxn_gunx = cg_gun_x.value;
 	rxn_guny = cg_gun_y.value;
 	rxn_gunz = cg_gun_z.value;
@@ -1751,10 +1754,13 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		rxn_gunx += 10;
 	}
 
+	
 	if ((cg_RQ3_drawWeapon.integer > 1 ) && (cg_RQ3_drawWeapon.integer < 4 ))
 	{
 		rxn_guny = cg_gun_y.value + 4*(cg_RQ3_drawWeapon.integer-1);
 	}
+	*/
+
 	//Blaze end:
 
 	// drop gun lower at higher fov

@@ -201,7 +201,7 @@ void CG_DrawInformation( void ) {
 			//UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW, colorWhite );
 		//Q_strncpyz(buf, s, 1024);
 		//Q_CleanStr(buf);
-		CG_DrawSmallStringColor(x, y, s, colorWhite);
+		CG_DrawSmallStringColor(x, y, s, colorRed);
 		y += SMALLCHAR_HEIGHT;
 	}
 
