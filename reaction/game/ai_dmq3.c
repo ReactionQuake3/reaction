@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/05/04 01:21:47  makro
+// Crash bug :/
+//
 // Revision 1.26  2002/05/04 01:03:42  makro
 // Bots
 //
@@ -289,7 +292,7 @@ bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest) {
 	//initialize the movement state
 	BotSetupForMovement(bs);
 	//trap_BotMoveInDirection(bs->ms, dir, dist, MOVE_RUN);
-	trap_BotPushGoal(bs->gs, &goal);
+	//trap_BotPushGoal(bs->gs, &goal);
 	//move towards the goal
 	trap_BotMoveToGoal(&moveresult, bs->ms, &goal, bs->tfl);
 	//if movement failed
@@ -299,7 +302,8 @@ bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest) {
 		//G_Printf("BotMoveTo: moveresult.type = %i\n", moveresult.type);
 		//reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
-		bs->activatestack->time = 0;
+		if (bs->activatestack != NULL)
+			bs->activatestack->time = 0;
 	}
 	//G_Printf("BotMoveTo: moveresult.flags = %i\n", moveresult.flags);
 	return moveresult;
