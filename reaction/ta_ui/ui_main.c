@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/04/06 21:40:59  makro
+// Delayed in-game bot adds. Fixed a small bug in the key
+// handling code for bot names.
+//
 // Revision 1.13  2002/04/03 17:38:09  makro
 // Commented out another unused function
 //
@@ -2815,10 +2819,11 @@ static qboolean UI_BotName_HandleKey(int flags, float *special, int key) {
 			}
 		} else {
 */
-			if (value >= UI_GetNumBots() + 2) {
+			//Makro - max value isn't UI_GetNumBots() + 2, it's just UI_GetNumBots()
+			if (value >= UI_GetNumBots()) {
 				value = 0;
 			} else if (value < 0) {
-				value = UI_GetNumBots() + 2 - 1;
+				value = UI_GetNumBots() - 1;
 			}
 //		}
 		uiInfo.botIndex = value;
@@ -3691,7 +3696,8 @@ static void UI_RunMenuScript(char **args) {
 			//if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
 			//	trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			//} else {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
+				//Makro - don't add the bot instantly
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			//}
 		} else if (Q_stricmp(name, "addFavorite") == 0) {
 			if (ui_netSource.integer != AS_FAVORITES) {

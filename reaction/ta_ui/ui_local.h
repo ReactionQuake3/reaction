@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/04/06 21:40:59  makro
+// Delayed in-game bot adds. Fixed a small bug in the key
+// handling code for bot names.
+//
 // Revision 1.6  2002/03/10 22:10:10  makro
 // no message
 //
@@ -130,6 +134,10 @@ extern vmCvar_t	ui_bigFont;
 extern vmCvar_t ui_serverStatusTimeOut;
 //Makro - cvar for player model display
 extern vmCvar_t ui_RQ3_modelCommand;
+//Makro - team counts for the join menu
+extern vmCvar_t ui_RQ3_teamCount1;
+extern vmCvar_t ui_RQ3_teamCount2;
+extern vmCvar_t ui_RQ3_numSpectators;
 
 
 //
