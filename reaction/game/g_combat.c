@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/15 05:38:36  niceass
+// Knife fix and disabled new headshot code
+//
 // Revision 1.72  2002/05/12 18:07:08  jbravo
 // Yet another obit fix
 //
@@ -2198,7 +2201,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					targ->client->lasthurt_location = LOCATION_NONE;
 
 				// NiceAss: Added for better head hit-detection.
-				if (!G_HitPlayer(targ, dir, point)) {
+				if (!G_HitPlayer(targ, dir, point) && mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
 					// NiceAss: It didn't intersect the sphere (head) and it's above the shoulders so it hit the air.
 					return;
 				}
@@ -2404,20 +2407,52 @@ qboolean G_HitPlayer ( gentity_t *targ, vec3_t dir, vec3_t point )
 	clientHeight = targ->r.maxs[2] - targ->r.mins[2];
 	bulletHeight = point[2] - clientFeetZ;
 
-	// Hal: targ->client isn't necessarily valid
-	if ( targ->client )
-	{
-		// NiceAss: Added for better head hit-detection. Numbers derived by testing with Mr. T
-		VectorCopy(targ->r.currentOrigin, s_origin);
-		s_origin[2] = targ->r.currentOrigin[2] + targ->r.maxs[2] - 4;  // Center in the face.
-		AngleVectors(targ->client->ps.viewangles, s_forward, s_right, s_up);
-		VectorMA(s_origin, 3.2, s_forward, s_origin);  // Move origin of sphere foreward a little (better centerage of the head)
+	/*  // NiceAss: Failed attempt to mimick AQ2's head hit detection. Anyone care to try and fixed?
+		//		    Comment the stuff below this if you do.
+
+	if ( bulletHeight > clientHeight - 8 && targ->client ) {
+		vec3_t new_point, normdir;
+
+		G_Printf("HEADSHOT\n");
+		VectorNormalize2(dir, normdir);
+		VectorMA(point, 12, normdir, new_point);
+
+		VectorSubtract( new_point, targ->r.currentOrigin, new_point );
+
+		G_Printf("Location: %d %d %d\n", (targ->r.maxs[2] - new_point[2]) < 8, 
+			abs(new_point[1]),
+			abs(new_point[0]));
+
+		if ( (targ->r.maxs[2] - new_point[2]) < 8 
+			&& (abs(new_point[1])) < 8*.8 
+			&& (abs(new_point[0])) < 8*.8 ) 
+		{
+			G_Printf("HEADSHOT2\n");
+			// Above should and hit something.
+			return qtrue;
+		}
+		// Above shoulders and hit nothing.
+		return qfalse;
 	}
+
+	// Not above shoulders or not client. It's all good.
+	return qtrue;
+	*/
+
+	// Hal: targ->client isn't necessarily valid
+	if ( !targ->client ) return qtrue;
+
+	// NiceAss: Added for better head hit-detection. Numbers derived by testing with Mr. T
+	VectorCopy(targ->r.currentOrigin, s_origin);
+	s_origin[2] = targ->r.currentOrigin[2] + targ->r.maxs[2] - 4;  // Center in the face.
+	AngleVectors(targ->client->ps.viewangles, s_forward, s_right, s_up);
+	VectorMA(s_origin, 3.2, s_forward, s_origin);  // Move origin of sphere foreward a little (better centerage of the head)
 
 	if ( !RaySphereIntersections(s_origin, 6, point, dir, s_intersections ) && bulletHeight > clientHeight - 8) {
 		// NiceAss: It didn't intersect the sphere and it's above the shoulders so it hit the air.
 		return qfalse;
 	}
+
 	// It must have hit...
 	return qtrue;
 }
@@ -2429,7 +2464,7 @@ CanDamage
 Returns qtrue if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 
-NICEASS TODO: Impliment G_HitPlayer in this func for clients.
+NICEASS TODO: Impliment G_HitPlayer in this func for clients. Not a big deal though.
 ============
 */
 qboolean CanDamage (gentity_t *targ, vec3_t origin) {
