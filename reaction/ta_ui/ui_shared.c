@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2003/03/31 00:23:18  makro
+// Replacements and stuff
+//
 // Revision 1.25  2003/02/13 21:19:51  makro
 // no message
 //
@@ -201,42 +204,18 @@ typedef struct {
 
 static RQ3_keyAlias_t RQ3_KeyAliases[] = {
 	{"", -1},
-	{"0", '0'},
-	{"1", '1'},
-	{"2", '2'},
-	{"3", '3'},
-	{"4", '4'},
-	{"5", '5'},
-	{"6", '6'},
-	{"7", '7'},
-	{"8", '8'},
-	{"9", '9'},
-	{"A", 'a'},
-	{"B", 'b'},
-	{"C", 'c'},
-	{"D", 'd'},
-	{"E", 'e'},
-	{"F", 'f'},
-	{"G", 'g'},
-	{"H", 'h'},
-	{"I", 'i'},
-	{"J", 'j'},
-	{"K", 'k'},
-	{"L", 'l'},
-	{"M", 'm'},
-	{"N", 'n'},
-	{"O", 'o'},
-	{"P", 'p'},
-	{"Q", 'q'},
-	{"R", 'r'},
-	{"S", 's'},
-	{"T", 't'},
-	{"U", 'u'},
-	{"V", 'v'},
-	{"W", 'w'},
-	{"X", 'x'},
-	{"Y", 'y'},
-	{"Z", 'z'}
+	{"F1", K_F1},
+	{"F2", K_F2},
+	{"F3", K_F3},
+	{"F4", K_F4},
+	{"F5", K_F5},
+	{"F6", K_F6},
+	{"F7", K_F7},
+	{"F8", K_F8},
+	{"F9", K_F9},
+	{"F10", K_F10},
+	{"F11", K_F11},
+	{"F12", K_F12}
 };
 
 //Makro - only check for shortcuts 20 times a second MAX
@@ -1075,9 +1054,11 @@ int Menu_ItemsMatchingGroup(menuDef_t * menu, const char *name)
 	int i;
 	int count = 0;
 
+	//Makro - added subgroup
 	for (i = 0; i < menu->itemCount; i++) {
 		if (Q_stricmp(menu->items[i]->window.name, name) == 0
-		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)) {
+		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)
+			|| (menu->items[i]->window.subgroup && Q_stricmp(menu->items[i]->window.subgroup, name) == 0)) {
 			count++;
 		}
 	}
@@ -1089,9 +1070,11 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t * menu, int index, const char 
 	int i;
 	int count = 0;
 
+	//Makro - added subgroup
 	for (i = 0; i < menu->itemCount; i++) {
 		if (Q_stricmp(menu->items[i]->window.name, name) == 0
-		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)) {
+		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)
+		    || (menu->items[i]->window.subgroup && Q_stricmp(menu->items[i]->window.subgroup, name) == 0)) {
 			if (count == index) {
 				return menu->items[i];
 			}
@@ -1382,7 +1365,8 @@ void Menu_TimeFadeItemByName(menuDef_t * menu, const char *name, vec4_t endColor
 		//if (offset+duration > 0) {
 		for (i = 0; i < menu->itemCount; i++) {
 			if (!Q_stricmp(menu->items[i]->window.name, name)
-			    || !Q_stricmp(menu->items[i]->window.group, name)) {
+			    || !Q_stricmp(menu->items[i]->window.group, name)
+			    || !Q_stricmp(menu->items[i]->window.subgroup, name)) {
 				UI_RQ3_TimeFadeItem(menu->items[i], endColor, offset, duration, forecolor);
 			}
 		}
@@ -5313,7 +5297,7 @@ qboolean ItemParse_shortcutKey(itemDef_t * item, int handle)
 	}
 	//Com_Printf(S_COLOR_BLUE "^4MDEBUG: Shortcut key read: %s\n^7", item->window.shortcutKey);
 
-	item->window.shortcutKey = UI_RQ3_KeyNumFromChar(temp);
+	item->window.shortcutKey = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
 	return qtrue;
 }
 
@@ -5351,6 +5335,16 @@ qboolean ItemParse_text(itemDef_t * item, int handle)
 qboolean ItemParse_group(itemDef_t * item, int handle)
 {
 	if (!PC_String_Parse(handle, &item->window.group)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+
+//Makro - subgroup <string>
+qboolean ItemParse_subgroup(itemDef_t * item, int handle)
+{
+	if (!PC_String_Parse(handle, &item->window.subgroup)) {
 		return qfalse;
 	}
 	return qtrue;
@@ -6132,6 +6126,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"textHeight", ItemParse_textHeight, NULL},
 	{"text", ItemParse_text, NULL},
 	{"group", ItemParse_group, NULL},
+	//Makro - added subgroup
+	{"subgroup", ItemParse_subgroup, NULL},
 	{"asset_model", ItemParse_asset_model, NULL},
 	{"asset_shader", ItemParse_asset_shader, NULL},
 	{"model_origin", ItemParse_model_origin, NULL},

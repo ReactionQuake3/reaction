@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2003/03/31 00:23:18  makro
+// Replacements and stuff
+//
 // Revision 1.64  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -243,6 +246,56 @@ static const char *netSources[] = {
 	"Favorites"
 };
 static const int numNetSources = sizeof(netSources) / sizeof(const char *);
+
+//Makro - replacement types/subtypes
+typedef struct {
+	const char *displayName, *cvarName;
+} replacementSubtype_t;
+
+static replacementSubtype_t replacementTypes[] = {
+	{"Weapons",		"weapons2"},
+	{"Items",		"items"},
+	{"Ammo",		"ammo"}
+};
+static const int replacementTypeCount = sizeof(replacementTypes) / sizeof(replacementSubtype_t);
+
+// WEAPONS //
+static replacementSubtype_t replacementWeapons[] =
+{
+	{"Mk23",		"mk23"},
+	{"M3",			"m3"},
+	{"MP5",			"mp5"},
+	{"Handcannon",	"handcannon"},
+	{"SSG3000",		"ssg3000"},
+	{"M4",			"m4"},
+	{"Grenade",		"grenade"},
+	{"Akimbo",		"akimbo"},
+	{"Knife",		"knife"}
+};
+static const int replacementWeapCount = sizeof(replacementWeapons) / sizeof(replacementSubtype_t);
+
+// ITEMS //
+static replacementSubtype_t replacementItems[] =
+{
+	{"Kevlar",		"kevlar"},
+	{"Bandolier",	"bandolier"},
+	{"Silencer",	"silencer"},
+	{"Laser",		"laser"},
+	{"Slippers",	"slippers"},
+	{"Helmet",		"helmet"}
+};
+static const int replacementItemCount = sizeof(replacementItems) / sizeof(replacementSubtype_t);
+
+// AMMO //
+static replacementSubtype_t replacementAmmo[] =
+{
+	{"Mk23",		"ammo_mk23"},
+	{"Shells",		"ammo_shells"},
+	{"SSG3000",		"ammo_ssg3000"},
+	{"MP5",			"ammo_mp5"},
+	{"M4",			"ammo_m4"}
+};
+static const int replacementAmmoCount = sizeof(replacementAmmo) / sizeof(replacementSubtype_t);
 
 static const serverFilter_t serverFilters[] = {
 //Makro - we only want Reaction servers in the server list
@@ -2262,6 +2315,14 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale)
 	case UI_SERVERREFRESHDATE:
 		s = UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer));
 		break;
+	//Makro - replacement model name
+	case UI_RQ3_REPLACEMENTNAME:
+		s = uiInfo.replacements.Name;
+		break;
+	//Makro - replacement model info
+	case UI_RQ3_REPLACEMENTINFO:
+		s = uiInfo.replacements.Info;
+		break;
 	default:
 		break;
 	}
@@ -2468,6 +2529,144 @@ void UI_BuildIngameServerInfoList()
 	}
 }
 
+
+/*
+===============
+UI_BuildReplacementList
+Added by Makro
+===============
+*/
+char *GetLine(char **buf)
+{
+	char *p;
+	if (!buf || !*buf)
+		return NULL;
+	//p = strchrstr(*buf, "\n\r");
+	p = strchr(*buf, '\n');
+	if (!p)
+	{
+		p=*buf;
+		*buf+=strlen(p);
+	} else {
+		int i = 0;
+		while (*p=='\r' || *p=='\n')
+		{
+			i++;
+			*(p--)=0;
+		}
+		p=*buf;
+		*buf+=strlen(p)+i;
+	}
+	return p;
+}
+
+void UI_AddReplacement(char *filename)
+{
+	int len;
+	fileHandle_t f;
+	char buf[4096], *text;
+
+	if (uiInfo.replacements.Count < MAX_UI_REPLACEMENTS)
+	{
+		len = trap_FS_FOpenFile(filename, &f, FS_READ);
+		if (!f)
+			return;
+		if (len >= sizeof(buf))
+			return;
+		trap_FS_Read(buf, len, f);
+		buf[len] = 0;
+		trap_FS_FCloseFile(f);
+		text = buf;
+		Q_strncpyz(uiInfo.replacements.Files[uiInfo.replacements.Count], filename, sizeof(uiInfo.replacements.Files[uiInfo.replacements.Count]));
+		/*
+		//line 1 - replacement name
+		Q_strncpyz(uiInfo.replacementNames[uiInfo.replacementCount], GetLine(&text), sizeof(uiInfo.replacementNames[uiInfo.replacementCount]));
+		//line 2 - cvar value
+		Q_strncpyz(uiInfo.replacementCvars[uiInfo.replacementCount], GetLine(&text), sizeof(uiInfo.replacementCvars[uiInfo.replacementCount]));
+		*/
+		//line 1 - replacement name
+		GetLine(&text);
+
+		//line 2 - cvar value
+		Q_strncpyz(uiInfo.replacements.Cvars[uiInfo.replacements.Count], GetLine(&text), sizeof(uiInfo.replacements.Cvars[uiInfo.replacements.Count]));
+		if (!Q_stricmp(UI_Cvar_VariableString(va("cg_RQ3_%s", uiInfo.replacements.Type)), text))
+			uiInfo.replacements.Index = uiInfo.replacements.Count;
+		uiInfo.replacements.Count++;
+	}
+}
+
+void UI_BuildReplacementList(const char *type)
+{
+	int i, numfiles, filelen;
+	char filelist[2048], *fileptr;
+	
+	if (!type || !*type)
+		return;
+	
+	uiInfo.replacements.Count = 0;
+	uiInfo.replacements.Index = 0;
+	Q_strncpyz(uiInfo.replacements.Type, type, sizeof(uiInfo.replacements.Type));
+	numfiles = trap_FS_GetFileList("models/replacements", "cfg", filelist, sizeof(filelist));
+	fileptr = filelist;
+	for (i = 0; i < numfiles && uiInfo.replacements.Count < MAX_UI_REPLACEMENTS; i++, fileptr += filelen + 1)
+	{
+		filelen = strlen(fileptr);
+		if (strnicmp(fileptr, va("%s_", type), strlen(type)+1))
+			continue;
+		UI_AddReplacement(va("models/replacements/%s", fileptr));
+	}
+	//Com_Printf("Read info for %i replacement(s) of type %s\n", uiInfo.replacementCount, uiInfo.replacementType);
+}
+
+void UI_LoadReplacement(int index)
+{
+	int len;
+	fileHandle_t f;
+	char buf[4096], *p, *text, skin[MAX_QPATH], model[MAX_QPATH];
+	const char *typeDir = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].cvarName;
+
+	uiInfo.replacements.Info[0]=0;
+	uiInfo.replacements.Name[0]=0;
+
+	//Com_Printf("UI_LoadReplacement(%i) - %s\n", index, uiInfo.replacementFiles[index]);
+	if (index < 0 || index >= uiInfo.replacements.Count)
+		return;
+
+	len = trap_FS_FOpenFile(uiInfo.replacements.Files[index], &f, FS_READ);
+	if (!f)
+		return;
+	if (len >= sizeof(buf))
+		return;
+	//Com_Printf("Everything's ok !\n");
+	trap_FS_Read(buf, len, f);
+	buf[len] = 0;
+	trap_FS_FCloseFile(f);
+	uiInfo.replacements.Index = index;
+	text = buf;
+	//line 1 - replacement name
+	Q_strncpyz(uiInfo.replacements.Name, GetLine(&text), sizeof(uiInfo.replacements.Name));
+
+	//line 2 - cvar value
+	p=GetLine(&text);
+	Q_strncpyz(model, modelFromStr(p), sizeof(model));
+	if (!Q_stricmp(model, "default"))
+		Q_strncpyz(model, uiInfo.replacements.Type, sizeof(model));
+	Q_strncpyz(skin, skinFromStr(p), sizeof(skin));
+	trap_Cvar_Set(va("cg_RQ3_%s", uiInfo.replacements.Type), p);
+
+	//line 3 - co-ordinates
+	p = GetLine(&text);
+	sscanf(p, "%f %f %f %f %f %f %i %i %i", &uiInfo.replacements.origin[0], &uiInfo.replacements.origin[1], &uiInfo.replacements.origin[2],
+		&uiInfo.replacements.angles[0], &uiInfo.replacements.angles[1], &uiInfo.replacements.angles[2],
+		&uiInfo.replacements.fovx, &uiInfo.replacements.fovy, &uiInfo.replacements.speed);
+	//Com_Printf("Model: %s\n", va("models/%s/%s/%s.md3", p, model, uiInfo.replacementType));
+	//Com_Printf("Skin : %s\n", va("models/%s/%s/%s.skin", p, model, skin));
+	uiInfo.replacements.Model = trap_R_RegisterModel(va("models/%s/%s/%s.md3", typeDir, model, uiInfo.replacements.Type));
+	uiInfo.replacements.Skin = trap_R_RegisterSkin(va("models/%s/%s/%s.skin", typeDir, model, skin));
+
+	//...replacement info
+	Q_strncpyz(uiInfo.replacements.Info, text, sizeof(uiInfo.replacements.Info));
+}
 
 /*
 ===============
@@ -2686,6 +2885,174 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 
 }
 
+//Makro - replacement model info
+static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	int y = rect->y;
+	char buf[4096], *text = buf, *p;
+	
+	Q_strncpyz(buf, uiInfo.replacements.Info, sizeof(buf));
+	do {
+		p = GetLine(&text);
+		Text_Paint(rect->x, y, scale, color, p, 0, 0, textStyle);
+		y += Text_Height(p, scale, 0) + 4;
+	} while (strlen(text)>0 /*&& y<rect->h*/);
+}
+
+static void UI_DrawReplacementName(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	Text_Paint(rect->x, rect->y, scale, color, uiInfo.replacements.Name, 0, 0, textStyle);
+}
+
+static void UI_DrawReplacementType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	const char *p = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].displayName;
+
+	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, textStyle);
+}
+
+static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	const char *p;
+
+	switch (uiInfo.replacements.TypeIndex)
+	{
+		case 0:
+			p = replacementWeapons[uiInfo.replacements.SubtypeIndex % replacementWeapCount].displayName;
+			break;
+		case 1:
+			p = replacementItems[uiInfo.replacements.SubtypeIndex % replacementItemCount].displayName;
+			break;
+		case 2:
+			p = replacementAmmo[uiInfo.replacements.SubtypeIndex % replacementAmmoCount].displayName;
+			break;
+		default:
+			return;
+	}
+	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, textStyle);
+}
+
+static void UI_DrawReplacementModel(rectDef_t *rect)
+/*
+{
+	refdef_t refdef;
+	refEntity_t model;
+	vec3_t mins, maxs, origin;
+	float x = rect->x, y = rect->y, w = rect->w, h = rect->h;
+	float len;
+
+	memset(&refdef, 0, sizeof(refdef));
+	memset(&model, 0, sizeof(model));
+
+	refdef.rdflags = RDF_NOWORLDMODEL;
+	AxisClear(refdef.viewaxis);
+
+	UI_AdjustFrom640(&x, &y, &w, &h);
+	
+	refdef.x = x;
+	refdef.y = y;
+	refdef.width = w;
+	refdef.height = h;
+
+	model.hModel = uiInfo.replacementModel;
+	model.customSkin = uiInfo.replacementSkin;
+	uiInfo.uiDC.modelBounds(model.hModel, mins, maxs);
+	len = 0.5 * (maxs[2] - mins[2]);
+	origin[0] = len / 0.268;
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+	
+	refdef.fov_x = 90;
+	refdef.fov_y = 90;
+
+	trap_R_ClearScene();
+	
+	VectorCopy(origin, model.origin);
+	VectorCopy(origin, model.lightingOrigin);
+	model.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	VectorCopy(model.origin, model.oldorigin);
+
+	trap_R_AddRefEntityToScene(&model);
+	trap_R_RenderScene(&refdef);
+}
+*/
+{
+	float x, y, w, h;
+	refdef_t refdef;
+	refEntity_t ent;
+	vec3_t mins, maxs, origin;
+	vec3_t angles;
+
+	if (uiInfo.replacements.Count <= 0)
+		return;
+
+	// setup the refdef
+	memset(&refdef, 0, sizeof(refdef));
+	refdef.rdflags = RDF_NOWORLDMODEL;
+	AxisClear(refdef.viewaxis);
+	x = rect->x + 1;
+	y = rect->y + 1;
+	w = rect->w - 2;
+	h = rect->h - 2;
+
+	UI_AdjustFrom640(&x, &y, &w, &h);
+
+	refdef.x = x;
+	refdef.y = y;
+	refdef.width = w;
+	refdef.height = h;
+
+	uiInfo.uiDC.modelBounds(uiInfo.replacements.Model, mins, maxs);
+
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+
+	// calculate distance so the model nearly fills the box
+	if (qtrue) {
+		float len = 0.5 * (maxs[2] - mins[2]);
+
+		origin[0] = len / 0.268;	// len / tan( fov/2 )
+		//origin[0] = len / tan(w/2);
+	}
+	refdef.fov_x = (uiInfo.replacements.fovx) ? uiInfo.replacements.fovx : 60;
+	refdef.fov_y = (uiInfo.replacements.fovy) ? uiInfo.replacements.fovy : 60;
+
+	//refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
+	//xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
+	//refdef.fov_y = atan2( refdef.height, xx );
+	//refdef.fov_y *= ( 360 / M_PI );
+
+	uiInfo.uiDC.clearScene();
+
+	refdef.time = uiInfo.uiDC.realTime;
+
+	// add the model
+	memset(&ent, 0, sizeof(ent));
+
+	//adjust = 5.0 * sin( (float)uis.realtime / 500 );
+	//adjust = 360 % (int)((float)uis.realtime / 1000);
+	//VectorSet( angles, 0, 0, 1 );
+
+	VectorCopy(uiInfo.replacements.angles, angles);
+	// rotation
+	if (uiInfo.replacements.speed) {
+		angles[YAW] += uiInfo.replacements.speed * uiInfo.uiDC.realTime / 1000.0f;
+	}
+	AnglesToAxis(angles, ent.axis);
+
+	VectorAdd(origin, uiInfo.replacements.origin, origin);
+
+	ent.hModel = uiInfo.replacements.Model;
+	VectorCopy(origin, ent.origin);
+	VectorCopy(origin, ent.lightingOrigin);
+	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	VectorCopy(ent.origin, ent.oldorigin);
+
+	uiInfo.uiDC.addRefEntityToScene(&ent);
+	uiInfo.uiDC.renderScene(&refdef);
+}
+
+
 // FIXME: table drive
 //
 static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
@@ -2858,6 +3225,26 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	case UI_RQ3_JOINTEAM1:
 	case UI_RQ3_JOINTEAM2:
 		UI_RQ3_DrawJoinTeam(&rect, scale, color, (ownerDraw == UI_RQ3_JOINTEAM1) ? 1 : 2, textStyle);
+		break;
+	//Makro - replacement model info
+	case UI_RQ3_REPLACEMENTINFO:
+		UI_DrawReplacementInfo(&rect, scale, color, textStyle);
+		break;
+	//Makro - replacement model name
+	case UI_RQ3_REPLACEMENTNAME:
+		UI_DrawReplacementName(&rect, scale, color, textStyle);
+		break;
+	//Makro - replacement model
+	case UI_RQ3_REPLACEMENTMODEL:
+		UI_DrawReplacementModel(&rect);
+		break;
+	//Makro - replacement type
+	case UI_RQ3_REPLACEMENTTYPE:
+		UI_DrawReplacementType(&rect, scale, color, textStyle);
+		break;
+	//Makro - replacement subtype
+	case UI_RQ3_REPLACEMENTSUBTYPE:
+		UI_DrawReplacementSubtype(&rect, scale, color, textStyle);
 		break;
 	case UI_SELECTEDPLAYER:
 		UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
@@ -3583,6 +3970,104 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key)
 	return qfalse;
 }
 
+//Makro - replacement type
+static qboolean UI_ReplacementType_HandleKey(int flags, float *special, int key)
+{
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW
+	    || key == K_RIGHTARROW) {
+		int index = uiInfo.replacements.TypeIndex;
+
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
+			index--;
+		} else {
+			index++;
+		}
+
+		if (index >= replacementTypeCount) {
+			index = 0;
+		} else if (index < 0) {
+			index = replacementTypeCount - 1;
+		}
+		uiInfo.replacements.TypeIndex = index;
+		uiInfo.replacements.SubtypeIndex = 0;
+		switch (index)
+		{
+			case 0:
+				UI_BuildReplacementList(replacementWeapons[0].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			case 1:
+				UI_BuildReplacementList(replacementItems[0].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			case 2:
+				UI_BuildReplacementList(replacementAmmo[0].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			default:
+				break;
+		}
+	}
+	return qfalse;
+}
+
+static qboolean UI_ReplacementSubType_HandleKey(int flags, float *special, int key)
+{
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW
+	    || key == K_RIGHTARROW) {
+		int index = uiInfo.replacements.SubtypeIndex, max;
+
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
+			index--;
+		} else {
+			index++;
+		}
+
+		switch (uiInfo.replacements.TypeIndex%replacementTypeCount)
+		{
+			case 0:
+				max = replacementWeapCount;
+				break;
+			case 1:
+				max = replacementItemCount;
+				break;
+			case 2:
+				max = replacementAmmoCount;
+				break;
+			default:
+				max = replacementWeapCount;
+				break;
+		}
+
+		if (index >= max) {
+			index = 0;
+		} else if (index < 0) {
+			index = max - 1;
+		}
+
+		uiInfo.replacements.SubtypeIndex = index;
+		switch (uiInfo.replacements.TypeIndex)
+		{
+			case 0:
+				UI_BuildReplacementList(replacementWeapons[index].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			case 1:
+				UI_BuildReplacementList(replacementItems[index].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			case 2:
+				UI_BuildReplacementList(replacementAmmo[index].cvarName);
+				UI_LoadReplacement(uiInfo.replacements.Index);
+				break;
+			default:
+				break;
+		}
+	}
+
+	return qfalse;
+}
+
 static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key)
 {
 	switch (ownerDraw) {
@@ -3648,9 +4133,17 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 	case UI_CROSSHAIR:
 		UI_Crosshair_HandleKey(flags, special, key);
 		break;
-		//Makro - for the SSG crosshair
+	//Makro - for the SSG crosshair
 	case UI_SSG_CROSSHAIR:
 		UI_SSG_Crosshair_HandleKey(flags, special, key);
+		break;
+	//Makro - replacement type
+	case UI_RQ3_REPLACEMENTTYPE:
+		UI_ReplacementType_HandleKey(flags, special, key);
+		break;
+	//Makro - replacement subtype
+	case UI_RQ3_REPLACEMENTSUBTYPE:
+		UI_ReplacementSubType_HandleKey(flags, special, key);
 		break;
 	case UI_SELECTEDPLAYER:
 		UI_SelectedPlayer_HandleKey(flags, special, key);
@@ -3828,36 +4321,94 @@ static void UI_LoadMovies()
 UI_LoadDemos
 ===============
 */
+static int q3Protocols[] = {66, 67, 68};
+static char *q3Versions[] = {"1.30", "1.31", "1.32"};
+static const int q3VersionCount = sizeof(q3Protocols)/sizeof(q3Protocols[0]);
+
+char *q3VersionFromProtocol(int protocol)
+{
+	int i;
+
+	for (i=0; i<q3VersionCount; i++)
+	{
+		if (protocol == q3Protocols[i])
+			return q3Versions[i];
+	}
+	return q3Versions[q3VersionCount-1];
+}
+
+int q3ProtocolFromVersion(char *version)
+{
+	int i;
+
+	for (i=0; i<q3VersionCount; i++)
+	{
+		if (!Q_stricmp(version, q3Versions[i]))
+			return q3Protocols[i];
+	}
+	return q3Protocols[q3VersionCount-1];
+}
+
+void UI_SortDemoList(int start, int end)
+{
+	int i, j;
+	//sort list alphabetically
+	for (i=start; i<end-1; i++)
+		for (j=i+1; j<end; j++)
+			if (Q_stricmp(uiInfo.demoList[i], uiInfo.demoList[j])>0)
+			{
+				int tmp;
+				const char *tmpstr;
+
+				tmpstr = uiInfo.demoList[i];
+				tmp = uiInfo.demoType[i];
+				uiInfo.demoList[i] = uiInfo.demoList[j];
+				uiInfo.demoType[i] = uiInfo.demoType[j];
+				uiInfo.demoList[j] = tmpstr;
+				uiInfo.demoType[j] = tmp;
+			}
+}
+
 static void UI_LoadDemos()
 {
 	char demolist[4096];
 	char demoExt[32];
 	char *demoname;
-	int i, len;
+	int i, j, len, protocol = (int) trap_Cvar_VariableValue("protocol");
 
-	Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int) trap_Cvar_VariableValue("protocol"));
+	uiInfo.demoCount = 0;
+	//Makro - old code was using just the "protocol" cvar; replaced with a for loop
+	for (j=66; j<=protocol; j++)
+	{
+		int count;
+		//Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int) trap_Cvar_VariableValue("protocol"));
+		Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", j);
 
-	uiInfo.demoCount = trap_FS_GetFileList("demos", demoExt, demolist, 4096);
+		count = trap_FS_GetFileList("demos", demoExt, demolist, 4096);
 
-	Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", (int) trap_Cvar_VariableValue("protocol"));
+		//Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", (int) trap_Cvar_VariableValue("protocol"));
+		Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", j);
 
-	if (uiInfo.demoCount) {
-		if (uiInfo.demoCount > MAX_DEMOS) {
-			uiInfo.demoCount = MAX_DEMOS;
-		}
-		demoname = demolist;
-		for (i = 0; i < uiInfo.demoCount; i++) {
-			len = strlen(demoname);
-			if (!Q_stricmp(demoname + len - strlen(demoExt), demoExt)) {
-				demoname[len - strlen(demoExt)] = '\0';
+		if (count) {
+			//int start = uiInfo.demoCount+1;
+			//uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("*** Recorded with Quake 3 %s ***", q3VersionFromProtocol(j)));
+			demoname = demolist;
+			for (i = 0; i < count && uiInfo.demoCount <= MAX_DEMOS; i++)
+			{
+				len = strlen(demoname);
+				if (!Q_stricmp(demoname + len - strlen(demoExt), demoExt))
+				{
+					demoname[len - strlen(demoExt)] = '\0';
+				}
+				//Makro - bad for linux users
+				//Q_strupr(demoname);
+				uiInfo.demoType[uiInfo.demoCount] = j;
+				uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("%s (%s)", demoname, q3VersionFromProtocol(j)));
+				demoname += len + 1;
 			}
-			//Makro - bad for linux users
-			//Q_strupr(demoname);
-			uiInfo.demoList[i] = String_Alloc(demoname);
-			demoname += len + 1;
 		}
 	}
-
+	UI_SortDemoList(0, uiInfo.demoCount);
 }
 
 static qboolean UI_SetNextMap(int actual, int index)
@@ -4429,8 +4980,15 @@ static void UI_RunMenuScript(char **args)
 			trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
 		} else if (Q_stricmp(name, "RunDemo") == 0) {
 			//Makro - missing check
-			if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount) {
-				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
+			if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount)
+			{
+				//Makro - remove version info
+				char demoname[128], *p;
+				Q_strncpyz(demoname, uiInfo.demoList[uiInfo.demoIndex], sizeof(demoname));
+				p = Q_strrchr(demoname, '(');
+				if (p)
+					*(p-1)=0;
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", demoname, uiInfo.demoType[uiInfo.demoIndex]));
 			}
 		} else if (Q_stricmp(name, "Quake3") == 0) {
 			trap_Cvar_Set("fs_game", "");
@@ -4747,6 +5305,36 @@ static void UI_RunMenuScript(char **args)
 		} else if (Q_stricmp(name, "restoreMusicVolume") == 0) {
 			trap_Cvar_SetValue("s_musicvolume", uiInfo.oldMusicVol);
 			uiInfo.savedMusicVol = qfalse;
+		//Makro - create model replacements list
+		} else if (Q_stricmp(name, "buildReplacementList") == 0) {
+			switch (uiInfo.replacements.TypeIndex)
+			{
+				case 0:
+					UI_BuildReplacementList(replacementWeapons[uiInfo.replacements.SubtypeIndex % replacementWeapCount].cvarName);
+					UI_LoadReplacement(uiInfo.replacements.Index);
+					break;
+				case 1:
+					UI_BuildReplacementList(replacementItems[uiInfo.replacements.SubtypeIndex % replacementItemCount].cvarName);
+					UI_LoadReplacement(uiInfo.replacements.Index);
+					break;
+				case 2:
+					UI_BuildReplacementList(replacementAmmo[uiInfo.replacements.SubtypeIndex % replacementAmmoCount].cvarName);
+					UI_LoadReplacement(uiInfo.replacements.Index);
+					break;
+				default:
+					break;
+			}
+		//Makro - next/prev replacement
+		} else if (Q_stricmp(name, "nextReplacement") == 0) {
+			int index = uiInfo.replacements.Index, offset = 0;
+			if (Int_Parse(args, &offset)) {
+				index += offset;
+				if (index >= uiInfo.replacements.Count)
+					index = 0;
+				else if (index < 0)
+					index = uiInfo.replacements.Count-1;
+				UI_LoadReplacement(index);
+			}
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);
@@ -5508,6 +6096,9 @@ static int UI_FeederCount(float feederID)
 	//Makro - improved in-game server info list
 	} else if (feederID == FEEDER_INGAME_SERVERINFO) {
 		return uiInfo.ingameServerInfoLineCount;
+	//Makro - model replacements
+	} else if (feederID == FEEDER_REPLACEMENTS) {
+		return uiInfo.replacements.Count;
 	}
 	return 0;
 }
@@ -5714,6 +6305,13 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 				return uiInfo.ingameServerInfo[index][column];
 			}
 		}
+	/*
+	//Makro - model replacements
+	} else if (feederID == FEEDER_REPLACEMENTS) {
+		if (index >= 0 && index < uiInfo.replacementCount) {
+			return uiInfo.replacementNames[index];
+		}
+	*/
 	}
 	return "";
 }
@@ -5854,6 +6452,9 @@ static void UI_FeederSelection(float feederID, int index)
 		uiInfo.previewMovie = -1;
 	} else if (feederID == FEEDER_DEMOS) {
 		uiInfo.demoIndex = index;
+	//Makro - model replacements
+	} else if (feederID == FEEDER_REPLACEMENTS) {
+		//INSERT CODE !
 	}
 }
 

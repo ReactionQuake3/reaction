@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2003/03/31 00:23:18  makro
+// Replacements and stuff
+//
 // Revision 1.16  2003/02/26 18:22:05  makro
 // Added an option to change crosshair size in assetGlobalDef's
 //
@@ -167,12 +170,14 @@ typedef struct {
 	Rectangle rect;		// client coord rectangle
 	Rectangle rectClient;	// screen coord rectangle
 	const char *name;	//
-//Makro - adding support for shortcut keys
+	//Makro - adding support for shortcut keys
 	//const char *shortcutKey;
 	int shortcutKey;
-//Makro - drop shadow effect
+	//Makro - drop shadow effect
 	int shadowStyle;
 	const char *group;	// if it belongs to a group
+	//Makro - added
+	const char *subgroup;	// if it belongs to a subgroup
 	const char *cinematicName;	// cinematic name
 	int cinematic;		// cinematic handle
 	int style;		//

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2003/03/31 00:23:18  makro
+// Replacements and stuff
+//
 // Revision 1.19  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -385,6 +388,7 @@ qboolean UI_RQ3_WeaponMenuAccess()
 UI_ConsoleCommand
 =================
 */
+
 qboolean UI_ConsoleCommand(int realTime)
 {
 	char *cmd;

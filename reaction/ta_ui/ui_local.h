@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2003/03/31 00:23:18  makro
+// Replacements and stuff
+//
 // Revision 1.23  2003/02/13 21:19:50  makro
 // no message
 //
@@ -869,6 +872,24 @@ typedef struct {
 	int numLines;
 } serverStatusInfo_t;
 
+//Makro - added
+#define MAX_UI_REPLACEMENTS 256
+
+typedef struct {
+	//Makro - model replacements
+	char Files[MAX_UI_REPLACEMENTS][128];
+	char Name[32];
+	int Model;
+	qhandle_t Skin;
+	char Cvars[MAX_UI_REPLACEMENTS][64];
+	char Type[64], Dir[64];
+	int TypeIndex, SubtypeIndex;
+	char Info[1024];
+	int Count, Index;
+	vec3_t origin, angles;
+	int speed, fovx, fovy;
+} replacementInfo_t;
+
 typedef struct {
 	const char *modName;
 	const char *modDescr;
@@ -926,6 +947,8 @@ typedef struct {
 	int modIndex;
 
 	const char *demoList[MAX_DEMOS];
+	//Makro - added demoType; can be either 66, 67 or 68
+	int demoType[MAX_DEMOS];
 	int demoCount;
 	int demoIndex;
 
@@ -954,6 +977,9 @@ typedef struct {
 	//Makro - save the music volume
 	float oldMusicVol;
 	qboolean savedMusicVol;
+
+	//Makro - model replacements
+	replacementInfo_t replacements;
 
 	int startPostGameTime;
 	sfxHandle_t newHighScoreSound;
