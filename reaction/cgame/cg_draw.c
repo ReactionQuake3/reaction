@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/04/29 01:24:34  niceass
+// frag counter added
+//
 // Revision 1.35  2002/04/23 00:21:44  jbravo
 // Cleanups of the new model code.  Removed the spectator bar for zcam modes.
 //
@@ -982,6 +985,68 @@ static float CG_DrawSnapshot( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+static float CG_DrawScore ( float y ) {
+	char		*s;
+	int			w, x;
+	float	Color[4];
+
+/*
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED)
+			MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 0.4f);
+
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE)
+			MAKERGBA(Color, 0.0f, 0.0f, 1.0f, 0.4f);
+	}
+*/
+	
+	
+	y += 4;
+
+	s = va( "%i", cg.snap->ps.persistant[PERS_SCORE] );
+	w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+	x = w;
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color );
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color );
+
+	CG_DrawSmallString( 631 - x, y + 2, s, 1.0F);
+
+	if (cgs.gametype >= GT_TEAM) {
+		// blue team
+		s = va( "%i", cgs.scores2 );
+		w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+		x += w + 10;
+
+		MAKERGBA(Color, 0.0f, 0.0f, 1.0f, 0.4f);
+		CG_FillRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color );
+
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+		CG_DrawCleanRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color );
+
+		CG_DrawSmallString( 631 - x, y + 2, s, 1.0f);
+
+		// red team
+		s = va( "%i", cgs.scores1 );
+		w = CG_DrawStrlen( s ) * SMALLCHAR_WIDTH;
+		x += w + 10;
+
+		MAKERGBA(Color, 1.0f, 0.0f, 0.0f, 0.4f);
+		CG_FillRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color );
+
+		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+		CG_DrawCleanRect( 631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color );
+
+		CG_DrawSmallString( 631 - x, y + 2, s, 1.0f);
+	}
+	
+
+	return y + SMALLCHAR_HEIGHT + 4;
+}
+
 /*
 ==================
 CG_DrawFPS
@@ -1254,6 +1319,7 @@ static void CG_DrawUpperRight( void ) {
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
 	}
+	y = CG_DrawScore( y );
 	if ( cg_drawFPS.integer ) {
 		y = CG_DrawFPS( y );
 	}
@@ -2369,16 +2435,16 @@ CG_DrawSpectator
 static void CG_DrawSpectator(void) {
 	float	Color[4];
 	
-	//CG_Printf("%d ", cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE);
-
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
-		MAKERGBA(Color, 0.7f, 0.0f, 0.0f, 0.3f);
-	}
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+			MAKERGBA(Color, 0.7f, 0.0f, 0.0f, 0.3f);
+		}
 
-	if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) {
-		MAKERGBA(Color, 0.0f, 0.0f, 0.7f, 0.3f);
+		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE) {
+			MAKERGBA(Color, 0.0f, 0.0f, 0.7f, 0.3f);
+		}
 	}
 
 	CG_FillRect( 0, 400, 640, 80, Color );
