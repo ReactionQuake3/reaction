@@ -132,7 +132,7 @@
 	textscale .45
 	textalignx 220
 	textaligny 100
-	text "REACTION QUAKE 3 BETA 2.3"
+	text "REACTION QUAKE 3 v2.3"
 	autowrapped
 	visible 1
 	decoration

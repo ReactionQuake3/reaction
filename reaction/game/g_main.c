@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2003/02/25 22:41:14  jbravo
+// Fixed a bug in item replacements. Removed "Beta" from the version.
+//
 // Revision 1.130  2003/02/05 04:31:20  niceass
 // allow "illegal models" (no rq3models.cfg) in devmap. damn modellers never include them.
 //
@@ -644,7 +647,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "Beta 2.3", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_version, "g_RQ3_version", "2.3", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	//Makro - max votes per client
 	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };

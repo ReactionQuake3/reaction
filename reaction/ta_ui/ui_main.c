@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2003/02/25 22:41:14  jbravo
+// Fixed a bug in item replacements. Removed "Beta" from the version.
+//
 // Revision 1.60  2003/02/16 21:39:10  makro
 // Fixed "timelimit is read only" on local servers error
 //
@@ -4981,7 +4984,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 Beta 2.3 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v2.3 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2003/02/25 22:41:14  jbravo
+// Fixed a bug in item replacements. Removed "Beta" from the version.
+//
 // Revision 1.120  2003/02/16 21:39:09  makro
 // Fixed "timelimit is read only" on local servers error
 //
@@ -2336,7 +2339,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_grenade_icon, MAX_MODEL_LEN, "icons/iconw_%s", cg_RQ3_grenade.string);
 			if (JB_FileExists(RQ3_grenade_model) && (strlen(RQ3_grenade_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_grenade_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_grenade_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_grenade_icon;
 			} else {
 				CG_Printf("^1Error loading grenade replacement model %s\n", cg_RQ3_grenade.string);
 			}
@@ -2346,7 +2349,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_kevlar_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_kevlar.string);
 			if (JB_FileExists(RQ3_kevlar_model) && (strlen(RQ3_kevlar_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_kevlar_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_kevlar_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_kevlar_icon;
 			} else {
 				CG_Printf("^1Error loading kevlar replacement model %s\n", cg_RQ3_kevlar.string);
 			}
@@ -2356,7 +2359,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_silencer_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_silencer.string);
 			if (JB_FileExists(RQ3_silencer_model) && (strlen(RQ3_silencer_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_silencer_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_silencer_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_silencer_icon;
 			} else {
 				CG_Printf("^1Error loading silencer replacement model %s\n", cg_RQ3_silencer.string);
 			}
@@ -2366,7 +2369,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_laser_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_laser.string);
 			if (JB_FileExists(RQ3_laser_model) && (strlen(RQ3_laser_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_laser_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_laser_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_laser_icon;
 			} else {
 				CG_Printf("^1Error loading laser replacement model %s\n", cg_RQ3_laser.string);
 			}
@@ -2376,7 +2379,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_bandolier_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_bandolier.string);
 			if (JB_FileExists(RQ3_bandolier_model) && (strlen(RQ3_bandolier_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_bandolier_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_bandolier_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_bandolier_icon;
 			} else {
 				CG_Printf("^1Error loading bandolier replacement model %s\n", cg_RQ3_bandolier.string);
 			}
@@ -2386,7 +2389,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_slippers_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_slippers.string);
 			if (JB_FileExists(RQ3_slippers_model) && (strlen(RQ3_slippers_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_slippers_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_slippers_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_slippers_icon;
 			} else {
 				CG_Printf("^1Error loading slippers replacement model %s\n", cg_RQ3_slippers.string);
 			}
@@ -2396,7 +2399,7 @@ void CG_ReplaceModels(void)
 			Com_sprintf(RQ3_helmet_icon, MAX_MODEL_LEN, "icons/iconi_%s", cg_RQ3_helmet.string);
 			if (JB_FileExists(RQ3_helmet_model) && (strlen(RQ3_helmet_model) < MAX_MODEL_LEN)) {
 				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_helmet_model;
-				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_helmet_icon;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
 			} else {
 				CG_Printf("^1Error loading helmet replacement model %s\n", cg_RQ3_helmet.string);
 			}
