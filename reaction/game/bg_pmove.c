@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2002/06/07 19:42:44  niceass
+// leg damage much closer to AQ2
+//
 // Revision 1.75  2002/05/27 06:48:02  niceass
 // new leg damage
 //
@@ -3132,7 +3135,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 		// NiceAss: New leg damage, based on the AQ2 leg damage code.
 		if ( pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE &&
-			(pm->cmd.serverTime % 900) < 700) {
+			(pm->cmd.serverTime % 550) < 300) {
 			int i;
 
 			for (i=0 ; i<3 ; i++)
