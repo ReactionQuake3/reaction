@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/05/11 16:22:38  slicer
+// Added a Repeat Flood Protection to Radio
+//
 // Revision 1.55  2002/05/09 20:58:30  jbravo
 // New Obit system and a warning cleanup in zcam
 //
@@ -250,6 +253,11 @@ vmCvar_t	g_RQ3_IniFile;
 vmCvar_t	g_RQ3_ValidIniFile;
 vmCvar_t	g_RQ3_NextMapID;
 
+//Slicer Radio radio flood protect
+vmCvar_t		g_RQ3_radioRepeat;
+vmCvar_t		g_RQ3_radioRepeatTime;
+vmCvar_t		g_RQ3_radioBan;
+
  
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
@@ -357,6 +365,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Slicer: Matchmode
 	{ &g_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+	//Slicer: radio protect
+	{ &g_RQ3_radioRepeat, "g_RQ3_radioRepeat", "2", 0 , 0, qfalse  },
+	{ &g_RQ3_radioRepeatTime, "g_RQ3_radioRepeat", "1", 0 , 0, qfalse  },
+	{ &g_RQ3_radioBan, "g_RQ3_radioBan", "10", 0 , 0, qfalse  },
 	//Blaze: Reaction stuff
 	// Elder: these are explicit values set every time the game initializes
 	{ &g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART,0, qfalse},

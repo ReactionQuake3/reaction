@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.87  2002/05/11 16:22:38  slicer
+// Added a Repeat Flood Protection to Radio
+//
 // Revision 1.86  2002/05/11 14:22:06  makro
 // Func_statics now reset at the beginning of each round
 //
@@ -1198,6 +1201,38 @@ radio_msg_t female_radio_msgs[] = {
 	{ "click", 6 },
 	{ "END", 0 }, // end of list delimiter
 };
+//Slicer Adding Flood Protection Functions
+qboolean CheckForRepeat (gentity_t *ent, int radioCode) {
+	int lastRadioCode;
+	//If he's muted..
+  if (ent->client->rd_mute) {
+      if (ent->client->rd_mute > level.time) // Still muted..
+		return qfalse;
+      else
+		ent->client->rd_mute = 0; // No longer muted..
+   }
+  lastRadioCode = ent->client->rd_lastRadio;
+
+  if (lastRadioCode == radioCode) { //He's trying to repeat it..
+	  if ((level.time - ent->client->rd_repTime ) < g_RQ3_radioRepeatTime.integer*1000) {
+		  if (++ent->client->rd_repCount >= g_RQ3_radioRepeat.integer) { //Busted
+			 if (ent->client->rd_repCount == g_RQ3_radioRepeat.integer) {
+				 trap_SendServerCommand(ent-g_entities, va("print \"Radio Repeat Flood Detected, you are silenced for %i secs\n\"",
+			      (int) g_RQ3_radioBan.integer));
+				 ent->client->rd_mute = level.time + g_RQ3_radioBan.integer*1000;
+			 }
+	      return qfalse;
+		  }
+	  }
+	  else
+		  ent->client->rd_repCount = 0;
+
+	  ent->client->rd_repTime = level.time;
+  }
+  ent->client->rd_lastRadio = radioCode;
+  ent->client->rd_repTime = level.time;
+  return qtrue;
+}
 
 void RQ3_Cmd_Radio_f(gentity_t *ent)
 {
@@ -1225,6 +1260,9 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 
 	while (Q_stricmp(radio_msgs[x].msg, "END")) {
 		if (!Q_stricmp(radio_msgs[x].msg, msg)) {
+			//Slicer Checking for repeat flood
+			if(!CheckForRepeat(ent,x))
+				return;
 			if (!Q_stricmp(radio_msgs[x].msg, "enemyd")) {
 				kills = ent->client->killStreak;
 				ent->client->killStreak = 0;
@@ -1256,6 +1294,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 							ent->client->radioGender));
 				}
 			}
+			//Slicer lets return to stop the while if found..
+			return;
 		}
 		x++;
 	}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2002/05/11 16:22:38  slicer
+// Added a Repeat Flood Protection to Radio
+//
 // Revision 1.78  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -576,6 +579,13 @@ struct gclient_s {
 	int			team_wounds_before;
 	int			ff_warning;
 	int			team_kills;
+
+	//Slicer Flood protect:
+	
+	float	rd_mute;		//Time to be muted
+	int		rd_lastRadio;	//Code of the last radio used
+	int		rd_repCount;	//Counter for the number of repeated radio msgs
+	float	rd_repTime;		//The time for the last repeated radio msg
 };
 
 // JBravo: for model loading
@@ -1169,6 +1179,11 @@ extern vmCvar_t g_RQ3_RefID;
 extern vmCvar_t g_RQ3_IniFile;
 extern vmCvar_t g_RQ3_ValidIniFile;
 extern vmCvar_t g_RQ3_NextMapID;
+
+//Slicer: Radio flood protect
+extern vmCvar_t		g_RQ3_radioRepeat;
+extern vmCvar_t		g_RQ3_radioRepeatTime;
+extern vmCvar_t		g_RQ3_radioBan;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
