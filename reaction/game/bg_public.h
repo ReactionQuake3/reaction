@@ -220,7 +220,7 @@ typedef enum {
 //#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
 #define RQ3_AKIMBO_DELAY		100
 #define RQ3_AKIMBO_DELAY2		300
-#define RQ3_KNIFE_DELAY			800	
+#define RQ3_KNIFE_DELAY			800
 #define RQ3_THROW_DELAY			800
 #define RQ3_GRENADE_DELAY		750	// Elder: I made this up
 
@@ -249,14 +249,14 @@ typedef enum {
 
 //Elder: each weapon also has a different weapon switch up delay... ugh bloody hell
 #define RQ3_PISTOL_ACTIVATE_DELAY		900
-#define RQ3_M3_ACTIVATE_DELAY			700	
+#define RQ3_M3_ACTIVATE_DELAY			700
 #define RQ3_M4_ACTIVATE_DELAY			1000
 #define RQ3_MP5_ACTIVATE_DELAY			1000
-#define RQ3_HANDCANNON_ACTIVATE_DELAY	600	
-#define RQ3_SSG3000_ACTIVATE_DELAY		800	
-#define RQ3_AKIMBO_ACTIVATE_DELAY		600 
-#define RQ3_KNIFE_ACTIVATE_DELAY		500	
-#define RQ3_THROW_ACTIVATE_DELAY		500	
+#define RQ3_HANDCANNON_ACTIVATE_DELAY	600
+#define RQ3_SSG3000_ACTIVATE_DELAY		800
+#define RQ3_AKIMBO_ACTIVATE_DELAY		600
+#define RQ3_KNIFE_ACTIVATE_DELAY		500
+#define RQ3_THROW_ACTIVATE_DELAY		500
 #define RQ3_GRENADE_ACTIVATE_DELAY		500	//300  Elder: I made this up
 
 //Elder: each weapon also has a different weapon switch down delay and...
@@ -278,7 +278,7 @@ typedef enum {
 #define GRENADE_LONG_SPEED		920
 
 //Elder: knife throw speed - from the AQ2 source
-#define THROW_SPEED				1200
+#define THROW_SPEED                             1100  // NiceAss: Changed to 1100 (from 1200)
 
 //Elder: special flag needed in both games
 #define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
@@ -322,7 +322,7 @@ typedef enum {
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
 #define	CS_PLAYERS			(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS		(CS_PLAYERS+MAX_CLIENTS)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 
+#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
 
 #define CS_MAX					(CS_PARTICLES+MAX_LOCATIONS)
 
@@ -469,11 +469,11 @@ typedef enum {
 	STAT_ARMOR,						// Elder: technically we don't need this anymore
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 
-	
+
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	//STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
 
-	//These are RQ3-related specific stats	
+	//These are RQ3-related specific stats
 	STAT_CLIPS,						// Num Clips player currently has
 	STAT_BURST, 					// number of shots in burst
 	STAT_JUMPTIME,					// Blaze: Double jump
@@ -484,7 +484,7 @@ typedef enum {
 	//STAT_STREAK,					// Elder: wasteful stat -- only used on server-side ATM
 } statIndex_t;
 
-//STAT_RQ3 stat info 
+//STAT_RQ3 stat info
 #define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
 #define RQ3_BANDAGE_NEED	2
 #define RQ3_BANDAGE_WORK	4
@@ -786,7 +786,7 @@ typedef enum {
 	EV_RELOAD_WEAPON0,		// Elder: reload weapon sounds
 	EV_RELOAD_WEAPON1,		// Elder: reload weapon sounds
 	EV_RELOAD_WEAPON2,		// Elder: reload weapon sounds
-	
+
 	EV_USE_ITEM0,
 	EV_USE_ITEM1,
 	EV_USE_ITEM2,
@@ -1014,7 +1014,7 @@ typedef enum {
 //team task
 typedef enum {
 	TEAMTASK_NONE,
-	TEAMTASK_OFFENSE, 
+	TEAMTASK_OFFENSE,
 	TEAMTASK_DEFENSE,
 	TEAMTASK_PATROL,
 	TEAMTASK_FOLLOW,
