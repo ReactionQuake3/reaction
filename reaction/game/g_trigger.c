@@ -177,15 +177,16 @@ Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
 void SP_trigger_push( gentity_t *self ) {
+	char *sound;
 	InitTrigger (self);
 
 	// unlike other triggers, we need to send this one to the client
+	// NiceAss: Added for custom push sounds. Default is none. Q3 is "sounds/world/bouncepad.wav"
+	if (G_SpawnString( "noise", "", &sound )) {;
+		self->s.generic1 = G_SoundIndex( sound );
+	}
+
 	self->r.svFlags &= ~SVF_NOCLIENT;
-
-	// make sure the client precaches this sound
-	//Elder: edited for now TODO: let mappers use a key pair
-	//G_SoundIndex("sound/world/jumppad.wav");
-
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;

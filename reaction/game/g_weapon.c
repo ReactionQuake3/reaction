@@ -347,18 +347,18 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	{
 		switch (MOD)
 		{
-			case MOD_PISTOL:
-				ent->client->pers.records[REC_MK23SHOTS]++;
-				break;
-			case MOD_M4:
-				ent->client->pers.records[REC_M4SHOTS]++;
-				break;
-			case MOD_MP5:
-				ent->client->pers.records[REC_MP5SHOTS]++;
-				break;
-			case MOD_AKIMBO:
-				ent->client->pers.records[REC_AKIMBOSHOTS]++;
-				break;
+		case MOD_PISTOL:
+			ent->client->pers.records[REC_MK23SHOTS]++;
+			break;
+		case MOD_M4:
+			ent->client->pers.records[REC_M4SHOTS]++;
+			break;
+		case MOD_MP5:
+			ent->client->pers.records[REC_MP5SHOTS]++;
+			break;
+		case MOD_AKIMBO:
+			ent->client->pers.records[REC_AKIMBOSHOTS]++;
+			break;
 		}
 	}
 
@@ -366,26 +366,26 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	//damage *= s_quadFactor;
 
 	/* Original AQ2 code
-    vectoangles (aimdir, dir);
-    AngleVectors (dir, forward, right, up);
+	vectoangles (aimdir, dir);
+	AngleVectors (dir, forward, right, up);
 
-    r = crandom()*hspread;
-    u = crandom()*vspread;
-    VectorMA (start, 8192, forward, end);
-    VectorMA (end, r, right, end);
-    VectorMA (end, u, up, end);
+	r = crandom()*hspread;
+	u = crandom()*vspread;
+	VectorMA (start, 8192, forward, end);
+	VectorMA (end, r, right, end);
+	VectorMA (end, u, up, end);
 	*/
 
 	/* More AQ2 code to implement
-    // change bullet's course when it enters water
-    VectorSubtract (end, start, dir);
-    vectoangles (dir, dir);
-    AngleVectors (dir, forward, right, up);
-    r = crandom()*hspread*2;
-    u = crandom()*vspread*2;
-    VectorMA (water_start, 8192, forward, end);
-    VectorMA (end, r, right, end);
-    VectorMA (end, u, up, end);
+	// change bullet's course when it enters water
+	VectorSubtract (end, start, dir);
+	vectoangles (dir, dir);
+	AngleVectors (dir, forward, right, up);
+	r = crandom()*hspread*2;
+	u = crandom()*vspread*2;
+	VectorMA (water_start, 8192, forward, end);
+	VectorMA (end, r, right, end);
+	VectorMA (end, u, up, end);
 	*/
 
 	//Elder: original Q3 code -- note the first line and its use to reduce spread
@@ -436,31 +436,30 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 				// Elder: Statistics tracking
 				switch (MOD)
 				{
-					case MOD_PISTOL:
-						ent->client->pers.records[REC_MK23HITS]++;
-						//ent->client->mk23Hits++;
-						break;
-					case MOD_M4:
-						ent->client->pers.records[REC_M4HITS]++;
-						//ent->client->m4Hits++;
-						break;
-					case MOD_MP5:
-						ent->client->pers.records[REC_MP5HITS]++;
-						//ent->client->mp5Hits++;
-						break;
-					case MOD_AKIMBO:
-						ent->client->pers.records[REC_AKIMBOHITS]++;
-						//ent->client->akimboHits++;
-						break;
+				case MOD_PISTOL:
+					ent->client->pers.records[REC_MK23HITS]++;
+					//ent->client->mk23Hits++;
+					break;
+				case MOD_M4:
+					ent->client->pers.records[REC_M4HITS]++;
+					//ent->client->m4Hits++;
+					break;
+				case MOD_MP5:
+					ent->client->pers.records[REC_MP5HITS]++;
+					//ent->client->mp5Hits++;
+					break;
+				case MOD_AKIMBO:
+					ent->client->pers.records[REC_AKIMBOHITS]++;
+					//ent->client->akimboHits++;
+					break;
 				}
 
 			}
-		//Elder: *******************TEST CODE *****************
-		//} else if ( tr.surfaceFlags & SURF_GRASS ) {
+			//Elder: *******************TEST CODE *****************
+			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
 			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
 			//tent->s.eventParm = DirToByte( tr.plane.normal );
-		} else if ( (tr.surfaceFlags & SURF_METALSTEPS) ||
-			(tr.surfaceFlags & SURF_METAL2) ) {
+		} else if ( (tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) ) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
@@ -477,22 +476,6 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
 
 		if ( traceEnt->takedamage) {
-#ifdef MISSIONPACK
-			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
-				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
-					G_BounceProjectile( muzzle, impactpoint, bouncedir, end );
-					VectorCopy( impactpoint, muzzle );
-					// the player can hit him/herself with the bounced rail
-					passent = ENTITYNUM_NONE;
-				}
-				else {
-					VectorCopy( tr.endpos, muzzle );
-					passent = traceEnt->s.number;
-				}
-				continue;
-			}
-		else {
-#endif
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD);
 
 			// FIXME: poor implementation
@@ -505,15 +488,19 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 					// Need this?
 					tent2->s.otherEntityNum = ent->s.number;
 				}
-				else
-					traceEnt->client->kevlarHit = qfalse;
 			}
 
-#ifdef MISSIONPACK
+			// NiceAss: Added so the M4 will shoot through bodies
+			if (MOD == MOD_M4 && traceEnt->client && 
+				traceEnt->client->kevlarHit == qfalse) 
+			{
+				VectorCopy (tr.endpos, muzzle);
+				passent = tr.entityNum;
+				continue;
+			}
+			if (traceEnt->client) traceEnt->client->kevlarHit = qfalse;
 		}
-#endif
-		}
-	break;
+		break;
 	}
 }
 
@@ -1129,23 +1116,32 @@ void Knife_Attack ( gentity_t *self, int damage)
             {
 				//Elder: no knock-back on knife slashes
 				G_Damage (hitent, self, self, forward, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_KNIFE );
-				if (hitent->client)
-				{
-					tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
-					tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
-					if (self->client)
-						self->client->pers.records[REC_KNIFESLASHHITS]++;
-				}
+				if (hitent->client) self->client->knife_sound = -2;
             }
 			else
-			{
-				//Elder TODO: take into account surface flags for clank
-				tent = G_TempEntity(tr.endpos, EV_KNIFE_MISS);
-				tent->s.eventParm = DirToByte(tr.plane.normal);
-				tent->s.weapon = WP_KNIFE;
-			}
+				self->client->knife_sound = -1;
         }
     }
+
+	// NiceAss: Play appropriate sound on 5th slash
+	if (self->client->ps.stats[STAT_BURST] > 4) {
+		if (self->client->knife_sound == 0) { // Missed
+			// TODO: Miss sound should be here, like in AQ2
+		}
+		else if (self->client->knife_sound == -1) { // Hit wall
+			//Elder TODO: take into account surface flags for clank
+			tent = G_TempEntity(tr.endpos, EV_KNIFE_MISS);
+			tent->s.eventParm = DirToByte(tr.plane.normal);
+			tent->s.weapon = WP_KNIFE;
+		}
+		else if (self->client->knife_sound == -2) { // Hit player
+			tent = G_TempEntity(tr.endpos, EV_RQ3_SOUND);
+			tent->s.eventParm = RQ3_SOUND_KNIFEHIT;
+			if (self->client)
+				self->client->pers.records[REC_KNIFESLASHHITS]++;
+		}
+		self->client->knife_sound = 0;
+	}
 }
 
 //static int knives = 0;
@@ -1438,6 +1434,8 @@ void Weapon_SSG3000_FireOld(gentity_t *ent)
 	RQ3_SaveZoomLevel(ent);
 }
 
+
+
 /*
 =================
 Elder:
@@ -1700,7 +1698,7 @@ void Weapon_MP5_Fire(gentity_t *ent)
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE )
 	{
 		spread = MP5_SPREAD * 0.7;
-		//ent->client->ps.stats[STAT_BURST]++;
+		//ent->client->ps.stats[STAT_BURST]++;	
 	}
 	else
 	{
@@ -2365,9 +2363,12 @@ void Laser_Gen( gentity_t *ent, qboolean enabled )	{
 void Laser_Think( gentity_t *self )
 {
 	vec3_t		end, start, forward, up;
-	trace_t		tr;
+	trace_t		tr, tr2;
 	int			l=0, passent;
 	gentity_t	*traceEnt;
+	// NiceAss: For fog:
+	gentity_t	*tent;
+	vec3_t		fogStart;
 
 	//If the player dies, is spectator, or wrong weapon, kill the dot
 	if (self->parent->client->ps.pm_type == PM_DEAD ||
@@ -2387,6 +2388,9 @@ void Laser_Think( gentity_t *self )
 	CalcMuzzlePoint(self->parent, forward, right, up, start);
 
 	passent = self->parent->s.number;
+
+	self->s.eFlags &= ~EF_FIRING;
+
 	// Keep tracing if it hits glass.
 	for (l = 0; l < 10; l++)
 	{
@@ -2394,6 +2398,7 @@ void Laser_Think( gentity_t *self )
 
 		//Trace Position
 		trap_Trace (&tr, start, NULL, NULL, end, passent, MASK_SHOT);
+		//trap_Trace (&tr2, start, NULL, NULL, end, passent, MASK_SHOT|CONTENTS_FOG);
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		//Did you not hit anything?
@@ -2403,16 +2408,25 @@ void Laser_Think( gentity_t *self )
 			return;
 		}
 
-		VectorMA(tr.endpos, 10, forward, start); // Nudge it forward a little bit
-
 		// It "hit" a player, but actually missed (thanks to new headshot code!)
-		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse ) {
+		if ( ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse ) ) {
 			passent = tr.entityNum;
 			continue;
 		}
+		
+		// We hit fog...
+		/*
+		if (!VectorCompare(tr.endpos, tr2.endpos)) {
+			VectorCopy(tr2.endpos, tr.endpos);
+			self->s.eFlags |= EF_FIRING;
+			self->s.otherEntityNum = self->parent->client->ps.clientNum;//self->parent->s.number;  // ->s.clientNum ???
+			break;
+		}
+*/
 		if (!(tr.surfaceFlags & SURF_GLASS)) break;
+		VectorMA(tr.endpos, 10, forward, start); // Nudge it forward a little bit
 	}
-
+	
 	//Move you forward to keep you visible
 	if (tr.fraction != 1)
 		VectorMA(tr.endpos,-4,forward,tr.endpos);

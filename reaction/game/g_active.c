@@ -2,6 +2,10 @@
 //
 
 #include "g_local.h"
+#ifdef  __ZCAM__
+#include "zcam.h"
+#endif /* __ZCAM__ */
+
 
 //Elder: got rid of these
 //extern float	s_quadFactor;
@@ -339,7 +343,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 G_TouchTriggers
 
 Find all trigger entities that ent's current position touches.
-Spectators will only interact with teleporters.
+Spectators will only interact with teleporters (and door triggers for spectators)
 ============
 */
 void	G_TouchTriggers( gentity_t *ent ) {
@@ -417,11 +421,17 @@ void	G_TouchTriggers( gentity_t *ent ) {
 		ent->client->ps.jumppad_frame = 0;
 		ent->client->ps.jumppad_ent = 0;
 	}
+
+	if (ent->client->openDoor == 2) {
+		ent->client->openDoor = qfalse;
+		ent->client->openDoorTime = 0;
+	}
 }
 
 /*
 =================
 SpectatorThink
+NiceAss: Heavy modifications will be here for AQ2-like spectator mode and zcam!?
 =================
 */
 void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
@@ -429,6 +439,24 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	gclient_t	*client;
 
 	client = ent->client;
+
+
+	client->oldbuttons = client->buttons;
+	client->buttons = ucmd->buttons;
+
+	// attack button cycles through spectators
+	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
+		Cmd_FollowCycle_f( ent, 1 );
+	}
+
+#ifdef  __ZCAM__
+	if ( client->sess.spectatorState == SPECTATOR_CAMERA_FLIC &&
+			client->sess.spectatorState == SPECTATOR_CAMERA_SWING )
+	{
+		camera_think(ent);
+		return;
+	}
+#endif
 
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
@@ -449,14 +477,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 		G_TouchTriggers( ent );
 		trap_UnlinkEntity( ent );
-	}
-
-	client->oldbuttons = client->buttons;
-	client->buttons = ucmd->buttons;
-
-	// attack button cycles through spectators
-	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
-		Cmd_FollowCycle_f( ent, 1 );
 	}
 }
 
@@ -585,7 +605,6 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
-
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
 			// NiceAss: clear last player to hit you.
@@ -1397,14 +1416,29 @@ void ClientThink( int clientNum ) {
 	// phone jack if they don't get any for a while
 	ent->client->lastCmdTime = level.time;
 
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
+#ifdef  __ZCAM__
+	     /* camera jitter fix (server side) */
+	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
+		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR
+		     && ent->client->sess.spectatorState == SPECTATOR_FOLLOW))
+#endif /* __ZCAM__ */
+		) {
 		ClientThink_real( ent );
 	}
 }
 
 
 void G_RunClient( gentity_t *ent ) {
-	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer ) {
+	if ( !(ent->r.svFlags & SVF_BOT) && !g_synchronousClients.integer
+	#ifdef  __ZCAM__
+	     /* camera jitter fix (server side) */
+	     && (ent->client->sess.sessionTeam != TEAM_SPECTATOR
+		 || (ent->client->sess.sessionTeam == TEAM_SPECTATOR
+		     && ent->client->sess.spectatorState == SPECTATOR_FOLLOW))
+	#endif /* __ZCAM__ */
+	)
+	{
 		return;
 	}
 	ent->client->pers.cmd.serverTime = level.time;

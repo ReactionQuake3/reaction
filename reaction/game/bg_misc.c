@@ -21,8 +21,7 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 "count" override quantity or duration on most items.
 */
 
-
-gitem_t	bg_itemlist[] = 
+gitem_t	bg_itemlist[] =
 {
 	{
 		NULL,
@@ -44,7 +43,7 @@ gitem_t	bg_itemlist[] =
 	//
 
 	//
-	// WEAPONS 
+	// WEAPONS
 	//
 
 
@@ -68,7 +67,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_pistol",
 		"sound/weapons/mk23/mk23slide.wav",
-        { "models/weapons2/mk23/mk23.md3", 
+        { "models/weapons2/mk23/mk23.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_mk23",
 /* pickup */	RQ3_PISTOL_NAME,
@@ -83,7 +82,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_m4",
 		"sound/weapons/m4/m4slide.wav",
-        { "models/weapons2/m4/m4.md3", 
+        { "models/weapons2/m4/m4.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_m4",
 /* pickup */	RQ3_M4_NAME,
@@ -98,7 +97,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_ssg3000",
 		"sound/weapons/ssg3000/ssgin.wav",
-        { "models/weapons2/ssg3000/ssg3000.md3", 
+        { "models/weapons2/ssg3000/ssg3000.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_ssg",
 /* pickup */	RQ3_SSG3000_NAME,
@@ -113,7 +112,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_mp5",
 		"sound/weapons/mp5/mp5slide.wav",
-        { "models/weapons2/mp5/mp5.md3", 
+        { "models/weapons2/mp5/mp5.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_mp5",
 /* pickup */	RQ3_MP5_NAME,
@@ -128,7 +127,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_handcannon",
 		"sound/weapons/handcannon/hcopen.wav",
-        { "models/weapons2/handcannon/handcannon.md3", 
+        { "models/weapons2/handcannon/handcannon.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_sawedoff",
 /* pickup */	RQ3_HANDCANNON_NAME,
@@ -143,7 +142,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_m3",
 		"sound/weapons/m3/m3in.wav",
-        { "models/weapons2/m3/m3.md3", 
+        { "models/weapons2/m3/m3.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_m3",
 /* pickup */	RQ3_M3_NAME,
@@ -158,7 +157,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"weapon_akimbo",
 		"sound/weapons/mk23/mk23slide.wav",
-        { "models/weapons2/akimbo/akimbo.md3", 
+        { "models/weapons2/akimbo/akimbo.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_akimbo",
 /* pickup */	RQ3_AKIMBO_NAME,
@@ -175,7 +174,7 @@ gitem_t	bg_itemlist[] =
 		"weapon_grenade",
 		//"sound/grenade/tink2.wav",
 		"sound/misc/am_pkup.wav",
-        { "models/weapons2/grenade/grenade.md3", 
+        { "models/weapons2/grenade/grenade.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_gren",
 /* pickup */	RQ3_GRENADE_NAME,
@@ -207,7 +206,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"pistol_1st",
 		NULL,
-        { "models/weapons2/mk23/mk23_1st.md3", 
+        { "models/weapons2/mk23/mk23_1st.md3",
 		0, 0, 0},
 		"icons/iconw_mk23",
 		RQ3_PISTOL_NAME,
@@ -222,7 +221,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"m4_1st",
 		NULL,
-        { "models/weapons2/m4/m4_1st.md3", 
+        { "models/weapons2/m4/m4_1st.md3",
 		0, 0, 0},
 		"icons/iconw_m4",
 		RQ3_M4_NAME,
@@ -237,7 +236,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ssg3000_1st",
 		NULL,
-        { "models/weapons2/ssg3000/ssg3000_1st.md3", 
+        { "models/weapons2/ssg3000/ssg3000_1st.md3",
 		0, 0, 0},
 		"icons/iconw_ssg",
 		RQ3_SSG3000_NAME,
@@ -252,7 +251,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"mp5_1st",
 		NULL,
-        { "models/weapons2/mp5/mp5_1st.md3", 
+        { "models/weapons2/mp5/mp5_1st.md3",
 		0, 0, 0},
 		"icons/iconw_mp5",
 		RQ3_MP5_NAME,
@@ -267,7 +266,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"handcannon_1st",
 		NULL,
-        { "models/weapons2/handcannon/handcannon_1st.md3", 
+        { "models/weapons2/handcannon/handcannon_1st.md3",
 		0, 0, 0},
 		"icons/iconw_sawedoff",
 		RQ3_HANDCANNON_NAME,
@@ -282,7 +281,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"m3_1st",
 		NULL,
-        { "models/weapons2/m3/m3_1st.md3", 
+        { "models/weapons2/m3/m3_1st.md3",
 		0, 0, 0},
 		"icons/iconw_m3",
 		RQ3_M3_NAME,
@@ -297,7 +296,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"akimbo_1st",
 		NULL,
-        { "models/weapons2/akimbo/akimbo_1st.md3", 
+        { "models/weapons2/akimbo/akimbo_1st.md3",
 		0, 0, 0},
 		"icons/iconw_akimbo",
 		RQ3_AKIMBO_NAME,
@@ -313,7 +312,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"grenade_1st",
 		NULL,
-        { "models/weapons2/grenade/grenade_1st.md3", 
+        { "models/weapons2/grenade/grenade_1st.md3",
 		0, 0, 0},
 		"icons/iconw_gren",
 		RQ3_GRENADE_NAME,
@@ -334,7 +333,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_mk23",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/mk23.md3", 
+        { "models/ammo/mk23.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_mk23clip",
 /* pickup */	"MK23 Clip",
@@ -351,7 +350,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_shells",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/m3.md3", 
+        { "models/ammo/m3.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_shells",
 /* pickup */	"Shotgun Shells",
@@ -369,7 +368,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_ssg3000",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/ssg3000.md3", 
+        { "models/ammo/ssg3000.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_ssgammo",
 /* pickup */	"AP Sniper Ammo",
@@ -386,7 +385,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_mp5",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/mp5.md3", 
+        { "models/ammo/mp5.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_mp5clip",
 /* pickup */	"MP5 Clip",
@@ -404,7 +403,7 @@ gitem_t	bg_itemlist[] =
 //	{
 //		"ammo_lightning",
 //		"sound/misc/am_pkup.wav",
-//      { "models/powerups/ammo/lightningam.md3", 
+//      { "models/powerups/ammo/lightningam.md3",
 //	    0, 0, 0},
 /* icon *///		"icons/icona_lightning",
 /* pickup *///	"Shotgun Shells",
@@ -421,7 +420,7 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_m4",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/m4.md3", 
+        { "models/ammo/m4.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_m4clip",
 /* pickup */	"M4 Clip",
@@ -544,9 +543,9 @@ Only in CTF games
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"holdable_kamikaze", 
+		"holdable_kamikaze",
 		"sound/items/holdable.wav",
-        { "models/powerups/kamikazi.md3", 
+        { "models/powerups/kamikazi.md3",
 		0, 0, 0},
 /* icon */		"icons/kamikaze",
 /* pickup */	"Kamikaze",
@@ -560,7 +559,7 @@ Only in CTF games
 /*QUAKED holdable_portal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"holdable_portal", 
+		"holdable_portal",
 		"sound/items/holdable.wav",
         { "models/powerups/holdable/porter.md3",
 		0, 0, 0},
@@ -576,9 +575,9 @@ Only in CTF games
 /*QUAKED holdable_invulnerability (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"holdable_invulnerability", 
+		"holdable_invulnerability",
 		"sound/items/holdable.wav",
-        { "models/powerups/holdable/invulnerability.md3", 
+        { "models/powerups/holdable/invulnerability.md3",
 		0, 0, 0},
 /* icon */		"icons/invulnerability",
 /* pickup */	"Invulnerability",
@@ -594,7 +593,7 @@ Only in CTF games
 	{
 		"ammo_nails",
 		"sound/misc/am_pkup.wav",
-        { "models/powerups/ammo/nailgunam.md3", 
+        { "models/powerups/ammo/nailgunam.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_nailgun",
 /* pickup */	"Nails",
@@ -610,7 +609,7 @@ Only in CTF games
 	{
 		"ammo_mines",
 		"sound/misc/am_pkup.wav",
-        { "models/powerups/ammo/proxmineam.md3", 
+        { "models/powerups/ammo/proxmineam.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_proxlauncher",
 /* pickup */	"Proximity Mines",
@@ -626,7 +625,7 @@ Only in CTF games
 	{
 		"ammo_belt",
 		"sound/misc/am_pkup.wav",
-        { "models/powerups/ammo/chaingunam.md3", 
+        { "models/powerups/ammo/chaingunam.md3",
 		0, 0, 0},
 /* icon */		"icons/icona_chaingun",
 /* pickup */	"Chaingun Belt",
@@ -645,7 +644,7 @@ Only in CTF games
 	{
 		"item_scout",
 		"sound/items/scout.wav",
-        { "models/powerups/scout.md3", 
+        { "models/powerups/scout.md3",
 		0, 0, 0 },
 /* icon */		"icons/scout",
 /* pickup */	"Scout",
@@ -661,7 +660,7 @@ Only in CTF games
 	{
 		"item_guard",
 		"sound/items/guard.wav",
-        { "models/powerups/guard.md3", 
+        { "models/powerups/guard.md3",
 		0, 0, 0 },
 /* icon */		"icons/guard",
 /* pickup */	"Guard",
@@ -677,7 +676,7 @@ Only in CTF games
 	{
 		"item_doubler",
 		"sound/items/doubler.wav",
-        { "models/powerups/doubler.md3", 
+        { "models/powerups/doubler.md3",
 		0, 0, 0 },
 /* icon */		"icons/doubler",
 /* pickup */	"Doubler",
@@ -751,9 +750,9 @@ Only in One Flag CTF games
 /*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"weapon_nailgun", 
+		"weapon_nailgun",
 		"sound/misc/w_pkup.wav",
-        { "models/weapons/nailgun/nailgun.md3", 
+        { "models/weapons/nailgun/nailgun.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_nailgun",
 /* pickup */	"Nailgun",
@@ -767,9 +766,9 @@ Only in One Flag CTF games
 /*QUAKED weapon_prox_launcher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"weapon_prox_launcher", 
+		"weapon_prox_launcher",
 		"sound/misc/w_pkup.wav",
-        { "models/weapons/proxmine/proxmine.md3", 
+        { "models/weapons/proxmine/proxmine.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_proxlauncher",
 /* pickup */	"Prox Launcher",
@@ -789,9 +788,9 @@ Only in One Flag CTF games
 /*QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"weapon_chaingun", 
+		"weapon_chaingun",
 		"sound/misc/w_pkup.wav",
-        { "models/weapons/vulcan/vulcan.md3", 
+        { "models/weapons/vulcan/vulcan.md3",
 		0, 0, 0},
 /* icon */		"icons/iconw_chaingun",
 /* pickup */	"Chaingun",
@@ -819,9 +818,9 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
-		if ( (bg_itemlist[i].giType == IT_POWERUP || 
+		if ( (bg_itemlist[i].giType == IT_POWERUP ||
 					bg_itemlist[i].giType == IT_TEAM ||
-					bg_itemlist[i].giType == IT_PERSISTANT_POWERUP) && 
+					bg_itemlist[i].giType == IT_PERSISTANT_POWERUP) &&
 			bg_itemlist[i].giTag == pw ) {
 			return &bg_itemlist[i];
 		}
@@ -859,7 +858,7 @@ BG_FindItemForWeapon
 */
 gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	gitem_t	*it;
-	
+
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
 		if ( it->giType == IT_WEAPON && it->giTag == weapon ) {
 			return it;
@@ -878,7 +877,7 @@ BG_FindItem
 */
 gitem_t	*BG_FindItem( const char *pickupName ) {
 	gitem_t	*it;
-	
+
 	for ( it = bg_itemlist + 1 ; it->classname ; it++ ) {
 		if ( !Q_stricmp( it->pickup_name, pickupName ) )
 			return it;
@@ -1024,7 +1023,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			//return qfalse;
 		//else
 			return qtrue;	// weapons are always picked up
-		
+
 	case IT_AMMO:
 
 		//Blaze: pick up all ammo
@@ -1103,7 +1102,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #endif
 
 	case IT_TEAM: // team items, such as flags
-#ifdef MISSIONPACK		
+#ifdef MISSIONPACK
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -1440,6 +1439,7 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 	// then don't play the event sound again if we are in a fat trigger
 	if ( ps->jumppad_ent != jumppad->number ) {
 
+		/*
 		vectoangles( jumppad->origin2, angles);
 		p = fabs( AngleNormalize180( angles[PITCH] ) );
 		if( p < 45 ) {
@@ -1447,6 +1447,9 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 		} else {
 			effectNum = 1;
 		}
+		*/
+		// NiceAss: For cutsom sounds...
+		effectNum = jumppad->generic1;
 		BG_AddPredictableEventToPlayerstate( EV_JUMP_PAD, effectNum, ps );
 	}
 	// remember hitting this jumppad this frame

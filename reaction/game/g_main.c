@@ -2,6 +2,9 @@
 //
 
 #include "g_local.h"
+#ifdef __ZCAM__
+#include "zcam.h"
+#endif /* __ZCAM__ */
 
 level_locals_t	level;
 
@@ -327,11 +330,11 @@ void G_RemapTeamShaders() {
 	char string[1024];
 	float f = level.time * 0.001;
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
-	AddRemap("textures/ctf2/redteam01", string, f); 
-	AddRemap("textures/ctf2/redteam02", string, f); 
+	AddRemap("textures/ctf2/redteam01", string, f);
+	AddRemap("textures/ctf2/redteam02", string, f);
 	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
-	AddRemap("textures/ctf2/blueteam01", string, f); 
-	AddRemap("textures/ctf2/blueteam02", string, f); 
+	AddRemap("textures/ctf2/blueteam01", string, f);
+	AddRemap("textures/ctf2/blueteam02", string, f);
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 #endif
 }
@@ -389,7 +392,7 @@ void G_UpdateCvars( void ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
 
 				if ( cv->trackChange ) {
-					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", 
+					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"",
 						cv->cvarName, cv->vmCvar->string ) );
 				}
 
@@ -469,13 +472,17 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		g_entities[i].client = level.clients + i;
 	}
 
+#ifdef __ZCAM__
+	camera_init ();
+#endif /* __ZCAM__ */
+
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
 	// range are NEVER anything but clients
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// reserve some spots for dead player bodies
@@ -541,6 +548,10 @@ void G_ShutdownGame( int restart ) {
 		G_LogPrintf("------------------------------------------------------------\n" );
 		trap_FS_FCloseFile( level.logFile );
 	}
+
+#ifdef __ZCAM__
+	camera_shutdown ();
+#endif /* __ZCAM__ */
 
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
@@ -622,7 +633,7 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 		// never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || 
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
 			client->sess.spectatorClient < 0  ) {
 			continue;
 		}
@@ -800,7 +811,7 @@ void CalculateRanks( void ) {
 
 			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ) {
 				level.numNonSpectatorClients++;
-			
+
 				// decide if this should be auto-followed
 				if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 					level.numPlayingClients++;
@@ -821,7 +832,7 @@ void CalculateRanks( void ) {
 		}
 	}
 
-	qsort( level.sortedClients, level.numConnectedClients, 
+	qsort( level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
@@ -837,7 +848,7 @@ void CalculateRanks( void ) {
 				cl->ps.persistant[PERS_RANK] = 1;
 			}
 		}
-	} else {	
+	} else {
 		rank = -1;
 		score = 0;
 		for ( i = 0;  i < level.numPlayingClients; i++ ) {
@@ -1032,7 +1043,7 @@ void BeginIntermission( void ) {
 ExitLevel
 
 When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar 
+or moved to a new level based on the "nextmap" cvar
 
 =============
 */
@@ -1053,7 +1064,7 @@ void ExitLevel (void) {
 			level.changemap = NULL;
 			level.intermissiontime = 0;
 		}
-		return;	
+		return;
 	}
 
 
@@ -1341,7 +1352,7 @@ qboolean ScoreIsTied( void ) {
 	if ( level.numPlayingClients < 2 ) {
 		return qfalse;
 	}
-	
+
 	if ( g_gametype.integer >= GT_TEAM ) {
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
@@ -1387,7 +1398,7 @@ void CheckExitRules( void ) {
 		return;
 	}
 
-	// check for sudden death 
+	// check for sudden death
 	if (  ScoreIsTied() ) {
 		// always wait for sudden death
 				return;
@@ -1766,7 +1777,7 @@ void G_RunThink (gentity_t *ent) {
 	if (thinktime > level.time) {
 		return;
 	}
-	
+
 	ent->nextthink = 0;
 	if (!ent->think) {
 		G_Error ( "NULL ent->think");
@@ -1836,8 +1847,8 @@ start = trap_Milliseconds();
 					//Elder: removed
 					//xr_drop= dropWeapon( ent, xr_item, 0,  FL_THROWN_ITEM );//FL_DROPPED_ITEM |
 					xr_drop = LaunchItem(xr_item, ent->s.pos.trBase, 0, FL_THROWN_KNIFE);
-					
-									
+
+
 					G_FreeEntity( ent );
 					*/
 				//}
@@ -1952,22 +1963,22 @@ void RQ3_StartUniqueItems ( void )
 	angle += 30;
 
 	rq3_item = BG_FindItemForHoldable( HI_KEVLAR );
-	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
 	Drop_Item (rq3_temp, rq3_item, angle);
 	angle += 30;
 
 	rq3_item = BG_FindItemForHoldable( HI_SILENCER );
-	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
 	Drop_Item (rq3_temp, rq3_item, angle);
 	angle += 30;
 
 	rq3_item = BG_FindItemForHoldable( HI_BANDOLIER );
-	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
 	Drop_Item (rq3_temp, rq3_item, angle);
 	angle += 30;
 
 	rq3_item = BG_FindItemForHoldable( HI_LASER );
-	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
 	Drop_Item (rq3_temp, rq3_item, angle);
 	angle += 30;
 }

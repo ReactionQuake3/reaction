@@ -1,6 +1,9 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+#ifdef __ZCAM__
+#include "zcam.h"
+#endif /* __ZCAM__ */
 
 #define RQ3_NONAMEPLAYER		"Nameless"
 
@@ -693,6 +696,8 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	redTeam[MAX_INFO_STRING];
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
+	// NiceAss: Added the following. Needed to prevent all models but "grunt"
+	char	*skin2, model2[MAX_STRING_CHARS];
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -761,9 +766,25 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( model, Info_ValueForKey (userinfo, "team_model"), sizeof( model ) );
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "team_headmodel"), sizeof( headModel ) );
 	} else {
-	Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
+		Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
+
+	// NiceAss: temporary hack to prevent non-grunt models:
+	Q_strncpyz(model2, model, sizeof(model));
+	skin2 = Q_strrchr( model2, '/' );
+	if ( skin2 ) {
+		*skin2++ = '\0';
+	} else {
+		skin2 = "default";
+	}
+
+	if ( Q_stricmpn(model2, "grunt", sizeof(model2) ) ) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model. Forcing change on server.\n\""));
+		Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
+		Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
+	}
+	// End of temporary hack.
 
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
@@ -881,6 +902,8 @@ int G_SendCheatVars(int clientNum)
 	char cheatVar[40], cl_cheatvar[128];
 	float lowval, highval;
 
+	//NiceAss: Added so /devmap will not have the client check cvars. Lie to the server that it loaded fine =)
+	if (g_cheats.integer) return qtrue;
 
 	// load the file
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
@@ -1262,6 +1285,11 @@ void ClientSpawn(gentity_t *ent) {
 	VectorCopy (playerMaxs, ent->r.maxs);
 
 	client->ps.clientNum = index;
+
+#ifdef __ZCAM__
+	camera_begin (ent);
+#endif /* __ZCAM__ */
+
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
 	//Blaze: Set starting amo for the machine gun, different in teamplay and dm, we can remove this
@@ -1430,6 +1458,10 @@ void ClientDisconnect( int clientNum ) {
 			StopFollowing( &g_entities[i] );
 		}
 	}
+
+#ifdef __ZCAM__
+	camera_disconnect (ent);
+#endif /* __ZCAM__ */
 
 	// send effect if they were completely connected
 	if ( ent->client->pers.connected == CON_CONNECTED

@@ -1,6 +1,9 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+#ifdef __ZCAM__
+#include "zcam.h"
+#endif /* __ZACM__ */
 
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"			// for the voice chats
@@ -1695,7 +1698,7 @@ void Cmd_Bandage (gentity_t *ent)
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
 		else */
-		if (ent->client->ps.weapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		if (ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT )
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_THROWDISARM;
@@ -2257,18 +2260,29 @@ void Cmd_Weapon(gentity_t *ent)
 		}
 		break;
 	case WP_KNIFE:
+		// NiceAss: weapon animation/state check before the mode switch.
+		if ( ent->client->ps.weaponstate != WEAPON_READY ) break;
+
 		// toggle throwing/slashing
-		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)
+		if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)
 		{
 			//Elder: added
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
+			// Niceass: Animations added
+			ent->client->ps.weaponstate = WEAPON_MODECHANGE;
+			ent->client->ps.weaponTime = 550;
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | WP_ANIM_EXTRA1;
 		}
 		else
 		{
 			//Elder: we're gonna use this to flag throw or slash with the knife
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to slashing.\n\""));
+			// Niceass: Animations added
+			ent->client->ps.weaponstate = WEAPON_MODECHANGE;
+			ent->client->ps.weaponTime = 550;
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | WP_ANIM_EXTRA2;
 		}
 		break;
 	case WP_HANDCANNON:
@@ -2563,6 +2577,11 @@ void ClientCommand( int clientNum ) {
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );
+#ifdef __ZCAM__
+	// NiceAss: removed
+	//else if (Q_stricmp (cmd, "camera") == 0)
+	//	camera_cmd ( ent );
+#endif /* __ZCAM__ */
 	else if (Q_stricmp (cmd, "playerstats") == 0)
 	{
 		Cmd_PlayerStats_f( ent );

@@ -16,6 +16,7 @@ void ScorePlum( gentity_t *ent, vec3_t origin, int score ) {
 	plum = G_TempEntity( origin, EV_SCOREPLUM );
 	// only send this temp entity to a single client
 	plum->r.svFlags |= SVF_SINGLECLIENT;
+
 	plum->r.singleClient = ent->s.number;
 	//
 	plum->s.otherEntityNum = ent->s.number;
@@ -1496,6 +1497,66 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
+	// NiceAss: Make sure it hit the player before doing this stuff.
+	// This was added when the possibility of missing was added from spherical head detection.
+	// We don't want someone flying back from a sniper to the head when it actually missed!
+	if ( G_HitPlayer ( targ, dir, point ) ) {
+		// figure momentum add, even if the damage won't be taken
+		if ( knockback && targ->client ) {
+			vec3_t	kvel, flydir;
+			float	mass;
+
+			if ( mod != MOD_FALLING )
+			{
+				VectorCopy(dir, flydir);
+				flydir[2] += 0.4f;
+			}
+
+			mass = 200;
+
+			//Elder: Q2 uses a hardcoded value of 500 for non-rocket jumps
+			//Q3 uses g_knockback.value ... default 1000
+			//AQ2:
+			//VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
+			//RQ3:
+			//VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
+			if (targ->client && attacker == targ)
+				VectorScale (flydir, 1600.0 * (float)knockback / mass, kvel);
+			else
+				VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
+			VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
+
+			// set the timer so that the other client can't cancel
+			// out the movement immediately
+			if ( !targ->client->ps.pm_time ) {
+				int		t;
+
+				t = knockback * 2;
+				if ( t < 50 ) {
+					t = 50;
+				}
+				if ( t > 200 ) {
+					t = 200;
+				}
+				targ->client->ps.pm_time = t;
+				targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+			}
+		}
+
+		// NiceAss: This was moved too
+		// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
+		if ( attacker->client && targ != attacker && targ->health > 0
+			&& targ->s.eType != ET_MISSILE
+			&& targ->s.eType != ET_GENERAL) 
+		{
+			if ( OnSameTeam( targ, attacker ) ) {
+				attacker->client->ps.persistant[PERS_HITS]--;
+			} else {
+				attacker->client->ps.persistant[PERS_HITS]++;
+			}
+			attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
+		}
+	}
 
 	// check for completely getting out of the damage
 	if ( !(dflags & DAMAGE_NO_PROTECTION) ) {
@@ -1865,62 +1926,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 // End Duffman
 	}
 
-	// NiceAss: This whole "if" statement was moved down so it wouldn't happen if you missed the head. (spherical hit detection stuff)
-	// figure momentum add, even if the damage won't be taken
-	if ( knockback && targ->client ) {
-		vec3_t	kvel, flydir;
-		float	mass;
-
-		if ( mod != MOD_FALLING )
-        {
-            VectorCopy(dir, flydir);
-            flydir[2] += 0.4f;
-        }
-
-		mass = 200;
-
-		//Elder: Q2 uses a hardcoded value of 500 for non-rocket jumps
-		//Q3 uses g_knockback.value ... default 1000
-		//AQ2:
-		//VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
-		//RQ3:
-		//VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
-		if (targ->client && attacker == targ)
-			VectorScale (flydir, 1600.0 * (float)knockback / mass, kvel);
-		else
-			VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
-		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
-
-		// set the timer so that the other client can't cancel
-		// out the movement immediately
-		if ( !targ->client->ps.pm_time ) {
-			int		t;
-
-			t = knockback * 2;
-			if ( t < 50 ) {
-				t = 50;
-			}
-			if ( t > 200 ) {
-				t = 200;
-			}
-			targ->client->ps.pm_time = t;
-			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
-		}
-	}
-
-	// NiceAss: This was moved too
-	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if ( attacker->client && targ != attacker && targ->health > 0
-			&& targ->s.eType != ET_MISSILE
-			&& targ->s.eType != ET_GENERAL) {
-		if ( OnSameTeam( targ, attacker ) ) {
-			attacker->client->ps.persistant[PERS_HITS]--;
-		} else {
-			attacker->client->ps.persistant[PERS_HITS]++;
-		}
-		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
-	}
-
 	// add to the damage inflicted on a player this frame
 	// the total will be turned into screen blends and view angle kicks
 	// at the end of the frame
@@ -1948,7 +1953,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 //		G_Printf("(%d) taken as damage\n",take);
 		if (instant_dam)
 		{
-			//G_Printf("(%d) instant damage\n",take);
+			// G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
 		}
 		if ( targ->client ) {
@@ -2060,6 +2065,8 @@ CanDamage
 
 Returns qtrue if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
+
+NICEASS TODO: Impliment G_HitPlayer in this func for clients.
 ============
 */
 qboolean CanDamage (gentity_t *targ, vec3_t origin) {
@@ -2074,6 +2081,7 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 
 	VectorCopy (midpoint, dest);
 	trap_Trace ( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);
+
 	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
 

@@ -1151,12 +1151,12 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	//else {
 		//Blaze's broken open door code
 		//Elder: not as broken as you think	:)
-		if (other->client->openDoor == qtrue ||
+		if (other->client->openDoor ||
 			(ent->parent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN) {
 			//G_Printf("Using a door\n");
 			Use_BinaryMover( ent->parent, ent, other );
-			other->client->openDoor = qfalse;
-			other->client->openDoorTime = 0;
+			// NiceAss: Hackish, but oh well. Done so you can trigger multipul doors in an area.
+			other->client->openDoor = 2;  
 		}
 	//}
 }
@@ -1196,8 +1196,18 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 			best = i;
 		}
 	}
-	maxs[best] += 120;
-	mins[best] -= 120;
+	// expand
+	maxs[best] += 60;
+	mins[best] -= 60;
+	// NiceAss: AQ2 Style. Above is Q3 style.
+	if (best != 0) {
+		maxs[0] += 60;
+		mins[0] -= 60;
+	}
+	if (best != 1) {
+		maxs[1] += 60;
+		mins[1] -= 60;
+	}
 
 	// NiceAss: This trigger will be for players
 	// create a trigger with this size
@@ -1213,9 +1223,20 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	trap_LinkEntity (other);
 
 	// NiceAss: This trigger will be for spectators
-	// NiceAss: Undo most of the stretched box size so it is only a little bigger than the door
-	maxs[best] -= 110;
-	mins[best] += 110;
+	// NiceAss: Undo the stretched box size
+	// expand
+	maxs[best] -= 60;
+	mins[best] += 60;
+	// NiceAss: AQ2 Style. Above is Q3 style.
+	if (best != 0) {
+		maxs[0] -= 60;
+		mins[0] += 60;
+	}
+	if (best != 1) {
+		maxs[1] -= 60;
+		mins[1] += 60;
+	}
+
 	other = G_Spawn ();
 	other->classname = "door_trigger_spectator";
 	VectorCopy (mins, other->r.mins);

@@ -518,7 +518,7 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
  	//Elder: for the bit-shifting
 	int			eParm;
 	int			shiftCount = 0;
- 	
+
 	//Elder:
 	//eventParm can only transmit as a byte (8-bits/255)
 	//So if we receive a huge one, we can knock it down (shift-op)

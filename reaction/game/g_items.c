@@ -1031,6 +1031,7 @@ gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags 
 	VectorSet (maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 
 	// NiceAss: Check if the new location starts in a solid.
+	// FIXME: Use trap_point or whatever?
 	trap_Trace( &tr, origin, mins, maxs, origin, ent->s.number, MASK_SOLID );
 	if (tr.startsolid == qtrue)
 		VectorMA( origin, -7, velocity, origin ); // -5 won't work (hint: it should work). Only -7 or less will..
@@ -1381,13 +1382,16 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	VectorScale( ent->s.pos.trDelta, ent->physicsBounce, ent->s.pos.trDelta );
 
 	// check for stop
-	if ( trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40 ) {
+
+	if ( ( trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40 ) ||
+		 ( trace->plane.normal[2] > .7 ) ) {
 		trace->endpos[2] += 1.0;	// make sure it is off ground
 		SnapVector( trace->endpos );
 		G_SetOrigin( ent, trace->endpos );
 		ent->s.groundEntityNum = trace->entityNum;
 		return;
 	}
+
 
 	VectorAdd( ent->r.currentOrigin, trace->plane.normal, ent->r.currentOrigin);
 	VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );

@@ -222,8 +222,9 @@ typedef enum {
 #define RQ3_AKIMBO_DELAY		100
 #define RQ3_AKIMBO_DELAY2		300
 #define RQ3_KNIFE_DELAY			800
-#define RQ3_THROW_DELAY			800
-#define RQ3_GRENADE_DELAY		750	// Elder: I made this up
+#define RQ3_THROW_DELAY			300 // NiceAss: Was 800, but much too slow.
+#define RQ3_KNIFE_SLASH_BURST   30  // NiceAss: For slashing every 30 ms. (Agt's arbitrary number of the day =))
+#define RQ3_GRENADE_DELAY		300	// NiceAss: Was 750, but much too slow.
 
 //Elder: reload delays
 //Also kinda "derived" from the AQ2 source
@@ -251,7 +252,7 @@ typedef enum {
 //Elder: each weapon also has a different weapon switch up delay... ugh bloody hell
 #define RQ3_PISTOL_ACTIVATE_DELAY		900
 #define RQ3_M3_ACTIVATE_DELAY			700
-#define RQ3_M4_ACTIVATE_DELAY			1000
+#define RQ3_M4_ACTIVATE_DELAY			700  // 1000
 #define RQ3_MP5_ACTIVATE_DELAY			1000
 #define RQ3_HANDCANNON_ACTIVATE_DELAY	600
 #define RQ3_SSG3000_ACTIVATE_DELAY		800
@@ -287,6 +288,11 @@ typedef enum {
 //Elder: weapon modifications
 #define RQ3_WPMOD_SILENCER		1
 #define RQ3_WPMOD_KNIFESLASH	2
+// NiceAss: Used after the first "slash" of the knife.
+// A bit misleading in its name. It also means there will be no sound.
+#define RQ3_WPMOD_KNIFENOMARK	3
+// Niceass: If you are switching weapons, the grenade is dropped rather than thrown.
+#define RQ3_WPMOD_GRENADEDROP	4
 
 //
 // config strings are a general means of communicating variable length strings
@@ -376,7 +382,9 @@ typedef enum {
 	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
 	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
 	WEAPON_RELOADING,	//sync with WP_ANIM_RELOAD
-	WEAPON_STALL		//for delaying weapon fires (knife, grenade)
+	WEAPON_STALL,		//for delaying weapon fires (knife, grenade)
+	WEAPON_MODECHANGE,	// NiceAss: sync with WP_ANIM_EXTRA1 & WP_ANIM_EXTRA2 for knife.
+	WEAPON_BANDAGING	// NiceAss: Added to follow AQ2 and fix a bug.
 } weaponstate_t;
 
 //Blaze: for the weapon animation states
@@ -841,7 +849,7 @@ typedef enum {
 	EV_GLOBAL_SOUND,		// no attenuation
 	EV_GLOBAL_TEAM_SOUND,
 	EV_RQ3_SOUND,			// Elder: play local sounds - intended for kick
-
+	
 	EV_DMREWARD,				// Duffman: To display expotional reward messages.
 
 	EV_BULLET_HIT_FLESH,

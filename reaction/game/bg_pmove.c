@@ -1922,7 +1922,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
 		else
 		*/
-		if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		if ( pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
 			PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
 		else {
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
@@ -1939,13 +1939,17 @@ static void PM_BeginWeaponChange( int weapon ) {
 	// Elder: cancel burst shots
 	pm->ps->stats[STAT_BURST] = 0;
 
-	pm->ps->weaponstate = WEAPON_DROPPING;
-
-	// NiceAss: Added this. Is it a hack?
-	if (pm->ps->weapon == WP_GRENADE && pm->ps->ammo[pm->ps->weapon] == 0) {
+	// NiceAss: Added this as a fix for knifes and grenades when you throw the last one.
+	if ( ( (pm->ps->weapon == WP_GRENADE || pm->ps->weapon == WP_KNIFE) && pm->ps->ammo[pm->ps->weapon] == 0) &&
+			pm->ps->weaponstate != WEAPON_FIRING )
+	{
+		pm->ps->weaponstate = WEAPON_DROPPING;
 		pm->ps->weaponTime = 0;
 		return;
 	}
+
+	pm->ps->weaponstate = WEAPON_DROPPING;
+
 
 	//Elder: temp hack
 	/*
@@ -1989,10 +1993,11 @@ static void PM_FinishWeaponChange( void ) {
 		weapon = WP_NONE;
 	}
 
-	//Remove grenade if out of ammo
-	if (weapon == WP_GRENADE && pm->ps->ammo[WP_GRENADE] == 0)
+	//Remove grenade/knife if out of ammo
+	if ( (weapon == WP_GRENADE || weapon == WP_KNIFE) && pm->ps->ammo[weapon] == 0)
 	{
-		pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+		if (weapon == WP_GRENADE) pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+		if (weapon == WP_KNIFE) pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_KNIFE);
 		weapon = WP_PISTOL;
 	}
 
@@ -2049,14 +2054,12 @@ static void PM_FinishWeaponChange( void ) {
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 	*/
 	/*else*/
-
 	if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
 		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
 	else
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
-
 }
 
 
@@ -2360,8 +2363,9 @@ static void PM_Reload( void )
 					pm->ps->ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
 			}
 
-			if ( !(pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS) )
+			if ( !(pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS) ) {
 				pm->ps->ammo[pm->ps->weapon] = ammotoadd;
+			}
 
 			// handle continuous fast-reloads
 			if ((pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000) &&
@@ -2516,6 +2520,23 @@ static void PM_Weapon( void ) {
 			pm->cmd.buttons |= BUTTON_ATTACK;
 	}
 
+	//agt: Knife stupidity
+	//I'll hijack STAT_BURST for this one
+	if( pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) ) {
+		if (pm->cmd.buttons & BUTTON_ATTACK &&
+			pm->ps->stats[STAT_BURST] >= 0 && pm->ps->stats[STAT_BURST] < 5) 
+		{
+			pm->cmd.buttons |= BUTTON_ATTACK;
+		}
+		else if (pm->ps->stats[STAT_BURST] > 4) {
+			pm->ps->stats[STAT_BURST] = 0;
+			pm->ps->weaponTime += 650;   // NiceAss note: 30ms * 5 attacks = 150 ms + 650ms = 800ms.
+		}
+		else if (pm->ps->stats[STAT_BURST] > 0) {
+			pm->cmd.buttons |= BUTTON_ATTACK;
+		}
+	}
+
 	//Elder: New semi-auto code
 	if ( pm->ps->weapon == WP_PISTOL &&
 		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
@@ -2581,6 +2602,11 @@ static void PM_Weapon( void ) {
 	}
 	*/
 
+	// NiceAss: Sorta a hack, but it looks better.
+/*	if ( pm->ps->weapon == WP_PISTOL && pm->ps->ammo[WP_PISTOL] == 0 && pm->ps->weaponTime < RQ3_PISTOL_DELAY*.3 ) {
+		PM_StartWeaponAnim( WP_ANIM_EMPTY );
+	}*/
+
 	// make weapon function
 	if ( pm->ps->weaponTime > 0 ) {
 		pm->ps->weaponTime -= pml.msec;
@@ -2605,7 +2631,7 @@ static void PM_Weapon( void ) {
 			if ( pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
 				pm->ps->weaponstate = WEAPON_FIRING;
 				pm->cmd.buttons &= ~BUTTON_ATTACK;
-				PM_AddEvent( EV_FIRE_WEAPON );
+				PM_AddEvent2( EV_FIRE_WEAPON, RQ3_WPMOD_GRENADEDROP );
 				pm->ps->ammo[WP_GRENADE]--;
 			}
 			PM_BeginWeaponChange( pm->cmd.weapon );
@@ -2669,7 +2695,30 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
-	if ( pm->ps->weaponstate == WEAPON_RAISING ) {
+	//NiceAss: Attempt to have the knife/grenade "activate" after a throw if you have another one of them
+	if ( pm->ps->weaponstate == WEAPON_FIRING && pm->ps->ammo[pm->ps->weapon] > 0 &&
+		(pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE) ) {
+
+		if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		{
+			pm->ps->weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
+			PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
+			pm->ps->weaponstate = WEAPON_RAISING;
+			PM_StartTorsoAnim( TORSO_RAISE );
+			return;
+		}
+		if (pm->ps->weapon == WP_GRENADE)
+		{
+			pm->ps->weaponTime = RQ3_GRENADE_DELAY;
+			PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
+			pm->ps->weaponstate = WEAPON_RAISING;
+			PM_StartTorsoAnim( TORSO_RAISE );
+			return;
+		}
+	}
+
+	if ( pm->ps->weaponstate == WEAPON_RAISING &&
+		!( ( pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) && pm->ps->stats[STAT_BURST]) ) {
 		pm->ps->weaponstate = WEAPON_READY;
 		if ( pm->ps->weapon == WP_KNIFE ) {
 			PM_StartTorsoAnim( TORSO_STAND2 );
@@ -2699,9 +2748,15 @@ static void PM_Weapon( void ) {
 			PM_StartWeaponAnim( WP_ANIM_THROWIDLE );
 		else
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
+
 		return;
 	}
 
+	// NiceAss: Added for knife animation switch.
+	// At the moment, this is only used for changing knife-throw modes.
+	if ( pm->ps->weaponstate == WEAPON_MODECHANGE ) {
+		if ( pm->ps->weapon == WP_KNIFE) pm->ps->weaponstate = WEAPON_READY;
+	}
 
 	// Elder: fire on release - based on code from inolen
 	// check for fire
@@ -2719,15 +2774,15 @@ static void PM_Weapon( void ) {
 				PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
 				return;
 			}
-			// NiceAss: Fix for the double-grenade bug (pm->ps->weaponstate == WEAPON_FIRING)
-			else if ( pm->ps->weaponstate == WEAPON_COCKED || pm->ps->weaponstate == WEAPON_FIRING)
+			else if ( pm->ps->weaponstate == WEAPON_COCKED )
 				return;
 		}
 		// Elder: stall the thrown knife action
 
 		else if ( pm->ps->weapon == WP_KNIFE && pm->ps->weaponstate != WEAPON_STALL &&
 				  pm->ps->stats[STAT_WEAPONSTALLTIME] <= 0 &&
-				  !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
+				  !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) &&
+				  pm->ps->ammo[pm->ps->weapon])
 		{
 			pm->ps->weaponstate = WEAPON_STALL;
 			pm->ps->stats[STAT_WEAPONSTALLTIME] = 200;
@@ -2829,7 +2884,13 @@ static void PM_Weapon( void ) {
 	// check for out of ammo
 	if ( ! pm->ps->ammo[ pm->ps->weapon ]) {
 		PM_AddEvent( EV_NOAMMO );
-		pm->ps->weaponTime += 500;
+		//NiceAss: Dirty hack:
+		if (pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE)
+			//PM_FinishWeaponChange();
+			pm->ps->weaponstate = WEAPON_DROPPING;
+		else
+			pm->ps->weaponTime += 500;
+
 		return;
 	}
 
@@ -2856,7 +2917,8 @@ static void PM_Weapon( void ) {
 		*/
 		if ( pm->ps->weapon == WP_KNIFE &&
 			 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
-			PM_StartWeaponAnim( WP_ANIM_FIRE );
+				// Modified by agt for slash "bursting"
+				if(!pm->ps->stats[STAT_BURST]) PM_StartWeaponAnim( WP_ANIM_FIRE );
 
 		PM_StartTorsoAnim( TORSO_ATTACK2 );
 	} else {
@@ -2885,10 +2947,15 @@ static void PM_Weapon( void ) {
 				pm->ps->weapon == WP_M4 ||
 				pm->ps->weapon == WP_MP5 ||
 				pm->ps->weapon == WP_GRENADE) */
-				PM_StartWeaponAnim( WP_ANIM_FIRE );
+				//if ( pm->ps->ammo[pm->ps->weapon] > 1 )
+					PM_StartWeaponAnim( WP_ANIM_FIRE );
+				//else
+				//	PM_StartWeaponAnim( WP_ANIM_EMPTY );
 		}
 	}
 
+	//NiceAss: Hack of the week!!!!
+	if (pm->ps->weaponstate == WEAPON_FIRING && pm->ps->weapon == WP_GRENADE) return;
 
 	pm->ps->weaponstate = WEAPON_FIRING;
 
@@ -2902,7 +2969,9 @@ static void PM_Weapon( void ) {
 		 (pm->ps->weapon == WP_MP5 &&
 		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE) ||
 		 (pm->ps->weapon == WP_PISTOL &&
-		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE))
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE) ||
+		 (pm->ps->weapon == WP_KNIFE &&
+		 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) )
 	{
 		pm->ps->stats[STAT_BURST]++;
 	}
@@ -2970,10 +3039,15 @@ static void PM_Weapon( void ) {
 	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
 		(pm->ps->weapon == WP_PISTOL ||
 		 pm->ps->weapon == WP_MP5    ||
-		 pm->ps->weapon == WP_SSG3000))
-	{
+		 pm->ps->weapon == WP_SSG3000)) {
 		PM_AddEvent2( EV_FIRE_WEAPON, RQ3_WPMOD_SILENCER );
 	}
+	else if (pm->ps->stats[STAT_BURST] > 1 && pm->ps->weapon == WP_KNIFE && 
+		(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) 
+	{
+		// NiceAss: Prevent the client from doing stuff after the first "slash".
+		PM_AddEvent2( EV_FIRE_WEAPON, RQ3_WPMOD_KNIFENOMARK);
+	}	
 	else
 		PM_AddEvent( EV_FIRE_WEAPON );
 
@@ -2995,7 +3069,14 @@ static void PM_Weapon( void ) {
 	case WP_KNIFE:
 		if ( (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) {
 			//knife slash
-			addTime = RQ3_KNIFE_DELAY;
+			//agt: hacking it up a little.  The alternate time value should be
+			//a constant, but I have a headache and I'm tired of screwing around
+			//with the knives. [NiceAss: I'll do it for you!]
+			if(pm->ps->stats[STAT_BURST]) {
+				addTime = RQ3_KNIFE_SLASH_BURST;  //NiceAss: Not really a burst, but it fits with everything else =D
+			} else {
+				addTime = RQ3_KNIFE_DELAY;
+			}
 		}
 		else {
 			//knife throw

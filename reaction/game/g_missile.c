@@ -424,7 +424,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	// one, rather than changing the missile into the explosion?
 
 	//Elder: I don't know but that's what we did for the knife
-
 	if ( other->takedamage && other->client ) {
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
 		ent->s.otherEntityNum = other->s.number;
@@ -454,17 +453,19 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
 
 			if (other->s.eType == ET_BREAKABLE) {
-				VectorScale(knifeVelocity, -0.25, knifeVelocity);
+				//VectorScale(knifeVelocity, -0.25, knifeVelocity);
 				//Blaze: Moved from above, now deal the damage to the glass, and let the knife drop
 				if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
 					BG_EvaluateTrajectory( &ent->s.pos, level.time, origin);
-					velocity[0] = 0;
-					velocity[1] = 0;
-					velocity[2] = 0;
+					//velocity[0] = 0;
+					//velocity[1] = 0;
+					//velocity[2] = 0;
 					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
 				}
-
-
+				// NiceAss: Cut its velocity in half.
+				VectorScale( ent->s.pos.trDelta, .6, ent->s.pos.trDelta);
+				return;
+/*
 				//breakable "hit"; make it fall to the ground
 				xr_drop = LaunchItem(xr_item, trace->endpos, velocity, FL_DROPPED_ITEM);
 
@@ -480,6 +481,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
 
 				VectorCopy(xr_drop->s.origin, xr_drop->r.currentOrigin);
+				*/
 			}
 			else {
 				//leave embedded in the wall
@@ -753,9 +755,10 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	if ( self->client) {
 		// Elder: Statistics tracking
 		self->client->pers.records[REC_GRENADESHOTS]++;
-
 		if ( self->client->ps.stats[STAT_HEALTH] <= 0 ||
-			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK ||
+			// NiceAss: Should catch any case of switching weapons with a grenade "cocked"
+			self->client->ps.weaponstate == WEAPON_DROPPING ) {
 			//Always drop close range if dead or about to bandage
 			speed = GRENADE_SHORT_SPEED / 2;
 		}
@@ -829,7 +832,7 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
 		self->client->pers.records[REC_KNIFETHROWSHOTS]++;
 	}
 
-	bolt->s.pos.trDelta[2] *= .85;
+	// bolt->s.pos.trDelta[2] *= .85;
 
 	//Elder: not needed anymore
 	//Saving stuff for Makro's knife equations
