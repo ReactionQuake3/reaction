@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/11 14:22:06  makro
+// Func_statics now reset at the beginning of each round
+//
 // Revision 1.24  2002/05/10 13:21:53  makro
 // Mainly bot stuff. Also fixed a couple of crash bugs
 //
@@ -1562,7 +1565,7 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 		bs->standfindenemy_time = bs->check_time = FloatTime() + 1;
 		bs->stand_time = 5;
 		//don't use the same combo all the time
-		if (random() > 0.3f) {
+		if (random() > 0.2f) {
 			//choose a random weapon/item
 			index = (int) (random() * (num_RQ3_TPCombos - 0.1));
 			tpW = RQ3_TPCombos[index].weapon;

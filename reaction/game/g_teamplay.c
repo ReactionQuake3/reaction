@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/05/11 14:22:06  makro
+// Func_statics now reset at the beginning of each round
+//
 // Revision 1.85  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -526,8 +529,15 @@ void CleanLevel()
 	for (i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++) {
 		if (!ent->inuse)
 			continue;
-		if (!ent->item)
+		if (!ent->item) {
+			if (!ent->classname)
+				continue;
+			if (!Q_stricmp(ent->classname, "func_static")) {
+				ent->count = (ent->spawnflags & 1);
+				ent->use(ent, NULL, NULL);
+			}
 			continue;
+		}
 		//Makro - added this for bots
 		if ( (ent->r.svFlags & SVF_NOCLIENT) && (ent->r.svFlags & SVF_BOTHACK) )
 			continue;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/05/11 14:22:06  makro
+// Func_statics now reset at the beginning of each round
+//
 // Revision 1.31  2002/05/11 12:45:25  makro
 // Spectators can go through breakables and doors with
 // a targetname or health. Bots should crouch more/jump less
@@ -343,6 +346,7 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 */
 	VectorSubtract(dest, bs->origin, dir);
 	VectorNormalize(dir);
+	BotSetupForMovement(bs);
 	trap_BotMoveInDirection(bs->ms, dir, 400, MOVE_WALK);
 }
 

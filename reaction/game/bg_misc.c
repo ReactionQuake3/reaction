@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/11 14:22:06  makro
+// Func_statics now reset at the beginning of each round
+//
 // Revision 1.35  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -1690,6 +1693,7 @@ weaponAlias_t	weaponAliases[] =
 	{"pistol",				WP_PISTOL},
 	{"mk23",				WP_PISTOL},
 	{RQ3_M3_NAME,			WP_M3},
+	{"m3",					WP_M3},
 	{"shotgun",				WP_M3},
 	{RQ3_HANDCANNON_NAME,	WP_HANDCANNON},
 	{"hc",					WP_HANDCANNON},
