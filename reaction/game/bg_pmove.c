@@ -2487,7 +2487,7 @@ static void PM_Weapon( void ) {
 		}
 		else if (pm->ps->stats[STAT_BURST])
 		{
-			pm->ps->weaponTime += 200;
+			pm->ps->weaponTime += 150; // 200
 			pm->ps->stats[STAT_BURST] = 0;
 		}
 	}
@@ -2534,11 +2534,18 @@ static void PM_Weapon( void ) {
 		pm->ps->weaponTime -= pml.msec;
 	}
 
+	// Elder: make stall decrease
+	if ( pm->ps->stats[STAT_WEAPONSTALLTIME] > 0 ) {
+		pm->ps->stats[STAT_WEAPONSTALLTIME] -= pml.msec;
+	}
+
 	// check for weapon change
 	// can't change if weapon is firing, but can change
 	// again if lowering or raising
 	
-	if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
+	//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING) {
+	if ( pm->ps->weaponTime <= 0 &&
+		!(pm->ps->weaponstate == WEAPON_FIRING || pm->ps->weaponstate == WEAPON_STALL)) {
 		if ( pm->ps->weapon != pm->cmd.weapon ) {
 			//Elder TODO: if switching weapons, fire off the grenade "instantly"
 			if ( pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
@@ -2593,8 +2600,9 @@ static void PM_Weapon( void ) {
 			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
 	}*/
 		 
-	// Elder: added STAT_RELOADTIME check
-	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0) {
+	// Elder: added STAT_RELOADTIME and STAT_WEAPONSTALLTIME check
+	if ( pm->ps->weaponTime > 0 || pm->ps->stats[STAT_RELOADTIME] > 0 ||
+		 pm->ps->stats[STAT_WEAPONSTALLTIME] > 0) {
 		return;
 	}
 	
@@ -2637,15 +2645,30 @@ static void PM_Weapon( void ) {
 		return;
 	}
 
+	
 	// Elder: fire on release - based on code from inolen
 	// check for fire
 	// if they are pressing attack and their current weapon is the grenade
-	if ((pm->cmd.buttons & 1) && (pm->ps->weapon == WP_GRENADE) ) {
-		pm->ps->weaponTime = 0;
-		// put it in the "cocked" position
-		pm->ps->weaponstate = WEAPON_COCKED;
-		PM_StartWeaponAnim(WP_ANIM_EXTRA1);
-		return;
+	if ( pm->cmd.buttons & 1 )
+	{
+		if ( pm->ps->weapon == WP_GRENADE )
+		{
+			pm->ps->weaponTime = 0;
+			// put it in the "cocked" position
+			pm->ps->weaponstate = WEAPON_COCKED;
+			PM_StartWeaponAnim(WP_ANIM_EXTRA1);
+			return;
+		}
+		// Elder: stall the thrown knife action
+		else if ( pm->ps->weapon == WP_KNIFE && pm->ps->weaponstate != WEAPON_STALL &&
+				  pm->ps->stats[STAT_WEAPONSTALLTIME] <= 0 &&
+				  !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
+		{
+			pm->ps->weaponstate = WEAPON_STALL;
+			pm->ps->stats[STAT_WEAPONSTALLTIME] = 200;
+			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
+			return;
+		}
 	}
 
 	// check for fire release
@@ -2653,22 +2676,23 @@ static void PM_Weapon( void ) {
 	if (!(pm->cmd.buttons & 1)) {
 		// if we had them cocked and then they aren't pressing it then
 		// that means they released it
-		if (pm->ps->weaponstate == WEAPON_COCKED) {
+		if (pm->ps->weaponstate == WEAPON_STALL) {
 			// set to be able to fire
 			pm->ps->weaponstate = WEAPON_READY;
+		}
+		else if (pm->ps->weapon == WP_GRENADE && pm->ps->weaponstate == WEAPON_COCKED) {
+			// Stall for the toss motion
+			pm->ps->weaponstate = WEAPON_STALL;
+			pm->ps->stats[STAT_WEAPONSTALLTIME] = 300;
+			PM_StartWeaponAnim( WP_ANIM_FIRE );
+			return;
+			//pm->ps->weaponstate = WEAPON_READY;
 		}
 		else
 		{
 			// else if they arn't pressing attack, then they just are running around
-
-			//Elder: put a delay in if finished bursting
-			//if (pm->ps->stats[STAT_BURST] > 0)
-				//pm->ps->weaponTime += 300;
-
 			pm->ps->weaponTime = 0;
 			pm->ps->weaponstate = WEAPON_READY;
-			
-			//pm->ps->stats[STAT_BURST] = 0;
 			return;
 		}
 	}
@@ -2695,7 +2719,8 @@ static void PM_Weapon( void ) {
 		pm->ps->weaponTime += 500;
 		return;
 	}
-	
+
+
 	//Elder: custom player model fire animations go here
 	// start the animation even if out of ammo -- Elder: NO WAY
 	if ( pm->ps->weapon == WP_KNIFE || pm->ps->weapon == WP_GRENADE ) {
@@ -2705,11 +2730,20 @@ static void PM_Weapon( void ) {
 //			pm->ps->weaponstate = WEAPON_READY;
 //			return;
 //		}
+		// Elder: animations initiated after stall complete
+		/*
 		if ( pm->ps->weapon == WP_GRENADE ||
 			(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
-			PM_StartWeaponAnim( WP_ANIM_FIRE );
+			PM_ContinueWeaponAnim( WP_ANIM_FIRE );
 		else
-			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
+		{
+			//PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
+			PM_ContinueWeaponAnim( WP_ANIM_THROWFIRE );
+		}
+		*/
+		if ( pm->ps->weapon == WP_KNIFE &&
+			 (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) )
+			PM_StartWeaponAnim( WP_ANIM_FIRE );
 
 		PM_StartTorsoAnim( TORSO_ATTACK2 );
 	} else {

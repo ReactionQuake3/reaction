@@ -376,6 +376,7 @@ typedef enum {
 	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
 	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
 	WEAPON_RELOADING,	//sync with WP_ANIM_RELOAD
+	WEAPON_STALL		//for delaying weapon fires (knife, grenade)
 } weaponstate_t;
 
 //Blaze: for the weapon animation states
@@ -480,6 +481,7 @@ typedef enum {
 	STAT_JUMPTIME,					// Blaze: Double jump
 	STAT_RELOADTIME,				// Elder: Reload sound triggering and weapon switch override
 	STAT_RELOADATTEMPTS,			// Elder: For fast-reload queuing
+	STAT_WEAPONSTALLTIME,			// Elder: For delaying grenades, knife throwing, etc.
 	STAT_FALLDAMAGE,
 	STAT_RQ3						// Blaze: Will hold a few flags for bandage, etc info
 	//STAT_STREAK,					// Elder: wasteful stat -- only used on server-side ATM
