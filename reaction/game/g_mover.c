@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2003/09/08 21:43:36  makro
+// Doors don't reset by default in TP
+//
 // Revision 1.64  2003/09/08 19:19:19  makro
 // New code for respawning entities in TP
 //
@@ -1626,6 +1629,8 @@ void SP_func_door(gentity_t * ent)
 	//Makro - added
 	ent->unbreakable = ent->inactive;
 	ent->reset = reset_door;
+	//doors shouldn't reset by default
+	G_SpawnInt("noreset", "1", &ent->noreset);
 
 }
 
@@ -1788,6 +1793,8 @@ void SP_func_door_rotating(gentity_t * ent)
 	//Makro - added
 	ent->unbreakable = ent->inactive;
 	ent->reset = reset_door;
+	//doors shouldn't reset by default
+	G_SpawnInt("noreset", "1", &ent->noreset);
 }
 
 /*
