@@ -224,3 +224,5 @@
 * Changing the "model" cvar in the console now causes the player model preview and the model icon
   selection to be updated immediately
 * Added "Hear All" option to the ref menu
+* Renamed light_d entities to func_dlite to prevent q3map from compiling them into the lightmaps
+* Added frequency, phase and light2 keys to dlights
