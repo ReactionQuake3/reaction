@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/07/01 02:18:42  jbravo
+// Small fixes to CTB and possible fix for subs and limchasecam
+//
 // Revision 1.42  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -538,8 +541,8 @@ Only in CTF games
 	 {"models/cases/s_case.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconf_red1",
-/* pickup */ "Red Flag",
+/* icon */ "icons/iconc_silver",
+/* pickup */ "Silver Case",
 	 0,
 	 IT_TEAM,
 	 PW_REDFLAG,
@@ -558,8 +561,8 @@ Only in CTF games
 	 {"models/cases/b_case.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/iconf_blu1",
-/* pickup */ "Blue Flag",
+/* icon */ "icons/iconc_black",
+/* pickup */ "Black Case",
 	 0,
 	 IT_TEAM,
 	 PW_BLUEFLAG,

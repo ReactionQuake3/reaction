@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/07/01 02:18:42  jbravo
+// Small fixes to CTB and possible fix for subs and limchasecam
+//
 // Revision 1.116  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -921,6 +924,16 @@ void SpawnPlayers()
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
+	}
+// JBravo: lets make those pesky subs follow live players.
+	if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer) {
+		for (i = 0; i < level.maxclients; i++) {
+			player = &g_entities[i];
+			if (!player->inuse || !player->client)
+				continue;
+			if (player->client->sess.sub != TEAM_FREE)
+				Cmd_FollowCycle_f(player, 1);
+		}
 	}
 	//Blaze: May aswell respawn breakables here
 	for (i = 0; i < level.num_entities; i++) {

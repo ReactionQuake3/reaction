@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/07/01 02:18:41  jbravo
+// Small fixes to CTB and possible fix for subs and limchasecam
+//
 // Revision 1.91  2002/06/30 17:33:01  jbravo
 // New radio sounds and the 0wned sound was added.
 //
@@ -1376,12 +1379,18 @@ static void CG_RegisterGraphics(void)
 //		cgs.media.blueFlagModel = trap_R_RegisterModel("models/flags/b_flag.md3");
 		cgs.media.redFlagModel = trap_R_RegisterModel("models/cases/s_case.md3");
 		cgs.media.blueFlagModel = trap_R_RegisterModel("models/cases/b_case.md3");
-		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
+		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconc_silver1");
+		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconc_silver2");
+		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconc_silver3");
+		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconc_black1");
+		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconc_black2");
+		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconc_black3");
+/*		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
 		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
 		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_red3");
 		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_blu1");
 		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");
-		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu3");
+		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu3"); */
 	}
 // JBravo: moved outof MISSIONPACK
 	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff");
