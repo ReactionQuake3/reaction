@@ -1,3 +1,4 @@
 # List fixes here for the 2.1 release :)
 
+* Rotation bug that skipped first and last map in rotation fixed
 * LaserSight bug is fixed.
