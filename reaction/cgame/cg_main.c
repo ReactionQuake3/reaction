@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/03/07 19:50:48  makro
+// Made cg_RQ3_ssgCrosshair latched
+//
 // Revision 1.40  2002/03/07 14:51:57  makro
 // no message
 //
@@ -382,7 +385,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_RQ3_ssgSensitivity2x, "cg_RQ3_ssgSensitivity2x", "0.4", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity4x, "cg_RQ3_ssgSensitivity4x", "0.2", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgSensitivity6x, "cg_RQ3_ssgSensitivity6x", "0.1", CVAR_ARCHIVE },
-	{ &cg_RQ3_ssgCrosshair, "cg_RQ3_ssgCrosshair", "0", CVAR_ARCHIVE },
+	//Makro - this should be latched
+	{ &cg_RQ3_ssgCrosshair, "cg_RQ3_ssgCrosshair", "0", CVAR_ARCHIVE | CVAR_LATCH },
 	{ &cg_RQ3_ssgColorR, "cg_RQ3_ssgColorR", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
