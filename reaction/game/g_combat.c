@@ -110,43 +110,63 @@ void TossClientItems( gentity_t *self ) {
 	//as opposed to dropping it, then died
 	
 	if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
-		item = BG_FindItemForWeapon( WP_M3 );
-		Drop_Item( self, item, angle);
-		self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
-		self->client->uniqueWeapons--;
-		angle += 30;
+		while ( self->client->weaponCount[WP_M3] )
+		{
+			item = BG_FindItemForWeapon( WP_M3 );
+			Drop_Item( self, item, angle);
+			self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
+			self->client->uniqueWeapons--;
+			angle += 30;
+			self->client->weaponCount[WP_M3]--;
+		}
 	}
 	
 	if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
-		item = BG_FindItemForWeapon( WP_M4 );
-		Drop_Item( self, item, angle);
-		self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
-		self->client->uniqueWeapons--;
-		angle += 30;
+		while ( self->client->weaponCount[WP_M4] )
+		{
+			item = BG_FindItemForWeapon( WP_M4 );
+			Drop_Item( self, item, angle);
+			self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
+			self->client->uniqueWeapons--;
+			angle += 30;
+			self->client->weaponCount[WP_M4]--;
+		}
 	}
 	
 	if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
-		item = BG_FindItemForWeapon( WP_MP5 );
-		Drop_Item( self, item, angle);
-		self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
-		self->client->uniqueWeapons--;
-		angle += 30;
+		while ( self->client->weaponCount[WP_MP5] )
+		{
+			item = BG_FindItemForWeapon( WP_MP5 );
+			Drop_Item( self, item, angle);
+			self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
+			self->client->uniqueWeapons--;
+			angle += 30;
+			self->client->weaponCount[WP_MP5]--;
+		}
 	}
 	
 	if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
-		item = BG_FindItemForWeapon( WP_HANDCANNON );
-		Drop_Item( self, item, angle);
-		self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
-		self->client->uniqueWeapons--;
-		angle += 30;
+		while ( self->client->weaponCount[WP_HANDCANNON] )
+		{
+			item = BG_FindItemForWeapon( WP_HANDCANNON );
+			Drop_Item( self, item, angle);
+			self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
+			self->client->uniqueWeapons--;
+			angle += 30;
+			self->client->weaponCount[WP_HANDCANNON]--;
+		}
 	}
 	
 	if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
-		item = BG_FindItemForWeapon( WP_SSG3000 );
-		Drop_Item( self, item, angle);
-		self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
-		self->client->uniqueWeapons--;
-		angle += 30;
+		while ( self->client->weaponCount[WP_SSG3000] )
+		{
+			item = BG_FindItemForWeapon( WP_SSG3000 );
+			Drop_Item( self, item, angle);
+			self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
+			self->client->uniqueWeapons--;
+			angle += 30;
+			self->client->weaponCount[WP_SSG3000]--;
+		}
 	}
 	
 	//Elder: Always drop the pistol
@@ -1961,8 +1981,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				realBleedTime = BLEED_TIME;
 
 			client->bleeding += take * realBleedTime;
-
-			VectorSubtract (point, targ->r.absmax, targ->client->bleedloc_offset);
+			// Elder: Splash damage bleeding happens from the origin
+			if (dflags == DAMAGE_RADIUS)
+				VectorClear(targ->client->bleedloc_offset);
+			else
+				VectorSubtract (point, targ->r.currentOrigin, targ->client->bleedloc_offset);
 
 			//G_Printf("(%d) = damage",damage);
 			//G_Printf("(%d) = bleeding",client->bleeding);
@@ -2038,6 +2061,8 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 /*
 ============
 G_RadiusDamage
+
+Elder: this sucker needed a lot of minor tweaks to behave like AQ2
 ============
 */
 qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, float radius,
@@ -2083,7 +2108,8 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		}
 
 		dist = VectorLength( v );
-		if ( dist >= radius ) {
+		//if ( dist >= radius ) {
+		if ( dist > radius ) {
 			continue;
 		}
 		// Q2 radius damage
@@ -2094,7 +2120,7 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		//Elder: reduce grenade damage if crouching
 		if (ent->r.maxs[2] < 20)
         {
-            points = points * 0.5; // hefty reduction in damage
+            points = points * 0.5f; // hefty reduction in damage
         }
 
 		if( CanDamage (ent, origin) ) {
@@ -2104,9 +2130,9 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 			VectorSubtract (ent->r.currentOrigin, origin, dir);
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
-			dir[2] += 24;
+			// dir[2] += 24;
             
-			G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+			G_Damage (ent, NULL, attacker, dir, origin, (int)(points * 0.75f), DAMAGE_RADIUS, mod);
 		}
 	}
 

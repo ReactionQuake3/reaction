@@ -1383,7 +1383,9 @@ MK23 Attack
 */
 void Weapon_MK23_Fire(gentity_t *ent)
 {
-	float spread;
+	int		i;
+	float	spread;
+
 	// Homer: increment burst if needed
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE )
 	{
@@ -1395,7 +1397,6 @@ void Weapon_MK23_Fire(gentity_t *ent)
 		spread = PISTOL_SPREAD;
 	}
 	Bullet_Fire( ent, RQ3_Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
-
 }
 
 /*

@@ -312,14 +312,17 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 
 	// add the weapon if not knife or pistol
 	if (ent->item->giTag != WP_KNIFE || ent->item->giTag != WP_PISTOL)
+	{
+		other->client->weaponCount[ent->item->giTag]++;
 		other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	}
 
 // Begin Duffman - Adds a clip for each weapon picked up, will want to edit this later
 	/*Add_Ammo( other, ent->item->giTag, quantity );*/
 	switch (ent->item->giTag)
 	{
 	case WP_KNIFE:
-		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP) 
+		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP * bandolierFactor) 
 		{
 			//G_Printf("(%d)\n",other->client->ps.ammo[ent->item->giTag]);
 			ammotoadd = other->client->ps.ammo[WP_KNIFE] + 1;
@@ -642,8 +645,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		case WP_MP5:
 		case WP_M4:
 		case WP_SSG3000:
-			//Elder: check to see if it's in mid-air
-			if (other->client->uniqueWeapons >= g_RQ3_maxWeapons.integer ||
+			//Elder: check to see if it's in mid-air or over the limit
+			if (other->client->uniqueWeapons >= g_RQ3_maxWeapons.integer + (bandolierFactor - 1) ||
 				ent->s.pos.trDelta[2] != 0)
 					return;
 			break;

@@ -1282,7 +1282,7 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 	//
 	if (bs->inventory[INVENTORY_PISTOL] > 0 && bs->inventory[INVENTORY_PISTOLAMMO] > 0)
 		return WEAPONINDEX_PISTOL;
-	else if (bs->inventory[INVENTORY_M3] > 0 && bs->inventory[INVENTORY_SHOTGUNAMMO] > 0)
+	else if (bs->inventory[INVENTORY_M3] > 0 && bs->inventory[INVENTORY_M3AMMO] > 0)
 		return WEAPONINDEX_M3;
 	else if (bs->inventory[INVENTORY_M4] > 0 && bs->inventory[INVENTORY_M4AMMO] > 0)
 		return WEAPONINDEX_M4;
@@ -1296,8 +1296,10 @@ int BotSelectActivateWeapon(bot_state_t *bs) {
 #endif
 	else if (bs->inventory[INVENTORY_SSG3000] > 0 && bs->inventory[INVENTORY_SSG3000AMMO] > 0)
 		return WEAPONINDEX_SSG3000;
-	else if (bs->inventory[INVENTORY_HANDCANNON] > 0 && bs->inventory[INVENTORY_SHOTGUNAMMO] > 0)
+	else if (bs->inventory[INVENTORY_HANDCANNON] > 0 && bs->inventory[INVENTORY_M3AMMO] > 0)
 		return WEAPONINDEX_HANDCANNON;
+	else if (bs->inventory[INVENTORY_AKIMBO] > 0 && bs->inventory[INVENTORY_AKIMBOAMMO] > 0)
+		return WEAPONINDEX_AKIMBO;
 	else {
 		return -1;
 	}

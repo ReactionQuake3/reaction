@@ -1709,7 +1709,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_ARMOR] = bs->cur_ps.stats[STAT_ARMOR];
 	//weapons
 	//Blaze: Reaction Weapons
-	bs->inventory[INVENTORY_KNIFE] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) !=0;
+	bs->inventory[INVENTORY_KNIFE] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) != 0;
 	bs->inventory[INVENTORY_PISTOL] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PISTOL)) != 0;
 	bs->inventory[INVENTORY_M4] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_M4)) != 0;
 	bs->inventory[INVENTORY_SSG3000] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) != 0;
@@ -1725,8 +1725,8 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_SSG3000AMMO] = bs->cur_ps.ammo[WP_SSG3000];
 	bs->inventory[INVENTORY_MP5AMMO] = bs->cur_ps.ammo[WP_MP5];
 	//Blaze: Same ammo for shotgun and handcannon
-	bs->inventory[INVENTORY_SHOTGUNAMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
-	bs->inventory[INVENTORY_SHOTGUNAMMO] = bs->cur_ps.ammo[WP_M3];
+	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
+	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3];
 	//Blaze: Same ammo for Pistol and Akimbo Pistols
 	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
 	bs->inventory[INVENTORY_GRENADEAMMO] = bs->cur_ps.ammo[WP_GRENADE];
@@ -1734,8 +1734,8 @@ void BotUpdateInventory(bot_state_t *bs) {
 //	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
 	//powerups
 	bs->inventory[INVENTORY_HEALTH] = bs->cur_ps.stats[STAT_HEALTH];
-	bs->inventory[INVENTORY_TELEPORTER] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_TELEPORTER;
-	bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
+	//bs->inventory[INVENTORY_TELEPORTER] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_TELEPORTER;
+	//bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
 #ifdef MISSIONPACK
 	bs->inventory[INVENTORY_KAMIKAZE] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_KAMIKAZE;
 	bs->inventory[INVENTORY_PORTAL] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_PORTAL;
@@ -2192,13 +2192,16 @@ float BotAggression(bot_state_t *bs) {
 	//if the bot is very low on health
 	if (bs->inventory[INVENTORY_HEALTH] < 60) return 0;
 	//if the bot is low on health
+	// Elder: ignore armor checks
+	/*
 	if (bs->inventory[INVENTORY_HEALTH] < 80) {
 		//if the bot has insufficient armor
 		if (bs->inventory[INVENTORY_ARMOR] < 40) return 0;
 	}
-	//if the bot can use the Hand cannon
+	*/
+	//if the bot can use the Handcannon
 	if (bs->inventory[INVENTORY_HANDCANNON] > 0 &&
-			bs->inventory[INVENTORY_SHOTGUNAMMO] > 2) return 100;
+			bs->inventory[INVENTORY_HANDCANNONAMMO] >= 2) return 100;
 	//if the bot can use the Sniper
 	if (bs->inventory[INVENTORY_SSG3000] > 0 &&
 			bs->inventory[INVENTORY_SSG3000] > 3) return 95;
@@ -2210,10 +2213,13 @@ float BotAggression(bot_state_t *bs) {
 			bs->inventory[INVENTORY_M4AMMO] > 5) return 90;
 	//if the bot can use the plasmagun
 	if (bs->inventory[INVENTORY_M3] > 0 &&
-			bs->inventory[INVENTORY_SHOTGUNAMMO] > 4) return 85;
+			bs->inventory[INVENTORY_M3AMMO] > 4) return 85;
 	//if the bot can use the grenade launcher
 	if (bs->inventory[INVENTORY_GRENADE] > 0 &&
 			bs->inventory[INVENTORY_GRENADE] > 2) return 80;
+	// if the bot can use akimbos
+	if (bs->inventory[INVENTORY_AKIMBO] > 0 &&
+			bs->inventory[INVENTORY_AKIMBOAMMO] > 4) return 80;
 	//if the bot can use the shotgun
 	//if (bs->inventory[INVENTORY_SHOTGUN] > 0 &&
 	//		bs->inventory[INVENTORY_SHELLS] > 10) return 50;
@@ -2419,7 +2425,7 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 			bs->inventory[INVENTORY_MP5AMMO] > 50) return qtrue;
 	//if the bot can use the rocketlauncher
 	if (bs->inventory[INVENTORY_HANDCANNON] > 0 &&
-			bs->inventory[INVENTORY_SHOTGUNAMMO] > 5) return qtrue;
+			bs->inventory[INVENTORY_M3AMMO] > 5) return qtrue;
 	//
 	/*if (bs->inventory[INVENTORY_NAILGUN] > 0 &&
 			bs->inventory[INVENTORY_NAILS] > 5) return qtrue;
@@ -2496,9 +2502,10 @@ int BotWantsToCamp(bot_state_t *bs) {
 	//if the bot isn't healthy anough
 	if (BotAggression(bs) < 50) return qfalse;
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
-	if ((bs->inventory[INVENTORY_HANDCANNON] <= 0 || bs->inventory[INVENTORY_SHOTGUNAMMO < 10]) &&
+	// Elder: changed a few of the numbers
+	if ((bs->inventory[INVENTORY_HANDCANNON] <= 0 || bs->inventory[INVENTORY_M3AMMO < 5]) &&
 		(bs->inventory[INVENTORY_M4] <= 0 || bs->inventory[INVENTORY_M4AMMO] < 10) &&
-		(bs->inventory[INVENTORY_SSG3000] <= 0 || bs->inventory[INVENTORY_SSG3000AMMO] < 10)) {
+		(bs->inventory[INVENTORY_SSG3000] <= 0 || bs->inventory[INVENTORY_SSG3000AMMO] < 6)) {
 		return qfalse;
 	}
 	//find the closest camp spot

@@ -1,34 +1,37 @@
+// Elder: we have to seriously repair this file
 
 #define INVENTORY_NONE				0
 //armor
 #define INVENTORY_ARMOR				1
 //weapons
-#define INVENTORY_KNIFE			4
-//Blaze: I use this later for the reaction shotgun
-#define INVENTORY_PISTOL			5
-#define INVENTORY_M4				6
-#define INVENTORY_SSG3000			7
-#define INVENTORY_MP5				8
-#define INVENTORY_HANDCANNON		9
-#define INVENTORY_M3				10
-#define INVENTORY_AKIMBO			11
-#define INVENTORY_GRENADE			13
-//#define INVENTORY_GRAPPLINGHOOK		14
-//#define INVENTORY_NAILGUN			15
-//#define INVENTORY_PROXLAUNCHER		16
-//#define INVENTORY_CHAINGUN			17
+#define INVENTORY_KNIFE				4	// was gauntlet
+#define INVENTORY_M3				5	// was shotgun
+#define INVENTORY_PISTOL			6	// was machinegun
+#define INVENTORY_GRENADE			7	// was grenade launcher
+#define INVENTORY_HANDCANNON		8	// was rocket launcher
+#define INVENTORY_AKIMBO			9	// was lightning gun
+#define INVENTORY_SSG3000			10	// was railgun
+#define INVENTORY_MP5				11	// was plasma gun
+#define INVENTORY_M4				13	// was BFG10K
+/*
+#define INVENTORY_GRAPPLINGHOOK		14
+#define INVENTORY_NAILGUN			15
+#define INVENTORY_PROXLAUNCHER		16
+#define INVENTORY_CHAINGUN			17
+*/
+
 //ammo
 #define INVENTORY_KNIFEAMMO			14
 #define INVENTORY_PISTOLAMMO		15
-#define INVENTORY_M4AMMO			16
+#define INVENTORY_M3AMMO			16
 #define INVENTORY_SSG3000AMMO		17
 #define INVENTORY_MP5AMMO			18
-#define INVENTORY_HANDCANNONAMMO	19
-#define INVENTORY_SHOTGUNAMMO		20
+#define INVENTORY_M4AMMO			19
+#define INVENTORY_HANDCANNONAMMO	20
 #define INVENTORY_AKIMBOAMMO		21
 #define INVENTORY_GRENADEAMMO		22
 
-// Duffman: I stold the below numbers for RQ3 Items
+// Duffman: I stole the below numbers for RQ3 Items
 
 #define INVENTORY_KEVLAR			23
 #define INVENTORY_LASER				24
@@ -49,6 +52,7 @@
 #define INVENTORY_MINES				27
 #define INVENTORY_BELT				28
 */
+
 //powerups
 #define INVENTORY_HEALTH			29
 #define INVENTORY_TELEPORTER		30
@@ -73,28 +77,6 @@
 #define INVENTORY_REDCUBE			48
 #define INVENTORY_BLUECUBE			49
 
-/*
-#define INVENTORY_KNIFE				50
-#define INVENTORY_PISTOL			51
-#define INVENTORY_M4				52
-#define INVENTORY_SSG3000			53
-#define INVENTORY_MP5				54
-#define INVENTORY_HANDCANNON		55
-#define INVENTORY_M3				56
-#define INVENTORY_AKIMBO			57
-#define INVENTORY_GRENADE			58
-
-#define INVENTORY_KNIFEAMMO				59
-#define INVENTORY_PISTOLAMMO			60
-#define INVENTORY_M4AMMO				61
-#define INVENTORY_SSG3000AMMO			62
-#define INVENTORY_MP5AMMO				63
-#define INVENTORY_HANDCANNONAMMO		64
-#define INVENTORY_SHOTGUNAMMO			65
-#define INVENTORY_AKIMBOAMMO			66
-#define INVENTORY_GRENADEAMMO			67
-*/
-
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
@@ -109,6 +91,43 @@
 #endif
 
 //item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
+#define MODELINDEX_KNIFE			1
+#define MODELINDEX_PISTOL			2
+#define MODELINDEX_M4				3
+#define MODELINDEX_SSG3000			4
+#define MODELINDEX_MP5				5
+#define MODELINDEX_HANDCANNON		6
+#define MODELINDEX_M3				7
+#define MODELINDEX_AKIMBO			8
+#define MODELINDEX_GRENADE			9
+// Elder: these are not necessary but oh well
+#define MODELINDEX_KNIFE_1ST		10
+#define MODELINDEX_PISTOL_1ST		11
+#define MODELINDEX_M4_1ST			12
+#define MODELINDEX_SSG3000_1ST		13
+#define MODELINDEX_MP5_1ST			14
+#define MODELINDEX_HANDCANNON_1ST	15
+#define MODELINDEX_M3_1ST			16
+#define MODELINDEX_AKIMBO_1ST		17
+#define MODELINDEX_GRENADE_1ST		18
+
+#define MODELINDEX_PISTOLAMMO		19
+#define MODELINDEX_M3AMMO			20
+#define MODELINDEX_SSG3000AMMO		21
+#define MODELINDEX_MP5AMMO			22
+#define MODELINDEX_M4AMMO			23
+// Elder: for CTB later?
+#define MODELINDEX_REDFLAG			24
+#define MODELINDEX_BLUEFLAG			25
+
+#define MODELINDEX_KEVLAR			26
+#define MODELINDEX_SILENCER			27
+#define MODELINDEX_LASER			28
+#define MODELINDEX_BANDOLIER		29
+#define MODELINDEX_SLIPPERS			30
+
+
+/*
 #define MODELINDEX_ARMORSHARD		1
 #define MODELINDEX_ARMORCOMBAT		2
 #define MODELINDEX_ARMORBODY		3
@@ -171,7 +190,7 @@
 #define MODELINDEX_NAILGUN			49
 #define MODELINDEX_PROXLAUNCHER		50
 #define MODELINDEX_CHAINGUN			51
-
+*/
 
 //
 #define WEAPONINDEX_KNIFE				1
@@ -183,7 +202,8 @@
 #define WEAPONINDEX_M3					7
 #define WEAPONINDEX_AKIMBO				8
 #define WEAPONINDEX_GRENADE				9
-/*#define WEAPONINDEX_GRAPPLING_HOOK		10
+/*
+#define WEAPONINDEX_GRAPPLING_HOOK		10
 #define WEAPONINDEX_NAILGUN				11
 #define WEAPONINDEX_PROXLAUNCHER		12
 #define WEAPONINDEX_CHAINGUN			13

@@ -1651,6 +1651,9 @@ void Cmd_Stats_f( gentity_t *ent ) {
 */
 void Cmd_Bandage (gentity_t *ent)
 {
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
+
 	//Elder: added so you can't "rebandage"
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
@@ -1682,10 +1685,17 @@ void Cmd_Bandage (gentity_t *ent)
 			ent->client->ps.weapon == WP_HANDCANNON ||
 			ent->client->ps.weapon == WP_SSG3000 ||
 			ent->client->ps.weapon == WP_M4 ||
-			ent->client->ps.weapon == WP_AKIMBO)
+			ent->client->ps.weapon == WP_AKIMBO ||
+			ent->client->ps.weapon == WP_GRENADE ||
+			(ent->client->ps.weapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
+		}
+		else if (ent->client->ps.weapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		{
+			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
+										^ ANIM_TOGGLEBIT ) | WP_ANIM_THROWDISARM;
 		}
 
 		//Elder: always lower the player model
@@ -1719,6 +1729,9 @@ void Cmd_Reload( gentity_t *ent )
 	int weapon;       
     int ammotoadd;
     int delay = 0;
+
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
 
 	//G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
 
@@ -2114,8 +2127,8 @@ void Cmd_OpenDoor(gentity_t *ent)
 	//Use_BinaryMover( ent->parent, ent, other );
 	gentity_t *door = NULL;
 
-	//Don't open doors if dead
-	if (ent->client->ps.stats[STAT_HEALTH] <= 0)
+	//Don't open doors if dead or spectating
+	if (ent->client->ps.stats[STAT_HEALTH] <= 0 || ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 
 	while ((door = findradius(door,ent->r.currentOrigin,100)) != NULL)
@@ -2144,6 +2157,9 @@ void toggleSemi(gentity_t *ent){
 /* Hawkins. Reaction weapon command */
 void Cmd_Weapon(gentity_t *ent)
 {
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
+
 	//Elder: debug code
 	//G_Printf("PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
@@ -2328,7 +2344,9 @@ Cmd_DropWeapon_f XRAY FMJ
 =================
 */
 void Cmd_DropWeapon_f( gentity_t *ent ) {
-
+	
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
 	//Elder: added -- checked in cgame
 	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
 	//{
@@ -2351,6 +2369,9 @@ Cmd_DropItem_f
 */
 void Cmd_DropItem_f( gentity_t *ent )
 {
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
+
 	if (ent->client->ps.stats[STAT_HOLDABLE_ITEM])
 	{
 		//Elder: reset item totals if using bandolier
@@ -2374,6 +2395,13 @@ void Cmd_DropItem_f( gentity_t *ent )
 					ent->client->numClips[WP_KNIFE] = RQ3_KNIFE_MAXCLIP;
 				if (ent->client->numClips[WP_GRENADE] > RQ3_GRENADE_MAXCLIP)
 					ent->client->numClips[WP_GRENADE] = RQ3_GRENADE_MAXCLIP;
+
+				if (ent->client->uniqueWeapons > g_RQ3_maxWeapons.integer)
+				{
+					Cmd_Unzoom( ent );
+					ThrowWeapon( ent, qtrue );
+				}
+
 		}
 		//Force laser off
 		else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER)

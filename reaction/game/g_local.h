@@ -393,7 +393,8 @@ struct gclient_s {
 // Begin Duffman
 	int			numClips[MAX_WEAPONS];   	 // Number of clips each weapon has
 // End Duffman   
-	
+	int			weaponCount[WP_NUM_WEAPONS];	// Elder: for duplicate unique weapon tracking
+
 	qboolean	openDoor;			//Blaze: used to hold if someone has hit opendoor key
 	int			openDoorTime;
 

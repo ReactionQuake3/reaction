@@ -43,7 +43,7 @@
 #define	MINS_Z				-24
 #define DEFAULT_VIEWHEIGHT	22
 //#define	DEFAULT_VIEWHEIGHT	26
-//Elder: changed to 8 like AQ2 source BUT is it sync-ed?
+//Elder: changed to 8 like AQ2 source
 #define CROUCH_VIEWHEIGHT	8
 //#define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
@@ -187,8 +187,8 @@ typedef enum {
 #define SLASH_DAMAGE 			200	//Shashing knife damage
 #define THROW_DAMAGE 			250	//Throwing Knife damage
 #define GRENADE_DAMAGE			170
-#define GRENADE_SPLASH_DAMAGE	170 
-#define GRENADE_SPLASH_RADIUS	340 //340 Splash damage * 2
+#define GRENADE_SPLASH_DAMAGE	170
+#define GRENADE_SPLASH_RADIUS	340 //Damage * 2
 
 #define PISTOL_SPREAD 			140
 #define MP5_SPREAD 				250
@@ -222,7 +222,7 @@ typedef enum {
 #define RQ3_SSG3000_BOLT_DELAY	1300// Elder: delay before zooming back in
 //#define RQ3_AKIMBO_DELAY		500	// Elder: two delays: one for the total delay
 //#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
-#define RQ3_AKIMBO_DELAY		200
+#define RQ3_AKIMBO_DELAY		100
 #define RQ3_AKIMBO_DELAY2		300
 #define RQ3_KNIFE_DELAY			800	
 #define RQ3_THROW_DELAY			800
@@ -374,7 +374,7 @@ typedef enum {
 
 typedef enum {
 	WEAPON_READY,		//sync with WP_ANIM_IDLE
-	WEAPON_COCKED,
+	WEAPON_COCKED,		//sync with WP_ANIM_EXTRA1 for grenade
 	WEAPON_RAISING,		//sync with WP_ANIM_ACTIVATE
 	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
 	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
@@ -389,9 +389,14 @@ typedef enum {
 	WP_ANIM_IDLE,
 	WP_ANIM_DISARM,
 	WP_ANIM_ACTIVATE,
-	//WP_ANIM_EMPTY,
-	//WP_ANIM_EXTRA1,
-	//WP_ANIM_EXTRA2,
+	WP_ANIM_EMPTY,
+	WP_ANIM_EXTRA1,		// e.g. grenade pulling pin, fast-reload, knife slash to throw switch
+	WP_ANIM_EXTRA2,		// knife throw to slash switch
+	// Knife exclusives
+	WP_ANIM_THROWFIRE,
+	WP_ANIM_THROWIDLE,
+	WP_ANIM_THROWDISARM,
+	WP_ANIM_THROWACTIVATE,
 	MAX_WEAPON_ANIMATIONS
 } wpAnimNumber_t;
 

@@ -416,24 +416,6 @@ gitem_t	bg_itemlist[] =
 /* sounds */ //""
 //	},
 
-//Elder: just leaving this in for now
-/*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-	{
-		"ammo_rockets",
-		"sound/misc/am_pkup.wav",
-        { "models/ammo/m3.md3", 
-		0, 0, 0},
-/* icon */		"icons/icona_shells",
-/* pickup */	"Shotgun Shells",
-		7,
-		IT_AMMO,
-		//Blaze: Changed from WP_ROCKET_LAUNCHER to WP_SHOTGUN
-		WP_M3,
-/* precache */ "",
-/* sounds */ ""
-	},
-
 /*QUAKED ammo_m4 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{

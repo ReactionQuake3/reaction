@@ -911,19 +911,30 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 	weap = 0;
 	if (client->uniqueWeapons > 0)
 	{
-		weap = client->ps.stats[STAT_WEAPONS];
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4))
-			weap = WP_M4;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) ) == (1 << WP_M3))
-			weap = WP_M3;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) ) == (1 << WP_MP5))
-			weap = WP_MP5;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON))
-			weap = WP_HANDCANNON;
-		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000))
-			weap = WP_SSG3000;
-		if (weap == 0 )
-			return 0;
+		if (client->ps.weapon == WP_AKIMBO ||
+			client->ps.weapon == WP_PISTOL ||
+			client->ps.weapon == WP_GRENADE ||
+			client->ps.weapon == WP_KNIFE ||
+			client->ps.weapon == WP_NONE)	// shouldn't have to worry about NONE, but just in case
+		{
+			weap = client->ps.stats[STAT_WEAPONS];
+			if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4))
+				weap = WP_M4;
+			if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M3) ) == (1 << WP_M3))
+				weap = WP_M3;
+			if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_MP5) ) == (1 << WP_MP5))
+				weap = WP_MP5;
+			if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON))
+				weap = WP_HANDCANNON;
+			if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000) ) == (1 << WP_SSG3000))
+				weap = WP_SSG3000;
+			if (weap == 0 )
+				return 0;
+		}
+		else
+		{
+			weap = client->ps.weapon;
+		}
 
 		xr_item = BG_FindItemForWeapon( weap );
 	
@@ -941,7 +952,10 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 			trap_SendServerCommand( ent-g_entities, va("selectpistol"));
 		}
 		
-		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
+		client->weaponCount[weap]--;
+		if (client->weaponCount[weap] == 0)
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
+
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
 		client->uniqueWeapons--;

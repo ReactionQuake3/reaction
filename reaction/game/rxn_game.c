@@ -64,13 +64,13 @@ void CheckBleeding(gentity_t *targ)
 		  vec3_t bleedOrigin;
 		  
 		  targ->client->bleed_delay = level.time + 2000; // 2 seconds
-		  VectorAdd(targ->client->bleedloc_offset, targ->r.absmax, bleedOrigin);
+		  VectorAdd(targ->client->bleedloc_offset, targ->client->ps.origin, bleedOrigin);
 		  //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
 		  //EjectBlooder(ent, pos, pos);
                         
 		  // do bleeding
-		  //tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
-
+		  tent = G_TempEntity(bleedOrigin, EV_EJECTBLOOD);
+		  tent->s.otherEntityNum = targ->s.clientNum;
 		}
 	}
 }

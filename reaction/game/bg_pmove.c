@@ -1842,8 +1842,12 @@ static void PM_BeginWeaponChange( int weapon ) {
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
 			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_AKIMBO)
+			pm->ps->weapon == WP_AKIMBO ||
+			pm->ps->weapon == WP_GRENADE ||
+			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 			PM_StartWeaponAnim(WP_ANIM_DISARM);
+		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+			PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
 	}
 
 	// Elder: cancel reload stuff here
@@ -1860,8 +1864,12 @@ static void PM_BeginWeaponChange( int weapon ) {
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
 		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_AKIMBO)
+		pm->ps->weapon == WP_AKIMBO ||
+		pm->ps->weapon == WP_GRENADE ||
+		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
+	else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		PM_StartWeaponAnim(WP_ANIM_THROWDISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
 }
@@ -1937,9 +1945,13 @@ static void PM_FinishWeaponChange( void ) {
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
 		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_AKIMBO)
+		pm->ps->weapon == WP_AKIMBO ||
+		pm->ps->weapon == WP_GRENADE ||
+		(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
-
+	else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+		PM_StartWeaponAnim(WP_ANIM_THROWACTIVATE);
+	
 	PM_StartTorsoAnim( TORSO_RAISE );
 
 }
@@ -1961,13 +1973,20 @@ static void PM_TorsoAnimation( void ) {
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
 		//Elder: temp hack
-		if (pm->ps->weapon == WP_PISTOL ||
+		if (pm->ps->ammo[pm->ps->weapon] == 0)
+			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+		else if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
 			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_AKIMBO)
-			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
+			pm->ps->weapon == WP_AKIMBO ||
+			pm->ps->weapon == WP_GRENADE ||
+			(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
+			PM_ContinueWeaponAnim(WP_ANIM_IDLE);
+		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+			PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
+
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
 		return;
@@ -2070,7 +2089,7 @@ static void PM_Reload( void )
 				if (pm->ps->stats[STAT_RELOADTIME] > 0) {
 					if ( pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS )
 					{
-						Com_Printf("============= Locked out in fast-reload interrupt\n");
+						//Com_Printf("============= Locked out in fast-reload interrupt\n");
 					}
 					else
 					{
@@ -2082,7 +2101,7 @@ static void PM_Reload( void )
 							// add to reload queue and enable fast-reloads flag
 							pm->ps->stats[STAT_RQ3] |= RQ3_FASTRELOADS;
 							pm->ps->stats[STAT_RELOADATTEMPTS]++;
-							Com_Printf("======== Reload attempts: %i ========\n", pm->ps->stats[STAT_RELOADATTEMPTS]);
+							//Com_Printf("======== Reload attempts: %i ========\n", pm->ps->stats[STAT_RELOADATTEMPTS]);
 						}
 						return;
 					}
@@ -2223,19 +2242,19 @@ static void PM_Reload( void )
 					
 					if (pm->ps->stats[STAT_CLIPS] > 0)
 					{
-						Com_Printf("Sending event from continuous fast-reloads\n");
+						//Com_Printf("Sending event from continuous fast-reloads\n");
 						PM_AddEvent(EV_RELOAD_WEAPON2);
 					}
 					else
 					{
-						Com_Printf("Negative event prevented\n");
+						//Com_Printf("Negative event prevented\n");
 						pm->ps->stats[STAT_RELOADATTEMPTS] = 0;
 					}
 
 				}
 				else
 				{
-					Com_Printf("============= Locked out in continuous fast-reloads\n");
+					//Com_Printf("============= Locked out in continuous fast-reloads\n");
 				}
 
 				// finishing up fast reloads
@@ -2251,7 +2270,7 @@ static void PM_Reload( void )
 					pm->ps->stats[STAT_RQ3] &= ~RQ3_FASTRELOADS;
 					// lock fast-reloads during finish delay
 					pm->ps->stats[STAT_RQ3] |= RQ3_LOCKRELOADS;
-					Com_Printf("<<<<<<<<<<<<< Locking\n");
+					//Com_Printf("<<<<<<<<<<<<< Locking\n");
 				}
 
 				return;
@@ -2263,12 +2282,12 @@ static void PM_Reload( void )
 				// unlock
 				if (pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS)
 				{
-					Com_Printf(">>>>>>>>>>>>> Unlocking\n");
+					//Com_Printf(">>>>>>>>>>>>> Unlocking\n");
 					pm->ps->stats[STAT_RQ3] &= ~RQ3_LOCKRELOADS;
 				}
 				else
 				{
-					Com_Printf("Sending event from normal reload\n");
+					//Com_Printf("Sending event from normal reload\n");
 					PM_AddEvent(EV_RELOAD_WEAPON2);
 				}
 
@@ -2428,14 +2447,23 @@ static void PM_Weapon( void ) {
 		else
 		{
 			//Elder: temp hack
-			if (pm->ps->weaponstate == WEAPON_READY &&
-				(pm->ps->weapon == WP_PISTOL ||
-				 pm->ps->weapon == WP_M3 ||
-				 pm->ps->weapon == WP_HANDCANNON ||
-				 pm->ps->weapon == WP_SSG3000 ||
-				 pm->ps->weapon == WP_M4 ||
-				 pm->ps->weapon == WP_AKIMBO))
-				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
+			if (pm->ps->weaponstate == WEAPON_READY)
+			{
+				if (pm->ps->ammo[pm->ps->weapon] == 0)
+					PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+				else if (pm->ps->weapon == WP_PISTOL ||
+					pm->ps->weapon == WP_M3 ||
+					pm->ps->weapon == WP_HANDCANNON ||
+					pm->ps->weapon == WP_SSG3000 ||
+					pm->ps->weapon == WP_M4 ||
+					pm->ps->weapon == WP_AKIMBO ||
+					pm->ps->weapon == WP_GRENADE ||
+					(pm->ps->weapon == WP_KNIFE && (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
+					PM_ContinueWeaponAnim(WP_ANIM_IDLE);
+				else if (pm->ps->weapon == WP_KNIFE &&
+						 !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+					PM_ContinueWeaponAnim(WP_ANIM_THROWIDLE);
+			}
 		}
 	}
 
@@ -2477,13 +2505,19 @@ static void PM_Weapon( void ) {
 		// Should always draw the weapon when it is just ready
 //		PM_StartWeaponAnim( WP_ANIM_READY );
 		// temp hack
-		if (pm->ps->weapon == WP_PISTOL ||
+		if (pm->ps->ammo[pm->ps->weapon] == 0)
+			PM_ContinueWeaponAnim( WP_ANIM_EMPTY );
+		else if (pm->ps->weapon == WP_PISTOL ||
 			pm->ps->weapon == WP_M3 ||
 			pm->ps->weapon == WP_HANDCANNON ||
 			pm->ps->weapon == WP_SSG3000 ||
 			pm->ps->weapon == WP_M4 ||
-			pm->ps->weapon == WP_AKIMBO)
+			pm->ps->weapon == WP_AKIMBO ||
+			pm->ps->weapon == WP_GRENADE ||
+			(pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)))
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
+		else if (pm->ps->weapon == WP_KNIFE && !(pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE))
+			PM_StartWeaponAnim( WP_ANIM_THROWIDLE );
 		return;
 	}
 
@@ -2494,6 +2528,7 @@ static void PM_Weapon( void ) {
 		pm->ps->weaponTime = 0;
 		// put it in the "cocked" position
 		pm->ps->weaponstate = WEAPON_COCKED;
+		PM_StartWeaponAnim(WP_ANIM_EXTRA1);
 		return;
 	}
 
@@ -2554,6 +2589,11 @@ static void PM_Weapon( void ) {
 //			pm->ps->weaponstate = WEAPON_READY;
 //			return;
 //		}
+		if (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)
+			PM_StartWeaponAnim( WP_ANIM_FIRE );
+		else
+			PM_StartWeaponAnim( WP_ANIM_THROWFIRE );
+
 		PM_StartTorsoAnim( TORSO_ATTACK2 );
 	} else {
 		// Elder: don't repeat if semi-auto
@@ -2568,12 +2608,18 @@ static void PM_Weapon( void ) {
 			// This should change pm->ps->generic1 so we can animate
 			// Elder: don't repeat if on semi-auto
 			// temp hack
-			if (pm->ps->weapon == WP_PISTOL ||
+			if (pm->ps->weapon == WP_AKIMBO)
+			{
+				// don't repeat animation if on second akimbo shot
+				if ( !pm->ps->stats[STAT_BURST] )
+					PM_StartWeaponAnim( WP_ANIM_FIRE );
+			}
+			else if (pm->ps->weapon == WP_PISTOL ||
 				pm->ps->weapon == WP_M3 ||
 				pm->ps->weapon == WP_HANDCANNON ||
 				pm->ps->weapon == WP_SSG3000 ||
 				pm->ps->weapon == WP_M4 ||
-				pm->ps->weapon == WP_AKIMBO)
+				pm->ps->weapon == WP_GRENADE)
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
@@ -3248,7 +3294,9 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->ps->weapon == WP_HANDCANNON ||
 		pm->ps->weapon == WP_SSG3000 ||
 		pm->ps->weapon == WP_M4 ||
-		pm->ps->weapon == WP_AKIMBO)
+		pm->ps->weapon == WP_AKIMBO ||
+		pm->ps->weapon == WP_GRENADE ||
+		pm->ps->weapon == WP_KNIFE)
 		PM_WeaponAnimation();
 
 	// torso animation
