@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/03/03 18:00:26  jbravo
+// More Anim fixes.  Knives still broken
+//
 // Revision 1.26  2002/03/03 03:11:37  jbravo
 // Use propper weapon anims on TP spawns
 //
@@ -709,7 +712,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
-//		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
+		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 0;
 		break;
@@ -722,11 +725,14 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
 		ent->client->uniqueWeapons++;
 	}
-	if (ent->client->teamplayWeapon != WP_KNIFE) {
+	if (ent->client->teamplayWeapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
+		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
+			ANIM_TOGGLEBIT) | WP_ANIM_THROWACTIVATE;
+	} else {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
 			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
-		ent->client->ps.weaponstate = WEAPON_RAISING;
 	}
+	ent->client->ps.weaponstate = WEAPON_RAISING;
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;
 	ent->client->uniqueItems = 1;
