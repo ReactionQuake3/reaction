@@ -1706,9 +1706,11 @@ void Cmd_Bandage (gentity_t *ent)
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
 		}
 
-		//Elder: always lower the player model
+		//Elder: always lower the player model -- removed
+		/*
 		ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
 			   ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
+		*/
 		
 	
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
@@ -2152,16 +2154,7 @@ void Cmd_OpenDoor(gentity_t *ent)
 	}
 }
 
-// Hawkisn todo: Must be set on a per-weapon basis, not a per-user basis.
-/* Homer: This function is useful only if it applies to all weapons, which is not the case here.
-void toggleSemi(gentity_t *ent){ 
-	ent->client->semi = !(ent->client->semi);
-	if(ent->client->semi)
-		trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
-	else
-		trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
-}
-*/
+
 /* Hawkins. Reaction weapon command */
 void Cmd_Weapon(gentity_t *ent)
 {

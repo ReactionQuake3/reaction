@@ -977,6 +977,8 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
+		// remember who dropped you, child!
+		xr_drop->s.otherEntityNum = client->ps.clientNum;
 		client->uniqueWeapons--;
 	}
 

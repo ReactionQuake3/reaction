@@ -572,7 +572,7 @@ void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
 
      	}
 		G_FreeEntity( ent );
-		G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
+		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
 		{
 			case 0:

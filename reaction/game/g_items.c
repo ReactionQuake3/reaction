@@ -361,22 +361,22 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 		break;
 	case WP_AKIMBO:
 		//Elder: Should not need to come here
-		ammotoadd= RQ3_AKIMBO_AMMO;
+		ammotoadd = RQ3_AKIMBO_AMMO;
 		break;
 	case WP_MP5:
-		ammotoadd= RQ3_MP5_AMMO;
+		ammotoadd = RQ3_MP5_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_M4:
-		ammotoadd= RQ3_M4_AMMO;
+		ammotoadd = RQ3_M4_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_M3:
-		ammotoadd= RQ3_M3_AMMO;
+		ammotoadd = RQ3_M3_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_HANDCANNON:
-		ammotoadd= RQ3_HANDCANNON_AMMO;
+		ammotoadd = RQ3_HANDCANNON_AMMO;
 		//Elder: HC gets 2 in chamber and 5 in reserve
 		//Also sync with M3
 		//Removed until we can store the amount of ammo in the gun
@@ -386,7 +386,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 		other->client->uniqueWeapons++;
 		break;
 	case WP_SSG3000:
-		ammotoadd= RQ3_SSG3000_AMMO;
+		ammotoadd = RQ3_SSG3000_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_GRENADE:
@@ -402,13 +402,15 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 	default:
 		//Blaze: Should never hit here
 		G_Printf("Pickup_Weapon: Given bad giTag: %d\n", ent->item->giTag);
-		ammotoadd=0;
+		ammotoadd = 0;
 		break;
 	}
 	//Elder: conditional added to "restore" weapons
-	if ( other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ||
-		 !((ent->flags & FL_THROWN_ITEM) == FL_THROWN_ITEM) ) {
-		other->client->ps.ammo[ent->item->giTag]= ammotoadd;
+	if ( !(ent->flags & FL_THROWN_ITEM) ||
+		(ent->s.otherEntityNum == other->client->ps.clientNum && 
+		 other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ) )
+	{
+		other->client->ps.ammo[ent->item->giTag] = ammotoadd;
 		//Elder: add extra handcannon clips if it's "fresh"
 		if (ent->item->giTag == WP_HANDCANNON) {
 			other->client->numClips[ WP_HANDCANNON ] += 5;
@@ -419,6 +421,22 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 			}
 		}
 	}
+
+	/*
+	if ( other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ||
+		 !(ent->flags & FL_THROWN_ITEM) ) {
+		other->client->ps.ammo[ent->item->giTag] = ammotoadd;
+		//Elder: add extra handcannon clips if it's "fresh"
+		if (ent->item->giTag == WP_HANDCANNON) {
+			other->client->numClips[ WP_HANDCANNON ] += 5;
+			other->client->numClips[ WP_M3 ] += 5;
+			if (other->client->numClips[ WP_HANDCANNON ] > 13) {
+				other->client->numClips[ WP_HANDCANNON ] = 14;
+				other->client->numClips[ WP_M3 ] = 14;
+			}
+		}
+	}
+	*/
 
 // End Duffman
 
