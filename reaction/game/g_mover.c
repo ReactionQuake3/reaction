@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/05/22 04:19:22  blaze
+// Sound entity changes as per Sze - more
+//
 // Revision 1.32  2002/05/22 04:17:18  blaze
 // Sound entity changes as per Sze
 //
@@ -1924,7 +1927,7 @@ void SP_func_button( gentity_t *ent ) {
   
   //changed to sound to stop it from conflicting with the looping noise
   //Changed from noise to sound as per Sze
-  G_SpawnString( "sound", "sound/movers/switches/butn2.wav", &noise );
+  G_SpawnString( "sound", "sound/movers/button.wav", &noise );
   ent->sound1to2 = G_SoundIndex(noise);
 
 	if ( !ent->speed ) {
