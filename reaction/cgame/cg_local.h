@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.158  2004/03/07 17:39:10  makro
+// no message
+//
 // Revision 1.157  2004/01/26 21:26:08  makro
 // no message
 //
@@ -1905,6 +1908,9 @@ extern vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro - avidemo with jpegs
 extern vmCvar_t cg_RQ3_avidemo;
+//Makro - sun flares
+extern vmCvar_t cg_RQ3_flareIntensity;
+
 extern vmCvar_t cg_drawFriend;
 extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;

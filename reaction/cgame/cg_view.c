@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2004/03/07 17:39:11  makro
+// no message
+//
 // Revision 1.44  2004/01/28 23:26:33  makro
 // Made flares additive
 //
@@ -1113,6 +1116,8 @@ void CG_AddLensFlare(qboolean sun)
 			ent.shaderRGBA[3] = ent.shaderRGBA[0];
 			trap_R_AddRefEntityToScene(&ent);
 		}
+		//speed hack
+		cgs.flareFadeFactor *= cg_RQ3_flareIntensity.value;
 	} else {
 		//add the reflection particles
 		if (cgs.flareFadeFactor != 0.0f) {

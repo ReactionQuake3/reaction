@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.145  2004/03/07 17:39:11  makro
+// no message
+//
 // Revision 1.144  2004/01/26 21:26:08  makro
 // no message
 //
@@ -605,6 +608,11 @@ vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro: avidemo with jpegs
 vmCvar_t cg_RQ3_avidemo;
+
+//Makro - sun flares
+vmCvar_t cg_RQ3_flareIntensity;
+
+
 //Makro - fastsky
 vmCvar_t cg_fastSky;
 vmCvar_t cg_RQ3_wantFastSky;
@@ -880,6 +888,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	//Makro - avidemo with jpegs
 	{&cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0},
+	//Makro - sun flares
+	{&cg_RQ3_flareIntensity, "cg_RQ3_flareIntensity", "1.0", CVAR_ARCHIVE},
 	//Makro - fastsky
 	{&cg_fastSky, "r_fastSky", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_wantFastSky, "cg_RQ3_wantFastSky", "0", CVAR_ARCHIVE},
