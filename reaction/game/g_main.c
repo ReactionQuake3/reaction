@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/04/28 23:13:08  jbravo
+// Clean up the server logs
+//
 // Revision 1.47  2002/04/23 00:21:44  jbravo
 // Cleanups of the new model code.  Removed the spectator bar for zcam modes.
 //
@@ -1441,6 +1444,9 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_start( argptr, fmt );
 	vsprintf( string +7 , fmt,argptr );
 	va_end( argptr );
+
+// JBravo: damn colors fsck up the logs and make them ugly.
+	Q_CleanStr (string);
 
 	if ( g_dedicated.integer ) {
 		G_Printf( "%s", string + 7 );
