@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/30 17:57:48  jbravo
+// Two functions added to zcam.h for g_active.c
+//
 // Revision 1.5  2002/02/10 16:26:55  jbravo
 // Attempting to intergrate zcam better into rq3 and a fix for lights.wav
 //
@@ -40,6 +43,8 @@ void camera_begin (gentity_t *ent);
 void camera_disconnect (gentity_t *ent);
 void camera_think (gentity_t *ent);
 void camera_cmd (gentity_t *ent);
+void CameraFlicBegin (gentity_t ent);
+void CameraSwingCycle (gentity_t *ent, int dir);
 
 // JBravo: moved from zcam.c to here:
 /* camera mode */
