@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/04 16:13:05  makro
+// Bots
+//
 // Revision 1.6  2002/04/01 02:56:50  jbravo
 // Some sourcecode reformatting
 //
@@ -40,7 +43,8 @@
 #define SVF_CAPSULE		0x00000400	// use capsule for collision detection instead of bbox
 #define SVF_NOTSINGLECLIENT	0x00000800	// send entity to everyone but one client
 						// (entityShared_t->singleClient)
-
+#define SVF_BOTHACK		0x00001000
+#define MASK_BOTHACK	(SVF_NOCLIENT|SVF_BOTHACK)
 //===============================================================
 
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/05/04 16:13:04  makro
+// Bots
+//
 // Revision 1.7  2002/05/04 01:03:42  makro
 // Bots
 //
@@ -194,7 +197,7 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	//Makro - hack for bots
 	//if (ent->r.svFlags & SVF_NOCLIENT) return qfalse;
 	if (ent->r.svFlags & SVF_NOCLIENT)
-		if ( !(ent->s.eFlags & EF_NODRAW) )
+		if ( !(ent->r.svFlags & SVF_BOTHACK) )
 			return qfalse;
 	//end Makro
 	memcpy( state, &ent->s, sizeof(entityState_t) );
@@ -1485,7 +1488,7 @@ int BotAIStartFrame(int time) {
 			}*/
 			//Makro - hack for bots
 			if (ent->r.svFlags & SVF_NOCLIENT) {
-				if ( !(ent->s.eFlags & EF_NODRAW) ) {
+				if ( !(ent->r.svFlags & SVF_BOTHACK) ) {
 					trap_BotLibUpdateEntity(i, NULL);
 					continue;
 				}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/04 16:13:05  makro
+// Bots
+//
 // Revision 1.74  2002/05/04 01:03:43  makro
 // Bots
 //
@@ -465,7 +468,7 @@ void CleanLevel()
 		if (!ent->item)
 			continue;
 		//Makro - added this for bots
-		if (ent->r.svFlags & SVF_NOCLIENT)
+		if ( (ent->r.svFlags & SVF_NOCLIENT) && (ent->r.svFlags & SVF_BOTHACK) )
 			continue;
 		if (ent->item->giType == IT_WEAPON) {
 			switch (ent->item->giTag) {
@@ -495,6 +498,8 @@ void CleanLevel()
 				break;
 			}
 		} else if (ent->item->giType == IT_AMMO) {
+			//Makro - added
+			G_FreeEntity(ent);
 		}
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/05/04 16:13:04  makro
+// Bots
+//
 // Revision 1.27  2002/05/04 01:21:47  makro
 // Crash bug :/
 //
@@ -253,8 +256,12 @@ Added by Makro
 void BotAttack(bot_state_t *bs) {
 	
 	//Makro - if the weapon isn't ready, stop
-	if (bs->cur_ps.weaponstate != WEAPON_READY)
+	if (bs->cur_ps.weaponstate != WEAPON_READY) {
+#ifdef DEBUG
+		BotAI_Print(PRT_MESSAGE, "weapon not ready (%i)\n", bs->cur_ps.weapon);
+#endif //DEBUG
 		return;
+	}
 	
 	//If the gun is empty
 	if ( (bs->cur_ps.ammo[bs->cur_ps.weapon]) == 0 ) {
@@ -262,6 +269,9 @@ void BotAttack(bot_state_t *bs) {
 		if ( RQ3_Bot_CanReload(bs, bs->cur_ps.weapon) >= 1 ) {
 			//Cmd_Reload( &g_entities[bs->entitynum] );
 			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
+#ifdef DEBUG
+			BotAI_Print(PRT_MESSAGE, "empty weapon (%i), reloading\n", bs->cur_ps.weapon);
+#endif //DEBUG
 		}
 	} else {
 		//Gun is not empty
@@ -343,6 +353,9 @@ qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, voi
 
 	//if the weapon is not valid
 	if (weapon <= WP_NONE || weapon >= 	WP_NUM_WEAPONS) {
+#ifdef DEBUG
+		BotAI_Print(PRT_MESSAGE, "weapon not ready (%i)\n", bs->cur_ps.weapon);
+#endif //DEBUG
 		if (trap_Cvar_VariableIntegerValue("developer")) {
 			BotAI_Print(PRT_ERROR, "Bot_GetWeaponInfo: weapon number out of range (%i)\n", weapon);
 		}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/04 16:13:04  makro
+// Bots
+//
 // Revision 1.35  2002/05/04 01:03:43  makro
 // Bots
 //
@@ -608,11 +611,20 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	qboolean	predict;
 	int			bandolierFactor;
 
+	//Makro - some checks
+	if (other == NULL || ent == NULL)
+		return;
 
 	if (!other->client)
 		return;
 	if (other->health < 1)
 		return;		// dead people can't pickup
+
+	//Makro - if the item is not sent to the client, picking it up would be kinda odd
+	if (ent->r.svFlags & SVF_NOCLIENT) {
+		//G_Printf("^1Reached SVF_NOCLIENT item\n");
+		return;
+	}
 
 	// the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) return;
@@ -1152,7 +1164,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		if (ent->item != NULL) {
 			if (ent->item->giType == IT_WEAPON || ent->item->giType == IT_AMMO) {
 				if (g_gametype.integer == GT_TEAMPLAY) {
-					ent->r.svFlags |= SVF_NOCLIENT;
+					ent->r.svFlags |= MASK_BOTHACK;
 					ent->s.eFlags |= EF_NODRAW;
 				}
 			}

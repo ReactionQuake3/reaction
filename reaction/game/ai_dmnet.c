@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/05/04 16:13:04  makro
+// Bots
+//
 // Revision 1.21  2002/05/03 18:09:19  makro
 // Bot stuff. Jump kicks
 //
@@ -453,9 +456,14 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal) {
 		//if touching the goal
 		if (trap_BotTouchingGoal(bs->origin, goal)) {
 			if (!(goal->flags & GFL_DROPPED)) {
-				trap_BotSetAvoidGoalTime(bs->gs, goal->number, -1);
 				//Makro - check if the bot picked up a better weapon or item
 				RQ3_Bot_NeedToDropStuff( bs , goal );
+				//also added a TP check
+				if (gametype != GT_TEAMPLAY) {
+					trap_BotSetAvoidGoalTime(bs->gs, goal->number, -1);
+				} else {
+					trap_BotSetAvoidGoalTime(bs->gs, goal->number, FloatTime() + 20.0f + random() * 20.0f);
+				}
 			}
 			/*
 			if (g_entities[goal->entitynum].classname) {
@@ -1805,7 +1813,8 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		// get the entity info of the entity the bot is shooting at
 		BotEntityInfo(goal->entitynum, &entinfo);
 		// if the entity the bot shoots at moved
-		if (!VectorCompare(bs->activatestack->origin, entinfo.origin)) {
+		// Makro - or if the entity is no longer in use - for func_breakables
+		if (!VectorCompare(bs->activatestack->origin, entinfo.origin) || !(g_entities[entinfo.number].inuse)) {
 #ifdef DEBUG
 			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
 #endif //DEBUG

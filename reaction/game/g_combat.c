@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/05/04 16:13:04  makro
+// Bots
+//
 // Revision 1.64  2002/04/26 04:09:11  jbravo
 // Got rid of the grey excelent icon over players heads.
 //
@@ -850,9 +853,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	ent->r.svFlags = SVF_BROADCAST;	// send to everyone
 	self->enemy = attacker;
 	if (level.team_round_going) {
-		self->client->ps.persistant[PERS_KILLED]++;
-		//Blaze: Give the attacker 1 kill
-		attacker->client->pers.records[REC_KILLS]++;
+		//Makro - crash bug fix
+		if ((self->client != NULL) && (attacker->client != NULL)) {
+			self->client->ps.persistant[PERS_KILLED]++;
+			//Blaze: Give the attacker 1 kill
+			attacker->client->pers.records[REC_KILLS]++;
+		}
 	}
 
 	if (attacker && attacker->client) {
@@ -1619,14 +1625,17 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		// NiceAss: This was moved too
 		// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-		if (attacker->client && targ != attacker && targ->health > 0 &&
-			targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL) {
-			if (OnSameTeam(targ, attacker)) {
-				attacker->client->ps.persistant[PERS_HITS]--;
-			} else {
-				attacker->client->ps.persistant[PERS_HITS]++;
+		//Makro - added check; q3 crashed sometimes with .dlls
+		if ( (attacker != NULL) && (client != NULL) && (targ != NULL) ) {
+			if (attacker->client && targ != attacker && targ->health > 0 &&
+				targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL) {
+				if (OnSameTeam(targ, attacker)) {
+					attacker->client->ps.persistant[PERS_HITS]--;
+				} else {
+					attacker->client->ps.persistant[PERS_HITS]++;
+				}
+				attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
 			}
-			attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
 		}
 	}
 
@@ -1926,7 +1935,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				targ->health = -999;
 			}
 			targ->enemy = attacker;
-			targ->die (targ, inflictor, attacker, take, mod);
+			//Makro - crash bug fix
+			if (targ->die)
+				targ->die (targ, inflictor, attacker, take, mod);
 			return;
 		} else if (targ->pain) {
 			targ->pain (targ, attacker, take);
