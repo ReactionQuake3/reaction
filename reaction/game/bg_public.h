@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2003/03/09 19:49:39  niceass
+// Added torso animation for pistol
+//
 // Revision 1.100  2003/02/05 04:26:54  niceass
 // added support for akimbo animations
 //
@@ -1202,9 +1205,10 @@ typedef enum {
 
 	TORSO_GESTURE,
 
-	TORSO_ATTACK,
-	TORSO_ATTACK2,
-	TORSO_ATTACK3,
+	TORSO_ATTACK,		// Normal
+	TORSO_ATTACK2,		// Knife
+	TORSO_ATTACK3,		// Akimbo
+	TORSO_ATTACK4,		// Pistol
 
 	TORSO_DROP,
 	TORSO_RAISE,
@@ -1212,9 +1216,10 @@ typedef enum {
 	TORSO_DROP2,
 	TORSO_RAISE2,
 
-	TORSO_STAND,
+	TORSO_STAND,		// See TORSO_ATTACK?
 	TORSO_STAND2,
 	TORSO_STAND3,
+	TORSO_STAND4,
 
 	LEGS_WALKCR,
 	LEGS_WALK,
