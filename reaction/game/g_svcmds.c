@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/08/02 22:44:37  slicer
+// Added resetMatch command for MM
+//
 // Revision 1.13  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -473,8 +476,12 @@ qboolean ConsoleCommand(void)
 		return qtrue;
 	}
 //sLiCeR: adding a clearScores
-	if (Q_stricmp(cmd, "clearscores") == 0) {
-		MM_ClearScores();
+	if (Q_stricmp(cmd, "clearscores") == 0 && g_RQ3_matchmode.integer) {
+		MM_ClearScores(qfalse);
+		return qtrue;
+	}
+	if (Q_stricmp(cmd, "resetmatch") == 0 && g_RQ3_matchmode.integer) {
+		MM_ResetMatch();
 		return qtrue;
 	}
 

@@ -348,7 +348,7 @@ void MM_Referee_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to be a captain to assign a referee\n\""));
 
 }
-void MM_ClearScores(void)
+void MM_ClearScores(qboolean clearTeamFlags)
 {
 	gentity_t *ent;
 	int i;
@@ -357,7 +357,10 @@ void MM_ClearScores(void)
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;
-
+		if(clearTeamFlags) {
+			ent->client->sess.captain = TEAM_FREE;
+			ent->client->sess.sub = TEAM_FREE;
+		}
 		// aasimon: Clear only PERS info. Lata clear all REC information. See if more info is needed to be clean
 		ent->client->ps.persistant[PERS_SCORE] = 0;
 		ent->client->ps.persistant[PERS_KILLED] = 0;
@@ -430,6 +433,23 @@ qboolean Ref_Auth(gentity_t * ent)
 
 	return qfalse;
 }
+// MM_ResetMatch by Slicer
+//	Used by admin or rcon to reset Match settings, that is subs, captains, scores, teams's status and game status
+//
+void MM_ResetMatch() {
+		trap_SendServerCommand(-1, va("print \""MM_OK_COLOR" Reseting Server Match Status...\n\""));
+		// CleanUp Scores and Team Status
+		MM_ClearScores(qtrue);
+		// Just in case
+		MakeAllLivePlayersObservers();
+		level.team1ready = qfalse;
+		level.team2ready = qfalse;
+		level.inGame = qfalse;
+		level.team_game_going = 0;
+		level.team_round_going = 0;
+		level.team_round_countdown = 0;
+		level.matchTime = 0;
+}
 
 //
 //      aasimon: processes comands sent from the referee
@@ -457,7 +477,11 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"pause\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"cyclemap\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"lockSettings\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"resetMatch\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
+		return;
+	} else if (Q_stricmp(com, "resetMatch") == 0) {
+		MM_ResetMatch();
 		return;
 	} else if (Q_stricmp(com, "lockSettings") == 0) {
 		if(level.settingsLocked) {
@@ -487,7 +511,7 @@ void Ref_Command(gentity_t * ent)
 		}
 		trap_DropClient(cn, "was kicked by the referee");
 	} else if (Q_stricmp(com, "clearscores") == 0) {
-		MM_ClearScores();
+		MM_ClearScores(qfalse);
 		return;
 	} else if (Q_stricmp(com, "map_restart") == 0) {
 		// this is having problems, namely diference from rcon map_restart or using this trap

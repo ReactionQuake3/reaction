@@ -17,6 +17,7 @@
 * UI model preview and selection now controls DM gametype models, not team models.
 * Added a radiosoundset selection dialog to the UI
 * Doors with health and the "wait" key set to a negative value should work as expected now
+* MM: Added "resetMatch" for rcon and referee use, to reset the current server Match Stuff
 
 
 # List fixes here for the 2.1 release
