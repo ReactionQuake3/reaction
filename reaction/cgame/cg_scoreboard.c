@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/03/10 23:27:26  blaze
+// fixed net for the wstats
+//
 // Revision 1.11  2002/03/03 23:12:18  blaze
 // weapon stats - fixed a formating bug.
 //
@@ -829,7 +832,7 @@ void CG_DrawWeaponStats(void)
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
 							String, color);
 
-  Com_sprintf(String, sizeof(String),	"%3i",cg.records[REC_KILLS] - cg.snap->ps.persistant[PERS_KILLED]);
+  Com_sprintf(String, sizeof(String),	"%3i",cg.snap->ps.persistant[PERS_SCORE] - cg.snap->ps.persistant[PERS_KILLED]);
 
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * 7 - 1, WS_TOP + SB_PADDING * 3 + SMALLCHAR_HEIGHT,
