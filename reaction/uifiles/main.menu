@@ -6,6 +6,7 @@
     smallFont "fonts/smallfont" 12			// font
     bigFont "fonts/bigfont" 20				// font
     cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+    cursorSize 64
     gradientBar "ui/assets/gradientbar2.tga"		// gradient bar
     itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
 

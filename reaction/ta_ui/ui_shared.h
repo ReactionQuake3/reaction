@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2003/02/26 18:22:05  makro
+// Added an option to change crosshair size in assetGlobalDef's
+//
 // Revision 1.15  2003/02/13 21:19:51  makro
 // no message
 //
@@ -449,6 +452,8 @@ typedef struct {
 	int frameTime;
 	int cursorx;
 	int cursory;
+	//Makro - added cursor size
+	int cursorSize;
 	qboolean debug;
 
 	cachedAssets_t Assets;

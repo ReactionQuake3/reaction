@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2003/02/26 18:22:05  makro
+// Added an option to change crosshair size in assetGlobalDef's
+//
 // Revision 1.61  2003/02/25 22:41:14  jbravo
 // Fixed a bug in item replacements. Removed "Beta" from the version.
 //
@@ -910,7 +913,10 @@ void _UI_Refresh(int realtime)
 	// draw cursor
 	UI_SetColor(NULL);
 	if (Menu_Count() > 0) {
-		UI_DrawHandlePic(uiInfo.uiDC.cursorx - 16, uiInfo.uiDC.cursory - 16, 32, 32, uiInfo.uiDC.Assets.cursor);
+		int size = uiInfo.uiDC.cursorSize;
+		if (!size)
+			size = 32;
+		UI_DrawHandlePic(uiInfo.uiDC.cursorx - size/2, uiInfo.uiDC.cursory - size/2, size, size, uiInfo.uiDC.Assets.cursor);
 	}
 #ifndef NDEBUG
 	if (uiInfo.uiDC.debug) {
@@ -1060,6 +1066,14 @@ qboolean Asset_Parse(int handle)
 				return qfalse;
 			}
 			uiInfo.uiDC.Assets.cursor = trap_R_RegisterShaderNoMip(uiInfo.uiDC.Assets.cursorStr);
+			continue;
+		}
+
+		//Makro - added cursor size
+		if (Q_stricmp(token.string, "cursorSize") == 0) {
+			if (!PC_Int_Parse(handle, &uiInfo.uiDC.cursorSize)) {
+				return qfalse;
+			}
 			continue;
 		}
 
