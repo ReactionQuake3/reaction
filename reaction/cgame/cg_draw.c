@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/10/30 21:24:47  jbravo
+// Minor helmet tweaking
+//
 // Revision 1.68  2002/10/26 22:03:42  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -1376,6 +1379,8 @@ static void CG_DrawHoldableItem(void)
 		item = HI_SLIPPERS;
 	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_SILENCER))
 		item = HI_SILENCER;
+	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_HELMET))
+		item = HI_HELMET;
 	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_LASER))
 		item = HI_LASER;
 	else if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM]  & (1 << HI_KEVLAR))
