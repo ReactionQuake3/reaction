@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/30 19:33:29  jbravo
+// Made CameraFlicBegin and CameraSwingCycle non static for M$ VC
+//
 // Revision 1.8  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -678,7 +681,7 @@ static void CameraFlicThink (gentity_t *ent)
     }
 }
 
-static void CameraFlicBegin (gentity_t *ent)
+void CameraFlicBegin (gentity_t *ent)
 {
   int clientNum = ent - g_entities;
   cameras[clientNum].mode = CAMERA_MODE_FLIC;
@@ -903,7 +906,7 @@ static void CameraSwingViewangles (gentity_t *ent)
       ent->client->camera->swing_pitch = AngleMod180 (ent->client->camera->swing_pitch + SWING_VIEWANGLE_STEP);
 }
 
-static void CameraSwingCycle (gentity_t *ent, int dir)
+void CameraSwingCycle (gentity_t *ent, int dir)
 {
   int clientnum = 0;
   int original = 0;
