@@ -5,6 +5,7 @@
 * Impact effects for snow added.
 * Rotating trains added.
 * New bot (azn_raver) added.
+* Clients need no longer worry about g_RQ3_haveHelmet
 
 # List fixes here for the 3.1 release
 
