@@ -583,8 +583,6 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( !BG_CanItemBeGrabbed( g_gametype.integer, &ent->s, &other->client->ps ) ) return;
 
 
-	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
-
 	predict = other->client->pers.predictItemPickup;
 
 	//Elder: should check if the item was recently thrown ... if it was, then
@@ -626,7 +624,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		case WP_M4:
 		case WP_SSG3000:
 			//Elder: check to see if it's in mid-air
-			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer ||
+			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_RQ3_maxWeapons.integer ||
 				ent->s.pos.trDelta[2] != 0)
 					return;
 			break;
@@ -692,15 +690,19 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 ||
 			ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON ||
 			ent->item->giTag == WP_SSG3000) {
-			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_rxn_maxweapons.integer) {
+			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_RQ3_maxWeapons.integer) {
 				return;
 			}
 		}
 		*/
-		
+
+		//Elder: Moved after checks so we don't print a billion log messages
+		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+
+
 		respawn = Pickup_Weapon(ent, other);
-		
-		
+
+	
 		//Elder: added pistol and knife condition
 		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL ||
 			ent->item->giTag == WP_KNIFE) {

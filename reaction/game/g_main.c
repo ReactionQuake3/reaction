@@ -63,7 +63,7 @@ vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 //Blaze: Reaction cvars
 vmCvar_t	g_rxn_knifelimit;
-vmCvar_t	g_rxn_maxweapons;
+vmCvar_t	g_RQ3_maxWeapons;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -162,7 +162,7 @@ cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Blaze: Reaction stuff
-	{ &g_rxn_maxweapons, "g_rxn_maxweapons", "1",0,0,qtrue}
+	{ &g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1",0,0,qtrue}
 
 };
 

@@ -116,6 +116,7 @@ qboolean JumpKick( gentity_t *ent )
 		//Elder: toss a unique weapon if kicked
 		//Todo: Need to make sure to cancel any reload attempts
 		//Todo: need to send a message to attacker and target about weapon kick
+		Cmd_Unzoom(traceEnt);
 		ThrowWeapon(traceEnt);
 		//trap_SendServerCommand( ent-g_entities, va("print \"You kicked %s's %s from his hands!\n\"", traceEnt->client->pers.netname, (traceEnt->client->ps.weapon)->pickup_name);
 		//trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
@@ -327,9 +328,37 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	//Elder: removed - for some reason it's set to 0
 	//damage *= s_quadFactor;
 
-	r = random() * M_PI * 2.0f;
-	u = sin(r) * crandom() * spread * 16;
-	r = cos(r) * crandom() * spread * 16;
+	/* Original AQ2 code
+    vectoangles (aimdir, dir);
+    AngleVectors (dir, forward, right, up);
+
+    r = crandom()*hspread;
+    u = crandom()*vspread;
+    VectorMA (start, 8192, forward, end);
+    VectorMA (end, r, right, end);
+    VectorMA (end, u, up, end);
+	*/
+
+	/* More AQ2 code to implement
+    // change bullet's course when it enters water
+    VectorSubtract (end, start, dir);
+    vectoangles (dir, dir);
+    AngleVectors (dir, forward, right, up);
+    r = crandom()*hspread*2;
+    u = crandom()*vspread*2;
+    VectorMA (water_start, 8192, forward, end);
+    VectorMA (end, r, right, end);
+    VectorMA (end, u, up, end);
+	*/
+
+	//Elder: original Q3 code -- note the first line and its use to reduce spread
+	//r = random() * M_PI * 2.0f;
+	//u = sin(r) * crandom() * spread * 16;
+	//r = cos(r) * crandom() * spread * 16;
+
+	//FYI: multiply by 16 so we can reach the furthest ends of a "TA" sized map
+	u = crandom() * spread * 16;
+	r = crandom() * spread * 16;
 	VectorMA (muzzle, 8192*16, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
@@ -1162,13 +1191,9 @@ void Weapon_Knife_Fire(gentity_t *ent)
 // Homer: if client is supposed to be slashing, go to that function instead
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE ) {
 		//Elder: added
-		//ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_SLASH;
 		Knife_Attack(ent,SLASH_DAMAGE);
 		return;
 	}
-
-	//Elder: added
-//	ent->client->ps.stats[STAT_KNIFE] = RQ3_KNIFE_THROW;
 
 	// extra vertical velocity
 	forward[2] += 0.2f;

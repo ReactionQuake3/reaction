@@ -1311,7 +1311,7 @@ char *eventnames[] = {
 	"EV_GLOBAL_TEAM_SOUND",
 	"EV_RQ3_SOUND",			// Elder: play local sounds - primarily for kick
 
-	"EV_DMREWARD",				// Duffman: To display expotional reward messages.
+	"EV_DMREWARD",				// Duffman: To display exponential reward messages.
 
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
@@ -1341,6 +1341,9 @@ char *eventnames[] = {
 	"EV_POWERUP_REGEN",
 
 	"EV_GIB_PLAYER",			// gib a previously living player
+	"EV_BREAK_GLASS1",			// Blaze: Breakable glass
+	"EV_BREAK_GLASS2",
+	"EV_BREAK_GLASS3",
 	"EV_SCOREPLUM",			// score plum
 
 //#ifdef MISSIONPACK

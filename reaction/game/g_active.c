@@ -534,7 +534,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		//Blaze: Do bandaging stuff
 		if (ent->client->bleedtick > 1)
 		{
-			G_Printf("Bleedtick (%d) getting lowered by one (%d)\n", ent->client->bleedtick, client->timeResidual);
+			//G_Printf("Bleedtick (%d) getting lowered by one (%d)\n", ent->client->bleedtick, client->timeResidual);
 			ent->client->bleedtick--;
 		}
 		else if (ent->client->bleedtick == 1)
@@ -1024,6 +1024,56 @@ void ClientThink_real( gentity_t *ent ) {
 		ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
 	}
 
+	//Elder: New 3rb Code
+	//force fire button down if STAT_BURST is < proper amount
+	//Otherwise release the button 
+	if ( (client->ps.weapon == WP_M4 &&
+		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) ||
+		 (client->ps.weapon == WP_MP5 &&
+		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE))
+	{
+		int weaponNum = client->ps.weapon;
+
+		if (client->ps.ammo[weaponNum] == 0)
+		{
+			client->ps.stats[STAT_BURST] = 0;
+		}
+		else if (ucmd->buttons & BUTTON_ATTACK)// && client->ps.stats[STAT_BURST] > 0)
+		{
+			if ( client->ps.stats[STAT_BURST] >= 0 && client->ps.stats[STAT_BURST] < 3)
+				ucmd->buttons |= BUTTON_ATTACK;
+			else
+				ucmd->buttons &= ~BUTTON_ATTACK;
+		}
+		else if (client->ps.stats[STAT_BURST] > 2)
+		{
+			client->ps.stats[STAT_BURST] = 0;
+			client->ps.weaponTime += 300;
+		}
+		//Don't need?
+		else if (client->ps.stats[STAT_BURST] > 0)
+			ucmd->buttons |= BUTTON_ATTACK;
+	}
+
+	//Elder: New semi-auto code
+	if ( client->ps.weapon == WP_PISTOL && 
+		 (client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
+	{
+		if (client->ps.ammo[WP_PISTOL] == 0)
+		{
+			client->ps.stats[STAT_BURST] = 0;
+		}
+		else if ((ucmd->buttons & BUTTON_ATTACK) && client->ps.stats[STAT_BURST])
+		{
+			ucmd->buttons &= ~BUTTON_ATTACK;
+		}
+		else if (client->ps.stats[STAT_BURST])
+		{
+			client->ps.weaponTime += 200;
+			client->ps.stats[STAT_BURST] = 0;
+		}
+	}
+
 #ifdef MISSIONPACK
 	// check for invulnerability expansion before doing the Pmove
 	if (client->ps.powerups[PW_INVULNERABILITY] ) {
@@ -1154,7 +1204,7 @@ void ClientThink_real( gentity_t *ent ) {
 			 ent->client->fastReloads &&
 			 ent->client->reloadAttempts > 0)
 		{
-			//G_Printf("(%i) ClientThink: attempting fast-reload...\n", ent->s.clientNum);
+			G_Printf("(%i) ClientThink: attempting M3 fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
 		}		
 		break;
@@ -1164,7 +1214,7 @@ void ClientThink_real( gentity_t *ent ) {
 			 ent->client->fastReloads &&
 			 ent->client->reloadAttempts > 0)
 		{
-			//G_Printf("(%i) ClientThink: attempting fast-reload...\n", ent->s.clientNum);
+			G_Printf("(%i) ClientThink: attempting SSG fast-reload...\n", ent->s.clientNum);
 			Cmd_Reload( ent );
 		}		
 		/*

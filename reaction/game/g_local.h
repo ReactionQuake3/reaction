@@ -866,7 +866,7 @@ extern	vmCvar_t	g_singlePlayer;
 extern	vmCvar_t	g_proxMineTimeout;
 //Blaze: Reaction cvars
 extern	vmCvar_t	g_rxn_knifelimit;
-extern	vmCvar_t	g_rxn_maxweapons;
+extern	vmCvar_t	g_RQ3_maxWeapons;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

@@ -45,7 +45,27 @@
 #define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
 
+//Elder: New breakable bit definitions
+//No amount bits = Low ... both amount bits = Tons
+#define RQ3_DEBRIS_MEDIUM			0x00000001
+#define RQ3_DEBRIS_HIGH				0x00000002
+//No variation bits = original... both variation bits = variation 3
+#define RQ3_DEBRIS_VAR1				0x00000004
+#define RQ3_DEBRIS_VAR2				0x00000008
+//These are not "compressed"
+#define RQ3_DEBRIS_GLASS			0x00000010
+#define RQ3_DEBRIS_WOOD				0x00000020
+#define RQ3_DEBRIS_METAL			0x00000040
+#define RQ3_DEBRIS_CERAMIC			0x00000080
+#define RQ3_DEBRIS_PAPER			0x00000100
+#define RQ3_DEBRIS_BRICK			0x00000200
+#define RQ3_DEBRIS_CONCRETE			0x00000400
+#define RQ3_DEBRIS_POPCAN			0x00000800
+
+
+//Old debris definitions
 //Elder: debris bit parms to pass to break_glass - maybe I should enum this?
+/*
 #define RQ3_DEBRIS_SMALL	0x00000001
 #define RQ3_DEBRIS_MEDIUM	0x00000002
 #define RQ3_DEBRIS_LARGE	0x00000004
@@ -64,7 +84,7 @@
 #define RQ3_DEBRIS_VAR1		0x00002000
 #define RQ3_DEBRIS_VAR2		0x00004000
 #define RQ3_DEBRIS_VAR3		0x00008000
-
+*/
 //Elder: to stop some of the hardcoding
 //This is some ammo amounts per clip/item pick up
 #define RQ3_SSG3000_CLIP		6
@@ -113,8 +133,8 @@
 //Elder: confused?
 
 //Elder: used for STAT_KNIFE ... obsolete now
-#define RQ3_KNIFE_SLASH			0
-#define RQ3_KNIFE_THROW			1
+//#define RQ3_KNIFE_SLASH			0
+//#define RQ3_KNIFE_THROW			1
 
 //Elder: from Action source, but changed defined names a bit
 #define RQ3_PISTOL_NAME 		"MK23 Pistol"
@@ -421,15 +441,11 @@ typedef enum {
 	STAT_JUMPTIME,					//Blaze RE: Double jump
 	STAT_UNIQUEWEAPONS,
 	STAT_FALLDAMAGE,
-//	STAT_BANDAGE,				//Elder: holds bandage need - moved to STAT_RQ3
 	STAT_RQ3,					//Blaze: Will hold a few flags for bandage, etc info
-//	STAT_KNIFE,					//Elder: knife throwing -- wasteful?  then later rename STAT_RQ3 or something and use bits
 } statIndex_t;
+
 //STAT_RQ3 stat info 
 #define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
-
-//Elder: bandage states to pass to cgame - should remove STAT_BANDAGE
-//and integrate with STAT_RQ3
 #define RQ3_BANDAGE_NEED	2
 #define RQ3_BANDAGE_WORK	4
 //Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
@@ -679,7 +695,9 @@ typedef enum {
 	EV_POWERUP_REGEN,
 
 	EV_GIB_PLAYER,			// gib a previously living player
-	EV_BREAK_GLASS,			// Blaze: Breakable glass
+	EV_BREAK_GLASS1,			// Blaze: Breakable glass
+	EV_BREAK_GLASS2,
+	EV_BREAK_GLASS3,
 	EV_SCOREPLUM,			// score plum
 
 //#ifdef MISSIONPACK

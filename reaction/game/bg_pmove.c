@@ -10,6 +10,9 @@
 pmove_t		*pm;
 pml_t		pml;
 
+//Elder: reduce x-y speed on ladders by this factor so it 'feels' more like Q2
+#define PM_LADDER_MOVE_REDUCTION	10
+
 // movement parameters
 float	pm_stopspeed = 100.0f;
 float	pm_duckScale = 0.25f;
@@ -1950,10 +1953,15 @@ static void PM_Weapon( void ) {
 		else
 		{
 			// else if they arn't pressing attack, then they just are running around
+
+			//Elder: put a delay in if finished bursting
+			//if (pm->ps->stats[STAT_BURST] > 0)
+				//pm->ps->weaponTime += 300;
+
 			pm->ps->weaponTime = 0;
 			pm->ps->weaponstate = WEAPON_READY;
 			
-			pm->ps->stats[STAT_BURST] = 0;
+			//pm->ps->stats[STAT_BURST] = 0;
 			return;
 		}
 	}
@@ -1991,17 +1999,17 @@ static void PM_Weapon( void ) {
 	// Elder: the client side portion is in
 	// Homer: if weapon can set to be burst mode, check for burst value
 	// M4
-	if ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) {
-		return;
-	}
+	//if ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) {
+		//return;
+	//}
 	// MP5
-	if ( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) {
-		return;
-	}
+	//if ( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) {
+		//return;
+	//}
 	// MK23
-	if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] > 0 ) {
-		return;
-	}
+	//if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] > 0 ) {
+		//return;
+	//}
 	// end Homer
 
 	pm->ps->weaponstate = WEAPON_FIRING;
@@ -2299,8 +2307,8 @@ static void PM_LadderMove( void ) {
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove +
 				     scale * pml.right[i]*pm->cmd.rightmove; 
 		//Elder: changed from a factor of 2 to 10
-		wishvel[0] /= 10;
-		wishvel[1] /= 10;
+		wishvel[0] /= PM_LADDER_MOVE_REDUCTION;
+		wishvel[1] /= PM_LADDER_MOVE_REDUCTION;
 		wishvel[2] += scale * pm->cmd.upmove;
 	}
 

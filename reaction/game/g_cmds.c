@@ -1692,6 +1692,8 @@ void Cmd_Reload( gentity_t *ent )       {
     int ammotoadd;
     int delay = 0;
 
+	G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
+
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
 	//if (ent->client->isBandaging == qtrue) {
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
@@ -1700,6 +1702,10 @@ void Cmd_Reload( gentity_t *ent )       {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
+
+	//Prevent reloading while bursting
+	if ( ent->client->ps.stats[STAT_BURST] > 0)
+		return;
 
 	//Elder: release fire button
 	//if ( (ent->client->buttons & BUTTON_ATTACK) == BUTTON_ATTACK)
@@ -2300,8 +2306,8 @@ void Cmd_Drop_f( gentity_t *ent ) {
 	else {
 		//Elder: remove zoom bits
 		Cmd_Unzoom(ent);
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//ent->client->zoomed=0;
 		//G_AddEvent(ent,EV_ZOOM,0);
 		ThrowWeapon( ent );
@@ -2421,7 +2427,8 @@ void ClientCommand( int clientNum ) {
 		//Elder: add to reload queue if using fast-reloadable weapons
 		if (ent->client->ps.weapon == WP_M3 || ent->client->ps.weapon == WP_SSG3000)
 			ent->client->reloadAttempts++;
-        Cmd_Reload( ent );
+        G_Printf("Trying a reload...\n");
+		Cmd_Reload( ent );
 	}
 // End Duffman
 	//Blaze's Open door command

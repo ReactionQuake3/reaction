@@ -331,89 +331,160 @@ Fires at either the target or the current direction.
    1 - medium: about 25 pieces
    2 - large: about 50 pieces
    3 - tons (watch out when using this)
+ "variation" (0 to 3) allows you to pick one of 4 variations
+   
  */
 void SP_func_breakable( gentity_t *ent ) {
-	int amount=0;
 	int health;
+	int amount;
+	int variation;
 	int debris;
 	int temp;
   
     // Make it appear as the brush
     trap_SetBrushModel( ent, ent->model );
-    // Lets give it 5 health if the mapper did not set its health
+    
+	// Setup health of breakable
     G_SpawnInt( "health", "0", &health );
     if( health <= 0 )
   		health = 5;
 
+	// Setup debris type
 	G_SpawnInt( "debris", "0", &temp );
-	
-	//Elder: hardcoded - I guess I should enum this
-	if (temp < 0 || temp > 6)
-		debris = RQ3_DEBRIS_GLASS;
-	else
-		debris = (1 << (temp + 4));
+	switch (temp)
+	{
+		case 0:
+			debris = RQ3_DEBRIS_GLASS;
+			break;
+		case 1:
+			debris = RQ3_DEBRIS_WOOD;
+			break;
+		case 2:
+			debris = RQ3_DEBRIS_METAL;
+			break;
+		case 3:
+			debris = RQ3_DEBRIS_CERAMIC;
+			break;
+		case 4:
+			debris = RQ3_DEBRIS_PAPER;
+			break;
+		case 5:
+			debris = RQ3_DEBRIS_BRICK;
+			break;
+		case 6:
+			debris = RQ3_DEBRIS_CONCRETE;
+			break;
+		default:
+			debris = RQ3_DEBRIS_GLASS;
+			break;
+	}
    
+	// Setup amount type
 	G_SpawnInt( "amount", "0", &temp );   
-	if (temp < 0 || temp > 3)
-		amount = RQ3_DEBRIS_MEDIUM;
-	else
-		amount = (1 << amount);
+	switch (temp)
+	{
+		case 0:
+			amount = 0;
+			break;
+		case 1:
+			amount = RQ3_DEBRIS_MEDIUM;
+			break;
+		case 2:
+			amount = RQ3_DEBRIS_HIGH;
+			break;
+		case 3:
+			amount = RQ3_DEBRIS_MEDIUM|RQ3_DEBRIS_HIGH;
+			break;
+		default:
+			amount = RQ3_DEBRIS_MEDIUM;
+			break;
+	}
+	
+	// Setup variation type
+	G_SpawnInt( "variation", "0", &temp);
+	switch (temp)
+	{
+		case 0:
+			variation = 0;
+			break;
+		case 1:
+			variation = RQ3_DEBRIS_VAR1;
+			break;
+		case 2:
+			variation = RQ3_DEBRIS_VAR2;
+			break;
+		case 3:
+			variation = RQ3_DEBRIS_VAR1|RQ3_DEBRIS_VAR2;
+			break;
+		default:
+			variation = 0;
+			break;
+	}
 
 	//Elder: merge the bits
-	ent->s.eventParm = 0;
-	//ent->s.eventParm |= debris;
-	//ent->s.eventParm |= amount;
-	ent->s.eventParm = debris + amount;
-   
+	ent->s.eventParm = amount|variation|debris;
+	
     ent->health = health;
-    // Let it take damage
     ent->takedamage = qtrue;
+
     // Let it know it is a breakable object
     ent->s.eType = ET_BREAKABLE;
+
     // If the mapper gave it a model, use it
     if ( ent->model2 ) {
         ent->s.modelindex2 = G_ModelIndex( ent->model2 );
     }
-    // Link all ^this^ info into the ent
+
     trap_LinkEntity (ent);
 }
 
- /*
- =================
- G_BreakGlass
- =================
- */
-void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
+/*
+=================
+G_BreakGlass
+
+Create/process a breakable event entity
+Original by inolen, heavy modifications by Elder
+=================
+*/
+void G_BreakGlass( gentity_t *ent, vec3_t point, int mod )
+{
 	gentity_t   *tent;
  	vec3_t      size;
-    vec3_t      center;
- 	qboolean    splashdmg;
- 	int			eParm;
- 	// Get the center of the glass
-    VectorSubtract(ent->r.maxs, ent->r.mins, size);
-    VectorScale(size, 0.5, size);
-    VectorAdd(ent->r.mins, size, center);
+    vec3_t      impactPoint;
+ 	//Elder: for the bit-shifting
+	int			eParm;
+	int			shiftCount = 0;
  	
 	//Elder:
-	//eventParm can only hold a byte (8-bits/255)
+	//eventParm can only transmit as a byte (8-bits/255)
 	//So if we receive a huge one, we can knock it down (shift-op)
 	//and count the number of times
 	//Once it's below 255, we can send a more appropriate event
 	//This way, the mappers can use a single func_breakable
 	//while we process it on the server-side.
-	//Besides, any bit-op is fast.
 	//Places to stuff: eventParm, generic1
 
- 	// If the glass has no more life, BREAK IT
  	if( ent->health <= 0 ) {
- 		//Elder: using event param to specify debris type
-		eParm = ent->s.eventParm;
+		//G_Printf("Original eParm: %i \n", ent->s.eventParm);
+		//Copy the first four bits and strip them out of the original
+		eParm = ent->s.eventParm & 15;
+		ent->s.eventParm &= ~eParm;
 		
-		G_Printf("eParm: %d\n", eParm);
-		//Elder: free it after the eventParm assignment
+		//Shift-op loop
+		while (ent->s.eventParm > 255)
+		{
+			shiftCount++;
+			ent->s.eventParm = ent->s.eventParm >> 4;
+		}
+		
+		eParm |= ent->s.eventParm;
+
+		//eParm should now be under 1 byte and shiftCount >= 0
+		//G_Printf("New eParm: %i Shifts: %i\n", eParm, shiftCount);
+		
  		G_FreeEntity( ent );
-         // Tell the program based on the gun if it has no splash dmg, no reason to ad ones with
-     	// splash dmg as qtrue as is that is the default
+
+        // Tell the program based on the gun if it was caused by splash damage
      	switch( mod ) {
      		//Elder: added + compacted
      		case MOD_KNIFE:
@@ -426,36 +497,39 @@ void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
      		case MOD_SNIPER:
      		case MOD_GAUNTLET:
      		case MOD_KICK:
-     		//case MOD_SHOTGUN:
-     		//case MOD_MACHINEGUN:
-     		//case MOD_RAILGUN:
-     		//case MOD_LIGHTNING:
-				splashdmg = qfalse;
+				//Use actual impact point
+     			VectorCopy(point, impactPoint);
 				break;
      		default:
-     			splashdmg = qtrue;
+     			//Splash damage weapons: use center of the glass
+				VectorSubtract(ent->r.maxs, ent->r.mins, size);
+				VectorScale(size, 0.5, size);
+				VectorAdd(ent->r.mins, size, impactPoint);
      			break;
      	}
-     	// Call the function to show the glass shards in cgame
-     	// center can be changed to point which will spawn the
-     	// where the killing bullet hit but wont work with Splash Damage weapons
-     	// so I just use the center of the glass
-     	switch( splashdmg ) {
-     		case qtrue:
-     			//Elder: use TempEntity2 to stuff params
-         		//tent = G_TempEntity( center, EV_BREAK_GLASS );
-         		tent = G_TempEntity2( center, EV_BREAK_GLASS, eParm );
-     			break;
-     		case qfalse:
-         		//tent = G_TempEntity( point, EV_BREAK_GLASS );
-         		tent = G_TempEntity2( point, EV_BREAK_GLASS, eParm );
-     			break;
-     	}
-    //Elder: maybe we can use this to tell the client to spawn different debris
- 	//tent->s.eventParm = 0;
+
+		switch ( shiftCount )
+		{
+			case 0:
+				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS1, eParm);
+				break;
+			case 1:
+				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS2, eParm);
+				break;
+			case 2:
+				tent = G_TempEntity2( impactPoint, EV_BREAK_GLASS3, eParm);
+				break;
+			default:
+				G_Error("G_BreakGlass: shiftCount > 2\n");
+				break;
+		}
+
+     	//Elder: use TempEntity2 to stuff params
+        //tent = G_TempEntity( center, EV_BREAK_GLASS );
  	tent->s.eventParm = eParm;
  	}
- }
+}
+
 
 #ifdef MISSIONPACK
 static void PortalDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {

@@ -114,6 +114,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 
 	block = G_TestEntityPosition( check );
 	if (!block) {
+		//G_Printf("G_TryPushingEntity: Push Ok\n");
 		// pushed ok
 		if ( check->client ) {
 			VectorCopy( check->client->ps.origin, check->r.currentOrigin );
@@ -311,7 +312,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			|| check->r.absmin[2] >= maxs[2]
 			|| check->r.absmax[0] <= mins[0]
 			|| check->r.absmax[1] <= mins[1]
-			|| check->r.absmax[2] <= mins[2] ) {
+			|| check->r.absmax[2] <= mins[2]) {
 				continue;
 			}
 			// see if the ent's bbox is inside the pusher's final position
@@ -333,6 +334,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 		//But it has to PUSH the client off... I don't know how just yet :(
 		if ( pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE ) {
 			//Elder: debug code
+			continue;
 			G_Printf("RQ3: TR_SINE crusher code removed\n");
 			//Elder: temp - player will stop the pendulum from going
 			//Elder: removed qfalse and continue
