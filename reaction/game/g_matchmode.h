@@ -5,6 +5,7 @@ void		MM_Sub_f( gentity_t *ent);
 void		MM_Ready_f(gentity_t *ent);
 void		MM_ClearScores( void );
 void		MM_TeamName_f(gentity_t *ent);
+void		MM_TeamModel_f(gentity_t *ent);
 
 // aasimon: Declarations for Ref system 
 qboolean	Ref_Exists( void );

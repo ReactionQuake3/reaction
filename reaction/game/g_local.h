@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/04/28 11:03:46  slicer
+// Added "teammodel" for Matchmode, Referee "pause" command
+//
 // Revision 1.70  2002/04/23 00:21:44  jbravo
 // Cleanups of the new model code.  Removed the spectator bar for zcam modes.
 //
@@ -643,6 +646,7 @@ typedef struct {
 //	Slicer: Matchmode
 	float			matchTime;
 	qboolean		inGame;
+	qboolean		paused;
 // JBravo adding TP
 	int			lights_camera_action;
 	qboolean		team_round_going;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/04/28 11:03:46  slicer
+// Added "teammodel" for Matchmode, Referee "pause" command
+//
 // Revision 1.97  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -2840,6 +2843,8 @@ void ClientCommand( int clientNum ) {
 		MM_Sub_f( ent );
 	else if (Q_stricmp (cmd, "teamname") == 0)
 		MM_TeamName_f(ent);
+	else if (Q_stricmp (cmd, "teammodel") == 0)
+		MM_TeamModel_f(ent);
 // aasimon: referee for MM
 	else if (Q_stricmp (cmd, "reflogin") == 0)
 		Ref_Auth ( ent );

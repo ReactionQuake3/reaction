@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/28 11:03:46  slicer
+// Added "teammodel" for Matchmode, Referee "pause" command
+//
 // Revision 1.65  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -268,7 +271,9 @@ void CheckTeamRules()
 		} else {
 			//Slicer: Adding Matchmode
 			if (g_RQ3_matchmode.integer) {
-				if (g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
+				if(level.paused)
+					trap_SendServerCommand( -1, "cp \"Referee has paused the Game!\n\"");
+				else if (g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
 					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
 				else
 					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
@@ -392,7 +397,7 @@ qboolean BothTeamsHavePlayers()
 	int onteam1 = 0, onteam2 = 0;
 
 	//Slicer: Matchmode
-	if(g_RQ3_matchmode.integer && (!g_RQ3_team1ready.integer || !g_RQ3_team2ready.integer))
+	if(g_RQ3_matchmode.integer && (!g_RQ3_team1ready.integer || !g_RQ3_team2ready.integer || level.paused))
 		return 0;
 	
 

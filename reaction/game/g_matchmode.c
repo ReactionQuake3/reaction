@@ -117,6 +117,59 @@ void MM_Ready_f(gentity_t *ent) {
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");	
 
 }
+void MM_TeamModel_f(gentity_t *ent) {
+		int args;
+		team_t team;
+		char buff[MAX_TOKEN_CHARS];
+		
+		team = ent->client->sess.savedTeam; 
+		if(!g_RQ3_matchmode.integer) 
+			return;
+		if(team == TEAM_SPECTATOR) {
+			return;
+		}
+
+		args = trap_Argc();
+
+		if(args < 2) {
+			trap_SendServerCommand(ent-g_entities, va("print \"Your current team model is: %s\n\"",
+				ent->client->sess.savedTeam == TEAM_RED ? g_RQ3_team1model.string : g_RQ3_team2model.string ));
+			return;
+		}
+		else {
+			if(ent->client->pers.captain == TEAM_FREE) {
+				trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");
+				return;
+			}
+
+			if(level.team_game_going || level.team_round_going) {
+					trap_SendServerCommand(ent-g_entities, "print \"You cannot change your team's model while playing or ready.\n\"");				
+			}
+
+			trap_Argv(1,buff,sizeof(buff));
+
+			if(team == TEAM_RED) {
+				if(g_RQ3_team1ready.integer) {
+					trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
+					return;
+				}
+				trap_Cvar_Set("g_RQ3_team1model",buff);
+				trap_SendServerCommand(-1,va("print \"New Team 1 Model: %s\n\"",buff));
+				
+				
+
+			}
+			else {
+				if(g_RQ3_team2ready.integer) {
+					trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
+					return;
+				}
+				trap_Cvar_Set("g_RQ3_team2model",buff);
+				trap_SendServerCommand(-1,va("print \"New Team 2 Model: %s\n\"",buff));
+			
+			}
+		}	
+}
 
 void MM_TeamName_f(gentity_t *ent) {
 		int args;
@@ -297,7 +350,7 @@ void	Ref_Command ( gentity_t *ent){
 		trap_SendServerCommand( ent-g_entities, "print \"kick player\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"map_restart\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"clear_scores\n\"" );
-		trap_SendServerCommand( ent-g_entities, "print \"timeout\n\"" );
+		trap_SendServerCommand( ent-g_entities, "print \"pause\n\"" );
 		return;
 
 	} else if ( Q_stricmp (com, "kick") == 0) { // kick kick kick
@@ -326,6 +379,23 @@ void	Ref_Command ( gentity_t *ent){
 
 		trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 		return;
+	}
+	else if(Q_stricmp (com, "pause") == 0 ){
+		if(level.paused) {
+			trap_SendServerCommand( -1, "cp \"Game resumed by Referee.\n\"");
+			level.paused = false;
+		}
+		else {
+			if(level.team_game_going) {
+				if(level.inGame)
+					trap_SendServerCommand( ent-g_entities, "print \"Game will be paused at the end of the round"
+				else
+					trap_SendServerCommand( -1, "cp \"Game is now paused by the Referee.\n\"");
+				level.paused = true;
+			}
+			else
+				trap_SendServerCommand( ent-g_entities, "print \"No game is going..");
+		}
 	}
 	else
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid Referee comand. Type ref help to see a list of available commands\n\"" );
