@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/06/07 19:07:08  slicer
+// removed cvars for teamXready, replaced by level.teamXready
+//
 // Revision 1.120  2002/06/05 23:53:05  jbravo
 // Color fixes for player names
 //
@@ -340,7 +343,7 @@ void DeathmatchScoreboardMessage (gentity_t *ent) {
 
 	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i %i %i %i%s", i,
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], 
-		g_RQ3_team1ready.integer, g_RQ3_team2ready.integer,
+		level.team1ready, level.team2ready,
 		(int)level.matchTime, string));
 }
 
@@ -970,10 +973,10 @@ void SetTeam (gentity_t *ent, char *s) {
 	if (g_RQ3_matchmode.integer) {
 			switch (ent->client->sess.captain) {
 				case TEAM_RED:
-					trap_Cvar_Set ("g_RQ3_team1ready", "0");
+					level.team1ready = qfalse;
 					break;
 				case TEAM_BLUE:
-					trap_Cvar_Set ("g_RQ3_team2ready", "0");
+					level.team2ready = qfalse;
 					break;
 				default:
 					break;

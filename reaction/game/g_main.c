@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/06/07 19:07:08  slicer
+// removed cvars for teamXready, replaced by level.teamXready
+//
 // Revision 1.65  2002/06/07 13:06:34  jbravo
 // Disabled all gametypes except FFA and TP
 //
@@ -267,8 +270,8 @@ vmCvar_t	g_RQ3_maxteamkills;
 vmCvar_t	g_RQ3_twbanrounds;
 vmCvar_t	g_RQ3_tkbanrounds;
 //Slicer: Team Status Cvars for MM
-vmCvar_t	g_RQ3_team1ready;
-vmCvar_t	g_RQ3_team2ready;
+//vmCvar_t	g_RQ3_team1ready;
+//vmCvar_t	g_RQ3_team2ready;
 // aasimon: Ref System for MM
 vmCvar_t	g_RQ3_AllowRef;
 vmCvar_t	g_RQ3_RefPass;
@@ -429,8 +432,8 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	//Slicer: Team Status Cvars for MM
-	{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", 0, 0, qfalse},
-	{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
+	//{ &g_RQ3_team1ready, "g_RQ3_team1ready", "0", 0, 0, qfalse},
+	//{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
@@ -914,8 +917,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if(g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
 		level.matchTime = 0;
 		level.inGame = qfalse;
-		trap_Cvar_Set("g_RQ3_team1ready", "0");
-		trap_Cvar_Set("g_RQ3_team2ready", "0");
+		level.team1ready = qfalse;
+		level.team2ready = qfalse;
 		refVotes[0] = refVotes[1] = -1;
 	}
 

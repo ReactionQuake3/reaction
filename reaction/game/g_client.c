@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/06/07 19:07:08  slicer
+// removed cvars for teamXready, replaced by level.teamXready
+//
 // Revision 1.85  2002/06/05 22:09:21  niceass
 // bot fix. NOT MY FAULT
 //
@@ -1864,10 +1867,10 @@ void ClientDisconnect( int clientNum ) {
 	if(g_RQ3_matchmode.integer) {
 		switch(ent->client->sess.captain ) {
 				case TEAM_RED:
-					trap_Cvar_Set("g_RQ3_team1ready", "0");
+					level.team1ready = qfalse;
 					break;
 				case TEAM_BLUE:
-					trap_Cvar_Set("g_RQ3_team2ready", "0");
+					level.team2ready = qfalse;
 					break;
 				default:
 					break;

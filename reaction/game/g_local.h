@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/06/07 19:07:08  slicer
+// removed cvars for teamXready, replaced by level.teamXready
+//
 // Revision 1.88  2002/06/05 23:39:40  blaze
 // unbreakables work properly.  Though I already commited this.
 //
@@ -720,6 +723,8 @@ typedef struct {
 #endif
 //	Slicer: Matchmode
 	float			matchTime;
+	qboolean		team1ready;
+	qboolean		team2ready;
 	qboolean		inGame;
 	qboolean		paused;
 // JBravo adding TP
@@ -1214,8 +1219,8 @@ extern	vmCvar_t	g_RQ3_maxteamkills;		// JBravo: Max teamkills
 extern	vmCvar_t	g_RQ3_twbanrounds;		// JBravo: no. of games team wounders are banned
 extern	vmCvar_t	g_RQ3_tkbanrounds;		// JBravo: no. of games team killers are banned
 //Slicer: Team Status Cvars for MM
-extern vmCvar_t	g_RQ3_team1ready;
-extern vmCvar_t	g_RQ3_team2ready;
+//extern vmCvar_t	g_RQ3_team1ready;
+//extern vmCvar_t	g_RQ3_team2ready;
 //aasimon: Ref System for MM
 extern vmCvar_t g_RQ3_AllowRef;
 extern vmCvar_t g_RQ3_RefPass;

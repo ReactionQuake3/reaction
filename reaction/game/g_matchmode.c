@@ -79,12 +79,12 @@ void MM_Captain_f (gentity_t *ent) {
 		return;
 	}
 	if (ent->client->sess.captain  == TEAM_RED) {
-			trap_Cvar_Set("g_RQ3_team1ready", "0");
+			level.team1ready = qfalse;
 			trap_SendServerCommand( -1, va("print \"%s^7 is no longer %s's Captain.\n\"",
 				ent->client->pers.netname, g_RQ3_team1name.string));
 			ent->client->sess.captain = TEAM_FREE;
 	} else if (ent->client->sess.captain == TEAM_BLUE) {
-			trap_Cvar_Set("g_RQ3_team2ready", "0");
+			level.team2ready = qfalse;
 			trap_SendServerCommand( -1, va("print \"%s^7 is no longer %s's Captain.\n\"",
 				ent->client->pers.netname, g_RQ3_team2name.string));
 			ent->client->sess.captain = TEAM_FREE;
@@ -106,20 +106,20 @@ void MM_Ready_f (gentity_t *ent) {
 	if (ent->client->sess.captain != TEAM_FREE) {
 		if (ent->client->sess.savedTeam == TEAM_RED) {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			g_RQ3_team1name.string, g_RQ3_team1ready.integer == 0 ? "": " no longer"));
+				g_RQ3_team1name.string, level.team1ready ? " no longer" : ""));
 
-			if (g_RQ3_team1ready.integer)
-				trap_Cvar_Set("g_RQ3_team1ready", "0");
+			if (level.team1ready)
+				level.team1ready = qfalse;
 			else
-				trap_Cvar_Set("g_RQ3_team1ready", "1");
+				level.team1ready = qtrue;
 		} else {
 			trap_SendServerCommand( -1, va("cp \"%s is%s Ready.\n\"",
-			g_RQ3_team2name.string, g_RQ3_team2ready.integer == 0 ? "": " no longer"));
+				g_RQ3_team2name.string, level.team2ready ? " no longer" : ""));
 
-			if (g_RQ3_team2ready.integer)
-				trap_Cvar_Set("g_RQ3_team2ready", "0");
+			if (level.team2ready)
+				level.team2ready = qfalse;
 			else
-				trap_Cvar_Set("g_RQ3_team2ready", "1");
+				level.team2ready = qtrue;
 		}
 	} else
 		trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");	
@@ -156,14 +156,14 @@ void MM_TeamModel_f (gentity_t *ent) {
 		trap_Argv(1, buff, sizeof(buff));
 
 		if (team == TEAM_RED) {
-			if (g_RQ3_team1ready.integer) {
+			if (level.team1ready) {
 				trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team1model", buff);
 			trap_SendServerCommand(-1, va("print \"New Team 1 Model: %s\n\"", buff));
 		} else {
-			if (g_RQ3_team2ready.integer) {
+			if (level.team2ready) {
 				trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
 				return;
 			}
@@ -207,14 +207,14 @@ void MM_TeamName_f (gentity_t *ent) {
 			buff[TEAM_NAME_SIZE] = 0;
 
 		if (team == TEAM_RED) {
-			if (g_RQ3_team1ready.integer) {
+			if (level.team1ready) {
 				trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team1name", buff);
 			trap_SendServerCommand(-1, va("print \"New Team 1 Name: %s\n\"", buff));
 		} else {
-			if (g_RQ3_team2ready.integer) {
+			if (level.team2ready) {
 				trap_SendServerCommand(ent-g_entities, "print \"You need to un-ready your team for that..\n\"");		
 				return;
 			}

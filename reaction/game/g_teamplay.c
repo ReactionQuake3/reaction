@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/06/07 19:07:08  slicer
+// removed cvars for teamXready, replaced by level.teamXready
+//
 // Revision 1.102  2002/06/05 23:39:40  blaze
 // unbreakables work properly.  Though I already commited this.
 //
@@ -408,7 +411,7 @@ void CheckTeamRules()
 			if (g_RQ3_matchmode.integer) {
 				if(level.paused)
 					trap_SendServerCommand( -1, "cp \"Referee has paused the Game!\n\"");
-				else if (g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
+				else if (level.team1ready && level.team2ready)
 					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
 				else
 					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
@@ -447,8 +450,8 @@ void CheckTeamRules()
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
 					trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
-					trap_Cvar_Set("g_RQ3_team1ready", "0");
-					trap_Cvar_Set("g_RQ3_team2ready", "0");
+					level.team1ready = qfalse;
+					level.team2ready = qfalse;
 					MakeAllLivePlayersObservers ();
 					trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 					return;
@@ -538,7 +541,7 @@ qboolean BothTeamsHavePlayers()
 	int onteam1 = 0, onteam2 = 0;
 
 	//Slicer: Matchmode
-	if(g_RQ3_matchmode.integer && (!g_RQ3_team1ready.integer || !g_RQ3_team2ready.integer || level.paused))
+	if(g_RQ3_matchmode.integer && (!level.team1ready || !level.team2ready || level.paused))
 		return 0;
 	
 
@@ -711,8 +714,8 @@ int WonGame(int winner)
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
 			trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
-			trap_Cvar_Set("g_RQ3_team1ready", "0");
-			trap_Cvar_Set("g_RQ3_team2ready", "0");
+			level.team1ready = qfalse;
+			level.team2ready = qfalse;
 			MakeAllLivePlayersObservers ();
 			trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 			return 1;
@@ -737,8 +740,8 @@ int WonGame(int winner)
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
 				trap_SendServerCommand( -1, va("rq3_cmd %i 0", ROUND));
-				trap_Cvar_Set("g_RQ3_team1ready", "0");
-				trap_Cvar_Set("g_RQ3_team2ready", "0");
+				level.team1ready = qfalse;
+				level.team2ready = qfalse;
 				MakeAllLivePlayersObservers ();
 				trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 				return 1;
