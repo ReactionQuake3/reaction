@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/05/26 05:13:08  niceass
+// pressure and progress stuff
+//
 // Revision 1.80  2002/05/21 14:59:11  makro
 // cg_RQ3_avidemo
 //
@@ -427,7 +430,10 @@ typedef enum {
 	LEF_PUFF_DONT_SCALE  = 0x0001,			// do not scale size over time
 	LEF_TUMBLE			 = 0x0002,			// tumble over time, used for ejecting shells
 	LEF_SOUND1			 = 0x0004,			// sound 1 for kamikaze
-	LEF_SOUND2			 = 0x0008			// sound 2 for kamikaze
+	LEF_SOUND2			 = 0x0008,			// sound 2 for kamikaze
+	LEF_STEAM			 = 0x0010,			// NiceAss: For pressure entities
+	LEF_FLAME			 = 0x0020,
+	LEF_WATER			 = 0x0040
 } leFlag_t;
 
 typedef enum {
@@ -914,7 +920,7 @@ typedef struct {
 	int		scoreStartTime;
 
 	int			records[REC_NUM_RECORDS];	// Blaze: for our statistics tracking
-
+	float		loadingMapPercent;			// NiceAss: Ranges from 0 to 1. Used on map load.
 } cg_t;
 //Blaze: struct to hold the func_breakable stuff
 typedef struct {
@@ -1971,7 +1977,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,
 								qboolean isSprite );
 
-void CG_Pressure( vec3_t origin, vec3_t dir, centity_t *cent );
+void CG_Pressure( vec3_t origin, vec3_t dir, int type, int speed );
 
 //
 // cg_snapshot.c
@@ -2224,7 +2230,7 @@ void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
 void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 void	CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
-void	CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
+void	CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale, int Shader);
 
 extern qboolean		initparticles;
 int CG_NewParticleArea ( int num );
