@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/04/05 06:50:25  blaze
+// breakables should now respawn when the round restarts( when g_teamplay:SpawnPlayers() is called to be exact)
+//
 // Revision 1.27  2002/04/03 04:41:33  blaze
 // woops, forgot one change in the breakable code
 //
@@ -574,7 +577,7 @@ void SP_func_breakable( gentity_t *ent ) {
   }
   else
   {
-    G_Printf("^2ERROR: broken breakable name (%s)\n", rq3_breakables[id]);
+    G_Printf("^2ERROR: broken breakable name (%s)\n", name);
     G_FreeEntity( ent );
     return;
   }
@@ -679,7 +682,9 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
       mod = MOD_TRIGGER_HURT;
       func_breakable_die(ent, inflictor, attacker, damage, mod);
     }
-		G_FreeEntity( ent );
+    //unlink it instead of freeing
+    trap_UnlinkEntity(ent);
+		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
 		{

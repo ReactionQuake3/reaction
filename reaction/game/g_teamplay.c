@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/04/05 06:50:25  blaze
+// breakables should now respawn when the round restarts( when g_teamplay:SpawnPlayers() is called to be exact)
+//
 // Revision 1.57  2002/04/03 15:51:01  jbravo
 // Small warning fixes
 //
@@ -441,6 +444,7 @@ void CleanLevel()
 		} else if (ent->item->giType == IT_AMMO) {
 		}
 	}
+
 }
 
 int CheckForWinner()
@@ -632,7 +636,7 @@ void CheckForUnevenTeams(gentity_t *player)
 
 void SpawnPlayers()
 {
-	gentity_t	*player;
+	gentity_t	*player, *ent;
 	gclient_t	*client;
 	int		clientNum, i;
 
@@ -668,6 +672,17 @@ void SpawnPlayers()
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
 	}
+  //Blaze: May aswell respawn breakables here
+  for (i=0;i<level.num_entities; i++)
+  {
+    ent = &g_entities[i];
+    if (!strcmp(ent->classname,"func_breakable")) 
+    {
+      //re-link all unlinked breakables
+      trap_LinkEntity(ent);
+      
+    }
+  }
 }
 
 /* Let the player Choose the weapon and/or item he wants */
