@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/05/01 18:44:36  jbravo
+// Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
+// g_teamplay.c
+//
 // Revision 1.12  2002/04/26 03:39:34  jbravo
 // added tkok, fixed players always leaving zcam modes when player thats
 // beeing tracked dies
@@ -80,5 +84,6 @@ void ParseSayText (gentity_t * ent, char *text);
 void RQ3_SpectatorMode(gentity_t *ent);
 void Add_TeamKill(gentity_t *attacker);
 void RQ3_Cmd_TKOk(gentity_t *ent);
+void RQ3_Cmd_Stuff(gentity_t *ent);
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
 void setFFState(gentity_t *ent);

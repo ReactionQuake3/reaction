@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/05/01 18:44:36  jbravo
+// Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
+// g_teamplay.c
+//
 // Revision 1.100  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -2903,6 +2907,8 @@ void ClientCommand( int clientNum ) {
 // JBravo: adding tkok
 	else if (Q_stricmp (cmd, "tkok") == 0)
 		RQ3_Cmd_TKOk (ent);
+	else if (Q_stricmp (cmd, "stuff") == 0)
+		RQ3_Cmd_Stuff (ent);
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );

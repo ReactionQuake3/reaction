@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/01 18:44:36  jbravo
+// Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
+// g_teamplay.c
+//
 // Revision 1.71  2002/04/30 11:54:37  makro
 // Bots rule ! Also, added clips to give all. Maybe some other things
 //
@@ -1634,9 +1638,8 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 	}
 	if (weapon == ent->client->ps.weapon)
 		return;
-	Com_sprintf (buf, sizeof(buf), "weapon %d\n", weapon);
-//	trap_SendConsoleCommand(EXEC_APPEND, buf);
-	trap_SendServerCommand(EXEC_APPEND, buf);
+	Com_sprintf (buf, sizeof(buf), "stuff weapon %d\n", weapon);
+	trap_SendServerCommand(ent-g_entities, buf);
 }
 
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)
@@ -1742,3 +1745,26 @@ void RQ3_Cmd_TKOk (gentity_t *ent)
 
 	ent->enemy = NULL;
 }		
+
+void RQ3_Cmd_Stuff (gentity_t *ent)
+{
+	char	*cmd, user[128];
+	int	len, client;
+
+	len = trap_Argc ();
+	if (len < 3) {
+		trap_SendServerCommand(ent-g_entities, va("print \"Usage:  stuff <user id> <text>\n\""));
+		return;
+	}
+
+	trap_Argv(1, user, sizeof(user));
+	if (user[0] < '0' || user[0] > '9') {
+		trap_SendServerCommand(ent-g_entities, va("print \"Usage:  stuff <user id> <text>\n\""));
+		return;
+	}
+	client = atoi (user);
+	cmd = ConcatArgs(2);
+
+	trap_SendServerCommand(client, va("stuff %s\n", cmd));
+}
+

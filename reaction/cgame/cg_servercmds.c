@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/05/01 18:44:36  jbravo
+// Added a stuff command.  Needed for misc things.  See bottum of cmd_use in
+// g_teamplay.c
+//
 // Revision 1.29  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -1098,6 +1102,38 @@ static void CG_RemoveChatEscapeChar( char *text ) {
 
 /*
 =================
+CG_ConcatArgs
+
+Recontruct arguments into a whole string
+=================
+*/
+char	*CG_ConcatArgs (int start) {
+	int		i, c, tlen, len;
+	static char	line[MAX_STRING_CHARS];
+	char		arg[MAX_STRING_CHARS];
+
+	len = 0;
+	c = trap_Argc();
+	for (i = start; i < c; i++) {
+		trap_Argv (i, arg, sizeof (arg));
+		tlen = strlen (arg);
+		if (len + tlen >= MAX_STRING_CHARS - 1) {
+			break;
+		}
+		memcpy (line + len, arg, tlen);
+		len += tlen;
+		if (i != c - 1) {
+			line[len] = ' ';
+			len++;
+		}
+	}
+
+	line[len] = 0;
+	return line;
+}
+
+/*
+=================
 CG_ServerCommand
 
 The string has been tokenized and can be retrieved with
@@ -1305,14 +1341,12 @@ static void CG_ServerCommand( void ) {
 	// NiceAss: LCA
 	if ( !strcmp( cmd, "lights") ) {
 		trap_Cvar_Set("cg_RQ3_lca", "1");
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED || cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			cg.showScores = qfalse;
-			cg.scoreTPMode = 0;
-		}
+		cg.showScores = qfalse;
+		cg.scoreTPMode = 0;
 		CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 		CG_Printf("\nLIGHTS...\n");
-		trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
-//		CG_AddBufferedSound(cgs.media.lightsSound);
+//		trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
+		CG_AddBufferedSound(cgs.media.lightsSound);
 		return;
 	}
 	if ( !strcmp( cmd, "camera") ) {
@@ -1342,6 +1376,14 @@ static void CG_ServerCommand( void ) {
 		cg.scoreTPMode = 0;
 		return;
 	}
+	if (!strcmp(cmd, "stuff")) {
+		char	*cmd;
+		cmd = CG_ConcatArgs (1);
+		trap_SendConsoleCommand (cmd);
+//		CG_Printf ("Got the following cmd: %s\n", cmd);
+		return;
+	}
+
 // JBravo: Number of players hack.
 	if (!strcmp(cmd, "setteamplayers")) {
 		int	team, number;
