@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/29 10:58:07  jbravo
+// My lights sound fix broke the scoreboard removal on round begins.
+//
 // Revision 1.67  2002/04/29 01:15:07  jbravo
 // Think I fixed the lights.wav thing
 //
@@ -375,9 +378,7 @@ void StartLCA()
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41*level.fps)/10;
-	trap_SendServerCommand( -1, "lights");
 	SpawnPlayers();
-
 //	trap_SendServerCommand( -1, "lights");
 }
 
@@ -667,7 +668,7 @@ void SpawnPlayers()
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
 
-		if (!player->inuse)
+		if (!player->inuse || !player->client)
 			continue;
 		//Slicer: Matchmode - Subs don't spawn
 
@@ -675,8 +676,10 @@ void SpawnPlayers()
 			continue;
 // JBravo: lets not respawn spectators in free floating mode
 		if (player->client->sess.savedTeam == TEAM_SPECTATOR &&
-				player->client->specMode == SPECTATOR_FREE)
+				player->client->specMode == SPECTATOR_FREE) {
+			trap_SendServerCommand(player-g_entities, "lights");
 			continue;
+		}
 
 		client = player->client;
 		clientNum = client - level.clients;
@@ -685,12 +688,14 @@ void SpawnPlayers()
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
 			client->ps.persistant[PERS_TEAM] = TEAM_RED;
+			client->sess.spectatorState = SPECTATOR_NOT;
 		} else if (client->sess.savedTeam == TEAM_BLUE) {
 			client->sess.sessionTeam = TEAM_BLUE;
 			client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
+			client->sess.spectatorState = SPECTATOR_NOT;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
-		client->sess.spectatorState = SPECTATOR_NOT;
+		trap_SendServerCommand(player-g_entities, "lights");
 		ClientSpawn(player);
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
