@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2003/09/18 00:05:06  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.14  2003/09/08 19:19:20  makro
 // New code for respawning entities in TP
 //
@@ -216,19 +219,27 @@ Multiple identical looping sounds will just increase volume without any speed co
 "wait" : Seconds between auto triggerings, 0 = don't auto trigger
 "random"	wait variance, default is 0
 */
+
+#define SF_TARGET_SPEAKER_LOOPEDON		1
+#define SF_TARGET_SPEAKER_LOOPEDOFF		2
+#define SF_TARGET_SPEAKER_GLOBAL		4
+#define SF_TARGET_SPEAKER_ACTIVATOR		8
+#define SF_TARGET_SPEAKER_NOPVS			16
+
 void reset_target_speaker(gentity_t *ent)
 {
 	//looped on
-	if (ent->spawnflags & 1)
+	if (ent->spawnflags & SF_TARGET_SPEAKER_LOOPEDON)
 		ent->s.loopSound = ent->noise_index;
 	//looped off
-	else if (ent->spawnflags & 2)
+	else if (ent->spawnflags & SF_TARGET_SPEAKER_LOOPEDOFF)
 		ent->s.loopSound = 0;
 }
 
 void Use_Target_Speaker(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	if (ent->spawnflags & 3) {	// looping sound toggles
+	// looping sound toggles
+	if (ent->spawnflags & (SF_TARGET_SPEAKER_LOOPEDON | SF_TARGET_SPEAKER_LOOPEDOFF)) {
 		//Makro - check the pathtarget of the triggering entity
 		if (other->pathtarget) {
 			if (!Q_stricmp(other->pathtarget, "on")) {
@@ -244,9 +255,9 @@ void Use_Target_Speaker(gentity_t * ent, gentity_t * other, gentity_t * activato
 		else
 			ent->s.loopSound = ent->noise_index;	// start it
 	} else {		// normal sound
-		if (ent->spawnflags & 8) {
+		if (ent->spawnflags & SF_TARGET_SPEAKER_ACTIVATOR) {
 			G_AddEvent(activator, EV_GENERAL_SOUND, ent->noise_index);
-		} else if (ent->spawnflags & 4) {
+		} else if (ent->spawnflags & SF_TARGET_SPEAKER_GLOBAL) {
 			G_AddEvent(ent, EV_GLOBAL_SOUND, ent->noise_index);
 		} else {
 			G_AddEvent(ent, EV_GENERAL_SOUND, ent->noise_index);
@@ -284,20 +295,21 @@ void SP_target_speaker(gentity_t * ent)
 	ent->s.frame = ent->wait * 10;
 	ent->s.clientNum = ent->random * 10;
 	//Makro - added
-	if ((ent->spawnflags & 3) && (ent->spawnflags & 16))
+	if ((ent->spawnflags & (SF_TARGET_SPEAKER_LOOPEDON | SF_TARGET_SPEAKER_LOOPEDOFF))
+		&& (ent->spawnflags & SF_TARGET_SPEAKER_NOPVS))
 		ent->s.weapon = 1;
 	else
 		ent->s.weapon = 0;
 
 	// check for prestarted looping sound
-	if (ent->spawnflags & 1) {
+	if (ent->spawnflags & SF_TARGET_SPEAKER_LOOPEDON) {
 		ent->s.loopSound = ent->noise_index;
 	}
 	
 	ent->reset = reset_target_speaker;
 	ent->use = Use_Target_Speaker;
 
-	if (ent->spawnflags & 4) {
+	if (ent->spawnflags & SF_TARGET_SPEAKER_GLOBAL) {
 		ent->r.svFlags |= SVF_BROADCAST;
 	}
 

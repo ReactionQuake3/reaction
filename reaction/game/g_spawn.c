@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2003/09/18 00:05:05  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.48  2003/09/10 22:46:05  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -301,6 +304,7 @@ void SP_target_push(gentity_t * ent);
 
 void SP_light(gentity_t * self);
 void SP_dlight(gentity_t * self);	// Elder: dlight entity
+void SP_misc_lens_flare(gentity_t *ent);	//Makro - lens flare
 void SP_func_shadow(gentity_t *ent);	//Makro - fake shadow
 void SP_info_null(gentity_t * self);
 void SP_info_notnull(gentity_t * self);
@@ -392,6 +396,7 @@ spawn_t spawns[] = {
 	{"func_dlite", SP_dlight},	// Elder: dlight entity
 	{"light_d", SP_dlight},	//Makro - for compatibility with older maps
 	{"func_shadow", SP_func_shadow},	//Makro - fake shadow
+	{"misc_lens_flare", SP_misc_lens_flare}, //Makro - lens flare
 	{"path_corner", SP_path_corner},
 
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},

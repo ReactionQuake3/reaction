@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2003/09/18 00:05:05  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.77  2003/09/10 22:46:05  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -415,6 +418,68 @@ void G_RunDlight(gentity_t * ent)
 */
 
 
+/*QUAKED misc_lens_flare (0 1 0) (-8 -8 -8) (8 8 8) ?
+*/
+
+void Think_Flare_Target(gentity_t *ent)
+{
+	char  info[MAX_INFO_STRING]={0};
+	vec3_t dir;
+
+	ent->think = 0;
+	ent->nextthink = 0;
+	if (ent->target) {
+		ent->target_ent = G_PickTarget(ent->target);
+		if (!ent->target_ent) {
+			G_Printf(S_COLOR_YELLOW"Warning: misc_lens_flare with bad target at %s\n", vtos(ent->s.origin));
+		} else {
+			VectorSubtract(ent->s.origin, ent->target_ent->s.origin, dir);
+		}
+	} else {
+		VectorCopy(ent->s.origin2, dir);
+	}
+	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
+	VectorNormalize(dir);
+
+	Info_SetValueForKey(info, "ln", va("%d", ent->count));
+	Info_SetValueForKey(info, "lx", va("%f", dir[0]));
+	Info_SetValueForKey(info, "ly", va("%f", dir[1]));
+	Info_SetValueForKey(info, "lz", va("%f", dir[2]));
+	Info_SetValueForKey(info, "lamin", va("%f", ent->health/1000.0f));
+	Info_SetValueForKey(info, "lamax", va("%f", ent->health_saved/1000.0f));
+	Info_SetValueForKey(info, "lsmin", va("%d", ent->damage));
+	Info_SetValueForKey(info, "lsmax", va("%d", ent->damage_radius));
+	trap_SetConfigstring(CS_SKYPORTAL, info);
+	
+	G_FreeEntity(ent, __LINE__, __FILE__);
+}
+
+void SP_misc_lens_flare(gentity_t *ent)
+{
+	float f;
+	if (ent->count <= 0) {
+		G_Printf(S_COLOR_YELLOW"Warning: misc_lens_flare with count <=0 at %s\n", vtos(ent->s.origin));
+		ent->count = 4;
+	}
+	G_SpawnInt("minsize", "16", &ent->damage);
+	G_SpawnInt("maxsize", "128", &ent->damage_radius);
+
+	G_SpawnFloat("alphamin", "0.5", &f);
+	ent->health = f * 1000;
+	
+	G_SpawnFloat("alphamax", "1", &f);
+	ent->health_saved = f * 1000;
+
+	if (!ent->target) {
+		if (!G_SpawnVector("direction", "0 0 1", ent->s.origin2)) {
+			AngleVectors(ent->s.angles, ent->s.origin2, NULL, NULL);
+		}
+	}
+
+	ent->think = Think_Flare_Target;
+	ent->nextthink = level.time + FRAMETIME;
+}
+
 
 /*QUAKED func_shadow (0 1 0) (-8 -8 -8) (8 8 8) ?
 */
@@ -644,7 +709,7 @@ void SP_misc_portal_camera(gentity_t * ent)
 //Makro - sky portals
 void Think_SetupSkyPortal(gentity_t *ent)
 {
-	char  info[MAX_INFO_STRING];
+	char  info[MAX_INFO_STRING]={0};
 	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 
 	if (!info[0]) {
@@ -653,7 +718,6 @@ void Think_SetupSkyPortal(gentity_t *ent)
 		//G_Printf("^1 SKY PORTAL !!!\n");
 		
 		if (skyportal) {
-			memset(info, 0, sizeof(info));
 			Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
 			Info_SetValueForKey(info, "y", va("%f", skyportal->s.origin[1]));
 			Info_SetValueForKey(info, "z", va("%f", skyportal->s.origin[2]));
@@ -666,7 +730,6 @@ void Think_SetupSkyPortal(gentity_t *ent)
 			//ent->r.svFlags |= SVF_BROADCAST;
 		} else {
 			G_Printf(S_COLOR_YELLOW "WARNING: misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
-			trap_SetConfigstring(CS_SKYPORTAL, "");
 			G_FreeEntity(ent, __LINE__, __FILE__);
 		}
 	} else {
@@ -676,7 +739,6 @@ void Think_SetupSkyPortal(gentity_t *ent)
 		ent->r.ownerNum = atoi(Info_ValueForKey(info, "n"));
 	}
 	
-
 	ent->nextthink = 0;
 	ent->think = 0;
 }

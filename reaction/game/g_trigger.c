@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2003/09/18 00:05:06  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.29  2003/09/16 23:25:32  makro
 // trigger_multiple - new spawnflag, 3 new keys
 //
@@ -123,17 +126,25 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	if (ent->nextthink) {
 		return;		// can't retrigger until the wait is over
 	}
-	//Makro - inactive trigger ?
-	if (ent->inactive) {
-		if (ent->soundInactive)
-			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundInactive);
-		if (ent->targetInactive)
-			G_UseEntities(ent, ent->targetInactive, activator);
-		return;
-	}
-	if (ent->spawnflags & SF_TRIGGER_MULTIPLE_DOOR)
+	if (ent->spawnflags & SF_TRIGGER_MULTIPLE_DOOR) {
 		if (!activator || !activator->client || !activator->client->openDoor)
 			return;
+		if (activator->client->openDoorTime <= ent->timestamp)
+			return;
+		ent->timestamp = activator->client->openDoorTime;
+	}
+	//Makro - inactive trigger ?
+	if (ent->inactive) {
+		//note - since the trigger is not sent to the clients, we cannot send the event
+		//either, so we'll just play the sound locally
+		if (ent->soundInactive)
+			G_AddEvent(ent->activator, EV_GENERAL_SOUND, ent->soundInactive);
+		if (ent->targetInactive)
+			G_UseEntities(ent->activator, ent->targetInactive, activator);
+		ent->think = multi_wait;
+		ent->nextthink = level.time + (ent->wait + ent->random * crandom()) * 1000;
+		return;
+	}
 	//Makro - added check; Q3 crashed in archives when playing
 	//with .dll's and shooting one of the barrels
 	if (activator != NULL) {
@@ -148,7 +159,7 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	}
 
 	if (ent->sound1to2)
-		G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound1to2);
+		G_AddEvent(ent->activator, EV_GENERAL_SOUND, ent->sound1to2);
 	G_UseTargets(ent, ent->activator);
 
 	if (ent->wait > 0) {
@@ -165,7 +176,10 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 		ent->nextthink = level.time + FRAMETIME;
 		ent->think = G_RealFreeEntity;
 		*/
-		ent->inactive = 1;
+		//On second thought, now that I've added those soundInactive/targetInactive keys
+		//I think just setting touch to 0 will do
+		//ent->inactive = 1;
+		ent->touch = 0;
 	}
 }
 
@@ -187,6 +201,7 @@ void Reset_Multi(gentity_t *ent)
 	ent->inactive = ent->unbreakable;
 	ent->think = 0;
 	ent->nextthink = 0;
+	ent->touch = Touch_Multi;
 }
 
 void SP_trigger_multiple(gentity_t * ent)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2003/09/18 00:05:05  makro
+// Lens flares. Opendoor trigger_multiple fixes
+//
 // Revision 1.66  2003/09/16 23:25:32  makro
 // trigger_multiple - new spawnflag, 3 new keys
 //
@@ -1564,7 +1567,7 @@ void SP_func_door(gentity_t * ent)
 */
 
 	//Makro - added
-	G_SpawnInt("reach", "0", &ent->mass);
+	G_SpawnInt("reach", "100", &ent->mass);
 	
 	// default speed of 400
 	if (!ent->speed)
