@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/07/24 02:17:38  jbravo
+// Added a respawn delay for CTB
+//
 // Revision 1.110  2002/07/16 04:07:53  niceass
 // temporary hack solution for map rotation and ctb
 //
@@ -678,6 +681,8 @@ struct gclient_s {
 	int rd_lastRadio;	//Code of the last radio used
 	int rd_repCount;	//Counter for the number of repeated radio msgs
 	float rd_repTime;	//The time for the last repeated radio msg
+// JBravo: time of death for delayed CTB respawns
+	int time_of_death;
 };
 
 // JBravo: for model loading
@@ -1294,6 +1299,7 @@ extern vmCvar_t g_RQ3_twbanrounds;	// JBravo: no. of games team wounders are ban
 extern vmCvar_t g_RQ3_tkbanrounds;	// JBravo: no. of games team killers are banned
 extern vmCvar_t g_RQ3_ppl_idletime;	// JBravo: Seconds Idle before playing an insane sound
 extern vmCvar_t g_RQ3_idleaction;	// JBravo: what to do with Idlers. 0 = sound, 1 = team none, 2 = kick
+extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb respawns
 
 //Slicer: Team Status Cvars for MM
 //extern vmCvar_t       g_RQ3_team1ready;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/07/24 02:17:38  jbravo
+// Added a respawn delay for CTB
+//
 // Revision 1.85  2002/07/22 06:33:04  niceass
 // cleaned up the powerup code
 //
@@ -1182,12 +1185,19 @@ void ClientThink_real(gentity_t * ent)
 			// forcerespawn is to prevent users from waiting out powerups
 			if (g_forcerespawn.integer > 0 &&
 			    (level.time - client->respawnTime) > g_forcerespawn.integer * 1000 &&
-			    g_gametype.integer != GT_TEAMPLAY) {
+			    g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF) {
 				respawn(ent);
 				return;
 			}
 			if (g_gametype.integer == GT_TEAMPLAY && level.time > client->respawnTime) {
 				MakeSpectator(ent);
+			}
+			if (g_gametype.integer == GT_CTF) {
+				if (level.time > client->time_of_death + (g_RQ3_ctb_respawndelay.integer * 1000)) {
+					respawn(ent);
+				} else {
+					return;
+				}
 			}
 			// pressing attack or use is the normal respawn method
 			// JBravo: make'em spactate

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/07/24 02:17:38  jbravo
+// Added a respawn delay for CTB
+//
 // Revision 1.111  2002/07/20 18:26:25  jbravo
 // FF 2 fix for CTB
 //
@@ -1467,6 +1470,10 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		self->client->respawnTime = level.time + 1000;
 	} else {
 		self->client->respawnTime = level.time + 1700;
+	}
+	// JBravo: set the time of death for CTB
+	if (g_gametype.integer == GT_CTF) {
+		self->client->time_of_death = level.time;
 	}
 
 	// remove powerups

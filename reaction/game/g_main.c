@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/07/24 02:17:38  jbravo
+// Added a respawn delay for CTB
+//
 // Revision 1.102  2002/07/19 04:29:58  niceass
 // include CTF in showing scoreboard at end of map
 //
@@ -381,6 +384,7 @@ vmCvar_t g_RQ3_twbanrounds;
 vmCvar_t g_RQ3_tkbanrounds;
 vmCvar_t g_RQ3_ppl_idletime;
 vmCvar_t g_RQ3_idleaction;
+vmCvar_t g_RQ3_ctb_respawndelay;
 
 //Slicer: Team Status Cvars for MM
 //vmCvar_t      g_RQ3_team1ready;
@@ -533,6 +537,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_ppl_idletime, "g_RQ3_ppl_idletime", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "5", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
 	{&g_RQ3_cvarfile, "g_RQ3_cvarfile", "cvar.cfg", CVAR_ARCHIVE, 0, qtrue},
