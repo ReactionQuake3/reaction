@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.109  2002/07/20 02:25:53  jbravo
+// Added the AQDT CTB sounds to the base radio paks
+//
 // Revision 1.108  2002/07/19 04:40:56  jbravo
 // Added 2 new radio sets and ctb radio sound support
 //
@@ -1368,11 +1371,11 @@ typedef struct {
 // JBravo: Radio sounds
 
 	//Slicer 
-	sfxHandle_t male_sounds[26];
+	sfxHandle_t male_sounds[55];
 	sfxHandle_t new_male_sounds[55];
 	sfxHandle_t pikey_male_sounds[55];
 	sfxHandle_t pirate_male_sounds[55];
-	sfxHandle_t female_sounds[26];
+	sfxHandle_t female_sounds[55];
 
 	sfxHandle_t steamSound;
 	sfxHandle_t male_1sound;

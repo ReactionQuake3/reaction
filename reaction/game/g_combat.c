@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/07/20 02:25:53  jbravo
+// Added the AQDT CTB sounds to the base radio paks
+//
 // Revision 1.109  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -1322,6 +1325,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				AddScore(attacker, self->r.currentOrigin, 1);
 			} else if (g_gametype.integer == GT_CTF) {
 				attacker->client->killStreak = 0;
+				AddScore(attacker, self->r.currentOrigin, 1);
 			} else {
 				attacker->client->killStreak++;
 			}
