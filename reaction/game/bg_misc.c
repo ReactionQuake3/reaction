@@ -1236,6 +1236,8 @@ char *eventnames[] = {
 	"EV_GLOBAL_TEAM_SOUND",
 	"EV_RQ3_SOUND",			// Elder: play local sounds - primarily for kick
 
+	"EV_DMREWARD",				// Duffman: To display expotional reward messages.
+
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
 
