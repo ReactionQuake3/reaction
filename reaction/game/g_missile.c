@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/06/11 15:52:21  makro
+// Fixed knife + unbreakable breakables/breakables with high health bug
+//
 // Revision 1.26  2002/04/29 06:16:27  niceass
 // small change to pressure system
 //
@@ -494,7 +497,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 			G_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
 
-			if (other->s.eType == ET_BREAKABLE) {
+			//Makro - added check for unbreakable breakables/breakables with high health
+			if (other->s.eType == ET_BREAKABLE && !other->unbreakable && other->health <= THROW_DAMAGE) {
 				VectorCopy(trace->endpos, origin);
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
 
@@ -536,6 +540,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 				//VectorCopy(xr_drop->s.origin, temp);
 				VectorAdd(xr_drop->s.origin, knifeOffset, xr_drop->s.origin);
+
+				//Makro - "hurt" the breakable if needed
+				if (other->s.eType == ET_BREAKABLE ) {
+					VectorCopy(trace->endpos, origin);
+					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
+				}
 
 				if ( other->s.eType == ET_PRESSURE )
 					G_CreatePressure(xr_drop->s.origin, trace->plane.normal, &g_entities[trace->entityNum]);
