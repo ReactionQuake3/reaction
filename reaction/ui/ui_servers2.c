@@ -11,8 +11,9 @@ MULTIPLAYER MENU (SERVER BROWSER)
 
 #include "ui_local.h"
 
+//agt
+#define MAX_GLOBALSERVERS		4096
 
-#define MAX_GLOBALSERVERS		128
 #define MAX_PINGREQUESTS		32
 #define MAX_ADDRESSLENGTH		64
 #define MAX_HOSTNAMELENGTH		22
@@ -230,7 +231,6 @@ static int				g_sortkey;
 static int				g_emptyservers;
 static int				g_fullservers;
 
-
 /*
 =================
 ArenaServers_MaxPing
@@ -350,6 +350,21 @@ static void ArenaServers_UpdatePicture( void ) {
 
 
 /*
+ * rxn_server_check
+ */
+int rxn_server_check (servernode_t* servernode) {
+	char rxnstr[12];
+	int i, t;
+
+	Q_strncpyz(rxnstr, "reaction", 12);
+	if(strlen(servernode->gamename) < strlen(rxnstr)) return 0;
+	for(i=0,t=strlen(rxnstr); i < t; i++) {
+		if(servernode->gamename[i] != rxnstr[i]) return 0;
+		}
+	return 1;
+}
+
+/*
 =================
 ArenaServers_UpdateMenu
 =================
@@ -448,7 +463,10 @@ static void ArenaServers_UpdateMenu( void ) {
 	// build list box strings - apply culling filters
 	servernodeptr = g_arenaservers.serverlist;
 	count         = *g_arenaservers.numservers;
+
+
 	for( i = 0, j = 0; i < count; i++, servernodeptr++ ) {
+	
 		tableptr = &g_arenaservers.table[j];
 		tableptr->servernode = servernodeptr;
 		buff = tableptr->buff;
@@ -490,6 +508,9 @@ static void ArenaServers_UpdateMenu( void ) {
 			}
 			break;
 		}
+//agt
+
+		if(!rxn_server_check(servernodeptr)) continue;
 
 		if( servernodeptr->pingtime < servernodeptr->minPing ) {
 			pingColor = S_COLOR_BLUE;
@@ -524,6 +545,7 @@ static void ArenaServers_UpdateMenu( void ) {
 	// update picture
 	ArenaServers_UpdatePicture();
 }
+
 
 
 /*
