@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/06/10 03:26:04  jbravo
+// Fixed two small errors
+//
 // Revision 1.122  2002/06/09 18:58:00  makro
 // no message
 //
@@ -1075,7 +1078,7 @@ void Cmd_Team_f (gentity_t *ent) {
 	char	s[MAX_TOKEN_CHARS];
 
 	//Makro - moved here
-	if (g_gametype == GT_TEAMPLAY) {
+	if (g_gametype.integer == GT_TEAMPLAY) {
 		oldTeam = ent->client->sess.savedTeam;
 	} else {
 		oldTeam = ent->client->sess.sessionTeam;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/06/10 03:26:04  jbravo
+// Fixed two small errors
+//
 // Revision 1.67  2002/06/09 23:18:49  assimon
 // Add coments to the init parser. Added Message before intermition telling next map. New cvar: g_RQ3_NextMap
 //
@@ -1404,7 +1407,7 @@ void BeginIntermission( void ) {
 		return;		// already active
 	}
 
-	trap_SendServerCommand( -1, va("print \"Next map in rotation is %s\"", g_RQ3_NextMap.string) );
+	trap_SendServerCommand( -1, va("print \"Next map in rotation is %s\n\"", g_RQ3_NextMap.string) );
 
 	// if in tournement mode, change the wins / losses
 	if ( g_gametype.integer == GT_TOURNAMENT ) {
