@@ -1,0 +1,325 @@
+#include "ui/menudef.h"
+#define RQ3_Option_Color .75 .75 .75 1
+
+{
+
+    menuDef {
+	name "replacements_menu"
+	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the old background
+	fullScreen MENU_TRUE
+	visible MENU_TRUE				// Visible on open
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+
+	onOpen { play "sound/misc/menu1.wav" ; uiScript buildReplacementList }
+	onEsc { close options_menu ; open setup_menu }
+
+
+//=================
+// RQ3 stuff
+//=================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "options_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-setup-replacements"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "options_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-setup.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+    }
+
+
+//=================
+// Buttons, lists
+//=================
+
+	//Window
+    itemdef {
+	rect 84 88 400 240
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	shadowStyle 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    //Background
+    itemdef {
+	name page3
+	rect 103 103 96 96
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-loadout"
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	//backcolor .5 .5 .5 .4
+	decoration
+	visible 1
+    }
+
+	//Preview
+    itemdef {
+	name page3
+	//type ITEM_TYPE_MODEL
+	ownerdraw UI_RQ3_REPLACEMENTMODEL
+	rect 103 103 96 96
+	decoration
+	visible 1
+    }
+
+
+    /*
+	//"Preview" text
+    itemdef {
+	style 0
+	text "Preview"
+	rect 103 103 96 16
+	textstyle 3
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 48
+	textaligny 16
+	forecolor 1 1 .75 1
+	visible 1
+	decoration
+    }
+	*/
+
+
+    //Prev model
+    itemDef {
+	name page3
+	shortcutkey ","
+	rect 107 148 16 16
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/arrow_left_white"
+	type ITEM_TYPE_BUTTON
+	visible 1
+	forecolor 1 1 1 .3
+	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 }
+	leaveFocus { timefadeSelf forecolor 1 1 1 .3 0 250 }
+	action { play "sound/misc/menu1.wav" ; uiScript nextReplacement "-1" }
+    }
+
+    //Next model
+    itemDef {
+	name page3
+	shortcutkey "."
+	rect 179 148 16 16
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/arrow_right_white"
+	type ITEM_TYPE_BUTTON
+	visible 1
+	forecolor 1 1 1 .3
+	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 }
+	leaveFocus { timefadeSelf forecolor 1 1 1 .3 0 250 }
+	action { play "sound/misc/menu1.wav" ; uiScript nextReplacement "1" }
+    }
+
+    // Text
+
+    //Name
+    itemDef {
+	name page3
+	style 1
+	ownerdraw UI_RQ3_REPLACEMENTNAME
+	rect 103 198 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 5
+	textaligny 12
+	textscale .18
+	forecolor .75 .75 .75 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	visible 1
+	decoration
+    }
+
+    //Select button
+
+    itemDef {
+	name page3
+	text "Select"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_FILLED
+	rect 103 214 96 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 48
+	textaligny 12
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript "selectReplacement" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    //Type
+
+    itemDef {
+	name page3
+	style 1
+	text "Replace:"
+	ownerdraw UI_RQ3_REPLACEMENTTYPE
+	rect 103 256 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Sub-Type
+    itemDef {
+	name page3
+	style 1
+	text "Type:"
+	ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
+	rect 208 256 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Description
+    itemDef {
+	name page3
+	style 1
+	//text "Text goes here"
+	ownerdraw UI_RQ3_REPLACEMENTINFO
+	rect 212 104 260 144
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	border 1
+	bordersize 1
+	bordercolor 0.5 0.5 0.5 1
+	visible 1
+	decoration
+    }
+	
+//Back
+
+    itemdef {
+	name "btn_back"
+	style WINDOW_STYLE_SHADER
+	rect 12 432 32 32
+	type ITEM_TYPE_BUTTON
+	background "menu/art/rq3-menu-back.tga"
+	action { close replacements_menu; open setup_menu ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show hint_back ; timeFade hint_back forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade hint_back forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+    itemdef {
+	name hint_back
+	text "Go back to setup menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+}

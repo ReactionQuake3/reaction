@@ -289,7 +289,7 @@
 	onFocus { show replacements_focus ; timefade replacements_focus forecolor 1 1 1 1 0 250 ;
 		show replacements_hint ; timeFade replacements_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade replacements_focus forecolor 1 1 1 0 0 250 ; timeFade replacements_hint forecolor .9 .9 .9 0 0 250 }
-	//action { close setup_menu ; open replacements_menu }
+	action { close setup_menu ; open replacements_menu }
     }
 
     itemdef {

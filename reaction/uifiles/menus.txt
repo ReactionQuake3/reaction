@@ -25,6 +25,7 @@
 	loadMenu { "ui/credit.menu" }
 	loadMenu { "ui/connect.menu" }
 	loadMenu { "ui/password.menu" }
+	loadMenu { "ui/replacements.menu" }
 
  	loadMenu { "ui/mod.menu" }
 
