@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/07/24 02:48:10  niceass
+// CTB first time spawning fix
+//
 // Revision 1.12  2002/07/19 04:29:02  niceass
 // can return case with any weapon in hand
 //
@@ -913,6 +916,7 @@ gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	gentity_t *spots[MAX_TEAM_SPAWN_POINTS];
 	char *classname;
 
+	// NiceAss: no longer use redplayer (people spawned in eachother)
 	if (teamstate == TEAM_BEGIN) {
 		if (team == TEAM_RED)
 			classname = "team_CTF_redplayer";
@@ -940,8 +944,14 @@ gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 		if (++count == MAX_TEAM_SPAWN_POINTS)
 			break;
 	}
-
-	if (!count) {		// no spots that won't telefrag
+	
+	// NiceAss: If no spawn was found for redplayer/blueplayer, use redspawn/bluespawn
+	if (!count && teamstate == TEAM_BEGIN) {
+		// REECURRRSSSION1!! sorta
+		return SelectRandomTeamSpawnPoint(TEAM_ACTIVE, team);
+	}
+	
+	if (!count && teamstate == TEAM_ACTIVE) {
 		return G_Find(NULL, FOFS(classname), classname);
 	}
 
