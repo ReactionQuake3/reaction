@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/06/05 23:53:05  jbravo
+// Color fixes for player names
+//
 // Revision 1.119  2002/06/05 04:57:50  niceass
 // "team" command fix
 //
@@ -1797,7 +1800,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
 
-	trap_SendServerCommand( -1, va("print \"%s called a vote.\n\"", ent->client->pers.netname ) );
+	trap_SendServerCommand( -1, va("print \"%s^7 called a vote.\n\"", ent->client->pers.netname ) );
 
 	// start the voting, the caller autoamtically votes yes
 	level.voteTime = level.time;
@@ -1962,7 +1965,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED )
 			continue;
 		if (level.clients[i].sess.sessionTeam == team)
-			trap_SendServerCommand( i, va("print \"%s called a team vote.\n\"", ent->client->pers.netname ) );
+			trap_SendServerCommand( i, va("print \"%s^7 called a team vote.\n\"", ent->client->pers.netname ) );
 	}
 
 	// start the voting, the caller autoamtically votes yes
@@ -2792,7 +2795,7 @@ void Cmd_PlayerStats_f( gentity_t *ent )
 {
 	//char textbuf[1024];
 	
-	trap_SendServerCommand( ent-g_entities, va("print \"%s:\n\"",ent->client->pers.netname ));
+	trap_SendServerCommand( ent-g_entities, va("print \"%s^7:\n\"",ent->client->pers.netname ));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));
 	trap_SendServerCommand( ent-g_entities, va("print \"| Weapon  | Accuracy | Hits/Shots |\n\""));
 	trap_SendServerCommand( ent-g_entities, va("print \"----------------------------------\n\""));

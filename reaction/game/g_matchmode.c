@@ -60,12 +60,12 @@ void MM_Sub_f (gentity_t *ent) {
 				player_die (ent, ent, ent, 100000, MOD_SUICIDE);
 			}
 			ent->client->sess.sub = ent->client->sess.savedTeam; 
-			trap_SendServerCommand( -1, va("print \"%s is now a Substitute for %s.\n\"",
+			trap_SendServerCommand( -1, va("print \"%s^7 is now a Substitute for %s.\n\"",
 			ent->client->pers.netname,
 			ent->client->sess.savedTeam==TEAM_BLUE ? g_RQ3_team2name.string: g_RQ3_team1name.string));	
 	} else {
 			ent->client->sess.sub = TEAM_FREE; 
-			trap_SendServerCommand( -1, va("print \"%s is no longer a Substitute for %s.\n\"",
+			trap_SendServerCommand( -1, va("print \"%s^7 is no longer a Substitute for %s.\n\"",
 			ent->client->pers.netname,
 			ent->client->sess.savedTeam==TEAM_BLUE ? g_RQ3_team2name.string: g_RQ3_team1name.string));
 	}
@@ -80,18 +80,18 @@ void MM_Captain_f (gentity_t *ent) {
 	}
 	if (ent->client->sess.captain  == TEAM_RED) {
 			trap_Cvar_Set("g_RQ3_team1ready", "0");
-			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
+			trap_SendServerCommand( -1, va("print \"%s^7 is no longer %s's Captain.\n\"",
 				ent->client->pers.netname, g_RQ3_team1name.string));
 			ent->client->sess.captain = TEAM_FREE;
 	} else if (ent->client->sess.captain == TEAM_BLUE) {
 			trap_Cvar_Set("g_RQ3_team2ready", "0");
-			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
+			trap_SendServerCommand( -1, va("print \"%s^7 is no longer %s's Captain.\n\"",
 				ent->client->pers.netname, g_RQ3_team2name.string));
 			ent->client->sess.captain = TEAM_FREE;
 	} else {
 		if (!checkCaptain(ent->client->sess.savedTeam)) {
 			ent->client->sess.captain = ent->client->sess.savedTeam;
-			trap_SendServerCommand( -1, va("print \"%s is now %s's Captain.\n\"",
+			trap_SendServerCommand( -1, va("print \"%s^7 is now %s's Captain.\n\"",
 				ent->client->pers.netname,
 				ent->client->sess.savedTeam==TEAM_BLUE ? g_RQ3_team2name.string: g_RQ3_team1name.string));
 		} else
@@ -236,7 +236,7 @@ void checkRefVotes() {
 		ent = g_entities + refVotes[0];
 		Com_sprintf(nr, sizeof(nr), "%i", refVotes[0]);
 		trap_Cvar_Set("g_RQ3_RefID", nr);
-		trap_SendServerCommand( -1, va("cp \"%s is the new Referee.\n\"",ent->client->pers.netname));
+		trap_SendServerCommand( -1, va("cp \"%s^7 is the new Referee.\n\"",ent->client->pers.netname));
 		refVotes[0] = refVotes[1] = -1;
 	}
 }
@@ -271,7 +271,7 @@ void MM_Referee_f(gentity_t *ent) {
 		buff = ConcatArgs( 1 );
 		if((ref = getEntByName(buff))!=NULL) {
 			refVotes[captain - 1] = ref-g_entities;		
-			trap_SendServerCommand(-1,va("print \"%s has voted %s for referee\n\"",ent->client->pers.netname,ref->client->pers.netname ));
+			trap_SendServerCommand(-1,va("print \"%s^7 has voted %s^7 for referee\n\"",ent->client->pers.netname,ref->client->pers.netname ));
 			checkRefVotes();
 		}
 		else {

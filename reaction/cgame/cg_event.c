@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/06/05 23:53:05  jbravo
+// Color fixes for player names
+//
 // Revision 1.62  2002/06/05 09:42:30  niceass
 // removed old death messages
 //
@@ -413,14 +416,14 @@ static void CG_JumpKick ( entityState_t *ent )
 		else
 			Q_strncpyz(sex, "its", sizeof(sex));
 
-		CG_Printf("You kicked %s's %s from %s hands!\n",
+		CG_Printf("You kicked %s^7's %s from %s hands!\n",
 					ci->name, cg_weapons[ent->weapon].item->pickup_name, sex);
 	}
 	else if (ent->weapon && target == cg.clientNum)
 	{
 		// this client was the kicked
 		ci = &cgs.clientinfo[attacker];
-		CG_Printf("%s kicked your weapon from your hands!\n", ci->name);
+		CG_Printf("%s^7 kicked your weapon from your hands!\n", ci->name);
 	}
 
 	// everyone hears this
