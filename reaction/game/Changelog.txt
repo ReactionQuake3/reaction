@@ -7,3 +7,4 @@ mainly. like, changing the implimentation of something)
 e.g.
 2001-05-21 01:00 hawkins: Added Bipolar Rifle and Point Singularity Grenades.
 2001-05-21 02:30 hawkins: Removed unrealistic slippers and added antigravity boots
+6/16/2002 10:00PM Blaze: fixed breakables so cgame supports <= 64 breakables(before game accepted <= 64)
