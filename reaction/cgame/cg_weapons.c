@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/07 02:10:42  niceass
+// shell ejection bug fixed
+//
 // Revision 1.65  2002/04/06 21:43:59  makro
 // New surfaceparm system
 //
@@ -1630,14 +1633,14 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 		shell = weapon->ejectBrassFunc( cent );
 
-		if ( weaponNum == WP_M4 || weaponNum == WP_SSG3000) {
-			shell->refEntity.hModel = cgs.media.largeBrassModel;
-			shell->bounceFactor *= 0.75;
-		}
-
 		if ( shell != NULL ) {
 			float	speed = 1.0f;
 			int		axis = 0;
+
+			if ( weaponNum == WP_M4 || weaponNum == WP_SSG3000) {
+				shell->refEntity.hModel = cgs.media.largeBrassModel;
+				shell->bounceFactor *= 0.75;
+			}
 
 			if (ps) {
 				if ( weapon->item->giTag == WP_AKIMBO && !ps->stats[STAT_BURST] )
