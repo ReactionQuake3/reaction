@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/06/24 01:21:26  blaze
+// changed HC to be more like aq2.  Probably more work needed
+//
 // Revision 1.67  2002/06/23 21:44:08  jbravo
 // Fixed shots fired stats for non TP modes and some cleanups
 //
@@ -1749,6 +1752,7 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	SnapVector(tent->s.origin2);
 	tent->s.eventParm = rand() & 255;	// seed for spread pattern
 	tent->s.otherEntityNum = ent->s.number;
+  tent2->s.angles2[1] -= 5;
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent, WP_HANDCANNON);
 
 	// send shotgun blast
@@ -1757,7 +1761,7 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	SnapVector(tent2->s.origin2);
 	tent2->s.eventParm = rand() & 255;	// seed for spread pattern
 	tent2->s.otherEntityNum = ent->s.number;
-	tent2->s.angles2[1] += 20;
+	tent2->s.angles2[1] += 5;
 	//Elder: note negative one
 	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1);
 
