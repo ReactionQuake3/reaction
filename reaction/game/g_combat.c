@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/08/21 03:35:16  niceass
+// only get damage points if attacking a client
+//
 // Revision 1.117  2002/08/21 02:56:08  blaze
 // added spawnflags 8 for breakables, lets mappers turn off kicking
 //
@@ -2266,7 +2269,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// do the damage
 	if (take) {
 		// JBravo: for Damage delt tracking
-		if (attacker && attacker->client && targ->health > 0) {
+		if (attacker && attacker->client && targ->health > 0 && targ->client) {
 			if (mod == MOD_TELEFRAG) {
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += 100;
 			} else {
