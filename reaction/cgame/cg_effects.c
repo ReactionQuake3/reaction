@@ -563,6 +563,71 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 
 /*
 =================
+CG_EjectBloodSplat
+
+Drop a splat
+=================
+*/
+
+void CG_EjectBloodSplat ( vec3_t origin, vec3_t velocity, int amount, int duration )
+{
+	int				i;
+	localEntity_t	*blood;
+	vec3_t			bOrigin;
+	vec3_t			bVelocity;
+
+	if ( !cg_blood.integer )
+		return;	
+
+	for (i = 0; i < amount; i++)
+	{
+		VectorCopy( origin, bOrigin );
+		VectorCopy( velocity, bVelocity );
+		bOrigin[0] += rand() % 6 - 3;
+		bOrigin[1] += rand() % 6 - 3;
+		bVelocity[0] += rand() % 6 - 3;
+		bVelocity[1] += rand() % 6 - 3;
+
+		blood = CG_SmokePuff( bOrigin, bVelocity, 4,
+								1, 1, 1, 0.6f,
+								duration + rand() % 250, cg.time, 0,
+								LEF_TUMBLE|LEF_PUFF_DONT_SCALE,
+								cgs.media.bloodTrailShader);
+		blood->refEntity.rotation = rand() % 360;
+		blood->leType = LE_FRAGMENT;
+		blood->leType = LE_FRAGMENT;
+		blood->leMarkType = LEMT_BLOOD;
+		blood->pos.trType = TR_GRAVITY;
+		blood->bounceFactor = 0.4f;
+	}
+}
+
+
+/*
+=================
+CG_BleedParticleSpray
+
+This is a particle blood spray not unlike Quake 2's
+Err, it's not working well right now :/
+=================
+*/
+
+void CG_BleedParticleSpray ( vec3_t start, vec3_t dir, int fleshEntityNum, int amount, int duration)
+{
+	int i;
+
+	if ( !cg_RQ3_bloodStyle.integer || !cg_blood.integer)
+		return;
+
+	for (i = 0; i < amount; i++)
+	{
+		CG_Particle_Bleed(cgs.media.bloodExplosionShader, start, dir, fleshEntityNum, duration + rand() % 250);
+	}
+
+}
+
+/*
+=================
 CG_Bleed
 
 This is the spurt of blood when a character gets hit

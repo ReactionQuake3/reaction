@@ -2050,7 +2050,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_EJECTBLOOD:
 		DEBUGNAME("EV_EJECTBLOOD");
-		// Eject a blood splat
+		// Straight up
+		dir[0] = 0;
+		dir[1] = 0;
+		dir[2] = 20;
+		// Eject blood splats
+		CG_EjectBloodSplat ( es->pos.trBase, dir, 1, 1500);
+		//CG_BleedParticleSpray( es->pos.trBase, dir, es->otherEntityNum, 25, 1500 );
 		break;
 
 	case EV_SHOTGUN:

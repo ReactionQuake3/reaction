@@ -29,6 +29,7 @@
 #define	DUCK_TIME			100
 #define	PAIN_TWITCH_TIME	200
 #define	WEAPON_SELECT_TIME	1400
+#define KICK_TIME			40			// Elder: default kick time, added for kick decay
 // Elder: decreased from 1000
 #define	ITEM_SCALEUP_TIME	250
 #define	ZOOM_TIME			150
@@ -386,6 +387,19 @@ typedef struct {
 } clientInfo_t;
 
 
+// Elder: maximum sizes
+#define MAX_RELOAD_SOUNDS		5
+#define MAX_OTHER_SOUNDS		5
+// Circular, singly-linked list
+struct sfxSyncInfo_s {
+	int				frame;
+	sfxHandle_t		sound;
+	struct sfxSyncInfo_s	*next;
+};
+
+typedef struct sfxSyncInfo_s sfxSyncInfo_t;
+
+
 // each WP_* weapon enum has an associated weaponInfo_t
 // that contains media references necessary to present the
 // weapon and its effects
@@ -427,6 +441,14 @@ typedef struct weaponInfo_s {
 
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
+
+	// Elder: sounds to queue
+	sfxSyncInfo_t	activateSound[2];	// last one is an endpoint node
+	sfxSyncInfo_t	disarmSound[2];		// last one is an endpoint node
+	sfxSyncInfo_t	reloadSounds[MAX_RELOAD_SOUNDS];
+	sfxSyncInfo_t	otherSounds[MAX_OTHER_SOUNDS];
+
+	// Deprecated
 	sfxHandle_t		reloadSound1;		// Elder: for various reload stages such as
 	sfxHandle_t		reloadSound2;		// Clip in, clip out, sliding, sliding bolt,
 	sfxHandle_t		reloadSound3;		// etc.  Three should be enough
@@ -655,6 +677,8 @@ typedef struct {
 
 	vec3_t		kick_angles;	// weapon kicks
 	vec3_t		kick_origin;
+	int			kick_time;		// Elder: added to decay the kicks more smoothly
+	int			kick_duration;	// Elder: some need more
 
 	// temp working variables for player view
 	float		bobfracsin;
@@ -679,7 +703,9 @@ typedef struct {
 	qboolean		laserSight;	//Whether to draw local laser sight
 	localEntity_t	*laserEnt;	//Local model -- NULL if not in-use
 	qboolean		rq3_irvision;	// Elder: enabled IR vision
-	int			akimboFlash;	// Alternate between two tags for flash (0 or 1)
+	int				akimboFlash;	// Alternate between two tags for flash (0 or 1)
+	
+	sfxSyncInfo_t	*curSyncSound;	// Shifts after a sound is played
 
 } cg_t;
 
@@ -848,6 +874,9 @@ typedef struct {
 	qhandle_t	hastePuffShader;
 	qhandle_t	redKamikazeShader;
 	qhandle_t	blueKamikazeShader;
+
+	// Elder: rq3 misc shaders
+	qhandle_t	irPlayerShader;
 
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
@@ -1563,6 +1592,8 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type );
 void CG_Bleed( vec3_t origin, int entityNum );
 //Elder: for SSG shots
 void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts );
+void CG_BleedParticleSpray ( vec3_t start, vec3_t dir, int fleshEntityNum, int amount, int duration);
+void CG_EjectBloodSplat ( vec3_t origin, vec3_t velocity, int amount, int duration );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,

@@ -244,6 +244,7 @@ void CG_Respawn( void ) {
 	//Elder: added to reset zoom stuff LOCALLY
 	CG_RQ3_Zoom1x();
 
+	cg.curSyncSound = 0;
 }
 
 extern char *eventnames[];
@@ -570,6 +571,12 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	if ( ps->viewheight != ops->viewheight ) {
 		cg.duckChange = ps->viewheight - ops->viewheight;
 		cg.duckTime = cg.time;
+	}
+
+	// Elder: reset sync sounds
+	if ( ps->weaponstate != ops->weaponstate )
+	{
+		cg.curSyncSound = 0;
 	}
 
 	//Elder: grenade message

@@ -418,6 +418,41 @@ static void CG_OffsetFirstPersonView( void ) {
 	VectorMA( cg.refdef.vieworg, NECK_LENGTH, up, cg.refdef.vieworg );
 	}
 #endif
+
+	// Weapon kick management
+	if (cg.kick_time)
+	{
+		int duration;
+		
+		if (cg.kick_duration)
+			duration = cg.kick_duration;
+		else
+			duration = KICK_TIME;
+
+		if ( cg.time - cg.kick_time >= duration )
+		{
+			// Elder: clear kick origin and angles
+			VectorClear(cg.kick_angles);
+			VectorClear(cg.kick_origin);
+			cg.kick_time = 0;
+			cg.kick_duration = 0;
+		}
+		else
+		{
+			// Decay them
+			cg.kick_angles[0] = cg.kick_angles[0] * (1 - (float)(cg.time - cg.kick_time) / duration);
+			cg.kick_angles[1] = cg.kick_angles[1] * (1 - (float)(cg.time - cg.kick_time) / duration);
+			cg.kick_angles[2] = cg.kick_angles[2] * (1 - (float)(cg.time - cg.kick_time) / duration);
+			cg.kick_origin[0] = cg.kick_origin[0] * (1 - (float)(cg.time - cg.kick_time) / duration);
+			cg.kick_origin[1] = cg.kick_origin[1] * (1 - (float)(cg.time - cg.kick_time) / duration);
+			cg.kick_origin[2] = cg.kick_origin[2] * (1 - (float)(cg.time - cg.kick_time) / duration);
+		}
+		/*
+		CG_Printf("Kick Angles: (%f %f %f) Origin: (%f %f %f)\n",
+			cg.kick_angles[0], cg.kick_angles[1], cg.kick_angles[2],
+			cg.kick_origin[0], cg.kick_origin[1], cg.kick_origin[2]);
+		*/
+	}
 }
 
 //======================================================================

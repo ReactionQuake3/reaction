@@ -2,6 +2,136 @@
 //
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
+
+/*
+==========================
+CG_ParseWeaponSoundFile
+
+Added by Elder
+Reads information for frame-sound timing
+==========================
+*/
+static qboolean CG_ParseWeaponSoundFile( const char *filename, weaponInfo_t *weapon ) {
+	char			*text_p;
+	int				len;
+	int				i;
+	char			*token;
+	float			fps;
+	int				skip;	// Elder: What's this for?
+	char			text[20000];
+	fileHandle_t	f;
+	animation_t		*animations;
+	sfxSyncInfo_t	*reloadSounds;
+	
+
+	animations = weapon->animations;
+	reloadSounds = weapon->reloadSounds;
+
+	// load the file
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( len <= 0 ) {
+		return qfalse;
+	}
+	if ( len >= sizeof( text ) - 1 ) {
+		CG_Printf( "File %s too long\n", filename );
+		return qfalse;
+	}
+	trap_FS_Read( text, len, f );
+	text[len] = 0;
+	trap_FS_FCloseFile( f );
+	
+	// parse the text
+	text_p = text;
+	// Elder: uhh, what was this for?
+	skip = 0; // quite the compiler warning
+	
+	// read information for each phase of a reload
+	for ( i = 0 ; i < MAX_RELOAD_SOUNDS ; i++ )
+	{ 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		// handle "0"/blank listings
+		if ( !atoi( token ) )
+		{
+			// set these to the end frames
+			reloadSounds[i].frame = animations[WP_ANIM_RELOAD].firstFrame + animations[WP_ANIM_RELOAD].numFrames;
+			continue;
+		}
+		else
+			reloadSounds[i].frame = atoi( token );
+		
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		reloadSounds[i].sound = trap_S_RegisterSound(token, qfalse); 
+		
+	}
+
+	if ( i != MAX_RELOAD_SOUNDS ) {
+		CG_Printf( "Error parsing weapon sound file in reload stage: %s", filename );
+		return qfalse;
+	} 
+
+	// link our reload sound nodes
+	for ( i = 0; i < MAX_RELOAD_SOUNDS ; i++ )
+	{
+		// end frames
+		if (reloadSounds[i].frame == animations[WP_ANIM_RELOAD].firstFrame + animations[WP_ANIM_RELOAD].numFrames)
+			reloadSounds[i].next = &reloadSounds[0];
+		// normal case
+		else if (i + 1 < MAX_RELOAD_SOUNDS && reloadSounds[i+1].frame != 0)
+			reloadSounds[i].next = &reloadSounds[i+1];
+		// shouldn't be here
+		else
+			reloadSounds[i].next = &reloadSounds[0];
+	}
+
+	// disarm sound
+	token = COM_Parse( &text_p );
+	if ( !token ) {
+		CG_Printf( "Error parsing weapon sound file in disarm stage: %s", filename );
+		return qfalse;
+	}
+	if ( !atoi( token ) )
+		CG_Printf( "No disarm sound for %s\n", weapon->item->pickup_name);
+	else
+	{
+		weapon->disarmSound[0].frame = atoi( token );
+		token = COM_Parse( &text_p );
+		if ( !token ) {
+			CG_Printf( "Error parsing weapon sound file in disarm stage: %s", filename );
+			return qfalse;
+		}
+		weapon->disarmSound[0].sound = trap_S_RegisterSound( token, qfalse ); 
+		weapon->disarmSound[0].next = &weapon->disarmSound[1];
+		weapon->disarmSound[1].frame = animations[WP_ANIM_DISARM].firstFrame + animations[WP_ANIM_DISARM].numFrames;
+		weapon->disarmSound[1].next = &weapon->disarmSound[0];
+	}
+
+	// activate sound
+	token = COM_Parse( &text_p );
+	if ( !token ) {
+		CG_Printf( "Error parsing weapon sound file in activate stage: %s", filename );
+		return qfalse;
+	}
+	if ( !atoi( token ) )
+		CG_Printf( "No activate sound for %s\n", weapon->item->pickup_name);
+	else
+	{
+		weapon->activateSound[0].frame = atoi( token );
+		token = COM_Parse( &text_p );
+		if ( !token ) {
+			CG_Printf( "Error parsing weapon sound file in activate stage: %s", filename );
+			return qfalse;
+		}
+		weapon->activateSound[0].sound = trap_S_RegisterSound( token, qfalse ); 
+		weapon->activateSound[0].next = &weapon->activateSound[1];
+		weapon->activateSound[1].frame = animations[WP_ANIM_ACTIVATE].firstFrame + animations[WP_ANIM_ACTIVATE].numFrames;
+		weapon->activateSound[1].next = &weapon->activateSound[0];
+	}
+		
+	return qtrue;
+}
+
 /* [QUARANTINE] - Weapon Animations - CG_ParseWeaponAnimFile
 ==========================
 CG_ParseWeaponAnimFile
@@ -660,6 +790,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	// END
 
 	int				i;
+	qboolean		weapAnimLoad = qtrue;
 
 	weaponInfo = &cg_weapons[weaponNum];
 
@@ -758,21 +889,55 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mk23/mk23fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mk23/mk23out.wav", qfalse );
-		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mk23/mk23in.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mk23/mk23slide.wav", qfalse );
+		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mk23/mk23out.wav", qfalse );
+		//weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mk23/mk23in.wav", qfalse );
+		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mk23/mk23slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		
+		// Load the animation information
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/mk23/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
 		}
+
+		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
+		if (weapAnimLoad)
+		{
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/mk23/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+			else {
+				// Temporarily print the info
+				int k;
+				Com_Printf("Sync Sound Status:\n");
+				for (k = 0; k < MAX_RELOAD_SOUNDS; k++)
+				{
+					Com_Printf("%i: Frame %i  Has sfxHandle: %s\n",
+							k, weaponInfo->reloadSounds[k].frame,
+							weaponInfo->reloadSounds[k].sound? "yes":"no");
+				}
+			}
+		}
+		else
+		{
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
+		}
+
 		break;
 		
 	case WP_KNIFE:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/slash.wav", qfalse );
 		weaponInfo->missileModel = trap_R_RegisterModel("models/weapons2/knife/knife.md3");
+
+		// Load the animation information
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/knife/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
+		}
 
 		//weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
@@ -785,13 +950,23 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m4/m4out.wav", qfalse );
-		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
+		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m4/m4out.wav", qfalse );
+		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m4/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
+		}
+
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/m4/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 		
@@ -863,19 +1038,37 @@ void CG_RegisterWeapon( int weaponNum ) {
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/akimbo/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
+		}
+
+		// Load sound information -- ALWAYS DO THIS AFTER THE ANIMATION
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/akimbo/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 		
 	case WP_GRENADE:
-		//Changed from _3rd
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/grenade.md3" );
-		//Elder: removed for the last time!! ;
+		//Use the projectile model
+		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/gren_projectile.md3" );
+		//Elder: removed for the last time! :)
 		//weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.70f, 0 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav", qfalse );
+		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/gren_throw.wav", qfalse );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
+
+		// Load the animation information
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/grenade/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+			weapAnimLoad = qfalse;
+		}
 		break;
 
 	 default:
@@ -1287,6 +1480,37 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	else {
 		CG_WeaponAnimation( cent, &gun.oldframe, &gun.frame, &gun.backlerp );
 		CG_PositionWeaponOnTag( &gun, parent, parent->hModel, "tag_weapon");
+
+		// Elder: Local sound events will sync perfectly here
+		// However, we must remember to ignore the ones pmove will generate
+		// (for other clients to hear) or we'll get some nasty echo
+
+		// Temp hack because it isn't fully implemented
+		if ( weapon->item->giTag == WP_PISTOL ||
+			 weapon->item->giTag == WP_AKIMBO ||
+			 weapon->item->giTag == WP_M4)
+		{
+			if ( ps->weaponstate == WEAPON_RELOADING ) {
+				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
+					cg.curSyncSound = &weapon->reloadSounds[0];
+			}
+			else if ( ps->weaponstate == WEAPON_RAISING ) {
+				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
+					cg.curSyncSound = &weapon->activateSound[0];
+			}
+			else if ( ps->weaponstate == WEAPON_DROPPING ) {
+				if ( !cg.curSyncSound || cg.curSyncSound->frame == 0)
+					cg.curSyncSound = &weapon->disarmSound[0];
+			}
+
+			if (cg.curSyncSound && cg.curSyncSound->frame == gun.frame) {
+				if ( cg.curSyncSound->sound ) {
+					CG_Printf("Playing a timed sound (%i %i %1.1f)\n", gun.frame, gun.oldframe, gun.backlerp);
+					trap_S_StartLocalSound ( cg.curSyncSound->sound, CHAN_WEAPON );
+					cg.curSyncSound = cg.curSyncSound->next;
+				}
+			}
+		}
 	} 
 
 	// Elder: break off here so we still have weapon animations on bolt out
@@ -1381,15 +1605,17 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
 			// Elder: draw flash based on first-person view
-			// choose tag for akimbo
-			if (ps->weapon == WP_AKIMBO && ps->stats[STAT_BURST])
+			if (ps->weapon == WP_AKIMBO)
 			{
-				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash2");
+				// choose tag for akimbos
+				if (ps->stats[STAT_BURST])
+					CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
+				else
+					CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash2");
 			}
 			else
-			{
 				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
-			}
+
 			// Make flash larger to compensate for depth hack
 			VectorScale( flash.axis[0], 2.0f, flash.axis[0] );
 			VectorScale( flash.axis[1], 2.0f, flash.axis[1] );
@@ -1398,8 +1624,14 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		else {
 			//Elder: draw flash based on 3rd-person view
-			if (cg.akimboFlash)
-				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash2");
+			if ( weapon->item->giTag == WP_AKIMBO)
+			{
+				// choose tag for akimbos
+				if (cg.akimboFlash)
+					CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+				else
+					CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash2");
+			}
 			else
 				CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 		}
@@ -1558,7 +1790,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 			 ps->weapon == WP_HANDCANNON ||
 			 ps->weapon == WP_SSG3000 ||
 			 ps->weapon == WP_M4 ||
-			 ps->weapon == WP_AKIMBO) {
+			 ps->weapon == WP_AKIMBO ||
+			 ps->weapon == WP_GRENADE ||
+			 ps->weapon == WP_KNIFE) {
 			// development tool
 			hand.frame = hand.oldframe = cg_gun_frame.integer;
 			hand.backlerp = 0;
@@ -2181,7 +2415,7 @@ Caused by an EV_FIRE_WEAPON event
 */
 void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	entityState_t *ent;
-	int				c;
+	int				c, i;
 	weaponInfo_t	*weap;
 
 	ent = &cent->currentState;
@@ -2273,6 +2507,131 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	// do brass ejection
 	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
 		weap->ejectBrassFunc( cent );
+	}
+	
+	/*
+	// MK23
+		//Calculate the kick angles
+        for (i=1 ; i<3 ; i++)
+        {
+                ent->client->kick_origin[i] = crandom() * 0.35;
+                ent->client->kick_angles[i] = crandom() * 0.7;
+        }
+        ent->client->kick_origin[0] = crandom() * 0.35;
+
+	// Akimbo
+        //Calculate the kick angles
+        for (i=1 ; i<3 ; i++)
+        {
+                ent->client->kick_origin[i] = crandom() * 0.25;
+                ent->client->kick_angles[i] = crandom() * 0.5;
+        }
+        ent->client->kick_origin[0] = crandom() * 0.35;
+
+	// Handcannon
+		AngleVectors (ent->client->v_angle, forward, right, NULL);
+
+        VectorScale (forward, -2, ent->client->kick_origin);
+        ent->client->kick_angles[0] = -2;
+
+	// Knives
+	    AngleVectors (ent->client->v_angle, forward, right, NULL);
+
+        VectorScale (forward, -2, ent->client->kick_origin);
+        ent->client->kick_angles[0] = -2;
+
+	// M3
+	    AngleVectors (ent->client->v_angle, forward, right, NULL);
+
+        VectorScale (forward, -2, ent->client->kick_origin);
+        ent->client->kick_angles[0] = -2;
+
+    // M4 -- we already add the ride-up angles in pmove
+		//Calculate the kick angles
+        for (i=1 ; i<3 ; i++)
+        {
+                ent->client->kick_origin[i] = crandom() * 0.25;
+                ent->client->kick_angles[i] = crandom() * 0.5;
+        }
+        ent->client->kick_origin[0] = crandom() * 0.35;
+
+	// MP5
+	    //Calculate the kick angles
+        for (i=1 ; i<3 ; i++)
+        {
+                ent->client->kick_origin[i] = crandom() * 0.25;
+                ent->client->kick_angles[i] = crandom() * 0.5;
+        }
+        ent->client->kick_origin[0] = crandom() * 0.35;
+
+    // SSG3000 has no kick
+	*/
+
+
+	// View kicks -- note this doesn't affect aim which is handled on the server-side
+	// even though it probably should
+	if (ent->clientNum == cg.snap->ps.clientNum)
+	{
+		vec3_t forward;
+		
+		switch ( cg.snap->ps.weapon )
+		{
+			case WP_KNIFE:
+				AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+				VectorScale ( forward, -2, cg.kick_origin );
+				cg.kick_angles[0] = -2;
+				cg.kick_time = cg.time;
+				cg.kick_duration = 200;
+				break;
+			case WP_PISTOL:
+				for (i = 0; i < 3; i++)
+				{
+					cg.kick_origin[i] = crandom() * 0.35f;
+					cg.kick_angles[i] = crandom() * 0.7f;
+				}
+				cg.kick_origin[0] = crandom() * 0.35f;
+				cg.kick_time = cg.time;
+				break;
+			case WP_M3:
+				AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+				VectorScale ( forward, -2, cg.kick_origin );
+				cg.kick_angles[0] = -2;
+				cg.kick_time = cg.time;
+				break;
+			case WP_M4:
+				for (i = 0; i < 3; i++)
+				{
+					cg.kick_origin[i] = crandom() * 0.25f;
+					cg.kick_angles[i] = crandom() * 0.5f;
+				}
+				cg.kick_origin[0] = crandom() * 0.35f;
+				cg.kick_time = cg.time;
+				break;
+			case WP_MP5:
+				for (i = 0; i < 3; i++)
+				{
+					cg.kick_origin[i] = crandom() * 0.25f;
+					cg.kick_angles[i] = crandom() * 0.5f;
+				}
+				cg.kick_origin[0] = crandom() * 0.35f;
+				cg.kick_time = cg.time;
+				break;
+			case WP_HANDCANNON:
+				AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+				VectorScale ( forward, -2, cg.kick_origin );
+				cg.kick_angles[0] = -2;
+				cg.kick_time = cg.time;
+				break;
+			case WP_AKIMBO:
+				for (i = 0; i < 3; i++)
+				{
+					cg.kick_origin[i] = crandom() * 0.25f;
+					cg.kick_angles[i] = crandom() * 0.5f;
+				}
+				cg.kick_origin[0] = crandom() * 0.35f;
+				cg.kick_time = cg.time;
+				break;
+		}
 	}
 }
 

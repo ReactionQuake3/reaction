@@ -942,6 +942,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
+	// Elder: RQ3 misc. shaders
+	cgs.media.irPlayerShader = trap_R_RegisterShader("powerups/irdetail");
+
 #ifdef MISSIONPACK
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
 #else

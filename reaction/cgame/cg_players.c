@@ -2364,14 +2364,13 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 			trap_R_AddRefEntityToScene( ent );
 		}
 
-		//Elder: IR Vision -- only on players
+		//Elder: IR Vision -- only on players that are alive
 		if (state->eType == ET_PLAYER)
 		{
 			if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER &&
 				cg.rq3_irvision && !(state->eFlags & EF_DEAD))
 			{
-					//Temporary heh
-					ent->customShader = cgs.media.quadShader;
+					ent->customShader = cgs.media.irPlayerShader;
 					trap_R_AddRefEntityToScene( ent );
 			}
 		}
