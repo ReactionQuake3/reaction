@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/02/07 23:31:22  niceass
+// fixed a bug in G_Combat that assumed pointers waren't NULL (only in DLLs was it a problem)
+//
 // Revision 1.40  2002/02/07 21:01:48  niceass
 // AddScore bug fixed. I thought I put this in already!
 //
@@ -1314,7 +1317,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef MISSIONPACK
 	vec3_t		bouncedir, impactpoint;
 #endif
-
+	
 	if (!targ->takedamage) {
 		return;
 	}
@@ -1323,8 +1326,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;		// JBravo: No dmg during LCA
 	}
 
-// JBravo: FF control
-	if (targ != attacker && targ->client && attacker->client &&
+	// NiceAss: Fixed pointer bug causing DLLs to crash
+	// JBravo: FF control
+	if (targ != attacker && attacker && targ && targ->client && attacker->client &&
 		targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
 		!g_friendlyFire.integer)
 			return;
