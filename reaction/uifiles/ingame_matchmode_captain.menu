@@ -168,7 +168,7 @@
     itemDef {
 	name ref
 	group grpCaptain
-	text "Referee:"
+	text "Vote Referee:"
 	textscale .225
 	rect 92 32 80 20
 	textalign ITEM_ALIGN_LEFT
