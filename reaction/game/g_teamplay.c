@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.148  2003/03/21 11:32:04  jbravo
+// Added debugging to locate the bad gEnt crashes, added timelimit support
+// for CTB and TDM and fixed some typos
+//
 // Revision 1.147  2003/02/27 03:58:35  jbravo
 // Fixed the FF system after adding TDM broke it. Added color to error messages
 //
@@ -641,6 +645,26 @@ void CheckTeamRules()
 			level.team_round_countdown = (71 * level.fps) / 10;
 			return;
 		}
+
+		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
+			if (level.time - level.startTime >= g_timelimit.integer * 60000) {
+				trap_SendServerCommand(-1, "print \"^1Timelimit hit.\n\"");
+				trap_SendServerCommand(-1, va("print \"^6Scores:^7 %s [^3%d^7]  -  %s [^3%d^7]\n\"",
+					g_RQ3_team1name.string, level.teamScores[TEAM_RED],
+					g_RQ3_team2name.string, level.teamScores[TEAM_BLUE]));
+				if (level.teamScores[TEAM_BLUE] < level.teamScores[TEAM_RED])
+					trap_SendServerCommand(-1, va("print \"^1%s WIN!\n\"",
+						g_RQ3_team1name.string));
+				else if (level.teamScores[TEAM_RED] < level.teamScores[TEAM_BLUE])
+					trap_SendServerCommand(-1, va("print \"^1%s WIN!\n\"",
+						g_RQ3_team2name.string));
+				else
+					trap_SendServerCommand(-1, va("print \"^1It was a TIE. No team wins!\n\""));
+				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+				BeginIntermission();
+				return;
+			}
+		}
 	}
 }
 
@@ -1026,7 +1050,7 @@ void SpawnPlayers()
 		ent = &g_entities[i];
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
-			trap_LinkEntity(ent);
+			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 			ent->exploded = qfalse;
 			ent->takedamage = qtrue;
@@ -1480,7 +1504,7 @@ void MakeSpectator(gentity_t * ent)
 		}
 		ClientSpawn(ent);
 		ent->client->gibbed = qtrue;
-		trap_UnlinkEntity(ent);
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
 		return;
 	}
 	if (ent->r.svFlags & SVF_BOT)
