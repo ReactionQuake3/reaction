@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/03/03 23:51:45  jbravo
+// Final fixes for anims at spawn and a knife bug.
+//
 // Revision 1.27  2002/03/03 18:00:26  jbravo
 // More Anim fixes.  Knives still broken
 //
@@ -710,8 +713,8 @@ void EquipPlayer (gentity_t *ent)
 	case WP_KNIFE:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
+		ent->client->ps.weapon = WP_KNIFE;
 		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
 		ent->client->uniqueWeapons = 0;
@@ -725,7 +728,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
 		ent->client->uniqueWeapons++;
 	}
-	if (ent->client->teamplayWeapon == WP_KNIFE && (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
+	if (ent->client->teamplayWeapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
 			ANIM_TOGGLEBIT) | WP_ANIM_THROWACTIVATE;
 	} else {
