@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/08/30 00:00:16  makro
+// Sky portals
+//
 // Revision 1.61  2002/08/25 07:07:42  niceass
 // added "life" setting to func_pressure
 //
@@ -209,12 +212,15 @@ Set the color key for the intended color
 */
 void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	ent->unbreakable ^= 1;
+	ent->unbreakable = !ent->unbreakable;
 	if (ent->unbreakable) {
-		ent->r.svFlags &= ~SVF_NOCLIENT;
-	} else {
 		ent->r.svFlags |= SVF_NOCLIENT;
+		ent->s.eFlags |= EF_NODRAW;
+	} else {
+		ent->r.svFlags &= ~SVF_NOCLIENT;
+		ent->s.eFlags &= ~EF_NODRAW;
 	}
+	//G_Printf("\nUsing dlight: %d\n\n", ent->unbreakable);
 }
 
 void SP_dlight(gentity_t * ent)
@@ -239,14 +245,12 @@ void SP_dlight(gentity_t * ent)
 		ent->s.eventParm |= DLIGHT_STROBE;
 
 	//Makro - added START_OFF flag
-	if (ent->spawnflags & 16) {
-		ent->unbreakable = 1;
-		ent->r.svFlags &= ~SVF_NOCLIENT;
-	} else {
-		ent->unbreakable = 0;
-		ent->r.svFlags |= SVF_NOCLIENT;
-	}
 	ent->use = use_dlight;
+	ent->unbreakable = qfalse;
+	if (ent->spawnflags & 16) {
+		ent->unbreakable = qtrue;
+		ent->use(ent, NULL, NULL);
+	}
 
 	r = color[0] * 255;
 	if (r > 255) {
@@ -275,11 +279,13 @@ void SP_dlight(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+/*
 // Nothing significant to do
 void G_RunDlight(gentity_t * ent)
 {
 	trap_LinkEntity(ent);
 }
+*/
 
 /*
 =================================================================================
@@ -445,7 +451,7 @@ void SP_misc_portal_surface(gentity_t * ent)
 			ent->spawnflags--;
 		} else {
 			if (ent->count < 2) {
-				G_Printf("Cycling misc_portal_surface with no count at %s\n", vtos(ent->s.origin));
+				G_Printf("Cycling misc_portal_surface with count < 2 at %s\n", vtos(ent->s.origin));
 				ent->spawnflags--;
 			} else {
 				ent->size = 0;
@@ -480,31 +486,44 @@ void SP_misc_portal_camera(gentity_t * ent)
 }
 
 //Makro - sky portals
-void SP_misc_sky_portal(gentity_t * ent) {
-	gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
-	
-	G_Printf("^1 SKY PORTAL !!!\n");
-		
-	VectorClear(ent->r.mins);
-	VectorClear(ent->r.maxs);
-	trap_LinkEntity(ent);
-	//ent->r.svFlags = SVF_PORTAL;
+void SP_misc_sky_portal(gentity_t * ent)
+{
+	char  info[MAX_INFO_STRING];
+	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 
-	if (skyportal) {
-		char  info[MAX_INFO_STRING];
-		memset(info, 0, sizeof(info));
-		Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
-		Info_SetValueForKey(info, "y", va("%f", skyportal->s.origin[1]));
-		Info_SetValueForKey(info, "z", va("%f", skyportal->s.origin[2]));
-		G_Printf("Sky portal origin: %s\n", vtos(skyportal->s.origin));
-		trap_SetConfigstring(CS_SKYPORTAL, info);
-		VectorCopy(skyportal->s.origin, ent->s.origin2);
-		//ent->r.ownerNum = skyportal->s.number;
-		//ent->s.eType = ET_PORTAL;
+	ent->r.svFlags |= SVF_PORTAL;
+
+	if (!info[0]) {
+		gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
+	
+		//G_Printf("^1 SKY PORTAL !!!\n");
+		
+		VectorClear(ent->r.mins);
+		VectorClear(ent->r.maxs);
+		trap_LinkEntity(ent);
+
+		if (skyportal) {
+			memset(info, 0, sizeof(info));
+			Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
+			Info_SetValueForKey(info, "y", va("%f", skyportal->s.origin[1]));
+			Info_SetValueForKey(info, "z", va("%f", skyportal->s.origin[2]));
+			Info_SetValueForKey(info, "n", va("%i", skyportal->s.number));
+			//G_Printf("Sky portal origin: %s\n", vtos(skyportal->s.origin));
+			trap_SetConfigstring(CS_SKYPORTAL, info);
+			VectorCopy(skyportal->s.origin, ent->s.origin2);
+			ent->r.ownerNum = skyportal->s.number;
+			//ent->s.eType = ET_PORTAL;
+			//ent->r.svFlags |= SVF_BROADCAST;
+		} else {
+			G_Printf("misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
+			trap_SetConfigstring(CS_SKYPORTAL, "");
+			G_FreeEntity(ent);
+		}
 	} else {
-		G_Printf("misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
-		trap_SetConfigstring(CS_SKYPORTAL, "none");
-		G_FreeEntity(ent);
+		ent->s.origin2[0] = atof(Info_ValueForKey(info, "x"));
+		ent->s.origin2[1] = atof(Info_ValueForKey(info, "y"));
+		ent->s.origin2[2] = atof(Info_ValueForKey(info, "z"));
+		ent->r.ownerNum = atoi(Info_ValueForKey(info, "n"));
 	}
 	
 

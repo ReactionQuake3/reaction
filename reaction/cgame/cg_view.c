@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/08/29 23:58:28  makro
+// Sky portals
+//
 // Revision 1.27  2002/08/29 04:42:41  blaze
 // Anti OGC code
 //
@@ -1180,30 +1183,43 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		CG_DamageBlendBlob();
 	}
 
-	/*
+	//Makro - fog hull
+	info = CG_ConfigString(CS_FOGHULL);
+	if (info) {
+		if (info[0]) {
+			vec4_t fogcolor;
+			fogcolor[0] = atof(Info_ValueForKey(info, "r"));
+			fogcolor[1] = atof(Info_ValueForKey(info, "g"));
+			fogcolor[2] = atof(Info_ValueForKey(info, "b"));
+			fogcolor[3] = 1;
+			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
+			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
+		}
+	}
+
 	//Makro - draw sky portal first
 	//Note - doing it here means that sky portal entities won't get drawn. but at least the rest of the map looks ok :/
 	info = CG_ConfigString(CS_SKYPORTAL);
 	if (info[0] && Q_stricmp(info, "none")) {
 		//vec3_t oldOrigin;
 		refdef_t skyRef;
+		CG_AddPacketEntities(qtrue);
 		memset(&skyRef, 0, sizeof(skyRef));
 		memcpy(&skyRef, &cg.refdef, sizeof(skyRef));
 		//VectorCopy(cg.refdef.vieworg, oldOrigin);
 		skyRef.vieworg[0] = atof(Info_ValueForKey(info, "x"));
 		skyRef.vieworg[1] = atof(Info_ValueForKey(info, "y"));
 		skyRef.vieworg[2] = atof(Info_ValueForKey(info, "z"));
-		memset(skyRef.areamask, 0, sizeof(skyRef.areamask));
+		//memset(skyRef.areamask, 0, sizeof(skyRef.areamask));
 		//Com_Printf("View axis is: %f %f %f\n", cg.refdef.viewaxis[0], cg.refdef.viewaxis[1], cg.refdef.viewaxis[2]);
 		trap_R_RenderScene(&skyRef);
 		//trap_R_ClearScene();
 		//VectorCopy(oldOrigin, cg.refdef.vieworg);
 	}
-	*/
 
 	// build the render lists
 	if (!cg.hyperspace) {
-		CG_AddPacketEntities();	// adter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities(qfalse);	// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 		CG_AddParticles();
 		CG_AddLocalEntities();
@@ -1254,19 +1270,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		}
 		if (cg_timescaleFadeSpeed.value) {
 			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
-		}
-	}
-	//Makro - fog hull
-	info = CG_ConfigString(CS_FOGHULL);
-	if (info) {
-		if (info[0]) {
-			vec4_t fogcolor;
-			fogcolor[0] = atof(Info_ValueForKey(info, "r"));
-			fogcolor[1] = atof(Info_ValueForKey(info, "g"));
-			fogcolor[2] = atof(Info_ValueForKey(info, "b"));
-			fogcolor[3] = 1;
-			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
-			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
 		}
 	}
 	

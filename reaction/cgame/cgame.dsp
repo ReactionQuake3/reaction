@@ -193,6 +193,10 @@ SOURCE=..\game\bg_slidemove.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\cg_atmospheric.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\cg_consolecmds.c
 # End Source File
 # Begin Source File

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/08/30 00:00:16  makro
+// Sky portals
+//
 // Revision 1.38  2002/08/25 00:46:52  niceass
 // q3f atmosphere
 //
@@ -687,6 +690,13 @@ void G_SpawnGEntityFromSpawnVars(void)
 	// if we didn't get a classname, don't bother spawning anything
 	if (!G_CallSpawn(ent)) {
 		G_FreeEntity(ent);
+	}
+
+	//Makro - is the entity in a sky portal ?
+	if (G_SpawnInt("skyportalent", "0", &i)) {
+		if (i) {
+			ent->s.eFlags |= EF_SKYPORTAL;
+		}
 	}
 }
 

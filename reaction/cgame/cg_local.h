@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2002/08/29 23:58:28  makro
+// Sky portals
+//
 // Revision 1.124  2002/08/29 14:24:43  niceass
 // new wallhack thing
 //
@@ -1961,7 +1964,9 @@ void CG_PainEvent(centity_t * cent, int health);
 // cg_ents.c
 //
 void CG_SetEntitySoundPosition(centity_t * cent);
-void CG_AddPacketEntities(void);
+//Makro - added skyportal param
+//void CG_AddPacketEntities(void);
+void CG_AddPacketEntities(qboolean inSkyPortal);
 void CG_Beam(centity_t * cent);
 void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);
 

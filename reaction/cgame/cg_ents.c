@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/08/29 23:58:27  makro
+// Sky portals
+//
 // Revision 1.31  2002/08/27 05:10:42  niceass
 // new ctb marker shader names
 //
@@ -1070,54 +1073,68 @@ static void CG_AddCEntity(centity_t * cent)
 ===============
 CG_AddPacketEntities
 
+Makro - added skyportal param
 ===============
 */
-void CG_AddPacketEntities(void)
+void CG_AddPacketEntities(qboolean inSkyPortal)
 {
-	int num;
 	centity_t *cent;
-	playerState_t *ps;
+	int num;
 
-	// set cg.frameInterpolation
-	if (cg.nextSnap) {
-		int delta;
+	//Makro - if we're rendering the entities in a sky portals, we don't need this stuff
+	if (!inSkyPortal) {
+		playerState_t *ps;
 
-		delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
-		if (delta == 0) {
-			cg.frameInterpolation = 0;
+		// set cg.frameInterpolation
+		if (cg.nextSnap) {
+			int delta;
+
+			delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
+			if (delta == 0) {
+				cg.frameInterpolation = 0;
+			} else {
+				cg.frameInterpolation = (float) (cg.time - cg.snap->serverTime) / delta;
+			}
 		} else {
-			cg.frameInterpolation = (float) (cg.time - cg.snap->serverTime) / delta;
+			cg.frameInterpolation = 0;	// actually, it should never be used, because
+			// no entities7 should be marked as interpolating
 		}
-	} else {
-		cg.frameInterpolation = 0;	// actually, it should never be used, because
-		// no entities7 should be marked as interpolating
+
+		// the auto-rotating items will all have the same axis
+		cg.autoAngles[0] = 0;
+		cg.autoAngles[1] = 0;	//Blaze: changed this ( cg.time & 2047 ) * 360 / 2048.0; to 0;
+		cg.autoAngles[2] = 0;
+	
+		cg.autoAnglesFast[0] = 0;
+		//Elder: restored for weapon rotation
+		cg.autoAnglesFast[1] = (cg.time & 1023) * 360 / 1024.0f;
+		cg.autoAnglesFast[2] = 0;
+
+		AnglesToAxis(cg.autoAngles, cg.autoAxis);
+		AnglesToAxis(cg.autoAnglesFast, cg.autoAxisFast);
+
+		// generate and add the entity from the playerstate
+		ps = &cg.predictedPlayerState;
+		BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse);
+		CG_AddCEntity(&cg.predictedPlayerEntity);
+
+		// lerp the non-predicted value for lightning gun origins
+		CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 	}
-
-	// the auto-rotating items will all have the same axis
-	cg.autoAngles[0] = 0;
-	cg.autoAngles[1] = 0;	//Blaze: changed this ( cg.time & 2047 ) * 360 / 2048.0; to 0;
-	cg.autoAngles[2] = 0;
-
-	cg.autoAnglesFast[0] = 0;
-	//Elder: restored for weapon rotation
-	cg.autoAnglesFast[1] = (cg.time & 1023) * 360 / 1024.0f;
-	cg.autoAnglesFast[2] = 0;
-
-	AnglesToAxis(cg.autoAngles, cg.autoAxis);
-	AnglesToAxis(cg.autoAnglesFast, cg.autoAxisFast);
-
-	// generate and add the entity from the playerstate
-	ps = &cg.predictedPlayerState;
-	BG_PlayerStateToEntityState(ps, &cg.predictedPlayerEntity.currentState, qfalse);
-	CG_AddCEntity(&cg.predictedPlayerEntity);
-
-	// lerp the non-predicted value for lightning gun origins
-	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 
 	// add each entity sent over by the server
 	for (num = 0; num < cg.snap->numEntities; num++) {
 		cent = &cg_entities[cg.snap->entities[num].number];
-		CG_AddCEntity(cent);
+		if (inSkyPortal) {
+			if (cent->currentState.eFlags & EF_SKYPORTAL) {
+				CG_AddCEntity(cent);
+			}
+		} else {
+			if (!(cent->currentState.eFlags & EF_SKYPORTAL)) {
+				CG_AddCEntity(cent);
+			}
+		}
+
 	}
 }
 
@@ -1169,25 +1186,29 @@ Use sparingly.
 */
 static void CG_Dlight(centity_t * cent)
 {
-	int cl;
-	float i, r, g, b;
+	//Makro - kinda hackish, but oh well...
+	//allows us to trigger them on off; SVF_NOCLIENT should've done this already, though
+	if (!(cent->currentState.eFlags & EF_NODRAW)) {
+		int cl;
+		float i, r, g, b;
 
-	cl = cent->currentState.constantLight;
-	r = (cl & 255) / 255.0f;
-	g = ((cl >> 8) & 255) / 255.0f;
-	b = ((cl >> 16) & 255) / 255.0f;
-	i = (cl >> 24) & 255 * 4;
+		cl = cent->currentState.constantLight;
+		r = (cl & 255) / 255.0f;
+		g = ((cl >> 8) & 255) / 255.0f;
+		b = ((cl >> 16) & 255) / 255.0f;
+		i = (cl >> 24) & 255 * 4;
 
-	if (cent->currentState.eventParm & DLIGHT_FLICKER)
-		i += rand() % 100 - 50;
+		if (cent->currentState.eventParm & DLIGHT_FLICKER)
+			i += rand() % 100 - 50;
 
-	if (cent->currentState.eventParm & DLIGHT_PULSE)
-		i *= 1.0f + sin(2 * M_PI * cg.time / 1000.0f);
+		if (cent->currentState.eventParm & DLIGHT_PULSE)
+			i *= 1.0f + sin(2 * M_PI * cg.time / 1000.0f);
 
-	if (cent->currentState.eventParm & DLIGHT_ADDITIVE)
-		trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);
-	else
-		trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
+		if (cent->currentState.eventParm & DLIGHT_ADDITIVE)
+			trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);
+		else
+			trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
 
-	//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
+		//CG_Printf("cgame: (%f %f %f) %f\n", r, g, b, i );
+	}
 }

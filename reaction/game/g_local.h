@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/08/30 00:00:16  makro
+// Sky portals
+//
 // Revision 1.120  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -1042,7 +1045,8 @@ void trigger_teleporter_touch(gentity_t * self, gentity_t * other, trace_t * tra
 //
 void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles);
 void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, vec3_t point, int mod, int damage);	//Blaze: Breakable glass
-void G_RunDlight(gentity_t * ent);	// Elder: dlight running
+//Makro - not needed
+//void G_RunDlight(gentity_t * ent);	// Elder: dlight running
 void G_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result);
 void G_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result);
 void G_GravityChange(void);

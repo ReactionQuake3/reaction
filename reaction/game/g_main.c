@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/08/30 00:00:16  makro
+// Sky portals
+//
 // Revision 1.112  2002/08/29 23:47:10  jbravo
 // Disabled drop case and fixed a padding problem in the date code.
 //
@@ -2527,11 +2530,13 @@ void G_RunFrame(int levelTime)
 			G_RunMover(ent);
 			continue;
 		}
+		/*
 		// Elder: run dynamic lights
 		if (ent->s.eType == ET_DLIGHT) {
 			G_RunDlight(ent);
 			continue;
 		}
+		*/
 
 		if (i < MAX_CLIENTS) {
 			G_RunClient(ent);	// Basicly calls ClientThink_real()
