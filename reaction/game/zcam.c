@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/02/10 18:38:42  jbravo
+// Added new SPECTATOR_ZCAM spec mode.
+//
 // Revision 1.5  2002/02/10 16:26:55  jbravo
 // Attempting to intergrate zcam better into rq3 and a fix for lights.wav
 //
@@ -1166,7 +1169,7 @@ void camera_disconnect (gentity_t *ent)
 
 void camera_think (gentity_t *ent)
 {
-  if ( (ent->client->buttons & BUTTON_ATTACK ) 
+/*  if ( (ent->client->buttons & BUTTON_ATTACK ) 
        && ! (ent->client->oldbuttons & BUTTON_ATTACK ) ) 
     {
       CameraSwingCycle (ent, 1);
@@ -1183,7 +1186,7 @@ void camera_think (gentity_t *ent)
 	{
 	  CameraFlicBegin (ent);
 	}
-    }
+    } */
 
   if (NumPlayers() == 0)
     {

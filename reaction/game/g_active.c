@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/02/10 18:38:42  jbravo
+// Added new SPECTATOR_ZCAM spec mode.
+//
 // Revision 1.50  2002/02/10 17:20:45  jbravo
 // Attempting to fix the camera freeze in the begining of the game
 //
@@ -515,17 +518,19 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	}
 
 #ifdef  __ZCAM__
-	client->ps.commandTime = ucmd->serverTime;
-	client->oldbuttons = client->buttons;
-	client->buttons = ucmd->buttons;
+//	client->ps.commandTime = ucmd->serverTime;
+//	client->oldbuttons = client->buttons;
+//	client->buttons = ucmd->buttons;
 
-	if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
+	if (client->sess.spectatorState == SPECTATOR_ZCAM) {
 		if (g_gametype.integer != GT_TEAMPLAY) {
 			camera_think(ent);
 			return;
-		} else if (level.team_round_countdown == 0) {
-			camera_think(ent);
-			return;
+		} else {
+			if (level.team_game_going == 1) {
+				camera_think(ent);
+				return;
+			}
 		}
 	}
 #endif

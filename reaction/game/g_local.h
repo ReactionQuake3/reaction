@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/02/10 18:38:42  jbravo
+// Added new SPECTATOR_ZCAM spec mode.
+//
 // Revision 1.45  2002/02/10 02:49:28  niceass
 // re-added zcam #define
 //
@@ -267,6 +270,7 @@ typedef enum {
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
 #ifdef  __ZCAM__
+	SPECTATOR_ZCAM,
 	SPECTATOR_CAMERA_FLIC,
 	SPECTATOR_CAMERA_SWING,
 #endif
