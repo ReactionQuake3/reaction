@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/08/29 05:55:28  blaze
+// changed ogc_islame from archive to ROM
+//
 // Revision 1.107  2002/08/29 04:42:41  blaze
 // Anti OGC code
 //
@@ -597,7 +600,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE},
 	{&cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE},
 	{&cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE},
-	{&ogc_islame,"ogc_islame","1",CVAR_ARCHIVE},
+	{&ogc_islame,"ogc_islame","1",CVAR_ROM},
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 	{&cg_buildScript, "com_buildScript", "0", 0},	// force loading of all possible data amd error on failures
