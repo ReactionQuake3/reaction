@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/06/16 20:11:18  niceass
+// unused cvar removed
+//
 // Revision 1.84  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -256,7 +259,6 @@ vmCvar_t g_dedicated;
 vmCvar_t g_speed;
 vmCvar_t g_gravity;
 vmCvar_t g_cheats;
-vmCvar_t g_knockback;
 vmCvar_t g_quadfactor;
 vmCvar_t g_forcerespawn;
 vmCvar_t g_inactivity;
@@ -399,7 +401,6 @@ static cvarTable_t gameCvarTable[] = {
 	// Elder: slow down to 300?
 	{&g_speed, "g_speed", "300", 0, 0, qtrue},	// was 320
 	{&g_gravity, "g_gravity", "800", CVAR_SYSTEMINFO, 0, qtrue},	// shared with client (cg_gravity)
-	{&g_knockback, "g_knockback", "1000", 0, 0, qtrue},
 	{&g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue},
 	{&g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue},
 	{&g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue},

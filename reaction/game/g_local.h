@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/06/16 20:11:41  niceass
+// unused cvar removed
+//
 // Revision 1.94  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1146,7 +1149,6 @@ extern vmCvar_t g_password;
 extern vmCvar_t g_needpass;
 extern vmCvar_t g_gravity;
 extern vmCvar_t g_speed;
-extern vmCvar_t g_knockback;
 extern vmCvar_t g_quadfactor;
 extern vmCvar_t g_forcerespawn;
 extern vmCvar_t g_inactivity;
