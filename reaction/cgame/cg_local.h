@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/03/24 22:48:29  niceass
+// cg_draw change for scoreboard
+//
 // Revision 1.58  2002/03/23 05:50:47  jbravo
 // Moved enableDust out of the missionpack
 //
@@ -1641,7 +1644,9 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
+void CG_DrawCleanSides(float x, float y, float w, float h, float size, const float *color);
 void CG_DrawCleanRect( float x, float y, float width, float height, float size, const float *color );
+void CG_DrawCleanLine(float x, float y, float w, float size, const float *color);
 
 
 //

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/24 22:48:57  niceass
+// cg_draw change for scoreboard
+//
 // Revision 1.8  2002/02/04 00:22:50  niceass
 // Added DrawCleanBox for scoreboard
 //
@@ -81,6 +84,32 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 
 /*
 ================
+CG_DrawCleanTopBottom -- Added by NiceAss
+"Size" not scaled 
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void CG_DrawCleanSides(float x, float y, float w, float h, float size, const float *color) {
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	trap_R_SetColor( color );
+	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_SetColor( NULL );
+}
+
+void CG_DrawCleanLine(float x, float y, float w, float size, const float *color) {
+	float	h=0;
+
+	CG_AdjustFrom640( &x, &y, &w, &h );
+	trap_R_SetColor( color );
+	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_SetColor( NULL );
+}
+
+
+/*
+================
 UI_DrawRect
 
 Coordinates are 640*480 virtual values
@@ -89,8 +118,8 @@ Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
 	trap_R_SetColor( color );
 
-  CG_DrawTopBottom(x, y, width, height, size);
-  CG_DrawSides(x, y, width, height, size);
+	CG_DrawTopBottom(x, y, width, height, size);
+	CG_DrawSides(x, y, width, height, size);
 
 	trap_R_SetColor( NULL );
 }
