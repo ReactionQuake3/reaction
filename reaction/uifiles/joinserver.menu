@@ -1,0 +1,1026 @@
+#include "ui/menudef.h"
+
+#define HeaderColor 0 0 0 .75
+#define HeaderColor2 .25 .25 .25 .75
+#define ColumnColor .5 .5 .5 0
+#define ColumnColor2 1 1 1 .075
+
+{
+
+  menuDef {
+    name "joinserver"
+    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the old background
+    fullScreen MENU_TRUE
+    visible MENU_FALSE				// Visible on open
+    focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+
+    onOpen {
+      uiScript "UpdateFilter" ;
+      play "sound/misc/menu1.wav" ;
+    }
+
+    onEsc { uiScript closeJoin }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "join_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-menu-start.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "join_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-start.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+    }
+
+//===================
+// Buttons, lists
+//===================
+
+//Shadow
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	rect 20 76 600 328
+	shadowstyle 1
+	decoration
+	visible 1
+    }
+
+//Server list
+
+    itemdef {
+	name serverlist_window
+	group serverlist
+	rect 20 96 600 212
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 20
+	textscale .225
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_SERVERS
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor HeaderColor
+	outlinecolor 1 1 1 .2
+	visible 1
+	columns 5 2 72 72 280 40 12 404 5 10 464 5 5 524 6 6
+	//mouseenter { setitemcolor serverlist bordercolor .7 0 0 1 }
+	//mouseexit { setitemcolor serverlist bordercolor .5 .5 .5 1 }
+	onFocus { show serverlist_hint ; timeFade serverlist_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade serverlist_hint forecolor .9 .9 .9 0 0 250 }
+	doubleClick { uiScript JoinServer }
+    }
+
+    itemdef {
+	name serverlist_hint
+	text "Select a server from the list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Headers
+
+    itemdef {
+	name s_servername_header
+	group headers
+	rect 20 76 281 21
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor HeaderColor
+	forecolor 1 1 1 1
+	textscale .225
+	outlinecolor 1 1 1 .2
+	textstyle 5
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	text "Server name"
+	visible 1
+	action {
+		play "sound/misc/menu1.wav" ;
+	  	uiScript ServerSort 0 ;
+	  	setitemcolor headers backcolor HeaderColor ;
+		setitemcolor s_servername_header backcolor HeaderColor2 ;
+		setitemcolor columns backcolor ColumnColor ;
+		setitemcolor s_servername_column backcolor ColumnColor2 }
+	onFocus { show sortserver_hint ; timeFade sortserver_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade sortserver_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name s_mapname_header
+	group headers
+	rect 300 76 121 21
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor HeaderColor
+	forecolor 1 1 1 1
+	textscale .225
+	outlinecolor 1 1 1 .2
+	textstyle 5
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	text "Map name"
+	visible 1
+	action {
+		play "sound/misc/menu1.wav" ;
+        	uiScript ServerSort 1 ;
+        	setitemcolor headers backcolor HeaderColor ;
+		setitemcolor s_mapname_header backcolor HeaderColor2 ;
+		setitemcolor columns backcolor ColumnColor ;
+		setitemcolor s_mapname_column backcolor ColumnColor2 }
+	onFocus { show sortmap_hint ; timeFade sortmap_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade sortmap_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name s_players_header
+	group headers
+	rect 420 76 61 21
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor HeaderColor
+	forecolor 1 1 1 1
+	textscale .225
+	outlinecolor 1 1 1 .2
+	textstyle 5
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	text "#Plyrs"
+	visible 1
+	action {
+		play "sound/misc/menu1.wav" ;
+        	uiScript ServerSort 2 ;
+        	setitemcolor headers backcolor HeaderColor ;
+		setitemcolor s_players_header backcolor HeaderColor2 ;
+		setitemcolor columns backcolor ColumnColor ;
+		setitemcolor s_players_column backcolor ColumnColor2 }
+	onFocus { show sortplayers_hint ; timeFade sortplayers_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade sortplayers_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name s_gametype_header
+	group headers
+	rect 480 76 61 21
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor HeaderColor
+	forecolor 1 1 1 1
+	textscale .225
+	outlinecolor 1 1 1 .2
+	textstyle 5
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	text "Type"
+	visible 1
+	action {
+		play "sound/misc/menu1.wav" ;
+        	uiScript ServerSort 3 ;
+        	setitemcolor headers backcolor HeaderColor ;
+		setitemcolor s_gametype_header backcolor HeaderColor2 ;
+		setitemcolor columns backcolor ColumnColor ;
+		setitemcolor s_gametype_column backcolor ColumnColor2 }
+	onFocus { show sorttype_hint ; timeFade sorttype_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade sorttype_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name s_ping_header
+	group headers
+	rect 540 76 80 21
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor HeaderColor
+	forecolor 1 1 1 1
+	textscale .225
+	outlinecolor 1 1 1 .2
+	textstyle 5
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	text "Ping"
+	visible 1
+	action {
+		play "sound/misc/menu1.wav" ;
+        	uiScript ServerSort 4 ;
+        	setitemcolor headers backcolor HeaderColor ;
+		setitemcolor s_ping_header backcolor HeaderColor2 ;
+		setitemcolor columns backcolor ColumnColor ;
+		setitemcolor s_ping_column backcolor ColumnColor2 }
+	onFocus { show sortping_hint ; timeFade sortping_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade sortping_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+//Columns
+
+    itemdef {
+	name s_servername_column
+	group columns
+	rect 20 96 281 212
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor ColumnColor
+	visible 1
+	decoration
+    }	
+
+    itemdef {
+	name s_mapname_column
+	group columns
+	rect 300 96 121 212
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor ColumnColor
+	visible 1
+	decoration
+    }	
+
+    itemdef {
+	name s_players_column
+	group columns
+	rect 420 96 61 212
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor ColumnColor
+	visible 1
+	decoration
+    }	
+
+    itemdef {
+	name s_gametype_column
+	group columns
+	rect 480 96 61 212
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor ColumnColor
+	visible 1
+	decoration
+    }	
+
+    itemdef {
+	name s_ping_column
+	group columns
+	rect 540 96 63 212
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordercolor .5 .5 .5 1
+	backcolor ColumnColor
+	visible 1
+	decoration
+    }	
+
+//Sort message
+
+    itemdef {
+	name sortserver_hint
+	text "Click to sort server list by server name"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name sortmap_hint
+	text "Click to sort server list by map name"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name sortplayers_hint
+	text "Click to sort server list by number of players"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name sorttype_hint
+	text "Click to sort server list by game type"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name sortping_hint
+	text "Click to sort server list by ping time"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Options
+
+    //Window
+
+    itemdef {
+	rect 20 307 600 65
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    //Window
+
+    itemdef {
+	rect 20 370 600 32
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    //Map preview
+
+/*
+    itemdef {
+	rect 12 72 168 124
+	style WINDOW_STYLE_EMPTY
+	//backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+*/
+
+    itemdef {
+	name map_preview
+	rect 544 314 72 54
+	ownerdraw UI_NETMAPCINEMATIC
+	style WINDOW_STYLE_EMPTY
+	decoration
+	visible 1
+    }
+
+    // 1st row //
+    // Server Info //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 28 316 100 20
+	text "Server Info"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { open "serverinfo_popmenu" }
+	onFocus { show serverinfo_hint ; timeFade serverinfo_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade serverinfo_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name serverinfo_hint
+	text "Click to display information about the selected server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Password //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 148 316 100 20
+	text "Password"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { open "password_popmenu" }
+	onFocus { show password_hint ; timeFade password_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade password_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name password_hint
+	text "Click to enter a password to join a private server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Specify //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 300 316 100 20
+	text "Specify"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { open "specify_popmenu" }
+	onFocus { show specify_hint ; timeFade specify_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade specify_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name specify_hint
+	text "Click to specify a custom server address"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Find Player //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 420 316 100 20
+	text "Find Player"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { open "findplayer_popmenu" }
+	onFocus { show findplayer_hint ; timeFade findplayer_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade findplayer_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name findplayer_hint
+	text "Click to search the server list for players"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // 2nd row //
+    // Add Favorite //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 28 344 100 20
+	text "Add Favorite"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript addFavorite }
+	onFocus { show addfav_hint ; timeFade addfav_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade addfav_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name addfav_hint 
+	text "Click to add the selected server to the favorites list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Del Favorite //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 148 344 100 20
+	text "Del. Favorite"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript DeleteFavorite ; uiScript UpdateFilter }
+	onFocus { show delfav_hint ; timeFade delfav_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade delfav_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name delfav_hint 
+	text "Click to remove the selected server from the favorites list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // New Favorite //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 300 344 100 20
+	text "New Favorite"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { open "createfavorite_popmenu" }
+	onFocus { show newfav_hint ; timeFade newfav_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade newfav_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name newfav_hint 
+	text "Click to enter the name and address of a new favorite server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Source //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_NETSOURCE
+	rect 420 344 80 20
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    // 3rd row //
+    // Get New List //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 28 376 100 20
+	text "Get New List"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript RefreshServers }
+	onFocus { show getlist_hint ; timeFade getlist_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade getlist_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name getlist_hint 
+	text "Click to get an updated server list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Refresh List //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 148 376 100 20
+	text "Refresh List"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	onFocus { show refresh_hint ; timeFade refresh_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade refresh_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name refresh_hint 
+	text "Click to refresh the server list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // View empty //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	rect 300 376 80 20
+	text "View Empty:"
+	cvar "ui_browserShowEmpty"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	onFocus { show empty_hint ; timeFade empty_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade empty_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name empty_hint 
+	text "Show empty servers in the list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // View full //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	rect 420 376 80 20
+	text "View Full:"
+	cvar "ui_browserShowFull"
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	onFocus { show full_hint ; timeFade full_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade full_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name full_hint 
+	text "Show full servers in the list"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+/*
+    // Game //
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_NETFILTER
+	rect 528 376 80 20
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav"  }
+    }
+*/
+
+//GO button
+
+    itemdef {
+	name "btn_join"
+	style WINDOW_STYLE_SHADER
+	rect 560 432 64 32
+	type 1
+	background "menu/art/rq3-menu-go.tga"
+	action { uiScript JoinServer }
+	onFocus { setbackground "menu/art/rq3-menu-go-focus-anim" ; show join_hint ;
+		timeFade join_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-go.tga" ;
+		timeFade join_hint forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+    itemdef {
+	name join_hint
+	text "Connect to the selected server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+    // Server Refresh Date //
+
+    itemdef {
+	ownerdraw UI_SERVERREFRESHDATE
+	style WINDOW_STYLE_EMPTY
+	rect 300 20 200 20
+	textscale .2
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 16
+	forecolor 1 1 1 1
+	decoration
+	visible 1
+    }
+
+//Create
+
+    itemdef {
+	name "btn_create"
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	rect 540 20 80 20
+	//border 1
+	//bordersize 1
+	//bordercolor .5 .5 .5 1
+	backcolor Ig_Sub_Color1
+	forecolor 1 1 1 1
+	textscale .25
+	textalign ITEM_ALIGN_CENTER
+	textalignx 40
+	textaligny 14
+	text "Create >"
+	visible 1
+	action { close joinserver ; open createserver }
+	//onFocus { setcolor backcolor Ig_Sub_Color2 ; show create_hint }
+	//leaveFocus { setcolor backcolor Ig_Sub_Color1 ; hide create_hint }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ;
+		show create_hint ; timeFade create_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ;
+		timeFade create_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name create_hint
+	text "Create your own Reaction server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Back
+
+    itemdef {
+	name "btn_back"
+	style WINDOW_STYLE_SHADER
+	rect 12 432 32 32
+	type 1
+	background "menu/art/rq3-menu-back.tga"
+	action { close joinserver ; open main ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+    itemdef {
+	name back_hint
+	text "Go back to main menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+}
+}

@@ -1,0 +1,446 @@
+#include "ui/menudef.h"
+
+{
+
+    assetGlobalDef {
+	font "fonts/font" 16				// font
+	smallFont "fonts/smallfont" 12				// font
+	bigFont "fonts/bigfont" 20				// font
+	cursor "gfx/rq3_ta_hud/3_cursor2"			// cursor
+	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
+	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+
+	fadeClamp 1.0					// sets the fadeup alpha
+	fadeCycle 1					// how often fade happens in milliseconds
+	fadeAmount 0.1					// amount to adjust alpha per cycle
+
+	shadowColor 0.1 0.1 0.1 0.25			// shadow color
+    }
+
+
+    menuDef {
+	name "ingame"
+	visible 0
+	fullScreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 0 0 640 36
+	focusColor 1 .75 0 1
+	disableColor .5 .5 .5 1
+	onOpen { play "sound/misc/menu2.wav" ; setfocus "ig-player" ; }
+
+    itemdef {
+	name "ig-bground"
+	rect 0 0 640 36
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-background"
+	//backcolor 0 0 0 .5
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "ig-bground-bar"
+	rect 0 36 640 2
+	style WINDOW_STYLE_FILLED
+	//backcolor 1 0 0 1
+	backcolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "ig-logo"
+	rect 4 0 96 32
+	style WINDOW_STYLE_SHADER
+	background "menu/art/rq3-title-logo"
+	visible 1
+	decoration
+    }
+
+//Box for hints
+
+    itemDef {
+	style WINDOW_STYLE_SHADER
+	rect 384 26 40 20
+	background "ui/assets/rq3-main-box-3.tga"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	style WINDOW_STYLE_SHADER
+	rect 424 26 216 20
+	background "ui/assets/rq3-main-box-1.tga"
+	visible 1
+	decoration
+    }
+
+//Buttons
+
+    itemdef {
+	name "ig-player"
+	rect 116 8 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Player"
+	shortcutKey "P"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	action { open ingame_player }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-player-hint" ; timeFade "ig-player-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-player-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-options"
+	rect 180 8 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Options"
+	shortcutKey "O"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	action { open ingame_system }
+	//action { exec "screenshotJPEG" ; }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-options-hint" ; timeFade "ig-options-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-options-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-about"
+	rect 244 8 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "About"
+	shortcutKey "A"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	action { open ingame_about }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-about-hint" ; timeFade "ig-about-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-about-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-matchmode"
+	rect 308 8 68 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 34
+	textaligny 12
+	text "Matchmode"
+	shortcutKey "M"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	cvarTest "g_RQ3_matchMode"
+	enableCvar { "1" }
+	action { open ingame_matchmode }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-matchmode-hint" ; timeFade "ig-matchmode-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-matchmode-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-vote"
+	rect 400 4 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Vote"
+	shortcutKey "V"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	cvartest "g_allowVote"
+	disableCvar { "0" }
+	action { open ingame_vote }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-vote-hint" ; timeFade "ig-vote-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-vote-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-addbot"
+	rect 460 4 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Add bot"
+	shortcutKey "B"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	cvartest "ui_singlePlayerActive"
+	disableCvar { "1" }
+	action { open ingame_addbot }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-addbot-hint" ; timeFade "ig-addbot-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-addbot-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-devmode"
+	rect 520 4 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Devmode"
+	shortcutKey "D"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	cvartest "sv_cheats"
+	enableCvar { "1" }
+	disableCvar { "0" }
+	action { open ingame_devmode }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-devmode-hint" ; timeFade "ig-devmode-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-devmode-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name "ig-quit"
+	rect 580 4 52 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 26
+	textaligny 12
+	text "Quit"
+	shortcutKey "Q"
+	border 1
+	bordersize 1
+	backcolor Ingame_Color1
+	forecolor Ingame_TextColor
+	bordercolor Ingame_BorderColor1
+	visible 1
+	action { open ingame_leave }
+	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
+		show "ig-quit-hint" ; timeFade "ig-quit-hint" forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
+		timeFade "ig-quit-hint" forecolor .9 .9 .9 0 0 250 }
+    }
+
+//Hints
+
+    //Hint for player in teamplay mode
+
+    itemdef {
+	name "ig-player-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Player options, team, weapon & item"
+	forecolor Ingame_HintColor
+	cvarTest "g_gameType"
+	showCvar { "4" }
+	visible 0
+	decoration
+    }
+
+    //Hint for player in a non-teamplay mode
+
+    itemdef {
+	name "ig-player-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Change player options"
+	forecolor Ingame_HintColor
+	cvarTest "g_gameType"
+	hideCvar { "4" }
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-options-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Controls, game & system options"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-about-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "View server info"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-devmode-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Developer mode commands"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-addbot-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Play against computer-controlled opponnents"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-vote-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Vote yes/no or call a vote"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-matchmode-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "View/change match mode settings"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name "ig-quit-hint"
+	group "hints"
+	style WINDOW_STYLE_EMPTY
+	rect 400 28 240 16
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .2
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 236
+	textaligny 12
+	text "Exit Reaction Quake 3"
+	forecolor Ingame_HintColor
+	visible 0
+	decoration
+    }
+
+  }
+
+}

@@ -1,0 +1,293 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_devmode"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 368 64 256 192
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" }
+
+//Window
+
+    itemDef {
+	rect 0 0 256 120
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 0 119 256 73
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    //
+
+    itemDef {
+	rect 137 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	rect 137 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Developer mode"
+	visible 1
+	decoration
+    }
+
+//Options
+
+//3rd Person
+
+    itemDef {
+	type ITEM_TYPE_YESNO
+	text "3rd Person:"
+	cvar "cg_thirdPerson"
+	rect 32 36 144 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 96
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//3rd Person Angle
+
+    itemDef {
+	type ITEM_TYPE_SLIDER
+	text "Angle:"
+	cvarfloat "cg_thirdPersonAngle" 180 0 360
+	rect 32 60 144 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 24
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//3rd Person Range
+
+    itemDef {
+	type ITEM_TYPE_SLIDER
+	text "Range:"
+	cvarfloat "cg_thirdPersonRange" 200 40 840
+	rect 32 84 144 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 24
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//God mode
+
+    itemDef {
+	rect 176 40 60 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "God"
+	shortcutKey "G"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "god" ; uiScript closeingame }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+//Give all
+
+    itemDef {
+	rect 176 64 60 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "Give All"
+	shortcutKey "A"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "give all" ; uiScript closeingame }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+//Noclip mode
+
+    itemDef {
+	rect 176 88 60 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "Noclip"
+	shortcutKey "N"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "noclip" ; uiScript closeingame }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    // DEMO RECORDING OPTIONS //
+
+    // Demo name //
+
+    itemDef {
+	name demo
+	text "Demo:"
+	style 0
+	textscale .225
+	rect 32 132 144 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 24
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name demoEntry
+	style WINDOW_STYLE_FILLED
+	rect 20 152 148 16
+	text ""
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	maxchars 20
+	maxPaintChars 8
+	textscale .225
+	type ITEM_TYPE_EDITFIELD
+	cvar "ui_RQ3_demoName"
+	border 1
+	bordersize 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 1 1 1 .1
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .2 ; }
+	leavefocus { setcolor backcolor 1 1 1 .1 ; }
+    }
+
+/*
+    // Game speed
+
+    itemDef {
+	type ITEM_TYPE_MULTI
+	text "Speed:"
+	cvar "timescale"
+	cvarFloatList { "25%" 0.25 "50%" 0.5 "75%" 0.75 "100%" 1 "125%" 1.25 "150%" 1.5 "200%" 2 "250%" 2.5 "300%" 3 "400%" 4 "500%" 5 }
+	rect 80 132 88 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+*/
+
+    // Stop recording //
+
+    itemDef {
+	rect 176 132 60 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "Stop"
+	shortcutKey "S"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript closeingame ; exec "stoprecord"}
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    // Record //
+
+    itemDef {
+	rect 176 152 60 16
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "Record"
+	shortcutKey "R"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript closeingame ; uiScript recordDemo }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+}
+}

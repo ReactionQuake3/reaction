@@ -1,0 +1,32 @@
+{	
+	// MENU DEFS //
+
+	loadMenu { "ui/main.menu" }
+
+ 	loadMenu { "ui/joinserver.menu" }
+	loadMenu { "ui/specify.menu" }
+	loadMenu { "ui/serverinfo.menu" }
+	loadMenu { "ui/findplayer.menu" }
+	loadMenu { "ui/createfavorite.menu" }
+
+ 	loadMenu { "ui/createserver.menu" }
+
+	loadMenu { "ui/options.menu" }
+ 	loadMenu { "ui/player.menu" }
+ 	loadMenu { "ui/setup.menu" }
+	loadMenu { "ui/controls.menu" }
+	loadMenu { "ui/cdkey.menu" }
+	loadMenu { "ui/system.menu" }
+	loadMenu { "ui/credit.menu" }
+	loadMenu { "ui/connect.menu" }
+	loadMenu { "ui/password.menu" }
+
+ 	loadMenu { "ui/mod.menu" }
+
+	loadMenu { "ui/demo.menu" }
+
+	loadMenu { "ui/error.menu" }
+
+	loadMenu { "ui/quit.menu" }
+
+}

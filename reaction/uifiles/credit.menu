@@ -1,0 +1,1446 @@
+#include "ui/menudef.h"
+
+{
+
+  menuDef {
+    name "credit"
+    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the current background
+    fullScreen 1
+    visible 0						// Visible on open
+    focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
+    timedItems 39
+    timerInterval 5500
+
+    fadeCycle 500						// how often fade happens in milliseconds
+    fadeAmount 0.01					// amount to adjust alpha per cycle
+    fadeClamp 1.0					// sets the fadeup alpha
+
+    onOpen {
+      uiScript "backupMusicVolume" ;
+      play "sound/misc/menu1.wav" ;
+      //exec "s_musicvolume 1" ;
+      playlooped "music/sonic1" ;
+      transition hint 0 480 640 40 0 420 640 40 20 10 ;
+      startTimer
+    }
+
+    onFinishTimer { uiScript "restoreMusicVolume" ; close credit ; uiScript "quit" }
+    //onFinishTimer { restartTimer }
+
+    onShow {
+      setitemcolor overlay backcolor 0 0 0 .5 ;
+      timeFade overlay backcolor 0 0 0 1 0 20000 ; 
+    }
+
+    //onClose { uiScript "restoreMusicVolume" }
+    onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close credit ; uiScript "quit" }
+    //onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close credit ; open main }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+    //Faded in at startup
+
+    itemDef {
+	name overlay
+	style WINDOW_STYLE_FILLED
+	background "ui/assets/alpha"
+	forecolor RQ3_MENU_OVERLAY_COLOR
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 0 640 480
+	visible 1
+	decoration
+    }
+
+    itemDef {
+      name top_bar 				//rq3: Top bar
+      rect 0 0 640 56
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name top_bar 				//rq3: Top bar
+      rect 0 58 640 12
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/rq3-main-shadow-1"
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name bottom_bar 				//rq3: bottom bar
+      rect 0 420 640 60
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name top_bar2 				//rq3: Top bar - border
+      rect 0 56 640 2
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR2
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name bottom_bar2 				//rq3: bottom bar - border
+      rect 0 418 640 2
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR2
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+
+//=============
+// Buttons
+//=============
+
+
+//Timed items
+
+    // REACTION QUAKE 3 BETA 2 //
+
+    itemDef {
+	name "timer1"
+	group timer	
+	rect 100 100 440 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .45
+	textalignx 220
+	textaligny 100
+	text "REACTION QUAKE 3 BETA 2.1"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer1"
+	group timer	
+	rect 100 100 440 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .3
+	textalignx 220
+	textaligny 120
+	text "(c) 2000 - 2002 REACTION QUAKE 3 TEAM\n\n\n"
+	     "www.reactionquake3.com"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // PROGRAMMING //
+
+    itemDef {
+	name "timer2"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 40
+	text "PROGRAMMING"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer2"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "Richard Allen\n"
+	     "Malcolm Bechard\n"
+	     "Scott Brooks\n"
+	     "Victor Chow\n"
+	     "Bruno Covacha\n"
+	     "Bryce Hutchings\n"
+	     "Daniel Simoes"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer2"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 80
+	text "JBravo\n"
+	     "Tsunami\n"
+	     "Blaze\n"
+	     "Elder_MMHS\n"
+	     "aasimon\n"
+	     "NiceAss\n"
+	     "sLiCeR"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ADDITIONAL PROGRAMMING //
+
+    itemDef {
+	name "timer3"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 60
+	text "ADDITIONAL PROGRAMMING"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer3"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "Michael Bruce\n"
+	     "Dan Chin\n"
+	     "Andrei Drexler\n"
+	     "Tomas Edwardsson\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer3"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 100
+	text "AgtOrange\n"
+	     "Lt. Hawkins\n"
+	     "Makro\n"
+	     "Freud\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ARTWORK //
+
+    itemDef {
+	name "timer4"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 60
+	text "ARTWORK"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer4"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "Ian McEachern\n"
+	     "Brian Mills\n"
+	     "Linh Nguyen\n"
+	     "Mark Potnick\n"
+	     "Ryan Vance\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer4"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 100
+	text "Frost\n"
+	     "Birdman\n"
+	     "Sonique128\n"
+	     "Cloud\n"
+	     "BraGoblin\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ADDITIONAL ARTWORK //
+
+    itemDef {
+	name "timer5"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 50
+	text "ADDITIONAL ARTWORK"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer5"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 90
+	text "Victor Chow\n"
+	     "Tomi Isoaho\n"
+	     "Shay McCarty\n"
+	     "Malcolm Ramsay\n"
+	     "Jesse Smith\n"
+	     "Kyle VanMeurs"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer5"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 90
+	text "Elder_MMHS\n"
+	     "T.T.I.\n"
+	     "Shaymon\n"
+	     "shenka\n"
+	     "Spyder\n"
+	     "R0oK"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // LEVEL DESIGN //
+
+    itemDef {
+	name "timer6"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 40
+	text "LEVEL DESIGN"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer6"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 112
+	textaligny 80
+	text "David Costello\n"
+	     "Andrei Drexler\n"
+	     "Tomi Isoaho\n"
+	     "Shay McCarty\n"
+	     "David Pike\n"
+	     "Kelly Rush\n"
+	     "Jesse Smith\n"
+	     "Walter Somol\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer6"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 92
+	textaligny 80
+	text "Sze\n"
+	     "Makro\n"
+	     "T.T.I.\n"
+	     "Shaymon\n"
+	     "Centurion\n"
+	     "Hexydes\n"
+	     "Spyder\n"
+	     "Johnny Rocket\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ADDITIONAL LEVEL DESIGN //
+
+    itemDef {
+	name "timer7"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "ADDITIONAL LEVEL DESIGN"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer7"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 120
+	text "Jason Irby\n"
+	     "Gregory Simmons\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer7"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 120
+	text "Irby\n"
+	     "Smoke\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // SOUND DESIGN //
+
+    itemDef {
+	name "timer8"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "SOUND DESIGN"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer8"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 140
+	text "Erwin Peil"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer8"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 140
+	text "SpecOps"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ADDITIONAL SOUND DESIGN //
+
+    itemDef {
+	name "timer9"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "ADDITIONAL SOUND DESIGN"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer9"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 140
+	text "Jesse Smith"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer9"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 140
+	text "Spyder"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // ORGANIZATION //
+
+    itemDef {
+	name "timer10"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "ORGANIZATION"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer10"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 140
+	text "Andrew Prosnik"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer10"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 140
+	text "Black Monk"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // WEBSITE DESIGN //
+
+    itemDef {
+	name "timer11"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "WEBSITE DESIGN"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer11"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 120
+	text "Victor Chow\n"
+	     "Malcolm Ramsay\n"
+	     "Richard Watt"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer11"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 120
+	text "Elder_MMHS\n"
+	     "shenka\n"
+	     "C00T"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // TESTERS AND ADVISORS //
+
+    itemDef {
+	name "timer12"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 60
+	text "TESTERS AND ADVISORS"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer12"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "Non Fiction\n"
+	     "Seth Chabot\n"
+	     "Steve Ewald\n"
+	     "Luke Paul\n"
+	     "Andrew Prosnik"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer12"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 100
+	text "Fiction\n"
+	     "Wook!eBoy\n"
+	     "Psychotakes\n"
+	     "Alice\n"
+	     "Black Monk"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // BETA TESTERS //
+
+    itemDef {
+	name "timer13"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 40
+	text "BETA TESTERS"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer13"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "Scott DeLeury\n"
+	     "Mark Somol\n"
+	     "Christopher Jayawardena\n"
+	     "Justin Pickles\n"
+	     "Michael Morris\n"
+	     "Fredrik Nilsskog Ravlo\n"
+	     "Geraldo Espinal"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer13"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 80
+	text "CannonFodder\n"
+	     "ColdMiser\n"
+	     "EvilFutsin\n"
+	     "GoKu^^7L\n"
+	     "JesterRace\n"
+	     "^^7Proto\n"
+	     "WarMachine\n"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // BETA TESTERS //
+
+    itemDef {
+	name "timer14"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 40
+	text "BETA TESTERS"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer14"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "Andrew Weidlich\n"
+	     "Stephen Looi\n"
+	     "Tomas Edwardsson\n"
+	     "Jordan Zylstra\n"
+	     "Mitch Glover\n"
+	     "Winston Chow"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer14"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 80
+	text "Commodore\n"
+	     "DuD\n"
+	     "Freud\n"
+	     "Guy Incognito\n"
+	     "Mud\n"
+	     "ShishKabob"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // REACTION QUAKE 3 CONTRIBUTIONS //
+
+    itemDef {
+	name "timer15"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 120
+	text "REACTION QUAKE 3 CONTRIBUTIONS"
+	visible 1
+	decoration
+    }
+
+    // ADDITIONAL ARTWORK //
+
+    itemDef {
+	name "timer16"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "ADDITIONAL ARTWORK"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer16"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_LEFT
+	textscale .35
+	textalignx 120
+	textaligny 120
+	text "Dwayne Douglass"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer16"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textscale .35
+	textalignx 100
+	textaligny 120
+	text "Oddjob"
+	autowrapped
+	textheight 24
+	visible 1
+	decoration
+    }
+
+    // REACTION QUAKE 3 TITLE SCORE //
+
+    itemDef {
+	name "timer17"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "REACTION QUAKE 3 TITLE SCORE\n\nJesper Kyd"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // THE REACTION QUAKE 3 TEAM THANKS //
+
+    itemDef {
+	name "timer18"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "THE REACTION QUAKE 3 TEAM THANKS"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // A-TEAM REPRESENTATIVE //
+
+    itemDef {
+	name "timer19"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "A-TEAM REPRESENTATIVE\n\n"
+	     "Dwayne Douglass"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // CODING RESOURCES //
+
+    itemDef {
+	name "timer20"
+	group timer	
+	rect 100 100 440 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 220
+	textaligny 40
+	text "CODING RESOURCES\n\n"
+	     "Code3Arena\n"
+	     "Iain McGinnis\n"
+	     "Inolen\n"
+	     "Juz's Slipgate\n"
+	     "Quake3World Forums\n"
+	     "Wang (ATF)\n"
+	     "Johann Thorirsson (Vondikall)\n"
+	     "Tomas Edwardsson (Freud)"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // ART RESOURCES //
+
+    itemDef {
+	name "timer21"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 60
+	text "ART RESOURCES\n\n"
+	     "Mastaba Solutions\n"
+	     "PolyCount\n"
+	     "QWorkShop3\n"
+	     "ShaderLab"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // MAPPING RESOURCES //
+
+    itemDef {
+	name "timer22"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "MAPPING RESOURCES\n\n"
+	     "Gamedesign.net\n"
+	     "QERadiant.com\n"
+	     "Quake3World Forums"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // PRE-RELEASE MESSAGEBOARD GOD //
+
+    itemDef {
+	name "timer23"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "PRE-RELEASE\nMESSAGEBOARD GOD\n\nThe great Fex"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // GROUPS //
+
+    itemDef {
+	name "timer24"
+	group timer	
+	rect 100 100 440 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 220
+	textaligny 20
+	text "GROUPS\n\n"
+	     "Above Intelligence\n"
+	     "All the little people\n"
+	     "Family and friends\n"
+	     "Fear.net frequenters\n"
+	     "HoneyStudios.Com\n"
+	     "id Software\n"
+             "Opin Kerfi HF\n"
+	     "Simnet (Landssíminn)\n"
+	     "The A-Team (AQ2 developers)\n"
+	     "The Grammar Rangers\n"
+	     "#Modeling @ GamesNet"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // COMMODITIES //
+
+    itemDef {
+	name "timer25"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 20
+	text "COMMODITIES\n\n"
+	     "Caffeine\n"
+	     "Chex Mix\n"
+	     "Dr. Pepper\n"
+	     "Home-cooked meals (MMM!)\n"
+	     "Hot Pockets\n"
+	     "Mountain Dew\n"
+	     "Pepsi\n"
+	     "Pho\n"
+	     "Various pizza places\n"
+	     "Wacom Tablets"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // WEB HOSTS //
+
+    itemDef {
+	name "timer26"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "WEB HOSTS\n\n"
+	     "All mirrors (too many to list)\n"
+	     "Simnet (Landssíminn)\n"
+	     "Telefragged and affiliates\n"
+	     "2MHost"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // id SOFTWARE //
+
+    itemDef {
+	name "timer28"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 100
+	text "    SOFTWARE"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name "timer28"
+	group timer	
+	rect 248 172 32 40
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/idlogo.tga"
+	visible 1
+	decoration
+    }
+
+    // PROGRAMMING //
+
+    itemDef {
+	name "timer29"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "PROGRAMMING\n\n"
+	     "John Carmack\n"
+	     "Robert A. Duffy\n"
+	     "Jim Dose'"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // ART //
+
+    itemDef {
+	name "timer30"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "ART\n\n"
+	     "Adrian Carmack\n"
+	     "Kevin Cloud\n"
+	     "Kenneth Scott\n"
+	     "Seneca Menard\n"
+	     "Fred Nilsson"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // GAME DESIGNER //
+
+    itemDef {
+	name "timer31"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "GAME DESIGNER\n\n"
+	     "Graeme Devine"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // LEVEL DESIGN //
+
+    itemDef {
+	name "timer32"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "LEVEL DESIGN\n\n"
+	     "Tim Willits\n"
+	     "Christian Antkow\n"
+	     "Paul Jaquays"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // CEO //
+
+    itemDef {
+	name "timer33"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "CEO\n\n"
+	     "Todd Hollenshead"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // DIRECTOR OF BUSINESS DEVELOPMENT //
+
+    itemDef {
+	name "timer34"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "DIRECTOR OF BUSINESS DEVELOPMENT\n\n"
+	     "Marty Stratton"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // BIZ ASSIST AND ID MOM //
+
+    itemDef {
+	name "timer35"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "BIZ ASSIST AND ID MOM\n\n"
+	     "Donna Jackson"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+    // DEVELOPMENT ASSISTANCE //
+
+    itemDef {
+	name "timer36"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .35
+	textalignx 120
+	textaligny 80
+	text "DEVELOPMENT ASSISTANCE\n\n"
+	     "Eric Webb"
+	autowrapped
+	visible 1
+	decoration
+    }
+
+
+    // THE END //
+
+    itemDef {
+	name "timer38"
+	group timer	
+	rect 100 100 440 280
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .3
+	textalignx 220
+	textaligny 80
+	text "THIS HAS BEEN A REACTION QUAKE 3\nTEAM PRODUCTION\n\n"
+	     "Copyright 2000 - 2002"
+	autowrapped
+	visible 1
+	decoration
+	onTimer { timeFade hint forecolor 1 1 1 0 500 1500 }
+    }
+
+    itemDef {
+	name "timer39"
+	group timer	
+	rect 200 100 240 280
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+	onTimer { show static ; stopMusic ; play "sound/ui/tvnoise.wav" }
+    }
+
+    //Hint
+
+    itemDef {
+	name "hint"
+	text "ESC to exit"
+	rect 0 420 640 40
+	forecolor 1 1 1 1
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 628
+	textaligny 20
+	textscale .225
+	type ITEM_TYPE_TEXT
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	decoration
+    }
+
+    //Screen static
+
+    itemDef {
+	name static
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/screen_static"
+	forecolor 1 1 1 1
+	rect 0 0 640 480
+	visible 0
+	decoration
+    }
+
+
+}
+}

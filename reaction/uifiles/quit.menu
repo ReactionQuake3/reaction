@@ -1,0 +1,94 @@
+#include "ui/menudef.h"
+
+{
+  \\ QUIT POPUP MENU \\
+
+    menuDef {
+	name "quit_popmenu"
+	visible 0
+	rect 170 180 300 100
+	focusColor RQ3_MAIN_FOCUSCOLOR
+	popup
+	outOfBoundsClick
+	//onOpen { transition window 0 50 300 0 0 0 300 100 10 4 }
+	//onClose { transition window 0 0 300 100 0 50 300 0 10 4 }
+	onOpen { play "sound/misc/menu1.wav" }
+	onESC { close quit_popmenu ; open main }
+
+
+    itemDef {
+	name window
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/fake_gradient_75"
+	rect 0 0 300 100
+	border 4
+	bordersize 2
+	bordercolor 1 0 0 1
+	//backcolor 0 0 0 .65
+	visible 1
+	decoration
+    }
+
+
+
+    // QUIT	//
+
+    itemDef {
+	name confirm
+	text "Exit Reaction Quake 3 ?"
+	style 0
+	textscale .32
+	textstyle 3
+	rect 0 16 300 32
+	textalign 1
+	textalignx 150
+	textaligny 16
+	decoration
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    // YES	//
+
+    itemDef {
+	name yes
+	text "YES"
+	shortcutKey "Y"
+	type 1
+	style 0
+	textscale .32
+	textstyle 3
+	rect 100 64 50 32
+	textalign 1
+	textalignx 25
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { close main ; close quit_popmenu ; open credit }
+	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 }
+	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 }
+    }
+
+    // NO	//
+
+    itemDef {
+	name no
+	text "NO"
+	shortcutKey "N"
+	type 1
+	style 0
+	textscale .3
+	textstyle 3
+	rect 150 64 50 32
+	textalign 1
+	textalignx 25
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { close quit_popmenu ; open main }
+	mouseEnter { setitemcolor no backcolor .1 .37 .1 1 }
+	mouseExit { setitemcolor no backcolor .37 .1 .1 1 }
+    }
+
+}
+}

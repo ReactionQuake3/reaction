@@ -1,0 +1,184 @@
+#include "ui/menudef.h"
+
+
+{
+    menudef {
+	name "ingame_join"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 184 64 140 140
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" }
+
+//Window
+
+    itemdef {
+	rect 0 0 140 140
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 21 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 21 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Join team"
+	visible 1
+	decoration
+    }
+
+//Buttons
+
+    // Team 1 //
+
+    itemdef {
+	name team
+	text "1. Team 1:"
+	shortcutKey "1"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 8 36 128 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor  1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "cmd team red" ; uiScript "weapAfterJoin" ; close "ingame_join" }
+    }
+
+    itemdef {
+	name team1
+	text ""
+	cvar "ui_RQ3_teamCount1"
+	type ITEM_TYPE_NUMERICFIELD
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 100 36 32 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+    // Team 2 //
+
+    itemdef {
+	name team
+	text "2. Team 2:"
+	shortcutKey "2"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 8 56 128 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor  1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; close "ingame_join" }
+    }
+
+    itemdef {
+	name team2
+	text ""
+	cvar "ui_RQ3_teamCount2"
+	type ITEM_TYPE_NUMERICFIELD
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 100 56 32 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+    // Auto Team //
+
+    itemdef {
+	name team
+	text "A. Auto Team"
+	shortcutKey "A"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 8 76 128 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor  1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "cmd team auto" ; uiScript "weapAfterJoin" ; close "ingame_join" }
+    }
+
+    // Spectate //
+
+    itemdef {
+	name team
+	text "S. Spectators:"
+	shortcutKey "S"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 8 96 128 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor  1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "cmd team s" ; uiScript closeingame }
+    }
+
+    itemdef {
+	name team3
+	text ""
+	cvar "ui_RQ3_numSpectators"
+	type ITEM_TYPE_NUMERICFIELD
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	rect 100 96 32 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 18
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+
+  }
+
+}

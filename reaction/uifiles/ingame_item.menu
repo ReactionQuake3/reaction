@@ -1,0 +1,249 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_item"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 80 64 264 176
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" ; setFocus kevlar }
+	onEsc { play "sound/misc/menu2.wav" ; close ingame_item }
+
+//Window
+
+    itemdef {
+	rect 0 0 264 176
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 145 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 145 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Choose item"
+	visible 1
+	decoration
+    }
+
+//Items
+
+    itemdef {
+	shortcutKey "1"
+	name "kevlar"
+	rect 120 48 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "1. Kevlar Vest"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_kevlar" }
+	action { play "sound/misc/menu1.wav" ; exec "choose kevlar" ; close ingame_item }
+    }
+
+    itemdef {
+	shortcutKey "2"
+	name "laser"
+	rect 120 68 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "2. Lasersight"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_laser" }
+	action { play "sound/misc/menu1.wav" ; exec "choose laser" ; close ingame_item }
+    }
+
+    itemdef {
+	name "slippers"
+	shortcutKey "3"
+	rect 120 88 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "3. Stealth Slippers"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_slippers" }
+	action { play "sound/misc/menu1.wav" ; exec "choose slippers" ; close ingame_item }
+    }
+
+    itemdef {
+	shortcutKey "4"
+	name "silencer"
+	rect 120 108 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "4. Silencer"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_silencer" }
+	action { play "sound/misc/menu1.wav" ; exec "choose silencer" ; close ingame_item }
+    }
+
+    itemdef {
+	name "bandolier"
+	shortcutKey "5"
+	rect 120 128 128 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "5. Bandolier"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide items ; show "it_bandolier" }
+	action { play "sound/misc/menu1.wav" ; exec "choose bandolier" ; close ingame_item }
+    }
+
+//Item preview
+//Background
+
+    itemdef {
+	name it_background
+	rect 16 48 96 96
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-loadout"
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	//backcolor .75 .75 .75 1
+	decoration
+	visible 1
+    }
+
+//Items
+
+    itemdef {
+	name it_kevlar
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/kevlar.md3"
+	model_origin 28 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 0 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name it_laser
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/laser.md3"
+	model_origin 24 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 75 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name it_silencer
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/silencer.md3"
+	model_origin 20 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 105 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name it_slippers
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/slippers.md3"
+	model_origin 20 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 0 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name it_bandolier
+	group items
+	rect 16 48 96 96
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/items/bandolier.md3"
+	model_origin 20 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 0 90
+	decoration
+	visible 0
+    }
+
+}
+}

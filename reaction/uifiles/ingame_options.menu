@@ -1,0 +1,572 @@
+#include "ui/menudef.h"
+
+{
+   //--------------//
+  // GAME OPTIONS //
+ //--------------//
+
+
+    menuDef {
+	name "ingame_options"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 176 64 372 340
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 ; setfocus sectionPage1 }
+
+//Window
+
+    itemDef {
+	rect 0 0 372 340
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 95 55 277 285
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Game options"
+	visible 1
+	decoration
+    }
+
+//Tabs
+
+    itemDef {
+	name tabSystem
+	group grpTabs
+	text "System"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 96 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_options" ; open "ingame_system" }
+    }
+
+    itemDef {
+	name tabControls
+	group grpTabs
+	text "Controls"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 160 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_options" ; open "ingame_controls" }
+    }
+
+    itemDef {
+	name tabGame
+	group grpTabs
+	text "Game"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 224 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+//Sub-sections
+
+    itemDef {
+	name sectionPage1
+	group grpSections
+	text "Settings"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 72 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 }
+    }
+
+    itemDef {
+	name sectionPage2
+	group grpSections
+	text "Crosshair"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 96 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page2 }
+    }
+
+//Options
+//V-SYNC
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Sync Every Frame:"
+	cvar "r_finish"
+	rect 112 60 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Simple items
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Simple Items:"
+	cvar "cg_simpleItems"
+	rect 112 80 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Low quality sky
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Low quality sky:"
+	cvar "r_fastsky"
+	rect 112 100 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Ejecting brass
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_MULTI
+	text "Ejecting Brass:"
+	cvar "cg_brassTime"
+	cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
+	rect 112 120 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Wall marks
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Wall marks:"
+	cvar "cg_marks"
+	rect 112 140 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Dynamic lights
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Dynamic lights:"
+	cvar "r_dynamiclight"
+	rect 112 160 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Force player models
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Force Player Models:"
+	cvar "cg_forceModel"
+	rect 112 180 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Allow download from server
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Allow Download:"
+	cvar "cl_allowDownload"
+	rect 112 200 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Draw team overlay
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Draw Team Overlay:"
+	cvar "cg_drawTeamOverlay"
+	rect 112 220 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Muzzle flash
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Muzzle Flash:"
+	cvar "cg_RQ3_flash"
+	rect 112 240 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Pain blends
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Pain Blends:"
+	cvar "cg_RQ3_painBlend"
+	rect 112 260 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Announcer
+
+    itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Announcer:"
+	cvar "cg_RQ3_announcer"
+	rect 112 280 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Impact effects
+
+   itemDef {
+	name page1
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Impact Effects:"
+	cvar "cg_RQ3_impactEffects"
+	rect 112 300 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+// Page2  //
+
+//Crosshair
+
+    itemDef {
+	name page2
+	group grpGame
+	text "Regular Crosshair:"
+	ownerdraw UI_CROSSHAIR
+	rect 240 80 24 24
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Identify target
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_MULTI
+	text "Crosshair Size:"
+	cvar "cg_crosshairSize"
+	cvarFloatList { "Small" 16 "Med" 24 "Big" 32 }
+	rect 112 100 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//Identify target
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_YESNO
+	text "Identify Target:"
+	cvar "cg_drawCrosshairNames"
+	rect 112 120 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 20
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 1
+    }
+
+//SSG Crosshair
+
+    itemDef {
+	name page2
+	group grpGame
+	style 1
+	text "SSG Crosshair"
+	rect 88 160 128 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_SLIDER
+	text "Red:"
+	cvarfloat "cg_RQ3_ssgColorR" 1 0 1
+	rect 96 180 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_SLIDER
+	text "Green:"
+	cvarfloat "cg_RQ3_ssgColorG" 1 0 1
+	rect 96 200 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_SLIDER
+	text "Blue:"
+	cvarfloat "cg_RQ3_ssgColorB" 0 0 1
+	rect 96 220 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name page2
+	group grpGame
+	type ITEM_TYPE_SLIDER
+	text "Alpha:"
+	cvarfloat "cg_RQ3_ssgColorA" .75 0 1
+	rect 96 240 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+//SSG Crosshair Preview
+
+    itemDef {
+	name page2
+	group grpGame
+	rect 280 188 72 72
+	ownerdraw UI_SSG_CROSSHAIR
+	style WINDOW_STYLE_EMPTY
+	//decoration
+	visible 0
+    }
+
+    //Apply button
+
+    itemDef {
+	name page2
+	group grpGame
+	text "Apply"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_FILLED
+	rect 284 160 64 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 32
+	textaligny 12
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { exec "vid_restart" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    //Note
+
+    itemDef {
+	name page2
+	group grpGame
+	style 1
+	text "Note: pressing the apply button will restart "
+	     "Reaction Quake 3 in order to load the new "
+	     "SSG crosshair"
+	autowrapped
+	rect 112 280 232 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+}
+}

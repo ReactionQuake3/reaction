@@ -1,0 +1,1159 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "createserver"
+	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the old background
+	fullScreen MENU_TRUE
+	visible MENU_FALSE				// Visible on open
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+
+	onOpen {
+	play "sound/misc/menu1.wav" ;
+	uiScript loadArenas ;
+	//exec "set ui_actualNetGameType 0" ;
+	//exec "set ui_netGameType 0" ;
+	//show "opt_gametype" ;
+    }
+
+	onEsc { close createserver ; open main }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemdef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "join_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-menu-start.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "join_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-start.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+    }
+
+//Shadow
+
+    itemdef {
+	style WINDOW_STYLE_EMPTY
+	rect 12 72 608 332
+	shadowstyle 1
+	decoration
+	visible 1
+    }
+
+//Map preview
+
+    itemdef {
+	rect 12 72 168 124
+	style WINDOW_STYLE_EMPTY
+	//backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name map_preview
+	rect 14 74 166 124
+	ownerdraw UI_STARTMAPCINEMATIC
+	style WINDOW_STYLE_EMPTY
+	decoration
+	visible 1
+    }
+
+//Map list
+
+    itemdef {
+	name maplist
+	rect 12 196 168 208
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 20
+	textscale .225
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_ALLMAPS
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textalign 3
+	textaligny 14
+	border 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .65
+	outlinecolor .75 .75 1 .25
+	visible 1
+	columns 1 2 140 22
+    }
+
+    itemdef {
+	rect 162 196 18 208
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+//Options
+
+    //Window
+
+    itemdef {
+	rect 180 72 232 332
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 180 72 232 20
+	style WINDOW_STYLE_FILLED
+	backcolor .5 .5 .5 .25
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 104
+	textaligny 14
+	text "Server Options"
+	visible 1
+	decoration
+    }
+
+    //Host name
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_EDITFIELD
+	text "Host Name:"
+	cvar "sv_hostname"
+	maxChars 32
+	maxPaintChars 8
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 108 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Pure server
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Pure Server:"
+	cvar "sv_pure"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 128 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Allow download
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Auto Download:"
+	cvar "sv_allowdownload"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 148 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Enable voting
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Enable Voting:"
+	cvar "g_allowvote"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 168 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Max players
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Maximum Players:"
+	cvar "sv_maxclients"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 188 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Max ping
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Maximum Ping:"
+	cvar "sv_maxping"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 208 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Min ping
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Minimum Ping:"
+	cvar "sv_minping"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 228 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Max rate
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Max Rate:"
+	cvar "sv_maxrate"
+	maxchars 5
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 248 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Reconnect limit
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Reconnect Limit:"
+	cvar "sv_reconnectlimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 268 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Synchronous clients
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Synchronous Client:"
+	cvar "g_synchronousclients"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 288 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Require password
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Require Password:"
+	cvar "g_needpassword"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 308 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    //Password
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_EDITFIELD
+	text "Password:"
+	cvar "g_password"
+	maxChars 32
+	maxPaintChars 8
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 328 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    // Dedicated
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Dedicated:"
+	cvar "ui_dedicated"
+	cvarFloatList { "No" 0 "LAN" 1 "Internet" 2 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 212 348 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    // Gametype
+
+    itemdef {
+	name global
+	rect 212 368 168 20
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_NETGAMETYPE
+	text "Game Type:"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 100
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Window
+
+    itemdef {
+	rect 412 72 208 192
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 412 72 208 20
+	style WINDOW_STYLE_FILLED
+	backcolor .5 .5 .5 .25
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 104
+	textaligny 14
+	text "Gameplay Options"
+	visible 1
+	decoration
+    }
+
+    //Time limit
+
+    itemdef {
+	name global
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Time Limit:"
+	cvar "timelimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 108 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    // Gametype-specific options //
+
+    // Free For All //
+    // Frag limit
+
+    itemdef {
+	name ffa
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Frag Limit:"
+	cvar "fraglimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 148 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "0" }
+    }
+
+    // Capture The Flag
+    // Capture limit
+
+    itemdef {
+	name ctf
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Capture Limit:"
+	cvar "capturelimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 148 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "5" }
+    }
+
+    //Force join
+
+    itemdef {
+	name ctf
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Force Join:"
+	cvar "g_teamautojoin"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 168 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "5" }
+    }
+
+    //Even teams
+
+    itemdef {
+	name ctf
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Even Teams:"
+	cvar "g_teamforcebalance"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 188 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "5" }
+    }
+
+    //Friendly fire
+
+    itemdef {
+	name ctf
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Friendly Fire:"
+	cvar "g_friendlyfire"
+	cvarFloatList { "On" 1 "Off/knockback" 2 "Off" 0 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 208 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "5" }
+    }
+
+    // Team Deathmatch //
+    // Capture limit
+
+    itemdef {
+	name tdm
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Frag Limit:"
+	cvar "fraglimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 148 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "3" }
+    }
+
+    //Force join
+
+    itemdef {
+	name tdm
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Force Join:"
+	cvar "g_teamautojoin"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 168 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "3" }
+    }
+
+    //Even teams
+
+    itemdef {
+	name tdm
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Even Teams:"
+	cvar "g_teamforcebalance"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 188 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "3" }
+    }
+
+    //Friendly fire
+
+    itemdef {
+	name tdm
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Friendly Fire:"
+	cvar "g_friendlyfire"
+	cvarFloatList { "On" 1 "Off/knockback" 2 "Off" 0 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 208 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "3" }
+    }
+
+    // RQ3 Teamplay //
+    // Round limit
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Round Limit:"
+	cvar "g_RQ3_roundlimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 128 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+    //Round time limit
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_NUMERICFIELD
+	text "Round Time Limit:"
+	cvar "g_RQ3_roundTimeLimit"
+	maxchars 4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 148 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+    //Force join
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Force Join:"
+	cvar "g_teamautojoin"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 168 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+    //Even teams
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_YESNO
+	text "Even Teams:"
+	cvar "g_teamforcebalance"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 188 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+    //Friendly fire
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Friendly Fire:"
+	cvar "g_friendlyfire"
+	cvarFloatList { "On" 1 "Off/knockback" 2 "Off" 0 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 208 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+    // Tgren
+
+    itemdef {
+	name tp
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Bandolier Grens:"
+	cvar "g_RQ3_tgren"
+	cvarFloatList { "None" 0 "1" 1 "2" 2 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 228 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "4" }
+    }
+
+//Slots
+
+    itemdef {
+	rect 412 263 208 141
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 412 263 208 20
+	style WINDOW_STYLE_FILLED
+	backcolor .5 .5 .5 .25
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	forecolor 1 1 1 1
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 12
+	textaligny 14
+	text "Player Slots"
+	visible 1
+	decoration
+    }
+
+
+    //Bot skill
+
+    itemdef {
+	name slot_skill
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_SKILL
+	text "Skill:"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 492 263 128 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 12
+	textaligny 16
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    // Actual slots //
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_REDTEAM1
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 424 296 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_REDTEAM2
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 424 316 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_REDTEAM3
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 424 336 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_REDTEAM4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 424 356 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_REDTEAM5
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 424 376 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+
+    // Part 2 //
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_BLUETEAM1
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 520 296 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_BLUETEAM2
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 520 316 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_BLUETEAM3
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 520 336 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_BLUETEAM4
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 520 356 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    itemdef {
+	name slot_team
+	style WINDOW_STYLE_EMPTY
+	ownerdraw UI_BLUETEAM5
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 520 376 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	action { play "sound/misc/menu1.wav" }
+    }
+
+//GO button
+
+    itemdef {
+	name "btn_start"
+	style WINDOW_STYLE_SHADER
+	rect 560 432 64 32
+	type 1
+	background "menu/art/rq3-menu-go.tga"
+	action { uiScript StartServer ; }
+	onFocus { setbackground "menu/art/rq3-menu-go-focus-anim" ;
+		show start_hint ; timeFade start_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-go.tga" ; 
+		timeFade start_hint forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+    itemdef {
+	name start_hint
+	text "Start server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Join
+
+    itemdef {
+	name "btn_join"
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	rect 540 20 80 20
+	//border 1
+	//bordersize 1
+	//bordercolor .5 .5 .5 1
+	backcolor Ig_Sub_Color1
+	forecolor 1 1 1 1
+	textscale .25
+	textalign ITEM_ALIGN_CENTER
+	textalignx 40
+	textaligny 14
+	text "Connect >"
+	visible 1
+	action { close createserver ; open joinserver }
+	//onFocus { setcolor backcolor Ig_Sub_Color2 ; show join_hint }
+	//leaveFocus { setcolor backcolor Ig_Sub_Color1 ; hide join_hint }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ;
+		show join_hint ; timeFade join_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ;
+		timeFade join_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name join_hint
+	text "Connect to a Reaction server"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Back
+
+    itemdef {
+	name "btn_back"
+	style WINDOW_STYLE_SHADER
+	rect 12 432 32 32
+	type 1
+	background "menu/art/rq3-menu-back.tga"
+	action { close createserver ; open main ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+    itemdef {
+	name back_hint
+	text "Go back to main menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+}

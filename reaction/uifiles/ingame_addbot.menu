@@ -1,0 +1,128 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_addbot"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 384 64 152 128
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" ; setfocus "ig-bot-name" }
+
+//Window
+
+    itemdef {
+	rect 0 0 152 128
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 33 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 33 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Add bot"
+	visible 1
+	decoration
+    }
+
+//Objects
+
+    itemdef {
+	name "ig-bot-name"
+	style WINDOW_STYLE_EMPTY
+	text "Name:"
+	ownerdraw UI_BOTNAME
+	rect 0 32 128 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 48
+	textaligny 18
+	textscale .225
+	forecolor 1 1 1 1
+	border 0
+	bordercolor 0 0 0 0
+	visible 1
+    }
+
+    itemdef {
+	name "ig-bot-team"
+	style WINDOW_STYLE_EMPTY
+	text "Team:"
+	ownerdraw UI_REDBLUE
+	rect 0 52 128 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 48
+	textaligny 18
+	textscale .225
+	cvarTest "g_gametype"
+	disableCvar { "0" ; "1" }
+	forecolor 1 1 1 1
+	border 0
+	bordercolor 0 0 0 0
+	visible 1
+    }
+
+    itemdef {
+	name "ig-bot-skill"
+	style WINDOW_STYLE_EMPTY
+	text "Skill:"
+	ownerdraw UI_BOTSKILL
+	rect 0 72 128 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 48
+	textaligny 18
+	textscale .225
+	forecolor 1 1 1 1
+	border 0
+	bordercolor 0 0 0 0
+	visible 1
+    }
+
+    itemdef {
+	name ok
+	rect 80 100 64 20
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 32
+	textaligny 14
+	text "Ok"
+	shortcutKey "O"
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript addBot ; uiScript closeingame }
+	//action { exec "screenshotJPEG" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+}
+}

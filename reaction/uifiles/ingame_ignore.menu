@@ -1,0 +1,136 @@
+#include "ui/menudef.h"
+
+
+{
+    menudef {
+	name "ingame_ignore"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 184 64 256 168
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" }
+
+//Window
+
+    itemdef {
+	rect 0 0 256 168
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 137 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 137 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Ignore players"
+	visible 1
+	decoration
+    }
+
+    // Player list //
+
+    itemdef {
+	rect 20 40 216 92
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .225
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_PLAYER_LIST
+	border 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	outlinecolor .75 .75 1 .25
+	visible 1
+	//mouseEnter { setcolor bordercolor .7 0 0 1 }
+	//mouseExit { setcolor bordercolor .5 .5 .5 1 }
+    }
+
+    //Scrollbar separator
+    itemdef {
+	rect 218 40 18 92
+	style WINDOW_STYLE_EMPTY
+	border 1
+	bordersize 1
+	bordercolor .25 .25 .25 1
+	decoration
+	visible 1
+    }
+
+    // Unignore //
+
+    itemdef {
+	text "Unignore"
+	shortcutKey "U"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .225
+	rect 20 140 72 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript unIgnore ; close ingame_ignore }
+    }
+
+    // Unignore All //
+
+    itemdef {
+	text "Unignore All"
+	shortcutKey "A"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .225
+	rect 92 140 72 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 36
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "clearignorelist" ; close ingame_ignore }
+    }
+
+    // Ignore //
+
+    itemdef {
+	text "Ignore"
+	shortcutKey "I"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .225
+	rect 164 140 72 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript ignore ; close ingame_ignore }
+    }
+
+  }
+}

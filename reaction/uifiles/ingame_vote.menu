@@ -1,0 +1,161 @@
+#include "ui/menudef.h"
+
+{
+
+    menudef {
+	name "ingame_vote"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 352 64 128 112
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" ; show grpMenu ; hide grpConfirm }
+
+//Window
+
+    itemdef {
+	rect 0 0 128 112
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 9 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 9 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Vote/Call vote"
+	visible 1
+	decoration
+    }
+
+//Buttons
+
+    // YES //
+
+    itemdef {
+	name yes
+	text "Yes"
+	shortcutKey "Y"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 16 48 40 16
+	textalign 1
+	textalignx 20
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "vote yes" ; uiScript closeingame }
+    }
+
+    // NO //
+
+    itemdef {
+	name no
+	text "No"
+	shortcutKey "N"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 72 48 40 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 20
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "vote no" ; uiScript closeingame }
+    }
+
+    // CALL VOTE //
+
+    itemdef {
+	name call
+	text "Call vote"
+	shortcutKey "C"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 16 72 96 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 48
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; close ingame_vote ; open ingame_callvote }
+    }
+
+    // SEPARATOR //
+
+    itemdef {
+	text "/"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 48 48 32 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+    // TEAM YES //
+
+    itemdef {
+	name yes
+	text "TeamYes"
+	shortcutKey "Y"
+	type 1
+	//ownerdrawflag UI_SHOW_ANYTEAMGAME
+	textscale .25
+	rect 0 70 128 20
+	textalign 1
+	textalignx 64
+	textaligny 10
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "teamvote yes" ; uiScript closeingame }
+    }
+
+    // TEAM NO //
+
+    itemdef {
+	name no
+	text "TeamNo"
+	shortcutKey "N"
+	type 1
+	//ownerdrawflag UI_SHOW_ANYTEAMGAME
+	textscale .25
+	rect 0 90 128 20
+	textalign 1
+	textalignx 64
+	textaligny 10
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "teamvote no" ; uiScript closeingame }
+    }
+
+}
+}

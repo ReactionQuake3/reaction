@@ -1,0 +1,408 @@
+#include "ui/menudef.h"
+
+{
+  assetGlobalDef {
+    font "fonts/font" 16				// font
+    smallFont "fonts/smallfont" 12			// font
+    bigFont "fonts/bigfont" 20				// font
+    cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+    gradientBar "ui/assets/gradientbar2.tga"		// gradient bar
+    itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+
+    fadeCycle 2						// how often fade happens in milliseconds
+    fadeAmount 0.05					// amount to adjust alpha per cycle
+    fadeClamp 1.0					// sets the fadeup alpha
+
+    shadowColor 0.1 0.1 0.1 0.25			// shadow color
+  }
+
+
+  menuDef {
+    name "main"							// Makro: rename it to "main-rq3"
+    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+    fullScreen MENU_TRUE
+
+    //rect 0 0 640 480				// Size and position of the menu
+    visible 0				// Visible on open
+    focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
+    soundLoop "music/rq3_title_loop"
+    soundIntro "music/rq3_title_intro"
+
+
+    onOpen {
+      //setitemcolor fadebox backcolor 0 0 0 1 ;
+      //fadeout fadebox ;
+      play "sound/misc/menu1.wav" ;
+      uiScript stopRefresh ;
+    }
+
+    onFirstShow { 
+      hide overlay ; show fadebox ;
+      setitemcolor fadebox backcolor 0 0 0 1 ;
+      timeFade fadebox backcolor 0 0 0 0 0 1000 ;
+      setfocus rq3_start ;
+    }
+
+    onShow { 
+      hide fadebox ; show overlay ;
+      setitemcolor overlay backcolor RQ3_MENU_OVERLAY_COLOR ;
+      timeFade overlay backcolor 0 0 0 0 0 500 ; 
+    }
+
+    onESC { show overlay ; hide fadebox ;
+	    setitemcolor overlay backcolor RQ3_MENU_OVERLAY_COLOR ;
+	    open quit_popmenu }
+
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style WINDOW_STYLE_FILLED
+	//background "ui/assets/top"
+	backcolor RQ3_MAIN_BAR_COLOR
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor 0 0 0 0
+	rect 0 58 640 360
+	visible 0
+	decoration
+    }
+
+//Box for hints
+
+    itemDef {
+	style WINDOW_STYLE_SHADER
+	rect 0 408 180 24
+	background "ui/assets/rq3-main-box-1.tga"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	style WINDOW_STYLE_SHADER
+	rect 180 408 56 24
+	background "ui/assets/rq3-main-box-2.tga"
+	visible 1
+	decoration
+    }
+
+//Copyright
+
+    itemDef {
+	name copyright
+	autowrapped
+	text "Reaction Quake 3 Beta 2.1\n"
+	     "Copyright (c) 2000 - 2002 Reaction Quake 3 Team\n"
+	     "Quake III Arena (c) 1999 - 2000 id Software Inc."
+	style 0
+	textscale .15
+	rect 0 420 640 28
+	textalign 0
+	textaligny 24
+	textalignx 8
+	forecolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+//================
+// Buttons
+//================
+
+
+//Start game
+
+    itemDef {
+	name RQ3_start
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-menu-start"
+	rect 8 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	mouseenter { setfocus rq3_start ; }
+	action { close main ; open joinserver ; }
+	onFocus { show rq3_start_focus ; timefade rq3_start_focus forecolor 1 1 1 1 0 250 ;
+		show rq3_start_hint ; timeFade rq3_start_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade rq3_start_focus forecolor 1 1 1 0 0 250 ; timeFade rq3_start_hint forecolor .9 .9 .9 0 0 250 }
+	}
+
+    itemDef {
+	name RQ3_start_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 8 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+	}
+
+
+    itemDef {
+	name RQ3_start_hint
+	group hints
+	text "Play Reaction Quake 3"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 0
+	textalignx 8
+	textaligny 16
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 0 410 260 24
+	style 0
+	visible 0
+	decoration
+	}
+
+//Setup
+
+    itemDef {
+	name RQ3_Setup
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-menu-setup"
+	rect 56 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	action { close main ; open setup_menu ; }
+	onFocus { show rq3_setup_focus ; timefade rq3_setup_focus forecolor 1 1 1 1 0 250 ;
+		show rq3_setup_hint ; timeFade rq3_setup_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade rq3_setup_focus forecolor 1 1 1 0 0 250 ; timeFade rq3_setup_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemDef {
+	name RQ3_Setup_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 56 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name RQ3_setup_hint
+	group hints
+	text "Configure Reaction Quake 3"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 0
+	textalignx 8
+	textaligny 16
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 0 410 260 24
+	style 0
+	visible 0
+	decoration
+    }
+
+//Demos
+
+    itemDef {
+	name RQ3_demos
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-menu-demos"
+	rect 104 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	action { close main ; open demo ; }
+	mouseenter { setfocus rq3_demos ; }
+	onFocus { show rq3_demos_focus ; timefade rq3_demos_focus forecolor 1 1 1 1 0 250 ;
+		show rq3_demos_hint ; timeFade rq3_demos_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade rq3_demos_focus forecolor 1 1 1 0 0 250 ; timeFade rq3_demos_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemDef {
+	name RQ3_demos_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 104 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name RQ3_demos_hint
+	group hints
+	text "Playback in-game demos"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 0
+	textalignx 8
+	textaligny 16
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 0 410 260 24
+	style 0
+	visible 0
+	decoration
+    }
+
+//Mods
+
+    itemDef {
+	name RQ3_mods
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-menu-mods"
+	rect 544 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	mouseenter { setfocus rq3_mods ; }
+	action { close main ; open mod ; }
+	onFocus { show rq3_mods_focus ; timefade rq3_mods_focus forecolor 1 1 1 1 0 250 ;
+		show rq3_mods_hint ; timeFade rq3_mods_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade rq3_mods_focus forecolor 1 1 1 0 0 250 ; timeFade rq3_mods_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemDef {
+	name RQ3_mods_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 544 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name RQ3_mods_hint
+	group hints
+	text "Change game modification"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 0
+	textalignx 8
+	textaligny 16
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 0 410 260 24
+	style 0
+	visible 0
+	decoration
+    }
+
+//Quit
+
+    itemDef {
+	name RQ3_quit
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-menu-exit"
+	rect 600 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	action { show overlay ; hide fadebox ;
+		setitemcolor overlay backcolor RQ3_MENU_OVERLAY_COLOR ;
+		open quit_popmenu }
+	onFocus { show rq3_quit_focus ; timefade rq3_quit_focus forecolor 1 1 1 1 0 250 ;
+		show rq3_quit_hint ; timeFade rq3_quit_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade rq3_quit_focus forecolor 1 1 1 0 0 250 ; timeFade rq3_quit_hint forecolor .9 .9 .9 0 0 250 }
+//	onFocus { fadein rq3_quit_focus ; fadein rq3_quit_hint ; }
+//	leaveFocus { hide rq3_quit_focus ; hide rq3_quit_hint ; }
+    }
+
+    itemDef {
+	name RQ3_quit_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 600 16 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name RQ3_quit_hint
+	group hints
+	text "Exit Reaction Quake 3"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 0
+	textalignx 8
+	textaligny 16
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 0 410 260 24
+	style 0
+	visible 0
+	decoration
+    }
+
+//Logo+credits
+
+    itemDef {
+	name rq3_logo
+	type 1
+	background "menu/art/rq3-title-logo.tga"
+	rect 448 408 192 64
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+    }
+
+//Box for fading in menus
+
+    itemDef {
+	name fadebox
+	style WINDOW_STYLE_FILLED
+	//background "ui/assets/alpha"
+	//forecolor 0 0 0 1
+	backcolor 0 0 0 1
+	rect 0 0 640 480
+	visible 0
+	decoration
+    }
+
+}

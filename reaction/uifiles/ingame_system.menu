@@ -1,0 +1,611 @@
+#include "ui/menudef.h"
+
+{
+   //----------------//
+  // SYSTEM OPTIONS //
+ //----------------//
+
+
+    menuDef {
+	name "ingame_system"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 176 64 372 340
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	border 0
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" ; hide grpSystem ;
+		//setitemcolor grpSections backcolor 0 0 0 0 ;
+		//setitemcolor sectionGraphics backcolor Ig_Window_Color ;
+		show graphics ; setfocus sectionGraphics }
+
+//Window
+
+    itemDef {
+	rect 0 0 372 340
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 95 55 277 285
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "System options"
+	visible 1
+	decoration
+    }
+
+
+//Tabs
+
+    itemDef {
+	name tabSystem
+	group grpTabs
+	text "System"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 96 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name tabControls
+	group grpTabs
+	text "Controls"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 160 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_system" ; open "ingame_controls" }
+    }
+
+    itemDef {
+	name tabGame
+	group grpTabs
+	text "Game"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 224 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_system" ; open "ingame_options" }
+    }
+
+//Sub-sections
+
+    itemDef {
+	name sectionGraphics
+	group grpSections
+	text "Graphics"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 72 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	//backcolor 0 0 0 0
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
+		//setitemcolor grpSections backcolor 0 0 0 0 ;
+		//setitemcolor sectionGraphics backcolor Ig_Window_Color ;
+		show graphics }
+    }
+
+    itemDef {
+	name sectionDriver
+	group grpSections
+	text "Driver info"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 96 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	//backcolor 0 0 0 0
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
+		//setitemcolor grpSections backcolor 0 0 0 0 ;
+		//setitemcolor sectionDriver backcolor Ig_Window_Color ;
+		show driver }
+    }
+
+    itemDef {
+	name sectionOther
+	group grpSections
+	text "Other"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 120 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	//backcolor 0 0 0 0
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
+		//setitemcolor grpSections backcolor 0 0 0 0 ;
+		//setitemcolor sectionOther backcolor Ig_Window_Color ;
+		show Other }
+    }
+
+//Options
+
+// Graphics
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Quality:"
+	cvar "ui_glCustom"
+	cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
+	rect 96 72 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript update "ui_glCustom" }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_EDITFIELD
+	text "GL Driver:"
+	cvar "r_gldriver"
+	//cvarFloatList {  }
+	rect 96 92 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_YESNO
+	text "GL Extensions:"
+	cvar "r_allowExtensions"
+	rect 96 112 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Video Mode:"
+	cvar "r_mode"
+	cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 wide screen" 11 }
+	rect 96 132 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Color Depth:"
+	cvar "r_colorbits"
+	cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
+	rect 96 152 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom ; uiScript update "r_colorbits" }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_YESNO
+	text "Fullscreen:"
+	cvar "r_fullscreen"
+	rect 96 172 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Lighting:"
+	cvar "r_vertexlight"
+	cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
+	rect 96 192 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Geometric Detail:"
+	cvar "r_lodbias"
+	cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
+	rect 96 212 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom ; uiScript update "r_lodbias" }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Texture Detail:"
+	cvar "r_picmip"
+	cvarFloatList { "Very Low" 3 "Low" 2 "Normal" 1 "High" 0 }
+	rect 96 232 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Texture Quality:"
+	cvar "r_texturebits"
+	cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
+	rect 96 252 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Texture Filter:"
+	cvar "r_texturemode"
+	cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
+	rect 96 272 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    itemDef {
+	name graphics
+	group grpSystem
+	type ITEM_TYPE_YESNO
+	text "Compress Textures:"
+	cvar "r_ext_compressed_textures"
+	rect 96 292 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 133
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript glCustom }
+    }
+
+    //Apply button
+
+    itemDef {
+	name graphics
+	text "Apply"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	group grpsystem
+	style WINDOW_STYLE_FILLED
+	rect 200 312 64 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 32
+	textaligny 12
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { exec "vid_restart" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+// Driver info
+
+    itemDef {
+	name driver
+	group grpSystem
+	rect 112 80 232 232
+	ownerdraw UI_GLINFO
+	textalign 1
+	textscale .2
+	textalignx 0
+	textaligny 14
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+// Others
+
+    itemDef {
+	name other
+	group grpSystem
+	style 1
+	text "Display"
+	rect 96 68 128 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_SLIDER
+	text "Brightness:"
+	cvarfloat "r_gamma" 1 .5 1.7
+	rect 96 88 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_SLIDER
+	text "Screen Size:"
+	cvarfloat "cg_viewsize" 100 30 100
+	rect 96 108 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_YESNO
+	text "Overbright Bits:"
+	cvar "r_overbrightbits"
+	rect 96 128 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	style 1
+	text "Sound"
+	rect 96 168 128 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_SLIDER
+	text "Effects Volume:"
+	cvarfloat "s_volume" 0.7 0 1
+	rect 96 188 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_SLIDER
+	text "Music Volume:"
+	cvarfloat "s_musicvolume" 0.25 0 1
+	rect 96 208 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Sound Quality:"
+	cvar "s_khz"
+	cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
+	rect 96 228 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_YESNO
+	text "Doppler Sound:"
+	cvar "s_doppler"
+	rect 96 248 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	style 1
+	text "Network"
+	rect 96 288 128 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name other
+	group grpSystem
+	type ITEM_TYPE_MULTI
+	text "Net Data Rate:"
+	cvar "rate"
+	cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
+	rect 96 308 256 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 128
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+}
+}

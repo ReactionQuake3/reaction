@@ -1,0 +1,329 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_weapon"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 80 64 344 208
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" ; setFocus mp5 }
+	onEsc { play "sound/misc/menu2.wav" ; close ingame_weapon }
+
+//Window
+
+    itemdef {
+	rect 0 0 344 208
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 225 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 225 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Choose weapon"
+	visible 1
+	decoration
+    }
+
+//Weapons
+
+    itemdef {
+	shortcutKey "1"
+	name "mp5"
+	rect 152 48 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "1. MP5/10 Submachinegun"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_mp5" }
+	action { exec "choose mp5" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	shortcutKey "2"
+	name "m3"
+	rect 152 68 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "2. M3 Super 90 Assault Shotgun"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_m3" }
+	action { exec "choose m3" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "hc"
+	shortcutKey "3"
+	rect 152 88 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "3. Handcannon"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_hc" }
+	action { exec "choose hc" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "sniper"
+	shortcutKey "4"
+	rect 152 108 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "4. Sniper Rifle"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_sniper" }
+	action { exec "choose sniper" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "m4"
+	shortcutKey "5"
+	rect 152 128 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "5. M4 Assault Rifle"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_m4" }
+	action { exec "choose m4" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "knives"
+	shortcutKey "6"
+	rect 152 148 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "6. Combat Knives"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_knives" }
+	action { exec "choose knives" ; close ingame_weapon ; open ingame_item }
+    }
+
+    itemdef {
+	name "akimbo"
+	shortcutKey "7"
+	rect 152 168 160 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 8
+	textaligny 12
+	text "7.  Dual Mk23 Pistols"
+	forecolor 1 1 1 1
+	visible 1
+	onFocus { hide weapons ; show "wp_akimbo" }
+	action { exec "choose akimbo" ; close ingame_weapon ; open ingame_item }
+    }
+
+//Weapon preview
+//Background
+
+    itemdef {
+	name wp_background
+	rect 16 48 128 136
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-loadout"
+	model_angle 90
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	//backcolor .5 .5 .5 .4
+	decoration
+	visible 1
+    }
+
+//Weapons
+
+    itemdef {
+	name wp_mp5
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/mp5/mp5.md3"
+	model_origin 8 0 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angles 90 0 0
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name wp_m3
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/m3/m3.md3"
+	model_origin 28 6 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angles 270 0 0
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name wp_hc
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/handcannon/handcannon.md3"
+	model_origin 16 -4 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angles 90 0 0
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name wp_sniper
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/ssg3000/ssg3000.md3"
+	model_origin 28 6 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angle 270
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name wp_m4
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/m4/m4.md3"
+	model_origin 18 -2 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angle 90
+	decoration
+	visible 0
+    }
+
+    itemdef {
+	name wp_knives
+	group weapons
+	rect 16 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/knife/knife.md3"
+	model_origin -4 0 0
+	model_fovx 60
+	model_fovy 60
+	model_rotation 10
+	model_angles 180 0 15
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name wp_akimbo
+	group weapons
+	rect 24 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/mk23/mk23.md3"
+	model_origin 0 0 1
+	model_fovx 90
+	model_fovy 90
+	model_rotation 10
+	model_angle 90
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name wp_akimbo
+	group weapons
+	rect 24 48 128 136
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MODEL
+	asset_model "models/weapons2/mk23/mk23.md3"
+	model_origin 0 2 -3
+	model_fovx 90
+	model_fovy 90
+	model_rotation 10
+	model_angles 90 180 0
+	decoration
+	visible 1
+    }
+
+}
+}

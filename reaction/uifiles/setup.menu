@@ -1,0 +1,494 @@
+#include "ui/menudef.h"
+
+{
+
+  menuDef {
+    name "setup_menu"
+    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the old background
+    fullScreen MENU_TRUE
+    visible MENU_TRUE				// Visible on open
+    focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
+
+
+    onOpen {
+      play "sound/misc/menu1.wav" ;
+    }
+
+    onEsc { close setup_menu ; open main }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "setup_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-menu-setup.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "setup_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-setup.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+    }
+
+//===================
+// Buttons, lists
+//===================
+
+//Player
+
+    itemdef {
+	name btn_player
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-player"
+	rect 336 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show player_focus ; timefade player_focus forecolor 1 1 1 1 0 250 ;
+		show player_hint ; timeFade player_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade player_focus forecolor 1 1 1 0 0 250 ; timeFade player_hint forecolor .9 .9 .9 0 0 250 }
+	action { close setup_menu ; open player_menu ; }
+    }
+
+    itemdef {
+	name player_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 336 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name player_hint
+	text "Change player settings"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Control
+
+    itemdef {
+	name btn_control
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-controls"
+	rect 384 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show control_focus ; timefade control_focus forecolor 1 1 1 1 0 250 ;
+		show control_hint ; timeFade control_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade control_focus forecolor 1 1 1 0 0 250 ; timeFade control_hint forecolor .9 .9 .9 0 0 250 }
+	action { close setup_menu ; open control_menu ; }
+    }
+
+    itemdef {
+	name control_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 384 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name control_hint
+	text "Change Reaction controls"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//System
+
+    itemdef {
+	name btn_system
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-system"
+	rect 432 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show system_focus ; timefade system_focus forecolor 1 1 1 1 0 250 ;
+		show system_hint ; timeFade system_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade system_focus forecolor 1 1 1 0 0 250 ; timeFade system_hint forecolor .9 .9 .9 0 0 250 }
+	action { close setup_menu ; open system_menu ; }
+    }
+
+    itemdef {
+	name system_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 432 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name system_hint
+	text "Change system settings"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Game options
+
+    itemdef {
+	name btn_options
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-options"
+	rect 480 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show options_focus ; timefade options_focus forecolor 1 1 1 1 0 250 ;
+		show options_hint ; timeFade options_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade options_focus forecolor 1 1 1 0 0 250 ; timeFade options_hint forecolor .9 .9 .9 0 0 250 }
+	action { close setup_menu ; open options_menu ; }
+    }
+
+    itemdef {
+	name options_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 480 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name options_hint
+	text "Change game options"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//CD Key
+
+    itemdef {
+	name btn_cdkey
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-cdkey"
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show cdkey_focus ; timefade cdkey_focus forecolor 1 1 1 1 0 250 ;
+		show cdkey_hint ; timeFade cdkey_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade cdkey_focus forecolor 1 1 1 0 0 250 ; timeFade cdkey_hint forecolor .9 .9 .9 0 0 250 }
+	action { close setup_menu ; open cdkey_menu }
+    }
+
+    itemdef {
+	name cdkey_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name cdkey_hint
+	text "Set the Quake 3 CD-key"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Reset to defaults
+
+    itemdef {
+	name btn_default
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-defaults"
+	rect 576 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show default_focus ; timefade default_focus forecolor 1 1 1 1 0 250 ;
+		show default_hint ; timeFade default_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade default_focus forecolor 1 1 1 0 0 250 ; timeFade default_hint forecolor .9 .9 .9 0 0 250 }
+	action { open reset_popmenu ; }
+    }
+
+    itemdef {
+	name default_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 576 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name default_hint
+	text "Reset all settings (video, controls, game etc.) back to their default values"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Back
+
+    itemdef {
+	name "btn_back"
+	style WINDOW_STYLE_SHADER
+	rect 12 432 32 32
+	type 1
+	background "menu/art/rq3-menu-back.tga"
+	action { close setup_menu; open main ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+	visible 1
+    }
+
+
+    itemdef {
+	name back_hint
+	text "Go back to main menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+}
+
+
+//===================
+// Reset popup menu
+//===================
+
+
+  menuDef {
+    name "reset_popmenu"
+    visible 0
+    rect 170 180 300 100
+    focusColor RQ3_MAIN_FOCUSCOLOR
+    outOfBoundsClick
+    popup
+    //onOpen { transition window 0 50 300 0 0 0 300 100 10 4 }
+    //onClose { transition window 0 0 300 100 0 50 300 0 10 4 }
+    onopen { setfocus no ; }
+    onESC { close reset_popmenu ; open setup_menu ; }
+
+
+    itemDef {
+	name window
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/fake_gradient_75"
+	rect 0 0 300 100
+	border 4
+	bordersize 2
+	bordercolor 1 0 0 1
+	//backcolor 0 0 0 .65
+	visible 1
+	decoration
+    }
+
+
+
+    // RESET	//
+
+    itemDef {
+	name confirm
+	autowrapped
+	text "Reset all settings ?"
+	style 0
+	textscale .32
+	textstyle 3
+	rect 50 16 200 48
+	textalign 1
+	textalignx 100
+	textaligny 16
+	decoration
+	forecolor 1 1 1 1
+	visible 1
+    }
+
+    // YES	//
+
+    itemDef {
+	name yes
+	text "YES"
+	shortcutKey "Y"
+	type 1
+	style 0
+	textscale .32
+	textstyle 3
+	rect 100 64 50 32
+	textalign 1
+	textalignx 25
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { close reset_popmenu ; close setup_menu ; open main ; uiScript resetDefaults ; }
+	mouseEnter { setitemcolor yes backcolor .1 .37 .1 1 }
+	mouseExit { setitemcolor yes backcolor .37 .1 .1 1 }
+    }
+
+    // NO	//
+
+    itemDef {
+	name no
+	text "NO"
+	shortcutKey "N"
+	type 1
+	style 0
+	textscale .3
+	textstyle 3
+	rect 150 64 50 32
+	textalign 1
+	textalignx 25
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	action { close reset_popmenu ; open setup_menu }
+	mouseEnter { setitemcolor no backcolor .1 .37 .1 1 }
+	mouseExit { setitemcolor no backcolor .37 .1 .1 1 }
+    }
+
+
+
+  }
+
+
+}

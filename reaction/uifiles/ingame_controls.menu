@@ -1,0 +1,1019 @@
+#include "ui/menudef.h"
+
+{
+   //----------//
+  // CONTROLS //
+ //----------//
+
+
+    menuDef {
+	name "ingame_controls"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 176 64 372 340
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" ; hide grpControls ; show look ; setfocus sectionLook }
+
+//Window
+
+    itemdef {
+	name "ig-controls-window"
+	rect 0 0 372 340
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	name "ig-controls-window"
+	rect 95 55 277 285
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 253 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Controls"
+	visible 1
+	decoration
+    }
+
+//Tabs
+
+    itemdef {
+	name tabSystem
+	group grpTabs
+	text "System"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 96 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_controls" ; open "ingame_system" }
+    }
+
+    itemdef {
+	name tabControls
+	group grpTabs
+	text "Controls"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 160 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name tabGame
+	group grpTabs
+	text "Game"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 224 40 64 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	forecolor Ig_Setup_TabColor
+	visible 1
+	action { close "ingame_controls" ; open "ingame_options" }
+    }
+
+//Sub-sections
+
+    itemdef {
+	name sectionLook
+	group grpSections
+	text "Look"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 72 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpControls ; show look }
+    }
+
+    itemdef {
+	name sectionMove
+	group grpSections
+	text "Move"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 96 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpControls ; show move }
+    }
+
+    itemdef {
+	name sectionWeapon
+	group grpSections
+	text "Weapons"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 120 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpControls ; show weapon }
+    }
+
+    itemdef {
+	name sectionMisc
+	group grpSections
+	text "Misc"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 144 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpControls ; show misc }
+    }
+
+    itemdef {
+	name sectionReaction
+	group grpSections
+	text "Reaction"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 168 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpControls ; show reaction }
+    }
+
+//Keys
+//Looking keys
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_SLIDER
+	text "Mouse Speed:"
+	cvarfloat "sensitivity" 5 1 30
+	rect 224 92 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_YESNO
+	text "Smooth Mouse:"
+	cvar "m_filter"
+	rect 224 112 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_YESNO
+	text "Invert Mouse:"
+	cvar "ui_mousePitch"
+	rect 224 132 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { uiScript update ui_mousePitch ; }
+    }
+
+    itemdef {
+	name look
+	group grpcontrols
+	cvar "+lookup"
+	group grpcontrols
+	type ITEM_TYPE_BIND
+	text "Look Up:"
+	rect 160 152 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name look
+	group grpcontrols
+	cvar "+lookdown"
+	type ITEM_TYPE_BIND
+	text "Look Down:"
+	rect 160 172 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name look
+	group grpcontrols
+	cvar "+mlook"
+	group grpcontrols
+	type ITEM_TYPE_BIND
+	text "Mouse Look:"
+	rect 160 192 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_YESNO
+	text "Free Look:"
+	cvar "cl_freelook"
+	rect 224 212 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemdef {
+	name look
+	group grpcontrols
+	cvar "centerview"
+	type ITEM_TYPE_BIND
+	text "Center View:"
+	rect 160 232 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_YESNO
+	text "Use Joystick:"
+	cvar "in_joystick"
+	rect 224 252 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+       itemdef {
+	name look
+	group grpcontrols
+	type ITEM_TYPE_SLIDER
+	text "Joystick Threshold:"
+	cvarfloat "joy_threshold" 0.15 0.05 0.75
+	rect 224 272 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+//Movement keys
+
+
+       itemdef {
+	name move
+	group grpControls
+	type ITEM_TYPE_YESNO
+	text "Always Run:"
+	cvar "cl_run"
+	rect 224 84 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+speed"
+	type ITEM_TYPE_BIND
+	text "Run / Walk:"
+	rect 160 104 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+forward"
+	type ITEM_TYPE_BIND
+	text "Walk Forward:"
+	rect 160 124 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+back"
+	type ITEM_TYPE_BIND
+	text "Backpedal:"
+	rect 160 144 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+moveleft"
+	type ITEM_TYPE_BIND
+	text "Step Left:"
+	rect 160 164 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+moveright"
+	type ITEM_TYPE_BIND
+	text "Step Right:"
+	rect 160 184 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+moveup"
+	type ITEM_TYPE_BIND
+	text "Up / Jump:"
+	rect 160 204 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+movedown"
+	type ITEM_TYPE_BIND
+	text "Down / Crouch:"
+	rect 160 224 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+left"
+	type ITEM_TYPE_BIND
+	text "Turn Left:"
+	rect 160 244 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+right"
+	type ITEM_TYPE_BIND
+	text "Turn Right:"
+	rect 160 264 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name move
+	group grpControls
+	cvar "+strafe"
+	type ITEM_TYPE_BIND
+	text "Sidestep / Turn:"
+	rect 160 284 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+//Weapon keys
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "+attack"
+	type ITEM_TYPE_BIND
+	text "Attack:"
+	rect 176 68 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapnext"
+	type ITEM_TYPE_BIND
+	text "Next Weapon:"
+	rect 176 88 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapprev"
+	type ITEM_TYPE_BIND
+	text "Previous Weapon:"
+	rect 176 108 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+       itemdef {
+	name weapon
+	group grpControls
+	type ITEM_TYPE_YESNO
+	text "Autoswitch Weapons:"
+	cvar "cg_autoswitch"
+	rect 240 128 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 1"
+	type ITEM_TYPE_BIND
+	text "MK23 Pistol:"
+	rect 176 148 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 2"
+	type ITEM_TYPE_BIND
+	text "M3 Assault Shotgun:"
+	rect 176 168 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 3"
+	type ITEM_TYPE_BIND
+	text "MP5/10 Submachinegun:"
+	rect 176 188 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 4"
+	type ITEM_TYPE_BIND
+	text "Handcannon:"
+	rect 176 208 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 5"
+	type ITEM_TYPE_BIND
+	text "SSG Sniper Rifle:"
+	rect 176 228 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 6"
+	type ITEM_TYPE_BIND
+	text "M4 Assault Rifle:"
+	rect 176 248 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 7"
+	type ITEM_TYPE_BIND
+	text "Dual MK23 Pistols:"
+	rect 176 268 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 8"
+	type ITEM_TYPE_BIND
+	text "Combat Knife:"
+	rect 176 288 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name weapon
+	group grpControls
+	cvar "weapon 9"
+	type ITEM_TYPE_BIND
+	text "M26 Frag Grenade:"
+	rect 176 308 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+//Misc keys
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "scores"
+	type ITEM_TYPE_BIND
+	text "Show Scores:"
+	rect 168 100 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "+button3"
+	type ITEM_TYPE_BIND
+	text "Gesture:"
+	rect 168 120 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "messagemode"
+	type ITEM_TYPE_BIND
+	text "Chat:"
+	rect 168 140 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "messagemode2"
+	type ITEM_TYPE_BIND
+	text "Chat - Team:"
+	rect 168 160 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "messagemode3"
+	type ITEM_TYPE_BIND
+	text "Chat - Target:"
+	rect 168 180 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "messagemode4"
+	type ITEM_TYPE_BIND
+	text "Chat - Attacker:"
+	rect 168 200 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "screenshot"
+	type ITEM_TYPE_BIND
+	text "Screenshot:"
+	rect 168 220 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name misc
+	group grpControls
+	cvar "screenshotJPEG"
+	type ITEM_TYPE_BIND
+	text "Screenshot - JPEG:"
+	rect 168 240 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+//Reaction keys
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "bandage"
+	type ITEM_TYPE_BIND
+	text "Bandage:"
+	rect 176 80 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "+button5"
+	type ITEM_TYPE_BIND
+	text "Reload:"
+	rect 176 100 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "weapon"
+	type ITEM_TYPE_BIND
+	text "Weapon Mode:"
+	rect 176 120 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "opendoor"
+	type ITEM_TYPE_BIND
+	text "Open Door:"
+	rect 176 140 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "dropweapon"
+	type ITEM_TYPE_BIND
+	text "Drop Weapon:"
+	rect 176 160 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "dropitem"
+	type ITEM_TYPE_BIND
+	text "Drop Item:"
+	rect 176 180 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "irvision"
+	type ITEM_TYPE_BIND
+	text "IR Vision:"
+	rect 176 200 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "specialweapon"
+	type ITEM_TYPE_BIND
+	text "Special Weapon Cycle:"
+	rect 176 220 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "ui_RQ3_loadout"
+	type ITEM_TYPE_BIND
+	text "TP Weapon/Item:"
+	rect 176 240 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "ui_RQ3_joinTeam"
+	type ITEM_TYPE_BIND
+	text "Join Team:"
+	rect 176 260 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+}
+}

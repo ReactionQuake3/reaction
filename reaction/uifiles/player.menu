@@ -1,0 +1,285 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "player_menu"
+	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the current background
+	fullScreen MENU_TRUE
+	visible 0				// Visible on open
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+
+
+	onOpen { uiScript update "ui_GetName" ; play "sound/misc/menu1.wav" }
+	onClose { uiScript update "ui_SetName" }
+	onEsc { close player_menu ; open setup_menu }
+
+
+//=================
+// RQ3 stuff
+//=================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "player_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-setup-player.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "player_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-setup.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+        }
+
+//=================
+// Buttons, lists
+//=================
+
+
+//Player model display
+
+    itemdef {
+	name "model_preview"
+	ownerdraw UI_PLAYERMODEL
+	style 1
+	rect 0 80 240 320
+	visible 1
+	decoration
+    }
+
+
+//Name edit field
+
+    itemdef {
+	name "name_caption"
+	style 0
+	text "Player name:"
+	rect 220 120 120 20
+	textstyle 3
+	textscale .28
+	textalign 0
+	textalignx 4
+	textaligny 16
+	forecolor 1 1 .75 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "namefield"
+	rect 220 140 232 20
+	type ITEM_TYPE_EDITFIELD
+	style 1
+	text ""
+	cvar "ui_Name"
+	backcolor 0 0 0 .1
+	forecolor 1 1 1 1
+	outlinecolor 1 1 1 .15
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 .75
+	textstyle 0
+	maxchars 20
+	textscale .25
+	textalign 0
+	textalignx 4
+	textaligny 16
+	visible 1
+	onFocus { setitemcolor namefield backcolor 0 0 0 .25 ; show name_hint ;
+		timeFade name_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setitemcolor namefield backcolor 0 0 0 .1 ;
+		timeFade name_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name name_hint
+	text "Enter player name"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Player model selection
+
+    itemdef {
+	name "headlist_caption"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_EDITFIELD
+	text "Player model:"
+	cvar "model"
+	rect 220 210 120 20
+	textstyle 3
+	textscale .28
+	textalign 0
+	textalignx 4
+	textaligny 16
+	forecolor 1 1 .75 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "headlist_window"
+	rect 220 230 392 108
+	style WINDOW_STYLE_FILLED
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 .75
+	backcolor 0 0 0 .1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "headlist"
+	rect 230 240 372 88
+	style 0
+	type ITEM_TYPE_LISTBOX
+	forecolor 1 1 1 1
+	outlinecolor 1 1 .1 1
+	border 0
+	bordersize 2
+	bordercolor 1 1 .5 .5
+	elementwidth 61
+	elementheight 61
+	elementtype LISTBOX_IMAGE
+	feeder FEEDER_Q3HEADS
+	horizontalscroll
+	visible 1
+	//onfocus { setitemcolor headlist bordercolor 1 0 0 1 ; }
+	//leavefocus { setitemcolor headlist bordercolor 1 0 0 0 ; }
+	onFocus { setitemcolor headlist_window backcolor 0 0 0 .25 ; show headlist_hint ;
+		timeFade headlist_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setitemcolor headlist_window backcolor 0 0 0 .1 ;
+		timeFade headlist_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name headlist_hint
+	text "Click to change player model"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+//Back
+
+    itemdef {
+	name "btn_back"
+	style WINDOW_STYLE_SHADER
+	rect 12 432 32 32
+	type 1
+	visible 1
+	background "menu/art/rq3-menu-back.tga"
+	action { close player_menu; open setup_menu ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name back_hint
+	text "Go back to setup menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+}

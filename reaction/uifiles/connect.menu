@@ -1,0 +1,84 @@
+#include "ui/menudef.h"
+
+
+  menuDef {
+    name "connect"
+    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the current background
+    fullScreen MENU_TRUE
+    visible MENU_TRUE				// Visible on open
+    focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
+
+
+    onOpen {
+      transition demolist 80 108 480 0 80 108 480 280 10 10 ;
+      uiScript LoadDemos ;
+      play "sound/misc/menu1.wav" ;
+    }
+
+    onEsc { close demo ; open main }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemDef {
+      name top_bar 				//rq3: Top bar
+      rect 0 0 640 56
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name top_bar 				//rq3: Top bar
+      rect 0 58 640 12
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/rq3-main-shadow-1"
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name top_bar2 				//rq3: Top bar - border
+      rect 0 56 640 2
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR2
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name bottom_bar 				//rq3: bottom bar
+      rect 0 420 640 60
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+    itemDef {
+      name bottom_bar2 				//rq3: bottom bar - border
+      rect 0 418 640 2
+      style 1
+      backcolor RQ3_MAIN_BAR_COLOR2
+      //border 2
+      //bordersize 1
+      //bordercolor 1 0 0 1
+      decoration
+      visible 1
+    }
+
+}

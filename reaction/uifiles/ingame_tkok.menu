@@ -1,0 +1,124 @@
+#include "ui/menudef.h"
+
+{
+
+    menudef {
+	name "ingame_tkok"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 200 64 180 120
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" ; show grpMenu ; hide grpConfirm }
+
+//Window
+
+    itemdef {
+	rect 0 0 180 120
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 61 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 61 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Team kill OK ?"
+	visible 1
+	decoration
+    }
+
+    // Text //
+
+    itemdef {
+	text "Forgive the last\n"
+	     "teammate who killed you ?"
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 8 40 164 32
+	textalign ITEM_ALIGN_CENTER
+	textalignx 82
+	textaligny 12
+	autowrapped
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+//Buttons
+
+    // YES //
+
+    itemdef {
+	name yes
+	text "Yes"
+	shortcutKey "Y"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 48 88 40 16
+	textalign 1
+	textalignx 20
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; exec "tkok" ; uiScript closeingame }
+    }
+
+    // NO //
+
+    itemdef {
+	name no
+	text "No"
+	shortcutKey "N"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 92 88 40 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 20
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; uiScript closeingame }
+    }
+
+    // SEPARATOR //
+
+    itemdef {
+	text "/"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	rect 74 88 32 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 12
+	forecolor Ig_Sub_TextColor
+	visible 1
+	decoration
+    }
+
+}
+}

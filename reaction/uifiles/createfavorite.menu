@@ -1,0 +1,122 @@
+#include "ui/menudef.h"
+{
+    // CREATE FAVORITE POPUP MENU //
+
+    menuDef {
+	name "createfavorite_popmenu"
+	visible 0
+	fullscreen 0
+	rect 170 200 300 80
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	border 1
+	popup
+	onOpen { play "sound/misc/menu1.wav" ; setfocus nameEntry }
+	onESC { close "createfavorite_popmenu" ; open joinserver }
+
+    itemDef {
+	name window
+	rect 0 0 300 68
+	style WINDOW_STYLE_FILLED
+	border 1
+	borderSize 1
+	bordercolor Ig_Window_BorderColor
+	backcolor Ig_Window_Color
+	shadowStyle 1
+	visible 1
+	decoration
+    }
+
+    // NAME //
+
+    itemDef {
+	text "Name:"
+	style 0
+	textscale .25
+	rect 0 8 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name nameEntry
+	style WINDOW_STYLE_FILLED
+	text ""
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	maxPaintChars 17
+	textscale .225
+	type ITEM_TYPE_EDITFIELD
+	cvar "ui_favoriteName"
+	rect 80 8 160 20
+	border 1
+	bordersize 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 1 1 1 .1
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .2 ; }
+	leavefocus { setcolor backcolor 1 1 1 .1 ; }
+    }
+
+    // ADDRESS //
+
+    itemDef {
+	text "Address:"
+	style 0
+	textscale .25
+	rect 0 36 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 16
+	textaligny 16
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	name addressEntry
+	style WINDOW_STYLE_FILLED
+	text ""
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	maxPaintChars 17
+	textscale .225
+	type ITEM_TYPE_EDITFIELD
+	cvar "ui_favoriteAddress"
+	rect 80 36 160 20
+	border 1
+	bordersize 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 1 1 1 .1
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .2 ; }
+	leavefocus { setcolor backcolor 1 1 1 .1 ; }
+    }
+
+    // Add //
+
+    itemDef {
+	shortcutKey "A"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	rect 256 12 32 16
+	textscale .25
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 10
+	forecolor 1 1 1 1
+	text "Add"
+	visible 1
+	action { uiScript "CreateFavorite" ; close "createfavorite_popmenu" ; open joinserver }
+    }
+
+  }
+}
