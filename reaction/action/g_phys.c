@@ -901,7 +901,7 @@ STEPPING MOVEMENT
 =============
 SV_Physics_Step
 
-Monsters freefall when they don't have a ground entity, otherwise
+onsters freefall when they don't have a ground entity, otherwise
 all movement is done with discrete steps.
 
 This is also used for objects that have become still on the ground, but

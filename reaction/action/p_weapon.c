@@ -682,7 +682,7 @@ void Think_Weapon (edict_t *ent)
 ================
 Use_Weapon
 
-Make the weapon ready if there is ammo
+ake the weapon ready if there is ammo
 ================
 */
 void Use_Weapon (edict_t *ent, gitem_t *item)
@@ -2373,7 +2373,7 @@ void Weapon_HyperBlaster (edict_t *ent)
 /*
 ======================================================================
 
-MACHINEGUN / CHAINGUN
+ACHINEGUN / CHAINGUN
 
 ======================================================================
 */

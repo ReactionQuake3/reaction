@@ -6,7 +6,7 @@
 
 /*
 =============
-M_CheckBottom
+_CheckBottom
 
 Returns false if any part of the bottom of the entity is off an edge that
 is not a staircase.
@@ -278,7 +278,7 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 
 /*
 ===============
-M_ChangeYaw
+_ChangeYaw
 
 ===============
 */
@@ -490,7 +490,7 @@ qboolean SV_CloseEnough (edict_t *ent, edict_t *goal, float dist)
 
 /*
 ======================
-M_MoveToGoal
+_MoveToGoal
 ======================
 */
 void M_MoveToGoal (edict_t *ent, float dist)
@@ -517,7 +517,7 @@ void M_MoveToGoal (edict_t *ent, float dist)
 
 /*
 ===============
-M_walkmove
+_walkmove
 ===============
 */
 qboolean M_walkmove (edict_t *ent, float yaw, float dist)

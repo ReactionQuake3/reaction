@@ -11,7 +11,7 @@ behavior.  So...if you want FF in teamplay, set your dmflags to 0. If you
 don't, set it to 256.  No friendly fire is the "normal" style of play, so
 the default/standard dmflags for AQ teamplay should be considered to be
 256.  When FF is in effect, notification of it will be on the standard
-MOTD.  Temporary banning for people who kill too many team members is
+OTD.  Temporary banning for people who kill too many team members is
 available.  The "maxteamkills" server cvar can be used to control the
 maximum number of teamkills that a player can make on a given map before
 he is kicked and temporarily banned, the default is 0 which means never
@@ -112,7 +112,7 @@ real this time), as well as the red flash when a player exits the game in
 a teamplay game.
 
 o The through-eyes chasecam now properly tracks weapon kick (ie with the
-M4), and also now gives you IR vision if the person you're viewing through
+4), and also now gives you IR vision if the person you're viewing through
 the eyes of is using IR.
 
 o A few bugs fixed in the way bodies fly after death.  Floating bodies and
@@ -244,7 +244,7 @@ General Weapon Changes
 
 o Ducking alone (without lasersight) now improves aim.  Previously, it only
 helped if you had a lasersight too (we believe this was a bug).  See "Spread
-Modifiers" heading for more specific information. 
+odifiers" heading for more specific information. 
 
 o Guns now center their fire around your crosshair, rather than an invisible
 spot down/right of your crosshair.  

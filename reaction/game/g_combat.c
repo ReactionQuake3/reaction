@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/01/11 19:48:30  jbravo
+// Formatted the source in non DOS format.
+//
 // Revision 1.33  2001/12/31 16:28:42  jbravo
 // I made a Booboo with the Log tag.
 //

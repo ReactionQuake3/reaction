@@ -234,7 +234,7 @@ void SP_turret_breach (edict_t *self)
 
 /*QUAKED turret_base (0 0 0) ?
 This portion of the turret changes yaw only.
-MUST be teamed with a turret_breach.
+UST be teamed with a turret_breach.
 */
 
 void SP_turret_base (edict_t *self)
@@ -248,7 +248,7 @@ void SP_turret_base (edict_t *self)
 
 
 /*QUAKED turret_driver (1 .5 0) (-16 -16 -24) (16 16 32)
-Must NOT be on the team with the rest of the turret parts.
+ust NOT be on the team with the rest of the turret parts.
 Instead it must target the turret_breach.
 */
 

@@ -66,7 +66,7 @@ void AI_SetSightClient (void)
 =============
 ai_move
 
-Move the specified distance at current facing.
+ove the specified distance at current facing.
 This replaces the QC functions: ai_forward, ai_back, ai_pain, and ai_painforward
 ==============
 */

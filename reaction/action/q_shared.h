@@ -90,19 +90,19 @@ typedef enum {false, true}      qboolean;
 // destination class for gi.multicast()
 typedef enum
 {
-MULTICAST_ALL,
-MULTICAST_PHS,
-MULTICAST_PVS,
-MULTICAST_ALL_R,
-MULTICAST_PHS_R,
-MULTICAST_PVS_R
+ULTICAST_ALL,
+ULTICAST_PHS,
+ULTICAST_PVS,
+ULTICAST_ALL_R,
+ULTICAST_PHS_R,
+ULTICAST_PVS_R
 } multicast_t;
 
 
 /*
 ==============================================================
 
-MATHLIB
+ATHLIB
 
 ==============================================================
 */

@@ -34,7 +34,7 @@ void SP_target_temp_entity (edict_t *ent)
 Normal sounds play each time the target is used.  The reliable flag can be set for crucial voiceovers.
 
 Looped sounds are always atten 3 / vol 1, and the use function toggles it on/off.
-Multiple identical looping sounds will just increase volume without any speed cost.
+ultiple identical looping sounds will just increase volume without any speed cost.
 */
 void Use_Target_Speaker (edict_t *ent, edict_t *other, edict_t *activator)
 {

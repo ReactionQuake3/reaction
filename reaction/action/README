@@ -188,23 +188,23 @@ WEAPON/ITEM NAMES
 These are the exact names of all the weapons/items in the game, for use with
 commands like "use", "drop", "choose", "give", etc:
 
-MK23 Pistol
-M3 Super 90 Assault Shotgun
-MP5/10 Submachinegun
+K23 Pistol
+3 Super 90 Assault Shotgun
+P5/10 Submachinegun
 Handcannon
 Sniper Rifle
-M4 Assault Rifle
+4 Assault Rifle
 Dual MK23 Pistols
 Combat Knife (also aliases "throwing combat knife" and 
               "slashing combat knife" for the "use" command)
 
 Pistol Clip
 12 Gauge Shells
-Machinegun Magazine
-M4 Clip
+achinegun Magazine
+4 Clip
 AP Sniper Ammo
 
-M26 Fragmentation Grenade
+26 Fragmentation Grenade
 
 Kevlar Vest
 Lasersight

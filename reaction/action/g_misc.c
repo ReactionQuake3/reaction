@@ -33,7 +33,7 @@ void SP_func_areaportal (edict_t *ent)
 
 /*
 =================
-Misc functions
+isc functions
 =================
 */
 void VelocityForDamage (int damage, vec3_t v)
@@ -390,7 +390,7 @@ void SP_path_corner (edict_t *self)
 
 
 /*QUAKED point_combat (0.5 0.3 0) (-8 -8 -8) (8 8 8) Hold
-Makes this the target of a monster and it will head here
+akes this the target of a monster and it will head here
 when first activated before going after the activator.  If
 hold is selected, it will stay here.
 */

@@ -432,7 +432,7 @@ edict_t *G_Spawn (void)
 =================
 G_FreeEdict
 
-Marks the edict as free
+arks the edict as free
 =================
 */
 void G_FreeEdict (edict_t *ed)
