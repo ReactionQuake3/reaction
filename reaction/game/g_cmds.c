@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/03/03 02:04:14  jbravo
+// Zcam tewaking
+//
 // Revision 1.64  2002/03/02 14:54:24  jbravo
 // Added the skin and model names to the name of the player thats being
 // followed, as in AQ
@@ -882,6 +885,8 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
+//	ent->client->sess.spectatorState = SPECTATOR_ZCAM;
+//	ent->client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
 	//Slicer - Removing any zoom bits he might have gainned
 	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;

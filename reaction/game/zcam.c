@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/03 02:04:15  jbravo
+// Zcam tewaking
+//
 // Revision 1.6  2002/02/10 18:38:42  jbravo
 // Added new SPECTATOR_ZCAM spec mode.
 //
@@ -224,11 +227,18 @@ static int NumPlayers (void)
 
   for (i = 0; i < level.maxclients; i++) 
     {
-      if (level.clients[i].pers.connected == CON_CONNECTED 
-	  && level.clients[i].sess.sessionTeam != TEAM_SPECTATOR)
-	{
+// JBravo: zcam team fixes
+      if (g_gametype.integer == GT_TEAMPLAY) {
+	if (level.clients[i].pers.connected == CON_CONNECTED 
+		&& level.clients[i].sess.savedTeam != TEAM_SPECTATOR) {
 	  count ++;
 	}
+      } else {
+	if (level.clients[i].pers.connected == CON_CONNECTED 
+		&& level.clients[i].sess.sessionTeam != TEAM_SPECTATOR) {
+	  count ++;
+	}
+      }
     }
   return count;
 }
