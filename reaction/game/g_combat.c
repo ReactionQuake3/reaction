@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/04/24 04:25:14  jbravo
+// No rewards (humiliation on dead player or Icon on attacker) for knife kills
+//
 // Revision 1.61  2002/04/22 16:43:34  blaze
 // Hey look, breakables explode now!  :)
 //
@@ -907,7 +910,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				}
 			}
 			//Elder: changed to knife slash heh
-			if(meansOfDeath == MOD_KNIFE) {
+			// JBravo: nobody wants this in RQ3
+/*			if(meansOfDeath == MOD_KNIFE) {
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_GAUNTLET;
@@ -915,7 +919,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 				// also play humiliation on target
 				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_GAUNTLETREWARD;
-			}
+			} */
 
 			// check for two kills in a short amount of time
 			// if this is close enough to the last kill, give a reward sound
