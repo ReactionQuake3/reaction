@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/05/11 19:18:20  makro
+// Sand surfaceparm
+//
 // Revision 1.61  2002/05/06 21:41:01  slicer
 // Added rq3_cmd
 //
@@ -918,6 +921,7 @@ typedef enum {
 	EV_FOOTSTEP_MARBLE,
 	EV_FOOTSTEP_SNOW2,
 	EV_FOOTSTEP_HARDSTEPS,
+	EV_FOOTSTEP_SAND,
 	EV_FOOTSPLASH,
 	EV_FOOTWADE,
 	EV_SWIM,
@@ -1397,11 +1401,14 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define MAT_MARBLE				14
 #define MAT_SNOW2				15
 #define MAT_HARDSTEPS			16
-
+#define	MAT_SAND				17
 
 int GetMaterialFromFlag( int flag );
 qboolean IsMetalMat( int Material );
 qboolean IsMetalFlag( int flag );
+qboolean IsWoodMat( int Material );
+qboolean IsWoodFlag( int flag );
+
 
 holdable_t CharToItem ( char *name, holdable_t defitem );
 weapon_t CharToWeapon ( char *name, weapon_t defweapon );

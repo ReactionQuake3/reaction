@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/05/11 19:18:20  makro
+// Sand surfaceparm
+//
 // Revision 1.32  2002/05/11 14:22:06  makro
 // Func_statics now reset at the beginning of each round
 //
@@ -3237,7 +3240,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	dist = VectorNormalize(forward);
 	//Makro - for long range attacks the bots should crouch more often
 	if (dist > 512) {
-		croucher = Com_Clamp(0, 1, croucher * 2.0f);
+		croucher = Com_Clamp(0.1f, 1, croucher * 2.0f);
 		jumper = Com_Clamp(0, 1, jumper / 2.0f);
 	}
 	VectorNegate(forward, backward);
@@ -5820,6 +5823,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 		case EV_FOOTSTEP_MARBLE:
 		case EV_FOOTSTEP_SNOW2:
 		case EV_FOOTSTEP_HARDSTEPS:
+		case EV_FOOTSTEP_SAND:
 		case EV_FOOTSPLASH:
 		case EV_FOOTWADE:
 		case EV_SWIM:

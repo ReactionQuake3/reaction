@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/11 19:18:20  makro
+// Sand surfaceparm
+//
 // Revision 1.72  2002/05/11 18:47:09  niceass
 // last fire animation fixed
 //
@@ -1010,6 +1013,10 @@ static int PM_FootstepForSurface( void ) {
 	
 	if ( Material == MAT_HARDSTEPS ) {
 		return EV_FOOTSTEP_HARDSTEPS;
+	}
+
+	if ( Material == MAT_SAND ) {
+		return EV_FOOTSTEP_SAND;
 	}
 // Makro - end new sounds
 
@@ -3199,51 +3206,5 @@ void Pmove (pmove_t *pmove) {
 
 	//PM_CheckStuck();
 
-}
-/*
-=====================
-  SURFACEPARM STUFF
-=====================
-*/
-
-int MatFlags[] =
-{
-	SURF_METALSTEPS,
-	SURF_GRAVEL,
-	SURF_WOOD,
-	SURF_CARPET,
-	SURF_METAL2,
-	SURF_GLASS,
-	SURF_GRASS,
-	SURF_SNOW,
-	SURF_MUD,
-	SURF_WOOD2,
-	SURF_HARDMETAL
-};
-
-#define MatFlagCount			5
-
-int GetMaterialFromFlag( int flag ) {
-	int Material = 0;
-	int i = 0;
-
-	for (i = 0; i < MatFlagCount; i++) {
-		if ( (flag & MatFlags[i]) ) {
-			Material += (1 << i);
-		}
-	}
-
-	return Material;
-}
-
-qboolean IsMetalMat( int Material ) {
-	if (Material == MAT_METALSTEPS || Material == MAT_METAL2 || Material == MAT_HARDMETAL) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean IsMetalFlag( int flag ) {
-	return IsMetalMat(GetMaterialFromFlag(flag));
 }
 

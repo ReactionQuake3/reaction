@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/11 19:18:20  makro
+// Sand surfaceparm
+//
 // Revision 1.36  2002/05/11 14:22:06  makro
 // Func_statics now reset at the beginning of each round
 //
@@ -1327,6 +1330,7 @@ char *eventnames[] = {
 	"EV_FOOTSTEP_MARBLE",
 	"EV_FOOTSTEP_SNOW2",
 	"EV_FOOTSTEP_HARDSTEPS",
+	"EV_FOOTSTEP_SAND",
 
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
@@ -1767,5 +1771,65 @@ holdable_t CharToItem ( char *name, holdable_t defitem ) {
 	}
 
 	return defitem;
+}
+
+/*
+=====================
+Surfaceparm stuff
+=====================
+*/
+
+int MatFlags[] =
+{
+	SURF_METALSTEPS,
+	SURF_GRAVEL,
+	SURF_WOOD,
+	SURF_CARPET,
+	SURF_METAL2,
+	SURF_GLASS,
+	SURF_GRASS,
+	SURF_SNOW,
+	SURF_MUD,
+	SURF_WOOD2,
+	SURF_HARDMETAL
+};
+
+#define MatFlagCount			5
+
+int GetMaterialFromFlag( int flag ) {
+	int Material = 0;
+	int i = 0;
+
+	for (i = 0; i < MatFlagCount; i++) {
+		if ( (flag & MatFlags[i]) ) {
+			Material += (1 << i);
+		}
+	}
+
+	return Material;
+}
+
+//metal
+qboolean IsMetalMat( int Material ) {
+	if (Material == MAT_METALSTEPS || Material == MAT_METAL2 || Material == MAT_HARDMETAL) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+qboolean IsMetalFlag( int flag ) {
+	return IsMetalMat(GetMaterialFromFlag(flag));
+}
+
+//wood
+qboolean IsWoodMat( int Material ) {
+	if (Material == MAT_WOOD || Material == MAT_WOOD2) {
+		return qtrue;
+	}
+	return qfalse;
+}
+
+qboolean IsWoodFlag( int flag ) {
+	return IsWoodMat(GetMaterialFromFlag(flag));
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/05/11 19:13:42  makro
+// Sand surfaceparm
+//
 // Revision 1.54  2002/05/09 20:58:30  jbravo
 // New Obit system and a warning cleanup in zcam
 //
@@ -1657,6 +1660,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if (cg_footsteps.integer) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY,
 				cgs.media.footsteps[ FOOTSTEP_HARDSTEPS ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_SAND:
+		DEBUGNAME("EV_FOOTSTEP_SAND");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_SAND ][rand()&3] );
 		}
 		break;
 // Makro - end new sounds

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/11 19:13:42  makro
+// Sand surfaceparm
+//
 // Revision 1.71  2002/05/11 15:40:41  slicer
 // Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
 //
@@ -243,6 +246,7 @@ typedef enum {
 	FOOTSTEP_MARBLE,
 	FOOTSTEP_SNOW2,
 	FOOTSTEP_HARDSTEPS,
+	FOOTSTEP_SAND,
 
 
 	FOOTSTEP_TOTAL

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/05/11 19:13:42  makro
+// Sand surfaceparm
+//
 // Revision 1.61  2002/05/11 15:40:41  slicer
 // Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
 //
@@ -1009,6 +1012,9 @@ static void CG_RegisterSounds( void ) {
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/hardstep%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_HARDSTEPS][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/sand%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_SAND][i] = trap_S_RegisterSound (name, qfalse);
 
 	}
 
