@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/06/06 01:54:26  niceass
+// pressure change
+//
 // Revision 1.85  2002/06/05 23:36:07  niceass
 // "ready" command lag fix
 //
@@ -1081,7 +1084,8 @@ typedef struct {
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
-	qhandle_t	waterParticleShader;
+	qhandle_t	waterPressureShader;
+	qhandle_t	flamePressureShader;
 	qhandle_t	bloodTrailShader;
 #ifdef MISSIONPACK
 	qhandle_t	nailPuffShader;

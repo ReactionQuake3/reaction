@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/06/06 01:53:26  niceass
+// pressure change
+//
 // Revision 1.9  2002/05/26 05:14:05  niceass
 // pressure stuff
 //
@@ -2329,7 +2332,7 @@ void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float 
 	p->endheight = 1.0 * scale;
 	p->endwidth = 1.0 * scale;
 	
-	p->pshader = cgs.media.waterParticleShader;
+	p->pshader = cgs.media.waterPressureShader;
 
 	p->type = P_SMOKE;
 	

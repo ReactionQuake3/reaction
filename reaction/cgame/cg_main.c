@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/06/06 01:53:51  niceass
+// pressure change
+//
 // Revision 1.71  2002/06/05 23:35:42  niceass
 // "ready" command lag fix
 //
@@ -1278,7 +1281,10 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
-	cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
+
+	cgs.media.waterPressureShader = trap_R_RegisterShader( "waterpressure" ); // NiceAss: Used in pressure entities
+	cgs.media.flamePressureShader = trap_R_RegisterShader( "flamepressure" ); // NiceAss: Used in pressure entities
+	
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
 	cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );

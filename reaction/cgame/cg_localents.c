@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/06/06 01:54:07  niceass
+// pressure change
+//
 // Revision 1.14  2002/05/26 05:14:14  niceass
 // pressure stuff
 //
@@ -852,7 +855,7 @@ void CG_AddPressureEntity ( localEntity_t *le ) {
 		if (le->leFlags == LEF_WATER)
 			CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1 );
 		else if (le->leFlags == LEF_FLAME)
-			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.grenadeExplosionShader );
+			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.flamePressureShader );
 		else 
 			CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, 2, 1, cgs.media.smokePuffShader );
 	}
