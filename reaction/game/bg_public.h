@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/05/18 21:57:54  blaze
+// Transmit round start to clients
+// used for cg_rq3_autoaction
+//
 // Revision 1.64  2002/05/15 03:43:09  niceass
 // ssg disarm fix
 //
@@ -264,7 +268,8 @@ enum {
 	SELECTPISTOL,
 	ROUND,
 	MAPEND,
-	SETWEAPON,
+  MAPSTART,
+  SETWEAPON,
 	STUFF,
 	RADIO
 };

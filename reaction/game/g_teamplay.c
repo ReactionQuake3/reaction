@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2002/05/18 21:57:54  blaze
+// Transmit round start to clients
+// used for cg_rq3_autoaction
+//
 // Revision 1.91  2002/05/13 06:17:20  jbravo
 // Ignore fix
 //
@@ -393,6 +397,7 @@ void CheckTeamRules()
 				if (!player->inuse)
 					continue;
 				G_AddEvent (player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
+        trap_SendServerCommand( -1, va("rq3_cmd %i 0", MAPSTART));
 			}
 		}
 	}
