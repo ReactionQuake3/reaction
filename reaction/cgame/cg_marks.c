@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/04/23 06:06:19  niceass
+// pressure particles
+//
 // Revision 1.6  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -292,6 +295,8 @@ void CG_AddMarks( void ) {
 #define BLOODRED	2
 #define EMISIVEFADE	3
 #define GREY75		4
+#define LIGHT_BLUE_WATER	5
+#define DARK_BLUE_WATER		6
 
 typedef struct particle_s
 {
@@ -371,7 +376,7 @@ static int	numShaderAnims;
 // done.
 
 #define		PARTICLE_GRAVITY	40
-#define		MAX_PARTICLES	1024
+#define		MAX_PARTICLES		1536	// NiceAss: 1024 upped to 1536
 
 cparticle_t	*active_particles, *free_particles;
 cparticle_t	particles[MAX_PARTICLES];
@@ -658,6 +663,10 @@ void CG_AddParticleToScene (cparticle_t *p, vec3_t org, float alpha)
 
 		if (p->color == BLOODRED)
 			VectorSet (color, 0.22f, 0.0f, 0.0f);
+		else if (p->color == LIGHT_BLUE_WATER)
+			VectorSet (color, 0.8f, 0.8f, 1.0f);
+		else if (p->color == DARK_BLUE_WATER)
+			VectorSet (color, 0.6f, 0.8f, 1.0f);
 		else if (p->color == GREY75)
 		{
 			float	len;
@@ -866,6 +875,10 @@ void CG_AddParticleToScene (cparticle_t *p, vec3_t org, float alpha)
 
 		if (p->color == BLOODRED)
 			VectorSet (color, 1, 1, 1);
+		else if (p->color == LIGHT_BLUE_WATER)
+			VectorSet (color, 0.8f, 0.8f, 1.0f);
+		else if (p->color == DARK_BLUE_WATER)
+			VectorSet (color, 0.6f, 0.8f, 1.0f);
 		else
 			VectorSet (color, 0.5, 0.5, 0.5);
 		
@@ -2280,3 +2293,96 @@ void CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, 
 	p->rotate = qfalse;
 }
 
+
+
+void CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
+{
+	cparticle_t	*p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+	
+	p->endtime = cg.time + duration;
+	p->startfade = cg.time + duration/1.5;
+	
+	if (rand() % 2) 
+		p->color = DARK_BLUE_WATER;
+	else
+		p->color = LIGHT_BLUE_WATER;
+
+	p->alpha = alpha * 0.5f;
+	p->alphavel = p->alpha / ((p->endtime - p->startfade) * .0001f);
+
+	p->height = 1.0 * scale;
+	p->width = 1.0 * scale;
+	p->endheight = 1.0 * scale;
+	p->endwidth = 1.0 * scale;
+	
+	p->pshader = cgs.media.waterParticleShader;
+
+	p->type = P_SMOKE;
+	
+	VectorCopy(org, p->org);
+
+	p->vel[0] = vel[0];
+	p->vel[1] = vel[1];
+	p->vel[2] = vel[2];
+
+	// Elder: old settings
+	p->accel[0] = p->accel[1] = 0;
+	p->accel[2] = -PARTICLE_GRAVITY * 4;
+
+	p->vel[0] += (crandom() * 12);
+	p->vel[1] += (crandom() * 12);
+	p->vel[2] += (20 + (crandom() * 10)) * speed;	
+}
+
+void CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale)
+{
+	cparticle_t	*p;
+
+	if (!free_particles)
+		return;
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+	p->time = cg.time;
+	
+	p->endtime = cg.time + duration;
+	p->startfade = cg.time;
+	
+	p->alpha = alpha * 0.5f;
+	p->alphavel = p->alpha / ((p->endtime - p->startfade) * .0001f);
+
+	p->width = LARGESIZE*0.06f;
+	p->height = LARGESIZE*0.06f;
+	p->endheight = LARGESIZE*0.70;
+	p->endwidth = LARGESIZE*0.70;
+	
+	p->rotate = qtrue;
+	p->roll = crandom()*179;
+
+	p->pshader = cgs.media.smokePuffShader;
+
+	p->type = P_SMOKE;
+	
+	VectorCopy(org, p->org);
+
+	p->vel[0] = vel[0];
+	p->vel[1] = vel[1];
+	p->vel[2] = vel[2];
+
+	p->accel[0] = 0;
+	p->accel[1] = 0;
+	p->accel[2] = 100;
+
+	p->vel[0] += (crandom() * 12);
+	p->vel[1] += (crandom() * 12);
+	p->vel[2] += (crandom() * 12);
+}
