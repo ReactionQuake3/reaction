@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/02/25 17:54:57  jbravo
+// Added [DEAD] tags infront of players names where appropriate and made
+// the server log conversation like AQ does.
+//
 // Revision 1.53  2002/02/23 18:07:18  slicer
 // Changed Sniper code and Cam code
 //
@@ -1016,15 +1020,14 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 #define EC		"\x19"
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
-	int			j;
+	int		j;
 	gentity_t	*other;
-	int			color;
+	int		color;
 	char		name[64];
 	// don't let text be too long for malicious reasons
 	char		text[MAX_SAY_TEXT];
 	char		location[64];
-
-	int			validation;
+	int		validation;
 
 	// Elder: validate the client
 	validation = RQ3_ValidateSay( ent );
@@ -1056,25 +1059,45 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		mode = SAY_ALL;
 	}
 
+// JBravo: adding below the [DEAD] tag infront of dead players names.
 	switch ( mode ) {
 	default:
 	case SAY_ALL:
-		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
-		Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			Com_sprintf (name, sizeof(name), "[DEAD] %s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			G_LogPrintf( "[DEAD] %s: %s\n", ent->client->pers.netname, chatText );
+		} else {
+			Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			G_LogPrintf( "%s: %s\n", ent->client->pers.netname, chatText );
+		}
 		color = COLOR_GREEN;
 		break;
 	case SAY_TEAM:
-		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
-		if (Team_GetLocationMsg(ent, location, sizeof(location)))
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
-				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
-		else
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
-				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+			if (Team_GetLocationMsg(ent, location, sizeof(location)))
+				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC") (%s)"EC": ",
+					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
+			else
+				Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
+					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
+		} else {
+			if (Team_GetLocationMsg(ent, location, sizeof(location)))
+				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
+					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
+			else
+				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
+					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
+			G_LogPrintf( "(%s): %s\n", ent->client->pers.netname, chatText );
+		}
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
-		if (target && g_gametype.integer >= GT_TEAM &&
+		if (target && g_gametype.integer == GT_TEAMPLAY &&
+			target->client->sess.savedTeam == ent->client->sess.savedTeam &&
+			Team_GetLocationMsg(ent, location, sizeof(location)))
+			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
+		else if (target && g_gametype.integer >= GT_TEAM &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			Team_GetLocationMsg(ent, location, sizeof(location)))
 			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
