@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2003/04/26 15:23:57  jbravo
+// grenade replacement fix.  Version bumped to 3.1
+//
 // Revision 1.105  2003/04/06 18:29:36  makro
 // SSG crosshairs
 //
@@ -1533,7 +1536,7 @@ qboolean BG_PlayerTouchesItem(playerState_t * ps, entityState_t * item, int atTi
 //Makro - moved from the UI/cgame header files
 #define	NUM_CROSSHAIRS			10
 //Makro - for the SSG crosshair preview
-#define	NUM_SSGCROSSHAIRS		12
+#define	NUM_SSGCROSSHAIRS		17
 
 int GetMaterialFromFlag(int flag);
 qboolean IsMetalMat(int Material);

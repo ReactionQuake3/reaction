@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2003/04/26 15:23:57  jbravo
+// grenade replacement fix.  Version bumped to 3.1
+//
 // Revision 1.76  2003/04/26 10:37:02  slicer
 // Small fix from "radio imhit" to "radio im_hit"
 //
@@ -5709,7 +5712,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.0 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.1 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {

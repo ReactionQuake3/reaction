@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.146  2003/04/26 15:23:57  jbravo
+// grenade replacement fix.  Version bumped to 3.1
+//
 // Revision 1.145  2003/04/26 02:03:51  jbravo
 // Helmet fixes
 //
@@ -704,7 +707,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "3.0", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_version, "g_RQ3_version", "3.1", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	//Makro - max votes per client
 	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };
@@ -1246,7 +1249,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// need smashing :)
 	if (trap_Cvar_VariableIntegerValue("sv_floodprotect") != 0) {
 		trap_Cvar_Set("sv_floodprotect", "0");
-		G_Printf("sv_floodprotect shut off for RQ3 Release 1.\n");
+//		G_Printf("sv_floodprotect shut off for RQ3 Release 1.\n");
 	}
 
 	SaveRegisteredItems();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2003/04/26 15:23:57  jbravo
+// grenade replacement fix.  Version bumped to 3.1
+//
 // Revision 1.116  2003/04/13 21:58:00  slicer
 // Added a Zoom Sensitivity Lock during fire sequence of ssg; removed unnecessary code
 //
@@ -1024,8 +1027,11 @@ void CG_RegisterWeapon(int weaponNum)
 		break;
 
 	case WP_GRENADE:
+		trap_Cvar_VariableStringBuffer("cg_RQ3_grenade", str, sizeof(str));
+		model = modelFromStr(str);
+		skin = skinFromStr(str);
 		//Use the projectile model
-		weaponInfo->missileModel = trap_R_RegisterModel("models/weapons2/grenade/gren_projectile.md3");
+		weaponInfo->missileModel = trap_R_RegisterModel(va("models/weapons2/%s/gren_projectile.md3", model));
 		weaponInfo->wiTrailTime = 700;
 		weaponInfo->trailRadius = 32;
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
@@ -1033,9 +1039,6 @@ void CG_RegisterWeapon(int weaponNum)
 		//cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		// JBravo: skin replacements
 		// Makro - no longer using skin cvars
-		trap_Cvar_VariableStringBuffer("cg_RQ3_grenade", str, sizeof(str));
-		model = modelFromStr(str);
-		skin = skinFromStr(str);
 		if (strcmp(skin, "default")) {
 			weaponInfo->customSkin = trap_R_RegisterSkin (va("models/weapons2/%s/%s.skin", model, skin));
 			if (!weaponInfo->customSkin) {
