@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.107  2002/08/13 16:59:16  makro
+// Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
+//
 // Revision 1.106  2002/08/07 20:49:21  slicer
 // Adapted Vote system to Matchmode
 //
@@ -429,6 +432,8 @@ vmCvar_t g_RQ3_cvarfile;
 
 //Makro - for server browsers
 vmCvar_t g_RQ3_version;
+//Makro - max votes per client
+vmCvar_t g_RQ3_maxClientVotes;
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t gameCvarTable[] = {
@@ -564,7 +569,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "Beta 2.2", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse}
+	{&g_RQ3_version, "g_RQ3_version", "Beta 2.2", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	//Makro - max votes per client
+	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };
 
 // bk001129 - made static to avoid aliasing

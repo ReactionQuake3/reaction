@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/08/13 16:59:16  makro
+// Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
+//
 // Revision 1.112  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -1329,6 +1332,8 @@ extern vmCvar_t g_RQ3_radioFloodTime;
 
 //Makro - for server browsers
 extern vmCvar_t g_RQ3_version;
+//Makro - max votes per client;
+extern vmCvar_t g_RQ3_maxClientVotes;
 
 void trap_Printf(const char *fmt);
 void trap_Error(const char *fmt);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.158  2002/08/13 16:59:16  makro
+// Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
+//
 // Revision 1.157  2002/08/07 20:49:21  slicer
 // Adapted Vote system to Matchmode
 //
@@ -1872,8 +1875,10 @@ void Cmd_CallVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"A vote is already in progress.\n\"");
 		return;
 	}
-	if (ent->client->pers.voteCount >= MAX_VOTE_COUNT) {
-		trap_SendServerCommand(ent - g_entities, "print \"You have called the maximum number of votes.\n\"");
+	//Makro - replaced the constant with a cvar
+	if (ent->client->pers.voteCount >= g_RQ3_maxClientVotes.integer) {
+		//Makro - added cvar info
+		trap_SendServerCommand(ent - g_entities, va("print \"You have called the maximum number of votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
 		return;
 	}
 // JBravo: Lets allow spectators to vote in TP
@@ -1971,6 +1976,8 @@ void Cmd_CallVote_f(gentity_t * ent)
 		level.clients[i].ps.eFlags &= ~EF_VOTED;
 	}
 	ent->client->ps.eFlags |= EF_VOTED;
+	//Makro - added
+	ent->client->pers.voteCount++;
 
 	trap_SetConfigstring(CS_VOTE_TIME, va("%i", level.voteTime));
 	trap_SetConfigstring(CS_VOTE_STRING, level.voteDisplayString);
@@ -2055,9 +2062,11 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"A team vote is already in progress.\n\"");
 		return;
 	}
-	if (ent->client->pers.teamVoteCount >= MAX_VOTE_COUNT) {
+	//Makro - replaced the constant with a cvar
+	if (ent->client->pers.teamVoteCount >= g_RQ3_maxClientVotes.integer) {
+		//Makro - added cvar info
 		trap_SendServerCommand(ent - g_entities,
-				       "print \"You have called the maximum number of team votes.\n\"");
+				       va("print \"You have called the maximum number of team votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
 		return;
 	}
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
@@ -2151,6 +2160,9 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 			level.clients[i].ps.eFlags &= ~EF_TEAMVOTED;
 	}
 	ent->client->ps.eFlags |= EF_TEAMVOTED;
+	//Makro - added
+	ent->client->pers.teamVoteCount++;
+
 
 	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, va("%i", level.teamVoteTime[cs_offset]));
 	trap_SetConfigstring(CS_TEAMVOTE_STRING + cs_offset, level.teamVoteString[cs_offset]);
