@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/06/04 07:12:32  niceass
+// spectators spawn where you are rather than at a spawnpoint
+//
 // Revision 1.82  2002/05/31 17:32:11  jbravo
 // HC gibs almost working :)
 //
@@ -1531,8 +1534,15 @@ void ClientSpawn(gentity_t *ent) {
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		spawnPoint = SelectSpectatorSpawnPoint (
-			spawn_origin, spawn_angles);
+		// Origin is not set yet? Use a spawn point
+		if (VectorLength(ent->client->ps.origin) == 0.0f) {
+			spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles );
+		} // Have a set origin already? Use it. (where you died or changed to spectator)
+		else {
+			spawnPoint = NULL;
+			VectorCopy( ent->client->ps.origin, spawn_origin );
+			VectorCopy( ent->client->ps.viewangles, spawn_angles );
+		}
 	} else if (g_gametype.integer >= GT_CTF ) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint (
@@ -1691,14 +1701,16 @@ void ClientSpawn(gentity_t *ent) {
 	ent->health = client->ps.stats[STAT_HEALTH] = 100;// max health of 100 client->ps.stats[STAT_MAX_HEALTH];//Blaze: removed * 1.25 becase we wanna start at 100 health
 	// reset streak count
 	client->killStreak = 0;
+
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );
 
-	// the respawned flag will be cleared after the attack and jump keys come up
-	client->ps.pm_flags |= PMF_RESPAWNED;
-
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
+
+
+	// the respawned flag will be cleared after the attack and jump keys come up
+	client->ps.pm_flags |= PMF_RESPAWNED;
 
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 
@@ -1765,7 +1777,7 @@ void ClientSpawn(gentity_t *ent) {
 		MoveClientToIntermission( ent );
 	} else {
 		// fire the targets of the spawn point
-		G_UseTargets( spawnPoint, ent );
+		if (spawnPoint) G_UseTargets( spawnPoint, ent );
 
 		// select the highest weapon number available, after any
 		// spawn given items have fired
