@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/06/10 23:53:32  assimon
+// Fixed buffer overflow. (commented the printing of the ini file contents)
+//
 // Revision 1.70  2002/06/10 19:10:59  jbravo
 // Voting system fixed for TP
 //
@@ -2544,7 +2547,7 @@ void RQ3_ReadInitFile() {
 
  	buf = G_Alloc (len); 
 	trap_FS_Read (buf, len, file);
- 	G_Printf ("RQ3 config system: Ini File contains: %s\n", buf);
+ //	G_Printf ("RQ3 config system: Ini File contains: %s\n", buf);
  	trap_FS_FCloseFile (file);
 
 	RQ3_ParseBuffer (buf, len); 
@@ -2695,14 +2698,14 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 				if (RQ3_GetTag (buf, cur_pos, tag, len) == MAP ) {
 					G_Printf ("RQ3 config system: Prossessing block <map>\n");
 					// Process the map block here
-					G_Printf ("RQ3 config system: g_RQ3_NextMapID is: %d and map_number is: %d \n", g_RQ3_NextMapID.integer, map_number);
+					// G_Printf ("RQ3 config system: g_RQ3_NextMapID is: %d and map_number is: %d \n", g_RQ3_NextMapID.integer, map_number);
 					
 
 					
 					if (RQ3_GetWord (buf, cur_pos, word_buff, len) == TOKEN_TAG) 
 						if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
 							map_number++;
-							G_Printf ("RQ3 config system: current map number is %d.\n", map_number); // ver esta merda
+							// G_Printf ("RQ3 config system: current map number is %d.\n", map_number); // ver esta merda
 						} else 
 							return PARSING_ERROR;
 					else
@@ -2717,7 +2720,7 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 
 						if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
 							map_number++;
-							G_Printf ("RQ3 config system: current map count is %d.\n", map_number);
+							// G_Printf ("RQ3 config system: current map count is %d.\n", map_number);
 						} else 
 							return PARSING_ERROR;
 					} else {
