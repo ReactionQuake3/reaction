@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.53  2003/03/31 21:04:24  makro
 // no message
 //
@@ -457,7 +460,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/ammo/mk23.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_mk23clip",
+/* icon */ "icons/icona_mk23",
 /* pickup */ "MK23 Clip",
 	 1,
 	 IT_AMMO,
@@ -476,7 +479,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/ammo/m3.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_shells",
+/* icon */ "icons/icona_m3",
 /* pickup */ "Shotgun Shells",
 	 7,
 	 IT_AMMO,
@@ -495,7 +498,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/ammo/ssg3000.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_ssgammo",
+/* icon */ "icons/icona_ssg3000",
 /* pickup */ "AP Sniper Ammo",
 	 10,
 	 IT_AMMO,
@@ -514,7 +517,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/ammo/mp5.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_mp5clip",
+/* icon */ "icons/icona_mp5",
 /* pickup */ "MP5 Clip",
 	 1,
 	 IT_AMMO,
@@ -551,7 +554,7 @@ gitem_t bg_itemlist[] = {
 	 {"models/ammo/m4.md3",
 	  0, 0, 0}
 	 ,
-/* icon */ "icons/icona_m4clip",
+/* icon */ "icons/icona_m4",
 /* pickup */ "M4 Clip",
 	 1,
 	 IT_AMMO,

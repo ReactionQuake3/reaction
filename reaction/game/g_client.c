@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.128  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -1104,6 +1107,13 @@ void ClientUserinfoChanged(int clientNum)
 		client->SuicideLikeARealMan = 0;
 	} else {
 		client->SuicideLikeARealMan = atoi(s);
+	}
+	// JBravo: to silence zcam messages
+	s = Info_ValueForKey(userinfo, "cg_RQ3_zcam_stfu");
+	if (!atoi(s)) {
+		client->zcam_stfu = 0;
+	} else {
+		client->zcam_stfu = atoi(s);
 	}
 
 	if (g_gametype.integer >= GT_TEAM) {

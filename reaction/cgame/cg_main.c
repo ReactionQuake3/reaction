@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.131  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.130  2003/03/29 17:00:11  jbravo
 // More replacement hiccups after skin cvars where removed
 //
@@ -335,7 +338,7 @@ char RQ3_bandolier_model[MAX_MODEL_LEN],    RQ3_bandolier_icon[MAX_MODEL_LEN];
 char RQ3_slippers_model[MAX_MODEL_LEN],     RQ3_slippers_icon[MAX_MODEL_LEN];
 char RQ3_helmet_model[MAX_MODEL_LEN],       RQ3_helmet_icon[MAX_MODEL_LEN];
 char RQ3_ammo_mk23_model[MAX_MODEL_LEN],    RQ3_ammo_mk23_icon[MAX_MODEL_LEN];
-char RQ3_ammo_shells_model[MAX_MODEL_LEN],  RQ3_ammo_shells_icon[MAX_MODEL_LEN];
+char RQ3_ammo_m3_model[MAX_MODEL_LEN],      RQ3_ammo_m3_icon[MAX_MODEL_LEN];
 char RQ3_ammo_ssg3000_model[MAX_MODEL_LEN], RQ3_ammo_ssg3000_icon[MAX_MODEL_LEN];
 char RQ3_ammo_mp5_model[MAX_MODEL_LEN],     RQ3_ammo_mp5_icon[MAX_MODEL_LEN];
 char RQ3_ammo_m4_model[MAX_MODEL_LEN],      RQ3_ammo_m4_icon[MAX_MODEL_LEN];
@@ -467,7 +470,7 @@ vmCvar_t cg_RQ3_glasstime;
 //Blaze: Anti OGC code
 vmCvar_t ogc_islame;
 
-//Blaze: replacement weapons
+// JBravo: replacement weapons
 vmCvar_t cg_RQ3_knife;
 vmCvar_t cg_RQ3_mk23;
 vmCvar_t cg_RQ3_m4;
@@ -477,42 +480,21 @@ vmCvar_t cg_RQ3_handcannon;
 vmCvar_t cg_RQ3_m3;
 vmCvar_t cg_RQ3_akimbo;
 vmCvar_t cg_RQ3_grenade;
-// JBravo: replacement skin cvars
-/* vmCvar_t cg_RQ3_knife_skin;
-vmCvar_t cg_RQ3_mk23_skin;
-vmCvar_t cg_RQ3_m4_skin;
-vmCvar_t cg_RQ3_ssg3000_skin;
-vmCvar_t cg_RQ3_mp5_skin;
-vmCvar_t cg_RQ3_handcannon_skin;
-vmCvar_t cg_RQ3_m3_skin;
-vmCvar_t cg_RQ3_akimbo_skin;
-vmCvar_t cg_RQ3_grenade_skin; */
-//Blaze: replacement items
+// JBravo: replacement items
 vmCvar_t cg_RQ3_bandolier;
 vmCvar_t cg_RQ3_kevlar;
 vmCvar_t cg_RQ3_silencer;
 vmCvar_t cg_RQ3_laser;
 vmCvar_t cg_RQ3_slippers;
 vmCvar_t cg_RQ3_helmet;
-// JBravo: replacement skin cvars
-/* vmCvar_t cg_RQ3_bandolier_skin;
-vmCvar_t cg_RQ3_kevlar_skin;
-vmCvar_t cg_RQ3_silencer_skin;
-vmCvar_t cg_RQ3_laser_skin;
-vmCvar_t cg_RQ3_slippers_skin;
-vmCvar_t cg_RQ3_helmet_skin; */
-// JBravo replacement ammo models
+// JBravo: replacement ammo models
 vmCvar_t cg_RQ3_ammo_mk23;
-vmCvar_t cg_RQ3_ammo_shells;
+vmCvar_t cg_RQ3_ammo_m3;
 vmCvar_t cg_RQ3_ammo_ssg3000;
 vmCvar_t cg_RQ3_ammo_mp5;
 vmCvar_t cg_RQ3_ammo_m4;
-// JBravo: replacement skin cvars
-/* vmCvar_t cg_RQ3_ammo_mk23_skin;
-vmCvar_t cg_RQ3_ammo_shells_skin;
-vmCvar_t cg_RQ3_ammo_ssg3000_skin;
-vmCvar_t cg_RQ3_ammo_mp5_skin;
-vmCvar_t cg_RQ3_ammo_m4_skin; */
+
+vmCvar_t cg_RQ3_zcam_stfu;
 
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
@@ -764,16 +746,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_m3, "cg_RQ3_m3", "m3/default", CVAR_ARCHIVE},
 	{&cg_RQ3_akimbo, "cg_RQ3_akimbo", "akimbo/default", CVAR_ARCHIVE},
 	{&cg_RQ3_grenade, "cg_RQ3_grenade", "grenade/default", CVAR_ARCHIVE},
-	// JBravo: replacement skins
-/*	{&cg_RQ3_knife_skin, "cg_RQ3_knife_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_mk23_skin, "cg_RQ3_mk23_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_m4_skin, "cg_RQ3_m4_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_ssg3000_skin, "cg_RQ3_ssg3000_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_mp5_skin, "cg_RQ3_mp5_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_handcannon_skin, "cg_RQ3_handcannon_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_m3_skin, "cg_RQ3_m3_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_akimbo_skin, "cg_RQ3_akimbo_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_grenade_skin, "cg_RQ3_grenade_skin", "default", CVAR_ARCHIVE}, */
 	//Blaze: replacement items
 	{&cg_RQ3_bandolier, "cg_RQ3_bandolier", "bandolier/default", CVAR_ARCHIVE},
 	{&cg_RQ3_kevlar, "cg_RQ3_kevlar", "kevlar/default", CVAR_ARCHIVE},
@@ -781,25 +753,14 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_laser, "cg_RQ3_laser", "laser/default", CVAR_ARCHIVE},
 	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers/default", CVAR_ARCHIVE},
 	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet/default", CVAR_ARCHIVE},
-	// JBravo: replacement skins
-/*	{&cg_RQ3_bandolier_skin, "cg_RQ3_bandolier_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_kevlar_skin, "cg_RQ3_kevlar_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_silencer_skin, "cg_RQ3_silencer_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_laser_skin, "cg_RQ3_laser_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_slippers_skin, "cg_RQ3_slippers_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_helmet_skin, "cg_RQ3_helmet_skin", "default", CVAR_ARCHIVE}, */
 	// JBravo: replacement ammo
 	{&cg_RQ3_ammo_mk23, "cg_RQ3_ammo_mk23", "mk23/default", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_shells, "cg_RQ3_ammo_shells", "shells/default", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_m3, "cg_RQ3_ammo_m3", "shells/default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000/default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5/default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4/default", CVAR_ARCHIVE},
-	// JBravo: replacement skins
-/*	{&cg_RQ3_ammo_mk23_skin, "cg_RQ3_ammo_mk23_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_shells_skin, "cg_RQ3_ammo_shells_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_ssg3000_skin, "cg_RQ3_ammo_ssg3000_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_mp5_skin, "cg_RQ3_ammo_mp5_skin", "default", CVAR_ARCHIVE},
-	{&cg_RQ3_ammo_m4_skin, "cg_RQ3_ammo_m4_skin", "default", CVAR_ARCHIVE}, */
+
+	{&cg_RQ3_zcam_stfu, "cg_RQ3_zcam_stfu", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
@@ -1026,10 +987,10 @@ void CG_RegisterCvars(void)
 	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
 		trap_Cvar_Set("cg_RQ3_ammo_mk23", "mk23/default");
-	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m3", str, sizeof(str));
 	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
-		trap_Cvar_Set("cg_RQ3_ammo_shells", "shells/default");
+		trap_Cvar_Set("cg_RQ3_ammo_m3", "shells/default");
 	trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_ssg3000", str, sizeof(str));
 	model = modelFromStr(str);
 	if (!strcmp(model, "default"))
@@ -2789,22 +2750,22 @@ void CG_ReplaceModels(void)
 			}
 		}
 		if (!strcmp(item->classname, "ammo_shells")) {
-			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m3", str, sizeof(str));
 			model = modelFromStr(str);
 			skin = skinFromStr(str);
 			if (strcmp(model, "shells")) {
-				Com_sprintf(RQ3_ammo_shells_model, MAX_MODEL_LEN, "models/ammo/%s.md3", model);
-				Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", model);
-				if (JB_FileExists(RQ3_ammo_shells_model) && (strlen(RQ3_ammo_shells_model) < MAX_MODEL_LEN)) {
-					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_shells_model;
-					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
+				Com_sprintf(RQ3_ammo_m3_model, MAX_MODEL_LEN, "models/ammo/%s.md3", model);
+				Com_sprintf(RQ3_ammo_m3_icon, MAX_MODEL_LEN, "icons/icona_%s", model);
+				if (JB_FileExists(RQ3_ammo_m3_model) && (strlen(RQ3_ammo_m3_model) < MAX_MODEL_LEN)) {
+					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_m3_model;
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m3_icon;
 				} else
 					CG_Printf("^1Error loading shells ammo replacement model %s\n", model);
 			}
 			if (strcmp(skin, "default")) {
-				Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", skin);
-				if (JB_FileExists(RQ3_ammo_shells_icon))
-					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
+				Com_sprintf(RQ3_ammo_m3_icon, MAX_MODEL_LEN, "icons/icona_%s", skin);
+				if (JB_FileExists(RQ3_ammo_m3_icon))
+					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m3_icon;
 				else
 					CG_Printf("^1Error loading shells ammo replacement icon %s\n", skin);
 			}

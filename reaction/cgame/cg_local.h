@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.140  2003/03/29 16:01:36  jbravo
 // _skin cvars now fully removed. dlight code from Makro added. cvar
 // defaults fixed.
@@ -1737,19 +1740,6 @@ extern vmCvar_t cg_RQ3_handcannon;
 extern vmCvar_t cg_RQ3_m3;
 extern vmCvar_t cg_RQ3_akimbo;
 extern vmCvar_t cg_RQ3_grenade;
-// JBravo: replacement skins
-//Makro - commented out
-/*
-extern vmCvar_t cg_RQ3_knife_skin;
-extern vmCvar_t cg_RQ3_mk23_skin;
-extern vmCvar_t cg_RQ3_m4_skin;
-extern vmCvar_t cg_RQ3_ssg3000_skin;
-extern vmCvar_t cg_RQ3_mp5_skin;
-extern vmCvar_t cg_RQ3_handcannon_skin;
-extern vmCvar_t cg_RQ3_m3_skin;
-extern vmCvar_t cg_RQ3_akimbo_skin;
-extern vmCvar_t cg_RQ3_grenade_skin;
-*/
 //Blaze: replacement items
 extern vmCvar_t cg_RQ3_bandolier;
 extern vmCvar_t cg_RQ3_kevlar;
@@ -1757,28 +1747,14 @@ extern vmCvar_t cg_RQ3_silencer;
 extern vmCvar_t cg_RQ3_laser;
 extern vmCvar_t cg_RQ3_slippers;
 extern vmCvar_t cg_RQ3_helmet;
-// JBravo: replacement skins
-//Makro - commented out
-/*
-extern vmCvar_t cg_RQ3_bandolier_skin;
-extern vmCvar_t cg_RQ3_kevlar_skin;
-extern vmCvar_t cg_RQ3_silencer_skin;
-extern vmCvar_t cg_RQ3_laser_skin;
-extern vmCvar_t cg_RQ3_slippers_skin;
-extern vmCvar_t cg_RQ3_helmet_skin;
-*/
 // JBravo: replacement ammo
 extern vmCvar_t cg_RQ3_ammo_mk23;
-extern vmCvar_t cg_RQ3_ammo_shells;
+extern vmCvar_t cg_RQ3_ammo_m3;
 extern vmCvar_t cg_RQ3_ammo_ssg3000;
 extern vmCvar_t cg_RQ3_ammo_mp5;
 extern vmCvar_t cg_RQ3_ammo_m4;
-// JBravo: replacement skins
-extern vmCvar_t cg_RQ3_ammo_mk23_skin;
-extern vmCvar_t cg_RQ3_ammo_shells_skin;
-extern vmCvar_t cg_RQ3_ammo_ssg3000_skin;
-extern vmCvar_t cg_RQ3_ammo_mp5_skin;
-extern vmCvar_t cg_RQ3_ammo_m4_skin;
+
+extern vmCvar_t cg_RQ3_zcam_stfu;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;

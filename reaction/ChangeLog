@@ -1,5 +1,6 @@
 # List fixes here for the 3.0 release
 
+* Added cg_RQ3_zcam_stfu to stop zcam printing who its following or tracking.
 * Fixed bug where dropping the bandolier would not reduce amount of ammo
 * Its now impossible to change nicks to avoide votekicks.
 * Reactionmale is now the default model

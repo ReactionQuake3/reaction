@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.138  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.137  2003/03/22 20:29:26  jbravo
 // wrapping linkent and unlinkent calls
 //
@@ -781,6 +784,7 @@ struct gclient_s {
 	int radioSetMale;
 	int radioSetFemale;
 	int SuicideLikeARealMan;
+	int zcam_stfu;
 	qboolean radioOff;
 	int team_wounds;
 	int team_wounds_before;

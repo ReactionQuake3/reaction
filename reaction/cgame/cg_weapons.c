@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2003/04/02 22:23:51  jbravo
+// More replacements tweaks. Added zcam_stfu
+//
 // Revision 1.112  2003/04/02 17:58:03  jbravo
 // Ammo skin only replacements now work.
 //
@@ -1156,7 +1159,7 @@ void CG_RegisterItemVisuals(int itemNum)
 			}
 		}
 		if (!strcmp(item->classname, "ammo_shells")) {
-			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_shells", str, sizeof(str));
+			trap_Cvar_VariableStringBuffer("cg_RQ3_ammo_m3", str, sizeof(str));
 			model = modelFromStr(str);
 			skin = skinFromStr(str);
 			if (strcmp(skin, "default")) {
