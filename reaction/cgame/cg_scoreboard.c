@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/08/07 04:44:23  niceass
+// ctb changes
+//
 // Revision 1.43  2002/07/22 01:27:38  niceass
 // spectator coloring fix
 //
@@ -371,11 +374,32 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	MAKERGBA(BlackL, 0.0f, 0.0f, 0.0f, 0.8f * Alpha);
-	MAKERGBA(RedD, 0.8f, 0.0f, 0.0f, 0.8f * Alpha);
-	MAKERGBA(BlueD, 0.0f, 0.0f, 0.8f, 0.8f * Alpha);
+
+	CG_TeamColor(TEAM_RED, RedD);
+	RedD[0] *= 0.8f;
+	RedD[1] *= 0.8f;
+	RedD[2] *= 0.8f;
+	RedD[3] *= (0.8f * Alpha);
+	//MAKERGBA(RedD, 0.8f, 0.0f, 0.0f, 0.8f * Alpha);
+	CG_TeamColor(TEAM_BLUE, BlueD);
+	BlueD[0] *= 0.8f;
+	BlueD[1] *= 0.8f;
+	BlueD[2] *= 0.8f;
+	BlueD[3] *= (0.8f * Alpha);
+	//MAKERGBA(BlueD, 0.0f, 0.0f, 0.8f, 0.8f * Alpha);
 	MAKERGBA(GreyD, 0.3f, 0.3f, 0.3f, 0.84f * Alpha);
-	MAKERGBA(RedL, 0.8f, 0.0f, 0.0f, 0.4f * Alpha);
-	MAKERGBA(BlueL, 0.0f, 0.0f, 0.8f, 0.4f * Alpha);
+	CG_TeamColor(TEAM_RED, RedL);
+	RedL[0] *= 0.8f;
+	RedL[1] *= 0.8f;
+	RedL[2] *= 0.8f;
+	RedL[3] *= (0.8f * Alpha);
+	//MAKERGBA(RedL, 0.8f, 0.0f, 0.0f, 0.4f * Alpha);
+	CG_TeamColor(TEAM_BLUE, BlueL);
+	BlueL[0] *= 0.8f;
+	BlueL[1] *= 0.8f;
+	BlueL[2] *= 0.8f;
+	BlueL[3] *= (0.8f * Alpha);
+	//MAKERGBA(BlueL, 0.0f, 0.0f, 0.8f, 0.4f * Alpha);
 	MAKERGBA(GreyL, 0.3f, 0.3f, 0.3f, 0.4f * Alpha);
 
 	Reds = Blues = Spectators = Refs = RedSubs = BlueSubs = 0;
@@ -550,7 +574,10 @@ static int CG_TeamplayScoreboard(void)
 	// *************** BLUE TEAM ************
 	y += SB_FONTSIZEH * 2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, colorBlack);
-	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
+	if (cgs.gametype == GT_CTF)
+		DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorWhite);
+	else
+		DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Blues, BlueSubs,

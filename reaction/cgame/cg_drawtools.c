@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/08/07 04:45:46  niceass
+// ctb changes
+//
 // Revision 1.10  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -407,22 +410,34 @@ float *CG_FadeColor(int startMsec, int totalMsec)
 CG_TeamColor
 ================
 */
-float *CG_TeamColor(int team)
+void CG_TeamColor(int team, float *color)
 {
-	static vec4_t red = { 1, 0.2f, 0.2f, 1 };
-	static vec4_t blue = { 0.2f, 0.2f, 1, 1 };
-	static vec4_t other = { 1, 1, 1, 1 };
-	static vec4_t spectator = { 0.7f, 0.7f, 0.7f, 1 };
-
-	switch (team) {
-	case TEAM_RED:
-		return red;
-	case TEAM_BLUE:
-		return blue;
-	case TEAM_SPECTATOR:
-		return spectator;
-	default:
-		return other;
+	if ( cgs.gametype == GT_CTF ) {
+		switch (team) {
+		case TEAM_RED:
+			MAKERGBA(color, 0.5f, 0.5f, 0.5f, 1);
+			break;
+		case TEAM_BLUE:
+			MAKERGBA(color, 0, 0, 0, 1);
+			break;
+		default:
+			MAKERGBA(color, 1, 1, 1, 1);
+			break;
+		}
+	}
+	else
+	{
+		switch (team) {
+		case TEAM_RED:
+			MAKERGBA(color, 1, 0, 0, 1);
+			break;
+		case TEAM_BLUE:
+			MAKERGBA(color, 0, 0, 1, 1);
+			break;
+		default:
+			MAKERGBA(color, 1, 1, 1, 1);
+			break;
+		}
 	}
 }
 
