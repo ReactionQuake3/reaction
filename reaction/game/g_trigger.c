@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/05/11 17:59:49  makro
+// Trigger_hurt update
+//
 // Revision 1.10  2002/05/11 00:38:47  blaze
 // trigger_push and target_push default to no noise when the noise flag is not set.
 //
@@ -413,9 +416,10 @@ void SP_trigger_hurt( gentity_t *self ) {
 
 	self->r.contents = CONTENTS_TRIGGER;
 
-	if ( self->spawnflags & 2 ) {
+	//Makro - removed this check
+	//if ( self->spawnflags & 2 ) {
 		self->use = hurt_use;
-	}
+	//}
 
 	// link in to the world if starting active
 	if ( ! (self->spawnflags & 1) ) {
