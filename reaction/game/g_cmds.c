@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/02/28 05:42:31  blaze
+// weapons stats on server side
+//
 // Revision 1.60  2002/02/27 01:54:29  jbravo
 // More spectatorfixes and finally stopped all fallingdamage anims and
 // sounds during LCA.
@@ -189,6 +192,43 @@ void Cmd_Score_f( gentity_t *ent ) {
 	DeathmatchScoreboardMessage( ent );
 }
 
+/*
+==================
+Cmd_WeaponStats_f
+
+Request current weaponstats information
+==================
+*/
+void Cmd_WeaponStats_f( gentity_t *ent)
+{
+  
+	trap_SendServerCommand( ent-g_entities, va("wstats %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", 
+    ent->client->pers.records[REC_KNIFETHROWSHOTS],ent->client->pers.records[REC_KNIFETHROWHITS],
+    ent->client->pers.records[REC_KNIFESLASHSHOTS],ent->client->pers.records[REC_KNIFESLASHHITS],
+    ent->client->pers.records[REC_MK23SHOTS],ent->client->pers.records[REC_MK23HITS],
+    ent->client->pers.records[REC_M3SHOTS],ent->client->pers.records[REC_M3HITS],
+    ent->client->pers.records[REC_MP5SHOTS],ent->client->pers.records[REC_MP5HITS],
+    ent->client->pers.records[REC_M4SHOTS],ent->client->pers.records[REC_M4HITS],
+    ent->client->pers.records[REC_SSG3000SHOTS],ent->client->pers.records[REC_SSG3000HITS],
+    ent->client->pers.records[REC_HANDCANNONSHOTS],ent->client->pers.records[REC_HANDCANNONHITS],
+    ent->client->pers.records[REC_AKIMBOSHOTS],ent->client->pers.records[REC_AKIMBOHITS],
+    ent->client->pers.records[REC_GRENADESHOTS],ent->client->pers.records[REC_GRENADEHITS],
+    ent->client->pers.records[REC_KICKHITS]));
+
+	trap_SendServerCommand( ent-g_entities, va("wstats2 %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", 
+    ent->client->pers.records[REC_KNIFETHROWDEATHS],ent->client->pers.records[REC_KNIFETHROWKILLS],
+    ent->client->pers.records[REC_KNIFESLASHDEATHS],ent->client->pers.records[REC_KNIFESLASHKILLS],
+    ent->client->pers.records[REC_MK23DEATHS],ent->client->pers.records[REC_MK23KILLS],
+    ent->client->pers.records[REC_M3DEATHS],ent->client->pers.records[REC_M3KILLS],
+    ent->client->pers.records[REC_MP5DEATHS],ent->client->pers.records[REC_MP5KILLS],
+    ent->client->pers.records[REC_M4DEATHS],ent->client->pers.records[REC_M4KILLS],
+    ent->client->pers.records[REC_SSG3000DEATHS],ent->client->pers.records[REC_SSG3000KILLS],
+    ent->client->pers.records[REC_HANDCANNONDEATHS],ent->client->pers.records[REC_HANDCANNONKILLS],
+    ent->client->pers.records[REC_AKIMBODEATHS],ent->client->pers.records[REC_AKIMBOKILLS],
+    ent->client->pers.records[REC_GRENADEDEATHS],ent->client->pers.records[REC_GRENADEKILLS],
+    ent->client->pers.records[REC_KICKDEATHS],ent->client->pers.records[REC_KICKKILLS]));
+
+}
 
 
 /*
@@ -2714,6 +2754,11 @@ void ClientCommand( int clientNum ) {
 	}
 	if (Q_stricmp (cmd, "score") == 0) {
 		Cmd_Score_f (ent);
+		return;
+	}
+
+ 	if (Q_stricmp (cmd, "wstats") == 0) {
+		Cmd_WeaponStats_f (ent);
 		return;
 	}
 
