@@ -10,3 +10,4 @@
 * Recoded the AI for changing weapon modes. Bots can now zoom in/out with the SSG.
 * Made it possible to add random bots when starting a game from the UI
 * Items can now be dropped during bandaging
+* Redid the visuals on callvote and callteamvote.
