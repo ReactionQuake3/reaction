@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/06/02 00:15:07  makro
+// Small fixes
+//
 // Revision 1.15  2002/04/30 11:56:54  makro
 // Stuff
 //
@@ -2373,9 +2376,16 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 			if (key == 'h' - 'a' + 1 )	{	// ctrl-h is backspace
 				if ( item->cursorPos > 0 ) {
 					memmove( &buff[item->cursorPos - 1], &buff[item->cursorPos], len + 1 - item->cursorPos);
-					item->cursorPos--;
-					if (item->cursorPos < editPtr->paintOffset) {
-						editPtr->paintOffset--;
+					//Makro - changed from --; doesn't make much sense, but things don't always do
+					item->cursorPos -= 1;
+					//if (item->cursorPos < editPtr->paintOffset) {
+					if (item->cursorPos <= editPtr->paintOffset) {
+						//Makro - changed
+						//editPtr->paintOffset--;
+						if (item->cursorPos > 0)
+							editPtr->paintOffset = item->cursorPos - 1;
+						else
+							editPtr->paintOffset = 0;
 					}
 				}
 				DC->setCVar(item->cvar, buff);

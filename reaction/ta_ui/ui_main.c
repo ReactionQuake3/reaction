@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/06/02 00:15:07  makro
+// Small fixes
+//
 // Revision 1.24  2002/05/29 13:30:19  makro
 // Weapon/join menu tweaks
 //
@@ -3704,7 +3707,11 @@ static void UI_RunMenuScript(char **args) {
 			trap_Cvar_Set("cg_thirdPerson", "0");
 			trap_Cvar_Set("cg_cameraOrbit", "0");
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
-			trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s:%i\n", ui_RQ3_joinAddress.string, ui_RQ3_joinPort.integer) );
+			if (ui_RQ3_joinPort.value) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s:%i\n", ui_RQ3_joinAddress.string, ui_RQ3_joinPort.integer) );
+			} else {
+				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", ui_RQ3_joinAddress.string) );
+			}
 		} else if (Q_stricmp(name, "FoundPlayerJoinServer") == 0) {
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			if (uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers) {
