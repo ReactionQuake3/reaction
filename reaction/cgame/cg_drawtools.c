@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/02/04 00:22:50  niceass
+// Added DrawCleanBox for scoreboard
+//
 // Revision 1.7  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -75,6 +78,7 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
+
 /*
 ================
 UI_DrawRect
@@ -91,6 +95,23 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 	trap_R_SetColor( NULL );
 }
 
+/*
+================
+UI_DrawRect -- Added by NiceAss
+"Size" not scaled 
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void CG_DrawCleanRect( float x, float y, float width, float height, float size, const float *color ) {
+	CG_AdjustFrom640( &x, &y, &width, &height );
+	trap_R_SetColor( color );
+	trap_R_DrawStretchPic( x, y, size, height, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x + width- size, y, size, height, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x, y, width, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_DrawStretchPic( x, y + height - size, width, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap_R_SetColor( NULL );
+}
 
 
 /*
