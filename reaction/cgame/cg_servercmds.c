@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/08/25 00:45:04  niceass
+// q3f atmosphere
+//
 // Revision 1.63  2002/08/24 07:59:23  niceass
 // new scoreboard info for refs
 //
@@ -422,6 +425,9 @@ void CG_SetConfigValues(void)
 		cgs.blueflag = s[1] - '0';
 	}
 	cg.warmup = atoi(CG_ConfigString(CS_WARMUP));
+	// q3f atmospheric stuff:
+	if ( cg_atmosphericEffects.integer )
+		CG_EffectParse( CG_ConfigString( CS_ATMOSEFFECT ) );
 }
 
 /*
@@ -539,7 +545,9 @@ static void CG_ConfigStringModified(void)
 		}
 	} else if (num == CS_SHADERSTATE) {
 		CG_ShaderStateChanged();
-	}
+  	} else if( num == CS_ATMOSEFFECT ) {
+  	  	CG_EffectParse( str );
+   	}
 
 }
 

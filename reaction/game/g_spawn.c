@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/08/25 00:46:52  niceass
+// q3f atmosphere
+//
 // Revision 1.37  2002/07/19 04:29:18  niceass
 // typo fix
 //
@@ -831,6 +834,10 @@ void SP_worldspawn(void)
 
 	G_SpawnString("enableBreath", "0", &s);
 	trap_Cvar_Set("g_enableBreath", s);
+
+  	// q3f atmospheric stuff:
+	G_SpawnString( "atmosphere", "", &s );
+  	trap_SetConfigstring( CS_ATMOSEFFECT, s );  	  	  	// Atmospheric effect
 
 	G_SpawnString("enableLaserFog", "1", &s);
 	trap_Cvar_Set("g_enableLaserFog", s);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/08/25 00:45:40  niceass
+// q3f atmosphere
+//
 // Revision 1.25  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -1201,6 +1204,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		CG_AddMarks();
 		CG_AddParticles();
 		CG_AddLocalEntities();
+		CG_AddAtmosphericEffects();  	  	// q3f atmospheric stuff: Add rain/snow etc.
 	}
 	CG_AddViewWeapon(&cg.predictedPlayerState);
 

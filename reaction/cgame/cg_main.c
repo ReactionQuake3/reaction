@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/08/25 00:45:24  niceass
+// q3f atmosphere
+//
 // Revision 1.102  2002/08/07 03:35:57  jbravo
 // Added dynamic radio and stopped all radio usage during lca
 //
@@ -502,6 +505,9 @@ vmCvar_t cg_RQ3_capturelimit;
 vmCvar_t cg_RQ3_dmflags;
 vmCvar_t cg_RQ3_bot_minplayers;
 vmCvar_t cg_RQ3_showOwnKills;
+// q3f atmospheric stuff
+vmCvar_t	cg_atmosphericEffects;
+vmCvar_t	cg_lowEffects;
 
 typedef struct {
 	vmCvar_t *vmCvar;
@@ -691,9 +697,12 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_dmflags, "dmflags", "0", CVAR_ROM},
 	{&cg_RQ3_bot_minplayers, "bot_minplayers", "0", CVAR_ROM},
 	{&cg_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ROM},
-	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
+	// q3f atmospheric stuff:
+	{ &cg_atmosphericEffects, "cg_atmosphericEffects", "1", CVAR_ARCHIVE },
+	{ &cg_lowEffects, "cg_lowEffects", "0", CVAR_ARCHIVE },
 
-//      { &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
+	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
+	//{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
 static int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

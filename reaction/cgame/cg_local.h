@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/08/25 00:45:24  niceass
+// q3f atmosphere
+//
 // Revision 1.117  2002/08/24 08:01:11  niceass
 // new ref system for scoreboard
 //
@@ -1770,6 +1773,10 @@ extern vmCvar_t cg_RQ3_showOwnKills;
 //extern        vmCvar_t                cg_RQ3_RefID;
 extern vmCvar_t cg_RQ3_matchmode;
 
+// q3f atmospheric stuff:
+extern  	vmCvar_t  	  	cg_atmosphericEffects;
+extern  	vmCvar_t  	  	cg_lowEffects;
+
 //
 // cg_main.c
 //
@@ -1793,6 +1800,13 @@ void CG_RankRunFrame(void);
 void CG_SetScoreSelection(void *menu);
 score_t *CG_GetSelectedScore();
 void CG_BuildSpectatorString();
+
+//
+// cg_atmospheric.c
+//
+void CG_EffectParse( const char *effectstr );
+void CG_AddAtmosphericEffects();
+qboolean CG_AtmosphericKludge();
 
 //
 // cg_view.c

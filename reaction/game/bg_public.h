@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/08/25 00:47:00  niceass
+// q3f atmosphere
+//
 // Revision 1.93  2002/08/21 07:00:07  jbravo
 // Added CTB respawn queue and fixed game <-> cgame synch problem in CTB
 //
@@ -542,6 +545,7 @@ extern radio_msg_t female_radio_msgs[];
 #define CS_BOTINFO				25
 
 #define	CS_ITEMS				27	// string of 0's and 1's that tell which items are present
+#define CS_ATMOSEFFECT			28	// q3f: Atmospheric effect, if any.
 
 //Makro - color for the loading screen text
 //#define CS_LOADINGSCREEN              29
