@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/06/24 12:21:09  makro
+// New UI sscript that uses the "settings" command
+//
 // Revision 1.34  2002/06/16 20:06:15  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -3876,6 +3879,18 @@ static void UI_RunMenuScript(char **args)
 			} else {
 				trap_Cvar_Set("ui_cdkeyvalid", "CD Key does not appear to be valid.");
 			}
+		//Makro - send the matchmode settings to the server
+		} else if (Q_stricmp(name, "sendMMsettings") == 0) {
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("settings %i %i %i %i %i %i %i %i %i",
+				(int) trap_Cvar_VariableValue("timelimit"),
+				(int) trap_Cvar_VariableValue("g_RQ3_roundlimit"),
+				(int) trap_Cvar_VariableValue("g_RQ3_roundtimelimit"),
+				(int) trap_Cvar_VariableValue("fraglimit"),
+				(int) trap_Cvar_VariableValue("g_RQ3_maxplayers"),
+				(int) trap_Cvar_VariableValue("g_RQ3_forceteamtalk"),
+				(int) trap_Cvar_VariableValue("g_RQ3_limchasecam"),
+				(int) trap_Cvar_VariableValue("g_RQ3_tgren"),
+				(int) trap_Cvar_VariableValue("g_friendlyFire")));
 			//Makro - change the SSG crosshair
 		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
 			int current, offset;
@@ -4124,20 +4139,15 @@ static void UI_RunMenuScript(char **args)
 			//      trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			//} else {
 			//Makro - don't add the bot instantly
-			trap_Cmd_ExecuteText(EXEC_APPEND,
-					     va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex),
-						uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "Red" : "Blue"));
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "Red" : "Blue"));
 			//}
-			//Makro - add random bot
+		//Makro - add random bot
 		} else if (Q_stricmp(name, "addRandomBot") == 0) {
 			//int index = (int) (random() * (float) (UI_GetNumBots() - 1));
 			//Makro - don't add the bot instantly
 			//trap_Cmd_ExecuteText( EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(index), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
-			trap_Cmd_ExecuteText(EXEC_APPEND,
-					     va("wait; addbot %s %i %s\n",
-						UI_GetBotNameByNumber(rand() % UI_GetNumBots()), uiInfo.skillIndex + 1,
-						(uiInfo.redBlue == 0) ? "Red" : "Blue"));
-			//Makro - record a demo
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("wait; addbot %s %i %s\n", UI_GetBotNameByNumber(rand() % UI_GetNumBots()), uiInfo.skillIndex + 1, (uiInfo.redBlue == 0) ? "Red" : "Blue"));
+		//Makro - record a demo
 		} else if (Q_stricmp(name, "recordDemo") == 0) {
 			int oldSync = (int) trap_Cvar_VariableValue("g_synchronousClients");
 
