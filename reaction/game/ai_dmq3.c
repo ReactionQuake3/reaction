@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/05/31 18:17:10  makro
+// Bot stuff. Added a server command that prints a line to a client
+// and everyone who is spectating him
+//
 // Revision 1.38  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -164,6 +168,7 @@
 void Cmd_Bandage (gentity_t *ent);
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText );
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+void Cmd_New_Weapon(gentity_t *ent);
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -441,7 +446,9 @@ void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
 
 	//use the weapon command "press" times
 	for (i = 0; i < press; i++) {
-		Cmd_Weapon( &g_entities[bs->entitynum] );
+		//changed it to use Slicer's new command
+		//Cmd_Weapon( &g_entities[bs->entitynum] );
+		Cmd_New_Weapon( &g_entities[bs->entitynum] );
 	}
 }
 

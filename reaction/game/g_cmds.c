@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/05/31 18:17:10  makro
+// Bot stuff. Added a server command that prints a line to a client
+// and everyone who is spectating him
+//
 // Revision 1.113  2002/05/21 04:58:28  blaze
 // kicked the reload bugs ass!
 //
@@ -2465,7 +2469,7 @@ void Cmd_Weapon(gentity_t *ent)
 	if(ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		if(!ent->client->weapon_after_bandage_warned) {
 			ent->client->weapon_after_bandage_warned = qtrue;
-			trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+			G_SendClientSpec( ent, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
 		}
 		ent->client->weapon_attempts++;
 		return;
@@ -2525,12 +2529,12 @@ void Cmd_Weapon(gentity_t *ent)
 		{
 
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to full automatic.\n\""));
 		}
 		else
 		{
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MK23MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to semi-automatic.\n\""));
 		}
 		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
@@ -2539,12 +2543,12 @@ void Cmd_Weapon(gentity_t *ent)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE)
 		{
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_M4MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to full automatic.\n\""));
 		}
 		else
 		{
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_M4MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to 3 round burst.\n\""));
 		}
 		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
@@ -2553,12 +2557,12 @@ void Cmd_Weapon(gentity_t *ent)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE)
 		{
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MP5MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to full automatic.\n\""));
 		}
 		else
 		{
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_MP5MODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to 3 round burst.\n\""));
 		}
 		G_Sound(ent, CHAN_ITEM, G_SoundIndex("sound/misc/click.wav"));
 		break;
@@ -2571,7 +2575,7 @@ void Cmd_Weapon(gentity_t *ent)
 		{
 			//Elder: added
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to throwing.\n\""));
 			// Niceass: Animations added
 			ent->client->ps.weaponstate = WEAPON_MODECHANGE;
 			ent->client->ps.weaponTime = 550;
@@ -2581,7 +2585,7 @@ void Cmd_Weapon(gentity_t *ent)
 		{
 			//Elder: we're gonna use this to flag throw or slash with the knife
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
-			trap_SendServerCommand( ent-g_entities, va("print \"Switched to slashing.\n\""));
+			G_SendClientSpec( ent, va("print \"Switched to slashing.\n\""));
 			// Niceass: Animations added
 			ent->client->ps.weaponstate = WEAPON_MODECHANGE;
 			ent->client->ps.weaponTime = 550;
@@ -2610,19 +2614,19 @@ void Cmd_Weapon(gentity_t *ent)
 		{//Going into Short
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED; //unset the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
+			G_SendClientSpec(ent, va("print \"Grenade set for short range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
 		{//Going into Med
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENSHORT; //unset the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
+			G_SendClientSpec(ent, va("print \"Grenade set for medium range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		{//Going into Long
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
+			G_SendClientSpec(ent, va("print \"Grenade set for long range throw.\n\""));
 		}
 		//Elder: added
 		else {
@@ -2639,7 +2643,8 @@ void Cmd_Weapon(gentity_t *ent)
 	default:
 		break;
 	}
-
+//Makro - changed all the trap_SendServerCommand prints to G_SendClientSpec prints
+//so that players spectating this client get his messages, too
 }
 //Slicer
 void Cmd_New_Weapon(gentity_t *ent) {
@@ -3113,3 +3118,32 @@ int RQ3_ValidateSay ( gentity_t *ent )
 
 	return SAY_OK;
 }
+
+//Makro - this function sends print commands to the client and the ones spectating him
+void G_SendClientSpec( gentity_t *ent, const char *msg )
+{
+	int i;
+
+	if (!ent) return;
+	if (!ent->client) return;
+
+	trap_SendServerCommand( ent-g_entities, msg );
+
+	for (i = 0; i < level.maxclients; i++) {
+		gclient_t       *follower = &level.clients[i];
+
+		//no need to send the message twice
+		if (i == ent-g_entities)
+			continue;
+		if (follower->pers.connected != CON_CONNECTED)
+			continue;
+		if (follower->sess.sessionTeam != TEAM_SPECTATOR)
+			continue;
+		if (follower->sess.spectatorState != SPECTATOR_FOLLOW)
+			continue;
+		//gotcha !
+		if (follower->sess.spectatorClient == ent-g_entities)
+			trap_SendServerCommand( i, msg );
+	}
+}
+

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/05/31 18:17:10  makro
+// Bot stuff. Added a server command that prints a line to a client
+// and everyone who is spectating him
+//
 // Revision 1.85  2002/05/31 17:32:11  jbravo
 // HC gibs almost working :)
 //
@@ -771,7 +775,8 @@ void Laser_Think( gentity_t *self );
 int RQ3_ValidateSay ( gentity_t *ent );
 //Elder: commented out for Homer
 //void toggleSemi(gentity_t *ent);
-
+//Makro - sends a command to a client and all the ones spectating him
+void G_SendClientSpec( gentity_t *ent, const char *msg );
 //
 // g_items.c
 //
