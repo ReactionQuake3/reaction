@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/06/25 06:11:36  niceass
+// flag positioning enhancement! (F.P.E.)
+//
 // Revision 1.36  2002/06/25 00:11:26  jbravo
 // Damn triangles be gone
 //
@@ -1907,8 +1910,10 @@ static void CG_DustTrail(centity_t * cent)
 CG_TrailItem
 ===============
 */
-static void CG_TrailItem(centity_t * cent, qhandle_t hModel)
+static void CG_TrailItem(centity_t * cent, qhandle_t hModel, refEntity_t *torso)
 {
+	// NiceAss: This stuff sux!
+	/*
 	refEntity_t ent;
 	vec3_t angles;
 	vec3_t axis[3];
@@ -1926,6 +1931,34 @@ static void CG_TrailItem(centity_t * cent, qhandle_t hModel)
 
 	ent.hModel = hModel;
 	trap_R_AddRefEntityToScene(&ent);
+	*/
+
+	// NiceAss: This way kicks more ass
+	refEntity_t flag;
+
+	// show the flag pole model
+	memset(&flag, 0, sizeof(flag));
+
+	flag.hModel = hModel;
+
+	VectorCopy(torso->lightingOrigin, flag.lightingOrigin);
+	flag.shadowPlane = torso->shadowPlane;
+	flag.renderfx = torso->renderfx;
+
+	// THE hack. Position the flag where the head is
+	CG_PositionEntityOnTag(&flag, torso, torso->hModel, "tag_head");
+
+	// 50% smaller.
+	VectorScale(flag.axis[0], 0.5, flag.axis[0]);
+	VectorScale(flag.axis[1], 0.5, flag.axis[1]);
+	VectorScale(flag.axis[2], 0.5, flag.axis[2]);
+
+	// Move the flag back a little
+	VectorMA(flag.origin, -40, flag.axis[0], flag.origin);
+	// Move the flag down  a little
+	VectorMA(flag.origin, -40, flag.axis[2], flag.origin);
+
+	trap_R_AddRefEntityToScene(&flag);
 }
 
 /*
@@ -2071,7 +2104,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		if (ci->newAnims) {
 			CG_PlayerFlag(cent, cgs.media.redFlagFlapSkin, torso);
 		} else {
-			CG_TrailItem(cent, cgs.media.redFlagModel);
+			CG_TrailItem(cent, cgs.media.redFlagModel, torso);
 		}
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 0.2f, 0.2f);
 	}
@@ -2080,7 +2113,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		if (ci->newAnims) {
 			CG_PlayerFlag(cent, cgs.media.blueFlagFlapSkin, torso);
 		} else {
-			CG_TrailItem(cent, cgs.media.blueFlagModel);
+			CG_TrailItem(cent, cgs.media.blueFlagModel, torso);
 		}
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 0.2f, 0.2f, 1.0);
 	}
@@ -2089,7 +2122,7 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso)
 		if (ci->newAnims) {
 			CG_PlayerFlag(cent, cgs.media.neutralFlagFlapSkin, torso);
 		} else {
-			CG_TrailItem(cent, cgs.media.neutralFlagModel);
+			CG_TrailItem(cent, cgs.media.neutralFlagModel, torso);
 		}
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand() & 31), 1.0, 1.0, 1.0);
 	}
