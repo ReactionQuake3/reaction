@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/08/27 11:28:43  jbravo
+// Kevlar hits didnt tell the target who was shooting or of the kevlar got hit
+//
 // Revision 1.122  2002/08/27 07:50:55  jbravo
 // Players can now use the kill cmd, plummet and kill teammates after rounds in
 // tp without loosing frags.
@@ -2153,7 +2156,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 				switch (targ->client->lasthurt_location) {
 				case LOCATION_HEAD:
-					if (attacker->client && level.team_round_going)
+					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_HEADSHOTS]++;
 					//save headshot time for player_die
 					targ->client->headShotTime = level.time;
@@ -2177,51 +2180,36 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					take *= 1.8;	//+ 1;
 					break;
 				case LOCATION_CHEST:
-					if (attacker->client && level.team_round_going)
+					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_CHESTSHOTS]++;
 					// Vest stuff - is the knife supposed to be affected?
 					// NiceAss: Added mod != MOD_KNIFE_THROWN so kevlar doesn't help against thrown knives
 					// JBravo: added mod != MOD_KNIFE so kevlar doesn't help against slashing knives either
-					if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR
-					    && mod != MOD_KNIFE_THROWN && mod != MOD_KNIFE) {
+					if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR &&
+					    mod != MOD_KNIFE_THROWN && mod != MOD_KNIFE) {
 						targ->client->kevlarHit = qtrue;
 						if (attacker->client->ps.weapon == WP_SSG3000) {
 							trap_SendServerCommand(attacker - g_entities,
-									       va
-									       ("print \"%s ^7has a Kevlar Vest, too bad you have AP rounds...\n\"",
-										targ->client->pers.netname));
+									va("print \"%s^7 has a Kevlar Vest, too bad you have AP rounds...\n\"",
+									targ->client->pers.netname));
 							trap_SendServerCommand(targ - g_entities,
-									       va
-									       ("print \"Kevlar Vest absorbed some of %s^7's AP sniper round\n\"",
-										attacker->client->pers.netname));
+									va("print \"Kevlar Vest absorbed some of %s^7's AP sniper round\n\"",
+									attacker->client->pers.netname));
 							take = take * 0.325;
 						} else {
-							if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
-								trap_SendServerCommand(attacker - g_entities,
-										       va
-										       ("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"",
-											targ->client->pers.netname));
-							} else {
-								trap_SendServerCommand(attacker - g_entities,
-										       va
-										       ("print \"You hit %s^7 in the chest.\n\"",
-											targ->client->pers.netname));
-								trap_SendServerCommand(targ - g_entities,
-										       va
-										       ("print \"Kevlar Vest absorbed most of %s ^7shot\n\"",
-											attacker->client->pers.
-											netname));
-							}
+							trap_SendServerCommand(attacker - g_entities,
+									va("print \"%s^7 has a Kevlar Vest - AIM FOR THE HEAD!\n\"",
+									targ->client->pers.netname));
+							trap_SendServerCommand(targ - g_entities,
+									va("print \"Kevlar Vest absorbed most of %s^7's shot\n\"",
+									attacker->client->pers.netname));
 							take = take / 10;
 							instant_dam = 1;
 							bleeding = 0;
 						}
 						//Kevlar sound
-						if (mod != MOD_KNIFE && mod != MOD_KNIFE_THROWN) {
-							tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
-							tent->s.eventParm = DirToByte(dir);
-							//tent = G_TempEntity2(targ->s.pos.trBase, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
-						}
+						tent = G_TempEntity(targ->s.pos.trBase, EV_BULLET_HIT_KEVLAR);
+						tent->s.eventParm = DirToByte(dir);
 					} else {
 						trap_SendServerCommand(attacker - g_entities,
 								       va("print \"You hit %s^7 in the chest.\n\"",
@@ -2232,7 +2220,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					}
 					break;
 				case LOCATION_STOMACH:
-					if (attacker->client && level.team_round_going)
+					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_STOMACHSHOTS]++;
 					trap_SendServerCommand(attacker - g_entities,
 							       va("print \"You hit %s^7 in the stomach.\n\"",
@@ -2245,7 +2233,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 					}
 					break;
 				case LOCATION_LEG:
-					if (attacker->client && level.team_round_going)
+					if (attacker->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
 						attacker->client->pers.records[REC_LEGSHOTS]++;
 					trap_SendServerCommand(attacker - g_entities,
 							       va("print \"You hit %s^7 in the leg.\n\"",

@@ -56,6 +56,7 @@
 * Fixed dropped weapons and items blocking doors and other movers.
 * Added ref say command to talk to everyone, dead or alive
 * Players can now use the kill cmd, plummet and kill teammates after rounds in tp without loosing frags.
+* Fixed message for players wearing a kevlar vest and get hiot by weapons other than the SSG
 
 
 
