@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/11 03:25:41  jbravo
+// Minor fix for NA
+//
 // Revision 1.51  2002/03/11 02:22:45  niceass
 // tag shell ejections
 //
@@ -4034,7 +4037,7 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		}
 
 		if ( ent->weapon == WP_HANDCANNON )
-			CG_ShotgunEjectBrass( cent, NULL, NULL );
+			CG_ShotgunEjectBrass( cent );
 		break;
 	case 2:
 		if (weap->worldReloadSound[2] && ent->clientNum != cg.snap->ps.clientNum)
