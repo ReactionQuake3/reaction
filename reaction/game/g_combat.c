@@ -493,7 +493,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     if ( self->client )
     {
     	// Hawkins put spread back and zoom out
-		//Elder: removed
 		self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;

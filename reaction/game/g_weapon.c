@@ -1025,7 +1025,8 @@ void Weapon_SSG3000_Fire(gentity_t *ent)
 {
 	//Elder: Don't print - will broadcast to server
 	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
-	Bullet_Fire( ent, ( ent->client->zoomed?0:SNIPER_SPREAD), SNIPER_DAMAGE, MOD_SNIPER);
+	//Elder: changed to use RQ3Spread as well
+	Bullet_Fire( ent, ( ent->client->zoomed? 0:RQ3Spread(ent, SNIPER_SPREAD)), SNIPER_DAMAGE, MOD_SNIPER);
 
 }
 

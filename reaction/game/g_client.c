@@ -989,6 +989,12 @@ void ClientBegin( int clientNum ) {
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
 
+	//Elder: added to initialize weaponmodes
+	client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //set to short range
+	client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE; //set to slash attack
+	//Elder: debug
+	//G_Printf("In clientbegin- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
+
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
@@ -1094,6 +1100,7 @@ void ClientSpawn(gentity_t *ent) {
 //	savedAreaBits = client->areabits;
 	accuracy_hits = client->accuracy_hits;
 	accuracy_shots = client->accuracy_shots;
+	
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
 	}
@@ -1112,7 +1119,7 @@ void ClientSpawn(gentity_t *ent) {
 	client->accuracy_hits = accuracy_hits;
 	client->accuracy_shots = accuracy_shots;
 	client->lastkilled_client = -1;
-
+	
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];
 	}
@@ -1223,7 +1230,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->zoomed=0;
 	
 	//Elder: knife reset/initialize
-	client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
+	//Elder: removed - set in ClientBegin
+	//client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
 
 	//Elder: reset isBandaging flag
 	client->isBandaging = qfalse;
@@ -1261,6 +1269,9 @@ void ClientSpawn(gentity_t *ent) {
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		trap_LinkEntity( ent );
 	}
+
+	//Elder: debug
+	//G_Printf("Just after respawn- PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
 
 	// run the presend to set anything else
 	ClientEndFrame( ent );

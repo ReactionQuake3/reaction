@@ -581,8 +581,12 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		//Blaze: Do bandaging stuff
 		if (ent->client->bleedtick > 1)
 		{
-			G_Printf("Bleedtick getting lowerd by one(%d)\n",client->timeResidual);
+			G_Printf("Bleedtick (%d) getting lowered by one (%d)\n", ent->client->bleedtick, client->timeResidual);
 			ent->client->bleedtick--;
+			//Elder: added
+			if (ent->client->bleedtick == 2) {
+				ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
+			}
 		}
 		else if (ent->client->bleedtick == 1)
 		{
@@ -882,6 +886,8 @@ void ThrowWeapon( gentity_t *ent )
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
+
+	//Elder: have to add a reloading case
 
 	weap = 0;
 	if (client->ps.stats[STAT_UNIQUEWEAPONS] > 0)

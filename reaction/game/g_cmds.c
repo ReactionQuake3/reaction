@@ -1611,7 +1611,8 @@ void Cmd_Bandage (gentity_t *ent)
         ent->client->bleedtick = 4;
         //Elder: added
         ent->client->isBandaging = qtrue;
-		ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
+		//Elder: moved to g_active where it will be unset after 2 bleedticks
+		//ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}
 	else
 	{
@@ -1865,6 +1866,10 @@ void toggleSemi(gentity_t *ent){
 /* Hawkins. Reaction weapon command */
 void Cmd_Weapon(gentity_t *ent)
 {
+	//Elder: debug code
+	//G_Printf("PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
+	
+	//Elder: added brackets, and-ops and not-ops instead of logical ops
 	switch(ent->s.weapon){
 	case WP_SSG3000:
 		// zoom is done by client. zoom 3 levels, then zoom out
@@ -1884,7 +1889,7 @@ void Cmd_Weapon(gentity_t *ent)
 		// semiauto toggle (increase accuracy)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MK23MODE) == RQ3_MK23MODE)
 		{
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_MK23MODE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MK23MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		}
 		else
@@ -1897,7 +1902,7 @@ void Cmd_Weapon(gentity_t *ent)
 		// 3rb/full auto toggle
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE)
 		{
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_M4MODE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_M4MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		}
 		else
@@ -1910,7 +1915,7 @@ void Cmd_Weapon(gentity_t *ent)
 		// 3rb/full auto toggle
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_MP5MODE) == RQ3_MP5MODE)
 		{
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_MP5MODE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_MP5MODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		}
 		else
@@ -1924,7 +1929,7 @@ void Cmd_Weapon(gentity_t *ent)
 		if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE)
 		{
 			//Elder: added
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
 			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
 		}
 		else 
@@ -1945,25 +1950,37 @@ void Cmd_Weapon(gentity_t *ent)
 		break;
 	case WP_GRENADE:
 		// short, medium, long throws
-		if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT == RQ3_GRENSHORT && ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED == RQ3_GRENMED)
+		if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
+			 (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		{//Going into Short
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
-			ent->client->ps.persistant[PERS_WEAPONMODES] |= !RQ3_GRENMED; //unset the med flag
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED; //unset the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
 			
 		}
-		else if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT == RQ3_GRENSHORT)
+		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
 		{//Going into Med
-			ent->client->ps.persistant[PERS_WEAPONMODES] |= !RQ3_GRENSHORT; //unset the short flag
+			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENSHORT; //unset the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
 		}
-		else if (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED == RQ3_GRENMED)
+		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		{//Going into Long
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
 			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
-		}	
+		}
+		//Elder: added
+		else {
+			G_Printf("Cmd_Weapon_f: Received bad grenade toggle\n");
+		}
+		/* Elder: debugging code
+		G_Printf("Grenade toggle- Short: %d, Medium: %d, Long: %d\n", 
+				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT,
+				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED,
+				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
+				(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED);
+		*/
 		break;
 	default:
 		break;
