@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/10/21 21:17:16  niceass
+// bleh
+//
 // Revision 1.49  2002/10/21 21:04:33  niceass
 // ref fix
 //
@@ -659,11 +662,10 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	if ( cg_RQ3_matchmode.integer && cg.refready != -1 ) {
-		y += 4;
+		y += SB_FONTSIZEH * 2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, colorWhite);
 		DrawRightStripText(y, SB_FONTSIZEH, 
 			cg.refready ? "Referee Ready" : "Referee Not Ready", 100, colorWhite);
-		y += SB_FONTSIZEH + SB_PADDING * 2 + 6;
 	}
 
 	// *************** SPECTATORS ************
