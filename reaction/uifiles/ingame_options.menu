@@ -1,5 +1,8 @@
 #include "ui/menudef.h"
 
+#define SECCOLOR1 1 1 1 0
+#define SECCOLOR2 1 1 1 .2
+
 {
    //--------------//
   // GAME OPTIONS //
@@ -16,7 +19,10 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 ; setfocus sectionPage1 }
+	onOpen { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionPage1 backColor SECCOLOR2 0 250 ;
+		setfocus sectionPage1 }
 
 //Window
 
@@ -70,6 +76,7 @@
 	name tabSystem
 	group grpTabs
 	text "System"
+	shortcutKey "S"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -87,6 +94,7 @@
 	name tabControls
 	group grpTabs
 	text "Controls"
+	shortcutKey "C"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -122,10 +130,12 @@
     itemDef {
 	name sectionPage1
 	group grpSections
-	text "Settings"
+	text "Settings. 1"
+	shortcutKey "1"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
+	backcolor SECCOLOR1
 	rect 0 72 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -136,16 +146,20 @@
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 }
+	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page1 ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionPage1 backColor SECCOLOR2 0 250 }
     }
 
     itemDef {
 	name sectionPage2
 	group grpSections
-	text "Crosshair"
+	text "Crosshair. 2"
+	shortcutKey "2"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
+	backcolor SECCOLOR1
 	rect 0 96 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -156,7 +170,33 @@
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page2 }
+	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page2 ;
+		setitemcolor grpSections backcolor SECCOLOR1;timeFade sectionPage2 backColor SECCOLOR2 0 250 }
+    }
+
+    itemDef {
+	name sectionPage3
+	group grpSections
+	text "Models. 3"
+	shortcutKey "3"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_FILLED
+	backcolor SECCOLOR1
+	rect 0 120 96 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 88
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpGame ; show page3 ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionPage3 backColor SECCOLOR2 0 250 ;
+		uiScript buildReplacementList }
     }
 
 //Options
@@ -568,5 +608,187 @@
 	decoration
     }
 
-}
+// Page 3 //
+
+    //Background
+    itemdef {
+	name page3
+	group grpGame
+	rect 103 63 96 96
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-loadout"
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	//backcolor .5 .5 .5 .4
+	decoration
+	visible 1
+    }
+
+    //Preview
+    itemdef {
+	name page3
+	group grpGame
+	//type ITEM_TYPE_MODEL
+	ownerdraw UI_RQ3_REPLACEMENTMODEL
+	rect 103 63 96 96
+	/*
+	model_origin 28 0 0
+	model_fovx 60
+	model_fovy 60
+	//textscale .75
+	model_rotation 10
+	model_angles 270 0 90
+	*/
+	decoration
+	visible 1
+    }
+
+    // Text
+
+    //Name
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	//text "Gold akimbo"
+	ownerdraw UI_RQ3_REPLACEMENTNAME
+	rect 103 158 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 5
+	textaligny 12
+	textscale .18
+	forecolor .75 .75 .75 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	visible 0
+	decoration
+    }
+
+    //Type
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	text "Replace:"
+	ownerdraw UI_RQ3_REPLACEMENTTYPE
+	rect 103 178 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Sub-Type
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	text "Type:"
+	ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
+	rect 103 194 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Description
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	//text "Text goes here"
+	ownerdraw UI_RQ3_REPLACEMENTINFO
+	rect 208 64 156 96
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    //Prev model
+    itemDef {
+	name page3
+	group grpGame
+	rect 107 108 16 16
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/arrow_left_white"
+	type ITEM_TYPE_BUTTON
+	visible 1
+	forecolor 1 1 1 .3
+	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 }
+	leaveFocus { timefadeSelf forecolor 1 1 1 .3 0 250 }
+	action { play "sound/misc/menu1.wav" ; uiScript nextReplacement "-1" }
+    }
+
+    //Next model
+    itemDef {
+	name page3
+	group grpGame
+	rect 179 108 16 16
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/arrow_right_white"
+	type ITEM_TYPE_BUTTON
+	visible 1
+	forecolor 1 1 1 .3
+	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 }
+	leaveFocus { timefadeSelf forecolor 1 1 1 .3 0 250 }
+	action { play "sound/misc/menu1.wav" ; uiScript nextReplacement "1" }
+    }
+
+    //Note
+
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	text "Note: pressing the apply button will restart "
+	     "Reaction Quake 3 in order to load the new "
+	     "models and skins"
+	autowrapped
+	rect 112 256 232 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
+    }
+
+    //Apply button
+
+    itemDef {
+	name page3
+	group grpGame
+	text "Apply"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_FILLED
+	rect 284 304 64 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 32
+	textaligny 12
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { exec "vid_restart" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
 }

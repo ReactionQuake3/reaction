@@ -70,6 +70,8 @@
 #define FEEDER_INGAME_SERVERINFO			0x10
 //Makro - for the captains' ingame menu
 #define FEEDER_MMHEADS						0x11
+//Makro - weapon replacements list
+#define FEEDER_REPLACEMENTS					0x12
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     	0x00000001
@@ -125,6 +127,8 @@
 #define UI_SHOW_ITEM6							0x02000000
 //Makro - toggle
 #define UI_SHOW_TOGGLE							0x04000000
+//Makro - hack !
+#define UI_SHOW_REPLACEMENT						0x08000000
 
 
 // owner draw types
@@ -227,6 +231,13 @@
 //Makro - join menu items
 #define UI_RQ3_JOINTEAM1 161
 #define UI_RQ3_JOINTEAM2 162
+
+//Makro - replacement model info
+#define UI_RQ3_REPLACEMENTINFO 163
+#define UI_RQ3_REPLACEMENTNAME 164
+#define UI_RQ3_REPLACEMENTMODEL 165
+#define UI_RQ3_REPLACEMENTTYPE 166
+#define UI_RQ3_REPLACEMENTSUBTYPE 167
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200

@@ -1,5 +1,8 @@
 #include "ui/menudef.h"
 
+#define SECCOLOR1 1 1 1 0
+#define SECCOLOR2 1 1 1 .2
+
 {
 
     menuDef {
@@ -12,7 +15,10 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { uiScript readMMcaptainSettings ; hide grpCaptain ; show status }
+	onOpen { uiScript readMMcaptainSettings ; hide grpCaptain ; show status
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionStatus backColor SECCOLOR2 0 250
+		setFocus sectionStatus }
 
 //Window
 
@@ -65,11 +71,11 @@
     itemDef {
 	name sectionStatus
 	group grpSections
-	text "1. Status"
+	text "Status. 1"
 	shortcutKey "1"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 44 80 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 72
@@ -79,18 +85,21 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show status }
+	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show status ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
     itemDef {
 	name sectionSettings
 	group grpSections
-	text "2. Settings"
+	text "Settings. 2"
 	shortcutKey "2"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 68 80 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 72
@@ -100,18 +109,21 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show settings }
+	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show settings ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
     itemDef {
 	name sectionRef
 	group grpSections
-	text "3. Referee"
+	text "Referee. 3"
 	shortcutKey "3"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 92 80 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 72
@@ -121,8 +133,11 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show ref }
+	action { play "sound/misc/menu1.wav" ; hide grpCaptain ; show ref ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
 //=======================

@@ -1,5 +1,8 @@
 #include "ui/menudef.h"
 
+#define SECCOLOR1 1 1 1 0
+#define SECCOLOR2 1 1 1 .2
+
 {
     //----------------//
    // CALL VOTE MENU //
@@ -15,7 +18,10 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { uiScript loadVoteArenas ; hide grpcallVote ; show map }
+	onOpen { uiScript loadVoteArenas ; hide grpcallVote ; show map ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionMap backColor SECCOLOR2 0 250 ;
+		setfocus sectionMap }
 
 //Window
 
@@ -72,7 +78,7 @@
 	shortcutKey "M"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 44 72 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 64
@@ -82,8 +88,11 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show map }
+	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show map ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
     itemDef {
@@ -93,7 +102,7 @@
 	shortcutKey "K"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 68 72 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 64
@@ -103,8 +112,11 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show kick }
+	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show kick ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
     itemDef {
@@ -114,7 +126,7 @@
 	shortcutKey "T"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 92 72 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 64
@@ -124,8 +136,11 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show type }
+	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show type ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 }
     }
 
 //=======================
@@ -178,7 +193,7 @@
 	bordercolor .25 .25 .25 1
 	visible 0
 	decoration
-    }	
+    }
 
     itemDef {
 	name map

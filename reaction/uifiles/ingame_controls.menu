@@ -1,5 +1,8 @@
 #include "ui/menudef.h"
 
+#define SECCOLOR1 1 1 1 0
+#define SECCOLOR2 1 1 1 .2
+
 {
    //----------//
   // CONTROLS //
@@ -16,7 +19,10 @@
 	style WINDOW_STYLE_EMPTY
 	shadowStyle 1
 	border 0
-	onOpen { play "sound/misc/menu1.wav" ; hide grpControls ; show look ; setfocus sectionLook }
+	onOpen { play "sound/misc/menu1.wav" ; hide grpControls ; show look ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionLook backColor SECCOLOR2 0 250 ;
+		setfocus sectionLook }
 
 //Window
 
@@ -72,6 +78,7 @@
 	name tabSystem
 	group grpTabs
 	text "System"
+	shortcutKey "S"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -106,6 +113,7 @@
 	name tabGame
 	group grpTabs
 	text "Game"
+	shortcutKey "G"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -124,10 +132,11 @@
     itemdef {
 	name sectionLook
 	group grpSections
-	text "Look"
+	text "Look. 1"
+	shortcutKey "1"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 72 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -137,17 +146,22 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpControls ; show look }
+	action { play "sound/misc/menu1.wav" ; hide grpControls ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
+		show look }
     }
 
     itemdef {
 	name sectionMove
 	group grpSections
-	text "Move"
+	text "Move. 2"
+	shortcutKey "2"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 96 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -157,17 +171,22 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpControls ; show move }
+	action { play "sound/misc/menu1.wav" ; hide grpControls ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
+		show move }
     }
 
     itemdef {
 	name sectionWeapon
 	group grpSections
-	text "Weapons"
+	text "Weapons. 3"
+	shortcutKey "3"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 120 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -177,17 +196,22 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpControls ; show weapon }
+	action { play "sound/misc/menu1.wav" ; hide grpControls ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
+		show weapon }
     }
 
     itemdef {
 	name sectionMisc
 	group grpSections
-	text "Misc"
+	text "Misc. 4"
+	shortcutKey "4"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 144 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -197,17 +221,22 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpControls ; show misc }
+	action { play "sound/misc/menu1.wav" ; hide grpControls ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
+		show misc }
     }
 
     itemdef {
 	name sectionReaction
 	group grpSections
-	text "Reaction"
+	text "Reaction. 5"
+	shortcutKey "5"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 168 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -217,8 +246,12 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
+	backcolor SECCOLOR1
 	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpControls ; show reaction }
+	action { play "sound/misc/menu1.wav" ; hide grpControls ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
+		show reaction }
     }
 
 //Keys

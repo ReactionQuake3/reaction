@@ -1,5 +1,8 @@
 #include "ui/menudef.h"
 
+#define SECCOLOR1 1 1 1 0
+#define SECCOLOR2 1 1 1 .2
+
 {
    //----------------//
   // SYSTEM OPTIONS //
@@ -17,9 +20,10 @@
 	border 0
 	shadowStyle 1
 	onOpen { play "sound/misc/menu1.wav" ; hide grpSystem ;
-		//setitemcolor grpSections backcolor 0 0 0 0 ;
-		//setitemcolor sectionGraphics backcolor Ig_Window_Color ;
-		show graphics ; setfocus sectionGraphics }
+		show graphics ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFade sectionGraphics backColor SECCOLOR2 0 250 ;
+		setfocus sectionGraphics }
 
 //Window
 
@@ -91,6 +95,7 @@
 	name tabControls
 	group grpTabs
 	text "Controls"
+	shortcutKey "C"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -108,6 +113,7 @@
 	name tabGame
 	group grpTabs
 	text "Game"
+	shortcutKey "G"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_EMPTY
@@ -126,10 +132,11 @@
     itemDef {
 	name sectionGraphics
 	group grpSections
-	text "Graphics"
+	text "Graphics. 1"
+	shortcutKey "1"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 72 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -139,21 +146,24 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
-	//backcolor 0 0 0 0
+	backcolor SECCOLOR1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
 		//setitemcolor grpSections backcolor 0 0 0 0 ;
 		//setitemcolor sectionGraphics backcolor Ig_Window_Color ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
 		show graphics }
     }
 
     itemDef {
 	name sectionDriver
 	group grpSections
-	text "Driver info"
+	text "Driver info. 2"
+	shortcutKey "2"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 96 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -163,21 +173,24 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
-	//backcolor 0 0 0 0
+	backcolor SECCOLOR1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
 		//setitemcolor grpSections backcolor 0 0 0 0 ;
 		//setitemcolor sectionDriver backcolor Ig_Window_Color ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
 		show driver }
     }
 
     itemDef {
 	name sectionOther
 	group grpSections
-	text "Other"
+	text "Other. 3"
+	shortcutKey "3"
 	type ITEM_TYPE_BUTTON
 	textscale .225
-	style WINDOW_STYLE_EMPTY
+	style WINDOW_STYLE_FILLED
 	rect 0 120 96 16
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 88
@@ -187,11 +200,13 @@
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	forecolor Ig_Sub_TextColor
-	//backcolor 0 0 0 0
+	backcolor SECCOLOR1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; hide grpSystem ;
 		//setitemcolor grpSections backcolor 0 0 0 0 ;
 		//setitemcolor sectionOther backcolor Ig_Window_Color ;
+		setitemcolor grpSections backcolor SECCOLOR1;
+		timeFadeSelf backColor SECCOLOR2 0 250 ;
 		show Other }
     }
 
