@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2002/09/08 03:14:17  niceass
+// tracerchance now can be 0.0 to 0.4
+//
 // Revision 1.93  2002/08/29 04:42:41  blaze
 // Anti OGC code
 //
@@ -3705,7 +3708,7 @@ void CG_CreateTracer(int entity, vec3_t start, vec3_t end)
 	float dist;
 	vec3_t dir, end2;
 	vec3_t temp, midpoint;
-	float tracerSpeed = 4200;
+	float tracerSpeed = 5000;
 
 	VectorSubtract(end, start, dir);
 	dist = VectorNormalize(dir);
@@ -3827,14 +3830,19 @@ Elder: added soundType conditional
 void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal,
 	       qboolean flesh, int fleshEntityNum, impactSound_t soundType)
 {
-	trace_t trace;
-	int sourceContentType, destContentType;
-	vec3_t start;
-	centity_t *cent;
+	trace_t		trace;
+	int			sourceContentType, destContentType;
+	vec3_t		start;
+	centity_t	*cent;
+	float		chance;
 
+	chance = cg_tracerChance.value;
+	if (chance > 0.4f)
+		chance = 0.4f;
+	
 	// if the shooter is currently valid, calc a source point and possibly
 	// do trail effects
-	if (sourceEntityNum >= 0 && cg_tracerChance.value > 0) {
+	if (sourceEntityNum >= 0 && chance > 0) {
 		if (CG_CalcMuzzlePoint(sourceEntityNum, start)) {
 			sourceContentType = trap_CM_PointContents(start, 0);
 			destContentType = trap_CM_PointContents(end, 0);
@@ -3859,13 +3867,13 @@ void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal,
 			if (sourceEntityNum == cg.snap->ps.clientNum) {
 				if (cg.snap->ps.weapon != WP_SSG3000 &&
 				    bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_SILENCER) {
-					if (random() < cg_tracerChance.value)
+					if (random() < chance)
 						CG_CreateTracer(sourceEntityNum, start, end);
 				}
 			} else {
 				cent = &cg_entities[sourceEntityNum];
 				if (cent->currentValid && cent->currentState.weapon != WP_SSG3000) {
-					if (random() < cg_tracerChance.value && cent->muzzleFlashTime != -1) {
+					if (random() < chance && cent->muzzleFlashTime != -1) {
 						CG_CreateTracer(sourceEntityNum, start, end);
 					}
 				}

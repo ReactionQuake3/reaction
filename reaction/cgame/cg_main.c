@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/09/08 03:15:16  niceass
+// tracerchance now can be 0.0 to 0.4
+//
 // Revision 1.110  2002/08/29 14:25:13  niceass
 // new wallhack thing
 //
@@ -588,7 +591,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_nopredict, "cg_nopredict", "0", 0},
 	{&cg_noPlayerAnims, "cg_noplayeranims", "0", CVAR_CHEAT},
 	{&cg_showmiss, "cg_showmiss", "0", 0},
-	{&cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT},
+	{&cg_footsteps, "cg_footsteps", "1", CVAR_ARCHIVE},
 	{&cg_tracerChance, "cg_tracerchance", "0.4", CVAR_CHEAT},
 	{&cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT},
 	{&cg_tracerLength, "cg_tracerlength", "300", CVAR_CHEAT},
