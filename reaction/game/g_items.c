@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/04/04 11:20:27  makro
+// Pre-caching all weapons in TP
+//
 // Revision 1.31  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1242,6 +1245,16 @@ void ClearRegisteredItems( void ) {
 	RegisterItem( BG_FindItemForHoldable( HI_SILENCER ) );
 	RegisterItem( BG_FindItemForHoldable( HI_BANDOLIER ) );
 	RegisterItem( BG_FindItemForHoldable( HI_LASER ) );
+	//Makro - all weapons should be loaded in teamplay
+	if ( trap_Cvar_VariableIntegerValue("g_gametype") == GT_TEAMPLAY ) {
+		RegisterItem( BG_FindItemForWeapon( WP_M3 ) );
+		RegisterItem( BG_FindItemForWeapon( WP_MP5 ) );
+		RegisterItem( BG_FindItemForWeapon( WP_HANDCANNON ) );
+		RegisterItem( BG_FindItemForWeapon( WP_SSG3000 ) );
+		RegisterItem( BG_FindItemForWeapon( WP_M4 ) );
+		RegisterItem( BG_FindItemForWeapon( WP_AKIMBO ) );
+		RegisterItem( BG_FindItemForWeapon( WP_GRENADE ) );
+	}
 
 #ifdef MISSIONPACK
 	if( g_gametype.integer == GT_HARVESTER ) {
