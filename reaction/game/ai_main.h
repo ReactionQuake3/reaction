@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/04/05 03:12:28  makro
+// Radio stuff
+//
 // Revision 1.6  2002/04/03 17:39:36  makro
 // Made bots handle incoming radio spam better
 //
@@ -206,7 +209,6 @@ typedef struct bot_state_s
 	float blockedbyavoidspot_time;					//time blocked by an avoid spot
 	float predictobstacles_time;					//last time the bot predicted obstacles
 	int predictobstacles_goalareanum;				//last goal areanum the bot predicted obstacles for
-
 	float radioresponse_time;						//Makro - the last time the bot responded to a radio message
 	int radioresponse_count;						//Makro - how many times the bot responded to radio messages
 
