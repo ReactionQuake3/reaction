@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/06/04 11:37:23  makro
+// Items that fade out are hidden automatically now
+//
 // Revision 1.16  2002/06/02 00:15:07  makro
 // Small fixes
 //
@@ -728,8 +731,14 @@ void UI_RQ3_HandleFading(Window *w) {
 				w->timeFade.active = qfalse;
 				if ((w->timeFade.forecolor)) {
 					UI_RQ3_ColorCopy(w->foreColor, w->timeFade.color2);
+					//Makro - autohide
+					if (w->foreColor[3] == 0)
+						w->flags &= ~WINDOW_VISIBLE;
 				} else {
 					UI_RQ3_ColorCopy(w->backColor, w->timeFade.color2);
+					//Makro - autohide
+					if (w->backColor[3] == 0)
+						w->flags &= ~WINDOW_VISIBLE;
 				}
 			} else {
 				if (DC->realTime >= w->timeFade.startTime) {
