@@ -202,7 +202,6 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 	float	backoff;
 	float	change;
 	int		i;
-	
 	backoff = DotProduct (in, normal);
 	
 	if ( backoff < 0 ) {
@@ -906,7 +905,18 @@ static void PM_WalkMove( void ) {
 	usercmd_t	cmd;
 	float		accelerate;
 	float		vel;
+	//Blaze: New ramp move code
+	vec3_t		point;
+	trace_t		trace;
 
+	point[0] = pm->ps->origin[0];
+	point[1] = pm->ps->origin[1];
+	point[2] = pm->ps->origin[2] - 0.25;
+
+	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
+	//Com_Printf("(%f)",trace.plane.normal[2]);
+	
+	//Blaze: end new ramp jump code
 	if ( pm->waterlevel > 2 && DotProduct( pml.forward, pml.groundTrace.plane.normal ) > 0 ) {
 		// begin swimming
 		PM_WaterMove();
@@ -964,6 +974,11 @@ static void PM_WalkMove( void ) {
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
 	wishspeed *= scale;
+
+	//Blaze: Some ramp jump stuff here
+	wishspeed *= 2 - trace.plane.normal[2];
+
+	//End blaze ramp jumping stuff
 
 	// clamp the speed lower if ducking
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
