@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/03/11 01:29:54  slicer
+// Fixed Sniper zooming during LCA
+//
 // Revision 1.59  2002/03/02 22:02:09  niceass
 // mk23 and akimbo last fire animation fixed
 //
@@ -2678,11 +2681,6 @@ static void PM_Weapon( void ) {
 		}
 	}
 
-// JBravo: no shooting during LCA
-	if ( RQ3_lca.integer) {
-		return;
-	}
-
 	if ( pm->ps->weaponstate == WEAPON_RAISING &&
 		!( ( pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) && pm->ps->stats[STAT_BURST]) ) {
 		pm->ps->weaponstate = WEAPON_READY;
@@ -2723,6 +2721,12 @@ static void PM_Weapon( void ) {
 	if ( pm->ps->weaponstate == WEAPON_MODECHANGE ) {
 		if ( pm->ps->weapon == WP_KNIFE) pm->ps->weaponstate = WEAPON_READY;
 	}
+
+	// JBravo: no shooting during LCA
+	if ( RQ3_lca.integer) {
+		return;
+	}
+
 
 	// Elder: fire on release - based on code from inolen
 	// check for fire
