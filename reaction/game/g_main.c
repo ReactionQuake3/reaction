@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/03/01 18:50:26  makro
+// Added CVAR_ARCHIVE flag to some g_RQ3 cvars
+//
 // Revision 1.24  2002/02/24 18:12:19  jbravo
 // Added a cvar to control sniper behavior g_RQ3_sniperup. Def 0. if set yo 1
 // it makes players spawn with the sniper up.
@@ -249,11 +252,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_messageBanTime, "sv_RQ3_messageBanTime", SAY_BAN_TIME, 0, 0, qfalse },
 	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_SERVERINFO, 0, qtrue},
 // JBravo: still with the TP cvars
-	{ &g_RQ3_roundlimit, "g_RQ3_roundlimit", "0", 0, 0, qtrue},
-	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", 0, 0, qtrue},
-	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", 0, 0, qtrue},
-	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", 0, 0, qtrue},
-	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", 0, 0, qtrue},
+// Makro - adding CVAR_ARCHIVE so these settings work when starting up the UI
+	{ &g_RQ3_roundlimit, "g_RQ3_roundlimit", "0", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_roundtimelimit, "g_RQ3_roundtimelimit", "2", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
