@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2003/04/13 01:08:02  jbravo
+// typo in cvar name
+//
 // Revision 1.141  2003/04/09 02:00:43  jbravo
 // Fixed team none in DM and some final cleanups for the 3.0 release
 //
@@ -685,7 +688,7 @@ static cvarTable_t gameCvarTable[] = {
 	//{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{&g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
-	{&g_RQ3_RefPassword, "g_RQ3_RefPasswordword", "", CVAR_ARCHIVE, 0, qfalse},
+	{&g_RQ3_RefPassword, "g_RQ3_RefPassword", "", CVAR_ARCHIVE, 0, qfalse},
 	//{&g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	{&g_RQ3_maxRefs, "g_RQ3_maxRefs", "1", CVAR_SERVERINFO, 0, qtrue},
 	// aasimon: stuff for da ini file
