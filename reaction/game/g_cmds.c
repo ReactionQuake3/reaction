@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.159  2002/08/17 01:56:31  jbravo
+// % vars now only work in say_team mode.
+//
 // Revision 1.158  2002/08/13 16:59:16  makro
 // Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
 //
@@ -1500,7 +1503,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 	}
 
 // JBravo: Parsing % vars here
-	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR && mode == SAY_TEAM) {
 		ParseSayText(ent, (char *) chatText);
 	}
 
