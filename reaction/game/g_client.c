@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.102  2002/06/26 15:58:13  makro
+// Fixed a crash bug in the spawning code
+// (happenned on maps with one spawn point)
+//
 // Revision 1.101  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -494,14 +498,31 @@ gentity_t *SelectRandomFurthestSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3
 	   }
 	 */
 
-	// select a random spot from the spawn points furthest away
-	rnd = random() * (numSpots / 3);	// NiceAss: divided by 2 changed to 3 to cut down on close spawns
+	//Makro - on a map with one spawn point, if one player has to respawn and someone is
+	//already near the spawnpoint, Q3 crashes; added check
+	if (numSpots != 0) {
+		// select a random spot from the spawn points furthest away
+		rnd = random() * (numSpots / 3);	// NiceAss: divided by 2 changed to 3 to cut down on close spawns	
 
-	VectorCopy(list_spot[rnd]->s.origin, origin);
-	origin[2] += 9;
-	VectorCopy(list_spot[rnd]->s.angles, angles);
+		VectorCopy(list_spot[rnd]->s.origin, origin);
+		origin[2] += 9;
+		VectorCopy(list_spot[rnd]->s.angles, angles);
 
-	return list_spot[rnd];
+		return list_spot[rnd];
+	} else {
+		//Makro - added; note - plenty of room for improvement here, I just wanted to get rid of the crash bug
+		spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
+		if (!spot) {
+			G_Error( "Couldn't find a spawn point" );
+		}
+		VectorCopy(spot->s.origin, origin);
+		origin[2] += 9;
+		VectorCopy(spot->s.angles, angles);
+
+		return spot;
+	}
+
+
 }
 
 /*
