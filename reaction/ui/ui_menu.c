@@ -87,11 +87,11 @@ void UI_CheckKickCvar( void ) {
 	trap_Cvar_VariableStringBuffer("RQ3_CvarKickReason", Cvar, sizeof(Cvar));
 
 	if (strlen(Cvar)) {
-		Com_Printf("AHAH!: [%s]\n", Cvar);
 		trap_Cvar_Set("RQ3_CvarKickReason", "");
 		strcat(Reason, Cvar);
 		strcat(Reason, " is out of range.");
 		s_main.rq3_kicktext.string = Reason;
+		Com_Printf("%s\n", Reason);
 	}
 	else {
 		s_main.rq3_kicktext.string = "";
