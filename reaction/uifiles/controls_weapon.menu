@@ -1,0 +1,733 @@
+#include "ui/menudef.h"
+#define RQ3_Controls_Option_Color .75 .75 .75 1
+
+{
+
+    menuDef {
+	name "control_weapon_menu"
+	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+								// to use the old background
+	fullScreen MENU_TRUE
+	visible MENU_FALSE				// Visible on open
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+
+	onOpen { play "sound/misc/menu1.wav" ; uiScript loadControls ;
+		setitemcolor hints forecolor .9 .9 .9 1 ; hide hints ;
+		hide focus ; setfocus btn_weapon }
+
+	onClose { uiScript saveControls }
+	onEsc { uiScript saveControls ; close control_weapon_menu ; open setup_menu }
+
+
+//===================
+// RQ3 stuff
+//===================
+
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 0 640 56
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar 				//rq3: Top bar
+	rect 0 58 640 12
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-main-shadow-1"
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name top_bar2 				//rq3: Top bar - border
+	rect 0 56 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar 				//rq3: bottom bar
+	rect 0 420 640 60
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemDef {
+	name bottom_bar2 				//rq3: bottom bar - border
+	rect 0 418 640 2
+	style 1
+	backcolor RQ3_MAIN_BAR_COLOR2
+	//border 2
+	//bordersize 1
+	//bordercolor 1 0 0 1
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "control_icon"
+	style WINDOW_STYLE_SHADER
+	rect 8 8 48 48
+	background "menu/art/rq3-setup-controls.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name "control_title"
+	style WINDOW_STYLE_SHADER
+	rect 64 12 256 32
+	background "menu/art/rq3-title-setup.tga"
+	decoration
+	visible 1
+    }
+
+    itemdef {
+	name overlay
+	style 1
+	forecolor 0 0 0 1
+	backcolor RQ3_MENU_OVERLAY_COLOR
+	rect 0 58 640 360
+	visible 1
+	decoration
+        }
+
+//=================
+// Objects
+//=================
+
+//Top Menu
+//Look
+
+    itemdef {
+	name btn_look
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-controls-looking"
+	rect 336 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show look_focus ; timefade look_focus forecolor 1 1 1 1 0 250 ;
+		show look_hint ; timeFade look_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade look_focus forecolor 1 1 1 0 0 250 ; timeFade look_hint forecolor .9 .9 .9 0 0 250 }
+	action { play "sound/misc/menu1.wav" ; close control_weapon_menu ; open control_look_menu }
+    }
+
+    itemdef {
+	name look_focus
+	group focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 336 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	background "menu/art/rq3-menu-focus-anim"
+	rect 336 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name look_hint
+	group hints
+	text "Change view keys"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	style 0
+	visible 0
+	decoration
+    }
+
+//Move
+
+    itemdef {
+	name btn_move
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-controls-movement"
+	rect 384 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show move_focus ; timefade move_focus forecolor 1 1 1 1 0 250 ;
+		show move_hint ; timeFade move_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade move_focus forecolor 1 1 1 0 0 250 ; timeFade move_hint forecolor .9 .9 .9 0 0 250 }
+	action { play "sound/misc/menu1.wav" ; close control_weapon_menu ; open control_move_menu }
+        }
+
+    itemdef {
+	name move_focus
+	group focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 384 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name move_act
+	group move
+	background "menu/art/rq3-menu-focus-anim"
+	rect 384 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name move_hint
+	group hints
+	text "Change movement keys"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	style 0
+	visible 0
+	decoration
+    }
+
+//Weapons
+
+    itemdef {
+	name btn_weapon
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-controls-weapons"
+	rect 432 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show weapon_focus ; timefade weapon_focus forecolor 1 1 1 1 0 250 ;
+		show weapon_hint ; timeFade weapon_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade weapon_focus forecolor 1 1 1 0 0 250 ; timeFade weapon_hint forecolor .9 .9 .9 0 0 250 }
+	action { play "sound/misc/menu1.wav" ; close control_weapon_menu ; open control_weapon_menu }
+    }
+
+    itemdef {
+	name weapon_focus
+	group focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 432 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	background "menu/art/rq3-menu-focus-anim"
+	rect 432 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name weapon_hint
+	group hints
+	text "Change weapon keys"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	style 0
+	visible 0
+	decoration
+    }
+
+//Misc
+
+    itemdef {
+	name btn_misc
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-controls-misc"
+	rect 480 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show misc_focus ; timefade misc_focus forecolor 1 1 1 1 0 250 ;
+		show misc_hint ; timeFade misc_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade misc_focus forecolor 1 1 1 0 0 250 ; timeFade misc_hint forecolor .9 .9 .9 0 0 250 }
+	action { play "sound/misc/menu1.wav" ; close control_weapon_menu ; open control_misc_menu }
+    }
+
+    itemdef {
+	name misc_focus
+	group focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 480 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name misc_act
+	group misc
+	background "menu/art/rq3-menu-focus-anim"
+	rect 480 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name misc_hint
+	group hints
+	text "Change miscellaneous keys"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	style 0
+	visible 0
+	decoration
+    }
+
+//Reaction
+
+    itemdef {
+	name btn_reaction
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-controls-reaction"
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show reaction_focus ; timefade reaction_focus forecolor 1 1 1 1 0 250 ;
+		show reaction_hint ; timeFade reaction_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade reaction_focus forecolor 1 1 1 0 0 250 ; timeFade reaction_hint forecolor .9 .9 .9 0 0 250 }
+	action { play "sound/misc/menu1.wav" ; close control_weapon_menu ; open control_reaction_menu }
+    }
+
+    itemdef {
+	name reaction_focus
+	group focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name reaction_act
+	group reaction
+	background "menu/art/rq3-menu-focus-anim"
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name reaction_hint
+	group hints
+	text "Change Reaction-specific keys"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	style 0
+	visible 0
+	decoration
+    }
+
+//-----------------------------------------------------------
+
+//Background window
+//Caption
+
+    itemdef {
+	rect 264 68 360 20
+	style WINDOW_STYLE_GRADIENT
+	border WINDOW_BORDER_KCGRADIENT
+	bordersize 1
+	backcolor 0 0 .2 .75
+	bordercolor .75 .75 .75 1
+	text "Weapon keys"
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textscale .25
+	textalign 0
+	textalignx 88
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+//Icon
+
+    itemdef {
+	style WINDOW_STYLE_SHADER
+	rect 320 66 24 24
+	background "menu/art/rq3-controls-weapons.tga"
+	decoration
+	visible 1
+    }
+
+
+//Window
+
+    itemdef {
+	name window
+	rect 264 84 360 284
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/fake_gradient_75"
+	border WINDOW_BORDER_KCGRADIENT
+	bordersize 2
+	backcolor 0 0 0 .75
+	bordercolor .75 .75 .75 1
+	visible 1
+	decoration
+    }
+
+//Player model display
+
+    itemdef {
+	name "model_preview"
+	ownerdraw UI_PLAYERMODEL
+	style 1
+	rect 0 80 240 320
+	visible 0
+	decoration
+    }
+
+//Keys
+//Weapon keys
+
+    itemdef {
+	name "bind_attack"
+	cvar "+attack"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Attack:"
+	rect 288 100 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weapnext"
+	cvar "weapnext"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Next Weapon:"
+	rect 288 120 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weapprev"
+	cvar "weapprev"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Previous Weapon:"
+	rect 288 140 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name opt_autoswitch
+	group weapon
+	type ITEM_TYPE_YESNO
+	text "Autoswitch Weapons:"
+	cvar "cg_autoswitch"
+	rect 448 160 112 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 16
+	textscale .25
+	forecolor RQ3_Controls_Option_Color
+	visible 1
+	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap1"
+	cvar "weapon 1"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "MK23 Pistol:"
+	rect 288 180 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap2"
+	cvar "weapon 2"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "M3 Assault Shotgun:"
+	rect 288 200 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap3"
+	cvar "weapon 3"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "MP5/10 Submachinegun:"
+	rect 288 220 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap4"
+	cvar "weapon 4"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Handcannon:"
+	rect 288 240 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap5"
+	cvar "weapon 5"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "SSG Sniper Rifle:"
+	rect 288 260 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap6"
+	cvar "weapon 6"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "M4 Assault Rifle:"
+	rect 288 280 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap7"
+	cvar "weapon 7"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Dual MK23 Pistols:"
+	rect 288 300 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap8"
+	cvar "weapon 8"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "Combat Knife:"
+	rect 288 320 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+    itemdef {
+	name "bind_weap9"
+	cvar "weapon 9"
+	group weapon
+	type ITEM_TYPE_BIND
+	text "M26 Frag Grenade:"
+	rect 288 340 320 20
+	forecolor RQ3_Controls_Option_Color
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 160
+	textaligny 16
+	textscale .25
+	visible 1
+	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
+	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
+    }
+
+
+//Messages
+
+    itemdef {
+	name keyBindStatus
+	rect 256 384 360 40
+	ownerdraw UI_KEYBINDSTATUS
+	text " "
+	forecolor 1 1 1 1
+	textscale .25
+	textstyle 3
+	textalignx 8
+	textaligny 12
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name SliderMessage
+	rect 264 384 360 40
+	text "Drag the slider to increase/decrease"
+	forecolor 1 1 1 0
+	textscale .25
+	textstyle 3
+	textalign ITEM_ALIGN_CENTER
+	textalignx 180
+	textaligny 12
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name YesNoMessage
+	rect 264 384 360 40
+	text "Click to toggle yes/no"
+	forecolor 1 1 1 0
+	textscale .25
+	textstyle 3
+	textalign ITEM_ALIGN_CENTER
+	textalignx 180
+	textaligny 12
+	visible 0
+	decoration
+    }
+
+//Back
+
+    itemdef {
+	name "btn_back"
+	rect 12 432 32 32
+	style WINDOW_STYLE_SHADER
+	background "menu/art/rq3-menu-back.tga"
+	type 1
+	visible 1
+	action { close control_weapon_menu; open setup_menu ; }
+	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name back_hint
+	text "Go back to setup menu"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+
+}

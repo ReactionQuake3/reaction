@@ -185,7 +185,7 @@
 	bordersize 1
 	cvar "cg_RQ3_radiovoice_male"
 	cvarFloatList { "New" 1 "Pikey" 2 "Pirate" 3 "Original" 0 }
-	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textstyle ITEM_TEXTSTYLE_NORMAL
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6
 	textaligny 12
@@ -207,7 +207,7 @@
 	bordersize 1
 	cvar "cg_RQ3_dynamicRadio"
 	cvarFloatList { "On" 1 "Off" 0 }
-	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textstyle ITEM_TEXTSTYLE_NORMAL
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6
 	textaligny 12

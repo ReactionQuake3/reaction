@@ -1,0 +1,671 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_presets_edit"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 104 64 420 272
+	disableColor  .5 .5 .5 1
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style 1
+	shadowStyle 1
+	onOpen { play "sound/misc/menu1.wav" ; setfocus slot1 }
+
+//Window
+
+    itemdef {
+	rect 0 0 420 272
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemdef {
+	rect 301 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 301 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Edit Presets"
+	visible 1
+	decoration
+    }
+
+//Objects
+
+    itemDef {
+	text "Caption:"
+	textscale .225
+	rect 48 24 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	text "Script:"
+	textscale .225
+	rect 216 24 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+//Presets
+
+    // 1 //
+
+    itemDef {
+	text "1."
+	textscale .225
+	rect 24 48 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "1"
+	action { setfocus slot1 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot1
+	text ""
+	cvar "ui_RQ3_radioPreset1Desc"
+	rect 48 48 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset1Script"
+	rect 216 48 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 2 //
+
+    itemDef {
+	text "2."
+	textscale .225
+	rect 24 68 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "2"
+	action { setfocus slot2 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot2
+	text ""
+	cvar "ui_RQ3_radioPreset2Desc"
+	rect 48 68 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset2Script"
+	rect 216 68 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 3 //
+
+    itemDef {
+	text "3."
+	textscale .225
+	rect 24 88 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "3"
+	action { setfocus slot3 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot3
+	text ""
+	cvar "ui_RQ3_radioPreset3Desc"
+	rect 48 88 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset3Script"
+	rect 216 88 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 4 //
+
+    itemDef {
+	text "4."
+	textscale .225
+	rect 24 108 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "4"
+	action { setfocus slot4 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot4
+	text ""
+	cvar "ui_RQ3_radioPreset4Desc"
+	rect 48 108 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset4Script"
+	rect 216 108 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 5 //
+
+    itemDef {
+	text "5."
+	textscale .225
+	rect 24 128 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "5"
+	action { setfocus slot5 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot5
+	text ""
+	cvar "ui_RQ3_radioPreset5Desc"
+	rect 48 128 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset5Script"
+	rect 216 128 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 6 //
+
+    itemDef {
+	text "6."
+	textscale .225
+	rect 24 148 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "6"
+	action { setfocus slot6 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot6
+	text ""
+	cvar "ui_RQ3_radioPreset6Desc"
+	rect 48 148 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset6Script"
+	rect 216 148 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 7 //
+
+    itemDef {
+	text "7."
+	textscale .225
+	rect 24 168 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "7"
+	action { setfocus slot7 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot7
+	text ""
+	cvar "ui_RQ3_radioPreset7Desc"
+	rect 48 168 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset7Script"
+	rect 216 168 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 8 //
+
+    itemDef {
+	text "8."
+	textscale .225
+	rect 24 188 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "8"
+	action { setfocus slot8 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot8
+	text ""
+	cvar "ui_RQ3_radioPreset8Desc"
+	rect 48 188 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset8Script"
+	rect 216 188 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 9 //
+
+    itemDef {
+	text "9."
+	textscale .225
+	rect 24 208 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "9"
+	action { setfocus slot9 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot9
+	text ""
+	cvar "ui_RQ3_radioPreset9Desc"
+	rect 48 208 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset9Script"
+	rect 216 208 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    // 10 //
+
+    itemDef {
+	text "0."
+	textscale .225
+	rect 24 228 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 1
+	shortcutKey "0"
+	action { setfocus slot10 } 
+	decoration
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	name slot10
+	text ""
+	cvar "ui_RQ3_radioPreset10Desc"
+	rect 48 228 160 16
+	maxPaintChars 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemdef {
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_radioPreset10Script"
+	rect 216 228 180 16
+	maxPaintChars 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 1
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+   }
+
+ 
+}

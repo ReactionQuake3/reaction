@@ -125,11 +125,10 @@
 	rect 336 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
-	mouseenter { setfocus btn_look ; }
 	onFocus { show look_focus ; timefade look_focus forecolor 1 1 1 1 0 250 ;
 		show look_hint ; timeFade look_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade look_focus forecolor 1 1 1 0 0 250 ; timeFade look_hint forecolor .9 .9 .9 0 0 250 }
-	action { play "sound/misc/menu1.wav" ; hide move ; hide weapon ; hide misc ; hide reaction ; show look ; }
+	action { play "sound/misc/menu1.wav" }
     }
 
     itemdef {
@@ -143,12 +142,10 @@
     }
 
     itemdef {
-	name look_act
-	group look
 	background "menu/art/rq3-menu-focus-anim"
 	rect 336 12 32 32
 	style WINDOW_STYLE_SHADER
-	visible 0
+	visible 1
 	decoration
     }
 
@@ -176,7 +173,6 @@
 	rect 384 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
-	mouseenter { setfocus btn_move ; }
 	onFocus { show move_focus ; timefade move_focus forecolor 1 1 1 1 0 250 ;
 		show move_hint ; timeFade move_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade move_focus forecolor 1 1 1 0 0 250 ; timeFade move_hint forecolor .9 .9 .9 0 0 250 }
@@ -227,7 +223,6 @@
 	rect 432 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
-	mouseenter { setfocus btn_weapon ; }
 	onFocus { show weapon_focus ; timefade weapon_focus forecolor 1 1 1 1 0 250 ;
 		show weapon_hint ; timeFade weapon_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade weapon_focus forecolor 1 1 1 0 0 250 ; timeFade weapon_hint forecolor .9 .9 .9 0 0 250 }
@@ -278,7 +273,6 @@
 	rect 480 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
-	mouseenter { setfocus btn_misc ; }
 	onFocus { show misc_focus ; timefade misc_focus forecolor 1 1 1 1 0 250 ;
 		show misc_hint ; timeFade misc_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade misc_focus forecolor 1 1 1 0 0 250 ; timeFade misc_hint forecolor .9 .9 .9 0 0 250 }
@@ -329,7 +323,6 @@
 	rect 528 12 32 32
 	style WINDOW_STYLE_SHADER
 	visible 1
-	mouseenter { setfocus btn_reaction ; }
 	onFocus { show reaction_focus ; timefade reaction_focus forecolor 1 1 1 1 0 250 ;
 		show reaction_hint ; timeFade reaction_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timefade reaction_focus forecolor 1 1 1 0 0 250 ; timeFade reaction_hint forecolor .9 .9 .9 0 0 250 }
@@ -369,6 +362,8 @@
 	visible 0
 	decoration
     }
+
+//-----------------------------------------------------------
 
 //Background window
 //Captions
@@ -566,7 +561,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	//onfocus { show SliderMessage }
 	//leavefocus { hide SliderMessage }
 	onFocus { show SliderMessage ; timeFade SliderMessage forecolor 1 1 1 1 0 250 }
@@ -585,7 +580,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
     }
@@ -602,7 +597,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	action { uiScript update ui_mousePitch ; }
 	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
@@ -620,7 +615,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onfocus { show keyBindStatus }
 	//leavefocus { hide keyBindStatus }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -639,7 +634,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -656,7 +651,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -673,7 +668,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
     }
@@ -690,7 +685,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -707,7 +702,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
     }
@@ -724,7 +719,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	onFocus { show SliderMessage ; timeFade SliderMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade SliderMessage forecolor 1 1 1 0 0 250 }
     }
@@ -744,7 +739,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	//onfocus { show YesNoMessage ; exec "set ui_RQ3_model_command 3" }
 	//leavefocus { hide YesNoMessage ; exec "set ui_RQ3_model_command 1" }
     	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
@@ -763,7 +758,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onFocus { show keyBindStatus ; exec "set ui_RQ3_model_command 4" }
 	//leaveFocus { hide keyBindStatus ; exec "set ui_RQ3_model_command 1" }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -782,7 +777,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onFocus { show keyBindStatus ; exec "set ui_RQ3_model_command 3" }
 	//leaveFocus { hide keyBindStatus ; exec "set ui_RQ3_model_command 1" }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -801,7 +796,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onFocus { show keyBindStatus ; exec "set ui_RQ3_model_command 2" }
 	//leaveFocus { hide keyBindStatus ; exec "set ui_RQ3_model_command 3" }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -820,7 +815,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -837,7 +832,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -854,7 +849,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onFocus { show keyBindStatus ; exec "set ui_RQ3_model_command 5" }
 	//leaveFocus { hide keyBindStatus ; exec "set ui_RQ3_model_command 1" }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -873,7 +868,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	//onFocus { show keyBindStatus ; exec "set ui_RQ3_model_command 6" }
 	//leaveFocus { hide keyBindStatus ; exec "set ui_RQ3_model_command 1" }
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
@@ -892,7 +887,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -909,7 +904,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -926,7 +921,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -945,7 +940,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -962,7 +957,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -979,7 +974,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -996,7 +991,7 @@
 	textaligny 16
 	textscale .25
 	forecolor RQ3_Controls_Option_Color
-	visible 0
+	visible 1
 	onFocus { show YesNoMessage ; timeFade YesNoMessage forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade YesNoMessage forecolor 1 1 1 0 0 250 }
     }
@@ -1013,7 +1008,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1030,7 +1025,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1047,7 +1042,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1064,7 +1059,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1081,7 +1076,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1098,7 +1093,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1115,7 +1110,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1132,7 +1127,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1149,7 +1144,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1168,7 +1163,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1185,7 +1180,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1202,7 +1197,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1219,7 +1214,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1236,7 +1231,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1253,7 +1248,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1270,7 +1265,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1287,7 +1282,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1306,7 +1301,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1323,7 +1318,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1340,7 +1335,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1357,7 +1352,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1374,7 +1369,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1391,7 +1386,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1408,7 +1403,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1425,7 +1420,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1442,7 +1437,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }
@@ -1459,7 +1454,7 @@
 	textalignx 160
 	textaligny 16
 	textscale .25
-	visible 0
+	visible 1
 	onFocus { show keyBindStatus ; timeFade keyBindStatus forecolor 1 1 1 1 0 250 }
 	leaveFocus { timeFade keyBindStatus forecolor 1 1 1 0 0 250 }
     }

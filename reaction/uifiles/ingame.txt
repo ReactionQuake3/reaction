@@ -19,5 +19,7 @@
 	loadMenu { "ui/ingame_callvote.menu" }
 	loadMenu { "ui/ingame_leave.menu" }
 	loadMenu { "ui/ingame_matchmode.menu" }
+	loadMenu { "ui/ingame_presets.menu" }
+	loadMenu { "ui/ingame_presets_edit.menu" }
 
 }

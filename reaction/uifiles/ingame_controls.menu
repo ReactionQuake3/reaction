@@ -1015,5 +1015,21 @@
 	textscale .225
 	visible 0
     }
+
+    itemdef {
+	name reaction
+	group grpControls
+	cvar "ui_RQ3_presets"
+	type ITEM_TYPE_BIND
+	text "Presets Menu:"
+	rect 176 280 128 20
+	forecolor Ig_Sub_TextColor
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 16
+	textscale .225
+	visible 0
+    }
+
 }
 }

@@ -14,8 +14,13 @@
 	loadMenu { "ui/options.menu" }
  	loadMenu { "ui/player.menu" }
  	loadMenu { "ui/setup.menu" }
-	loadMenu { "ui/controls.menu" }
-	loadMenu { "ui/cdkey.menu" }
+	
+	loadMenu { "ui/controls_look.menu" }
+	loadMenu { "ui/controls_move.menu" }
+	loadMenu { "ui/controls_weapon.menu" }
+	loadMenu { "ui/controls_misc.menu" }
+	loadMenu { "ui/controls_reaction.menu" }
+
 	loadMenu { "ui/system.menu" }
 	loadMenu { "ui/credit.menu" }
 	loadMenu { "ui/connect.menu" }
