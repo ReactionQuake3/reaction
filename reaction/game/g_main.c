@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/04/12 18:34:31  jbravo
+// Bye bye lag when somebody joins a team.
+//
 // Revision 1.43  2002/04/07 12:49:10  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -332,10 +335,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
-	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_SYSTEMINFO, 0, qfalse },
-	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_SYSTEMINFO, 0, qfalse },
-	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_SYSTEMINFO, 0, qfalse },
-	{ &g_RQ3_lca, "g_RQ3_lca", "0", 0, 0, qfalse},
+	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
+	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
+	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },
+	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_ROM, 0, qfalse},
 	{ &g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
