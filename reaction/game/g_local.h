@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.115  2002/08/21 03:36:04  niceass
+// move of some vector functions outside of just game
+//
 // Revision 1.114  2002/08/21 02:56:08  blaze
 // added spawnflags 8 for breakables, lets mappers turn off kicking
 //
@@ -948,8 +951,8 @@ qboolean G_EntitiesFree(void);
 void G_TouchTriggers(gentity_t * ent);
 void G_TouchSolids(gentity_t * ent);
 
-float *tv(float x, float y, float z);
-char *vtos(const vec3_t v);
+/*float *tv(float x, float y, float z);
+char *vtos(const vec3_t v);*/
 
 float vectoyaw(const vec3_t vec);
 
