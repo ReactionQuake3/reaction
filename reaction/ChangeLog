@@ -15,6 +15,7 @@
 * Bots know how to pick up cases in CTB.
 * Weapon banning implemented via the g_RQ3_weaponban cvar.
 * callvote and vote cmd's now know about CTB spectators and dead players.
+* MP5 headshots now deal the correct amount of damage.
 
 
 
