@@ -1,4 +1,4 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
+	// Copyright (C) 1999-2000 Id Software, Inc.
 //
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
@@ -8,59 +8,59 @@ CG_ParseWeaponAnimFile
 ==========================
 */
 static qboolean CG_ParseWeaponAnimFile( const char *filename, weaponInfo_t *weapon ) {
-char *text_p;
-int len;
-int i;
-char *token;
-float fps;
-int skip;
-char text[20000];
-fileHandle_t f;
-animation_t *animations;
+	char *text_p;
+	int len;
+	int i;
+	char *token;
+	float fps;
+	int skip;
+	char text[20000];
+	fileHandle_t f;
+	animation_t *animations;
 
-animations = weapon->animations;
+	animations = weapon->animations;
 
-// load the file
-len = trap_FS_FOpenFile( filename, &f, FS_READ );
-if ( len <= 0 ) {
-return qfalse;
-}
-if ( len >= sizeof( text ) - 1 ) {
-CG_Printf( "File %s too long\n", filename );
-return qfalse;
-}
-trap_FS_Read( text, len, f );
-text[len] = 0;
-trap_FS_FCloseFile( f );
+	// load the file
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( len <= 0 ) {
+		return qfalse;
+	}
+	if ( len >= sizeof( text ) - 1 ) {
+		CG_Printf( "File %s too long\n", filename );
+		return qfalse;
+	}
+	trap_FS_Read( text, len, f );
+	text[len] = 0;
+	trap_FS_FCloseFile( f );
+	
+	// parse the text
+	text_p = text;
+	skip = 0; // quite the compiler warning
+	
+	// read information for each frame
+	for ( i = 0 ; i < MAX_WEAPON_ANIMATIONS ; i++ ) { 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		animations[i].firstFrame = atoi( token );
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		animations[i].numFrames = atoi( token ); 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		animations[i].loopFrames = atoi( token ); 
+		token = COM_Parse( &text_p );
+		if ( !token ) break;
+		fps = atof( token );
+		if ( fps == 0 ) fps = 1;
+		animations[i].frameLerp = 1000 / fps;
+		animations[i].initialLerp = 1000 / fps;
+	}
+	if ( i != MAX_WEAPON_ANIMATIONS ) {
+		CG_Printf( "Error parsing weapon animation file: %s", filename );
+		return qfalse;
+	} 
 
-// parse the text
-text_p = text;
-skip = 0; // quite the compiler warning
-
-// read information for each frame
-for ( i = 0 ; i < MAX_WEAPON_ANIMATIONS ; i++ ) { 
-token = COM_Parse( &text_p );
-if ( !token ) break;
-animations[i].firstFrame = atoi( token );
-token = COM_Parse( &text_p );
-if ( !token ) break;
-animations[i].numFrames = atoi( token ); 
-token = COM_Parse( &text_p );
-if ( !token ) break;
-animations[i].loopFrames = atoi( token ); 
-token = COM_Parse( &text_p );
-if ( !token ) break;
-fps = atof( token );
-if ( fps == 0 ) fps = 1;
-animations[i].frameLerp = 1000 / fps;
-animations[i].initialLerp = 1000 / fps;
-}
-if ( i != MAX_WEAPON_ANIMATIONS ) {
-CG_Printf( "Error parsing weapon animation file: %s", filename );
-return qfalse;
-} 
-
-return qtrue;
+	return qtrue;
 }
 // END
 
@@ -599,7 +599,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	if ( !weaponInfo->handsModel ) {
 		//Elder: WTF!?
-		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/m3/m3_hand.md3" );
+		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/mk23/mk23_hand.md3" );
 	}
 	
 	//Elder: if no _1st model, point to the weaponModel... this may get funky :)
@@ -1250,8 +1250,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		return;
 	}
 	
-	if ( ps || cg.renderingThirdPerson ||
-		cent->currentState.number != cg.predictedPlayerState.clientNum ) {
+	if ( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) {
 		// add lightning bolt
 		//Blaze: No need for this
 		//CG_LightningBolt( nonPredictedCent, flash.origin );
@@ -1281,10 +1280,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				weapon->flashDlightColor[1], weapon->flashDlightColor[2] );
 		}
 	}
-	if (ps)
-		CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
-	else
-		CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
+	//if (ps)
+	//	CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
+	//else
+	//	CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->weaponModel, "tag_flash");
 
 }
 
@@ -1411,7 +1410,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		hand.backlerp = cent->pe.torso.backlerp;
 	}
 
-	hand.hModel = weapon->firstModel;
+	hand.hModel = weapon->handsModel;
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
 
 	// add everything onto the hand
