@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/01/14 01:20:45  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.29  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1355,7 +1359,7 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+	G_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
@@ -1407,7 +1411,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// get current position
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	G_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
 	// trace a line from the previous position to the current position
 	if ( ent->clipmask ) {

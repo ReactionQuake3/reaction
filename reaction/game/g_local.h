@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/01/14 01:20:45  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.34  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -779,6 +783,9 @@ void DropPortalDestination( gentity_t *ent );
 
 void G_BreakGlass( gentity_t *ent, vec3_t point, int mod );//Blaze: Breakable glass
 void G_RunDlight ( gentity_t *ent );	// Elder: dlight running
+void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
+void G_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
+void G_GravityChange(void);
 
 //
 // g_weapon.c

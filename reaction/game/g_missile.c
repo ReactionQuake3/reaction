@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/01/14 01:20:45  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.20  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -32,7 +36,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+	G_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
@@ -62,7 +66,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t		dir;
 	vec3_t		origin;
 
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	G_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 	SnapVector( origin );
 	G_SetOrigin( ent, origin );
 
@@ -338,7 +342,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					//g_entities[ent->r.ownerNum].client->grenHits++;
 				hitClient = qtrue;
 			}
-			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
+			G_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
 			if ( VectorLength( velocity ) == 0 ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
@@ -465,22 +469,19 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//spawn a knife at its trajectory end-point
 			xr_item = BG_FindItemForWeapon( WP_KNIFE );
 
-			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
+			G_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
 
 			if (other->s.eType == ET_BREAKABLE) {
-				//VectorScale(knifeVelocity, -0.25, knifeVelocity);
-				//Blaze: Moved from above, now deal the damage to the glass, and let the knife drop
-				if ( ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE ) {
-					BG_EvaluateTrajectory( &ent->s.pos, level.time, origin);
-					//velocity[0] = 0;
-					//velocity[1] = 0;
-					//velocity[2] = 0;
-					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
-				}
-				// NiceAss: Cut its velocity in half.
-				VectorScale( ent->s.pos.trDelta, .6, ent->s.pos.trDelta);
+				VectorCopy(trace->endpos, origin);
+				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, origin, THROW_DAMAGE, 0, MOD_KNIFE_THROWN);
+
+				// NiceAss: Find current position and set it. 
+				VectorCopy(trace->endpos, ent->s.pos.trBase);
+				ent->s.pos.trTime = level.time;
+				// And cut the velocity down.
+				VectorScale(ent->s.pos.trDelta, .2, ent->s.pos.trDelta);
 				return;
-/*
+				/*  OLD METHOD
 				//breakable "hit"; make it fall to the ground
 				xr_drop = LaunchItem(xr_item, trace->endpos, velocity, FL_DROPPED_ITEM);
 
@@ -568,7 +569,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t		dir;
 	vec3_t		origin;
 
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	G_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 	SnapVector( origin );
 	G_SetOrigin( ent, origin );
 
@@ -604,7 +605,7 @@ void G_RunMissile( gentity_t *ent ) {
 	int			passent;
 
 	// get current position
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	G_EvaluateTrajectory( &ent->s.pos, level.time, origin );
 
 	// if this missile bounced off an invulnerability sphere
 	if ( ent->target_ent ) {
@@ -656,7 +657,7 @@ void G_RunMissile( gentity_t *ent ) {
 	{
 		vec3_t knifeVelocity;
 
-		BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
+		G_EvaluateTrajectoryDelta(&ent->s.pos, level.time, knifeVelocity);
 		vectoangles(knifeVelocity, ent->s.angles);
 		ent->s.angles[0] += level.time % 360;
 	}

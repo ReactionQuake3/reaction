@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/01/14 01:20:45  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.16  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -418,7 +422,7 @@ void G_UpdateCvars( void ) {
 
 			if ( cv->modificationCount != cv->vmCvar->modificationCount ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
-
+				if (Q_stricmp (cv->cvarName, "g_gravity") == 0) G_GravityChange();
 				if ( cv->trackChange ) {
 					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"",
 						cv->cvarName, cv->vmCvar->string ) );

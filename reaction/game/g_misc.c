@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/01/14 01:20:45  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.18  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -754,3 +758,112 @@ void DropPortalSource( gentity_t *player ) {
 
 }
 #endif
+
+/*
+================
+G_EvaluateTrajectory
+
+================
+*/
+void G_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
+	float		deltaTime;
+	float		phase;
+
+	switch( tr->trType ) {
+	case TR_STATIONARY:
+	case TR_INTERPOLATE:
+		VectorCopy( tr->trBase, result );
+		break;
+	case TR_LINEAR:
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		break;
+	case TR_SINE:
+		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
+		phase = sin( deltaTime * M_PI * 2 );
+		VectorMA( tr->trBase, phase, tr->trDelta, result );
+		break;
+	case TR_LINEAR_STOP:
+		if ( atTime > tr->trTime + tr->trDuration ) {
+			atTime = tr->trTime + tr->trDuration;
+		}
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		if ( deltaTime < 0 ) {
+			deltaTime = 0;
+		}
+		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		break;
+	case TR_GRAVITY:
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorMA( tr->trBase, deltaTime, tr->trDelta, result );
+		result[2] -= 0.5 * (float)g_gravity.integer * deltaTime * deltaTime;
+		break;
+	default:
+		Com_Error( ERR_DROP, "G_EvaluateTrajectory: unknown trType: %i", tr->trTime );
+		break;
+	}
+}
+
+/*
+================
+G_EvaluateTrajectoryDelta
+
+For determining velocity at a given time
+================
+*/
+void G_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result ) {
+	float	deltaTime;
+	float	phase;
+
+	switch( tr->trType ) {
+	case TR_STATIONARY:
+	case TR_INTERPOLATE:
+		VectorClear( result );
+		break;
+	case TR_LINEAR:
+		VectorCopy( tr->trDelta, result );
+		break;
+	case TR_SINE:
+		deltaTime = ( atTime - tr->trTime ) / (float) tr->trDuration;
+		phase = cos( deltaTime * M_PI * 2 );	// derivative of sin = cos
+		phase *= 0.5;
+		VectorScale( tr->trDelta, phase, result );
+		break;
+	case TR_LINEAR_STOP:
+		if ( atTime > tr->trTime + tr->trDuration ) {
+			VectorClear( result );
+			return;
+		}
+		VectorCopy( tr->trDelta, result );
+		break;
+	case TR_GRAVITY:
+		deltaTime = ( atTime - tr->trTime ) * 0.001;	// milliseconds to seconds
+		VectorCopy( tr->trDelta, result );
+		result[2] -= (float)g_gravity.integer * deltaTime;
+		break;
+	default:
+		Com_Error( ERR_DROP, "G_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime );
+		break;
+	}
+}
+
+/* 
+================
+G_EvaluateTrajectoryDelta  - By NiceAss
+
+Will update all ET_MISSILE entities with TR_GRAVITY on a g_gravity change.
+================*/
+void G_GravityChange(void) {
+	int			i;
+	gentity_t	*ent;
+	ent = &g_entities[0];
+	for (i=0 ; i<level.num_entities ; i++, ent++) {
+		if ( ent->s.pos.trType == TR_GRAVITY &&
+			ent->s.eType == ET_MISSILE ) 
+		{
+			G_EvaluateTrajectoryDelta( &ent->s.pos, level.time, ent->s.pos.trDelta );
+			VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+			ent->s.pos.trTime = level.time;
+		}
+	}
+}

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/01/14 01:20:44  niceass
+// No more default 800 gravity on items
+// Thrown knife+Glass fix - NiceAss
+//
 // Revision 1.18  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -472,8 +476,8 @@ void G_MoverTeam( gentity_t *ent ) {
 	pushed_p = pushed;
 	for (part = ent ; part ; part=part->teamchain) {
 		// get current position
-		BG_EvaluateTrajectory( &part->s.pos, level.time, origin );
-		BG_EvaluateTrajectory( &part->s.apos, level.time, angles );
+		G_EvaluateTrajectory( &part->s.pos, level.time, origin );
+		G_EvaluateTrajectory( &part->s.apos, level.time, angles );
 		VectorSubtract( origin, part->r.currentOrigin, move );
 		VectorSubtract( angles, part->r.currentAngles, amove );
 		if ( !G_MoverPush( part, move, amove, &obstacle ) ) {
@@ -486,8 +490,8 @@ void G_MoverTeam( gentity_t *ent ) {
 		for ( part = ent ; part ; part = part->teamchain ) {
 			part->s.pos.trTime += level.time - level.previousTime;
 			part->s.apos.trTime += level.time - level.previousTime;
-			BG_EvaluateTrajectory( &part->s.pos, level.time, part->r.currentOrigin );
-			BG_EvaluateTrajectory( &part->s.apos, level.time, part->r.currentAngles );
+			G_EvaluateTrajectory( &part->s.pos, level.time, part->r.currentOrigin );
+			G_EvaluateTrajectory( &part->s.apos, level.time, part->r.currentAngles );
 			trap_LinkEntity( part );
 		}
 
@@ -611,8 +615,8 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		ent->s.apos.trType = TR_LINEAR_STOP;
 		break;
 	}
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
-	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
+	G_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
+	G_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
 
 	trap_LinkEntity( ent );
 }
