@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/09/07 23:30:43  jbravo
+// Dropped cases stay on the map for 45 seconds (was 30)
+//
 // Revision 1.46  2002/08/27 05:34:38  jbravo
 // Fixing item reapperaing in TP and CTB
 //
@@ -767,7 +770,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 
 	if (g_gametype.integer == GT_CTF && item->giType == IT_TEAM) {	// Special case for CTF flags
 		dropped->think = Team_DroppedFlagThink;
-		dropped->nextthink = level.time + 30000;
+		dropped->nextthink = level.time + 45000;
 		Team_CheckDroppedItem(dropped);
 	}
 	//Elder: Reaction Unique Weapons in deathmatch - respawn in ~60 seconds

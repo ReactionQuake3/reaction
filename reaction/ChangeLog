@@ -7,6 +7,7 @@
 * Fixed the bug that was causing the in-game server info menu to spam an invalid shader error to the console
 * Added a scaling CTB respawn delay which is active when g_RQ3_ctb_respawndelay is 0
 * Fixed a bug where players could get past the teamspawns in CTB by using the team command.
+* Dropped cases stay on the map for 45 seconds now. (was 30 seconds)
 
 
 # List fixes here for the 2.2 release
