@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/03/24 21:24:51  makro
+// Added a drop-shadow effect to the loading screen
+//
 // Revision 1.12  2002/03/03 18:10:20  makro
 // Changed the colors for the 'loading map' screen a bit
 //
@@ -155,7 +158,7 @@ void CG_DrawInformation( void ) {
 	int			x = 8;
 	int			y;
 	int			value;
-	qhandle_t	levelshot;
+	qhandle_t	levelshot, shadow;
 	qhandle_t	detail;
 	char		buf[1024];
 	qboolean	skipdetail;
@@ -166,6 +169,7 @@ void CG_DrawInformation( void ) {
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
 	s = Info_ValueForKey( info, "mapname" );
+	shadow = trap_R_RegisterShaderNoMip("ui/assets/rq3-main-shadow-1.tga");
 	levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
 	if ( !levelshot ) {
 		//Elder: changed
@@ -189,6 +193,8 @@ void CG_DrawInformation( void ) {
 	CG_FillRect( 0, 426, SCREEN_WIDTH, 54, colorBlack);
 	CG_FillRect( 0, 56, SCREEN_WIDTH, 2, colorMdGrey);
 	CG_FillRect( 0, 426, SCREEN_WIDTH, 2, colorMdGrey);
+	//Makro - shadow
+	CG_DrawPic( 0, 58, 640, 12, shadow );
 
 	//Elder: mapname
 	UI_DrawProportionalString(x, 26, s, UI_LEFT|UI_DROPSHADOW, colorDkGrey);
