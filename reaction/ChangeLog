@@ -49,6 +49,7 @@
 * Q3F's atmospheric code added.
 * Smoke puff added to silencer shots.
 * Added "Life" setting to func_pressure. Default 200.
+* Possibly fixed ghost door problem.
 
 # List fixes here for the 2.1 release
 
