@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/05/19 15:43:51  makro
+// Bots now know about weapon modes. Just for grenades so far.
+//
 // Revision 1.34  2002/05/18 14:52:16  makro
 // Bot stuff. Other stuff. Just... stuff :p
 //
@@ -203,11 +206,11 @@ int blue_numaltroutegoals;
 
 //Makro - the vector located on the line from src to dest dist units away
 void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
-	VectorClear(final);
 	VectorSubtract(src, dest, final);
 	VectorNormalize(final);
-	VectorScale(final, dist, final);
-	VectorAdd(final, src, final);
+	VectorMA(src, dist, final, final);
+	//VectorScale(final, dist, final);
+	//VectorAdd(final, src, final);
 }
 
 /*
@@ -358,12 +361,87 @@ void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 
 /*
 ==================
+RQ3_Bot_GetWeaponMode
+
+Added by Makro
+==================
+*/
+int RQ3_Bot_GetWeaponMode(bot_state_t *bs, int weapon)
+{
+	switch (weapon) {
+		case WP_GRENADE:
+		{
+			//long range
+			if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED &&
+				(bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT ) {
+				return 2;
+			//medium range
+			} else if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED ) {
+				return 1;
+			//short range
+			} else {
+				return 0;
+			}
+		}
+		default:
+			return 0;
+	}
+}
+
+/*
+==================
+RQ3_Bot_SetWeaponMode
+
+Added by Makro
+==================
+*/
+void RQ3_Bot_SetWeaponMode(bot_state_t *bs, int weapon, int mode) {
+	int i, modeCount, oldMode, press;
+
+	//not holding the right weapon
+	if (weapon != bs->cur_ps.weapon)
+		return;
+
+	switch (bs->cur_ps.weapon) {
+		case WP_PISTOL:
+		case WP_KNIFE:
+			modeCount = 2;
+			break;
+		case WP_MP5:
+		case WP_M4:
+		case WP_SSG3000:
+		case WP_GRENADE:
+			modeCount = 3;
+			break;
+		default:
+			modeCount = 1;
+			break;
+	}
+
+	//no modes available
+	if (modeCount <= 1)
+		return;
+
+	mode = mode % modeCount;
+	oldMode = RQ3_Bot_GetWeaponMode(bs, weapon) % modeCount;
+	press = mode - oldMode;
+	if (press < 0)
+		press += modeCount;
+
+	//use the weapon command "press" times
+	for (i = 0; i < press; i++) {
+		Cmd_Weapon( &g_entities[bs->entitynum] );
+	}
+}
+
+/*
+==================
 RQ3_Bot_GetWeaponInfo
 
 Added by Makro
 ==================
 */
-//TODO: - set spreads here depending on what the player is doing - crouching, running etc.
+//TODO: - set spreads here depending on what the player is doing - crouching, running etc. ?
 qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, void  *weaponinfo) {
 
 	//if the weapon is not valid
@@ -378,18 +456,20 @@ qboolean RQ3_Bot_GetWeaponInfo(bot_state_t *bs, int weaponstate, int weapon, voi
 #endif
 	} else {
 		weaponinfo_t *wi;
+		int weaponMode = 0;
 		trap_BotGetWeaponInfo(weaponstate, weapon, weaponinfo);
 		wi = (weaponinfo_t*) weaponinfo;
 
 		if (!wi) return qfalse;
 		if (!wi->valid) return qfalse;
+
+		weaponMode = RQ3_Bot_GetWeaponMode(bs, wi->number);
 		if (wi->number == WP_GRENADE) {
 			//long range
-			if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED &&
-				(bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT ) {
+			if (weaponMode == 2) {
 				wi->speed = GRENADE_LONG_SPEED;
 			//medium range
-			} else if ( (bs->cur_ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED ) {
+			} else if (weaponMode == 1) {
 				wi->speed = GRENADE_MEDIUM_SPEED;
 			//short range
 			} else {
@@ -1955,8 +2035,8 @@ that the trap calls don't seem to
 
 float RQ3_Bot_WeaponFitness(bot_state_t *bs, int weapon)
 {
-	int dist = bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
-			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT];
+	int dist = sqrt(bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
+			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT]);
 	if (dist <= 0) {
 		dist = 8;
 	}
@@ -2016,6 +2096,12 @@ BotChooseWeapon
 */
 void BotChooseWeapon(bot_state_t *bs) {
 	int newweaponnum;
+	//distance from the enemy
+	int dist = sqrt(bs->inventory[ENEMY_HORIZONTAL_DIST] * bs->inventory[ENEMY_HORIZONTAL_DIST] +
+			bs->inventory[ENEMY_HEIGHT] * bs->inventory[ENEMY_HEIGHT]);
+	if (dist <= 0) {
+		dist = 8;
+	}
 
 	//Makro - don't change weapons while bandaging
 	if (bs->cur_ps.weaponstate == WEAPON_BANDAGING) {
@@ -2026,6 +2112,19 @@ void BotChooseWeapon(bot_state_t *bs) {
 		bs->cur_ps.weaponstate == WEAPON_DROPPING)
 	{
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+		//Makro - choose weapon mode
+		if (bs->weaponnum == WP_GRENADE) {
+			//long range
+			if (dist > 800) {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 2);
+			//medium range
+			} else if (dist > 400) {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 1);
+			//short range
+			} else {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
+			}
+		}
 	}
 	else {
 		//Makro - new function
@@ -2038,6 +2137,19 @@ void BotChooseWeapon(bot_state_t *bs) {
 		//bs->weaponnum = WP_PISTOL;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
+		//Makro - choose weapon mode
+		if (bs->weaponnum == WP_GRENADE) {
+			//long range
+			if (dist > 800) {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 2);
+			//medium range
+			} else if (dist > 400) {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 1);
+			//short range
+			} else {
+				RQ3_Bot_SetWeaponMode(bs, WP_GRENADE, 0);
+			}
+		}
 	}
 }
 
