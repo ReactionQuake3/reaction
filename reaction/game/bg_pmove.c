@@ -1199,7 +1199,7 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
 		return EV_FOOTSTEP_GRASS;
 	}
-	
+
 	//if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
 		//return EV_FOOTSTEP_GRAVEL;
 	//}
@@ -2689,7 +2689,10 @@ static void PM_Weapon( void ) {
 	{
 		if ( pm->ps->weapon == WP_GRENADE )
 		{
-			pm->ps->weaponTime = 0;
+			// NiceAss: Add a delay so the pin-pull animation can complete.
+			if (pm->ps->weaponstate != WEAPON_COCKED) {
+				pm->ps->weaponTime = 800;
+			}
 			// put it in the "cocked" position and play the pin-pull animation
 			pm->ps->weaponstate = WEAPON_COCKED;
 			PM_ContinueWeaponAnim(WP_ANIM_EXTRA1);
@@ -2707,7 +2710,7 @@ static void PM_Weapon( void ) {
 		}
 	}
 
-	// check for fire release
+	// check for fireA release
 	// if they aren't pressing attack
 	if (!(pm->cmd.buttons & 1)) {
 		// if we had them cocked and then they aren't pressing it then
