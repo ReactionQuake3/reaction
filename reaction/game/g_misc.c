@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/11 00:38:47  blaze
+// trigger_push and target_push default to no noise when the noise flag is not set.
+//
 // Revision 1.35  2002/05/02 03:06:09  blaze
 // Fixed breakables crashing on vashes
 //
@@ -466,7 +469,6 @@ void func_breakable_explode( gentity_t *self , vec3_t pos ) {
 
 void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
-  
   func_breakable_explode( self , self->s.origin );
 	G_ExplodeMissile(self);
 	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self, meansOfDeath);
@@ -582,13 +584,12 @@ void SP_func_breakable( gentity_t *ent ) {
   if ( ent->spawnflags & 4)
   {
     ent->explosive = qtrue;
-    //Com_Printf("Explosive ");
   }
   else
   {
     ent->explosive = qfalse;
   }
-
+  
   if ( !ent->damage_radius )
   {
     ent->damage_radius=GRENADE_SPLASH_RADIUS;

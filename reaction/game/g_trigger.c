@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/05/11 00:38:47  blaze
+// trigger_push and target_push default to no noise when the noise flag is not set.
+//
 // Revision 1.9  2002/05/05 15:18:03  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -208,7 +211,7 @@ void SP_trigger_push( gentity_t *self ) {
 
 	// unlike other triggers, we need to send this one to the client
 	// NiceAss: Added for custom push sounds. Default is none. Q3 is "sounds/world/bouncepad.wav"
-	if (G_SpawnString( "noise", "", &sound )) {;
+	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {;
 		self->s.generic1 = G_SoundIndex( sound );
 	}
 
@@ -257,7 +260,7 @@ void SP_target_push( gentity_t *self ) {
 	G_SetMovedir (self->s.angles, self->s.origin2);
 	VectorScale (self->s.origin2, self->speed, self->s.origin2);
 
-	if (G_SpawnString( "noise", "", &sound )) {;
+	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {;
     G_Printf("^2Sound was %s\n",sound);
 		self->noise_index = G_SoundIndex( sound );
 	}

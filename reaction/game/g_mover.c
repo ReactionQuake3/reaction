@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/05/11 00:38:47  blaze
+// trigger_push and target_push default to no noise when the noise flag is not set.
+//
 // Revision 1.26  2002/05/05 15:18:02  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -1875,7 +1878,16 @@ void SP_func_button( gentity_t *ent ) {
 	vec3_t		size;
 	float		lip;
 	char		*s;
-	ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
+  char *noise;
+  
+  if (G_SpawnString( "noise", "sound/movers/doors/dr1_end.wav", &noise ) )
+  {
+    ent->sound1to2 = G_SoundIndex(noise);
+  }
+  else
+  {
+	  ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
+  }
 
 	if ( !ent->speed ) {
 		ent->speed = 40;
