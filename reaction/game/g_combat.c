@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2002/07/20 18:26:25  jbravo
+// FF 2 fix for CTB
+//
 // Revision 1.110  2002/07/20 02:25:53  jbravo
 // Added the AQDT CTB sounds to the base radio paks
 //
@@ -2020,6 +2023,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			if (g_gametype.integer == GT_TEAMPLAY && g_friendlyFire.integer == 2 && level.team_round_going) {
 				return;
 			}
+			if (g_gametype.integer == GT_CTF && g_friendlyFire.integer == 2)
+				return;
 			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer == GT_CTF)
 				Add_TeamWound(attacker, targ, mod);
 		}
