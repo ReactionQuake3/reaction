@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/02/04 05:44:00  jbravo
+// Fixed a typo in knives name
+//
 // Revision 1.8  2002/02/03 21:23:51  slicer
 // More Matchmode code and fixed 2 bugs in TP
 //
@@ -455,7 +458,7 @@ void RQ3_Cmd_Choose_f( gentity_t *ent )
 	} else if (Q_stricmp (cmd, RQ3_SSG3000_NAME) == 0 || Q_stricmp (cmd, "sniper") == 0) {
 		ent->client->teamplayWeapon = WP_SSG3000;
 		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_SSG3000_NAME));
-	} else if (Q_stricmp (cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp (cmd, "knifes") == 0) {
+	} else if (Q_stricmp (cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp (cmd, "knives") == 0) {
 		ent->client->teamplayWeapon = WP_KNIFE;
 		trap_SendServerCommand(ent-g_entities, va("print \"Weapon selected: %s\n\"", RQ3_KNIFE_NAME));
 	} else if (Q_stricmp (cmd, RQ3_AKIMBO_NAME) == 0 || Q_stricmp (cmd, "akimbo") == 0) {
