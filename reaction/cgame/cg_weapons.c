@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2003/04/04 16:38:47  niceass
+// fixed gun2 lighting, possibly
+//
 // Revision 1.113  2003/04/02 22:23:51  jbravo
 // More replacements tweaks. Added zcam_stfu
 //
@@ -1299,6 +1302,7 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 	gun1.shaderRGBA[ 1 ] = 255;
 	gun1.shaderRGBA[ 2 ] = 255;
 	gun1.shaderRGBA[ 3 ] = 255;
+	VectorCopy( parent->lightingOrigin, gun2.lightingOrigin );
 	gun2.shadowPlane = parent->shadowPlane;
 	gun2.renderfx = parent->renderfx;
 	gun2.shaderRGBA[ 0 ] = 255;
