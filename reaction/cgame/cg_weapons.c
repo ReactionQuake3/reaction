@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/04/01 22:23:38  slicer
+// Added "weapon" command buffering
+//
 // Revision 1.61  2002/03/31 13:52:48  jbravo
 // More cleanups
 //
@@ -2420,6 +2423,41 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
+	// Hawkins (give 'weapon' dual meaning)
+	if ( trap_Argc() == 1 ) {
+		//Elder: in the middle of firing, reloading or weapon-switching
+	//	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0) {
+	//		return;
+	//	}
+
+		if (cg.snap->ps.weapon == WP_SSG3000) {
+			//Slicer- Changing Sniper stuff- some to game.
+
+	/*		trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
+			if (cg_RQ3_ssgZoomAssist.integer)
+				CG_RQ3_Zoom();
+				*/
+			//Let's sound it..
+		//	trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
+			//Save the time..
+			cg.zoomTime = cg.time;
+		}
+	/*	else if (cg.snap->ps.weapon == WP_GRENADE)
+		{
+			CG_RQ3_GrenadeMode();
+		}*/
+		// only play "click" sound for M4/MP5/Pistol
+	/*	else if (cg.snap->ps.weapon == WP_M4 || cg.snap->ps.weapon == WP_MP5 ||
+				cg.snap->ps.weapon == WP_PISTOL )
+		{
+			trap_S_StartLocalSound( cgs.media.weapToggleSound, CHAN_ITEM);
+		}*/
+		trap_SendClientCommand("weapon");
+
+		//Elder: added to get out of function at this point
+		return;
+	}
+
 	//Elder: added to prevent weapon switching while bandaging
 //	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 	if(cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
@@ -2444,40 +2482,6 @@ void CG_Weapon_f( void ) {
 		return;
 	}
 
-	// Hawkins (give 'weapon' dual meaning)
-	if ( trap_Argc() == 1 ) {
-		//Elder: in the middle of firing, reloading or weapon-switching
-		if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0) {
-			return;
-		}
-
-		if (cg.snap->ps.weapon == WP_SSG3000) {
-			//Slicer- Changing Sniper stuff- some to game.
-
-	/*		trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
-			if (cg_RQ3_ssgZoomAssist.integer)
-				CG_RQ3_Zoom();
-				*/
-			//Let's sound it..
-			trap_S_StartLocalSound( cgs.media.lensSound, CHAN_ITEM);
-			//Save the time..
-			cg.zoomTime = cg.time;
-		}
-		else if (cg.snap->ps.weapon == WP_GRENADE)
-		{
-			CG_RQ3_GrenadeMode();
-		}
-		// only play "click" sound for M4/MP5/Pistol
-		else if (cg.snap->ps.weapon == WP_M4 || cg.snap->ps.weapon == WP_MP5 ||
-				cg.snap->ps.weapon == WP_PISTOL )
-		{
-			trap_S_StartLocalSound( cgs.media.weapToggleSound, CHAN_ITEM);
-		}
-		trap_SendClientCommand("weapon");
-
-		//Elder: added to get out of function at this point
-		return;
-	}
 
 	num = atoi( CG_Argv( 1 ) );
 
