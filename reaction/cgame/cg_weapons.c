@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/03/24 22:46:23  niceass
+// shell ejection stuff/handcannon fix
+//
 // Revision 1.57  2002/03/21 02:17:39  blaze
 // more func_explosive goodness
 //
@@ -247,19 +250,19 @@ localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 	vec3_t			velocity, xvelocity;
 	vec3_t			offset, xoffset;
 	vec3_t			v[3];
-	int				i, isHC;
+	int				i;//, isHC;
+	float	waterScale = 1.0f;
 
-	if (cent->currentState.weapon == WP_HANDCANNON)
-		isHC=1;
-	else
-		isHC=0;
+	//if (cent->currentState.weapon == WP_HANDCANNON)
+	//	isHC=1;
+	//else
+	//	isHC=0;
 
 	if ( cg_brassTime.integer <= 0 ) {
 		return NULL;
 	}
 
-	for ( i = 0; i < isHC + 1; i++ ) {
-		float	waterScale = 1.0f;
+	//for ( i = 0; i < isHC + 1; i++ ) {
 
 		le = CG_AllocLocalEntity();
 		re = &le->refEntity;
@@ -286,7 +289,7 @@ localEntity_t *CG_ShotgunEjectBrass( centity_t *cent ) {
 		le->leFlags = LEF_TUMBLE;
 		le->leBounceSoundType = LEBS_BRASS;
 		le->leMarkType = LEMT_NONE;
-	}
+	//}
 	return le;
 }
 
@@ -954,7 +957,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		//Elder: changed to hcfire from cannon_fire
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcfire.wav", qfalse );
 		weaponInfo->worldReloadSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcreload.wav", qfalse );
-		//weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
+		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg" );
@@ -1582,6 +1585,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 
 	// NiceAss: Tag locations used for shell ejection
+	// The handcannon hacks have ruined my beautiful code =(
 	if ( cg.time > cent->ejectBrassTime && cent->ejectBrassTime && weapon->ejectBrassFunc &&
 		( ps || cg.renderingThirdPerson || cent->currentState.number != cg.predictedPlayerState.clientNum ) ) {
 
@@ -1592,8 +1596,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			shell->bounceFactor *= 0.75;
 		}
 
-		if ( shell != NULL && weaponNum != WP_HANDCANNON ) {
+		if ( shell != NULL ) {
 			float	speed = 1.0f;
+			int		axis = 0;
 
 			if (ps) {
 				if ( weapon->item->giTag == WP_AKIMBO && !ps->stats[STAT_BURST] )
@@ -1613,9 +1618,32 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 			if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = 0.5f;
 
-			vectoangles( shell->refEntity.axis[0], shell->angles.trBase);
-			VectorScale( shell->refEntity.axis[0], 140 * speed, shell->pos.trDelta );
+			if ( weaponNum == WP_HANDCANNON ) {
+				speed = -speed * 1.5;		// horrible hacks
+				axis = 1;
+			}
+
+			vectoangles( shell->refEntity.axis[axis], shell->angles.trBase);
+			VectorScale( shell->refEntity.axis[axis], 140 * speed, shell->pos.trDelta );
 			VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
+		}
+
+		// All this code for a SECOND shell on the HC
+		if ( weaponNum == WP_HANDCANNON ) {
+			float	speed = -1.0f;
+	
+			shell = weapon->ejectBrassFunc( cent );
+			if (shell != NULL) {
+				CG_PositionRotatedEntityOnTag( &shell->refEntity, &gun, gun.hModel, "tag_shell2");
+			
+				VectorCopy( shell->refEntity.origin, shell->pos.trBase );
+
+				if (trap_CM_PointContents(shell->pos.trBase, 0) == CONTENTS_WATER) speed = -0.5f;
+
+				vectoangles( shell->refEntity.axis[1], shell->angles.trBase);
+				VectorScale( shell->refEntity.axis[1], 140 * speed * 1.5, shell->pos.trDelta );
+				VectorAdd( shell->pos.trDelta, cent->currentState.pos.trDelta, shell->pos.trDelta);
+			}
 		}
 
 		cent->ejectBrassTime = 0;
@@ -2558,7 +2586,7 @@ void CG_FireWeapon( centity_t *cent, int weapModification ) {
 		cent->ejectBrassTime = cg.time+500;
 	else if (ent->weapon == WP_SSG3000)
 		cent->ejectBrassTime = cg.time+650;
-	else if (ent->weapon != WP_KNIFE && ent->weapon != WP_GRENADE)
+	else if (ent->weapon != WP_KNIFE && ent->weapon != WP_GRENADE && ent->weapon != WP_HANDCANNON)
 		cent->ejectBrassTime = cg.time;
 
 
@@ -3963,7 +3991,8 @@ void CG_ReloadWeapon (centity_t *cent, int reloadStage)
 		}
 
 		if ( ent->weapon == WP_HANDCANNON )
-			CG_ShotgunEjectBrass( cent );
+			cent->ejectBrassTime = cg.time;
+			// CG_ShotgunEjectBrass( cent );
 		break;
 	case 2:
 		if (weap->worldReloadSound[2] && ent->clientNum != cg.snap->ps.clientNum)
