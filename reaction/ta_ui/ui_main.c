@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/04/03 17:38:09  makro
+// Commented out another unused function
+//
 // Revision 1.12  2002/04/03 16:34:29  makro
 // Got rid of one more warning
 //
@@ -1582,12 +1585,15 @@ static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int 
 }
 
 
+//Makro - not used anywhere
+/*
 #ifndef MISSIONPACK // bk001206
 static const char *UI_OpponentLeaderName() {
   int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
 	return uiInfo.teamList[i].teamMembers[0];
 }
 #endif
+*/
 
 static const char *UI_AIFromName(const char *name) {
 	int j;
