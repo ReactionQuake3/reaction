@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/06/30 17:33:01  jbravo
+// New radio sounds and the 0wned sound was added.
+//
 // Revision 1.102  2002/06/24 05:55:24  niceass
 // drawping
 //
@@ -1345,6 +1348,7 @@ typedef struct {
 
 	//Slicer 
 	sfxHandle_t male_sounds[26];
+	sfxHandle_t new_male_sounds[26];
 	sfxHandle_t female_sounds[26];
 
 	sfxHandle_t steamSound;
@@ -1601,6 +1605,8 @@ extern vmCvar_t cg_RQ3_overlaycrosshair;
 
 // JBravo: cvar for tkok popups
 extern vmCvar_t cg_RQ3_tkokAutoPopup;
+extern vmCvar_t cg_RQ3_newradio_male;
+extern vmCvar_t cg_RQ3_newradio_female;
 
 // Slicer: for the Anti-Cheat System
 //extern  vmCvar_t      cg_RQ3_Auth;

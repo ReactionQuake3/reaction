@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.103  2002/06/30 17:33:01  jbravo
+// New radio sounds and the 0wned sound was added.
+//
 // Revision 1.102  2002/06/26 15:58:13  makro
 // Fixed a crash bug in the spawning code
 // (happenned on maps with one spawn point)
@@ -1492,6 +1495,7 @@ void ClientBegin(int clientNum)
 		for (i = 0; i < MAX_PERSISTANT; i++)
 			client->ps.persistant[i] = savedPers[i];
 	}
+
 	// locate ent at a spawn point
 	ClientSpawn(ent);
 

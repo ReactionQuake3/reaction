@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/06/30 17:33:01  jbravo
+// New radio sounds and the 0wned sound was added.
+//
 // Revision 1.105  2002/06/29 20:57:25  niceass
 // small change to kevlar detection
 //
@@ -1341,6 +1344,10 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 					DMReward->s.eventParm = attacker->client->killStreak;
 					DMReward->r.svFlags = SVF_BROADCAST;
 				}
+			}
+// JBravo: adding the 0wned sound
+			if (meansOfDeath == MOD_KNIFE) {
+				trap_SendServerCommand(-1, va("rq3_cmd %i", OWNED));
 			}
 			attacker->client->lastKillTime = level.time;
 		}

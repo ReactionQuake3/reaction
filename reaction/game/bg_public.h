@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/06/30 17:33:01  jbravo
+// New radio sounds and the 0wned sound was added.
+//
 // Revision 1.82  2002/06/21 21:03:15  niceass
 // quicker ssg after reload
 //
@@ -327,7 +330,8 @@ enum {
 	RADIO,
 	STARTDEMO,
 	STOPDEMO,
-	SCREENSHOT
+	SCREENSHOT,
+	OWNED
 };
 
 //Elder: sound events for EV_RQ3_SOUND

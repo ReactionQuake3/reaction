@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/06/30 17:33:01  jbravo
+// New radio sounds and the 0wned sound was added.
+//
 // Revision 1.52  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1087,7 +1090,10 @@ void CG_Radio(void)
 	gender = atoi(CG_Argv(3));
 	//Slicer optimization
 	if (!gender) {
-		CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+		if (cg_RQ3_newradio_male.integer)
+			CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
+		else
+			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
 	} else {
 		CG_AddBufferedSound(cgs.media.female_sounds[sound]);
 	}
@@ -1270,6 +1276,9 @@ void CG_RQ3_Cmd()
 		if (cg_RQ3_tkokAutoPopup.integer)
 			trap_SendConsoleCommand("ui_RQ3_tkok\n");
 		break;
+	case OWNED:
+		if (cg_RQ3_anouncer.integer == 1)
+			CG_AddBufferedSound(cgs.media.humiliationSound);
 	default:
 		break;
 	}
