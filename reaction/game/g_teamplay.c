@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/04/30 01:23:05  jbravo
+// Changed the server logging to be more like a normal AQ server.  Cleaned
+// all colors from the logs.
+//
 // Revision 1.68  2002/04/29 10:58:07  jbravo
 // My lights sound fix broke the scoreboard removal on round begins.
 //
@@ -378,6 +382,7 @@ void StartLCA()
 	CleanLevel();
 	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41*level.fps)/10;
+	G_LogPrintf ("LIGHTS...\n");
 	SpawnPlayers();
 //	trap_SendServerCommand( -1, "lights");
 }
@@ -385,9 +390,11 @@ void StartLCA()
 void ContinueLCA()
 {
 	if (level.lights_camera_action == (21*level.fps)/10) {
+		G_LogPrintf ("CAMERA...\n");
 		trap_SendServerCommand( -1, "camera");
 	}
 	else if (level.lights_camera_action == 1) {
+		G_LogPrintf ("ACTION!\n");
 		trap_SendServerCommand( -1, "action");
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
@@ -535,15 +542,19 @@ int CheckForForcedWinner()
 int WonGame(int winner)
 {
 	trap_SendServerCommand( -1, "print \"The round is over:\n\"" );
+	G_LogPrintf ("The round is over:\n");
 
 	if (winner == WINNER_TIE) {
 		trap_SendServerCommand( -1, "print \"It was a tie, no points awarded!\n\"" );
+		G_LogPrintf ("It was a tie, no points awarded!\n");
 	} else {
 		if (winner == WINNER_TEAM1) {
 			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team1name.string));
+			G_LogPrintf ("%s won!\n", g_RQ3_team1name.string);
 			level.teamScores[TEAM_RED]++;
 		} else {
 			trap_SendServerCommand( -1, va("print \"%s won!\n\"", g_RQ3_team2name.string));
+			G_LogPrintf ("%s won!\n", g_RQ3_team2name.string);
 			level.teamScores[TEAM_BLUE]++;
 		}
 	}
@@ -1613,7 +1624,8 @@ void RQ3_Cmd_Use_f(gentity_t *ent)
 	if (weapon == ent->client->ps.weapon)
 		return;
 	Com_sprintf (buf, sizeof(buf), "weapon %d\n", weapon);
-	trap_SendConsoleCommand(EXEC_APPEND, buf);
+//	trap_SendConsoleCommand(EXEC_APPEND, buf);
+	trap_SendServerCommand(EXEC_APPEND, buf);
 }
 
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod)

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.69  2002/04/30 01:23:05  jbravo
+// Changed the server logging to be more like a normal AQ server.  Cleaned
+// all colors from the logs.
+//
 // Revision 1.68  2002/04/23 00:21:44  jbravo
 // Cleanups of the new model code.  Removed the spectator bar for zcam modes.
 //
@@ -1077,7 +1081,8 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	trap_SetConfigstring( CS_PLAYERS+clientNum, s );
 
-	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
+// JBravo: ugly in the logs.  Enable to debug if necessary
+//	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 }
 /*
 ===========
@@ -1187,7 +1192,7 @@ restarts.
 ============
 */
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char		*value;
+	char		*value, *ip;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
 	gentity_t	*ent;
@@ -1196,8 +1201,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
 	// check to see if they are on the banned IP list
-	value = Info_ValueForKey (userinfo, "ip");
-	if (G_FilterPacket(value)) {
+	ip = Info_ValueForKey (userinfo, "ip");
+	if (G_FilterPacket(ip)) {
 		return "Banned.";
 	}
 
@@ -1238,7 +1243,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 
 	// get and distribute relevent paramters
-	G_LogPrintf( "ClientConnect: %i\n", clientNum );
+	// JBravo: make this more like AQ. Moved it down a bit.
+//	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 
 // slicer : make sessionTeam = to savedTeam for scoreboard on cgame
 // JBravo: only for teamplay. Could break DM
@@ -1252,6 +1258,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if (firstTime) {
 		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
+		G_LogPrintf( "%s@%s connected (clientNum %i)\n", client->pers.netname, ip, clientNum );
 	}
 
 	if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_TEAMPLAY &&
@@ -1827,7 +1834,9 @@ void ClientDisconnect( int clientNum ) {
 
 	}
 
-	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
+// JBravo: Make this more like AQ
+//	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
+	G_LogPrintf( "%s disconnected (clientNum %i)\n", ent->client->pers.netname, clientNum );
 
 	// if we are playing in tourney mode and losing, give a win to the other player
 	if ( (g_gametype.integer == GT_TOURNAMENT )

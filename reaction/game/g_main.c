@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/04/30 01:23:05  jbravo
+// Changed the server logging to be more like a normal AQ server.  Cleaned
+// all colors from the logs.
+//
 // Revision 1.48  2002/04/28 23:13:08  jbravo
 // Clean up the server logs
 //
@@ -276,7 +280,7 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue  },
-	{ &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_log, "g_log", "reaction.log", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_password, "g_password", "", CVAR_USERINFO, 0, qfalse  },
@@ -1430,33 +1434,45 @@ Print to the logfile with a time stamp if it is open
 void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		string[1024];
-	int			min, tens, sec;
+	int		min, tens, sec, i, l;
 
 	sec = level.time / 1000;
-
 	min = sec / 60;
 	sec -= min * 60;
 	tens = sec / 10;
 	sec -= tens * 10;
 
-	Com_sprintf( string, sizeof(string), "%3i:%i%i ", min, tens, sec );
+	l = i = 0;
 
-	va_start( argptr, fmt );
-	vsprintf( string +7 , fmt,argptr );
-	va_end( argptr );
+	Com_sprintf (string, sizeof(string), "%3i:%i%i ", min, tens, sec);
 
-// JBravo: damn colors fsck up the logs and make them ugly.
-	Q_CleanStr (string);
+	va_start (argptr, fmt);
+	vsprintf (string +7, fmt, argptr);
+	va_end (argptr);
 
-	if ( g_dedicated.integer ) {
-		G_Printf( "%s", string + 7 );
+	if (g_dedicated.integer) {
+		G_Printf ("%s", string + 7);
 	}
 
-	if ( !level.logFile ) {
+	if (!level.logFile) {
 		return;
 	}
 
-	trap_FS_Write( string, strlen( string ), level.logFile );
+// JBravo: damn colors fsck up the logs and make them ugly.
+	for (i = 0; string[i]; i++) {
+		if (Q_IsColorString (&string[i])) {
+			i++;
+			continue;
+		}
+		if (string[i] > 0x7E)
+			continue;
+		if (string[i] == 0x19)
+			continue;
+		string[l++] = string[i];
+	}
+	string[l] = '\0';
+
+	trap_FS_Write (string, strlen(string), level.logFile);
 }
 
 /*

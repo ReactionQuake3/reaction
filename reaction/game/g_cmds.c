@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/04/30 01:23:05  jbravo
+// Changed the server logging to be more like a normal AQ server.  Cleaned
+// all colors from the logs.
+//
 // Revision 1.98  2002/04/28 11:03:46  slicer
 // Added "teammodel" for Matchmode, Referee "pause" command
 //
@@ -1235,10 +1239,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	case SAY_ALL:
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 			Com_sprintf (name, sizeof(name), "[DEAD] %s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-//			G_LogPrintf( "[DEAD] %s: %s\n", ent->client->pers.netname, chatText );
 		} else {
 			Com_sprintf (name, sizeof(name), "%s%c%c"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-//			G_LogPrintf( "%s: %s\n", ent->client->pers.netname, chatText );
 		}
 		color = COLOR_GREEN;
 		break;
@@ -1246,7 +1248,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 			Com_sprintf (name, sizeof(name), EC"[DEAD] (%s%c%c"EC")"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-//			G_LogPrintf( "[DEAD] (%s): %s\n", ent->client->pers.netname, chatText );
 		} else {
 			if (Team_GetLocationMsg(ent, location, sizeof(location)))
 				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
@@ -1254,7 +1255,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 			else
 				Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 					ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-//			G_LogPrintf( "(%s): %s\n", ent->client->pers.netname, chatText );
 		}
 		color = COLOR_CYAN;
 		break;
@@ -1289,6 +1289,9 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if ( g_dedicated.integer ) {
 		G_Printf( "%s%s\n", name, text);
 	}
+
+// JBravo: Log it like AQ does
+	G_LogPrintf ("%s%s\n", name, text);
 
 	// send it to all the apropriate clients
 	for (j = 0; j < level.maxclients; j++) {

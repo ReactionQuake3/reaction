@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/04/30 01:23:05  jbravo
+// Changed the server logging to be more like a normal AQ server.  Cleaned
+// all colors from the logs.
+//
 // Revision 1.33  2002/04/05 18:53:26  jbravo
 // Warning fixes
 //
@@ -816,7 +820,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	//Elder: Moved after checks so we don't print a billion log messages
-	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+	// JBravo: removed.
+//	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
 
 	// play the normal pickup sound
 	if (predict) {
