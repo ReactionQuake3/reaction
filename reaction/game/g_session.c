@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/18 17:52:36  slicer
+// Saved sess.savedTeam throught map changes for matchmode
+//
 // Revision 1.10  2002/03/11 18:02:33  slicer
 // Fixed team changes and scoreboard bugs
 //
@@ -61,6 +64,10 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	//Slicer how about savedTeam ?!
 
+	if(!g_RQ3_matchmode.integer && g_gametype.integer == GT_TEAMPLAY) {
+		//Reset teams on map changes / map_restarts, except on matchmode
+		client->sess.savedTeam = TEAM_SPECTATOR;	
+	}
 	s = va("%i %i %i %i %i %i %i %i", 
 		client->sess.sessionTeam,
 		client->sess.spectatorTime,
@@ -72,6 +79,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		//Adding saved Team
 		client->sess.savedTeam
 		);
+
 
 	var = va( "session%i", client - level.clients );
 
