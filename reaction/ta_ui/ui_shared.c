@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/06/08 11:43:31  makro
+// Changed color "lerping" for focused items a bit
+//
 // Revision 1.18  2002/06/05 19:17:07  makro
 // Squashed some bugs :)
 //
@@ -3338,10 +3341,12 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
 	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
+		//Makro - changed to fade from normal text color to focus color
+		//lowLight[0] = 0.8 * parent->focusColor[0]; 
+		//lowLight[1] = 0.8 * parent->focusColor[1]; 
+		//lowLight[2] = 0.8 * parent->focusColor[2]; 
+		//lowLight[3] = 0.8 * parent->focusColor[3]; 
+		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor,lowLight,*newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
 		lowLight[0] = 0.8 * item->window.foreColor[0]; 
@@ -3577,10 +3582,12 @@ void Item_TextField_Paint(itemDef_t *item) {
 	parent = (menuDef_t*)item->parent;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
+		//Makro - changed to fade from normal text color to focus color
+		//lowLight[0] = 0.8 * parent->focusColor[0]; 
+		//lowLight[1] = 0.8 * parent->focusColor[1]; 
+		//lowLight[2] = 0.8 * parent->focusColor[2]; 
+		//lowLight[3] = 0.8 * parent->focusColor[3]; 
+		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3604,10 +3611,12 @@ void Item_YesNo_Paint(itemDef_t *item) {
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
+		//Makro - changed to fade from normal text color to focus color
+		//lowLight[0] = 0.8 * parent->focusColor[0]; 
+		//lowLight[1] = 0.8 * parent->focusColor[1]; 
+		//lowLight[2] = 0.8 * parent->focusColor[2]; 
+		//lowLight[3] = 0.8 * parent->focusColor[3]; 
+		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3627,10 +3636,12 @@ void Item_Multi_Paint(itemDef_t *item) {
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
+		//Makro - changed to fade from normal text color to focus color
+		//lowLight[0] = 0.8 * parent->focusColor[0]; 
+		//lowLight[1] = 0.8 * parent->focusColor[1]; 
+		//lowLight[2] = 0.8 * parent->focusColor[2]; 
+		//lowLight[3] = 0.8 * parent->focusColor[3]; 
+		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -3919,10 +3930,12 @@ void Item_Slider_Paint(itemDef_t *item) {
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		lowLight[0] = 0.8 * parent->focusColor[0]; 
-		lowLight[1] = 0.8 * parent->focusColor[1]; 
-		lowLight[2] = 0.8 * parent->focusColor[2]; 
-		lowLight[3] = 0.8 * parent->focusColor[3]; 
+		//Makro - changed to fade from normal text color to focus color
+		//lowLight[0] = 0.8 * parent->focusColor[0]; 
+		//lowLight[1] = 0.8 * parent->focusColor[1]; 
+		//lowLight[2] = 0.8 * parent->focusColor[2]; 
+		//lowLight[3] = 0.8 * parent->focusColor[3]; 
+		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor,lowLight,newColor,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
@@ -4398,10 +4411,12 @@ void Item_OwnerDraw_Paint(itemDef_t *item) {
 		}
 
 		if (item->window.flags & WINDOW_HASFOCUS) {
-			lowLight[0] = 0.8 * parent->focusColor[0]; 
-			lowLight[1] = 0.8 * parent->focusColor[1]; 
-			lowLight[2] = 0.8 * parent->focusColor[2]; 
-			lowLight[3] = 0.8 * parent->focusColor[3]; 
+			//Makro - changed to fade from normal text color to focus color
+			//lowLight[0] = 0.8 * parent->focusColor[0]; 
+			//lowLight[1] = 0.8 * parent->focusColor[1]; 
+			//lowLight[2] = 0.8 * parent->focusColor[2]; 
+			//lowLight[3] = 0.8 * parent->focusColor[3]; 
+			memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
 			LerpColor(parent->focusColor,lowLight,color,0.5+0.5*sin(DC->realTime / PULSE_DIVISOR));
 		} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime/BLINK_DIVISOR) & 1)) {
 			lowLight[0] = 0.8 * item->window.foreColor[0]; 
