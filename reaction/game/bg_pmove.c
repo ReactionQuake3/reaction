@@ -29,6 +29,7 @@ float	pm_flightfriction = 3.0f;
 float	pm_spectatorfriction = 5.0f;
 float	pm_ladderfriction = 3000;  
 
+
 int		c_pmove = 0;
 /*
 // rxn - agt
@@ -737,10 +738,23 @@ static void PM_LimpMove( void)
 	usercmd_t	cmd;
 	float		accelerate;
 	float		vel;
+	
+	//Com_Printf("(%d)(%d)(%d)\n", pm->cmd.serverTime, pm->ps->commandTime, pm->ps->pm_time );
 
-	if (pm->framecount % (6*12) == 0)
+	if ( pm->cmd.serverTime % 1000 > 333)
 	{
-			PM_Friction ();
+		Com_Printf("(%d)\n",pm->cmd.serverTime % 1000);
+		if ( PM_CheckJump () ) {
+			// jumped away
+			if ( pm->waterlevel > 1 ) {
+				PM_WaterMove();
+			} else {
+				PM_AirMove();
+			}
+			return;
+		}
+
+	PM_Friction ();
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
@@ -831,10 +845,8 @@ static void PM_LimpMove( void)
 	
 	PM_StepSlideMove( qfalse );
 
-		//gi.sound (ent, CHAN_BODY, gi.soundindex(va("*pain100_1.wav")), 1, ATTN_NORM, 0);
-		pm->ps->velocity[0] = (float)((int)(pm->ps->velocity[0]*8))/8;
-		pm->ps->velocity[1] = (float)((int)(pm->ps->velocity[1]*8))/8;
-		pm->ps->velocity[2] = (float)((int)(pm->ps->velocity[2]*8))/8;
+	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+
 	}
 	
 
@@ -864,12 +876,12 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 
-	if ( (pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
+/*	if ( (pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
 		PM_LimpMove();
 		return;
 	}
-
+*/
 
 	if ( PM_CheckJump () ) {
 		// jumped away
@@ -973,6 +985,7 @@ static void PM_WalkMove( void ) {
 	PM_StepSlideMove( qfalse );
 
 	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+	
 
 }
 
@@ -2306,10 +2319,19 @@ void PmoveSingle (pmove_t *pmove) {
 	} else if ( pml.walking ) {
 		// walking on ground
 		PM_WalkMove();
+		if ( (pm->cmd.serverTime % 1000 > 333) && ((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE))
+		{
+			pm->ps->velocity[0] = (int)((float)pm->ps->velocity[0] * 0.66);
+			pm->ps->velocity[1] = (int)((float)pm->ps->velocity[1] * 0.66);
+			pm->ps->velocity[2] = (int)((float)pm->ps->velocity[2] * 0.66);
+			
+			// pm->ps->speed = 0; //Dosent work
+		}
 	} else {
 		// airborne
 		PM_AirMove();
 	}
+
 
 	PM_Animate();
 
