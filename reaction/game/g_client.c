@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/13 07:29:14  jbravo
+// Fixed server chrasing on incorrect models in TP and also added default skins
+//
 // Revision 1.73  2002/05/10 13:21:53  makro
 // Mainly bot stuff. Also fixed a couple of crash bugs
 //
@@ -973,11 +976,33 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		if (client->sess.sessionTeam == TEAM_RED) {
-			Com_sprintf (model, sizeof (model) , "%s", g_RQ3_team1model.string);
-			Com_sprintf (headModel, sizeof (headModel) , "%s", g_RQ3_team1model.string);
+			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
+			skin2 = Q_strrchr(model2, '/');
+			if (skin2) {
+				*skin2++ = '\0';
+			} else {
+				skin2 = "chowda";
+			}
+			if (RQ3_Validatemodel(model2)) {
+				Com_sprintf (model, sizeof (model) , "%s/%s", model2, skin2);
+				Com_sprintf (headModel, sizeof (headModel) , "%s/%s", model2, skin2);
+			} else {
+				Com_sprintf (model, sizeof (model) , "grunt/chowda");
+			}
 		} else {
-			Com_sprintf (model, sizeof (model) , "%s", g_RQ3_team2model.string);
-			Com_sprintf (headModel, sizeof (headModel) , "%s", g_RQ3_team2model.string);
+			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
+			skin2 = Q_strrchr(model2, '/');
+			if (skin2) {
+				*skin2++ = '\0';
+			} else {
+				skin2 = "cyrus";
+			}
+			if (RQ3_Validatemodel(model2)) {
+				Com_sprintf (model, sizeof (model) , "%s/%s", model2, skin2);
+				Com_sprintf (headModel, sizeof (headModel) , "%s/%s", model2, skin2);
+			} else {
+				Com_sprintf (model, sizeof (model) , "grunt/cyrus");
+			}
 		}
 	} else {
 		// NiceAss: temporary hack to prevent non-grunt models:

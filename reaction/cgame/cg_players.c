@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/05/13 07:29:14  jbravo
+// Fixed server chrasing on incorrect models in TP and also added default skins
+//
 // Revision 1.26  2002/05/11 15:40:41  slicer
 // Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
 //
@@ -726,7 +729,12 @@ static void CG_LoadClientInfo( clientInfo_t *ci ) {
 				Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname) );
 			}
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname ) ) {
-				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
+				if (ci->team == TEAM_BLUE)
+					Q_strncpyz (ci->skinName, "cyrus", sizeof (ci->skinName));
+				else
+					Q_strncpyz (ci->skinName, "chowda", sizeof (ci->skinName));
+				if (!CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname))
+					CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName);
 			}
 		} else {
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, DEFAULT_SKIN, DEFAULT_MODEL, DEFAULT_SKIN, teamname ) ) {
