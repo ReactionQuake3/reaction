@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/05/21 17:55:26  jbravo
+// Telefrags gave attacker 100000 dmg.
+//
 // Revision 1.80  2002/05/20 04:59:33  jbravo
 // Lots of small fixes.
 //
@@ -2399,8 +2402,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// do the damage
 	if (take) {
 		// JBravo: for Damage delt tracking
-		if (attacker && attacker->client && targ->health > 0)
-			attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+		if (attacker && attacker->client && targ->health > 0) {
+			if (mod == MOD_TELEFRAG)
+				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += 100;
+			else
+				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+		}
 		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
 			targ->health = targ->health - take;
