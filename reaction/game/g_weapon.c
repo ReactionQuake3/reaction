@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/05/12 22:14:13  makro
+// Impact sounds
+//
 // Revision 1.55  2002/05/12 14:40:28  makro
 // Wood, brick & ceramic impact sounds
 //
@@ -615,6 +618,21 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		//} else if ( traceEnt->s.eType == ET_PRESSURE ) {
 		//	// Pressure entities
 		//	G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
+		//Makro - new sounds
+		} else if ( IsWoodMat(Material) ) {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WOOD );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
+		//Makro - new sounds
+		} else if ( Material == MAT_BRICK ) {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_BRICK );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
+		//Makro - new sounds
+		} else if ( Material == MAT_CERAMIC ) {
+			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_CERAMIC );
+			tent->s.eventParm = DirToByte( tr.plane.normal );
+			tent->s.otherEntityNum = ent->s.number;
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );

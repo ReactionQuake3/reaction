@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/05/12 22:13:43  makro
+// Impact sounds
+//
 // Revision 1.55  2002/05/11 19:13:42  makro
 // Sand surfaceparm
 //
@@ -2194,6 +2197,27 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_BULLET_HIT_GLASS");
 		ByteToDir( es->eventParm, dir );
 		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_GLASS);
+		break;
+
+	//Makro - added
+	case EV_BULLET_HIT_WOOD:
+		DEBUGNAME("EV_BULLET_HIT_WOOD");
+		ByteToDir( es->eventParm, dir );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_WOOD);
+		break;
+
+	//Makro - added
+	case EV_BULLET_HIT_BRICK:
+		DEBUGNAME("EV_BULLET_HIT_BRICK");
+		ByteToDir( es->eventParm, dir );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_BRICK);
+		break;
+
+	//Makro - added
+	case EV_BULLET_HIT_CERAMIC:
+		DEBUGNAME("EV_BULLET_HIT_CERAMIC");
+		ByteToDir( es->eventParm, dir );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_CERAMIC);
 		break;
 
 

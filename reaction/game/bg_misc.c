@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/12 22:14:13  makro
+// Impact sounds
+//
 // Revision 1.37  2002/05/11 19:18:20  makro
 // Sand surfaceparm
 //
@@ -1402,6 +1405,9 @@ char *eventnames[] = {
 	"EV_BULLET_HIT_METAL",		// Elder: sparks
 	"EV_BULLET_HIT_KEVLAR",		// Elder: sparks
 	"EV_BULLET_HIT_GLASS",		// Elder: glass mark
+	"EV_BULLET_HIT_WOOD",		// Makro: new sound
+	"EV_BULLET_HIT_BRICK",		// Makro: new sound
+	"EV_BULLET_HIT_CERAMIC",	// Makro: new sound
 	"EV_SSG3000_HIT_FLESH",		// Elder: SSG3000 blood spray
 	"EV_JUMPKICK",				// Elder: sound + jumpkick message
 	"EV_EJECTBLOOD",			// Elder: when bleeding, every 2s release blood
