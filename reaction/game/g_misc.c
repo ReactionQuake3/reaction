@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/04/03 04:41:33  blaze
+// woops, forgot one change in the breakable code
+//
 // Revision 1.26  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -565,7 +568,7 @@ void SP_func_breakable( gentity_t *ent ) {
     G_FreeEntity( ent );
     return;
   }
-  if (G_SpawnString( "name", "", &name) )
+  if (G_SpawnString( "type", "", &name) )
   {
     Q_strncpyz(rq3_breakables[id],name,80);
   }
