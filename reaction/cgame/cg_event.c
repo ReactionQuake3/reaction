@@ -205,7 +205,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 	}
 	//Blaze: This allows for the falling damage message to pass through if someone attacked them
-	if (attacker != ENTITYNUM_WORLD) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -513,7 +513,7 @@ static void CG_Obituary_Head( entityState_t *ent ) {
 			break;
 		}
 	}
-	if (attacker != ENTITYNUM_WORLD) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -721,7 +721,7 @@ static void CG_Obituary_Chest( entityState_t *ent ) {
 			break;
 		}
 	}
-	if (attacker != ENTITYNUM_WORLD) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -900,7 +900,7 @@ static void CG_Obituary_Stomach( entityState_t *ent ) {
 			break;
 		}
 	}
-	if (attacker != ENTITYNUM_WORLD) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker ==target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
@@ -1088,7 +1088,7 @@ static void CG_Obituary_Legs( entityState_t *ent ) {
 			break;
 		}
 	}
-	if (attacker != ENTITYNUM_WORLD) message = NULL;
+	if (!(attacker == ENTITYNUM_WORLD || attacker == target)) message = NULL;
 	if (message) {
 		CG_Printf( "%s %s.\n", targetName, message);
 		return;
