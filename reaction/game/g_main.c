@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/07/16 04:07:26  niceass
+// no "sudden death" in ctb
+//
 // Revision 1.100  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -36,7 +39,7 @@
 //
 // Revision 1.91  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
-//o
+//
 // Revision 1.90  2002/06/19 05:21:43  niceass
 // scoreboard stuff
 //
@@ -1972,11 +1975,16 @@ void CheckExitRules(void)
 		}
 		return;
 	}
+
 	// check for sudden death
+	// NiceAss: Not needed in any RQ3 variant?
+	/*
 	if (ScoreIsTied()) {
 		// always wait for sudden death
 		return;
 	}
+	*/
+
 	if (g_timelimit.integer && !level.warmupTime) {
 		if (level.time - level.startTime >= g_timelimit.integer * 60000) {
 			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
