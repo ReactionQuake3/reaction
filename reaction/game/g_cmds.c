@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.134  2002/06/19 18:18:09  jbravo
+// Small cleanups for compiler warnings
+//
 // Revision 1.133  2002/06/18 09:23:23  niceass
 // small callvote upgrade
 //
@@ -1840,7 +1843,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 		}
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
-		char s[MAX_STRING_CHARS];
+//		char s[MAX_STRING_CHARS];
 
 		/*trap_Cvar_VariableStringBuffer("nextmap", s, sizeof(s));
 		if (!*s) {

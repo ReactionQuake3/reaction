@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/06/19 18:18:09  jbravo
+// Small cleanups for compiler warnings
+//
 // Revision 1.96  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -1128,7 +1131,7 @@ void ClientUserinfoChanged(int clientNum)
 		}
 		else {
 			// This didn't really worked...
-			/*	G_Printf("Sending changed userinfo\n");
+			/ *	G_Printf("Sending changed userinfo\n");
 				Info_SetValueForKey( userinfo, "cg_RQ3_auth", "1" );
 				// register the userinfo
 				trap_SetUserinfo( clientNum, userinfo );
