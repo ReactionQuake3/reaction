@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/09 23:18:49  assimon
+// Add coments to the init parser. Added Message before intermition telling next map. New cvar: g_RQ3_NextMap
+//
 // Revision 1.89  2002/06/07 19:07:08  slicer
 // removed cvars for teamXready, replaced by level.teamXready
 //
@@ -1039,6 +1042,7 @@ int RQ3_ParseBlock ( int tag_type, char *tag, int *cur_pos, char *buf, int len )
 int RQ3_GetCommand ( char *buf, int *cur_pos, char *cvar, char *value, int len );
 int RQ3_GetWord ( char *buf, int *cur_pos, char *word, int len );
 int RQ3_CheckClosingTag (  char *buf, int *cur_pos, int tag_type, int len );
+void RQ3_SkipLineComment( char *buf, int *cur_pos );
 
 
 //
@@ -1229,6 +1233,7 @@ extern vmCvar_t g_RQ3_RefID;
 extern vmCvar_t g_RQ3_IniFile;
 extern vmCvar_t g_RQ3_ValidIniFile;
 extern vmCvar_t g_RQ3_NextMapID;
+extern vmCvar_t g_RQ3_NextMap;
 
 
 

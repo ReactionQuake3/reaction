@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/06/09 23:18:49  assimon
+// Add coments to the init parser. Added Message before intermition telling next map. New cvar: g_RQ3_NextMap
+//
 // Revision 1.66  2002/06/07 19:07:08  slicer
 // removed cvars for teamXready, replaced by level.teamXready
 //
@@ -280,6 +283,7 @@ vmCvar_t	g_RQ3_RefID;
 vmCvar_t	g_RQ3_IniFile;
 vmCvar_t	g_RQ3_ValidIniFile;
 vmCvar_t	g_RQ3_NextMapID;
+vmCvar_t	g_RQ3_NextMap;
 
 //Slicer Radio radio flood protect
 vmCvar_t		g_RQ3_radioRepeat;
@@ -441,7 +445,8 @@ static cvarTable_t		gameCvarTable[] = {
 	// aasimon: stuff for da ini file
 	{ &g_RQ3_IniFile, "g_RQ3_IniFile", "rq3.ini", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
-	{ &g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse}
+	{ &g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse}, 
+	{ &g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse}
 };
 
 // bk001129 - made static to avoid aliasing
@@ -1398,6 +1403,8 @@ void BeginIntermission( void ) {
 	if ( level.intermissiontime ) {
 		return;		// already active
 	}
+
+	trap_SendServerCommand( -1, va("print \"Next map in rotation is %s\"", g_RQ3_NextMap.string) );
 
 	// if in tournement mode, change the wins / losses
 	if ( g_gametype.integer == GT_TOURNAMENT ) {
@@ -2568,6 +2575,7 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 	int	map_number = 0;
 	char	map_to_go[2], word_buff[50], buff_map[50];
 	char	cvar[40], value[80], model[200], *skin;
+	char	map_now[50];
 
 	G_Printf( "RQ3 config system: Processing block: <%s>\n", tag );
 	
@@ -2629,14 +2637,15 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 								(*cur_pos)++;
 								if (RQ3_GetTag (buf, cur_pos, tag, len) == ROTATION) { 	
 										G_Printf ("RQ3 config system: Block <rotation> is finished\n");
+
 										// finished rotation
 										map_number--;
-										Com_sprintf (buff_map, sizeof(buff_map), "map %s\n", word_buff);
+										Com_sprintf (buff_map, sizeof(buff_map), "map %s\n", map_now);
 										if (map_number != g_RQ3_NextMapID.integer) {	
 											g_RQ3_NextMapID.integer++;
 											Com_sprintf (map_to_go, sizeof(map_to_go), "%d", g_RQ3_NextMapID.integer);
 											trap_Cvar_Set ("g_RQ3_NextMapID", map_to_go); 
-											G_Printf ("RQ3 config system: finished map processing.: %d\n", g_RQ3_NextMapID.integer);
+											G_Printf ("RQ3 config system: finished map processing. Next Map: %s\n", buff_map);
 											trap_SendConsoleCommand (EXEC_APPEND, buff_map);
 											return 1;
 										} else {
@@ -2657,25 +2666,34 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 					G_Printf ("RQ3 config system: Prossessing block <map>\n");
 					// Process the map block here
 					G_Printf ("RQ3 config system: g_RQ3_NextMapID is: %d and map_number is: %d \n", g_RQ3_NextMapID.integer, map_number);
+					
+
+					
+					if (RQ3_GetWord (buf, cur_pos, word_buff, len) == TOKEN_TAG) 
+						if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
+							map_number++;
+							G_Printf ("RQ3 config system: current map number is %d.\n", map_number); // ver esta merda
+						} else 
+							return PARSING_ERROR;
+					else
 					if (map_number != g_RQ3_NextMapID.integer) {
 						// skipp everything and go to the next map
 						while (*(buf + *cur_pos) != '<')
 							(*cur_pos)++;
+						
+						if (map_number == (g_RQ3_NextMapID.integer + 1) || map_number == 0)
+							trap_Cvar_Set( "g_RQ3_NextMap", word_buff);
+			
+
 						if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
 							map_number++;
 							G_Printf ("RQ3 config system: current map count is %d.\n", map_number);
 						} else 
 							return PARSING_ERROR;
-					} else
-					if (RQ3_GetWord (buf, cur_pos, word_buff, len) == TOKEN_TAG) {
-						if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
-							map_number++;
-							G_Printf ("RQ3 config system: current map number is %d.\n", map_number); // ver esta merda
-						} else 
-							return PARSING_ERROR; 
 					} else {
 						// do something with the map name
 						G_Printf ("RQ3 config system: map found: %s\n", word_buff);
+						Com_sprintf (map_now, sizeof(map_now), "%s", word_buff);
 						for (;;)	// Here process all cvar from the map definition
 							if (RQ3_GetCommand (buf, cur_pos, cvar, value, len) == TOKEN_TAG)
 								if (RQ3_CheckClosingTag (buf, cur_pos, MAP, len) == PARSING_OK) {
@@ -2702,7 +2720,8 @@ int RQ3_ParseBlock (int tag_type, char *tag, int *cur_pos, char *buf, int len) {
 int RQ3_GetWord (char *buf, int *cur_pos, char *word, int len) {
 	int	count;
 
-	for (;; (*cur_pos)++) {
+//	for (;; (*cur_pos)++) {
+	for(;;){
 		if (*(buf + *cur_pos) == '"') {
 			count = 0;
 			(*cur_pos)++;
@@ -2717,8 +2736,15 @@ int RQ3_GetWord (char *buf, int *cur_pos, char *word, int len) {
 		}
 		else if (*(buf + *cur_pos) == '<') // not considered word
 			return TOKEN_TAG;
-		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t'))
+		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t')){
+			(*cur_pos)++;
 			continue;
+		}
+		else 
+			if ( *(buf + *cur_pos) == '#' || ( *(buf + *cur_pos) == '/' &&  *(buf + *cur_pos + 1) == '/')){
+				RQ3_SkipLineComment( buf, cur_pos );
+				(*cur_pos)++;
+			}
 		else {
 			count = 0;
 			while ((*(buf + *cur_pos) != ' ') && (*(buf + *cur_pos) != '\n') && (*(buf + *cur_pos) != '\t') && (*(buf + *cur_pos) != '\r')) {
@@ -2729,7 +2755,8 @@ int RQ3_GetWord (char *buf, int *cur_pos, char *word, int len) {
 			word[count] = '\0';
 			break;
 		}
-	}
+	}		
+//	}
 	return TOKEN_WORD;
 }
 
@@ -2738,12 +2765,20 @@ int RQ3_GetCommand (char *buf, int *cur_pos, char *cvar, char *value, int len) {
 	int	state = NONE;
 	int	count;
 
-	for (;; (*cur_pos)++) {
+//	for (;; (*cur_pos)++) {
+	for (;;){
 		if (*(buf + *cur_pos) == '<') // closing block
 			return TOKEN_TAG; 
-		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t'))
-			continue;
+		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t')){
+			(*cur_pos)++;
+			continue;		
+		}
 		else 
+			if ( *(buf + *cur_pos) == '#' || ( *(buf + *cur_pos) == '/' &&  *(buf + *cur_pos + 1) == '/')){
+				RQ3_SkipLineComment( buf, cur_pos );
+				(*cur_pos)++;
+			}
+		else	
 		if (state == NONE) {
 			state = CVAR;
 			count = 0;
@@ -2753,6 +2788,7 @@ int RQ3_GetCommand (char *buf, int *cur_pos, char *cvar, char *value, int len) {
 				(*cur_pos)++;
 			}
 			cvar[count] = '\0';
+			(*cur_pos)++;
 		} else if ((state == CVAR) && (*(buf + *cur_pos) == '"')) {
 			state = VALUE;
 			(*cur_pos)++;
@@ -2777,6 +2813,8 @@ int RQ3_GetCommand (char *buf, int *cur_pos, char *cvar, char *value, int len) {
 			return TOKEN_CVAR;
 		}
 	}
+
+//}
 }	
 
 char *known_tags[] = { "main", "rotation", "map", "cvars", "team1", "team2"};
@@ -2796,6 +2834,7 @@ int RQ3_CheckClosingTag (char *buf, int *cur_pos, int tag_type, int len) {
 
 	(*cur_pos)++;
 	if (*(buf + *cur_pos) == '/') {
+	
 		(*cur_pos)++;
 		if (RQ3_GetTag (buf, cur_pos, tag, len) == tag_type) {
 			G_Printf ("RQ3 config system: Block <%s> is finished\n", known_tags[tag_type]);
@@ -2808,4 +2847,13 @@ int RQ3_CheckClosingTag (char *buf, int *cur_pos, int tag_type, int len) {
 		G_Printf ("RQ3 config system: Found invalid tag in block <%s>\n", known_tags[tag_type]);
 		return PARSING_ERROR;
 	}
+}
+
+
+void RQ3_SkipLineComment( char *buf, int *cur_pos ){
+	if ( *(buf + *cur_pos) == '/' )
+		(*cur_pos) += 2;
+		
+	while ((*(buf + *cur_pos) != '\n'))
+		(*cur_pos)++;
 }
