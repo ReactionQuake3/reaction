@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/03/31 02:01:32  niceass
+// fixes and changes
+//
 // Revision 1.19  2002/03/30 23:20:10  jbravo
 // Added damage in scoreboard.
 //
@@ -142,6 +145,7 @@ void DrawCenterStripText(int y, int Height, char *Text, int maxChars, float *Col
 static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, float *Boarder, float *Color ) {
 	char	Tmp[128];
 	clientInfo_t	*ci;
+	float	FillColor[4];
 
 	if ( score->client < 0 || score->client >= cgs.maxclients ) {
 		Com_Printf( "Bad score->client: %i\n", score->client );
@@ -150,10 +154,15 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 
 	ci = &cgs.clientinfo[score->client];
 
-	if (score->client == cg.clientNum) Fill[3] += 0.4f;
-	if (Fill[3] > 1) Fill[3] = 1;
+	FillColor[0] = Fill[0];
+	FillColor[1] = Fill[1];
+	FillColor[2] = Fill[2];
+	FillColor[3] = Fill[3];
+
+	if (score->client == cg.clientNum) FillColor[3] += 0.4f;
+	if (FillColor[3] > 1) FillColor[3] = 1;
 	
-	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, Fill, Boarder);
+	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, FillColor, Boarder);
 
 	DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, Color);
 	Com_sprintf(Tmp, 128, "%4i  %4i  %5i  %6i", score->time, score->ping, score->score, score->damage);
@@ -224,7 +233,6 @@ static int CG_TeamplayScoreboard(void)
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
 
-			//DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, White);
 			CG_DrawTeamplayClientScore(y, Score, GreyL, White, White);
 			if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, White);
 			y += SB_FONTSIZEH+SB_PADDING*2;
@@ -262,29 +270,26 @@ static int CG_TeamplayScoreboard(void)
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
 				Frags += Score->score;
+				Damage += Score->damage;
 				First = 1;
 
 			}
 		}
 		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, RedL, Black);
-	}
-	else {
-		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedL, Black);
-		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, White);
-		y += SB_FONTSIZEH+SB_PADDING*2;
-	}
-
-	y += 2;
-	if (Reds) {
+		
+		y += 2;
 		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Reds), Frags, Damage);
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
 	}
-	y += SB_FONTSIZEH+SB_PADDING*2;
+	else {
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedL, Black);
+		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, White);
+	}
 
 	// *************** BLUE TEAM ************
-	y += SB_FONTSIZEH*1.5;
+	y += SB_FONTSIZEH*2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, Black);
 	trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
 	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, Black);
@@ -310,33 +315,29 @@ static int CG_TeamplayScoreboard(void)
 				y += SB_FONTSIZEH+SB_PADDING*2;
 				Ping += Score->ping;
 				Frags += Score->score;
-				//Damage += Score->damage;
+				Damage += Score->damage;
 				First = 1;
 			}
 		}
 		DrawStrip(y - (SB_FONTSIZEH+SB_PADDING*2), SB_FONTSIZEH, qfalse, qfalse, qtrue, BlueL, Black);
-	}
-	else {
-		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueL, Black);
-		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, White);
-		y += SB_FONTSIZEH+SB_PADDING*2;
-	}
 
-	y += 2;
-	if (Blues) {
+		y += 2;
 		Com_sprintf(Tmp, 128, "%4d  %5d  %6d", (int)((float)Ping / (float)Blues), Frags, Damage );
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, Black);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Averages/Totals:", 100, White);
 		DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, White);
 	}
-	y += SB_FONTSIZEH+SB_PADDING*2;
+	else {
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueL, Black);
+		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, White);
+	}
 
 	// *************** SPECTATORS ************
 	if (Spectators) {
 		Alternate = 1;
 		First = 0;
 
-		y += SB_FONTSIZEH*1.5;
+		y += SB_FONTSIZEH*2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyD, Black);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Spectators", 100, Black);
 		y += SB_FONTSIZEH+SB_PADDING*2+2;
