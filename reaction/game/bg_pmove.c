@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/27 06:48:02  niceass
+// new leg damage
+//
 // Revision 1.74  2002/05/21 04:58:27  blaze
 // kicked the reload bugs ass!
 //
@@ -3126,13 +3129,18 @@ void PmoveSingle (pmove_t *pmove) {
 	} else if ( pml.walking ) {
 		// walking on ground
 		PM_WalkMove();
-		if ( (pm->cmd.serverTime % 1000 > 333) && ((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE))
-		{
-			pm->ps->velocity[0] = (int)((float)pm->ps->velocity[0] * 0.66);
-			pm->ps->velocity[1] = (int)((float)pm->ps->velocity[1] * 0.66);
-			pm->ps->velocity[2] = (int)((float)pm->ps->velocity[2] * 0.66);
 
-			// pm->ps->speed = 0; //Dosent work
+		// NiceAss: New leg damage, based on the AQ2 leg damage code.
+		if ( pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE &&
+			(pm->cmd.serverTime % 900) < 700) {
+			int i;
+
+			for (i=0 ; i<3 ; i++)
+			{
+				if ( (i < 2 || pm->ps->velocity[2] > 0) && 
+					pm->ps->groundEntityNum != ENTITYNUM_NONE)
+					pm->ps->velocity[i] /= 4;
+			}
 		}
 	} else {
 		// airborne
