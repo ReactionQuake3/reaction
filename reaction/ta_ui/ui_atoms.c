@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/04/07 17:51:49  makro
+// Abbey
+//
 // Revision 1.8  2002/03/31 13:23:26  makro
 // Cleaned things up a little
 //
@@ -495,7 +498,8 @@ qboolean UI_ConsoleCommand( int realTime ) {
 			memset(text, 0, sizeof(text));
 
 			if (trap_Argc() == 1) {
-				Q_strcat(text, sizeof(text), "INFO: Testing error menu. Type 'error [msg]' in the console with developer set to 1 to see this screen");
+				//Q_strcat(text, sizeof(text), "INFO: Testing error menu. Type 'error [msg]' in the console with developer set to 1 to see this screen");
+				Q_strcat(text, sizeof(text), "Could not download \"maps/reactionmall.pk3\" because autodownloading is disabled on the server\n\nThe server you are connecting to is not a pure server, set autodownload to No in your settings and you might be able to join the game anyway.\n");
 			} else {
 				Q_strncpyz(text, UI_Argv(1), sizeof(text));
 			}

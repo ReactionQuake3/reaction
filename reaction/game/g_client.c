@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/07 17:50:54  makro
+// Abbey
+//
 // Revision 1.63  2002/04/07 12:49:10  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -943,8 +946,9 @@ void ClientUserinfoChanged( int clientNum ) {
 		skin2 = "default";
 	}
 
-	if ( Q_stricmpn(model2, "grunt", sizeof(model2) ) ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model. Forcing change on server.\n\""));
+	// Makro - adding abbey
+	if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
+		trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model (%s). Forcing change on server.\n\"", model2));
 		Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
 		Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
 	}

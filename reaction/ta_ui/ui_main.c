@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/04/07 17:51:49  makro
+// Abbey
+//
 // Revision 1.14  2002/04/06 21:40:59  makro
 // Delayed in-game bot adds. Fixed a small bug in the key
 // handling code for bot names.
@@ -5291,7 +5294,8 @@ static void UI_BuildQ3Model_List( void )
 			continue;
 
 		// NiceAss:
-		if (strcmp(dirptr,"grunt"))
+		// Makro - added abbey
+		if (strcmp(dirptr,"grunt") && strcmp(dirptr, "abbey"))
 			continue;
 			
 		// iterate all skin files in directory
