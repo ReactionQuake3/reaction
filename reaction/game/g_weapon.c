@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/07/01 19:48:56  makro
+// Fixed a crash bug
+//
 // Revision 1.72  2002/06/29 20:58:10  niceass
 // shoot through teammates
 //
@@ -641,7 +644,8 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 				}
 			}
 			// NiceAss: Added so the M4 will shoot through bodies
-			if ( traceEnt->client || ent->client) {
+			// Makro - changed from || to &&. Q3 crashed before
+			if ( traceEnt->client && ent->client) {
 				if ( (MOD == MOD_M4 && traceEnt->client->kevlarHit == qfalse) ||
 					// NiceAss: And you can shoot through teammates
 					OnSameTeam(traceEnt, ent) ) {
