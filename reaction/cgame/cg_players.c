@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/05/27 07:01:02  niceass
+// headless code
+//
 // Revision 1.27  2002/05/13 07:29:14  jbravo
 // Fixed server chrasing on incorrect models in TP and also added default skins
 //
@@ -2878,7 +2881,10 @@ void CG_Player( centity_t *cent ) {
 	//VectorScale( head.axis[2], 4.0f, head.axis[2] );
 	// End of fun
 
-	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
+	// NiceAss: Headless player.
+	if ( !(cent->currentState.eFlags & EF_HEADLESS) )
+		CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team );
+
 
 	// NiceAss: Outside the MISSIONPACK
 	CG_BreathPuffs(cent, &head);
