@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/11 15:00:04  jbravo
+// Fix for autojoin and a very minir for for Obits
+//
 // Revision 1.70  2002/05/10 08:10:18  jbravo
 // Fixed a bug in the Obit system and a give (weapons or all) bug
 //
@@ -939,6 +942,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 					default:
 						Q_strncpyz (message, " was sniped by", sizeof(message));
 				}
+				break;
 			case MOD_AKIMBO:
 				switch (location) {
 					case LOC_HDAM:

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/05/11 15:00:04  jbravo
+// Fix for autojoin and a very minir for for Obits
+//
 // Revision 1.14  2002/05/05 15:51:16  slicer
 // Captain and subs get saved on map_restarts ( moved to "sess" )
 //
@@ -174,7 +177,11 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM ) {
 		if ( g_teamAutoJoin.integer ) {
-			sess->sessionTeam = PickTeam( -1 );
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				sess->savedTeam = PickTeam( -1 );
+				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
+			} else
+				sess->sessionTeam = PickTeam( -1 );
 			BroadcastTeamChange( client, -1 );
 		} else {
 			// always spawn as spectator in team games
