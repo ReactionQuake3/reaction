@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.120  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -1704,7 +1707,7 @@ void ClientSpawn(gentity_t * ent)
 
 //Blaze: changed WP_MACHINEGUN to WP_PISTOL, makes the base weapon you start with the pistol
 // JBravo: Not in TP
-	if (g_gametype.integer == GT_FFA) {
+	if (g_gametype.integer == GT_FFA || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer)) {
 		if ((int) g_RQ3_weaponban.integer & WPF_MK23) {
 			client->ps.stats[STAT_WEAPONS] = (1 << WP_PISTOL);
 			client->numClips[WP_PISTOL] = 0;
@@ -1740,7 +1743,7 @@ void ClientSpawn(gentity_t * ent)
 		// force the base weapon up
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
 		// JBravo: we dont want the endless pistol in TP
-		if (g_gametype.integer < GT_TEAM) {
+		if (g_gametype.integer < GT_TEAM || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer)) {
 			client->ps.weapon = WP_PISTOL;
 			client->ps.weaponstate = WEAPON_READY;
 		}
@@ -1788,7 +1791,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 	// weapon animations
-	if (g_gametype.integer == GT_FFA)
+	if (g_gametype.integer == GT_FFA || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer))
 		client->ps.generic1 = ((client->ps.generic1 & ANIM_TOGGLEBIT)
 				       ^ ANIM_TOGGLEBIT) | WP_ANIM_IDLE;
 
@@ -1802,7 +1805,7 @@ void ClientSpawn(gentity_t * ent)
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		// JBravo: Lets make sure we have the right weapons
-		if ((g_gametype.integer >= GT_TEAM) &&
+		if (g_gametype.integer >= GT_TEAM && !(g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer) &&
 		    (client->sess.sessionTeam == TEAM_RED || client->sess.sessionTeam == TEAM_BLUE)) {
 			EquipPlayer(ent);
 		} else {
@@ -1823,7 +1826,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.commandTime = level.time - 100;
 	ent->client->pers.cmd.serverTime = level.time;
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer == GT_FFA)
+	if (g_gametype.integer == GT_FFA || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer))
 		ClientThink(ent - g_entities);
 
 	// positively link the client, even if the command times are weird
@@ -1834,7 +1837,7 @@ void ClientSpawn(gentity_t * ent)
 	}
 	// run the presend to set anything else
 // JBravo: We should not have to call this during TP spawns
-	if (g_gametype.integer == GT_FFA)
+	if (g_gametype.integer == GT_FFA || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer))
 		ClientEndFrame(ent);
 	ent->client->noHead = qfalse;
 

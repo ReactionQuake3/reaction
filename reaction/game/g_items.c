@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.53  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.52  2002/10/28 02:42:25  jbravo
 // Fixed the HC+Bando bug.
 //
@@ -803,7 +806,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		else
 			dropped->think = RQ3_DroppedWeaponThink;
 // JBravo: weapons and items go away faster in CTF
-		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM)
+		if (g_gametype.integer == GT_CTF || (g_gametype.integer == GT_TEAM && !g_RQ3_tdmMode.integer))
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
 		else if (g_gametype.integer == GT_TEAMPLAY)
 			dropped->nextthink = 0;
@@ -818,7 +821,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		else
 			dropped->think = RQ3_DroppedItemThink;
 // JBravo: weapons and items go away faster in CTF
-		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM)
+		if (g_gametype.integer == GT_CTF || (g_gametype.integer == GT_TEAM && !g_RQ3_tdmMode.integer))
 			dropped->nextthink = level.time + RQ3_CTF_RESPAWNTIME_DEFAULT;
 		else if (g_gametype.integer == GT_TEAMPLAY)
 			dropped->nextthink = 0;
@@ -1491,7 +1494,9 @@ void RQ3_ResetItem(int itemTag)
 	float angle = rand() % 360;
 
 // JBravo: no resetting items in TP or CTB
-	if (g_gametype.integer >= GT_TEAM)
+	if (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)
+		return;
+	if (g_gametype.integer == GT_TEAM && !g_RQ3_tdmMode.integer)
 		return;
 
 	switch (itemTag) {

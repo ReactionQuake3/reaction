@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.53  2002/09/09 02:39:22  niceass
 // updated version again from 2.21 to 2.25
 //
@@ -2338,6 +2341,7 @@ void UI_BuildIngameServerInfoList()
 		int gametype = atoi(Info_ValueForKey(info, "g_gametype"));
 		int matchmode = atoi(Info_ValueForKey(info, "g_RQ3_matchmode"));
 		int limit = atoi(Info_ValueForKey(info, "timelimit"));
+		int tdmMode = atoi(Info_ValueForKey(info, "g_RQ3_tdmMode"));
 		
 		AddIngameLine("RQ3 Version", Info_ValueForKey(info, "g_RQ3_version"));
 		AddIngameLine("Host name", Info_ValueForKey(info, "sv_hostname"));
@@ -2354,6 +2358,11 @@ void UI_BuildIngameServerInfoList()
 					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
 					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
 				}
+			case GT_TEAM:
+					AddIngameLine("Team 1", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team1Name"), Info_ValueForKey(info, "g_RQ3_team1model")));
+					AddIngameLine("Team 2", va("%s (%s)", Info_ValueForKey(info, "g_RQ3_team2Name"), Info_ValueForKey(info, "g_RQ3_team2model")));
+					if (gametype == GT_TEAM)
+						AddIngameLine("TeamDM Mode", (tdmMode != 0) ? "Classic" : "TP style");
 			case GT_CTF:
 				{
 					limit = atoi(Info_ValueForKey(info, "capturelimit"));
@@ -4358,7 +4367,8 @@ static void UI_RunMenuScript(char **args)
 			//Makro - weapon menu after joining a team
 		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
 			//only in teamplay
-			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF) {
+			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF ||
+					trap_Cvar_VariableValue("g_gametype") == GT_TEAM) {
 				if (ui_RQ3_weapAfterJoin.integer) {
 					_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 				}

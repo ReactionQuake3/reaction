@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.129  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.128  2002/10/26 18:29:17  jbravo
 // Added allweap and allitem funtionality.
 //
@@ -1387,6 +1390,7 @@ extern vmCvar_t g_RQ3_weaponban;	// JBravo: Bitmapped cvar for weaponbanning
 extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb respawns
 extern vmCvar_t g_RQ3_allWeapons;	// JBravo: if set, TP/DM players get all the weapons
 extern vmCvar_t g_RQ3_allItems;		// JBravo: if set, TP/DM players get all the items
+extern vmCvar_t g_RQ3_tdmMode;		// JBravo: Which TDM mode do we want?
 
 //Slicer: Team Status Cvars for MM
 //extern vmCvar_t       g_RQ3_team1ready;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.143  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.142  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -699,6 +702,9 @@ void CleanLevel()
 	gentity_t *ent;
 	int i;
 
+	if (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer)
+		return;
+
 	ClearBodyQue();
 	ent = &g_entities[MAX_CLIENTS];
 	for (i = MAX_CLIENTS; i < level.num_entities; i++, ent++) {
@@ -1012,6 +1018,11 @@ void RQ3_Cmd_Choose_f(gentity_t * ent)
 
 	if (!ent->client) {
 		return;		// not fully in game yet
+	}
+
+	if (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer) {
+		trap_SendServerCommand(ent - g_entities, va("print \"This Team DM mode does not allow you to choose weapons or items.\n\""));
+		return;
 	}
 
 	cmd = ConcatArgs(1);

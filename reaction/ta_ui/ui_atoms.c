@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.16  2002/09/01 21:15:47  makro
 // no message
 //
@@ -431,7 +434,8 @@ qboolean UI_ConsoleCommand(int realTime)
 	}
 	//Makro - adding popup for choose commands
 	if (Q_stricmp(cmd, "ui_RQ3_loadout") == 0) {
-		if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF)
+		if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF ||
+				trap_Cvar_VariableValue("g_gametype") == GT_TEAM)
 			_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 		else
 			Com_Printf("Not playing teamplay.\n");

@@ -735,6 +735,27 @@
 	showCvar { "3" }
     }
 
+    // tdmMode
+    itemdef {
+	name tdm
+	group "opt_gametype"
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_MULTI
+	text "Team DM Mode:"
+	cvar "g_RQ3_tdmMode"
+	cvarFloatList { "Classic" 1 "TP style" 0 }
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	rect 440 128 168 20
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 84
+	textaligny 14
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	cvarTest "ui_actualNetGameType"
+	showCvar { "3" }
+    }
+
     // RQ3 Teamplay //
     // Round limit
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.125  2002/10/29 01:34:52  jbravo
+// Added g_RQ3_tdmMode (0 = TP style, 1 = DM style) including UI support.
+//
 // Revision 1.124  2002/10/26 22:03:43  jbravo
 // Made TeamDM work RQ3 style.
 //
@@ -457,6 +460,7 @@ vmCvar_t g_RQ3_weaponban;
 vmCvar_t g_RQ3_ctb_respawndelay;
 vmCvar_t g_RQ3_allWeapons;
 vmCvar_t g_RQ3_allItems;
+vmCvar_t g_RQ3_tdmMode;
 
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
@@ -600,6 +604,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_ctb_respawndelay, "g_RQ3_ctb_respawndelay", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_allWeapons, "g_RQ3_allWeapons", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_allItems, "g_RQ3_allItems", "0", CVAR_ARCHIVE, 0, qtrue},
+	{&g_RQ3_tdmMode, "g_RQ3_tdmMode", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_SYSTEMINFO, 0, qtrue},
 	{&g_RQ3_idleaction, "g_RQ3_idleaction", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_weaponban, "g_RQ3_weaponban", "511", CVAR_ARCHIVE, 0, qtrue},
 	//Blaze: let cvar.cfg be set by the server admins
@@ -1066,7 +1071,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 	//Elder: spawn unique items.
 	// JBravo: unless we are in Teamplay
-	if (g_gametype.integer < GT_TEAM) {
+	if (g_gametype.integer < GT_TEAM || (g_gametype.integer == GT_TEAM && g_RQ3_tdmMode.integer)) {
 		RQ3_StartUniqueItems();
 	}
 	// Elder: force sv_floodprotect to 0 -- remove when we finish
