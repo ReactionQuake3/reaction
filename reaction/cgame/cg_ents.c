@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.39  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -885,6 +888,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	// this is done server-side now - cg_smoothClients is undefined
 	// players will always be TR_INTERPOLATE
 	// if this player does not want to see extrapolated players
+// JBravo: done serverside now via unlagged
 /*	if (!cg_smoothClients.integer) {
 		// make sure the clients use TR_INTERPOLATE
 		if (cent->currentState.number < MAX_CLIENTS) {
@@ -904,6 +908,7 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		CG_InterpolateEntityPosition(cent);
 		return;
 	}
+// JBravo: unlagged
 	if (cent->currentState.number < MAX_CLIENTS &&
 			cent->currentState.clientNum != cg.predictedPlayerState.clientNum) {
 		cent->currentState.pos.trType = TR_LINEAR_STOP;
@@ -915,6 +920,8 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 		// if it's one of ours
 		if (cent->currentState.otherEntityNum == cg.clientNum) {
 			timeshift = 1000 / sv_fps.integer;
+		} else if ( cent->currentState.weapon != WP_GRENADE) {
+			timeshift = cg_projectileNudge.integer + 1000 / sv_fps.integer;
 		}
 	}
 	

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.179  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.178  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1944,6 +1947,7 @@ Cmd_CallVote_f
 void Cmd_CallVote_f(gentity_t * ent)
 {
 	int i;
+	float delay;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
 
@@ -1953,6 +1957,17 @@ void Cmd_CallVote_f(gentity_t * ent)
 	}
 	if (level.voteTime) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1A vote is already in progress.\n\"");
+		return;
+	}
+	//  JBravo: delay added after mapchanges
+	if (level.time - level.startTime < (float)g_RQ3_vote_waittime.integer * 1000) {
+		delay = ((((float)g_RQ3_vote_waittime.integer * 1000) + level.startTime) - level.time) / 1000;
+		if (delay < 10.0)
+			trap_SendServerCommand(ent - g_entities, va("print \"^1Voting currently blocked - Please vote again in^2 %1.2f ^1seconds\n\"",
+				delay));
+		else
+			trap_SendServerCommand(ent - g_entities, va("print \"^1Voting currently blocked - Please vote again in^2 %2.2f ^1seconds\n\"",
+				delay));
 		return;
 	}
 	//Makro - replaced the constant with a cvar

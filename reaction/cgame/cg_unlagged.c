@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.2  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.1  2003/03/09 21:32:23  jbravo
 // *** empty log message ***
 //
@@ -131,7 +134,7 @@ void CG_PredictWeaponEffects(centity_t * cent)
 			VectorMA(muzzlePoint, -1, up, muzzlePoint);
 
 			// draw a rail trail
-			CG_RailTrail(&cgs.clientinfo[cent->currentState.number], muzzlePoint, trace.endpos);
+			// CG_RailTrail(&cgs.clientinfo[cent->currentState.number], muzzlePoint, trace.endpos);
 			//Com_Printf( "Predicted rail trail\n" );
 
 			// explosion at end if not SURF_NOIMPACT

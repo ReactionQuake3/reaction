@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.26  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -418,10 +421,10 @@ static void CG_TouchTriggerPrediction(void)
 	}
 }
 
-// JBravo: unlagged
+// JBravo: unlagged - optimized prediction
 #define ABS(x) ((x) < 0 ? (-(x)) : (x))
 
-static int IsUnacceptableError( playerState_t *ps, playerState_t *pps ) {
+static int IsUnacceptableError (playerState_t *ps, playerState_t *pps) {
 	vec3_t delta;
 	int i;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.136  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.135  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1453,6 +1456,7 @@ extern vmCvar_t g_RQ3_allWeapons;	// JBravo: if set, TP/DM players get all the w
 extern vmCvar_t g_RQ3_allItems;		// JBravo: if set, TP/DM players get all the items
 extern vmCvar_t g_RQ3_tdmMode;		// JBravo: Which TDM mode do we want?
 extern vmCvar_t g_RQ3_haveHelmet;	// JBravo: Is the helmet active on the server ?
+extern vmCvar_t g_RQ3_vote_waittime;	// JBravo: delay after mapchanges untill voting is allowed.
 
 //Slicer: Team Status Cvars for MM
 //extern vmCvar_t       g_RQ3_team1ready;

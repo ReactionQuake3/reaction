@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.125  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1391,9 +1394,9 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	client->pers.enterTime = level.time;
 // JBravo: unlagged
 	if (g_delagHitscan.integer) {
-		trap_SendServerCommand(clientNum, "print \"^1This server is Unlagged: full lag compensation is ON!\n\"");
+		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1ON!\n\"");
 	} else {
-		trap_SendServerCommand(clientNum, "print \"^1This server is Unlagged: full lag compensation is OFF!\n\"");
+		trap_SendServerCommand(clientNum, "print \"^3This server is Unlagged: full lag compensation is ^1OFF!\n\"");
 	}
 	return NULL;
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2003/03/10 07:07:58  jbravo
+// Small unlagged fixes and voting delay added.
+//
 // Revision 1.96  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -1125,6 +1128,11 @@ void ClientThink_real(gentity_t * ent)
 		client->pers.realPing = sum / NUM_PING_SAMPLES;
 	} else {
 		client->pers.realPing = client->ps.ping;
+	}
+	client->pers.cmdqueue[client->pers.cmdhead] = client->pers.cmd;
+	client->pers.cmdhead++;
+	if (client->pers.cmdhead >= MAX_LATENT_CMDS) {
+		client->pers.cmdhead -= MAX_LATENT_CMDS;
 	}
 	if (client->pers.latentCmds) {
 		int time = ucmd->serverTime;
