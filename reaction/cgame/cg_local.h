@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/08/28 18:52:09  jbravo
+// Added the Keanu male radio sound set.
+//
 // Revision 1.120  2002/08/27 05:10:42  niceass
 // new ctb marker shader names
 //
@@ -1417,6 +1420,7 @@ typedef struct {
 	sfxHandle_t new_male_sounds[56];
 	sfxHandle_t pikey_male_sounds[56];
 	sfxHandle_t pirate_male_sounds[56];
+	sfxHandle_t keanu_male_sounds[56];
 	sfxHandle_t female_sounds[56];
 
 	sfxHandle_t steamSound;

@@ -179,12 +179,12 @@
 	rect 138 122 160 16
 	style WINDOW_STYLE_FILLED
 	type ITEM_TYPE_MULTI
-	text "M. Male Radioset:"
+	text "M. Male Radio voice:"
 	shortcutKey "M"
 	border 1
 	bordersize 1
 	cvar "cg_RQ3_radiovoice_male"
-	cvarFloatList { "New" 1 "Pikey" 2 "Pirate" 3 "Original" 0 }
+	cvarFloatList { "New" 1 "Pikey" 2 "Pirate" 3 "Keanu" 4 "Original" 0 }
 	textstyle ITEM_TEXTSTYLE_NORMAL
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2002/08/28 18:52:09  jbravo
+// Added the Keanu male radio sound set.
+//
 // Revision 1.64  2002/08/25 00:45:04  niceass
 // q3f atmosphere
 //
@@ -1148,9 +1151,10 @@ void CG_Radio(void)
 				CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
 			} else if (set == 2) {
 				CG_AddBufferedSound(cgs.media.pikey_male_sounds[sound]);
-			} else if (set > 2) {
+			} else if (set == 3) {
 				CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
-			}
+			} else if (set > 3)
+				CG_AddBufferedSound(cgs.media.keanu_male_sounds[sound]);
 		} else
 			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
 	} else if (!gender) {
@@ -1160,9 +1164,10 @@ void CG_Radio(void)
 			CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
 		} else if (cg_RQ3_radiovoice_male.integer == 2) {
 			CG_AddBufferedSound(cgs.media.pikey_male_sounds[sound]);
-		} else if (cg_RQ3_radiovoice_male.integer > 2) {
+		} else if (cg_RQ3_radiovoice_male.integer == 3) {
 			CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
-		}
+		} else if (cg_RQ3_radiovoice_male.integer > 3)
+			CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
 	} else {
 		CG_AddBufferedSound(cgs.media.female_sounds[sound]);
 	}
