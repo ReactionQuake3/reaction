@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/02/24 18:49:21  jbravo
+// Make it OK to frag teammates after rounds are over (no -1)
+//
 // Revision 1.43  2002/02/22 02:13:13  jbravo
 // Fixed a few bugs and did some cleanups
 //
@@ -768,7 +771,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			break;
 // JBravo: adding a default here to catch potential bugs
 		default:
-			G_Printf("Unknown Means of Death!\n");
 			break;
 	}
 
@@ -782,8 +784,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (attacker && attacker->client) {
 		attacker->client->lastkilled_client = self->s.number;
 
+// JBravo: make it OK to frag teammates after rounds are over.
 		if (attacker == self || OnSameTeam (self, attacker)) {
-			AddScore(attacker, self->r.currentOrigin, -1);
+			if (level.team_round_going) {
+				AddScore(attacker, self->r.currentOrigin, -1);
+			}
 		} else {
 			// Increase number of kills this life for attacker
 			// JBravo: unless we are in teamplay
