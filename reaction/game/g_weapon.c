@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/03/03 02:20:58  jbravo
+// No kicking teammates in TP
+//
 // Revision 1.35  2002/01/27 14:02:51  jbravo
 // Make the right effect when rounds hit the new SURF_HARDMETAL surface.
 //
@@ -100,6 +103,13 @@ qboolean JumpKick( gentity_t *ent )
 
 	if ( !traceEnt->takedamage) {
 		return qfalse;
+	}
+
+// JBravo: no kicking teammates while rounds are going
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (ent->client->sess.sessionTeam == traceEnt->client->sess.sessionTeam &&
+			level.team_round_going)
+				return qfalse;
 	}
 
 	if (ent->client->ps.powerups[PW_QUAD] ) {
