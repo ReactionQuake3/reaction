@@ -5,12 +5,20 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/02/24 00:54:12  makro
+// Even more fixes to the shortcut keys code.
+// Added more info to the header, too :)
+//
 // Revision 1.4  2002/02/23 15:02:22  makro
 // Improved the code that checks for shortcut keys, it runs a lot faster now
-// Before that - added support for shortcut keys, 3d model rotation, model origin offset, new command to bring up the weapon menu and a cvar to be used in the player options menu. Also improved the remapShader command.
 //
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
+//
+// Revision 1.2 makro
+// Added support for shortcut keys, 3d model rotation, model origin offset,
+// new command to bring up the weapon menu and a cvar to be used in the
+// player options menu. Also improved the remapShader command.
 //
 //
 //-----------------------------------------------------------------------------
@@ -118,8 +126,69 @@ qboolean UI_OutOfMemory() {
 	return outOfMemory;
 }
 
+//Makro - data for the shortcut keys
 
+typedef struct {
+	char *Name;
+	int Value;
+} RQ3_keyAlias_t;
 
+static RQ3_keyAlias_t RQ3_KeyAliases[] =
+{
+	{"",			-1},
+	{"0",			'0'},
+	{"1",			'1'},
+	{"2",			'2'},
+	{"3",			'3'},
+	{"4",			'4'},
+	{"5",			'5'},
+	{"6",			'6'},
+	{"7",			'7'},
+	{"8",			'8'},
+	{"9",			'9'},
+	{"A",			'a'},
+	{"B",			'b'},
+	{"C",			'c'},
+	{"D",			'd'},
+	{"E",			'e'},
+	{"F",			'f'},
+	{"G",			'g'},
+	{"H",			'h'},
+	{"I",			'i'},
+	{"J",			'j'},
+	{"K",			'k'},
+	{"L",			'l'},
+	{"M",			'm'},
+	{"N",			'n'},
+	{"O",			'o'},
+	{"P",			'p'},
+	{"Q",			'q'},
+	{"R",			'r'},
+	{"S",			's'},
+	{"T",			't'},
+	{"U",			'u'},
+	{"V",			'v'},
+	{"W",			'w'},
+	{"X",			'x'},
+	{"Y",			'y'},
+	{"Z",			'z'}
+};
+
+//Makro - only check for shortcuts 20 times a second MAX
+static int UI_RQ3_lastCheckForShortcuts = 0;
+static int UI_RQ3_ShortcutCheckDelay = 50;
+
+//Makro - for shortcut keys
+int UI_RQ3_KeyNumFromChar( const char *keystr ) {
+	int i;
+	for (i = 0; RQ3_KeyAliases[i].Value != K_LAST_KEY; i++) {
+		if (Q_stricmp(RQ3_KeyAliases[i].Name, keystr) == 0) {
+			return RQ3_KeyAliases[i].Value;
+		}
+	}
+
+	return -1;
+}
 
 
 #define HASH_TABLE_SIZE 2048
@@ -742,71 +811,6 @@ void Item_UpdatePosition(itemDef_t *item) {
   Item_SetScreenCoords(item, x, y);
 
 }
-
-
-
-//Makro - data for the shortcut keys
-
-typedef struct {
-	char *Name;
-	int Value;
-} RQ3_keyAlias_t;
-
-static RQ3_keyAlias_t RQ3_KeyAliases[] =
-{
-	{"",			-1},
-	{"0",			'0'},
-	{"1",			'1'},
-	{"2",			'2'},
-	{"3",			'3'},
-	{"4",			'4'},
-	{"5",			'5'},
-	{"6",			'6'},
-	{"7",			'7'},
-	{"8",			'8'},
-	{"9",			'9'},
-	{"A",			'a'},
-	{"B",			'b'},
-	{"C",			'c'},
-	{"D",			'd'},
-	{"E",			'e'},
-	{"F",			'f'},
-	{"G",			'g'},
-	{"H",			'h'},
-	{"I",			'i'},
-	{"J",			'j'},
-	{"K",			'k'},
-	{"L",			'l'},
-	{"M",			'm'},
-	{"N",			'n'},
-	{"O",			'o'},
-	{"P",			'p'},
-	{"Q",			'q'},
-	{"R",			'r'},
-	{"S",			's'},
-	{"T",			't'},
-	{"U",			'u'},
-	{"V",			'v'},
-	{"W",			'w'},
-	{"X",			'x'},
-	{"Y",			'y'},
-	{"Z",			'z'}
-};
-
-//Makro - only check for shortcuts 8 times a second MAX
-static int UI_RQ3_lastCheckForShortcuts = 0;
-static int UI_RQ3_ShortcutCheckDelay = 125;
-
-//Makro - for shortcut keys
-int UI_RQ3_KeyNumFromChar( const char *keystr ) {
-int i;
-for (i = 0; RQ3_KeyAliases[i].Value != K_LAST_KEY; i++) {
-		if (Q_stricmp(RQ3_KeyAliases[i].Name, keystr) == 0)
-				return RQ3_KeyAliases[i].Value;
-	}
-	return -1;
-}
-
 
 // menus
 void Menu_UpdatePosition(menuDef_t *menu) {
@@ -2647,10 +2651,6 @@ qboolean UI_RQ3_TriggerShortcut(menuDef_t *menu, int key) {
 	}
 
 	if (DC->realTime >= UI_RQ3_lastCheckForShortcuts+UI_RQ3_ShortcutCheckDelay ) {
-		if (menu == NULL) {
-			return qfalse;
-		}
-
 		for (i = 0; i < menu->itemCount; i++) {
 			if ( menu->items[i]->window.shortcutKey == key ) {
 				Item_Action(menu->items[i]);
@@ -2668,7 +2668,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	int i;
 	itemDef_t *item = NULL;
 	qboolean inHandler = qfalse;
-	//Makro - check for shortcut keys
+	//Makro - skip check for shortcut keys
 	qboolean skipCheck = qfalse;
 	
 	if (inHandler) {
@@ -2730,6 +2730,11 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		}
 	}
 
+	if (!down) {
+		inHandler = qfalse;
+		return;
+	}
+
 	//Makro - check for shortcuts
 	if (item) {
 		if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
@@ -2744,11 +2749,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		if (UI_RQ3_TriggerShortcut(menu, key)) {
 			return;
 		}
-	}
-
-	if (!down) {
-		inHandler = qfalse;
-		return;
 	}
 
 	// default handling

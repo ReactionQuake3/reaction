@@ -5,12 +5,20 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/02/24 00:54:12  makro
+// Even more fixes to the shortcut keys code.
+// Added more info to the header, too :)
+//
 // Revision 1.4  2002/02/23 15:02:22  makro
 // Improved the code that checks for shortcut keys, it runs a lot faster now
-// Before that - added support for shortcut keys, 3d model rotation, model origin offset, new command to bring up the weapon menu and a cvar to be used in the player options menu. Also improved the remapShader command.
 //
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
+//
+// Revision 1.2 makro
+// Added support for shortcut keys, 3d model rotation, model origin offset,
+// new command to bring up the weapon menu and a cvar to be used in the
+// player options menu. Also improved the remapShader command.
 //
 //
 //-----------------------------------------------------------------------------
