@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2002/03/24 06:06:53  jbravo
+// Some tweaks and cleanups
+//
 // Revision 1.42  2002/03/23 21:29:42  jbravo
 // I finally fixed snipers spawning with pistol up. g_RQ3_sniperup has been
 // reinstated.
@@ -299,7 +302,7 @@ void StartLCA()
 	SpawnPlayers();
 
 	trap_SendServerCommand( -1, "lights");
-	trap_SendServerCommand( -1, "print \"\nLIGHTS!\n\"");
+	trap_SendServerCommand( -1, "print \"\n------------------\nLIGHTS...\n\"");
 }
 
 void ContinueLCA()
@@ -309,11 +312,11 @@ void ContinueLCA()
 
 	if (level.lights_camera_action == (21*level.fps)/10) {
 		trap_SendServerCommand( -1, "camera");
-		trap_SendServerCommand( -1, "print \"\nCAMERA!\n\"");
+		trap_SendServerCommand( -1, "print \"\nCAMERA...\n\"");
 	}
 	else if (level.lights_camera_action == 1) {
 		trap_SendServerCommand( -1, "action");
-		trap_SendServerCommand( -1, "print \"\nACTION!\n\"");
+		trap_SendServerCommand( -1, "print \"\nACTION!\n\n\"");
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
 		trap_Cvar_Set("g_RQ3_team_round_going", "1");

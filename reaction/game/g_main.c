@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/03/24 06:06:53  jbravo
+// Some tweaks and cleanups
+//
 // Revision 1.36  2002/03/23 05:50:47  jbravo
 // Moved enableDust out of the missionpack
 //
@@ -275,9 +278,9 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse },
 #endif
 	// NiceAss: Taken out of the missionpack
-	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qfalse },
 	// JBravo: ditto
-	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
