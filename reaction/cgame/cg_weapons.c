@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/09/09 06:40:35  niceass
+// smoke puff less intrusive
+//
 // Revision 1.95  2002/09/08 23:23:49  niceass
 // no first person pistol action when firing in semi-auto with predictweapons 0 fixed
 //
@@ -1645,7 +1648,7 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 			VectorMA(silencerEnd, 5, cg.refdef.viewaxis[2], silencerEnd);
 
 			VectorSet(up, 0.0f, 0.0f, 15.0f);
-			smoke = CG_SmokePuff( silencerEnd, up, 0.5f, 1, 1, 1, 0.75f, 400, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader );
+			smoke = CG_SmokePuff( silencerEnd, up, 0.5f, 1, 1, 1, 0.5f, 300, cg.time, 0, 0, cgs.media.shotgunSmokePuffShader );
 			smoke->leType = LE_SCALE_FADE;
 
 			cent->muzzleFlashTime = 0;
