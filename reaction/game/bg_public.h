@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2003/02/05 04:26:54  niceass
+// added support for akimbo animations
+//
 // Revision 1.99  2002/12/09 00:58:48  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -1201,12 +1204,17 @@ typedef enum {
 
 	TORSO_ATTACK,
 	TORSO_ATTACK2,
+	TORSO_ATTACK3,
 
 	TORSO_DROP,
 	TORSO_RAISE,
 
+	TORSO_DROP2,
+	TORSO_RAISE2,
+
 	TORSO_STAND,
 	TORSO_STAND2,
+	TORSO_STAND3,
 
 	LEGS_WALKCR,
 	LEGS_WALK,

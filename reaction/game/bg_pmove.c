@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.92  2003/02/05 04:29:14  niceass
+// added support for akimbo animations
+//
 // Revision 1.91  2002/10/26 00:37:18  jbravo
 // New multiple item code and added PB support to the UI
 //
@@ -1705,7 +1708,10 @@ static void PM_BeginWeaponChange(int weapon)
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 	}
 
-	PM_StartTorsoAnim(TORSO_DROP);
+	if ( pm->ps->weapon == WP_AKIMBO )
+		PM_StartTorsoAnim(TORSO_DROP2);
+	else
+		PM_StartTorsoAnim(TORSO_DROP);
 }
 
 /*
@@ -1787,7 +1793,10 @@ static void PM_FinishWeaponChange(void)
 	else
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
-	PM_StartTorsoAnim(TORSO_RAISE);
+	if ( pm->ps->weapon == WP_AKIMBO )
+		PM_StartTorsoAnim(TORSO_RAISE2);
+	else
+		PM_StartTorsoAnim(TORSO_RAISE);
 }
 
 /*
@@ -1801,6 +1810,8 @@ static void PM_TorsoAnimation(void)
 	if (pm->ps->weaponstate == WEAPON_READY) {
 		if (pm->ps->weapon == WP_KNIFE) {
 			PM_ContinueTorsoAnim(TORSO_STAND2);
+		} else if ( pm->ps->weapon == WP_AKIMBO) {
+			PM_ContinueTorsoAnim(TORSO_STAND3);
 		} else {
 			PM_ContinueTorsoAnim(TORSO_STAND);
 		}
@@ -2276,6 +2287,9 @@ static void PM_Weapon(void)
 		pm->ps->weaponstate = WEAPON_READY;
 		if (pm->ps->weapon == WP_KNIFE) {
 			PM_StartTorsoAnim(TORSO_STAND2);
+		// NiceAss: Support for special akimbo torso animations
+		} else if ( pm->ps->weapon == WP_AKIMBO ) {
+			PM_StartTorsoAnim(TORSO_STAND3);
 		} else {
 			PM_StartTorsoAnim(TORSO_STAND);
 		}
@@ -2396,7 +2410,12 @@ static void PM_Weapon(void)
 		if (!(pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST]) ||
 		    !(pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2) ||
 		    !(pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2)) {
-			PM_StartTorsoAnim(TORSO_ATTACK);
+
+			// NiceAss: Support for akimbo torso attack animations
+			if ( pm->ps->weapon == WP_AKIMBO )
+				PM_StartTorsoAnim(TORSO_ATTACK3);
+			else
+				PM_StartTorsoAnim(TORSO_ATTACK);
 
 			// QUARANTINE - Weapon animations
 			// This should change pm->ps->generic1 so we can animate
