@@ -121,6 +121,18 @@ UIOBJ = \
 	$(UIDIRNAME)/ui_mods.o
   
 
+TAUIOBJ = \
+	$(UIDIRNAME)/ui_main.o \
+	$(GDIRNAME)/bg_misc.o \
+	$(GDIRNAME)/q_math.o \
+	$(GDIRNAME)/q_shared.o \
+	$(UIDIRNAME)/ui_gameinfo.o \
+	$(UIDIRNAME)/ui_atoms.o \
+	$(UIDIRNAME)/ui_players.o \
+	$(UIDIRNAME)/ui_shared.o \
+	$(UIDIRNAME)/ui_util.o
+  
+
 
 
 
