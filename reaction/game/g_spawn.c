@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/05/04 06:28:58  makro
+// no message
+//
 // Revision 1.22  2002/05/04 01:03:43  makro
 // Bots
 //
@@ -437,11 +440,6 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			G_SpawnItem( ent, item );
-			/*
-			if (g_gametype.integer == GT_TEAMPLAY) {
-				ent->r.svFlags |= SVF_NOCLIENT;
-				ent->s.eFlags |= EF_NODRAW;
-			}*/
 			return qtrue;
 		}
 	}
