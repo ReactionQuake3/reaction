@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2002/03/21 19:22:12  jbravo
+// Bando now adds extra ammo to the special weaps, and when its dropped it goes
+// away again.
+//
 // Revision 1.79  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -2728,7 +2732,7 @@ void Cmd_DropItem_f( gentity_t *ent )
 		//Elder: reset item totals if using bandolier
 		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
 		{
-				if (ent->client->numClips[WP_PISTOL] > RQ3_PISTOL_MAXCLIP)
+/*				if (ent->client->numClips[WP_PISTOL] > RQ3_PISTOL_MAXCLIP)
 				{
 					ent->client->numClips[WP_PISTOL] = RQ3_PISTOL_MAXCLIP;
 					ent->client->numClips[WP_AKIMBO] = RQ3_PISTOL_MAXCLIP;
@@ -2737,15 +2741,24 @@ void Cmd_DropItem_f( gentity_t *ent )
 				{
 					ent->client->numClips[WP_M3] = RQ3_M3_MAXCLIP;
 					ent->client->numClips[WP_HANDCANNON] = RQ3_M3_MAXCLIP;
-				}
-				if (ent->client->numClips[WP_M4] > RQ3_M4_MAXCLIP)
-					ent->client->numClips[WP_M4] = RQ3_M4_MAXCLIP;
-				if (ent->client->numClips[WP_MP5] > RQ3_MP5_MAXCLIP)
-					ent->client->numClips[WP_MP5] = RQ3_MP5_MAXCLIP;
-				if (ent->client->numClips[WP_KNIFE] > RQ3_KNIFE_MAXCLIP)
-					ent->client->numClips[WP_KNIFE] = RQ3_KNIFE_MAXCLIP;
-				if (ent->client->numClips[WP_GRENADE] > RQ3_GRENADE_MAXCLIP)
-					ent->client->numClips[WP_GRENADE] = RQ3_GRENADE_MAXCLIP;
+				} */
+				if (ent->client->numClips[WP_SSG3000] > RQ3_SSG3000_EXTRA_AMMO)
+					ent->client->numClips[WP_SSG3000] = RQ3_SSG3000_EXTRA_AMMO;
+				if (ent->client->numClips[WP_M3] > RQ3_M3_EXTRA_AMMO)
+					ent->client->numClips[WP_M3] = RQ3_M3_EXTRA_AMMO;
+				if (ent->client->numClips[WP_M4] > RQ3_M4_EXTRA_AMMO)
+					ent->client->numClips[WP_M4] = RQ3_M4_EXTRA_AMMO;
+				if (ent->client->numClips[WP_MP5] > RQ3_MP5_EXTRA_AMMO)
+					ent->client->numClips[WP_MP5] = RQ3_MP5_EXTRA_AMMO;
+				if (ent->client->numClips[WP_KNIFE] > RQ3_KNIVES_EXTRA_AMMO)
+					ent->client->numClips[WP_KNIFE] = RQ3_KNIVES_EXTRA_AMMO;
+				if (ent->client->numClips[WP_AKIMBO] > RQ3_AKIMBO_EXTRA_AMMO)
+					ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO;
+
+				if (ent->client->ps.ammo[WP_GRENADE] > 0)
+					ent->client->ps.ammo[WP_GRENADE] = 0;
+				if (ent->client->numClips[WP_PISTOL] > 1)
+					ent->client->numClips[WP_PISTOL] = 1;
 
 				if (ent->client->uniqueWeapons > g_RQ3_maxWeapons.integer)
 				{

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/21 19:22:12  jbravo
+// Bando now adds extra ammo to the special weaps, and when its dropped it goes
+// away again.
+//
 // Revision 1.39  2002/03/21 15:02:05  jbravo
 // More teamname cleanups and fix for fraglines.
 //
@@ -700,7 +704,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_SSG3000 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO;
+		ent->client->numClips[ WP_SSG3000 ] = RQ3_SSG3000_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_SSG3000 ] = RQ3_SSG3000_AMMO;
 		ent->client->ps.weapon = WP_SSG3000;
 		ent->client->ps.weaponTime = RQ3_SSG3000_ACTIVATE_DELAY;
@@ -711,7 +715,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MP5 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO;
+		ent->client->numClips[ WP_MP5 ] = RQ3_MP5_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_MP5 ] = RQ3_MP5_AMMO;
 		ent->client->ps.weapon = WP_MP5;
 		ent->client->ps.weaponTime = RQ3_MP5_ACTIVATE_DELAY;
@@ -722,7 +726,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M3 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO;
+		ent->client->numClips[ WP_M3 ] = RQ3_M3_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_M3 ] = RQ3_M3_AMMO;
 		ent->client->ps.weapon = WP_M3;
 		ent->client->ps.weaponTime = RQ3_M3_ACTIVATE_DELAY;
@@ -733,7 +737,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_M4 );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO;
+		ent->client->numClips[ WP_M4 ] = RQ3_M4_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_M4 ] = RQ3_M4_AMMO;
 		ent->client->ps.weapon = WP_M4;
 		ent->client->ps.weaponTime = RQ3_M4_ACTIVATE_DELAY;
@@ -744,7 +748,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_AKIMBO );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO;
+		ent->client->numClips[ WP_AKIMBO ] = RQ3_AKIMBO_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_AKIMBO ] = RQ3_AKIMBO_AMMO;
 		ent->client->ps.weapon = WP_AKIMBO;
 		ent->client->ps.weaponTime = RQ3_AKIMBO_ACTIVATE_DELAY;
@@ -755,7 +759,7 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_HANDCANNON );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
-		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO;
+		ent->client->numClips[ WP_HANDCANNON ] = RQ3_HANDCANNON_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.ammo[ WP_HANDCANNON ] = RQ3_HANDCANNON_AMMO;
 		ent->client->ps.weapon = WP_HANDCANNON;
 		ent->client->ps.weaponTime = RQ3_HANDCANNON_ACTIVATE_DELAY;
@@ -765,7 +769,7 @@ void EquipPlayer (gentity_t *ent)
 	case WP_KNIFE:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_KNIFE );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PISTOL );
-		ent->client->ps.ammo[ WP_KNIFE ] = 10 * bandolierFactor;
+		ent->client->ps.ammo[ WP_KNIFE ] = RQ3_KNIVES_EXTRA_AMMO * bandolierFactor;
 		ent->client->ps.weapon = WP_KNIFE;
 		ent->client->ps.weaponTime = RQ3_KNIFE_ACTIVATE_DELAY;
 		ent->client->weaponCount[ent->client->ps.weapon] = 1;
@@ -778,7 +782,7 @@ void EquipPlayer (gentity_t *ent)
 	if (grenades > 0) {
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE );
 		ent->client->ps.ammo[WP_GRENADE] = grenades;
-		ent->client->uniqueWeapons++;
+//		ent->client->uniqueWeapons++;
 	}
 	if (ent->client->teamplayWeapon == WP_KNIFE && !(ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE)) {
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/03/21 19:22:12  jbravo
+// Bando now adds extra ammo to the special weaps, and when its dropped it goes
+// away again.
+//
 // Revision 1.50  2002/03/14 02:24:39  jbravo
 // Adding radio :)
 //
@@ -189,6 +193,7 @@
 #define RQ3_M4_EXTRA_AMMO		1
 #define RQ3_AKIMBO_EXTRA_AMMO		2
 #define RQ3_HANDCANNON_EXTRA_AMMO	12
+#define RQ3_KNIVES_EXTRA_AMMO		10
 
 //Elder: confused?
 
