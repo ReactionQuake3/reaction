@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/02/04 00:31:40  niceass
+// oops =D
+//
 // Revision 1.8  2002/02/04 00:30:35  niceass
 // New physics
 //
@@ -59,7 +62,6 @@ void PM_StepSlideMove_ ( void ) {
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
 
 		if (trace.allsolid) {
-			//Com_Printf("case1");
 			// entity is completely trapped in another solid
 			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
 			return qtrue;
@@ -81,7 +83,6 @@ void PM_StepSlideMove_ ( void ) {
 		time_left -= time_left * trace.fraction;
 
 		if (numplanes >= MAX_CLIP_PLANES) {
-			Com_Printf("case2");
 			// this shouldn't really happen
 			VectorClear( pm->ps->velocity );
 			break;
@@ -100,17 +101,13 @@ void PM_StepSlideMove_ ( void ) {
 			if (j == numplanes) break;
 		}
 
-//		Com_Printf("%d ", i);
-
 		// Clipped velocity against all planes
 		if (i == numplanes) {
 			if (numplanes != 2) {
 				VectorClear(pm->ps->velocity);
-				//Com_Printf("!");
 				break;
 			}
 			else {
-				//Com_Printf("2");
 				CrossProduct (planes[0], planes[1], dir);
 				d = DotProduct (dir, pm->ps->velocity);
 				VectorScale (dir, d, pm->ps->velocity);
@@ -118,7 +115,6 @@ void PM_StepSlideMove_ ( void ) {
 		}
 
 		if (DotProduct (pm->ps->velocity, primal_velocity) <= 0) {
-			//Com_Printf("?");
 			VectorClear(pm->ps->velocity);
 			break;
 		}
@@ -129,336 +125,6 @@ void PM_StepSlideMove_ ( void ) {
 	}
 }
 
-/*
-qboolean PM_StepSlideMove_ ( void ) {
-	int			bumpcount, numbumps;
-	vec3_t		dir;
-	float		d;
-	int			numplanes;
-	vec3_t		planes[MAX_CLIP_PLANES];
-	vec3_t		primal_velocity;
-	vec3_t		clipVelocity;
-	int			i, j, k;
-	trace_t	trace;
-	vec3_t		end;
-	float		time_left;
-	float		into;
-	vec3_t		endVelocity;
-	vec3_t		endClipVelocity;
-	
-	numbumps = 4;
-
-	VectorCopy (pm->ps->velocity, primal_velocity);
-
-	time_left = pml.frametime;
-
-	// never turn against the ground plane
-	if ( pml.groundPlane ) {
-		numplanes = 1;
-		VectorCopy( pml.groundTrace.plane.normal, planes[0] );
-	} else {
-		numplanes = 0;
-	}
-
-	// never turn against original velocity
-	VectorNormalize2( pm->ps->velocity, planes[numplanes] );
-	numplanes++;
-
-	for ( bumpcount=0 ; bumpcount < numbumps ; bumpcount++ ) {
-
-		// calculate position we are trying to move to
-		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
-
-		// see if we can make it there
-		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
-
-		if (trace.allsolid) {
-			// entity is completely trapped in another solid
-			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			Com_Printf("no");
-			return qtrue;
-		}
-
-		if (trace.fraction > 0) {
-			// actually covered some distance
-			VectorCopy (trace.endpos, pm->ps->origin);
-		}
-
-		if (trace.fraction == 1) {
-			 break;		// moved the entire distance
-		}
-
-		// save entity for contact
-		PM_AddTouchEnt( trace.entityNum );
-
-		time_left -= time_left * trace.fraction;
-
-		if (numplanes >= MAX_CLIP_PLANES) {
-			// this shouldn't really happen
-			VectorClear( pm->ps->velocity );
-			return qtrue;
-		}
-
-		//
-		// if this is the same plane we hit before, nudge velocity
-		// out along it, which fixes some epsilon issues with
-		// non-axial planes
-		//
-		for ( i = 0 ; i < numplanes ; i++ ) {
-			if ( DotProduct( trace.plane.normal, planes[i] ) > 0.99 ) {
-				VectorAdd( trace.plane.normal, pm->ps->velocity, pm->ps->velocity );
-				break;
-			}
-		}
-		if ( i < numplanes ) {
-			continue;
-		}
-		VectorCopy (trace.plane.normal, planes[numplanes]);
-		numplanes++;
-
-		//
-		// modify velocity so it parallels all of the clip planes
-		//
-
-		// find a plane that it enters
-		for ( i = 0 ; i < numplanes ; i++ ) {
-			into = DotProduct( pm->ps->velocity, planes[i] );
-			if ( into >= 0.1 ) {
-				continue;		// move doesn't interact with the plane
-			}
-
-			// see how hard we are hitting things
-			if ( -into > pml.impactSpeed ) {
-				pml.impactSpeed = -into;
-			}
-			// slide along the plane
-			PM_ClipVelocity (pm->ps->velocity, planes[i], clipVelocity, OVERCLIP );
-			PM_ClipVelocity (endVelocity, planes[i], endClipVelocity, OVERCLIP );
-
-			// see if there is a second plane that the new move enters
-			for ( j = 0 ; j < numplanes ; j++ ) {
-				if ( j == i ) {
-					continue;
-				}
-				if ( DotProduct( clipVelocity, planes[j] ) >= 0.1 ) {
-					continue;		// move doesn't interact with the plane
-				}
-				// try clipping the move to the plane
-				PM_ClipVelocity( clipVelocity, planes[j], clipVelocity, OVERCLIP );
-				PM_ClipVelocity( endClipVelocity, planes[j], endClipVelocity, OVERCLIP );
-
-				// see if it goes back into the first clip plane
-				if ( DotProduct( clipVelocity, planes[i] ) >= 0 ) {
-					continue;
-				}
-
-				// slide the original velocity along the crease
-				CrossProduct (planes[i], planes[j], dir);
-				VectorNormalize( dir );
-				d = DotProduct( dir, pm->ps->velocity );
-				VectorScale( dir, d, clipVelocity );
-
-				CrossProduct (planes[i], planes[j], dir);
-				VectorNormalize( dir );
-				d = DotProduct( dir, endVelocity );
-				VectorScale( dir, d, endClipVelocity );
-
-				// see if there is a third plane the the new move enters
-				for ( k = 0 ; k < numplanes ; k++ ) {
-					if ( k == i || k == j ) {
-						continue;
-					}
-					if ( DotProduct( clipVelocity, planes[k] ) >= 0.1 ) {
-						continue;		// move doesn't interact with the plane
-					}
-					// stop dead at a tripple plane interaction
-					VectorClear( pm->ps->velocity );
-					return qtrue;
-				}
-			}
-
-			// if we have fixed all interactions, try another move
-			VectorCopy( clipVelocity, pm->ps->velocity );
-			VectorCopy( endClipVelocity, endVelocity );
-			break;
-		}
-	}
-
-	// don't change velocity if in a timer (FIXME: is this correct?)
-	if ( pm->ps->pm_time ) {
-		VectorCopy( primal_velocity, pm->ps->velocity );
-	}
-
-	return ( bumpcount != 0 );
-}
-*/
-/*
-qboolean PM_StepSlideMove_ ( void ) {
-	int			bumpcount, numbumps;
-	vec3_t		dir;
-	float		d;
-	int			numplanes;
-	vec3_t		planes[MAX_CLIP_PLANES];
-	vec3_t		primal_velocity;
-	vec3_t		clipVelocity;
-	int			i, j, k;
-	trace_t	trace;
-	vec3_t		end;
-	float		time_left;
-	float		into;
-	vec3_t		endVelocity;
-	vec3_t		endClipVelocity;
-	
-	numbumps = 4;
-
-	VectorCopy (pm->ps->velocity, primal_velocity);
-
-	time_left = pml.frametime;
-
-	// never turn against the ground plane
-	if ( pml.groundPlane ) {
-		numplanes = 1;
-		VectorCopy( pml.groundTrace.plane.normal, planes[0] );
-	} else {
-		numplanes = 0;
-	}
-
-	// never turn against original velocity
-	VectorNormalize2( pm->ps->velocity, planes[numplanes] );
-	numplanes++;
-
-	for ( bumpcount=0 ; bumpcount < numbumps ; bumpcount++ ) {
-
-		// calculate position we are trying to move to
-		VectorMA( pm->ps->origin, time_left, pm->ps->velocity, end );
-
-		// see if we can make it there
-		pm->trace ( &trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
-
-		if (trace.allsolid) {
-			// entity is completely trapped in another solid
-			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return qtrue;
-		}
-
-		if (trace.fraction > 0) {
-			// actually covered some distance
-			VectorCopy (trace.endpos, pm->ps->origin);
-		}
-
-		if (trace.fraction == 1) {
-			 break;		// moved the entire distance
-		}
-
-		// save entity for contact
-		PM_AddTouchEnt( trace.entityNum );
-
-		time_left -= time_left * trace.fraction;
-
-		if (numplanes >= MAX_CLIP_PLANES) {
-			// this shouldn't really happen
-			VectorClear( pm->ps->velocity );
-			return qtrue;
-		}
-
-		//
-		// if this is the same plane we hit before, nudge velocity
-		// out along it, which fixes some epsilon issues with
-		// non-axial planes
-		//
-		for ( i = 0 ; i < numplanes ; i++ ) {
-			if ( DotProduct( trace.plane.normal, planes[i] ) > 0.99 ) {
-				VectorAdd( trace.plane.normal, pm->ps->velocity, pm->ps->velocity );
-				break;
-			}
-		}
-		if ( i < numplanes ) {
-			continue;
-		}
-		VectorCopy (trace.plane.normal, planes[numplanes]);
-		numplanes++;
-
-		//
-		// modify velocity so it parallels all of the clip planes
-		//
-
-		// find a plane that it enters
-		for ( i = 0 ; i < numplanes ; i++ ) {
-			into = DotProduct( pm->ps->velocity, planes[i] );
-			if ( into >= 0.1 ) {
-				continue;		// move doesn't interact with the plane
-			}
-
-			// see how hard we are hitting things
-			if ( -into > pml.impactSpeed ) {
-				pml.impactSpeed = -into;
-			}
-
-			// slide along the plane
-			PM_ClipVelocity (pm->ps->velocity, planes[i], clipVelocity, OVERCLIP );
-
-			// slide along the plane
-			PM_ClipVelocity (endVelocity, planes[i], endClipVelocity, OVERCLIP );
-
-			// see if there is a second plane that the new move enters
-			for ( j = 0 ; j < numplanes ; j++ ) {
-				if ( j == i ) {
-					continue;
-				}
-				if ( DotProduct( clipVelocity, planes[j] ) >= 0.1 ) {
-					continue;		// move doesn't interact with the plane
-				}
-
-				// try clipping the move to the plane
-				PM_ClipVelocity( clipVelocity, planes[j], clipVelocity, OVERCLIP );
-				PM_ClipVelocity( endClipVelocity, planes[j], endClipVelocity, OVERCLIP );
-
-				// see if it goes back into the first clip plane
-				if ( DotProduct( clipVelocity, planes[i] ) >= 0 ) {
-					continue;
-				}
-
-				// slide the original velocity along the crease
-				CrossProduct (planes[i], planes[j], dir);
-				VectorNormalize( dir );
-				d = DotProduct( dir, pm->ps->velocity );
-				VectorScale( dir, d, clipVelocity );
-
-				CrossProduct (planes[i], planes[j], dir);
-				VectorNormalize( dir );
-				d = DotProduct( dir, endVelocity );
-				VectorScale( dir, d, endClipVelocity );
-
-				// see if there is a third plane the the new move enters
-				for ( k = 0 ; k < numplanes ; k++ ) {
-					if ( k == i || k == j ) {
-						continue;
-					}
-					if ( DotProduct( clipVelocity, planes[k] ) >= 0.1 ) {
-						continue;		// move doesn't interact with the plane
-					}
-
-					// stop dead at a tripple plane interaction
-					VectorClear( pm->ps->velocity );
-					return qtrue;
-				}
-			}
-
-			// if we have fixed all interactions, try another move
-			VectorCopy( clipVelocity, pm->ps->velocity );
-			VectorCopy( endClipVelocity, endVelocity );
-			break;
-		}
-	}
-
-	// don't change velocity if in a timer (FIXME: is this correct?)
-	if ( pm->ps->pm_time ) {
-		VectorCopy( primal_velocity, pm->ps->velocity );
-	}
-
-	return ( bumpcount != 0 );
-}
-*/
 /*
 ==================
 PM_StepSlideMove
