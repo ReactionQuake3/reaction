@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/06/10 13:20:03  slicer
+// RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
+//
 // Revision 1.45  2002/06/03 00:47:06  niceass
 // match scoreboard changes
 //
@@ -174,6 +177,8 @@ static void CG_ParseScores( void ) {
 	cg.team1ready = atoi( CG_Argv( 4 ) );
 	cg.team2ready = atoi( CG_Argv( 5 ) );
 	cg.matchTime = atoi( CG_Argv( 6 ) );
+	cg.refID = atoi ( CG_Argv ( 7 ) );
+
 
 	memset( cg.scores, 0, sizeof( cg.scores ) );
 	for ( i = 0 ; i < cg.numScores ; i++ ) {
@@ -1242,7 +1247,8 @@ void CG_RQ3_Cmd () {
 
 	switch(cmd) {
 		case LIGHTS:
-			trap_Cvar_Set("cg_RQ3_lca", "1");
+			cg.lca = 1;
+			//trap_Cvar_Set("cg_RQ3_lca", "1");
 			cg.showScores = qfalse;
 			cg.scoreTPMode = 0;
 			CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
@@ -1257,7 +1263,8 @@ void CG_RQ3_Cmd () {
 		case ACTION:
 			CG_CenterPrint( "ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 			CG_Printf("\nACTION!\n");
-			trap_Cvar_Set("cg_RQ3_lca", "0");
+			cg.lca = 0;
+		//	trap_Cvar_Set("cg_RQ3_lca", "0");
 			CG_AddBufferedSound(cgs.media.actionSound);
 			break;
 		/*case SETTEAMPLAYERS:
@@ -1283,8 +1290,8 @@ void CG_RQ3_Cmd () {
 		case ROUND:
 			trap_Cvar_Set("cg_RQ3_team_round_going", CG_Argv(1));
 			break;
-    case MAPSTART:
-      break;
+		case MAPSTART:
+			break;
 		case STARTDEMO:
 			switch (cg_RQ3_autoAction.integer) {
 				case 1:
@@ -1500,7 +1507,7 @@ static void CG_ServerCommand( void ) {
 		cg.levelShot = qtrue;
 		return;
 	}
-	//Blaze: Dont think q3 can do
+	//Blaze: Dont think q3 can d
 	/*if ( !strcmp( cmd, "numCheatVars" ) )
 	{//set and clear the cheatvar structure
 		int		numCheats;

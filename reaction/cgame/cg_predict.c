@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2002/06/10 13:20:03  slicer
+// RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
+//
 // Revision 1.20  2002/06/03 05:23:22  niceass
 // spectator changes
 //
@@ -641,7 +644,8 @@ void CG_PredictPlayerState( void ) {
 	}*/
 
 // JBravo: setting lca in pm if needed
-		if (cg_RQ3_lca.integer == 1)
+		//if (cg_RQ3_lca.integer == 1)
+		if(cg.lca)
 			cg_pmove.lca = qtrue;
 		else
 			cg_pmove.lca = qfalse;

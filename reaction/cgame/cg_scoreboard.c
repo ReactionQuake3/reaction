@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/06/10 13:20:03  slicer
+// RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
+//
 // Revision 1.32  2002/06/05 23:39:23  niceass
 // small change in wording
 //
@@ -315,9 +318,10 @@ static int CG_TeamplayScoreboard(void)
 	}
 
 	// MATCHMODE / TEAMPLAY for showing Referee
-	if ( cg_RQ3_matchmode.integer && cg_RQ3_RefID.integer >= 0) {
+	//if ( cg_RQ3_matchmode.integer && cg_RQ3_RefID.integer >= 0) {
+	if ( cg_RQ3_matchmode.integer && cg.refID >= 0) {
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
-		ci = &cgs.clientinfo[ cg_RQ3_RefID.integer ];
+		ci = &cgs.clientinfo[ cg.refID ];
 		DrawLeftStripText(y, SB_FONTSIZEH, "Referee:", 100, colorBlack);
 		DrawRightStripText(y, SB_FONTSIZEH, ci->name, 30, colorBlack);
 		y += SB_FONTSIZEH+SB_PADDING*4+2;

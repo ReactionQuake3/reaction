@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/06/10 13:20:03  slicer
+// RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
+//
 // Revision 1.77  2002/06/09 18:58:40  makro
 // no message
 //
@@ -370,7 +373,8 @@ vmCvar_t	cg_obeliskRespawnDelay;
 //Blaze: cheat struct
 cheat_cvar	cheats[30];
 // JBravo: Teamplay cvars synced from game
-vmCvar_t	cg_RQ3_lca;
+//Slicer: no longer needed.
+//vmCvar_t	cg_RQ3_lca;
 vmCvar_t	cg_RQ3_team_round_going;
 vmCvar_t	cg_RQ3_team1name;
 vmCvar_t	cg_RQ3_team2name;
@@ -379,7 +383,7 @@ vmCvar_t	ui_RQ3_teamCount2;
 vmCvar_t	ui_RQ3_numSpectators;
 
 //Slicer: matchmode team status cvars
-vmCvar_t	cg_RQ3_RefID;
+//vmCvar_t	cg_RQ3_RefID;
 vmCvar_t	cg_RQ3_matchmode;
 // NiceAss: Taken out of the missionpack
 vmCvar_t	cg_enableBreath;
@@ -547,7 +551,8 @@ static cvarTable_t cvarTable[] = { // bk001129
 	//Makro - avidemo with jpegs
 	{ &cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0 },
 // JBravo: added
-	{ &cg_RQ3_lca, "cg_RQ3_lca", "0", CVAR_ROM},
+//Slicer: no longer needed.
+//	{ &cg_RQ3_lca, "cg_RQ3_lca", "0", CVAR_ROM},
 	{ &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{ &cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
@@ -557,7 +562,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_gravity, "g_gravity", "800", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
-	{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
+	//{ &cg_RQ3_RefID, "g_RQ3_RefID", "0", 0}
 	
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };

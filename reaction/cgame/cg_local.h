@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/10 13:20:03  slicer
+// RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
+//
 // Revision 1.87  2002/06/09 05:16:17  niceass
 // pressure change
 //
@@ -934,7 +937,12 @@ typedef struct {
 	int			records[REC_NUM_RECORDS];	// Blaze: for our statistics tracking
 	float		loadingMapPercent;			// NiceAss: Ranges from 0 to 1. Used on map load.
 
+	
+	//Slicer vars that are synched from GAME
+	int			lca;
+
 	// NiceAss: Scoreboard MM stuff:
+	int			refID;
 	int			matchTime;
 	int			team1ready;
 	int			team2ready;
@@ -1714,7 +1722,8 @@ extern  vmCvar_t	  cg_RQ3_autoAction;
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
 // JBravo: Teamplay cvars synched from game
-extern	vmCvar_t		cg_RQ3_lca;
+//Slicer: no longer needed.
+//extern	vmCvar_t		cg_RQ3_lca;
 extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
@@ -1722,7 +1731,7 @@ extern	vmCvar_t		ui_RQ3_teamCount1;
 extern	vmCvar_t		ui_RQ3_teamCount2;
 extern	vmCvar_t		ui_RQ3_numSpectators;
 //Slicer: matchmode team status cvars
-extern	vmCvar_t		cg_RQ3_RefID;
+//extern	vmCvar_t		cg_RQ3_RefID;
 extern	vmCvar_t		cg_RQ3_matchmode;
 
 
