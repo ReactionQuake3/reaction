@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/06/10 14:02:31  slicer
+// Removed rq3_cmd : ROUND , associated to cg_RQ3_team_round_going that wasn't being used
+//
 // Revision 1.88  2002/06/10 13:20:03  slicer
 // RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
 //
@@ -1724,7 +1727,9 @@ extern cheat_cvar		cheats[30];
 // JBravo: Teamplay cvars synched from game
 //Slicer: no longer needed.
 //extern	vmCvar_t		cg_RQ3_lca;
-extern	vmCvar_t		cg_RQ3_team_round_going;
+
+//Slicer: apparently not being used
+//extern	vmCvar_t		cg_RQ3_team_round_going;
 extern	vmCvar_t		cg_RQ3_team1name;
 extern	vmCvar_t		cg_RQ3_team2name;
 extern	vmCvar_t		ui_RQ3_teamCount1;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/06/10 14:02:31  slicer
+// Removed rq3_cmd : ROUND , associated to cg_RQ3_team_round_going that wasn't being used
+//
 // Revision 1.46  2002/06/10 13:20:03  slicer
 // RefID is now passed trought scoreboard, no more lca cvar, only cg.lca
 //
@@ -1287,9 +1290,10 @@ void CG_RQ3_Cmd () {
 			}
 		}
 		break;
-		case ROUND:
+		//Slicer: apparently not being used
+	/*	case ROUND:
 			trap_Cvar_Set("cg_RQ3_team_round_going", CG_Argv(1));
-			break;
+			break;*/
 		case MAPSTART:
 			break;
 		case STARTDEMO:
