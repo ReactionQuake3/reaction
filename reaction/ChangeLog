@@ -44,6 +44,7 @@
 * Scoreboard code updated for new ref system
 * Anti-wallhack code added
 * Countdown timer added for CTB respawning.
+* Fixed bug where rounds lasted half as long as g_RQ3_roundtimelimit was set to.
 
 # List fixes here for the 2.1 release
 
