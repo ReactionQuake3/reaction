@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/12/06 07:31:41  blaze
+// changed the helmet default from helmet/helmet to helmet
+//
 // Revision 1.115  2002/12/05 23:11:29  blaze
 // Added item replacement code
 //
@@ -661,7 +664,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_silencer, "cg_RQ3_silencer", "silencer", CVAR_ARCHIVE},
 	{&cg_RQ3_laser, "cg_RQ3_laser", "laser", CVAR_ARCHIVE},
 	{&cg_RQ3_slippers, "cg_RQ3_slippers", "slippers", CVAR_ARCHIVE},
-	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet/helmet", CVAR_ARCHIVE},
+	{&cg_RQ3_helmet, "cg_RQ3_helmet", "helmet", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
