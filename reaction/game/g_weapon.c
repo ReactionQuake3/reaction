@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/06/02 22:04:38  blaze
+// breakables act proper when triggered(explode if explosive, etc)  also, spawnflags 8 will make the breakable so you cant kick it
+//
 // Revision 1.62  2002/05/27 06:54:06  niceass
 // new reflection code
 //
@@ -201,8 +204,15 @@ qboolean JumpKick (gentity_t *ent) {
 	//Makro - this was a few lines below
 	damage = 20;
 
-	if (traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
+  
+  if (traceEnt->s.eType == ET_BREAKABLE && (traceEnt->spawnflags & 8) == 8) 
+  {
+    return qfalse;
+  }
+
+	if ( traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
 		kickSuccess = qtrue;
+
 
 // JBravo: no kicking teammates while rounds are going
 	if (g_gametype.integer == GT_TEAMPLAY) {

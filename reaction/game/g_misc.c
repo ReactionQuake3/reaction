@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/06/02 22:04:38  blaze
+// breakables act proper when triggered(explode if explosive, etc)  also, spawnflags 8 will make the breakable so you cant kick it
+//
 // Revision 1.51  2002/06/02 19:22:12  blaze
 // my bad, breakables unlink when triggered now
 //
@@ -573,8 +576,17 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
 }
 
 void Use_Breakable( gentity_t *self, gentity_t *other, gentity_t *activator ) {
-  G_UseTargets (self, activator);  
-  func_breakable_die( self,activator,activator,self->damage,MOD_TRIGGER_HURT);
+  //G_UseTargets (self, activator);  
+//  if (self->explosive)
+//  {
+    //func_breakable_die( self,activator,activator,self->damage,MOD_TRIGGER_HURT);
+  //}
+  //else
+  //{
+  //make sure it breaks
+  self->health = 0;
+  G_BreakGlass( self, activator, activator, self->s.origin, MOD_TRIGGER_HURT, self->health );
+//  }
 }
 
 //Elder: Breakable anything!* -- we define, that is
