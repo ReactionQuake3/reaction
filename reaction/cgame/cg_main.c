@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/05/12 14:39:48  makro
+// Wood, brick & ceramic impact sounds
+//
 // Revision 1.62  2002/05/11 19:13:42  makro
 // Sand surfaceparm
 //
@@ -1052,6 +1055,17 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sfx_glassric1 = trap_S_RegisterSound ("sound/world/impactglass01.wav", qfalse);
 	cgs.media.sfx_glassric2 = trap_S_RegisterSound ("sound/world/impactglass02.wav", qfalse);
 	cgs.media.sfx_glassric3 = trap_S_RegisterSound ("sound/world/impactglass03.wav", qfalse);
+	//Makro - added
+	cgs.media.sfx_brickric1 = trap_S_RegisterSound ("sound/world/impactbrick01.wav", qfalse);
+	cgs.media.sfx_brickric2 = trap_S_RegisterSound ("sound/world/impactbrick02.wav", qfalse);
+	cgs.media.sfx_brickric3 = trap_S_RegisterSound ("sound/world/impactbrick03.wav", qfalse);
+	cgs.media.sfx_woodric1 = trap_S_RegisterSound ("sound/world/impactwood01.wav", qfalse);
+	cgs.media.sfx_woodric2 = trap_S_RegisterSound ("sound/world/impactwood02.wav", qfalse);
+	cgs.media.sfx_woodric3 = trap_S_RegisterSound ("sound/world/impactwood03.wav", qfalse);
+	cgs.media.sfx_ceramicric1 = trap_S_RegisterSound ("sound/world/impactceramic01.wav", qfalse);
+	cgs.media.sfx_ceramicric2 = trap_S_RegisterSound ("sound/world/impactceramic02.wav", qfalse);
+	cgs.media.sfx_ceramicric3 = trap_S_RegisterSound ("sound/world/impactceramic03.wav", qfalse);
+
 	cgs.media.sfx_shelltumble = trap_S_RegisterSound ("sound/misc/shell.wav", qfalse);
 
 	cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);

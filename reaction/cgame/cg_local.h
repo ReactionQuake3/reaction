@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/12 14:39:48  makro
+// Wood, brick & ceramic impact sounds
+//
 // Revision 1.73  2002/05/11 19:55:20  slicer
 // Added sub and captain to the scoreboard parser
 //
@@ -260,7 +263,11 @@ typedef enum {
 	IMPACTSOUND_METAL,
 	IMPACTSOUND_FLESH,
 	// rq3 onwards
-	IMPACTSOUND_GLASS
+	IMPACTSOUND_GLASS,
+	//Makro - added
+	IMPACTSOUND_BRICK,
+	IMPACTSOUND_WOOD,
+	IMPACTSOUND_CERAMIC
 } impactSound_t;
 
 
@@ -1174,6 +1181,18 @@ typedef struct {
 	sfxHandle_t	sfx_glassric1;
 	sfxHandle_t	sfx_glassric2;
 	sfxHandle_t	sfx_glassric3;
+	// Makro: brick ricochet sounds
+	sfxHandle_t	sfx_brickric1;
+	sfxHandle_t	sfx_brickric2;
+	sfxHandle_t	sfx_brickric3;
+	// Makro: wood ricochet sounds
+	sfxHandle_t	sfx_woodric1;
+	sfxHandle_t	sfx_woodric2;
+	sfxHandle_t	sfx_woodric3;
+	// Makro: ceramic ricochet sounds
+	sfxHandle_t	sfx_ceramicric1;
+	sfxHandle_t	sfx_ceramicric2;
+	sfxHandle_t	sfx_ceramicric3;
 	// Elder: Shell tumble sound
 	sfxHandle_t	sfx_shelltumble;
 

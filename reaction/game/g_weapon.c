@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/05/12 14:40:28  makro
+// Wood, brick & ceramic impact sounds
+//
 // Revision 1.54  2002/05/12 13:37:25  makro
 // Bugs with entities
 //
@@ -1698,6 +1701,15 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 			else if (Material == MAT_GLASS)
 				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
+			//Makro - added
+			else if (IsWoodMat(Material))
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WOOD );
+			//Makro - added
+			else if (Material == MAT_BRICK)
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_BRICK );
+			//Makro - added
+			else if (Material == MAT_CERAMIC)
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_CERAMIC );
 			else
 				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
@@ -1757,6 +1769,15 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 				else if (Material == MAT_GLASS)
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
+				//Makro - added
+				else if (IsWoodMat(Material))
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WOOD );
+				//Makro - added
+				else if (Material == MAT_BRICK)
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_BRICK );
+				//Makro - added
+				else if (Material == MAT_CERAMIC)
+					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_CERAMIC );
 				else
 					tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 
@@ -1828,6 +1849,15 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
 		else if (Material == MAT_GLASS)
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
+		//Makro - added
+		else if (IsWoodMat(Material))
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WOOD );
+		//Makro - added
+		else if (Material == MAT_BRICK)
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_BRICK );
+		//Makro - added
+		else if (Material == MAT_CERAMIC)
+			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_CERAMIC );
 		else
 			tentWall = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
 

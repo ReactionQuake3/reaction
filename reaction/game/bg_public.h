@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/05/12 14:40:28  makro
+// Wood, brick & ceramic impact sounds
+//
 // Revision 1.62  2002/05/11 19:18:20  makro
 // Sand surfaceparm
 //
@@ -995,6 +998,9 @@ typedef enum {
 	EV_BULLET_HIT_METAL,	// Elder: sparks
 	EV_BULLET_HIT_KEVLAR,	// Elder: sparks
 	EV_BULLET_HIT_GLASS,	// Elder: glass mark
+	EV_BULLET_HIT_WOOD,		// Makro: new sound
+	EV_BULLET_HIT_BRICK,	// Makro: new sound
+	EV_BULLET_HIT_CERAMIC,	// Makro: new sound
 	EV_SSG3000_HIT_FLESH,
 	EV_JUMPKICK,			// Elder: sound + jumpkick message
 	EV_EJECTBLOOD,			// Elder: when bleeding, every 2s release blood
@@ -1402,6 +1408,8 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define MAT_SNOW2				15
 #define MAT_HARDSTEPS			16
 #define	MAT_SAND				17
+#define	MAT_BRICK				18
+#define	MAT_CERAMIC				19
 
 int GetMaterialFromFlag( int flag );
 qboolean IsMetalMat( int Material );

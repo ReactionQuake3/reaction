@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/05/12 14:39:48  makro
+// Wood, brick & ceramic impact sounds
+//
 // Revision 1.70  2002/05/09 06:40:37  niceass
 // New tracers
 //
@@ -2920,6 +2923,39 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				else
 					sfx = cgs.media.sfx_glassric3;
 			}
+			//Makro - added
+			else if (soundType == IMPACTSOUND_BRICK)
+			{
+				mark = cgs.media.bulletMarkShader;
+				if ( r < 2 )
+					sfx = cgs.media.sfx_brickric1;
+				else if ( r == 2 )
+					sfx = cgs.media.sfx_brickric2;
+				else
+					sfx = cgs.media.sfx_brickric3;
+			}
+			//Makro - added
+			else if (soundType == IMPACTSOUND_WOOD)
+			{
+				mark = cgs.media.bulletMarkShader;
+				if ( r < 2 )
+					sfx = cgs.media.sfx_woodric1;
+				else if ( r == 2 )
+					sfx = cgs.media.sfx_woodric2;
+				else
+					sfx = cgs.media.sfx_woodric3;
+			}
+			//Makro - added
+			else if (soundType == IMPACTSOUND_CERAMIC)
+			{
+				mark = cgs.media.bulletMarkShader;
+				if ( r < 2 )
+					sfx = cgs.media.sfx_ceramicric1;
+				else if ( r == 2 )
+					sfx = cgs.media.sfx_ceramicric2;
+				else
+					sfx = cgs.media.sfx_ceramicric3;
+			}
 			else
 			{
 				mark = cgs.media.bulletMarkShader;
@@ -3601,6 +3637,42 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 			{
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_GLASS, 0 );
+			}
+		}
+		//Makro - added
+		else if ( IsWoodMat(Material) )
+		{
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_WOOD, 0 );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_WOOD, 0 );
+			}
+		}
+		//Makro - added
+		else if ( Material == MAT_BRICK )
+		{
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_BRICK, 0 );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_BRICK, 0 );
+			}
+		}
+		//Makro - added
+		else if ( Material == MAT_CERAMIC )
+		{
+			//Blaze: Changed WP_SHOTGUN to WP_M3
+			if (shellWeapon == WP_M3)
+				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_CERAMIC, 0 );
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
+				//Elder: show only approximately every other impact mark
+				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, viewDir, IMPACTSOUND_CERAMIC, 0 );
 			}
 		}
 		else
