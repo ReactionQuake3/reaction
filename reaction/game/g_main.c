@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/05/05 04:23:00  jbravo
+// Some MM fixes and cleanups
+//
 // Revision 1.51  2002/05/04 23:17:26  jbravo
 // Fixed the model checking code a bit. It now works with the .ini file
 //
@@ -218,6 +221,7 @@ vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
 vmCvar_t	g_RQ3_team1model;
 vmCvar_t	g_RQ3_team2model;
+vmCvar_t	g_RQ3_tpcountdown;
 //vmCvar_t	g_RQ3_teamCount1;
 //vmCvar_t	g_RQ3_teamCount2;
 //vmCvar_t	g_RQ3_numSpectators;
@@ -366,6 +370,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SERVERINFO, 0, qfalse },
+	{ &g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "1", CVAR_ARCHIVE, 0, qfalse },
 //	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
 //	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
 //	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/05/05 04:23:00  jbravo
+// Some MM fixes and cleanups
+//
 // Revision 1.74  2002/05/05 01:20:50  jbravo
 // Delay the lights sound 5 server frames.
 //
@@ -1130,6 +1133,7 @@ extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
 extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model and skin
 extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model and skin
+extern	vmCvar_t	g_RQ3_tpcountdown;		// JBravo: to disable the pregame countdown
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 //extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 //extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/05/05 04:23:00  jbravo
+// Some MM fixes and cleanups
+//
 // Revision 1.77  2002/05/05 01:20:50  jbravo
 // Delay the lights sound 5 server frames.
 //
@@ -334,7 +337,7 @@ void CheckTeamRules()
 	} else {
 		if (level.team_round_countdown)
 			level.team_round_countdown--;
-		if (level.team_round_countdown == (101*level.fps)/10) {
+		if (g_RQ3_tpcountdown.integer && level.team_round_countdown == (101*level.fps)/10) {
 			for (i = 0; i < level.maxclients; i++) {
 				player = &g_entities[i];
 				if (!player->inuse)
@@ -1384,6 +1387,7 @@ void GetLastKilledTarget (gentity_t * self, char * buf)
 				} else {
 					strcat (buf, "^5, ");
 					strcat (buf, self->client->lastkilled_client[i]->client->pers.netname);
+					strcat (buf, "^5");
 				}
 			}
 		}
