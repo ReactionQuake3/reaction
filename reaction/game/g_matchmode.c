@@ -28,6 +28,27 @@ void MM_RunFrame(void) {
 
 	}
 }
+void MM_Sub_f( gentity_t *ent) {
+	if(!g_matchmode.integer)
+		return;
+	if(ent->client->sess.savedTeam == TEAM_SPECTATOR || ent->client->sess.savedTeam == TEAM_FREE ) {
+		trap_SendServerCommand(ent-g_entities, "print \"You need to be on a team for that\n\"");
+		return;
+	}
+	Com_Printf("%d \n",ent->client->pers.sub);
+	if(ent->client->pers.sub == TEAM_FREE) {
+			ent->client->pers.sub = ent->client->sess.savedTeam; 
+			trap_SendServerCommand( -1, va("print \"%s is now a Substitute for %s.\n\"",
+			ent->client->pers.netname,
+			ent->client->sess.savedTeam==TEAM_BLUE ? "Blue Team": "Red Team"));	
+	}
+	else {
+			ent->client->pers.sub = TEAM_FREE; 
+			trap_SendServerCommand( -1, va("print \"%s is no longer a Substitute for %s.\n\"",
+			ent->client->pers.netname,
+			ent->client->sess.savedTeam==TEAM_BLUE ? "Blue Team": "Red Team"));	
+	}
+}
 void MM_Captain_f( gentity_t *ent ) {
 	if(!g_matchmode.integer)
 		return;
@@ -37,24 +58,50 @@ void MM_Captain_f( gentity_t *ent ) {
 	}
 	if(ent->client->pers.captain  == TEAM_RED) {
 			level.team1ready = qfalse;
-			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain!\n\"",
+			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 			ent->client->pers.netname,"Red Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
 	}
 	else if(ent->client->pers.captain == TEAM_BLUE) {
 			level.team2ready = qfalse;
-			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain!\n\"",
+			trap_SendServerCommand( -1, va("print \"%s is no longer %s's Captain.\n\"",
 				ent->client->pers.netname,"Blue Team"));// Teams will have names in the future..
 			ent->client->pers.captain = TEAM_FREE;
 	}
 	else {
 		if(!checkCaptain(ent->client->sess.savedTeam)) {
 			ent->client->pers.captain = ent->client->sess.savedTeam;
-			trap_SendServerCommand( -1, va("print \"%s is now %s's Captain!\n\"",
+			trap_SendServerCommand( -1, va("print \"%s is now %s's Captain.\n\"",
 			ent->client->pers.netname,
 			ent->client->sess.savedTeam==TEAM_BLUE ? "Blue Team": "Red Team"));
 		}
 		else
-			trap_SendServerCommand(ent-g_entities, va("print \"Your team already has a Captain\n\""));	
+			trap_SendServerCommand(ent-g_entities, "print \"Your team already has a Captain\n\"");	
 	}
+}
+void MM_Ready_f(gentity_t *ent) {
+	if(!g_matchmode.integer)
+		return;
+
+	if(ent->client->pers.captain != TEAM_FREE) {
+		if(ent->client->sess.savedTeam == TEAM_RED) {
+			if(level.team1ready)
+				level.team1ready = qfalse;
+			else
+				level.team1ready = qtrue;
+			trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
+			"Red Team",level.team1ready ? "": "no longer"));
+		}
+		else {
+			if(level.team2ready)
+				level.team2ready = qfalse;
+			else
+				level.team2ready = qtrue;
+			trap_SendServerCommand( -1, va("print \"%s is %s Ready.\n\"",
+			"Red Team",	level.team2ready ? "": "no longer"));
+		}
+	}
+	else
+		trap_SendServerCommand(ent-g_entities, "print \"You need to be a captain for that\n\"");	
+
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/02/02 21:57:58  slicer
+// Matchmode stuff
+//
 // Revision 1.23  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
 //
@@ -690,6 +693,7 @@ static consoleCommand_t	commands[] = {
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
+
 #ifdef MISSIONPACK
 	{ "loadhud", CG_LoadHud_f },
 	{ "nextTeamMember", CG_NextTeamMember_f },
@@ -813,4 +817,8 @@ void CG_InitConsoleCommands( void ) {
 // JBravo: adding choose and drop commands.
 	trap_AddCommand ("choose");
 	trap_AddCommand ("drop");
+// Slicer: Matchmode
+	trap_AddCommand ("captain");
+	trap_AddCommand ("ready");
+	trap_AddCommand ("sub");
 }

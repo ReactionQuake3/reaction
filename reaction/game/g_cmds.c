@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.44  2002/02/02 20:39:09  slicer
-// Matchmode: Adding Captains
+// Revision 1.45  2002/02/02 21:53:56  slicer
+// Matchmode stuff
 //
 // Revision 1.43  2002/02/02 16:34:02  slicer
 // Matchmode..
@@ -2682,6 +2682,10 @@ void ClientCommand( int clientNum ) {
 //Slicer: matchmode
 	else if (Q_stricmp (cmd, "captain") == 0)
 		MM_Captain_f( ent );
+	else if (Q_stricmp (cmd, "ready") == 0)
+		MM_Ready_f( ent );
+	else if (Q_stricmp (cmd, "sub") == 0)
+		MM_Sub_f( ent );
 
 // Begin Duffman
 	else if (Q_stricmp (cmd, "reload") == 0)
