@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/03/17 15:18:55  jbravo
+// Added 2 checks to debugshit
+//
 // Revision 1.73  2002/03/17 13:41:28  jbravo
 // Added a debug cmd to print out stuff when bugs occor
 //
@@ -154,6 +157,10 @@ void RQ3_Cmd_debugshit (gentity_t *ent)
 		ent->client->sess.sessionTeam));
 	trap_SendServerCommand(ent-g_entities, va("print \"client->sess.savedTeam = %i\n\"", 
 		ent->client->sess.savedTeam));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK = %i\n\"", 
+		ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK));
+	trap_SendServerCommand(ent-g_entities, va("print \"client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED = %i\n\"", 
+		ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED));
 }
 
 /*
