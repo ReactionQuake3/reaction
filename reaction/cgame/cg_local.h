@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/23 06:08:24  niceass
+// scoreboard stuff
+//
 // Revision 1.66  2002/04/20 15:05:08  makro
 // More footstep sounds, a few other things
 //
@@ -312,7 +315,7 @@ typedef struct centity_s {
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
-	int				ejectBrassTime;			// NiceAss: set if the weapon should eject a shell
+	int				ejectBrassTime;			// NiceAss: set when the weapon should eject a shell
 	int				previousEvent;
 	int				teleportFlag;
 
@@ -366,6 +369,7 @@ typedef enum {
 	LE_FADE_RGB,
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
+	LE_PRESSURE_WATER,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -1007,6 +1011,7 @@ typedef struct {
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
+	qhandle_t	waterParticleShader;
 	qhandle_t	bloodTrailShader;
 #ifdef MISSIONPACK
 	qhandle_t	nailPuffShader;
@@ -1306,6 +1311,7 @@ typedef struct {
 	sfxHandle_t male_sounds[26];
 	sfxHandle_t female_sounds[26];
 
+	sfxHandle_t	steamSound;
 	sfxHandle_t	male_1sound;
 	sfxHandle_t	male_2sound;
 	sfxHandle_t	male_3sound;
@@ -1881,6 +1887,8 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,
 								qboolean isSprite );
 
+void CG_PressureWater( vec3_t origin, vec3_t dir );
+
 //
 // cg_snapshot.c
 //
@@ -2131,6 +2139,9 @@ void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, 
 void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
 void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
+void	CG_ParticleWater (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
+void	CG_ParticleSteam (vec3_t org, vec3_t vel, int duration, float alpha, float speed, float scale);
+
 extern qboolean		initparticles;
 int CG_NewParticleArea ( int num );
 
