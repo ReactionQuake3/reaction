@@ -632,89 +632,8 @@
 	//type ITEM_TYPE_MODEL
 	ownerdraw UI_RQ3_REPLACEMENTMODEL
 	rect 103 63 96 96
-	/*
-	model_origin 28 0 0
-	model_fovx 60
-	model_fovy 60
-	//textscale .75
-	model_rotation 10
-	model_angles 270 0 90
-	*/
 	decoration
 	visible 1
-    }
-
-    // Text
-
-    //Name
-    itemDef {
-	name page3
-	group grpGame
-	style 1
-	//text "Gold akimbo"
-	ownerdraw UI_RQ3_REPLACEMENTNAME
-	rect 103 158 96 16
-	textalign ITEM_ALIGN_LEFT
-	textalignx 5
-	textaligny 12
-	textscale .18
-	forecolor .75 .75 .75 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	visible 0
-	decoration
-    }
-
-    //Type
-    itemDef {
-	name page3
-	group grpGame
-	style 1
-	text "Replace:"
-	ownerdraw UI_RQ3_REPLACEMENTTYPE
-	rect 103 178 96 16
-	textalign ITEM_ALIGN_LEFT
-	textalignx 4
-	textaligny 14
-	textscale .2
-	forecolor Ig_Sub_TextColor
-	visible 0
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    //Sub-Type
-    itemDef {
-	name page3
-	group grpGame
-	style 1
-	text "Type:"
-	ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
-	rect 103 194 96 16
-	textalign ITEM_ALIGN_LEFT
-	textalignx 4
-	textaligny 14
-	textscale .2
-	forecolor Ig_Sub_TextColor
-	visible 0
-	action { play "sound/misc/menu1.wav" }
-    }
-
-    //Description
-    itemDef {
-	name page3
-	group grpGame
-	style 1
-	//text "Text goes here"
-	ownerdraw UI_RQ3_REPLACEMENTINFO
-	rect 208 64 156 96
-	textalign ITEM_ALIGN_LEFT
-	textalignx 0
-	textaligny 14
-	textscale .225
-	forecolor Ig_Sub_TextColor
-	visible 0
-	decoration
     }
 
     //Prev model
@@ -745,6 +664,103 @@
 	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 }
 	leaveFocus { timefadeSelf forecolor 1 1 1 .3 0 250 }
 	action { play "sound/misc/menu1.wav" ; uiScript nextReplacement "1" }
+    }
+
+    // Text
+
+    //Name
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	ownerdraw UI_RQ3_REPLACEMENTNAME
+	rect 103 158 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 5
+	textaligny 12
+	textscale .18
+	forecolor .75 .75 .75 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	visible 0
+	decoration
+    }
+
+    //Select button
+
+    itemDef {
+	name page3
+	group grpGame
+	text "Select"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_FILLED
+	rect 103 174 96 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 48
+	textaligny 12
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; uiScript "selectReplacement" }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    //Type
+
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	text "Replace:"
+	ownerdraw UI_RQ3_REPLACEMENTTYPE
+	rect 103 194 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Sub-Type
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	text "Type:"
+	ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
+	rect 103 210 96 16
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	textscale .2
+	forecolor Ig_Sub_TextColor
+	visible 0
+	action { play "sound/misc/menu1.wav" }
+    }
+
+    //Description
+    itemDef {
+	name page3
+	group grpGame
+	style 1
+	//text "Text goes here"
+	ownerdraw UI_RQ3_REPLACEMENTINFO
+	rect 208 64 156 96
+	textalign ITEM_ALIGN_LEFT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor Ig_Sub_TextColor
+	visible 0
+	decoration
     }
 
     //Note

@@ -276,6 +276,49 @@
 	decoration
     }
 
+/*
+//Replacements
+
+    itemdef {
+	name btn_replacements
+	group "topmenu"
+	type 1
+	background "menu/art/rq3-setup-replacements"
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	onFocus { show replacements_focus ; timefade replacements_focus forecolor 1 1 1 1 0 250 ;
+		show replacements_hint ; timeFade replacements_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timefade replacements_focus forecolor 1 1 1 0 0 250 ; timeFade replacements_hint forecolor .9 .9 .9 0 0 250 }
+	//action { close setup_menu ; open replacements_menu }
+    }
+
+    itemdef {
+	name replacements_focus
+	background "menu/art/rq3-menu-focus"
+	forecolor 1 1 1 0
+	rect 528 12 32 32
+	style WINDOW_STYLE_SHADER
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name replacements_hint
+	text "Change weapon, item and ammo models/skins"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
+    }
+*/
+
 //Reset to defaults
 
     itemdef {
