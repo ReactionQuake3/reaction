@@ -4,3 +4,4 @@
 * Rotation bug that skipped first and last map in rotation fixed
 * LaserSight bug is fixed.
 * Fixed the base votingsystem. Still needs a cleanup
+* Fixed the respawning of dead players weapons and items in TP
