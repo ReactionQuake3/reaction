@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/02/07 23:01:07  slicer
+// Small fix..
+//
 // Revision 1.34  2002/02/06 12:06:48  slicer
 // TP Scores bug fix
 //
@@ -1225,7 +1228,7 @@ void ClientSpawn(gentity_t *ent) {
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots;
 	int		eventSequence;
-	int		savedWeapon, savedItem, savedSolid;		// JBravo: to save weapon/item info
+	int		savedWeapon, savedItem;		// JBravo: to save weapon/item info
 	char	userinfo[MAX_INFO_STRING];
 
 	index = ent - g_entities;
@@ -1545,7 +1548,7 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	//Slicer: matchmode
-	if(g_gametype.integer) {
+	if(g_RQ3_matchmode.integer) {
 		switch(ent->client->pers.captain ) {
 				case TEAM_RED:
 					trap_Cvar_Set("RQ3_team1", "0");
