@@ -176,7 +176,8 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
 		}
 	} else if ( le->leBounceSoundType == LEBS_BRASS ) {
-
+		// Elder: play bounce sound
+		trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.sfx_shelltumble);
 	}
 
 	// don't allow a fragment to make multiple bounce sounds,

@@ -1017,15 +1017,21 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
-		//weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mp5/mp5out.wav", qfalse );
-		//weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mp5/mp5in.wav", qfalse );
-		//weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mp5/mp5slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/mp5/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
 			weapAnimLoad = qfalse;
+		}
+		
+		if (weapAnimLoad) {
+			Com_sprintf( filename, sizeof(filename), "models/weapons2/mp5/sound.cfg" );
+			if ( !CG_ParseWeaponSoundFile(filename, weaponInfo) ) {
+				Com_Printf("Failed to load weapon sound file %s\n", filename);
+			}
+		} else {
+			Com_Printf("Could not load sound.cfg because animation.cfg loading failed\n");
 		}
 		break;
 		
@@ -1547,6 +1553,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		if ( weapon->item->giTag == WP_PISTOL ||
 			 weapon->item->giTag == WP_AKIMBO ||
 			 weapon->item->giTag == WP_M4 ||
+			 weapon->item->giTag == WP_MP5 ||
 			 weapon->item->giTag == WP_M3 ||
 			 weapon->item->giTag == WP_HANDCANNON ||
 			 weapon->item->giTag == WP_SSG3000 ||
@@ -2865,16 +2872,12 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		case WP_SSG3000:
 			mod = cgs.media.bulletFlashModel;
 			shader = cgs.media.bulletExplosionShader;
-			
-			if (soundType == IMPACTSOUND_GLASS)
-				mark = cgs.media.glassMarkShader;
-			else
-				mark = cgs.media.bulletMarkShader;
-
+			radius = 8;			
 			r = rand() & 3;
 			
 			if (soundType == IMPACTSOUND_METAL)
 			{
+				mark = cgs.media.metalMarkShader;
 				if ( r < 2 )
 					sfx = cgs.media.sfx_metalric1;
 				else if ( r == 2 )
@@ -2884,6 +2887,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			}
 			else if (soundType == IMPACTSOUND_GLASS)
 			{
+				mark = cgs.media.glassMarkShader;
 				if ( r < 2 )
 					sfx = cgs.media.sfx_glassric1;
 				else if ( r == 2 )
@@ -2893,6 +2897,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			}
 			else
 			{
+				mark = cgs.media.bulletMarkShader;
 				if ( r == 0 )
 					sfx = cgs.media.sfx_ric1;
 				else if ( r == 1 )
@@ -2900,7 +2905,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 				else
 					sfx = cgs.media.sfx_ric3;
 			}
-			radius = 8;
 			break;
 
 		/*

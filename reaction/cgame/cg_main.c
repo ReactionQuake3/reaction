@@ -804,7 +804,8 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sfx_glassric1 = trap_S_RegisterSound ("sound/world/impactglass01.wav", qfalse);
 	cgs.media.sfx_glassric2 = trap_S_RegisterSound ("sound/world/impactglass02.wav", qfalse);
 	cgs.media.sfx_glassric3 = trap_S_RegisterSound ("sound/world/impactglass03.wav", qfalse);
-	
+	cgs.media.sfx_shelltumble = trap_S_RegisterSound ("sound/misc/shell.wav", qfalse);
+
 	cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
 	cgs.media.sfx_plasmaexp = trap_S_RegisterSound ("sound/weapons/plasma/plasmx1a.wav", qfalse);
@@ -1173,6 +1174,7 @@ static void CG_RegisterGraphics( void ) {
 	// Elder: added
 	cgs.media.slashMarkShader = trap_R_RegisterShader( "gfx/damage/slash_mrk" );
 	cgs.media.glassMarkShader = trap_R_RegisterShader( "gfx/damage/glass_mrk" );
+	cgs.media.metalMarkShader = trap_R_RegisterShader( "gfx/damage/metal_mrk" );
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

@@ -889,6 +889,7 @@ typedef struct {
 	// Elder: rq3 marks
 	qhandle_t	slashMarkShader;
 	qhandle_t	glassMarkShader;
+	qhandle_t	metalMarkShader;
 
 	// powerup shaders
 	qhandle_t	quadShader;
@@ -997,6 +998,8 @@ typedef struct {
 	sfxHandle_t	sfx_glassric1;
 	sfxHandle_t	sfx_glassric2;
 	sfxHandle_t	sfx_glassric3;
+	// Elder: Shell tumble sound
+	sfxHandle_t	sfx_shelltumble;
 
 	sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
