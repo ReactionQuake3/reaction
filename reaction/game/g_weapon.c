@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/07/04 00:59:25  blaze
+// moved the kick counter for stats to a more accurate spot.
+//
 // Revision 1.73  2002/07/01 19:48:56  makro
 // Fixed a crash bug
 //
@@ -256,8 +259,7 @@ qboolean JumpKick(gentity_t * ent)
 		return qfalse;
 	} else {
 		G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, DAMAGE_NO_LOCATIONAL, MOD_KICK);
-		if (ent->client && level.team_round_going)
-			ent->client->pers.records[REC_KICKHITS]++;
+  
 	}
 	//end Makro
 
@@ -289,6 +291,7 @@ qboolean JumpKick(gentity_t * ent)
 
 			//Set the entity's weapon to the target's weapon before he/she throws it
 			tent->s.weapon = ThrowWeapon(traceEnt, qtrue);
+      ent->client->pers.records[REC_KICKHITS]++;
 		}
 		// Don't need other sound event
 		kickSuccess = qfalse;
@@ -296,6 +299,7 @@ qboolean JumpKick(gentity_t * ent)
 	//Elder: Our set of locally called sounds
 	if (kickSuccess) {
 		G_AddEvent(ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+		
 	}
 
 	return qtrue;
