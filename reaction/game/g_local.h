@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/06/23 19:25:11  niceass
+// bandage bug fix
+//
 // Revision 1.103  2002/06/23 19:12:17  slicer
 // More Matchmode work
 //
@@ -612,7 +615,6 @@ struct gclient_s {
 	//qboolean              isBleeding;             // Blaze: is client bleeding
 //      int                     legDamage;              // Blaze: Client has leg damage - holds number of hits too
 	int bleedtick;		// Blaze: Holds # of seconds till bleeding stops.
-	int bleedBandageCount;	// Elder: hack to restrict amount of bleeding to 3 points
 	int headShotTime;	// Elder: got headshot?
 	//Elder: server only needs to know for sniper spread - ARGH
 //      int                     zoomed;                 // Hawkins (SSG zoom)

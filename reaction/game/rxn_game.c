@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/06/23 19:24:19  niceass
+// bandage bug fix
+//
 // Revision 1.14  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -52,20 +55,7 @@ void CheckBleeding(gentity_t * targ)
 	if (targ->client->bleed_remain >= realBleedTime) {
 		//G_Printf("Bleed Remain: %i Server Time: %i\n", targ->client->bleed_remain, level.time);
 		//      if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
-		if (targ->client->ps.weaponstate == WEAPON_BANDAGING && targ->client->bleedBandageCount < 1) {
-			//Elder: skip damage being dealt
-			//TODO: check bleed_remain again -- if it's > 11, then reset bleedBandageCount?
-			//That would probably remove the long-time AQ2 headshot bandage bug
-		} else {
-			targ->health -= damage;
-		}
-
-		//Elder: hack to count off health so we only lose 6 health on a bandage
-		if (targ->client->ps.weaponstate == WEAPON_BANDAGING) {
-			//Start hack enforcement once we've ramped down to 1 health/second
-			if (targ->client->bleed_remain <= 10)
-				targ->client->bleedBandageCount--;
-		}
+		targ->health -= damage;
 
 		if (targ->health <= 0) {
 			player_die(targ, &g_entities[targ->client->lasthurt_client],
@@ -94,52 +84,3 @@ void StartBandage(gentity_t * ent)
 {
 	ent->client->bleeding = 0;
 }
-
-/*
-  int damage;
-  int temp;
-  vec3_t norm;
-  VectorSet(norm, 0.0, 0.0, 0.0 );
-  if ( !(ent->client->bleeding) || (ent->health <= 0)  )
-  {
-    return;
-  }
-
-  temp = (int)(ent->client->bleeding * .2);
-  ent->client->bleeding -= temp;
-  if ( temp <= 0 )
-    temp = 1;
-  ent->client->bleed_remain += temp;
-  damage = (int)(ent->client->bleed_remain/realBleedTime);
-  if ( ent->client->bleed_remain >= realBleedTime )
-  {
-    ent->health -= damage;
-    if ( damage > 1 )
-    {
-                                // action doens't do this
-      //ent->client->damage_blood += damage; // for feedback
-    }
-    if ( ent->health <= 0 )
-    {
-      meansOfDeath = ent->client->attacker_mod;
-      locOfDeath = ent->client->attacker_loc;
-      Killed(ent, ent->client->attacker, ent->client->attacker, damage, ent->s.origin);
-    }
-    else
-    {
-      ent->client->bleed_remain %= realBleedTime;
-    }
-    if (ent->client->bleeddelay <= level.time)
-    {
-      vec3_t pos;
-      ent->client->bleeddelay = level.time + 2; // 2 seconds
-      VectorAdd(ent->client->bleedloc_offset, ent->absmax, pos);
-      //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
-      EjectBlooder(ent, pos, pos);
-
-      // do bleeding
-
-    }
-
-  }
-*/

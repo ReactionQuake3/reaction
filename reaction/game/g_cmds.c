@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2002/06/23 19:27:18  niceass
+// bandage bug fix
+//
 // Revision 1.141  2002/06/23 15:22:53  slicer
 // Future 2.1 Matchmode Features - PART II
 //
@@ -2283,8 +2286,6 @@ void Cmd_Bandage(gentity_t * ent)
 
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
 		ent->client->bleedtick = 4;
-		//Elder: added to track health to bleed off
-		ent->client->bleedBandageCount = BLEED_BANDAGE;
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"No need to bandage.\n\""));
 	}

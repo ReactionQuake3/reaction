@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/06/23 19:27:52  niceass
+// bandage bug fix
+//
 // Revision 1.80  2002/06/19 18:13:57  jbravo
 // New TNG spawning system :)
 //
@@ -657,7 +660,6 @@ void ClientTimerActions(gentity_t * ent, int msec)
 			ent->client->bleed_remain = 0;
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
-			ent->client->bleedBandageCount = 0;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
 			// NiceAss: clear last player to hit you.
