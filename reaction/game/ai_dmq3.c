@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2003/02/27 07:33:58  jbravo
+// Bots stfy about flags.  Its cases.  Teamname fixes. TP style TP fixes.
+//
 // Revision 1.53  2003/01/08 04:46:26  jbravo
 // Wrote a new hackish model replacement system
 //
@@ -5455,10 +5458,10 @@ void BotSetupDeathmatchAI(void)
 	trap_Cvar_Register(&g_spSkill, "g_spSkill", "2", 0);
 	//
 	if (gametype == GT_CTF) {
-		if (trap_BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
-			BotAI_Print(PRT_WARNING, "CTF without Red Flag\n");
-		if (trap_BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
-			BotAI_Print(PRT_WARNING, "CTF without Blue Flag\n");
+		if (trap_BotGetLevelItemGoal(-1, "Silver Case", &ctf_redflag) < 0)
+			BotAI_Print(PRT_WARNING, "CTB without Silver Case\n");
+		if (trap_BotGetLevelItemGoal(-1, "Black Case", &ctf_blueflag) < 0)
+			BotAI_Print(PRT_WARNING, "CTB without Black Case\n");
 	}
 	max_bspmodelindex = 0;
 	for (ent = trap_AAS_NextBSPEntity(0); ent; ent = trap_AAS_NextBSPEntity(ent)) {

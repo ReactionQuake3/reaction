@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/02/27 07:33:58  jbravo
+// Bots stfy about flags.  Its cases.  Teamname fixes. TP style TP fixes.
+//
 // Revision 1.132  2003/02/27 03:58:35  jbravo
 // Fixed the FF system after adding TDM broke it. Added color to error messages
 //
@@ -613,8 +616,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
-	{&g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
+	{&g_RQ3_team1name, "g_RQ3_team1name", "Team 1", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
+	{&g_RQ3_team2name, "g_RQ3_team2name", "Team 2", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse},
@@ -833,7 +836,16 @@ void G_RegisterCvars(void)
 	if (g_gametype.integer == GT_CTF) {
 		trap_Cvar_Set("g_RQ3_team1name", "SILVER");
 		trap_Cvar_Set("g_RQ3_team2name", "BLACK");
+	} else {
+		if (Q_stricmp(g_RQ3_team1name.string, "SILVER") == 0)
+			trap_Cvar_Set("g_RQ3_team1name", "Team 1");
+		if (Q_stricmp(g_RQ3_team2name.string, "BLACK") == 0)
+			trap_Cvar_Set("g_RQ3_team2name", "Team 2");
 	}
+
+// JBravo: tdmMode now used to control the weapon/item menu in the UI
+	if (g_gametype.integer < GT_TEAM || g_gametype.integer > GT_TEAM)
+		trap_Cvar_Set("g_RQ3_tdmMode", "0");
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }

@@ -1,5 +1,7 @@
 # List fixes here for the 2.3 release
 
+* Bots dont talk about flags any more.
+* The wepons menu now shows up where its supposed to (incl. TP style TDM)
 * Grenades now also included in the fixed FF system.
 * Fixed FF system.
 * Added color to important error messages
