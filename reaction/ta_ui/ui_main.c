@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/05/19 21:31:22  makro
+// Stuff
+//
 // Revision 1.22  2002/05/19 15:45:03  makro
 // "Specify server" option
 //
@@ -123,6 +126,8 @@ static const serverFilter_t serverFilters[] = {
 	{"Weapons Factory Arena", "wfa" },
 	{"OSP", "osp" },
 	{"All", "" },*/
+	{"Reaction", "reaction" },
+	//Makro - hack !!!
 	{"Reaction", "reaction" }
 };
 
@@ -5609,6 +5614,8 @@ void _UI_Init( qboolean inGameLoad ) {
 
 	//Makro - set default bot skill to medium
 	uiInfo.skillIndex = 2;
+	//Makro - set default net filter index to 0
+	trap_Cvar_Set("ui_serverFilterType", "0");
 
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
