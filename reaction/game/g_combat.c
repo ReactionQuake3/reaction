@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2002/07/31 19:56:32  makro
+// Fixed the code for doors with health and the wait key set to a negative value
+//
 // Revision 1.112  2002/07/24 02:17:38  jbravo
 // Added a respawn delay for CTB
 //
@@ -1856,12 +1859,18 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// Makro - we should change some more stuff in here
 	// shootable doors / buttons don't actually have any health
 	// Makro - they do now !
-	if (targ->s.eType == ET_MOVER && targ->health <= 0) {
-		if (targ->use
-		    && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1 || (targ->spawnflags & 8))) {
-			targ->use(targ, inflictor, attacker);
+	if (targ->s.eType == ET_MOVER) {
+		targ->health -= damage;
+		if (targ->health <= 0) {
+			if (targ->use
+			    && (targ->moverState == MOVER_POS1 || targ->moverState == ROTATOR_POS1 || (targ->spawnflags & 8))) {
+				targ->use(targ, inflictor, attacker);
+			}
+			if (targ->wait < 0) {
+				targ->takedamage = qfalse;
+			}
+			targ->health = targ->health_saved;
 		}
-		targ->health = targ->health_saved;
 		return;
 	}
 	//Elder: from action source

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/07/31 19:56:32  makro
+// Fixed the code for doors with health and the wait key set to a negative value
+//
 // Revision 1.48  2002/06/21 15:04:55  makro
 // Health functionality for movers should be complete now
 //
@@ -750,7 +753,8 @@ void Reached_BinaryMover(gentity_t * ent)
 		if ((ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE) {	//||
 			//ent->touch || (ent->takedamage == qtrue) ) {
 			//G_Printf("Sliding Toggle Door used\n");
-		} else {
+		} else if (ent->wait > 0) {
+			// Makro - added wait > 0 check
 			// return to pos1 after a delay
 			ent->think = ReturnToPos1;
 			ent->nextthink = level.time + ent->wait;
@@ -789,7 +793,8 @@ void Reached_BinaryMover(gentity_t * ent)
 		if ((ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE) {	//||
 			//ent->touch || (ent->takedamage == qtrue) ) {
 			//G_Printf("Rotating Toggle Door used\n");
-		} else {
+		} else if (ent->wait > 0) {
+			// Makro - added wait > 0 check
 			// return to apos1 after a delay
 			ent->think = ReturnToApos1;
 			ent->nextthink = level.time + ent->wait;
