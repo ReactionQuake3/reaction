@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/06/25 00:11:26  jbravo
+// Damn triangles be gone
+//
 // Revision 1.35  2002/06/24 05:51:51  jbravo
 // CTF mode is now semi working
 //
@@ -2183,7 +2186,7 @@ static void CG_PlayerSprites(centity_t * cent)
 		return;
 	}
 // JBravo: no triangles over teammates.
-	if (cgs.gametype == GT_TEAMPLAY) {
+	if (cgs.gametype == GT_TEAMPLAY || cgs.gametype == GT_CTF) {
 		return;
 	}
 
