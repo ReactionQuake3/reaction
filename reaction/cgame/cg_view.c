@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2003/09/19 21:22:52  makro
+// Flares
+//
 // Revision 1.40  2003/09/19 00:54:23  makro
 // Flares again
 //
@@ -1013,7 +1016,7 @@ static void CG_PlayBufferedSounds(void)
 //=========================================================================
 
 
-#define FLARE_FADEOUT_TIME	1000
+#define FLARE_FADEOUT_TIME	600
 
 void CG_AddLensFlare()
 {
@@ -1066,10 +1069,12 @@ void CG_AddLensFlare()
 
 		if (cg.refdef.fov_x < 90)
 			fovFactor = 5 - 0.05f * cg.refdef.fov_x;
-		color[0] = color[1] = color[2] = 1.0f;
-		color[3] = cgs.sunAlpha;
+		color[0] = color[1] = color[2] = color[3] = cgs.sunAlpha;
 		if (!visible) {
 			fade = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
+			color[0] *= fade;
+			color[1] *= fade;
+			color[2] *= fade;
 			color[3] *= fade;
 		}
 		//sun

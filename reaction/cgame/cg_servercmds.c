@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2003/09/19 21:22:52  makro
+// Flares
+//
 // Revision 1.77  2003/09/19 00:54:23  makro
 // Flares again
 //
@@ -453,7 +456,7 @@ static void CG_ParseWarmup(void)
 void CG_ParseSkyPortal(const char *str)
 {
 	//sky portal
-	if (str && str[0] && Q_stricmp(str, "none")) {
+	if (str && str[0] && Q_stricmp(str, "none") && atoi(Info_ValueForKey(str, "n"))) {
 		cgs.skyPortalOrigin[0] = atof(Info_ValueForKey(str, "x"));
 		cgs.skyPortalOrigin[1] = atof(Info_ValueForKey(str, "y"));
 		cgs.skyPortalOrigin[2] = atof(Info_ValueForKey(str, "z"));
