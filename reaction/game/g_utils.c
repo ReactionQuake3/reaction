@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/08/24 07:58:15  niceass
+// moved sanitizestring to g_util
+//
 // Revision 1.18  2002/08/21 03:42:04  niceass
 // move of some vector functions outside of just game
 //
@@ -810,4 +813,28 @@ qboolean G_FileSearch(char *Filename, char *Text) {
 	trap_FS_FCloseFile(file);
 
 	return ( strstr(buf, Text) != NULL );
+}
+
+/*
+==================
+SanitizeString
+
+Remove case and control characters
+==================
+*/
+void SanitizeString(char *in, char *out)
+{
+	while (*in) {
+		if (*in == 27) {
+			in += 2;	// skip color code
+			continue;
+		}
+		if (*in < 32) {
+			in++;
+			continue;
+		}
+		*out++ = tolower(*in++);
+	}
+
+	*out = 0;
 }

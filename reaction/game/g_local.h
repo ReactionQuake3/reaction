@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/08/24 07:58:37  niceass
+// moved sanitizestring to g_util
+//
 // Revision 1.117  2002/08/23 14:25:05  slicer
 // Added a new Referee System with multiple ref support
 //
@@ -938,6 +941,7 @@ gentity_t *G_Find(gentity_t * from, int fieldofs, const char *match);
 int G_PlayerAlive(gentity_t *ent);
 void G_DebugSaveData(char *Data);
 qboolean G_FileSearch(char *Filename, char *Text);
+void SanitizeString(char *in, char *out);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.162  2002/08/24 07:58:49  niceass
+// moved sanitizestring to g_util
+//
 // Revision 1.161  2002/08/23 14:25:05  slicer
 // Added a new Referee System with multiple ref support
 //
@@ -448,7 +451,7 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 				ent->client->sess.savedTeam != cl->sess.savedTeam)
 				alive = qtrue;
 		}
-	//MUDANCA ADICIONEI UM INTEIRO
+
 		Com_sprintf(entry, sizeof(entry), " %i %i %i %i %i %i %i %i %i %i %i %i", 
 			level.sortedClients[i], 
 			cl->ps.persistant[PERS_SCORE], 
@@ -470,7 +473,7 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		strcpy(string + stringlength, entry);
 		stringlength += j;
 	}
-	//MUDANCA !!! REMOVI O ULTIMO INTEIRO
+
 	trap_SendServerCommand(ent - g_entities, va("scores %i %i %i %i %i %i%s", i,
 						    level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 						    level.team1ready, level.team2ready,
@@ -590,30 +593,6 @@ char *ConcatArgs(int start)
 	line[len] = 0;
 
 	return line;
-}
-
-/*
-==================
-SanitizeString
-
-Remove case and control characters
-==================
-*/
-void SanitizeString(char *in, char *out)
-{
-	while (*in) {
-		if (*in == 27) {
-			in += 2;	// skip color code
-			continue;
-		}
-		if (*in < 32) {
-			in++;
-			continue;
-		}
-		*out++ = tolower(*in++);
-	}
-
-	*out = 0;
 }
 
 /*
