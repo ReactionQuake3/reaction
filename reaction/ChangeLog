@@ -57,7 +57,8 @@
 * callvote and vote cmd's now know about CTB spectators and dead players.
 * MP5 headshots now deal the correct amount of damage.
 * Added replacement options for items.
-
+* Added animations support for pistol and akimbo.
+* Added support for using "the other hand" (akimbo or briefcase)
 
 # List fixes here for the 2.25 release
 
