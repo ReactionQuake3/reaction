@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/08/27 05:46:58  niceass
+// change to anti-wallhack code
+//
 // Revision 1.45  2002/08/24 08:00:41  niceass
 // fix to anti-wallhack system for portals (cameras and mirrors)
 //
@@ -2484,7 +2487,7 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 	for (i =0; i < 9; i++) {
 		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
 
-		if ( trace.fraction == 1 || GetMaterialFromFlag(trace.surfaceFlags) == MAT_GLASS)
+		if ( trace.fraction == 1 || (trace.contents & CONTENTS_TRANSLUCENT) || (trace.surfaceFlags & SURF_NODRAW)  )
 			return qtrue;
 	}
 
