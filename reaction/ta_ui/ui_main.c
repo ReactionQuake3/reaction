@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/06/28 20:08:42  makro
+// MM stuff
+//
 // Revision 1.36  2002/06/24 12:29:43  makro
 // Enabled weapon/item menus in CTF
 //
@@ -3894,7 +3897,18 @@ static void UI_RunMenuScript(char **args)
 				(int) trap_Cvar_VariableValue("g_RQ3_limchasecam"),
 				(int) trap_Cvar_VariableValue("g_RQ3_tgren"),
 				(int) trap_Cvar_VariableValue("g_friendlyFire")));
-			//Makro - change the SSG crosshair
+		//Makro - sync ui MM cvars with the real ones
+		} else if (Q_stricmp(name, "readMMsettings") == 0) {
+			ui_RQ3_timelimit.integer = (int) trap_Cvar_VariableValue("timelimit");
+			ui_RQ3_roundlimit.integer = (int) trap_Cvar_VariableValue("g_RQ3_roundlimit");
+			ui_RQ3_roundtimelimit.integer = (int) trap_Cvar_VariableValue("g_RQ3_roundtimelimit");
+			ui_RQ3_fraglimit.integer = (int) trap_Cvar_VariableValue("fraglimit");
+			ui_RQ3_maxplayers.integer = (int) trap_Cvar_VariableValue("g_RQ3_maxplayers");
+			ui_RQ3_forceteamtalk.integer = (int) trap_Cvar_VariableValue("g_RQ3_forceteamtalk");
+			ui_RQ3_limchasecam.integer = (int) trap_Cvar_VariableValue("g_RQ3_limchasecam");
+			ui_RQ3_tgren.integer = (int) trap_Cvar_VariableValue("g_RQ3_tgren");
+			ui_RQ3_friendlyFire.integer = (int) trap_Cvar_VariableValue("g_friendlyFire");
+		//Makro - change the SSG crosshair
 		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
 			int current, offset;
 
@@ -6637,7 +6651,6 @@ vmCvar_t ui_RQ3_ssgCrosshair;
 
 //Makro - activate the weapon menu after a team join
 vmCvar_t ui_RQ3_weapAfterJoin;
-
 //Makro - team counts
 //Handled in cgame now
 //vmCvar_t      ui_RQ3_teamCount1;
@@ -6646,9 +6659,19 @@ vmCvar_t ui_RQ3_weapAfterJoin;
 //Makro - specify server option
 vmCvar_t ui_RQ3_joinAddress;
 vmCvar_t ui_RQ3_joinPort;
-
 //Makro - demo name
 vmCvar_t ui_RQ3_demoName;
+//Makro - matchmode settings
+vmCvar_t ui_RQ3_timelimit;
+vmCvar_t ui_RQ3_roundlimit;
+vmCvar_t ui_RQ3_roundtimelimit;
+vmCvar_t ui_RQ3_fraglimit;
+vmCvar_t ui_RQ3_maxplayers;
+vmCvar_t ui_RQ3_forceteamtalk;
+vmCvar_t ui_RQ3_limchasecam;
+vmCvar_t ui_RQ3_tgren;
+vmCvar_t ui_RQ3_friendlyFire;
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t cvarTable[] = {
@@ -6785,7 +6808,17 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_joinAddress, "ui_RQ3_joinAddress", "", CVAR_ARCHIVE},
 	{&ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE},
 	//Makro - demo name
-	{&ui_RQ3_demoName, "ui_RQ3_demoName", "", 0}
+	{&ui_RQ3_demoName, "ui_RQ3_demoName", "", 0},
+	//Makro - matchmode settings
+	{&ui_RQ3_timelimit,			"timelimit", "0", 0},
+	{&ui_RQ3_roundlimit,		"g_RQ3_roundlimit", "0", 0},
+	{&ui_RQ3_roundtimelimit,	"g_RQ3_roundtimelimit", "0", 0},
+	{&ui_RQ3_fraglimit,			"fraglimit", "0", 0},
+	{&ui_RQ3_maxplayers,		"g_RQ3_maxplayers", "0", 0},
+	{&ui_RQ3_forceteamtalk,		"g_RQ3_forceteamtalk", "0", 0},
+	{&ui_RQ3_limchasecam,		"g_RQ3_limchasecam", "0", 0},
+	{&ui_RQ3_tgren,				"g_RQ3_tgren", "0", 0},
+	{&ui_RQ3_friendlyFire,		"g_friendlyFire", "0", 0}
 };
 
 // bk001129 - made static to avoid aliasing

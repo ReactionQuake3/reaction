@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/06/28 20:08:42  makro
+// MM stuff
+//
 // Revision 1.15  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -168,6 +171,16 @@ extern vmCvar_t ui_RQ3_modelCommand;
 //extern vmCvar_t ui_RQ3_numSpectators;
 //Makro - weapon menu after joining a team
 extern vmCvar_t ui_RQ3_weapAfterJoin;
+//Makro - matchmode settings
+extern vmCvar_t ui_RQ3_timelimit;
+extern vmCvar_t ui_RQ3_roundlimit;
+extern vmCvar_t ui_RQ3_roundtimelimit;
+extern vmCvar_t ui_RQ3_fraglimit;
+extern vmCvar_t ui_RQ3_maxplayers;
+extern vmCvar_t ui_RQ3_forceteamtalk;
+extern vmCvar_t ui_RQ3_limchasecam;
+extern vmCvar_t ui_RQ3_tgren;
+extern vmCvar_t ui_RQ3_friendlyFire;
 
 //Makro - specify server option
 extern vmCvar_t ui_RQ3_joinAddress;
