@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/05/12 13:37:25  makro
+// Bugs with entities
+//
 // Revision 1.37  2002/05/11 12:45:25  makro
 // Spectators can go through breakables and doors with
 // a targetname or health. Bots should crouch more/jump less
@@ -646,8 +649,8 @@ void SP_func_breakable( gentity_t *ent ) {
   }
 
   //Makro - added this so spectators can go through breakables
-  ent->nextthink = level.time + FRAMETIME;
-  ent->think = Think_SpawnNewDoorTrigger;
+  //ent->nextthink = level.time + FRAMETIME;
+  //ent->think = Think_SpawnNewDoorTrigger;
 
   trap_LinkEntity (ent);
 }

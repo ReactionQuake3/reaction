@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/05/12 13:37:25  makro
+// Bugs with entities
+//
 // Revision 1.53  2002/05/05 15:18:03  makro
 // Fixed some crash bugs. Bot stuff. Triggerable func_statics.
 // Made flags only spawn in CTF mode
@@ -605,9 +608,10 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
-		} else if ( traceEnt->s.eType == ET_PRESSURE ) {
-			// Pressure entities
-			G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
+		//Makro - moved the pressure code out of these if's
+		//} else if ( traceEnt->s.eType == ET_PRESSURE ) {
+		//	// Pressure entities
+		//	G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -615,6 +619,12 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		}
 		//tent->s.otherEntityNum = ent->s.number;
 		//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
+		
+		//Makro - moved the pressure code out of these if's
+		if ( traceEnt->s.eType == ET_PRESSURE ) {
+			// Pressure entities
+			G_CreatePressure(tr.endpos, tr.plane.normal, traceEnt);
+		}
 		
 		if ( traceEnt->takedamage) {
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD);
