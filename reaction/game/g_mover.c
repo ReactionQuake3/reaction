@@ -47,12 +47,12 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	} else {
 		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
 	}
-	
+
 	if (tr.startsolid)
 	{
 		//Com_Printf("startsolid\n");
 		return &g_entities[ tr.entityNum ];
-	}	
+	}
 	return NULL;
 }
 
@@ -108,7 +108,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 
 	// EF_MOVER_STOP will just stop when contacting another entity
 	// instead of pushing it, but entities can still ride on top of it
-	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) && 
+	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) &&
 		check->s.groundEntityNum != pusher->s.number ) {
 		return qfalse;
 	}
@@ -126,7 +126,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	}
 	pushed_p++;
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	// figure movement due to the pusher's amove
 	G_CreateRotationMatrix( amove, transpose );
 	G_TransposeMatrix( transpose, matrix );
@@ -198,7 +198,7 @@ qboolean G_CheckProxMinePosition( gentity_t *check ) {
 	VectorMA(check->s.pos.trBase, 0.125, check->movedir, start);
 	VectorMA(check->s.pos.trBase, 2, check->movedir, end);
 	trap_Trace( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
-	
+
 	if (tr.startsolid || tr.fraction < 1)
 		return qfalse;
 
@@ -219,7 +219,7 @@ qboolean G_TryPushingProxMine( gentity_t *check, gentity_t *pusher, vec3_t move,
 	VectorSubtract (vec3_origin, amove, org);
 	AngleVectors (org, forward, right, up);
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
 
 	// figure movement due to the pusher's amove
@@ -362,13 +362,13 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			}
 			// see if the ent's bbox is inside the pusher's final position
 			// this does allow a fast moving object to pass through a thin entity...
-			
+
 			if (!G_TestEntityPosition (check)) {
 				continue;
 			}
 
 
-			
+
 		}
 
 		// the entity needs to be pushed
@@ -416,7 +416,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			//continue;
 		}
 
-		
+
 		// save off the obstacle so we can call the block function (crush, etc)
 		*obstacle = check;
 
@@ -596,7 +596,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		ent->s.apos.trType = TR_LINEAR_STOP;
 		break;
 	}
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );	
+	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
 
 	trap_LinkEntity( ent );
@@ -687,7 +687,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			ent->think = ReturnToPos1;
 			ent->nextthink = level.time + ent->wait;
 		}
-		
+
 		// fire targets
 		if ( !ent->activator ) {
 			ent->activator = ent;
@@ -708,7 +708,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			trap_AdjustAreaPortalState( ent, qfalse );
 		}
 
-	} else if ( ent->moverState == ROTATOR_1TO2 ) {			// Reaction 
+	} else if ( ent->moverState == ROTATOR_1TO2 ) {			// Reaction
 		// reached pos2
 		SetMoverState( ent, ROTATOR_POS2, level.time );
 
@@ -722,7 +722,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		//if ( ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) ||
 		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) { //||
 			//ent->touch || (ent->takedamage == qtrue) ) {
-			G_Printf("Rotating Toggle Door used\n");		
+			G_Printf("Rotating Toggle Door used\n");
 		}
 		else {
 			// return to apos1 after a delay
@@ -815,7 +815,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		//Elder: don't interrupt if auto-opening
 		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
 			return;
-		
+
 		total = ent->s.pos.trDuration;
 		partial = level.time - ent->s.pos.trTime;
 		if ( partial > total ) {
@@ -881,7 +881,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 			MatchTeam( ent, ROTATOR_2TO1, level.time + 50);
 			if ( ent->sound1to2 ) {
 				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-			}			
+			}
 		}
 		else {
 			//Elder: normal rotating door
@@ -916,7 +916,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		//Elder: don't interrupt if auto-opening
 		if ( (ent->spawnflags & SP_AUTOOPEN) == SP_AUTOOPEN)
 			return;
-		
+
 		total = ent->s.apos.trDuration;
 		partial = level.time - ent->s.apos.trTime;
 		if ( partial > total ) {
@@ -1040,7 +1040,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 			Team_DroppedFlagThink( other );
 			return;
 		}
-		// Elder: added to handle items and weapons in door paths 
+		// Elder: added to handle items and weapons in door paths
 		if ( other->s.eType == ET_ITEM && other->item->giType == IT_WEAPON)
 		{
 			switch ( other->item->giTag )
@@ -1107,11 +1107,13 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 	VectorClear(dir);
 	if (fabs(other->s.origin[axis] - ent->r.absmax[axis]) <
 		fabs(other->s.origin[axis] - ent->r.absmin[axis])) {
-		origin[axis] = ent->r.absmin[axis] - 10;
+		// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
+		origin[axis] = ent->r.absmin[axis] - 15;
 		dir[axis] = -1;
 	}
 	else {
-		origin[axis] = ent->r.absmax[axis] + 10;
+		// NiceAss: "- 10" changed to "- 15" to prevent jumping back and forth occasionally when moving slowly
+		origin[axis] = ent->r.absmax[axis] + 15;
 		dir[axis] = 1;
 	}
 	for (i = 0; i < 3; i++) {
@@ -1130,7 +1132,7 @@ Touch_DoorTrigger
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		// if the door is not open and not opening
-		if ( ent->parent->moverState != MOVER_1TO2 && 
+		if ( ent->parent->moverState != MOVER_1TO2 &&
 			ent->parent->moverState != MOVER_POS2 &&
 			ent->parent->moverState != ROTATOR_1TO2 &&            // reaction
 			ent->parent->moverState != ROTATOR_POS2 ) {
@@ -1188,8 +1190,10 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 			best = i;
 		}
 	}
-	maxs[best] += 120;
-	mins[best] -= 120;
+	// NiceAss: This affected spectators near doors (jumping too soon)
+	// 		This was expanding the bounds of the door trigger out from the door 120 units.
+	//maxs[best] += 120;
+	//mins[best] -= 120;
 
 	// create a trigger with this size
 	other = G_Spawn ();
@@ -1272,11 +1276,11 @@ void SP_func_door (gentity_t *ent) {
 	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
-	
+
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
 	ent->soundPos2 = G_SoundIndex(sSndStop);
-	
+
 	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
@@ -1366,7 +1370,7 @@ REVERSE		if you want the door to open in the other direction, use this switch.
 TOGGLE		wait in both the start and end states for a trigger event.
 X_AXIS		open on the X-axis instead of the Z-axis
 Y_AXIS		open on the Y-axis instead of the Z-axis
-  
+
 You need to have an origin brush as part of this entity.  The center of that brush will be
 the point around which it is rotated. It will rotate around the Z axis by default.  You can
 check either the X_AXIS or Y_AXIS box to change that.
@@ -1391,7 +1395,7 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
 	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
 	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
-	
+
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
 	ent->soundPos2 = G_SoundIndex(sSndStop);
@@ -1430,11 +1434,11 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	if (!ent->wait)
 		ent->wait = 2;
 	ent->wait *= 1000;
-	
+
 	// set the axis of rotation
 	VectorClear( ent->movedir );
 	VectorClear( ent->s.angles );
-	
+
 	//Elder: changed from 8 - 16 and 16 - 32 respectively
 	if ( ent->spawnflags & 16 ) {
 		ent->movedir[2] = 1.0;
@@ -1458,7 +1462,7 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 		ent->classname, vtos(ent->s.origin));
 		ent->distance = 90.0;
 	}
-	
+
 	VectorCopy( ent->s.angles, ent->pos1 );
 	trap_SetBrushModel( ent, ent->model );
 	VectorMA ( ent->pos1, ent->distance, ent->movedir, ent->pos2 );
@@ -1472,7 +1476,7 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 		VectorCopy( temp, ent->pos1 );
 		VectorNegate ( ent->movedir, ent->movedir );
 	}
-	
+
 	// set origin
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
@@ -1644,7 +1648,7 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 	trigger->touch = Touch_PlatCenterTrigger;
 	trigger->r.contents = CONTENTS_TRIGGER;
 	trigger->parent = ent;
-	
+
 	tmin[0] = ent->pos1[0] + ent->r.mins[0] + 33;
 	tmin[1] = ent->pos1[1] + ent->r.mins[1] + 33;
 	tmin[2] = ent->pos1[2] + ent->r.mins[2];
@@ -1661,7 +1665,7 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 		tmin[1] = ent->pos1[1] + (ent->r.mins[1] + ent->r.maxs[1]) *0.5;
 		tmax[1] = tmin[1] + 1;
 	}
-	
+
 	VectorCopy (tmin, trigger->r.mins);
 	VectorCopy (tmax, trigger->r.maxs);
 
@@ -1769,7 +1773,7 @@ void SP_func_button( gentity_t *ent ) {
 	float		lip;
 
 	ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
-	
+
 	if ( !ent->speed ) {
 		ent->speed = 40;
 	}
