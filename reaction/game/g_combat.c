@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.136  2003/04/07 12:29:33  jbravo
+// Minor FF system fix
+//
 // Revision 1.135  2003/03/28 10:36:02  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -1742,9 +1745,10 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (g_gametype.integer >= GT_TEAM && level.lights_camera_action) {
 		return;		// JBravo: No dmg during LCA
 	}
+
 	// NiceAss: Fixed pointer bug causing DLLs to crash
 	// JBravo: FF control
-	if (targ != attacker && attacker && targ && targ->client && attacker->client) {
+	if (attacker && targ && targ->client && attacker->client && targ != attacker) {
 		if (g_gametype.integer >= GT_TEAM && targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam) {
 		    if (g_gametype.integer == GT_TEAMPLAY) {
 			    if (level.team_round_going && g_friendlyFire.integer == 0)
@@ -1775,15 +1779,6 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	if (!attacker) {
 		attacker = &g_entities[ENTITYNUM_WORLD];
 	}
-
-	/* old code
-	   if (targ->s.eType == ET_MOVER && targ->health <= 0) {
-	   //Makro - added
-	   if (targ->use) targ->use(targ, inflictor, attacker);
-	   return;
-	   } */
-
-	// Makro - we should change some more stuff in here
 	// shootable doors / buttons don't actually have any health
 	// Makro - they do now !
 	if (targ->s.eType == ET_MOVER) {
@@ -1967,13 +1962,14 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				if (g_friendlyFire.integer == 2 && level.team_round_going)
 					return;
+				if (level.team_round_going)
+					Add_TeamWound(attacker, targ, mod);
 			} else if (g_gametype.integer >= GT_TEAM) {
 				if (g_friendlyFire.integer == 2)
 					return;
+				else
+					Add_TeamWound(attacker, targ, mod);
 			}
-			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
-			    || g_gametype.integer >= GT_TEAM)
-				Add_TeamWound(attacker, targ, mod);
 		}
 		// check for godmode
 		if (targ->flags & FL_GODMODE) {
