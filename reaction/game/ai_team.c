@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/03 19:08:51  makro
+// Bot stuff
+//
 // Revision 1.6  2002/03/18 12:25:10  jbravo
 // Live players dont get fraglines, except their own. Cleanups and some
 // hacks to get bots to stop using knives only.
@@ -904,6 +907,79 @@ void BotTeamOrders(bot_state_t *bs) {
 		}
 	}
 	//
+	switch(numteammates) {
+		case 1: break;
+		case 2:
+		{
+			//nothing special
+			break;
+		}
+		case 3:
+		{
+			//have one follow another and one free roaming
+			BotCreateGroup(bs, teammates, 2);
+			break;
+		}
+		case 4:
+		{
+			BotCreateGroup(bs, teammates, 2);		//a group of 2
+			BotCreateGroup(bs, &teammates[2], 2);	//a group of 2
+			break;
+		}
+		case 5:
+		{
+			BotCreateGroup(bs, teammates, 2);		//a group of 2
+			BotCreateGroup(bs, &teammates[2], 3);	//a group of 3
+			break;
+		}
+		default:
+		{
+			if (numteammates <= 10) {
+				for (i = 0; i < numteammates / 2; i++) {
+					BotCreateGroup(bs, &teammates[i*2], 2);	//groups of 2
+				}
+			}
+			break;
+		}
+	}
+}
+
+/*
+====================================
+RQ3_Bot_TPOrders
+
+Added by Makro
+(just an edited version of
+BotTeamOrders)
+====================================
+*/
+void RQ3_Bot_TPOrders(bot_state_t *bs) {
+	int teammates[MAX_CLIENTS];
+	int numteammates, i;
+	char buf[MAX_INFO_STRING];
+	static int maxclients;
+
+	if (!maxclients)
+		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
+
+	numteammates = 0;
+	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+		trap_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
+		//if no config string or no name
+		if (!strlen(buf) || !strlen(Info_ValueForKey(buf, "n"))) continue;
+		//skip spectators
+		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
+		//
+		if (BotSameTeam(bs, i)) {
+			teammates[numteammates] = i;
+			numteammates++;
+		}
+	}
+	//
+	//TODO: find a human player; make 2 bots follow him
+	//		if no human player on the team. make groups of 2-3 bots
+	//		and send them to spawn points
+	
 	switch(numteammates) {
 		case 1: break;
 		case 2:
@@ -1982,8 +2058,6 @@ void BotTeamAI(bot_state_t *bs) {
 	//give orders
 	switch(gametype) {
 		case GT_TEAM:
-// JBravo
-		case GT_TEAMPLAY:
 		{
 			if (bs->numteammates != numteammates || bs->forceorders) {
 				bs->teamgiveorders_time = FloatTime();
@@ -1993,6 +2067,23 @@ void BotTeamAI(bot_state_t *bs) {
 			//if it's time to give orders
 			if (bs->teamgiveorders_time && bs->teamgiveorders_time < FloatTime() - 5) {
 				BotTeamOrders(bs);
+				//give orders again after 120 seconds
+				bs->teamgiveorders_time = FloatTime() + 120;
+			}
+			break;
+		}
+// JBravo
+// Makro - separate case now
+		case GT_TEAMPLAY:
+		{
+			if (bs->numteammates != numteammates || bs->forceorders) {
+				bs->teamgiveorders_time = FloatTime();
+				bs->numteammates = numteammates;
+				bs->forceorders = qfalse;
+			}
+			//if it's time to give orders
+			if (bs->teamgiveorders_time && bs->teamgiveorders_time < FloatTime() - 5) {
+				RQ3_Bot_TPOrders(bs);
 				//give orders again after 120 seconds
 				bs->teamgiveorders_time = FloatTime() + 120;
 			}
