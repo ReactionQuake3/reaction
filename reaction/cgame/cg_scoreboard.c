@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/06/03 19:20:18  niceass
+// referee change
+//
 // Revision 1.29  2002/06/03 00:47:18  niceass
 // match scoreboard changes
 //
@@ -268,9 +271,11 @@ static int CG_TeamplayScoreboard(void)
 		Score = &cg.scores[i];
 		ci = &cgs.clientinfo[ Score->client ];
 
+		/*
 		if (cg_RQ3_matchmode.integer) {
 			if (Score->client == cg_RQ3_RefID.integer && ci->team == TEAM_SPECTATOR) continue;
 		}
+		*/
 
 		if (Score->sub == TEAM_RED) 
 			RedSubs++;
@@ -280,8 +285,8 @@ static int CG_TeamplayScoreboard(void)
 			Reds++;
 		else if (ci->team == TEAM_BLUE) 
 			Blues++;
-
-		if (ci->team == TEAM_SPECTATOR) Spectators++;
+		else if (ci->team == TEAM_SPECTATOR) 
+			Spectators++;
 	}
 
 	y = 20;		// Starting height.
@@ -358,8 +363,7 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[ Score->client ];
 			
-				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
-
+				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_RED && Score->sub == 0) {
 					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
 					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, colorBlack);
@@ -382,8 +386,7 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[ Score->client ];
 			
-				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
-
+				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_RED && Score->sub ) {
 					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
 					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, RedL, colorBlack);
@@ -440,8 +443,7 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[ Score->client ];
 
-				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
-
+				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_BLUE && Score->sub == 0) {
 					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
 					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, colorBlack);
@@ -463,8 +465,7 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[ Score->client ];
 
-				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
-
+//				if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_BLUE && Score->sub ) {
 					CG_DrawTeamplayClientScore(y, Score, BlueL, colorBlack, colorWhite);
 					if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, BlueL, colorBlack);
@@ -506,8 +507,7 @@ static int CG_TeamplayScoreboard(void)
 			Score = &cg.scores[i];
 			ci = &cgs.clientinfo[ Score->client ];
 
-			if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
-
+			//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 			if (ci->team == TEAM_SPECTATOR) {
 				DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, GreyL, colorBlack);
 				if (First == 0) DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorBlack);
