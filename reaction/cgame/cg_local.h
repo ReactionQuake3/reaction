@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/06/12 23:05:14  slicer
+// SSG Zooming final tweak
+//
 // Revision 1.92  2002/06/12 22:31:59  slicer
 // Even better way to improve the Cvar Anti-Cheat System
 //
@@ -792,7 +795,7 @@ typedef struct {
 	vec3_t		refdefViewAngles;		// will be converted to refdef.viewaxis
 
 	// zoom key
-
+	qboolean	zooming;				//Slicer: flag to determine when to set zoomTime
 	qboolean	zoomed;					// Determines first-person weapon drawing
 	int			zoomLevel;				// Zoom LEVEL! -- uses zoom bits like STAT_RQ3
 	int			lastZoomLevel;			// Save last zoom state

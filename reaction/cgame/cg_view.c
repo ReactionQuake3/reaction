@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/06/12 23:01:06  slicer
+// SSG Zooming final tweak
+//
 // Revision 1.21  2002/05/23 15:54:35  makro
 // cg_RQ3_avidemo tweak
 //
@@ -740,6 +743,12 @@ static int CG_CalcFov( void ) {
 		//switching zoom
 		if (cg.zoomLevel != cg.lastZoomLevel)
 		{
+			//Slicer
+			if(!cg.zooming) { // If this is the first zooming attempt
+				cg.zoomTime = cg.time; // Lets set the time
+				cg.zooming = qtrue; // and disable the IF condition
+			}
+
 			fov_x = CG_RQ3_GetLastFov();
 			//Get desired zoom FOV based on current FOV
 			if (cg.zoomLevel == 0)
@@ -777,6 +786,8 @@ static int CG_CalcFov( void ) {
 				//finished zoom switch
 				cg.lastZoomLevel = cg.zoomLevel;
 				fov_x = zoomFov;
+				//Slicer : zoom has finished, so the next one needs to have a new zoomTime
+				cg.zooming = qfalse;
 			}
 			else
 				fov_x = fov_x + f * ( zoomFov - fov_x );
@@ -867,6 +878,7 @@ static int CG_CalcFov( void ) {
 			else
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 		}
+
 	}
 	//Using anything but the SSG3000
 	else
