@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/08/22 07:06:37  niceass
+// small change to particle reflection
+//
 // Revision 1.14  2002/08/21 03:53:09  niceass
 // enhanced particle system that allows particle reflection
 //
@@ -2314,7 +2317,7 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	active_particles = p;
 	p->time = cg.time;
 	p->mtime = cg.time;
-	p->epsilon = 1.2f;
+	p->epsilon = 1.1f;
 
 	p->endtime = cg.time + duration;
 	p->startfade = cg.time;
