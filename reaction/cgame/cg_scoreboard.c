@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/07/19 04:40:56  jbravo
+// Added 2 new radio sets and ctb radio sound support
+//
 // Revision 1.41  2002/07/09 05:42:51  niceass
 // flag scoreboard changes
 //
@@ -1312,9 +1315,9 @@ void CG_DrawWeaponStats(void)
 void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
 	char		modelskin[128], filename[128];
 	char		*model = NULL, *skin = NULL;
-	qhandle_t	headModel, headSkin, headIcon;
-	
-	vec3_t		Angles;
+	qhandle_t	headIcon; //headModel, headSkin;
+
+	//vec3_t		Angles;
 
 	if (team == TEAM_RED) 
 		strcpy(modelskin, cg_RQ3_team1model.string);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.124  2002/07/19 04:40:56  jbravo
+// Added 2 new radio sets and ctb radio sound support
+//
 // Revision 1.123  2002/07/11 04:27:29  niceass
 // crash bug fix for CTB & not selecting an item
 //
@@ -1356,6 +1359,37 @@ radio_msg_t male_radio_msgs[] = {
 	{"treport", 12},
 	{"up", 4},
 	{"click", 4},
+// JBravo: CTB sounds
+	{"backup1", 1},
+	{"backup2", 1},
+	{"backup3", 1},
+	{"chit1", 1},
+	{"chit2", 1},
+	{"chit3", 1},
+	{"deliv1", 1},
+	{"deliv2", 1},
+	{"deliv3", 1},
+	{"ecdown1", 1},
+	{"ecdown2", 1},
+	{"ecdown3", 1},
+	{"enepak1", 1},
+	{"enepak2", 1},
+	{"enepak3", 1},
+	{"escort1", 1},
+	{"escort2", 1},
+	{"escort3", 1},
+	{"gotpak1", 1},
+	{"gotpak2", 1},
+	{"gotpak3", 1},
+	{"guard1", 1},
+	{"guard2", 1},
+	{"guard3", 1},
+	{"incoming1", 1},
+	{"incoming2", 1},
+	{"incoming3", 1},
+	{"plost1", 1},
+	{"plost2", 1},
+	{"plost3", 1},
 	{"END", 0},		// end of list delimiter
 };
 
@@ -1386,6 +1420,37 @@ radio_msg_t female_radio_msgs[] = {
 	{"treport", 12},
 	{"up", 6},
 	{"click", 6},
+// JBravo: CTB sounds
+	{"backup1", 1},
+	{"backup2", 1},
+	{"backup3", 1},
+	{"chit1", 1},
+	{"chit2", 1},
+	{"chit3", 1},
+	{"deliv1", 1},
+	{"deliv2", 1},
+	{"deliv3", 1},
+	{"ecdown1", 1},
+	{"ecdown2", 1},
+	{"ecdown3", 1},
+	{"enepak1", 1},
+	{"enepak2", 1},
+	{"enepak3", 1},
+	{"escort1", 1},
+	{"escort2", 1},
+	{"escort3", 1},
+	{"gotpak1", 1},
+	{"gotpak2", 1},
+	{"gotpak3", 1},
+	{"guard1", 1},
+	{"guard2", 1},
+	{"guard3", 1},
+	{"incoming1", 1},
+	{"incoming2", 1},
+	{"incoming3", 1},
+	{"plost1", 1},
+	{"plost2", 1},
+	{"plost3", 1},
 	{"END", 0},		// end of list delimiter
 };
 
@@ -1546,6 +1611,9 @@ void RQ3_Cmd_Radio_f(gentity_t * ent)
 			return;
 		}
 		x++;
+		// JBravo: no CTB sounds unless CTB mode is on.
+		if (g_gametype.integer != GT_CTF && x > 25)
+			return;
 	}
 }
 

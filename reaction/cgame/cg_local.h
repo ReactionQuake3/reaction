@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.108  2002/07/19 04:40:56  jbravo
+// Added 2 new radio sets and ctb radio sound support
+//
 // Revision 1.107  2002/07/19 04:32:42  niceass
 // added marker support for ctb
 //
@@ -1366,7 +1369,9 @@ typedef struct {
 
 	//Slicer 
 	sfxHandle_t male_sounds[26];
-	sfxHandle_t new_male_sounds[26];
+	sfxHandle_t new_male_sounds[55];
+	sfxHandle_t pikey_male_sounds[55];
+	sfxHandle_t pirate_male_sounds[55];
 	sfxHandle_t female_sounds[26];
 
 	sfxHandle_t steamSound;
@@ -1623,8 +1628,8 @@ extern vmCvar_t cg_RQ3_overlaycrosshair;
 
 // JBravo: cvar for tkok popups
 extern vmCvar_t cg_RQ3_tkokAutoPopup;
-extern vmCvar_t cg_RQ3_newradio_male;
-extern vmCvar_t cg_RQ3_newradio_female;
+extern vmCvar_t cg_RQ3_radiovoice_male;
+extern vmCvar_t cg_RQ3_radiovoice_female;
 
 // Slicer: for the Anti-Cheat System
 //extern  vmCvar_t      cg_RQ3_Auth;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/07/19 04:40:56  jbravo
+// Added 2 new radio sets and ctb radio sound support
+//
 // Revision 1.56  2002/07/08 04:28:55  niceass
 // removed deaths
 //
@@ -1098,12 +1101,23 @@ void CG_Radio(void)
 	gender = atoi(CG_Argv(3));
 	//Slicer optimization
 	if (!gender) {
-		if (cg_RQ3_newradio_male.integer)
+		if (cg_RQ3_radiovoice_male.integer == 0) {
+			if (sound > 25)
+				CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
+			else
+				CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+		} else if (cg_RQ3_radiovoice_male.integer == 1) {
+			CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
+		} else if (cg_RQ3_radiovoice_male.integer == 2) {
+			CG_AddBufferedSound(cgs.media.pikey_male_sounds[sound]);
+		} else if (cg_RQ3_radiovoice_male.integer > 2) {
+			CG_AddBufferedSound(cgs.media.pirate_male_sounds[sound]);
+		}
+	} else {
+		if (sound > 25)
 			CG_AddBufferedSound(cgs.media.new_male_sounds[sound]);
 		else
-			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
-	} else {
-		CG_AddBufferedSound(cgs.media.female_sounds[sound]);
+			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
 	}
 	return;
 }
