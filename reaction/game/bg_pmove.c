@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/02/04 00:30:35  niceass
+// New physics
+//
 // Revision 1.55  2002/01/24 14:20:53  jbravo
 // Adding func_explosive and a few new surfaceparms
 //
@@ -43,6 +46,7 @@ float	pm_duckScale = 0.25f;
 float	pm_swimScale = 0.50f;
 float	pm_wadeScale = 0.70f;
 float	pm_ladderScale = 0.75f;		// more c3a ladders
+float	pm_maxspeed = 300;
 
 float	pm_accelerate = 10.0f;
 float	pm_airaccelerate = 1.0f;
@@ -324,23 +328,9 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-#if 1
-	// q2 style
 	int			i;
 	float		addspeed, accelspeed, currentspeed;
-	//Blaze: New ramp move code
-	//vec3_t		point;
-	//trace_t		trace;
-	float		normal;
-	float		temp;
 
-	normal = pml.groundTrace.plane.normal[2];
-	if (normal > 0)
-	{
-		temp = wishspeed;
-		wishspeed *= (2 - normal);
-	}
-	//Blaze: end new ramp jump code
 	currentspeed = DotProduct (pm->ps->velocity, wishdir);
 	addspeed = wishspeed - currentspeed;
 	if (addspeed <= 0) {
@@ -354,46 +344,7 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	for (i=0 ; i<3 ; i++) {
 		pm->ps->velocity[i] += accelspeed*wishdir[i];
 	}
-#else
-	// proper way (avoids strafe jump maxspeed bug), but feels bad
-	vec3_t		wishVelocity;
-	vec3_t		pushDir;
-	float		pushLen;
-	float		canPush;
-	//Blaze: New ramp move code
-	//vec3_t		point;
-	//trace_t		trace;
-	float		normal;
-	float		temp;
-	//point[0] = pm->ps->origin[0];
-	//point[1] = pm->ps->origin[1];
-	//point[2] = pm->ps->origin[2] - 0.25;
-
-	//pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-
-	normal = pml.groundTrace.plane.normal[2];
-	if (normal > 0)
-	{
-		// Com_Printf("(%f)",wishspeed);
-		temp = wishspeed;
-		wishspeed *= (2 - normal);
-		// Com_Printf(" (%f) (%f)\n", wishspeed-temp, normal);
-	}
-	//Blaze: end new ramp jump code
-	VectorScale( wishdir, wishspeed, wishVelocity );
-	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
-	pushLen = VectorNormalize( pushDir );
-
-	canPush = accel*pml.frametime*wishspeed;
-	if (canPush > pushLen) {
-		canPush = pushLen;
-	}
-
-	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
-#endif
 }
-
-
 
 /*
 ============
@@ -426,7 +377,6 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 
 	return scale;
 }
-
 
 /*
 ================
@@ -513,6 +463,8 @@ static qboolean PM_CheckJump( void ) {
 			//Com_Printf("%i:CPM->Double Jump, after %ims\n", c_pmove, (pm->jumpTime - pm->ps->stats[STAT_JUMPTIME]));
 	} else {
 		pm->ps->velocity[2] += JUMP_VELOCITY;
+		if (pm->ps->velocity[2] < JUMP_VELOCITY)
+			pm->ps->velocity[2] = JUMP_VELOCITY;
 	}
 
 	// Time that the second jump is within to get the higher jump
@@ -671,15 +623,12 @@ static void PM_WaterMove( void ) {
 	if ( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0 ) {
 		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
-//Blaze: Ramp jump test
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
-			pm->ps->velocity, OVERCLIP );
 
 		VectorNormalize(pm->ps->velocity);
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
 
-	PM_SlideMove( qfalse );
+	PM_StepSlideMove( qfalse );
 }
 
 #ifdef MISSIONPACK
@@ -753,57 +702,41 @@ static void PM_AirMove( void ) {
 	vec3_t		wishdir;
 	float		wishspeed;
 	float		scale;
-	usercmd_t	cmd;
+	float		maxspeed;
 
 	PM_Friction();
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
 
-	cmd = pm->cmd;
-	scale = PM_CmdScale( &cmd );
+	scale = PM_CmdScale( &pm->cmd );
 
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
 
-	// project moves down to flat plane
-	pml.forward[2] = 0;
-	pml.right[2] = 0;
-	VectorNormalize (pml.forward);
-	VectorNormalize (pml.right);
-
 	for ( i = 0 ; i < 2 ; i++ ) {
-		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
+		wishvel[i] = scale*pml.forward[i]*fmove + scale*pml.right[i]*smove;
 	}
 	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
-	wishspeed *= scale;
+
+	if (pm->ps->pm_flags & PMF_DUCKED)
+		maxspeed = 100;		// the ducking speed
+	else
+		maxspeed = pm_maxspeed;
+
+	if (wishspeed > maxspeed) {
+		VectorScale (wishvel, maxspeed/wishspeed, wishvel);
+		wishspeed = maxspeed;
+	}
 
 	// not on ground, so little effect on velocity
 	PM_Accelerate (wishdir, wishspeed, pm_airaccelerate);
 
-	// we may have a ground plane that is very steep, even
-	// though we don't have a groundentity
-	// slide along the steep plane
-	//Blaze: ramp jump test
-	if ( pml.groundPlane ) {
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
-			pm->ps->velocity, OVERCLIP );
-	}
-
-#if 0
-	//ZOID:  If we are on the grapple, try stair-stepping
-	//this allows a player to use the grapple to pull himself
-	//over a ledge
-	if (pm->ps->pm_flags & PMF_GRAPPLE_PULL)
-		PM_StepSlideMove ( qtrue );
-	else
-		PM_SlideMove ( qtrue );
-#endif
-
-	PM_StepSlideMove ( qtrue );
+	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+	PM_StepSlideMove ( qfalse );
 }
 
 /*
@@ -978,32 +911,14 @@ static void PM_WalkMove( void ) {
 	float		scale;
 	usercmd_t	cmd;
 	float		accelerate;
-	float		vel;
-	//Blaze: New ramp move code
-/*	vec3_t		point;
-	trace_t		trace;
+//	float		vel;
 
-	point[0] = pm->ps->origin[0];
-	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] - 0.25;
-
-	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
-	*/
-	//Com_Printf("(%f)",trace.plane.normal[2]);
-
-	//Blaze: end new ramp jump code
 	if ( pm->waterlevel > 2 && DotProduct( pml.forward, pml.groundTrace.plane.normal ) > 0 ) {
 		// begin swimming
 		PM_WaterMove();
 		return;
 	}
 
-/*	if ( (pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
-	{
-		PM_LimpMove();
-		return;
-	}
-*/
 	//Blaze: Cant jump while someone has leg damage
 	if ( !((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) && PM_CheckJump () ) {
 		// jumped away
@@ -1026,35 +941,13 @@ static void PM_WalkMove( void ) {
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
 
-	// project moves down to flat plane
-//Blaze: ram jump test
-	pml.forward[2] = 0;
-	pml.right[2] = 0;
-
-	// project the forward and right directions onto the ground plane
-//Blaze: ramp jumping test
-	PM_ClipVelocity (pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP );
-	PM_ClipVelocity (pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP );
-	//
-//Blaze: Ramp jump test
-	VectorNormalize (pml.forward);
-	VectorNormalize (pml.right);
-
 	for ( i = 0 ; i < 3 ; i++ ) {
-		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
+		wishvel[i] = scale*pml.forward[i]*fmove + scale*pml.right[i]*smove;
 	}
-	// when going up or down slopes the wish velocity should Not be zero
-//	wishvel[2] = 0;
+	wishvel[2] = 0;
 
 	VectorCopy (wishvel, wishdir);
 	wishspeed = VectorNormalize(wishdir);
-	wishspeed *= scale;
-
-	//Blaze: Some ramp jump stuff here
-//	if ( 2 - trace.plane.normal[2] > 1.00f)	Com_Printf("(%f)\n",2 - trace.plane.normal[2]);
-//	wishspeed *= 2 - trace.plane.normal[2];
-
-	//End blaze ramp jumping stuff
 
 	// clamp the speed lower if ducking
 	if ( pm->ps->pm_flags & PMF_DUCKED ) {
@@ -1082,6 +975,8 @@ static void PM_WalkMove( void ) {
 		accelerate = pm_accelerate;
 	}
 
+	pm->ps->velocity[2] = 0;
+
 	PM_Accelerate (wishdir, wishspeed, accelerate);
 
 	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
@@ -1089,21 +984,10 @@ static void PM_WalkMove( void ) {
 
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-	} else {
-		// don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
 	}
 
-	vel = VectorLength(pm->ps->velocity);
-//	Com_Printf("(%f)\n", vel);
-	// slide along the ground plane
-//Blaze: ramp jump test
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
-		pm->ps->velocity, OVERCLIP );
-
-	// don't decrease velocity when going up or down a slope
-	VectorNormalize(pm->ps->velocity);
-	VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
+	if (pm->ps->gravity < 0)
+		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 
 	// don't do anything if standing still
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
@@ -1111,10 +995,6 @@ static void PM_WalkMove( void ) {
 	}
 
 	PM_StepSlideMove( qfalse );
-
-	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
-
-
 }
 
 
@@ -1502,6 +1382,14 @@ static void PM_GroundTrace( void ) {
 	vec3_t		point;
 	trace_t		trace;
 
+	if (pm->ps->velocity[2] > 180)
+	{	// NiceAss: This is here for slope acceleration!
+		pml.groundPlane = qfalse;
+		pm->ps->groundEntityNum = ENTITYNUM_NONE;
+		pml.walking = qfalse; // Maybe not needed?
+		return;
+	}
+
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
 	point[2] = pm->ps->origin[2] - 0.25;
@@ -1554,7 +1442,8 @@ static void PM_GroundTrace( void ) {
 		// FIXME: if they can't slide down the slope, let them
 		// walk (sharp crevices)
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
-		pml.groundPlane = qtrue;
+//		pml.groundPlane = qtrue; // NiceAss
+		pml.groundPlane = qfalse;
 		pml.walking = qfalse;
 		return;
 	}
@@ -3438,7 +3327,7 @@ static void PM_LadderMove( void ) {
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
 
-	PM_SlideMove( qfalse ); // move without gravity
+	PM_StepSlideMove( qfalse ); // move without gravity
 	// Elder: stop legs from animating
 	PM_ForceLegsAnim( LEGS_JUMP );
 }
