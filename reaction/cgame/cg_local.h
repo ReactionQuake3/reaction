@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/04/20 15:05:08  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.65  2002/04/18 16:13:23  jbravo
 // Scoreboard now shows green for live players and white for dead.
 // Time should not get reset on deaths any more.
@@ -219,6 +222,13 @@ typedef enum {
 	FOOTSTEP_MUD,
 	FOOTSTEP_WOOD2,
 	FOOTSTEP_HARDMETAL,
+	// Makro: more sounds
+	FOOTSTEP_LEAVES,
+	FOOTSTEP_CEMENT,
+	FOOTSTEP_MARBLE,
+	FOOTSTEP_SNOW2,
+	FOOTSTEP_HARDSTEPS,
+
 
 	FOOTSTEP_TOTAL
 } footstep_t;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/20 15:03:47  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.66  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -1199,6 +1202,27 @@ static int PM_FootstepForSurface( void ) {
 		return EV_FOOTSTEP_HARDMETAL;
 	}
 // JBravo: end adding new sounds
+// Makro - 5 new sounds
+	if ( Material == MAT_LEAVES ) {
+		return EV_FOOTSTEP_LEAVES;
+	}
+
+	if ( Material == MAT_CEMENT ) {
+		return EV_FOOTSTEP_CEMENT;
+	}
+
+	if ( Material == MAT_MARBLE ) {
+		return EV_FOOTSTEP_MARBLE;
+	}
+
+	if ( Material == MAT_SNOW2 ) {
+		return EV_FOOTSTEP_SNOW2;
+	}
+	
+	if ( Material == MAT_HARDSTEPS ) {
+		return EV_FOOTSTEP_HARDSTEPS;
+	}
+// Makro - end new sounds
 
 	return EV_FOOTSTEP;
 }
@@ -3767,7 +3791,7 @@ int MatFlags[] =
 	SURF_HARDMETAL
 };
 
-#define MatFlagCount			11
+#define MatFlagCount			5
 
 int GetMaterialFromFlag( int flag ) {
 	int Material = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2002/04/20 15:03:47  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.32  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -1309,6 +1312,13 @@ char *eventnames[] = {
 	"EV_FOOTSTEP_MUD",
 	"EV_FOOTSTEP_WOOD2",
 	"EV_FOOTSTEP_HARDMETAL",
+	//Makro - new sounds
+	"EV_FOOTSTEP_LEAVES",
+	"EV_FOOTSTEP_CEMENT",
+	"EV_FOOTSTEP_MARBLE",
+	"EV_FOOTSTEP_SNOW2",
+	"EV_FOOTSTEP_HARDSTEPS",
+
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
 	"EV_SWIM",

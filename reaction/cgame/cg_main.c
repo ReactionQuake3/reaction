@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/04/20 15:05:08  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.55  2002/04/10 05:13:42  makro
 // Changed cg_thirdPerson from CVAR_ROM to CVAR_CHEAT
 //
@@ -962,6 +965,23 @@ static void CG_RegisterSounds( void ) {
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/hardmetal%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_HARDMETAL][i] = trap_S_RegisterSound (name, qfalse);
+
+		//Makro - new sounds
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/leaves%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_LEAVES][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/cement%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_CEMENT][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/marble%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_MARBLE][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow2_%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_SNOW2][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/hardstep%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_HARDSTEPS][i] = trap_S_RegisterSound (name, qfalse);
+
 	}
 
 	// only register the items that the server says we need

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/04/20 15:03:48  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.55  2002/04/06 21:42:20  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -871,15 +874,20 @@ typedef enum {
 
 	EV_FOOTSTEP,
 	EV_FOOTSTEP_METAL,
-	EV_FOOTSTEP_GRASS,	// Elder: new surfaces
+	EV_FOOTSTEP_GRASS,		// Elder: new surfaces
 	EV_FOOTSTEP_WOOD,
 	EV_FOOTSTEP_CARPET,
 	EV_FOOTSTEP_METAL2,
 	EV_FOOTSTEP_GRAVEL,
-	EV_FOOTSTEP_SNOW,	// JBravo: new surfaces
+	EV_FOOTSTEP_SNOW,		// JBravo: new surfaces
 	EV_FOOTSTEP_MUD,
 	EV_FOOTSTEP_WOOD2,
 	EV_FOOTSTEP_HARDMETAL,
+	EV_FOOTSTEP_LEAVES,		// Makro: new surfaces
+	EV_FOOTSTEP_CEMENT,
+	EV_FOOTSTEP_MARBLE,
+	EV_FOOTSTEP_SNOW2,
+	EV_FOOTSTEP_HARDSTEPS,
 	EV_FOOTSPLASH,
 	EV_FOOTWADE,
 	EV_SWIM,
@@ -1342,15 +1350,22 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define MAT_DEFAULT				0
 #define MAT_METALSTEPS			1
 #define MAT_GRAVEL				2
-#define MAT_WOOD				4
-#define MAT_CARPET				8
-#define MAT_METAL2				16
-#define MAT_GLASS				32
-#define MAT_GRASS				64
-#define MAT_SNOW				128
-#define MAT_MUD					256
-#define MAT_WOOD2				512
-#define MAT_HARDMETAL			1024
+#define MAT_WOOD				3
+#define MAT_CARPET				4
+#define MAT_METAL2				5
+#define MAT_GLASS				6
+#define MAT_GRASS				7
+#define MAT_SNOW				8
+#define MAT_MUD					9
+#define MAT_WOOD2				10
+#define MAT_HARDMETAL			11
+//new
+#define MAT_LEAVES				12
+#define MAT_CEMENT				13
+#define MAT_MARBLE				14
+#define MAT_SNOW2				15
+#define MAT_HARDSTEPS			16
+
 
 int GetMaterialFromFlag( int flag );
 qboolean IsMetalMat( int Material );

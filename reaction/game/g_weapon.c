@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/04/20 15:03:48  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.44  2002/04/07 19:23:41  jbravo
 // Yet another crashbug fixed.
 //
@@ -249,8 +252,6 @@ qboolean JumpKick( gentity_t *ent )
 
 	return qtrue;
 }
-
-//qboolean Ent_DoorFront( trace_t *trIn
 
 qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward )
 {
@@ -1732,6 +1733,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	// send wall bullet impact
 	// no explosion at end if SURF_NOIMPACT
 	Material = GetMaterialFromFlag(trace.surfaceFlags);
+	//G_Printf("SSG3000: Hit entity #%i (%s): surfaceFlag = %i\n", trace.entityNum, g_entities[trace.entityNum].classname, trace.surfaceFlags);
 	if ( !(trace.surfaceFlags & SURF_NOIMPACT) )
 	{
 		//Makro - new surfaceparm system

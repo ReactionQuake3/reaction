@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2002/04/20 15:03:47  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.17  2002/04/06 21:42:19  makro
 // Changes to bot code. New surfaceparm system.
 //
@@ -1709,7 +1712,8 @@ void BotChooseWeapon(bot_state_t *bs) {
 		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
 		if (bs->weaponnum != newweaponnum) bs->weaponchange_time = FloatTime();
 // JBravo: test hack
-//		bs->weaponnum = newweaponnum;
+// Makro - test unhack :P
+		bs->weaponnum = newweaponnum;
 		bs->weaponnum = WP_PISTOL;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);

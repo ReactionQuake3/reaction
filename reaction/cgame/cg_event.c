@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/04/20 15:05:08  makro
+// More footstep sounds, a few other things
+//
 // Revision 1.49  2002/04/06 21:43:58  makro
 // New surfaceparm system
 //
@@ -1483,7 +1486,8 @@ static void CG_JumpKick ( entityState_t *ent )
 	}
 
 	// everyone hears this
-	trap_S_StartSound(NULL, ent->number, CHAN_AUTO, cgs.media.kickSound);
+	// Makro - I didn't ! Changed from CHAN_AUTO
+	trap_S_StartSound(NULL, ent->number, CHAN_BODY, cgs.media.kickSound);
 }
 
 /*
@@ -1601,6 +1605,43 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 // JBravo: end new sounds
+// Makro - more sounds
+	case EV_FOOTSTEP_LEAVES:
+		DEBUGNAME("EV_FOOTSTEP_LEAVES");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_LEAVES ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_CEMENT:
+		DEBUGNAME("EV_FOOTSTEP_CEMENT");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_CEMENT ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_MARBLE:
+		DEBUGNAME("EV_FOOTSTEP_MARBLE");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_MARBLE ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_SNOW2:
+		DEBUGNAME("EV_FOOTSTEP_SNOW2");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_SNOW2 ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_HARDSTEPS:
+		DEBUGNAME("EV_FOOTSTEP_HARDSTEPS");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_HARDSTEPS ][rand()&3] );
+		}
+		break;
+// Makro - end new sounds
 	case EV_FOOTSTEP_METAL2:
 		DEBUGNAME("EV_FOOTSTEP_METAL2");
 		if (cg_footsteps.integer) {
