@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.104  2002/08/27 05:10:05  niceass
+// new ctb marker shader names
+//
 // Revision 1.103  2002/08/25 00:45:24  niceass
 // q3f atmosphere
 //
@@ -1867,8 +1870,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
 	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
-	cgs.media.ctbXMark1 = trap_R_RegisterShader("ctbXMark1");
-	cgs.media.ctbXMark2 = trap_R_RegisterShader("ctbXMark2");
+	cgs.media.ctbXMarkSilver = trap_R_RegisterShader("ctbXMarkSilver");
+	cgs.media.ctbOMarkBlack = trap_R_RegisterShader("ctbOMarkBlack");
 	//Blaze: added for explosive boxes and grenades
 	cgs.media.grenadeExplosionShader = trap_R_RegisterShader("grenadeExplosion");
 	// Elder: added

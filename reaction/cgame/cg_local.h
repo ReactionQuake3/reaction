@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2002/08/27 05:10:42  niceass
+// new ctb marker shader names
+//
 // Revision 1.119  2002/08/25 07:08:41  niceass
 // added "life" setting to func_pressure
 //
@@ -1169,8 +1172,8 @@ typedef struct {
 	// wall mark shaders
 	qhandle_t wakeMarkShader;
 	qhandle_t bloodMarkShader;
-	qhandle_t ctbXMark1;
-	qhandle_t ctbXMark2;
+	qhandle_t ctbXMarkSilver;
+	qhandle_t ctbOMarkBlack;
 	qhandle_t bulletMarkShader;
 	qhandle_t burnMarkShader;
 	qhandle_t holeMarkShader;

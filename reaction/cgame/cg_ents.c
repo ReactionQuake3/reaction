@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2002/08/27 05:10:42  niceass
+// new ctb marker shader names
+//
 // Revision 1.30  2002/07/19 04:33:52  niceass
 // laser fog fix and ctb markers
 //
@@ -980,10 +983,10 @@ static void CG_DrawDecal(centity_t * cent)
 		CG_Trace(&trace, cent->lerpOrigin, NULL, NULL, end, 0, CONTENTS_SOLID | CONTENTS_PLAYERCLIP);
 
 		if (cent->currentState.modelindex == TEAM_RED)
-			CG_ImpactMark(cgs.media.ctbXMark1, trace.endpos, trace.plane.normal, 45.0f,
+			CG_ImpactMark(cgs.media.ctbXMarkSilver, trace.endpos, trace.plane.normal, 45.0f,
 				      1, 1, 1, 1, qfalse, radius, qtrue);
 		else
-			CG_ImpactMark(cgs.media.ctbXMark2, trace.endpos, trace.plane.normal, 45.0f,
+			CG_ImpactMark(cgs.media.ctbOMarkBlack, trace.endpos, trace.plane.normal, 45.0f,
 				      1, 1, 1, 1, qfalse, radius, qtrue);
 	}
 }
