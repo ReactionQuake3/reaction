@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/05/06 21:40:37  slicer
+// Added rq3_cmd
+//
 // Revision 1.31  2002/05/02 00:02:19  jbravo
 // Added a fix for the incorrect weapon at spawns
 //
@@ -1134,7 +1137,113 @@ char	*CG_ConcatArgs (int start) {
 	line[len] = 0;
 	return line;
 }
+void CG_Stuffcmd(void) {
+	char	*cmd;
+	cmd = CG_ConcatArgs (1);
+	trap_SendConsoleCommand (cmd);
+}
+void CG_SetTeamPlayers(void) {
+		int	team, number;
+			char	teamz[64];
 
+		team = atoi(CG_Argv(1));
+		number = atoi(CG_Argv(2));
+		Com_sprintf (teamz, sizeof(teamz), "%i", number);
+
+		if (team == TEAM_RED)
+			trap_Cvar_Set("cg_RQ3_teamCount1", teamz);
+		else if (team == TEAM_BLUE)
+			trap_Cvar_Set("cg_RQ3_teamCount2", teamz);
+		else if (team == TEAM_SPECTATOR || team == TEAM_FREE)
+			trap_Cvar_Set("cg_RQ3_numSpectators", teamz);
+		return;
+}
+
+void CG_Radio(void) {
+		int	sound, gender;
+
+		sound = atoi(CG_Argv(2));
+		gender = atoi(CG_Argv(3));
+		//Slicer optimization
+		if(!gender) {
+			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
+		} else {
+			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
+		}
+		return;
+}
+/*
+=================
+CG_RQ3_Cmd by sLiCeR
+This function will parse and handle several cmds in one ( rq3_cmd)
+=================
+*/
+void CG_RQ3_Cmd () {
+	int cmd;
+	cmd = atoi(CG_Argv(1));
+
+	switch(cmd) {
+		case LIGHTS:
+			trap_Cvar_Set("cg_RQ3_lca", "1");
+			cg.showScores = qfalse;
+			cg.scoreTPMode = 0;
+			CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			CG_Printf("\nLIGHTS...\n");
+//			trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
+			CG_AddBufferedSound(cgs.media.lightsSound);
+			break;
+		case CAMERA:
+			CG_CenterPrint( "CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			CG_Printf("\nCAMERA...\n");
+			CG_AddBufferedSound(cgs.media.cameraSound);
+			break;
+		case ACTION:
+			CG_CenterPrint( "ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+			CG_Printf("\nACTION!\n");
+			trap_Cvar_Set("cg_RQ3_lca", "0");
+			CG_AddBufferedSound(cgs.media.actionSound);
+			break;
+		case SETTEAMPLAYERS:
+			CG_SetTeamPlayers();
+			break;
+		case SELECTPISTOL:
+			CG_Printf("Selecting pistol\n");
+			if (cg.snap) {
+			switch (cg.snap->ps.weapon) {
+				case WP_PISTOL:
+				case WP_KNIFE:
+				case WP_AKIMBO:
+					break;
+				//case WP_GRENADE:
+				default:
+					cg.weaponSelectTime = cg.time;
+					cg.weaponSelect = WP_PISTOL;
+				//Slicer: Done Server Side
+					//CG_RQ3_Zoom1x();
+					break;
+			}
+		}
+		break;
+		case ROUND:
+			trap_Cvar_Set("cg_RQ3_team_round_going", CG_Argv(1));
+			break;
+		case MAPEND:
+			cg.showScores = qtrue;
+			cg.scoreTPMode = 0;
+			break;
+		case SETWEAPON:
+			cg.weaponSelect = atoi(CG_Argv(1));
+			break;
+		case STUFF:
+			CG_Stuffcmd();
+			break;
+		case RADIO:
+			CG_Radio();
+			break;
+		default:
+			break;
+	}
+}
 /*
 =================
 CG_ServerCommand
@@ -1318,110 +1427,10 @@ static void CG_ServerCommand( void ) {
     return;
     
   }
-
-	if ( !strcmp( cmd, "selectpistol") ) {
-		//CG_Printf("Selecting pistol\n");
-		//trap_SendConsoleCommand(va("cmd weapon %i\n", WP_PISTOL));
-		//Elder: condensed version of Cmd_Weapon
-		if (cg.snap) {
-			switch (cg.snap->ps.weapon) {
-				case WP_PISTOL:
-				case WP_KNIFE:
-				case WP_AKIMBO:
-					break;
-				//case WP_GRENADE:
-				default:
-					cg.weaponSelectTime = cg.time;
-					cg.weaponSelect = WP_PISTOL;
-				//Slicer: Done Server Side
-					//CG_RQ3_Zoom1x();
-					break;
-			}
-		}
-		return;
-	}
-
-	// NiceAss: LCA
-	if ( !strcmp( cmd, "lights") ) {
-		trap_Cvar_Set("cg_RQ3_lca", "1");
-		cg.showScores = qfalse;
-		cg.scoreTPMode = 0;
-		CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		CG_Printf("\nLIGHTS...\n");
-//		trap_S_StartLocalSound(cgs.media.lightsSound, CHAN_ANNOUNCER);
-		CG_AddBufferedSound(cgs.media.lightsSound);
-		return;
-	}
-	if ( !strcmp( cmd, "camera") ) {
-		CG_CenterPrint( "CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		CG_Printf("\nCAMERA...\n");
-		CG_AddBufferedSound(cgs.media.cameraSound);
-		return;
-	}
-	if ( !strcmp( cmd, "action") ) {
-		CG_CenterPrint( "ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-		CG_Printf("\nACTION!\n");
-		trap_Cvar_Set("cg_RQ3_lca", "0");
-		CG_AddBufferedSound(cgs.media.actionSound);
-		return;
-	}
-// JBravo: client commands to use instead of CLIENTINFO cvars.
-	if (!strcmp(cmd, "roundbegin")) {
-		trap_Cvar_Set("cg_RQ3_team_round_going", "1");
-		return;
-	}
-	if (!strcmp(cmd, "roundend")) {
-		trap_Cvar_Set("cg_RQ3_team_round_going", "0");
-		return;
-	}
-	if (!strcmp(cmd, "mapend")) {
-		cg.showScores = qtrue;
-		cg.scoreTPMode = 0;
-		return;
-	}
-	if (!strcmp(cmd, "stuff")) {
-		char	*cmd;
-		cmd = CG_ConcatArgs (1);
-		trap_SendConsoleCommand (cmd);
-		return;
-	}
-	if (!strcmp(cmd, "setclientweapon")) {
-		cg.weaponSelect = atoi(CG_Argv(1));
-		return;
-	}
-
-// JBravo: Number of players hack.
-	if (!strcmp(cmd, "setteamplayers")) {
-		int	team, number;
-		char	teamz[64];
-
-		team = atoi(CG_Argv(1));
-		number = atoi(CG_Argv(2));
-		Com_sprintf (teamz, sizeof(teamz), "%i", number);
-
-		if (team == TEAM_RED)
-			trap_Cvar_Set("cg_RQ3_teamCount1", teamz);
-		else if (team == TEAM_BLUE)
-			trap_Cvar_Set("cg_RQ3_teamCount2", teamz);
-		else if (team == TEAM_SPECTATOR || team == TEAM_FREE)
-			trap_Cvar_Set("cg_RQ3_numSpectators", teamz);
-		return;
-	}
-
-// JBravo: radio. This implementation rules. Used to suck :)
-	if (!strcmp(cmd, "playradiosound")) {
-		int	sound, gender;
-
-		sound = atoi(CG_Argv(1));
-		gender = atoi(CG_Argv(2));
-		//Slicer optimization
-		if(!gender) {
-			CG_AddBufferedSound(cgs.media.male_sounds[sound]);
-		} else {
-			CG_AddBufferedSound(cgs.media.female_sounds[sound]);
-		}
-		return;
-	}
+ if(!strcmp(cmd,"rq3_cmd")) {
+	  CG_RQ3_Cmd();
+	  return;
+  }
 
 	CG_Printf( "Unknown client game command: %s\n", cmd );
 }

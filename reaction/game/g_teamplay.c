@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/05/06 21:41:01  slicer
+// Added rq3_cmd
+//
 // Revision 1.81  2002/05/06 00:35:49  jbravo
 // Small fixes to misc stuff
 //
@@ -294,7 +297,8 @@ void CheckTeamRules()
 		level.lights_delay--;
 		if (level.lights_delay == 1) {
 			level.lights_delay = 0;
-			trap_SendServerCommand(-1, "lights");
+			//trap_SendServerCommand(-1, "lights");
+			trap_SendServerCommand(-1, va("rq3_cmd %i" ,LIGHTS));
 		}
 	}
 
@@ -316,7 +320,9 @@ void CheckTeamRules()
 
 	if (level.lights_delay == 1) {
 		level.lights_delay = 0;
-		trap_SendServerCommand(-1, "lights");
+		//Slicer
+		//trap_SendServerCommand(-1, "lights");
+		trap_SendServerCommand(-1, va("rq3_cmd %i" ,LIGHTS));
 	}
 
 	if (level.team_round_countdown == 1) {
@@ -364,7 +370,7 @@ void CheckTeamRules()
 				if (level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
-					trap_SendServerCommand( -1, "roundend");
+					trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 					trap_Cvar_Set("g_RQ3_team1ready", "0");
 					trap_Cvar_Set("g_RQ3_team2ready", "0");
 					MakeAllLivePlayersObservers ();
@@ -378,7 +384,7 @@ void CheckTeamRules()
 					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-					trap_SendServerCommand( -1, "roundend");
+					trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 					//Slicer: Start Intermission
 					BeginIntermission();
 					return;
@@ -402,7 +408,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_SendServerCommand( -1, "roundend");
+			trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -415,7 +421,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
-			trap_SendServerCommand( -1, "roundend");
+			trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -438,14 +444,14 @@ void ContinueLCA()
 {
 	if (level.lights_camera_action == (21*level.fps)/10) {
 		G_LogPrintf ("CAMERA...\n");
-		trap_SendServerCommand( -1, "camera");
+		trap_SendServerCommand(-1, va("rq3_cmd %i" ,CAMERA));
 	}
 	else if (level.lights_camera_action == 1) {
 		G_LogPrintf ("ACTION!\n");
-		trap_SendServerCommand( -1, "action");
+		trap_SendServerCommand(-1, va("rq3_cmd %i" ,ACTION));
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
-		trap_SendServerCommand( -1, "roundbegin");
+		trap_SendServerCommand(-1, va("rq3_cmd %i 1" ,ROUND));
 		level.current_round_length = 0;
 	}
 	level.lights_camera_action--;
@@ -624,7 +630,7 @@ int WonGame(int winner)
 			if (level.matchTime >= g_timelimit.integer * 60) {
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
-			trap_SendServerCommand( -1, "roundend");
+			trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 			trap_Cvar_Set("g_RQ3_team1ready", "0");
 			trap_Cvar_Set("g_RQ3_team2ready", "0");
 			MakeAllLivePlayersObservers ();
@@ -636,7 +642,7 @@ int WonGame(int winner)
 			if (level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				trap_SendServerCommand( -1, "roundend");
+				trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -650,7 +656,7 @@ int WonGame(int winner)
 			if (g_RQ3_matchmode.integer) {
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
-				trap_SendServerCommand( -1, "roundend");
+				trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 				trap_Cvar_Set("g_RQ3_team1ready", "0");
 				trap_Cvar_Set("g_RQ3_team2ready", "0");
 				MakeAllLivePlayersObservers ();
@@ -661,7 +667,7 @@ int WonGame(int winner)
 				trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
 				trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-				trap_SendServerCommand( -1, "roundend");
+				trap_SendServerCommand( -1, va("rq3_cmd %i 0",ROUND));
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -674,7 +680,7 @@ int WonGame(int winner)
 team_t RQ3TeamCount( int ignoreClientNum, int team )
 {
 	int	i, count = 0;
-	char	buf[64];
+//	char	buf[64];
 
 	for (i=0; i<level.maxclients; i++) {
 		if (i == ignoreClientNum) {
@@ -699,8 +705,8 @@ team_t RQ3TeamCount( int ignoreClientNum, int team )
 	else if (team == TEAM_SPECTATOR || team == TEAM_FREE)	
 		trap_Cvar_Set("g_RQ3_numSpectators", buf); */
 
-	Com_sprintf (buf, sizeof(buf), "setteamplayers %i %i\n", team, count);
-	trap_SendServerCommand(-1, buf);
+	//Com_sprintf (buf, sizeof(buf), "setteamplayers %i %i\n", team, count);
+	//trap_SendServerCommand(-1, buf);
 	return count;
 }
 
@@ -749,7 +755,7 @@ void SpawnPlayers()
 // JBravo: lets not respawn spectators in free floating mode
 		if (player->client->sess.savedTeam == TEAM_SPECTATOR &&
 				player->client->specMode == SPECTATOR_FREE) {
-			trap_SendServerCommand(player-g_entities, "lights");
+			trap_SendServerCommand(player-g_entities, va("rq3_cmd %i" ,LIGHTS));
 			continue;
 		}
 
@@ -972,7 +978,7 @@ void EquipPlayer (gentity_t *ent)
 			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
 	}
 	if (!(ent->r.svFlags & SVF_BOT)) {
-		trap_SendServerCommand(ent-g_entities, va("setclientweapon %i\n", ent->client->ps.weapon));
+		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i %i",SETWEAPON,ent->client->ps.weapon));
 	}
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
@@ -1070,11 +1076,11 @@ void RQ3_Cmd_Radio_power_f(gentity_t *ent)
 	if (ent->client->radioOff == qfalse) {
 		ent->client->radioOff = qtrue;
 		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched off\n\"");
-		trap_SendServerCommand(ent-g_entities, "playradiosound 25 0\n\"");
+		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i 25 0",RADIO));
 	} else {
 		ent->client->radioOff = qfalse;
 		trap_SendServerCommand(ent-g_entities, "cp \"Radio switched on\n\"");
-		trap_SendServerCommand(ent-g_entities, "playradiosound 25 0\n\"");
+		trap_SendServerCommand(ent-g_entities, va("rq3_cmd %i 25 0",RADIO));
 	}
 }
 
@@ -1199,7 +1205,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 						if (!player->inuse)
 							continue;
 						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
-							trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"",
+							trap_SendServerCommand(player-g_entities, va("rq3_cmd %i %i %i\n",RADIO,
 								kills-1, ent->client->radioGender));
 					}
 				}
@@ -1213,7 +1219,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 						trap_SendServerCommand(player-g_entities, va("print \"radio %s %s\n\"",
 							ent->client->pers.netname, radio_msgs[x].msg));
 					else
-						trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
+						trap_SendServerCommand(player-g_entities, va("rq3_cmd %i %i %i\n",RADIO, x,
 							ent->client->radioGender));
 				}
 			}
@@ -1810,5 +1816,5 @@ void RQ3_Cmd_Stuff (void)
 	client = atoi (user);
 	cmd = ConcatArgs(2);
 
-	trap_SendServerCommand(client, va("stuff %s\n", cmd));
+	trap_SendServerCommand(client, va("rq3_cmd %i %s\n",STUFF, cmd));
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/05/06 21:41:01  slicer
+// Added rq3_cmd
+//
 // Revision 1.60  2002/05/02 12:44:58  makro
 // Customizable color for the loading screen text. Bot stuff
 //
@@ -244,6 +247,18 @@
 #define RQ3_KEVLAR_NAME 		"Kevlar Vest"
 #define RQ3_LASER_NAME			"Lasersight"
 
+enum {
+	LIGHTS,
+	CAMERA,
+	ACTION,
+	SETTEAMPLAYERS,
+	SELECTPISTOL,
+	ROUND,
+	MAPEND,
+	SETWEAPON,
+	STUFF,
+	RADIO
+};
 //Elder: sound events for EV_RQ3_SOUND
 typedef enum {
 	RQ3_SOUND_KICK,

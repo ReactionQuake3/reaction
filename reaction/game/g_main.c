@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/05/06 21:41:01  slicer
+// Added rq3_cmd
+//
 // Revision 1.53  2002/05/05 15:51:16  slicer
 // Captain and subs get saved on map_restarts ( moved to "sess" )
 //
@@ -1376,7 +1379,7 @@ void BeginIntermission( void ) {
 		MoveClientToIntermission( client );
 // JBravo: send the TP scoreboard to players
 		if (g_gametype.integer == GT_TEAMPLAY)
-			trap_SendServerCommand (i, "mapend");
+			trap_SendServerCommand (i, va("rq3_cmd %i",MAPEND));
 	}
 
 	// send the current scoring to all clients

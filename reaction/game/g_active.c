@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/06 21:41:01  slicer
+// Added rq3_cmd
+//
 // Revision 1.71  2002/04/13 15:37:53  jbravo
 // limchasecam has been redone with new spec system
 //
@@ -1145,7 +1148,7 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		if (client->ps.weapon == weap)
 		{
 			client->ps.stats[STAT_RQ3] |= RQ3_THROWWEAPON;
-			trap_SendServerCommand( ent-g_entities, va("selectpistol"));
+			trap_SendServerCommand( ent-g_entities, va("rq3_cmd %i",SELECTPISTOL));
 		}
 
 		client->weaponCount[weap]--;
