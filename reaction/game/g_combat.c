@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2002/08/27 07:50:55  jbravo
+// Players can now use the kill cmd, plummet and kill teammates after rounds in
+// tp without loosing frags.
+//
 // Revision 1.121  2002/08/27 01:25:22  jbravo
 // Fixed scoring in TOURNAMENT mode and made it a legit gametype.
 //
@@ -1302,7 +1306,9 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		ResetKills(self);
 // JBravo: make it OK to frag teammates after rounds are over.
 		if (attacker == self) {
-			AddScore(attacker, self->r.currentOrigin, -1);
+			if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going) {
+			} else
+				AddScore(attacker, self->r.currentOrigin, -1);
 		} else if (OnSameTeam(self, attacker)) {
 			if (g_gametype.integer == GT_TEAMPLAY && level.team_round_going) {
 				AddScore(attacker, self->r.currentOrigin, -1);
@@ -1372,7 +1378,9 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			attacker->client->lastKillTime = level.time;
 		}
 	} else {
-		AddScore(self, self->r.currentOrigin, -1);
+		if (g_gametype.integer == GT_TEAMPLAY && !level.team_round_going) {
+		} else
+			AddScore(self, self->r.currentOrigin, -1);
 	}
 
 	// Add team bonuses
