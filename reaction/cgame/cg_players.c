@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/03/23 05:50:47  jbravo
+// Moved enableDust out of the missionpack
+//
 // Revision 1.19  2002/03/04 20:50:59  jbravo
 // No floating scores over dead bodies, triangles disabled, and no viewing
 // names of enemys just of teammates.
@@ -1779,12 +1782,12 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head) {
 	ci->breathPuffTime = cg.time + 2000;
 }
 
-#ifdef MISSIONPACK
 /*
 ===============
 CG_DustTrail
 ===============
 */
+// JBravo: no longer in MISSIONPACK.
 static void CG_DustTrail( centity_t *cent ) {
 	int				anim;
 	localEntity_t	*dust;
@@ -1828,8 +1831,6 @@ static void CG_DustTrail( centity_t *cent ) {
 				  0,
 				  cgs.media.dustPuffShader );
 }
-
-#endif
 
 /*
 ===============
@@ -2815,10 +2816,9 @@ void CG_Player( centity_t *cent ) {
 
 	// NiceAss: Outside the MISSIONPACK
 	CG_BreathPuffs(cent, &head);
-#ifdef MISSIONPACK
 
+	// JBravo: ditto
 	CG_DustTrail(cent);
-#endif
 
 	//
 	// add the gun / barrel / flash

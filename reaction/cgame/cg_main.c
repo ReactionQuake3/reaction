@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/03/23 05:50:47  jbravo
+// Moved enableDust out of the missionpack
+//
 // Revision 1.49  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -268,7 +271,6 @@ vmCvar_t	cg_singlePlayerActive;
 vmCvar_t	cg_recordSPDemo;
 vmCvar_t	cg_recordSPDemoName;
 vmCvar_t	cg_obeliskRespawnDelay;
-vmCvar_t	cg_enableDust;
 #endif
 //Blaze: cheat struct
 cheat_cvar	cheats[30];
@@ -283,6 +285,8 @@ vmCvar_t	MM_team1;
 vmCvar_t	MM_team2;
 // NiceAss: Taken out of the missionpack
 vmCvar_t	cg_enableBreath;
+// JBravo: ditto
+vmCvar_t	cg_enableDust;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -382,10 +386,11 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_recordSPDemoName, "ui_recordSPDemoName", "", CVAR_ARCHIVE},
 	{ &cg_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SERVERINFO},
 	{ &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
-	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 #endif
 	// NiceAss: Taken out of the missionpack
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO},
+	// JBravo: ditto
+	{ &cg_enableDust, "g_enableDust", "0", CVAR_SERVERINFO},
 
 	{ &cg_cameraOrbit, "cg_cameraOrbit", "0", CVAR_CHEAT},
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay", "50", CVAR_ARCHIVE},
@@ -1199,8 +1204,10 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	cgs.media.redKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikred" );
-	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 #endif
+// JBravo: moved outof MISSIONPACK
+	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff" );
+
 
 	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
 		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );

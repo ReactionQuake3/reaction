@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/03/23 05:50:47  jbravo
+// Moved enableDust out of the missionpack
+//
 // Revision 1.35  2002/03/23 05:17:43  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -185,11 +188,13 @@ vmCvar_t	g_cubeTimeout;
 vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
 vmCvar_t	g_singlePlayer;
-vmCvar_t	g_enableDust;
 vmCvar_t	g_proxMineTimeout;
 #endif
 // NiceAss: Taken out of the missionpack
 vmCvar_t	g_enableBreath;
+// JBravo: ditto
+vmCvar_t	g_enableDust;
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t		gameCvarTable[] = {
@@ -267,11 +272,12 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_blueteam, "g_blueteam", "Pagans", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO , 0, qtrue, qtrue  },
 	{ &g_singlePlayer, "ui_singlePlayerActive", "", 0, 0, qfalse, qfalse  },
 
-	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, qfalse },
 #endif
 	// NiceAss: Taken out of the missionpack
 	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
+	// JBravo: ditto
+	{ &g_enableDust, "g_enableDust", "0", CVAR_SERVERINFO, 0, qtrue, qfalse },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
 	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},

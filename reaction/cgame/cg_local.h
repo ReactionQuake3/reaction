@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/03/23 05:50:47  jbravo
+// Moved enableDust out of the missionpack
+//
 // Revision 1.57  2002/03/23 05:17:42  jbravo
 // Major cleanup of game -> cgame communication with LCA vars.
 //
@@ -1048,9 +1051,11 @@ typedef struct {
 	qhandle_t	invulnerabilityImpactModel;
 	qhandle_t	invulnerabilityJuicedModel;
 	qhandle_t	medkitUsageModel;
-	qhandle_t	dustPuffShader;
 	qhandle_t	heartShader;
 #endif
+// JBravo: moved out of MISSIONPACK
+	qhandle_t	dustPuffShader;
+
 	qhandle_t	invulnerabilityPowerupModel;
 
 	// scoreboard headers
@@ -1550,10 +1555,11 @@ extern	vmCvar_t		cg_singlePlayerActive;
 extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 extern	vmCvar_t		cg_obeliskRespawnDelay;
-extern	vmCvar_t		cg_enableDust;
 #endif
 // NiceAss: No longer part of the MissionPack
 extern	vmCvar_t		cg_enableBreath;
+// JBravo: ditto
+extern	vmCvar_t		cg_enableDust;
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
 // JBravo: Teamplay cvars synched from game
