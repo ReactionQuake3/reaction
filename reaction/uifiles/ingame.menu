@@ -9,7 +9,7 @@
 	cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
 	cursorSize 64
 	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
-	itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+    itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
 
 	fadeClamp 1.0					// sets the fadeup alpha
 	fadeCycle 1					// how often fade happens in milliseconds
@@ -88,7 +88,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Player"
+	text "^_P^_layer"
 	shortcutKey "P"
 	border 1
 	bordersize 1
@@ -113,7 +113,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Options"
+	text "^_O^_ptions"
 	shortcutKey "O"
 	border 1
 	bordersize 1
@@ -139,7 +139,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "About"
+	text "^_A^_bout"
 	shortcutKey "A"
 	border 1
 	bordersize 1
@@ -164,7 +164,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 34
 	textaligny 12
-	text "Matchmode"
+	text "^_M^_atchmode"
 	shortcutKey "M"
 	border 1
 	bordersize 1
@@ -191,7 +191,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Vote"
+	text "^_V^_ote"
 	shortcutKey "V"
 	border 1
 	bordersize 1
@@ -218,7 +218,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Add bot"
+	text "Add ^_b^_ot"
 	shortcutKey "B"
 	border 1
 	bordersize 1
@@ -245,7 +245,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Devmode"
+	text "^_D^_evmode"
 	shortcutKey "D"
 	border 1
 	bordersize 1
@@ -273,7 +273,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 26
 	textaligny 12
-	text "Quit"
+	text "^_Q^_uit"
 	shortcutKey "Q"
 	border 1
 	bordersize 1

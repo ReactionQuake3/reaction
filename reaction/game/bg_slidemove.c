@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.18  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.17  2002/07/16 04:27:19  niceass
 // physics back to 2.0
 //
@@ -291,11 +294,15 @@ void PM_StepSlideMove(qboolean gravity)
 	if (!trace.allsolid)
 		VectorCopy(trace.endpos, pm->ps->origin);
 
-	if (trace.plane.normal[2] < 0.7f) {
-		VectorCopy(down_o, pm->ps->origin);
-		VectorCopy(down_v, pm->ps->velocity);
-		return;
-	}
+	//Makro - possible fix for the "player stuck on stairs" bug ?
+	//if (trace.plane.normal[0] || trace.plane.normal[1] || trace.plane.normal[2])
+	//{
+		if (trace.plane.normal[2] < 0.7f) {
+			VectorCopy(down_o, pm->ps->origin);
+			VectorCopy(down_v, pm->ps->velocity);
+			return;
+		}
+	//}
 
 	pm->ps->velocity[2] = down_v[2];
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.78  2003/09/19 21:22:52  makro
 // Flares
 //
@@ -508,6 +511,39 @@ void CG_ParseFogHull(const char *str)
 		cgs.clearColorSet = qfalse;
 	}
 }
+
+void CG_ParseDlightStyles(const char *str)
+{
+	int i;
+	memset(dlightStyles, 0, sizeof(dlightStyles));
+	dlightStyleCount = atoi(Info_ValueForKey(str, "n"));
+	for (i=0; i<dlightStyleCount; i++)
+	{
+		Q_strncpyz(dlightStyles[i], Info_ValueForKey(str, va("%i", i)), sizeof(dlightStyles[0]));
+	}
+}
+
+void CG_ParseMoveParents(const char *str)
+{
+	int i, num;
+	char tmp[4];	//3 digits and trailing zero
+
+	memset(cg_moveParentRanks, 0, sizeof(cg_moveParentRanks));
+	Q_strncpyz(tmp, str, 4);
+	str += 3;
+	num = atoi(tmp);
+	for (i=0; i<num; i++)
+	{
+		int entnum;
+		Q_strncpyz(tmp, str, 4);
+		entnum = atoi(tmp);
+		str += 3;
+		Q_strncpyz(tmp, str, 4);
+		str += 3;
+		cg_moveParentRanks[entnum] = atoi(tmp);
+	}
+}
+
 /*
 ================
 CG_SetConfigValues
@@ -535,10 +571,14 @@ void CG_SetConfigValues(void)
 	CG_ParseFogHull( CG_ConfigString(CS_FOGHULL) );
 	//Makro - sky portal
 	CG_ParseSkyPortal( CG_ConfigString(CS_SKYPORTAL) );
-	//Makro - fake shadows
+	//Makro - fake shadows (not implemented yet!)
 	s = Info_ValueForKey(CG_ConfigString(CS_SHADOWS), "1");
 	if (s && *s)
 		trap_R_RegisterShaderNoMip(s);
+	//Makro - dlight styles
+	CG_ParseDlightStyles(CG_ConfigString(CS_DLIGHT_STYLES));
+	//Makro - moveparent order
+	CG_ParseMoveParents(CG_ConfigString(CS_MOVEPARENTS));
 }
 
 /*
@@ -664,6 +704,12 @@ static void CG_ConfigStringModified(void)
 	//Makro - "clear" color
 	} else if (num == CS_FOGHULL) {
 		CG_ParseFogHull(str);
+	//Makro - dlight styles
+	} else if (num == CS_DLIGHT_STYLES) {
+		CG_ParseDlightStyles(str);
+	//Makro - moveparent order
+	} else if (num == CS_MOVEPARENTS) {
+		CG_ParseMoveParents(str);
 	}
 
 }
@@ -1482,6 +1528,10 @@ void CG_RQ3_Cmd()
 	case CTBCOUNTDOWN:
 		i = atoi(CG_Argv(2));
 		CG_CtbCountDown(i);
+		break;
+	//Makro - added
+	case ZCAMTEXT:
+		strcpy(cg.zcamLine[1], CG_Argv(2));
 		break;
 	default:
 		break;

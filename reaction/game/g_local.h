@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.151  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.150  2004/01/26 21:26:08  makro
 // no message
 //
@@ -532,6 +535,8 @@ struct gentity_s {
 	//Makro - called at the begining of the round in TP
 	void (*reset) (gentity_t *self);
 	qboolean noreset;	//Makro - if set to 1, this entity will not respawn in TP
+	void (*onAttach) (gentity_t *self);
+	void (*onDetach) (gentity_t *self);
 
 	int pain_debounce_time;
 	int fly_sound_debounce_time;	// wind tunnel
@@ -575,9 +580,15 @@ struct gentity_s {
 	float distance;		// VALKYRIE: for rotating door
 	//Blaze: Holds the target set by a button
 	char *pathtarget;
-	//Makro - added
+	//Makro - inactive entities
 	char *activatename, *targetInactive;
 	int inactive;
+	//Makro - entity id strings
+	char *alias;
+	//Makro - moveparent
+	char *moveParent;
+	gentity_t *moveParent_ent;
+	int moveParent_rank;
 };
 
 typedef enum {
@@ -971,6 +982,12 @@ typedef struct {
 	qboolean teams_assigned[MAX_TEAMS];
 	gentity_t *potential_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
 	gentity_t *used_farteamplay_spawns[MAX_TEAMS][MAX_SPAWN_POINTS];
+	//Makro - moveParent stuff
+	int num_moveParents;
+	int num_attachedEnts;
+	//Makro - custom death messages for trigger_hurt entities
+	int numCustomDeathMsg;
+	char *customDeathMsg[MAX_CUSTOM_DEATH_MSG];
 } level_locals_t;
 
 //
@@ -1076,6 +1093,8 @@ double G_acos(double x);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);
+qboolean MatchesId(gentity_t *ent, const char *ids);
+
 gentity_t *G_PickTarget(char *targetname);
 void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator);
 void G_UseTargets(gentity_t * ent, gentity_t * activator);
@@ -1169,6 +1188,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 //void G_RunDlight(gentity_t * ent);	// Elder: dlight running
 void G_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result);
 void G_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result);
+void G_EvaluateTrajectoryEx(gentity_t *ent, int atTime, vec3_t origin, vec3_t angles);
 void G_GravityChange(void);
 void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent);
 qboolean G_FileExists(char *filename);
@@ -1384,6 +1404,8 @@ void BotTestAAS(vec3_t origin);
 
 extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
+//Makro - moveparent tree
+extern gentity_t *g_parentOrder[MAX_GENTITIES];
 
 #define	FOFS(x) ((int)&(((gentity_t *)0)->x))
 
@@ -1734,6 +1756,9 @@ int trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *parent
 void trap_SnapVector(float *v);
 
 gentity_t *findradius(gentity_t * from, vec3_t org, float rad);	// Blaze: Find someone in a radius around you
+
+//Makro - saves a custom death message index in "field"
+void G_InitCustomDeathMessage(gentity_t *ent, int *field);
 
 //Slicer: MatchMode
 #include "g_matchmode.h"

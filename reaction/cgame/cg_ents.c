@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.48  2004/01/26 21:26:08  makro
 // no message
 //
@@ -253,12 +256,19 @@ Also called by event processing code
 */
 void CG_SetEntitySoundPosition(centity_t * cent)
 {
-	if (cent->currentState.solid == SOLID_BMODEL) {
+	if (cent->currentState.solid == SOLID_BMODEL)
+	{
 		vec3_t origin;
-		float *v;
-
-		v = cgs.inlineModelMidpoints[cent->currentState.modelindex];
-		VectorAdd(cent->lerpOrigin, v, origin);
+		
+		VectorCopy(cgs.inlineModelMidpoints[cent->currentState.modelindex], origin);
+		//Makro - rotate if needed
+		if (cent->lerpAngles[YAW] || cent->lerpAngles[PITCH] || cent->lerpAngles[ROLL])
+		{
+			vec3_t axis[3];
+			AnglesToAxis(cent->lerpAngles, axis);
+			ChangeRefSystem(origin, NULL, axis, origin);
+		}
+		VectorAdd(cent->lerpOrigin, origin, origin);
 		trap_S_UpdateEntityPosition(cent->currentState.number, origin);
 	} else {
 		trap_S_UpdateEntityPosition(cent->currentState.number, cent->lerpOrigin);
@@ -836,7 +846,9 @@ CG_AdjustPositionForMover
 Also called by client movement prediction code
 =========================
 */
-void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out)
+
+//Makro - made it so that angles get adjusted, too
+void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t angleOut)
 {
 	centity_t *cent;
 	vec3_t oldOrigin, origin, deltaOrigin;
@@ -848,23 +860,63 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 	}
 
 	cent = &cg_entities[moverNum];
-	if (cent->currentState.eType != ET_MOVER) {
+	//if (cent->currentState.eType != ET_MOVER) {
+	//Makro - adjust for movers and attached entities
+	if ( (cent->currentState.eType != ET_PLAYER && cent->currentState.eFlags & EF_ATTACHED == 0) //if not attached
+		&& cent->currentState.eType != ET_MOVER )	//and not a mover, either
+	{
 		VectorCopy(in, out);
 		return;
 	}
 
-	CG_EvaluateTrajectory(&cent->currentState.pos, fromTime, oldOrigin);
-	CG_EvaluateTrajectory(&cent->currentState.apos, fromTime, oldAngles);
+	//Makro - if mover is blocked, don't do anything
+	if (cent->currentState.eFlags & EF_MOVER_BLOCKED)
+	{
+		VectorCopy(in, out);
+		return;
+	}
 
-	CG_EvaluateTrajectory(&cent->currentState.pos, toTime, origin);
-	CG_EvaluateTrajectory(&cent->currentState.apos, toTime, angles);
+	//CG_EvaluateTrajectory(&cent->currentState.pos, fromTime, oldOrigin);
+	//CG_EvaluateTrajectory(&cent->currentState.apos, fromTime, oldAngles);
+	CG_EvaluateTrajectoryEx(cent, fromTime, oldOrigin, oldAngles);
+
+	//CG_EvaluateTrajectory(&cent->currentState.pos, toTime, origin);
+	//CG_EvaluateTrajectory(&cent->currentState.apos, toTime, angles)
+	CG_EvaluateTrajectoryEx(cent, toTime, origin, angles);
 
 	VectorSubtract(origin, oldOrigin, deltaOrigin);
 	VectorSubtract(angles, oldAngles, deltaAngles);
 
 	VectorAdd(in, deltaOrigin, out);
+	
 
 	// FIXME: origin change when on a rotating object
+	//Makro - okay
+	if (angleOut)
+		VectorAdd(angleOut, deltaAngles, angleOut);
+
+	if (deltaAngles[0] || deltaAngles[1] || deltaAngles[2])
+	{
+		vec3_t matrix[3], transpose[3];
+		VectorSubtract(in, oldOrigin, oldOrigin);
+		VectorCopy(oldOrigin, deltaOrigin);
+		CreateRotationMatrix(deltaAngles, transpose);
+		TransposeMatrix(transpose, matrix);
+		RotatePoint(deltaOrigin, matrix);
+		VectorSubtract(deltaOrigin, oldOrigin, deltaOrigin);
+		VectorAdd(out, deltaOrigin, out);
+/*
+		float norm;
+		VectorSubtract(in, origin, deltaOrigin);
+		norm = VectorLength(deltaOrigin);
+		vectoangles(deltaOrigin, angles);
+		VectorAdd(angles, deltaAngles, angles);		
+		AngleVectors(angles, origin, NULL, NULL);
+		VectorScale(origin, norm, origin);
+		VectorSubtract(origin, deltaOrigin, deltaOrigin);
+		VectorAdd(out, deltaOrigin, out);
+*/
+	}
 }
 
 /*
@@ -943,14 +995,24 @@ static void CG_CalcEntityLerpPositions(centity_t * cent)
 	}
 
 	// just use the current frame and evaluate as best we can
-	CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
-	CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+	//Makro - if this is a mover, it might be blocked
+	if (cent->currentState.eType == ET_MOVER && (cent->currentState.eFlags & EF_MOVER_BLOCKED) != 0)
+	{
+		//no prediction in this case
+		//CG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin);
+		//CG_EvaluateTrajectory(&cent->currentState.apos, cg.snap->serverTime, cent->lerpAngles);
+		CG_EvaluateTrajectoryEx(cent, cg.snap->serverTime, cent->lerpOrigin, cent->lerpAngles);
+	} else {
+		//CG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+		//CG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+		CG_EvaluateTrajectoryEx(cent, cg.time, cent->lerpOrigin, cent->lerpAngles);
+	}
 
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
 	if (cent != &cg.predictedPlayerEntity) {
 		CG_AdjustPositionForMover(cent->lerpOrigin, cent->currentState.groundEntityNum,
-					  cg.snap->serverTime, cg.time, cent->lerpOrigin);
+					  cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles);
 	}
 }
 
@@ -1101,6 +1163,13 @@ CG_AddPacketEntities
 Makro - added skyportal param
 ===============
 */
+
+//Makro - added
+int cmpSnapEntities(const void *a, const void *b)
+{
+	return cg_moveParentRanks[((entityState_t*)b)->number] - cg_moveParentRanks[((entityState_t*)a)->number];
+}
+
 void CG_AddPacketEntities(int mode)
 {
 	centity_t *cent;
@@ -1148,7 +1217,8 @@ void CG_AddPacketEntities(int mode)
 // JBravo: unlagged
 		if (cg.nextSnap) {
 			for (num = 0 ; num < cg.nextSnap->numEntities ; num++) {
-				cent = &cg_entities[cg.nextSnap->entities[num].number];
+				//Makro - use pre-determined order so that attached entities are added before their "parents"
+				cent = &cg_entities[cg.nextSnap->entities[cg_nextSnapEntityOrder[num]].number];
 				if (cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL) {
 					CG_TransitionEntity(cent);
 					cent->interpolate = qtrue;
@@ -1162,7 +1232,8 @@ void CG_AddPacketEntities(int mode)
 	if (mode != ADDENTS_NOSKYPORTAL) {
 		// add each entity sent over by the server
 		for (num = 0; num < cg.snap->numEntities; num++) {
-			cent = &cg_entities[cg.snap->entities[num].number];
+			//Makro - use pre-determined order so that attached entities are added before their "parents"
+			cent = &cg_entities[cg.snap->entities[cg_snapEntityOrder[num]].number];
 			//if we're adding sky portal entities
 			if (mode == ADDENTS_SKYPORTAL) {
 				if (cent->currentState.eFlags & EF_HEADLESS) {
@@ -1179,7 +1250,8 @@ void CG_AddPacketEntities(int mode)
 	//sky portal entities or not (faster)
 	} else {
 		for (num = 0; num < cg.snap->numEntities; num++) {
-			cent = &cg_entities[cg.snap->entities[num].number];
+			//Makro - use pre-determined order so that attached entities are added before their "parents"
+			cent = &cg_entities[cg.snap->entities[cg_snapEntityOrder[num]].number];
 			if (!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL)) {
 				CG_AddCEntity(cent);
 			}
@@ -1233,14 +1305,33 @@ Added by Elder.
 Use sparingly.
 =================
 */
+//Makro - dlight styles
+char dlightStyles[MAX_DLIGHT_STYLES][MAX_DLIGHT_STLE_LEN];
+int dlightStyleCount;
+
+#define DLIGHT_FRAMETIME	50
+
+float Dlight_IntensityForChar(char c)
+{
+	if (c>= 'a' && c<='z')
+		return ((float)(c-'a'))/((float)('z'-'a'));
+	else if (c>= 'A' && c<='Z')
+		return ((float)(c-'A'))/((float)('Z'-'A'));
+	else if (c>= '0' && c<='9')
+		return ((float)(c-'0'))/((float)('9'-'0'));
+	else
+		return 1.0f;
+}
+
 static void CG_Dlight(centity_t * cent)
 {
 	//Makro - kinda hackish, but oh well...
 	//allows us to trigger them on off; SVF_NOCLIENT should've done this already, though
 	if (!(cent->currentState.eFlags & EF_NODRAW)) {
-		int cl;
+		int cl, dls;
 		float i, r, g, b, i2;
 
+		dls = cent->currentState.eventParm & DLIGHT_CUSTOMSTYLE;
 		cl = cent->currentState.constantLight;
 		r = (cl & 255) / 255.0f;
 		g = ((cl >> 8) & 255) / 255.0f;
@@ -1260,13 +1351,26 @@ static void CG_Dlight(centity_t * cent)
 			//CG_Printf("%f\n", i);
 		}
 
+		if (dls>0)
+		{
+			int slen = strlen(dlightStyles[dls-1]);
+			if (slen)
+			{
+				int index = (cg.time / DLIGHT_FRAMETIME) % slen, nindex = index+1 % slen;
+				int dtime = cg.time % DLIGHT_FRAMETIME;
+				float f1 = Dlight_IntensityForChar(dlightStyles[dls-1][index]);
+				float f2 = Dlight_IntensityForChar(dlightStyles[dls-1][nindex]);
+				float frac = (f2 * dtime + f1 * (DLIGHT_FRAMETIME-dtime)) / DLIGHT_FRAMETIME;
+				r *= frac;
+				g *= frac;
+				b *= frac;
+			}
+		}
+
 		if (cent->currentState.eventParm & DLIGHT_ADDITIVE)
 			trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);
 		else
 			trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
-		//trap_R_AddLightToScene(cent->lerpOrigin, 500, 1, 1, 1);
-
-		//CG_Printf("cgame: (%f %f %f)\n", cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2]);
 	}
 }
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.24  2003/09/19 21:25:10  makro
 // Flares (again!). Doors that open away from players.
 //
@@ -245,6 +248,63 @@ gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldo
 	return NULL;
 }
 
+qboolean MatchesId(gentity_t *ent, const char *ids)
+{
+	char tmp_alias[128]={0}, tmp_ids[128]={0}, *pi;
+
+	if (!ent || !ids)
+		return qfalse;
+	
+	strcpy(tmp_ids, ids);
+	if (ent->alias)
+		strcpy(tmp_alias, ent->alias);
+
+	//iterate through all the id strings in ids
+	pi = tmp_ids;
+	while (*pi)
+	{
+		char *sep, *ps, *tok = pi;
+		
+		if ( (sep = strchr(pi, ',')) != NULL )
+		{
+			*sep = 0;
+			pi = sep+1;
+		} else {
+			pi += strlen(pi);
+		}
+
+		if (ent->targetname)
+			if (Q_stricmp(tok, ent->targetname) == 0)
+				return qtrue;
+		if (ent->activatename)
+			if (Q_stricmp(tok, ent->activatename) == 0)
+				return qtrue;
+
+		//iterate through all the entity id strings
+		ps = tmp_alias;
+		while (*ps)
+		{
+			char *sep2, *tok2 = ps;
+			if ( (sep2 = strchr(ps, ',')) != NULL )
+			{
+				*sep2 = 0;
+				ps = sep2+1;
+			} else {
+				ps += strlen(ps);
+			}
+
+			if (Q_stricmp(tok, tok2) == 0)
+				return qtrue;
+			if (sep2)
+				*sep2 = ',';
+		}
+		if (sep)
+			*sep = ',';
+	}
+	return qfalse;
+}
+
+
 /*
 =============
 G_PickTarget
@@ -310,7 +370,12 @@ void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator)
 	}
 
 	t = NULL;
-	while ((t = G_Find(t, FOFS(targetname), target)) != NULL) {
+	//Makro - entity matching via MatchesId
+	//while ((t = G_Find(t, FOFS(targetname), target)) != NULL) {
+	for (t = g_entities; t-g_entities<level.num_entities; t++)
+	{
+		if (!MatchesId(t, target))
+			continue;
 		if (t == ent) {
 			G_Printf("WARNING: Entity used itself.\n");
 		} else {

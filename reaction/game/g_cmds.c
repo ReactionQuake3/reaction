@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.191  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.190  2004/01/26 21:26:08  makro
 // no message
 //
@@ -2069,10 +2072,14 @@ void Cmd_CallVote_f(gentity_t * ent)
 	}
 
 	// if there is still a vote to be executed
+	//Makro - commented out
+	/*
 	if (level.voteExecuteTime) {
 		level.voteExecuteTime = 0;
 		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	}
+	*/
+
 	// special case for g_gametype, check for bad values
 	if (!Q_stricmp(arg1, "g_gametype")) {
 		i = atoi(arg2);
@@ -2502,12 +2509,13 @@ void Cmd_OpenDoor(gentity_t * ent)
 void Cmd_Weapon(gentity_t * ent)
 {
 
+	//Makro - this was a few lines below
+	if (ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
+
 	ent->client->weapon_attempts--;
 	if (ent->client->weapon_attempts < 0)
 		ent->client->weapon_attempts = 0;
-
-	if (ent->client->ps.pm_type == PM_SPECTATOR)
-		return;
 
 	if (ent->client->ps.weaponstate == WEAPON_BANDAGING) {
 		if (!ent->client->weapon_after_bandage_warned) {
@@ -2661,6 +2669,10 @@ void Cmd_New_Weapon(gentity_t * ent)
 // Hawkins make sure spread comes back
 void Cmd_Unzoom(gentity_t * ent)
 {
+	//Makro - if the client is dead or spectating, do nothing
+	if (!ent || !ent->client || ent->client->ps.stats[STAT_HEALTH] <= 0 || ent->client->ps.pm_type == PM_SPECTATOR)
+		return;
+	
 	// Freud, play zooming sounds for unzoom
 	if (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW ||
 			ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.82  2004/01/26 21:26:08  makro
 // no message
 //
@@ -360,6 +363,32 @@ void SP_dlight(gentity_t * ent)
 	G_SpawnFloat("light2", "0", &light);
 	ent->s.weapon = light;
 
+	if (G_SpawnString("style", "9", &s))
+	{
+		char info[MAX_INFO_STRING];
+		int i, num;
+		
+		if (strlen(s) > 64)
+			s[64] = 0;
+
+		trap_GetConfigstring(CS_DLIGHT_STYLES, info, sizeof(info));
+		num = atoi(Info_ValueForKey(info, "n"));
+		for (i=0; i<num; i++)
+		{
+			char *key = va("%i", i);
+			if (!Q_stricmp(Info_ValueForKey(info, key), s))
+				break;
+		}
+		if (i >= num)
+		{
+			num = i+1;
+			Info_SetValueForKey(info, va("%i", i), s);
+			Info_SetValueForKey(info, "n", va("%i", num));
+			trap_SetConfigstring(CS_DLIGHT_STYLES, info);
+		}
+		ent->s.eventParm |= ((i+1) & DLIGHT_CUSTOMSTYLE);
+	}
+
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 
@@ -416,6 +445,8 @@ void SP_dlight(gentity_t * ent)
 		ent->unbreakable = 1;
 		ent->use(ent, NULL, NULL);
 	}
+	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 
 	ent->s.eType = ET_DLIGHT;
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
@@ -1013,9 +1044,48 @@ static void InitBreakable_Finish(gentity_t * ent)
 
 void Touch_Breakable(gentity_t * self, gentity_t * other, trace_t * trace)
 {
+	if (!other->client)
+		return;
+	//Makro - FIXME: find out why trace->plane.normal is a null vector (q3map2 issue?)
+	//we really should be checking a dot product here and not the absolute length...
+	if (VectorLength(other->client->ps.velocity) < self->speed)
+		return;
 	if (self->damage)
-		G_Damage(other, self, self, NULL, NULL, self->damage, 0, MOD_TRIGGER_HURT);
+	{
+		//Makro - custom death message
+		if (self->methodOfDeath)
+		{
+			G_Damage(other, self, self, NULL, NULL, self->damage, 0, MOD_CUSTOM+self->methodOfDeath-1);
+		} else {
+			G_Damage(other, self, self, NULL, NULL, self->damage, 0, MOD_TRIGGER_HURT);
+		}
+	}
 	Use_Breakable(self, other, other);
+}
+
+//Makro - saves a custom death message index in "field"
+void G_InitCustomDeathMessage(gentity_t *ent, int *field)
+{
+	if (ent->message)
+	{
+		//go through all the existing messages and see if it has already been defined
+		int i;
+		for (i=0; i<level.numCustomDeathMsg; i++)
+		{
+			if (!strcmp(ent->message, level.customDeathMsg[i]))
+			{
+				*field = i+1;
+				return;
+			}
+		}
+		if (level.numCustomDeathMsg < MAX_CUSTOM_DEATH_MSG)
+		{
+			level.customDeathMsg[level.numCustomDeathMsg] = ent->message;
+			*field = ++level.numCustomDeathMsg;
+			return;
+		}
+	}
+	*field = 0;
 }
 
 void SP_func_breakable(gentity_t * ent)
@@ -1145,9 +1215,13 @@ void SP_func_breakable(gentity_t * ent)
 	ent->health_saved = health;
 	ent->takedamage = qtrue;
 
-	ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
-	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
-	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
+	//Makro - custom death message
+	G_InitCustomDeathMessage(ent, &ent->methodOfDeath);
+
+	//Makro - commented out
+	//ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
+	//ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
+	//ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
 
 	// Let it know it is a breakable object
 	ent->s.eType = ET_BREAKABLE;
@@ -1163,6 +1237,7 @@ void SP_func_breakable(gentity_t * ent)
 	//ent->nextthink = level.time + FRAMETIME;
 	//ent->think = Think_SpawnNewDoorTrigger;
 
+	ent->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 }
@@ -1489,3 +1564,81 @@ void G_GravityChange(void)
 		}
 	}
 }
+
+//Makro - we need this function as accurate as possible on the server side, as the server
+//doesn't update as often as the clients so any errors would be amplified
+void G_EvaluateTrajectoryEx(gentity_t *ent, int atTime, vec3_t origin, vec3_t angles)
+{
+	
+	if (origin) G_EvaluateTrajectory(&ent->s.pos, atTime, origin);
+	if (angles) G_EvaluateTrajectory(&ent->s.apos, atTime, angles);
+
+	//if the entity is not attached to another one, we're done
+	if (!ent->moveParent_ent)
+		return;
+
+	//if we're evaluating the trajectory at level.time, we already know the co-ordinates of the
+	//parent, so just use its r.currentOrigin and r.currentAngles instead of calculating them again
+	if (atTime == level.time)
+	{
+		vec3_t org, parent_angles, parent_origin, axis[3];
+
+		VectorCopy(ent->moveParent_ent->r.currentAngles, parent_angles);
+		VectorCopy(ent->moveParent_ent->r.currentOrigin, parent_origin);
+
+		if (origin)
+		{
+			if (parent_angles[YAW] || parent_angles[PITCH] || parent_angles[ROLL])
+			{
+				VectorCopy(ent->s.angles2, org);
+				VectorAdd(org, origin, org);
+				AnglesToAxis(parent_angles, axis);
+				ChangeRefSystem(org, NULL, axis, org);
+				VectorAdd(org, parent_origin, origin);
+			} else {
+				VectorAdd(origin, ent->s.angles2, origin);
+				VectorAdd(origin, parent_origin, origin);
+			}
+		}
+		if (angles)
+		{
+			//AnglesToAxis(angles, axis);
+			//ChangeAngleRefSystem(parent_angles, axis, parent_angles);
+			VectorAdd(angles, parent_angles, angles);
+			//if (!Q_stricmp(ent->targetname, "t2"))
+			//	G_Printf("New axis: %s %s %s, angles: %s\n", vtos(axis[0]), vtos(axis[1]), vtos(axis[2]), vtos(angles));
+		}
+	} else {
+		//otherwise, do all the necessary math
+		gentity_t *parent;
+		vec3_t org, axis[3], parent_origin, parent_angles;
+
+		for (parent = ent->moveParent_ent; parent; ent = parent, parent = parent->moveParent_ent)
+		{
+			G_EvaluateTrajectory(&parent->s.pos, atTime, parent_origin);
+			G_EvaluateTrajectory(&parent->s.apos, atTime, parent_angles);
+			
+			if (origin)
+			{
+				if (parent_angles[YAW] || parent_angles[PITCH] || parent_angles[ROLL])
+				{
+					VectorCopy(ent->s.angles2, org);
+					VectorAdd(org, origin, org);
+					AnglesToAxis(parent_angles, axis);
+					ChangeRefSystem(org, NULL, axis, org);
+					VectorAdd(org, parent_origin, origin);
+				} else {
+					VectorAdd(origin, ent->s.angles2, origin);
+					VectorAdd(origin, parent_origin, origin);
+				}
+			}
+			if (angles)
+			{
+				//AnglesToAxis(angles, axis);
+				//ChangeAngleRefSystem(parent_angles, axis, parent_angles);
+				VectorAdd(angles, parent_angles, angles);
+			}
+		}
+	}
+}
+

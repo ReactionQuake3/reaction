@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.8  2003/04/19 15:27:30  jbravo
 // Backing out of most of unlagged.  Only optimized prediction and smooth clients
 // remains.
@@ -77,6 +80,38 @@ void CG_TransitionEntity(centity_t * cent)
 
 /*
 ==================
+CG_OrderSnapshotEntities
+
+Makro - orders snapshot entities so that
+attached ones are added after their "parents"
+==================
+*/
+static void CG_OrderSnapshotEntities(snapshot_t *snap, int *order)
+{
+	int i, j;
+
+	//initial values
+	for (i=0; i<snap->numEntities; i++)
+		order[i] = i;
+	//actual sorting... not exactly the fastest algorithm ever written
+	for (i=0; i<snap->numEntities-1; i++)
+	{
+		for (j=i+1; j<snap->numEntities; j++)
+		{
+			if (cg_moveParentRanks[snap->entities[order[i]].number] <
+				cg_moveParentRanks[snap->entities[order[j]].number])
+			{
+				//swap
+				order[i] ^= order[j];
+				order[j] ^= order[i];
+				order[i] ^= order[j];
+			}
+		}
+	}
+}
+
+/*
+==================
 CG_SetInitialSnapshot
 
 This will only happen on the very first snapshot, or
@@ -93,6 +128,8 @@ void CG_SetInitialSnapshot(snapshot_t * snap)
 	entityState_t *state;
 
 	cg.snap = snap;
+	//Makro - order snapshot entities so that attached ones are added after their "parents"
+	CG_OrderSnapshotEntities(snap, cg_snapEntityOrder);
 
 	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].currentState, qfalse);
 
@@ -155,6 +192,8 @@ static void CG_TransitionSnapshot(void)
 	// move nextSnap to snap and do the transitions
 	oldFrame = cg.snap;
 	cg.snap = cg.nextSnap;
+	//Makro - copy entity order
+	memcpy(cg_snapEntityOrder, cg_nextSnapEntityOrder, cg.snap->numEntities * sizeof(cg_nextSnapEntityOrder[0]));
 
 	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum].currentState, qfalse);
 	cg_entities[cg.snap->ps.clientNum].interpolate = qfalse;
@@ -203,6 +242,8 @@ static void CG_SetNextSnap(snapshot_t * snap)
 	centity_t *cent;
 
 	cg.nextSnap = snap;
+	//Makro - order snapshot entities so that attached ones are added after their "parents"
+	CG_OrderSnapshotEntities(snap, cg_nextSnapEntityOrder);
 
 	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].nextState, qfalse);
 	cg_entities[cg.snap->ps.clientNum].interpolate = qtrue;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.9  2002/07/22 06:35:03  niceass
 // cleaned up the powerup code
 //
@@ -751,7 +754,9 @@ int BotChat_Death(bot_state_t * bs)
 			 bs->botdeathtype == MOD_CRUSH ||
 			 bs->botdeathtype == MOD_SUICIDE ||
 			 bs->botdeathtype == MOD_TARGET_LASER ||
-			 bs->botdeathtype == MOD_TRIGGER_HURT || bs->botdeathtype == MOD_UNKNOWN)
+			 bs->botdeathtype == MOD_TRIGGER_HURT || bs->botdeathtype == MOD_UNKNOWN ||
+			 //Makro - custom message implies a trigger_hurt
+			 bs->botdeathtype >= MOD_CUSTOM)
 			BotAI_BotInitialChat(bs, "death_suicide", BotRandomOpponentName(bs), NULL);
 		else if (bs->botdeathtype == MOD_TELEFRAG)
 			BotAI_BotInitialChat(bs, "death_telefrag", name, NULL);

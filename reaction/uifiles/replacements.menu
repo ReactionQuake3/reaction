@@ -12,7 +12,8 @@
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
 
 	onOpen { play "sound/misc/menu1.wav" ; uiScript buildReplacementList }
-	onEsc { close options_menu ; open setup_menu }
+	//onEsc { close replacements_menu ; open setup_menu }
+	onEsc { close _self ; open _previous }
 
 
 //=================
@@ -126,10 +127,10 @@
     //Background
     itemdef {
 	name page3
-	rect 143 133 96 96
+	rect 135 125 114 128
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/rq3-ingame-loadout"
-	border 1
+	border 0
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	//backcolor .5 .5 .5 .4
@@ -142,7 +143,7 @@
 	name page3
 	//type ITEM_TYPE_MODEL
 	ownerdraw UI_RQ3_REPLACEMENTMODEL
-	rect 143 133 96 96
+	rect 143 133 98 110
 	decoration
 	visible 1
     }
@@ -170,6 +171,7 @@
     itemDef {
 	name page3
 	shortcutkey ","
+	shortcutkey "P"
 	rect 147 178 16 16
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/arrow_left_white"
@@ -185,6 +187,7 @@
     itemDef {
 	name page3
 	shortcutkey "."
+	shortcutkey "N"
 	rect 219 178 16 16
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/arrow_right_white"
@@ -203,13 +206,13 @@
 	name page3
 	style 1
 	ownerdraw UI_RQ3_REPLACEMENTNAME
-	rect 143 228 96 16
+	rect 147 220 80 16
 	textalign ITEM_ALIGN_LEFT
 	textalignx 5
 	textaligny 12
 	textscale .18
-	forecolor .75 .75 .75 1
-	border 1
+	forecolor 0 0 0 1
+	border 0
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	visible 1
@@ -218,16 +221,28 @@
 
     //Select button
 
+    itemdef {
+	name page3
+	style WINDOW_STYLE_SHADER
+	forecolor .5 .5 .5 1
+	rect 135 240 112 32
+	decoration
+	background "ui/assets/button.tga"
+	visible 1
+	}
+
     itemDef {
 	name page3
-	text "Select"
+	text "^_S^_elect"
+	shortcutKey "S"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_FILLED
-	rect 143 244 96 16
+	rect 143 248 96 16
 	textalign ITEM_ALIGN_CENTER
 	textalignx 48
 	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
 	border 1
 	bordersize 1
 	backcolor Ig_Sub_Color1
@@ -235,8 +250,25 @@
 	bordercolor Ig_Sub_BorderColor1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; uiScript "selectReplacement" }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+	//onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	//leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+	onFocus { show hint_select ; timeFade hint_select forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade hint_select forecolor .9 .9 .9 0 0 250 }
+    }
+
+    itemdef {
+	name hint_select
+	text "Use the chosen model"
+	forecolor RQ3_MAIN_HINT_COLOR
+	textalign 1
+	textalignx 240
+	textaligny 20
+	textscale RQ3_MAIN_TEXTSIZE
+	rect 80 420 480 40
+	type 0
+	style 0
+	visible 0
+	decoration
     }
 
     //Type
@@ -318,11 +350,12 @@
 
     itemdef {
 	name "btn_back"
+	shortcutKey "B"
 	style WINDOW_STYLE_SHADER
 	rect 12 432 32 32
 	type ITEM_TYPE_BUTTON
 	background "menu/art/rq3-menu-back.tga"
-	action { close replacements_menu; open setup_menu ; }
+	action { close _self ; open setup_menu ; }
 	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
 		show hint_back ; timeFade hint_back forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
@@ -332,7 +365,7 @@
 
     itemdef {
 	name hint_back
-	text "Go back to setup menu"
+	text "Go ^_b^_ack to setup menu"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 1
 	textalignx 240

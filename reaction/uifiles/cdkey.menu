@@ -308,26 +308,26 @@
 	decoration
     }
 
-//Back
+///Back
 
     itemdef {
 	name "btn_back"
-	style WINDOW_STYLE_SHADER
+	shortcutKey "B"
 	rect 12 432 32 32
-	type 1
+	style WINDOW_STYLE_SHADER
 	background "menu/art/rq3-menu-back.tga"
-	action { close cdkey_menu ; open setup_menu ; }
+	type 1
+	visible 1
+	action { close *self; open setup_menu ; }
 	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
 		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
 		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
-	visible 1
     }
-
 
     itemdef {
 	name back_hint
-	text "Go back to setup menu"
+	text "Go ^_b^_ack to setup menu"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 1
 	textalignx 240

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.6  2002/07/22 06:32:43  niceass
 // cleaned up the powerup code
 //
@@ -245,6 +248,9 @@ void G_RankDamage(int self, int attacker, int damage, int means_of_death)
 	case MOD_TRIGGER_HURT:
 		return;
 	default:
+		//Makro - custom death message implies a trigger_hurt
+		if (means_of_death >= MOD_CUSTOM)
+			return;
 		break;
 	}
 
@@ -476,7 +482,13 @@ void G_RankPlayerDie(int self, int attacker, int means_of_death)
 			trap_RankReportInt(p1, p2, QGR_KEY_TRIGGER_HURT, 1, 1);
 			break;
 		default:
-			trap_RankReportInt(p1, p2, QGR_KEY_HAZARD_MISC, 1, 1);
+			//Makro - custom msg implies a trigger_hurt
+			if (means_of_death >= MOD_CUSTOM)
+			{
+				trap_RankReportInt(p1, p2, QGR_KEY_TRIGGER_HURT, 1, 1);
+			} else {
+				trap_RankReportInt(p1, p2, QGR_KEY_HAZARD_MISC, 1, 1);
+			}
 			break;
 		}
 	} else if (attacker == self) {

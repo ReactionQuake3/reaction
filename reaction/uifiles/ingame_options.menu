@@ -614,10 +614,10 @@
     itemdef {
 	name page3
 	group grpGame
-	rect 103 63 96 96
+	rect 95 55 114 128
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/rq3-ingame-loadout"
-	border 1
+	border 0
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	//backcolor .5 .5 .5 .4
@@ -676,13 +676,13 @@
 	group grpGame
 	style 1
 	ownerdraw UI_RQ3_REPLACEMENTNAME
-	rect 103 158 96 16
+	rect 107 150 80 16
 	textalign ITEM_ALIGN_LEFT
 	textalignx 5
 	textaligny 12
 	textscale .18
-	forecolor .75 .75 .75 1
-	border 1
+	forecolor 0 0 0 1
+	border 0
 	bordersize 1
 	bordercolor Ig_Window_BorderColor
 	visible 0
@@ -691,10 +691,22 @@
 
     //Select button
 
+    itemdef {
+	name page3
+	group grpGame
+	style WINDOW_STYLE_SHADER
+	forecolor .5 .5 .5 1
+	rect 95 166 112 32
+	decoration
+	background "ui/assets/button.tga"
+	visible 0
+	}
+
     itemDef {
 	name page3
 	group grpGame
-	text "Select"
+	text "^_S^_elect"
+	shortcutKey "S"
 	type ITEM_TYPE_BUTTON
 	textscale .225
 	style WINDOW_STYLE_FILLED
@@ -702,6 +714,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 48
 	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
 	border 1
 	bordersize 1
 	backcolor Ig_Sub_Color1
@@ -709,8 +722,6 @@
 	bordercolor Ig_Sub_BorderColor1
 	visible 0
 	action { play "sound/misc/menu1.wav" ; uiScript "selectReplacement" }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
     }
 
     //Type

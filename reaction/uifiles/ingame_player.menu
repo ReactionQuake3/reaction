@@ -110,7 +110,7 @@
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6
 	textaligny 12
-	text "W. Weapon/item"
+	text "^_W^_eapon/item"
 	shortcutKey "W"
 	border 1
 	bordersize 1
@@ -139,7 +139,7 @@
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6
 	textaligny 12
-	text "J. Join team"
+	text "^_J^_oin team"
 	shortcutKey "J"
 	border 1
 	bordersize 1
@@ -163,7 +163,7 @@
 	textalign ITEM_ALIGN_LEFT
 	textalignx 6
 	textaligny 12
-	text "I. Ignore players"
+	text "^_I^_gnore players"
 	shortcutKey "I"
 	border 1
 	bordersize 1
@@ -181,7 +181,7 @@
 	rect 138 122 160 16
 	style WINDOW_STYLE_FILLED
 	type ITEM_TYPE_MULTI
-	text "M. Male Radio voice:"
+	text "^_M^_ale Radio voice:"
 	shortcutKey "M"
 	border 1
 	bordersize 1
@@ -203,7 +203,7 @@
 	rect 138 138 160 16
 	style WINDOW_STYLE_FILLED
 	type ITEM_TYPE_MULTI
-	text "D. Dynamic Radio:"
+	text "^_D^_ynamic Radio:"
 	shortcutKey "D"
 	border 1
 	bordersize 1

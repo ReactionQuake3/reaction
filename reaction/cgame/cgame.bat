@@ -1,6 +1,8 @@
+@echo off
 mkdir vm
 cd vm
-set cc=call ..\compile.bat
+
+set cc=call ..\..\compile.bat -DCGAME
 
 %cc% ../../game/bg_misc.c
 @if errorlevel 1 goto quit
@@ -13,6 +15,8 @@ set cc=call ..\compile.bat
 %cc% ../../game/q_math.c
 @if errorlevel 1 goto quit
 %cc% ../../game/q_shared.c
+@if errorlevel 1 goto quit
+%cc% ../cg_atmospheric.c
 @if errorlevel 1 goto quit
 %cc% ../cg_consolecmds.c
 @if errorlevel 1 goto quit
@@ -57,3 +61,6 @@ set cc=call ..\compile.bat
 q3asm -f ../cgame
 :quit
 cd ..
+
+
+pause

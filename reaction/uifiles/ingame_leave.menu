@@ -54,7 +54,7 @@
 
     itemdef {
 	name leave
-	text "Main Menu"
+	text "^_M^_ain Menu"
 	shortcutKey "M"
 	group grpMenu
 	style WINDOW_STYLE_EMPTY
@@ -72,7 +72,7 @@
     itemdef {
 	name leave
 	group grpMenu
-	text "Restart"
+	text "^_R^_estart"
 	shortcutKey "R"
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
@@ -90,7 +90,7 @@
 	name leave
 	group grpMenu
 	type ITEM_TYPE_BUTTON
-	text "Quit"
+	text "^_Q^_uit"
 	shortcutKey "Q"
 	style WINDOW_STYLE_EMPTY
 	rect 0 74 128 20
@@ -137,7 +137,7 @@
 
     itemdef {
 	name leaveConfirm
-	text "Yes"
+	text "^_Y^_es"
 	shortcutKey "Y"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON
@@ -161,7 +161,7 @@
 
     itemdef {
 	name leaveConfirm
-	text "No"
+	text "^_N^_o"
 	shortcutKey "N"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON
@@ -215,7 +215,7 @@
 
     itemdef {
 	name restartConfirm
-	text "Yes"
+	text "^_Y^_es"
 	shortcutKey "Y"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON
@@ -239,7 +239,7 @@
 
     itemdef {
 	name restartConfirm
-	text "No"
+	text "^_N^_o"
 	shortcutKey "N"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON
@@ -293,7 +293,7 @@
 
     itemdef {
 	name quitConfirm
-	text "Yes"
+	text "^_Y^_es"
 	shortcutKey "Y"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON
@@ -317,7 +317,7 @@
 
     itemdef {
 	name quitConfirm
-	text "No"
+	text "^_N^_o"
 	shortcutKey "N"
 	group grpConfirm
 	type ITEM_TYPE_BUTTON

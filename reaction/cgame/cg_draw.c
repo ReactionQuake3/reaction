@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.77  2004/01/26 21:26:08  makro
 // no message
 //
@@ -477,11 +480,10 @@ CG_DrawStatusBar
 */
 static void CG_DrawStatusBar(void)
 {
-	int color;
 	int style;
 	centity_t *cent;
 	playerState_t *ps;
-	int value;
+	int value, max;
 	vec4_t hcolor;
 	qhandle_t hicon;
 	qhandle_t icon;
@@ -497,13 +499,14 @@ static void CG_DrawStatusBar(void)
 		{0.8f, 0.0f, 0.0f, 1.0f}
 	};			// out of ammo
 	*/
+	//Makro - now using the same colors for both health and ammo
 	static float colors[5][4] = {
 		{1.0f, 1.0f, 1.0f, 1.0f},	// full green
 		{1.0f, 1.0f, 0.0f, 1.0f},	// firing
 		{0.7f, 0.7f, 0.7f, 1.0f},	// not maximum
 		{0.8f, 0.0f, 0.0f, 1.0f},	// out of ammo
 		{0.0f, 1.0f, 0.0f, 1.0f}	//Makro - reloading
-	};			
+	};
 	//Makro - health colors
 	static float hcolors[3][4] = {
 		{1.0f, 1.0f, 1.0f, 1.0f},
@@ -591,6 +594,8 @@ static void CG_DrawStatusBar(void)
 		value = ps->ammo[cent->currentState.weapon];
 
 		// Select colour
+		//Makro - change from white to yellow to red now, just like health display
+#if 0
 		if (cg.predictedPlayerState.weaponstate == WEAPON_FIRING && cg.predictedPlayerState.weaponTime > 100)
 			color = 1;
 		//Makro - added reloading check
@@ -605,13 +610,35 @@ static void CG_DrawStatusBar(void)
 
 		if (value >= 0)
 			UI_DrawProportionalString(188, 444, va("%d", value), style, colors[color]);
+#else
+		//Makro - new code
+		max = ClipAmountForAmmo(cent->currentState.weapon);
+		if (value > (max / 2))
+		{
+			float frac = (value - (max / 2.0f)) / (max / 2.0f), ifrac = (1.0f - frac);
+			hcolor[0] = frac * hcolors[0][0] + ifrac * hcolors[1][0];
+			hcolor[1] = frac * hcolors[0][1] + ifrac * hcolors[1][1];
+			hcolor[2] = frac * hcolors[0][2] + ifrac * hcolors[1][2];
+			hcolor[3] = frac * hcolors[0][3] + ifrac * hcolors[1][3];
+		} else {
+			float frac = value / (max/2.0f), ifrac = (1.0f - frac);
+			hcolor[0] = frac * hcolors[1][0] + ifrac * hcolors[2][0];
+			hcolor[1] = frac * hcolors[1][1] + ifrac * hcolors[2][1];
+			hcolor[2] = frac * hcolors[1][2] + ifrac * hcolors[2][2];
+			hcolor[3] = frac * hcolors[1][3] + ifrac * hcolors[2][3];
+		}
+
+		if (value >= 0)
+			UI_DrawProportionalString(188, 444, va("%d", value), style, hcolor);
+#endif
 
 		//UI_DrawProportionalString(188, 444, "/"), style, colors[0]);
 
 		value = ps->stats[STAT_CLIPS];
 		if (value > -1 &&
 		    cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
-			UI_DrawProportionalString(288, 444, va("%d", value), style, colors[0]);
+				//Makro - pretty colours !
+				UI_DrawProportionalString(288, 444, va("%d", value), style, (value != 0) ? colors[0] : colors[3]);
 	}
 	// Elder: temporary
 	//if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
@@ -913,7 +940,8 @@ static float CG_DrawFPSandPing(float y)
 	}
 
 	// Draw ping here:
-	if (cg_drawPing.integer) {	
+	//Makro - not during demo playback
+	if (cg_drawPing.integer && !cg.demoPlayback) {	
 		for (i = 0; i < (LAG_SAMPLES / 2); i++) {
 			l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - i;
 			if (l < 0) l += LAG_SAMPLES;
@@ -954,7 +982,7 @@ static float CG_DrawFPSandPing(float y)
 		CG_DrawStringExt(631 - x, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
 	
-	if (!cg_drawFPS.integer && !cg_drawPing.integer)
+	if (!cg_drawFPS.integer && (!cg_drawPing.integer || cg.demoPlayback))
 		return y;
 
 	return y + SMALLCHAR_HEIGHT + 4;
@@ -1897,26 +1925,9 @@ static void CG_DrawCrosshair(void)
 	if (cg.renderingThirdPerson) {
 		return;
 	}
-	// set color based on health
-	if (cg_crosshairHealth.integer) {
-		vec4_t hcolor;
 
-		CG_ColorForHealth(hcolor);
-		trap_R_SetColor(hcolor);
-	} else {
-		trap_R_SetColor(NULL);
-	}
-
-	w = h = cg_crosshairSize.value;
-
-	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
-	if (f > 0 && f < ITEM_BLOB_TIME) {
-		f /= ITEM_BLOB_TIME;
-		w *= (1 + f);
-		h *= (1 + f);
-	}
-
+	//Makro - moved some code below to prevent some variables from getting overwritten by the ssg code
+	
 	//Elder: Sniper crosshairs - lots of hardcoded values :/
 	//if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
 	// some pile of crap
@@ -1960,7 +1971,13 @@ static void CG_DrawCrosshair(void)
 			trap_R_SetColor(crosshairColor);
 			//I can probably scale the zoom with the screen width -/+ keys
 			//But I'll do it later.
-			CG_DrawPic(x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
+			//Makro - h = half width, w = width
+			h = cg_RQ3_ssgCrosshairSize.integer >> 1;
+			w = cg_RQ3_ssgCrosshairSize.integer;
+			if ( (hShader = cgs.media.ssgCrosshair[zoomMag]) )
+			{
+				CG_DrawPic(x - h, y - h, w, w, hShader);
+			}
 
 			trap_R_SetColor(NULL);
 			drawSSG = 1;
@@ -1970,32 +1987,54 @@ static void CG_DrawCrosshair(void)
 	//Slicer if no crosshair, and not using SSG, dont draw crosshair
 	if(!cg_drawCrosshair.integer)
 		return;
+	
+	//Makro - this was above the SSG code
+	// set color based on health
+	if (cg_crosshairHealth.integer) {
+		vec4_t hcolor;
+
+		CG_ColorForHealth(hcolor);
+		trap_R_SetColor(hcolor);
+	} else {
+		trap_R_SetColor(NULL);
+	}
+
+	w = h = cg_crosshairSize.value;
+
+	// pulse the size of the crosshair when picking up items
+	f = cg.time - cg.itemPickupBlendTime;
+	if (f > 0 && f < ITEM_BLOB_TIME) {
+		f /= ITEM_BLOB_TIME;
+		w *= (1 + f);
+		h *= (1 + f);
+	}
+
 	if (drawSSG == 0 || (drawSSG == 1 && cg_RQ3_overlaycrosshair.integer == 1)) {
-	x = cg_crosshairX.integer;
-	y = cg_crosshairY.integer;
-	CG_AdjustFrom640(&x, &y, &w, &h);
-
-	ca = cg_drawCrosshair.integer;
-	if (ca < 0) {
-		ca = 0;
-	}
-	hShader = cgs.media.crosshairShader[ca % NUM_CROSSHAIRS];
-
-	crosshairColor[0] = cg_RQ3_crosshairColorR.value;
-	crosshairColor[1] = cg_RQ3_crosshairColorG.value;
-	crosshairColor[2] = cg_RQ3_crosshairColorB.value;
-	crosshairColor[3] = cg_RQ3_crosshairColorA.value;
-	for (i = 0; i < 4; i++) {
-		if (crosshairColor[i] > 1.0f)
-			crosshairColor[i] = 1.0f;
-		else if (crosshairColor[i] < 0)
-			crosshairColor[i] = 0;
-	}
-
-	trap_R_SetColor(crosshairColor);
-	trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
-			      y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, hShader);
-	trap_R_SetColor(NULL);
+		x = cg_crosshairX.integer;
+		y = cg_crosshairY.integer;
+		CG_AdjustFrom640(&x, &y, &w, &h);
+		
+		ca = cg_drawCrosshair.integer;
+		if (ca < 0) {
+			ca = 0;
+		}
+		hShader = cgs.media.crosshairShader[ca % NUM_CROSSHAIRS];
+		
+		crosshairColor[0] = cg_RQ3_crosshairColorR.value;
+		crosshairColor[1] = cg_RQ3_crosshairColorG.value;
+		crosshairColor[2] = cg_RQ3_crosshairColorB.value;
+		crosshairColor[3] = cg_RQ3_crosshairColorA.value;
+		for (i = 0; i < 4; i++) {
+			if (crosshairColor[i] > 1.0f)
+				crosshairColor[i] = 1.0f;
+			else if (crosshairColor[i] < 0)
+				crosshairColor[i] = 0;
+		}
+		
+		trap_R_SetColor(crosshairColor);
+		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
+			y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, hShader);
+		trap_R_SetColor(NULL);
 	}
 }
 
@@ -2248,6 +2287,12 @@ CG_DrawFollow
 */
 static qboolean CG_DrawFollow(void)
 {
+//Makro - char size
+#define DF_WIDTH 8
+#define DF_HEIGHT 12
+	static unsigned int df_effect_time = 0;
+	int time;
+	static qboolean df_showmark = qfalse;
 	float x;
 	vec4_t color;
 	const char *name;
@@ -2257,14 +2302,16 @@ static qboolean CG_DrawFollow(void)
 	if (!(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
 		return qfalse;
 	}
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
+	color[0] = 0.75f;
+	color[1] = 0.75f;
+	color[2] = 0.75f;
+	color[3] = 1.0f;
 
 // JBravo: if gametype >= team, append teamname to his name.
 	if (cgs.gametype >= GT_TEAM) {
 		team = cgs.clientinfo[cg.snap->ps.clientNum].team;
+		//Makro - different look
+		/*
 		if (team == TEAM_RED) {
 			Com_sprintf(combinedName, sizeof(combinedName), "%sFollowing%s %s%s/%s%s", S_COLOR_RED,
 				    S_COLOR_WHITE, cgs.clientinfo[cg.snap->ps.clientNum].name, S_COLOR_RED,
@@ -2276,6 +2323,33 @@ static qboolean CG_DrawFollow(void)
 		}
 		x = 0.5 * (640 - BIGCHAR_WIDTH * CG_DrawStrlen(combinedName));
 		CG_DrawStringExt(x, 372, combinedName, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+		*/
+		time = trap_Milliseconds();
+		if (time > df_effect_time)
+		{
+			df_effect_time = time + 500;
+			df_showmark ^= qtrue;
+		}
+		if (df_showmark)
+		{
+			if (team == TEAM_RED) {
+				Com_sprintf(combinedName, sizeof(combinedName), S_COLOR_YELLOW">"S_COLOR_RESET" Following ^7%s^* (^7%s^*) "S_COLOR_YELLOW"<",
+					cgs.clientinfo[cg.snap->ps.clientNum].name,	cg_RQ3_team1name.string);
+			} else {
+				Com_sprintf(combinedName, sizeof(combinedName), S_COLOR_YELLOW">"S_COLOR_RESET" Following ^7%s^* (^7%s^*) "S_COLOR_YELLOW"<",
+					cgs.clientinfo[cg.snap->ps.clientNum].name, cg_RQ3_team2name.string);
+			}
+		} else {
+			if (team == TEAM_RED) {
+				Com_sprintf(combinedName, sizeof(combinedName), "Following ^7%s ^*(^7%s^*)",
+					cgs.clientinfo[cg.snap->ps.clientNum].name,	cg_RQ3_team1name.string);
+			} else {
+				Com_sprintf(combinedName, sizeof(combinedName), "Following ^7%s ^*(^7%s^*)",
+					cgs.clientinfo[cg.snap->ps.clientNum].name, cg_RQ3_team2name.string);
+			}
+		}
+		x = 0.5 * (640 - DF_WIDTH * CG_DrawStrlen(combinedName));
+		CG_DrawStringExt(x, 80, combinedName, color, qfalse, qfalse, DF_WIDTH, DF_HEIGHT, 0);
 	} else {
 		CG_DrawBigString(320 - 9 * 8, 24, "following", 1.0F);
 		name = cgs.clientinfo[cg.snap->ps.clientNum].name;

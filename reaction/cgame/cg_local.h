@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.159  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.158  2004/03/07 17:39:10  makro
 // no message
 //
@@ -1166,6 +1169,8 @@ typedef struct {
 	//Makro - used for flares
 	unsigned char flareShaderNum[MAX_VISIBLE_FLARES];
 	float flareShaderSize[MAX_VISIBLE_FLARES], flareColor[MAX_VISIBLE_FLARES][4];
+	//Makro - zcam lines
+	char zcamLine[2][256];
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
@@ -1744,6 +1749,13 @@ extern centity_t cg_entities[MAX_GENTITIES];
 extern weaponInfo_t cg_weapons[MAX_WEAPONS];
 extern itemInfo_t cg_items[MAX_ITEMS];
 extern markPoly_t cg_markPolys[MAX_MARK_POLYS];
+//Makro - dlight styles
+extern char dlightStyles[MAX_DLIGHT_STYLES][MAX_DLIGHT_STLE_LEN];
+extern int dlightStyleCount;
+//Makro - moveparent rank for each entity
+extern int cg_moveParentRanks[MAX_GENTITIES];
+extern int cg_snapEntityOrder[MAX_GENTITIES];
+extern int cg_nextSnapEntityOrder[MAX_GENTITIES];
 
 extern vmCvar_t cg_centertime;
 extern vmCvar_t cg_runpitch;
@@ -1908,8 +1920,16 @@ extern vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro - avidemo with jpegs
 extern vmCvar_t cg_RQ3_avidemo;
+//Makro - left-handed weapons
+//extern vmCvar_t cg_RQ3_leftHanded;
 //Makro - sun flares
 extern vmCvar_t cg_RQ3_flareIntensity;
+//Makro - ssg crosshair size
+extern vmCvar_t cg_RQ3_ssgCrosshairSize;
+//Makro - temp!!!
+extern vmCvar_t cg_RQ3_angle0;
+extern vmCvar_t cg_RQ3_angle1;
+extern vmCvar_t cg_RQ3_angle2;
 
 extern vmCvar_t cg_drawFriend;
 extern vmCvar_t cg_teamChatsOnly;
@@ -2152,7 +2172,8 @@ void CG_PredictPlayerState(void);
 void CG_LoadDeferredPlayers(void);
 void CG_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result);
 void CG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result);
-
+//Makro - added
+void CG_EvaluateTrajectoryEx(centity_t *cent, int time, vec3_t origin, vec3_t angles);
 //
 // cg_events.c
 //
@@ -2175,7 +2196,9 @@ void CG_SetEntitySoundPosition(centity_t * cent);
 
 void CG_AddPacketEntities(int mode);
 void CG_Beam(centity_t * cent);
-void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);
+//void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);
+//Makro - made it so that angles get adjusted, too
+void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t angleOut);
 
 void CG_PositionEntityOnTag(refEntity_t * entity, const refEntity_t * parent, qhandle_t parentModel, char *tagName);
 void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * parent,

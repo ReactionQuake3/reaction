@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.11  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1010,7 +1013,8 @@ void RemoveColorEscapeSequences(char *text)
 
 	l = 0;
 	for (i = 0; text[i]; i++) {
-		if (Q_IsColorString(&text[i])) {
+		//Makro - don't remove underlined char escape sequence
+		if (Q_IsColorString(&text[i]) && text[i+1]!='_') {
 			i++;
 			continue;
 		}

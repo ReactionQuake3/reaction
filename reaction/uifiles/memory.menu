@@ -100,7 +100,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 30
 	textaligny 12
-	text "Ok"
+	text "^_O^_k"
 	shortcutKey "O"
 	visible 1
 	action { uiScript "quit" }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.146  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.145  2004/03/07 17:39:11  makro
 // no message
 //
@@ -436,6 +439,10 @@ cgs_t cgs;
 centity_t cg_entities[MAX_GENTITIES];
 weaponInfo_t cg_weapons[MAX_WEAPONS];
 itemInfo_t cg_items[MAX_ITEMS];
+//Makro - moveparents
+int cg_moveParentRanks[MAX_GENTITIES];
+int cg_snapEntityOrder[MAX_GENTITIES];
+int cg_nextSnapEntityOrder[MAX_GENTITIES];
 
 vmCvar_t cg_railTrailTime;
 vmCvar_t cg_centertime;
@@ -606,11 +613,22 @@ vmCvar_t cg_RQ3_strobe;
 vmCvar_t cg_RQ3_predictWeapons;
 
 
-//Makro: avidemo with jpegs
+//Makro - avidemo with jpegs
 vmCvar_t cg_RQ3_avidemo;
+//Makro - left-handed models
+//vmCvar_t cg_RQ3_leftHanded;
+
+//Makro - dev tools
+/*
+vmCvar_t cg_RQ3_angle0;
+vmCvar_t cg_RQ3_angle1;
+vmCvar_t cg_RQ3_angle2;
+*/
 
 //Makro - sun flares
 vmCvar_t cg_RQ3_flareIntensity;
+//Makro - ssg crosshair size
+vmCvar_t cg_RQ3_ssgCrosshairSize;
 
 
 //Makro - fastsky
@@ -888,8 +906,18 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	//Makro - avidemo with jpegs
 	{&cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0},
+	//Makro - left-handed weapons
+	//{&cg_RQ3_leftHanded, "cg_RQ3_leftHanded", "0", CVAR_ARCHIVE},
+	//Makro - dev tool
+	/*
+	{&cg_RQ3_angle0, "cg_RQ3_angle0", "0", 0},
+	{&cg_RQ3_angle1, "cg_RQ3_angle1", "0", 0},
+	{&cg_RQ3_angle2, "cg_RQ3_angle2", "0", 0},
+	*/
 	//Makro - sun flares
 	{&cg_RQ3_flareIntensity, "cg_RQ3_flareIntensity", "1.0", CVAR_ARCHIVE},
+	//Makro - ssg crosshair size
+	{&cg_RQ3_ssgCrosshairSize, "cg_RQ3_ssgCrosshairSize", "256", CVAR_ARCHIVE},
 	//Makro - fastsky
 	{&cg_fastSky, "r_fastSky", "0", CVAR_ARCHIVE},
 	{&cg_RQ3_wantFastSky, "cg_RQ3_wantFastSky", "0", CVAR_ARCHIVE},

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.76  2004/03/12 15:56:46  makro
 // no message
 //
@@ -254,48 +257,6 @@ gentity_t *G_TestEntityPosition(gentity_t * ent)
 }
 
 /*
-================
-G_CreateRotationMatrix
-================
-*/
-void G_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3])
-{
-	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
-	VectorInverse(matrix[1]);
-}
-
-/*
-================
-G_TransposeMatrix
-================
-*/
-void G_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3])
-{
-	int i, j;
-
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			transpose[i][j] = matrix[j][i];
-		}
-	}
-}
-
-/*
-================
-G_RotatePoint
-================
-*/
-void G_RotatePoint(vec3_t point, vec3_t matrix[3])
-{
-	vec3_t tvec;
-
-	VectorCopy(point, tvec);
-	point[0] = DotProduct(matrix[0], tvec);
-	point[1] = DotProduct(matrix[1], tvec);
-	point[2] = DotProduct(matrix[2], tvec);
-}
-
-/*
 ==================
 G_TryPushingEntity
 
@@ -328,15 +289,20 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 
 	// try moving the contacted entity
 	// figure movement due to the pusher's amove
-	G_CreateRotationMatrix(amove, transpose);
-	G_TransposeMatrix(transpose, matrix);
+	CreateRotationMatrix(amove, transpose);
+	TransposeMatrix(transpose, matrix);
 	if (check->client) {
 		VectorSubtract(check->client->ps.origin, pusher->r.currentOrigin, org);
 	} else {
 		VectorSubtract(check->s.pos.trBase, pusher->r.currentOrigin, org);
 	}
+	
+	//Makro - at this time, the pusher has already advanced while the pushed entity hasn't
+	//so we have to take the pusher's move into account before rotating the pushed entity
+	VectorAdd(org, move, org);
+
 	VectorCopy(org, org2);
-	G_RotatePoint(org2, matrix);
+	RotatePoint(org2, matrix);
 	VectorSubtract(org2, org, move2);
 	// add movement
 	VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
@@ -346,6 +312,10 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 		VectorAdd(check->client->ps.origin, move2, check->client->ps.origin);
 		// make sure the client's view rotates when on a rotating mover
 		check->client->ps.delta_angles[YAW] += ANGLE2SHORT(amove[YAW]);
+	} else if (check->s.eType == ET_ITEM) {
+		//Makro - other entities should rotate, too
+		VectorAdd(check->s.angles, amove, check->s.angles);
+		VectorAdd(check->s.apos.trBase, amove, check->s.apos.trBase);
 	}
 	// may have pushed them off an edge
 	if (check->s.groundEntityNum != pusher->s.number) {
@@ -463,8 +433,10 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 
 	// mins/maxs are the bounds at the destination
 	// totalMins / totalMaxs are the bounds for the entire move
-	if (pusher->r.currentAngles[0] || pusher->r.currentAngles[1] || pusher->r.currentAngles[2]
-	    || amove[0] || amove[1] || amove[2]) {
+	//Makro - check yaw first, then pitch, then roll (instead of [0], [1], [2])
+	//because most of the time the yaw is the one that's changing
+	if (pusher->r.currentAngles[YAW] || pusher->r.currentAngles[PITCH] || pusher->r.currentAngles[ROLL]
+	    || amove[YAW] || amove[PITCH] || amove[ROLL]) {
 		float radius;
 
 		radius = RadiusFromBounds(pusher->r.mins, pusher->r.maxs);
@@ -614,8 +586,9 @@ void G_MoverTeam(gentity_t * ent)
 	pushed_p = pushed;
 	for (part = ent; part; part = part->teamchain) {
 		// get current position
-		G_EvaluateTrajectory(&part->s.pos, level.time, origin);
-		G_EvaluateTrajectory(&part->s.apos, level.time, angles);
+		//G_EvaluateTrajectory(&part->s.pos, level.time, origin);
+		//G_EvaluateTrajectory(&part->s.apos, level.time, angles);
+		G_EvaluateTrajectoryEx(part, level.time, origin, angles);
 		VectorSubtract(origin, part->r.currentOrigin, move);
 		VectorSubtract(angles, part->r.currentAngles, amove);
 		if (!G_MoverPush(part, move, amove, &obstacle)) {
@@ -628,8 +601,11 @@ void G_MoverTeam(gentity_t * ent)
 		for (part = ent; part; part = part->teamchain) {
 			part->s.pos.trTime += level.time - level.previousTime;
 			part->s.apos.trTime += level.time - level.previousTime;
-			G_EvaluateTrajectory(&part->s.pos, level.time, part->r.currentOrigin);
-			G_EvaluateTrajectory(&part->s.apos, level.time, part->r.currentAngles);
+			//G_EvaluateTrajectory(&part->s.pos, level.time, part->r.currentOrigin);
+			//G_EvaluateTrajectory(&part->s.apos, level.time, part->r.currentAngles);
+			G_EvaluateTrajectoryEx(part, level.time, part->r.currentOrigin, part->r.currentAngles);
+			//Makro - set blocked flag so that clients don't predict movement for this frame
+			part->s.eFlags |= EF_MOVER_BLOCKED;
 			trap_RQ3LinkEntity(part, __LINE__, __FILE__);
 		}
 
@@ -668,6 +644,12 @@ G_RunMover
 */
 void G_RunMover(gentity_t * ent)
 {
+	//Makro - assume entity isn't blocked
+	if (ent->s.eType != ET_PLAYER)
+	{
+		ent->s.eFlags &= ~EF_MOVER_BLOCKED;
+	}
+
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
 	if (ent->flags & FL_TEAMSLAVE) {
@@ -752,8 +734,9 @@ void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 		ent->s.apos.trType = TR_LINEAR_STOP;
 		break;
 	}
-	G_EvaluateTrajectory(&ent->s.pos, level.time, ent->r.currentOrigin);
-	G_EvaluateTrajectory(&ent->s.apos, level.time, ent->r.currentAngles);
+	//G_EvaluateTrajectory(&ent->s.pos, level.time, ent->r.currentOrigin);
+	//G_EvaluateTrajectory(&ent->s.apos, level.time, ent->r.currentAngles);
+	G_EvaluateTrajectoryEx(ent, level.time, ent->r.currentOrigin, ent->r.currentAngles);
 
 	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
@@ -1199,6 +1182,9 @@ void InitMover(gentity_t * ent)
 	G_SpawnInt("health", "0", &ent->health);
 	ent->health_saved = ent->health;
 	
+	//Makro - custom death message
+	G_InitCustomDeathMessage(ent, &ent->methodOfDeath);
+
 	// if the "color" or "light" keys are set, setup constantLight
 	lightSet = G_SpawnFloat("light", "100", &light);
 	colorSet = G_SpawnVector("color", "1 1 1", color);
@@ -1314,7 +1300,13 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 	}
 
 	if (ent->damage) {
-		G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		//Makro - check for custom death message
+		if (ent->methodOfDeath)
+		{
+			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CUSTOM + ent->methodOfDeath - 1);
+		} else {
+			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		}
 	}
 	//if ( ent->spawnflags & 4 ) {
 	//Elder: new crusher flag
@@ -1451,9 +1443,23 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 	if (!(ent->targetname) && !ent->health) {
 		other = G_Spawn();
 		other->classname = "door_trigger";
-		VectorCopy(mins, other->r.mins);
-		VectorCopy(maxs, other->r.maxs);
+		VectorCopy(mins, other->r.absmin);
+		VectorCopy(maxs, other->r.absmax);
 		other->parent = ent;
+		//Makro - if the door moves with another entity, so should this trigger
+		other->moveParent_ent = ent->moveParent_ent;
+		VectorCopy(ent->s.angles2, other->s.angles2);
+		other->s.origin[0] = (maxs[0] + mins[0]) / 2;
+		other->s.origin[1] = (maxs[1] + mins[1]) / 2;
+		other->s.origin[2] = (maxs[2] + mins[2]) / 2;
+		VectorCopy(other->s.origin, other->s.pos.trBase);
+		VectorSubtract(other->r.absmin, other->s.origin, other->r.mins);
+		VectorSubtract(other->r.absmax, other->s.origin, other->r.maxs);
+		VectorClear(other->s.apos.trBase);
+		G_EvaluateTrajectoryEx(other, level.time, other->r.currentOrigin, other->r.currentAngles);
+		other->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
+		other->s.eFlags |= EF_ATTACHED;
+
 		other->r.contents = CONTENTS_TRIGGER;
 		other->touch = Touch_DoorTrigger;
 		// remember the thinnest axis
@@ -1903,6 +1909,9 @@ void InitRotator(gentity_t * ent)
 	ent->use = Use_BinaryMover;
 	ent->reached = Reached_BinaryMover;
 
+	//Makro - custom death message
+	G_InitCustomDeathMessage(ent, &ent->methodOfDeath);
+
 	ent->moverState = ROTATOR_POS1;
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
@@ -2328,6 +2337,33 @@ void Think_SetupTrainTargets(gentity_t * ent)
 	Reached_Train(ent);
 }
 
+void Think_AimPathCorner(gentity_t *self)
+{
+	gentity_t *prev, *next, *nnext;
+	
+	if ( (prev = G_Find2(NULL, FOFS(classname), "path_corner", FOFS(target), self->targetname)) != NULL)
+	{
+		if ( (next = G_Find2(NULL, FOFS(classname), "path_corner", FOFS(targetname), self->target)) != NULL)
+		{
+			if ( (nnext = G_Find2(NULL, FOFS(classname), "path_corner", FOFS(targetname), next->target)) != NULL)
+			{
+				vec3_t dir, angles, deltaAngles;
+				self->spawnflags &= ~2;
+				self->spawnflags |= 1;
+				VectorSubtract(self->s.origin, prev->s.origin, dir);
+				vectoangles(dir, angles);
+				VectorSubtract(nnext->s.origin, next->s.origin, dir);
+				vectoangles(dir, deltaAngles);
+				self->movedir[0] = AngleNormalize180(deltaAngles[0] - angles[0]);
+				self->movedir[1] = AngleNormalize180(deltaAngles[1] - angles[1]);
+				self->movedir[2] = AngleNormalize180(deltaAngles[2] - angles[2]);
+			}
+		}
+	}
+	self->nextthink = 0;
+	self->think = 0;
+}
+
 /*QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8)
 Train path corners.
 Target: next path corner and other targets to fire
@@ -2350,6 +2386,13 @@ void SP_path_corner(gentity_t * self)
 	//Makro - added
 	if (self->spawnflags & 1)
 		G_SpawnVector("rotate", "0 90 0", self->movedir);
+
+	//Makro - auto-aim
+	if (self->spawnflags & 2)
+	{
+		self->nextthink = level.time + FRAMETIME;
+		self->think = Think_AimPathCorner;
+	}
 	
 	// path corners don't need to be linked in
 }
@@ -2545,10 +2588,12 @@ void SP_func_static(gentity_t * ent)
 	InitMover(ent);
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+	VectorCopy(ent->s.apos.trBase, ent->r.currentAngles);
 	//Makro - added
 	ent->use = use_func_static;
 	ent->reset = reset_func_static;
 	ent->reset(ent);
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*

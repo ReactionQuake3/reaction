@@ -908,6 +908,7 @@
 
     itemdef {
 	name "btn_join"
+	shortcutKey "G"
 	style WINDOW_STYLE_SHADER
 	rect 560 432 64 32
 	type 1
@@ -953,28 +954,32 @@
 //Create
 
     itemdef {
+	style WINDOW_STYLE_SHADER
+	forecolor .5 .5 .5 1
+	rect 532 12 96 36
+	decoration
+	background "ui/assets/button.tga"
+	visible 1
+	}
+
+    itemdef {
 	name "btn_create"
 	style WINDOW_STYLE_FILLED
 	type ITEM_TYPE_BUTTON
 	rect 540 20 80 20
-	//border 1
-	//bordersize 1
-	//bordercolor .5 .5 .5 1
 	backcolor Ig_Sub_Color1
 	forecolor 1 1 1 1
 	textscale .25
 	textalign ITEM_ALIGN_CENTER
 	textalignx 40
 	textaligny 14
-	text "Create >"
+	textstyle  ITEM_TEXTSTYLE_SHADOWED
+	text "^_C^_reate >"
+	shortcutKey "C"
 	visible 1
 	action { close joinserver ; open createserver }
-	//onFocus { setcolor backcolor Ig_Sub_Color2 ; show create_hint }
-	//leaveFocus { setcolor backcolor Ig_Sub_Color1 ; hide create_hint }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ;
-		show create_hint ; timeFade create_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ;
-		timeFade create_hint forecolor .9 .9 .9 0 0 250 }
+	onFocus { show create_hint ; timeFade create_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade create_hint forecolor .9 .9 .9 0 0 250 }
     }
 
     itemdef {
@@ -996,11 +1001,12 @@
 
     itemdef {
 	name "btn_back"
+	shortcutKey "B"
 	style WINDOW_STYLE_SHADER
 	rect 12 432 32 32
 	type 1
 	background "menu/art/rq3-menu-back.tga"
-	action { close joinserver ; open main ; }
+	action { close _self ; open main ; }
 	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
 		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
@@ -1008,9 +1014,10 @@
 	visible 1
     }
 
+
     itemdef {
 	name back_hint
-	text "Go back to main menu"
+	text "Go ^_b^_ack to main menu"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 1
 	textalignx 240
@@ -1022,5 +1029,6 @@
 	visible 0
 	decoration
     }
+
 }
 }

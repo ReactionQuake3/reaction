@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.74  2003/09/07 19:51:39  makro
 // no message
 //
@@ -1492,7 +1495,8 @@ void CG_CheckEvents(centity_t * cent)
 	}
 
 	// calculate the position at exactly the frame time
-	CG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin);
+	//CG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, cent->lerpOrigin);
+	CG_EvaluateTrajectoryEx(cent, cg.snap->serverTime, cent->lerpOrigin, NULL);
 	CG_SetEntitySoundPosition(cent);
 
 	CG_EntityEvent(cent, cent->lerpOrigin);

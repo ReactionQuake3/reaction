@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.14  2004/01/26 21:26:09  makro
 // no message
 //
@@ -414,9 +417,14 @@ typedef int clipHandle_t;
 #define	MIN_QINT			(-MAX_QINT-1)
 
 // angle indexes
-#define	PITCH				0	// up / down
-#define	YAW					1	// left / right
-#define	ROLL				2	// fall over
+#define PITCH				0	// up / down
+#define YAW					1	// left / right
+#define ROLL				2	// fall over
+
+//Makro - angle axis
+#define PITCH_AXIS			1
+#define YAW_AXIS			2
+#define ROLL_AXIS			0
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
@@ -562,7 +570,8 @@ typedef int fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
-#define NUMVERTEXNORMALS	162
+//Makro - changed from 162 to 256 in order to use the new bytedirs table
+#define NUMVERTEXNORMALS	256
 extern vec3_t bytedirs[NUMVERTEXNORMALS];
 
 // all drawing is done to a 640*480 virtual screen size
@@ -615,11 +624,24 @@ extern vec4_t colorDkGrey;
 #define S_COLOR_CYAN	"^5"
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
+//Makro - reset color
+#define S_COLOR_RESET	"^*"
 
 extern vec4_t g_color_table[8];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
+
+//Makro - for the UI
+
+#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1])
+#define Vector2MA(v,s,b,o)			((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
+#define Vector2Add(a,b,o)			((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
+#define Vector2Subtract(a,b,o)		((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
+#define Vector2Scale(a,s,o)			((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
+#define Vector2Negate(a,o)			((o)[0]=-(a)[0],(o)[1]=-(a)[1])
+#define Vector2Set(v,x,y)			((v)[0]=(x),(v)[1]=(y))
+#define Vector2Norm2(v)				((v)[0]*(v)[0]+(v)[1]*(v)[1])
 
 #define DEG2RAD( a ) ( ( (a) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( (a) * 180.0f ) / M_PI )
@@ -863,6 +885,15 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector(vec3_t dst, const vec3_t src);
 int ReflectVectorByte(vec3_t dir, vec3_t plane);
 
+//Makro - moved from g_main
+void CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]);
+void TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]);
+void RotatePoint(vec3_t point, vec3_t matrix[3]);
+
+//Makro - added
+void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
+void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
+void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out);
 //=============================================
 
 float Com_Clamp(float min, float max, float value);

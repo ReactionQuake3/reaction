@@ -7,7 +7,7 @@
     bigFont "fonts/bigfont" 20				// font
     cursor "gfx/rq3_ta_hud/3_cursor3.tga"			// cursor
     gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
-    itemFocusSound "sound/misc/menu2.wav"		// sound for item getting focus (via keyboard or mouse )
+    itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
 
     fadeCycle 2						// how often fade happens in milliseconds
     fadeAmount 0.05					// amount to adjust alpha per cycle
@@ -30,7 +30,7 @@
     onOpen {
       //setitemcolor fadebox backcolor 0 0 0 1 ;
       //fadeout fadebox ;
-      play "sound/misc/menu1.wav" ;
+      play "sound/misc/whoosh3.wav" ;
       //exec "music music/rq3_title_intro.wav music/rq3_title_loop.wav" ;
       setfocus rq3_start ;
       uiScript stopRefresh ;

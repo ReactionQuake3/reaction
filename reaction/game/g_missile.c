@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.34  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -62,10 +65,6 @@
 #include "g_local.h"
 //Makro - to get the new surfaceparm system to work :/
 #include "surfaceflags.h"
-
-int GetMaterialFromFlag(int flag);
-qboolean IsMetalMat(int Material);
-qboolean IsMetalFlag(int flag);
 
 #define	MISSILE_PRESTEP_TIME	50
 

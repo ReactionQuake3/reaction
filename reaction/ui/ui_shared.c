@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.4  2002/01/11 19:48:31  jbravo
 // Formatted the source in non DOS format.
 //
@@ -5474,11 +5477,15 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	if (menu->itemCount < MAX_MENUITEMS) {
 		menu->items[menu->itemCount] = UI_Alloc(sizeof(itemDef_t));
 		Item_Init(menu->items[menu->itemCount]);
+		//was below
+		menu->items[menu->itemCount]->parent = menu;
 		if (!Item_Parse(handle, menu->items[menu->itemCount])) {
 			return qfalse;
 		}
 		Item_InitControls(menu->items[menu->itemCount]);
-		menu->items[menu->itemCount++]->parent = menu;
+		//Makro - moved above
+		//menu->items[menu->itemCount++]->parent = menu;
+		menu->itemCount++;
 	}
 	return qtrue;
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.150  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.149  2003/09/01 15:17:52  jbravo
 // Made g_RQ3_haveHelmet a systeminfo cvar.
 //
@@ -434,6 +437,7 @@
 int trap_RealTime(qtime_t * qtime);
 gentity_t *getEntByName(char *name);
 void AddIP(char *str);
+void G_SetGlobalRefSystem(int newRefSys);
 level_locals_t level;
 
 typedef struct {
@@ -448,6 +452,9 @@ typedef struct {
 
 gentity_t g_entities[MAX_GENTITIES];
 gclient_t g_clients[MAX_CLIENTS];
+//Makro - moveparent tree
+gentity_t *g_parentOrder[MAX_GENTITIES];
+vec3_t g_moveDelta[MAX_GENTITIES], g_angleDelta[MAX_GENTITIES], g_rmoveDelta[MAX_GENTITIES];
 
 vmCvar_t g_gametype;
 vmCvar_t g_dmflags;
@@ -750,7 +757,9 @@ int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int ar
 	case GAME_CLIENT_CONNECT:
 		return (int) ClientConnect(arg0, arg1, arg2);
 	case GAME_CLIENT_THINK:
+		//G_SetGlobalRefSystem(REFSYSTEM_WORLD);
 		ClientThink(arg0);
+		//G_SetGlobalRefSystem(REFSYSTEM_OWN);
 		return 0;
 	case GAME_CLIENT_USERINFO_CHANGED:
 		ClientUserinfoChanged(arg0);
@@ -1142,6 +1151,130 @@ void RQ3_loadmodels(void)
 	}
 }
 
+//Makro - FIXME: add comment
+void G_InitMoveParents()
+{
+	int i;
+	level.num_moveParents = 0;
+	level.num_attachedEnts = 0;
+	for (i=0; i<MAX_GENTITIES; i++)
+	{
+		gentity_t *ent = g_entities+i;
+		ent->moveParent_ent = NULL;
+		ent->moveParent_rank = RANK_NONE;
+		if (ent->moveParent)
+		{
+			int j;
+			for (j=0; j<level.num_entities; j++)
+			{
+				gentity_t *test = g_entities+j;
+				if (i==j)
+					continue;
+				if (MatchesId(test, ent->moveParent))
+				{
+					vec3_t v, axis[3], matrix[3];
+					
+					ent->moveParent_ent = test;
+					ent->moveParent_rank = RANK_SLAVE;
+
+					//get a vector from the moveparent to the origin
+					VectorNegate(ent->moveParent_ent->s.origin, ent->s.angles2);
+					VectorNegate(ent->moveParent_ent->s.angles, v);
+					AnglesToAxis(v, axis);
+					TransposeMatrix(axis, matrix);
+					RotatePoint(ent->s.angles2, matrix);
+
+					/*
+					//adjust origin, angles etc.
+					VectorSubtract(ent->s.origin, ent->moveParent_ent->s.origin, ent->s.origin);
+					VectorSubtract(ent->r.currentOrigin, ent->moveParent_ent->s.origin, ent->r.currentOrigin);
+					VectorSubtract(ent->s.pos.trBase, ent->moveParent_ent->s.origin, ent->s.pos.trBase);
+					
+					//temp!!!
+					VectorSubtract(ent->pos1, ent->moveParent_ent->s.origin, ent->pos1);
+					VectorSubtract(ent->pos2, ent->moveParent_ent->s.origin, ent->pos2);
+					//
+
+					RotatePoint(ent->s.origin, matrix);
+					RotatePoint(ent->r.currentOrigin, matrix);
+					RotatePoint(ent->s.pos.trBase, matrix);
+					
+					//temp
+					RotatePoint(ent->pos1, matrix);
+					RotatePoint(ent->pos2, matrix);
+					//
+					*/
+
+					VectorSubtract(ent->s.angles, ent->moveParent_ent->s.angles, ent->s.angles);
+					ent->s.eFlags |= EF_ATTACHED;
+					//this is so cgame knows which entity is the moveparent
+					ent->s.time2 = ent->moveParent_ent - g_entities;
+					if (ent->r.linked)
+						trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+
+					break;
+				}
+			}
+		}
+	}
+}
+
+//Makro - determine moveparent order
+void G_SetMoveParentOrder()
+{
+	int i, j;
+	char info[MAX_INFO_STRING], *p;
+
+	for (i=0; i<MAX_GENTITIES; i++)
+	{
+		gentity_t *ent = g_entities+i;
+		
+		//default value
+		g_parentOrder[i] = ent;
+		//new rank for parent?
+		while (ent->moveParent_ent)
+		{
+			if (ent->moveParent_ent->moveParent_rank < ent->moveParent_rank+1)
+				ent->moveParent_ent->moveParent_rank = ent->moveParent_rank+1;
+			ent = ent->moveParent_ent;
+		}
+	}
+	//sort g_parentOrder
+	//higher ranks first
+	for (i=0; i<MAX_GENTITIES-1; i++)
+	{
+		for (j=i+1; j<MAX_GENTITIES; j++)
+		{
+			if ( g_parentOrder[i]->moveParent_rank < g_parentOrder[j]->moveParent_rank )
+			{
+				gentity_t *tmp = g_parentOrder[i];
+				g_parentOrder[i] = g_parentOrder[j];
+				g_parentOrder[j] = tmp;
+			}
+		}
+		if (level.num_moveParents == 0 && g_parentOrder[i]->moveParent_rank == RANK_SLAVE) {
+			level.num_moveParents = i;
+		} else if (level.num_attachedEnts == 0 && g_parentOrder[i]->moveParent_rank == RANK_NONE) {
+			level.num_attachedEnts = i;
+			break;
+		}
+	}
+	p = info;
+	Com_sprintf(p, 4, "%03i", level.num_attachedEnts);
+	p += 3;
+	for (i=0; i<level.num_attachedEnts; i++)
+	{
+		Com_sprintf(p, 4, "%03i", g_parentOrder[i]-g_entities);
+		p += 3;
+		Com_sprintf(p, 4, "%03i", g_parentOrder[i]->moveParent_rank);
+		p+=3;
+		G_Printf("%i (%i)> %s, rank %i\n", i, g_parentOrder[i]-g_entities,
+			g_parentOrder[i]->classname, g_parentOrder[i]->moveParent_rank);
+	}
+	G_Printf("INFO STRING: %s\n", info);
+	trap_SetConfigstring(CS_MOVEPARENTS, info);
+}
+
 /*
 ============
 G_InitGame
@@ -1238,6 +1371,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	ClearRegisteredItems();
 
+	//Makro - no dlight styles by default
+	trap_SetConfigstring(CS_DLIGHT_STYLES, "\\n\\0");
+
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
 
@@ -1329,6 +1465,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	G_RemapTeamShaders();
+
+	//Makro - moveparents stuff
+	G_InitMoveParents();
+	G_SetMoveParentOrder();
 }
 
 /*
@@ -2404,7 +2544,7 @@ void CheckVote(void)
 		if (Q_stricmp(level.voteString, "cyclemap") == 0) {
 			BeginIntermission();
 		} else if (Q_stricmp(level.voteString, "map") == 0) {
-			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");	// check this latter. This trap may not be necessary 
+			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");	// check this later. This trap may not be necessary 
 			g_RQ3_ValidIniFile.integer = 2;
 			BeginIntermission();
 		} else if (Q_stricmp(level.voteString, "g_gametype") == 0) {
@@ -2627,8 +2767,19 @@ void G_RunThink(gentity_t * ent)
 	ent->nextthink = 0;
 	if (!ent->think) {
 		G_Error("NULL ent->think");
+	} else {
+		//Makro - moved inside else branch; probably not needed, but I can sleep
+		//better at night now that I've done it. Right.
+		ent->think(ent);
 	}
-	ent->think(ent);
+}
+
+void G_RunAttachedEnt(gentity_t *ent)
+{
+	G_EvaluateTrajectoryEx(ent, level.time, ent->r.currentOrigin, ent->r.currentAngles);
+	VectorCopy(ent->r.currentOrigin, ent->s.origin);
+	if (ent->r.linked)
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
@@ -2658,6 +2809,10 @@ void G_RunFrame(int levelTime)
 	level.time = levelTime;
 	msec = level.time - level.previousTime;
 
+	//Makro - in progress
+	//G_UpdateParentDeltas();
+	//G_AddParentDeltas();
+
 	// get any cvar changes
 	G_UpdateCvars();
 
@@ -2665,8 +2820,9 @@ void G_RunFrame(int levelTime)
 	// go through all allocated objects
 	//
 	start = trap_Milliseconds();
-	ent = &g_entities[0];
-	for (i = 0; i < level.num_entities; i++, ent++) {
+	//Makro - use g_parentOder
+	for (i = 0; i < level.num_entities; i++) {
+		ent = g_parentOrder[i];
 		if (!ent->inuse) {
 			continue;
 		}
@@ -2702,22 +2858,35 @@ void G_RunFrame(int levelTime)
 		}
 
 		if (ent->s.eType == ET_ITEM || ent->physicsObject) {
+			//G_ChangeEntRefSystem(ent, REFSYSTEM_WORLD);
 			G_RunItem(ent);
 			continue;
 		}
 
 		if (ent->s.eType == ET_MOVER) {
+			//G_ChangeEntRefSystem(ent, REFSYSTEM_WORLD);
 			G_RunMover(ent);
+			G_RunAttachedEnt(ent);
 			continue;
 		}
 
-		if (i < MAX_CLIENTS) {
+		if (ent-g_entities < MAX_CLIENTS) {
 			G_RunClient(ent);	// Basicly calls ClientThink_real()
 			continue;
 		}
 
+		if (ent->moveParent_ent)
+			G_RunAttachedEnt(ent);
+
+		//G_ChangeEntRefSystem(ent, REFSYSTEM_WORLD);
 		G_RunThink(ent);
 	}
+
+	//Makro - undo the refsystem changes
+	//G_SetGlobalRefSystem(REFSYSTEM_OWN);
+
+	//Makro - in progress
+	//G_AdjustCoordinates();
 
 	end = trap_Milliseconds();
 
@@ -2803,6 +2972,7 @@ void RQ3_StartUniqueItems(void)
 	if ((int) g_RQ3_weaponban.integer & ITF_SLIPPERS) {
 		rq3_item = BG_FindItemForHoldable(HI_SLIPPERS);
 		rq3_temp = (gentity_t *) SelectRandomDeathmatchSpawnPoint();
+		//Makro: TODO - stop server if there is no spawn point, otherwise the game crashes
 		Drop_Item(rq3_temp, rq3_item, angle);
 		angle += 30;
 	}

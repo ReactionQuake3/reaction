@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.7  2003/03/28 10:36:03  jbravo
 // Tweaking the replacement system a bit.  Reactionmale now the default model
 //
@@ -751,7 +754,9 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 
 	refdef.time = dp_realtime;
 
-	trap_R_ClearScene();
+	//trap_R_ClearScene();
+	uiInfo.uiDC.clearScene();
+
 
 	// get the rotation information
 	UI_PlayerAngles(pi, legs.axis, torso.axis, head.axis);
@@ -890,7 +895,8 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t * pi, int ti
 	origin[2] -= 100;
 	trap_R_AddLightToScene(origin, 500, 1.0, 0.0, 0.0);
 
-	trap_R_RenderScene(&refdef);
+	//trap_R_RenderScene(&refdef);
+	uiInfo.uiDC.renderScene(&refdef);
 }
 
 /*

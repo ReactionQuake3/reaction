@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.9  2002/08/21 03:43:23  niceass
 // allow clipvelocity outside of the bg_'s
 //
@@ -50,6 +53,9 @@ typedef struct {
 	qboolean groundPlane;
 	trace_t groundTrace;
 	qboolean ladder;	// We'll use this to tell when the player is on a ladder  (c3a tut)
+	//Makro - flags for the ladder surface, in case there is one
+	//(for playing the right footstep sounds)
+	int ladderSurface;
 	//qboolean previous_ladder;	// Elder: need this to see if player was on ladder
 	qboolean opendoor;
 

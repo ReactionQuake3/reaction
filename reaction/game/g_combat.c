@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.141  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.140  2003/04/26 22:33:06  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -657,7 +660,9 @@ char *modNames[] = {
 	"MOD_M3",
 	"MOD_HANDCANNON",
 	"MOD_KICK",
-	"MOD_BLEEDING"
+	"MOD_BLEEDING",
+	//Makro - entity-defined
+	"MOD_CUSTOM"
 };
 
 /*
@@ -831,7 +836,14 @@ void PrintDeathMessage(gentity_t * target, gentity_t * attacker, int location, i
 		Q_strncpyz(message, "bleeds to death", sizeof(message));
 		break;
 	default:
-		message[0] = '\0';
+		//Makro - added check for MOD_CUSTOM+index mods
+		if (meansOfDeath >= MOD_CUSTOM && meansOfDeath - MOD_CUSTOM < level.numCustomDeathMsg)
+		{
+			//TODO: replace %he% with he/she/it based on gender. Same thing for %his%
+			Q_strncpyz(message, level.customDeathMsg[meansOfDeath-MOD_CUSTOM], sizeof(message));
+		} else {
+			message[0] = '\0';
+		}
 		break;
 	}
 	if (attacker == target) {
@@ -1630,6 +1642,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		i = (i + 1) % 3;
 	}
 
+	self->physicsObject = qfalse;
+
 	// JBravo: lets not relink players that have been gibbed here.
 	if (!self->client->gibbed)
 		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
@@ -1907,8 +1921,14 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			knockback = (int) (0.75 * damage);
 			break;
 		default:
-			G_Printf("G_Damage: Received unknown MOD - using default knockback\n");
-			knockback = 50;
+			//Makro - custom death message implies a trigger_hurt
+			if (mod >= MOD_CUSTOM && mod - MOD_CUSTOM < level.numCustomDeathMsg)
+			{
+				knockback = (int) (0.75 * damage);
+			} else {
+				G_Printf("G_Damage: Received unknown MOD - using default knockback\n");
+				knockback = 50;
+			}
 			break;
 		}
 	}
@@ -2029,7 +2049,9 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			// Elder: removed M3, handcannon, and grenades from location damage code
 
 			if (take && (mod == MOD_M3 || mod == MOD_HANDCANNON ||
-				     mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH || mod == MOD_TRIGGER_HURT)) {
+				     mod == MOD_GRENADE || mod == MOD_GRENADE_SPLASH || mod == MOD_TRIGGER_HURT ||
+					 //Makro - custom death message implies a trigger_hurt
+					 mod >= MOD_CUSTOM)) {
 				bleeding = 1;
 				instant_dam = 0;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.109  2004/01/26 21:26:08  makro
 // no message
 //
@@ -294,10 +297,18 @@
 #define RQ3_DEBRIS_POPCAN			0x00000800
 
 // Elder: dynamic light switches
-#define DLIGHT_ADDITIVE		1
-#define DLIGHT_FLICKER		2
-#define DLIGHT_PULSE		4
-#define DLIGHT_STROBE		8
+//Makro - new flag; reordered old ones
+#define DLIGHT_CUSTOMSTYLE	63
+
+#define DLIGHT_ADDITIVE		64
+#define DLIGHT_FLICKER		128
+#define DLIGHT_PULSE		256
+#define DLIGHT_STROBE		512
+
+#define MAX_DLIGHT_STYLES		64
+#define MAX_DLIGHT_STLE_LEN		64
+
+#define MAX_CUSTOM_DEATH_MSG	32
 
 //Blaze: Max number of breakables
 #define RQ3_MAX_BREAKABLES 64
@@ -438,7 +449,8 @@ enum {
 	SCREENSHOT,
 	OWNED,
 	CVARSET,
-	CTBCOUNTDOWN
+	CTBCOUNTDOWN,
+	ZCAMTEXT		//Makro - added
 };
 
 //Elder: sound events for EV_RQ3_SOUND
@@ -616,23 +628,30 @@ extern radio_msg_t female_radio_msgs[];
 #define	CS_ITEMS				27	// string of 0's and 1's that tell which items are present
 #define CS_ATMOSEFFECT			28	// q3f: Atmospheric effect, if any.
 
-#define CS_SHADOWS			29
+#define CS_SHADOWS				29
 //Makro - color for the loading screen text
 //#define CS_LOADINGSCREEN              29
 //Makro - sky portals !
-#define CS_SKYPORTAL		30
+#define CS_SKYPORTAL			30
 //Makro - fog hull
-#define CS_FOGHULL			31
+#define CS_FOGHULL				31
 
-#define	CS_MODELS			32
-#define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
-#define	CS_PLAYERS			(CS_SOUNDS+MAX_SOUNDS)
-#define CS_LOCATIONS		(CS_PLAYERS+MAX_CLIENTS)
-#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
+#define	CS_MODELS				32
+#define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
+#define	CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
+#define CS_LOCATIONS			(CS_PLAYERS+MAX_CLIENTS)
+//Makro - CS_PARTICLES not used, removing
+//#define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
 //Blaze: Storing breakables in config strings now
-#define CS_BREAKABLES (CS_PARTICLES+MAX_LOCATIONS)
+//#define CS_BREAKABLES (CS_PARTICLES+MAX_LOCATIONS)
+#define CS_BREAKABLES			(CS_LOCATIONS+MAX_LOCATIONS)
+//Makro - dlight styles
+#define CS_DLIGHT_STYLES		(CS_BREAKABLES+RQ3_MAX_BREAKABLES)
+//Makro - moveparent order
+#define CS_MOVEPARENTS			CS_DLIGHT_STYLES+1
 
-#define CS_MAX					(CS_BREAKABLES+RQ3_MAX_BREAKABLES)
+//#define CS_MAX					(CS_BREAKABLES+RQ3_MAX_BREAKABLES)
+#define CS_MAX		(CS_MOVEPARENTS+1)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -862,14 +881,22 @@ typedef enum {
 #define	EF_HEADLESS			0x00000200	// NiceAss: Replaced EF_KAMAKAZI
 #define	EF_MOVER_STOP		0x00000400	// will push otherwise
 #define EF_AWARD_CAP		0x00000800	// draw the capture sprite
+#define EF_ATTACHED			EF_AWARD_CAP	//Makro - reusing this flag for non-player entities
 #define	EF_TALK				0x00001000	// draw a talk balloon
 #define	EF_CONNECTION		0x00002000	// draw a connection trouble sprite
 #define	EF_VOTED			0x00004000	// already cast a vote
 #define	EF_AWARD_IMPRESSIVE	0x00008000	// draw an impressive sprite
+#define EF_MOVER_BLOCKED	EF_AWARD_IMPRESSIVE	//Makro - reusing this flag for non-player entities
 #define	EF_AWARD_DEFEND		0x00010000	// draw a defend sprite
 #define	EF_AWARD_ASSIST		0x00020000	// draw a assist sprite
 #define EF_AWARD_DENIED		0x00040000	// denied
 #define EF_TEAMVOTED		0x00080000	// already cast a team vote
+
+
+//Makro - moveparent ranks
+#define RANK_NONE		0
+#define RANK_SLAVE		1
+#define RANK_MASTER		2
 
 
 // NOTE: may not have more than 16
@@ -1386,7 +1413,10 @@ typedef enum {
 	MOD_M3,
 	MOD_HANDCANNON,
 	MOD_KICK,
-	MOD_BLEEDING
+	MOD_BLEEDING,
+	//Makro - entity defined
+	//this must be last so we can have MOD_CUSTOM+index args
+	MOD_CUSTOM
 } meansOfDeath_t;
 
 //---------------------------------------------------------
@@ -1524,42 +1554,10 @@ qboolean BG_PlayerTouchesItem(playerState_t * ps, entityState_t * item, int atTi
 #define KAMI_BOOMSPHERE_MAXRADIUS		720
 #define KAMI_SHOCKWAVE2_MAXRADIUS		704
 
-//Makro - for the new surfaceparm system
-
-#define MAT_DEFAULT				0
-#define MAT_METALSTEPS			1
-#define MAT_GRAVEL				2
-#define MAT_WOOD				3
-#define MAT_CARPET				4
-#define MAT_METAL2				5
-#define MAT_GLASS				6
-#define MAT_GRASS				7
-#define MAT_SNOW				8
-#define MAT_MUD					9
-#define MAT_WOOD2				10
-#define MAT_HARDMETAL			11
-//new
-#define MAT_LEAVES				12
-#define MAT_CEMENT				13
-#define MAT_MARBLE				14
-#define MAT_SNOW2				15
-#define MAT_HARDSTEPS			16
-#define	MAT_SAND				17
-#define	MAT_BRICK				18
-#define	MAT_CERAMIC				19
-
 //Makro - moved from the UI/cgame header files
 #define	NUM_CROSSHAIRS			10
 //Makro - for the SSG crosshair preview
 #define	NUM_SSGCROSSHAIRS		17
-
-int GetMaterialFromFlag(int flag);
-qboolean IsMetalMat(int Material);
-qboolean IsMetalFlag(int flag);
-qboolean IsWoodMat(int Material);
-qboolean IsWoodFlag(int flag);
-qboolean IsSnowMat(int Material);
-qboolean IsSnowFlag(int flag);
 
 holdable_t CharToItem(char *name, holdable_t defitem);
 weapon_t CharToWeapon(char *name, weapon_t defweapon);

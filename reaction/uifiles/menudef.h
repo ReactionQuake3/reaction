@@ -212,6 +212,8 @@
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
 
+//Makro - clock
+#define UI_CLOCK		149
 
 //Makro - for SSG crosshair selection
 #define UI_SSG_CROSSHAIR 150
@@ -343,10 +345,13 @@
 #define RQ3_MAIN_HINT_COLOR .75 .75 1 .75
 */
 
-#define RQ3_MAIN_BAR_COLOR 0 0 0 1
-#define RQ3_MAIN_BAR_COLOR2 .5 .5 .5 1
+#define RQ3_MAIN_BAR_COLOR 1 1 1 .5
+#define RQ3_MAIN_BAR_COLOR2  0 0 0 1
 //#define RQ3_MAIN_HINT_COLOR .75 .75 .75 1
 #define RQ3_MAIN_HINT_COLOR .9 .9 .9 0
+
+#define UI_FOLDER "ui"
+#define UI_ASSETS "ui/assets"
 
 /* old colors, if you like them more
 #define RQ3_MAIN_BAR_COLOR 0 0 0 1
@@ -356,7 +361,7 @@
 
 #define RQ3_MAIN_TEXTSIZE .28
 #define RQ3_MENU_OVERLAY_COLOR 0 0 0 .5
-#define RQ3_MAIN_FOCUSCOLOR 1 .75 0 1
+#define RQ3_MAIN_FOCUSCOLOR .5 .5 .5 1
 
 //Ingame stuff
 

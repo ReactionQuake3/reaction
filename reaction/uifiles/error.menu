@@ -97,10 +97,10 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 30
 	textaligny 12
-	text "Close"
+	text "^_C^_lose"
 	shortcutKey "C"
 	visible 1
-	action { close error_popmenu ; open main }
+	action { close _self ; open main }
     }
 }
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.27  2003/03/10 07:07:58  jbravo
 // Small unlagged fixes and voting delay added.
 //
@@ -148,8 +151,9 @@ static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins, const v
 		if (ent->solid == SOLID_BMODEL) {
 			// special value for bmodel
 			cmodel = trap_CM_InlineModel(ent->modelindex);
-			VectorCopy(cent->lerpAngles, angles);
-			CG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
+			//VectorCopy(cent->lerpAngles, angles);
+			//CG_EvaluateTrajectory(&cent->currentState.pos, cg.physicsTime, origin);
+			CG_EvaluateTrajectoryEx(cent, cg.physicsTime, origin, angles);
 		} else {
 			// encoded bbox
 			x = (ent->solid & 255);
@@ -741,9 +745,10 @@ void CG_PredictPlayerState(void)
 			} else {
 				vec3_t adjusted;
 
+				//Makro - made it so that angles get adjusted, too
 				CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
 							  cg.predictedPlayerState.groundEntityNum, cg.physicsTime,
-							  cg.oldTime, adjusted);
+							  cg.oldTime, adjusted, cg.predictedPlayerState.viewangles);
 
 				if (cg_showmiss.integer) {
 					if (!VectorCompare(oldPlayerState.origin, adjusted)) {
@@ -845,9 +850,10 @@ void CG_PredictPlayerState(void)
 		return;
 	}
 	// adjust for the movement of the groundentity
+	//Makro - made it so that angles get adjusted, too
 	CG_AdjustPositionForMover(cg.predictedPlayerState.origin,
 				  cg.predictedPlayerState.groundEntityNum,
-				  cg.physicsTime, cg.time, cg.predictedPlayerState.origin);
+				  cg.physicsTime, cg.time, cg.predictedPlayerState.origin, cg.predictedPlayerState.viewangles);
 
 	if (cg_showmiss.integer) {
 		if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {
@@ -952,5 +958,38 @@ void CG_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t resu
 	default:
 		Com_Error(ERR_DROP, "CG_EvaluateTrajectoryDelta: unknown trType: %i", tr->trTime);
 		break;
+	}
+}
+
+void CG_EvaluateTrajectoryEx(centity_t *cent, int time, vec3_t origin, vec3_t angles)
+{
+
+	if (origin) CG_EvaluateTrajectory(&cent->currentState.pos, time, origin);
+	if (angles) CG_EvaluateTrajectory(&cent->currentState.apos, time, angles);
+
+	if (cent->currentState.eType != ET_PLAYER && cent->currentState.eFlags & EF_ATTACHED)
+	{
+		vec3_t org, axis[3], parent_angles;
+		centity_t *parent = cg_entities+cent->currentState.time2;
+		
+		VectorCopy(parent->lerpAngles, parent_angles);
+		if (origin)
+		{
+			if (parent->lerpAngles[YAW] || parent->lerpAngles[PITCH] || parent->lerpAngles[ROLL])
+			{
+				VectorCopy(cent->currentState.angles2, org);
+				VectorAdd(org, origin, org);
+				AnglesToAxis(parent_angles, axis);
+				ChangeRefSystem(org, NULL, axis, org);
+				VectorAdd(org, parent->lerpOrigin, origin);
+			} else {
+				VectorAdd(origin, cent->currentState.angles2, origin);
+				VectorAdd(origin, parent->lerpOrigin, origin);
+			}
+		}
+		if (angles)
+		{
+			VectorAdd(angles, parent_angles, angles);
+		}
 	}
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.80  2004/03/12 11:26:05  makro
 // no message
 //
@@ -467,7 +470,9 @@ This must be the very first function compiled into the .qvm file
 ================
 */
 vmCvar_t ui_new;
-vmCvar_t ui_debug;
+//Makro - renamed to ui_developer
+//vmCvar_t ui_debug;
+vmCvar_t ui_developer;
 vmCvar_t ui_initialized;
 vmCvar_t ui_teamArenaFirstRun;
 
@@ -588,20 +593,44 @@ void AssetCache()
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
 
+//Makro - angled rectangles
+void _UI_DrawAngledRect(float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type)
+{
+	float p[2], p2[2];
+	
+	p[0] = x;
+	p[1] = y;
+	Vector2MA(p, w, u, p2);
+	Vector2MA(p2, h, v, p2);
+
+	if (type & RECT_TOPBOTTOM) {
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], w, size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -w, -size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+	}
+	if (type & RECT_SIDES) {
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], size, h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -size, -h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+	}
+}
+
 void _UI_DrawSides(float x, float y, float w, float h, float size)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	size *= uiInfo.uiDC.xscale;
-	trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void _UI_DrawTopBottom(float x, float y, float w, float h, float size)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	size *= uiInfo.uiDC.yscale;
-	trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 /*
@@ -623,7 +652,7 @@ void _UI_DrawRect(float x, float y, float width, float height, float size, const
 
 int Text_Width(const char *text, float scale, int limit)
 {
-	int count, len;
+	int count, len, maxPixels = 0;
 	float out;
 	glyphInfo_t *glyph;
 	float useScale;
@@ -639,8 +668,12 @@ int Text_Width(const char *text, float scale, int limit)
 	useScale = scale * font->glyphScale;
 	out = 0;
 	if (text) {
-		len = strlen(text);
-		if (limit > 0 && len > limit) {
+		//Makro - strlen doesn't take into account color escape sequences
+		len = Q_PrintStrlen(text);
+		//Makro - new feature: negative limit = -max pixels
+		if (limit < 0) {
+			maxPixels = -limit;
+		} else if (limit > 0 && len > limit) {
 			len = limit;
 		}
 		count = 0;
@@ -651,6 +684,10 @@ int Text_Width(const char *text, float scale, int limit)
 			} else {
 				glyph = &font->glyphs[(int) *s];
 				out += glyph->xSkip;
+				//Makro - added
+				if (maxPixels)
+					if (out > maxPixels)
+						break;
 				s++;
 				count++;
 			}
@@ -699,6 +736,8 @@ int Text_Height(const char *text, float scale, int limit)
 }
 
 //Makro - added
+//FIXME: doesn't take into account color escape sequences
+//also, Text_Width now supports pixel limits, not just char count limits
 int Text_maxPaintChars(char *text, float scale, float width)
 {
 	char buf[1024];
@@ -723,16 +762,20 @@ void Text_PaintChar(float x, float y, float width, float height, float scale, fl
 	w = width * scale;
 	h = height * scale;
 	UI_AdjustFrom640(&x, &y, &w, &h);
-	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
+	//trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
+
+
 
 void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
 {
 	int len, count;
+	qboolean underlined = qfalse;
 	vec4_t newColor;
-	glyphInfo_t *glyph;
 	float useScale;
 	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
+	glyphInfo_t *glyph, *uglyph = &font->glyphs[(int)'_']; //Makro - added for underlined chars;
 
 	if (scale <= ui_smallFont.value) {
 		font = &uiInfo.uiDC.Assets.smallFont;
@@ -757,14 +800,23 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
 			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if (Q_IsColorString(s)) {
-				memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
-				newColor[3] = color[3];
-				trap_R_SetColor(newColor);
+				//Makro - new tricks
+				if (*(s+1) == '*')
+				{
+					memcpy(newColor, color, sizeof(newColor));
+					trap_R_SetColor(newColor);
+				} else if (*(s+1)== '_')
+				{
+					underlined ^= qtrue;
+				} else {
+					memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
+					newColor[3] = color[3];
+					trap_R_SetColor(newColor);
+				}
 				s += 2;
 				continue;
 			} else {
 				float yadj = useScale * glyph->top;
-
 				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 
@@ -782,6 +834,12 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 					       glyph->imageWidth,
 					       glyph->imageHeight,
 					       useScale, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+				//Makro - added
+				if (underlined)
+				{
+					Text_PaintChar(x, y, glyph->imageWidth, uglyph->imageHeight,
+						useScale, uglyph->s, uglyph->t, uglyph->s2, uglyph->t2, uglyph->glyph);
+				}
 
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;
@@ -789,6 +847,161 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 			}
 		}
 		trap_R_SetColor(NULL);
+	}
+}
+
+void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts)
+{
+	polyVert_t mverts[4];
+
+	memcpy(mverts, verts, sizeof(mverts));
+	mverts[0].xyz[0] += uiInfo.uiDC.polyZ;
+	mverts[1].xyz[0] += uiInfo.uiDC.polyZ;
+	mverts[2].xyz[0] += uiInfo.uiDC.polyZ;
+	mverts[3].xyz[0] += uiInfo.uiDC.polyZ;
+	/*
+	verts[0].xyz[0] += uiInfo.uiDC.polyZ;
+	verts[1].xyz[0] += uiInfo.uiDC.polyZ;
+	verts[2].xyz[0] += uiInfo.uiDC.polyZ;
+	verts[3].xyz[0] += uiInfo.uiDC.polyZ;
+	*/
+
+	trap_R_AddPolyToScene(hShader, 4, mverts);
+	/*
+	verts[0].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[1].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[2].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[3].xyz[0] -= uiInfo.uiDC.polyZ;
+	*/
+	uiInfo.uiDC.polyZ += UI_POLY_Z_OFFSET;
+	uiInfo.uiDC.pendingPolys++;
+}
+
+void UI_DrawAngledPic(float x, float y, float w, float h, const float *u, const float *v, const float *color, float s, float t, float s2, float t2, qhandle_t hShader)
+{
+	polyVert_t verts[4];
+	//memset(verts, 0, sizeof(verts));
+	
+	verts[0].modulate[0]=verts[1].modulate[0]=verts[2].modulate[0]=verts[3].modulate[0]=((int)(color[0]*255))&255;
+	verts[0].modulate[1]=verts[1].modulate[1]=verts[2].modulate[1]=verts[3].modulate[1]=((int)(color[1]*255))&255;
+	verts[0].modulate[2]=verts[1].modulate[2]=verts[2].modulate[2]=verts[3].modulate[2]=((int)(color[2]*255))&255;
+	verts[0].modulate[3]=verts[1].modulate[3]=verts[2].modulate[3]=verts[3].modulate[3]=((int)(color[3]*255))&255;
+	verts[0].st[0]=s;
+	verts[0].st[1]=t;
+	verts[1].st[0]=s2;
+	verts[1].st[1]=t;
+	verts[2].st[0]=s2;
+	verts[2].st[1]=t2;
+	verts[3].st[0]=s;
+	verts[3].st[1]=t2;
+	/*
+	VectorSet(verts[0].xyz, 320, 320-x, 240-y);
+	VectorSet(verts[1].xyz, 320, 320-(x+u[0]*w), 240-(y+u[1]*w));
+	VectorSet(verts[2].xyz, 320, 320-(x+u[0]*w+v[0]*h), 240-(y+u[1]*w+v[1]*h));
+	VectorSet(verts[3].xyz, 320, 320-(x+v[0]*h), 240-(y+v[1]*h));
+	*/
+	VectorSet(verts[0].xyz, 320, 320-x, 240-y);
+	VectorSet(verts[1].xyz, 320, verts[0].xyz[1]-u[0]*w, verts[0].xyz[2]-u[1]*w);
+	VectorSet(verts[2].xyz, 320, verts[1].xyz[1]-v[0]*h, verts[1].xyz[2]-v[1]*h);
+	VectorSet(verts[3].xyz, 320, verts[0].xyz[1]-v[0]*h, verts[0].xyz[2]-v[1]*h);
+
+	//trap_R_AddPolyToScene(hShader, 4, verts);
+	//uiInfo.uiDC.polyZ += UI_POLY_Z_OFFSET;
+	//uiInfo.uiDC.pendingPolys++;
+
+	UI_AddQuadToScene(hShader, verts);
+	
+	//trap_R_RenderScene(&uiInfo.uiDC.scene2D);
+}
+
+//Makro - angled text
+void Text_PaintAngled(float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
+{
+	int len, count;
+	qboolean underlined = qfalse;
+	vec4_t newColor;
+	float useScale;
+	float p[2], *colorPtr;
+	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
+	glyphInfo_t *glyph, *uglyph = &font->glyphs[(int)'_']; //Makro - added for underlined chars;
+	
+	if (scale <= ui_smallFont.value) {
+		font = &uiInfo.uiDC.Assets.smallFont;
+	} else if (scale >= ui_bigFont.value) {
+		font = &uiInfo.uiDC.Assets.bigFont;
+	}
+	useScale = scale * font->glyphScale;
+	
+	if (text) {
+		// TTimo: FIXME         
+		//    const unsigned char *s = text; // bk001206 - unsigned
+		const char *s = text;	// bk001206 - unsigned
+		
+		//trap_R_SetColor(color);
+		colorPtr = color;
+		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
+		len = strlen(text);
+		if (limit > 0 && len > limit) {
+			len = limit;
+		}
+		count = 0;
+		while (s && *s && count < len) {
+			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			if (Q_IsColorString(s)) {
+				//Makro - new tricks
+				if (*(s+1) == '*')
+				{
+					memcpy(newColor, color, sizeof(newColor));
+					//trap_R_SetColor(newColor);
+					colorPtr = color;
+				} else if (*(s+1)== '_')
+				{
+					underlined ^= qtrue;
+				} else {
+					memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
+					newColor[3] = color[3];
+					//trap_R_SetColor(newColor);
+					colorPtr = newColor;
+				}
+				s += 2;
+				continue;
+			} else {
+				float yadj = useScale * glyph->top;
+				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+				{
+					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+					colorBlack[3] = newColor[3];
+					
+					Vector2Set(p, x, y);
+					Vector2MA(p, ofs, u, p);
+					Vector2MA(p, ofs-yadj, v, p);
+					
+					UI_DrawAngledPic(p[0], p[1],
+						glyph->imageWidth * useScale,
+						glyph->imageHeight * useScale,
+						u,v, colorBlack,
+						glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+					colorBlack[3] = 1.0;
+				}
+				Vector2Set(p, x, y);
+				Vector2MA(p, -yadj, v, p);
+				UI_DrawAngledPic(p[0], p[1],
+					glyph->imageWidth * useScale,
+					glyph->imageHeight * useScale,
+					u,v,colorPtr,
+					glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+				//Makro - added
+				if (underlined)
+				{
+					UI_DrawAngledPic(x, y, glyph->imageWidth * useScale, uglyph->imageHeight * useScale,
+						u, v, colorPtr, uglyph->s, uglyph->t, uglyph->s2, uglyph->t2, uglyph->glyph);
+				}
+				x += ((glyph->xSkip * useScale) + adjust) * u[0];
+				y += ((glyph->xSkip * useScale) + adjust) * u[1];
+				s++;
+				count++;
+			}
+		}
 	}
 }
 
@@ -946,6 +1159,10 @@ void UI_ShowPostGame(qboolean newHigh)
 	_UI_SetActiveMenu(UIMENU_POSTGAME);
 }
 
+
+//Makro - added
+int GMemory();
+
 /*
 =================
 _UI_Refresh
@@ -967,19 +1184,27 @@ void UI_DrawCenteredPic(qhandle_t image, int w, int h)
 	UI_DrawHandlePic(x, y, w, h, image);
 }
 
-int frameCount = 0;
-int startTime;
+//int frameCount = 0;
+//int startTime;
 
 #define	UI_FPS_FRAMES	4
 void _UI_Refresh(int realtime)
 {
 	static int index;
 	static int previousTimes[UI_FPS_FRAMES];
+	//Makro - smoother version
+	static int FPSCheckTime = 0, frameCount = 0;
 	int modelModCount;
+	//Makro - added
+	uiClientState_t cstate;
 
 	//if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
 	//      return;
 	//}
+
+	uiInfo.uiDC.pendingPolys = 0;
+	uiInfo.uiDC.polyZ = 0;
+	uiInfo.uiDC.scene2D.time = realtime;
 
 	uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realtime;
@@ -998,6 +1223,14 @@ void _UI_Refresh(int realtime)
 			total = 1;
 		}
 		uiInfo.uiDC.FPS = 1000 * UI_FPS_FRAMES / total;
+	}
+	frameCount++;
+	//Makro - smooth (and inaccurate) version
+	if (realtime > FPSCheckTime)
+	{
+		FPSCheckTime = realtime + 1000;
+		uiInfo.uiDC.smoothFPS = frameCount;
+		frameCount = 0;
 	}
 
 	modelModCount = ui_RQ3_model.modificationCount;
@@ -1023,14 +1256,89 @@ void _UI_Refresh(int realtime)
 		// refresh find player list
 		UI_BuildFindPlayerList(qfalse);
 	}
+	//Makro - let's play with the mouse a bit
+	if (ui_developer.integer)
+	{
+		if (uiInfo.uiDC.mouseDown[0] || uiInfo.uiDC.mouseDown[1] || uiInfo.uiDC.mouseDown[2])
+		{
+			int dif[2];
+			float angle, u[2], v[2], norm;
+			vec4_t linecolor = {0.8f, 0.8f, 0.8f, 0.75f};
+
+			dif[0] = uiInfo.uiDC.cursorx;
+			dif[1] = uiInfo.uiDC.cursory;
+			Vector2Subtract(dif, uiInfo.uiDC.mouseDownPos, dif);
+			norm = sqrt(Vector2Norm2(dif));
+			angle = -RAD2DEG(atan2(dif[1], dif[0]));
+			Text_Paint(20, 20, 0.225f, colorCyan, va("(%i, %i) - (%i,%i) = (%i, %i) = %.2f = %.3f deg",
+				uiInfo.uiDC.mouseDownPos[0], uiInfo.uiDC.mouseDownPos[1], uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory,
+				dif[0], dif[1], norm, angle), 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+			if (norm)
+			{
+				Vector2Scale(dif, 1.0f/norm, u);
+				//Vector2Set(v, cos(angle), sin(angle));
+				Vector2Set(v, -u[1], u[0]);
+				UI_DrawAngledPic(uiInfo.uiDC.mouseDownPos[0], uiInfo.uiDC.mouseDownPos[1], norm, 2, u, v, linecolor, 0, 0, norm/16, 1, uiInfo.uiDC.selectShader);
+			}
+			Text_Paint(uiInfo.uiDC.mouseDownPos[0]-4, uiInfo.uiDC.mouseDownPos[1]+6, 0.4f, colorYellow, "x", 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+		} else {
+			char *s;
+			menuDef_t *menu = Menu_GetFocused();
+			if (menu)
+			{
+				s = va("Abs = (%i, %i) Rel = (%.0f, %.0f)", uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory,
+					uiInfo.uiDC.cursorx - menu->window.rect.x, uiInfo.uiDC.cursory - menu->window.rect.y);
+			} else {
+				s = va("(%i, %i)", uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+			}
+			Text_Paint(20, 20, 0.225f, colorCyan, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+		}
+		Text_Paint(20, 40, 0.225f, colorCyan, va("%i fps", uiInfo.uiDC.smoothFPS), 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+	}
+	//any left-overs?
+	if (uiInfo.uiDC.pendingPolys)
+	{
+		UI_Render2DScene();
+	}
+
 	// draw cursor
 	UI_SetColor(NULL);
-	if (Menu_Count() > 0) {
+	trap_GetClientState(&cstate);
+	if (Menu_Count() > 0 && (cstate.connState != CA_LOADING)) {
+		float ccolor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		int size = uiInfo.uiDC.cursorSize;
 		if (!size)
 			size = 32;
-		UI_DrawHandlePic(uiInfo.uiDC.cursorx - size/2, uiInfo.uiDC.cursory - size/2, size, size, uiInfo.uiDC.Assets.cursor);
+		if (uiInfo.uiDC.mouseDown[0] || uiInfo.uiDC.mouseDown[1] || uiInfo.uiDC.mouseDown[2])
+		{
+			ccolor[0] = 1.00f;
+			ccolor[1] = 0.50f;
+			ccolor[2] = 0.25f;
+		}
+		UI_SetColor(ccolor);
+		UI_DrawHandlePic(uiInfo.uiDC.cursorx - (size>>1), uiInfo.uiDC.cursory - (size>>1), size, size, uiInfo.uiDC.Assets.cursor);
+		UI_SetColor(NULL);
 	}
+
+	//Makro - draw overlay
+	//is fading ?
+	if (IsBetween(realtime, uiInfo.uiDC.overlayFadeStart, uiInfo.uiDC.overlayFadeEnd)) {
+		float oColor[4];
+		float amt = (float) (realtime - uiInfo.uiDC.overlayFadeStart) / (uiInfo.uiDC.overlayFadeEnd - uiInfo.uiDC.overlayFadeStart);
+		LerpColor(uiInfo.uiDC.overlayColor, uiInfo.uiDC.overlayColor2, oColor, amt);
+		if (oColor[3] != 0.0f) {
+			UI_SetColor(oColor);
+			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+			UI_SetColor(NULL);
+		}
+	} else {
+		if (uiInfo.uiDC.overlayColor2[3] != 0.0f) {
+			UI_SetColor(uiInfo.uiDC.overlayColor2);
+			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+			UI_SetColor(NULL);
+		}
+	}
+
 #ifndef NDEBUG
 	if (uiInfo.uiDC.debug) {
 		// cursor coordinates
@@ -2439,6 +2747,25 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale, vec4_t color)
 	trap_R_SetColor(NULL);
 }
 
+//Makro - digital clock
+static void UI_DrawClock(itemDef_t *item, rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	int time = uiInfo.uiDC.realTime;
+	char *text;
+	qtime_t qt;
+
+
+	trap_RealTime(&qt);
+	text = va("%02i:%02i", qt.tm_hour, qt.tm_min);
+
+	if (!item->window.rectClient.hasVectors) {
+		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+	} else {
+		Text_PaintAngled(rect->x, rect->y,
+			item->window.rectClient.u, item->window.rectClient.v, scale, color, text, 0, 0, textStyle);
+	}
+}
+
 //Makro - for the SSG crosshair preview
 static void UI_DrawSSGCrosshair(rectDef_t * rect)
 {
@@ -2725,7 +3052,7 @@ void UI_SelectReplacement(void)
 void UI_BuildReplacementList(const char *type)
 {
 	int i, numfiles, filelen;
-	char filelist[2048], *fileptr;
+	char filelist[8192], *fileptr;
 	
 	if (!type || !*type)
 		return;
@@ -3101,49 +3428,6 @@ static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t colo
 }
 
 static void UI_DrawReplacementModel(rectDef_t *rect)
-/*
-{
-	refdef_t refdef;
-	refEntity_t model;
-	vec3_t mins, maxs, origin;
-	float x = rect->x, y = rect->y, w = rect->w, h = rect->h;
-	float len;
-
-	memset(&refdef, 0, sizeof(refdef));
-	memset(&model, 0, sizeof(model));
-
-	refdef.rdflags = RDF_NOWORLDMODEL;
-	AxisClear(refdef.viewaxis);
-
-	UI_AdjustFrom640(&x, &y, &w, &h);
-	
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
-
-	model.hModel = uiInfo.replacementModel;
-	model.customSkin = uiInfo.replacementSkin;
-	uiInfo.uiDC.modelBounds(model.hModel, mins, maxs);
-	len = 0.5 * (maxs[2] - mins[2]);
-	origin[0] = len / 0.268;
-	origin[2] = -0.5 * (mins[2] + maxs[2]);
-	origin[1] = 0.5 * (mins[1] + maxs[1]);
-	
-	refdef.fov_x = 90;
-	refdef.fov_y = 90;
-
-	trap_R_ClearScene();
-	
-	VectorCopy(origin, model.origin);
-	VectorCopy(origin, model.lightingOrigin);
-	model.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
-	VectorCopy(model.origin, model.oldorigin);
-
-	trap_R_AddRefEntityToScene(&model);
-	trap_R_RenderScene(&refdef);
-}
-*/
 {
 	float x, y, w, h;
 	refdef_t refdef;
@@ -3229,16 +3513,31 @@ static void UI_DrawReplacementModel(rectDef_t *rect)
 
 // FIXME: table drive
 //
-static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
+//Makro - going to... eventually
+static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
 			 int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader,
 			 int textStyle)
 {
 	rectDef_t rect;
 
-	rect.x = x + text_x;
-	rect.y = y + text_y;
 	rect.w = w;
 	rect.h = h;
+	if (item->window.rectClient.hasVectors)
+	{
+		float p[2];
+
+		p[0] = x;
+		p[1] = y;
+		Vector2Copy(item->window.rectClient.u, rect.u);
+		Vector2Copy(item->window.rectClient.v, rect.v);
+		Vector2MA(p, text_x, rect.u, p);
+		Vector2MA(p, text_y, rect.v, p);
+		rect.x = p[0];
+		rect.y = p[1];
+	} else {
+		rect.x = x + text_x;
+		rect.y = y + text_y;
+	}
 
 	switch (ownerDraw) {
 	case UI_HANDICAP:
@@ -3381,6 +3680,9 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	//Makro - adding SSG crosshair
 	case UI_SSG_CROSSHAIR:
 		UI_DrawSSGCrosshair(&rect);
+		break;
+	case UI_CLOCK:
+		UI_DrawClock(item, &rect, scale, color, textStyle);
 		break;
 	//Makro - radio presets
 	case UI_RQ3_RADIOPRESET1:
@@ -5775,7 +6077,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.2 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.3 *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {
@@ -7235,6 +7537,37 @@ void UI_RQ3_StartBackgroundTrack(const char *intro, const char *loop)
 	}
 }
 
+void UI_Render2DScene()
+{
+	trap_R_RenderScene(&uiInfo.uiDC.scene2D);
+	uiInfo.uiDC.pendingPolys = 0;
+}
+
+void UI_ClearScene()
+{
+	if (uiInfo.uiDC.pendingPolys)
+	{
+		UI_Render2DScene();
+	}
+	trap_R_ClearScene();
+}
+
+void UI_RenderScene(const refdef_t *ref)
+{
+	trap_R_RenderScene(ref);
+	trap_R_ClearScene();
+}
+
+void UI_DrawPolyStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader)
+{
+	if (uiInfo.uiDC.pendingPolys)
+	{
+		UI_Render2DScene();
+	}
+	trap_R_DrawStretchPic(x, y, w, h, s1, t1, s2, t2, hShader);
+}
+
+
 /*
 =================
 UI_Init
@@ -7253,8 +7586,15 @@ void _UI_Init(qboolean inGameLoad)
 	UI_RegisterCvars();
 	UI_InitMemory();
 
+	
 	// cache redundant calulations
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
+
+	if (ui_maxpolys.integer < 4096)
+	{
+		trap_Cvar_SetValue("r_maxpolys", 4096);
+		trap_Cmd_ExecuteText(EXEC_INSERT, "vid_restart");
+	}
 
 	// for 640x480 virtualized screen
 	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
@@ -7268,12 +7608,28 @@ void _UI_Init(qboolean inGameLoad)
 		uiInfo.uiDC.bias = 0;
 	}
 
+	memset(&uiInfo.uiDC.scene2D, 0, sizeof(&uiInfo.uiDC.scene2D));
+	uiInfo.uiDC.scene2D.x = 0;
+	uiInfo.uiDC.scene2D.y = 0;
+	uiInfo.uiDC.scene2D.width = 640 * uiInfo.uiDC.xscale;
+	uiInfo.uiDC.scene2D.height = 480 * uiInfo.uiDC.yscale ;
+	uiInfo.uiDC.scene2D.fov_x = 90;
+	uiInfo.uiDC.scene2D.fov_y = 73.739795291688f;
+	uiInfo.uiDC.scene2D.rdflags = RDF_NOWORLDMODEL;
+	AxisClear(uiInfo.uiDC.scene2D.viewaxis);
+
+	
 	//UI_Load();
 	uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
 	uiInfo.uiDC.setColor = &UI_SetColor;
 	uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
-	uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
+	//uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
+	uiInfo.uiDC.drawStretchPic = &UI_DrawPolyStretchPic;
+	//Makro - angled pictures
+	uiInfo.uiDC.drawAngledPic = &UI_DrawAngledPic;
 	uiInfo.uiDC.drawText = &Text_Paint;
+	//Makro - angled text
+	uiInfo.uiDC.drawAngledText = &Text_PaintAngled;
 	uiInfo.uiDC.textWidth = &Text_Width;
 	uiInfo.uiDC.textHeight = &Text_Height;
 	uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
@@ -7282,10 +7638,14 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.uiDC.drawRect = &_UI_DrawRect;
 	uiInfo.uiDC.drawSides = &_UI_DrawSides;
 	uiInfo.uiDC.drawTopBottom = &_UI_DrawTopBottom;
-	uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-	uiInfo.uiDC.drawSides = &_UI_DrawSides;
+	//Makro - angled rectangles
+	uiInfo.uiDC.drawAngledRect = &_UI_DrawAngledRect;
+	//Makro - changed
+	//uiInfo.uiDC.clearScene = &trap_R_ClearScene;
+	uiInfo.uiDC.clearScene = &UI_ClearScene;
 	uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-	uiInfo.uiDC.renderScene = &trap_R_RenderScene;
+	//uiInfo.uiDC.renderScene = &trap_R_RenderScene;
+	uiInfo.uiDC.renderScene = &UI_RenderScene;
 	uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
 	uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
 	uiInfo.uiDC.getValue = &UI_GetValue;
@@ -7329,6 +7689,8 @@ void _UI_Init(qboolean inGameLoad)
 
 	uiInfo.uiDC.cursor = trap_R_RegisterShaderNoMip("menu/art/3_cursor2");
 	uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip("white");
+	//Makro - added; almost useless
+	uiInfo.uiDC.selectShader = trap_R_RegisterShaderNoMip("selectshader");
 
 	AssetCache();
 
@@ -7406,6 +7768,9 @@ void _UI_Init(qboolean inGameLoad)
 	trap_Cvar_Register(NULL, "debug_protocol", "", 0);
 
 	trap_Cvar_Set("ui_actualNetGameType", va("%d", ui_netGameType.integer));
+
+	uiInfo.uiDC.cursorx = 320;
+	uiInfo.uiDC.cursory = 240;
 }
 
 /*
@@ -7415,6 +7780,18 @@ UI_KeyEvent
 */
 void _UI_KeyEvent(int key, qboolean down)
 {
+	//Makro - for the cursor
+	if (key == K_MOUSE1)
+	{
+		uiInfo.uiDC.mouseDown[0] = down;
+		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+	} else if (key == K_MOUSE2) {
+		uiInfo.uiDC.mouseDown[1] = down;
+		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+	} else if (key == K_MOUSE3) {
+		uiInfo.uiDC.mouseDown[2] = down;
+		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+	}
 
 	if (Menu_Count() > 0) {
 		menuDef_t *menu = Menu_GetFocused();
@@ -7461,7 +7838,6 @@ void _UI_MouseEvent(int dx, int dy)
 		//Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
-
 }
 
 void UI_LoadNonIngame()
@@ -8010,6 +8386,8 @@ vmCvar_t ui_RQ3_joinAddress;
 vmCvar_t ui_RQ3_joinPort;
 //Makro - demo name
 vmCvar_t ui_RQ3_demoName;
+//Makro - maxpolys hack
+vmCvar_t ui_maxpolys;
 //Makro - matchmode settings
 vmCvar_t ui_RQ3_timelimit;
 vmCvar_t ui_RQ3_roundlimit;
@@ -8119,7 +8497,9 @@ static cvarTable_t cvarTable[] = {
 	{&ui_server16, "server16", "", CVAR_ARCHIVE},
 	{&ui_cdkeychecked, "ui_cdkeychecked", "0", CVAR_ROM},
 	{&ui_new, "ui_new", "0", CVAR_TEMP},
-	{&ui_debug, "ui_debug", "0", CVAR_TEMP},
+	//Makro - renamed to ui_developer
+	//{&ui_debug, "ui_debug", "0", CVAR_TEMP},
+	{&ui_developer, "ui_developer", "0", CVAR_TEMP},
 	{&ui_initialized, "ui_initialized", "0", CVAR_TEMP},
 	{&ui_teamName, "ui_teamName", "Pagans", CVAR_ARCHIVE},
 	{&ui_opponentName, "ui_opponentName", "Stroggs", CVAR_ARCHIVE},
@@ -8199,6 +8579,8 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_joinPort, "ui_RQ3_joinPort", "27960", CVAR_ARCHIVE},
 	//Makro - demo name
 	{&ui_RQ3_demoName, "ui_RQ3_demoName", "", 0},
+	//Makro - maxpolys hack
+	{&ui_maxpolys, "r_maxpolys", "4096", CVAR_ARCHIVE},
 	//Makro - matchmode settings
 	{&ui_RQ3_timelimit,			"ui_RQ3_timelimit", "0", 0},
 	{&ui_RQ3_roundlimit,		"ui_RQ3_roundlimit", "0", 0},
@@ -8266,7 +8648,6 @@ void UI_RegisterCvars(void)
 		trap_Cvar_Register(cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags);
 	}
 }
-
 /*
 =================
 UI_UpdateCvars
@@ -8427,3 +8808,4 @@ static void UI_StartServerRefresh(qboolean full)
 		}
 	}
 }
+

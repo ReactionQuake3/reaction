@@ -191,7 +191,7 @@
 
 //Pre-defined settings
 
-       itemdef {
+    itemdef {
 	name opt_predef
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -227,7 +227,7 @@
 
 //Driver
 
-       itemdef {
+    itemdef {
 	name opt_gldriver
 	group graphics
 	type ITEM_TYPE_EDITFIELD
@@ -261,7 +261,7 @@
 
 //GL Extensions
 
-       itemdef {
+    itemdef {
 	name opt_glext
 	group graphics
 	type ITEM_TYPE_YESNO
@@ -296,7 +296,7 @@
 
 //Resolution
 
-       itemdef {
+    itemdef {
 	name opt_res
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -332,7 +332,7 @@
 
 //Color depth
 
-       itemdef {
+    itemdef {
 	name opt_cldepth
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -368,7 +368,7 @@
 
 //Fullscreen
 
-       itemdef {
+    itemdef {
 	name opt_fscreen
 	group graphics
 	type ITEM_TYPE_YESNO
@@ -403,7 +403,7 @@
 
 //Lightmap/vertex
 
-       itemdef {
+    itemdef {
 	name opt_light
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -439,7 +439,7 @@
 
 //Geometric detail
 
-       itemdef {
+    itemdef {
 	name opt_geodetail
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -475,7 +475,7 @@
 
 //Texture detail
 
-       itemdef {
+    itemdef {
 	name opt_texdetail
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -511,7 +511,7 @@
 
 //Texture quality
 
-       itemdef {
+    itemdef {
 	name opt_texquality
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -547,7 +547,7 @@
 
 //Texture filtering mode
 
-       itemdef {
+    itemdef {
 	name opt_texfilter
 	group graphics
 	type ITEM_TYPE_MULTI
@@ -583,7 +583,7 @@
 
 //Compressed textures
 
-       itemdef {
+    itemdef {
 	name opt_comptex
 	group graphics
 	type ITEM_TYPE_YESNO
@@ -789,9 +789,10 @@
 
 //Brightness
 
-       itemdef {
+    itemdef {
 	name opt_gamma
 	type ITEM_TYPE_SLIDER
+	anglevectors 30 -60
 	text "Brightness:"
 	cvarfloat r_gamma 1 .5 1.7
 	rect 472 100 112 20
@@ -822,7 +823,7 @@
 
 //Screen size
 
-       itemdef {
+    itemdef {
 	name opt_screensize
 	type ITEM_TYPE_SLIDER
 	text "Screen Size:"
@@ -855,7 +856,7 @@
 
 //Overbrightbits
 
-       itemdef {
+    itemdef {
 	name opt_overbits
 	type ITEM_TYPE_YESNO
 	text "Overbright Bits:"
@@ -934,7 +935,7 @@
 
 //Sound volume
 
-       itemdef {
+    itemdef {
 	name opt_svol
 	type ITEM_TYPE_SLIDER
 	text "Sound Volume:"
@@ -967,7 +968,7 @@
 
 //Music volume
 
-       itemdef {
+    itemdef {
 	name opt_mvol
 	type ITEM_TYPE_SLIDER
 	text "Music volume:"
@@ -1000,7 +1001,7 @@
 
 //Sound quality
 
-       itemdef {
+    itemdef {
 	name opt_squality
 	type ITEM_TYPE_MULTI
 	text "Sound Quality:"
@@ -1034,7 +1035,7 @@
 
 //Doppler effect
 
-       itemdef {
+    itemdef {
 	name opt_doppler
 	type ITEM_TYPE_YESNO
 	text "Doppler Sound:"
@@ -1113,7 +1114,7 @@
 
 //Net rate
 
-       itemdef {
+    itemdef {
 	name opt_netrate
 	type ITEM_TYPE_MULTI
 	text "Net Data Rate:"

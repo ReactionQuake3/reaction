@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.47  2004/03/09 01:05:21  makro
 // Flares
 //
@@ -1114,7 +1117,7 @@ void CG_AddLensFlare(qboolean sun)
 			ent.customShader = cgs.media.sunFlareShader;
 			//this function wouldn't be complete without some funny math
 			//this makes the sprite as big as the mapper wanted it to be
-			ent.radius = cgs.sunFlareSize * tr.fraction * 24.724346f;
+			ent.radius = cgs.sunFlareSize * tr.fraction * 25.6f;
 			ent.renderfx = RF_DEPTHHACK;
 			ent.shaderRGBA[0] = cgs.flareFadeFactor * cgs.sunAlpha * 255;
 			ent.shaderRGBA[1] = ent.shaderRGBA[0];
@@ -1130,6 +1133,7 @@ void CG_AddLensFlare(qboolean sun)
 		{
 			float len = 0, color[4];
 			float size, hsize;
+			float ffov = cos(cg.refdef.fov_y/4);
 			int i;
 			
 			VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
@@ -1149,10 +1153,11 @@ void CG_AddLensFlare(qboolean sun)
 				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
 					cgs.media.flareShader[cg.flareShaderNum[i]]);
 			}
-			if (cgs.flareForwardFactor > 0)
+			if (cgs.flareForwardFactor > ffov)
 			{
 				color[0] = color[1] = color[2] = 1.0f;
-				color[3] = cgs.sunAlpha * cgs.flareForwardFactor * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
+				//color[3] = cgs.sunAlpha * cgs.flareForwardFactor * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
+				color[3] = (cgs.flareForwardFactor - ffov) / (1 - ffov) * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
 				//Makro - too expensive
 				//color[3] = cgs.sunAlpha * cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
 				CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
@@ -1350,7 +1355,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		}
 	}
 	//Makro - like cl_avidemo, just that it uses JPEG's
-	aviDemoFPS = atof(cg_RQ3_avidemo.string);
+	aviDemoFPS = cg_RQ3_avidemo.value;
 	if (aviDemoFPS > 0) {
 		//if it's time to take a screenshot
 		if (cg.time > cg.screenshotTime + (int) (1000.0f / aviDemoFPS)) {

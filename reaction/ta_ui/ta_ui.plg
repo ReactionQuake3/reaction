@@ -3,12 +3,12 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: ui - Win32 Release TA--------------------
+--------------------Configuration: ui - Win32 Debug TA--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BD.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP17B.tmp" with contents
 [
-/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /FR"D:\Work\rq3source\reaction\Release/" /Fp"D:\Work\rq3source\reaction\Release/ta_ui.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /c 
+/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /Fp"D:\Work\rq3source\reaction\Release/ta_ui.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /GZ /c 
 "D:\Work\rq3source\reaction\game\bg_misc.c"
 "D:\Work\rq3source\reaction\game\q_math.c"
 "D:\Work\rq3source\reaction\game\q_shared.c"
@@ -20,10 +20,10 @@ Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BD.tmp" with conte
 "D:\Work\rq3source\reaction\ta_ui\ui_syscalls.c"
 "D:\Work\rq3source\reaction\ta_ui\ui_util.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BD.tmp" 
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BE.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP17B.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP17C.tmp" with contents
 [
-/nologo /base:"0x40000000" /dll /incremental:no /pdb:"D:\Work\rq3source\reaction\Release/uix86.pdb" /map:"D:\Work\rq3source\reaction\Release/uix86.map" /machine:I386 /def:".\ui.def" /out:"D:\Work\rq3source\reaction\Release\uix86.dll" /implib:"D:\Work\rq3source\reaction\Release/uix86.lib" 
+/nologo /base:"0x40000000" /dll /incremental:yes /pdb:"../Debug/ui.pdb" /map:"D:\Work\rq3source\reaction\Release/uix86.map" /debug /machine:I386 /def:".\ui.def" /out:"D:\Work\rq3source\reaction\Release\uix86.dll" /implib:"D:\Work\rq3source\reaction\Release/uix86.lib" /pdbtype:sept 
 \Work\rq3source\reaction\Release\bg_misc.obj
 \Work\rq3source\reaction\Release\q_math.obj
 \Work\rq3source\reaction\Release\q_shared.obj
@@ -35,11 +35,12 @@ Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BE.tmp" with conte
 \Work\rq3source\reaction\Release\ui_syscalls.obj
 \Work\rq3source\reaction\Release\ui_util.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BE.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP17C.tmp"
 <h3>Output Window</h3>
 Compiling...
 bg_misc.c
 q_math.c
+d:\work\rq3source\reaction\game\q_math.c(1885) : warning C4101: 'result' : unreferenced local variable
 q_shared.c
 ui_atoms.c
 ui_gameinfo.c
@@ -50,27 +51,11 @@ ui_syscalls.c
 ui_util.c
 Linking...
    Creating library D:\Work\rq3source\reaction\Release/uix86.lib and object D:\Work\rq3source\reaction\Release/uix86.exp
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4C2.tmp" with contents
-[
-/nologo /o"D:\Work\rq3source\reaction\Release/ta_ui.bsc" 
-\Work\rq3source\reaction\Release\bg_misc.sbr
-\Work\rq3source\reaction\Release\q_math.sbr
-\Work\rq3source\reaction\Release\q_shared.sbr
-\Work\rq3source\reaction\Release\ui_atoms.sbr
-\Work\rq3source\reaction\Release\ui_gameinfo.sbr
-\Work\rq3source\reaction\Release\ui_main.sbr
-\Work\rq3source\reaction\Release\ui_players.sbr
-\Work\rq3source\reaction\Release\ui_shared.sbr
-\Work\rq3source\reaction\Release\ui_syscalls.sbr
-\Work\rq3source\reaction\Release\ui_util.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4C2.tmp"
-Creating browse info file...
-<h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-uix86.dll - 0 error(s), 0 warning(s)
+uix86.dll - 0 error(s), 1 warning(s)
 </pre>
 </body>
 </html>

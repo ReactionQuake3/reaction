@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.94  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.93  2003/03/09 19:47:48  niceass
 // Support for torso pistol animations
 //
@@ -1005,11 +1008,13 @@ static void PM_NoclipMove(void)
 PM_FootstepForSurface
 
 Returns an event number apropriate for the groundsurface
+Makro - changed prototype so that we can use it for other surfaces, too
+(ladder footsteps)
 ================
 */
-static int PM_FootstepForSurface(void)
+static int PM_FootstepForSurface(int surfaceFlags)
 {
-	int Material = GetMaterialFromFlag(pml.groundTrace.surfaceFlags);
+	int Material = GetMaterialFromFlag(surfaceFlags);
 
 	if (pml.groundTrace.surfaceFlags & SURF_NOSTEPS) {
 		return 0;
@@ -1152,7 +1157,7 @@ static void PM_CrashLand(void)
 
 				pm->ps->stats[STAT_FALLDAMAGE] = damage;
 			} else {
-				PM_AddEvent(PM_FootstepForSurface());
+				PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 				//Elder: added? useful?
 				pm->ps->stats[STAT_FALLDAMAGE] = 0;
 			}
@@ -1171,8 +1176,9 @@ static void PM_CrashLand(void)
 		// JBravo: new multiple itemcode
 	} else if (!(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
 		// Elder: don't spam sound events going up -- more like Q2 ladders as well
-		if (!pml.ladder || pm->ps->velocity[2] < 0)
-			PM_AddEvent(PM_FootstepForSurface());
+		//Makro - ladder footsteps are handled in PM_LadderMove, chaging || to &&
+		if (!pml.ladder && pm->ps->velocity[2] < 0)
+			PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 		//Elder: added? useful?
 		pm->ps->stats[STAT_FALLDAMAGE] = 0;
 	}
@@ -1563,7 +1569,7 @@ static void PM_Footsteps(void)
 			if ((footstep && !pm->noFootsteps)
 			// JBravo: new multiple itemcode
 			    && !(pm->ps->stats[STAT_HOLDABLE_ITEM] & (1 << HI_SLIPPERS))) {
-				PM_AddEvent(PM_FootstepForSurface());
+				PM_AddEvent(PM_FootstepForSurface(pml.groundTrace.surfaceFlags));
 			}
 		} else if (pm->waterlevel == 1) {
 			// splashing
@@ -2675,7 +2681,7 @@ Ladders with angles on them (urban2 for AQ2) haven't been tested.
 */
 static void PM_LadderMove(void)
 {
-	int i;
+	int i, old;
 	vec3_t wishvel;
 	float wishspeed;
 	vec3_t wishdir;
@@ -2786,7 +2792,23 @@ static void PM_LadderMove(void)
 
 	PM_StepSlideMove(qfalse);	// move without gravity
 	// Elder: stop legs from animating
-	PM_ForceLegsAnim(LEGS_JUMP);
+	//PM_ForceLegsAnim(LEGS_JUMP);
+	//Makro - changed to LEGS_IDLE
+	PM_ForceLegsAnim(LEGS_IDLE);
+
+	
+	//Makro - play footstep sound
+	if (pm->ps->velocity[2]) {
+		old = pm->ps->bobCycle;
+		//the faster we move, the more frequent the footsteps
+		pm->ps->bobCycle = (int) (old + 0.45 * fabs(pm->ps->velocity[2]) / 225.0f * pml.msec) & 255;
+		// if we just crossed a cycle boundary, play an apropriate footstep event
+		if (((old + 64) ^ (pm->ps->bobCycle + 64)) & 128) {
+			PM_AddEvent(PM_FootstepForSurface(pml.ladderSurface));
+		}
+	} else {
+		pm->ps->bobCycle = 0;
+	}
 }
 
 /*
@@ -2809,6 +2831,9 @@ void CheckLadder(void)
 
 	VectorMA(pm->ps->origin, 1, flatforward, spot);
 	pm->trace(&trace, pm->ps->origin, pm->mins, pm->maxs, spot, pm->ps->clientNum, MASK_PLAYERSOLID);
+
+	//Makro - save the surface flags so we can play the appropriate sound
+	pml.ladderSurface = trace.surfaceFlags;
 
 	if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
 		pml.ladder = qtrue;
@@ -3012,7 +3037,9 @@ void PmoveSingle(pmove_t * pmove)
 	PM_TorsoAnimation();
 
 	// footstep events / legs animations
-	PM_Footsteps();
+	//Makro - ladder footsteps already handled in PM_LadderMove
+	if (!pml.ladder)
+		PM_Footsteps();
 
 	// entering / leaving water splashes
 	// JBravo: only if you are alive

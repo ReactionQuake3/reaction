@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.11  2003/03/31 00:23:18  makro
 // Replacements and stuff
 //
@@ -247,6 +250,9 @@
 #define CG_1STPLACE 67
 #define CG_2NDPLACE 68
 #define CG_CAPTURES 69
+
+//Makro - clock
+#define UI_CLOCK		149
 
 //Makro - for SSG crosshair selection
 #define UI_SSG_CROSSHAIR 150

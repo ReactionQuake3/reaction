@@ -54,7 +54,8 @@
     itemdef {
 	name "ig-bot-name"
 	style WINDOW_STYLE_EMPTY
-	text "Name:"
+	text "^_N^_ame:"
+	shortcutKey "N"
 	ownerdraw UI_BOTNAME
 	rect 0 32 128 20
 	textalign ITEM_ALIGN_RIGHT
@@ -70,7 +71,8 @@
     itemdef {
 	name "ig-bot-team"
 	style WINDOW_STYLE_EMPTY
-	text "Team:"
+	text "^_T^_eam:"
+	shortcutKey "T"
 	ownerdraw UI_REDBLUE
 	rect 0 52 128 20
 	textalign ITEM_ALIGN_RIGHT
@@ -88,7 +90,8 @@
     itemdef {
 	name "ig-bot-skill"
 	style WINDOW_STYLE_EMPTY
-	text "Skill:"
+	text "^_S^_kill:"
+	shortcutKey "S"
 	ownerdraw UI_BOTSKILL
 	rect 0 72 128 20
 	textalign ITEM_ALIGN_RIGHT
@@ -111,7 +114,7 @@
 	textalign ITEM_ALIGN_CENTER
 	textalignx 32
 	textaligny 14
-	text "Ok"
+	text "^_O^_k"
 	shortcutKey "O"
 	border 1
 	bordersize 1
@@ -120,7 +123,6 @@
 	bordercolor Ig_Sub_BorderColor1
 	visible 1
 	action { play "sound/misc/menu1.wav" ; uiScript addBot ; uiScript closeingame }
-	//action { exec "screenshotJPEG" }
 	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
 	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
     }

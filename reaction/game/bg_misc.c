@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.55  2003/07/30 16:05:46  makro
 // no message
 //
@@ -1580,62 +1583,20 @@ int MatFlags[] = {
 	SURF_HARDMETAL
 };
 
-#define MatFlagCount			5
+#define MAT_FLAG_COUNT			5
 
 int GetMaterialFromFlag(int flag)
 {
 	int Material = 0;
 	int i = 0;
 
-	for (i = 0; i < MatFlagCount; i++) {
+	for (i = 0; i < MAT_FLAG_COUNT; i++) {
 		if ((flag & MatFlags[i])) {
 			Material += (1 << i);
 		}
 	}
 
 	return Material;
-}
-
-//metal
-qboolean IsMetalMat(int Material)
-{
-	if (Material == MAT_METALSTEPS || Material == MAT_METAL2 || Material == MAT_HARDMETAL) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean IsMetalFlag(int flag)
-{
-	return IsMetalMat(GetMaterialFromFlag(flag));
-}
-
-//wood
-qboolean IsWoodMat(int Material)
-{
-	if (Material == MAT_WOOD || Material == MAT_WOOD2) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean IsWoodFlag(int flag)
-{
-	return IsWoodMat(GetMaterialFromFlag(flag));
-}
-
-//snow
-qboolean IsSnowMat(int Material)
-{
-	if (Material == MAT_SNOW || Material == MAT_SNOW2) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean IsSnowFlag(int flag)
-{
-	return IsSnowMat(GetMaterialFromFlag(flag));
 }
 
 //Makro - added
@@ -1673,7 +1634,7 @@ char *modelFromStr(char *s)
 
 	if (!s)
 		return NULL;
-	strncpy(buffer, s, 128);
+	strncpy(buffer, s, sizeof(buffer));
 	if ((p = Q_strrchr(buffer, '/')) != NULL)
 		*p = '\0';
 	return buffer;
@@ -1684,7 +1645,7 @@ char *skinFromStr(char *s)
 	static char buffer[128];
 	char *p;
 
-	memset(buffer, 0, 128); 
+	memset(buffer, 0, sizeof(buffer)); 
 	if (!s)
 		return NULL;
 	if (!*s)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.19  2003/04/06 21:46:56  makro
 // no message
 //
@@ -76,8 +79,9 @@
 #define MAX_MENUDEFFILE 4096
 #define MAX_MENUFILE 32768
 #define MAX_MENUS 64
-//Makro - changed max item count from 96
-#define MAX_MENUITEMS 100
+//Makro - changed max item count from 96 to 100
+//Makro - changed to 192
+#define MAX_MENUITEMS 192
 #define MAX_COLOR_RANGES 10
 #define MAX_OPEN_MENUS 16
 
@@ -105,6 +109,9 @@
 #define WINDOW_POPUP					0x00200000	// popup
 #define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set
 #define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
+//Makro - ugliest hack ever... by far
+#define WINDOW_RENDERPOINT		0x01000000
+
 
 // CGAME cursor type bits
 #define CURSOR_NONE					0x00000001
@@ -160,9 +167,18 @@ typedef struct {
 	float y;		// vert position
 	float w;		// width
 	float h;		// height;
+	qboolean hasVectors;
+	float u[2], v[2];
 } rectDef_t;
 
 typedef rectDef_t Rectangle;
+
+//Makro - point
+typedef struct {
+	float x;
+	float y;
+} pointDef_t;
+typedef pointDef_t Point;
 
 //Makro - for the new fading method
 typedef struct {
@@ -173,6 +189,11 @@ typedef struct {
 	int startTime, endTime;
 } timeFade_t;
 
+#define MAX_SHORTCUT_KEYS 8
+
+//-----------------------------------------------
+
+
 // FIXME: do something to separate text vs window stuff
 typedef struct {
 	Rectangle rect;		// client coord rectangle
@@ -180,7 +201,7 @@ typedef struct {
 	const char *name;	//
 	//Makro - adding support for shortcut keys
 	//const char *shortcutKey;
-	int shortcutKey;
+	int shortcutKey[MAX_SHORTCUT_KEYS];
 	//Makro - drop shadow effect
 	int shadowStyle;
 	const char *group;	// if it belongs to a group
@@ -204,7 +225,7 @@ typedef struct {
 	vec4_t backColor;	// border color
 	vec4_t borderColor;	// border color
 	vec4_t outlineColor;	// border color
-	qhandle_t background;	// background asset  
+	qhandle_t background;	// background asset
 } windowDef_t;
 
 typedef windowDef_t Window;
@@ -305,8 +326,8 @@ typedef struct itemDef_s {
 	const char *action;	// select script
 	const char *onFocus;	// select script
 	const char *leaveFocus;	// select script
-	//Makro - extra action executed when the timer shows this item
-	const char *onTimer;
+	//Makro - action executed when the timer shows/hides this item
+	const char *onTimerShow, *onTimerHide;
 	const char *cvar;	// associated cvar 
 	const char *cvarTest;	// associated cvar for enable actions
 	const char *enableCvar;	// enable, disable, show, or hide based on value, this can contain a list
@@ -316,7 +337,8 @@ typedef struct itemDef_s {
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];
 	float special;		// used for feeder id's etc.. diff per type
 	int cursorPos;		// cursor position in characters
-	void *typeData;		// type specific data ptr's    
+	void *typeData;		// type specific data ptr's
+	//Makro - color to fade when 
 } itemDef_t;
 
 typedef struct {
@@ -334,6 +356,8 @@ typedef struct {
 	const char *onESC;	// run when the menu is closed
 //Makro - executed when all the items in a timed sequence have been shown
 	const char *onFinishTimer;
+//Makro - extra action to be executed on shown/hidden timer items
+	const char *onTimerShow, *onTimerHide;
 //Makro - executed when the menu is shown
 	const char *onShow;
 	const char *onFirstShow;
@@ -349,7 +373,7 @@ typedef struct {
 
 	//Makro - timer is on/off
 	qboolean timerEnabled;
-	int nextTimer, timerInterval, timedItems, timerPos;
+	int nextTimer, timerInterval, timedItems, timerPos, timerMaxDisplay;
 } menuDef_t;
 
 typedef struct {
@@ -402,13 +426,28 @@ typedef struct {
 	void (*handler) (itemDef_t * item, char **args);
 } commandDef_t;
 
+
+//Makro - added for packing bits
+#define GETBIT(intvec, pos)			( ( ((intvec)[(pos)>>5]) & (1<<((pos) & 31)) ) != 0 )
+#define SETBIT(intvec, pos, bit)	if (bit)\
+										(intvec)[(pos)>>5] |= (1 << ((pos) & 31));\
+									else\
+										(intvec)[(pos)>>5] &= ~(1 << ((pos) & 31))\
+										
+
 typedef struct {
 	qhandle_t(*registerShaderNoMip) (const char *p);
 	void (*setColor) (const vec4_t v);
 	void (*drawHandlePic) (float x, float y, float w, float h, qhandle_t asset);
 	void (*drawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2,
 				qhandle_t hShader);
+	//Makro - angled pictures
+	void (*drawAngledPic) (float x, float y, float w, float h, const float *u, const float *v, const float *color, float s1, float t1, float s2, float t2,
+				qhandle_t hShader);
 	void (*drawText) (float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit,
+			  int style);
+	//Makro - angled text
+	void (*drawAngledText) (float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, float adjust, int limit,
 			  int style);
 	int (*textWidth) (const char *text, float scale, int limit);
 	int (*textHeight) (const char *text, float scale, int limit);
@@ -417,12 +456,14 @@ typedef struct {
 	void (*fillRect) (float x, float y, float w, float h, const vec4_t color);
 	void (*drawRect) (float x, float y, float w, float h, float size, const vec4_t color);
 	void (*drawSides) (float x, float y, float w, float h, float size);
+	void (*drawAngledRect) (float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type);
 	void (*drawTopBottom) (float x, float y, float w, float h, float size);
 	void (*clearScene) ();
 	void (*addRefEntityToScene) (const refEntity_t * re);
 	void (*renderScene) (const refdef_t * fd);
 	void (*registerFont) (const char *pFontname, int pointSize, fontInfo_t * font);
-	void (*ownerDrawItem) (float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
+	//Makro - aded item
+	void (*ownerDrawItem) (itemDef_t *item, float x, float y, float w, float h, float text_x, float text_y, int ownerDraw,
 			       int ownerDrawFlags, int align, float special, float scale, vec4_t color,
 			       qhandle_t shader, int textStyle);
 	float (*getValue) (int ownerDraw);
@@ -467,6 +508,9 @@ typedef struct {
 	int cursory;
 	//Makro - added cursor size
 	int cursorSize;
+	//Makro - mouse down
+	qboolean mouseDown[3];
+	int mouseDownPos[2];
 	qboolean debug;
 
 	cachedAssets_t Assets;
@@ -475,8 +519,21 @@ typedef struct {
 	qhandle_t whiteShader;
 	qhandle_t gradientImage;
 	qhandle_t cursor;
+	//Makro - added; almost useless
+	qhandle_t selectShader;
 	float FPS;
-
+	//Makro - added
+	int smoothFPS;
+	//Makro - vector items speed hack
+	int pendingPolys;
+	//and a z-order hack
+	float polyZ;
+	refdef_t scene2D;
+	//Makro - fade in/out
+	float overlayColor[4], overlayColor2[4];
+	int overlayFadeStart, overlayFadeEnd;
+	//Makro - keep track of key presses
+	int keysStatus[1024/(8*sizeof(int))];
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);
@@ -544,5 +601,16 @@ int trap_PC_LoadSource(const char *filename);
 int trap_PC_FreeSource(int handle);
 int trap_PC_ReadToken(int handle, pc_token_t * pc_token);
 int trap_PC_SourceFileAndLine(int handle, char *filename, int *line);
+
+//Makro - new rendering stuff
+void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts);
+void UI_Render2DScene();
+#define UI_POLY_Z_OFFSET -0.00001f
+//Makro - for all the lazy people
+#define IsBetween(a, min, max) ( (a) >= (min) && (a) <= (max) )
+
+#define RECT_SIDES		1
+#define RECT_TOPBOTTOM	2
+#define RECT_FULL		3
 
 #endif

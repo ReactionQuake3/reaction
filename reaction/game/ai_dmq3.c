@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.55  2003/03/09 21:30:38  jbravo
 // Adding unlagged.   Still needs work.
 //
@@ -3981,11 +3984,12 @@ int BotFuncDoorRotatingActivateGoal(bot_state_t * bs, int bspent, bot_activatego
 	VectorAdd(mins, maxs, origin);
 	VectorScale(origin, 0.5, origin);
 	activategoal->goal.entitynum = entitynum;
-	VectorTargetDist(bs->origin, origin, -40, activategoal->origin);
+	VectorTargetDist(bs->origin, origin, -48, activategoal->origin);
 	activategoal->openDoor = qtrue;
 	activategoal->goal.number = 0;
 	activategoal->goal.flags = 0;
-	VectorCopy(bs->origin, activategoal->goal.origin);
+	//VectorCopy(bs->origin, activategoal->goal.origin);
+	VectorCopy(activategoal->origin, activategoal->goal.origin);
 	activategoal->goal.areanum = bs->areanum;
 	VectorSet(activategoal->goal.mins, -8, -8, -8);
 	VectorSet(activategoal->goal.maxs, 8, 8, 8);

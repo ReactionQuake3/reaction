@@ -232,11 +232,12 @@
 
     itemdef {
 	name "btn_back"
+	shortcutKey "B"
 	style WINDOW_STYLE_SHADER
 	rect 12 432 32 32
 	type 1
 	background "menu/art/rq3-menu-back.tga"
-	action { close mod; open main ; }
+	action { close _self ; open main ; }
 	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
 		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
@@ -244,9 +245,10 @@
 	visible 1
     }
 
+
     itemdef {
 	name back_hint
-	text "Go back to main menu"
+	text "Go ^_b^_ack to main menu"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 1
 	textalignx 240
@@ -258,7 +260,6 @@
 	visible 0
 	decoration
     }
-
 
 }
 }

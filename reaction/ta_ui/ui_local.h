@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.25  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -261,6 +264,9 @@ extern vmCvar_t ui_RQ3_refPassword;
 //Makro - captain cvars
 extern vmCvar_t ui_RQ3_teamName;
 extern vmCvar_t ui_RQ3_teamModel;
+
+//Makro - maxpolys hack
+extern vmCvar_t ui_maxpolys;
 
 //
 // ui_qmenu.c
@@ -1005,7 +1011,6 @@ typedef struct {
 
 	//Makro - weapon/item bans
 	int weapBan, itemBan;
-
 } uiInfo_t;
 
 extern uiInfo_t uiInfo;

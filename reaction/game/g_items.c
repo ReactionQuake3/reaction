@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.57  2003/09/08 19:19:19  makro
 // New code for respawning entities in TP
 //
@@ -1330,7 +1333,6 @@ void G_RunItem(gentity_t * ent)
 			ent->s.pos.trTime = level.time;
 		}
 	}
-
 	if (ent->s.pos.trType == TR_STATIONARY) {
 		// check think function
 		G_RunThink(ent);

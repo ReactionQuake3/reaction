@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.20  2003/03/31 00:23:18  makro
 // Replacements and stuff
 //
@@ -615,7 +618,8 @@ void UI_DrawNamedPic(float x, float y, float width, float height, const char *pi
 
 	hShader = trap_R_RegisterShaderNoMip(picname);
 	UI_AdjustFrom640(&x, &y, &width, &height);
-	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+	//trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
 void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
@@ -644,7 +648,8 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 	}
 
 	UI_AdjustFrom640(&x, &y, &w, &h);
-	trap_R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
+	//trap_R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
 }
 
 /*
@@ -659,7 +664,8 @@ void UI_FillRect(float x, float y, float width, float height, const float *color
 	trap_R_SetColor(color);
 
 	UI_AdjustFrom640(&x, &y, &width, &height);
-	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 
 	trap_R_SetColor(NULL);
 }
@@ -667,15 +673,19 @@ void UI_FillRect(float x, float y, float width, float height, const float *color
 void UI_DrawSides(float x, float y, float w, float h)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
-	trap_R_DrawStretchPic(x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	trap_R_DrawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void UI_DrawTopBottom(float x, float y, float w, float h)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
-	trap_R_DrawStretchPic(x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	trap_R_DrawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	//trap_R_DrawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.32  2004/03/13 01:17:32  makro
 // no message
 //
@@ -132,13 +135,6 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 	if (ent->nextthink) {
 		return;		// can't retrigger until the wait is over
 	}
-	if (ent->spawnflags & SF_TRIGGER_MULTIPLE_DOOR) {
-		if (!activator || !activator->client || !activator->client->openDoor)
-			return;
-		if (activator->client->openDoorTime <= ent->timestamp)
-			return;
-		ent->timestamp = activator->client->openDoorTime;
-	}
 	//Makro - inactive trigger ?
 	if (ent->inactive) {
 		//note - since the trigger is not sent to the clients, we cannot send the event
@@ -196,8 +192,13 @@ void Use_Multi(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 void Touch_Multi(gentity_t * self, gentity_t * other, trace_t * trace)
 {
-	if (!other->client) {
+	if (!other || !other->client) {
 		return;
+	}
+	if (self->spawnflags & SF_TRIGGER_MULTIPLE_DOOR) {
+		if (!other->client->openDoor || other->client->openDoorTime <= self->timestamp)
+			return;
+		self->timestamp = other->client->openDoorTime;
 	}
 	multi_trigger(self, other);
 }
@@ -581,7 +582,12 @@ void hurt_touch(gentity_t * self, gentity_t * other, trace_t * trace)
 		dflags = DAMAGE_NO_PROTECTION;
 	else
 		dflags = 0;
-	G_Damage(other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
+	if (self->methodOfDeath)
+	{
+		G_Damage(other, self, self, NULL, NULL, self->damage, dflags, MOD_CUSTOM+self->methodOfDeath-1);
+	} else {
+		G_Damage(other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT);
+	}
 }
 
 void SP_trigger_hurt(gentity_t * self)
@@ -596,6 +602,9 @@ void SP_trigger_hurt(gentity_t * self)
 	}
 
 	self->r.contents = CONTENTS_TRIGGER;
+
+	//Makro - custom death message
+	G_InitCustomDeathMessage(self, &self->methodOfDeath);
 
 	//Makro - removed this check
 	//if ( self->spawnflags & 2 ) {

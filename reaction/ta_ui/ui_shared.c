@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.30  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -141,8 +144,15 @@ static itemDef_t *g_editItem = NULL;
 menuDef_t Menus[MAX_MENUS];	// defined menus
 int menuCount = 0;		// how many
 
+int GMemory()
+{
+	return sizeof(Menus);
+}
+
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
+//Makro - previous menu
+static menuDef_t *prevMenu = NULL;
 
 static qboolean debugMode = qfalse;
 
@@ -253,20 +263,8 @@ int UI_RQ3_KeyNumFromChar(const char *keystr)
 }
 
 //Makro - check whether or not a key is MOUSE1/2/3
-qboolean UI_IsMouse(int key)
-{
-	return (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3);
-}
-
-//Makro - copy colors
-void UI_RQ3_ColorCopy(vec4_t dest, vec4_t src)
-{
-	int i;
-
-	for (i = 0; i < 4; i++) {
-		dest[i] = src[i];
-	}
-}
+//No need for a function
+#define UI_IsMouse(key) ((key) == K_MOUSE1 || (key) == K_MOUSE2 || (key) == K_MOUSE3)
 
 #define HASH_TABLE_SIZE 2048
 /*
@@ -596,6 +594,8 @@ Rect_Parse
 */
 qboolean Rect_Parse(char **p, rectDef_t * r)
 {
+	//Makro - this is safer
+	r->hasVectors = qfalse;
 	if (Float_Parse(p, &r->x)) {
 		if (Float_Parse(p, &r->y)) {
 			if (Float_Parse(p, &r->w)) {
@@ -615,6 +615,8 @@ PC_Rect_Parse
 */
 qboolean PC_Rect_Parse(int handle, rectDef_t * r)
 {
+	//Makro - this is safer
+	r->hasVectors = qfalse;
 	if (PC_Float_Parse(handle, &r->x)) {
 		if (PC_Float_Parse(handle, &r->y)) {
 			if (PC_Float_Parse(handle, &r->w)) {
@@ -738,8 +740,6 @@ void Window_Init(Window * w)
 	w->borderSize = 1;
 	w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
 	w->cinematic = -1;
-	//Makro - no shortcutKey by default
-	w->shortcutKey = -1;
 }
 
 void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboolean bFlags, float fadeAmount)
@@ -769,39 +769,30 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 void UI_RQ3_HandleFading(Window * w)
 {
 	if (w) {
-		//DC->Print("^4Entering fading proc^7\n");
 		if ((w->timeFade.active)) {
-			//DC->Print(va("^4Found active fading window; time = %i^7\n", DC->realTime));
 			if (DC->realTime > w->timeFade.endTime) {
-				//DC->Print("^4Turning fading timer off^7\n");
 				w->timeFade.active = qfalse;
 				if ((w->timeFade.forecolor)) {
-					UI_RQ3_ColorCopy(w->foreColor, w->timeFade.color2);
-					//Makro - autohide
+					memcpy(w->foreColor, w->timeFade.color2, sizeof(vec4_t));
+					//autohide
 					if (w->foreColor[3] == 0)
 						w->flags &= ~WINDOW_VISIBLE;
 				} else {
-					UI_RQ3_ColorCopy(w->backColor, w->timeFade.color2);
-					//Makro - autohide
+					memcpy(w->backColor, w->timeFade.color2, sizeof(vec4_t));
+					//autohide
 					if (w->backColor[3] == 0)
 						w->flags &= ~WINDOW_VISIBLE;
 				}
 			} else {
 				if (DC->realTime >= w->timeFade.startTime) {
-					float percent =
+					float frac =
 					    ((float) (DC->realTime - w->timeFade.startTime)) /
 					    ((float) (w->timeFade.endTime - w->timeFade.startTime));
 					qboolean forecolor = w->timeFade.forecolor;
-
-					//DC->Print(va("^4Percent: %f^7 Time: %i\n", percent, DC->realTime));
 					if (forecolor) {
-						LerpColor(w->timeFade.color1, w->timeFade.color2, w->foreColor,
-							  percent);
-						//DC->Print(va("^4New forecolor: %f %f %f %f^7\n", w->foreColor[0], w->foreColor[1], w->foreColor[2], w->foreColor[3]));
+						LerpColor(w->timeFade.color1, w->timeFade.color2, w->foreColor, frac);
 					} else {
-						LerpColor(w->timeFade.color1, w->timeFade.color2, w->backColor,
-							  percent);
-						//DC->Print(va("^5New backcolor: %f %f %f %f^7\n", w->backColor[0], w->backColor[1], w->backColor[2], w->backColor[3]));
+						LerpColor(w->timeFade.color1, w->timeFade.color2, w->backColor, frac);
 					}
 				}
 			}
@@ -812,17 +803,18 @@ void UI_RQ3_HandleFading(Window * w)
 void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle)
 {
 	//float bordersize = 0;
-	vec4_t color;
+	vec4_t color = {1, 1, 1, 1};
 	rectDef_t fillRect = w->rect;
 
 	if (debugMode) {
-		color[0] = color[1] = color[2] = color[3] = 1;
+		//color[0] = color[1] = color[2] = color[3] = 1;
 		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
 	}
 
 	if (w == NULL) {
 		return;
 	}
+
 	//Makro - fade forecolor/backcolor if needed
 	UI_RQ3_HandleFading(w);
 
@@ -865,10 +857,22 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 		if (w->background) {
 			Fade(&w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, qtrue, fadeAmount);
 			DC->setColor(w->backColor);
-			DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+			//Makro - angled?
+			if (w->rectClient.hasVectors)
+			{
+				DC->drawAngledPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->rectClient.u, w->rectClient.v, w->backColor, 0, 0, 1, 1, w->background);
+			} else {
+				DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+			}
 			DC->setColor(NULL);
 		} else {
-			DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor);
+			//angled?
+			if (w->rectClient.hasVectors)
+			{
+				DC->drawAngledPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->rectClient.u, w->rectClient.v, w->backColor, 0, 0, 1, 1, DC->whiteShader);
+			} else {
+				DC->fillRect(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor);
+			}
 		}
 	} else if (w->style == WINDOW_STYLE_GRADIENT) {
 		GradientBar_Paint(&fillRect, w->backColor);
@@ -876,8 +880,15 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 	} else if (w->style == WINDOW_STYLE_SHADER) {
 		if (w->flags & WINDOW_FORECOLORSET) {
 			DC->setColor(w->foreColor);
+			memcpy(&color[0], &w->foreColor[0], sizeof(color));
 		}
-		DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+		//Makro - angled?
+		if (w->rectClient.hasVectors)
+		{
+			DC->drawAngledPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->rectClient.u, w->rectClient.v, w->foreColor, 0, 0, 1, 1, w->background);
+		} else {
+			DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+		}
 		DC->setColor(NULL);
 	} else if (w->style == WINDOW_STYLE_TEAMCOLOR) {
 		if (DC->getTeamColor) {
@@ -887,7 +898,7 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 	} else if (w->style == WINDOW_STYLE_CINEMATIC) {
 		if (w->cinematic == -1) {
 			w->cinematic =
-			    DC->playCinematic(w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h);
+				DC->playCinematic(w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h);
 			if (w->cinematic == -1) {
 				w->cinematic = -2;
 			}
@@ -901,7 +912,8 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 	if (w->border == WINDOW_BORDER_FULL) {
 		// full
 		// HACK HACK HACK
-		if (w->style == WINDOW_STYLE_TEAMCOLOR) {
+		if (w->style == WINDOW_STYLE_TEAMCOLOR)
+		{
 			if (color[0] > 0) {
 				// red
 				color[0] = 1;
@@ -912,9 +924,21 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 				color[0] = color[1] = .5;
 			}
 			color[3] = 1;
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
+			if (w->rectClient.hasVectors)
+			{
+				DC->drawAngledRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->rect.u, w->rect.v,
+					w->borderSize, color, RECT_FULL);
+			} else {
+				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
+			}
 		} else {
-			DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
+			if (w->rectClient.hasVectors)
+			{
+				DC->drawAngledRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->rect.u, w->rect.v,
+					w->borderSize, w->borderColor, RECT_FULL);
+			} else {
+				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
+			}
 		}
 	} else if (w->border == WINDOW_BORDER_HORZ) {
 		// top/bottom
@@ -935,7 +959,6 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 		r.y = w->rect.y + w->rect.h - 1;
 		GradientBar_Paint(&r, w->borderColor);
 	}
-
 }
 
 void Item_SetScreenCoords(itemDef_t * item, float x, float y)
@@ -946,8 +969,14 @@ void Item_SetScreenCoords(itemDef_t * item, float x, float y)
 	}
 
 	if (item->window.border != 0) {
-		x += item->window.borderSize;
-		y += item->window.borderSize;
+		if (item->window.rectClient.hasVectors)
+		{
+			x += item->window.borderSize * (item->window.rectClient.u[0] + item->window.rectClient.v[0]);
+			y += item->window.borderSize * (item->window.rectClient.u[1] + item->window.rectClient.v[1]);
+		} else {
+			x += item->window.borderSize;
+			y += item->window.borderSize;
+		}
 	}
 
 	item->window.rect.x = x + item->window.rectClient.x;
@@ -976,8 +1005,15 @@ void Item_UpdatePosition(itemDef_t * item)
 	y = menu->window.rect.y;
 
 	if (menu->window.border != 0) {
-		x += menu->window.borderSize;
-		y += menu->window.borderSize;
+		//Makro - got vectors?
+		if (menu->window.rectClient.hasVectors)
+		{
+			x += menu->window.borderSize * (menu->window.rectClient.u[0] + menu->window.rectClient.v[0]);
+			y += menu->window.borderSize * (menu->window.rectClient.u[1] + menu->window.rectClient.v[1]);
+		} else {
+			x += menu->window.borderSize;
+			y += menu->window.borderSize;
+		}
 	}
 
 	Item_SetScreenCoords(item, x, y);
@@ -1055,8 +1091,22 @@ qboolean IsVisible(int flags)
 qboolean Rect_ContainsPoint(rectDef_t * rect, float x, float y)
 {
 	if (rect) {
-		if (x > rect->x && x < rect->x + rect->w && y > rect->y && y < rect->y + rect->h) {
-			return qtrue;
+		//Makro - twisted rectangle?
+		if (rect->hasVectors)
+		{
+			float dx = x - rect->x;
+			float dy = y - rect->y;
+			float px = dx * rect->u[0] + dy * rect->u[1];
+			float py = dx * rect->v[0] + dy * rect->v[1];
+			if (px > 0 && px < rect->w && py > 0 && py < rect->h)
+			{
+				return qtrue;
+			}
+		} else {
+			if (x > rect->x && x < rect->x + rect->w && y > rect->y && y < rect->y + rect->h)
+			{
+				return qtrue;
+			}
 		}
 	}
 	return qfalse;
@@ -1097,6 +1147,47 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t * menu, int index, const char 
 	return NULL;
 }
 
+//Makro - fade overlay
+void Script_FadeOverlay(itemDef_t *item, char **args)
+{
+	int offset, duration;
+	float f;
+
+	for (offset=0; offset<4; offset++)
+	{
+		if (!Float_Parse(args, &f)) {
+			return;
+		}
+		DC->overlayColor[offset] = DC->overlayColor2[offset];
+		if (IsBetween(f, 0, 1)) {
+			DC->overlayColor2[offset] = f;
+		}
+	}
+	//offset & duration
+	if (!Int_Parse(args, &offset) || !Int_Parse(args, &duration)) {
+		return;
+	}
+	DC->overlayFadeStart = DC->realTime + offset;
+	DC->overlayFadeEnd = DC->overlayFadeStart + duration;
+}
+
+void Script_SetOverlayColor(itemDef_t *item, char **args)
+{
+	int i;
+	float f;
+
+	for (i=0; i<4; i++)
+	{
+		if (!Float_Parse(args, &f)) {
+			return;
+		}
+		if (IsBetween(f, 0, 1)) {
+			DC->overlayColor2[i] = f;
+		}
+	}
+	DC->overlayFadeStart = DC->overlayFadeEnd = 0;
+}
+
 void Script_SetColor(itemDef_t * item, char **args)
 {
 	const char *name;
@@ -1122,11 +1213,63 @@ void Script_SetColor(itemDef_t * item, char **args)
 				if (!Float_Parse(args, &f)) {
 					return;
 				}
-				(*out)[i] = f;
+				//Makro - new feature: out of range = ignore
+				if (IsBetween(f, 0, 1))
+					(*out)[i] = f;
 			}
 			//Makro - if the item was fading, stop the fading process
 			if (item->window.timeFade.active)
 				item->window.timeFade.active = qfalse;
+		}
+	}
+}
+
+//Makro - sets random color
+//setrandomcolor <color_name> <count> <r1> <g1> <b1> <a1> <r2> <g2>...
+void Script_SetRandomColor(itemDef_t * item, char **args)
+{
+	const char *name;
+	int i, count, rnd;
+	float f;
+	vec4_t *out;
+
+	if (String_Parse(args, &name)) {
+		out = NULL;
+		if (Q_stricmp(name, "backcolor") == 0) {
+			out = &item->window.backColor;
+			item->window.flags |= WINDOW_BACKCOLORSET;
+		} else if (Q_stricmp(name, "forecolor") == 0) {
+			out = &item->window.foreColor;
+			item->window.flags |= WINDOW_FORECOLORSET;
+		} else if (Q_stricmp(name, "bordercolor") == 0) {
+			out = &item->window.borderColor;
+		}
+
+		//Makro - if the item was fading, stop the fading process
+		if (item->window.timeFade.active) {
+			item->window.timeFade.active = qfalse;
+		}
+		if (!Int_Parse(args, &count)) {
+			return;
+		}
+		rnd = rand() % count;
+
+		for (i=0; i<count; i++)
+		{
+			if (out) {
+				int j;
+				for (j = 0; j < 4; j++) {
+					if (!Float_Parse(args, &f)) {
+						return;
+					}
+					if (i == rnd)
+					{
+						//Makro - new feature: out of range = ignore
+						if (IsBetween(f, 0, 1))
+							(*out)[j] = f;
+					}
+				}
+			}
 		}
 	}
 }
@@ -1183,6 +1326,59 @@ void Script_SetTeamColor(itemDef_t * item, char **args)
 	}
 }
 
+//Makro - sets random color
+//setrandomitemcolor <item_name> <color_name> <count> <r1> <g1> <b1> <a1> <r2> <g2>...
+void Script_SetRandomItemColor(itemDef_t * item, char **args)
+{
+	const char *itemname;
+	const char *name;
+	vec4_t tempColor, color;
+	int i, colorCount;
+	vec4_t *out;
+
+	if (String_Parse(args, &itemname) && String_Parse(args, &name) && Int_Parse(args, &colorCount)) {
+		itemDef_t *item2;
+		int j, k, rnd = rand() % colorCount;
+		int count = Menu_ItemsMatchingGroup(item->parent, itemname);
+
+		for (k=0; k<colorCount; k++)
+		{
+			if (!Color_Parse(args, &tempColor)) {
+				return;
+			}
+			if (k == rnd) {
+				memcpy(color, tempColor, sizeof(color));
+			}
+		}
+
+		for (j = 0; j < count; j++) {
+			item2 = Menu_GetMatchingItemByNumber(item->parent, j, itemname);
+			if (item2 != NULL) {
+				out = NULL;
+				if (Q_stricmp(name, "backcolor") == 0) {
+					out = &item2->window.backColor;
+				} else if (Q_stricmp(name, "forecolor") == 0) {
+					out = &item2->window.foreColor;
+					item2->window.flags |= WINDOW_FORECOLORSET;
+				} else if (Q_stricmp(name, "bordercolor") == 0) {
+					out = &item2->window.borderColor;
+				}
+
+				if (out) {
+					for (i = 0; i < 4; i++) {
+						//Makro - new feature: out of range = ignore
+						if (IsBetween(color[i], 0, 1))
+							(*out)[i] = color[i];
+					}
+					//Makro - if the item was fading, stop the fading process
+					if (item2->window.timeFade.active)
+						item2->window.timeFade.active = qfalse;
+				}
+			}
+		}
+	}
+}
+
 void Script_SetItemColor(itemDef_t * item, char **args)
 {
 	const char *itemname;
@@ -1216,12 +1412,31 @@ void Script_SetItemColor(itemDef_t * item, char **args)
 
 				if (out) {
 					for (i = 0; i < 4; i++) {
-						(*out)[i] = color[i];
+						//Makro - new feature: out of range = ignore
+						if (IsBetween(color[i], 0, 1))
+							(*out)[i] = color[i];
 					}
 					//Makro - if the item was fading, stop the fading process
 					if (item2->window.timeFade.active)
 						item2->window.timeFade.active = qfalse;
 				}
+			}
+		}
+	}
+}
+
+//Makro - added
+void Menu_ShowItem(itemDef_t *item, qboolean bShow)
+{
+	if (item != NULL) {
+		if (bShow) {
+			item->window.flags |= WINDOW_VISIBLE;
+		} else {
+			item->window.flags &= ~WINDOW_VISIBLE;
+			// stop cinematics playing in the window
+			if (item->window.cinematic >= 0) {
+				DC->stopCinematic(item->window.cinematic);
+				item->window.cinematic = -1;
 			}
 		}
 	}
@@ -1235,18 +1450,7 @@ void Menu_ShowItemByName(menuDef_t * menu, const char *p, qboolean bShow)
 
 	for (i = 0; i < count; i++) {
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL) {
-			if (bShow) {
-				item->window.flags |= WINDOW_VISIBLE;
-			} else {
-				item->window.flags &= ~WINDOW_VISIBLE;
-				// stop cinematics playing in the window
-				if (item->window.cinematic >= 0) {
-					DC->stopCinematic(item->window.cinematic);
-					item->window.cinematic = -1;
-				}
-			}
-		}
+		Menu_ShowItem(item, bShow);
 	}
 }
 
@@ -1331,7 +1535,12 @@ void Script_Show(itemDef_t * item, char **args)
 	const char *name;
 
 	if (String_Parse(args, &name)) {
-		Menu_ShowItemByName(item->parent, name, qtrue);
+		//Makro - if name is "_self", show current item
+		if (!Q_stricmp(name, "_self")) {
+			Menu_ShowItem(item, qtrue);
+		} else {
+			Menu_ShowItemByName(item->parent, name, qtrue);
+		}
 	}
 }
 
@@ -1340,33 +1549,45 @@ void Script_Hide(itemDef_t * item, char **args)
 	const char *name;
 
 	if (String_Parse(args, &name)) {
-		Menu_ShowItemByName(item->parent, name, qfalse);
+		//Makro - if name is "_self", hide current item
+		if (!Q_stricmp(name, "_self")) {
+			Menu_ShowItem(item, qfalse);
+		} else {
+			Menu_ShowItemByName(item->parent, name, qfalse);
+		}
 	}
 }
 
 //Makro - for the new fading method
 void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int duration, qboolean forecolor)
 {
-	int start, end;
+	int i;
 
 	if (duration <= 0) {
 		duration = 1;
 	}
 
-	start = DC->realTime + offset;
-	end = start + duration;
-	item->window.timeFade.active = qtrue;
-	item->window.timeFade.forecolor = forecolor;
 	if (forecolor) {
-		UI_RQ3_ColorCopy(item->window.timeFade.color1, item->window.foreColor);
+		memcpy(item->window.timeFade.color1, item->window.foreColor, sizeof(vec4_t));
 		item->window.flags |= WINDOW_FORECOLORSET;
 	} else {
-		UI_RQ3_ColorCopy(item->window.timeFade.color1, item->window.backColor);
+		memcpy(item->window.timeFade.color1, item->window.backColor, sizeof(vec4_t));
 		item->window.flags |= WINDOW_BACKCOLORSET;
 	}
-	UI_RQ3_ColorCopy(item->window.timeFade.color2, endColor);
-	item->window.timeFade.startTime = start;
-	item->window.timeFade.endTime = end;
+	for (i=0; i<4; i++)
+	{
+		//Makro - new feature: out of range = ignore
+		if (IsBetween(endColor[i], 0, 1)) {
+			item->window.timeFade.color2[i] = endColor[i];
+		} else {
+			item->window.timeFade.color2[i] = item->window.timeFade.color1[i];
+		}
+	}
+
+	item->window.timeFade.active = qtrue;
+	item->window.timeFade.forecolor = forecolor;
+	item->window.timeFade.startTime = DC->realTime + offset;
+	item->window.timeFade.endTime = item->window.timeFade.startTime + duration;
 	/*
 	   if (item->window.timeFade.forecolor) {
 	   DC->Print(va("^3Fading forecolor %s: src=(%f %f %f %f) dst=(%f %f %f %f) offset=%i duration=%i start=%i end=%i^7\n", item->window.name, item->window.timeFade.color1[0], item->window.timeFade.color1[1], item->window.timeFade.color1[2], item->window.timeFade.color1[3], endColor[0], endColor[1], endColor[2], endColor[3], offset, duration, item->window.timeFade.startTime, item->window.timeFade.endTime));
@@ -1462,7 +1683,13 @@ void Script_Open(itemDef_t * item, char **args)
 	const char *name;
 
 	if (String_Parse(args, &name)) {
-		Menus_OpenByName(name);
+		//Makro - previous menu
+		if ( (!Q_stricmp(name, "_previous") || !Q_stricmp(name, "_prev")) && prevMenu) {
+			Menus_OpenByName(prevMenu->window.name);
+		} else {
+			Menus_OpenByName(name);
+		}
+		prevMenu = (menuDef_t*)item->parent;
 	}
 }
 
@@ -1488,7 +1715,14 @@ void Script_Close(itemDef_t * item, char **args)
 	const char *name;
 
 	if (String_Parse(args, &name)) {
-		Menus_CloseByName(name);
+		//Makro - if name is "_self", close current menu
+		if (Q_stricmp(name, "_self") == 0)
+		{
+			menuDef_t *menu = (menuDef_t*)item->parent;
+			Menus_CloseByName(menu->window.name);
+		} else {
+			Menus_CloseByName(name);
+		}
 	}
 }
 
@@ -1504,6 +1738,7 @@ void Menu_TransitionItemByName(menuDef_t * menu, const char *p, rectDef_t rectFr
 		if (item != NULL) {
 			item->window.flags |= (WINDOW_INTRANSITION | WINDOW_VISIBLE);
 			item->window.offsetTime = time;
+			//FIXME: this is probably breaking vectors
 			memcpy(&item->window.rectClient, &rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, &rectTo, sizeof(rectDef_t));
 			item->window.rectEffects2.x = abs(rectTo.x - rectFrom.x) / amt;
@@ -1521,6 +1756,9 @@ void Script_Transition(itemDef_t * item, char **args)
 	rectDef_t rectFrom, rectTo;
 	int time;
 	float amt;
+
+	memset(&rectFrom, 0, sizeof(rectFrom));
+	memset(&rectTo, 0, sizeof(rectTo));
 
 	if (String_Parse(args, &name)) {
 		if (Rect_Parse(args, &rectFrom) && Rect_Parse(args, &rectTo) && Int_Parse(args, &time)
@@ -1662,10 +1900,12 @@ void Script_StartTimer(itemDef_t * item, char **args)
 	if (menu) {
 		if (menu->timedItems > 0) {
 			menu->timerEnabled = qtrue;
-			menu->timerPos = 0;
+			menu->timerPos = 1;
 			if (menu->timerInterval <= 0) {
 				menu->timerInterval = 1000;
 			}
+			//go ahead and show the first item
+			menu->nextTimer = 0;
 		}
 	}
 }
@@ -1680,64 +1920,84 @@ void Script_StopTimer(itemDef_t * item, char **args)
 	}
 }
 
+//Makro - for the exit menu
+static const char *quitMessages[] =
+{
+	"Done playing ?",
+
+	"Out already ?",
+
+	"Going somewhere ?",
+
+	"Bed time already ?",
+
+	"Exit Reaction ?",
+
+	"Back to the\n"
+	"real world ?",
+
+	"Action heroes\n"
+	"never press 'yes'"
+};
+static const int quitMessageCount = sizeof(quitMessages) / sizeof(const char*);
+
+void Script_SetQuitText(itemDef_t * item, char **args)
+{
+	menuDef_t *menu = (menuDef_t *) item->parent;
+	const char *val;
+	if (menu) {
+		if (String_Parse(args, &val))
+		{
+			itemDef_t *toitem = Menu_FindItemByName(menu, val);
+			if (toitem)
+			{
+				toitem->text = quitMessages[rand() % quitMessageCount];
+				toitem->textRect.w = 0;
+			}
+		}
+	}
+}
+
 commandDef_t commandList[] = {
 	//Makro - for timers
-	{"startTimer", &Script_StartTimer}
-	,			// group/name
-	{"restartTimer", &Script_StartTimer}
-	,			// group/name
-	{"stopTimer", &Script_StopTimer}
-	,			// group/name
+	{"startTimer", &Script_StartTimer},			// group/name
+	{"restartTimer", &Script_StartTimer},			// group/name
+	{"stopTimer", &Script_StopTimer},			// group/name
 	//Makro - for the new fading method
-	{"timeFade", &Script_TimeFade}
-	,
-	{"timeFadeSelf", &Script_TimeFadeSelf}
-	,
-
-	{"fadein", &Script_FadeIn}
-	,			// group/name
-	{"fadeout", &Script_FadeOut}
-	,			// group/name
-	{"show", &Script_Show}
-	,			// group/name
-	{"hide", &Script_Hide}
-	,			// group/name
-	{"setcolor", &Script_SetColor}
-	,			// works on this
-	{"open", &Script_Open}
-	,			// nenu
-	{"conditionalopen", &Script_ConditionalOpen}
-	,			// menu
-	{"close", &Script_Close}
-	,			// menu
-	{"setasset", &Script_SetAsset}
-	,			// works on this
-	{"setbackground", &Script_SetBackground}
-	,			// works on this
-	{"setitemcolor", &Script_SetItemColor}
-	,			// group/name
-	{"setteamcolor", &Script_SetTeamColor}
-	,			// sets this background color to team color
-	{"setfocus", &Script_SetFocus}
-	,			// sets this background color to team color
-	{"setplayermodel", &Script_SetPlayerModel}
-	,			// sets this background color to team color
-	{"setplayerhead", &Script_SetPlayerHead}
-	,			// sets this background color to team color
-	{"transition", &Script_Transition}
-	,			// group/name
-	{"setcvar", &Script_SetCvar}
-	,			// group/name
-	{"exec", &Script_Exec}
-	,			// group/name
-	{"play", &Script_Play}
-	,			// group/name
-	{"playlooped", &Script_playLooped}
-	,			// group/name
+	{"timeFade", &Script_TimeFade},
+	{"timeFadeSelf", &Script_TimeFadeSelf},
+	{"fadein", &Script_FadeIn},			// group/name
+	{"fadeout", &Script_FadeOut},			// group/name
+	{"show", &Script_Show},			// group/name
+	{"hide", &Script_Hide},			// group/name
+	{"setcolor", &Script_SetColor},			// works on this
+	//Makro - fade in/out overlay
+	{"fadeoverlay", &Script_FadeOverlay},
+	{"setoverlaycolor", &Script_SetOverlayColor},
+	//Makro - sets random color
+	{"setrandomcolor", &Script_SetRandomColor},
+	{"open", &Script_Open},			// nenu
+	{"conditionalopen", &Script_ConditionalOpen},			// menu
+	{"close", &Script_Close},			// menu
+	{"setasset", &Script_SetAsset},			// works on this
+	{"setbackground", &Script_SetBackground},			// works on this
+	{"setitemcolor", &Script_SetItemColor},			// group/name
+	//Makro - sets random color
+	{"setrandomitemcolor", &Script_SetRandomItemColor},
+	{"setteamcolor", &Script_SetTeamColor},			// sets this background color to team color
+	{"setfocus", &Script_SetFocus},			// sets this background color to team color
+	{"setplayermodel", &Script_SetPlayerModel},			// sets this background color to team color
+	{"setplayerhead", &Script_SetPlayerHead},			// sets this background color to team color
+	{"transition", &Script_Transition},			// group/name
+	{"setcvar", &Script_SetCvar},			// group/name
+	{"exec", &Script_Exec},			// group/name
+	{"play", &Script_Play},			// group/name
+	{"playlooped", &Script_playLooped},			// group/name
 	//Makro - stop background track
-	{"stopMusic", &Script_stopMusic}
-	,
-	{"orbit", &Script_Orbit}	// group/name
+	{"stopMusic", &Script_stopMusic},
+	{"orbit", &Script_Orbit},	// group/name
+	//Makro - for the exit menu
+	{"setquittext", &Script_SetQuitText}
 };
 
 int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t);
@@ -1964,19 +2224,32 @@ int Item_ListBox_ThumbDrawPosition(itemDef_t * item)
 	}
 }
 
-float Item_Slider_ThumbPosition(itemDef_t * item)
+Point Item_Slider_ThumbPosition(itemDef_t * item)
 {
-	float value, range, x;
+	float value, range;
 	editFieldDef_t *editDef = item->typeData;
+	Point p;
 
 	if (item->text) {
-		x = item->textRect.x + item->textRect.w + 8;
+		//Makro - vectors ?
+		if (item->textRect.hasVectors)
+		{
+			float xoffset = item->textRect.w + 8, yoffset = -(item->textRect.h + SLIDER_THUMB_HEIGHT)/2;
+			//p.x = item->textRect.x + item->textRect.u[0]*(item->textRect.w + 8) - item->textRect.v[0]*2;
+			p.x = item->textRect.x + item->textRect.u[0]*xoffset + item->textRect.v[0]*yoffset;
+			//p.y = item->window.rect.y + item->textRect.u[1] * (item->textRect.w + 8) - item->textRect.v[1]*2;
+			p.y = item->textRect.y + item->textRect.u[1]*xoffset + item->textRect.v[1]*yoffset;
+		} else {
+			p.x = item->textRect.x + item->textRect.w + 8;
+			p.y = item->textRect.y - (item->textRect.h + SLIDER_THUMB_HEIGHT)/2;
+		}
 	} else {
-		x = item->window.rect.x;
+		p.x = item->window.rect.x;
+		p.y = item->window.rect.y - 2;
 	}
 
 	if (editDef == NULL && item->cvar) {
-		return x;
+		return p;
 	}
 
 	value = DC->getCVarValue(item->cvar);
@@ -1992,18 +2265,39 @@ float Item_Slider_ThumbPosition(itemDef_t * item)
 	value /= range;
 	//value /= (editDef->maxVal - editDef->minVal);
 	value *= SLIDER_WIDTH;
-	x += value;
+	//vectors
+	if (item->textRect.hasVectors)
+	{
+		p.x += value * item->textRect.u[0];
+		p.y += value * item->textRect.u[1];
+	} else {
+		p.x += value;
+	}
 	// vm fuckage
 	//x = x + (((float)value / editDef->maxVal) * SLIDER_WIDTH);
-	return x;
+	return p;
 }
 
 int Item_Slider_OverSlider(itemDef_t * item, float x, float y)
 {
 	rectDef_t r;
+	Point p;
 
-	r.x = Item_Slider_ThumbPosition(item) - (SLIDER_THUMB_WIDTH / 2);
-	r.y = item->window.rect.y - 2;
+	//Makro - copy all info (including vector info)
+	//relevant fields will get overwritten
+	r = item->textRect;
+
+	//Makro - vectors
+	p = Item_Slider_ThumbPosition(item);
+	
+	if (r.hasVectors)
+	{
+		r.x = p.x - (SLIDER_THUMB_WIDTH / 2) * r.u[0];
+		r.y = p.y - (SLIDER_THUMB_WIDTH / 2) * r.u[1];
+	} else {
+		r.x = p.x - (SLIDER_THUMB_WIDTH / 2);
+		r.y = p.y;
+	}
 	r.w = SLIDER_THUMB_WIDTH;
 	r.h = SLIDER_THUMB_HEIGHT;
 
@@ -2020,6 +2314,8 @@ int Item_ListBox_OverLB(itemDef_t * item, float x, float y)
 	int thumbstart;
 	int count;
 
+	r.hasVectors = qfalse;
+	
 	count = DC->feederCount(item->special);
 	listPtr = (listBoxDef_t *) item->typeData;
 	if (item->window.flags & WINDOW_HORIZONTAL) {
@@ -2086,14 +2382,14 @@ void Item_ListBox_MouseEnter(itemDef_t * item, float x, float y)
 	rectDef_t r;
 	listBoxDef_t *listPtr = (listBoxDef_t *) item->typeData;
 
+	r.hasVectors = qfalse;
+
 	item->window.flags &=
 	    ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN);
 	item->window.flags |= Item_ListBox_OverLB(item, x, y);
 
 	if (item->window.flags & WINDOW_HORIZONTAL) {
-		if (!
-		    (item->window.
-		     flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
+		if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
 			      WINDOW_LB_PGDN))) {
 			// check for selection hit as we have exausted buttons and thumb
 			if (listPtr->elementStyle == LISTBOX_IMAGE) {
@@ -2113,9 +2409,7 @@ void Item_ListBox_MouseEnter(itemDef_t * item, float x, float y)
 			}
 		}
 	} else
-	    if (!
-		(item->window.
-		 flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
+	    if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
 			  WINDOW_LB_PGDN))) {
 		r.x = item->window.rect.x;
 		r.y = item->window.rect.y;
@@ -2369,7 +2663,8 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 			listPtr->startPos = max;
 			return qtrue;
 		}
-		if (key == K_PGUP || key == K_KP_PGUP) {
+		//Makro - support for mouse wheel
+		if (key == K_PGUP || key == K_KP_PGUP || key == K_MWHEELUP) {
 			// page up
 			if (!listPtr->notselectable) {
 				listPtr->cursorPos -= viewmax;
@@ -2392,7 +2687,8 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 			}
 			return qtrue;
 		}
-		if (key == K_PGDN || key == K_KP_PGDN) {
+		//Makro - support for mouse wheel
+		if (key == K_PGDN || key == K_KP_PGDN || key == K_MWHEELDOWN) {
 			// page down
 			if (!listPtr->notselectable) {
 				listPtr->cursorPos += viewmax;
@@ -2778,6 +3074,8 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 
 	listBoxDef_t *listPtr = (listBoxDef_t *) si->item->typeData;
 
+	r.hasVectors = qfalse;
+	
 	if (si->item->window.flags & WINDOW_HORIZONTAL) {
 		if (DC->cursorx == si->xStart) {
 			return;
@@ -2832,24 +3130,47 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 
 static void Scroll_Slider_ThumbFunc(void *p)
 {
-	float x, value, cursorx;
+	float x, y, value, cursorx, cursory;
 	scrollInfo_t *si = (scrollInfo_t *) p;
 	editFieldDef_t *editDef = si->item->typeData;
 
 	if (si->item->text) {
-		x = si->item->textRect.x + si->item->textRect.w + 8;
+		if (si->item->textRect.hasVectors)
+		{
+			float xoffset = si->item->textRect.w+8, yoffset = -(si->item->textRect.h/2);
+			x = si->item->textRect.x + xoffset*si->item->textRect.u[0] + yoffset*si->item->textRect.v[0];
+			y = si->item->textRect.y + xoffset*si->item->textRect.u[1] + yoffset*si->item->textRect.v[1];
+		} else {
+			x = si->item->textRect.x + si->item->textRect.w + 8;
+			y = si->item->textRect.y;
+		}
 	} else {
 		x = si->item->window.rect.x;
+		y = si->item->window.rect.y;
 	}
+	//FIXME: there's a -2 offset that should be taken care of
+	//too small to fix right now
+	//y = si->item->window.rect.y;
 
 	cursorx = DC->cursorx;
-
-	if (cursorx < x) {
-		cursorx = x;
-	} else if (cursorx > x + SLIDER_WIDTH) {
-		cursorx = x + SLIDER_WIDTH;
+	cursory = DC->cursory;
+	//vectors
+	if (si->item->textRect.hasVectors)
+	{
+		value = (cursorx - x) * si->item->textRect.u[0] + (cursory - y) * si->item->textRect.u[1];
+		if (value < 0) {
+			value = 0;
+		} else if (value > SLIDER_WIDTH) {
+			value = SLIDER_WIDTH;
+		}
+	} else {
+		if (cursorx < x) {
+			cursorx = x;
+		} else if (cursorx > x + SLIDER_WIDTH) {
+			cursorx = x + SLIDER_WIDTH;
+		}
+		value = cursorx - x;
 	}
-	value = cursorx - x;
 	value /= SLIDER_WIDTH;
 	value *= (editDef->maxVal - editDef->minVal);
 	value += editDef->minVal;
@@ -2912,33 +3233,65 @@ void Item_StopCapture(itemDef_t * item)
 
 qboolean Item_Slider_HandleKey(itemDef_t * item, int key, qboolean down)
 {
-	float x, value, width, work;
+	float x, y, value, width, work;
 
 	//DC->Print("slider handle key\n");
 	if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
-		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3) {
-			if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+		if (key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3)
+		{
+			if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+			{
 				editFieldDef_t *editDef = item->typeData;
 
 				if (editDef) {
+					//Makro - copy all info (including vectors)
+					//make sure relevant info is set afterwards
 					rectDef_t testRect;
 
 					width = SLIDER_WIDTH;
 					if (item->text) {
-						x = item->textRect.x + item->textRect.w + 8;
+						//vectors?
+						if (item->textRect.hasVectors)
+						{
+							float xoffset = item->textRect.w+8, yoffset = -(item->textRect.h/2);
+							x = item->textRect.x + xoffset*item->textRect.u[0] + yoffset*item->textRect.v[0];
+							//y = item->textRect.y + (item->textRect.w + 8) * item->textRect.u[1];
+							//y = item->window.rect.y + (item->textRect.w + 8) * item->textRect.u[1];
+							y = item->textRect.y + xoffset*item->textRect.u[1] + yoffset*item->textRect.v[1];
+						} else {
+							x = item->textRect.x + item->textRect.w + 8;
+							y = item->textRect.y - item->textRect.h/2;
+						}
 					} else {
 						x = item->window.rect.x;
+						y = item->window.rect.y;
+						//y = item->textRect.y;
 					}
 
 					testRect = item->window.rect;
 					testRect.x = x;
+					//testRect.y = y;
 					value = (float) SLIDER_THUMB_WIDTH / 2;
-					testRect.x -= value;
+					//vectors?
+					if (testRect.hasVectors)
+					{
+						testRect.x -= value * testRect.u[0];
+						testRect.y -= value * testRect.u[1];
+					} else {
+						testRect.x -= value;
+					}
+					//FIXME: ugly code, rewrite some day
 					//DC->Print("slider x: %f\n", testRect.x);
 					testRect.w = (SLIDER_WIDTH + (float) SLIDER_THUMB_WIDTH / 2);
 					//DC->Print("slider w: %f\n", testRect.w);
 					if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory)) {
-						work = DC->cursorx - x;
+						//Makro - use a dotproduct if using vectors
+						if (testRect.hasVectors)
+						{
+							work = (DC->cursorx - x) * testRect.u[0] + (DC->cursory - y) * testRect.u[1];
+						} else {
+							work = DC->cursorx - x;
+						}
 						value = work / width;
 						value *= (editDef->maxVal - editDef->minVal);
 						// vm fuckage
@@ -2950,18 +3303,22 @@ qboolean Item_Slider_HandleKey(itemDef_t * item, int key, qboolean down)
 				}
 			}
 			//Makro - adding left/right key handling
-		} else if (key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME || key == K_END) {
+		} else if (key == K_LEFTARROW || key == K_RIGHTARROW || key == K_MWHEELUP || key == K_MWHEELDOWN
+			|| key == K_HOME || key == K_END) {
 			editFieldDef_t *editDef = item->typeData;
 
+			//DC->Print("slider LEFT/RIGHT\n");
 			if (editDef) {
 				value = DC->getCVarValue(item->cvar);
 				work = (editDef->maxVal - editDef->minVal) / 10;
 
 				switch (key) {
 				case K_RIGHTARROW:
+				case K_MWHEELUP:
 					value = Com_Clamp(editDef->minVal, editDef->maxVal, value + work);
 					break;
 				case K_LEFTARROW:
+				case K_MWHEELDOWN:
 					value = Com_Clamp(editDef->minVal, editDef->maxVal, value - work);
 					break;
 				case K_HOME:
@@ -2970,12 +3327,14 @@ qboolean Item_Slider_HandleKey(itemDef_t * item, int key, qboolean down)
 				case K_END:
 					value = editDef->maxVal;
 					break;
+				default:
+					return qfalse;
 				}
-
+				
+				//DC->Print("SLIDER: value = %f\n", value);
 				DC->setCVar(item->cvar, va("%f", value));
 				return qtrue;
 			}
-			//DC->Print("slider LEFT/RIGHT\n");
 		}
 	}
 	//DC->Print("slider handle key exit\n");
@@ -3333,7 +3692,7 @@ qboolean UI_RQ3_IsActiveItem(itemDef_t * item)
 		return qfalse;
 	}
 
-	return (item->window.flags & WINDOW_VISIBLE);
+	return ((item->window.flags & WINDOW_VISIBLE) != 0);
 }
 
 //Makro - search for items that have shortcuts
@@ -3346,17 +3705,22 @@ qboolean UI_RQ3_TriggerShortcut(menuDef_t * menu, int key)
 	}
 
 	if (DC->realTime >= UI_RQ3_lastCheckForShortcuts + UI_RQ3_ShortcutCheckDelay) {
+		UI_RQ3_lastCheckForShortcuts = DC->realTime;
 		for (i = 0; i < menu->itemCount; i++) {
-			if (menu->items[i]->window.shortcutKey == key && UI_RQ3_IsActiveItem(menu->items[i])) {
-				Item_Action(menu->items[i]);
-				//Item_HandleKey(menu->items[i], K_ENTER, qtrue);
-				return qtrue;
+			if (UI_RQ3_IsActiveItem(menu->items[i]))
+			{
+				int j;
+				for (j=0; j<MAX_SHORTCUT_KEYS && menu->items[i]->window.shortcutKey[j]; j++)
+				{
+					if (menu->items[i]->window.shortcutKey[j] == key) {
+						Item_HandleKey(menu->items[i], K_ENTER, qtrue);
+						Item_Action(menu->items[i]);
+						return qtrue;
+					}
+				}
 			}
 		}
-
-		UI_RQ3_lastCheckForShortcuts = DC->realTime;
 	}
-
 	return qfalse;
 }
 
@@ -3542,12 +3906,23 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 
 void ToWindowCoords(float *x, float *y, windowDef_t * window)
 {
-	if (window->border != 0) {
-		*x += window->borderSize;
-		*y += window->borderSize;
+	//Makro - vectors
+	if (window->rectClient.hasVectors)
+	{
+		if (window->border != 0) {
+			*x += window->borderSize * (window->rectClient.u[0] + window->rectClient.v[0]);
+			*y += window->borderSize * (window->rectClient.u[1] + window->rectClient.v[1]);
+		}
+		*x += window->rect.x;
+		*y += window->rect.y;
+	} else {
+		if (window->border != 0) {
+			*x += window->borderSize;
+			*y += window->borderSize;
+		}
+		*x += window->rect.x;
+		*y += window->rect.y;
 	}
-	*x += window->rect.x;
-	*y += window->rect.y;
 }
 
 void Rect_ToWindowCoords(rectDef_t * rect, windowDef_t * window)
@@ -3565,6 +3940,10 @@ void Item_SetTextExtents(itemDef_t * item, int *width, int *height, const char *
 
 	*width = item->textRect.w;
 	*height = item->textRect.h;
+
+	//TODO: find out where hasVectors gets reset
+	//this is a pretty nasty fix
+	item->window.rectClient.hasVectors = item->textRect.hasVectors;
 
 	// keeps us from computing the widths and heights more than once
 	if (*width == 0 || (item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER)) {
@@ -3584,12 +3963,32 @@ void Item_SetTextExtents(itemDef_t * item, int *width, int *height, const char *
 		*height = DC->textHeight(textPtr, item->textscale, 0);
 		item->textRect.w = *width;
 		item->textRect.h = *height;
-		item->textRect.x = item->textalignx;
-		item->textRect.y = item->textaligny;
+		//Makro - check for vectors
+		if (item->textRect.hasVectors)
+		{
+			item->textRect.x = item->textalignx * item->textRect.u[0] + item->textaligny*item->textRect.v[0];
+			item->textRect.y = item->textalignx * item->textRect.u[1] + item->textaligny*item->textRect.v[1];
+		} else {
+			item->textRect.x = item->textalignx;
+			item->textRect.y = item->textaligny;
+		}
 		if (item->textalignment == ITEM_ALIGN_RIGHT) {
-			item->textRect.x = item->textalignx - originalWidth;
+			//Makro - check for vectors
+			if (item->textRect.hasVectors)
+			{
+				item->textRect.x -= originalWidth * item->textRect.u[0];
+				item->textRect.y -= originalWidth * item->textRect.u[1];
+			} else {
+				item->textRect.x = item->textalignx - originalWidth;
+			}
 		} else if (item->textalignment == ITEM_ALIGN_CENTER) {
-			item->textRect.x = item->textalignx - originalWidth / 2;
+			if (item->textRect.hasVectors)
+			{
+				item->textRect.x -= (originalWidth >> 1) * item->textRect.u[0];
+				item->textRect.y -= (originalWidth >> 1) * item->textRect.u[1];
+			} else {
+				item->textRect.x = item->textalignx - originalWidth / 2;
+			}
 		}
 
 		ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
@@ -3610,7 +4009,7 @@ void Item_TextColor(itemDef_t * item, vec4_t * newColor)
 		//lowLight[1] = 0.8 * parent->focusColor[1]; 
 		//lowLight[2] = 0.8 * parent->focusColor[2]; 
 		//lowLight[3] = 0.8 * parent->focusColor[3]; 
-		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(lowLight, item->window.foreColor, sizeof(vec4_t));
 		LerpColor(parent->focusColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
 	} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime / BLINK_DIVISOR) & 1)) {
 		lowLight[0] = 0.8 * item->window.foreColor[0];
@@ -3619,7 +4018,7 @@ void Item_TextColor(itemDef_t * item, vec4_t * newColor)
 		lowLight[3] = 0.8 * item->window.foreColor[3];
 		LerpColor(item->window.foreColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(newColor, item->window.foreColor, sizeof(vec4_t));
 		// items can be enabled and disabled based on cvars
 	}
 
@@ -3664,7 +4063,9 @@ void Item_Text_AutoWrapped_Paint(itemDef_t * item)
 	newLine = 0;
 	newLineWidth = 0;
 	p = textPtr;
-	while (p) {
+	
+	while (p)
+	{
 		if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\0') {
 			newLine = len;
 			newLinePtr = p + 1;
@@ -3673,19 +4074,46 @@ void Item_Text_AutoWrapped_Paint(itemDef_t * item)
 		textWidth = DC->textWidth(buff, item->textscale, 0);
 		if ((newLine && textWidth > item->window.rect.w) || *p == '\n' || *p == '\0') {
 			if (len) {
-				if (item->textalignment == ITEM_ALIGN_LEFT) {
+				//Makro - check for vectors
+				if (item->textRect.hasVectors)
+				{
+					item->textRect.x = item->textalignx * item->textRect.u[0] + y*item->textRect.v[0];
+					item->textRect.y = item->textalignx * item->textRect.u[1] + y*item->textRect.v[1];
+				} else {
 					item->textRect.x = item->textalignx;
-				} else if (item->textalignment == ITEM_ALIGN_RIGHT) {
-					item->textRect.x = item->textalignx - newLineWidth;
-				} else if (item->textalignment == ITEM_ALIGN_CENTER) {
-					item->textRect.x = item->textalignx - newLineWidth / 2;
+					item->textRect.y = y;
 				}
-				item->textRect.y = y;
+				if (item->textalignment == ITEM_ALIGN_RIGHT) {
+					//item->textRect.x = item->textalignx - newLineWidth;
+					if (item->textRect.hasVectors)
+					{
+						item->textRect.x -= newLineWidth * item->textRect.u[0];
+						item->textRect.y -= newLineWidth * item->textRect.u[1];
+					} else {
+						item->textRect.x -= newLineWidth;
+					}
+				} else if (item->textalignment == ITEM_ALIGN_CENTER) {
+					//item->textRect.x = item->textalignx - newLineWidth / 2;
+					if (item->textRect.hasVectors)
+					{
+						item->textRect.x -= (newLineWidth >> 1) * item->textRect.u[0];
+						item->textRect.y -= (newLineWidth >> 1) * item->textRect.u[1];
+					} else {
+						item->textRect.x -= newLineWidth >> 1;
+					}
+				}
+				//item->textRect.y = y;
 				ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
 				//
 				buff[newLine] = '\0';
-				DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0,
-					     item->textStyle);
+				if (item->textRect.hasVectors)
+				{
+					DC->drawAngledText(item->textRect.x, item->textRect.y, item->textRect.u, item->textRect.v, item->textscale,
+							color, buff, 0, 0, item->textStyle);
+				} else {
+					DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0,
+						item->textStyle);
+				}
 			}
 			if (*p == '\0') {
 				break;
@@ -3815,7 +4243,18 @@ void Item_Text_Paint(itemDef_t * item)
 //              DC->drawText(item->textRect.x - 1, item->textRect.y + 1, item->textscale * 1.02, item->window.outlineColor, textPtr, adjust);
 //      }
 
-	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle);
+	if (item->window.rectClient.hasVectors)
+	{
+		DC->drawAngledText(item->textRect.x, item->textRect.y, item->window.rectClient.u, item->window.rectClient.v,
+			item->textscale, color, textPtr, 0, 0, item->textStyle);
+		//debug
+		//DC->drawAngledRect(item->textRect.x, item->textRect.y, item->textRect.w, item->textRect.h,
+		//	item->textRect.u, item->textRect.v, 2, colorYellow, RECT_FULL);
+	} else {
+		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle);
+		//debug
+		//DC->drawRect(item->textRect.x, item->textRect.y, item->textRect.w, item->textRect.h, 2, colorYellow);
+	}
 }
 
 //float                 trap_Cvar_VariableValue( const char *var_name );
@@ -4197,6 +4636,7 @@ void Item_Slider_Paint(itemDef_t * item)
 	vec4_t newColor, lowLight;
 	float x, y, value;
 	menuDef_t *parent = (menuDef_t *) item->parent;
+	Point pt;
 
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
@@ -4212,20 +4652,43 @@ void Item_Slider_Paint(itemDef_t * item)
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
 
-	y = item->window.rect.y;
 	if (item->text) {
 		Item_Text_Paint(item);
-		x = item->textRect.x + item->textRect.w + 8;
+		//Makro - vectors?
+		if (item->textRect.hasVectors)
+		{
+			float xoffset = item->textRect.w + 8, yoffset = -(item->textRect.h + SLIDER_HEIGHT)/2;
+			x = item->textRect.x + xoffset*item->textRect.u[0] + yoffset*item->textRect.v[0];
+			y = item->textRect.y + xoffset*item->textRect.u[1] + yoffset*item->textRect.v[1];
+		} else {
+			x = item->textRect.x + item->textRect.w + 8;
+			y = item->textRect.y - (item->textRect.h + SLIDER_HEIGHT)/2;
+		}
 	} else {
 		x = item->window.rect.x;
+		y = item->window.rect.y;
 	}
 	DC->setColor(newColor);
-	DC->drawHandlePic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar);
+	if (item->textRect.hasVectors)
+	{
+		DC->drawAngledPic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, item->textRect.u, item->textRect.v, 
+			newColor, 0, 0, 1, 1, DC->Assets.sliderBar);
+	} else {
+		DC->drawHandlePic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar);
+	}
 
-	x = Item_Slider_ThumbPosition(item);
-	DC->drawHandlePic(x - (SLIDER_THUMB_WIDTH / 2), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT,
-			  DC->Assets.sliderThumb);
-
+	//paint the slider
+	pt = Item_Slider_ThumbPosition(item);
+	if (item->textRect.hasVectors)
+	{
+		float srx = pt.x - (SLIDER_THUMB_WIDTH / 2) * item->textRect.u[0];
+		float sry = pt.y - (SLIDER_THUMB_WIDTH / 2) * item->textRect.u[1];
+		DC->drawAngledPic(srx, sry, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, item->textRect.u, item->textRect.v, 
+			newColor, 0, 0, 1, 1, DC->Assets.sliderThumb);
+	} else {
+		pt.x -= (SLIDER_THUMB_WIDTH / 2);
+		DC->drawHandlePic(pt.x, pt.y, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb);
+	}
 }
 
 void Item_Bind_Paint(itemDef_t * item)
@@ -4721,23 +5184,33 @@ void Item_OwnerDraw_Paint(itemDef_t * item)
 		}
 
 		if (item->text) {
+			float p[2];
+			
+			p[0] = item->textRect.x;
+			p[1] = item->window.rect.y;
 			Item_Text_Paint(item);
-			if (item->text[0]) {
-				// +8 is an offset kludge to properly align owner draw items that have text combined with them
-				DC->ownerDrawItem(item->textRect.x + item->textRect.w + 8, item->window.rect.y,
-						  item->window.rect.w, item->window.rect.h, 0, item->textaligny,
-						  item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment,
-						  item->special, item->textscale, color, item->window.background,
-						  item->textStyle);
+
+			// +8 is an offset kludge to properly align owner draw items that have text combined with them
+			if (item->window.rectClient.hasVectors) {
+				if (item->text[0]) {
+					Vector2MA(p, item->textRect.w+8, item->window.rectClient.u, p);
+				} else {
+					Vector2MA(p, item->textRect.w, item->window.rectClient.u, p);
+				}
 			} else {
-				DC->ownerDrawItem(item->textRect.x + item->textRect.w, item->window.rect.y,
-						  item->window.rect.w, item->window.rect.h, 0, item->textaligny,
-						  item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment,
-						  item->special, item->textscale, color, item->window.background,
-						  item->textStyle);
+				if (item->text[0]) {
+					p[0] += item->textRect.w + 8;
+				} else {
+					p[0] += item->textRect.w;
+				}
 			}
+			DC->ownerDrawItem(item, p[0], p[1],
+				item->window.rect.w, item->window.rect.h, 0, item->textaligny,
+				item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment,
+				item->special, item->textscale, color, item->window.background,
+				item->textStyle);
 		} else {
-			DC->ownerDrawItem(item->window.rect.x, item->window.rect.y, item->window.rect.w,
+			DC->ownerDrawItem(item, item->window.rect.x, item->window.rect.y, item->window.rect.w,
 					  item->window.rect.h, item->textalignx, item->textaligny,
 					  item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment,
 					  item->special, item->textscale, color, item->window.background,
@@ -4757,6 +5230,30 @@ void Item_Paint(itemDef_t * item)
 	if (item == NULL) {
 		return;
 	}
+
+	if (item->window.flags & WINDOW_RENDERPOINT)
+	{
+		if (DC->pendingPolys)
+		{
+			UI_Render2DScene();
+		}
+	}
+
+	//Makro - debug
+	/*
+	if (0)
+	{
+		if (item->text && item->textRect.w)
+		{
+			if (Rect_ContainsPoint(&item->textRect, DC->cursorx, DC->cursory))
+			{
+				DC->drawText(DC->cursorx, DC->cursory, 0.3f, colorYellow,
+					va("%.0f %.0f %.0f %.0f", item->textRect.x, item->textRect.y, item->textRect.w, item->textRect.h),
+					0, 0, ITEM_TEXTSTYLE_SHADOWED);
+			}
+		}
+	}
+	*/
 
 	if (item->window.flags & WINDOW_ORBITING) {
 		if (DC->realTime > item->window.nextTime) {
@@ -4883,6 +5380,7 @@ void Item_Paint(itemDef_t * item)
 	if (!(item->window.flags & WINDOW_VISIBLE)) {
 		return;
 	}
+
 	// paint the rect first.. 
 	Window_Paint(&item->window, parent->fadeAmount, parent->fadeClamp, parent->fadeCycle);
 
@@ -4938,7 +5436,6 @@ void Item_Paint(itemDef_t * item)
 	default:
 		break;
 	}
-
 }
 
 void Menu_Init(menuDef_t * menu)
@@ -5136,34 +5633,70 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 
 }
 
+//Makro - let's make things easier
+int UI_GetIndexInTimer(itemDef_t *item)
+{
+	if (!item)
+		return 0;
+	if (!item->window.name)
+		return 0;
+	if (Q_stricmpn(item->window.name, "timer", 5) != 0)
+		return 0;
+	return atoi(item->window.name+5);
+}
+
+
 //Makro - timer actions
 void UI_RQ3_HandleTimer(menuDef_t * menu)
 {
 	if (menu) {
 		if (menu->timerEnabled) {
 			if (DC->realTime > menu->nextTimer) {
-				if (menu->timerPos + 1 > menu->timedItems) {
+				if (menu->timerPos > menu->timedItems) {
 					menu->timerEnabled = qfalse;
 					if (menu->onFinishTimer && menu->itemCount > 0) {
 						Item_RunScript(menu->items[0], menu->onFinishTimer);
 					}
 				} else {
 					int i;
+					int toShow = menu->timerPos;
+					int toHide = menu->timerPos - menu->timerMaxDisplay;
 
 					menu->nextTimer = DC->realTime + menu->timerInterval;
 
 					for (i = 0; i < menu->itemCount; i++) {
-						if (!Q_stricmp(menu->items[i]->window.group, "timer")) {
-							if (!Q_stricmp
-							    (menu->items[i]->window.name,
-							     va("timer%i", menu->timerPos + 1))) {
-								menu->items[i]->window.flags |= WINDOW_VISIBLE;
-								if (menu->items[i]->onTimer) {
-									Item_RunScript(menu->items[i],
-										       menu->items[i]->onTimer);
+						itemDef_t *item = menu->items[i];
+						if (!Q_stricmp(item->window.group, "timer")) {
+							int tIndex = UI_GetIndexInTimer(item);
+
+							//item to be shown
+							if ( tIndex == toShow ) {
+								//manual show
+								if (item->onTimerShow) {
+									Item_RunScript(item, item->onTimerShow);
+								//menu default
+								} else if (menu->onTimerShow) {
+									Item_RunScript(item, menu->onTimerShow);
+								//simply hide
+								} else {
+									item->window.flags |= WINDOW_VISIBLE;
+								}
+							//item to be hidden
+							} else if ( toHide > 0 && tIndex == toHide) {
+								//manual hide
+								if (item->onTimerHide) {
+									Item_RunScript(item, item->onTimerHide);
+								//menu default
+								} else if (menu->onTimerHide) {
+									Item_RunScript(item, menu->onTimerHide);
+								//simply hide
+								} else {
+									item->window.flags &= ~WINDOW_VISIBLE;
 								}
 							} else {
-								menu->items[i]->window.flags &= ~WINDOW_VISIBLE;
+								//hide all items between those two
+								if (tIndex < toHide || tIndex > toShow)
+									menu->items[i]->window.flags &= ~WINDOW_VISIBLE;
 							}
 						}
 					}
@@ -5180,6 +5713,14 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 
 	if (menu == NULL) {
 		return;
+	}
+
+	if (menu->window.flags & WINDOW_RENDERPOINT)
+	{
+		if (DC->pendingPolys)
+		{
+			UI_Render2DScene();
+		}
 	}
 
 	if (!(menu->window.flags & WINDOW_VISIBLE) && !forcePaint) {
@@ -5353,20 +5894,23 @@ qboolean ItemParse_name(itemDef_t * item, int handle)
 qboolean ItemParse_shortcutKey(itemDef_t * item, int handle)
 {
 	const char *temp;
-	int c; 
 
-	if (!PC_String_Parse(handle, &temp)) {
-		item->window.shortcutKey = -1;
-		return qfalse;
+	if (PC_String_Parse(handle, &temp))
+	{
+		int c, i;
+
+		//key buffer already full?
+		for (i=0; i<MAX_SHORTCUT_KEYS && item->window.shortcutKey[i]; i++);
+		if (i == MAX_SHORTCUT_KEYS)
+			return qfalse;
+
+		c = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
+		if (c>='A' && c<='Z')
+			c -= 'A'-'a';
+		item->window.shortcutKey[i] = c;
+		return qtrue;
 	}
-	//Com_Printf(S_COLOR_BLUE "^4MDEBUG: Shortcut key read: %s\n^7", item->window.shortcutKey);
-
-	c = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
-	if (c>='A' && c<='Z')
-		c -= 'A'-'a';
-	item->window.shortcutKey = c;
-
-	return qtrue;
+	return qfalse;
 }
 
 //Makro - fixed height for autowrapped text
@@ -5509,7 +6053,7 @@ qboolean ItemParse_model_rotation(itemDef_t * item, int handle)
 	return qtrue;
 }
 
-// Makro - I'm going to make it so that we can rotate models around all 3 axis
+// Makro - rotate models around all 3 axis
 // model_angle <integer> - old one
 qboolean ItemParse_model_angle(itemDef_t * item, int handle)
 {
@@ -5521,6 +6065,188 @@ qboolean ItemParse_model_angle(itemDef_t * item, int handle)
 	//Makro - changed from Int to Float
 	if (!PC_Float_Parse(handle, &modelPtr->angles[0])) {
 		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - angled items
+//vectors <u1> <u2> <v1> <v2>
+qboolean ItemParse_vectors(itemDef_t *item, int handle)
+{
+	float u[2], v[2];
+	if (PC_Float_Parse(handle, &u[0]))
+	{
+		if (PC_Float_Parse(handle, &u[1]))
+		{
+			if (PC_Float_Parse(handle, &v[0]))
+			{
+				if (PC_Float_Parse(handle, &v[1]))
+				{
+					Vector2Copy(u, item->window.rectClient.u);
+					Vector2Copy(v, item->window.rectClient.v);
+					Vector2Copy(u, item->window.rect.u);
+					Vector2Copy(v, item->window.rect.v);
+					Vector2Copy(u, item->textRect.u);
+					Vector2Copy(v, item->textRect.v);
+					item->window.rectClient.hasVectors=qtrue;
+					item->window.rect.hasVectors=qtrue;
+					item->textRect.hasVectors=qtrue;
+					return qtrue;
+				}
+			}
+		}
+	}
+	return qfalse;
+}
+
+//alignrect <item_name> <alignment_type> <h_distance> <v_distance> <width> <height>
+qboolean ItemParse_alignrect(itemDef_t *item, int handle)
+{
+	int w, h, align, vdist, hdist;
+	const char *to;
+	if (PC_String_Parse(handle, &to))
+	{
+		if (PC_Int_Parse(handle, &align))
+		{
+			if (PC_Int_Parse(handle, &hdist))
+			{
+				if (PC_Int_Parse(handle, &vdist))
+				{
+					if (PC_Int_Parse(handle, &w))
+					{
+						if (PC_Int_Parse(handle, &h))
+						{
+							itemDef_t *toitem = (itemDef_t*)Menu_GetMatchingItemByNumber((menuDef_t*)item->parent,0, to);
+							if (toitem)
+							{
+								//got milk... err, vectors?
+								if (toitem->window.rectClient.hasVectors)
+								{
+									//set co-ords
+									float p[2];
+
+									p[0] = toitem->window.rectClient.x;
+									p[1] = toitem->window.rectClient.y;
+									Vector2MA(p, vdist, toitem->window.rectClient.v, p);
+									if (align == ITEM_ALIGN_RIGHT) {
+										Vector2MA(p, (toitem->window.rectClient.w - w) - hdist, toitem->window.rectClient.u, p);
+									} else if (align == ITEM_ALIGN_CENTER) {
+										Vector2MA(p, (toitem->window.rectClient.w - w)/2 + hdist, toitem->window.rectClient.u, p);
+									} else {
+										Vector2MA(p, hdist, toitem->window.rectClient.u, p);
+									}
+									item->window.rectClient.x = p[0];
+									item->window.rectClient.y = p[1];
+									item->window.rectClient.w = w;
+									item->window.rectClient.h = h;
+									//copy vector info
+									Vector2Copy(toitem->window.rect.u, item->window.rect.u);
+									Vector2Copy(toitem->window.rect.v, item->window.rect.v);
+									item->window.rect.hasVectors = qtrue;
+									Vector2Copy(toitem->window.rect.u, item->window.rectClient.u);
+									Vector2Copy(toitem->window.rect.v, item->window.rectClient.v);
+									item->window.rectClient.hasVectors = qtrue;
+									Vector2Copy(toitem->window.rect.u, item->textRect.u);
+									Vector2Copy(toitem->window.rect.v, item->textRect.v);
+									item->textRect.hasVectors = qtrue;
+								} else {
+									int x = toitem->window.rectClient.x, y = toitem->window.rectClient.y + vdist;
+									if (align == ITEM_ALIGN_RIGHT)
+									{
+										x += toitem->window.rectClient.w - w - hdist;
+									} else if (align == ITEM_ALIGN_CENTER) {
+										x += (toitem->window.rectClient.w - w) / 2 + hdist;
+									} else {
+										x += hdist;
+									}
+									item->window.rectClient.x = x;
+									item->window.rectClient.y = y;
+									item->window.rectClient.w = w;
+									item->window.rectClient.h = h;
+								}
+							}
+							return qtrue;
+						}
+					}
+				}
+			}
+		}
+	}
+	return qfalse;
+}
+
+//normalizevectors
+qboolean ItemParse_normalizevectors(itemDef_t *item, int handle)
+{
+	float norm;
+	
+	if (!item->window.rectClient.hasVectors)
+		return qtrue;
+
+	norm = Vector2Norm2(item->window.rectClient.u);
+	if (!norm)
+		return qtrue;
+	Vector2Scale(item->window.rectClient.u, 1.0f/norm, item->window.rectClient.u);
+	Vector2Copy(item->window.rectClient.u, item->window.rect.u);
+	Vector2Copy(item->window.rectClient.u, item->textRect.u);
+
+	norm = Vector2Norm2(item->window.rectClient.v);
+	if (!norm)
+		return qtrue;
+	Vector2Scale(item->window.rectClient.v, 1.0f/norm, item->window.rectClient.v);
+	Vector2Copy(item->window.rectClient.v, item->window.rect.u);
+	Vector2Copy(item->window.rectClient.v, item->textRect.u);
+	return qtrue;
+}
+
+//anglevectors <u_angle> <v_angle>
+qboolean ItemParse_anglevectors(itemDef_t *item, int handle)
+{
+	float u, v;
+	if (PC_Float_Parse(handle, &u))
+	{
+		if (PC_Float_Parse(handle, &v))
+		{
+			u = DEG2RAD(-u);
+			v = DEG2RAD(-v);
+			Vector2Set(item->window.rectClient.u, cos(u), sin(u));
+			Vector2Set(item->window.rectClient.v, cos(v), sin(v));
+			Vector2Copy(item->window.rectClient.u, item->window.rect.u);
+			Vector2Copy(item->window.rectClient.v, item->window.rect.v);
+			Vector2Copy(item->window.rectClient.u, item->textRect.u);
+			Vector2Copy(item->window.rectClient.v, item->textRect.v);
+			item->window.rectClient.hasVectors=qtrue;
+			item->window.rect.hasVectors=qtrue;
+			item->textRect.hasVectors=qtrue;
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
+//adjustrect
+qboolean ItemParse_adjustrect(itemDef_t * item, int handle)
+{
+	if (item && item->parent)
+	{
+		menuDef_t *menu = (menuDef_t*)item->parent;
+		if (menu->window.rect.hasVectors)
+		{
+			int ox = item->window.rectClient.x, oy = item->window.rectClient.y;
+			//copy vector info
+			Vector2Copy(menu->window.rect.u, item->window.rect.u);
+			Vector2Copy(menu->window.rect.v, item->window.rect.v);
+			item->window.rect.hasVectors = qtrue;
+			Vector2Copy(menu->window.rect.u, item->window.rectClient.u);
+			Vector2Copy(menu->window.rect.v, item->window.rectClient.v);
+			item->window.rectClient.hasVectors = qtrue;
+			Vector2Copy(menu->window.rect.u, item->textRect.u);
+			Vector2Copy(menu->window.rect.v, item->textRect.v);
+			item->textRect.hasVectors = qtrue;
+			//adjust co-ords
+			item->window.rectClient.x = ox * item->window.rectClient.u[0] + oy * item->window.rectClient.v[0];
+			item->window.rectClient.y = ox * item->window.rectClient.u[1] + oy * item->window.rectClient.v[1];
+		}
 	}
 	return qtrue;
 }
@@ -5541,6 +6267,12 @@ qboolean ItemParse_model_angles(itemDef_t * item, int handle)
 		}
 	}
 	return qfalse;
+}
+
+qboolean ItemParse_renderpoint(itemDef_t * item, int handle)
+{
+	item->window.flags |= WINDOW_RENDERPOINT;
+	return qtrue;
 }
 
 // rect <rectangle>
@@ -5897,9 +6629,18 @@ qboolean ItemParse_leaveFocus(itemDef_t * item, int handle)
 }
 
 //Makro - extra action executed when the timer shows this item
-qboolean ItemParse_onTimer(itemDef_t * item, int handle)
+qboolean ItemParse_onTimerShow(itemDef_t * item, int handle)
 {
-	if (!PC_Script_Parse(handle, &item->onTimer)) {
+	if (!PC_Script_Parse(handle, &item->onTimerShow)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - extra action executed when the timer hides this item
+qboolean ItemParse_onTimerHide(itemDef_t * item, int handle)
+{
+	if (!PC_Script_Parse(handle, &item->onTimerHide)) {
 		return qfalse;
 	}
 	return qtrue;
@@ -6206,6 +6947,14 @@ keywordHash_t itemParseKeywords[] = {
 	//Makro - support for 3 angles
 	{"model_angles", ItemParse_model_angles, NULL},
 	{"rect", ItemParse_rect, NULL},
+	//Makro - ugliest hack ever... by far
+	{"renderpoint", ItemParse_renderpoint, NULL},
+	//Makro - angled items
+	{"alignrect", ItemParse_alignrect, NULL},
+	{"adjustrect", ItemParse_adjustrect, NULL},
+	{"vectors", ItemParse_vectors, NULL},
+	{"anglevectors", ItemParse_anglevectors, NULL},
+	{"normalizevectors", ItemParse_normalizevectors, NULL},
 	{"style", ItemParse_style, NULL},
 	{"decoration", ItemParse_decoration, NULL},
 	{"notselectable", ItemParse_notselectable, NULL},
@@ -6238,7 +6987,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"onFocus", ItemParse_onFocus, NULL},
 	{"leaveFocus", ItemParse_leaveFocus, NULL},
 	//Makro - for timers
-	{"onTimer", ItemParse_onTimer, NULL},
+	{"onTimerShow", ItemParse_onTimerShow, NULL},
+	{"onTimerHide", ItemParse_onTimerHide, NULL},
 	{"mouseEnter", ItemParse_mouseEnter, NULL},
 	{"mouseExit", ItemParse_mouseExit, NULL},
 	{"mouseEnterText", ItemParse_mouseEnterText, NULL},
@@ -6384,6 +7134,13 @@ qboolean MenuParse_fullscreen(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+qboolean MenuParse_renderpoint(itemDef_t *item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+	menu->window.flags |= WINDOW_RENDERPOINT;
+	return qtrue;
+}
+
 qboolean MenuParse_rect(itemDef_t * item, int handle)
 {
 	menuDef_t *menu = (menuDef_t *) item;
@@ -6392,6 +7149,77 @@ qboolean MenuParse_rect(itemDef_t * item, int handle)
 		return qfalse;
 	}
 	return qtrue;
+}
+
+//Makro - angled items
+qboolean MenuParse_vectors(itemDef_t *item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+	float u[2], v[2];
+	if (PC_Float_Parse(handle, &u[0]))
+	{
+		if (PC_Float_Parse(handle, &u[1]))
+		{
+			if (PC_Float_Parse(handle, &v[0]))
+			{
+				if (PC_Float_Parse(handle, &v[1]))
+				{
+					Vector2Copy(u, menu->window.rectClient.u);
+					Vector2Copy(v, menu->window.rectClient.v);
+					Vector2Copy(u, menu->window.rect.u);
+					Vector2Copy(v, menu->window.rect.v);
+					menu->window.rectClient.hasVectors=qtrue;
+					menu->window.rect.hasVectors=qtrue;
+					return qtrue;
+				}
+			}
+		}
+	}
+	return qfalse;
+}
+
+qboolean MenuParse_normalizevectors(itemDef_t *item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+	float norm;
+	
+	if (!menu->window.rectClient.hasVectors)
+		return qfalse;
+
+	norm = Vector2Norm2(menu->window.rectClient.u);
+	if (!norm)
+		return qfalse;
+	Vector2Scale(menu->window.rectClient.u, 1.0f/norm, menu->window.rectClient.u);
+	Vector2Copy(menu->window.rectClient.u, menu->window.rect.u);
+
+	norm = Vector2Norm2(menu->window.rectClient.v);
+	if (!norm)
+		return qfalse;
+	Vector2Scale(menu->window.rectClient.v, 1.0f/norm, menu->window.rectClient.v);
+	Vector2Copy(menu->window.rectClient.v, menu->window.rect.u);
+	return qtrue;
+}
+
+qboolean MenuParse_anglevectors(itemDef_t *item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+	float u, v;
+	if (PC_Float_Parse(handle, &u))
+	{
+		if (PC_Float_Parse(handle, &v))
+		{
+			u = DEG2RAD(-u);
+			v = DEG2RAD(-v);
+			Vector2Set(menu->window.rectClient.u, cos(u), sin(u));
+			Vector2Set(menu->window.rectClient.v, cos(v), sin(v));
+			Vector2Copy(menu->window.rectClient.u, menu->window.rect.u);
+			Vector2Copy(menu->window.rectClient.v, menu->window.rect.v);
+			menu->window.rectClient.hasVectors=qtrue;
+			menu->window.rect.hasVectors=qtrue;
+			return qtrue;
+		}
+	}
+	return qfalse;
 }
 
 qboolean MenuParse_style(itemDef_t * item, int handle)
@@ -6449,6 +7277,28 @@ qboolean MenuParse_onFirstShow(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+//Makro - executed in addition to the item script
+qboolean MenuParse_onTimerShow(itemDef_t * item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+
+	if (!PC_Script_Parse(handle, &menu->onTimerShow)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - executed in addition to the item script
+qboolean MenuParse_onTimerHide(itemDef_t * item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+
+	if (!PC_Script_Parse(handle, &menu->onTimerHide)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean MenuParse_onClose(itemDef_t * item, int handle)
 {
 	menuDef_t *menu = (menuDef_t *) item;
@@ -6497,6 +7347,17 @@ qboolean MenuParse_timedItems(itemDef_t * item, int handle)
 	menuDef_t *menu = (menuDef_t *) item;
 
 	if (!PC_Int_Parse(handle, &menu->timedItems)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//number of items to be shown at a time
+qboolean MenuParse_timerMaxDisplay(itemDef_t *item, int handle)
+{
+	menuDef_t *menu = (menuDef_t*) item;
+	if (!PC_Int_Parse(handle, &menu->timerMaxDisplay)) {
+		menu->timerMaxDisplay = 1;
 		return qfalse;
 	}
 	return qtrue;
@@ -6732,101 +7593,78 @@ qboolean MenuParse_fadeCycle(itemDef_t * item, int handle)
 	return qtrue;
 }
 
-qboolean MenuParse_itemDef(itemDef_t * item, int handle)
-{
-	menuDef_t *menu = (menuDef_t *) item;
-
+qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
 	if (menu->itemCount < MAX_MENUITEMS) {
 		menu->items[menu->itemCount] = UI_Alloc(sizeof(itemDef_t));
 		Item_Init(menu->items[menu->itemCount]);
+		//was below
+		menu->items[menu->itemCount]->parent = menu;
 		if (!Item_Parse(handle, menu->items[menu->itemCount])) {
 			return qfalse;
 		}
 		Item_InitControls(menu->items[menu->itemCount]);
-		menu->items[menu->itemCount++]->parent = menu;
+		//Makro - moved above
+		//menu->items[menu->itemCount++]->parent = menu;
+		menu->itemCount++;
 	}
 	return qtrue;
 }
 
 keywordHash_t menuParseKeywords[] = {
-	{"font", MenuParse_font, NULL}
-	,
-	{"name", MenuParse_name, NULL}
-	,
-	{"fullscreen", MenuParse_fullscreen, NULL}
-	,
-	{"rect", MenuParse_rect, NULL}
-	,
-	{"style", MenuParse_style, NULL}
-	,
-	{"visible", MenuParse_visible, NULL}
-	,
-	{"onOpen", MenuParse_onOpen, NULL}
-	,
+	{"font", MenuParse_font, NULL},
+	{"name", MenuParse_name, NULL},
+	{"fullscreen", MenuParse_fullscreen, NULL},
+	{"rect", MenuParse_rect, NULL},
+	//Makro - ugliest hack ever... by far
+	{"renderpoint", MenuParse_renderpoint, NULL},
+	//Makro - angled items
+	{"vectors", MenuParse_vectors, NULL},
+	{"anglevectors", MenuParse_anglevectors, NULL},
+	{"normalizevectors", MenuParse_normalizevectors, NULL},
+	{"style", MenuParse_style, NULL},
+	{"visible", MenuParse_visible, NULL},
+	{"onOpen", MenuParse_onOpen, NULL},
 	//Makro - executed when the menu is shown
-	{"onShow", MenuParse_onShow, NULL}
-	,
-	{"onFirstShow", MenuParse_onFirstShow, NULL}
-	,
-	{"onClose", MenuParse_onClose, NULL}
-	,
-	{"onESC", MenuParse_onESC, NULL}
-	,
+	{"onShow", MenuParse_onShow, NULL},
+	{"onFirstShow", MenuParse_onFirstShow, NULL},
+	{"onClose", MenuParse_onClose, NULL},
+	{"onESC", MenuParse_onESC, NULL},
 	//Makro - executed when all the items in a timed sequence have been shown
-	{"onFinishTimer", MenuParse_onFinishTimer, NULL}
-	,
+	{"onFinishTimer", MenuParse_onFinishTimer, NULL},
+	//Makro - executed in addition to the item script
+	{"onTimerShow", MenuParse_onTimerShow},
+	{"onTimerHide", MenuParse_onTimerHide},
 	//Makro - timer interval
-	{"timerInterval", MenuParse_timerInterval, NULL}
-	,
+	{"timerInterval", MenuParse_timerInterval, NULL},
 	//Makro - total items in timed sequence
-	{"timedItems", MenuParse_timedItems, NULL}
-	,
-	{"border", MenuParse_border, NULL}
-	,
+	{"timedItems", MenuParse_timedItems, NULL},
+	//number of items to be shown at a time
+	{"timermaxdisplay", MenuParse_timerMaxDisplay, NULL},
+	{"border", MenuParse_border, NULL},
 	//Makro - for drop shadow effects
-	{"shadowStyle", MenuParse_shadowStyle, NULL}
-	,
-	{"dropShadowStyle", MenuParse_shadowStyle, NULL}
-	,
-	{"borderSize", MenuParse_borderSize, NULL}
-	,
-	{"backcolor", MenuParse_backcolor, NULL}
-	,
-	{"forecolor", MenuParse_forecolor, NULL}
-	,
-	{"bordercolor", MenuParse_bordercolor, NULL}
-	,
-	{"focuscolor", MenuParse_focuscolor, NULL}
-	,
-	{"disablecolor", MenuParse_disablecolor, NULL}
-	,
-	{"outlinecolor", MenuParse_outlinecolor, NULL}
-	,
-	{"background", MenuParse_background, NULL}
-	,
-	{"ownerdraw", MenuParse_ownerdraw, NULL}
-	,
-	{"ownerdrawFlag", MenuParse_ownerdrawFlag, NULL}
-	,
-	{"outOfBoundsClick", MenuParse_outOfBounds, NULL}
-	,
-	{"soundLoop", MenuParse_soundLoop, NULL}
-	,
+	{"shadowStyle", MenuParse_shadowStyle, NULL},
+	{"dropShadowStyle", MenuParse_shadowStyle, NULL},
+	{"borderSize", MenuParse_borderSize, NULL},
+	{"backcolor", MenuParse_backcolor, NULL},
+	{"forecolor", MenuParse_forecolor, NULL},
+	{"bordercolor", MenuParse_bordercolor, NULL},
+	{"focuscolor", MenuParse_focuscolor, NULL},
+	{"disablecolor", MenuParse_disablecolor, NULL},
+	{"outlinecolor", MenuParse_outlinecolor, NULL},
+	{"background", MenuParse_background, NULL},
+	{"ownerdraw", MenuParse_ownerdraw, NULL},
+	{"ownerdrawFlag", MenuParse_ownerdrawFlag, NULL},
+	{"outOfBoundsClick", MenuParse_outOfBounds, NULL},
+	{"soundLoop", MenuParse_soundLoop, NULL},
 	//Makro - support for music with intro
-	{"soundIntro", MenuParse_soundIntro, NULL}
-	,
-	{"itemDef", MenuParse_itemDef, NULL}
-	,
-	{"cinematic", MenuParse_cinematic, NULL}
-	,
-	{"popup", MenuParse_popup, NULL}
-	,
-	{"fadeClamp", MenuParse_fadeClamp, NULL}
-	,
-	{"fadeCycle", MenuParse_fadeCycle, NULL}
-	,
-	{"fadeAmount", MenuParse_fadeAmount, NULL}
-	,
+	{"soundIntro", MenuParse_soundIntro, NULL},
+	{"itemDef", MenuParse_itemDef, NULL},
+	{"cinematic", MenuParse_cinematic, NULL},
+	{"popup", MenuParse_popup, NULL},
+	{"fadeClamp", MenuParse_fadeClamp, NULL},
+	{"fadeCycle", MenuParse_fadeCycle, NULL},
+	{"fadeAmount", MenuParse_fadeAmount, NULL},
 	{NULL, NULL, NULL}
 };
 

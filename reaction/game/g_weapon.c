@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.92  2003/09/19 21:25:10  makro
 // Flares (again!). Doors that open away from players.
 //
@@ -202,11 +205,6 @@
 #include "surfaceflags.h"
 // JBravo: for warnings
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
-
-//Makro - to get the new surfaceparm system to work :/
-int GetMaterialFromFlag(int flag);
-qboolean IsMetalMat(int Material);
-qboolean IsMetalFlag(int flag);
 
 static vec3_t forward, right, up;
 static vec3_t muzzle;

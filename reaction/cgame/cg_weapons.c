@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.120  2005/02/15 16:33:38  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.119  2004/01/26 21:26:08  makro
 // no message
 //
@@ -1317,6 +1320,7 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 	gun1.shaderRGBA[ 1 ] = 255;
 	gun1.shaderRGBA[ 2 ] = 255;
 	gun1.shaderRGBA[ 3 ] = 255;
+	gun1.nonNormalizedAxes = qtrue;
 	VectorCopy( parent->lightingOrigin, gun2.lightingOrigin );
 	gun2.shadowPlane = parent->shadowPlane;
 	gun2.renderfx = parent->renderfx;
@@ -1777,6 +1781,13 @@ void CG_AddViewWeapon(playerState_t * ps)
 	hand.backlerp = 0;
 	hand.hModel = weapon->handsModel;
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+	/*
+	hand.nonNormalizedAxes = qtrue;
+	if (cg_RQ3_leftHanded.integer)
+	{
+		VectorNegate(hand.axis[1], hand.axis[1]);
+	}
+	*/
 
 	// add everything onto the hand
 	CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM]);

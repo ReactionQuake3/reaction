@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2005/02/15 16:33:39  makro
+// Tons of updates (entity tree attachment system, UI vectors)
+//
 // Revision 1.50  2004/01/26 21:26:08  makro
 // no message
 //
@@ -253,6 +256,9 @@ field_t fields[] = {
 	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
 	{"inactive", FOFS(inactive), F_INT},	// Makro - for inactive objects
 	{"activatename", FOFS(activatename), F_LSTRING},
+	{"alias", FOFS(alias), F_LSTRING},		//Makro - entity id strings
+	{"moveparent", FOFS(moveParent), F_LSTRING},		//Makro - entity id strings
+	{"attachto", FOFS(moveParent), F_LSTRING},			//
 	{"noreset", FOFS(noreset), F_INT},	//Makro - for entities that shouldn't respawn in TP
 	{NULL}
 };
