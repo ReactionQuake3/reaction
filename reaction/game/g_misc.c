@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/05/02 03:06:09  blaze
+// Fixed breakables crashing on vashes
+//
 // Revision 1.34  2002/05/02 02:28:36  blaze
 // Triggerable and targetable breakables
 //
@@ -525,7 +528,7 @@ void SP_func_breakable( gentity_t *ent ) {
   {
     health = 5;
   }
-  G_Printf("Setting health to %d\n",health);
+  //G_Printf("Setting health to %d\n",health);
   G_SpawnInt("damage","170", &damage);
 
 	ent->damage = damage;
@@ -537,7 +540,7 @@ void SP_func_breakable( gentity_t *ent ) {
   ent->exploded = qfalse;
 	// Setup amount type
 	G_SpawnInt( "amount", "0", &temp );  
-
+  //Com_Printf("Amount %d ", temp);
 	switch (temp)
 	{
 		case 0:
@@ -559,6 +562,7 @@ void SP_func_breakable( gentity_t *ent ) {
 	if ( ent->spawnflags & 1)
   {
     ent->chippable = qtrue;
+    //Com_Printf("Chippable ");
   }
   else
   {
@@ -568,6 +572,7 @@ void SP_func_breakable( gentity_t *ent ) {
   if ( ent->spawnflags & 2)
   {
     ent->unbreakable = qtrue;
+    //Com_Printf("Unbreakable ");
   }
   else
   {
@@ -577,6 +582,7 @@ void SP_func_breakable( gentity_t *ent ) {
   if ( ent->spawnflags & 4)
   {
     ent->explosive = qtrue;
+    //Com_Printf("Explosive ");
   }
   else
   {
@@ -596,6 +602,7 @@ void SP_func_breakable( gentity_t *ent ) {
     G_FreeEntity( ent );
     return;
   }
+  //Com_Printf("ID (%d) ", id);
   if (G_SpawnString( "type", "", &name) )
   {
     Q_strncpyz(rq3_breakables[id],name,80);
@@ -606,6 +613,7 @@ void SP_func_breakable( gentity_t *ent ) {
     G_FreeEntity( ent );
     return;
   }
+  //Com_Printf("type (%s)\n",name);
   
   amount = amount << 6;
   

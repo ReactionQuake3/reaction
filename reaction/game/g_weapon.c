@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/05/02 03:06:09  blaze
+// Fixed breakables crashing on vashes
+//
 // Revision 1.49  2002/04/29 06:16:10  niceass
 // small change to pressure system
 //
@@ -1645,6 +1648,23 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		}
 
 		traceEnt = &g_entities[ trace.entityNum ];
+    if ( traceEnt->unbreakable == qtrue)
+    {
+			Material = GetMaterialFromFlag(trace.surfaceFlags);
+  		//if ( (trace.surfaceFlags & SURF_METALSTEPS) ||
+			//	 (trace.surfaceFlags & SURF_METAL2) )
+			if ( IsMetalMat(Material) )
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_METAL );
+			else if (Material == MAT_GLASS)
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_GLASS );
+			else
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_WALL );
+
+   		if ( traceEnt && traceEnt->s.eType == ET_PRESSURE )
+			G_CreatePressure(trace.endpos, trace.plane.normal, traceEnt);
+
+      return;
+    }
 
 		// NiceAss: Special hit-detection stuff for the head
 		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, trace.endpos) == qfalse ) {
@@ -1734,7 +1754,6 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
     //Breakables may have broken already already
     if (hitBreakable == qfalse)
     {
-      G_Printf("Unlinking Something\n");
 		  trap_UnlinkEntity( traceEnt );
 		  unlinkedEntities[unlinked] = traceEnt;
 		  unlinked++;
