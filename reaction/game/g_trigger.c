@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.31  2004/03/12 15:56:46  makro
+// no message
+//
 // Revision 1.30  2003/09/18 00:05:06  makro
 // Lens flares. Opendoor trigger_multiple fixes
 //
@@ -514,6 +517,18 @@ NO_PROTECTION	*nothing* stops the damage
 "dmg"			default 5 (whole numbers only)
 
 */
+//Makro - reset function
+void hurt_reset(gentity_t *ent)
+{
+	ent->timestamp = level.time;
+	if (!(ent->spawnflags & 1)) {
+		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	} else {
+		//Makro - added
+		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+	}
+}
+
 void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 {
 	if (self->r.linked) {
@@ -570,6 +585,8 @@ void SP_trigger_hurt(gentity_t * self)
 	//if ( self->spawnflags & 2 ) {
 	self->use = hurt_use;
 	//}
+	//Makro - reset function
+	self->reset = hurt_reset;
 
 	// link in to the world if starting active
 	if (!(self->spawnflags & 1)) {

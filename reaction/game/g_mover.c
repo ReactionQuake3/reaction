@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2004/03/12 15:56:46  makro
+// no message
+//
 // Revision 1.75  2004/03/09 02:19:01  makro
 // Bug in the reset function for func_trains
 //
@@ -2426,9 +2429,8 @@ void Reset_Func_Train(gentity_t *ent)
 	if (!ent->nextTrain)
 		return;
 	VectorClear(ent->r.currentAngles);
-	VectorClear(ent->s.apos.trBase);
-	ent->s.apos.trType = TR_STATIONARY;
-	ent->s.apos.trTime = level.time;
+	VectorCopy(ent->r.currentAngles, ent->pos1);
+	SetMoverState(ent, ROTATOR_POS1, level.time);
 	Think_BeginMoving(ent);
 }
 
