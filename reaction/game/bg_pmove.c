@@ -883,7 +883,7 @@ static void PM_WalkMove( void ) {
 	}
 */
 
-	if ( PM_CheckJump () ) {
+	if ( !((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) && PM_CheckJump () ) {
 		// jumped away
 		if ( pm->waterlevel > 1 ) {
 			PM_WaterMove();
