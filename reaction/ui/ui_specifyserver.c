@@ -6,20 +6,27 @@
 	SPECIFY SERVER
 *********************************************************************************/
 
-#define SPECIFYSERVER_FRAMEL	"menu/art/frame2_l"
-#define SPECIFYSERVER_FRAMER	"menu/art/frame1_r"
-#define SPECIFYSERVER_BACK0		"menu/art/back_0"
-#define SPECIFYSERVER_BACK1		"menu/art/back_1"
+//#define SPECIFYSERVER_FRAMEL	"menu/art/frame2_l"
+//#define SPECIFYSERVER_FRAMER	"menu/art/frame1_r"
+
+//#define SPECIFYSERVER_BACK0		"menu/art/back_0"
+//#define SPECIFYSERVER_BACK1		"menu/art/back_1"
+#define SPECIFYSERVER_BACK0		"menu/art/rq3-menu-back.tga"
+#define SPECIFYSERVER_BACK1		"menu/art/rq3-menu-back-focus.tga"	
 #define SPECIFYSERVER_FIGHT0	"menu/art/fight_0"
 #define SPECIFYSERVER_FIGHT1	"menu/art/fight_1"
+
+//Elder: RQ3 Setup assets
+#define RQ3_START_ICON		"menu/art/rq3-menu-start.jpg"
+#define RQ3_START_TITLE		"menu/art/rq3-title-start.jpg"
 
 #define ID_SPECIFYSERVERBACK	102
 #define ID_SPECIFYSERVERGO		103
 
 static char* specifyserver_artlist[] =
 {
-	SPECIFYSERVER_FRAMEL,
-	SPECIFYSERVER_FRAMER,
+	//SPECIFYSERVER_FRAMEL,
+	//SPECIFYSERVER_FRAMER,
 	SPECIFYSERVER_BACK0,	
 	SPECIFYSERVER_BACK1,	
 	SPECIFYSERVER_FIGHT0,
@@ -34,11 +41,18 @@ typedef struct
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
+	/*
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
+	*/
+
+	
+	//Elder: RQ3 Stuff
+	menubitmap_s		rq3_starticon;
+	menubitmap_s		rq3_starttitle;
 
 	menufield_s		domain;
 	menufield_s		port;
@@ -47,6 +61,26 @@ typedef struct
 } specifyserver_t;
 
 static specifyserver_t	s_specifyserver;
+
+
+/*
+===============
+Added by Elder
+Preferences_MenuDraw
+===============
+*/
+static void SpecifyServer_MenuDraw( void ) {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+	
+	// standard menu drawing
+	Menu_Draw( &s_specifyserver.menu );
+}
+
 
 /*
 =================
@@ -94,6 +128,7 @@ void SpecifyServer_MenuInit( void )
 
 	SpecifyServer_Cache();
 
+	s_specifyserver.menu.draw = SpecifyServer_MenuDraw;
 	s_specifyserver.menu.wrapAround = qtrue;
 	s_specifyserver.menu.fullscreen = qtrue;
 	s_specifyserver.menu.showlogo	= qtrue;
@@ -124,6 +159,7 @@ void SpecifyServer_MenuInit( void )
 	s_specifyserver.framer.width  	     = 256;
 	s_specifyserver.framer.height  	     = 334;
 */
+	/*
 	s_specifyserver.multim.generic.type		= MTYPE_PTEXT;
 	s_specifyserver.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_INACTIVE|QMF_HIGHLIGHT;
 	s_specifyserver.multim.generic.x		= 120;
@@ -164,8 +200,28 @@ void SpecifyServer_MenuInit( void )
 	s_specifyserver.exitm.string			= "EXIT";
 	s_specifyserver.exitm.color				= color_red;
 	s_specifyserver.exitm.style				= UI_CENTER | UI_DROPSHADOW;
+	*/
 
-s_specifyserver.domain.generic.type       = MTYPE_FIELD;
+	//Elder: Info for setup icon
+	s_specifyserver.rq3_starticon.generic.type				= MTYPE_BITMAP;
+	s_specifyserver.rq3_starticon.generic.name				= RQ3_START_ICON;
+	s_specifyserver.rq3_starticon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_specifyserver.rq3_starticon.generic.x					= 0;
+	s_specifyserver.rq3_starticon.generic.y					= 4;
+	s_specifyserver.rq3_starticon.width						= RQ3_ICON_WIDTH;
+	s_specifyserver.rq3_starticon.height						= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for setup title
+	s_specifyserver.rq3_starttitle.generic.type				= MTYPE_BITMAP;
+	s_specifyserver.rq3_starttitle.generic.name				= RQ3_START_TITLE;
+	s_specifyserver.rq3_starttitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	s_specifyserver.rq3_starttitle.generic.x					= 64;
+	s_specifyserver.rq3_starttitle.generic.y					= 12;
+	s_specifyserver.rq3_starttitle.width						= 256;
+	s_specifyserver.rq3_starttitle.height					= 32;
+
+
+	s_specifyserver.domain.generic.type       = MTYPE_FIELD;
 	s_specifyserver.domain.generic.name       = "Address:";
 	s_specifyserver.domain.generic.flags      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_specifyserver.domain.generic.x	      = 206;
@@ -186,10 +242,10 @@ s_specifyserver.domain.generic.type       = MTYPE_FIELD;
 	s_specifyserver.go.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_specifyserver.go.generic.callback = SpecifyServer_Event;
 	s_specifyserver.go.generic.id	    = ID_SPECIFYSERVERGO;
-	s_specifyserver.go.generic.x		= 640;
-	s_specifyserver.go.generic.y		= 480-64;
-	s_specifyserver.go.width  		    = 128;
-	s_specifyserver.go.height  		    = 64;
+	s_specifyserver.go.generic.x		= 640-8;
+	s_specifyserver.go.generic.y		= 480-44;
+	s_specifyserver.go.width  		    = 64;
+	s_specifyserver.go.height  		    = 32;
 	s_specifyserver.go.focuspic         = SPECIFYSERVER_FIGHT1;
 
 	s_specifyserver.back.generic.type	  = MTYPE_BITMAP;
@@ -197,22 +253,26 @@ s_specifyserver.domain.generic.type       = MTYPE_FIELD;
 	s_specifyserver.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_specifyserver.back.generic.callback = SpecifyServer_Event;
 	s_specifyserver.back.generic.id	      = ID_SPECIFYSERVERBACK;
-	s_specifyserver.back.generic.x		  = 0;
-	s_specifyserver.back.generic.y		  = 480-64;
-	s_specifyserver.back.width  		  = 128;
-	s_specifyserver.back.height  		  = 64;
+	s_specifyserver.back.generic.x		  = 8;
+	s_specifyserver.back.generic.y		  = 480-44;
+	s_specifyserver.back.width  		  = 32;
+	s_specifyserver.back.height  		  = 32;
 	s_specifyserver.back.focuspic         = SPECIFYSERVER_BACK1;
 
 	//Blaze: This banner is not needed
 	//Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.banner );
 	//Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.framel );
 	//Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.framer );
+	/*
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.multim );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.setupm );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.demom );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.modsm );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.exitm );
+	*/
 
+	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.rq3_starticon );
+	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.rq3_starttitle );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.domain );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.port );
 	Menu_AddItem( &s_specifyserver.menu, &s_specifyserver.go );

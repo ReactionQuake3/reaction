@@ -50,11 +50,13 @@ typedef struct {
 //	menutext_s		banner;
 //	menubitmap_s	framel;
 //	menubitmap_s	framer;
+	/*
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
+	*/
 
 	menulist_s		gametype;
 	menubitmap_s	mappics[MAX_MAPSPERPAGE];
@@ -404,6 +406,7 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.framer.width  	   = 256;
 	s_startserver.framer.height  	   = 334;
 */
+	/*
 	s_startserver.multim.generic.type	= MTYPE_PTEXT;
 	s_startserver.multim.generic.flags 	= QMF_CENTER_JUSTIFY|QMF_INACTIVE|QMF_HIGHLIGHT;
 	s_startserver.multim.generic.x		= 120;
@@ -443,6 +446,7 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.exitm.string			= "EXIT";
 	s_startserver.exitm.color			= color_red;
 	s_startserver.exitm.style			= UI_CENTER | UI_DROPSHADOW;
+	*/
 
 	s_startserver.gametype.generic.type		= MTYPE_SPINCONTROL;
 	s_startserver.gametype.generic.name		= "Game Type:";
@@ -553,11 +557,13 @@ static void StartServer_MenuInit( void ) {
 //	Menu_AddItem( &s_startserver.menu, &s_startserver.banner );
 //	Menu_AddItem( &s_startserver.menu, &s_startserver.framel );
 //	Menu_AddItem( &s_startserver.menu, &s_startserver.framer );
+	/*
 	Menu_AddItem( &s_startserver.menu, &s_startserver.multim );
 	Menu_AddItem( &s_startserver.menu, &s_startserver.setupm );
 	Menu_AddItem( &s_startserver.menu, &s_startserver.demom );
 	Menu_AddItem( &s_startserver.menu, &s_startserver.modsm );
 	Menu_AddItem( &s_startserver.menu, &s_startserver.exitm );
+	*/
 
 	Menu_AddItem( &s_startserver.menu, &s_startserver.gametype );
 	for (i=0; i<MAX_MAPSPERPAGE; i++)
@@ -594,8 +600,8 @@ void StartServer_Cache( void )
 	trap_R_RegisterShaderNoMip( GAMESERVER_BACK1 );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_NEXT0 );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_NEXT1 );	
-	trap_R_RegisterShaderNoMip( GAMESERVER_FRAMEL );	
-	trap_R_RegisterShaderNoMip( GAMESERVER_FRAMER );	
+	//trap_R_RegisterShaderNoMip( GAMESERVER_FRAMEL );	
+	//trap_R_RegisterShaderNoMip( GAMESERVER_FRAMER );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_SELECT );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_SELECTED );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_UNKNOWNMAP );

@@ -204,7 +204,7 @@ static void Preferences_Event( void* ptr, int event ) {
 			break;
 
 		case ID_BACK:
-			s_preferences.rq3_statustext.string = "Return to main menu";
+			s_preferences.rq3_statustext.string = "Return to setup menu";
 			break;
 			
 		default:

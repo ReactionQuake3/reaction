@@ -21,6 +21,12 @@ CONTROLS MENU
 //Elder: RQ3 Setup assets
 #define RQ3_SETUP_ICON		"menu/art/rq3-setup-controls.jpg"
 #define RQ3_SETUP_TITLE		"menu/art/rq3-title-setup.jpg"
+#define RQ3_FOCUS_BUTTON	"menu/art/rq3-menu-focus.tga"
+#define RQ3_LOOKING_BUTTON	"menu/art/rq3-controls-looking.jpg"
+#define RQ3_MOVEMENT_BUTTON	"menu/art/rq3-controls-movement.jpg"
+#define RQ3_WEAPONS_BUTTON	"menu/art/rq3-controls-weapons.jpg"
+#define RQ3_MISC_BUTTON		"menu/art/rq3-controls-misc.jpg"
+#define RQ3_REACTION_BUTTON	"menu/art/rq3-controls-reaction.jpg"
 
 
 typedef struct {
@@ -172,15 +178,23 @@ typedef struct
 	//Elder: RQ3 Stuff
 	menubitmap_s	rq3_setupicon;
 	menubitmap_s	rq3_setuptitle;
+	menutext_s		rq3_statustext;
 
 	menubitmap_s		player;
-
+	
+	/*
 	menutext_s			movement;
 	menutext_s			looking;
 	menutext_s			weapons;
 	menutext_s			misc;
+	*/
+	menubitmap_s		movement;
+	menubitmap_s		looking;
+	menubitmap_s		weapons;
+	menubitmap_s		misc;
+	
 	//Blaze: Reaction Menu
-	menutext_s			reaction;
+	menubitmap_s		reaction;
 
 	menuaction_s		walkforward;
 	menuaction_s		backpedal;
@@ -278,15 +292,15 @@ static bind_t g_bindings[] =
 	{"+zoom", 			"zoom view",		ID_ZOOMVIEW,	ANIM_IDLE,		-1,				-1,		-1, -1},
 //Blaze: Reaction Weapon binds
 //Jbravo: order is important.
-	{"weapon 1",		"MK23 Pistol",						ID_WEAPON1,	ANIM_WEAPON1,	'1',	-1,	-1, -1},
-	{"weapon 2",		"M3 Super 90 Assault Shotgun",		ID_WEAPON2,	ANIM_WEAPON2,	'2',	-1,	-1, -1},
-	{"weapon 3",		"MP5/10 Submachinegun",				ID_WEAPON3,	ANIM_WEAPON3,	'3',	-1,	-1, -1},
-	{"weapon 4",		"Handcannon",						ID_WEAPON4,	ANIM_WEAPON4,	'4',	-1,	-1, -1},
-	{"weapon 5",		"Sniper Rifle",						ID_WEAPON5,	ANIM_WEAPON5,	'5',	-1,	-1, -1},
-	{"weapon 6",		"M4 Assault Rifle",					ID_WEAPON6,	ANIM_WEAPON6,	'6',	-1,	-1, -1},
-	{"weapon 7",		"Dual MK23 Pistols",				ID_WEAPON7,	ANIM_WEAPON7,	'7',	-1,	-1, -1},
-	{"weapon 8",		"Combat Knife",						ID_WEAPON8,	ANIM_WEAPON8,	'8',	-1,	-1, -1},
-	{"weapon 9",		"M26 Fragmentation Grenade",		ID_WEAPON9,	ANIM_WEAPON9,	'9',	-1,	-1, -1},
+	{"weapon 1",		"MK23 Pistol",				ID_WEAPON1,	ANIM_WEAPON1,	'1',	-1,	-1, -1},
+	{"weapon 2",		"M3 Assault Shotgun",		ID_WEAPON2,	ANIM_WEAPON2,	'2',	-1,	-1, -1},
+	{"weapon 3",		"MP5/10 Submachinegun",		ID_WEAPON3,	ANIM_WEAPON3,	'3',	-1,	-1, -1},
+	{"weapon 4",		"Handcannon",				ID_WEAPON4,	ANIM_WEAPON4,	'4',	-1,	-1, -1},
+	{"weapon 5",		"Sniper Rifle",				ID_WEAPON5,	ANIM_WEAPON5,	'5',	-1,	-1, -1},
+	{"weapon 6",		"M4 Assault Rifle",			ID_WEAPON6,	ANIM_WEAPON6,	'6',	-1,	-1, -1},
+	{"weapon 7",		"Dual MK23 Pistols",		ID_WEAPON7,	ANIM_WEAPON7,	'7',	-1,	-1, -1},
+	{"weapon 8",		"Combat Knife",				ID_WEAPON8,	ANIM_WEAPON8,	'8',	-1,	-1, -1},
+	{"weapon 9",		"M26 Frag Grenade",			ID_WEAPON9,	ANIM_WEAPON9,	'9',	-1,	-1, -1},
 	{"+attack", 		"attack",			ID_ATTACK,		ANIM_ATTACK,	K_CTRL,			-1,		-1, -1},
 	{"weapprev",		"prev weapon",		ID_WEAPPREV,	ANIM_IDLE,		'[',			-1,		-1, -1},
 	{"weapnext", 		"next weapon",		ID_WEAPNEXT,	ANIM_IDLE,		']',			-1,		-1, -1},
@@ -551,43 +565,56 @@ static void Controls_UpdateModel( int anim ) {
 */
 //Blaze: Reaction weapons
 	case ANIM_WEAPON1:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_PISTOL;
 		break;
 
 	case ANIM_WEAPON2:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_M3;
 		break;
 
 	case ANIM_WEAPON3:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_MP5;
 		break;
 
 	case ANIM_WEAPON4:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_HANDCANNON;
 		break;
 
 	case ANIM_WEAPON5:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_SSG3000;
 		break;
 
 	case ANIM_WEAPON6:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_M4;
 		break;
 
 	case ANIM_WEAPON7:
+		s_controls.playerTorso = TORSO_STAND;
 		s_controls.playerWeapon = WP_AKIMBO;
 		break;
 
 	case ANIM_WEAPON8:
+		s_controls.playerTorso = TORSO_STAND2;
 		s_controls.playerWeapon = WP_KNIFE;
 		break;
 
 	case ANIM_WEAPON9:
+		s_controls.playerTorso = TORSO_STAND2;
 		s_controls.playerWeapon = WP_GRENADE;
 		break;
 
 	case ANIM_ATTACK:
-		s_controls.playerTorso = TORSO_ATTACK;
+		if ( s_controls.playerWeapon == WP_GRENADE ||
+			s_controls.playerWeapon == WP_KNIFE )
+			s_controls.playerTorso = TORSO_ATTACK2;
+		else
+			s_controls.playerTorso = TORSO_ATTACK;
 		break;
 
 	case ANIM_GESTURE:
@@ -650,10 +677,10 @@ static void Controls_Update( void ) {
 	// bk001204 - parentheses
 	for( j = 0;	(control = controls[j]) ; j++, y += SMALLCHAR_HEIGHT ) {
 		//Elder: changed from 320
-		control->x      = 320;
+		control->x      = 200;
 		control->y      = y;
-		control->left   = 320 - 19*SMALLCHAR_WIDTH;
-		control->right  = 320 + 21*SMALLCHAR_WIDTH;
+		control->left   = 200 - 19*SMALLCHAR_WIDTH;
+		control->right  = 200 + 21*SMALLCHAR_WIDTH;
 		control->top    = y;
 		control->bottom = y + SMALLCHAR_HEIGHT;
 	}
@@ -668,7 +695,7 @@ static void Controls_Update( void ) {
 		((menucommon_s*)(s_controls.menu.items[s_controls.menu.cursor]))->flags &= ~QMF_GRAYED;
 
 		// don't gray out player's name
-		s_controls.name.generic.flags &= ~QMF_GRAYED;
+		//s_controls.name.generic.flags &= ~QMF_GRAYED;
 
 		return;
 	}
@@ -679,19 +706,17 @@ static void Controls_Update( void ) {
 	}
 
 	// makes sure flags are right on the group selection controls
-	s_controls.looking.generic.flags  &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
-	s_controls.movement.generic.flags &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
-	s_controls.weapons.generic.flags  &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
-	s_controls.misc.generic.flags     &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
-	//Blaze: Reaction stuff
-	s_controls.reaction.generic.flags &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_HIGHLIGHT_IF_FOCUS);
+	s_controls.looking.generic.flags  &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
+	s_controls.movement.generic.flags &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
+	s_controls.weapons.generic.flags  &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
+	s_controls.misc.generic.flags     &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
+	s_controls.reaction.generic.flags &= ~(QMF_GRAYED|QMF_HIGHLIGHT|QMF_PULSEIFFOCUS);
 
-	s_controls.looking.generic.flags  |= QMF_PULSEIFFOCUS;
-	s_controls.movement.generic.flags |= QMF_PULSEIFFOCUS;
-	s_controls.weapons.generic.flags  |= QMF_PULSEIFFOCUS;
-	s_controls.misc.generic.flags     |= QMF_PULSEIFFOCUS;
-	//Blaze: Reaction menu
-	s_controls.reaction.generic.flags |= QMF_PULSEIFFOCUS;
+	s_controls.looking.generic.flags  |= QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.movement.generic.flags |= QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.weapons.generic.flags  |= QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.misc.generic.flags     |= QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.reaction.generic.flags |= QMF_HIGHLIGHT_IF_FOCUS;
 
 	// set buttons
 	switch( s_controls.section ) {
@@ -1127,91 +1152,126 @@ Controls_MenuEvent
 */
 static void Controls_MenuEvent( void* ptr, int event )
 {
-	switch (((menucommon_s*)ptr)->id)
+	//Elder: for status bar
+	if( event == QM_LOSTFOCUS ) {
+		s_controls.rq3_statustext.string = "";
+		return;
+	}
+	else if ( event == QM_GOTFOCUS )
 	{
-		case ID_MOVEMENT:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.section = C_MOVEMENT; 
-				Controls_Update();
-			}
-			break;
+		switch( ((menucommon_s*)ptr)->id )
+		{
+			case ID_MOVEMENT:
+				s_controls.rq3_statustext.string = "Change movement keys";
+				break;
+			case ID_LOOKING:
+				s_controls.rq3_statustext.string = "Change view keys";
+				break;
+			case ID_WEAPONS:
+				s_controls.rq3_statustext.string = "Change weapon keys";
+				break;
+			case ID_MISC:
+				s_controls.rq3_statustext.string = "Change miscellaneous keys";
+				break;
+			case ID_REACTION:
+				s_controls.rq3_statustext.string = "Change Reaction-specific keys";
+				break;
+			case ID_BACK:
+				s_controls.rq3_statustext.string = "Return to setup menu";
+				break;
+			default:
+				s_controls.rq3_statustext.string = "";
+				break;
+		}
+	}
+	else if ( event == QM_ACTIVATED )
+	{
+		switch (((menucommon_s*)ptr)->id)
+		{
+			case ID_MOVEMENT:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.section = C_MOVEMENT; 
+					Controls_Update();
+				//}
+				break;
 
-		case ID_LOOKING:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.section = C_LOOKING; 
-				Controls_Update();
-			}
-			break;
+			case ID_LOOKING:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.section = C_LOOKING; 
+					Controls_Update();
+				//}
+				break;
 
-		case ID_WEAPONS:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.section = C_WEAPONS; 
-				Controls_Update();
-			}
-			break;
+			case ID_WEAPONS:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.section = C_WEAPONS; 
+					Controls_Update();
+				//}
+				break;
 
-		case ID_MISC:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.section = C_MISC; 
-				Controls_Update();
-			}
-			break;
-//Blaze: Reaction Menu
-		case ID_REACTION:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.section = C_REACTION;
-				Controls_Update();
-			}
-			break;
-		case ID_DEFAULTS:
-			if (event == QM_ACTIVATED)
-			{
-				UI_ConfirmMenu( "SET TO DEFAULTS?", Controls_ResetDefaults_Draw, Controls_ResetDefaults_Action );
-			}
-			break;
+			case ID_MISC:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.section = C_MISC; 
+					Controls_Update();
+				//}
+				break;
+	//Blaze: Reaction Menu
+			case ID_REACTION:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.section = C_REACTION;
+					Controls_Update();
+				//}
+				break;
+			case ID_DEFAULTS:
+				//if (event == QM_ACTIVATED)
+				//{
+					UI_ConfirmMenu( "SET TO DEFAULTS?", Controls_ResetDefaults_Draw, Controls_ResetDefaults_Action );
+				//}
+				break;
 
-		case ID_BACK:
-			if (event == QM_ACTIVATED)
-			{
-				if (s_controls.changesmade)
+			case ID_BACK:
+				//if (event == QM_ACTIVATED)
+				//{
+					if (s_controls.changesmade)
+						Controls_SetConfig();
+					UI_PopMenu();
+				//}
+				break;
+
+			case ID_SAVEANDEXIT:
+				//if (event == QM_ACTIVATED)
+				//{
 					Controls_SetConfig();
-				UI_PopMenu();
-			}
-			break;
+					UI_PopMenu();
+				//}
+				break;
 
-		case ID_SAVEANDEXIT:
-			if (event == QM_ACTIVATED)
-			{
-				Controls_SetConfig();
-				UI_PopMenu();
-			}
-			break;
+			case ID_EXIT:
+				//if (event == QM_ACTIVATED)
+				//{
+					UI_PopMenu();
+				//}
+				break;
 
-		case ID_EXIT:
-			if (event == QM_ACTIVATED)
-			{
-				UI_PopMenu();
-			}
-			break;
-
-		case ID_FREELOOK:
-		case ID_MOUSESPEED:
-		case ID_INVERTMOUSE:
-		case ID_SMOOTHMOUSE:
-		case ID_ALWAYSRUN:
-		case ID_AUTOSWITCH:
-		case ID_JOYENABLE:
-		case ID_JOYTHRESHOLD:
-			if (event == QM_ACTIVATED)
-			{
-				s_controls.changesmade = qtrue;
-			}
-			break;		
+			case ID_FREELOOK:
+			case ID_MOUSESPEED:
+			case ID_INVERTMOUSE:
+			case ID_SMOOTHMOUSE:
+			case ID_ALWAYSRUN:
+			case ID_AUTOSWITCH:
+			case ID_JOYENABLE:
+			case ID_JOYTHRESHOLD:
+				//if (event == QM_ACTIVATED)
+				//{
+					s_controls.changesmade = qtrue;
+				//}
+				break;		
+		}
 	}
 }
 
@@ -1293,6 +1353,9 @@ Controls_MenuInit
 static void Controls_MenuInit( void )
 {
 	static char playername[32];
+	// Elder: added
+	int		buttonCount = 0;
+	int		y = 12;
 
 	// zero set all our globals
 	memset( &s_controls, 0 ,sizeof(controls_t) );
@@ -1389,6 +1452,17 @@ static void Controls_MenuInit( void )
 	s_controls.rq3_setuptitle.width						= 256;
 	s_controls.rq3_setuptitle.height						= 32;
 
+	//Elder: RQ3 Status Text
+	s_controls.rq3_statustext.generic.type 		= MTYPE_TEXT;
+	s_controls.rq3_statustext.generic.flags		= QMF_CENTER_JUSTIFY;
+	s_controls.rq3_statustext.generic.x 		= RQ3_STATUSBAR_X;
+	s_controls.rq3_statustext.generic.y 		= RQ3_STATUSBAR_Y;
+	s_controls.rq3_statustext.string 			= "";
+	s_controls.rq3_statustext.style 			= UI_CENTER|UI_SMALLFONT;
+	s_controls.rq3_statustext.color 			= color_orange;
+
+
+	/*
 	s_controls.looking.generic.type     = MTYPE_PTEXT;
 	s_controls.looking.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_controls.looking.generic.id	    = ID_LOOKING;
@@ -1398,7 +1472,21 @@ static void Controls_MenuInit( void )
 	s_controls.looking.string			= "LOOK";
 	s_controls.looking.style			= UI_RIGHT;
 	s_controls.looking.color			= color_red;
+	*/
 
+	//Elder: RQ3 Looking Button
+	s_controls.looking.generic.type		= MTYPE_BITMAP;
+	s_controls.looking.generic.name		= RQ3_LOOKING_BUTTON;
+	s_controls.looking.generic.flags	= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.looking.generic.x		= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_controls.looking.generic.y		= y;
+	s_controls.looking.generic.id		= ID_LOOKING;
+	s_controls.looking.generic.callback	= Controls_MenuEvent;
+	s_controls.looking.width			= RQ3_BUTTON_WIDTH;
+	s_controls.looking.height			= RQ3_BUTTON_HEIGHT;
+	s_controls.looking.focuspic			= RQ3_FOCUS_BUTTON;
+
+	/*
 	s_controls.movement.generic.type     = MTYPE_PTEXT;
 	s_controls.movement.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_controls.movement.generic.id	     = ID_MOVEMENT;
@@ -1408,7 +1496,21 @@ static void Controls_MenuInit( void )
 	s_controls.movement.string			= "MOVE";
 	s_controls.movement.style			= UI_RIGHT;
 	s_controls.movement.color			= color_red;
+	*/
 
+	//Elder: RQ3 Movement Button
+	s_controls.movement.generic.type		= MTYPE_BITMAP;
+	s_controls.movement.generic.name		= RQ3_MOVEMENT_BUTTON;
+	s_controls.movement.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.movement.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_controls.movement.generic.y			= y;
+	s_controls.movement.generic.id			= ID_MOVEMENT;
+	s_controls.movement.generic.callback	= Controls_MenuEvent;
+	s_controls.movement.width				= RQ3_BUTTON_WIDTH;
+	s_controls.movement.height				= RQ3_BUTTON_HEIGHT;
+	s_controls.movement.focuspic			= RQ3_FOCUS_BUTTON;
+
+	/*
 	s_controls.weapons.generic.type	    = MTYPE_PTEXT;
 	s_controls.weapons.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_controls.weapons.generic.id	    = ID_WEAPONS;
@@ -1418,7 +1520,21 @@ static void Controls_MenuInit( void )
 	s_controls.weapons.string			= "SHOOT";
 	s_controls.weapons.style			= UI_RIGHT;
 	s_controls.weapons.color			= color_red;
+	*/
 
+	//Elder: RQ3 Weapons Button
+	s_controls.weapons.generic.type		= MTYPE_BITMAP;
+	s_controls.weapons.generic.name		= RQ3_WEAPONS_BUTTON;
+	s_controls.weapons.generic.flags	= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.weapons.generic.x		= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_controls.weapons.generic.y		= y;
+	s_controls.weapons.generic.id		= ID_WEAPONS;
+	s_controls.weapons.generic.callback	= Controls_MenuEvent;
+	s_controls.weapons.width			= RQ3_BUTTON_WIDTH;
+	s_controls.weapons.height			= RQ3_BUTTON_HEIGHT;
+	s_controls.weapons.focuspic			= RQ3_FOCUS_BUTTON;
+
+	/*
 	s_controls.misc.generic.type	 = MTYPE_PTEXT;
 	s_controls.misc.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_controls.misc.generic.id	     = ID_MISC;
@@ -1428,18 +1544,44 @@ static void Controls_MenuInit( void )
 	s_controls.misc.string			= "MISC";
 	s_controls.misc.style			= UI_RIGHT;
 	s_controls.misc.color			= color_red;
+	*/
+
+	//Elder: RQ3 Misc Button
+	s_controls.misc.generic.type		= MTYPE_BITMAP;
+	s_controls.misc.generic.name		= RQ3_MISC_BUTTON;
+	s_controls.misc.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.misc.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_controls.misc.generic.y			= y;
+	s_controls.misc.generic.id			= ID_MISC;
+	s_controls.misc.generic.callback	= Controls_MenuEvent;
+	s_controls.misc.width				= RQ3_BUTTON_WIDTH;
+	s_controls.misc.height				= RQ3_BUTTON_HEIGHT;
+	s_controls.misc.focuspic			= RQ3_FOCUS_BUTTON;
 
 	//Blaze: Reaction section
+	/*
 	s_controls.reaction.generic.type	 = MTYPE_PTEXT;
 	s_controls.reaction.generic.flags    = QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_controls.reaction.generic.id	     = ID_REACTION;
 	s_controls.reaction.generic.callback = Controls_MenuEvent;
 	s_controls.reaction.generic.x		 = 152;
 	s_controls.reaction.generic.y		 = 240 + 2 * PROP_HEIGHT;
-	s_controls.reaction.string			= "RXN";
+	s_controls.reaction.string			= "REACTION";
 	s_controls.reaction.style			= UI_RIGHT;
 	s_controls.reaction.color			= color_red;
+	*/
 
+	//Elder: RQ3 Reaction Button
+	s_controls.reaction.generic.type		= MTYPE_BITMAP;
+	s_controls.reaction.generic.name		= RQ3_REACTION_BUTTON;
+	s_controls.reaction.generic.flags		= QMF_LEFT_JUSTIFY|QMF_HIGHLIGHT_IF_FOCUS;
+	s_controls.reaction.generic.x			= 320 + (RQ3_BUTTON_PADDING + RQ3_BUTTON_WIDTH) * buttonCount++;
+	s_controls.reaction.generic.y			= y;
+	s_controls.reaction.generic.id			= ID_REACTION;
+	s_controls.reaction.generic.callback	= Controls_MenuEvent;
+	s_controls.reaction.width				= RQ3_BUTTON_WIDTH;
+	s_controls.reaction.height				= RQ3_BUTTON_HEIGHT;
+	s_controls.reaction.focuspic			= RQ3_FOCUS_BUTTON;
 
 	s_controls.back.generic.type	 = MTYPE_BITMAP;
 	s_controls.back.generic.name     = ART_BACK0;
@@ -1745,7 +1887,7 @@ static void Controls_MenuInit( void )
 	s_controls.reload.generic.id		= ID_RELOAD;
 
 	s_controls.weapon.generic.type		= MTYPE_ACTION;
-	s_controls.weapon.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
+	s_controls.weapon.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
 	s_controls.weapon.generic.callback = Controls_ActionEvent;
 	s_controls.weapon.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.weapon.generic.id		= ID_WEAPON;
@@ -1786,6 +1928,7 @@ static void Controls_MenuInit( void )
 	s_controls.joythreshold.maxvalue		  = 0.75f;
 	s_controls.joythreshold.generic.statusbar = Controls_StatusBar;
 
+	/*
 	s_controls.name.generic.type	= MTYPE_PTEXT;
 	s_controls.name.generic.flags	= QMF_CENTER_JUSTIFY|QMF_INACTIVE;
 	s_controls.name.generic.x		= 320;
@@ -1793,7 +1936,7 @@ static void Controls_MenuInit( void )
 	s_controls.name.string			= playername;
 	s_controls.name.style			= UI_CENTER;
 	s_controls.name.color			= text_color_normal;
-
+	*/
 //	Menu_AddItem( &s_controls.menu, &s_controls.banner );
 //	Menu_AddItem( &s_controls.menu, &s_controls.framel );
 //	Menu_AddItem( &s_controls.menu, &s_controls.framer );
@@ -1806,9 +1949,10 @@ static void Controls_MenuInit( void )
 */
 	Menu_AddItem( &s_controls.menu, &s_controls.rq3_setupicon );
 	Menu_AddItem( &s_controls.menu, &s_controls.rq3_setuptitle );
+	Menu_AddItem( &s_controls.menu, &s_controls.rq3_statustext);
 
 	Menu_AddItem( &s_controls.menu, &s_controls.player );
-	Menu_AddItem( &s_controls.menu, &s_controls.name );
+	//Menu_AddItem( &s_controls.menu, &s_controls.name );
 
 	Menu_AddItem( &s_controls.menu, &s_controls.looking );
 	Menu_AddItem( &s_controls.menu, &s_controls.movement );
@@ -1878,8 +2022,8 @@ static void Controls_MenuInit( void )
 
 	Menu_AddItem( &s_controls.menu, &s_controls.back );
 
-	trap_Cvar_VariableStringBuffer( "name", s_controls.name.string, 16 );
-	Q_CleanStr( s_controls.name.string );
+	//trap_Cvar_VariableStringBuffer( "name", s_controls.name.string, 16 );
+	//Q_CleanStr( s_controls.name.string );
 
 	// initialize the configurable cvars
 	Controls_InitCvars();
@@ -1911,6 +2055,12 @@ void Controls_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( RQ3_SETUP_ICON );
 	trap_R_RegisterShaderNoMip( RQ3_SETUP_TITLE );
+	trap_R_RegisterShaderNoMip( RQ3_LOOKING_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_MOVEMENT_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_WEAPONS_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_MISC_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_REACTION_BUTTON );
+	trap_R_RegisterShaderNoMip( RQ3_FOCUS_BUTTON );
 	//trap_R_RegisterShaderNoMip( ART_FRAMEL );
 	//trap_R_RegisterShaderNoMip( ART_FRAMER );
 }

@@ -12,7 +12,7 @@ INGAME MENU
 #include "ui_local.h"
 
 
-#define INGAME_FRAME					"menu/art/addbotframe"
+//#define INGAME_FRAME					"menu/art/addbotframe"
 //#define INGAME_FRAME					"menu/art/cut_frame"
 #define INGAME_MENU_VERTICAL_SPACING	28
 
@@ -31,7 +31,7 @@ INGAME MENU
 typedef struct {
 	menuframework_s	menu;
 
-	menubitmap_s	frame;
+	//menubitmap_s	frame;
 	menutext_s		team;
 	menutext_s		setup;
 	menutext_s		server;
@@ -151,6 +151,7 @@ void InGame_MenuInit( void ) {
 	s_ingame.menu.wrapAround = qtrue;
 	s_ingame.menu.fullscreen = qfalse;//Blaze: Test
 
+	/*
 	s_ingame.frame.generic.type			= MTYPE_BITMAP;
 	s_ingame.frame.generic.flags		= QMF_INACTIVE;
 	s_ingame.frame.generic.name			= INGAME_FRAME;
@@ -158,6 +159,7 @@ void InGame_MenuInit( void ) {
 	s_ingame.frame.generic.y			= 240-166;//118;
 	s_ingame.frame.width				= 466;//359;
 	s_ingame.frame.height				= 332;//256;
+	*/
 
 	//y = 96;
 	y = 88;
@@ -290,7 +292,7 @@ void InGame_MenuInit( void ) {
 	s_ingame.quit.color					= color_red;
 	s_ingame.quit.style					= UI_CENTER|UI_SMALLFONT;
 
-	Menu_AddItem( &s_ingame.menu, &s_ingame.frame );
+	//Menu_AddItem( &s_ingame.menu, &s_ingame.frame );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.team );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.addbots );
 	Menu_AddItem( &s_ingame.menu, &s_ingame.removebots );
@@ -310,7 +312,7 @@ InGame_Cache
 =================
 */
 void InGame_Cache( void ) {
-	trap_R_RegisterShaderNoMip( INGAME_FRAME );
+	//trap_R_RegisterShaderNoMip( INGAME_FRAME );
 }
 
 

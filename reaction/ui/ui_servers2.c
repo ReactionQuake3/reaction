@@ -23,8 +23,11 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define MAX_LEAGUELENGTH		28
 #define MAX_LISTBOXWIDTH		61
 
-#define ART_BACK0				"menu/art/back_0"
-#define ART_BACK1				"menu/art/back_1"
+//#define ART_BACK0				"menu/art/back_0"
+//#define ART_BACK1				"menu/art/back_1"
+#define ART_BACK0		"menu/art/rq3-menu-back.tga"
+#define ART_BACK1		"menu/art/rq3-menu-back-focus.tga"	
+
 #define ART_CREATE0				"menu/art/create_0"
 #define ART_CREATE1				"menu/art/create_1"
 #define ART_SPECIFY0			"menu/art/specify_0"
@@ -39,6 +42,10 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define ART_UNKNOWNMAP			"menu/art/unknownmap"
 #define ART_REMOVE0				"menu/art/delete_0"
 #define ART_REMOVE1				"menu/art/delete_1"
+
+//Elder: RQ3 Setup assets
+#define RQ3_START_ICON		"menu/art/rq3-menu-start.jpg"
+#define RQ3_START_TITLE		"menu/art/rq3-title-start.jpg"
 
 #define ID_MASTER			10
 #define ID_GAMETYPE			11
@@ -157,11 +164,17 @@ typedef struct {
 
 	//Blaze: No need for this banner
 	//menutext_s			banner;
+	/*
 	menutext_s		multim;
 	menutext_s		setupm;
 	menutext_s		demom;
 	menutext_s		modsm;
 	menutext_s		exitm;
+	*/
+
+	//Elder: RQ3 Stuff
+	menubitmap_s		rq3_starticon;
+	menubitmap_s		rq3_starttitle;
 
 	menulist_s			master;
 	menulist_s			gametype;
@@ -1216,8 +1229,16 @@ ArenaServers_MenuDraw
 */
 static void ArenaServers_MenuDraw( void )
 {
+	//Elder: "Dim" and "Letterbox" mask
+	UI_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color_deepdim );
+	UI_FillRect( 0, 0, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 54, color_black);
+	UI_FillRect( 0, 54, SCREEN_WIDTH, 2, color_red);
+	UI_FillRect( 0, 426, SCREEN_WIDTH, 2, color_red);
+
 	if (g_arenaservers.refreshservers)
 		ArenaServers_DoRefresh();
+
 
 	Menu_Draw( &g_arenaservers.menu );
 }
@@ -1283,6 +1304,7 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.banner.style  	    = UI_CENTER;
 	g_arenaservers.banner.color  	    = color_white;
 */
+	/*
 	g_arenaservers.multim.generic.type	= MTYPE_PTEXT;
 	g_arenaservers.multim.generic.flags = QMF_CENTER_JUSTIFY|QMF_INACTIVE|QMF_HIGHLIGHT;
 	g_arenaservers.multim.generic.x		= 120;
@@ -1322,7 +1344,26 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.exitm.string			= "EXIT";
 	g_arenaservers.exitm.color			= color_red;
 	g_arenaservers.exitm.style			= UI_CENTER | UI_DROPSHADOW;
-	
+	*/
+
+	//Elder: Info for setup icon
+	g_arenaservers.rq3_starticon.generic.type				= MTYPE_BITMAP;
+	g_arenaservers.rq3_starticon.generic.name				= RQ3_START_ICON;
+	g_arenaservers.rq3_starticon.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	g_arenaservers.rq3_starticon.generic.x					= 0;
+	g_arenaservers.rq3_starticon.generic.y					= 4;
+	g_arenaservers.rq3_starticon.width						= RQ3_ICON_WIDTH;
+	g_arenaservers.rq3_starticon.height						= RQ3_ICON_HEIGHT;
+
+	//Elder: Info for setup title
+	g_arenaservers.rq3_starttitle.generic.type				= MTYPE_BITMAP;
+	g_arenaservers.rq3_starttitle.generic.name				= RQ3_START_TITLE;
+	g_arenaservers.rq3_starttitle.generic.flags				= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	g_arenaservers.rq3_starttitle.generic.x					= 64;
+	g_arenaservers.rq3_starttitle.generic.y					= 12;
+	g_arenaservers.rq3_starttitle.width						= 256;
+	g_arenaservers.rq3_starttitle.height					= 32;
+
 	y = 80;
 	g_arenaservers.master.generic.type			= MTYPE_SPINCONTROL;
 	g_arenaservers.master.generic.name			= "Servers:";
@@ -1454,10 +1495,10 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 	g_arenaservers.back.generic.callback	= ArenaServers_Event;
 	g_arenaservers.back.generic.id			= ID_BACK;
-	g_arenaservers.back.generic.x			= 0;
-	g_arenaservers.back.generic.y			= 480-64;
-	g_arenaservers.back.width				= 128;
-	g_arenaservers.back.height				= 64;
+	g_arenaservers.back.generic.x			= 8;
+	g_arenaservers.back.generic.y			= 480-44;
+	g_arenaservers.back.width				= 32;
+	g_arenaservers.back.height				= 32;
 	g_arenaservers.back.focuspic			= ART_BACK1;
 
 	g_arenaservers.specify.generic.type	    = MTYPE_BITMAP;
@@ -1466,9 +1507,9 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.specify.generic.callback = ArenaServers_Event;
 	g_arenaservers.specify.generic.id	    = ID_SPECIFY;
 	g_arenaservers.specify.generic.x		= 128;
-	g_arenaservers.specify.generic.y		= 480-64;
-	g_arenaservers.specify.width  		    = 128;
-	g_arenaservers.specify.height  		    = 64;
+	g_arenaservers.specify.generic.y		= 480-44;
+	g_arenaservers.specify.width  		    = 64;
+	g_arenaservers.specify.height  		    = 32;
 	g_arenaservers.specify.focuspic         = ART_SPECIFY1;
 
 	g_arenaservers.refresh.generic.type		= MTYPE_BITMAP;
@@ -1477,9 +1518,9 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.refresh.generic.callback	= ArenaServers_Event;
 	g_arenaservers.refresh.generic.id		= ID_REFRESH;
 	g_arenaservers.refresh.generic.x		= 256;
-	g_arenaservers.refresh.generic.y		= 480-64;
-	g_arenaservers.refresh.width			= 128;
-	g_arenaservers.refresh.height			= 64;
+	g_arenaservers.refresh.generic.y		= 480-44;
+	g_arenaservers.refresh.width			= 64;
+	g_arenaservers.refresh.height			= 32;
 	g_arenaservers.refresh.focuspic			= ART_REFRESH1;
 
 	g_arenaservers.create.generic.type		= MTYPE_BITMAP;
@@ -1488,9 +1529,9 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.create.generic.callback	= ArenaServers_Event;
 	g_arenaservers.create.generic.id		= ID_CREATE;
 	g_arenaservers.create.generic.x			= 384;
-	g_arenaservers.create.generic.y			= 480-64;
-	g_arenaservers.create.width				= 128;
-	g_arenaservers.create.height			= 64;
+	g_arenaservers.create.generic.y			= 480-44;
+	g_arenaservers.create.width				= 64;
+	g_arenaservers.create.height			= 32;
 	g_arenaservers.create.focuspic			= ART_CREATE1;
 
 	g_arenaservers.go.generic.type			= MTYPE_BITMAP;
@@ -1498,19 +1539,24 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.go.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	g_arenaservers.go.generic.callback		= ArenaServers_Event;
 	g_arenaservers.go.generic.id			= ID_CONNECT;
-	g_arenaservers.go.generic.x				= 640;
-	g_arenaservers.go.generic.y				= 480-64;
-	g_arenaservers.go.width					= 128;
-	g_arenaservers.go.height				= 64;
+	g_arenaservers.go.generic.x				= 640 - 8;
+	g_arenaservers.go.generic.y				= 480-44;
+	g_arenaservers.go.width					= 64;
+	g_arenaservers.go.height				= 32;
 	g_arenaservers.go.focuspic				= ART_CONNECT1;
 
 	//Blaze: This banner is not needed
 //	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.banner );
+	/*
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.multim );
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.setupm );
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.demom );
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.modsm );
 	Menu_AddItem( &g_arenaservers.menu, &g_arenaservers.exitm );
+	*/
+
+	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.rq3_starticon );
+	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.rq3_starttitle );
 
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.master );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.gametype );
@@ -1579,6 +1625,8 @@ void ArenaServers_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_ARROWS_UP );
 	trap_R_RegisterShaderNoMip( ART_ARROWS_DOWN );
 	trap_R_RegisterShaderNoMip( ART_UNKNOWNMAP );
+	trap_R_RegisterShaderNoMip( RQ3_START_ICON );
+	trap_R_RegisterShaderNoMip( RQ3_START_TITLE );
 }
 
 
