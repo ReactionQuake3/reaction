@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/01/31 01:53:30  jbravo
+// FF/no-FF fixes. g_friendlyFire 0 = no FF, 1 = FF, 2 = no FF + knockback
+//
 // Revision 1.36  2002/01/12 20:02:16  hal9000
 // Verify we have a valid client pointer before using its members
 //
@@ -1343,6 +1346,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		return;		// JBravo: No dmg during LCA
 	}
 
+// JBravo: FF control
+	if (targ != attacker && targ->client && attacker->client &&
+		targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam &&
+		!g_friendlyFire.integer)
+			return;
+
 	// the intermission has allready been qualified for, so don't
 	// allow any extra scoring
 	if ( level.intermissionQueued ) {
@@ -1596,7 +1605,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #else
 		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
 #endif
-			if ( !g_friendlyFire.integer ) {
+// JBravo: more FF tweaks
+			if ( g_friendlyFire.integer == 2 ) {
 				return;
 			}
 		}
