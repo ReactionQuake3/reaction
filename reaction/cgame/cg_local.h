@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.62  2002/03/31 02:03:13  niceass
+// added tag declaration
+//
 // Revision 1.61  2002/03/30 23:20:10  jbravo
 // Added damage in scoreboard.
 //
@@ -1744,6 +1747,8 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 							qhandle_t parentModel, char *tagName );
 //Blaze: for weapon animations
 void CG_PositionWeaponOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName );
+void CG_PositionRotatedOffsetEntityOnTag( refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName, vec3_t Offset );
+
 
 //
 // cg_weapons.c
