@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/05/27 07:02:11  niceass
+// reflection changes
+//
 // Revision 1.81  2002/05/26 05:13:08  niceass
 // pressure and progress stuff
 //
@@ -1895,7 +1898,7 @@ void CG_RegisterItemVisuals( int itemNum );
 void CG_FireWeapon( centity_t *cent, int weapModification );
 void CG_ReloadWeapon( centity_t *cent, int reloadStage );	//Elder: added
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
-						vec3_t dir, vec3_t viewdir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
+						vec3_t dir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, impactSound_t soundType);
@@ -1910,8 +1913,6 @@ void CG_Tracer( vec3_t source, vec3_t dest );
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 void CG_CheckLaser ();				//Elder: check laser to see if it's our own
-void CG_CalcViewDir2(const vec3_t start, const vec3_t end, vec3_t viewDir);
-void CG_CalcViewDir(const int sourceEntityNum, const vec3_t end, vec3_t viewDir);
 
 //
 // cg_marks.c
