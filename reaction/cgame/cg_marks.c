@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/08/25 23:20:18  niceass
+// steam looks/acts better
+//
 // Revision 1.15  2002/08/22 07:06:37  niceass
 // small change to particle reflection
 //
@@ -1190,9 +1193,9 @@ void CG_AddParticles(void)
 		VectorSubtract(org, p->org, dist);
 
 		// reflection stuff
-		if ( VectorLength( dist ) > p->reflectdistance - 15 && p->reflectdistance ) {
+		if ( VectorLength( dist ) > p->reflectdistance - 5 && p->reflectdistance ) {
 			float length;
-			length = VectorLength(p->vel);
+			length = VectorLength(p->vel) * 0.75f;
 			// reflection stuff
 			p->vel[0] += (rand() % 200) - 100;
 			p->vel[1] += (rand() % 200) - 100;
@@ -2331,7 +2334,7 @@ void CG_ParticleSteam(vec3_t org, vec3_t vel, int duration, float alpha, float s
 	p->endwidth = LARGESIZE * 0.70f;
 
 	p->rotate = qtrue;
-	p->roll = crandom() * 179;
+	p->roll = crandom() * 20;
 
 	p->pshader = Shader;
 
