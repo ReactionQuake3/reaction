@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/07/13 22:42:18  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.89  2002/07/08 04:41:12  niceass
 // no more shell ejection on LCA, I hope
 //
@@ -2878,6 +2882,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 		}
 		//Makro - added
 		else if (soundType == IMPACTSOUND_BRICK) {
+			//mark = cgs.media.tileMarkShader;
 			mark = cgs.media.bulletMarkShader;
 			if (r < 2)
 				sfx = cgs.media.sfx_brickric1;
@@ -3140,6 +3145,9 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 			mark = cgs.media.glassMarkShader;
 		else if (soundType == IMPACTSOUND_METAL)
 			mark = cgs.media.metalMarkShader;
+		//Makro - added
+		//else if (soundType == IMPACTSOUND_BRICK)
+		//	mark = cgs.media.tileMarkShader;
 		else
 			mark = cgs.media.bulletMarkShader;
 		sfx = 0;
@@ -3297,7 +3305,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	//
 	// impact mark
 	//
-	alphaFade = (mark == cgs.media.energyMarkShader);	// plasma fades alpha, all others fade color
+	alphaFade = (mark == cgs.media.energyMarkShader/* || mark == cgs.media.tileMarkShader*/);	// plasma fades alpha, all others fade color
 
 	//Blaze: No more railgun
 	/*

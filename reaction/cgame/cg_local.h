@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/07/13 22:42:18  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.105  2002/07/08 04:25:29  niceass
 // removed deaths
 //
@@ -1126,6 +1130,8 @@ typedef struct {
 	qhandle_t slashMarkShader;
 	qhandle_t glassMarkShader;
 	qhandle_t metalMarkShader;
+	// Makro - new mark
+	//qhandle_t tileMarkShader;
 
 	// powerup shaders
 	qhandle_t quadShader;

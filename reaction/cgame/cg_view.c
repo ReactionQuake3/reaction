@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.24  2002/07/13 22:42:18  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.23  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1110,6 +1114,8 @@ Generates and draws a game scene and status information at the given time.
 void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
 	int inwater;
+	//Makro - added for sky portals !
+	const char *info;
 
 	//Blaze: for cheat detection
 	int i;
@@ -1164,6 +1170,28 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	if (!cg.renderingThirdPerson) {
 		CG_DamageBlendBlob();
 	}
+
+	/*
+	//Makro - draw sky portal first
+	//Note - doing it here means that sky portal entities won't get drawn. but at least the rest of the map looks ok :/
+	info = CG_ConfigString(CS_SKYPORTAL);
+	if (info[0] && Q_stricmp(info, "none")) {
+		//vec3_t oldOrigin;
+		refdef_t skyRef;
+		memset(&skyRef, 0, sizeof(skyRef));
+		memcpy(&skyRef, &cg.refdef, sizeof(skyRef));
+		//VectorCopy(cg.refdef.vieworg, oldOrigin);
+		skyRef.vieworg[0] = atof(Info_ValueForKey(info, "x"));
+		skyRef.vieworg[1] = atof(Info_ValueForKey(info, "y"));
+		skyRef.vieworg[2] = atof(Info_ValueForKey(info, "z"));
+		memset(skyRef.areamask, 0, sizeof(skyRef.areamask));
+		//Com_Printf("View axis is: %f %f %f\n", cg.refdef.viewaxis[0], cg.refdef.viewaxis[1], cg.refdef.viewaxis[2]);
+		trap_R_RenderScene(&skyRef);
+		//trap_R_ClearScene();
+		//VectorCopy(oldOrigin, cg.refdef.vieworg);
+	}
+	*/
+
 	// build the render lists
 	if (!cg.hyperspace) {
 		CG_AddPacketEntities();	// adter calcViewValues, so predicted player state is correct
@@ -1218,6 +1246,20 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));
 		}
 	}
+	//Makro - fog hull
+	info = CG_ConfigString(CS_FOGHULL);
+	if (info) {
+		if (info[0]) {
+			vec4_t fogcolor;
+			fogcolor[0] = atof(Info_ValueForKey(info, "r"));
+			fogcolor[1] = atof(Info_ValueForKey(info, "g"));
+			fogcolor[2] = atof(Info_ValueForKey(info, "b"));
+			fogcolor[3] = 1;
+			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
+			//Com_Printf("Fog color: %f %f %f\n", fogcolor[0], fogcolor[1], fogcolor[2]);
+		}
+	}
+	
 	// actually issue the rendering calls
 	CG_DrawActive(stereoView);
 

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/07/13 22:43:59  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.35  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -262,6 +266,8 @@ void SP_misc_teleporter_dest(gentity_t * self);
 void SP_misc_model(gentity_t * ent);
 void SP_misc_portal_camera(gentity_t * ent);
 void SP_misc_portal_surface(gentity_t * ent);
+//Makro - sky portals
+void SP_misc_sky_portal(gentity_t * ent);
 
 //Blaze: These functions are nolonger here
 //void SP_shooter_rocket( gentity_t *ent );
@@ -343,6 +349,8 @@ spawn_t spawns[] = {
 	{"misc_model", SP_misc_model},
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
+	//Makro - sky portal !
+	{"misc_sky_portal", SP_misc_sky_portal},
 //Blaze: This removes rocket traps I think
 //      {"shooter_rocket", SP_shooter_rocket},
 //      {"shooter_grenade", SP_shooter_grenade},
@@ -764,9 +772,9 @@ void SP_worldspawn(void)
 {
 	char *s;
 
-	//vec3_t        color;
-	//char  info[MAX_INFO_STRING];
-	//int           nodetail = 0;
+	vec3_t		color;
+	//int		nodetail = 0;
+	char		info[MAX_INFO_STRING];
 
 	G_SpawnString("classname", "", &s);
 	if (Q_stricmp(s, "worldspawn")) {
@@ -799,6 +807,15 @@ void SP_worldspawn(void)
 	   //save settings
 	   trap_SetConfigstring( CS_LOADINGSCREEN, info );
 	 */
+	
+	//Makro - fog hull
+	G_SpawnVector("_rq3_fog_color", "0 0 0", color);
+	memset(info, 0, sizeof(info));
+	Info_SetValueForKey(info, "r", va("%f", color[0]));
+	Info_SetValueForKey(info, "g", va("%f", color[1]));
+	Info_SetValueForKey(info, "b", va("%f", color[2]));
+	//G_Printf("^4 FOG HULL: %s\n", vtos(color));
+	trap_SetConfigstring( CS_FOGHULL, info );
 
 	trap_SetConfigstring(CS_MOTD, g_motd.string);	// message of the day
 

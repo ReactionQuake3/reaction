@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2002/07/13 22:42:18  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.94  2002/07/08 00:52:14  jbravo
 // Renamed the foglaser shader at Sze's request.
 //
@@ -1591,6 +1595,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.slashMarkShader = trap_R_RegisterShader("gfx/damage/slash_mrk");
 	cgs.media.glassMarkShader = trap_R_RegisterShader("gfx/damage/glass_mrk");
 	cgs.media.metalMarkShader = trap_R_RegisterShader("gfx/damage/metal_mrk");
+	// Makro - added
+	//cgs.media.tileMarkShader = trap_R_RegisterShader("gfx/damage/tile_mrk");
 
 	// NiceAss: for foglaser
 	cgs.media.railCoreShader = trap_R_RegisterShader("fogLaser");

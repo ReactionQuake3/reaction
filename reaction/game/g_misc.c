@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/07/13 22:43:59  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.58  2002/06/18 09:21:11  niceass
 // file exist function
 //
@@ -467,6 +471,37 @@ void SP_misc_portal_camera(gentity_t * ent)
 	G_SpawnFloat("roll", "0", &roll);
 
 	ent->s.clientNum = roll / 360.0 * 256;
+}
+
+//Makro - sky portals
+void SP_misc_sky_portal(gentity_t * ent) {
+	gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
+	
+	G_Printf("^1 SKY PORTAL !!!\n");
+		
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	trap_LinkEntity(ent);
+	//ent->r.svFlags = SVF_PORTAL;
+
+	if (skyportal) {
+		char  info[MAX_INFO_STRING];
+		memset(info, 0, sizeof(info));
+		Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
+		Info_SetValueForKey(info, "y", va("%f", skyportal->s.origin[1]));
+		Info_SetValueForKey(info, "z", va("%f", skyportal->s.origin[2]));
+		G_Printf("Sky portal origin: %s\n", vtos(skyportal->s.origin));
+		trap_SetConfigstring(CS_SKYPORTAL, info);
+		VectorCopy(skyportal->s.origin, ent->s.origin2);
+		//ent->r.ownerNum = skyportal->s.number;
+		//ent->s.eType = ET_PORTAL;
+	} else {
+		G_Printf("misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
+		trap_SetConfigstring(CS_SKYPORTAL, "none");
+		G_FreeEntity(ent);
+	}
+	
+
 }
 
 /*

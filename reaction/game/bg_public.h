@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/07/13 22:43:59  makro
+// Semi-working fog hull, semi-working sky portals (cgame code commented out)
+// Basically, semi-working stuff :P
+//
 // Revision 1.84  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -514,6 +518,10 @@ extern radio_msg_t female_radio_msgs[];
 
 //Makro - color for the loading screen text
 //#define CS_LOADINGSCREEN              29
+//Makro - sky portals !
+//#define CS_SKYPORTAL		30
+//Makro - fog hull
+#define CS_FOGHULL			31
 
 #define	CS_MODELS			32
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
