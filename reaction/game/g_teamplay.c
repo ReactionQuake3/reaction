@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/01/29 03:13:45  jbravo
+// Further fixes to antistick
+//
 // Revision 1.6  2002/01/27 13:42:19  jbravo
 // temp hack removed
 //
@@ -569,6 +572,18 @@ void UnstickPlayer( gentity_t *ent )
 
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
+
+// JBravo: test
+//#define	PLAYERBOX 500
+//	mins[0] = -PLAYERBOX * 1.42;
+//	mins[1] = -PLAYERBOX * 1.42;
+//	mins[2] = -PLAYERBOX * 1.42;
+//	maxs[0] = PLAYERBOX * 1.42;
+//	maxs[1] = PLAYERBOX * 1.42;
+//	maxs[2] = PLAYERBOX * 1.42;
+//	VectorAdd( ent->client->ps.origin, mins, mins );
+//	VectorAdd( ent->client->ps.origin, maxs, maxs );
+
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
