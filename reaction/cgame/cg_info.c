@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.29  2002/06/03 19:19:43  niceass
+// matchmode change
+//
 // Revision 1.28  2002/06/01 13:35:47  makro
 // Added clapper to loading screen
 //
@@ -337,9 +340,11 @@ void CG_DrawInformation( void ) {
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	//Makro - didn't like this
 	//if ( s[0] == '1' ) {
-	if ( atoi(s) ) {
+	if ( atoi(s) )
 		line = va("%s / CHEATS ARE ENABLED", line);
-	}
+
+	if ( cg_RQ3_matchmode.integer )
+		line = va("%s / MATCHMODE", line);
 		
 	//Makro - custom color; changed from colorWhite
 	//CG_DrawSmallStringColor(x, y, line, color2);
