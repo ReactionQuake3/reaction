@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/01/27 13:42:19  jbravo
+// temp hack removed
+//
 // Revision 1.5  2002/01/27 13:33:28  jbravo
 // Teamplay antistick system.
 //
@@ -564,8 +567,8 @@ void UnstickPlayer( gentity_t *ent )
 
 	count = 0;
 
-	VectorAdd( ent->client->ps.origin, (ent->r.mins + 10), mins );
-	VectorAdd( ent->client->ps.origin, (ent->r.maxs + 10), maxs );
+	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
+	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
 	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) {
