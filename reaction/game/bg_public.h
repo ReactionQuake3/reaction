@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.51  2002/03/21 19:22:12  jbravo
 // Bando now adds extra ammo to the special weaps, and when its dropped it goes
 // away again.
@@ -525,6 +528,8 @@ typedef struct {
 	void		(*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );
 
 	int			(*pointcontents)( const vec3_t point, int passEntityNum );
+// JBravo: lca info for the pm stuff
+	qboolean	lca;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles

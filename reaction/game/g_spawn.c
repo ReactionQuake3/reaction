@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/03/23 05:17:43  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.11  2002/03/20 22:58:27  blaze
 // changed dlight to light_d
 //
@@ -378,12 +381,12 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 
 // JBravo: No weapons and items on the maps in teamplay
 	if (g_gametype.integer != GT_TEAMPLAY) {
-	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
-		if ( !strcmp(item->classname, ent->classname) ) {
-			G_SpawnItem( ent, item );
-			return qtrue;
+		for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
+			if ( !strcmp(item->classname, ent->classname) ) {
+				G_SpawnItem( ent, item );
+				return qtrue;
+			}
 		}
-	}
 	}
 
 	// check normal spawn functions
@@ -394,7 +397,10 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 			return qtrue;
 		}
 	}
-	G_Printf ("%s doesn't have a spawn function\n", ent->classname);
+// JBravo: getting rid of warnings when the game starts up.
+// JBravo: FIXME! This is just supressing the message, not the problem.
+	if (g_gametype.integer != GT_TEAMPLAY)
+		G_Printf ("%s doesn't have a spawn function\n", ent->classname);
 	return qfalse;
 }
 

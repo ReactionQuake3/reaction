@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.59  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -1383,6 +1386,11 @@ void ClientThink_real( gentity_t *ent ) {
 		}
 	Pmove (&pm);
 #else
+// JBravo: setting lca in pm if appropriate
+		if(g_RQ3_lca.integer == 1)
+			pm.lca = qtrue;
+		else
+			pm.lca = qfalse;
 		Pmove (&pm);
 #endif
 

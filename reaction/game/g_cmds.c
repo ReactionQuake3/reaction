@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.80  2002/03/21 19:22:12  jbravo
 // Bando now adds extra ammo to the special weaps, and when its dropped it goes
 // away again.
@@ -152,6 +155,8 @@
 #include "../ui/menudef.h"			// for the voice chats
 //Blaze for door code
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
+// JBravo: for Stopfollowing
+void LookAtKiller(gentity_t *self, gentity_t *inflictor, gentity_t *attacker);
 //Blaze: Get amount of ammo a clip holds
 //Elder: def'd in bg_public.h
 //int ClipAmountForWeapon( int );
@@ -959,16 +964,18 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( gentity_t *ent ) {
+	gentity_t	*followee;
+
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
-//	ent->client->sess.spectatorState = SPECTATOR_ZCAM;
-//	ent->client->ps.stats[STAT_RQ3] |= RQ3_ZCAM;
 	//Slicer - Removing any zoom bits he might have gainned
 	Cmd_Unzoom(ent);
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
+	followee = &g_entities[ent->client->ps.clientNum];
 	ent->client->ps.clientNum = ent - g_entities;
+	LookAtKiller(ent, followee, followee);
 }
 
 /*

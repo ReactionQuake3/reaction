@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.56  2002/03/21 15:02:05  jbravo
 // More teamname cleanups and fix for fraglines.
 //
@@ -1553,8 +1556,11 @@ extern	vmCvar_t		cg_enableDust;
 extern	vmCvar_t		cg_enableBreath;
 //Blaze: Cheat cvars
 extern cheat_cvar		cheats[30];
-// JBravo: To signal cgame that lca is in progress
-extern	vmCvar_t		RQ3_lca;
+// JBravo: Teamplay cvars synched from game
+extern	vmCvar_t		cg_RQ3_lca;
+extern	vmCvar_t		cg_RQ3_team_round_going;
+extern	vmCvar_t		cg_RQ3_team1name;
+extern	vmCvar_t		cg_RQ3_team2name;
 //Slicer: matchmode team status cvars
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;

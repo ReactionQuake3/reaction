@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.62  2002/03/18 19:18:39  slicer
 // Fixed bandage bugs ( i hope )
 //
@@ -49,9 +52,6 @@
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_local.h"
-
-// JBravo: the famous LCA cvar
-extern  vmCvar_t                RQ3_lca;
 
 pmove_t		*pm;
 pml_t		pml;
@@ -1193,7 +1193,7 @@ static void PM_CrashLand( void ) {
 	int			damage;
 
 // JBravo: no falling at all during LCA in Teamplay
-	if (RQ3_lca.integer) {
+	if (pm->lca) {
 		return;
 	}
 
@@ -2744,7 +2744,7 @@ static void PM_Weapon( void ) {
 	}
 
 	// JBravo: no shooting during LCA
-	if ( RQ3_lca.integer) {
+	if (pm->lca) {
 		return;
 	}
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.48  2002/03/21 15:02:05  jbravo
 // More teamname cleanups and fix for fraglines.
 //
@@ -269,8 +272,12 @@ vmCvar_t	cg_enableDust;
 #endif
 //Blaze: cheat struct
 cheat_cvar	cheats[30];
-// JBravo: lca in progress cvar
-vmCvar_t	RQ3_lca;
+// JBravo: Teamplay cvars synced from game
+vmCvar_t	cg_RQ3_lca;
+vmCvar_t	cg_RQ3_team_round_going;
+vmCvar_t	cg_RQ3_team1name;
+vmCvar_t	cg_RQ3_team2name;
+
 //Slicer: matchmode team status cvars
 vmCvar_t	MM_team1;
 vmCvar_t	MM_team2;
@@ -426,7 +433,10 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 // JBravo: added
-	{ &RQ3_lca, "RQ3_lca", "0", 0},
+	{ &cg_RQ3_lca, "g_RQ3_lca", "0", 0},
+	{ &cg_RQ3_team_round_going, "g_RQ3_team_round_going", "0", 0},
+	{ &cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
+	{ &cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
 	{ &cg_gravity, "g_gravity", "0", 0},
 	//Slicer: Team Status Cvars for MM
 	{ &MM_team1, "MM_team1", "0", 0},

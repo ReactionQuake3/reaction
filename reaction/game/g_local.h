@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.55  2002/03/18 13:32:53  jbravo
 // Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
 // testing
@@ -1126,7 +1129,8 @@ extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limite
 extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
 extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
-extern	vmCvar_t	RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
+extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
+extern	vmCvar_t	g_RQ3_team_round_going;		// JBravo: cvar to signal cgame that a round is in progress
 //Slicer: Team Status Cvars for MM
 extern vmCvar_t	RQ3_team1;
 extern vmCvar_t	RQ3_team2;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/03/23 05:17:42  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.16  2002/03/11 02:23:06  niceass
 // client gravity fix
 //
@@ -631,6 +634,11 @@ void CG_PredictPlayerState( void ) {
 			cg_pmove.cmd.buttons |= BUTTON_ATTACK;
 	}*/
 
+// JBravo: setting lca in pm if needed
+		if (cg_RQ3_lca.integer == 1)
+			cg_pmove.lca = qtrue;
+		else
+			cg_pmove.lca = qfalse;
 		Pmove (&cg_pmove);
 
 		moved = qtrue;

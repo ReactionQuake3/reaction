@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/03/23 05:17:43  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.40  2002/03/21 19:22:12  jbravo
 // Bando now adds extra ammo to the special weaps, and when its dropped it goes
 // away again.
@@ -219,6 +222,7 @@ void CheckTeamRules()
 				if(level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
+					trap_Cvar_Set("g_RQ3_team_round_going", "0");
 					trap_Cvar_Set("RQ3_Team1", "0");
 					trap_Cvar_Set("RQ3_Team2", "0");
 					MakeAllLivePlayersObservers ();
@@ -232,6 +236,7 @@ void CheckTeamRules()
 					trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 					//trap_SendServerCommand( -1, va("cp \"Timelimit hit.\n\""));
 					level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+					trap_Cvar_Set("g_RQ3_team_round_going", "0");
 					//Slicer: Start Intermission
 					BeginIntermission();
 					return;
@@ -255,6 +260,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
+			trap_Cvar_Set("g_RQ3_team_round_going", "0");
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -268,6 +274,7 @@ void CheckTeamRules()
 			if (WonGame(winner))
 				return;
 			level.team_round_going = 0;
+			trap_Cvar_Set("g_RQ3_team_round_going", "0");
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
@@ -283,11 +290,12 @@ void StartLCA()
 	gentity_t *player;
 
 	CleanLevel();
-	trap_Cvar_Set("RQ3_lca", "1");
+	trap_Cvar_Set("g_RQ3_lca", "1");
 	level.lights_camera_action = (41*level.fps)/10;
 	SpawnPlayers();
 
 	trap_SendServerCommand( -1, "lights");
+	trap_SendServerCommand( -1, "print \"\nLIGHTS!\n\"");
 }
 
 void ContinueLCA()
@@ -297,11 +305,14 @@ void ContinueLCA()
 
 	if (level.lights_camera_action == (21*level.fps)/10) {
 		trap_SendServerCommand( -1, "camera");
+		trap_SendServerCommand( -1, "print \"\nCAMERA!\n\"");
 	}
 	else if (level.lights_camera_action == 1) {
 		trap_SendServerCommand( -1, "action");
-		trap_Cvar_Set("RQ3_lca", "0");
+		trap_SendServerCommand( -1, "print \"\nACTION!\n\"");
+		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
+		trap_Cvar_Set("g_RQ3_team_round_going", "1");
 		level.current_round_length = 0;
 	}
 	level.lights_camera_action--;
@@ -464,6 +475,7 @@ int WonGame(int winner)
 			if(level.matchTime >= g_timelimit.integer * 60) {
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
+			trap_Cvar_Set("g_RQ3_team_round_going", "0");
 			trap_Cvar_Set("RQ3_Team1", "0");
 			trap_Cvar_Set("RQ3_Team2", "0");
 			MakeAllLivePlayersObservers ();
@@ -475,6 +487,7 @@ int WonGame(int winner)
 			if(level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+				trap_Cvar_Set("g_RQ3_team_round_going", "0");
 				//Slicer: Start Intermission
 				BeginIntermission();
 				return 1;
@@ -488,6 +501,7 @@ int WonGame(int winner)
 			if(g_RQ3_matchmode.integer) {
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
+				trap_Cvar_Set("g_RQ3_team_round_going", "0");
 				trap_Cvar_Set("RQ3_Team1", "0");
 				trap_Cvar_Set("RQ3_Team2", "0");
 				MakeAllLivePlayersObservers ();
@@ -499,6 +513,7 @@ int WonGame(int winner)
 			trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
 			trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
 			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+			trap_Cvar_Set("g_RQ3_team_round_going", "0");
 			//Slicer: Start Intermission
 			BeginIntermission();
 			return 1;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/03/23 05:17:43  jbravo
+// Major cleanup of game -> cgame communication with LCA vars.
+//
 // Revision 1.34  2002/03/21 15:02:05  jbravo
 // More teamname cleanups and fix for fraglines.
 //
@@ -161,9 +164,10 @@ vmCvar_t	g_RQ3_roundtimelimit;
 vmCvar_t	g_RQ3_tgren;
 vmCvar_t	g_RQ3_limchasecam;
 vmCvar_t	g_RQ3_sniperup;
+vmCvar_t	g_RQ3_lca;
+vmCvar_t	g_RQ3_team_round_going;
 vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
-vmCvar_t	RQ3_lca;
 //Slicer: Team Status Cvars for MM
 vmCvar_t	RQ3_team1;
 vmCvar_t	RQ3_team2;
@@ -294,9 +298,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
-	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
-	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
-	{ &RQ3_lca, "RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
+	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qtrue, qtrue },
+	{ &g_RQ3_lca, "g_RQ3_lca", "0", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_RQ3_team_round_going, "g_RQ3_team_round_going", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	//Slicer: Team Status Cvars for MM
 	{ &RQ3_team1, "RQ3_team1", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &RQ3_team2, "RQ3_team2", "0", CVAR_SYSTEMINFO, 0, qfalse},
