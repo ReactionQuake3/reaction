@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/06/24 12:29:43  makro
+// Enabled weapon/item menus in CTF
+//
 // Revision 1.35  2002/06/24 12:21:09  makro
 // New UI sscript that uses the "settings" command
 //
@@ -4063,7 +4066,7 @@ static void UI_RunMenuScript(char **args)
 			//Makro - weapon menu after joining a team
 		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
 			//only in teamplay
-			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY) {
+			if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF) {
 				if (ui_RQ3_weapAfterJoin.integer) {
 					_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 				}

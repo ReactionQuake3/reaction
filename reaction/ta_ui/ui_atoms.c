@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/06/24 12:29:43  makro
+// Enabled weapon/item menus in CTF
+//
 // Revision 1.12  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -419,7 +422,7 @@ qboolean UI_ConsoleCommand(int realTime)
 	}
 	//Makro - adding popup for choose commands
 	if (Q_stricmp(cmd, "ui_RQ3_loadout") == 0) {
-		if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY)
+		if (trap_Cvar_VariableValue("g_gametype") == GT_TEAMPLAY || trap_Cvar_VariableValue("g_gametype") == GT_CTF)
 			_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 		else
 			Com_Printf("Not playing teamplay.\n");
