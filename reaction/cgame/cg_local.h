@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.136  2003/02/27 08:10:20  jbravo
+// Added replacement model functionality for ammo
+//
 // Revision 1.135  2003/02/16 21:39:09  makro
 // Fixed "timelimit is read only" on local servers error
 //
@@ -1735,7 +1738,12 @@ extern vmCvar_t cg_RQ3_silencer_skin;
 extern vmCvar_t cg_RQ3_laser_skin;
 extern vmCvar_t cg_RQ3_slippers_skin;
 extern vmCvar_t cg_RQ3_helmet_skin;
-
+// JBravo: replacement ammo
+extern vmCvar_t cg_RQ3_ammo_mk23;
+extern vmCvar_t cg_RQ3_ammo_shells;
+extern vmCvar_t cg_RQ3_ammo_ssg3000;
+extern vmCvar_t cg_RQ3_ammo_mp5;
+extern vmCvar_t cg_RQ3_ammo_m4;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.122  2003/02/27 08:10:20  jbravo
+// Added replacement model functionality for ammo
+//
 // Revision 1.121  2003/02/25 22:41:14  jbravo
 // Fixed a bug in item replacements. Removed "Beta" from the version.
 //
@@ -290,21 +293,26 @@ void CG_Shutdown(void);
 char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 // JBravo: used to store replacement models
-char RQ3_knife_model[MAX_MODEL_LEN],      RQ3_knife_icon[MAX_MODEL_LEN];
-char RQ3_pistol_model[MAX_MODEL_LEN],     RQ3_pistol_icon[MAX_MODEL_LEN];
-char RQ3_m4_model[MAX_MODEL_LEN],         RQ3_m4_icon[MAX_MODEL_LEN];
-char RQ3_ssg3000_model[MAX_MODEL_LEN],    RQ3_ssg3000_icon[MAX_MODEL_LEN];
-char RQ3_mp5_model[MAX_MODEL_LEN],        RQ3_mp5_icon[MAX_MODEL_LEN];
-char RQ3_handcannon_model[MAX_MODEL_LEN], RQ3_handcannon_icon[MAX_MODEL_LEN];
-char RQ3_m3_model[MAX_MODEL_LEN],         RQ3_m3_icon[MAX_MODEL_LEN];
-char RQ3_akimbo_model[MAX_MODEL_LEN],     RQ3_akimbo_icon[MAX_MODEL_LEN];
-char RQ3_grenade_model[MAX_MODEL_LEN],    RQ3_grenade_icon[MAX_MODEL_LEN];
-char RQ3_kevlar_model[MAX_MODEL_LEN],     RQ3_kevlar_icon[MAX_MODEL_LEN];
-char RQ3_silencer_model[MAX_MODEL_LEN],   RQ3_silencer_icon[MAX_MODEL_LEN];
-char RQ3_laser_model[MAX_MODEL_LEN],      RQ3_laser_icon[MAX_MODEL_LEN];
-char RQ3_bandolier_model[MAX_MODEL_LEN],  RQ3_bandolier_icon[MAX_MODEL_LEN];
-char RQ3_slippers_model[MAX_MODEL_LEN],   RQ3_slippers_icon[MAX_MODEL_LEN];
-char RQ3_helmet_model[MAX_MODEL_LEN],     RQ3_helmet_icon[MAX_MODEL_LEN];
+char RQ3_knife_model[MAX_MODEL_LEN],        RQ3_knife_icon[MAX_MODEL_LEN];
+char RQ3_pistol_model[MAX_MODEL_LEN],       RQ3_pistol_icon[MAX_MODEL_LEN];
+char RQ3_m4_model[MAX_MODEL_LEN],           RQ3_m4_icon[MAX_MODEL_LEN];
+char RQ3_ssg3000_model[MAX_MODEL_LEN],      RQ3_ssg3000_icon[MAX_MODEL_LEN];
+char RQ3_mp5_model[MAX_MODEL_LEN],          RQ3_mp5_icon[MAX_MODEL_LEN];
+char RQ3_handcannon_model[MAX_MODEL_LEN],   RQ3_handcannon_icon[MAX_MODEL_LEN];
+char RQ3_m3_model[MAX_MODEL_LEN],           RQ3_m3_icon[MAX_MODEL_LEN];
+char RQ3_akimbo_model[MAX_MODEL_LEN],       RQ3_akimbo_icon[MAX_MODEL_LEN];
+char RQ3_grenade_model[MAX_MODEL_LEN],      RQ3_grenade_icon[MAX_MODEL_LEN];
+char RQ3_kevlar_model[MAX_MODEL_LEN],       RQ3_kevlar_icon[MAX_MODEL_LEN];
+char RQ3_silencer_model[MAX_MODEL_LEN],     RQ3_silencer_icon[MAX_MODEL_LEN];
+char RQ3_laser_model[MAX_MODEL_LEN],        RQ3_laser_icon[MAX_MODEL_LEN];
+char RQ3_bandolier_model[MAX_MODEL_LEN],    RQ3_bandolier_icon[MAX_MODEL_LEN];
+char RQ3_slippers_model[MAX_MODEL_LEN],     RQ3_slippers_icon[MAX_MODEL_LEN];
+char RQ3_helmet_model[MAX_MODEL_LEN],       RQ3_helmet_icon[MAX_MODEL_LEN];
+char RQ3_ammo_mk23_model[MAX_MODEL_LEN],    RQ3_ammo_mk23_icon[MAX_MODEL_LEN];
+char RQ3_ammo_shells_model[MAX_MODEL_LEN],  RQ3_ammo_shells_icon[MAX_MODEL_LEN];
+char RQ3_ammo_ssg3000_model[MAX_MODEL_LEN], RQ3_ammo_ssg3000_icon[MAX_MODEL_LEN];
+char RQ3_ammo_mp5_model[MAX_MODEL_LEN],     RQ3_ammo_mp5_icon[MAX_MODEL_LEN];
+char RQ3_ammo_m4_model[MAX_MODEL_LEN],      RQ3_ammo_m4_icon[MAX_MODEL_LEN];
 
 /*
 ================
@@ -467,7 +475,12 @@ vmCvar_t cg_RQ3_silencer_skin;
 vmCvar_t cg_RQ3_laser_skin;
 vmCvar_t cg_RQ3_slippers_skin;
 vmCvar_t cg_RQ3_helmet_skin;
-
+// JBravo replacement ammo models
+vmCvar_t cg_RQ3_ammo_mk23;
+vmCvar_t cg_RQ3_ammo_shells;
+vmCvar_t cg_RQ3_ammo_ssg3000;
+vmCvar_t cg_RQ3_ammo_mp5;
+vmCvar_t cg_RQ3_ammo_m4;
 
 //Elder: muzzle flash toggle
 vmCvar_t cg_RQ3_flash;
@@ -731,6 +744,12 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_laser_skin, "cg_RQ3_laser_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_slippers_skin, "cg_RQ3_slippers_skin", "default", CVAR_ARCHIVE},
 	{&cg_RQ3_helmet_skin, "cg_RQ3_helmet_skin", "default", CVAR_ARCHIVE},
+	// JBravo: replacement ammo
+	{&cg_RQ3_ammo_mk23, "cg_RQ3_ammo_mk23", "mk23", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_shells, "cg_RQ3_ammo_shells", "shells", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5", CVAR_ARCHIVE},
+	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4", CVAR_ARCHIVE},
 
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
@@ -2402,6 +2421,56 @@ void CG_ReplaceModels(void)
 				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_helmet_icon;
 			} else {
 				CG_Printf("^1Error loading helmet replacement model %s\n", cg_RQ3_helmet.string);
+			}
+		}
+		if (!strcmp(item->classname, "ammo_mk23") && strcmp(cg_RQ3_ammo_mk23.string, "mk23")) {
+			Com_sprintf(RQ3_ammo_mk23_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_mk23.string);
+			Com_sprintf(RQ3_ammo_mk23_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mk23.string);
+			if (JB_FileExists(RQ3_ammo_mk23_model) && (strlen(RQ3_ammo_mk23_model) < MAX_MODEL_LEN)) {
+				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mk23_model;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mk23_icon;
+			} else {
+				CG_Printf("^1Error loading mk23 ammo replacement model %s\n", cg_RQ3_ammo_mk23.string);
+			}
+		}
+		if (!strcmp(item->classname, "ammo_shells") && strcmp(cg_RQ3_ammo_shells.string, "shells")) {
+			Com_sprintf(RQ3_ammo_shells_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_shells.string);
+			Com_sprintf(RQ3_ammo_shells_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_shells.string);
+			if (JB_FileExists(RQ3_ammo_shells_model) && (strlen(RQ3_ammo_shells_model) < MAX_MODEL_LEN)) {
+				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_shells_model;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_shells_icon;
+			} else {
+				CG_Printf("^1Error loading shells ammo replacement model %s\n", cg_RQ3_ammo_shells.string);
+			}
+		}
+		if (!strcmp(item->classname, "ammo_ssg3000") && strcmp(cg_RQ3_ammo_ssg3000.string, "ssg3000")) {
+			Com_sprintf(RQ3_ammo_ssg3000_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_ssg3000.string);
+			Com_sprintf(RQ3_ammo_ssg3000_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_ssg3000.string);
+			if (JB_FileExists(RQ3_ammo_ssg3000_model) && (strlen(RQ3_ammo_ssg3000_model) < MAX_MODEL_LEN)) {
+				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_ssg3000_model;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_ssg3000_icon;
+			} else {
+				CG_Printf("^1Error loading ssg3000 ammo replacement model %s\n", cg_RQ3_ammo_ssg3000.string);
+			}
+		}
+		if (!strcmp(item->classname, "ammo_mp5") && strcmp(cg_RQ3_ammo_mp5.string, "mp5")) {
+			Com_sprintf(RQ3_ammo_mp5_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_mp5.string);
+			Com_sprintf(RQ3_ammo_mp5_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_mp5.string);
+			if (JB_FileExists(RQ3_ammo_mp5_model) && (strlen(RQ3_ammo_mp5_model) < MAX_MODEL_LEN)) {
+				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_mp5_model;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_mp5_icon;
+			} else {
+				CG_Printf("^1Error loading mp5 ammo replacement model %s\n", cg_RQ3_ammo_mp5.string);
+			}
+		}
+		if (!strcmp(item->classname, "ammo_m4") && strcmp(cg_RQ3_ammo_m4.string, "m4")) {
+			Com_sprintf(RQ3_ammo_m4_model, MAX_MODEL_LEN, "models/ammo/%s.md3", cg_RQ3_ammo_m4.string);
+			Com_sprintf(RQ3_ammo_m4_icon, MAX_MODEL_LEN, "icons/icona_%s", cg_RQ3_ammo_m4.string);
+			if (JB_FileExists(RQ3_ammo_m4_model) && (strlen(RQ3_ammo_m4_model) < MAX_MODEL_LEN)) {
+				bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_ammo_m4_model;
+				bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_ammo_m4_icon;
+			} else {
+				CG_Printf("^1Error loading m4 ammo replacement model %s\n", cg_RQ3_ammo_m4.string);
 			}
 		}
 	}
