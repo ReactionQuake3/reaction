@@ -319,14 +319,9 @@ cvarTable_t		cvarTable[] = {
 	{ &cg_RQ3_ssgColorG, "cg_RQ3_ssgColorG", "1.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorB, "cg_RQ3_ssgColorB", "0.0", CVAR_ARCHIVE },
 	{ &cg_RQ3_ssgColorA, "cg_RQ3_ssgColorA", "0.75", CVAR_ARCHIVE },
-<<<<<<< cg_main.c
 	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
-	//Elder: toggle client-side laser drawing
-	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE }
-=======
-	{ &cg_RQ3_impactEffects, "cg_RQ3_impactEffects", "1", CVAR_ARCHIVE },
-	{ &cg_RQ3_anouncer, "cg_RQ3_anouncer", "1", CVAR_ARCHIVE },
->>>>>>> 1.9
+	{ &cg_RQ3_laserAssist, "cg_RQ3_laserAssist", "0", CVAR_ARCHIVE },
+	{ &cg_RQ3_anouncer, "cg_RQ3_announcer", "1", CVAR_ARCHIVE }
 //	{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
@@ -647,7 +642,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.lensSound = trap_S_RegisterSound( "sound/misc/lens.wav", qfalse);
 	cgs.media.headshotSound = trap_S_RegisterSound( "sound/misc/headshot.wav", qfalse);
 	cgs.media.lcaSound = trap_S_RegisterSound( "sound/misc/lca.wav", qfalse);
-	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencer.wav", qfalse);
+	cgs.media.silencerSound = trap_S_RegisterSound( "sound/misc/silencershot.wav", qfalse);
 	cgs.media.kevlarHitSound = trap_S_RegisterSound( "sound/misc/vest.wav", qfalse);
 
 

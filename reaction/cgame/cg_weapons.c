@@ -1556,7 +1556,7 @@ void CG_NextWeapon_f( void ) {
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
-	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
+	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
 	//if (cg.snap->ps.weaponTime > 0) {
 		return;
 	}
@@ -1623,7 +1623,7 @@ void CG_PrevWeapon_f( void ) {
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
-	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
+	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
 		return;
 	}
 
@@ -1694,7 +1694,7 @@ void CG_SpecialWeapon_f( void ) {
 
 	//Elder: in the middle of firing, reloading or weapon-switching
 	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
-	if (cg.snap->ps.weaponstate == WEAPON_DROPPING && cg.snap->ps.weaponTime > 0) {
+	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
 		return;
 	}
 
@@ -1970,7 +1970,7 @@ The current weapon has just run out of ammo
 ===================
 */
 void CG_OutOfAmmoChange( void ) {
-	int		i;
+	//int		i;
 
 
 	if (!cg.snap)
