@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/05/04 23:17:26  jbravo
+// Fixed the model checking code a bit. It now works with the .ini file
+//
 // Revision 1.50  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -604,7 +607,7 @@ void G_UpdateCvars( void ) {
 /*
 ============
 RQ3_Validatemodel
-Makes sure we have a legit RQ3 model
+JBravo: Makes sure we have a legit RQ3 model
 ============
 */
 
@@ -629,16 +632,98 @@ qboolean RQ3_Validatemodel (char *model) {
 
 /*
 ============
+RQ3_loadmodels
+JBravo: load modelinfo from all RQ3 models
+============
+*/
+void RQ3_loadmodels (void)
+{
+	int		i, j, len, numdirs, modelcount, dirlen;
+	char		*dirptr, *text_p, *token, dirlist[2048], buf[2048];
+	fileHandle_t	file;
+
+	for (i=0; i < MAXMODELS; i++) {
+		memset (&legitmodels[i], 0, sizeof (legitmodels[i]));
+	}
+	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, sizeof(dirlist));
+	dirptr  = dirlist;
+	modelcount = 0;
+	for (i=0; i < numdirs; i++, dirptr += dirlen+1) {
+		dirlen = strlen(dirptr);
+		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
+		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
+			continue;
+		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
+		if (file) {
+			trap_FS_Read(buf, len, file);
+			buf[len] = 0;
+			text_p = buf;
+			trap_FS_FCloseFile (file);
+			Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
+			for (j=0; j < 3; j++) {
+				token = COM_Parse(&text_p);
+				if (!token) break;
+				if (Q_stricmp (token, "team1color") == 0) {
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team1color[0] = atof (token);
+					else
+						break;
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team1color[1] = atof (token);
+					else
+						break;
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team1color[2] = atof (token);
+					else
+						break;
+				} else if (Q_stricmp (token, "team2color") == 0) {
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team2color[0] = atof (token);
+					else
+						break;
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team2color[1] = atof (token);
+					else
+						break;
+					token = COM_Parse(&text_p);
+					if (token)
+						legitmodels[modelcount].team2color[2] = atof (token);
+					else
+						break;
+				} else if (Q_stricmp (token, "gender") == 0) {
+					token = COM_Parse(&text_p);
+					if (token)
+						if (!Q_stricmp(token, "male"))
+							legitmodels[modelcount].gender = GENDER_MALE;
+						else if (!Q_stricmp(token, "female"))
+							legitmodels[modelcount].gender = GENDER_FEMALE;
+						else if (!Q_stricmp(token, "neuter"))
+							legitmodels[modelcount].gender = GENDER_NEUTER;
+						else
+							break;
+					else
+						break;
+				}
+			}
+			modelcount++;
+		}
+	}
+}
+
+/*
+============
 G_InitGame
 
 ============
 */
 
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
-	int		i, j, numdirs, dirlen, len, modelcount;
-	char		*dirptr, *text_p, *token;
-	char		dirlist[2048], buf[2048];
-	fileHandle_t	file;
+	int		i;
 
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
@@ -651,6 +736,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_ProcessIPBans();
 
 	G_InitMemory();
+
+	// JBravo: Load RQ3 models
+	RQ3_loadmodels();
 
 	// Runs the config if the file is valid. First run will allways be valid
 	if( g_RQ3_ValidIniFile.integer && (g_RQ3_NextMapID.integer == -1) ){  
@@ -776,78 +864,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );
-	}
-// JBravo: Load legit model names.
-	for (i=0; i < MAXMODELS; i++) {
-		memset (&legitmodels[i], 0, sizeof (legitmodels[i]));
-	}
-	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, sizeof(dirlist));
-	dirptr  = dirlist;
-	modelcount = 0;
-	for (i=0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
-		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
-		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
-			continue;
-		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
-		if (file) {
-			trap_FS_Read(buf, len, file);
-			buf[len] = 0;
-			text_p = buf;
-			trap_FS_FCloseFile (file);
-			Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
-			for (j=0; j < 3; j++) {
-				token = COM_Parse(&text_p);
-				if (!token) break;
-				if (Q_stricmp (token, "team1color") == 0) {
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team1color[0] = atof (token);
-					else
-						break;
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team1color[1] = atof (token);
-					else
-						break;
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team1color[2] = atof (token);
-					else
-						break;
-				} else if (Q_stricmp (token, "team2color") == 0) {
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team2color[0] = atof (token);
-					else
-						break;
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team2color[1] = atof (token);
-					else
-						break;
-					token = COM_Parse(&text_p);
-					if (token)
-						legitmodels[modelcount].team2color[2] = atof (token);
-					else
-						break;
-				} else if (Q_stricmp (token, "gender") == 0) {
-					token = COM_Parse(&text_p);
-					if (token)
-						if (!Q_stricmp(token, "male"))
-							legitmodels[modelcount].gender = GENDER_MALE;
-						else if (!Q_stricmp(token, "female"))
-							legitmodels[modelcount].gender = GENDER_FEMALE;
-						else if (!Q_stricmp(token, "neuter"))
-							legitmodels[modelcount].gender = GENDER_NEUTER;
-						else
-							break;
-					else
-						break;
-				}
-			}
-			modelcount++;
-		}
 	}
 
 	G_RemapTeamShaders();
