@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.59  2002/03/26 11:32:05  jbravo
 // Remember specstate between rounds.
 //
@@ -102,9 +105,6 @@
 
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"reaction"
-
-// NiceAss: Took it out until later.
-#define  __ZCAM__
 
 #define BODY_QUEUE_SIZE		8
 
@@ -315,11 +315,9 @@ typedef enum {
 	SPECTATOR_NOT,
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
-#ifdef  __ZCAM__
 	SPECTATOR_ZCAM,
 	SPECTATOR_CAMERA_FLIC,
 	SPECTATOR_CAMERA_SWING,
-#endif
 	SPECTATOR_SCOREBOARD
 } spectatorState_t;
 
@@ -407,9 +405,7 @@ typedef struct {
 	int			records[REC_NUM_RECORDS];	// Elder: for our statistics tracking
 } clientPersistant_t;
 
-#ifdef  __ZCAM__
 struct camera_s;
-#endif /* __ZCAM__ */
 
 // Elder: spam prevention defaults
 /*
@@ -575,9 +571,7 @@ struct gclient_s {
 #endif
 
 	char		*areabits;
-#ifdef  __ZCAM__
-        struct camera_s *camera;
-#endif /* __ZCAM__ */
+        struct	camera_s *camera;
 // JBravo adding TP stuff
 	int	specMode;
 	int	teamplayWeapon;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.59  2002/03/24 22:48:29  niceass
 // cg_draw change for scoreboard
 //
@@ -88,7 +91,6 @@
 // so there is NO persistant data between levels on the client side.
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
-#define __ZCAM__
 
 #ifdef MISSIONPACK
 #define CG_FONT_THRESHOLD 0.1

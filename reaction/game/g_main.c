@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.39  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -93,9 +96,7 @@
 //
 
 #include "g_local.h"
-#ifdef __ZCAM__
 #include "zcam.h"
-#endif /* __ZCAM__ */
 
 level_locals_t	level;
 
@@ -613,9 +614,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		g_entities[i].client = level.clients + i;
 	}
 
-#ifdef __ZCAM__
 	camera_init ();
-#endif /* __ZCAM__ */
 
 	// always leave room for the max number of clients,
 	// even if they aren't all used, so numbers inside that
@@ -712,9 +711,7 @@ void G_ShutdownGame( int restart ) {
 		trap_FS_FCloseFile( level.logFile );
 	}
 
-#ifdef __ZCAM__
 	camera_shutdown ();
-#endif /* __ZCAM__ */
 
 	// write all the client session data so we can get it back
 	G_WriteSessionData();

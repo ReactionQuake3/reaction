@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.66  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.65  2002/03/30 17:37:48  jbravo
 // Added damage tracking to the server. Added zcam flic mode. cleaned up g_damage.
 //
@@ -98,10 +101,7 @@
 #include "g_local.h"
 // JBravo: need TP functions
 #include "g_teamplay.h"
-
-#ifdef  __ZCAM__
 #include "zcam.h"
-#endif /* __ZCAM__ */
 
 
 //Elder: got rid of these

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.38  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.37  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -945,9 +948,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("choose");
 	trap_AddCommand ("drop");
 // JBravo: for zcam
-#ifdef __ZCAM__
 	trap_AddCommand ("camera");
-#endif
 // JBravo: for radio
 	trap_AddCommand ("radio");
 	trap_AddCommand ("radiogender");

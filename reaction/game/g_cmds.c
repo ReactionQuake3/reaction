@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.83  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -153,9 +156,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
-#ifdef __ZCAM__
 #include "zcam.h"
-#endif /* __ZACM__ */
 
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"			// for the voice chats
@@ -2953,10 +2954,8 @@ void ClientCommand( int clientNum ) {
 	//Elder: stuff for dropping items
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );
-#ifdef __ZCAM__
 	else if (Q_stricmp (cmd, "camera") == 0)
 		camera_cmd ( ent );
-#endif /* __ZCAM__ */
 	else if (Q_stricmp (cmd, "playerstats") == 0)
 	{
 		Cmd_PlayerStats_f( ent );

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.55  2002/03/30 02:29:43  jbravo
 // Lots of spectator code updates. Removed debugshit, added some color.
 //
@@ -107,9 +110,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
-#ifdef __ZCAM__
 #include "zcam.h"
-#endif /* __ZCAM__ */
 
 // JBravo: fixme. Hack to use SelectInitialSpawnPoint() in ClientSpawn.
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
@@ -1707,9 +1708,7 @@ void ClientDisconnect( int clientNum ) {
 		}
 	}
 
-#ifdef __ZCAM__
 	camera_disconnect (ent);
-#endif /* __ZCAM__ */
 
 	// send effect if they were completely connected
 	if ( ent->client->pers.connected == CON_CONNECTED

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/03/30 21:51:42  jbravo
+// Removed all those ifdefs for zcam.
+//
 // Revision 1.12  2002/03/26 11:32:05  jbravo
 // Remember specstate between rounds.
 //
@@ -38,10 +41,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
-
-#ifdef __ZCAM__
 #include "zcam.h"
-#endif /* __ZCAM__ */
 
 
 /*
@@ -88,9 +88,7 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	trap_Cvar_Set( var, s );
 
-#ifdef __ZCAM__
 	camera_state_save (client);
-#endif /* __ZCAM__ */
 }
 
 /*
@@ -131,9 +129,8 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.teamLeader = (qboolean)teamLeader;
 	
 	client->sess.savedTeam = (team_t)savedTeam;
-#ifdef __ZCAM__
+
 	camera_state_load (client);
-#endif /* __ZCAM__ */
 }
 
 
