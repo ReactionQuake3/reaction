@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.97  2002/06/19 05:17:57  niceass
+// scoreboard stuff
+//
 // Revision 1.96  2002/06/16 23:26:23  blaze
 // fixed to allow > 16 breakables
 //
@@ -1656,6 +1659,10 @@ extern cheat_cvar cheats[30];
 //extern        vmCvar_t                cg_RQ3_team_round_going;
 extern vmCvar_t cg_RQ3_team1name;
 extern vmCvar_t cg_RQ3_team2name;
+extern vmCvar_t cg_RQ3_team1model;
+extern vmCvar_t cg_RQ3_team2model;
+
+
 extern vmCvar_t ui_RQ3_teamCount1;
 extern vmCvar_t ui_RQ3_teamCount2;
 extern vmCvar_t ui_RQ3_numSpectators;

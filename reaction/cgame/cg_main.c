@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/06/19 05:20:01  niceass
+// scoreboard stuff
+//
 // Revision 1.85  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -400,6 +403,9 @@ cheat_cvar cheats[30];
 //vmCvar_t      cg_RQ3_team_round_going;
 vmCvar_t cg_RQ3_team1name;
 vmCvar_t cg_RQ3_team2name;
+vmCvar_t cg_RQ3_team1model;
+vmCvar_t cg_RQ3_team2model;
+
 vmCvar_t ui_RQ3_teamCount1;
 vmCvar_t ui_RQ3_teamCount2;
 vmCvar_t ui_RQ3_numSpectators;
@@ -568,6 +574,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 //      { &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
 	{&cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
 	{&cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
+	{&cg_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", 0},
+	{&cg_RQ3_team2model, "g_RQ3_team2model", "grunt/police", 0},
 	{&ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
 	{&ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
 	{&ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM},

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/06/19 05:21:20  niceass
+// scoreboard stuff
+//
 // Revision 1.34  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -106,6 +109,12 @@
 #include "cg_local.h"
 
 //static qboolean localClient; // true if local client has been displayed
+
+void CG_DrawScoreBoardHead(float x, float y, float w, float h, 
+						   qhandle_t headModel, qhandle_t headSkin, vec3_t headAngles);
+void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h);
+
+
 
 #define SB_WIDTH		330
 #define SB_FONTSIZEW	7
@@ -239,7 +248,7 @@ static int CG_TeamplayScoreboard(void)
 	score_t *Score;
 	int y;
 	int Alternate, First;
-	char teamname[128];
+//	char teamname[128];
 	int Ping, Frags, Damage;	// Averages
 	char Tmp[128];
 
@@ -340,8 +349,8 @@ static int CG_TeamplayScoreboard(void)
 	//trap_Cvar_VariableStringBuffer("g_RQ3_team1model", Tmp, sizeof(Tmp));
 
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, RedD, colorBlack);
-	trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
-	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, colorBlack);
+	//trap_Cvar_VariableStringBuffer("g_RQ3_team1name", teamname, sizeof(teamname));
+	DrawStripText(y, 50, SB_FONTSIZEH, cg_RQ3_team1name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
@@ -349,6 +358,10 @@ static int CG_TeamplayScoreboard(void)
 				   colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[0]), 100, colorWhite);
+
+
+	CG_ScoreBoardHead (TEAM_RED, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
+
 
 	y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 
@@ -423,8 +436,8 @@ static int CG_TeamplayScoreboard(void)
 	// *************** BLUE TEAM ************
 	y += SB_FONTSIZEH * 2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, colorBlack);
-	trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
-	DrawStripText(y, 50, SB_FONTSIZEH, teamname, 100, colorBlack);
+	//trap_Cvar_VariableStringBuffer("g_RQ3_team2name", teamname, sizeof(teamname));
+	DrawStripText(y, 50, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%s - Wins: %d",
@@ -432,6 +445,8 @@ static int CG_TeamplayScoreboard(void)
 				   colorWhite);
 	else
 		DrawRightStripText(y, SB_FONTSIZEH, va("Wins: %d", cg.teamScores[1]), 100, colorWhite);
+	
+	CG_ScoreBoardHead (TEAM_BLUE, (SCREEN_WIDTH - SB_WIDTH) / 2 - 44, y - 2, 48, 48);
 
 	y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 
@@ -1177,4 +1192,83 @@ void CG_DrawWeaponStats(void)
 	}
 
 	return;
+}
+
+/*
+	CG_FindHead			By NiceAss
+
+	Used to parse the model cvars and register the model and skin. It
+	then displays it.
+*/
+
+void CG_ScoreBoardHead(team_t team, float x, float y, float w, float h) {
+	char		modelskin[128], filename[128];
+	char		*model = NULL, *skin = NULL;
+	qhandle_t	headModel, headSkin;
+	vec3_t		headAngles;
+
+	if (team == TEAM_RED) 
+		strcpy(modelskin, cg_RQ3_team1model.string);
+	else
+		strcpy(modelskin, cg_RQ3_team2model.string);
+
+	skin = strchr(modelskin, '/');
+
+	if (!skin)
+		return;
+
+	*skin = '\0';
+	skin++;
+	model = modelskin;
+
+	Com_sprintf(filename, 128, "models/players/%s/head.md3", model);
+	headModel = trap_R_RegisterModel( filename );
+
+	if (!headModel)
+		return;
+
+	Com_sprintf(filename, 128, "models/players/%s/head_%s.skin", model, skin);
+	headSkin = trap_R_RegisterSkin( filename );
+
+	if (!headSkin)
+		return;
+
+	VectorClear( headAngles );
+	headAngles[1] = sin(cg.time * 0.003f) * 20.0f + 180.0f;
+	headAngles[0] = cos(cg.time * 0.002f) * 8.0f;
+
+	CG_DrawScoreBoardHead(x, y, w, h, headModel, headSkin, headAngles);
+}
+
+
+/*
+	CG_DrawScoreBoardHead			By NiceAss
+
+	Displays the player model. This is just an altered CG_DrawHead.
+*/
+
+void CG_DrawScoreBoardHead(float x, float y, float w, float h, 
+						   qhandle_t headModel, qhandle_t headSkin, vec3_t headAngles)
+{
+	clipHandle_t cm;
+	float len;
+	vec3_t origin;
+	vec3_t mins, maxs;
+
+	cm = headModel;
+	if (!cm) {
+		return;
+	}
+	// offset the origin y and z to center the head
+	trap_R_ModelBounds(cm, mins, maxs);
+
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+
+	// calculate distance so the head nearly fills the box
+	// assume heads are taller than wide
+	len = 0.7 * (maxs[2] - mins[2]);
+	origin[0] = len / 0.268;	// len / tan( fov/2 )
+
+	CG_Draw3DModel(x, y, w, h, headModel, headSkin, origin, headAngles);
 }

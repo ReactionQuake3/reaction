@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.90  2002/06/19 05:21:43  niceass
+// scoreboard stuff
+//
 // Revision 1.89  2002/06/18 09:21:48  niceass
 // removed some model output
 //
@@ -469,8 +472,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
-	{&g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SERVERINFO, 0, qfalse},
-	{&g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SERVERINFO, 0, qfalse},
+	{&g_RQ3_team1model, "g_RQ3_team1model", "grunt/robber", CVAR_SYSTEMINFO, 0, qfalse},
+	{&g_RQ3_team2model, "g_RQ3_team2model", "grunt/police", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_printOwnObits, "g_RQ3_printOwnObits", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_gib, "g_RQ3_gib", "1", CVAR_ARCHIVE, 0, qtrue},
