@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/04/23 06:04:12  niceass
+// pressure stuff
+//
 // Revision 1.56  2002/04/20 15:03:48  makro
 // More footstep sounds, a few other things
 //
@@ -993,8 +996,9 @@ typedef enum {
 	EV_BREAK_GLASS1,			// Blaze: Breakable glass
 	EV_BREAK_GLASS2,
 	EV_BREAK_GLASS3,
-  EV_CHIP_GLASS,  //Blaze: this even just breaks it a little bit.
-  EV_SCOREPLUM,			// score plum
+	EV_CHIP_GLASS,			//Blaze: this even just breaks it a little bit.
+	EV_PRESSURE_WATER,		//NiceAss: Shot an ent under pressure with water
+	EV_SCOREPLUM,			// score plum
 
 //#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
@@ -1283,7 +1287,8 @@ typedef enum {
 	ET_ITEM,
 	ET_MISSILE,
 	ET_MOVER,
-	ET_BREAKABLE,//Blaze: Breakable glass
+	ET_BREAKABLE,	//Blaze: Breakable glass
+	ET_PRESSURE,	//NiceAss: Pressure entities
 	ET_BEAM,
 	ET_PORTAL,
 	ET_SPEAKER,

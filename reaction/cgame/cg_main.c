@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/04/23 06:06:57  niceass
+// pressure stuff
+//
 // Revision 1.56  2002/04/20 15:05:08  makro
 // More footstep sounds, a few other things
 //
@@ -706,6 +709,8 @@ static void CG_RegisterSounds( void ) {
 	CG_LoadVoiceChats();
 #endif
 
+	// NiceAss: Used for pressure entities
+	cgs.media.steamSound = trap_S_RegisterSound( "sound/steam.wav", qtrue );
 	cgs.media.oneMinuteSound = trap_S_RegisterSound( "sound/feedback/1_minute.wav", qtrue );
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound( "sound/feedback/5_minute.wav", qtrue );
 	cgs.media.suddenDeathSound = trap_S_RegisterSound( "sound/feedback/sudden_death.wav", qtrue );
@@ -1152,7 +1157,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
-
+	cgs.media.waterParticleShader = trap_R_RegisterShader( "gfx/misc/water.tga" ); // NiceAss: Used in pressure entities
 	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
 
 	cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );

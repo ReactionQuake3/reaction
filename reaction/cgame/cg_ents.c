@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/04/23 06:09:18  niceass
+// pressure stuff
+//
 // Revision 1.24  2002/04/09 18:52:13  makro
 // Target_speakers can now be toggled on/off
 //
@@ -1183,6 +1186,9 @@ static void CG_AddCEntity( centity_t *cent ) {
 		CG_Mover( cent );
 		break;
 	case ET_BREAKABLE:
+ 		CG_Mover( cent );
+ 		break;
+	case ET_PRESSURE:
  		CG_Mover( cent );
  		break;
 	case ET_BEAM:

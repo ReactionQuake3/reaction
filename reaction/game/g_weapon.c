@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/04/23 06:00:32  niceass
+// pressure stuff
+//
 // Revision 1.46  2002/04/21 00:31:27  blaze
 // ssg now properly breaks breakables
 //
@@ -428,7 +431,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	int			i, passent;
 	//Makro
 	int				Material;
-
+	
 	// Elder: Statistics tracking
 	if (ent->client && level.team_round_going)
 	{
@@ -448,21 +451,21 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			break;
 		}
 	}
-
+	
 	//Elder: removed - for some reason it's set to 0
 	//damage *= s_quadFactor;
-
+	
 	/* Original AQ2 code
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
-
-	r = crandom()*hspread;
-	u = crandom()*vspread;
-	VectorMA (start, 8192, forward, end);
-	VectorMA (end, r, right, end);
-	VectorMA (end, u, up, end);
+	
+	  r = crandom()*hspread;
+	  u = crandom()*vspread;
+	  VectorMA (start, 8192, forward, end);
+	  VectorMA (end, r, right, end);
+	  VectorMA (end, u, up, end);
 	*/
-
+	
 	/* More AQ2 code to implement
 	// change bullet's course when it enters water
 	VectorSubtract (end, start, dir);
@@ -474,36 +477,36 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
 	*/
-
+	
 	//Elder: original Q3 code -- note the first line and its use to reduce spread
 	//r = random() * M_PI * 2.0f;
 	//u = sin(r) * crandom() * spread * 16;
 	//r = cos(r) * crandom() * spread * 16;
-
+	
 	//FYI: multiply by 16 so we can reach the furthest ends of a "TA" sized map
-
+	
 	u = crandom() * spread * 16;
 	r = crandom() * spread * 16;
 	VectorMA (muzzle, 8192*16, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
-
+	
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
-
+		
 		trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
 		//Makro - saving the material flag to avoid useless calls to the GetMaterialFromFlag function
 		Material = GetMaterialFromFlag(tr.surfaceFlags);
-
+		
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			return;
 		}
-
+		
 		traceEnt = &g_entities[ tr.entityNum ];
-
+		
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards( tr.endpos, muzzle );
-
+		
 		// send bullet impact
 		// NiceAss: Special hit-detection stuff for the head
 		if ( traceEnt->takedamage && traceEnt->client && G_HitPlayer(traceEnt, forward, tr.endpos) == qfalse ) {
@@ -511,7 +514,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			passent = tr.entityNum;
 			continue;
 		}
-
+		
 		if ( traceEnt->takedamage && traceEnt->client ) {
 			if (bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag != HI_KEVLAR)
 			{
@@ -524,44 +527,47 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 			if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
 				// Elder: Statistics tracking
-        if (level.team_round_going) 
-        {
-				  switch (MOD)
-				  {
-				  case MOD_PISTOL:
-  					ent->client->pers.records[REC_MK23HITS]++;
-					  //ent->client->mk23Hits++;
-					  break;
-				  case MOD_M4:
-  					ent->client->pers.records[REC_M4HITS]++;
-					  //ent->client->m4Hits++;
-					  break;
-				  case MOD_MP5:
-  					ent->client->pers.records[REC_MP5HITS]++;
-					  //ent->client->mp5Hits++;
-					  break;
-				  case MOD_AKIMBO:
-  					ent->client->pers.records[REC_AKIMBOHITS]++;
-					  //ent->client->akimboHits++;
-					  break;
-				  }
-        }
+				if (level.team_round_going) 
+				{
+					switch (MOD)
+					{
+					case MOD_PISTOL:
+						ent->client->pers.records[REC_MK23HITS]++;
+						//ent->client->mk23Hits++;
+						break;
+					case MOD_M4:
+						ent->client->pers.records[REC_M4HITS]++;
+						//ent->client->m4Hits++;
+						break;
+					case MOD_MP5:
+						ent->client->pers.records[REC_MP5HITS]++;
+						//ent->client->mp5Hits++;
+						break;
+					case MOD_AKIMBO:
+						ent->client->pers.records[REC_AKIMBOHITS]++;
+						//ent->client->akimboHits++;
+						break;
+					}
+				}
 			}
 			//Elder: *******************TEST CODE *****************
 			//} else if ( tr.surfaceFlags & SURF_GRASS ) {
 			//tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH);
 			//tent->s.eventParm = DirToByte( tr.plane.normal );
-		//Makro - new surfaceparm system
-		//} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
+			//Makro - new surfaceparm system
+			//} else if ((tr.surfaceFlags & SURF_METALSTEPS) || (tr.surfaceFlags & SURF_METAL2) || (tr.surfaceFlags & SURF_HARDMETAL)) {
 		} else if (IsMetalMat(Material)) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_METAL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
-		//} else if ( tr.surfaceFlags & SURF_GLASS) {
+			//} else if ( tr.surfaceFlags & SURF_GLASS) {
 		} else if ( Material == MAT_GLASS ) {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_GLASS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.otherEntityNum = ent->s.number;
+		} else if ( traceEnt->s.eType == ET_PRESSURE ) {
+			// Pressure entities
+			tent = G_TempEntity2( tr.endpos, EV_PRESSURE_WATER, DirToByte(tr.plane.normal) );
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
@@ -569,10 +575,10 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 		}
 		//tent->s.otherEntityNum = ent->s.number;
 		//G_Printf("Surfaceflags: %d\n", tr.surfaceFlags);
-
+		
 		if ( traceEnt->takedamage) {
 			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD);
-
+			
 			// FIXME: poor implementation
 			if (traceEnt->client && bg_itemlist[traceEnt->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR) {
 				if (traceEnt->client->kevlarHit == qfalse) {
@@ -584,7 +590,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 					tent2->s.otherEntityNum = ent->s.number;
 				}
 			}
-
+			
 			// NiceAss: Added so the M4 will shoot through bodies
 			if (MOD == MOD_M4 && traceEnt->client && 
 				traceEnt->client->kevlarHit == qfalse) 

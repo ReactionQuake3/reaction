@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/04/23 06:03:39  niceass
+// pressure stuff
+//
 // Revision 1.33  2002/04/20 15:03:47  makro
 // More footstep sounds, a few other things
 //
@@ -1423,7 +1426,8 @@ char *eventnames[] = {
 	"EV_BREAK_GLASS1",			// Blaze: Breakable glass
 	"EV_BREAK_GLASS2",
 	"EV_BREAK_GLASS3",
-  "EV_CHIP_GLASS",  //Blaze: this even just breaks it a little bit.
+	"EV_CHIP_GLASS",		// Blaze: this even just breaks it a little bit.
+	"EV_PRESSURE_WATER",	// NiceAss: Shot an ent under pressure with water
 	"EV_SCOREPLUM",			// score plum
 
 //#ifdef MISSIONPACK

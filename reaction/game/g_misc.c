@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/04/23 06:01:58  niceass
+// pressure stuff
+//
 // Revision 1.31  2002/04/22 16:43:34  blaze
 // Hey look, breakables explode now!  :)
 //
@@ -770,6 +773,17 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
 		tent = G_TempEntity2( impactPoint, EV_CHIP_GLASS, eParm);
 
   }
+}
+
+void SP_func_pressure( gentity_t *ent ) {
+	// Make it appear as the brush
+	G_Printf("Creating Pressure entity\n");
+	trap_SetBrushModel( ent, ent->model );
+	trap_LinkEntity (ent);
+	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_PRESSURE;
+	ent->damage = 2;
 }
 
 

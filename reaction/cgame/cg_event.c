@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2002/04/23 06:08:58  niceass
+// pressure stuff
+//
 // Revision 1.50  2002/04/20 15:05:08  makro
 // More footstep sounds, a few other things
 //
@@ -2561,6 +2564,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
  		DEBUGNAME("EV_CHIP_GLASS");
  		CG_BreakGlass( cent->lerpOrigin, es->eventParm, es->number, 1, 1 );
  		break;
+	case EV_PRESSURE_WATER:
+ 		DEBUGNAME("EV_PRESSURE_WATER");
+		ByteToDir(es->eventParm, dir);
+ 		CG_PressureWater( position, dir );
+		break;
 
   case EV_STOPLOOPINGSOUND:
 		DEBUGNAME("EV_STOPLOOPINGSOUND");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/04/23 06:07:23  niceass
+// pressure stuff
+//
 // Revision 1.9  2002/03/31 02:02:15  niceass
 // more random shell bouncing
 //
@@ -813,7 +816,37 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 }
 
+void CG_AddPressureEntity ( localEntity_t *le ) {
+	vec3_t	velocity;
+	vec3_t  origin;
 
+	float	alpha;
+	int		l;
+
+	alpha = -(cg.time - le->startTime) + (le->endTime - le->startTime);
+	alpha /= (le->endTime - le->startTime);
+	//steamSound
+	for (l = 0; l < 1; l++) {
+/*
+		VectorScale(le->pos.trDelta, 200 + rand() % 30, velocity);
+
+		velocity[0] += rand() % 20 - 10;
+		velocity[1] += rand() % 20 - 10;
+		velocity[2] = 0;
+*/
+		// steam:
+		VectorScale(le->pos.trDelta, 200 + rand() % 30, velocity);
+
+		velocity[0] += rand() % 40 - 20;
+		velocity[1] += rand() % 40 - 20;
+
+		VectorCopy(le->pos.trBase, origin);
+		//VectorMA(origin, 10, velocity, origin);
+
+		//CG_ParticleWater(le->pos.trBase, velocity, 200 + rand() % 120, alpha, -8, 1 );
+		CG_ParticleSteam(le->pos.trBase, velocity, 200 + rand() % 120, alpha, -8, 1 );
+	}
+}
 
 
 //==============================================================================
@@ -878,6 +911,9 @@ void CG_AddLocalEntities( void ) {
 		case LE_SCOREPLUM:
 			CG_AddScorePlum( le );
 			break;
+
+		case LE_PRESSURE_WATER:
+			CG_AddPressureEntity( le );
 
 #ifdef MISSIONPACK
 		case LE_KAMIKAZE:
