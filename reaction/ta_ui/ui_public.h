@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/04/30 11:56:54  makro
+// Stuff
+//
 // Revision 1.4  2002/03/03 21:22:58  makro
 // no message
 //
@@ -139,7 +142,8 @@ typedef enum {
 //Makro - added weapon menu
 	UIMENU_RQ3_WEAPON,
 //Makro - added join menu
-	UIMENU_RQ3_JOIN
+	UIMENU_RQ3_JOIN,
+	UIMENU_RQ3_TKOK
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/04/30 11:56:54  makro
+// Stuff
+//
 // Revision 1.9  2002/04/07 17:51:49  makro
 // Abbey
 //
@@ -420,6 +423,15 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	if ( Q_stricmp (cmd, "ui_RQ3_joinTeam") == 0 ) {
 		if ( trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
 			_UI_SetActiveMenu(UIMENU_RQ3_JOIN);
+		else
+			Com_Printf("Not playing a team-based game.\n");
+		return qtrue;
+	}
+
+	//Makro - tkok menu
+	if ( Q_stricmp (cmd, "ui_RQ3_tkok") == 0 ) {
+		if ( trap_Cvar_VariableValue("g_gametype") >= GT_TEAM)
+			_UI_SetActiveMenu(UIMENU_RQ3_TKOK);
 		else
 			Com_Printf("Not playing a team-based game.\n");
 		return qtrue;

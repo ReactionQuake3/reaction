@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/04/30 11:56:54  makro
+// Stuff
+//
 // Revision 1.14  2002/04/20 15:06:28  makro
 // Cool stuff :p
 //
@@ -2923,7 +2926,7 @@ static void Display_CloseCinematics() {
 void  Menus_Activate(menuDef_t *menu) {
 	int i;
 	
-	//Makro - better to check for this kind of stuff
+	//Makro - it's better to check for this kind of stuff
 	if (!menu) {
 		return;
 	}
@@ -2953,21 +2956,23 @@ void  Menus_Activate(menuDef_t *menu) {
 	for (i=0; i<menu->itemCount; i++) {
 		if (menu->items[i]->type == ITEM_TYPE_LISTBOX && menu->items[i]->special == FEEDER_Q3HEADS) {
 			//Makro - select the right player model icon
-			listBoxDef_t *listPtr;
-			int	size = 2, start = 0, pos = UI_SelectedQ3Head(qtrue);
+			listBoxDef_t *listPtr = (listBoxDef_t*)menu->items[i]->typeData;
+			int	size = 2, start = 0, end = 2, pos = UI_SelectedQ3Head(qtrue);
 
-			listPtr = (listBoxDef_t*)menu->items[i]->typeData;
 			if (listPtr->elementWidth) {
 				size = (int) (menu->items[i]->window.rect.w / listPtr->elementWidth);
-				if (size < 2)
-						break;
-				start = listPtr->startPos;
-				if ( start + size < pos)
-					start = ((int) (pos / size)) * size;
-				if (start + size > DC->feederCount(FEEDER_Q3HEADS))
-					start = DC->feederCount(FEEDER_Q3HEADS) - size;
-				listPtr->startPos = start;
-				listPtr->endPos = start + size;
+				if (size >= 2) {
+					start = listPtr->startPos;
+					end = listPtr->endPos;
+					if (start + size <= pos || pos + size <= end)
+						start = ((int) (pos / size)) * size;
+					if (start + size > DC->feederCount(FEEDER_Q3HEADS))
+						start = DC->feederCount(FEEDER_Q3HEADS) - size;
+					if (start < 0)
+						start = 0;
+					listPtr->startPos = start;
+					listPtr->endPos = start + size;
+				}
 			}
 			listPtr->cursorPos = pos;
 			menu->items[i]->cursorPos = pos;
@@ -3633,57 +3638,62 @@ typedef struct
 
 static bind_t g_bindings[] = 
 {
+	//Makro - 3rd column was filled with -1; adding secondary binds
+	//		- also, fixed the tabbing
 	//Makro - using scores instead of +scores
-	{"scores",			K_TAB,			-1,		-1, -1},
-	{"+button2",		K_ENTER,		-1,		-1, -1},
-	{"+speed",		K_SHIFT,		-1,		-1,	-1},
-	{"+forward",		K_UPARROW,		-1,		-1, -1},
-	{"+back",		K_DOWNARROW,	-1,		-1, -1},
-	{"+moveleft",	',',			-1,		-1, -1},
-	{"+moveright", 	'.',			-1,		-1, -1},
-	{"+moveup",		K_SPACE,		-1,		-1, -1},
-	{"+movedown",	'c',			-1,		-1, -1},
-	{"+left", 	K_LEFTARROW,	-1,		-1, -1},
-	{"+right", 		K_RIGHTARROW,	-1,		-1, -1},
-	{"+strafe", 			K_ALT,			-1,		-1, -1},
-	{"+lookup", 		K_PGDN,			-1,		-1, -1},
-	{"+lookdown", 		K_DEL,			-1,		-1, -1},
-	{"+mlook", 			'/',			-1,		-1, -1},
-	{"centerview", 		K_END,			-1,		-1, -1},
-	{"+zoom", 			-1,				-1,		-1, -1},
+	{"scores",			K_TAB,			-1,			-1, -1},
+	//Makro - button2 was enter
+	{"+button2",		-1,				-1,			-1, -1},
+	{"+speed",			K_SHIFT,		-1,			-1,	-1},
+	{"+forward",		K_UPARROW,		'w',		-1, -1},
+	{"+back",			K_DOWNARROW,	's',		-1, -1},
+	{"+moveleft",		',',			'a',		-1, -1},
+	{"+moveright", 		'.',			'd',		-1, -1},
+	{"+moveup",			K_SPACE,		-1,			-1, -1},
+	{"+movedown",		'c',			-1,			-1, -1},
+	{"+left", 			K_LEFTARROW,	-1,			-1, -1},
+	{"+right", 			K_RIGHTARROW,	-1,			-1, -1},
+	{"+strafe", 		K_ALT,			-1,			-1, -1},
+	{"+lookup", 		K_PGDN,			-1,			-1, -1},
+	{"+lookdown", 		K_DEL,			-1,			-1, -1},
+	{"+mlook", 			'/',			-1,			-1, -1},
+	{"centerview", 		K_END,			-1,			-1, -1},
+	{"+zoom", 			-1,				-1,			-1, -1},
 //Blaze: Reaction Weapon binds
 //Jbravo: order is important.
-	{"weapon 1",	'1',	-1,	-1, -1},
-	{"weapon 2",	'2',	-1,	-1, -1},
-	{"weapon 3",	'3',	-1,	-1, -1},
-	{"weapon 4",	'4',	-1,	-1, -1},
-	{"weapon 5",	'5',	-1,	-1, -1},
-	{"weapon 6",	'6',	-1,	-1, -1},
-	{"weapon 7",	'7',	-1,	-1, -1},
-	{"weapon 8",	'8',	-1,	-1, -1},
-	{"weapon 9",	'9',	-1,	-1, -1},
-	{"+attack", 		K_CTRL,			-1,		-1, -1},
-	{"weapprev",		'[',			-1,		-1, -1},
-	{"weapnext", 		']',			-1,		-1, -1},
-	{"+button3", 		K_MOUSE3,		-1,		-1, -1},
-	{"messagemode", 	't',			-1,		-1, -1},
-	{"messagemode2",	-1,				-1,		-1, -1},
-	{"messagemode3",	-1,				-1,		-1, -1},
-	{"messagemode4",	-1,				-1,		-1, -1},
-	{"bandage",	 		-1,				-1,		-1, -1},
+	{"weapon 1",		'1',			-1,			-1, -1},
+	{"weapon 2",		'2',			-1,			-1, -1},
+	{"weapon 3",		'3',			-1,			-1, -1},
+	{"weapon 4",		'4',			-1,			-1, -1},
+	{"weapon 5",		'5',			-1,			-1, -1},
+	{"weapon 6",		'6',			-1,			-1, -1},
+	{"weapon 7",		'7',			-1,			-1, -1},
+	{"weapon 8",		'8',			-1,			-1, -1},
+	{"weapon 9",		'9',			-1,			-1, -1},
+	{"+attack", 		K_CTRL,			K_MOUSE1,	-1, -1},
+	{"weapprev",		'[',			-1,			-1, -1},
+	{"weapnext", 		']',			'q',		-1, -1},
+	//Makro - button3 was mouse3
+	{"+button3", 		-1,				-1,			-1, -1},
+	{"messagemode", 	't',			-1,			-1, -1},
+	{"messagemode2",	-1,				-1,			-1, -1},
+	{"messagemode3",	-1,				-1,			-1, -1},
+	{"messagemode4",	-1,				-1,			-1, -1},
+	{"bandage",	 		'b',			-1,			-1, -1},
 	//reload
-	{"+button5",		-1,				-1,		-1, -1},
-	{"weapon",			-1,				-1,		-1, -1},
-	{"opendoor",	 	-1,				-1,		-1, -1},
-	{"dropweapon",	 	-1,				-1,		-1, -1},
-	{"dropitem",	 	-1,				-1,		-1, -1},
-	{"irvision",		-1,				-1,		-1, -1},
+	{"+button5",		'r',			-1,			-1, -1},
+	{"weapon",			K_MOUSE3,		-1,			-1, -1},
+	{"opendoor",	 	K_ENTER,		-1,			-1, -1},
+	{"dropweapon",	 	'x',			-1,			-1, -1},
+	{"dropitem",	 	'z',			-1,			-1, -1},
+	{"irvision",		'v',			-1,			-1, -1},
 //Makro - this one was missing
-	{"specialweapon",		-1,			-1,		-1, -1},
+	{"specialweapon",		'e',		-1,			-1, -1},
 //Makro - for the weapon/item, join and radio menus
-	{"ui_RQ3_loadout",		-1,			-1,		-1,	-1},
-	{"ui_RQ3_joinTeam",		-1,			-1,		-1,	-1},
-	{"ui_RQ3_radio",		-1,			-1,		-1,	-1}
+	{"ui_RQ3_loadout",	'l',			-1,			-1,	-1},
+	{"ui_RQ3_joinTeam",	'j',			-1,			-1,	-1},
+	{"ui_RQ3_radio",	-1,				-1,			-1,	-1},
+	{"ui_RQ3_tkok",		-1,				-1,			-1,	-1}
 };
 
 
@@ -3918,7 +3928,8 @@ void Item_Bind_Paint(itemDef_t *item) {
 	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
-		if (g_bindItem == item) {
+		//Makro - if you bind a key, the item shouldn't keep flashing when you're done
+		if (g_bindItem == item && g_waitingForKey) {
 			lowLight[0] = 0.8f * 1.0f;
 			lowLight[1] = 0.8f * 0.0f;
 			lowLight[2] = 0.8f * 0.0f;
@@ -3972,25 +3983,24 @@ void UI_ClearBind( const char *cvar ) {
 qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 	int			id;
 	int			i;
-	qboolean	ok;
+	qboolean	ok, returnVal;
 
 	//Makro - the mouse doesn't have to be over the item unless we're clicking on it instead of using the keyboard
 	ok = (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && UI_IsMouse(key)) || (item->window.flags && WINDOW_HASFOCUS);
 
 	if (ok && !g_waitingForKey)
 	{
+		returnVal = qfalse;
 		if (down && (key == K_MOUSE1 || key == K_ENTER)) {
 			g_waitingForKey = qtrue;
 			g_bindItem = item;
+			returnVal = qtrue;
 		//Makro - moved backspace code here; added up/down functionality (wtf was this missing?)
 		} else if (key == K_BACKSPACE) {
 			UI_ClearBind(item->cvar);
-		} else if (key == K_UPARROW) {
-			Menu_SetPrevCursorItem(item->parent);
-		} else if (key == K_DOWNARROW) {
-			Menu_SetNextCursorItem(item->parent);
+			returnVal = qtrue;
 		}
-		return qtrue;
+		return returnVal;
 	}
 	else
 	{

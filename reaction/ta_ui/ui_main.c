@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/04/30 11:56:54  makro
+// Stuff
+//
 // Revision 1.18  2002/04/22 18:40:58  makro
 // Model validation
 //
@@ -5569,6 +5572,9 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.playingIntro = "";
 	uiInfo.playingLoop = "";
 
+	//Makro - set default bot skill to max
+	uiInfo.skillIndex = numSkillLevels - 1;
+
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
@@ -5729,6 +5735,13 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_join");
+		  return;
+	  case UIMENU_RQ3_TKOK:
+		  trap_Cvar_Set( "cl_paused", "1" );
+			trap_Key_SetCatcher( KEYCATCH_UI );
+			UI_BuildPlayerList();
+			Menus_CloseAll();
+			Menus_ActivateByName("ingame_tkok");
 		  return;
 	  }
   }
@@ -6201,7 +6214,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	{ &ui_findPlayer, "ui_findPlayer", "Sarge", CVAR_ARCHIVE},
-	{ &ui_Q3Model, "ui_q3model", "0", CVAR_ARCHIVE},
+	//Makro - adding CVAR_ROM
+	{ &ui_Q3Model, "ui_q3model", "1", CVAR_ARCHIVE | CVAR_ROM},
 	{ &ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{ &ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
 	{ &ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0", CVAR_ARCHIVE},
@@ -6209,9 +6223,9 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 	//Makro - cvar for player model display
-	{ &ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", CVAR_ARCHIVE},
+	{ &ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", 0},
 	{ &ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},
-	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "0", CVAR_ARCHIVE},
+	{ &ui_RQ3_weapAfterJoin, "ui_RQ3_weapAfterJoin", "1", CVAR_ARCHIVE},
 	//Makro - team counts
 	{ &ui_RQ3_teamCount1, "g_RQ3_teamCount1", "0", 0},
 	{ &ui_RQ3_teamCount2, "g_RQ3_teamCount2", "0", 0},
