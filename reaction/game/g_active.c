@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2002/07/21 18:48:06  niceass
+// weapon prediction stuff
+//
 // Revision 1.83  2002/07/07 18:36:13  jbravo
 // Added an AntiIdle system. Can play insane sounds for idle players, drop them
 // from teams or kick them.   Upped version to Beta 2.1
@@ -505,7 +508,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		pm.tracemask = 0;	// spectators can fly through bodies
 		pm.trace = trap_Trace;
 		pm.pointcontents = trap_PointContents;
-
+		pm.predict = qtrue;
 		// perform a pmove
 		Pmove(&pm);
 		// save results of pmove
@@ -1133,6 +1136,9 @@ void ClientThink_real(gentity_t * ent)
 		pm.lca = qtrue;
 	else
 		pm.lca = qfalse;
+
+	pm.predict = qtrue;
+
 	Pmove(&pm);
 
 	if ((pm.cmd.upmove > 10) &&

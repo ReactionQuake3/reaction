@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/07/21 18:48:24  niceass
+// weapon prediction stuff
+//
 // Revision 1.87  2002/07/19 04:31:12  niceass
 // changed ef_dead for bot protection
 //
@@ -668,6 +671,7 @@ typedef struct {
 	int (*pointcontents) (const vec3_t point, int passEntityNum);
 // JBravo: lca info for the pm stuff
 	qboolean lca;
+	qboolean predict;
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
