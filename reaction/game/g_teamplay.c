@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2002/04/23 11:24:06  jbravo
+// Removed a debug message and did some cleanups
+//
 // Revision 1.63  2002/04/13 15:37:54  jbravo
 // limchasecam has been redone with new spec system
 //
@@ -227,12 +230,11 @@ void	AddIP(char *str);
 
 void CheckTeamRules()
 {
-	int winner, i;
-	int checked_tie = 0;
-	gentity_t *player;
+	int		winner, i, checked_tie = 0;
+	gentity_t	*player;
 
 	//Slicer
-	if(level.intermissiontime)
+	if (level.intermissiontime)
 		return;
 
 	level.fps = trap_Cvar_VariableIntegerValue("sv_fps");
@@ -261,13 +263,12 @@ void CheckTeamRules()
 			StartLCA();
 		} else {
 			//Slicer: Adding Matchmode
-			if(g_RQ3_matchmode.integer) {
-				if(g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
+			if (g_RQ3_matchmode.integer) {
+				if (g_RQ3_team1ready.integer && g_RQ3_team2ready.integer)
 					trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
 				else
 					trap_SendServerCommand( -1, "cp \"Both Teams Must Be Ready!\n\"");
-			}
-			else
+			} else
 				trap_SendServerCommand( -1, "cp \"Not enough players to play!\n\"");
 
 			MakeAllLivePlayersObservers();
@@ -281,7 +282,7 @@ void CheckTeamRules()
 				player = &g_entities[i];
 				if (!player->inuse)
 					continue;
-				G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
+				G_AddEvent (player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
 			}
 		}
 	}
@@ -293,8 +294,8 @@ void CheckTeamRules()
 	if (!level.team_round_going) {
 		if (g_timelimit.integer) {
 			//Slicer : Matchmode
-			if(g_RQ3_matchmode.integer) {
-				if(level.matchTime >= g_timelimit.integer * 60) {
+			if (g_RQ3_matchmode.integer) {
+				if (level.matchTime >= g_timelimit.integer * 60) {
 					level.inGame = level.team_round_going = level.team_round_countdown = 
 					level.team_game_going = level.matchTime = 0;
 					trap_SendServerCommand( -1, "roundend");
@@ -339,7 +340,6 @@ void CheckTeamRules()
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
-//			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 			return;
 		}
 
@@ -353,7 +353,6 @@ void CheckTeamRules()
 			level.lights_camera_action = 0;
 			level.holding_on_tie_check = 0;
 			level.team_round_countdown = (71*level.fps)/10;
-//			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 			return;
 		}
 	}
@@ -423,11 +422,10 @@ void CleanLevel()
 
 	ClearBodyQue();
 	ent = &g_entities[MAX_CLIENTS];
-	for ( i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++)
-	{
+	for (i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++) {
 		if (!ent->inuse)
 			continue;
-		if(!ent->item)
+		if (!ent->item)
 			continue;
 		if (ent->item->giType == IT_WEAPON) {
 			switch (ent->item->giTag) {
@@ -489,9 +487,9 @@ int CheckForWinner()
 
 int CheckForForcedWinner()
 {
-	int onteam1 = 0, onteam2 = 0, i;
-	int health1 = 0, health2 = 0;
-	gentity_t *player;
+	int		onteam1 = 0, onteam2 = 0, i;
+	int		health1 = 0, health2 = 0;
+	gentity_t	*player;
 
 	for (i = 0; i < level.maxclients; i++) {
 		player = &g_entities[i];
@@ -538,8 +536,8 @@ int WonGame(int winner)
 
 	if (g_timelimit.integer) {
 		//Slicer : Matchmode
-		if(g_RQ3_matchmode.integer) {
-			if(level.matchTime >= g_timelimit.integer * 60) {
+		if (g_RQ3_matchmode.integer) {
+			if (level.matchTime >= g_timelimit.integer * 60) {
 			level.inGame = level.team_round_going = level.team_round_countdown = 
 			level.team_game_going = level.matchTime = 0;
 			trap_SendServerCommand( -1, "roundend");
@@ -551,7 +549,7 @@ int WonGame(int winner)
 			}
 		}
 		else {
-			if(level.time - level.startTime >= g_timelimit.integer*60000) {
+			if (level.time - level.startTime >= g_timelimit.integer*60000) {
 				trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
 				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
 				trap_SendServerCommand( -1, "roundend");
@@ -565,7 +563,7 @@ int WonGame(int winner)
 	if (g_RQ3_roundlimit.integer) {
 		if (level.teamScores[TEAM_RED] >= g_RQ3_roundlimit.integer || level.teamScores[TEAM_BLUE] >= g_RQ3_roundlimit.integer) {
 				//Slicer : Matchmode
-			if(g_RQ3_matchmode.integer) {
+			if (g_RQ3_matchmode.integer) {
 				level.inGame = level.team_round_going = level.team_round_countdown = 
 				level.team_game_going = level.matchTime = 0;
 				trap_SendServerCommand( -1, "roundend");
@@ -574,40 +572,37 @@ int WonGame(int winner)
 				MakeAllLivePlayersObservers ();
 				trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
 				return 1;
-			}
-			else {
-			//Slicer: Adding a normal console print..
-			trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
-			trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
-			level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
-			trap_SendServerCommand( -1, "roundend");
-			//Slicer: Start Intermission
-			BeginIntermission();
-			return 1;
+			} else {
+				//Slicer: Adding a normal console print..
+				trap_SendServerCommand( -1, "print \"Roundlimit hit.\n\"" );
+				trap_SendServerCommand( -1, va("cp \"Roundlimit hit.\n\""));
+				level.team_round_going = level.team_round_countdown = level.team_game_going = 0;
+				trap_SendServerCommand( -1, "roundend");
+				//Slicer: Start Intermission
+				BeginIntermission();
+				return 1;
 			}
 		}
 	}
-
 	return 0;
 }
 
 team_t RQ3TeamCount( int ignoreClientNum, int team )
 {
-	int	i;
-	int	count = 0;
+	int	i, count = 0;
 	char	buf[20];
 
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( i == ignoreClientNum ) {
+	for (i=0; i<level.maxclients; i++) {
+		if (i == ignoreClientNum) {
 			continue;
 		}
-		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
+		if (level.clients[i].pers.connected == CON_DISCONNECTED) {
 			continue;
 		}
 		//Slicer: Matchmode - Subs don't count
-		if(g_RQ3_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
+		if (g_RQ3_matchmode.integer && level.clients[i].pers.sub != TEAM_FREE)
 			continue;
-		if ( level.clients[i].sess.savedTeam == team ) {
+		if (level.clients[i].sess.savedTeam == team) {
 			count++;
 		}
 	}
@@ -663,10 +658,10 @@ void SpawnPlayers()
 			continue;
 		//Slicer: Matchmode - Subs don't spawn
 
-		if(g_RQ3_matchmode.integer && player->client->pers.sub != TEAM_FREE)
+		if (g_RQ3_matchmode.integer && player->client->pers.sub != TEAM_FREE)
 			continue;
 // JBravo: lets not respawn spectators in free floating mode
-		if(player->client->sess.savedTeam == TEAM_SPECTATOR &&
+		if (player->client->sess.savedTeam == TEAM_SPECTATOR &&
 				player->client->specMode == SPECTATOR_FREE)
 			continue;
 
@@ -687,17 +682,14 @@ void SpawnPlayers()
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
 	}
-  //Blaze: May aswell respawn breakables here
-  for (i=0;i<level.num_entities; i++)
-  {
-    ent = &g_entities[i];
-    if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) 
-    {
-      //re-link all unlinked breakables
-      trap_LinkEntity(ent);
-      
-    }
-  }
+//Blaze: May aswell respawn breakables here
+	for (i=0; i<level.num_entities; i++) {
+		ent = &g_entities[i];
+		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
+			//re-link all unlinked breakables
+			trap_LinkEntity(ent);
+		}
+	}
 }
 
 /* Let the player Choose the weapon and/or item he wants */
@@ -705,11 +697,11 @@ void RQ3_Cmd_Choose_f( gentity_t *ent )
 {
 	char	*cmd;
 
-	if ( !ent->client ) {
+	if (!ent->client) {
 		return;		// not fully in game yet
 	}
 
-	cmd = ConcatArgs( 1 );
+	cmd = ConcatArgs(1);
 
 	if (Q_stricmp (cmd, RQ3_MP5_NAME) == 0 || Q_stricmp (cmd, "mp5") == 0) {
 		ent->client->teamplayWeapon = WP_MP5;
@@ -758,16 +750,16 @@ void RQ3_Cmd_Drop_f( gentity_t *ent )
 {
 	char	cmd[MAX_TOKEN_CHARS];
 
-	if ( !ent->client ) {
+	if (!ent->client) {
 		return;			// not fully in game yet
 	}
 
-	trap_Argv( 1, cmd, sizeof( cmd ) );
+	trap_Argv (1, cmd, sizeof(cmd));
 
 	if (Q_stricmp (cmd, "item") == 0) {
-		Cmd_DropItem_f ( ent );
+		Cmd_DropItem_f (ent);
 	} else if (Q_stricmp (cmd, "weapon") == 0) {
-		Cmd_DropWeapon_f ( ent );
+		Cmd_DropWeapon_f (ent);
 	} else {
 		trap_SendServerCommand(ent-g_entities, va("print \"unknown item: %s\n\"", cmd));
 	}
@@ -793,7 +785,7 @@ void EquipPlayer (gentity_t *ent)
 		bandolierFactor = 1;
 	}
 
-	switch(ent->client->teamplayWeapon) {
+	switch (ent->client->teamplayWeapon) {
 	case WP_SSG3000:
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SSG3000 );
@@ -900,7 +892,7 @@ void EquipPlayer (gentity_t *ent)
 	ent->client->uniqueItems = 1;
 }
 
-void UnstickPlayer( gentity_t *ent )
+void UnstickPlayer (gentity_t *ent)
 {
 	int		i, num, count;
 	gentity_t	*hit;
@@ -908,12 +900,12 @@ void UnstickPlayer( gentity_t *ent )
 
 	count = 0;
 
-	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
-	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
+	VectorAdd (ent->client->ps.origin, ent->r.mins, mins);
+	VectorAdd (ent->client->ps.origin, ent->r.maxs, maxs);
 
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = trap_EntitiesInBox (mins, maxs, touch, MAX_GENTITIES);
 
-	for (i=0 ; i<num ; i++) {
+	for (i=0; i<num; i++) {
 		hit = &g_entities[touch[i]];
 		if ( hit->client && hit != ent ) {
 			count++;

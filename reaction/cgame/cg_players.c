@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/04/23 11:24:06  jbravo
+// Removed a debug message and did some cleanups
+//
 // Revision 1.22  2002/04/22 02:27:57  jbravo
 // Dynamic model recognition
 //
@@ -487,7 +490,6 @@ CG_RegisterClientSkin
 static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName ) {
 	char		filename[MAX_QPATH];
 
-	CG_Printf("debug: modelName = %s, skinName = %s, headModelName = %s, headSkinName = %s\n", modelName, skinName, headModelName, headSkinName);
 	/*
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/%slower_%s.skin", modelName, teamName, skinName );
 	ci->legsSkin = trap_R_RegisterSkin( filename );
