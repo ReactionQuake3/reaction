@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.89  2002/06/18 09:21:48  niceass
+// removed some model output
+//
 // Revision 1.88  2002/06/18 03:57:38  jbravo
 // Committing for aasimon.  Callvote nextmap removed and replaced with cyclemap for .ini
 //
@@ -756,14 +759,14 @@ void RQ3_loadmodels(void)
 			dirptr[dirlen - 1] = '\0';
 		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
 			continue;
-		Com_Printf("models (%s)\n", dirptr);
+//		Com_Printf("models (%s)\n", dirptr);
 		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
 		if (file) {
 			trap_FS_Read(buf, len, file);
 			buf[len] = 0;
 			text_p = buf;
 			trap_FS_FCloseFile(file);
-			Com_Printf("Adding %s as a legit model\n", dirptr);
+//			Com_Printf("Adding %s as a legit model\n", dirptr);
 			Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
 			for (j = 0; j < 3; j++) {
 				token = COM_Parse(&text_p);
