@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/06/28 21:20:44  makro
+// More MM...
+//
 // Revision 1.38  2002/06/28 20:30:35  makro
 // MM
 //
@@ -3902,15 +3905,15 @@ static void UI_RunMenuScript(char **args)
 			ui_RQ3_friendlyFire.integer));
 		//Makro - sync ui MM cvars with the real ones
 		} else if (Q_stricmp(name, "readMMsettings") == 0) {
-			ui_RQ3_timelimit.integer = (int) trap_Cvar_VariableValue("timelimit");
-			ui_RQ3_roundlimit.integer = (int) trap_Cvar_VariableValue("g_RQ3_roundlimit");
-			ui_RQ3_roundtimelimit.integer = (int) trap_Cvar_VariableValue("g_RQ3_roundtimelimit");
-			ui_RQ3_fraglimit.integer = (int) trap_Cvar_VariableValue("fraglimit");
-			ui_RQ3_maxplayers.integer = (int) trap_Cvar_VariableValue("g_RQ3_maxplayers");
-			ui_RQ3_forceteamtalk.integer = (int) trap_Cvar_VariableValue("g_RQ3_forceteamtalk");
-			ui_RQ3_limchasecam.integer = (int) trap_Cvar_VariableValue("g_RQ3_limchasecam");
-			ui_RQ3_tgren.integer = (int) trap_Cvar_VariableValue("g_RQ3_tgren");
-			ui_RQ3_friendlyFire.integer = (int) trap_Cvar_VariableValue("g_friendlyFire");
+			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("timelimit"));
+			trap_Cvar_SetValue("ui_RQ3_roundlimit", trap_Cvar_VariableValue("g_RQ3_roundlimit"));
+			trap_Cvar_SetValue("ui_RQ3_roundtimelimit", trap_Cvar_VariableValue("g_RQ3_roundtimelimit"));
+			trap_Cvar_SetValue("ui_RQ3_fraglimit", trap_Cvar_VariableValue("fraglimit"));
+			trap_Cvar_SetValue("ui_RQ3_maxplayers", trap_Cvar_VariableValue("g_RQ3_maxplayers"));
+			trap_Cvar_SetValue("ui_RQ3_forceteamtalk", trap_Cvar_VariableValue("g_RQ3_forceteamtalk"));
+			trap_Cvar_SetValue("ui_RQ3_limchasecam", trap_Cvar_VariableValue("g_RQ3_limchasecam"));
+			trap_Cvar_SetValue("ui_RQ3_tgren", trap_Cvar_VariableValue("g_RQ3_tgren"));
+			trap_Cvar_SetValue("ui_RQ3_friendlyFire", trap_Cvar_VariableValue("g_friendlyFire"));
 		//Makro - change the SSG crosshair
 		} else if (Q_stricmp(name, "nextSSGCrosshair") == 0) {
 			int current, offset;
@@ -6813,15 +6816,15 @@ static cvarTable_t cvarTable[] = {
 	//Makro - demo name
 	{&ui_RQ3_demoName, "ui_RQ3_demoName", "", 0},
 	//Makro - matchmode settings
-	{&ui_RQ3_timelimit,			"timelimit", "0", 0},
-	{&ui_RQ3_roundlimit,		"g_RQ3_roundlimit", "0", 0},
-	{&ui_RQ3_roundtimelimit,	"g_RQ3_roundtimelimit", "0", 0},
-	{&ui_RQ3_fraglimit,			"fraglimit", "0", 0},
-	{&ui_RQ3_maxplayers,		"g_RQ3_maxplayers", "0", 0},
-	{&ui_RQ3_forceteamtalk,		"g_RQ3_forceteamtalk", "0", 0},
-	{&ui_RQ3_limchasecam,		"g_RQ3_limchasecam", "0", 0},
-	{&ui_RQ3_tgren,				"g_RQ3_tgren", "0", 0},
-	{&ui_RQ3_friendlyFire,		"g_friendlyFire", "0", 0}
+	{&ui_RQ3_timelimit,			"ui_RQ3_timelimit", "0", 0},
+	{&ui_RQ3_roundlimit,		"ui_RQ3_roundlimit", "0", 0},
+	{&ui_RQ3_roundtimelimit,	"ui_RQ3_roundtimelimit", "0", 0},
+	{&ui_RQ3_fraglimit,			"ui_RQ3_fraglimit", "0", 0},
+	{&ui_RQ3_maxplayers,		"ui_RQ3_maxplayers", "0", 0},
+	{&ui_RQ3_forceteamtalk,		"ui_RQ3_forceteamtalk", "0", 0},
+	{&ui_RQ3_limchasecam,		"ui_RQ3_limchasecam", "0", 0},
+	{&ui_RQ3_tgren,				"ui_RQ3_tgren", "0", 0},
+	{&ui_RQ3_friendlyFire,		"ui_RQ3_friendlyFire", "0", 0}
 };
 
 // bk001129 - made static to avoid aliasing
