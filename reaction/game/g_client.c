@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.118  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.117  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -1871,6 +1874,8 @@ void ClientDisconnect(int clientNum)
 	}
 	//Slicer: matchmode
 	if (g_RQ3_matchmode.integer) {
+		if(ent->client->sess.referee)
+			--level.refAmmount;
 		switch (ent->client->sess.captain) {
 		case TEAM_RED:
 			level.team1ready = qfalse;

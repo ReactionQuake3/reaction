@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.140  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.139  2002/09/29 16:06:45  jbravo
 // Work done at the HPWorld expo
 //
@@ -527,6 +530,8 @@ void CheckTeamRules()
 					trap_SendServerCommand(-1, "cp \"Referee has paused the Game!\n\"");
 				else if (level.team1ready && level.team2ready)
 					trap_SendServerCommand(-1, "cp \"Not enough players to play!\n\"");
+				else if (level.refAmmount && !level.refStatus)
+					trap_SendServerCommand(-1, "cp \"At least one Referee needs to be ready!\n\"");
 				else
 					trap_SendServerCommand(-1, "cp \"Both Teams Must Be Ready!\n\"");
 			} else
@@ -653,7 +658,7 @@ qboolean BothTeamsHavePlayers()
 	int onteam1 = 0, onteam2 = 0;
 
 	//Slicer: Matchmode
-	if (g_RQ3_matchmode.integer && (!level.team1ready || !level.team2ready || level.paused))
+	if (g_RQ3_matchmode.integer && ((level.refAmmount && !level.refStatus) || !level.team1ready || !level.team2ready || level.paused))
 		return 0;
 
 	onteam1 = RQ3TeamCount(-1, TEAM_RED);

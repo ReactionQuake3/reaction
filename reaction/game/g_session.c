@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.21  2002/09/29 16:06:45  jbravo
 // Work done at the HPWorld expo
 //
@@ -189,6 +192,8 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 	sess->captain = TEAM_FREE;
 	sess->sub = TEAM_FREE;
 	sess->referee = 0;
+	sess->refHear = qfalse;
+	sess->refReady = 0;
 
 // JBravo: adding PERS_SAVEDTEAM
 	client->ps.persistant[PERS_SAVEDTEAM] = TEAM_SPECTATOR;

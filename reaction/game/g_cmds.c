@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.171  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.170  2002/09/30 01:32:30  jbravo
 // Fixing the vote and callvote cmd's so dead players in CTB can use them.
 //
@@ -502,10 +505,10 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		stringlength += j;
 	}
 
-	trap_SendServerCommand(ent - g_entities, va("scores %i %i %i %i %i %i%s", i,
+	trap_SendServerCommand(ent - g_entities, va("scores %i %i %i %i %i %i %i%s", i,
 						    level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 						    level.team1ready, level.team2ready,
-						    (int) level.matchTime, string));
+							(int) level.matchTime, level.refAmmount ? level.refStatus : -1,string));
 }
 
 /*
@@ -1050,6 +1053,9 @@ void SetTeam(gentity_t * ent, char *s)
 	//
 	// execute the team change
 	//
+	//sLiCeR: Matchmode referee hear all protection
+	if(g_gametype.integer == GT_TEAMPLAY && (oldTeam == TEAM_FREE || oldTeam == TEAM_SPECTATOR) && (team == TEAM_RED || team == TEAM_BLUE))
+		ent->client->sess.refHear = qfalse;
 
 	// if the player was dead leave the body
 	if (client->ps.stats[STAT_HEALTH] <= 0) {
@@ -1375,7 +1381,7 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 	if (other->client->pers.connected != CON_CONNECTED) {
 		return;
 	}
-	if (mode == SAY_TEAM && !OnSameTeam(ent, other)) {
+	if (mode == SAY_TEAM && !OnSameTeam(ent, other) && !ent->client->sess.refHear) { //Slicer: This makes referees read say_team stuff if Hear all
 		return;
 	}
 	// no chatting to players in tournements
@@ -1453,10 +1459,10 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 				    Q_COLOR_ESCAPE, COLOR_WHITE);
 			else {
 				if (ent->client->sess.savedTeam == TEAM_SPECTATOR)
-					Com_sprintf(name, sizeof(name), "[SPECTATOR] %s%c%c" EC ": ", ent->client->pers.netname,
+					Com_sprintf(name, sizeof(name), "%s %s%c%c" EC ": ",ent->client->sess.referee ? "[REFEREE]":"[SPECTATOR]", ent->client->pers.netname,
 						  Q_COLOR_ESCAPE, COLOR_WHITE);			
 				else
-					Com_sprintf(name, sizeof(name), "[DEAD] %s%c%c" EC ": ", ent->client->pers.netname,
+					Com_sprintf(name, sizeof(name), "%s %s%c%c" EC ": ",ent->client->sess.referee ? "[REFEREE]":"[DEAD]", ent->client->pers.netname,
 						  Q_COLOR_ESCAPE, COLOR_WHITE);
 			}
 		} else {
@@ -1472,7 +1478,7 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 				    ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 			else {
 				if (ent->client->sess.savedTeam == TEAM_SPECTATOR)
-					Com_sprintf(name, sizeof(name), EC "[SPECTATOR] (%s%c%c" EC ")" EC ": ",
+					Com_sprintf(name, sizeof(name), EC "%s (%s%c%c" EC ")" EC ": ",ent->client->sess.referee ? "[REFEREE]":"[SPECTATOR]",
 						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 				else
 					Com_sprintf(name, sizeof(name), EC "[DEAD] (%s%c%c" EC ")" EC ": ",

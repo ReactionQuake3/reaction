@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.121  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.120  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -445,7 +448,7 @@ vmCvar_t g_RQ3_ctb_respawndelay;
 
 // aasimon: Ref System for MM
 vmCvar_t g_RQ3_AllowRef;
-vmCvar_t g_RQ3_RefPass;
+vmCvar_t g_RQ3_RefPassword;
 vmCvar_t g_RQ3_maxRefs;
 
 // aasimon: ini stuff
@@ -591,7 +594,7 @@ static cvarTable_t gameCvarTable[] = {
 	//{ &g_RQ3_team2ready, "g_RQ3_team2ready", "0", 0, 0, qfalse},
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{&g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
-	{&g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_ARCHIVE, 0, qfalse},
+	{&g_RQ3_RefPassword, "g_RQ3_RefPasswordword", "", CVAR_ARCHIVE, 0, qfalse},
 	//{&g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	{&g_RQ3_maxRefs, "g_RQ3_maxRefs", "1", CVAR_SERVERINFO, 0, qtrue},
 	// aasimon: stuff for da ini file
@@ -952,6 +955,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	int i;
 	char model[MAX_STRING_CHARS], model2[MAX_STRING_CHARS];
 	char *s;
+	gentity_t *ent;
 
 	G_Printf("------- Game Initialization -------\n");
 	G_Printf("gamename: %s\n", GAMEVERSION);
@@ -1101,6 +1105,15 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 // Slicer: reset matchmode vars
 	if (g_RQ3_matchmode.integer && (g_gametype.integer == GT_TEAMPLAY || g_gametype.integer == GT_CTF)) {
+		level.refAmmount = 0;
+		for (i = 0; i < level.maxclients; i++) {
+			ent = &g_entities[i];
+			if (!ent || !ent->inuse)
+				continue;
+			if(ent->client->sess.referee)
+				++level.refAmmount ;
+		}
+		level.refStatus = 0;
 		level.matchTime = 0;
 		level.inGame = qfalse;
 		level.team1ready = qfalse;

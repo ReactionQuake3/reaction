@@ -223,6 +223,7 @@ void MM_TeamModel_f(gentity_t * ent)
 		if (level.team_game_going || level.team_round_going) {
 			trap_SendServerCommand(ent - g_entities,
 					       va("print \""MM_DENY_COLOR"You cannot change your team's model while playing or ready.\n\""));
+			return;
 		}
 
 		trap_Argv(1, buff, sizeof(buff));
@@ -271,8 +272,8 @@ void MM_TeamName_f(gentity_t * ent)
 	} else {
 
 		if((g_RQ3_mmflags.integer & MMF_TEAMNAME) != MMF_TEAMNAME) {
-		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change team name\n\""));
-		return;
+			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change team name\n\""));
+			return;
 		}
 		if (ent->client->sess.captain == TEAM_FREE) {
 			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to be a captain for that\n\""));
@@ -282,6 +283,7 @@ void MM_TeamName_f(gentity_t * ent)
 		if (level.team_game_going || level.team_round_going) {
 			trap_SendServerCommand(ent - g_entities,
 					       va("print \""MM_DENY_COLOR"You cannot change your team's name while playing or ready.\n\""));
+			return;
 		}
 
 		buff = ConcatArgs(1);
@@ -438,23 +440,10 @@ qboolean Ref_Auth(gentity_t * ent)
 		return qfalse;
 	}
 
-	if (Q_stricmp(g_RQ3_RefPass.string, "") == 0) {
+	if (Q_stricmp(g_RQ3_RefPassword.string, "") == 0) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"No Referee Password Set on this server\n\""));
 		return qfalse;
 	}
-
-/*	if (Ref_Exists()) {
-		// One ref per match
-		cn = ent - g_entities;
-
-		if (cn == g_RQ3_RefID.integer) {
-			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You are already the referee\n\""));
-			return qfalse;
-		}
-
-		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Referee already set on this server\n\""));
-		return qfalse;
-	}*/
 	if(getNumberOfRefs() == g_RQ3_maxRefs.integer) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Too many referees already on the server\n\""));
 		return qfalse;
@@ -473,14 +462,15 @@ qboolean Ref_Auth(gentity_t * ent)
 
 	// Does a simple plain text auth 
 
-	if (Q_stricmp(pass, g_RQ3_RefPass.string) == 0) {
+	if (Q_stricmp(pass, g_RQ3_RefPassword.string) == 0) {
 		ent->client->sess.referee = 1;
+		++level.refAmmount; 
 		trap_SendServerCommand(-1,
 				       va("print \"%s "MM_OK_COLOR"is now a Referee\n\"",
 					  ent->client->pers.netname));
 		return qtrue;
 	}
-/*	if (Q_stricmp(pass, g_RQ3_RefPass.string) == 0) {
+/*	if (Q_stricmp(pass, g_RQ3_RefPassword.string) == 0) {
 		cn = ent - g_entities;
 		Com_sprintf(teste, 3, "%i", cn);
 		trap_Cvar_Set("g_RQ3_RefID", teste);
@@ -512,6 +502,22 @@ void MM_ResetMatch() {
 		level.matchTime = 0;
 }
 
+void refReadyStatus() {
+	gentity_t *ent;
+	int i;
+
+	for (i = 0; i < level.maxclients; i++) {
+		ent = &g_entities[i];
+		if (!ent || !ent->inuse)
+			continue;
+		if(ent->client->sess.refReady) {
+			level.refStatus = 1;
+			return;
+		}
+	}
+
+}
+
 //
 //      aasimon: processes comands sent from the referee
 //
@@ -520,12 +526,18 @@ void Ref_Command(gentity_t * ent)
 	char com[MAX_TOKEN_CHARS];
 	char param[MAX_TOKEN_CHARS];
 	char arg2[MAX_STRING_CHARS];
-	int cn, i;
+	int cn, i,args;
 	gentity_t *p;
+	char *buff;
 
+	args = trap_Argc();
 	//cn = ent - g_entities;
 	if (!ent->client->sess.referee) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You are not a referee\n\""));
+		return;
+	}
+	if(args < 2) {
+		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"You need to specify a command. Use \"ref help\" to list available commands\n\""));
 		return;
 	}
 
@@ -533,7 +545,7 @@ void Ref_Command(gentity_t * ent)
 
 	// nice strcmp for each comand (borring, wheres my beer?)
 	if (Q_stricmp(com, "help") == 0) {
-		// Theres a clean way to do this - add more help here (this is for example only) 
+	/*	// Theres a clean way to do this - add more help here (this is for example only) 
 		trap_SendServerCommand(ent - g_entities, "print \"kick <player number>\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"map_restart\n\"");
 		trap_SendServerCommand(ent - g_entities, "print \"clearscores\n\"");
@@ -543,6 +555,147 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print \"resetMatch\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
 		trap_SendServerCommand(ent - g_entities, "print\"say <text>\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"hearAll\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"ready\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"forceReady\n\"");*/
+		trap_SendServerCommand(ent - g_entities, "print \"kick <player number>\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print \"map_restart\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"clearscores\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print \"pause\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"cyclemap\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print\"lockSettings\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"resetMatch\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
+		trap_SendServerCommand(ent - g_entities, "print\"say <text>\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print \"hearAll\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"ready\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print \"teamReady <team1/team2>\n\"");
+		trap_SendServerCommand(ent - g_entities, "print \"teamName <team1/team2> <name>\t\t\"");
+		trap_SendServerCommand(ent - g_entities, "print \"teamModel <team1/team2> <model>\t\t\"");
+		return;
+	} else if (Q_stricmp(com, "teamModel") == 0) {
+		if (args < 3) {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Please specify which Team and Model Name: ref <team1 / team2> <model>\n\""));
+			return;
+		}
+		if (level.team_game_going || level.team_round_going) {
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_DENY_COLOR"You cannot change Models while game is occuring.\n\""));
+			return;
+		}
+		trap_Argv(2, com, sizeof(com));
+		if (Q_stricmp(com, "team1") == 0) {
+			buff = ConcatArgs(2);
+
+			trap_Cvar_Set("g_RQ3_team1model", buff);
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_OK_COLOR"New Team1 Model:  %s\n\"",g_RQ3_team1model.string));
+		}
+		else if (Q_stricmp(com, "team2") == 0) {
+			buff = ConcatArgs(2);
+
+			trap_Cvar_Set("g_RQ3_team2model", buff);
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_OK_COLOR"New Team2 Model:  %s\n\"",g_RQ3_team2model.string));
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Invalid Team. Available teams are: \"team1\" or \"team2\"\n\""));
+		}
+		return;
+	} else if (Q_stricmp(com, "teamName") == 0) {
+		if (args < 3) {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Please specify which Team and Name: ref <team1 / team2> <name>\n\""));
+			return;
+		}
+		trap_Argv(2, com, sizeof(com));
+		if (Q_stricmp(com, "team1") == 0) {
+			buff = ConcatArgs(2);
+
+			if (strlen(buff) > TEAM_NAME_SIZE)
+				buff[TEAM_NAME_SIZE] = 0;
+
+			trap_Cvar_Set("g_RQ3_team1name", buff);
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_OK_COLOR"New Team1 Name:  %s\n\"",g_RQ3_team1name.string));
+		}
+		else if (Q_stricmp(com, "team2") == 0) {
+			buff = ConcatArgs(2);
+
+			if (strlen(buff) > TEAM_NAME_SIZE)
+				buff[TEAM_NAME_SIZE] = 0;
+
+			trap_Cvar_Set("g_RQ3_team2name", buff);
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_OK_COLOR"New Team2 Name:  %s\n\"",g_RQ3_team2name.string));
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Invalid Team. Available teams are: \"team1\" or \"team2\"\n\""));
+		}
+		return;
+	} else if (Q_stricmp(com, "teamReady") == 0) {
+		if (args < 2) {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Please specify which team: ref <team1 / team2>\n\""));
+			return;
+		}
+		trap_Argv(2, com, sizeof(com));
+		if (Q_stricmp(com, "team1") == 0) {
+			trap_SendServerCommand(-1, va("cp \"%s forced %s to be%s Ready.\n\"",
+				      ent->client->pers.netname,g_RQ3_team1name.string, level.team1ready ? " no longer" : ""));
+
+			if (level.team1ready)
+				level.team1ready = qfalse;
+			else
+				level.team1ready = qtrue;
+		}
+		else if (Q_stricmp(com, "team2") == 0) {
+				trap_SendServerCommand(-1, va("cp \"%s forced %s to be%s Ready.\n\"",
+				      ent->client->pers.netname,g_RQ3_team2name.string, level.team2ready ? " no longer" : ""));
+
+				if (level.team2ready)
+					level.team2ready = qfalse;
+				else
+					level.team2ready = qtrue;
+		}
+		else {
+			trap_SendServerCommand(ent - g_entities,
+				va("print \""MM_DENY_COLOR"Invalid Team. Available teams are: \"team1\" or \"team2\"\n\""));
+		}
+		return;
+	} else if (Q_stricmp(com, "ready") == 0) {
+		if(ent->client->sess.refReady) {
+			ent->client->sess.refReady = 0;
+			trap_SendServerCommand(ent - g_entities,
+					va("print \""MM_OK_COLOR"You are no longer Ready\n\""));
+		}
+		else {
+			ent->client->sess.refReady = 1;
+			trap_SendServerCommand(ent - g_entities,
+			       va("print \""MM_OK_COLOR"You are now Ready\n\""));
+		}
+		refReadyStatus();
+		return;
+	} else if (Q_stricmp(com, "hearall") == 0) {
+		if(ent->client->sess.refHear) {
+			ent->client->sess.refHear = qfalse;
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_OK_COLOR"Hear All Disabled\n\""));
+		}
+		else{
+			if(ent->client->sess.savedTeam != TEAM_SPECTATOR) {
+			ent->client->sess.refHear = qtrue;
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_OK_COLOR"Hear All Enabled\n\""));
+			}
+			else
+					trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_DENY_COLOR"You cannot use hear all when on a team\n\""));
+
+		}
 		return;
 	} else if (Q_stricmp(com, "resetMatch") == 0) {
 		MM_ResetMatch();
@@ -649,6 +802,7 @@ void Ref_Command(gentity_t * ent)
 void Ref_Resign(gentity_t * ent)
 {
 	if (ent->client->sess.referee) {
+		--level.refAmmount;
 		ent->client->sess.referee = 0;
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_OK_COLOR"You resign from your referee status\n\""));
 	}
@@ -686,7 +840,7 @@ void MM_Settings_f(gentity_t * ent) {
 		return;
 	}
 
-	if ((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS) {
+	if ((g_RQ3_mmflags.integer & MMF_SETTINGS) != MMF_SETTINGS && !ent->client->sess.referee) {
 		trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR "This server does not allow you to change settings\n\""));
 		return;
 	}
@@ -700,7 +854,7 @@ void MM_Settings_f(gentity_t * ent) {
 		return;
 	}
 	//Referee locked settings
-	if (level.settingsLocked) {
+	if (level.settingsLocked && !ent->client->sess.referee) {
 			trap_SendServerCommand(ent - g_entities, va("print \""MM_DENY_COLOR"Settings are currently locked, only Referee can unlock them\n\""));
 			return;
 	}

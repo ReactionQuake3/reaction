@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.126  2002/10/21 21:00:39  slicer
+// New MM features and bug fixes
+//
 // Revision 1.125  2002/09/29 16:06:44  jbravo
 // Work done at the HPWorld expo
 //
@@ -550,6 +553,8 @@ typedef gentity_t *ignorelist_t[MAXIGNORE];
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
 	//Slicer Matchmode
+	qboolean refHear;
+	int refReady;
 	int referee;
 	team_t captain;
 	team_t sub;
@@ -844,6 +849,8 @@ typedef struct {
 	gentity_t *bodyQue[BODY_QUEUE_SIZE];
 //      Slicer: Matchmode
 	float matchTime;
+	int refStatus;
+	int refAmmount;
 	qboolean team1ready;
 	qboolean team2ready;
 	qboolean inGame;
@@ -1377,7 +1384,7 @@ extern vmCvar_t g_RQ3_ctb_respawndelay;	// JBravo: delay in seconds for ctb resp
 //extern vmCvar_t       g_RQ3_team2ready;
 //aasimon: Ref System for MM
 extern vmCvar_t g_RQ3_AllowRef;
-extern vmCvar_t g_RQ3_RefPass;
+extern vmCvar_t g_RQ3_RefPassword;
 //extern vmCvar_t g_RQ3_RefID;
 extern vmCvar_t g_RQ3_maxRefs;
 
