@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.165  2002/08/27 04:53:46  niceass
+// one more woops
+//
 // Revision 1.164  2002/08/27 04:50:54  niceass
 // woops
 //
@@ -1375,16 +1378,17 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 	}
 	// no chatting to players in tournements
 	if ((g_gametype.integer == GT_TOURNAMENT)
-	    && other->client->sess.sessionTeam == TEAM_FREE && ent->client->sess.sessionTeam != TEAM_FREE) {
+	    && other->client->sess.sessionTeam == TEAM_FREE && ent->client->sess.sessionTeam != TEAM_FREE &&
+		mode != SAY_REF) {
 		return;
 	}
 // JBravo: is the guy ignored ?
-	if (IsInIgnoreList(other, ent))
+	if (IsInIgnoreList(other, ent) && mode != SAY_REF)
 		return;
 	
 	// JBravo: Dead people dont speak to the living...  or so Im told.
 	if ( !G_PlayerAlive( ent ) && G_PlayerAlive( other ) &&
-		g_gametype.integer == GT_TEAMPLAY && level.team_round_going)
+		g_gametype.integer == GT_TEAMPLAY && level.team_round_going && mode != SAY_REF)
 		return;
 
 	trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
