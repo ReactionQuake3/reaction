@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/26 05:00:19  makro
+// Loading screen
+//
 // Revision 1.19  2002/05/25 16:39:16  makro
 // Loading screen
 //
@@ -257,8 +260,8 @@ void CG_DrawInformation( void ) {
 	if ( s[0] ) {
 		//Makro - allow color-coded text; also changed to use custom color instead of colorLtGrey
 		//CG_DrawSmallStringColor(x, y, s, colorMdGrey);
-		CG_DrawStringExt(x, y, s, color1, qtrue, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 		//CG_DrawStringExt(x, y, s, colorWhite, qtrue, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
+		CG_DrawStringExt(x, y, s, color1, qtrue, qfalse, LS_CHAR_WIDTH, LS_CHAR_HEIGHT, 0);
 
 		y -= (2 * LS_CHAR_HEIGHT);
 	}
@@ -329,15 +332,19 @@ void CG_DrawInformation( void ) {
 		line = va("TIMELIMIT %i", value);
 	}
 
-	if (cgs.gametype < GT_CTF ) {
+	if (cgs.gametype <= GT_TEAM ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
 			if (line[0]) line = va("%s / ", line);
 			line = va("%sFRAGLIMIT %i", line, value);
 		}
-	}
-
-	if (cgs.gametype >= GT_CTF) {
+	} else if (cgs.gametype == GT_TEAMPLAY) {
+		value = atoi( Info_ValueForKey( info, "g_RQ3_roundlimit" ) );
+		if ( value ) {
+			if (line[0]) line = va("%s / ", line);
+			line = va("%sROUNDLIMIT %i", line, value);
+		}
+	} else {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
 			if (line[0]) line = va("%s / ", line);
