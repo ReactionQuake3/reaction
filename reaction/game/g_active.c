@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/03/02 12:24:30  jbravo
+// Removed some debugging messages
+//
 // Revision 1.57  2002/02/27 01:54:29  jbravo
 // More spectatorfixes and finally stopped all fallingdamage anims and
 // sounds during LCA.
@@ -1081,9 +1084,6 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		{
 			weap = client->ps.weapon;
 		}
-
-// JBravo: adding debugging messages.
-		G_Printf("in ThrowWeapon: weapon is %i\n", weap);
 
 		xr_item = BG_FindItemForWeapon( weap );
 

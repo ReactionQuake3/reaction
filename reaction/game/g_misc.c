@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/02 12:24:30  jbravo
+// Removed some debugging messages
+//
 // Revision 1.21  2002/02/23 16:55:09  jbravo
 // Added debugging to help find what was going with can't find item for weapon
 // error that crash the server.
@@ -358,9 +361,6 @@ static void InitShooter_Finish( gentity_t *ent ) {
 void InitShooter( gentity_t *ent, int weapon ) {
 	ent->use = Use_Shooter;
 	ent->s.weapon = weapon;
-
-// JBravo: adding debugging messages.
-	G_Printf("in InitShooter: weapon is %i\n", weapon);
 
 	RegisterItem( BG_FindItemForWeapon( weapon ) );
 
