@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/05/22 04:19:45  blaze
+// Sound entity changes as per Sze
+//
 // Revision 1.14  2002/05/18 14:52:16  makro
 // Bot stuff. Other stuff. Just... stuff :p
 //
@@ -230,7 +233,9 @@ void SP_trigger_push( gentity_t *self ) {
 
 	// unlike other triggers, we need to send this one to the client
 	// NiceAss: Added for custom push sounds. Default is none. Q3 is "sounds/world/bouncepad.wav"
-	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {;
+  //Changed from noise to sound as per Sze
+	if (G_SpawnString( "sound", "sound/misc/silence.wav", &sound )) 
+  {
 		self->s.generic1 = G_SoundIndex( sound );
 	}
 
@@ -281,8 +286,8 @@ void SP_target_push( gentity_t *self ) {
 	}
 	G_SetMovedir (self->s.angles, self->s.origin2);
 	VectorScale (self->s.origin2, self->speed, self->s.origin2);
-
-	if (G_SpawnString( "noise", "sound/misc/silence.wav", &sound )) {
+  //Changed from noise to sound as per Sze
+	if (G_SpawnString( "sound", "sound/misc/silence.wav", &sound )) {
 		//Makro - debug message, no longer needed
 		//G_Printf("^2Sound was %s\n",sound);
 		self->noise_index = G_SoundIndex( sound );

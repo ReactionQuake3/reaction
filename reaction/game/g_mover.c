@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2002/05/22 04:17:18  blaze
+// Sound entity changes as per Sze
+//
 // Revision 1.31  2002/05/16 06:57:54  makro
 // Doors with health (again !), bot-only trigger_pushes
 //
@@ -1398,9 +1401,10 @@ void SP_func_door (gentity_t *ent) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
+  //Blaze: changed default path as per Sze
+	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/door_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
@@ -1519,9 +1523,9 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 	char	*sSndStart;
 
 	//Elder: can set sounds from here
-	G_SpawnString( "soundstart", "sound/movers/doors/dr1_end.wav", &sSndStart );
-	G_SpawnString( "soundstop", "sound/movers/doors/dr1_end.wav", &sSndStop );
-	G_SpawnString( "soundmove", "sound/movers/doors/dr1_strt.wav", &sSndMove );
+	G_SpawnString( "soundstart", "sound/movers/door_start.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/door_stop.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/movers/door_move.wav", &sSndMove );
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
 	ent->soundPos1 = G_SoundIndex(sSndStart);
@@ -1816,6 +1820,20 @@ Plats are always drawn in the extended position so they will light correctly.
 void SP_func_plat (gentity_t *ent) {
 	float		lip, height;
 
+	//Blaze: added
+	char	*sSndMove;
+	char	*sSndStop;
+	char	*sSndStart;
+
+	G_SpawnString( "soundstart", "sound/movers/plat_start.wav", &sSndStart );
+	G_SpawnString( "soundstop", "sound/movers/plat_end.wav", &sSndStop );
+	G_SpawnString( "soundmove", "sound/misc/silence.wav", &sSndMove );
+
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex(sSndMove);
+	ent->soundPos1 = G_SoundIndex(sSndStart);
+	ent->soundPos2 = G_SoundIndex(sSndStop);
+
+
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
 
@@ -1904,14 +1922,10 @@ void SP_func_button( gentity_t *ent ) {
 	char		*s;
   char *noise;
   
-  if (G_SpawnString( "noise", "sound/movers/doors/dr1_end.wav", &noise ) )
-  {
-    ent->sound1to2 = G_SoundIndex(noise);
-  }
-  else
-  {
-	  ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
-  }
+  //changed to sound to stop it from conflicting with the looping noise
+  //Changed from noise to sound as per Sze
+  G_SpawnString( "sound", "sound/movers/switches/butn2.wav", &noise );
+  ent->sound1to2 = G_SoundIndex(noise);
 
 	if ( !ent->speed ) {
 		ent->speed = 40;
