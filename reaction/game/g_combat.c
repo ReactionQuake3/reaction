@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/10 08:10:18  jbravo
+// Fixed a bug in the Obit system and a give (weapons or all) bug
+//
 // Revision 1.69  2002/05/10 07:47:23  jbravo
 // Forgot grenade obits
 //
@@ -785,7 +788,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 				break;
 		}
 	}
-	if (attacker->client || attacker != target)
+	if (attacker->client && attacker != target)
 		message[0] = '\0';
 	if (message[0] != '\0') {
 		Com_sprintf (death_msg, sizeof(death_msg), "%s %s\n", target->client->pers.netname, message);

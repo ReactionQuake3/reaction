@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/05/10 08:10:18  jbravo
+// Fixed a bug in the Obit system and a give (weapons or all) bug
+//
 // Revision 1.105  2002/05/10 04:06:27  jbravo
 // Added Ignore
 //
@@ -503,7 +506,14 @@ void Cmd_Give_f (gentity_t *ent)
 		//the initial bit (I don't know what that is)
 		//http://www.iota-six.freeserve.co.uk/c/bitwise.htm
 		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_NONE );
-
+		// JBravo: so we can drop any of these weapons
+		ent->client->uniqueWeapons = 5;
+		ent->client->weaponCount[WP_SSG3000] = 1;
+		ent->client->weaponCount[WP_MP5] = 1;
+		ent->client->weaponCount[WP_M3] = 1;
+		ent->client->weaponCount[WP_M4] = 1;
+		ent->client->weaponCount[WP_AKIMBO] = 1;
+		ent->client->weaponCount[WP_HANDCANNON] = 1;
 		if (!give_all)
 			return;
 	}
