@@ -1,4 +1,4 @@
-set path=c:\quake3\bin_nt;%PATH%
+rem set path=c:\quake3\bin_nt;%PATH%
 rem The following line is to circumvent MS Platform SDK install crap
 set include=
 mkdir vm

@@ -165,7 +165,8 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage, int MOD ) {
 	gentity_t		*traceEnt;
 	int			i, passent;
 
-	damage *= s_quadFactor;
+	//Elder: removed - for some reason it's set to 0
+	//damage *= s_quadFactor;
 
 	r = random() * M_PI * 2.0f;
 	u = sin(r) * crandom() * spread * 16;
@@ -282,7 +283,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	}
 
 	if ( traceEnt->takedamage) {
-		damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
+		damage = DEFAULT_SHOTGUN_DAMAGE; // * s_quadFactor;
 #ifdef MISSIONPACK
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -868,7 +869,8 @@ G_Printf("Knife Touched Something\n");
         G_FreeEntity (ent);
 }
 
-gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
+//gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
+gentity_t* Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
 {
 
     gentity_t   *bolt;
@@ -930,6 +932,13 @@ void Weapon_Knife_Fire(gentity_t *ent)
 //	Knife_Attack(ent,THROW_DAMAGE);
 	gentity_t	*m;
 
+// Homer: if client is supposed to be slashing, go to that function instead
+	if ( !ent->client->throwKnife )
+	{
+		Knife_Attack(ent,SLASH_DAMAGE);
+		return;
+	}
+
 	// extra vertical velocity
 	forward[2] += 0.2f;
 	
@@ -937,8 +946,9 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	VectorNormalize( forward );
 
 	m = Knife_Throw(ent,muzzle,forward, THROW_DAMAGE, 1200);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
+//	m->damage *= s_quadFactor;
+//	m->splashDamage *= s_quadFactor;
+// ^^^^ Homer: got quad?
 
 	
 
@@ -952,8 +962,11 @@ M4 Attack
 void Weapon_M4_Fire(gentity_t *ent)
 {
 	float spread;
-	spread = (ent->client->semi? M4_SPREAD*.7 : M4_SPREAD);
-	Bullet_Fire( ent, RQ3Spread(ent, spread), M4_DAMAGE, MOD_M4);
+	// Homer: increment burst if needed
+	if ( ent->client->m4_3rb )
+		ent->client->ps.stats[STAT_BURST]++;
+	spread = (ent->client->m4_3rb? M4_SPREAD*.7 : M4_SPREAD);
+	Bullet_Fire( ent, RQ3Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
 }
 
@@ -965,7 +978,10 @@ MK23 Attack
 void Weapon_MK23_Fire(gentity_t *ent)
 {
 	float spread;
-	spread = (ent->client->semi? PISTOL_SPREAD*.7 : PISTOL_SPREAD);
+	// Homer: increment burst if needed
+	if ( ent->client->mk23semi )
+		ent->client->ps.stats[STAT_BURST]++;
+	spread = (ent->client->mk23semi? PISTOL_SPREAD*.7 : PISTOL_SPREAD);
 	Bullet_Fire( ent, RQ3Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
 
 }
@@ -977,7 +993,8 @@ SSG3000 Attack
 */
 void Weapon_SSG3000_Fire(gentity_t *ent)
 {
-	
+	//Elder: Don't print - will broadcast to server
+	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
 	Bullet_Fire( ent, ( ent->client->zoomed?0:SNIPER_SPREAD), SNIPER_DAMAGE, MOD_SNIPER);
 
 }
@@ -990,8 +1007,11 @@ MP5 Attack
 void Weapon_MP5_Fire(gentity_t *ent)
 {
 	float spread;
-	spread = (ent->client->semi? MP5_SPREAD*.7 : MP5_SPREAD);
-	Bullet_Fire( ent, RQ3Spread(ent, spread), MP5_DAMAGE, MOD_MP5);
+	// Homer: increment burst if needed
+	if ( ent->client->mp5_3rb )
+		ent->client->ps.stats[STAT_BURST]++;
+	spread = (ent->client->mp5_3rb? MP5_SPREAD*.7 : MP5_SPREAD);
+	Bullet_Fire( ent, RQ3Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }
 /*
@@ -1052,8 +1072,8 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	//Blaze: Will need 2 of these
 	spread = AKIMBO_SPREAD;
 	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
-	
-	//Bullet_Fire( ent, AKIMBO_SPREAD, AKIMBO_DAMAGE, MOD_AKIMBO);
+	//Elder: should there be a small delay or is that just the sound effect in AQ2?
+	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 }
 
 /*
@@ -1070,8 +1090,9 @@ void Weapon_Grenade_Fire(gentity_t *ent)
 	VectorNormalize( forward );
 
 	m = fire_grenade (ent, muzzle, forward);
-	m->damage *= s_quadFactor;
-	m->splashDamage *= s_quadFactor;
+	//Elder: removed
+	//m->damage *= s_quadFactor;
+	//m->splashDamage *= s_quadFactor;
 
 //	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 
@@ -1149,11 +1170,13 @@ FireWeapon
 ===============
 */
 void FireWeapon( gentity_t *ent ) {
+	/* Homer: got quad?
 	if (ent->client->ps.powerups[PW_QUAD] ) {
 		s_quadFactor = g_quadfactor.value;
-	} else {
-		s_quadFactor = 1;
-	}
+	} else {*/
+	//Elder: uncommented so it won't be zero!
+	s_quadFactor = 1;
+	//} 
 #ifdef MISSIONPACK
 	if( ent->client->persistantPowerup && ent->client->persistantPowerup->item && ent->client->persistantPowerup->item->giTag == PW_DOUBLER ) {
 		s_quadFactor *= 2;

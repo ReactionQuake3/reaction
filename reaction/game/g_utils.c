@@ -485,6 +485,33 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	return e;
 }
 
+/*
+=================
+G_TempEntity2
+Elder: Like above, except can sneak in event parameters
+=================
+*/
+gentity_t *G_TempEntity2( vec3_t origin, int event, int eParm ) {
+	gentity_t		*e;
+	vec3_t		snapped;
+
+	e = G_Spawn();
+	e->s.eType = ET_EVENTS + event;
+	e->s.eventParm = eParm;
+
+	e->classname = "tempEntity";
+	e->eventTime = level.time;
+	e->freeAfterEvent = qtrue;
+
+	VectorCopy( origin, snapped );
+	SnapVector( snapped );		// save network bandwidth
+	G_SetOrigin( e, snapped );
+
+	// find cluster for PVS
+	trap_LinkEntity( e );
+
+	return e;
+}
 
 
 /*

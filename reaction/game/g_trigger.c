@@ -183,7 +183,8 @@ void SP_trigger_push( gentity_t *self ) {
 	self->r.svFlags &= ~SVF_NOCLIENT;
 
 	// make sure the client precaches this sound
-	G_SoundIndex("sound/world/jumppad.wav");
+	//Elder: edited for now TODO: let mappers use a key pair
+	//G_SoundIndex("sound/world/jumppad.wav");
 
 	self->s.eType = ET_PUSH_TRIGGER;
 	self->touch = trigger_push_touch;
@@ -227,9 +228,11 @@ void SP_target_push( gentity_t *self ) {
 	VectorScale (self->s.origin2, self->speed, self->s.origin2);
 
 	if ( self->spawnflags & 1 ) {
-		self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
+		//Elder: edited for now TODO: let mappers use a key pair
+		//self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
 	} else {
-		self->noise_index = G_SoundIndex("sound/misc/windfly.wav");
+		//Elder: edited for now TODO: let mappers use a key pair
+		//self->noise_index = G_SoundIndex("sound/misc/windfly.wav");
 	}
 	if ( self->target ) {
 		VectorCopy( self->s.origin, self->r.absmin );

@@ -141,8 +141,8 @@ gitem_t	bg_itemlist[] =
 //Shotgun
 	{
 		"weapon_m3",
-		"sound/weapons/shotgun/m3in.wav",
-        { "models/weapons2/shotgun/shotgun.md3", 
+		"sound/weapons/m3/m3in.wav",
+        { "models/weapons2/m3/m3.md3", 
 		0, 0, 0},
 /* icon */		"icons/iconw_m3",
 /* pickup */	"M3 Super Shotgun",
@@ -187,9 +187,9 @@ gitem_t	bg_itemlist[] =
 //Knife
 
 	{
-		"3rd_knife",
+		"knife_3rd",
 		NULL,
-		{"models/weapons2/knife/3rd_knife.md3",0,0,0},
+		{"models/weapons2/knife/knife_3rd.md3",0,0,0},
 		"icons/iconw_knife",
 		"Knife",
 		1,
@@ -201,9 +201,9 @@ gitem_t	bg_itemlist[] =
 
 //Pistol
 	{
-		"3rd_pistol",
+		"pistol_3rd",
 		NULL,
-        { "models/weapons2/mk23/3rd_mk23.md3", 
+        { "models/weapons2/mk23/mk23_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_mk23",
 		"MK23",
@@ -216,9 +216,9 @@ gitem_t	bg_itemlist[] =
 
 //M4
 	{
-		"3rd_m4",
+		"m4_3rd",
 		NULL,
-        { "models/weapons2/m4/3rd_m4.md3", 
+        { "models/weapons2/m4/m4_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_m4",
 		"M4",
@@ -231,9 +231,9 @@ gitem_t	bg_itemlist[] =
 
 //SSG3000
 	{
-		"3rd_ssg3000",
+		"ssg3000_3rd",
 		NULL,
-        { "models/weapons2/ssg3000/3rd_ssg3000.md3", 
+        { "models/weapons2/ssg3000/ssg3000_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_ssg",
 		"SSG3000",
@@ -246,9 +246,9 @@ gitem_t	bg_itemlist[] =
 
 //MP5
 	{
-		"3rd_mp5",
+		"mp5_3rd",
 		NULL,
-        { "models/weapons2/mp5/3rd_mp5.md3", 
+        { "models/weapons2/mp5/mp5_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_mp5",
 		"MP5",
@@ -261,9 +261,9 @@ gitem_t	bg_itemlist[] =
 
 //Handcannon
 	{
-		"3rd_handcannon",
+		"handcannon_3rd",
 		NULL,
-        { "models/weapons2/handcannon/3rd_handcannon.md3", 
+        { "models/weapons2/handcannon/handcannon_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_sawedoff",
 		"Hand Cannon",
@@ -276,9 +276,9 @@ gitem_t	bg_itemlist[] =
 
 //Shotgun
 	{
-		"3rd_m3",
+		"m3_3rd",
 		NULL,
-        { "models/weapons2/shotgun/3rd_shotgun.md3", 
+        { "models/weapons2/m3/m3_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_m3",
 		"M3 Super Shotgun",
@@ -291,9 +291,9 @@ gitem_t	bg_itemlist[] =
 
 //Akimbo Placeholder
 	{
-		"3rd_akimbo",
+		"akimbo_3rd",
 		NULL,
-        { "models/weapons2/akimbo/3rd_akimbo.md3", 
+        { "models/weapons2/akimbo/akimbo_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_akimbo",
 		"Akimbo Pistols",
@@ -307,9 +307,9 @@ gitem_t	bg_itemlist[] =
 
 //Grenade
 	{
-		"3rd_grenade",
+		"grenade_3rd",
 		NULL,
-        { "models/weapons2/grenade/3rd_grenade.md3", 
+        { "models/weapons2/grenade/grenade_3rd.md3", 
 		0, 0, 0},
 		"icons/iconw_grenade",
 		"Grenade",
@@ -839,39 +839,81 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 /*
 ==================
- ClipAmountForWeapon for Cmd_Reload
+ Elder: changed from ClipAmountForWeapon - which was an ambiguous name
+ ClipAmountForReload for Cmd_Reload
  Added by Duffman
- Returns the amount of ammo a weapon can hold
-==================
+ Returns the amount of ammo a weapon reloads by
+ ==================
 */
 
 
-int ClipAmountForWeapon( int w )        {
+int ClipAmountForReload( int w )        {
 	//How much each clip holds
+	//Elder: this function is very misleading.
+	//It returns the amount to add when reloading,
+	//Not the actual amount in a weapon clip!!
+	//For that, you should check ClipAmountForAmmo below
+	//Changed to use constants defined in bg_public.h
 	   switch(w){
 		   case WP_PISTOL:
-			   return 12;
+			   return RQ3_PISTOL_RELOAD;
 		   case WP_KNIFE:
-			   return 1;
+			   return RQ3_KNIFE_RELOAD;
 		   case WP_M4:
-			   return 24;
+			   return RQ3_M4_RELOAD;
 		   case WP_SSG3000:
-			   return 1;
+			   return RQ3_SSG3000_RELOAD;
 		   case WP_MP5:
-			   return 30;
+			   return RQ3_MP5_RELOAD;
 		   case WP_HANDCANNON:
-			   return 2;
+			   return RQ3_HANDCANNON_RELOAD;
 		   case WP_M3:
-			   return 1;
+			   return RQ3_M3_RELOAD;
 		   case WP_AKIMBO:
-			   return 24;
+			   return RQ3_AKIMBO_RELOAD;
 		   case WP_GRENADE:
-			   return 1;
+			   return RQ3_GRENADE_RELOAD;
 		   default:
-			   return 12;
+			   return RQ3_PISTOL_RELOAD;
 	   }
 //       return 12; //this wont happen unless you copy-and-paste too much
 }
+
+/*
+==================
+ ClipAmountForAmmo
+ Added by Elder
+ Returns the amount of ammo a weapon can hold
+ ==================
+*/
+
+int ClipAmountForAmmo( int w )        {
+	//How much each GUN holds!
+	//Elder: don't confuse with the reload one
+	   switch(w){
+		   case WP_PISTOL:
+			   return RQ3_PISTOL_AMMO;
+		   case WP_KNIFE:
+			   return RQ3_KNIFE_AMMO;
+		   case WP_M4:
+			   return RQ3_M4_AMMO;
+		   case WP_SSG3000:
+			   return RQ3_SSG3000_AMMO;
+		   case WP_MP5:
+			   return RQ3_MP5_AMMO;
+		   case WP_HANDCANNON:
+			   return RQ3_HANDCANNON_AMMO;
+		   case WP_M3:
+			   return RQ3_M3_AMMO;
+		   case WP_AKIMBO:
+			   return RQ3_AKIMBO_AMMO;
+		   case WP_GRENADE:
+			   return RQ3_GRENADE_AMMO;
+		   default:
+			   return RQ3_PISTOL_AMMO;
+	   }
+}
+
 
 /*
 ================
@@ -1183,6 +1225,7 @@ char *eventnames[] = {
 	"EV_GENERAL_SOUND",
 	"EV_GLOBAL_SOUND",		// no attenuation
 	"EV_GLOBAL_TEAM_SOUND",
+	"EV_RQ3_SOUND",			// Elder: play local sounds - primarily for kick
 
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",

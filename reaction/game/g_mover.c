@@ -329,8 +329,14 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 		// the move was blocked an entity
 
 		// bobbing entities are instant-kill and never get blocked
+		//Elder: Pendulum killer code - commented out for now
+		//But it has to PUSH the client off... I don't know how just yet :(
 		if ( pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE ) {
-			G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
+			//Elder: debug code
+			G_Printf("RQ3: TR_SINE crusher code removed\n");
+			//Elder: temp - player will stop the pendulum from going
+			return qfalse;
+			//G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
 			continue;
 		}
 

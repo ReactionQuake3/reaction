@@ -437,16 +437,18 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int			i;
 	char		*killerName, *obit;
 	
-	// Hawkins put spread back and zoom out
-	self->client->zoomed=0;
-	G_AddEvent(self,EV_ZOOM,0);
-
+	
+	//Elder: Can't send events.
+	//G_AddEvent(self,EV_ZOOM,0);
+	
 	//Blaze: Stop bleeding when dead
     if ( self->client )
     {
+    	// Hawkins put spread back and zoom out
+		//Elder: removed
+		self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
-		
         self->client->bleed_remain = 0;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
@@ -952,7 +954,7 @@ int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t i
 #endif
 /*
 ============
-T_Damage
+G_Damage
 
 targ		entity that is being damaged
 inflictor	entity that is causing the damage
@@ -1008,6 +1010,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( level.intermissionQueued ) {
 		return;
 	}
+	
 #ifdef MISSIONPACK
 	if ( targ->client && mod != MOD_JUICED) {
 		if ( targ->client->invulnerabilityTime > level.time) {
@@ -1255,7 +1258,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			   mod == MOD_KNIFE)
 	       {
 			   bleeding = 1;   
-               instant_dam = 0;
+			   instant_dam = 0;
 
 				// Point[2] is the REAL world Z. We want Z relative to the clients feet
       

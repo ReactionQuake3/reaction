@@ -2,6 +2,8 @@
 //
 #include "g_local.h"
 
+#define RQ3_NONAMEPLAYER		"Nameless"
+
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, -24};
@@ -477,14 +479,15 @@ respawn
 ================
 */
 void respawn( gentity_t *ent ) {
-	gentity_t	*tent;
+	//gentity_t	*tent;
 
 	CopyToBodyQue (ent);
 	ClientSpawn(ent);
 
 	// add a teleportation effect
-	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-	tent->s.clientNum = ent->s.clientNum;
+	//Elder: removed
+	//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
+	//tent->s.clientNum = ent->s.clientNum;
 }
 
 /*
@@ -659,7 +662,8 @@ static void ClientCleanName( const char *in, char *out, int outSize ) {
 
 	// don't allow empty names
 	if( *p == 0 || colorlessLen == 0 ) {
-		Q_strncpyz( p, "UnnamedPlayer", outSize );
+		//Elder: change to what we want
+		Q_strncpyz( p, RQ3_NONAMEPLAYER, outSize );
 	}
 }
 
@@ -990,7 +994,8 @@ void ClientBegin( int clientNum ) {
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		// send event
-		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
+		//Elder: removed
+		//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
 
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
@@ -1165,7 +1170,8 @@ void ClientSpawn(gentity_t *ent) {
 // Begin Duffman
 	// Initial amount of ammo when spawning, this will be changed when weapons are added.
 	//Blaze: Changed from WP_MACHINEGUN to WP_PISTOL
-	client->ps.ammo[WP_PISTOL] = ClipAmountForWeapon(WP_PISTOL);
+	//Elder: changed to Ammo function instead of Reload
+	client->ps.ammo[WP_PISTOL] = ClipAmountForAmmo(WP_PISTOL);
 	client->numClips[WP_PISTOL] = 0;
 // End Duffman
 
@@ -1215,6 +1221,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	// Hawkins reset zoomed flag
 	client->zoomed=0;
+	
 
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;

@@ -7,7 +7,8 @@
 //Blaze for door code
 void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
 //Blaze: Get amount of ammo a clip holds
-int ClipAmountForWeapon( int );
+//Elder: def'd in bg_public.h
+//int ClipAmountForWeapon( int );
 /*
 ==================
 DeathmatchScoreboardMessage
@@ -242,6 +243,9 @@ void Cmd_Give_f (gentity_t *ent)
 	{
 		//Blaze: Removed ( 1 << WP_GRAPPLING_HOOK ) - 
 		//I have no clue what that does
+		//Elder: basically it sets all the STAT_WEAPONS bits to 1 EXCEPT for WP_NONE and
+		//the initial bit (I don't know what that is)
+		//http://www.iota-six.freeserve.co.uk/c/bitwise.htm
 		ent->client->ps.stats[STAT_WEAPONS] = (1 << WP_NUM_WEAPONS) - 1 - ( 1 << WP_NONE );
 			
 		if (!give_all)
@@ -252,7 +256,7 @@ void Cmd_Give_f (gentity_t *ent)
 	{
 		for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
 			//Blaze: Give right amount of shots to each gun
-			ent->client->ps.ammo[i] = ClipAmountForWeapon(i);
+			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
 		}
 		if (!give_all)
 			return;
@@ -1585,10 +1589,12 @@ void Cmd_Stats_f( gentity_t *ent ) {
 void Cmd_Bandage (gentity_t *ent)
 {
 	// Zoom out when bandaging.
-	if(ent->client->zoomed){
-		ent->client->zoomed=0;
-		G_AddEvent(ent,EV_ZOOM,0);
+	if( ent->client->zoomed ){
+		ent->client->zoomed = 0;
 	}
+		//Elder: can't use events
+		//G_AddEvent(ent,EV_ZOOM,0);
+	//}
 	if (ent->client->bleeding)
 	{
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
@@ -1617,43 +1623,68 @@ void Cmd_Reload( gentity_t *ent )       {
 	// void Cmd_Reload_f (edict_t *ent)
 
 	int weapon;       
-       int ammotoadd;
-	   int delay;
-       weapon = ent->client->ps.weapon;
-       ammotoadd = ClipAmountForWeapon(weapon);
-	   delay = 0;
-       /*if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))       
-	   {     trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
-             return;
-       }*/
+    int ammotoadd;
+    int delay;
+       
+    weapon = ent->client->ps.weapon;
+    //Elder: changed to new function
+    ammotoadd = ClipAmountForReload(weapon);
+	   
+	delay = 0;
+    /*if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))       
+		{   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+        	return;
+        }*/
 
-	   	// Hawkins: Zoom out when reloading.
-	   // To Do: Must remember to zoom back in
-	   if(ent->client->zoomed){
-			ent->client->zoomed=0;
-			G_AddEvent(ent,EV_ZOOM,0);
-	   }
-	   switch(weapon)
-	   {
+   	// Hawkins: Zoom out when reloading.
+   	//Elder: shouldn't need to know about it
+    // To Do: Must remember to zoom back in
+    if( ent->client->zoomed ){
+		ent->client->zoomed=0;
+	}
+		//Elder: can't use events
+		//G_AddEvent(ent,EV_ZOOM,0);
+    
+    //Elder: serious debug code
+    /*
+    G_Printf("STAT: %d, KNIFE: %d, MK23: %d, M4: %d, SSG: %d, MP5: %d, M3: %d, HC: %d, AKIMBO: %d, GREN: %d\n",
+    		ent->client->ps.stats[STAT_WEAPONS], WP_KNIFE, WP_PISTOL, WP_M4, WP_SSG3000,
+    		WP_MP5, WP_M3, WP_HANDCANNON, WP_AKIMBO, WP_GRENADE);
+	*/
+	switch(weapon) {
 	   case WP_KNIFE:
 		   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 		   return;
 		   break;
-
+	   case WP_PISTOL:
+		   delay = 2500;
+   		   if (ent->client->ps.ammo[weapon] >= RQ3_PISTOL_AMMO)
+		   {
+			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+			   return;
+		   }
+		   break;
+	   //Elder: was missing?
+	   case WP_M4:
+		   delay = 2500;
+   		   if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO)
+		   {
+			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+			   return;
+		   }
+		   break;		   
 	   case WP_M3:
 		   ammotoadd += ent->client->ps.ammo[weapon];
 		   delay = 400;			// from 1000 to 400 by hawkins. reloads too slowly.
-		   if (ent->client->ps.ammo[weapon] >= 7)       
+		   if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
 		   }
 		   break;
 	   case WP_HANDCANNON:
-		   ammotoadd = 2;
 		   delay = 2500;
-		   if (ent->client->ps.ammo[weapon] >= 2)       
-		   {
+		   if (ent->client->ps.ammo[weapon] >= RQ3_HANDCANNON_AMMO) {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
 		   }
@@ -1661,7 +1692,22 @@ void Cmd_Reload( gentity_t *ent )       {
 	   case WP_SSG3000:
 		   delay = 1000;
 		   ammotoadd += ent->client->ps.ammo[weapon];
-		   if (ent->client->ps.ammo[weapon] >= 6)       
+		   if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO) {
+		   	   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+			   return;
+		   }
+		   break;
+	   case WP_AKIMBO:
+	   	   //Elder: added- but I don't think it's the right value
+	   	   delay = 2500;
+   		   if (ent->client->ps.ammo[weapon] >= RQ3_AKIMBO_AMMO) {
+			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
+			   return;
+		   }
+		   break;
+	   case WP_MP5:
+		   delay = 2000;
+   		   if (ent->client->ps.ammo[weapon] >= RQ3_MP5_AMMO)
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
@@ -1669,29 +1715,67 @@ void Cmd_Reload( gentity_t *ent )       {
 		   break;
 	   default:
 		   delay = 2500;
-   		   if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))       
+   		   //Elder: changed function
+   		   if (ent->client->ps.ammo[weapon] >= ClipAmountForAmmo(weapon))
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 			   return;
 		   }
 		   break;
-
 	   }
 
-	   if (ent->client->numClips[weapon] == 0) 
-	   {   trap_SendServerCommand( ent-g_entities, va("print \"No more clips\n\""));
-		   return;
-   	   }
+		//Elder: added handcannon and akimbo conditional
+		if (ent->client->numClips[weapon] == 0) {
+	   		trap_SendServerCommand( ent-g_entities, va("print \"Out of ammo\n\""));
+			return;
+		}
+		else if ( (weapon == WP_HANDCANNON || weapon == WP_AKIMBO) && ent->client->numClips[weapon] < 2 ) {
+			trap_SendServerCommand( ent-g_entities, va("print \"Not enough of ammo\n\""));
+			return;
+		}
+   	   
 	   //ent->client->ps.weaponstate = WEAPON_RELOADING;
        ent->client->ps.weaponstate = WEAPON_DROPPING;
        ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
                ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
        ent->client->ps.weaponTime += delay;
+       
        // add ammo to weapon
-       if (ent->client->numClips[weapon] > 0)  
-	   {     ent->client->ps.ammo[weapon] = ammotoadd;
-	         ent->client->numClips[weapon]--;
-       }
+       //Elder: at this point there should be sufficient ammo requirements to reload
+		if (ent->client->numClips[weapon] > 0) {		
+			//Elder: more attempts to synchronize the mk23 and akimbos
+			if (weapon == WP_PISTOL && (ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
+				ent->client->ps.ammo[WP_AKIMBO] = ent->client->ps.ammo[WP_AKIMBO] - ent->client->ps.ammo[WP_PISTOL] + ammotoadd;
+				if (ent->client->ps.ammo[WP_AKIMBO] > RQ3_AKIMBO_AMMO) {
+					ent->client->ps.ammo[WP_AKIMBO] = RQ3_AKIMBO_AMMO;
+				}
+			}
+			else if (weapon == WP_AKIMBO) {
+				//Elder: refill the MK23 as well
+				ent->client->ps.ammo[WP_PISTOL] = RQ3_PISTOL_AMMO;
+			}
+
+			ent->client->ps.ammo[weapon] = ammotoadd;			
+	        ent->client->numClips[weapon]--;
+	        
+	        //Elder: remove an extra "clip" if it's the handcannon or akimbo
+	        if (weapon == WP_HANDCANNON || weapon == WP_AKIMBO)
+	        	ent->client->numClips[weapon]--;
+	        
+	        //Elder: sync hc and m3 ammo + mk23 and akimbo ammo - a switch might look nicer
+	        if (weapon == WP_M3) {
+				ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+			}
+			else if (weapon == WP_HANDCANNON) { 
+				ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
+			}
+			else if(weapon == WP_PISTOL) {
+				ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+			}
+			else if (weapon == WP_AKIMBO) { 
+				ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
+			}
+		}
 }
 /*
 ==================
@@ -1701,6 +1785,7 @@ void Cmd_Reload( gentity_t *ent )       {
 ==================
 */
 //Blaze: Moved to bg_misc.c because of needs for this funcion else
+//Elder: def'd in bg_public.h
 /*
 int ClipAmountForWeapon( int w )        {
 	//How much each clip holds
@@ -1753,6 +1838,7 @@ void Cmd_OpenDoor(gentity_t *ent)
 }
 
 // Hawkisn todo: Must be set on a per-weapon basis, not a per-user basis.
+/* Homer: This function is useful only if it applies to all weapons, which is not the case here.
 void toggleSemi(gentity_t *ent){ 
 	ent->client->semi = !(ent->client->semi);
 	if(ent->client->semi)
@@ -1760,34 +1846,56 @@ void toggleSemi(gentity_t *ent){
 	else
 		trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 }
-
+*/
 /* Hawkins. Reaction weapon command */
 void Cmd_Weapon(gentity_t *ent)
 {
 	switch(ent->s.weapon){
 	case WP_SSG3000:
 		// zoom is done by client. zoom 3 levels, then zoom out
-		if(ent->client->zoomed==3)
-			ent->client->zoomed=0;
-		else
+		//Elder: This is just for the server to track when calcing the spread
+		if(ent->client->zoomed == 3) {
+			ent->client->zoomed = 0;
+		}
+		else {
 			ent->client->zoomed++;
-		G_Printf("zoomlevel = %d\n",ent->client->zoomed);
-		G_AddEvent(ent,EV_ZOOM,ent->client->zoomed);
+		}
+		//Elder: don't print - will broadcast to server
+		//G_Printf("zoomlevel = %d\n",ent->client->zoomed);
+
+		//G_AddEvent(ent,EV_ZOOM,ent->client->zoomed);
 		break;
 	case WP_PISTOL:
-		toggleSemi(ent);
 		// semiauto toggle (increase accuracy)
+		ent->client->mk23semi = !(ent->client->mk23semi);
+		if (ent->client->mk23semi)
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to semi-automatic.\n\""));
+		else
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		break;
 	case WP_M4:
-		toggleSemi(ent);
 		// 3rb/full auto toggle
+		ent->client->m4_3rb = !(ent->client->m4_3rb);
+		if (ent->client->m4_3rb)
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+		else
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		break;
 	case WP_MP5:
-		toggleSemi(ent);
 		// 3rb/full auto toggle
+		ent->client->mp5_3rb = !(ent->client->mp5_3rb);
+		if (ent->client->mp5_3rb)
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to 3 round burst.\n\""));
+		else
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to full automatic.\n\""));
 		break;
 	case WP_KNIFE:
 		// toggle throwing/slashing
+		ent->client->throwKnife = !(ent->client->throwKnife);
+		if (ent->client->throwKnife)
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to throwing.\n\""));
+		else
+			trap_SendServerCommand( ent-g_entities, va("print \"Switched to slashing.\n\""));
 		break;
 	case WP_HANDCANNON:
 		// nothing
@@ -1800,6 +1908,15 @@ void Cmd_Weapon(gentity_t *ent)
 		break;
 	case WP_GRENADE:
 		// short, medium, long throws
+		ent->client->grenRange++;
+		if ( ent->client->grenRange > 2 )
+			ent->client->grenRange = 0;
+		if ( ent->client->grenRange == 0 )
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
+		else if (ent->client->grenRange == 1)
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
+		else
+			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
 		break;
 	default:
 		break;
@@ -1808,12 +1925,13 @@ void Cmd_Weapon(gentity_t *ent)
 
 }
 
-/*
+
 // Hawkins make sure spread comes back
 void Cmd_Unzoom(gentity_t *ent){
-	ent->client->zoomed=0;
+	//G_Printf("Got to Cmd_Unzoom\n");
+	ent->client->zoomed = 0;
 }
-*/
+
 
 /*
 =================
@@ -1822,7 +1940,7 @@ Cmd_Drop_f XRAY FMJ
 */
 void Cmd_Drop_f( gentity_t *ent ) {
 	ent->client->zoomed=0;
-	G_AddEvent(ent,EV_ZOOM,0);
+	//G_AddEvent(ent,EV_ZOOM,0);
 	ThrowWeapon( ent );
 }
 
@@ -1947,6 +2065,8 @@ void ClientCommand( int clientNum ) {
 	// Hawkins 
 	else if (Q_stricmp (cmd, "weapon") == 0)
 		Cmd_Weapon (ent);
+	else if (Q_stricmp (cmd, "unzoom") == 0)
+		Cmd_Unzoom (ent);
 	// end hawkins
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_Drop_f( ent );

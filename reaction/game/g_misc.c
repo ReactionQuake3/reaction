@@ -314,87 +314,133 @@ Fires at either the target or the current direction.
 //}
 
 //Blaze: Breakable glasss
+//Elder: Breakable anything!* -- we define, that is
 /*QUAKED func_breakable (1 0 0) (-16 -16 -16) (16 16 16)
- Explodes glass
+ Explodes any defined type of debris
+ "health" overrides the default health value of 5
+ "debris" overrides the default glass shards
+   0 - glass
+   1 - wood
+   2 - metal
+   3 - ceramics
+   4 - paper
+   5 - pop cans
+ "amount" overrides the default quantity
+   0 - small: about 10 pieces
+   1 - medium: about 25 pieces
+   2 - large: about 50 pieces
+   3 - tons (watch out when using this)
  */
- void SP_func_breakable( gentity_t *ent ) {
-  int health;
+void SP_func_breakable( gentity_t *ent ) {
+	int amount;
+	int health;
+	int debris;
+	int temp;
   
-  // Make it appear as the brush
-  trap_SetBrushModel( ent, ent->model );
-  // Lets give it 5 health if the mapper did not set its health
-  G_SpawnInt( "health", "0", &health );
-  if( health <= 0 )
-   health = 5;
- 
-  ent->health = health;
-  // Let it take damage
-  ent->takedamage = qtrue;
-  // Let it know it is a breakable object
-  ent->s.eType = ET_BREAKABLE;
-  // If the mapper gave it a model, use it
-  if ( ent->model2 ) {
-      ent->s.modelindex2 = G_ModelIndex( ent->model2 );
-  }
-  // Link all ^this^ info into the ent
-  trap_LinkEntity (ent);
- }
+    // Make it appear as the brush
+    trap_SetBrushModel( ent, ent->model );
+    // Lets give it 5 health if the mapper did not set its health
+    G_SpawnInt( "health", "0", &health );
+    if( health <= 0 )
+  		health = 5;
+
+	G_SpawnInt( "debris", "0", &temp );
+	
+	//Elder: hardcoded - I guess I should enum this
+	if (temp < 0 || temp > 3)
+		debris = RQ3_DEBRIS_GLASS;
+	else
+		debris = (1 << temp + 4);
+   
+	G_SpawnInt( "amount", "0", &temp );   
+	if (temp < 0 || temp > 3)
+		amount = RQ3_DEBRIS_MEDIUM;
+	else
+		amount = (1 << amount);
+
+	//Elder: merge the bits
+	ent->s.eventParm = 0;
+	ent->s.eventParm |= debris;
+	ent->s.eventParm |= amount;
+   
+    ent->health = health;
+    // Let it take damage
+    ent->takedamage = qtrue;
+    // Let it know it is a breakable object
+    ent->s.eType = ET_BREAKABLE;
+    // If the mapper gave it a model, use it
+    if ( ent->model2 ) {
+        ent->s.modelindex2 = G_ModelIndex( ent->model2 );
+    }
+    // Link all ^this^ info into the ent
+    trap_LinkEntity (ent);
+}
 
  /*
  =================
  G_BreakGlass
  =================
  */
- void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
-     gentity_t   *tent;
+void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
+	gentity_t   *tent;
  	vec3_t      size;
-     vec3_t      center;
+    vec3_t      center;
  	qboolean    splashdmg;
+ 	int			eParm;
  	// Get the center of the glass
-     VectorSubtract(ent->r.maxs, ent->r.mins, size);
-     VectorScale(size, 0.5, size);
-     VectorAdd(ent->r.mins, size, center);
+    VectorSubtract(ent->r.maxs, ent->r.mins, size);
+    VectorScale(size, 0.5, size);
+    VectorAdd(ent->r.mins, size, center);
+ 	
  	// If the glass has no more life, BREAK IT
  	if( ent->health <= 0 ) {
- 	G_FreeEntity( ent );
-     // Tell the program based on the gun if it has no splash dmg, no reason to ad ones with
- 	// splash dmg as qtrue as is that is the default
- 	switch( mod ) {
- 		case MOD_GAUNTLET:
- 		splashdmg = qfalse;
- 		break;
- 		case MOD_KICK:
- 		splashdmg = qfalse;
- 		break;
- 		case MOD_SHOTGUN:
- 		splashdmg = qfalse;
- 		break;
- 		case MOD_MACHINEGUN:
- 		splashdmg = qfalse;
- 		break;
- 		case MOD_RAILGUN:
- 		splashdmg = qfalse;
- 		break;
- 		case MOD_LIGHTNING:
- 		splashdmg = qfalse;
- 		break;
- 		default:
- 		splashdmg = qtrue;
- 		break;
- 	}
- 	// Call the function to show the glass shards in cgame
- 	// center can be changed to point which will spawn the
- 	// where the killing bullet hit but wont work with Splash Damage weapons
- 	// so I just use the center of the glass
- 	switch( splashdmg ){
- 	case qtrue:
-     tent = G_TempEntity( center, EV_BREAK_GLASS );
- 	break;
- 	case qfalse:
-     tent = G_TempEntity( point, EV_BREAK_GLASS );
- 	break;
- 	}
- 	tent->s.eventParm = 0;
+ 		//Elder: using event param to specify debris type
+		eParm = ent->s.eventParm;
+		//G_Printf("eParm: %d, original: %d\n", eParm, ent->s.eventParm);
+		//Elder: free it after the eventParm assignment
+ 		G_FreeEntity( ent );
+         // Tell the program based on the gun if it has no splash dmg, no reason to ad ones with
+     	// splash dmg as qtrue as is that is the default
+     	switch( mod ) {
+     		//Elder: added + compacted
+     		case MOD_KNIFE:
+     		case MOD_KNIFE_THROWN:
+     		case MOD_M4:
+     		case MOD_M3:
+     		case MOD_PISTOL:
+     		case MOD_HANDCANNON:
+     		case MOD_AKIMBO:
+     		case MOD_SNIPER:
+     		case MOD_GAUNTLET:
+     		case MOD_KICK:
+     		//case MOD_SHOTGUN:
+     		//case MOD_MACHINEGUN:
+     		//case MOD_RAILGUN:
+     		//case MOD_LIGHTNING:
+				splashdmg = qfalse;
+				break;
+     		default:
+     			splashdmg = qtrue;
+     			break;
+     	}
+     	// Call the function to show the glass shards in cgame
+     	// center can be changed to point which will spawn the
+     	// where the killing bullet hit but wont work with Splash Damage weapons
+     	// so I just use the center of the glass
+     	switch( splashdmg ) {
+     		case qtrue:
+     			//Elder: use TempEntity2 to stuff params
+         		//tent = G_TempEntity( center, EV_BREAK_GLASS );
+         		tent = G_TempEntity2( center, EV_BREAK_GLASS, eParm );
+     			break;
+     		case qfalse:
+         		//tent = G_TempEntity( point, EV_BREAK_GLASS );
+         		tent = G_TempEntity2( point, EV_BREAK_GLASS, eParm );
+     			break;
+     	}
+    //Elder: maybe we can use this to tell the client to spawn different debris
+ 	//tent->s.eventParm = 0;
+ 	tent->s.eventParm = eParm;
  	}
  }
 

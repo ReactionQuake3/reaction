@@ -25,6 +25,7 @@ void CheckBleeding(gentity_t *targ)
 	}
 }
 
+//Elder: apparently does nothing
 void StartBandage(gentity_t *ent)
 {
 	ent->client->bleeding = 0;

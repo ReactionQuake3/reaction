@@ -1592,6 +1592,11 @@ Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void ) {
 	int		addTime;
 
+	//Elder: PISTOL always gets set to 12 if akimbos have >11 based on AQ2 observation
+	if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[WP_AKIMBO] > 11) {
+		pm->ps->ammo[WP_PISTOL] = 12;
+	}
+
 	// don't allow attack until all buttons are up
 	if ( pm->ps->pm_flags & PMF_RESPAWNED ) {
 		return;
@@ -1664,9 +1669,12 @@ static void PM_Weapon( void ) {
 	if ( ! (pm->cmd.buttons & BUTTON_ATTACK) ) {
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
+		// Homer: not firing, reset burst value (cheaper than a non-zero check)
+		pm->ps->stats[STAT_BURST] = 0;
 		return;
 	}
 
+	//Elder: custom fire animations go here
 	// start the animation even if out of ammo
 	if ( pm->ps->weapon == WP_KNIFE ) {
 		// the guantlet only "fires" when it actually hits something
@@ -1680,10 +1688,27 @@ static void PM_Weapon( void ) {
 		PM_StartTorsoAnim( TORSO_ATTACK );
 	}
 
+	//Elder: works great server side, but client needs to predict it
+	// Homer: if weapon can set to be burst mode, check for burst value
+	// M4
+	if ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) {
+		return;
+	}
+	// MP5
+	if ( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) {
+		return;
+	}
+	// MK23
+	if ( pm->ps->weapon == WP_PISTOL && pm->ps->stats[STAT_BURST] > 0 ) {
+		return;
+	}
+	// end Homer
+
 	pm->ps->weaponstate = WEAPON_FIRING;
 
-	// check for out of ammo
-	if ( ! pm->ps->ammo[ pm->ps->weapon ] ) {
+	// check for out of ammo or one bullet in akimbo
+	if ( ! pm->ps->ammo[ pm->ps->weapon ] ||
+		pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[ pm->ps->weapon ] == 1) {
 		PM_AddEvent( EV_NOAMMO );
 		pm->ps->weaponTime += 500;
 		return;
@@ -1692,10 +1717,23 @@ static void PM_Weapon( void ) {
 	// take an ammo away if not infinite
 	if ( pm->ps->ammo[ pm->ps->weapon ] != -1 ) {
 		//Blaze: Dont remove ammo for knife
-		//if (pm->ps->weapon != WP_KNIFE)
-		pm->ps->ammo[ pm->ps->weapon ]--;
+		//Elder: can't access throwKnife?
+		//if ( pm->ps->weapon != WP_KNIFE)
+			pm->ps->ammo[ pm->ps->weapon ]--;
+		
+		//Elder: remove one more bullet/shell if handcannon/akimbo
+		if (pm->ps->weapon == WP_HANDCANNON || pm->ps->weapon == WP_AKIMBO) {
+			pm->ps->ammo[ pm->ps->weapon ]--;
+		}
+		//Elder: sync bullets a la AQ2 style
+		if (pm->ps->weapon == WP_AKIMBO && pm->ps->ammo[pm->ps->weapon] < 12) {
+			pm->ps->ammo[WP_PISTOL] = pm->ps->ammo[WP_AKIMBO];
+		}
+		else if (pm->ps->weapon == WP_PISTOL && pm->ps->ammo[WP_AKIMBO] > 0) {
+			pm->ps->ammo[WP_AKIMBO]--;
+		}
 	}
-
+	
 	// fire weapon
 	PM_AddEvent( EV_FIRE_WEAPON );
 

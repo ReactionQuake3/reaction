@@ -8,7 +8,8 @@
 #define	GAME_VERSION		"baseq3-1"
 
 #define	DEFAULT_GRAVITY		800
-#define	GIB_HEALTH			-40
+//Elder: lowered from -40 so falling deaths don't gib so easily
+#define	GIB_HEALTH			-500
 #define	ARMOR_PROTECTION	0.66
 
 #define	MAX_ITEMS			256
@@ -33,6 +34,66 @@
 #define	DEFAULT_VIEWHEIGHT	26
 #define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
+
+//Elder: debris bit parms to pass to break_glass - maybe I should enum this?
+#define RQ3_DEBRIS_SMALL	0x00000001
+#define RQ3_DEBRIS_MEDIUM	0x00000002
+#define RQ3_DEBRIS_LARGE	0x00000004
+#define RQ3_DEBRIS_TONS		0x00000008
+#define RQ3_DEBRIS_GLASS	0x00000010
+#define RQ3_DEBRIS_WOOD		0x00000020
+#define RQ3_DEBRIS_METAL	0x00000040
+#define RQ3_DEBRIS_CERAMIC	0x00000080
+#define RQ3_DEBRIS_PAPER	0x00000100
+#define RQ3_DEBRIS_POPCAN	0x00000200
+
+//Elder: to stop some of the hardcoding
+//This is some ammo amounts per clip/item pick up
+#define RQ3_SSG3000_CLIP		6
+#define RQ3_MP5_CLIP			30
+#define RQ3_M3_CLIP				7
+#define RQ3_M4_CLIP				24
+#define RQ3_PISTOL_CLIP			12
+#define RQ3_KNIFE_CLIP			1
+#define RQ3_AKIMBO_CLIP			24
+#define RQ3_HANDCANNON_CLIP		7
+#define RQ3_GRENADE_CLIP		1
+
+//Elder: this is the maximum reserve hold sans bandolier
+#define RQ3_SSG3000_MAXCLIP		20
+#define RQ3_MP5_MAXCLIP			2
+#define RQ3_M3_MAXCLIP			14
+#define RQ3_M4_MAXCLIP			1
+#define RQ3_PISTOL_MAXCLIP		2
+#define RQ3_KNIFE_MAXCLIP		10
+#define RQ3_AKIMBO_MAXCLIP		2
+#define RQ3_HANDCANNON_MAXCLIP	14
+#define RQ3_GRENADE_MAXCLIP		2
+
+//Elder: this is the amount to add when reloading
+#define RQ3_SSG3000_RELOAD		1	//Elder: note - one at a time
+#define RQ3_MP5_RELOAD			30
+#define RQ3_M3_RELOAD			1	//Elder: note - one at a time
+#define RQ3_M4_RELOAD			24
+#define RQ3_PISTOL_RELOAD		12
+#define RQ3_KNIFE_RELOAD		1	//Elder: shouldn't need to reload
+#define RQ3_AKIMBO_RELOAD		24
+#define RQ3_HANDCANNON_RELOAD	2
+#define RQ3_GRENADE_RELOAD		1	//Elder: shouldn't need to reload
+
+//Elder: this is the amount for a full chamber
+#define RQ3_SSG3000_AMMO		6
+#define RQ3_MP5_AMMO			30
+#define RQ3_M3_AMMO				7
+#define RQ3_M4_AMMO				24
+#define RQ3_PISTOL_AMMO			12
+#define RQ3_KNIFE_AMMO			1	//Elder: shouldn't need this value
+#define RQ3_AKIMBO_AMMO			24
+#define RQ3_HANDCANNON_AMMO		2
+#define RQ3_GRENADE_AMMO		1	//Elder: shouldn't need this value
+
+//Elder: confused?
+
 
 //
 // config strings are a general means of communicating variable length strings
@@ -195,11 +256,14 @@ typedef enum {
 // Begin Duffman
 	STAT_CLIPS,                     // Num Clips player currently has
 // End Duffman
+// Homer: for bursting
+	STAT_BURST, 			// number of shots in burst
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 //	STAT_MAX_HEALTH,					// health / armor limit, changable by handicap
 	STAT_JUMPTIME,					//Blaze RE: Double jump
 	STAT_UNIQUEWEAPONS,
 	STAT_FALLDAMAGE,
+	STAT_BANDAGE,				//Elder: holds bandage need
 } statIndex_t;
 
 
@@ -225,7 +289,6 @@ typedef enum {
 	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
 	PERS_CAPTURES					// captures
 } persEnum_t;
-
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -312,6 +375,14 @@ typedef enum {
 } weapon_t;
 
 
+//Elder: added
+//
+//bg_misc.c
+//
+int ClipAmountForReload( int w );
+int ClipAmountForAmmo( int w );
+
+
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define	PLAYEREVENT_DENIEDREWARD		0x0001
 #define	PLAYEREVENT_GAUNTLETREWARD		0x0002
@@ -362,7 +433,7 @@ typedef enum {
 	EV_NOAMMO,
 	EV_CHANGE_WEAPON,
 	EV_FIRE_WEAPON,
-	EV_ZOOM,		// SSG zoom(reaction)
+	//EV_ZOOM,		// SSG zoom(reaction)
 	
 	EV_USE_ITEM0,
 	EV_USE_ITEM1,
@@ -391,6 +462,7 @@ typedef enum {
 	EV_GENERAL_SOUND,
 	EV_GLOBAL_SOUND,		// no attenuation
 	EV_GLOBAL_TEAM_SOUND,
+	EV_RQ3_SOUND,			// Elder: play local sounds - intended for kick
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,

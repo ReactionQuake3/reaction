@@ -24,7 +24,8 @@
 #define	RESPAWN_POWERUP		120
 
 //Blaze: used for setting amount of ammo a gun has when picked up around line 249
-extern int ClipAmountForWeapon(int);
+//Elder: Def'd in bg_public.h which g_local.h looks up
+//extern int ClipAmountForWeapon(int);
 //======================================================================
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
@@ -190,32 +191,41 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 void Add_Ammo (gentity_t *ent, int weapon, int count)
 {
 	//Blaze: Reaction stuff, add to clip when picking up ammo packs
+	//Elder: Modified to use constants def'd in bg_public.h
 	ent->client->numClips[weapon] += count;
+	
 	switch (weapon)
 	{
 	case WP_KNIFE:
 		//Blaze: you get more knifes by picking up the "gun" as opposed to ammo
 		break;
 	case WP_PISTOL:
-		if (ent->client->numClips[weapon] > 2) ent->client->numClips[weapon] = 2;
+		if (ent->client->numClips[weapon] > RQ3_PISTOL_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_PISTOL_MAXCLIP;
 		break;
 	case WP_AKIMBO:
-		if (ent->client->numClips[weapon] > 2) ent->client->numClips[weapon] = 2;
+		if (ent->client->numClips[weapon] > RQ3_AKIMBO_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_AKIMBO_MAXCLIP;
 		break;
 	case WP_MP5:
-		if (ent->client->numClips[weapon] > 2) ent->client->numClips[weapon] = 2;
+		if (ent->client->numClips[weapon] > RQ3_MP5_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_MP5_MAXCLIP;
 		break;
 	case WP_M4:
-		if (ent->client->numClips[weapon] > 1) ent->client->numClips[weapon] = 1;
+		if (ent->client->numClips[weapon] > RQ3_M4_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_M4_MAXCLIP;
 		break;
 	case WP_M3:
-		if (ent->client->numClips[weapon] > 14) ent->client->numClips[weapon] = 14;
+		if (ent->client->numClips[weapon] > RQ3_M3_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_M3_MAXCLIP;
 		break;
 	case WP_HANDCANNON:
-		if (ent->client->numClips[weapon] > 14) ent->client->numClips[weapon] = 14;
+		if (ent->client->numClips[weapon] > RQ3_HANDCANNON_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_HANDCANNON_MAXCLIP;
 		break;
 	case WP_SSG3000:
-		if (ent->client->numClips[weapon] > 20) ent->client->numClips[weapon] = 20;
+		if (ent->client->numClips[weapon] > RQ3_SSG3000_MAXCLIP)
+			ent->client->numClips[weapon] = RQ3_SSG3000_MAXCLIP;
 		break;
 	case WP_GRENADE:
 		//Blaze: you get more knifes by picking up the "gun" as opposed to ammo
@@ -226,6 +236,21 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 		break;
 	}
 
+	//Elder: sync HC and M3 ammo
+	if(weapon == WP_M3) {
+		ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+	}
+	else if (weapon == WP_HANDCANNON){ 
+		ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
+	}
+	//Elder: sync Akimbo and MK23 ammo
+	else if(weapon == WP_PISTOL) {
+		ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+	}
+	else if (weapon == WP_AKIMBO){ 
+		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
+	}
+	
 	//ent->client->ps.ammo[weapon] += count;
 	//if ( ent->client->ps.ammo[weapon] > 200 ) {
 	//	ent->client->ps.ammo[weapon] = 200;
@@ -251,9 +276,6 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity,ammotoadd;
-
-
-
 
 	if ( ent->count < 0 ) {
 		quantity = 0; // None for you, sir!
@@ -284,50 +306,77 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	switch (ent->item->giTag)
 	{
 	case WP_KNIFE:
-		if (other->client->ps.ammo[ent->item->giTag] < 10) 
+		if (other->client->ps.ammo[ent->item->giTag] < RQ3_KNIFE_MAXCLIP) 
 		{
 			//G_Printf("(%d)\n",other->client->ps.ammo[ent->item->giTag]);
 			ammotoadd=other->client->ps.ammo[ent->item->giTag]+1;
 		}
 		else
 		{
-			ammotoadd=10;
+			ammotoadd = RQ3_KNIFE_MAXCLIP;
 		}
 		break;
 	case WP_PISTOL:
-		ammotoadd=12;
+		//Elder: special case
+		//Someone can optimize this code later, but for now, it works.
+		if ( !(other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) ) {
+			//give akimbo
+			G_Printf("Dual MK23 pistols\n");
+			other->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_AKIMBO );
+			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
+			ammotoadd = other->client->ps.ammo[WP_PISTOL];
+		}
+		//Elder: Already have akimbo - technically should have pistol
+		else if (other->client->numClips[ WP_PISTOL ] < 2) {
+			//give an extra clip - make < 2 + 2 * hasBandolier(0/1) or something for bando when it's in
+			G_Printf("Picked up an extra clip\n");
+			other->client->numClips[ WP_PISTOL ]++;
+			other->client->numClips[ WP_AKIMBO ]++;
+			ammotoadd = other->client->ps.ammo[WP_PISTOL];
+		}
+		else {
+			//Elder: maxed out on clips, have akimbo - can't take more!
+			ammotoadd = other->client->ps.ammo[WP_PISTOL];
+		}
 		break;
 	case WP_AKIMBO:
-		ammotoadd=24;
+		//Elder: Should not need to come here
+		ammotoadd= RQ3_AKIMBO_AMMO;
 		break;
 	case WP_MP5:
-		ammotoadd=30;
+		ammotoadd= RQ3_MP5_AMMO;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_M4:
-		ammotoadd=24;
+		ammotoadd= RQ3_M4_AMMO;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_M3:
-		ammotoadd=7;
+		ammotoadd= RQ3_M3_AMMO ;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_HANDCANNON:
-		ammotoadd=2;
+		ammotoadd= RQ3_HANDCANNON_AMMO;
+		//Elder: HC gets 2 in chamber and 5 in reserve
+		//Also sync with M3
+		//Removed until we can store the amount of ammo in the gun
+		//When it's dropped
+		//other->client->numClips[ WP_HANDCANNON ] += 5;
+		//other->client->numClips[ WP_M3 ] += 5;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_SSG3000:
-		ammotoadd=6;
+		ammotoadd= RQ3_SSG3000_AMMO;
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_GRENADE:
-		if (other->client->ps.ammo[ent->item->giTag] < 2) 
+		if (other->client->ps.ammo[ent->item->giTag] < RQ3_GRENADE_MAXCLIP) 
 		{
 			ammotoadd=other->client->ps.ammo[ent->item->giTag]+1;
 		}
 		else
 		{
-			ammotoadd=2;
+			ammotoadd= RQ3_GRENADE_MAXCLIP;
 		}
 		break;
 	default:
@@ -522,32 +571,55 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		switch(ent->item->giTag)
 		{
 		//Blaze: Check to see if we already have the weapon, If not so check and see if we have less then full ammo, if so pick up gun
+		//Elder: this is really confusing - FIXME
 		case WP_KNIFE:
-			if (!other->client->ps.stats[STAT_WEAPONS] & WP_KNIFE == WP_KNIFE && (other->client->ps.ammo[ent->item->giTag] >= 10) ) return;
+			if (!other->client->ps.stats[STAT_WEAPONS] & WP_KNIFE == WP_KNIFE &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
+				return;
 			break;
 		case WP_PISTOL:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_PISTOL == WP_PISTOL) && (other->client->ps.stats[STAT_CLIPS] >= 2) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_PISTOL == WP_PISTOL) &&
+				(other->client->ps.stats[STAT_CLIPS] >= RQ3_PISTOL_MAXCLIP) )
+				//Elder: why are we checking clips here but ammo in the others and what-not??
+				return;
 			break;
 		case WP_M3:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M3 == WP_M3) && (other->client->ps.ammo[ent->item->giTag] >= 7) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M3 == WP_M3) &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_M3_AMMO) )
+				return;
 			break;
 		case WP_HANDCANNON:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_HANDCANNON == WP_HANDCANNON) && (other->client->ps.ammo[ent->item->giTag] >= 2) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_HANDCANNON == WP_HANDCANNON) &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_HANDCANNON_AMMO) )
+				return;
 			break;
 		case WP_MP5:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_MP5 == WP_MP5) && (other->client->ps.stats[STAT_CLIPS] >= 2) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_MP5 == WP_MP5) &&
+				(other->client->ps.stats[STAT_CLIPS] >= RQ3_MP5_MAXCLIP) )
+				return;
 			break;
 		case WP_M4:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M4 == WP_M4) && (other->client->ps.stats[STAT_CLIPS] >= 1) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_M4 == WP_M4) &&
+				(other->client->ps.stats[STAT_CLIPS] >= RQ3_M4_MAXCLIP) )
+				return;
 			break;
 		case WP_SSG3000:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_SSG3000 == WP_SSG3000) && (other->client->ps.ammo[ent->item->giTag] >= 6) )return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_SSG3000 == WP_SSG3000) &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_SSG3000_AMMO ) )
+				return;
 			break;
 		case WP_AKIMBO:
-			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_AKIMBO == WP_AKIMBO) && (other->client->ps.stats[STAT_CLIPS] >= 24) ) return;
+			//Elder: uhh- 24 clips?
+			//if (!(other->client->ps.stats[STAT_WEAPONS] & WP_AKIMBO == WP_AKIMBO) &&
+				//(other->client->ps.stats[STAT_CLIPS] >= 24) ) return;
+			if (!(other->client->ps.stats[STAT_WEAPONS] & WP_AKIMBO == WP_AKIMBO) &&
+				(other->client->ps.stats[STAT_CLIPS] >= RQ3_AKIMBO_MAXCLIP) )
+				return;
 			break;
 		case WP_GRENADE:
-			if (!other->client->ps.stats[STAT_WEAPONS] & WP_GRENADE == WP_GRENADE && (other->client->ps.ammo[ent->item->giTag] >= 2)) return;
+			if (!other->client->ps.stats[STAT_WEAPONS] & WP_GRENADE == WP_GRENADE &&
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP))
+				return;
 			break;
 		}
 		//Blaze: Check and see if it's a unique weapon, and if so make sure they dont have too many already
@@ -578,25 +650,25 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			if (other->client->numClips[ent->item->giTag] >= 0) return;//No clips for knifes
 			break;
 		case WP_PISTOL:
-			if (other->client->numClips[ent->item->giTag] >= 2 ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_PISTOL_MAXCLIP ) return;
 			break;
 		case WP_M3:
-			if (other->client->numClips[ent->item->giTag] >= 14) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_M3_MAXCLIP) return;
 			break;
 		case WP_HANDCANNON:
-			if (other->client->numClips[ent->item->giTag] >= 14) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_HANDCANNON_MAXCLIP) return;
 			break;
 		case WP_MP5:
-			if (other->client->numClips[ent->item->giTag] >= 2 ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_MP5_MAXCLIP ) return;
 			break;
 		case WP_M4:
-			if (other->client->numClips[ent->item->giTag] >= 1 ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_M4_MAXCLIP ) return;
 			break;
 		case WP_SSG3000:
-			if (other->client->numClips[ent->item->giTag] >= 20 ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_SSG3000_MAXCLIP ) return;
 			break;
 		case WP_AKIMBO:
-			if (other->client->numClips[ent->item->giTag] >= 2 ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_AKIMBO_MAXCLIP ) return;
 			break;
 		case WP_GRENADE:
 			if (other->client->numClips[ent->item->giTag] >= 0 ) return;//no clips for grenades

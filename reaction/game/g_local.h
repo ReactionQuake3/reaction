@@ -40,7 +40,9 @@
 #define FL_NO_BOTS				0x00002000	// spawn point not for bot use
 #define FL_NO_HUMANS			0x00004000	// spawn point just for bots
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
-#define FL_THROWN_ITEM			0x00016000  // XRAY FMJ weapon throwing
+//Elder: err - this looks funny... should it be 0x00010000 ?
+//#define FL_THROWN_ITEM			0x00016000  // XRAY FMJ weapon throwing
+#define FL_THROWN_ITEM			0x00010000  // XRAY FMJ weapon throwing
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -328,9 +330,18 @@ struct gclient_s {
 	//qboolean	isbleeding;//Blaze: is client bleeding
 	int			legDamage;//Blaze: Client has leg damage
 	int			bleedtick;//Blaze: Holds # of seconds till bleeding stops.
+	//Elder: server only needs to know for sniper spread - ARGH
 	int			zoomed; // Hawkins (SSG zoom)
-	qboolean	semi;	// hawkins (semiauto mode for m4, mp5, pistol)
+	//qboolean	semi;	// hawkins (semiauto mode for m4, mp5, pistol)
 	int			shots;   //Blaze: Number of shots fired so far with this weapon
+	// Homer: weaponstate vars for Cmd_Weapon
+	// make these a single bitmask? worth the effort?
+	int 			mk23semi; // pistol to semi-auto	
+	int 			mp5_3rb;   // MP5 to 3rb
+	int 			m4_3rb;    // M4 to 3rb
+	int 			grenRange; // range to throw grenade (short/medium/long)
+	int 			throwKnife; // knife to throwing
+	// end Homer
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
 	int			portalID;
@@ -344,7 +355,8 @@ struct gclient_s {
 // Begin Duffman
    int G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, int take);
    void Cmd_Reload( gentity_t *ent );  // reloads the current weapon
-   int ClipAmountForWeapon( int w );  // returns the maximum ammo for the current weapon
+// Elder: removed - prototype in bg_public.h
+//   int ClipAmountForWeapon( int w );  // returns the maximum ammo for the current weapon
 // End Duffman
 
 //
@@ -465,7 +477,8 @@ void StopFollowing( gentity_t *ent );
 void BroadcastTeamChange( gclient_t *client, int oldTeam );
 void SetTeam( gentity_t *ent, char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
-void toggleSemi(gentity_t *ent);
+//Elder: commented out for Homer
+//void toggleSemi(gentity_t *ent);
 
 //
 // g_items.c
@@ -505,6 +518,8 @@ void	G_SetMovedir ( vec3_t angles, vec3_t movedir);
 void	G_InitGentity( gentity_t *e );
 gentity_t	*G_Spawn (void);
 gentity_t *G_TempEntity( vec3_t origin, int event );
+//Elder: added
+gentity_t *G_TempEntity2( vec3_t origin, int event, int eParm );
 void	G_Sound( gentity_t *ent, int channel, int soundIndex );
 void	G_FreeEntity( gentity_t *e );
 
@@ -588,7 +603,6 @@ void DropPortalDestination( gentity_t *ent );
 #endif
 
 void G_BreakGlass( gentity_t *ent, vec3_t point, int mod );//Blaze: Breakable glass
-
 
 //
 // g_weapon.c

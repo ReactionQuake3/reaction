@@ -101,6 +101,8 @@ qboolean JumpKick( gentity_t *ent )
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 		damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
 
+	//Elder: Our set of locally called sounds
+	G_AddEvent ( ent, EV_RQ3_SOUND, 0);
 	return qtrue;
 }
 
@@ -155,7 +157,6 @@ void P_DamageFeedback( gentity_t *player ) {
 		G_AddEvent( player, EV_PAIN, player->health );
 		client->ps.damageEvent++;
 	}
-
 
 	client->ps.damageCount = count;
 
@@ -677,9 +678,9 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			FireWeapon( ent );
 			break;
 	
-		// For Reaction unzooming
 		case EV_CHANGE_WEAPON:
-			ent->client->zoomed=0;
+			//Elder: not a good place to put stuff
+			//ent->client->zoomed=0;
 			break;
 
 /*		case EV_ZOOM:
@@ -839,6 +840,7 @@ void ThrowWeapon( gentity_t *ent )
 
 	//if( client->ps.weapon == WP_KNIFE || client->ps.weapon == WP_PISTOL || client->ps.weapon == WP_GRENADE || ( ucmd->buttons & BUTTON_ATTACK ))
 	//	return;
+	//Elder: better change conditional to include bandaging case... re: "You are too busy bandaging..."
 	if (ucmd->buttons & BUTTON_ATTACK) return;
 	weap=0;
 	if (client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
@@ -852,6 +854,7 @@ void ThrowWeapon( gentity_t *ent )
 		if (weap == 0 ) return;
 		xr_item = BG_FindItemForWeapon( weap );
 	
+		//Elder: do you really want to do this?
 		client->ps.ammo[ weap ] = 0;
 
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
@@ -1316,6 +1319,10 @@ void ClientEndFrame( gentity_t *ent ) {
     ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
 // End Duffman
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
+
+//Elder: bleeding
+	//TODO: add in when you get leg damage
+	ent->client->ps.stats[STAT_BANDAGE] = ent->client->bleeding; // + ent->client->legDamage;
 
 	G_SetClientSound (ent);
 
