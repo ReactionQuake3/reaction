@@ -47,3 +47,5 @@
 * MM: Added g_RQ3_maxplayers to cap max players on a team
 * Added the dmflag spawn farthest.
 * The scores in the upper-right corner update instantly.
+* Gunshots now go through teammates.
+* Fixes for the M4 rising.
