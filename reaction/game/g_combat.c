@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.72  2002/05/12 18:07:08  jbravo
+// Yet another obit fix
+//
 // Revision 1.71  2002/05/11 15:00:04  jbravo
 // Fix for autojoin and a very minir for for Obits
 //
@@ -1083,7 +1086,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 		// Hawkins put spread back and zoom out
 		//Elder: remove zoom bits
-		Cmd_Unzoom(self);
+// JBravo: moving this down below the Obit printout
+//		Cmd_Unzoom(self);
 		self->client->bleeding = 0;
 		self->client->bleed_remain = 0;
 		//Elder: added;
@@ -1197,6 +1201,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 //		// non-location/world kill
 		PrintDeathMessage (self, attacker, LOC_NOLOC, meansOfDeath);
 	}
+
+	Cmd_Unzoom(self);
 
 	// Elder: Statistics tracking
 	//Blaze: make sure the game is in progress before recording stats
