@@ -1,0 +1,109 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "memory_popmenu"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 210 124 220 192
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { play "sound/misc/menu1.wav" }
+	onClose { uiScript clearError }
+	onESC { close memory_popmenu ; open main }
+	popup
+
+    //Window
+
+    itemdef {
+	rect 0 0 220 192
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    //Title
+
+    itemdef {
+	rect 101 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	rect 101 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Warning"
+	visible 1
+	decoration
+    }
+
+//Error info
+
+    itemdef {
+	name errorinfo
+	rect 12 40 196 120
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .65
+	border 1
+	bordersize 1
+	bordercolor .5 .5 .5 1
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name errorinfo
+	rect 20 44 180 112
+	type ITEM_TYPE_TEXT
+	style WINDOW_STYLE_EMPTY
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	autowrapped
+	text "Your memory settings are too\n"
+	     "low. You need to restart\n"
+		 "Reaction in order to correct\n"
+		 "this problem."
+	textalign ITEM_ALIGN_CENTER
+	textalignx 90
+	textaligny 16
+	textscale .225
+	forecolor 1 1 1 1
+	visible 1
+	decoration
+    }
+
+//Ok
+
+    itemdef {
+	name close
+	rect 80 168 60 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_CENTER
+	textalignx 30
+	textaligny 12
+	text "Ok"
+	shortcutKey "O"
+	visible 1
+	action { uiScript "quit" }
+    }
+}
+}

@@ -6,46 +6,64 @@
 --------------------Configuration: ui - Win32 Release TA--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP978.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BD.tmp" with contents
 [
-/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /FR"Release_TA/" /Fp"Release_TA/ta_ui.pch" /YX /Fo"Release_TA/" /Fd"Release_TA/" /FD /c 
-"C:\Games\Quake3\rq3source\reaction\ta_ui\ui_main.c"
+/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /FR"D:\Work\rq3source\reaction\Release/" /Fp"D:\Work\rq3source\reaction\Release/ta_ui.pch" /YX /Fo"D:\Work\rq3source\reaction\Release/" /Fd"D:\Work\rq3source\reaction\Release/" /FD /c 
+"D:\Work\rq3source\reaction\game\bg_misc.c"
+"D:\Work\rq3source\reaction\game\q_math.c"
+"D:\Work\rq3source\reaction\game\q_shared.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_atoms.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_gameinfo.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_main.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_players.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_shared.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_syscalls.c"
+"D:\Work\rq3source\reaction\ta_ui\ui_util.c"
 ]
-Creating command line "cl.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP978.tmp" 
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP979.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BD.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BE.tmp" with contents
 [
-/nologo /base:"0x40000000" /dll /incremental:no /pdb:"Release_TA/uix86.pdb" /map:"Release_TA/uix86.map" /machine:I386 /def:".\ui.def" /out:"../Release/uix86.dll" /implib:"Release_TA/uix86.lib" 
-.\Release_TA\bg_misc.obj
-.\Release_TA\q_math.obj
-.\Release_TA\q_shared.obj
-.\Release_TA\ui_atoms.obj
-.\Release_TA\ui_gameinfo.obj
-.\Release_TA\ui_main.obj
-.\Release_TA\ui_players.obj
-.\Release_TA\ui_shared.obj
-.\Release_TA\ui_syscalls.obj
-.\Release_TA\ui_util.obj
+/nologo /base:"0x40000000" /dll /incremental:no /pdb:"D:\Work\rq3source\reaction\Release/uix86.pdb" /map:"D:\Work\rq3source\reaction\Release/uix86.map" /machine:I386 /def:".\ui.def" /out:"D:\Work\rq3source\reaction\Release\uix86.dll" /implib:"D:\Work\rq3source\reaction\Release/uix86.lib" 
+\Work\rq3source\reaction\Release\bg_misc.obj
+\Work\rq3source\reaction\Release\q_math.obj
+\Work\rq3source\reaction\Release\q_shared.obj
+\Work\rq3source\reaction\Release\ui_atoms.obj
+\Work\rq3source\reaction\Release\ui_gameinfo.obj
+\Work\rq3source\reaction\Release\ui_main.obj
+\Work\rq3source\reaction\Release\ui_players.obj
+\Work\rq3source\reaction\Release\ui_shared.obj
+\Work\rq3source\reaction\Release\ui_syscalls.obj
+\Work\rq3source\reaction\Release\ui_util.obj
 ]
-Creating command line "link.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP979.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4BE.tmp"
 <h3>Output Window</h3>
 Compiling...
+bg_misc.c
+q_math.c
+q_shared.c
+ui_atoms.c
+ui_gameinfo.c
 ui_main.c
+ui_players.c
+ui_shared.c
+ui_syscalls.c
+ui_util.c
 Linking...
-   Creating library Release_TA/uix86.lib and object Release_TA/uix86.exp
-Creating temporary file "D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP97D.tmp" with contents
+   Creating library D:\Work\rq3source\reaction\Release/uix86.lib and object D:\Work\rq3source\reaction\Release/uix86.exp
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4C2.tmp" with contents
 [
-/nologo /o"Release_TA/ta_ui.bsc" 
-.\Release_TA\bg_misc.sbr
-.\Release_TA\q_math.sbr
-.\Release_TA\q_shared.sbr
-.\Release_TA\ui_atoms.sbr
-.\Release_TA\ui_gameinfo.sbr
-.\Release_TA\ui_main.sbr
-.\Release_TA\ui_players.sbr
-.\Release_TA\ui_shared.sbr
-.\Release_TA\ui_syscalls.sbr
-.\Release_TA\ui_util.sbr]
-Creating command line "bscmake.exe @D:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP97D.tmp"
+/nologo /o"D:\Work\rq3source\reaction\Release/ta_ui.bsc" 
+\Work\rq3source\reaction\Release\bg_misc.sbr
+\Work\rq3source\reaction\Release\q_math.sbr
+\Work\rq3source\reaction\Release\q_shared.sbr
+\Work\rq3source\reaction\Release\ui_atoms.sbr
+\Work\rq3source\reaction\Release\ui_gameinfo.sbr
+\Work\rq3source\reaction\Release\ui_main.sbr
+\Work\rq3source\reaction\Release\ui_players.sbr
+\Work\rq3source\reaction\Release\ui_shared.sbr
+\Work\rq3source\reaction\Release\ui_syscalls.sbr
+\Work\rq3source\reaction\Release\ui_util.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP4C2.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

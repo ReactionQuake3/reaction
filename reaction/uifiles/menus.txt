@@ -33,6 +33,8 @@
 
 	loadMenu { "ui/error.menu" }
 
+	loadMenu { "ui/memory.menu" }
+
 	loadMenu { "ui/quit.menu" }
 
 }

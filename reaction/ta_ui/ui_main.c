@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2004/03/12 11:26:05  makro
+// no message
+//
 // Revision 1.79  2004/01/26 21:26:09  makro
 // no message
 //
@@ -7507,6 +7510,13 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 				} else {
 					trap_Cvar_Set("com_errorMessage", "");
 				}
+			//Makro - check com_hunkmegs
+			} else {
+				if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 96)
+				{
+					trap_Cvar_SetValue("com_hunkMegs", 96);
+					Menus_ActivateByName("memory_popmenu");
+				};
 			}
 			return;
 		case UIMENU_TEAM:
