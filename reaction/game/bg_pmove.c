@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/03/11 01:45:46  jbravo
+// Bye bye backflips! :)
+//
 // Revision 1.60  2002/03/11 01:29:54  slicer
 // Fixed Sniper zooming during LCA
 //
@@ -492,13 +495,16 @@ static qboolean PM_CheckJump( void ) {
 
 	PM_AddEvent( EV_JUMP );
 
-	if ( pm->cmd.forwardmove >= 0 ) {
+// JBravo: we dont want backflips.
+	PM_ForceLegsAnim( LEGS_JUMP );
+	pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+/*	if ( pm->cmd.forwardmove >= 0 ) {
 		PM_ForceLegsAnim( LEGS_JUMP );
 		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 	} else {
 		PM_ForceLegsAnim( LEGS_JUMPB );
 		pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-	}
+	} */
 
 	return qtrue;
 
@@ -1189,11 +1195,13 @@ static void PM_CrashLand( void ) {
 	}
 
 	// decide which landing animation to use
-	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
+// JBravo: we dont want backflips.
+	PM_ForceLegsAnim( LEGS_LAND );
+/*	if ( pm->ps->pm_flags & PMF_BACKWARDS_JUMP ) {
 		PM_ForceLegsAnim( LEGS_LANDB );
 	} else {
 		PM_ForceLegsAnim( LEGS_LAND );
-	}
+	} */
 
 	pm->ps->legsTimer = TIMER_LAND;
 
@@ -1387,13 +1395,16 @@ static void PM_GroundTraceMissed( void ) {
 
 		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask);
 		if ( trace.fraction == 1.0 ) {
-			if ( pm->cmd.forwardmove >= 0 ) {
+// JBravo: we dont want backflips.
+			PM_ForceLegsAnim( LEGS_JUMP );
+			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+/*			if ( pm->cmd.forwardmove >= 0 ) {
 				PM_ForceLegsAnim( LEGS_JUMP );
 				pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 			} else {
 				PM_ForceLegsAnim( LEGS_JUMPB );
 				pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-			}
+			} */
 		}
 	}
 
@@ -1449,13 +1460,16 @@ static void PM_GroundTrace( void ) {
 			Com_Printf("%i:kickoff\n", c_pmove);
 		}
 		// go into jump animation
-		if ( pm->cmd.forwardmove >= 0 ) {
+// JBravo: we dont want backflips.
+		PM_ForceLegsAnim( LEGS_JUMP );
+		pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
+/*		if ( pm->cmd.forwardmove >= 0 ) {
 			PM_ForceLegsAnim( LEGS_JUMP );
 			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
 		} else {
 			PM_ForceLegsAnim( LEGS_JUMPB );
 			pm->ps->pm_flags |= PMF_BACKWARDS_JUMP;
-		}
+		} */
 
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		pml.groundPlane = qfalse;
