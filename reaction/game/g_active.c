@@ -3,164 +3,13 @@
 
 #include "g_local.h"
 
-extern float	s_quadFactor;
-extern vec3_t	forward, right, up;
-extern vec3_t	muzzle;
-extern void Cmd_OpenDoor( gentity_t * );
+//Elder: got rid of these
+//extern float	s_quadFactor;
+//extern vec3_t	forward, right, up;
+//extern vec3_t	muzzle;
+//extern void Cmd_OpenDoor( gentity_t * );
 
-qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward )
-{
-	gentity_t *traceEnt;
-	trace_t tr;
-
-	traceEnt = &g_entities[ trIn->entityNum ];
-	if ( Q_stricmp (traceEnt->classname, "func_door_rotating") == 0 )
-	{
-		vec3_t d_right, d_forward;
-		float crossProduct;
-		vec3_t end;
-
-		// Find the hit point and the muzzle point with respect
-		// to the door's origin, then project down to the XY plane
-		// and take the cross product
-		VectorSubtract( trIn->endpos, traceEnt->s.origin, d_right );
-		VectorSubtract( origin, traceEnt->s.origin, d_forward );
-		crossProduct = d_forward[0]*d_right[1]-d_right[0]*d_forward[1];
-
-		// See if we are on the proper side to do it
-		if ( ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) || 
-			 ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0))
-		{
-			Cmd_OpenDoor( ent );
-			VectorMA( trIn->endpos, 25, forward, end );
-			trap_Trace (&tr, trIn->endpos, NULL, NULL, end, trIn->entityNum, MASK_SHOT);
-			if ( !(tr.surfaceFlags & SURF_NOIMPACT) )
-			{
-				traceEnt = &g_entities[ tr.entityNum ];
-				if ( traceEnt->client )
-				{
-					*trIn = tr;
-				}
-			}
-		}
-		return qtrue;
-	}
-	else
-		return qfalse;
-
-}
-
-qboolean JumpKick( gentity_t *ent )
-{
-	trace_t		tr;
-	vec3_t		end;
-	gentity_t	*tent;
-	gentity_t	*traceEnt;
-	int			damage;
-	//Elder: for kick sound
-	qboolean	kickSuccess;
-
-	// set aiming directions
-	AngleVectors (ent->client->ps.viewangles, forward, right, up);
-
-	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
-
-	VectorMA (muzzle, 32, forward, end);
-
-	//VectorCopy( ent->s.origin, muzzle );
-	//muzzle[2] += 32;
-	// the muzzle really isn't the right point to test the jumpkick from
-	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
-	//trap_Trace (&tr, ent->s.origin, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_SHOT);
-	//trap_Trace (&tr, ent->s.origin, NULL, NULL, end, ent->s.number, MASK_SHOT);
-	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-		return qfalse;
-	}
-
-	kickSuccess = DoorKick( &tr, ent, muzzle, forward );
-	traceEnt = &g_entities[ tr.entityNum ];
-
-	if ( !traceEnt->takedamage) {
-		return qfalse;
-	}
-
-	if (ent->client->ps.powerups[PW_QUAD] ) {
-		G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
-		s_quadFactor = g_quadfactor.value;
-	} else {
-		s_quadFactor = 1;
-	}
-
-	damage = 20;
-
-	//Elder: can't hit if crouching but can still hit "dead" bodies :)
-	if (traceEnt->client && traceEnt->health > 0 && traceEnt->r.maxs[2] < 20)
-    {
-		return qfalse;
-    }
-	else {
-		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
-	}
-
-	// send blood impact
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.weapon = ent->s.weapon;
-		kickSuccess = qtrue;
-	}
-
-	if (traceEnt->client && traceEnt->client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
-	{
-		//Elder: toss a unique weapon if kicked
-		//Todo: Need to make sure to cancel any reload attempts
-		//Todo: need to send a message to attacker and target about weapon kick
-		ThrowWeapon(traceEnt);
-		//trap_SendServerCommand( ent-g_entities, va("print \"You kicked %s's %s from his hands!\n\"", traceEnt->client->pers.netname, (traceEnt->client->ps.weapon)->pickup_name);
-		//trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
-				       
-	}
-
-
-
-
-	//Elder: for the kick
-	// do our special form of knockback here
-	/*
-        VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
-        VectorSubtract (v, point, v);
-        VectorNormalize (v);
-        VectorMA (self->enemy->velocity, kick, v, self->enemy->velocity);
-        if (self->enemy->velocity[2] > 0)
-                self->enemy->groundentity = NULL;
-	*/
-	//Elder: kick knockback for AQ2 -- recall variable kick = 400
-	if (traceEnt->client)
-	{
-		//Elder: for kick knockback
-		vec3_t		size, vTemp;
-
-		//Make the "size" vector - hopefully this is right
-		VectorSubtract(traceEnt->r.maxs, traceEnt->r.mins, size);
-		G_Printf("Size: %s\n", vtos(size));
-		
-		VectorMA(traceEnt->r.absmin, 0.5, size, vTemp);
-		VectorSubtract(vTemp, tr.endpos, vTemp);
-		VectorNormalize(vTemp);
-		VectorMA(traceEnt->client->ps.velocity, 400, vTemp, traceEnt->client->ps.velocity);
-		if (traceEnt->client->ps.velocity[2] > 0)
-			traceEnt->s.groundEntityNum = ENTITYNUM_NONE;
-	}
-
-
-	//Elder: Our set of locally called sounds
-	if (kickSuccess)
-		G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
-
-	return qtrue;
-}
+//Elder: moved kick to g_weapon.c where it belongs
 
 /*
 ===============
@@ -176,6 +25,7 @@ void P_DamageFeedback( gentity_t *player ) {
 	gclient_t	*client;
 	float	count, side;
 	vec3_t	angles, v;
+	vec3_t	forward, right, up;
 
 	client = player->client;
 	if ( client->ps.pm_type == PM_DEAD ) {
@@ -183,8 +33,11 @@ void P_DamageFeedback( gentity_t *player ) {
 	}
 
 	// total points of damage shot at the player this frame
-	if (client->damage_blood > 0)
-		G_Printf("(%i) Damage_blood: %i\n", player->s.clientNum, client->damage_blood);
+	//if (client->damage_blood > 0)
+		//G_Printf("(%i) Damage_blood: %i\n", player->s.clientNum, client->damage_blood);
+
+	//if (client->damage_knockback > 0)
+		//G_Printf("(%i) Damage_knockback: %i\n", player->s.clientNum, client->damage_knockback);
 
 	count = client->damage_blood + client->damage_armor;
 	if ( count == 0 ) {
@@ -213,6 +66,10 @@ void P_DamageFeedback( gentity_t *player ) {
 
 		// new RQ3 view-kick code, needs more tweaking (the 50 needs to be replaces with that below calcuation
 		// from the AQ2 code.
+		
+		// set aiming directions
+		AngleVectors (client->ps.viewangles, forward, right, up);
+
 		VectorSubtract(client->damage_from, player->s.origin , v);
 		VectorNormalize(v);
 
@@ -692,7 +549,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
-			
+
 //			ent->client->ps.weaponTime += 2500;
 //			ent->client->ps.weaponstate = WEAPON_RAISING;
 //			ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT )      | TORSO_RAISE;
@@ -1139,6 +996,7 @@ void ClientThink_real( gentity_t *ent ) {
 		client->ps.speed *= 1.3;
 	}
 
+
 	// Let go of the hook if we aren't firing
 	//Blaze: No Hook in reaction
 	/*
@@ -1290,7 +1148,26 @@ void ClientThink_real( gentity_t *ent ) {
 			FireWeapon( ent );
 		}
 		break;
+	case WP_M3:
+		//Elder: try to do a fast reload if it's queued
+		if ( ent->client->ps.weaponTime < RQ3_M3_FAST_RELOAD_DELAY &&
+			 ent->client->fastReloads &&
+			 ent->client->reloadAttempts > 0)
+		{
+			//G_Printf("(%i) ClientThink: attempting fast-reload...\n", ent->s.clientNum);
+			Cmd_Reload( ent );
+		}		
+		break;
 	case WP_SSG3000:
+		//Elder: try to do a fast reload if it's queued
+		if ( ent->client->ps.weaponTime < RQ3_SSG3000_FAST_RELOAD_DELAY &&
+			 ent->client->fastReloads &&
+			 ent->client->reloadAttempts > 0)
+		{
+			//G_Printf("(%i) ClientThink: attempting fast-reload...\n", ent->s.clientNum);
+			Cmd_Reload( ent );
+		}		
+		/*
 		if ( ent->client->weaponfireNextTime != 0 && 
 			level.time >= ent->client->weaponfireNextTime) {
 			//Elder: restore last zoom and clear the variable
@@ -1302,7 +1179,7 @@ void ClientThink_real( gentity_t *ent ) {
 			//Elder: stay in 1x until bolt is ready
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
-		}
+		}*/
 		/* else if (level.time - ent->client->lastReloadTime > ent->client->ps.weaponTime) {
 			//Elder: Too buggy at the moment
 			if (level.time - ent->client->lastReloadTime > RQ3_SSG3000_RELOAD_DELAY)
@@ -1329,13 +1206,6 @@ void ClientThink_real( gentity_t *ent ) {
 		break;
 	}
 	
-	//if ( ent->client->ps.weapon == WP_AKIMBO &&
-		//ent->client->weaponfireNextTime != 0 && 
-		//level.time >= ent->client->weaponfireNextTime) {
-		//FireWeapon( ent );
-	//}
-
-
 	// save results of triggers and client events
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
@@ -1543,7 +1413,6 @@ void ClientEndFrame( gentity_t *ent ) {
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	//Elder: bleeding notification
-	//ent->client->ps.stats[STAT_RQ3] &= RQ3_LEGDAMAGE;
 	if (ent->client->bleeding ||
 		(ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
 		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_NEED;

@@ -1695,9 +1695,9 @@ void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
 	//Blaze: Used for droping knifes
-	gitem_t		*xr_item;
-	gentity_t	*xr_drop;
-	int			temp;
+	//gitem_t		*xr_item;
+	//gentity_t	*xr_drop;
+	//int			temp;
 	int			msec;
 int start, end;
 

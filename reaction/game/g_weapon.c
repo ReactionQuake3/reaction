@@ -39,6 +39,174 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 /*
 ======================================================================
 
+RQ3 Jump Kick
+Moved from g_active.c to g_weapon.c
+Because it is a weapon!
+
+======================================================================
+*/
+
+qboolean JumpKick( gentity_t *ent )
+{
+	trace_t		tr;
+	vec3_t		end;
+	gentity_t	*tent;
+	gentity_t	*traceEnt;
+	int			damage;
+	//Elder: for kick sound
+	qboolean	kickSuccess;
+	
+	// set aiming directions
+	AngleVectors (ent->client->ps.viewangles, forward, right, up);
+
+	CalcMuzzlePoint ( ent, forward, right, up, muzzle );
+	
+	VectorMA (muzzle, 32, forward, end);
+
+	//VectorCopy( ent->s.origin, muzzle );
+	//muzzle[2] += 32;
+	// the muzzle really isn't the right point to test the jumpkick from
+	
+	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+	//trap_Trace (&tr, ent->s.origin, ent->r.mins, ent->r.maxs, end, ent->s.number, MASK_SHOT);
+	//trap_Trace (&tr, ent->s.origin, NULL, NULL, end, ent->s.number, MASK_SHOT);
+	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+		return qfalse;
+	}
+
+	kickSuccess = DoorKick( &tr, ent, muzzle, forward );
+	traceEnt = &g_entities[ tr.entityNum ];
+
+	if ( !traceEnt->takedamage) {
+		return qfalse;
+	}
+
+	if (ent->client->ps.powerups[PW_QUAD] ) {
+		G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
+		s_quadFactor = g_quadfactor.value;
+	} else {
+		s_quadFactor = 1;
+	}
+
+	damage = 20;
+
+	if ( traceEnt->s.eType == ET_BREAKABLE || traceEnt->client)
+		kickSuccess = qtrue;
+
+	//Elder: can't hit if crouching but can still hit "dead" bodies :)
+	if (traceEnt->client && traceEnt->health > 0 && traceEnt->r.maxs[2] < 20)
+    {
+		return qfalse;
+    }
+	else {
+		G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+			damage, DAMAGE_NO_LOCATIONAL, MOD_KICK );
+	}
+
+	// send blood impact
+	if ( traceEnt->takedamage && traceEnt->client ) {
+		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+		tent->s.otherEntityNum = traceEnt->s.number;
+		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.weapon = ent->s.weapon;
+	}
+
+	if (traceEnt->client && traceEnt->client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
+	{
+		//Elder: toss a unique weapon if kicked
+		//Todo: Need to make sure to cancel any reload attempts
+		//Todo: need to send a message to attacker and target about weapon kick
+		ThrowWeapon(traceEnt);
+		//trap_SendServerCommand( ent-g_entities, va("print \"You kicked %s's %s from his hands!\n\"", traceEnt->client->pers.netname, (traceEnt->client->ps.weapon)->pickup_name);
+		//trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
+				       
+	}
+
+
+
+
+	//Elder: for the kick
+	// do our special form of knockback here
+	/*
+        VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
+        VectorSubtract (v, point, v);
+        VectorNormalize (v);
+        VectorMA (self->enemy->velocity, kick, v, self->enemy->velocity);
+        if (self->enemy->velocity[2] > 0)
+                self->enemy->groundentity = NULL;
+	*/
+	//Elder: kick knockback for AQ2 -- recall variable kick = 400
+	//if (traceEnt->client)
+	//{
+		//Elder: for kick knockback
+		//vec3_t		size, vTemp;
+
+		//Make the "size" vector - hopefully this is right
+		//VectorSubtract(traceEnt->r.maxs, traceEnt->r.mins, size);
+		//G_Printf("Size: %s\n", vtos(size));
+		
+		//VectorMA(traceEnt->r.absmin, 0.5, size, vTemp);
+		//VectorSubtract(vTemp, tr.endpos, vTemp);
+		//VectorNormalize(vTemp);
+		//VectorMA(traceEnt->client->ps.velocity, 400, vTemp, traceEnt->client->ps.velocity);
+		//if (traceEnt->client->ps.velocity[2] > 0)
+			//traceEnt->s.groundEntityNum = ENTITYNUM_NONE;
+	//}
+
+
+	//Elder: Our set of locally called sounds
+	if (kickSuccess)
+		G_AddEvent ( ent, EV_RQ3_SOUND, RQ3_SOUND_KICK);
+
+	return qtrue;
+}
+
+qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward )
+{
+	gentity_t *traceEnt;
+	trace_t tr;
+
+	traceEnt = &g_entities[ trIn->entityNum ];
+	if ( Q_stricmp (traceEnt->classname, "func_door_rotating") == 0 )
+	{
+		vec3_t d_right, d_forward;
+		float crossProduct;
+		vec3_t end;
+
+		// Find the hit point and the muzzle point with respect
+		// to the door's origin, then project down to the XY plane
+		// and take the cross product
+		VectorSubtract( trIn->endpos, traceEnt->s.origin, d_right );
+		VectorSubtract( origin, traceEnt->s.origin, d_forward );
+		crossProduct = d_forward[0]*d_right[1]-d_right[0]*d_forward[1];
+
+		// See if we are on the proper side to do it
+		if ( ((traceEnt->pos2[1] > traceEnt->pos1[1]) && crossProduct > 0) || 
+			 ((traceEnt->pos2[1] < traceEnt->pos1[1]) && crossProduct < 0))
+		{
+			Cmd_OpenDoor( ent );
+			VectorMA( trIn->endpos, 25, forward, end );
+			trap_Trace (&tr, trIn->endpos, NULL, NULL, end, trIn->entityNum, MASK_SHOT);
+			if ( !(tr.surfaceFlags & SURF_NOIMPACT) )
+			{
+				traceEnt = &g_entities[ tr.entityNum ];
+				if ( traceEnt->client )
+				{
+					*trIn = tr;
+				}
+			}
+		}
+		return qtrue;
+	}
+	else
+		return qfalse;
+
+}
+
+
+/*
+======================================================================
+
 GAUNTLET
 
 ======================================================================
@@ -907,18 +1075,77 @@ void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 
 
 //======================================================================
-int RQ3Spread (gentity_t *ent, int spread)
+//Elder: can probably be static
+int RQ3_Spread (gentity_t *ent, int spread)
 {
 	int runspeed = 225;
 	int walkspeed = 10;
+	int stage = 0;
+	float factor[] = {0.7f, 1.0f, 2.0f, 6.0f};
 	float xyspeed = (ent->client->ps.velocity[0]*ent->client->ps.velocity[0] + ent->client->ps.velocity[1]*ent->client->ps.velocity[1]);
 
-	if (ent->client->ps.pm_flags & PMF_DUCKED) return (spread * 0.65);
+	//crouching
+	if (ent->client->ps.pm_flags & PMF_DUCKED)
+		return (spread * 0.65);
 
-	if (xyspeed > runspeed * runspeed) spread *= 3;
-	else if (xyspeed >= walkspeed*walkspeed) spread *= 2;
-	return (int)spread;
+	//running
+	if (xyspeed > runspeed * runspeed)
+		stage = 3;
+	//walking
+	else if (xyspeed >= walkspeed*walkspeed)
+		stage = 2;
+	//standing
+	else
+		stage = 1;
 
+	//TODO: add laser advantage
+
+
+	return (int)(spread * factor[stage]);
+
+	/*
+	//Elder: original AQ2 code
+	int running = 225; // minimum speed for running
+    int walking = 10; // minimum speed for walking
+    int laser = 0;
+    float factor[] = {.7, 1, 2, 6};
+    int stage = 0;
+
+    // 225 is running
+    // < 10 will be standing
+    float xyspeed = (ent->velocity[0]*ent->velocity[0] + ent->velocity[1]*ent->velocity[1]);
+        
+        if (ent->client->ps.pmove.pm_flags & PMF_DUCKED) // crouching
+                return( spread * .65);
+
+        if ( (ent->client->pers.inventory[ITEM_INDEX(FindItem(LASER_NAME))]) 
+                        && (ent->client->curr_weap == MK23_NUM
+                        || ent->client->curr_weap == MP5_NUM
+                        || ent->client->curr_weap == M4_NUM ) )
+                laser = 1;
+
+
+        // running
+        if ( xyspeed > running*running )
+                stage = 3;
+        // walking
+        else if ( xyspeed >= walking*walking )
+                stage = 2;
+        // standing
+        else
+                stage = 1;
+        
+        // laser advantage
+        if (laser)
+        {
+                        if (stage == 1)
+                                stage = 0;
+                        else
+                                stage = 1;
+        }
+                
+        return (int)(spread * factor[stage]);
+	*/
 
 
 }
@@ -981,7 +1208,7 @@ void Weapon_M4_Fire(gentity_t *ent)
 
 	}
 
-	Bullet_Fire( ent, RQ3Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
+	Bullet_Fire( ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
 	/*	
 	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
@@ -1014,7 +1241,7 @@ void Weapon_MK23_Fire(gentity_t *ent)
 	{
 		spread = PISTOL_SPREAD;
 	}
-	Bullet_Fire( ent, RQ3Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
+	Bullet_Fire( ent, RQ3_Spread(ent, spread), PISTOL_DAMAGE, MOD_PISTOL);
 
 }
 
@@ -1028,7 +1255,7 @@ void Weapon_SSG3000_FireOld(gentity_t *ent)
 	float spread;
 	//Elder: Don't print - will broadcast to server
 	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
-	//Elder: changed to use RQ3Spread as well
+	//Elder: changed to use RQ3_Spread as well
 	//Elder: using new stat
 	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
 		 //(ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
@@ -1036,7 +1263,7 @@ void Weapon_SSG3000_FireOld(gentity_t *ent)
 		spread = 0;
 	}
 	else {
-		spread = RQ3Spread(ent, SNIPER_SPREAD);
+		spread = RQ3_Spread(ent, SNIPER_SPREAD);
 	}
 	Bullet_Fire( ent, spread, SNIPER_DAMAGE, MOD_SNIPER);
 
@@ -1054,7 +1281,7 @@ railgun_fire, old SSG, and bullet_fire code
 weapon_ssg3000_fire
 =================
 */
-#define	MAX_SSG3000_HITS	4
+#define	MAX_SSG3000_HITS	8
 void Weapon_SSG3000_Fire (gentity_t *ent) {
 	vec3_t		end;
 	trace_t		trace;
@@ -1081,7 +1308,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 		spread = 0;
 	}
 	else  {
-		spread = RQ3Spread(ent, SNIPER_SPREAD);
+		spread = RQ3_Spread(ent, SNIPER_SPREAD);
 		r = random() * M_PI * 2.0f;
 		u = sin(r) * crandom() * spread * 16;
 		r = cos(r) * crandom() * spread * 16;
@@ -1226,7 +1453,7 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 	}
 
 	//Elder: bolt action plus save last zoom
-	ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
+	//ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
 	RQ3_SaveZoomLevel(ent);
 }
 
@@ -1250,7 +1477,7 @@ void Weapon_MP5_Fire(gentity_t *ent)
 		spread = MP5_SPREAD;
 	}
 	
-	Bullet_Fire( ent, RQ3Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
+	Bullet_Fire( ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
 
 }
 /*
@@ -1385,7 +1612,7 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	float spread;
 	//Blaze: Will need 2 of these
 	spread = AKIMBO_SPREAD;
-	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
+	Bullet_Fire( ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 
 	//Elder: reset plus added 1 bullet check
 	if (ent->client->weaponfireNextTime > 0 || ent->client->ps.ammo[WP_AKIMBO] < 2)
@@ -1393,7 +1620,7 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	else
 		ent->client->weaponfireNextTime = level.time + RQ3_AKIMBO_DELAY2;
 
-	//Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
+	//Bullet_Fire( ent, RQ3_Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 }
 
 /*

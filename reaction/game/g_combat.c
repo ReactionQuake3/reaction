@@ -530,8 +530,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 
 		//Elder: remove zoom bits
-		self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		Cmd_Unzoom(self);
+		//self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		//self->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
@@ -541,6 +542,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 		self->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
 		self->client->ps.stats[STAT_STREAK] = 0;
+
+		//Elder: stop reload attempts
+		self->client->reloadAttempts = 0;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -1252,33 +1256,94 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	//Elder: this is a simplifed knockback calc - Action has a radically different one.
-	knockback = damage;
-	if ( knockback > 200 ) {
-		knockback = 200;
-	}
+	//knockback = damage;
 
-	if ( mod == MOD_KICK )
-	{
-		knockback = 200;
-	}
+	//if ( knockback > 200 ) {
+		//knockback = 200;
+	//}
+
+	//if ( mod == MOD_KICK )
+	//{
+		//knockback = 200;
+	//}
 
 	if ( targ->flags & FL_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
-	if ( dflags & DAMAGE_NO_KNOCKBACK ) {
+	else if ( dflags & DAMAGE_NO_KNOCKBACK ) {
 		knockback = 0;
+	}
+	else
+	{
+		//Elder: select knockback
+		switch (mod)
+		{
+			case MOD_HANDCANNON:
+				knockback = RQ3_HANDCANNON_KICK;
+				break;
+			case MOD_M3:
+				knockback = RQ3_M3_KICK;
+				break;
+			case MOD_M4:
+				knockback = RQ3_M4_KICK;
+				break;
+			case MOD_MP5:
+				knockback = RQ3_MP5_KICK;
+				break;
+			case MOD_SNIPER:
+				knockback = RQ3_SNIPER_KICK;
+				break;
+			case MOD_PISTOL:
+				knockback = RQ3_PISTOL_KICK;
+				break;
+			case MOD_AKIMBO:
+				knockback = RQ3_AKIMBO_KICK;
+				break;
+			case MOD_GRENADE_SPLASH:
+			case MOD_GRENADE:
+				knockback = (int)(0.75 * damage);
+				break;
+			case MOD_KNIFE:
+				knockback = RQ3_KNIFE_KICK;
+				break;
+			case MOD_KNIFE_THROWN:
+				knockback = RQ3_THROW_KICK;
+				break;
+			case MOD_KICK:
+				//Elder: do some calculation here?
+				knockback = 400;
+				break;
+			default:
+				//G_Printf("Unknown MOD\n");
+				G_Printf("G_Damage: Received unknown MOD - using default knockback\n");
+				knockback = 50;
+				break;
+		}
 	}
 
 	// figure momentum add, even if the damage won't be taken
 	if ( knockback && targ->client ) {
-		vec3_t	kvel;
+		vec3_t	kvel, flydir;
 		float	mass;
+
+		if ( mod != MOD_FALLING )
+        {
+            VectorCopy(dir, flydir);
+            flydir[2] += 0.4f;
+        }
 
 		mass = 200;
 
 		//Elder: Q2 uses a hardcoded value of 500 for non-rocket jumps
 		//Q3 uses g_knockback.value ... default 1000
-		VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
+		//AQ2:
+		//VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
+		//RQ3:
+		//VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
+		if (targ->client && attacker == targ)
+			VectorScale (flydir, 1600.0 * (float)knockback / mass, kvel);
+		else
+			VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
 		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
 
 		// set the timer so that the other client can't cancel
@@ -1688,7 +1753,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 	if (client) 
 	{
-		
 		if (!(targ->flags & FL_GODMODE) && (take)) targ->pain (targ, attacker, take);
 	}
 	if (take)

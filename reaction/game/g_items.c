@@ -327,7 +327,9 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			trap_SendServerCommand( other-g_entities, va("print \"%s^7\n\"", RQ3_AKIMBO_NAME) );
 			other->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_AKIMBO );
 			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
-			ammotoadd = other->client->ps.ammo[WP_PISTOL];
+			//Elder: always reset back to full clip like Action if first pistol picked up
+			ammotoadd = RQ3_PISTOL_AMMO;
+			//ammotoadd = other->client->ps.ammo[WP_PISTOL];
 		}
 		//Elder: Already have akimbo - technically should have pistol
 		else if (other->client->numClips[ WP_PISTOL ] < 2) {
@@ -374,9 +376,9 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
 		break;
 	case WP_GRENADE:
-		if (other->client->ps.ammo[ent->item->giTag] < RQ3_GRENADE_MAXCLIP) 
+		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP) 
 		{
-			ammotoadd=other->client->ps.ammo[ent->item->giTag]+1;
+			ammotoadd=other->client->ps.ammo[WP_GRENADE] + 1;
 		}
 		else
 		{
@@ -606,7 +608,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				return;
 			break;
 		case WP_GRENADE:
-			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) == (1 << WP_GRENADE) ) &&
+			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) )== (1 << WP_GRENADE) ) &&
 				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP) )
 				return;
 			break;
@@ -951,7 +953,7 @@ gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags 
 	vec3_t	velocity;
 	vec3_t  angles;
 	vec3_t	origin;
-	int		throwheight;
+	//int		throwheight;
 
 	VectorCopy( ent->s.pos.trBase, origin );
 	VectorCopy( ent->s.apos.trBase, angles );

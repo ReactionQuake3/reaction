@@ -367,6 +367,7 @@ struct gclient_s {
 
 	int			fastReloads;			//Elder: for queuing M3/SSG reloads
 	int			lastReloadTime;			//Elder: for queuing M3/SSG reloads
+	int			reloadAttempts;			//Elder: for queueing M3/SSG reloads
 	
 	int			consecutiveShots;		//Elder: for M4 ride-up/kick
 
@@ -506,6 +507,8 @@ void StopFollowing( gentity_t *ent );
 void BroadcastTeamChange( gclient_t *client, int oldTeam );
 void SetTeam( gentity_t *ent, char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
+void Cmd_Unzoom(gentity_t *ent);
+void Cmd_OpenDoor(gentity_t *ent);
 //Elder: commented out for Homer
 //void toggleSemi(gentity_t *ent);
 
@@ -598,7 +601,8 @@ void TossClientCubes( gentity_t *self );
 #ifdef MISSIONPACK
 #define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
 #endif
-#define DAMAGE_NO_LOCATIONAL		0x00000016  // Generic damage (shotguns, grenades, kicks)
+//Elder: Changed from 0x00000016 to 0x00000020
+#define DAMAGE_NO_LOCATIONAL		0x00000020  // Generic damage (shotguns, grenades, kicks)
 
 //
 // g_missile.c
@@ -656,6 +660,8 @@ qboolean CheckGauntletAttack( gentity_t *ent );
 //Elder: for shotgun damage reports
 void RQ3_InitShotgunDamageReport( void );
 void RQ3_ProduceShotgunDamageReport(gentity_t *self);
+qboolean JumpKick( gentity_t *ent );
+qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward );
 extern int tookShellHit[MAX_CLIENTS];
 
 

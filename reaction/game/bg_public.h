@@ -171,7 +171,7 @@
 #define RQ3_AKIMBO_KICK			90
 #define RQ3_KNIFE_KICK			0
 #define RQ3_THROW_KICK			50
-#define RQ3_GRENADE_KICK		0	// Elder: assumed
+#define RQ3_GRENADE_KICK		200	// Elder: assumed
 
 
 //Elder: weaponTime constants (delay in milliseconds)
@@ -200,16 +200,16 @@
 #define RQ3_AKIMBO_RELOAD_DELAY			2500
 
 #define RQ3_M3_RELOAD_DELAY				1100
-#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	700 // Time into reload to enable fast-reloads
+#define RQ3_M3_ALLOW_FAST_RELOAD_DELAY	200 // 700 Time into reload to enable fast-reloads
 #define RQ3_M3_FAST_RELOAD_DELAY		500	// Fast reload time
 //#define RQ3_M3_START_RELOAD_DELAY		300 // Start index point of fast reload
-//#define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
+#define RQ3_M3_FINISH_RELOAD_DELAY		300 // Amount of time after all fast reloads
 
 #define RQ3_SSG3000_RELOAD_DELAY		3100
-#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	2200 // Time into reload to enable fast-reloads
+#define RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY	1400 //2200 Time into reload to enable fast-reloads
 #define RQ3_SSG3000_FAST_RELOAD_DELAY	600 // Fast reload time
 //#define RQ3_SSG3000_START_RELOAD_DELAY	1700	// Start index point of fast reload
-//#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads
+#define RQ3_SSG3000_FINISH_RELOAD_DELAY	800 // Amount of time after all fast reloads
 
 #define RQ3_KNIFE_RELOAD_DELAY			0	// Elder: shouldn't need
 #define RQ3_GRENADE_RELOAD_DELAY		0	// Elder: shouldn't need
@@ -232,7 +232,7 @@
 #define RQ3_M4_SWITCH2_DELAY			500
 #define RQ3_MP5_SWITCH2_DELAY			400
 #define RQ3_HANDCANNON_SWITCH2_DELAY	400
-#define RQ3_SSG3000_SWITCH2_DELAY		900
+#define RQ3_SSG3000_SWITCH2_DELAY		150 //900 For some reason it's auto-used with WEAPON_RAISING
 #define RQ3_AKIMBO_SWITCH2_DELAY		800
 #define RQ3_KNIFE_SWITCH2_DELAY			700
 #define RQ3_THROW_SWITCH2_DELAY			700

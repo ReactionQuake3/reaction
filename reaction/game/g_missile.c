@@ -709,8 +709,9 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	
 	//Elder: grenade toggle distances/speeds
 	if ( self->client) {
-		if (self->client->ps.stats[STAT_HEALTH] <= 0) {
-			//Always drop close range if dead
+		if ( self->client->ps.stats[STAT_HEALTH] <= 0 ||
+			(self->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+			//Always drop close range if dead or about to bandage
 			speed = GRENADE_SHORT_SPEED / 2;
 		}
 		else if ( (self->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&

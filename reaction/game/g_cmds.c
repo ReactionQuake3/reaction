@@ -1638,20 +1638,35 @@ void Cmd_Bandage (gentity_t *ent)
 		 (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
 		//Elder: remove zoom bits
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		Cmd_Unzoom(ent);
+
+		//Elder: added
+        ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
+		
+		//Elder: drop the primed grenade
+		//Moved weapon switch to bg_pmove.c
+		if (ent->client->ps.weapon == WP_GRENADE &&
+			ent->client->ps.weaponstate == WEAPON_COCKED) {
+			FireWeapon(ent);
+			ent->client->ps.ammo[WP_GRENADE]--;
+			//if (ent->client->ps.ammo[WP_GRENADE] == 0)
+			//{
+				//ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+				//ent->client->ps.weapon = WP_PISTOL;
+				//trap_SendServerCommand( ent-g_entities, "selectpistol" );
+			//}
+		}
 
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
         ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
                ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
 
+	
 		ent->client->ps.weaponTime += 6000;
         ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
 
-        //Elder: added
-        ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
 		//Elder: moved to g_active where it will be unset after 2 bleedticks
 		//ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}
@@ -1675,11 +1690,13 @@ void Cmd_Reload( gentity_t *ent )       {
 
 	int weapon;       
     int ammotoadd;
-    int delay;
+    int delay = 0;
 
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
 	//if (ent->client->isBandaging == qtrue) {
 	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		ent->client->fastReloads = 0;
+		ent->client->reloadAttempts = 0;
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
@@ -1692,7 +1709,6 @@ void Cmd_Reload( gentity_t *ent )       {
     //Elder: changed to new function
     ammotoadd = ClipAmountForReload(weapon);
 	   
-	delay = 0;
     /*if (ent->client->ps.ammo[weapon] >= ClipAmountForWeapon(weapon))       
 		{   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
         	return;
@@ -1747,8 +1763,9 @@ void Cmd_Reload( gentity_t *ent )       {
 
 			if (ent->client->ps.ammo[weapon] >= RQ3_M3_AMMO)       
 			{
-				//reset fast reloads
+				//reset fast reloads and attempts
 				ent->client->fastReloads = 0;
+				ent->client->reloadAttempts = 0;
 				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 				return;
 			}
@@ -1765,38 +1782,37 @@ void Cmd_Reload( gentity_t *ent )       {
 					RQ3_M3_RELOAD_DELAY);
 				*/
 				//Have we fast reloaded before?
-				if (ent->client->fastReloads) {
+				if (ent->client->fastReloads)
+				{
 					if (level.time - ent->client->lastReloadTime < RQ3_M3_FAST_RELOAD_DELAY)
 					{
-						//not enough time has passed for a fast reload attempt
-						//so discard the attempt
+						//not enough time has passed for a fast-reload attempt so ignore it
 						//G_Printf("Too soon: Discarded fast-reload attempt\n");
 						return;
 					}
-					else if (level.time - ent->client->lastReloadTime >= RQ3_M3_FAST_RELOAD_DELAY &&
-						level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
+					//else if (level.time - ent->client->lastReloadTime >= RQ3_M3_FAST_RELOAD_DELAY &&
+						//level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)*/
+					else if (level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
 					{
-						//gotcha
+						//Gotcha!
 						ent->client->fastReloads = 1;
 					}
 					else
 					{
-						//Missed the window of opportunity!
-						//Reset fastReloads
+						//Missed the window of opportunity! - Reset fastReloads
 						//G_Printf("Missed Window: disabling fast reloads\n");
 						ent->client->fastReloads = 0;
 					}
 				}
 				//Fast-reload virgin
 				else if (level.time - ent->client->lastReloadTime >= RQ3_M3_ALLOW_FAST_RELOAD_DELAY &&
-					level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
-					{
-						ent->client->fastReloads = 1;
-					}
+						 level.time - ent->client->lastReloadTime <= RQ3_M3_RELOAD_DELAY)
+				{
+					ent->client->fastReloads = 1;
+				}
 				else
 				{
-					//not enough time has passed for a fast reload attempt
-					//so discard the attempt
+					//not enough time has passed for a fast-reload attempt so ignore it
 					//G_Printf("Too soon: Discarded fast-reload attempt\n");
 					return;
 				}
@@ -1817,7 +1833,14 @@ void Cmd_Reload( gentity_t *ent )       {
 				ent->client->fastReloads = 0;
 			}
 
+			//Elder: finished a full reload cycle - mark the time and discard the attempt
 			ent->client->lastReloadTime = level.time;
+			ent->client->reloadAttempts--;
+
+			//Finish off if no more reload attempts
+			if (ent->client->reloadAttempts < 1 && ent->client->fastReloads)
+				delay += RQ3_M3_FINISH_RELOAD_DELAY;
+
 			break;
 		case WP_HANDCANNON:
 			delay = RQ3_HANDCANNON_RELOAD_DELAY;
@@ -1835,8 +1858,9 @@ void Cmd_Reload( gentity_t *ent )       {
 
 			if (ent->client->ps.ammo[weapon] >= RQ3_SSG3000_AMMO)       
 			{
-				//reset fast reloads
+				//reset fast reloads and attempts
 				ent->client->fastReloads = 0;
+				ent->client->reloadAttempts = 0;
 				trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
 				return;
 			}
@@ -1853,38 +1877,37 @@ void Cmd_Reload( gentity_t *ent )       {
 					RQ3_SSG3000_RELOAD_DELAY);
 				*/
 				//Have we fast reloaded before?
-				if (ent->client->fastReloads) {
+				if (ent->client->fastReloads)
+				{
 					if (level.time - ent->client->lastReloadTime < RQ3_SSG3000_FAST_RELOAD_DELAY)
 					{
-						//not enough time has passed for a fast reload attempt
-						//so discard the attempt
+						//not enough time has passed for a fast-reload attempt so ignore it
 						//G_Printf("Too soon: Discarded fast-reload attempt\n");
 						return;
 					}
-					else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_FAST_RELOAD_DELAY &&
-						level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
+					//else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_FAST_RELOAD_DELAY &&
+						//level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)*/
+					else if (level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
 					{
-						//gotcha
+						//Gotcha!
 						ent->client->fastReloads = 1;
 					}
 					else
 					{
-						//Missed the window of opportunity!
-						//Reset fastReloads
+						//Missed the window of opportunity! - Reset fastReloads
 						//G_Printf("Missed Window: disabling fast reloads\n");
 						ent->client->fastReloads = 0;
 					}
 				}
 				//Fast-reload virgin
 				else if (level.time - ent->client->lastReloadTime >= RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY &&
-					level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
-					{
-						ent->client->fastReloads = 1;
-					}
+						 level.time - ent->client->lastReloadTime <= RQ3_SSG3000_RELOAD_DELAY)
+				{
+					ent->client->fastReloads = 1;
+				}
 				else
 				{
-					//not enough time has passed for a fast reload attempt
-					//so discard the attempt
+					//not enough time has passed for a fast-reload attempt so ignore it
 					//G_Printf("Too soon: Discarded fast-reload attempt\n");
 					return;
 				}
@@ -1904,7 +1927,14 @@ void Cmd_Reload( gentity_t *ent )       {
 				ent->client->fastReloads = 0;
 			}
 
+			//Elder: finished a full reload cycle - mark the time and discard the attempt
 			ent->client->lastReloadTime = level.time;
+			ent->client->reloadAttempts--;
+
+			//Finish off if no more reload attempts
+			if (ent->client->reloadAttempts < 1 && ent->client->fastReloads)
+				delay += RQ3_SSG3000_FINISH_RELOAD_DELAY;
+
 			break;
 		case WP_AKIMBO:
 	   		delay = RQ3_AKIMBO_RELOAD_DELAY;
@@ -1935,11 +1965,13 @@ void Cmd_Reload( gentity_t *ent )       {
 
 	//Elder: added handcannon and akimbo conditional
 	if (ent->client->numClips[weapon] == 0) {
+		ent->client->fastReloads = 0;
+		ent->client->reloadAttempts = 0;
 		trap_SendServerCommand( ent-g_entities, va("print \"Out of ammo\n\""));
 		return;
 	}
 	else if ( (weapon == WP_HANDCANNON || weapon == WP_AKIMBO) && ent->client->numClips[weapon] < 2 ) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Not enough of ammo\n\""));
+		trap_SendServerCommand( ent-g_entities, va("print \"Not enough ammo\n\""));
 		return;
 	}
 
@@ -1948,8 +1980,8 @@ void Cmd_Reload( gentity_t *ent )       {
 	if (RQ3_isZoomed(ent) && weapon == WP_SSG3000) {
 		RQ3_SaveZoomLevel(ent);
 		//Elder: remove zoom bits
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
-		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		//ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 	}
 
 	//ent->client->ps.weaponstate = WEAPON_RELOADING;
@@ -2200,20 +2232,19 @@ void Cmd_Weapon(gentity_t *ent)
 		{//Going into Short
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENMED; //unset the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
-			
+			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for short range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT)
 		{//Going into Med
 			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_GRENSHORT; //unset the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
+			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for medium range throw.\n\""));
 		}
 		else if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED)
 		{//Going into Long
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENSHORT; //Set the short flag
 			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_GRENMED; //Set the med flag
-			trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
+			//trap_SendServerCommand( ent-g_entities, va("print \"Grenade set for long range throw.\n\""));
 		}
 		//Elder: added
 		else {
@@ -2235,20 +2266,21 @@ void Cmd_Weapon(gentity_t *ent)
 
 
 // Hawkins make sure spread comes back
-void Cmd_Unzoom(gentity_t *ent){
+void Cmd_Unzoom(gentity_t *ent)
+{
 	//G_Printf("Got to Cmd_Unzoom\n");
 	//Elder: added
     //if (ent->client->isBandaging == qtrue) {
-	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	//if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		//trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
-		return;
-	}
-	else {
+		//return;
+	//}
+	//else {
 		//Elder: remove zoom bits
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//ent->client->zoomed = 0;
-	}
+	//}
 }
 
 
@@ -2267,6 +2299,7 @@ void Cmd_Drop_f( gentity_t *ent ) {
 	}
 	else {
 		//Elder: remove zoom bits
+		Cmd_Unzoom(ent);
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
 		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//ent->client->zoomed=0;
@@ -2384,7 +2417,12 @@ void ClientCommand( int clientNum ) {
 		Cmd_Stats_f( ent );
 // Begin Duffman
 	else if (Q_stricmp (cmd, "reload") == 0)
+	{
+		//Elder: add to reload queue if using fast-reloadable weapons
+		if (ent->client->ps.weapon == WP_M3 || ent->client->ps.weapon == WP_SSG3000)
+			ent->client->reloadAttempts++;
         Cmd_Reload( ent );
+	}
 // End Duffman
 	//Blaze's Open door command
 	else if (Q_stricmp (cmd, "opendoor") == 0)

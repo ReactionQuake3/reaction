@@ -1105,10 +1105,10 @@ Check for hard landings that generate sound events
 */
 static void PM_CrashLand( void ) {
 	float		delta;
-	float		dist;
-	float		vel, acc;
-	float		t;
-	float		a, b, c, den;
+	//float		dist;
+	//float		vel, acc;
+	//float		t;
+	//float		a, b, c, den;
 	int			damage;
 
 	// decide which landing animation to use
@@ -1189,6 +1189,18 @@ static void PM_CrashLand( void ) {
 				pm->ps->stats[STAT_FALLDAMAGE] = 0;
 			}
 		}
+	}
+	else if (delta > 20)
+	{
+		PM_AddEvent( EV_FALL_SHORT );
+		//Elder: added? useful? 
+		pm->ps->stats[STAT_FALLDAMAGE] = 0;
+	}
+	else 
+	{
+		PM_AddEvent( PM_FootstepForSurface() );
+		//Elder: added? useful? 
+		pm->ps->stats[STAT_FALLDAMAGE] = 0;
 	}
 
 	// start footstep cycle over
@@ -1738,6 +1750,13 @@ static void PM_FinishWeaponChange( void ) {
 		weapon = WP_NONE;
 	}
 
+	//Remove grenade if out of ammo
+	if (weapon == WP_GRENADE && pm->ps->ammo[WP_GRENADE] == 0)
+	{
+		pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_GRENADE);
+		weapon = WP_PISTOL;
+	}
+
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
 	//pm->ps->weaponTime += 250;
@@ -1872,6 +1891,22 @@ static void PM_Weapon( void ) {
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}
 	}
+
+	//Elder: drop the primed grenade if bandaging
+	/*
+	if ( pm->ps->weapon == WP_GRENADE &&
+		 pm->ps->ammo[WP_GRENADE] > 0 &&
+		//
+		//pm->ps->weaponstate == WEAPON_DROPPING &&
+		(pm->cmd.buttons & 1) &&
+		(pm->ps->stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	{
+		PM_AddEvent( EV_FIRE_WEAPON );
+		pm->ps->ammo[WP_GRENADE]--;
+		if (pm->ps->ammo[WP_GRENADE] == 0)
+			pm->ps->stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE);
+	}*/
+		 
 
 	if ( pm->ps->weaponTime > 0 ) {
 		return;
@@ -2263,8 +2298,9 @@ static void PM_LadderMove( void ) {
 		for (i=0 ; i<3 ; i++)
 			wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove +
 				     scale * pml.right[i]*pm->cmd.rightmove; 
-		wishvel[0] /= 2;
-		wishvel[1] /= 2;
+		//Elder: changed from a factor of 2 to 10
+		wishvel[0] /= 10;
+		wishvel[1] /= 10;
 		wishvel[2] += scale * pm->cmd.upmove;
 	}
 

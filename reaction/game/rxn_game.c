@@ -19,6 +19,7 @@ void CheckBleeding(gentity_t *targ)
 	
 	if (targ->client->bleed_remain >= BLEED_TIME)
 	{
+		//G_Printf("Bleed Remain: %i\n", targ->client->bleed_remain);
 		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK &&
 			 targ->client->bleedBandageCount < 1)
 		{
@@ -32,7 +33,9 @@ void CheckBleeding(gentity_t *targ)
 		//Elder: hack to count off health so we only lose 6 health on a bandage
 		if ( (targ->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
 		{
-			targ->client->bleedBandageCount--;
+			//Start hack enforcement once we've ramped down to 1 health/second
+			if (targ->client->bleed_remain <= 10)
+				targ->client->bleedBandageCount--;
 		}
 
 		if (targ->health <= 0)
