@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.184  2003/03/30 00:36:03  jbravo
+// Grenadebug when dropping bandolier
+//
 // Revision 1.183  2003/03/29 18:53:41  jbravo
 // Fixed ammo bug when dropping bandolier. Added color to more errormessages
 //
@@ -2689,7 +2692,7 @@ void Cmd_DropItem_f(gentity_t * ent)
 			}
 			if (ent->client->numClips[WP_AKIMBO] > RQ3_AKIMBO_EXTRA_AMMO)
 				ent->client->numClips[WP_AKIMBO] = RQ3_AKIMBO_EXTRA_AMMO;
-			if (ent->client->ps.ammo[WP_GRENADE] > 0)
+			if (ent->client->ps.ammo[WP_GRENADE] > 2)
 				ent->client->ps.ammo[WP_GRENADE] = 2;
 			if (ent->client->numClips[WP_PISTOL] > 1)
 				ent->client->numClips[WP_PISTOL] = 1;
