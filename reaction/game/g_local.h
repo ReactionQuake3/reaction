@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.35  2002/01/14 01:20:45  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -126,6 +129,13 @@ struct gentity_s {
 
 	qboolean	neverFree;			// if true, FreeEntity will only unlink
 									// bodyque uses this
+// JBravo: adding func_explosive
+	int	damage_radius;
+	int	mass;
+	int	tension;
+	int	bounce;
+	int	material;
+	int	size;
 
 	int			flags;				// FL_* variables
 

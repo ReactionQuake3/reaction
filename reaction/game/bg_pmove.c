@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.55  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.54  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -1221,9 +1224,10 @@ static int PM_FootstepForSurface( void ) {
 		return EV_FOOTSTEP_GRASS;
 	}
 
-	//if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
-		//return EV_FOOTSTEP_GRAVEL;
-	//}
+// JBravo: re-enables Gravel.
+	if ( pml.groundTrace.surfaceFlags & SURF_GRAVEL ) {
+		return EV_FOOTSTEP_GRAVEL;
+	}
 
 	if ( pml.groundTrace.surfaceFlags & SURF_WOOD ) {
 		return EV_FOOTSTEP_WOOD;
@@ -1236,6 +1240,24 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_METAL2 ) {
 		return EV_FOOTSTEP_METAL2;
 	}
+
+// JBravo: Begin adding new sounds
+	if ( pml.groundTrace.surfaceFlags & SURF_SNOW ) {
+		return EV_FOOTSTEP_SNOW;
+	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_MUD ) {
+		return EV_FOOTSTEP_MUD;
+	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_WOOD2 ) {
+		return EV_FOOTSTEP_WOOD2;
+	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_HARDMETAL ) {
+		return EV_FOOTSTEP_HARDMETAL;
+	}
+// JBravo: end adding new sounds
 
 	return EV_FOOTSTEP;
 }

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.44  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.43  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -818,10 +821,17 @@ typedef enum {
 	EV_FOOTSTEP_WOOD,
 	EV_FOOTSTEP_CARPET,
 	EV_FOOTSTEP_METAL2,
-	//EV_FOOTSTEP_GRAVEL,
+	EV_FOOTSTEP_GRAVEL,
+	EV_FOOTSTEP_SNOW,	// JBravo: new surfaces
+	EV_FOOTSTEP_MUD,
+	EV_FOOTSTEP_WOOD2,
+	EV_FOOTSTEP_HARDMETAL,
 	EV_FOOTSPLASH,
 	EV_FOOTWADE,
 	EV_SWIM,
+
+// JBravo: for func_explosive
+	EV_GIB_GLASS,
 
 	EV_STEP_4,
 	EV_STEP_8,

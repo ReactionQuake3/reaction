@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.35  2002/01/11 20:20:57  jbravo
 // Adding TP to main branch
 //
@@ -793,7 +796,7 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
 
 		//Elder: new footsteps
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/grass%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_GRASS][i] = trap_S_RegisterSound (name, qfalse);
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/wood%i.wav", i+1);
@@ -805,8 +808,20 @@ static void CG_RegisterSounds( void ) {
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/metal%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_METAL2][i] = trap_S_RegisterSound (name, qfalse);
 
-		//Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
-		//cgs.media.footsteps[FOOTSTEP_GRAVEL][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/gravel%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_GRAVEL][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/snow%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_SNOW][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mud%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_MUD][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/hollowwood%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_WOOD2][i] = trap_S_RegisterSound (name, qfalse);
+
+		Com_sprintf (name, sizeof(name), "sound/player/footsteps/hardmetal%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_HARDMETAL][i] = trap_S_RegisterSound (name, qfalse);
 	}
 
 	// only register the items that the server says we need

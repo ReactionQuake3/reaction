@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.19  2002/01/14 01:20:44  niceass
 // No more default 800 gravity on items
 // Thrown knife+Glass fix - NiceAss
@@ -2241,4 +2244,72 @@ void SP_func_pendulum(gentity_t *ent) {
 	ent->s.apos.trTime = ent->s.apos.trDuration * phase;
 	ent->s.apos.trType = TR_SINE;
 	ent->s.apos.trDelta[2] = speed;
+}
+
+// JBravo: adding for func_explosive
+void func_explosive_explode( gentity_t *self , vec3_t pos ) {
+	int eParam;
+//	GibEntity( self, 0 );
+	eParam = self->mass;
+	G_AddEvent(self, EV_GIB_GLASS, eParam);
+
+//	G_Printf("Explode_explode\n" );
+	self->takedamage = qfalse;
+	self->s.eType = ET_INVISIBLE;
+	self->r.contents = 0;
+	self->s.solid = 0;
+}
+
+// JBravo: adding for func_explosive
+void func_explosive_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
+{
+	G_RadiusDamage(self->s.origin,attacker,self->damage,self->damage_radius,self,0);
+
+//	G_Printf("%s: explode @ %s\n", self->classname , vtos(self->s.origin) );
+	G_ExplodeMissile(self);
+//	radius damage
+	func_explosive_explode( self , self->s.origin );
+}
+
+// JBravo: adding for func_explosive
+void SP_func_explosive (gentity_t *ent)
+{
+	G_SpawnInt( "material", "1", &ent->material );
+	G_SpawnInt( "tension", "100", &ent->tension );
+	G_SpawnInt( "bounce", "5", &ent->bounce );
+	G_SpawnInt( "health", "100", &ent->health );
+	G_SpawnInt( "size", "10", &ent->size );
+	G_SpawnInt( "mass", "100", &ent->mass );
+
+	ent->takedamage = qtrue;
+	ent->die = func_explosive_die;
+	if (!ent->health) {
+		ent->health = 2;
+	}
+
+	if (!ent->damage) {
+		ent->damage = 2;
+	}
+	VectorCopy( ent->s.origin, ent->pos1 );
+
+	trap_SetBrushModel( ent, ent->model );
+	InitMover( ent );
+
+//	VectorSubtract( ent->r.maxs, ent->r.mins, ent->s.origin );
+	VectorCopy( ent->s.pos.trBase, ent->s.origin );
+/*	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+	VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );		*/
+	ent->s.origin[0] = ent->r.mins[0] + (0.5 * (ent->r.maxs[0] - ent->r.mins[0]));
+	ent->s.origin[1] = ent->r.mins[1] + (0.5 * (ent->r.maxs[1] - ent->r.mins[1]));
+	ent->s.origin[2] = ent->r.mins[2] + (0.5 * (ent->r.maxs[2] - ent->r.mins[2]));
+
+	ent->s.powerups = ((ent->material << 12) & 0xF000) +
+			((ent->tension << 8) & 0x0F00) +
+			((ent->bounce << 4) & 0x00F0) +
+			((ent->size) & 0x000F);
+
+	trap_LinkEntity( ent );
+	G_Printf("at : %s %s\n", vtos(ent->r.currentAngles), vtos(ent->r.currentOrigin ) );
 }

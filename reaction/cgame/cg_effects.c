@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.18  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -1074,4 +1077,99 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
       		break;
       	}
   	}
+}
+
+// JBravo: For func_explosive
+void CG_LaunchBreakableFrag( vec3_t origin, vec3_t velocity, qhandle_t hModel, float bouncyness, float size ) {
+	localEntity_t	*le;
+	refEntity_t	*re;
+
+	le = CG_AllocLocalEntity();
+	re = &le->refEntity;
+
+	le->leType = LE_FRAGMENT;
+	le->startTime = cg.time - (rand() & 63);
+	le->endTime = le->startTime + 5000 + random() * 3000;
+
+	VectorCopy( origin, re->origin );
+	AxisCopy( axisDefault, re->axis );
+	re->hModel = hModel;
+//	re->customShader = hShader;
+
+	le->pos.trType = TR_GRAVITY;
+	VectorCopy( origin, le->pos.trBase );
+	VectorCopy( velocity, le->pos.trDelta );
+	le->pos.trTime = cg.time;
+
+	le->size = size;
+	VectorScale(re->axis[0], size, re->axis[0]);
+	VectorScale(re->axis[1], size, re->axis[1]);
+	VectorScale(re->axis[2], size, re->axis[2]);
+	re->nonNormalizedAxes = qtrue;
+
+	le->angles.trType = TR_LINEAR;
+	le->angles.trTime = cg.time;
+	le->angles.trBase[0] = rand()&63;
+	le->angles.trBase[1] = rand()&63;
+	le->angles.trBase[2] = rand()&63;
+	le->angles.trDelta[0] = rand()&127;
+	le->angles.trDelta[1] = rand()&127;
+	le->angles.trDelta[2] = rand()&127;
+	le->leFlags = LEF_TUMBLE;
+
+	le->bounceFactor = bouncyness;
+
+	le->leBounceSoundType = LEBS_NONE;
+	le->leMarkType = LEMT_NONE;
+}
+
+// JBravo: also for func_explosive
+/*
+===================
+CG_BreakBreakable
+
+Generated a bunch of gibs launching out from the breakables location
+===================
+*/
+#define BREAK_VELOCITY  550
+#define BREAK_JUMP              150
+
+void CG_BreakBreakable( centity_t *cent, int eParam ) {
+	vec3_t		origin, velocity;
+	qhandle_t	model;
+	sfxHandle_t	sound;
+	int		i, mass, material;
+	float		tension, bouncyness, size;
+	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
+
+	// allow gibs to be turned off for speed
+	if ( !cg_gibs.integer ) {
+		return;
+	}
+	mass = ((eParam >> 4) & 0x0F) + 1;
+	tension = 0.25 * (((eParam >> 2) & 0x03) + 1);
+	bouncyness = 0.25 * (((eParam) & 0x3) + 1);
+
+	mass = eParam;
+	material = (cent->currentState.powerups >> 12) & 0x000F;
+	tension = 0.0667 * (float)((cent->currentState.powerups >> 8) & 0x000F);
+	bouncyness = 0.0667 * (float)((cent->currentState.powerups >> 4) & 0x000F);
+	size = 0.1333 * (float)((cent->currentState.powerups) & 0x000F);
+
+	if (mass == 0) mass = 1;
+	if (size <= 0) size = 1;
+	if (material) material--;
+
+	VectorCopy( cent->currentState.origin, origin );
+
+	sound = cgs.media.breakable_snd[material];
+	trap_S_StartSound( origin, cent->currentState.number, CHAN_BODY, sound );
+
+	for (i = 0; i < mass; i++) {
+		velocity[0] = (crandom() * BREAK_VELOCITY) * tension;
+		velocity[1] = (crandom() * BREAK_VELOCITY) * tension;
+		velocity[2] = ( random() * BREAK_JUMP)     * tension;
+		model = cgs.media.breakable_frag[material][(int)(2.0 * random())];
+		CG_LaunchBreakableFrag( origin, velocity, model, bouncyness, size );
+	}
 }

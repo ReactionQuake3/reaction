@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.40  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -135,11 +138,17 @@ typedef enum {
 	FOOTSTEP_METAL,
 	FOOTSTEP_SPLASH,
 	// Elder: new surface sounds
-	FOOTSTEP_GRASS,
+	FOOTSTEP_GRAVEL,
 	FOOTSTEP_WOOD,
 	FOOTSTEP_CARPET,
 	FOOTSTEP_METAL2,
-	//FOOTSTEP_GRAVEL,
+	FOOTSTEP_GLASS,
+	FOOTSTEP_GRASS,
+	// JBravo: new surface sounds
+	FOOTSTEP_SNOW,
+	FOOTSTEP_MUD,
+	FOOTSTEP_WOOD2,
+	FOOTSTEP_HARDMETAL,
 
 	FOOTSTEP_TOTAL
 } footstep_t;
@@ -330,6 +339,8 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;
+// JBravo: for func_explosive
+	float			size;
 } localEntity_t;
 
 //======================================================================
@@ -845,6 +856,10 @@ typedef struct {
 	qhandle_t	akimboFlashModel;
 	qhandle_t	akimbo1stModel;
 	qhandle_t	akimboHandModel;
+
+// JBravo: func_brakable stuff
+	qhandle_t	breakable_frag[15][3];
+	sfxHandle_t	breakable_snd[15];
 
 	qhandle_t	smoke2;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.27  2002/01/14 07:31:33  jbravo
 // Added a small workaround for the HoldableItem not found crash during
 // mapchanges.
@@ -1283,10 +1286,16 @@ char *eventnames[] = {
 
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",
-	"EV_FOOTSTEP_GRASS",		// Elder: grass stuff
+	"EV_FOOTSTEP_GRAVEL",
 	"EV_FOOTSTEP_WOOD",
 	"EV_FOOTSTEP_CARPET",
 	"EV_FOOTSTEP_METAL2",
+	"EV_FOOTSTEP_GLASS",
+	"EV_FOOTSTEP_GRASS",
+	"EV_FOOTSTEP_SNOW",	// JBravo: adding new sounds
+	"EV_FOOTSTEP_MUD",
+	"EV_FOOTSTEP_WOOD2",
+	"EV_FOOTSTEP_HARDMETAL",
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
 	"EV_SWIM",

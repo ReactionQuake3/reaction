@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.8  2002/01/11 20:20:58  jbravo
 // Adding TP to main branch
 //
@@ -194,6 +197,8 @@ void SP_team_redobelisk( gentity_t *ent );
 void SP_team_neutralobelisk( gentity_t *ent );
 #endif
 void SP_item_botroam( gentity_t *ent ) {};
+// JBravo: adding explosive
+void SP_func_explosive (gentity_t *self);
 
 spawn_t	spawns[] = {
 	// info entities don't do anything at all, but provide positional
@@ -269,6 +274,7 @@ spawn_t	spawns[] = {
 	{"team_blueobelisk", SP_team_blueobelisk},
 	{"team_neutralobelisk", SP_team_neutralobelisk},
 #endif
+	{"func_explosive", SP_func_explosive},	// JBravo: for explosive.
 	{"item_botroam", SP_item_botroam},
 
 	{0, 0}

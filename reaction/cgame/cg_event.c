@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/01/24 14:20:53  jbravo
+// Adding func_explosive and a few new surfaceparms
+//
 // Revision 1.34  2002/01/14 01:19:23  niceass
 // No more default 800 gravity on items - NiceAss
 //
@@ -1502,7 +1505,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_GRASS ][rand()&3] );
 		}
 		break;
-	/*
+
 	case EV_FOOTSTEP_GRAVEL:
 		DEBUGNAME("EV_FOOTSTEP_GRAVEL");
 		if (cg_footsteps.integer) {
@@ -1510,7 +1513,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_GRAVEL ][rand()&3] );
 		}
 		break;
-	*/
+
 	case EV_FOOTSTEP_WOOD:
 		DEBUGNAME("EV_FOOTSTEP_WOOD");
 		if (cg_footsteps.integer) {
@@ -1525,6 +1528,36 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				cgs.media.footsteps[ FOOTSTEP_CARPET ][rand()&3] );
 		}
 		break;
+// JBravo: begin new sounds
+	case EV_FOOTSTEP_SNOW:
+		DEBUGNAME("EV_FOOTSTEP_SNOW");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_SNOW ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_MUD:
+		DEBUGNAME("EV_FOOTSTEP_MUD");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_MUD ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_WOOD2:
+		DEBUGNAME("EV_FOOTSTEP_WOOD2");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_WOOD2 ][rand()&3] );
+		}
+		break;
+	case EV_FOOTSTEP_HARDMETAL:
+		DEBUGNAME("EV_FOOTSTEP_HARDMETAL");
+		if (cg_footsteps.integer) {
+			trap_S_StartSound (NULL, es->number, CHAN_BODY,
+				cgs.media.footsteps[ FOOTSTEP_HARDMETAL ][rand()&3] );
+		}
+		break;
+// JBravo: end new sounds
 	case EV_FOOTSTEP_METAL2:
 		DEBUGNAME("EV_FOOTSTEP_METAL2");
 		if (cg_footsteps.integer) {
@@ -2449,6 +2482,13 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEBUG_LINE:
 		DEBUGNAME("EV_DEBUG_LINE");
 		CG_Beam( cent );
+		break;
+
+// JBravo: adding func_explosive
+	case EV_GIB_GLASS:
+		DEBUGNAME("EV_GIB_GLASS");
+		//trap_S_StartSound( NULL, es->number, CHAN_BODY, cgs.media.gibSound );
+		CG_BreakBreakable( cent, es->eventParm );
 		break;
 
 	default:
