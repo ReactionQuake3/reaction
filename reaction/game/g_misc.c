@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/08/21 02:56:08  blaze
+// added spawnflags 8 for breakables, lets mappers turn off kicking
+//
 // Revision 1.59  2002/07/13 22:43:59  makro
 // Semi-working fog hull, semi-working sky portals (cgame code commented out)
 // Basically, semi-working stuff :P
@@ -751,6 +754,12 @@ void SP_func_breakable(gentity_t * ent)
 		ent->explosive = qfalse;
 	}
 
+	if (ent->spawnflags & 8) {
+		ent->unkickable = qtrue;
+	} else {
+		ent->unkickable = qfalse;
+	}
+	
 	if (!ent->damage_radius) {
 		ent->damage_radius = GRENADE_SPLASH_RADIUS;
 	}

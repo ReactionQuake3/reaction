@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.114  2002/08/21 02:56:08  blaze
+// added spawnflags 8 for breakables, lets mappers turn off kicking
+//
 // Revision 1.113  2002/08/13 16:59:16  makro
 // Fixed per-client callvote limit; added a new cvar - g_RQ3_maxClientVotes
 //
@@ -421,6 +424,8 @@ struct gentity_s {
 	qboolean explosive;
 	//True if it's already been exploded
 	qboolean exploded;
+	//Bkaze: allow some entities to be shootable, but not kickable.
+	qboolean unkickable;
 
 	qboolean takedamage;
 	int damage;

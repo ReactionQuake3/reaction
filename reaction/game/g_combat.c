@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.117  2002/08/21 02:56:08  blaze
+// added spawnflags 8 for breakables, lets mappers turn off kicking
+//
 // Revision 1.116  2002/08/18 20:26:35  jbravo
 // New hitboxes.  Fixed CTB awards (flags)
 //
@@ -1807,6 +1810,10 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		return;
 	}
 
+	if (targ->s.eType == ET_BREAKABLE && targ->unkickable == qtrue){
+		return;
+	}
+		
 	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
 		return;		// JBravo: No dmg during LCA
 	}
