@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/06/21 16:54:15  makro
+// Crash bug fix
+//
 // Revision 1.100  2002/06/21 15:04:55  makro
 // Health functionality for movers should be complete now
 //
@@ -2250,8 +2253,11 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += 100;
 			else
 				attacker->client->ps.persistant[PERS_DAMAGE_DELT] += take;
+			//Makro - crash bug fix
+			if (targ && targ->client) {
 				Com_sprintf(attacker->client->last_damaged_players, sizeof(attacker->client->last_damaged_players),
 						"%s^7", targ->client->pers.netname);
+			}
 		}
 		if (instant_dam) {
 			// G_Printf("(%d) instant damage\n",take);
