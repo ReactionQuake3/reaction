@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.56  2002/07/09 05:44:08  niceass
+// ctb fixes
+//
 // Revision 1.55  2002/07/03 02:40:14  niceass
 // fix cg_drawping problem
 //
@@ -146,6 +149,9 @@ int numSortedTeamPlayers;
 char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
+
+
+
 
 /*
 ==============
@@ -330,7 +336,8 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 		len = 0.5 * (maxs[2] - mins[2]);
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
 
-		angles[YAW] = 60 * sin(cg.time / 2000.0);;
+//		angles[YAW] = 60 * sin(cg.time / 2000.0);
+		angles[YAW] = cg.time / 8.0f;
 
 		if (team == TEAM_RED) {
 			handle = cgs.media.redFlagModel;
@@ -601,14 +608,20 @@ static float CG_DrawScore(float y)
 	char *s;
 	int w, x = 0;
 	float BColor[4], FColor[4];
+	int	team;
 
 	y += 4;
+
+	if (cgs.gametype == GT_TEAMPLAY)
+		team = cg.snap->ps.persistant[PERS_SAVEDTEAM];
+	else
+		team = cg.snap->ps.persistant[PERS_TEAM];
 
 	MAKERGBA(FColor, 0.0f, 0.0f, 0.0f, 1.0f);
 
 	if (cgs.gametype >= GT_TEAM) {
 		// The other team:
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+		if (team == TEAM_RED) {
 			s = va("%i", cgs.scores2);							// Blue
 			MAKERGBA(BColor, 0.0f, 0.0f, 1.0f, 0.4f);
 		}
@@ -625,7 +638,7 @@ static float CG_DrawScore(float y)
 		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
 	
 		// Your team:
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
+		if (team == TEAM_RED) {
 			s = va("%i", cgs.scores1);							// Red
 			MAKERGBA(BColor, 1.0f, 0.0f, 0.0f, 0.4f);
 		}
@@ -647,7 +660,7 @@ static float CG_DrawScore(float y)
 
 	if (cgs.gametype >= GT_TEAM) {
 		x += w + 5;
-		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_SPECTATOR)
+		if (team == TEAM_SPECTATOR)
 			x += 4;
 	}
 	else
@@ -1890,7 +1903,7 @@ static void CG_DrawSpectator(void)
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	if (cgs.gametype >= GT_TEAM) {
+	if (cgs.gametype == GT_TEAMPLAY) {
 		if (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED) {
 			MAKERGBA(Color, 0.7f, 0.0f, 0.0f, 0.3f);
 		}
