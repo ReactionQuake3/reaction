@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2003/01/11 17:42:18  makro
+// Fixed a bug in the sky portal code
+//
 // Revision 1.62  2002/08/30 00:00:16  makro
 // Sky portals
 //
@@ -492,16 +495,15 @@ void SP_misc_sky_portal(gentity_t * ent)
 	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 
 	ent->r.svFlags |= SVF_PORTAL;
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	trap_LinkEntity(ent);
 
 	if (!info[0]) {
 		gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
 	
 		//G_Printf("^1 SKY PORTAL !!!\n");
 		
-		VectorClear(ent->r.mins);
-		VectorClear(ent->r.maxs);
-		trap_LinkEntity(ent);
-
 		if (skyportal) {
 			memset(info, 0, sizeof(info));
 			Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
@@ -515,7 +517,7 @@ void SP_misc_sky_portal(gentity_t * ent)
 			//ent->s.eType = ET_PORTAL;
 			//ent->r.svFlags |= SVF_BROADCAST;
 		} else {
-			G_Printf("misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
+			G_Printf(S_COLOR_YELLOW "WARNING: misc_sky_portal entity with bad target at %s\n", vtos(ent->s.origin));
 			trap_SetConfigstring(CS_SKYPORTAL, "");
 			G_FreeEntity(ent);
 		}
