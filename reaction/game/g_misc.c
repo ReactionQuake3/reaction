@@ -324,7 +324,8 @@ Fires at either the target or the current direction.
    2 - metal
    3 - ceramics
    4 - paper
-   5 - pop cans
+   5 - brick
+   6 - concrete
  "amount" overrides the default quantity
    0 - small: about 10 pieces
    1 - medium: about 25 pieces
@@ -347,7 +348,7 @@ void SP_func_breakable( gentity_t *ent ) {
 	G_SpawnInt( "debris", "0", &temp );
 	
 	//Elder: hardcoded - I guess I should enum this
-	if (temp < 0 || temp > 3)
+	if (temp < 0 || temp > 6)
 		debris = RQ3_DEBRIS_GLASS;
 	else
 		debris = (1 << (temp + 4));
@@ -360,8 +361,9 @@ void SP_func_breakable( gentity_t *ent ) {
 
 	//Elder: merge the bits
 	ent->s.eventParm = 0;
-	ent->s.eventParm |= debris;
-	ent->s.eventParm |= amount;
+	//ent->s.eventParm |= debris;
+	//ent->s.eventParm |= amount;
+	ent->s.eventParm = debris + amount;
    
     ent->health = health;
     // Let it take damage
@@ -396,7 +398,7 @@ void G_BreakGlass(gentity_t *ent, vec3_t point, int mod) {
  	if( ent->health <= 0 ) {
  		//Elder: using event param to specify debris type
 		eParm = ent->s.eventParm;
-		//G_Printf("eParm: %d, original: %d\n", eParm, ent->s.eventParm);
+		G_Printf("eParm: %d\n", eParm);
 		//Elder: free it after the eventParm assignment
  		G_FreeEntity( ent );
          // Tell the program based on the gun if it has no splash dmg, no reason to ad ones with

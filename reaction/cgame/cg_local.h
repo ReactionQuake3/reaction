@@ -701,6 +701,12 @@ typedef struct {
   	qhandle_t	paper01;
   	qhandle_t	paper02;
   	qhandle_t	paper03;
+  	qhandle_t	brick01;
+  	qhandle_t	brick02;
+  	qhandle_t	brick03;
+	qhandle_t	concrete01;
+  	qhandle_t	concrete02;
+  	qhandle_t	concrete03;
 	//Elder: akimbo stuff - since it's valid every game
 	qhandle_t	akimboModel;
 	qhandle_t	akimboFlashModel;

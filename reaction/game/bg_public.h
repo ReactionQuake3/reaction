@@ -45,7 +45,9 @@
 #define RQ3_DEBRIS_METAL	0x00000040
 #define RQ3_DEBRIS_CERAMIC	0x00000080
 #define RQ3_DEBRIS_PAPER	0x00000100
-#define RQ3_DEBRIS_POPCAN	0x00000200
+#define RQ3_DEBRIS_BRICK	0x00000200
+#define RQ3_DEBRIS_CONCRETE	0x00000400
+//#define RQ3_DEBRIS_POPCAN	0x00000800
 
 //Elder: to stop some of the hardcoding
 //This is some ammo amounts per clip/item pick up
@@ -121,6 +123,27 @@
 #define RQ3_SOUND_KNIFEDEATH	2
 #define RQ3_SOUND_LCA			3 //lights, camera, action!
 
+//Elder: Weapon damage and spread stats
+#define PISTOL_DAMAGE 			90
+#define MP5_DAMAGE 				55
+#define M4_DAMAGE 				90
+#define M3_DAMAGE 				17
+//Elder: wrong name
+//#define SHOTGUN_DAMAGE 			17
+#define HANDCANNON_DAMAGE 		20
+#define SNIPER_DAMAGE 			250
+#define AKIMBO_DAMAGE 			90
+#define SLASH_DAMAGE 			200	//Shashing knife damage
+#define THROW_DAMAGE 			250	//Throwing Knife damage
+
+#define PISTOL_SPREAD 			140
+#define MP5_SPREAD 				250
+#define M4_SPREAD 				300
+#define SNIPER_SPREAD 			425
+#define AKIMBO_SPREAD     		300
+
+//Elder: special flag needed in both games
+#define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
 
 
 //

@@ -6,24 +6,7 @@
 #include "g_local.h"
 
 //Blaze: reaction weapon damage ratings & weapon spreads
-//Elder: moved to the top
-#define PISTOL_DAMAGE 			90
-#define MP5_DAMAGE 				55
-#define M4_DAMAGE 				90
-#define M3_DAMAGE 				17
-//Elder: wrong name
-//#define SHOTGUN_DAMAGE 			17
-#define HANDCANNON_DAMAGE 		20
-#define SNIPER_DAMAGE 			250
-#define AKIMBO_DAMAGE 			90
-#define SLASH_DAMAGE 			200//Shashing knife damage
-#define THROW_DAMAGE 			250//Throwing Knife damage
-
-#define PISTOL_SPREAD 			140
-#define MP5_SPREAD 				250
-#define M4_SPREAD 				300
-#define SNIPER_SPREAD 			425
-#define AKIMBO_SPREAD     		300
+//Elder: moved to bg_public.h with the rest of the constants
 
 
 static	float	s_quadFactor;
@@ -810,13 +793,15 @@ int Knife_Attack ( gentity_t *self, int damage)
 
 static int knives = 0;
 
-void knife_touch (gentity_t *ent, gentity_t *other,trace_t *trace)
+
+//Elder: this function does not appear to be in use
+void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace)
 {
     vec3_t          origin;
 	gitem_t		*xr_item;
 	gentity_t	*xr_drop;
 
-G_Printf("Knife Touched Something\n");
+	G_Printf("Knife Touched Something\n");
 
         
     if (other == ent->parent)
@@ -877,48 +862,17 @@ G_Printf("Knife Touched Something\n");
 	//Elder: todo - rotate the knife model so it's collinear with trajectory
 	//and eliminate the jittering
 	xr_item = BG_FindItemForWeapon( WP_KNIFE );
-	//xr_drop = dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
-	xr_drop = dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM);
+	//xr_drop = dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM);
+	xr_drop = LaunchItem(xr_item, ent->s.pos.trBase, 0, FL_THROWN_KNIFE);
 	xr_drop->count = 1;
 	}
 
     G_FreeEntity (ent);
 }
 
+
 //gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
-gentity_t* Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
-{
-
-    gentity_t   *bolt;
-
-    VectorNormalize (dir);
-
-    bolt = G_Spawn();
-    bolt->classname = "weapon_knife";
-    bolt->nextthink = level.time + 10000;
-    bolt->think = G_FreeEntity;
-    bolt->s.eType = ET_MISSILE;
-    bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-    bolt->s.weapon = WP_KNIFE;
-    bolt->r.ownerNum = self->s.number;
-    bolt->parent = self;
-    bolt->damage = 100;
-    bolt->methodOfDeath = MOD_KNIFE;
-    bolt->clipmask = MASK_SHOT;
-	bolt->count = 1;
-
-    bolt->s.pos.trType = TR_GRAVITY;
-    //bolt->s.pos.trType = TR_LINEAR;
-    bolt->s.pos.trTime = level.time - 50;     // move a bit on the very first frame
-    VectorCopy( start, bolt->s.pos.trBase );
-    VectorScale( dir, 1100, bolt->s.pos.trDelta );
-    //VectorScale( dir, 50, bolt->s.pos.trDelta );
-    SnapVector( bolt->s.pos.trDelta );          // save net bandwidth
-
-    VectorCopy (start, bolt->r.currentOrigin);
-
-    return bolt;
-}
+//Elder: moved knife_throw to g_missile.c where it belongs
 
 
 
@@ -962,10 +916,11 @@ void Weapon_Knife_Fire(gentity_t *ent)
 	// extra vertical velocity
 	forward[2] += 0.2f;
 	
-	
-	VectorNormalize( forward );
+	//Elder: already done in  Knife_Throw
+	//VectorNormalize( forward );
 
-	m = Knife_Throw(ent,muzzle,forward, THROW_DAMAGE, 1200);
+	//m = Knife_Throw(ent, muzzle, forward, THROW_DAMAGE, 1200);
+	m = fire_knife(ent, muzzle, forward);
 //	m->damage *= s_quadFactor;
 //	m->splashDamage *= s_quadFactor;
 // ^^^^ Homer: got quad?

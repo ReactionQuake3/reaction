@@ -44,6 +44,8 @@
 //#define FL_THROWN_ITEM			0x00016000  // XRAY FMJ weapon throwing
 #define FL_THROWN_ITEM			0x00010000  // XRAY FMJ weapon throwing
 #define FL_RQ3_JUNKITEM			0x00020000	// Elder: the item we want to remove
+//Elder: moved to bg_public.h
+//#define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
 
 // movers are things like doors, plats, buttons, etc
 typedef enum {
@@ -472,7 +474,8 @@ void StartBandage(gentity_t *ent);
 void ThrowWeapon( gentity_t *ent );
 gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags );  // XRAY FMJ
 //Blaze Reaction knife stuff
-void Rxn_SpawnKinfe( gentity_t *e);
+//Elder: commented out - unused?
+//void Rxn_SpawnKnife( gentity_t *e);
 //
 // g_spawn.c
 //
@@ -588,6 +591,7 @@ void TossClientCubes( gentity_t *self );
 //
 void G_RunMissile( gentity_t *ent );
 
+gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t aimdir);
 gentity_t *fire_blaster (gentity_t *self, vec3_t start, vec3_t aimdir);
 //Blaze: Dont need these functions
 //gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
@@ -631,7 +635,7 @@ qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
 void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean CheckGauntletAttack( gentity_t *ent );
-void knife_touch (gentity_t *ent, gentity_t *other,trace_t *trace);
+//void Knife_Touch (gentity_t *ent, gentity_t *other,trace_t *trace);
 //Blaze: No need for these because no gauntlet
 //void Weapon_HookFree (gentity_t *ent);
 //void Weapon_HookThink (gentity_t *ent);

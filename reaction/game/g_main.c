@@ -1697,6 +1697,7 @@ void G_RunFrame( int levelTime ) {
 	//Blaze: Used for droping knifes
 	gitem_t		*xr_item;
 	gentity_t	*xr_drop;
+	int			temp;
 	int			msec;
 int start, end;
 
@@ -1735,21 +1736,24 @@ start = trap_Milliseconds();
 				}
 			}
 			if ( ent->freeAfterEvent ) {
+				//Elder: moved to g_missile.c where it belongs
 				// tempEntities or dropped items completely go away after their event
-				if (!strcmp(ent->classname,"weapon_knife"))
-				{
-					
+				//if (!strcmp(ent->classname,"weapon_knife"))
+				//{
+					/*
 					xr_item = BG_FindItemForWeapon( WP_KNIFE );
+					//Elder: removed
 					//xr_drop= dropWeapon( ent, xr_item, 0,  FL_THROWN_ITEM );//FL_DROPPED_ITEM |
-					xr_drop = LaunchItem(xr_item,ent->s.pos.trBase,0,0);
+					xr_drop = LaunchItem(xr_item, ent->s.pos.trBase, 0, FL_THROWN_KNIFE);
 					
-					G_FreeEntity(ent);
-		
-				}
-				else
-				{
+									
 					G_FreeEntity( ent );
-				}
+					*/
+				//}
+				//else
+				//{
+					G_FreeEntity( ent );
+				//}
 				continue;
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event

@@ -964,6 +964,14 @@ static void CG_RegisterGraphics( void ) {
  	cgs.media.paper02 = trap_R_RegisterModel( "models/breakables/paper02.md3" );
  	cgs.media.paper03 = trap_R_RegisterModel( "models/breakables/paper03.md3" );
  	
+	cgs.media.brick01 = trap_R_RegisterModel( "models/breakables/brick01.md3" );
+ 	cgs.media.brick02 = trap_R_RegisterModel( "models/breakables/brick02.md3" );
+ 	cgs.media.brick03 = trap_R_RegisterModel( "models/breakables/brick03.md3" );
+
+	cgs.media.concrete01 = trap_R_RegisterModel( "models/breakables/concrete01.md3" );
+ 	cgs.media.concrete02 = trap_R_RegisterModel( "models/breakables/concrete02.md3" );
+ 	cgs.media.concrete03 = trap_R_RegisterModel( "models/breakables/concrete03.md3" );
+
 	//Elder: akimbos - some of the stuff isn't in yet :p
 	cgs.media.akimboModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo.md3" );
  	cgs.media.akimboFlashModel = trap_R_RegisterModel( "models/weapons2/akimbo/akimbo_flash.md3" );

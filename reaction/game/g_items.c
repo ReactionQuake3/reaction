@@ -862,13 +862,27 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 
 	dropped->touch = Touch_Item;
 
-	G_SetOrigin( dropped, origin );
-	dropped->s.pos.trType = TR_GRAVITY;
-	dropped->s.pos.trTime = level.time;
-	//Elder: should change to a constant velocity for weapons
-	VectorCopy( velocity, dropped->s.pos.trDelta );
+	//Elder: suspend thrown knives so they don't jitter
+	G_Printf("xr_flags: %d, condition: %d\n", xr_flags, (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE);
+	if (item->giTag == WP_KNIFE && ( (xr_flags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) {
+		G_SetOrigin( dropped, origin );
 
-	dropped->s.eFlags |= EF_BOUNCE_HALF;
+		//reset back the dropped item case
+		dropped->flags = FL_DROPPED_ITEM;
+		//dropped->s.eFlags |= EF_BOUNCE_HALF;
+	}
+	else {
+		G_SetOrigin( dropped, origin );
+		dropped->s.pos.trType = TR_GRAVITY;
+		dropped->s.pos.trTime = level.time;
+		//Elder: should change to a constant velocity for weapons
+		VectorCopy( velocity, dropped->s.pos.trDelta );
+		
+		//Elder: moved from outside else statement
+		dropped->s.eFlags |= EF_BOUNCE_HALF;
+	}
+
+	
 #ifdef MISSIONPACK
 	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF)			&& item->giType == IT_TEAM) { // Special case for CTF flags
 #else
@@ -879,7 +893,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		Team_CheckDroppedItem( dropped );
 	}
 
-	//Elder: Reaction Unique Weapons in deathmatch - respawn in 30 seconds
+	//Elder: Reaction Unique Weapons in deathmatch - respawn in ~60 seconds
 	//Don't forget to condition it when we get teamplay in
 	else if ( item->giType == IT_WEAPON &&
 		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL && 
@@ -902,10 +916,6 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce= 0;
 	}
-
-	//Elder: suspend thrown knives so it doesn't jitter
-	//if (item->giTag == WP_KNIFE)
-		//dropped->spawnflags |= 1; //suspended
 
 	trap_LinkEntity (dropped);
 

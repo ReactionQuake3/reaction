@@ -771,6 +771,8 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
   		count = 22 + rand() % 7;
 	}
 
+	CG_Printf("glassParm: %d\n", glassParm);
+
 	//Elder: check debris type and assign debris models  	
 	//Using bit-op check b/c I will be stuffing the amount in there too
 	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD) {
@@ -796,6 +798,18 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm ) {
   		debris1 = cgs.media.paper01;
   		debris2 = cgs.media.paper02;
   		debris3 = cgs.media.paper03;
+  	}
+	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK) { 
+  		CG_Printf("Launching brick\n");
+  		debris1 = cgs.media.brick01;
+  		debris2 = cgs.media.brick02;
+  		debris3 = cgs.media.brick03;
+  	}
+	else if ( (glassParm & RQ3_DEBRIS_CONCRETE) == RQ3_DEBRIS_CONCRETE) { 
+  		CG_Printf("Launching concrete\n");
+  		debris1 = cgs.media.concrete01;
+  		debris2 = cgs.media.concrete02;
+  		debris3 = cgs.media.concrete03;
   	}
   	else {
   		//glass is default

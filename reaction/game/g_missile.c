@@ -254,6 +254,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	vec3_t			forward, impactpoint, bouncedir;
 	int				eFlags;
 #endif
+	//Elder: added for thrown knife condition
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+
 	other = &g_entities[trace->entityNum];
 
 	//Elder: no grenade explosion on impact
@@ -309,9 +313,13 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if ( VectorLength( velocity ) == 0 ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
-			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
+
+			//Elder: added
+			if ( !(ent->s.weapon == WP_KNIFE && other->s.eType == ET_BREAKABLE) ) {
+				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 				ent->s.origin, ent->damage, 
 				0, ent->methodOfDeath);
+			}
 		}
 	}
 
@@ -385,8 +393,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		G_SetOrigin( ent, v );
 		G_SetOrigin( nent, v );
 
-//Blaze: Hook dosent exist any more
-//		ent->think = Weapon_HookThink;
+		//Blaze: Hook dosent exist any more
+		//ent->think = Weapon_HookThink;
 		ent->nextthink = level.time + FRAMETIME;
 
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
@@ -401,6 +409,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	// is it cheaper in bandwidth to just remove this ent and create a new
 	// one, rather than changing the missile into the explosion?
 
+	//Elder: I don't know but that's what we did for the knife
+
 	if ( other->takedamage && other->client ) {
 		G_AddEvent( ent, EV_MISSILE_HIT, DirToByte( trace->plane.normal ) );
 		ent->s.otherEntityNum = other->s.number;
@@ -408,6 +418,65 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_METAL, DirToByte( trace->plane.normal ) );
 	} else {
 		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( trace->plane.normal ) );
+	}
+
+	//Elder: knife handling routines go HERE, not in g_main.c !!!
+	if (ent->s.weapon == WP_KNIFE) {
+		if ( other->takedamage && other->client) {
+			//hit a player - send the gurgle or embedding sound event
+		}
+		else {
+			vec3_t temp;
+			vec3_t knifeOffset;
+			vec3_t knifeVelocity;
+
+			//missed throw or hit func_breakable;
+			//spawn a knife at its trajectory end-point
+			xr_item = BG_FindItemForWeapon( WP_KNIFE );
+			
+			if (other->s.eType == ET_BREAKABLE) {
+				VectorScale(trace->plane.normal, 10, knifeVelocity);
+				knifeVelocity[1] -= 50;
+
+				//breakable "hit"; make it fall to the ground
+				xr_drop = LaunchItem(xr_item, trace->endpos, knifeVelocity, FL_DROPPED_ITEM);
+				//but still set it as a thrown knife
+				//xr_drop->flags |= FL_THROWN_KNIFE;
+				
+				//Elder: make the knife stick out a bit more
+				//and transfer into shared entityState
+				VectorScale(trace->plane.normal, 16, temp);
+				VectorAdd(trace->endpos, temp, knifeOffset);
+				VectorCopy(xr_drop->s.origin, temp);
+				VectorAdd(temp, knifeOffset, xr_drop->s.origin);
+				VectorCopy(xr_drop->s.origin, xr_drop->r.currentOrigin);
+			}
+			else {
+				//leave embedded in the wall
+				xr_drop = LaunchItem(xr_item, trace->endpos, 0, FL_THROWN_KNIFE);
+				VectorClear( xr_drop->s.pos.trDelta );
+
+				//Elder: make the knife stick out a bit more
+				//and transfer into shared entityState
+				VectorScale(trace->plane.normal, 4, temp);
+				VectorAdd(trace->endpos, temp, knifeOffset);
+				VectorCopy(xr_drop->s.origin, temp);
+				VectorAdd(temp, knifeOffset, xr_drop->s.origin);
+			}
+			
+			//Elder: make the knife stick out a bit more
+			//and transfer into shared entityState
+			//VectorScale(trace->plane.normal, 4, temp);
+			//VectorAdd(trace->endpos, temp, knifeOffset);
+			//VectorCopy(xr_drop->s.origin, temp);
+			//VectorAdd(temp, knifeOffset, xr_drop->s.origin);
+
+			//Elder: transfer entity data into the shared entityState
+			//They are rotated on the client side in cg_ents.c
+			xr_drop->s.eFlags = xr_drop->flags;
+			vectoangles( trace->plane.normal, xr_drop->s.angles );
+			xr_drop->s.angles[0] += 270;
+		}
 	}
 
 	ent->freeAfterEvent = qtrue;
@@ -623,6 +692,39 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	VectorCopy (start, bolt->r.currentOrigin);
 
 	return bolt;
+}
+
+gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
+{
+
+    gentity_t   *bolt;
+
+    VectorNormalize (dir);
+
+    bolt = G_Spawn();
+    bolt->classname = "weapon_knife";
+    bolt->nextthink = level.time + 10000;
+    bolt->think = G_FreeEntity;
+    bolt->s.eType = ET_MISSILE;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+    bolt->s.weapon = WP_KNIFE;
+    bolt->r.ownerNum = self->s.number;
+    bolt->parent = self;
+	bolt->damage = THROW_DAMAGE;
+	bolt->splashDamage = 0;
+	bolt->splashRadius = 0;
+    bolt->methodOfDeath = MOD_KNIFE_THROWN;
+    bolt->clipmask = MASK_SHOT;
+	bolt->target_ent = NULL;
+	bolt->count = 1;
+    bolt->s.pos.trType = TR_GRAVITY;
+    bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;     // move a bit on the very first frame
+    VectorCopy( start, bolt->s.pos.trBase );
+    VectorScale( dir, 1100, bolt->s.pos.trDelta );
+    SnapVector( bolt->s.pos.trDelta );          // save net bandwidth
+    VectorCopy (start, bolt->r.currentOrigin);
+
+    return bolt;
 }
 
 //=============================================================================

@@ -244,22 +244,40 @@ static void CG_Item( centity_t *cent ) {
 
 	memset (&ent, 0, sizeof(ent));
 
+	//Elder: knife rotation code so it's always "in" the wall
+	if (item->giTag == WP_KNIFE && ( (es->eFlags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) {
+		VectorCopy( es->angles, cent->lerpAngles );
+		//Elder: nudges out a bit so it's more visible
+		VectorCopy( es->origin, cent->lerpOrigin );
+		AnglesToAxis( cent->lerpAngles, ent.axis );
+	}
+	else {
+		//Elder: default item orientation
+		VectorCopy( cg.autoAngles, cent->lerpAngles );
+		AxisCopy( cg.autoAxis, ent.axis );
+	}
+
+
 	// autorotate at one of two speeds
 //Blaze: no rotating
 //	if ( item->giType == IT_HEALTH ) {
 //		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
 //		AxisCopy( cg.autoAxisFast, ent.axis );
 //	} else {
-		VectorCopy( cg.autoAngles, cent->lerpAngles );
-		AxisCopy( cg.autoAxis, ent.axis );
+//		VectorCopy( cg.autoAngles, cent->lerpAngles );
+//		AxisCopy( cg.autoAxis, ent.axis );
 //	}
 
 	wi = NULL;
 	// the weapons have their origin where they attatch to player
 	// models, so we need to offset them or they will rotate
 	// eccentricly
-	if ( item->giType == IT_WEAPON ) {
+	//Elder: added knife conditional
+	if ( item->giType == IT_WEAPON && 
+		!(item->giTag == WP_KNIFE && ( (es->eFlags & FL_THROWN_KNIFE) == FL_THROWN_KNIFE) ) ) {
 		vec3_t          myvec;
+		
+		//CG_Printf("Should not be in here if it's a thrown knife\n");		
 		wi = &cg_weapons[item->giTag];
 		cent->lerpOrigin[0] -= 
 			wi->weaponMidpoint[0] * ent.axis[0][0] +
@@ -283,7 +301,9 @@ static void CG_Item( centity_t *cent ) {
         VectorCopy(myvec, ent.axis[2]);
 
 	}
-	if (item->giType == IT_AMMO) cent->lerpOrigin[2]-=12;
+	//Elder: what the heck is this?
+	if (item->giType == IT_AMMO)
+		cent->lerpOrigin[2]-=12;
 
 	ent.hModel = cg_items[es->modelindex].models[0];
 
