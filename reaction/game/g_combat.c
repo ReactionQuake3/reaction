@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.91  2002/06/05 20:52:47  jbravo
+// Fixed sniper explode gib and sniper stomach gib. Gibs are now 100% :)
+//
 // Revision 1.90  2002/06/05 19:53:10  niceass
 // gib fix
 //
@@ -535,7 +538,8 @@ void GibEntity_Headshot (gentity_t *self, int killer) {
 
 // JBravo: stomach gibbing
 void GibEntity_Stomach (gentity_t *self, int killer) {
-	G_AddEvent (self, EV_GIB_PLAYER_STOMACH, 0);
+	G_TempEntity (self->r.currentOrigin, EV_GIB_PLAYER_STOMACH);
+//	G_AddEvent (self, EV_GIB_PLAYER_STOMACH, 0);
 }
 /*
 ==================
@@ -1538,7 +1542,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				self->client->ps.eFlags |= EF_HEADLESS;
 				GibEntity_Headshot (self, killer);
 			} else {
-				GibEntity (self, killer);
+				//GibEntity (self, killer);
+				G_TempEntity (self->r.currentOrigin, EV_GIB_PLAYER);
 				self->client->gibbed = qtrue;
 				trap_UnlinkEntity (self);
 			}
@@ -2382,8 +2387,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 									targ->client->pers.netname));
 						trap_SendServerCommand(targ-g_entities, va("print \"Stomach Damage.\n\""));
 						take *= 0.4;
-						if (attacker->client && attacker->client->ps.weapon == WP_SSG3000)
-							G_AddEvent (targ, EV_GIB_PLAYER_STOMACH, 0);
+						if (attacker->client && attacker->client->ps.weapon == WP_SSG3000) {
+//							G_AddEvent (targ, EV_GIB_PLAYER_STOMACH, 0);
+							G_TempEntity (targ->r.currentOrigin, EV_GIB_PLAYER_STOMACH);
+						}
 						break;
 					case LOCATION_LEG:
 					case LOCATION_FOOT:
