@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.116  2002/09/09 01:04:57  niceass
+// ctb voting fixed
+//
 // Revision 1.115  2002/09/08 12:50:52  jbravo
 // Tuned the scaling ctb respawn system a bit and defaulted g_RQ3_ctb_respawndelay
 // to 0
@@ -1384,7 +1387,7 @@ void CalculateRanks(void)
 			level.sortedClients[level.numConnectedClients] = i;
 			level.numConnectedClients++;
 
-			if (g_gametype.integer == GT_TEAMPLAY) {
+			if (g_gametype.integer >= GT_TEAM) {
 				if (level.clients[i].pers.connected == CON_CONNECTED) {
 					level.numPlayingClients++;
 					if (!(g_entities[i].r.svFlags & SVF_BOT)) {
