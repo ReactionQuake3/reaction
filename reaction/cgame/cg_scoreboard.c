@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/05/07 13:35:45  jbravo
+// Fixed the double lights for spectators and made the use cmd use rq3_cmd
+// and made scoreboard not revieal whos alive or dead to live players.
+//
 // Revision 1.24  2002/04/29 06:15:30  niceass
 // ref shown as green. more mm stuff soon to come
 //
@@ -177,10 +181,10 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 	if (FillColor[3] > 1) FillColor[3] = 1;
 
 	// Dead?
-	if ( !score->alive ) {
-		TextColor[0] *= 0.6f;
-		TextColor[1] *= 0.6f;
-		TextColor[2] *= 0.6f;
+	if (!score->alive && cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		TextColor[0] *= 0.5f;
+		TextColor[1] *= 0.5f;
+		TextColor[2] *= 0.5f;
 	}
 	
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, FillColor, Boarder);
