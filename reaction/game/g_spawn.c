@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/05/25 10:40:31  makro
+// Loading screen
+//
 // Revision 1.26  2002/05/23 15:55:25  makro
 // Elevators
 //
@@ -743,9 +746,9 @@ Every map should have exactly one worldspawn.
 */
 void SP_worldspawn( void ) {
 	char	*s;
-	vec3_t	color;
-	char	info[MAX_INFO_STRING];
-	int		nodetail = 0;
+	//vec3_t	color;
+	//char	info[MAX_INFO_STRING];
+	//int		nodetail = 0;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -763,6 +766,7 @@ void SP_worldspawn( void ) {
 	G_SpawnString( "message", "", &s );
 	trap_SetConfigstring( CS_MESSAGE, s );				// map specific message
 
+	/* Makro - no longer
 	//Makro - color for the loading screen text
 	G_SpawnVector( "_text_color", "0.75 0.75 0.75", color );
 	Info_SetValueForKey(info, "r1", va("%f", color[0]));
@@ -777,6 +781,7 @@ void SP_worldspawn( void ) {
 	Info_SetValueForKey(info, "nodetail", va("%i", nodetail));
 	//save settings
 	trap_SetConfigstring( CS_LOADINGSCREEN, info );
+	*/
 	
 	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 

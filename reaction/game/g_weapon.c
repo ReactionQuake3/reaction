@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/05/25 10:40:31  makro
+// Loading screen
+//
 // Revision 1.60  2002/05/24 18:47:02  makro
 // Jump kicks
 //
@@ -268,8 +271,7 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 	qboolean ok;
 
 	traceEnt = &g_entities[ trIn->entityNum ];
-	if ( Q_stricmp (traceEnt->classname, "func_door_rotating") == 0 )
-	{
+	if ( Q_stricmp (traceEnt->classname, "func_door_rotating") == 0 ) {
 		vec3_t d_right, d_forward;
 		float crossProduct;
 		vec3_t end;
@@ -288,26 +290,25 @@ qboolean DoorKick( trace_t *trIn, gentity_t *ent, vec3_t origin, vec3_t forward 
 		if (traceEnt->moverState == ROTATOR_1TO2 || traceEnt->moverState == ROTATOR_POS2) {
 			ok = !ok;
 		}
-		if ( ok && !(traceEnt->targetname) )
-		{
+		if ( ok && !traceEnt->targetname ) {
 			//Cmd_OpenDoor( ent );
 			//Makro - Cmd_OpenDoor opens ALL the doors near the kicked one
 			Use_BinaryMover( traceEnt, traceEnt, ent);
 			VectorMA( trIn->endpos, 25, forward, end );
 			trap_Trace (&tr, trIn->endpos, NULL, NULL, end, trIn->entityNum, MASK_SHOT);
-			if ( !(tr.surfaceFlags & SURF_NOIMPACT) )
-			{
+			if ( !(tr.surfaceFlags & SURF_NOIMPACT) ) {
 				traceEnt = &g_entities[ tr.entityNum ];
 				if ( traceEnt->client )
 				{
 					*trIn = tr;
 				}
 			}
+			return qtrue;
 		}
-		return qtrue;
+		
 	}
-	else
-		return qfalse;
+
+	return qfalse;
 
 }
 

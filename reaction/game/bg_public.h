@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/25 10:40:31  makro
+// Loading screen
+//
 // Revision 1.69  2002/05/23 03:07:10  blaze
 // Some changes to autoaction, still need to fix up a little bit more stuff relating to getting sent 2 screenshot requests
 //
@@ -467,7 +470,7 @@ extern radio_msg_t female_radio_msgs[];
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
 //Makro - color for the loading screen text
-#define CS_LOADINGSCREEN		29
+//#define CS_LOADINGSCREEN		29
 
 #define	CS_MODELS			32
 #define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.5  2002/05/25 10:40:31  makro
+// Loading screen
+//
 // Revision 1.4  2002/01/11 19:48:30  jbravo
 // Formatted the source in non DOS format.
 //
@@ -711,6 +714,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		pi->lastWeapon = pi->pendingWeapon;
 		pi->pendingWeapon = -1;
 		pi->weaponTimer = 0;
+		//Makro - do we want this sound ?
 		if( pi->currentWeapon != pi->weapon ) {
 			trap_S_StartLocalSound( weaponChangeSound, CHAN_LOCAL );
 		}
