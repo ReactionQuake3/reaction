@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/01/31 02:53:28  blaze
+// err, make that playerstats command
+//
 // Revision 1.41  2002/01/31 02:52:49  blaze
 // some basic work on the trains/elevators
 //
@@ -41,7 +44,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
 DeathmatchScoreboardMessage
 
 ==================
-*/
+*/ 
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	char		entry[1024];
 	char		string[1400];
