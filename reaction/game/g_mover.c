@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.42  2002/05/29 19:49:21  makro
+// Option to disable spectator triggers for doors
+//
 // Revision 1.41  2002/05/29 13:49:25  makro
 // Elevators/doors
 //
@@ -1345,33 +1348,35 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 		trap_LinkEntity (other);
 	}
 
-	// NiceAss: This trigger will be for spectators
-	// NiceAss: Undo the stretched box size
-	// expand
-	maxs[best] -= 60;
-	mins[best] += 60;
-	// NiceAss: AQ2 Style. Above is Q3 style.
-	if (best != 0) {
-		maxs[0] -= 60;
-		mins[0] += 60;
+	//Makro - some doors shouldn't have triggers for spectators
+	if (!ent->unbreakable) {
+		// NiceAss: This trigger will be for spectators
+		// NiceAss: Undo the stretched box size
+		// expand
+		maxs[best] -= 60;
+		mins[best] += 60;
+		// NiceAss: AQ2 Style. Above is Q3 style.
+		if (best != 0) {
+			maxs[0] -= 60;
+			mins[0] += 60;
+		}
+		if (best != 1) {
+			maxs[1] -= 60;
+			mins[1] += 60;
+		}
+
+
+		other = G_Spawn ();
+		other->classname = "door_trigger_spectator";
+		VectorCopy (mins, other->r.mins);
+		VectorCopy (maxs, other->r.maxs);
+		other->parent = ent;
+		other->r.contents = CONTENTS_TRIGGER;
+		other->touch = Touch_DoorTriggerSpectator;
+		// remember the thinnest axis
+		other->count = best;
+		trap_LinkEntity (other);
 	}
-	if (best != 1) {
-		maxs[1] -= 60;
-		mins[1] += 60;
-	}
-
-
-	other = G_Spawn ();
-	other->classname = "door_trigger_spectator";
-	VectorCopy (mins, other->r.mins);
-	VectorCopy (maxs, other->r.maxs);
-	other->parent = ent;
-	other->r.contents = CONTENTS_TRIGGER;
-	other->touch = Touch_DoorTriggerSpectator;
-	// remember the thinnest axis
-	other->count = best;
-	trap_LinkEntity (other);
-
 
 	MatchTeam( ent, ent->moverState, level.time );
 }
@@ -1504,25 +1509,21 @@ void SP_func_door (gentity_t *ent) {
 
 	InitMover( ent );
 
-	ent->nextthink = level.time + FRAMETIME;
-
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
 		int health;
-		int makeTrigger = 1;
+		int noSpecs = 0;
 
 		G_SpawnInt( "health", "0", &health );
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-		if ( ent->targetname || health ) {
-			//Makro - some doors don't need spectator triggers
-			G_SpawnInt( "nospectators", "0", &makeTrigger );
-		}
-		if (makeTrigger) {
-			ent->think = Think_SpawnNewDoorTrigger;
-		} else {
-			ent->think = Think_MatchTeam;
-		}
+
+		//Makro - some doors don't need spectator triggers
+		G_SpawnInt( "nospectators", "0", &noSpecs );
+		//hijacking unbreakable field
+		ent->unbreakable = noSpecs;
+		ent->think = Think_SpawnNewDoorTrigger;
+		ent->nextthink = level.time + FRAMETIME;
 	}
 
 	//Elder: open areaportals for start_open doors
@@ -1654,26 +1655,29 @@ void SP_func_door_rotating ( gentity_t *ent ) {
 
 	InitRotator( ent );
 
-	ent->nextthink = level.time + FRAMETIME;
-
 	if ( ! (ent->flags & FL_TEAMSLAVE ) ) {
 		int health;
-		int makeTrigger = 1;
+		int noSpecs = 0;
 
 		G_SpawnInt( "health", "0", &health );
 		if ( health ) {
 			ent->takedamage = qtrue;
 		}
-		if ( ent->targetname || health ) {
-			//Makro - some doors don't need spectator triggers
-			G_SpawnInt( "nospectators", "0", &makeTrigger );
-		}
-		if (makeTrigger) {
-			ent->think = Think_SpawnNewDoorTrigger;
-		} else {
-			ent->think = Think_MatchTeam;
-		}
+
+		//Makro - some doors don't need spectator triggers
+		G_SpawnInt( "nospectators", "0", &noSpecs );
+		//hijacking unbreakable field
+		ent->unbreakable = noSpecs;
+		ent->think = Think_SpawnNewDoorTrigger;
+		ent->nextthink = level.time + FRAMETIME;
 	}
+
+	//Makro - copied from func_door
+	//Elder: open areaportals for start_open doors
+	if ( (ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster) ) {
+		trap_AdjustAreaPortalState( ent, qtrue );
+	}
+
 }
 
 /*
