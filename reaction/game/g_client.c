@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/11 23:37:27  blaze
+// moved the cheat cvars to be sent at a different time, should work better
+//
 // Revision 1.87  2002/06/11 01:43:08  blaze
 // g_rq3_cvarfile allows you to change which file holds the restricted cvars
 //
@@ -1358,12 +1361,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 // JBravo: moved from ClientBegin
 	client->pers.enterTime = level.time;
 
-  //Blaze: Send cheat cvars to client
-	if (!G_SendCheatVars(ent->s.clientNum))
-	{
-		Com_Printf("Error loading cvar cfg\n");
-		//return "Error_loading_cvar_cfg";
-	}
 
   //Blaze: Send out the breakable names to the clients
   //Blaze: moved to configstring
@@ -1488,6 +1485,13 @@ void ClientBegin(int clientNum) {
 		}
 		i = RQ3TeamCount( -1, client->sess.sessionTeam);
 	}
+  //Blaze: Send cheat cvars to client
+	if (!G_SendCheatVars(clientNum))
+	{
+		Com_Printf("Error loading cvar cfg\n");
+		//return "Error_loading_cvar_cfg";
+	}
+
 }
 
 /*
