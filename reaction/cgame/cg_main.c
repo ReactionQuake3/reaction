@@ -1108,6 +1108,11 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
+	
+	// Elder: added
+	cgs.media.hitSparkModel = trap_R_RegisterModel("models/weaphits/tracer/tracer.md3");
+	cgs.media.hitSparkShader = trap_R_RegisterShader("models/weaphits/tracer/tracer");
+
 #ifdef MISSIONPACK
 	cgs.media.teleportEffectModel = trap_R_RegisterModel( "models/powerups/pop.md3" );
 #else

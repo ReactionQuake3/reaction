@@ -2792,13 +2792,15 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	duration = 600;
 
 	switch ( weapon ) {
+		// Elder: bullet weapons all fall under MK23 >:(
 		case WP_M4:
 		case WP_MP5:
 		case WP_PISTOL:
 		case WP_AKIMBO:
 		case WP_SSG3000:
-			mod = cgs.media.bulletFlashModel;
-			shader = cgs.media.bulletExplosionShader;
+			duration = 160;
+			mod = cgs.media.hitSparkModel;
+			shader = cgs.media.hitSparkShader;
 			radius = 8;
 			r = rand() & 3;
 
@@ -3049,8 +3051,11 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 
 		case WP_M3:
 		case WP_HANDCANNON:
-			mod = cgs.media.bulletFlashModel;
-			shader = cgs.media.bulletExplosionShader;
+			duration = 200;
+			mod = cgs.media.hitSparkModel;
+			shader = cgs.media.hitSparkShader;
+			//mod = cgs.media.bulletFlashModel;
+			//shader = cgs.media.bulletExplosionShader;
 			if (soundType == IMPACTSOUND_GLASS)
 				mark = cgs.media.glassMarkShader;
 			else if (soundType == IMPACTSOUND_METAL)
@@ -3084,16 +3089,22 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 			*/
 			if (weapModification == RQ3_WPMOD_KNIFESLASH)
 			{
-				mod = cgs.media.bulletFlashModel;
-				shader = cgs.media.bulletExplosionShader;
+				duration = 100;
+				mod = cgs.media.hitSparkModel;
+				shader = cgs.media.hitSparkShader;
+				//mod = cgs.media.bulletFlashModel;
+				//shader = cgs.media.bulletExplosionShader;
 				mark = cgs.media.slashMarkShader;
 				sfx = cgs.media.knifeClankSound;
 				radius = rand() % 4 + 6;
 			}
 			else
 			{
-				mod = cgs.media.bulletFlashModel;
-				shader = cgs.media.bulletExplosionShader;
+				duration = 180;
+				mod = cgs.media.hitSparkModel;
+				shader = cgs.media.hitSparkShader;
+				//mod = cgs.media.bulletFlashModel;
+				//shader = cgs.media.bulletExplosionShader;
 				sfx = cgs.media.knifeClankSound;
 			}
 			break;
@@ -3118,12 +3129,97 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	//
 	// create the explosion
 	//
-	if ( mod ) {
-		le = CG_MakeExplosion( origin, dir,
+	if ( mod )
+	{
+		if ( weapon == WP_GRENADE )
+		{
+			le = CG_MakeExplosion( origin, dir,
 							   mod,	shader,
 							   duration, isSprite );
-		le->light = light;
-		VectorCopy( lightColor, le->lightColor );
+			le->light = light;
+			VectorCopy( lightColor, le->lightColor );
+		}
+		else
+		{
+			vec3_t temp, offsetDir;
+			byte color[4];
+			int flashCount;
+			float scale;
+
+			switch ( weapon )
+			{
+				case WP_MP5:
+				case WP_PISTOL:
+				case WP_AKIMBO:
+					flashCount = 3 + rand() % 3;
+					color[0] = 224;
+					color[1] = 180;
+					color[2] = 128;
+					color[3] = 192;
+					break;
+				case WP_M4:
+				case WP_KNIFE:
+					flashCount = 3 + rand() % 3;
+					color[0] = 192;
+					color[1] = 96;
+					color[2] = 64;
+					color[3] = 192;
+					break;				
+				case WP_M3:
+				case WP_HANDCANNON:
+					flashCount = 2 + rand() % 3;
+					color[0] = 192;
+					color[1] = 96;
+					color[2] = 64;
+					color[3] = 192;
+					break;
+				case WP_SSG3000:
+				default:
+					flashCount = 4 + rand() % 3;
+					color[0] = 255;
+					color[1] = 224;
+					color[2] = 128;
+					color[3] = 192;
+					break;
+			}
+		
+			// Elder: should probably dump this into another function
+			for ( i = 0; i < flashCount; i++ )
+			{
+				// introduce variance
+				VectorCopy( dir, temp );
+				scale = crandom() + 1.8f;
+				temp[0] += (crandom() * 0.4f) - 0.2f;
+				temp[1] += (crandom() * 0.4f) - 0.2f;
+				temp[2] += (crandom() * 0.4f) - 0.2f;
+				// save result
+				VectorCopy( temp, offsetDir );
+				VectorScale( temp, scale, temp );
+
+				le = CG_MakeExplosion( origin, dir,
+							   mod,	shader,
+							   duration, isSprite );
+
+				VectorMA( origin, scale + 0.5f, temp, le->refEntity.origin );
+				VectorCopy(temp, le->refEntity.axis[0]);
+				
+				// set spark colour
+				le->refEntity.shaderRGBA[0] = color[0];
+				le->refEntity.shaderRGBA[1] = color[1];
+				le->refEntity.shaderRGBA[2] = color[2];
+				le->refEntity.shaderRGBA[3] = color[3];
+				
+				// readjust behaviour
+				le->leType = LE_MOVE_SCALE_FADE;
+				le->pos.trType = TR_LINEAR;
+				le->pos.trTime = cg.time;
+				VectorCopy(le->refEntity.origin, le->pos.trBase);
+				VectorScale(offsetDir, 30, le->pos.trDelta);
+				
+				le->light = light;
+				VectorCopy( lightColor, le->lightColor );
+			}
+		}
 		//Blaze: No railgun
 		/*
 		if ( weapon == WP_RAILGUN ) {

@@ -816,7 +816,6 @@ typedef struct {
 	qhandle_t	akimbo1stModel;
 	qhandle_t	akimboHandModel;
 	
-
 	qhandle_t	smoke2;
 
 	qhandle_t	machinegunBrassModel;
@@ -904,6 +903,10 @@ typedef struct {
 	qhandle_t	ringFlashModel;
 	qhandle_t	dishFlashModel;
 	qhandle_t	lightningExplosionModel;
+
+	// Elder: hit spark to replace bulletFlash
+	qhandle_t	hitSparkModel;
+	qhandle_t	hitSparkShader;
 
 	// Elder: RQ3 item models
 

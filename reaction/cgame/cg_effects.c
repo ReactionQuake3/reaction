@@ -459,7 +459,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 	// set origin
 	VectorCopy( newOrigin, ex->refEntity.origin );
 	VectorCopy( newOrigin, ex->refEntity.oldorigin );
-
+	
 	ex->color[0] = ex->color[1] = ex->color[2] = 1.0;
 
 	return ex;
@@ -960,12 +960,12 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
 	glassParm &= ~newParm;
 	glassParm = glassParm << (type * 4);
 
-	CG_Printf("glassParm: %i\n", glassParm);
+	//CG_Printf("glassParm: %i\n", glassParm);
 
 	//Elder: check debris type and assign debris models  	
 	if ( (glassParm & RQ3_DEBRIS_WOOD) == RQ3_DEBRIS_WOOD)
 	{
-  		CG_Printf("Launching wood\n");
+  		//CG_Printf("Launching wood\n");
   		debris1 = cgs.media.wood01;
   		debris2 = cgs.media.wood02;
   		debris3 = cgs.media.wood03;
@@ -973,7 +973,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	}
   	else if ( (glassParm & RQ3_DEBRIS_METAL) == RQ3_DEBRIS_METAL)
 	{
-  		CG_Printf("Launching metal\n");
+  		//CG_Printf("Launching metal\n");
   		debris1 = cgs.media.metal01;
   		debris2 = cgs.media.metal02;
   		debris3 = cgs.media.metal03;
@@ -981,7 +981,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	}
   	else if ( (glassParm & RQ3_DEBRIS_CERAMIC) == RQ3_DEBRIS_CERAMIC)
 	{ 
-  		CG_Printf("Launching ceramic\n");
+  		//CG_Printf("Launching ceramic\n");
   		debris1 = cgs.media.ceramic01;
   		debris2 = cgs.media.ceramic02;
   		debris3 = cgs.media.ceramic03;
@@ -989,7 +989,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	}
   	else if ( (glassParm & RQ3_DEBRIS_PAPER) == RQ3_DEBRIS_PAPER)
 	{
-  		CG_Printf("Launching paper\n");
+  		//CG_Printf("Launching paper\n");
   		debris1 = cgs.media.paper01;
   		debris2 = cgs.media.paper02;
   		debris3 = cgs.media.paper03;
@@ -997,7 +997,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	}
 	else if ( (glassParm & RQ3_DEBRIS_BRICK) == RQ3_DEBRIS_BRICK)
 	{ 
-  		CG_Printf("Launching brick\n");
+  		//CG_Printf("Launching brick\n");
   		debris1 = cgs.media.brick01;
   		debris2 = cgs.media.brick02;
   		debris3 = cgs.media.brick03;
@@ -1005,7 +1005,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	}
 	else if ( (glassParm & RQ3_DEBRIS_CONCRETE) == RQ3_DEBRIS_CONCRETE)
 	{ 
-  		CG_Printf("Launching concrete\n");
+  		//CG_Printf("Launching concrete\n");
   		debris1 = cgs.media.concrete01;
   		debris2 = cgs.media.concrete02;
   		debris3 = cgs.media.concrete03;
@@ -1023,7 +1023,7 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
   	else
 	{
   		//glass is default
-  		CG_Printf("Launching glass\n");
+  		//CG_Printf("Launching glass\n");
   		debris1 = cgs.media.glass01;
   		debris2 = cgs.media.glass02;
   		debris3 = cgs.media.glass03;

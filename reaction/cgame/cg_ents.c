@@ -418,12 +418,20 @@ static void CG_Item( centity_t *cent ) {
 		 ( item->giType == IT_AMMO) ||
 		 ( item->giType == IT_HOLDABLE) ) {
 		ent.renderfx |= RF_MINLIGHT;
-		//ent.customShader = cgs.media.itemStrobeShader;
 	}
 
 	// increase the size of the weapons when they are presented as items
-//Blaze: Dont make models bigger
-/*
+
+	// Elder: only for knives, which are hard to spot
+	if ( item->giTag == WP_KNIFE )
+	{
+		VectorScale( ent.axis[0], 1.2f, ent.axis[0] );
+		VectorScale( ent.axis[1], 1.2f, ent.axis[1] );
+		VectorScale( ent.axis[2], 1.2f, ent.axis[2] );
+	}
+
+	//Blaze: Dont make models bigger
+	/*
 	if ( item->giType == IT_WEAPON ) {
 		VectorScale( ent.axis[0], 1.5, ent.axis[0] );
 		VectorScale( ent.axis[1], 1.5, ent.axis[1] );
@@ -433,7 +441,7 @@ static void CG_Item( centity_t *cent ) {
 		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
 #endif
 	}
-*/
+	*/
 
 #ifdef MISSIONPACK
 	if ( item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE ) {
