@@ -20,19 +20,20 @@
 * Scoreboard no longer shows who's dead and whos not while you are alive.
 * Added the 'lens' sound when using "unzoom" for SSG
 * Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
-* Added $P for last damaged player
-* Fixed a model bug for team 2
-* changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and made it control what $K does
-* Spectators can now use say_team to communicate among each others, DM and TP
-* Unzoom now plays the lens sound
-* Health functionality for movers should be complete now
+* Added $P for last damaged player.
+* Fixed a model bug for team 2.
+* changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and made it control what $K does.
+* Spectators can now use say_team to communicate among each others, DM and TP.
+* Unzoom now plays the lens sound.
+* Health functionality for movers should be complete now.
 * Rezooming after quick reloading is much faster.
 * Visible laser in fog for all players but you.
-* Bots dont look for a team leader in TP
-* Enabled the 6th custom crosshair in the UI
+* Bots dont look for a team leader in TP.
+* Enabled the 6th custom crosshair in the UI.
 * Added callvote map and ref map features.
 * Fixed the UI team count cvars when someone disconnects.
-* Fixed the bandagebug
-* Added a feature to overlay normal crosshairsover the SSG crosshair
-* Fixed shots fired stats for non TP modes
-* Fixed the logging of Clients IP's when they connect
+* Fixed the bandagebug.
+* Added a feature to overlay normal crosshairsover the SSG crosshair.
+* Fixed shots fired stats for non TP modes.
+* Fixed the logging of Clients IP's when they connect.
+* Personal score grouped with team score on hud.
