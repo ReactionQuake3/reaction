@@ -64,6 +64,13 @@ vmCvar_t	g_listEntity;
 //Blaze: Reaction cvars
 vmCvar_t	g_rxn_knifelimit;
 vmCvar_t	g_RQ3_maxWeapons;
+//Elder: spam protection cvars
+vmCvar_t	g_RQ3_messageMaxCount;
+vmCvar_t	g_RQ3_messageInterval;
+vmCvar_t	g_RQ3_messageMaxWarnings;
+vmCvar_t	g_RQ3_messageWarnTime;
+vmCvar_t	g_RQ3_messageBanTime;
+vmCvar_t	g_RQ3_messageProtect;
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
@@ -163,7 +170,13 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	//Blaze: Reaction stuff
-	{ &g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1",0,0,qtrue}
+	{ &g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1",0,0, qtrue},
+	{ &g_RQ3_messageMaxCount, "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER, CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_messageInterval, "sv_RQ3_messageInterval", SAY_PERIOD_TIME, CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_messageMaxWarnings, "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS, CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_messageWarnTime, "sv_RQ3_messageWarnTime", SAY_WARNING_TIME, CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_messageBanTime, "sv_RQ3_messageBanTime", SAY_BAN_TIME, CVAR_ARCHIVE, 0, qfalse },
+	{ &g_RQ3_messageProtect, "sv_RQ3_messageProtect", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue}
 
 };
 

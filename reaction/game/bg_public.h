@@ -374,7 +374,7 @@ typedef enum {
 	WEAPON_RAISING,		//sync with WP_ANIM_ACTIVATE
 	WEAPON_DROPPING,	//sync with WP_ANIM_DISARM
 	WEAPON_FIRING,		//sync with WP_ANIM_FIRE
-	WEAPON_RELOADING	//sync with WP_ANIM_RELOAD
+	WEAPON_RELOADING,	//sync with WP_ANIM_RELOAD
 } weaponstate_t;
 
 //Blaze: for the weapon animation states
@@ -385,7 +385,7 @@ typedef enum {
 	WP_ANIM_IDLE,
 	WP_ANIM_DISARM,
 	WP_ANIM_ACTIVATE,
-	//WP_ANIM_FIRE2,
+	//WP_ANIM_EMPTY,
 	MAX_WEAPON_ANIMATIONS
 } wpAnimNumber_t;
 
@@ -463,7 +463,7 @@ typedef enum {
 
 	
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-//	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+	//STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
 
 	//These are RQ3-related specific stats	
 	STAT_CLIPS,						// Num Clips player currently has
@@ -482,7 +482,7 @@ typedef enum {
 //Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
 #define RQ3_ZOOM_LOW		8
 #define RQ3_ZOOM_MED		16
-
+#define RQ3_THROWWEAPON		32		//Present if dropping weapon via cmd or kicked away
 
 
 // player_state->persistant[] indexes
@@ -610,6 +610,22 @@ typedef enum {
 	WP_NUM_WEAPONS
 } weapon_t;
 
+// Elder: for our end-level awards later on
+typedef enum {
+	RECORD_HEADSHOTS,
+	RECORD_CHESTSHOTS,
+	RECORD_STOMACHSHOTS,
+	RECORD_LEGSHOTS,
+	RECORD_FALLINGDEATHS,
+	RECORD_CAMPCOUNT,
+	RECORD_JUMPCOUNT,			// e.g. rabbit or monkey award
+	RECORD_SUICIDES,			// e.g. for MPELP award
+	RECORD_STEALTHKILLS,
+	RECORD_FRAGSTEALS,
+	
+	RECORD_TOTAL
+} rq3record_t;
+
 
 //Elder: added
 //
@@ -645,6 +661,9 @@ typedef enum {
 	EV_FOOTSTEP,
 	EV_FOOTSTEP_METAL,
 	EV_FOOTSTEP_GRASS,	// Elder: new surfaces
+	EV_FOOTSTEP_WOOD,
+	EV_FOOTSTEP_CARPET,
+	EV_FOOTSTEP_METAL2,
 	EV_FOOTSPLASH,
 	EV_FOOTWADE,
 	EV_SWIM,

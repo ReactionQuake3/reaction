@@ -1148,6 +1148,19 @@ static int PM_FootstepForSurface( void ) {
 	if ( pml.groundTrace.surfaceFlags & SURF_GRASS ) {
 		return EV_FOOTSTEP_GRASS;
 	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_WOOD ) {
+		return EV_FOOTSTEP_WOOD;
+	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_CARPET ) {
+		return EV_FOOTSTEP_CARPET;
+	}
+
+	if ( pml.groundTrace.surfaceFlags & SURF_METAL2 ) {
+		return EV_FOOTSTEP_METAL2;
+	}
+
 	return EV_FOOTSTEP;
 }
 
@@ -1758,50 +1771,68 @@ static void PM_BeginWeaponChange( int weapon ) {
 	}
 
 	PM_AddEvent( EV_CHANGE_WEAPON );
-	pm->ps->weaponstate = WEAPON_DROPPING;
-	//pm->ps->weaponTime += 200;
-	//Elder: dependent time for each weapon
-	switch (pm->ps->weapon) {
-	case WP_PISTOL:
-		pm->ps->weaponTime += RQ3_PISTOL_DISARM_DELAY;
-		break;
-	case WP_M3:
-		pm->ps->weaponTime += RQ3_M3_DISARM_DELAY;
-		break;
-	case WP_M4:
-		pm->ps->weaponTime += RQ3_M4_DISARM_DELAY;
-		break;
-	case WP_MP5:
-		pm->ps->weaponTime += RQ3_MP5_DISARM_DELAY;
-		break;
-	case WP_HANDCANNON:
-		pm->ps->weaponTime += RQ3_HANDCANNON_DISARM_DELAY;
-		break;
-	case WP_SSG3000:
-		pm->ps->weaponTime += RQ3_SSG3000_DISARM_DELAY;
-		break;
-	case WP_AKIMBO:
-		pm->ps->weaponTime += RQ3_AKIMBO_DISARM_DELAY;
-		break;
-	case WP_KNIFE:
-		pm->ps->weaponTime += RQ3_KNIFE_DISARM_DELAY;
-		break;
-	case WP_GRENADE:
-		pm->ps->weaponTime += RQ3_GRENADE_DISARM_DELAY;
-		break;
-	default:
-		//Elder: shouldn't be here
-		//G_Printf("PM_BeginWeaponChange: received bad weapon %d\n", pm->ps->weapon);
-		pm->ps->weaponTime += 600;
-		break;
-	}
 
+	//Elder: ignore disarm delays when throwing a weapon
+	if (pm->ps->stats[STAT_RQ3] & RQ3_THROWWEAPON)
+	{
+		//Com_Printf("Got to throw skip\n");
+		pm->ps->stats[STAT_RQ3] &= ~RQ3_THROWWEAPON;
+		pm->ps->weaponTime = 0;
+	}
+	else
+	{
+		//pm->ps->weaponTime += 200;
+		//Elder: dependent time for each weapon
+		switch (pm->ps->weapon) {
+		case WP_PISTOL:
+			pm->ps->weaponTime += RQ3_PISTOL_DISARM_DELAY;
+			break;
+		case WP_M3:
+			pm->ps->weaponTime += RQ3_M3_DISARM_DELAY;
+			break;
+		case WP_M4:
+			pm->ps->weaponTime += RQ3_M4_DISARM_DELAY;
+			break;
+		case WP_MP5:
+			pm->ps->weaponTime += RQ3_MP5_DISARM_DELAY;
+			break;
+		case WP_HANDCANNON:
+			pm->ps->weaponTime += RQ3_HANDCANNON_DISARM_DELAY;
+			break;
+		case WP_SSG3000:
+			pm->ps->weaponTime += RQ3_SSG3000_DISARM_DELAY;
+			break;
+		case WP_AKIMBO:
+			pm->ps->weaponTime += RQ3_AKIMBO_DISARM_DELAY;
+			break;
+		case WP_KNIFE:
+			pm->ps->weaponTime += RQ3_KNIFE_DISARM_DELAY;
+			break;
+		case WP_GRENADE:
+			pm->ps->weaponTime += RQ3_GRENADE_DISARM_DELAY;
+			break;
+		default:
+			//Elder: shouldn't be here
+			//G_Printf("PM_BeginWeaponChange: received bad weapon %d\n", pm->ps->weapon);
+			pm->ps->weaponTime += 600;
+			break;
+		}
+
+		//Elder: temp hack
+		if (pm->ps->weapon == WP_PISTOL ||
+			pm->ps->weapon == WP_M3 ||
+			pm->ps->weapon == WP_HANDCANNON)
+			PM_StartWeaponAnim(WP_ANIM_DISARM);
+	}
+	
+	pm->ps->weaponstate = WEAPON_DROPPING;
 	//Elder: temp hack
-	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+	if (pm->ps->weapon == WP_PISTOL ||
+		pm->ps->weapon == WP_M3 ||
+		pm->ps->weapon == WP_HANDCANNON)
 		PM_StartWeaponAnim(WP_ANIM_DISARM);
 
 	PM_StartTorsoAnim( TORSO_DROP );
-
 }
 
 
@@ -1870,7 +1901,9 @@ static void PM_FinishWeaponChange( void ) {
 	}
 
 	//Elder: temp hack
-	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+	if (pm->ps->weapon == WP_PISTOL ||
+		pm->ps->weapon == WP_M3 ||
+		pm->ps->weapon == WP_HANDCANNON)
 		PM_StartWeaponAnim(WP_ANIM_ACTIVATE);
 
 	PM_StartTorsoAnim( TORSO_RAISE );
@@ -1894,7 +1927,9 @@ static void PM_TorsoAnimation( void ) {
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
 		//Elder: temp hack
-		if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+		if (pm->ps->weapon == WP_PISTOL ||
+			pm->ps->weapon == WP_M3 ||
+			pm->ps->weapon == WP_HANDCANNON)
 			PM_ContinueWeaponAnim( WP_ANIM_IDLE );
 //		PM_ContinueWeaponAnim( WP_ANIM_READY );
 
@@ -1913,12 +1948,12 @@ static void PM_WeaponAnimation( void ) {
 	{
 		PM_ContinueWeaponAnim( WP_ANIM_RELOAD );
 	}
-	else if (pm->ps->weaponstate == WEAPON_READY)
-		PM_ContinueWeaponAnim( WP_ANIM_IDLE );
-	else if (pm->ps->weaponstate == WEAPON_DROPPING)
-		PM_ContinueWeaponAnim( WP_ANIM_DISARM );
-	else if (pm->ps->weaponstate == WEAPON_RAISING)
-		PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
+	//else if (pm->ps->weaponstate == WEAPON_READY)
+		//PM_ContinueWeaponAnim( WP_ANIM_IDLE );
+	//else if (pm->ps->weaponstate == WEAPON_DROPPING)
+		//PM_ContinueWeaponAnim( WP_ANIM_DISARM );
+	//else if (pm->ps->weaponstate == WEAPON_RAISING)
+		//PM_ContinueWeaponAnim( WP_ANIM_ACTIVATE );
 	return;
 }
 
@@ -2049,9 +2084,11 @@ static void PM_Weapon( void ) {
 		}
 		else
 		{
-			//Elder: added
+			//Elder: temp hack
 			if (pm->ps->weaponstate == WEAPON_READY &&
-				(pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON))
+				(pm->ps->weapon == WP_PISTOL ||
+				 pm->ps->weapon == WP_M3 ||
+				 pm->ps->weapon == WP_HANDCANNON))
 				PM_ContinueWeaponAnim(WP_ANIM_IDLE);
 		}
 	}
@@ -2093,7 +2130,10 @@ static void PM_Weapon( void ) {
 		// QUARANTINE - Weapon Animation
 		// Should always draw the weapon when it is just ready
 //		PM_StartWeaponAnim( WP_ANIM_READY );
-		if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+		// temp hack
+		if (pm->ps->weapon == WP_PISTOL ||
+			pm->ps->weapon == WP_M3 ||
+			pm->ps->weapon == WP_HANDCANNON)
 			PM_StartWeaponAnim( WP_ANIM_IDLE );
 		return;
 	}
@@ -2178,7 +2218,9 @@ static void PM_Weapon( void ) {
 			// QUARANTINE - Weapon animations
 			// This should change pm->ps->generic1 so we can animate
 			// Elder: don't repeat if on semi-auto
-			if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+			if (pm->ps->weapon == WP_PISTOL ||
+				pm->ps->weapon == WP_M3 ||
+				pm->ps->weapon == WP_HANDCANNON)
 				PM_StartWeaponAnim( WP_ANIM_FIRE );
 		}
 	}
@@ -2741,8 +2783,10 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_Weapon();
 
 	//weapon animations(rq3 specific)
-	//Elder: hack to avoid messing up fast-reloads
-	if (pm->ps->weapon == WP_PISTOL || pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_HANDCANNON)
+	//Elder: temp hack to avoid messing up fast-reloads
+	if (pm->ps->weapon == WP_PISTOL ||
+		pm->ps->weapon == WP_M3 ||
+		pm->ps->weapon == WP_HANDCANNON )
 		PM_WeaponAnimation();
 
 	// torso animation

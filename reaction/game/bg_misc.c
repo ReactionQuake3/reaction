@@ -1279,6 +1279,9 @@ char *eventnames[] = {
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",
 	"EV_FOOTSTEP_GRASS",		// Elder: grass stuff
+	"EV_FOOTSTEP_WOOD",
+	"EV_FOOTSTEP_CARPET",
+	"EV_FOOTSTEP_METAL2",
 	"EV_FOOTSPLASH",
 	"EV_FOOTWADE",
 	"EV_SWIM",

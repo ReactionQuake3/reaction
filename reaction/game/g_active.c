@@ -906,7 +906,14 @@ int ThrowWeapon( gentity_t *ent, qboolean forceThrow )
 		//Elder: Don't reset the weapon ammo
 		//client->ps.ammo[ weap ] = 0;
 		client->pers.hadUniqueWeapon[weap] = qtrue;
-		trap_SendServerCommand( ent-g_entities, va("selectpistol"));		
+		
+		
+		//Elder: for immediate weapon drops
+		if (client->ps.weapon == weap)
+		{
+			client->ps.stats[STAT_RQ3] |= RQ3_THROWWEAPON;
+			trap_SendServerCommand( ent-g_entities, va("selectpistol"));
+		}
 		
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );

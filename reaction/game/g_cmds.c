@@ -451,6 +451,9 @@ void Cmd_LevelShot_f( gentity_t *ent ) {
 
 /*
 ==================
+Elder: WTF... this is the wrong description, but it was
+like this in the 1.29h source
+
 Cmd_LevelShot_f
 
 This is just to help generate the level pictures
@@ -876,15 +879,20 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	if (validation != SAY_OK)
 	{
 		// Only send one message for the initial offense
-		if (ent->client->pers.sayMuteTime == level.time)
+		if (ent->client->pers.sayMuteTime == level.time && ent->client->pers.sayModerated == qfalse)
 		{
+			ent->client->pers.sayModerated = qtrue;
 			if (validation == SAY_WARNING)
 			{
-				trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^3WARNING ^7(%i seconds).\n\"", SAY_WARNING_TIME));
+				trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^3WARNING ^7(%i seconds).\n\"", g_RQ3_messageWarnTime.integer));
+				G_LogPrintf( "Server: %s received a message protect warning (offense %i)\n", ent->client->pers.netname, ent->client->pers.sayWarnings);
 			}
 			else if (validation == SAY_BAN)
 			{
-				trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^1BAN ^7(%i seconds).\n\"", SAY_BAN_TIME));
+				// Don't bother printing if kicked
+				if (g_RQ3_messageBanTime.integer > 0)
+					trap_SendServerCommand( ent-g_entities, va("print \"Exceeded message limit - ^1BAN ^7(%i seconds).\n\"", g_RQ3_messageBanTime.integer));
+				G_LogPrintf( "Server: %s received a message protect ban (offense %i)\n", ent->client->pers.netname, ent->client->pers.sayBans);
 			}
 		}
 
@@ -1669,7 +1677,9 @@ void Cmd_Bandage (gentity_t *ent)
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
 
 		//Elder: temp hack
-		if (ent->client->ps.weapon == WP_PISTOL || ent->client->ps.weapon == WP_M3)
+		if (ent->client->ps.weapon == WP_PISTOL ||
+			ent->client->ps.weapon == WP_M3 ||
+			ent->client->ps.weapon == WP_HANDCANNON)
 		{
 			ent->client->ps.generic1 = ( ( ent->client->ps.generic1 & ANIM_TOGGLEBIT ) 
 										^ ANIM_TOGGLEBIT ) | WP_ANIM_DISARM;
@@ -2548,12 +2558,74 @@ spam from reaching other clients.
 
 int RQ3_ValidateSay ( gentity_t *ent )
 {
-	int timeCheck;
+	int		timeCheck;
+	int		warnTime;
+	int		banTime;
+	int		intervalTime;
+	int		maxWarnings;
+	int		maxMessages;
+	
+	if (g_RQ3_messageProtect.integer == 0)
+		return SAY_OK;
 
-	if (ent->client->pers.sayWarnings)
-		timeCheck = SAY_WARNING_TIME * 1000;
+	// Check for good cvar values and set them to defaults if bad
+	// We use local vars because the cvars may not update in time for use
+
+	// message count
+	if (g_RQ3_messageMaxCount.integer < 0)
+	{
+		maxMessages = atoi(SAY_MAX_NUMBER);
+		trap_Cvar_Set( "sv_RQ3_messageMaxCount", SAY_MAX_NUMBER);
+	}
 	else
-		timeCheck = SAY_BAN_TIME * 1000;
+		maxMessages = g_RQ3_messageMaxCount.integer;
+
+	// warning time
+	if (g_RQ3_messageWarnTime.integer < 0)
+	{
+		warnTime = atoi(SAY_WARNING_TIME);
+		trap_Cvar_Set( "sv_RQ3_messageWarnTime", SAY_WARNING_TIME);
+	}
+	else
+		warnTime = g_RQ3_messageWarnTime.integer;
+
+	// max warnings
+	if (g_RQ3_messageMaxWarnings.integer < 0)
+	{
+		maxWarnings = atoi(SAY_MAX_WARNINGS);
+		trap_Cvar_Set( "sv_RQ3_messageMaxWarnings", SAY_MAX_WARNINGS);
+	}
+	else
+		maxWarnings = g_RQ3_messageMaxWarnings.integer;
+
+	// ban time
+	if (g_RQ3_messageBanTime.integer < 0)
+	{
+		banTime = atoi(SAY_BAN_TIME);
+		trap_Cvar_Set( "sv_RQ3_messageBanTime", SAY_BAN_TIME);
+	}
+	else
+		banTime = g_RQ3_messageBanTime.integer;
+
+	// interval time
+	if (g_RQ3_messageInterval.integer < 0)
+	{
+		intervalTime = atoi(SAY_PERIOD_TIME);
+		trap_Cvar_Set( "sv_RQ3_messageInterval", SAY_PERIOD_TIME);
+	}
+	else
+		intervalTime = g_RQ3_messageInterval.integer;
+
+
+	// seconds to milliseconds
+	if (ent->client->pers.sayWarnings)
+	{
+		timeCheck = warnTime * 1000;
+	}
+	else
+	{
+		timeCheck = banTime * 1000;
+	}
 
 	// check if already warned/banned
 	if (ent->client->pers.sayMuteTime &&
@@ -2566,17 +2638,22 @@ int RQ3_ValidateSay ( gentity_t *ent )
 	}
 
 	// check if a flooder
-	if (ent->client->pers.sayCount >= SAY_MAX_NUMBER &&
-		level.time - ent->client->pers.sayTime < SAY_PERIOD_TIME * 1000)
+	if (ent->client->pers.sayCount >= maxMessages &&
+		level.time - ent->client->pers.sayTime < intervalTime * 1000)
 	{
 		ent->client->pers.sayMuteTime = level.time;
 		
 		// determine penalty level
-		if (ent->client->pers.sayWarnings >= SAY_MAX_WARNINGS)
+		if (ent->client->pers.sayWarnings >= maxWarnings)
 		{
 			// bans never reset, but warnings do
 			ent->client->pers.sayBans++;
 			ent->client->pers.sayWarnings = 0;
+			
+			// kick if no ban time is set
+			if (banTime == 0)
+				trap_DropClient(ent->s.clientNum, "Dropped due to chat abuse");
+
 			return SAY_BAN;
 		}
 		else
@@ -2587,11 +2664,12 @@ int RQ3_ValidateSay ( gentity_t *ent )
 	}
 	
 	// regular say check
-	if (level.time - ent->client->pers.sayTime > SAY_PERIOD_TIME * 1000)
+	if (level.time - ent->client->pers.sayTime > intervalTime * 1000)
 	{
 		ent->client->pers.sayCount = 0;
 		ent->client->pers.sayTime = level.time;
 		ent->client->pers.sayMuteTime = 0;
+		ent->client->pers.sayModerated = qfalse;
 	}
 
 	ent->client->pers.sayCount++;

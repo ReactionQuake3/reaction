@@ -818,8 +818,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 
 		// Elder: only do death sounds if not hit in the head
-		if ((self->client->lasthurt_location & LOCATION_HEAD) != LOCATION_HEAD &&
-			(self->client->lasthurt_location & LOCATION_FACE) != LOCATION_FACE )
+		//G_Printf("Shot Diff: %i\n", level.time - self->client->headShotTime);
+
+		//if ((self->client->lasthurt_location & LOCATION_HEAD) != LOCATION_HEAD &&
+			//(self->client->lasthurt_location & LOCATION_FACE) != LOCATION_FACE &&
+		if (level.time - self->client->headShotTime > 400)
 			G_AddEvent( self, EV_DEATH1 + i, killer );
 
 		// the body can still be gibbed
@@ -1631,11 +1634,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 					{
 						case LOCATION_HEAD: 
 						case LOCATION_FACE:
+							//save headshot time for player_die
+							targ->client->headShotTime = level.time;
+
 							//Elder: reusing line so we don't have to declare more variables
 							line[0] = 0;
 							line[1] = 0;
 							line[2] = 20;
-							
+
 							trap_SendServerCommand( attacker-g_entities, va("print \"You hit %s^7 in the head.\n\"", targ->client->pers.netname));
 							trap_SendServerCommand( targ-g_entities, va("print \"Head Damage.\n\""));
 							

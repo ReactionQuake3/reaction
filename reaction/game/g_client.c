@@ -1279,6 +1279,9 @@ void ClientSpawn(gentity_t *ent) {
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
+	// weapon animations
+	client->ps.generic1 = ( ( client->ps.generic1 & ANIM_TOGGLEBIT ) 
+									^ ANIM_TOGGLEBIT ) | WP_ANIM_IDLE;
 	
 	if ( level.intermissiontime ) {
 		MoveClientToIntermission( ent );

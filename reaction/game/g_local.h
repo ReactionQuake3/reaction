@@ -269,17 +269,24 @@ typedef struct {
 	int			sayWarnings;		
 	int			sayBans;
 	int			sayMuteTime;
+	qboolean	sayModerated;		// so warnings are not repeated for multi-line, same-frame messages
 
 } clientPersistant_t;
 
 
 // Elder: spam prevention defaults
+/*
 #define SAY_MAX_NUMBER		6
 #define SAY_MAX_WARNINGS	3
 #define SAY_PERIOD_TIME		3			// Elder: in seconds
 #define SAY_WARNING_TIME	15
 #define SAY_BAN_TIME		60			// Technically should drop client
-
+*/
+#define SAY_MAX_NUMBER		"6"
+#define SAY_MAX_WARNINGS	"3"
+#define SAY_PERIOD_TIME		"3"			// Elder: in seconds
+#define SAY_WARNING_TIME	"15"
+#define SAY_BAN_TIME		"60"			// Technically should drop client
 typedef enum
 {
 	SAY_BAN,
@@ -393,6 +400,7 @@ struct gclient_s {
 //	int			legDamage;			//Blaze: Client has leg damage - holds number of hits too
 	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
 	int			bleedBandageCount;	//Elder: hack to restrict amount of bleeding to 6 points
+	int			headShotTime;		// Elder: got headshot?
 
 	//Elder: server only needs to know for sniper spread - ARGH
 //	int			zoomed; 			// Hawkins (SSG zoom)
@@ -410,6 +418,8 @@ struct gclient_s {
 	int			consecutiveShots;		// Elder: for M4 ride-up/kick
 	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var
 	int			uniqueItems;
+	//int		records[RECORD_TOTAL];	// Elder: for our awards when we implement it
+
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
@@ -920,6 +930,13 @@ extern	vmCvar_t	g_proxMineTimeout;
 //Blaze: Reaction cvars
 extern	vmCvar_t	g_rxn_knifelimit;
 extern	vmCvar_t	g_RQ3_maxWeapons;
+//Elder: spam protection cvars
+extern	vmCvar_t	g_RQ3_messageMaxCount;		// Max messages in interval
+extern	vmCvar_t	g_RQ3_messageInterval;		// Time interval for spam check
+extern	vmCvar_t	g_RQ3_messageMaxWarnings;	// Max warning count
+extern	vmCvar_t	g_RQ3_messageWarnTime;		// Time for warning; 0 for no-penalty warning
+extern	vmCvar_t	g_RQ3_messageBanTime;		// Time for ban; 0 to kick
+extern	vmCvar_t	g_RQ3_messageProtect;		// Elder: 0 disable, non-zero enable
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );

@@ -59,5 +59,8 @@
 #define	SURF_NODLIGHT			0x20000	// don't dlight even if solid (solid lava, skies)
 #define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
 //Elder: new surfaces
-#define SURF_GRASS				0x80000 // grass footsteps and turf hits later
-//#define SURF_CERAMIC			0x100000
+#define SURF_GRASS				0x80000
+#define SURF_WOOD				0x100000
+#define SURF_CARPET				0x200000
+#define SURF_METAL2				0x400000
+
