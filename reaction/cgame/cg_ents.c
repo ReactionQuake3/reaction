@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2003/02/27 19:52:34  makro
+// dlights
+//
 // Revision 1.35  2003/02/01 02:15:31  jbravo
 // Replacement models and items
 //
@@ -1174,8 +1177,18 @@ static void CG_Dlight(centity_t * cent)
 		if (cent->currentState.eventParm & DLIGHT_FLICKER)
 			i += rand() % 100 - 50;
 
+		//Makro - old code
+		/*
 		if (cent->currentState.eventParm & DLIGHT_PULSE)
 			i *= 1.0f + sin(2 * M_PI * cg.time / 1000.0f);
+		*/
+		if (cent->currentState.eventParm & DLIGHT_PULSE)
+		{
+			float frequency = cent->currentState.frame / 1000.0f;
+			float phase = 2 * M_PI * (frequency * cg.time / 1000.0f + cent->currentState.generic1 / 1000.0f);
+			float i2 = cent->currentState.weapon;
+			i += sin(phase) * (i2-i);
+		}
 
 		if (cent->currentState.eventParm & DLIGHT_ADDITIVE)
 			trap_R_AddAdditiveLightToScene(cent->lerpOrigin, i, r, g, b);

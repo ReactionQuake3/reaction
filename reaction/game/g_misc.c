@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.65  2003/02/27 19:52:34  makro
+// dlights
+//
 // Revision 1.64  2003/02/13 21:19:50  makro
 // no message
 //
@@ -247,13 +250,16 @@ void SP_dlight(gentity_t * ent)
 		ent->s.eventParm |= DLIGHT_FLICKER;
 	if (ent->spawnflags & 4)
 		ent->s.eventParm |= DLIGHT_PULSE;
+	//Makro - removed
+	/*
 	if (ent->spawnflags & 8)
 		ent->s.eventParm |= DLIGHT_STROBE;
+	*/
 
 	//Makro - added START_OFF flag
 	ent->use = use_dlight;
 	ent->unbreakable = qfalse;
-	if (ent->spawnflags & 16) {
+	if (ent->spawnflags & 8) {
 		ent->unbreakable = qtrue;
 		ent->use(ent, NULL, NULL);
 	}
@@ -277,8 +283,16 @@ void SP_dlight(gentity_t * ent)
 
 	ent->s.constantLight = r | (g << 8) | (b << 16) | (i << 24);
 
+	//Makro - added frequency, phase and light2
+	G_SpawnFloat("frequency", "2", &light);
+	ent->s.frame = light * 1000;
+	G_SpawnFloat("phase", "0", &light);
+	ent->s.generic1 = light * 1000;
+	G_SpawnFloat("light2", "0", &light);
+	ent->s.weapon = light;
+
 	ent->s.eType = ET_DLIGHT;
-	ent->classname = "light_d";
+	ent->classname = "func_dlite";
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
 

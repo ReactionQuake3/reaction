@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.43  2003/02/27 19:52:34  makro
+// dlights
+//
 // Revision 1.42  2003/01/06 00:23:29  makro
 // no message
 //
@@ -367,7 +370,8 @@ spawn_t spawns[] = {
 	{"target_push", SP_target_push},
 
 	{"light", SP_light},
-	{"light_d", SP_dlight},	// Elder: dlight entity
+	{"func_dlite", SP_dlight},	// Elder: dlight entity
+	{"light_d", SP_dlight},	//Makro - for compatibility with older maps
 	{"path_corner", SP_path_corner},
 
 	{"misc_teleporter_dest", SP_misc_teleporter_dest},
