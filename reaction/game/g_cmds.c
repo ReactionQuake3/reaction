@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2002/03/18 01:22:35  slicer
+// bandage bleedtick back to original
+//
 // Revision 1.74  2002/03/17 15:18:55  jbravo
 // Added 2 checks to debugshit
 //
@@ -2051,8 +2054,7 @@ void Cmd_Bandage (gentity_t *ent)
 
 
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
-// JBravo: bleedtick was 4. This should fix bandage bugs.
-        	ent->client->bleedtick = 6;
+        	ent->client->bleedtick = 4;
 		//Elder: added to track health to bleed off
 		ent->client->bleedBandageCount = BLEED_BANDAGE;
 	}
