@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.73  2002/05/11 19:55:20  slicer
+// Added sub and captain to the scoreboard parser
+//
 // Revision 1.72  2002/05/11 19:13:42  makro
 // Sand surfaceparm
 //
@@ -468,6 +471,9 @@ typedef struct {
 	int				captures;
 	qboolean		perfect;
 	int				team;
+	//Slicer Matchmode
+	team_t			captain;
+	team_t			sub;
 } score_t;
 
 //Blaze: WeaponStats Struct

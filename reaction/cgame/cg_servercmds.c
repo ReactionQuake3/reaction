@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/05/11 19:55:20  slicer
+// Added sub and captain to the scoreboard parser
+//
 // Revision 1.35  2002/05/11 15:40:41  slicer
 // Changed cg_RQ3_<team count> cvars to ui_RQ3_ and added a synch system for these
 //
@@ -163,8 +166,12 @@ static void CG_ParseScores( void ) {
 		//cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
 		//cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
 		//cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
+		//Slicer using first two for Matchmode	
+		//cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
+		//cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
+		cg.scores[i].captain = atoi(CG_Argv(i * 14 + 14));
+		cg.scores[i].sub = atoi(CG_Argv(i * 14 + 15));
+
 		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
 		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
 
