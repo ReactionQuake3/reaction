@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2002/06/17 03:53:31  niceass
+// m4 muzzle flash is smaller
+//
 // Revision 1.82  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1762,6 +1765,10 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 
 	if (cg_RQ3_flash.integer) {
 		if (ps) {
+			float scale = 2.0f;
+
+			if (ps->weapon == WP_M4) scale = 1.5f;
+
 			// Elder: draw flash based on first-person view
 			if (ps->weapon == WP_AKIMBO) {
 				// choose tag for akimbos
@@ -1773,9 +1780,9 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 				CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->firstModel, "tag_flash");
 
 			// Make flash larger to compensate for depth hack
-			VectorScale(flash.axis[0], 2.0f, flash.axis[0]);
-			VectorScale(flash.axis[1], 2.0f, flash.axis[1]);
-			VectorScale(flash.axis[2], 2.0f, flash.axis[2]);
+			VectorScale(flash.axis[0], scale, flash.axis[0]);
+			VectorScale(flash.axis[1], scale, flash.axis[1]);
+			VectorScale(flash.axis[2], scale, flash.axis[2]);
 			flash.nonNormalizedAxes = qtrue;
 		} else {
 			//Elder: draw flash based on 3rd-person view
