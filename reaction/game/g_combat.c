@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/02/07 21:01:48  niceass
+// AddScore bug fixed. I thought I put this in already!
+//
 // Revision 1.39  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -65,9 +68,10 @@ void AddScore( gentity_t *ent, vec3_t origin, int score ) {
 		return;
 	}
 	// no scoring during pre-match warmup
-	if ( level.warmupTime ) {
-		return;
-	}
+	//if ( level.warmupTime ) {
+	//	return;
+	//}
+
 	// show score plum
 	ScorePlum(ent, origin, score);
 	//
