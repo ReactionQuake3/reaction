@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.81  2002/09/08 03:31:36  niceass
+// accuracy improved
+//
 // Revision 1.80  2002/09/02 02:23:45  niceass
 // removed spherical head detection and may have helped the ssg accuracy bug
 //
@@ -1758,11 +1761,12 @@ set muzzle location relative to pivoting eye
 */
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint)
 {
-	VectorCopy(ent->s.pos.trBase, muzzlePoint);
+//	VectorCopy(ent->s.pos.trBase, muzzlePoint);
+	VectorCopy(ent->client->ps.origin, muzzlePoint);
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
 	// snap to integer coordinates for more efficient network bandwidth usage
-	SnapVector(muzzlePoint);
+	// SnapVector(muzzlePoint);
 }
 
 /*
@@ -1774,11 +1778,12 @@ set muzzle location relative to pivoting eye
 */
 void CalcMuzzlePointOrigin(gentity_t * ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint)
 {
-	VectorCopy(ent->s.pos.trBase, muzzlePoint);
+//	VectorCopy(ent->s.pos.trBase, muzzlePoint);
+	VectorCopy(ent->client->ps.origin, muzzlePoint);
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA(muzzlePoint, 14, forward, muzzlePoint);
 	// snap to integer coordinates for more efficient network bandwidth usage
-	SnapVector(muzzlePoint);
+	// SnapVector(muzzlePoint);
 }
 
 /*
@@ -1797,7 +1802,8 @@ void FireWeapon(gentity_t * ent)
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
 
-	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
+//	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
+	CalcMuzzlePointOrigin(ent, ent->client->ps.origin, forward, right, up, muzzle);
 
 	// fire the specific weapon
 	switch (ent->s.weapon) {
