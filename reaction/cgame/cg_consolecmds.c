@@ -137,7 +137,7 @@ static void CG_Bandage_f (void) {
 		//CG_Printf("You are too busy with your weapon!\n");
 		//return;
 	//}
-	if (cg.snap->ps.weaponTime > 0)
+	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 		return;
 
 	if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED) {

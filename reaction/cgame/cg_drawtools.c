@@ -810,7 +810,9 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 	trap_R_SetColor( color );
 	
 	ax = x * cgs.screenXScale + cgs.screenXBias;
-	ay = y * cgs.screenXScale;
+	// Elder: typo in the mod source
+	//ay = y * cgs.screenXScale;
+	ay = y * cgs.screenYScale;
 
 	s = str;
 	while ( *s )

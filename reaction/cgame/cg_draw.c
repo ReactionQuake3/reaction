@@ -517,12 +517,12 @@ static void CG_DrawStatusBar( void ) {
 //	qhandle_t	handle;
 //#endif
 	int			i;
-	
+
 	static float colors [4][4] = {
-		{ 0.0f, 1.0f, 0.0f, 1.0f } ,		//full green
-		{ 0.8f, 0.0f, 0.0f, 0.7f } ,		//
-		{ 0.6f, 0.0f, 0.0f, 0.7f } ,		//
-		{ 0.4f, 0.0f, 0.0f, 0.7f } };		//
+		{ 0.0f, 1.0f, 0.0f, 1.0f } ,		// full green
+		{ 0.6f, 0.6f, 0.6f, 1.0f } ,		// firing
+		{ 0.8f, 0.8f, 0.0f, 1.0f } ,		// not maximum
+		{ 0.8f, 0.0f, 0.0f, 1.0f } };		// out of ammo
 	
 	
 	cent = &cg_entities[cg.snap->ps.clientNum];
@@ -563,6 +563,7 @@ static void CG_DrawStatusBar( void ) {
 	}*/
 
 	CG_DrawPic(8, 440, SMICON_SIZE, SMICON_SIZE, hicon);
+	//CG_DrawStringExt(44, 444, va("%d", value), hcolor, qtrue, qtrue, 24, 24, 3);
 	UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
 	
 	
@@ -584,17 +585,31 @@ static void CG_DrawStatusBar( void ) {
 	{
 		value = ps->ammo[cent->currentState.weapon];
 
-		if ( value > -1 )
-			UI_DrawProportionalString(188, 444, va("%d", value), style, colors[0]);
+		// Select colour
+		if ( cg.predictedPlayerState.weaponstate == WEAPON_FIRING && cg.predictedPlayerState.weaponTime > 100 )
+			color = 1;
+		else if ( ps->ammo[ cent->currentState.weapon ] == 0)
+			color = 3;
+		else if ( ps->ammo[ cent->currentState.weapon ] < ClipAmountForAmmo( cent->currentState.weapon ))
+			color = 2;
+		else
+			color = 0;
+		
+		if ( value >= 0 )
+			UI_DrawProportionalString(188, 444, va("%d", value), style, colors[color]);
 
 		//UI_DrawProportionalString(188, 444, "/"), style, colors[0]);
-
+		
 		value = ps->stats[STAT_CLIPS];
 		if ( value > -1 &&
 			cg.predictedPlayerState.weapon != WP_KNIFE &&
 			cg.predictedPlayerState.weapon != WP_GRENADE)
 			UI_DrawProportionalString(288, 444, va("%d", value), style, colors[0]);
 	}
+
+	// Elder: temporary
+	if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
+		UI_DrawProportionalString( 10, 400, va("%i", cg.snap->ps.stats[STAT_RELOADTIME]), style, colors[2]);
 
 	//Elder: draw grenades, if any, on the side
 	if (cg.snap->ps.ammo[ WP_GRENADE ] > 0)
@@ -606,28 +621,24 @@ static void CG_DrawStatusBar( void ) {
 	}
 
 	//Elder: draw a special weapon, if any, on the side
-	//if (cg.snap->ps.stats[STAT_UNIQUEWEAPONS])
-	//{
-		for (i = 1; i < MAX_WEAPONS; i++)
-		{
-			if (i == WP_KNIFE ||
-				i == WP_PISTOL ||
-				i == WP_GRENADE ||
-				i == WP_AKIMBO)
-				continue;
+	for (i = 1; i < MAX_WEAPONS; i++)
+	{
+		if (i == WP_KNIFE ||
+			i == WP_PISTOL ||
+			i == WP_GRENADE ||
+			i == WP_AKIMBO)
+			continue;
 
-			if ( (1 << i) == ((1 << i) & cg.snap->ps.stats[STAT_WEAPONS]))
-				break;
-		}
+		if ( (1 << i) == ((1 << i) & cg.snap->ps.stats[STAT_WEAPONS]))
+			break;
+	}
 
-		if (i < MAX_WEAPONS)
-		{
-			icon = cg_weapons[i].weaponIcon;
-			if (icon)
-				CG_DrawPic(640-SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
-		}
-	//}
-
+	if (i < MAX_WEAPONS)
+	{
+		icon = cg_weapons[i].weaponIcon;
+		if (icon)
+			CG_DrawPic(640-SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
+	}
 }
 
 /* Elder: old stuff
@@ -2086,54 +2097,69 @@ static void CG_DrawCrosshair(void) {
 
 	//Elder: Sniper crosshairs - lots of hardcoded values :/
  	//if ( cg.snap->ps.weapon==WP_SSG3000 && cg.zoomLevel > 0 && cg.zoomLevel < 4) {
-	if ( cg.snap->ps.weapon == WP_SSG3000 &&
-		 (cg.zoomFirstReturn == -1 || cg.snap->ps.weaponTime < ZOOM_TIME) &&
-		( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
-		  (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) ) {
-		int zoomMag;
-		x = SCREEN_WIDTH / 2;
-		y = SCREEN_HEIGHT / 2;
-
-		//derive zoom level - seems complicated but they're only bit comparisions
-		if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
-			(cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
-			zoomMag = 2;
-		}
-		else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
-			zoomMag = 0;
-		}
-		else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
-			zoomMag = 1;
-		}
-		else {
-			//Shouldn't need to be here
-			CG_Error("CG_DrawCrosshair: received no zoom value\n");
-		}
-
-		//Elder: Setup crosshair colours
-		crosshairColor[0] = cg_RQ3_ssgColorR.value;
-		crosshairColor[1] = cg_RQ3_ssgColorG.value;
-		crosshairColor[2] = cg_RQ3_ssgColorB.value;
-		crosshairColor[3] = cg_RQ3_ssgColorA.value;
-
-		//Clamp
-		for (i = 0; i < 4; i++)
+	// some pile of crap
+	// using SSG and zoomed in
+	if ( cg.snap->ps.weapon == WP_SSG3000 && 
+	   ( (cg.zoomLevel & RQ3_ZOOM_LOW) || (cg.zoomLevel & RQ3_ZOOM_MED) ) )
+	{
+		// out of ammo but not reloading
+		//if ( ( cg.zoomFirstReturn == -1 && cg.snap->ps.stats[STAT_RELOADTIME] <= 0) ||
+			 //( cg.snap->ps.weaponTime == 0 && cg.snap->ps.stats[STAT_RELOADTIME] <= 0))
+		if ((cg.zoomFirstReturn == -1 || cg.snap->ps.weaponTime < ZOOM_TIME) &&
+			cg.snap->ps.stats[STAT_RELOADTIME] <= 0)
 		{
-			if (crosshairColor[i] > 1.0)
-				crosshairColor[i] = 1.0;
-			else if (crosshairColor[i] < 0)
-				crosshairColor[i] = 0;
-		}
+			/*
+			if ( (cg.zoomFirstReturn == -1 ||
+				 (cg.snap->ps.weaponTime < ZOOM_TIME && cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME)) &&
+			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS) &&
+			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_LOCKRELOADS) {
+			*/
+			int zoomMag;
 
-		trap_R_SetColor(crosshairColor);
-		//I can probably scale the zoom with the screen width -/+ keys
- 		//But I'll do it later.
- 		CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
-		
-		trap_R_SetColor(NULL);
- 		return;
+			x = SCREEN_WIDTH / 2;
+			y = SCREEN_HEIGHT / 2;
+
+			//derive zoom level
+			if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+				(cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+				zoomMag = 2;
+			}
+			else if ( (cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+				zoomMag = 0;
+			}
+			else if ( (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+				zoomMag = 1;
+			}
+			else {
+				//Shouldn't need to be here
+				CG_Error("CG_DrawCrosshair: received no zoom value\n");
+			}
+
+			//Elder: Setup crosshair colours
+			crosshairColor[0] = cg_RQ3_ssgColorR.value;
+			crosshairColor[1] = cg_RQ3_ssgColorG.value;
+			crosshairColor[2] = cg_RQ3_ssgColorB.value;
+			crosshairColor[3] = cg_RQ3_ssgColorA.value;
+
+			//Clamp
+			for (i = 0; i < 4; i++)
+			{
+				if (crosshairColor[i] > 1.0f)
+					crosshairColor[i] = 1.0f;
+				else if (crosshairColor[i] < 0)
+					crosshairColor[i] = 0;
+			}
+
+			trap_R_SetColor(crosshairColor);
+			//I can probably scale the zoom with the screen width -/+ keys
+ 			//But I'll do it later.
+ 			CG_DrawPic( x - 128, y - 128, 256, 256, cgs.media.ssgCrosshair[zoomMag]);
+			
+			trap_R_SetColor(NULL);
+ 			return;
+		}
 	}
-	else {
+	//else {
 		x = cg_crosshairX.integer;
 		y = cg_crosshairY.integer;
 		CG_AdjustFrom640( &x, &y, &w, &h );
@@ -2143,7 +2169,7 @@ static void CG_DrawCrosshair(void) {
 			ca = 0;
 		}
 		hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
-	}
+	//}
 	
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 

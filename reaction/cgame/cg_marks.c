@@ -1450,10 +1450,12 @@ void CG_ParticleBulletDebris (vec3_t org, vec3_t vel, int duration)
 	p->alpha = 1.0;
 	p->alphavel = 0;
 
+	/*
 	p->height = 0.5;
 	p->width = 0.5;
 	p->endheight = 0.5;
 	p->endwidth = 0.5;
+	*/
 
 	p->pshader = cgs.media.tracerShader;
 
@@ -2067,7 +2069,8 @@ void CG_ParticleBloodCloud (centity_t *cent, vec3_t origin, vec3_t dir)
 	
 }
 
-void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed)
+// Elder: modified to suit our impact marks
+void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale)
 {
 	cparticle_t	*p;
 
@@ -2086,10 +2089,17 @@ void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, 
 	p->alpha = 0.4f;
 	p->alphavel = 0;
 
+	/*
+	// Elder: old settings
 	p->height = 0.5;
 	p->width = 0.5;
 	p->endheight = 0.5;
 	p->endwidth = 0.5;
+	*/
+	p->height = 1.5 * scale;
+	p->width = 1.5 * scale;
+	p->endheight = 0.75 * scale;
+	p->endwidth = 0.75 * scale;
 
 	p->pshader = cgs.media.tracerShader;
 
@@ -2104,7 +2114,10 @@ void CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, 
 	p->vel[1] = vel[1];
 	p->vel[2] = vel[2];
 
-	p->accel[0] = p->accel[1] = p->accel[2] = 0;
+	// Elder: old settings
+	//p->accel[0] = p->accel[1] = p->accel[2] = 0;
+	p->accel[0] = p->accel[1] = 0;
+	p->accel[2] = -PARTICLE_GRAVITY * 4;
 
 	p->vel[0] += (crandom() * 4);
 	p->vel[1] += (crandom() * 4);

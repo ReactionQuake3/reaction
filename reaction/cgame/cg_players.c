@@ -666,7 +666,8 @@ static void CG_LoadClientInfo( clientInfo_t *ci ) {
 				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
 			}
 		} else {
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname ) ) {
+			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, DEFAULT_SKIN, DEFAULT_MODEL, DEFAULT_SKIN, teamname ) ) {
+			//if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname ) ) {
 				CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
 			}
 		}
@@ -1272,6 +1273,8 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 {
 	clientInfo_t *ci;
 	int clientNum;
+	int stateAnimNum;
+	int weapAnimNum;
 	
 	clientNum = cent->currentState.clientNum;
 
@@ -1282,6 +1285,47 @@ void CG_WeaponAnimation( centity_t *cent, int *weaponOld, int *weapon, float *we
 
 	ci = &cgs.clientinfo[ clientNum ];
 	
+	// Elder: FIXME? - hack hehe
+	// Compare master copy with existing animation frames
+	// The only time when they are supposed to be mismatched is when
+	// switching to a new animation (handled in first condition)
+	// Even if they are wrong, yet identical, you can still work with it
+	// TODO: Should also check loop and flipflop but should suffice for 99% of the cases
+	stateAnimNum = cent->currentState.generic1 & ~ANIM_TOGGLEBIT;
+	weapAnimNum = cent->pe.weapon.animationNumber & ~ANIM_TOGGLEBIT;
+	if (stateAnimNum == weapAnimNum)
+	{
+		if (cg_weapons[cent->currentState.weapon].animations[stateAnimNum].firstFrame == cent->pe.weapon.animation->firstFrame &&
+			cg_weapons[cent->currentState.weapon].animations[stateAnimNum].numFrames == cent->pe.weapon.animation->numFrames)
+		{
+			// don't compile my test spam
+			#if 0
+			CG_Printf("Animation info okay: (%i versus %i) and (%i versus %i)\n",
+				cg_weapons[cent->currentState.weapon].animations[stateAnimNum].firstFrame,
+				cent->pe.weapon.animation->firstFrame,
+				cg_weapons[cent->currentState.weapon].animations[stateAnimNum].numFrames,
+				cent->pe.weapon.animation->numFrames);
+			#endif
+		}
+		else
+		{
+			// don't compile my test spam
+			#if 0
+			CG_Printf("Mismatch of animation info (%i versus %i) and (%i versus %i)\n",
+				cg_weapons[cent->currentState.weapon].animations[stateAnimNum].firstFrame,
+				cent->pe.weapon.animation->firstFrame,
+				cg_weapons[cent->currentState.weapon].animations[stateAnimNum].numFrames,
+				cent->pe.weapon.animation->numFrames);
+			CG_Printf("Compensating...\n");
+			#endif
+				cent->pe.weapon.animation = &cg_weapons[cent->currentState.weapon].animations[stateAnimNum];
+		}
+	}
+	else
+	{
+		//CG_Printf("Mismatch of animation number (%i versus %i)\n", stateAnimNum, weapAnimNum);
+	}
+
 	CG_RunLerpFrame( ci, &cent->pe.weapon, cent->currentState.generic1, 1, qtrue );
 
 	// QUARANTINE - Debug - Animations
@@ -1561,6 +1605,69 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 
 //==========================================================================
+
+/*
+===============
+CG_HCSmokeTrail
+
+Added by Elder
+===============
+*/
+static void CG_HCSmokeTrail( centity_t *cent ) {
+	localEntity_t	*smoke;
+	vec3_t			origin;
+	vec3_t			velocity;
+	int				anim;
+	int				smokeTime;
+	
+	if ( cg_noProjectileTrail.integer || cent->trailTime > cg.time ) {
+		return;
+	}
+
+	anim = cent->pe.legs.animationNumber & ~ANIM_TOGGLEBIT;
+	if ( anim != BOTH_DEATH1 && anim != BOTH_DEAD1 &&
+		 anim != BOTH_DEATH2 && anim != BOTH_DEAD2 &&
+		 anim != BOTH_DEATH3 && anim != BOTH_DEAD3 ) {
+		return;
+	}
+
+	// setup smoke depending on state
+	if (anim == BOTH_DEAD1 || anim == BOTH_DEAD2 || anim == BOTH_DEAD3)
+	{
+		velocity[0] = rand() % 10 - 5;
+		velocity[1] = rand() % 8 - 4;
+		velocity[2] = 24 + rand() % 40;	
+		cent->trailTime += 350;
+		smokeTime = 2250 + rand() % 250;
+	}
+	else
+	{
+		velocity[0] = 0;
+		velocity[1] = 0;
+		velocity[2] = 10 + rand() % 16;
+		cent->trailTime += 150;
+		smokeTime = 1400 + rand() % 200;
+	}
+
+	if ( cent->trailTime < cg.time ) {
+		cent->trailTime = cg.time;
+	}
+
+	VectorCopy( cent->lerpOrigin, origin );
+	origin[2] -= 6;
+	
+	smoke = CG_SmokePuff( origin, velocity, 
+				  20 + rand() % 4, 
+				  1, 1, 1, 0.33f,
+				  smokeTime, 
+				  cg.time,
+				  0,
+				  0,
+				  cgs.media.smokePuffShader );
+
+	// use the optimized local entity add
+	smoke->leType = LE_SCALE_FADE;
+}
 
 /*
 ===============
@@ -1962,6 +2069,11 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 	if ( powerups & ( 1 << PW_HASTE ) ) {
 		CG_HasteTrail( cent );
 	}
+
+	// Elder: HC Smoke
+	//if ( powerups & ( 1 << PW_HANDCANNON_SMOKED) ) {
+		//CG_HCSmokeTrail( cent );
+	//}
 }
 
 
@@ -2668,6 +2780,11 @@ void CG_Player( centity_t *cent ) {
 
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent, &torso );
+
+	// Elder: HC Smoke
+	if ( cent->currentState.eFlags & EF_HANDCANNON_SMOKED ) {
+		CG_HCSmokeTrail( cent );
+	}
 }
 
 

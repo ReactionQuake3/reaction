@@ -1716,8 +1716,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					break;
 				}
 #endif
-			} else {
+			} else if (item->giType == IT_HOLDABLE) {
+				// Elder: we want sounds for unique item pickup
 				trap_S_StartSound (NULL, es->number, CHAN_AUTO,	trap_S_RegisterSound( item->pickup_sound, qfalse ) );
+			} else {
+				// Elder: no item pick-up sound
+					//trap_S_StartSound (NULL, es->number, CHAN_AUTO,	trap_S_RegisterSound( item->pickup_sound, qfalse ) );
 			}
 
 			// show icon and name on status bar
@@ -1783,9 +1787,17 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		//Elder: modified
 		CG_FireWeapon( cent, es->eventParm );
 		break;
-	case EV_RELOAD_WEAPON:
-		DEBUGNAME("EV_RELOAD_WEAPON");
-		CG_ReloadWeapon( cent, es->eventParm );
+	case EV_RELOAD_WEAPON0:
+		DEBUGNAME("EV_RELOAD_WEAPON0");
+		CG_ReloadWeapon( cent, 0 );
+		break;
+	case EV_RELOAD_WEAPON1:
+		DEBUGNAME("EV_RELOAD_WEAPON1");
+		CG_ReloadWeapon( cent, 1 );
+		break;
+	case EV_RELOAD_WEAPON2:
+		DEBUGNAME("EV_RELOAD_WEAPON2");
+		CG_ReloadWeapon( cent, 2 );
 		break;
 	case EV_USE_ITEM0:
 		DEBUGNAME("EV_USE_ITEM0");
@@ -1955,7 +1967,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_KNIFE_MISS:
 		DEBUGNAME("EV_KNIFE_MISS");
 		ByteToDir( es->eventParm, dir );
-		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_DEFAULT, RQ3_WPMOD_KNIFESLASH );
+		CG_MissileHitWall( es->weapon, 0, position, dir, IMPACTSOUND_METAL, RQ3_WPMOD_KNIFESLASH );
 		break;
 
 	case EV_RAILTRAIL:
@@ -1973,20 +1985,59 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_BULLET_HIT_WALL:
 		DEBUGNAME("EV_BULLET_HIT_WALL");
 		ByteToDir( es->eventParm, dir );
-		//Elder: added additional param
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, qfalse );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_DEFAULT);
+		break;
+
+	case EV_BULLET_HIT_METAL:
+		DEBUGNAME("EV_BULLET_HIT_METAL");
+		ByteToDir( es->eventParm, dir );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, IMPACTSOUND_METAL);
+		break;
+
+	case EV_BULLET_HIT_KEVLAR:
+		DEBUGNAME("EV_BULLET_HIT_KEVLAR");
+		ByteToDir( es->eventParm, dir );
+		VectorScale( dir, -1, dir );
+		trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
+		if (cg_RQ3_impactEffects.integer)
+		{
+			vec3_t velocity;
+			vec3_t origin;
+			int sparkCount;
+			int i;
+
+			sparkCount = 20 + rand() % 15;
+			VectorCopy(es->pos.trBase, origin);
+			origin[2] += 12;
+			// Generate the particles
+			for (i = 0; i < sparkCount; i++)
+			{
+				VectorScale(dir, 150 + rand() % 30, velocity);
+				//random upwards sparks
+				if ( rand() % 5 < 1)
+					velocity[2] += 120 + rand() % 30;
+
+				velocity[0] += rand() % 80 - 40;
+				velocity[1] += rand() % 80 - 40;
+				CG_ParticleSparks(origin, velocity, 150 + rand() % 120, 2, 2, -4, 1);
+			}
+		}
 		break;
 
 	case EV_BULLET_HIT_FLESH:
 		DEBUGNAME("EV_BULLET_HIT_FLESH");
+		//ByteToDir( es->eventParm, dir );
 		//Elder: added additional param
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm, qfalse );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
 		break;
 
 	case EV_SSG3000_HIT_FLESH:
 		DEBUGNAME("EV_SSG3000_HIT_FLESH");
+		ByteToDir( es->eventParm, dir );
 		//Elder: added additional param
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm, qtrue );
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->otherEntityNum2, IMPACTSOUND_FLESH);
+		VectorAdd(es->pos.trBase, dir, dir);
+		CG_BleedSpray(es->pos.trBase, dir, es->otherEntityNum2, 16);
 		break;
 
 	case EV_JUMPKICK:

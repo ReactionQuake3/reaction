@@ -29,9 +29,11 @@
 #define	DUCK_TIME			100
 #define	PAIN_TWITCH_TIME	200
 #define	WEAPON_SELECT_TIME	1400
-#define	ITEM_SCALEUP_TIME	1000
+// Elder: decreased from 1000
+#define	ITEM_SCALEUP_TIME	250
 #define	ZOOM_TIME			150
-#define	ITEM_BLOB_TIME		200
+// Elder: increased from 200
+#define	ITEM_BLOB_TIME		300
 #define	MUZZLE_FLASH_TIME	20
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
@@ -65,23 +67,33 @@
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
 
-#define	DEFAULT_MODEL			"sarge"
+//#define	DEFAULT_MODEL			"sarge"
+// Elder: changed to good ol' resdog
+#define	DEFAULT_MODEL			"grunt"
+// Elder: this is added
+#define	DEFAULT_SKIN			"resdog"
+
 #ifdef MISSIONPACK
 #define	DEFAULT_TEAM_MODEL		"james"
 #define	DEFAULT_TEAM_HEAD		"*james"
 #else
-#define	DEFAULT_TEAM_MODEL		"sarge"
-#define	DEFAULT_TEAM_HEAD		"sarge"
+#define	DEFAULT_TEAM_MODEL		"grunt"
+#define	DEFAULT_TEAM_HEAD		"grunt"
 #endif
 
-#define DEFAULT_REDTEAM_NAME		"Stroggs"
-#define DEFAULT_BLUETEAM_NAME		"Pagans"
+// Elder: Changed
+#define DEFAULT_REDTEAM_NAME		"Reservoir Dogs"
+#define DEFAULT_BLUETEAM_NAME		"Psychos"
 
-//Elder: Some ssg stuff
+// Elder: Some ssg stuff
 #define ZOOM_LEVELS		3
 #define ZOOM_PREPTIME	10		//milliseconds
+// Elder: Zoom status
+#define ZOOM_OUTOFAMMO	-1		// stay in current FOV even when firing
+#define ZOOM_IDLE	0			// stay in current FOV if not firing or reloading
+#define ZOOM_OUT	1			// switch to 90 degree FOV
 
-//Elder: max number of "blood" marks when hitting a player w/ shell weapons
+// Elder: max number of "blood" marks when hitting a player w/ shell weapons
 #define MAX_SHELL_HITS	6
 
 typedef enum {
@@ -388,7 +400,7 @@ typedef struct weaponInfo_s {
 	
 	qhandle_t		firstModel;			//Elder: view model
 	qhandle_t		animHandModel;		//Blaze: for animations
-	animation_t animations[MAX_WEAPON_ANIMATIONS];
+	animation_t		animations[MAX_WEAPON_ANIMATIONS];
 
 	vec3_t			weaponMidpoint;		// so it will rotate centered instead of by tag
 
@@ -919,6 +931,12 @@ typedef struct {
 	sfxHandle_t	sfx_ric1;
 	sfxHandle_t	sfx_ric2;
 	sfxHandle_t	sfx_ric3;
+
+	// Elder: Metal ricochet sounds
+	sfxHandle_t	sfx_metalric1;
+	sfxHandle_t	sfx_metalric2;
+	sfxHandle_t	sfx_metalric3;
+
 	sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
 	sfxHandle_t	sfx_plasmaexp;
@@ -1481,7 +1499,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 						vec3_t dir, impactSound_t soundType, int weapModification );		//Elder: added weapMod
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );
-void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, qboolean armorPiercing );
+void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, impactSound_t soundType);
 
 void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
@@ -1794,7 +1812,7 @@ void	CG_ParticleSmoke (qhandle_t pshader, centity_t *cent);
 void	CG_AddParticleShrapnel (localEntity_t *le);
 void	CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent);
 void	CG_ParticleBulletDebris (vec3_t	org, vec3_t vel, int duration);
-void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
 void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);

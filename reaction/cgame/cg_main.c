@@ -785,6 +785,11 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sfx_ric1 = trap_S_RegisterSound ("sound/weapons/machinegun/ric1.wav", qfalse);
 	cgs.media.sfx_ric2 = trap_S_RegisterSound ("sound/weapons/machinegun/ric2.wav", qfalse);
 	cgs.media.sfx_ric3 = trap_S_RegisterSound ("sound/weapons/machinegun/ric3.wav", qfalse);
+	// Elder: added
+	cgs.media.sfx_metalric1 = trap_S_RegisterSound ("sound/world/impactmetal01.wav", qfalse);
+	cgs.media.sfx_metalric2 = trap_S_RegisterSound ("sound/world/impactmetal02.wav", qfalse);
+	cgs.media.sfx_metalric3 = trap_S_RegisterSound ("sound/world/impactmetal03.wav", qfalse);
+	
 	cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
 	cgs.media.sfx_plasmaexp = trap_S_RegisterSound ("sound/weapons/plasma/plasmx1a.wav", qfalse);

@@ -490,7 +490,7 @@ void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum, int numBursts )
 	int			bloodCount = 0;
 	trace_t		tr;
 
-	if ( !cg_blood.integer ) {
+	if ( !cg_blood.integer || cg_RQ3_bloodStyle.integer == 0) {
 		return;
 	}
 

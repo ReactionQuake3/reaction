@@ -578,7 +578,8 @@ static int CG_CalcFov( void ) {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 		}
 		//Idle state or out of ammo
-		else if (cg.snap->ps.weaponTime == 0)
+		else if (cg.snap->ps.weaponTime == 0 && 
+				 cg.snap->ps.stats[STAT_RELOADTIME] == 0)
 		{
 			fov_x = CG_RQ3_GetFov();
 			if (fov_x == 90)
@@ -590,17 +591,20 @@ static int CG_CalcFov( void ) {
 				//cg.zoomFirstReturn = -1;
 			//else
 			if (cg.lowAmmoWarning)
-				cg.zoomFirstReturn = -1;
+				cg.zoomFirstReturn = ZOOM_OUTOFAMMO;
 			else
-				cg.zoomFirstReturn = 0;
+				cg.zoomFirstReturn = ZOOM_IDLE;
 		}
 		//Zoom back in after a reload or fire or weapon switch
-		else if (cg.snap->ps.weaponTime < ZOOM_TIME)
+		else if (cg.snap->ps.weaponTime < ZOOM_TIME &&
+				 cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME &&
+				 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS))
 		{	
-			if (cg.zoomFirstReturn == 1)
+			if (cg.zoomFirstReturn == ZOOM_OUT ||
+				cg.zoomFirstReturn == ZOOM_OUTOFAMMO && cg.snap->ps.stats[STAT_RELOADTIME] > 0)
 			{
 				cg.zoomTime = cg.time;
-				cg.zoomFirstReturn = 0;
+				cg.zoomFirstReturn = ZOOM_IDLE;
 			}
 
 			fov_x = 90;
@@ -612,7 +616,7 @@ static int CG_CalcFov( void ) {
 				cg.zoomed = qtrue;
 
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
-			if ( f > 1.0 || cg.zoomFirstReturn == -1)
+			if ( f > 1.0 || cg.zoomFirstReturn == ZOOM_OUTOFAMMO)
 				fov_x = zoomFov;
 			else
 				fov_x = fov_x + f * ( zoomFov - fov_x );	
@@ -621,15 +625,17 @@ static int CG_CalcFov( void ) {
 		//first time after a shot or reload - zoom out
 		else
 		{
-			if (cg.zoomFirstReturn == 0)
+			if (cg.zoomFirstReturn == ZOOM_IDLE)
 			{
 				cg.zoomTime = cg.time;
-				cg.zoomFirstReturn = 1;
+				cg.zoomFirstReturn = ZOOM_OUT;
 			}
 		
 			fov_x = CG_RQ3_GetFov();
 			
-			if (cg.zoomFirstReturn == -1)
+			if (cg.zoomFirstReturn == ZOOM_OUTOFAMMO &&
+				cg.snap->ps.stats[STAT_RELOADATTEMPTS] == 0)// &&
+				//cg.snap->ps.weaponstate != WEAPON_RELOADING)
 				zoomFov = fov_x;
 			else
 				zoomFov = 90;

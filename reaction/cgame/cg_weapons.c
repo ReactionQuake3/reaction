@@ -786,8 +786,13 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m4/m4fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m4/m4out.wav", qfalse );
-		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m4/m4in.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
+		
+		Com_sprintf( filename, sizeof(filename), "models/weapons2/m4/animation.cfg" );
+		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
+			Com_Printf("Failed to load weapon animation file %s\n", filename);
+		}
 		break;
 		
 	case WP_SSG3000:
@@ -795,6 +800,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.5f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgbolt.wav", qfalse );
+		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgin.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/ssg3000/ssgbolt.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/ssg3000/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
@@ -807,6 +815,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.75f, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp5/mp5fire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/mp5/mp5out.wav", qfalse );
+		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/mp5/mp5in.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/mp5/mp5slide.wav", qfalse );
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
 		break;
 		
@@ -817,7 +828,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/handcannon/hcfire.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		cgs.media.bulletExplosionShader = trap_R_RegisterShader( "bulletExplosion" );
-
+		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/handcannon/hcopen.wav", qfalse );
+		weaponInfo->reloadSound2 = trap_S_RegisterSound( "sound/weapons/handcannon/hcout.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/handcannon/hcclose.wav", qfalse );
+		
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/handcannon/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
 			Com_Printf("Failed to load weapon animation file %s\n", filename);
@@ -827,7 +841,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_M3:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 0 );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/m3/m3fire.wav", qfalse );
-		weaponInfo->reloadSound1 = trap_S_RegisterSound( "sound/weapons/m3/m3in.wav", qfalse );
+		weaponInfo->reloadSound3 = trap_S_RegisterSound( "sound/weapons/m3/m3in.wav", qfalse );
 		weaponInfo->ejectBrassFunc = CG_ShotgunEjectBrass;
 		Com_sprintf( filename, sizeof(filename), "models/weapons2/m3/animation.cfg" );
 		if ( !CG_ParseWeaponAnimFile(filename, weaponInfo) ) {
@@ -1269,6 +1283,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		CG_PositionWeaponOnTag( &gun, parent, parent->hModel, "tag_weapon");
 	} 
 
+	// Elder: break off here so we still have weapon animations on bolt out
+	if (cg.zoomed)
+		return;
+
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups );
 
 	// add the spinning barrel
@@ -1356,8 +1374,13 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	//Elder: add conditional here so the dlight is still drawn when cg_RQ3_flash is 0
 	if ( cg_RQ3_flash.integer ) {
 		if (ps) {
-			//Elder: draw flash based on first-person view
+			// Elder: draw flash based on first-person view
 			CG_PositionRotatedEntityOnTag( &flash, &gun, weapon->firstModel, "tag_flash");
+			// Make flash larger to compensate for depth hack
+			VectorScale( flash.axis[0], 2.0f, flash.axis[0] );
+			VectorScale( flash.axis[1], 2.0f, flash.axis[1] );
+			VectorScale( flash.axis[2], 2.0f, flash.axis[2] );
+			flash.nonNormalizedAxes = qtrue;
 		}
 		else {
 			//Elder: draw flash based on 3rd-person view
@@ -1444,10 +1467,11 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	}
 
 // Hawkins- don't draw gun if zoomed
+// Elder: we'll break it off later because we still need to perform animation operations
+	/*
 	if(cg.zoomed)
 		return;
-
-
+	*/
 	// don't draw if testing a gun model
 	if ( cg.testGun ) {
 		return;
@@ -1515,7 +1539,8 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 			 ps->weapon == WP_PISTOL ||
 			 ps->weapon == WP_M3 ||
 			 ps->weapon == WP_HANDCANNON ||
-			 ps->weapon == WP_SSG3000) {
+			 ps->weapon == WP_SSG3000 ||
+			 ps->weapon == WP_M4) {
 			// development tool
 			hand.frame = hand.oldframe = cg_gun_frame.integer;
 			hand.backlerp = 0;
@@ -1673,11 +1698,10 @@ void CG_NextWeapon_f( void ) {
 		return;
 
 	//Elder: in the middle of firing, reloading or weapon-switching
-	//cg.snap->ps.weaponstate == WEAPON_RELOADING when it's in
+	/*
 	if (cg.snap->ps.weaponstate == WEAPON_RELOADING && cg.snap->ps.weaponTime > 0) {
-	//if (cg.snap->ps.weaponTime > 0) {
 		return;
-	}
+	}*/
 
 	//Elder: added
 	//cg.zoomed = qfalse;
@@ -1827,18 +1851,21 @@ void CG_SpecialWeapon_f( void ) {
 
 		//Skip normal weapons
 		switch (cg.weaponSelect) {
-		case WP_PISTOL:
-		case WP_AKIMBO:
-		case WP_KNIFE:
-		case WP_GRENADE:
-			continue;
+			case WP_PISTOL:
+			case WP_AKIMBO:
+			case WP_KNIFE:
+			case WP_GRENADE:
+				continue;
+				break;
 		}
 
 		if ( CG_WeaponSelectable( cg.weaponSelect ) ) {
 			break;
 		}
 	}
-	if ( i == 16 ) {
+
+	// FIXME: 15 because of the stupid continue I used
+	if ( i >= 15 ) {
 		cg.weaponSelect = original;
 	}
 	else {
@@ -2020,7 +2047,7 @@ void CG_Weapon_f( void ) {
 		return;
 
 	//Elder: in the middle of firing, reloading or weapon-switching
-	if (cg.snap->ps.weaponTime > 0) {
+	if (cg.snap->ps.weaponTime > 0 || cg.snap->ps.stats[STAT_RELOADTIME] > 0) {
 		return;
 	}
 
@@ -2252,6 +2279,10 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 	vec3_t			puffOffset;
 	vec3_t			puffDir;
 	
+	//Elder: for impact sparks
+	vec3_t			velocity;
+	int				sparkCount;
+
 	int				i;
 
 	mark = 0;
@@ -2277,12 +2308,25 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
-		if ( r < 2 ) {
-			sfx = cgs.media.sfx_ric1;
-		} else if ( r == 2 ) {
-			sfx = cgs.media.sfx_ric2;
-		} else {
-			sfx = cgs.media.sfx_ric3;
+		if (soundType == IMPACTSOUND_METAL)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_metalric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_metalric2;
+			} else {
+				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_ric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_ric2;
+			} else {
+				sfx = cgs.media.sfx_ric3;
+			}
 		}
 
 		radius = 8;
@@ -2294,16 +2338,85 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
-		if ( r < 2 ) {
-			sfx = cgs.media.sfx_ric1;
-		} else if ( r == 2 ) {
-			sfx = cgs.media.sfx_ric2;
-		} else {
-			sfx = cgs.media.sfx_ric3;
+		if (soundType == IMPACTSOUND_METAL)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_metalric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_metalric2;
+			} else {
+				sfx = cgs.media.sfx_metalric3;
+			}
 		}
-
+		else
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_ric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_ric2;
+			} else {
+				sfx = cgs.media.sfx_ric3;
+			}
+		}
 		radius = 8;
 		break;
+	case WP_SSG3000:
+		mod = cgs.media.bulletFlashModel;
+		shader = cgs.media.bulletExplosionShader;
+		mark = cgs.media.bulletMarkShader;
+
+		r = rand() & 3;
+		if (soundType == IMPACTSOUND_METAL)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_metalric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_metalric2;
+			} else {
+				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_ric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_ric2;
+			} else {
+				sfx = cgs.media.sfx_ric3;
+			}
+		}
+		radius = 8;
+		break;
+	case WP_AKIMBO:
+		mod = cgs.media.bulletFlashModel;
+		shader = cgs.media.bulletExplosionShader;
+		mark = cgs.media.bulletMarkShader;
+
+		r = rand() & 3;
+		if (soundType == IMPACTSOUND_METAL)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_metalric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_metalric2;
+			} else {
+				sfx = cgs.media.sfx_metalric3;
+			}
+		}
+		else
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_ric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_ric2;
+			} else {
+				sfx = cgs.media.sfx_ric3;
+			}
+		}
+		radius = 8;
+		break;
+
 //Blaze: Reaction MP5
 	case WP_MP5:
 		mod = cgs.media.bulletFlashModel;
@@ -2311,14 +2424,26 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		mark = cgs.media.bulletMarkShader;
 
 		r = rand() & 3;
-		if ( r == 0 ) {
-			sfx = cgs.media.sfx_ric1;
-		} else if ( r == 1 ) {
-			sfx = cgs.media.sfx_ric2;
-		} else {
-			sfx = cgs.media.sfx_ric3;
+		if (soundType == IMPACTSOUND_METAL)
+		{
+			if ( r < 2 ) {
+				sfx = cgs.media.sfx_metalric1;
+			} else if ( r == 2 ) {
+				sfx = cgs.media.sfx_metalric2;
+			} else {
+				sfx = cgs.media.sfx_metalric3;
+			}
 		}
-
+		else
+		{
+			if ( r == 0 ) {
+				sfx = cgs.media.sfx_ric1;
+			} else if ( r == 1 ) {
+				sfx = cgs.media.sfx_ric2;
+			} else {
+				sfx = cgs.media.sfx_ric3;
+			}
+		}
 		radius = 8;
 		break;
 //Blaze: Reaction Shotgun
@@ -2330,13 +2455,6 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		radius = 4;
 		break;
 	case WP_HANDCANNON:
-		mod = cgs.media.bulletFlashModel;
-		shader = cgs.media.bulletExplosionShader;
-		mark = cgs.media.bulletMarkShader;
-		sfx = 0;
-		radius = 4;
-		break;
-	case WP_AKIMBO:
 		mod = cgs.media.bulletFlashModel;
 		shader = cgs.media.bulletExplosionShader;
 		mark = cgs.media.bulletMarkShader;
@@ -2383,14 +2501,14 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 		break;
 	}
 
-	// Knives always play sound
-	if (weapon == WP_KNIFE)
+	// Knives, SSG, and grenades always play sound
+	if (weapon == WP_KNIFE || weapon == WP_SSG3000 || weapon == WP_GRENADE)
 		i = 1;
 	else
-		//Elder: 75% of the time render a bullet ricochet sound
-		i = (int)(random() * 35) % 4;
+		//Elder: 90% of the time render a bullet ricochet sound
+		i = rand() % 10;
 
-	if ( sfx && i < 3) {
+	if ( sfx && i < 9) {
 		trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
 
@@ -2437,13 +2555,14 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 
 	
 	//Elder: 75% of the time render a smoke puff
-	i = (int)(random() * 100) % 4;
+	i = rand() % 4;
 	if (cg_RQ3_impactEffects.integer && i < 3)
 	{
 		switch ( weapon ) {	
 			case WP_MP5:
 			case WP_M4:
 			case WP_PISTOL:
+			case WP_SSG3000:
 				puffDir[0] = 0;
 				puffDir[1] = 0;
 				puffDir[2] = 16;
@@ -2461,6 +2580,53 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin,
 						  LEF_PUFF_DONT_SCALE, 
 						  cgs.media.smokePuffShader );
 				break;
+		}
+	}
+
+	// Elder: Spark effect for metal surfaces
+	if (cg_RQ3_impactEffects.integer && soundType == IMPACTSOUND_METAL)
+	{
+		if (weapon != WP_GRENADE)
+		{
+			if (weapon == WP_M3 || weapon == WP_HANDCANNON)
+				sparkCount = 5 + rand() % 5;
+			else if (weapon == WP_KNIFE)
+				sparkCount = 10 + rand() % 10;
+			else if (weapon == WP_SSG3000)
+				sparkCount = 25 + rand() % 20;
+			else
+				sparkCount = 15 + rand() % 15;
+
+			// Generate the particles
+			for (i = 0; i < sparkCount; i++)
+			{
+				if (weapon == WP_KNIFE)
+					VectorScale(dir, 50 + rand() % 10, velocity);
+				else
+					VectorScale(dir, 150 + rand() % 30, velocity);
+				//random upwards sparks
+				if ( rand() % 5 < 1)
+					velocity[2] += 120 + rand() % 30;
+
+				velocity[0] += rand() % 50 - 25;
+				velocity[1] += rand() % 50 - 25;
+				CG_ParticleSparks(origin, velocity, 100 + rand() % 120, 2, 2, -4, 1);
+			}
+		}
+	}
+
+	// Elder: grenade explosion
+	if (cg_RQ3_impactEffects.integer && weapon == WP_GRENADE)
+	{
+		sparkCount = 60 + rand() % 15;
+		origin[2] += 32;
+
+		for (i = 0; i < sparkCount; i++)
+		{
+			VectorScale (dir, rand() % 200, velocity);
+			velocity[0] += rand() % 200 - 100;
+			velocity[1] += rand() % 200 - 100;
+			CG_ParticleSparks(origin, velocity, 900 + rand() % 200, 5, 5, -2.5f, 3.5f);
 		}
 	}
 }
@@ -2820,11 +2986,11 @@ static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 CG_Bullet
 
 Renders bullet effects.
-Elder: added armorPiercing conditional
+Elder: added soundType conditional
 ======================
 */
 void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
-			    qboolean flesh, int fleshEntityNum, qboolean armorPiercing ) {
+			    qboolean flesh, int fleshEntityNum, impactSound_t soundType) {
 	trace_t trace;
 	int sourceContentType, destContentType;
 	vec3_t		start;
@@ -2877,14 +3043,10 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 
 	// impact splash and mark
 	if ( flesh ) {
-		//Elder: added
-		if ( armorPiercing && CG_CalcMuzzlePoint( sourceEntityNum, start))
-			CG_BleedSpray(start, end, fleshEntityNum, 16);
-		else
-			CG_Bleed( end, fleshEntityNum );
+		CG_Bleed( end, fleshEntityNum );
 	} else {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-		CG_MissileHitWall( WP_PISTOL, 0, end, normal, IMPACTSOUND_DEFAULT, 0 );
+		CG_MissileHitWall( WP_PISTOL, 0, end, normal, soundType, 0 );
 	}
 
 }
