@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2002/02/10 04:55:28  jbravo
+// Fix #1 to zcam jitter.   More is probably needed.
+//
 // Revision 1.22  2002/02/07 23:47:06  niceass
 // Score sorting for >= GT_TEAM fixed
 //
@@ -565,7 +568,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	//Elder: spawn unique items.
 	// JBravo: unless we are in Teamplay
 	if ( g_gametype.integer != GT_TEAMPLAY ) {
-	RQ3_StartUniqueItems();
+		RQ3_StartUniqueItems();
 	}
 
 	// Elder: force sv_floodprotect to 0 -- remove when we finish

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2002/02/10 04:55:28  jbravo
+// Fix #1 to zcam jitter.   More is probably needed.
+//
 // Revision 1.13  2002/02/09 00:10:12  jbravo
 // Fixed spectator follow and free and updated zcam to 1.04 and added the
 // missing zcam files.
@@ -384,7 +387,7 @@ int WonGame(int winner)
 			trap_Cvar_Set("RQ3_Team2", "0");
 			MakeAllLivePlayersObservers ();
 			trap_SendServerCommand( -1, "cp \"Match is OVER !!!.\n\"");
-			return;
+			return 1;
 			}
 		}
 		else {
@@ -492,8 +495,10 @@ void SpawnPlayers()
 		client->sess.teamSpawn = qtrue;
 		if (client->sess.savedTeam == TEAM_RED) {
 			client->sess.sessionTeam = TEAM_RED;
+			client->ps.persistant[PERS_TEAM] = TEAM_RED;
 		} else if (client->sess.savedTeam == TEAM_BLUE) {
 			client->sess.sessionTeam = TEAM_BLUE;
+			client->ps.persistant[PERS_TEAM] = TEAM_BLUE;
 		}
 		client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
 		ClientSpawn(player);
@@ -686,6 +691,7 @@ void MakeSpectator( gentity_t *ent )
 	client->ps.stats[STAT_WEAPONS] = 0;
 	client->sess.savedTeam = client->sess.sessionTeam;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
+	client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
 	ClientSpawn(ent);
 }
 
