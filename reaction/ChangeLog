@@ -41,6 +41,9 @@
 * Created a CTB respawn Queue.
 * Added propper handling of players waiting for a respawn in CTB
 * New Referee System to allow multiple admins, determined by g_RQ3_maxRefs
+* Scoreboard code updated for new ref system
+* Anti-wallhack code added
+* Countdown timer added for CTB respawning.
 
 # List fixes here for the 2.1 release
 
