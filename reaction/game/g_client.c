@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.133  2003/04/23 17:49:11  slicer
+// Fixed Crash Bug caused by merging 1.32 source code
+//
 // Revision 1.132  2003/04/19 17:41:26  jbravo
 // Applied changes that where in 1.29h -> 1.32b gamecode.
 //
@@ -1321,6 +1324,7 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	gclient_t *client;
 	char userinfo[MAX_INFO_STRING], ipaddr[64];
 	gentity_t *ent;
+
 	//Blaze: Prit out some Debug info
 	if (&g_entities[clientNum] == NULL) G_Printf("Ln 1399\n");
 	ent = &g_entities[clientNum];
@@ -1335,11 +1339,11 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	if (G_FilterPacket(ip)) {
 		return "You are banned from this server..";
 	}
-
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
 	// this means this client is not running in our current process
-	if (!(ent->r.svFlags & SVF_BOT) && (strcmp(value, "localhost") != 0)) {
+		//Slicer: Crash FIX -  during the 1.32 merging the strcmp was using "value" without being assigned.. replaced it with "ip"
+	if (!(ent->r.svFlags & SVF_BOT) && (strcmp(ip, "localhost") != 0)) {
 		// check for a password
 		value = Info_ValueForKey(userinfo, "password");
 		if (g_password.string[0] && Q_stricmp(g_password.string, "none") &&
@@ -1350,11 +1354,9 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// they can connect
 	ent->client = level.clients + clientNum;
 	client = ent->client;
-
 	memset(client, 0, sizeof(*client));
 
 	client->pers.connected = CON_CONNECTING;
-
 // JBravo: Antistick
 	client->ps.stats[STAT_RQ3] &= ~RQ3_PLAYERSOLID;
 // JBravo: Clear zcam flag for cgame
