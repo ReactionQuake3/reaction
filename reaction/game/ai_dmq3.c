@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/06/06 20:04:10  makro
+// Checking teams
+//
 // Revision 1.40  2002/06/01 13:37:02  makro
 // Tweaked bandaging code
 //
@@ -3514,6 +3517,7 @@ BotSameTeam
 */
 int BotSameTeam(bot_state_t *bs, int entnum) {
 	char info1[1024], info2[1024];
+	int team1, team2;
 
 	if (bs->client < 0 || bs->client >= MAX_CLIENTS) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
@@ -3524,10 +3528,22 @@ int BotSameTeam(bot_state_t *bs, int entnum) {
 		return qfalse;
 	}
 	if ( gametype >= GT_TEAM ) {
-		trap_GetConfigstring(CS_PLAYERS+bs->client, info1, sizeof(info1));
-		trap_GetConfigstring(CS_PLAYERS+entnum, info2, sizeof(info2));
-		//
-		if (atoi(Info_ValueForKey(info1, "t")) == atoi(Info_ValueForKey(info2, "t"))) return qtrue;
+		//Makro - added teamplay code; changed some stuff
+		if ( gametype != GT_TEAMPLAY ) {
+			trap_GetConfigstring(CS_PLAYERS+bs->client, info1, sizeof(info1));
+			trap_GetConfigstring(CS_PLAYERS+entnum, info2, sizeof(info2));
+			//
+			team1 = atoi(Info_ValueForKey(info1, "t"));
+			team2 = atoi(Info_ValueForKey(info2, "t"));
+		} else {
+			team1 = g_entities[bs->client].client->sess.savedTeam;
+			team2 = g_entities[entnum].client->sess.savedTeam;
+		}
+		if (team1 == TEAM_SPECTATOR || team2 == TEAM_SPECTATOR)
+			return qfalse;
+		if (team1 == team2)
+			return qtrue;
+
 	}
 	return qfalse;
 }
@@ -4970,8 +4986,8 @@ void BotEnableActivateGoalAreas(bot_activategoal_t *activategoal, int enable) {
 			return;
 	for (i = 0; i < activategoal->numareas; i++)
 		trap_AAS_EnableRoutingArea( activategoal->areas[i], enable );
-	activategoal->areasdisabled = !enable;
-		}
+		activategoal->areasdisabled = !enable;
+	}
 
 /*
 ==================
@@ -5108,6 +5124,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 					return 0;
 				} else {
 					BotMoveTowardsEnt(bs, entinfo.origin, -80);
+					//BotMoveTowardsEnt(bs, g_entities[entinfo.number].s.origin2, -80);
 					//BotFuncDoorRotatingActivateGoal(bs, ent, activategoal);
 					Cmd_OpenDoor( &g_entities[bs->entitynum] );
 					return 0;
