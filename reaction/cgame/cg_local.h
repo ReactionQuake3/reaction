@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/02/10 02:49:13  niceass
+// re-added zcam #define
+//
 // Revision 1.46  2002/02/08 05:52:18  niceass
 // cg_drawcleanrect declaration added.
 //
@@ -49,9 +52,7 @@
 // so there is NO persistant data between levels on the client side.
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
-
-// NiceAss: Taken out until later.
-// #define __ZCAM__
+#define __ZCAM__
 
 #ifdef MISSIONPACK
 #define CG_FONT_THRESHOLD 0.1

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/02/10 02:49:28  niceass
+// re-added zcam #define
+//
 // Revision 1.44  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -56,7 +59,7 @@
 #define	GAMEVERSION	"reaction"
 
 // NiceAss: Took it out until later.
-// #define  __ZCAM__
+#define  __ZCAM__
 
 #define BODY_QUEUE_SIZE		8
 
