@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/04/22 02:27:57  jbravo
+// Dynamic model recognition
+//
 // Revision 1.67  2002/04/15 00:54:26  assimon
 // Simple ini file parser that reads a ini configuration file and suports rotations.
 //
@@ -535,6 +538,17 @@ struct gclient_s {
 	int			ff_warning;
 	int			team_kills;
 };
+
+// JBravo: for model loading
+#define MAXMODELS	64
+#define MAXMODELLEN	100
+
+typedef	struct legitmodel {
+	char	name[MAXMODELLEN];
+	vec3_t	team1color;
+	vec3_t	team2color;
+	int	gender;
+} legitmodel_t;
 
 
 // Begin Duffman
@@ -1091,6 +1105,10 @@ extern	vmCvar_t	g_RQ3_limchasecam;		// JBravo: 0 = no chasecam limit, 1 = limite
 extern	vmCvar_t	g_RQ3_sniperup;			// JBravo: 0 = snipers begin with pistol, 1 = begin with sniper
 extern	vmCvar_t	g_RQ3_team1name;		// JBravo: cvar for the name of team 1
 extern	vmCvar_t	g_RQ3_team2name;		// JBravo: cvar for the name of team 2
+extern	vmCvar_t	g_RQ3_team1model;		// JBravo: team 1 model
+extern	vmCvar_t	g_RQ3_team2model;		// JBravo: team 2 model
+extern	vmCvar_t	g_RQ3_team1skin;		// JBravo: team 1 skin
+extern	vmCvar_t	g_RQ3_team2skin;		// JBravo: team 2 skin
 extern	vmCvar_t	g_RQ3_lca;			// JBravo: cvar to signal cgame that LCA is in progress
 extern	vmCvar_t	g_RQ3_teamCount1;		// JBravo: cvar for the UI join menus
 extern	vmCvar_t	g_RQ3_teamCount2;		// JBravo: cvar for the UI join menus

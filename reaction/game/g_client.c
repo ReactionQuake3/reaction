@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/22 02:27:57  jbravo
+// Dynamic model recognition
+//
 // Revision 1.66  2002/04/18 16:13:23  jbravo
 // Scoreboard now shows green for live players and white for dead.
 // Time should not get reset on deaths any more.
@@ -152,6 +155,9 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles );
 char rq3_breakables[RQ3_MAX_BREAKABLES][80];
 
 #define RQ3_NONAMEPLAYER		"Nameless"
+
+// JBravo: for models
+extern legitmodel_t    legitmodels[MAXMODELS];
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -863,6 +869,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	int		teamTask, teamLeader, team, health;
 	char	*s;
 	char	model[MAX_QPATH];
+	char	skin[MAX_QPATH];
 	char	headModel[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
@@ -945,23 +952,32 @@ void ClientUserinfoChanged( int clientNum ) {
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof( headModel ) );
 	}
 
-	// NiceAss: temporary hack to prevent non-grunt models:
-	Q_strncpyz(model2, model, sizeof(model));
-	skin2 = Q_strrchr( model2, '/' );
-	if ( skin2 ) {
-		*skin2++ = '\0';
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		if (client->sess.sessionTeam == TEAM_RED) {
+			Com_sprintf (model, sizeof (model) , "%s/%s", g_RQ3_team1model.string, g_RQ3_team1skin.string);
+			Com_sprintf (headModel, sizeof (headModel) , "%s/%s", g_RQ3_team1model.string, g_RQ3_team1skin.string);
+		} else {
+			Com_sprintf (model, sizeof (model) , "%s/%s", g_RQ3_team2model.string, g_RQ3_team2skin.string);
+			Com_sprintf (headModel, sizeof (headModel) , "%s/%s", g_RQ3_team2model.string, g_RQ3_team2skin.string);
+		}
 	} else {
-		skin2 = "default";
-	}
+		// NiceAss: temporary hack to prevent non-grunt models:
+		Q_strncpyz(model2, model, sizeof(model));
+		skin2 = Q_strrchr( model2, '/' );
+		if ( skin2 ) {
+			*skin2++ = '\0';
+		} else {
+			skin2 = "default";
+		}
 
-	// Makro - adding abbey
-	if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
-		trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model (%s). Forcing change on server.\n\"", model2));
-		Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
-		Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
+		// Makro - adding abbey
+		if ( Q_stricmpn(model2, "grunt", sizeof(model2)) && Q_stricmpn(model2, "abbey", sizeof(model2))) {
+			trap_SendServerCommand( ent-g_entities, va("print \"Illegal player model (%s). Forcing change on server.\n\"", model2));
+			Q_strncpyz(model, "grunt/resdog", sizeof("grunt/resdog"));
+			Q_strncpyz(headModel, "grunt/resdog", sizeof("grunt/resdog"));
+		}
+		// End of temporary hack.
 	}
-	// End of temporary hack.
-
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey( userinfo, "team" );

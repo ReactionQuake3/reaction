@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/04/22 02:27:57  jbravo
+// Dynamic model recognition
+//
 // Revision 1.45  2002/04/15 00:54:26  assimon
 // Simple ini file parser that reads a ini configuration file and suports rotations.
 //
@@ -197,6 +200,10 @@ vmCvar_t	g_RQ3_sniperup;
 vmCvar_t	g_RQ3_lca;
 vmCvar_t	g_RQ3_team1name;
 vmCvar_t	g_RQ3_team2name;
+vmCvar_t	g_RQ3_team1model;
+vmCvar_t	g_RQ3_team2model;
+vmCvar_t	g_RQ3_team1skin;
+vmCvar_t	g_RQ3_team2skin;
 vmCvar_t	g_RQ3_teamCount1;
 vmCvar_t	g_RQ3_teamCount2;
 vmCvar_t	g_RQ3_numSpectators;
@@ -343,6 +350,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_RQ3_team1name, "g_RQ3_team1name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
 	{ &g_RQ3_team2name, "g_RQ3_team2name", "Swat", CVAR_SYSTEMINFO | CVAR_SERVERINFO , 0, qfalse },
+	{ &g_RQ3_team1model, "g_RQ3_team1model", "grunt", CVAR_SERVERINFO, 0, qfalse },
+	{ &g_RQ3_team2model, "g_RQ3_team2model", "grunt", CVAR_SERVERINFO, 0, qfalse },
+	{ &g_RQ3_team1skin, "g_RQ3_team1skin", "robber", CVAR_SERVERINFO, 0, qfalse },
+	{ &g_RQ3_team2skin, "g_RQ3_team2skin", "police", CVAR_SERVERINFO, 0, qfalse },
 	{ &g_RQ3_teamCount1, "g_RQ3_teamCount1", "0", CVAR_ROM, 0, qfalse },
 	{ &g_RQ3_teamCount2, "g_RQ3_teamCount2", "0", CVAR_ROM, 0, qfalse },
 	{ &g_RQ3_numSpectators, "g_RQ3_numSpectators", "0", CVAR_ROM, 0, qfalse },
@@ -587,8 +598,14 @@ G_InitGame
 
 ============
 */
+
+legitmodel_t	legitmodels[MAXMODELS];
+
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
-	int					i;
+	int		i, j, numdirs, dirlen, len, modelcount;
+	char		*dirptr, *text_p, *token;
+	char		dirlist[2048], buf[2048];
+	fileHandle_t	file;
 
 	G_Printf ("------- Game Initialization -------\n");
 	G_Printf ("gamename: %s\n", GAMEVERSION);
@@ -726,6 +743,80 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );
+	}
+// JBravo: Load legit model names.
+	if (g_gametype.integer == GT_TEAMPLAY) {
+		for (i=0; i < MAXMODELS; i++) {
+			memset (&legitmodels[i], 0, sizeof (legitmodels[i]));
+		}
+		numdirs = trap_FS_GetFileList("models/players", "/", dirlist, sizeof(dirlist));
+		dirptr  = dirlist;
+		modelcount = 0;
+		for (i=0; i < numdirs; i++, dirptr += dirlen+1) {
+			dirlen = strlen(dirptr);
+			if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
+			if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
+				continue;
+			len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
+			if (file) {
+				trap_FS_Read(buf, len, file);
+				buf[len] = 0;
+				text_p = buf;
+				trap_FS_FCloseFile (file);
+				Com_sprintf(legitmodels[modelcount].name, sizeof(legitmodels[modelcount].name), "%s", dirptr);
+				for (j=0; j < 3; j++) {
+					token = COM_Parse(&text_p);
+					if (!token) break;
+					if (Q_stricmp (token, "team1color") == 0) {
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team1color[0] = atof (token);
+						else
+							break;
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team1color[1] = atof (token);
+						else
+							break;
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team1color[2] = atof (token);
+						else
+							break;
+					} else if (Q_stricmp (token, "team2color") == 0) {
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team2color[0] = atof (token);
+						else
+							break;
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team2color[1] = atof (token);
+						else
+							break;
+						token = COM_Parse(&text_p);
+						if (token)
+							legitmodels[modelcount].team2color[2] = atof (token);
+						else
+							break;
+					} else if (Q_stricmp (token, "gender") == 0) {
+						token = COM_Parse(&text_p);
+						if (token)
+							if (!Q_stricmp(token, "male"))
+								legitmodels[modelcount].gender = GENDER_MALE;
+							else if (!Q_stricmp(token, "female"))
+								legitmodels[modelcount].gender = GENDER_FEMALE;
+							else if (!Q_stricmp(token, "neuter"))
+								legitmodels[modelcount].gender = GENDER_NEUTER;
+							else
+								break;
+						else
+							break;
+					}
+				}
+				modelcount++;
+			}
+		}
 	}
 
 	G_RemapTeamShaders();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/04/22 02:27:57  jbravo
+// Dynamic model recognition
+//
 // Revision 1.21  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -359,7 +362,9 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 			if ( CG_FileExists( filename ) ) {
 				return qtrue;
 			}
-			if ( cgs.gametype >= GT_TEAM ) {
+			if (cgs.gametype == GT_TEAMPLAY) {
+				Com_sprintf( filename, length, "models/players/%s/%s_%s.%s", modelName, base, skinName, ext);
+			} else if ( cgs.gametype >= GT_TEAM ) {
 				if ( i == 0 && teamName && *teamName ) {
 					//								"models/players/characters/james/stroggs/lower_red.skin"
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, team, ext );
@@ -439,7 +444,9 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 			if ( CG_FileExists( filename ) ) {
 				return qtrue;
 			}
-			if ( cgs.gametype >= GT_TEAM ) {
+			if (cgs.gametype == GT_TEAMPLAY) {
+				Com_sprintf( filename, length, "models/players/%s/%s_%s.%s", headModelName, base, headSkinName, ext);
+			} else if ( cgs.gametype >= GT_TEAM ) {
 				if ( i == 0 &&  teamName && *teamName ) {
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, team, ext );
 				}
@@ -480,6 +487,7 @@ CG_RegisterClientSkin
 static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName ) {
 	char		filename[MAX_QPATH];
 
+	CG_Printf("debug: modelName = %s, skinName = %s, headModelName = %s, headSkinName = %s\n", modelName, skinName, headModelName, headSkinName);
 	/*
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/%slower_%s.skin", modelName, teamName, skinName );
 	ci->legsSkin = trap_R_RegisterSkin( filename );
