@@ -601,8 +601,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
 			AddScore( attacker, self->r.currentOrigin, -1 );
 		} else {
-
+			// Increase number of kills this life for attacker
 			attacker->client->ps.stats[STAT_STREAK]++;
+			// DM reward scoring, should add an if statement to get around this when
+			// we add teamplay.
 			if (attacker->client->ps.stats[STAT_STREAK] < 4) 
 				AddScore( attacker, self->r.currentOrigin, 1 );	
 			else if (attacker->client->ps.stats[STAT_STREAK] < 8)
