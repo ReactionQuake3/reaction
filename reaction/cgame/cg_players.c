@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/08/24 08:00:41  niceass
+// fix to anti-wallhack system for portals (cameras and mirrors)
+//
 // Revision 1.44  2002/08/22 07:06:14  niceass
 // basic wallhack protection in, ala ncserver
 //
@@ -2530,9 +2533,24 @@ void CG_Player(centity_t * cent)
 		}
 	}
 
+	// NiceAss: Render players through walls (for testing): renderfx |= RF_DEPTHHACK;
 	// NiceAss: Check for visibility here
-	if (cent->currentState.number != cg.snap->ps.clientNum && !CG_CheckPlayerVisible(cg.refdef.vieworg, cent) )
-		return;
+	if (cent->currentState.number != cg.snap->ps.clientNum && !CG_CheckPlayerVisible(cg.refdef.vieworg, cent) ) {
+		int num;
+		centity_t *cent;
+
+		// Look to see if any portals are around. If so, ignore that the player isn't visible.
+		// This could be done better and more secure.
+		for (num = 0; num < cg.snap->numEntities; num++) {
+			cent = &cg_entities[cg.snap->entities[num].number];
+			if (cent->currentState.eType == ET_PORTAL)
+				break;
+		}
+
+		// No portals
+		if (num == cg.snap->numEntities)
+			return;
+	}
 
 	memset(&legs, 0, sizeof(legs));
 	memset(&torso, 0, sizeof(torso));
