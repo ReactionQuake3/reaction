@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.30  2002/06/12 11:14:35  makro
+// Fixed knives/pistols not spawning bug
+//
 // Revision 1.29  2002/06/08 11:41:48  makro
 // weapon_grenadelauncher = weapon_pistol
 //
@@ -466,7 +469,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			//only spawn flags in CTF mode
-			if ( item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG ) {
+			if ( item->giType == IT_TEAM && (item->giTag == PW_REDFLAG || item->giTag == PW_BLUEFLAG) ) {
 				if (g_gametype.integer == GT_CTF) {
 					G_SpawnItem( ent, item );
 					return qtrue;
