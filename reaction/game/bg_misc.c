@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/01/14 07:31:33  jbravo
+// Added a small workaround for the HoldableItem not found crash during
+// mapchanges.
+//
 // Revision 1.26  2002/01/11 19:48:29  jbravo
 // Formatted the source in non DOS format.
 //
@@ -852,6 +856,11 @@ BG_FindItemForHoldable
 */
 gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	int		i;
+
+// JBravo: fix for HoldableItem not found error during mapchanges.
+// I dont understand why this gets called with pw == 0 during map changes.
+	if (pw == 0)
+		return;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
 		if ( bg_itemlist[i].giType == IT_HOLDABLE && bg_itemlist[i].giTag == pw ) {
