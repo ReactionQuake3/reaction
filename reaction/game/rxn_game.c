@@ -24,6 +24,8 @@ void CheckBleeding(gentity_t *targ)
 			 targ->client->bleedBandageCount < 1)
 		{
 			//Elder: skip damage being dealt
+			//TODO: check bleed_remain again -- if it's > 11, then reset bleedBandageCount?
+			//That would probably remove the long-time AQ2 headshot bandage bug
 		}
 		else
 		{

@@ -58,6 +58,8 @@ extern	int		c_pmove;
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
 void PM_AddTouchEnt( int entityNum );
 void PM_AddEvent( int newEvent );
+//Elder: added
+void PM_AddEvent2( int newEvent, int eventParm );
 
 qboolean	PM_SlideMove( qboolean gravity );
 void		PM_StepSlideMove( qboolean gravity );

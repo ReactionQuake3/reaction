@@ -942,6 +942,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );
 
+	//Elder: check local laser status
+	//CG_CheckLaser();
+
 	// add buffered sounds
 	CG_PlayBufferedSounds();
 

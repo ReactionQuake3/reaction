@@ -111,7 +111,7 @@ qboolean JumpKick( gentity_t *ent )
 		tent->s.weapon = ent->s.weapon;
 	}
 
-	if (traceEnt->client && traceEnt->client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
+	if (traceEnt->client && traceEnt->client->uniqueWeapons > 0)
 	{
 		//Elder: toss a unique weapon if kicked
 		//Todo: Need to make sure to cancel any reload attempts
@@ -1127,7 +1127,18 @@ int RQ3_Spread (gentity_t *ent, int spread)
 	else
 		stage = 1;
 
-	//TODO: add laser advantage
+	//added laser advantage
+	if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+		(ent->client->ps.weapon == WP_PISTOL ||
+		 ent->client->ps.weapon == WP_MP5 ||
+		 ent->client->ps.weapon == WP_M4))
+	{
+		//G_Printf("Using laser advantage\n");
+		if (stage == 1)
+			stage = 0;
+		else
+			stage = 1;
+	}
 
 
 	return (int)(spread * factor[stage]);
@@ -1381,7 +1392,8 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 			// send impacts
 			if ( traceEnt->client )
 			{
-				tent[unlinked] = G_TempEntity( trace.endpos, EV_BULLET_HIT_FLESH );
+				tent[unlinked] = G_TempEntity( trace.endpos, EV_SSG3000_HIT_FLESH );
+				//tent[unlinked]->s.eventParm = DirToByte( trace.plane.normal );
 				tent[unlinked]->s.eventParm = traceEnt->s.number;
 			}
 			else
@@ -2073,3 +2085,94 @@ void G_StartKamikaze( gentity_t *ent ) {
 	te->s.eventParm = GTS_KAMIKAZE;
 }
 #endif
+
+
+/*
+============
+Laser Sight Stuff
+
+Laser Sight / Flash Light Functions
+============
+*/
+
+void Laser_Gen( gentity_t *ent, qboolean enabled )	{
+	gentity_t	*las;
+	//Elder: force it to laser
+	int type = 1;
+
+	//Get rid of you?
+	if ( ent->client->lasersight && !enabled)
+	{
+		G_FreeEntity( ent->client->lasersight );
+		ent->client->lasersight = NULL;
+		return;
+	}
+
+	las = G_Spawn();
+
+	las->nextthink = level.time + 10;
+	las->think = Laser_Think;
+
+	las->s.clientNum = ent->s.number;
+	las->r.ownerNum = ent->s.number;
+	las->parent = ent;
+	las->s.eType = ET_LASER;
+	//Elder: added to enable lerping in cgame
+	las->s.pos.trType = TR_INTERPOLATE;
+
+	//Lets tell it if flashlight or laser
+	if (type == 2)	{
+		las->s.eventParm = 2; //tells CG that it is a flashlight
+		las->classname = "flashlight";
+	}
+	else {
+		las->s.eventParm = 1; //tells CG that it is a laser sight
+		las->classname = "lasersight";
+	}
+
+	ent->client->lasersight = las;
+}
+
+
+void Laser_Think( gentity_t *self )
+{
+	vec3_t		end, start, forward, up;
+	trace_t		tr;
+
+	//If Player Dies, You Die -> now thanks to Camouflage!
+	if (self->parent->client->ps.pm_type == PM_DEAD)  {
+		G_FreeEntity(self);
+		return;
+	}
+
+	//Set Aiming Directions
+	AngleVectors(self->parent->client->ps.viewangles, forward, right, up);
+	CalcMuzzlePoint(self->parent, forward, right, up, start);
+	VectorMA (start, 8192 * 16, forward, end);
+
+	//Trace Position
+	trap_Trace (&tr, start, NULL, NULL, end, self->parent->s.number, MASK_SHOT );
+
+	//Did you not hit anything?
+	if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY)	{
+		self->nextthink = level.time + 10;
+		trap_UnlinkEntity(self);
+		return;
+	}
+
+	//Move you forward to keep you visible
+	if (tr.fraction != 1)
+		VectorMA(tr.endpos,-4,forward,tr.endpos); 
+
+	//Set Your position
+	VectorCopy( tr.endpos, self->r.currentOrigin );
+	VectorCopy( tr.endpos, self->s.pos.trBase );
+
+	vectoangles(tr.plane.normal, self->s.angles);
+
+	trap_LinkEntity(self);
+
+	//Prep next move
+	self->nextthink = level.time + 10;
+}
+

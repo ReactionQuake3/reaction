@@ -106,6 +106,17 @@ void PM_AddEvent( int newEvent ) {
 
 /*
 ===============
+PM_AddEvent
+
+Elder: stuffs event parameters
+===============
+*/
+void PM_AddEvent2( int newEvent, int eventParm ) {
+	BG_AddPredictableEventToPlayerstate( newEvent, eventParm, pm->ps );
+}
+
+/*
+===============
 PM_AddTouchEnt
 ===============
 */
@@ -1907,14 +1918,16 @@ static void PM_Weapon( void ) {
 	}
 
 	// check for item using
+	// Elder: removed
+	/*
 	if ( pm->cmd.buttons & BUTTON_USE_HOLDABLE ) {
 		if ( ! ( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) ) {
 
-			/*  Blaze: No more medkit
-			if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
-				&& pm->ps->stats[STAT_HEALTH] >= (125) ) { //medikit check pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
+			//  Blaze: No more medkit
+			//if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT
+				//&& pm->ps->stats[STAT_HEALTH] >= (125) ) { //medikit check pm->ps->stats[STAT_MAX_HEALTH] + 25) ) {
 				// don't use medkit if at max health
-			} else {*/
+			//} else {
 				pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 				PM_AddEvent( EV_USE_ITEM0 + bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag );
 				pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
@@ -1924,6 +1937,7 @@ static void PM_Weapon( void ) {
 	} else {
 		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
 	}
+	*/
 
 
 	// make weapon function
@@ -2144,7 +2158,16 @@ static void PM_Weapon( void ) {
 
 	
 	// fire weapon
-	PM_AddEvent( EV_FIRE_WEAPON );
+	//Elder: check for silencer
+	if (bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_SILENCER &&
+		(pm->ps->weapon == WP_PISTOL ||
+		 pm->ps->weapon == WP_MP5    ||
+		 pm->ps->weapon == WP_SSG3000))
+	{
+		PM_AddEvent2( EV_FIRE_WEAPON, RQ3_WPMOD_SILENCER );
+	}
+	else
+		PM_AddEvent( EV_FIRE_WEAPON );
 
 	switch( pm->ps->weapon ) {
 	default:

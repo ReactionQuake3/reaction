@@ -599,9 +599,9 @@ static void CG_DrawStatusBar( void ) {
 		UI_DrawProportionalString(580, 364, va("%d", cg.snap->ps.ammo[WP_GRENADE]), style, colors[0]);
 	}
 
-	//Elder: draw special weapons, if any, on the side
-	if (cg.snap->ps.stats[STAT_UNIQUEWEAPONS])
-	{
+	//Elder: draw a special weapon, if any, on the side
+	//if (cg.snap->ps.stats[STAT_UNIQUEWEAPONS])
+	//{
 		for (i = 1; i < MAX_WEAPONS; i++)
 		{
 			if (i == WP_KNIFE ||
@@ -620,7 +620,7 @@ static void CG_DrawStatusBar( void ) {
 			if (icon)
 				CG_DrawPic(640-SMICON_SIZE, 400, SMICON_SIZE, SMICON_SIZE, icon);
 		}
-	}
+	//}
 
 }
 

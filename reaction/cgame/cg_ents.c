@@ -4,6 +4,7 @@
 
 #include "cg_local.h"
 
+static void CG_LaserSight( centity_t *cent );
 
 /*
 ======================
@@ -308,6 +309,12 @@ static void CG_Item( centity_t *cent ) {
 		VectorNegate(ent.axis[2], ent.axis[1]);
 		VectorCopy(myvec, ent.axis[2]);
 	}
+	else if (item->giType == IT_HOLDABLE &&
+			(es->pos.trDelta[0] != 0 || es->pos.trDelta[1] != 0 || es->pos.trDelta[2] != 0))
+	{
+		VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+		AxisCopy( cg.autoAxisFast, ent.axis );
+	}
 
 	wi = NULL;
 	// the weapons have their origin where they attatch to player
@@ -350,9 +357,11 @@ static void CG_Item( centity_t *cent ) {
 		}
 	}
 
-	//Elder: what the heck is this?
+	//Elder: ammo offset?
 	if (item->giType == IT_AMMO)
 		cent->lerpOrigin[2]-=12;
+	else if (item->giType == IT_HOLDABLE)
+		cent->lerpOrigin[2] -= 12;
 
 	ent.hModel = cg_items[es->modelindex].models[0];
 
@@ -781,7 +790,7 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	// it would be an internal error to find an entity that interpolates without
 	// a snapshot ahead of the current one
 	if ( cg.nextSnap == NULL ) {
-		CG_Error( "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
+		CG_Error( "CG_InterpolateEntityPosition: cg.nextSnap == NULL" );
 	}
 
 	f = cg.frameInterpolation;
@@ -1058,6 +1067,12 @@ static void CG_AddCEntity( centity_t *cent ) {
 	case ET_TEAM:
 		CG_TeamBase( cent );
 		break;
+	case ET_LASER:
+		//Elder: the local laser call is checked in playerstate unless it is disabled
+		//if (!cg_RQ3_laserAssist.integer || cent->currentState.clientNum != cg.snap->ps.clientNum)
+		CG_LaserSight( cent );
+		break;
+
 	}
 }
 
@@ -1115,3 +1130,34 @@ void CG_AddPacketEntities( void ) {
 	}
 }
 
+
+/*
+==================
+CG_LaserSight
+
+Creates the laser dot
+Elder's Note: Client does not use this if the dot is his/her own -- see CG_LocalLaser
+==================
+*/
+
+static void CG_LaserSight( centity_t *cent )  {
+	refEntity_t		ent;
+
+	// create the reference entity
+	memset (&ent, 0, sizeof(ent));
+
+	VectorCopy( cent->lerpOrigin, ent.origin);
+	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+
+	if (cent->currentState.eventParm == 1)
+	{
+		ent.reType = RT_SPRITE;
+		ent.radius = 3;
+		ent.rotation = 0;
+		ent.customShader = cgs.media.laserShader;
+		trap_R_AddRefEntityToScene( &ent );
+	}
+	else	{
+		trap_R_AddLightToScene(ent.origin, 200, 1, 1, 1);
+	}
+}

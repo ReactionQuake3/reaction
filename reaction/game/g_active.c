@@ -22,6 +22,7 @@ global pain sound events for all clients.
 ===============
 */
 void P_DamageFeedback( gentity_t *player ) {
+	gentity_t	*tent;
 	gclient_t	*client;
 	float	count, side;
 	vec3_t	angles, v;
@@ -127,9 +128,20 @@ void P_DamageFeedback( gentity_t *player ) {
 		//Elder: headshot sound
         case LOCATION_HEAD:
         case LOCATION_FACE:
+			tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
 			//Elder: takes more bandwidth but guarantees a headshot sound
-			G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
+			//G_Sound(player, CHAN_AUTO, G_SoundIndex("sound/misc/headshot.wav"));
 			//G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_HEADSHOT);	
+			break;
+		case LOCATION_CHEST:
+			//Play metal impact if vest was hit
+			if (client->damage_vest == qtrue)
+			{
+				tent = G_TempEntity2(client->ps.origin, EV_RQ3_SOUND, RQ3_SOUND_KEVLARHIT);
+				client->damage_vest = qfalse;
+			}
+			else
+				G_AddEvent( player, EV_PAIN, player->health );
 			break;
 		default:
 			G_AddEvent( player, EV_PAIN, player->health );
@@ -828,6 +840,7 @@ static int StuckInOtherClient(gentity_t *ent) {
 	}
 	return qfalse;
 }
+
 /*
 =============
 ThrowWeapon
@@ -867,7 +880,7 @@ void ThrowWeapon( gentity_t *ent )
 
 		
 	weap = 0;
-	if (client->ps.stats[STAT_UNIQUEWEAPONS] > 0)
+	if (client->uniqueWeapons > 0)
 	{
 		weap = client->ps.stats[STAT_WEAPONS];
 		if ((client->ps.stats[STAT_WEAPONS] & (1 << WP_M4) ) == (1 << WP_M4))
@@ -893,10 +906,58 @@ void ThrowWeapon( gentity_t *ent )
 		client->ps.stats[STAT_WEAPONS] &= ~( 1 << weap);
 		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
 		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
-		client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		client->uniqueWeapons--;
 	}
 }
 
+/*
+=============
+ThrowItem
+
+Used to toss an item much like weapons except a bit leaner
+=============
+*/
+
+void ThrowItem( gentity_t *ent )
+{
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	int item;
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	//Elder: TODO: have to add a reloading case:
+	//itemonTime > 0 or itemonState == itemon_dropping?  Or both?
+	//Still firing
+	if ( (ucmd->buttons & BUTTON_ATTACK) == BUTTON_ATTACK || client->ps.weaponTime > 0) {
+		return;
+	}
+
+	//Elder: Bandaging case
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
+		return;
+	}
+
+		
+	//item = 0;
+	if (client->uniqueItems > 0)
+	{
+		item = bg_itemlist[client->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
+		xr_item = BG_FindItemForHoldable( item );
+		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+		//Elder: Just going to re-use the dropWeapon function
+		xr_drop= dropWeapon( ent, xr_item, 0, FL_DROPPED_ITEM | FL_THROWN_ITEM );
+		xr_drop->count= -1; // XRAY FMJ 0 is already taken, -1 means no ammo
+		client->uniqueItems--;
+	}
+}
+
+
+//Elder: wtf?
 void BotTestSolid(vec3_t origin);
 
 /*
@@ -1396,9 +1457,9 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame( gentity_t *ent ) {
 	int			i;
 	clientPersistant_t	*pers;
-	gitem_t		*rq3_item;
-	gentity_t	*rq3_temp;
-	vec3_t		spawn_origin, spawn_angles;
+//	gitem_t		*rq3_item;
+//	gentity_t	*rq3_temp;
+	//vec3_t		spawn_origin, spawn_angles;
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		SpectatorClientEndFrame( ent );
 		return;
@@ -1466,14 +1527,9 @@ void ClientEndFrame( gentity_t *ent ) {
 	// Blaze: Do Bleed
 //	if(ent->client->bleeding)
 //			CheckBleeding(ent);	// perform once-a-second actions
-	if (level.time % 30000 < 1)
-	{
-		G_Printf("Spawn an Item\n");
-		//rq3_item = BG_FindItem( "Kevlar Vest" );
-		rq3_item = BG_FindItemForHoldable( HI_SLIPPERS );
-		rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
-		Drop_Item (rq3_temp, rq3_item, 0);
-	}
+	
+	//Elder: moved unique item spawning to new function called RQ3_CheckUniqueItems
+	
 // Begin Duffman
 	//Update the clips Amount in weapon for the client
     ent->client->ps.stats[STAT_CLIPS] = ent->client->numClips[ent->client->ps.weapon];
@@ -1510,7 +1566,32 @@ void ClientEndFrame( gentity_t *ent ) {
 		ent->client->ps.delta_angles[0] = ANGLE2SHORT(SHORT2ANGLE(ent->client->ps.delta_angles[0]) - ent->client->consecutiveShots * -0.7);
 		ent->client->consecutiveShots = 0;
 	}
-	
+
+	if ( bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER )
+	{
+		//Disable laser if switching weapons, bandaging, etc.
+		if (ent->client->lasersight && ent->client->ps.weaponstate == WEAPON_DROPPING)
+		{	
+			Laser_Gen(ent, qfalse);
+		}
+		//Using M4/MP5/MK23 but not on yet so turn it on
+		else if (ent->client->lasersight == NULL &&
+			(ent->client->ps.weapon == WP_M4 ||
+			 ent->client->ps.weapon == WP_MP5 ||
+			 ent->client->ps.weapon == WP_PISTOL))
+		{
+			Laser_Gen(ent, qtrue);
+		}
+		//Not using M4/MP5/MK23 -- turn it off
+		else if (ent->client->lasersight &&
+				!( ent->client->ps.weapon == WP_M4 ||
+				ent->client->ps.weapon == WP_MP5 ||
+				ent->client->ps.weapon == WP_PISTOL))
+		{
+			Laser_Gen(ent, qfalse);
+		}
+	}		
+
 
 	G_SetClientSound (ent);
 

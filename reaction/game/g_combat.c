@@ -113,7 +113,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_M3 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_M3 ] = qfalse;
-		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		self->client->uniqueWeapons--;
 		angle += 30;
 	}
 	
@@ -121,7 +121,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_M4 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_M4 ] = qfalse;
-		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		self->client->uniqueWeapons--;
 		angle += 30;
 	}
 	
@@ -129,7 +129,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_MP5 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_MP5 ] = qfalse;
-		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		self->client->uniqueWeapons--;
 		angle += 30;
 	}
 	
@@ -137,7 +137,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_HANDCANNON );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
-		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		self->client->uniqueWeapons--;
 		angle += 30;
 	}
 	
@@ -145,7 +145,7 @@ void TossClientItems( gentity_t *self ) {
 		item = BG_FindItemForWeapon( WP_SSG3000 );
 		Drop_Item( self, item, angle);
 		self->client->pers.hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
-		self->client->ps.stats[STAT_UNIQUEWEAPONS]--;
+		self->client->uniqueWeapons--;
 		angle += 30;
 	}
 	
@@ -158,6 +158,13 @@ void TossClientItems( gentity_t *self ) {
 	if ( self->client->ps.ammo[ WP_KNIFE ] > 0) {
 		item = BG_FindItemForWeapon( WP_KNIFE );
 		Drop_Item (self, item, angle);
+		angle += 30;
+	}
+
+	if ( self->client->ps.stats[STAT_HOLDABLE_ITEM] )
+	{
+		Drop_Item(self, &bg_itemlist[self->client->ps.stats[STAT_HOLDABLE_ITEM]], angle);
+		angle += 30;
 	}
 
 	// drop all the powerups if not in teamplay
@@ -1652,14 +1659,15 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 						}
 						case (LOCATION_CHEST):
 						{   
-
+							//Vest stuff
 							if (bg_itemlist[targ->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_KEVLAR)
 							{
 									
-								if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
+								//if ((attacker->client->ps.stats[STAT_WEAPONS] & (1 << WP_SSG3000)) == (1 << WP_SSG3000))
+								if (attacker->client->ps.weapon == WP_SSG3000)
 								{	trap_SendServerCommand(attacker-g_entities, va("print \"%s has a Kevlar Vest, too bad you have AP rounds...\n\"",targ->client->pers.netname));
                                     trap_SendServerCommand(targ-g_entities, va("print \"Kevlar Vest absorbed some of %s's AP sniper round\n\"",attacker->client->pers.netname));
-                                    take = take * .325;
+                                    take = take * 0.325;
                                  
 								}
 								else
@@ -1667,7 +1675,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 									trap_SendServerCommand( targ-g_entities, va("print \"Kevlar Vest absorbed most of %s shot\n\"", attacker->client->pers.netname ));
 									take = take/10;
 									bleeding = 0;
-								}	
+								}
+								//Elder: flag for sound in feedback
+								targ->client->damage_vest = qtrue;
 								break;
 							}
 							else

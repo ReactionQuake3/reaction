@@ -296,6 +296,7 @@ struct gclient_s {
 	int			damage_knockback;	// impact damage
 	vec3_t		damage_from;		// origin for vector calculation
 	qboolean	damage_fromWorld;	// if true, don't use the damage_from vector
+	qboolean	damage_vest;		// Elder: if true, play the vest-hit sound
 
 	int			accurateCount;		// for "impressive" reward sound
 
@@ -332,7 +333,11 @@ struct gclient_s {
    qboolean openDoor;//Blaze: used to hold if someone has hit opendoor key
 	// timeResidual is used to handle events that happen every second
 	// like health / armor countdowns and regeneration
+
 	int			timeResidual;
+
+	//Elder: C3A laser tutorial
+	gentity_t	*lasersight;			// lasersight OR flashlight if in use
 
 	int         bleeding; 			//Blaze: remaining points to bleed away
 	int			bleed_remain;		//Blaze: How much left to bleed
@@ -361,15 +366,16 @@ struct gclient_s {
 	//qboolean		isBandaging;	//Elder: player in the process of bandaging
 	// end Homer
 	
-	//Elder: added for 3rb and akimbos
-	int			weaponfireNextTime;		//for akimbos and burst modes
+	int			weaponfireNextTime;		// for akimbos
 	int			lastzoom;				// Elder: save last zoom state when firing
 
-	int			fastReloads;			//Elder: for queuing M3/SSG reloads
-	int			lastReloadTime;			//Elder: for queuing M3/SSG reloads
-	int			reloadAttempts;			//Elder: for queueing M3/SSG reloads
+	int			fastReloads;			// Elder: for queuing M3/SSG reloads
+	int			lastReloadTime;			// Elder: for queuing M3/SSG reloads
+	int			reloadAttempts;			// Elder: for queuing M3/SSG reloads
 	
-	int			consecutiveShots;		//Elder: for M4 ride-up/kick
+	int			consecutiveShots;		// Elder: for M4 ride-up/kick
+	int			uniqueWeapons;			// Elder: formerly a stat, now just a server var
+	int			uniqueItems;
 
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
@@ -475,6 +481,7 @@ typedef struct {
 #ifdef MISSIONPACK
 	int			portalSequence;
 #endif
+
 } level_locals_t;
 //
 // rxn_game.c
@@ -484,6 +491,7 @@ void CheckBleeding(gentity_t *targ);
 void StartBandage(gentity_t *ent);
 
 void ThrowWeapon( gentity_t *ent );
+void ThrowItem( gentity_t *ent );
 gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags );  // XRAY FMJ
 //Blaze Reaction knife stuff
 //Elder: commented out - unused?
@@ -509,6 +517,10 @@ void SetTeam( gentity_t *ent, char *s );
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 void Cmd_Unzoom(gentity_t *ent);
 void Cmd_OpenDoor(gentity_t *ent);
+//Elder: C3A laser tutorial
+void Laser_Gen (gentity_t *ent, qboolean enabled);
+void Laser_Think( gentity_t *self );
+
 //Elder: commented out for Homer
 //void toggleSemi(gentity_t *ent);
 
@@ -528,7 +540,8 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item);
 void FinishSpawningItem( gentity_t *ent );
 void Think_Weapon (gentity_t *ent);
 int ArmorIndex (gentity_t *ent);
-void	Add_Ammo (gentity_t *ent, int weapon, int count);
+//Elder: added bandolier factor
+void Add_Ammo (gentity_t *ent, int weapon, int count, int bandolierfactor);
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 
 void ClearRegisteredItems( void );
@@ -536,6 +549,7 @@ void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
 
 //Elder: added
+void RQ3_DroppedItemThink(gentity_t *ent);
 void RQ3_DroppedWeaponThink(gentity_t *ent);
 void RQ3_ResetWeapon( int weapon );
 
@@ -673,6 +687,8 @@ int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+//Elder: added because I use it in g_main.c and g_items.c for item spawning
+gentity_t *SelectRandomDeathmatchSpawnPoint( void );
 void CopyToBodyQue( gentity_t *ent );
 void respawn (gentity_t *ent);
 void BeginIntermission (void);
@@ -727,6 +743,8 @@ void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
+//Elder: added
+void RQ3_StartUniqueItems ( void );
 
 //
 // g_client.c

@@ -1700,7 +1700,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 	case EV_FIRE_WEAPON:
 		DEBUGNAME("EV_FIRE_WEAPON");
-		CG_FireWeapon( cent );
+		//Elder: modified
+		CG_FireWeapon( cent, es->eventParm );
 		break;
 
 	// Reaction Zoom
@@ -1892,13 +1893,22 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_BULLET_HIT_WALL:
 		DEBUGNAME("EV_BULLET_HIT_WALL");
 		ByteToDir( es->eventParm, dir );
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD );
+		//Elder: added additional param
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD, qfalse );
 		break;
 
 	case EV_BULLET_HIT_FLESH:
 		DEBUGNAME("EV_BULLET_HIT_FLESH");
-		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm );
+		//Elder: added additional param
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm, qfalse );
 		break;
+
+	case EV_SSG3000_HIT_FLESH:
+		DEBUGNAME("EV_SSG3000_HIT_FLESH");
+		//Elder: added additional param
+		CG_Bullet( es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm, qtrue );
+		break;
+
 
 	case EV_SHOTGUN:
 		DEBUGNAME("EV_SHOTGUN");
@@ -1950,6 +1960,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
     			//Global sound
     			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.lcaSound);
     			break;
+			case RQ3_SOUND_KEVLARHIT:
+				//TODO: make sparks from hit position
+				trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.kevlarHitSound);
+				break;
     		default:
     			break;
 		}

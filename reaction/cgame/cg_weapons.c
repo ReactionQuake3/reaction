@@ -2015,7 +2015,7 @@ CG_FireWeapon
 Caused by an EV_FIRE_WEAPON event
 ================
 */
-void CG_FireWeapon( centity_t *cent ) {
+void CG_FireWeapon( centity_t *cent, int weapModification ) {
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
@@ -2054,7 +2054,10 @@ void CG_FireWeapon( centity_t *cent ) {
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
-	cent->muzzleFlashTime = cg.time;
+	if (weapModification != RQ3_WPMOD_SILENCER)
+	{
+		cent->muzzleFlashTime = cg.time;
+	}
 	
 	// lightning gun only does this this on initial press
 	//Blaze: no more Lighting gun
@@ -2071,7 +2074,13 @@ void CG_FireWeapon( centity_t *cent ) {
 		trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
-	
+	//Elder: silencer stuff
+	if (weapModification == RQ3_WPMOD_SILENCER)
+	{
+		trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, cgs.media.silencerSound );
+	}
+	else
+	{
 		// play a sound
 		for ( c = 0 ; c < 4 ; c++ ) {
 			if ( !weap->flashSound[c] ) {
@@ -2086,7 +2095,7 @@ void CG_FireWeapon( centity_t *cent ) {
 				trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, weap->flashSound[c] );
 			}
 		}
-
+	}
 	// do brass ejection
 	if ( weap->ejectBrassFunc && cg_brassTime.integer > 0 ) {
 		weap->ejectBrassFunc( cent );
@@ -2523,27 +2532,39 @@ static void CG_ShotgunPellet( vec3_t start, vec3_t end, int skipNum, int shellWe
 		return;
 	}
 
-	if ( cg_entities[tr.entityNum].currentState.eType == ET_PLAYER ) {
+	if ( cg_entities[tr.entityNum].currentState.eType == ET_PLAYER )
+	{
 		//Blaze: Changed WP_SHOTGUN to WP_M3
-		CG_MissileHitPlayer( WP_M3, tr.endpos, tr.plane.normal, tr.entityNum );
-	} else {
-		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
+		//Elder: don't display so many blood stains - so we can reduce slow down
+		cg.shellHits++;
+		if (cg.shellHits < MAX_SHELL_HITS)
+			CG_MissileHitPlayer( WP_M3, tr.endpos, tr.plane.normal, tr.entityNum );
+	}
+	else
+	{
+		if ( tr.surfaceFlags & SURF_NOIMPACT )
+		{
 			// SURF_NOIMPACT will not make a flame puff or a mark
 			return;
 		}
-		if ( tr.surfaceFlags & SURF_METALSTEPS ) {
+		if ( tr.surfaceFlags & SURF_METALSTEPS )
+		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
 				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
-			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_METAL );
 			}				
-		} else {
+		}
+		else
+		{
 			//Blaze: Changed WP_SHOTGUN to WP_M3
 			if (shellWeapon == WP_M3)
 				CG_MissileHitWall( WP_M3, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
-			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5) {
+			else if (shellWeapon == WP_HANDCANNON && crandom() > 0.5)
+			{
 				//Elder: show only approximately every other impact mark
 				CG_MissileHitWall( WP_HANDCANNON, 0, tr.endpos, tr.plane.normal, IMPACTSOUND_DEFAULT );
 			}
@@ -2590,7 +2611,7 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 		hc_multipler = 5;
 	}
 
-
+	cg.shellHits = 0;
 	for ( i = 0 ; i < count ; i++ ) {
 		if (shotType == WP_M3)
 		{
@@ -2616,6 +2637,8 @@ static void CG_ShotgunPattern( vec3_t origin, vec3_t origin2, int otherEntNum, i
 
 		CG_ShotgunPellet( origin, end, otherEntNum, shotType );
 	}
+	//Reset shellHits once we're finished with it
+	cg.shellHits = 0;
 }
 
 /*
@@ -2788,9 +2811,11 @@ static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 CG_Bullet
 
 Renders bullet effects.
+Elder: added armorPiercing conditional
 ======================
 */
-void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum ) {
+void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
+			    qboolean flesh, int fleshEntityNum, qboolean armorPiercing ) {
 	trace_t trace;
 	int sourceContentType, destContentType;
 	vec3_t		start;
@@ -2826,10 +2851,110 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 
 	// impact splash and mark
 	if ( flesh ) {
-		CG_Bleed( end, fleshEntityNum );
+		//Elder: added
+		if ( armorPiercing && CG_CalcMuzzlePoint( sourceEntityNum, start))
+			CG_BleedSpray(start, end, fleshEntityNum);
+		else
+			CG_Bleed( end, fleshEntityNum );
 	} else {
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
 		CG_MissileHitWall( WP_PISTOL, 0, end, normal, IMPACTSOUND_DEFAULT );
 	}
 
 }
+
+/*
+==================
+CG_LocalLaser
+
+Elder:
+Local laser dot if it is the client's own laser
+==================
+*/
+static void CG_LocalLaser ()
+{
+	vec3_t			muzzle;
+	vec3_t			forward;
+	vec3_t			end;
+	refEntity_t		*re;
+	trace_t			tr;
+	
+	//Create the laser entity if it's not there
+	if (cg.laserSight == qfalse)
+	{
+		CG_Printf("Initializing Local Laser...\n");
+
+		cg.laserSight = qtrue;
+		cg.laserEnt = CG_AllocLocalEntity();
+		cg.laserEnt->startTime = cg.time;
+		cg.laserEnt->color[3] = 1.0;
+		//cg.laserEnt->pos.trType = TR_INTERPOLATE;
+	}
+
+	//Setup refEntity stuff
+	re = &cg.laserEnt->refEntity;
+	re->radius = 6;
+	re->reType = RT_SPRITE;
+	re->rotation = 0;
+	re->customShader = cgs.media.laserShader;
+
+	//Calculate muzzle and endpoint
+	if (CG_CalcMuzzlePoint(cg.snap->ps.clientNum, muzzle))
+	{
+		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
+		VectorMA( muzzle, 8192 * 16, forward, end );
+	}
+	else
+	{
+		CG_Error("CG_LocalLaser: Could not calculate own muzzle point\n");
+	}
+
+	CG_Trace(&tr, muzzle, NULL, NULL, end, cg.predictedPlayerState.clientNum, CONTENTS_SOLID);
+	
+	//Set position of laser dot
+	if (tr.fraction != 1)
+		VectorMA(tr.endpos,-4, forward, tr.endpos);
+
+	
+	VectorCopy(tr.endpos, re->origin);
+	//VectorCopy(tr.endpos, cg.laserEnt->pos.trBase);
+	//BG_EvaluateTrajectory(&cg.laserEnt->pos, cg.time, re->origin);
+	
+	//Boost the endTime
+	cg.laserEnt->endTime += 10000;
+
+	//if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY)
+	//Don't render if it hits the sky
+	//if (!(tr.surfaceFlags & SURF_SKY))
+	trap_R_AddRefEntityToScene( re );
+}
+
+/*
+==================
+CG_CheckLaser
+
+Elder:
+Whether or not to use the local laser
+Broken until I find a way to lerp an entity without a cent
+==================
+*/
+void CG_CheckLaser()
+{
+	//Elder: check for local laser
+	if (bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER &&
+		cg_RQ3_laserAssist.integer &&
+		(cg.snap->ps.weapon == WP_PISTOL ||
+		 cg.snap->ps.weapon == WP_MP5 ||
+		 cg.snap->ps.weapon == WP_M4))
+	{
+		CG_LocalLaser();
+	}
+	//Disable laser
+	else if (cg.laserSight == qtrue)
+	{
+		CG_Printf("Destroying Local Laser...\n");
+		CG_FreeLocalEntity(cg.laserEnt);
+		cg.laserSight = qfalse;
+	}
+}
+

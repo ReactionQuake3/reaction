@@ -81,6 +81,9 @@
 #define ZOOM_LEVELS		3
 #define ZOOM_PREPTIME	10		//milliseconds
 
+//Elder: max number of "blood" marks when hitting a player w/ shell weapons
+#define MAX_SHELL_HITS	6
+
 typedef enum {
 	FOOTSTEP_NORMAL,
 	FOOTSTEP_BOOT,
@@ -641,6 +644,10 @@ typedef struct {
 	int			sayTime;
 	int			sayCount;
 	
+	int			shellHits;		//Count number of successful shell hits
+	
+	qboolean		laserSight;	//Whether to draw local laser sight
+	localEntity_t	*laserEnt;	//Local model -- NULL if not in-use
 
 } cg_t;
 
@@ -759,6 +766,9 @@ typedef struct {
 	qhandle_t	backTileShader;
 	qhandle_t	noammoShader;
 
+	//Elder: C3A Laser tutorial
+	qhandle_t	laserShader;
+
 	//Elder: sniper crosshairs
 	qhandle_t	ssgCrosshair[ZOOM_LEVELS];
 	
@@ -865,6 +875,9 @@ typedef struct {
 	sfxHandle_t	headshotSound;	//Elder: splat
 	sfxHandle_t	lcaSound;		//Elder: lights, camera, action!
 	sfxHandle_t	lensSound;		//Elder: sniper lens zoom
+	sfxHandle_t silencerSound;
+	sfxHandle_t kevlarHitSound;
+
 	sfxHandle_t	quadSound;
 	sfxHandle_t	tracerSound;
 	sfxHandle_t	selectSound;
@@ -1209,6 +1222,8 @@ extern	vmCvar_t		cg_RQ3_ssgColorB;
 extern	vmCvar_t		cg_RQ3_ssgColorA;
 //Elder: smoke puffs, sparks, etc.
 extern	vmCvar_t		cg_RQ3_impactEffects;
+//Elder: toggle client-side laser drawing
+extern	vmCvar_t		cg_RQ3_laserAssist;
 //Blaze: anouncer sounds
 extern	vmCvar_t		cg_RQ3_anouncer;
 
@@ -1422,11 +1437,11 @@ void CG_RQ3_GrenadeMode();
 void CG_RegisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 
-void CG_FireWeapon( centity_t *cent );
+void CG_FireWeapon( centity_t *cent, int weapModification );
 void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType );
 void CG_MissileHitPlayer( int weapon, vec3_t origin, vec3_t dir, int entityNum );
 void CG_ShotgunFire( entityState_t *es, qboolean ism3 );
-void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum );
+void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, qboolean armorPiercing );
 
 void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end );
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
@@ -1435,6 +1450,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 void CG_DrawWeaponSelect( void );
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
+void CG_CheckLaser ();				//Elder: check laser to see if it's our own
+
 
 //
 // cg_marks.c
@@ -1484,6 +1501,8 @@ void CG_BigExplode( vec3_t playerOrigin );
 // Blaze: Breakable glass Elder: modified
 void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type );
 void CG_Bleed( vec3_t origin, int entityNum );
+//Elder: for SSG shots
+void CG_BleedSpray ( vec3_t origin, vec3_t dir, int entityNum );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, qhandle_t shader, int msec,

@@ -42,10 +42,13 @@
 
 #define	MINS_Z				-24
 #define	DEFAULT_VIEWHEIGHT	26
-#define CROUCH_VIEWHEIGHT	12
+//Elder: changed to 8 like AQ2 source BUT is it sync-ed?
+#define CROUCH_VIEWHEIGHT 8
+//#define CROUCH_VIEWHEIGHT	12
 #define	DEAD_VIEWHEIGHT		-16
 
 //Elder: New breakable bit definitions
+//Enum materials?
 //No amount bits = Low ... both amount bits = Tons
 #define RQ3_DEBRIS_MEDIUM			0x00000001
 #define RQ3_DEBRIS_HIGH				0x00000002
@@ -154,10 +157,20 @@
 #define RQ3_LASER_NAME			"Lasersight"
 
 //Elder: sound events for EV_RQ3_SOUND
-#define RQ3_SOUND_KICK			0
-#define RQ3_SOUND_HEADSHOT		1
-#define RQ3_SOUND_KNIFEDEATH	2
-#define RQ3_SOUND_LCA			3 //lights, camera, action!
+typedef enum {
+	RQ3_SOUND_KICK,
+	RQ3_SOUND_HEADSHOT,
+	RQ3_SOUND_KNIFEDEATH,
+	RQ3_SOUND_LCA,					//lights, camera, action!
+	RQ3_SOUND_KEVLARHIT,
+
+	RQ3_SOUND_TOTAL
+} rq3_sounds_t;
+
+//#define RQ3_SOUND_KICK			0
+//#define RQ3_SOUND_HEADSHOT		1
+//#define RQ3_SOUND_KNIFEDEATH	2
+//#define RQ3_SOUND_LCA			3 //lights, camera, action!
 
 //Elder: Weapon damage and spread stats
 #define PISTOL_DAMAGE 			90
@@ -270,6 +283,8 @@
 //Elder: special flag needed in both games
 #define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
 
+//Elder: weapon modifications -- right now only silencer
+#define RQ3_WPMOD_SILENCER		1
 
 //
 // config strings are a general means of communicating variable length strings
@@ -430,25 +445,26 @@ void Pmove (pmove_t *pmove);
 // NOTE: may not have more than 16
 typedef enum {
 	STAT_HEALTH,
-	STAT_HOLDABLE_ITEM,
+	STAT_HOLDABLE_ITEM,				// Elder: Used to hold unique items in Reaction
 #ifdef MISSIONPACK
 	STAT_PERSISTANT_POWERUP,
 #endif
 	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,						// Elder: technically we don't need this anymore - maybe for vest
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
-// Begin Duffman
+
+	
+	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
+//	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+
+	//These are RQ3-related specific stats	
 	STAT_CLIPS,						// Num Clips player currently has
 	STAT_STREAK,
-// End Duffman
-// Homer: for bursting
-	STAT_BURST, 			// number of shots in burst
-	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-//	STAT_MAX_HEALTH,					// health / armor limit, changable by handicap
-	STAT_JUMPTIME,					//Blaze RE: Double jump
-	STAT_UNIQUEWEAPONS,
+	STAT_BURST, 					// number of shots in burst
+	STAT_JUMPTIME,					// Blaze RE: Double jump
+	//STAT_UNIQUEWEAPONS,			// Elder - wasteful stat - moved to gclient_s
 	STAT_FALLDAMAGE,
-	STAT_RQ3,					//Blaze: Will hold a few flags for bandage, etc info
+	STAT_RQ3,						// Blaze: Will hold a few flags for bandage, etc info
 } statIndex_t;
 
 //STAT_RQ3 stat info 
@@ -547,6 +563,7 @@ typedef enum {
 typedef enum {
 	HI_NONE,
 
+	//TODO: remove the baseQ3 ones
 	HI_TELEPORTER,
 	HI_MEDKIT,
 	HI_KAMIKAZE,
@@ -681,6 +698,7 @@ typedef enum {
 
 	EV_BULLET_HIT_FLESH,
 	EV_BULLET_HIT_WALL,
+	EV_SSG3000_HIT_FLESH,
 
 	EV_MISSILE_HIT,
 	EV_MISSILE_MISS,
@@ -1008,6 +1026,7 @@ typedef enum {
 	ET_INVISIBLE,
 	ET_GRAPPLE,				// grapple hooked on wall
 	ET_TEAM,
+	ET_LASER,				// lasersight entity type
 
 	ET_EVENTS				// any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum

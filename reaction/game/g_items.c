@@ -176,24 +176,38 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
+	//Elder: why it's implemented like this I have no idea
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
+	//other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item->giTag;
+	other->client->uniqueItems++;
+
+	//Fire up the laser if it's picked up
+	if (ent->item->giTag == HI_LASER)
+	{
+		Laser_Gen(other, qtrue);
+	}
 
 /*	Blaze: No Kamikazie
 	if( ent->item->giTag == HI_KAMIKAZE ) {
 		other->client->ps.eFlags |= EF_KAMIKAZE;
 	}*/
 
-	return RESPAWN_HOLDABLE;
+	//Elder: our unique items don't respawn
+	return -1;
+	//return RESPAWN_HOLDABLE;
 }
 
 
 //======================================================================
 
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo (gentity_t *ent, int weapon, int count, int bandolierFactor)
 {
+	
 	//Blaze: Reaction stuff, add to clip when picking up ammo packs
 	//Elder: Modified to use constants def'd in bg_public.h
 	ent->client->numClips[weapon] += count;
+
+
 	
 	switch (weapon)
 	{
@@ -201,32 +215,32 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 		//Blaze: you get more knifes by picking up the "gun" as opposed to ammo
 		break;
 	case WP_PISTOL:
-		if (ent->client->numClips[weapon] > RQ3_PISTOL_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_PISTOL_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_PISTOL_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_PISTOL_MAXCLIP * bandolierFactor;
 		break;
 	case WP_AKIMBO:
-		if (ent->client->numClips[weapon] > RQ3_AKIMBO_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_AKIMBO_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_AKIMBO_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_AKIMBO_MAXCLIP * bandolierFactor;
 		break;
 	case WP_MP5:
-		if (ent->client->numClips[weapon] > RQ3_MP5_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_MP5_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_MP5_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_MP5_MAXCLIP * bandolierFactor;
 		break;
 	case WP_M4:
-		if (ent->client->numClips[weapon] > RQ3_M4_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_M4_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_M4_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_M4_MAXCLIP * bandolierFactor;
 		break;
 	case WP_M3:
-		if (ent->client->numClips[weapon] > RQ3_M3_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_M3_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_M3_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_M3_MAXCLIP * bandolierFactor;
 		break;
 	case WP_HANDCANNON:
-		if (ent->client->numClips[weapon] > RQ3_HANDCANNON_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_HANDCANNON_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_HANDCANNON_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_HANDCANNON_MAXCLIP * bandolierFactor;
 		break;
 	case WP_SSG3000:
-		if (ent->client->numClips[weapon] > RQ3_SSG3000_MAXCLIP)
-			ent->client->numClips[weapon] = RQ3_SSG3000_MAXCLIP;
+		if (ent->client->numClips[weapon] > RQ3_SSG3000_MAXCLIP * bandolierFactor)
+			ent->client->numClips[weapon] = RQ3_SSG3000_MAXCLIP * bandolierFactor;
 		break;
 	case WP_GRENADE:
 		//Blaze: you get more knifes by picking up the "gun" as opposed to ammo
@@ -258,7 +272,7 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 	//}
 }
 
-int Pickup_Ammo (gentity_t *ent, gentity_t *other)
+int Pickup_Ammo (gentity_t *ent, gentity_t *other, int bandolierFactor)
 {
 	int		quantity;
 
@@ -267,7 +281,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 	} else {
 		quantity = ent->item->quantity;
 	}
-	Add_Ammo (other, ent->item->giTag, quantity);
+	Add_Ammo (other, ent->item->giTag, quantity, bandolierFactor);
 
 	return RESPAWN_AMMO;
 }
@@ -275,7 +289,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 //======================================================================
 
 
-int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
+int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 	int		quantity,ammotoadd;
 
 	if ( ent->count < 0 ) {
@@ -351,15 +365,15 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		break;
 	case WP_MP5:
 		ammotoadd= RQ3_MP5_AMMO;
-		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
+		other->client->uniqueWeapons++;
 		break;
 	case WP_M4:
 		ammotoadd= RQ3_M4_AMMO;
-		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
+		other->client->uniqueWeapons++;
 		break;
 	case WP_M3:
 		ammotoadd= RQ3_M3_AMMO;
-		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
+		other->client->uniqueWeapons++;
 		break;
 	case WP_HANDCANNON:
 		ammotoadd= RQ3_HANDCANNON_AMMO;
@@ -369,20 +383,20 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		//When it's dropped
 		//other->client->numClips[ WP_HANDCANNON ] += 5;
 		//other->client->numClips[ WP_M3 ] += 5;
-		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
+		other->client->uniqueWeapons++;
 		break;
 	case WP_SSG3000:
 		ammotoadd= RQ3_SSG3000_AMMO;
-		other->client->ps.stats[STAT_UNIQUEWEAPONS]++;
+		other->client->uniqueWeapons++;
 		break;
 	case WP_GRENADE:
-		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP) 
+		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP * bandolierFactor) 
 		{
 			ammotoadd=other->client->ps.ammo[WP_GRENADE] + 1;
 		}
 		else
 		{
-			ammotoadd= RQ3_GRENADE_MAXCLIP;
+			ammotoadd= RQ3_GRENADE_MAXCLIP * bandolierFactor;
 		}
 		break;
 	default:
@@ -573,6 +587,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 	int			respawn;
 	qboolean	predict;
+	int			bandolierFactor;
+
 
 	if (!other->client)
 		return;
@@ -584,6 +600,12 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 
 	predict = other->client->pers.predictItemPickup;
+
+	if (bg_itemlist[other->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
+		bandolierFactor = 2;
+	else
+		bandolierFactor = 1;
+
 
 	//Elder: should check if the item was recently thrown ... if it was, then
 	//don't allow it to be picked up ... or something like that
@@ -602,18 +624,18 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		//Specials: if you have more than/equal to limit (remember bando later), leave
 		case WP_KNIFE:
 			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE) ) &&
-				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP * bandolierFactor))
 				return;
 			break;
 		case WP_GRENADE:
 			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE) )== (1 << WP_GRENADE) ) &&
-				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP) )
+				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP * bandolierFactor) )
 				return;
 			break;
 		case WP_PISTOL:
 			//Elder: always have pistol - but extra ones give akimbo or clips
 			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) == (1 << WP_AKIMBO) ) &&
-				other->client->numClips[WP_PISTOL] >= RQ3_PISTOL_MAXCLIP ) {
+				other->client->numClips[WP_PISTOL] >= RQ3_PISTOL_MAXCLIP * bandolierFactor) {
 				//leave if we have max clips and akimbos
 				return;
 			}
@@ -624,7 +646,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		case WP_M4:
 		case WP_SSG3000:
 			//Elder: check to see if it's in mid-air
-			if (other->client->ps.stats[STAT_UNIQUEWEAPONS] >= g_RQ3_maxWeapons.integer ||
+			if (other->client->uniqueWeapons >= g_RQ3_maxWeapons.integer ||
 				ent->s.pos.trDelta[2] != 0)
 					return;
 			break;
@@ -696,11 +718,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		}
 		*/
 
-		//Elder: Moved after checks so we don't print a billion log messages
-		G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
 
-
-		respawn = Pickup_Weapon(ent, other);
+		respawn = Pickup_Weapon(ent, other, bandolierFactor);
 
 	
 		//Elder: added pistol and knife condition
@@ -724,31 +743,31 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			if (other->client->numClips[ent->item->giTag] >= 0) return;//No clips for knifes
 			break;
 		case WP_PISTOL:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_PISTOL_MAXCLIP ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_PISTOL_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_M3:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_M3_MAXCLIP) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_M3_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_HANDCANNON:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_HANDCANNON_MAXCLIP) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_HANDCANNON_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_MP5:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_MP5_MAXCLIP ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_MP5_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_M4:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_M4_MAXCLIP ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_M4_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_SSG3000:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_SSG3000_MAXCLIP ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_SSG3000_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_AKIMBO:
-			if (other->client->numClips[ent->item->giTag] >= RQ3_AKIMBO_MAXCLIP ) return;
+			if (other->client->numClips[ent->item->giTag] >= RQ3_AKIMBO_MAXCLIP * bandolierFactor) return;
 			break;
 		case WP_GRENADE:
 			if (other->client->numClips[ent->item->giTag] >= 0 ) return;//no clips for grenades
 			break;
 		}
-		respawn = Pickup_Ammo(ent, other);
+		respawn = Pickup_Ammo(ent, other, bandolierFactor);
 //		predict = qfalse;
 		break;
 	case IT_ARMOR:
@@ -770,6 +789,10 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Team(ent, other);
 		break;
 	case IT_HOLDABLE:
+		//Elder: check to see if it's in mid-air
+		if (other->client->uniqueItems >= 1  || //g_RQ3_maxWeapons.integer ||
+			ent->s.pos.trDelta[2] != 0)
+			return;
 		respawn = Pickup_Holdable(ent, other);
 		break;
 	default:
@@ -779,6 +802,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	if ( !respawn ) {
 		return;
 	}
+
+	//Elder: Moved after checks so we don't print a billion log messages
+	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
 
 	// play the normal pickup sound
 	if (predict) {
@@ -919,8 +945,15 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	//Don't forget to condition it when we get teamplay in
 	else if ( item->giType == IT_WEAPON &&
 		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL && 
-		item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE ) {
+		item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE )
+	{
 		dropped->think = RQ3_DroppedWeaponThink;
+		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
+	}
+	//Elder: for unique items in deathmatch ... remember to condition for teamplay
+	else if ( item->giType == IT_HOLDABLE)
+	{
+		dropped->think = RQ3_DroppedItemThink;
 		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
 
@@ -951,7 +984,8 @@ Modified by Elder
 dropWeapon XRAY FMJ
 ================
 */
-gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags ) { // XRAY FMJ
+gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags )
+{
 	vec3_t	velocity;
 	vec3_t  angles;
 	vec3_t	origin;
@@ -1182,6 +1216,13 @@ void ClearRegisteredItems( void ) {
 	//Blaze: Changed WP_MACHINEGUN to WP_PISTOL and WP_GAUNTLET to WP_KNIFE
 	RegisterItem( BG_FindItemForWeapon( WP_PISTOL ) );
 	RegisterItem( BG_FindItemForWeapon( WP_KNIFE ) );
+	//Elder: add unique items here
+	RegisterItem( BG_FindItemForHoldable( HI_KEVLAR ) );
+	RegisterItem( BG_FindItemForHoldable( HI_SLIPPERS ) );
+	RegisterItem( BG_FindItemForHoldable( HI_SILENCER ) );
+	RegisterItem( BG_FindItemForHoldable( HI_BANDOLIER ) );
+	RegisterItem( BG_FindItemForHoldable( HI_LASER ) );
+
 #ifdef MISSIONPACK
 	if( g_gametype.integer == GT_HARVESTER ) {
 		RegisterItem( BG_FindItem( "Red Cube" ) );
@@ -1512,4 +1553,42 @@ void RQ3_ResetWeapon( int weapon ) {
 	}
 	
 	//return rent;
+}
+
+
+/*
+==============
+Added by Elder
+
+RQ3_DroppedItemThink
+Items respawn themselves after a period of time
+Based on the AQ2 item code which was based off Q2 CTF techs
+==============
+*/
+void RQ3_DroppedItemThink(gentity_t *ent) {
+	gitem_t		*rq3_item;
+	gentity_t	*rq3_temp;
+	float		angle = rand() % 360;
+
+	switch (ent->item->giTag)
+	{
+		case HI_KEVLAR:
+		case HI_LASER:
+		case HI_SILENCER:
+		case HI_BANDOLIER:
+		case HI_SLIPPERS:
+			//Free entity and reset position in unique item array
+			//level.uniqueItemsUsed &= ~(1 << ent->item->giTag);
+			rq3_item = BG_FindItemForHoldable( ent->item->giTag );
+			rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
+			G_FreeEntity(ent);
+			Drop_Item (rq3_temp, rq3_item, angle);
+			G_Printf("RQ3_DroppedItemThink: Freeing item entity + respawning\n");
+    		break;
+    	default:
+    		//Elder: shouldn't have to come here
+    		G_Printf("RQ3_DroppedItemThink: Out of range or invalid item %d\n", ent->item->giTag);
+			G_FreeEntity(ent);
+    		break;
+	}
 }

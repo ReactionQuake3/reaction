@@ -329,10 +329,10 @@ gitem_t	bg_itemlist[] =
 	//
 	// AMMO ITEMS
 	//
-/*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED ammo_mk23 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"ammo_bullets",
+		"ammo_mk23",
 		"sound/misc/am_pkup.wav",
         { "models/ammo/mk23.md3", 
 		0, 0, 0},
@@ -351,28 +351,28 @@ gitem_t	bg_itemlist[] =
 	{
 		"ammo_shells",
 		"sound/misc/am_pkup.wav",
-        { "models/ammo/m4.md3", 
+        { "models/ammo/m3.md3", 
 		0, 0, 0},
-/* icon */		"icons/icona_m4clip",
-/* pickup */	"M4 Clip",
-		1,
+/* icon */		"icons/icona_shells",
+/* pickup */	"Shotgun Shells",
+		7,
 		IT_AMMO,
-		//Blaze: changed from WP_SHOTGUN to WP_M4
-		WP_M4,
+		//Blaze: Changed from WP_ROCKET_LAUNCHER to WP_SHOTGUN
+		WP_M3,
 /* precache */ "",
 /* sounds */ ""
 	},
 
 
-/*QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED ammo_ssg3000 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"ammo_slugs",
+		"ammo_ssg3000",
 		"sound/misc/am_pkup.wav",
         { "models/ammo/ssg3000.md3", 
 		0, 0, 0},
 /* icon */		"icons/icona_ssgammo",
-/* pickup */	"Sniper Ammo",
+/* pickup */	"AP Sniper Ammo",
 		10,
 		IT_AMMO,
 		//Blaze: Changed from WP_RAILGUN to WP_GRENADE
@@ -381,10 +381,10 @@ gitem_t	bg_itemlist[] =
 /* sounds */ ""
 	},
 
-/*QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+/*QUAKED ammo_mp5 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
-		"ammo_cells",
+		"ammo_mp5",
 		"sound/misc/am_pkup.wav",
         { "models/ammo/mp5.md3", 
 		0, 0, 0},
@@ -416,6 +416,7 @@ gitem_t	bg_itemlist[] =
 /* sounds */ //""
 //	},
 
+//Elder: just leaving this in for now
 /*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -429,6 +430,23 @@ gitem_t	bg_itemlist[] =
 		IT_AMMO,
 		//Blaze: Changed from WP_ROCKET_LAUNCHER to WP_SHOTGUN
 		WP_M3,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_m4 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_m4",
+		"sound/misc/am_pkup.wav",
+        { "models/ammo/m4.md3", 
+		0, 0, 0},
+/* icon */		"icons/icona_m4clip",
+/* pickup */	"M4 Clip",
+		1,
+		IT_AMMO,
+		//Blaze: changed from WP_SHOTGUN to WP_M4
+		WP_M4,
 /* precache */ "",
 /* sounds */ ""
 	},
@@ -1318,6 +1336,7 @@ char *eventnames[] = {
 
 	"EV_BULLET_HIT_FLESH",
 	"EV_BULLET_HIT_WALL",
+	"EV_SSG3000_HIT_FLESH",		//Elder: SSG3000 blood spray
 
 	"EV_MISSILE_HIT",
 	"EV_MISSILE_MISS",

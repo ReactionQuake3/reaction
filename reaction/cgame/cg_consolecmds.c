@@ -57,6 +57,36 @@ static void CG_DropWeapon_f (void) {
 
 /*
 =================
+CG_DropItem_f
+
+Elder: Do any client pre-processing here for drop item
+=================
+*/
+static void CG_DropItem_f (void) {
+	if ( !cg.snap ) {
+		//CG_Printf("No snapshot: normally exiting\n");
+		return;
+	}
+
+	// if we are going into the intermission, don't do anything
+	if ( cg.intermissionStarted ) {
+		return;
+	}
+
+	///Elder: spectator?
+	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
+		return;
+	}
+
+	//Elder: don't allow item dropping when in the middle of bursts
+	if (cg.snap->ps.stats[STAT_BURST] > 0)
+		return;
+
+	trap_SendClientCommand("dropitem");
+}
+
+/*
+=================
 CG_Bandage_f
 
 Elder:
@@ -668,6 +698,7 @@ static consoleCommand_t	commands[] = {
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },				// Elder: it's for RQ3 and Q3A
+	{ "dropitem", CG_DropItem_f },
 	{ "dropweapon", CG_DropWeapon_f },		// Elder: added to reset zoom then goto server
 	{ "bandage", CG_Bandage_f },			// Elder: added to reset zoom then goto server
 	{ "+reload", CG_Reload_f },				// Elder: added to reset zoom then goto server
@@ -790,6 +821,7 @@ void CG_InitConsoleCommands( void ) {
 	//trap_AddCommand ("drop");	// XRAY FMJ weap drop cmd - Elder: not used
 	//Elder: added to give drop weapon auto-complete
 	trap_AddCommand ("dropweapon");
+	trap_AddCommand ("dropitem");
 	//Elder: try this
 	trap_AddCommand ("weapon");
 	trap_AddCommand ("specialweapon");

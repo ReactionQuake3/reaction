@@ -587,6 +587,5 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 				break;
 		}
 	}
-
 }
 

@@ -462,7 +462,80 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 }
 
 
-//Elder: we need one that sprays blood
+/*
+=================
+CG_BleedSpray
+
+Elder: This is a super blood spray for SSG hits
+Based on bubble trail code + other stuff
+=================
+*/
+#define MAX_SPRAY_BURSTS	16
+void CG_BleedSpray ( vec3_t start, vec3_t end, int entityNum )
+{
+	//vec3_t		dir;
+	vec3_t		trueEnd;
+	vec3_t		move;
+	vec3_t		vec;
+	vec3_t		velocity;
+
+	localEntity_t	*blood;
+	float		len;
+	int			i;
+	int			spacing = 30;
+	int			bloodCount = 0;
+
+	if ( !cg_blood.integer ) {
+		return;
+	}
+
+	VectorCopy (end, move);
+	VectorSubtract (end, start, vec);
+
+	//Calculate true length via start/end points
+	VectorCopy (vec, trueEnd);
+	VectorNormalize (trueEnd);
+	
+	//VectorScale (trueEnd, 300 + rand() % 100, trueEnd); 
+	//VectorAdd (end, trueEnd, trueEnd);
+	VectorMA(end, 300 + rand() % 100, trueEnd, trueEnd);
+	VectorSubtract (trueEnd, start, vec);
+
+	len = VectorNormalize (vec);
+	
+	//Set velocity
+	VectorScale(vec, 10, velocity);
+	velocity[2] += 30;
+
+	// advance a random amount first
+	i = rand() % (int)spacing;
+	VectorMA( move, i, vec, move );
+	VectorScale (vec, spacing, vec);
+	
+
+	for ( ; i < len; i += spacing )
+	{
+		//restrict amount of spurts
+		if (bloodCount++ > MAX_SPRAY_BURSTS)
+			break;
+
+		blood = CG_SmokePuff(move, velocity, 8,
+					 1, 1, 1, 1,
+					 1500 + rand() % 250,
+					 cg.time, 0,
+					 LEF_TUMBLE|LEF_PUFF_DONT_SCALE,
+					 cgs.media.bloodTrailShader);
+
+		blood->refEntity.rotation = rand() % 360;
+		blood->leMarkType = LEMT_BLOOD;
+		blood->leType = LE_FRAGMENT;
+		blood->pos.trType = TR_GRAVITY;
+		blood->bounceFactor = 0.4f;
+		VectorAdd (move, vec, move);
+	}
+}
+
+
 /*
 =================
 CG_Bleed
@@ -701,7 +774,8 @@ CG_LaunchGlass
 ==================
 */
 void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
-					 float bounce, qhandle_t hModel ) {
+					 float bounce, qhandle_t hModel )//, qhandle_t altSkin )
+{
   	localEntity_t	*le;
   	refEntity_t		*re;
   
@@ -715,7 +789,12 @@ void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
   	VectorCopy( origin, re->origin );
   	AxisCopy( axisDefault, re->axis );
   	re->hModel = hModel;
-  
+
+	//Elder: custom shaders for debris?
+	//if (altSkin)
+		//re->customSkin = altSkin;
+
+
   	le->pos.trType = TR_GRAVITY;
   	VectorCopy( origin, le->pos.trBase );
   	VectorCopy( velocity, le->pos.trDelta );
@@ -729,11 +808,11 @@ void CG_LaunchGlass( vec3_t origin, vec3_t velocity, vec3_t rotation,
   	le->angles.trTime = cg.time;
   
   	le->bounceFactor = bounce;
-  
+	
   	le->leFlags = LEF_TUMBLE;
   	le->leBounceSoundType = LEBS_BRASS;
   	le->leMarkType = LEMT_NONE;
-  }
+}
   
 /*
 ===================
@@ -762,22 +841,22 @@ void CG_BreakGlass( vec3_t playerOrigin, int glassParm, int type ) {
 		 (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
 	{
 		//Tons
-  		count = 65 + rand() % 25;
+  		count = 65 + rand() % 16;
   	}
  	else if ( (glassParm & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH)
 	{
 		//Large
-  		count = 40 + rand() % 15;
+  		count = 40 + rand() % 11;
   	}
   	else if ( (glassParm & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM)
 	{
 		//Medium
-		count = 22 + rand() % 7;
+		count = 20 + rand() % 6;
   	}
   	else
 	{
 		//Small
-  		count = 8 + rand() % 5;
+  		count = 8 + rand() % 6;
 	}
 
 	/*

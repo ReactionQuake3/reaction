@@ -471,6 +471,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_CheckTeamItems();
 	}
 
+	//Elder: spawn unique items.
+	RQ3_StartUniqueItems();
+
 	SaveRegisteredItems();
 
 	G_Printf ("-----------------------------------\n");
@@ -1805,6 +1808,14 @@ start = trap_Milliseconds();
 	}
 end = trap_Milliseconds();
 
+	// Elder: added for unique items
+	//if (level.time - level.uniqueItemsTime >= 30000)
+	//if (level.time % 30000 < 1)
+	//{
+		//level.uniqueItemsTime = level.time;
+		//RQ3_CheckUniqueItems();
+	//}
+
 	// see if it is time to do a tournement restart
 	CheckTournament();
 
@@ -1831,3 +1842,52 @@ end = trap_Milliseconds();
 		trap_Cvar_Set("g_listEntity", "0");
 	}
 }
+
+
+/*
+==============
+Added by Elder
+
+RQ3_StartUniqueItems
+Spawns items at the beginning of a level
+==============
+*/
+void RQ3_StartUniqueItems ( void )
+{
+	gitem_t		*rq3_item;
+	gentity_t	*rq3_temp;
+	float		angle = 0;
+
+	G_Printf("RQ3_StartUniqueItems: Starting unique item spawn code...\n");
+
+	rq3_item = BG_FindItemForHoldable( HI_SLIPPERS );
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();
+	Drop_Item (rq3_temp, rq3_item, angle);
+	angle += 30;
+
+	rq3_item = BG_FindItemForHoldable( HI_KEVLAR );
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	Drop_Item (rq3_temp, rq3_item, angle);
+	angle += 30;
+
+	rq3_item = BG_FindItemForHoldable( HI_SILENCER );
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	Drop_Item (rq3_temp, rq3_item, angle);
+	angle += 30;
+
+	rq3_item = BG_FindItemForHoldable( HI_BANDOLIER );
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	Drop_Item (rq3_temp, rq3_item, angle);
+	angle += 30;
+
+	rq3_item = BG_FindItemForHoldable( HI_LASER );
+	rq3_temp = (gentity_t*)SelectRandomDeathmatchSpawnPoint();	
+	Drop_Item (rq3_temp, rq3_item, angle);
+	angle += 30;
+
+	//rq3_item = BG_FindItem( "Kevlar Vest" );
+	//rq3_item = BG_FindItemForHoldable( HI_SLIPPERS );
+	//rq3_temp = SelectSpawnPoint(ent->client->ps.origin,spawn_origin, spawn_angles);
+	//Drop_Item (rq3_temp, rq3_item, 0);
+}
+

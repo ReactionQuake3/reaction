@@ -271,6 +271,38 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		return qfalse;
 	}
 	//Blaze: allow for Reaction specific spawns to be used
+	//Elder: map Q3DM weapons -> RQ3 weapons
+	if (!strcmp(ent->classname,"weapon_gauntlet"))
+		ent->classname = "weapon_knife";
+	else if (!strcmp(ent->classname,"weapon_machinegun"))
+		ent->classname = "weapon_pistol";
+	else if (!strcmp(ent->classname,"weapon_shotgun"))
+		ent->classname = "weapon_m3";
+	else if (!strcmp(ent->classname,"weapon_plasmagun"))
+		ent->classname = "weapon_mp5";
+	else if (!strcmp(ent->classname,"weapon_rocketlauncher"))
+		ent->classname = "weapon_handcannon";
+	else if (!strcmp(ent->classname,"weapon_railgun"))
+		ent->classname = "weapon_ssg3000";
+	else if (!strcmp(ent->classname,"weapon_bfg"))
+		ent->classname = "weapon_m4";
+	else if (!strcmp(ent->classname,"ammo_grenades"))
+		ent->classname = "weapon_grenade";
+
+	//Elder: map Q3DM ammo -> RQ3 ammo
+	if (!strcmp(ent->classname,"ammo_bullets"))
+		ent->classname = "ammo_mk23";
+	else if (!strcmp(ent->classname, "ammo_slugs"))
+		ent->classname = "ammo_ssg3000";
+	else if (!strcmp(ent->classname, "ammo_cells"))
+		ent->classname = "ammo_mp5";
+	else if (!strcmp(ent->classname, "ammo_bfg"))
+		ent->classname = "ammo_m4";
+	else if (!strcmp(ent->classname, "ammo_rockets"))
+		ent->classname = "ammo_shells";
+
+	/*
+	//Elder: old stuff
 	if (!strcmp(ent->classname,"weapon_gauntlet")) ent->classname = "weapon_knife";
 	else if (!strcmp(ent->classname,"weapon_railgun")) ent->classname = "weapon_ssg3000";
 	else if (!strcmp(ent->classname,"weapon_shotgun")) ent->classname = "weapon_m3";
@@ -279,6 +311,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	else if (!strcmp(ent->classname,"weapon_bfg")) ent->classname = "weapon_m4";
 	else if (!strcmp(ent->classname,"weapon_grenadelauncher")) ent->classname = "weapon_pistol";
 	else if (!strcmp(ent->classname,"ammo_grenades")) ent->classname = "weapon_grenade";
+	*/
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {

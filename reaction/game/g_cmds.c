@@ -1692,7 +1692,7 @@ void Cmd_Reload( gentity_t *ent )       {
     int ammotoadd;
     int delay = 0;
 
-	G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
+	//G_Printf("(%i) Cmd_Reload: Attempting reload\n", ent->s.clientNum);
 
 	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
 	//if (ent->client->isBandaging == qtrue) {
@@ -2292,10 +2292,10 @@ void Cmd_Unzoom(gentity_t *ent)
 
 /*
 =================
-Cmd_Drop_f XRAY FMJ
+Cmd_DropWeapon_f XRAY FMJ
 =================
 */
-void Cmd_Drop_f( gentity_t *ent ) {
+void Cmd_DropWeapon_f( gentity_t *ent ) {
 
 	//Elder: added
     //if (ent->client->isBandaging == qtrue) {
@@ -2311,6 +2311,49 @@ void Cmd_Drop_f( gentity_t *ent ) {
 		//ent->client->zoomed=0;
 		//G_AddEvent(ent,EV_ZOOM,0);
 		ThrowWeapon( ent );
+	}
+}
+
+/*
+=================
+Cmd_DropItem_f
+=================
+*/
+void Cmd_DropItem_f( gentity_t *ent )
+{
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK)
+	{
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
+		return;
+	}
+	else
+	{
+		//Elder: reset item totals if using bandolier
+		if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_BANDOLIER)
+		{
+				if (ent->client->numClips[WP_PISTOL] > RQ3_PISTOL_MAXCLIP)
+				{
+					ent->client->numClips[WP_PISTOL] = RQ3_PISTOL_MAXCLIP;
+					ent->client->numClips[WP_AKIMBO] = RQ3_PISTOL_MAXCLIP;
+				}
+				if (ent->client->numClips[WP_M3] > RQ3_M3_MAXCLIP)
+				{
+					ent->client->numClips[WP_M3] = RQ3_M3_MAXCLIP;
+					ent->client->numClips[WP_HANDCANNON] = RQ3_M3_MAXCLIP;
+				}
+				if (ent->client->numClips[WP_M4] > RQ3_M4_MAXCLIP)
+					ent->client->numClips[WP_M4] = RQ3_M4_MAXCLIP;
+				if (ent->client->numClips[WP_MP5] > RQ3_MP5_MAXCLIP)
+					ent->client->numClips[WP_MP5] = RQ3_MP5_MAXCLIP;
+				if (ent->client->numClips[WP_KNIFE] > RQ3_KNIFE_MAXCLIP)
+					ent->client->numClips[WP_KNIFE] = RQ3_KNIFE_MAXCLIP;
+				if (ent->client->numClips[WP_GRENADE] > RQ3_GRENADE_MAXCLIP)
+					ent->client->numClips[WP_GRENADE] = RQ3_GRENADE_MAXCLIP;
+		}
+		else if (bg_itemlist[ent->client->ps.stats[STAT_HOLDABLE_ITEM]].giTag == HI_LASER)
+			Laser_Gen(ent, qfalse);
+
+		ThrowItem( ent );
 	}
 }
 
@@ -2427,7 +2470,7 @@ void ClientCommand( int clientNum ) {
 		//Elder: add to reload queue if using fast-reloadable weapons
 		if (ent->client->ps.weapon == WP_M3 || ent->client->ps.weapon == WP_SSG3000)
 			ent->client->reloadAttempts++;
-        G_Printf("Trying a reload...\n");
+        //G_Printf("Trying a reload...\n");
 		Cmd_Reload( ent );
 	}
 // End Duffman
@@ -2445,7 +2488,10 @@ void ClientCommand( int clientNum ) {
 		Cmd_Unzoom (ent);
 	// end hawkins
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
-		Cmd_Drop_f( ent );
+		Cmd_DropWeapon_f( ent );
+	//Elder: stuff for dropping items
+	else if (Q_stricmp (cmd, "dropitem") == 0)
+		Cmd_DropItem_f( ent );
 	else
 		trap_SendServerCommand( clientNum, va("print \"unknown cmd %s\n\"", cmd ) );
 }
