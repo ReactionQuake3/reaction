@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.41  2002/06/17 04:02:24  jbravo
+// Fixed weapon and item respawning after death in TP
+//
 // Revision 1.40  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1377,6 +1380,10 @@ void RQ3_ResetWeapon(int weapon)
 	int numRespawned = 0;
 	int numRemoved = 0;
 
+// JBravo: no resetting/respawning weapons and items in TP
+	if (g_gametype.integer == GT_TEAMPLAY)
+		return;
+
 	switch (weapon) {
 	case WP_M3:
 		c = "weapon_m3";
@@ -1443,6 +1450,9 @@ void RQ3_DroppedItemThink(gentity_t * ent)
 //      gentity_t       *rq3_temp;
 //      float           angle = rand() % 360;
 
+// JBravo: no resetting items in TP
+	if (g_gametype.integer == GT_TEAMPLAY)
+		return;
 	switch (ent->item->giTag) {
 	case HI_KEVLAR:
 	case HI_LASER:
@@ -1475,6 +1485,10 @@ void RQ3_ResetItem(int itemTag)
 	gitem_t *rq3_item;
 	gentity_t *rq3_temp;
 	float angle = rand() % 360;
+
+// JBravo: no resetting items in TP
+	if (g_gametype.integer == GT_TEAMPLAY)
+		return;
 
 	switch (itemTag) {
 	case HI_KEVLAR:
