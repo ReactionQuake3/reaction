@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/04/03 15:51:01  jbravo
+// Small warning fixes
+//
 // Revision 1.24  2002/04/03 03:13:16  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -2347,3 +2350,4 @@ void SP_func_explosive (gentity_t *ent)
 	G_Printf("at : %s %s Material (%d)\n", vtos(ent->r.currentAngles), vtos(ent->r.currentOrigin ), ent->material );
 }
 */
+

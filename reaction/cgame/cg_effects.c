@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/04/03 15:51:01  jbravo
+// Small warning fixes
+//
 // Revision 1.24  2002/04/03 03:13:48  blaze
 // NEW BREAKABLE CODE - will break all old breakables(wont appear in maps)
 //
@@ -1220,7 +1223,8 @@ void CG_BreakBreakable( centity_t *cent,int eParam, int number ) {
   int				sparkCount;
 
 	int		i;
-	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
+// JBravo: Unused variable
+//	int		modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
   int   id;
   int count;
 

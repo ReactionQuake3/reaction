@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/04/03 15:51:01  jbravo
+// Small warning fixes
+//
 // Revision 1.6  2002/02/26 03:58:19  jbravo
 // Added a newline to the say messages from the server
 //
@@ -178,7 +181,7 @@ qboolean G_FilterPacket (char *from)
 AddIP
 =================
 */
-static void AddIP( char *str )
+void AddIP( char *str )
 {
 	int		i;
 

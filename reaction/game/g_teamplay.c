@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2002/04/03 15:51:01  jbravo
+// Small warning fixes
+//
 // Revision 1.56  2002/04/03 09:26:47  jbravo
 // New FF system. Warns and then finally kickbans teamwounders and
 // teamkillers
@@ -202,6 +205,7 @@ void	ResetKills(gentity_t *ent);
 void	ClearBodyQue (void);
 void	Cmd_DropItem_f(gentity_t *ent);
 void	Cmd_DropWeapon_f(gentity_t *ent);
+void	AddIP(char *str);
 
 void CheckTeamRules()
 {
