@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.99  2002/05/31 00:17:06  jbravo
+// Slicers fix for the weaponswitching issue
+//
 // Revision 1.98  2002/05/30 18:22:20  jbravo
 // Misc fixes
 //
@@ -501,7 +504,7 @@ void StartLCA()
 	level.lights_camera_action = (41*level.fps)/10;
 	G_LogPrintf ("LIGHTS...\n");
 	SpawnPlayers();
-	level.lights_delay = 6;
+	level.lights_delay = 4;
 }
 
 void ContinueLCA()

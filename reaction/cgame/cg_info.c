@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/31 00:17:06  jbravo
+// Slicers fix for the weaponswitching issue
+//
 // Revision 1.25  2002/05/28 21:06:37  jbravo
 // I broke the progressbar.  Final fix for that
 //
@@ -318,6 +321,8 @@ void CG_DrawInformation( void ) {
 		line = "Unknown Gametype";
 		break;
 	}
+// JBravo: the call to Q_strupr seems to crash Q3 when running as dll or .so. Attempting a fix
+	strcat (line, '\0');
 	line = Q_strupr(line);
 
 	// cheats warning

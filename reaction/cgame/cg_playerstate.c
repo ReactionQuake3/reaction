@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.20  2002/05/31 00:17:06  jbravo
+// Slicers fix for the weaponswitching issue
+//
 // Revision 1.19  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -567,6 +570,11 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {
 		cg.thisFrameTeleport = qtrue;
+		// Slicer
+		if (cgs.gametype == GT_TEAMPLAY) {
+			if (ps->persistant[PERS_SPAWN_COUNT] != ops->persistant[PERS_SPAWN_COUNT])
+				CG_Respawn();
+		}
 		// make sure we don't get any unwanted transition effects
 		*ops = *ps;
 	}
