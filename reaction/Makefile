@@ -46,7 +46,8 @@ GOBJ = \
 	$(GDIRNAME)/g_fileio.o \
 	$(GDIRNAME)/ai_vcmd.o \
 	$(GDIRNAME)/rxn_game.o \
-	$(GDIRNAME)/g_teamplay.o
+	$(GDIRNAME)/g_teamplay.o \
+	$(GDIRNAME)/g_matchmode.o
 
 CGOBJ = \
 	$(CGDIRNAME)/cg_main.o \
