@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2002/08/29 14:45:17  niceass
+// disabled wallhack
+//
 // Revision 1.51  2002/08/27 07:29:31  niceass
 // tralalaanasdfadf
 //
@@ -2469,6 +2472,7 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 	int i;
 	vec3_t	ends[9];
 	trace_t	trace;
+//	vec3_t forward, up, right;
 
 	for (i = 0; i < 9; i++)
 		VectorCopy(cent->lerpOrigin, ends[i]);
@@ -2499,15 +2503,22 @@ qboolean CG_CheckPlayerVisible(vec3_t start, centity_t *cent) {
 	ends[7][2] += playerMaxs[2];
 	ends[8][2] += playerMins[2];
 
-	for (i =0; i < 9; i++) {
-		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
+	//cg.refdefViewAngles
+	//AngleVectors(cg.refdefViewAngles, forward, right, up);
+	//VectorMA(start, 8192, forward, ends[0]);
 
+	for (i = 0; i < 9; i++) {
+		CG_Trace(&trace, start, NULL, NULL, ends[i], -1, CONTENTS_SOLID);
+		CG_Printf("surface-- nodraw: %d  glass: %d  ", trace.surfaceFlags & SURF_NODRAW, trace.surfaceFlags & SURF_GLASS);
+		CG_Printf("contents-- trans: %d  detail: %d\n", trace.contents & CONTENTS_TRANSLUCENT, trace.contents & CONTENTS_DETAIL);
+		/*
 		if ( trace.fraction == 1 || (trace.contents & ( CONTENTS_TRANSLUCENT | CONTENTS_DETAIL )) || (trace.surfaceFlags & ( SURF_NODRAW | SURF_GLASS )) )
 			// Terrain has all 3 of these set. Assume it's terrain if all 3 are this way
 			if ( !(trace.surfaceFlags & SURF_NOLIGHTMAP) &&
 				 !(trace.surfaceFlags & SURF_NOMARKS) &&
 				 !(trace.surfaceFlags & SURF_NODRAW) )
 				return qtrue;
+		*/
 	}
 
 	return qfalse;
@@ -2557,6 +2568,8 @@ void CG_Player(centity_t * cent)
 
 	// NiceAss: Render players through walls (for testing): renderfx |= RF_DEPTHHACK;
 	// NiceAss: Check for visibility here
+	// NiceAss: Disabled for now.
+	/*
 	if (cent->currentState.number != cg.snap->ps.clientNum && !CG_CheckPlayerVisible(cg.refdef.vieworg, cent) ) {
 		int num;
 		centity_t *cent;
@@ -2573,6 +2586,7 @@ void CG_Player(centity_t * cent)
 		if (num == cg.snap->numEntities)
 			return;
 	}
+	*/
 
 	memset(&legs, 0, sizeof(legs));
 	memset(&torso, 0, sizeof(torso));
