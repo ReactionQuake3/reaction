@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.37  2002/05/27 06:47:22  niceass
+// removed some kamakazi stuff
+//
 // Revision 1.36  2002/05/23 18:37:50  makro
 // Bots should crouch more often when they attack with a SSG
 // Made this depend on skill. Also, elevator stuff
@@ -673,18 +676,6 @@ qboolean EntityHasQuad(aas_entityinfo_t *entinfo) {
 }
 
 #ifdef MISSIONPACK
-/*
-==================
-EntityHasKamikze
-==================
-*/
-qboolean EntityHasKamikaze(aas_entityinfo_t *entinfo) {
-	if (entinfo->flags & EF_KAMIKAZE) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
 /*
 ==================
 EntityCarriesCubes
@@ -5718,21 +5709,6 @@ void BotCheckForProxMines(bot_state_t *bs, entityState_t *state) {
 	bs->numproxmines++;
 }
 
-/*
-==================
-BotCheckForKamikazeBody
-==================
-*/
-void BotCheckForKamikazeBody(bot_state_t *bs, entityState_t *state) {
-	// if this entity is not wearing the kamikaze
-	if (!(state->eFlags & EF_KAMIKAZE))
-		return;
-	// if this entity isn't dead
-	if (!(state->eFlags & EF_DEAD))
-		return;
-	//remember this kamikaze body
-	bs->kamikazebody = state->number;
-}
 #endif
 
 /*
