@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/04/21 00:31:27  blaze
+// ssg now properly breaks breakables
+//
 // Revision 1.45  2002/04/20 15:03:48  makro
 // More footstep sounds, a few other things
 //
@@ -1711,9 +1714,14 @@ void Weapon_SSG3000_Fire (gentity_t *ent) {
 
 		//G_Printf("(%d) SSG: Unlinking trace entity\n", level.time);
 		// unlink this entity, so the next trace will go past it
-		trap_UnlinkEntity( traceEnt );
-		unlinkedEntities[unlinked] = traceEnt;
-		unlinked++;
+    //Breakables may have broken already already
+    if (hitBreakable == qfalse)
+    {
+      G_Printf("Unlinking Something\n");
+		  trap_UnlinkEntity( traceEnt );
+		  unlinkedEntities[unlinked] = traceEnt;
+		  unlinked++;
+    }
 		//G_Printf("(%d) SSG: Unlinked count: %d\n", level.time, unlinked);
 	} while ( unlinked < MAX_SSG3000_HITS );
 
