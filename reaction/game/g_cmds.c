@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2002/06/17 03:22:58  jbravo
+// Base voting system is now fixed.
+//
 // Revision 1.129  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1051,6 +1054,7 @@ void SetTeam(gentity_t * ent, char *s)
 		teamsave = client->sess.sessionTeam;
 		client->sess.sessionTeam = client->sess.savedTeam;
 		ClientUserinfoChanged(clientNum);
+		CalculateRanks();
 		client->sess.sessionTeam = teamsave;
 		//Slicer: Changing radio gender according to models
 		if (client->sess.savedTeam == TEAM_RED)
@@ -1802,7 +1806,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	if (!Q_stricmp(arg1, "g_gametype")) {
 		i = atoi(arg2);
 		if (i != GT_FFA && i != GT_TEAMPLAY) {
-			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype.\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"Invalid gametype. Valid gametypes are 0 and 4.\n\"");
 			return;
 		}
 
@@ -1905,6 +1909,10 @@ void Cmd_CallTeamVote_f(gentity_t * ent)
 	int i, team, cs_offset;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
+
+// JBravo: not wanted for TP
+	if (g_gametype.integer == GT_TEAMPLAY)
+		return;
 
 	team = ent->client->sess.sessionTeam;
 	if (team == TEAM_RED)

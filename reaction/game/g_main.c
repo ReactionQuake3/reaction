@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/06/17 03:22:58  jbravo
+// Base voting system is now fixed.
+//
 // Revision 1.85  2002/06/16 20:11:18  niceass
 // unused cvar removed
 //
@@ -1258,24 +1261,19 @@ void CalculateRanks(void)
 			level.numConnectedClients++;
 
 			if (g_gametype.integer == GT_TEAMPLAY) {
-				if (level.clients[i].sess.savedTeam != TEAM_SPECTATOR) {
-					level.numNonSpectatorClients++;
-
-					// decide if this should be auto-followed
-					if (level.clients[i].pers.connected == CON_CONNECTED) {
-						level.numPlayingClients++;
-						if (!(g_entities[i].r.svFlags & SVF_BOT)) {
-							level.numVotingClients++;
-							if (level.clients[i].sess.savedTeam == TEAM_RED)
-								level.numteamVotingClients[0]++;
-							else if (level.clients[i].sess.savedTeam == TEAM_BLUE)
-								level.numteamVotingClients[1]++;
-						}
-						if (level.follow1 == -1) {
-							level.follow1 = i;
-						} else if (level.follow2 == -1) {
-							level.follow2 = i;
-						}
+				if (level.clients[i].pers.connected == CON_CONNECTED) {
+					level.numPlayingClients++;
+					if (!(g_entities[i].r.svFlags & SVF_BOT)) {
+						level.numVotingClients++;
+/*						if (level.clients[i].sess.savedTeam == TEAM_RED)
+							level.numteamVotingClients[0]++;
+						else if (level.clients[i].sess.savedTeam == TEAM_BLUE)
+							level.numteamVotingClients[1]++; */
+					}
+					if (level.follow1 == -1) {
+						level.follow1 = i;
+					} else if (level.follow2 == -1) {
+						level.follow2 = i;
 					}
 				}
 			} else {
