@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.77  2002/06/11 03:09:28  niceass
+// +attack cancels reloads
+//
 // Revision 1.76  2002/06/07 19:42:44  niceass
 // leg damage much closer to AQ2
 //
@@ -1863,6 +1866,11 @@ static void PM_Reload( void )
 		pm->cmd.buttons |= BUTTON_AFFIRMATIVE;
 	}
 
+	// NiceAss: +Attack cancels fast reloads
+	if ( pm->cmd.buttons & BUTTON_ATTACK && pm->ps->stats[STAT_RELOADATTEMPTS] > 1 ) {
+		pm->ps->stats[STAT_RELOADATTEMPTS] = 1;
+	}
+
 	if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
 		if ( !(pm->ps->pm_flags & PMF_RELOAD_HELD) )
 		{
@@ -1919,7 +1927,7 @@ static void PM_Reload( void )
 			if (pm->ps->weapon == WP_M3 || pm->ps->weapon == WP_SSG3000)
 			{
 				if (pm->ps->stats[STAT_RELOADTIME] > 0)// && (pm->ps->weapon == WP_M3 && pm->ps->stats[STAT_RELOADTIME] <  RQ3_M3_RELOAD_DELAY - RQ3_M3_ALLOW_FAST_RELOAD_DELAY || pm->ps->weapon == WP_SSG3000 && pm->ps->stats[STAT_RELOADTIME] < RQ3_SSG3000_RELOAD_DELAY - RQ3_SSG3000_ALLOW_FAST_RELOAD_DELAY)) 
-        {
+				{
 					if ( pm->ps->stats[STAT_RQ3] & RQ3_LOCKRELOADS )
 					{
 						//Com_Printf("============= Locked out in fast-reload interrupt\n");
