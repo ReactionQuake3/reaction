@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/07/16 04:06:21  niceass
+// temporary hack solution for map rotation and ctb
+//
 // Revision 1.15  2002/07/11 04:26:46  niceass
 // new debug function to save a string to a file
 //
@@ -831,4 +834,22 @@ void G_DebugSaveData(char *Data) {
 		trap_FS_Write(Data, strlen(Data), f);
 		trap_FS_FCloseFile(f);
 	}
+}
+
+qboolean G_FileSearch(char *Filename, char *Text) {
+	fileHandle_t file;
+	char *buf;
+	int len;
+
+	len = trap_FS_FOpenFile(Filename, &file, FS_READ);
+
+	if (!file)
+		return qfalse;
+
+	buf = G_Alloc(len);
+	trap_FS_Read(buf, len, file);
+
+	trap_FS_FCloseFile(file);
+
+	return ( strstr(buf, Text) != NULL );
 }

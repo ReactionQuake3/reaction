@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.110  2002/07/16 04:07:53  niceass
+// temporary hack solution for map rotation and ctb
+//
 // Revision 1.109  2002/07/11 04:30:01  niceass
 // new func
 //
@@ -901,6 +904,7 @@ void G_KillBox(gentity_t * ent);
 gentity_t *G_Find(gentity_t * from, int fieldofs, const char *match);
 int G_PlayerAlive(gentity_t *ent);
 void G_DebugSaveData(char *Data);
+qboolean G_FileSearch(char *Filename, char *Text);
 
 //Makro - added
 gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldofs2, const char *match2);

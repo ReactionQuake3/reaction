@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.156  2002/07/16 04:08:28  niceass
+// temporary hack solution for map rotation and ctb
+//
 // Revision 1.155  2002/07/11 04:31:07  niceass
 // removed team leaders in all gametypes and changed some text from centerprint to console print
 //
@@ -1918,6 +1921,12 @@ void Cmd_CallVote_f(gentity_t * ent)
 
 		if ( !G_FileExists(va("maps/%s.bsp", arg2)) ) {
 			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not exist.\n\"", arg2));
+			return;
+		}
+
+		// NiceAss: Talk to NiceAss before you fix this crappy hack =)
+		if ( !G_FileSearch( va("scripts/%s.arena", arg2), "rq3ctb" ) && g_gametype.integer == GT_CTF ) {
+			trap_SendServerCommand(ent - g_entities, va("print \"The map %s does not support CTB.\n\"", arg2));
 			return;
 		}
 
