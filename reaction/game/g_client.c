@@ -1240,14 +1240,21 @@ void ClientSpawn(gentity_t *ent) {
 	client->latched_buttons = 0;
 
 	// Hawkins reset zoomed flag
-	client->zoomed=0;
+	//Elder: using new stat - it's cleared anyways below
+	//client->zoomed=0;
 	
 	//Elder: knife reset/initialize
 	//Elder: removed - set in ClientBegin
 	//client->ps.persistant[PERS_WEAPONMODES] &= !RQ3_KNIFEMODE;
 
 	//Elder: reset isBandaging flag
-	client->isBandaging = qfalse;
+	//client->isBandaging = qfalse;
+	//Elder: reset all RQ3 non-persistent stats
+	ent->client->ps.stats[STAT_RQ3] = 0;
+	
+
+	//Elder: set weaponfireNextTime amount
+	client->weaponfireNextTime = 0;
 
 	// set default animations
 	client->ps.torsoAnim = TORSO_STAND;

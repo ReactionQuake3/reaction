@@ -590,7 +590,9 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->client->bleeding = 0;
 			ent->client->bleedtick = 0;
 			//Elder: added
-			ent->client->isBandaging = qfalse;
+			//ent->client->isBandaging = qfalse;
+			//Elder: remove bandage work
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 			//Elder: moved from somewhere - err, g_cmds.c I think
 			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_LEGDAMAGE;
 			
@@ -883,7 +885,8 @@ void ThrowWeapon( gentity_t *ent )
 		return;
 	}
 	//Elder: Bandaging case
-	else if (client->isBandaging) {
+	//else if (client->isBandaging) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
@@ -1177,7 +1180,51 @@ void ClientThink_real( gentity_t *ent ) {
 	// touch other objects
 	ClientImpacts( ent, &pm );
 	
+	//Elder: someone added
 	if ( bJumping )	JumpKick( ent );
+
+	//Elder: added for akimbos and 3rb and sniper zoom
+	switch( ent->client->ps.weapon ) {
+	case WP_AKIMBO:
+		if ( ent->client->weaponfireNextTime != 0 && 
+			level.time >= ent->client->weaponfireNextTime) {
+			FireWeapon( ent );
+		}
+		break;
+	case WP_SSG3000:
+		if ( ent->client->weaponfireNextTime != 0 && 
+			level.time >= ent->client->weaponfireNextTime) {
+			//Elder: restore last zoom and clear the variable
+			ent->client->ps.stats[STAT_RQ3] |= ent->client->lastzoom;
+			ent->client->lastzoom = 0;
+			ent->client->weaponfireNextTime = 0;
+		}
+		else if (level.time < ent->client->weaponfireNextTime) {
+			//Elder: stay in 1x until bolt is ready
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		}
+		break;
+	//case WP_MP5:
+	case WP_M4:
+		/*
+		if (ent->client->weaponfireNextTime != 0 &&
+			level.time >= ent->client->weaponfireNextTime) {
+			//Burst three shots and subtract ammo accordingly
+			FireWeapon(ent);
+			ent->client->ps.ammo[WP_M4]--;
+		}*/
+		break;
+	default:
+		break;
+	}
+	
+	//if ( ent->client->ps.weapon == WP_AKIMBO &&
+		//ent->client->weaponfireNextTime != 0 && 
+		//level.time >= ent->client->weaponfireNextTime) {
+		//FireWeapon( ent );
+	//}
+
 
 	// save results of triggers and client events
 	if (ent->client->ps.eventSequence != oldEventSequence) {
@@ -1376,15 +1423,15 @@ void ClientEndFrame( gentity_t *ent ) {
 // End Duffman
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
-//Elder: bleeding
-	//TODO: add in when you get leg damage
+	//Elder: bleeding notification
 	//ent->client->ps.stats[STAT_RQ3] &= RQ3_LEGDAMAGE;
 	if (ent->client->bleeding ||
 		(ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) {
-		ent->client->ps.stats[STAT_BANDAGE] = 1;
+		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_NEED;
 	}
 	else {
-		ent->client->ps.stats[STAT_BANDAGE] = 0;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
 	}
 
 	G_SetClientSound (ent);

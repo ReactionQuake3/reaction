@@ -281,7 +281,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		quantity = 0; // None for you, sir!
 	} else {
 		if ( ent->count ) {
-			//Elder: place to put gun's chamber ammo?
 			quantity = ent->count;
 		} else {
 			quantity = ent->item->quantity;
@@ -299,18 +298,19 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		} */
 	}
 
-	// add the weapon
-	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	// add the weapon if not knife or pistol
+	if (ent->item->giTag != WP_KNIFE || ent->item->giTag != WP_PISTOL)
+		other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
 // Begin Duffman - Adds a clip for each weapon picked up, will want to edit this later
 	/*Add_Ammo( other, ent->item->giTag, quantity );*/
 	switch (ent->item->giTag)
 	{
 	case WP_KNIFE:
-		if (other->client->ps.ammo[ent->item->giTag] < RQ3_KNIFE_MAXCLIP) 
+		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP) 
 		{
 			//G_Printf("(%d)\n",other->client->ps.ammo[ent->item->giTag]);
-			ammotoadd=other->client->ps.ammo[ent->item->giTag]+1;
+			ammotoadd = other->client->ps.ammo[WP_KNIFE] + 1;
 		}
 		else
 		{
@@ -384,14 +384,19 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		break;
 	default:
 		//Blaze: Should never hit here
-		G_Printf("Pickup_Weapon given bad giTag: %d\n", ent->item->giTag);
-		ammotoadd=30;
+		G_Printf("Pickup_Weapon: Given bad giTag: %d\n", ent->item->giTag);
+		ammotoadd=0;
 		break;
 	}
 	//Elder: conditional added to "restore" weapons
 	if ( other->client->hadUniqueWeapon[ent->item->giTag] == qfalse ||
 		 !((ent->flags & FL_THROWN_ITEM) == FL_THROWN_ITEM) ) {
 		other->client->ps.ammo[ent->item->giTag]= ammotoadd;
+		//Elder: add extra handcannon clips if it's "fresh"
+		if (ent->item->giTag == WP_HANDCANNON) {
+			other->client->numClips[ WP_HANDCANNON ] += 5;
+			other->client->numClips[ WP_M3 ] += 5;
+		}
 	}
 
 // End Duffman
@@ -589,7 +594,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		//Akimbos: shouldn't pick them up b/c they shouldn't be dropped
 		//Specials: if you have more than/equal to limit (remember bando later), leave
 		case WP_KNIFE:
-			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) == (1 << WP_KNIFE) ) &&
+			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE) ) == (1 << WP_KNIFE) ) &&
 				(other->client->ps.ammo[ent->item->giTag] >= RQ3_KNIFE_MAXCLIP) )
 				return;
 			break;
@@ -600,10 +605,11 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			break;
 		case WP_PISTOL:
 			//Elder: always have pistol - but extra ones give akimbo or clips
-			if ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) == (1 << WP_AKIMBO) ) &&
-				other->client->ps.stats[ent->item->giTag] >= RQ3_PISTOL_MAXCLIP)
+			if ( ( (other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO) ) == (1 << WP_AKIMBO) ) &&
+				other->client->numClips[WP_PISTOL] >= RQ3_PISTOL_MAXCLIP ) {
 				//leave if we have max clips and akimbos
 				return;
+			}
 			break;
 		case WP_M3:
 		case WP_HANDCANNON:
@@ -682,13 +688,17 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		*/
 		
 		respawn = Pickup_Weapon(ent, other);
-		respawn = -1; //Dont respawn weapons
 		
-		//Elder: added pistol condition
-		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL) 
-		{
-//			G_Printf("Grenade Pickedup (%d)\n",respawn);	
+		
+		//Elder: added pistol and knife condition
+		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL ||
+			ent->item->giTag == WP_KNIFE) {
+//			G_Printf("Grenade Picked up (%d)\n",respawn);	
 			respawn = 30;
+		}
+		else {
+			//Elder: moved here
+			respawn = -1; //Dont respawn weapons
 		}
 		
 //		predict = qfalse;
@@ -912,7 +922,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	if( xr_flags & FL_THROWN_ITEM) {
 		dropped->clipmask = MASK_SHOT; // XRAY FMJ
 		dropped->s.pos.trTime = level.time - 50;	// move a bit on the very first frame
-		VectorScale( velocity, 400, dropped->s.pos.trDelta ); // 700 500
+		VectorScale( velocity, 200, dropped->s.pos.trDelta ); // 700 500 400
 		SnapVector( dropped->s.pos.trDelta );		// save net bandwidth
 		dropped->physicsBounce= 0;
 	}
@@ -929,22 +939,33 @@ dropWeapon XRAY FMJ
 */
 gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags ) { // XRAY FMJ
 	vec3_t	velocity;
+	vec3_t  angles;
 	vec3_t	origin;
 
 	VectorCopy( ent->s.pos.trBase, origin );
+	VectorCopy( ent->s.apos.trBase, angles );
+	angles[YAW] += angle;
+	angles[PITCH] = 0; // always forward
+
+	AngleVectors( angles, velocity, NULL, NULL);
+	//VectorScale( velocity, 150, velocity);
 
 	// set aiming directions
-	AngleVectors (ent->client->ps.viewangles, velocity, NULL, NULL);
+	//AngleVectors (ent->client->ps.viewangles, velocity, NULL, NULL);
 
 	origin[2] += ent->client->ps.viewheight;
-	VectorMA( origin, 34, velocity, origin ); // 14
+	VectorMA( origin, 10, velocity, origin ); // 14 34
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector( origin);
 
 	// less vertical velocity
-	velocity[2] += 0.2f;
+	//velocity[2] += 0.2f;
+	//velocity[2] = 20;
+	//G_Printf("Velocity: %s\n", vtos(velocity));
 	VectorNormalize( velocity );
+	VectorScale( velocity, 5, velocity);
 	return LaunchItem( item, origin, velocity, xr_flags );
+	//return LaunchItem( item, ent->s.pos.trBase, velocity, xr_flags );
 }
 
 /*

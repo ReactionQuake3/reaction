@@ -947,6 +947,17 @@ void Weapon_M4_Fire(gentity_t *ent)
 	}
 	Bullet_Fire( ent, RQ3Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
 
+	/*	
+	if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_M4MODE) == RQ3_M4MODE) {
+		//Elder: burst three shots
+		if (ent->client->weaponfireNextTime > 0 && ent->client->ps.stats[STAT_BURST] > 2) {
+			ent->client->weaponfireNextTime = 0;
+		}
+		else {
+			ent->client->weaponfireNextTime = level.time + RQ3_M4_DELAY;
+		}
+	}*/
+
 }
 
 /*
@@ -978,10 +989,26 @@ SSG3000 Attack
 */
 void Weapon_SSG3000_Fire(gentity_t *ent)
 {
+	float spread;
 	//Elder: Don't print - will broadcast to server
 	//G_Printf("Zoom Level: %d\n", ent->client->zoomed);
 	//Elder: changed to use RQ3Spread as well
-	Bullet_Fire( ent, ( ent->client->zoomed? 0:RQ3Spread(ent, SNIPER_SPREAD)), SNIPER_DAMAGE, MOD_SNIPER);
+	//Elder: using new stat
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
+		 (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+		spread = 0;
+	}
+	else {
+		spread = RQ3Spread(ent, SNIPER_SPREAD);
+	}
+	Bullet_Fire( ent, spread, SNIPER_DAMAGE, MOD_SNIPER);
+
+	//Elder: bolt action plus save last zoom
+	ent->client->weaponfireNextTime = level.time + RQ3_SSG3000_BOLT_DELAY;
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW)
+		ent->client->lastzoom |= RQ3_ZOOM_LOW;
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
+		ent->client->lastzoom |= RQ3_ZOOM_MED;
 
 }
 
@@ -1065,8 +1092,14 @@ void Weapon_Akimbo_Fire(gentity_t *ent)
 	//Blaze: Will need 2 of these
 	spread = AKIMBO_SPREAD;
 	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
-	//Elder: should there be a small delay or is that just the sound effect in AQ2?
-	Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
+
+	//Elder: reset
+	if (ent->client->weaponfireNextTime > 0)
+		ent->client->weaponfireNextTime = 0;
+	else
+		ent->client->weaponfireNextTime = level.time + RQ3_AKIMBO_DELAY2;
+
+	//Bullet_Fire( ent, RQ3Spread(ent, spread), AKIMBO_DAMAGE, MOD_AKIMBO);
 }
 
 /*

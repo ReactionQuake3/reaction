@@ -100,46 +100,58 @@ void TossClientItems( gentity_t *self ) {
 	//That way, we can also account for the bandolier automatically
 	//BTW, that means no cheating to get all weapons or it'll spawn mad!!
 	weaponInventory = self->client->ps.stats[STAT_WEAPONS];
-	
+
+	//Elder: throw items in a "circle" starting at a random angle
+	i = level.time;
+	angle = Q_random(&i) * 30;
+
 	//Elder: added hadUniqueWeapons check - returns to qfalse if died with the gun
 	//as opposed to dropping it, then died
+	
 	if ( (weaponInventory & (1 << WP_M3) ) == (1 << WP_M3) ) {
 		item = BG_FindItemForWeapon( WP_M3 );
-		Drop_Item( self, item, 0);
+		Drop_Item( self, item, angle);
 		self->client->hadUniqueWeapon[ WP_M3 ] = qfalse;
+		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_M4) ) == (1 << WP_M4) ) {
 		item = BG_FindItemForWeapon( WP_M4 );
-		Drop_Item( self, item, 0);
+		Drop_Item( self, item, angle);
 		self->client->hadUniqueWeapon[ WP_M4 ] = qfalse;
+		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_MP5) ) == (1 << WP_MP5) ) {
 		item = BG_FindItemForWeapon( WP_MP5 );
-		Drop_Item( self, item, 0);
+		Drop_Item( self, item, angle);
 		self->client->hadUniqueWeapon[ WP_MP5 ] = qfalse;
+		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_HANDCANNON) ) == (1 << WP_HANDCANNON) ) {
 		item = BG_FindItemForWeapon( WP_HANDCANNON );
-		Drop_Item( self, item, 0);
+		Drop_Item( self, item, angle);
 		self->client->hadUniqueWeapon[ WP_HANDCANNON ] = qfalse;
+		angle += 30;
 	}
 	
 	if ( (weaponInventory & (1 << WP_SSG3000) ) == (1 << WP_SSG3000) ) {
 		item = BG_FindItemForWeapon( WP_SSG3000 );
-		Drop_Item( self, item, 0);
+		Drop_Item( self, item, angle);
 		self->client->hadUniqueWeapon[ WP_SSG3000 ] = qfalse;
+		angle += 30;
 	}
 	
 	//Elder: Always drop the pistol
 	item = BG_FindItemForWeapon( WP_PISTOL );
-	Drop_Item (self, item, 0);
+	Drop_Item (self, item, angle);
+	angle += 30;
+
 	//Elder: drop a knife if player has at least one
 	if ( self->client->ps.ammo[ WP_KNIFE ] > 0) {
 		item = BG_FindItemForWeapon( WP_KNIFE );
-		Drop_Item (self, item, 0);
+		Drop_Item (self, item, angle);
 	}
 
 	// drop all the powerups if not in teamplay
@@ -500,12 +512,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     if ( self->client )
     {
     	// Hawkins put spread back and zoom out
-		self->client->zoomed = 0;
+		//Elder: remove zoom bits
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		//self->client->zoomed = 0;
         self->client->bleeding = 0;
         //targ->client->bleedcount = 0;
         self->client->bleed_remain = 0;
         //Elder: added;
-        self->client->isBandaging = qfalse;
+        //self->client->isBandaging = qfalse;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_WORK;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_BANDAGE_NEED;
     }
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;

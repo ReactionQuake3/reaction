@@ -882,7 +882,7 @@ static void PM_WalkMove( void ) {
 		return;
 	}
 */
-//Blaze: Cant jump while someone has leg damage
+	//Blaze: Cant jump while someone has leg damage
 	if ( !((pm->ps->stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE) && PM_CheckJump () ) {
 		// jumped away
 		if ( pm->waterlevel > 1 ) {
@@ -1810,7 +1810,14 @@ static void PM_Weapon( void ) {
 		pm->ps->weaponTime = 0;
 		pm->ps->weaponstate = WEAPON_READY;
 		// Homer: not firing, reset burst value (cheaper than a non-zero check)
-		pm->ps->stats[STAT_BURST] = 0;
+		//Elder: reset only if the max amount has been shot
+		//if ( pm->ps->weapon == WP_PISTOL) {
+			pm->ps->stats[STAT_BURST] = 0;
+		//}
+		//else if ( ( pm->ps->weapon == WP_M4 && pm->ps->stats[STAT_BURST] > 2 ) ||
+			//( pm->ps->weapon == WP_MP5 && pm->ps->stats[STAT_BURST] > 2 ) ) {
+			//pm->ps->stats[STAT_BURST] = 0;
+		//}
 		return;
 	}
 
@@ -1880,41 +1887,40 @@ static void PM_Weapon( void ) {
 
 	switch( pm->ps->weapon ) {
 	default:
-//Blaze: Reaction Sniper Rifle delay
+	//Elder: weapon delay times using constants
 	case WP_SSG3000:
-		addTime = 1500;
+		addTime = RQ3_SSG3000_DELAY;
 		break;
-//Blaze: Reaction Pistol delay
 	case WP_PISTOL:
-		addTime = 500;
+		addTime = RQ3_PISTOL_DELAY;
 		break;
-//Blaze: Reaction M4 fire delay
 	case WP_M4:
-		addTime = 80;//refire time
+		addTime = RQ3_M4_DELAY;
 		break;
-//Blaze: Reaction MP5 fire delay
 	case WP_MP5:
-		addTime = 100;//refire time
+		addTime = RQ3_MP5_DELAY;
 		break;
-//Blaze: Reaction Knife fire delay
 	case WP_KNIFE:
-		addTime = 1000;//refire time
+		if ( (pm->ps->persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) {
+			//knife slash
+			addTime = RQ3_KNIFE_DELAY;
+		}
+		else {
+			//knife throw
+			addTime = RQ3_THROW_DELAY;
+		}
 		break;
-//Blaze: Reaction HandCannon fire delay
 	case WP_HANDCANNON:
-		addTime = 1500;//refire time
+		addTime = RQ3_HANDCANNON_DELAY;
 		break;
-//Blaze: Reaction Shotgun fire delay
 	case WP_M3:
-		addTime = 1000;//refire time
+		addTime = RQ3_M3_DELAY;
 		break;
-//Blaze: Reaction Akimbo fire delay
 	case WP_AKIMBO:
-		addTime = 1000;//refire time
+		addTime = RQ3_AKIMBO_DELAY;
 		break;
-//Blaze: Reaction Grenade fire delay
 	case WP_GRENADE:
-		addTime = 1000;//refire time
+		addTime = RQ3_GRENADE_DELAY;
 		break;
 #ifdef MISSIONPACK
 	case WP_NAILGUN:

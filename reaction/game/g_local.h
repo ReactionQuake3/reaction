@@ -65,7 +65,7 @@ typedef enum {
 #define RQ3_RESPAWNTIME_DEFAULT		60000	// Elder: time for weapons to respawn - up to 60s
 
 #define SP_AUTOOPEN			128				// Elder: revert to Q3 behaviour
-#define SP_NODOORTOGGLE		256				// Elder: added to disable mover toggling
+#define SP_DOORTOGGLE		256				// Elder: added to enable mover toggling
 
 //============================================================================
 
@@ -181,6 +181,7 @@ struct gentity_s {
 
 	gitem_t		*item;			// for bonus items	
 	float		distance;		// VALKYRIE: for rotating door
+
 };
 
 
@@ -339,7 +340,7 @@ struct gclient_s {
 	int			bleedtick;			//Blaze: Holds # of seconds till bleeding stops.
 	
 	//Elder: server only needs to know for sniper spread - ARGH
-	int			zoomed; 			// Hawkins (SSG zoom)
+//	int			zoomed; 			// Hawkins (SSG zoom)
 	//qboolean	semi;				// hawkins (semiauto mode for m4, mp5, pistol)
 	int			shots;   			//Blaze: Number of shots fired so far with this weapon
 	
@@ -352,12 +353,16 @@ struct gclient_s {
 	int 			grenRange; 		// range to throw grenade (short/medium/long)
 	int 			throwKnife; 	// knife to throwing
 	*/
-	qboolean		isBandaging;	//Elder: player in the process of bandaging
+	//qboolean		isBandaging;	//Elder: player in the process of bandaging
 	// end Homer
 	
 	//Elder: prep for "ammo" in last gun
 	//Only the server needs to know this
 	qboolean		hadUniqueWeapon[MAX_WEAPONS];
+
+	//Elder: added for 3rb and akimbos
+	int			weaponfireNextTime;		//for akimbos and burst modes
+	int			lastzoom;				// Elder: save last zoom state when firing
 	
 #ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;

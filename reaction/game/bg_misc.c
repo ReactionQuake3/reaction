@@ -939,8 +939,12 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	switch( item->giType ) {
 	case IT_WEAPON:
-		return qtrue;	// weapons are always picked up
-
+		//Elder: gotta check before we can pick it up
+		//if (item->giTag == WP_KNIFE && ps->ammo[WP_KNIFE] >= RQ3_KNIFE_MAXCLIP)
+			//return qfalse;
+		//else
+			return qtrue;	// weapons are always picked up
+		
 	case IT_AMMO:
 
 		//Blaze: pick up all ammo

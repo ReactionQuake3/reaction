@@ -1595,21 +1595,29 @@ void Cmd_Stats_f( gentity_t *ent ) {
 void Cmd_Bandage (gentity_t *ent)
 {
 	// Zoom out when bandaging.
-	if( ent->client->zoomed ){
-		ent->client->zoomed = 0;
-	}
+	//if( ent->client->zoomed ){
+		//ent->client->zoomed = 0;
+	//}
+
 		//Elder: can't use events
 		//G_AddEvent(ent,EV_ZOOM,0);
 	//}
 
 	//Elder: added so you can't "rebandage"
-	if (ent->client->isBandaging == qtrue) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+	//if (ent->client->isBandaging == qtrue) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are already bandaging!\n\""));
 		return;
 	}
 
-	if (ent->client->bleeding || (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
+	//if (ent->client->bleeding || (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_NEED) == RQ3_BANDAGE_NEED ||
+		 (ent->client->ps.stats[STAT_RQ3] & RQ3_LEGDAMAGE) == RQ3_LEGDAMAGE)
 	{
+		//Elder: remove zoom bits
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+
 		ent->client->ps.weaponstate = WEAPON_DROPPING;
         ent->client->ps.torsoAnim = ( ( ent->client->ps.torsoAnim & ANIM_TOGGLEBIT )
                ^ ANIM_TOGGLEBIT )      | TORSO_DROP;
@@ -1617,7 +1625,8 @@ void Cmd_Bandage (gentity_t *ent)
 		ent->client->ps.weaponTime += 6000;
         ent->client->bleedtick = 4;
         //Elder: added
-        ent->client->isBandaging = qtrue;
+        //ent->client->isBandaging = qtrue;
+		ent->client->ps.stats[STAT_RQ3] |= RQ3_BANDAGE_WORK;
 		//Elder: moved to g_active where it will be unset after 2 bleedticks
 		//ent->client->ps.stats[STAT_RQ3] &= !RQ3_LEGDAMAGE;
 	}
@@ -1643,8 +1652,9 @@ void Cmd_Reload( gentity_t *ent )       {
     int ammotoadd;
     int delay;
 
-	//Elder: added
-	if (ent->client->isBandaging) {
+	//Elder: added for redundant check but shouldn't need to come here - handled in cgame
+	//if (ent->client->isBandaging == qtrue) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging...\n\""));
 		return;
 	}
@@ -1662,9 +1672,12 @@ void Cmd_Reload( gentity_t *ent )       {
    	// Hawkins: Zoom out when reloading.
    	//Elder: shouldn't need to know about it
     // To Do: Must remember to zoom back in
-    if( ent->client->zoomed ){
-		ent->client->zoomed=0;
-	}
+    //if( ent->client->zoomed ){
+		//ent->client->zoomed=0;
+	//}
+	//Elder: remove zoom bits
+	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+	ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
 		//Elder: can't use events
 		//G_AddEvent(ent,EV_ZOOM,0);
     
@@ -1689,7 +1702,7 @@ void Cmd_Reload( gentity_t *ent )       {
 		   break;
 	   //Elder: was missing?
 	   case WP_M4:
-		   delay = 2500;
+		   delay = 2000;
    		   if (ent->client->ps.ammo[weapon] >= RQ3_M4_AMMO)
 		   {
 			   trap_SendServerCommand( ent-g_entities, va("print \"No need to reload.\n\""));
@@ -1875,18 +1888,51 @@ void Cmd_Weapon(gentity_t *ent)
 {
 	//Elder: debug code
 	//G_Printf("PERS_WEAPONMODES: %d\n", ent->client->ps.persistant[PERS_WEAPONMODES]);
-	
+
+	//Elder: added since cgame doesn't actually know if its bandaging
+	//if (ent->client->isBandaging == qtrue) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+		return;
+	}
+
 	//Elder: added brackets, and-ops and not-ops instead of logical ops
 	switch(ent->s.weapon){
 	case WP_SSG3000:
 		// zoom is done by client. zoom 3 levels, then zoom out
 		//Elder: This is just for the server to track when calcing the spread
-		if(ent->client->zoomed == 3) {
+		/*
+		if (ent->client->zoomed == 3) {
 			ent->client->zoomed = 0;
 		}
 		else {
 			ent->client->zoomed++;
 		}
+		*/
+		if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW &&
+			 (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED ) {
+			//Elder: zoom 1x
+			//G_Printf("Server: 1x\n");
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		}
+		else if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED) {
+			//Elder: zoom 6x
+			//G_Printf("Server: 6x\n");
+			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_LOW;
+		}	
+		else if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW) {
+			//Elder: zoom 4x
+			//G_Printf("Server: 4x\n");
+			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_MED;
+			ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		}
+		else {
+			//Elder: zoom 2x
+			//G_Printf("Server: 2x\n");
+			ent->client->ps.stats[STAT_RQ3] |= RQ3_ZOOM_LOW;
+		}
+
 		//Elder: don't print - will broadcast to server
 		//G_Printf("zoomlevel = %d\n",ent->client->zoomed);
 
@@ -2000,7 +2046,18 @@ void Cmd_Weapon(gentity_t *ent)
 // Hawkins make sure spread comes back
 void Cmd_Unzoom(gentity_t *ent){
 	//G_Printf("Got to Cmd_Unzoom\n");
-	ent->client->zoomed = 0;
+	//Elder: added
+    //if (ent->client->isBandaging == qtrue) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You'll get to your weapon when you are finished bandaging!\n\""));
+		return;
+	}
+	else {
+		//Elder: remove zoom bits
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		//ent->client->zoomed = 0;
+	}
 }
 
 
@@ -2010,9 +2067,21 @@ Cmd_Drop_f XRAY FMJ
 =================
 */
 void Cmd_Drop_f( gentity_t *ent ) {
-	ent->client->zoomed=0;
-	//G_AddEvent(ent,EV_ZOOM,0);
-	ThrowWeapon( ent );
+
+	//Elder: added
+    //if (ent->client->isBandaging == qtrue) {
+	if ( (ent->client->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
+		trap_SendServerCommand( ent-g_entities, va("print \"You are too busy bandaging!\n\""));
+		return;
+	}
+	else {
+		//Elder: remove zoom bits
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_LOW;
+		ent->client->ps.stats[STAT_RQ3] &= ~RQ3_ZOOM_MED;
+		//ent->client->zoomed=0;
+		//G_AddEvent(ent,EV_ZOOM,0);
+		ThrowWeapon( ent );
+	}
 }
 
 

@@ -16,10 +16,12 @@
 
 #define	RANK_TIED_FLAG		0x4000
 
+//Elder: this are uncertified
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_HANDCANNON_SPREAD	1400
 #define DEFAULT_SHOTGUN_COUNT	11
 
+//Elder: changed this will affect the cgame entity placement
 #define	ITEM_RADIUS			15		// item sizes are needed for client side pickup detection
 
 #define	LIGHTNING_RANGE		768
@@ -96,7 +98,7 @@
 
 //Elder: confused?
 
-//Elder: used for STAT_KNIFE ...
+//Elder: used for STAT_KNIFE ... obsolete now
 #define RQ3_KNIFE_SLASH			0
 #define RQ3_KNIFE_THROW			1
 
@@ -135,12 +137,53 @@
 #define AKIMBO_DAMAGE 			90
 #define SLASH_DAMAGE 			200	//Shashing knife damage
 #define THROW_DAMAGE 			250	//Throwing Knife damage
+#define GRENADE_DAMAGE			170
+#define GRENADE_SPLASH_DAMAGE	170 
+#define GRENADE_SPLASH_RADIUS	340 //Splash damage * 2
 
 #define PISTOL_SPREAD 			140
 #define MP5_SPREAD 				250
 #define M4_SPREAD 				300
 #define SNIPER_SPREAD 			425
 #define AKIMBO_SPREAD     		300
+
+//Elder: weapon kicks - I think this is against whoever got hit?
+#define RQ3_PISTOL_KICK			150
+#define RQ3_M3_KICK				20
+#define RQ3_M4_KICK				90
+#define RQ3_MP5_KICK			90
+#define RQ3_HANDCANNON_KICK		40
+#define RQ3_SNIPER_KICK			200 // but it seems to get multiplied by zero in the source
+#define RQ3_AKIMBO_KICK			90
+#define RQ3_KNIFE_KICK			0
+#define RQ3_THROW_KICK			50
+#define RQ3_GRENADE_KICK		0	// Elder: assumed
+
+
+//Elder: weaponTime constants (delay in milliseconds)
+//Kinda "derived" from the AQ2 source
+//Recall that Q2 animations run at 10Hz and the fire
+//rate is derived from the number of animation frames
+#define RQ3_PISTOL_DELAY		400
+#define RQ3_M3_DELAY			900
+#define RQ3_M4_DELAY			100
+#define RQ3_MP5_DELAY			100
+#define RQ3_HANDCANNON_DELAY	1200
+#define RQ3_SSG3000_DELAY		1400
+#define RQ3_SSG3000_BOLT_DELAY	1300// Elder: delay before zooming back in
+#define RQ3_AKIMBO_DELAY		500	// Elder: two delays: one for the total delay
+#define RQ3_AKIMBO_DELAY2		200 // one for the time to start the second shot
+#define RQ3_KNIFE_DELAY			800	
+#define RQ3_THROW_DELAY			800
+#define RQ3_GRENADE_DELAY		750	// Elder: I made this up
+
+//Elder: special for grenade: speeds depending on distance select
+#define GRENADE_SHORT_SPEED		400
+#define GRENADE_MEDIUM_SPEED	720
+#define GRENADE_LONG_SPEED		920
+
+//Elder: knife throw speed - from the AQ2 source
+#define THROW_SPEED				1200
 
 //Elder: special flag needed in both games
 #define FL_THROWN_KNIFE			0x00040000  // Elder: thrown knife special case
@@ -314,12 +357,21 @@ typedef enum {
 	STAT_JUMPTIME,					//Blaze RE: Double jump
 	STAT_UNIQUEWEAPONS,
 	STAT_FALLDAMAGE,
-	STAT_BANDAGE,				//Elder: holds bandage need
+//	STAT_BANDAGE,				//Elder: holds bandage need - moved to STAT_RQ3
 	STAT_RQ3,					//Blaze: Will hold a few flags for bandage, etc info
 //	STAT_KNIFE,					//Elder: knife throwing -- wasteful?  then later rename STAT_RQ3 or something and use bits
 } statIndex_t;
 //STAT_RQ3 stat info 
 #define RQ3_LEGDAMAGE		1		//If this bit is set, the player has leg damage
+
+//Elder: bandage states to pass to cgame - should remove STAT_BANDAGE
+//and integrate with STAT_RQ3
+#define RQ3_BANDAGE_NEED	2
+#define RQ3_BANDAGE_WORK	4
+//Elder: zoom stat - 1x = 0, 2x = zoom low, 4x = zoom_med, 6x = zoom_low + zoom_med
+#define RQ3_ZOOM_LOW		8
+#define RQ3_ZOOM_MED		16
+
 
 
 // player_state->persistant[] indexes

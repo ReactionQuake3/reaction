@@ -602,13 +602,16 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		}
 
 		//Elder: added toggle bit
-		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) {
+		//Also added "touch" and "takedamage" check so we are only abusing doors
+		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) { //||
+			//ent->touch || (ent->takedamage == qtrue) ) {
+			G_Printf("Sliding Toggle Door used\n");
+		}
+		else {
 			// return to pos1 after a delay
 			ent->think = ReturnToPos1;
 			ent->nextthink = level.time + ent->wait;
-		}
-		else {
-			//G_Printf("Sliding Toggle Door used\n");
+			;
 		}
 		
 		// fire targets
@@ -641,13 +644,16 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		}
 
 		//Elder: added toggle bit
-		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) {
+		//Also added "touch" and "takedamage" check so we are only abusing doors
+		//if ( ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) ||
+		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) { //||
+			//ent->touch || (ent->takedamage == qtrue) ) {
+			G_Printf("Rotating Toggle Door used\n");		
+		}
+		else {
 			// return to apos1 after a delay
 			ent->think = ReturnToApos1;
 			ent->nextthink = level.time + ent->wait;
-		}
-		else {
-			//G_Printf("Rotating Toggle Door used\n");
 		}
 
 		// fire targets
@@ -713,16 +719,19 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// if all the way up, just delay before coming down
 	if ( ent->moverState == MOVER_POS2 ) {
-		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
-			//Elder: normal Q3 door
-			ent->nextthink = level.time + ent->wait;
-		}
-		else {
-			//Elder: Move back "immediately"
+		//Elder: added two additional checks
+		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) {
+		//if ( ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) ||
+			//ent->touch || ent->takedamage) {
+		//Elder: Move back "immediately"
 			MatchTeam( ent, MOVER_2TO1, level.time + 50);
 			if ( ent->sound1to2 ) {
 				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-			}
+			}			
+		}
+		else {
+			//Elder: normal Q3 door
+			ent->nextthink = level.time + ent->wait;
 		}
 		return;
 	}
@@ -791,16 +800,18 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// if all the way up, just delay before coming down
 	if ( ent->moverState == ROTATOR_POS2 ) {
-		if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE) {
-			//Elder: normal rotating door
-			ent->nextthink = level.time + ent->wait;
-		}
-		else {
+		//if ( ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE ) ||
+			//ent->touch || ent->takedamage) {
+		if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE ) {
 			//Elder: Move back "immediately"
 			MatchTeam( ent, ROTATOR_2TO1, level.time + 50);
 			if ( ent->sound1to2 ) {
 				G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-			}
+			}			
+		}
+		else {
+			//Elder: normal rotating door
+			ent->nextthink = level.time + ent->wait;
 		}
 		return;
 	}
@@ -1126,7 +1137,7 @@ NOMONSTER	monsters will not trigger this door
 
 //Elder: new one from GTKRadiant's entity.def plus Reaction stuff
 
-/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER x x x x AUTOOPEN NOTOGGLE
+/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER x x x x AUTOOPEN TOGGLE
 Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it.
 -------- KEYS --------
 angle : determines the opening direction of door (up = -1, down = -2).
@@ -1149,9 +1160,9 @@ soundmove : path to sound file to play when door is moving
 -------- SPAWNFLAGS --------
 START_OPEN : the door will spawn in the open state and operate in reverse.
 CRUSHER : door will not reverse direction when blocked and will keep damaging player until he dies or gets out of the way.
-NOTOGGLE : door will close like traditional Q3 doors using the wait period
+TOGGLE : door requires an opendoor toggle to work
 AUTOOPEN : door will open like traditional Q3 doors (like a motion sensor)
-Setting NOTOGGLE and AUTOOPEN will make the doors act like traditional Q3A doors
+Setting AUTOOPEN will make the doors act like traditional Q3A doors
 -------- NOTES --------
 Unlike in Quake 2, doors that touch are NOT automatically teamed. If you want doors to operate together, you have to team them manually by assigning the same team name to all of them. Setting the origin key is simply an alternate method to using an origin brush. When using the model2 key, the origin point of the model will correspond to the origin point defined by either the origin brush or the origin coordinate value.*/
 void SP_func_door (gentity_t *ent) {
@@ -1176,7 +1187,7 @@ void SP_func_door (gentity_t *ent) {
 		G_Printf("func_door Starting Open\n");
 	if ( (ent->spawnflags & 4) == 4)
 		G_Printf("func_door CRUSHER\n");
-	if ( (ent->spawnflags & SP_NODOORTOGGLE) == SP_NODOORTOGGLE)
+	if ( (ent->spawnflags & SP_DOORTOGGLE) == SP_DOORTOGGLE)
 		G_Printf("func_door is a Toggle\n");
 
 	// default speed of 400

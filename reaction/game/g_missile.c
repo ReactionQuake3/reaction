@@ -662,6 +662,7 @@ fire_grenade
 */
 gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	gentity_t	*bolt;
+	int speed;
 
 	VectorNormalize (dir);
 
@@ -675,9 +676,9 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.eFlags = EF_BOUNCE_HALF;
 	bolt->r.ownerNum = self->s.number;
 	bolt->parent = self;
-	bolt->damage = 100;
-	bolt->splashDamage = 340;//Blaze: Reaction Grenade Damage
-	bolt->splashRadius = 200;//Blaze: changed from 150 was 170, but I uped it some more
+	bolt->damage = GRENADE_DAMAGE;	//probably only used on a direct hit
+	bolt->splashDamage = GRENADE_SPLASH_DAMAGE;	//Blaze: Reaction Grenade Damage
+	bolt->splashRadius = GRENADE_SPLASH_RADIUS; //Blaze: changed from 150 was 170, but I uped it some more
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
@@ -686,7 +687,30 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 	bolt->s.pos.trType = TR_GRAVITY;
 	bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;		// move a bit on the very first frame
 	VectorCopy( start, bolt->s.pos.trBase );
-	VectorScale( dir, 700, bolt->s.pos.trDelta );
+	
+	//Elder: grenade toggle distances/speeds
+	if ( self->client) {
+		if ( (self->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT &&
+			(self->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED) {
+			//Long range throw
+			speed = GRENADE_LONG_SPEED;
+		}
+		else if ( (self->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENSHORT) == RQ3_GRENSHORT) {
+			//Short range throw
+			speed = GRENADE_SHORT_SPEED;
+		}
+		else if ( (self->client->ps.persistant[PERS_WEAPONMODES] & RQ3_GRENMED) == RQ3_GRENMED) {
+			//Medium range throw
+			speed = GRENADE_MEDIUM_SPEED;
+		}
+		else {
+			//Elder: shouldn't be here
+			G_Printf("fire_grenade: Did not receive a grenade parm\n");
+			speed = GRENADE_MEDIUM_SPEED;
+		}
+	}
+	
+	VectorScale( dir, speed, bolt->s.pos.trDelta );
 	SnapVector( bolt->s.pos.trDelta );			// save net bandwidth
 
 	VectorCopy (start, bolt->r.currentOrigin);
@@ -720,7 +744,7 @@ gentity_t *fire_knife (gentity_t *self, vec3_t start, vec3_t dir)
     bolt->s.pos.trType = TR_GRAVITY;
     bolt->s.pos.trTime = level.time - MISSILE_PRESTEP_TIME;     // move a bit on the very first frame
     VectorCopy( start, bolt->s.pos.trBase );
-    VectorScale( dir, 1100, bolt->s.pos.trDelta );
+    VectorScale( dir, THROW_SPEED, bolt->s.pos.trDelta );
     SnapVector( bolt->s.pos.trDelta );          // save net bandwidth
     VectorCopy (start, bolt->r.currentOrigin);
 
