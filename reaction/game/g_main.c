@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.130  2003/02/05 04:31:20  niceass
+// allow "illegal models" (no rq3models.cfg) in devmap. damn modellers never include them.
+//
 // Revision 1.129  2002/12/09 00:58:49  makro
 // Items are now disabled from the weapon/item menus in teamplay
 // games if they are banned from the server
@@ -889,6 +892,12 @@ int RQ3_Validatemodel(char *model)
 			break;
 		}
 	}
+
+	// NiceAss: illegal model, but that's ok!
+	if ( g_cheats.integer && gender == -1 )
+		return 1;
+
+
 	return gender;
 }
 
