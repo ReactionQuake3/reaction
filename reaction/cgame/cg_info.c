@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2002/06/01 13:35:47  makro
+// Added clapper to loading screen
+//
 // Revision 1.27  2002/05/31 19:01:33  makro
 // Unfixed something
 //
@@ -204,9 +207,9 @@ void CG_DrawInformation( void ) {
 	const char	*s;
 	const char	*info;
 	const char	*sysInfo;
-	char		*line;
+	const char	*line;
 	int			x = 8, y, value, bar = 0;
-	qhandle_t	levelshot, shadow;
+	qhandle_t	levelshot, shadow, clapper;
 	//qhandle_t	detail;
 	qhandle_t	percentBox;
 	char		buf[1024];
@@ -423,6 +426,11 @@ void CG_DrawInformation( void ) {
 	}
 
 	//y += 24;
+	clapper = trap_R_RegisterShaderNoMip(va("levelshots/clapper_%s.tga", Info_ValueForKey( info, "mapname" )));
+	if (clapper) {
+		y = LS_TOPMARGIN - 8 - LS_CHAR_HEIGHT;
+		CG_DrawPic(392, 296, 240, 180, clapper);
+	}
 
 	if (percentBox) {
 		trap_R_SetColor(colorWhite);
