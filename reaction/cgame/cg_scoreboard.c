@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/10/21 21:01:49  niceass
+// ref ready code
+//
 // Revision 1.47  2002/08/29 04:45:25  niceass
 // color changes for new outlined font
 //
@@ -395,29 +398,25 @@ static int CG_TeamplayScoreboard(void)
 	RedD[1] *= 0.8f;
 	RedD[2] *= 0.8f;
 	RedD[3] *= (0.8f * Alpha);
-	//MAKERGBA(RedD, 0.8f, 0.0f, 0.0f, 0.8f * Alpha);
 	CG_TeamColor(TEAM_BLUE, BlueD);
 	BlueD[0] *= 0.8f;
 	BlueD[1] *= 0.8f;
 	BlueD[2] *= 0.8f;
 	BlueD[3] *= (0.8f * Alpha);
-	//MAKERGBA(BlueD, 0.0f, 0.0f, 0.8f, 0.8f * Alpha);
 	MAKERGBA(GreyD, 0.3f, 0.3f, 0.3f, 0.84f * Alpha);
 	CG_TeamColor(TEAM_RED, RedL);
 	RedL[0] *= 0.8f;
 	RedL[1] *= 0.8f;
 	RedL[2] *= 0.8f;
 	RedL[3] *= (0.8f * Alpha);
-	//MAKERGBA(RedL, 0.8f, 0.0f, 0.0f, 0.4f * Alpha);
 	CG_TeamColor(TEAM_BLUE, BlueL);
 	BlueL[0] *= 0.8f;
 	BlueL[1] *= 0.8f;
 	BlueL[2] *= 0.8f;
 	BlueL[3] *= (0.8f * Alpha);
-	//MAKERGBA(BlueL, 0.0f, 0.0f, 0.8f, 0.4f * Alpha);
 	MAKERGBA(GreyL, 0.3f, 0.3f, 0.3f, 0.4f * Alpha);
 
-	Reds = Blues = Spectators = RedSubs = BlueSubs = 0;
+	Reds = Blues = Spectators = RedSubs = BlueSubs = refs = 0;
 
 	// Get totals for red/blue/spectators and subs
 	for (i = 0; i < cg.numScores; i++) {
@@ -457,17 +456,6 @@ static int CG_TeamplayScoreboard(void)
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 	}
 
-	// NiceAss: Matchmode stuff for showing Referee
-	/*
-	if (cg_RQ3_matchmode.integer && cg.refID >= 0) {
-		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, GreyL, colorBlack);
-		ci = &cgs.clientinfo[cg.refID];
-		DrawLeftStripText(y, SB_FONTSIZEH, "Referee:", 100, colorBlack);
-		DrawRightStripText(y, SB_FONTSIZEH, ci->name, 30, colorBlack);
-		y += SB_FONTSIZEH + SB_PADDING * 4 + 2;
-	}
-	*/
-
 	// NiceAss: Deathmatch scoreboard:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
 		vec3_t	headAngles;
@@ -484,10 +472,6 @@ static int CG_TeamplayScoreboard(void)
 			ci = &cgs.clientinfo[Score->client];
 			CG_DrawTeamplayClientScore(y, Score, GreyL, colorWhite, colorWhite);
 
-/*			if (ci->team != TEAM_SPECTATOR)
-				CG_DrawHead((SCREEN_WIDTH + SB_WIDTH) / 2, y, SB_FONTSIZEH + SB_PADDING * 2+1, 
-					SB_FONTSIZEH + SB_PADDING * 2+1, Score->client, headAngles);
-*/
 			if (First == 0)
 				DrawStrip(y, SB_FONTSIZEH, qfalse, qtrue, qfalse, GreyL, colorWhite);
 
@@ -554,7 +538,6 @@ static int CG_TeamplayScoreboard(void)
 				Score = &cg.scores[i];
 				ci = &cgs.clientinfo[Score->client];
 
-				//if (cg_RQ3_matchmode.integer && Score->client == cg_RQ3_RefID.integer) continue;
 				if (ci->team == TEAM_RED && Score->sub) {
 					CG_DrawTeamplayClientScore(y, Score, RedL, colorBlack, colorWhite);
 					if (First == 0)
@@ -591,10 +574,7 @@ static int CG_TeamplayScoreboard(void)
 	// *************** BLUE TEAM ************
 	y += SB_FONTSIZEH * 2;
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueD, colorBlack);
-	//if (cgs.gametype == GT_CTF)
-		DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorWhite);
-	//else
-	//	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorBlack);
+	DrawLeftStripText(y, SB_FONTSIZEH, cg_RQ3_team2name.string, 100, colorWhite);
 
 	if (cg_RQ3_matchmode.integer)
 		DrawRightStripText(y, SB_FONTSIZEH, va("%d/%d - %s - Wins: %d", Blues, BlueSubs,
@@ -673,6 +653,14 @@ static int CG_TeamplayScoreboard(void)
 		y += 2;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlueL, colorBlack);
 		DrawCenterStripText(y, SB_FONTSIZEH, "No team members", 100, colorWhite);
+	}
+
+	if ( cg_RQ3_matchmode.integer && cg.refready != -1 ) {
+		y += 4;
+		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, colorWhite);
+		DrawRightStripText(y, SB_FONTSIZEH, 
+			cg.refready ? "Referee Ready" : "Referee Not Ready", 100, colorWhite);
+		y += SB_FONTSIZEH + SB_PADDING * 2 + 6;
 	}
 
 	// *************** SPECTATORS ************
