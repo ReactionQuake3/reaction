@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/03/17 13:18:14  jbravo
+// Replace the fraglimit on the HUD with the clients score
+//
 // Revision 1.26  2002/03/17 00:40:23  jbravo
 // Adding variable team names. g_RQ3_team1name and g_RQ3_team2name. Fixed
 // Slicers fraglimit check.
@@ -1316,6 +1319,8 @@ static float CG_DrawScores( float y ) {
 #endif
 		if ( cgs.gametype >= GT_CTF ) {
 			v = cgs.capturelimit;
+		} else if (cgs.gametype == GT_TEAMPLAY) {
+			v = cg.snap->ps.persistant[PERS_SCORE];
 		} else {
 			v = cgs.fraglimit;
 		}
