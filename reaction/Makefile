@@ -76,7 +76,7 @@ CGOBJ = \
 	$(CGDIRNAME)/cg_view.o \
 	$(CGDIRNAME)/cg_weapons.o
   
-UIOBJ = \
+OLDUIOBJ = \
 	$(UIDIRNAME)/ui_main.o \
 	$(UIDIRNAME)/ui_cdkey.o \
 	$(UIDIRNAME)/ui_ingame.o \
@@ -121,7 +121,7 @@ UIOBJ = \
 	$(UIDIRNAME)/ui_mods.o
   
 
-TAUIOBJ = \
+UIOBJ = \
 	$(UIDIRNAME)/ui_main.o \
 	$(GDIRNAME)/bg_misc.o \
 	$(GDIRNAME)/q_math.o \

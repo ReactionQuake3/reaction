@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/03/31 13:52:48  jbravo
+// More cleanups
+//
 // Revision 1.60  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -1580,9 +1583,9 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		float scale;
 		vec3_t angles, Offset;
 
-		if (weaponNum == WP_PISTOL) scale = 0.6;
-		if (weaponNum == WP_SSG3000) scale = 0.9;
-		if (weaponNum == WP_MP5) scale = 1.0;
+		if (weaponNum == WP_PISTOL) scale = (float)0.6;
+		if (weaponNum == WP_SSG3000) scale = (float)0.9;
+		if (weaponNum == WP_MP5) scale = (float)1.0;
 
 		memset( &silencer, 0, sizeof( silencer ) );
 		silencer.hModel = cgs.media.rq3_silencerModel;

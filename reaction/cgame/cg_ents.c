@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/03/31 13:52:48  jbravo
+// More cleanups
+//
 // Revision 1.21  2002/03/31 03:31:24  jbravo
 // Compiler warning cleanups
 //
@@ -483,7 +486,7 @@ static void CG_Item( centity_t *cent ) {
 	if ( item->giTag == WP_KNIFE )
 		scale = WEAPON_KNIFE_SCALE;
 	else if ( item->giType == IT_WEAPON && item->giTag != WP_KNIFE )
-		scale = WEAPON_GUN_SCALE;
+		scale = (float)WEAPON_GUN_SCALE;
 	else
 		scale = WEAPON_OTHER_SCALE;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.39  2002/03/31 13:52:48  jbravo
+// More cleanups
+//
 // Revision 1.38  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -89,10 +92,11 @@ void CG_TargetCommand_f( void ) {
 /*
 =================
 CG_DropWeapon_f
-
+JBravo: not used.
 Elder: reset local zoom, then proceed with server action
 =================
 */
+/*
 static void CG_DropWeapon_f (void) {
 	if ( !cg.snap ) {
 		//CG_Printf("No snapshot: normally exiting\n");
@@ -119,14 +123,16 @@ static void CG_DropWeapon_f (void) {
 //	CG_RQ3_Zoom1x();
 	trap_SendClientCommand("dropweapon");
 }
+*/
 
 /*
 =================
 CG_DropItem_f
-
+JBravo: not used.
 Elder: Do any client pre-processing here for drop item
 =================
 */
+/*
 static void CG_DropItem_f (void) {
 	if ( !cg.snap ) {
 		//CG_Printf("No snapshot: normally exiting\n");
@@ -145,6 +151,7 @@ static void CG_DropItem_f (void) {
 
 	trap_SendClientCommand("dropitem");
 }
+*/
 
 /*
 =================
@@ -698,11 +705,11 @@ static void CG_Camera_f( void ) {
 /*
 ==================
 CG_Say_f
-
+JBravo: not used.
 Elder: Pre-validate say command to avoid text flooding
 ==================
 */
-
+/*
 static void CG_Say_f ( void ) {
 
 	if (cg.time - cg.sayTime > 2000)
@@ -723,16 +730,16 @@ static void CG_Say_f ( void ) {
 
 	trap_SendClientCommand("say");
 }
-
+*/
 
 /*
 ==================
 CG_SayTeam_f
-
+JBravo: Not used.
 Elder: Pre-validate say_team command to avoid text flooding
 ==================
 */
-
+/*
 static void CG_SayTeam_f ( void ) {
 
 	if (cg.time - cg.sayTime > 2000)
@@ -753,6 +760,7 @@ static void CG_SayTeam_f ( void ) {
 	
 	trap_SendClientCommand("say_team");
 }
+*/
 
 /*
 ==================
