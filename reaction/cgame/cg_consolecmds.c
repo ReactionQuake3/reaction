@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.45  2002/04/28 11:01:21  slicer
 // Added "teammodel" command for Matchmode
 //
@@ -983,6 +986,10 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("radio_power");
 // JBravo: tkok
 	trap_AddCommand ("tkok");
+// JBravo: ignore
+	trap_AddCommand ("ignore");
+	trap_AddCommand ("ignorenum");
+	trap_AddCommand ("clearignorelist");
 // Slicer: Matchmode
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");

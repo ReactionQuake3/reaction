@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.14  2002/05/04 16:19:02  jbravo
 // Fixing the stuff cmd to work on dedicated servers.
 //
@@ -58,6 +61,7 @@
 #define WINNER_TEAM1	1
 #define WINNER_TEAM2	2
 #define WINNER_TIE	3
+
 //Slicer TeamName Size.
 #define TEAM_NAME_SIZE 30
 
@@ -90,3 +94,7 @@ void RQ3_Cmd_TKOk(gentity_t *ent);
 void RQ3_Cmd_Stuff(void);
 void Add_TeamWound(gentity_t *attacker, gentity_t *victim, int mod);
 void setFFState(gentity_t *ent);
+void Cmd_Ignore_f(gentity_t *ent);
+void Cmd_Ignorenum_f(gentity_t *ent);
+void Cmd_Ignoreclear_f(gentity_t *ent);
+int  IsInIgnoreList(gentity_t *source, gentity_t *subject);

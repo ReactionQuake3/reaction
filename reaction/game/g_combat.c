@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.68  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.67  2002/05/09 20:58:30  jbravo
 // New Obit system and a warning cleanup in zcam
 //
@@ -1048,7 +1051,6 @@ player_die
 ==================
 */
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
-	gentity_t	*ent;
 	gentity_t	*DMReward;
 	int		anim, contents, killer, i;
 	char		*killerName, *obit;

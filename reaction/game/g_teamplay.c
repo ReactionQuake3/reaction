@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.84  2002/05/09 02:43:12  jbravo
 // Fixing stuff and use cmd's
 //
@@ -288,6 +291,24 @@ void	ClearBodyQue (void);
 void	Cmd_DropItem_f(gentity_t *ent);
 void	Cmd_DropWeapon_f(gentity_t *ent);
 void	AddIP(char *str);
+
+gentity_t *
+FindClientByPersName (char *name) {
+	int		i;
+	gentity_t	*other, *found;
+
+	found = NULL;
+	for (i = 0; i <= level.maxclients; i++) {
+		other = &g_entities[i];
+		if (!other->inuse)
+			continue;
+		if (other && other->client && (Q_stricmp (other->client->pers.netname, name) == 0)) {
+			found = other;
+			break;
+		}
+	}
+	return (found);
+}
 
 void CheckTeamRules()
 {
@@ -1202,6 +1223,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 						player = &g_entities[i];
 						if (!player->inuse)
 							continue;
+						if (IsInIgnoreList (player, ent))
+							continue;
 						if (player->client->sess.savedTeam == ent->client->sess.savedTeam)
 							trap_SendServerCommand(player-g_entities, va("rq3_cmd %i %i %i\n", RADIO,
 								kills-1, ent->client->radioGender));
@@ -1211,6 +1234,8 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 			for (i = 0; i < level.maxclients; i++) {
 				player = &g_entities[i];
 				if (!player->inuse)
+					continue;
+				if (IsInIgnoreList (player, ent))
 					continue;
 				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
 					if (player->r.svFlags & SVF_BOT)
@@ -1817,4 +1842,136 @@ void RQ3_Cmd_Stuff (void)
 
 	trap_SendServerCommand(client, va("stuff %s\n", cmd));
 //	trap_SendServerCommand(client, va("rq3_cmd %i %s\n", STUFF, cmd));
+}
+
+int RQ3_FindFreeIgnoreListEntry (gentity_t *source) {
+	return (IsInIgnoreList (source, NULL));
+}
+
+void RQ3_ClearIgnoreList (gentity_t *ent) {
+	int	i;
+
+	if (!ent->client)
+		return;
+	for (i = 0; i < MAXIGNORE; i++)
+		ent->client->sess.ignorelist[i] = NULL;
+}
+
+int IsInIgnoreList (gentity_t *source, gentity_t *subject) {
+	int	i;
+
+	if (!source || !source->client)
+		return 0;
+
+	for (i = 1; i < MAXIGNORE; i++)
+		if (source->client->sess.ignorelist[i] == subject)
+			return i;
+	return 0;
+}
+
+void RQ3_AddOrDelIgnoreSubject (gentity_t *source, gentity_t *subject, qboolean silent) {
+	int	i;
+
+	if (!source->client)
+		return;
+	if (!subject->client || !subject->inuse) {
+		trap_SendServerCommand(source-g_entities, va("print \"Only valid clients may be added to ignore list!\n\""));
+		return;
+	}
+
+	i = IsInIgnoreList (source, subject);
+
+	if (i) {
+		//subject is in ignore list, so delete it
+		source->client->sess.ignorelist[i] = NULL;
+		if (!silent) {
+			trap_SendServerCommand(source-g_entities, va("print \"%s was removed from ignore list.\n\"",
+						subject->client->pers.netname));
+			trap_SendServerCommand(subject-g_entities, va("print \"%s is no longer ignoring you.\n\"",
+						source->client->pers.netname));
+		}
+		source->client->sess.ignore_time = level.framenum;
+	} else {
+		//subject has to be added
+		i = RQ3_FindFreeIgnoreListEntry (source);
+
+		if (!i) {
+			if (!silent)
+				trap_SendServerCommand(source-g_entities, va("print \"Sorry, ignore list is full!\n\""));
+		} else {
+			//we've found a place
+			source->client->sess.ignorelist[i] = subject;
+			if (!silent) {
+				trap_SendServerCommand(source-g_entities, va("print \"%s was added to ignore list.\n\"",
+							subject->client->pers.netname));
+				trap_SendServerCommand(subject-g_entities, va("print \"%s ignores you.\n\"",
+							source->client->pers.netname));
+			}
+		}
+	}
+}
+
+void RQ3__ClrIgnoresOn (gentity_t *target) {
+	gentity_t	*other;
+	int		i;
+
+	for (i = 1; i <= level.maxclients; i++) {
+		other = &g_entities[i];
+		if (other->inuse && other->client) {
+			if (IsInIgnoreList (other, target))
+				RQ3_AddOrDelIgnoreSubject (other, target, qtrue);
+		}
+	}
+}
+
+void Cmd_Ignore_f (gentity_t *self) {
+	gentity_t	*target;
+	char		s[128];
+	int		i;
+
+	i = trap_Argc ();
+	if (i < 2) {
+		trap_SendServerCommand(self-g_entities, va("print \"Usage: ignore <playername>.\n\""));
+		return;
+	}
+	trap_Argv(1, s, sizeof(s));
+	target = FindClientByPersName (s);
+	if (target && target != self) {
+		if (level.framenum > (self->client->sess.ignore_time + 50))
+			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+		else {
+			trap_SendServerCommand(self-g_entities, va("print \"Wait 5 seconds before ignoring again.\n\""));
+			return;
+		}
+	} else
+		trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+}
+
+void Cmd_Ignorenum_f (gentity_t *self) {
+	int		i;
+	gentity_t	*target;
+	char		arg[128];
+
+	i = trap_Argc ();
+	if (i < 2) {
+		trap_SendServerCommand(self-g_entities, va("print \"Usage: ignorenum <playernumber>.\n\""));
+		return;
+	}
+
+	trap_Argv(1, arg, sizeof(arg));
+	i = atoi (arg);
+
+	if (i && i <= level.maxclients) {
+		target = &g_entities[i];
+		if (target && target->client && target != self && target->inuse)
+			RQ3_AddOrDelIgnoreSubject (self, target, qfalse);
+		else
+			trap_SendServerCommand(self-g_entities, va("print \"Use ignorelist to see who can be ignored.\n\""));
+	} else
+		trap_SendServerCommand(self-g_entities, va("print \"Used ignorenum with illegal number.\n\""));
+}
+
+void Cmd_Ignoreclear_f (gentity_t *self) {
+	RQ3_ClearIgnoreList (self);
+	trap_SendServerCommand(self-g_entities, va("print \"Your ignorelist is now clear.\n\""));
 }

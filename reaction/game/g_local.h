@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.77  2002/05/09 20:58:30  jbravo
 // New Obit system and a warning cleanup in zcam
 //
@@ -380,6 +383,10 @@ typedef struct {
 #define	FOLLOW_ACTIVE1	-1
 #define	FOLLOW_ACTIVE2	-2
 
+// JBravo: for ignore
+#define MAXIGNORE	11
+typedef gentity_t *ignorelist_t[MAXIGNORE];
+
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
@@ -397,6 +404,8 @@ typedef struct {
 	qboolean		teamLeader;		// true when this client is a team leader
 	gentity_t		*spawnPoint;		// JBravo: This players spawnpoint
 	qboolean		teamSpawn;		// JBravo: This player is being spawned with his team.
+	int			ignore_time;		// JBravo: to avoid ignore flooding
+	ignorelist_t		ignorelist;		// JBravo: This players ignore list.
 } clientSession_t;
 
 //

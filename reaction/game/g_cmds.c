@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.105  2002/05/10 04:06:27  jbravo
+// Added Ignore
+//
 // Revision 1.104  2002/05/06 00:35:49  jbravo
 // Small fixes to misc stuff
 //
@@ -1198,6 +1201,9 @@ static void G_SayTo(gentity_t *ent, gentity_t *other, int mode, int color, const
 		&& ent->client->sess.sessionTeam != TEAM_FREE ) {
 		return;
 	}
+// JBravo: is the guy ignored ?
+	if (IsInIgnoreList (other, ent))
+		return;
 // JBravo: Dead people dont speak to the living...  or so Im told.
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR &&
 		(other->client->sess.sessionTeam == TEAM_RED ||
@@ -2915,6 +2921,13 @@ void ClientCommand( int clientNum ) {
 		RQ3_Cmd_Radio_f (ent);
 	else if (Q_stricmp (cmd, "dropweapon") == 0)  // XRAY FMJ
 		Cmd_DropWeapon_f( ent );
+// JBravo: adding ignore
+	else if (Q_stricmp (cmd, "ignorenum") == 0)
+		Cmd_Ignorenum_f (ent);
+	else if (Q_stricmp (cmd, "ignore") == 0)
+		Cmd_Ignore_f (ent);
+	else if (Q_stricmp (cmd, "clearignorelist") == 0)
+		Cmd_Ignoreclear_f (ent);
 // JBravo: adding tkok
 	else if (Q_stricmp (cmd, "tkok") == 0)
 		RQ3_Cmd_TKOk (ent);
