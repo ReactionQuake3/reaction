@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2002/02/10 17:20:45  jbravo
+// Attempting to fix the camera freeze in the begining of the game
+//
 // Revision 1.49  2002/02/09 18:27:44  slicer
 // Spectator code: +attack button to change view, and jump to switch player
 //
@@ -511,36 +514,21 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		}
 	}
 
-/*	// attack button cycles through spectators
-	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
-		Cmd_FollowCycle_f( ent, 1 );
-	}*/
-
-/*	if (client->ps.pm_flags & PMF_JUMP_HELD) {
-		G_Printf("upmove is true!\n");
-		if (client->sess.spectatorState == SPECTATOR_FREE) {
-			client->sess.spectatorState = SPECTATOR_FOLLOW;
-			client->ps.pm_flags |= PMF_FOLLOW;
-			G_Printf("Setting specmode to follow!\n");
-		} else {
-			client->sess.spectatorState = SPECTATOR_FREE;
-			client->ps.pm_flags &= ~PMF_FOLLOW;
-			G_Printf("Setting specmode to free!\n");
-		}
-	} */
-
 #ifdef  __ZCAM__
 	client->ps.commandTime = ucmd->serverTime;
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
-	if (client->sess.spectatorState != SPECTATOR_FOLLOW)
-	{
-		camera_think(ent);
-		return;
+	if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
+		if (g_gametype.integer != GT_TEAMPLAY) {
+			camera_think(ent);
+			return;
+		} else if (level.team_round_countdown == 0) {
+			camera_think(ent);
+			return;
+		}
 	}
-#else
-
+#endif
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
 		client->ps.speed = 400;	// faster than normal
@@ -561,7 +549,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		G_TouchTriggers( ent );
 		trap_UnlinkEntity( ent );
 	}
-#endif
 }
 
 
