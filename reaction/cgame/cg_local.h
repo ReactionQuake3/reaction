@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/06/16 23:26:23  blaze
+// fixed to allow > 16 breakables
+//
 // Revision 1.95  2002/06/16 20:06:13  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1025,7 +1028,7 @@ typedef struct {
 	qhandle_t akimboHandModel;
 
 // Blaze: func_explosive stuff
-	breakable_t breakables[16];
+	breakable_t breakables[RQ3_MAX_BREAKABLES];
 
 	qhandle_t smoke2;
 
