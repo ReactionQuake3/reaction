@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2002/05/31 17:32:11  jbravo
+// HC gibs almost working :)
+//
 // Revision 1.81  2002/05/28 04:46:12  niceass
 // headless fix
 //
@@ -1627,6 +1630,7 @@ void ClientSpawn(gentity_t *ent) {
 	//Slicer
 	client->weapon_attempts = 0;
 	client->weapon_after_bandage_warned = qfalse;
+	client->gibbed = qfalse;
 
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];

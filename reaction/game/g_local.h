@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/05/31 17:32:11  jbravo
+// HC gibs almost working :)
+//
 // Revision 1.84  2002/05/30 21:18:28  makro
 // Bots should reload/bandage when roaming around
 // Added "pathtarget" key to all the entities
@@ -597,6 +600,7 @@ struct gclient_s {
 	int			team_wounds_before;
 	int			ff_warning;
 	int			team_kills;
+	qboolean		gibbed;
 
 	//Slicer Flood protect:
 	

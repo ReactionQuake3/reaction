@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/05/31 17:32:11  jbravo
+// HC gibs almost working :)
+//
 // Revision 1.99  2002/05/31 00:17:06  jbravo
 // Slicers fix for the weaponswitching issue
 //
@@ -1090,7 +1093,7 @@ void MakeSpectator(gentity_t *ent)
 	gclient_t	*client;
 
 	client = ent->client;
-	if (ent->s.eType != ET_INVISIBLE)
+	if (!client->gibbed || ent->s.eType != ET_INVISIBLE)
 		CopyToBodyQue (ent);
 
 	client->weaponCount[ent->client->ps.weapon] = 0;

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2002/05/31 17:32:11  jbravo
+// HC gibs almost working :)
+//
 // Revision 1.85  2002/05/30 18:22:20  jbravo
 // Misc fixes
 //
@@ -1140,6 +1143,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			G_FreeEntity(self->client->lasersight);
 			self->client->lasersight = NULL;
 		}
+		// JBravo: clear the gib flag
+		self->client->gibbed = qfalse;
 	}
 	if (self->client->ps.pm_type == PM_DEAD) {
 		return;
@@ -1533,24 +1538,25 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				// NiceAss: beheading =D
 				self->client->ps.eFlags |= EF_HEADLESS;
 				GibEntity_Headshot (self, killer);
-			} else
+			} else {
 				GibEntity (self, killer);
-		} else {
+				self->client->gibbed = qtrue;
+				trap_UnlinkEntity (self);
+			}
+		} else if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1 && self->health <= -15) {
 			self->client->noHead = qfalse;
-		}
-		if (meansOfDeath == MOD_SNIPER && hurt == LOC_SDAM)
-			GibEntity_Stomach (self, killer);
-		if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1) { // && self->health <= -15) {
-			self->client->noHead = qfalse;
-			trap_LinkEntity (self);
 			GibEntity (self, killer);
+			self->client->gibbed = qtrue;
+			trap_UnlinkEntity (self);
 		}
 	}
 
 	// never gib in a nodrop
-	if (g_RQ3_gib.integer > 0 && ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)) {
+	if (g_RQ3_gib.integer > 0 && !self->client->gibbed && ((self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer) || meansOfDeath == MOD_SUICIDE)) {
 		// gib death
 		GibEntity( self, killer );
+	} else if (self->client->gibbed) {
+		self->client->gibbed = qtrue;  // JBravo:  Basicly do nothing
 	} else {
 		// normal death
 		static int i;
@@ -1580,7 +1586,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			((self->client->ps.torsoAnim & ANIM_TOGGLEBIT) ^ ANIM_TOGGLEBIT) | anim;
 
 		// Elder: only do death sounds if not hit in the head
-		if (level.time - self->client->headShotTime > 400)
+		if ((level.time - self->client->headShotTime > 400) && !self->client->gibbed)
 			G_AddEvent( self, EV_DEATH1 + i, killer );
 
 		// the body can still be gibbed
@@ -1590,7 +1596,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		i = ( i + 1 ) % 3;
 	}
 
-	trap_LinkEntity (self);
+	// JBravo: lets not relink players that have been gibbed here.
+	if (!self->client->gibbed)
+		trap_LinkEntity (self);
 }
 
 /*
@@ -2373,6 +2381,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 									targ->client->pers.netname));
 						trap_SendServerCommand(targ-g_entities, va("print \"Stomach Damage.\n\""));
 						take *= 0.4;
+						if (attacker->client && attacker->client->ps.weapon == WP_SSG3000)
+							G_AddEvent (targ, EV_GIB_PLAYER_STOMACH, 0);
 						break;
 					case LOCATION_LEG:
 					case LOCATION_FOOT:
