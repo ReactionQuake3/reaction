@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.101  2002/06/04 07:20:48  niceass
+// no moreTKing in MM
+//
 // Revision 1.100  2002/05/31 17:32:11  jbravo
 // HC gibs almost working :)
 //
@@ -851,16 +854,16 @@ void SpawnPlayers()
 		ClientUserinfoChanged(clientNum);
 		client->sess.teamSpawn = qfalse;
 	}
-//Blaze: May aswell respawn breakables here
+	//Blaze: May aswell respawn breakables here
 	for (i=0; i<level.num_entities; i++) {
 		ent = &g_entities[i];
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
 			trap_LinkEntity(ent);
-      ent->exploded = qfalse;
-      ent->takedamage = qtrue;
-      ent->s.eType = ET_BREAKABLE;
-    }
+			ent->exploded = qfalse;
+			ent->takedamage = qtrue;
+			ent->s.eType = ET_BREAKABLE;
+		}
 	}
 }
 
@@ -1897,8 +1900,9 @@ void Add_TeamKill(gentity_t *attacker)
 {
 	char	userinfo[MAX_INFO_STRING];
 	char	*value;
-
-	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client)
+	
+	// NiceAss: No TKing in matchmode
+	if (g_gametype.integer != GT_TEAMPLAY || !attacker->client || g_RQ3_matchmode.integer )
 		return;
 
 	attacker->client->team_kills++;
