@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2002/07/19 04:29:02  niceass
+// can return case with any weapon in hand
+//
 // Revision 1.11  2002/06/29 04:15:15  jbravo
 // CTF is now CTB.  no weapons while the case is in hand other than pistol or knife
 //
@@ -804,10 +807,6 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	int team;
 	gclient_t *cl = other->client;
 
-// JBravo: no picking up case if you have a two handed weapon.
-	if (other->client->ps.weapon != WP_PISTOL && other->client->ps.weapon != WP_KNIFE) {
-		return 0;
-	}
 	// figure out what team this flag is
 	if (strcmp(ent->classname, "team_CTF_redflag") == 0) {
 		team = TEAM_RED;
@@ -815,6 +814,12 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 		team = TEAM_BLUE;
 	} else {
 		PrintMsg(other, "Don't know what team the flag is on.\n");
+		return 0;
+	}
+	
+	// JBravo: no picking up [the enemy case-NiceAss] case if you have a two handed weapon.
+	if (other->client->ps.weapon != WP_PISTOL && other->client->ps.weapon != WP_KNIFE &&
+		team != cl->sess.sessionTeam) {
 		return 0;
 	}
 	// GT_CTF
