@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.98  2002/06/16 20:09:42  niceass
+// knockback fix
+//
 // Revision 1.97  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -1915,17 +1918,13 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 
 			if (mod != MOD_FALLING) {
 				VectorCopy(dir, flydir);
-				flydir[2] += 0.4f;
+				// NiceAss: Although AQ2 has this, it was being much more
+				// severe in RQ3 than AQ2. Removed!
+				//flydir[2] += 0.4f;
 			}
 
 			mass = 200;
 
-			//Elder: Q2 uses a hardcoded value of 500 for non-rocket jumps
-			//Q3 uses g_knockback.value ... default 1000
-			//AQ2:
-			//VectorScale (flydir, 500.0 * (float)knockback / mass, kvel);
-			//RQ3:
-			//VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
 			if (targ->client && attacker == targ)
 				VectorScale(flydir, 1600.0 * (float) knockback / mass, kvel);
 			else
