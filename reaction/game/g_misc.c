@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.75  2003/09/07 20:02:51  makro
+// no message
+//
 // Revision 1.74  2003/08/31 14:48:33  jbravo
 // Code not compiling under linux fixed and a warning silenced.
 //
@@ -589,15 +592,10 @@ void SP_misc_portal_camera(gentity_t * ent)
 }
 
 //Makro - sky portals
-void SP_misc_sky_portal(gentity_t * ent)
+void Think_SetupSkyPortal(gentity_t *ent)
 {
 	char  info[MAX_INFO_STRING];
 	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
-
-	ent->r.svFlags |= SVF_PORTAL;
-	VectorClear(ent->r.mins);
-	VectorClear(ent->r.maxs);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 
 	if (!info[0]) {
 		gentity_t *skyportal = G_Find(NULL, FOFS(targetname), ent->target);
@@ -629,6 +627,19 @@ void SP_misc_sky_portal(gentity_t * ent)
 	}
 	
 
+	ent->nextthink = 0;
+	ent->think = 0;
+}
+
+void SP_misc_sky_portal(gentity_t * ent)
+{
+	ent->r.svFlags |= SVF_PORTAL;
+	VectorClear(ent->r.mins);
+	VectorClear(ent->r.maxs);
+	ent->think = Think_SetupSkyPortal;
+	ent->nextthink = level.time + FRAMETIME;
+
+	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
 
 /*
@@ -1162,7 +1173,8 @@ void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent)
 
 	tent->s.frame = ent->bounce;	// 1 = air, 2 = flame, 0 = steam
 	tent->s.powerups = ent->mass;	// speed of pressure
-	tent->s.constantLight = ent->tension; // 200 default. Life of steam
+	//Makro - changed from constantLight to generic1
+	tent->s.generic1 = ent->tension; // 200 default. Life of steam
 }
 
 /*

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.145  2003/09/07 20:02:51  makro
+// no message
+//
 // Revision 1.144  2003/08/24 22:45:17  makro
 // Rotating func_trains
 //
@@ -552,7 +555,7 @@ struct gentity_s {
 	//Blaze: Holds the target set by a button
 	char *pathtarget;
 	//Makro - added
-	char *activatename;
+	char *activatename, *targetInactive;
 	int inactive;
 };
 

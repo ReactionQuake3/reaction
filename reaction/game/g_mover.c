@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.63  2003/09/07 20:02:51  makro
+// no message
+//
 // Revision 1.62  2003/08/25 20:22:58  makro
 // Fixed a bug in old baseq3 func_train code
 //
@@ -158,6 +161,8 @@
 
 #include "g_local.h"
 void InitRotator(gentity_t * ent);
+//Makro - added
+void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator);
 
 /*
 ===============================================================================
@@ -863,38 +868,66 @@ void Reached_BinaryMover(gentity_t * ent)
 	}
 }
 
+
+/*
+================
+AdjustDoorDir
+
+Checks the opening direction and reverses it if necessary
+(used for doors that open away from the player)
+
+Added by Makro 
+================
+*/
+void AdjustDoorDir(gentity_t *ent, gentity_t *activator)
+{
+	float angle, ld, lp;
+	vec3_t door, player, cross;
+	if (!ent || !activator || !activator->client)
+		return;
+	if (stricmp(ent->classname, "func_door_rotating"))
+		return;
+	if (ent->moverState != ROTATOR_POS1)
+		return;
+	
+	VectorAdd(ent->r.mins, ent->r.maxs, door);
+	VectorScale(door, 0.5f, door);
+	VectorSubtract(activator->r.currentOrigin, door, player);
+	VectorSubtract(ent->r.currentOrigin, door, door);
+
+
+	door[2] = player[2] = 0;
+
+	CrossProduct(door, player, cross);
+	
+	if ( !(ld = VectorLength(door)) || !(lp = VectorLength(player)) )
+		return;
+	angle = acos(DotProduct(door, player) / (ld * lp));
+
+	if (cross[2] * ent->distance > 0)
+		G_Printf("Door: no need to reverse\n");
+	else
+		G_Printf("Door: need to reverse\n");
+
+}
+
 /*
 ================
 Use_BinaryMover
 ================
 */
+
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	int total;
 	int partial;
+	vec3_t dist;
+	float d;
 
-	/* Makro - trains have a custom use function now
-	   //Blaze: Holds the train entity
-	   gentity_t *temp;
-	   if ( ent->pathtarget != NULL )
-	   {
-	   //G_Printf("The pathtarget is %s\n",ent->pathtarget);
-	   temp = NULL;
-	   temp = G_Find(temp,FOFS(targetname),ent->target);
-	   if ( !temp )
-	   {
-	   G_Printf("Could not find the train %s that button points to\n", ent->target);
-	   }
-	   else
-	   {
-	   temp->nextTrain = G_Find(NULL, FOFS(targetname),ent->pathtarget);
-	   //Blaze
-	   //G_Printf("^2pathtarget: %s target: %s targetname: %s\n",ent->pathtarget, ent->target, ent->targetname);
-	   //G_Printf("^2%s\n", ent->nextTrain->targetname);
-	   }
-	   }
-	 */
+	//Makro - temp!!!
+	//AdjustDoorDir(ent, activator);
 
+	
 	// only the master should be used
 	if (ent->flags & FL_TEAMSLAVE) {
 		Use_BinaryMover(ent->teammaster, other, activator);
@@ -907,7 +940,19 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		if (ent->soundInactive) {
 			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundInactive);
 		}
+		if (ent->targetInactive)
+			G_UseEntities(ent, ent->targetInactive, activator);
 		return;
+	}
+
+	if (activator)
+	{
+		//Makro - check if we're too far away
+		VectorSubtract(ent->r.currentOrigin, activator->r.currentOrigin, dist);
+		d = VectorLength(dist);
+		//not for doors with health
+		if (!ent->takedamage && ent->mass && (d > ent->mass) )
+			return;
 	}
 
 	ent->activator = activator;
@@ -1470,7 +1515,8 @@ void SP_func_door(gentity_t * ent)
 	ent->soundPos2 = G_SoundIndex(sSndStop);
 
 	// NiceAss: Possible fix for ghost door problem. Maybe laggy
-	ent->r.svFlags |= SVF_BROADCAST;
+	//Makro - removed
+	//ent->r.svFlags |= SVF_BROADCAST;
 
 	//ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.wav");
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
@@ -1489,6 +1535,9 @@ void SP_func_door(gentity_t * ent)
 		G_Printf("func_door is an auto-open\n");
 */
 
+	//Makro - added
+	G_SpawnInt("reach", "0", &ent->mass);
+	
 	// default speed of 400
 	if (!ent->speed)
 		ent->speed = 400;
@@ -1601,9 +1650,14 @@ void SP_func_door_rotating(gentity_t * ent)
 	//ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.wav");
 
 	// NiceAss: Possible fix for ghost door problem. Maybe laggy
-	ent->r.svFlags |= SVF_BROADCAST;
+	//Makro - removed
+	//ent->r.svFlags |= SVF_BROADCAST;
+	//ent->r.svFlags |= SVF_BROADCAST;
 
 	ent->blocked = Blocked_Door;
+
+	//Makro - added
+	G_SpawnInt("reach", "100", &ent->mass);
 
 	// default speed of 120
 	if (!ent->speed)

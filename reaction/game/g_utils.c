@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2003/09/07 20:02:51  makro
+// no message
+//
 // Revision 1.21  2003/04/26 22:33:07  jbravo
 // Wratted all calls to G_FreeEnt() to avoid crashing and provide debugging
 //
@@ -284,11 +287,12 @@ match (string)self.target and call their .use function
 
 ==============================
 */
-void G_UseTargets(gentity_t * ent, gentity_t * activator)
+//Makro - added
+void G_UseEntities(gentity_t * ent, char *target, gentity_t * activator)
 {
 	gentity_t *t;
 
-	if (!ent) {
+	if (!ent || !target) {
 		return;
 	}
 
@@ -299,12 +303,8 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 		trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 	}
 
-	if (!ent->target) {
-		return;
-	}
-
 	t = NULL;
-	while ((t = G_Find(t, FOFS(targetname), ent->target)) != NULL) {
+	while ((t = G_Find(t, FOFS(targetname), target)) != NULL) {
 		if (t == ent) {
 			G_Printf("WARNING: Entity used itself.\n");
 		} else {
@@ -317,6 +317,12 @@ void G_UseTargets(gentity_t * ent, gentity_t * activator)
 			return;
 		}
 	}
+}
+
+void G_UseTargets(gentity_t * ent, gentity_t * activator)
+{
+	//Makro - moved the code to the function above
+	G_UseEntities(ent, ent->target, activator);
 }
 
 

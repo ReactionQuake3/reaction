@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2003/09/07 20:02:51  makro
+// no message
+//
 // Revision 1.45  2003/08/10 20:13:26  makro
 // no message
 //
@@ -233,6 +236,7 @@ field_t fields[] = {
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
+	{"targetinactive", FOFS(targetInactive), F_LSTRING},	// Makro - target to be fired when inactive
 	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
 	{"inactive", FOFS(inactive), F_INT},	// Makro - added
 	{"activatename", FOFS(activatename), F_LSTRING},
