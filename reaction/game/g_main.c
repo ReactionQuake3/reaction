@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.45  2002/04/15 00:54:26  assimon
+// Simple ini file parser that reads a ini configuration file and suports rotations.
+//
 // Revision 1.44  2002/04/12 18:34:31  jbravo
 // Bye bye lag when somebody joins a team.
 //
@@ -207,6 +210,11 @@ vmCvar_t	g_RQ3_team2ready;
 vmCvar_t	g_RQ3_AllowRef;
 vmCvar_t	g_RQ3_RefPass;
 vmCvar_t	g_RQ3_RefID;
+// aasimon: ini stuff
+vmCvar_t	g_RQ3_IniFile;
+vmCvar_t	g_RQ3_ValidIniFile;
+vmCvar_t	g_RQ3_NextMapID;
+
  
 #ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
@@ -348,8 +356,11 @@ static cvarTable_t		gameCvarTable[] = {
 	// aasimon: Ref system for MM,added infor for referee id (clientnumber)
 	{ &g_RQ3_AllowRef, "g_RQ3_AllowRef", "0", CVAR_SERVERINFO, 0, qtrue},
 	{ &g_RQ3_RefPass, "g_RQ3_RefPassword", "", CVAR_USERINFO, 0, qfalse},
-	{ &g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse}
-
+	{ &g_RQ3_RefID, "g_RQ3_RefID", "-1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	// aasimon: stuff for da ini file
+	{ &g_RQ3_IniFile, "g_RQ3_IniFile", "rq3.ini", CVAR_SERVERINFO, 0, qtrue},
+	{ &g_RQ3_ValidIniFile, "g_RQ3_ValidIniFile", "1", CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{ &g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse}
 };
 
 // bk001129 - made static to avoid aliasing
@@ -590,6 +601,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_ProcessIPBans();
 
 	G_InitMemory();
+
+	// Runs the config if the file is valid. First run will allways be valid
+	if( g_RQ3_ValidIniFile.integer && (g_RQ3_NextMapID.integer == -1) ){  
+		g_RQ3_NextMapID.integer = 0;
+		RQ3_ReadInitFile();
+	}
 
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
@@ -1253,6 +1270,11 @@ void ExitLevel (void) {
 		}
 		return;
 	}
+
+	//	trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+	//  Map ini stuff
+	if( g_RQ3_ValidIniFile.integer )  
+		RQ3_ReadInitFile();
 
 
 	trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
@@ -2230,3 +2252,373 @@ void RQ3_StartUniqueItems ( void )
 	angle += 30;
 }
 
+
+/*
+================
+All RQ3 ini config system starts here with several help funtions. 
+
+We have some functions:
+
+  loader - loads the file
+  parser - parses the file and reports errors
+  manage_info - manages all the information
+
+
+	cvars needed: RQ3_NextMap, RQ3_ValidInit (validates ini file so that no further processing is needed)
+*/
+
+enum RQ3_InitTag { MAIN, ROTATION, MAP, CVARS, TEAM1, TEAM2, INVALID };
+enum RQ3_Parser { ERROR, TOKEN_TAG, TOKEN_CVAR, TOKEN_WORD, PARSING_OK, PARSING_ERROR, PARSING_LENGHT_ERROR};
+#define CHECK_BOUND() if ( (*cur_pos) > len ) return PARSING_LENGHT_ERROR;
+
+void RQ3_ReadInitFile() {
+	fileHandle_t file;
+	char *buf;
+ 	int len;
+ 	len = trap_FS_FOpenFile( g_RQ3_IniFile.string, &file, FS_READ );
+ 	if(!file) {
+ 		G_Printf("Could not open INI file\n");
+		trap_Cvar_Set("g_RQ3_ValidIniFile", "0");
+		return;
+ 	}
+
+	G_Printf("RQ3 config system: Lenght of file is: %i\n", len);
+
+ 	buf = G_Alloc(len); 
+	trap_FS_Read(buf, len, file);
+ 	G_Printf("RQ3 config system: Ini File contains: %s\n",buf);
+ 	trap_FS_FCloseFile(file);
+
+	RQ3_ParseBuffer ( buf, len ); 
+}
+
+void RQ3_ParseBuffer ( char *buf, int len ) {
+	
+	char tag[20];
+	int cur_pos;
+	int tag_type;
+
+	for(cur_pos = 0;  cur_pos < len; cur_pos++){
+		
+
+		// chop things we dont need
+		if ((*(buf + cur_pos) == ' ') || (*(buf + cur_pos) == '\n') || (*(buf + cur_pos) == '\t') || (*(buf + cur_pos) == '\r') )
+			continue;
+	
+
+		if ( *(buf + cur_pos) == '<'){ // we are in a tag
+			cur_pos++;
+
+
+			if ( (tag_type = RQ3_GetTag ( buf, &cur_pos, tag, len )) == INVALID )
+				return;
+						
+			// now we found a tag, so we start loading parameters for the kind of tag
+
+			if ( RQ3_ParseBlock ( tag_type, tag, &cur_pos, buf, len) == PARSING_ERROR )
+				return;	
+		}
+	}	
+	
+	G_Printf ( "RQ3 config system: Finished loading the ini File\n" );
+	return;
+	
+
+	// Can't go here
+	//G_Printf ( "RQ3 config system: Invalid init file\n" );
+} 
+
+int RQ3_GetTag ( char *buf, int *cur_pos, char *tag, int len){
+	int counter = 0;
+	int tag_type;
+
+	
+	while ((*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\t'))
+		(*cur_pos)++;
+	
+	while ( *(buf + *cur_pos) != '>' ){			
+		tag[counter] = *(buf + *cur_pos);
+		counter++;
+		(*cur_pos)++;
+	}
+
+	(*cur_pos)++;
+	tag[counter] = '\0';
+
+	if ( (tag_type = RQ3_CheckTag( tag )) == INVALID){
+		G_Printf ( "RQ3 config system: Invalid tag %s\n", tag );
+		return tag_type;
+	}
+	
+	return tag_type;
+}
+ 
+
+// Parser of a block
+int RQ3_ParseBlock ( int tag_type, char *tag, int *cur_pos, char *buf, int len ){
+
+	int count = 0;
+	int map_number = 0;
+	char map_to_go[2];
+	char word_buff[50];
+	char buff_map[50];
+	char cvar[40];
+	char value[80];
+
+	G_Printf( "RQ3 config system: Processing block: <%s>\n", tag );
+	
+	if ( tag_type == MAIN ){
+
+		for (;;){
+			if ( RQ3_GetCommand (buf, cur_pos, cvar, value, len) == TOKEN_TAG )
+				return RQ3_CheckClosingTag ( buf, cur_pos, tag_type, len );
+			else {
+				// process the cvar here	
+				G_Printf ("RQ3 config system: Found cvar: %s with value %s\n", cvar, value);
+				trap_Cvar_Set(cvar, value);
+			}
+		}
+	} else if ( tag_type == TEAM1 || tag_type == TEAM2 ){
+	
+		if ( RQ3_GetWord (buf, cur_pos, word_buff, len) != TOKEN_TAG ){
+			G_Printf("RQ3 config system: found team name: %s\n", word_buff);
+			if ( tag_type == TEAM1 )
+				trap_Cvar_Set( "g_RQ3_team1name", word_buff );
+			else 
+				trap_Cvar_Set( "g_RQ3_team2name", word_buff );
+		}else 
+			return RQ3_CheckClosingTag (  buf, cur_pos, tag_type, len );
+			
+		
+		
+		if ( RQ3_GetWord (buf, cur_pos, word_buff, len) != TOKEN_TAG ){
+			G_Printf("RQ3 config system: found model/skin name: %s\n", word_buff);
+			// do whatever is necessary to put the model/skin on the team
+		} 
+		
+		if ( RQ3_GetWord (buf, cur_pos, word_buff, len) == TOKEN_TAG )
+			return RQ3_CheckClosingTag ( buf, cur_pos, tag_type, len );
+		else {
+			G_Printf ( "RQ3 config system: Found invalid string in block team\n");
+			return PARSING_ERROR;
+		}
+			
+	}
+	else if (tag_type == ROTATION){
+		for(;;){
+			// Find a </rotation> or a <map> entrie
+				if ( RQ3_GetCommand (buf, cur_pos, cvar, value, len) == TOKEN_TAG ) {
+				
+						(*cur_pos)++;
+						if ( (*(buf + *cur_pos) == '/') ){
+								(*cur_pos)++;
+								
+								if ( RQ3_GetTag ( buf, cur_pos, tag, len) == ROTATION ){ 	
+										G_Printf ( "RQ3 config system: Block <rotation> is finished\n" );
+										// finished rotation
+										map_number--;
+										Com_sprintf (buff_map, sizeof(buff_map), "map %s\n", word_buff);
+									
+										if ( map_number != g_RQ3_NextMapID.integer ){	
+											
+											g_RQ3_NextMapID.integer++;
+											Com_sprintf (map_to_go, sizeof(map_to_go), "%d", g_RQ3_NextMapID.integer );
+										
+											trap_Cvar_Set("g_RQ3_NextMapID", map_to_go ); 
+											G_Printf ("RQ3 config system: finished map processing.: %d\n", g_RQ3_NextMapID.integer );
+											trap_SendConsoleCommand( EXEC_APPEND, buff_map );
+											return 1;
+										}else{
+											G_Printf ("RQ3 config system: finished map rotation.\n" );
+											g_RQ3_NextMapID.integer = 0;
+											Com_sprintf (map_to_go, sizeof(map_to_go), "%d", g_RQ3_NextMapID.integer );
+											trap_Cvar_Set("g_RQ3_NextMapID", map_to_go );
+											trap_SendConsoleCommand( EXEC_APPEND, buff_map );
+											return 1;
+										}
+
+								}
+								else {
+										G_Printf ( "RQ3 config system: Invalid block closing. Needs </rotation>, found </%s>\n", tag );	
+										return PARSING_ERROR;
+								}
+		
+						}
+			
+				if ( RQ3_GetTag ( buf, cur_pos, tag, len) == MAP ){
+					G_Printf ( "RQ3 config system: Prossessing block <map>\n" );
+					// Process the map block here
+					G_Printf ( "RQ3 config system: g_RQ3_NextMapID is: %d and map_number is: %d \n", g_RQ3_NextMapID.integer, map_number );
+					if ( map_number != g_RQ3_NextMapID.integer ){
+						// skipp everything and go to the next map
+						while ( *(buf + *cur_pos) != '<' )
+							(*cur_pos)++;
+
+						
+						if ( RQ3_CheckClosingTag ( buf, cur_pos, MAP, len ) == PARSING_OK){
+							map_number++;
+							G_Printf ( "RQ3 config system: current map count is %d.\n", map_number);
+						}
+						else 
+							return PARSING_ERROR;
+					}
+					else
+					if ( RQ3_GetWord (buf, cur_pos, word_buff, len) == TOKEN_TAG ){
+						if ( RQ3_CheckClosingTag (  buf, cur_pos, MAP, len ) == PARSING_OK ){
+							map_number++;
+							G_Printf ( "RQ3 config system: current map number is %d.\n", map_number ); // ver esta merda
+						} else 
+							return PARSING_ERROR; 
+
+					} else {
+						// do something with the map name
+						G_Printf ( "RQ3 config system: map found: %s\n", word_buff );
+						for(;;)	// Here process all cvar from the map definition
+							if ( RQ3_GetCommand (buf, cur_pos, cvar, value, len) == TOKEN_TAG )
+								if ( RQ3_CheckClosingTag (  buf, cur_pos, MAP, len ) == PARSING_OK ){
+									map_number++;
+									break;
+								}
+								else 
+									return PARSING_ERROR; // return apropriate error code
+							else {
+							// process the cvar here	
+								G_Printf ("RQ3 config system: Found cvar: %s with value %s\n", cvar, value);
+								trap_Cvar_Set(cvar, value);
+							}	
+					}
+				}
+			} else {
+				G_Printf ( "RQ3 config system: Parser error. Found invalid command betwen <rotation> </rotation>\n" );
+				return PARSING_ERROR;
+			}
+		}	
+	} 
+
+
+	
+	return 1;
+}
+
+int RQ3_GetWord ( char *buf, int *cur_pos, char *word, int len ){
+	
+	int count;
+	for (;; (*cur_pos)++){
+		
+		if ( *(buf + *cur_pos) == '"'){
+			count = 0;
+			(*cur_pos)++;
+			while ( *(buf + *cur_pos) != '"') {
+				word[count] = *(buf + *cur_pos);
+				count++;
+				(*cur_pos)++;
+			}
+			word[count] = '\0';
+			(*cur_pos)++;
+			break;
+		}
+		else if ( *(buf + *cur_pos) == '<' ) // not considered word
+			return TOKEN_TAG;
+		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t'))
+			continue;
+		else {
+			count = 0;
+			while ( (*(buf + *cur_pos) != ' ') && (*(buf + *cur_pos) != '\n') && (*(buf + *cur_pos) != '\t') && (*(buf + *cur_pos) != '\r')){
+				word[count] = *(buf + *cur_pos);
+				count++;
+				(*cur_pos)++;
+			}
+			word[count] = '\0';			
+			break;
+		}
+	}
+	return TOKEN_WORD;
+}
+
+int RQ3_GetCommand ( char *buf, int *cur_pos, char *cvar, char *value, int len ){
+
+	
+	enum were_stat { NONE, CVAR, VALUE, DONE };
+
+	int state = NONE;
+	int count, i;
+
+	for (;; (*cur_pos)++){
+		
+		
+		if ( *(buf + *cur_pos) == '<' ) // closing block
+			return TOKEN_TAG; 
+		else if ((*(buf + *cur_pos) == '\r') || (*(buf + *cur_pos) == ' ') || (*(buf + *cur_pos) == '\n') || (*(buf + *cur_pos) == '\t'))
+				continue;
+		else 
+		if ( state == NONE ){
+			
+			state = CVAR;
+			count = 0;
+			while ( (*(buf + *cur_pos) != ' ') && (*(buf + *cur_pos) != '\n') && (*(buf + *cur_pos) != '\t') && (*(buf + *cur_pos) != '\r')){
+				cvar[count] = *(buf + *cur_pos);
+				count++;
+				(*cur_pos)++;
+			}
+			cvar[count] = '\0';
+
+		} else if ( (state == CVAR) && (*(buf + *cur_pos) == '"') ){
+			state = VALUE;
+			(*cur_pos)++;
+			count = 0;
+			while ( *(buf + *cur_pos) != '"' ) {
+				value[count] = *(buf + *cur_pos);
+				count++;
+				(*cur_pos)++;
+			} 		
+			value[count] = '\0';
+			(*cur_pos)++;
+			return TOKEN_CVAR;
+		} else if ( state == CVAR ){
+			state = VALUE;
+			count = 0;
+			while ( (*(buf + *cur_pos) != ' ') && (*(buf + *cur_pos) != '\n') && (*(buf + *cur_pos) != '\t') && (*(buf + *cur_pos) != '\r')){
+				value[count] = *(buf + *cur_pos);
+				count++;
+				(*cur_pos)++;
+			}
+			value[count] = '\0';
+			return TOKEN_CVAR;
+		}
+	}
+}	
+
+char *known_tags[] = { "main", "rotation", "map", "cvars", "team1", "team2"};
+
+int RQ3_CheckTag ( char *tag ){
+	#define NUM_TAGS 6
+	int i;
+
+	for( i = 0; i < NUM_TAGS; i++ )
+		if (Q_stricmp ( known_tags[i], tag) == 0)
+			return i;
+	
+	return INVALID;
+}
+
+
+int RQ3_CheckClosingTag (  char *buf, int *cur_pos, int tag_type, int len ){
+
+	char tag[20];
+	(*cur_pos)++;
+	if ( *(buf + *cur_pos) == '/' ) {
+		(*cur_pos)++;
+		if ( RQ3_GetTag ( buf, cur_pos, tag, len) == tag_type ){
+			G_Printf ( "RQ3 config system: Block <%s> is finished\n", known_tags[tag_type] );
+			return PARSING_OK;
+		}						
+		else {
+			G_Printf ( "RQ3 config system: Invalid block closing. Needs </%s>, found </%s>\n", known_tags[tag_type], tag);
+			return PARSING_ERROR;
+		}
+	}
+	else {
+		G_Printf ( "RQ3 config system: Found invalid tag in block <%s>\n", known_tags[tag_type] );
+		return PARSING_ERROR;
+	}
+}

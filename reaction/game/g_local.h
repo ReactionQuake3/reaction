@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.67  2002/04/15 00:54:26  assimon
+// Simple ini file parser that reads a ini configuration file and suports rotations.
+//
 // Revision 1.66  2002/04/07 12:49:10  slicer
 // Added 'teamname' command for MM, and tweaked the cvar system.
 //
@@ -916,6 +919,17 @@ void QDECL G_Error( const char *fmt, ... );
 //Elder: added
 void RQ3_StartUniqueItems ( void );
 
+// aasimon: init stuff
+void RQ3_ReadInitFile ( void );
+void RQ3_ParseBuffer ( char *buf, int len );
+int RQ3_GetTag ( char *buf, int *cur_pos, char *tag, int len);
+int RQ3_CheckTag ( char *tag );
+int RQ3_ParseBlock ( int tag_type, char *tag, int *cur_pos, char *buf, int len );
+int RQ3_GetCommand ( char *buf, int *cur_pos, char *cvar, char *value, int len );
+int RQ3_GetWord ( char *buf, int *cur_pos, char *word, int len );
+int RQ3_CheckClosingTag (  char *buf, int *cur_pos, int tag_type, int len );
+
+
 //
 // g_client.c
 //
@@ -1091,6 +1105,10 @@ extern vmCvar_t	g_RQ3_team2ready;
 extern vmCvar_t g_RQ3_AllowRef;
 extern vmCvar_t g_RQ3_RefPass;
 extern vmCvar_t g_RQ3_RefID;
+// aasimon: ini stuff
+extern vmCvar_t g_RQ3_IniFile;
+extern vmCvar_t g_RQ3_ValidIniFile;
+extern vmCvar_t g_RQ3_NextMapID;
 
 void	trap_Printf( const char *fmt );
 void	trap_Error( const char *fmt );
