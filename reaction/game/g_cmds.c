@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.78  2002/03/18 13:39:24  jbravo
+// Spectators in TP can now use callvote
+//
 // Revision 1.77  2002/03/18 13:32:53  jbravo
 // Fixed the fraglines for sniper head kills and twekaed bandaging a bit for
 // testing
@@ -1626,7 +1629,8 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		trap_SendServerCommand( ent-g_entities, "print \"You have called the maximum number of votes.\n\"" );
 		return;
 	}
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
+// JBravo: Lets allow spectators to vote in TP
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer != GT_TEAMPLAY) {
 		trap_SendServerCommand( ent-g_entities, "print \"Not allowed to call a vote as spectator.\n\"" );
 		return;
 	}
