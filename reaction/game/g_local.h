@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2002/06/18 09:22:16  niceass
+// file exist function
+//
 // Revision 1.95  2002/06/16 20:11:41  niceass
 // unused cvar removed
 //
@@ -933,6 +936,7 @@ void G_EvaluateTrajectory(const trajectory_t * tr, int atTime, vec3_t result);
 void G_EvaluateTrajectoryDelta(const trajectory_t * tr, int atTime, vec3_t result);
 void G_GravityChange(void);
 void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent);
+qboolean G_FileExists(char *filename);
 
 //
 // g_weapon.c

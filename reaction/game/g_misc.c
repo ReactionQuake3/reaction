@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2002/06/18 09:21:11  niceass
+// file exist function
+//
 // Revision 1.57  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -963,6 +966,22 @@ void G_CreatePressure(vec3_t origin, vec3_t normal, gentity_t * ent)
 	tent->s.frame = ent->bounce;	// 1 = air, 2 = flame, 0 = steam
 	tent->s.powerups = ent->mass;	// speed of pressure
 }
+
+/*
+	G_FileExists		by NiceAss
+
+	Created for vote map to make sure it exists before voting. 
+	I'm sure there are plenty of more uses.
+*/
+qboolean G_FileExists(char *filename) {
+	fileHandle_t f;
+
+	trap_FS_FOpenFile(filename, &f, FS_READ);
+	if (!f) return qfalse;
+	trap_FS_FCloseFile(f);
+	return qtrue;
+}
+
 
 /*
 ================
