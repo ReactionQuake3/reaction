@@ -2,7 +2,7 @@
 
 * Fixed the FOV bug when selecting SSG at spawn
 * Kickback from weapons adjusted
-* Rotation bug that skipped first and last map in rotation fixed
+* Rotation bug that appeard when more than 10 maps where in rotation fixed.
 * LaserSight bug is fixed.
 * Fixed the base voting system. Still needs a cleanup
 * Fixed the respawning of dead players weapons and items in TP
@@ -18,3 +18,4 @@
 * Smooth M4 rise.
 * TNG TP spawn system has been intergrated
 * Scoreboard no longer shows who's dead and whos not while you are alive.
+
