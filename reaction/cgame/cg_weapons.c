@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/09 06:40:37  niceass
+// New tracers
+//
 // Revision 1.69  2002/05/01 17:46:00  slicer
 // Only calling "unzoom" when switching from ssg ( less lag )
 //
@@ -3720,6 +3723,47 @@ void CG_ShotgunFire( entityState_t *es, qboolean ism3) {
 	}
 }
 
+
+
+/*
+======================
+CG_CalcMuzzlePoint
+======================
+*/
+static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
+	vec3_t		forward;
+	centity_t	*cent;
+	int			anim;
+
+	if ( entityNum == cg.snap->ps.clientNum ) {
+		VectorCopy( cg.snap->ps.origin, muzzle );
+		muzzle[2] += cg.snap->ps.viewheight;
+		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
+		VectorMA( muzzle, 14, forward, muzzle );
+		return qtrue;
+	}
+
+	cent = &cg_entities[entityNum];
+	if ( !cent->currentValid ) {
+		return qfalse;
+	}
+
+	VectorCopy( cent->currentState.pos.trBase, muzzle );
+
+	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
+	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
+	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
+		muzzle[2] += CROUCH_VIEWHEIGHT;
+	} else {
+		muzzle[2] += DEFAULT_VIEWHEIGHT;
+	}
+
+	VectorMA( muzzle, 14, forward, muzzle );
+
+	return qtrue;
+
+}
+
 /*
 ============================================================================
 
@@ -3728,6 +3772,55 @@ BULLETS
 ============================================================================
 */
 
+/*
+===============
+CG_SpawnTracer
+"Borrowed" most of this from Wolf. Hope this is legal =D
+	- NiceAss
+===============
+*/
+void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
+	localEntity_t	*le;
+	float	dist;
+	vec3_t dir;
+	vec3_t start, end, temp, midpoint;
+	float	tracerSpeed = 4200;
+
+	VectorCopy( pstart, start );
+	VectorCopy( pend, end );
+
+	VectorSubtract( end, start, dir );
+	dist = VectorNormalize( dir );
+
+	if (dist < 2 * cg_tracerLength.value)
+		return;	// segment isnt long enough, dont bother
+
+	if (!CG_CalcMuzzlePoint( sourceEnt, start ) ) {
+		return;	// Not a player
+	}
+
+	// subtract the length of the tracer from the end point, so we dont go through the end point
+	VectorMA( end, -cg_tracerLength.value, dir, end );
+
+	VectorSubtract( end, start, temp );
+	dist = VectorLength( temp );
+
+	le = CG_AllocLocalEntity();
+	le->leType = LE_MOVING_TRACER;
+	le->startTime = cg.time - (cg.frametime ? (rand()%cg.frametime)/2 : 0);
+	le->endTime = le->startTime + 1000.0 * dist / tracerSpeed;
+
+	le->pos.trType = TR_LINEAR;
+	le->pos.trTime = le->startTime;
+	VectorCopy( start, le->pos.trBase );
+	VectorScale( dir, tracerSpeed, le->pos.trDelta );
+
+
+	midpoint[0] = ( pstart[0] + pend[0] ) * 0.5;
+	midpoint[1] = ( pstart[1] + pend[1] ) * 0.5;
+	midpoint[2] = ( pstart[2] + pend[2] ) * 0.5;
+	trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+}
 
 /*
 ===============
@@ -3740,7 +3833,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	vec3_t		line;
 	float		len, begin, end;
 	vec3_t		start, finish;
-	vec3_t		midpoint;
+//	vec3_t		midpoint;
 
 	// tracer
 	VectorSubtract( dest, source, forward );
@@ -3750,6 +3843,7 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 	if ( len < 100 ) {
 		return;
 	}
+
 	begin = 50 + random() * (len - 60);
 	end = begin + cg_tracerLength.value;
 	if ( end > len ) {
@@ -3799,54 +3893,14 @@ void CG_Tracer( vec3_t source, vec3_t dest ) {
 
 	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
 
-	midpoint[0] = ( start[0] + finish[0] ) * 0.5;
-	midpoint[1] = ( start[1] + finish[1] ) * 0.5;
-	midpoint[2] = ( start[2] + finish[2] ) * 0.5;
+	//midpoint[0] = ( start[0] + finish[0] ) * 0.5;
+	//midpoint[1] = ( start[1] + finish[1] ) * 0.5;
+	//midpoint[2] = ( start[2] + finish[2] ) * 0.5;
 
 	// add the tracer sound
-	trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
-
+	// trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
 }
 
-
-/*
-======================
-CG_CalcMuzzlePoint
-======================
-*/
-static qboolean	CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
-	vec3_t		forward;
-	centity_t	*cent;
-	int			anim;
-
-	if ( entityNum == cg.snap->ps.clientNum ) {
-		VectorCopy( cg.snap->ps.origin, muzzle );
-		muzzle[2] += cg.snap->ps.viewheight;
-		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
-		VectorMA( muzzle, 14, forward, muzzle );
-		return qtrue;
-	}
-
-	cent = &cg_entities[entityNum];
-	if ( !cent->currentValid ) {
-		return qfalse;
-	}
-
-	VectorCopy( cent->currentState.pos.trBase, muzzle );
-
-	AngleVectors( cent->currentState.apos.trBase, forward, NULL, NULL );
-	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
-	if ( anim == LEGS_WALKCR || anim == LEGS_IDLECR ) {
-		muzzle[2] += CROUCH_VIEWHEIGHT;
-	} else {
-		muzzle[2] += DEFAULT_VIEWHEIGHT;
-	}
-
-	VectorMA( muzzle, 14, forward, muzzle );
-
-	return qtrue;
-
-}
 
 /*
 ======================
@@ -3888,12 +3942,14 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 
 			// draw a tracer
 			// Elder: only if not using SSG, check if this client is the source
+			//CG_Tracer( start, end );
 			if (sourceEntityNum == cg.snap->ps.clientNum)
 			{
 				if (cg.snap->ps.weapon != WP_SSG3000)
 				{
 					if ( random() < cg_tracerChance.value )
-						CG_Tracer( start, end );
+						CG_SpawnTracer( sourceEntityNum, start, end );
+			//			CG_Tracer( start, end );
 				}
 			}
 			else
@@ -3902,7 +3958,8 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal,
 				if ( cent->currentValid && cent->currentState.weapon != WP_SSG3000)
 				{
 					if ( random() < cg_tracerChance.value ) {
-						CG_Tracer( start, end );
+						CG_SpawnTracer( sourceEntityNum, start, end );
+			//			CG_Tracer( start, end );
 					}
 				}
 			}

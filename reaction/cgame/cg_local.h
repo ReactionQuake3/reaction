@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/05/09 06:45:14  niceass
+// New tracers
+//
 // Revision 1.69  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -376,6 +379,7 @@ typedef enum {
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_PRESSURE,
+	LE_MOVING_TRACER,
 #ifdef MISSIONPACK
 	LE_KAMIKAZE,
 	LE_INVULIMPACT,
@@ -1829,6 +1833,8 @@ void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
 void CG_AddViewWeapon (playerState_t *ps);
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team );
 void CG_DrawWeaponSelect( void );
+
+void CG_Tracer( vec3_t source, vec3_t dest );
 
 void CG_OutOfAmmoChange( void );	// should this be in pmove?
 void CG_CheckLaser ();				//Elder: check laser to see if it's our own

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.60  2002/05/09 06:41:10  niceass
+// New tracers
+//
 // Revision 1.59  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -385,7 +388,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_footsteps, "cg_footsteps", "1", CVAR_CHEAT },
 	{ &cg_tracerChance, "cg_tracerchance", "0.4", CVAR_CHEAT },
 	{ &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT },
-	{ &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT },
+	{ &cg_tracerLength, "cg_tracerlength", "300", CVAR_CHEAT },
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT },
 	//Makro - changing from CVAR_ROM (why was it like that ?) to CVAR_CHEAT
