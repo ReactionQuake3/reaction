@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/02/23 15:02:22  makro
+// Improved the code that checks for shortcut keys, it runs a lot faster now
+// Before that - added support for shortcut keys, 3d model rotation, model origin offset, new command to bring up the weapon menu and a cvar to be used in the player options menu. Also improved the remapShader command.
+//
 // Revision 1.3  2002/02/21 20:10:16  jbravo
 // Converted files back from M$ format and added cvs headers again.
 //
@@ -117,7 +121,8 @@ typedef struct {
   Rectangle rectClient;           // screen coord rectangle
   const char *name;               //
 //Makro - adding support for shortcut keys
-  const char *shortcutKey;
+  //const char *shortcutKey;
+  int shortcutKey;
   const char *group;              // if it belongs to a group
   const char *cinematicName;		  // cinematic name
   int cinematic;								  // cinematic handle
