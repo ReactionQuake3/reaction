@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2002/03/03 23:12:18  blaze
+// weapon stats - fixed a formating bug.
+//
 // Revision 1.10  2002/03/03 21:44:01  blaze
 // weapon stats, done, beta test for bugs
 //
@@ -1078,7 +1081,7 @@ void CG_DrawWeaponStats(void)
 
   //Kills
   i=2;
-  offset = 44;
+  offset = 39;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * (offset - 1), WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Kills", color);
@@ -1140,7 +1143,7 @@ void CG_DrawWeaponStats(void)
 
   //Deaths
   i=2;
-  offset = 45;
+  offset = 47;
   MAKERGBA(color, 1.0f, 1.0f, 1.0f, 1.0f);
 	CG_DrawSmallStringColor(WS_LEFTSIDE + 6 + SMALLCHAR_WIDTH * (offset -2), WS_TOP + SB_PADDING * 4 + SMALLCHAR_HEIGHT * i++,
 							"Deaths", color);
