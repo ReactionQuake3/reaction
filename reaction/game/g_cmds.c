@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2002/03/30 23:20:10  jbravo
+// Added damage in scoreboard.
+//
 // Revision 1.84  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -214,7 +217,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 			cl->ps.persistant[PERS_KILLED],	// NiceAss: Added for TP scoreboard
-			0,
+			cl->ps.persistant[PERS_DAMAGE_DELT],  // JBravo: Added for TP scoreboard
 			0,
 			0,
 			0,

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.25  2002/03/30 23:20:10  jbravo
+// Added damage in scoreboard.
+//
 // Revision 1.24  2002/03/26 10:32:52  jbravo
 // Bye bye LCA lag
 //
@@ -116,9 +119,11 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
 		// Added deaths, replaced the place of impressiveCount
 		cg.scores[i].deaths = atoi(CG_Argv(i * 14 + 11));
+		// JBravo: Added damage, replaced the place of excellentCount
+		cg.scores[i].damage = atoi(CG_Argv(i * 14 + 12));
 		//Elder: these should be zero
 		//cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
+		//cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
 		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
 		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
 		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));

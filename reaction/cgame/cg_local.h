@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.61  2002/03/30 23:20:10  jbravo
+// Added damage in scoreboard.
+//
 // Revision 1.60  2002/03/30 21:51:42  jbravo
 // Removed all those ifdefs for zcam.
 //
@@ -405,6 +408,7 @@ typedef struct {
 	int				client;
 	int				score;
 	int				deaths;		// NiceAss: Added deaths
+	int				damage;		// JBravo: Added damage
 	int				ping;
 	int				time;
 	int				scoreFlags;

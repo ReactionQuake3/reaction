@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/03/30 23:20:10  jbravo
+// Added damage in scoreboard.
+//
 // Revision 1.18  2002/03/30 02:54:24  jbravo
 // MOre spec tweaks and a scoreboard fix
 //
@@ -153,7 +156,7 @@ static void CG_DrawTeamplayClientScore( int y, score_t *score, float *Fill, floa
 	DrawStrip(y, SB_FONTSIZEH, qtrue, qfalse, qfalse, Fill, Boarder);
 
 	DrawLeftStripText(y, SB_FONTSIZEH, ci->name, 20, Color);
-	Com_sprintf(Tmp, 128, "%4i  %4i  %5i  %6i", score->time, score->ping, score->score, 0);
+	Com_sprintf(Tmp, 128, "%4i  %4i  %5i  %6i", score->time, score->ping, score->score, score->damage);
 	DrawRightStripText(y, SB_FONTSIZEH, Tmp, 100, Color);
 }
 
