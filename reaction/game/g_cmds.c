@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.100  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.99  2002/04/30 01:23:05  jbravo
 // Changed the server logging to be more like a normal AQ server.  Cleaned
 // all colors from the logs.
@@ -494,6 +497,8 @@ void Cmd_Give_f (gentity_t *ent)
 		for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
 			//Blaze: Give right amount of shots to each gun
 			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
+			//Makro - I want clips, dammit !
+			Add_Ammo(ent, i, 100, 1);
 		}
 		if (!give_all)
 			return;

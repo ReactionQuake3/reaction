@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.8  2002/04/01 02:56:50  jbravo
 // Some sourcecode reformatting
 //
@@ -94,6 +97,17 @@
 #define INVENTORY_NEUTRALFLAG		47
 #define INVENTORY_REDCUBE		48
 #define INVENTORY_BLUECUBE		49
+
+//Makro - adding clips to inventory
+#define INVENTORY_KNIFECLIP			100
+#define INVENTORY_PISTOLCLIP		101
+#define INVENTORY_M3CLIP			102
+#define INVENTORY_SSG3000CLIP		103
+#define INVENTORY_MP5CLIP			104
+#define INVENTORY_M4CLIP			105
+#define INVENTORY_HANDCANNONCLIP	106
+#define INVENTORY_AKIMBOCLIP		107
+#define INVENTORY_GRENADECLIP		108
 
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200

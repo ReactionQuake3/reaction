@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.70  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.69  2002/04/30 01:23:05  jbravo
 // Changed the server logging to be more like a normal AQ server.  Cleaned
 // all colors from the logs.
@@ -1396,7 +1399,8 @@ void ClientBegin(int clientNum) {
 	if (g_gametype.integer == GT_TEAMPLAY) {
 		// NiceAss: Only set it if there is no value. Fix for going into spectator resetting values.
 		if (ent->r.svFlags & SVF_BOT) {
-			if (!client->teamplayWeapon) client->teamplayWeapon = WP_PISTOL;
+			//Makro - changed from WP_PISTOL to WP_MP5
+			if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;
 			if (!client->teamplayItem) client->teamplayItem = HI_KEVLAR;
 		} else {
 			if (!client->teamplayWeapon) client->teamplayWeapon = WP_MP5;

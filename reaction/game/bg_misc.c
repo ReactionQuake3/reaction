@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.34  2002/04/23 06:03:39  niceass
 // pressure stuff
 //
@@ -1673,3 +1676,92 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->loopSound = ps->loopSound;
 	s->generic1 = ps->generic1;
 }
+
+//Makro - weapon string aliases
+
+typedef struct {
+	const char	*name;
+	weapon_t	weapon;
+} weaponAlias_t;
+
+weaponAlias_t	weaponAliases[] =
+{
+	{RQ3_PISTOL_NAME,		WP_PISTOL},
+	{"pistol",				WP_PISTOL},
+	{"mk23",				WP_PISTOL},
+	{RQ3_M3_NAME,			WP_M3},
+	{"shotgun",				WP_M3},
+	{RQ3_HANDCANNON_NAME,	WP_HANDCANNON},
+	{"hc",					WP_HANDCANNON},
+	{RQ3_M4_NAME,			WP_M4},
+	{"m4",					WP_M4},
+	{RQ3_MP5_NAME,			WP_MP5},
+	{"mp5",					WP_MP5},
+	{"mp5/10",				WP_MP5},
+	{RQ3_SSG3000_NAME,		WP_SSG3000},
+	{"sniper",				WP_SSG3000},
+	{"ssg3000",				WP_SSG3000},
+	{"ssg 3000",			WP_SSG3000},
+	{"ssg",					WP_SSG3000},
+	{RQ3_AKIMBO_NAME,		WP_AKIMBO},
+	{"akimbo",				WP_AKIMBO},
+	{RQ3_KNIFE_NAME,		WP_KNIFE},
+	{"knife",				WP_KNIFE},
+	{"knives",				WP_KNIFE},
+	{RQ3_GRENADE_NAME,		WP_GRENADE},
+	{"grenade",				WP_GRENADE},
+	{"grenades",			WP_GRENADE},
+	{NULL,					WP_PISTOL}
+};
+
+#define num_weapon_aliases	25
+
+weapon_t CharToWeapon ( char *name, weapon_t defweapon ) {
+	int i;
+
+	if (!name) return defweapon;
+
+	for (i=0; weaponAliases[i].name != NULL; i++) {
+		if ( !Q_stricmp(name, weaponAliases[i].name) )
+			return weaponAliases[i].weapon;
+	}
+
+	return defweapon;
+}
+
+//Makro - item string aliases
+
+typedef struct {
+	const char	*name;
+	holdable_t	item;
+} itemAlias_t;
+
+itemAlias_t	itemAliases[] =
+{
+	{RQ3_SLIPPERS_NAME,		HI_SLIPPERS},
+	{"slippers",			HI_SLIPPERS},
+	{RQ3_KEVLAR_NAME,		HI_KEVLAR},
+	{"vest",				HI_KEVLAR},
+	{"kevlar",				HI_KEVLAR},
+	{RQ3_BANDOLIER_NAME,	HI_BANDOLIER},
+	{RQ3_LASER_NAME,		HI_LASER},
+	{"laser",				HI_LASER},
+	{RQ3_SILENCER_NAME,		HI_SILENCER},
+	{NULL,					HI_KEVLAR}
+};
+
+#define num_item_aliases	9
+
+holdable_t CharToItem ( char *name, holdable_t defitem ) {
+	int i;
+
+	if (!name) return defitem;
+
+	for (i=0; itemAliases[i].name != NULL; i++) {
+		if ( !Q_stricmp(name, itemAliases[i].name) )
+			return itemAliases[i].item;
+	}
+
+	return defitem;
+}
+

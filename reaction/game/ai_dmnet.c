@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.15  2002/04/14 21:49:52  makro
 // Stuff
 //
@@ -1345,6 +1348,7 @@ int AINode_Respawn(bot_state_t *bs) {
 
 				BotEntityInfo(spot-g_entities, &entinfo);
 				BotMoveTo(bs, entinfo.origin);
+				//BotRoamGoal(bs, entinfo.origin);
 			}
 		}
 	}
@@ -1479,7 +1483,7 @@ void BotClearPath(bot_state_t *bs, bot_moveresult_t *moveresult) {
 			vectoangles(dir, moveresult->ideal_viewangles);
 			// if the bot has a weapon that does splash damage
 			//Blaze: Just grenades
-			if (bs->inventory[INVENTORY_GRENADE] > 0 && bs->inventory[INVENTORY_GRENADE] > 0)
+			if (bs->inventory[INVENTORY_GRENADE] > 0 && bs->inventory[INVENTORY_GRENADEAMMO] > 0)
 				moveresult->weapon = WEAPONINDEX_GRENADE;
 			/*else if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 0)
 				moveresult->weapon = WEAPONINDEX_ROCKET_LAUNCHER;
@@ -1602,7 +1606,8 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 		if (bsptrace.fraction >= 1.0 || bsptrace.ent == goal->entitynum) {
 			targetvisible = qtrue;
 			// if holding the right weapon
-			if (bs->cur_ps.weapon == bs->activatestack->weapon) {
+			// Makro - or if no weapon is set for the goal
+			if (bs->cur_ps.weapon == bs->activatestack->weapon || bs->activatestack->weapon == WP_NONE) {
 				VectorSubtract(bs->activatestack->target, bs->eye, dir);
 				vectoangles(dir, ideal_viewangles);
 				// if the bot is pretty close with it's aim

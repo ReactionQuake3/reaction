@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.59  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.58  2002/04/29 06:17:39  niceass
 // small change to pressure system
 //
@@ -1378,4 +1381,7 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 int GetMaterialFromFlag( int flag );
 qboolean IsMetalMat( int Material );
 qboolean IsMetalFlag( int flag );
+
+holdable_t CharToItem ( char *name, holdable_t defitem );
+weapon_t CharToWeapon ( char *name, weapon_t defweapon );
 

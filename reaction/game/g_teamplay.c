@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.71  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.70  2002/04/30 11:20:12  jbravo
 // Redid the teamcount cvars.
 //
@@ -915,11 +918,14 @@ void EquipPlayer (gentity_t *ent)
 		ent->client->ps.generic1 = ((ent->client->ps.generic1 & ANIM_TOGGLEBIT) ^
 			ANIM_TOGGLEBIT) | WP_ANIM_ACTIVATE;
 	}
+	//Makro - equip bots, too
+	/*
 	if (ent->r.svFlags & SVF_BOT) {
 		ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_PISTOL );
 		ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_KNIFE );
 		ent->client->uniqueWeapons = 0;
 	}
+	*/
 	ent->client->ps.weaponstate = WEAPON_RAISING;
 
 	ent->client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItemForHoldable( ent->client->teamplayItem ) - bg_itemlist;

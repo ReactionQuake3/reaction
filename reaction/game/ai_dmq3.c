@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/04/30 11:54:37  makro
+// Bots rule ! Also, added clips to give all. Maybe some other things
+//
 // Revision 1.18  2002/04/20 15:03:47  makro
 // More footstep sounds, a few other things
 //
@@ -159,22 +162,65 @@ void VectorTargetDist(vec3_t src, vec3_t dest, int dist, vec3_t final) {
 
 /*
 ==================
+RQ3_Bot_ClipForWeapon
+
+Added by Makro
+==================
+*/
+int RQ3_Bot_ClipForWeapon( bot_state_t *bs, int weapon )
+{
+	switch (weapon) {
+		case WP_PISTOL:
+		case WP_AKIMBO:
+			return bs->inventory[INVENTORY_PISTOLCLIP];
+			break;
+		case WP_M3:
+		case WP_HANDCANNON:
+			return bs->inventory[INVENTORY_M3CLIP];
+			break;
+		case WP_MP5:
+			return bs->inventory[INVENTORY_MP5CLIP];
+			break;
+		case WP_M4:
+			return bs->inventory[INVENTORY_M4CLIP];
+			break;
+		case WP_SSG3000:
+			return bs->inventory[INVENTORY_SSG3000CLIP];
+			break;
+		default:
+			return 0;
+			break;
+	}
+
+	//not needed, but oh well...
+	return 0;
+}
+
+
+/*
+==================
 BotAttack
 
 Added by Makro
 ==================
 */
 void BotAttack(bot_state_t *bs) {
+	
+	//Makro - if the weapon isn't ready, stop
+	if (bs->cur_ps.weaponstate != WEAPON_READY)
+		return;
+	
 	//If the gun is empty
-	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
+	if ( (bs->cur_ps.ammo[bs->cur_ps.weapon]) == 0 ) {
 		//If bot has extra clips, reload
-		if ( (g_entities[bs->entitynum].client->numClips[bs->weaponnum]) >= 1 ) {
+		if ( RQ3_Bot_ClipForWeapon(bs, bs->cur_ps.weapon) >= 1 ) {
 			//Cmd_Reload( &g_entities[bs->entitynum] );
 			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
 		}
 	} else {
 		//Gun is not empty
-		trap_EA_Attack(bs->client);
+		//trap_EA_Attack(bs->client);
+		trap_EA_Action(bs->client, ACTION_ATTACK);
 	}
 }
 
@@ -194,8 +240,8 @@ bot_moveresult_t BotMoveTo(bot_state_t *bs, vec3_t dest) {
 	VectorCopy(dest, goal.origin);
 	VectorSet(goal.mins, -8, -8, -8);
 	VectorSet(goal.maxs, 8, 8, 8);
-	VectorAdd(goal.mins, goal.origin, goal.mins);
-	VectorAdd(goal.maxs, goal.origin, goal.maxs);
+	//VectorAdd(goal.mins, goal.origin, goal.mins);
+	//VectorAdd(goal.maxs, goal.origin, goal.maxs);
 	goal.areanum = trap_AAS_PointAreaNum(goal.origin);
 	//initialize the movement state
 	BotSetupForMovement(bs);
@@ -221,19 +267,8 @@ Added by Makro
 void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist) {
 	vec3_t dir;
 
-	/*
-	VectorClear(dir);
-	VectorSubtract(bs->origin, dest, dir);
-	VectorNormalize(dir);
-	if (dist < 0 ) {
-		VectorScale(dir, -1, dir);
-		dist = -dist;
-	}
-	VectorScale(dir, dist, dir);
-	VectorAdd(dir, bs->origin, dir);
-	*/
-	VectorTargetDist(bs->origin, dest, dist, dir);
-	dir[2] = bs->origin[2];
+	//VectorTargetDist(bs->origin, dest, dist, dir);
+	//dir[2] = bs->origin[2];
 	/*
 	if (bot_developer.integer == 2) {
 		G_Printf(va("^5BOT CODE: ^7Moving from (%i %i %i) towards entity at (%i %i %i) up to (%i %i %i)\n",
@@ -1704,8 +1739,14 @@ BotChooseWeapon
 void BotChooseWeapon(bot_state_t *bs) {
 	int newweaponnum;
 
+	//Makro - don't change weapons while bandaging
+	if (bs->cur_ps.weaponstate == WEAPON_BANDAGING) {
+		return;
+	}
+
 	if (bs->cur_ps.weaponstate == WEAPON_RAISING ||
-			bs->cur_ps.weaponstate == WEAPON_DROPPING) {
+		bs->cur_ps.weaponstate == WEAPON_DROPPING)
+	{
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	}
 	else {
@@ -1714,25 +1755,9 @@ void BotChooseWeapon(bot_state_t *bs) {
 // JBravo: test hack
 // Makro - test unhack :P
 		bs->weaponnum = newweaponnum;
-		bs->weaponnum = WP_PISTOL;
+		//bs->weaponnum = WP_PISTOL;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-	}
-
-	//Makro - gun is empty; if bot has extra clips - reload, otherwise switch to knife
-	if ( (bs->cur_ps.ammo[bs->weaponnum]) == 0 ) {
-		if (g_entities[bs->entitynum].client->numClips[bs->weaponnum] >= 1 ) {
-			//Cmd_Reload( &g_entities[bs->entitynum] );
-			trap_EA_Action(bs->client, ACTION_AFFIRMATIVE);
-			/*
-			if (bot_developer.integer == 2) {
-				G_Printf("^5BOT CODE: ^7Reloading\n");
-			}
-			*/
-		} else {
-			bs->weaponnum = WP_KNIFE;
-			trap_EA_SelectWeapon(bs->client, bs->weaponnum);
-		}
 	}
 }
 
@@ -1875,7 +1900,12 @@ BotUpdateInventory
 */
 void BotUpdateInventory(bot_state_t *bs) {
 	int oldinventory[MAX_ITEMS];
+	gentity_t *ent = &g_entities[bs->entitynum];
 
+	//DEBUG STUFF
+	qboolean	showInfo = (trap_Cvar_VariableIntegerValue("bot_RQ3_report") != 0);
+
+	
 	memcpy(oldinventory, bs->inventory, sizeof(oldinventory));
 	//armor
 	bs->inventory[INVENTORY_ARMOR] = bs->cur_ps.stats[STAT_ARMOR];
@@ -1891,16 +1921,21 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_AKIMBO] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO)) != 0;
 	bs->inventory[INVENTORY_GRENADE] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRENADE)) != 0;
 	//ammo
-	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_PISTOL];
+	//Makro - clips should be taken into account
+	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_PISTOL] + ent->client->numClips[WP_PISTOL] * RQ3_PISTOL_CLIP;
 	bs->inventory[INVENTORY_KNIFEAMMO] = bs->cur_ps.ammo[WP_KNIFE];
-	bs->inventory[INVENTORY_M4AMMO] = bs->cur_ps.ammo[WP_M4];
-	bs->inventory[INVENTORY_SSG3000AMMO] = bs->cur_ps.ammo[WP_SSG3000];
-	bs->inventory[INVENTORY_MP5AMMO] = bs->cur_ps.ammo[WP_MP5];
+	bs->inventory[INVENTORY_M4AMMO] = bs->cur_ps.ammo[WP_M4] + ent->client->numClips[WP_M4] * RQ3_M4_CLIP;
+	bs->inventory[INVENTORY_SSG3000AMMO] = bs->cur_ps.ammo[WP_SSG3000] + ent->client->numClips[WP_SSG3000];
+	bs->inventory[INVENTORY_MP5AMMO] = bs->cur_ps.ammo[WP_MP5] + ent->client->numClips[WP_MP5] * RQ3_MP5_CLIP;
 	//Blaze: Same ammo for shotgun and handcannon
-	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
-	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3];
+	//Makro - this was odd
+	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_HANDCANNON];
+	//bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3];
+	bs->inventory[INVENTORY_M3AMMO] = bs->cur_ps.ammo[WP_M3] + ent->client->numClips[WP_M3];
+	bs->inventory[INVENTORY_HANDCANNONAMMO] = bs->cur_ps.ammo[WP_HANDCANNON] + ent->client->numClips[WP_HANDCANNON];
 	//Blaze: Same ammo for Pistol and Akimbo Pistols
-	bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
+	//bs->inventory[INVENTORY_PISTOLAMMO] = bs->cur_ps.ammo[WP_AKIMBO];
+	bs->inventory[INVENTORY_AKIMBOAMMO] = bs->cur_ps.ammo[WP_AKIMBO] + ent->client->numClips[WP_AKIMBO] * RQ3_PISTOL_CLIP;
 	bs->inventory[INVENTORY_GRENADEAMMO] = bs->cur_ps.ammo[WP_GRENADE];
 	
 //	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
@@ -1938,6 +1973,32 @@ void BotUpdateInventory(bot_state_t *bs) {
 		bs->inventory[INVENTORY_BLUECUBE] = bs->cur_ps.generic1;
 	}
 #endif
+
+	//Makro - adding clip info
+	//Note - this stuff is also added to the ammo info, so bots know they still have ammo for their guns
+	bs->inventory[INVENTORY_KNIFECLIP] = ent->client->numClips[WP_KNIFE];
+	bs->inventory[INVENTORY_PISTOLCLIP] = ent->client->numClips[WP_PISTOL];
+	bs->inventory[INVENTORY_M3CLIP] = ent->client->numClips[WP_M3];
+	bs->inventory[INVENTORY_SSG3000CLIP] = ent->client->numClips[WP_SSG3000];
+	bs->inventory[INVENTORY_MP5CLIP] = ent->client->numClips[WP_MP5];
+	bs->inventory[INVENTORY_M4CLIP] = ent->client->numClips[WP_M4];
+	bs->inventory[INVENTORY_HANDCANNONCLIP] = ent->client->numClips[WP_HANDCANNON];
+	bs->inventory[INVENTORY_AKIMBOCLIP] = ent->client->numClips[WP_AKIMBO];
+	bs->inventory[INVENTORY_GRENADECLIP] = ent->client->numClips[WP_GRENADE];
+	
+	if (showInfo) {
+		BotAI_Print(PRT_MESSAGE, "Inventory for %s :\n-----------------\n", ent->client->pers.netname);
+		BotAI_Print(PRT_MESSAGE, "KNIFE :   %i / %i\n", bs->inventory[INVENTORY_KNIFE], bs->inventory[INVENTORY_KNIFEAMMO]);
+		BotAI_Print(PRT_MESSAGE, "PISTOL:   %i / %i\n", bs->inventory[INVENTORY_PISTOL], bs->inventory[INVENTORY_PISTOLAMMO]);
+		BotAI_Print(PRT_MESSAGE, "AKIMBO:   %i / %i\n", bs->inventory[INVENTORY_AKIMBO], bs->inventory[INVENTORY_AKIMBOAMMO]);
+		BotAI_Print(PRT_MESSAGE, "M3    :   %i / %i\n", bs->inventory[INVENTORY_M3], bs->inventory[INVENTORY_M3AMMO]);
+		BotAI_Print(PRT_MESSAGE, "HC    :   %i / %i\n", bs->inventory[INVENTORY_HANDCANNON], bs->inventory[INVENTORY_HANDCANNONAMMO]);
+		BotAI_Print(PRT_MESSAGE, "MP5   :   %i / %i\n", bs->inventory[INVENTORY_MP5], bs->inventory[INVENTORY_MP5AMMO]);
+		BotAI_Print(PRT_MESSAGE, "M4    :   %i / %i\n", bs->inventory[INVENTORY_M4], bs->inventory[INVENTORY_M4AMMO]);
+		BotAI_Print(PRT_MESSAGE, "M26 G :   %i / %i\n", bs->inventory[INVENTORY_GRENADE], bs->inventory[INVENTORY_GRENADEAMMO]);
+		trap_Cvar_Set("bot_RQ3_report", "0");
+	}
+	
 	BotCheckItemPickup(bs, oldinventory);
 }
 
@@ -3455,7 +3516,7 @@ BotAimAtEnemy
 ==================
 */
 void BotAimAtEnemy(bot_state_t *bs) {
-	int i, enemyvisible;
+	int enemyvisible;
 	float dist, f, aim_skill, aim_accuracy, speed, reactiontime;
 	vec3_t dir, bestorigin, end, start, groundtarget, cmdmove, enemyvelocity;
 	vec3_t mins = {-4,-4,-4}, maxs = {4, 4, 4};
@@ -3733,10 +3794,11 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		aim_accuracy *= f;
 	}
 	//add some random stuff to the aim direction depending on the aim accuracy
-	if (aim_accuracy < 0.8) {
-		VectorNormalize(dir);
-		for (i = 0; i < 3; i++) dir[i] += 0.3 * crandom() * (1 - aim_accuracy);
-	}
+	//Makro - bots look even more stupid than they are with this
+	//if (aim_accuracy < 0.8) {
+	//	VectorNormalize(dir);
+	//	for (i = 0; i < 3; i++) dir[i] += 0.3 * crandom() * (1 - aim_accuracy);
+	//}
 	//set the ideal view angles
 	vectoangles(dir, bs->ideal_viewangles);
 	//take the weapon spread into account for lower skilled bots
@@ -3790,11 +3852,15 @@ void BotCheckAttack(bot_state_t *bs) {
 #endif
 	}
 	//
+	//Makro - we need the weapon info sooner
+	//get the weapon info
+	trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
 	reactiontime = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;
 	//if changing weapons
-	if (bs->weaponchange_time > FloatTime() - 0.1) return;
+	//Makro - changed from 0.1 to an expression that takes into account weapon info
+	if (bs->weaponchange_time > FloatTime() - 0.1 - wi.activate) return;
 	//check fire throttle characteristic
 	if (bs->firethrottlewait_time > FloatTime()) return;
 	firethrottle = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1);
@@ -3829,8 +3895,7 @@ void BotCheckAttack(bot_state_t *bs) {
 	if (bsptrace.fraction < 1 && bsptrace.ent != attackentity)
 		return;
 
-	//get the weapon info
-	trap_BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	//Makro - get weapon info sooner; was here before
 	//get the start point shooting from
 	VectorCopy(bs->origin, start);
 	start[2] += bs->cur_ps.viewheight;
@@ -3995,8 +4060,10 @@ int BotModelMinsMaxs(int modelindex, int eType, int contents, vec3_t mins, vec3_
 	gentity_t *ent;
 	int i;
 
-	ent = &g_entities[0];
-	for (i = 0; i < level.num_entities; i++, ent++) {
+	//Makro - started from 0
+	//ent = &g_entities[0];
+	ent = &g_entities[MAX_CLIENTS];
+	for (i = MAX_CLIENTS ; i<level.num_entities ; i++, ent++) {
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -4182,23 +4249,22 @@ BotFuncDoorGoal
 int BotFuncDoorActivateGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activategoal) {
 	int modelindex, entitynum;
 	char model[MAX_INFO_STRING];
-	vec3_t mins, maxs, origin, angles;
+	vec3_t mins, maxs, origin;
 
-			//shoot at the shootable door
+	//shoot at the shootable door
 	trap_AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
 	if (!*model)
 		return qfalse;
-			modelindex = atoi(model+1);
+	modelindex = atoi(model+1);
 	if (!modelindex)
 		return qfalse;
-			VectorClear(angles);
+	//VectorClear(angles);
 	entitynum = BotModelMinsMaxs(modelindex, ET_MOVER, 0, mins, maxs);
-			//door origin
-			VectorAdd(mins, maxs, origin);
-			VectorScale(origin, 0.5, origin);
+	//door origin
+	VectorAdd(mins, maxs, origin);
+	VectorScale(origin, 0.5, origin);
 	VectorCopy(origin, activategoal->target);
 	activategoal->shoot = qtrue;
-			//
 	activategoal->goal.entitynum = entitynum; //NOTE: this is the entity number of the shootable door
 	activategoal->goal.number = 0;
 	activategoal->goal.flags = 0;
@@ -4221,25 +4287,28 @@ function !
 int BotFuncBreakableGoal(bot_state_t *bs, int bspent, bot_activategoal_t *activategoal) {
 	int modelindex, entitynum;
 	char model[MAX_INFO_STRING];
-	vec3_t mins, maxs, origin, angles;
+	vec3_t mins, maxs, origin;
 
 	//shoot at the func_breakable
 	trap_AAS_ValueForBSPEpairKey(bspent, "model", model, sizeof(model));
 	if (!*model)
 		return qfalse;
-			modelindex = atoi(model+1);
+	modelindex = atoi(model+1);
 	if (!modelindex)
 		return qfalse;
-			VectorClear(angles);
-	entitynum = BotModelMinsMaxs(modelindex, ET_BREAKABLE, 0, mins, maxs);
+	//VectorClear(angles);
+	//Makro - changing from ET_BREAKABLE to 0
+	entitynum = BotModelMinsMaxs(modelindex, 0, 0, mins, maxs);
 	//breakable origin
 	VectorAdd(mins, maxs, origin);
 	VectorScale(origin, 0.5, origin);
 	VectorCopy(origin, activategoal->target);
 	activategoal->shoot = qtrue;
-	activategoal->goal.entitynum = entitynum; //NOTE: this is the entity number of the shootable door
+	activategoal->goal.entitynum = entitynum;
 	activategoal->goal.number = 0;
 	activategoal->goal.flags = 0;
+	activategoal->weapon = WP_NONE;
+	//Makro - hmm, not quite sure this is right, but they did it for func_doors
 	VectorCopy(bs->origin, activategoal->goal.origin);
 	activategoal->goal.areanum = bs->areanum;
 	VectorSet(activategoal->goal.mins, -8, -8, -8);
