@@ -460,10 +460,16 @@ void Ref_Command(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, "print\"map <map_to_go>\n\"");
 		return;
 	} else if (Q_stricmp(com, "lockSettings") == 0) {
-		if(level.settingsLocked)
+		if(level.settingsLocked) {
 			level.settingsLocked = qfalse;
-		else
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_OK_COLOR"Settings are now unLocked\n\""));
+		}
+		else {
 			level.settingsLocked = qtrue;
+			trap_SendServerCommand(ent - g_entities,
+					       va("print \""MM_OK_COLOR"Settings are now Locked\n\""));
+		}
 		return;
 	} else if (Q_stricmp(com, "kick") == 0) {	// kick kick kick
 		trap_Argv(2, com, sizeof(com));
