@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.40  2002/05/13 05:24:54  jbravo
+// the ssg color cvars now also control normal xhair color
+//
 // Revision 1.39  2002/05/01 21:14:59  jbravo
 // Misc fixes
 //
@@ -2286,18 +2289,9 @@ static void CG_DrawCrosshair(void) {
 	if ( cg.snap->ps.weapon == WP_SSG3000 && 
 	   ( (cg.zoomLevel & RQ3_ZOOM_LOW) || (cg.zoomLevel & RQ3_ZOOM_MED) ) )
 	{
-		// out of ammo but not reloading
-		//if ( ( cg.zoomFirstReturn == -1 && cg.snap->ps.stats[STAT_RELOADTIME] <= 0) ||
-			 //( cg.snap->ps.weaponTime == 0 && cg.snap->ps.stats[STAT_RELOADTIME] <= 0))
 		if ((cg.zoomFirstReturn == -1 || cg.snap->ps.weaponTime < ZOOM_TIME) &&
 			cg.snap->ps.stats[STAT_RELOADTIME] <= 0)
 		{
-			/*
-			if ( (cg.zoomFirstReturn == -1 ||
-				 (cg.snap->ps.weaponTime < ZOOM_TIME && cg.snap->ps.stats[STAT_RELOADTIME] < ZOOM_TIME)) &&
-			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_FASTRELOADS) &&
-			 !(cg.snap->ps.stats[STAT_RQ3] & RQ3_LOCKRELOADS) {
-			*/
 			//Makro - wasn't initialized, caused a warning in MSVC
 			int zoomMag = 0;
 
@@ -2355,10 +2349,22 @@ static void CG_DrawCrosshair(void) {
 		}
 		hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
 	//}
-	
+	crosshairColor[0] = cg_RQ3_ssgColorR.value;
+	crosshairColor[1] = cg_RQ3_ssgColorG.value;
+	crosshairColor[2] = cg_RQ3_ssgColorB.value;
+	crosshairColor[3] = cg_RQ3_ssgColorA.value;
+	for (i = 0; i < 4; i++) {
+		if (crosshairColor[i] > 1.0f)
+			crosshairColor[i] = 1.0f;
+		else if (crosshairColor[i] < 0)
+			crosshairColor[i] = 0;
+	}
+
+	trap_R_SetColor(crosshairColor);
 	trap_R_DrawStretchPic( x + cg.refdef.x + 0.5 * (cg.refdef.width - w), 
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h), 
 		w, h, 0, 0, 1, 1, hShader );
+	trap_R_SetColor(NULL);
 }
 
 
