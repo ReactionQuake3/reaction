@@ -13,8 +13,8 @@
 * Fixed missing shader errors in the UI on numerous places.
 * Fixed the about server UI menu values
 * Made the UI handle illegal models and skins more robustly
-* UI model previw is fixed.
-* UI model previw and selection now controls DM gametype models, not team models.
+* UI model preview is fixed.
+* UI model preview and selection now controls DM gametype models, not team models.
 * Added a radiosoundset selection dialog to the UI
 
 
