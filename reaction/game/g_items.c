@@ -36,7 +36,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
 		// round timing to seconds to make multiple powerup timers
 		// count in sync
-		other->client->ps.powerups[ent->item->giTag] = 
+		other->client->ps.powerups[ent->item->giTag] =
 			level.time - ( level.time % 1000 );
 	}
 
@@ -205,7 +205,7 @@ void Add_Ammo (gentity_t *ent, int weapon, int count, int bandolierFactor)
 	//Blaze: Reaction stuff, add to clip when picking up ammo packs
 	//Elder: Modified to use constants def'd in bg_public.h
 	ent->client->numClips[weapon] += count;
-	
+
 	switch (weapon)
 	{
 	case WP_KNIFE:
@@ -250,19 +250,19 @@ void Add_Ammo (gentity_t *ent, int weapon, int count, int bandolierFactor)
 
 	//Elder: sync HC and M3 ammo
 	if(weapon == WP_M3) {
-		ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3]; 
+		ent->client->numClips[WP_HANDCANNON] = ent->client->numClips[WP_M3];
 	}
-	else if (weapon == WP_HANDCANNON){ 
+	else if (weapon == WP_HANDCANNON){
 		ent->client->numClips[WP_M3] = ent->client->numClips[WP_HANDCANNON];
 	}
 	//Elder: sync Akimbo and MK23 ammo
 	else if(weapon == WP_PISTOL) {
-		ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL]; 
+		ent->client->numClips[WP_AKIMBO] = ent->client->numClips[WP_PISTOL];
 	}
-	else if (weapon == WP_AKIMBO){ 
+	else if (weapon == WP_AKIMBO){
 		ent->client->numClips[WP_PISTOL] = ent->client->numClips[WP_AKIMBO];
 	}
-	
+
 	//ent->client->ps.ammo[weapon] += count;
 	//if ( ent->client->ps.ammo[weapon] > 200 ) {
 	//	ent->client->ps.ammo[weapon] = 200;
@@ -322,7 +322,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 	switch (ent->item->giTag)
 	{
 	case WP_KNIFE:
-		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP * bandolierFactor) 
+		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP * bandolierFactor)
 		{
 			//G_Printf("(%d)\n",other->client->ps.ammo[ent->item->giTag]);
 			ammotoadd = other->client->ps.ammo[WP_KNIFE] + 1;
@@ -390,7 +390,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 		other->client->uniqueWeapons++;
 		break;
 	case WP_GRENADE:
-		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP * bandolierFactor) 
+		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP * bandolierFactor)
 		{
 			ammotoadd=other->client->ps.ammo[WP_GRENADE] + 1;
 		}
@@ -407,7 +407,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other, int bandolierFactor) {
 	}
 	//Elder: conditional added to "restore" weapons
 	if ( !(ent->flags & FL_THROWN_ITEM) ||
-		(ent->s.otherEntityNum == other->client->ps.clientNum && 
+		(ent->s.otherEntityNum == other->client->ps.clientNum &&
 		 other->client->pers.hadUniqueWeapon[ent->item->giTag] == qfalse ) )
 	{
 		other->client->ps.ammo[ent->item->giTag] = ammotoadd;
@@ -725,7 +725,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				(other->client->ps.ammo[ent->item->giTag] >= RQ3_GRENADE_MAXCLIP))
 				return;
 			break;
-		
+
 		//Blaze: Check and see if it's a unique weapon, and if so make sure they dont have too many already
 		if (ent->item->giTag == WP_MP5 || ent->item->giTag == WP_M4 ||
 			ent->item->giTag == WP_M3 || ent->item->giTag == WP_HANDCANNON ||
@@ -739,18 +739,18 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 
 		respawn = Pickup_Weapon(ent, other, bandolierFactor);
 
-	
+
 		//Elder: added pistol and knife condition
 		if (ent->item->giTag == WP_GRENADE || ent->item->giTag == WP_PISTOL ||
 			ent->item->giTag == WP_KNIFE) {
-//			G_Printf("Grenade Picked up (%d)\n",respawn);	
+//			G_Printf("Grenade Picked up (%d)\n",respawn);
 			respawn = 30;
 		}
 		else {
 			//Elder: moved here
 			respawn = -1; //Dont respawn weapons
 		}
-		
+
 //		predict = qfalse;
 		break;
 	case IT_AMMO:
@@ -889,8 +889,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	ent->r.contents = 0;
 
 	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
+	// A negative respawn times means to never respawn this item (but don't
+	// delete it).  This is used by items that are respawned by third party
 	// events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
@@ -943,12 +943,12 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->s.pos.trType = TR_GRAVITY;
 		dropped->s.pos.trTime = level.time;
 		VectorCopy( velocity, dropped->s.pos.trDelta );
-		
+
 		//Elder: moved from outside else statement
 		dropped->s.eFlags |= EF_BOUNCE_HALF;
 	}
 
-	
+
 #ifdef MISSIONPACK
 	if ((g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF)			&& item->giType == IT_TEAM) { // Special case for CTF flags
 #else
@@ -962,7 +962,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 	//Elder: Reaction Unique Weapons in deathmatch - respawn in ~60 seconds
 	//Don't forget to condition it when we get teamplay in
 	else if ( item->giType == IT_WEAPON &&
-		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL && 
+		item->giTag != WP_GRENADE && item->giTag != WP_PISTOL &&
 		item->giTag != WP_AKIMBO && item->giTag != WP_KNIFE )
 	{
 		dropped->think = RQ3_DroppedWeaponThink;
@@ -975,7 +975,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	}
 	else
-	{	
+	{
 		// auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
@@ -1009,6 +1009,8 @@ gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags 
 	vec3_t  angles;
 	vec3_t	origin;
 	//int		throwheight;
+	vec3_t	mins, maxs;
+	trace_t	tr;
 
 	VectorCopy( ent->s.pos.trBase, origin );
 	VectorCopy( ent->s.apos.trBase, angles );
@@ -1019,10 +1021,20 @@ gentity_t *dropWeapon( gentity_t *ent, gitem_t *item, float angle, int xr_flags 
 
 	// set aiming directions
 	//AngleVectors (ent->client->ps.viewangles, velocity, NULL, NULL);
-	
+
 	//Elder: don't toss from the head, but from the "waist"
 	origin[2] += 10; // (ent->client->ps.viewheight / 2);
 	VectorMA( origin, 5, velocity, origin ); // 14 34 10
+
+	// Set temporary bounding box for trace
+	VectorSet (mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
+	VectorSet (maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+
+	// NiceAss: Check if the new location starts in a solid.
+	trap_Trace( &tr, origin, mins, maxs, origin, ent->s.number, MASK_SOLID );
+	if (tr.startsolid == qtrue)
+		VectorMA( origin, -7, velocity, origin ); // -5 won't work (hint: it should work). Only -7 or less will..
+
 	// snap to integer coordinates for more efficient network bandwidth usage
 	SnapVector( origin);
 
@@ -1052,7 +1064,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 150, velocity );
 	velocity[2] += 200 + crandom() * 50;
-	
+
 	return LaunchItem( item, ent->s.pos.trBase, velocity, FL_DROPPED_ITEM );
 }
 
@@ -1093,7 +1105,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	ent->touch = Touch_Item;
 	// useing an item causes it to respawn
 	ent->use = Use_Item;
-	
+
 	if ( ent->spawnflags & 1 ) {
 		// suspended
 		G_SetOrigin( ent, ent->s.origin );
@@ -1319,7 +1331,7 @@ be on an entity that hasn't spawned yet.
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
-	
+
 	//Elder: check spawn angles; client-side should make use of them too
 	G_SpawnFloat( "angle", "0", &ent->s.angles[1] );
 
@@ -1418,7 +1430,7 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, 
+	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
 		ent->r.ownerNum, mask );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );
@@ -1492,7 +1504,7 @@ void RQ3_DroppedWeaponThink(gentity_t *ent) {
     	case WP_HANDCANNON:
     	case WP_SSG3000:
     		weaponNum = ent->item->giTag;
-    		break;    		
+    		break;
     	case WP_PISTOL:
     	case WP_KNIFE:
     	case WP_GRENADE:
@@ -1533,14 +1545,14 @@ void RQ3_ResetWeapon( int weapon ) {
 	gentity_t *ent; //, *rent = NULL;
 	int numRespawned = 0;
 	int numRemoved = 0;
-	
+
 	switch (weapon) {
 	case WP_M3:
 		c = "weapon_m3";
 		break;
 	case WP_M4:
 		c = "weapon_m4";
-		break;	
+		break;
 	case WP_MP5:
 		c = "weapon_mp5";
 		break;
@@ -1584,7 +1596,7 @@ void RQ3_ResetWeapon( int weapon ) {
 				}
 		}
 	}
-	
+
 	//return rent;
 }
 
@@ -1593,7 +1605,7 @@ void RQ3_ResetWeapon( int weapon ) {
 ==============
 RQ3_DroppedItemThink
 
-  
+
 Added by Elder
 Support function for RQ3_ResetItem
 ==============
@@ -1625,7 +1637,7 @@ void RQ3_DroppedItemThink(gentity_t *ent) {
 ==============
 RQ3_ResetItem
 
-  
+
 Added by Elder
 Items respawn themselves after a period of time
 Based on the AQ2 item code which was based off Q2 CTF techs
