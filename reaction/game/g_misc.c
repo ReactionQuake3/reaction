@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2002/05/02 02:28:36  blaze
+// Triggerable and targetable breakables
+//
 // Revision 1.33  2002/04/29 06:16:58  niceass
 // small change to pressure system
 //
@@ -468,6 +471,10 @@ void func_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attac
   
 }
 
+void Use_Breakable( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+  G_UseTargets (self, activator);  
+  func_breakable_die( self,activator,activator,self->damage,MOD_TRIGGER_HURT);
+}
 
 //Elder: Breakable anything!* -- we define, that is
 /*QUAKED func_breakable (0 .5 .8) ? CHIPPABLE UNBREAKABLE EXPLOSIVE 
@@ -580,6 +587,7 @@ void SP_func_breakable( gentity_t *ent ) {
   {
     ent->damage_radius=GRENADE_SPLASH_RADIUS;
   }
+  ent->use = Use_Breakable;
 
   G_SpawnInt( "id","0", &id);
   if (id < 0 || id >= RQ3_MAX_BREAKABLES )
@@ -695,12 +703,13 @@ void G_BreakGlass( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, ve
      			break;
 
      	}
+    
     if (ent->explosive)
     {
       mod = MOD_TRIGGER_HURT;
-      
       func_breakable_die(ent, inflictor, attacker, damage, mod);
     }
+    G_UseTargets (ent, ent->activator);
 		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch ( shiftCount )
