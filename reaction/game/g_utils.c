@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/07/09 03:23:14  niceass
+// added a alive function
+//
 // Revision 1.12  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -786,5 +789,28 @@ int RQ3_isZoomed(gentity_t * ent)
 	} else {
 		return ((ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW ||
 			(ent->client->ps.stats[STAT_RQ3] & RQ3_ZOOM_MED) == RQ3_ZOOM_MED);
+	}
+}
+
+/*
+	G_PlayerAlive			by NiceAss
+
+	Created to fix complications when inbetween death and being a spectator in TP
+*/
+int G_PlayerAlive(gentity_t *ent)
+{
+	if (g_gametype.integer < GT_TEAM) 
+	{
+		if ( ent->health > 0 )
+			return qtrue;
+		else
+			return qfalse;
+	}
+	else
+	{
+		if ( ent->health > 0 && ( ent->client->sess.sessionTeam == TEAM_RED || other->client->sess.sessionTeam == TEAM_BLUE ) )
+			return qtrue;
+		else
+			return qfalse;
 	}
 }
