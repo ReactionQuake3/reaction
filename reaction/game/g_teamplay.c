@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.106  2002/06/12 01:23:36  blaze
+// fix starting demos with autoaction
+//
 // Revision 1.105  2002/06/10 14:02:52  slicer
 // Removed rq3_cmd : ROUND
 //
@@ -436,9 +439,10 @@ void CheckTeamRules()
 				if (!player->inuse)
 					continue;
 				G_AddEvent (player, EV_RQ3_SOUND, RQ3_SOUND_COUNTDOWN);
-        trap_SendServerCommand( i, va("rq3_cmd %i 0", STARTDEMO));    
+
 			}
       //Blaze: moved from below the G_AddEvent
+      trap_SendServerCommand( -1, va("rq3_cmd %i 0", STARTDEMO));    
       trap_SendServerCommand( -1, va("rq3_cmd %i 0", MAPSTART));
 		}
     
