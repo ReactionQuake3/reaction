@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/14 21:52:08  makro
+// no message
+//
 // Revision 1.8  2002/03/10 22:10:10  makro
 // no message
 //
@@ -2618,7 +2621,7 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
       return Item_OwnerDraw_HandleKey(item, key);
       break;
     case ITEM_TYPE_BIND:
-			return Item_Bind_HandleKey(item, key, down);
+	  return Item_Bind_HandleKey(item, key, down);
       break;
     case ITEM_TYPE_SLIDER:
       return Item_Slider_HandleKey(item, key, down);

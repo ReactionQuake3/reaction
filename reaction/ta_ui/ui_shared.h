@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.9  2002/03/14 21:52:08  makro
+// no message
+//
 // Revision 1.8  2002/03/10 22:10:10  makro
 // no message
 //
@@ -139,6 +142,8 @@ typedef struct {
 //Makro - adding support for shortcut keys
   //const char *shortcutKey;
   int shortcutKey;
+//Makro - drop-shadow effect
+  int shadowStyle;
   const char *group;              // if it belongs to a group
   const char *cinematicName;		  // cinematic name
   int cinematic;								  // cinematic handle

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/14 21:52:08  makro
+// no message
+//
 // Revision 1.6  2002/03/10 22:10:10  makro
 // no message
 //
@@ -270,104 +273,6 @@ void _UI_DrawTopBottom(float x, float y, float w, float h, float size) {
 	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
-
-
-//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
-
-animNumber_t UI_RQ3_GetAnimForLegs()
-{
-/*	if ( Q_stricmp (ui_RQ3_model_command.string, "jump") == 0 )
-		return LEGS_JUMP;
-	else
-	if ( Q_stricmp (ui_RQ3_model_command.string, "crouch") == 0 )
-		return LEGS_IDLECR;
-	else
-	if ( Q_stricmp (ui_RQ3_model_command.string, "crouch_fwd") == 0 )
-		return LEGS_WALKCR;
-	else
-	if ( Q_stricmp (ui_RQ3_model_command.string, "crouch_bk") == 0 )
-		return LEGS_BACKCR;
-	else
-		return LEGS_IDLE;
-*/
-	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
-	
-	switch (cmd) {
-		case 2:
-			return LEGS_BACK;
-		case 3:
-			return LEGS_RUN;
-		case 4:
-			return LEGS_WALK;
-		case 5:
-			return LEGS_JUMP;
-		case 6:
-			return LEGS_IDLECR;
-		case 7:
-			return LEGS_WALKCR;
-		default:
-			return LEGS_IDLE;
-	}
-}
-
-//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
-
-animNumber_t UI_RQ3_GetAnimForTorso()
-{
-	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
-
-	switch (cmd) {
-		case 101:
-			return TORSO_RAISE;
-		case 102:
-			return TORSO_RAISE;
-		case 103:
-			return TORSO_RAISE;
-		case 104:
-			return TORSO_RAISE;
-		case 105:
-			return TORSO_RAISE;
-		case 106:
-			return TORSO_RAISE;
-		case 107:
-			return TORSO_RAISE;
-		case 108:
-			return TORSO_RAISE;
-		case 109:
-			return TORSO_RAISE;
-		default:
-			return TORSO_GESTURE;
-	}
-}
-
-//Makro - use different weapons for the player model depending on ui_RQ3_model_command
-
-weapon_t UI_RQ3_GetWeaponForPlayer()
-{
-	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
-
-	switch (cmd) {
-		case 102:
-			return WP_M3;
-		case 103:
-			return WP_MP5;
-		case 104:
-			return WP_HANDCANNON;
-		case 105:
-			return WP_SSG3000;
-		case 106:
-			return WP_M4;
-		case 107:
-			return WP_AKIMBO;
-		case 108:
-			return WP_KNIFE;
-		case 109:
-			return WP_GRENADE;
-		default:
-			return WP_PISTOL;
-	}
-}
-
 
 /*
 ================
@@ -1398,6 +1303,99 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboo
 
 static qboolean updateModel = qtrue;
 static qboolean q3Model = qfalse;
+static animNumber_t RQ3_UI_legsAnim = LEGS_IDLE;
+static animNumber_t RQ3_UI_torsoAnim = TORSO_STAND;
+static weapon_t RQ3_UI_weapon = WP_PISTOL;
+//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
+
+animNumber_t UI_RQ3_GetAnimForLegs()
+{
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+	
+	switch (cmd) {
+		case 1:
+			return LEGS_IDLE;
+			break;
+		case 2:
+			return LEGS_BACK;
+			break;
+		case 3:
+			return LEGS_RUN;
+			break;
+		case 4:
+			return LEGS_WALK;
+			break;
+		case 5:
+			return LEGS_JUMP;
+			break;
+		case 6:
+			return LEGS_IDLECR;
+			break;
+		case 7:
+			return LEGS_WALKCR;
+			break;
+		default:
+			return RQ3_UI_legsAnim;
+			break;
+	}
+}
+
+//Makro - use different animations for the player model depending on ui_RQ3_modelCommand
+
+animNumber_t UI_RQ3_GetAnimForTorso()
+{
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+
+	switch (cmd) {
+		case 8:
+			return TORSO_GESTURE;
+			break;
+		default:
+			return RQ3_UI_torsoAnim;
+			break;
+	}
+}
+
+//Makro - use different weapons for the player model depending on ui_RQ3_model_command
+
+weapon_t UI_RQ3_GetWeaponForPlayer()
+{
+	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
+
+	switch (cmd) {
+		case 101:
+			return WP_PISTOL;
+			break;
+		case 102:
+			return WP_M3;
+			break;
+		case 103:
+			return WP_MP5;
+			break;
+		case 104:
+			return WP_HANDCANNON;
+			break;
+		case 105:
+			return WP_SSG3000;
+			break;
+		case 106:
+			return WP_M4;
+			break;
+		case 107:
+			return WP_AKIMBO;
+			break;
+		case 108:
+			return WP_KNIFE;
+			break;
+		case 109:
+			return WP_GRENADE;
+			break;
+		default:
+			return RQ3_UI_weapon;
+			break;
+	}
+}
+
 
 static void UI_DrawPlayerModel(rectDef_t *rect) {
   static playerInfo_t info;
@@ -1427,27 +1425,26 @@ static void UI_DrawPlayerModel(rectDef_t *rect) {
 	}
   
 	//updateModel = updateModel || (trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0);
-	if (updateModel) {
-  	memset( &info, 0, sizeof(playerInfo_t) );
-  	viewangles[YAW]   = 180 + 40;
-  	viewangles[PITCH] = 0;
-  	viewangles[ROLL]  = 0;
-  	VectorClear( moveangles );
-    UI_PlayerInfo_SetModel( &info, model, head, team);
-	//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
-    //Makro: Changed from WP_PISTOL to custom function
-	UI_PlayerInfo_SetInfo( &info, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
+	if (updateModel || (trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0)) {
+		if (updateModel) {
+			memset( &info, 0, sizeof(playerInfo_t) );
+		}
+		viewangles[YAW]   = 180 + 40;
+	  	viewangles[PITCH] = 0;
+	  	viewangles[ROLL]  = 0;
+	  	VectorClear( moveangles );
+	    if (updateModel) {
+			UI_PlayerInfo_SetModel( &info, model, head, team);
+		}
+		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
+	    //Makro: Changed from WP_PISTOL to custom function
+		RQ3_UI_legsAnim = UI_RQ3_GetAnimForLegs();
+		RQ3_UI_torsoAnim = UI_RQ3_GetAnimForTorso();
+		RQ3_UI_weapon = UI_RQ3_GetWeaponForPlayer();
+		UI_PlayerInfo_SetInfo( &info, RQ3_UI_legsAnim, RQ3_UI_torsoAnim, viewangles, vec3_origin, RQ3_UI_weapon, qfalse );
 //		UI_RegisterClientModelname( &info, model, head, team);
-    updateModel = qfalse;
-  }
-
-	if (trap_Cvar_VariableValue("ui_RQ3_modelCommand") != 0) {
-  	//memset( &info, 0, sizeof(playerInfo_t) );
-  	viewangles[YAW]   = 180 + 40;
-  	viewangles[PITCH] = 0;
-  	viewangles[ROLL]  = 0;
-	UI_PlayerInfo_SetInfo( &info, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
-	trap_Cvar_SetValue( "ui_RQ3_modelCommand", 0);
+		updateModel = qfalse;
+		trap_Cvar_SetValue( "ui_RQ3_modelCommand", 0);
 	}
 
   UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2);
@@ -1643,6 +1640,7 @@ static void UI_DrawOpponent(rectDef_t *rect) {
   	VectorClear( moveangles );
     UI_PlayerInfo_SetModel( &info2, model, headmodel, "");
     //Makro - changed to custom function
+	//FIXME - copy code from player model drawing function
 	UI_PlayerInfo_SetInfo( &info2, UI_RQ3_GetAnimForLegs(), UI_RQ3_GetAnimForTorso(), viewangles, vec3_origin, UI_RQ3_GetWeaponForPlayer(), qfalse );
 		UI_RegisterClientModelname( &info2, model, headmodel, team);
     updateOpponentModel = qfalse;

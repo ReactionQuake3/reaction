@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2002/03/14 21:52:08  makro
+// no message
+//
 // Revision 1.5  2002/03/10 22:10:10  makro
 // no message
 //
@@ -437,6 +440,44 @@ qboolean UI_ConsoleCommand( int realTime ) {
 		}
 		return qtrue;
 	}
+/*
+	if ( Q_stricmp (cmd, "ifCvars") == 0) {
+		if (trap_Argc() >= 4) {
+			char cvar[MAX_CVAR_VALUE_STRING], cvarValue[MAX_CVAR_VALUE_STRING];
+			char *val = "";
+			char command[256];
+			char script[1024];
+			qboolean doScript = qfalse;
+			int i;
+			
+			Q_strncpyz(cvar, UI_Argv(1), sizeof(cvar));
+			Q_strncpyz(cvarValue, UI_Argv(2), sizeof(cvarValue));
+			memset(script, 0, sizeof(script));
+			
+			for (i=3; i<trap_Argc(); i++) {
+				Q_strncpyz(command, UI_Argv(i), sizeof(command));
+				Q_strcat(script, sizeof(script), command);
+				if (trap_Argc()-i > 1) {
+					Q_strcat(script, sizeof(script), " ");
+				}
+			}
+			val = UI_Cvar_VariableString(cvar);
+
+			if (Q_stricmp(val, cvarValue) == 0) {
+				doScript = qtrue;
+				Com_Printf(va("^3%s = %s^7\n", val, cvarValue));
+			}
+
+			if (doScript) {
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("%s\n", script));
+			}
+
+		} else {
+			Com_Printf(va("Usage: %s <cvarName> <cvarValue> <script>\n", cmd));
+		}
+		return qtrue;
+	}
+*/
 
 	if ( Q_stricmp (cmd, "error") == 0 ) {
 		if ( trap_Cvar_VariableValue("developer") == 1 ) {
