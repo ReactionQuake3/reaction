@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.19  2002/08/30 15:09:43  makro
+// MM UI
+//
 // Revision 1.18  2002/08/26 00:41:52  makro
 // Presets menu + editor
 //
@@ -228,6 +231,13 @@ extern vmCvar_t ui_RQ3_demoName;
 
 //Makro - in-game server info
 extern vmCvar_t ui_RQ3_ingameDetails;
+
+//Makro - ref pass
+extern vmCvar_t ui_RQ3_refPassword;
+
+//Makro - captain cvars
+extern vmCvar_t ui_RQ3_teamName;
+extern vmCvar_t ui_RQ3_teamModel;
 
 //
 // ui_qmenu.c

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.47  2002/08/30 15:09:43  makro
+// MM UI
+//
 // Revision 1.46  2002/08/26 00:41:52  makro
 // Presets menu + editor
 //
@@ -4078,6 +4081,31 @@ static void UI_RunMenuScript(char **args)
 			} else {
 				trap_Cvar_Set("ui_cdkeyvalid", "CD Key does not appear to be valid.");
 			}
+		//Makro - ref command - map
+		} else if (Q_stricmp(name, "refMap") == 0) {
+			if (ui_currentNetMap.integer >= 0 && ui_currentNetMap.integer < uiInfo.mapCount) {
+				trap_Cmd_ExecuteText(EXEC_APPEND,
+						     va("ref map %s\n",
+							uiInfo.mapList[ui_currentNetMap.integer].mapLoadName));
+			}
+		//Makro - ref command - kick
+		} else if (Q_stricmp(name, "refKick") == 0) {
+			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
+				trap_Cmd_ExecuteText(EXEC_APPEND,
+						     va("ref kick %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
+			}
+		//Makro - captain command - referee
+		} else if (Q_stricmp(name, "captainRef") == 0) {
+			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
+				trap_Cmd_ExecuteText(EXEC_APPEND,
+						     va("referee %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
+			}
+		//Makro - ref login
+		} else if (Q_stricmp(name, "refLogin") == 0) {
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("reflogin %s\n", ui_RQ3_refPassword.string));
+		//Makro - read MM captain team settings
+		} else if (Q_stricmp(name, "readMMcaptainSettings") == 0) {
+			trap_Cvar_Set("ui_RQ3_teamName", "");
 		//Makro - send the matchmode settings to the server
 		} else if (Q_stricmp(name, "sendMMsettings") == 0) {
 			trap_Cmd_ExecuteText(EXEC_APPEND, va("settings %i %i %i %i %i %i %i %i %i\n",
@@ -4090,6 +4118,12 @@ static void UI_RunMenuScript(char **args)
 			ui_RQ3_limchasecam.integer,
 			ui_RQ3_tgren.integer,
 			ui_RQ3_friendlyFire.integer));
+		//Makro - captain command - teamname
+		} else if (Q_stricmp(name, "captainSetTeamName") == 0) {
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("teamname \"%s\"\n", ui_RQ3_teamName.string));
+		//Makro - captain command - teammodel
+		} else if (Q_stricmp(name, "captainSetTeamModel") == 0) {
+			trap_Cmd_ExecuteText(EXEC_APPEND, va("teammodel \"%s\"\n", ui_RQ3_teamModel.string));
 		//Makro - sync ui MM cvars with the real ones
 		} else if (Q_stricmp(name, "readMMsettings") == 0) {
 			trap_Cvar_SetValue("ui_RQ3_timelimit", trap_Cvar_VariableValue("cg_RQ3_timelimit"));
@@ -4338,13 +4372,13 @@ static void UI_RunMenuScript(char **args)
 				trap_Cmd_ExecuteText(EXEC_APPEND,
 						     va("callvote kick %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
 			}
-			//Makro - ignore command
+		//Makro - ignore command
 		} else if (Q_stricmp(name, "ignore") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText(EXEC_APPEND,
 						     va("ignore %s\n", uiInfo.playerNames[uiInfo.playerIndex]));
 			}
-			//...and unignore
+		//...and unignore
 		} else if (Q_stricmp(name, "unignore") == 0) {
 			if (uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount) {
 				trap_Cmd_ExecuteText(EXEC_APPEND,
@@ -5222,7 +5256,8 @@ static int UI_FeederCount(float feederID)
 {
 	if (feederID == FEEDER_HEADS) {
 		return UI_HeadCountByTeam();
-	} else if (feederID == FEEDER_Q3HEADS) {
+	//Makro - added FEEDER_MMHEADS
+	} else if (feederID == FEEDER_Q3HEADS || feederID == FEEDER_MMHEADS) {
 		return uiInfo.q3HeadCount;
 	} else if (feederID == FEEDER_CINEMATICS) {
 		return uiInfo.movieCount;
@@ -5351,7 +5386,8 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		int actual;
 
 		return UI_SelectedHead(index, &actual);
-	} else if (feederID == FEEDER_Q3HEADS) {
+	//Makro - added FEEDER_MMHEADS
+	} else if (feederID == FEEDER_Q3HEADS || feederID == FEEDER_MMHEADS) {
 		if (index >= 0 && index < uiInfo.q3HeadCount) {
 			return uiInfo.q3HeadNames[index];
 		}
@@ -5476,7 +5512,8 @@ static qhandle_t UI_FeederItemImage(float feederID, int index)
 			}
 			return uiInfo.characterList[index].headImage;
 		}
-	} else if (feederID == FEEDER_Q3HEADS) {
+	//Makro - added FEEDER_MMHEADS
+	} else if (feederID == FEEDER_Q3HEADS || feederID == FEEDER_MMHEADS) {
 		if (index >= 0 && index < uiInfo.q3HeadCount) {
 			return uiInfo.q3HeadIcons[index];
 		}
@@ -5509,6 +5546,11 @@ static void UI_FeederSelection(float feederID, int index)
 			trap_Cvar_Set("model", va("%s", uiInfo.characterList[index].base));
 			trap_Cvar_Set("headmodel", va("*%s", uiInfo.characterList[index].name));
 			updateModel = qtrue;
+		}
+	//Makro - added FEEDER_MMHEADS
+	} else if (feederID == FEEDER_MMHEADS) {
+		if (index >= 0 && index < uiInfo.q3HeadCount) {
+			trap_Cvar_Set("ui_RQ3_teamModel", uiInfo.q3HeadNames[index]);
 		}
 	} else if (feederID == FEEDER_Q3HEADS) {
 		if (index >= 0 && index < uiInfo.q3HeadCount) {
@@ -6903,6 +6945,11 @@ vmCvar_t ui_RQ3_tgren;
 vmCvar_t ui_RQ3_friendlyFire;
 //Makro - in-game server info
 vmCvar_t ui_RQ3_ingameDetails;
+//Makro - ref pass
+vmCvar_t ui_RQ3_refPassword;
+//Makro - captain cvars
+vmCvar_t ui_RQ3_teamName;
+vmCvar_t ui_RQ3_teamModel;
 //Makro - radio presets menu cvars
 //1
 vmCvar_t ui_RQ3_radioPreset1Desc;
@@ -7085,6 +7132,11 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_friendlyFire,		"ui_RQ3_friendlyFire", "0", 0},
 	//Makro - in-game server info
 	{&ui_RQ3_ingameDetails,		"ui_RQ3_ingameDetails",	"0", CVAR_ARCHIVE},
+	//Makro - ref pass
+	{&ui_RQ3_refPassword,		"ui_RQ3_refPassword",	"", 0},
+	//Makro - captain cvars
+	{&ui_RQ3_teamName,		"ui_RQ3_teamName",	"", CVAR_ARCHIVE},
+	{&ui_RQ3_teamModel,		"ui_RQ3_teamModel",	"", CVAR_ARCHIVE},
 	//Makro - radio presets menu cvars
 	//1
 	{&ui_RQ3_radioPreset1Desc,		"ui_RQ3_radioPreset1Desc", "Enemy spotted", CVAR_ARCHIVE},

@@ -1,0 +1,487 @@
+#include "ui/menudef.h"
+
+{
+
+    menuDef {
+	name "ingame_matchmode_referee"
+	visible 0
+	fullscreen 0
+	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	rect 296 64 288 212
+	focusColor 1 .75 0 1			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+	shadowStyle 1
+	border 0
+	onOpen { uiScript loadArenas ; hide grpReferee ; show login }
+
+//Window
+
+    itemDef {
+	rect 0 0 72 212
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 71 0 215 212
+	style WINDOW_STYLE_FILLED
+	backcolor Ig_Window_Color
+	visible 1
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	decoration
+    }
+
+    itemDef {
+	rect 169 1 120 24
+	style WINDOW_STYLE_SHADER
+	background "ui/assets/rq3-ingame-title"
+	visible 1
+	decoration
+    }
+
+    itemDef {
+	rect 169 1 120 24
+	style WINDOW_STYLE_EMPTY
+	forecolor Ig_Window_TitleColor
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textscale .225
+	textalign ITEM_ALIGN_LEFT
+	textalignx 24
+	textaligny 16
+	text "Referee"
+	visible 1
+	decoration
+    }
+
+//Sub-sections
+
+    itemDef {
+	name sectionLogin
+	group grpSections
+	text "1. Login"
+	shortcutKey "1"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 40 72 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpReferee ; show login }
+    }
+
+    itemDef {
+	name sectionMap
+	group grpSections
+	text "2. Map"
+	shortcutKey "2"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 64 72 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpReferee ; show map }
+    }
+
+    itemDef {
+	name sectionKick
+	group grpSections
+	text "3. Kick"
+	shortcutKey "3"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 88 72 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpReferee ; show kick }
+    }
+
+    itemDef {
+	name sectionMatch
+	group grpSections
+	text "4. Match"
+	shortcutKey "4"
+	type ITEM_TYPE_BUTTON
+	textscale .225
+	style WINDOW_STYLE_EMPTY
+	rect 0 112 72 16
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 12
+	textstyle ITEM_TEXTSTYLE_SHADOWED
+	border 1
+	bordersize 1
+	bordercolor Ig_Window_BorderColor
+	forecolor Ig_Sub_TextColor
+	visible 1
+	action { play "sound/misc/menu1.wav" ; hide grpReferee ; show match }
+    }
+
+//=======================
+
+    // LOGIN //
+
+    itemDef {
+	name login
+	group grpReferee
+	text "Password"
+	textscale .225
+	rect 88 56 80 20
+	type ITEM_TYPE_TEXT
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	decoration
+    }
+
+    itemdef {
+	name login
+	group grpReferee
+	type ITEM_TYPE_EDITFIELD
+	style WINDOW_STYLE_FILLED
+	text ""
+	cvar "ui_RQ3_refPassword"
+	rect 88 76 180 16
+	maxPaintChars 8
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .225
+	outlinecolor 1 .5 .5 .5
+	forecolor 1 1 1 1
+	border 1
+	bordercolor .25 .25 .25 1
+	backcolor 1 1 1 .05
+	visible 0
+	onfocus { setcolor backcolor 1 1 1 .15 }
+	leavefocus { setcolor backcolor 1 1 1 .05 }
+    }
+
+    itemDef {
+	name login
+	group grpReferee
+	text "Resign"
+	shortcutKey "R"
+	textscale .225
+	rect 88 160 80 20
+	type 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "refresign" ; uiScript closeingame }
+    }
+
+    itemDef {
+	name login
+	group grpReferee
+	text "Login"
+	shortcutKey "L"
+	textscale .225
+	rect 188 160 80 20
+	type 1
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 76
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; uiScript refLogin ; uiScript closeingame }
+    }
+
+    // NEW MAP //
+
+    itemDef {
+	name map
+	group grpReferee
+	text "New Map:"
+	ownerdraw UI_ALLMAPS_SELECTION
+	textscale .225
+	rect 84 32 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	decoration
+	visible 0
+    }
+
+    itemDef {
+	name map
+	group grpReferee
+	rect 84 52 188 124
+	type ITEM_TYPE_LISTBOX
+	style WINDOW_STYLE_FILLED
+	elementwidth 120
+	elementheight 15
+	textscale .225
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_ALLMAPS
+	border 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	outlinecolor .75 .75 1 .25
+	visible 0
+    }
+
+    // Scrollbar separator //
+
+    itemDef {
+	name map
+	group grpReferee
+	rect 254 52 18 124
+	style WINDOW_STYLE_EMPTY
+	border 1
+	borderSize 1
+	bordercolor .25 .25 .25 1
+	visible 0
+	decoration
+    }	
+
+    itemDef {
+	name map
+	group grpReferee
+	text "Next Map"
+	shortcutKey "N"
+	textscale .225
+	rect 84 184 60 20
+	type 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref cyclemap" ; uiScript closeingame }
+    }
+
+    itemDef {
+	name map
+	group grpReferee
+	text "Restart"
+	shortcutKey "R"
+	textscale .225
+	rect 158 184 60 20
+	type 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref map_restart" ; uiScript closeingame }
+    }
+
+    itemDef {
+	name map
+	text "OK"
+	shortcutKey "O"
+	type 1
+	textscale .225
+	group grpReferee
+	style WINDOW_STYLE_FILLED
+	rect 224 184 48 20
+	textalign 1
+	textalignx 24
+	textaligny 14
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; uiScript refMap ; uiScript closeingame }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+    // 	KICK PLAYER	//
+
+    itemDef {
+	name kick
+	group grpReferee
+	text "Kick Player:"
+	textscale .225
+	rect 84 32 80 20
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 14
+	forecolor 1 1 1 1
+	visible 0
+	decoration
+    }
+
+    itemDef {
+	name kick
+	group grpReferee
+	rect 84 52 188 124
+	style WINDOW_STYLE_FILLED
+	type ITEM_TYPE_LISTBOX
+	elementwidth 120
+	elementheight 15
+	textscale .225
+	elementtype LISTBOX_TEXT
+	feeder FEEDER_PLAYER_LIST
+	border 1
+	bordercolor .25 .25 .25 1
+	forecolor 1 1 1 1
+	backcolor 0 0 0 .25
+	outlinecolor .75 .75 1 .25
+	visible 0
+    }
+
+    // Scrollbar separator //
+
+    itemDef {
+	name kick
+	group grpReferee
+	rect 254 52 18 124
+	style WINDOW_STYLE_EMPTY
+	border 1
+	borderSize 1
+	bordercolor .25 .25 .25 1
+	visible 0
+	decoration
+    }	
+
+    itemDef {
+	name kick
+	text "OK"
+	shortcutKey "O"
+	type 1
+	textscale .225
+	group grpReferee
+	style WINDOW_STYLE_FILLED
+	rect 224 184 48 20
+	textalign 1
+	textalignx 24
+	textaligny 14
+	border 1
+	bordersize 1
+	backcolor Ig_Sub_Color1
+	forecolor Ig_Sub_TextColor
+	bordercolor Ig_Sub_BorderColor1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; uiScript refKick ; uiScript closeingame }
+	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
+	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
+    }
+
+    // Match //
+
+    itemDef {
+	name match
+	group grpReferee
+	text "Pause / Resume"
+	shortcutKey "P"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 56 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref pause"; uiScript closeingame }
+    }
+
+    itemDef {
+	name match
+	group grpReferee
+	text "Clear Scores"
+	shortcutKey "C"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 76 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref clearscores"; uiScript closeingame }
+    }
+
+    itemDef {
+	name match
+	group grpReferee
+	text "Lock Settings"
+	shortcutKey "L"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 96 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref locksettings"; uiScript closeingame }
+    }
+
+    itemDef {
+	name match
+	group grpReferee
+	text "Reset Match"
+	shortcutKey "R"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 116 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; exec "ref resetmatch"; uiScript closeingame }
+    }
+
+    itemDef {
+	name match
+	group grpReferee
+	text "Settings..."
+	shortcutKey "S"
+	type ITEM_TYPE_BUTTON
+	style 0
+	textscale .225
+	rect 84 156 188 20
+	textalign ITEM_ALIGN_CENTER
+	textalignx 88
+	textaligny 12
+	forecolor 1 1 1 1
+	visible 0
+	action { play "sound/misc/menu1.wav" ; close ingame_matchmode_referee ; open ingame_matchmode_settings }
+    }
+
+}
+}

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/08/30 15:09:43  makro
+// MM UI
+//
 // Revision 1.7  2002/08/26 00:41:52  makro
 // Presets menu + editor
 //
@@ -92,6 +95,8 @@
 #define FEEDER_CINEMATICS					0x0f	// cinematics
 //Makro - improved in-game server info screen
 #define FEEDER_INGAME_SERVERINFO			0x10
+//Makro - for the captains' ingame menu
+#define FEEDER_MMHEADS						0x11
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     0x00000001
