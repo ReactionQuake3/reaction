@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.132  2002/08/29 23:47:10  jbravo
+// Disabled drop case and fixed a padding problem in the date code.
+//
 // Revision 1.131  2002/08/24 22:46:50  niceass
 // roundtimelimit bug fixed
 //
@@ -1097,8 +1100,8 @@ void RQ3_Cmd_Drop_f(gentity_t * ent)
 		Cmd_DropItem_f(ent);
 	} else if (Q_stricmp(cmd, "weapon") == 0) {
 		Cmd_DropWeapon_f(ent);
-	} else if (Q_stricmp(cmd, "case") == 0) {
-		Cmd_Dropcase_f(ent);
+//	} else if (Q_stricmp(cmd, "case") == 0) {
+//		Cmd_Dropcase_f(ent);
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"unknown item: %s\n\"", cmd));
 	}

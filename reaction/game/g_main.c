@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2002/08/29 23:47:10  jbravo
+// Disabled drop case and fixed a padding problem in the date code.
+//
 // Revision 1.111  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -313,6 +316,7 @@
 #include "zcam.h"
 #include "q_shared.h"
 
+int trap_RealTime(qtime_t *qtime);
 level_locals_t level;
 
 typedef struct {
@@ -1748,7 +1752,7 @@ void LogExit(const char *string)
 				"September", "October", "November", "December" };
 
 	trap_RealTime(&now);
-	G_LogPrintf("Game ending at %s %i %s %i %i:%i:%i : %s\n", names_day[now.tm_wday], now.tm_mday, names_month[now.tm_mon],
+	G_LogPrintf("Game ending at %s %i %s %i %02i:%02i:%02i : %s\n", names_day[now.tm_wday], now.tm_mday, names_month[now.tm_mon],
 			(now.tm_year)+1900, now.tm_hour, now.tm_min, now.tm_sec, string);
 	trap_SendServerCommand(-1, va("print \"Game ending at %s %i %s %i %i:%i:%i.\n\"", names_day[now.tm_wday],
 			now.tm_mday, names_month[now.tm_mon], (now.tm_year)+1900, now.tm_hour,
