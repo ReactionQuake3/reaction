@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2004/03/09 00:39:47  makro
+// Flares
+//
 // Revision 1.45  2004/03/07 17:39:11  makro
 // no message
 //
@@ -1120,7 +1123,8 @@ void CG_AddLensFlare(qboolean sun)
 		cgs.flareFadeFactor *= cg_RQ3_flareIntensity.value;
 	} else {
 		//add the reflection particles
-		if (cgs.flareFadeFactor != 0.0f) {
+		if (cgs.flareFadeFactor != 0.0f)
+		{
 			float len = 0, color[4];
 			float size, hsize;
 			int i;
@@ -1142,11 +1146,14 @@ void CG_AddLensFlare(qboolean sun)
 				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
 					cgs.media.flareShader[cg.flareShaderNum[i]]);
 			}
-			color[0] = color[1] = color[2] = 1.0f;
-			//Makro - too expensive ?
-			color[3] = cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
-			//color[3] = FLARE_BLIND_ALPHA * cgs.flareFadeFactor * (2.0f * cgs.flareForwardFactor - 1.0f);
-			CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
+			if (cgs.flareForwardFactor > 0)
+			{
+				color[0] = color[1] = color[2] = 1.0f;
+				color[3] = cgs.sunAlpha * cgs.flareForwardFactor * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
+				//Makro - too expensive
+				//color[3] = cgs.sunAlpha * cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
+				CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
+			}
 		}
 	}
 }
