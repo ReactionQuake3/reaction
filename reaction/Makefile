@@ -48,6 +48,8 @@ GOBJ = \
 	$(GDIRNAME)/rxn_game.o \
 	$(GDIRNAME)/g_teamplay.o \
 	$(GDIRNAME)/g_matchmode.o
+#	$(GDIRNAME)/zcam.o \
+#	$(GDIRNAME)/zcam_target.o
 
 CGOBJ = \
 	$(CGDIRNAME)/cg_main.o \

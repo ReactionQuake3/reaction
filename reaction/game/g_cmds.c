@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.48  2002/02/05 23:41:27  slicer
 // More on matchmode..
 //
@@ -783,7 +787,7 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
-  ent->client->ps.pm_flags &= ~PMF_FOLLOW;
+	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
 }
@@ -2722,9 +2726,8 @@ void ClientCommand( int clientNum ) {
 	else if (Q_stricmp (cmd, "dropitem") == 0)
 		Cmd_DropItem_f( ent );
 #ifdef __ZCAM__
-	// NiceAss: removed
-	//else if (Q_stricmp (cmd, "camera") == 0)
-	//	camera_cmd ( ent );
+	else if (Q_stricmp (cmd, "camera") == 0)
+		camera_cmd ( ent );
 #endif /* __ZCAM__ */
 	else if (Q_stricmp (cmd, "playerstats") == 0)
 	{

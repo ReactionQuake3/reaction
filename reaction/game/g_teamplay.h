@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.4  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.3  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -39,3 +43,4 @@ void RQ3_Cmd_Choose_f(gentity_t *ent);
 void RQ3_Cmd_Drop_f( gentity_t *ent );
 void UnstickPlayer( gentity_t *ent );
 void MakeSpectator( gentity_t *ent );
+qboolean OKtoFollow( int clientnum );

@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.26  2002/02/08 05:59:09  niceass
 // scoreboard timer thing added
 //
@@ -821,6 +825,10 @@ void CG_InitConsoleCommands( void ) {
 // JBravo: adding choose and drop commands.
 	trap_AddCommand ("choose");
 	trap_AddCommand ("drop");
+// JBravo: for zcam
+#ifdef __ZCAM__
+	trap_AddCommand ("camera");
+#endif
 // Slicer: Matchmode
 	trap_AddCommand ("captain");
 	trap_AddCommand ("ready");

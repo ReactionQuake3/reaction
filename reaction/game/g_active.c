@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.48  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.47  2002/02/08 18:59:01  slicer
 // Spec code changes
 //
@@ -473,28 +477,34 @@ NiceAss: Heavy modifications will be here for AQ2-like spectator mode and zcam!?
 void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	pmove_t	pm;
 	gclient_t	*client;
+	int		clientNum;
 
 	client = ent->client;
-
+	clientNum = client - level.clients;
 
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 
 	//Slicer - Changing this for aq2 way
 	// Jump button cycles throught spectators
-	if(client->sess.spectatorState == SPECTATOR_FOLLOW && ucmd->upmove ) {
-		Cmd_FollowCycle_f( ent, 1 );
-		ucmd->upmove = 0; 
+	if(client->sess.spectatorState == SPECTATOR_FOLLOW && ucmd->upmove >=10 ) {
+		if (!(client->ps.pm_flags & PMF_JUMP_HELD)) {
+			client->ps.pm_flags |= PMF_JUMP_HELD;
+			Cmd_FollowCycle_f( ent, 1 );
+		}
+	} else {
+		if (ucmd->upmove == 0) {
+			client->ps.pm_flags &= ~PMF_JUMP_HELD;
+		}
 	}
 	// Attack Button cycles throught free view or follow
 	if((ucmd->buttons & BUTTON_ATTACK) && !( client->oldbuttons & BUTTON_ATTACK )) {
-		if (client->sess.spectatorState == SPECTATOR_FREE) {
+		if (client->sess.spectatorState == SPECTATOR_FREE && OKtoFollow(clientNum)) {
 			client->sess.spectatorState = SPECTATOR_FOLLOW;
 			client->ps.pm_flags |= PMF_FOLLOW;
 			Cmd_FollowCycle_f( ent, 1 );
 		} else {
-			client->sess.spectatorState = SPECTATOR_FREE;
-			client->ps.pm_flags &= ~PMF_FOLLOW;	
+			StopFollowing(ent);
 		}
 	}
 
@@ -517,13 +527,16 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	} */
 
 #ifdef  __ZCAM__
-	if ( client->sess.spectatorState == SPECTATOR_CAMERA_FLIC &&
-			client->sess.spectatorState == SPECTATOR_CAMERA_SWING )
+	client->ps.commandTime = ucmd->serverTime;
+	client->oldbuttons = client->buttons;
+	client->buttons = ucmd->buttons;
+
+	if (client->sess.spectatorState != SPECTATOR_FOLLOW)
 	{
 		camera_think(ent);
 		return;
 	}
-#endif
+#else
 
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
@@ -545,6 +558,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		G_TouchTriggers( ent );
 		trap_UnlinkEntity( ent );
 	}
+#endif
 }
 
 

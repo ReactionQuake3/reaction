@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.7  2002/02/03 21:23:51  slicer
 // More Matchmode code and fixed 2 bugs in TP
 //
@@ -19,6 +23,10 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+
+#ifdef __ZCAM__
+#include "zcam.h"
+#endif /* __ZCAM__ */
 
 
 /*
@@ -55,6 +63,10 @@ void G_WriteClientSessionData( gclient_t *client ) {
 	var = va( "session%i", client - level.clients );
 
 	trap_Cvar_Set( var, s );
+
+#ifdef __ZCAM__
+	camera_state_save (client);
+#endif /* __ZCAM__ */
 }
 
 /*
@@ -90,6 +102,10 @@ void G_ReadSessionData( gclient_t *client ) {
 	client->sess.sessionTeam = (team_t)sessionTeam;
 	client->sess.spectatorState = (spectatorState_t)spectatorState;
 	client->sess.teamLeader = (qboolean)teamLeader;
+
+#ifdef __ZCAM__
+	camera_state_load (client);
+#endif /* __ZCAM__ */
 }
 
 

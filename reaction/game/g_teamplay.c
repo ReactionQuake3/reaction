@@ -5,6 +5,10 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2002/02/09 00:10:12  jbravo
+// Fixed spectator follow and free and updated zcam to 1.04 and added the
+// missing zcam files.
+//
 // Revision 1.12  2002/02/06 03:10:43  jbravo
 // Fix the instant spectate on death and an attempt to fix the scores
 //
@@ -683,4 +687,28 @@ void MakeSpectator( gentity_t *ent )
 	client->sess.savedTeam = client->sess.sessionTeam;
 	client->sess.sessionTeam = TEAM_SPECTATOR;
 	ClientSpawn(ent);
+}
+
+qboolean OKtoFollow( int clientnum )
+{
+	int i, x;
+
+	x = 0;
+
+	for (i = 0; i < level.maxclients ; i++) {
+		if (i == clientnum) {
+			continue;
+		}
+		if (level.clients[i].pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+		x++;
+	};
+	if (x > 0) {
+		return qtrue;
+	}
+	return qfalse;
 }
