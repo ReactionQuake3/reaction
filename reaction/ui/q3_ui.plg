@@ -1,0 +1,123 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: q3_ui - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP4394.TMP" with contents
+[
+/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "UI_EXPORTS" /FR"Debug/" /Fp"Debug/q3_ui.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\reaction\ui\ui_controls2.c"
+"C:\reaction\ui\ui_setup.c"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP4394.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP4395.TMP" with contents
+[
+/nologo /base:"0x40000000" /dll /incremental:yes /pdb:"../Debug/ui.pdb" /map:"Debug/uix86.map" /debug /machine:I386 /def:".\ui.def" /out:"../Debug/uix86.dll" /implib:"Debug/uix86.lib" /pdbtype:sept 
+.\Debug\bg_misc.obj
+.\Debug\q_math.obj
+.\Debug\q_shared.obj
+.\Debug\ui_addbots.obj
+.\Debug\ui_atoms.obj
+.\Debug\ui_cdkey.obj
+.\Debug\ui_cinematics.obj
+.\Debug\ui_confirm.obj
+.\Debug\ui_connect.obj
+.\Debug\ui_controls2.obj
+.\Debug\ui_credits.obj
+.\Debug\ui_demo2.obj
+.\Debug\ui_display.obj
+.\Debug\ui_gameinfo.obj
+.\Debug\ui_ingame.obj
+.\Debug\ui_main.obj
+.\Debug\ui_menu.obj
+.\Debug\ui_mfield.obj
+.\Debug\ui_mods.obj
+.\Debug\ui_network.obj
+.\Debug\ui_options.obj
+.\Debug\ui_playermodel.obj
+.\Debug\ui_players.obj
+.\Debug\ui_playersettings.obj
+.\Debug\ui_preferences.obj
+.\Debug\ui_qmenu.obj
+.\Debug\ui_removebots.obj
+.\Debug\ui_serverinfo.obj
+.\Debug\ui_servers2.obj
+.\Debug\ui_setup.obj
+.\Debug\ui_sound.obj
+.\Debug\ui_sparena.obj
+.\Debug\ui_specifyserver.obj
+.\Debug\ui_splevel.obj
+.\Debug\ui_sppostgame.obj
+.\Debug\ui_spreset.obj
+.\Debug\ui_spskill.obj
+.\Debug\ui_startserver.obj
+.\Debug\ui_syscalls.obj
+.\Debug\ui_team.obj
+.\Debug\ui_teamorders.obj
+.\Debug\ui_video.obj
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSP4395.TMP"
+<h3>Output Window</h3>
+Compiling...
+ui_controls2.c
+ui_setup.c
+Linking...
+Creating temporary file "C:\WINDOWS\TEMP\RSP5025.TMP" with contents
+[
+/nologo /o"q3_ui___Win32_Debug/q3_ui.bsc" 
+.\Debug\bg_misc.sbr
+.\Debug\q_math.sbr
+.\Debug\q_shared.sbr
+.\Debug\ui_addbots.sbr
+.\Debug\ui_atoms.sbr
+.\Debug\ui_cdkey.sbr
+.\Debug\ui_cinematics.sbr
+.\Debug\ui_confirm.sbr
+.\Debug\ui_connect.sbr
+.\Debug\ui_controls2.sbr
+.\Debug\ui_credits.sbr
+.\Debug\ui_demo2.sbr
+.\Debug\ui_display.sbr
+.\Debug\ui_gameinfo.sbr
+.\Debug\ui_ingame.sbr
+.\Debug\ui_main.sbr
+.\Debug\ui_menu.sbr
+.\Debug\ui_mfield.sbr
+.\Debug\ui_mods.sbr
+.\Debug\ui_network.sbr
+.\Debug\ui_options.sbr
+.\Debug\ui_playermodel.sbr
+.\Debug\ui_players.sbr
+.\Debug\ui_playersettings.sbr
+.\Debug\ui_preferences.sbr
+.\Debug\ui_qmenu.sbr
+.\Debug\ui_removebots.sbr
+.\Debug\ui_serverinfo.sbr
+.\Debug\ui_servers2.sbr
+.\Debug\ui_setup.sbr
+.\Debug\ui_sound.sbr
+.\Debug\ui_sparena.sbr
+.\Debug\ui_specifyserver.sbr
+.\Debug\ui_splevel.sbr
+.\Debug\ui_sppostgame.sbr
+.\Debug\ui_spreset.sbr
+.\Debug\ui_spskill.sbr
+.\Debug\ui_startserver.sbr
+.\Debug\ui_syscalls.sbr
+.\Debug\ui_team.sbr
+.\Debug\ui_teamorders.sbr
+.\Debug\ui_video.sbr]
+Creating command line "bscmake.exe @C:\WINDOWS\TEMP\RSP5025.TMP"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+uix86.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

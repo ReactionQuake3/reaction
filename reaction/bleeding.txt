@@ -1,0 +1,40 @@
+Searching for 'bleeding'...
+c:\reaction\action\a_cmds.c(467):                if ( (ent->client->bleeding != 0 || ent->client->leg_damage != 0) && ent->client->bandaging != 1 )
+c:\reaction\action\a_cmds.c(473):                && (ent->client->bleeding != 0 || ent->client->leg_damage != 0 ) 
+c:\reaction\action\a_cmds.c(507):        else if (ent->client->bleeding == 0 && ent->client->leg_damage == 0)
+c:\reaction\action\a_cmds.c(520):                ent->client->bleeding = 0;
+c:\reaction\action\a_game.c(377)://blooder used for bleeding
+c:\reaction\action\g_combat.c(103):                targ->client->bleeding = 0;
+c:\reaction\action\g_combat.c(585):        int                     bleeding = 0; // damage causes bleeding
+c:\reaction\action\g_combat.c(663):                                bleeding = 1;   
+c:\reaction\action\g_combat.c(759):                                                bleeding = 0;
+c:\reaction\action\g_combat.c(829):                //      bleeding = 1; for testing
+c:\reaction\action\g_combat.c(954):                        bleeding = 1;
+c:\reaction\action\g_combat.c(962):                take = (int)(take/2); // balances out difference in how action and axshun handle damage/bleeding
+c:\reaction\action\g_combat.c(1023):                        //zucc handle adding bleeding here
+c:\reaction\action\g_combat.c(1024):                        if ( damage_type && bleeding ) // one of the hit location weapons
+c:\reaction\action\g_combat.c(1026):                        /* zucc add in partial bleeding, changed
+c:\reaction\action\g_combat.c(1027):                        if ( client->bleeding < 4*damage*BLEED_TIME )
+c:\reaction\action\g_combat.c(1029):                        client->bleeding = 4*damage*BLEED_TIME + client->bleeding/2;
+c:\reaction\action\g_combat.c(1034):                          client->bleeding += damage*BLEED_TIME*2;
+c:\reaction\action\g_combat.c(1037):                                client->bleeding += damage*BLEED_TIME;
+c:\reaction\action\g_combat.c(1042):                        else if ( bleeding )
+c:\reaction\action\g_combat.c(1045):                        if ( client->bleeding < damage*BLEED_TIME )
+c:\reaction\action\g_combat.c(1047):                        client->bleeding = damage*BLEED_TIME;
+c:\reaction\action\g_combat.c(1050):                                client->bleeding += damage*BLEED_TIME;
+c:\reaction\action\g_local.h(495):#define MOD_BLEEDING            43      
+c:\reaction\action\g_local.h(1080):        int                     bleeding;       //remaining points to bleed away
+c:\reaction\action\g_local.h(1083):        vec3_t                                  bleedloc_offset; // location of bleeding (from origin)
+c:\reaction\action\p_client.c(583):                // handle bleeding, not used because bleeding doesn't get set
+c:\reaction\action\p_client.c(584):                if ( mod == MOD_BLEEDING )              
+c:\reaction\action\p_view.c(991):void Do_Bleeding( edict_t *ent )
+c:\reaction\action\p_view.c(997):  if ( !(ent->client->bleeding) || (ent->health <= 0)  )
+c:\reaction\action\p_view.c(1002):  temp = (int)(ent->client->bleeding * .2);
+c:\reaction\action\p_view.c(1003):  ent->client->bleeding -= temp;
+c:\reaction\action\p_view.c(1031):      //gi.cprintf(ent, PRINT_HIGH, "Bleeding now.\n");
+c:\reaction\action\p_view.c(1034):      // do bleeding
+c:\reaction\action\p_view.c(1127):  //        int             damage; // zucc for bleeding
+c:\reaction\action\p_view.c(1237):  // zucc handle any bleeding damage here
+c:\reaction\action\p_view.c(1238):  Do_Bleeding( ent );
+c:\reaction\action\p_view.c(1309):                  ent->client->attacker_mod = MOD_BLEEDING;
+38 occurrence(s) have been found.

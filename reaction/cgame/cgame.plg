@@ -1,0 +1,101 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: cgame - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP768.tmp" with contents
+[
+/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR"Debug/" /Fp"Debug/cgame.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
+"c:\reaction\game\bg_misc.c"
+"c:\reaction\game\bg_pmove.c"
+"c:\reaction\game\bg_slidemove.c"
+"c:\reaction\cgame\cg_consolecmds.c"
+"c:\reaction\cgame\cg_draw.c"
+"c:\reaction\cgame\cg_drawtools.c"
+"c:\reaction\cgame\cg_effects.c"
+"c:\reaction\cgame\cg_ents.c"
+"c:\reaction\cgame\cg_event.c"
+"c:\reaction\cgame\cg_info.c"
+"c:\reaction\cgame\cg_localents.c"
+"c:\reaction\cgame\cg_main.c"
+"c:\reaction\cgame\cg_marks.c"
+"c:\reaction\cgame\cg_players.c"
+"c:\reaction\cgame\cg_playerstate.c"
+"c:\reaction\cgame\cg_predict.c"
+"c:\reaction\cgame\cg_scoreboard.c"
+"c:\reaction\cgame\cg_servercmds.c"
+"c:\reaction\cgame\cg_snapshot.c"
+"c:\reaction\cgame\cg_syscalls.c"
+"c:\reaction\cgame\cg_view.c"
+"c:\reaction\cgame\cg_weapons.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP768.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP769.tmp" with contents
+[
+/nologo /base:"0x30000000" /subsystem:windows /dll /incremental:yes /pdb:"Debug/cgamex86.pdb" /map:"Debug/cgamex86.map" /debug /machine:I386 /def:".\cgame.def" /out:"../Debug/cgamex86.dll" /implib:"Debug/cgamex86.lib" 
+.\Debug\bg_misc.obj
+.\Debug\bg_pmove.obj
+.\Debug\bg_slidemove.obj
+.\Debug\cg_consolecmds.obj
+.\Debug\cg_draw.obj
+.\Debug\cg_drawtools.obj
+.\Debug\cg_effects.obj
+.\Debug\cg_ents.obj
+.\Debug\cg_event.obj
+.\Debug\cg_info.obj
+.\Debug\cg_localents.obj
+.\Debug\cg_main.obj
+.\Debug\cg_marks.obj
+.\Debug\cg_players.obj
+.\Debug\cg_playerstate.obj
+.\Debug\cg_predict.obj
+.\Debug\cg_scoreboard.obj
+.\Debug\cg_servercmds.obj
+.\Debug\cg_snapshot.obj
+.\Debug\cg_syscalls.obj
+.\Debug\cg_view.obj
+.\Debug\cg_weapons.obj
+.\Debug\q_math.obj
+.\Debug\q_shared.obj
+.\Debug\ui_shared.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP769.tmp"
+<h3>Output Window</h3>
+Compiling...
+bg_misc.c
+bg_pmove.c
+bg_slidemove.c
+cg_consolecmds.c
+cg_draw.c
+cg_drawtools.c
+cg_effects.c
+cg_ents.c
+cg_event.c
+c:\reaction\cgame\cg_event.c(768) : warning C4013: 'CG_rxn_zoom' undefined; assuming extern returning int
+cg_info.c
+cg_localents.c
+cg_main.c
+cg_marks.c
+cg_players.c
+cg_playerstate.c
+cg_predict.c
+cg_scoreboard.c
+cg_servercmds.c
+cg_snapshot.c
+cg_syscalls.c
+cg_view.c
+cg_weapons.c
+Linking...
+LINK : LNK6004: ../Debug/cgamex86.dll not found or not built by the last incremental link; performing full link
+   Creating library Debug/cgamex86.lib and object Debug/cgamex86.exp
+
+
+
+<h3>Results</h3>
+cgamex86.dll - 0 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

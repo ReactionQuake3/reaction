@@ -1,0 +1,490 @@
+CHANGES FROM ACTION 1.51 to ACTION 1.52
+
+o Support for friendly-fire in teamplay added.  IF YOU ARE NOT ALREADY
+USING THE "NO FRIENDLY FIRE" FLAG IN YOUR DMFLAGS, YOU NEED TO ADD IT NOW
+IF YOU DON'T WANT TO USE FRIENDLY FIRE.  The value for "no friendly fire"
+is 256.  For a normal AQ teamplay game, you should set your dmflags to 256
+in your server.cfg ("set dmflags 256").  I believe the only other dmflag
+that would have a worthwhile effect on AQ teamplay is the "spawn farthest"
+flag (512), no others should be set unless you want the spawn farthest
+behavior.  So...if you want FF in teamplay, set your dmflags to 0. If you
+don't, set it to 256.  No friendly fire is the "normal" style of play, so
+the default/standard dmflags for AQ teamplay should be considered to be
+256.  When FF is in effect, notification of it will be on the standard
+MOTD.  Temporary banning for people who kill too many team members is
+available.  The "maxteamkills" server cvar can be used to control the
+maximum number of teamkills that a player can make on a given map before
+he is kicked and temporarily banned, the default is 0 which means never
+temporarily ban.  The "tkbanrounds" and "twbanrounds" variables affect ban
+time, see the README file for complete info.  Players lose one frag for
+killing a teammate.  Thanks go to Eek and Azerov for providing the patch
+which we used as a basis for this feature.
+
+o Shot placement on crouching players is much improved and should
+basically be consistent with standing players now.  Also, the view height
+of crouching players has been modified somewhat so it's more consistent
+with the actual amount of height loss that occurs.  (thanks go to Mikael
+Lindh from AQ:Gangsters for lots of help in this area.)
+
+o The shotgun and handcannon now inform you who you're hitting, when you
+hit someone, much like all the other weapons already did.
+
+o New server variable "limchasecam" now available for clan match usage.
+See info in the README.  When the chase cam limits are in effect, a line
+will be added to the MOTD stating it.  (thanks to Black Cross for
+submitting the patch for this feature.)
+
+o Breakable glass now added.  Two new server variables for this:
+"breakableglass" and "glassfragmentlimit".  This is not recommended for
+Internet games (much like the ejecting shells, blood splats, and bullet
+holes).  This was contributed by William van der Sterren of the CGF
+project.  It requires maps that are designed with breakable glass.  For
+more info on how to make breakable glass in maps, see
+http://www.botepidemic.com/aid/cgf/exp_glass.shtml.  For more info on the
+server variables, see the README.
+
+o Door kicking added.  You can now jump-kick a door open when it opens in
+the opposite direction.  If there is a player sitting on the other side of
+the door, that player will be kicked along with the door.  This was
+contributed by AQDT (written by Hal, sent to us by Homer).
+
+o Vertical component of kicking has returned.  You can kick people upwards
+or downwards by looking in that direction before kicking them.
+
+o New commands "use throwing combat knife" and "use slashing combat knife"
+allow you to pull out the knife in whichever mode you want, instead of
+pulling out your knife then switching modes.
+
+o A new item has been added to the secondary teamplay scoreboard: damage
+dealt.  This number is the amount of damage the given player has inflicted
+upon other players on the current map.  Note this is total damage, not
+just damage required to kill someone.  For example, a point blank
+handcannon blast can count for a lot more than 100 health, even though it
+only takes 100 to kill someone.  This isn't in the scoreboard if you have
+turned on the "noscore" option.
+
+o New "sv nextmap" command allows a server operator to skip to the next
+map in the rotation (thanks go to Black Cross for submitting the patch for
+this command).
+
+o The "spawn farthest" dmflag now works on teamplay games.  The second
+team will spawn as far away from the first team as possible (unlike the
+normal behavior, where the farthest 1-4 spawn candidates are considered,
+depending on the total number of candidates).
+
+o The "needpass" variable is now provided.  This allows things like
+GameSpy to prompt you for a password when you try to connect to a
+passworded server.
+
+o Players can no longer use say_team when not on a team, or say_partner
+when they have no partner.
+
+o Delayed-death attribution bug fixed (you wouldn't get credit for a kill
+when someone bled for a while).
+
+o Various reloading changes: switching from a reloading weapon to a new
+weapon will not cause the new weapon to be reloaded any longer.  The
+reloading "queue" will immediately empty now whenever a player tries to
+shoot (assuming he has any ammo left in the gun to shoot) or bandage. Your
+pistol will no longer begin to reload after you get a sniper rifle or
+shotgun kicked from your hands while reloading it.  The "reload" command
+no longer does anything during the "lights, camera, action" countdown in a
+teamplay game.  You can no longer reload the pistols, M4's, or MP5's when
+you've already got a full magazine (to be consistent with the way the
+other weapons work).
+
+o Switching between slashing and throwing for knives now gives a message.
+
+o Increased knife slashing damage.
+
+o Repeating "Out of ammo" message bug fixed.
+
+o Lasersight now falls in the correct place if you're using one of the
+"classic" hand modes.
+
+o Problem with sniper rifle's "weapon" command/bolt animation fixed (you
+could fire faster than normal using the right aliases).
+
+o Dropped grenades now do the same amount of damage as thrown grenades.
+
+o Green flash when players enter the game in a teamplay game removed (for
+real this time), as well as the red flash when a player exits the game in
+a teamplay game.
+
+o The through-eyes chasecam now properly tracks weapon kick (ie with the
+M4), and also now gives you IR vision if the person you're viewing through
+the eyes of is using IR.
+
+o A few bugs fixed in the way bodies fly after death.  Floating bodies and
+bouncing bodies should be gone.
+
+o Spectators can no longer drop a knife upon entering a teamplay game.
+
+o Dead bodies no longer appear red when using IR vision.
+
+o %-vars (ie %W, %H, and the others) are no longer parsed within players'
+names (ie a player named %W won't appear as his weapon when he says
+something).
+
+o Minor bug in bleeding from grenades fixed.
+
+o Bug where sniper rifle icon would be stuck on your screen if you were
+zoomed in when the other team all quit and you got "Not enough players to
+play!" is fixed.
+
+o Adjusted spacing in MOTD so certain combinations don't cause lines to go
+off the edge of the screen.
+
+o Shotgun shell ejection animation (when using "shelloff 0") improved.
+ 
+o Fixed crash that occurred when a server ran a huge amount of maps in the
+rotation (around 100 or more).
+
+o ReadConfigFile() now closes its file and SelectFarTeamplaySpawnPoint()
+frees its memory.
+
+o Updated Action web page URL in MOTD.
+
+
+CHANGES FROM ACTION 1.5 TO ACTION 1.51
+
+o Now remembers how many times reload key was pressed.
+
+o Shotgun reduced to Action Quake 1.0c levels beyond distance of 450.
+
+o Bandolier/weapon-dropping bug fixed.
+
+o Empty pistols animation setup improved.
+
+o Firing sequence for dual pistols fixed (firing was simultaneously
+before).
+
+o Various grenade-related fixes.
+
+o Knife slashing damage changed (should be more damaging now).
+
+o You can now switch weapons while bandaging again.
+
+o Leg damage (from falling) no longer taken while in god mode.
+
+o Spelling of "trepanned" fixed.
+
+o Item spawning problem that affected some old/odd maps fixed.
+
+o Reloading sound/speed issues fixed.
+
+o Point-blank knife-throwing bug fixed.
+
+o Blood trail fixes.
+
+o Death sound fixes.
+
+o Negative value for "tgren" server variable is treated as 0 now.
+
+o New server variable "skipmotd" allows you to leave out the standard
+Action MOTD contents (except the two lines at the top), for people who
+want really big local motd.txt files.
+
+o Many server variables that didn't need to be SERVERINFO (ie: appearing
+in GameSpy, etc) are no longer SERVERINFO.  
+
+o New server command "sv reloadmotd" allows you to reload the MOTD from
+disk.  Also, the MOTD is always reloaded at the end of each level.  
+
+o The "playerlist" and "players" commands no longer contain frags when
+"noscore" is turned on.
+
+o New "ininame" variable lets you change the name of your Action INI file
+from "action.ini" to something else.  Useful for people who run multiple
+servers from the same directory tree.  
+
+o Deathmatch mode is now forced on always, as in previous versions of
+Action.  This was the cause of the "failed to find special item spawn
+point" error when starting a game locally on your computer.
+
+o Delayed kill attribution for falling damage fixes.
+
+o Lasersight properly follows M4 during ride-up.
+
+o Scoreboard cosmetic fixes.
+
+o Players entering the game in a teamplay game no longer generate the "enter
+game" teleport effect (green flash, etc) at a spawn point.
+
+o Bug fixed that could cause crash when certain weird combinations of dmflags
+were used (ie teams-by-skin with teamplay turned on).
+
+o Players can now select "classic" style firing where shots land slightly
+right or left (depending on your handedness) and down from the crosshair
+(see the "hand" command in the README for info).
+
+o The [DEAD] flag on a dead chatter's name previously didn't get tacked on
+starting at the right time, so sometimes you'd see someone who appeared to
+be alive (due to no [DEAD] on their name) say something but %-variables
+(ie %W, %H, etc) didn't get expanded.  This also caused dead people's
+messages to be able to reach teammates sometimes in the moments after
+dying.
+
+o After a team round has ended, all players (including players who
+survived) can now see the scoreboard as if they were dead, to see who else
+survived the round.
+
+o The join-a-team menu now, if both teams have the same number of players,
+defaults to the team that's losing (instead of defaulting to the first
+team).
+
+o Optimization in SetIDView and DetermineViewedTeammate suggested by
+hal[9k].
+
+
+CHANGES FROM ACTION 1.1b2 TO ACTION 1.5
+
+
+General Weapon Changes
+
+o Ducking alone (without lasersight) now improves aim.  Previously, it only
+helped if you had a lasersight too (we believe this was a bug).  See "Spread
+Modifiers" heading for more specific information. 
+
+o Guns now center their fire around your crosshair, rather than an invisible
+spot down/right of your crosshair.  
+
+o Players have smaller head regions.  Any shot that would have hit the head in
+the old system that doesn't now will instead hit the chest.
+
+o Added support for Akimbo and Sniper Rifle bullet shell ejection, and support
+for left handed usage with shell ejection turned on.
+
+
+Specific Weapon Changes
+
+o M4 Assault Rifle is now less accurate, the original accuracy was due to a bug
+in the selection of which random function to call that determined spread.  The
+same bug caused it to fire way to the right, and is also gone.
+
+o M3 Super 90 Assault Shotgun now does slightly more damage.  Reloads slightly
+faster.
+
+o Sniper Rifle doesn't do the re-chambering sequence when leaving 6X
+magnification mode.  Reloads slightly faster.  Lens-changing and firing
+behavior improved slightly in some ways.
+
+o Combat Knife remembers what mode it was last in (throwing/stabbing). Also has
+improved animation sequence for putting away a knife prepared for throwing.
+Doesn't have the old bug where knife becomes unusable for several seconds while
+playing random animation frames.  Your last knife now isn't stopped by vests
+incorrectly.  Knife slashing damage has been changed.
+
+o M26 Fragmentation Grenade now drops to the ground at your feet if the pin is
+pulled and user switches to another weapon or begins bandaging.  Slight
+improvement in animation sequence for it dropping from view.
+
+o In teamplay, you now start with a full pistol plus one extra clip
+(previously you got no extra clips).
+
+
+Spread Modifiers:
+
+This section gives the specific details on all the spread modifiers in the
+game.  These only apply to the weapons that fire bullets.
+
+(without lasersight) 
+Standing: base 
+Walking: 2x as much spread
+Running: 6x as much spread
+Crouching: 35% reduction in spread over standing. 
+
+(laser, compared to standing from above) 
+Standing: 30% reduction in spread over standing w/o laser. 
+Walking: base (standing from above) 
+Running: base 
+Crouching: same as crouching w/o the laser 
+
+Burst mode (or semi-auto mode with the pistol) gives an additional 30% spread
+reduction to any of the above.
+
+The Sniper Rifle when zoomed (any magnification) is always 100% accurate,
+regardless of any of the above.
+
+
+Item Changes
+
+o Lasersight improves accuracy while standing still and not ducking (makes you
+almost as accurate as crouching).  Lasersight provides no benefit to a user who
+is also ducking.  (See "Spread Modifiers".)  Lasersight's red dot is
+translucent and follows your crosshair more closely.
+
+o Silencer no longer suppresses flashes from Akimbo pistols.
+
+o Bandolier correctly cleans up after itself when dropped.  If server
+operator sets "ir" to 1 then the new command "irvision" is available which
+toggles on/off infra-red vision while wearing the bandolier.  The new
+"tgren" variable can be set by the server operator to a number, and that
+many grenades will be given to each player who selects the bandolier in
+teamplay (default is 0).  The bandolier now allows you to carry one extra
+weapon in teamplay (the normal max carry is now 1 in teamplay, the
+previous behavior was a bug).
+
+
+Existing Command Changes
+
+o "use special" now loops through all available special weapons, ie: if you
+have two it will toggle between them.
+
+o "drop special" will discard only one special weapon at a time.  It defaults
+to the one you are currently using and then goes through your inventory in this
+order: Sniper Rifle, Handcannon, M3 Super 90 Assault Shotgun, MP5/10
+Submachinegun, and finally M4 Assault Rifle.  Switches to single pistol if
+currently using Akimbo pistols, this is also the way it worked previously.
+
+o "weapon": Knives now remember their last mode correctly.  Live players no
+longer hear a "click" when a nearby observer changes their weapon mode.
+
+o "team": Players can now use the "team none" to leave the teams and become a
+spectator again in teamplay.
+
+
+Other Changes/Improvements/New Features
+
+o After dying in teamplay, you remain at the spot you died as an observer,
+instead of being moved to a spawn point. 
+
+o When a player enters a server, the default team to join is the one that
+currently has less players.
+
+o "sv_roundtimelimit" server variable is now "roundtimelimit", for consistency
+with other server variable names.  The "roundtimelimit" feature now uses this
+method for determining who won: which team has the most players, if the same,
+then which team has the most total health.
+
+o All items (such as ammo) can be dropped, see the README file for exact item
+names.
+
+o The new code appears to use a somewhat less CPU when running a server than
+1.1b2 did.
+
+o Jumpkick code improved, jumpkicks are more predictable and reliable,
+less randomness.
+
+o Location of grenade and item in right-side HUD reversed for a more logical
+arrangement.
+
+o New "id" command allows a player to turn off player identification if he
+doesn't want it.
+
+o Players can become observers in DM using the standard Q2 "spectator" variable
+(spectator 0 or spectator 1).
+
+o Messages from dead players are now visible inbetween end-of-round and the
+start of the next round, for end of round chatting.
+
+o MOTD: Server operator can now control how long the MOTD stays up by using the
+"motd_time" variable (see README for more info).  Much more info about the
+server is now in the MOTD.  If a "motd.txt" file is present in your action
+directory, it will be appended to the standard MOTD.  The new "motd" command
+allows a player to bring up the MOTD at any time.
+
+o Teams-by-skin and teams-by-model now work in DM (other teamplay features also
+work in conjunction with DM teams: radios, partners, etc...)
+
+o New "unpartner" command allows you to break a partnership.
+
+o New unstick system.  The new system is unobtrusive, there is no "unstick"
+command and you do not get moved around in any way.  Players remain in the
+"transparent" state where they are able to walk through fellow "transparent"
+players.  After the "lights, camera" sequence finishes, players are removed
+from the "transparent" state as soon as they are free of other team members.
+Players can be shot and affected normally by all weapons/items regardless of
+"transparent" state.
+
+o When in center-handed mode, you now get an icon at the bottom middle of the
+screen of which weapon you are currently using.
+
+o Server operator can use the new "radiolog" variable to turn on logging
+of all radio messages to the console. 
+
+o Dead bodies are now removed at the beginning of each teamplay round, this
+should allow for more strategy (you can tell who's down) and also remove some
+lag (less entities lying around).
+
+o New server variables: "weapons" and "items".  These control the maximum
+number of special weapons and items that each player can carry.  "items" always
+defaults to 1.  "weapons" defaults to 2 in teamplay, 1 in DM. Special-weapon
+carrying is handled more cleanly in teamplay now, a player will always be able
+to carry up to 2 special weapons in teamplay, not just his main weapon plus the
+first other one he picks up.
+
+o New server variable "knifelimit" allows the server operator to control how
+many thrown knives can be lying around on the map at any given time. Default is
+40.  This should be lowered if you are having overflow or lag problems when
+players are using lots of knives.
+
+o The "allweapon" and "allitem" server variables can be set to 1 in DM or
+teamplay to give all weapons and all items to each player at spawn.  If used in
+teamplay, normal weapon/item menus etc will not be presented. Defaults on both
+are of course 0.
+
+o The new "choose" command allows you to select your special weapon or item in
+teamplay, without going through the menus.
+
+o IP banning and flood protection are now supported (see README).
+
+o The "give" (cheats) command has been improved to work better in the Action
+environment.
+
+o New "noscore" server variable allows a server operator to disable
+individual scores in teamplay. 
+
+o New "nohud" server variable allows a server operator to disable the
+standard HUD on his server to record better-looking special demos. 
+
+o New variable substitutions allow you to tell your teammates your current
+weapon, item, ammo, and health, as well as which teammates are near you
+(see README for a list).
+
+
+Other Bugs Gone
+
+o Various death message typos and grammar errors corrected.
+
+o Long model/skin names work in action.ini.
+
+o "###" lines are not required at the end-of-sections in action.ini.
+
+o Scoreboards: The main scoreboard now looks decent in 320x240. Scoreboard no
+longer gets stuck on your screen when chase-camming. Players' names are no
+longer truncated unnecessarily.  More items on the scoreboard are updated in
+realtime than before.
+
+o The list of maps in the MOTD is no longer overwritten by the "Hit tab for
+team selection menu" message.
+
+o M4/sniper rifle can no longer crash the server when shooting two players that
+overlap.
+
+o Random crashes on certain maps (ie cliff, teamjungle, ...) gone.
+
+o Your frags no longer appear as the frags of the person you're observing to
+GameSpy, CLQ, etc.
+
+o The item selection screen now always goes away properly after choosing your
+item.
+
+o Players hanging in midair at the spawn points, unkillable, will no longer
+occur.
+
+o Backdoor commands (testshow, forceend) gone.
+
+o Picking up a gun in teamplay when you start with dual pistols no longer
+lowers your total ammo.
+
+o You can establish a new radio partnership when your old partner dies now.
+
+o Dropping and picking back up a handcannon or shotgun no longer results in
+ammo loss.
+
+
+Features No Longer Present
+
+o "noguns" is not currently supported, we have plans for more flexible "weapons
+banning" support in the future.
