@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.88  2002/06/03 05:31:31  niceass
+// kill message fixed
+//
 // Revision 1.87  2002/06/03 00:40:25  blaze
 // some more breakables fixes(ssg chips)
 //
@@ -847,7 +850,7 @@ void PrintDeathMessage (gentity_t *target, gentity_t *attacker, int location, in
 	if (attacker->client) {
 		switch (meansOfDeath) {
 			case MOD_FALLING:
-				Q_strncpyz (message, "was taught how to fly by", sizeof(message));
+				Q_strncpyz (message, " was taught how to fly by", sizeof(message));
 				break;
 			case MOD_PISTOL:
 				switch (location) {
