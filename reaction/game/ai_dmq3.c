@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/04/01 01:02:22  jbravo
+// Fixing warnings and an error in bot code
+//
 // Revision 1.9  2002/03/31 19:16:56  makro
 // Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
 //
@@ -67,6 +70,9 @@
 
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"
+
+// JBravo: for warnings
+void Cmd_Bandage (gentity_t *ent);
 
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
@@ -4463,7 +4469,9 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		//if door is moving, wait till it stops
 		if ( g_entities[entitynum].moverState == ROTATOR_1TO2 || g_entities[entitynum].moverState == ROTATOR_2TO1 || (g_entities[entitynum].targetname) ) {
 			BotMoveTowardsEnt(bs, entinfo.origin, -80);
-			if ( g_entities[entitynum].targetname = NULL ) {
+//			if ( g_entities[entitynum].targetname = NULL ) {
+// JBravo: assuming Makro meant == and not =
+			if ( g_entities[entitynum].targetname == NULL ) {
 				return 0;
 			}
 		} else {

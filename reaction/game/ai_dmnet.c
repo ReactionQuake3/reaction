@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/04/01 01:02:22  jbravo
+// Fixing warnings and an error in bot code
+//
 // Revision 1.7  2002/03/31 19:16:56  makro
 // Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
 //
@@ -60,7 +63,9 @@
 //Blaze: was there a extra ../ here?
 #include "../ui/menudef.h"
 
-
+// JBravo: for warnings
+void BotMoveTowardsEnt(bot_state_t *bs, vec3_t dest, int dist);
+void Cmd_Bandage (gentity_t *ent);
 
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
