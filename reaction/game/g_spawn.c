@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2002/05/04 01:03:43  makro
+// Bots
+//
 // Revision 1.21  2002/05/02 23:05:25  makro
 // Loading screen. Jump kicks. Bot stuff
 //
@@ -421,12 +424,25 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	// check item spawn functions
 
 // JBravo: No weapons and items on the maps in teamplay
+	/*
 	if (g_gametype.integer != GT_TEAMPLAY) {
 		for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 			if ( !strcmp(item->classname, ent->classname) ) {
 				G_SpawnItem( ent, item );
 				return qtrue;
 			}
+		}
+	}*/
+	//Makro - new code
+	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
+		if ( !strcmp(item->classname, ent->classname) ) {
+			G_SpawnItem( ent, item );
+			/*
+			if (g_gametype.integer == GT_TEAMPLAY) {
+				ent->r.svFlags |= SVF_NOCLIENT;
+				ent->s.eFlags |= EF_NODRAW;
+			}*/
+			return qtrue;
 		}
 	}
 

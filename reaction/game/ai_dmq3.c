@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2002/05/04 01:03:42  makro
+// Bots
+//
 // Revision 1.25  2002/05/03 18:09:19  makro
 // Bot stuff. Jump kicks
 //
@@ -1583,10 +1586,11 @@ Added by Makro
 ==================
 */
 void BotRQ3TPSeekGoals( bot_state_t *bs ) {
+/*
 	int		firstBot = -1, firstHuman = -1, leader = -1, i;
 	static int maxclients;
 
-	//if the bot already has a goal
+  //if the bot already has a goal
 	if (bs->ltgtype || bs->ltg_time < FloatTime())
 		return;
 
@@ -1633,7 +1637,7 @@ void BotRQ3TPSeekGoals( bot_state_t *bs ) {
 	bs->ltgtype = LTG_TEAMACCOMPANY;
 	bs->formation_dist = 3.5 * 32;		//3.5 meter
 	BotSetTeamStatus(bs);
-
+*/
 	return;
 }
 

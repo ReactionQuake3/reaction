@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/05/04 01:03:42  makro
+// Bots
+//
 // Revision 1.6  2002/03/31 19:16:55  makro
 // Bandaging, reloading, opening rotating doors (still needs a lot of), shooting breakables
 //
@@ -188,7 +191,12 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	memset( state, 0, sizeof(entityState_t) );
 	if (!ent->inuse) return qfalse;
 	if (!ent->r.linked) return qfalse;
-	if (ent->r.svFlags & SVF_NOCLIENT) return qfalse;
+	//Makro - hack for bots
+	//if (ent->r.svFlags & SVF_NOCLIENT) return qfalse;
+	if (ent->r.svFlags & SVF_NOCLIENT)
+		if ( !(ent->s.eFlags & EF_NODRAW) )
+			return qfalse;
+	//end Makro
 	memcpy( state, &ent->s, sizeof(entityState_t) );
 	return qtrue;
 }
@@ -1470,10 +1478,19 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
+			/*
 			if (ent->r.svFlags & SVF_NOCLIENT) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
+			}*/
+			//Makro - hack for bots
+			if (ent->r.svFlags & SVF_NOCLIENT) {
+				if ( !(ent->s.eFlags & EF_NODRAW) ) {
+					trap_BotLibUpdateEntity(i, NULL);
+					continue;
+				}
 			}
+			//end Makro
 			// do not update missiles
 			if (ent->s.eType == ET_MISSILE) {
 				trap_BotLibUpdateEntity(i, NULL);

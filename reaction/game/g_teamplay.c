@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.74  2002/05/04 01:03:43  makro
+// Bots
+//
 // Revision 1.73  2002/05/02 00:02:19  jbravo
 // Added a fix for the incorrect weapon at spawns
 //
@@ -460,6 +463,9 @@ void CleanLevel()
 		if (!ent->inuse)
 			continue;
 		if (!ent->item)
+			continue;
+		//Makro - added this for bots
+		if (ent->r.svFlags & SVF_NOCLIENT)
 			continue;
 		if (ent->item->giType == IT_WEAPON) {
 			switch (ent->item->giTag) {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.35  2002/05/04 01:03:43  makro
+// Bots
+//
 // Revision 1.34  2002/04/30 01:23:05  jbravo
 // Changed the server logging to be more like a normal AQ server.  Cleaned
 // all colors from the logs.
@@ -1144,6 +1147,17 @@ void FinishSpawningItem( gentity_t *ent ) {
 		return;
 	}
 
+	//Makro - for bots and TP
+	if (ent != NULL) {
+		if (ent->item != NULL) {
+			if (ent->item->giType == IT_WEAPON || ent->item->giType == IT_AMMO) {
+				if (g_gametype.integer == GT_TEAMPLAY) {
+					ent->r.svFlags |= SVF_NOCLIENT;
+					ent->s.eFlags |= EF_NODRAW;
+				}
+			}
+		}
+	}
 
 	trap_LinkEntity (ent);
 }
