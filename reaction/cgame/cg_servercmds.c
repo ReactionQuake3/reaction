@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.17  2002/02/11 00:30:02  niceass
+// LCA fix
+//
 // Revision 1.16  2002/02/10 08:17:08  niceass
 // many changes to scoreboard (deaths/second mode)
 //
@@ -1143,6 +1146,23 @@ static void CG_ServerCommand( void ) {
 					break;
 			}
 		}
+		return;
+	}
+
+	// NiceAss: LCA
+	if ( !strcmp( cmd, "lights") ) {
+		CG_CenterPrint( "LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_AddBufferedSound(cgs.media.lightsSound);
+		return;
+	}
+	if ( !strcmp( cmd, "camera") ) {
+		CG_CenterPrint( "CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_AddBufferedSound(cgs.media.cameraSound);
+		return;
+	}
+	if ( !strcmp( cmd, "action") ) {
+		CG_CenterPrint( "ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+		CG_AddBufferedSound(cgs.media.actionSound);
 		return;
 	}
 

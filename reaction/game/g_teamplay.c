@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.15  2002/02/11 00:30:23  niceass
+// LCA fix
+//
 // Revision 1.14  2002/02/10 04:55:28  jbravo
 // Fix #1 to zcam jitter.   More is probably needed.
 //
@@ -186,14 +189,7 @@ void StartLCA()
 	level.lights_camera_action = (41*level.fps)/10;
 	SpawnPlayers();
 
-	trap_SendServerCommand( -1, va("cp \"LIGHTS...\n\""));
-	for (i = 0; i < level.maxclients; i++) {
-		player = &g_entities[i];
-		if (!player->inuse)
-			continue;
-		G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_LIGHTS);
-//		break;
-	}
+	trap_SendServerCommand( -1, "lights");
 }
 
 void ContinueLCA()
@@ -202,25 +198,12 @@ void ContinueLCA()
 	gentity_t *player;
 
 	if (level.lights_camera_action == (21*level.fps)/10) {
-		trap_SendServerCommand( -1, va("cp \"CAMERA...\n\""));
-		for (i = 0; i < level.maxclients; i++) {
-			player = &g_entities[i];
-			if (!player->inuse)
-				continue;
-			G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_CAMERA);
-//			break;
-		}
+		trap_SendServerCommand( -1, "camera");
 	}
 	else if (level.lights_camera_action == 1) {
-		trap_SendServerCommand( -1, va("cp \"ACTION!\n\""));
+		trap_SendServerCommand( -1, "action");
 		trap_Cvar_Set("RQ3_lca", "0");
-		for (i = 0; i < level.maxclients; i++) {
-			player = &g_entities[i];
-			if (!player->inuse)
-				continue;
-			G_AddEvent ( player, EV_RQ3_SOUND, RQ3_SOUND_ACTION);
-//			break;
-		}
+
 		level.team_round_going = 1;
 		level.current_round_length = 0;
 	}

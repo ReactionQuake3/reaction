@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.46  2002/02/11 00:30:23  niceass
+// LCA fix
+//
 // Revision 1.45  2002/01/27 13:33:28  jbravo
 // Teamplay antistick system.
 //
@@ -199,10 +202,6 @@ typedef enum {
 	RQ3_SOUND_KNIFEDEATH,
 	RQ3_SOUND_LCA,					//lights, camera, action!
 	RQ3_SOUND_KEVLARHIT,
-// JBravo: LCA sounds
-	RQ3_SOUND_LIGHTS,
-	RQ3_SOUND_CAMERA,
-	RQ3_SOUND_ACTION,
 	RQ3_SOUND_COUNTDOWN,
 
 	RQ3_SOUND_TOTAL
