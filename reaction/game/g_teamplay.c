@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.54  2002/04/02 21:41:03  jbravo
+// But in new bot radio code.
+//
 // Revision 1.53  2002/04/02 20:23:12  jbravo
 // Bots dont get to use any specmode other than FREE and the recive radio cmds
 // as text and not sounds.
@@ -1069,7 +1072,7 @@ void RQ3_Cmd_Radio_f(gentity_t *ent)
 					continue;
 				if (player->client->sess.savedTeam == ent->client->sess.savedTeam) {
 					if (player->r.svFlags & SVF_BOT)
-						trap_SendServerCommand(ent-g_entities, va("print \"radio %s %i\n\"",
+						trap_SendServerCommand(player-g_entities, va("print \"radio %s %i\n\"",
 							ent->client->pers.netname, x));
 					else
 						trap_SendServerCommand(player-g_entities, va("playradiosound %i %i\n\"", x,
