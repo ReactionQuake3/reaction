@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/24 21:26:14  makro
+// no message
+//
 // Revision 1.9  2002/03/14 21:52:08  makro
 // no message
 //
@@ -40,6 +43,10 @@
 #define SCROLL_TIME_ADJUST				150
 #define SCROLL_TIME_ADJUSTOFFSET	40
 #define SCROLL_TIME_FLOOR					20
+
+//Makro - drop shadow size
+#define DROP_SHADOW_SIZE	12
+#define DROP_SHADOW_OFFSET	4
 
 typedef struct scrollInfo_s {
 	int nextScrollTime;
@@ -199,6 +206,19 @@ int UI_RQ3_KeyNumFromChar( const char *keystr ) {
 	return -1;
 }
 
+//Makro - check whether or not a key is MOUSE1/2/3
+qboolean UI_IsMouse( int key ) {
+	return (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3);
+}
+
+//Makro - copy colors
+void UI_RQ3_ColorCopy(vec4_t dest, vec4_t src) {
+	int i;
+
+	for (i=0; i<4; i++) {
+		dest[i] = src[i];
+	}
+}
 
 #define HASH_TABLE_SIZE 2048
 /*
@@ -676,7 +696,37 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
   }
 }
 
-
+//Makro - new fading method
+void UI_RQ3_HandleFading(Window *w) {
+	if (w) {
+	//DC->Print("^4Entering fading proc^7\n");
+		if ((w->timeFade.active)) {
+			//DC->Print(va("^4Found active fading window; time = %i^7\n", DC->realTime));
+			if (DC->realTime > w->timeFade.endTime) {
+				//DC->Print("^4Turning fading timer off^7\n");
+				w->timeFade.active = qfalse;
+				if ((w->timeFade.forecolor)) {
+					UI_RQ3_ColorCopy(w->foreColor, w->timeFade.color2);
+				} else {
+					UI_RQ3_ColorCopy(w->backColor, w->timeFade.color2);
+				}
+			} else {
+				if (DC->realTime >= w->timeFade.startTime) {
+					float percent = ((float) (DC->realTime - w->timeFade.startTime)) / ((float)(w->timeFade.endTime - w->timeFade.startTime));
+					qboolean forecolor = w->timeFade.forecolor;
+					//DC->Print(va("^4Percent: %f^7 Time: %i\n", percent, DC->realTime));
+					if (forecolor) {
+						LerpColor(w->timeFade.color1, w->timeFade.color2, w->foreColor, percent);
+						//DC->Print(va("^4New forecolor: %f %f %f %f^7\n", w->foreColor[0], w->foreColor[1], w->foreColor[2], w->foreColor[3]));
+					} else {
+						LerpColor(w->timeFade.color1, w->timeFade.color2, w->backColor, percent);
+						//DC->Print(va("^5New backcolor: %f %f %f %f^7\n", w->backColor[0], w->backColor[1], w->backColor[2], w->backColor[3]));
+					}
+				}
+			}
+		}
+	}
+}
 
 void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) {
   //float bordersize = 0;
@@ -689,7 +739,30 @@ void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle)
     DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
   }
 
-  if (w == NULL || (w->style == 0 && w->border == 0)) {
+  if (w == NULL) {
+	  return;
+  }
+
+  //Makro - fade forecolor/backcolor if needed
+  UI_RQ3_HandleFading(w);
+
+  //Makro - drawing drop shadow effect
+  if (w->shadowStyle == 1) {
+	  color[0] = color[1] = color[2] = color[3] = 1;
+	  DC->setColor(color);
+	  //Top right corner
+	  DC->drawHandlePic(w->rect.x + w->rect.w, w->rect.y + DROP_SHADOW_OFFSET, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DC->Assets.dropShadowCorners[1]);
+	  //Right side
+	  DC->drawHandlePic(w->rect.x + w->rect.w, w->rect.y + DROP_SHADOW_OFFSET + DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, w->rect.h - DROP_SHADOW_OFFSET - DROP_SHADOW_SIZE, DC->Assets.dropShadowRight);
+	  //Bottom right corner
+	  DC->drawHandlePic(w->rect.x + w->rect.w, w->rect.y + w->rect.h, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DC->Assets.dropShadowCorners[2]);
+	  //Bottom side
+	  DC->drawHandlePic(w->rect.x + DROP_SHADOW_OFFSET + DROP_SHADOW_SIZE, w->rect.y + w->rect.h, w->rect.w - DROP_SHADOW_OFFSET - DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DC->Assets.dropShadowBottom);
+	  //Bottom left corner
+	  DC->drawHandlePic(w->rect.x + DROP_SHADOW_OFFSET, w->rect.y + w->rect.h, DROP_SHADOW_SIZE, DROP_SHADOW_SIZE, DC->Assets.dropShadowCorners[3]);
+  }
+
+  if (w->style == 0 && w->border == 0) {
     return;
   }
 
@@ -1138,6 +1211,91 @@ void Script_Hide(itemDef_t *item, char **args) {
   }
 }
 
+//Makro - for the new fading method
+void UI_RQ3_TimeFadeItem(itemDef_t *item, vec4_t endColor, int offset, int duration, qboolean forecolor) {
+	int start, end;
+
+	if (duration <= 0) {
+		duration = 1;
+	}
+
+	start = DC->realTime + offset;
+	end = start + duration;
+	item->window.timeFade.active = qtrue;
+	item->window.timeFade.forecolor = forecolor;
+	if (forecolor) {
+		UI_RQ3_ColorCopy(item->window.timeFade.color1, item->window.foreColor);
+		item->window.flags |= WINDOW_FORECOLORSET;
+	} else {
+		UI_RQ3_ColorCopy(item->window.timeFade.color1, item->window.backColor);
+		item->window.flags |= WINDOW_BACKCOLORSET;
+	}
+	UI_RQ3_ColorCopy(item->window.timeFade.color2, endColor);
+	item->window.timeFade.startTime = start;
+	item->window.timeFade.endTime = end;
+	/*
+	if (item->window.timeFade.forecolor) {
+		DC->Print(va("^3Fading forecolor %s: src=(%f %f %f %f) dst=(%f %f %f %f) offset=%i duration=%i start=%i end=%i^7\n", item->window.name, item->window.timeFade.color1[0], item->window.timeFade.color1[1], item->window.timeFade.color1[2], item->window.timeFade.color1[3], endColor[0], endColor[1], endColor[2], endColor[3], offset, duration, item->window.timeFade.startTime, item->window.timeFade.endTime));
+	} else {
+		DC->Print(va("^3Fading backcolor %s: src=(%f %f %f %f) dst=(%f %f %f %f) offset=%i duration=%i start=%i end=%i^7\n", item->window.name, item->window.timeFade.color1[0], item->window.timeFade.color1[1], item->window.timeFade.color1[2], item->window.timeFade.color1[3], endColor[0], endColor[1], endColor[2], endColor[3], offset, duration, item->window.timeFade.startTime, item->window.timeFade.endTime));
+	}
+	*/
+}
+void Menu_TimeFadeItemByName(menuDef_t *menu, const char *name, vec4_t endColor, int offset, int duration, qboolean forecolor) {
+	if (menu) {
+		int i;
+		//if (offset+duration > 0) {
+			for (i=0; i<menu->itemCount; i++) {
+				if (!Q_stricmp(menu->items[i]->window.name, name) || !Q_stricmp(menu->items[i]->window.group, name)) {
+					UI_RQ3_TimeFadeItem(menu->items[i], endColor, offset, duration, forecolor);
+				}
+			}
+		//}
+	}
+}
+//Makro - syntax: timeFade <name> { "forecolor" | 'backcolor" } <toColor> <offset> <duration>
+void Script_TimeFade(itemDef_t *item, char **args) {
+  const char *name, *isForeColor;
+  int offset, duration;
+  vec4_t endColor;
+
+  if (String_Parse(args, &name)) {
+	  if (String_Parse(args, &isForeColor)) {
+		  if (Color_Parse(args, &endColor)) {
+			  if (Int_Parse(args, &offset)) {
+				  if (Int_Parse(args, &duration)) {
+					  if (!Q_stricmp(isForeColor, "forecolor")) {
+						  Menu_TimeFadeItemByName(item->parent, name, endColor, offset, duration, qtrue);
+					  } else {
+						  Menu_TimeFadeItemByName(item->parent, name, endColor, offset, duration, qfalse);
+					  }
+				  }
+			  }
+		  }
+	  }
+  }
+}
+void Script_TimeFadeSelf(itemDef_t *item, char **args) {
+  const char *isForeColor;
+  int offset, duration;
+  vec4_t endColor;
+
+  if (String_Parse(args, &isForeColor)) {
+	  if (Color_Parse(args, &endColor)) {
+		  if (Int_Parse(args, &offset)) {
+			  if (Int_Parse(args, &duration)) {
+				  if (!Q_stricmp(isForeColor, "forecolor")) {
+					  UI_RQ3_TimeFadeItem(item, endColor, offset, duration, qtrue);
+				  } else {
+					  UI_RQ3_TimeFadeItem(item, endColor, offset, duration, qfalse);
+				  }
+			  }
+		  }
+	  }
+  }
+}
+
+
 void Script_FadeIn(itemDef_t *item, char **args) {
   const char *name;
   if (String_Parse(args, &name)) {
@@ -1327,6 +1485,9 @@ commandDef_t commandList[] =
   {"startTimer", &Script_StartTimer},           // group/name
   {"restartTimer", &Script_StartTimer},         // group/name
   {"stopTimer", &Script_StopTimer},             // group/name
+  //Makro - for the new fading method
+  {"timeFade", &Script_TimeFade},
+  {"timeFadeSelf", &Script_TimeFadeSelf},
 
   {"fadein", &Script_FadeIn},                   // group/name
   {"fadeout", &Script_FadeOut},                 // group/name
@@ -3404,7 +3565,8 @@ typedef struct
 
 static bind_t g_bindings[] = 
 {
-	{"+scores",			K_TAB,			-1,		-1, -1},
+	//Makro - using scores instead of +scores
+	{"scores",			K_TAB,			-1,		-1, -1},
 	{"+button2",		K_ENTER,		-1,		-1, -1},
 	{"+speed",		K_SHIFT,		-1,		-1,	-1},
 	{"+forward",		K_UPARROW,		-1,		-1, -1},
@@ -3441,6 +3603,7 @@ static bind_t g_bindings[] =
 	{"messagemode3",	-1,				-1,		-1, -1},
 	{"messagemode4",	-1,				-1,		-1, -1},
 	{"bandage",	 		-1,				-1,		-1, -1},
+	//reload
 	{"+button5",		-1,				-1,		-1, -1},
 	{"weapon",			-1,				-1,		-1, -1},
 	{"opendoor",	 	-1,				-1,		-1, -1},
@@ -3449,9 +3612,10 @@ static bind_t g_bindings[] =
 	{"irvision",		-1,				-1,		-1, -1},
 //Makro - this one was missing
 	{"specialweapon",		-1,			-1,		-1, -1},
-//Makro - for the weapon/item and join menus
+//Makro - for the weapon/item, join and radio menus
 	{"ui_RQ3_loadout",		-1,			-1,		-1,	-1},
-	{"ui_RQ3_joinTeam",		-1,			-1,		-1,	-1}
+	{"ui_RQ3_joinTeam",		-1,			-1,		-1,	-1},
+	{"ui_RQ3_radio",		-1,			-1,		-1,	-1}
 };
 
 
@@ -3712,15 +3876,39 @@ qboolean Display_KeyBindPending() {
 	return g_waitingForKey;
 }
 
+
+void UI_ClearBind( const char *cvar ) {
+	int id;
+
+	id = BindingIDFromName(cvar);
+	if (id != -1) {
+		g_bindings[id].bind1 = -1;
+		g_bindings[id].bind2 = -1;
+	}
+
+	Controls_SetConfig(qtrue);
+	g_waitingForKey = qfalse;
+	g_bindItem = NULL;
+
+	return;
+}
+
 qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 	int			id;
 	int			i;
+	qboolean	ok;
 
-	if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
+	//Makro - the mouse doesn't have to be over the item unless we're clicking on it instead of using the keyboard
+	ok = (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && UI_IsMouse(key)) || (item->window.flags && WINDOW_HASFOCUS);
+
+	if (ok && !g_waitingForKey)
 	{
 		if (down && (key == K_MOUSE1 || key == K_ENTER)) {
 			g_waitingForKey = qtrue;
 			g_bindItem = item;
+		//Makro - moved backspace code here
+		} else if (key == K_BACKSPACE) {
+			UI_ClearBind(item->cvar);
 		}
 		return qtrue;
 	}
@@ -3739,18 +3927,11 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 			case K_ESCAPE:
 				g_waitingForKey = qfalse;
 				return qtrue;
-	
+			/* Makro - moved this
 			case K_BACKSPACE:
-				id = BindingIDFromName(item->cvar);
-				if (id != -1) {
-					g_bindings[id].bind1 = -1;
-					g_bindings[id].bind2 = -1;
-				}
-				Controls_SetConfig(qtrue);
-				g_waitingForKey = qfalse;
-				g_bindItem = NULL;
+				UI_ClearBind
 				return qtrue;
-
+			*/
 			case '`':
 				return qtrue;
 		}
@@ -4331,6 +4512,8 @@ void Menu_Init(menuDef_t *menu) {
 	menu->fadeAmount = DC->Assets.fadeAmount;
 	menu->fadeClamp = DC->Assets.fadeClamp;
 	menu->fadeCycle = DC->Assets.fadeCycle;
+	//Makro - ensure that onShow events are triggerred
+	menu->shown = qfalse;
 	Window_Init(&menu->window);
 }
 
@@ -4555,6 +4738,16 @@ void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
 	
 	if (forcePaint) {
 		menu->window.flags |= WINDOW_FORCED;
+	}
+
+	//Makro - see if we have any onShow script
+	if (!(menu->shown)) {
+		if (menu->onShow) {
+			if (menu->itemCount > 0) {
+				Item_RunScript(menu->items[0], menu->onShow);
+			}
+		}
+		menu->shown = qtrue;
 	}
 
 	// draw the background if necessary
@@ -4998,6 +5191,14 @@ qboolean ItemParse_bordersize( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+//Makro - for drop shadow effects
+qboolean ItemParse_shadowStyle( itemDef_t *item, int handle ) {
+	if (!PC_Int_Parse(handle, &item->window.shadowStyle)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean ItemParse_visible( itemDef_t *item, int handle ) {
 	int i;
 
@@ -5154,7 +5355,7 @@ qboolean ItemParse_leaveFocus( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-//Makro - extra action executed when the timer show this item
+//Makro - extra action executed when the timer shows this item
 qboolean ItemParse_onTimer( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->onTimer)) {
 		return qfalse;
@@ -5461,6 +5662,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"elementtype", ItemParse_elementtype, NULL},
 	{"columns", ItemParse_columns, NULL},
 	{"border", ItemParse_border, NULL},
+	//Makro - for drop shadow effects
+	{"shadowStyle", ItemParse_shadowStyle, NULL},
 	{"bordersize", ItemParse_bordersize, NULL},
 	{"visible", ItemParse_visible, NULL},
 	{"ownerdraw", ItemParse_ownerdraw, NULL},
@@ -5653,6 +5856,15 @@ qboolean MenuParse_onOpen( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
+//Makro - executed when the menu is shown
+qboolean MenuParse_onShow( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Script_Parse(handle, &menu->onShow)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean MenuParse_onClose( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Script_Parse(handle, &menu->onClose)) {
@@ -5700,6 +5912,15 @@ qboolean MenuParse_timedItems( itemDef_t *item, int handle ) {
 qboolean MenuParse_border( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Int_Parse(handle, &menu->window.border)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - for drop shadow effects
+qboolean MenuParse_shadowStyle( itemDef_t *item, int handle ) {
+	menuDef_t *menu = (menuDef_t*)item;
+	if (!PC_Int_Parse(handle, &menu->window.shadowStyle)) {
 		return qfalse;
 	}
 	return qtrue;
@@ -5919,6 +6140,8 @@ keywordHash_t menuParseKeywords[] = {
 	{"style", MenuParse_style, NULL},
 	{"visible", MenuParse_visible, NULL},
 	{"onOpen", MenuParse_onOpen, NULL},
+	//Makro - executed when the menu is shown
+	{"onShow", MenuParse_onShow, NULL},
 	{"onClose", MenuParse_onClose, NULL},
 	{"onESC", MenuParse_onESC, NULL},
 	//Makro - executed when all the items in a timed sequence have been shown
@@ -5928,6 +6151,9 @@ keywordHash_t menuParseKeywords[] = {
 	//Makro - total items in timed sequence
 	{"timedItems", MenuParse_timedItems, NULL},
 	{"border", MenuParse_border, NULL},
+	//Makro - for drop shadow effects
+	{"shadowStyle", MenuParse_shadowStyle, NULL},
+	{"dropShadowStyle", MenuParse_shadowStyle, NULL},
 	{"borderSize", MenuParse_borderSize, NULL},
 	{"backcolor", MenuParse_backcolor, NULL},
 	{"forecolor", MenuParse_forecolor, NULL},

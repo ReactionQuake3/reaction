@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2002/03/24 21:26:14  makro
+// no message
+//
 // Revision 1.7  2002/03/14 21:52:08  makro
 // no message
 //
@@ -51,6 +54,10 @@ static const char *skillLevels[] = {
   "Hardcore",
   "Nightmare"
 };
+
+//Makro - constants are better
+const char *KEYBIND_STATUS1 = "Waiting for new key... Press ESCAPE to cancel";
+const char *KEYBIND_STATUS2 = "Press ENTER or CLICK to change, Press BACKSPACE to clear";
 
 static const int numSkillLevels = sizeof(skillLevels) / sizeof(const char*);
 
@@ -256,6 +263,13 @@ void AssetCache() {
 	} else {
 		uiInfo.uiDC.Assets.SSGcrosshairShader = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg2x-%i", ssg));
 	}
+
+	//Makro - for drop shadows
+	for (n=0; n<4; n++) {
+		uiInfo.uiDC.Assets.dropShadowCorners[n] = trap_R_RegisterShaderNoMip(va("ui/assets/rq3-ingame-shadow-c%i", n+1));
+	}
+	uiInfo.uiDC.Assets.dropShadowRight = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-right");
+	uiInfo.uiDC.Assets.dropShadowBottom = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-bottom");
 
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
@@ -1873,9 +1887,9 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			break;
 		case UI_KEYBINDSTATUS:
 			if (Display_KeyBindPending()) {
-				s = "Waiting for new key... Press ESCAPE to cancel";
+				s = KEYBIND_STATUS1;
 			} else {
-				s = "Press ENTER or CLICK to change, Press BACKSPACE to clear";
+				s = KEYBIND_STATUS2;
 			}
 			break;
 		case UI_SERVERREFRESHDATE:
@@ -2094,9 +2108,9 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color) {
 static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle) {
 //	int ofs = 0; TTimo: unused
 	if (Display_KeyBindPending()) {
-		Text_Paint(rect->x, rect->y, scale, color, "Waiting for new key... Press ESCAPE to cancel", 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, KEYBIND_STATUS1, 0, 0, textStyle);
 	} else {
-		Text_Paint(rect->x, rect->y, scale, color, "Press ENTER or CLICK to change, Press BACKSPACE to clear", 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, KEYBIND_STATUS2, 0, 0, textStyle);
 	}
 }
 
@@ -2552,15 +2566,16 @@ static qboolean UI_NetGameType_HandleKey(int flags, float *special, int key) {
 
     if (ui_netGameType.integer < 0) {
       ui_netGameType.integer = uiInfo.numGameTypes - 1;
-		} else if (ui_netGameType.integer >= uiInfo.numGameTypes) {
+	} else if (ui_netGameType.integer >= uiInfo.numGameTypes) {
       ui_netGameType.integer = 0;
     } 
 
   	trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
   	trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
   	trap_Cvar_Set( "ui_currentNetMap", "0");
-		UI_MapCountByGameType(qfalse);
-		Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, NULL);
+	
+	UI_MapCountByGameType(qfalse);
+	Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, NULL);
     return qtrue;
   }
   return qfalse;
@@ -3513,6 +3528,10 @@ static void UI_RunMenuScript(char **args) {
 				trap_Cvar_Set("ui_cdkeyvalid", "CD Key does not appear to be valid.");
 			}
 		} else if (Q_stricmp(name, "loadArenas") == 0) {
+			//Makro - updating cvars needed here
+			trap_Cvar_Set( "ui_netGameType", va("%d", ui_netGameType.integer));
+  			trap_Cvar_Set( "ui_actualnetGameType", va("%d", uiInfo.gameTypes[ui_netGameType.integer].gtEnum));
+  			trap_Cvar_Set( "ui_currentNetMap", "0");
 			UI_LoadArenas();
 			UI_MapCountByGameType(qfalse);
 			Menu_SetFeederSelection(NULL, FEEDER_ALLMAPS, 0, "createserver");
@@ -3608,13 +3627,14 @@ static void UI_RunMenuScript(char **args) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
 			}
 		} else if (Q_stricmp(name, "Quit") == 0) {
+			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			//Makro - see if we have to restore the music volume
 			if (uiInfo.savedMusicVol) {
-				trap_Cmd_ExecuteText( EXEC_NOW, va("set s_musicvolume %f\n", uiInfo.oldMusicVol));
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("set s_musicvolume %f ; wait\n", uiInfo.oldMusicVol));
 			}
-			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
-			trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n");
+			//Makro - maybe a wait command will make the music volume get saved before exiting
+			trap_Cmd_ExecuteText( EXEC_APPEND, "wait ; quit\n");
 		} else if (Q_stricmp(name, "Controls") == 0) {
 		  trap_Cvar_Set( "cl_paused", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );

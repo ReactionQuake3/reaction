@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.10  2002/03/24 21:26:14  makro
+// no message
+//
 // Revision 1.9  2002/03/14 21:52:08  makro
 // no message
 //
@@ -134,6 +137,16 @@ typedef struct {
 
 typedef rectDef_t Rectangle;
 
+//Makro - for the new fading method
+typedef struct {
+  vec4_t color1;
+  vec4_t color2;
+  qboolean active;
+  qboolean forecolor;
+  int startTime, endTime;
+} timeFade_t;
+
+
 // FIXME: do something to separate text vs window stuff
 typedef struct {
   Rectangle rect;                 // client coord rectangle
@@ -142,7 +155,7 @@ typedef struct {
 //Makro - adding support for shortcut keys
   //const char *shortcutKey;
   int shortcutKey;
-//Makro - drop-shadow effect
+//Makro - drop shadow effect
   int shadowStyle;
   const char *group;              // if it belongs to a group
   const char *cinematicName;		  // cinematic name
@@ -157,6 +170,8 @@ typedef struct {
   Rectangle rectEffects2;         // for various effects
   int offsetTime;                 // time based value for various effects
   int nextTime;                   // time next effect should cycle
+  //Makro - for the new fading method
+  timeFade_t timeFade;
   vec4_t foreColor;               // text color
   vec4_t backColor;               // border color
   vec4_t borderColor;             // border color
@@ -262,7 +277,7 @@ typedef struct itemDef_s {
   const char *action;            // select script
   const char *onFocus;           // select script
   const char *leaveFocus;        // select script
-  //Makro - extra action executed when the timer show this item
+  //Makro - extra action executed when the timer shows this item
   const char *onTimer;
   const char *cvar;              // associated cvar 
   const char *cvarTest;          // associated cvar for enable actions
@@ -291,6 +306,9 @@ typedef struct {
   const char *onESC;								// run when the menu is closed
 //Makro - executed when all the items in a timed sequence have been shown
   const char *onFinishTimer;
+//Makro - executed when the menu is shown
+  const char *onShow;
+  qboolean shown;
   const char *soundName;						// background loop sound for menu
 //Makro - music intro  
   const char *soundIntro;
@@ -338,11 +356,15 @@ typedef struct {
   qboolean fontRegistered;
 
   // player settings
-	qhandle_t fxBasePic;
+  qhandle_t fxBasePic;
   qhandle_t fxPic[7];
-	qhandle_t	crosshairShader[NUM_CROSSHAIRS];
-	//Makro - for the SSG crosshair preview
-	qhandle_t SSGcrosshairShader;
+  qhandle_t	crosshairShader[NUM_CROSSHAIRS];
+  //Makro - for the SSG crosshair preview
+  qhandle_t SSGcrosshairShader;
+  //Makro - for drop shadow effects
+  qhandle_t dropShadowCorners[4];
+  qhandle_t dropShadowRight, dropShadowBottom;
+
 
 } cachedAssets_t;
 

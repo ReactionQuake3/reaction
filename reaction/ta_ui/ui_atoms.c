@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2002/03/24 21:26:15  makro
+// no message
+//
 // Revision 1.6  2002/03/14 21:52:08  makro
 // no message
 //
@@ -481,8 +484,18 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	if ( Q_stricmp (cmd, "error") == 0 ) {
 		if ( trap_Cvar_VariableValue("developer") == 1 ) {
-			Com_Error(ERR_DROP, "Info: Testing error menu. This text should be long enough to get wrapped. Ok, this should be enough. Hope you're not going to see this screen too often");
-		return qtrue;
+			char text[MAX_CVAR_VALUE_STRING];
+
+			memset(text, 0, sizeof(text));
+
+			if (trap_Argc() == 1) {
+				Q_strcat(text, sizeof(text), "INFO: Testing error menu. Type 'error [msg]' in the console with developer set to 1 to see this screen");
+			} else {
+				Q_strncpyz(text, UI_Argv(1), sizeof(text));
+			}
+
+			Com_Error(ERR_DROP, text);
+			return qtrue;
 		}
 	}
 
