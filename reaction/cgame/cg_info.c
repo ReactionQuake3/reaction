@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.36  2002/08/29 04:42:40  blaze
+// Anti OGC code
+//
 // Revision 1.35  2002/08/28 02:06:21  blaze
 // Add SV_PURE DISABLED when connecting to a server with pure disabled.  It still prints PURE SERVER when it\'s enabled, but clients may not notice it when it\'s gone.
 //
@@ -345,12 +348,12 @@ void CG_DrawInformation(void)
 		line = "UNKNOWN GAMETYPE";
 		break;
 	}
-
+	
 // JBravo: the call to Q_strupr seems to crash Q3 when running as dll or .so. Attempting a fix
 // Makro: the fix crashes Q3 with .dll's, unfixing ;P
 	//strcat (line, '\0');
 	//line = Q_strupr(line);
-
+	
 	// cheats warning
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	//Makro - didn't like this

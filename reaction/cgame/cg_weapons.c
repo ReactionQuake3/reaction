@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.93  2002/08/29 04:42:41  blaze
+// Anti OGC code
+//
 // Revision 1.92  2002/08/25 03:34:11  niceass
 // puff added to silencer
 //
@@ -2643,6 +2646,7 @@ void CG_FireWeapon(centity_t * cent, int weapModification)
 		CG_Error("CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
 		return;
 	}
+
 
 	weap = &cg_weapons[ent->weapon];
 

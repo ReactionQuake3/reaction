@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.123  2002/08/29 04:42:40  blaze
+// Anti OGC code
+//
 // Revision 1.122  2002/08/28 23:10:06  jbravo
 // Added cg_RQ3_SuicideLikeARealMan, timestamping to server logs and
 // fixed stats for non-TP modes.
@@ -1649,6 +1652,8 @@ extern vmCvar_t cg_paused;
 extern vmCvar_t cg_blood;
 extern vmCvar_t cg_predictItems;
 extern vmCvar_t cg_deferPlayers;
+//Blaze: Anti OGC code
+extern vmCvar_t ogc_islame;
 
 //Blaze: Reaction weapon positions
 //extern        vmCvar_t                cg_RQ3_drawWeapon;

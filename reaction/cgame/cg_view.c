@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2002/08/29 04:42:41  blaze
+// Anti OGC code
+//
 // Revision 1.26  2002/08/25 00:45:40  niceass
 // q3f atmosphere
 //
@@ -1278,6 +1281,10 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	if (cg.time > cg.cvarCheckTime) {
 		//cg.cvarCheckTime = cg.time + 5000 + rand() % 6000;
 		cg.cvarCheckTime = cg.time + 10000;
+		if (0 == CG_Cvar_Get("ogc_islame"))
+		{
+			Com_Error(ERR_DISCONNECT, "No OGC plzkthx");
+		}
 		//Blaze: Check for invalid video settings.
 		for (i = 0; i < 30; i++) {
 			if (strcmp(cheats[i].cvar, "") != 0) {
