@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.152  2005/09/07 20:27:41  makro
+// Entity attachment trees
+//
 // Revision 1.151  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1542,6 +1545,8 @@ extern vmCvar_t g_RQ3_radioFloodTime;
 extern vmCvar_t g_RQ3_version;
 //Makro - max votes per client;
 extern vmCvar_t g_RQ3_maxClientVotes;
+//Makro - no lame suicides
+extern vmCvar_t g_RQ3_giveMeWhatsMine;
 
 void trap_Printf(const char *fmt);
 void trap_Error(const char *fmt);

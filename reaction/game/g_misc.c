@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2005/09/07 20:27:42  makro
+// Entity attachment trees
+//
 // Revision 1.83  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -531,7 +534,6 @@ void SP_misc_lens_flare(gentity_t *ent)
 	G_SpawnInt("sunsize", "0", &ent->mass);
 	G_SpawnFloat("sunalpha", "0.5", &ent->speed);
 
-	//this is so we can use the same values from
 	if (!ent->target) {
 		if (!G_SpawnVector("direction", "0 0 1", ent->s.origin2)) {
 			AngleVectors(ent->s.angles, ent->s.origin2, NULL, NULL);
@@ -795,10 +797,16 @@ void Think_SetupSkyPortal(gentity_t *ent)
 		//G_Printf("^1 SKY PORTAL !!!\n");
 		
 		if (skyportal) {
+			//location
 			Info_SetValueForKey(info, "x", va("%f", skyportal->s.origin[0]));
 			Info_SetValueForKey(info, "y", va("%f", skyportal->s.origin[1]));
 			Info_SetValueForKey(info, "z", va("%f", skyportal->s.origin[2]));
+			//entity number
 			Info_SetValueForKey(info, "n", va("%i", skyportal->s.number));
+			//movement
+			Info_SetValueForKey(info, "mx", va("%f", skyportal->movedir[0]));
+			Info_SetValueForKey(info, "my", va("%f", skyportal->movedir[1]));
+			Info_SetValueForKey(info, "mz", va("%f", skyportal->movedir[2]));
 			//G_Printf("Sky portal origin: %s\n", vtos(skyportal->s.origin));
 			trap_SetConfigstring(CS_SKYPORTAL, info);
 			VectorCopy(skyportal->s.origin, ent->s.origin2);
@@ -825,6 +833,7 @@ void SP_misc_sky_portal(gentity_t * ent)
 	ent->r.svFlags |= SVF_PORTAL;
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
+
 	ent->think = Think_SetupSkyPortal;
 	ent->nextthink = level.time + FRAMETIME;
 

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.111  2005/09/07 20:27:41  makro
+// Entity attachment trees
+//
 // Revision 1.110  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1570,3 +1573,11 @@ char *skinFromStr(char *s);
 char *strchrstr(char *s, char *chars);
 char *strins(char *dest, char *s);
 char *Q_strins(char *dest, char *s, int size);
+
+
+//Makro - used for saving ints to char buffers
+//not doing this as a simple assignment because
+//of endianness (darned Mac users)
+void SetIntBytes(int i, char *buf, char count);
+int GetIntBytes(char *buf, char count);
+

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.151  2005/09/07 20:27:42  makro
+// Entity attachment trees
+//
 // Revision 1.150  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -585,6 +588,9 @@ vmCvar_t g_RQ3_cvarfile;
 //Makro - for server browsers
 vmCvar_t g_RQ3_version;
 
+//Makro - no lame suicides
+vmCvar_t g_RQ3_giveMeWhatsMine;
+
 //Makro - max votes per client
 vmCvar_t g_RQ3_maxClientVotes;
 
@@ -640,6 +646,9 @@ static cvarTable_t gameCvarTable[] = {
 	//Makro - changed default to 0; added CVAR_SERVERINFO flag
 	{&g_allowVote, "g_allowVote", "0", CVAR_ARCHIVE | CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_listEntity, "g_listEntity", "0", 0, 0, qfalse},
+
+	//Makro - no lame suicides
+	{&g_RQ3_giveMeWhatsMine, "g_RQ3_giveMeWhatsMine", "0", CVAR_ARCHIVE, 0, qfalse},
 
 	// NiceAss: Taken out of the missionpack
 	{&g_enableBreath, "g_enableBreath", "0", CVAR_SERVERINFO, 0, qfalse},
@@ -1151,7 +1160,7 @@ void RQ3_loadmodels(void)
 	}
 }
 
-//Makro - FIXME: add comment
+//Makro - FIXME: add comments
 void G_InitMoveParents()
 {
 	int i;
@@ -1262,16 +1271,25 @@ void G_SetMoveParentOrder()
 	p = info;
 	Com_sprintf(p, 4, "%03i", level.num_attachedEnts);
 	p += 3;
+	//SetIntBytes((level.num_attachedEnts << 1) | 1, p, 2);
+	//p += 2;
+
 	for (i=0; i<level.num_attachedEnts; i++)
 	{
 		Com_sprintf(p, 4, "%03i", g_parentOrder[i]-g_entities);
 		p += 3;
+		//SetIntBytes(((g_parentOrder[i] - g_entities) << 1) | 1, p, 2);
+		//p += 2;
 		Com_sprintf(p, 4, "%03i", g_parentOrder[i]->moveParent_rank);
 		p+=3;
+		//SetIntBytes(((g_parentOrder[i]->moveParent_rank) << 1) | 1, p, 2);
+		//p += 2;
 		G_Printf("%i (%i)> %s, rank %i\n", i, g_parentOrder[i]-g_entities,
 			g_parentOrder[i]->classname, g_parentOrder[i]->moveParent_rank);
 	}
-	G_Printf("INFO STRING: %s\n", info);
+	//trailing zero
+	*p = 0;
+	//G_Printf("INFO STRING: %s\n", info);
 	trap_SetConfigstring(CS_MOVEPARENTS, info);
 }
 

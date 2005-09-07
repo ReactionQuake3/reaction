@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.95  2005/09/07 20:27:41  makro
+// Entity attachment trees
+//
 // Revision 1.94  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1506,17 +1509,19 @@ static void PM_Footsteps(void)
 		return;
 	}
 	// if not trying to move
-	if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
-		if (pm->xyspeed < 5) {
-			pm->ps->bobCycle = 0;	// start at beginning of cycle again
-			if (pm->ps->pm_flags & PMF_DUCKED) {
-				PM_ContinueLegsAnim(LEGS_IDLECR);
-			} else {
-				PM_ContinueLegsAnim(LEGS_IDLE);
-			}
+	//Makro - changed condition a bit
+	//if (!pm->cmd.forwardmove && !pm->cmd.rightmove) {
+	//	if (pm->xyspeed < 5) {
+	if ( (!pm->cmd.forwardmove && !pm->cmd.rightmove) || pm->xyspeed < 5) {
+		pm->ps->bobCycle = 0;	// start at beginning of cycle again
+		if (pm->ps->pm_flags & PMF_DUCKED) {
+			PM_ContinueLegsAnim(LEGS_IDLECR);
+		} else {
+			PM_ContinueLegsAnim(LEGS_IDLE);
 		}
 		return;
 	}
+
 
 	footstep = qfalse;
 
@@ -2798,12 +2803,15 @@ static void PM_LadderMove(void)
 
 	
 	//Makro - play footstep sound
-	if (pm->ps->velocity[2]) {
+	//...only if we don't have slippers!
+	if (pm->ps->velocity[2] && !(pm->ps->stats[STAT_HOLDABLE_ITEM] && (1 << HI_SLIPPERS)) )
+	{
 		old = pm->ps->bobCycle;
 		//the faster we move, the more frequent the footsteps
 		pm->ps->bobCycle = (int) (old + 0.45 * fabs(pm->ps->velocity[2]) / 225.0f * pml.msec) & 255;
 		// if we just crossed a cycle boundary, play an apropriate footstep event
-		if (((old + 64) ^ (pm->ps->bobCycle + 64)) & 128) {
+		if (((old + 64) ^ (pm->ps->bobCycle + 64)) & 128)
+		{
 			PM_AddEvent(PM_FootstepForSurface(pml.ladderSurface));
 		}
 	} else {

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.154  2005/09/07 20:27:42  makro
+// Entity attachment trees
+//
 // Revision 1.153  2003/09/08 19:19:20  makro
 // New code for respawning entities in TP
 //
@@ -2288,7 +2291,17 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	} else if (Q_stricmp(cmd, "throwing combat knife") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
 			weapon = WP_KNIFE;
-			ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
+			//Makro - if we already have the knife, but it's in the wrong mode, we don't just set the mode
+			//instead, we call Cmd_Weapon so that the right animation gets played
+			if (ent->client->ps.weapon == WP_KNIFE)
+			{
+				if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE )
+				{
+					Cmd_Weapon(ent);
+				}
+			} else {
+				ent->client->ps.persistant[PERS_WEAPONMODES] &= ~RQ3_KNIFEMODE;
+			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
@@ -2296,7 +2309,17 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 	} else if (Q_stricmp(cmd, "slashing combat knife") == 0) {
 		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
 			weapon = WP_KNIFE;
-			ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+			//Makro - if we already have the knife, but it's in the wrong mode, we don't just set the mode
+			//instead, we call Cmd_Weapon so that the right animation gets played
+			if (ent->client->ps.weapon == WP_KNIFE)
+			{
+				if ( (ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == 0 )
+				{
+					Cmd_Weapon(ent);
+				}
+			} else {
+				ent->client->ps.persistant[PERS_WEAPONMODES] |= RQ3_KNIFEMODE;
+			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;

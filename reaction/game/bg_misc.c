@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.57  2005/09/07 20:27:41  makro
+// Entity attachment trees
+//
 // Revision 1.56  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1705,5 +1708,29 @@ char *Q_strins(char *dest, char *s, int size)
 		dest[i]=s[i];
 
 	return dest;
+}
+
+
+//Makro - used for saving ints to char buffers
+//not doing this as a simple assignment because
+//of endianness (darned Mac users)
+void SetIntBytes(int i, char *buf, char count)
+{
+	while (count--)
+	{
+		*buf++ = i & 255;
+		i >>= 8;
+	}
+}
+
+int GetIntBytes(char *buf, char count)
+{
+	int rez = 0, shift = 0;
+	while (count--)
+	{
+		rez |= (*buf << shift);
+		shift += 8;
+	}
+	return rez;
 }
 

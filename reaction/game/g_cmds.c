@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.192  2005/09/07 20:27:41  makro
+// Entity attachment trees
+//
 // Revision 1.191  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -992,9 +995,27 @@ void Cmd_Kill_f(gentity_t * ent)
 	if (g_gametype.integer == GT_TEAMPLAY && level.lights_camera_action) {
 		return;
 	}
+
+	//Makro - lamer protection
+	//(if you suicide while hit, the attacker still receives his/her/its frag)
+	if (g_RQ3_giveMeWhatsMine.integer)
+	{
+		if (ent->client->lasthurt_mod != 0)
+		{
+			gentity_t *attacker = &g_entities[ent->client->lasthurt_client];
+			if (attacker != NULL)
+			{
+				AddScore(attacker, ent->r.currentOrigin, 1);
+				trap_SendServerCommand(-1, va("%s tried to steal a frag from %s. And failed\n", ent->client->pers.netname,
+					attacker->client->pers.netname));
+			}
+		}
+	}
+
 	ent->flags &= ~FL_GODMODE;
 	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
 	player_die(ent, ent, ent, 100000, MOD_SUICIDE);
+	
 }
 
 /*
@@ -2050,6 +2071,8 @@ void Cmd_CallVote_f(gentity_t * ent)
 	}
 	
 	if (!Q_stricmp(arg1, "cyclemap")) {	
+	//Makro - adding "timelimit X"
+	} else if (!Q_stricmp(arg1, "timelimit")) {
 	} else if (!Q_stricmp(arg1, "map")) {
 	} else if (!Q_stricmp(arg1, "g_gametype")) {
 	} else if (!Q_stricmp(arg1, "kick")) {
@@ -2060,13 +2083,13 @@ void Cmd_CallVote_f(gentity_t * ent)
 			} else if (!Q_stricmp(arg1, "clearscores")) {
 			} else {
 					trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
-					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>,clearscores,resetmatch.\n\"");
+					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, clearscores, resetmatch and timelimit <minutes>.\n\"");
 					return;
 			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 			trap_SendServerCommand(ent - g_entities, 
-				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, and clientkick <clientnum>.\n\"");
+				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum> and timelimit <minutes>.\n\"");
 		return;
 		}
 	}
@@ -2082,7 +2105,19 @@ void Cmd_CallVote_f(gentity_t * ent)
 
 	// special case for g_gametype, check for bad values
 	if (!Q_stricmp(arg1, "g_gametype")) {
-		i = atoi(arg2);
+		//Makro - added short gametype names
+		if (!Q_stricmp(arg2, "dm")) {
+			i = GT_FFA;
+		} else if (!Q_stricmp(arg2, "tp")) {
+			i = GT_TEAMPLAY;
+		} else if (!Q_stricmp(arg2, "tdm")) {
+			i = GT_TEAM;
+		} else if (!Q_stricmp(arg2, "ctb")) {
+			i = GT_CTF;
+		} else {
+			//if not a preset name, consider it a number
+			i = atoi(arg2);
+		}
 		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF && i != GT_TEAM) {
 			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0, 3, 4 and 5.\n\"");
 			return;

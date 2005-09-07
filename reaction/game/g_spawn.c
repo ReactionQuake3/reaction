@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2005/09/07 20:27:42  makro
+// Entity attachment trees
+//
 // Revision 1.51  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -248,6 +251,8 @@ field_t fields[] = {
 	{"light", 0, F_IGNORE},
 	{"dmg", FOFS(damage), F_INT},
 	{"angles", FOFS(s.angles), F_VECTOR},
+	//Makro - only used by the sky portal code
+	{"portalspeed", FOFS(movedir), F_VECTOR},
 	{"angle", FOFS(s.angles), F_ANGLEHACK},
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},

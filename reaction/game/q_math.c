@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.11  2005/09/07 20:27:42  makro
+// Entity attachment trees
+//
 // Revision 1.10  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1882,9 +1885,3 @@ void ToAxisAngles(vec3_t in, vec3_t out)
 
 	VectorCopy(result, out);
 }
-
-void ToQuakeAngles(vec3_t in, vec3_t out)
-{
-	vec3_t result;
-}
-
