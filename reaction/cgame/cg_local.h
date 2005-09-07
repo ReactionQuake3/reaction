@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.161  2005/09/07 22:19:15  makro
+// Dead player view offset tweaks
+//
 // Revision 1.160  2005/09/07 20:29:05  makro
 // Stuff I can't remember
 //
@@ -1176,8 +1179,9 @@ typedef struct {
 	char zcamLine[2][256];
 
 	//Makro - head location and axis; used for dead players
-	vec3_t headPos[3];
+	vec3_t headPos;
 	vec3_t headAxis[3];
+	vec3_t oldHeadPos;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
