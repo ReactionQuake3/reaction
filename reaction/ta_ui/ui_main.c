@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.82  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.81  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -283,9 +286,9 @@ static const char *skillLevels[] = {
 	"Nightmare"
 };
 
-//Makro - constants are better
-const char *KEYBIND_STATUS1 = "Waiting for new key... Press ESCAPE to cancel";
-const char *KEYBIND_STATUS2 = "Press ENTER or CLICK to change, Press BACKSPACE to clear";
+//Makro - changed from macros to constants
+const char *KEYBIND_STATUS1 = "ENTER or CLICK to change, BACKSPACE to clear";
+const char *KEYBIND_STATUS2 = "Waiting for new key... Press ESCAPE to cancel";
 
 static const int numSkillLevels = sizeof(skillLevels) / sizeof(const char *);
 
@@ -565,12 +568,18 @@ void AssetCache()
 	uiInfo.uiDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip(ART_FX_BLUE);
 	uiInfo.uiDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
 	uiInfo.uiDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
-	uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR);
+	uiInfo.uiDC.Assets.scrollBarH = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_H);
+	uiInfo.uiDC.Assets.scrollBarV = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_V);
 	uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN);
 	uiInfo.uiDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP);
 	uiInfo.uiDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
 	uiInfo.uiDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
 	uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip(ASSET_SCROLL_THUMB);
+	//Makro - shown when clicked
+	uiInfo.uiDC.Assets.scrollBarArrowDown2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN2);
+	uiInfo.uiDC.Assets.scrollBarArrowUp2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP2);
+	uiInfo.uiDC.Assets.scrollBarArrowLeft2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT2);
+	uiInfo.uiDC.Assets.scrollBarArrowRight2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT2);
 	uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR);
 	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
 
@@ -589,12 +598,12 @@ void AssetCache()
 	}
 	uiInfo.uiDC.Assets.dropShadowRight = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-right");
 	uiInfo.uiDC.Assets.dropShadowBottom = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-bottom");
-
+	
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
 
 //Makro - angled rectangles
-void _UI_DrawAngledRect(float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type)
+void _UI_DrawAngledRect(float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type, qhandle_t shader)
 {
 	float p[2], p2[2];
 	
@@ -604,33 +613,35 @@ void _UI_DrawAngledRect(float x, float y, float w, float h, const float *u, cons
 	Vector2MA(p2, h, v, p2);
 
 	if (type & RECT_TOPBOTTOM) {
-		uiInfo.uiDC.drawAngledPic(p[0], p[1], w, size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
-		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -w, -size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], w, size, u, v, color, 0, 0, 1, 1, shader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -w, -size, u, v, color, 0, 0, 1, 1, shader);
 	}
 	if (type & RECT_SIDES) {
-		uiInfo.uiDC.drawAngledPic(p[0], p[1], size, h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
-		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -size, -h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], size, h, u, v, color, 0, 0, 1, 1, shader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -size, -h, u, v, color, 0, 0, 1, 1, shader);
 	}
 }
 
-void _UI_DrawSides(float x, float y, float w, float h, float size)
+//Makro - added shader
+void _UI_DrawSides(float x, float y, float w, float h, float size, qhandle_t shader)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	size *= uiInfo.uiDC.xscale;
 	//trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 	//trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, size, h, 0, 0, 0, 0, shader, qfalse);
+	uiInfo.uiDC.drawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, shader, qfalse);
 }
 
-void _UI_DrawTopBottom(float x, float y, float w, float h, float size)
+//Makro - added shader
+void _UI_DrawTopBottom(float x, float y, float w, float h, float size, qhandle_t shader)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	size *= uiInfo.uiDC.yscale;
 	//trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 	//trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, size, 0, 0, 0, 0, shader, qfalse);
+	uiInfo.uiDC.drawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, shader, qfalse);
 }
 
 /*
@@ -640,12 +651,13 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void _UI_DrawRect(float x, float y, float width, float height, float size, const float *color)
+//Makro - added shader
+void _UI_DrawRect(float x, float y, float width, float height, float size, const float *color, qhandle_t shader)
 {
 	trap_R_SetColor(color);
 
-	_UI_DrawTopBottom(x, y, width, height, size);
-	_UI_DrawSides(x, y, width, height, size);
+	_UI_DrawTopBottom(x, y, width, height, size, shader);
+	_UI_DrawSides(x, y, width, height, size, shader);
 
 	trap_R_SetColor(NULL);
 }
@@ -693,7 +705,7 @@ int Text_Width(const char *text, float scale, int limit)
 			}
 		}
 	}
-	return out * useScale;
+	return (int) (out * useScale);
 }
 
 int Text_Height(const char *text, float scale, int limit)
@@ -763,15 +775,17 @@ void Text_PaintChar(float x, float y, float width, float height, float scale, fl
 	h = height * scale;
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	//trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
-	uiInfo.uiDC.drawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, h, s, t, s2, t2, hShader, qfalse);
 }
 
 
 
-void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
+void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, float maxwidth, int style, qboolean forceColor)
 {
 	int len, count;
 	qboolean underlined = qfalse;
+	//Makro - added width
+	float width;
 	vec4_t newColor;
 	float useScale;
 	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
@@ -790,11 +804,14 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 
 		trap_R_SetColor(color);
 		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
-		len = strlen(text);
+		//Makro - changed
+		//len = strlen(text);
+		len = Q_PrintStrlen(text);
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
 		count = 0;
+		width = 0;
 		while (s && *s && count < len) {
 			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
 			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
@@ -808,7 +825,7 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 				} else if (*(s+1)== '_')
 				{
 					underlined ^= qtrue;
-				} else {
+				} else if (!forceColor) {
 					memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
 					newColor[3] = color[3];
 					trap_R_SetColor(newColor);
@@ -841,6 +858,11 @@ void Text_Paint(float x, float y, float scale, vec4_t color, const char *text, f
 						useScale, uglyph->s, uglyph->t, uglyph->s2, uglyph->t2, uglyph->glyph);
 				}
 
+				//Makro - added width
+				width += (glyph->xSkip * useScale) + adjust;
+				if (maxwidth > 0 && width > maxwidth)
+					break;
+
 				x += (glyph->xSkip * useScale) + adjust;
 				s++;
 				count++;
@@ -855,33 +877,82 @@ void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts)
 	polyVert_t mverts[4];
 
 	memcpy(mverts, verts, sizeof(mverts));
-	mverts[0].xyz[0] += uiInfo.uiDC.polyZ;
-	mverts[1].xyz[0] += uiInfo.uiDC.polyZ;
-	mverts[2].xyz[0] += uiInfo.uiDC.polyZ;
-	mverts[3].xyz[0] += uiInfo.uiDC.polyZ;
-	/*
-	verts[0].xyz[0] += uiInfo.uiDC.polyZ;
-	verts[1].xyz[0] += uiInfo.uiDC.polyZ;
-	verts[2].xyz[0] += uiInfo.uiDC.polyZ;
-	verts[3].xyz[0] += uiInfo.uiDC.polyZ;
-	*/
+	mverts[0].xyz[0] -= uiInfo.uiDC.polyZ;
+	mverts[1].xyz[0] -= uiInfo.uiDC.polyZ;
+	mverts[2].xyz[0] -= uiInfo.uiDC.polyZ;
+	mverts[3].xyz[0] -= uiInfo.uiDC.polyZ;
 
 	trap_R_AddPolyToScene(hShader, 4, mverts);
-	/*
-	verts[0].xyz[0] -= uiInfo.uiDC.polyZ;
-	verts[1].xyz[0] -= uiInfo.uiDC.polyZ;
-	verts[2].xyz[0] -= uiInfo.uiDC.polyZ;
-	verts[3].xyz[0] -= uiInfo.uiDC.polyZ;
-	*/
 	uiInfo.uiDC.polyZ += UI_POLY_Z_OFFSET;
 	uiInfo.uiDC.pendingPolys++;
 }
 
+/*
+void _UI_DrawAngledRect(float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type)
+{
+	float p[2], p2[2];
+	
+	p[0] = x;
+	p[1] = y;
+	Vector2MA(p, w, u, p2);
+	Vector2MA(p2, h, v, p2);
+
+	if (type & RECT_TOPBOTTOM) {
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], w, size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -w, -size, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+	}
+	if (type & RECT_SIDES) {
+		uiInfo.uiDC.drawAngledPic(p[0], p[1], size, h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+		uiInfo.uiDC.drawAngledPic(p2[0], p2[1], -size, -h, u, v, color, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+	}
+}
+*/
+
+//TODO
+void UI_AddFrameToScene(float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type)
+{
+	polyVert_t verts[4];
+
+	verts[0].modulate[0]=verts[1].modulate[0]=verts[2].modulate[0]=verts[3].modulate[0]=((int)(color[0]*255))&255;
+	verts[0].modulate[1]=verts[1].modulate[1]=verts[2].modulate[1]=verts[3].modulate[1]=((int)(color[1]*255))&255;
+	verts[0].modulate[2]=verts[1].modulate[2]=verts[2].modulate[2]=verts[3].modulate[2]=((int)(color[2]*255))&255;
+	verts[0].modulate[3]=verts[1].modulate[3]=verts[2].modulate[3]=verts[3].modulate[3]=((int)(color[3]*255))&255;
+	//0
+	verts[0].st[0]=0;
+	verts[0].st[1]=0;
+	//1
+	verts[1].st[0]=1;
+	verts[1].st[1]=0;
+	//2
+	verts[2].st[0]=1;
+	verts[2].st[1]=1;
+	//3
+	verts[3].st[0]=0;
+	verts[3].st[1]=1;
+	VectorSet(verts[0].xyz, 320, 320-x, 240-y);
+	VectorSet(verts[1].xyz, 320, verts[0].xyz[1]-u[0]*w, verts[0].xyz[2]-u[1]*w);
+	VectorSet(verts[2].xyz, 320, verts[1].xyz[1]-v[0]*h, verts[1].xyz[2]-v[1]*h);
+	VectorSet(verts[3].xyz, 320, verts[0].xyz[1]-v[0]*h, verts[0].xyz[2]-v[1]*h);
+	verts[0].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[1].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[2].xyz[0] -= uiInfo.uiDC.polyZ;
+	verts[3].xyz[0] -= uiInfo.uiDC.polyZ;
+
+	trap_R_AddPolyToScene(uiInfo.uiDC.whiteShader, 4, verts);
+	uiInfo.uiDC.polyZ += UI_POLY_Z_OFFSET;
+	uiInfo.uiDC.pendingPolys++;
+}
+
+//Makro - draws a skewed textured rectangle
 void UI_DrawAngledPic(float x, float y, float w, float h, const float *u, const float *v, const float *color, float s, float t, float s2, float t2, qhandle_t hShader)
 {
 	polyVert_t verts[4];
 	//memset(verts, 0, sizeof(verts));
 	
+	//avoid "null poly shader" warnings
+	if (!hShader)
+		return;
+
 	verts[0].modulate[0]=verts[1].modulate[0]=verts[2].modulate[0]=verts[3].modulate[0]=((int)(color[0]*255))&255;
 	verts[0].modulate[1]=verts[1].modulate[1]=verts[2].modulate[1]=verts[3].modulate[1]=((int)(color[1]*255))&255;
 	verts[0].modulate[2]=verts[1].modulate[2]=verts[2].modulate[2]=verts[3].modulate[2]=((int)(color[2]*255))&255;
@@ -914,10 +985,13 @@ void UI_DrawAngledPic(float x, float y, float w, float h, const float *u, const 
 	//trap_R_RenderScene(&uiInfo.uiDC.scene2D);
 }
 
-//Makro - angled text
-void Text_PaintAngled(float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, float adjust, int limit, int style)
+//Makro - same as the old Text_Paint, this time using vectors
+void Text_PaintAngled(float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text,
+					float adjust, int limit, float maxwidth, int style, qboolean forceColor)
 {
 	int len, count;
+	//Makro - added
+	float width;
 	qboolean underlined = qfalse;
 	vec4_t newColor;
 	float useScale;
@@ -944,6 +1018,7 @@ void Text_PaintAngled(float x, float y, const float *u, const float *v, float sc
 		if (limit > 0 && len > limit) {
 			len = limit;
 		}
+		width = 0;
 		count = 0;
 		while (s && *s && count < len) {
 			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
@@ -957,7 +1032,7 @@ void Text_PaintAngled(float x, float y, const float *u, const float *v, float sc
 				} else if (*(s+1)== '_')
 				{
 					underlined ^= qtrue;
-				} else {
+				} else if (!forceColor) {
 					memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
 					newColor[3] = color[3];
 					//trap_R_SetColor(newColor);
@@ -996,6 +1071,10 @@ void Text_PaintAngled(float x, float y, const float *u, const float *v, float sc
 					UI_DrawAngledPic(x, y, glyph->imageWidth * useScale, uglyph->imageHeight * useScale,
 						u, v, colorPtr, uglyph->s, uglyph->t, uglyph->s2, uglyph->t2, uglyph->glyph);
 				}
+				//Makro - added width
+				width += (glyph->xSkip * useScale) + adjust;
+				if (maxwidth > 0 && width > maxwidth)
+					break;
 				x += ((glyph->xSkip * useScale) + adjust) * u[0];
 				y += ((glyph->xSkip * useScale) + adjust) * u[1];
 				s++;
@@ -1090,6 +1169,130 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 		}
 
 		trap_R_SetColor(NULL);
+	}
+}
+
+//Makro - modified version of Text_PaintAngled
+void Text_PaintWithCursorAngled(float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text,
+					int cursorPos, char cursor, int limit, int style)
+{
+	int len, count;
+	//Makro - added
+	float width;
+	qboolean underlined = qfalse;
+	vec4_t newColor;
+	float useScale;
+	float p[2], *colorPtr;
+	fontInfo_t *font = &uiInfo.uiDC.Assets.textFont;
+	glyphInfo_t *glyph, *glyph2, *uglyph = &font->glyphs[(int)'_']; //Makro - added for underlined chars;
+	
+	if (scale <= ui_smallFont.value) {
+		font = &uiInfo.uiDC.Assets.smallFont;
+	} else if (scale >= ui_bigFont.value) {
+		font = &uiInfo.uiDC.Assets.bigFont;
+	}
+	useScale = scale * font->glyphScale;
+	
+	if (text) {
+		// TTimo: FIXME         
+		//    const unsigned char *s = text; // bk001206 - unsigned
+		const char *s = text;	// bk001206 - unsigned
+		
+		//trap_R_SetColor(color);
+		colorPtr = color;
+		memcpy(&newColor[0], &color[0], sizeof(vec4_t));
+		len = strlen(text);
+		if (limit > 0 && len > limit) {
+			len = limit;
+		}
+		width = 0;
+		count = 0;
+		glyph2 = &font->glyphs[(int) cursor];	// bk001206 - possible signed char
+		while (s && *s && count < len)
+		{
+			glyph = &font->glyphs[(int) *s];	// TTimo: FIXME: getting nasty warnings without the cast, hopefully this doesn't break the VM build
+			if (Q_IsColorString(s)) {
+				//Makro - new tricks
+				if (*(s+1) == '*')
+				{
+					memcpy(newColor, color, sizeof(newColor));
+					//trap_R_SetColor(newColor);
+					colorPtr = color;
+				} else if (*(s+1)== '_')
+				{
+					underlined ^= qtrue;
+				} else /* if (!forceColor) */ {
+					memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
+					newColor[3] = color[3];
+					//trap_R_SetColor(newColor);
+					colorPtr = newColor;
+				}
+				s += 2;
+				continue;
+			} else {
+				float yadj = useScale * glyph->top;
+				if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+				{
+					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+					colorBlack[3] = newColor[3];
+					
+					Vector2Set(p, x, y);
+					Vector2MA(p, ofs, u, p);
+					Vector2MA(p, ofs-yadj, v, p);
+					
+					UI_DrawAngledPic(p[0], p[1],
+						glyph->imageWidth * useScale,
+						glyph->imageHeight * useScale,
+						u,v, colorBlack,
+						glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+					colorBlack[3] = 1.0;
+				}
+				Vector2Set(p, x, y);
+				Vector2MA(p, -yadj, v, p);
+				UI_DrawAngledPic(p[0], p[1],
+					glyph->imageWidth * useScale,
+					glyph->imageHeight * useScale,
+					u,v,colorPtr,
+					glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+				//Makro - added
+				if (underlined)
+				{
+					UI_DrawAngledPic(x, y, glyph->imageWidth * useScale, uglyph->imageHeight * useScale,
+						u, v, colorPtr, uglyph->s, uglyph->t, uglyph->s2, uglyph->t2, uglyph->glyph);
+				}
+				//Makro - added width
+				//width += (glyph->xSkip * useScale) + adjust;
+				width += (glyph->xSkip * useScale);
+				/*
+				if (maxwidth > 0 && width > maxwidth)
+					break;
+				*/
+				//x += ((glyph->xSkip * useScale) + adjust) * u[0];
+				//y += ((glyph->xSkip * useScale) + adjust) * u[1];
+				if (count == cursorPos && !((uiInfo.uiDC.realTime / BLINK_DIVISOR) & 1)) {
+					float adj2 = useScale * (glyph2->top - glyph->top);
+					UI_DrawAngledPic(p[0] - adj2 * v[0], p[1] - adj2 * v[1],
+						       glyph2->imageWidth * useScale,
+						       glyph2->imageHeight * useScale,
+						       u, v, colorPtr,
+						       glyph2->s, glyph2->t, glyph2->s2, glyph2->t2, glyph2->glyph);
+				}
+				x += (glyph->xSkip * useScale) * u[0];
+				y += (glyph->xSkip * useScale) * u[1];
+				s++;
+				count++;
+			}
+		}
+		// need to paint cursor at end of text
+		if (cursorPos == len && !((uiInfo.uiDC.realTime / BLINK_DIVISOR) & 1)) {
+			float yadj = useScale * glyph2->top;
+			UI_DrawAngledPic(x - yadj * v[0], y - yadj * v[1],
+				       glyph2->imageWidth * useScale,
+				       glyph2->imageHeight * useScale,
+				       u, v, colorPtr,
+				       glyph2->s, glyph2->t, glyph2->s2, glyph2->t2, glyph2->glyph);
+
+		}
 	}
 }
 
@@ -1188,6 +1391,10 @@ void UI_DrawCenteredPic(qhandle_t image, int w, int h)
 //int startTime;
 
 #define	UI_FPS_FRAMES	4
+//Makro - mouse fading constants
+#define UI_MOUSE_HIDE_TIME		3500
+#define UI_MOUSE_FADE_START		3000
+
 void _UI_Refresh(int realtime)
 {
 	static int index;
@@ -1197,6 +1404,7 @@ void _UI_Refresh(int realtime)
 	int modelModCount;
 	//Makro - added
 	uiClientState_t cstate;
+	int lifeTime;
 
 	//if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
 	//      return;
@@ -1272,7 +1480,7 @@ void _UI_Refresh(int realtime)
 			angle = -RAD2DEG(atan2(dif[1], dif[0]));
 			Text_Paint(20, 20, 0.225f, colorCyan, va("(%i, %i) - (%i,%i) = (%i, %i) = %.2f = %.3f deg",
 				uiInfo.uiDC.mouseDownPos[0], uiInfo.uiDC.mouseDownPos[1], uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory,
-				dif[0], dif[1], norm, angle), 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+				dif[0], dif[1], norm, angle), 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
 			if (norm)
 			{
 				Vector2Scale(dif, 1.0f/norm, u);
@@ -1280,7 +1488,7 @@ void _UI_Refresh(int realtime)
 				Vector2Set(v, -u[1], u[0]);
 				UI_DrawAngledPic(uiInfo.uiDC.mouseDownPos[0], uiInfo.uiDC.mouseDownPos[1], norm, 2, u, v, linecolor, 0, 0, norm/16, 1, uiInfo.uiDC.selectShader);
 			}
-			Text_Paint(uiInfo.uiDC.mouseDownPos[0]-4, uiInfo.uiDC.mouseDownPos[1]+6, 0.4f, colorYellow, "x", 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+			Text_Paint(uiInfo.uiDC.mouseDownPos[0]-4, uiInfo.uiDC.mouseDownPos[1]+6, 0.4f, colorYellow, "x", 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
 		} else {
 			char *s;
 			menuDef_t *menu = Menu_GetFocused();
@@ -1291,9 +1499,10 @@ void _UI_Refresh(int realtime)
 			} else {
 				s = va("(%i, %i)", uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 			}
-			Text_Paint(20, 20, 0.225f, colorCyan, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+			Text_Paint(20, 20, 0.225f, colorCyan, s, 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
 		}
-		Text_Paint(20, 40, 0.225f, colorCyan, va("%i fps", uiInfo.uiDC.smoothFPS), 0, 0, ITEM_TEXTSTYLE_SHADOWED);
+		Text_Paint(20, 40, 0.225f, colorCyan, va("%i fps", uiInfo.uiDC.smoothFPS), 0, 0, 0,
+			ITEM_TEXTSTYLE_SHADOWED, qfalse);
 	}
 	//any left-overs?
 	if (uiInfo.uiDC.pendingPolys)
@@ -1304,7 +1513,11 @@ void _UI_Refresh(int realtime)
 	// draw cursor
 	UI_SetColor(NULL);
 	trap_GetClientState(&cstate);
-	if (Menu_Count() > 0 && (cstate.connState != CA_LOADING)) {
+	//Makro - not if it hasn't moved for a while
+	lifeTime = uiInfo.uiDC.realTime - uiInfo.uiDC.mouseMoveTime;
+
+	if (Menu_Count() > 0 && (cstate.connState != CA_LOADING) && (lifeTime < UI_MOUSE_HIDE_TIME))
+	{
 		float ccolor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		int size = uiInfo.uiDC.cursorSize;
 		if (!size)
@@ -1315,26 +1528,30 @@ void _UI_Refresh(int realtime)
 			ccolor[1] = 0.50f;
 			ccolor[2] = 0.25f;
 		}
+		if (lifeTime > UI_MOUSE_FADE_START)
+		{
+			ccolor[3] = 1.0f - (lifeTime - UI_MOUSE_FADE_START) / (float) (UI_MOUSE_HIDE_TIME - UI_MOUSE_FADE_START);
+		}
 		UI_SetColor(ccolor);
 		UI_DrawHandlePic(uiInfo.uiDC.cursorx - (size>>1), uiInfo.uiDC.cursory - (size>>1), size, size, uiInfo.uiDC.Assets.cursor);
 		UI_SetColor(NULL);
 	}
 
 	//Makro - draw overlay
-	//is fading ?
+	//is it fading ?
 	if (IsBetween(realtime, uiInfo.uiDC.overlayFadeStart, uiInfo.uiDC.overlayFadeEnd)) {
 		float oColor[4];
 		float amt = (float) (realtime - uiInfo.uiDC.overlayFadeStart) / (uiInfo.uiDC.overlayFadeEnd - uiInfo.uiDC.overlayFadeStart);
 		LerpColor(uiInfo.uiDC.overlayColor, uiInfo.uiDC.overlayColor2, oColor, amt);
 		if (oColor[3] != 0.0f) {
 			UI_SetColor(oColor);
-			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader, qfalse);
 			UI_SetColor(NULL);
 		}
 	} else {
 		if (uiInfo.uiDC.overlayColor2[3] != 0.0f) {
 			UI_SetColor(uiInfo.uiDC.overlayColor2);
-			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader);
+			uiInfo.uiDC.drawStretchPic(0, 0, uiInfo.uiDC.glconfig.vidWidth, uiInfo.uiDC.glconfig.vidHeight, 0, 0, 1, 1, uiInfo.uiDC.whiteShader, qfalse);
 			UI_SetColor(NULL);
 		}
 	}
@@ -1490,6 +1707,23 @@ qboolean Asset_Parse(int handle)
 			continue;
 		}
 
+		//Makro - key bind status 1
+		if (Q_stricmp(token.string, "keyBindStatus1") == 0) {
+			if (!PC_String_Parse(handle, &uiInfo.keyBindStatus1)) {
+				return qfalse;
+			}
+			continue;
+		}
+		
+		//Makro - key bind status 2
+		if (Q_stricmp(token.string, "keyBindStatus2") == 0) {
+			if (!PC_String_Parse(handle, &uiInfo.keyBindStatus2)) {
+				return qfalse;
+			}
+			continue;
+		}
+
+
 		//Makro - added cursor size
 		if (Q_stricmp(token.string, "cursorSize") == 0) {
 			if (!PC_Int_Parse(handle, &uiInfo.uiDC.cursorSize)) {
@@ -1540,6 +1774,23 @@ qboolean Asset_Parse(int handle)
 			uiInfo.uiDC.Assets.shadowFadeClamp = uiInfo.uiDC.Assets.shadowColor[3];
 			continue;
 		}
+
+		//Makro - for grouped checkboxes
+		if (Q_stricmp(token.string, "checkBox0") == 0) {
+			if (!PC_String_Parse(handle, &tempStr)) {
+				return qfalse;
+			}
+			uiInfo.uiDC.Assets.checkBox0 = trap_R_RegisterShaderNoMip(tempStr);
+			continue;
+		}
+		if (Q_stricmp(token.string, "checkBox1") == 0) {
+			if (!PC_String_Parse(handle, &tempStr)) {
+				return qfalse;
+			}
+			uiInfo.uiDC.Assets.checkBox1 = trap_R_RegisterShaderNoMip(tempStr);
+			continue;
+		}
+
 
 	}
 	return qfalse;
@@ -1712,7 +1963,7 @@ void UI_Load()
 
 	UI_LoadMenus(menuSet, qtrue);
 	Menus_CloseAll();
-	Menus_ActivateByName(lastName);
+	Menus_ActivateByName(lastName, qfalse);
 
 }
 
@@ -1731,12 +1982,12 @@ static void UI_DrawHandicap(rectDef_t * rect, float scale, vec4_t color, int tex
 	h = Com_Clamp(5, 100, trap_Cvar_VariableValue("handicap"));
 	i = 20 - h / 5;
 
-	Text_Paint(rect->x, rect->y, scale, color, handicapValues[i], 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, handicapValues[i], 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawClanName(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_teamName"), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_teamName"), 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_SetCapFragLimits(qboolean uiVars)
@@ -1761,7 +2012,7 @@ static void UI_SetCapFragLimits(qboolean uiVars)
 // ui_gameType assumes gametype 0 is -1 ALL and will not show
 static void UI_DrawGameType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_gameType.integer].gameType, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_gameType.integer].gameType, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawNetGameType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -1770,7 +2021,7 @@ static void UI_DrawNetGameType(rectDef_t * rect, float scale, vec4_t color, int 
 		trap_Cvar_Set("ui_netGameType", "0");
 		trap_Cvar_Set("ui_actualNetGameType", "0");
 	}
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawJoinGameType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -1778,8 +2029,8 @@ static void UI_DrawJoinGameType(rectDef_t * rect, float scale, vec4_t color, int
 	if (ui_joinGameType.integer < 0 || ui_joinGameType.integer > uiInfo.numJoinGameTypes) {
 		trap_Cvar_Set("ui_joinGameType", "0");
 	}
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.joinGameTypes[ui_joinGameType.integer].gameType, 0, 0,
-		   textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, uiInfo.joinGameTypes[ui_joinGameType.integer].gameType, 0, 0, 0,
+		   textStyle, qfalse);
 }
 
 static int UI_TeamIndexFromName(const char *name)
@@ -1876,7 +2127,7 @@ static void UI_DrawSkill(rectDef_t * rect, float scale, vec4_t color, int textSt
 	if (i < 1 || i > numSkillLevels) {
 		i = 1;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, skillLevels[i - 1], 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, skillLevels[i - 1], 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawTeamName(rectDef_t * rect, float scale, vec4_t color, qboolean blue, int textStyle)
@@ -1886,7 +2137,7 @@ static void UI_DrawTeamName(rectDef_t * rect, float scale, vec4_t color, qboolea
 	i = UI_TeamIndexFromName(UI_Cvar_VariableString((blue) ? "ui_blueTeam" : "ui_redTeam"));
 	if (i >= 0 && i < uiInfo.teamCount) {
 		Text_Paint(rect->x, rect->y, scale, color,
-			   va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), 0, 0, textStyle);
+			   va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), 0, 0, 0, textStyle, qfalse);
 	}
 }
 
@@ -1898,7 +2149,7 @@ static void UI_RQ3_DrawPreset(rectDef_t * rect, float scale, vec4_t color, int n
 	if (radioPresets[num-1].Text->string[0]) {
 		text = radioPresets[num-1].Text->string;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
 }
 
 static char team1Name[128], team2Name[128];
@@ -1906,7 +2157,7 @@ static char team1Name[128], team2Name[128];
 static void UI_RQ3_DrawJoinTeam(rectDef_t * rect, float scale, vec4_t color, int num, int textStyle)
 {
 	//char *text = va("Team %i", num);
-	Text_Paint(rect->x, rect->y, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawTeamMember(rectDef_t * rect, float scale, vec4_t color, qboolean blue, int num, int textStyle)
@@ -1946,9 +2197,10 @@ static void UI_DrawTeamMember(rectDef_t * rect, float scale, vec4_t color, qbool
 	//Makro - changed
 	//Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
 	if (ui_actualNetGameType.integer >= GT_TEAM) {
-		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", num, text), 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", num, text), 0, 0, 0, textStyle, qfalse);
 	} else {
-		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", blue ? (num + 5) : num, text), 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, va("%i. %s", blue ? (num + 5) : num, text), 0, 0, 0,
+			textStyle, qfalse);
 	}
 
 }
@@ -2000,7 +2252,7 @@ static void UI_DrawMapTimeToBeat(rectDef_t * rect, float scale, vec4_t color, in
 	minutes = time / 60;
 	seconds = time % 60;
 
-	Text_Paint(rect->x, rect->y, scale, color, va("%02i:%02i", minutes, seconds), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, va("%02i:%02i", minutes, seconds), 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawMapCinematic(rectDef_t * rect, float scale, vec4_t color, qboolean net)
@@ -2195,7 +2447,8 @@ static void UI_DrawNetSource(rectDef_t * rect, float scale, vec4_t color, int te
 	if (ui_netSource.integer < 0 || ui_netSource.integer > numNetSources) {
 		ui_netSource.integer = 0;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, va("Source: %s", netSources[ui_netSource.integer]), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, va("Source: %s", netSources[ui_netSource.integer]), 0, 0, 0,
+		textStyle, qfalse);
 }
 
 static void UI_DrawNetMapPreview(rectDef_t * rect, float scale, vec4_t color)
@@ -2230,7 +2483,8 @@ static void UI_DrawNetFilter(rectDef_t * rect, float scale, vec4_t color, int te
 		ui_serverFilterType.integer = 0;
 	}
 	Text_Paint(rect->x, rect->y, scale, color,
-		   va("Filter: %s", serverFilters[ui_serverFilterType.integer].description), 0, 0, textStyle);
+		   va("Filter: %s", serverFilters[ui_serverFilterType.integer].description), 0, 0, 0,
+		   textStyle, qfalse);
 }
 
 static void UI_DrawTier(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -2241,7 +2495,8 @@ static void UI_DrawTier(rectDef_t * rect, float scale, vec4_t color, int textSty
 	if (i < 0 || i >= uiInfo.tierCount) {
 		i = 0;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, va("Tier: %s", uiInfo.tierList[i].tierName), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, va("Tier: %s", uiInfo.tierList[i].tierName), 0, 0, 0,
+		textStyle, qfalse);
 }
 
 static void UI_DrawTierMap(rectDef_t * rect, int index)
@@ -2286,7 +2541,8 @@ static void UI_DrawTierMapName(rectDef_t * rect, float scale, vec4_t color, int 
 		j = 0;
 	}
 
-	Text_Paint(rect->x, rect->y, scale, color, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, UI_EnglishMapName(uiInfo.tierList[i].maps[j]),
+		0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawTierGameType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -2302,8 +2558,8 @@ static void UI_DrawTierGameType(rectDef_t * rect, float scale, vec4_t color, int
 		j = 0;
 	}
 
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType, 0, 0,
-		   textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType,
+		0, 0, 0, textStyle, qfalse);
 }
 
 //Makro - not used anywhere
@@ -2554,13 +2810,14 @@ static void UI_DrawAllMapsSelection(rectDef_t * rect, float scale, vec4_t color,
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
 	if (map >= 0 && map < uiInfo.mapCount) {
-		Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, 0, textStyle, qfalse);
 	}
 }
 
 static void UI_DrawOpponentName(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, UI_Cvar_VariableString("ui_opponentName"), 0, 0, 0,
+		textStyle, qfalse);
 }
 
 static int UI_OwnerDrawWidth(int ownerDraw, float scale)
@@ -2669,9 +2926,9 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale)
 		break;
 	case UI_KEYBINDSTATUS:
 		if (Display_KeyBindPending()) {
-			s = KEYBIND_STATUS1;
+			s = uiInfo.keyBindStatus2;
 		} else {
-			s = KEYBIND_STATUS2;
+			s = uiInfo.keyBindStatus1;
 		}
 		break;
 	case UI_SERVERREFRESHDATE:
@@ -2716,20 +2973,20 @@ static void UI_DrawBotName(rectDef_t * rect, float scale, vec4_t color, int text
 	}
 	text = UI_GetBotNameByNumber(value);
 //      }
-	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawBotSkill(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
-		Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, 0, textStyle, qfalse);
 	}
 }
 
 static void UI_DrawRedBlue(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	//Makro - added Team 1/2
-	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawCrosshair(rectDef_t * rect, float scale, vec4_t color)
@@ -2759,10 +3016,10 @@ static void UI_DrawClock(itemDef_t *item, rectDef_t * rect, float scale, vec4_t 
 	text = va("%02i:%02i", qt.tm_hour, qt.tm_min);
 
 	if (!item->window.rectClient.hasVectors) {
-		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
 	} else {
 		Text_PaintAngled(rect->x, rect->y,
-			item->window.rectClient.u, item->window.rectClient.v, scale, color, text, 0, 0, textStyle);
+			item->window.rectClient.u, item->window.rectClient.v, scale, color, text, 0, 0, 0, textStyle, qfalse);
 	}
 }
 
@@ -3207,7 +3464,7 @@ static void UI_DrawSelectedPlayer(rectDef_t * rect, float scale, vec4_t color, i
 	Text_Paint(rect->x, rect->y, scale, color,
 		   (uiInfo.
 		    teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name"), 0,
-		   0, textStyle);
+		   0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -3225,12 +3482,12 @@ static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color
 		}
 		LerpColor(color, lowLight, newColor, 0.5 + 0.5 * sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
 		Text_Paint(rect->x, rect->y, scale, newColor,
-			   va("Getting info for %d servers (ESC to cancel)", count), 0, 0, textStyle);
+			   va("Getting info for %d servers (ESC to cancel)", count), 0, 0, 0, textStyle, qfalse);
 	} else {
 		char buff[64];
 
 		Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), 64);
-		Text_Paint(rect->x, rect->y, scale, color, va("Refresh Time: %s", buff), 0, 0, textStyle);
+		Text_Paint(rect->x, rect->y, scale, color, va("Refresh Time: %s", buff), 0, 0, 0, textStyle, qfalse);
 	}
 }
 
@@ -3299,13 +3556,25 @@ static void UI_DrawServerMOTD(rectDef_t * rect, float scale, vec4_t color)
 	}
 }
 
-static void UI_DrawKeyBindStatus(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+static void UI_DrawKeyBindStatus(itemDef_t *item, rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 //      int ofs = 0; TTimo: unused
 	if (Display_KeyBindPending()) {
-		Text_Paint(rect->x, rect->y, scale, color, KEYBIND_STATUS1, 0, 0, textStyle);
+		if (item->window.rect.hasVectors)
+		{
+			Text_PaintAngled(rect->x, rect->y, item->window.rect.u, item->window.rect.v,
+				scale, color, uiInfo.keyBindStatus2, 0, 0, 0, textStyle, qfalse);
+		} else {
+			Text_Paint(rect->x, rect->y, scale, color, uiInfo.keyBindStatus2, 0, 0, 0, textStyle, qfalse);
+		}
 	} else {
-		Text_Paint(rect->x, rect->y, scale, color, KEYBIND_STATUS2, 0, 0, textStyle);
+		if (item->window.rect.hasVectors)
+		{
+			Text_PaintAngled(rect->x, rect->y, item->window.rect.u, item->window.rect.v,
+				scale, color, uiInfo.keyBindStatus1, 0, 0, 0, textStyle, qfalse);
+		} else {
+			Text_Paint(rect->x, rect->y, scale, color, uiInfo.keyBindStatus1, 0, 0, 0, textStyle, qfalse);
+		}
 	}
 }
 
@@ -3317,14 +3586,14 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 	int y, numLines, i;
 
 	//Makro - changed from 30 to 48; changed pixelformat display from (x-bits) to (x)
-	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 48,
-		   textStyle);
+	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 48, 0,
+		   textStyle, qfalse);
 	Text_Paint(rect->x + 2, rect->y + 15, scale, color,
 		   va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string, uiInfo.uiDC.glconfig.renderer_string), 0,
-		   48, textStyle);
+		   48, 0, textStyle, qfalse);
 	Text_Paint(rect->x + 2, rect->y + 30, scale, color,
 		   va("PIXELFORMAT: color(%d) Z(%d) stencil(%d)", uiInfo.uiDC.glconfig.colorBits,
-		      uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 48, textStyle);
+		      uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 48, 0, textStyle, qfalse);
 
 	// build null terminated extension strings
 	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 1024);
@@ -3346,9 +3615,9 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 
 	i = 0;
 	while (i < numLines) {
-		Text_Paint(rect->x + 2, y, scale, color, lines[i++], 0, 20, textStyle);
+		Text_Paint(rect->x + 2, y, scale, color, lines[i++], 0, 20, 0, textStyle, qfalse);
 		if (i < numLines) {
-			Text_Paint(rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, textStyle);
+			Text_Paint(rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, 0, textStyle, qfalse);
 		}
 		y += 10;
 		if (y > rect->y + rect->h - 11) {
@@ -3356,6 +3625,17 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 		}
 	}
 
+}
+
+//Makro - startup menu text
+static void UI_DrawStartupText(itemDef_t *item, rectDef_t *rect, float scale, vec4_t color, int textStyle)
+{
+	if (!item->window.rectClient.hasVectors) {
+		Text_Paint(rect->x, rect->y, scale, color, uiInfo.startupText, 0, 0, 0, textStyle, qfalse);
+	} else {
+		Text_PaintAngled(rect->x, rect->y,
+			item->window.rectClient.u, item->window.rectClient.v, scale, color, uiInfo.startupText, 0, 0, 0, textStyle, qfalse);
+	}
 }
 
 //Makro - replacement model info
@@ -3371,7 +3651,7 @@ static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, 
 		l = strlen(p);
 		while ( l>0 && Text_Width(p, scale, 0) > rect->w )
 			p[l--]=0;
-		Text_Paint(rect->x, y, scale, color, p, 0, 0, textStyle);
+		Text_Paint(rect->x, y, scale, color, p, 0, 0, 0, textStyle, qfalse);
 		y += Text_Height(p, scale, 0) + 4;
 	} while (strlen(text)>0 /*&& y<rect->h*/);
 }
@@ -3396,14 +3676,14 @@ static void UI_DrawReplacementName(rectDef_t * rect, float scale, vec4_t color, 
 	while (l>0 && Text_Width(name, scale, 0)>rect->w)
 		name[l--]=0;
 
-	Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	const char *p = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].displayName;
 
-	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -3424,7 +3704,7 @@ static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t colo
 		default:
 			return;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, textStyle);
+	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementModel(rectDef_t *rect)
@@ -3722,6 +4002,10 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 	case UI_RQ3_REPLACEMENTSUBTYPE:
 		UI_DrawReplacementSubtype(&rect, scale, color, textStyle);
 		break;
+	//Makro - startup menu text
+	case UI_RQ3_STARTUP:
+		UI_DrawStartupText(item, &rect, scale, color, textStyle);
+		break;
 	case UI_SELECTEDPLAYER:
 		UI_DrawSelectedPlayer(&rect, scale, color, textStyle);
 		break;
@@ -3735,7 +4019,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 		UI_DrawGLInfo(&rect, scale, color, textStyle);
 		break;
 	case UI_KEYBINDSTATUS:
-		UI_DrawKeyBindStatus(&rect, scale, color, textStyle);
+		UI_DrawKeyBindStatus(item, &rect, scale, color, textStyle);
 		break;
 	default:
 		break;
@@ -4794,11 +5078,11 @@ static void UI_LoadMovies()
 UI_LoadDemos
 ===============
 */
-static int q3Protocols[] = {66, 67, 68};
-static char *q3Versions[] = {"1.30", "1.31", "1.32"};
+static const int q3Protocols[] = {66, 67, 68};
+static const char *q3Versions[] = {"1.30", "1.31", "1.32"};
 static const int q3VersionCount = sizeof(q3Protocols)/sizeof(q3Protocols[0]);
 
-char *q3VersionFromProtocol(int protocol)
+const char *q3VersionFromProtocol(int protocol)
 {
 	int i;
 
@@ -4810,7 +5094,7 @@ char *q3VersionFromProtocol(int protocol)
 	return q3Versions[q3VersionCount-1];
 }
 
-int q3ProtocolFromVersion(char *version)
+int q3ProtocolFromVersion(const char *version)
 {
 	int i;
 
@@ -4822,13 +5106,22 @@ int q3ProtocolFromVersion(char *version)
 	return q3Protocols[q3VersionCount-1];
 }
 
-void UI_SortDemoList(int start, int end)
+void UI_SortDemoList(int start, int end, int column)
 {
 	int i, j;
-	//sort list alphabetically
 	for (i=start; i<end-1; i++)
+	{
 		for (j=i+1; j<end; j++)
-			if (Q_stricmp(uiInfo.demoList[i], uiInfo.demoList[j])>0)
+		{
+			qboolean swap;
+			//sort list alphabetically
+			if (column == 0)
+				swap = (Q_stricmp(uiInfo.demoList[i], uiInfo.demoList[j]) > 0);
+			//sort by q3 version
+			else
+				swap = (uiInfo.demoType[i] - uiInfo.demoType[j] > 0);
+
+			if (swap)
 			{
 				int tmp;
 				const char *tmpstr;
@@ -4840,6 +5133,8 @@ void UI_SortDemoList(int start, int end)
 				uiInfo.demoList[j] = tmpstr;
 				uiInfo.demoType[j] = tmp;
 			}
+		}
+	}
 }
 
 static void UI_LoadDemos()
@@ -4876,12 +5171,13 @@ static void UI_LoadDemos()
 				//Makro - bad for linux users
 				//Q_strupr(demoname);
 				uiInfo.demoType[uiInfo.demoCount] = j;
-				uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("%s (%s)", demoname, q3VersionFromProtocol(j)));
+				//uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("%s (%s)", demoname, q3VersionFromProtocol(j)));
+				uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(demoname);
 				demoname += len + 1;
 			}
 		}
 	}
-	UI_SortDemoList(0, uiInfo.demoCount);
+	UI_SortDemoList(0, uiInfo.demoCount, 0);
 }
 
 static qboolean UI_SetNextMap(int actual, int index)
@@ -5459,13 +5755,15 @@ static void UI_RunMenuScript(char **args)
 			//Makro - missing check
 			if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount)
 			{
+				//Makro - no longer needed
 				//Makro - remove version info
-				char demoname[128], *p;
-				Q_strncpyz(demoname, uiInfo.demoList[uiInfo.demoIndex], sizeof(demoname));
-				p = Q_strrchr(demoname, '(');
-				if (p)
-					*(p-1)=0;
-				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", demoname, uiInfo.demoType[uiInfo.demoIndex]));
+				//char demoname[128], *p;
+				//Q_strncpyz(demoname, uiInfo.demoList[uiInfo.demoIndex], sizeof(demoname));
+				//p = Q_strrchr(demoname, '(');
+				//if (p)
+				//	*(p-1)=0;
+				//trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", demoname, uiInfo.demoType[uiInfo.demoIndex]));
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", uiInfo.demoList[uiInfo.demoIndex], uiInfo.demoType[uiInfo.demoIndex]));
 			}
 		} else if (Q_stricmp(name, "Quake3") == 0) {
 			trap_Cvar_Set("fs_game", "");
@@ -5479,7 +5777,7 @@ static void UI_RunMenuScript(char **args)
 				UI_BuildServerDisplayList(qtrue);
 			} else {
 				Menus_CloseByName("joinserver");
-				Menus_OpenByName("main");
+				Menus_OpenByName("main", qfalse);
 			}
 		} else if (Q_stricmp(name, "StopRefresh") == 0) {
 			UI_StopServerRefresh();
@@ -5566,12 +5864,12 @@ static void UI_RunMenuScript(char **args)
 			trap_Cvar_Set("cl_paused", "1");
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			Menus_CloseAll();
-			Menus_ActivateByName("setup_menu2");
+			Menus_ActivateByName("setup_menu2", qfalse);
 		} else if (Q_stricmp(name, "Leave") == 0) {
 			trap_Cmd_ExecuteText(EXEC_APPEND, "disconnect\n");
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			Menus_CloseAll();
-			Menus_ActivateByName("main");
+			Menus_ActivateByName("main", qfalse);
 		} else if (Q_stricmp(name, "ServerSort") == 0) {
 			int sortColumn;
 
@@ -6771,7 +7069,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		}
 	} else if (feederID == FEEDER_MODS) {
 		if (index >= 0 && index < uiInfo.modCount) {
-			if (uiInfo.modList[index].modDescr && *uiInfo.modList[index].modDescr) {
+			if (uiInfo.modList[index].modDescr && *uiInfo.modList[index].modDescr && column == 0) {
 				return uiInfo.modList[index].modDescr;
 			} else {
 				return uiInfo.modList[index].modName;
@@ -6783,7 +7081,11 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		}
 	} else if (feederID == FEEDER_DEMOS) {
 		if (index >= 0 && index < uiInfo.demoCount) {
-			return uiInfo.demoList[index];
+			if (column == 0) {
+				return uiInfo.demoList[index];
+			} else if (column == 1) {
+				return q3VersionFromProtocol(uiInfo.demoType[index]);
+			}
 		}
 	//Makro - improved in-game server info list
 	} else if (feederID == FEEDER_INGAME_SERVERINFO) {
@@ -7524,8 +7826,11 @@ static void UI_BuildQ3Model_List(void)
 void UI_RQ3_StopBackgroundTrack(void)
 {
 	trap_S_StopBackgroundTrack();
-	uiInfo.playingIntro = "";
-	uiInfo.playingLoop = "";
+	uiInfo.playingIntro = NULL;
+	uiInfo.playingLoop = NULL;
+#ifdef DEBUG
+	Com_Printf("Stopped music\n");
+#endif
 }
 
 void UI_RQ3_StartBackgroundTrack(const char *intro, const char *loop)
@@ -7534,6 +7839,9 @@ void UI_RQ3_StartBackgroundTrack(const char *intro, const char *loop)
 		uiInfo.playingIntro = intro;
 		uiInfo.playingLoop = loop;
 		trap_S_StartBackgroundTrack(intro, loop);
+#ifdef DEBUG
+		Com_Printf("Started music: %s %s\n", intro, loop);
+#endif
 	}
 }
 
@@ -7558,11 +7866,15 @@ void UI_RenderScene(const refdef_t *ref)
 	trap_R_ClearScene();
 }
 
-void UI_DrawPolyStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader)
+void UI_DrawPolyStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, qboolean adjust)
 {
 	if (uiInfo.uiDC.pendingPolys)
 	{
 		UI_Render2DScene();
+	}
+	if (adjust)
+	{
+		UI_AdjustFrom640(&x, &y, &w, &h);
 	}
 	trap_R_DrawStretchPic(x, y, w, h, s1, t1, s2, t2, hShader);
 }
@@ -7590,9 +7902,10 @@ void _UI_Init(qboolean inGameLoad)
 	// cache redundant calulations
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
 
-	if (ui_maxpolys.integer < 4096)
+	//Makro - 8192 polys should be enough for the new UI...
+	if (ui_maxpolys.integer < 8192)
 	{
-		trap_Cvar_SetValue("r_maxpolys", 4096);
+		trap_Cvar_SetValue("r_maxpolys", 8192);
 		trap_Cmd_ExecuteText(EXEC_INSERT, "vid_restart");
 	}
 
@@ -7608,6 +7921,7 @@ void _UI_Init(qboolean inGameLoad)
 		uiInfo.uiDC.bias = 0;
 	}
 
+	//Makro - set up 2D scene
 	memset(&uiInfo.uiDC.scene2D, 0, sizeof(&uiInfo.uiDC.scene2D));
 	uiInfo.uiDC.scene2D.x = 0;
 	uiInfo.uiDC.scene2D.y = 0;
@@ -7619,6 +7933,13 @@ void _UI_Init(qboolean inGameLoad)
 	AxisClear(uiInfo.uiDC.scene2D.viewaxis);
 
 	
+	//Makro - default values for the key bind strings
+	uiInfo.keyBindStatus1 = KEYBIND_STATUS1;
+	uiInfo.keyBindStatus2 = KEYBIND_STATUS2;
+
+	//Makro - empty startup menu text
+	*uiInfo.startupText = 0;
+
 	//UI_Load();
 	uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
 	uiInfo.uiDC.setColor = &UI_SetColor;
@@ -7656,6 +7977,8 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;
 	uiInfo.uiDC.getCVarValue = trap_Cvar_VariableValue;
 	uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
+	//Makro - items using vectors
+	uiInfo.uiDC.drawAngledTextWithCursor = &Text_PaintWithCursorAngled;
 	uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
 	uiInfo.uiDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
 	uiInfo.uiDC.startLocalSound = &trap_S_StartLocalSound;
@@ -7743,8 +8066,8 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.savedMusicVol = qfalse;
 
 	//Makro - music files being played
-	uiInfo.playingIntro = "";
-	uiInfo.playingLoop = "";
+	uiInfo.playingIntro = NULL;
+	uiInfo.playingLoop = NULL;
 
 	//Makro - set default bot skill to medium
 	uiInfo.skillIndex = 2;
@@ -7755,7 +8078,7 @@ void _UI_Init(qboolean inGameLoad)
 	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
 	uiInfo.weapBan = atoi(Info_ValueForKey(info, "g_RQ3_weaponBan"));
 	uiInfo.itemBan = atoi(Info_ValueForKey(info, "g_RQ3_itemBan"));
-
+	
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
@@ -7771,6 +8094,9 @@ void _UI_Init(qboolean inGameLoad)
 
 	uiInfo.uiDC.cursorx = 320;
 	uiInfo.uiDC.cursory = 240;
+
+	//Makro - keep the cursor visible for 5 seconds
+	uiInfo.uiDC.mouseMoveTime = trap_Milliseconds() + 5000;
 }
 
 /*
@@ -7784,12 +8110,15 @@ void _UI_KeyEvent(int key, qboolean down)
 	if (key == K_MOUSE1)
 	{
 		uiInfo.uiDC.mouseDown[0] = down;
+		uiInfo.uiDC.mouseMoveTime = uiInfo.uiDC.realTime;
 		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	} else if (key == K_MOUSE2) {
 		uiInfo.uiDC.mouseDown[1] = down;
+		uiInfo.uiDC.mouseMoveTime = uiInfo.uiDC.realTime;
 		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	} else if (key == K_MOUSE3) {
 		uiInfo.uiDC.mouseDown[2] = down;
+		uiInfo.uiDC.mouseMoveTime = uiInfo.uiDC.realTime;
 		Vector2Set(uiInfo.uiDC.mouseDownPos, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
 
@@ -7820,14 +8149,24 @@ UI_MouseEvent
 */
 void _UI_MouseEvent(int dx, int dy)
 {
-	// update mouse screen position
-	uiInfo.uiDC.cursorx += dx;
+	//Makro - added tablet code
+	if (ui_RQ3_tabletMode.integer)
+	{
+		uiInfo.uiDC.cursorx = (int) (SCREEN_WIDTH / 2.0f +
+			(float) dx * SCREEN_WIDTH / uiInfo.uiDC.glconfig.vidWidth);
+		uiInfo.uiDC.cursory = (int) (SCREEN_HEIGHT / 2.0f +
+			(float) dy * SCREEN_HEIGHT / uiInfo.uiDC.glconfig.vidHeight);
+	} else {
+		// update mouse screen position
+		uiInfo.uiDC.cursorx += dx;
+		uiInfo.uiDC.cursory += dy;
+	}
+
 	if (uiInfo.uiDC.cursorx < 0)
 		uiInfo.uiDC.cursorx = 0;
 	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
 		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
 
-	uiInfo.uiDC.cursory += dy;
 	if (uiInfo.uiDC.cursory < 0)
 		uiInfo.uiDC.cursory = 0;
 	else if (uiInfo.uiDC.cursory > SCREEN_HEIGHT)
@@ -7838,6 +8177,9 @@ void _UI_MouseEvent(int dx, int dy)
 		//Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
+
+	//Makro - update the time
+	uiInfo.uiDC.mouseMoveTime = uiInfo.uiDC.realTime;
 }
 
 void UI_LoadNonIngame()
@@ -7878,11 +8220,11 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 				UI_LoadNonIngame();
 			}
 			Menus_CloseAll();
-			Menus_ActivateByName("main");
+			Menus_ActivateByName("main", qfalse);
 			trap_Cvar_VariableStringBuffer("com_errorMessage", buf, sizeof(buf));
 			if (strlen(buf)) {
 				if (!ui_singlePlayerActive.integer) {
-					Menus_ActivateByName("error_popmenu");
+					Menus_ActivateByName("error_popmenu", qfalse);
 				} else {
 					trap_Cvar_Set("com_errorMessage", "");
 				}
@@ -7891,13 +8233,13 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 				if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 96)
 				{
 					trap_Cvar_SetValue("com_hunkMegs", 96);
-					Menus_ActivateByName("memory_popmenu");
+					Menus_ActivateByName("memory_popmenu", qfalse);
 				};
 			}
 			return;
 		case UIMENU_TEAM:
 			trap_Key_SetCatcher(KEYCATCH_UI);
-			Menus_ActivateByName("team");
+			Menus_ActivateByName("team", qfalse);
 			return;
 		case UIMENU_NEED_CD:
 			// no cd check in TA
@@ -7918,7 +8260,7 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 				UI_LoadNonIngame();
 			}
 			Menus_CloseAll();
-			Menus_ActivateByName("endofgame");
+			Menus_ActivateByName("endofgame", qfalse);
 			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
 			return;
 		case UIMENU_INGAME:
@@ -7926,7 +8268,7 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			UI_BuildPlayerList();
 			Menus_CloseAll();
-			Menus_ActivateByName("ingame");
+			Menus_ActivateByName("ingame", qfalse);
 			return;
 		//Makro - RQ3 menus
 		case UIMENU_RQ3_WEAPON:
@@ -7934,7 +8276,7 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			UI_BuildPlayerList();
 			Menus_CloseAll();
-			Menus_ActivateByName("ingame_weapon");
+			Menus_ActivateByName("ingame_weapon", qfalse);
 			return;
 		case UIMENU_RQ3_JOIN:
 			trap_Cvar_Set("cl_paused", "1");
@@ -7942,9 +8284,9 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
-				Menus_ActivateByName("ingame_join");
+				Menus_ActivateByName("ingame_join", qfalse);
 			} else {
-				Menus_ActivateByName("ingame_join_dm");
+				Menus_ActivateByName("ingame_join_dm", qfalse);
 			}
 			return;
 		case UIMENU_RQ3_TKOK:
@@ -7952,14 +8294,14 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			UI_BuildPlayerList();
 			Menus_CloseAll();
-			Menus_ActivateByName("ingame_tkok");
+			Menus_ActivateByName("ingame_tkok", qfalse);
 			return;
 		case UIMENU_RQ3_PRESETS:
 			trap_Cvar_Set("cl_paused", "1");
 			trap_Key_SetCatcher(KEYCATCH_UI);
 			UI_BuildPlayerList();
 			Menus_CloseAll();
-			Menus_ActivateByName("ingame_presets");
+			Menus_ActivateByName("ingame_presets", qfalse);
 			return;
 		}
 	}
@@ -8008,7 +8350,7 @@ void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *t
 {
 	int len = Text_Width(text, scale, 0);
 
-	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	Text_Paint(x - len / 2, y, scale, color, text, 0, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, qfalse);
 }
 
 void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, float scale, vec4_t color, const char *str, float adjust)
@@ -8183,9 +8525,11 @@ void UI_DrawConnectScreen(qboolean overlay)
 	if (!Q_stricmp(cstate.servername, "localhost")) {
 		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, va("Starting up..."),
 				 ITEM_TEXTSTYLE_SHADOWEDMORE);
+		//Q_strncpyz(uiInfo.startupText, "Starting up...", sizeof(uiInfo.startupText));
 	} else {
 		strcpy(text, va("Connecting to %s", cstate.servername));
 		Text_PaintCenter(centerPoint, yStart + 48, scale, colorWhite, text, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		//Q_strncpyz(uiInfo.startupText, va("Connecting to %s", cstate.servername), sizeof(uiInfo.startupText));
 	}
 
 	// display global MOTD at bottom
@@ -8231,6 +8575,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	if (Q_stricmp(cstate.servername, "localhost")) {
 		Text_PaintCenter(centerPoint, yStart + 80, scale, colorWhite, s, 0);
 	}
+
 	// password required / connection rejected information goes here
 }
 
@@ -8367,6 +8712,9 @@ vmCvar_t ui_serverStatusTimeOut;
 
 //Makro - cvar for player model display
 vmCvar_t ui_RQ3_modelCommand;
+
+//Makro - tablet support in the UI
+vmCvar_t ui_RQ3_tabletMode;
 
 //Makro - model cvar
 vmCvar_t ui_RQ3_model;
@@ -8563,6 +8911,8 @@ static cvarTable_t cvarTable[] = {
 	{&ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 	{&ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{&ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
+	//Makro - tablet support in the UI
+	{&ui_RQ3_tabletMode, "ui_RQ3_tabletMode", "0", CVAR_ARCHIVE},
 	//Makro - cvar for player model display
 	{&ui_RQ3_modelCommand, "ui_RQ3_modelCommand", "0", 0},
 	{&ui_RQ3_ssgCrosshair, "ui_RQ3_ssgCrosshair", "0", 0},

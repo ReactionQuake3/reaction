@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.20  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -88,16 +91,16 @@
 #define WINDOW_MOUSEOVER			0x00000001	// mouse is over it, non exclusive
 #define WINDOW_HASFOCUS				0x00000002	// has cursor focus, exclusive
 #define WINDOW_VISIBLE				0x00000004	// is visible
-#define WINDOW_GREY						0x00000008	// is visible but grey ( non-active )
+#define WINDOW_GREY					0x00000008	// is visible but grey ( non-active )
 #define WINDOW_DECORATION			0x00000010	// for decoration only, no mouse, keyboard, etc..
 #define WINDOW_FADINGOUT			0x00000020	// fading out, non-active
 #define WINDOW_FADINGIN				0x00000040	// fading in
-#define WINDOW_MOUSEOVERTEXT	0x00000080	// mouse is over it, non exclusive
-#define WINDOW_INTRANSITION		0x00000100	// window is in transition
-#define WINDOW_FORECOLORSET		0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
+#define WINDOW_MOUSEOVERTEXT		0x00000080	// mouse is over it, non exclusive
+#define WINDOW_INTRANSITION			0x00000100	// window is in transition
+#define WINDOW_FORECOLORSET			0x00000200	// forecolor was explicitly set ( used to color alpha images or not )
 #define WINDOW_HORIZONTAL			0x00000400	// for list boxes and sliders, vertical is default this is set of horizontal
-#define WINDOW_LB_LEFTARROW		0x00000800	// mouse is over left/up arrow
-#define WINDOW_LB_RIGHTARROW	0x00001000	// mouse is over right/down arrow
+#define WINDOW_LB_LEFTARROW			0x00000800	// mouse is over left/up arrow
+#define WINDOW_LB_RIGHTARROW		0x00001000	// mouse is over right/down arrow
 #define WINDOW_LB_THUMB				0x00002000	// mouse is over thumb
 #define WINDOW_LB_PGUP				0x00004000	// mouse is over page up
 #define WINDOW_LB_PGDN				0x00008000	// mouse is over page down
@@ -105,12 +108,14 @@
 #define WINDOW_OOB_CLICK			0x00020000	// close on out of bounds click
 #define WINDOW_WRAPPED				0x00040000	// manually wrap text
 #define WINDOW_AUTOWRAPPED			0x00080000	// auto wrap text
-#define WINDOW_FORCED					0x00100000	// forced open
-#define WINDOW_POPUP					0x00200000	// popup
-#define WINDOW_BACKCOLORSET		0x00400000	// backcolor was explicitly set
-#define WINDOW_TIMEDVISIBLE		0x00800000	// visibility timing ( NOT implemented )
+#define WINDOW_FORCED				0x00100000	// forced open
+#define WINDOW_POPUP				0x00200000	// popup
+#define WINDOW_BACKCOLORSET			0x00400000	// backcolor was explicitly set
+#define WINDOW_TIMEDVISIBLE			0x00800000	// visibility timing ( NOT implemented )
 //Makro - ugliest hack ever... by far
-#define WINDOW_RENDERPOINT		0x01000000
+#define WINDOW_RENDERPOINT			0x01000000
+//Makro - forced text color
+#define WINDOW_FORCE_TEXT_COLOR		0x02000000
 
 
 // CGAME cursor type bits
@@ -137,15 +142,22 @@
 #define ART_FX_WHITE		"menu/art/fx_white"
 #define ART_FX_YELLOW		"menu/art/fx_yel"
 
-#define ASSET_GRADIENTBAR "ui/assets/gradientbar2.tga"
-#define ASSET_SCROLLBAR             "ui/assets/scrollbar.tga"
-#define ASSET_SCROLLBAR_ARROWDOWN   "ui/assets/scrollbar_arrow_dwn_a.tga"
-#define ASSET_SCROLLBAR_ARROWUP     "ui/assets/scrollbar_arrow_up_a.tga"
-#define ASSET_SCROLLBAR_ARROWLEFT   "ui/assets/scrollbar_arrow_left.tga"
-#define ASSET_SCROLLBAR_ARROWRIGHT  "ui/assets/scrollbar_arrow_right.tga"
-#define ASSET_SCROLL_THUMB          "ui/assets/scrollbar_thumb.tga"
-#define ASSET_SLIDER_BAR						"ui/assets/slider2.tga"
-#define ASSET_SLIDER_THUMB					"ui/assets/sliderbutt_1.tga"
+#define ASSET_GRADIENTBAR				"ui/assets/gradientbar2.tga"
+#define ASSET_SCROLLBAR_V				"ui/assets/scrollbar_vert.tga"
+//Makro - horizontal scrollbar
+#define ASSET_SCROLLBAR_H				"ui/assets/scrollbar_horz.tga"
+#define ASSET_SCROLLBAR_ARROWDOWN		"ui/assets/scrollbar_arrow_dwn_a.tga"
+#define ASSET_SCROLLBAR_ARROWUP			"ui/assets/scrollbar_arrow_up_a.tga"
+#define ASSET_SCROLLBAR_ARROWLEFT		"ui/assets/scrollbar_arrow_left_a.tga"
+#define ASSET_SCROLLBAR_ARROWRIGHT		"ui/assets/scrollbar_arrow_right_a.tga"
+//Makro - displayed when clicked
+#define ASSET_SCROLLBAR_ARROWDOWN2		"ui/assets/scrollbar_arrow_dwn_b.tga"
+#define ASSET_SCROLLBAR_ARROWUP2		"ui/assets/scrollbar_arrow_up_b.tga"
+#define ASSET_SCROLLBAR_ARROWLEFT2		"ui/assets/scrollbar_arrow_left_b.tga"
+#define ASSET_SCROLLBAR_ARROWRIGHT2		"ui/assets/scrollbar_arrow_right_b.tga"
+#define ASSET_SCROLL_THUMB				"ui/assets/scrollbar_thumb.tga"
+#define ASSET_SLIDER_BAR				"ui/assets/slider2.tga"
+#define ASSET_SLIDER_THUMB				"ui/assets/sliderbutt_1.tga"
 #define SCROLLBAR_SIZE 16.0
 #define SLIDER_WIDTH 96.0
 #define SLIDER_HEIGHT 16.0
@@ -180,12 +192,19 @@ typedef struct {
 } pointDef_t;
 typedef pointDef_t Point;
 
+typedef enum
+{
+	BACKCOLOR,
+	FORECOLOR,
+	BORDERCOLOR
+} colorType_t;
+
 //Makro - for the new fading method
 typedef struct {
 	vec4_t color1;
 	vec4_t color2;
 	qboolean active;
-	qboolean forecolor;
+	colorType_t colorType;
 	int startTime, endTime;
 } timeFade_t;
 
@@ -303,6 +322,27 @@ typedef struct modelDef_s {
 #define CVAR_SHOW			0x00000004
 #define CVAR_HIDE			0x00000008
 
+
+//Makro - added for YES/NO items
+
+#define YESNO_TEXT			0
+#define YESNO_ICON_LEFT		1
+#define YESNO_ICON_RIGHT	2
+
+typedef struct yesnoDef_s
+{
+	int groupIndex;
+	float activeCvarVal;
+	char activeCvarStr[128];
+	int kind;	//text / icon_left / icon_right
+	qboolean strDef;
+	qboolean wasActive;
+	int lastChangeTime;
+} yesnoDef_t;
+
+//
+
+
 typedef struct itemDef_s {
 	Window window;		// common positional, border, style, layout info
 	Rectangle textRect;	// rectangle the text ( if any ) consumes
@@ -337,6 +377,7 @@ typedef struct itemDef_s {
 	colorRangeDef_t colorRanges[MAX_COLOR_RANGES];
 	float special;		// used for feeder id's etc.. diff per type
 	int cursorPos;		// cursor position in characters
+	
 	void *typeData;		// type specific data ptr's
 	//Makro - color to fade when 
 } itemDef_t;
@@ -361,6 +402,10 @@ typedef struct {
 //Makro - executed when the menu is shown
 	const char *onShow;
 	const char *onFirstShow;
+	//Makro - executed when the user clicks outside the active area
+	const char *onOOBClick;
+	//Makro - special script to be executed when the menu is opened with "openspecial"
+	const char *onOpenSpecial;
 	qboolean shown;
 	int showCount;
 	const char *soundName;	// background loop sound for menu
@@ -389,7 +434,14 @@ typedef struct {
 	qhandle_t scrollBarArrowDown;
 	qhandle_t scrollBarArrowLeft;
 	qhandle_t scrollBarArrowRight;
-	qhandle_t scrollBar;
+	//Makro - shown when clicked
+	qhandle_t scrollBarArrowUp2;
+	qhandle_t scrollBarArrowDown2;
+	qhandle_t scrollBarArrowLeft2;
+	qhandle_t scrollBarArrowRight2;
+	//Makro - two separate backgrounds
+	qhandle_t scrollBarH;
+	qhandle_t scrollBarV;
 	qhandle_t scrollBarThumb;
 	qhandle_t buttonMiddle;
 	qhandle_t buttonInside;
@@ -418,6 +470,8 @@ typedef struct {
 	//Makro - for drop shadow effects
 	qhandle_t dropShadowCorners[4];
 	qhandle_t dropShadowRight, dropShadowBottom;
+	//Makro - for grouped checkboxes
+	qhandle_t checkBox0, checkBox1;
 
 } cachedAssets_t;
 
@@ -439,25 +493,28 @@ typedef struct {
 	qhandle_t(*registerShaderNoMip) (const char *p);
 	void (*setColor) (const vec4_t v);
 	void (*drawHandlePic) (float x, float y, float w, float h, qhandle_t asset);
+	//Makro - added "adjust"
 	void (*drawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2,
-				qhandle_t hShader);
+				qhandle_t hShader, qboolean adjust);
 	//Makro - angled pictures
 	void (*drawAngledPic) (float x, float y, float w, float h, const float *u, const float *v, const float *color, float s1, float t1, float s2, float t2,
 				qhandle_t hShader);
+	//Makro - added forceColor and maxwidth
 	void (*drawText) (float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit,
-			  int style);
+			  float maxwidth, int style, qboolean forceColor);
 	//Makro - angled text
 	void (*drawAngledText) (float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, float adjust, int limit,
-			  int style);
+			  float maxwidth, int style, qboolean forceColor);
 	int (*textWidth) (const char *text, float scale, int limit);
 	int (*textHeight) (const char *text, float scale, int limit);
 	 qhandle_t(*registerModel) (const char *p);
 	void (*modelBounds) (qhandle_t model, vec3_t min, vec3_t max);
 	void (*fillRect) (float x, float y, float w, float h, const vec4_t color);
-	void (*drawRect) (float x, float y, float w, float h, float size, const vec4_t color);
-	void (*drawSides) (float x, float y, float w, float h, float size);
-	void (*drawAngledRect) (float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type);
-	void (*drawTopBottom) (float x, float y, float w, float h, float size);
+	//Makro - added shader parm
+	void (*drawRect) (float x, float y, float w, float h, float size, const vec4_t color, qhandle_t shader);
+	void (*drawSides) (float x, float y, float w, float h, float size, qhandle_t shader);
+	void (*drawAngledRect) (float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type, qhandle_t shader);
+	void (*drawTopBottom) (float x, float y, float w, float h, float size, qhandle_t shader);
 	void (*clearScene) ();
 	void (*addRefEntityToScene) (const refEntity_t * re);
 	void (*renderScene) (const refdef_t * fd);
@@ -474,6 +531,9 @@ typedef struct {
 	float (*getCVarValue) (const char *cvar);
 	void (*setCVar) (const char *cvar, const char *value);
 	void (*drawTextWithCursor) (float x, float y, float scale, vec4_t color, const char *text, int cursorPos,
+				    char cursor, int limit, int style);
+	//Makro - vector items
+	void (*drawAngledTextWithCursor) (float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, int cursorPos,
 				    char cursor, int limit, int style);
 	void (*setOverstrikeMode) (qboolean b);
 	 qboolean(*getOverstrikeMode) ();
@@ -511,6 +571,9 @@ typedef struct {
 	//Makro - mouse down
 	qboolean mouseDown[3];
 	int mouseDownPos[2];
+	//Makro - last time the cursor was moved
+	int mouseMoveTime;
+
 	qboolean debug;
 
 	cachedAssets_t Assets;
@@ -563,7 +626,8 @@ qboolean PC_Script_Parse(int handle, const char **out);
 int Menu_Count();
 void Menu_New(int handle);
 void Menu_PaintAll();
-menuDef_t *Menus_ActivateByName(const char *p);
+//Makro - added second parameter
+menuDef_t *Menus_ActivateByName(const char *p, qboolean special);
 void Menu_Reset();
 qboolean Menus_AnyFullScreenVisible();
 void Menus_Activate(menuDef_t * menu);
@@ -577,7 +641,8 @@ void *Display_CaptureItem(int x, int y);
 qboolean Display_MouseMove(void *p, int x, int y);
 int Display_CursorType(int x, int y);
 qboolean Display_KeyBindPending();
-void Menus_OpenByName(const char *p);
+//Makro - added second parameter
+void Menus_OpenByName(const char *p, qboolean special);
 menuDef_t *Menus_FindByName(const char *p);
 void Menus_ShowByName(const char *p);
 void Menus_CloseByName(const char *p);
@@ -605,9 +670,12 @@ int trap_PC_SourceFileAndLine(int handle, char *filename, int *line);
 //Makro - new rendering stuff
 void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts);
 void UI_Render2DScene();
+void Rect_ToInnerCoords(rectDef_t *rect, float x, float y, float *resx, float *resy);
+
 #define UI_POLY_Z_OFFSET -0.00001f
 //Makro - for all the lazy people
 #define IsBetween(a, min, max) ( (a) >= (min) && (a) <= (max) )
+#define PRINT_RECT(r) (r).x, (r).y, (r).w, (r).h
 
 #define RECT_SIDES		1
 #define RECT_TOPBOTTOM	2

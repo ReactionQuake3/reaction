@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.21  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -593,9 +596,11 @@ void UI_Shutdown(void)
 UI_AdjustFrom640
 
 Adjusted for resolution and screen aspect ratio
+
+Makro - converted to macro, see ui_local.h
 ================
 */
-void UI_AdjustFrom640(float *x, float *y, float *w, float *h)
+void _UI_AdjustFrom640(float *x, float *y, float *w, float *h)
 {
 	// expect valid pointers
 #if 0
@@ -619,7 +624,7 @@ void UI_DrawNamedPic(float x, float y, float width, float height, const char *pi
 	hShader = trap_R_RegisterShaderNoMip(picname);
 	UI_AdjustFrom640(&x, &y, &width, &height);
 	//trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
-	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader, qfalse);
 }
 
 void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
@@ -649,7 +654,7 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	//trap_R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
-	uiInfo.uiDC.drawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader, qfalse);
 }
 
 /*
@@ -665,27 +670,29 @@ void UI_FillRect(float x, float y, float width, float height, const float *color
 
 	UI_AdjustFrom640(&x, &y, &width, &height);
 	//trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader, qfalse);
 
 	trap_R_SetColor(NULL);
 }
 
-void UI_DrawSides(float x, float y, float w, float h)
+//Makro - added shader parm
+void UI_DrawSides(float x, float y, float w, float h, qhandle_t shader)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	//trap_R_DrawStretchPic(x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 	//trap_R_DrawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, 1, h, 0, 0, 0, 0, shader, qfalse);
+	uiInfo.uiDC.drawStretchPic(x + w - 1, y, 1, h, 0, 0, 0, 0, shader, qfalse);
 }
 
-void UI_DrawTopBottom(float x, float y, float w, float h)
+//Makro - added shader parm
+void UI_DrawTopBottom(float x, float y, float w, float h, qhandle_t shader)
 {
 	UI_AdjustFrom640(&x, &y, &w, &h);
 	//trap_R_DrawStretchPic(x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 	//trap_R_DrawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-	uiInfo.uiDC.drawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+	uiInfo.uiDC.drawStretchPic(x, y, w, 1, 0, 0, 0, 0, shader, qfalse);
+	uiInfo.uiDC.drawStretchPic(x, y + h - 1, w, 1, 0, 0, 0, 0, shader, qfalse);
 }
 
 /*
@@ -695,12 +702,13 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_DrawRect(float x, float y, float width, float height, const float *color)
+//Makro - added shader
+void UI_DrawRect(float x, float y, float width, float height, const float *color, qhandle_t shader)
 {
 	trap_R_SetColor(color);
 
-	UI_DrawTopBottom(x, y, width, height);
-	UI_DrawSides(x, y, width, height);
+	UI_DrawTopBottom(x, y, width, height, shader);
+	UI_DrawSides(x, y, width, height, shader);
 
 	trap_R_SetColor(NULL);
 }
@@ -720,7 +728,7 @@ void UI_DrawTextBox(int x, int y, int width, int lines)
 	UI_FillRect(x + BIGCHAR_WIDTH / 2, y + BIGCHAR_HEIGHT / 2, (width + 1) * BIGCHAR_WIDTH,
 		    (lines + 1) * BIGCHAR_HEIGHT, colorBlack);
 	UI_DrawRect(x + BIGCHAR_WIDTH / 2, y + BIGCHAR_HEIGHT / 2, (width + 1) * BIGCHAR_WIDTH,
-		    (lines + 1) * BIGCHAR_HEIGHT, colorWhite);
+		    (lines + 1) * BIGCHAR_HEIGHT, colorWhite, uiInfo.uiDC.whiteShader);
 }
 
 qboolean UI_CursorInRect(int x, int y, int width, int height)

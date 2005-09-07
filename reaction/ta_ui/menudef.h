@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.13  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.12  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -279,6 +282,9 @@
 #define UI_RQ3_REPLACEMENTMODEL 165
 #define UI_RQ3_REPLACEMENTTYPE 166
 #define UI_RQ3_REPLACEMENTSUBTYPE 167
+
+//Makro - startup menu text
+#define UI_RQ3_STARTUP 168
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200

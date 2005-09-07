@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.27  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.26  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -198,6 +201,9 @@ extern vmCvar_t ui_serverStatusTimeOut;
 extern vmCvar_t ui_RQ3_modelCommand;
 //Makro - model cvar
 extern vmCvar_t ui_RQ3_model;
+
+//Makro - tablet support in the UI
+extern vmCvar_t ui_RQ3_tabletMode;
 
 //Makro - team counts for the join menu
 //Handled in cgame now
@@ -1011,6 +1017,12 @@ typedef struct {
 
 	//Makro - weapon/item bans
 	int weapBan, itemBan;
+
+	//Makro - custom key bind status
+	const char *keyBindStatus1, *keyBindStatus2;
+
+	//Makro - startup menu text
+	char startupText[512];
 } uiInfo_t;
 
 extern uiInfo_t uiInfo;
@@ -1025,9 +1037,9 @@ extern float UI_ClampCvar(float min, float max, float value);
 extern void UI_DrawNamedPic(float x, float y, float width, float height, const char *picname);
 extern void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
 extern void UI_FillRect(float x, float y, float width, float height, const float *color);
-extern void UI_DrawRect(float x, float y, float width, float height, const float *color);
-extern void UI_DrawTopBottom(float x, float y, float w, float h);
-extern void UI_DrawSides(float x, float y, float w, float h);
+extern void UI_DrawRect(float x, float y, float width, float height, const float *color, qhandle_t shader);
+extern void UI_DrawTopBottom(float x, float y, float w, float h, qhandle_t shader);
+extern void UI_DrawSides(float x, float y, float w, float h, qhandle_t shader);
 extern void UI_UpdateScreen(void);
 extern void UI_SetColor(const float *rgba);
 extern void UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
@@ -1038,7 +1050,11 @@ extern int UI_ProportionalStringWidth(const char *str);
 extern void UI_DrawString(int x, int y, const char *str, int style, vec4_t color);
 extern void UI_DrawChar(int x, int y, int ch, int style, vec4_t color);
 extern qboolean UI_CursorInRect(int x, int y, int width, int height);
-extern void UI_AdjustFrom640(float *x, float *y, float *w, float *h);
+
+//Makro - converted to macro
+extern void _UI_AdjustFrom640(float *x, float *y, float *w, float *h);
+#define UI_AdjustFrom640(px, py, pw, ph) (*(px) *= uiInfo.uiDC.xscale, *(py) *= uiInfo.uiDC.yscale, *(pw) *= uiInfo.uiDC.xscale, *(ph) *= uiInfo.uiDC.yscale)
+
 extern void UI_DrawTextBox(int x, int y, int width, int lines);
 extern qboolean UI_IsFullscreen(void);
 extern void UI_SetActiveMenu(uiMenuCommand_t menu);

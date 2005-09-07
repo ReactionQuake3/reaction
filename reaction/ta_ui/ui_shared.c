@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.32  2005/09/07 20:24:33  makro
+// Vector support for most item types
+//
 // Revision 1.31  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -151,6 +154,7 @@ int GMemory()
 
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
+
 //Makro - previous menu
 static menuDef_t *prevMenu = NULL;
 
@@ -766,13 +770,14 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 }
 
 //Makro - new fading method
+//TODO: support for border and overlay colors
 void UI_RQ3_HandleFading(Window * w)
 {
 	if (w) {
 		if ((w->timeFade.active)) {
 			if (DC->realTime > w->timeFade.endTime) {
 				w->timeFade.active = qfalse;
-				if ((w->timeFade.forecolor)) {
+				if ((w->timeFade.colorType = FORECOLOR)) {
 					memcpy(w->foreColor, w->timeFade.color2, sizeof(vec4_t));
 					//autohide
 					if (w->foreColor[3] == 0)
@@ -788,7 +793,7 @@ void UI_RQ3_HandleFading(Window * w)
 					float frac =
 					    ((float) (DC->realTime - w->timeFade.startTime)) /
 					    ((float) (w->timeFade.endTime - w->timeFade.startTime));
-					qboolean forecolor = w->timeFade.forecolor;
+					qboolean forecolor = (w->timeFade.colorType == FORECOLOR);
 					if (forecolor) {
 						LerpColor(w->timeFade.color1, w->timeFade.color2, w->foreColor, frac);
 					} else {
@@ -808,7 +813,8 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 
 	if (debugMode) {
 		//color[0] = color[1] = color[2] = color[3] = 1;
-		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
+		//Makro - added shader parm
+		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color, DC->whiteShader);
 	}
 
 	if (w == NULL) {
@@ -926,29 +932,35 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 			color[3] = 1;
 			if (w->rectClient.hasVectors)
 			{
+				//Makro - added shader parm
 				DC->drawAngledRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->rect.u, w->rect.v,
-					w->borderSize, color, RECT_FULL);
+					w->borderSize, color, RECT_FULL, DC->whiteShader);
 			} else {
-				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color);
+				//Makro - added shader parm
+				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color, DC->whiteShader);
 			}
 		} else {
 			if (w->rectClient.hasVectors)
 			{
+				//Makro - added shader parm
 				DC->drawAngledRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->rect.u, w->rect.v,
-					w->borderSize, w->borderColor, RECT_FULL);
+					w->borderSize, w->borderColor, RECT_FULL, DC->whiteShader);
 			} else {
-				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor);
+				//Makro - added shader parm
+				DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor, DC->whiteShader);
 			}
 		}
 	} else if (w->border == WINDOW_BORDER_HORZ) {
 		// top/bottom
 		DC->setColor(w->borderColor);
-		DC->drawTopBottom(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
+		//Makro - added shader parm
+		DC->drawTopBottom(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, DC->whiteShader);
 		DC->setColor(NULL);
 	} else if (w->border == WINDOW_BORDER_VERT) {
 		// left right
 		DC->setColor(w->borderColor);
-		DC->drawSides(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize);
+		//Makro - added shader parm
+		DC->drawSides(w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, DC->whiteShader);
 		DC->setColor(NULL);
 	} else if (w->border == WINDOW_BORDER_KCGRADIENT) {
 		// this is just two gradient bars along each horz edge
@@ -1091,22 +1103,11 @@ qboolean IsVisible(int flags)
 qboolean Rect_ContainsPoint(rectDef_t * rect, float x, float y)
 {
 	if (rect) {
-		//Makro - twisted rectangle?
-		if (rect->hasVectors)
+		float px, py;
+		Rect_ToInnerCoords(rect, x, y, &px, &py);
+		if (px > 0 && px < rect->w && py > 0 && py < rect->h)
 		{
-			float dx = x - rect->x;
-			float dy = y - rect->y;
-			float px = dx * rect->u[0] + dy * rect->u[1];
-			float py = dx * rect->v[0] + dy * rect->v[1];
-			if (px > 0 && px < rect->w && py > 0 && py < rect->h)
-			{
-				return qtrue;
-			}
-		} else {
-			if (x > rect->x && x < rect->x + rect->w && y > rect->y && y < rect->y + rect->h)
-			{
-				return qtrue;
-			}
+			return qtrue;
 		}
 	}
 	return qfalse;
@@ -1495,9 +1496,10 @@ void Menus_ShowByName(const char *p)
 	}
 }
 
-void Menus_OpenByName(const char *p)
+//Makro - added second parameter
+void Menus_OpenByName(const char *p, qboolean special)
 {
-	Menus_ActivateByName(p);
+	Menus_ActivateByName(p, special);
 }
 
 static void Menu_RunCloseScript(menuDef_t * menu)
@@ -1510,13 +1512,37 @@ static void Menu_RunCloseScript(menuDef_t * menu)
 	}
 }
 
+//Makro - closes a menu
+void Menus_Close(menuDef_t *menu)
+{
+	int i;
+
+	if (!menu)
+		return;
+
+	for (i=0; i<openMenuCount; i++)
+	{
+		if (menuStack[i] == menu)
+		{
+			openMenuCount--;
+			while (i < openMenuCount)
+			{
+				menuStack[i] = menuStack[i+1];
+				i++;
+			}
+			break;
+		}
+	}
+	Menu_RunCloseScript(menu);
+	menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+}
+
 void Menus_CloseByName(const char *p)
 {
 	menuDef_t *menu = Menus_FindByName(p);
 
 	if (menu != NULL) {
-		Menu_RunCloseScript(menu);
-		menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
+		Menus_Close(menu);
 	}
 }
 
@@ -1525,8 +1551,7 @@ void Menus_CloseAll()
 	int i;
 
 	for (i = 0; i < menuCount; i++) {
-		Menu_RunCloseScript(&Menus[i]);
-		Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+		Menus_Close(&Menus[i]);
 	}
 }
 
@@ -1559,7 +1584,7 @@ void Script_Hide(itemDef_t * item, char **args)
 }
 
 //Makro - for the new fading method
-void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int duration, qboolean forecolor)
+void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int duration, colorType_t colorType)
 {
 	int i;
 
@@ -1567,7 +1592,7 @@ void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int dura
 		duration = 1;
 	}
 
-	if (forecolor) {
+	if (colorType == FORECOLOR) {
 		memcpy(item->window.timeFade.color1, item->window.foreColor, sizeof(vec4_t));
 		item->window.flags |= WINDOW_FORECOLORSET;
 	} else {
@@ -1585,7 +1610,7 @@ void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int dura
 	}
 
 	item->window.timeFade.active = qtrue;
-	item->window.timeFade.forecolor = forecolor;
+	item->window.timeFade.colorType = colorType;
 	item->window.timeFade.startTime = DC->realTime + offset;
 	item->window.timeFade.endTime = item->window.timeFade.startTime + duration;
 	/*
@@ -1597,7 +1622,7 @@ void UI_RQ3_TimeFadeItem(itemDef_t * item, vec4_t endColor, int offset, int dura
 	 */
 }
 void Menu_TimeFadeItemByName(menuDef_t * menu, const char *name, vec4_t endColor, int offset, int duration,
-			     qboolean forecolor)
+			     colorType_t colorType)
 {
 	if (menu) {
 		int i;
@@ -1607,7 +1632,7 @@ void Menu_TimeFadeItemByName(menuDef_t * menu, const char *name, vec4_t endColor
 			if (!Q_stricmp(menu->items[i]->window.name, name)
 			    || !Q_stricmp(menu->items[i]->window.group, name)
 			    || !Q_stricmp(menu->items[i]->window.subgroup, name)) {
-				UI_RQ3_TimeFadeItem(menu->items[i], endColor, offset, duration, forecolor);
+				UI_RQ3_TimeFadeItem(menu->items[i], endColor, offset, duration, colorType);
 			}
 		}
 		//}
@@ -1628,10 +1653,10 @@ void Script_TimeFade(itemDef_t * item, char **args)
 					if (Int_Parse(args, &duration)) {
 						if (!Q_stricmp(isForeColor, "forecolor")) {
 							Menu_TimeFadeItemByName(item->parent, name, endColor, offset,
-										duration, qtrue);
+										duration, FORECOLOR);
 						} else {
 							Menu_TimeFadeItemByName(item->parent, name, endColor, offset,
-										duration, qfalse);
+										duration, BACKCOLOR);
 						}
 					}
 				}
@@ -1650,9 +1675,9 @@ void Script_TimeFadeSelf(itemDef_t * item, char **args)
 			if (Int_Parse(args, &offset)) {
 				if (Int_Parse(args, &duration)) {
 					if (!Q_stricmp(isForeColor, "forecolor")) {
-						UI_RQ3_TimeFadeItem(item, endColor, offset, duration, qtrue);
+						UI_RQ3_TimeFadeItem(item, endColor, offset, duration, FORECOLOR);
 					} else {
-						UI_RQ3_TimeFadeItem(item, endColor, offset, duration, qfalse);
+						UI_RQ3_TimeFadeItem(item, endColor, offset, duration, BACKCOLOR);
 					}
 				}
 			}
@@ -1685,9 +1710,9 @@ void Script_Open(itemDef_t * item, char **args)
 	if (String_Parse(args, &name)) {
 		//Makro - previous menu
 		if ( (!Q_stricmp(name, "_previous") || !Q_stricmp(name, "_prev")) && prevMenu) {
-			Menus_OpenByName(prevMenu->window.name);
+			Menus_OpenByName(prevMenu->window.name, qfalse);
 		} else {
-			Menus_OpenByName(name);
+			Menus_OpenByName(name, qfalse);
 		}
 		prevMenu = (menuDef_t*)item->parent;
 	}
@@ -1703,9 +1728,9 @@ void Script_ConditionalOpen(itemDef_t * item, char **args)
 	if (String_Parse(args, &cvar) && String_Parse(args, &name1) && String_Parse(args, &name2)) {
 		val = DC->getCVarValue(cvar);
 		if (val == 0.f) {
-			Menus_OpenByName(name2);
+			Menus_OpenByName(name2, qfalse);
 		} else {
-			Menus_OpenByName(name1);
+			Menus_OpenByName(name1, qfalse);
 		}
 	}
 }
@@ -1726,6 +1751,22 @@ void Script_Close(itemDef_t * item, char **args)
 	}
 }
 
+//Makro - opens a menu and runs its "special" script
+void Script_OpenSpecial(itemDef_t * item, char **args)
+{
+	const char *name;
+
+	if (String_Parse(args, &name)) {
+		//Makro - previous menu
+		if ( (!Q_stricmp(name, "_previous") || !Q_stricmp(name, "_prev")) && prevMenu) {
+			Menus_OpenByName(prevMenu->window.name, qtrue);
+		} else {
+			Menus_OpenByName(name, qtrue);
+		}
+		prevMenu = (menuDef_t*)item->parent;
+	}
+}
+
 void Menu_TransitionItemByName(menuDef_t * menu, const char *p, rectDef_t rectFrom, rectDef_t rectTo, int time,
 			       float amt)
 {
@@ -1738,13 +1779,22 @@ void Menu_TransitionItemByName(menuDef_t * menu, const char *p, rectDef_t rectFr
 		if (item != NULL) {
 			item->window.flags |= (WINDOW_INTRANSITION | WINDOW_VISIBLE);
 			item->window.offsetTime = time;
-			//FIXME: this is probably breaking vectors
+			//Makro - copy vector info
+			rectFrom.hasVectors = item->window.rect.hasVectors;
+			Vector2Copy(item->window.rect.u, rectFrom.u);
+			Vector2Copy(item->window.rect.v, rectFrom.v);
+			//
+			rectTo.hasVectors = rectFrom.hasVectors;
+			Vector2Copy(rectFrom.u, rectTo.u);
+			Vector2Copy(rectFrom.v, rectTo.v);
+			//
 			memcpy(&item->window.rectClient, &rectFrom, sizeof(rectDef_t));
 			memcpy(&item->window.rectEffects, &rectTo, sizeof(rectDef_t));
 			item->window.rectEffects2.x = abs(rectTo.x - rectFrom.x) / amt;
 			item->window.rectEffects2.y = abs(rectTo.y - rectFrom.y) / amt;
 			item->window.rectEffects2.w = abs(rectTo.w - rectFrom.w) / amt;
 			item->window.rectEffects2.h = abs(rectTo.h - rectFrom.h) / amt;
+
 			Item_UpdatePosition(item);
 		}
 	}
@@ -1976,9 +2026,11 @@ commandDef_t commandList[] = {
 	{"setoverlaycolor", &Script_SetOverlayColor},
 	//Makro - sets random color
 	{"setrandomcolor", &Script_SetRandomColor},
-	{"open", &Script_Open},			// nenu
+	{"open", &Script_Open},			// menu
 	{"conditionalopen", &Script_ConditionalOpen},			// menu
 	{"close", &Script_Close},			// menu
+	//Makro - opens a menu and runs its "special" script
+	{"openspecial", &Script_OpenSpecial},
 	{"setasset", &Script_SetAsset},			// works on this
 	{"setbackground", &Script_SetBackground},			// works on this
 	{"setitemcolor", &Script_SetItemColor},			// group/name
@@ -2170,12 +2222,14 @@ int Item_ListBox_MaxScroll(itemDef_t * item)
 	return max;
 }
 
+//returns absolute position
 int Item_ListBox_ThumbPosition(itemDef_t * item)
 {
 	float max, pos, size;
 	listBoxDef_t *listPtr = (listBoxDef_t *) item->typeData;
 
 	max = Item_ListBox_MaxScroll(item);
+	//horizontal
 	if (item->window.flags & WINDOW_HORIZONTAL) {
 		size = item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
 		if (max > 0) {
@@ -2185,6 +2239,7 @@ int Item_ListBox_ThumbPosition(itemDef_t * item)
 		}
 		pos *= listPtr->startPos;
 		return item->window.rect.x + 1 + SCROLLBAR_SIZE + pos;
+	//vertical
 	} else {
 		size = item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
 		if (max > 0) {
@@ -2197,31 +2252,73 @@ int Item_ListBox_ThumbPosition(itemDef_t * item)
 	}
 }
 
+//returns absolute position
+//TODO: return relative position, convert value in drawing function
 int Item_ListBox_ThumbDrawPosition(itemDef_t * item)
 {
 	int min, max;
 
-	if (itemCapture == item) {
+	//Makro - added thumb condition
+	if (itemCapture == item && item->window.flags & WINDOW_LB_THUMB) {
+		//horizontal
 		if (item->window.flags & WINDOW_HORIZONTAL) {
-			min = item->window.rect.x + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.x + item->window.rect.w - 2 * SCROLLBAR_SIZE - 1;
-			if (DC->cursorx >= min + SCROLLBAR_SIZE / 2 && DC->cursorx <= max + SCROLLBAR_SIZE / 2) {
-				return DC->cursorx - SCROLLBAR_SIZE / 2;
-			} else {
-				return Item_ListBox_ThumbPosition(item);
+			//Makro - vectors?
+			float px;
+
+			min = SCROLLBAR_SIZE + 1;
+			max = item->window.rect.w - 2 * SCROLLBAR_SIZE - 1;
+			if (item->window.rect.hasVectors)
+			{
+				Rect_ToInnerCoords(&item->window.rect, DC->cursorx, DC->cursory, &px, NULL);
+				/*
+				if (px >= min + SCROLLBAR_SIZE / 2 && px <= max + SCROLLBAR_SIZE / 2) {
+					return item->window.rect.x + px - SCROLLBAR_SIZE / 2;
+				}
+				*/
+			} else {	//no vectors
+				px = DC->cursorx - item->window.rect.x;
+				/*
+				if (DC->cursorx >= min + SCROLLBAR_SIZE / 2 && DC->cursorx <= max + SCROLLBAR_SIZE / 2) {
+					return DC->cursorx - SCROLLBAR_SIZE / 2;
+				}
+				*/
 			}
+			if (px <= min + SCROLLBAR_SIZE / 2)
+				return item->window.rect.x + min;
+			else if (px >= max + SCROLLBAR_SIZE / 2)
+				return item->window.rect.x + max;
+			else
+				return item->window.rect.x + px - SCROLLBAR_SIZE / 2;
+		//vertical
 		} else {
-			min = item->window.rect.y + SCROLLBAR_SIZE + 1;
-			max = item->window.rect.y + item->window.rect.h - 2 * SCROLLBAR_SIZE - 1;
-			if (DC->cursory >= min + SCROLLBAR_SIZE / 2 && DC->cursory <= max + SCROLLBAR_SIZE / 2) {
-				return DC->cursory - SCROLLBAR_SIZE / 2;
+			float py;
+			//Makro - vectors?
+			if (item->window.rect.hasVectors) {
+				
+				min = SCROLLBAR_SIZE + 1;
+				max = item->window.rect.h - 2 * SCROLLBAR_SIZE - 1;
+				/*
+				py = (DC->cursorx - item->window.rect.x) * item->window.rect.v[0] + 
+					(DC->cursory - item->window.rect.y) * item->window.rect.v[1];
+				*/
+				Rect_ToInnerCoords(&item->window.rect, DC->cursorx, DC->cursory, NULL, &py);
 			} else {
-				return Item_ListBox_ThumbPosition(item);
+				min = SCROLLBAR_SIZE + 1;
+				max = item->window.rect.h - 2 * SCROLLBAR_SIZE - 1;
+				py = DC->cursory - item->window.rect.y;
+				//if (DC->cursory >= min + SCROLLBAR_SIZE / 2 && DC->cursory <= max + SCROLLBAR_SIZE / 2)
+				//	return DC->cursory - SCROLLBAR_SIZE / 2;
+				//if (DC->cursory <= min + SCROLLBAR_SIZE / 2)
 			}
+			if (py <= min + SCROLLBAR_SIZE / 2)
+				return item->window.rect.y + min;
+			else if (py >= max + SCROLLBAR_SIZE / 2)
+				return item->window.rect.y + max;
+			else
+				return item->window.rect.y + py - SCROLLBAR_SIZE / 2;
 		}
-	} else {
-		return Item_ListBox_ThumbPosition(item);
 	}
+	return Item_ListBox_ThumbPosition(item);
 }
 
 Point Item_Slider_ThumbPosition(itemDef_t * item)
@@ -2307,71 +2404,175 @@ int Item_Slider_OverSlider(itemDef_t * item, float x, float y)
 	return 0;
 }
 
+//Makro - vector support
 int Item_ListBox_OverLB(itemDef_t * item, float x, float y)
 {
 	rectDef_t r;
 	listBoxDef_t *listPtr;
 	int thumbstart;
 	int count;
+	float p[2];
 
-	r.hasVectors = qfalse;
+	r.hasVectors = item->window.rect.hasVectors;
+	Vector2Copy(item->window.rect.u, r.u);
+	Vector2Copy(item->window.rect.v, r.v);
 	
 	count = DC->feederCount(item->special);
 	listPtr = (listBoxDef_t *) item->typeData;
+	//horizontal
 	if (item->window.flags & WINDOW_HORIZONTAL) {
-		// check if on left arrow
-		r.x = item->window.rect.x;
-		r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		r.h = r.w = SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_LEFTARROW;
+		//vectors?
+		if (r.hasVectors) {
+			// check if on left arrow
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.h - SCROLLBAR_SIZE, r.v, p);
+			r.x = p[0];
+			r.y = p[1];
+			r.h = r.w = SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_LEFTARROW;
+			}
+			// check if on right arrow
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE, r.u, p);
+			r.x = p[0];
+			r.y = p[1];
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_RIGHTARROW;
+			}
+			// check if on thumb
+			thumbstart = Item_ListBox_ThumbPosition(item);
+			Vector2MA(p, (thumbstart - item->window.rect.x) - (item->window.rect.w - SCROLLBAR_SIZE), r.u, p);
+			r.x = p[0];
+			r.y = p[1];
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_THUMB;
+			}
+			// check if on page down
+			Vector2MA(p, SCROLLBAR_SIZE, r.u, p);
+			r.x = p[0];
+			r.y = p[1];
+			r.w = item->window.rect.w - (thumbstart - item->window.rect.x) - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGDN;
+			}
+			// check if on page up
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.h - SCROLLBAR_SIZE, r.v, p);
+			Vector2MA(p, SCROLLBAR_SIZE, r.u, p);
+			r.x = p[0];
+			r.y = p[1];
+			r.w = thumbstart - item->window.rect.x - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGUP;
+			}
+		//no vectors
+		} else {
+			// check if on left arrow
+			r.x = item->window.rect.x;
+			r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+			r.h = r.w = SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_LEFTARROW;
+			}
+			// check if on right arrow
+			r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_RIGHTARROW;
+			}
+			// check if on thumb
+			thumbstart = Item_ListBox_ThumbPosition(item);
+			r.x = thumbstart;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_THUMB;
+			}
+			r.x = item->window.rect.x + SCROLLBAR_SIZE;
+			r.w = thumbstart - r.x;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGUP;
+			}
+			r.x = thumbstart + SCROLLBAR_SIZE;
+			r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGDN;
+			}
 		}
-		// check if on right arrow
-		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_RIGHTARROW;
-		}
-		// check if on thumb
-		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.x = thumbstart;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_THUMB;
-		}
-		r.x = item->window.rect.x + SCROLLBAR_SIZE;
-		r.w = thumbstart - r.x;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_PGUP;
-		}
-		r.x = thumbstart + SCROLLBAR_SIZE;
-		r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_PGDN;
-		}
+	//vertical
 	} else {
-		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
-		r.y = item->window.rect.y;
-		r.h = r.w = SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_LEFTARROW;
-		}
-		r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_RIGHTARROW;
-		}
-		thumbstart = Item_ListBox_ThumbPosition(item);
-		r.y = thumbstart;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_THUMB;
-		}
-		r.y = item->window.rect.y + SCROLLBAR_SIZE;
-		r.h = thumbstart - r.y;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_PGUP;
-		}
-		r.y = thumbstart + SCROLLBAR_SIZE;
-		r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			return WINDOW_LB_PGDN;
+		//vectors?
+		if (r.hasVectors) {
+			//Makro - TODO: optimize this code
+			// check if on left arrow
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE, r.u, p);
+			r.h = r.w = SCROLLBAR_SIZE;
+			r.x = p[0];
+			r.y = p[1];
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_LEFTARROW;
+			}
+			// check if on right arrow
+			Vector2MA(p, item->window.rect.h - SCROLLBAR_SIZE, r.v, p);
+			r.x = p[0];
+			r.y = p[1];
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_RIGHTARROW;
+			}
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE, r.u, p);
+			thumbstart = Item_ListBox_ThumbPosition(item);
+			Vector2MA(p, thumbstart - item->window.rect.y, r.v, p);
+			r.x = p[0];
+			r.y = p[1];
+			//Com_Printf("Rect: %.1f %.1f %.1f %.1f Point: %.1f %.1f\n", PRINT_RECT(r), x, y);
+			//Com_Printf("%.3f %.3f\n", r.w, r.h);
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_THUMB;
+			}
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE, r.u, p);
+			Vector2MA(p, SCROLLBAR_SIZE, r.v, p);
+			r.x = p[0];
+			r.y = p[1];
+			r.h = thumbstart - item->window.rect.y - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGUP;
+			}
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE, r.u, p);
+			Vector2MA(p, thumbstart - item->window.rect.y + SCROLLBAR_SIZE, r.v, p);
+			r.x = p[0];
+			r.y = p[1];
+			r.h = item->window.rect.h - (thumbstart - item->window.rect.y) - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGDN;
+			}
+		//no vectors
+		} else {
+			r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
+			r.y = item->window.rect.y;
+			r.h = r.w = SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_LEFTARROW;
+			}
+			r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_RIGHTARROW;
+			}
+			thumbstart = Item_ListBox_ThumbPosition(item);
+			r.y = thumbstart;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_THUMB;
+			}
+			r.y = item->window.rect.y + SCROLLBAR_SIZE;
+			r.h = thumbstart - r.y;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGUP;
+			}
+			r.y = thumbstart + SCROLLBAR_SIZE;
+			r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				return WINDOW_LB_PGDN;
+			}
 		}
 	}
 	return 0;
@@ -2382,7 +2583,9 @@ void Item_ListBox_MouseEnter(itemDef_t * item, float x, float y)
 	rectDef_t r;
 	listBoxDef_t *listPtr = (listBoxDef_t *) item->typeData;
 
-	r.hasVectors = qfalse;
+	r.hasVectors = item->window.rect.hasVectors;
+	Vector2Copy(item->window.rect.u, r.u);
+	Vector2Copy(item->window.rect.v, r.v);
 
 	item->window.flags &=
 	    ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN);
@@ -2398,27 +2601,43 @@ void Item_ListBox_MouseEnter(itemDef_t * item, float x, float y)
 				r.h = item->window.rect.h - SCROLLBAR_SIZE;
 				r.w = item->window.rect.w - listPtr->drawPadding;
 				if (Rect_ContainsPoint(&r, x, y)) {
-					listPtr->cursorPos =
-					    (int) ((x - r.x) / listPtr->elementWidth) + listPtr->startPos;
+					//vectors?
+					if (r.hasVectors) {
+						float px;
+						Rect_ToInnerCoords(&item->window.rect, x, y, &px, NULL);
+						listPtr->cursorPos = (int) (px / listPtr->elementWidth) + listPtr->startPos;
+					} else {
+						listPtr->cursorPos = (int) ((x - r.x) / listPtr->elementWidth) + listPtr->startPos;
+					}
 					if (listPtr->cursorPos >= listPtr->endPos) {
 						listPtr->cursorPos = listPtr->endPos;
 					}
+					//item->cursorPos = listPtr->cursorPos;
+					//DC->feederSelection(item->special, item->cursorPos);
 				}
 			} else {
 				// text hit.. 
 			}
 		}
-	} else
-	    if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
-			  WINDOW_LB_PGDN))) {
-		r.x = item->window.rect.x;
-		r.y = item->window.rect.y;
-		r.w = item->window.rect.w - SCROLLBAR_SIZE;
-		r.h = item->window.rect.h - listPtr->drawPadding;
-		if (Rect_ContainsPoint(&r, x, y)) {
-			listPtr->cursorPos = (int) ((y - 2 - r.y) / listPtr->elementHeight) + listPtr->startPos;
-			if (listPtr->cursorPos > listPtr->endPos) {
-				listPtr->cursorPos = listPtr->endPos;
+	} else {
+		if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP |
+			WINDOW_LB_PGDN))) {
+			r.x = item->window.rect.x;
+			r.y = item->window.rect.y;
+			r.w = item->window.rect.w - SCROLLBAR_SIZE;
+			r.h = item->window.rect.h - listPtr->drawPadding;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				//vectors?
+				if (r.hasVectors) {
+					float py;
+					Rect_ToInnerCoords(&item->window.rect, x, y, NULL, &py);
+					listPtr->cursorPos = (int) ((py - 2) / listPtr->elementHeight) + listPtr->startPos;
+				} else {
+					listPtr->cursorPos = (int) ((y - 2 - r.y) / listPtr->elementHeight) + listPtr->startPos;
+				}
+				if (listPtr->cursorPos > listPtr->endPos) {
+					listPtr->cursorPos = listPtr->endPos;
+				}
 			}
 		}
 	}
@@ -2524,6 +2743,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 	    || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)
 		&& item->window.flags & WINDOW_HASFOCUS)) {
 		max = Item_ListBox_MaxScroll(item);
+		//horizontal
 		if (item->window.flags & WINDOW_HORIZONTAL) {
 			viewmax = (item->window.rect.w / listPtr->elementWidth);
 			if (key == K_LEFTARROW || key == K_KP_LEFTARROW) {
@@ -2533,15 +2753,15 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 						listPtr->cursorPos = 0;
 					}
 					if (listPtr->cursorPos < listPtr->startPos) {
-						listPtr->startPos = listPtr->cursorPos;
+						//listPtr->startPos = listPtr->cursorPos;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+						//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
 					DC->feederSelection(item->special, item->cursorPos);
 				} else {
-					listPtr->startPos--;
+					//listPtr->startPos--;
 					if (listPtr->startPos < 0)
 						listPtr->startPos = 0;
 				}
@@ -2551,13 +2771,13 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 				if (!listPtr->notselectable) {
 					listPtr->cursorPos++;
 					if (listPtr->cursorPos < listPtr->startPos) {
-						listPtr->startPos = listPtr->cursorPos;
+						//listPtr->startPos = listPtr->cursorPos;
 					}
 					if (listPtr->cursorPos >= count) {
 						listPtr->cursorPos = count - 1;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+						//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
 					DC->feederSelection(item->special, item->cursorPos);
@@ -2568,6 +2788,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 				}
 				return qtrue;
 			}
+		//vertical
 		} else {
 			viewmax = (item->window.rect.h / listPtr->elementHeight);
 			if (key == K_UPARROW || key == K_KP_UPARROW) {
@@ -2641,15 +2862,20 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 			} else if (item->window.flags & WINDOW_LB_THUMB) {
 				// Display_SetCaptureItem(item);
 			} else {
-				// select an item
-				if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick) {
-					Item_RunScript(item, listPtr->doubleClick);
-				}
-				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
-				if (item->cursorPos != listPtr->cursorPos) {
+				//Makro - double click only if we didn't select another item
+				//Com_Printf("POZ: %d %d / START: %d / END: %d\n", listPtr->cursorPos, item->cursorPos,
+				//	listPtr->startPos, listPtr->endPos);
+				if (item->cursorPos != listPtr->cursorPos)
+				{
 					item->cursorPos = listPtr->cursorPos;
 					DC->feederSelection(item->special, item->cursorPos);
+				} else {
+					if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick)
+					{
+						Item_RunScript(item, listPtr->doubleClick);
+					}
 				}
+				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
 			}
 			return qtrue;
 		}
@@ -2717,10 +2943,10 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 
 qboolean Item_YesNo_HandleKey(itemDef_t * item, int key)
 {
-
+	yesnoDef_t *data = (yesnoDef_t*)item->typeData;
 	qboolean ok = qfalse;
 
-	//Makro - an item should react on key presses even if the mouse isn't over it
+	//Makro - an item should react to key presses even if the mouse isn't over it
 	if (item->window.flags & WINDOW_HASFOCUS && item->cvar) {
 		if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
 			if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
@@ -2734,7 +2960,13 @@ qboolean Item_YesNo_HandleKey(itemDef_t * item, int key)
 	}
 
 	if (ok) {
-		DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+		//Makro - grouped checkboxes?
+		if (data->groupIndex)
+		{
+			DC->setCVar(item->cvar, va("%f", data->activeCvarVal));
+		} else {
+			DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
+		}
 		return qtrue;
 	}
 
@@ -2804,7 +3036,8 @@ const char *Item_Multi_Setting(itemDef_t * item)
 			}
 		}
 	}
-	return "";
+	//Makro - changed from "" to NULL
+	return NULL;
 }
 
 qboolean Item_Multi_HandleKey(itemDef_t * item, int key)
@@ -3066,6 +3299,7 @@ static void Scroll_ListBox_AutoFunc(void *p)
 	}
 }
 
+//Makro - vector support
 static void Scroll_ListBox_ThumbFunc(void *p)
 {
 	scrollInfo_t *si = (scrollInfo_t *) p;
@@ -3074,19 +3308,32 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 
 	listBoxDef_t *listPtr = (listBoxDef_t *) si->item->typeData;
 
-	r.hasVectors = qfalse;
+	r.hasVectors = si->item->window.rect.hasVectors;
+	Vector2Copy(si->item->window.rect.u, r.u);
+	Vector2Copy(si->item->window.rect.v, r.v);
 	
+	//horizontal
 	if (si->item->window.flags & WINDOW_HORIZONTAL) {
-		if (DC->cursorx == si->xStart) {
+		if (DC->cursorx == si->xStart && DC->cursory == si->yStart) {
 			return;
 		}
-		r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1;
-		r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_SIZE - 1;
-		r.h = SCROLLBAR_SIZE;
-		r.w = si->item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
-		max = Item_ListBox_MaxScroll(si->item);
-		//
-		pos = (DC->cursorx - r.x - SCROLLBAR_SIZE / 2) * max / (r.w - SCROLLBAR_SIZE);
+		max = Item_ListBox_MaxScroll(si->item); 
+		//vectors?
+		if (r.hasVectors) {
+			float p[2];
+			//Makro - FIXME!!!
+			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, &p[0], NULL);
+			p[1] = (p[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.w - 3 * SCROLLBAR_SIZE - 2);
+			pos = (int) (max * p[1]);
+		//no vectors
+		} else {
+			r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1;
+			r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_SIZE - 1;
+			r.h = SCROLLBAR_SIZE;
+			r.w = si->item->window.rect.w - (SCROLLBAR_SIZE * 2) - 2;
+			//
+			pos = (DC->cursorx - r.x - SCROLLBAR_SIZE / 2) * max / (r.w - SCROLLBAR_SIZE);
+		}
 		if (pos < 0) {
 			pos = 0;
 		} else if (pos > max) {
@@ -3094,21 +3341,37 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 		}
 		listPtr->startPos = pos;
 		si->xStart = DC->cursorx;
-	} else if (DC->cursory != si->yStart) {
-
-		r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
-		r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
-		r.h = si->item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
-		r.w = SCROLLBAR_SIZE;
+		si->yStart = DC->cursory;
+	//vertical
+	} else if (DC->cursory != si->yStart || DC->cursorx != si->xStart) {
 		max = Item_ListBox_MaxScroll(si->item);
-		//
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE / 2) * max / (r.h - SCROLLBAR_SIZE);
+		//vectors?
+		if (r.hasVectors) {
+			float p[2];
+			Vector2Set(p, DC->cursorx - si->item->window.rect.x, DC->cursory - si->item->window.rect.y);
+			
+			//projection
+			//p[0] = p[0] * si->item->window.rect.v[0] + p[1] * si->item->window.rect.v[1];
+			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, NULL, &p[0]);
+			//0..1 fraction
+			p[1] = (p[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.h - 3 * SCROLLBAR_SIZE - 2);
+			pos = (int) (max * p[1]);
+		//no vectors
+		} else {
+			r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
+			r.y = si->item->window.rect.y + SCROLLBAR_SIZE + 1;
+			r.h = si->item->window.rect.h - (SCROLLBAR_SIZE * 2) - 2;
+			r.w = SCROLLBAR_SIZE;
+			//
+			pos = (DC->cursory - r.y - SCROLLBAR_SIZE / 2) * max / (r.h - SCROLLBAR_SIZE);
+		}
 		if (pos < 0) {
 			pos = 0;
 		} else if (pos > max) {
 			pos = max;
 		}
 		listPtr->startPos = pos;
+		si->xStart = DC->cursorx;
 		si->yStart = DC->cursory;
 	}
 
@@ -3157,6 +3420,7 @@ static void Scroll_Slider_ThumbFunc(void *p)
 	//vectors
 	if (si->item->textRect.hasVectors)
 	{
+		//Makro - FIXME!!! - use appropriate transformation instead of a simple projection
 		value = (cursorx - x) * si->item->textRect.u[0] + (cursory - y) * si->item->textRect.u[1];
 		if (value < 0) {
 			value = 0;
@@ -3182,8 +3446,11 @@ void Item_StartCapture(itemDef_t * item, int key)
 	int flags;
 
 	switch (item->type) {
+	//Makro - not needed, comented out
+	/*
 	case ITEM_TYPE_EDITFIELD:
 	case ITEM_TYPE_NUMERICFIELD:
+	*/
 
 	case ITEM_TYPE_LISTBOX:
 		{
@@ -3618,7 +3885,6 @@ void Menus_Activate(menuDef_t * menu)
 	UI_RQ3_SelectPlayerIcon(menu);
 
 	Display_CloseCinematics();
-
 }
 
 int Display_VisibleMenuCount()
@@ -3636,26 +3902,37 @@ int Display_VisibleMenuCount()
 
 void Menus_HandleOOBClick(menuDef_t * menu, int key, qboolean down)
 {
-	if (menu) {
-		int i;
+	//Makro - moved check up here
+	if (menu && down) {
+		//int i;
 
 		// basically the behaviour we are looking for is if there are windows in the stack.. see if 
 		// the cursor is within any of them.. if not close them otherwise activate them and pass the 
 		// key on.. force a mouse move to activate focus and script stuff 
-		if (down && menu->window.flags & WINDOW_OOB_CLICK) {
-			Menu_RunCloseScript(menu);
-			menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
+		//Makro - moved check above
+		if (menu->window.flags & WINDOW_OOB_CLICK) {
+			if (menu->itemCount > 0) {
+				Item_RunScript(menu->items[0], menu->onOOBClick);
+			}
+			//Makro - if this is a popup window, don't broadcast the event
+			if (menu->window.flags & WINDOW_POPUP) {
+				return;
+			}
 		}
 
+		//Makro - disabled for now
+		/*
 		for (i = 0; i < menuCount; i++) {
 			if (Menu_OverActiveItem(&Menus[i], DC->cursorx, DC->cursory)) {
-				Menu_RunCloseScript(menu);
+				//Makro - I really doubt this was supposed to be duplicated here
+				//Menu_RunCloseScript(menu);
 				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
 				Menus_Activate(&Menus[i]);
 				Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
 				Menu_HandleKey(&Menus[i], key, down);
 			}
 		}
+		*/
 
 		if (Display_VisibleMenuCount() == 0) {
 			if (DC->Pause) {
@@ -3763,16 +4040,21 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 		inHandler = qfalse;
 		return;
 	}
+
 	// see if the mouse is within the window bounds and if so is this a mouse click
-	if (down && !(menu->window.flags & WINDOW_POPUP)
-	    && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
-		static qboolean inHandleKey = qfalse;
+	//Makro - changed behaviour; popup windows with OOB click set are closed
+	//without broadcasting the event instead of simply ignoring the OOB
+	//- removed "!(menu->window.flags & WINDOW_POPUP)" check
+	if (down && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory)) {
+		//Makro - commented out
+		//static qboolean inHandleKey = qfalse;
 
 		// bk001206 - parentheses
-		if (!inHandleKey && (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3)) {
-			inHandleKey = qtrue;
+		//if (!inHandleKey && (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3)) {
+		if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3) {
+			//inHandleKey = qtrue;
 			Menus_HandleOOBClick(menu, key, down);
-			inHandleKey = qfalse;
+			//inHandleKey = qfalse;
 			inHandler = qfalse;
 			return;
 		}
@@ -3902,6 +4184,33 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 	}
 
 	inHandler = qfalse;
+}
+
+//Makro - transforms a point to relative co-ordinates
+void Rect_ToInnerCoords(rectDef_t *rect, float x, float y, float *resx, float *resy)
+{
+	if (rect)
+	{
+		//Makro - twisted rectangle?
+		if (rect->hasVectors)
+		{
+			float dx = x - rect->x;
+			float dy = y - rect->y;
+			float det = rect->u[0] * rect->v[1] - rect->u[1] * rect->v[0];
+			if (fabs(det) < 0.001f) {
+				//degenerate rect
+				if (resx) *resx = 0;
+				if (resy) *resy = 0;
+				return;
+			} else {
+				if (resx) *resx = (dx * rect->v[1] - dy * rect->v[0]) / det;
+				if (resy) *resy = (- dx * rect->u[1] + dy * rect->u[0]) / det;
+			}
+		} else {
+			if (resx) *resx = x - rect->x;
+			if (resy) *resy = y - rect->y;
+		}
+	}
 }
 
 void ToWindowCoords(float *x, float *y, windowDef_t * window)
@@ -4109,10 +4418,10 @@ void Item_Text_AutoWrapped_Paint(itemDef_t * item)
 				if (item->textRect.hasVectors)
 				{
 					DC->drawAngledText(item->textRect.x, item->textRect.y, item->textRect.u, item->textRect.v, item->textscale,
-							color, buff, 0, 0, item->textStyle);
+							color, buff, 0, 0, 0, item->textStyle, qfalse);
 				} else {
-					DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0,
-						item->textStyle);
+					DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, 0,
+						item->textStyle, qfalse);
 				}
 			}
 			if (*p == '\0') {
@@ -4171,12 +4480,12 @@ void Item_Text_Wrapped_Paint(itemDef_t * item)
 	while (p && *p) {
 		strncpy(buff, start, p - start + 1);
 		buff[p - start] = '\0';
-		DC->drawText(x, y, item->textscale, color, buff, 0, 0, item->textStyle);
+		DC->drawText(x, y, item->textscale, color, buff, 0, 0, 0, item->textStyle, qfalse);
 		y += height + 5;
 		start += p - start + 1;
 		p = strchr(p + 1, '\r');
 	}
-	DC->drawText(x, y, item->textscale, color, start, 0, 0, item->textStyle);
+	DC->drawText(x, y, item->textscale, color, start, 0, 0, 0, item->textStyle, qfalse);
 }
 
 void Item_Text_Paint(itemDef_t * item)
@@ -4246,12 +4555,13 @@ void Item_Text_Paint(itemDef_t * item)
 	if (item->window.rectClient.hasVectors)
 	{
 		DC->drawAngledText(item->textRect.x, item->textRect.y, item->window.rectClient.u, item->window.rectClient.v,
-			item->textscale, color, textPtr, 0, 0, item->textStyle);
+			item->textscale, color, textPtr, 0, 0, 0, item->textStyle, (item->window.flags & WINDOW_FORCE_TEXT_COLOR));
 		//debug
 		//DC->drawAngledRect(item->textRect.x, item->textRect.y, item->textRect.w, item->textRect.h,
 		//	item->textRect.u, item->textRect.v, 2, colorYellow, RECT_FULL);
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle);
+		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, 0, item->textStyle,
+			(item->window.flags & WINDOW_FORCE_TEXT_COLOR));
 		//debug
 		//DC->drawRect(item->textRect.x, item->textRect.y, item->textRect.w, item->textRect.h, 2, colorYellow);
 	}
@@ -4295,17 +4605,28 @@ void Item_TextField_Paint(itemDef_t * item)
 	if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
 		char cursor = DC->getOverstrikeMode()? '_' : '|';
 
-		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
-				       newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
-				       cursor, editPtr->maxPaintChars, item->textStyle);
+		if (item->window.rect.hasVectors)
+			DC->drawAngledTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y,
+				item->window.rect.u, item->window.rect.v, item->textscale,
+				newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
+				cursor, editPtr->maxPaintChars, item->textStyle);
+		else
+			DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
+				newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
+				cursor, editPtr->maxPaintChars, item->textStyle);
 		/*
 		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
 				       newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
 				       cursor, maxChars, item->textStyle);
 		*/
 	} else {
-		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
-			     buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle);
+		if (item->window.rect.hasVectors)
+			DC->drawAngledText(item->textRect.x + item->textRect.w + offset, item->textRect.y,
+				item->window.rect.u, item->window.rect.v, item->textscale, newColor,
+				buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, 0, item->textStyle, qfalse);
+		else
+			DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
+				buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, 0, item->textStyle, qfalse);
 		/*
 		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
 			     buff + editPtr->paintOffset, 0, maxChars, item->textStyle);
@@ -4314,13 +4635,24 @@ void Item_TextField_Paint(itemDef_t * item)
 
 }
 
+
+
+
+#define YESNO_MARK_FADETIME		150
+
+//Makro - heavily modified
 void Item_YesNo_Paint(itemDef_t * item)
 {
 	vec4_t newColor, lowLight;
 	float value;
 	menuDef_t *parent = (menuDef_t *) item->parent;
+	//Makro - added to simplify the rendering
+	float p[2];
+	const char *text;
+	qboolean on = qfalse;
+	yesnoDef_t *data = (yesnoDef_t*)item->typeData;
 
-	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
+	//value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		//Makro - changed to fade from normal text color to focus color
@@ -4334,21 +4666,102 @@ void Item_YesNo_Paint(itemDef_t * item)
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
 
+	value = DC->getCVarValue(item->cvar);
+	//Makro - grouped checkboxes?
+	if (data->groupIndex)
+	{
+		on = (value == data->activeCvarVal);
+	} else {
+		on = (value != 0);
+	}
+	text = (on) ? "Yes" : "No";
+
 	if (item->text) {
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor,
-			     (value != 0) ? "Yes" : "No", 0, 0, item->textStyle);
+	}
+
+	if (data->kind == YESNO_TEXT)
+	{
+		Vector2Set(p, item->textRect.x, item->textRect.y);
+		if (item->window.rect.hasVectors)
+		{
+			if (item->text)
+				Vector2MA(p, item->textRect.w + 8, item->window.rect.u, p);
+
+			DC->drawAngledText(p[0], p[1], item->window.rect.u, item->window.rect.v,
+				item->textscale, newColor, text, 0, 0, 0, item->textStyle, qfalse);
+		} else {
+			if (item->text)
+				p[0] += item->textRect.w + 8;
+			DC->drawText(p[0], p[1], item->textscale, newColor, text,
+					 0, 0, 0, item->textStyle, qfalse);
+		}
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "Yes" : "No",
-			     0, 0, item->textStyle);
+		qhandle_t front, back;
+		float imgColor[4] = {1, 1, 1, 1};
+
+		if (on != data->wasActive)
+			data->lastChangeTime = DC->realTime;
+		data->wasActive = on;
+
+		if (on)
+		{
+			front = DC->Assets.checkBox1;
+			back = DC->Assets.checkBox0;
+		} else {
+			front = DC->Assets.checkBox0;
+			back = DC->Assets.checkBox1;
+		}
+
+		if (DC->realTime - data->lastChangeTime < YESNO_MARK_FADETIME)
+		{
+			imgColor[3] = (float) (DC->realTime - data->lastChangeTime) / YESNO_MARK_FADETIME;
+		}
+
+		//compute drawing position
+		if (data->kind == YESNO_ICON_LEFT)
+		{
+			if (item->window.rect.hasVectors)
+			{
+				Vector2Set(p, item->textRect.x, item->textRect.y);
+				Vector2MA(p, -item->textRect.h + 0.5f * (item->textRect.h - SCROLLBAR_SIZE), item->window.rect.v, p);
+				Vector2MA(p, - SCROLLBAR_SIZE - 8, item->window.rect.u, p);
+			} else {
+				Vector2Set(p, item->textRect.x - (SCROLLBAR_SIZE + 8),
+					item->textRect.y - item->textRect.h + 0.5f * (item->textRect.h - SCROLLBAR_SIZE));
+			}
+		} else {
+			if (item->window.rect.hasVectors)
+			{
+				Vector2Set(p, item->textRect.x, item->textRect.y);
+				Vector2MA(p, -item->textRect.h + 0.5f * (item->textRect.h - SCROLLBAR_SIZE), item->window.rect.v, p);
+				Vector2MA(p, item->textRect.w + 8, item->window.rect.u, p);
+			} else {
+				Vector2Set(p, item->textRect.x + item->textRect.w + 8,
+					item->textRect.y - item->textRect.h + 0.5f * (item->textRect.h - SCROLLBAR_SIZE));
+			}
+		}
+		
+		if (item->window.rect.hasVectors)
+		{
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
+				imgColor, 0, 0, 1, 1, front);
+			imgColor[3] = 1.0f - imgColor[3];
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
+				imgColor, 0, 0, 1, 1, back);
+		} else {
+			DC->drawHandlePic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+				 (on) ? DC->Assets.checkBox1 : DC->Assets.checkBox0);
+		}
 	}
 }
 
 void Item_Multi_Paint(itemDef_t * item)
 {
 	vec4_t newColor, lowLight;
-	const char *text = "";
+	const char *text;
 	menuDef_t *parent = (menuDef_t *) item->parent;
+	float x;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		//Makro - changed to fade from normal text color to focus color
@@ -4363,14 +4776,25 @@ void Item_Multi_Paint(itemDef_t * item)
 	}
 
 	text = Item_Multi_Setting(item);
-
-	if (item->text) {
+	//Makro - added check
+	if (!text)
+		text = "";
+	
+	x = item->textRect.x;
+	if (item->text)
+	{
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, text,
-			     0, 0, item->textStyle);
+		x += item->textRect.w + 8;
+	}
+	//Makro - vectors?
+	if (item->window.rect.hasVectors)
+	{
+		DC->drawAngledText(x, item->textRect.y,
+				item->window.rect.u, item->window.rect.v, item->textscale, newColor, text,
+				 0, 0, 0, item->textStyle, qfalse);
 	} else {
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, text, 0, 0,
-			     item->textStyle);
+		DC->drawText(x, item->textRect.y, item->textscale, newColor, text,
+				 0, 0, 0, item->textStyle, qfalse);
 	}
 }
 
@@ -4628,12 +5052,12 @@ void BindingFromName(const char *cvar)
 			return;
 		}
 	}
-	strcpy(g_nameBind1, "???");
+	strcpy(g_nameBind1, "[ not assigned ]");
 }
 
 void Item_Slider_Paint(itemDef_t * item)
 {
-	vec4_t newColor, lowLight;
+	vec4_t newColor;
 	float x, y, value;
 	menuDef_t *parent = (menuDef_t *) item->parent;
 	Point pt;
@@ -4646,10 +5070,13 @@ void Item_Slider_Paint(itemDef_t * item)
 		//lowLight[1] = 0.8 * parent->focusColor[1]; 
 		//lowLight[2] = 0.8 * parent->focusColor[2]; 
 		//lowLight[3] = 0.8 * parent->focusColor[3]; 
-		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
-		LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+		//Makro - changed again, this time from focus color to white
+		LerpColor(colorWhite, parent->focusColor, newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
 	} else {
-		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		//Makro - slider should be painted in white when not focused
+		//this is so we can have visibile sliders with black text
+		//memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
+		memcpy(newColor, colorWhite, sizeof(vec4_t));
 	}
 
 	if (item->text) {
@@ -4668,17 +5095,18 @@ void Item_Slider_Paint(itemDef_t * item)
 		x = item->window.rect.x;
 		y = item->window.rect.y;
 	}
-	DC->setColor(newColor);
+	//paint the slider
 	if (item->textRect.hasVectors)
 	{
 		DC->drawAngledPic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, item->textRect.u, item->textRect.v, 
-			newColor, 0, 0, 1, 1, DC->Assets.sliderBar);
+			colorWhite, 0, 0, 1, 1, DC->Assets.sliderBar);
 	} else {
+		DC->setColor(colorWhite);
 		DC->drawHandlePic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar);
 	}
 
-	//paint the slider
 	pt = Item_Slider_ThumbPosition(item);
+	//paint the thumb
 	if (item->textRect.hasVectors)
 	{
 		float srx = pt.x - (SLIDER_THUMB_WIDTH / 2) * item->textRect.u[0];
@@ -4687,6 +5115,7 @@ void Item_Slider_Paint(itemDef_t * item)
 			newColor, 0, 0, 1, 1, DC->Assets.sliderThumb);
 	} else {
 		pt.x -= (SLIDER_THUMB_WIDTH / 2);
+		DC->setColor(newColor);
 		DC->drawHandlePic(pt.x, pt.y, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb);
 	}
 }
@@ -4728,11 +5157,20 @@ void Item_Bind_Paint(itemDef_t * item)
 	if (item->text) {
 		Item_Text_Paint(item);
 		BindingFromName(item->cvar);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor,
-			     g_nameBind1, 0, maxChars, item->textStyle);
+		//Makro - vectors
+		if (item->window.rect.hasVectors)
+		{
+			DC->drawAngledText(item->textRect.x + (item->textRect.w + 8) * item->window.rect.u[0],
+				item->textRect.y + (item->textRect.w + 8) * item->window.rect.u[1],
+				item->window.rect.u, item->window.rect.v, item->textscale, newColor,
+				     g_nameBind1, 0, maxChars, 0, item->textStyle, qfalse);
+		} else {
+			DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor,
+				     g_nameBind1, 0, maxChars, 0, item->textStyle, qfalse);
+		}
 	} else {
 		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor,
-			     (value != 0) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle);
+			     (value != 0) ? "FIXME" : "FIXME", 0, maxChars, 0, item->textStyle, qfalse);
 	}
 }
 
@@ -4878,10 +5316,12 @@ void Item_Model_Paint(itemDef_t * item)
 	memset(&refdef, 0, sizeof(refdef));
 	refdef.rdflags = RDF_NOWORLDMODEL;
 	AxisClear(refdef.viewaxis);
-	x = item->window.rect.x + 1;
-	y = item->window.rect.y + 1;
-	w = item->window.rect.w - 2;
-	h = item->window.rect.h - 2;
+	//Makro - removed +1 / -2 offsets
+	//this way, clipping is done exactly at the specifiend co-ordinates
+	x = item->window.rect.x; //+1
+	y = item->window.rect.y; //+1
+	w = item->window.rect.w; //-2
+	h = item->window.rect.h; //-2
 
 	AdjustFrom640(&x, &y, &w, &h);
 
@@ -4966,6 +5406,7 @@ void Item_Image_Paint(itemDef_t * item)
 			  item->window.rect.h - 2, item->asset);
 }
 
+//Makro - added vector support
 void Item_ListBox_Paint(itemDef_t * item)
 {
 	float x, y, size, count, i, thumb;
@@ -4979,77 +5420,288 @@ void Item_ListBox_Paint(itemDef_t * item)
 	// there is no clipping available so only the last completely visible item is painted
 	count = DC->feederCount(item->special);
 	// default is vertical if horizontal flag is not here
+
+	//Makro - added just in case
+	DC->setColor(colorWhite);
+
+	
+	// HORIZONTAL //
+
 	if (item->window.flags & WINDOW_HORIZONTAL) {
-		// draw scrollbar in bottom of the window
-		// bar
-		x = item->window.rect.x + 1;
-		y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
-		x += SCROLLBAR_SIZE - 1;
-		size = item->window.rect.w - (SCROLLBAR_SIZE * 2);
-		DC->drawHandlePic(x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar);
-		x += size - 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
-		// thumb
-		thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
-		if (thumb > x - SCROLLBAR_SIZE - 1) {
-			thumb = x - SCROLLBAR_SIZE - 1;
+		//vectors?
+		if (item->window.rect.hasVectors) {
+			float p[2];
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, 1, item->window.rect.u, p);
+			Vector2MA(p, item->window.rect.h - SCROLLBAR_SIZE - 1, item->window.rect.v, p);
+			// draw scrollbar in bottom of the window
+			// bar
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_LEFTARROW)
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+					item->window.rect.u, item->window.rect.v, item->window.foreColor, 0, 0, 1, 1,
+					DC->Assets.scrollBarArrowLeft2);
+			else
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+					item->window.rect.u, item->window.rect.v, item->window.foreColor, 0, 0, 1, 1,
+					DC->Assets.scrollBarArrowLeft);
+			Vector2MA(p, SCROLLBAR_SIZE - 1, item->window.rect.u, p);
+			size = item->window.rect.w - (SCROLLBAR_SIZE * 4);
+			//start
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+				item->window.rect.u, item->window.rect.v, item->window.foreColor, 0, 0, 0.25f, 1,
+				DC->Assets.scrollBarH);
+			Vector2MA(p, SCROLLBAR_SIZE, item->window.rect.u, p);
+			//middle
+			DC->drawAngledPic(p[0], p[1], size, SCROLLBAR_SIZE,
+				item->window.rect.u, item->window.rect.v, item->window.foreColor, 0.25f, 0, 0.75f, 1,
+				DC->Assets.scrollBarH);
+			Vector2MA(p, size, item->window.rect.u, p);
+			//end
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+				item->window.rect.u, item->window.rect.v, item->window.foreColor, 0.75f, 0, 1, 1,
+				DC->Assets.scrollBarH);
+			Vector2MA(p, SCROLLBAR_SIZE, item->window.rect.u, p);
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_RIGHTARROW)
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+					item->window.rect.u, item->window.rect.v, item->window.foreColor, 0, 0, 1, 1,
+					DC->Assets.scrollBarArrowRight2);
+			else
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+					item->window.rect.u, item->window.rect.v, item->window.foreColor, 0, 0, 1, 1,
+					DC->Assets.scrollBarArrowRight);
+			// thumb
+			thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.h - SCROLLBAR_SIZE - 1, item->window.rect.v, p);
+			Vector2MA(p, thumb - item->window.rect.x, item->window.rect.u, p);
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v, 
+				item->window.foreColor, 0, 0, 1, 1, DC->Assets.scrollBarThumb);
+		//no vectors?
+		} else {
+			// draw scrollbar in bottom of the window
+			// bar
+			x = item->window.rect.x + 1;
+			y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_LEFTARROW)
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft2);
+			else
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft);
+			x += SCROLLBAR_SIZE - 1;
+			size = item->window.rect.w - (SCROLLBAR_SIZE * 4);
+			//start
+			DC->drawStretchPic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, 0, 0, 0.25f, 1, DC->Assets.scrollBarH, qtrue);
+			x += SCROLLBAR_SIZE;
+			//middle
+			DC->drawStretchPic(x, y, size, SCROLLBAR_SIZE, 0.25f, 0, 0.75f, 1, DC->Assets.scrollBarH, qtrue);
+			x += size;
+			//start
+			DC->drawStretchPic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, 0.75f, 0, 1, 1, DC->Assets.scrollBarH, qtrue);
+			x += SCROLLBAR_SIZE;
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_RIGHTARROW)
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight2);
+			else
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight);
+			// thumb
+			thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
+			if (thumb > x - SCROLLBAR_SIZE - 1) {
+				thumb = x - SCROLLBAR_SIZE - 1;
+			}
+			DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
 		}
-		DC->drawHandlePic(thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
 		//
 		listPtr->endPos = listPtr->startPos;
 		size = item->window.rect.w - 2;
 		// items
 		// size contains max available space
 		if (listPtr->elementStyle == LISTBOX_IMAGE) {
-			// fit = 0;
-			x = item->window.rect.x + 1;
-			y = item->window.rect.y + 1;
-			for (i = listPtr->startPos; i < count; i++) {
-				// always draw at least one
-				// which may overdraw the box if it is too small for the element
-				image = DC->feederItemImage(item->special, i);
-				if (image) {
-					DC->drawHandlePic(x + 1, y + 1, listPtr->elementWidth - 2,
-							  listPtr->elementHeight - 2, image);
-				}
+			//vectors?
+			if (item->window.rect.hasVectors)
+			{
+				float p[2];
+				Vector2Set(p, item->window.rect.x, item->window.rect.y);
+				Vector2MA(p, 1, item->window.rect.u, p);
+				Vector2MA(p, 1, item->window.rect.v, p);
+				for (i = listPtr->startPos; i < count; i++) {
+					// always draw at least one
+					// which may overdraw the box if it is too small for the element
+					image = DC->feederItemImage(item->special, i);
 
-				if (i == item->cursorPos) {
-					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1,
-						     item->window.borderSize, item->window.borderColor);
+					//Makro - added background
+					if (i == item->cursorPos) {
+						DC->drawAngledPic(p[0], p[1], listPtr->elementWidth - 2,
+							listPtr->elementHeight - 2, item->window.rect.u, item->window.rect.v,
+							item->window.outlineColor, 0, 0, 1, 1, DC->whiteShader);
+						//Makro - add a render point here; hackish, but it gets things done
+						if (DC->pendingPolys)
+						{
+							UI_Render2DScene();
+						}
+					}
+					
+					if (image) {
+						DC->drawAngledPic(p[0], p[1], listPtr->elementWidth - 2,
+							listPtr->elementHeight - 2, item->window.rect.u, item->window.rect.v,
+							item->window.foreColor, 0, 0, 1, 1, image);
+					}
+					
+					if (i == item->cursorPos) {
+						//Makro - add a render point here; hackish, but it gets things done
+						if (DC->pendingPolys)
+						{
+							UI_Render2DScene();
+						}
+						DC->drawAngledRect(p[0], p[1], listPtr->elementWidth - 1, listPtr->elementHeight - 1,
+							item->window.rect.u, item->window.rect.v,
+							item->window.borderSize, item->window.borderColor, RECT_FULL, DC->whiteShader);
+					}
+					
+					size -= listPtr->elementWidth;
+					if (size < listPtr->elementWidth) {
+						listPtr->drawPadding = size;	//listPtr->elementWidth - size;
+						break;
+					}
+					Vector2MA(p, listPtr->elementWidth, item->window.rect.u, p);
+					listPtr->endPos++;
+					// fit++;
 				}
+			//no vectors
+			} else {
+				// fit = 0;
+				x = item->window.rect.x + 1;
+				y = item->window.rect.y + 1;
+				for (i = listPtr->startPos; i < count; i++) {
+					// always draw at least one
+					// which may overdraw the box if it is too small for the element
+					//Makro - added background
+					if (i == item->cursorPos)
+					{
+						DC->setColor(item->window.outlineColor);
+						DC->drawHandlePic(x + 1, y + 1, listPtr->elementWidth - 2,
+							listPtr->elementHeight - 2, DC->whiteShader);
+						DC->setColor(item->window.foreColor);
+					}
 
-				size -= listPtr->elementWidth;
-				if (size < listPtr->elementWidth) {
-					listPtr->drawPadding = size;	//listPtr->elementWidth - size;
-					break;
+					image = DC->feederItemImage(item->special, i);
+					if (image) {
+						DC->drawHandlePic(x + 1, y + 1, listPtr->elementWidth - 2,
+							listPtr->elementHeight - 2, image);
+					}
+					
+					if (i == item->cursorPos) {
+						//Makro - added shader parm
+						DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1,
+							item->window.borderSize, item->window.borderColor, DC->whiteShader);
+					}
+					
+					size -= listPtr->elementWidth;
+					if (size < listPtr->elementWidth) {
+						listPtr->drawPadding = size;	//listPtr->elementWidth - size;
+						break;
+					}
+					x += listPtr->elementWidth;
+					listPtr->endPos++;
+					// fit++;
 				}
-				x += listPtr->elementWidth;
-				listPtr->endPos++;
-				// fit++;
 			}
 		} else {
 			//
 		}
+	
+	
+	// VERTICAL //
+
+
 	} else {
-		// draw scrollbar to right side of the window
-		x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
-		y = item->window.rect.y + 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
-		y += SCROLLBAR_SIZE - 1;
+		//vectors?
+		if (item->window.rect.hasVectors) {
+			float p[2];
+			// draw scrollbar to right side of the window
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE - 1, item->window.rect.u, p);
+			Vector2MA(p, 1, item->window.rect.v, p);
+			
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_LEFTARROW)
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+				item->window.rect.u, item->window.rect.v, colorWhite, 0, 0, 1, 1, DC->Assets.scrollBarArrowUp2);
+			else
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE,
+				item->window.rect.u, item->window.rect.v, colorWhite, 0, 0, 1, 1, DC->Assets.scrollBarArrowUp);
+			
+			Vector2MA(p, SCROLLBAR_SIZE - 1, item->window.rect.v, p);
+			
 
-		listPtr->endPos = listPtr->startPos;
-		size = item->window.rect.h - (SCROLLBAR_SIZE * 2);
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar);
-		y += size - 1;
-		DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
-		// thumb
-		thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
-		if (thumb > y - SCROLLBAR_SIZE - 1) {
-			thumb = y - SCROLLBAR_SIZE - 1;
+			listPtr->endPos = listPtr->startPos;
+			size = item->window.rect.h - (SCROLLBAR_SIZE * 4);
+			
+			//start
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
+				colorWhite, 0, 0, 1, 0.25f, DC->Assets.scrollBarV);
+			//middle
+			Vector2MA(p, SCROLLBAR_SIZE, item->window.rect.v, p);
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, size, item->window.rect.u, item->window.rect.v,
+				colorWhite, 0, 0.25f, 1, 0.75f, DC->Assets.scrollBarV);
+			//end
+			Vector2MA(p, size, item->window.rect.v, p);
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
+				colorWhite, 0, 0.75f, 1, 1, DC->Assets.scrollBarV);
+			Vector2MA(p, SCROLLBAR_SIZE, item->window.rect.v, p);
+
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_RIGHTARROW)
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v, 
+				colorWhite, 0, 0, 1, 1, DC->Assets.scrollBarArrowDown2);
+			else
+				DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v, 
+				colorWhite, 0, 0, 1, 1, DC->Assets.scrollBarArrowDown);
+			
+			// thumb
+			thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
+			Vector2Set(p, item->window.rect.x, item->window.rect.y);
+			Vector2MA(p, item->window.rect.w - SCROLLBAR_SIZE - 1, item->window.rect.u, p);
+			Vector2MA(p, thumb - item->window.rect.y, item->window.rect.v, p);
+			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v, 
+				colorWhite, 0, 0, 1, 1, DC->Assets.scrollBarThumb);
+		//no vectors?
+		} else {
+			// draw scrollbar to right side of the window
+			x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
+			y = item->window.rect.y + 1;
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_LEFTARROW)
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp2);
+			else
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp);
+			y += SCROLLBAR_SIZE - 1;
+		
+			listPtr->endPos = listPtr->startPos;
+			size = item->window.rect.h - (SCROLLBAR_SIZE * 4);
+			//start
+			DC->drawStretchPic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, 0, 0, 1, 0.25f, DC->Assets.scrollBarV, qtrue);
+			y += SCROLLBAR_SIZE;
+			//middle
+			DC->drawStretchPic(x, y, SCROLLBAR_SIZE, size, 0, 0.25f, 1, 0.75f, DC->Assets.scrollBarV, qtrue);
+			y += size;
+			//end
+			DC->drawStretchPic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, 0, 0.75f, 1, 1, DC->Assets.scrollBarV, qtrue);
+			y += SCROLLBAR_SIZE;
+			
+			//clicked?
+			if (itemCapture == item && item->window.flags & WINDOW_LB_RIGHTARROW)
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown2);
+			else
+				DC->drawHandlePic(x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown);
+			// thumb
+			thumb = Item_ListBox_ThumbDrawPosition(item);	//Item_ListBox_ThumbPosition(item);
+			if (thumb > y - SCROLLBAR_SIZE - 1) {
+				thumb = y - SCROLLBAR_SIZE - 1;
+			}
+			DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
 		}
-		DC->drawHandlePic(x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb);
-
 		// adjust size for item painting
 		size = item->window.rect.h - 2;
 		if (listPtr->elementStyle == LISTBOX_IMAGE) {
@@ -5066,8 +5718,9 @@ void Item_ListBox_Paint(itemDef_t * item)
 				}
 
 				if (i == item->cursorPos) {
+					//Makro - added shader parm
 					DC->drawRect(x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1,
-						     item->window.borderSize, item->window.borderColor);
+						     item->window.borderSize, item->window.borderColor, DC->whiteShader);
 				}
 
 				listPtr->endPos++;
@@ -5094,15 +5747,29 @@ void Item_ListBox_Paint(itemDef_t * item)
 					for (j = 0; j < listPtr->numColumns; j++) {
 						text = DC->feederItemText(item->special, i, j, &optionalImage);
 						if (optionalImage >= 0) {
+							//TODO: vectors
 							DC->drawHandlePic(x + 4 + listPtr->columnInfo[j].pos,
 									  y - 1 + listPtr->elementHeight / 2,
 									  listPtr->columnInfo[j].width,
 									  listPtr->columnInfo[j].width, optionalImage);
 						} else if (text) {
-							DC->drawText(x + 4 + listPtr->columnInfo[j].pos,
-								     y + listPtr->elementHeight, item->textscale,
-								     item->window.foreColor, text, 0,
-								     listPtr->columnInfo[j].maxChars, item->textStyle);
+							if (item->window.rect.hasVectors) {
+								float p[2];
+								Vector2Set(p, x, y);
+								Vector2MA(p, 4 + listPtr->columnInfo[j].pos, item->window.rectClient.u, p);
+								Vector2MA(p, listPtr->elementHeight, item->window.rectClient.v, p);
+								DC->drawAngledText(p[0], p[1],
+									item->window.rectClient.u, item->window.rectClient.v, item->textscale,
+									item->window.foreColor, text, 0,
+									listPtr->columnInfo[j].maxChars, listPtr->columnInfo[j].width,
+									item->textStyle, (item->window.flags & WINDOW_FORCE_TEXT_COLOR));
+							} else {
+								DC->drawText(x + 4 + listPtr->columnInfo[j].pos,
+									y + listPtr->elementHeight, item->textscale,
+									item->window.foreColor, text, 0,
+									listPtr->columnInfo[j].maxChars, listPtr->columnInfo[j].width,
+									item->textStyle, (item->window.flags & WINDOW_FORCE_TEXT_COLOR));
+							}
 						}
 					}
 				} else {
@@ -5110,14 +5777,38 @@ void Item_ListBox_Paint(itemDef_t * item)
 					if (optionalImage >= 0) {
 						//DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
 					} else if (text) {
-						DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale,
-							     item->window.foreColor, text, 0, 0, item->textStyle);
+						//vectors?
+						if (item->window.rect.hasVectors) {
+							float p[2];
+							Vector2Set(p, x, y);
+							Vector2MA(p, 4, item->window.rectClient.u, p);
+							Vector2MA(p, listPtr->elementHeight, item->window.rectClient.v, p);
+							DC->drawAngledText(p[0], p[1],
+								item->window.rectClient.u, item->window.rectClient.v, item->textscale,
+								item->window.foreColor, text, 0, 0, 0, item->textStyle, qfalse);
+						} else {
+							DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale,
+								item->window.foreColor, text, 0, 0, 0, item->textStyle, qfalse);
+						}
 					}
 				}
 
+				//selected item?
 				if (i == item->cursorPos) {
-					DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4,
-						     listPtr->elementHeight, item->window.outlineColor);
+					//vectors?
+					if (item->window.rect.hasVectors) {
+						float p[2];
+						Vector2Set(p, x, y);
+						Vector2MA(p, 2, item->window.rectClient.u, p);
+						Vector2MA(p, 2, item->window.rectClient.v, p);
+						DC->drawAngledPic(p[0], p[1],
+							item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight,
+							item->window.rectClient.u, item->window.rectClient.v,
+							item->window.outlineColor, 0, 0, 1, 1, DC->whiteShader);
+					} else {
+						DC->fillRect(x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4,
+							listPtr->elementHeight, item->window.outlineColor);
+					}
 				}
 
 				size -= listPtr->elementHeight;
@@ -5126,7 +5817,13 @@ void Item_ListBox_Paint(itemDef_t * item)
 					break;
 				}
 				listPtr->endPos++;
-				y += listPtr->elementHeight;
+				//vectors?
+				if (item->window.rect.hasVectors) {
+					x += listPtr->elementHeight * item->window.rect.v[0];
+					y += listPtr->elementHeight * item->window.rect.v[1];
+				} else {
+					y += listPtr->elementHeight;
+				}
 				// fit++;
 			}
 		}
@@ -5390,7 +6087,8 @@ void Item_Paint(itemDef_t * item)
 
 		color[1] = color[3] = 1;
 		color[0] = color[2] = 0;
-		DC->drawRect(r->x, r->y, r->w, r->h, 1, color);
+		//Makro - added shader parm
+		DC->drawRect(r->x, r->y, r->w, r->h, 1, color, DC->whiteShader);
 	}
 	//DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
 
@@ -5532,7 +6230,8 @@ qboolean Menus_AnyFullScreenVisible()
 	return qfalse;
 }
 
-menuDef_t *Menus_ActivateByName(const char *p)
+//Makro - added second parameter
+menuDef_t *Menus_ActivateByName(const char *p, qboolean special)
 {
 	int i;
 	menuDef_t *m = NULL;
@@ -5540,10 +6239,33 @@ menuDef_t *Menus_ActivateByName(const char *p)
 
 	for (i = 0; i < menuCount; i++) {
 		if (Q_stricmp(Menus[i].window.name, p) == 0) {
+			int j;
+			qboolean alreadyActive = qfalse;
+
 			m = &Menus[i];
 			Menus_Activate(m);
-			if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
-				menuStack[openMenuCount++] = focus;
+			
+			//Makro - if special is true, run onOpenSpecial
+			if (special && m->onOpenSpecial && m->itemCount > 0)
+				Item_RunScript(m->items[0], m->onOpenSpecial);
+			
+			//Makro - this code didn't do anything useful
+			//if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
+			//	menuStack[openMenuCount++] = focus;
+			
+			for (j = 0; j < openMenuCount; j++) {
+				if (menuStack[j] == m) {
+					alreadyActive = qtrue;
+					//move to the top of the stack
+					if (j != openMenuCount - 1) {
+						menuStack[j] = menuStack[openMenuCount-1];
+						menuStack[openMenuCount-1] = m;
+					}
+					break;
+				}
+			}
+			if (!alreadyActive && openMenuCount < MAX_OPEN_MENUS) {
+				menuStack[openMenuCount++] = m;
 			}
 		} else {
 			Menus[i].window.flags &= ~WINDOW_HASFOCUS;
@@ -5604,6 +6326,11 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 				continue;
 			}
 
+			if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
+				rectDef_t *r = &menu->items[i]->window.rect;
+				//Com_Printf("Listbox: %d\n", r->hasVectors);
+				//DC->drawAngledPic(r->x, r->y, r->w, r->h, r->u, r->v, colorYellow, 0, 0, 1, 1, DC->whiteShader);
+			}
 			if (Rect_ContainsPoint(&menu->items[i]->window.rect, x, y)) {
 				if (pass == 1) {
 					overItem = menu->items[i];
@@ -5623,10 +6350,16 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 							focusSet = Item_SetFocus(overItem, x, y);
 						}
 					}
+					if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
+						//Com_Printf("Listbox: %.1f %.1f %.1f %.1f / %.1f %.1f %.1f %.1f / %d %d %d IN\n", PRINT_RECT(menu->items[i]->window.rect), menu->items[i]->window.rectClient.u[0], menu->items[i]->window.rectClient.u[1], menu->items[i]->window.rectClient.v[0], menu->items[i]->window.rectClient.v[1], menu->items[i]->window.rectClient.hasVectors, DC->cursorx, DC->cursory);
+					}
 				}
 			} else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
 				Item_MouseLeave(menu->items[i]);
 				Item_SetMouseOver(menu->items[i], qfalse);
+				if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
+					//Com_Printf("Listbox: %.1f %.1f %.1f %.1f / %.1f %.1f %.1f %.1f / %d %d %d OUT\n", PRINT_RECT(menu->items[i]->window.rect), menu->items[i]->window.rectClient.u[0], menu->items[i]->window.rectClient.u[1], menu->items[i]->window.rectClient.v[0], menu->items[i]->window.rectClient.v[1], menu->items[i]->window.rect.hasVectors, DC->cursorx, DC->cursory);
+				}
 			}
 		}
 	}
@@ -5735,8 +6468,8 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 		menu->window.flags |= WINDOW_FORCED;
 	}
 	//Makro - kinda hackish; oh well...
-	if (UI_NeedToUpdateModel())
-		UI_RQ3_SelectPlayerIcon(menu);
+	//if (UI_NeedToUpdateModel())
+		//UI_RQ3_SelectPlayerIcon(menu);
 	//Makro - see if we have any onShow script
 	if (!(menu->shown)) {
 		//If it's the first time a menu is shown, look for a onFirstShow script
@@ -5783,8 +6516,9 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 
 		color[0] = color[2] = color[3] = 1;
 		color[1] = 0;
+		//Makro - added shader parm
 		DC->drawRect(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1,
-			     color);
+			     color, DC->whiteShader);
 	}
 }
 
@@ -5802,8 +6536,9 @@ void Item_ValidateTypeData(itemDef_t * item)
 	if (item->type == ITEM_TYPE_LISTBOX) {
 		item->typeData = UI_Alloc(sizeof(listBoxDef_t));
 		memset(item->typeData, 0, sizeof(listBoxDef_t));
+	//Makro - moved YES/NO items out of here
 	} else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD
-		   || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER
+		   || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER
 		   || item->type == ITEM_TYPE_TEXT) {
 		item->typeData = UI_Alloc(sizeof(editFieldDef_t));
 		memset(item->typeData, 0, sizeof(editFieldDef_t));
@@ -5816,6 +6551,9 @@ void Item_ValidateTypeData(itemDef_t * item)
 		item->typeData = UI_Alloc(sizeof(multiDef_t));
 	} else if (item->type == ITEM_TYPE_MODEL) {
 		item->typeData = UI_Alloc(sizeof(modelDef_t));
+	//Makro - special code for YES/NO items
+	} else if (item->type == ITEM_TYPE_YESNO) {
+		item->typeData = UI_Alloc(sizeof(yesnoDef_t));
 	}
 }
 
@@ -6269,6 +7007,13 @@ qboolean ItemParse_model_angles(itemDef_t * item, int handle)
 	return qfalse;
 }
 
+//Makro - forced text color
+qboolean ItemParse_forceTextColor(itemDef_t * item, int handle)
+{
+	item->window.flags |= WINDOW_FORCE_TEXT_COLOR;
+	return qtrue;
+}
+
 qboolean ItemParse_renderpoint(itemDef_t * item, int handle)
 {
 	item->window.flags |= WINDOW_RENDERPOINT;
@@ -6710,7 +7455,8 @@ qboolean ItemParse_cvar(itemDef_t * item, int handle)
 	if (!PC_String_Parse(handle, &item->cvar)) {
 		return qfalse;
 	}
-	if (item->typeData) {
+	//Makro - not for yes/no items
+	if (item->typeData && item->type != ITEM_TYPE_YESNO) {
 		editPtr = (editFieldDef_t *) item->typeData;
 		editPtr->minVal = -1;
 		editPtr->maxVal = -1;
@@ -6718,6 +7464,37 @@ qboolean ItemParse_cvar(itemDef_t * item, int handle)
 	}
 	return qtrue;
 }
+
+
+//Makro - for grouped checkboxes
+qboolean ItemParse_groupIndex(itemDef_t * item, int handle)
+{
+	yesnoDef_t *data = (yesnoDef_t*)item->typeData;
+	if (!PC_Int_Parse(handle, &data->groupIndex)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+qboolean ItemParse_activeCvarValue(itemDef_t * item, int handle)
+{
+	yesnoDef_t *data = (yesnoDef_t*)item->typeData;
+	if (!PC_Float_Parse(handle, &data->activeCvarVal)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+qboolean ItemParse_kind(itemDef_t * item, int handle)
+{
+	yesnoDef_t *data = (yesnoDef_t*)item->typeData;
+	if (!PC_Int_Parse(handle, &data->kind)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//
 
 qboolean ItemParse_maxChars(itemDef_t * item, int handle)
 {
@@ -6949,6 +7726,8 @@ keywordHash_t itemParseKeywords[] = {
 	{"rect", ItemParse_rect, NULL},
 	//Makro - ugliest hack ever... by far
 	{"renderpoint", ItemParse_renderpoint, NULL},
+	//Makro - forced text color
+	{"forceTextColor", ItemParse_forceTextColor, NULL},
 	//Makro - angled items
 	{"alignrect", ItemParse_alignrect, NULL},
 	{"adjustrect", ItemParse_adjustrect, NULL},
@@ -6996,6 +7775,12 @@ keywordHash_t itemParseKeywords[] = {
 	{"action", ItemParse_action, NULL},
 	{"special", ItemParse_special, NULL},
 	{"cvar", ItemParse_cvar, NULL},
+
+	//Makro - for checkboxes
+	{"groupIndex", ItemParse_groupIndex, NULL},
+	{"activeCvarValue", ItemParse_activeCvarValue, NULL},
+	{"kind", ItemParse_kind, NULL},
+
 	{"maxChars", ItemParse_maxChars, NULL},
 	{"maxPaintChars", ItemParse_maxPaintChars, NULL},
 	{"focusSound", ItemParse_focusSound, NULL},
@@ -7277,6 +8062,29 @@ qboolean MenuParse_onFirstShow(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+//Makro - executed when the item is shown with openSpecial
+qboolean MenuParse_onOpenSpecial(itemDef_t * item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+
+	if (!PC_Script_Parse(handle, &menu->onOpenSpecial)) {
+		return qfalse;
+	}
+	return qtrue;
+}
+
+//Makro - executed when the user clicks outside the active area
+qboolean MenuParse_onOOBClick(itemDef_t * item, int handle)
+{
+	menuDef_t *menu = (menuDef_t *) item;
+
+	if (!PC_Script_Parse(handle, &menu->onOOBClick)) {
+		return qfalse;
+	}
+	menu->window.flags |= WINDOW_OOB_CLICK;
+	return qtrue;
+}
+
 //Makro - executed in addition to the item script
 qboolean MenuParse_onTimerShow(itemDef_t * item, int handle)
 {
@@ -7533,6 +8341,8 @@ qboolean MenuParse_popup(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+//Makro - obsolete
+/*
 qboolean MenuParse_outOfBounds(itemDef_t * item, int handle)
 {
 	menuDef_t *menu = (menuDef_t *) item;
@@ -7540,7 +8350,7 @@ qboolean MenuParse_outOfBounds(itemDef_t * item, int handle)
 	menu->window.flags |= WINDOW_OOB_CLICK;
 	return qtrue;
 }
-
+*/
 qboolean MenuParse_soundLoop(itemDef_t * item, int handle)
 {
 	menuDef_t *menu = (menuDef_t *) item;
@@ -7628,6 +8438,11 @@ keywordHash_t menuParseKeywords[] = {
 	//Makro - executed when the menu is shown
 	{"onShow", MenuParse_onShow, NULL},
 	{"onFirstShow", MenuParse_onFirstShow, NULL},
+	//Makro - executed when the user clicks outside the active area
+	{"onOOBClick", MenuParse_onOOBClick, NULL},
+	//Makro - executed when the menu is shown with showSpecial
+	{"onOpenSpecial", MenuParse_onOpenSpecial, NULL},
+	{"onShowSpecial", MenuParse_onOpenSpecial, NULL},
 	{"onClose", MenuParse_onClose, NULL},
 	{"onESC", MenuParse_onESC, NULL},
 	//Makro - executed when all the items in a timed sequence have been shown
@@ -7655,7 +8470,8 @@ keywordHash_t menuParseKeywords[] = {
 	{"background", MenuParse_background, NULL},
 	{"ownerdraw", MenuParse_ownerdraw, NULL},
 	{"ownerdrawFlag", MenuParse_ownerdrawFlag, NULL},
-	{"outOfBoundsClick", MenuParse_outOfBounds, NULL},
+	//Makro - obsolete
+	//{"outOfBoundsClick", MenuParse_outOfBounds, NULL},
 	{"soundLoop", MenuParse_soundLoop, NULL},
 	//Makro - support for music with intro
 	{"soundIntro", MenuParse_soundIntro, NULL},
@@ -7757,14 +8573,18 @@ void Menu_PaintAll()
 		captureFunc(captureData);
 	}
 
-	for (i = 0; i < Menu_Count(); i++) {
-		Menu_Paint(&Menus[i], qfalse);
+	//Makro - using menu stack now
+	//for (i = 0; i < Menu_Count(); i++) {
+	//	Menu_Paint(&Menus[i], qfalse);
+	//}
+	for (i = 0; i < openMenuCount; i++) {
+		Menu_Paint(menuStack[i], qfalse);
 	}
 
 	if (debugMode) {
 		vec4_t v = { 1, 1, 1, 1 };
 
-		DC->drawText(5, 25, .5, v, va("fps: %f", DC->FPS), 0, 0, 0);
+		DC->drawText(5, 25, .5, v, va("fps: %f", DC->FPS), 0, 0, 0, 0, qfalse);
 	}
 }
 
