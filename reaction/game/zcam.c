@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.23  2005/09/07 11:03:31  jbravo
+// Minor fix
+//
 // Revision 1.22  2003/04/09 02:00:43  jbravo
 // Fixed team none in DM and some final cleanups for the 3.0 release
 //
@@ -725,12 +728,15 @@ static gentity_t *CameraSwingTarget(gentity_t * ent)
 // JBravo: that is if the client wants to see it
 		if (!ent->client->zcam_stfu) {
 			trap_SendServerCommand(ent->client->ps.clientNum,
-				va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sFollowing " S_COLOR_WHITE "%s" S_COLOR_RED "/"
-					S_COLOR_MAGENTA "%s\n%sTracking " S_COLOR_WHITE "%s" S_COLOR_RED "/"
-					S_COLOR_MAGENTA "%s\n", color, target1st->client->pers.netname,
-					(target1st->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string,
-					color, target2nd->client->pers.netname,
-					(target2nd->client->sess.sessionTeam == TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
+					       va("cp \"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n%sFollowing " S_COLOR_WHITE "%s"
+						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n%sTracking " S_COLOR_WHITE "%s"
+						  S_COLOR_RED "/" S_COLOR_MAGENTA "%s\n", color,
+						  target1st->client->pers.netname,
+						  (target1st->client->sess.sessionTeam ==
+						   TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string, color,
+						  target2nd->client->pers.netname,
+						  (target2nd->client->sess.sessionTeam ==
+						   TEAM_RED) ? g_RQ3_team1name.string : g_RQ3_team2name.string));
 		}
 	}
 
