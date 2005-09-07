@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2005/09/07 20:29:05  makro
+// Stuff I can't remember
+//
 // Revision 1.79  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -463,6 +466,9 @@ void CG_ParseSkyPortal(const char *str)
 		cgs.skyPortalOrigin[0] = atof(Info_ValueForKey(str, "x"));
 		cgs.skyPortalOrigin[1] = atof(Info_ValueForKey(str, "y"));
 		cgs.skyPortalOrigin[2] = atof(Info_ValueForKey(str, "z"));
+		cgs.skyPortalMoveFactor[0] = atof(Info_ValueForKey(str, "mx"));
+		cgs.skyPortalMoveFactor[1] = atof(Info_ValueForKey(str, "my"));
+		cgs.skyPortalMoveFactor[2] = atof(Info_ValueForKey(str, "mz"));
 		cgs.skyPortalSet = qtrue;
 	} else {
 		cgs.skyPortalSet = qfalse;
@@ -532,15 +538,21 @@ void CG_ParseMoveParents(const char *str)
 	Q_strncpyz(tmp, str, 4);
 	str += 3;
 	num = atoi(tmp);
+	//num = GetIntBytes(str, 2) >> 1;
+	//str += 2;
 	for (i=0; i<num; i++)
 	{
 		int entnum;
 		Q_strncpyz(tmp, str, 4);
 		entnum = atoi(tmp);
 		str += 3;
+		//entnum = GetIntBytes(str, 2) >> 1;
+		//str += 2;
 		Q_strncpyz(tmp, str, 4);
 		str += 3;
 		cg_moveParentRanks[entnum] = atoi(tmp);
+		//cg_moveParentRanks[entnum] = GetIntBytes(str, 2);
+		//str += 2;
 	}
 }
 

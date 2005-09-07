@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.64  2005/09/07 20:29:05  makro
+// Stuff I can't remember
+//
 // Revision 1.63  2003/09/10 21:40:35  makro
 // Cooler breath puffs. Locked r_fastSky on maps with global fog.
 // Some other things I can't remember.
@@ -1529,7 +1532,7 @@ void CG_WeaponAnimation(centity_t * cent, int *weaponOld, int *weapon, float *we
 		if (cg_weapons[cent->currentState.weapon].animations[stateAnimNum].firstFrame ==
 		    cent->pe.weapon.animation->firstFrame
 		    && cg_weapons[cent->currentState.weapon].animations[stateAnimNum].numFrames ==
-		    cent->pe.weapon.animation->numFrames) {
+		    cent->pe.weapon.animation->numFrames) {	//Makro - possible bug?
 			// don't compile my test spam
 #if 0
 			CG_Printf("Animation info okay: (%i versus %i) and (%i versus %i)\n",
@@ -2663,6 +2666,12 @@ void CG_Player(centity_t * cent)
 	VectorCopy(cent->lerpOrigin, head.lightingOrigin);
 
 	CG_PositionRotatedEntityOnTag(&head, &torso, ci->torsoModel, "tag_head");
+	//Makro - save the head pos and orientation if this is the curremt client
+	if (cent->currentState.number == cg.clientNum)
+	{
+		memcpy(cg.headAxis, head.axis, sizeof(head.axis));
+		memcpy(cg.headPos, head.origin, sizeof(head.origin));
+	}
 
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;

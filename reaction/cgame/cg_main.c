@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.147  2005/09/07 20:29:05  makro
+// Stuff I can't remember
+//
 // Revision 1.146  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -2924,6 +2927,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	memset(cg_weapons, 0, sizeof(cg_weapons));
 	memset(cg_items, 0, sizeof(cg_items));
 
+	AxisClear(cg.headAxis);
+	
 	cg.clientNum = clientNum;
 
 	cgs.processedSnapshotNum = serverMessageNum;

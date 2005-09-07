@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.49  2005/09/07 20:29:05  makro
+// Stuff I can't remember
+//
 // Revision 1.48  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -406,6 +409,44 @@ static void CG_StepOffset(void)
 }
 
 /*
+void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * parent,
+				   qhandle_t parentModel, char *tagName)
+{
+	int i;
+	orientation_t lerped;
+	vec3_t tempAxis[3];
+
+//AxisClear( entity->axis );
+	// lerp the tag
+	trap_R_LerpTag(&lerped, parentModel, parent->oldframe, parent->frame, 1.0 - parent->backlerp, tagName);
+
+	// FIXME: allow origin offsets along tag?
+	VectorCopy(parent->origin, entity->origin);
+	for (i = 0; i < 3; i++) {
+		VectorMA(entity->origin, lerped.origin[i], parent->axis[i], entity->origin);
+	}
+
+	// had to cast away the const to avoid compiler problems...
+	MatrixMultiply(entity->axis, lerped.axis, tempAxis);
+	MatrixMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
+}
+*/
+static void CG_DeadPlayerView()
+{
+	if (cg.renderingThirdPerson)
+	{
+		cg.refdefViewAngles[ROLL] = 40;
+		cg.refdefViewAngles[PITCH] = -15;
+		cg.refdefViewAngles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
+		cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
+	} else {
+		memcpy(cg.refdef.vieworg, cg.headPos, sizeof(cg.headPos));
+		memcpy(cg.refdef.viewaxis, cg.headAxis, sizeof(cg.headAxis));
+		cg.refdef.vieworg[2] += 16;
+	}
+}
+
+/*
 ===============
 CG_OffsetFirstPersonView
 
@@ -432,10 +473,13 @@ static void CG_OffsetFirstPersonView(void)
 
 	// if dead, fix the angle and don't add any kick
 	if (cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+		CG_DeadPlayerView();
+		/*
 		angles[ROLL] = 40;
 		angles[PITCH] = -15;
 		angles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
 		origin[2] += cg.predictedPlayerState.viewheight;
+		*/
 		return;
 	}
 	// add angles based on weapon kick
@@ -967,7 +1011,8 @@ static int CG_CalcViewValues(void)
 	}
 
 	// position eye reletive to origin
-	AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
+	if (cg.snap->ps.stats[STAT_HEALTH] > 0)
+		AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
 
 	if (cg.hyperspace) {
 		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
@@ -1040,6 +1085,7 @@ static void CG_PlayBufferedSounds(void)
 #define FLARE_FADEOUT_TIME	200
 #define FLARE_BLIND_ALPHA	0.25f
 
+//Makro - lens flare
 void CG_AddLensFlare(qboolean sun)
 {
 	vec3_t dir, dp;
@@ -1253,10 +1299,16 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	//Makro - draw sky portal first
 	if (cgs.skyPortalSet) {
 		vec3_t oldOrigin;
+
 		CG_AddPacketEntities(ADDENTS_SKYPORTAL);
 		skyPortalMode = ADDENTS_NORMAL;
 		VectorCopy(cg.refdef.vieworg, oldOrigin);
-		VectorCopy(cgs.skyPortalOrigin, cg.refdef.vieworg);
+		//Makro - move the portal with the player
+		cg.refdef.vieworg[0] *= cgs.skyPortalMoveFactor[0];
+		cg.refdef.vieworg[1] *= cgs.skyPortalMoveFactor[1];
+		cg.refdef.vieworg[2] *= cgs.skyPortalMoveFactor[2];
+		VectorAdd(cgs.skyPortalOrigin, cg.refdef.vieworg, cg.refdef.vieworg);
+		
 		trap_R_RenderScene(&cg.refdef);
 		VectorCopy(oldOrigin, cg.refdef.vieworg);
 	}

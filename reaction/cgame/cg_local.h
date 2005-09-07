@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.160  2005/09/07 20:29:05  makro
+// Stuff I can't remember
+//
 // Revision 1.159  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1171,6 +1174,10 @@ typedef struct {
 	float flareShaderSize[MAX_VISIBLE_FLARES], flareColor[MAX_VISIBLE_FLARES][4];
 	//Makro - zcam lines
 	char zcamLine[2][256];
+
+	//Makro - head location and axis; used for dead players
+	vec3_t headPos[3];
+	vec3_t headAxis[3];
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff
@@ -1732,6 +1739,9 @@ typedef struct {
 	//Makro - sky portals
 	vec3_t skyPortalOrigin;
 	qboolean skyPortalSet;
+	//how much the portal moves with the player
+	vec3_t skyPortalMoveFactor;
+	
 	//Makro - "clear" color
 	vec3_t clearColor;
 	qboolean clearColorSet;
