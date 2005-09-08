@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2005/09/08 03:47:35  jbravo
+// Fixing 'No newline at end of file' warnings
+//
 // Revision 1.11  2005/09/07 20:27:42  makro
 // Entity attachment trees
 //
