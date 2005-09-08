@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.155  2005/09/08 19:34:47  makro
+// Removed "<nick> turned the other cheek" message
+//
 // Revision 1.154  2005/09/07 20:27:42  makro
 // Entity attachment trees
 //
@@ -2523,7 +2526,9 @@ void RQ3_Cmd_TKOk(gentity_t * ent)
 		}
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"That's very noble of you...\n\""));
-		trap_SendServerCommand(-1, va("print \"%s^7 turned the other cheek\n\"", ent->client->pers.netname));
+		//Makro - commented out, at people's request
+		//http://team.reactionquake3.com/ubb/ultimatebb.cgi?ubb=get_topic&f=8&t=000928#000034
+		//trap_SendServerCommand(-1, va("print \"%s^7 turned the other cheek\n\"", ent->client->pers.netname));
 	}
 
 	ent->enemy = NULL;
