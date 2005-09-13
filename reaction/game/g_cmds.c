@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.195  2005/09/13 03:32:03  jbravo
+// added a Youve started bandaging message at the right time.
+//
 // Revision 1.194  2005/09/13 03:11:08  jbravo
 // Dead players cant use unzoom or weapon commands
 //
@@ -2580,6 +2583,7 @@ void Cmd_Bandage(gentity_t * ent)
 
 		ent->client->ps.weaponTime += BLEED_BANDAGE_TIME;
 		ent->client->bleedtick = 4;
+		trap_SendServerCommand(ent - g_entities, va("print \"You've started bandaging.\n\""));
 	} else {
 		trap_SendServerCommand(ent - g_entities, va("print \"No need to bandage.\n\""));
 	}
