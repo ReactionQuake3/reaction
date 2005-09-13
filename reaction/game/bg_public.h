@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.112  2005/09/13 03:11:08  jbravo
+// Dead players cant use unzoom or weapon commands
+//
 // Revision 1.111  2005/09/07 20:27:41  makro
 // Entity attachment trees
 //
@@ -523,6 +526,7 @@ extern radio_msg_t female_radio_msgs[];
 #define RQ3_HANDCANNON_DELAY	1200
 #define RQ3_SSG3000_DELAY		1400
 #define RQ3_SSG3000_BOLT_DELAY	1300	// Elder: delay before zooming back in
+#define RQ3_SSG3000_ZOOM_DELAY  500	// JBravo: stop the sniperscripts
 //#define RQ3_AKIMBO_DELAY              500     // Elder: two delays: one for the total delay
 //#define RQ3_AKIMBO_DELAY2             200 // one for the time to start the second shot
 #define RQ3_AKIMBO_DELAY		100

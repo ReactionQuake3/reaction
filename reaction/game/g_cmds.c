@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.194  2005/09/13 03:11:08  jbravo
+// Dead players cant use unzoom or weapon commands
+//
 // Revision 1.193  2005/09/13 02:33:17  jbravo
 // Adding new callvote gametype:map
 //
@@ -2619,7 +2622,7 @@ void Cmd_Weapon(gentity_t * ent)
 {
 
 	//Makro - this was a few lines below
-	if (ent->client->ps.pm_type == PM_SPECTATOR)
+	if (!ent || !ent->client || ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 
 	ent->client->weapon_attempts--;
@@ -2779,7 +2782,7 @@ void Cmd_New_Weapon(gentity_t * ent)
 void Cmd_Unzoom(gentity_t * ent)
 {
 	//Makro - if the client is dead or spectating, do nothing
-	if (!ent || !ent->client || ent->client->ps.stats[STAT_HEALTH] <= 0 || ent->client->ps.pm_type == PM_SPECTATOR)
+	if (!ent || !ent->client || ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
 	
 	// Freud, play zooming sounds for unzoom
