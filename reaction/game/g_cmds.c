@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.193  2005/09/13 02:33:17  jbravo
+// Adding new callvote gametype:map
+//
 // Revision 1.192  2005/09/07 20:27:41  makro
 // Entity attachment trees
 //
@@ -2024,6 +2027,7 @@ void Cmd_CallVote_f(gentity_t * ent)
 	float delay;
 	char arg1[MAX_STRING_TOKENS];
 	char arg2[MAX_STRING_TOKENS];
+	char *v_gametype, *v_map;
 	gentity_t *kicked;
 
 	if (!g_allowVote.integer) {
@@ -2051,12 +2055,12 @@ void Cmd_CallVote_f(gentity_t * ent)
 		trap_SendServerCommand(ent - g_entities, va("print \"^1You have called the maximum number of votes (%i).\n\"", g_RQ3_maxClientVotes.integer));
 		return;
 	}
-// JBravo: Lets allow spectators to vote in TP
+	// JBravo: Lets allow spectators to vote in TP
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR && g_gametype.integer < GT_TEAM) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1Not allowed to call a vote as spectator.\n\"");
 		return;
 	}
-		//Slicer Matchmode
+	//Slicer Matchmode
 	if(g_RQ3_matchmode.integer && ent->client->sess.captain == TEAM_FREE) {
 		trap_SendServerCommand(ent - g_entities, "print \"^1Only team Captains can start a vote.\n\"");	
 		return;
@@ -2077,49 +2081,49 @@ void Cmd_CallVote_f(gentity_t * ent)
 	} else if (!Q_stricmp(arg1, "g_gametype")) {
 	} else if (!Q_stricmp(arg1, "kick")) {
 	} else if (!Q_stricmp(arg1, "clientkick")) {
+	// JBravo: adding game, a gametype:map combo
+	} else if (!Q_stricmp(arg1, "game")) {
 	} else {
 		if(g_RQ3_matchmode.integer) {
 			if (!Q_stricmp(arg1, "resetmatch")) {
 			} else if (!Q_stricmp(arg1, "clearscores")) {
 			} else {
 					trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
-					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum>, clearscores, resetmatch and timelimit <minutes>.\n\"");
+					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum>, clearscores, resetmatch and timelimit <minutes>.\n\"");
 					return;
 			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 			trap_SendServerCommand(ent - g_entities, 
-				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, kick <player>, clientkick <clientnum> and timelimit <minutes>.\n\"");
+				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum> and timelimit <minutes>.\n\"");
 		return;
 		}
 	}
 
-	// if there is still a vote to be executed
-	//Makro - commented out
-	/*
-	if (level.voteExecuteTime) {
-		level.voteExecuteTime = 0;
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-	}
-	*/
-
 	// special case for g_gametype, check for bad values
 	if (!Q_stricmp(arg1, "g_gametype")) {
+		// JBravo: Adding the digit check to catch errors
+		// JBravo: Im cloning this code in the callvote game section.
+		//         Changes here must be done there also.
 		//Makro - added short gametype names
-		if (!Q_stricmp(arg2, "dm")) {
-			i = GT_FFA;
-		} else if (!Q_stricmp(arg2, "tp")) {
-			i = GT_TEAMPLAY;
-		} else if (!Q_stricmp(arg2, "tdm")) {
-			i = GT_TEAM;
-		} else if (!Q_stricmp(arg2, "ctb")) {
-			i = GT_CTF;
-		} else {
-			//if not a preset name, consider it a number
+		if (is_digit(arg2[0])) {
 			i = atoi(arg2);
+		} else {
+			if (!Q_stricmp(arg2, "dm")) {
+				i = GT_FFA;
+			} else if (!Q_stricmp(arg2, "tp")) {
+				i = GT_TEAMPLAY;
+			} else if (!Q_stricmp(arg2, "tdm")) {
+				i = GT_TEAM;
+			} else if (!Q_stricmp(arg2, "ctb")) {
+				i = GT_CTF;
+			} else {
+			//if not a preset name, consider it an error
+				i = 999;
+			}
 		}
 		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF && i != GT_TEAM) {
-			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0, 3, 4 and 5.\n\"");
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0(dm), 3(tdm), 4(tp) and 5(ctb).\n\"");
 			return;
 		}
 
@@ -2143,7 +2147,77 @@ void Cmd_CallVote_f(gentity_t * ent)
 		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
 		Com_sprintf(level.voteMap, sizeof(level.voteMap), "%s", arg2);
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s %s", level.voteString, level.voteMap);
+	} else if (!Q_stricmp(arg1, "game")) {
+		// JBravo: adding new game vote.   Syntax: gametype:map
+		if (!strchr(arg2, ':')) {
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote string. Usage: gametype:map\n\"");
+			return;
+		}
 
+		v_gametype = strtok(arg2, ":");
+		v_map = strtok(NULL, ":");
+
+		if (is_digit(v_gametype[0])) {
+			i = atoi(v_gametype);
+		} else {
+			if (!Q_stricmp(v_gametype, "dm")) {
+				i = GT_FFA;
+			} else if (!Q_stricmp(v_gametype, "tp")) {
+				i = GT_TEAMPLAY;
+			} else if (!Q_stricmp(v_gametype, "tdm")) {
+				i = GT_TEAM;
+			} else if (!Q_stricmp(v_gametype, "ctb")) {
+				i = GT_CTF;
+			} else {
+			//if not a preset name, consider it an error
+				i = 999;
+			}
+		}
+	
+		trap_SendServerCommand(ent - g_entities, va("print \"^1v_map = %s, v_gametype = %s, i = %d\n\"", v_map, v_gametype, i));
+
+		if (i != GT_FFA && i != GT_TEAMPLAY && i != GT_CTF && i != GT_TEAM) {
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0(dm), 3(tdm), 4(tp) and 5(ctb).\n\"");
+			return;
+		}
+		if (!G_FileExists(va("maps/%s.bsp", v_map))) {
+			trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not exist.\n\"", v_map));
+			return;
+		}
+
+		switch (i) {
+		case GT_FFA:
+			if (!G_FileSearch(va("scripts/%s.arena", v_map), "rq3dm")) {
+				trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support DM.\n\"", v_map));
+				return;
+			}
+			break;
+		case GT_TEAMPLAY:
+			if (!G_FileSearch(va("scripts/%s.arena", v_map), "rq3tp")) {
+				trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support TP.\n\"", v_map));
+				return;
+			}
+			break;
+		case GT_TEAM:
+			if (!G_FileSearch(va("scripts/%s.arena", v_map), "rq3tdm")) {
+				trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support TDM.\n\"", v_map));
+				return;
+			}
+			break;
+		case GT_CTF:
+			if (!G_FileSearch(va("scripts/%s.arena", v_map), "rq3ctb")) {
+				trap_SendServerCommand(ent - g_entities, va("print \"^1The map %s does not support CTB.\n\"", v_map));
+				return;
+			}
+			break;
+		default:
+			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid gametype. Valid gametypes are 0(dm), 3(tdm), 4(tp) and 5(ctb).\n\"");
+			return;
+		}
+		Com_sprintf(level.voteString, sizeof(level.voteString), "%s", arg1);
+		Com_sprintf(level.voteMap, sizeof(level.voteMap), "%s", v_map);
+		level.voteGametype = i;
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s on %s", gameNames[i], level.voteMap);
 	} else if (!Q_stricmp(arg1, "cyclemap")) {
 		Com_sprintf(level.voteString, sizeof(level.voteString), "cyclemap");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);

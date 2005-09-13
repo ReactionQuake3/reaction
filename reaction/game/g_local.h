@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.153  2005/09/13 02:33:17  jbravo
+// Adding new callvote gametype:map
+//
 // Revision 1.152  2005/09/07 20:27:41  makro
 // Entity attachment trees
 //
@@ -905,7 +908,7 @@ typedef struct {
 	char voteDisplayString[MAX_STRING_CHARS];
 	// vote extras
 	char voteMap[MAX_STRING_CHARS];
-	
+	int voteGametype;	// JBravo: For callvote game
 	int voteTime;		// level.time vote was called
 	int voteExecuteTime;	// time the vote is executed
 	int voteYes;

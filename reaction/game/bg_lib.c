@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2005/09/13 02:33:17  jbravo
+// Adding new callvote gametype:map
+//
 // Revision 1.7  2003/09/18 19:26:43  makro
 // no message
 //
@@ -283,6 +286,51 @@ char *strstr(const char *string, const char *strCharSet)
 	}
 	return (char *) 0;
 }
+
+// JBravo: strtok from FreeBSD
+char *__strtok_r(char *s, const char *delim, char **last)
+{
+	char *spanp, *tok;
+	int c, sc;
+
+	if (s == NULL && (s = *last) == NULL)
+		return (NULL);
+
+cont:
+	c = *s++;
+	for (spanp = (char *)delim; (sc = *spanp++) != 0;) {
+		if (c == sc)
+			goto cont;
+	}
+
+	if (c == 0) {
+		*last = NULL;
+		return (NULL);
+	}
+	tok = s - 1;
+	for (;;) {
+		c = *s++;
+		spanp = (char *)delim;
+		do {
+			if ((sc = *spanp++) == c) {
+				if (c == 0)
+					s = NULL;
+				else
+					s[-1] = '\0';
+				*last = s;
+				return (tok);
+			}
+		} while (sc != 0);
+	}
+}
+
+char *strtok(char *s, const char *delim)
+{
+	static char *last;
+
+	return (__strtok_r(s, delim, &last));
+}
+
 #endif				// bk001211
 
 // bk001120 - presumably needed for Mac
@@ -1056,8 +1104,9 @@ double fabs(double x)
 #define ZEROPAD		0x00000080	/* zero (as opposed to blank) pad */
 #define FPT			0x00000100	/* floating point number */
 
-#define to_digit(c)		((c) - '0')
-#define is_digit(c)		((unsigned)to_digit(c) <= 9)
+// JBravo: moved to bg_lib.h
+// #define to_digit(c)		((c) - '0')
+// #define is_digit(c)		((unsigned)to_digit(c) <= 9)
 #define to_char(n)		((n) + '0')
 
 void AddInt(char **buf_p, int val, int width, int flags)

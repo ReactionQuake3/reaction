@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.152  2005/09/13 02:33:17  jbravo
+// Adding new callvote gametype:map
+//
 // Revision 1.151  2005/09/07 20:27:42  makro
 // Entity attachment trees
 //
@@ -2548,12 +2551,13 @@ CheckVote
 */
 void CheckVote(void)
 {
-	char userinfo[MAX_INFO_STRING], votestr[MAX_INFO_STRING];
+	char userinfo[MAX_INFO_STRING], votestr[MAX_INFO_STRING], gamevotestr[MAX_INFO_STRING];
 	char *value, *kicked;
 	gentity_t *ent;
 	int kickclient;
 
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
+		G_Printf("^1voteString = %s, voteDisplayString = %s\n", level.voteString, level.voteDisplayString);
 		if (g_gametype.integer == GT_TEAMPLAY && level.team_round_going &&
 			(Q_stricmp(level.voteString, "map") == 0))
 				return;
@@ -2564,6 +2568,13 @@ void CheckVote(void)
 		} else if (Q_stricmp(level.voteString, "map") == 0) {
 			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");	// check this later. This trap may not be necessary 
 			g_RQ3_ValidIniFile.integer = 2;
+			BeginIntermission();
+		} else if (Q_stricmp(level.voteString, "game") == 0) {
+			trap_Cvar_Set("g_RQ3_ValidIniFile", "2");
+			g_RQ3_ValidIniFile.integer = 2;
+			Com_sprintf(gamevotestr, sizeof(gamevotestr), "%d", level.voteGametype);
+			Com_sprintf(level.voteString, sizeof(level.voteString), "%s", "map");
+			trap_Cvar_Set("g_gametype", gamevotestr);
 			BeginIntermission();
 		} else if (Q_stricmp(level.voteString, "g_gametype") == 0) {
 			trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));

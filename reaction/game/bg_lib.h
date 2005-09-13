@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.6  2005/09/13 02:33:17  jbravo
+// Adding new callvote gametype:map
+//
 // Revision 1.5  2002/06/16 20:06:14  jbravo
 // Reindented all the source files with "indent -kr -ut -i8 -l120 -lc120 -sob -bad -bap"
 //
@@ -59,6 +62,7 @@ int strcmp(const char *string1, const char *string2);
 char *strchr(const char *string, int c);
 char *strstr(const char *string, const char *strCharSet);
 char *strncpy(char *strDest, const char *strSource, size_t count);
+char  *strtok(char *s, const char *delim);
 int tolower(int c);
 int toupper(int c);
 
@@ -86,3 +90,7 @@ double tan(double x);
 int abs(int n);
 double fabs(double x);
 double acos(double x);
+
+// JBravo: moved from bg_lib.c so all can use
+#define is_digit(c)	((unsigned)to_digit(c) <= 9)
+#define to_digit(c)	((c) - '0')
