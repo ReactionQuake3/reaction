@@ -6,61 +6,109 @@
 --------------------Configuration: game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP312.tmp" with contents
 [
-/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /D "DEBUG" /FR"c:\reactionoutput/" /Fp"c:\reactionoutput/game.pch" /YX /Fo"c:\reactionoutput/" /Fd"c:\reactionoutput/" /FD /c 
-"D:\Work\rq3source\reaction\game\g_teamplay.c"
+/nologo /G5 /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "BUILDING_REF_GL" /D "DEBUG" /FR"Debug/" /Fp"Debug/game.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
+"D:\Work\rq3source\reaction\game\g_parser.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP15.tmp" 
-Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP16.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP312.tmp" 
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP313.tmp" with contents
 [
-kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:yes /pdb:"c:\reactionoutput/qagamex86.pdb" /map:"c:\reactionoutput/qagamex86.map" /debug /machine:I386 /def:".\game.def" /out:"D:\Work\rq3source\reaction\Release\qagamex86.dll" /implib:"c:\reactionoutput/qagamex86.lib" 
-c:\reactionoutput\ai_chat.obj
-c:\reactionoutput\ai_cmd.obj
-c:\reactionoutput\ai_dmnet.obj
-c:\reactionoutput\ai_dmq3.obj
-c:\reactionoutput\ai_main.obj
-c:\reactionoutput\ai_team.obj
-c:\reactionoutput\ai_vcmd.obj
-c:\reactionoutput\bg_misc.obj
-c:\reactionoutput\bg_pmove.obj
-c:\reactionoutput\bg_slidemove.obj
-c:\reactionoutput\g_active.obj
-c:\reactionoutput\g_arenas.obj
-c:\reactionoutput\g_bot.obj
-c:\reactionoutput\g_client.obj
-c:\reactionoutput\g_cmds.obj
-c:\reactionoutput\g_combat.obj
-c:\reactionoutput\g_fileio.obj
-c:\reactionoutput\g_items.obj
-c:\reactionoutput\g_main.obj
-c:\reactionoutput\g_matchmode.obj
-c:\reactionoutput\g_mem.obj
-c:\reactionoutput\g_misc.obj
-c:\reactionoutput\g_missile.obj
-c:\reactionoutput\g_mover.obj
-c:\reactionoutput\g_session.obj
-c:\reactionoutput\g_spawn.obj
-c:\reactionoutput\g_svcmds.obj
-c:\reactionoutput\g_syscalls.obj
-c:\reactionoutput\g_target.obj
-c:\reactionoutput\g_team.obj
-c:\reactionoutput\g_teamplay.obj
-c:\reactionoutput\g_trigger.obj
-c:\reactionoutput\g_unlagged.obj
-c:\reactionoutput\g_utils.obj
-c:\reactionoutput\g_weapon.obj
-c:\reactionoutput\q_math.obj
-c:\reactionoutput\q_shared.obj
-c:\reactionoutput\rxn_game.obj
-c:\reactionoutput\zcam.obj
-c:\reactionoutput\zcam_target.obj
+kernel32.lib user32.lib winmm.lib /nologo /base:"0x20000000" /subsystem:windows /dll /incremental:yes /pdb:"d:\games\quake3\reaction/qagamex86.pdb" /map:"Debug/qagamex86.map" /debug /machine:I386 /def:".\game.def" /out:"D:\Work\rq3source\reaction\Release\qagamex86.dll" /implib:"d:\games\quake3\reaction/qagamex86.lib" 
+.\Debug\ai_chat.obj
+.\Debug\ai_cmd.obj
+.\Debug\ai_dmnet.obj
+.\Debug\ai_dmq3.obj
+.\Debug\ai_main.obj
+.\Debug\ai_team.obj
+.\Debug\ai_vcmd.obj
+.\Debug\bg_misc.obj
+.\Debug\bg_pmove.obj
+.\Debug\bg_slidemove.obj
+.\Debug\g_active.obj
+.\Debug\g_arenas.obj
+.\Debug\g_bot.obj
+.\Debug\g_client.obj
+.\Debug\g_cmds.obj
+.\Debug\g_combat.obj
+.\Debug\g_fileio.obj
+.\Debug\g_items.obj
+.\Debug\g_main.obj
+.\Debug\g_matchmode.obj
+.\Debug\g_mem.obj
+.\Debug\g_misc.obj
+.\Debug\g_missile.obj
+.\Debug\g_mover.obj
+.\Debug\g_session.obj
+.\Debug\g_spawn.obj
+.\Debug\g_svcmds.obj
+.\Debug\g_syscalls.obj
+.\Debug\g_target.obj
+.\Debug\g_team.obj
+.\Debug\g_teamplay.obj
+.\Debug\g_trigger.obj
+.\Debug\g_unlagged.obj
+.\Debug\g_utils.obj
+.\Debug\g_weapon.obj
+.\Debug\q_math.obj
+.\Debug\q_shared.obj
+.\Debug\rxn_game.obj
+.\Debug\zcam.obj
+.\Debug\zcam_target.obj
+.\Debug\g_parser.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP16.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP313.tmp"
 <h3>Output Window</h3>
 Compiling...
-g_teamplay.c
+g_parser.c
 Linking...
+Creating temporary file "C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP314.tmp" with contents
+[
+/nologo /o"d:\games\quake3\reaction/game.bsc" 
+.\Debug\ai_chat.sbr
+.\Debug\ai_cmd.sbr
+.\Debug\ai_dmnet.sbr
+.\Debug\ai_dmq3.sbr
+.\Debug\ai_main.sbr
+.\Debug\ai_team.sbr
+.\Debug\ai_vcmd.sbr
+.\Debug\bg_misc.sbr
+.\Debug\bg_pmove.sbr
+.\Debug\bg_slidemove.sbr
+.\Debug\g_active.sbr
+.\Debug\g_arenas.sbr
+.\Debug\g_bot.sbr
+.\Debug\g_client.sbr
+.\Debug\g_cmds.sbr
+.\Debug\g_combat.sbr
+.\Debug\g_fileio.sbr
+.\Debug\g_items.sbr
+.\Debug\g_main.sbr
+.\Debug\g_matchmode.sbr
+.\Debug\g_mem.sbr
+.\Debug\g_misc.sbr
+.\Debug\g_missile.sbr
+.\Debug\g_mover.sbr
+.\Debug\g_session.sbr
+.\Debug\g_spawn.sbr
+.\Debug\g_svcmds.sbr
+.\Debug\g_syscalls.sbr
+.\Debug\g_target.sbr
+.\Debug\g_team.sbr
+.\Debug\g_teamplay.sbr
+.\Debug\g_trigger.sbr
+.\Debug\g_unlagged.sbr
+.\Debug\g_utils.sbr
+.\Debug\g_weapon.sbr
+.\Debug\q_math.sbr
+.\Debug\q_shared.sbr
+.\Debug\rxn_game.sbr
+.\Debug\zcam.sbr
+.\Debug\zcam_target.sbr
+.\Debug\g_parser.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\Andrei\LOCALS~1\Temp\RSP314.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
 
 
 

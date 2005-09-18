@@ -65,8 +65,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir "."
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "c:\reactionoutput"
-# PROP Intermediate_Dir "c:\reactionoutput"
+# PROP Output_Dir "d:\games\quake3\reaction"
+# PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir "."
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
@@ -348,6 +348,10 @@ SOURCE=.\g_local.h
 # Begin Source File
 
 SOURCE=.\g_matchmode.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\g_parser.h
 # End Source File
 # Begin Source File
 
