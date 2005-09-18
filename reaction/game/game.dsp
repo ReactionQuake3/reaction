@@ -195,6 +195,14 @@ SOURCE=.\g_mover.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\g_parser.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\g_scripts.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\g_session.c
 # End Source File
 # Begin Source File
@@ -356,6 +364,10 @@ SOURCE=.\g_parser.h
 # Begin Source File
 
 SOURCE=.\g_public.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\g_scripts.h
 # End Source File
 # Begin Source File
 
