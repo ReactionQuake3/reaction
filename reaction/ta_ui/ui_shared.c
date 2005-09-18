@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.33  2005/09/18 16:56:45  makro
+// no message
+//
 // Revision 1.32  2005/09/07 20:24:33  makro
 // Vector support for most item types
 //
@@ -6571,7 +6574,7 @@ typedef struct keywordHash_s {
 	struct keywordHash_s *next;
 } keywordHash_t;
 
-int KeywordHash_Key(char *keyword)
+int KeywordHash_Key(const char *keyword)
 {
 	int register hash, i;
 
