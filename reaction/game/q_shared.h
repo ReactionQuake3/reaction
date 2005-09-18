@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.16  2005/09/18 18:01:01  makro
+// no message
+//
 // Revision 1.15  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1470,6 +1473,11 @@ typedef struct {
 } fontInfo_t;
 
 #define Square(x) ((x)*(x))
+
+// Makro - moved from bg_lic.c so all can use :P
+// JBravo: moved from bg_lib.c so all can use
+#define is_digit(c)	((unsigned)to_digit(c) <= 9)
+#define to_digit(c)	((c) - '0')
 
 // real time
 //=============================================

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.7  2005/09/18 18:00:51  makro
+// no message
+//
 // Revision 1.6  2005/09/13 02:33:17  jbravo
 // Adding new callvote gametype:map
 //
@@ -91,6 +94,3 @@ int abs(int n);
 double fabs(double x);
 double acos(double x);
 
-// JBravo: moved from bg_lib.c so all can use
-#define is_digit(c)	((unsigned)to_digit(c) <= 9)
-#define to_digit(c)	((c) - '0')
