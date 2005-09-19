@@ -93,7 +93,7 @@ TParseFunc Script_FindHandler(char *token, TParseState* state)
 }
 
 
-__inline void Script_InitStateStack(TStateStack *stack)
+ID_INLINE void Script_InitStateStack(TStateStack *stack)
 {
 	stack->top = 0;
 }
@@ -119,7 +119,7 @@ void Script_ParseString(char *str, TParseState *baseState)
 			handler(&str, &stateStack);
 		} else {
 			SCRIPT_INFO(SHOW_WARNING)
-				G_Printf("* Warning: unknown token, '%s'.\n", token);
+				G_Printf(S_COLOR_YELLOW "* Warning: unknown token, '%s'.\n", token);
 			END_SCRIPT_INFO();
 		}
 	}
@@ -145,7 +145,7 @@ SCRIPT_FUNC(SFN_SkipComment)
 			return 1;
 	}
 	SCRIPT_INFO(SHOW_ERROR)
-		G_Printf("* ERROR: end of input found in comment.\n");
+		G_Printf(S_COLOR_RED "* ERROR: end of input found in comment.\n");
 	END_SCRIPT_INFO();
 	return 0;
 }
@@ -165,7 +165,7 @@ SCRIPT_FUNC(SFN_SkipLineComment)
 		}
 	}
 	SCRIPT_INFO(SHOW_ERROR)
-		G_Printf("* ERROR: end of input found in comment.\n");
+		G_Printf(S_COLOR_RED "* ERROR: end of input found in comment.\n");
 	END_SCRIPT_INFO();
 	return 0;
 }

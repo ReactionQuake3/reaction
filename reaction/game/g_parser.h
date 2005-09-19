@@ -62,7 +62,7 @@ typedef enum
 extern int SCRIPT_SHOW_LEVEL;
 
 #define SCRIPT_INFO(level)			if (SCRIPT_SHOW_LEVEL <= (level)) {
-#define END_SCRIPT_INFO()					}
+#define END_SCRIPT_INFO()			}
 
 #define NEEDS_TOKENS(num, name)\
 	char *name[num];\
@@ -99,7 +99,7 @@ extern int SCRIPT_SHOW_LEVEL;
 ///////////////////////////////////////////////////////////////
 
 
-__inline int Script_PushState(TStateStack *stack, TParseState *state)
+ID_INLINE int Script_PushState(TStateStack *stack, TParseState *state)
 {
 	if (stack->top >= STATE_STACK_SIZE)
 	{
@@ -113,7 +113,7 @@ __inline int Script_PushState(TStateStack *stack, TParseState *state)
 	return 1;
 }
 
-__inline int Script_GetTopState(const TStateStack *stack, TParseState **state)
+ID_INLINE int Script_GetTopState(const TStateStack *stack, TParseState **state)
 {
 	if (!state)
 		return 1;
@@ -130,7 +130,7 @@ __inline int Script_GetTopState(const TStateStack *stack, TParseState **state)
 	return 1;
 }
 
-__inline int Script_PopState(TStateStack *stack, TParseState **state)
+ID_INLINE int Script_PopState(TStateStack *stack, TParseState **state)
 {
 	stack->top--;
 	if (stack->top < 0)
