@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.26  2006/04/14 18:15:45  makro
+// no message
+//
 // Revision 1.25  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -248,8 +251,16 @@ gentity_t *G_Find2(gentity_t * from, int fieldofs, const char *match, int fieldo
 	return NULL;
 }
 
+/*
+====================================================
+MatchesId
+
+Added by Makro
+====================================================
+*/
 qboolean MatchesId(gentity_t *ent, const char *ids)
 {
+#if 0
 	char tmp_alias[128]={0}, tmp_ids[128]={0}, *pi;
 
 	if (!ent || !ids)
@@ -302,6 +313,14 @@ qboolean MatchesId(gentity_t *ent, const char *ids)
 			*sep = ',';
 	}
 	return qfalse;
+#else
+	if (!ent || !ids)
+		return qfalse;
+	return
+		IdMatchesString(ent->targetname, ids) ||
+		IdMatchesString(ent->activatename, ids) ||
+		IdMatchesString(ent->alias, ids);
+#endif
 }
 
 

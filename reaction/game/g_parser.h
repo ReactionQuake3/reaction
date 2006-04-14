@@ -25,13 +25,15 @@ typedef struct _TParseRule
 	struct _TParseRule	*next;
 } TParseRule;
 
+#define MAX_RULES_IN_STATE		32
+
 typedef struct
 {
 	const char	*name;
 	void		*data;
 	int			initialized;
 	TParseRule	*hashTable[SCRIPT_HASH_SIZE];
-	TParseRule	rules[];
+	TParseRule	rules[MAX_RULES_IN_STATE];
 } TParseState;
 
 #define SCRIPT_STATE(name, data)\
@@ -99,54 +101,9 @@ extern int SCRIPT_SHOW_LEVEL;
 ///////////////////////////////////////////////////////////////
 
 
-ID_INLINE int Script_PushState(TStateStack *stack, TParseState *state)
-{
-	if (stack->top >= STATE_STACK_SIZE)
-	{
-		SCRIPT_INFO(SHOW_ERROR)
-			G_Printf("* ERROR: Stack overflow before %s.\n", (state) ? state->name : "[UNKNOWN]");
-		END_SCRIPT_INFO();
-		return 0;
-	}
-	stack->states[stack->top++] = state;
-
-	return 1;
-}
-
-ID_INLINE int Script_GetTopState(const TStateStack *stack, TParseState **state)
-{
-	if (!state)
-		return 1;
-	if (stack->top < 0 || stack->top >= STATE_STACK_SIZE)
-	{
-		*state = NULL;
-		SCRIPT_INFO(SHOW_ERROR)
-			G_Printf("* ERROR: Stack index out of bounds (%d).\n", stack->top);
-		END_SCRIPT_INFO();
-		return 0;
-	}
-
-	*state = stack->states[stack->top-1];
-	return 1;
-}
-
-ID_INLINE int Script_PopState(TStateStack *stack, TParseState **state)
-{
-	stack->top--;
-	if (stack->top < 0)
-	{
-		SCRIPT_INFO(SHOW_ERROR)
-			G_Printf("* ERROR: Stack underflow before %s.\n", (stack->states[0]) ? ((TParseState*)stack->states[0])->name : "[UNKNOWN]");
-		END_SCRIPT_INFO();
-		if (state)
-			*state = NULL;
-		return 0;
-	}
-	if (state)
-		*state = stack->states[stack->top];
-	return 1;
-}
-
+int Script_PushState(TStateStack *stack, TParseState *state);
+int Script_GetTopState(const TStateStack *stack, TParseState **state);
+int Script_PopState(TStateStack *stack, TParseState **state);
 
 char*			Script_GetToken(char **str);
 TParseFunc		Script_FindHandler(char *token, TParseState *state);

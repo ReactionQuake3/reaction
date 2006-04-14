@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.162  2006/04/14 18:16:31  makro
+// no message
+//
 // Revision 1.161  2005/09/07 22:19:15  makro
 // Dead player view offset tweaks
 //
@@ -1419,6 +1422,8 @@ typedef struct {
 	//qhandle_t medalDefend;
 	//qhandle_t medalAssist;
 	//qhandle_t medalCapture;
+
+	qhandle_t zoomMask;
 
 	// sounds
 	sfxHandle_t kickSound;	//Elder: kick sound

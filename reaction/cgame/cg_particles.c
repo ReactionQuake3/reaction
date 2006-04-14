@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.8  2006/04/14 18:16:31  makro
+// no message
+//
 // Revision 1.7  2003/03/29 18:53:41  jbravo
 // Fixed ammo bug when dropping bandolier. Added color to more errormessages
 //
@@ -1745,6 +1748,7 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 
 	if (!free_particles)
 		return;
+
 	p = free_particles;
 	free_particles = p->next;
 	p->next = active_particles;
@@ -1784,7 +1788,6 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 
 	p->accel[0] = crandom() * 4;
 	p->accel[1] = crandom() * 4;
-
 }
 
 void CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir)

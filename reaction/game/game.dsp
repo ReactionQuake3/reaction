@@ -38,7 +38,7 @@ RSC=rc.exe
 # PROP BASE Target_Dir "."
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "D:\Work\rq3source\reaction\Release"
+# PROP Output_Dir "D:\games\quake3\reaction"
 # PROP Intermediate_Dir "D:\Work\rq3source\reaction\Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir "."
@@ -65,7 +65,7 @@ LINK32=link.exe
 # PROP BASE Target_Dir "."
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "d:\games\quake3\reaction"
+# PROP Output_Dir "D:\games\quake3\reaction"
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir "."

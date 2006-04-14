@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.113  2006/04/14 18:15:45  makro
+// no message
+//
 // Revision 1.112  2005/09/13 03:11:08  jbravo
 // Dead players cant use unzoom or weapon commands
 //
@@ -1584,4 +1587,16 @@ char *Q_strins(char *dest, char *s, int size);
 //of endianness (darned Mac users)
 void SetIntBytes(int i, char *buf, char count);
 int GetIntBytes(char *buf, char count);
+
+//Makro - returns true if any of the tokens in the first string
+//matches any of the tokens in the second string
+qboolean IdMatchesString(const char *id, const char *match);
+
+
+float SawTooth(int time, int period);
+
+#define PULSE_SAWTOOTH_PERIOD		500
+#define ARRAY_SIZE(arr)				(sizeof(arr) / sizeof(arr[0]))
+
+#define INFINITE_LOOP				for (;;)
 

@@ -26,6 +26,8 @@ g_mem
 g_misc
 g_missile
 g_mover
+g_parser
+g_scripts
 g_session
 g_spawn
 g_svcmds

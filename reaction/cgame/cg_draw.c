@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.79  2006/04/14 18:16:31  makro
+// no message
+//
 // Revision 1.78  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1980,6 +1983,9 @@ static void CG_DrawCrosshair(void)
 			}
 
 			trap_R_SetColor(NULL);
+			if (cgs.media.zoomMask)
+				CG_DrawPic(0, 0, 640, 480, cgs.media.zoomMask);
+
 			drawSSG = 1;
 		}
 	}
@@ -2554,9 +2560,9 @@ static void CG_Draw2D(void)
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		// if ( !cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
 		if (cg.snap->ps.stats[STAT_HEALTH] > 0) {
+			CG_DrawCrosshair();
 			CG_DrawStatusBar();
 			CG_DrawAmmoWarning();
-			CG_DrawCrosshair();
 			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 			CG_DrawHoldableItem();

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2006/04/14 18:15:45  makro
+// no message
+//
 // Revision 1.57  2005/09/07 20:27:41  makro
 // Entity attachment trees
 //
@@ -1734,3 +1737,75 @@ int GetIntBytes(char *buf, char count)
 	return rez;
 }
 
+/*
+====================================================
+IdMatchesString
+
+Returns 1 if any of the tokens in the first string
+matches any of the tokens in the second string
+
+Added by Makro
+====================================================
+*/
+
+#define IS_DELIM(x)			((x)==',' || (x)==' ' || (x)=='\t')
+#define SKIP_DELIM(s)		while (IS_DELIM(*(s))) (s)++
+
+qboolean IdMatchesString(const char *id, const char *match)
+{
+	const char *tok1, *tok2;
+
+	// iterate through all the tokens in "id"
+	while (id && *id)
+	{
+		int len1;
+		const char *tomatch = match;
+
+		// find the end of the current token
+		for (tok1=id, len1=0; *tok1 && !IS_DELIM(*tok1); tok1++, len1++) {}
+		// skip all delimiters
+		SKIP_DELIM(tok1);
+		
+		// iterate through all the tokens in "match"
+		while (match && *match)
+		{
+			int len2;
+			char ok = 1;
+
+			// find the end of the current token
+			for (tok2=match, len2=0; *tok2 && !IS_DELIM(*tok2); tok2++, len2++)
+			{
+				if (ok)
+					if (len2 > len1 || toupper(*tok2) != toupper(id[len2]))
+						ok = 0;
+			}
+			// skip all delimiters
+			SKIP_DELIM(tok2);
+
+			if (len1 == len2 && ok)
+				return qtrue;
+			// fetch next token in "match"
+			match = tok2;
+		}
+		// restore "match" string
+		match = tomatch;
+
+		// fetch next token in "id"
+		id = tok1;
+	}
+	return qfalse;
+}
+
+
+float SawTooth(int time, int period)
+{
+	if (period <= 0)
+		return 0;
+	else
+	{
+		if ((time / period) & 1)
+			return (time % period) / ((float)period);
+		else
+			return 1.0f - (time % period) / ((float)period);
+	}
+}

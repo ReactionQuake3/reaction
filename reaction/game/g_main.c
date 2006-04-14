@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.153  2006/04/14 18:15:45  makro
+// no message
+//
 // Revision 1.152  2005/09/13 02:33:17  jbravo
 // Adding new callvote gametype:map
 //
@@ -439,6 +442,8 @@
 #include "g_local.h"
 #include "zcam.h"
 #include "q_shared.h"
+
+#include "g_scripts.h"
 
 int trap_RealTime(qtime_t * qtime);
 gentity_t *getEntByName(char *name);
@@ -1490,6 +1495,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	//Makro - moveparents stuff
 	G_InitMoveParents();
 	G_SetMoveParentOrder();
+
+	G_ParseScript("main_test.ini");
 }
 
 /*

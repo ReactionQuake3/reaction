@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.21  2006/04/14 18:16:31  makro
+// no message
+//
 // Revision 1.20  2004/01/26 21:26:08  makro
 // no message
 //
@@ -2089,7 +2092,10 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 	cparticle_t *p;
 
 	if (!free_particles)
+	{
+		CG_Printf(S_COLOR_RED "No particles left for sparks!!!\n");
 		return;
+	}
 	p = free_particles;
 	free_particles = p->next;
 	p->next = active_particles;
@@ -2139,7 +2145,6 @@ void CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x, float y, f
 
 	p->accel[0] = crandom() * 4;
 	p->accel[1] = crandom() * 4;
-
 }
 
 //Makro - snow
@@ -2148,7 +2153,10 @@ void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, 
 	cparticle_t *p;
 
 	if (!free_particles)
+	{
+		CG_Printf(S_COLOR_RED "No particles left for sparks!!!\n");
 		return;
+	}
 	p = free_particles;
 	free_particles = p->next;
 	p->next = active_particles;
@@ -2188,7 +2196,6 @@ void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, 
 	p->vel[0] += (crandom() * 8);
 	p->vel[1] += (crandom() * 8);
 	//p->vel[2] += (20 + (crandom() * 10)) * speed;
-
 }
 
 //Makro - grass

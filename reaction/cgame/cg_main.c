@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.148  2006/04/14 18:16:31  makro
+// no message
+//
 // Revision 1.147  2005/09/07 20:29:05  makro
 // Stuff I can't remember
 //
@@ -2252,6 +2255,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.ssgCrosshair[1] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg4x-%i", i));
 	cgs.media.ssgCrosshair[2] = trap_R_RegisterShaderNoMip(va("gfx/rq3_hud/ssg6x-%i", i));
 
+	//Makro - zoom mask
+	cgs.media.zoomMask = trap_R_RegisterShaderNoMip("gfx/2d/zoom_mask");
+	
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_health");
 	cgs.media.rq3_healthicon2 = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_healthwarning");
