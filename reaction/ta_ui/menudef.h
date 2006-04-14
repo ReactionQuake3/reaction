@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.14  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.13  2005/09/07 20:24:33  makro
 // Vector support for most item types
 //
@@ -115,6 +118,8 @@
 #define FEEDER_MMHEADS						0x11
 //Makro - replacements
 #define FEEDER_REPLACEMENTS					0x12
+//Makro - driver info
+#define FEEDER_GLDRIVER_INFO					0x13
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG		0x00000001

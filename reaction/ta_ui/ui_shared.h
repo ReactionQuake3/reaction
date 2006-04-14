@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.22  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.21  2005/09/07 20:24:33  makro
 // Vector support for most item types
 //
@@ -116,7 +119,10 @@
 #define WINDOW_RENDERPOINT			0x01000000
 //Makro - forced text color
 #define WINDOW_FORCE_TEXT_COLOR		0x02000000
-
+//Makro - randomizes texture co-ordinates (useful for simulating screen static)
+#define WINDOW_RANDOM_TCGEN			0x04000000
+//Makro - parent is moved around when this item is clicked
+#define WINDOW_MENU_ANCHOR			0x08000000
 
 // CGAME cursor type bits
 #define CURSOR_NONE					0x00000001
@@ -142,22 +148,24 @@
 #define ART_FX_WHITE		"menu/art/fx_white"
 #define ART_FX_YELLOW		"menu/art/fx_yel"
 
-#define ASSET_GRADIENTBAR				"ui/assets/gradientbar2.tga"
-#define ASSET_SCROLLBAR_V				"ui/assets/scrollbar_vert.tga"
+//Makro - removed "ui/assets" from these defines
+#define ASSET_GRADIENTBAR				"gradientbar2.tga"
+#define ASSET_SCROLLBAR_V				"scrollbar_vert.tga"
 //Makro - horizontal scrollbar
-#define ASSET_SCROLLBAR_H				"ui/assets/scrollbar_horz.tga"
-#define ASSET_SCROLLBAR_ARROWDOWN		"ui/assets/scrollbar_arrow_dwn_a.tga"
-#define ASSET_SCROLLBAR_ARROWUP			"ui/assets/scrollbar_arrow_up_a.tga"
-#define ASSET_SCROLLBAR_ARROWLEFT		"ui/assets/scrollbar_arrow_left_a.tga"
-#define ASSET_SCROLLBAR_ARROWRIGHT		"ui/assets/scrollbar_arrow_right_a.tga"
+#define ASSET_SCROLLBAR_H				"scrollbar_horz.tga"
+#define ASSET_SCROLLBAR_ARROWDOWN		"scrollbar_arrow_dwn_a.tga"
+#define ASSET_SCROLLBAR_ARROWUP			"scrollbar_arrow_up_a.tga"
+#define ASSET_SCROLLBAR_ARROWLEFT		"scrollbar_arrow_left_a.tga"
+#define ASSET_SCROLLBAR_ARROWRIGHT		"scrollbar_arrow_right_a.tga"
 //Makro - displayed when clicked
-#define ASSET_SCROLLBAR_ARROWDOWN2		"ui/assets/scrollbar_arrow_dwn_b.tga"
-#define ASSET_SCROLLBAR_ARROWUP2		"ui/assets/scrollbar_arrow_up_b.tga"
-#define ASSET_SCROLLBAR_ARROWLEFT2		"ui/assets/scrollbar_arrow_left_b.tga"
-#define ASSET_SCROLLBAR_ARROWRIGHT2		"ui/assets/scrollbar_arrow_right_b.tga"
-#define ASSET_SCROLL_THUMB				"ui/assets/scrollbar_thumb.tga"
-#define ASSET_SLIDER_BAR				"ui/assets/slider2.tga"
-#define ASSET_SLIDER_THUMB				"ui/assets/sliderbutt_1.tga"
+#define ASSET_SCROLLBAR_ARROWDOWN2		"scrollbar_arrow_dwn_b.tga"
+#define ASSET_SCROLLBAR_ARROWUP2		"scrollbar_arrow_up_b.tga"
+#define ASSET_SCROLLBAR_ARROWLEFT2		"scrollbar_arrow_left_b.tga"
+#define ASSET_SCROLLBAR_ARROWRIGHT2		"scrollbar_arrow_right_b.tga"
+#define ASSET_SCROLL_THUMB				"scrollbar_thumb.tga"
+#define ASSET_SLIDER_BAR0				"slider2_0.tga"
+#define ASSET_SLIDER_BAR1				"slider2_1.tga"
+#define ASSET_SLIDER_THUMB				"sliderbutt_1.tga"
 #define SCROLLBAR_SIZE 16.0
 #define SLIDER_WIDTH 96.0
 #define SLIDER_HEIGHT 16.0
@@ -425,6 +433,8 @@ typedef struct {
 	const char *fontStr;
 	const char *cursorStr;
 	const char *gradientStr;
+	//Makro - this allows us to have more than one UI dir
+	const char *assetsPath;
 	fontInfo_t textFont;
 	fontInfo_t smallFont;
 	fontInfo_t bigFont;
@@ -446,7 +456,7 @@ typedef struct {
 	qhandle_t buttonMiddle;
 	qhandle_t buttonInside;
 	qhandle_t solidBox;
-	qhandle_t sliderBar;
+	qhandle_t sliderBar0, sliderBar1;
 	qhandle_t sliderThumb;
 	sfxHandle_t menuEnterSound;
 	sfxHandle_t menuExitSound;
@@ -488,6 +498,8 @@ typedef struct {
 									else\
 										(intvec)[(pos)>>5] &= ~(1 << ((pos) & 31))\
 										
+
+#define MAX_NUM_GL_EXTENSIONS	128
 
 typedef struct {
 	qhandle_t(*registerShaderNoMip) (const char *p);
@@ -597,6 +609,10 @@ typedef struct {
 	int overlayFadeStart, overlayFadeEnd;
 	//Makro - keep track of key presses
 	int keysStatus[1024/(8*sizeof(int))];
+
+	//Makro - gl extensions
+	const char *glExtensions[MAX_NUM_GL_EXTENSIONS];
+	int numGlExtensions;
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.83  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.82  2005/09/07 20:24:33  makro
 // Vector support for most item types
 //
@@ -477,7 +480,7 @@ vmCvar_t ui_new;
 //vmCvar_t ui_debug;
 vmCvar_t ui_developer;
 vmCvar_t ui_initialized;
-vmCvar_t ui_teamArenaFirstRun;
+vmCvar_t ui_reaction33FirstRun;
 
 void _UI_Init(qboolean);
 void _UI_Shutdown(void);
@@ -551,6 +554,16 @@ qboolean UI_FileExists(const char *filename)
 	return qfalse;
 }
 
+//Makro - registers an asset; path is relative to the assetsPath
+qhandle_t Asset_RegisterShaderNoMip(const char *path)
+{
+	if (!path)
+		return 0;
+	if (!uiInfo.uiDC.Assets.assetsPath)
+		return trap_R_RegisterShaderNoMip(va("ui/assets/%s", path));
+	return trap_R_RegisterShaderNoMip(va("%s/%s", uiInfo.uiDC.Assets.assetsPath, path));
+}
+
 void AssetCache()
 {
 	int n, ssg;
@@ -559,7 +572,7 @@ void AssetCache()
 	//}
 	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-	uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip(ASSET_GRADIENTBAR);
+	uiInfo.uiDC.Assets.gradientBar = Asset_RegisterShaderNoMip(ASSET_GRADIENTBAR);
 	uiInfo.uiDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip(ART_FX_BASE);
 	uiInfo.uiDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip(ART_FX_RED);
 	uiInfo.uiDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip(ART_FX_YELLOW);
@@ -568,20 +581,21 @@ void AssetCache()
 	uiInfo.uiDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip(ART_FX_BLUE);
 	uiInfo.uiDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
 	uiInfo.uiDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
-	uiInfo.uiDC.Assets.scrollBarH = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_H);
-	uiInfo.uiDC.Assets.scrollBarV = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_V);
-	uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN);
-	uiInfo.uiDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP);
-	uiInfo.uiDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
-	uiInfo.uiDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
-	uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip(ASSET_SCROLL_THUMB);
+	uiInfo.uiDC.Assets.scrollBarH = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_H);
+	uiInfo.uiDC.Assets.scrollBarV = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_V);
+	uiInfo.uiDC.Assets.scrollBarArrowDown = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN);
+	uiInfo.uiDC.Assets.scrollBarArrowUp = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP);
+	uiInfo.uiDC.Assets.scrollBarArrowLeft = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
+	uiInfo.uiDC.Assets.scrollBarArrowRight = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
+	uiInfo.uiDC.Assets.scrollBarThumb = Asset_RegisterShaderNoMip(ASSET_SCROLL_THUMB);
 	//Makro - shown when clicked
-	uiInfo.uiDC.Assets.scrollBarArrowDown2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN2);
-	uiInfo.uiDC.Assets.scrollBarArrowUp2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP2);
-	uiInfo.uiDC.Assets.scrollBarArrowLeft2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT2);
-	uiInfo.uiDC.Assets.scrollBarArrowRight2 = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT2);
-	uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR);
-	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
+	uiInfo.uiDC.Assets.scrollBarArrowDown2 = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWDOWN2);
+	uiInfo.uiDC.Assets.scrollBarArrowUp2 = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWUP2);
+	uiInfo.uiDC.Assets.scrollBarArrowLeft2 = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT2);
+	uiInfo.uiDC.Assets.scrollBarArrowRight2 = Asset_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT2);
+	uiInfo.uiDC.Assets.sliderBar0 = Asset_RegisterShaderNoMip(ASSET_SLIDER_BAR0);
+	uiInfo.uiDC.Assets.sliderBar1 = Asset_RegisterShaderNoMip(ASSET_SLIDER_BAR1);
+	uiInfo.uiDC.Assets.sliderThumb = Asset_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
 
 	for (n = 0; n < NUM_CROSSHAIRS; n++) {
 		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + n));
@@ -594,10 +608,10 @@ void AssetCache()
 	//Makro - for drop shadows
 	for (n = 0; n < 4; n++) {
 		uiInfo.uiDC.Assets.dropShadowCorners[n] =
-		    trap_R_RegisterShaderNoMip(va("ui/assets/rq3-ingame-shadow-c%i", n + 1));
+		    Asset_RegisterShaderNoMip(va("rq3-ingame-shadow-c%i", n + 1));
 	}
-	uiInfo.uiDC.Assets.dropShadowRight = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-right");
-	uiInfo.uiDC.Assets.dropShadowBottom = trap_R_RegisterShaderNoMip("ui/assets/rq3-ingame-shadow-bottom");
+	uiInfo.uiDC.Assets.dropShadowRight = Asset_RegisterShaderNoMip("rq3-ingame-shadow-right");
+	uiInfo.uiDC.Assets.dropShadowBottom = trap_R_RegisterShaderNoMip("rq3-ingame-shadow-bottom");
 	
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
@@ -1478,7 +1492,7 @@ void _UI_Refresh(int realtime)
 			Vector2Subtract(dif, uiInfo.uiDC.mouseDownPos, dif);
 			norm = sqrt(Vector2Norm2(dif));
 			angle = -RAD2DEG(atan2(dif[1], dif[0]));
-			Text_Paint(20, 20, 0.225f, colorCyan, va("(%i, %i) - (%i,%i) = (%i, %i) = %.2f = %.3f deg",
+			Text_Paint(20, 12, 0.225f, colorCyan, va("(%i, %i) - (%i,%i) = (%i, %i) = %.2f = %.3f deg",
 				uiInfo.uiDC.mouseDownPos[0], uiInfo.uiDC.mouseDownPos[1], uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory,
 				dif[0], dif[1], norm, angle), 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
 			if (norm)
@@ -1499,9 +1513,9 @@ void _UI_Refresh(int realtime)
 			} else {
 				s = va("(%i, %i)", uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 			}
-			Text_Paint(20, 20, 0.225f, colorCyan, s, 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
+			Text_Paint(20, 12, 0.225f, colorCyan, s, 0, 0, 0, ITEM_TEXTSTYLE_SHADOWED, qfalse);
 		}
-		Text_Paint(20, 40, 0.225f, colorCyan, va("%i fps", uiInfo.uiDC.smoothFPS), 0, 0, 0,
+		Text_Paint(20, 32, 0.225f, colorCyan, va("%i fps", uiInfo.uiDC.smoothFPS), 0, 0, 0,
 			ITEM_TEXTSTYLE_SHADOWED, qfalse);
 	}
 	//any left-overs?
@@ -1616,7 +1630,7 @@ qboolean Asset_Parse(int handle)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 
 		memset(&token, 0, sizeof(pc_token_t));
 
@@ -1707,6 +1721,14 @@ qboolean Asset_Parse(int handle)
 			continue;
 		}
 
+		//Makro - this allows us to have more than one UI
+		if (Q_stricmp(token.string, "assetsPath") == 0) {
+			if (!PC_String_Parse(handle, &uiInfo.uiDC.Assets.assetsPath)) {
+				return qfalse;
+			}
+			continue;
+		}
+
 		//Makro - key bind status 1
 		if (Q_stricmp(token.string, "keyBindStatus1") == 0) {
 			if (!PC_String_Parse(handle, &uiInfo.keyBindStatus1)) {
@@ -1793,7 +1815,8 @@ qboolean Asset_Parse(int handle)
 
 
 	}
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 void Font_Report()
@@ -1826,7 +1849,7 @@ void UI_ParseMenu(const char *menuFile)
 		return;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		memset(&token, 0, sizeof(pc_token_t));
 		if (!trap_PC_ReadToken(handle, &token)) {
 			break;
@@ -1871,7 +1894,7 @@ qboolean Load_Menu(int handle)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
@@ -1886,7 +1909,8 @@ qboolean Load_Menu(int handle)
 
 		UI_ParseMenu(token.string);
 	}
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 void UI_LoadMenus(const char *menuFile, qboolean reset)
@@ -1914,7 +1938,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset)
 		Menu_Reset();
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		if (!trap_PC_ReadToken(handle, &token))
 			break;
 		if (token.string[0] == 0 || token.string[0] == '}') {
@@ -3578,53 +3602,54 @@ static void UI_DrawKeyBindStatus(itemDef_t *item, rectDef_t * rect, float scale,
 	}
 }
 
+//Makro - rewrote this function - added more info and support for vectors; moved extensions to FEEDER_GLDRIVER_INFO
+
+#define GLINFO_STRING1	va("RENDERER: %s / %s", uiInfo.uiDC.glconfig.renderer_string, uiInfo.uiDC.glconfig.vendor_string)
+#define GLINFO_STRING2	va("VERSION: %s", uiInfo.uiDC.glconfig.version_string)
+#define GLINFO_STRING3	va("PIXELFORMAT: color(%d) Z(%d) stencil(%d); REFRESH: %d Hz", uiInfo.uiDC.glconfig.colorBits,\
+	uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits, uiInfo.uiDC.glconfig.displayFrequency)
+#define GLINFO_STRING4	va("TEX: %d units, %d x %d max%s%s", uiInfo.uiDC.glconfig.maxActiveTextures,\
+	uiInfo.uiDC.glconfig.maxTextureSize, uiInfo.uiDC.glconfig.maxTextureSize,\
+	(uiInfo.uiDC.glconfig.textureCompression == TC_NONE) ? "" : ", compressed", uiInfo.uiDC.glconfig.smpActive ? "; SMP: on" : "")
+
 static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	char *eptr;
-	char buff[1024];
-	const char *lines[64];
-	int y, numLines, i;
+	float p[2];
+	float u[2] = {1, 0};
+	float v[2] = {0, 1};
 
-	//Makro - changed from 30 to 48; changed pixelformat display from (x-bits) to (x)
-	Text_Paint(rect->x + 2, rect->y, scale, color, va("VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), 0, 48, 0,
-		   textStyle, qfalse);
-	Text_Paint(rect->x + 2, rect->y + 15, scale, color,
-		   va("VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string, uiInfo.uiDC.glconfig.renderer_string), 0,
-		   48, 0, textStyle, qfalse);
-	Text_Paint(rect->x + 2, rect->y + 30, scale, color,
-		   va("PIXELFORMAT: color(%d) Z(%d) stencil(%d)", uiInfo.uiDC.glconfig.colorBits,
-		      uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), 0, 48, 0, textStyle, qfalse);
+	Vector2Set(p, rect->x, rect->y);
 
-	// build null terminated extension strings
-	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, 1024);
-	eptr = buff;
-	y = rect->y + 45;
-	numLines = 0;
-	while (y < rect->y + rect->h && *eptr) {
-		while (*eptr && *eptr == ' ')
-			*eptr++ = '\0';
-
-		// track start of valid string
-		if (*eptr && *eptr != ' ') {
-			lines[numLines++] = eptr;
-		}
-
-		while (*eptr && *eptr != ' ')
-			eptr++;
+	//Makro - vectors?
+	if (rect->hasVectors)
+	{
+		Vector2Copy(rect->u, u);
+		Vector2Copy(rect->v, v);
 	}
 
-	i = 0;
-	while (i < numLines) {
-		Text_Paint(rect->x + 2, y, scale, color, lines[i++], 0, 20, 0, textStyle, qfalse);
-		if (i < numLines) {
-			Text_Paint(rect->x + rect->w / 2, y, scale, color, lines[i++], 0, 20, 0, textStyle, qfalse);
-		}
-		y += 10;
-		if (y > rect->y + rect->h - 11) {
-			break;
-		}
-	}
+	//Makro - rewrote this code
+	if (rect->hasVectors)
+	{
+		#define GLINFO_OUTPUT_STRING_ANGLED(str)\
+			Text_PaintAngled(p[0], p[1], u, v, scale, color, str, 0, 0, rect->w, textStyle, qfalse);\
+			Vector2MA(p, 64 * scale, v, p)
 
+		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING1);
+		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING2);
+		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING3);
+		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING4);
+	}
+	else
+	{
+		#define GLINFO_OUTPUT_STRING(str)\
+			Text_Paint(p[0], p[1], scale, color, str, 0, 0, rect->w, textStyle, qfalse);\
+			Vector2MA(p, 64 * scale, v, p)
+
+		GLINFO_OUTPUT_STRING(GLINFO_STRING1);
+		GLINFO_OUTPUT_STRING(GLINFO_STRING2);
+		GLINFO_OUTPUT_STRING(GLINFO_STRING3);
+		GLINFO_OUTPUT_STRING(GLINFO_STRING4);
+	}
 }
 
 //Makro - startup menu text
@@ -5844,20 +5869,18 @@ static void UI_RunMenuScript(char **args)
 			trap_Cvar_Set("ui_singlePlayerActive", "0");
 			//Makro - see if we have to restore the music volume
 			if (uiInfo.savedMusicVol) {
-				trap_Cmd_ExecuteText(EXEC_APPEND,
-						     va("set s_musicvolume %f ; wait\n", uiInfo.oldMusicVol));
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("set s_musicvolume %f ; wait\n", uiInfo.oldMusicVol));
 			}
 			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
-			//Makro - maybe a wait command will make the music volume get saved before exiting
-			trap_Cmd_ExecuteText(EXEC_APPEND, "wait ; quit\n");
+			//Makro - saved config file before exiting
+			trap_Cmd_ExecuteText(EXEC_APPEND, "writeconfig q3config.cfg ; quit\n");
 			//Makro - weapon menu after joining a team
-		} else if (Q_stricmp(name, "weapAfterJoin") == 0)
+		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
+			//only in teamplay
+			if (UI_RQ3_WeaponMenuAccess())
 			{
-				//only in teamplay
-				if (UI_RQ3_WeaponMenuAccess())
-				{
-					if (ui_RQ3_weapAfterJoin.integer) {
-						_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
+				if (ui_RQ3_weapAfterJoin.integer) {
+					_UI_SetActiveMenu(UIMENU_RQ3_WEAPON);
 				}
 			}
 		} else if (Q_stricmp(name, "Controls") == 0) {
@@ -6882,6 +6905,9 @@ static int UI_FeederCount(float feederID)
 	//Makro - model replacements
 	} else if (feederID == FEEDER_REPLACEMENTS) {
 		return uiInfo.replacements.Count;
+	//Makro - gl driver extensions
+	} else if (feederID == FEEDER_GLDRIVER_INFO) {
+		return uiInfo.uiDC.numGlExtensions;
 	}
 	return 0;
 }
@@ -7094,6 +7120,9 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 				return uiInfo.ingameServerInfo[index][column];
 			}
 		}
+	} else if (feederID == FEEDER_GLDRIVER_INFO) {
+		if (index >= 0 && index < uiInfo.uiDC.numGlExtensions)
+			return uiInfo.uiDC.glExtensions[index];
 	/*
 	//Makro - model replacements
 	} else if (feederID == FEEDER_REPLACEMENTS) {
@@ -7259,7 +7288,7 @@ static qboolean Team_Parse(char **p)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 
 		token = COM_ParseExt(p, qtrue);
 
@@ -7308,7 +7337,8 @@ static qboolean Team_Parse(char **p)
 		}
 	}
 
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 static qboolean Character_Parse(char **p)
@@ -7322,7 +7352,7 @@ static qboolean Character_Parse(char **p)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
@@ -7369,7 +7399,8 @@ static qboolean Character_Parse(char **p)
 		}
 	}
 
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 static qboolean Alias_Parse(char **p)
@@ -7382,7 +7413,7 @@ static qboolean Alias_Parse(char **p)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
@@ -7416,7 +7447,8 @@ static qboolean Alias_Parse(char **p)
 		}
 	}
 
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 // mode 
@@ -7438,7 +7470,7 @@ static void UI_ParseTeamInfo(const char *teamFile)
 
 	p = buff;
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(&p, qtrue);
 		if (!token || token[0] == 0 || token[0] == '}') {
 			break;
@@ -7494,7 +7526,7 @@ joingametypes {
 		uiInfo.numGameTypes = 0;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
@@ -7542,7 +7574,8 @@ joingametypes {
 			}
 		}
 	}
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 static qboolean MapList_Parse(char **p)
@@ -7557,7 +7590,7 @@ static qboolean MapList_Parse(char **p)
 
 	uiInfo.mapCount = 0;
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(p, qtrue);
 
 		if (Q_stricmp(token, "}") == 0) {
@@ -7581,7 +7614,7 @@ static qboolean MapList_Parse(char **p)
 
 			uiInfo.mapList[uiInfo.mapCount].typeBits = 0;
 
-			while (1) {
+			INFINITE_LOOP {
 				token = COM_ParseExt(p, qtrue);
 				if (token[0] >= '0' && token[0] <= '9') {
 					uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << (token[0] - 0x030));
@@ -7611,7 +7644,8 @@ static qboolean MapList_Parse(char **p)
 			}
 		}
 	}
-	return qfalse;
+	//Makro - unreachable
+	//return qfalse;
 }
 
 static void UI_ParseGameInfo(const char *teamFile)
@@ -7629,7 +7663,7 @@ static void UI_ParseGameInfo(const char *teamFile)
 
 	p = buff;
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_ParseExt(&p, qtrue);
 		if (!token || token[0] == 0 || token[0] == '}') {
 			break;
@@ -7879,6 +7913,34 @@ void UI_DrawPolyStretchPic(float x, float y, float w, float h, float s1, float t
 	trap_R_DrawStretchPic(x, y, w, h, s1, t1, s2, t2, hShader);
 }
 
+static void UI_MakeExtensionsList()
+{
+	char *eptr;
+
+	uiInfo.uiDC.numGlExtensions = 0;
+
+	// build null terminated extension strings
+
+	eptr = uiInfo.uiDC.glconfig.extensions_string;
+	while (*eptr && uiInfo.uiDC.numGlExtensions < MAX_NUM_GL_EXTENSIONS)
+	{
+		// skip whitespace
+		while (*eptr && *eptr == ' ')
+			*eptr++ = '\0';
+
+		// track start of valid string
+		if (*eptr && *eptr != ' ')
+			uiInfo.uiDC.glExtensions[uiInfo.uiDC.numGlExtensions++] = eptr;
+
+		while (*eptr && *eptr != ' ')
+			eptr++;
+
+		// end token
+		if (*eptr)
+			*eptr++ = '\0';
+	}
+}
+
 
 /*
 =================
@@ -7892,6 +7954,7 @@ void _UI_Init(qboolean inGameLoad)
 	char info[MAX_INFO_STRING];
 	//
 	int start;
+	qboolean needRestart = qfalse;
 
 	//uiInfo.inGameLoad = inGameLoad;
 
@@ -7902,10 +7965,23 @@ void _UI_Init(qboolean inGameLoad)
 	// cache redundant calulations
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
 
+	UI_MakeExtensionsList();
+
 	//Makro - 8192 polys should be enough for the new UI...
 	if (ui_maxpolys.integer < 8192)
 	{
 		trap_Cvar_SetValue("r_maxpolys", 8192);
+		needRestart = qtrue;
+	}
+
+	//Makro - 32768 poly verts should be enough for the new UI...
+	if (ui_maxpolyverts.integer < 32768)
+	{
+		trap_Cvar_SetValue("r_maxpolyverts", 32768);
+		needRestart = qtrue;
+	}
+	if (needRestart)
+	{
 		trap_Cmd_ExecuteText(EXEC_INSERT, "vid_restart");
 	}
 
@@ -8082,10 +8158,10 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.serverStatus.currentServerCinematic = -1;
 	uiInfo.previewMovie = -1;
 
-	if (trap_Cvar_VariableValue("ui_TeamArenaFirstRun") == 0) {
+	if (trap_Cvar_VariableValue("ui_reaction33FirstRun") == 0) {
 		trap_Cvar_Set("s_volume", "0.8");
 		trap_Cvar_Set("s_musicvolume", "0.5");
-		trap_Cvar_Set("ui_TeamArenaFirstRun", "1");
+		trap_Cvar_Set("ui_reaction33FirstRun", "1");
 	}
 
 	trap_Cvar_Register(NULL, "debug_protocol", "", 0);
@@ -8175,7 +8251,7 @@ void _UI_MouseEvent(int dx, int dy)
 	if (Menu_Count() > 0) {
 		//menuDef_t *menu = Menu_GetFocused();
 		//Menu_HandleMouseMove(menu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
-		Display_MouseMove(NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
+		Display_MouseMove(g_anchoredMenu, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory);
 	}
 
 	//Makro - update the time
@@ -8366,7 +8442,7 @@ void Text_PaintCenter_AutoWrapped(float x, float y, float xmax, float ystep, flo
 	Q_strncpyz(buf, str, sizeof(buf));
 	s1 = s2 = s3 = buf;
 
-	while (1) {
+	INFINITE_LOOP {
 		do {
 			s3++;
 		} while (*s3 != ' ' && *s3 != '\0');
@@ -8736,6 +8812,7 @@ vmCvar_t ui_RQ3_joinPort;
 vmCvar_t ui_RQ3_demoName;
 //Makro - maxpolys hack
 vmCvar_t ui_maxpolys;
+vmCvar_t ui_maxpolyverts;
 //Makro - matchmode settings
 vmCvar_t ui_RQ3_timelimit;
 vmCvar_t ui_RQ3_roundlimit;
@@ -8785,6 +8862,8 @@ vmCvar_t ui_RQ3_radioPreset9Script;
 vmCvar_t ui_RQ3_radioPreset10Desc;
 vmCvar_t ui_RQ3_radioPreset10Script;
 
+//Makro - player gender; irrelevant for now
+vmCvar_t ui_RQ3_gender;
 
 
 // bk001129 - made static to avoid aliasing
@@ -8907,7 +8986,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_Q3Model, "ui_q3model", "1", CVAR_ARCHIVE | CVAR_ROM},
 	{&ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{&ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
-	{&ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0", CVAR_ARCHIVE},
+	{&ui_reaction33FirstRun, "ui_reaction33FirstRun", "0", CVAR_ARCHIVE | CVAR_ROM},
 	{&ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
 	{&ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{&ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
@@ -8931,6 +9010,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_demoName, "ui_RQ3_demoName", "", 0},
 	//Makro - maxpolys hack
 	{&ui_maxpolys, "r_maxpolys", "4096", CVAR_ARCHIVE},
+	{&ui_maxpolyverts, "r_maxpolyverts", "16384", CVAR_ARCHIVE},
 	//Makro - matchmode settings
 	{&ui_RQ3_timelimit,			"ui_RQ3_timelimit", "0", 0},
 	{&ui_RQ3_roundlimit,		"ui_RQ3_roundlimit", "0", 0},
@@ -8978,7 +9058,9 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_radioPreset9Script,	"ui_RQ3_radioPreset9Script", "say_team Right; radio right", CVAR_ARCHIVE},
 	//10
 	{&ui_RQ3_radioPreset10Desc,		"ui_RQ3_radioPreset10Desc", "", CVAR_ARCHIVE},
-	{&ui_RQ3_radioPreset10Script,	"ui_RQ3_radioPreset10Script", "", CVAR_ARCHIVE}
+	{&ui_RQ3_radioPreset10Script,	"ui_RQ3_radioPreset10Script", "", CVAR_ARCHIVE},
+	//Makro - player gender; irrelevant for now
+	{&ui_RQ3_gender,				"ui_RQ3_gender", "0",	CVAR_ARCHIVE}
 };
 
 // bk001129 - made static to avoid aliasing

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.34  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.33  2005/09/18 16:56:45  makro
 // no message
 //
@@ -108,9 +111,10 @@
 // string allocation/managment
 
 #include "ui_shared.h"
+#include "../game/bg_public.h"
 
-//Makro - to avoid a warning
-int UI_SelectedQ3Head(qboolean doUpdate);
+//Makro - avoid warnings
+int UI_SelectedQ3Head(qboolean);
 qboolean UI_NeedToUpdateModel();
 
 #define SCROLL_TIME_START					500
@@ -160,6 +164,9 @@ int openMenuCount = 0;
 
 //Makro - previous menu
 static menuDef_t *prevMenu = NULL;
+//Makro - menu to be moved around
+menuDef_t *g_anchoredMenu = NULL;
+float g_anchorX = 0, g_anchorY = 0;
 
 static qboolean debugMode = qfalse;
 
@@ -253,9 +260,12 @@ static int UI_RQ3_lastCheckForShortcuts = 0;
 static int UI_RQ3_ShortcutCheckDelay = 50;
 
 //Makro - for shortcut keys
-int UI_RQ3_KeyNumFromChar(const char *keystr)
+ID_INLINE int UI_RQ3_KeyNumFromChar(const char *keystr)
 {
 	int i;
+	
+	if (!keystr || !*keystr)
+		return -1;
 
 	for (i = 0; RQ3_KeyAliases[i].Value != K_LAST_KEY; i++) {
 		//let's make sure we have valid strings
@@ -689,7 +699,7 @@ qboolean PC_Script_Parse(int handle, const char **out)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
 
@@ -705,7 +715,8 @@ qboolean PC_Script_Parse(int handle, const char **out)
 		}
 		Q_strcat(script, 1024, " ");
 	}
-	return qfalse;		// bk001105 - LCC   missing return value
+	//Makro - unreachable
+	//return qfalse;		// bk001105 - LCC   missing return value
 }
 
 // display, window, menu, item code
@@ -780,7 +791,7 @@ void UI_RQ3_HandleFading(Window * w)
 		if ((w->timeFade.active)) {
 			if (DC->realTime > w->timeFade.endTime) {
 				w->timeFade.active = qfalse;
-				if ((w->timeFade.colorType = FORECOLOR)) {
+				if (FORECOLOR == w->timeFade.colorType) {
 					memcpy(w->foreColor, w->timeFade.color2, sizeof(vec4_t));
 					//autohide
 					if (w->foreColor[3] == 0)
@@ -887,6 +898,25 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 		GradientBar_Paint(&fillRect, w->backColor);
 		// gradient bar
 	} else if (w->style == WINDOW_STYLE_SHADER) {
+		float coords[4] = {0, 0, 1, 1};
+		// randomized texture co-ordinates?
+		if (w->flags & WINDOW_RANDOM_TCGEN)
+		{
+			coords[0] = (rand() % 45) / 90.0f;
+			coords[1] = (rand() % 45) / 90.0f;
+			coords[2] = coords[0] + 0.5f ;
+			coords[3] = coords[1] + 0.5f;
+			if (rand() % 2)
+			{
+				coords[0] = 1 - coords[0];
+				coords[2] = 1 - coords[2];
+			}
+			if (rand() % 2)
+			{
+				coords[1] = 1 - coords[1];
+				coords[3] = 1 - coords[3];
+			}
+		}
 		if (w->flags & WINDOW_FORECOLORSET) {
 			DC->setColor(w->foreColor);
 			memcpy(&color[0], &w->foreColor[0], sizeof(color));
@@ -894,9 +924,10 @@ void Window_Paint(Window * w, float fadeAmount, float fadeClamp, float fadeCycle
 		//Makro - angled?
 		if (w->rectClient.hasVectors)
 		{
-			DC->drawAngledPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->rectClient.u, w->rectClient.v, w->foreColor, 0, 0, 1, 1, w->background);
+			DC->drawAngledPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->rectClient.u, w->rectClient.v, w->foreColor, coords[0], coords[1], coords[2], coords[3], w->background);
 		} else {
-			DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+			//DC->drawHandlePic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background);
+			DC->drawStretchPic(fillRect.x, fillRect.y, fillRect.w, fillRect.h, coords[0], coords[1], coords[2], coords[3], w->background, qtrue);
 		}
 		DC->setColor(NULL);
 	} else if (w->style == WINDOW_STYLE_TEAMCOLOR) {
@@ -1086,9 +1117,10 @@ itemDef_t *Menu_ClearFocus(menuDef_t * menu)
 	}
 
 	for (i = 0; i < menu->itemCount; i++) {
-		if (menu->items[i]->window.flags & WINDOW_HASFOCUS) {
-			ret = menu->items[i];
-		}
+		if (!(menu->items[i]->window.flags & WINDOW_HASFOCUS))
+			continue;
+
+		ret = menu->items[i];
 		menu->items[i]->window.flags &= ~WINDOW_HASFOCUS;
 		if (menu->items[i]->leaveFocus) {
 			Item_RunScript(menu->items[i], menu->items[i]->leaveFocus);
@@ -1116,18 +1148,40 @@ qboolean Rect_ContainsPoint(rectDef_t * rect, float x, float y)
 	return qfalse;
 }
 
+/*
+========================================
+ItemMatchesString
+
+Returns true if any of the tokens in the
+name, group or subgroup fields of the given
+items (param #1) matches any of the tokens
+in the given string (param #2)
+
+Added by Makro
+========================================
+*/
+ID_INLINE qboolean ItemMatchesString(itemDef_t *item, const char *match)
+{
+	if (!item || !match)
+		return qfalse;
+	return
+		(item->window.name		&& IdMatchesString(item->window.name, match)) ||
+		(item->window.group		&& IdMatchesString(item->window.group, match)) ||
+		(item->window.subgroup	&& IdMatchesString(item->window.subgroup, match));
+}
+
+
 int Menu_ItemsMatchingGroup(menuDef_t * menu, const char *name)
 {
 	int i;
 	int count = 0;
 
 	//Makro - added subgroup
-	for (i = 0; i < menu->itemCount; i++) {
-		if (Q_stricmp(menu->items[i]->window.name, name) == 0
-		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)
-			|| (menu->items[i]->window.subgroup && Q_stricmp(menu->items[i]->window.subgroup, name) == 0)) {
+	//10-14-2005 - new code
+	for (i = 0; i < menu->itemCount; i++)
+	{
+		if (ItemMatchesString(menu->items[i], name))
 			count++;
-		}
 	}
 	return count;
 }
@@ -1138,13 +1192,13 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t * menu, int index, const char 
 	int count = 0;
 
 	//Makro - added subgroup
-	for (i = 0; i < menu->itemCount; i++) {
-		if (Q_stricmp(menu->items[i]->window.name, name) == 0
-		    || (menu->items[i]->window.group && Q_stricmp(menu->items[i]->window.group, name) == 0)
-		    || (menu->items[i]->window.subgroup && Q_stricmp(menu->items[i]->window.subgroup, name) == 0)) {
-			if (count == index) {
+	//10-14-2005 - new code
+	for (i = 0; i < menu->itemCount; i++)
+	{
+		if (ItemMatchesString(menu->items[i], name))
+		{
+			if (count == index)
 				return menu->items[i];
-			}
 			count++;
 		}
 	}
@@ -1157,20 +1211,21 @@ void Script_FadeOverlay(itemDef_t *item, char **args)
 	int offset, duration;
 	float f;
 
+	//color
 	for (offset=0; offset<4; offset++)
 	{
-		if (!Float_Parse(args, &f)) {
+		if (!Float_Parse(args, &f))
 			return;
-		}
+
 		DC->overlayColor[offset] = DC->overlayColor2[offset];
-		if (IsBetween(f, 0, 1)) {
+		if (IsBetween(f, 0, 1))
 			DC->overlayColor2[offset] = f;
-		}
 	}
+
 	//offset & duration
-	if (!Int_Parse(args, &offset) || !Int_Parse(args, &duration)) {
+	if (!Int_Parse(args, &offset) || !Int_Parse(args, &duration))
 		return;
-	}
+
 	DC->overlayFadeStart = DC->realTime + offset;
 	DC->overlayFadeEnd = DC->overlayFadeStart + duration;
 }
@@ -1182,12 +1237,11 @@ void Script_SetOverlayColor(itemDef_t *item, char **args)
 
 	for (i=0; i<4; i++)
 	{
-		if (!Float_Parse(args, &f)) {
+		if (!Float_Parse(args, &f))
 			return;
-		}
-		if (IsBetween(f, 0, 1)) {
+
+		if (IsBetween(f, 0, 1))
 			DC->overlayColor2[i] = f;
-		}
 	}
 	DC->overlayFadeStart = DC->overlayFadeEnd = 0;
 }
@@ -1308,8 +1362,10 @@ itemDef_t *Menu_FindItemByName(menuDef_t * menu, const char *p)
 		return NULL;
 	}
 
-	for (i = 0; i < menu->itemCount; i++) {
-		if (Q_stricmp(p, menu->items[i]->window.name) == 0) {
+	for (i = 0; i < menu->itemCount; i++)
+	{
+		//Makro - replaced Q_stricmp
+		if (ItemMatchesString(menu->items[i], p)) {
 			return menu->items[i];
 		}
 	}
@@ -1536,6 +1592,8 @@ void Menus_Close(menuDef_t *menu)
 			break;
 		}
 	}
+	if (g_anchoredMenu == menu)
+		g_anchoredMenu = NULL;
 	Menu_RunCloseScript(menu);
 	menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
 }
@@ -1631,12 +1689,13 @@ void Menu_TimeFadeItemByName(menuDef_t * menu, const char *name, vec4_t endColor
 		int i;
 
 		//if (offset+duration > 0) {
-		for (i = 0; i < menu->itemCount; i++) {
-			if (!Q_stricmp(menu->items[i]->window.name, name)
-			    || !Q_stricmp(menu->items[i]->window.group, name)
-			    || !Q_stricmp(menu->items[i]->window.subgroup, name)) {
+
+		//Makro - added subgroup
+		//10-14-2005 - new code
+		for (i = 0; i < menu->itemCount; i++)
+		{
+			if (ItemMatchesString(menu->items[i], name))
 				UI_RQ3_TimeFadeItem(menu->items[i], endColor, offset, duration, colorType);
-			}
 		}
 		//}
 	}
@@ -1855,6 +1914,8 @@ void Script_Orbit(itemDef_t * item, char **args)
 	}
 }
 
+qboolean Item_SetFocus(itemDef_t * item, float x, float y, qboolean forced);
+
 void Script_SetFocus(itemDef_t * item, char **args)
 {
 	const char *name;
@@ -1862,24 +1923,9 @@ void Script_SetFocus(itemDef_t * item, char **args)
 
 	if (String_Parse(args, &name)) {
 		focusItem = Menu_FindItemByName(item->parent, name);
-		if (focusItem && !(focusItem->window.flags & WINDOW_DECORATION)
-		    && !(focusItem->window.flags & WINDOW_HASFOCUS)) {
-			//Makro - added
-			menuDef_t *menu = (menuDef_t *) item->parent;
-
-			Menu_ClearFocus(item->parent);
-			focusItem->window.flags |= WINDOW_HASFOCUS;
-
-			//Makro - cursorItem was not set
-			menu->cursorItem = focusItem - menu->items[0];
-
-			if (focusItem->onFocus) {
-				Item_RunScript(focusItem, focusItem->onFocus);
-			}
-			if (DC->Assets.itemFocusSound) {
-				DC->startLocalSound(DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND);
-			}
-		}
+		//Makro - removed focus/decoration checks - they're done in Item_SetFocus anyway
+		if (focusItem)
+			Item_SetFocus(focusItem, 0, 0, qtrue);
 	}
 }
 
@@ -2067,7 +2113,7 @@ void Item_RunScript(itemDef_t * item, const char *s)
 	if (item && s && s[0]) {
 		Q_strcat(script, 1024, s);
 		p = script;
-		while (1) {
+		INFINITE_LOOP {
 			const char *command;
 
 			// expect command then arguments, ; ends command, NULL ends script
@@ -2107,7 +2153,7 @@ qboolean Item_EnableShowViaCvar(itemDef_t * item, int flag)
 
 		Q_strcat(script, 1024, item->enableCvar);
 		p = script;
-		while (1) {
+		INFINITE_LOOP {
 			const char *val;
 
 			// expect value then ; or NULL, NULL ends list
@@ -2131,13 +2177,14 @@ qboolean Item_EnableShowViaCvar(itemDef_t * item, int flag)
 			}
 
 		}
-		return (item->cvarFlags & flag) ? qfalse : qtrue;
+		//Makro - unreachable
+		//return (item->cvarFlags & flag) ? qfalse : qtrue;
 	}
 	return qtrue;
 }
 
-// will optionaly set focus to this item 
-qboolean Item_SetFocus(itemDef_t * item, float x, float y)
+// will optionaly set focus to this item
+qboolean Item_SetFocus(itemDef_t * item, float x, float y, qboolean forced)
 {
 	int i;
 	itemDef_t *oldFocus;
@@ -2146,10 +2193,14 @@ qboolean Item_SetFocus(itemDef_t * item, float x, float y)
 	menuDef_t *parent;	// bk001206: = (menuDef_t*)item->parent;
 
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == NULL || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS
-	    || !(item->window.flags & WINDOW_VISIBLE)) {
+	if (item == NULL || item->window.flags & WINDOW_DECORATION || !(item->window.flags & WINDOW_VISIBLE)) {
 		return qfalse;
 	}
+
+	//Makro - only check focus if not forced
+	if (!forced && item->window.flags & WINDOW_HASFOCUS)
+		return qfalse;
+
 	// bk001206 - this can be NULL.
 	parent = (menuDef_t *) item->parent;
 
@@ -2164,7 +2215,7 @@ qboolean Item_SetFocus(itemDef_t * item, float x, float y)
 
 	oldFocus = Menu_ClearFocus(item->parent);
 
-	if (item->type == ITEM_TYPE_TEXT) {
+	if (item->type == ITEM_TYPE_TEXT && !forced) {
 		rectDef_t r;
 
 		r = item->textRect;
@@ -2741,162 +2792,64 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 	listBoxDef_t *listPtr = (listBoxDef_t *) item->typeData;
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
+	int ok = force || Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) ||
+		(!UI_IsMouse(key) && item->window.flags & WINDOW_HASFOCUS);
+		
+	if (!ok)
+		return qfalse;
 
-	if (force
-	    || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)
-		&& item->window.flags & WINDOW_HASFOCUS)) {
-		max = Item_ListBox_MaxScroll(item);
-		//horizontal
-		if (item->window.flags & WINDOW_HORIZONTAL) {
-			viewmax = (item->window.rect.w / listPtr->elementWidth);
-			if (key == K_LEFTARROW || key == K_KP_LEFTARROW) {
-				if (!listPtr->notselectable) {
-					listPtr->cursorPos--;
-					if (listPtr->cursorPos < 0) {
-						listPtr->cursorPos = 0;
-					}
-					if (listPtr->cursorPos < listPtr->startPos) {
-						//listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				} else {
-					//listPtr->startPos--;
-					if (listPtr->startPos < 0)
-						listPtr->startPos = 0;
-				}
-				return qtrue;
-			}
-			if (key == K_RIGHTARROW || key == K_KP_RIGHTARROW) {
-				if (!listPtr->notselectable) {
-					listPtr->cursorPos++;
-					if (listPtr->cursorPos < listPtr->startPos) {
-						//listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= count) {
-						listPtr->cursorPos = count - 1;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				} else {
-					listPtr->startPos++;
-					if (listPtr->startPos >= count)
-						listPtr->startPos = count - 1;
-				}
-				return qtrue;
-			}
-		//vertical
-		} else {
-			viewmax = (item->window.rect.h / listPtr->elementHeight);
-			if (key == K_UPARROW || key == K_KP_UPARROW) {
-				if (!listPtr->notselectable) {
-					listPtr->cursorPos--;
-					if (listPtr->cursorPos < 0) {
-						listPtr->cursorPos = 0;
-					}
-					if (listPtr->cursorPos < listPtr->startPos) {
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				} else {
-					listPtr->startPos--;
-					if (listPtr->startPos < 0)
-						listPtr->startPos = 0;
-				}
-				return qtrue;
-			}
-			if (key == K_DOWNARROW || key == K_KP_DOWNARROW) {
-				if (!listPtr->notselectable) {
-					listPtr->cursorPos++;
-					if (listPtr->cursorPos < listPtr->startPos) {
-						listPtr->startPos = listPtr->cursorPos;
-					}
-					if (listPtr->cursorPos >= count) {
-						listPtr->cursorPos = count - 1;
-					}
-					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
-						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-					}
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				} else {
-					listPtr->startPos++;
-					if (listPtr->startPos > max)
-						listPtr->startPos = max;
-				}
-				return qtrue;
-			}
-		}
-		// mouse hit
-		if (key == K_MOUSE1 || key == K_MOUSE2) {
-			if (item->window.flags & WINDOW_LB_LEFTARROW) {
-				listPtr->startPos--;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
-			} else if (item->window.flags & WINDOW_LB_RIGHTARROW) {
-				// one down
-				listPtr->startPos++;
-				if (listPtr->startPos > max) {
-					listPtr->startPos = max;
-				}
-			} else if (item->window.flags & WINDOW_LB_PGUP) {
-				// page up
-				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0) {
-					listPtr->startPos = 0;
-				}
-			} else if (item->window.flags & WINDOW_LB_PGDN) {
-				// page down
-				listPtr->startPos += viewmax;
-				if (listPtr->startPos > max) {
-					listPtr->startPos = max;
-				}
-			} else if (item->window.flags & WINDOW_LB_THUMB) {
-				// Display_SetCaptureItem(item);
-			} else {
-				//Makro - double click only if we didn't select another item
-				//Com_Printf("POZ: %d %d / START: %d / END: %d\n", listPtr->cursorPos, item->cursorPos,
-				//	listPtr->startPos, listPtr->endPos);
-				if (item->cursorPos != listPtr->cursorPos)
-				{
-					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos);
-				} else {
-					if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick)
-					{
-						Item_RunScript(item, listPtr->doubleClick);
-					}
-				}
-				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
-			}
-			return qtrue;
-		}
-		if (key == K_HOME || key == K_KP_HOME) {
-			// home
-			listPtr->startPos = 0;
-			return qtrue;
-		}
-		if (key == K_END || key == K_KP_END) {
-			// end
-			listPtr->startPos = max;
-			return qtrue;
-		}
-		//Makro - support for mouse wheel
-		if (key == K_PGUP || key == K_KP_PGUP || key == K_MWHEELUP) {
-			// page up
+	max = Item_ListBox_MaxScroll(item);
+	//horizontal
+	if (item->window.flags & WINDOW_HORIZONTAL) {
+		viewmax = (item->window.rect.w / listPtr->elementWidth);
+		if (key == K_LEFTARROW || key == K_KP_LEFTARROW) {
 			if (!listPtr->notselectable) {
-				listPtr->cursorPos -= viewmax;
+				listPtr->cursorPos--;
+				if (listPtr->cursorPos < 0) {
+					listPtr->cursorPos = 0;
+				}
+				if (listPtr->cursorPos < listPtr->startPos) {
+					//listPtr->startPos = listPtr->cursorPos;
+				}
+				if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+					//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+				}
+				item->cursorPos = listPtr->cursorPos;
+				DC->feederSelection(item->special, item->cursorPos);
+			} else {
+				//listPtr->startPos--;
+				if (listPtr->startPos < 0)
+					listPtr->startPos = 0;
+			}
+			return qtrue;
+		}
+		if (key == K_RIGHTARROW || key == K_KP_RIGHTARROW) {
+			if (!listPtr->notselectable) {
+				listPtr->cursorPos++;
+				if (listPtr->cursorPos < listPtr->startPos) {
+					//listPtr->startPos = listPtr->cursorPos;
+				}
+				if (listPtr->cursorPos >= count) {
+					listPtr->cursorPos = count - 1;
+				}
+				if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+					//listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+				}
+				item->cursorPos = listPtr->cursorPos;
+				DC->feederSelection(item->special, item->cursorPos);
+			} else {
+				listPtr->startPos++;
+				if (listPtr->startPos >= count)
+					listPtr->startPos = count - 1;
+			}
+			return qtrue;
+		}
+		//vertical
+	} else {
+		viewmax = (item->window.rect.h / listPtr->elementHeight);
+		if (key == K_UPARROW || key == K_KP_UPARROW) {
+			if (!listPtr->notselectable) {
+				listPtr->cursorPos--;
 				if (listPtr->cursorPos < 0) {
 					listPtr->cursorPos = 0;
 				}
@@ -2909,18 +2862,15 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 				item->cursorPos = listPtr->cursorPos;
 				DC->feederSelection(item->special, item->cursorPos);
 			} else {
-				listPtr->startPos -= viewmax;
-				if (listPtr->startPos < 0) {
+				listPtr->startPos--;
+				if (listPtr->startPos < 0)
 					listPtr->startPos = 0;
-				}
 			}
 			return qtrue;
 		}
-		//Makro - support for mouse wheel
-		if (key == K_PGDN || key == K_KP_PGDN || key == K_MWHEELDOWN) {
-			// page down
+		if (key == K_DOWNARROW || key == K_KP_DOWNARROW) {
 			if (!listPtr->notselectable) {
-				listPtr->cursorPos += viewmax;
+				listPtr->cursorPos++;
 				if (listPtr->cursorPos < listPtr->startPos) {
 					listPtr->startPos = listPtr->cursorPos;
 				}
@@ -2933,13 +2883,115 @@ qboolean Item_ListBox_HandleKey(itemDef_t * item, int key, qboolean down, qboole
 				item->cursorPos = listPtr->cursorPos;
 				DC->feederSelection(item->special, item->cursorPos);
 			} else {
-				listPtr->startPos += viewmax;
-				if (listPtr->startPos > max) {
+				listPtr->startPos++;
+				if (listPtr->startPos > max)
 					listPtr->startPos = max;
-				}
 			}
 			return qtrue;
 		}
+	}
+	// mouse hit
+	if (key == K_MOUSE1 || key == K_MOUSE2) {
+		if (item->window.flags & WINDOW_LB_LEFTARROW) {
+			listPtr->startPos--;
+			if (listPtr->startPos < 0) {
+				listPtr->startPos = 0;
+			}
+		} else if (item->window.flags & WINDOW_LB_RIGHTARROW) {
+			// one down
+			listPtr->startPos++;
+			if (listPtr->startPos > max) {
+				listPtr->startPos = max;
+			}
+		} else if (item->window.flags & WINDOW_LB_PGUP) {
+			// page up
+			listPtr->startPos -= viewmax;
+			if (listPtr->startPos < 0) {
+				listPtr->startPos = 0;
+			}
+		} else if (item->window.flags & WINDOW_LB_PGDN) {
+			// page down
+			listPtr->startPos += viewmax;
+			if (listPtr->startPos > max) {
+				listPtr->startPos = max;
+			}
+		} else if (item->window.flags & WINDOW_LB_THUMB) {
+			// Display_SetCaptureItem(item);
+		} else {
+			//Makro - double click only if we didn't select another item
+			//Com_Printf("POZ: %d %d / START: %d / END: %d\n", listPtr->cursorPos, item->cursorPos,
+			//	listPtr->startPos, listPtr->endPos);
+			if (item->cursorPos != listPtr->cursorPos)
+			{
+				item->cursorPos = listPtr->cursorPos;
+				DC->feederSelection(item->special, item->cursorPos);
+			} else {
+				if (DC->realTime < lastListBoxClickTime && listPtr->doubleClick)
+				{
+					Item_RunScript(item, listPtr->doubleClick);
+				}
+			}
+			lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
+		}
+		return qtrue;
+	}
+	if (key == K_HOME || key == K_KP_HOME) {
+		// home
+		listPtr->startPos = 0;
+		return qtrue;
+	}
+	if (key == K_END || key == K_KP_END) {
+		// end
+		listPtr->startPos = max;
+		return qtrue;
+	}
+	//Makro - support for mouse wheel
+	if (key == K_PGUP || key == K_KP_PGUP || key == K_MWHEELUP) {
+		// page up
+		if (!listPtr->notselectable) {
+			listPtr->cursorPos -= viewmax;
+			if (listPtr->cursorPos < 0) {
+				listPtr->cursorPos = 0;
+			}
+			if (listPtr->cursorPos < listPtr->startPos) {
+				listPtr->startPos = listPtr->cursorPos;
+			}
+			if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+				listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+			}
+			item->cursorPos = listPtr->cursorPos;
+			DC->feederSelection(item->special, item->cursorPos);
+		} else {
+			listPtr->startPos -= viewmax;
+			if (listPtr->startPos < 0) {
+				listPtr->startPos = 0;
+			}
+		}
+		return qtrue;
+	}
+	//Makro - support for mouse wheel
+	if (key == K_PGDN || key == K_KP_PGDN || key == K_MWHEELDOWN) {
+		// page down
+		if (!listPtr->notselectable) {
+			listPtr->cursorPos += viewmax;
+			if (listPtr->cursorPos < listPtr->startPos) {
+				listPtr->startPos = listPtr->cursorPos;
+			}
+			if (listPtr->cursorPos >= count) {
+				listPtr->cursorPos = count - 1;
+			}
+			if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
+				listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+			}
+			item->cursorPos = listPtr->cursorPos;
+			DC->feederSelection(item->special, item->cursorPos);
+		} else {
+			listPtr->startPos += viewmax;
+			if (listPtr->startPos > max) {
+				listPtr->startPos = max;
+			}
+		}
+		return qtrue;
 	}
 	return qfalse;
 }
@@ -2956,7 +3008,8 @@ qboolean Item_YesNo_HandleKey(itemDef_t * item, int key)
 				ok = qtrue;
 			}
 		} else {
-			if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW) {
+			if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW ||
+				key == K_MWHEELUP || key == K_MWHEELDOWN) {
 				ok = qtrue;
 			}
 		}
@@ -3059,7 +3112,7 @@ qboolean Item_Multi_HandleKey(itemDef_t * item, int key)
 				}
 			} else {
 				if (key == K_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW || key == K_HOME
-				    || key == K_END) {
+				    || key == K_END || key == K_MWHEELUP || key == K_MWHEELDOWN) {
 					ok = qtrue;
 				}
 			}
@@ -3072,6 +3125,7 @@ qboolean Item_Multi_HandleKey(itemDef_t * item, int key)
 
 		switch (key) {
 		case K_LEFTARROW:
+		case K_MWHEELDOWN:
 		case K_MOUSE2:
 			current = Item_Multi_FindCvarByValue(item) - 1;
 			break;
@@ -3736,57 +3790,47 @@ void Item_Action(itemDef_t * item)
 
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t * menu)
 {
-	qboolean wrapped = qfalse;
+
 	int oldCursor = menu->cursorItem;
+	int i;
 
-	if (menu->cursorItem < 0) {
+	if (!menu || menu->itemCount <= 0)
+		return NULL;
+
+	if (menu->cursorItem > menu->itemCount || menu->cursorItem <= 0)
 		menu->cursorItem = menu->itemCount - 1;
-		wrapped = qtrue;
-	}
-
-	while (menu->cursorItem > -1) {
-
+	else
 		menu->cursorItem--;
-		if (menu->cursorItem < 0 && !wrapped) {
-			wrapped = qtrue;
-			menu->cursorItem = menu->itemCount - 1;
-		}
 
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1,
-					     menu->items[menu->cursorItem]->window.rect.y + 1);
+	for (i=0; i<menu->itemCount; i++)
+	{
+		if (Item_SetFocus(menu->items[menu->cursorItem], 0, 0, qtrue))
 			return menu->items[menu->cursorItem];
-		}
+		menu->cursorItem = (menu->cursorItem == 0) ? menu->itemCount - 1 : menu->cursorItem - 1;
 	}
+
 	menu->cursorItem = oldCursor;
 	return NULL;
-
 }
 
 itemDef_t *Menu_SetNextCursorItem(menuDef_t * menu)
 {
-
-	qboolean wrapped = qfalse;
 	int oldCursor = menu->cursorItem;
+	int i;
 
-	if (menu->cursorItem == -1) {
+	if (!menu || menu->itemCount <= 0)
+		return NULL;
+
+	if (menu->cursorItem >= menu->itemCount || menu->cursorItem < 0)
 		menu->cursorItem = 0;
-		wrapped = qtrue;
-	}
-
-	while (menu->cursorItem < menu->itemCount) {
-
+	else
 		menu->cursorItem++;
-		if (menu->cursorItem >= menu->itemCount && !wrapped) {
-			wrapped = qtrue;
-			menu->cursorItem = 0;
-		}
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1,
-					     menu->items[menu->cursorItem]->window.rect.y + 1);
-			return menu->items[menu->cursorItem];
-		}
 
+	for (i=0; i<menu->itemCount; i++)
+	{
+		if (Item_SetFocus(menu->items[menu->cursorItem], 0, 0, qtrue))
+			return menu->items[menu->cursorItem];
+		menu->cursorItem = (menu->cursorItem == menu->itemCount) ? 0 : menu->cursorItem + 1;
 	}
 
 	menu->cursorItem = oldCursor;
@@ -4009,6 +4053,7 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 	int i;
 	itemDef_t *item = NULL;
 	qboolean inHandler = qfalse;
+	static qboolean shiftPressed = qfalse;
 
 	//Makro - skip check for shortcut keys
 	qboolean skipCheck = qfalse;
@@ -4016,6 +4061,10 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 	if (inHandler) {
 		return;
 	}
+
+	//Makro - added
+	if (key == K_SHIFT)
+		shiftPressed = down;
 
 	inHandler = qtrue;
 	if (g_waitingForKey && down) {
@@ -4077,6 +4126,13 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 		}
 	}
 
+	//Makro - menu anchor?
+	if (key == K_MOUSE1 && !down && g_anchoredMenu)
+	{
+		g_anchoredMenu = NULL;
+		return;
+	}
+
 	if (!down) {
 		inHandler = qfalse;
 		return;
@@ -4095,6 +4151,7 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 			return;
 		}
 	}
+
 	// default handling
 	switch (key) {
 
@@ -4111,7 +4168,10 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 		break;
 	case K_KP_UPARROW:
 	case K_UPARROW:
-		Menu_SetPrevCursorItem(menu);
+		if (shiftPressed)
+			Menu_SetNextCursorItem(menu);
+		else
+			Menu_SetPrevCursorItem(menu);
 		break;
 
 	case K_ESCAPE:
@@ -4125,7 +4185,10 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 	case K_TAB:
 	case K_KP_DOWNARROW:
 	case K_DOWNARROW:
-		Menu_SetNextCursorItem(menu);
+		if (shiftPressed)
+			Menu_SetPrevCursorItem(menu);
+		else
+			Menu_SetNextCursorItem(menu);
 		break;
 
 	case K_MOUSE1:
@@ -4134,6 +4197,7 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 			if (item->type == ITEM_TYPE_TEXT) {
 				if (Rect_ContainsPoint(Item_CorrectedTextRect(item), DC->cursorx, DC->cursory)) {
 					Item_Action(item);
+					return;
 				}
 			} else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
 				if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
@@ -4141,10 +4205,28 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 					g_editingField = qtrue;
 					g_editItem = item;
 					DC->setOverstrikeMode(qtrue);
+					return;
 				}
 			} else {
 				if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
 					Item_Action(item);
+					return;
+				}
+			}
+		}
+		//Makro - menu anchor?
+		if (!g_anchoredMenu && key == K_MOUSE1)
+		{
+			for (i=0; i<menu->itemCount; i++)
+			{
+				itemDef_t *pItem = menu->items[i];
+				if (pItem && Rect_ContainsPoint(&pItem->window.rect, DC->cursorx, DC->cursory) &&
+					(pItem->window.flags & (WINDOW_MENU_ANCHOR|WINDOW_VISIBLE)) == (WINDOW_MENU_ANCHOR|WINDOW_VISIBLE))
+				{
+					g_anchoredMenu = menu;
+					g_anchorX = DC->cursorx;
+					g_anchorY = DC->cursory;
+					return;
 				}
 			}
 		}
@@ -4322,13 +4404,15 @@ void Item_TextColor(itemDef_t * item, vec4_t * newColor)
 		//lowLight[2] = 0.8 * parent->focusColor[2]; 
 		//lowLight[3] = 0.8 * parent->focusColor[3]; 
 		memcpy(lowLight, item->window.foreColor, sizeof(vec4_t));
-		LerpColor(parent->focusColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+		LerpColor(parent->focusColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / (float)PULSE_DIVISOR));
+		//LerpColor(parent->focusColor, lowLight, *newColor, SawTooth(DC->realTime, PULSE_SAWTOOTH_PERIOD));
 	} else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime / BLINK_DIVISOR) & 1)) {
 		lowLight[0] = 0.8 * item->window.foreColor[0];
 		lowLight[1] = 0.8 * item->window.foreColor[1];
 		lowLight[2] = 0.8 * item->window.foreColor[2];
 		lowLight[3] = 0.8 * item->window.foreColor[3];
-		LerpColor(item->window.foreColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+		LerpColor(item->window.foreColor, lowLight, *newColor, 0.5 + 0.5 * sin(DC->realTime / (float)PULSE_DIVISOR));
+		//LerpColor(item->window.foreColor, lowLight, *newColor, SawTooth(DC->realTime, PULSE_SAWTOOTH_PERIOD));
 	} else {
 		memcpy(newColor, item->window.foreColor, sizeof(vec4_t));
 		// items can be enabled and disabled based on cvars
@@ -4578,6 +4662,7 @@ void Item_TextField_Paint(itemDef_t * item)
 	char buff[1024];
 	vec4_t newColor, lowLight;
 	int offset;
+	float p[2];
 	menuDef_t *parent = (menuDef_t *) item->parent;
 	editFieldDef_t *editPtr = (editFieldDef_t *) item->typeData;
 	//int maxChars = Text_maxPaintChars(buff+editPtr->paintOffset, item->textscale, item->window.rect.w+item->textalignx);
@@ -4605,16 +4690,21 @@ void Item_TextField_Paint(itemDef_t * item)
 	}
 
 	offset = (item->text && *item->text) ? 8 : 0;
+	Vector2Set(p, item->textRect.x, item->textRect.y);
+	if (item->window.rect.hasVectors)
+		Vector2MA(p, item->textRect.w + offset, item->window.rect.u, p);
+	else
+		p[0] += item->textRect.w + offset;
 	if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
 		char cursor = DC->getOverstrikeMode()? '_' : '|';
 
 		if (item->window.rect.hasVectors)
-			DC->drawAngledTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y,
+			DC->drawAngledTextWithCursor(p[0], p[1],
 				item->window.rect.u, item->window.rect.v, item->textscale,
 				newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
 				cursor, editPtr->maxPaintChars, item->textStyle);
 		else
-			DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale,
+			DC->drawTextWithCursor(p[0], p[1], item->textscale,
 				newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset,
 				cursor, editPtr->maxPaintChars, item->textStyle);
 		/*
@@ -4624,11 +4714,11 @@ void Item_TextField_Paint(itemDef_t * item)
 		*/
 	} else {
 		if (item->window.rect.hasVectors)
-			DC->drawAngledText(item->textRect.x + item->textRect.w + offset, item->textRect.y,
+			DC->drawAngledText(p[0], p[1],
 				item->window.rect.u, item->window.rect.v, item->textscale, newColor,
 				buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, 0, item->textStyle, qfalse);
 		else
-			DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
+			DC->drawText(p[0], p[1], item->textscale, newColor,
 				buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, 0, item->textStyle, qfalse);
 		/*
 		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor,
@@ -4664,7 +4754,9 @@ void Item_YesNo_Paint(itemDef_t * item)
 		//lowLight[2] = 0.8 * parent->focusColor[2]; 
 		//lowLight[3] = 0.8 * parent->focusColor[3]; 
 		memcpy(lowLight, &item->window.foreColor, sizeof(vec4_t));
-		LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+		//Com_Printf("FRAC: %.4f\n", sin((float)DC->realTime / PULSE_DIVISOR));
+		LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * sin((float)DC->realTime / PULSE_DIVISOR));
+		//LerpColor(parent->focusColor, lowLight, newColor, SawTooth(DC->realTime, 1000));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
@@ -4720,6 +4812,8 @@ void Item_YesNo_Paint(itemDef_t * item)
 		{
 			imgColor[3] = (float) (DC->realTime - data->lastChangeTime) / YESNO_MARK_FADETIME;
 		}
+		if (item->window.flags & WINDOW_FORECOLORSET)
+			imgColor[3] *= item->window.foreColor[3];
 
 		//compute drawing position
 		if (data->kind == YESNO_ICON_LEFT)
@@ -4749,7 +4843,9 @@ void Item_YesNo_Paint(itemDef_t * item)
 		{
 			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
 				imgColor, 0, 0, 1, 1, front);
-			imgColor[3] = 1.0f - imgColor[3];
+			imgColor[3] = ((item->window.flags & WINDOW_FORECOLORSET) ? item->window.foreColor[3] : 1.0f) - imgColor[3];
+			if (item->window.flags & WINDOW_FORECOLORSET)
+				imgColor[3] *= item->window.foreColor[3];
 			DC->drawAngledPic(p[0], p[1], SCROLLBAR_SIZE, SCROLLBAR_SIZE, item->window.rect.u, item->window.rect.v,
 				imgColor, 0, 0, 1, 1, back);
 		} else {
@@ -4764,7 +4860,7 @@ void Item_Multi_Paint(itemDef_t * item)
 	vec4_t newColor, lowLight;
 	const char *text;
 	menuDef_t *parent = (menuDef_t *) item->parent;
-	float x;
+	float p[2];
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		//Makro - changed to fade from normal text color to focus color
@@ -4783,20 +4879,27 @@ void Item_Multi_Paint(itemDef_t * item)
 	if (!text)
 		text = "";
 	
-	x = item->textRect.x;
 	if (item->text)
 	{
 		Item_Text_Paint(item);
-		x += item->textRect.w + 8;
+		Vector2Set(p, item->textRect.x, item->textRect.y);
+		//Makro - vectors?
+		if (item->window.rect.hasVectors)
+			Vector2MA(p, item->textRect.w + 8, item->textRect.u, p);
+		else
+			p[0] += item->textRect.w + 8;
 	}
+	else
+		Vector2Set(p, item->textRect.x, item->textRect.y);
+
 	//Makro - vectors?
 	if (item->window.rect.hasVectors)
 	{
-		DC->drawAngledText(x, item->textRect.y,
+		DC->drawAngledText(p[0], p[1],
 				item->window.rect.u, item->window.rect.v, item->textscale, newColor, text,
 				 0, 0, 0, item->textStyle, qfalse);
 	} else {
-		DC->drawText(x, item->textRect.y, item->textscale, newColor, text,
+		DC->drawText(p[0], p[1], item->textscale, newColor, text,
 				 0, 0, 0, item->textStyle, qfalse);
 	}
 }
@@ -5063,24 +5166,21 @@ void Item_Slider_Paint(itemDef_t * item)
 	vec4_t newColor;
 	float x, y, value;
 	menuDef_t *parent = (menuDef_t *) item->parent;
+	float frac;
+	editFieldDef_t *editDef = item->typeData;
 	Point pt;
 
-	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
+	if (!editDef)
+		return;
 
-	if (item->window.flags & WINDOW_HASFOCUS) {
-		//Makro - changed to fade from normal text color to focus color
-		//lowLight[0] = 0.8 * parent->focusColor[0]; 
-		//lowLight[1] = 0.8 * parent->focusColor[1]; 
-		//lowLight[2] = 0.8 * parent->focusColor[2]; 
-		//lowLight[3] = 0.8 * parent->focusColor[3]; 
-		//Makro - changed again, this time from focus color to white
-		LerpColor(colorWhite, parent->focusColor, newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
-	} else {
-		//Makro - slider should be painted in white when not focused
-		//this is so we can have visibile sliders with black text
-		//memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
-		memcpy(newColor, colorWhite, sizeof(vec4_t));
-	}
+	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
+	if (value > editDef->maxVal)
+		value = editDef->maxVal;
+	else if (value < editDef->minVal)
+		value = editDef->minVal;
+	frac = (editDef->maxVal > editDef->minVal) ? (value - editDef->minVal)/(editDef->maxVal - editDef->minVal) : 0;
+
+	Item_TextColor(item, &newColor);
 
 	if (item->text) {
 		Item_Text_Paint(item);
@@ -5102,11 +5202,20 @@ void Item_Slider_Paint(itemDef_t * item)
 	if (item->textRect.hasVectors)
 	{
 		DC->drawAngledPic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, item->textRect.u, item->textRect.v, 
-			colorWhite, 0, 0, 1, 1, DC->Assets.sliderBar);
+			item->window.foreColor, 0, 0, 1, 1, DC->Assets.sliderBar0);
+		//paint the partial selection
+		if (frac > 0)
+			DC->drawAngledPic(x, y, SLIDER_WIDTH * frac, SLIDER_HEIGHT, item->textRect.u, item->textRect.v, 
+				newColor, 0, 0, frac, 1, DC->Assets.sliderBar1);
 	} else {
-		DC->setColor(colorWhite);
-		DC->drawHandlePic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar);
+		DC->setColor(item->window.foreColor);
+		DC->drawHandlePic(x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar0);
+		//paint the partial selection
+		DC->setColor(newColor);
+		if (frac > 0)
+			DC->drawStretchPic(x, y, SLIDER_WIDTH * frac, 0, 0, frac, 1, SLIDER_HEIGHT, DC->Assets.sliderBar1, qtrue);
 	}
+	DC->setColor(NULL);
 
 	pt = Item_Slider_ThumbPosition(item);
 	//paint the thumb
@@ -5152,7 +5261,7 @@ void Item_Bind_Paint(itemDef_t * item)
 			//lowLight[3] = 0.8f * parent->focusColor[3]; 
 			memcpy(lowLight, &item->window.foreColor, sizeof(item->window.foreColor));
 		}
-		LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+		LerpColor(parent->focusColor, lowLight, newColor, 0.5 + 0.5 * sin(DC->realTime / (float)PULSE_DIVISOR));
 	} else {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
@@ -5211,8 +5320,8 @@ qboolean Item_Bind_HandleKey(itemDef_t * item, int key, qboolean down)
 	qboolean ok, returnVal;
 
 	//Makro - the mouse doesn't have to be over the item unless we're clicking on it instead of using the keyboard
-	ok = (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && UI_IsMouse(key))
-	    || (item->window.flags && WINDOW_HASFOCUS);
+	ok = (item->window.flags & WINDOW_HASFOCUS) &&
+		(Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) || !UI_IsMouse(key));
 
 	if (ok && !g_waitingForKey) {
 		returnVal = qfalse;
@@ -5228,11 +5337,11 @@ qboolean Item_Bind_HandleKey(itemDef_t * item, int key, qboolean down)
 		return returnVal;
 	} else {
 		if (!g_waitingForKey || g_bindItem == NULL) {
-			return qtrue;
+			return qfalse;
 		}
 
 		if (key & K_CHAR_FLAG) {
-			return qtrue;
+			return qfalse;
 		}
 
 		switch (key) {
@@ -6350,7 +6459,7 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 
 						// if item is not a decoration see if it can take focus
 						if (!focusSet) {
-							focusSet = Item_SetFocus(overItem, x, y);
+							focusSet = Item_SetFocus(overItem, x, y, qfalse);
 						}
 					}
 					if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
@@ -6646,6 +6755,8 @@ qboolean ItemParse_shortcutKey(itemDef_t * item, int handle)
 			return qfalse;
 
 		c = (strlen(temp) == 1) ? temp[0] : UI_RQ3_KeyNumFromChar(temp);
+		if (c <= 0)
+			return qfalse;
 		if (c>='A' && c<='Z')
 			c -= 'A'-'a';
 		item->window.shortcutKey[i] = c;
@@ -6681,6 +6792,20 @@ qboolean ItemParse_text(itemDef_t * item, int handle)
 	if (!PC_String_Parse(handle, &item->text)) {
 		return qfalse;
 	}
+	return qtrue;
+}
+
+//Makro - cleanText <string>
+qboolean ItemParse_cleanText(itemDef_t * item, int handle)
+{
+	const char *tmp = NULL;
+	char *s = NULL;
+	if (!PC_String_Parse(handle, &tmp)) {
+		return qfalse;
+	}
+	if ( !(s = UI_Alloc(strlen(tmp) + 1)) )
+		return qfalse;
+	item->text = Q_CleanStr(strcpy(s, tmp));
 	return qtrue;
 }
 
@@ -7016,6 +7141,21 @@ qboolean ItemParse_forceTextColor(itemDef_t * item, int handle)
 	item->window.flags |= WINDOW_FORCE_TEXT_COLOR;
 	return qtrue;
 }
+
+//Makro - randomized texture co-ordinates for stretched shaders
+qboolean ItemParse_randomizeTexCoords(itemDef_t * item, int handle)
+{
+	item->window.flags |= WINDOW_RANDOM_TCGEN;
+	return qtrue;
+}
+
+//Makro - menu anchor
+qboolean ItemParse_menuAnchor(itemDef_t * item, int handle)
+{
+	item->window.flags |= WINDOW_MENU_ANCHOR;
+	return qtrue;
+}
+
 
 qboolean ItemParse_renderpoint(itemDef_t * item, int handle)
 {
@@ -7569,7 +7709,7 @@ qboolean ItemParse_cvarStrList(itemDef_t * item, int handle)
 	}
 
 	pass = 0;
-	while (1) {
+	INFINITE_LOOP {
 		if (!trap_PC_ReadToken(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item\n");
 			return qfalse;
@@ -7596,7 +7736,8 @@ qboolean ItemParse_cvarStrList(itemDef_t * item, int handle)
 		}
 
 	}
-	return qfalse;		// bk001205 - LCC missing return value
+	//Makro - unreachable
+	//return qfalse;		// bk001205 - LCC missing return value
 }
 
 qboolean ItemParse_cvarFloatList(itemDef_t * item, int handle)
@@ -7617,7 +7758,7 @@ qboolean ItemParse_cvarFloatList(itemDef_t * item, int handle)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 		if (!trap_PC_ReadToken(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item\n");
 			return qfalse;
@@ -7642,7 +7783,8 @@ qboolean ItemParse_cvarFloatList(itemDef_t * item, int handle)
 		}
 
 	}
-	return qfalse;		// bk001205 - LCC missing return value
+	//Makro - unreachable
+	//return qfalse;		// bk001205 - LCC missing return value
 }
 
 qboolean ItemParse_addColorRange(itemDef_t * item, int handle)
@@ -7707,6 +7849,10 @@ qboolean ItemParse_hideCvar(itemDef_t * item, int handle)
 	return qfalse;
 }
 
+
+#define ADD_HASH_FUNC(keyword, func)	\
+	{keyword, func, NULL},
+
 keywordHash_t itemParseKeywords[] = {
 	{"name", ItemParse_name, NULL},
 	//Makro - support for shortcut keys
@@ -7714,6 +7860,7 @@ keywordHash_t itemParseKeywords[] = {
 	//Makro - fixed text height for autowrapped items
 	{"textHeight", ItemParse_textHeight, NULL},
 	{"text", ItemParse_text, NULL},
+	ADD_HASH_FUNC("cleanText", ItemParse_cleanText)
 	{"group", ItemParse_group, NULL},
 	//Makro - added subgroup
 	{"subgroup", ItemParse_subgroup, NULL},
@@ -7737,6 +7884,10 @@ keywordHash_t itemParseKeywords[] = {
 	{"vectors", ItemParse_vectors, NULL},
 	{"anglevectors", ItemParse_anglevectors, NULL},
 	{"normalizevectors", ItemParse_normalizevectors, NULL},
+	//Makro - randomized texture co-ordinates for stretched shaders
+	{"randomizeTexCoords", ItemParse_randomizeTexCoords, NULL},
+	//Makro - menu anchor
+	{"menuAnchor", ItemParse_menuAnchor, NULL},
 	{"style", ItemParse_style, NULL},
 	{"decoration", ItemParse_decoration, NULL},
 	{"notselectable", ItemParse_notselectable, NULL},
@@ -7834,7 +7985,7 @@ qboolean Item_Parse(int handle, itemDef_t * item)
 	if (*token.string != '{') {
 		return qfalse;
 	}
-	while (1) {
+	INFINITE_LOOP {
 		if (!trap_PC_ReadToken(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item\n");
 			return qfalse;
@@ -7854,7 +8005,8 @@ qboolean Item_Parse(int handle, itemDef_t * item)
 			return qfalse;
 		}
 	}
-	return qfalse;		// bk001205 - LCC missing return value
+	//Makro - unreachable
+	//return qfalse;		// bk001205 - LCC missing return value
 }
 
 // Item_InitControls
@@ -8520,7 +8672,7 @@ qboolean Menu_Parse(int handle, menuDef_t * menu)
 		return qfalse;
 	}
 
-	while (1) {
+	INFINITE_LOOP {
 
 		memset(&token, 0, sizeof(pc_token_t));
 		if (!trap_PC_ReadToken(handle, &token)) {
@@ -8542,7 +8694,8 @@ qboolean Menu_Parse(int handle, menuDef_t * menu)
 			return qfalse;
 		}
 	}
-	return qfalse;		// bk001205 - LCC missing return value
+	//Makro - unreachable
+	//return qfalse;		// bk001205 - LCC missing return value
 }
 
 /*
@@ -8623,7 +8776,8 @@ void *Display_CaptureItem(int x, int y)
 	return NULL;
 }
 
-// FIXME: 
+// FIXME:
+//Makro - fixed :) 
 qboolean Display_MouseMove(void *p, int x, int y)
 {
 	int i;
@@ -8641,8 +8795,10 @@ qboolean Display_MouseMove(void *p, int x, int y)
 			Menu_HandleMouseMove(&Menus[i], x, y);
 		}
 	} else {
-		menu->window.rect.x += x;
-		menu->window.rect.y += y;
+		menu->window.rect.x += x - g_anchorX;
+		menu->window.rect.y += y - g_anchorY;
+		g_anchorX = x;
+		g_anchorY = y;
 		Menu_UpdatePosition(menu);
 	}
 	return qtrue;
@@ -8764,3 +8920,4 @@ static qboolean Menu_OverActiveItem(menuDef_t * menu, float x, float y)
 	}
 	return qfalse;
 }
+

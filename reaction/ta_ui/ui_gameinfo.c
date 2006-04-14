@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.12  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.11  2003/03/31 01:23:54  jbravo
 // Fixing 2 compiler warnings
 //
@@ -101,7 +104,7 @@ int UI_ParseInfos(char *buf, int max, char *infos[])
 
 	count = 0;
 
-	while (1) {
+	INFINITE_LOOP {
 		token = COM_Parse(&buf);
 		if (!token[0]) {
 			break;
@@ -117,7 +120,7 @@ int UI_ParseInfos(char *buf, int max, char *infos[])
 		}
 
 		info[0] = '\0';
-		while (1) {
+		INFINITE_LOOP {
 			token = COM_ParseExt(&buf, qtrue);
 			if (!token[0]) {
 				Com_Printf("Unexpected end of info file\n");

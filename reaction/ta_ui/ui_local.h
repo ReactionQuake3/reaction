@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.28  2006/04/14 18:02:06  makro
+// no message
+//
 // Revision 1.27  2005/09/07 20:24:33  makro
 // Vector support for most item types
 //
@@ -273,7 +276,10 @@ extern vmCvar_t ui_RQ3_teamModel;
 
 //Makro - maxpolys hack
 extern vmCvar_t ui_maxpolys;
+extern vmCvar_t ui_maxpolyverts;
 
+//Makro - player gender; irrelevant actually
+extern vmCvar_t ui_RQ3_gender;
 //
 // ui_qmenu.c
 //
@@ -466,6 +472,7 @@ extern vec4_t listbar_color;
 extern vec4_t text_color_disabled;
 extern vec4_t text_color_normal;
 extern vec4_t text_color_highlight;
+extern menuDef_t *g_anchoredMenu;
 
 extern char *ui_medalNames[];
 extern char *ui_medalPicNames[];
