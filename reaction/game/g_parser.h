@@ -15,13 +15,22 @@ typedef struct
 	void				*states[STATE_STACK_SIZE];
 } TStateStack;
 
-typedef int (*TParseFunc)(char **tokens, TStateStack *stack);
+typedef int (TParseFunc)(char **tokens, TStateStack *stack);
+
+// Makro - this is to shut lcc up :(
+#ifndef Q3_VM
+	typedef TParseFunc		*PParseFunc;
+#else
+	#define PParseFunc		TParseFunc*
+#endif
+
+#define _NULL_T(type)		(*(type*)0)
 
 
 typedef struct _TParseRule
 {
 	const char			*keyword;
-	TParseFunc			handler;
+	PParseFunc			handler;
 	struct _TParseRule	*next;
 } TParseRule;
 
@@ -45,7 +54,7 @@ TParseState name = {\
 
 #define ADD_RULE(exp, func)		{exp, &func, NULL},
 
-#define END_STATE_MARKER		{NULL, NULL, NULL}\
+#define END_STATE_MARKER		{NULL, (TParseFunc*)0, (TParseRule*)NULL}\
 }
 
 #define NO_DATA					NULL
@@ -106,7 +115,7 @@ int Script_GetTopState(const TStateStack *stack, TParseState **state);
 int Script_PopState(TStateStack *stack, TParseState **state);
 
 char*			Script_GetToken(char **str);
-TParseFunc		Script_FindHandler(char *token, TParseState *state);
+PParseFunc		Script_FindHandler(char *token, TParseState *state);
 void			Script_ParseString(char *str, TParseState *baseState);
 
 #define SCRIPT_PUSH_STATE(state)		Script_PushState(SCRIPT_STACK, &state)

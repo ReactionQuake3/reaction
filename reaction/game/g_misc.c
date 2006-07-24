@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.85  2006/07/24 17:15:56  makro
+// Got rid of the warnings lcc liked to share with the world
+//
 // Revision 1.84  2005/09/07 20:27:42  makro
 // Entity attachment trees
 //
@@ -1179,7 +1182,7 @@ void SP_func_breakable(gentity_t * ent)
 	if (ent->spawnflags & 16) {
 		ent->touch = Touch_Breakable;
 	} else {
-		ent->touch = NULL;
+		ent->touch = 0;
 	}
 	
 	if (!ent->damage_radius) {

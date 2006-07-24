@@ -76,7 +76,7 @@ void Script_InitHashTable(TParseState *state)
 	state->initialized = 1;
 }
 
-TParseFunc Script_FindHandler(char *token, TParseState* state)
+PParseFunc Script_FindHandler(char *token, TParseState* state)
 {
 	TParseRule *ptr;
 	int index = Script_HashKey(token) % SCRIPT_HASH_SIZE;
@@ -89,7 +89,7 @@ TParseFunc Script_FindHandler(char *token, TParseState* state)
 		if (Q_stricmp(token, ptr->keyword) == 0)
 			return ptr->handler;
 	}
-	return NULL;
+	return (PParseFunc)0;
 }
 
 
@@ -157,7 +157,7 @@ void Script_ParseString(char *str, TParseState *baseState)
 
 	while ( (token = Script_GetToken(&str)) != NULL)
 	{
-		TParseFunc		handler = NULL;
+		PParseFunc		handler = (PParseFunc)0;
 		TParseState		*state;
 
 		Script_GetTopState(&stateStack, &state);
