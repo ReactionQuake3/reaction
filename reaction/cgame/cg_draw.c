@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.80  2007/01/26 21:17:21  makro
+// Made the 'vignetting' effect zoom-dependent
+//
 // Revision 1.79  2006/04/14 18:16:31  makro
 // no message
 //
@@ -1984,7 +1987,15 @@ static void CG_DrawCrosshair(void)
 
 			trap_R_SetColor(NULL);
 			if (cgs.media.zoomMask)
-				CG_DrawPic(0, 0, 640, 480, cgs.media.zoomMask);
+			{
+				const float ZMC_NORMAL = 0.f;
+				const float ZMC_MAX = 0.175f;
+
+				float frac = (cg.refdef.fov_x - 10.f) / (90.f - 10.f);
+				float fCoord = ZMC_NORMAL * frac + ZMC_MAX * (1.f - frac);
+
+				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, fCoord, fCoord, 1.f-fCoord, 1.f-fCoord, cgs.media.zoomMask);
+			}
 
 			drawSSG = 1;
 		}
