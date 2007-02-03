@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.149  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.148  2006/04/14 18:16:31  makro
 // no message
 //
@@ -1718,9 +1721,9 @@ static void CG_RegisterSounds(void)
 	}
 
 	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/buletby1.wav", qfalse);
-	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.wav", qfalse);
-	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.wav", qfalse);
-	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav", qfalse);
+//	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.wav", qfalse);
+//	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.wav", qfalse);
+//	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav", qfalse);
 	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibsplt1.wav", qfalse);
 	//Blaze: Reaction breakable glass
 	/*cgs.media.glassSound = trap_S_RegisterSound( "sound/world/glassbk.wav", qfalse );
@@ -1756,8 +1759,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.excellentSound = trap_S_RegisterSound("sound/feedback/excellent.wav", qtrue);
 	cgs.media.deniedSound = trap_S_RegisterSound("sound/feedback/denied.wav", qtrue);
 	cgs.media.humiliationSound = trap_S_RegisterSound("sound/feedback/humiliation.wav", qtrue);
-	cgs.media.assistSound = trap_S_RegisterSound("sound/feedback/assist.wav", qtrue);
-	cgs.media.defendSound = trap_S_RegisterSound("sound/feedback/defense.wav", qtrue);
+//	cgs.media.assistSound = trap_S_RegisterSound("sound/feedback/assist.wav", qtrue);
+//	cgs.media.defendSound = trap_S_RegisterSound("sound/feedback/defense.wav", qtrue);
 
 	cgs.media.takenLeadSound = trap_S_RegisterSound("sound/feedback/takenlead.wav", qtrue);
 	cgs.media.tiedLeadSound = trap_S_RegisterSound("sound/feedback/tiedlead.wav", qtrue);
@@ -1861,8 +1864,8 @@ static void CG_RegisterSounds(void)
 	}
 
 	// FIXME: only needed with item
-	cgs.media.flightSound = trap_S_RegisterSound("sound/items/flight.wav", qfalse);
-	cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_medkit.wav", qfalse);
+//	cgs.media.flightSound = trap_S_RegisterSound("sound/items/flight.wav", qfalse);
+//	cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_medkit.wav", qfalse);
 	cgs.media.quadSound = trap_S_RegisterSound("sound/items/damage3.wav", qfalse);
 	cgs.media.sfx_ric1 = trap_S_RegisterSound("sound/weapons/machinegun/ric1.wav", qfalse);
 	cgs.media.sfx_ric2 = trap_S_RegisterSound("sound/weapons/machinegun/ric2.wav", qfalse);
@@ -1887,9 +1890,9 @@ static void CG_RegisterSounds(void)
 
 	cgs.media.sfx_shelltumble = trap_S_RegisterSound("sound/misc/shell.wav", qfalse);
 
-	cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.wav", qfalse);
+//	cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.wav", qfalse);
 	cgs.media.sfx_rockexp = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.wav", qfalse);
-	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
+//	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
 
 	cgs.media.regenSound = trap_S_RegisterSound("sound/items/regen.wav", qfalse);
 	cgs.media.protectSound = trap_S_RegisterSound("sound/items/protect3.wav", qfalse);
@@ -2069,7 +2072,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.smokePuffAnimShader = trap_R_RegisterShader("smokePuff-rq3");
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader("smokePuffRagePro");
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
-	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
+	//cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
 	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
@@ -2093,12 +2096,12 @@ static void CG_RegisterGraphics(void)
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
 
 	// powerup shaders
-	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
-	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
-	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
-	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
-	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility");
-	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
+	//cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
+	//cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
+	//cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
+	//cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
+	//cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility");
+	//cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
 
 	// Elder: RQ3 misc. shaders
@@ -2141,7 +2144,7 @@ static void CG_RegisterGraphics(void)
 	}
 
 	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
-	cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
+	//cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
 
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons2/shells/m_shell.md3");
 	cgs.media.largeBrassModel = trap_R_RegisterModel("models/weapons2/shells/l_shell.md3");
@@ -2289,7 +2292,7 @@ static void CG_RegisterGraphics(void)
 	// wall marks
 	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
 	cgs.media.burnMarkShader = trap_R_RegisterShader("gfx/damage/burn_med_mrk");
-	cgs.media.holeMarkShader = trap_R_RegisterShader("gfx/damage/hole_lg_mrk");
+	//cgs.media.holeMarkShader = trap_R_RegisterShader("gfx/damage/hole_lg_mrk");
 	cgs.media.energyMarkShader = trap_R_RegisterShader("gfx/damage/plasma_mrk");
 	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");

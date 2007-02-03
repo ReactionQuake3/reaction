@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.154  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.153  2006/04/14 18:15:45  makro
 // no message
 //
@@ -442,7 +445,6 @@
 #include "g_local.h"
 #include "zcam.h"
 #include "q_shared.h"
-
 #include "g_scripts.h"
 
 int trap_RealTime(qtime_t * qtime);
@@ -988,7 +990,7 @@ void G_RegisterCvars(void)
 // JBravo: lets disable the untested modes.
 	if (g_gametype.integer != GT_FFA && g_gametype.integer != GT_TEAMPLAY && g_gametype.integer != GT_CTF &&
 	    g_gametype.integer != GT_TEAM) {
-		G_Printf("g_gametype %i is currently not supported by ReactionQuake3. Defaulting to 0\n",
+		G_Printf("g_gametype %i is currently not supported by Reaction. Defaulting to 0\n",
 			 g_gametype.integer);
 		trap_Cvar_Set("g_gametype", "0");
 	}
@@ -1105,7 +1107,7 @@ void RQ3_loadmodels(void)
 		if (!strcmp(dirptr, ".") || !strcmp(dirptr, ".."))
 			continue;
 		len = trap_FS_FOpenFile(va("models/players/%s/rq3model.cfg", dirptr), &file, FS_READ);
-		if (file) {
+		if (file && len > 0) {
 			trap_FS_Read(buf, len, file);
 			buf[len] = 0;
 			text_p = buf;
@@ -2207,7 +2209,7 @@ void LogExit(const char *string)
 		if (g_RQ3_statLog.integer && !(g_entities[cl - level.clients].r.svFlags & SVF_BOT)) {
 			// Elder: Statistics tracking for server
 			G_LogPrintf("-----------------------------------\n");
-			G_LogPrintf("Reaction Quake 3 Statistics Results for client %i %s\n", level.sortedClients[i],
+			G_LogPrintf("Reaction Statistics Results for client %i %s\n", level.sortedClients[i],
 				    cl->pers.netname);
 			G_LogPrintf("Kicks: %i  kills %i  deaths %i\n", cl->pers.records[REC_KICKHITS],
 				    cl->pers.records[REC_KICKKILLS], cl->pers.records[REC_KICKDEATHS]);
@@ -3083,7 +3085,7 @@ void RQ3_ReadInitFile()
 	len = trap_FS_FOpenFile(g_RQ3_IniFile.string, &file, FS_READ);
 
 	if (!file)
-		len = trap_FS_FOpenFile("rq3.ini", &file, FS_READ);
+		len = trap_FS_FOpenFile("server.ini", &file, FS_READ);
 
 	if (!file) {
 		G_Printf("Could not open INI file\n");

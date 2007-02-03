@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.84  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.83  2006/04/14 18:02:06  makro
 // no message
 //
@@ -5873,7 +5876,7 @@ static void UI_RunMenuScript(char **args)
 			}
 			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
 			//Makro - saved config file before exiting
-			trap_Cmd_ExecuteText(EXEC_APPEND, "writeconfig q3config.cfg ; quit\n");
+			trap_Cmd_ExecuteText(EXEC_APPEND, "writeconfig rq3config.cfg ; quit\n");
 			//Makro - weapon menu after joining a team
 		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
 			//only in teamplay
@@ -8306,9 +8309,9 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 				}
 			//Makro - check com_hunkmegs
 			} else {
-				if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 96)
+				if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 256)
 				{
-					trap_Cvar_SetValue("com_hunkMegs", 96);
+					trap_Cvar_SetValue("com_hunkMegs", 256);
 					Menus_ActivateByName("memory_popmenu", qfalse);
 				};
 			}

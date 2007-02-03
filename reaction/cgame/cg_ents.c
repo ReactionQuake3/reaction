@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.50  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.49  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -862,8 +865,8 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 	cent = &cg_entities[moverNum];
 	//if (cent->currentState.eType != ET_MOVER) {
 	//Makro - adjust for movers and attached entities
-	if ( (cent->currentState.eType != ET_PLAYER && cent->currentState.eFlags & EF_ATTACHED == 0) //if not attached
-		&& cent->currentState.eType != ET_MOVER )	//and not a mover, either
+	if ((cent->currentState.eType != ET_PLAYER && ((cent->currentState.eFlags & EF_ATTACHED) == 0)) //if not attached
+		&& cent->currentState.eType != ET_MOVER)	//and not a mover, either
 	{
 		VectorCopy(in, out);
 		return;

@@ -1,3 +1,1 @@
-
-void G_ParseScript(const char *fname);
-
+void G_ParseScript(const char * fname);

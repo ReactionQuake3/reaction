@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.163  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.162  2006/04/14 18:16:31  makro
 // no message
 //
@@ -1233,7 +1236,7 @@ typedef struct {
 	qhandle_t neutralFlagBaseModel;
 
 	qhandle_t armorModel;
-	qhandle_t armorIcon;
+	//qhandle_t armorIcon;
 
 	qhandle_t teamStatusBar;
 
@@ -1323,7 +1326,7 @@ typedef struct {
 	qhandle_t smokePuffAnimShader;
 	qhandle_t smokePuffRageProShader;
 	qhandle_t shotgunSmokePuffShader;
-	qhandle_t plasmaBallShader;
+	//qhandle_t plasmaBallShader;
 	qhandle_t waterBubbleShader;
 
 	// Pressure:
@@ -1345,7 +1348,7 @@ typedef struct {
 	qhandle_t ctbOMarkBlack;
 	qhandle_t bulletMarkShader;
 	qhandle_t burnMarkShader;
-	qhandle_t holeMarkShader;
+	//qhandle_t holeMarkShader;
 	qhandle_t energyMarkShader;
 
 	// Elder: rq3 marks
@@ -1356,13 +1359,13 @@ typedef struct {
 	qhandle_t snowMarkShader;
 
 	// powerup shaders
-	qhandle_t quadShader;
+	//qhandle_t quadShader;
 	qhandle_t redQuadShader;
-	qhandle_t quadWeaponShader;
-	qhandle_t invisShader;
-	qhandle_t regenShader;
-	qhandle_t battleSuitShader;
-	qhandle_t battleWeaponShader;
+	//qhandle_t quadWeaponShader;
+	//qhandle_t invisShader;
+	//qhandle_t regenShader;
+	//qhandle_t battleSuitShader;
+	//qhandle_t battleWeaponShader;
 	qhandle_t hastePuffShader;
 	qhandle_t redKamikazeShader;
 	qhandle_t blueKamikazeShader;
@@ -1440,9 +1443,9 @@ typedef struct {
 
 	sfxHandle_t quadSound;
 	sfxHandle_t tracerSound;
-	sfxHandle_t selectSound;
-	sfxHandle_t useNothingSound;
-	sfxHandle_t wearOffSound;
+//	sfxHandle_t selectSound;
+//	sfxHandle_t useNothingSound;
+//	sfxHandle_t wearOffSound;
 	sfxHandle_t footsteps[FOOTSTEP_TOTAL][4];
 	sfxHandle_t sfx_lghit1;
 	sfxHandle_t sfx_lghit2;
@@ -1474,9 +1477,9 @@ typedef struct {
 	// Elder: Shell tumble sound
 	sfxHandle_t sfx_shelltumble;
 
-	sfxHandle_t sfx_railg;
+//	sfxHandle_t sfx_railg;
 	sfxHandle_t sfx_rockexp;
-	sfxHandle_t sfx_plasmaexp;
+//	sfxHandle_t sfx_plasmaexp;
 	sfxHandle_t gibSound;
 	//Blaze: Dont need this any more
 //      sfxHandle_t glassSound; //Blaze: Reaction breakable glass
@@ -1509,8 +1512,8 @@ typedef struct {
 	sfxHandle_t excellentSound;
 	sfxHandle_t deniedSound;
 	sfxHandle_t humiliationSound;
-	sfxHandle_t assistSound;
-	sfxHandle_t defendSound;
+	//sfxHandle_t assistSound;
+	//sfxHandle_t defendSound;
 	sfxHandle_t firstImpressiveSound;
 	sfxHandle_t firstExcellentSound;
 	sfxHandle_t firstHumiliationSound;
@@ -1527,8 +1530,8 @@ typedef struct {
 	sfxHandle_t watrOutSound;
 	sfxHandle_t watrUnSound;
 
-	sfxHandle_t flightSound;
-	sfxHandle_t medkitSound;
+//	sfxHandle_t flightSound;
+//	sfxHandle_t medkitSound;
 
 	sfxHandle_t weaponHoverSound;
 

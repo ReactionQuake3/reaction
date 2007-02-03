@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.142  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.141  2005/02/15 16:33:39  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -1781,7 +1784,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	// NiceAss: Fixed pointer bug causing DLLs to crash
 	// JBravo: FF control
 	if (attacker && targ && targ->client && attacker->client && targ != attacker) {
-		if (g_gametype.integer >= GT_TEAM && targ->client->sess.sessionTeam == attacker->client->sess.sessionTeam) {
+		if (g_gametype.integer >= GT_TEAM && targ->client->sess.savedTeam == attacker->client->sess.savedTeam) {
 		    if (g_gametype.integer == GT_TEAMPLAY) {
 			    if (level.team_round_going && g_friendlyFire.integer == 0)
 				return;

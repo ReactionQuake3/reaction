@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.196  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.195  2005/09/13 03:32:03  jbravo
 // added a Youve started bandaging message at the right time.
 //
@@ -1396,7 +1399,9 @@ void Cmd_Team_f(gentity_t * ent)
 =================
 Cmd_Follow_f
 =================
-*/
+
+// JBravo: This cmd is only used for limchasecam cheating
+
 void Cmd_Follow_f(gentity_t * ent)
 {
 	int i;
@@ -1436,6 +1441,8 @@ void Cmd_Follow_f(gentity_t * ent)
 	ent->client->specMode = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
 }
+*/
+
 
 /*
 =================
@@ -3024,8 +3031,9 @@ void ClientCommand(int clientNum)
 		Cmd_TeamTask_f(ent);
 	else if (Q_stricmp(cmd, "levelshot") == 0)
 		Cmd_LevelShot_f(ent);
-	else if (Q_stricmp(cmd, "follow") == 0)
-		Cmd_Follow_f(ent);
+// JBravo: no limchasecam cheating...
+//	else if (Q_stricmp(cmd, "follow") == 0)
+//		Cmd_Follow_f(ent);
 	else if (Q_stricmp(cmd, "follownext") == 0)
 		Cmd_FollowCycle_f(ent, 1);
 	else if (Q_stricmp(cmd, "followprev") == 0)

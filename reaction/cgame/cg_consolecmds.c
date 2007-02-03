@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.58  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.57  2004/01/26 21:26:08  makro
 // no message
 //
@@ -723,7 +726,8 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("notarget");
 	trap_AddCommand("noclip");
 	trap_AddCommand("team");
-	trap_AddCommand("follow");
+// JBravo: no thanks.
+//	trap_AddCommand("follow");
 	trap_AddCommand("levelshot");
 	trap_AddCommand("addbot");
 	trap_AddCommand("setviewpos");

@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.76  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.75  2005/02/15 16:33:38  makro
 // Tons of updates (entity tree attachment system, UI vectors)
 //
@@ -236,7 +239,7 @@ static void CG_UseItem(centity_t * cent)
 	switch (itemNum) {
 	default:
 	case HI_NONE:
-		trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.useNothingSound);
+		//trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.useNothingSound);
 		break;
 
 // JBravo: getting rid of NON RQ3 items.

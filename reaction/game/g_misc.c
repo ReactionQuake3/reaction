@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.86  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.85  2006/07/24 17:15:56  makro
 // Got rid of the warnings lcc liked to share with the world
 //
@@ -1022,7 +1025,7 @@ Type is the value set in the type key. No more, no less than three break sounds 
 Explosion graphic: breakables/type/explosion/texture 
 Type is the value set in the type key. Texture is any texture(s) referenced by the explosion shader. The shader script should be added to yourmap.shader.  
  
-If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction Quake 3 for the proper format.
+If you wish to add a custom breakable to your map, please include your mapname (or perhaps 3 letters of it) in the type name to prevent conflicts (i.e. don't use 'brick', use 'tequila_brick' or just 'teq_brick'). See the breakables folder included in Reaction for the proper format.
 */
 
 void reset_breakable(gentity_t *ent)

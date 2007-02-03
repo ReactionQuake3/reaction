@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.51  2007/02/03 15:02:21  jbravo
+// Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
+//
 // Revision 1.50  2005/09/07 22:19:15  makro
 // Dead player view offset tweaks
 //
@@ -1036,6 +1039,7 @@ static int CG_CalcViewValues(void)
 CG_PowerupTimerSounds
 =====================
 */
+/* JBravo: Nope
 static void CG_PowerupTimerSounds(void)
 {
 	int i;
@@ -1055,6 +1059,7 @@ static void CG_PowerupTimerSounds(void)
 		}
 	}
 }
+*/
 
 /*
 =====================
@@ -1352,7 +1357,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	//memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
 	// warning sounds when powerup is wearing off
-	CG_PowerupTimerSounds();
+	// CG_PowerupTimerSounds();    // JBravo: we dont use this ?
 
 	// update audio positions
 	trap_S_Respatialize(cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater);

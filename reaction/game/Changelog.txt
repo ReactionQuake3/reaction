@@ -1,4 +1,4 @@
-Reaction Quake III Changelog
+Reaction Changelog
 
 Mention features added, removed, changed, and bugs squashed. Also, make sure major
 milestones are mentioned here. (features can be visible to users or not. This is for us
