@@ -50,6 +50,8 @@ GOBJ = \
 	$(GDIRNAME)/g_teamplay.o \
 	$(GDIRNAME)/g_matchmode.o \
 	$(GDIRNAME)/g_unlagged.o \
+	$(GDIRNAME)/g_scripts.o \
+	$(GDIRNAME)/g_parser.o \
 	$(GDIRNAME)/zcam.o \
 	$(GDIRNAME)/zcam_target.o
 
