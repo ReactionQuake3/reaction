@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.150  2007/02/08 23:49:59  jbravo
+// Removing cg_RQ3_avidemo
+//
 // Revision 1.149  2007/02/03 15:02:21  jbravo
 // Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
 //
@@ -622,8 +625,6 @@ vmCvar_t cg_RQ3_strobe;
 vmCvar_t cg_RQ3_predictWeapons;
 
 
-//Makro - avidemo with jpegs
-vmCvar_t cg_RQ3_avidemo;
 //Makro - left-handed models
 //vmCvar_t cg_RQ3_leftHanded;
 
@@ -913,8 +914,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
-	//Makro - avidemo with jpegs
-	{&cg_RQ3_avidemo, "cg_RQ3_avidemo", "0", 0},
 	//Makro - left-handed weapons
 	//{&cg_RQ3_leftHanded, "cg_RQ3_leftHanded", "0", CVAR_ARCHIVE},
 	//Makro - dev tool

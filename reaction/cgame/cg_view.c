@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.52  2007/02/08 23:49:59  jbravo
+// Removing cg_RQ3_avidemo
+//
 // Revision 1.51  2007/02/03 15:02:21  jbravo
 // Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
 //
@@ -1239,7 +1242,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 {
 	int inwater;
 	int skyPortalMode = ADDENTS_NOSKYPORTAL;
-	float aviDemoFPS = 0;
 
 	//Blaze: for cheat detection
 	int i;
@@ -1419,15 +1421,6 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 			}
 
-		}
-	}
-	//Makro - like cl_avidemo, just that it uses JPEG's
-	aviDemoFPS = cg_RQ3_avidemo.value;
-	if (aviDemoFPS > 0) {
-		//if it's time to take a screenshot
-		if (cg.time > cg.screenshotTime + (int) (1000.0f / aviDemoFPS)) {
-			trap_SendConsoleCommand("screenshotJPEG silent\n");
-			cg.screenshotTime = cg.time;
 		}
 	}
 }

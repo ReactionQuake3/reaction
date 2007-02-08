@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.164  2007/02/08 23:49:59  jbravo
+// Removing cg_RQ3_avidemo
+//
 // Revision 1.163  2007/02/03 15:02:21  jbravo
 // Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
 //
@@ -956,8 +959,6 @@ typedef struct {
 	int oldTime;		// time at last frame, used for missile trails and prediction checking
 
 	int cvarCheckTime;	// Elder: used for cvar cheat interval cycling
-
-	int screenshotTime;	// Makro - avidemo with jpegs
 
 	int physicsTime;	// either cg.snap->time or cg.nextSnap->time
 
@@ -1940,8 +1941,6 @@ extern vmCvar_t cg_RQ3_bloodStyle;
 extern vmCvar_t cg_RQ3_strobe;
 extern vmCvar_t cg_RQ3_predictWeapons;
 
-//Makro - avidemo with jpegs
-extern vmCvar_t cg_RQ3_avidemo;
 //Makro - left-handed weapons
 //extern vmCvar_t cg_RQ3_leftHanded;
 //Makro - sun flares
