@@ -5,6 +5,9 @@
 //-----------------------------------------------------------------------------
 //
 // $Log$
+// Revision 1.96  2007/07/31 20:02:56  makro
+// Quick hack disabling footstep sounds for ladder surfaces
+//
 // Revision 1.95  2005/09/07 20:27:41  makro
 // Entity attachment trees
 //
@@ -1019,9 +1022,20 @@ static int PM_FootstepForSurface(int surfaceFlags)
 {
 	int Material = GetMaterialFromFlag(surfaceFlags);
 
-	if (pml.groundTrace.surfaceFlags & SURF_NOSTEPS) {
+	//Makro: quick note: surfaceparm nosteps will cause footstep sounds
+	//NOT to be played, UNLESS surfaceparm ladder is also set.
+	//Pretty weird, I know, but that how they wanted it...
+	
+	qboolean bLadder = (pml.groundTrace.surfaceFlags & SURF_LADDER)!=0;
+	qboolean bNoSteps = (pml.groundTrace.surfaceFlags & SURF_NOSTEPS)!=0;
+
+	//2007-07-31: getting rid of ladder footsteps
+
+	//if ((bLadder ^ bNoSteps) != 0) {
+	if (bNoSteps || bLadder) {
 		return 0;
 	}
+
 	//Makro - new surfaceparm system
 	//if ( pml.groundTrace.surfaceFlags & SURF_METALSTEPS ) {
 	if (Material == MAT_METALSTEPS) {
@@ -2812,7 +2826,7 @@ static void PM_LadderMove(void)
 		// if we just crossed a cycle boundary, play an apropriate footstep event
 		if (((old + 64) ^ (pm->ps->bobCycle + 64)) & 128)
 		{
-			PM_AddEvent(PM_FootstepForSurface(pml.ladderSurface));
+			//PM_AddEvent(PM_FootstepForSurface(pml.ladderSurface));
 		}
 	} else {
 		pm->ps->bobCycle = 0;
