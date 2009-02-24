@@ -1017,7 +1017,7 @@ void SpawnPlayers()
 		client->sess.teamSpawn = qfalse;
 	}
 // JBravo: lets make those pesky subs follow live players.
-	if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer ) {
+	if (g_RQ3_limchasecam.integer != 0 && g_RQ3_matchmode.integer) {
 		for (i = 0; i < level.maxclients; i++) {
 			player = &g_entities[i];
 			if (!player->inuse || !player->client)
