@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: cg_draw.c,v $
 // Revision 1.80  2007/01/26 21:17:21  makro
 // Made the 'vignetting' effect zoom-dependent
 //
@@ -575,7 +575,8 @@ static void CG_DrawStatusBar(void)
 
 	CG_DrawPic(8, 440, SMICON_SIZE, SMICON_SIZE, hicon);
 	//CG_DrawStringExt(44, 444, va("%d", value), hcolor, qtrue, qtrue, 24, 24, 3);
-	UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
+	//UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
+	UI_DrawProportionalString(40, 444, va("%d", value), style, hcolor);
 
 	//Elder: Draw weapon ammo and clips
 	style = UI_LEFT | UI_DROPSHADOW;
@@ -594,7 +595,8 @@ static void CG_DrawStatusBar(void)
 	//Don't draw ammo icon if holding grenade or knife
 	//if (icon && cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
 	if (icon)
-		CG_DrawPic(252, 440, SMICON_SIZE, SMICON_SIZE, icon);
+		//CG_DrawPic(252, 440, SMICON_SIZE, SMICON_SIZE, icon);
+    CG_DrawPic(288, 440, SMICON_SIZE, SMICON_SIZE, icon);
 
 	if (cent->currentState.weapon) {
 		value = ps->ammo[cent->currentState.weapon];
@@ -615,7 +617,7 @@ static void CG_DrawStatusBar(void)
 			color = 0;
 
 		if (value >= 0)
-			UI_DrawProportionalString(188, 444, va("%d", value), style, colors[color]);
+			UI_DrawProportionalString(200, 444, va("%d", value), style, colors[color]);
 #else
 		//Makro - new code
 		max = ClipAmountForAmmo(cent->currentState.weapon);
@@ -635,7 +637,7 @@ static void CG_DrawStatusBar(void)
 		}
 
 		if (value >= 0)
-			UI_DrawProportionalString(188, 444, va("%d", value), style, hcolor);
+			UI_DrawProportionalString(200, 444, va("%d", value), style, hcolor);
 #endif
 
 		//UI_DrawProportionalString(188, 444, "/"), style, colors[0]);
@@ -644,7 +646,7 @@ static void CG_DrawStatusBar(void)
 		if (value > -1 &&
 		    cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
 				//Makro - pretty colours !
-				UI_DrawProportionalString(288, 444, va("%d", value), style, (value != 0) ? colors[0] : colors[3]);
+				UI_DrawProportionalString(320, 444, va("%d", value), style, (value != 0) ? colors[0] : colors[3]);
 	}
 	// Elder: temporary
 	//if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
@@ -675,7 +677,7 @@ static void CG_DrawStatusBar(void)
 		icon = cg_weapons[WP_GRENADE].weaponIcon;
 		if (icon)
 			CG_DrawPic(x, y, SMICON_SIZE, SMICON_SIZE, icon);
-		UI_DrawProportionalString(x - 8, y, va("%d", cg.snap->ps.ammo[WP_GRENADE]), UI_RIGHT | UI_DROPSHADOW, colors[0]);
+		UI_DrawProportionalString(x + 2, y + 3, va("%d", cg.snap->ps.ammo[WP_GRENADE]), UI_RIGHT | UI_DROPSHADOW, colors[0]);
 		y -= SMICON_SIZE;
 	}
 
