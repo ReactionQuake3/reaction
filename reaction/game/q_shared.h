@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: q_shared.h,v $
 // Revision 1.16  2005/09/18 18:01:01  makro
 // no message
 //
@@ -490,11 +490,13 @@ typedef enum {
 
 // font rendering values used by ui and cgame
 
-#define PROP_GAP_WIDTH			3
+//#define PROP_GAP_WIDTH			3
+#define PROP_GAP_WIDTH			-16
 #define PROP_SPACE_WIDTH		8
 //Elder: changed to fit new font from 27
 //Makro - changed back
-#define PROP_HEIGHT				27
+//TTI: changed from 27 to 63
+#define PROP_HEIGHT				63
 #define PROP_SMALL_SIZE_SCALE	0.75
 
 #define BLINK_DIVISOR			200
