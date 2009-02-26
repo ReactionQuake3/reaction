@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: cg_main.c,v $
 // Revision 1.150  2007/02/08 23:49:59  jbravo
 // Removing cg_RQ3_avidemo
 //
@@ -2088,7 +2088,7 @@ static void CG_RegisterGraphics(void)
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++) {
 //              cgs.media.crosshairShader[i] = trap_R_RegisterShader( va("gfx/2d/crosshair%c", 'a'+i) );
-		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/IDcrosshair%c", 'a' + i));
+		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + i));
 	}
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
