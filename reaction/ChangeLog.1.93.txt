@@ -1,0 +1,141 @@
+# Fixes for the 2.2 release
+
+* cg_RQ3_predictWeapons added for Q2 similar delayed animations.
+* added g_RQ3_ctb_respawndelay for delayed CTB respawns.
+* Fixed initial spawning in teammates for CTB
+* Changed rq3ctf to rq3ctb in .arena parsing code.
+* Fixed the MM settings menu to also work when connected to a remote server.
+* Fixed the about server menu to display the right g_ cvars when connected to a remote server.
+* Removed colors from the nicks in MM commands
+* Added a map_restart after successful g_gametype votes.
+* UI now supports CTB as a valid gametype
+* Fixed the missing weapon/item menu in the player menu
+* Added g_RQ3_version and g_RQ3_showOwnKills to the about server menu
+* Fixed missing shader errors in the UI on numerous places.
+* Fixed the about server UI menu values
+* Made the UI handle illegal models and skins more robustly
+* UI model preview is fixed.
+* UI model preview and selection now controls DM gametype models, not team models.
+* Added a radiosoundset selection dialog to the UI
+* Doors with health and the "wait" key set to a negative value should work as expected now
+* MM: Added "resetMatch" for rcon and referee use, to reset the current server Match Stuff
+* Fixed the Akimbo ammo when akimbos are not the primary weapon.
+* Fixed plost3 radio sounds in all radiopaks.
+* Damage is now only tracked for players hit that are not on your team.
+* Fixed constant gasping sound when you die in shallow water
+* Added a line to the zcam swing tracking message indicating who you are following
+* Blocked radio commands during LCA
+* Added the dynamic radio system
+* Hacked the bufferedsound system so radio sound overlap less
+* No rcon stuff command alowed in matchmode
+* Ignorenum bug (ignoring player no. 0) fixed
+* Case carrier glowing removed.
+* MM: Changed Voting system to allow only captains to vote/callvote
+* MM: Added "clearscores" and "resetmatch" to vote command list
+* Each client can call a maximum of g_RQ3_maxClientVotes votes/team votes (default: 3)
+* % vars are now only expanded for say_team messages.
+* Hitboxes now 100% AQ style
+* Removed cocking sounds from all weapons except the mk23, m4 and mp5
+* Fixed the bot_minplayer system.
+* Added spawnflag 8 to breakables to allow them to be unkickable
+* Created a CTB respawn Queue.
+* Added propper handling of players waiting for a respawn in CTB
+* New Referee System to allow multiple admins, determined by g_RQ3_maxRefs
+* Pressure physics system now certified by NASA.
+* Scoreboard code updated for new ref system
+* Countdown timer added for CTB respawning.
+* Fixed bug where rounds lasted half as long as g_RQ3_roundtimelimit was set to.
+* Q3F's atmospheric code added.
+* Smoke puff added to silencer shots.
+* Added "Life" setting to func_pressure. Default 200.
+* Possibly fixed ghost door problem.
+* New server info menu code
+* New 100% customizable presets menu with editor
+* Removed the cd key menu
+* Fixed dropped weapons and items blocking doors and other movers.
+* Added ref say command to talk to everyone, dead or alive
+* Players can now use the kill cmd, plummet and kill teammates after rounds in tp without loosing frags.
+* Fixed message for players wearing a kevlar vest and get hiot by weapons other than the SSG
+* Added the Keanu male radio soundset.
+* Added a clientside cvar (cg_RQ3_SuicideLikeARealMan) to control frag lossage on suicides
+* Fixed stats for non-TP gametypes
+* Cleaned up server logging and added real timestamping to them.
+* MM: "referee" voting command and ref's "kick" user command now uses player's numbers instead of names
+* Added support for sky portals
+* Greatly enhanced UI functionality for matchmode
+
+
+# Fixes for the 2.1 release
+
+
+
+* Fixed the FOV bug when selecting SSG at spawn
+* Kickback from weapons adjusted
+* Rotation bug that appeard when more than 10 maps where in rotation fixed.
+* LaserSight bug is fixed.
+* Fixed the base voting system. Still needs a cleanup
+* Fixed the respawning of dead players weapons and items in TP
+* Fixed to allow > 16 breakables
+* Recoded the AI for changing weapon modes. Bots can now zoom in/out with the SSG.
+* Made it possible to add random bots when starting a game from the UI
+* Items can now be dropped during bandaging
+* Redid the visuals on callvote and callteamvote.
+* M4 muzzleflash 25% smaller.
+* Added callvote cyclemap. It replaces callvote nextmap
+* Callvote map [mapname] new verifies the map exists before calling the vote.
+* Tweaked leg damage.
+* Smooth M4 rise.
+* TNG TP spawn system has been intergrated
+* Scoreboard no longer shows who's dead and whos not while you are alive.
+* Added the 'lens' sound when using "unzoom" for SSG
+* Fixed issues with cg_drawCrosshair 0, for SSG Scope and teammates Names
+* Added $P for last damaged player.
+* Fixed a model bug for team 2.
+* changed g_RQ3_printOwnObits to g_RQ3_showOwnKills and made it control what $K does.
+* Spectators can now use say_team to communicate among each others, DM and TP.
+* Unzoom now plays the lens sound.
+* Health functionality for movers should be complete now.
+* Rezooming after quick reloading is much faster.
+* Visible laser in fog for all players but you.
+* Bots dont look for a team leader in TP.
+* Enabled the 6th custom crosshair in the UI.
+* Added callvote map and ref map features.
+* Fixed the UI team count cvars when someone disconnects.
+* Fixed the bandagebug.
+* Added a feature to overlay normal crosshairsover the SSG crosshair.
+* Fixed shots fired stats for non TP modes.
+* Fixed the logging of Clients IP's when they connect.
+* Personal score grouped with team score on hud.
+* Scoreboard shows individual and team head models.
+* Spectators can now use say_team with [SPECTATOR] on their messages
+* MM: Added Color to all messages for better reading
+* MM: Added g_RQ3_forceteamtalk.
+* MM: Added "Settings" command code to use from a menu
+* MM: Added "lockSettings" as a referee command
+* MM: Added a "dmflags" like option to give/remove privileges to captains g_RQ3_mmflags
+* MM: Added g_RQ3_maxplayers to cap max players on a team
+* Added the dmflag spawn farthest.
+* The scores in the upper-right corner update instantly.
+* Gunshots now go through teammates.
+* Fixes for the M4 rising.
+* Shouldn't be able to see the enemy chat bubbles and such.
+* Created CTB
+* Fixed subs and limchasecam
+* The captain status no longer stays on people after mapchanges
+* Commands like "drop weapon ; use throwing combat knife" now work as expected.
+* Pressures are killed on LCA
+* Matchmode ping determination added to scoreboard
+* Player total and sub total added to the scoreboard
+* Bug with pistol clips for akimbo/pistol in TP fixed.
+* Drop weapon for akimbos now behaves like in AQ
+* No using the kill command during LCA
+* Subs are no longer ignored during TP spawns.  Now they are forced into following live players.
+* Dead players could talk to the living during the time before they respawned as spectators.
+* Spectators in in-eyes mode now witness the death of the player they follow before moving on
+* Added g_RQ3_ppl_idletime and g_RQ3_idleaction cvars.
+* Changed scoreboard to icon instead of a 3d player head
+* Minor changes to physics
+* Minor changes to who can be seen as dead and alive in the scoreboard
+* Shell ejections on spawn in TP should be fixed
+* Added pirate and pikey radio sets. cg_RQ3_radiovoice 0, 1, 2 or 3
+* Added CTB radio commands to all radio sets.
