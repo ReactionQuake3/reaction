@@ -1,4 +1,3 @@
--o "\quake3\baseq3\vm\cgame"
 cg_main
 ..\cg_syscalls
 cg_atmospheric

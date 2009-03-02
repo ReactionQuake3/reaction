@@ -1,4 +1,3 @@
--o "\quake3\baseq3\vm\ui"
 ui_main
 ..\ui_syscalls
 ui_atoms

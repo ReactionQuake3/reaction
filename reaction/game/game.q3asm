@@ -1,4 +1,3 @@
--o "\quake3\baseq3\vm\qagame"
 g_main
 ..\g_syscalls
 bg_misc
