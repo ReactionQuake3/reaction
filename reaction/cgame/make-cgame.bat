@@ -6,7 +6,7 @@ REM *** NOTE: THIS BATCH FILE IS MEANT TO BE CALLED BY make-qvm.bat!
 REM *** NOTE: THIS CANNOT BE RUN BY ITSELF WITHOUT %make-qvm-location% BEING DEFINED!
 
 cd vm
-set cc=q3lcc.exe -DQ3_VM -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ui
+set cc=q3lcc.exe -DQ3_VM -S -Wf-target=bytecode -Wf-g -I..\..\cgame -I..\..\game -I..\..\ta_ui
 
 
 echo.
