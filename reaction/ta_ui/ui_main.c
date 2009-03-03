@@ -614,7 +614,7 @@ void AssetCache()
 		    Asset_RegisterShaderNoMip(va("rq3-ingame-shadow-c%i", n + 1));
 	}
 	uiInfo.uiDC.Assets.dropShadowRight = Asset_RegisterShaderNoMip("rq3-ingame-shadow-right");
-	uiInfo.uiDC.Assets.dropShadowBottom = trap_R_RegisterShaderNoMip("rq3-ingame-shadow-bottom");
+	uiInfo.uiDC.Assets.dropShadowBottom = Asset_RegisterShaderNoMip("rq3-ingame-shadow-bottom");
 	
 	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav", qfalse);
 }
