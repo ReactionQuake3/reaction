@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: ui_shared.h,v $
 // Revision 1.22  2006/04/14 18:02:06  makro
 // no message
 //
@@ -458,6 +458,8 @@ typedef struct {
 	qhandle_t solidBox;
 	qhandle_t sliderBar0, sliderBar1;
 	qhandle_t sliderThumb;
+	// Makro - precache this instead of loading it per frame
+	qhandle_t defaultLevelshot;
 	sfxHandle_t menuEnterSound;
 	sfxHandle_t menuExitSound;
 	sfxHandle_t menuBuzzSound;

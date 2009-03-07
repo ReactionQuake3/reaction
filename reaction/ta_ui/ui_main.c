@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: ui_main.c,v $
 // Revision 1.84  2007/02/03 15:02:21  jbravo
 // Renamed RQ3 to Reaction, Dropped loading of various baseq3 media, disabled the follow command, fixed grenades killing teammates and some cleanups
 //
@@ -18,7 +18,7 @@
 // Tons of updates (entity tree attachment system, UI vectors)
 //
 // Revision 1.80  2004/03/12 11:26:05  makro
-// no message
+// no messaged
 //
 // Revision 1.79  2004/01/26 21:26:09  makro
 // no message
@@ -599,6 +599,8 @@ void AssetCache()
 	uiInfo.uiDC.Assets.sliderBar0 = Asset_RegisterShaderNoMip(ASSET_SLIDER_BAR0);
 	uiInfo.uiDC.Assets.sliderBar1 = Asset_RegisterShaderNoMip(ASSET_SLIDER_BAR1);
 	uiInfo.uiDC.Assets.sliderThumb = Asset_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
+	
+	uiInfo.uiDC.Assets.defaultLevelshot = trap_R_RegisterShaderNoMip("menu/art/unknownmap");
 
 	for (n = 0; n < NUM_CROSSHAIRS; n++) {
 		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + n));
@@ -1851,7 +1853,7 @@ void UI_ParseMenu(const char *menuFile)
 	if (!handle) {
 		return;
 	}
-
+	
 	INFINITE_LOOP {
 		memset(&token, 0, sizeof(pc_token_t));
 		if (!trap_PC_ReadToken(handle, &token)) {
@@ -2048,7 +2050,10 @@ static void UI_DrawNetGameType(rectDef_t * rect, float scale, vec4_t color, int 
 		trap_Cvar_Set("ui_netGameType", "0");
 		trap_Cvar_Set("ui_actualNetGameType", "0");
 	}
-	Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, uiInfo.gameTypes[ui_netGameType.integer].gameType, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawJoinGameType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -2243,6 +2248,9 @@ static void UI_DrawMapPreview(rectDef_t * rect, float scale, vec4_t color, qbool
 {
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
+	if (uiInfo.mapCount == 0)
+		return;
+
 	if (map < 0 || map > uiInfo.mapCount) {
 		if (net) {
 			ui_currentNetMap.integer = 0;
@@ -2255,13 +2263,23 @@ static void UI_DrawMapPreview(rectDef_t * rect, float scale, vec4_t color, qbool
 	}
 
 	if (uiInfo.mapList[map].levelShot == -1) {
-		uiInfo.mapList[map].levelShot = trap_R_RegisterShaderNoMip(uiInfo.mapList[map].imageName);
+		return;
+		// Makro - we no longer load the levelshot here because it could lead to a crash...
+		//uiInfo.mapList[map].levelShot = trap_R_RegisterShaderNoMip(uiInfo.mapList[map].imageName);
 	}
 
-	if (uiInfo.mapList[map].levelShot > 0) {
-		UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.mapList[map].levelShot);
+	if (rect->hasVectors) {
+		if (uiInfo.mapList[map].levelShot > 0) {
+			UI_DrawAngledPic(rect->x, rect->y, rect->w, rect->h, rect->u, rect->v, color, 0.f, 0.f, 1.f, 1.f, uiInfo.mapList[map].levelShot);
+		} else {
+			UI_DrawAngledPic(rect->x, rect->y, rect->w, rect->h, rect->u, rect->v, color, 0.f, 0.f, 1.f, 1.f, uiInfo.uiDC.Assets.defaultLevelshot);
+		}
 	} else {
-		UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip("menu/art/unknownmap"));
+		if (uiInfo.mapList[map].levelShot > 0) {
+			UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.mapList[map].levelShot);
+		} else {
+			UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.uiDC.Assets.defaultLevelshot);
+		}
 	}
 }
 
@@ -2284,7 +2302,6 @@ static void UI_DrawMapTimeToBeat(rectDef_t * rect, float scale, vec4_t color, in
 
 static void UI_DrawMapCinematic(rectDef_t * rect, float scale, vec4_t color, qboolean net)
 {
-
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
 	if (map < 0 || map > uiInfo.mapCount) {
@@ -2471,11 +2488,16 @@ static void UI_DrawPlayerModel(rectDef_t * rect)
 
 static void UI_DrawNetSource(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
+	const char* msg = netSources[ui_netSource.integer];
 	if (ui_netSource.integer < 0 || ui_netSource.integer > numNetSources) {
 		ui_netSource.integer = 0;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, va("Source: %s", netSources[ui_netSource.integer]), 0, 0, 0,
-		textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, msg, 0, 0, 0,
+			textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, msg, 0, 0, 0,
+			textStyle, qfalse);
 }
 
 static void UI_DrawNetMapPreview(rectDef_t * rect, float scale, vec4_t color)
@@ -3499,6 +3521,8 @@ static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color
 	if (uiInfo.serverStatus.refreshActive) {
 		vec4_t lowLight, newColor;
 		int count = trap_LAN_GetServerCount(ui_netSource.integer);
+		const char* msg = (count > 0) ? va("Getting info for %d servers (ESC to cancel)", count) :
+			"Getting server info (ESC to cancel)";
 
 		lowLight[0] = 0.8 * color[0];
 		lowLight[1] = 0.8 * color[1];
@@ -3508,13 +3532,23 @@ static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color
 			count = 0;
 		}
 		LerpColor(color, lowLight, newColor, 0.5 + 0.5 * sin(uiInfo.uiDC.realTime / PULSE_DIVISOR));
-		Text_Paint(rect->x, rect->y, scale, newColor,
-			   va("Getting info for %d servers (ESC to cancel)", count), 0, 0, 0, textStyle, qfalse);
+		
+		if (rect->hasVectors)
+			Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, newColor,
+			   msg, 0, 0, 0, textStyle, qfalse);
+		else
+			Text_Paint(rect->x, rect->y, scale, newColor,
+			   msg, 0, 0, 0, textStyle, qfalse);
 	} else {
 		char buff[64];
+		const char* msg;
 
 		Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), 64);
-		Text_Paint(rect->x, rect->y, scale, color, va("Refresh Time: %s", buff), 0, 0, 0, textStyle, qfalse);
+		msg = va("Refresh Time: %s", buff);
+		if (rect->hasVectors)
+			Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, msg, 0, 0, 0, textStyle, qfalse);
+		else
+			Text_Paint(rect->x, rect->y, scale, color, msg, 0, 0, 0, textStyle, qfalse);
 	}
 }
 
@@ -7228,6 +7262,10 @@ static void UI_FeederSelection(float feederID, int index)
 			    trap_CIN_PlayCinematic(va("%s.roq", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName),
 						   0, 0, 0, 0, (CIN_loop | CIN_silent));
 		}
+		
+		// Makro - load the levelshot here, and not inside the drawing function
+		if (actual >= 0 && actual < uiInfo.mapCount && uiInfo.mapList[actual].levelShot == -1)
+			uiInfo.mapList[actual].levelShot = trap_R_RegisterShaderNoMip(uiInfo.mapList[actual].imageName);
 
 	} else if (feederID == FEEDER_SERVERS) {
 		const char *mapName = NULL;
@@ -7882,9 +7920,17 @@ void UI_RQ3_StartBackgroundTrack(const char *intro, const char *loop)
 	}
 }
 
+void UI_RenderScene(const refdef_t *ref)
+{
+	trap_R_RenderScene(ref);
+	trap_R_ClearScene();
+}
+
 void UI_Render2DScene()
 {
-	trap_R_RenderScene(&uiInfo.uiDC.scene2D);
+	if (uiInfo.uiDC.pendingPolys == 0)
+		return;
+	UI_RenderScene(&uiInfo.uiDC.scene2D);
 	uiInfo.uiDC.pendingPolys = 0;
 }
 
@@ -7894,12 +7940,6 @@ void UI_ClearScene()
 	{
 		UI_Render2DScene();
 	}
-	trap_R_ClearScene();
-}
-
-void UI_RenderScene(const refdef_t *ref)
-{
-	trap_R_RenderScene(ref);
 	trap_R_ClearScene();
 }
 
