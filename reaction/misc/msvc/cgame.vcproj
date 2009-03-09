@@ -19,7 +19,6 @@
 			OutputDirectory="..\..\build\cgame_release_ta"
 			IntermediateDirectory="..\..\build\cgame_release_ta"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -116,7 +115,6 @@
 			OutputDirectory="..\..\build\cgame_debug"
 			IntermediateDirectory="..\..\build\cgame_debug"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -214,7 +212,6 @@
 			OutputDirectory="..\..\build\cgame_release"
 			IntermediateDirectory="..\..\build\cgame_release"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -312,7 +309,6 @@
 			OutputDirectory="..\..\build\cgame_debug_ta"
 			IntermediateDirectory="..\..\build\cgame_debug_ta"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -474,10 +470,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\cgame\cg_newDraw.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\cgame\cg_players.c"
 				>
 			</File>
@@ -525,10 +517,6 @@
 				RelativePath="..\..\game\q_shared.c"
 				>
 			</File>
-			<File
-				RelativePath="..\..\ta_ui\ui_shared.c"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -558,6 +546,10 @@
 		<Filter
 			Name="Resource Files"
 			>
+			<File
+				RelativePath=".\cgame.def"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -19,7 +19,6 @@
 			OutputDirectory="..\..\build\ui_release_ta"
 			IntermediateDirectory="..\..\build\ui_release_ta"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -116,7 +115,6 @@
 			OutputDirectory="..\..\build\ui_debug_ta"
 			IntermediateDirectory="..\..\build\ui_debug_ta"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -309,6 +307,10 @@
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
+			<File
+				RelativePath=".\ui.def"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
