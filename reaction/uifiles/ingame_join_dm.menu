@@ -6,7 +6,8 @@
 	name "ingame_join_dm"
 	visible 0
 	fullscreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	onOOBClick { close _self }
 	rect 184 64 140 100
 	disableColor  .5 .5 .5 1
 	focusColor 1 .75 0 1			// Menu focus color for text and items

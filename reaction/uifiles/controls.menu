@@ -1,0 +1,495 @@
+#include "ui/menudef.h"
+#include "ui/controls_common.h"
+#include "ui/tabs.h"
+
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR 0 0 .1 1
+#define Tab_Color1 0 0 0 1
+#define Tab_Color2 0 0 .5 1
+#define VSPACE 16
+#define VSIZE 16
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+#define HINT_COLOR .25 .25 .25
+#define HINT_FADE_TIME 125
+#define LINE_WIDTH			240
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
+
+{
+	menuDef {
+	name "controls_menu"
+	__CONTROLS_WINDOW_DEF__
+	visible MENU_FALSE				// Visible on open
+	
+	onOOBClick { close _self }
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
+		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
+		ACTIVATE_TAB(1) ;
+	}
+	onClose { uiScript saveControls ; open _prev }
+	onEsc { close _self }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
+
+	__CONTROLS_PAPER__
+	__CONTROLS_TITLE__
+
+
+	// Line
+	__CONTROLS_LINE__
+
+
+	// Hints
+	__CONTROLS_HINTS__
+
+
+
+	// Sub-options //
+
+
+	//Look
+
+	ADD_TAB(
+		"^_L^_ook.",
+		"L", 1, "group2,group3,group4,group5",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 28 16
+	)
+	ADD_HINT("hint_tab1", "Settings that affect your vision", "group2,group3,group4,group5")
+
+
+	//Move
+
+	ADD_TAB(
+		"^_M^_ove.",
+		"M", 2, "group1,group3,group4,group5",
+		alignrect "tab1" ITEM_ALIGN_LEFT 28 0 32 16
+	)
+	ADD_HINT("hint_tab2", "Settings that affect your movement", "group1,group3,group4,group5")
+
+	//Shoot
+
+	ADD_TAB(
+		"^_S^_hoot.",
+		"S", 3, "group1,group2,group4,group5",
+		alignrect "tab2" ITEM_ALIGN_LEFT 32 0 32 16
+	)
+	ADD_HINT("hint_tab3", "Weapon-specific controls", "group1,group2,group4,group5")
+
+
+	//Misc
+
+	ADD_TAB(
+		"M^_i^_sc.",
+		"I", 4, "group1,group2,group3,group5",
+		alignrect "tab3" ITEM_ALIGN_LEFT 32 0 28 16
+	)
+	ADD_HINT("hint_tab4", "User interface related controls", "group1,group2,group3,group5")
+
+
+	//Reaction
+
+	ADD_TAB(
+		"^_R^_eaction.",
+		"R", 5, "group1,group2,group3,group4",
+		alignrect "tab4" ITEM_ALIGN_LEFT 28 0 40 16
+	)
+	ADD_HINT("hint_tab5", "Things you might not see every day", "group1,group2,group3,group4")
+
+
+/*
+==========================================================
+
+Group # 1 - Look
+
+==========================================================
+*/
+
+	// Icon
+	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-looking", 1)
+	
+	BEGIN_SLIDER("Mouse Speed", "sensitivity", 5, 1, 30, 1, 1)
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
+		ASSIGN_HINT("SliderMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("Smooth Mouse", "m_filter", ITEM_TYPE_YESNO, 2, 1)
+		OPTION_BELOW("gr1_ctrl1")
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("Invert Mouse", "ui_mousePitch", ITEM_TYPE_YESNO, 3, 1)
+		OPTION_BELOW("gr1_ctrl2")
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("Look Up", "+lookup", ITEM_TYPE_BIND, 4, 1)
+		OPTION_BELOW("gr1_ctrl3")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Look Down", "+lookdown", ITEM_TYPE_BIND, 5, 1)
+		OPTION_BELOW("gr1_ctrl4")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Mouse Look", "+mlook", ITEM_TYPE_BIND, 6, 1)
+		OPTION_BELOW("gr1_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Free Look", "cl_freelook", ITEM_TYPE_YESNO, 7, 1)
+		OPTION_BELOW("gr1_ctrl6")
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("Center View", "centerview", ITEM_TYPE_BIND, 8, 1)
+		OPTION_BELOW("gr1_ctrl7")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Use Joystick", "in_joystick", ITEM_TYPE_YESNO, 9, 1)
+		OPTION_BELOW("gr1_ctrl8")
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_SLIDER("Joystick Threshold", "joy_threshold", 0.15, 0.05, 0.75, 10, 1)
+		OPTION_BELOW("gr1_ctrl9")
+		ASSIGN_HINT("SliderMessage")
+	END_OPTION
+
+/*
+==========================================================
+
+Group # 2 - Move
+
+==========================================================
+*/
+
+	// Icon
+	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-movement", 2)
+	
+	BEGIN_OPTION("Always Run", "cl_run", ITEM_TYPE_YESNO, 1, 2)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("Run / Walk", "+speed", ITEM_TYPE_BIND, 2, 2)
+		OPTION_BELOW("gr2_ctrl1")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Walk Forward", "+forward", ITEM_TYPE_BIND, 3, 2)
+		OPTION_BELOW("gr2_ctrl2")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Backpedal", "+back", ITEM_TYPE_BIND, 4, 2)
+		OPTION_BELOW("gr2_ctrl3")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Step Left", "+moveleft", ITEM_TYPE_BIND, 5, 2)
+		OPTION_BELOW("gr2_ctrl4")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Step Right", "+moveright", ITEM_TYPE_BIND, 6, 2)
+		OPTION_BELOW("gr2_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Up / Jump", "+moveup", ITEM_TYPE_BIND, 7, 2)
+		OPTION_BELOW("gr2_ctrl6")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Down / Crouch", "+movedown", ITEM_TYPE_BIND, 8, 2)
+		OPTION_BELOW("gr2_ctrl7")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Turn Left", "+left", ITEM_TYPE_BIND, 9, 2)
+		OPTION_BELOW("gr2_ctrl8")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Turn Right", "+right", ITEM_TYPE_BIND, 10, 2)
+		OPTION_BELOW("gr2_ctrl9")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Sidestep / Turn", "+strafe", ITEM_TYPE_BIND, 11, 2)
+		OPTION_BELOW("gr2_ctrl10")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+/*
+==========================================================
+
+Group # 3 - Shoot
+
+==========================================================
+*/
+
+	// Icon
+	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-weapons", 3)
+	
+	BEGIN_OPTION("Attack", "+attack", ITEM_TYPE_BIND, 1, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Next Weapon", "weapnext", ITEM_TYPE_BIND, 2, 3)
+		OPTION_BELOW("gr3_ctrl1")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Previous Weapon", "weapprev", ITEM_TYPE_BIND, 3, 3)
+		OPTION_BELOW("gr3_ctrl2")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Autoswitch Weapons", "cg_autoswitch", ITEM_TYPE_YESNO, 4, 3)
+		OPTION_BELOW("gr3_ctrl3")
+		ASSIGN_HINT("YesNoMessage")
+	END_OPTION
+
+
+	BEGIN_OPTION("MK23 Pistol", "weapon 1", ITEM_TYPE_BIND, 5, 3)
+		OPTION_BELOW("gr3_ctrl4")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("M3 Assault Shotgun", "weapon 2", ITEM_TYPE_BIND, 6, 3)
+		OPTION_BELOW("gr3_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("MP5/10 Sub", "weapon 3", ITEM_TYPE_BIND, 7, 3)
+		OPTION_BELOW("gr3_ctrl6")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Handcannon", "weapon 4", ITEM_TYPE_BIND, 8, 3)
+		OPTION_BELOW("gr3_ctrl7")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("SSG Sniper Rifle", "weapon 5", ITEM_TYPE_BIND, 9, 3)
+		OPTION_BELOW("gr3_ctrl8")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("M4 Assault Rifle", "weapon 6", ITEM_TYPE_BIND, 10, 3)
+		OPTION_BELOW("gr3_ctrl9")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Dual MK23 Pistols", "weapon 7", ITEM_TYPE_BIND, 11, 3)
+		OPTION_BELOW("gr3_ctrl10")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Combat Knife", "weapon 8", ITEM_TYPE_BIND, 12, 3)
+		OPTION_BELOW("gr3_ctrl11")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("M26 Grenade", "weapon 9", ITEM_TYPE_BIND, 13, 3)
+		OPTION_BELOW("gr3_ctrl12")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+/*
+==========================================================
+
+Group # 4 - Misc
+
+==========================================================
+*/
+
+	// Icon
+	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-misc", 4)
+	
+	BEGIN_OPTION("Show Scores", "scores", ITEM_TYPE_BIND, 1, 4)
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 20
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Show Scores", "+button3", ITEM_TYPE_BIND, 2, 4)
+		OPTION_BELOW("gr4_ctrl1")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Chat", "messagemode", ITEM_TYPE_BIND, 3, 4)
+		OPTION_BELOW("gr4_ctrl2")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Chat - Team", "messagemode2", ITEM_TYPE_BIND, 4, 4)
+		OPTION_BELOW("gr4_ctrl3")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Chat - Target", "messagemode3", ITEM_TYPE_BIND, 5, 4)
+		OPTION_BELOW("gr4_ctrl4")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Chat - Attacker", "messagemode4", ITEM_TYPE_BIND, 6, 4)
+		OPTION_BELOW("gr4_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot", "screenshot", ITEM_TYPE_BIND, 7, 4)
+		OPTION_BELOW("gr4_ctrl6")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot - JPEG", "screenshotJPEG", ITEM_TYPE_BIND, 8, 4)
+		OPTION_BELOW("gr4_ctrl7")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+/*
+==========================================================
+
+Group # 5 - Reaction
+
+==========================================================
+*/
+
+	// Icon
+	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-reaction", 5)
+	
+	BEGIN_OPTION("Bandage", "bandage", ITEM_TYPE_BIND, 1, 5)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Reload", "+button5", ITEM_TYPE_BIND, 2, 5)
+		OPTION_BELOW("gr5_ctrl1")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Weapon Mode", "weapon", ITEM_TYPE_BIND, 3, 5)
+		OPTION_BELOW("gr5_ctrl2")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Open Door", "opendoor", ITEM_TYPE_BIND, 4, 5)
+		OPTION_BELOW("gr5_ctrl3")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Drop Weapon", "dropweapon", ITEM_TYPE_BIND, 5, 5)
+		OPTION_BELOW("gr5_ctrl4")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Drop Item", "dropitem", ITEM_TYPE_BIND, 6, 5)
+		OPTION_BELOW("gr5_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("IR Vision", "irvision", ITEM_TYPE_BIND, 7, 5)
+		OPTION_BELOW("gr5_ctrl6")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Special Weapon Cycle", "specialweapon", ITEM_TYPE_BIND, 8, 5)
+		OPTION_BELOW("gr5_ctrl7")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Weapon/Item Choice", "ui_RQ3_loadout", ITEM_TYPE_BIND, 9, 5)
+		OPTION_BELOW("gr5_ctrl8")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Join Team", "ui_RQ3_joinTeam", ITEM_TYPE_BIND, 10, 5)
+		OPTION_BELOW("gr5_ctrl9")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Presets Menu", "ui_RQ3_presets", ITEM_TYPE_BIND, 11, 5)
+		OPTION_BELOW("gr5_ctrl10")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+}
+}

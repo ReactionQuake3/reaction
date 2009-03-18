@@ -6,7 +6,8 @@
 	font "fonts/font" 16				// font
 	smallFont "fonts/smallfont" 12				// font
 	bigFont "fonts/bigfont" 20				// font
-	cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+	//cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+	cursor UI_ASSETS"/cursor.tga"
 	cursorSize 64
 	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
     itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
@@ -23,7 +24,8 @@
 	name "ingame"
 	visible 0
 	fullScreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	onOOBClick { close _self }
 	rect 0 0 640 36
 	focusColor 1 .75 0 1
 	disableColor .5 .5 .5 1
@@ -53,7 +55,7 @@
 	name "ig-logo"
 	rect 4 0 96 32
 	style WINDOW_STYLE_SHADER
-	background "menu/art/rq3-title-logo"
+	background UI_ASSETS"/icons/rq3-title-logo"
 	visible 1
 	decoration
     }
@@ -388,7 +390,7 @@
 	textalign ITEM_ALIGN_RIGHT
 	textalignx 236
 	textaligny 12
-	text "Play against computer-controlled opponnents"
+	text "Play against computer-controlled opponents"
 	forecolor Ingame_HintColor
 	visible 0
 	decoration

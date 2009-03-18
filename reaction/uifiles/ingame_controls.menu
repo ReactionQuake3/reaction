@@ -13,7 +13,8 @@
 	name "ingame_controls"
 	visible 0
 	fullscreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
+	onOOBClick { close _self ; open ingame }
 	rect 176 64 372 340
 	focusColor 1 .75 0 1			// Menu focus color for text and items
 	style WINDOW_STYLE_EMPTY

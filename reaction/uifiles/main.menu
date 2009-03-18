@@ -1,34 +1,49 @@
 #include "ui/menudef.h"
 
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+
+#define RQ3_Controls_Option_Color 0 0 .1 1
+#define RQ3_Controls_Tab_Color1 0 0 0 1
+#define RQ3_Controls_Tab_Color2 .4 .4 .4 1
+
+
 {
   assetGlobalDef {
     font "fonts/font" 16				// font
     smallFont "fonts/smallfont" 12			// font
     bigFont "fonts/bigfont" 20				// font
-    cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+    //cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
+	cursor UI_ASSETS"/cursor.tga"
     cursorSize 64
     gradientBar UI_ASSETS"/gradientbar2.tga"		// gradient bar
     itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
+	
+	//Makro - checkboxes
+	checkBox0 UI_ASSETS"/checkbox_0.tga"
+	checkBox1 UI_ASSETS"/checkbox_1.tga"
 
     fadeCycle 2						// how often fade happens in milliseconds
     fadeAmount 0.05					// amount to adjust alpha per cycle
     fadeClamp 1.0					// sets the fadeup alpha
 
     shadowColor 0.1 0.1 0.1 0.25			// shadow color
+	keyBindStatus1 "ENTER or CLICK to change, BACKSPACE to clear"
+	keyBindStatus2 "Waiting for new key... Press ESCAPE to cancel"
   }
 
 
   menuDef {
     name "main"							// Makro: rename it to "main-rq3"
     //background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-    background UI_ASSETS"/main"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+    background UI_ASSETS"/main_new"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
     fullScreen MENU_TRUE
 
     //rect 0 0 640 480				// Size and position of the menu
     visible 0				// Visible on open
     focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
-    soundLoop "music/rq3_title_loop"
-    soundIntro "music/rq3_title_intro"
+    //soundLoop "music/rq3_title_loop"
+    //soundIntro "music/rq3_title_intro"
 
 
     onOpen {
@@ -39,7 +54,7 @@
     onFirstShow {
 	  setoverlaycolor 0 0 0 1 ;
 	  fadeoverlay 0 0 0 0 0 1000 ;
-      setfocus btn_join ;
+	  setfocus btn_join ;
     }
 
     onESC { open quit_popmenu }
@@ -55,20 +70,13 @@
 
 	itemDef {
 	style WINDOW_STYLE_SHADER
-	rect 280 288 120 120
+	rect 276 288 120 120
 	anglevectors 9 -81
 	background UI_ASSETS"/logo"
 	forecolor 1 1 1 0.2
 	decoration
 	visible 1
 	}
-
-
-
-#define UI_MAIN_ITEM_SPACING_Y	36
-#define UI_MAIN_HINT_OFFSET_Y	20
-#define UI_MAIN_TEXTSIZE		.28
-
 
 
 //Join server
@@ -88,7 +96,7 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
-	action { close _self; open joinserver}
+	action { openSpecial joinserver }
     }
 
 	itemdef {
@@ -121,7 +129,7 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
-	action { close _self; open createserver }
+	action { openSpecial createserver }
     }
 
 	itemdef {
@@ -154,11 +162,11 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
-	action { close _self; open setup_menu }
+	action { openspecial setup_menu }
     }
 
 	itemdef {
-	text "Configure Reaction Quake 3"
+	text "Configure Reaction"
 	forecolor .25 .25 .25 1
 	textalign 0
 	textalignx 12
@@ -185,7 +193,7 @@
 	alignrect "btn_setup" ITEM_ALIGN_LEFT 8 24 34 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
-	action { close _self ; open player_menu ; }
+	action { openspecial player_menu ; }
 	visible 1
     }
 
@@ -201,7 +209,7 @@
 	alignrect "btn_setup" ITEM_ALIGN_LEFT 44 24 46 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
-	action { close _self ; open control_look_menu ; }
+	action { openspecial controls_menu ; }
 	visible 1
     }
 
@@ -217,7 +225,7 @@
 	alignrect "btn_setup" ITEM_ALIGN_LEFT 92 24 42 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
-	action { close _self ; open system_menu ; }
+	action { openspecial system_menu ; }
 	visible 1
     }
 
@@ -233,7 +241,7 @@
 	alignrect "btn_setup" ITEM_ALIGN_LEFT 136 24 32 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
-	action { close _self ; open options_menu ; }
+	action { openspecial options_menu ; }
 	visible 1
     }
 
@@ -269,7 +277,7 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
-	action { close _self; open demo }
+	action { openSpecial demo }
     }
 
 	itemdef {
@@ -302,11 +310,11 @@
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
-	action { close _self; open mod }
+	action { openSpecial mod }
     }
 
 	itemdef {
-	text "Play a different Quake 3 mod"
+	text "Select a modification"
 	forecolor .25 .25 .25 1
 	textalign 0
 	textalignx 12
@@ -339,7 +347,7 @@
 
 	itemdef {
 	autowrapped
-	text "Exit Reaction Quake 3"
+	text "Exit Reaction"
 	forecolor .25 .25 .25 1
 	textalign 0
 	textalignx 12
@@ -352,7 +360,127 @@
 	decoration
     }
 
+	
+/*
+	itemDef {
+	name "paper"
+	subgroup "fade_alpha"
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor .95 1 .95 1
+	rect 32 48 600 520
+	anglevectors 7 -83
+	visible 1
+	decoration
+    }
 
+//Server list
+
+    itemdef {
+	renderpoint
+	name serverlist_window
+	group serverlist
+	alignrect "paper" ITEM_ALIGN_LEFT 32 96 488 212
+	//rect 20 96 600 212
+	LISTBOX_STYLE(.175, 4)
+	feeder FEEDER_SERVERS
+	visible 1
+	columns 5 2 72 72 280 40 12 404 5 10 464 5 5 524 6 6
+	//mouseenter { setitemcolor serverlist bordercolor .7 0 0 1 }
+	//mouseexit { setitemcolor serverlist bordercolor .5 .5 .5 1 }
+	onFocus { show serverlist_hint ; timeFade serverlist_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade serverlist_hint forecolor .9 .9 .9 0 0 250 }
+	doubleClick { uiScript JoinServer }
+    }
+*/
 
 
 }
+
+
+  // UNDER CONSTRUCTION MENU //
+
+    menuDef {
+	name "notdone_popmenu"
+	visible 0
+	rect 348 182 144 128
+	anglevectors -10 -100
+	focusColor .25 .25 .5 1
+	popup
+	//onOpen { transition window 0 50 300 0 0 0 300 100 10 4 }
+	//onClose { transition window 0 0 300 100 0 50 300 0 10 4 }
+	onOpen {
+		setrandomitemcolor postit forecolor 2   .94 .94 .82 1    1 .95 .8 1 ;
+		setitemcolor window forecolor 2 2 2 0 ;
+		timefade window forecolor 2 2 2 1 0 FADEIN_TIME ;
+		play "sound/ui/whoosh3.wav" ;
+		//setQuitText confirm
+	}
+	onESC { close _self ; open main }
+	onOOBClick { close _self ; open main }
+
+
+	itemDef {
+	renderpoint
+	name "postit"
+	group window
+	style WINDOW_STYLE_SHADER
+	//style WINDOW_STYLE_FILLED
+	background "ui/assets/post_it"
+	forecolor .94 .94 .82 1
+	//backcolor .94 .94 .82 1
+	rect -16 0 180 152
+	anglevectors -10 -100
+	visible 1
+	decoration
+    }
+
+
+
+	// MESSAGE	//
+
+    itemDef {
+	renderpoint
+	name confirm
+	group window
+	autowrapped
+	text "Under construction"
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
+	textscale .25
+	//rect 16 24 112 32
+	alignrect "postit" ITEM_ALIGN_CENTER 0 24 112 32
+	adjustrect
+	textalign 1
+	textalignx 56
+	textaligny 16
+	decoration
+	forecolor 0 0 .15 1
+	visible 1
+    }
+
+
+    // OK	//
+
+    itemDef {
+	name ok
+	group window
+	text "^_O^_K"
+	shortcutKey "O"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
+	textscale .25
+	//rect 32 88 32 16
+	//anglevectors -15 -105
+	alignrect confirm ITEM_ALIGN_CENTER 0 56 32 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 12
+	forecolor 0 0 .15 1
+	visible 1
+	action { close _self ; open _prev }
+    }
+
+}
+

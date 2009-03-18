@@ -1,265 +1,181 @@
 #include "ui/menudef.h"
 
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+
+#define ANGLES 4 -86
+
 {
 
   menuDef {
-    name "mod"
-    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-								// to use the current background
-    fullScreen MENU_TRUE
-    visible MENU_TRUE				// Visible on open
-    focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
-
-
-    onOpen {
-      uiScript LoadMods ;
-      play "sound/misc/menu1.wav" ;
-    }
-
-    onEsc { close mod ; open main }
-
-
-//=================
-// RQ3 stuff
-//=================
-
-
-    itemdef {
-	name overlay
-	style 1
-	forecolor 0 0 0 1
-	backcolor RQ3_MENU_OVERLAY_COLOR
-	rect 0 58 640 360
-	visible 1
-	decoration
-    }
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 0 640 56
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 58 640 12
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-main-shadow-1"
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar2 				//rq3: Top bar - border
-	rect 0 56 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name bottom_bar 				//rq3: bottom bar
-	rect 0 420 640 60
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name bottom_bar2 				//rq3: bottom bar - border
-	rect 0 418 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "mods_icon"
-	style WINDOW_STYLE_SHADER
-	rect 8 8 48 48
-	background "menu/art/rq3-menu-mods.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "mods_title"
-	style WINDOW_STYLE_SHADER
-	rect 64 12 256 32
-	background "menu/art/rq3-title-mods.tga"
-	decoration
-	visible 1
-    }
-
-//=================
-// Buttons, lists
-//=================
-
-
-//Window
-
-    itemdef {
-	rect 170 100 300 240
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	shadowStyle 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
-
-    itemdef {
-	text "Available mods:"
-	textscale .25
-	type 0
+	renderpoint
+	name "mod"
+	visible MENU_FALSE				// Visible on open
+	//fullScreen MENU_FALSE
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	rect 128 96 288 348
+	anglevectors ANGLES
 	style WINDOW_STYLE_EMPTY
-	rect 182 108 276 24
-	forecolor 1 1 1 1
-	textstyle 0
-	textalign 0
-	textalignx 8
-	textaligny 16
-	decoration
+	popup
+	
+	onOOBClick { close _self ; open main }
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript LoadMods ;
+		setitemcolor hints forecolor .9 .9 .9 1 ; hide hints ;
+		hide focus }
+	onEsc { close _self ; open main }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
+
+
+
+	itemDef {
+	name "paper"
+	menuAnchor
+	subgroup "fade_fore_alpha"
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor MENUCOLOR_MOD 1
+	rect -8 -16 320 420
+	anglevectors ANGLES
 	visible 1
+	decoration
     }
 
-//Mod list
+	//Title
+
+	itemdef {
+	renderpoint
+	name "title"
+	subgroup "fade_fore_alpha"
+	text "Mod selection:"
+	forecolor .0 .0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignRect paper ITEM_ALIGN_CENTER -12 40 240 20
+	visible 1
+	autowrapped
+	decoration
+    }
+
+	itemdef {
+	text "Select a mod from the list below and\n"
+	     "press the Activate button"
+	autowrapped
+	subgroup "fade_fore_alpha"
+	forecolor .25 .25 .25 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .2
+	alignrect "title" ITEM_ALIGN_LEFT 0 28 240 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	visible 1
+	decoration
+    }
+
+	//Line
+
+	itemDef {
+	name "line"
+	style WINDOW_STYLE_FILLED
+	backcolor .25 .25 .25 LINE_ALPHA
+	alignrect "title" ITEM_ALIGN_LEFT 0 60 240 2
+	visible 1
+	decoration
+	}
+
+    //Icon
+
+	itemdef {
+	name icon
+	background UI_ASSETS"/icons/rq3-menu-mods"
+	forecolor 1 1 1 ICON_ALPHA
+	//rect 336 12 32 32
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -48 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
 
     itemdef {
 	name "modlist"
-	type ITEM_TYPE_LISTBOX
-	rect 182 132 276 188
-	style WINDOW_STYLE_FILLED
-	backcolor 0 0 0 .65
-	border 1
-	bordersize 1
-	bordercolor .25 .25 .25 1
-	elementtype LISTBOX_TEXT
-	elementwidth 160
-	elementheight 20
-	textscale .25
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 14
-	outlinecolor .75 .75 1 .25
+	subgroup "fade_fore_alpha"
+	LISTBOX_STYLE(.175, 4)
+	alignRect title ITEM_ALIGN_LEFT 0 92 240 148
 	feeder FEEDER_MODS
-	columns 1 4 40 40
+	columns 2   4 148 0   156 52 0
 	visible 1
 	onFocus { show list_hint ; timeFade list_hint forecolor .9 .9 .9 1 0 250 }
 	leaveFocus { timeFade list_hint forecolor .9 .9 .9 0 0 250 }
-	doubleclick { close mod; uiScript RunMod }
+	doubleclick { close _self ; uiScript RunMod  }
     }
 
-    //Scrollbar separator
-    itemdef {
-	rect 440 132 18 188
+	itemdef {
+	name "col1_title"
+	subgroup "fade_fore_alpha"
+	text "mod name"
+	forecolor .25 .25 .25 1
 	style WINDOW_STYLE_EMPTY
-	border 1
-	bordersize 1
-	bordercolor .25 .25 .25 1
-	decoration
+	textalign ITEM_ALIGN_LEFT
+	textscale .2
+	textalignx 4
+	textaligny 14
+	alignRect modlist ITEM_ALIGN_LEFT 4 -16 72 16
 	visible 1
-    }
-
-    itemdef {
-	name list_hint
-	text "Select a mod from the list"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
+	autowrapped
 	decoration
     }
 
-//Load mod
-
-    itemdef {
-	name "btn_load"
-	style WINDOW_STYLE_SHADER
-	rect 560 432 64 32
-	type 1
-	background "menu/art/rq3-menu-go.tga"
-	action { close mod; uiScript Runmod ; }
-	onFocus { setbackground "menu/art/rq3-menu-go-focus-anim" ; show load_hint ;
-		timeFade load_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-go.tga" ;
-		timeFade load_hint forecolor .9 .9 .9 0 0 250 }
+	itemdef {
+	name "col2_title"
+	subgroup "fade_fore_alpha"
+	text "folder"
+	forecolor .25 .25 .25 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .2
+	textalignx 4
+	textaligny 14
+	alignRect modlist ITEM_ALIGN_LEFT 160 -16 44 16
 	visible 1
-    }
-
-
-    itemdef {
-	name load_hint
-	text "Load the selected mod"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
+	autowrapped
 	decoration
     }
 
-//Back
+	//Run
 
-    itemdef {
-	name "btn_back"
-	shortcutKey "B"
-	style WINDOW_STYLE_SHADER
-	rect 12 432 32 32
-	type 1
-	background "menu/art/rq3-menu-back.tga"
-	action { close _self ; open main ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
-		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
-		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
+	itemdef {
+	name "btn_run"
+	subgroup "fade_fore_alpha"
+	text "^_A^_ctivate >"
+	shortcutKey "A"
+	forecolor 0 0 0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_RIGHT
+	textscale .25
+	textalignx 52
+	textaligny 14
+	alignRect modlist ITEM_ALIGN_RIGHT 0 180 56 20
 	visible 1
+	autowrapped
+	action { uiScript RunMod }
     }
 
-
-    itemdef {
-	name back_hint
-	text "Go ^_b^_ack to main menu"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
 
 }
 }

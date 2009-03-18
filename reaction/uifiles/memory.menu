@@ -6,104 +6,100 @@
 	name "memory_popmenu"
 	visible 0
 	fullscreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	rect 210 124 220 192
+	rect 148 128 280 220
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
 	style WINDOW_STYLE_EMPTY
-	shadowStyle 1
 	border 0
-	onOpen { play "sound/misc/menu1.wav" }
-	onClose { uiScript clearError }
-	onESC { close memory_popmenu ; open main }
+	onOpen { play "sound/misc/menu1.wav" ; setfocus "now" }
+	onClose { open main }
+	onESC { close _self }
 	popup
 
-    //Window
 
-    itemdef {
-	rect 0 0 220 192
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
-
-    //Title
-
-    itemdef {
-	rect 101 1 120 24
+	itemDef {
+	name "paper,fade_alpha"
+	menuAnchor
 	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-title"
+	background UI_ASSETS"/paper_1"
+	forecolor .94 .94 .82 1
+	rect 0 0 280 220
+	anglevectors 3  -86
 	visible 1
+	renderpoint
 	decoration
     }
 
-    itemdef {
-	rect 101 1 120 24
+
+	itemdef {
+	renderpoint
+	name "title,fade_alpha"
+	text "WARNING"
+	forecolor .25 0 0 1
 	style WINDOW_STYLE_EMPTY
-	forecolor Ig_Window_TitleColor
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 24
-	textaligny 16
-	text "Warning"
+	textalign ITEM_ALIGN_CENTER
+	textscale .3
+	textalignx 120
+	textaligny 24
+	alignrect "paper" ITEM_ALIGN_CENTER -12 20 240 24
 	visible 1
-	decoration
-    }
-
-//Error info
-
-    itemdef {
-	name errorinfo
-	rect 12 40 196 120
-	style WINDOW_STYLE_FILLED
-	backcolor 0 0 0 .65
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	name errorinfo
-	rect 20 44 180 112
-	type ITEM_TYPE_TEXT
-	style WINDOW_STYLE_EMPTY
-	textstyle ITEM_TEXTSTYLE_SHADOWED
 	autowrapped
-	text "Your memory settings are too\n"
-	     "low. You need to restart\n"
-		 "Reaction in order to correct\n"
-		 "this problem."
-	textalign ITEM_ALIGN_CENTER
-	textalignx 90
-	textaligny 16
-	textscale .225
-	forecolor 1 1 1 1
-	visible 1
 	decoration
     }
 
-//Ok
-
-    itemdef {
-	name close
-	rect 80 168 60 16
+	itemdef {
+	renderpoint
+	name "text,fade_alpha"
+	text	"Your memory settings are too\n"
+		"low. You need to restart\n"
+		"Reaction in order to correct\n"
+		"this problem."
+	forecolor 0 0 0 1
 	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
 	textalign ITEM_ALIGN_CENTER
-	textalignx 30
+	textscale .25
+	textalignx 120
+	textaligny 24
+	alignrect "title" ITEM_ALIGN_CENTER 0 32 240 64
+	visible 1
+	autowrapped
+	decoration
+    }
+
+    // Now	//
+
+    itemDef {
+	name "now,fade_alpha"
+	text "> ^_N^_ow <"
+	shortcutKey "N"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	alignrect title ITEM_ALIGN_LEFT 32 128 48 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 24
 	textaligny 12
-	text "^_O^_k"
-	shortcutKey "O"
+	forecolor 0 0 .1 1
 	visible 1
 	action { uiScript "quit" }
     }
+
+    // Later	//
+
+    itemDef {
+	name "later,fade_alpha"
+	text "^_L^_ater"
+	shortcutKey "L"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	alignrect title ITEM_ALIGN_RIGHT 32 128 48 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 24
+	textaligny 12
+	forecolor 0 0 .1 1
+	visible 1
+	action { close _self }
+    }
+
 }
 }

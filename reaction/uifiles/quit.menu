@@ -1,37 +1,45 @@
 #include "ui/menudef.h"
 
+#define FADEIN_TIME	125
+#define BACK_COLOR1	.94 .94 .82 1
+#define BACK_COLOR2	1 .95 .8 1
+
 {
-  \\ QUIT POPUP MENU \\
+
+  // QUIT POPUP MENU //
 
     menuDef {
 	name "quit_popmenu"
 	visible 0
-	rect 332 182 180 152
+	rect 348 182 144 128
 	anglevectors -10 -100
 	focusColor .25 .25 .5 1
 	popup
-	outOfBoundsClick
 	//onOpen { transition window 0 50 300 0 0 0 300 100 10 4 }
 	//onClose { transition window 0 0 300 100 0 50 300 0 10 4 }
 	onOpen {
-		setrandomitemcolor postit forecolor 2   .94 .94 .82 1    1 .95 .8 1 ;
-		setitemcolor window forecolor 2 2 2 0 ;
-		timefade window forecolor 2 2 2 1 0 100 ;
+		setrandomitemcolor postit forecolor 2 BACK_COLOR1 BACK_COLOR2 ;
+		setitemcolor window forecolor 5 5 5 0 ;
+		timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
 		play "sound/ui/whoosh3.wav" ;
-		setQuitText confirm
+		setQuitText confirm ;
+		setfocus no
 	}
-	onESC { close quit_popmenu ; open main }
+	onESC { close _self ; open main }
+	onOOBClick { close _self ; open main }
 
 
 	itemDef {
+	renderpoint
 	name "postit"
+	menuAnchor
 	group window
 	style WINDOW_STYLE_SHADER
 	//style WINDOW_STYLE_FILLED
-	background "ui/assets/post_it"
-	forecolor .94 .94 .82 .9
+	background UI_ASSETS"/post_it"
+	forecolor .94 .94 .82 1
 	//backcolor .94 .94 .82 1
-	rect 0 0 180 152
+	rect -16 0 180 152
 	anglevectors -10 -100
 	visible 1
 	decoration
@@ -50,7 +58,7 @@
 	style WINDOW_STYLE_EMPTY
 	backcolor 0 0 0 .1
 	textscale .25
-	rect 32 24 112 32
+	rect 16 24 112 32
 	adjustrect
 	textalign 1
 	textalignx 56
@@ -80,7 +88,7 @@
 	textaligny 12
 	forecolor 0 0 .15 1
 	visible 1
-	action { close main ; close quit_popmenu ; open credit }
+	action { close main ; close _self ; open credit }
     }
 
     // NO	//
@@ -102,8 +110,11 @@
 	textaligny 12
 	forecolor 0 0 .15 1
 	visible 1
-	action { close quit_popmenu ; open main }
+	action { close _self ; open main }
     }
 
 }
+
+
+
 }

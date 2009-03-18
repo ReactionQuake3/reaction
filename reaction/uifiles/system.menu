@@ -1,1183 +1,531 @@
 #include "ui/menudef.h"
-#define RQ3_System_Option_Color .75 .75 .75 1
+#include "ui/tabs.h"
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR 0 0 .1 1
+#define Tab_Color1 0 0 0 1
+#define Tab_Color2 0 0 .5 1
+#define VSPACE 16
+#define VSIZE 16
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+#define HINT_COLOR .25 .25 .25
+#define HINT_FADE_TIME 125
+#define LINE_WIDTH			240
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
 
 {
-
-  menuDef {
+    menuDef {
 	name "system_menu"
-	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-								// to use the old background
-	fullScreen MENU_TRUE
 	visible MENU_FALSE				// Visible on open
+	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	rect 112 88 300 348
+	anglevectors 4 -86
+	style WINDOW_STYLE_EMPTY
+	popup
+	
+	onOOBClick { close _self }
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
+		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
+		ACTIVATE_TAB(1) ;
+	}
+	onClose { open _prev }
+	onEsc { close _self }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
 
 
-	onOpen { play "sound/misc/menu1.wav" ; show graphics ; hide driver }
-	onEsc { close system_menu ; open setup_menu }
 
-
-//===================
-// RQ3 stuff
-//===================
-
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 0 640 56
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 58 640 12
+	itemDef {
+	renderpoint
+	name "paper,fade_alpha"
 	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-main-shadow-1"
-	decoration
+	background UI_ASSETS"/paper_1"
+	forecolor MENUCOLOR_SYSTEM 1
+	rect 0 -20 320 420
+	anglevectors 4 -86
 	visible 1
+	menuAnchor
+	decoration
     }
 
-    itemDef {
-	name top_bar2 				//rq3: Top bar - border
-	rect 0 56 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
+	itemdef {
+	renderpoint
+	name "title,fade_alpha"
+	text "System:"
+	forecolor .6 .0 .0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect paper ITEM_ALIGN_LEFT 32 40 240 36 
 	visible 1
+	autowrapped
+	decoration
     }
 
-    itemDef {
-	name bottom_bar 				//rq3: bottom bar
-	rect 0 420 640 60
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
+	//Line
 
     itemDef {
-	name bottom_bar2 				//rq3: bottom bar - border
-	rect 0 418 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
+	name "line,fade_alpha"
+	style WINDOW_STYLE_FILLED
+	backcolor .25 .25 .25 LINE_ALPHA
+	alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
 	visible 1
-    }
+	decoration
+	}
+
+    ///////////////////////////////////////////////////////////
+    //
+    // Sub-options
+    //
+    //
+
+	// Graphics
+
+	ADD_TAB(
+		"^_G^_raphics.",
+		"G", 1, "group2,group3",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 48 16
+	)
+	ADD_HINT("hint_tab1", "Change rendering options", "group2,group3")
+
+//---------------------------------------------------------
+
+	// Driver info
+
+	ADD_TAB(
+		"^_D^_river info.",
+		"D", 2, "group1,group3",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -56 0 56 16
+	)
+    ADD_HINT("hint_tab2", "View OpenGL driver info", "group1,group3")
+
+//---------------------------------------------------------
+
+	// Misc - Display/Sound/Net
+
+	ADD_TAB(
+		"^_M^_isc.",
+		"M", 3, "group1,group2",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -40 0 40 16
+	)
+    ADD_HINT("hint_tab3", "Change display/sound/network options", "group1,group2")
+
+/*
+==========================================================
+
+Group # 1 - Graphics
+
+==========================================================
+*/
+
+    //Icon
+
+	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-system-graphics", "group1")
+
+    // Pre-defined settings //
+
+    BEGIN_OPTION("Quality", "ui_glCustom", ITEM_TYPE_MULTI, 1, 1)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		cvarFloatList {
+			"Fastest"		3
+			"Fast"			2
+			"Normal"		1
+			"High Quality"		0
+			"Custom"		4
+		}
+		action { uiScript update "ui_glCustom" ; }
+		ASSIGN_HINT("hint_predef")
+    END_OPTION
+    ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
+
+
+    // GL Driver //
+
+    BEGIN_OPTION("GL Driver", "r_glDriver", ITEM_TYPE_EDITFIELD, 2, 1)
+		OPTION_BELOW("gr1_ctrl1")		
+		ASSIGN_HINT("hint_gldriver")
+    END_OPTION
+    ADD_HINT("hint_gldriver", "Choose OpenGL driver (default: opengl32)", "group1")
+
+
+    // GL Extensions //
+
+    BEGIN_OPTION("GL Extensions", "r_allowExtensions", ITEM_TYPE_YESNO, 3, 1)
+		OPTION_BELOW("gr1_ctrl2")
+		ASSIGN_HINT("hint_glext")
+	END_OPTION
+    ADD_HINT("hint_glext", "Enable OpenGL extensions", "group1")
+
+    // Resolution //
+
+    BEGIN_OPTION("Video Mode", "r_mode", ITEM_TYPE_MULTI, 4, 1)
+		cvarFloatList {
+				"320 x 240"				0
+				"400 x 300"				1
+				"512 x 384"				2
+				"640 x 480"				3
+				"800 x 600"				4
+				"960 x 720"				5
+				"1024 x 768"				6
+				"1152 x 864"				7
+				"1280 x 1024"				8
+				"1600 x 1200"				9
+				"2048 x 1536"				10
+				"856 x 480 (Wide)"			11
+		}
+		OPTION_BELOW("gr1_ctrl3")
+		ASSIGN_HINT("hint_res")
+    END_OPTION
+    ADD_HINT("hint_res", "Choose rendering resolution", "group1")
+
+
+    // Color depth //
+
+    BEGIN_OPTION("Color Depth", "r_colorbits", ITEM_TYPE_MULTI, 5, 1)
+		cvarFloatList { "Desktop Default" 0 "16-bit" 16 "32-bit" 32 }
+		OPTION_BELOW("gr1_ctrl4")
+		action { uiScript glCustom ; uiScript update "r_colorbits" ; }
+		ASSIGN_HINT("hint_depth")
+    END_OPTION
+    ADD_HINT("hint_depth", "Choose rendering color depth", "group1")
+
+
+    // Fullscreen //
+
+    BEGIN_OPTION("Fullscreen", "r_fullscreen", ITEM_TYPE_YESNO, 6, 1)
+		OPTION_BELOW("gr1_ctrl5")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_fullscreen")
+    END_OPTION
+    ADD_HINT("hint_fullscreen", "Render in full screen or a window", "group1")
+
+
+    // Lightmap/vertex //
+
+    BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 7, 1)
+		cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
+		OPTION_BELOW("gr1_ctrl6")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_lightmap")
+    END_OPTION
+    ADD_HINT("hint_lightmap", "Choose map light rendering mode", "group1")
+
+
+    // Geometric detail //
+
+	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 8, 1)
+		cvarFloatList {
+			"High"		0
+			"Medium"	1
+			"Low"		2
+		}
+		OPTION_BELOW("gr1_ctrl7")
+		action { uiScript glCustom ; uiScript update "r_lodbias" }
+		ASSIGN_HINT("hint_geodetail")
+    END_OPTION
+    ADD_HINT("hint_geodetail", "Choose geometric detail level", "group1")
+
+
+    // Texture detail //
+
+	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 9, 1)
+		cvarFloatList {
+			"Very Low"	3
+			"Low"		2
+			"Normal"	1
+			"High"		0
+		}
+		OPTION_BELOW("gr1_ctrl8")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_texdetail")
+    END_OPTION
+    ADD_HINT("hint_texdetail", "Choose texture detail level", "group1")
+
+
+    // Texture quality //
+
+	BEGIN_OPTION("Texture Quality", "r_texturebits", ITEM_TYPE_MULTI, 10, 1)
+		cvarFloatList {
+			"Default"	0
+			"16 bit"	16
+			"32 bit"	32
+		}
+		OPTION_BELOW("gr1_ctrl9")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_texquality")
+	END_OPTION
+    ADD_HINT("hint_texquality", "Choose texture quality", "group1")
+
+
+    // Texture filtering mode //
+
+	BEGIN_OPTION("Texture Filter", "r_textureMode", ITEM_TYPE_MULTI, 11, 1)
+		cvarStrList {
+			"Bilinear",		"GL_LINEAR_MIPMAP_NEAREST",
+			"Trilinear",		"GL_LINEAR_MIPMAP_LINEAR"
+		}
+		OPTION_BELOW("gr1_ctrl10")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_texfilter")
+    END_OPTION
+    ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
+
+
+    // Compressed textures //
+
+	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 12, 1)
+		OPTION_BELOW("gr1_ctrl11")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_compress")
+    END_OPTION
+    ADD_HINT("hint_compress", "Enable texture compression", "group1")
+
+
+    // APPLY //
 
     itemdef {
-	name "system_icon"
-	style WINDOW_STYLE_SHADER
-	rect 8 8 48 48
-	background "menu/art/rq3-setup-system.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "system_title"
-	style WINDOW_STYLE_SHADER
-	rect 64 12 256 32
-	background "menu/art/rq3-title-setup.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name overlay
-	style 1
+	name "btn_apply,fade_alpha,allgroups,group1"
+	style WINDOW_STYLE_EMPTY
+	alignrect "gr1_ctrl12" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
+	type ITEM_TYPE_BUTTON
+	text "^_A^_pply >"
+	shortcutKey "A"
+	textscale .225
+	textstyle ITEM_TEXTSTYLE_NORMAL
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 64
+	textaligny 14
 	forecolor 0 0 0 1
-	backcolor RQ3_MENU_OVERLAY_COLOR
-	rect 0 58 640 360
-	visible 1
-	decoration
-        }
-
-//===================
-// Buttons, lists
-//===================
-
-
-//Graphics
-//Background window
-
-    itemdef {
-	name grph_caption
-	group graphics
-	rect 32 72 252 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Graphics"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 72
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	name drv_caption
-	group driver
-	rect 32 72 252 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Driver Info"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 72
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 0
-	decoration
-    }
-
-
-    itemdef {
-	name grph_icon
-	group graphics
-	style WINDOW_STYLE_SHADER
-	rect 64 68 24 24
-	background "menu/art/rq3-system-graphics.tga"
-	decoration
+	action { exec "vid_restart" ; }
+	ASSIGN_HINT("hint_apply")
+	anglevectors 4 -83
 	visible 1
     }
 
-    itemdef {
-	name drv_icon
-	group driver
-	style WINDOW_STYLE_SHADER
-	rect 64 68 24 24
-	background "menu/art/rq3-system-driverinfo.tga"
-	decoration
-	visible 0
-    }
+    ADD_HINT("hint_apply", "Apply graphics changes and return to main menu", "group1")
+
+/*
+==========================================================
+
+Group # 2 - Driver info
+
+==========================================================
+*/
+
+    //Icon
+
+	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-system-driverinfo", "group2")
+
+    // DRIVER INFO //
 
     itemdef {
-	name grph_window
-	rect 32 88 252 264
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
-	visible 1
-	decoration
-    }
-
-
-//Pre-defined settings
-
-    itemdef {
-	name opt_predef
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Quality:"
-	cvar "ui_glCustom"
-	rect 152 100 112 20
-	cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript update "ui_glCustom" ; }
-	onFocus { show predef_hint ; timeFade predef_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade predef_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name predef_hint
-	text "Choose pre-defined graphics settings"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Driver
-
-    itemdef {
-	name opt_gldriver
-	group graphics
-	type ITEM_TYPE_EDITFIELD
-	text "GL Driver:"
-	cvar "r_glDriver"
-	rect 152 120 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show gldriver_hint ; timeFade gldriver_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade gldriver_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name gldriver_hint
-	text "Choose OpenGL driver"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//GL Extensions
-
-    itemdef {
-	name opt_glext
-	group graphics
-	type ITEM_TYPE_YESNO
-	text "GL Extensions:"
-	cvar "r_allowExtensions"
-	rect 152 140 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show glext_hint ; timeFade glext_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade glext_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name glext_hint
-	text "Enable OpenGL extensions"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Resolution
-
-    itemdef {
-	name opt_res
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Video Mode:"
-	cvar "r_mode"
-	cvarFloatList { "320x240" 0 "400x300" 1 "512x384" 2 "640x480" 3 "800x600" 4 "960x720" 5 "1024x768" 6 "1152x864" 7 "1280x1024" 8 "1600x1200" 9 "2048x1536" 10 "856x480 Wide Screen" 11 }
-	rect 152 160 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show res_hint ; timeFade res_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade res_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name res_hint
-	text "Choose rendering resolution"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Color depth
-
-    itemdef {
-	name opt_cldepth
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Color depth:"
-	cvar "r_colorbits"
-	cvarFloatList { "Desktop Default" 0 "16-bit" 16 "32-bit" 32 }
-	rect 152 180 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; uiScript update "r_colorbits" ; }
-	onFocus { show cldepth_hint ; timeFade cldepth_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade cldepth_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name cldepth_hint
-	text "Choose rendering color depth"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Fullscreen
-
-    itemdef {
-	name opt_fscreen
-	group graphics
-	type ITEM_TYPE_YESNO
-	text "Fullscreen:"
-	cvar "r_fullscreen"
-	rect 152 200 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show fscreen_hint ; timeFade fscreen_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade fscreen_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name fscreen_hint
-	text "Render in full screen"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Lightmap/vertex
-
-    itemdef {
-	name opt_light
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Lighting:"
-	cvar "r_vertexlight"
-	cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-	rect 152 220 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show light_hint ; timeFade light_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade light_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name light_hint
-	text "Choose map light rendering mode"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Geometric detail
-
-    itemdef {
-	name opt_geodetail
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Geometric Detail:"
-	cvar "r_lodbias"
-	cvarFloatList { "High" 0 "Medium" 1 "Low" 2 }
-	rect 152 240 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; uiScript update "r_lodbias" ; }
-	onFocus { show geodetail_hint ; timeFade geodetail_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade geodetail_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name geodetail_hint
-	text "Choose geometric detail level"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Texture detail
-
-    itemdef {
-	name opt_texdetail
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Texture Detail:"
-	cvar "r_picmip"
-	cvarFloatList { "Very Low" 3 "Low" 2 "Normal" 1 "High" 0 }
-	rect 152 260 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show texdetail_hint ; timeFade texdetail_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade texdetail_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name texdetail_hint
-	text "Choose texture detail level"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Texture quality
-
-    itemdef {
-	name opt_texquality
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Texture Quality:"
-	cvar "r_texturebits"
-	cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-	rect 152 280 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show texquality_hint ; timeFade texquality_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade texquality_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name texquality_hint
-	text "Choose texture quality"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Texture filtering mode
-
-    itemdef {
-	name opt_texfilter
-	group graphics
-	type ITEM_TYPE_MULTI
-	text "Texture Filter:"
-	cvar "r_texturemode"
-	cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-	rect 152 300 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show texfilter_hint ; timeFade texfilter_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade texfilter_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name texfilter_hint
-	text "Choose texture filtering mode"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Compressed textures
-
-    itemdef {
-	name opt_comptex
-	group graphics
-	type ITEM_TYPE_YESNO
-	text "Compress Textures:"
-	cvar "r_ext_compressed_textures"
-	rect 152 320 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript glCustom ; }
-	onFocus { show comptex_hint ; timeFade comptex_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade comptex_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name comptex_hint
-	text "Enable texture compression"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Driver info window
-
-    itemdef {
-	name driver_info
-	group driver
+	name "allgroups,group2,fade_alpha,driver_info"
 	ownerdraw UI_GLINFO
-	rect 40 100 244 248
+	alignrect "line" ITEM_ALIGN_LEFT 0 24 220 64
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_LEFT
 	textalignx 8
 	textaligny 12
-	textscale .2
-	forecolor RQ3_System_Option_Color
+	textscale .15
+	forecolor OPTION_COLOR
 	visible 0
 	decoration
     }
 
-//Toggle: driver info
-
     itemdef {
-	name "btn_drinfo"
-	group graphics
-	style WINDOW_STYLE_SHADER
-	type ITEM_TYPE_BUTTON
-	rect 56 360 24 24
-	background "menu/art/rq3-system-driverinfo"
+	name "allgroups,group2,gr2_ctrl1,fade_alpha,extension_list"
+	type ITEM_TYPE_LISTBOX
+	alignRect driver_info ITEM_ALIGN_LEFT 0 64 232 140
+	forcetextcolor
+	LISTBOX_STYLE(.175, 4)
+	feeder FEEDER_GLDRIVER_INFO
+	columns 1 4 200 0
 	visible 1
-	action { hide graphics ; show driver ; setfocus btn_graphics ; }
-	onFocus { setbackground "menu/art/rq3-system-driverinfo-anim" ;
-		show toggle_drinfo_hint ; timeFade toggle_drinfo_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-system-driverinfo" ;
-		timeFade toggle_drinfo_hint forecolor .9 .9 .9 0 0 250 }
+	onFocus { show list_hint ; timeFade list_hint forecolor .9 .9 .9 1 0 250 }
+	leaveFocus { timeFade list_hint forecolor .9 .9 .9 0 0 250 }
     }
 
-    itemdef {
-	name "btn_graphics"
-	group driver
-	style WINDOW_STYLE_SHADER
-	type ITEM_TYPE_BUTTON
-	rect 56 360 24 24
-	background "menu/art/rq3-system-graphics"
-	visible 0
-	action { hide driver ; show graphics ; setfocus btn_drinfo ; }
-	onFocus { setbackground "menu/art/rq3-system-driverinfo-anim" ;
-		show toggle_graphics_hint ; timeFade toggle_graphics_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-system-driverinfo" ;
-		timeFade toggle_graphics_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-//Toggle: graphics
-
-    itemdef {
-	name toggle_drinfo_hint
-	text "View OpenGL driver information"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name toggle_graphics_hint
-	text "Show graphics settings"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-
-//Apply
-
-    itemdef {
-	name "btn_apply"
-	group graphics
-	style WINDOW_STYLE_FILLED
-	rect 184 360 80 20
-	type ITEM_TYPE_BUTTON
-	text "apply"
-	textscale .25
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 72
+	itemdef {
+	name "allgroups,group2,fade_alpha,col1_title"
+	text "Supported OpenGL Extensions:"
+	forecolor .25 .25 .25 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .175
+	textalignx 4
 	textaligny 14
-	backcolor 0 0 0 .2
-	forecolor 1 1 1 .9
-	border 1
-	bordersize 1
-	bordercolor .75 .75 .75 .75
-	action { exec "vid_restart" ; }
-	onFocus { setitemcolor btn_apply backcolor 0 0 0 .5 ; show apply_hint ;
-		timeFade apply_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setitemcolor btn_apply backcolor 0 0 0 .2 ;
-		timeFade apply_hint forecolor .9 .9 .9 0 0 250 }
-
-	visible 1
-    }
-
-    itemdef {
-	name apply_hint
-	text "Apply graphics changes and return to main menu"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Display
-//Background window
-
-    itemdef {
-	name display_caption
-	rect 368 72 220 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Display"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 72
-	textaligny 14
-	forecolor 1 1 1 1
+	alignRect extension_list ITEM_ALIGN_LEFT 4 -16 80 16
 	visible 1
 	decoration
     }
 
+/*
+==========================================================
+
+Group # 3 - Misc
+
+==========================================================
+*/
+
+    //Icon
+
+    ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-menu-setup", "group3")
+
+    //Icon
 
     itemdef {
-	name display_icon
+	name "icon,allgroups,group3"
+	background UI_ASSETS"/icons/rq3-system-display"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_LEFT 0 36 24 24
 	style WINDOW_STYLE_SHADER
-	rect 400 68 24 24
-	background "menu/art/rq3-system-display.tga"
-	decoration
 	visible 1
-    }
+	decoration
+	}
+
+    // Brightness //
+
+	BEGIN_SLIDER("Brightness", "r_gamma", 1, .5, 1.7, 1, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 40 112 VSIZE
+		ASSIGN_HINT("hint_gamma")
+    END_OPTION
+
+    ADD_HINT("hint_gamma", "Change image brightness", "group3")
+
+
+    // Screen size //
+
+	BEGIN_SLIDER("Screen Size", "cg_viewsize", 100, 30, 100, 2, 3)
+		OPTION_BELOW("gr3_ctrl1")
+		ASSIGN_HINT("hint_screensize")
+    END_OPTION
+    ADD_HINT("hint_screensize", "Change rendering window size", "group3")
+
+
+    // Overbrightbits //
+
+    BEGIN_OPTION("Overbright Bits", "r_overbrightbits", ITEM_TYPE_YESNO, 3, 3)
+		OPTION_BELOW("gr3_ctrl2")
+		ASSIGN_HINT("hint_overbits")
+    END_OPTION
+    ADD_HINT("hint_overbits", "Enable overbright bits (brighter image at the expense of quality)", "group3")
+
+
+
+    // Sound //
+
+    //Icon
 
     itemdef {
-	name display_window
-	rect 368 88 220 80
+	name "icon,allgroups,group3"
+	background UI_ASSETS"/icons/rq3-system-sound"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_LEFT 0 112 24 24
 	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
 	visible 1
 	decoration
-    }
+	}
 
 
-//Brightness
+    // Sound volume //
 
-    itemdef {
-	name opt_gamma
-	type ITEM_TYPE_SLIDER
-	anglevectors 30 -60
-	text "Brightness:"
-	cvarfloat r_gamma 1 .5 1.7
-	rect 472 100 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show gamma_hint ; timeFade gamma_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade gamma_hint forecolor .9 .9 .9 0 0 250 }
-    }
+    BEGIN_SLIDER("Sound Volume", "s_volume", 0.7, 0, 1, 4, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 112 112 VSIZE
+		ASSIGN_HINT("hint_sndvol")
+    END_OPTION
+    ADD_HINT("hint_sndvol", "Change sound effects volume", "group3")
 
-    itemdef {
-	name gamma_hint
-	text "Change image brightness"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
 
-//Screen size
+    // Music volume //
 
-    itemdef {
-	name opt_screensize
-	type ITEM_TYPE_SLIDER
-	text "Screen Size:"
-	cvarfloat cg_viewsize 100 30 100
-	rect 472 120 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show screensize_hint ; timeFade screensize_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade screensize_hint forecolor .9 .9 .9 0 0 250 }
-    }
+    BEGIN_SLIDER("Music Volume", "s_musicvolume", 0.25, 0, 1, 5, 3)
+		OPTION_BELOW("gr3_ctrl4")
+		ASSIGN_HINT("hint_musicvol")
+    END_OPTION
+    ADD_HINT("hint_musicvol", "Change background music volume", "group3")
+
+
+    // Sound quality //
+
+    BEGIN_OPTION("Sound Quality", "s_khz", ITEM_TYPE_MULTI, 6, 3)
+		cvarFloatList {
+			"22 khz (high)"		22
+			"11 khz (low)"		11
+		}
+		OPTION_BELOW("gr3_ctrl5")
+		ASSIGN_HINT("hint_sndquality")
+    END_OPTION
+    ADD_HINT("hint_sndquality", "Choose sound quality", "group3")
+
+
+    // Doppler effect //
+
+    BEGIN_OPTION("Doppler Effect", "s_doppler", ITEM_TYPE_YESNO, 7, 3)
+		OPTION_BELOW("gr3_ctrl6")
+		ASSIGN_HINT("hint_doppler")
+    END_OPTION
+    ADD_HINT("hint_doppler", "Enable Doppler effect", "group3")
+
+
+    // Net //
+
+    //Icon
 
     itemdef {
-	name screensize_hint
-	text "Change rendering window size"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Overbrightbits
-
-    itemdef {
-	name opt_overbits
-	type ITEM_TYPE_YESNO
-	text "Overbright Bits:"
-	cvar "r_overbrightbits"
-	rect 512 140 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show overbits_hint ; timeFade overbits_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade overbits_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name overbits_hint
-	text "Enable overbright bits (brighter image, lower quality)"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Sound
-//Background window
-
-    itemdef {
-	name sound_caption
-	rect 368 192 220 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Sound"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 72
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	name sound_icon
+	name "icon,allgroups,group3"
+	background UI_ASSETS"/icons/rq3-system-network"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_LEFT 0 200 24 24
 	style WINDOW_STYLE_SHADER
-	rect 400 188 24 24
-	background "menu/art/rq3-system-sound.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name sound_window
-	rect 368 208 220 100
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
 	visible 1
 	decoration
-    }
+	}
 
 
-//Sound volume
+    // Net rate //
 
-    itemdef {
-	name opt_svol
-	type ITEM_TYPE_SLIDER
-	text "Sound Volume:"
-	cvarfloat "s_volume" 0.7 0 1
-	rect 472 220 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show svol_hint ; timeFade svol_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade svol_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name svol_hint
-	text "Change sound effects volume"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Music volume
-
-    itemdef {
-	name opt_mvol
-	type ITEM_TYPE_SLIDER
-	text "Music volume:"
-	cvarfloat "s_musicvolume" 0.25 0 1
-	rect 472 240 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show mvol_hint ; timeFade mvol_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade mvol_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name mvol_hint
-	text "Change music volume"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Sound quality
-
-    itemdef {
-	name opt_squality
-	type ITEM_TYPE_MULTI
-	text "Sound Quality:"
-	cvar "s_khz"
-	cvarFloatList { "22 khz (high)" 22 "11 khz (low)" 11 }
-	rect 496 260 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show squality_hint ; timeFade squality_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade squality_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name squality_hint
-	text "Change sound quality"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Doppler effect
-
-    itemdef {
-	name opt_doppler
-	type ITEM_TYPE_YESNO
-	text "Doppler Sound:"
-	cvar "s_doppler"
-	rect 496 280 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	onFocus { show doppler_hint ; timeFade doppler_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade doppler_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name doppler_hint
-	text "Enable doppler effect"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Network
-//Background window
-
-    itemdef {
-	name net_caption
-	rect 368 332 220 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Network"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 72
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 1
-	decoration
-    }
+    BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 8, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 204 112 VSIZE
+		cvarFloatList {
+			"<=28.8k"			2500
+			"33.6k"				3000
+			"56k"				4000
+			"ISDN"				5000
+			"LAN/CABLE/xDSL"	25000
+		}
+		ASSIGN_HINT("hint_netrate")
+    END_OPTION
+    ADD_HINT("hint_netrate", "Choose network speed", "group3")
 
 
-    itemdef {
-	name net_icon
-	style WINDOW_STYLE_SHADER
-	rect 400 328 24 24
-	background "menu/art/rq3-system-network.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name net_window
-	rect 368 348 220 40
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
-	visible 1
-	decoration
-    }
-
-
-//Net rate
-
-    itemdef {
-	name opt_netrate
-	type ITEM_TYPE_MULTI
-	text "Net Data Rate:"
-	cvar "rate"
-	cvarFloatList { "<=28.8k" 2500 "33.6k" 3000 "56k" 4000 "ISDN" 5000 "LAN/CABLE/xDSl" 25000  }
-	rect 512 360 112 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_System_Option_Color
-	visible 1
-	action { uiScript update ui_setRate ; }
-	onFocus { show netrate_hint ; timeFade netrate_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade netrate_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name netrate_hint
-	text "Choose network speed"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Back
-
-    itemdef {
-	name "btn_back"
-	style WINDOW_STYLE_SHADER
-	rect 12 432 32 32
-	type 1
-	background "menu/art/rq3-menu-back.tga"
-	action { close system_menu; open setup_menu ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
-		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
-		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
-	visible 1
-    }
-
-    itemdef {
-	name back_hint
-	text "Go back to setup menu"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-
-
+}
 }

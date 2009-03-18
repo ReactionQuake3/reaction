@@ -4,7 +4,7 @@
 
   menuDef {
     name "credit"
-    background UI_ASSETS"/main"		// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+    background UI_ASSETS"/main_new"		// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
 							// to use the current background
     fullScreen 1
     visible 0					// Visible on open
@@ -17,24 +17,22 @@
     onOpen {
       uiScript "backupMusicVolume" ;
       play "sound/ui/whoosh3.wav" ;
-      //exec "s_musicvolume 1" ;
+      //exec "set s_musicvolume 1" ;
       playlooped "music/sonic1" ;
-      //transition hint 0 -40 640 40 0 10 640 40   20 10 ;
+      transition hint  0 "-40" 640 40  0 0 640 40   20 10 ;
 	  //hide timer ;
-	  startTimer ;
+	  startTimer 
     }
 
     onShow {
       setitemcolor main forecolor 5 5 5 0 ;
 	  timefade main forecolor 5 5 5 1 0 500 ;
-	  setitemcolor overlay backcolor 0 0 0 .5 ;
-      timeFade overlay backcolor 0 0 0 1 0 20000 ; 
     }
 
-    //onClose { uiScript "restoreMusicVolume" }
-    //onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close credit ; uiScript "quit" }
+    onClose { uiScript "restoreMusicVolume" }
+    onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close credit ; uiScript "quit" }
     //onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close credit ; open main }
-	onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close _self ; open _prev }
+    //onEsc { uiScript "restoreMusicVolume" ; stopTimer ; close _self ; open _prev }
 
 
 
@@ -70,7 +68,7 @@
 
 	itemDef {
 	style WINDOW_STYLE_SHADER
-	rect 280 288 120 120
+	rect 276 288 120 120
 	anglevectors 9 -81
 	background UI_ASSETS"/logo"
 	forecolor 1 1 1 0.2
@@ -83,8 +81,9 @@
 	itemdef {
 	group main
 	subgroup "main_title"
-	text "REACTION QUAKE 3 v3.3"
-	forecolor 0 0 .05 1
+	//text "REACTION QUAKE 3 v3.3"
+	text "REACTION v1.0"
+  forecolor 0 0 .05 1
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_CENTER
 	textscale .4
@@ -107,8 +106,8 @@
 	textalignx 120
 	textaligny 24
 	forecolor 0 0 0.05 1
-	text "(c) 2000-2005 Boomstick Studios\n\n\n\n\n"
-	     "www.reactionquake3.com"
+	text "(c) 2000-2009 Boomstick Studios\n\n\n\n\n"
+	     "www.rq3.com"
 	autowrapped
 	visible 1
 	decoration
@@ -164,10 +163,10 @@
 	textaligny 24
 	forecolor 0 0 0.1 1
 	text "Richard Allen\n"
+	     "Andrei Drexler\n"
 	     "Bryce Hutchings\n"
 	     "Scott Brooks\n"
 	     "Victor Chow\n"
-	     "Andrei Drexler\n"
 	     "Bruno Covacha\n"
 	     "Daniel Simoes"
 	autowrapped
@@ -186,10 +185,10 @@
 	textaligny 24
 	forecolor 0 0 0.1 1
 	text "JBravo\n"
+	     "Makro\n"
 	     "NiceAss\n"
 	     "Blaze\n"
 	     "Elder_MMHS\n"
-	     "Makro\n"
 	     "aasimon\n"
 	     "sLiCeR"
 	autowrapped
@@ -247,6 +246,7 @@
 	     "Dan Chin\n"
 	     "Malcolm Bechard\n"
 	     "Tomas Edwardsson\n"
+	     "Tomi Isoaho\n"
 	autowrapped
 	visible 1
 	decoration
@@ -266,6 +266,7 @@
 	     "Lt. Hawkins\n"
 	     "Tsunami\n"
 	     "Freud\n"
+	     "T.T.I.\n"
 	autowrapped
 	visible 1
 	decoration
@@ -317,12 +318,14 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Ian McEachern\n"
+	text "Mark Potnick\n"
+	     "Andrei Drexler\n"
+	     "Tomi Isoaho\n"
+	     "Paul Greveson\n"
 	     "Brian Mills\n"
 	     "Linh Nguyen\n"
-	     "Mark Potnick\n"
+	     "Ian McEachern\n"
 	     "Ryan Vance\n"
-	     "Paul Greveson\n"
 	autowrapped
 	visible 1
 	decoration
@@ -338,12 +341,14 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Frost\n"
+	text "Cloud\n"
+	     "Makro\n"
+	     "T.T.I.\n"
+	     "MoP\n"
 	     "Birdman\n"
 	     "Sonique128\n"
-	     "Cloud\n"
+	     "Frost\n"
 	     "BraGoblin\n"
-	     "MoP\n"
 	autowrapped
 	visible 1
 	decoration
@@ -394,18 +399,19 @@
 	textscale .3
 	textalignx 112
 	textaligny 24
+  textHeight 20
 	forecolor 0 0 0.1 1
 	text "Scott DeLeury\n"
-	     "Tomi Isoaho\n"
 	     "Christopher\nJayawardena\n"
 	     "Shay McCarty\n"
+	     "Johnny Pesola\n"
 	     "Malcolm Ramsay\n"
 	     "Jesse Smith\n"
 	     "Jaymz Plummer\n"
 	     "Hannu Saarinen\n"
 	     "Henri Tervapuro\n"
 	     "Julien\n"
-	     "Kyle VanMeurs"
+	     "Kyle VanMeurs\n"
 	autowrapped
 	visible 1
 	decoration
@@ -420,18 +426,19 @@
 	textscale .3
 	textalignx 96
 	textaligny 24
+  textHeight 20
 	forecolor 0 0 0.1 1
 	text "CannonFodder\n"
-	     "T.T.I.\n"
 	     "EvilFutsin\n\n"
 	     "Shaymon\n"
+	     "jopes\n"
 	     "shenka\n"
 	     "Spyder\n"
 	     "LST\n"
 	     "Presenter\n"
 	     "Leon\n"
 	     "Zenogaist-Zero\n"
-	     "R0oK"
+	     "R0oK\n"
 	autowrapped
 	visible 1
 	decoration
@@ -483,17 +490,16 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "David Costello\n"
+	text "Tomi Isoaho\n"
 	     "Andrei Drexler\n"
 	     "Alexander Axelsson\n"
-	     "Tomi Isoaho\n"
+	     "Walter Somol\n"
+	     "Jordan Zylstra\n"
+	     "Jesse Smith\n"
 	     "Shay McCarty\n"
 	     "David Pike\n"
 	     "Kelly Rush\n"
-	     "Jesse Smith\n"
-	     "Walter Somol\n"
-	     "Jordan Zylstra\n"
-	     "Geraldo Espinal\n"
+	     "David Costello\n"
 	autowrapped
 	visible 1
 	decoration
@@ -509,17 +515,16 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Sze\n"
+	text "T.T.I.\n"
 	     "Makro\n"
 	     "Lognoreng\n"
-	     "T.T.I.\n"
+	     "Johnny Rocket\n"
+	     "Guy Incognito\n"
+	     "Spyder\n"
 	     "Shaymon\n"
 	     "Centurion\n"
 	     "Hexydes\n"
-	     "Spyder\n"
-	     "Johnny Rocket\n"
-	     "Guy Incognito\n"
-	     "WarMachine\n"
+	     "Sze\n"
 	autowrapped
 	visible 1
 	decoration
@@ -555,7 +560,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect "t7_paper" ITEM_ALIGN_CENTER -28 80 240 36 
+	alignrect "t7_paper" ITEM_ALIGN_CENTER -16 80 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -571,11 +576,15 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Jason Irby\n"
+	textHeight 20
+	text "Tomi Vainikka\n"
+		 "Daniel Platt\n"
+		 "Johnny Pesola\n"
+	     "Chris Polan\n"
 	     "Gregory Simmons\n"
 	     "John Gilbertson\n"
-	     "Tomi Vainikka\n"
-	     "Chris Polan\n"
+	     "Jason Irby\n"
+	     "Geraldo Espinal\n"
 	autowrapped
 	visible 1
 	decoration
@@ -591,18 +600,22 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Irby\n"
+	textHeight 20
+	text "zakath\n"
+		 "voodoochopstiks\n"
+		 "jopes\n"
+	     "God Incarnate\n"
 	     "Smoke\n"
 	     "Homicide\n"
-	     "Zakath\n"
-	     "God Incarnate\n"
+	     "Irby\n"
+	     "WarMachine\n"
 	autowrapped
 	visible 1
 	decoration
     }
 
-
-
+ 
+ 
     // SOUND DESIGN //
 
 	itemDef {
@@ -648,7 +661,8 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Erwin Peil\n"
+	text "Ryan Buckley\n"
+	     "Erwin Peil\n"
 	     "Andre Beardsley-Dusette\n"
 	     "Caryn Law"
 	autowrapped
@@ -667,7 +681,8 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "SpecOps\n"
+	text "Foxfingers\n"
+	     "SpecOps\n"
 	     "Nicodem-X\n"
 	     "Hellchick"
 	autowrapped
@@ -721,7 +736,8 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Jesse Smith"
+	text "Rob Anastasi\n"
+	     "Jesse Smith"
 	autowrapped
 	visible 1
 	decoration
@@ -737,7 +753,8 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Spyder"
+	text "Baka\n"
+	     "Spyder"
 	autowrapped
 	visible 1
 	decoration
@@ -861,7 +878,8 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Victor Chow\n"
+	text "Tomi Isoaho\n"
+	     "Victor Chow\n"
 	     "Christopher A.\n"
 		 "Strickler\n"
 	     "Malcolm Ramsay\n"
@@ -883,7 +901,8 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Elder_MMHS\n"
+	text "T.T.I.\n"
+	     "Elder_MMHS\n"
 	     "Preacher\n"
 	     "\n"
 	     "shenka\n"
@@ -1015,11 +1034,11 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Alexander Bergereau\n"
+	text "Rob Anastasi\n"
+	     "Alexander Bergereau\n"
 	     "Mark Somol\n"
 	     "Andrew Harrell\n"
-	     "Christopher\n"
-		 "Jayawardena\n"
+	     "Christopher\nJayawardena\n"
 	     "Justin Pickles\n"
 	     "Michael Morris\n"
 	     "Paul Greveson\n"
@@ -1040,11 +1059,11 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Arild\n"
+	text "Baka\n"
+	     "Arild\n"
 	     "ColdMiser\n"
 	     "EdgeCrusher\n"
-	     "EvilFutsin\n"
-		 "\n"
+	     "EvilFutsin\n\n"
 	     "GoKu^^*L\n"
 	     "JesterRace\n"
 	     "MoP\n"
@@ -1130,7 +1149,7 @@
 	     "Homicide\n"
 	     "Mud\n"
 	     "WizardExt\n"
-	     "Zakath\n"
+	     "zakath\n"
 	     "ShishKabob"
 	autowrapped
 	visible 1
@@ -1351,7 +1370,7 @@
 	textalignx 120
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignrect t19_paper ITEM_ALIGN_CENTER -20 48 240 36 
+	alignrect t19_paper ITEM_ALIGN_CENTER -40 48 240 36 
 	visible 1
 	autowrapped
 	decoration
@@ -1364,9 +1383,10 @@
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_RIGHT
 	textscale .3
-	textalignx 76
+	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
+	textHeight 20
 	text "A-TEAM\n"
 	     "ZCam\n"
 	     "Unlagged\n"
@@ -1383,9 +1403,10 @@
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_LEFT
 	textscale .3
-	textalignx 100
+	textalignx 120
 	textaligny 24
 	forecolor 0 0 0.1 1
+	textHeight 20
 	text "Dwayne Douglass\n"
  	     "Avi 'Zung!' Rozen\n"
 	     "Neil 'haste' Toronto\n"
@@ -1464,6 +1485,7 @@
 	group timer	
 	subgroup "t21_title"
 	text "ART RESOURCES\n\n"
+	     "CG Textures\n"
 	     "Mastaba Solutions\n"
 	     "PolyCount\n"
 	     "QWorkShop3\n"
@@ -1706,6 +1728,7 @@
 			timeFade hint forecolor .25 .25 .25 5 0 1000 ;
 		}
     onTimerHide {
+			hide "_common_" ;
 		}
 	}
 
@@ -1925,7 +1948,7 @@
 	textalignx 220
 	textaligny 80
 	text "THIS HAS BEEN A BOOMSTICK STUDIOS\nPRODUCTION\n\n"
-	     "Copyright 2000 - 2005"
+	     "Copyright 2000 - 2009"
 	autowrapped
 	visible 1
 	decoration
@@ -1956,6 +1979,7 @@
 	forecolor 1 1 1 1
 	rect 0 0 640 480
 	visible 0
+	randomizeTexCoords
 	decoration
     }
 

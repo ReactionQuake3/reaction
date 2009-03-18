@@ -6,101 +6,121 @@
 	name "error_popmenu"
 	visible 0
 	fullscreen 0
-	outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	rect 210 100 220 240
+	rect 176 128 256 184
+	anglevectors -3 -93
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
 	style WINDOW_STYLE_EMPTY
-	shadowStyle 1
-	border 0
-	onOpen { play "sound/misc/menu1.wav" }
-	onClose { uiScript clearError }
-	onESC { close error_popmenu ; open main }
+
+	onOOBClick { close _self }	
+	onOpen { play "sound/misc/menu1.wav" ; setfocus "close" }
+	onClose { uiScript clearError ; open main }
+	onESC { close _self }
 	popup
 
-    //Window
 
-    itemdef {
-	rect 0 0 220 240
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
-
-    //Title
-
-    itemdef {
-	rect 101 1 120 24
+	itemDef {
+	name "paper,fade_alpha"
+	menuAnchor
 	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-title"
+	background UI_ASSETS"/paper_1"
+	forecolor 1 1 .9 1
+	rect 0 0 280 200
+	anglevectors -3 -93
 	visible 1
+	renderpoint
 	decoration
     }
 
-    itemdef {
-	rect 101 1 120 24
+
+	itemdef {
+	renderpoint
+	name "title,fade_alpha"
+	text "ERROR"
+	forecolor .4 0 0 1
 	style WINDOW_STYLE_EMPTY
-	forecolor Ig_Window_TitleColor
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
 	textalign ITEM_ALIGN_LEFT
-	textalignx 24
-	textaligny 16
-	text "Error"
+	textscale .25
+	textalignx 28
+	textaligny 24
+	alignrect "paper" ITEM_ALIGN_CENTER -12 20 240 24
 	visible 1
+	autowrapped
 	decoration
     }
 
-//Error info
-
-    itemdef {
-	name errorinfo
-	rect 12 40 196 168
+	itemdef {
+	name "lines,line1"
+	alignrect "title" ITEM_ALIGN_CENTER 4 32 216 2
 	style WINDOW_STYLE_FILLED
-	backcolor 0 0 0 .65
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 1
+	backcolor 0 0 0 .1
 	visible 1
 	decoration
     }
 
-    itemdef {
-	name errorinfo
-	rect 20 44 180 160
-	type ITEM_TYPE_TEXT
+	itemdef {
+		style WINDOW_STYLE_SHADER
+		forecolor 1 1 1 .5
+		alignrect title ITEM_ALIGN_RIGHT 16 8 24 24
+		background UI_ASSETS"/icons/rq3-setup-options"
+		visible 1
+		decoration
+		}
+
+#define LINE ".............................................................."
+
+	itemdef {
+	name "text_background,fade_alpha"
+	autowrapped
+	text	LINE"\n"
+		LINE"\n"
+		LINE"\n"
+		LINE"\n"
+	forecolor 0 0 0 1
 	style WINDOW_STYLE_EMPTY
-	textstyle ITEM_TEXTSTYLE_SHADOWED
+	textalign ITEM_ALIGN_CENTER
+	textscale .2
+	textheight 16
+	textalignx 112
+	textaligny 28
+	alignrect "title" ITEM_ALIGN_CENTER 0 32 224 72
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	name "text,fade_alpha"
 	autowrapped
 	cvar "com_errorMessage"
-	textalign ITEM_ALIGN_CENTER
-	textalignx 90
-	textaligny 16
-	textscale .225
-	forecolor 1 1 1 1
+	forecolor 0 0 0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .2
+	textheight 16
+	textalignx 0
+	textaligny 24
+	alignrect "title" ITEM_ALIGN_CENTER 0 32 188 72
 	visible 1
 	decoration
     }
 
-//Close
 
-    itemdef {
-	name close
-	rect 80 216 60 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 30
-	textaligny 12
-	text "^_C^_lose"
+    // Close	//
+
+    itemDef {
+	name "close,fade_alpha"
+	text "> ^_C^_lose <"
 	shortcutKey "C"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	alignrect title ITEM_ALIGN_RIGHT 24 120 48 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 24
+	textaligny 12
+	forecolor 0 0 .1 1
 	visible 1
-	action { close _self ; open main }
+	action { close _self }
     }
+
 }
 }

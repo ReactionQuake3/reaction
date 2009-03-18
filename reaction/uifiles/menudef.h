@@ -18,6 +18,12 @@
 #define ITEM_ALIGN_CENTER 1               // center alignment
 #define ITEM_ALIGN_RIGHT 2                // right alignment
 
+//Makro - added for YES/NO items
+
+#define YESNO_TEXT			0
+#define YESNO_ICON_LEFT		1
+#define YESNO_ICON_RIGHT	2
+
 #define ITEM_TEXTSTYLE_NORMAL 0           // normal text
 #define ITEM_TEXTSTYLE_BLINK 1            // fast blinking
 #define ITEM_TEXTSTYLE_PULSE 2            // slow pulsing
@@ -72,6 +78,8 @@
 #define FEEDER_MMHEADS						0x11
 //Makro - weapon replacements list
 #define FEEDER_REPLACEMENTS					0x12
+//Makro - driver info
+#define FEEDER_GLDRIVER_INFO					0x13
 
 // display flags
 #define CG_SHOW_BLUE_TEAM_HAS_REDFLAG     	0x00000001
@@ -240,6 +248,8 @@
 #define UI_RQ3_REPLACEMENTMODEL 165
 #define UI_RQ3_REPLACEMENTTYPE 166
 #define UI_RQ3_REPLACEMENTSUBTYPE 167
+//Makro - startup menu text
+#define UI_RQ3_STARTUP 168
 
 #define UI_OWNERDRAW_BASE 200
 #define UI_HANDICAP 200
@@ -345,10 +355,22 @@
 #define RQ3_MAIN_HINT_COLOR .75 .75 1 .75
 */
 
-#define RQ3_MAIN_BAR_COLOR 1 1 1 .5
-#define RQ3_MAIN_BAR_COLOR2  0 0 0 1
+
+// GREY BAR, RED BORDER
+
+
+/*
+#define RQ3_MAIN_BAR_COLOR 1 1 1 .75
+#define RQ3_MAIN_BAR_COLOR2  1 0 0 1
 //#define RQ3_MAIN_HINT_COLOR .75 .75 .75 1
 #define RQ3_MAIN_HINT_COLOR .9 .9 .9 0
+*/
+
+#define RQ3_MAIN_BAR_COLOR 0 0 0 .75
+#define RQ3_MAIN_BAR_COLOR2  1 1 1 .75
+//#define RQ3_MAIN_HINT_COLOR .75 .75 .75 1
+#define RQ3_MAIN_HINT_COLOR .9 .9 .9 0
+
 
 #define UI_FOLDER "ui"
 #define UI_ASSETS "ui/assets"
@@ -361,7 +383,11 @@
 
 #define RQ3_MAIN_TEXTSIZE .28
 #define RQ3_MENU_OVERLAY_COLOR 0 0 0 .5
-#define RQ3_MAIN_FOCUSCOLOR .5 .5 .5 1
+#define RQ3_MAIN_FOCUSCOLOR .25 .25 .5 1
+
+#define UI_MAIN_ITEM_SPACING_Y	36
+#define UI_MAIN_HINT_OFFSET_Y	20
+#define UI_MAIN_TEXTSIZE		.28
 
 //Ingame stuff
 
@@ -394,3 +420,37 @@
 #define Ig_Setup_TabColor .75 .75 .75 1
 
 #define Ig_ShadowSize 12
+
+//Menu colors
+#define MENUCOLOR_DEMO		.95 .95 1
+#define MENUCOLOR_MOD		1 1 1
+#define MENUCOLOR_SETUP 1 .97 .9
+#define MENUCOLOR_CONTROLS	.98 .98 .98
+#define MENUCOLOR_PLAYER	.95 1 1
+#define MENUCOLOR_SYSTEM	.92 .92 .98
+#define MENUCOLOR_OPTIONS	1 1 1
+
+#define ALIGN_AFTER(ITEM, DIMX, DIMY)\
+	alignrect ITEM ITEM_ALIGN_RIGHT -$evalint(DIMX) 0 DIMX DIMY
+
+#define LISTBOX_STYLE(SCALE, ALIGNX)\
+	type ITEM_TYPE_LISTBOX\
+	style WINDOW_STYLE_FILLED\
+	forcetextcolor\
+	backcolor 0 0 0 .05\
+	border 0\
+	bordersize 2\
+	bordercolor .5 .5 .5 1\
+	forecolor .0 .0 .1 1\
+	elementtype LISTBOX_TEXT\
+	elementwidth 160\
+	elementheight 15\
+	textscale SCALE\
+	textalign ITEM_ALIGN_LEFT\
+	textalignx ALIGNX\
+	textaligny 14\
+	outlinecolor .0 .0 0 .1
+	
+
+#define STANDARD_MENU()
+

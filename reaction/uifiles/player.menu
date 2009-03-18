@@ -1,124 +1,132 @@
 #include "ui/menudef.h"
 
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+
+#define ANGLES 6 -84
+
+#define RQ3_Player_Option_Color 0 0 .1 1
+#define RQ3_Player_Tab_Color1 0 0 0 1
+#define RQ3_Player_Tab_Color2 .4 .4 .4 1
 {
 
-    menuDef {
+  menuDef {
+	renderpoint
 	name "player_menu"
-	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-								// to use the current background
-	fullScreen MENU_TRUE
-	visible 0				// Visible on open
+	visible MENU_FALSE				// Visible on open
+	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-
-
-	onOpen { uiScript update "ui_GetName" ; play "sound/misc/menu1.wav" }
+	rect 104 96 288 348
+	anglevectors ANGLES
+	style WINDOW_STYLE_EMPTY
+	popup
+	
+	onOOBClick { close _self ; open _prev }
+	onOpen { uiScript update "ui_GetName" ; play "sound/ui/whoosh3.wav" ; uiScript LoadMods ;
+		setitemcolor hints forecolor .9 .9 .9 1 ; hide hints ;
+		hide focus }
 	onClose { uiScript update "ui_SetName" }
-	onEsc { close player_menu ; open setup_menu }
+	onEsc { close _self ; open main }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
 
 
-//=================
-// RQ3 stuff
-//=================
 
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 0 640 56
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 58 640 12
+	itemDef {
+	name "paper"
+	menuAnchor
+	subgroup "fade_fore_alpha"
 	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-main-shadow-1"
-	decoration
+	background UI_ASSETS"/paper_1"
+	forecolor MENUCOLOR_PLAYER 1
+	rect -8 -16 320 420
+	anglevectors ANGLES
+	anglevectors 6 -84
 	visible 1
+	decoration
     }
 
-    itemDef {
-	name top_bar2 				//rq3: Top bar - border
-	rect 0 56 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
+	//Title
+
+	itemdef {
+	renderpoint
+	name "title"
+	subgroup "fade_fore_alpha"
+	text "Player"
+	forecolor .6 .0 .0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignRect paper ITEM_ALIGN_CENTER -12 40 240 20
 	visible 1
+	autowrapped
+	decoration
     }
 
-    itemDef {
-	name bottom_bar 				//rq3: bottom bar
-	rect 0 420 640 60
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
+	//Description
+	
+	itemdef {
+	text "Please fill out the form below"
+	autowrapped
+	subgroup "fade_fore_alpha"
+	forecolor .25 .25 .25 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .2
+	alignrect "title" ITEM_ALIGN_LEFT 0 28 240 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
 	visible 1
+	decoration
     }
 
-    itemDef {
-	name bottom_bar2 				//rq3: bottom bar - border
-	rect 0 418 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
+	//Line
 
-    itemdef {
-	name "player_icon"
+	itemDef {
+	name "line"
+	subgroup "fade_fore_alpha"
+	style WINDOW_STYLE_FILLED
+	backcolor .25 .25 .25 LINE_ALPHA
+	alignrect "title" ITEM_ALIGN_LEFT 0 48 240 2
+	visible 1
+	decoration
+	}
+
+    //Icon
+
+	itemdef {
+	name icon
+	background UI_ASSETS"/icons/rq3-setup-player"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
 	style WINDOW_STYLE_SHADER
-	rect 8 8 48 48
-	background "menu/art/rq3-setup-player.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "player_title"
-	style WINDOW_STYLE_SHADER
-	rect 64 12 256 32
-	background "menu/art/rq3-title-setup.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name overlay
-	style 1
-	forecolor 0 0 0 1
-	backcolor RQ3_MENU_OVERLAY_COLOR
-	rect 0 58 640 360
 	visible 1
 	decoration
-        }
-
-//=================
-// Buttons, lists
-//=================
+	}
 
 
-//Player model display
+	//Player model display
 
     itemdef {
 	name "model_preview"
 	ownerdraw UI_PLAYERMODEL
 	style 1
-	rect 0 80 240 320
-	visible 1
+	alignrect "line" ITEM_ALIGN_LEFT 0 0 150 200
+	visible 0
 	decoration
     }
 
@@ -127,103 +135,123 @@
 
     itemdef {
 	name "name_caption"
+	subgroup "fade_fore_alpha"
 	style 0
-	text "Player name:"
-	rect 220 120 120 20
-	textstyle 3
-	textscale .28
+	text "Name:"
+	alignrect "line" ITEM_ALIGN_LEFT 16 20 208 20
+	textscale .225
 	textalign 0
 	textalignx 4
 	textaligny 16
-	forecolor 1 1 .75 1
+	forecolor RQ3_Player_Option_Color
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "name_dotted_line"
+	subgroup "fade_fore_alpha"
+	style 0
+	text ".............................................."
+	alignrect "name_caption" ITEM_ALIGN_RIGHT 0 0 168 20
+	textscale .225
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 168
+	textaligny 20
+	forecolor RQ3_Player_Option_Color
 	visible 1
 	decoration
     }
 
     itemdef {
 	name "namefield"
-	rect 220 140 232 20
+	subgroup "fade_fore_alpha"
+	alignrect "name_caption" ITEM_ALIGN_RIGHT 0 0 168 20
 	type ITEM_TYPE_EDITFIELD
-	style 1
+	style 0
 	text ""
 	cvar "ui_Name"
 	backcolor 0 0 0 .1
-	forecolor 1 1 1 1
-	outlinecolor 1 1 1 .15
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 .75
+	forecolor 0 0 0 1
+	outlinecolor 0 0 1 .5
+	border 0
 	textstyle 0
 	maxchars 20
-	textscale .25
+	textscale .225
 	textalign 0
 	textalignx 4
 	textaligny 16
 	visible 1
-	onFocus { setitemcolor namefield backcolor 0 0 0 .25 ; show name_hint ;
-		timeFade name_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setitemcolor namefield backcolor 0 0 0 .1 ;
-		timeFade name_hint forecolor .9 .9 .9 0 0 250 }
     }
 
+
+//Radio voice
+
     itemdef {
-	name name_hint
-	text "Enter player name"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
+	name "voice_caption"
+	subgroup "fade_fore_alpha"
 	style 0
-	visible 0
-	decoration
-    }
-
-//Player model selection
-
-    itemdef {
-	name "headlist_caption"
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_EDITFIELD
-	text "Player model:"
-	cvar "model"
-	rect 220 210 120 20
-	textstyle 3
-	textscale .28
+	text "Radio Voice:"
+	alignrect "name_caption" ITEM_ALIGN_LEFT 0 24 208 20
+	textscale .225
 	textalign 0
 	textalignx 4
 	textaligny 16
-	forecolor 1 1 .75 1
+	forecolor RQ3_Player_Option_Color
 	visible 1
 	decoration
     }
 
     itemdef {
-	name "headlist_window"
-	rect 220 230 392 108
-	style WINDOW_STYLE_FILLED
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 .75
-	backcolor 0 0 0 .1
+	name "voice_dotted_line"
+	subgroup "fade_fore_alpha"
+	style 0
+	text "......................................"
+	alignrect "voice_caption" ITEM_ALIGN_RIGHT 0 0 148 20
+	textscale .225
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 148
+	textaligny 20
+	forecolor RQ3_Player_Option_Color
 	visible 1
 	decoration
     }
+
+    itemdef {
+	name "voicefield"
+	subgroup "fade_fore_alpha"
+	alignrect "voice_caption" ITEM_ALIGN_RIGHT 0 0 148 20
+	type ITEM_TYPE_MULTI
+	style 0
+	text ""
+	cvar "cg_RQ3_radiovoice_male"
+	cvarFloatList { "New" 1 , "Pikey" 2 , "Pirate" 3 , "Keanu" 4 , "Original" 5}
+	backcolor 0 0 0 .1
+	forecolor 0 0 0 1
+	textstyle 0
+	textscale .225
+	textalign 0
+	textalignx 8
+	textaligny 16
+	visible 1
+    }
+
+//Head list
 
     itemdef {
 	name "headlist"
-	rect 230 240 372 88
-	style 0
+	subgroup "fade_fore_alpha"
+	alignrect "voice_caption" ITEM_ALIGN_LEFT 0 24 208 60
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
 	type ITEM_TYPE_LISTBOX
 	forecolor 1 1 1 1
-	outlinecolor 1 1 .1 1
+	outlinecolor 0 0 1 .15
 	border 0
 	bordersize 2
-	bordercolor 1 1 .5 .5
-	elementwidth 61
-	elementheight 61
+	bordercolor 1 0 0 1
+	elementwidth 41
+	elementheight 41
 	elementtype LISTBOX_IMAGE
 	feeder FEEDER_Q3HEADS
 	horizontalscroll
@@ -236,50 +264,114 @@
 		timeFade headlist_hint forecolor .9 .9 .9 0 0 250 }
     }
 
+//Model name
+
     itemdef {
-	name headlist_hint
-	text "Click to change player model"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
+	name "model_caption"
+	subgroup "fade_fore_alpha"
 	style 0
-	visible 0
-	decoration
-    }
-
-//Back
-
-    itemdef {
-	name "btn_back"
-	style WINDOW_STYLE_SHADER
-	rect 12 432 32 32
-	type 1
+	text "Model:"
+	alignrect "headlist" ITEM_ALIGN_LEFT 0 64 208 20
+	textscale .225
+	textalign 0
+	textalignx 4
+	textaligny 16
+	forecolor RQ3_Player_Option_Color
 	visible 1
-	background "menu/art/rq3-menu-back.tga"
-	action { close player_menu; open setup_menu ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
-		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
-		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name back_hint
-	text "Go back to setup menu"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
 	decoration
     }
 
+    itemdef {
+	name "model_dotted_line"
+	subgroup "fade_fore_alpha"
+	style 0
+	text ".............................................."
+	alignrect "model_caption" ITEM_ALIGN_RIGHT 0 0 168 20
+	textscale .225
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 168
+	textaligny 20
+	forecolor RQ3_Player_Option_Color
+	visible 1
+	decoration
+    }
+
+    itemdef {
+	name "modelfield"
+	subgroup "fade_fore_alpha"
+	alignrect "model_caption" ITEM_ALIGN_RIGHT 0 0 168 20
+	type ITEM_TYPE_EDITFIELD
+	style 0
+	text ""
+	cvar "model"
+	backcolor 0 0 0 .1
+	forecolor 0 0 0 1
+	outlinecolor 0 0 1 .5
+	border 0
+	textstyle 0
+	maxchars 20
+	textscale .225
+	textalign 0
+	textalignx 4
+	textaligny 16
+	visible 1
+	decoration
+    }
+
+
+//Gender
+
+    itemdef {
+	name "gender_caption"
+	subgroup "fade_fore_alpha"
+	style 0
+	text "Gender:"
+	alignrect "model_caption" ITEM_ALIGN_LEFT 0 32 208 20
+	textscale .225
+	textalign 0
+	textalignx 4
+	textaligny 16
+	forecolor RQ3_Player_Option_Color
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	text "Male"
+	subgroup "fade_fore_alpha"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 16
+	textscale .225
+	alignrect "gender_caption" ITEM_ALIGN_LEFT 64 0 64 20
+	type ITEM_TYPE_YESNO
+	kind YESNO_ICON_RIGHT
+	cvar "ui_RQ3_gender"
+	groupIndex 1
+	activeCvarValue 0
+	style WINDOW_STYLE_EMPTY
+	visible 1
+    }
+
+	itemdef {
+	text "Female"
+	subgroup "fade_fore_alpha"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 16
+	textscale .225
+	alignrect "gender_caption" ITEM_ALIGN_RIGHT 0 0 64 20
+	type ITEM_TYPE_YESNO
+	kind YESNO_ICON_RIGHT
+	cvar "ui_RQ3_gender"
+	groupIndex 1
+	activeCvarValue 1
+	style WINDOW_STYLE_EMPTY
+	visible 1
+    }
+
+
+}
 }

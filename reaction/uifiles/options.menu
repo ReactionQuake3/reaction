@@ -1,10 +1,434 @@
 #include "ui/menudef.h"
+#include "ui/tabs.h"
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR		0 0 .1 1
+#define Tab_Color1			0 0 0 1
+#define Tab_Color2			0 0 .5 1
+#define VSPACE				16
+#define VSIZE				16
+#define ICON_ALPHA			0.5
+#define LINE_ALPHA			0.2
+#define FADEIN_TIME			125
+#define HINT_COLOR			.25 .25 .25
+#define HINT_FADE_TIME		125
+#define TAB_HEIGHT			20
+#define LINE_WIDTH			300
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
+
+{
+    menuDef {
+	name "options_menu"
+	visible MENU_FALSE				// Visible on open
+	//fullScreen MENU_FALSE
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	rect 120 112 340 264
+	anglevectors 3 -87
+	style WINDOW_STYLE_EMPTY
+	popup
+	
+	onOOBClick { close _self ; open _prev }
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
+		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
+		ACTIVATE_TAB(1) ;
+	}
+	//onClose { open _prev }
+	onEsc { close _self ; open main }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
+
+
+
+	itemDef {
+	renderpoint
+	name "paper,fade_alpha"
+	menuAnchor
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor MENUCOLOR_OPTIONS 1
+	rect -8 -20 380 320
+	anglevectors 3 -87
+	visible 1
+	decoration
+    }
+
+	itemdef {
+	renderpoint
+	name "title,fade_alpha"
+	text "Game options:"
+	forecolor .6 .0 .0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+	visible 1
+	autowrapped
+	decoration
+    }
+
+	//Line
+
+    itemDef {
+	name "line,fade_alpha"
+	style WINDOW_STYLE_FILLED
+	backcolor .25 .25 .25 LINE_ALPHA
+	alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
+	visible 1
+	decoration
+	}
+
+    ///////////////////////////////////////////////////////////
+    //
+    // Sub-options
+    //
+    //
+
+	// Gameplay
+	ADD_TAB(
+		"^_G^_ameplay.",
+		"G", 1, "group2,group3",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 52 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab1", "Change gameplay options", "group2,group3")
+
+//---------------------------------------------------------
+
+	// Crosshair
+
+	ADD_TAB(
+		"^_C^_rosshair.",
+		"C", 2, "group1,group3",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -52 0 52 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab2", "Change crosshair shape, size and color", "group1,group3")
+
+//---------------------------------------------------------
+
+	// SSG Crosshair
+
+	ADD_TAB(
+		"^_S^_SG Crosshair.",
+		"S", 3, "group1,group2",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -76 0 76 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab3", "Change the shape, size and color of the sniper rifle crosshair", "group1,group2")
+
+/*
+==========================================================
+
+Group # 1 - Gameplay
+
+==========================================================
+*/
+
+    //Icon
+
+    itemdef {
+	name "icon,allgroups,group1"
+	background UI_ASSETS"/icons/rq3-setup-options"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
+
+    // Simple items //
+
+	BEGIN_OPTION("Simple items", "cg_simpleitems", ITEM_TYPE_YESNO, 1, 1)
+		kind YESNO_ICON_RIGHT
+		alignrect "line" ITEM_ALIGN_LEFT 112 32 32 VSIZE
+		ASSIGN_HINT("hint_simpleitems")
+	END_OPTION
+    ADD_HINT("hint_simpleitems", "Display weapons, items and ammo as 2D sprites", "group1")
+
+
+	// Low quality sky //
+
+	BEGIN_OPTION("Low quality sky", "r_fastsky", ITEM_TYPE_YESNO, 2, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl1")
+		ASSIGN_HINT("hint_fastsky")
+	END_OPTION
+	ADD_HINT("hint_fastsky", "Use a solid color sky (better performance, lower quality)", "group1")
+
+
+    // Ejecting brass //
+
+	BEGIN_OPTION("Ejecting Brass", "cg_brassTime", ITEM_TYPE_MULTI, 3, 1)
+		cvarFloatList {
+				"High"		2500
+				"Med"		1250
+				"Off"		0
+		}
+		OPTION_BELOW("gr1_ctrl2")
+		ASSIGN_HINT("hint_brasstime")
+	END_OPTION
+    ADD_HINT("hint_brasstime", "Change the amount of ejecting brass", "group1")
+
+    
+	// Wall marks //
+
+	BEGIN_OPTION("Wall marks", "cg_marks", ITEM_TYPE_YESNO, 4, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl3")
+		ASSIGN_HINT("hint_wallmarks")
+	END_OPTION
+    ADD_HINT("hint_wallmarks", "Enable wall marks", "group1")
+
+
+    // Dynamic lights //
+
+	BEGIN_OPTION("Dynamic lights", "r_dynamiclight", ITEM_TYPE_YESNO, 5, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl4")
+		ASSIGN_HINT("hint_dlights")
+	END_OPTION
+    ADD_HINT("hint_dlights", "Enable dynamic lighting", "group1")
+
+
+    // Identify target //
+
+	BEGIN_OPTION("Identify Target", "cg_drawCrosshairNames", ITEM_TYPE_YESNO, 6, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl5")
+		ASSIGN_HINT("hint_idtarget")
+	END_OPTION
+    ADD_HINT("hint_idtarget", "Enable crosshair target identification", "group1")
+
+
+    // V-SYNC //
+
+	BEGIN_OPTION("Sync Every Frame", "r_finish", ITEM_TYPE_YESNO, 7, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl6")
+		ASSIGN_HINT("hint_vsync")
+	END_OPTION
+    ADD_HINT("hint_vsync", "Enable V-SYNC (recommended off)", "group1")
+
+
+    // Force player models //
+
+	BEGIN_OPTION("Force Player Models", "cg_forceModel", ITEM_TYPE_YESNO, 8, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl7")
+		ASSIGN_HINT("hint_forcemodel")
+	END_OPTION
+    ADD_HINT("hint_forcemodel", "Force player models to your own", "group1")
+
+	
+	//
+	//
+	// RIGHT COLUMN //
+	//
+	//
+
+
+    // Draw Team Overlay //
+
+	BEGIN_OPTION("Draw Team Overlay", "cg_drawTeamOverlay", ITEM_TYPE_YESNO, 9, 1)
+		kind YESNO_ICON_RIGHT
+		alignrect "line" ITEM_ALIGN_CENTER 128 32 32 VSIZE
+		ASSIGN_HINT("hint_teamoverlay")
+	END_OPTION
+    ADD_HINT("hint_teamoverlay", "Choose team overlay position", "group1")
+
+
+    // Allow download from server //
+
+	BEGIN_OPTION("Allow Download", "cl_allowDownload", ITEM_TYPE_YESNO, 10, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl9")
+		ASSIGN_HINT("hint_allowdl")
+	END_OPTION
+    ADD_HINT("hint_allowdl", "Allow automatic downloads from server", "group1")
+
+
+    // Muzzle flash //
+
+	BEGIN_OPTION("Muzzle Flash", "cg_RQ3_flash", ITEM_TYPE_YESNO, 11, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl10")
+		ASSIGN_HINT("hint_muzzle")
+	END_OPTION
+    ADD_HINT("hint_muzzle", "Enable weapon muzzle flashes", "group1")
+
+
+    // Pain blends //
+
+	BEGIN_OPTION("Pain Blends", "cg_RQ3_painBlend", ITEM_TYPE_YESNO, 12, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl11")
+		ASSIGN_HINT("hint_painblend")
+	END_OPTION
+    ADD_HINT("hint_painblend", "Enable screen pain blends", "group1")
+
+
+    // Announcer //
+
+	BEGIN_OPTION("Announcer", "cg_RQ3_announcer", ITEM_TYPE_YESNO, 13, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl12")
+		ASSIGN_HINT("hint_announcer")
+	END_OPTION
+    ADD_HINT("hint_announcer", "Enable Quake 3 announcer", "group1")
+
+
+    // Impact effects //
+
+ 	BEGIN_OPTION("Impact Effects", "cg_RQ3_impactEffects", ITEM_TYPE_YESNO, 14, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl13")
+		ASSIGN_HINT("hint_impactfx")
+	END_OPTION
+    ADD_HINT("hint_impactfx", "Enable visual projectile impact effects", "group1")
+
+
+    // Punkbuster //
+
+ 	//BEGIN_OPTION("Punkbuster Enabled", "cl_punkbuster", ITEM_TYPE_YESNO, 15, 1)
+	//	kind YESNO_ICON_RIGHT
+	//	OPTION_BELOW("gr1_ctrl14")
+	//	ASSIGN_HINT("hint_punkbuster")
+	//END_OPTION
+  //  ADD_HINT("hint_punkbuster", "Enable client-side Punkbuster (game restart is needed)", "group1")
+
+/*
+==========================================================
+
+Group # 2 - Crosshair
+
+==========================================================
+*/
+
+    //Icon
+
+    itemdef {
+	name "icon,allgroups,group2"
+	background UI_ASSETS"/icons/rq3-setup-crosshair"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
+
+
+    // Crosshair //
+
+    itemdef {
+	name "allgroups,group2,gr2_ctrl1,fade_alpha"
+	ownerdraw UI_CROSSHAIR
+	text "Crosshair:"
+	alignrect "line" ITEM_ALIGN_LEFT 112 32 VSIZE VSIZE
+	textalign ITEM_ALIGN_RIGHT
+	textalignx 0
+	textaligny 14
+	textscale .225
+	forecolor OPTION_COLOR
+	visible 1
+	ASSIGN_HINT("hint_crosshair")
+    }
+
+    ADD_HINT("hint_crosshair", "Change regular crosshair style", "group2")
+
+
+    // Crosshair size //
+
+    BEGIN_OPTION("Crosshair Size", "cg_crosshairSize", ITEM_TYPE_MULTI, 2, 2)
+		OPTION_BELOW("gr2_ctrl1")
+		ASSIGN_HINT("hint_crosshairsize")
+		cvarFloatList {
+				"Small"		16
+				"Med"		24
+				"Big"		32
+		}
+    END_OPTION
+    ADD_HINT("hint_crosshairsize", "Change the size of the regular crosshair", "group2")
+
+    // Crosshair color //
+
+	BEGIN_SLIDER("Red", "cg_RQ3_crosshairColorR", 1, 0, 1, 3, 2)
+		alignrect "gr2_ctrl2" ITEM_ALIGN_LEFT -64 24 112 VSIZE
+		ASSIGN_HINT("hint_color")
+    END_OPTION
+
+	BEGIN_SLIDER("Green", "cg_RQ3_crosshairColorG", 1, 0, 1, 4, 2)
+		OPTION_BELOW("gr2_ctrl3")
+		ASSIGN_HINT("hint_color")
+    END_OPTION
+
+	BEGIN_SLIDER("Blue", "cg_RQ3_crosshairColorB", 1, 0, 1, 5, 2)
+		OPTION_BELOW("gr2_ctrl4")
+		ASSIGN_HINT("hint_color")
+    END_OPTION
+
+	BEGIN_SLIDER("Alpha", "cg_RQ3_crosshairColorA", 1, 0, 1, 6, 2)
+		OPTION_BELOW("gr2_ctrl5")
+		ASSIGN_HINT("hint_color")
+    END_OPTION
+
+
+    ADD_HINT("hint_color", "Drag the slider to alter the color of the crosshair", "group2")
+
+/*
+==========================================================
+
+Group # 3 - Misc
+
+==========================================================
+*/
+
+    //Icon
+
+    itemdef {
+	name "icon,allgroups,group3"
+	background UI_ASSETS"/icons/rq3-setup-crosshair"
+	forecolor 1 1 1 ICON_ALPHA
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
+
+}
+}
+
+
+
+#include "ui/menudef.h"
 #define RQ3_Option_Color .75 .75 .75 1
 
 {
 
     menuDef {
-	name "options_menu"
+	name "options_menu_old"
 	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
 								// to use the old background
 	fullScreen MENU_TRUE
@@ -81,7 +505,7 @@
 	name "options_icon"
 	style WINDOW_STYLE_SHADER
 	rect 8 8 48 48
-	background "menu/art/rq3-setup-options.tga"
+	background UI_ASSETS"/icons/rq3-setup-options.tga"
 	decoration
 	visible 1
     }
@@ -90,7 +514,7 @@
 	name "options_title"
 	style WINDOW_STYLE_SHADER
 	rect 64 12 256 32
-	background "menu/art/rq3-title-setup.tga"
+	background UI_ASSETS"/icons/rq3-title-setup.tga"
 	decoration
 	visible 1
     }
@@ -148,7 +572,7 @@
     itemdef {
 	style WINDOW_STYLE_SHADER
 	rect 96 68 24 24
-	background "menu/art/rq3-setup-options.tga"
+	background UI_ASSETS"/icons/rq3-setup-options.tga"
 	decoration
 	visible 1
     }
@@ -188,7 +612,7 @@
     itemdef {
 	style WINDOW_STYLE_SHADER
 	rect 388 68 24 24
-	background "menu/art/rq3-menu-focus"
+	background UI_ASSETS"/icons/rq3-menu-focus"
 	forecolor 1 1 1 0
 	decoration
 	visible 1
@@ -949,11 +1373,11 @@
 	style WINDOW_STYLE_SHADER
 	rect 12 432 32 32
 	type ITEM_TYPE_BUTTON
-	background "menu/art/rq3-menu-back.tga"
+	background UI_ASSETS"/icons/rq3-menu-back.tga"
 	action { close _self ; open setup_menu ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+	onFocus { setbackground UI_ASSETS"/icons/rq3-menu-back-focus-anim" ;
 		show hint_back ; timeFade hint_back forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+	leaveFocus { setbackground UI_ASSETS"/icons/rq3-menu-back.tga" ;
 		timeFade hint_back forecolor .9 .9 .9 0 0 250 }
 	visible 1
     }

@@ -1,84 +1,97 @@
 #include "ui/menudef.h"
 
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+
+
+{
 
   menuDef {
-    name "connect"
-    background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-								// to use the current background
+    name "connect"							// Makro: rename it to "main-rq3"
+    background UI_ASSETS"/main"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
     fullScreen MENU_TRUE
-    visible MENU_TRUE				// Visible on open
+
+    visible 0				// Visible on open
     focusColor RQ3_MAIN_FOCUSCOLOR				// Menu focus color for text and items
+    soundLoop "music/rq3_title_loop"
+    soundIntro "music/rq3_title_intro"
 
 
     onOpen {
-      transition demolist 80 108 480 0 80 108 480 280 10 10 ;
-      uiScript LoadDemos ;
-      play "sound/misc/menu1.wav" ;
+      play "sound/ui/whoosh3.wav" ;
+      uiScript stopRefresh ;
     }
 
-    onEsc { close demo ; open main }
+    onFirstShow {
+	  setoverlaycolor 0 0 0 1 ;
+	  fadeoverlay 0 0 0 0 0 1000 ;
+      setfocus btn_join ;
+    }
+
+    onESC { open quit_popmenu }
 
 
-//===================
-// RQ3 stuff
-//===================
 
+//--------------------------------------------
+#include "ui/shared.h"
+//--------------------------------------------
+
+
+	//Boomstick logo
+
+	itemDef {
+	style WINDOW_STYLE_SHADER
+	rect 280 288 120 120
+	anglevectors 9 -81
+	background UI_ASSETS"/logo"
+	forecolor 1 1 1 0.2
+	decoration
+	visible 1
+	}
+
+    // REACTION QUAKE 3 VERSION 3.3 //
+
+	itemdef {
+	group main
+	subgroup "main_title"
+	text "REACTION QUAKE 3 v3.3"
+	forecolor 0 0 .05 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .4
+	textalignx 120
+	textaligny 24
+	rect 108 144 240 36
+	anglevectors 9 -81
+	visible 1
+	autowrapped
+	decoration
+	}
 
     itemDef {
-      name top_bar 				//rq3: Top bar
-      rect 0 0 640 56
-      style 1
-      backcolor RQ3_MAIN_BAR_COLOR
-      //border 2
-      //bordersize 1
-      //bordercolor 1 0 0 1
-      decoration
-      visible 1
+	group main
+	alignrect "main_title" ITEM_ALIGN_LEFT 0 20 240 36
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_CENTER
+	textscale .275
+	textalignx 120
+	textaligny 24
+	forecolor 0 0 0.05 1
+	text "(c) 2000-2005 Boomstick Studios\n\n\n\n\n"
+	     "www.reactionquake3.com"
+	autowrapped
+	visible 1
+	decoration
     }
 
-    itemDef {
-      name top_bar 				//rq3: Top bar
-      rect 0 58 640 12
-      style WINDOW_STYLE_SHADER
-      background "ui/assets/rq3-main-shadow-1"
-      decoration
-      visible 1
-    }
+	//Dark overlay
 
-    itemDef {
-      name top_bar2 				//rq3: Top bar - border
-      rect 0 56 640 2
-      style 1
-      backcolor RQ3_MAIN_BAR_COLOR2
-      //border 2
-      //bordersize 1
-      //bordercolor 1 0 0 1
-      decoration
-      visible 1
-    }
-
-    itemDef {
-      name bottom_bar 				//rq3: bottom bar
-      rect 0 420 640 60
-      style 1
-      backcolor RQ3_MAIN_BAR_COLOR
-      //border 2
-      //bordersize 1
-      //bordercolor 1 0 0 1
-      decoration
-      visible 1
-    }
-
-    itemDef {
-      name bottom_bar2 				//rq3: bottom bar - border
-      rect 0 418 640 2
-      style 1
-      backcolor RQ3_MAIN_BAR_COLOR2
-      //border 2
-      //bordersize 1
-      //bordercolor 1 0 0 1
-      decoration
-      visible 1
-    }
+	itemDef {
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 0.9
+	rect 0 0 640 480
+	decoration
+	visible 1
+	}
 
 }

@@ -82,7 +82,7 @@
 	name "options_icon"
 	style WINDOW_STYLE_SHADER
 	rect 8 8 48 48
-	background "menu/art/rq3-setup-replacements"
+	background UI_ASSETS"/icons/rq3-setup-replacements"
 	decoration
 	visible 1
     }
@@ -91,7 +91,7 @@
 	name "options_title"
 	style WINDOW_STYLE_SHADER
 	rect 64 12 256 32
-	background "menu/art/rq3-title-setup.tga"
+	background UI_ASSETS"/icons/rq3-title-setup.tga"
 	decoration
 	visible 1
     }
@@ -354,11 +354,11 @@
 	style WINDOW_STYLE_SHADER
 	rect 12 432 32 32
 	type ITEM_TYPE_BUTTON
-	background "menu/art/rq3-menu-back.tga"
+	background UI_ASSETS"/icons/rq3-menu-back.tga"
 	action { close _self ; open setup_menu ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+	onFocus { setbackground UI_ASSETS"/icons/rq3-menu-back-focus-anim" ;
 		show hint_back ; timeFade hint_back forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+	leaveFocus { setbackground UI_ASSETS"/icons/rq3-menu-back.tga" ;
 		timeFade hint_back forecolor .9 .9 .9 0 0 250 }
 	visible 1
     }

@@ -83,7 +83,7 @@
 	name "cdkey_icon"
 	style WINDOW_STYLE_SHADER
 	rect 8 8 48 48
-	background "menu/art/rq3-setup-cdkey.tga"
+	background UI_ASSETS"/icons/rq3-setup-cdkey.tga"
 	decoration
 	visible 1
     }
@@ -92,7 +92,7 @@
 	name "cdkey_title"
 	style WINDOW_STYLE_SHADER
 	rect 64 12 256 32
-	background "menu/art/rq3-title-setup.tga"
+	background UI_ASSETS"/icons/rq3-title-setup.tga"
 	decoration
 	visible 1
     }
@@ -315,13 +315,13 @@
 	shortcutKey "B"
 	rect 12 432 32 32
 	style WINDOW_STYLE_SHADER
-	background "menu/art/rq3-menu-back.tga"
+	background UI_ASSETS"/icons/rq3-menu-back.tga"
 	type 1
 	visible 1
 	action { close *self; open setup_menu ; }
-	onFocus { setbackground "menu/art/rq3-menu-back-focus-anim" ;
+	onFocus { setbackground UI_ASSETS"/icons/rq3-menu-back-focus-anim" ;
 		show back_hint ; timeFade back_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground "menu/art/rq3-menu-back.tga" ;
+	leaveFocus { setbackground UI_ASSETS"/icons/rq3-menu-back.tga" ;
 		timeFade back_hint forecolor .9 .9 .9 0 0 250 }
     }
 
