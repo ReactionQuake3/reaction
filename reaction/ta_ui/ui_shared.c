@@ -4,7 +4,7 @@
 //
 //-----------------------------------------------------------------------------
 //
-// $Log$
+// $Log: ui_shared.c,v $
 // Revision 1.35  2006/07/24 17:16:12  makro
 // Got rid of the warnings lcc liked to share with the world
 //
@@ -4969,8 +4969,9 @@ static bind_t g_bindings[] = {
 	{"+button5", 'r', -1, -1, -1},
 	{"weapon", K_MOUSE3, -1, -1, -1},
 	{"opendoor", K_ENTER, -1, -1, -1},
-	{"dropweapon", 'x', -1, -1, -1},
-	{"dropitem", 'z', -1, -1, -1},
+//TTI: replacing "dropweapon" with the newer "drop weapon", the same goes for "dropitem"
+	{"drop weapon", 'x', -1, -1, -1},
+	{"drop item", 'z', -1, -1, -1},
 	{"irvision", 'v', -1, -1, -1},
 //Makro - this one was missing
 	{"specialweapon", 'e', -1, -1, -1},
@@ -4979,8 +4980,11 @@ static bind_t g_bindings[] = {
 	{"ui_RQ3_joinTeam", 'j', -1, -1, -1},
 	{"ui_RQ3_presets", -1, -1, -1, -1},
 	{"ui_RQ3_tkok", -1, -1, -1, -1},
-	{"screenshot", -1, -1, -1. - 1},
-	{"screenshotJPEG", K_F12, -1, -1. - 1}
+	{"screenshot", -1, -1, -1, -1},
+	{"screenshotJPEG", K_F12, -1, -1, -1},
+//TTI: more binds
+	{"drop case", -1, -1, -1, -1},
+	{"+voiprecord", -1, -1, -1, -1}
 };
 
 static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
@@ -7321,6 +7325,49 @@ qboolean ItemParse_columns(itemDef_t * item, int handle)
 	return qtrue;
 }
 
+// columndef sets a number of columns and an x pos and width per
+qboolean ItemParse_columndef(itemDef_t * item, int handle)
+{
+	int num, i;
+	listBoxDef_t *listPtr;
+
+	Item_ValidateTypeData(item);
+	if (!item->typeData)
+		return qfalse;
+	listPtr = (listBoxDef_t *) item->typeData;
+	if (PC_Int_Parse(handle, &num))
+	{
+		int total = 0;
+		//int max = (int)item->window.rect.w;
+		if (num > MAX_LB_COLUMNS)
+		{
+			num = MAX_LB_COLUMNS;
+		}
+		listPtr->numColumns = num;
+		for (i = 0; i < num; i++)
+		{
+			int pos, width;
+
+			if (PC_Int_Parse(handle, &pos) && PC_Int_Parse(handle, &width))
+			{
+				listPtr->columnInfo[i].pos = pos + total;
+				listPtr->columnInfo[i].width = width;
+				listPtr->columnInfo[i].maxChars = 0;
+				total += pos + width;
+				//if (total > max)
+				//{
+				//	PC_SourceWarning(handle, "Column %d extends past window bounds by %d units", i+1, total - max);
+				//}
+			} else {
+				return qfalse;
+			}
+		}
+	} else {
+		return qfalse;
+	}
+	return qtrue;
+}
+
 qboolean ItemParse_border(itemDef_t * item, int handle)
 {
 	if (!PC_Int_Parse(handle, &item->window.border)) {
@@ -7874,6 +7921,7 @@ keywordHash_t itemParseKeywords[] = {
 	{"model_fovy", ItemParse_model_fovy, NULL},
 	{"model_rotation", ItemParse_model_rotation, NULL},
 	{"model_angle", ItemParse_model_angle, NULL},
+	//{"model_adjustable", ItemParse_model_adjustable, NULL},
 	//Makro - support for 3 angles
 	{"model_angles", ItemParse_model_angles, NULL},
 	{"rect", ItemParse_rect, NULL},
@@ -7903,6 +7951,7 @@ keywordHash_t itemParseKeywords[] = {
 	{"feeder", ItemParse_feeder, NULL},
 	{"elementtype", ItemParse_elementtype, NULL},
 	{"columns", ItemParse_columns, NULL},
+	{"columndef", ItemParse_columndef, NULL},
 	{"border", ItemParse_border, NULL},
 	//Makro - for drop shadow effects
 	{"shadowStyle", ItemParse_shadowStyle, NULL},
