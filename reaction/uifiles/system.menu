@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/controls_common.h"
 #include "ui/tabs.h"
 
 ////////////////////////////////////
@@ -43,7 +44,7 @@
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
-	onClose { open _prev }
+	onClose { uiScript saveControls ; open _prev }
 	onEsc { close _self }
 
 	onOpenSpecial {
@@ -112,10 +113,10 @@
 
 	ADD_TAB(
 		"^_G^_raphics.",
-		"G", 1, "group2,group3",
-		alignrect "title" ITEM_ALIGN_LEFT 2 28 48 16
+		"G", 1, "group2,group3,group4",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 52 16
 	)
-	ADD_HINT("hint_tab1", "Change rendering options", "group2,group3")
+	ADD_HINT("hint_tab1", "Change rendering options", "group2,group3,group4")
 
 //---------------------------------------------------------
 
@@ -123,10 +124,10 @@
 
 	ADD_TAB(
 		"^_D^_river info.",
-		"D", 2, "group1,group3",
-		alignrect "tab1" ITEM_ALIGN_RIGHT -56 0 56 16
+		"D", 2, "group1,group3,group4",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -56 0 60 16
 	)
-    ADD_HINT("hint_tab2", "View OpenGL driver info", "group1,group3")
+    ADD_HINT("hint_tab2", "View OpenGL driver info", "group1,group3,group4")
 
 //---------------------------------------------------------
 
@@ -134,10 +135,24 @@
 
 	ADD_TAB(
 		"^_M^_isc.",
-		"M", 3, "group1,group2",
-		alignrect "tab2" ITEM_ALIGN_RIGHT -40 0 40 16
+		"M", 3, "group1,group2,group4",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -30 0 32 16
 	)
-    ADD_HINT("hint_tab3", "Change display/sound/network options", "group1,group2")
+    ADD_HINT("hint_tab3", "Change display/sound/network options", "group1,group2,group4")
+
+//---------------------------------------------------------
+
+	// VoIP
+
+	ADD_TAB(
+		"^_V^_oIP.",
+		"V", 4, ",group1,group2,group3",
+		alignrect "tab3" ITEM_ALIGN_RIGHT -28 0 32 16
+	)
+    ADD_HINT("hint_tab4", "Change VoIP settings", "group1,group2,group3")
+
+
+
 
 /*
 ==========================================================
@@ -418,7 +433,6 @@ Group # 3 - Misc
 		alignrect "line" ITEM_ALIGN_CENTER 56 40 112 VSIZE
 		ASSIGN_HINT("hint_gamma")
     END_OPTION
-
     ADD_HINT("hint_gamma", "Change image brightness", "group3")
 
 
@@ -437,9 +451,31 @@ Group # 3 - Misc
 		OPTION_BELOW("gr3_ctrl2")
 		ASSIGN_HINT("hint_overbits")
     END_OPTION
-    ADD_HINT("hint_overbits", "Enable overbright bits (brighter image at the expense of quality)", "group3")
+    ADD_HINT("hint_overbits", "Enable overbright bits (greater color range at the expense of precision)", "group3")
+
+/*
+    // Anisotropic filtering //
+
+    BEGIN_OPTION("Anisotropic Filtering", "r_ext_texture_filter_anisotropic", ITEM_TYPE_YESNO, 3, 3)
+		OPTION_BELOW("gr3_ctrl2")
+		ASSIGN_HINT("hint_af")
+    END_OPTION
+    ADD_HINT("hint_af", "Enable anisotropic filtering (enhances texture quality at oblique viewing angles)", "group3")
 
 
+    // AF quality //
+
+    BEGIN_OPTION("Anisotropy Level", "r_ext_max_anisotropy", ITEM_TYPE_MULTI, 4, 3)
+		OPTION_BELOW("gr3_ctrl3")
+		cvarFloatList {
+			//unfinished, doesn't make sense
+			"2:1"		0
+			"4:1"			1
+		}
+		ASSIGN_HINT("hint_aflvl")
+    END_OPTION
+    ADD_HINT("hint_aflvl", "AF quality", "group3")
+*/
 
     // Sound //
 
@@ -456,10 +492,18 @@ Group # 3 - Misc
 	}
 
 
+		// OpenAL //
+		
+		BEGIN_OPTION("OpenAL", "s_useOpenAL", ITEM_TYPE_YESNO, 5, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 112 112 VSIZE
+		ASSIGN_HINT("hint_openal")
+		END_OPTION
+		ADD_HINT("hint_openal", "Enable OpenAL sound rendering", "group3")
+
     // Sound volume //
 
-    BEGIN_SLIDER("Sound Volume", "s_volume", 0.7, 0, 1, 4, 3)
-		alignrect "line" ITEM_ALIGN_CENTER 56 112 112 VSIZE
+    BEGIN_SLIDER("Sound Volume", "s_volume", 0.7, 0, 1, 6, 3)
+		OPTION_BELOW("gr3_ctrl5")
 		ASSIGN_HINT("hint_sndvol")
     END_OPTION
     ADD_HINT("hint_sndvol", "Change sound effects volume", "group3")
@@ -467,8 +511,8 @@ Group # 3 - Misc
 
     // Music volume //
 
-    BEGIN_SLIDER("Music Volume", "s_musicvolume", 0.25, 0, 1, 5, 3)
-		OPTION_BELOW("gr3_ctrl4")
+    BEGIN_SLIDER("Music Volume", "s_musicvolume", 0.25, 0, 1, 7, 3)
+		OPTION_BELOW("gr3_ctrl6")
 		ASSIGN_HINT("hint_musicvol")
     END_OPTION
     ADD_HINT("hint_musicvol", "Change background music volume", "group3")
@@ -476,12 +520,12 @@ Group # 3 - Misc
 
     // Sound quality //
 
-    BEGIN_OPTION("Sound Quality", "s_khz", ITEM_TYPE_MULTI, 6, 3)
+    BEGIN_OPTION("Sound Quality", "s_khz", ITEM_TYPE_MULTI, 8, 3)
 		cvarFloatList {
 			"22 khz (high)"		22
 			"11 khz (low)"		11
 		}
-		OPTION_BELOW("gr3_ctrl5")
+		OPTION_BELOW("gr3_ctrl7")
 		ASSIGN_HINT("hint_sndquality")
     END_OPTION
     ADD_HINT("hint_sndquality", "Choose sound quality", "group3")
@@ -489,8 +533,8 @@ Group # 3 - Misc
 
     // Doppler effect //
 
-    BEGIN_OPTION("Doppler Effect", "s_doppler", ITEM_TYPE_YESNO, 7, 3)
-		OPTION_BELOW("gr3_ctrl6")
+    BEGIN_OPTION("Doppler Effect", "s_doppler", ITEM_TYPE_YESNO, 9, 3)
+		OPTION_BELOW("gr3_ctrl8")
 		ASSIGN_HINT("hint_doppler")
     END_OPTION
     ADD_HINT("hint_doppler", "Enable Doppler effect", "group3")
@@ -513,7 +557,7 @@ Group # 3 - Misc
 
     // Net rate //
 
-    BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 8, 3)
+    BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 10, 3)
 		alignrect "line" ITEM_ALIGN_CENTER 56 204 112 VSIZE
 		cvarFloatList {
 			"<=28.8k"			2500
@@ -526,6 +570,70 @@ Group # 3 - Misc
     END_OPTION
     ADD_HINT("hint_netrate", "Choose network speed", "group3")
 
+
+/*
+==========================================================
+
+Group # 4 - VoIP
+
+==========================================================
+*/
+
+	// Hints
+	__CONTROLS_HINTS__
+
+	//Icon
+
+	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-system-voip", "group4")
+
+	BEGIN_OPTION("VoIP", "cl_voip", ITEM_TYPE_YESNO, 1, 4)
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
+		ASSIGN_HINT("hint_voip")
+	END_OPTION
+	ADD_HINT("hint_voip", "Enable client-side VoIP support", "group4")
+
+	BEGIN_OPTION("OpenAL Capture", "s_alCapture", ITEM_TYPE_YESNO, 2, 4)
+		OPTION_BELOW("gr4_ctrl1")
+		ASSIGN_HINT("hint_alcapture")
+	END_OPTION
+	ADD_HINT("hint_alcapture", "Disabling this means that you won't transmit, but you can still hear other people", "group4")
+
+	BEGIN_OPTION("Voice Level Meter", "cl_voipShowMeter", ITEM_TYPE_YESNO, 3, 4)
+		OPTION_BELOW("gr4_ctrl2")
+		ASSIGN_HINT("hint_voipmeter")
+	END_OPTION
+	ADD_HINT("hint_voipmeter", "Enable a volume meter that shows how well the game can hear your voice", "group4")
+
+	BEGIN_SLIDER("Gain", "cl_voipGainDuringCapture", 0.2, 0, 1, 4, 4)
+		OPTION_BELOW("gr4_ctrl3")
+		ASSIGN_HINT("hint_gain")
+	END_OPTION
+	ADD_HINT("hint_gain", "The volume of audio coming out of your speakers while you are recording sound for transmission.", "group4")
+
+	BEGIN_OPTION("Transmit Mode", "cl_voipUseVAD", ITEM_TYPE_MULTI, 5, 4)
+		OPTION_BELOW("gr4_ctrl4")
+		cvarFloatList {
+			"Push-to-talk"		0
+			"Automatic"			1
+		}
+		ASSIGN_HINT("hint_usevad")
+	END_OPTION
+	ADD_HINT("hint_usevad", "Select between holding down a key (the default) and automatic transmitting", "group4")
+
+	BEGIN_SLIDER("Threshold", "cl_voipVADThreshold", 0.25, 0, 1, 6, 4)
+		OPTION_BELOW("gr4_ctrl5")
+		ASSIGN_HINT("hint_thresh")
+		cvarTest "cl_voipUseVAD"
+		showCvar { "1" }
+	END_OPTION
+	ADD_HINT("hint_thresh", "Signifies the volume of recorded audio that the game considers to be speech", "group4")
+
+	BEGIN_OPTION("Push-to-talk Key", "+voiprecord", ITEM_TYPE_BIND, 7, 4)
+		OPTION_BELOW("gr4_ctrl5")
+		ASSIGN_HINT("keyBindStatus")
+		cvarTest "cl_voipUseVAD"
+		showCvar { "0" }
+	END_OPTION
 
 }
 }
