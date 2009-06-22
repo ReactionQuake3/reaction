@@ -3046,9 +3046,14 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale, vec4_t color)
 		uiInfo.currentCrosshair = 0;
 	}
 	//Makro - fixing bug that draws a crosshair even if cg_drawcrosshair is 0
-	if (uiInfo.currentCrosshair != 0) {
-		UI_DrawHandlePic(rect->x, rect->y - rect->h, rect->w, rect->h,
-				 uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+	if (uiInfo.currentCrosshair != 0)
+	{
+		if (rect->hasVectors)
+			UI_DrawAngledPic(rect->x, rect->y - rect->h, rect->w, rect->h, rect->u, rect->v, color,
+					0.f, 0.f, 1.f, 1.f, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+		else
+			UI_DrawHandlePic(rect->x, rect->y - rect->h, rect->w, rect->h,
+					 uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
 	}
 	trap_R_SetColor(NULL);
 }
