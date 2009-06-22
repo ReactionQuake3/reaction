@@ -3038,8 +3038,15 @@ static void UI_DrawRedBlue(rectDef_t * rect, float scale, vec4_t color, int text
 	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, 0, textStyle, qfalse);
 }
 
-static void UI_DrawCrosshair(rectDef_t * rect, float scale, vec4_t color)
+static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 {
+	vec4_t color;
+
+	color[0] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorR");
+	color[1] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorG");
+	color[2] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorB");
+	color[3] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorA");
+
 	trap_R_SetColor(color);
 
 	if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
@@ -4022,7 +4029,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 		UI_DrawRedBlue(&rect, scale, color, textStyle);
 		break;
 	case UI_CROSSHAIR:
-		UI_DrawCrosshair(&rect, scale, color);
+		UI_DrawCrosshair(&rect, scale);
 		break;
 	//Makro - adding SSG crosshair
 	case UI_SSG_CROSSHAIR:
@@ -7113,6 +7120,7 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 	static char info[MAX_STRING_CHARS];
 	static char hostname[1024];
 	static char clientBuff[32];
+	static char clientIdStr[32];
 	static int lastColumn = -1;
 	static int lastTime = 0;
 
@@ -7202,11 +7210,17 @@ static const char *UI_FeederItemText(float feederID, int index, int column, qhan
 		}
 	} else if (feederID == FEEDER_PLAYER_LIST) {
 		if (index >= 0 && index < uiInfo.playerCount) {
-			return uiInfo.playerNames[index];
+			if (column != 1)
+				return uiInfo.playerNames[index];
+			Com_sprintf(clientIdStr, sizeof(clientIdStr), "%d", index);
+			return clientIdStr;
 		}
 	} else if (feederID == FEEDER_TEAM_LIST) {
 		if (index >= 0 && index < uiInfo.myTeamCount) {
-			return uiInfo.teamNames[index];
+			if (column != 1)
+				return uiInfo.teamNames[index];
+			Com_sprintf(clientIdStr, sizeof(clientIdStr), "%d", index);
+			return clientIdStr;
 		}
 	} else if (feederID == FEEDER_MODS) {
 		if (index >= 0 && index < uiInfo.modCount) {
@@ -8126,7 +8140,7 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.uiDC.scene2D.height = 480 * uiInfo.uiDC.yscale ;
 	uiInfo.uiDC.scene2D.fov_x = 90;
 	uiInfo.uiDC.scene2D.fov_y = 73.739795291688f;
-	uiInfo.uiDC.scene2D.rdflags = RDF_NOWORLDMODEL;
+	uiInfo.uiDC.scene2D.rdflags = RDF_NOWORLDMODEL | RDF_NOFOG;
 	AxisClear(uiInfo.uiDC.scene2D.viewaxis);
 
 	

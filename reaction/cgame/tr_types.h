@@ -45,6 +45,7 @@
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
 #define RDF_HYPERSPACE		4	// teleportation effect
+#define RDF_NOFOG			8
 
 typedef struct {
 	vec3_t xyz;
