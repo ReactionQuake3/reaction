@@ -3041,11 +3041,14 @@ static void UI_DrawRedBlue(rectDef_t * rect, float scale, vec4_t color, int text
 static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 {
 	vec4_t color;
+	float size;
 
 	color[0] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorR");
 	color[1] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorG");
 	color[2] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorB");
 	color[3] = trap_Cvar_VariableValue("cg_RQ3_crosshairColorA");
+
+	size = trap_Cvar_VariableValue("cg_crosshairSize");
 
 	trap_R_SetColor(color);
 
@@ -3056,10 +3059,30 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 	if (uiInfo.currentCrosshair != 0)
 	{
 		if (rect->hasVectors)
-			UI_DrawAngledPic(rect->x, rect->y - rect->h, rect->w, rect->h, rect->u, rect->v, color,
-					0.f, 0.f, 1.f, 1.f, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
+		{
+			float pt[2];
+			float mx, my;
+
+			vec4_t black = { 0, 0, 0, 1};
+			
+			pt[0] = rect->x;
+			pt[1] = rect->y;
+
+
+			UI_DrawAngledPic(pt[0], pt[1], rect->w, rect->h, rect->u, rect->v, black,
+				0.f, 0.f, 1.f, 1.f, /*uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]*/ uiInfo.uiDC.whiteShader);
+
+			mx = (rect->w - size) * 0.5f;
+			my = (rect->h - size) * 0.5f;
+
+			Vector2MA(pt, mx, rect->u, pt);
+			Vector2MA(pt, my, rect->v, pt);
+
+			UI_DrawAngledPic(pt[0], pt[1], size, size, rect->u, rect->v, color,
+				0.f, 0.f, 1.f, 1.f, /*uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]*/ uiInfo.uiDC.whiteShader);
+		}
 		else
-			UI_DrawHandlePic(rect->x, rect->y - rect->h, rect->w, rect->h,
+			UI_DrawHandlePic(rect->x + (rect->w - size) * 0.5f, rect->y + (rect->h - size) * 0.5f, size, size,
 					 uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
 	}
 	trap_R_SetColor(NULL);
@@ -3888,7 +3911,9 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 		Vector2MA(p, text_y, rect.v, p);
 		rect.x = p[0];
 		rect.y = p[1];
+		rect.hasVectors = qtrue;
 	} else {
+		rect.hasVectors = qfalse;
 		rect.x = x + text_x;
 		rect.y = y + text_y;
 	}

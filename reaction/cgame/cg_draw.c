@@ -1984,7 +1984,8 @@ static void CG_DrawCrosshair(void)
 			w = cg_RQ3_ssgCrosshairSize.integer;
 			if ( (hShader = cgs.media.ssgCrosshair[zoomMag]) )
 			{
-				CG_DrawPic(x - h, y - h, w, w, hShader);
+				float dim = cg_RQ3_ssgCrosshairSize.integer * cg.refdef.height / SCREEN_HEIGHT;
+				trap_R_DrawStretchPic((cg.refdef.width - dim) * 0.5f, (cg.refdef.height - dim) * 0.5f, dim, dim, 0.f, 0.f, 1.f, 1.f, hShader);
 			}
 
 			trap_R_SetColor(NULL);
