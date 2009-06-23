@@ -5412,8 +5412,7 @@ qboolean Item_Bind_HandleKey(itemDef_t * item, int key, qboolean down)
 
 void AdjustFrom640(float *x, float *y, float *w, float *h)
 {
-	//*x = *x * DC->scale + DC->bias;
-	*x *= DC->xscale + DC->bias;
+	*x = *x * DC->xscale + DC->bias;
 	*y *= DC->yscale;
 	*w *= DC->xscale;
 	*h *= DC->yscale;
