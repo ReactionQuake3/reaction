@@ -6614,7 +6614,7 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 	if (menu->fullScreen) {
 		// implies a background shader
 		// FIXME: make sure we have a default shader if fullscreen is set with no background
-		DC->drawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background);
+		DC->drawStretchPic(0, 0, DC->glconfig.vidWidth, DC->glconfig.vidHeight, 0.f, 0.f, 1.f, 1.f, menu->window.background, qfalse);
 	} else if (menu->window.background) {
 		// this allows a background shader without being full screen
 		//UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);

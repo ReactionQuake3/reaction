@@ -8371,6 +8371,11 @@ UI_MouseEvent
 */
 void _UI_MouseEvent(int dx, int dy)
 {
+	const int MIN_X = (int)(0.5f * (SCREEN_WIDTH - SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / (float)uiInfo.uiDC.glconfig.vidHeight));
+	const int MAX_X = SCREEN_WIDTH - MIN_X;
+	const int MIN_Y = 0;
+	const int MAX_Y = SCREEN_HEIGHT;
+
 	//Makro - added tablet code
 	if (ui_RQ3_tabletMode.integer)
 	{
@@ -8384,15 +8389,15 @@ void _UI_MouseEvent(int dx, int dy)
 		uiInfo.uiDC.cursory += dy;
 	}
 
-	if (uiInfo.uiDC.cursorx < 0)
-		uiInfo.uiDC.cursorx = 0;
-	else if (uiInfo.uiDC.cursorx > SCREEN_WIDTH)
-		uiInfo.uiDC.cursorx = SCREEN_WIDTH;
+	if (uiInfo.uiDC.cursorx < MIN_X)
+		uiInfo.uiDC.cursorx = MIN_X;
+	else if (uiInfo.uiDC.cursorx > MAX_X)
+		uiInfo.uiDC.cursorx = MAX_X;
 
-	if (uiInfo.uiDC.cursory < 0)
-		uiInfo.uiDC.cursory = 0;
-	else if (uiInfo.uiDC.cursory > SCREEN_HEIGHT)
-		uiInfo.uiDC.cursory = SCREEN_HEIGHT;
+	if (uiInfo.uiDC.cursory < MIN_Y)
+		uiInfo.uiDC.cursory = MIN_Y;
+	else if (uiInfo.uiDC.cursory > MAX_Y)
+		uiInfo.uiDC.cursory = MAX_Y;
 
 	if (Menu_Count() > 0) {
 		//menuDef_t *menu = Menu_GetFocused();
