@@ -161,14 +161,10 @@
 	name "_common_"
 	type ITEM_TYPE_MODEL
 	asset_model UI_ASSETS"/models/gun/gun.md3"
-	rect 0 0 640 480
-	model_fovx 40
-	model_fovy 30
-	model_origin 16 8 -8.5
-	//model_origin 40 8 -8.5
+	rect -200 160 640 640
+	model_fovx 60
+	model_fovy 60
 	model_angles 90 156 0
-	//model_angles 180 90 0
-	//model_rotation 90 0 0
 	visible 1
 	decoration
 	}
