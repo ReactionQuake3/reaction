@@ -854,6 +854,9 @@ static int CG_CalcFov(void)
 		cg.zoomSensLock = qfalse;
 	}
 
+	// Makro - adjust for cg_fov
+	fov_x *= cg_fov.value / 90.f;
+
 	// Makro - adjust for wide screen
 	// We first determine fov_y corresponding to the previously computed fov_x,
 	// if the screen had been 4:3. Then, given that fov_y, we determine fov_x
@@ -877,6 +880,7 @@ static int CG_CalcFov(void)
 	// set it
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
+
 	//Slicer: Don't calculate new values for the zoomSensitivity when doing the firing sequence
 	if(!cg.zoomSensLock) {
 		if (!cg.zoomed ) {
