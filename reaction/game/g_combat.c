@@ -1514,6 +1514,15 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			} else if (self->client->ps.powerups[PW_BLUEFLAG]) {	// only happens in standard CTF
 				Team_ReturnFlag(TEAM_BLUE);
 			}
+		} else if ( g_gametype.integer == GT_FFA ) {
+			int i=0;
+			for (i=0; i < HI_NUM_HOLDABLE; i++)
+			{
+				if ( self->client->ps.stats[STAT_HOLDABLE_ITEM] & (1<< i))
+				{
+					RQ3_ResetItem(i);
+				}
+			}
 		}
 	}
 
