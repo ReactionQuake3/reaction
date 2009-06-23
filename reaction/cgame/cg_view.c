@@ -702,7 +702,6 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 
 static int CG_CalcFov(void)
 {
-	float x;
 	float phase;
 	float v;
 	int contents;
@@ -736,7 +735,7 @@ static int CG_CalcFov(void)
 				zoomFov = 90;
 				cg.zoomed = qfalse;
 			} else {
-				switch ((int) fov_x) {
+				switch (CG_RQ3_GetLastFov()) {
 				case 20:
 					zoomFov = 10;
 					cg.zoomed = qtrue;
@@ -855,9 +854,13 @@ static int CG_CalcFov(void)
 		cg.zoomSensLock = qfalse;
 	}
 
-	x = cg.refdef.width / tan(fov_x / 360 * M_PI);
-	fov_y = atan2(cg.refdef.height, x);
-	fov_y = fov_y * 360 / M_PI;
+	// Makro - adjust for wide screen
+	// We first determine fov_y corresponding to the previously computed fov_x,
+	// if the screen had been 4:3. Then, given that fov_y, we determine fov_x
+	// taking into account the actual aspect ratio.
+
+	fov_y = atan2(tan(fov_x / 360 * M_PI), 4.f / 3.f) * 360 / M_PI;
+	fov_x = 360.f / M_PI * atan2(tan(fov_y * M_PI / 360.f) * cg.refdef.width, cg.refdef.height);
 
 	// warp if underwater
 	contents = CG_PointContents(cg.refdef.vieworg, -1);
@@ -883,7 +886,7 @@ static int CG_CalcFov(void)
 				cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
 			else {
 				// Use user-defined sensitivites
-				switch ((int) fov_x) {
+				switch (CG_RQ3_GetLastFov()) {
 				case 45:
 					cg.zoomSensitivity = cg_RQ3_ssgSensitivity2x.value;
 					break;
