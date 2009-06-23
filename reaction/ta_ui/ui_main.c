@@ -3063,14 +3063,8 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 			float pt[2];
 			float mx, my;
 
-			vec4_t black = { 0, 0, 0, 1};
-			
 			pt[0] = rect->x;
 			pt[1] = rect->y;
-
-
-			UI_DrawAngledPic(pt[0], pt[1], rect->w, rect->h, rect->u, rect->v, black,
-				0.f, 0.f, 1.f, 1.f, /*uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]*/ uiInfo.uiDC.whiteShader);
 
 			mx = (rect->w - size) * 0.5f;
 			my = (rect->h - size) * 0.5f;
@@ -3079,7 +3073,7 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 			Vector2MA(pt, my, rect->v, pt);
 
 			UI_DrawAngledPic(pt[0], pt[1], size, size, rect->u, rect->v, color,
-				0.f, 0.f, 1.f, 1.f, /*uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]*/ uiInfo.uiDC.whiteShader);
+				0.f, 0.f, 1.f, 1.f, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
 		}
 		else
 			UI_DrawHandlePic(rect->x + (rect->w - size) * 0.5f, rect->y + (rect->h - size) * 0.5f, size, size,

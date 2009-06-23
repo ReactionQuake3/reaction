@@ -1995,9 +1995,10 @@ static void CG_DrawCrosshair(void)
 				const float ZMC_MAX = 0.175f;
 
 				float frac = (cg.refdef.fov_x - 10.f) / (90.f - 10.f);
-				float fCoord = ZMC_NORMAL * frac + ZMC_MAX * (1.f - frac);
+				float fCoordX = ZMC_NORMAL * frac + ZMC_MAX * (1.f - frac);
+				float fCoordY = fCoordX * cg.refdef.height / SCREEN_HEIGHT;
 
-				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, fCoord, fCoord, 1.f-fCoord, 1.f-fCoord, cgs.media.zoomMask);
+				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, fCoordX, fCoordY, 1.f - fCoordX, 1.f - fCoordY, cgs.media.zoomMask);
 			}
 
 			drawSSG = 1;
