@@ -1060,7 +1060,12 @@ extern qboolean UI_CursorInRect(int x, int y, int width, int height);
 
 //Makro - converted to macro
 extern void _UI_AdjustFrom640(float *x, float *y, float *w, float *h);
-#define UI_AdjustFrom640(px, py, pw, ph) (*(px) *= uiInfo.uiDC.xscale, *(py) *= uiInfo.uiDC.yscale, *(pw) *= uiInfo.uiDC.xscale, *(ph) *= uiInfo.uiDC.yscale)
+
+////////////////////////////////////////////////////////////////////////
+#define UI_AdjustFrom640(px, py, pw, ph)								\
+	(*(px) = (*px) * uiInfo.uiDC.xscale + uiInfo.uiDC.bias, *(py) *= uiInfo.uiDC.yscale,			\
+	*(pw) *= uiInfo.uiDC.xscale, *(ph) *= uiInfo.uiDC.yscale)			\
+////////////////////////////////////////////////////////////////////////
 
 extern void UI_DrawTextBox(int x, int y, int width, int lines);
 extern qboolean UI_IsFullscreen(void);

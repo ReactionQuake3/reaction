@@ -8140,28 +8140,20 @@ void _UI_Init(qboolean inGameLoad)
 	}
 
 	// for 640x480 virtualized screen
-	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.0 / 480.0);
-	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * (1.0 / 640.0);
-	if (uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640) {
-		// wide screen
-		uiInfo.uiDC.bias =
-		    0.5 * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * (640.0 / 480.0)));
-	} else {
-		// no wide screen
-		uiInfo.uiDC.bias = 0;
-	}
+	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * (1.f / SCREEN_HEIGHT);
+	uiInfo.uiDC.xscale = uiInfo.uiDC.yscale;
+	uiInfo.uiDC.bias = 0.5f * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * SCREEN_WIDTH / (float)SCREEN_HEIGHT));
 
 	//Makro - set up 2D scene
 	memset(&uiInfo.uiDC.scene2D, 0, sizeof(&uiInfo.uiDC.scene2D));
 	uiInfo.uiDC.scene2D.x = 0;
 	uiInfo.uiDC.scene2D.y = 0;
-	uiInfo.uiDC.scene2D.width = 640 * uiInfo.uiDC.xscale;
-	uiInfo.uiDC.scene2D.height = 480 * uiInfo.uiDC.yscale ;
-	uiInfo.uiDC.scene2D.fov_x = 90;
+	uiInfo.uiDC.scene2D.width = uiInfo.uiDC.glconfig.vidWidth;
+	uiInfo.uiDC.scene2D.height = uiInfo.uiDC.glconfig.vidHeight;
 	uiInfo.uiDC.scene2D.fov_y = 73.739795291688f;
+	uiInfo.uiDC.scene2D.fov_x = 360.f / M_PI * atan2(tan(uiInfo.uiDC.scene2D.fov_y * M_PI / 360.f) * uiInfo.uiDC.glconfig.vidWidth, (float)uiInfo.uiDC.glconfig.vidHeight);
 	uiInfo.uiDC.scene2D.rdflags = RDF_NOWORLDMODEL | RDF_NOFOG;
 	AxisClear(uiInfo.uiDC.scene2D.viewaxis);
-
 	
 	//Makro - default values for the key bind strings
 	uiInfo.keyBindStatus1 = KEYBIND_STATUS1;
