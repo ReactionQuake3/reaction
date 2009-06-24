@@ -6620,14 +6620,15 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 
 		float tex[2];
 
-		if (sx > sy)
+		if (sx >= sy)
 		{
 			tex[0] = 0.f;
-			tex[1] = 0.5f * (sx - sy);
+			tex[1] = 0.5f * (1.f - sy / sx);
+			
 		}
 		else
 		{
-			tex[0] = 0.5f * (sy - sx);
+			tex[0] = 0.5f * (1.f - sx / sy);
 			tex[1] = 0.f;
 		}
 
