@@ -123,6 +123,8 @@
 #define WINDOW_RANDOM_TCGEN			0x04000000
 //Makro - parent is moved around when this item is clicked
 #define WINDOW_MENU_ANCHOR			0x08000000
+//Makro - window is fullscreen
+#define WINDOW_FULLSCREEN			0x10000000
 
 // CGAME cursor type bits
 #define CURSOR_NONE					0x00000001
@@ -615,6 +617,10 @@ typedef struct {
 	//Makro - gl extensions
 	const char *glExtensions[MAX_NUM_GL_EXTENSIONS];
 	int numGlExtensions;
+
+	// Makro - total screen extents (which can go outside 0,0-640,480 for wide screens)
+	float min[2];
+	float max[2];
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);

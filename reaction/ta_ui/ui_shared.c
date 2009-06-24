@@ -507,19 +507,32 @@ qboolean PC_Float_Parse(int handle, float *f)
 
 	if (!trap_PC_ReadToken(handle, &token))
 		return qfalse;
-	if (token.string[0] == '-') {
+
+	while (token.type == TT_PUNCTUATION)
+	{
+		if (token.string[0] != '-')
+		{
+			PC_SourceError(handle, "expected float but found %s\n", token.string);
+			return qfalse;
+		}
+		
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
-		negative = qtrue;
+		
+		negative ^= qtrue;
 	}
-	if (token.type != TT_NUMBER) {
+
+	if (token.type != TT_NUMBER)
+	{
 		PC_SourceError(handle, "expected float but found %s\n", token.string);
 		return qfalse;
 	}
+	
 	if (negative)
-		*f = -token.floatvalue;
+		*f = -atof(token.string);
 	else
-		*f = token.floatvalue;
+		*f = atof(token.string);
+	
 	return qtrue;
 }
 
@@ -601,7 +614,7 @@ qboolean PC_Int_Parse(int handle, int *i)
 		PC_SourceError(handle, "expected integer but found %s\n", token.string);
 		return qfalse;
 	}
-	*i = token.intvalue;
+	*i = atoi(token.string);
 	if (negative)
 		*i = -*i;
 	return qtrue;

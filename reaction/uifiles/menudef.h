@@ -1,3 +1,4 @@
+#include "ui/runtime.h"
 
 #define ITEM_TYPE_TEXT 0                  // simple text
 #define ITEM_TYPE_BUTTON 1                // button, basically text with a border 

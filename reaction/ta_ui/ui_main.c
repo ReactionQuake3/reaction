@@ -539,6 +539,7 @@ int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int ar
 	return -1;
 }
 
+
 /*
 ==========================
 UI_FileExists
@@ -556,6 +557,62 @@ qboolean UI_FileExists(const char *filename)
 	}
 	return qfalse;
 }
+
+// Makro - temporary file with #define's
+static const char* s_symbols_temp_file_name = "ui/runtime.h";
+
+
+static void FS_WriteText(fileHandle_t file, const char* text)
+{
+	trap_FS_Write(text, strlen(text), file);
+}
+
+
+static void DefineSymbol(fileHandle_t f, const char* name, const char* value)
+{
+	char buffer[512];
+
+	if (value && *value)
+		Com_sprintf(buffer, sizeof(buffer), "#define %s %s\n", name, value);
+	else
+		Com_sprintf(buffer, sizeof(buffer), "#define %s\n", name);
+
+	FS_WriteText(f, va("#ifdef %s\n", name));
+	FS_WriteText(f, va("#	undef %s\n", name));
+	FS_WriteText(f, va("#endif // def %s\n", name));
+
+	FS_WriteText(f, buffer);
+}
+
+
+static void UI_ExportSymbols()
+{
+	// Makro - this is a hack that allows us to export resolution-dependent symbols to the scripts.
+	// We could call trap_PC_AddGlobalDefine, but there's no undefine function...
+
+	fileHandle_t f;
+	const char* fname = s_symbols_temp_file_name;
+	if (trap_FS_FOpenFile(fname, &f, FS_WRITE) >= 0)
+	{
+		DefineSymbol(f, "UI_MINX", va("%.0f", uiInfo.uiDC.min[0]));
+		DefineSymbol(f, "UI_MINY", va("%.0f", uiInfo.uiDC.min[1]));
+		DefineSymbol(f, "UI_MAXX", va("%.0f", uiInfo.uiDC.max[0]));
+		DefineSymbol(f, "UI_MAXY", va("%.0f", uiInfo.uiDC.max[1]));
+		
+		trap_FS_FCloseFile(f);
+	}
+	else
+		Com_Error(ERR_FATAL, "Could not create temporary UI symbol file!\n", fname);
+}
+
+static void UI_CleanUpSymbols()
+{
+	fileHandle_t f;
+	const char* fname = s_symbols_temp_file_name;
+	if (trap_FS_FOpenFile(fname, &f, FS_WRITE) >= 0)
+		trap_FS_FCloseFile(f);
+}
+
 
 //Makro - registers an asset; path is relative to the assetsPath
 qhandle_t Asset_RegisterShaderNoMip(const char *path)
@@ -1592,6 +1649,7 @@ _UI_Shutdown
 */
 void _UI_Shutdown(void)
 {
+	UI_CleanUpSymbols();
 	trap_LAN_SaveCachedServers();
 }
 
@@ -8095,7 +8153,6 @@ static void UI_MakeExtensionsList()
 	}
 }
 
-
 /*
 =================
 UI_Init
@@ -8239,7 +8296,14 @@ void _UI_Init(qboolean inGameLoad)
 
 	AssetCache();
 
+	uiInfo.uiDC.min[0] = 0.5f * (SCREEN_WIDTH - SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / (float)uiInfo.uiDC.glconfig.vidHeight);
+	uiInfo.uiDC.min[1] = 0;
+	uiInfo.uiDC.max[0] = SCREEN_WIDTH - uiInfo.uiDC.min[0];
+	uiInfo.uiDC.max[1] = SCREEN_HEIGHT;
+
 	start = trap_Milliseconds();
+
+	UI_ExportSymbols();
 
 	uiInfo.teamCount = 0;
 	uiInfo.characterCount = 0;
@@ -8371,10 +8435,10 @@ UI_MouseEvent
 */
 void _UI_MouseEvent(int dx, int dy)
 {
-	const int MIN_X = (int)(0.5f * (SCREEN_WIDTH - SCREEN_HEIGHT * uiInfo.uiDC.glconfig.vidWidth / (float)uiInfo.uiDC.glconfig.vidHeight));
-	const int MAX_X = SCREEN_WIDTH - MIN_X;
-	const int MIN_Y = 0;
-	const int MAX_Y = SCREEN_HEIGHT;
+	const int MIN_X = (int)uiInfo.uiDC.min[0];
+	const int MIN_Y = (int)uiInfo.uiDC.min[1];
+	const int MAX_X = (int)uiInfo.uiDC.max[0];
+	const int MAX_Y = (int)uiInfo.uiDC.max[1];
 
 	//Makro - added tablet code
 	if (ui_RQ3_tabletMode.integer)
