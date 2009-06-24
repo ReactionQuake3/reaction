@@ -79,13 +79,17 @@
 	name "_common_"
 	type ITEM_TYPE_MODEL
 	asset_model UI_ASSETS"/models/phone2/phone.md3"
-	rect 0 0 640 480
+	//rect 0 0 640 480
+	rect -216 -316 640 640
+	//model_fovx 40
+	//model_fovy 30
 	model_fovx 40
-	model_fovy 30
-	//model_origin 20 6 5.5
-	model_origin 20 5 5.5
-	//model_angles 90 34 270
-	model_angles 90 34 280
+	model_fovy 40
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 1
+	model_origin 20 0 0
+	//model_angles 90 34 280
+	model_angles 90 34 296
 	visible 1
 	decoration
 	}
@@ -97,13 +101,12 @@
 	ownerdraw UI_CLOCK
 	forecolor 1 1 1 1
 	textalign 0
-	//textalignx 16
-	//textaligny 5
-	//textalignx 16
 	textaligny 20
 	textscale .15
-	rect 40 66 72 20
+	rect 35 64 48 20
 	style WINDOW_STYLE_EMPTY
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 1
 	visible 1
 	//anglevectors 124 36
 	anglevectors 122 33
@@ -177,12 +180,17 @@
 	name "_common_"
 	type ITEM_TYPE_MODEL
 	asset_model UI_ASSETS"/models/bottle/bottle.md3"
-	rect 0 0 640 480
+	//rect 0 0 640 480
+	rect 236 -80 640 640
+	//model_fovx 40
+	//model_fovy 30
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 1
 	model_fovx 40
-	model_fovy 30
-	model_origin 50 -16 12
-	model_angles 278 198 97
-	//model_angles 270 198 90
+	model_fovy 40
+	model_origin 50 0 12
+	model_angles 292 198 97
+	//model_angles 278 198 97
 	visible 1
 	decoration
 	}
