@@ -594,10 +594,13 @@ static void UI_ExportSymbols()
 	const char* fname = s_symbols_temp_file_name;
 	if (trap_FS_FOpenFile(fname, &f, FS_WRITE) >= 0)
 	{
-		DefineSymbol(f, "UI_MINX", va("%.0f", uiInfo.uiDC.min[0]));
-		DefineSymbol(f, "UI_MINY", va("%.0f", uiInfo.uiDC.min[1]));
-		DefineSymbol(f, "UI_MAXX", va("%.0f", uiInfo.uiDC.max[0]));
-		DefineSymbol(f, "UI_MAXY", va("%.0f", uiInfo.uiDC.max[1]));
+		DefineSymbol(f, "UI_MINX", va("%f", uiInfo.uiDC.min[0]));
+		DefineSymbol(f, "UI_MINY", va("%f", uiInfo.uiDC.min[1]));
+		DefineSymbol(f, "UI_MAXX", va("%f", uiInfo.uiDC.max[0]));
+		DefineSymbol(f, "UI_MAXY", va("%f", uiInfo.uiDC.max[1]));
+		
+		DefineSymbol(f, "UI_WIDTH", va("%f", uiInfo.uiDC.max[0] - uiInfo.uiDC.min[0]));
+		DefineSymbol(f, "UI_HEIGHT", va("%f", uiInfo.uiDC.max[1] - uiInfo.uiDC.min[1]));
 		
 		trap_FS_FCloseFile(f);
 	}
