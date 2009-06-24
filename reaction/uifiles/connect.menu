@@ -89,7 +89,7 @@
 	itemDef {
 	style WINDOW_STYLE_FILLED
 	backcolor 0 0 0 0.9
-	rect 0 0 640 480
+	rect UI_MINX UI_MINY $evalfloat(UI_MAXX - UI_MINX) $evalfloat(UI_MAXY - UI_MINY)
 	decoration
 	visible 1
 	}

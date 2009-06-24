@@ -16,9 +16,8 @@
 	//style 0
 	textstyle 3
 	textscale .15
-	//rect 0 444 272 28
-	rect 384 444 272 28
-  textalign 0
+	rect $evalfloat(UI_MAXX - 256) 444 272 28
+	textalign 0
 	textaligny 8
 	textalignx 8
 	//forecolor 1 1 1 .5
@@ -33,8 +32,7 @@
 	name "rq3_logo,_common_"
 	type 1
 	background UI_ASSETS"/rq3-title-logo.tga"
-	//rect 458 404 176 72
-	rect 458 404 176 77
+	rect $evalfloat(UI_MAXX - 182) 404 176 77
 	//vectors 0.988 -0.156 0.156 0.988
 	style WINDOW_STYLE_SHADER
 	visible 1
