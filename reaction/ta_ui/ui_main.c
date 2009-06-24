@@ -573,9 +573,9 @@ static void DefineSymbol(fileHandle_t f, const char* name, const char* value)
 	char buffer[512];
 
 	if (value && *value)
-		Com_sprintf(buffer, sizeof(buffer), "#define %s %s\n", name, value);
+		Com_sprintf(buffer, sizeof(buffer), "#define %s %s\n\n", name, value);
 	else
-		Com_sprintf(buffer, sizeof(buffer), "#define %s\n", name);
+		Com_sprintf(buffer, sizeof(buffer), "#define %s\n\n", name);
 
 	FS_WriteText(f, va("#ifdef %s\n", name));
 	FS_WriteText(f, va("#	undef %s\n", name));
@@ -594,6 +594,13 @@ static void UI_ExportSymbols()
 	const char* fname = s_symbols_temp_file_name;
 	if (trap_FS_FOpenFile(fname, &f, FS_WRITE) >= 0)
 	{
+		FS_WriteText(f,	"#ifndef _UI_RUNTIME_H_INCLUDED_\n"
+						"#define _UI_RUNTIME_H_INCLUDED_\n"
+						"\n"
+						"// This script is generated automatically by Reaction\n"
+						"\n"
+						);
+
 		DefineSymbol(f, "UI_MINX", va("%f", uiInfo.uiDC.min[0]));
 		DefineSymbol(f, "UI_MINY", va("%f", uiInfo.uiDC.min[1]));
 		DefineSymbol(f, "UI_MAXX", va("%f", uiInfo.uiDC.max[0]));
@@ -602,6 +609,9 @@ static void UI_ExportSymbols()
 		DefineSymbol(f, "UI_WIDTH", va("%f", uiInfo.uiDC.max[0] - uiInfo.uiDC.min[0]));
 		DefineSymbol(f, "UI_HEIGHT", va("%f", uiInfo.uiDC.max[1] - uiInfo.uiDC.min[1]));
 		
+		FS_WriteText(f,	"\n"
+						"#endif // ndef _UI_RUNTIME_H_INCLUDED_\n\n");
+
 		trap_FS_FCloseFile(f);
 	}
 	else
