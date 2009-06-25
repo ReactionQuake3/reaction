@@ -4,7 +4,7 @@
 
   menuDef {
     name "credit"
-    background UI_ASSETS"/main_new"		// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+    background UI_ASSETS"/main"		// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
 							// to use the current background
     fullScreen 1
     visible 0					// Visible on open
@@ -1716,7 +1716,7 @@
 	itemDef {
 	name "timer27"
 	group timer	
-	rect 0 0 640 480
+	rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
 	style WINDOW_STYLE_EMPTY
 	backcolor 0 0 0 1
 	visible 0
@@ -1734,7 +1734,7 @@
 
 	itemDef {
 	name "blackBackground"
-	rect 0 0 640 480
+	rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
 	style WINDOW_STYLE_FILLED
 	backcolor 0 0 0 1
 	visible 0
@@ -1989,7 +1989,7 @@
 	name "hint"
 	text "ESC to exit"
 	rect UI_MINX 8 UI_WIDTH 40
-	forecolor 0 0 0 1
+	forecolor 1 1 1 1
 	textalign ITEM_ALIGN_RIGHT
 	textalignx $evalfloat(UI_WIDTH - 8)
 	textaligny 12
