@@ -19,7 +19,7 @@
       play "sound/ui/whoosh3.wav" ;
       //exec "set s_musicvolume 1" ;
       playlooped "music/sonic1" ;
-      transition hint  0 "-40" 640 40  0 0 640 40   20 10 ;
+      transition hint  UI_MINX -40 UI_WIDTH 40  UI_MINX 8 UI_WIDTH 40   20 10 ;
 	  //hide timer ;
 	  startTimer 
     }
@@ -1988,10 +1988,10 @@
     itemDef {
 	name "hint"
 	text "ESC to exit"
-	rect 0 8 640 40
+	rect UI_MINX 8 UI_WIDTH 40
 	forecolor 0 0 0 1
 	textalign ITEM_ALIGN_RIGHT
-	textalignx 632
+	textalignx $evalfloat(UI_WIDTH - 8)
 	textaligny 12
 	textscale .2
 	type ITEM_TYPE_TEXT
