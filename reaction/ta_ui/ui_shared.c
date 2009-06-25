@@ -485,10 +485,23 @@ Float_Parse
 qboolean Float_Parse(char **p, float *f)
 {
 	char *token;
+	qboolean negative = qfalse;
 
-	token = COM_ParseExt(p, qfalse);
-	if (token && token[0] != 0) {
+	for (	token = COM_ParseExt(p, qfalse);
+			token && *token;
+			token = COM_ParseExt(p, qfalse)	)
+	{
+		if (*token != '-')
+			break;
+
+		negative ^= qtrue;
+	}
+
+	if (token && token[0] != 0)
+	{
 		*f = atof(token);
+		if (negative)
+			*f = -*f;
 		return qtrue;
 	} else {
 		return qfalse;
@@ -582,11 +595,23 @@ Int_Parse
 qboolean Int_Parse(char **p, int *i)
 {
 	char *token;
+	qboolean negative = qfalse;
 
-	token = COM_ParseExt(p, qfalse);
+	for (	token = COM_ParseExt(p, qfalse);
+			token && *token;
+			token = COM_ParseExt(p, qfalse)	)
+	{
+		if (*token != '-')
+			break;
 
-	if (token && token[0] != 0) {
+		negative ^= qtrue;
+	}
+
+	if (token && token[0] != 0)
+	{
 		*i = atoi(token);
+		if (negative)
+			*i = -*i;
 		return qtrue;
 	} else {
 		return qfalse;
