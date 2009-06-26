@@ -491,7 +491,7 @@ qboolean Float_Parse(char **p, float *f)
 			token && *token;
 			token = COM_ParseExt(p, qfalse)	)
 	{
-		if (*token != '-')
+		if (*token != '-' || token[1] != 0)
 			break;
 
 		negative ^= qtrue;
@@ -601,7 +601,7 @@ qboolean Int_Parse(char **p, int *i)
 			token && *token;
 			token = COM_ParseExt(p, qfalse)	)
 	{
-		if (*token != '-')
+		if (*token != '-' || token[1] != 0)
 			break;
 
 		negative ^= qtrue;
@@ -630,18 +630,32 @@ qboolean PC_Int_Parse(int handle, int *i)
 
 	if (!trap_PC_ReadToken(handle, &token))
 		return qfalse;
-	if (token.string[0] == '-') {
+
+	while (token.type == TT_PUNCTUATION)
+	{
+		if (token.string[0] != '-')
+		{
+			PC_SourceError(handle, "expected integer but found %s\n", token.string);
+			return qfalse;
+		}
+		
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
-		negative = qtrue;
+		
+		negative ^= qtrue;
 	}
-	if (token.type != TT_NUMBER) {
+
+	if (token.type != TT_NUMBER)
+	{
 		PC_SourceError(handle, "expected integer but found %s\n", token.string);
 		return qfalse;
 	}
-	*i = atoi(token.string);
+	
 	if (negative)
-		*i = -*i;
+		*i = -atoi(token.string);
+	else
+		*i = atoi(token.string);
+	
 	return qtrue;
 }
 
