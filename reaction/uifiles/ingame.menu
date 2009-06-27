@@ -2,448 +2,458 @@
 
 {
 
-    assetGlobalDef {
-	font "fonts/font" 16				// font
-	smallFont "fonts/smallfont" 12				// font
-	bigFont "fonts/bigfont" 20				// font
-	//cursor "gfx/rq3_ta_hud/3_cursor2.tga"		// cursor
-	cursor UI_ASSETS"/cursor.tga"
-	cursorSize 64
-	gradientBar "ui/assets/gradientbar2.tga"	// gradient bar
-    itemFocusSound "sound/ui/whoosh2.wav"		// sound for item getting focus (via keyboard or mouse )
+	menuDef {
+		name "ingame"
+		visible 0
+		fullScreen 0
+		//onOOBClick { close _self }  // this closes the window if it gets a click out of the rectangle
+		rect 0 0 640 480
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		disableColor .5 .5 .5 1
+		//onOpen { hide confirm ; play "sound/ui/whoosh3.wav" ; setfocus "btn-about" ; }
+		onOpen { play "sound/ui/whoosh3.wav" ; setfocus "btn-about" ; }
 
-	fadeClamp 1.0					// sets the fadeup alpha
-	fadeCycle 1					// how often fade happens in milliseconds
-	fadeAmount 0.1					// amount to adjust alpha per cycle
+		itemdef {
+			name "ig-overlay"
+			group background
+			//rect 0 0 640 480
+			rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
+			style WINDOW_STYLE_FILLED
+			backcolor 0 0 0 0.5
+			visible 1
+			decoration
+		}
 
-	shadowColor 0.1 0.1 0.1 0.25			// shadow color
-    }
+		itemDef {
+			name "ig-logo"
+			group background
+			rect 88 16 256 128
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/ingame-logo"
+			forecolor 1 1 1 1
+			visible 0
+			decoration
+		}
 
 
-    menuDef {
-	name "ingame"
-	visible 0
-	fullScreen 0
-	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	onOOBClick { close _self }
-	rect 0 0 640 36
-	focusColor 1 .75 0 1
-	disableColor .5 .5 .5 1
-	onOpen { play "sound/misc/menu2.wav" ; setfocus "ig-player" ; }
+		itemDef {
+			renderpoint
+			name "postit2"
+			group ingameMain
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/post_it"
+			//forecolor .8 .85 .9 1
+			forecolor 0.85 0.75 0.5 1
+			//rect -20 136 180 152
+			rect $evalfloat(UI_MINX - 20) 136 180 152
+			anglevectors -6 -96
+			visible 1
+			decoration
+		}
 
-    itemdef {
-	name "ig-bground"
-	rect 0 0 640 36
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-background"
-	//backcolor 0 0 0 .5
-	visible 1
-	decoration
-    }
+		//Restart
 
-    itemdef {
-	name "ig-bground-bar"
-	rect 0 36 640 2
-	style WINDOW_STYLE_FILLED
-	//backcolor 1 0 0 1
-	backcolor .5 .5 .5 1
-	visible 1
-	decoration
-    }
+		itemdef {
+			renderpoint
+			name "btn_restart"
+			group ingameMain
+			text "> ^_R^_estart map"
+			shortcutKey "R"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "postit2" ITEM_ALIGN_LEFT 32 8 120 24
+			//alignrect "postit2" ITEM_ALIGN_LEFT $evalfloat(UI_MINX + 32) 8 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			//action { show confirm }
+			action { open confirmRestart }
+		}
 
-    itemdef {
-	name "ig-logo"
-	rect 4 0 96 32
-	style WINDOW_STYLE_SHADER
-	background UI_ASSETS"/icons/rq3-title-logo"
-	visible 1
-	decoration
-    }
+		//Exit to main menu
 
-//Box for hints
+		itemdef {
+			name "btn_mainmenu"
+			group ingameMain
+			text "> ^_M^_ain menu"
+			shortcutKey "M"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "btn_restart" ITEM_ALIGN_LEFT 0 20 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			action { open confirmMain }
+		}
 
-    itemDef {
-	style WINDOW_STYLE_SHADER
-	rect 384 26 40 20
-	background "ui/assets/rq3-main-box-3.tga"
-	visible 1
-	decoration
-    }
+		//Quit game
 
-    itemDef {
-	style WINDOW_STYLE_SHADER
-	rect 424 26 216 20
-	background "ui/assets/rq3-main-box-1.tga"
-	visible 1
-	decoration
-    }
+		itemdef {
+			name "btn_quit"
+			group ingameMain
+			text "> ^_E^_xit Reaction"
+			shortcutKey "E"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "btn_mainmenu" ITEM_ALIGN_LEFT 0 20 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			action { open confirmQuit }
+		}
 
-//Buttons
 
-    itemdef {
-	name "ig-player"
-	rect 116 8 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_P^_layer"
-	shortcutKey "P"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	action { open ingame_player }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-player-hint" ; timeFade "ig-player-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-player-hint" forecolor .9 .9 .9 0 0 250 }
-    }
 
-    itemdef {
-	name "ig-options"
-	rect 180 8 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_O^_ptions"
-	shortcutKey "O"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	action { open ingame_system }
-	//action { exec "screenshotJPEG" ; }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-options-hint" ; timeFade "ig-options-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-options-hint" forecolor .9 .9 .9 0 0 250 }
-    }
 
-    itemdef {
-	name "ig-about"
-	rect 244 8 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_A^_bout"
-	shortcutKey "A"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	action { open ingame_about }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-about-hint" ; timeFade "ig-about-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-about-hint" forecolor .9 .9 .9 0 0 250 }
-    }
 
-    itemdef {
-	name "ig-matchmode"
-	rect 308 8 68 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 34
-	textaligny 12
-	text "^_M^_atchmode"
-	shortcutKey "M"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	cvarTest "g_RQ3_matchMode"
-	enableCvar { "1" }
-	action { open ingame_matchmode }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-matchmode-hint" ; timeFade "ig-matchmode-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-matchmode-hint" forecolor .9 .9 .9 0 0 250 }
-    }
+		itemDef {
+			renderpoint
+			name "postit"
+			group ingameMain
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/post_it"
+			//forecolor .8 .85 .9 1
+			forecolor 0.85 0.75 0.45 1
+			//rect -16 32 180 152
+			rect $evalfloat(UI_MINX - 16) 32 180 152
+			anglevectors 10 -80
+			visible 1
+			decoration
+		}
 
-    itemdef {
-	name "ig-vote"
-	rect 400 4 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_V^_ote"
-	shortcutKey "V"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	cvartest "g_allowVote"
-	disableCvar { "0" }
-	action { open ingame_vote }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-vote-hint" ; timeFade "ig-vote-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-vote-hint" forecolor .9 .9 .9 0 0 250 }
-    }
+		//About
+		
+		itemdef {
+			renderpoint
+			name "btn_about"
+			group ingameMain
+			text "> ^_S^_erver info"
+			shortcutKey "S"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "postit" ITEM_ALIGN_LEFT 32 8 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			action { open ingame_about }
+		}
 
-    itemdef {
-	name "ig-addbot"
-	rect 460 4 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "Add ^_b^_ot"
-	shortcutKey "B"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	cvartest "ui_singlePlayerActive"
-	disableCvar { "1" }
-	action { open ingame_addbot }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-addbot-hint" ; timeFade "ig-addbot-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-addbot-hint" forecolor .9 .9 .9 0 0 250 }
-    }
+		//Options
 
-    itemdef {
-	name "ig-devmode"
-	rect 520 4 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_D^_evmode"
-	shortcutKey "D"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	cvartest "sv_cheats"
-	enableCvar { "1" }
-	disableCvar { "0" }
-	action { open ingame_devmode }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-devmode-hint" ; timeFade "ig-devmode-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-devmode-hint" forecolor .9 .9 .9 0 0 250 }
-    }
+		itemdef {
+			name "btn_options"
+			group ingameMain
+			text "> ^_O^_ptions"
+			shortcutKey "O"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "btn_about" ITEM_ALIGN_LEFT 0 20 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			action { open ingame_setup }
+		}
 
-    itemdef {
-	name "ig-quit"
-	rect 580 4 52 16
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 26
-	textaligny 12
-	text "^_Q^_uit"
-	shortcutKey "Q"
-	border 1
-	bordersize 1
-	backcolor Ingame_Color1
-	forecolor Ingame_TextColor
-	bordercolor Ingame_BorderColor1
-	visible 1
-	action { open ingame_leave }
-	onFocus { setcolor backcolor Ingame_Color2 ; setcolor bordercolor Ingame_BorderColor2 ;
-		show "ig-quit-hint" ; timeFade "ig-quit-hint" forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setcolor backcolor Ingame_Color1 ; setcolor bordercolor Ingame_BorderColor1 ;
-		timeFade "ig-quit-hint" forecolor .9 .9 .9 0 0 250 }
-    }
+		//Ignore
 
-//Hints
+		itemdef {
+			name "btn_ignore"
+			group ingameMain
+			text "> ^_I^_gnore"
+			shortcutKey "I"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "btn_options" ITEM_ALIGN_LEFT 0 20 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			action { open ingame_ignore }
+		}
 
-    //Hint for player in teamplay mode
+		//Vote
 
-    itemdef {
-	name "ig-player-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Player options, team, weapon & item"
-	forecolor Ingame_HintColor
-	cvarTest "g_gameType"
-	showCvar { "4" }
-	visible 0
-	decoration
-    }
-
-    //Hint for player in a non-teamplay mode
-
-    itemdef {
-	name "ig-player-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Change player options"
-	forecolor Ingame_HintColor
-	cvarTest "g_gameType"
-	hideCvar { "4" }
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-options-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Controls, game & system options"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-about-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "View server info"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-devmode-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Developer mode commands"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-addbot-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Play against computer-controlled opponents"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-vote-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Vote yes/no or call a vote"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-matchmode-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "View/change match mode settings"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name "ig-quit-hint"
-	group "hints"
-	style WINDOW_STYLE_EMPTY
-	rect 400 28 240 16
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .2
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 236
-	textaligny 12
-	text "Exit Reaction Quake 3"
-	forecolor Ingame_HintColor
-	visible 0
-	decoration
-    }
-
+		itemdef {
+			name "btn_vote"
+			group ingameMain
+			text "> ^_V^_ote"
+			shortcutKey "V"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "btn_ignore" ITEM_ALIGN_LEFT 0 20 120 24
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			visible 1
+			cvartest "g_allowVote"
+			showCvar { "1" }
+			action { open ingame_vote }
+		}
   }
 
+
+
+	//Restart map
+
+	menuDef {
+		name "confirmRestart"
+		rect 108 152 152 144
+		onOpen { play "sound/ui/whoosh3.wav" }
+		onOOBClick { close _self ; open _prev }
+		onEsc { close _self ; open _prev }
+		disableColor  .5 .5 .5 1
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		style WINDOW_STYLE_EMPTY
+		//style WINDOW_STYLE_FILLED
+		//backcolor 0 0 0 1
+		fullscreen 0
+		popup
+
+		itemDef {
+			renderpoint
+			name "postit"
+			group confirm
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/post_it"
+			forecolor .94 .94 .82 1
+			rect -16 16 180 152
+			anglevectors 6 -84
+			visible 1
+			decoration
+		}
+		
+		itemdef {
+			renderpoint
+			name restartConfirm
+			group confirm
+			autowrapped
+			text "Restart map?"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "postit" ITEM_ALIGN_LEFT 44 8 120 24
+			style WINDOW_STYLE_EMPTY
+			decoration
+			visible 1
+		}
+
+		// YES	//
+
+		itemDef {
+			name yes
+			group confirm
+			text "^_Y^_ES"
+			shortcutKey "Y"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT 4 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "map_restart" ; close _self }
+		}
+
+		// NO	//
+
+		itemDef {
+			name no
+			group confirm
+			text "^_N^_O"
+			shortcutKey "N"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT 56 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { close _self ; open _prev }
+		}
+	}
+
+
+
+	// Exit to main menu
+
+	menuDef {
+		name "confirmMain"
+		rect 88 176 160 144
+		onOpen { play "sound/ui/whoosh3.wav" }
+		onOOBClick { close _self ; open _prev }
+		onEsc { close _self ; open _prev }
+		disableColor  .5 .5 .5 1
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		style WINDOW_STYLE_EMPTY
+		//style WINDOW_STYLE_FILLED
+		//backcolor 0 0 0 1
+		fullscreen 0
+		popup
+
+		itemDef {
+			renderpoint
+			name "postit"
+			group confirm
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/post_it"
+			forecolor .94 .94 .82 1
+			rect -4 4 180 152
+			anglevectors -2 -92
+			visible 1
+			decoration
+		}
+		
+		itemdef {
+			renderpoint
+			name restartConfirm
+			group confirm
+			autowrapped
+			text "Main menu?"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "postit" ITEM_ALIGN_LEFT 52 8 120 24
+			style WINDOW_STYLE_EMPTY
+			decoration
+			visible 1
+		}
+
+		// YES	//
+
+		itemDef {
+			name yes
+			group confirm
+			text "^_Y^_ES"
+			shortcutKey "Y"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT -4 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; close _self ; uiScript leave }
+		}
+
+		// NO	//
+
+		itemDef {
+			name no
+			group confirm
+			text "^_N^_O"
+			shortcutKey "N"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT 48 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { close _self ; open _prev }
+		}
+	}
+
+
+
+	// Quit game
+
+	menuDef {
+		name "confirmQuit"
+		rect 84 192 160 144
+		onOpen { play "sound/ui/whoosh3.wav" }
+		onOOBClick { close _self ; open _prev }
+		onEsc { close _self ; open _prev }
+		disableColor  .5 .5 .5 1
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		style WINDOW_STYLE_EMPTY
+		//style WINDOW_STYLE_FILLED
+		//backcolor 0 0 0 1
+		fullscreen 0
+		popup
+
+		itemDef {
+			renderpoint
+			name "postit"
+			group confirm
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/post_it"
+			forecolor .94 .94 .82 1
+			rect 0 0 180 152
+			anglevectors -9 -99
+			visible 1
+			decoration
+		}
+		
+		itemdef {
+			renderpoint
+			name restartConfirm
+			group confirm
+			autowrapped
+			text "Exit Reaction?"
+			forecolor 0 0 0 1
+			textaligny 20
+			textscale UI_MAIN_TEXTSIZE
+			alignrect "postit" ITEM_ALIGN_LEFT 44 8 120 24
+			style WINDOW_STYLE_EMPTY
+			decoration
+			visible 1
+		}
+
+		// YES	//
+
+		itemDef {
+			name yes
+			group confirm
+			text "^_Y^_ES"
+			shortcutKey "Y"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT 4 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; close _self ; uiScript quit }
+		}
+
+		// NO	//
+
+		itemDef {
+			name no
+			group confirm
+			text "^_N^_O"
+			shortcutKey "N"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			backcolor 0 0 0 .1
+			textscale .25
+			alignrect restartConfirm ITEM_ALIGN_LEFT 56 56 32 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 16
+			textaligny 12
+			forecolor 0 0 .15 1
+			visible 1
+			action { close _self ; open _prev }
+		}
+	}
 }
