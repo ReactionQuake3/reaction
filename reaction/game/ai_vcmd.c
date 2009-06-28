@@ -69,7 +69,7 @@
 // for the voice chats
 
 //Blaze: was there a extra ../ here?
-#include "../ta_ui/menudef.h"
+#include "../ui/menudef.h"
 
 typedef struct voiceCommand_s {
 	char *cmd;

@@ -78,7 +78,7 @@
 // for the voice chats
 
 //Blaze: Was there a extra ../?
-#include "../ta_ui/menudef.h"
+#include "../ui/menudef.h"
 
 int notleader[MAX_CLIENTS];
 

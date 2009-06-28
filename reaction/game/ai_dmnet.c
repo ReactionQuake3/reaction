@@ -132,7 +132,7 @@
 // for the voice chats
 
 //Blaze: was there a extra ../ here?
-#include "../ta_ui/menudef.h"
+#include "../ui/menudef.h"
 
 //Makro - to get rid of the warnings
 void Cmd_Bandage(gentity_t * ent);

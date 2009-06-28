@@ -502,7 +502,7 @@
 #include "zcam.h"
 
 //Blaze: was there a extra ../ here?
-#include "../ta_ui/menudef.h"	// for the voice chats
+#include "../ui/menudef.h"	// for the voice chats
 //Blaze for door code
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
 // JBravo: for kicking code

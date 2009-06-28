@@ -226,7 +226,7 @@
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-#include "../ta_ui/menudef.h"	// bk001205 - for Q3_ui as well
+#include "../ui/menudef.h"	// bk001205 - for Q3_ui as well
 
 //Blaze: holds the id to name mapping of the breakables
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
