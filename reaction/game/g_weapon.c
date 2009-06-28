@@ -547,6 +547,12 @@ void Bullet_Fire(gentity_t * ent, float spread, int damage, int MOD)
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
 //		G_UndoTimeShiftFor(ent);
 
+		// we traced from the muzzle, ignoring our entity, but triggered start solid.
+		// lets try again from our origin since we might just be really close to another player.
+		if ( tr.startsolid ) {
+			trap_Trace(&tr, ent->client->ps.origin, NULL, NULL, end, passent, MASK_SHOT);
+		}
+
 		//Makro - saving the material flag to avoid useless calls to the GetMaterialFromFlag function
 		Material = GetMaterialFromFlag(tr.surfaceFlags);
 
