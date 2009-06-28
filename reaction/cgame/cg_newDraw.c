@@ -28,7 +28,7 @@
 #endif
 
 #include "cg_local.h"
-#include "../ta_ui/ui_shared.h"
+#include "../ui/ui_shared.h"
 
 extern displayContextDef_t cgDC;
 
