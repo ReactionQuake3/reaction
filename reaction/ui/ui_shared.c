@@ -542,9 +542,9 @@ qboolean PC_Float_Parse(int handle, float *f)
 	}
 	
 	if (negative)
-		*f = -atof(token.string);
+		*f = -Q_fabs(token.floatvalue);
 	else
-		*f = atof(token.string);
+		*f = Q_fabs(token.floatvalue);
 	
 	return qtrue;
 }
@@ -652,9 +652,9 @@ qboolean PC_Int_Parse(int handle, int *i)
 	}
 	
 	if (negative)
-		*i = -atoi(token.string);
+		*i = -abs(token.intvalue);
 	else
-		*i = atoi(token.string);
+		*i = abs(token.intvalue);
 	
 	return qtrue;
 }
