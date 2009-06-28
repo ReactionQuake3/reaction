@@ -1743,8 +1743,8 @@ static void CG_RegisterSounds(void)
 	cgs.media.knifeDeathSound = trap_S_RegisterSound("sound/player/gurp2.wav", qfalse);
 	cgs.media.knifeHitSound = trap_S_RegisterSound("sound/misc/knife_hit.wav", qfalse);
 
-	cgs.media.teleInSound = trap_S_RegisterSound("sound/world/telein.wav", qfalse);
-	cgs.media.teleOutSound = trap_S_RegisterSound("sound/world/teleout.wav", qfalse);
+//	cgs.media.teleInSound = trap_S_RegisterSound("sound/world/telein.wav", qfalse);
+//	cgs.media.teleOutSound = trap_S_RegisterSound("sound/world/teleout.wav", qfalse);
 	cgs.media.respawnSound = trap_S_RegisterSound("sound/items/respawn1.wav", qfalse);
 
 	cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav", qfalse);
@@ -1769,7 +1769,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/watr_out.wav", qfalse);
 	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/watr_un.wav", qfalse);
 
-	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav", qfalse);
+//	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav", qfalse);
 
 	for (i = 0; i < 4; i++) {
 		Com_sprintf(name, sizeof(name), "sound/player/footsteps/step%i.wav", i + 1);

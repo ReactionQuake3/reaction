@@ -949,7 +949,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		//
 		// other events
 		//
-	case EV_PLAYER_TELEPORT_IN:
+/*	case EV_PLAYER_TELEPORT_IN:
 		DEBUGNAME("EV_PLAYER_TELEPORT_IN");
 		trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.teleInSound);
 		CG_SpawnEffect(position);
@@ -960,7 +960,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.teleOutSound);
 		CG_SpawnEffect(position);
 		break;
-
+*/
 	case EV_ITEM_POP:
 		DEBUGNAME("EV_ITEM_POP");
 		trap_S_StartSound(NULL, es->number, CHAN_AUTO, cgs.media.respawnSound);

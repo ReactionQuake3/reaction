@@ -1488,14 +1488,14 @@ typedef struct {
 	sfxHandle_t gibBounce1Sound;
 	sfxHandle_t gibBounce2Sound;
 	sfxHandle_t gibBounce3Sound;
-	sfxHandle_t teleInSound;
-	sfxHandle_t teleOutSound;
+//	sfxHandle_t teleInSound;
+//	sfxHandle_t teleOutSound;
 	sfxHandle_t noAmmoSound;
 	sfxHandle_t respawnSound;
 	sfxHandle_t talkSound;
 	sfxHandle_t landSound;
 	sfxHandle_t fallSound;
-	sfxHandle_t jumpPadSound;
+//	sfxHandle_t jumpPadSound;
 
 	sfxHandle_t oneMinuteSound;
 	sfxHandle_t fiveMinuteSound;
