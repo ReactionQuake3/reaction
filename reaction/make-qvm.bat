@@ -1,7 +1,7 @@
 @echo off
 cls
 
-REM *** Last updated: Mar 1 2009 -- TEMPORARY VERSION FOR OLD-STYLE SVN LAYOUT
+REM *** Last updated: Jun 27 2009
 
 REM *** The first part of this batch file is dedicated to checking that your QVM compiling
 REM *** environment is set up properly and double-checking that it is because you are an
@@ -88,17 +88,17 @@ echo %zipper%
 echo.
 
 
-REM *** Removing any previous QVM files. TEMPORARY CHANGE OF PATHS FOR OLD-STYLE SVN
+REM *** Removing any previous QVM files.
 echo.
 echo *** Removing any previous QVM files.
 del "%make-qvm-location%bin\qvm\vm\*.map"
 del "%make-qvm-location%bin\qvm\vm\*.qvm"
 del "%make-qvm-location%cgame\vm\*.asm"
 del "%make-qvm-location%game\vm\*.asm"
-del "%make-qvm-location%ta_ui\vm\*.asm"
+del "%make-qvm-location%ui\vm\*.asm"
 
 
-REM *** Generating the QVMs - TEMPORARY CHANGE OF PATHS FOR OLD-STYLE SVN
+REM *** Generating the QVMs
 REM *** Note: Q3_UI is not used by Reaction so is not compiled or included in the source.
 echo.
 echo *** Generating the QVMs
@@ -115,7 +115,7 @@ call make-game.bat
 cd..
 echo.
 echo *** Generating UI...
-cd "%make-qvm-location%"ta_ui
+cd "%make-qvm-location%"ui
 call make-ui.bat
 cd..
 
