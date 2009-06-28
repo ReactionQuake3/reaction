@@ -8,7 +8,9 @@
 # --Makefile variables--
 
 MOUNT_DIR=.
+ifndef Q3A_DIR
 Q3A_DIR=/home/ra/.q3a
+endif
 MOD_DIR=reaction
 
 # --object list--
@@ -330,6 +332,7 @@ install-qvm:qvm
 	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR) ];then mkdir $(Q3A_DIR)/$(MOD_DIR);fi
 	@if [ ! -d $(Q3A_DIR)/$(MOD_DIR)/vm ];then mkdir $(Q3A_DIR)/$(MOD_DIR)/vm;fi
 	cp $(BQ)/*.qvm $(Q3A_DIR)/$(MOD_DIR)/vm
+	cd $(Q3A_DIR)/$(MOD_DIR); zip -r zz-code.pk3 vm/*.qvm
 
 
 # --dependency rules--
