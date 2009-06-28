@@ -6085,7 +6085,7 @@ static void UI_RunMenuScript(char **args)
 			}
 			//trap_Cmd_ExecuteText( EXEC_NOW, "quit");
 			//Makro - saved config file before exiting
-			trap_Cmd_ExecuteText(EXEC_APPEND, "writeconfig rq3config.cfg ; quit\n");
+			trap_Cmd_ExecuteText(EXEC_APPEND, "writeconfig Reaction.cfg ; quit\n");
 			//Makro - weapon menu after joining a team
 		} else if (Q_stricmp(name, "weapAfterJoin") == 0) {
 			//only in teamplay
