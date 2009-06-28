@@ -234,31 +234,31 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_atoms.c"
+				RelativePath="..\..\ui\ui_atoms.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_gameinfo.c"
+				RelativePath="..\..\ui\ui_gameinfo.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_main.c"
+				RelativePath="..\..\ui\ui_main.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_players.c"
+				RelativePath="..\..\ui\ui_players.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_shared.c"
+				RelativePath="..\..\ui\ui_shared.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_syscalls.c"
+				RelativePath="..\..\ui\ui_syscalls.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_util.c"
+				RelativePath="..\..\ui\ui_util.c"
 				>
 			</File>
 		</Filter>
@@ -271,11 +271,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\keycodes.h"
+				RelativePath="..\..\ui\keycodes.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\menudef.h"
+				RelativePath="..\..\ui\menudef.h"
 				>
 			</File>
 			<File
@@ -291,15 +291,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_local.h"
+				RelativePath="..\..\ui\ui_local.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_public.h"
+				RelativePath="..\..\ui\ui_public.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ta_ui\ui_shared.h"
+				RelativePath="..\..\ui\ui_shared.h"
 				>
 			</File>
 		</Filter>
