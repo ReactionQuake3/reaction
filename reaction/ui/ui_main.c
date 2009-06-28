@@ -3181,10 +3181,17 @@ static void UI_DrawSSGCrosshair(rectDef_t * rect)
 	color[1] = trap_Cvar_VariableValue("cg_RQ3_ssgColorG");
 	color[2] = trap_Cvar_VariableValue("cg_RQ3_ssgColorB");
 	color[3] = trap_Cvar_VariableValue("cg_RQ3_ssgColorA");
-	trap_R_SetColor(color);
 
-	UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.uiDC.Assets.SSGcrosshairShader);
-	trap_R_SetColor(NULL);
+	if (rect->hasVectors)
+	{
+		UI_DrawAngledPic(rect->x, rect->y, rect->w, rect->h, rect->u, rect->v, color, 0.f, 0.f, 1.f, 1.f, uiInfo.uiDC.Assets.SSGcrosshairShader);
+	}
+	else
+	{
+		trap_R_SetColor(color);
+		UI_DrawHandlePic(rect->x, rect->y, rect->w, rect->h, uiInfo.uiDC.Assets.SSGcrosshairShader);
+		trap_R_SetColor(NULL);
+	}
 }
 
 /*
