@@ -1340,7 +1340,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// set some level globals
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
-	level.startTime = levelTime;
+	level.startTime = 0; // Our start time will be set when we finish "Action" the first time
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 

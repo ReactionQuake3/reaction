@@ -675,7 +675,18 @@ void CheckTeamRules()
 		}
 
 		if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_TEAM) {
-			if (level.time - level.startTime >= g_timelimit.integer * 60000) {
+			qboolean matchOver = qfalse;
+			if ( g_RQ3_matchmode.integer && g_RQ3_roundtimelimit.integer &&
+			    (level.current_round_length > g_RQ3_roundtimelimit.integer * 60 * level.fps))
+			{
+				matchOver = qtrue;
+			} else if ( !g_RQ3_matchmode.integer && level.time - level.startTime >= g_timelimit.integer * 60000)
+			{
+				matchOver = qtrue;
+			}
+
+			if ( matchOver )
+			{
 				trap_SendServerCommand(-1, "print \"^1Timelimit hit.\n\"");
 				trap_SendServerCommand(-1, va("print \"^6Scores:^7 %s [^3%d^7]  -  %s [^3%d^7]\n\"",
 					g_RQ3_team1name.string, level.teamScores[TEAM_RED],
@@ -734,6 +745,9 @@ void ContinueLCA()
 		trap_Cvar_Set("g_RQ3_lca", "0");
 		level.team_round_going = 1;
 		level.current_round_length = 0;
+		if ( level.startTime == 0 ) {
+			level.startTime = level.time;
+		}
 	}
 	level.lights_camera_action--;
 }
