@@ -4923,6 +4923,37 @@ static qboolean UI_SelectedPlayer_HandleKey(int flags, float *special, int key)
 	return qfalse;
 }
 
+static void UI_SelectReplacementType(int index)
+{
+	if (index >= replacementTypeCount) {
+		index = 0;
+	} else if (index < 0) {
+		index = replacementTypeCount - 1;
+	}
+
+	uiInfo.replacements.TypeIndex = index;
+	uiInfo.replacements.SubtypeIndex = 0;
+	
+	switch (index)
+	{
+		case 0:
+			UI_BuildReplacementList(replacementWeapons[0].cvarName);
+			UI_LoadReplacement(uiInfo.replacements.Index);
+			break;
+		case 1:
+			UI_BuildReplacementList(replacementItems[0].cvarName);
+			UI_LoadReplacement(uiInfo.replacements.Index);
+			break;
+		case 2:
+			UI_BuildReplacementList(replacementAmmo[0].cvarName);
+			UI_LoadReplacement(uiInfo.replacements.Index);
+			break;
+		default:
+			break;
+	}
+}
+
+
 //Makro - replacement type
 static qboolean UI_ReplacementType_HandleKey(int flags, float *special, int key)
 {
@@ -4936,30 +4967,8 @@ static qboolean UI_ReplacementType_HandleKey(int flags, float *special, int key)
 			index++;
 		}
 
-		if (index >= replacementTypeCount) {
-			index = 0;
-		} else if (index < 0) {
-			index = replacementTypeCount - 1;
-		}
-		uiInfo.replacements.TypeIndex = index;
-		uiInfo.replacements.SubtypeIndex = 0;
-		switch (index)
-		{
-			case 0:
-				UI_BuildReplacementList(replacementWeapons[0].cvarName);
-				UI_LoadReplacement(uiInfo.replacements.Index);
-				break;
-			case 1:
-				UI_BuildReplacementList(replacementItems[0].cvarName);
-				UI_LoadReplacement(uiInfo.replacements.Index);
-				break;
-			case 2:
-				UI_BuildReplacementList(replacementAmmo[0].cvarName);
-				UI_LoadReplacement(uiInfo.replacements.Index);
-				break;
-			default:
-				break;
-		}
+		UI_SelectReplacementType(index);
+
 	}
 	return qfalse;
 }
@@ -5683,6 +5692,9 @@ static void UI_Update(const char *name)
 	}
 }
 
+// FIXME: Makro - this is a monster of a function
+// Not exactly efficient with all this strcmp's in it, either...
+
 static void UI_RunMenuScript(char **args)
 {
 	const char *name, *name2;
@@ -6380,6 +6392,20 @@ static void UI_RunMenuScript(char **args)
 		//Makro - select replacement
 		} else if (Q_stricmp(name, "selectReplacement") == 0) {
 			UI_SelectReplacement();
+		// Makro - select replacement type (weapons/items/ammo)
+		} else if (Q_stricmp(name, "replace") == 0) {
+			if (String_Parse(args, &name2))
+			{
+				int i;
+				for (i=0; i<replacementTypeCount; ++i)
+				{
+					if (Q_stricmp(name2, replacementTypes[i].displayName) == 0)
+					{
+						UI_SelectReplacementType(i);
+						break;
+					}
+				}
+			}
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);
