@@ -2153,10 +2153,10 @@ static void CG_DrawSpectator(void)
 		Color[3] = 0.3f;
 	}
 
-	CG_FillRect(0, 420, 640, 60, Color);
+	CG_FillRect(cgs.screenXMin, 420, cgs.screenWidth, 60, Color);
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanLine(0, 420, 640, 1, Color);
+	CG_DrawCleanLine(cgs.screenXMin, 420, cgs.screenWidth, 1, Color);
 
 	if (cgs.gametype == GT_CTF && (cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_RED ||
 				cg.snap->ps.persistant[PERS_SAVEDTEAM] == TEAM_BLUE))
