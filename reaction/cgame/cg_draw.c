@@ -1989,16 +1989,36 @@ static void CG_DrawCrosshair(void)
 			}
 
 			trap_R_SetColor(NULL);
+			// vignetting
 			if (cgs.media.zoomMask)
 			{
 				const float ZMC_NORMAL = 0.f;
 				const float ZMC_MAX = 0.175f;
+				
+				float fov_frac = (cg.refdef.fov_x - 10.f) / (90.f - 10.f);
+				float frac = 1.f - 2.f * (ZMC_NORMAL * fov_frac + ZMC_MAX * (1.f - fov_frac));
 
-				float frac = (cg.refdef.fov_x - 10.f) / (90.f - 10.f);
-				float fCoordX = ZMC_NORMAL * frac + ZMC_MAX * (1.f - frac);
-				float fCoordY = fCoordX * cg.refdef.height / SCREEN_HEIGHT;
+				float sx = cgs.glconfig.vidWidth / (float) SCREEN_WIDTH;
+				float sy = cgs.glconfig.vidHeight / (float) SCREEN_HEIGHT;
 
-				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, fCoordX, fCoordY, 1.f - fCoordX, 1.f - fCoordY, cgs.media.zoomMask);
+				float tex[2];
+
+				if (sx >= sy)
+				{
+					tex[0] = 0.f;
+					tex[1] = 0.5f * (1.f - sy / sx);
+					
+				}
+				else
+				{
+					tex[0] = 0.5f * (1.f - sx / sy);
+					tex[1] = 0.f;
+				}
+
+				tex[0] = (tex[0] - 0.5f) * frac + 0.5f;
+				tex[1] = (tex[1] - 0.5f) * frac + 0.5f;
+
+				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, tex[0], tex[1], 1.f - tex[0], 1.f - tex[1], cgs.media.zoomMask);
 			}
 
 			drawSSG = 1;

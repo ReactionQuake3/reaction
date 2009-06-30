@@ -1067,7 +1067,7 @@ float UI_ProportionalSizeScale(int style)
 
 	//return 1.00;
   //TTI: HUD font upgrade
-  return 0.4;
+  return 0.4f;
 }
 
 /*

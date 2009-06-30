@@ -1316,7 +1316,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		fogcolor[1] = cgs.clearColor[1];
 		fogcolor[2] = cgs.clearColor[2];
 		fogcolor[3] = 1.0f;
-		CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, fogcolor);
+		CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, fogcolor);
 	}
 	//CG_DrawBigPolygon();
 
