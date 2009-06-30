@@ -3812,7 +3812,9 @@ static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, 
 {
 	char buf[4096], *text = buf, *p;
 
-	float pt[2] = { rect->x, rect->y, };
+	float pt[2];
+	pt[0] = rect->x;
+	pt[1] = rect->y;
 	
 	Q_strncpyz(buf, uiInfo.replacements.Info, sizeof(buf));
 	do {
