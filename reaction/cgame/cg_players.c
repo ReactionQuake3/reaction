@@ -2671,6 +2671,9 @@ void CG_Player(centity_t * cent)
 	{
 		memcpy(cg.headAxis, head.axis, sizeof(head.axis));
 		memcpy(cg.headPos, head.origin, sizeof(head.origin));
+		cg.headPos[2] += 16;
+		if (cg.snap->ps.stats[STAT_HEALTH] > 0)
+			memcpy(cg.oldHeadPos, cg.headPos, sizeof(cg.headPos));
 	}
 
 	head.shadowPlane = shadowPlane;

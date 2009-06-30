@@ -442,23 +442,21 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 */
 static void CG_DeadPlayerView()
 {
-	if (cg.renderingThirdPerson)
+	if (cg.renderingThirdPerson || 0 != (cg.snap->ps.eFlags & EF_HEADLESS))
 	{
 		cg.refdefViewAngles[ROLL] = 40;
 		cg.refdefViewAngles[PITCH] = -15;
 		cg.refdefViewAngles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
 		cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
 	} else {
-		vec3_t dir;
 		trace_t tr;
+		
 		memcpy(cg.refdef.vieworg, cg.headPos, sizeof(cg.headPos));
 		memcpy(cg.refdef.viewaxis, cg.headAxis, sizeof(cg.headAxis));
-		cg.refdef.vieworg[2] += 16;
 
-		VectorSubtract(cg.refdef.vieworg, cg.oldHeadPos, dir);
 		CG_Trace(&tr, cg.oldHeadPos, NULL, NULL, cg.refdef.vieworg, cg.clientNum, CONTENTS_SOLID);
 		VectorCopy(tr.endpos, cg.refdef.vieworg);
-		VectorCopy(cg.refdef.vieworg, cg.oldHeadPos);
+		VectorCopy(cg.headPos, cg.oldHeadPos);
 	}
 }
 
