@@ -3810,19 +3810,33 @@ static void UI_DrawStartupText(itemDef_t *item, rectDef_t *rect, float scale, ve
 //Makro - replacement model info
 static void UI_DrawReplacementInfo(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	int y = rect->y;
 	char buf[4096], *text = buf, *p;
+
+	float pt[2] = { rect->x, rect->y, };
 	
 	Q_strncpyz(buf, uiInfo.replacements.Info, sizeof(buf));
 	do {
 		int l;
+		int add;
+
 		p = GetLine(&text);
 		l = strlen(p);
 		while ( l>0 && Text_Width(p, scale, 0) > rect->w )
 			p[l--]=0;
-		Text_Paint(rect->x, y, scale, color, p, 0, 0, 0, textStyle, qfalse);
-		y += Text_Height(p, scale, 0) + 4;
-	} while (strlen(text)>0 /*&& y<rect->h*/);
+
+		add = Text_Height(p, scale, 0) + 4;
+
+		if (rect->hasVectors)
+		{
+			Text_PaintAngled(pt[0], pt[1], rect->u, rect->v, scale, color, p, 0, 0, 0, textStyle, qfalse);
+			Vector2MA(pt, add, rect->v, pt);
+		}
+		else
+		{
+			Text_Paint(pt[0], pt[1], scale, color, p, 0, 0, 0, textStyle, qfalse);
+			pt[1] += add;
+		}
+	} while (*text /*&& y<rect->h*/);
 }
 
 static void UI_DrawReplacementName(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -3845,14 +3859,20 @@ static void UI_DrawReplacementName(rectDef_t * rect, float scale, vec4_t color, 
 	while (l>0 && Text_Width(name, scale, 0)>rect->w)
 		name[l--]=0;
 
-	Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, name, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, name, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementType(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	const char *p = replacementTypes[uiInfo.replacements.TypeIndex % replacementTypeCount].displayName;
 
-	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, p, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t color, int textStyle)
@@ -3873,7 +3893,10 @@ static void UI_DrawReplacementSubtype(rectDef_t * rect, float scale, vec4_t colo
 		default:
 			return;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, p, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, p, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawReplacementModel(rectDef_t *rect)
