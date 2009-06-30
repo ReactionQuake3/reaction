@@ -1671,6 +1671,10 @@ typedef struct {
 	float screenXScale;	// derived from glconfig
 	float screenYScale;
 	float screenXBias;
+	
+	float screenXMin; // Makro - derived from glconfig, used for wide-screens
+	float screenXMax;
+	float screenWidth;
 
 	int serverCommandSequence;	// reliable command stream counter
 	int processedSnapshotNum;	// the number of snapshots cgame has requested

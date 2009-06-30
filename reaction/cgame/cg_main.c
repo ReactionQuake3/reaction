@@ -2963,8 +2963,13 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);
-	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
-	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+	cgs.screenYScale = cgs.glconfig.vidHeight * (1.f / SCREEN_HEIGHT);
+	cgs.screenXScale = cgs.screenYScale;
+	cgs.screenXBias = 0.5f * (cgs.glconfig.vidWidth - (cgs.glconfig.vidHeight * SCREEN_WIDTH / (float)SCREEN_HEIGHT));
+	
+	cgs.screenXMin = 0.5f * (SCREEN_WIDTH - SCREEN_HEIGHT * cgs.glconfig.vidWidth / (float)cgs.glconfig.vidHeight);
+	cgs.screenXMax = SCREEN_WIDTH - cgs.screenXMin;
+	cgs.screenWidth = cgs.screenXMax - cgs.screenXMin;
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);

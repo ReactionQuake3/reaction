@@ -1231,7 +1231,7 @@ void CG_AddLensFlare(qboolean sun)
 				color[3] = (cgs.flareForwardFactor - ffov) / (1 - ffov) * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
 				//Makro - too expensive
 				//color[3] = cgs.sunAlpha * cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
-				CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
+				CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, color);
 			}
 		}
 	}

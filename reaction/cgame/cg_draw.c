@@ -494,7 +494,7 @@ static void CG_DrawStatusBar(void)
 	qhandle_t hicon;
 	qhandle_t icon;
 	//Makro - added x and y for weapon drawing
-	int i, x = 640 - SMICON_SIZE, y = 400;
+	int i, x = cgs.screenXMax - SMICON_SIZE - 8, y = 400;
 
 	//Makro - old values
 	/*
@@ -573,10 +573,10 @@ static void CG_DrawStatusBar(void)
 	   }
 	   } */
 
-	CG_DrawPic(8, 440, SMICON_SIZE, SMICON_SIZE, hicon);
+	CG_DrawPic(cgs.screenXMin + 8, 440, SMICON_SIZE, SMICON_SIZE, hicon);
 	//CG_DrawStringExt(44, 444, va("%d", value), hcolor, qtrue, qtrue, 24, 24, 3);
 	//UI_DrawProportionalString(44, 444, va("%d", value), style, hcolor);
-	UI_DrawProportionalString(40, 444, va("%d", value), style, hcolor);
+	UI_DrawProportionalString(cgs.screenXMin + 40, 444, va("%d", value), style, hcolor);
 
 	//Elder: Draw weapon ammo and clips
 	style = UI_LEFT | UI_DROPSHADOW;
@@ -596,7 +596,7 @@ static void CG_DrawStatusBar(void)
 	//if (icon && cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
 	if (icon)
 		//CG_DrawPic(252, 440, SMICON_SIZE, SMICON_SIZE, icon);
-    CG_DrawPic(288, 440, SMICON_SIZE, SMICON_SIZE, icon);
+		CG_DrawPic(cgs.screenXMin + 288, 440, SMICON_SIZE, SMICON_SIZE, icon);
 
 	if (cent->currentState.weapon) {
 		value = ps->ammo[cent->currentState.weapon];
@@ -637,7 +637,7 @@ static void CG_DrawStatusBar(void)
 		}
 
 		if (value >= 0)
-			UI_DrawProportionalString(200, 444, va("%d", value), style, hcolor);
+			UI_DrawProportionalString(cgs.screenXMin + 200, 444, va("%d", value), style, hcolor);
 #endif
 
 		//UI_DrawProportionalString(188, 444, "/"), style, colors[0]);
@@ -646,7 +646,7 @@ static void CG_DrawStatusBar(void)
 		if (value > -1 &&
 		    cg.predictedPlayerState.weapon != WP_KNIFE && cg.predictedPlayerState.weapon != WP_GRENADE)
 				//Makro - pretty colours !
-				UI_DrawProportionalString(320, 444, va("%d", value), style, (value != 0) ? colors[0] : colors[3]);
+				UI_DrawProportionalString(cgs.screenXMin + 320, 444, va("%d", value), style, (value != 0) ? colors[0] : colors[3]);
 	}
 	// Elder: temporary
 	//if (cg.snap->ps.stats[STAT_RELOADTIME] > 0)
@@ -828,9 +828,9 @@ static float CG_DrawScore(float y)
 		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 		x = w;
 
-		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
-		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
-		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
+		CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+		CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
+		CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0f);
 	
 		// Your team:
 		if (team == TEAM_RED) {
@@ -846,9 +846,9 @@ static float CG_DrawScore(float y)
 		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 		x += w + 9;
 
-		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
-		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
-		CG_DrawSmallString(631 - x, y + 2, s, 1.0f);
+		CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
+		CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
+		CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0f);
 	}
 
 	s = va("%i", cg.snap->ps.persistant[PERS_SCORE]);
@@ -865,10 +865,10 @@ static float CG_DrawScore(float y)
 	//MAKERGBA(BColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	//CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, BColor);
 
-	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
+	CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, FColor);
 
 	MAKERGBA(FColor, 0.75f, 0.75f, 0.75f, 1.0f);
-	CG_DrawStringExt(631 - x, y + 2, s, FColor, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);	
+	CG_DrawStringExt(cgs.screenXMax - x - 9, y + 2, s, FColor, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);	
 	//CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
 
 
@@ -936,12 +936,12 @@ static float CG_DrawFPSandPing(float y)
 			x = w;
 
 			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-			CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+			CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
 			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-			CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+			CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-			CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+			CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
 
 			x += 9;
 		}
@@ -973,10 +973,10 @@ static float CG_DrawFPSandPing(float y)
 		if (l < 0) l += LAG_SAMPLES;
 
 		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-		CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+		CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
 		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-		CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+		CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
 
 		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
@@ -987,7 +987,7 @@ static float CG_DrawFPSandPing(float y)
 		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
 			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
 
-		CG_DrawStringExt(631 - x, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(cgs.screenXMax - x - 9, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
 	
 	if (!cg_drawFPS.integer && (!cg_drawPing.integer || cg.demoPlayback))
@@ -1375,8 +1375,8 @@ static int CG_DrawPickupItem(int y)
 		if (fadeColor) {
 			CG_RegisterItemVisuals(value);
 			trap_R_SetColor(fadeColor);
-			CG_DrawPic(8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
-			CG_DrawBigString(ICON_SIZE + 16, y + (ICON_SIZE / 2 - BIGCHAR_HEIGHT / 2),
+			CG_DrawPic(cgs.screenXMin + 8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
+			CG_DrawBigString(cgs.screenXMin + ICON_SIZE + 16, y + (ICON_SIZE / 2 - BIGCHAR_HEIGHT / 2),
 					 bg_itemlist[value].pickup_name, fadeColor[0]);
 			trap_R_SetColor(NULL);
 		}
@@ -1502,7 +1502,7 @@ static void CG_DrawHoldableItem(void)
 	if (item) {
 		value = BG_FindItemForHoldable(item) - bg_itemlist;
 		CG_RegisterItemVisuals(value);
-		CG_DrawPic(640 - SMICON_SIZE, 440, SMICON_SIZE, SMICON_SIZE, cg_items[value].icon);
+		CG_DrawPic(cgs.screenXMax - SMICON_SIZE - 8, 440, SMICON_SIZE, SMICON_SIZE, cg_items[value].icon);
 	}
 }
 
@@ -1662,7 +1662,7 @@ static void CG_DrawDisconnect(void)
 	//x = 640 - 48;
 	//y = 480 - 48;
 
-	CG_DrawPic(x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga"));
+	CG_DrawPic(cgs.screenXMin + x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga"));
 }
 
 #define	MAX_LAGOMETER_PING	900
@@ -1694,9 +1694,9 @@ static void CG_DrawLagometer(void)
 	y = 0;
 
 	trap_R_SetColor(NULL);
-	CG_DrawPic(x, y, 48, 48, cgs.media.lagometerShader);
+	CG_DrawPic(cgs.screenXMin + x, y, 48, 48, cgs.media.lagometerShader);
 
-	ax = x;
+	ax = cgs.screenXMin + x;
 	ay = y;
 	aw = 48;
 	ah = 48;
@@ -2031,9 +2031,9 @@ static void CG_DrawCrosshair(void)
 	}
 
 	if (drawSSG == 0 || (drawSSG == 1 && cg_RQ3_overlaycrosshair.integer == 1)) {
-		x = cg_crosshairX.integer;
-		y = cg_crosshairY.integer;
-		CG_AdjustFrom640(&x, &y, &w, &h);
+		float half = w * 0.5f;
+		x = cg_crosshairX.integer + SCREEN_WIDTH / 2;
+		y = cg_crosshairY.integer + SCREEN_HEIGHT / 2;
 		
 		ca = cg_drawCrosshair.integer;
 		if (ca < 0) {
@@ -2053,8 +2053,7 @@ static void CG_DrawCrosshair(void)
 		}
 		
 		trap_R_SetColor(crosshairColor);
-		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
-			y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, hShader);
+		CG_DrawPic(x - half, y - half, w, h, hShader);
 		trap_R_SetColor(NULL);
 	}
 }
@@ -2208,19 +2207,19 @@ static void CG_DrawVote(void)
 
 	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	CG_FillRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(3, y+2, s, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(cgs.screenXMin + 3, y+2, s, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 	y += SMALLCHAR_HEIGHT + 3;
 	
-	CG_FillRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(3, y + 2, s2, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(cgs.screenXMin + 3, y + 2, s2, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 }
 
@@ -2265,19 +2264,19 @@ static void CG_DrawTeamVote(void)
 
 	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	CG_FillRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(3, y+2, s, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(cgs.screenXMin + 3, y+2, s, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 	y += SMALLCHAR_HEIGHT + 3;
 	
-	CG_FillRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(3, y + 2, s2, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(cgs.screenXMin + 3, y + 2, s2, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 }
 
@@ -2662,7 +2661,7 @@ static void CG_DrawDamageBlend()
 	else if (damageColor[3] < 0)
 		damageColor[3] = 0;
 
-	CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, damageColor);
+	CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, damageColor);
 }
 
 /*
