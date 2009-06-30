@@ -456,7 +456,7 @@ static void CG_DeadPlayerView()
 
 		CG_Trace(&tr, cg.oldHeadPos, NULL, NULL, cg.refdef.vieworg, cg.clientNum, CONTENTS_SOLID);
 		VectorCopy(tr.endpos, cg.refdef.vieworg);
-		VectorCopy(cg.headPos, cg.oldHeadPos);
+		VectorCopy(tr.endpos, cg.oldHeadPos);
 	}
 }
 
