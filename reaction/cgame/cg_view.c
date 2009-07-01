@@ -1139,6 +1139,7 @@ void CG_AddLensFlare(qboolean sun)
 		vec3_t end;
 		trace_t tr;
 		int timeDelta = 0, visible = 0;
+		float screenDist = 0.5f * cgs.screenWidth / tan(cg.refdef.fov_x * M_PI / 360.f);
 
 		cgs.flareFadeFactor = 0.0f;
 
@@ -1160,15 +1161,9 @@ void CG_AddLensFlare(qboolean sun)
 			//if the sun is in fov
 			if (cgs.flareForwardFactor > 0 && abs(yaw) <= hfovx && abs(pitch) <= hfovy) {
 				//get the screen co-ordinates of the sun
-#if 0
-				cx = 320 * (1.0f - dp[1] / (cos(yaw * PI180) * tan(hfovx * PI180)));
-				cy = 240 * (1.0f - dp[2] / (cos(pitch * PI180) * tan(hfovy * PI180)));
-#else
-				//if we really needed them to be accurate, those above would be best
-				//but we actually don't !
-				cx = 320 * (1.0f - dp[1]);
-				cy = 240 * (1.0f - dp[2]);
-#endif
+				cx = 320.f - screenDist * dp[1] / dp[0];
+				cy = 240.f - screenDist * dp[2] / dp[0];
+
 				cgs.lastSunX = cx;
 				cgs.lastSunY = cy;
 				cgs.lastSunTime = cg.time;
@@ -1218,7 +1213,6 @@ void CG_AddLensFlare(qboolean sun)
 		{
 			float len = 0, color[4];
 			float size, hsize;
-			float ffov = cos(cg.refdef.fov_y/4);
 			int i;
 			
 			VectorSet(dir, 320-cgs.lastSunX, 240-cgs.lastSunY, 0);
@@ -1238,13 +1232,15 @@ void CG_AddLensFlare(qboolean sun)
 				CG_DrawPic(dp[0] - hsize, dp[1] - hsize, size, size,
 					cgs.media.flareShader[cg.flareShaderNum[i]]);
 			}
-			if (cgs.flareForwardFactor > ffov)
+			
+			//if (cgs.flareForwardFactor > ffov)
 			{
+				float atten_x = 1.f - 2.f * Q_fabs(cgs.lastSunX - 320.f) / cgs.screenWidth;
+				float atten_y = 1.f - 2.f * Q_fabs(cgs.lastSunY - 240.f) / SCREEN_HEIGHT;
+				float min_atten = atten_x < atten_y ? atten_x : atten_y;
 				color[0] = color[1] = color[2] = 1.0f;
 				//color[3] = cgs.sunAlpha * cgs.flareForwardFactor * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
-				color[3] = (cgs.flareForwardFactor - ffov) / (1 - ffov) * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
-				//Makro - too expensive
-				//color[3] = cgs.sunAlpha * cgs.flareFadeFactor * FLARE_BLIND_ALPHA * (1.0f - abs(320 - cgs.lastSunX) / 320.0f) * (1.0f - abs(240 - cgs.lastSunY) / 240.0f);
+				color[3] = min_atten * min_atten * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
 				CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, color);
 			}
 		}
