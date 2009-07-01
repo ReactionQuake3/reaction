@@ -6405,6 +6405,8 @@ static void UI_RunMenuScript(char **args)
 						break;
 					}
 				}
+				if (i == replacementTypeCount)
+					Com_Printf(S_COLOR_YELLOW "WARNING: unrecognized replacement category, '%s'.\n", name2);
 			}
 		} else if (Q_stricmp(name, "update") == 0) {
 			if (String_Parse(args, &name2)) {
