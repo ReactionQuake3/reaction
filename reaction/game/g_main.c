@@ -685,7 +685,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_radioBan, "g_RQ3_radioBan", "10", 0, 0, qfalse},
 	//Blaze: Reaction stuff
 	// Elder: these are explicit values set every time the game initializes
-	{&g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "0", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse},
+	{&g_RQ3_ejectBlood, "g_RQ3_ejectBlood", "1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qfalse},
 	{&g_RQ3_maxWeapons, "g_RQ3_maxWeapons", "1", 0, 0, qtrue},
 	{&g_RQ3_maxItems, "g_RQ3_maxItems", "1", 0, 0, qtrue},
 	{&g_RQ3_respawnProtectTime, "g_RQ3_respawnProtectTime", "2", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue},
@@ -708,9 +708,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "0", CVAR_ARCHIVE, 0, qfalse},
-	{&g_RQ3_showOwnKills, "g_RQ3_showOwnKills", "0", CVAR_ARCHIVE, 0, qfalse},
+	{&g_RQ3_showOwnKills, "g_RQ3_showOwnKills", "1", CVAR_ARCHIVE, 0, qfalse},
 	{&g_RQ3_gib, "g_RQ3_gib", "1", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_lca, "g_RQ3_lca", "0", CVAR_ROM, 0, qfalse},
+	{&g_RQ3_lca, "g_RQ3_lca", "1", CVAR_ROM, 0, qfalse},
 	{&g_RQ3_maxteamkills, "g_RQ3_maxteamkills", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_twbanrounds, "g_RQ3_twbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_tkbanrounds, "g_RQ3_tkbanrounds", "2", CVAR_ARCHIVE, 0, qtrue},
@@ -742,7 +742,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "3.2", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_version, "g_RQ3_version", "3.3", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	//Makro - max votes per client
 	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };
