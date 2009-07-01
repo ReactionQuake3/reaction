@@ -2635,6 +2635,9 @@ void Cmd_Weapon(gentity_t * ent)
 	//Makro - this was a few lines below
 	if (!ent || !ent->client || ent->client->ps.pm_type == PM_SPECTATOR)
 		return;
+	//JBravo: lets make 100% sure no dead people unzoom
+	if (ent->health <= 0)
+		return;
 
 	ent->client->weapon_attempts--;
 	if (ent->client->weapon_attempts < 0)
