@@ -2664,6 +2664,34 @@ static void CG_DrawDamageBlend()
 
 /*
 =====================
+CG_DrawDeathBlend
+
+Makro: fade to black after death
+=====================
+*/
+
+static void CG_DrawDeathBlend()
+{
+	const float MAX_ALPHA = 0.875f;
+	float delta;
+	vec4_t color;
+
+	if (!cg.snap || cg.snap->ps.stats[STAT_HEALTH] > 0)
+		return;
+
+	delta = (cg.time - cg.timeOfDeath) / 1000.f;
+	VectorCopy(colorBlack, color);
+	color[3] = MAX_ALPHA * (1.f - 1.f / (delta + 1.f));
+
+	trap_R_SetColor(color);
+	trap_R_DrawStretchPic(0.f, 0.f, cg.refdef.width, cg.refdef.height, 0.f, 0.f, 1.f, 1.f, cgs.media.whiteShader);
+	trap_R_SetColor(NULL);
+
+}
+
+
+/*
+=====================
 CG_DrawIRBlend
 
 Elder: Small red tint
@@ -2809,6 +2837,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	// Elder: draw damage blend
 	CG_DrawDamageBlend();
 	//CG_DrawIRBlend();
+	CG_DrawDeathBlend();
 
 	// draw status bar and other floating elements
 	CG_Draw2D();

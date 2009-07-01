@@ -449,12 +449,16 @@ static void CG_DeadPlayerView()
 		cg.refdefViewAngles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
 		cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
 	} else {
+		vec3_t mins = { -16, -16, -16, };
+		vec3_t maxs = {  16,  16,  16, };
+
 		trace_t tr;
 		
-		memcpy(cg.refdef.vieworg, cg.headPos, sizeof(cg.headPos));
-		memcpy(cg.refdef.viewaxis, cg.headAxis, sizeof(cg.headAxis));
+		VectorCopy(cg.headPos, cg.refdef.vieworg);
+		AxisCopy(cg.headAxis, cg.refdef.viewaxis);
 
-		CG_Trace(&tr, cg.oldHeadPos, NULL, NULL, cg.refdef.vieworg, cg.clientNum, CONTENTS_SOLID);
+		// TODO: deal with the less fortunate cases (startsolid / allsolid)
+		CG_Trace(&tr, cg.oldHeadPos, mins, maxs, cg.refdef.vieworg, cg.clientNum, CONTENTS_SOLID);
 		VectorCopy(tr.endpos, cg.refdef.vieworg);
 		VectorCopy(tr.endpos, cg.oldHeadPos);
 	}
@@ -873,6 +877,18 @@ static int CG_CalcFov(void)
 		inwater = qtrue;
 	} else {
 		inwater = qfalse;
+	}
+
+	// warp if dead
+	if (cg.snap->ps.stats[STAT_HEALTH] < 0)
+	{
+		const float DEATH_WAVE_AMPLITUDE = 5.f;
+		float delta = (cg.time - cg.timeOfDeath) / 1000.f + 1.f;
+		float amp = 1.f / (delta * delta);
+		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		v = DEATH_WAVE_AMPLITUDE * sin(phase) * amp;
+		fov_x += v;
+		fov_y -= v;
 	}
 
 	// set it

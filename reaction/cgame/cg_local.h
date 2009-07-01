@@ -1189,6 +1189,9 @@ typedef struct {
 	vec3_t headPos;
 	vec3_t headAxis[3];
 	vec3_t oldHeadPos;
+
+	// Makro - time of death
+	int timeOfDeath;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff

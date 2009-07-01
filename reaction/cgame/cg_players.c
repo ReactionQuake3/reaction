@@ -2669,11 +2669,18 @@ void CG_Player(centity_t * cent)
 	//Makro - save the head pos and orientation if this is the curremt client
 	if (cent->currentState.number == cg.clientNum)
 	{
-		memcpy(cg.headAxis, head.axis, sizeof(head.axis));
-		memcpy(cg.headPos, head.origin, sizeof(head.origin));
+		trace_t tr;
+		AxisCopy(head.axis, cg.headAxis);
+		VectorCopy(head.origin, cg.headPos);
 		cg.headPos[2] += 16;
+		
+		CG_Trace(&tr, head.origin, NULL, NULL, cg.headPos, cg.clientNum, CONTENTS_SOLID);
+		VectorCopy(tr.endpos, cg.headPos);
+
 		if (cg.snap->ps.stats[STAT_HEALTH] > 0)
-			memcpy(cg.oldHeadPos, cg.headPos, sizeof(cg.headPos));
+		{
+			VectorCopy(cg.headPos, cg.oldHeadPos);
+		}
 	}
 
 	head.shadowPlane = shadowPlane;
