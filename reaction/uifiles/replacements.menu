@@ -1,4 +1,419 @@
 #include "ui/menudef.h"
+#include "ui/tabs.h"
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR 0 0 .1 1
+#define Tab_Color1 0 0 0 1
+#define Tab_Color2 0 0 .5 1
+#define VSPACE 16
+#define VSIZE 16
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+#define HINT_COLOR .25 .25 .25
+#define HINT_FADE_TIME 125
+#define LINE_WIDTH			240
+
+#define ANGLES 8 -82
+
+
+#define ADD_TAB2(TAB_TEXT, TAB_SHORTCUT, TAB_INDEX, TAB_REPLACEMENTS, TAB_OTHER_GROUPS, TAB_ALIGN)\
+    itemdef {	\
+	cleantext TAB_TEXT	\
+	name "alltabs,tab"#TAB_INDEX"_0,fade_alpha,allgroups,group"#TAB_INDEX	\
+	INACTIVE_TAB_PROPS	\
+	TAB_ALIGN	\
+    }	\
+    itemdef {	\
+	text TAB_TEXT	\
+	name "alltabs,tab"#TAB_INDEX",fade_alpha,allgroups,"TAB_OTHER_GROUPS	\
+	shortcutKey TAB_SHORTCUT	\
+	shortcutKey #TAB_INDEX	\
+	ACTIVE_TAB_PROPS	\
+	action { ACTIVATE_TAB(TAB_INDEX) ; uiScript replace TAB_REPLACEMENTS }	\
+	ASSIGN_HINT("hint_tab"#TAB_INDEX)	\
+	TAB_ALIGN	\
+    }
+
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
+
+{
+
+	menuDef {
+		renderpoint
+		name "replacements_menu"
+		visible MENU_FALSE				// Visible on open
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		rect 128 88 320 348
+		anglevectors ANGLES
+		style WINDOW_STYLE_EMPTY
+		//style WINDOW_STYLE_FILLED
+		//backcolor 0 0 0 1
+		popup
+
+		onOOBClick { close _self ; open _prev }
+		onOpen { play "sound/ui/whoosh3.wav" ; uiScript buildReplacementList 
+			ACTIVATE_TAB(1) ;
+		}
+		onEsc { close _self }
+
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+
+		itemDef {
+			name "paper"
+			menuAnchor
+			subgroup "fade_fore_alpha"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_REPLACEMENTS 1
+			rect -8 -20 320 420
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+
+		//Title
+
+		itemdef {
+			renderpoint
+			name "title"
+			subgroup "fade_fore_alpha"
+			text "Replacements:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignRect paper ITEM_ALIGN_CENTER -20 40 220 20
+			visible 1
+			autowrapped
+			decoration
+		}
+
+		//Line
+
+		itemDef {
+			name "line"
+			subgroup "fade_fore_alpha"
+			style WINDOW_STYLE_FILLED
+			backcolor .25 .25 .25 LINE_ALPHA
+			alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
+			visible 1
+			decoration
+		}
+
+		//Icon
+
+		itemdef {
+			name icon
+			background UI_ASSETS"/icons/rq3-menu-start"
+			forecolor 1 1 1 ICON_ALPHA
+			alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
+			style WINDOW_STYLE_SHADER
+			visible 1
+			decoration
+		}
+		
+
+///////////////////////////////////////////////////////////
+//
+// Sub-options
+//
+//
+
+// Weapons
+
+		ADD_TAB2(
+			"^_W^_eapons.",
+			"W", 1, "weapons", "group2,group3",
+			alignrect "title" ITEM_ALIGN_LEFT 2 28 48 16
+		)
+		ADD_HINT("hint_tab1", "Weapon replacements", "group2,group3")
+
+//---------------------------------------------------------
+
+// Items
+
+		ADD_TAB2(
+			"^_I^_tems.",
+			"I", 2, "items", "group1,group3",
+			alignrect "tab1" ITEM_ALIGN_RIGHT -32 0 32 16
+		)
+		ADD_HINT("hint_tab2", "Item replacements", "group1,group3")
+
+//---------------------------------------------------------
+
+// Ammo
+
+		ADD_TAB2(
+			"^_A^_mmo.",
+			"A", 3, "ammo", "group1,group2",
+			alignrect "tab2" ITEM_ALIGN_RIGHT -33 0 32 16
+		)
+		ADD_HINT("hint_tab3", "Ammo replacements", "group1,group2")
+
+//---------------------------------------------------------
+
+
+		//Preview
+		itemdef {
+			name "preview"
+			//subgroup "fade_fore_alpha,group1,allgroups"
+			ownerdraw UI_RQ3_REPLACEMENTMODEL
+			background UI_ASSETS"/replacement-back.tga"
+			rect 180 64 120 120
+			anglevectors 1 -89
+			decoration
+			visible 1
+			style WINDOW_STYLE_SHADER
+		}
+
+		itemDef {
+			renderpoint
+			name "polaroid"
+			//group "fade_fore_alpha,group1,allgroups"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/polaroid"
+			alignrect "preview" ITEM_ALIGN_CENTER 0 -23 160 160
+			visible 1
+			decoration
+		}
+		
+
+
+
+		//Prev model
+		itemDef {
+			name "prev"
+			shortcutkey "P"
+			alignrect "preview" ITEM_ALIGN_LEFT 4 38 16 16
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/arrow_left_white"
+			type ITEM_TYPE_BUTTON
+			visible 1
+			forecolor 1 1 1 .3
+			
+			action { play "sound/ui/whoosh3.wav" ; uiScript nextReplacement "-1" }
+			
+			onFocus {
+				show "hint_prev" ; 
+				timeFade "hint_prev" forecolor 5 5 5 1 0 HINT_FADE_TIME ;
+				timefadeSelf forecolor 1 1 1 1 0 250
+			}
+			
+			leaveFocus {
+				timeFade "hint_prev" forecolor 5 5 5 0 0 HINT_FADE_TIME ;
+				timefadeSelf forecolor 1 1 1 .3 0 250
+			}
+		}
+
+		
+		ADD_HINT("hint_prev", "Previous option", "allgroups")
+
+
+		//Next model
+		itemDef {
+			name "next"
+			shortcutkey "N"
+			alignrect "preview" ITEM_ALIGN_RIGHT 4 38 16 16
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/arrow_right_white"
+			type ITEM_TYPE_BUTTON
+			visible 1
+			forecolor 1 1 1 .3
+			
+			action { play "sound/ui/whoosh3.wav" ; uiScript nextReplacement "1" }
+			
+			onFocus {
+				show "hint_next" ; 
+				timeFade "hint_next" forecolor 5 5 5 1 0 HINT_FADE_TIME ;
+				timefadeSelf forecolor 1 1 1 1 0 250
+			}
+			
+			leaveFocus {
+				timeFade "hint_next" forecolor 5 5 5 0 0 HINT_FADE_TIME ;
+				timefadeSelf forecolor 1 1 1 .3 0 250
+			}
+		}
+
+		
+		ADD_HINT("hint_next", "Next option", "allgroups")
+
+
+
+
+		itemdef {
+			name "weapon_tip"
+			group "fade_fore_alpha,group1,allgroups"
+			style 0
+			text "Select a weapon you\n"
+				"want to replace:"
+			autowrapped
+			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemdef {
+			name "item_tip"
+			group "fade_fore_alpha,group2,allgroups"
+			style 0
+			text "Select an item you\n"
+				"want to replace:"
+			autowrapped
+			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemdef {
+			name "ammo_tip"
+			group "fade_fore_alpha,group3,allgroups"
+			style 0
+			text "Select ammo type you\n"
+				"want to replace:"
+			autowrapped
+			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		//Sub-Type
+		itemDef {
+			name "sub-type"
+			//text "Type:"
+			ownerdraw UI_RQ3_REPLACEMENTSUBTYPE
+			alignrect "line" ITEM_ALIGN_LEFT 12 84 120 16
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 14
+			textscale .225
+			forecolor OPTION_COLOR
+			visible 1
+			action { play "sound/ui/whoosh3.wav" }
+		}
+
+		itemdef {
+			name "selection_tip"
+			style 0
+			text "The current option:"
+			autowrapped
+			alignrect "sub-type" ITEM_ALIGN_LEFT -8 48 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		//Replacement name
+		itemDef {
+			name "replacement"
+			ownerdraw UI_RQ3_REPLACEMENTNAME
+			alignrect "selection_tip" ITEM_ALIGN_LEFT 8 24 160 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 5
+			textaligny 12
+			textscale .225
+			forecolor OPTION_COLOR
+			style WINDOW_STYLE_EMPTY
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 1
+			visible 1
+			decoration
+		}
+
+		//Description
+		itemDef {
+			name "description"
+			ownerdraw UI_RQ3_REPLACEMENTINFO
+			alignrect "replacement" ITEM_ALIGN_LEFT 12 14 224 104
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 14
+			textscale .2
+			//backcolor 0 0 0 .125
+			forecolor .25 .25 .25 1
+			//forecolor OPTION_COLOR
+			style WINDOW_STYLE_EMPTY
+			//style WINDOW_STYLE_FILLED
+			visible 1
+			decoration
+		}
+
+		//Select
+		itemDef {
+			name "select"
+			text "^_S^_elect >"
+			shortcutKey "S"
+			type ITEM_TYPE_BUTTON
+			textscale .25
+			style WINDOW_STYLE_EMPTY
+			alignrect "paper" ITEM_ALIGN_RIGHT 32 308 96 16
+			textalign ITEM_ALIGN_CENTER
+			textalignx 48
+			textaligny 12
+			forecolor OPTION_COLOR
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; uiScript "selectReplacement" }
+			onFocus {
+				show "hint_select" ;
+				timeFade "hint_select" forecolor 5 5 5 1 0 HINT_FADE_TIME
+			}
+			leaveFocus {
+				timeFade "hint_select" forecolor 5 5 5 0 0 HINT_FADE_TIME
+			}
+		}
+
+		ADD_HINT("hint_select", "Select the current option", "allgroups")
+			
+	}
+
+}
+
+#if 0
+
+#include "ui/menudef.h"
 #define RQ3_Option_Color .75 .75 .75 1
 
 {
@@ -379,3 +794,5 @@
     }
 
 }
+
+#endif

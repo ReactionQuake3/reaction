@@ -25,9 +25,11 @@
 	visible MENU_FALSE				// Visible on open
 	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-	rect 160 8 560 440
+	rect 144 8 332 426
 	anglevectors ANGLES
 	style WINDOW_STYLE_EMPTY
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 1
 	popup
 	
 	onOOBClick { close _self ; open _prev }
@@ -35,7 +37,7 @@
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
 		ACTIVATE_TAB(1) ;
 	}
-	onEsc { uiScript closeJoin }
+	onEsc { close _self }
 
 	onOpenSpecial {
 		//normal items
@@ -56,7 +58,7 @@
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor MENUCOLOR_MOD 1
-	rect -16 -16 360 500
+	rect 0 -16 360 500
 	anglevectors ANGLES
 	visible 1
 	decoration
@@ -177,49 +179,62 @@ Group # 1
 
 	ADD_HINT("hint_maps", "Select a map", "group1")
 
-	itemDef {
-	renderpoint
-	name "postit"
-	group "fade_fore_alpha,group1,allgroups"
-	style WINDOW_STYLE_SHADER
-	background UI_ASSETS"/post_it"
-	forecolor .85 .85 .85 1
-	rect -60 204 188 160
-	anglevectors 7 -83
-	visible 1
-	decoration
-    }
+
 
 	//Title
 
-	itemdef {
-	renderpoint
-	name "static"
-	subgroup "fade_fore_alpha,group1,allgroups"
-	text "Map:"
-	forecolor .0 .0 .1 1
-	style WINDOW_STYLE_EMPTY
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 4
-	textscale .225
-	alignRect "postit" ITEM_ALIGN_LEFT 28 20 100 32
-	visible 1
-	decoration
-    }
+	//itemdef {
+	//	renderpoint
+	//	name "static"
+	//	subgroup "fade_fore_alpha,group1,allgroups"
+	//	text "Map:"
+	//	forecolor .0 .0 .1 1
+	//	style WINDOW_STYLE_EMPTY
+	//	textalign ITEM_ALIGN_LEFT
+	//	textalignx 8
+	//	textaligny 4
+	//	textscale .225
+	//	alignRect "postit" ITEM_ALIGN_LEFT 28 20 100 32
+	//	visible 1
+	//	decoration
+	//}
 
 
 	itemdef {
-	name map_preview
+	name "map_preview"
 	//group "fade_fore_alpha"
 	subgroup "fade_fore_alpha,group1,allgroups"
-	alignrect postit ITEM_ALIGN_LEFT 40 40 96 72
+	rect -16 204 120 90
+	anglevectors 7 -83
 	ownerdraw UI_STARTMAPCINEMATIC
 	style WINDOW_STYLE_EMPTY
 	decoration
 	visible 1
     }
-
+		
+	itemDef {
+	renderpoint
+	name "polaroid"
+	group "fade_fore_alpha,group1,allgroups"
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/polaroid"
+	alignrect "map_preview" ITEM_ALIGN_CENTER 0 -23 160 160
+	visible 1
+	decoration
+    }
+		
+/*
+	itemDef {
+		renderpoint
+		name "border"
+		subgroup "fade_fore_alpha,group1,allgroups"
+		style WINDOW_STYLE_SHADER
+		background UI_ASSETS"/polaroid"
+		alignrect map_preview ITEM_ALIGN_LEFT -4 -3 128 96
+		//anglevectors -4 -96
+		decoration
+	}
+*/
 	// Host name
 
     itemdef {
@@ -281,19 +296,28 @@ Group # 1
 
 	// Gametype
 
+	itemdef {
+		name "gametype_caption"
+		group "fade_fore_alpha,group1,allgroups"
+		style 0
+		text "Gametype:"
+		alignrect "host_caption" ITEM_ALIGN_LEFT 0 24 208 20
+		textscale .225
+		textalign 0
+		textalignx 4
+		textaligny 16
+		forecolor OPTION_COLOR
+		visible 1
+		decoration
+	}
+
 	BEGIN_OPTION("Gametype", "g_gametype", ITEM_TYPE_MULTI, 2, 1)
-	//OPTION_BELOW("gr1_ctrl1")
-  alignrect "host_caption" ITEM_ALIGN_LEFT 64 24 208 20
-  //cvarFloatList {
-  //  "Deathmatch"		0
-  //  "Team Deathmatch"			3
-  //  "Teamplay (TP)"		4
-  //  "Capture the Briefcase (CTB)"		5
-  //}
-	ownerdraw UI_NETGAMETYPE
-  ASSIGN_HINT("hint_gametype")
-  END_OPTION
-  ADD_HINT("hint_gametype", "Sets the general mode of gameplay", "group1")
+		alignrect "gametype_caption" ITEM_ALIGN_RIGHT -28 2 160 20
+		text ""
+		ownerdraw UI_NETGAMETYPE
+		ASSIGN_HINT("hint_gametype")
+	END_OPTION
+	ADD_HINT("hint_gametype", "Sets the general mode of gameplay", "group1")
 
 /*
 ==========================================================
@@ -305,7 +329,8 @@ Group # 2
 	//Max players
 
 		BEGIN_OPTION("Maximum Players", "sv_maxclients", ITEM_TYPE_NUMERICFIELD, 1, 2)
-		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		//alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
 		maxChars 4
 		ASSIGN_HINT("hint_maxclients")
 		END_OPTION
@@ -329,7 +354,6 @@ Group # 2
 		OPTION_BELOW("gr2_ctrl2")
 		maxChars 4
 		ASSIGN_HINT("hint_frag")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "0" }
 		END_OPTION
@@ -343,7 +367,6 @@ Group # 2
 		OPTION_BELOW("gr2_ctrl2")
 		maxChars 4
 		ASSIGN_HINT("hint_capture")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "5" }
 		END_OPTION
@@ -352,10 +375,9 @@ Group # 2
 		// Force join
 
 		BEGIN_OPTION("Force Join", "g_teamautojoin", ITEM_TYPE_YESNO, 5, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl4")
 		ASSIGN_HINT("hint_autojoin")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "5" }
 		END_OPTION
@@ -364,10 +386,9 @@ Group # 2
 		// Even teams
 
 		BEGIN_OPTION("Even Teams", "g_teamforcebalance", ITEM_TYPE_YESNO, 6, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl5")
 		ASSIGN_HINT("hint_even")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "5" }
 		END_OPTION
@@ -383,7 +404,6 @@ Group # 2
 			"On"		1
 		}
  		ASSIGN_HINT("hint_ff")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "5" }
 		END_OPTION
@@ -399,7 +419,6 @@ Group # 2
 			"None"		0
 		}
 		ASSIGN_HINT("hint_tgren")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "5" }
 		END_OPTION
@@ -413,7 +432,6 @@ Group # 2
 		OPTION_BELOW("gr2_ctrl2")
 		maxChars 4
 		ASSIGN_HINT("hint_frag")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -421,10 +439,9 @@ Group # 2
 		// Force join
 
 		BEGIN_OPTION("Force Join", "g_teamautojoin", ITEM_TYPE_YESNO, 10, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl9")
 		ASSIGN_HINT("hint_autojoin")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -432,10 +449,9 @@ Group # 2
 		// Even teams
 
 		BEGIN_OPTION("Even Teams", "g_teamforcebalance", ITEM_TYPE_YESNO, 11, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl10")
 		ASSIGN_HINT("hint_even")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -450,7 +466,6 @@ Group # 2
 			"On"		1
 		}
  		ASSIGN_HINT("hint_ff")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -465,7 +480,6 @@ Group # 2
 			"None"		0
 		}
 		ASSIGN_HINT("hint_tgren")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -479,7 +493,6 @@ Group # 2
 			"TP Style"		1
 		}
  		ASSIGN_HINT("hint_tdm_mode")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "3" }
 		END_OPTION
@@ -492,7 +505,6 @@ Group # 2
 		OPTION_BELOW("gr2_ctrl2")
 		maxChars 4
 		ASSIGN_HINT("hint_rounds")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -504,7 +516,6 @@ Group # 2
 		OPTION_BELOW("gr2_ctrl15")
 		maxChars 4
 		ASSIGN_HINT("hint_roundtime")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -513,10 +524,9 @@ Group # 2
 		// Force join
 
 		BEGIN_OPTION("Force Join", "g_teamautojoin", ITEM_TYPE_YESNO, 17, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl16")
 		ASSIGN_HINT("hint_autojoin")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -524,10 +534,9 @@ Group # 2
 		// Even teams
 
 		BEGIN_OPTION("Even Teams", "g_teamforcebalance", ITEM_TYPE_YESNO, 18, 2)
-		kind YESNO_ICON_RIGHT
+		//kind YESNO_ICON_RIGHT
 		OPTION_BELOW("gr2_ctrl17")
 		ASSIGN_HINT("hint_even")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -542,7 +551,6 @@ Group # 2
 			"On"		1
 		}
  		ASSIGN_HINT("hint_ff")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -557,7 +565,6 @@ Group # 2
 			"None"		0
 		}
 		ASSIGN_HINT("hint_tgren")
-		//cvarTest "g_gametype"
 		cvarTest "ui_actualNetGameType"
 		showCvar { "4" }
 		END_OPTION
@@ -575,7 +582,8 @@ Group # 3
 
 		BEGIN_OPTION("Pure Server", "sv_pure", ITEM_TYPE_YESNO, 1, 3)
 		kind YESNO_ICON_RIGHT
-		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		//alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
 		ASSIGN_HINT("hint_pure")
 		END_OPTION
 		ADD_HINT("hint_pure", "Enable Pure Server to ensure that the content on client machines match the content on your server", "group3")
@@ -623,6 +631,15 @@ Group # 3
 		ASSIGN_HINT("hint_sync")
 		END_OPTION
 		ADD_HINT("hint_sync", "Toggles synchronization of all clients to allow demo recording on the server", "group3")
+
+		// VoIP
+
+		BEGIN_OPTION("VoIP", "sv_voip", ITEM_TYPE_YESNO, 7, 3)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr3_ctrl6")		
+		ASSIGN_HINT("hint_voip")
+		END_OPTION
+		ADD_HINT("hint_voip", "Enable server-side VoIP support", "group3")
 
 
 }

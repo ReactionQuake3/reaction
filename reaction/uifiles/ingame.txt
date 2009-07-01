@@ -2,32 +2,30 @@
 	// MENU DEFS //
 
  	loadMenu { "ui/ingame.menu" }
- 	loadMenu { "ui/ingame_devmode.menu" }
+ 	//loadMenu { "ui/ingame_devmode.menu" }
 	loadMenu { "ui/ingame_vote.menu" }
 	loadMenu { "ui/ingame_tkok.menu" }
 	loadMenu { "ui/ingame_about.menu" }
+	//loadMenu { "ui/ingame_voip.menu" }
 
 	loadMenu { "ui/ingame_join.menu" }
 	loadMenu { "ui/ingame_join_dm.menu" }
 
-	loadMenu { "ui/ingame_system.menu" }
-	loadMenu { "ui/ingame_controls.menu" }
-	loadMenu { "ui/ingame_options.menu" }
+	loadMenu { "ui/ingame_setup.menu" }
 
-	loadMenu { "ui/ingame_player.menu" }
+	//loadMenu { "ui/ingame_player.menu" }
 	loadMenu { "ui/ingame_weapon.menu" }
 	loadMenu { "ui/ingame_item.menu" }
 	loadMenu { "ui/ingame_ignore.menu" }
-	loadMenu { "ui/ingame_addbot.menu" }
+	//loadMenu { "ui/ingame_addbot.menu" }
 	loadMenu { "ui/ingame_callvote.menu" }
-	loadMenu { "ui/ingame_leave.menu" }
 
-	loadMenu { "ui/ingame_matchmode.menu" }
-	loadMenu { "ui/ingame_matchmode_captain.menu" }
-	loadMenu { "ui/ingame_matchmode_referee.menu" }
-	loadMenu { "ui/ingame_matchmode_settings.menu" }
+	//loadMenu { "ui/ingame_matchmode.menu" }
+	//loadMenu { "ui/ingame_matchmode_captain.menu" }
+	//loadMenu { "ui/ingame_matchmode_referee.menu" }
+	//loadMenu { "ui/ingame_matchmode_settings.menu" }
 
-	loadMenu { "ui/ingame_presets.menu" }
-	loadMenu { "ui/ingame_presets_edit.menu" }
+	//loadMenu { "ui/ingame_presets.menu" }
+	//loadMenu { "ui/ingame_presets_edit.menu" }
 
 }

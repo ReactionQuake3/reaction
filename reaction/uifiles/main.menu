@@ -36,7 +36,7 @@
   menuDef {
     name "main"							// Makro: rename it to "main-rq3"
     //background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-    background UI_ASSETS"/main_new"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
+    background UI_ASSETS"/main"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
     fullScreen MENU_TRUE
 
     //rect 0 0 640 480				// Size and position of the menu
@@ -125,7 +125,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_join" ITEM_ALIGN_LEFT 0 36 96 24
+	alignrect "btn_join" ITEM_ALIGN_LEFT 0 36 112 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -257,7 +257,7 @@
 	alignrect "btn_setup" ITEM_ALIGN_LEFT 170 24 72 16
 	style WINDOW_STYLE_EMPTY
 	type ITEM_TYPE_BUTTON
-	action { close _self ; open replacements_menu ; }
+	action { open replacements_menu ; }
 	visible 1
     }
 

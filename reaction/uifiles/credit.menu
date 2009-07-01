@@ -1756,12 +1756,12 @@
 	textscale .35
 	textalignx 120
 	textaligny 100
-	text "    SOFTWARE"
+	text "id Software"
 	autowrapped
 	visible 1
 	decoration
     }
-
+/*
     itemDef {
 	name "timer28"
 	group timer	
@@ -1772,7 +1772,7 @@
 	decoration
     }
 
-
+*/
 
     // PROGRAMMING //
 
@@ -1977,7 +1977,8 @@
 	style WINDOW_STYLE_SHADER
 	background "ui/assets/screen_static"
 	forecolor 1 1 1 1
-	rect 0 0 640 480
+	//rect 0 0 640 480
+	rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
 	visible 0
 	randomizeTexCoords
 	decoration

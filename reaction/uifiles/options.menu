@@ -34,18 +34,18 @@
 	visible MENU_FALSE				// Visible on open
 	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-	rect 120 112 340 264
+	rect 120 112 344 264
 	anglevectors 3 -87
 	style WINDOW_STYLE_EMPTY
 	popup
 	
-	onOOBClick { close _self ; open _prev }
+	onOOBClick { close _self }
 	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
-	//onClose { open _prev }
-	onEsc { close _self ; open main }
+	onClose { uiScript saveControls ; open _prev }
+	onEsc { close _self }
 
 	onOpenSpecial {
 		//normal items
@@ -66,13 +66,13 @@
 	itemDef {
 	renderpoint
 	name "paper,fade_alpha"
-	menuAnchor
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor MENUCOLOR_OPTIONS 1
-	rect -8 -20 380 320
+	rect -8 -16 380 320
 	anglevectors 3 -87
 	visible 1
+	menuAnchor
 	decoration
     }
 
@@ -310,14 +310,6 @@ Group # 1 - Gameplay
     ADD_HINT("hint_impactfx", "Enable visual projectile impact effects", "group1")
 
 
-    // Punkbuster //
-
- 	//BEGIN_OPTION("Punkbuster Enabled", "cl_punkbuster", ITEM_TYPE_YESNO, 15, 1)
-	//	kind YESNO_ICON_RIGHT
-	//	OPTION_BELOW("gr1_ctrl14")
-	//	ASSIGN_HINT("hint_punkbuster")
-	//END_OPTION
-  //  ADD_HINT("hint_punkbuster", "Enable client-side Punkbuster (game restart is needed)", "group1")
 
 /*
 ==========================================================
@@ -327,87 +319,109 @@ Group # 2 - Crosshair
 ==========================================================
 */
 
-    //Icon
+	//Icon
 
-    itemdef {
-	name "icon,allgroups,group2"
-	background UI_ASSETS"/icons/rq3-setup-crosshair"
-	forecolor 1 1 1 ICON_ALPHA
-	alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
-	style WINDOW_STYLE_SHADER
-	visible 1
-	decoration
+	itemdef {
+		name "icon,allgroups,group2"
+		background UI_ASSETS"/icons/rq3-setup-crosshair"
+		forecolor 1 1 1 ICON_ALPHA
+		alignrect "line" ITEM_ALIGN_RIGHT 0 -36 32 32
+		style WINDOW_STYLE_SHADER
+		visible 1
+		decoration
 	}
 
 
-    // Crosshair //
+	itemDef {
+		name "preview"
+		subgroup "fade_fore_alpha,group2,allgroups"
+		alignrect "line" ITEM_ALIGN_LEFT 112 16 56 56
+		style WINDOW_STYLE_SHADER
+		background UI_ASSETS"/crosshair_back"
+		decoration
+	}
 
-    itemdef {
-	name "allgroups,group2,gr2_ctrl1,fade_alpha"
-	ownerdraw UI_CROSSHAIR
-	text "Crosshair:"
-	alignrect "line" ITEM_ALIGN_LEFT 112 32 VSIZE VSIZE
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 14
-	textscale .225
-	forecolor OPTION_COLOR
-	visible 1
-	ASSIGN_HINT("hint_crosshair")
-    }
+	// Crosshair //
 
-    ADD_HINT("hint_crosshair", "Change regular crosshair style", "group2")
+	itemdef {
+		name "crosshair_caption"
+		subgroup "fade_fore_alpha,group2,allgroups"
+		text "Crosshair:"
+		textalignx 4
+		textaligny -4
+		textscale .225
+		forecolor OPTION_COLOR
+		alignrect "line" ITEM_ALIGN_LEFT 52 52 96 VSIZE
+		decoration
+		visible 1
+	}
+
+	itemdef {
+		renderpoint
+		name "allgroups,group2,gr2_ctrl3,fade_alpha"
+		alignrect "line" ITEM_ALIGN_LEFT 112 16 56 56
+		ownerdraw UI_CROSSHAIR
+		ASSIGN_HINT("hint_crosshair")
+		visible 1
+	}
 
 
-    // Crosshair size //
+	ADD_HINT("hint_crosshair", "Change regular crosshair style", "group2")
 
-    BEGIN_OPTION("Crosshair Size", "cg_crosshairSize", ITEM_TYPE_MULTI, 2, 2)
-		OPTION_BELOW("gr2_ctrl1")
+
+	// Crosshair size //
+
+	BEGIN_OPTION("Crosshair Size", "cg_crosshairSize", ITEM_TYPE_MULTI, 4, 2)
+		alignrect "line" ITEM_ALIGN_LEFT 112 72 112 VSIZE
 		ASSIGN_HINT("hint_crosshairsize")
 		cvarFloatList {
 				"Small"		16
-				"Med"		24
-				"Big"		32
+				"Medium"		24
+				"Large"		32
 		}
-    END_OPTION
-    ADD_HINT("hint_crosshairsize", "Change the size of the regular crosshair", "group2")
+	END_OPTION
+	ADD_HINT("hint_crosshairsize", "Change the size of the regular crosshair", "group2")
 
-    // Crosshair color //
+	// Crosshair color //
 
-	BEGIN_SLIDER("Red", "cg_RQ3_crosshairColorR", 1, 0, 1, 3, 2)
-		alignrect "gr2_ctrl2" ITEM_ALIGN_LEFT -64 24 112 VSIZE
-		ASSIGN_HINT("hint_color")
-    END_OPTION
-
-	BEGIN_SLIDER("Green", "cg_RQ3_crosshairColorG", 1, 0, 1, 4, 2)
-		OPTION_BELOW("gr2_ctrl3")
-		ASSIGN_HINT("hint_color")
-    END_OPTION
-
-	BEGIN_SLIDER("Blue", "cg_RQ3_crosshairColorB", 1, 0, 1, 5, 2)
+	BEGIN_SLIDER("Red", "cg_RQ3_crosshairColorR", 1, 0, 1, 5, 2)
 		OPTION_BELOW("gr2_ctrl4")
 		ASSIGN_HINT("hint_color")
-    END_OPTION
+	END_OPTION
 
-	BEGIN_SLIDER("Alpha", "cg_RQ3_crosshairColorA", 1, 0, 1, 6, 2)
+	BEGIN_SLIDER("Green", "cg_RQ3_crosshairColorG", 1, 0, 1, 6, 2)
 		OPTION_BELOW("gr2_ctrl5")
 		ASSIGN_HINT("hint_color")
-    END_OPTION
+	END_OPTION
+
+	BEGIN_SLIDER("Blue", "cg_RQ3_crosshairColorB", 1, 0, 1, 7, 2)
+		OPTION_BELOW("gr2_ctrl6")
+		ASSIGN_HINT("hint_color")
+	END_OPTION
+
+	BEGIN_SLIDER("Alpha", "cg_RQ3_crosshairColorA", 1, 0, 1, 8, 2)
+		OPTION_BELOW("gr2_ctrl7")
+		ASSIGN_HINT("hint_alpha")
+	END_OPTION
 
 
-    ADD_HINT("hint_color", "Drag the slider to alter the color of the crosshair", "group2")
+	ADD_HINT("hint_color", "Drag the slider to alter the color of the crosshair", "group2")
+	ADD_HINT("hint_alpha", "Drag the slider to alter the transparency of the crosshair", "group2")
+
+
+
 
 /*
 ==========================================================
 
-Group # 3 - Misc
+Group # 3 - SSG Crosshair
 
 ==========================================================
 */
 
-    //Icon
+	//Icon
 
-    itemdef {
+	itemdef {
 	name "icon,allgroups,group3"
 	background UI_ASSETS"/icons/rq3-setup-crosshair"
 	forecolor 1 1 1 ICON_ALPHA
@@ -417,984 +431,50 @@ Group # 3 - Misc
 	decoration
 	}
 
+
+	// SSG color //
+
+	BEGIN_SLIDER("Red", "cg_RQ3_ssgColorR", 1, 0, 1, 1, 3)
+		alignrect "line" ITEM_ALIGN_LEFT 40 32 112 VSIZE
+		ASSIGN_HINT("hint_color")
+	END_OPTION
+
+	BEGIN_SLIDER("Green", "cg_RQ3_ssgColorG", 1, 0, 1, 2, 3)
+		OPTION_BELOW("gr3_ctrl1")
+		ASSIGN_HINT("hint_color")
+	END_OPTION
+
+	BEGIN_SLIDER("Blue", "cg_RQ3_ssgColorB", 1, 0, 1, 3, 3)
+		OPTION_BELOW("gr3_ctrl2")
+		ASSIGN_HINT("hint_color")
+	END_OPTION
+
+	BEGIN_SLIDER("Alpha", "cg_RQ3_ssgColorA", 1, 0, 1, 4, 3)
+		OPTION_BELOW("gr3_ctrl3")
+		ASSIGN_HINT("hint_color")
+	END_OPTION
+
+	// Preview //
+
+	itemdef {
+		name "allgroups,group3,gr3_ctrl5,fade_alpha"
+		style WINDOW_STYLE_FILLED
+		backcolor 0 0 0 .5
+		alignrect "gr3_ctrl1" ITEM_ALIGN_LEFT 112 0 136 136
+		decoration
+		visible 1
+	}
+
+	itemdef {
+		name "allgroups,group3,gr3_ctrl6,fade_alpha"
+		alignrect "gr3_ctrl1" ITEM_ALIGN_LEFT 116 4 128 128
+		ownerdraw UI_SSG_CROSSHAIR
+		visible 1
+	}
+
+	// Next //
+
+
 }
 }
 
-
-
-#include "ui/menudef.h"
-#define RQ3_Option_Color .75 .75 .75 1
-
-{
-
-    menuDef {
-	name "options_menu_old"
-	background "rq3-ta-menuback"				// Makro: replace "rq3-ta-menuback" with "rq3-menuback"
-								// to use the old background
-	fullScreen MENU_TRUE
-	visible MENU_TRUE				// Visible on open
-	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-
-	onOpen { play "sound/ui/whoosh3.wav" }
-	onEsc { close options_menu ; open setup_menu }
-
-
-//=================
-// RQ3 stuff
-//=================
-
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 0 640 56
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar 				//rq3: Top bar
-	rect 0 58 640 12
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-main-shadow-1"
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name top_bar2 				//rq3: Top bar - border
-	rect 0 56 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name bottom_bar 				//rq3: bottom bar
-	rect 0 420 640 60
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	name bottom_bar2 				//rq3: bottom bar - border
-	rect 0 418 640 2
-	style 1
-	backcolor RQ3_MAIN_BAR_COLOR2
-	//border 2
-	//bordersize 1
-	//bordercolor 1 0 0 1
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "options_icon"
-	style WINDOW_STYLE_SHADER
-	rect 8 8 48 48
-	background UI_ASSETS"/icons/rq3-setup-options.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name "options_title"
-	style WINDOW_STYLE_SHADER
-	rect 64 12 256 32
-	background UI_ASSETS"/icons/rq3-title-setup.tga"
-	decoration
-	visible 1
-    }
-
-    itemdef {
-	name overlay
-	style 1
-	forecolor 0 0 0 1
-	backcolor RQ3_MENU_OVERLAY_COLOR
-	rect 0 58 640 360
-	visible 1
-	decoration
-    }
-
-
-//=================
-// Buttons, lists
-//=================
-
-
-//Background window
-
-    //Options window
-
-    itemdef {
-	rect 48 72 256 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Game options"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 76
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	rect 48 90 256 304
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	style WINDOW_STYLE_SHADER
-	rect 96 68 24 24
-	background UI_ASSETS"/icons/rq3-setup-options.tga"
-	decoration
-	visible 1
-    }
-
-    //Crosshairs window
-
-    itemdef {
-	rect 340 72 256 20
-	style WINDOW_STYLE_GRADIENT
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 1
-	backcolor 0 0 .2 .75
-	bordercolor .75 .75 .75 1
-	text "Crosshair options"
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .25
-	textalign 0
-	textalignx 76
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	rect 340 90 256 160
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/fake_gradient_75"
-	border WINDOW_BORDER_KCGRADIENT
-	bordersize 2
-	backcolor 0 0 0 .75
-	bordercolor .75 .75 .75 1
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	style WINDOW_STYLE_SHADER
-	rect 388 68 24 24
-	background UI_ASSETS"/icons/rq3-menu-focus"
-	forecolor 1 1 1 0
-	decoration
-	visible 1
-    }
-
-
-// Page 1 //
-
-//Simple items
-
-    itemdef {
-	name opt_simpleitems
-	type ITEM_TYPE_YESNO
-	text "Simple Items:"
-	cvar "cg_simpleItems"
-	rect 56 100 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_simpleitems ; timeFade hint_simpleitems forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_simpleitems forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_simpleitems
-	text "Display weapons, items and ammo as 2D sprites"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Low quality sky
-
-    itemdef {
-	name opt_fastsky
-	type ITEM_TYPE_YESNO
-	text "Low quality sky:"
-	cvar "r_fastsky"
-	rect 56 118 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_fastsky ; timeFade hint_fastsky forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_fastsky forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_fastsky
-	text "Use a solid color sky (better performance, lower quality)"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Ejecting brass
-
-    itemdef {
-	name opt_brass
-	type ITEM_TYPE_MULTI
-	text "Ejecting Brass:"
-	cvar "cg_brassTime"
-	cvarFloatList { "High" 2500 "Med" 1250 "Off" 0 }
-	rect 56 136 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_brass ; timeFade hint_brass forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_brass forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_brass
-	text "Change the amount of ejecting brass"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Wall marks
-
-    itemdef {
-	name opt_wmarks
-	type ITEM_TYPE_YESNO
-	text "Wall marks:"
-	cvar "cg_marks"
-	rect 56 154 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_wmarks ; timeFade hint_wmarks forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_wmarks forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_wmarks
-	text "Enable wall marks"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Dynamic lights
-
-    itemdef {
-	name opt_dlight
-	type ITEM_TYPE_YESNO
-	text "Dynamic lights:"
-	cvar "r_dynamiclight"
-	rect 56 172 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_dlight ; timeFade hint_dlight forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_dlight forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_dlight
-	text "Enable dynamic lighting"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Identify target
-
-    itemdef {
-	name opt_idtarget
-	type ITEM_TYPE_YESNO
-	text "Identify Target:"
-	cvar "cg_drawCrosshairNames"
-	rect 56 190 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_idtarget ; timeFade hint_idtarget forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_idtarget forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_idtarget
-	text "Enable crosshair target identification"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//V-SYNC
-
-    itemdef {
-	name opt_vsync
-	type ITEM_TYPE_YESNO
-	text "Sync Every Frame:"
-	cvar "r_finish"
-	rect 56 208 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_vsync ; timeFade hint_vsync forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_vsync forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_vsync
-	text "Enable V-SYNC (recommended off)"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Force player models
-
-    itemdef {
-	name opt_fmodel
-	type ITEM_TYPE_YESNO
-	text "Force Player Models:"
-	cvar "cg_forceModel"
-	rect 56 226 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_fmodel ; timeFade hint_fmodel forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_fmodel forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_fmodel
-	text "Force player models to your own"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Draw team overlay
-
-    itemdef {
-	name opt_toverlay
-	type ITEM_TYPE_YESNO
-	text "Draw Team Overlay:"
-	cvar "cg_drawTeamOverlay"
-	rect 56 244 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_toverlay ; timeFade hint_toverlay forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_toverlay forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_toverlay
-	text "Choose team overlay position"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Allow download from server
-
-    itemdef {
-	name opt_allowdl
-	type ITEM_TYPE_YESNO
-	text "Allow Download:"
-	cvar "cl_allowDownload"
-	rect 56 262 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_allowdl ; timeFade hint_allowdl forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_allowdl forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_allowdl
-	text "Allow automatic downloads from server"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Muzzle flash
-
-    itemdef {
-	name opt_muzzle
-	type ITEM_TYPE_YESNO
-	text "Muzzle Flash:"
-	cvar "cg_RQ3_flash"
-	rect 56 280 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_muzzle ; timeFade hint_muzzle forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_muzzle forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_muzzle
-	text "Enable weapon muzzle flashes"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Pain blends
-
-    itemdef {
-	name opt_painblend
-	type ITEM_TYPE_YESNO
-	text "Pain Blends:"
-	cvar "cg_RQ3_painBlend"
-	rect 56 298 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_painblend ; timeFade hint_painblend forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_painblend forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_painblend
-	text "Enable screen pain blends"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Announcer
-
-    itemdef {
-	name opt_announcer
-	type ITEM_TYPE_YESNO
-	text "Announcer:"
-	cvar "cg_RQ3_announcer"
-	rect 56 316 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_announcer ; timeFade hint_announcer forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_announcer forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_announcer
-	text "Enable Quake 3 announcer"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Impact effects
-
-    itemdef {
-	name opt_impactfx
-	type ITEM_TYPE_YESNO
-	text "Impact Effects:"
-	cvar "cg_RQ3_impactEffects"
-	rect 56 334 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_impactfx ; timeFade hint_impactfx forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_impactfx forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_impactfx
-	text "Enable visual projectile impact effects"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-    itemdef {
-	name opt_punkbuster
-	type ITEM_TYPE_YESNO
-	text "Punkbuster Enabled:"
-	cvar "cl_punkbuster"
-	rect 56 352 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_punkbuster ; timeFade hint_punkbuster forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_punkbuster forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_punkbuster
-	text "Enable or Disable client side Punkbuster (Restart is needed)"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Page 2
-
-//Crosshair
-
-    itemdef {
-	name opt_xhair
-	text "Crosshair:"
-	ownerdraw UI_CROSSHAIR
-	rect 496 100 24 24
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 0
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_xhair ; timeFade hint_xhair forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_xhair forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_xhair
-	text "Change regular crosshair style"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Crosshair size
-
-    itemdef {
-	name opt_xhairsize
-	type ITEM_TYPE_MULTI
-	text "Crosshair Size:"
-	cvar "cg_crosshairSize"
-	cvarFloatList { "Small" 16 "Med" 24 "Big" 32 }
-	rect 352 120 256 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 144
-	textaligny 20
-	textscale .25
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_xhairsize ; timeFade hint_xhairsize forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_xhairsize forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_xhairsize
-	text "Change the size of the regular crosshair"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//SSG Crosshair
-
-    itemDef {
-	type ITEM_TYPE_SLIDER
-	text "Red:"
-	cvarfloat "cg_RQ3_ssgColorR" 1 0 1
-	rect 368 160 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 14
-	textscale .225
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_ssgcolor ; timeFade hint_ssgcolor forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_ssgcolor forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemDef {
-	type ITEM_TYPE_SLIDER
-	text "Green:"
-	cvarfloat "cg_RQ3_ssgColorG" 1 0 1
-	rect 368 180 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 14
-	textscale .225
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_ssgcolor ; timeFade hint_ssgcolor forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_ssgcolor forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemDef {
-	type ITEM_TYPE_SLIDER
-	text "Blue:"
-	cvarfloat "cg_RQ3_ssgColorB" 0 0 1
-	rect 368 200 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 14
-	textscale .225
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_ssgcolor ; timeFade hint_ssgcolor forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_ssgcolor forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemDef {
-	type ITEM_TYPE_SLIDER
-	text "Alpha:"
-	cvarfloat "cg_RQ3_ssgColorA" .75 0 1
-	rect 368 220 192 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 14
-	textscale .225
-	forecolor RQ3_Option_Color
-	visible 1
-	onFocus { show hint_ssgcolor ; timeFade hint_ssgcolor forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade hint_ssgcolor forecolor .9 .9 .9 0 0 250 }
-    }
-
-    itemdef {
-	name hint_ssgcolor
-	text "Change the color of the SSG crosshair"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//SSG Crosshair Preview
-
-    itemDef {
-	rect 400 268 144 108
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ssg-background"
-	shadowStyle 1
-	border 1
-	bordersize 1
-	bordercolor .5 .5 .5 1
-	forecolor 1 1 1 1
-	decoration
-	visible 1
-    }
-
-    itemDef {
-	rect 436 286 72 72
-	ownerdraw UI_SSG_CROSSHAIR
-	style WINDOW_STYLE_EMPTY
-	decoration
-	visible 1
-	//onFocus { show hint_ssgpic ; timeFade hint_ssgpic forecolor .9 .9 .9 1 0 250 }
-	//leaveFocus { timeFade hint_ssgpic forecolor .9 .9 .9 0 0 250 }
-	//action { play "sound/misc/menu1.wav" }
-    }
-
-/*
-    itemdef {
-	name hint_ssgpic
-	text "Click or use the arrows to change the SSG crosshair"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-*/
-
-//Prev crosshair
-
-    itemDef {
-	rect 408 314 16 16
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/scrollbar_arrow_left"
-	type ITEM_TYPE_BUTTON
-	visible 1
-	forecolor 1 1 1 .5
-	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 ;
-		show hint_ssgprev ; timeFade hint_ssgprev forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timefadeSelf forecolor 1 1 1 .5 0 250 ;
-		timeFade hint_ssgprev forecolor .9 .9 .9 0 0 250 }
-	action { play "sound/misc/menu1.wav" ; uiScript nextSSGCrosshair "-1" instant }
-    }
-
-    itemdef {
-	name hint_ssgprev
-	text "Select the previous SSG crosshair"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Next crosshair
-
-    itemDef {
-	rect 520 314 16 16
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/scrollbar_arrow_right"
-	type ITEM_TYPE_BUTTON
-	visible 1
-	forecolor 1 1 1 .5
-	onFocus { timefadeSelf forecolor 1 1 1 1 0 250 ;
-		show hint_ssgnext ; timeFade hint_ssgnext forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timefadeSelf forecolor 1 1 1 .5 0 250 ;
-		timeFade hint_ssgnext forecolor .9 .9 .9 0 0 250 }
-	action { play "sound/misc/menu1.wav" ; uiScript nextSSGCrosshair 1 instant }
-    }
-
-    itemdef {
-	name hint_ssgnext
-	text "Select the next SSG crosshair"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-//Back
-
-    itemdef {
-	name "btn_back"
-	shortcutKey "B"
-	style WINDOW_STYLE_SHADER
-	rect 12 432 32 32
-	type ITEM_TYPE_BUTTON
-	background UI_ASSETS"/icons/rq3-menu-back.tga"
-	action { close _self ; open setup_menu ; }
-	onFocus { setbackground UI_ASSETS"/icons/rq3-menu-back-focus-anim" ;
-		show hint_back ; timeFade hint_back forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { setbackground UI_ASSETS"/icons/rq3-menu-back.tga" ;
-		timeFade hint_back forecolor .9 .9 .9 0 0 250 }
-	visible 1
-    }
-
-    itemdef {
-	name hint_back
-	text "Go ^_b^_ack to setup menu"
-	forecolor RQ3_MAIN_HINT_COLOR
-	textalign 1
-	textalignx 240
-	textaligny 20
-	textscale RQ3_MAIN_TEXTSIZE
-	rect 80 420 480 40
-	type 0
-	style 0
-	visible 0
-	decoration
-    }
-
-}

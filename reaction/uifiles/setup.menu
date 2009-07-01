@@ -14,7 +14,7 @@
 	visible MENU_FALSE				// Visible on open
 	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-	rect 128 96 288 348
+	rect 232 48 288 348
 	anglevectors ANGLES
 	style WINDOW_STYLE_EMPTY
 	popup
@@ -46,7 +46,7 @@
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor MENUCOLOR_SETUP 1
-	rect -8 -16 320 420
+	rect -4 -20 320 420
 	anglevectors ANGLES
 	visible 1
 	decoration
@@ -123,7 +123,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect title ITEM_ALIGN_LEFT 2 64 36 20
+	alignrect title ITEM_ALIGN_LEFT 2 64 56 20
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -155,7 +155,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_player" ITEM_ALIGN_LEFT 0 36 96 24
+	alignrect "btn_player" ITEM_ALIGN_LEFT 0 36 72 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -187,7 +187,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_controls" ITEM_ALIGN_LEFT 0 36 96 24
+	alignrect "btn_controls" ITEM_ALIGN_LEFT 0 36 64 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -219,7 +219,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_system" ITEM_ALIGN_LEFT 0 36 96 24
+	alignrect "btn_system" ITEM_ALIGN_LEFT 0 36 108 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -251,7 +251,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_game" ITEM_ALIGN_LEFT 0 36 96 24
+	alignrect "btn_game" ITEM_ALIGN_LEFT 0 36 108 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1
@@ -284,7 +284,7 @@
 	textalignx 0
 	textaligny 20
 	textscale UI_MAIN_TEXTSIZE
-	alignrect "btn_replace" ITEM_ALIGN_LEFT 0 48 96 24
+	alignrect "btn_replace" ITEM_ALIGN_LEFT 0 48 128 24
 	type ITEM_TYPE_BUTTON
 	style WINDOW_STYLE_EMPTY
 	visible 1

@@ -1,4 +1,181 @@
 #include "ui/menudef.h"
+#define ANGLES -3 -93
+
+{
+	menuDef {
+		renderpoint
+		name "ingame_ignore"
+		visible MENU_FALSE				// Visible on open
+		fullscreen 0
+		onOOBClick { close _self ; open _prev }  // this closes the window if it gets a click out of the rectangle
+		rect 192 64 340 264
+		disableColor  .5 .5 .5 1
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		anglevectors ANGLES
+		style WINDOW_STYLE_EMPTY
+		//style WINDOW_STYLE_FILLED
+		//backcolor 0 0 0 1
+		popup
+		
+		onOOBClick { close _self ; open _prev }
+		onOpen { play "sound/ui/whoosh3.wav" ; uiScript "refreshIngameServerInfo" }
+		onEsc { close _self ; open _prev }
+
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+
+		itemDef {
+			renderpoint
+			name "paper,fade_alpha"
+			menuAnchor
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_OPTIONS 1
+			rect -8 -16 380 320
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+	
+		//Title
+
+		itemdef {
+			renderpoint
+			name "title,fade_alpha"
+			text "Ignore:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+
+
+
+		itemDef {
+			name "the_list"
+			alignrect title ITEM_ALIGN_LEFT 12 32 160 176
+			type ITEM_TYPE_LISTBOX
+			LISTBOX_STYLE(.225, 8)
+			style WINDOW_STYLE_FILLED
+			elementwidth 192
+			elementheight 15
+			textscale .2
+			elementtype LISTBOX_TEXT
+			feeder FEEDER_PLAYER_LIST
+			forecolor 0 0 0 1
+			visible 1
+		}
+
+
+		// Ignore //
+
+		itemdef {
+			name "btn_ignore"
+			text "> ^_I^_gnore"
+			shortcutKey "I"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			forecolor 0 0 0 1
+			textscale .225
+			alignrect paper ITEM_ALIGN_LEFT 224 64 72 16
+			textaligny 12
+			visible 1
+			action { uiScript ignore ; close ingame_ignore }
+		}
+
+		// Unignore //
+
+		itemdef {
+			name "btn_unignore"
+			text "> ^_U^_nignore"
+			shortcutKey "U"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			forecolor 0 0 0 1
+			textscale .225
+			alignrect "btn_ignore" ITEM_ALIGN_LEFT 0 16 72 16
+			textaligny 12
+			visible 1
+			action { uiScript unIgnore ; close ingame_ignore }
+		}
+
+		// Unignore all //
+
+		itemdef {
+			name "btn_unignore_all"
+			text "> Unignore ^_A^_ll"
+			shortcutKey "A"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			forecolor 0 0 0 1
+			textscale .225
+			alignrect "btn_unignore" ITEM_ALIGN_LEFT 0 16 72 16
+			textaligny 12
+			visible 1
+			action { exec "clearignorelist" ; close ingame_ignore }
+		}
+
+
+
+		// VoIP //
+		
+		// Turn off all incoming voice //
+
+		itemdef {
+			name "btn_mute_all"
+			text "> ^_M^_ute All"
+			shortcutKey "M"
+			type ITEM_TYPE_BUTTON
+			cvarTest "cl_voip"
+			hideCvar { "0" }
+			style WINDOW_STYLE_EMPTY
+			forecolor 0 0 0 1
+			textscale .225
+			alignrect "btn_unignore_all" ITEM_ALIGN_LEFT 0 64 72 16
+			textaligny 12
+			visible 1
+			action { exec "voip gain muteall" ; close ingame_ignore }
+		}
+
+		// Turn on all incoming voice //
+
+		itemdef {
+			name "btn_unmute_all"
+			text "> U^_n^_mute All"
+			shortcutKey "N"
+			type ITEM_TYPE_BUTTON
+			cvarTest "cl_voip"
+			hideCvar { "0" }
+			style WINDOW_STYLE_EMPTY
+			forecolor 0 0 0 1
+			textscale .225
+			alignrect "btn_mute_all" ITEM_ALIGN_LEFT 0 16 72 16
+			textaligny 12
+			visible 1
+			action { exec "voip gain unmuteall" ; close ingame_ignore }
+		}
+
+	}
+}
+
+#if 0
+
+#include "ui/menudef.h"
 
 
 {
@@ -135,3 +312,5 @@
 
   }
 }
+
+#endif
