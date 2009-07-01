@@ -1963,14 +1963,15 @@ void ClientSpawn(gentity_t * ent)
 		ent->client->uniqueWeapons = 5;
 		//Makro - added knives
 		ent->client->weaponCount[WP_KNIFE] = 1;
-		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER))
-			ent->client->ps.ammo[WP_KNIFE] = 20;
-		else
-			ent->client->ps.ammo[WP_KNIFE] = 10;
 		for (i = 0; i < MAX_WEAPONS; i++) {
 			ent->client->ps.ammo[i] = ClipAmountForAmmo(i);
 			Add_Ammo(ent, i, 100, 1);
 		}
+		if (ent->client->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER))
+			ent->client->ps.ammo[WP_KNIFE] = 20;
+		else
+			ent->client->ps.ammo[WP_KNIFE] = 10;
+
 		ent->client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE) | (1 << WP_KNIFE);
 	}
 
