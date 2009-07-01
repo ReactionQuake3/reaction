@@ -2171,6 +2171,14 @@ void CG_Weapon_f(void)
 		//CG_Printf("No snapshot: normally exiting\n");
 		return;
 	}
+	///Elder: spectator?
+	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		return;
+	}
+	//JBravo: Not dead
+	if (cg.snap->ps.stats[STAT_HEALTH] < 0) {
+		return;
+	}
 	// if we are going into the intermission, don't do anything
 	if (cg.intermissionStarted) {
 		return;
@@ -2193,11 +2201,6 @@ void CG_Weapon_f(void)
 	//Elder: don't allow weapon switching when in the middle of bursts
 	if (cg.snap->ps.stats[STAT_BURST] > 0)
 		return;
-
-	///Elder: spectator?
-	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
-		return;
-	}
 
 	num = atoi(CG_Argv(1));
 
