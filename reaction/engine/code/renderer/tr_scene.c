@@ -99,13 +99,15 @@ void R_AddPolygonSurfaces( void ) {
 	int			i;
 	shader_t	*sh;
 	srfPoly_t	*poly;
+	int			fogMask;
 
 	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+	fogMask = -((tr.refdef.rdflags & RDF_NOFOG) == 0);
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse );
+		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex & fogMask, qfalse );
 	}
 }
 
@@ -166,7 +168,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 			fogIndex = 0;
 		}
 		// see if it is in a fog volume
-		else if ( tr.world->numfogs == 1 ) {
+		else if ( tr.world->numfogs == 1) {
 			fogIndex = 0;
 		} else {
 			// find which fog volume the poly is in
