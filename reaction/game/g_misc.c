@@ -967,13 +967,13 @@ void func_breakable_explode(gentity_t * self, vec3_t pos)
 
 // Blaze: adding for func_breakable explosions
 
-void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath)
+void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath, vec3_t impactPoint)
 {
-	func_breakable_explode(self, self->s.origin);
+	func_breakable_explode(self, impactPoint);
 //      G_ExplodeMissile(self);
 	//Makro - added check
 	if (self->damage > 0 && self->damage_radius > 0)
-		G_RadiusDamage(self->s.origin, attacker, self->damage, self->damage_radius, self, meansOfDeath);
+		G_RadiusDamage(impactPoint, attacker, self->damage, self->damage_radius, self, meansOfDeath);
 	//    radius damage
 	trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 
@@ -1331,7 +1331,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 
 		if (ent->explosive) {
 			mod = MOD_TRIGGER_HURT;
-			func_breakable_die(ent, inflictor, attacker, damage, mod);
+			func_breakable_die(ent, inflictor, attacker, damage, mod, impactPoint);
 		}
 		G_UseTargets(ent, ent->activator);
 		//G_FreeEntity( ent, __LINE__, __FILE__ );
