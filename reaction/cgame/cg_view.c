@@ -880,7 +880,7 @@ static int CG_CalcFov(void)
 	}
 
 	// warp if dead
-	if (cg.snap->ps.stats[STAT_HEALTH] < 0)
+	if (cg.snap->ps.stats[STAT_HEALTH] <= 0)
 	{
 		const float DEATH_WAVE_AMPLITUDE = 5.f;
 		float delta = (cg.time - cg.timeOfDeath) / 1000.f + 1.f;
