@@ -63,8 +63,6 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
-//Makro - to get the new surfaceparm system to work :/
-#include "surfaceflags.h"
 
 #define	MISSILE_PRESTEP_TIME	50
 

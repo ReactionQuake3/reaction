@@ -1592,6 +1592,38 @@ int GetIntBytes(char *buf, char count);
 //matches any of the tokens in the second string
 qboolean IdMatchesString(const char *id, const char *match);
 
+//Makro - for the new surfaceparm system
+
+#define MAT_DEFAULT				0
+#define MAT_METALSTEPS			1
+#define MAT_GRAVEL				2
+#define MAT_WOOD				3
+#define MAT_CARPET				4
+#define MAT_METAL2				5
+#define MAT_GLASS				6
+#define MAT_GRASS				7
+#define MAT_SNOW				8
+#define MAT_MUD					9
+#define MAT_WOOD2				10
+#define MAT_HARDMETAL			11
+#define MAT_LEAVES				12
+#define MAT_CEMENT				13
+#define MAT_MARBLE				14
+#define MAT_SNOW2				15
+#define MAT_HARDSTEPS			16
+#define	MAT_SAND				17
+#define	MAT_BRICK				18
+#define	MAT_CERAMIC				19
+
+int GetMaterialFromFlag(int flag);
+#define IsMetalMat(Mat)		( (Mat)==MAT_METALSTEPS || (Mat)==MAT_METAL2 || (Mat)==MAT_HARDMETAL )
+#define IsMetalFlag(Flag)	( IsMetalMat( GetMaterialFromFlag( Flag ) ) )
+#define IsWoodMat(Mat)		( (Mat)==MAT_WOOD || (Mat)==MAT_WOOD2 )
+#define IsWoodFlag(Flag)	( IsWoodMat( GetMaterialFromFlag( Flag ) ) )
+#define IsSnowMat(Mat)		( (Mat)==MAT_SNOW || (Mat)==MAT_SNOW2 )
+#define IsSnowFlag(Flag)	( IsSnowMat( GetMaterialFromFlag( Flag ) ) )
+
+
 
 float SawTooth(int time, int period);
 

@@ -403,11 +403,10 @@
 //-----------------------------------------------------------------------------
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
-#include "../game/q_shared.h"	// Added by ClassView
 
 // The entire cgame module is unloaded and reloaded on each level change,
 // so there is NO persistant data between levels on the client side.

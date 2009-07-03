@@ -202,7 +202,6 @@
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
-#include "surfaceflags.h"
 // JBravo: for warnings
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator);
 
