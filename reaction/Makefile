@@ -39,7 +39,7 @@ ifndef BUILD_GAME_SO
   BUILD_GAME_SO    = 0
 endif
 ifndef BUILD_GAME_QVM
-  BUILD_GAME_QVM   = 0
+  BUILD_GAME_QVM   = 1
 endif
 ifndef BUILD_MISSIONPACK
   BUILD_MISSIONPACK= 0
@@ -805,9 +805,9 @@ endif
 
 ifneq ($(BUILD_GAME_SO),0)
   TARGETS += \
-    $(B)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-    $(B)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-    $(B)/baseq3/ui$(ARCH).$(SHLIBEXT)
+    $(B)/Boomstick/cgame$(ARCH).$(SHLIBEXT) \
+    $(B)/Boomstick/qagame$(ARCH).$(SHLIBEXT) \
+    $(B)/Boomstick/ui$(ARCH).$(SHLIBEXT)
   ifneq ($(BUILD_MISSIONPACK),0)
     TARGETS += \
     $(B)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
@@ -819,9 +819,9 @@ endif
 ifneq ($(BUILD_GAME_QVM),0)
   ifneq ($(CROSS_COMPILING),1)
     TARGETS += \
-      $(B)/baseq3/vm/cgame.qvm \
-      $(B)/baseq3/vm/qagame.qvm \
-      $(B)/baseq3/vm/ui.qvm
+      $(B)/Boomstick/vm/cgame.qvm \
+      $(B)/Boomstick/vm/qagame.qvm \
+      $(B)/Boomstick/vm/ui.qvm
     ifneq ($(BUILD_MISSIONPACK),0)
       TARGETS += \
       $(B)/missionpack/vm/qagame.qvm \
@@ -1022,12 +1022,12 @@ makedirs:
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/clientsmp ];then $(MKDIR) $(B)/clientsmp;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
-	@if [ ! -d $(B)/baseq3 ];then $(MKDIR) $(B)/baseq3;fi
-	@if [ ! -d $(B)/baseq3/cgame ];then $(MKDIR) $(B)/baseq3/cgame;fi
-	@if [ ! -d $(B)/baseq3/game ];then $(MKDIR) $(B)/baseq3/game;fi
-	@if [ ! -d $(B)/baseq3/ui ];then $(MKDIR) $(B)/baseq3/ui;fi
-	@if [ ! -d $(B)/baseq3/qcommon ];then $(MKDIR) $(B)/baseq3/qcommon;fi
-	@if [ ! -d $(B)/baseq3/vm ];then $(MKDIR) $(B)/baseq3/vm;fi
+	@if [ ! -d $(B)/Boomstick ];then $(MKDIR) $(B)/Boomstick;fi
+	@if [ ! -d $(B)/Boomstick/cgame ];then $(MKDIR) $(B)/Boomstick/cgame;fi
+	@if [ ! -d $(B)/Boomstick/game ];then $(MKDIR) $(B)/Boomstick/game;fi
+	@if [ ! -d $(B)/Boomstick/ui ];then $(MKDIR) $(B)/Boomstick/ui;fi
+	@if [ ! -d $(B)/Boomstick/qcommon ];then $(MKDIR) $(B)/Boomstick/qcommon;fi
+	@if [ ! -d $(B)/Boomstick/vm ];then $(MKDIR) $(B)/Boomstick/vm;fi
 	@if [ ! -d $(B)/missionpack ];then $(MKDIR) $(B)/missionpack;fi
 	@if [ ! -d $(B)/missionpack/cgame ];then $(MKDIR) $(B)/missionpack/cgame;fi
 	@if [ ! -d $(B)/missionpack/game ];then $(MKDIR) $(B)/missionpack/game;fi
@@ -1637,40 +1637,42 @@ $(B)/Reactionded.$(ARCH)$(BINEXT): $(Q3DOBJ)
 #############################################################################
 
 Q3CGOBJ_ = \
-  $(B)/baseq3/cgame/cg_main.o \
-  $(B)/baseq3/cgame/bg_misc.o \
-  $(B)/baseq3/cgame/bg_pmove.o \
-  $(B)/baseq3/cgame/bg_slidemove.o \
-  $(B)/baseq3/cgame/bg_lib.o \
-  $(B)/baseq3/cgame/cg_consolecmds.o \
-  $(B)/baseq3/cgame/cg_draw.o \
-  $(B)/baseq3/cgame/cg_drawtools.o \
-  $(B)/baseq3/cgame/cg_effects.o \
-  $(B)/baseq3/cgame/cg_ents.o \
-  $(B)/baseq3/cgame/cg_event.o \
-  $(B)/baseq3/cgame/cg_info.o \
-  $(B)/baseq3/cgame/cg_localents.o \
-  $(B)/baseq3/cgame/cg_marks.o \
-  $(B)/baseq3/cgame/cg_players.o \
-  $(B)/baseq3/cgame/cg_playerstate.o \
-  $(B)/baseq3/cgame/cg_predict.o \
-  $(B)/baseq3/cgame/cg_scoreboard.o \
-  $(B)/baseq3/cgame/cg_servercmds.o \
-  $(B)/baseq3/cgame/cg_snapshot.o \
-  $(B)/baseq3/cgame/cg_view.o \
-  $(B)/baseq3/cgame/cg_weapons.o \
+  $(B)/Boomstick/cgame/cg_main.o \
+  $(B)/Boomstick/cgame/bg_misc.o \
+  $(B)/Boomstick/cgame/bg_pmove.o \
+  $(B)/Boomstick/cgame/bg_slidemove.o \
+  $(B)/Boomstick/cgame/bg_lib.o \
+  $(B)/Boomstick/cgame/cg_consolecmds.o \
+  $(B)/Boomstick/cgame/cg_draw.o \
+  $(B)/Boomstick/cgame/cg_drawtools.o \
+  $(B)/Boomstick/cgame/cg_effects.o \
+  $(B)/Boomstick/cgame/cg_ents.o \
+  $(B)/Boomstick/cgame/cg_event.o \
+  $(B)/Boomstick/cgame/cg_info.o \
+  $(B)/Boomstick/cgame/cg_localents.o \
+  $(B)/Boomstick/cgame/cg_marks.o \
+  $(B)/Boomstick/cgame/cg_players.o \
+  $(B)/Boomstick/cgame/cg_playerstate.o \
+  $(B)/Boomstick/cgame/cg_predict.o \
+  $(B)/Boomstick/cgame/cg_scoreboard.o \
+  $(B)/Boomstick/cgame/cg_servercmds.o \
+  $(B)/Boomstick/cgame/cg_snapshot.o \
+  $(B)/Boomstick/cgame/cg_view.o \
+  $(B)/Boomstick/cgame/cg_weapons.o \
+  $(B)/Boomstick/cgame/cg_unlagged.o \
+  $(B)/Boomstick/cgame/cg_atmospheric.o \
   \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
+  $(B)/Boomstick/qcommon/q_math.o \
+  $(B)/Boomstick/qcommon/q_shared.o
 
-Q3CGOBJ = $(Q3CGOBJ_) $(B)/baseq3/cgame/cg_syscalls.o
+Q3CGOBJ = $(Q3CGOBJ_) $(B)/Boomstick/cgame/cg_syscalls.o
 Q3CGVMOBJ = $(Q3CGOBJ_:%.o=%.asm)
 
-$(B)/baseq3/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
+$(B)/Boomstick/cgame$(ARCH).$(SHLIBEXT): $(Q3CGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3CGOBJ)
 
-$(B)/baseq3/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
+$(B)/Boomstick/vm/cgame.qvm: $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3CGVMOBJ) $(CGDIR)/cg_syscalls.asm
 
@@ -1725,49 +1727,49 @@ $(B)/missionpack/vm/cgame.qvm: $(MPCGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 #############################################################################
 
 Q3GOBJ_ = \
-  $(B)/baseq3/game/g_main.o \
-  $(B)/baseq3/game/ai_chat.o \
-  $(B)/baseq3/game/ai_cmd.o \
-  $(B)/baseq3/game/ai_dmnet.o \
-  $(B)/baseq3/game/ai_dmq3.o \
-  $(B)/baseq3/game/ai_main.o \
-  $(B)/baseq3/game/ai_team.o \
-  $(B)/baseq3/game/ai_vcmd.o \
-  $(B)/baseq3/game/bg_misc.o \
-  $(B)/baseq3/game/bg_pmove.o \
-  $(B)/baseq3/game/bg_slidemove.o \
-  $(B)/baseq3/game/bg_lib.o \
-  $(B)/baseq3/game/g_active.o \
-  $(B)/baseq3/game/g_arenas.o \
-  $(B)/baseq3/game/g_bot.o \
-  $(B)/baseq3/game/g_client.o \
-  $(B)/baseq3/game/g_cmds.o \
-  $(B)/baseq3/game/g_combat.o \
-  $(B)/baseq3/game/g_items.o \
-  $(B)/baseq3/game/g_mem.o \
-  $(B)/baseq3/game/g_misc.o \
-  $(B)/baseq3/game/g_missile.o \
-  $(B)/baseq3/game/g_mover.o \
-  $(B)/baseq3/game/g_session.o \
-  $(B)/baseq3/game/g_spawn.o \
-  $(B)/baseq3/game/g_svcmds.o \
-  $(B)/baseq3/game/g_target.o \
-  $(B)/baseq3/game/g_team.o \
-  $(B)/baseq3/game/g_trigger.o \
-  $(B)/baseq3/game/g_utils.o \
-  $(B)/baseq3/game/g_weapon.o \
+  $(B)/Boomstick/game/g_main.o \
+  $(B)/Boomstick/game/ai_chat.o \
+  $(B)/Boomstick/game/ai_cmd.o \
+  $(B)/Boomstick/game/ai_dmnet.o \
+  $(B)/Boomstick/game/ai_dmq3.o \
+  $(B)/Boomstick/game/ai_main.o \
+  $(B)/Boomstick/game/ai_team.o \
+  $(B)/Boomstick/game/ai_vcmd.o \
+  $(B)/Boomstick/game/bg_misc.o \
+  $(B)/Boomstick/game/bg_pmove.o \
+  $(B)/Boomstick/game/bg_slidemove.o \
+  $(B)/Boomstick/game/bg_lib.o \
+  $(B)/Boomstick/game/g_active.o \
+  $(B)/Boomstick/game/g_arenas.o \
+  $(B)/Boomstick/game/g_bot.o \
+  $(B)/Boomstick/game/g_client.o \
+  $(B)/Boomstick/game/g_cmds.o \
+  $(B)/Boomstick/game/g_combat.o \
+  $(B)/Boomstick/game/g_items.o \
+  $(B)/Boomstick/game/g_mem.o \
+  $(B)/Boomstick/game/g_misc.o \
+  $(B)/Boomstick/game/g_missile.o \
+  $(B)/Boomstick/game/g_mover.o \
+  $(B)/Boomstick/game/g_session.o \
+  $(B)/Boomstick/game/g_spawn.o \
+  $(B)/Boomstick/game/g_svcmds.o \
+  $(B)/Boomstick/game/g_target.o \
+  $(B)/Boomstick/game/g_team.o \
+  $(B)/Boomstick/game/g_trigger.o \
+  $(B)/Boomstick/game/g_utils.o \
+  $(B)/Boomstick/game/g_weapon.o \
   \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
+  $(B)/Boomstick/qcommon/q_math.o \
+  $(B)/Boomstick/qcommon/q_shared.o
 
-Q3GOBJ = $(Q3GOBJ_) $(B)/baseq3/game/g_syscalls.o
+Q3GOBJ = $(Q3GOBJ_) $(B)/Boomstick/game/g_syscalls.o
 Q3GVMOBJ = $(Q3GOBJ_:%.o=%.asm)
 
-$(B)/baseq3/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
+$(B)/Boomstick/qagame$(ARCH).$(SHLIBEXT): $(Q3GOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3GOBJ)
 
-$(B)/baseq3/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
+$(B)/Boomstick/vm/qagame.qvm: $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3GVMOBJ) $(GDIR)/g_syscalls.asm
 
@@ -1829,59 +1831,59 @@ $(B)/missionpack/vm/qagame.qvm: $(MPGVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 #############################################################################
 
 Q3UIOBJ_ = \
-  $(B)/baseq3/ui/ui_main.o \
-  $(B)/baseq3/ui/bg_misc.o \
-  $(B)/baseq3/ui/bg_lib.o \
-  $(B)/baseq3/ui/ui_addbots.o \
-  $(B)/baseq3/ui/ui_atoms.o \
-  $(B)/baseq3/ui/ui_cdkey.o \
-  $(B)/baseq3/ui/ui_cinematics.o \
-  $(B)/baseq3/ui/ui_confirm.o \
-  $(B)/baseq3/ui/ui_connect.o \
-  $(B)/baseq3/ui/ui_controls2.o \
-  $(B)/baseq3/ui/ui_credits.o \
-  $(B)/baseq3/ui/ui_demo2.o \
-  $(B)/baseq3/ui/ui_display.o \
-  $(B)/baseq3/ui/ui_gameinfo.o \
-  $(B)/baseq3/ui/ui_ingame.o \
-  $(B)/baseq3/ui/ui_loadconfig.o \
-  $(B)/baseq3/ui/ui_menu.o \
-  $(B)/baseq3/ui/ui_mfield.o \
-  $(B)/baseq3/ui/ui_mods.o \
-  $(B)/baseq3/ui/ui_network.o \
-  $(B)/baseq3/ui/ui_options.o \
-  $(B)/baseq3/ui/ui_playermodel.o \
-  $(B)/baseq3/ui/ui_players.o \
-  $(B)/baseq3/ui/ui_playersettings.o \
-  $(B)/baseq3/ui/ui_preferences.o \
-  $(B)/baseq3/ui/ui_qmenu.o \
-  $(B)/baseq3/ui/ui_removebots.o \
-  $(B)/baseq3/ui/ui_saveconfig.o \
-  $(B)/baseq3/ui/ui_serverinfo.o \
-  $(B)/baseq3/ui/ui_servers2.o \
-  $(B)/baseq3/ui/ui_setup.o \
-  $(B)/baseq3/ui/ui_sound.o \
-  $(B)/baseq3/ui/ui_sparena.o \
-  $(B)/baseq3/ui/ui_specifyserver.o \
-  $(B)/baseq3/ui/ui_splevel.o \
-  $(B)/baseq3/ui/ui_sppostgame.o \
-  $(B)/baseq3/ui/ui_spskill.o \
-  $(B)/baseq3/ui/ui_startserver.o \
-  $(B)/baseq3/ui/ui_team.o \
-  $(B)/baseq3/ui/ui_teamorders.o \
-  $(B)/baseq3/ui/ui_video.o \
+  $(B)/Boomstick/ui/ui_main.o \
+  $(B)/Boomstick/ui/bg_misc.o \
+  $(B)/Boomstick/ui/bg_lib.o \
+  $(B)/Boomstick/ui/ui_addbots.o \
+  $(B)/Boomstick/ui/ui_atoms.o \
+  $(B)/Boomstick/ui/ui_cdkey.o \
+  $(B)/Boomstick/ui/ui_cinematics.o \
+  $(B)/Boomstick/ui/ui_confirm.o \
+  $(B)/Boomstick/ui/ui_connect.o \
+  $(B)/Boomstick/ui/ui_controls2.o \
+  $(B)/Boomstick/ui/ui_credits.o \
+  $(B)/Boomstick/ui/ui_demo2.o \
+  $(B)/Boomstick/ui/ui_display.o \
+  $(B)/Boomstick/ui/ui_gameinfo.o \
+  $(B)/Boomstick/ui/ui_ingame.o \
+  $(B)/Boomstick/ui/ui_loadconfig.o \
+  $(B)/Boomstick/ui/ui_menu.o \
+  $(B)/Boomstick/ui/ui_mfield.o \
+  $(B)/Boomstick/ui/ui_mods.o \
+  $(B)/Boomstick/ui/ui_network.o \
+  $(B)/Boomstick/ui/ui_options.o \
+  $(B)/Boomstick/ui/ui_playermodel.o \
+  $(B)/Boomstick/ui/ui_players.o \
+  $(B)/Boomstick/ui/ui_playersettings.o \
+  $(B)/Boomstick/ui/ui_preferences.o \
+  $(B)/Boomstick/ui/ui_qmenu.o \
+  $(B)/Boomstick/ui/ui_removebots.o \
+  $(B)/Boomstick/ui/ui_saveconfig.o \
+  $(B)/Boomstick/ui/ui_serverinfo.o \
+  $(B)/Boomstick/ui/ui_servers2.o \
+  $(B)/Boomstick/ui/ui_setup.o \
+  $(B)/Boomstick/ui/ui_sound.o \
+  $(B)/Boomstick/ui/ui_sparena.o \
+  $(B)/Boomstick/ui/ui_specifyserver.o \
+  $(B)/Boomstick/ui/ui_splevel.o \
+  $(B)/Boomstick/ui/ui_sppostgame.o \
+  $(B)/Boomstick/ui/ui_spskill.o \
+  $(B)/Boomstick/ui/ui_startserver.o \
+  $(B)/Boomstick/ui/ui_team.o \
+  $(B)/Boomstick/ui/ui_teamorders.o \
+  $(B)/Boomstick/ui/ui_video.o \
   \
-  $(B)/baseq3/qcommon/q_math.o \
-  $(B)/baseq3/qcommon/q_shared.o
+  $(B)/Boomstick/qcommon/q_math.o \
+  $(B)/Boomstick/qcommon/q_shared.o
 
 Q3UIOBJ = $(Q3UIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
 Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm)
 
-$(B)/baseq3/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
+$(B)/Boomstick/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
 
-$(B)/baseq3/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
+$(B)/Boomstick/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
 
@@ -1989,16 +1991,16 @@ endif
 ## GAME MODULE RULES
 #############################################################################
 
-$(B)/baseq3/cgame/bg_%.o: $(GDIR)/bg_%.c
+$(B)/Boomstick/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC)
 
-$(B)/baseq3/cgame/%.o: $(CGDIR)/%.c
+$(B)/Boomstick/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC)
 
-$(B)/baseq3/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+$(B)/Boomstick/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
-$(B)/baseq3/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
+$(B)/Boomstick/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
 $(B)/missionpack/cgame/bg_%.o: $(GDIR)/bg_%.c
@@ -2014,10 +2016,10 @@ $(B)/missionpack/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC_MISSIONPACK)
 
 
-$(B)/baseq3/game/%.o: $(GDIR)/%.c
+$(B)/Boomstick/game/%.o: $(GDIR)/%.c
 	$(DO_GAME_CC)
 
-$(B)/baseq3/game/%.asm: $(GDIR)/%.c $(Q3LCC)
+$(B)/Boomstick/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_GAME_Q3LCC)
 
 $(B)/missionpack/game/%.o: $(GDIR)/%.c
@@ -2027,16 +2029,16 @@ $(B)/missionpack/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_GAME_Q3LCC_MISSIONPACK)
 
 
-$(B)/baseq3/ui/bg_%.o: $(GDIR)/bg_%.c
+$(B)/Boomstick/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC)
 
-$(B)/baseq3/ui/%.o: $(Q3UIDIR)/%.c
+$(B)/Boomstick/ui/%.o: $(Q3UIDIR)/%.c
 	$(DO_UI_CC)
 
-$(B)/baseq3/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+$(B)/Boomstick/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
-$(B)/baseq3/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
+$(B)/Boomstick/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
 $(B)/missionpack/ui/bg_%.o: $(GDIR)/bg_%.c
@@ -2052,10 +2054,10 @@ $(B)/missionpack/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC_MISSIONPACK)
 
 
-$(B)/baseq3/qcommon/%.o: $(CMDIR)/%.c
+$(B)/Boomstick/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC)
 
-$(B)/baseq3/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
+$(B)/Boomstick/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 	$(DO_Q3LCC)
 
 $(B)/missionpack/qcommon/%.o: $(CMDIR)/%.c
@@ -2076,8 +2078,8 @@ TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 
 
 copyfiles: release
-	@if [ ! -d $(COPYDIR)/baseq3 ]; then echo "You need to set COPYDIR to where your Quake3 data is!"; fi
-	-$(MKDIR) -p -m 0755 $(COPYDIR)/baseq3
+	@if [ ! -d $(COPYDIR)/Boomstick ]; then echo "You need to set COPYDIR to where your Quake3 data is!"; fi
+	-$(MKDIR) -p -m 0755 $(COPYDIR)/Boomstick
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
 
 ifneq ($(BUILD_CLIENT),0)
@@ -2096,12 +2098,12 @@ ifneq ($(BUILD_SERVER),0)
 endif
 
 ifneq ($(BUILD_GAME_SO),0)
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/cgame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/qagame$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
-	$(INSTALL) -s -m 0755 $(BR)/baseq3/ui$(ARCH).$(SHLIBEXT) \
-					$(COPYDIR)/baseq3/.
+	$(INSTALL) -s -m 0755 $(BR)/Boomstick/cgame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/Boomstick/.
+	$(INSTALL) -s -m 0755 $(BR)/Boomstick/qagame$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/Boomstick/.
+	$(INSTALL) -s -m 0755 $(BR)/Boomstick/ui$(ARCH).$(SHLIBEXT) \
+					$(COPYDIR)/Boomstick/.
   ifneq ($(BUILD_MISSIONPACK),0)
 	-$(MKDIR) -p -m 0755 $(COPYDIR)/missionpack
 	$(INSTALL) -s -m 0755 $(BR)/missionpack/cgame$(ARCH).$(SHLIBEXT) \
