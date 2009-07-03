@@ -559,7 +559,7 @@ qboolean UI_FileExists(const char *filename)
 }
 
 // Makro - temporary file with #define's
-static const char* s_symbols_temp_file_name = "ui/runtime.h";
+static const char* s_symbols_temp_file_name = "ui/runtime.cfg";
 
 
 static void FS_WriteText(fileHandle_t file, const char* text)

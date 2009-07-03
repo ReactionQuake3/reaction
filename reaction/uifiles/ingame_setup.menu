@@ -1,0 +1,406 @@
+#include "ui/menudef.h"
+
+#define ICON_ALPHA 0.5
+#define LINE_ALPHA 0.2
+#define FADEIN_TIME 125
+
+#define ANGLES 4 -86
+
+{
+
+  menuDef {
+	renderpoint
+	name "ingame_setup"
+	visible MENU_FALSE				// Visible on open
+	//fullScreen MENU_FALSE
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	rect 192 64 288 348
+	anglevectors ANGLES
+	style WINDOW_STYLE_EMPTY
+	popup
+	
+	onOOBClick { close _self ; open ingame }
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript LoadMods ;
+		setitemcolor hints forecolor .9 .9 .9 1 ; hide hints ;
+		hide focus }
+	onEsc { close _self ; open ingame }
+
+	onOpenSpecial {
+		//normal items
+		setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+		timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+		//icon - special alpha
+		setItemColor "icon" forecolor 5 5 5 0 ;
+		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+		//line - special alpha; using backcolor
+		setItemColor "line" backcolor 5 5 5 0 ;
+		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+	}
+
+
+
+	itemDef {
+	name "paper"
+	menuAnchor
+	subgroup "fade_fore_alpha"
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor MENUCOLOR_SETUP 1
+	rect -4 -20 320 420
+	anglevectors ANGLES
+	visible 1
+	decoration
+    }
+
+	//Title
+
+	itemdef {
+	renderpoint
+	name "title"
+	subgroup "fade_fore_alpha"
+	text "Options:"
+	forecolor .0 .0 .1 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 24
+	textscale RQ3_MAIN_TEXTSIZE
+	alignRect paper ITEM_ALIGN_CENTER -12 40 240 20
+	visible 1
+	autowrapped
+	decoration
+    }
+
+	itemdef {
+	text "Configure Reaction to suit your\n"
+	     "unique needs"
+	autowrapped
+	subgroup "fade_fore_alpha"
+	forecolor .25 .25 .25 1
+	textalign ITEM_ALIGN_LEFT
+	textalignx 4
+	textaligny 12
+	textscale .2
+	alignrect "title" ITEM_ALIGN_LEFT 0 28 240 16
+	style WINDOW_STYLE_EMPTY
+	type ITEM_TYPE_BUTTON
+	visible 1
+	decoration
+    }
+
+	//Line
+
+	itemDef {
+	name "line"
+	style WINDOW_STYLE_FILLED
+	backcolor .25 .25 .25 LINE_ALPHA
+	alignrect "title" ITEM_ALIGN_LEFT 0 60 240 2
+	visible 1
+	decoration
+	}
+
+    //Icon
+
+	itemdef {
+	name icon
+	background UI_ASSETS"/icons/rq3-menu-setup"
+	forecolor 1 1 1 ICON_ALPHA
+	//rect 336 12 32 32
+	alignrect "line" ITEM_ALIGN_RIGHT 0 -48 32 32
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
+
+// Player options
+
+	itemdef {
+	name "btn_player"
+	text "> ^_P^_layer"
+	shortcutKey "P"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect title ITEM_ALIGN_LEFT 2 64 56 20
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openspecial player_menu }
+    }
+
+	itemdef {
+	text "Select your name and appearance"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_player" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
+// Controls
+
+	itemdef {
+	name "btn_controls"
+	text "> ^_C^_ontrols"
+	shortcutKey "C"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_player" ITEM_ALIGN_LEFT 0 36 72 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openSpecial controls_menu }
+    }
+
+	itemdef {
+	text "Customize controls and keyboard shortcuts"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_controls" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
+// System
+
+	itemdef {
+	name "btn_system"
+	text "> ^_S^_ystem"
+	shortcutKey "S"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_controls" ITEM_ALIGN_LEFT 0 36 64 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openSpecial system_menu }
+    }
+
+	itemdef {
+	text "Graphics, sound and network"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_system" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
+// Game
+
+	itemdef {
+	name "btn_game"
+	text "> ^_G^_ame options"
+	shortcutKey "G"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_system" ITEM_ALIGN_LEFT 0 36 108 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openSpecial options_menu }
+    }
+
+	itemdef {
+	text "Optimize your gaming experience"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_game" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
+// Replacements
+
+	itemdef {
+	name "btn_replace"
+	text "> ^_R^_eplacements"
+	shortcutKey "R"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_game" ITEM_ALIGN_LEFT 0 36 108 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openSpecial replacements_menu }
+    }
+
+	itemdef {
+	text "Customize your weapon and item appearance"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_replace" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
+// Reset to defaults
+/*
+	itemdef {
+	name "btn_reset"
+	text "> Reset ^_a^_ll settings"
+	shortcutKey "A"
+	//forecolor 0 0 0 1
+	forecolor .5 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_replace" ITEM_ALIGN_LEFT 0 48 128 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { open reset_popmenu ; }
+    }
+
+	itemdef {
+	text "This will reset all settings back to defaults"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_reset" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+*/
+}
+
+
+
+  menuDef {
+    name "reset_popmenu"
+    visible 0
+    rect 170 180 300 100
+		anglevectors 10 -80
+    focusColor RQ3_MAIN_FOCUSCOLOR
+    //outOfBoundsClick
+		onOOBClick { close _self ; open _prev }
+    popup
+    //onOpen { transition window 0 50 300 0 0 0 300 100 10 4 }
+    //onClose { transition window 0 0 300 100 0 50 300 0 10 4 }
+    onopen { setfocus no ; }
+    onESC { close reset_popmenu ; open setup_menu ; }
+
+	itemDef {
+	renderpoint
+	name "postit"
+	menuAnchor
+	group window
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/post_it"
+	//forecolor .96 .91 .68 1
+	forecolor 1 .99 .75 1
+	rect -16 0 180 152
+	anglevectors 10 -80
+	visible 1
+	decoration
+    }
+
+
+    // RESET	//
+
+    itemDef {
+	renderpoint
+	name confirm
+	group window
+	autowrapped
+	text "Reset all settings ?"
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
+	textscale .25
+	rect 16 24 112 32
+	adjustrect
+	textalign 1
+	textalignx 56
+	textaligny 16
+	decoration
+	//forecolor 0 0 .15 1
+	forecolor .5 0 0 1
+	visible 1
+    }
+
+
+    // YES	//
+
+    itemDef {
+	name yes
+	group window
+	text "^_Y^_ES"
+	shortcutKey "Y"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
+	textscale .25
+	alignrect confirm ITEM_ALIGN_LEFT 20 56 32 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 12
+	forecolor 0 0 .15 1
+	visible 1
+	action { close reset_popmenu ; close setup_menu ; open main ; uiScript resetDefaults ; }
+    }
+
+
+    // NO	//
+
+    itemDef {
+	name no
+	group window
+	text "^_N^_O"
+	shortcutKey "N"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	backcolor 0 0 0 .1
+	textscale .25
+	alignrect confirm ITEM_ALIGN_RIGHT 20 56 32 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 16
+	textaligny 12
+	forecolor 0 0 .15 1
+	visible 1
+	action { close _self ; open setup_menu }
+    }
+  }
+}
