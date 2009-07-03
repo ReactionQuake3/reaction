@@ -8103,7 +8103,7 @@ static void UI_BuildQ3Model_List(void)
 		for (j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++, fileptr += filelen + 1) {
 			filelen = strlen(fileptr);
 
-			COM_StripExtension(fileptr, skinname);
+			COM_StripExtension(fileptr, skinname, sizeof(skinname));
 
 			// look for icon_????
 			if (Q_stricmpn(skinname, "icon_", 5) == 0

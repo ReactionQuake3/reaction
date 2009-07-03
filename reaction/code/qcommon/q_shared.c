@@ -81,21 +81,21 @@ COM_StripExtension
 ============
 */
 void COM_StripExtension( const char *in, char *out, int destsize ) {
-	int             length;
-
 	Q_strncpyz(out, in, destsize);
-
-	length = strlen(out)-1;
-	while (length > 0 && out[length] != '.')
-	{
-		length--;
-		if (out[length] == '/')
-			return;		// no extension
-	}
-	if (length)
-		out[length] = 0;
+	COM_StripExtensionInPlace(out);
 }
 
+/*
+============
+COM_StripExtensionInPlace
+============
+*/
+void COM_StripExtensionInPlace(char *name)
+{
+	char* ext = Q_strrchr(name, '.');
+	if (ext)
+		*ext = 0;
+}
 
 /*
 ==================
@@ -734,9 +734,9 @@ Safe strncpy that ensures a trailing zero
 =============
 */
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
-  if ( !dest ) {
-    Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
-  }
+	if ( !dest ) {
+		Com_Error( ERR_FATAL, "Q_strncpyz: NULL dest" );
+	}
 	if ( !src ) {
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
 	}
@@ -744,8 +744,11 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 		Com_Error(ERR_FATAL,"Q_strncpyz: destsize < 1" ); 
 	}
 
+	if ( dest == src  )
+		return;
+	
 	strncpy( dest, src, destsize-1 );
-  dest[destsize-1] = 0;
+	dest[destsize-1] = 0;
 }
                  
 int Q_stricmpn (const char *s1, const char *s2, int n) {
@@ -999,6 +1002,70 @@ void Com_TruncateLongString( char *buffer, const char *s )
 		Q_strncpyz( buffer, s, ( TRUNCATE_LENGTH / 2 ) - 3 );
 		Q_strcat( buffer, TRUNCATE_LENGTH, " ... " );
 		Q_strcat( buffer, TRUNCATE_LENGTH, s + length - ( TRUNCATE_LENGTH / 2 ) + 3 );
+	}
+}
+
+/*
+=============
+TempVector
+
+This is just a convenience function
+for making temporary vectors for function calls
+=============
+*/
+float *tv(float x, float y, float z)
+{
+	static int index;
+	static vec3_t vecs[8];
+	float *v;
+
+	// use an array so that multiple tempvectors won't collide
+	// for a while
+	v = vecs[index];
+	index = (index + 1) & 7;
+
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+
+	return v;
+}
+
+/*
+=============
+VectorToString
+
+This is just a convenience function
+for printing vectors
+=============
+*/
+char *vtos(const vec3_t v)
+{
+	static int index;
+	static char str[8][32];
+	char *s;
+
+	// use an array so that multiple vtos won't collide
+	s = str[index];
+	index = (index + 1) & 7;
+
+	Com_sprintf(s, 32, "(%.3f %.3f %.3f)", v[0], v[1], v[2]);
+
+	return s;
+}
+
+//====================================================================
+// JBravo: moved from g_weapon.c
+void SnapVectorTowards( vec3_t v, vec3_t to )
+{
+	int i;
+
+	for (i = 0 ; i < 3 ; i++) {
+		if ( to[i] <= v[i] ) {
+			v[i] = (int)v[i];
+		} else {
+			v[i] = (int)v[i] + 1;
+		}
 	}
 }
 

@@ -187,6 +187,11 @@ typedef int		clipHandle_t;
 #define	YAW					1		// left / right
 #define	ROLL				2		// fall over
 
+//Makro - angle axis
+#define PITCH_AXIS			1
+#define YAW_AXIS			2
+#define ROLL_AXIS			0
+
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
 #define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
@@ -322,8 +327,9 @@ typedef	int	fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
-#define NUMVERTEXNORMALS	162
-extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
+//Makro - changed from 162 to 256 in order to use the new bytedirs table
+#define NUMVERTEXNORMALS	256
+extern vec3_t bytedirs[NUMVERTEXNORMALS];
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
@@ -355,7 +361,7 @@ extern	vec4_t		colorMdGrey;
 extern	vec4_t		colorDkGrey;
 
 #define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1)) ) // ^[0-9a-zA-Z]
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
 
 #define COLOR_BLACK		'0'
 #define COLOR_RED		'1'
@@ -376,10 +382,24 @@ extern	vec4_t		colorDkGrey;
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
 
+//Makro - reset color
+#define S_COLOR_RESET	"^*"
+
 extern vec4_t	g_color_table[8];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
+
+//Makro - for the UI
+
+#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1])
+#define Vector2MA(v,s,b,o)			((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
+#define Vector2Add(a,b,o)			((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
+#define Vector2Subtract(a,b,o)		((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
+#define Vector2Scale(a,s,o)			((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
+#define Vector2Negate(a,o)			((o)[0]=-(a)[0],(o)[1]=-(a)[1])
+#define Vector2Set(v,x,y)			((v)[0]=(x),(v)[1]=(y))
+#define Vector2Norm2(v)				((v)[0]*(v)[0]+(v)[1]*(v)[1])
 
 #define DEG2RAD( a ) ( ( (a) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( (a) * 180.0f ) / M_PI )
@@ -621,6 +641,7 @@ float Com_Clamp( float min, float max, float value );
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension(const char *in, char *out, int destsize);
+void	COM_StripExtensionInPlace(char* name);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
@@ -743,7 +764,8 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+char	*QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+float	*tv(float x, float y, float z);
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );

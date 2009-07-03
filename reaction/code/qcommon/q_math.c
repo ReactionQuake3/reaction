@@ -184,28 +184,15 @@ signed short ClampShort( int i ) {
 
 
 // this isn't a real cheap function to call!
-int DirToByte( vec3_t dir ) {
-	int		i, best;
-	float	d, bestd;
+// Makro - a lot cheaper now
 
-	if ( !dir ) {
-		return 0;
-	}
-
-	bestd = 0;
-	best = 0;
-	for (i=0 ; i<NUMVERTEXNORMALS ; i++)
-	{
-		d = DotProduct (dir, bytedirs[i]);
-		if (d > bestd)
-		{
-			bestd = d;
-			best = i;
-		}
-	}
-
-	return best;
+int DirToByte(vec3_t dir)
+{
+	vec3_t angles;
+	vectoangles(dir, angles);
+	return ((int) (angles[YAW] * 16 / 360.0f) & 15) | ((((int) (angles[PITCH] * 16 / 360.0f)) & 15) << 4);
 }
+
 
 void ByteToDir( int b, vec3_t dir ) {
 	if ( b < 0 || b >= NUMVERTEXNORMALS ) {
@@ -1306,4 +1293,133 @@ int Q_isnan( float x )
 	fi.ui = 0x7F800000 - fi.ui;
 
 	return (int)( (unsigned int)fi.ui >> 31 );
+}
+
+
+// By NiceAss. Used for reflection of sparks on metal surfaces
+int ReflectVectorByte(vec3_t dir, vec3_t plane)
+{
+	vec3_t final;
+	float dot;
+
+	dot = DotProduct(dir, plane);
+	VectorMA(dir, -2 * dot, plane, final);
+
+	return DirToByte(final);
+}
+
+//Makro - moved from g_mover.c
+/*
+================
+CreateRotationMatrix
+================
+*/
+void CreateRotationMatrix(vec3_t angles, vec3_t matrix[3])
+{
+	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+	VectorInverse(matrix[1]);
+}
+
+/*
+================
+TransposeMatrix
+================
+*/
+void TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3])
+{
+	int i, j;
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			transpose[i][j] = matrix[j][i];
+		}
+	}
+}
+
+/*
+================
+RotatePoint
+================
+*/
+void RotatePoint(vec3_t point, vec3_t matrix[3])
+{
+	vec3_t tvec;
+
+	VectorCopy(point, tvec);
+	point[0] = DotProduct(matrix[0], tvec);
+	point[1] = DotProduct(matrix[1], tvec);
+	point[2] = DotProduct(matrix[2], tvec);
+}
+
+//Makro - added
+void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out)
+{
+	vec3_t result;
+
+	VectorScale(newaxis[0], in[0], result);
+	VectorMA(result, in[1], newaxis[1], result);
+	VectorMA(result, in[2], newaxis[2], result);
+
+	if (neworg)
+		VectorAdd(result, neworg, result);
+
+	VectorCopy(result, out);
+}
+
+//Makro - added
+void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out)
+{
+	vec3_t dif;
+	
+	if (neworg)
+		VectorSubtract(in, neworg, dif);
+	else
+		VectorCopy(in, dif);
+	out[0] = DotProduct(dif, newaxis[0]);
+	out[1] = DotProduct(dif, newaxis[1]);
+	out[2] = DotProduct(dif, newaxis[2]);
+}
+
+void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out)
+{
+	vec3_t result;
+
+	/*
+	result[YAW_AXIS] = in[YAW];
+	result[PITCH_AXIS] = in[PITCH];
+	result[ROLL_AXIS] = in[ROLL];
+	VectorCopy(result, in);
+	*/
+
+	VectorMA(vec3_origin, in[YAW], newaxis[YAW_AXIS], result);
+	VectorMA(result, in[PITCH], newaxis[PITCH_AXIS], result);
+	VectorMA(result, in[ROLL], newaxis[ROLL_AXIS], result);
+	//VectorCopy(result, out);
+	out[YAW] = result[YAW_AXIS];
+	out[PITCH] = result[PITCH_AXIS];
+	out[ROLL] = result[ROLL_AXIS];
+	//VectorCopy(in, out);
+}
+
+void ToAxisAngles(vec3_t in, vec3_t out)
+{
+	vec3_t angles, result, forward;
+	
+	VectorClear(result);
+	//yaw - around the Z axis
+	result[YAW_AXIS] = in[YAW];
+	
+	//pitch - around the new Y axis
+	angles[YAW] = in[YAW];
+	angles[PITCH] = angles[ROLL] = 0;
+	AngleVectors(angles, NULL, forward, NULL);
+	VectorMA(result, -in[PITCH], forward, result);
+	result[PITCH_AXIS] = in[PITCH];
+	
+	//roll - around the new X axis
+	angles[PITCH] = in[PITCH];
+	AngleVectors(angles, forward, NULL, NULL);
+	VectorMA(result, in[ROLL], forward, result);
+
+	VectorCopy(result, out);
 }

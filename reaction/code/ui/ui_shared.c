@@ -1185,7 +1185,7 @@ itemDef_t *Menu_ClearFocus(menuDef_t * menu)
 	return ret;
 }
 
-qboolean IsVisible(int flags)
+static qboolean IsVisible(int flags)
 {
 	return (flags & WINDOW_VISIBLE && !(flags & WINDOW_FADINGOUT));
 }

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="cgame"
 	ProjectGUID="{C878E295-CB82-4B40-8ECF-5CE5525466FA}"
 	RootNamespace="cgame"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -83,6 +84,8 @@
 				MapFileName="$(IntDir)\cgamex86.map"
 				SubSystem="2"
 				BaseAddress="0x30000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)\cgamex86.lib"
 				TargetMachine="1"
 			/>
@@ -103,9 +106,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -180,6 +180,8 @@
 				MapFileName="$(IntDir)\cgamex86.map"
 				SubSystem="2"
 				BaseAddress="0x30000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)\cgamex86.lib"
 				TargetMachine="1"
 			/>
@@ -200,9 +202,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -277,6 +276,8 @@
 				MapFileName="$(IntDir)\cgamex86.map"
 				SubSystem="2"
 				BaseAddress="0x30000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)\cgamex86.lib"
 				TargetMachine="1"
 			/>
@@ -297,9 +298,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -374,6 +372,8 @@
 				MapFileName="$(IntDir)\cgamex86.map"
 				SubSystem="2"
 				BaseAddress="0x30000000"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(IntDir)\cgamex86.lib"
 				TargetMachine="1"
 			/>
@@ -396,9 +396,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -415,7 +412,6 @@
 				>
 				<FileConfiguration
 					Name="Release TA|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -425,7 +421,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -436,7 +431,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -446,7 +440,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug TA|Win32"
-					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -581,6 +574,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\code\cgame\cg_atmospheric.c"
+				>
 			</File>
 			<File
 				RelativePath="..\..\code\cgame\cg_consolecmds.c"
@@ -1007,6 +1004,7 @@
 				>
 				<FileConfiguration
 					Name="Release TA|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1037,6 +1035,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug TA|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1341,6 +1340,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\code\cgame\cg_unlagged.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\cgame\cg_view.c"
 				>
 				<FileConfiguration
@@ -1437,6 +1440,7 @@
 				>
 				<FileConfiguration
 					Name="Release TA|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1446,6 +1450,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1456,6 +1461,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1465,6 +1471,7 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug TA|Win32"
+					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

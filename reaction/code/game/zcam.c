@@ -114,8 +114,13 @@ gentity_t *PlayerToTrack(gentity_t * ent, gentity_t * target1st);
 
 #ifndef Q3_VM
 
+#ifndef acosf
 #define acosf(x)        ((float)acos(x))
+#endif
+
+#ifndef asinf
 #define asinf(x)        ((float)asin(x))
+#endif
 
 #else
 

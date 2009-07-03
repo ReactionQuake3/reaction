@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="quake3"
 	ProjectGUID="{81CB51C4-B434-4E12-B69B-BAEE102F2852}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -83,6 +84,8 @@
 				MapFileName="$(IntDir)\quake3.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -102,9 +105,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -184,6 +184,8 @@
 				MapFileName="$(IntDir)\quake3.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -203,9 +205,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -283,6 +282,8 @@
 				MapFileName="$(IntDir)\quake3.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -302,9 +303,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -343,7 +341,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\code\libcurl; ..\..\code\AL; ..\..\code\libspeex\include"
-				PreprocessorDefinitions="_WIN32; WIN32; _DEBUG; _WINDOWS; _CRT_SECURE_NO_DEPRECATE; BOTLIB; USE_ICON; USE_CURL; USE_CURL_DLOPEN; USE_OPENAL; USE_OPENAL_DLOPEN; USE_VOIP; HAVE_CONFIG_H; MISSIONPACK"
+				PreprocessorDefinitions="_WIN32;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;BOTLIB;USE_ICON;USE_CURL;USE_CURL_DLOPEN;USE_OPENAL;USE_OPENAL_DLOPEN;USE_VOIP;HAVE_CONFIG_H;MISSIONPACK;STANDALONE;USE_INTERNAL_SPEEX;USE_LOCAL_HEADERS"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(IntDir)\quake3.pch"
@@ -381,6 +379,8 @@
 				MapFileName="$(IntDir)\quake3.map"
 				SubSystem="2"
 				StackReserveSize="8388608"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -400,9 +400,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

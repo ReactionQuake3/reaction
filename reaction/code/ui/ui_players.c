@@ -104,7 +104,7 @@ static void UI_PlayerInfo_SetWeapon(playerInfo_t * pi, weapon_t weaponNum)
 	   } */
 
 	strcpy(path, item->world_model[0]);
-	COM_StripExtension(path, path);
+	COM_StripExtensionInPlace(path);
 	strcat(path, "_flash.md3");
 	pi->flashModel = trap_R_RegisterModel(path);
 
