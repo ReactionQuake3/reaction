@@ -112,9 +112,9 @@ echo *** Running Q3ASM for GAME/QAGAME...
 
 REM *** This tells q3asm to generate a vanilla q3-compatible qvm, generate a .map file, output 
 REM *** the resulting .qvm into "%make-qvm-location%bin\qvm\vm\qagame" (it will be called qagame.qvm), 
-REM *** and to compile the files listed in the game.q3asm script located in "%make-qvm-location%game/game".
+REM *** and to compile the files listed in the game.q3asm script located in "%make-qvm-location%code/game/game".
 
-q3asm -vq3 -m -o "%make-qvm-location%bin\qvm\vm\qagame" -f "%make-qvm-location%game/game"
+q3asm -vq3 -m -o "%make-qvm-location%bin\qvm\vm\qagame" -f "%make-qvm-location%code/game/game"
 
 :quit
 if errorlevel 1 (

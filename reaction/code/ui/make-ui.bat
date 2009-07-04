@@ -36,9 +36,9 @@ echo *** Running Q3ASM for UI...
 
 REM *** This tells q3asm to generate a vanilla q3-compatible qvm, generate a .map file, output 
 REM *** the resulting .qvm into "%make-qvm-location%bin\qvm\vm\ui" (it will be called ui.qvm), 
-REM *** and to compile the files listed in the ui.q3asm script located in "%make-qvm-location%ui/ui".
+REM *** and to compile the files listed in the ui.q3asm script located in "%make-qvm-location%code/ui/ui".
 
-q3asm -vq3 -m -o "%make-qvm-location%bin\qvm\vm\ui" -f "%make-qvm-location%ui/ui"
+q3asm -vq3 -m -o "%make-qvm-location%bin\qvm\vm\ui" -f "%make-qvm-location%code/ui/ui"
 
 :quit
 if errorlevel 1 (

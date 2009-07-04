@@ -93,9 +93,9 @@ echo.
 echo *** Removing any previous QVM files.
 del "%make-qvm-location%bin\qvm\vm\*.map"
 del "%make-qvm-location%bin\qvm\vm\*.qvm"
-del "%make-qvm-location%cgame\vm\*.asm"
-del "%make-qvm-location%game\vm\*.asm"
-del "%make-qvm-location%ui\vm\*.asm"
+del "%make-qvm-location%code\cgame\vm\*.asm"
+del "%make-qvm-location%code\game\vm\*.asm"
+del "%make-qvm-location%code\ui\vm\*.asm"
 
 
 REM *** Generating the QVMs
@@ -105,17 +105,17 @@ echo *** Generating the QVMs
 echo.
 echo.
 echo *** Generating CGAME...
-cd "%make-qvm-location%"cgame
+cd "%make-qvm-location%"code\cgame
 call make-cgame.bat
 cd..
 echo.
 echo *** Generating GAME/QAGAME...
-cd "%make-qvm-location%"game
+cd "%make-qvm-location%"code\game
 call make-game.bat
 cd..
 echo.
 echo *** Generating UI...
-cd "%make-qvm-location%"ui
+cd "%make-qvm-location%"code\ui
 call make-ui.bat
 cd..
 
