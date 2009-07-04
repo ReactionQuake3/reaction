@@ -51,7 +51,7 @@
  *****************************************************************************/
 
 #include "g_local.h"
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "botlib.h"		//bot lib interface
 #include "be_aas.h"
 #include "be_ea.h"
@@ -119,7 +119,7 @@ void QDECL BotAI_Print(int type, char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(str, fmt, ap);
+	Q_vsnprintf(str, sizeof(str), fmt, ap);
 	va_end(ap);
 
 	switch (type) {

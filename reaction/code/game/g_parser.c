@@ -11,7 +11,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "g_parser.h"
 
 char *Script_GetToken(char **str)

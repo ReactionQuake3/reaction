@@ -492,6 +492,8 @@ typedef struct {
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
+void SnapVectorTowards(vec3_t v, vec3_t to);
+
 // just in case you do't want to use the macros
 vec_t _DotProduct( const vec3_t v1, const vec3_t v2 );
 void _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
@@ -635,8 +637,13 @@ void MakeNormalVectors( const vec3_t forward, vec3_t right, vec3_t up );
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
+int ReflectVectorByte( vec3_t dir, vec3_t plane );
 int Q_isnan( float x );
 
+//Makro - added
+void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
+void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
+void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out);
 
 //=============================================
 
@@ -770,6 +777,7 @@ void	Swap_Init (void);
 */
 char	*QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
 float	*tv(float x, float y, float z);
+char *vtos( const vec3_t v );
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -1249,6 +1257,12 @@ typedef struct {
 
 #define Square(x) ((x)*(x))
 
+// Makro - moved from bg_lic.c so all can use :P
+// JBravo: moved from bg_lib.c so all can use
+#define is_digit(c)	((unsigned)to_digit(c) <= 9)
+#define to_digit(c)	((c) - '0')
+
+
 // real time
 //=============================================
 
@@ -1303,6 +1317,7 @@ typedef enum _flag_status {
 #define SAY_ALL		0
 #define SAY_TEAM	1
 #define SAY_TELL	2
+#define SAY_REF   3
 
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2

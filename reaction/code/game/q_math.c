@@ -37,7 +37,7 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 // q_math.c -- stateless support routines that are included in each code module
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 
 vec3_t vec3_origin = { 0, 0, 0 };
 vec3_t axisDefault[3] = { {1, 0, 0}

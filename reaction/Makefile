@@ -163,7 +163,6 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-Q3UIDIR=$(MOUNT_DIR)/q3_ui
 JPDIR=$(MOUNT_DIR)/jpeg-6b
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
@@ -1746,18 +1745,26 @@ Q3GOBJ_ = \
   $(B)/Boomstick/game/g_cmds.o \
   $(B)/Boomstick/game/g_combat.o \
   $(B)/Boomstick/game/g_items.o \
+  $(B)/Boomstick/game/g_matchmode.o \
   $(B)/Boomstick/game/g_mem.o \
   $(B)/Boomstick/game/g_misc.o \
   $(B)/Boomstick/game/g_missile.o \
   $(B)/Boomstick/game/g_mover.o \
+  $(B)/Boomstick/game/g_parser.o \
+  $(B)/Boomstick/game/g_scripts.o \
   $(B)/Boomstick/game/g_session.o \
   $(B)/Boomstick/game/g_spawn.o \
   $(B)/Boomstick/game/g_svcmds.o \
   $(B)/Boomstick/game/g_target.o \
   $(B)/Boomstick/game/g_team.o \
+  $(B)/Boomstick/game/g_teamplay.o \
   $(B)/Boomstick/game/g_trigger.o \
+  $(B)/Boomstick/game/g_unlagged.o \
   $(B)/Boomstick/game/g_utils.o \
   $(B)/Boomstick/game/g_weapon.o \
+  $(B)/Boomstick/game/rxn_game.o \
+  $(B)/Boomstick/game/zcam.o \
+  $(B)/Boomstick/game/zcam_target.o \
   \
   $(B)/Boomstick/qcommon/q_math.o \
   $(B)/Boomstick/qcommon/q_shared.o
@@ -1827,91 +1834,30 @@ $(B)/missionpack/vm/qagame.qvm: $(MPGVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 
 
 #############################################################################
-## BASEQ3 UI
-#############################################################################
-
-Q3UIOBJ_ = \
-  $(B)/Boomstick/ui/ui_main.o \
-  $(B)/Boomstick/ui/bg_misc.o \
-  $(B)/Boomstick/ui/bg_lib.o \
-  $(B)/Boomstick/ui/ui_addbots.o \
-  $(B)/Boomstick/ui/ui_atoms.o \
-  $(B)/Boomstick/ui/ui_cdkey.o \
-  $(B)/Boomstick/ui/ui_cinematics.o \
-  $(B)/Boomstick/ui/ui_confirm.o \
-  $(B)/Boomstick/ui/ui_connect.o \
-  $(B)/Boomstick/ui/ui_controls2.o \
-  $(B)/Boomstick/ui/ui_credits.o \
-  $(B)/Boomstick/ui/ui_demo2.o \
-  $(B)/Boomstick/ui/ui_display.o \
-  $(B)/Boomstick/ui/ui_gameinfo.o \
-  $(B)/Boomstick/ui/ui_ingame.o \
-  $(B)/Boomstick/ui/ui_loadconfig.o \
-  $(B)/Boomstick/ui/ui_menu.o \
-  $(B)/Boomstick/ui/ui_mfield.o \
-  $(B)/Boomstick/ui/ui_mods.o \
-  $(B)/Boomstick/ui/ui_network.o \
-  $(B)/Boomstick/ui/ui_options.o \
-  $(B)/Boomstick/ui/ui_playermodel.o \
-  $(B)/Boomstick/ui/ui_players.o \
-  $(B)/Boomstick/ui/ui_playersettings.o \
-  $(B)/Boomstick/ui/ui_preferences.o \
-  $(B)/Boomstick/ui/ui_qmenu.o \
-  $(B)/Boomstick/ui/ui_removebots.o \
-  $(B)/Boomstick/ui/ui_saveconfig.o \
-  $(B)/Boomstick/ui/ui_serverinfo.o \
-  $(B)/Boomstick/ui/ui_servers2.o \
-  $(B)/Boomstick/ui/ui_setup.o \
-  $(B)/Boomstick/ui/ui_sound.o \
-  $(B)/Boomstick/ui/ui_sparena.o \
-  $(B)/Boomstick/ui/ui_specifyserver.o \
-  $(B)/Boomstick/ui/ui_splevel.o \
-  $(B)/Boomstick/ui/ui_sppostgame.o \
-  $(B)/Boomstick/ui/ui_spskill.o \
-  $(B)/Boomstick/ui/ui_startserver.o \
-  $(B)/Boomstick/ui/ui_team.o \
-  $(B)/Boomstick/ui/ui_teamorders.o \
-  $(B)/Boomstick/ui/ui_video.o \
-  \
-  $(B)/Boomstick/qcommon/q_math.o \
-  $(B)/Boomstick/qcommon/q_shared.o
-
-Q3UIOBJ = $(Q3UIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
-Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm)
-
-$(B)/Boomstick/ui$(ARCH).$(SHLIBEXT): $(Q3UIOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3UIOBJ)
-
-$(B)/Boomstick/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
-#############################################################################
 ## MISSIONPACK UI
 #############################################################################
 
 MPUIOBJ_ = \
-  $(B)/missionpack/ui/ui_main.o \
-  $(B)/missionpack/ui/ui_atoms.o \
-  $(B)/missionpack/ui/ui_gameinfo.o \
-  $(B)/missionpack/ui/ui_players.o \
-  $(B)/missionpack/ui/ui_shared.o \
+  $(B)/Boomstick/ui/ui_main.o \
+  $(B)/Boomstick/ui/ui_atoms.o \
+  $(B)/Boomstick/ui/ui_gameinfo.o \
+  $(B)/Boomstick/ui/ui_players.o \
+  $(B)/Boomstick/ui/ui_shared.o \
   \
-  $(B)/missionpack/ui/bg_misc.o \
-  $(B)/missionpack/ui/bg_lib.o \
+  $(B)/Boomstick/ui/bg_misc.o \
+  $(B)/Boomstick/ui/bg_lib.o \
   \
-  $(B)/missionpack/qcommon/q_math.o \
-  $(B)/missionpack/qcommon/q_shared.o
+  $(B)/Boomstick/qcommon/q_math.o \
+  $(B)/Boomstick/qcommon/q_shared.o
 
-MPUIOBJ = $(MPUIOBJ_) $(B)/missionpack/ui/ui_syscalls.o
+MPUIOBJ = $(MPUIOBJ_) $(B)/Boomstick/ui/ui_syscalls.o
 MPUIVMOBJ = $(MPUIOBJ_:%.o=%.asm)
 
-$(B)/missionpack/ui$(ARCH).$(SHLIBEXT): $(MPUIOBJ)
+$(B)/Boomstick/ui$(ARCH).$(SHLIBEXT): $(MPUIOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(MPUIOBJ)
 
-$(B)/missionpack/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
+$(B)/Boomstick/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm
 
@@ -2041,16 +1987,16 @@ $(B)/Boomstick/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 $(B)/Boomstick/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
-$(B)/missionpack/ui/bg_%.o: $(GDIR)/bg_%.c
+$(B)/Boomstick/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC_MISSIONPACK)
 
-$(B)/missionpack/ui/%.o: $(UIDIR)/%.c
+$(B)/Boomstick/ui/%.o: $(UIDIR)/%.c
 	$(DO_UI_CC_MISSIONPACK)
 
-$(B)/missionpack/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+$(B)/Boomstick/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 	$(DO_UI_Q3LCC_MISSIONPACK)
 
-$(B)/missionpack/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
+$(B)/Boomstick/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC_MISSIONPACK)
 
 

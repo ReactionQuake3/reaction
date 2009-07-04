@@ -16,7 +16,7 @@
 //
 //
 //-----------------------------------------------------------------------------
-#include "q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "g_local.h"
 #define	MAX_ARENAS_TEXT		8192
 //Ok, here is how it works, you feed it a buffer in the form

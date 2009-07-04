@@ -663,8 +663,10 @@ extern radio_msg_t female_radio_msgs[];
 //#define CS_MAX					(CS_BREAKABLES+RQ3_MAX_BREAKABLES)
 #define CS_MAX		(CS_MOVEPARENTS+1)
 
+#if 0
 #if (CS_MAX) > MAX_CONFIGSTRINGS
-#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
+#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS 
+#endif
 #endif
 
 typedef enum {
