@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\quake3_release_ta"
-			IntermediateDirectory="..\..\build\quake3_release_ta"
+			OutputDirectory="..\..\build\reaction_release"
+			IntermediateDirectory="..\..\build\reaction_release"
 			ConfigurationType="1"
 			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -75,7 +75,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
-				OutputFile="$(OutDir)\ioquake3.exe"
+				OutputFile="$(OutDir)\Reaction.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
@@ -114,8 +114,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\build\quake3_debug_ta"
-			IntermediateDirectory="..\..\build\quake3_debug_ta"
+			OutputDirectory="..\..\build\reaction_debug"
+			IntermediateDirectory="..\..\build\reaction_debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -174,7 +174,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
-				OutputFile="$(OutDir)\ioquake3.exe"
+				OutputFile="$(OutDir)\Reaction.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"

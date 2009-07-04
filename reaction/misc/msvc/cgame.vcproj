@@ -17,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\cgame_release_ta"
-			IntermediateDirectory="..\..\build\cgame_release_ta"
+			OutputDirectory="..\..\build\cgame_release"
+			IntermediateDirectory="..\..\build\cgame_release"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -113,8 +113,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\build\cgame_debug_ta"
-			IntermediateDirectory="..\..\build\cgame_debug_ta"
+			OutputDirectory="..\..\build\cgame_debug"
+			IntermediateDirectory="..\..\build\cgame_debug"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"

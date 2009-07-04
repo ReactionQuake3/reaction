@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\build\ui_release_ta"
-			IntermediateDirectory="..\..\build\ui_release_ta"
+			OutputDirectory="..\..\build\ui_release"
+			IntermediateDirectory="..\..\build\ui_release"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -112,8 +112,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\build\ui_debug_ta"
-			IntermediateDirectory="..\..\build\ui_debug_ta"
+			OutputDirectory="..\..\build\ui_debug"
+			IntermediateDirectory="..\..\build\ui_debug"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
