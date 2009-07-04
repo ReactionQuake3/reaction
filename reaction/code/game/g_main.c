@@ -954,7 +954,7 @@ void G_FindTeams(void)
 	G_Printf("%i teams with %i entities\n", c, c2);
 }
 
-void G_RemapTeamShaders()
+void G_RemapTeamShaders( void )
 {
 }
 
@@ -1171,7 +1171,7 @@ void RQ3_loadmodels(void)
 }
 
 //Makro - FIXME: add comments
-void G_InitMoveParents()
+void G_InitMoveParents( void )
 {
 	int i;
 	level.num_moveParents = 0;
@@ -1239,7 +1239,7 @@ void G_InitMoveParents()
 }
 
 //Makro - determine moveparent order
-void G_SetMoveParentOrder()
+void G_SetMoveParentOrder( void )
 {
 	int i, j;
 	char info[MAX_INFO_STRING], *p;
@@ -2168,7 +2168,7 @@ void LogExit(const char *string)
 	trap_SendServerCommand(-1,
 			       va("print \"Game ending at %s %i %s %i %i:%i:%i.\n\"", names_day[now.tm_wday],
 				  now.tm_mday, names_month[now.tm_mon], (now.tm_year) + 1900, now.tm_hour, now.tm_min,
-				  now.tm_sec, string));
+				  now.tm_sec));
 
 	level.intermissionQueued = level.time;
 

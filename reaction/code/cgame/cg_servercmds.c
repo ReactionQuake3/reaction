@@ -1381,7 +1381,7 @@ CG_RQ3_Cmd by sLiCeR
 This function will parse and handle several cmds in one ( rq3_cmd)
 =================
 */
-void CG_RQ3_Cmd()
+void CG_RQ3_Cmd( void )
 {
 	int cmd, i;
 	char scrnshotName[MAX_QPATH], playerName[MAX_NAME_LENGTH];

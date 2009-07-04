@@ -32,8 +32,8 @@ void MM_TeamName_f(gentity_t *);
 void MM_TeamModel_f(gentity_t *);
 void MM_Referee_f(gentity_t *);
 void MM_Settings_f(gentity_t *);
-void SendEndMessage();
-void MM_ResetMatch();
+void SendEndMessage( void );
+void MM_ResetMatch( void );
 
 // aasimon: Declarations for Ref system 
 qboolean Ref_Exists(void);

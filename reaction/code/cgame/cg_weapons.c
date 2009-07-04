@@ -3333,7 +3333,7 @@ Elder:
 Local laser dot if it is the client's own laser
 ==================
 */
-static void CG_LocalLaser()
+static void CG_LocalLaser( void )
 {
 	vec3_t muzzle, forward, end;
 	refEntity_t *re;

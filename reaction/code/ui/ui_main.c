@@ -585,7 +585,7 @@ static void DefineSymbol(fileHandle_t f, const char* name, const char* value)
 }
 
 
-static void UI_ExportSymbols()
+static void UI_ExportSymbols( void )
 {
 	// Makro - this is a hack that allows us to export resolution-dependent symbols to the scripts.
 	// We could call trap_PC_AddGlobalDefine, but there's no undefine function...
@@ -615,10 +615,10 @@ static void UI_ExportSymbols()
 		trap_FS_FCloseFile(f);
 	}
 	else
-		Com_Error(ERR_FATAL, "Could not create temporary UI symbol file!\n", fname);
+		Com_Error(ERR_FATAL, "Could not create temporary UI symbol file!: %s\n", fname);
 }
 
-static void UI_CleanUpSymbols()
+static void UI_CleanUpSymbols( void )
 {
 	fileHandle_t f;
 	const char* fname = s_symbols_temp_file_name;
@@ -637,7 +637,7 @@ qhandle_t Asset_RegisterShaderNoMip(const char *path)
 	return trap_R_RegisterShaderNoMip(va("%s/%s", uiInfo.uiDC.Assets.assetsPath, path));
 }
 
-void AssetCache()
+void AssetCache( void )
 {
 	int n, ssg;
 
@@ -1453,7 +1453,7 @@ void UI_ShowPostGame(qboolean newHigh)
 
 
 //Makro - added
-int GMemory();
+int GMemory( void );
 
 /*
 =================
@@ -1462,7 +1462,7 @@ _UI_Refresh
 */
 //Makro - need this variable here; moved from line ~1585 
 static qboolean updateModel = qtrue;
-qboolean UI_NeedToUpdateModel()
+qboolean UI_NeedToUpdateModel( void )
 {
 	return updateModel;
 }
@@ -1895,7 +1895,7 @@ qboolean Asset_Parse(int handle)
 	//return qfalse;
 }
 
-void Font_Report()
+void Font_Report( void )
 {
 	int i;
 
@@ -1906,7 +1906,7 @@ void Font_Report()
 	}
 }
 
-void UI_Report()
+void UI_Report( void )
 {
 	String_Report();
 	//Font_Report();
@@ -2003,8 +2003,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset)
 		handle = trap_PC_LoadSource("ui/menus.txt");
 		if (!handle) {
 			trap_Error(va
-				   (S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n",
-				    menuFile));
+				   (S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n"));
 		}
 	}
 
@@ -2039,7 +2038,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset)
 	trap_PC_FreeSource(handle);
 }
 
-void UI_Load()
+void UI_Load( void )
 {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
@@ -2413,7 +2412,7 @@ static weapon_t RQ3_UI_weapon = WP_PISTOL;
 
 //Makro - use different animations for the player model depending on ui_RQ3_modelCommand
 
-animNumber_t UI_RQ3_GetAnimForLegs()
+animNumber_t UI_RQ3_GetAnimForLegs( void )
 {
 	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
 
@@ -2447,7 +2446,7 @@ animNumber_t UI_RQ3_GetAnimForLegs()
 
 //Makro - use different animations for the player model depending on ui_RQ3_modelCommand
 
-animNumber_t UI_RQ3_GetAnimForTorso()
+animNumber_t UI_RQ3_GetAnimForTorso( void )
 {
 	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
 
@@ -2463,7 +2462,7 @@ animNumber_t UI_RQ3_GetAnimForTorso()
 
 //Makro - use different weapons for the player model depending on ui_RQ3_model_command
 
-weapon_t UI_RQ3_GetWeaponForPlayer()
+weapon_t UI_RQ3_GetWeaponForPlayer( void )
 {
 	int cmd = (int) trap_Cvar_VariableValue("ui_RQ3_modelCommand");
 
@@ -2787,7 +2786,7 @@ static void UI_DrawOpponent(rectDef_t * rect)
 
 }
 
-static void UI_NextOpponent()
+static void UI_NextOpponent( void )
 {
 	int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
 	int j = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
@@ -2805,7 +2804,7 @@ static void UI_NextOpponent()
 	trap_Cvar_Set("ui_opponentName", uiInfo.teamList[i].teamName);
 }
 
-static void UI_PriorOpponent()
+static void UI_PriorOpponent( void )
 {
 	int i = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_opponentName"));
 	int j = UI_TeamIndexFromName(UI_Cvar_VariableString("ui_teamName"));
@@ -3156,7 +3155,6 @@ static void UI_DrawCrosshair(rectDef_t * rect, float scale)
 //Makro - digital clock
 static void UI_DrawClock(itemDef_t *item, rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
-	int time = uiInfo.uiDC.realTime;
 	char *text;
 	qtime_t qt;
 
@@ -3231,7 +3229,7 @@ void AddIngameLine(char *key, char *val)
 	}
 }
 
-void UI_BuildIngameServerInfoList()
+void UI_BuildIngameServerInfoList( void )
 {
 	char serverInfo[MAX_INFO_STRING], systemInfo[MAX_INFO_STRING];
 	char *p, *key, *val;
@@ -3559,7 +3557,7 @@ void UI_LoadReplacement(int index)
 UI_BuildPlayerList
 ===============
 */
-static void UI_BuildPlayerList()
+static void UI_BuildPlayerList( void )
 {
 	uiClientState_t cs;
 	int n, count, team, team2, playerTeamNumber;
@@ -5197,7 +5195,7 @@ static void UI_StartSinglePlayer() {
 UI_LoadMods
 ===============
 */
-static void UI_LoadMods()
+static void UI_LoadMods( void )
 {
 	int numdirs;
 	char dirlist[2048];
@@ -5228,7 +5226,7 @@ static void UI_LoadMods()
 UI_LoadTeams
 ===============
 */
-static void UI_LoadTeams()
+static void UI_LoadTeams( void )
 {
 	char teamList[4096];
 	char *teamName;
@@ -5252,7 +5250,7 @@ static void UI_LoadTeams()
 UI_LoadMovies
 ===============
 */
-static void UI_LoadMovies()
+static void UI_LoadMovies( void )
 {
 	char movielist[4096];
 	char *moviename;
@@ -5342,7 +5340,7 @@ void UI_SortDemoList(int start, int end, int column)
 	}
 }
 
-static void UI_LoadDemos()
+static void UI_LoadDemos( void )
 {
 	char demolist[4096];
 	char demoExt[32];
@@ -7257,7 +7255,7 @@ static int UI_GetIndexFromSelection(int actual)
 	return 0;
 }
 
-static void UI_UpdatePendingPings()
+static void UI_UpdatePendingPings( void )
 {
 	trap_LAN_ResetPings(ui_netSource.integer);
 	uiInfo.serverStatus.refreshActive = qtrue;
@@ -8168,7 +8166,7 @@ void UI_RenderScene(const refdef_t *ref)
 	trap_R_ClearScene();
 }
 
-void UI_Render2DScene()
+void UI_Render2DScene( void )
 {
 	if (uiInfo.uiDC.pendingPolys == 0)
 		return;
@@ -8176,7 +8174,7 @@ void UI_Render2DScene()
 	uiInfo.uiDC.pendingPolys = 0;
 }
 
-void UI_ClearScene()
+void UI_ClearScene( void )
 {
 	if (uiInfo.uiDC.pendingPolys)
 	{
@@ -8198,7 +8196,7 @@ void UI_DrawPolyStretchPic(float x, float y, float w, float h, float s1, float t
 	trap_R_DrawStretchPic(x, y, w, h, s1, t1, s2, t2, hShader);
 }
 
-static void UI_MakeExtensionsList()
+static void UI_MakeExtensionsList( void )
 {
 	char *eptr;
 
@@ -8546,7 +8544,7 @@ void _UI_MouseEvent(int dx, int dy)
 	uiInfo.uiDC.mouseMoveTime = uiInfo.uiDC.realTime;
 }
 
-void UI_LoadNonIngame()
+void UI_LoadNonIngame( void )
 {
 	const char *menuSet = UI_Cvar_VariableString("ui_menuFiles");
 

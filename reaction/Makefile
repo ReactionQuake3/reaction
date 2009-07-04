@@ -36,7 +36,7 @@ ifndef BUILD_SERVER
   BUILD_SERVER     = 1
 endif
 ifndef BUILD_GAME_SO
-  BUILD_GAME_SO    = 0
+  BUILD_GAME_SO    = 1
 endif
 ifndef BUILD_GAME_QVM
   BUILD_GAME_QVM   = 1

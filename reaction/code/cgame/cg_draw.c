@@ -2278,7 +2278,7 @@ static void CG_DrawTeamVote(void)
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
 }
 
-static qboolean CG_DrawScoreboard()
+static qboolean CG_DrawScoreboard( void )
 {
 	return CG_DrawOldScoreboard();
 }
@@ -2605,7 +2605,7 @@ static void CG_Draw2D(void)
 		CG_DrawWeaponStats();
 }
 
-static void CG_DrawTourneyScoreboard()
+static void CG_DrawTourneyScoreboard( void )
 {
 	CG_DrawOldTourneyScoreboard();
 }
@@ -2620,7 +2620,7 @@ Makro - changed to 0..1 instead of 0/1
 */
 #define MAX_DAMAGE_ALPHA	0.75
 #define MAX_BLEND_TIME		1500
-static void CG_DrawDamageBlend()
+static void CG_DrawDamageBlend( void )
 {
 	float dmg, blend = Com_Clamp(0, 1, cg_RQ3_painblend.value);
 	vec4_t damageColor;
@@ -2670,7 +2670,7 @@ Makro: fade to black after death
 =====================
 */
 
-static void CG_DrawDeathBlend()
+static void CG_DrawDeathBlend( void )
 {
 	const float MAX_ALPHA = 0.875f;
 	float delta;

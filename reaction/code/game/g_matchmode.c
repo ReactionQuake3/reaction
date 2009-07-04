@@ -19,7 +19,7 @@ gentity_t *refVotes[2];		// refVotes[0] is the clientnumber red team voted
 
 				//      refVotes[1] is the clientnumber blue team voted 
 
-void SendEndMessage()
+void SendEndMessage( void )
 {
 
 	int mins, secs;
@@ -34,7 +34,7 @@ void SendEndMessage()
 	trap_SendServerCommand(-1, va("print \"Total Match Time: %d:%02d \n\"", mins, secs));
 }
 
-int getNumberOfRefs() {
+int getNumberOfRefs( void ) {
 	gentity_t *ent;
 	int i,count;
 	count = 0;
@@ -329,7 +329,7 @@ void MM_TeamName_f(gentity_t * ent)
 //      aasimon: Referee Functions Definition, with some aid functions first
 //
 
-void checkRefVotes()
+void checkRefVotes( void )
 {
 //	gentity_t *ent;
 //	char nr[4];
@@ -501,7 +501,7 @@ qboolean Ref_Auth(gentity_t * ent)
 // MM_ResetMatch by Slicer
 //	Used by admin or rcon to reset Match settings, that is subs, captains, scores, teams's status and game status
 //
-void MM_ResetMatch() {
+void MM_ResetMatch( void ) {
 		trap_SendServerCommand(-1, va("print \""MM_OK_COLOR" Reseting Server Match Status...\n\""));
 		// CleanUp Scores and Team Status
 		MM_ClearScores(qtrue);
@@ -516,7 +516,7 @@ void MM_ResetMatch() {
 		level.matchTime = 0;
 }
 
-void refReadyStatus() {
+void refReadyStatus( void ) {
 	gentity_t *ent;
 	int i;
 

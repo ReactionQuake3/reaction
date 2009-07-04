@@ -433,7 +433,7 @@ static void CG_SnowParticleRender(cg_atmosphericParticle_t * particle)
 **  	Set up gust parameters.
 */
 
-static void CG_EffectGust()
+static void CG_EffectGust( void )
 {
 	// Generate random values for the next gust
 

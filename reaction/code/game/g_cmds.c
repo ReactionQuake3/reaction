@@ -633,7 +633,7 @@ void Cmd_WeaponStats_f(gentity_t * ent)
 				  ent->client->pers.records[REC_SUICIDES]));
 
 	trap_SendServerCommand(ent - g_entities,
-			       va("wstats2 %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
+			       va("wstats2 %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
 				  ent->client->pers.records[REC_KNIFETHROWDEATHS],
 				  ent->client->pers.records[REC_KNIFETHROWKILLS],
 				  ent->client->pers.records[REC_KNIFESLASHDEATHS],
@@ -2606,7 +2606,7 @@ void Cmd_Bandage(gentity_t * ent)
 void Cmd_OpenDoor(gentity_t * ent)
 {
 	//Use_BinaryMover( ent->parent, ent, other );
-	gentity_t *door = NULL;
+	// gentity_t *door = NULL;
 
 	//Don't open doors if dead or spectating
 	if (ent->client->ps.stats[STAT_HEALTH] <= 0 || ent->client->ps.pm_type == PM_SPECTATOR)

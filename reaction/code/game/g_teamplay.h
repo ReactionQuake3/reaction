@@ -89,17 +89,17 @@ typedef struct {
 } spawn_distances_t;
 
 
-void CheckTeamRules();
-void StartLCA();
-void ContinueLCA();
-qboolean BothTeamsHavePlayers();
-void MakeAllLivePlayersObservers();
-int CheckForWinner();
-int CheckForForcedWinner();
+void CheckTeamRules( void );
+void StartLCA( void );
+void ContinueLCA( void );
+qboolean BothTeamsHavePlayers( void );
+void MakeAllLivePlayersObservers( void );
+int CheckForWinner( void );
+int CheckForForcedWinner( void );
 int WonGame(int winner);
 team_t RQ3TeamCount(int ignoreClientNum, int team);
-void SpawnPlayers();
-void CleanLevel();
+void SpawnPlayers( void );
+void CleanLevel( void );
 void CheckForUnevenTeams(gentity_t * player);
 void EquipPlayer(gentity_t * ent);
 void RQ3_Cmd_Choose_f(gentity_t * ent);

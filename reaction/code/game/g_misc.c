@@ -301,12 +301,15 @@ void use_dlight(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		}
 	}
 	ent->unbreakable ^= 1;
-	if (other)
-		if (other->pathtarget)
-			if (!Q_stricmp(other->pathtarget, "off"))
+	if (other) {
+		if (other->pathtarget) {
+			if (!Q_stricmp(other->pathtarget, "off")) {
 				ent->unbreakable = 0;
-			else if (!Q_stricmp(other->pathtarget, "on"))
+			} else if (!Q_stricmp(other->pathtarget, "on")) {
 				ent->unbreakable = 1;
+			}
+		}
+	}
 
 	if (ent->unbreakable) {
 		ent->r.svFlags |= SVF_NOCLIENT;

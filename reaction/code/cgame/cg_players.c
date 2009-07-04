@@ -1042,7 +1042,7 @@ This is one attempt to update the team count cvars for the UI, each time
 a player changes it's userinfo ( team, name, etc )
 
 */
-void CG_UpdateTeamVars()
+void CG_UpdateTeamVars( void )
 {
 	clientInfo_t *ci;
 	int i;

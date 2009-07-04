@@ -531,7 +531,7 @@ typedef struct {
 	void (*drawSides) (float x, float y, float w, float h, float size, qhandle_t shader);
 	void (*drawAngledRect) (float x, float y, float w, float h, const float *u, const float *v, float size, const float *color, unsigned char type, qhandle_t shader);
 	void (*drawTopBottom) (float x, float y, float w, float h, float size, qhandle_t shader);
-	void (*clearScene) ();
+	void (*clearScene) ( void );
 	void (*addRefEntityToScene) (const refEntity_t * re);
 	void (*renderScene) (const refdef_t * fd);
 	void (*registerFont) (const char *pFontname, int pointSize, fontInfo_t * font);
@@ -552,7 +552,7 @@ typedef struct {
 	void (*drawAngledTextWithCursor) (float x, float y, const float *u, const float *v, float scale, vec4_t color, const char *text, int cursorPos,
 				    char cursor, int limit, int style);
 	void (*setOverstrikeMode) (qboolean b);
-	 qboolean(*getOverstrikeMode) ();
+	 qboolean(*getOverstrikeMode) ( void );
 	void (*startLocalSound) (sfxHandle_t sfx, int channelNum);
 	 qboolean(*ownerDrawHandleKey) (int ownerDraw, int flags, float *special, int key);
 	int (*feederCount) (float feederID);
@@ -569,7 +569,7 @@ typedef struct {
 	int (*ownerDrawWidth) (int ownerDraw, float scale);
 	 sfxHandle_t(*registerSound) (const char *name, qboolean compressed);
 	void (*startBackgroundTrack) (const char *intro, const char *loop);
-	void (*stopBackgroundTrack) ();
+	void (*stopBackgroundTrack) ( void );
 	int (*playCinematic) (const char *name, float x, float y, float w, float h);
 	void (*stopCinematic) (int handle);
 	void (*drawCinematic) (int handle, float x, float y, float w, float h);
@@ -624,14 +624,14 @@ typedef struct {
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);
-void String_Init();
-void String_Report();
+void String_Init( void );
+void String_Report( void );
 void Init_Display(displayContextDef_t * dc);
 void Display_ExpandMacros(char *buff);
 void Menu_Init(menuDef_t * menu);
 void Item_Init(itemDef_t * item);
 void Menu_PostParse(menuDef_t * menu);
-menuDef_t *Menu_GetFocused();
+menuDef_t *Menu_GetFocused( void );
 void Menu_HandleKey(menuDef_t * menu, int key, qboolean down);
 void Menu_HandleMouseMove(menuDef_t * menu, float x, float y);
 void Menu_ScrollFeeder(menuDef_t * menu, int feeder, qboolean down);
@@ -647,24 +647,24 @@ qboolean PC_Int_Parse(int handle, int *i);
 qboolean PC_Rect_Parse(int handle, rectDef_t * r);
 qboolean PC_String_Parse(int handle, const char **out);
 qboolean PC_Script_Parse(int handle, const char **out);
-int Menu_Count();
+int Menu_Count( void );
 void Menu_New(int handle);
-void Menu_PaintAll();
+void Menu_PaintAll( void );
 //Makro - added second parameter
 menuDef_t *Menus_ActivateByName(const char *p, qboolean special);
-void Menu_Reset();
-qboolean Menus_AnyFullScreenVisible();
+void Menu_Reset( void );
+qboolean Menus_AnyFullScreenVisible( void );
 void Menus_Activate(menuDef_t * menu);
 //Makro - select the right player model icon
 void UI_RQ3_SelectPlayerIcon(menuDef_t *menu);
 //Makro - added
 int Text_maxPaintChars(char *text, float scale, float width);
 
-displayContextDef_t *Display_GetContext();
+displayContextDef_t *Display_GetContext( void );
 void *Display_CaptureItem(int x, int y);
 qboolean Display_MouseMove(void *p, int x, int y);
 int Display_CursorType(int x, int y);
-qboolean Display_KeyBindPending();
+qboolean Display_KeyBindPending( void );
 //Makro - added second parameter
 void Menus_OpenByName(const char *p, qboolean special);
 menuDef_t *Menus_FindByName(const char *p);
@@ -672,14 +672,14 @@ void Menus_ShowByName(const char *p);
 void Menus_CloseByName(const char *p);
 void Display_HandleKey(int key, qboolean down, int x, int y);
 void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-void Menus_CloseAll();
+void Menus_CloseAll( void );
 void Menu_Paint(menuDef_t * menu, qboolean forcePaint);
 void Menu_SetFeederSelection(menuDef_t * menu, int feeder, int index, const char *name);
-void Display_CacheAll();
+void Display_CacheAll( void );
 
 void *UI_Alloc(int size);
 void UI_InitMemory(void);
-qboolean UI_OutOfMemory();
+qboolean UI_OutOfMemory( void );
 
 void Controls_GetConfig(void);
 void Controls_SetConfig(qboolean restart);
@@ -693,7 +693,7 @@ int trap_PC_SourceFileAndLine(int handle, char *filename, int *line);
 
 //Makro - new rendering stuff
 void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts);
-void UI_Render2DScene();
+void UI_Render2DScene( void );
 void Rect_ToInnerCoords(rectDef_t *rect, float x, float y, float *resx, float *resy);
 
 #define UI_POLY_Z_OFFSET -0.00001f

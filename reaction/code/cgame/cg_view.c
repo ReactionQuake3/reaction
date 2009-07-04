@@ -440,7 +440,7 @@ void CG_PositionRotatedEntityOnTag(refEntity_t * entity, const refEntity_t * par
 	MatrixMultiply(tempAxis, ((refEntity_t *) parent)->axis, entity->axis);
 }
 */
-static void CG_DeadPlayerView()
+static void CG_DeadPlayerView( void )
 {
 	if (cg.renderingThirdPerson || 0 != (cg.snap->ps.eFlags & EF_HEADLESS))
 	{
@@ -660,7 +660,7 @@ Returns a FOV based on the current zoom state
 ====================
 */
 
-static int CG_RQ3_GetFov()
+static int CG_RQ3_GetFov( void )
 {
 	if ((cg.zoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW && (cg.zoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
 		return 10;
@@ -680,7 +680,7 @@ Returns a FOV based on the last zoom state
 ====================
 */
 
-static int CG_RQ3_GetLastFov()
+static int CG_RQ3_GetLastFov( void )
 {
 	if ((cg.lastZoomLevel & RQ3_ZOOM_LOW) == RQ3_ZOOM_LOW && (cg.lastZoomLevel & RQ3_ZOOM_MED) == RQ3_ZOOM_MED)
 		return 10;
