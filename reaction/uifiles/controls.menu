@@ -92,6 +92,7 @@
 	)
 	ADD_HINT("hint_tab2", "Change movement controls", "group1,group3,group4,group5")
 
+
 	//Shoot
 
 	ADD_TAB(
@@ -119,7 +120,7 @@
 		"R", 5, "group1,group2,group3,group4",
 		alignrect "tab4" ITEM_ALIGN_LEFT 28 0 48 16
 	)
-	ADD_HINT("hint_tab5", "Other often-used commands", "group1,group2,group3,group4")
+	ADD_HINT("hint_tab5", "Change Reaction-specific controls", "group1,group2,group3,group4")
 
 
 /*
@@ -205,7 +206,7 @@ Group # 2 - Move
 	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-movement", 2)
 	
 	BEGIN_OPTION("Always Run", "cl_run", ITEM_TYPE_YESNO, 1, 2)
-		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
 		ASSIGN_HINT("YesNoMessage")
 	END_OPTION
 
@@ -281,7 +282,7 @@ Group # 3 - Shoot
 	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-weapons", 3)
 	
 	BEGIN_OPTION("Attack", "+attack", ITEM_TYPE_BIND, 1, 3)
-		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
@@ -368,19 +369,19 @@ Group # 4 - Misc
 	// Icon
 	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-misc", 4)
 	
-	BEGIN_OPTION("Show Scores", "scores", ITEM_TYPE_BIND, 1, 4)
-		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 20
+	BEGIN_OPTION("Weapon/Item Choice", "ui_RQ3_loadout", ITEM_TYPE_BIND, 1, 4)
+		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Show Statistics", "+wstats", ITEM_TYPE_BIND, 2, 4)
+	BEGIN_OPTION("Join Team", "ui_RQ3_joinTeam", ITEM_TYPE_BIND, 2, 4)
 		OPTION_BELOW("gr4_ctrl1")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Gesture", "+button3", ITEM_TYPE_BIND, 3, 4)
+	BEGIN_OPTION("Presets Menu", "ui_RQ3_presets", ITEM_TYPE_BIND, 3, 4)
 		OPTION_BELOW("gr4_ctrl2")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
@@ -409,19 +410,33 @@ Group # 4 - Misc
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
+
 	BEGIN_OPTION("VoIP Push-to-talk", "+voiprecord", ITEM_TYPE_BIND, 8, 4)
 		OPTION_BELOW("gr4_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
-	BEGIN_OPTION("Screenshot", "screenshot", ITEM_TYPE_BIND, 9, 4)
+
+	BEGIN_OPTION("Show Scores", "scores", ITEM_TYPE_BIND, 9, 4)
 		OPTION_BELOW("gr4_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Screenshot - JPEG", "screenshotJPEG", ITEM_TYPE_BIND, 10, 4)
+	BEGIN_OPTION("Show Statistics", "+wstats", ITEM_TYPE_BIND, 10, 4)
 		OPTION_BELOW("gr4_ctrl9")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot", "screenshot", ITEM_TYPE_BIND, 11, 4)
+		OPTION_BELOW("gr4_ctrl10")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot - JPEG", "screenshotJPEG", ITEM_TYPE_BIND, 12, 4)
+		OPTION_BELOW("gr4_ctrl11")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
@@ -437,7 +452,7 @@ Group # 5 - Reaction
 	__CONTROLS_ICON__( UI_ASSETS"/icons/rq3-controls-reaction", 5)
 	
 	BEGIN_OPTION("Bandage", "bandage", ITEM_TYPE_BIND, 1, 5)
-		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 20
+		alignrect "line" ITEM_ALIGN_CENTER 56 44 112 VSIZE
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
@@ -448,65 +463,52 @@ Group # 5 - Reaction
 	END_OPTION
 
 
-	BEGIN_OPTION("Weapon Mode", "weapon", ITEM_TYPE_BIND, 3, 5)
+	BEGIN_OPTION("Open Door", "opendoor", ITEM_TYPE_BIND, 3, 5)
 		OPTION_BELOW("gr5_ctrl2")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
+	
 
-
-	BEGIN_OPTION("Open Door", "opendoor", ITEM_TYPE_BIND, 4, 5)
+	BEGIN_OPTION("IR Vision", "irvision", ITEM_TYPE_BIND, 4, 5)
 		OPTION_BELOW("gr5_ctrl3")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Weapon", "drop weapon", ITEM_TYPE_BIND, 5, 5)
+	BEGIN_OPTION("Weapon Mode", "weapon", ITEM_TYPE_BIND, 5, 5)
 		OPTION_BELOW("gr5_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Item", "drop item", ITEM_TYPE_BIND, 6, 5)
+	BEGIN_OPTION("Special Weapon Cycle", "use special", ITEM_TYPE_BIND, 6, 5)
 		OPTION_BELOW("gr5_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Briefcase", "drop case", ITEM_TYPE_BIND, 7, 5)
+	BEGIN_OPTION("Drop Weapon", "drop weapon", ITEM_TYPE_BIND, 7, 5)
 		OPTION_BELOW("gr5_ctrl6")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("IR Vision", "irvision", ITEM_TYPE_BIND, 8, 5)
+	BEGIN_OPTION("Drop Item", "drop item", ITEM_TYPE_BIND, 8, 5)
 		OPTION_BELOW("gr5_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Special Weapon Cycle", "specialweapon", ITEM_TYPE_BIND, 9, 5)
+	BEGIN_OPTION("Drop Briefcase", "drop case", ITEM_TYPE_BIND, 9, 5)
 		OPTION_BELOW("gr5_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Weapon/Item Choice", "ui_RQ3_loadout", ITEM_TYPE_BIND, 10, 5)
+	BEGIN_OPTION("Gesture", "+button3", ITEM_TYPE_BIND, 10, 5)
 		OPTION_BELOW("gr5_ctrl9")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
-
-
-	BEGIN_OPTION("Join Team", "ui_RQ3_joinTeam", ITEM_TYPE_BIND, 11, 5)
-		OPTION_BELOW("gr5_ctrl10")
-		ASSIGN_HINT("keyBindStatus")
-	END_OPTION
-
-
-	BEGIN_OPTION("Presets Menu", "ui_RQ3_presets", ITEM_TYPE_BIND, 12, 5)
-		OPTION_BELOW("gr5_ctrl11")
-		ASSIGN_HINT("keyBindStatus")
-	END_OPTION
-
 
 }
 }

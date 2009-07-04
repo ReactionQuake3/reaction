@@ -3266,10 +3266,22 @@ void UI_BuildIngameServerInfoList( void )
 		int matchmode = atoi(Info_ValueForKey(serverInfo, "g_RQ3_matchmode"));
 		int limit = atoi(Info_ValueForKey(serverInfo, "timelimit"));
 		
-		AddIngameLine("RQ3 Version", Info_ValueForKey(serverInfo, "g_RQ3_version"));
 		AddIngameLine("Host name", Info_ValueForKey(serverInfo, "sv_hostname"));
+		AddIngameLine("Game version", Info_ValueForKey(serverInfo, "g_RQ3_version"));
+		AddIngameLine("Engine version", Info_ValueForKey(serverInfo, "version"));
 		AddIngameLine("Map name", Info_ValueForKey(serverInfo, "mapname"));
 		AddIngameLine("Gametype", (char*)teamArenaGameNames[gametype]);
+		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
+		if (matchmode) {
+			//int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
+			int allowRef = atoi(Info_ValueForKey(serverInfo, "g_RQ3_allowRef"));
+			AddIngameLine("Allow referee", (allowRef != 0) ? va("Yes (%i max)", atoi(Info_ValueForKey(serverInfo, "g_RQ3_maxRefs"))) : "No");
+			//if (allowRef && refID != -1) {
+			//	char info2[MAX_INFO_STRING];
+			//	trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
+			//	AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
+			//}
+		}
 		AddIngameLine("Time limit", (limit !=0 ) ? va("%i", limit) : "None");
 		switch (gametype) {
 			case GT_TEAMPLAY:
@@ -3302,22 +3314,10 @@ void UI_BuildIngameServerInfoList( void )
 					break;
 				}
 		}
-		AddIngameLine("Match mode", (matchmode != 0) ? "On" : "Off");
-		if (matchmode) {
-			//int refID = atoi(Info_ValueForKey(info, "g_RQ3_refID"));
-			int allowRef = atoi(Info_ValueForKey(serverInfo, "g_RQ3_allowRef"));
-			AddIngameLine("Allow referee", (allowRef != 0) ? va("Yes (%i max)", atoi(Info_ValueForKey(serverInfo, "g_RQ3_maxRefs"))) : "No");
-			//if (allowRef && refID != -1) {
-			//	char info2[MAX_INFO_STRING];
-			//	trap_GetConfigString(CS_PLAYERS + refID, info2, sizeof(info2));
-			//	AddIngameLine("Referee", Info_ValueForKey(info2, "name"));
-			//}
-		}
 		AddIngameLine("Max clients", Info_ValueForKey(serverInfo, "sv_maxClients"));
 		AddIngameLine("Bot/min players", Info_ValueForKey(serverInfo, "bot_minplayers"));
 		AddIngameLine("Password required", (atoi(Info_ValueForKey(serverInfo, "g_needPass")) != 0) ? "Yes" : "No");
 		AddIngameLine("Protocol", Info_ValueForKey(serverInfo, "protocol"));
-		AddIngameLine("Q3 Version", Info_ValueForKey(serverInfo, "version"));
 	}
 }
 

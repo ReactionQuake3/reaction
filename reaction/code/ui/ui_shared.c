@@ -5026,7 +5026,7 @@ static bind_t g_bindings[] = {
 	{"drop item", 'z', -1, -1, -1},
 	{"irvision", 'v', -1, -1, -1},
 //Makro - this one was missing
-	{"specialweapon", 'e', -1, -1, -1},
+	{"use special", 'e', -1, -1, -1},
 //Makro - for the weapon/item, join, presets and tkok menus
 	{"ui_RQ3_loadout", 'l', -1, -1, -1},
 	{"ui_RQ3_joinTeam", 'j', -1, -1, -1},

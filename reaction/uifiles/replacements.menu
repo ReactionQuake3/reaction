@@ -223,7 +223,6 @@
 				timeFade "hint_prev" forecolor 5 5 5 1 0 HINT_FADE_TIME ;
 				timefadeSelf forecolor 1 1 1 1 0 250
 			}
-			
 			leaveFocus {
 				timeFade "hint_prev" forecolor 5 5 5 0 0 HINT_FADE_TIME ;
 				timefadeSelf forecolor 1 1 1 .3 0 250
@@ -252,7 +251,6 @@
 				timeFade "hint_next" forecolor 5 5 5 1 0 HINT_FADE_TIME ;
 				timefadeSelf forecolor 1 1 1 1 0 250
 			}
-			
 			leaveFocus {
 				timeFade "hint_next" forecolor 5 5 5 0 0 HINT_FADE_TIME ;
 				timefadeSelf forecolor 1 1 1 .3 0 250
@@ -328,8 +326,19 @@
 			textscale .225
 			forecolor OPTION_COLOR
 			visible 1
+			
 			action { play "sound/ui/whoosh3.wav" }
+			
+			onFocus {
+				show "hint_type" ;
+				timeFade "hint_type" forecolor 5 5 5 1 0 HINT_FADE_TIME
+			}
+			leaveFocus {
+				timeFade "hint_type" forecolor 5 5 5 0 0 HINT_FADE_TIME
+			}
 		}
+
+		ADD_HINT("hint_type", "Browse through categories", "allgroups")
 
 		itemdef {
 			name "selection_tip"
@@ -395,7 +404,9 @@
 			textaligny 12
 			forecolor OPTION_COLOR
 			visible 1
+			
 			action { play "sound/ui/whoosh3.wav" ; uiScript "selectReplacement" }
+			
 			onFocus {
 				show "hint_select" ;
 				timeFade "hint_select" forecolor 5 5 5 1 0 HINT_FADE_TIME
