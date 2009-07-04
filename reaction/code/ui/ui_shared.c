@@ -118,7 +118,7 @@
 
 //Makro - avoid warnings
 int UI_SelectedQ3Head(qboolean);
-qboolean UI_NeedToUpdateModel();
+qboolean UI_NeedToUpdateModel( void );
 
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST				150
@@ -157,7 +157,7 @@ static itemDef_t *g_editItem = NULL;
 menuDef_t Menus[MAX_MENUS];	// defined menus
 int menuCount = 0;		// how many
 
-int GMemory()
+int GMemory( void )
 {
 	return sizeof(Menus);
 }
@@ -183,7 +183,7 @@ int BindingIDFromName(const char *name);
 qboolean Item_Bind_HandleKey(itemDef_t * item, int key, qboolean down);
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t * menu);
 itemDef_t *Menu_SetNextCursorItem(menuDef_t * menu);
-static qboolean Menu_OverActiveItem(menuDef_t * menu, float x, float y);
+//static qboolean Menu_OverActiveItem(menuDef_t * menu, float x, float y);
 
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
@@ -230,7 +230,7 @@ void UI_InitMemory(void)
 	outOfMemory = qfalse;
 }
 
-qboolean UI_OutOfMemory()
+qboolean UI_OutOfMemory( void )
 {
 	return outOfMemory;
 }
@@ -372,7 +372,7 @@ const char *String_Alloc(const char *p)
 	return NULL;
 }
 
-void String_Report()
+void String_Report( void )
 {
 	float f;
 
@@ -393,7 +393,7 @@ void String_Report()
 String_Init
 =================
 */
-void String_Init()
+void String_Init( void )
 {
 	int i;
 
@@ -1662,7 +1662,7 @@ void Menus_CloseByName(const char *p)
 	}
 }
 
-void Menus_CloseAll()
+void Menus_CloseAll( void )
 {
 	int i;
 
@@ -3915,7 +3915,7 @@ static void Menu_CloseCinematics(menuDef_t * menu)
 	}
 }
 
-static void Display_CloseCinematics()
+static void Display_CloseCinematics( void )
 {
 	int i;
 
@@ -3989,7 +3989,7 @@ void Menus_Activate(menuDef_t * menu)
 	Display_CloseCinematics();
 }
 
-int Display_VisibleMenuCount()
+int Display_VisibleMenuCount( void )
 {
 	int i, count;
 
@@ -5224,7 +5224,6 @@ void Item_Slider_Paint(itemDef_t * item)
 {
 	vec4_t newColor;
 	float x, y, value;
-	menuDef_t *parent = (menuDef_t *) item->parent;
 	float frac;
 	editFieldDef_t *editDef = item->typeData;
 	Point pt;
@@ -5345,7 +5344,7 @@ void Item_Bind_Paint(itemDef_t * item)
 	}
 }
 
-qboolean Display_KeyBindPending()
+qboolean Display_KeyBindPending( void )
 {
 	return g_waitingForKey;
 }
@@ -6333,7 +6332,7 @@ itemDef_t *Menu_GetFocusedItem(menuDef_t * menu)
 	return NULL;
 }
 
-menuDef_t *Menu_GetFocused()
+menuDef_t *Menu_GetFocused( void )
 {
 	int i;
 
@@ -6388,7 +6387,7 @@ void Menu_SetFeederSelection(menuDef_t * menu, int feeder, int index, const char
 	}
 }
 
-qboolean Menus_AnyFullScreenVisible()
+qboolean Menus_AnyFullScreenVisible( void )
 {
 	int i;
 
@@ -6405,7 +6404,6 @@ menuDef_t *Menus_ActivateByName(const char *p, qboolean special)
 {
 	int i;
 	menuDef_t *m = NULL;
-	menuDef_t *focus = Menu_GetFocused();
 
 	for (i = 0; i < menuCount; i++) {
 		if (Q_stricmp(Menus[i].window.name, p) == 0) {
@@ -6497,7 +6495,7 @@ void Menu_HandleMouseMove(menuDef_t * menu, float x, float y)
 			}
 
 			if (menu->items[i]->type == ITEM_TYPE_LISTBOX) {
-				rectDef_t *r = &menu->items[i]->window.rect;
+				//rectDef_t *r = &menu->items[i]->window.rect;
 				//Com_Printf("Listbox: %d\n", r->hasVectors);
 				//DC->drawAngledPic(r->x, r->y, r->w, r->h, r->u, r->v, colorYellow, 0, 0, 1, 1, DC->whiteShader);
 			}
@@ -8837,12 +8835,12 @@ void Menu_New(int handle)
 	}
 }
 
-int Menu_Count()
+int Menu_Count( void )
 {
 	return menuCount;
 }
 
-void Menu_PaintAll()
+void Menu_PaintAll( void )
 {
 	int i;
 
@@ -9003,7 +9001,7 @@ void Display_CacheAll()
 		Menu_CacheContents(&Menus[i]);
 	}
 }
-
+/*
 static qboolean Menu_OverActiveItem(menuDef_t * menu, float x, float y)
 {
 	if (menu && menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)) {
@@ -9040,5 +9038,5 @@ static qboolean Menu_OverActiveItem(menuDef_t * menu, float x, float y)
 		}
 	}
 	return qfalse;
-}
+} */
 

@@ -80,7 +80,7 @@ SCRIPT_STATE(STATE_Base, NO_DATA)
 ///////////////////////////////////////////////////////////////
 // Functions //////////////////////////////////////////////////
 
-SCRIPT_FUNC(Main_Cvar)
+SCRIPT_FUNC_TOKENS(Main_Cvar)
 {
 	NEEDS_TOKENS(2, tokens);
 	G_Printf("Cvar: %s = %s\n", tokens[0], tokens[1]);
@@ -108,7 +108,7 @@ SCRIPT_STATE(STATE_Main, NO_DATA)
 ///////////////////////////////////////////////////////////////
 // Functions //////////////////////////////////////////////////
 
-SCRIPT_FUNC(Team_Name)
+SCRIPT_FUNC_TOKENS(Team_Name)
 {
 	NEEDS_TOKENS(1, token);
 	G_Printf("Team name: %s\n", token[0]);
@@ -116,7 +116,7 @@ SCRIPT_FUNC(Team_Name)
 }
 END_SCRIPT_FUNC()
 
-SCRIPT_FUNC(Team_Outfit)
+SCRIPT_FUNC_TOKENS(Team_Outfit)
 {
 	NEEDS_TOKENS(1, token);
 	G_Printf("Team skin: %s\n", token[0]);
@@ -172,7 +172,7 @@ SCRIPT_STATE(STATE_Rotation, NO_DATA)
 ///////////////////////////////////////////////////////////////
 // Functions //////////////////////////////////////////////////
 
-SCRIPT_FUNC(Map_Name)
+SCRIPT_FUNC_TOKENS(Map_Name)
 {
 	NEEDS_TOKENS(1, token);
 	G_Printf("Map: %s\n", token[0]);
@@ -180,7 +180,7 @@ SCRIPT_FUNC(Map_Name)
 }
 END_SCRIPT_FUNC()
 
-SCRIPT_FUNC(Map_Cvar)
+SCRIPT_FUNC_TOKENS(Map_Cvar)
 {
 	NEEDS_TOKENS(2, tokens);
 	G_Printf("Cvar: %s = %s\n", tokens[0], tokens[1]);
@@ -208,7 +208,7 @@ SCRIPT_STATE(STATE_Rotation_Map, NO_DATA)
 ///////////////////////////////////////////////////////////////
 // Functions //////////////////////////////////////////////////
 
-SCRIPT_FUNC(Restrictions_Cvar)
+SCRIPT_FUNC_TOKENS(Restrictions_Cvar)
 {
 	NEEDS_TOKENS(2, tokens);
 	G_Printf("Cvar: %s = %s\n", tokens[0], tokens[1]);

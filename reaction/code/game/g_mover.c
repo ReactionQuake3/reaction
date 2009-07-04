@@ -1585,6 +1585,7 @@ void SP_func_door(gentity_t * ent)
 	char *sSndStart;
 	//Makro - added
 	char *sSndInactive;
+	int noreset;
 
 	//Elder: can set sounds from here
 	//Blaze: changed default path as per Sze
@@ -1688,8 +1689,8 @@ void SP_func_door(gentity_t * ent)
 	ent->unbreakable = ent->inactive;
 	ent->reset = reset_door;
 	//doors shouldn't reset by default
-	G_SpawnInt("noreset", "1", &ent->noreset);
-
+	G_SpawnInt("noreset", "1", &noreset);
+    ent->noreset = noreset;
 }
 
 // REACTION
@@ -1724,6 +1725,7 @@ void SP_func_door_rotating(gentity_t * ent)
 	char *sSndStart;
 	//Makro - added
 	char *sSndInactive;
+	int noreset;
 
 	//Elder: can set sounds from here
 	G_SpawnString("soundstart", "sound/movers/rdoor_stop.wav", &sSndStart);
@@ -1852,7 +1854,8 @@ void SP_func_door_rotating(gentity_t * ent)
 	ent->unbreakable = ent->inactive;
 	ent->reset = reset_door;
 	//doors shouldn't reset by default
-	G_SpawnInt("noreset", "1", &ent->noreset);
+	G_SpawnInt("noreset", "1", &noreset);
+	ent->noreset = noreset;
 }
 
 /*

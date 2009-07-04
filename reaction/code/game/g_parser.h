@@ -104,10 +104,14 @@ extern int SCRIPT_SHOW_LEVEL;
 
 #define SCRIPT_FUNC_PROTO(name)		int name(char **SCRIPT_INPUT, TStateStack *SCRIPT_STACK)
 
-#define SCRIPT_FUNC(name)\
+#define SCRIPT_FUNC_TOKENS(name)\
 	SCRIPT_FUNC_PROTO(name)\
 	{\
 		const char *__SCRIPT_FUNC__ = #name;
+
+#define SCRIPT_FUNC(name)\
+	SCRIPT_FUNC_PROTO(name)\
+	{
 
 #define END_SCRIPT_FUNC()\
 }

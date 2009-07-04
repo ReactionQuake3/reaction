@@ -354,7 +354,7 @@ ifeq ($(PLATFORM),darwin)
   CLIENT_LIBS=
   OPTIMIZE=
   
-  BASE_CFLAGS = -Wall -Wimplicit -Wstrict-prototypes
+  BASE_CFLAGS = -Werror -Wall -Wimplicit -Wstrict-prototypes
 
   ifeq ($(ARCH),ppc)
     BASE_CFLAGS += -faltivec
