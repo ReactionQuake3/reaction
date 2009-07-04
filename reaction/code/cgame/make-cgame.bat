@@ -24,7 +24,7 @@ REM ***Makro - bg_materials.c needed for the new surfaceparm system
 
 %cc% ../../game/q_math.c
 @if errorlevel 1 goto quit
-%cc% ../../game/q_shared.c
+%cc% ../../qcommon/q_shared.c
 @if errorlevel 1 goto quit
 
 %cc% ../cg_atmospheric.c

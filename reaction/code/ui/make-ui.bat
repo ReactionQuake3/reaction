@@ -18,13 +18,15 @@ echo *** Running Q3LCC for UI...
 @if errorlevel 1 goto quit
 %cc% ../../game/q_math.c
 @if errorlevel 1 goto quit
-%cc% ../../game/q_shared.c
+%cc% ../../qcommon/q_shared.c
 @if errorlevel 1 goto quit
 %cc% ../ui_atoms.c
 @if errorlevel 1 goto quit
 %cc% ../ui_players.c
 @if errorlevel 1 goto quit
-%cc% ../ui_util.c
+REM ***%cc% ../ui_util.c
+REM ***../ui_util.c:21: warning: empty input file
+REM ***ALSO REMOVED FROM UI.Q3ASM
 @if errorlevel 1 goto quit
 %cc% ../ui_shared.c
 @if errorlevel 1 goto quit

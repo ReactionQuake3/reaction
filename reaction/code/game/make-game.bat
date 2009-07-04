@@ -30,7 +30,7 @@ REM *** Makro - bg_materials.c needed for the new surfaceparm system
 
 %cc%  ../q_math.c
 @if errorlevel 1 goto quit
-%cc%  ../q_shared.c
+%cc%  ../../qcommon/q_shared.c
 @if errorlevel 1 goto quit
 
 %cc%  ../ai_dmnet.c

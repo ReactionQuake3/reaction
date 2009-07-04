@@ -1779,7 +1779,7 @@ int ReflectVectorByte(vec3_t dir, vec3_t plane)
 CreateRotationMatrix
 ================
 */
-void CreateRotationMatrix(vec3_t angles, vec3_t matrix[3])
+void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3])
 {
 	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
 	VectorInverse(matrix[1]);
