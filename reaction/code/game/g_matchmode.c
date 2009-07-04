@@ -76,7 +76,7 @@ qboolean checkCaptain(team_t team)
 		//Blaze: Prit out some Debug info
 		if (&g_entities[i] == NULL) G_Printf("Ln 0059\n");		
 		ent = &g_entities[i];
-		if (!ent->inuse)
+		if (!ent->client)
 			continue;
 		if (ent->client->sess.savedTeam == team && ent->client->sess.captain == team)
 			return qtrue;
