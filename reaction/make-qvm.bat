@@ -126,16 +126,17 @@ REM *** The pk3 is named like it is so it is always loaded last for testing.
 echo.
 echo *** Remove any old pk3 and create a new one...
 echo.
-set zipname=%make-qvm-location%bin\qvm\zzzz-code-.pk3
+set zipname=%make-qvm-location%bin\qvm\zzzz-code-*.pk3
 del "%zipname%"
+set zipname=%make-qvm-location%bin\qvm\zzzz-code-%date:~-4,4%%date:~-7,2%%date:~-10,2%.pk3
 cd "%make-qvm-location%bin\qvm"
 copy /y "%make-qvm-location%uifiles\*.menu" "%make-qvm-location%bin\qvm\ui"
 copy /y "%make-qvm-location%uifiles\menus.txt" "%make-qvm-location%bin\qvm\ui"
 copy /y "%make-qvm-location%uifiles\ingame.txt" "%make-qvm-location%bin\qvm\ui"
-"%zipper%" a -tzip "%zipname%" "%make-qvm-location%bin\qvm\vm\*.qvm"
-"%zipper%" a -tzip "%zipname%" "%make-qvm-location%bin\qvm\ui\*.menu"
-"%zipper%" a -tzip "%zipname%" "%make-qvm-location%bin\qvm\ui\menus.txt"
-"%zipper%" a -tzip "%zipname%" "%make-qvm-location%bin\qvm\ui\ingame.txt"
+"%zipper%" a -tzip "%zipname%" vm\*.qvm
+"%zipper%" a -tzip "%zipname%" ui\*.menu
+"%zipper%" a -tzip "%zipname%" ui\menus.txt
+"%zipper%" a -tzip "%zipname%" ui\ingame.txt
 
 :END
 echo.
