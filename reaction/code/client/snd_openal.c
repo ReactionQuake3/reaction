@@ -1199,9 +1199,10 @@ void S_AL_SrcUpdate( void )
 					qalSourcei(curSource->alSource, AL_SOURCE_RELATIVE, AL_FALSE);
 					qalSourcef(curSource->alSource, AL_ROLLOFF_FACTOR, s_alRolloff->value);
 				}
+				qalSourcef(curSource->alSource, AL_GAIN, curSource->curGain);
+			} else {
+				qalSourcef(curSource->alSource, AL_GAIN, 0.0f );
 			}
-			else
-				S_AL_SrcKill( i );
 
 			continue;
 		}
