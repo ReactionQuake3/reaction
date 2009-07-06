@@ -2042,8 +2042,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 //	take -= asave;
 
 	if (g_debugDamage.integer) {
-		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
-			 targ->health, take, asave);
+		G_Printf("%i: client:%i health:%i damage:%i\n", level.time, targ->s.number,
+			 targ->health, take);
 	}
 	// See if it's the player hurting the emeny flag carrier
 	if (g_gametype.integer == GT_CTF) {
