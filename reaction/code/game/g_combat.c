@@ -1776,7 +1776,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 {
 	gclient_t *client;
 	gentity_t *tent;
-	int take, save, asave, knockback;
+//	int take, save, asave, knockback;
+	int take, save, knockback;
 	int bleeding = 0, instant_dam = 1, height;
 	float z_rel, targ_maxs2, from_top;
 	vec3_t line, new_point;
@@ -2250,7 +2251,8 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		} else {
 			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
 		}
-		client->damage_armor += asave;
+//JBravo: no armour
+//		client->damage_armor += asave;
 		client->damage_blood += take;
 		client->damage_knockback += knockback;
 		if (dir) {
