@@ -4187,7 +4187,7 @@ int BotGetActivateGoal(bot_state_t * bs, int entitynum, bot_activategoal_t * act
 		return 0;
 	}
 	trap_AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname));
-	if (!classname) {
+	if (!*classname) {
 		BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model %s has no classname\n", model);
 		return 0;
 	}
