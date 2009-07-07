@@ -1225,7 +1225,8 @@ qboolean UI_RegisterClientModelname(playerInfo_t * pi, const char *modelSkinName
 		}
 	}
 
-	if (headModelName && headModelName[0] == '*') {
+// JBravo: fixed a warning...
+	if (headModelName[0] == '*') {
 		Com_sprintf(filename, sizeof(filename), "models/players/heads/%s/%s.md3", &headModelName[1],
 			    &headModelName[1]);
 	} else {
