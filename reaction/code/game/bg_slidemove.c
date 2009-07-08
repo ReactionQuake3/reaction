@@ -54,6 +54,255 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+/* QUAKE 2 Style */
+/*
+==================
+PM_StepSlideMove
+
+Each intersection will try to step over the obstruction instead of
+sliding along it.
+
+Returns a new origin, velocity, and contact entity
+Does not modify any world state?
+==================
+*/
+#define	MIN_STEP_NORMAL	0.7		// can't step up onto very steep slopes
+#define	MAX_CLIP_PLANES	5
+qboolean Q2_PM_SlideMove (qboolean gravity)
+{
+	int			bumpcount, numbumps;
+	vec3_t		dir;
+	float		d;
+	int			numplanes;
+	vec3_t		planes[MAX_CLIP_PLANES];
+	vec3_t		primal_velocity;
+	int			i, j;
+	trace_t	trace;
+	vec3_t		end;
+	float		time_left;
+	vec3_t		endVelocity;
+
+	numbumps = 4;
+
+	VectorCopy (pm->ps->velocity, primal_velocity);
+	if ( gravity ) {
+		VectorCopy(pm->ps->velocity, endVelocity);
+		endVelocity[2] -= pm->ps->gravity * pml.frametime;
+		pm->ps->velocity[2] = (pm->ps->velocity[2] + endVelocity[2]) * 0.5f;
+		primal_velocity[2] = endVelocity[2];
+	}
+	numplanes = 0;
+
+	time_left = pml.frametime;
+
+	for (bumpcount=0 ; bumpcount<numbumps ; bumpcount++)
+	{
+		for (i=0 ; i<3 ; i++)
+			end[i] = pm->ps->origin[i] + time_left * pm->ps->velocity[i];
+
+		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, end, pm->ps->clientNum, pm->tracemask);
+
+		if (trace.allsolid)
+		{	// entity is trapped in another solid
+			pm->ps->velocity[2] = 0;	// don't build up falling damage
+			return qtrue;
+		}
+
+		if (trace.fraction > 0)
+		{	// actually covered some distance
+			VectorCopy (trace.endpos, pm->ps->origin);
+			numplanes = 0;
+		}
+
+		if (trace.fraction == 1)
+			 break;		// moved the entire distance
+
+		// save entity for contact
+		PM_AddTouchEnt(trace.entityNum);
+
+		time_left -= time_left * trace.fraction;
+
+		// slide along this plane
+		if (numplanes >= MAX_CLIP_PLANES)
+		{	// this shouldn't really happen
+			VectorCopy (vec3_origin, pm->ps->velocity);
+			break;
+		}
+
+		VectorCopy (trace.plane.normal, planes[numplanes]);
+		numplanes++;
+
+#if 0
+	float		rub;
+
+		//
+		// modify velocity so it parallels all of the clip planes
+		//
+		if (numplanes == 1)
+		{	// go along this plane
+			VectorCopy (pml.velocity, dir);
+			VectorNormalize (dir);
+			rub = 1.0 + 0.5 * DotProduct (dir, planes[0]);
+
+			// slide along the plane
+			PM_ClipVelocity (pml.velocity, planes[0], pml.velocity, 1.01);
+			// rub some extra speed off on xy axis
+			// not on Z, or you can scrub down walls
+			pml.velocity[0] *= rub;
+			pml.velocity[1] *= rub;
+			pml.velocity[2] *= rub;
+		}
+		else if (numplanes == 2)
+		{	// go along the crease
+			VectorCopy (pml.velocity, dir);
+			VectorNormalize (dir);
+			rub = 1.0 + 0.5 * DotProduct (dir, planes[0]);
+
+			// slide along the plane
+			CrossProduct (planes[0], planes[1], dir);
+			d = DotProduct (dir, pml.velocity);
+			VectorScale (dir, d, pml.velocity);
+
+			// rub some extra speed off
+			VectorScale (pml.velocity, rub, pml.velocity);
+		}
+		else
+		{
+//			Con_Printf ("clip velocity, numplanes == %i\n",numplanes);
+			VectorCopy (vec3_origin, pml.velocity);
+			break;
+		}
+
+#else
+//
+// modify original_velocity so it parallels all of the clip planes
+//
+		for (i=0 ; i<numplanes ; i++)
+		{
+			PM_ClipVelocity (pm->ps->velocity, planes[i], pm->ps->velocity, 1.01);
+			for (j=0 ; j<numplanes ; j++)
+				if (j != i)
+				{
+					if (DotProduct (pm->ps->velocity, planes[j]) < 0)
+						break;	// not ok
+				}
+			if (j == numplanes)
+				break;
+		}
+
+		if (i != numplanes)
+		{	// go along this plane
+		}
+		else
+		{	// go along the crease
+			if (numplanes != 2)
+			{
+//				Con_Printf ("clip velocity, numplanes == %i\n",numplanes);
+				VectorCopy (vec3_origin, pm->ps->velocity);
+				break;
+			}
+			CrossProduct (planes[0], planes[1], dir);
+			d = DotProduct (dir, pm->ps->velocity);
+			VectorScale (dir, d, pm->ps->velocity);
+		}
+#endif
+		//
+		// if velocity is against the original velocity, stop dead
+		// to avoid tiny occilations in sloping corners
+		//
+		if (DotProduct (pm->ps->velocity, primal_velocity) <= 0)
+		{
+			VectorCopy (vec3_origin, pm->ps->velocity);
+			break;
+		}
+	}
+
+	if ( gravity ) {
+		VectorCopy(endVelocity, pm->ps->velocity);
+	}
+
+	if (pm->ps->pm_time)
+	{
+		VectorCopy (primal_velocity, pm->ps->velocity);
+	}
+	return (bumpcount != 0);
+}
+
+/*
+==================
+PM_StepSlideMove
+
+==================
+*/
+void Q2_PM_StepSlideMove (qboolean gravity)
+{
+	vec3_t		start_o, start_v;
+	vec3_t		down_o, down_v;
+	trace_t		trace;
+	float		down_dist, up_dist;
+//	vec3_t		delta;
+	vec3_t		up, down;
+
+	VectorCopy (pm->ps->origin, start_o);
+	VectorCopy (pm->ps->velocity, start_v);
+
+	Q2_PM_SlideMove(gravity);
+
+	VectorCopy (pm->ps->origin, down_o);
+	VectorCopy (pm->ps->velocity, down_v);
+
+	VectorCopy (start_o, up);
+	up[2] += STEPSIZE;
+
+	pm->trace (&trace, up, pm->mins, pm->maxs, up, pm->ps->clientNum, pm->tracemask);
+	if (trace.allsolid)
+		return;		// can't step up
+
+	// try sliding above
+	VectorCopy (up, pm->ps->origin);
+	VectorCopy (start_v, pm->ps->velocity);
+
+	Q2_PM_SlideMove(gravity);
+
+	// push down the final amount
+	VectorCopy (pm->ps->origin, down);
+	down[2] -= STEPSIZE;
+	pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, down, pm->ps->clientNum, pm->tracemask);
+	if (!trace.allsolid)
+	{
+		VectorCopy (trace.endpos, pm->ps->origin);
+	}
+
+#if 0
+	VectorSubtract (pml.origin, up, delta);
+	up_dist = DotProduct (delta, start_v);
+
+	VectorSubtract (down_o, start_o, delta);
+	down_dist = DotProduct (delta, start_v);
+#else
+	VectorCopy(pm->ps->origin, up);
+
+	// decide which one went farther
+    down_dist = (down_o[0] - start_o[0])*(down_o[0] - start_o[0])
+        + (down_o[1] - start_o[1])*(down_o[1] - start_o[1]);
+    up_dist = (up[0] - start_o[0])*(up[0] - start_o[0])
+        + (up[1] - start_o[1])*(up[1] - start_o[1]);
+#endif
+
+	if (down_dist > up_dist || trace.plane.normal[2] < MIN_STEP_NORMAL)
+	{
+		VectorCopy (down_o, pm->ps->origin);
+		VectorCopy (down_v, pm->ps->velocity);
+		return;
+	}
+	//!! Special case
+	// if we were walking along a plane, then we need to copy the Z over
+	pm->ps->velocity[2] = down_v[2];
+	if ( gravity ) {
+		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
+	}
+}
+
 /*
 
 input: origin, velocity, bounds, groundPlane, trace function

@@ -159,6 +159,9 @@ pml_t pml;
 //Elder: reduce x-y speed on ladders by this factor so it 'feels' more like Q2
 #define PM_LADDER_MOVE_REDUCTION	10
 
+#define STOP_EPSILON 0.1f
+//#define Q2PHYSICS
+
 // movement parameters
 float pm_stopspeed = 100.0f;
 float pm_duckScale = 0.25f;
@@ -334,6 +337,16 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 	float change;
 	int i;
 
+#ifdef Q2PHYSICS
+	backoff = DotProduct(in, normal) * overbounce;
+
+	for (i = 0; i < 3; i++) {
+		change = normal[i] * backoff;
+		out[i] = in[i] - change;
+		if ( out[i] > -STOP_EPSILON && out[i] < STOP_EPSILON)
+			out[i] = 0;
+	}
+#else
 	backoff = DotProduct(in, normal);
 
 	if (backoff < 0) {
@@ -346,6 +359,7 @@ void PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 		change = normal[i] * backoff;
 		out[i] = in[i] - change;
 	}
+#endif
 }
 
 /*
@@ -618,8 +632,11 @@ Flying out of the water
 static void PM_WaterJumpMove(void)
 {
 	// waterjump has no control, but falls
-
+#ifdef Q2PHYSICS
+	Q2_PM_StepSlideMove(qtrue);
+#else
 	PM_StepSlideMove(qtrue);
+#endif
 
 	pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	if (pm->ps->velocity[2] < 0) {
@@ -685,8 +702,11 @@ static void PM_WaterMove(void)
 		VectorNormalize(pm->ps->velocity);
 		VectorScale(pm->ps->velocity, vel, pm->ps->velocity);
 	}
-
+#ifdef Q2PHYSICS
+	Q2_PM_StepSlideMove(qfalse);
+#else
 	PM_StepSlideMove(qfalse);
+#endif
 }
 
 /*
@@ -729,7 +749,11 @@ static void PM_FlyMove(void)
 
 	PM_Accelerate(wishdir, wishspeed, pm_flyaccelerate);
 
+#ifdef Q2PHYSICS
+	Q2_PM_StepSlideMove(qfalse);
+#else
 	PM_StepSlideMove(qfalse);
+#endif
 }
 
 /*
@@ -787,8 +811,11 @@ static void PM_AirMove(void)
 	   pm->ps->velocity, OVERCLIP );
 	   }
 	 */
-
+#ifdef Q2PHYSICS
+	Q2_PM_StepSlideMove(qtrue);
+#else
 	PM_StepSlideMove(qtrue);
+#endif
 }
 
 /*
@@ -920,8 +947,11 @@ static void PM_WalkMove(void)
 	if (!pm->ps->velocity[0] && !pm->ps->velocity[1]) {
 		return;
 	}
-
+#ifdef Q2PHYSICS
+	Q2_PM_StepSlideMove(qfalse);
+#else
 	PM_StepSlideMove(qfalse);
+#endif
 
 }
 

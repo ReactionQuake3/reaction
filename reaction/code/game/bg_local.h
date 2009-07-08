@@ -94,3 +94,5 @@ void PM_AddEvent2(int newEvent, int eventParm);
 
 qboolean PM_SlideMove(qboolean gravity);
 void PM_StepSlideMove(qboolean gravity);
+qboolean Q2_PM_SlideMove(qboolean gravity);
+void Q2_PM_StepSlideMove(qboolean gravity);
