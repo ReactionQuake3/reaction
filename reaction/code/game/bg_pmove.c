@@ -893,8 +893,13 @@ static void PM_WalkMove(void)
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
 	
-	PM_ClipVelocity(pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP);
-	PM_ClipVelocity(pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP);
+
+	//Blaze - july 10, 2009
+	//The following two functions will lower your X/Y velocities depending on the plane you are walking on.
+	//As they are now(commented out), you will stay at the same speed walking up a ramp
+	//
+	//PM_ClipVelocity(pml.forward, pml.groundTrace.plane.normal, pml.forward, OVERCLIP);
+	//PM_ClipVelocity(pml.right, pml.groundTrace.plane.normal, pml.right, OVERCLIP);
 
 	VectorNormalize(pml.forward);
 	VectorNormalize(pml.right);
