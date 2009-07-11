@@ -557,6 +557,8 @@ vmCvar_t cg_RQ3_ammo_ssg3000;
 vmCvar_t cg_RQ3_ammo_mp5;
 vmCvar_t cg_RQ3_ammo_m4;
 
+vmCvar_t cg_RQ3_drawSpeed;
+
 vmCvar_t cg_RQ3_zcam_stfu;
 
 //Elder: muzzle flash toggle
@@ -835,6 +837,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_ammo_ssg3000, "cg_RQ3_ammo_ssg3000", "ssg3000/default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_mp5, "cg_RQ3_ammo_mp5", "mp5/default", CVAR_ARCHIVE},
 	{&cg_RQ3_ammo_m4, "cg_RQ3_ammo_m4", "m4/default", CVAR_ARCHIVE},
+
+	{&cg_RQ3_drawSpeed, "cg_RQ3_drawSpeed", "0", CVAR_ARCHIVE},
 
 	{&cg_RQ3_zcam_stfu, "cg_RQ3_zcam_stfu", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 

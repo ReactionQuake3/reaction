@@ -755,6 +755,33 @@ static float CG_DrawAttacker(float y)
 	return y + BIGCHAR_HEIGHT + 2;
 }
 
+static float CG_DrawSpeed(float y)
+{
+	char *s;
+	int w;
+	int x = 0;
+	float Color[4];
+	vec3_t vel;
+
+	VectorCopy( cg.snap->ps.velocity, vel );
+	vel[2] = 0.0f;
+
+	y += 4;
+	s = va("%3.0f UPS", VectorLength(vel) );
+	w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+	x = w;
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
+	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+
+	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
+	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+
+	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+
+	return y + SMALLCHAR_HEIGHT + 4;
+}
+
 /*
 ==================
 CG_DrawSnapshot
@@ -1203,6 +1230,9 @@ static void CG_DrawUpperRight(void)
 
 	if (cg_drawAttacker.integer)
 		y = CG_DrawAttacker(y);
+
+	if (cg_RQ3_drawSpeed.integer)
+		y = CG_DrawSpeed(y);
 }
 
 /*

@@ -1881,6 +1881,7 @@ extern vmCvar_t cg_RQ3_ammo_m3;
 extern vmCvar_t cg_RQ3_ammo_ssg3000;
 extern vmCvar_t cg_RQ3_ammo_mp5;
 extern vmCvar_t cg_RQ3_ammo_m4;
+extern vmCvar_t cg_RQ3_drawSpeed;
 
 extern vmCvar_t cg_RQ3_zcam_stfu;
 
