@@ -628,7 +628,7 @@ vmCvar_t cg_RQ3_predictWeapons;
 
 
 //Makro - left-handed models
-//vmCvar_t cg_RQ3_leftHanded;
+vmCvar_t cg_RQ3_leftHanded;
 
 //Makro - dev tools
 /*
@@ -919,7 +919,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	//Makro - left-handed weapons
-	//{&cg_RQ3_leftHanded, "cg_RQ3_leftHanded", "0", CVAR_ARCHIVE},
+	{&cg_RQ3_leftHanded, "cg_RQ3_leftHanded", "0", CVAR_ARCHIVE},
 	//Makro - dev tool
 	/*
 	{&cg_RQ3_angle0, "cg_RQ3_angle0", "0", 0},

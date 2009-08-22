@@ -1781,13 +1781,11 @@ void CG_AddViewWeapon(playerState_t * ps)
 	hand.backlerp = 0;
 	hand.hModel = weapon->handsModel;
 	hand.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
-	/*
-	hand.nonNormalizedAxes = qtrue;
+
 	if (cg_RQ3_leftHanded.integer)
 	{
 		VectorNegate(hand.axis[1], hand.axis[1]);
 	}
-	*/
 
 	// add everything onto the hand
 	CG_AddPlayerWeapon(&hand, ps, &cg.predictedPlayerEntity, ps->persistant[PERS_TEAM]);

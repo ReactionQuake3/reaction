@@ -509,7 +509,7 @@ static void CG_DrawStatusBar(void)
 	static float hcolors[3][4] = {
 		{1.0f, 1.0f, 1.0f, 1.0f},
 		{1.0f, 1.0f, 0.0f, 1.0f},
-		{1.0f, 0.0f, 0.0f, 1.0f}
+		{0.8f, 0.0f, 0.0f, 1.0f}
 	};
 
 	cent = &cg_entities[cg.snap->ps.clientNum];

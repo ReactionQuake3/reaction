@@ -76,6 +76,7 @@ typedef struct {
 
 	qboolean	needDlights;	// true for bmodels that touch a dlight
 	qboolean	lightingCalculated;
+	qboolean	mirrored;		// mirrored matrix, needs reversed culling
 	vec3_t		lightDir;		// normalized direction towards light
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed

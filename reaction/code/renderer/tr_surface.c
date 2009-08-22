@@ -879,8 +879,21 @@ static void RB_SurfaceMesh(md3Surface_t *surface) {
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
-	for (j = 0 ; j < indexes ; j++) {
-		tess.indexes[Bob + j] = Doug + triangles[j];
+	
+	if (backEnd.currentEntity->mirrored) {
+		// Makro - this should be done differently, but since we're copying
+		// indices in a loop anyway (see below), reversing them in the same loop
+		// is practically free...
+		
+		for (j = 0 ; j < indexes ; j += 3) {
+			tess.indexes[Bob + j + 0] = Doug + triangles[j + 0];
+			tess.indexes[Bob + j + 1] = Doug + triangles[j + 2];
+			tess.indexes[Bob + j + 2] = Doug + triangles[j + 1];
+		}
+	} else {
+		for (j = 0 ; j < indexes ; j++) {
+			tess.indexes[Bob + j] = Doug + triangles[j];
+		}
 	}
 	tess.numIndexes += indexes;
 

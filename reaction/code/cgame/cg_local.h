@@ -1949,7 +1949,7 @@ extern vmCvar_t cg_RQ3_strobe;
 extern vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro - left-handed weapons
-//extern vmCvar_t cg_RQ3_leftHanded;
+extern vmCvar_t cg_RQ3_leftHanded;
 //Makro - sun flares
 extern vmCvar_t cg_RQ3_flareIntensity;
 //Makro - ssg crosshair size

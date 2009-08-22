@@ -207,6 +207,7 @@ RE_AddRefEntityToScene
 =====================
 */
 void RE_AddRefEntityToScene( const refEntity_t *ent ) {
+	vec3_t cross;
 	if ( !tr.registered ) {
 		return;
 	}
@@ -219,6 +220,9 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 
 	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
 	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+	
+	CrossProduct(ent->axis[0], ent->axis[1], cross);
+	backEndData[tr.smpFrame]->entities[r_numentities].mirrored = (DotProduct(ent->axis[2], cross) < 0.f);
 
 	r_numentities++;
 }
