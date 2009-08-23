@@ -695,12 +695,12 @@ static float CG_DrawCTBCountDown(float y)
 	x = w;
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+	CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+	CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+	CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
 
 	return y + SMALLCHAR_HEIGHT + 4;
 }
@@ -745,12 +745,12 @@ static float CG_DrawAttacker(float y)
 	angles[PITCH] = 0;
 	angles[YAW] = 180;
 	angles[ROLL] = 0;
-	CG_DrawHead(640 - size, y, size, size, clientNum, angles);
+	CG_DrawHead(cgs.screenXMax - size - 9, y, size, size, clientNum, angles);
 
 	info = CG_ConfigString(CS_PLAYERS + clientNum);
 	name = Info_ValueForKey(info, "n");
 	y += size;
-	CG_DrawBigString(640 - (Q_PrintStrlen(name) * BIGCHAR_WIDTH), y, name, 0.5);
+	CG_DrawBigString(cgs.screenXMax - (Q_PrintStrlen(name) * BIGCHAR_WIDTH) * 9, y, name, 0.5);
 
 	return y + BIGCHAR_HEIGHT + 2;
 }
@@ -772,12 +772,12 @@ static float CG_DrawSpeed(float y)
 	x = w;
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+	CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+	CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+	CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
 
 	return y + SMALLCHAR_HEIGHT + 4;
 }
@@ -1029,12 +1029,12 @@ static float CG_DrawTimer(float y)
 	x = w;
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
+	CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
 	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(631 - x - 3, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+	CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
 
-	CG_DrawSmallString(631 - x, y + 2, s, 1.0F);
+	CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
 
 	return y + BIGCHAR_HEIGHT + 4;
 }
@@ -1104,9 +1104,9 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_WIDTH;
 
 	if (right)
-		x = 640 - w;
+		x = cgs.screenXMax - w;
 	else
-		x = 0;
+		x = cgs.screenXMin;
 
 	h = plyrs * TINYCHAR_HEIGHT;
 
