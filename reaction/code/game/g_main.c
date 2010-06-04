@@ -450,6 +450,7 @@
 int trap_RealTime(qtime_t * qtime);
 gentity_t *getEntByName(char *name);
 void AddIP(char *str);
+void G_RunAttachedEnt(gentity_t *ent);
 void G_SetGlobalRefSystem(int newRefSys);
 level_locals_t level;
 
@@ -1230,7 +1231,6 @@ void G_InitMoveParents( void )
 					ent->s.time2 = ent->moveParent_ent - g_entities;
 					if (ent->r.linked)
 						trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
-
 					break;
 				}
 			}
@@ -1286,6 +1286,8 @@ void G_SetMoveParentOrder( void )
 
 	for (i=0; i<level.num_attachedEnts; i++)
 	{
+		gentity_t *ent = g_parentOrder[i];
+
 		Com_sprintf(p, 4, "%03i", g_parentOrder[i]-g_entities);
 		p += 3;
 		//SetIntBytes(((g_parentOrder[i] - g_entities) << 1) | 1, p, 2);
@@ -2816,6 +2818,11 @@ void G_RunAttachedEnt(gentity_t *ent)
 {
 	G_EvaluateTrajectoryEx(ent, level.time, ent->r.currentOrigin, ent->r.currentAngles);
 	VectorCopy(ent->r.currentOrigin, ent->s.origin);
+	if (ent->moveParent_ent)
+	{
+		ent->r.svFlags |= SVF_PORTAL;
+		VectorCopy(ent->moveParent_ent->r.currentOrigin, ent->s.origin2);
+	}
 	if (ent->r.linked)
 		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
 }
