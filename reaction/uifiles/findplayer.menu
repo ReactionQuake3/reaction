@@ -1,5 +1,196 @@
 #include "ui/menudef.h"
 
+#define FADEIN_TIME	125
+#define BACK_COLOR1	.85 .9 .85 1
+#define BACK_COLOR2	.95 .95 .98 1
+
+#define ANGLES		5 -85
+
+{
+	// FIND PLAYER POPUP MENU //
+
+	menuDef {
+		name "findplayer_popmenu"
+		visible 0
+		fullscreen 0
+		rect 200 200 340 264
+		anglevectors ANGLES
+		focusColor .25 .25 .5 1
+		popup
+		style WINDOW_STYLE_EMPTY
+		onOpen {
+			//setitemcolor window forecolor 5 5 5 0 ;
+			//timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
+			play "sound/ui/whoosh3.wav" ;
+			uiScript FindPlayer ;
+			setfocus nameEntry
+		}
+		onESC { close _self ; open joinserver }
+		onOOBClick { close _self ; open joinserver }
+		
+		itemDef {
+			renderpoint
+			name "postit"
+			menuAnchor
+			group window
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor 1 1 .92 1
+			rect -8 -12 380 320
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+		
+		// TITLE //
+		
+		itemdef {
+			renderpoint
+			name "title"
+			text "Find a player:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect postit ITEM_ALIGN_LEFT 32 24 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+		
+		// PLAYER NAME //
+		
+		itemDef {
+			renderpoint
+			name "name"
+			text "Name:"
+			style 0
+			decoration
+			textscale .25
+			alignrect title ITEM_ALIGN_LEFT -8 32 52 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 20
+			textaligny 16
+			forecolor 0 0 .15 1
+			visible 1
+		}
+		
+		itemDef {
+			name "name_dots"
+			text "........................................"
+			style 0
+			decoration
+			textscale .25
+			alignrect name ITEM_ALIGN_LEFT 80 2 168 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 19
+			forecolor 0 0 .15 1
+			visible 1
+		}
+		
+		itemDef {
+			name "nameEntry"
+			style WINDOW_STYLE_EMPTY
+			text ""
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 14
+			maxchars 20
+			maxPaintChars 15
+			textscale .25
+			type ITEM_TYPE_EDITFIELD
+			cvar "ui_findPlayer"
+			alignrect name_dots ITEM_ALIGN_LEFT 0 0 168 20
+			forecolor 0 0 .15 1
+			backcolor 1 0 0 .5
+			visible 1
+		}
+		
+		// SERVER LIST //
+		
+		itemDef {
+			name "list"
+			type ITEM_TYPE_LISTBOX
+			alignrect name ITEM_ALIGN_LEFT 12 40 276 120
+			LISTBOX_STYLE(.225, 8)
+			style WINDOW_STYLE_FILLED
+			elementtype LISTBOX_TEXT
+			elementwidth 160
+			elementheight 20
+			textscale .2
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 14
+			feeder FEEDER_FINDPLAYER
+			forecolor 0 0 0 1
+			visible 1
+		}
+		
+		// SERVER INFO //
+		
+		itemDef {
+			text "^_S^_erver info..."
+			shortcutKey "S"
+			type ITEM_TYPE_BUTTON
+			textscale .25
+			style WINDOW_STYLE_EMPTY
+			alignrect list ITEM_ALIGN_LEFT 0 128 80 20
+			textalign 1
+			textalignx 40
+			textaligny 16
+			forecolor 0 0 .15 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; open "serverinfo_popmenu" }
+		}
+		
+		// FIND //
+		
+		itemDef {
+			text "^_F^_ind"
+			shortcutKey "F"
+			type ITEM_TYPE_BUTTON
+			textscale .25
+			style WINDOW_STYLE_EMPTY
+			alignrect name_dots ITEM_ALIGN_LEFT 176 0 32 20
+			textalign 1
+			textalignx 16
+			textaligny 16
+			forecolor 0 0 .15 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; ui_script FindPlayer }
+		}
+		
+		// JOIN //
+		
+		itemDef {
+			text "> ^_J^_oin <"
+			shortcutKey "J"
+			type ITEM_TYPE_BUTTON
+			textscale .25
+			style WINDOW_STYLE_EMPTY
+			alignrect list ITEM_ALIGN_LEFT 228 128 48 20
+			textalign 1
+			textalignx 24
+			textaligny 16
+			forecolor .5 0 0 1
+			visible 1
+			/*
+			style WINDOW_STYLE_FILLED
+			backcolor 0 0 0 .6
+			*/
+			action { play "sound/ui/whoosh3.wav" ; ui_script FoundPlayerJoinServer }
+		}
+	}
+}
+
+
+
+#if 0
+#include "ui/menudef.h"
+
 {
     // Find Player Popup Menu //
 
@@ -181,4 +372,4 @@
   }
 }
 
-
+#endif

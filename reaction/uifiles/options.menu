@@ -474,7 +474,17 @@ Group # 3 - SSG Crosshair
 
 	// Next //
 
+/*
 
+	BEGIN_OPTION(3, 7, "^_N^_ext",)
+		OPTION_BELOW("gr3_ctrl4")
+		action { uiScript nextSSGCrosshair 1 instant }
+		shortcutKey "N"
+		ASSIGN_HINT("hint_ssgnext")
+	}
+	ADD_HINT("hint_ssgnext", "Select the next SSG crosshair", "group3")
+
+*/
 }
 }
 

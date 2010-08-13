@@ -40,7 +40,7 @@
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
-	onClose { uiScript saveControls ; open _prev }
+	onClose { uiScript saveControls ; uiScript update ui_mousePitch ; open _prev }
 	onEsc { close _self }
 
 	onOpenSpecial {
@@ -305,55 +305,55 @@ Group # 3 - Shoot
 	END_OPTION
 
 
-	BEGIN_OPTION("MK23 Pistol", "weapon 1", ITEM_TYPE_BIND, 5, 3)
+	BEGIN_OPTION("MK23 Pistol", "use MK23 Pistol", ITEM_TYPE_BIND, 5, 3)
 		OPTION_BELOW("gr3_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("M3 Assault Shotgun", "weapon 2", ITEM_TYPE_BIND, 6, 3)
+	BEGIN_OPTION("M3 Assault Shotgun", "use M3 Super 90 Assault Shotgun", ITEM_TYPE_BIND, 6, 3)
 		OPTION_BELOW("gr3_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("MP5/10 Sub", "weapon 3", ITEM_TYPE_BIND, 7, 3)
+	BEGIN_OPTION("MP5/10 Sub", "use MP5/10 Submachinegun", ITEM_TYPE_BIND, 7, 3)
 		OPTION_BELOW("gr3_ctrl6")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Handcannon", "weapon 4", ITEM_TYPE_BIND, 8, 3)
+	BEGIN_OPTION("Handcannon", "use Handcannon", ITEM_TYPE_BIND, 8, 3)
 		OPTION_BELOW("gr3_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("SSG Sniper Rifle", "weapon 5", ITEM_TYPE_BIND, 9, 3)
+	BEGIN_OPTION("SSG Sniper Rifle", "use Sniper Rifle", ITEM_TYPE_BIND, 9, 3)
 		OPTION_BELOW("gr3_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("M4 Assault Rifle", "weapon 6", ITEM_TYPE_BIND, 10, 3)
+	BEGIN_OPTION("M4 Assault Rifle", "use M4 Assault Rifle", ITEM_TYPE_BIND, 10, 3)
 		OPTION_BELOW("gr3_ctrl9")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Dual MK23 Pistols", "weapon 7", ITEM_TYPE_BIND, 11, 3)
+	BEGIN_OPTION("Dual MK23 Pistols", "use Dual MK23 Pistols", ITEM_TYPE_BIND, 11, 3)
 		OPTION_BELOW("gr3_ctrl10")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Combat Knife", "weapon 8", ITEM_TYPE_BIND, 12, 3)
+	BEGIN_OPTION("Combat Knife", "use Combat Knife", ITEM_TYPE_BIND, 12, 3)
 		OPTION_BELOW("gr3_ctrl11")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("M26 Grenade", "weapon 9", ITEM_TYPE_BIND, 13, 3)
+	BEGIN_OPTION("M26 Grenade", "use M26 Fragmentation Grenade", ITEM_TYPE_BIND, 13, 3)
 		OPTION_BELOW("gr3_ctrl12")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
@@ -417,7 +417,7 @@ Group # 4 - Misc
 	END_OPTION
 
 
-	BEGIN_OPTION("Show Scores", "scores", ITEM_TYPE_BIND, 9, 4)
+	BEGIN_OPTION("Show Scores", "+scores", ITEM_TYPE_BIND, 9, 4)
 		OPTION_BELOW("gr4_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION

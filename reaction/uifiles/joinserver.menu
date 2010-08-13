@@ -85,7 +85,7 @@
 	style WINDOW_STYLE_EMPTY
 	popup
 	
-	onOOBClick { close _self ; open _prev }
+	onOOBClick { close _self ; open main }
 	onOpen { play "sound/ui/whoosh3.wav" ; uiScript "UpdateFilter" ;
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
 	}
@@ -204,6 +204,46 @@
 		text "Click to enter a password to join a private server"
 	}
 
+	BEGIN_HINT(Hint_Specify)
+		text "Click to specify a server to connect to"
+	}
+
+	BEGIN_HINT(Hint_Find)
+		text "Click to find a specific player"
+	}
+
+	BEGIN_HINT(Hint_AddFavorite)
+		text "Click to add the selected server to the Favorites list"
+	}
+
+	BEGIN_HINT(Hint_DelFavorite)
+		text "Click to delete the selected favorite"
+	}
+
+	BEGIN_HINT(Hint_NewFavorite)
+		text "Click to specify a new favorite"
+	}
+
+	BEGIN_HINT(Hint_Source)
+		text "Select the source from which to search for servers"
+	}
+
+	BEGIN_HINT(Hint_NewList)
+		text "Click to reload the list from the selected source, whether it is Local, Internet or Favorites"
+	}
+
+	BEGIN_HINT(Hint_RefreshList)
+		text "Click to refresh the current server list"
+	}
+
+	BEGIN_HINT(Hint_ServerEmpty)
+		text "Enable to show empty servers on the list"
+	}
+
+	BEGIN_HINT(Hint_ServerFull)
+		text "Enable to show full servers on the list"
+	}
+
 	// column headers //
 
 	BEGIN_HINT(Hint_Col1)
@@ -252,28 +292,28 @@
 
     // ROW 1 //
 
-    BEGIN_BUTTON(1, 1, "Server ^_i^_nfo")
+    BEGIN_BUTTON(1, 1, "^_S^_erver info...")
 	action { open "serverinfo_popmenu" }
-	shortcutKey "I"
+	shortcutKey "S"
 	ASSIGN_HINT(Hint_ServerInfo)
     }
 
-    BEGIN_BUTTON(1, 2, "^_P^_assword")
+    BEGIN_BUTTON(1, 2, "^_P^_assword...")
 	action { open "password_popmenu" }
 	shortcutKey "P"
 	ASSIGN_HINT(Hint_Password)
     }
 
-    BEGIN_BUTTON(1, 3, "^_S^_pecify")
+    BEGIN_BUTTON(1, 3, "^_C^_onnect to...")
 	action { open "specify_popmenu" }
-	shortcutKey "S"
-	ASSIGN_HINT(SelectServer2)
+	shortcutKey "C"
+	ASSIGN_HINT(Hint_Specify)
     }
 
-    BEGIN_BUTTON(1, 4, "^_F^_ind player")
-	action { open "specify_popmenu" }
+    BEGIN_BUTTON(1, 4, "^_F^_ind a player...")
+	action { open "findplayer_popmenu" }
 	shortcutKey "F"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_Find)
     }
 
 
@@ -281,28 +321,28 @@
     // ROW 2 //
 
     BEGIN_BUTTON(2, 1, "^_A^_dd Favorite")
-	action { play "sound/misc/menu1.wav" ; uiScript AddFavorite ; uiScript UpdateFilter }
+	action { play "sound/ui/whoosh3.wav" ; uiScript AddFavorite ; uiScript UpdateFilter }
 	shortcutKey "A"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_AddFavorite)
     }
 
     BEGIN_BUTTON(2, 2, "^_D^_el. Favorite")
-	action { play "sound/misc/menu1.wav" ; uiScript DeleteFavorite ; uiScript UpdateFilter }
+	action { play "sound/ui/whoosh3.wav" ; uiScript DeleteFavorite ; uiScript UpdateFilter }
 	shortcutKey "D"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_DelFavorite)
     }
 
-    BEGIN_BUTTON(2, 3, "^_N^_ew Favorite")
+    BEGIN_BUTTON(2, 3, "^_N^_ew Favorite...")
 	action { open "createfavorite_popmenu" }
 	shortcutKey "N"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_NewFavorite)
     }
 
     BEGIN_CONTROL(2, 4, "")
 	ownerdraw UI_NETSOURCE
 	textalignx 6
-	action { play "sound/misc/menu1.wav" }
-	ASSIGN_HINT(SelectServer2)
+	action { play "sound/ui/whoosh3.wav" }
+	ASSIGN_HINT(Hint_Source)
     }
 
 
@@ -310,33 +350,33 @@
     // ROW 3 //
 
     BEGIN_BUTTON(3, 1, "^_G^_et New List")
-	action { play "sound/misc/menu1.wav" ; uiScript RefreshServers }
+	action { play "sound/ui/whoosh3.wav" ; uiScript RefreshServers }
 	shortcutKey "G"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_NewList)
     }
 
     BEGIN_BUTTON(3, 2, "^_R^_efresh List")
-	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	action { play "sound/ui/whoosh3.wav" ; uiScript RefreshFilter }
 	shortcutKey "R"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_RefreshList)
     }
 
     BEGIN_CONTROL(3, 3, "View ^_E^_mpty:")
 	type ITEM_TYPE_YESNO
 	cvar "ui_browserShowEmpty"
 	textalignx 8
-	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	action { play "sound/ui/whoosh3.wav" ; uiScript RefreshFilter }
 	shortcutKey "V"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_ServerEmpty)
     }
 
     BEGIN_CONTROL(3, 4, "^_V^_iew Full:")
 	type ITEM_TYPE_YESNO
 	cvar "ui_browserShowFull"
 	textalignx 8
-	action { play "sound/misc/menu1.wav" ; uiScript RefreshFilter }
+	action { play "sound/ui/whoosh3.wav" ; uiScript RefreshFilter }
 	shortcutKey "V"
-	ASSIGN_HINT(SelectServer2)
+	ASSIGN_HINT(Hint_ServerFull)
     }
 
 

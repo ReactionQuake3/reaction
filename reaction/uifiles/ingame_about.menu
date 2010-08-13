@@ -1,5 +1,5 @@
 #include "ui/menudef.h"
-#define ANGLES -4 -96
+#define ANGLES -4 -94
 
 {
 	menuDef {
@@ -7,7 +7,6 @@
 		name "ingame_about"
 		visible MENU_FALSE				// Visible on open
 		fullscreen 0
-		onOOBClick { close _self ; open _prev }  // this closes the window if it gets a click out of the rectangle
 		rect 168 72 340 264
 		disableColor  .5 .5 .5 1
 		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
@@ -17,7 +16,7 @@
 		style WINDOW_STYLE_EMPTY
 		popup
 		
-		onOOBClick { close _self ; open _prev }
+		onOOBClick { close _self ; open _prev }	// this closes the window if it gets a click out of the rectangle
 		onOpen { play "sound/ui/whoosh3.wav" ; uiScript "refreshIngameServerInfo" }
 		onEsc { close _self ; open _prev }
 
@@ -48,7 +47,7 @@
 	
 		//Title
 
-		itemdef {
+		itemDef {
 			renderpoint
 			name "title,fade_alpha"
 			text "Server info:"
@@ -81,7 +80,7 @@
 			textaligny 12
 			textscale .225
 			backcolor 0 0 .75 .25
-			action { play "sound/misc/menu1.wav" ; setCvar ui_RQ3_ingameDetails 1 ;
+			action { play "sound/ui/whoosh3.wav" ; setCvar ui_RQ3_ingameDetails 1 ;
 			uiScript "refreshIngameServerInfo" ; setfocus view_details }
 			visible 1
 		}
@@ -101,7 +100,7 @@
 			textaligny 12
 			textscale .225
 			backcolor 0 0 .75 .25
-			action { play "sound/misc/menu1.wav" ; setCvar ui_RQ3_ingameDetails 0 ;
+			action { play "sound/ui/whoosh3.wav" ; setCvar ui_RQ3_ingameDetails 0 ;
 			uiScript "refreshIngameServerInfo" ; setfocus view_summary }
 			visible 1
 		}

@@ -1,4 +1,111 @@
 #include "ui/menudef.h"
+#define ANGLES -3 -93
+
+{
+	menuDef {
+		renderpoint
+		name "serverinfo_popmenu"
+		visible MENU_FALSE				// Visible on open
+		fullscreen 0
+		rect 168 72 340 264
+		disableColor  .5 .5 .5 1
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		anglevectors ANGLES
+		style WINDOW_STYLE_EMPTY
+		popup
+		
+		onOOBClick { close _self ; open _prev }	// this closes the window if it gets a click out of the rectangle
+		onOpen { play "sound/ui/whoosh3.wav" ; uiScript ServerStatus }
+		onEsc { close _self ; open _prev }
+
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+
+		itemDef {
+			renderpoint
+			name "paper,fade_alpha"
+			menuAnchor
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_REPLACEMENTS 1
+			rect -8 -16 380 320
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+	
+		//Title
+
+		itemdef {
+			renderpoint
+			name "title,fade_alpha"
+			text "Server info:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+		
+		//Refresh button
+
+		itemDef {
+			name "refresh"
+			alignrect title ITEM_ALIGN_LEFT 148 12 136 20
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			text "> ^_R^_efresh"
+			forecolor 0 0 0 1
+			shortcutKey "R"
+			type ITEM_TYPE_BUTTON
+			textalignx 4
+			textaligny 12
+			textscale .225
+			backcolor 0 0 .75 .25
+			action { play "sound/ui/whoosh3.wav" ; uiScript "ServerStatus" }
+			visible 1
+		}
+
+
+		itemDef {
+			alignrect title ITEM_ALIGN_LEFT 12 32 272 184
+			type ITEM_TYPE_LISTBOX
+			LISTBOX_STYLE(.225, 8)
+			style WINDOW_STYLE_FILLED
+			elementwidth 280
+			elementheight 15
+			textscale .2
+			elementtype LISTBOX_TEXT
+			feeder FEEDER_SERVERSTATUS
+			columns 4 4 40 20
+				40 40 10
+				80 40 10
+				120 20 20
+			forecolor 0 0 0 1
+			visible 1
+		}
+	}
+}
+
+
+
+
+#if 0
+#include "ui/menudef.h"
 {
 
   // Server Information Popup Menu //
@@ -104,4 +211,4 @@
   }
 }
 
-
+#endif

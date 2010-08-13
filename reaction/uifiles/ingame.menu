@@ -1,5 +1,7 @@
 #include "ui/menudef.h"
+#define ANGLES 2 -88
 
+#define FADEIN_TIME	125
 {
 
 	menuDef {
@@ -10,8 +12,12 @@
 		rect 0 0 640 480
 		focusColor RQ3_MAIN_FOCUSCOLOR
 		disableColor .5 .5 .5 1
-		//onOpen { hide confirm ; play "sound/ui/whoosh3.wav" ; setfocus "btn-about" ; }
-		onOpen { play "sound/ui/whoosh3.wav" ; setfocus "btn-about" ; }
+		onOpen {
+			setitemcolor window forecolor 5 5 5 0 ;
+			timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
+			play "sound/ui/whoosh3.wav" ;
+			setfocus "btn_about" ;
+		}
 
 		itemdef {
 			name "ig-overlay"
@@ -21,6 +27,31 @@
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 0.5
 			visible 1
+			decoration
+		}
+
+		itemdef {
+			name "clipboard"
+			type ITEM_TYPE_MODEL
+			asset_model UI_ASSETS"/models/clipboard/clipboard.md3"
+			rect 0 0 640 480
+			model_fovx 40
+			model_fovy 30
+			model_origin 34 2.6 -0.25
+			model_angles 90 -88 270
+			visible 1
+			decoration
+		}
+
+		itemDef {
+			renderpoint
+			name "paper"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_SETUP 1
+			rect 96 48 320 420
+			anglevectors ANGLES
+			visible 0
 			decoration
 		}
 
@@ -35,7 +66,7 @@
 			decoration
 		}
 
-
+/*
 		itemDef {
 			renderpoint
 			name "postit2"
@@ -50,6 +81,7 @@
 			visible 1
 			decoration
 		}
+*/
 
 		//Restart
 
@@ -62,7 +94,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "postit2" ITEM_ALIGN_LEFT 32 8 120 24
+			alignrect "paper" ITEM_ALIGN_LEFT 32 160 120 24
 			//alignrect "postit2" ITEM_ALIGN_LEFT $evalfloat(UI_MINX + 32) 8 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
@@ -81,7 +113,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "btn_restart" ITEM_ALIGN_LEFT 0 20 120 24
+			alignrect "btn_restart" ITEM_ALIGN_LEFT 0 24 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
@@ -98,7 +130,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "btn_mainmenu" ITEM_ALIGN_LEFT 0 20 120 24
+			alignrect "btn_mainmenu" ITEM_ALIGN_LEFT 0 24 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
@@ -108,7 +140,7 @@
 
 
 
-
+/*
 		itemDef {
 			renderpoint
 			name "postit"
@@ -123,6 +155,7 @@
 			visible 1
 			decoration
 		}
+*/
 
 		//About
 		
@@ -135,7 +168,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "postit" ITEM_ALIGN_LEFT 32 8 120 24
+			alignrect "paper" ITEM_ALIGN_LEFT 32 40 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
@@ -152,7 +185,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "btn_about" ITEM_ALIGN_LEFT 0 20 120 24
+			alignrect "btn_about" ITEM_ALIGN_LEFT 0 24 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
@@ -169,7 +202,7 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "btn_options" ITEM_ALIGN_LEFT 0 20 120 24
+			alignrect "btn_options" ITEM_ALIGN_LEFT 0 24 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
@@ -186,13 +219,13 @@
 			forecolor 0 0 0 1
 			textaligny 20
 			textscale UI_MAIN_TEXTSIZE
-			alignrect "btn_ignore" ITEM_ALIGN_LEFT 0 20 120 24
+			alignrect "btn_ignore" ITEM_ALIGN_LEFT 0 24 120 24
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			visible 1
 			cvartest "g_allowVote"
 			showCvar { "1" }
-			action { open ingame_vote }
+			action { open ingame_callvote }
 		}
   }
 

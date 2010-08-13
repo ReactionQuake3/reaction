@@ -73,7 +73,7 @@
 
 	itemdef {
 	text "Configure Reaction to suit your\n"
-	     "unique needs"
+	     "individual needs"
 	autowrapped
 	subgroup "fade_fore_alpha"
 	forecolor .25 .25 .25 1

@@ -66,17 +66,7 @@
 //--------------------------------------------
 
 
-	//Boomstick logo
-
-	itemDef {
-	style WINDOW_STYLE_SHADER
-	rect 276 288 120 120
-	anglevectors 9 -81
-	background UI_ASSETS"/logo"
-	forecolor 1 1 1 0.2
-	decoration
-	visible 1
-	}
+	__BOOMSTICK_LOGO__
 
 
 //Join server

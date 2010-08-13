@@ -1,405 +1,155 @@
 #include "ui/menudef.h"
 
+#define ANGLES		3 -87
+
+#define ITEM_OPTION(ITEM, ITEM_ID, ITEM_TEXT, ITEM_KEY, BELOW)\
+	itemDef {	\
+	name ITEM	\
+	ownerdrawFlag UI_SHOW_ITEM##ITEM_ID	\
+	type ITEM_TYPE_BUTTON	\
+	text ITEM_TEXT	\
+	shortcutKey ITEM_KEY	\
+	alignrect BELOW ITEM_ALIGN_LEFT 0 18 192 16	\
+	style WINDOW_STYLE_EMPTY	\
+	textalign ITEM_ALIGN_LEFT	\
+	textalignx 8	\
+	textaligny 14	\
+	textscale .225	\
+	forecolor 0 0 .1 1	\
+	visible 1	\
+	onFocus { hide items ; show "it_"ITEM"" }	\
+	action { exec "choose "ITEM"" ; close _self ; close ingame_weapon }	\
+	}	\
+	itemDef {	\
+	name ITEM	\
+	ownerdrawFlag UI_SHOW_ITEM##ITEM_ID	\
+	ownerdrawFlag UI_SHOW_TOGGLE	\
+	type ITEM_TYPE_TEXT	\
+	text ITEM_TEXT	\
+	alignrect BELOW ITEM_ALIGN_LEFT 0 18 192 16	\
+	style WINDOW_STYLE_EMPTY	\
+	textalign ITEM_ALIGN_LEFT	\
+	textalignx 8	\
+	textaligny 14	\
+	textscale .225	\
+	forecolor 0 0 .1 .2	\
+	visible 1	\
+	decoration	\
+	}
+
+#define ITEM_PREVIEW(ITEM, FILE, ORIGIN, FOV, ROTATION, ANGLES)\
+    itemDef {	\
+	name "it_"ITEM	\
+	group items	\
+	alignrect "preview" ITEM_ALIGN_CENTER 2 -16 128 136	\
+	style WINDOW_STYLE_EMPTY	\
+	type ITEM_TYPE_MODEL	\
+	asset_model FILE	\
+	model_origin ORIGIN	\
+	model_fovx FOV	\
+	model_fovy FOV	\
+	model_rotation ROTATION	\
+	model_angles ANGLES	\
+	decoration	\
+	visible 0	\
+    }
 {
+	// ITEM SELECTION MENU //
 
-    menuDef {
-	name "ingame_item"
-	visible 0
-	fullscreen 0
-	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	onOOBClick { close _self }
-	rect 80 64 264 176
-	focusColor 1 .75 0 1			// Menu focus color for text and items
-	style WINDOW_STYLE_EMPTY
-	shadowStyle 1
-	border 0
-	onOpen { play "sound/misc/menu1.wav" ; setFocus kevlar ; uiScript "updateItemBans" }
-	onEsc { play "sound/misc/menu2.wav" ; close ingame_item }
-
-//Window
-
-    itemdef {
-	rect 0 0 264 176
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
-
-    itemdef {
-	rect 145 1 120 24
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-title"
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	rect 145 1 120 24
-	style WINDOW_STYLE_EMPTY
-	forecolor Ig_Window_TitleColor
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 24
-	textaligny 16
-	text "Choose item"
-	visible 1
-	decoration
-    }
-
-//Items
-
-    itemdef {
-	shortcutKey "1"
-	ownerdrawFlag UI_SHOW_ITEM1
-	name "kevlar"
-	rect 120 48 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "1. Kevlar Vest"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_kevlar" }
-	action { play "sound/misc/menu1.wav" ; exec "choose kevlar" ; close ingame_item }
-    }
-
-    itemdef {
-	ownerdrawFlag UI_SHOW_ITEM1
-	ownerdrawFlag UI_SHOW_TOGGLE
-	name "kevlar"
-	rect 120 48 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "1. Kevlar Vest"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	shortcutKey "2"
-	ownerdrawFlag UI_SHOW_ITEM2
-	name "laser"
-	rect 120 68 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "2. Lasersight"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_laser" }
-	action { play "sound/misc/menu1.wav" ; exec "choose laser" ; close ingame_item }
-    }
-
-    itemdef {
-	ownerdrawFlag UI_SHOW_ITEM2
-	ownerdrawFlag UI_SHOW_TOGGLE
-	name "laser"
-	rect 120 68 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "2. Lasersight"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	name "slippers"
-	ownerdrawFlag UI_SHOW_ITEM3
-	shortcutKey "3"
-	rect 120 88 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "3. Stealth Slippers"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_slippers" }
-	action { play "sound/misc/menu1.wav" ; exec "choose slippers" ; close ingame_item }
-    }
-
-    itemdef {
-	name "slippers"
-	ownerdrawFlag UI_SHOW_ITEM3
-	ownerdrawFlag UI_SHOW_TOGGLE
-	rect 120 88 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "3. Stealth Slippers"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	shortcutKey "4"
-	ownerdrawFlag UI_SHOW_ITEM4
-	name "silencer"
-	rect 120 108 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "4. Silencer"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_silencer" }
-	action { play "sound/misc/menu1.wav" ; exec "choose silencer" ; close ingame_item }
-    }
-
-    itemdef {
-	ownerdrawFlag UI_SHOW_ITEM4
-	ownerdrawFlag UI_SHOW_TOGGLE
-	name "silencer"
-	rect 120 108 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "4. Silencer"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	name "bandolier"
-	ownerdrawFlag UI_SHOW_ITEM5
-	shortcutKey "5"
-	rect 120 128 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "5. Bandolier"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_bandolier" }
-	action { play "sound/misc/menu1.wav" ; exec "choose bandolier" ; close ingame_item }
-    }
-
-    itemdef {
-	name "bandolier"
-	ownerdrawFlag UI_SHOW_ITEM5
-	ownerdrawFlag UI_SHOW_TOGGLE
-	rect 120 128 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "5. Bandolier"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-    itemdef {
-	name "helmet"
-	ownerdrawFlag UI_SHOW_ITEM6
-	shortcutKey "6"
-	rect 120 148 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "6. Kevlar Helmet"
-	forecolor 1 1 1 1
-	visible 1
-	onFocus { hide items ; show "it_helmet" }
-	action { play "sound/misc/menu1.wav" ; exec "choose helmet" ; close ingame_item }
-    }
-
-    itemdef {
-	name "helmet"
-	ownerdrawFlag UI_SHOW_ITEM6
-	ownerdrawFlag UI_SHOW_TOGGLE
-	rect 120 148 128 16
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_TEXT
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 8
-	textaligny 12
-	text "6. Kevlar Helmet"
-	forecolor .5 .5 .5 .5
-	visible 1
-	decoration
-    }
-
-
-//Item preview
-//Background
-
-    itemdef {
-	name it_background
-	rect 16 48 96 96
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-loadout"
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	//backcolor .75 .75 .75 1
-	decoration
-	visible 1
-    }
-
-//Items
-
-    itemdef {
-	name it_kevlar
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/kevlar.md3"
-	model_origin 28 0 0
-	model_fovx 60
-	model_fovy 60
-	//textscale .75
-	model_rotation 10
-	model_angles 270 0 90
-	decoration
-	visible 0
-    }
-
-    itemdef {
-	name it_laser
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/laser.md3"
-	model_origin 24 15 0
-	model_fovx 40
-	model_fovy 40
-	//textscale .75
-	model_rotation 10
-	model_angles 270 75 90
-	decoration
-	visible 0
-    }
-
-    itemdef {
-	name it_silencer
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/silencer.md3"
-	model_origin 20 0 0
-	model_fovx 40
-	model_fovy 40
-	//textscale .75
-	model_rotation 10
-	model_angles 270 105 90
-	decoration
-	visible 0
-    }
-
-    itemdef {
-	name it_slippers
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/slippers.md3"
-	model_origin 20 0 0
-	model_fovx 60
-	model_fovy 60
-	//textscale .75
-	model_rotation 10
-	model_angles 270 0 90
-	decoration
-	visible 0
-    }
-
-    itemdef {
-	name it_bandolier
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/bandolier.md3"
-	model_origin 20 0 0
-	model_fovx 60
-	model_fovy 60
-	//textscale .75
-	model_rotation 10
-	model_angles 270 0 90
-	decoration
-	visible 0
-    }
-
-    itemdef {
-	name it_helmet
-	group items
-	rect 16 48 96 96
-	style WINDOW_STYLE_EMPTY
-	type ITEM_TYPE_MODEL
-	asset_model "models/items/helmet.md3"
-	model_origin 30 0 0
-	model_fovx 20
-	model_fovy 20
-	//textscale .75
-	model_rotation 10
-	model_angles 180 0 0
-	decoration
-	visible 0
-    }
-
-}
+	menuDef {
+		name "ingame_item"
+		visible 0
+		fullscreen 0
+		rect 4 32 340 264
+		anglevectors ANGLES
+		focusColor .25 .25 .5 1
+		popup
+		style WINDOW_STYLE_EMPTY
+		onOpen {
+			//setitemcolor window forecolor 5 5 5 0 ;
+			//timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
+			play "sound/ui/whoosh3.wav" ;
+			uiScript "updateItemBans" ;
+			setfocus kevlar
+		}
+		onESC { play "sound/ui/whoosh3.wav" ; close _self ; close ingame_weapon }
+		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self ; open _prev }
+		
+		itemDef {
+			renderpoint
+			name "paper"
+			menuAnchor
+			group window
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor 1 1 .92 1
+			//forecolor .87 .92 .95 1
+			rect -8 -12 380 320
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+		
+		// TITLE //
+		
+		itemDef {
+			renderpoint
+			name "title"
+			text "Choose item:"
+			//forecolor .6 .0 .0 1
+			forecolor .0 .0 .1 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 12
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 36 36 240 36 
+			visible 1
+			autowrapped
+			decoration
+			
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 .6
+		}
+		
+		itemDef {
+			name "preview"
+			background UI_ASSETS"/replacement-back.tga"
+			rect 192 56 120 120
+			anglevectors 1 -89
+			decoration
+			visible 1
+			style WINDOW_STYLE_SHADER
+		}
+		
+		// ITEMS //
+		
+		// order by: item, item id, description, shortcut key, previous element  
+		ITEM_OPTION("kevlar", 1, "^_1^_. Kevlar Vest", "1", "title")
+		ITEM_OPTION("laser", 2, "^_2^_. Lasersight", "2", "kevlar")
+		ITEM_OPTION("slippers", 3, "^_3^_. Stealth Slippers", "3", "laser")
+		ITEM_OPTION("silencer", 4, "^_4^_. Silencer", "4", "slippers")
+		ITEM_OPTION("bandolier", 5, "^_5^_. Bandolier", "5", "silencer")
+		ITEM_OPTION("helmet", 6, "^_6^_. Kevlar Helmet", "6", "bandolier")
+		
+		// PREVIEWS //
+		
+		// order by: item, file, origin xyz, fov, rotation, angles xyz
+		ITEM_PREVIEW("kevlar", "models/items/kevlar.md3", 28 0 2, 80, 10, 250 0 90)
+		ITEM_PREVIEW("laser", "models/items/laser.md3", 24 15 0, 40, 10, 270 75 90)
+		ITEM_PREVIEW("slippers", "models/items/slippers.md3", 20 0 2, 90, 10, 270 0 90)
+		ITEM_PREVIEW("silencer", "models/items/silencer.md3", 20 0 0, 60, 10, 270 105 90)
+		ITEM_PREVIEW("bandolier", "models/items/bandolier.md3", 20 0 2, 70, 10, 270 0 24)
+		ITEM_PREVIEW("helmet", "models/items/helmet.md3", 30 0 0, 30, 10, 180 5 0)
+		
+		itemDef {
+			renderpoint
+			name "polaroid"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/polaroid"
+			alignrect "preview" ITEM_ALIGN_CENTER 0 -23 160 160
+			visible 1
+			decoration
+		}
+	}
 }

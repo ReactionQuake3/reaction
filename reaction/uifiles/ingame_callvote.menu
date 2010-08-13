@@ -1,350 +1,325 @@
 #include "ui/menudef.h"
+#include "ui/tabs.h"
 
-#define SECCOLOR1 1 1 1 0
-#define SECCOLOR2 1 1 1 .2
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR		0 0 .1 1
+#define Tab_Color1			0 0 0 1
+#define Tab_Color2			0 0 .5 1
+#define VSPACE				16
+#define VSIZE				16
+#define ICON_ALPHA			0.5
+#define LINE_ALPHA			0.2
+#define FADEIN_TIME			125
+#define HINT_COLOR			.25 .25 .25
+#define HINT_FADE_TIME		125
+#define TAB_HEIGHT			20
+#define LINE_WIDTH			300
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
 
 {
-    //----------------//
-   // CALL VOTE MENU //
-  //----------------//
-
     menuDef {
-	name "ingame_callvote"
-	visible 0
-	fullscreen 0
-	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	onOOBClick { close _self ; open _prev }
-	rect 320 64 288 212
-	focusColor 1 .75 0 1			// Menu focus color for text and items
-	style WINDOW_STYLE_EMPTY
-	shadowStyle 1
-	border 0
-	onOpen { uiScript loadVoteArenas ; hide grpcallVote ; show map ;
-		setitemcolor grpSections backcolor SECCOLOR1;
-		timeFade sectionMap backColor SECCOLOR2 0 250 ;
-		setfocus sectionMap }
+		name "ingame_callvote"
+		visible MENU_FALSE				// Visible on open
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		rect 120 112 344 264
+		anglevectors 3 -87
+		style WINDOW_STYLE_EMPTY
+		popup
+		
+		onOOBClick { close _self }
+		onOpen {
+			play "sound/ui/whoosh3.wav" ;
+			uiScript loadVoteArenas ;
+			setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
+			ACTIVATE_TAB(1) ;
+		}
+		
+		onClose { open _prev }
+		onEsc { close _self }
+		
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+		
+		itemDef {
+			name "paper,fade_alpha"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_OPTIONS 1
+			rect -8 -16 380 320
+			anglevectors 3 -87
+			visible 1
+			menuAnchor
+			decoration
+		}
+		
+		itemDef {
+			renderpoint
+			name "title,fade_alpha"
+			text "Call a vote:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
 
-//Window
+		//Line
 
-    itemDef {
-	rect 0 0 72 212
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
+		itemDef {
+			name "line,fade_alpha"
+			style WINDOW_STYLE_FILLED
+			backcolor .25 .25 .25 LINE_ALPHA
+			alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
+			visible 1
+			decoration
+		}
 
-    itemDef {
-	rect 71 0 215 212
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
+    ///////////////////////////////////////////////////////////
+    //
+    // Sub-options
+    //
+    //
 
-    itemDef {
-	rect 169 1 120 24
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-title"
-	visible 1
-	decoration
-    }
+	// Map
+	ADD_TAB(
+		"^_M^_ap.",
+		"M", 1, "group2,group3",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 28 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab1", "Call a vote for a map change", "group2,group3")
 
-    itemDef {
-	rect 169 1 120 24
-	style WINDOW_STYLE_EMPTY
-	forecolor Ig_Window_TitleColor
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 24
-	textaligny 16
-	text "Call vote"
-	visible 1
-	decoration
-    }
+//---------------------------------------------------------
 
-//Sub-sections
+	// Gametype
 
-    itemDef {
-	name sectionMap
-	group grpSections
-	text "Map. 1"
-	shortcutKey "1"
-	type ITEM_TYPE_BUTTON
-	textscale .225
-	style WINDOW_STYLE_FILLED
-	rect 0 44 72 16
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 12
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	forecolor Ig_Sub_TextColor
-	backcolor SECCOLOR1
-	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show map ;
-		setitemcolor grpSections backcolor SECCOLOR1;
-		timeFadeSelf backColor SECCOLOR2 0 250 }
-    }
+	ADD_TAB(
+		"^_G^_ametype.",
+		"G", 2, "group1,group3",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -58 0 58 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab2", "Call a vote for a gametype change", "group1,group3")
 
-    itemDef {
-	name sectionKick
-	group grpSections
-	text "Kick. 2"
-	shortcutKey "2"
-	type ITEM_TYPE_BUTTON
-	textscale .225
-	style WINDOW_STYLE_FILLED
-	rect 0 68 72 16
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 12
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	forecolor Ig_Sub_TextColor
-	backcolor SECCOLOR1
-	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show kick ;
-		setitemcolor grpSections backcolor SECCOLOR1;
-		timeFadeSelf backColor SECCOLOR2 0 250 }
-    }
+//---------------------------------------------------------
 
-    itemDef {
-	name sectionType
-	group grpSections
-	text "Type. 3"
-	shortcutKey "3"
-	type ITEM_TYPE_BUTTON
-	textscale .225
-	style WINDOW_STYLE_FILLED
-	rect 0 92 72 16
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 64
-	textaligny 12
-	textstyle ITEM_TEXTSTYLE_SHADOWED
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	forecolor Ig_Sub_TextColor
-	backcolor SECCOLOR1
-	visible 1
-	action { play "sound/misc/menu1.wav" ; hide grpCallVote ; show type ;
-		setitemcolor grpSections backcolor SECCOLOR1;
-		timeFadeSelf backColor SECCOLOR2 0 250 }
-    }
+	// Kick
 
-//=======================
+	ADD_TAB(
+		"^_K^_ick.",
+		"K", 3, "group1,group2",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -30 0 32 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab3", "Call a vote to kick a player from the server", "group1,group2")
 
-    // NEW MAP //
+/*
+==========================================================
 
-    itemDef {
-	name map
-	group grpCallVote
-	text "New Map:"
-	ownerdraw UI_ALLMAPS_SELECTION
-	textscale .225
-	rect 84 32 80 20
-	textalign ITEM_ALIGN_LEFT
-	textalignx 4
-	textaligny 14
-	forecolor 1 1 1 1
-	decoration
-	visible 0
-    }
+Group # 1 - Map
 
-    itemDef {
-	name map
-	group grpCallVote
-	rect 84 52 188 124
-	type ITEM_TYPE_LISTBOX
-	style WINDOW_STYLE_FILLED
-	elementwidth 120
-	elementheight 15
-	textscale .225
-	elementtype LISTBOX_TEXT
-	feeder FEEDER_ALLMAPS
-	border 1
-	bordercolor .25 .25 .25 1
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	outlinecolor .75 .75 1 .25
-	visible 0
-    }
+==========================================================
+*/
+	
+		itemDef {
+			text "Call a vote for"
+			name "hint_map,allgroups,group1,hints,fade_alpha"	
+			group "fade_fore_alpha,group1,allgroups"
+			ownerdraw UI_ALLMAPS_SELECTION
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
+		}
+		
+		// Map list //
+		
+		itemDef {
+			name "maplist"
+			subgroup "fade_fore_alpha,group1,allgroups"
+			LISTBOX_STYLE(.225, 8)
+			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
+			feeder FEEDER_ALLMAPS
+			visible 1
+			columns 1 2 140 25
+			ASSIGN_HINT("hint_tab1")
+		}
+		
+		itemDef	{
+			name "allgroups,group1,gr1_ctrl3,fade_alpha"
+			//name "vote_next"
+			group "fade_fore_alpha,group1,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 112 68 14
+			text "> ^_N^_ext map <"
+			shortcutKey "N"
+			style WINDOW_STYLE_EMPTY
+			forecolor OPTION_COLOR
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd callvote cyclemap" ; uiScript closeingame }
+			ASSIGN_HINT("hint_next")
+		}
+		
+		itemDef	{
+			name "vote_restart"
+			subgroup "fade_fore_alpha,group1,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 128 84 14
+			text "> ^_R^_estart map <"
+			shortcutKey "R"
+			style WINDOW_STYLE_EMPTY
+			forecolor OPTION_COLOR
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd callvote map_restart" ; uiScript closeingame }
+			ASSIGN_HINT("hint_restart")
+		}
+		
+		itemDef	{
+			name "vote_map"
+			subgroup "fade_fore_alpha,group1,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript voteMap ; uiScript closeingame }
+			ASSIGN_HINT("hint_map")
+		}
+		
+		ADD_HINT("hint_next", "Call a vote to change to the next map in rotation", "group1")
+		ADD_HINT("hint_restart", "Call a vote to restart the current map", "group1")
 
-    // Scrollbar separator //
+/*
+==========================================================
 
-    itemDef {
-	name map
-	group grpCallVote
-	rect 254 52 18 124
-	style WINDOW_STYLE_EMPTY
-	border 1
-	borderSize 1
-	bordercolor .25 .25 .25 1
-	visible 0
-	decoration
-    }
+Group # 2 - Gametype
 
-    itemDef {
-	name map
-	group grpCallVote
-	text "Next Map"
-	shortcutKey "N"
-	textscale .225
-	rect 84 180 80 20
-	type 1
-	textalign ITEM_ALIGN_LEFT
-	textalignx 4
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 0
-	action { play "sound/misc/menu1.wav" ; exec "cmd callvote cyclemap" ; uiScript closeingame }
-    }
+==========================================================
+*/
 
-    itemDef {
-	name map
-	text "OK"
-	shortcutKey "O"
-	type 1
-	textscale .225
-	group grpCallVote
-	style WINDOW_STYLE_FILLED
-	rect 224 180 48 20
-	textalign 1
-	textalignx 24
-	textaligny 14
-	border 1
-	bordersize 1
-	backcolor Ig_Sub_Color1
-	forecolor Ig_Sub_TextColor
-	bordercolor Ig_Sub_BorderColor1
-	visible 0
-	action { play "sound/misc/menu1.wav" ; uiScript voteMap ; uiScript closeingame }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
-    }
-    // 	KICK PLAYER	//
+		//BEGIN_OPTION("Gametype", "g_gametype", ITEM_TYPE_MULTI, 1, 2)
+		BEGIN_SIMPLE_OPTION(1, 2)
+			alignrect "line" ITEM_ALIGN_LEFT 56 44 156 VSIZE
+			//type ITEM_TYPE_MULTI
+			text ""
+			ownerdraw UI_NETGAMETYPE
+			ASSIGN_HINT("hint_tab2")
+		END_OPTION
+		
+		itemDef	{
+			name "btn_game,allgroups,group2"
+			subgroup "fade_fore_alpha"
+			alignrect "line" ITEM_ALIGN_LEFT 228 46 36 16
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript voteGame ; uiScript closeingame }
+			ASSIGN_HINT("hint_tab2")
+		}
+		
+		itemDef {
+			name "gametype_dots"
+			group "fade_fore_alpha,group2,allgroups"
+			style 0
+			text ".............................................."
+			alignrect "gr2_ctrl1" ITEM_ALIGN_LEFT 0 0 168 20
+			textscale .225
+			textalign ITEM_ALIGN_LEFT
+			textaligny 20
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+	
+/*
+==========================================================
 
-    itemDef {
-	name kick
-	group grpCallVote
-	text "Kick Player:"
-	textscale .225
-	rect 84 32 80 20
-	textalign ITEM_ALIGN_LEFT
-	textalignx 4
-	textaligny 14
-	forecolor 1 1 1 1
-	visible 0
-	decoration
-    }
+Group # 3 - Kick
 
-    itemDef {
-	name kick
-	group grpCallVote
-	rect 84 52 188 124
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_LISTBOX
-	elementwidth 120
-	elementheight 15
-	textscale .225
-	elementtype LISTBOX_TEXT
-	feeder FEEDER_PLAYER_LIST
-	border 1
-	bordercolor .25 .25 .25 1
-	forecolor 1 1 1 1
-	backcolor 0 0 0 .25
-	outlinecolor .75 .75 1 .25
-	visible 0
-    }
-
-    // Scrollbar separator //
-
-    itemDef {
-	name kick
-	group grpCallVote
-	rect 254 52 18 124
-	style WINDOW_STYLE_EMPTY
-	border 1
-	borderSize 1
-	bordercolor .25 .25 .25 1
-	visible 0
-	decoration
-    }	
-
-    itemDef {
-	name kick
-	text "OK"
-	shortcutKey "O"
-	type 1
-	textscale .225
-	group grpCallVote
-	style WINDOW_STYLE_FILLED
-	rect 224 180 48 20
-	textalign 1
-	textalignx 24
-	textaligny 14
-	border 1
-	bordersize 1
-	backcolor Ig_Sub_Color1
-	forecolor Ig_Sub_TextColor
-	bordercolor Ig_Sub_BorderColor1
-	visible 0
-	action { play "sound/misc/menu1.wav" ; uiScript voteKick ; uiScript closeingame }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
-    }
-
-    // Game Type //
-
-    itemDef {
-	name type
-	group grpCallVote
-	text "Gametype:"
-	style 0
-	textscale .225
-	ownerdraw UI_NETGAMETYPE
-	rect 84 76 188 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 80
-	textaligny 12
-	forecolor 1 1 1 1
-	visible 0
-    }
-
-    itemDef {
-	name type
-	text "OK"
-	shortcutKey "O"
-	type 1
-	textscale .225
-	group grpCallVote
-	style WINDOW_STYLE_FILLED
-	rect 224 180 48 20
-	textalign 1
-	textalignx 24
-	textaligny 14
-	border 1
-	bordersize 1
-	backcolor Ig_Sub_Color1
-	forecolor Ig_Sub_TextColor
-	bordercolor Ig_Sub_BorderColor1
-	visible 0
-	action { play "sound/misc/menu1.wav" ; uiScript voteGame ; uiScript closeingame }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
-    }
-
-}
+==========================================================
+*/
+		itemDef {
+			//name "playerlist"
+			name "allgroups,group3,gr3_ctrl1,fade_alpha"
+			subgroup "fade_fore_alpha"
+			LISTBOX_STYLE(.225, 8)
+			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
+			feeder FEEDER_PLAYER_LIST
+			visible 1
+			ASSIGN_HINT("hint_tab3")
+			/*
+			type ITEM_TYPE_LISTBOX
+			style WINDOW_STYLE_FILLED
+			elementwidth 192
+			elementheight 15
+			textscale .2
+			elementtype LISTBOX_TEXT
+			forecolor 0 0 0 1
+			*/
+		}
+		
+		itemDef	{
+			name "btn_kick,allgroups,group3"
+			subgroup "fade_fore_alpha"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript voteKick ; uiScript closeingame }
+			ASSIGN_HINT("hint_tab3")
+		}
+		
+	}
 }

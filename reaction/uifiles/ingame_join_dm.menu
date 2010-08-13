@@ -1,4 +1,133 @@
 #include "ui/menudef.h"
+#define FADEIN_TIME	125
+#define ANGLES -4 -94
+
+{
+	menuDef {
+		name "ingame_join_dm"
+		visible 0
+		fullscreen 0
+		rect 40 32 232 272
+		anglevectors ANGLES
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		popup
+		style WINDOW_STYLE_EMPTY
+		onOpen {
+			play "sound/ui/whoosh3.wav" ;
+			setitemcolor window forecolor 5 5 5 0 ;
+			timefade window forecolor 5 5 5 1 0 FADEIN_TIME
+		}
+		onESC { play "sound/ui/whoosh3.wav" ; close _self }
+		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
+		
+		itemDef {
+			renderpoint
+			name "paper"
+			menuAnchor
+			group window
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor .92 .97 1 1
+			rect -4 -12 192 256
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+		
+		// TITLE //
+		
+		itemDef {
+			renderpoint
+			name "title"
+			text "Join game:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 12
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 28 36 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+		
+		// BUTTONS //
+		
+		// Players //
+		
+		itemDef {
+			name team
+			text "^_P^_layers"
+			shortcutKey "P"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			textstyle ITEM_TEXTSTYLE_NORMAL
+			alignrect title ITEM_ALIGN_LEFT 0 32 128 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 12
+			textscale .225
+			forecolor 0 0 .1 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team red" ; uiScript closeingame }
+		}
+		
+		itemDef {
+			name team1
+			text ""
+			cvar "ui_RQ3_teamCount1"
+			type ITEM_TYPE_NUMERICFIELD
+			style WINDOW_STYLE_EMPTY
+			alignrect title ITEM_ALIGN_LEFT 104 32 32 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 12
+			textscale .225
+			forecolor 0 0 .1 .6
+			visible 1
+			decoration
+		}
+		
+		// Spectators //
+		
+		itemDef {
+			name team
+			text "^_S^_pectators"
+			shortcutKey "S"
+			type ITEM_TYPE_BUTTON
+			style WINDOW_STYLE_EMPTY
+			textstyle ITEM_TEXTSTYLE_NORMAL
+			alignrect title ITEM_ALIGN_LEFT 0 48 128 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 12
+			textscale .225
+			forecolor 0 0 .1 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; uiScript closeingame }
+		}
+		
+		itemDef {
+			name team3
+			text ""
+			cvar "ui_RQ3_numSpectators"
+			type ITEM_TYPE_NUMERICFIELD
+			style WINDOW_STYLE_EMPTY
+			alignrect title ITEM_ALIGN_LEFT 104 48 32 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 12
+			textscale .225
+			forecolor 0 0 .1 .6
+			visible 1
+			decoration
+		}
+	}
+}
+
+#if 0
+#include "ui/menudef.h"
 
 
 {
@@ -121,3 +250,4 @@
     }
   }
 }
+#endif

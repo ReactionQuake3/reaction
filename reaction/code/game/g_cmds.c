@@ -2088,6 +2088,8 @@ void Cmd_CallVote_f(gentity_t * ent)
 	}
 	
 	if (!Q_stricmp(arg1, "cyclemap")) {	
+	//TTI - adding "map_restart"
+	} else if (!Q_stricmp(arg1, "map_restart")) {
 	//Makro - adding "timelimit X"
 	} else if (!Q_stricmp(arg1, "timelimit")) {
 	} else if (!Q_stricmp(arg1, "map")) {
@@ -2102,13 +2104,13 @@ void Cmd_CallVote_f(gentity_t * ent)
 			} else if (!Q_stricmp(arg1, "clearscores")) {
 			} else {
 					trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
-					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum>, clearscores, resetmatch and timelimit <minutes>.\n\"");
+					trap_SendServerCommand(ent - g_entities,"print \"Valid vote commands are: cyclemap, map_restart, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum>, clearscores, resetmatch and timelimit <minutes>.\n\"");
 					return;
 			}
 		} else {
 			trap_SendServerCommand(ent - g_entities, "print \"^1Invalid vote command.\n\"");
 			trap_SendServerCommand(ent - g_entities, 
-				"print \"Valid vote commands are: cyclemap, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum> and timelimit <minutes>.\n\"");
+				"print \"Valid vote commands are: cyclemap, map_restart, map <mapname>, g_gametype <n>, game <gametype:map>, kick <player>, clientkick <clientnum> and timelimit <minutes>.\n\"");
 		return;
 		}
 	}

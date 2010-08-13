@@ -2259,7 +2259,10 @@ static char team1Name[128], team2Name[128];
 static void UI_RQ3_DrawJoinTeam(rectDef_t * rect, float scale, vec4_t color, int num, int textStyle)
 {
 	//char *text = va("Team %i", num);
-	Text_Paint(rect->x, rect->y, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, (num == 1) ? team1Name : team2Name, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawTeamMember(rectDef_t * rect, float scale, vec4_t color, qboolean blue, int num, int textStyle)
@@ -2929,7 +2932,10 @@ static void UI_DrawAllMapsSelection(rectDef_t * rect, float scale, vec4_t color,
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 
 	if (map >= 0 && map < uiInfo.mapCount) {
-		Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, 0, textStyle, qfalse);
+		if (rect->hasVectors)
+			Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, uiInfo.mapList[map].mapName, 0, 0, 0, textStyle, qfalse);
+		else
+			Text_Paint(rect->x, rect->y, scale, color, uiInfo.mapList[map].mapName, 0, 0, 0, textStyle, qfalse);
 	}
 }
 

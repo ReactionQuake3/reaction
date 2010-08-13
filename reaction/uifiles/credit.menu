@@ -59,59 +59,10 @@
 //--------------------------------------------
 
 
-//=============
-// Buttons
-//=============
+	__BOOMSTICK_LOGO__
+	__REACTION_VERSION__
+	__REACTION_COPYRIGHT__
 
-
-	//Boomstick logo
-
-	itemDef {
-	style WINDOW_STYLE_SHADER
-	rect 276 288 120 120
-	anglevectors 9 -81
-	background UI_ASSETS"/logo"
-	forecolor 1 1 1 0.2
-	decoration
-	visible 1
-	}
-
-    // REACTION QUAKE 3 VERSION 3.3 //
-
-	itemdef {
-	group main
-	subgroup "main_title"
-	//text "REACTION QUAKE 3 v3.3"
-	text "REACTION v1.0"
-  forecolor 0 0 .05 1
-	style WINDOW_STYLE_EMPTY
-	textalign ITEM_ALIGN_CENTER
-	textscale .4
-	textalignx 120
-	textaligny 24
-	rect 108 144 240 36
-	anglevectors 9 -81
-	visible 1
-	autowrapped
-	decoration
-	}
-
-    itemDef {
-	group main
-	//rect 100 100 440 280
-	alignrect "main_title" ITEM_ALIGN_LEFT 0 20 240 36
-	style WINDOW_STYLE_EMPTY
-	textalign ITEM_ALIGN_CENTER
-	textscale .275
-	textalignx 120
-	textaligny 24
-	forecolor 0 0 0.05 1
-	text "(c) 2000-2009 Boomstick Studios\n\n\n\n\n"
-	     "www.rq3.com"
-	autowrapped
-	visible 1
-	decoration
-    }
 
 
 //Timed items
@@ -1948,7 +1899,7 @@
 	textalignx 220
 	textaligny 80
 	text "THIS HAS BEEN A BOOMSTICK STUDIOS\nPRODUCTION\n\n"
-	     "Copyright 2000 - 2009"
+	     "Copyright 2000 - 2010"
 	autowrapped
 	visible 1
 	decoration

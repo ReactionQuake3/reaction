@@ -1,17 +1,57 @@
-//--------------------------------------------
+#define __BOOMSTICK_LOGO__	\
+	itemDef {	\
+	style WINDOW_STYLE_SHADER	\
+	rect 276 288 120 120	\
+	anglevectors 9 -81	\
+	background UI_ASSETS"/logo"	\
+	forecolor 1 1 1 0.2	\
+	decoration	\
+	visible 1	\
+	}
 
-	// Common stuff //
-
-
+#define __REACTION_VERSION__	\
+	itemdef {	\
+	group main	\
+	subgroup "main_title"	\
+	text "REACTION v1.0"	\
+	forecolor 0 0 .05 1	\
+	style WINDOW_STYLE_EMPTY	\
+	textalign ITEM_ALIGN_CENTER	\
+	textscale .4	\
+	textalignx 120	\
+	textaligny 24	\
+	rect 108 144 240 36	\
+	anglevectors 9 -81	\
+	visible 1	\
+	autowrapped	\
+	decoration	\
+	}
 
 
 //Copyright
+
+#define __REACTION_COPYRIGHT__	\
+    itemDef {	\
+	group main	\
+	alignrect "main_title" ITEM_ALIGN_LEFT 0 20 240 36	\
+	style WINDOW_STYLE_EMPTY	\
+	textalign ITEM_ALIGN_CENTER	\
+	textscale .275	\
+	textalignx 120	\
+	textaligny 24	\
+	forecolor 0 0 0.05 1	\
+	text "(c) 2000-2010 Boomstick Studios\n\n\n\n\n"	\
+	     "http://www.rq3.com"	\
+	autowrapped	\
+	visible 1	\
+	decoration	\
+    }
 
     itemDef {
 	name "copyright,_common_"
 	autowrapped
 	text "Reaction v1.0\n"
-	     "Copyright (c) 2000 - 2009 Boomstick Studios\n"
+	     "Copyright (c) 2000 - 2010 Boomstick Studios\n"
 	     "Quake III Arena (c) 1999 - 2000 id Software Inc."
 	//style 0
 	textstyle 3
@@ -25,6 +65,13 @@
 	visible 1
 	decoration
     }
+
+//--------------------------------------------
+
+	// Common stuff //
+
+
+
 
 	//Logo
 
@@ -77,16 +124,10 @@
 	name "_common_"
 	type ITEM_TYPE_MODEL
 	asset_model UI_ASSETS"/models/phone2/phone.md3"
-	//rect 0 0 640 480
 	rect -216 -316 640 640
-	//model_fovx 40
-	//model_fovy 30
 	model_fovx 40
 	model_fovy 40
-	//style WINDOW_STYLE_FILLED
-	//backcolor 0 0 0 1
 	model_origin 20 0 0
-	//model_angles 90 34 280
 	model_angles 90 34 296
 	visible 1
 	decoration
@@ -113,7 +154,7 @@
 
 
 	// KEYS //
-
+/*
 	itemDef {
 	name "_common_"
 	type 1
@@ -124,10 +165,37 @@
 	visible 1
 	decoration
 	}
+	*/
+
+	itemdef {
+	name "_common_"
+	type ITEM_TYPE_MODEL
+	asset_model UI_ASSETS"/models/keys/keys.md3"
+	rect 372 220 256 192
+	model_fovx 40
+	model_fovy 30
+	model_origin 110 0 0
+	model_angles 97 -83 270
+	visible 1
+	decoration
+	}	
+
+
+	// BAKING SODA !!! //
+
+	itemDef {
+	name "_common_"
+	type 1
+	background "ui/assets/snowblind.tga"
+	rect 476 182 256 192
+	style WINDOW_STYLE_SHADER
+	visible 1
+	decoration
+	}
 
 
 	// PEN //
-
+/*
 	itemdef {
 	name "_common_"
 	type ITEM_TYPE_MODEL
@@ -142,19 +210,23 @@
 	visible 1
 	decoration
 	}
+*/
 
+	// ROLLED DOLLAR BILL //
 
-/*
 	itemdef {
-	style WINDOW_STYLE_SHADER
-	forecolor .75 .75 .75 1
-	background UI_ASSETS"/gun_shadow.tga"
-	rect 216 572 360 260
-	anglevectors 156 66
+	name "_common_"
+	type ITEM_TYPE_MODEL
+	asset_model UI_ASSETS"/models/dollar/dollar1.md3"
+	rect 0 0 640 480
+	model_fovx 40
+	model_fovy 30
+	model_origin 27 -6 1
+	model_angles 65 313 270
 	visible 1
 	decoration
 	}
-*/
+	
 
 	// GUN //
 
@@ -170,7 +242,20 @@
 	decoration
 	}
 
-
+	// WRINKLED DOLLAR //
+	
+	itemdef {
+	name "_common_"
+	type ITEM_TYPE_MODEL
+	asset_model UI_ASSETS"/models/dollar/dollar2.md3"
+	rect 168 -64 640 480
+	model_fovx 40
+	model_fovy 30
+	model_origin 27 -6 1
+	model_angles 120 270 270
+	visible 1
+	decoration
+	}
 
 	// BOTTLE //
 
@@ -178,12 +263,7 @@
 	name "_common_"
 	type ITEM_TYPE_MODEL
 	asset_model UI_ASSETS"/models/bottle/bottle.md3"
-	//rect 0 0 640 480
 	rect 236 -80 640 640
-	//model_fovx 40
-	//model_fovy 30
-	//style WINDOW_STYLE_FILLED
-	//backcolor 0 0 0 1
 	model_fovx 40
 	model_fovy 40
 	model_origin 50 0 12
@@ -192,5 +272,23 @@
 	visible 1
 	decoration
 	}
+
+	// WRINKLED DOLLAR 2 //
+	
+	itemdef {
+	name "_common_"
+	type ITEM_TYPE_MODEL
+	asset_model UI_ASSETS"/models/dollar/dollar2.md3"
+	rect 144 -40 640 480
+	model_fovx 40
+	model_fovy 30
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 1
+	model_origin 27 -6 1
+	model_angles 106 80 270
+	visible 1
+	decoration
+	}
+	
 
 //--------------------------------------------

@@ -301,8 +301,8 @@
 			name "ammo_tip"
 			group "fade_fore_alpha,group3,allgroups"
 			style 0
-			text "Select ammo type you\n"
-				"want to replace:"
+			text "Select an ammo type\n"
+				"you want to replace:"
 			autowrapped
 			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
 			textscale .225
