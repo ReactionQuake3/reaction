@@ -309,7 +309,7 @@ static void CG_PlayerOrigin_f(void)
 		  (int) cg.snap->ps.origin[1], (int) cg.snap->ps.origin[2]);
 }
 
-/*
+
 static void CG_ScoresDown_f( void ) {
 
 	if ( cg.time - cg.scoreFadeTime < 500 && !cg.showScores)
@@ -321,7 +321,7 @@ static void CG_ScoresDown_f( void ) {
 	if ( !cg.showScores ) cg.scoreStartTime = cg.time;
 
 	if ( cg.scoresRequestTime + 2000 < cg.time ) {
-		// the scores are more than two seconds out of data,
+		// the scores are more than two seconds out of date,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
 		trap_SendClientCommand( "score" );
@@ -338,7 +338,15 @@ static void CG_ScoresDown_f( void ) {
 		cg.showScores = qtrue;
 	}
 }
-*/
+
+
+static void CG_ScoresUp_f( void ) {
+	if ( cg.showScores ) {
+		cg.showScores = qfalse;
+		cg.scoreFadeTime = cg.time;
+	}
+}
+
 
 static void CG_Scores_f(void)
 {
@@ -636,7 +644,8 @@ static consoleCommand_t commands[] = {
 	{"prevskin", CG_TestModelPrevSkin_f},
 	{"viewpos", CG_Viewpos_f},
 	{"playerorigin", CG_PlayerOrigin_f},
-	//{ "+scores", CG_ScoresDown_f },
+	{"+scores", CG_ScoresDown_f },
+	{ "-scores", CG_ScoresUp_f },
 	{"scores", CG_Scores_f},
 /*	{ "+zoom", CG_ZoomDown_f },				// hawkins not needed in Reaction
 	{ "-zoom", CG_ZoomUp_f },*/
