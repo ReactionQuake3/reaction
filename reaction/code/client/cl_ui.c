@@ -1057,8 +1057,9 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
 		return 0;
 
-	case UI_VERIFY_CDKEY:
-		return CL_CDKeyValidate(VMA(1), VMA(2));
+// JBravo: no need
+//	case UI_VERIFY_CDKEY:
+//		return CL_CDKeyValidate(VMA(1), VMA(2));
 		
 	default:
 		Com_Error( ERR_DROP, "Bad UI system trap: %ld", (long int) args[0] );
