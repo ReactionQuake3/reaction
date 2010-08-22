@@ -1286,7 +1286,8 @@ void G_SetMoveParentOrder( void )
 
 	for (i=0; i<level.num_attachedEnts; i++)
 	{
-		gentity_t *ent = g_parentOrder[i];
+// JBravo: apparently unused
+//		gentity_t *ent = g_parentOrder[i];
 
 		Com_sprintf(p, 4, "%03i", g_parentOrder[i]-g_entities);
 		p += 3;
