@@ -70,6 +70,8 @@ static cvar_t *in_joystickDebug     = NULL;
 static cvar_t *in_joystickThreshold = NULL;
 static cvar_t *in_joystickNo        = NULL;
 
+static int vidRestartTime = 0;
+
 #define CTRL(a) ((a)-'a'+1)
 
 /*
@@ -898,7 +900,30 @@ static void IN_ProcessEvents( void )
 				break;
 
 			case SDL_QUIT:
-				Sys_Quit( );
+				Cbuf_ExecuteText(EXEC_NOW, "quit Closed window\n");
+				break;
+
+			case SDL_VIDEORESIZE:
+			{
+				char width[32], height[32];
+				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
+				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
+				ri.Cvar_Set( "r_customwidth", width );
+				ri.Cvar_Set( "r_customheight", height );
+				ri.Cvar_Set( "r_mode", "-1" );
+				/* wait until user stops dragging for 1 second, so
+				   we aren't constantly recreating the GL context while
+				   he tries to drag...*/
+				vidRestartTime = Sys_Milliseconds() + 1000;
+			}
+			break;
+			case SDL_ACTIVEEVENT:
+				if (e.active.state & SDL_APPINPUTFOCUS) {
+					Cvar_SetValue( "com_unfocused",	!e.active.gain);
+				}
+				if (e.active.state & SDL_APPACTIVE) {
+					Cvar_SetValue( "com_minimized", !e.active.gain);
+				}
 				break;
 
 			default:
@@ -939,6 +964,13 @@ void IN_Frame( void )
 	}
 	else
 		IN_ActivateMouse( );
+
+	/* in case we had to delay actual restart of video system... */
+	if ( (vidRestartTime != 0) && (vidRestartTime < Sys_Milliseconds()) )
+	{
+		vidRestartTime = 0;
+		Cbuf_AddText( "vid_restart" );
+	}
 }
 
 /*
@@ -948,6 +980,8 @@ IN_Init
 */
 void IN_Init( void )
 {
+	int appState;
+
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
 		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )\n" );
@@ -984,6 +1018,10 @@ void IN_Init( void )
 		IN_DeactivateMouse( );
 		mouseAvailable = qfalse;
 	}
+
+	appState = SDL_GetAppState( );
+	Cvar_SetValue( "com_unfocused",	!( appState & SDL_APPINPUTFOCUS ) );
+	Cvar_SetValue( "com_minimized", !( appState & SDL_APPACTIVE ) );
 
 	IN_InitJoystick( );
 	Com_DPrintf( "------------------------------------\n" );

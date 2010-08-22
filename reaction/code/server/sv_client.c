@@ -69,7 +69,7 @@ void SV_GetChallenge(netadr_t from)
 	// see if we already have a challenge for this ip
 	challenge = &svs.challenges[0];
 	for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
-		if ( !challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
+		if (!challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
 			break;
 		}
 		if ( challenge->time < oldestTime ) {
@@ -82,13 +82,17 @@ void SV_GetChallenge(netadr_t from)
 	{
 		// this is the first time this client has asked for a challenge
 		challenge = &svs.challenges[oldest];
-		challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
 		challenge->clientChallenge = 0;
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
 		challenge->time = svs.time;
 		challenge->connected = qfalse;
 	}
+
+	// always generate a new challenge number, so the client cannot circumvent sv_maxping
+	challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
+	challenge->wasrefused = qfalse;
+
 
 #ifndef STANDALONE
 	// Drop the authorize stuff if this client is coming in via v6 as the auth server does not support ipv6.
@@ -338,41 +342,54 @@ void SV_DirectConnect( netadr_t from ) {
 	Info_SetValueForKey( userinfo, "ip", ip );
 
 	// see if the challenge is valid (LAN clients don't need to challenge)
-	if ( !NET_IsLocalAddress (from) ) {
-		int		ping;
+	if (!NET_IsLocalAddress(from))
+	{
+		int ping;
+		challenge_t *challengeptr;
 
-		for (i=0 ; i<MAX_CHALLENGES ; i++) {
-			if (NET_CompareAdr(from, svs.challenges[i].adr)) {
-				if ( challenge == svs.challenges[i].challenge )
+		for (i=0; i<MAX_CHALLENGES; i++)
+		{
+			if (NET_CompareAdr(from, svs.challenges[i].adr))
+			{
+				if(challenge == svs.challenges[i].challenge)
 					break;
 			}
 		}
-		if (i == MAX_CHALLENGES) {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for address.\n" );
+
+		if (i == MAX_CHALLENGES)
+		{
+			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo or bad challenge for your address.\n" );
+			return;
+		}
+	
+		challengeptr = &svs.challenges[i];
+		
+		if(challengeptr->wasrefused)
+		{
+			// Return silently, so that error messages written by the server keep being displayed.
 			return;
 		}
 
-		ping = svs.time - svs.challenges[i].pingTime;
-		Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
-		svs.challenges[i].connected = qtrue;
+		ping = svs.time - challengeptr->pingTime;
 
 		// never reject a LAN client based on ping
 		if ( !Sys_IsLANAddress( from ) ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
-				// don't let them keep trying until they get a big delay
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
-				// reset the address otherwise their ping will keep increasing
-				// with each connect message and they'd eventually be able to connect
-				svs.challenges[i].adr.port = 0;
+				challengeptr->wasrefused = qtrue;
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
+				challengeptr->wasrefused = qtrue;
 				return;
 			}
 		}
+
+		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+		challengeptr->connected = qtrue;
 	}
 
 	newcl = &temp;
@@ -531,12 +548,13 @@ or crashing -- SV_FinalMessage() will handle that
 void SV_DropClient( client_t *drop, const char *reason ) {
 	int		i;
 	challenge_t	*challenge;
+	const qboolean isBot = drop->netchan.remoteAddress.type == NA_BOT;
 
 	if ( drop->state == CS_ZOMBIE ) {
 		return;		// already dropped
 	}
 
-	if (drop->netchan.remoteAddress.type != NA_BOT) {
+	if ( !isBot ) {
 		// see if we already have a challenge for this ip
 		challenge = &svs.challenges[0];
 
@@ -556,7 +574,6 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	// tell everyone why they got dropped
 	SV_SendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
 
-
 	if (drop->download)	{
 		FS_FCloseFile( drop->download );
 		drop->download = 0;
@@ -569,15 +586,20 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	// add the disconnect command
 	SV_SendServerCommand( drop, "disconnect \"%s\"", reason);
 
-	if ( drop->netchan.remoteAddress.type == NA_BOT ) {
+	if ( isBot ) {
 		SV_BotFreeClient( drop - svs.clients );
 	}
 
 	// nuke user info
 	SV_SetUserinfo( drop - svs.clients, "" );
 	
-	Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
-	drop->state = CS_ZOMBIE;		// become free in a few seconds
+	if ( isBot ) {
+		// bots shouldn't go zombie, as there's no real net connection.
+		drop->state = CS_FREE;
+	} else {
+		Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
+		drop->state = CS_ZOMBIE;		// become free in a few seconds
+	}
 
 	// if this was the last client on the server, send a heartbeat
 	// to the master so it is known the server is empty
@@ -1392,7 +1414,7 @@ void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
 
 /*
 ==================
-SV_UpdateUserinfo_f
+SV_Voip_f
 ==================
 */
 static void SV_Voip_f( client_t *cl ) {
@@ -1583,7 +1605,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// also use the message acknowledge
 	key ^= cl->messageAcknowledge;
 	// also use the last acknowledged server command in the key
-	key ^= Com_HashKey(cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
+	key ^= MSG_HashKey(cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
 
 	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
 	oldcmd = &nullcmd;

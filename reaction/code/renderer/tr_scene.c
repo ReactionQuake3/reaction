@@ -99,7 +99,7 @@ void R_AddPolygonSurfaces( void ) {
 	int			i;
 	shader_t	*sh;
 	srfPoly_t	*poly;
-	int			fogMask;
+	int		fogMask;
 
 	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
@@ -168,7 +168,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 			fogIndex = 0;
 		}
 		// see if it is in a fog volume
-		else if ( tr.world->numfogs == 1) {
+		else if ( tr.world->numfogs == 1 ) {
 			fogIndex = 0;
 		} else {
 			// find which fog volume the poly is in
@@ -207,11 +207,18 @@ RE_AddRefEntityToScene
 =====================
 */
 void RE_AddRefEntityToScene( const refEntity_t *ent ) {
-	vec3_t cross;
 	if ( !tr.registered ) {
 		return;
 	}
 	if ( r_numentities >= MAX_ENTITIES ) {
+		return;
+	}
+	if ( Q_isnan(ent->origin[0]) || Q_isnan(ent->origin[1]) || Q_isnan(ent->origin[2]) ) {
+		static qboolean firstTime = qtrue;
+		if (firstTime) {
+			firstTime = qfalse;
+			Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+		}
 		return;
 	}
 	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
@@ -220,9 +227,6 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 
 	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
 	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
-	
-	CrossProduct(ent->axis[0], ent->axis[1], cross);
-	backEndData[tr.smpFrame]->entities[r_numentities].mirrored = (DotProduct(ent->axis[2], cross) < 0.f);
 
 	r_numentities++;
 }

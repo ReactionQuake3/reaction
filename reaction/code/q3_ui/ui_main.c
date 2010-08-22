@@ -40,7 +40,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .qvm file
 ================
 */
-intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch ( command ) {
 	case UI_GETAPIVERSION:
 		return UI_API_VERSION;
@@ -174,13 +174,13 @@ static cvarTable_t		cvarTable[] = {
 
 	{ &ui_arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM },
 	{ &ui_botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM },
-	{ &ui_spScores1, "g_spScores1", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spScores2, "g_spScores2", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spScores3, "g_spScores3", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spScores4, "g_spScores4", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spScores5, "g_spScores5", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE | CVAR_ROM },
-	{ &ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE | CVAR_ROM },
+	{ &ui_spScores1, "g_spScores1", "", CVAR_ARCHIVE },
+	{ &ui_spScores2, "g_spScores2", "", CVAR_ARCHIVE },
+	{ &ui_spScores3, "g_spScores3", "", CVAR_ARCHIVE },
+	{ &ui_spScores4, "g_spScores4", "", CVAR_ARCHIVE },
+	{ &ui_spScores5, "g_spScores5", "", CVAR_ARCHIVE },
+	{ &ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE },
+	{ &ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE },
 	{ &ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE | CVAR_LATCH },
 
 	{ &ui_spSelection, "ui_spSelection", "", CVAR_ROM },

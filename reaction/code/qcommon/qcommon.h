@@ -76,6 +76,7 @@ void MSG_WriteFloat (msg_t *sb, float f);
 void MSG_WriteString (msg_t *sb, const char *s);
 void MSG_WriteBigString (msg_t *sb, const char *s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
+int MSG_HashKey(const char *string, int maxlen);
 
 void	MSG_BeginReading (msg_t *sb);
 void	MSG_BeginReadingOOB(msg_t *sb);
@@ -180,7 +181,7 @@ qboolean	NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
-const char      *NET_AdrToStringwPort (netadr_t a);
+const char	*NET_AdrToStringwPort (netadr_t a);
 int		NET_StringToAdr ( const char *s, netadr_t *a, netadrtype_t family);
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
 void		NET_JoinMulticast6(void);
@@ -544,6 +545,7 @@ char	*Cvar_InfoString_Big( int bit );
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
 void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
+void	Cvar_Restart(qboolean unsetVM);
 void	Cvar_Restart_f( void );
 
 void Cvar_CompleteCvarName( char *args, int argNum );
@@ -602,7 +604,9 @@ void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
 
+qboolean FS_CreatePath (char *OSPath);
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
+qboolean FS_CompareZipChecksum(const char *zipfile);
 
 int		FS_LoadStack( void );
 
@@ -794,11 +798,11 @@ void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		Com_Quit_f( void );
+void		Com_GameRestart(int checksumFeed, qboolean clientRestart);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
-int			Com_HashKey(char *string, int maxlen);
 int			Com_Filter(char *filter, char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
@@ -933,7 +937,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown( void );
+void CL_Shutdown( char *finalmsg );
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -971,6 +975,9 @@ void CL_FlushMemory( void );
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 // start all the client stuff using the hunk
+
+void CL_Snd_Restart(void);
+// Restart sound subsystem
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );
 // for keyname autocompletion
@@ -1069,7 +1076,7 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-void	Sys_Mkdir( const char *path );
+qboolean Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
 char	*Sys_DefaultInstallPath(void);
@@ -1080,6 +1087,7 @@ char    *Sys_DefaultAppPath(void);
 
 void  Sys_SetDefaultHomePath(const char *path);
 char	*Sys_DefaultHomePath(void);
+const char	*Sys_TempPath(void);
 const char *Sys_Dirname( char *path );
 const char *Sys_Basename( char *path );
 char *Sys_ConsoleInput(void);
@@ -1089,6 +1097,29 @@ void	Sys_FreeFileList( char **list );
 void	Sys_Sleep(int msec);
 
 qboolean Sys_LowPhysicalMemory( void );
+
+void Sys_SetEnv(const char *name, const char *value);
+
+typedef enum
+{
+	DR_YES = 0,
+	DR_NO = 1,
+	DR_OK = 0,
+	DR_CANCEL = 1
+} dialogResult_t;
+
+typedef enum
+{
+	DT_INFO,
+	DT_WARNING,
+	DT_ERROR,
+	DT_YES_NO,
+	DT_OK_CANCEL
+} dialogType_t;
+
+dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title );
+
+qboolean Sys_WritePIDFile( void );
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

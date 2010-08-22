@@ -311,9 +311,9 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0xff chars, because old clients don't like them
+		// get rid of 0x80+ and '%' chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
+			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
 				string[i] = '.';
 			}
 		}
@@ -337,9 +337,9 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0xff chars, because old clients don't like them
+		// get rid of 0x80+ and '%' chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
+			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
 				string[i] = '.';
 			}
 		}
@@ -525,6 +525,21 @@ void MSG_ReadData( msg_t *msg, void *data, int len ) {
 	}
 }
 
+// a string hasher which gives the same hash value even if the
+// string is later modified via the legacy MSG read/write code
+int MSG_HashKey(const char *string, int maxlen) {
+	int hash, i;
+
+	hash = 0;
+	for (i = 0; i < maxlen && string[i] != '\0'; i++) {
+		if (string[i] & 0x80 || string[i] == '%')
+			hash += '.' * (119 + i);
+		else
+			hash += string[i] * (119 + i);
+	}
+	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
+	return hash;
+}
 
 /*
 =============================================================================
@@ -1028,6 +1043,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
 	lc = MSG_ReadByte(msg);
 
+	if ( lc > numFields || lc < 0 ) {
+		Com_Error( ERR_DROP, "invalid entityState field count" );
+	}
+
 	// shownet 2/3 will interleave with other printed info, -1 will
 	// just print the delta records`
 	if ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) {
@@ -1360,6 +1379,10 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
 	lc = MSG_ReadByte(msg);
+
+	if ( lc > numFields || lc < 0 ) {
+		Com_Error( ERR_DROP, "invalid playerState field count" );
+	}
 
 	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );

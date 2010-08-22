@@ -81,6 +81,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#if (defined _MSC_VER)
+#define Q_EXPORT __declspec(dllexport)
+#elif (defined __SUNPRO_C)
+#define Q_EXPORT __global
+#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
+#define Q_EXPORT __attribute__((visibility("default")))
+#else
+#define Q_EXPORT
+#endif
+
 /**********************************************************************
   VM Considerations
 
@@ -188,9 +198,10 @@ typedef int		clipHandle_t;
 #define	ROLL				2		// fall over
 
 //Makro - angle axis
-#define PITCH_AXIS			1
-#define YAW_AXIS			2
-#define ROLL_AXIS			0
+#define PITCH_AXIS                     1
+#define YAW_AXIS                       2
+#define ROLL_AXIS                      0
+
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
@@ -258,12 +269,8 @@ typedef enum {
 
 // font rendering values used by ui and cgame
 
-//#define PROP_GAP_WIDTH			3
-#define PROP_GAP_WIDTH			-16
+#define PROP_GAP_WIDTH			3
 #define PROP_SPACE_WIDTH		8
-//Elder: changed to fit new font from 27
-//Makro - changed back
-//TTI: changed from 27 to 63
 #define PROP_HEIGHT				63
 #define PROP_SMALL_SIZE_SCALE	0.75
 
@@ -331,6 +338,8 @@ typedef	int	fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
+//#define NUMVERTEXNORMALS	162
+//extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 //Makro - changed from 162 to 256 in order to use the new bytedirs table
 #define NUMVERTEXNORMALS	256
 extern vec3_t bytedirs[NUMVERTEXNORMALS];
@@ -365,20 +374,20 @@ extern	vec4_t		colorMdGrey;
 extern	vec4_t		colorDkGrey;
 
 #define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
+#define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
 
-#define COLOR_BLACK		'0'
-#define COLOR_RED		'1'
-#define COLOR_GREEN		'2'
+#define COLOR_BLACK	'0'
+#define COLOR_RED	'1'
+#define COLOR_GREEN	'2'
 #define COLOR_YELLOW	'3'
-#define COLOR_BLUE		'4'
-#define COLOR_CYAN		'5'
+#define COLOR_BLUE	'4'
+#define COLOR_CYAN	'5'
 #define COLOR_MAGENTA	'6'
-#define COLOR_WHITE		'7'
-#define ColorIndex(c)	( ( (c) - '0' ) & 7 )
+#define COLOR_WHITE	'7'
+#define ColorIndex(c)	(((c) - '0') & 0x07)
 
 #define S_COLOR_BLACK	"^0"
-#define S_COLOR_RED		"^1"
+#define S_COLOR_RED	"^1"
 #define S_COLOR_GREEN	"^2"
 #define S_COLOR_YELLOW	"^3"
 #define S_COLOR_BLUE	"^4"
@@ -387,7 +396,7 @@ extern	vec4_t		colorDkGrey;
 #define S_COLOR_WHITE	"^7"
 
 //Makro - reset color
-#define S_COLOR_RESET	"^*"
+#define S_COLOR_RESET  "^*"
 
 extern vec4_t	g_color_table[8];
 
@@ -395,15 +404,14 @@ extern vec4_t	g_color_table[8];
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
 
 //Makro - for the UI
-
-#define Vector2Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1])
-#define Vector2MA(v,s,b,o)			((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
-#define Vector2Add(a,b,o)			((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
-#define Vector2Subtract(a,b,o)		((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
-#define Vector2Scale(a,s,o)			((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
-#define Vector2Negate(a,o)			((o)[0]=-(a)[0],(o)[1]=-(a)[1])
-#define Vector2Set(v,x,y)			((v)[0]=(x),(v)[1]=(y))
-#define Vector2Norm2(v)				((v)[0]*(v)[0]+(v)[1]*(v)[1])
+#define Vector2Copy(a,b)                       ((b)[0]=(a)[0],(b)[1]=(a)[1])
+#define Vector2MA(v,s,b,o)                     ((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
+#define Vector2Add(a,b,o)                      ((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
+#define Vector2Subtract(a,b,o)                 ((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
+#define Vector2Scale(a,s,o)                    ((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
+#define Vector2Negate(a,o)                     ((o)[0]=-(a)[0],(o)[1]=-(a)[1])
+#define Vector2Set(v,x,y)                      ((v)[0]=(x),(v)[1]=(y))
+#define Vector2Norm2(v)                        ((v)[0]*(v)[0]+(v)[1]*(v)[1])
 
 #define DEG2RAD( a ) ( ( (a) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( (a) * 180.0f ) / M_PI )
@@ -493,7 +501,6 @@ typedef struct {
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 void SnapVectorTowards(vec3_t v, vec3_t to);
-
 // just in case you do't want to use the macros
 vec_t _DotProduct( const vec3_t v1, const vec3_t v2 );
 void _VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t out );
@@ -644,11 +651,11 @@ int Q_isnan( float x );
 void RotatePoint(vec3_t point, /*const*/ vec3_t matrix[3]);
 void TransposeMatrix(/*const*/ vec3_t matrix[3], vec3_t transpose[3]);
 void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
-
-//Makro - added
 void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
 void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
 void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out);
+
+
 
 //=============================================
 
@@ -780,9 +787,10 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	*QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
-float	*tv(float x, float y, float z);
+char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+float   *tv(float x, float y, float z);
 char *vtos( const vec3_t v );
+
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -816,30 +824,33 @@ default values.
 ==========================================================
 */
 
-#define	CVAR_ARCHIVE		1	// set to cause it to be saved to vars.rc
-								// used for system variables, not for player
-								// specific configurations
-#define	CVAR_USERINFO		2	// sent to server on connect or change
-#define	CVAR_SERVERINFO		4	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		8	// these cvars will be duplicated on all clients
-#define	CVAR_INIT			16	// don't allow change from console at all,
-								// but can be set from the command line
-#define	CVAR_LATCH			32	// will only change when C code next does
-								// a Cvar_Get(), so it can't be changed
-								// without proper initialization.  modified
-								// will be set, even though the value hasn't
-								// changed yet
-#define	CVAR_ROM			64	// display only, cannot be set by user at all
-#define	CVAR_USER_CREATED	128	// created by a set command
-#define	CVAR_TEMP			256	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT			512	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
+#define	CVAR_ARCHIVE		0x0001	// set to cause it to be saved to vars.rc
+					// used for system variables, not for player
+					// specific configurations
+#define	CVAR_USERINFO		0x0002	// sent to server on connect or change
+#define	CVAR_SERVERINFO		0x0004	// sent in response to front end requests
+#define	CVAR_SYSTEMINFO		0x0008	// these cvars will be duplicated on all clients
+#define	CVAR_INIT		0x0010	// don't allow change from console at all,
+					// but can be set from the command line
+#define	CVAR_LATCH		0x0020	// will only change when C code next does
+					// a Cvar_Get(), so it can't be changed
+					// without proper initialization.  modified
+					// will be set, even though the value hasn't
+					// changed yet
+#define	CVAR_ROM		0x0040	// display only, cannot be set by user at all
+#define	CVAR_USER_CREATED	0x0080	// created by a set command
+#define	CVAR_TEMP		0x0100	// can be set even when cheats are disabled, but is not archived
+#define CVAR_CHEAT		0x0200	// can not be changed if cheats are disabled
+#define CVAR_NORESTART		0x0400	// do not clear when a cvar_restart is issued
 
-#define CVAR_SERVER_CREATED	2048	// cvar was created by a server the client connected to.
+#define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
+#define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
 #define CVAR_NONEXISTENT	0xFFFFFFFF	// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
-typedef struct cvar_s {
+typedef struct cvar_s cvar_t;
+
+struct cvar_s {
 	char			*name;
 	char			*string;
 	char			*resetString;		// cvar_restart will reset to this value
@@ -853,9 +864,13 @@ typedef struct cvar_s {
 	qboolean	integral;
 	float			min;
 	float			max;
-	struct cvar_s *next;
-	struct cvar_s *hashNext;
-} cvar_t;
+
+	cvar_t *next;
+	cvar_t *prev;
+	cvar_t *hashNext;
+	cvar_t *hashPrev;
+	int			hashIndex;
+};
 
 #define	MAX_CVAR_VALUE_STRING	256
 
@@ -1263,10 +1278,8 @@ typedef struct {
 #define Square(x) ((x)*(x))
 
 // Makro - moved from bg_lic.c so all can use :P
-// JBravo: moved from bg_lib.c so all can use
-#define is_digit(c)	((unsigned)to_digit(c) <= 9)
-#define to_digit(c)	((c) - '0')
-
+#define is_digit(c)    ((unsigned)to_digit(c) <= 9)
+#define to_digit(c)    ((c) - '0')
 
 // real time
 //=============================================
@@ -1322,7 +1335,7 @@ typedef enum _flag_status {
 #define SAY_ALL		0
 #define SAY_TEAM	1
 #define SAY_TELL	2
-#define SAY_REF   3
+#define SAY_REF		3
 
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2

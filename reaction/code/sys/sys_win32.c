@@ -36,9 +36,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <conio.h>
 #include <wincrypt.h>
 #include <shlobj.h>
+#include <psapi.h>
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
+
+#ifdef __WIN64__
+void Sys_SnapVector( float *v )
+{
+        v[0] = rint(v[0]);
+        v[1] = rint(v[1]);
+        v[2] = rint(v[2]);
+}
+#endif
 
 /*
 ================
@@ -77,17 +87,27 @@ char *Sys_DefaultHomePath( void )
 		Q_strncpyz( homePath, szPath, sizeof( homePath ) );
 		Q_strcat( homePath, sizeof( homePath ), "\\Reaction" );
 		FreeLibrary(shfolder);
-		if( !CreateDirectory( homePath, NULL ) )
-		{
-			if( GetLastError() != ERROR_ALREADY_EXISTS )
-			{
-				Com_Printf("Unable to create directory \"%s\"\n", homePath );
-				return NULL;
-			}
-		}
 	}
 
 	return homePath;
+}
+
+/*
+================
+Sys_TempPath
+================
+*/
+const char *Sys_TempPath( void )
+{
+	static TCHAR path[ MAX_PATH ];
+	DWORD length;
+
+	length = GetTempPath( sizeof( path ), path );
+
+	if( length > sizeof( path ) || length == 0 )
+		return Sys_DefaultHomePath( );
+	else
+		return path;
 }
 
 /*
@@ -279,9 +299,15 @@ const char *Sys_Dirname( char *path )
 Sys_Mkdir
 ==============
 */
-void Sys_Mkdir( const char *path )
+qboolean Sys_Mkdir( const char *path )
 {
-	_mkdir (path);
+	if( !CreateDirectory( path, NULL ) )
+	{
+		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
+			return qfalse;
+	}
+
+	return qtrue;
 }
 
 /*
@@ -317,7 +343,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
-	int			findhandle;
+	intptr_t	findhandle;
 	struct _finddata_t findinfo;
 
 	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
@@ -400,7 +426,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char		**listCopy;
 	char		*list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
-	int			findhandle;
+	intptr_t		findhandle;
 	int			flag;
 	int			i;
 
@@ -545,8 +571,8 @@ Display an error message
 */
 void Sys_ErrorDialog( const char *error )
 {
-	if( MessageBox( NULL, va( "%s. Copy console log to clipboard?", error ),
-			NULL, MB_YESNO|MB_ICONERROR ) == IDYES )
+	if( Sys_Dialog( DT_YES_NO, va( "%s. Copy console log to clipboard?", error ),
+			"Error" ) == DR_YES )
 	{
 		HGLOBAL memoryHandle;
 		char *clipMemory;
@@ -577,9 +603,59 @@ void Sys_ErrorDialog( const char *error )
 	}
 }
 
+/*
+==============
+Sys_Dialog
+
+Display a win32 dialog box
+==============
+*/
+dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title )
+{
+	UINT uType;
+
+	switch( type )
+	{
+		default:
+		case DT_INFO:      uType = MB_ICONINFORMATION|MB_OK; break;
+		case DT_WARNING:   uType = MB_ICONWARNING|MB_OK; break;
+		case DT_ERROR:     uType = MB_ICONERROR|MB_OK; break;
+		case DT_YES_NO:    uType = MB_ICONQUESTION|MB_YESNO; break;
+		case DT_OK_CANCEL: uType = MB_ICONWARNING|MB_OKCANCEL; break;
+	}
+
+	switch( MessageBox( NULL, message, title, uType ) )
+	{
+		default:
+		case IDOK:      return DR_OK;
+		case IDCANCEL:  return DR_CANCEL;
+		case IDYES:     return DR_YES;
+		case IDNO:      return DR_NO;
+	}
+}
+
 #ifndef DEDICATED
 static qboolean SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
+
+/*
+==============
+Sys_GLimpSafeInit
+
+Windows specific "safe" GL implementation initialisation
+==============
+*/
+void Sys_GLimpSafeInit( void )
+{
+#ifndef DEDICATED
+	if( !SDL_VIDEODRIVER_externallySet )
+	{
+		// Here, we want to let SDL decide what do to unless
+		// explicitly requested otherwise
+		_putenv( "SDL_VIDEODRIVER=" );
+	}
+#endif
+}
 
 /*
 ==============
@@ -632,4 +708,52 @@ void Sys_PlatformInit( void )
 	else
 		SDL_VIDEODRIVER_externallySet = qfalse;
 #endif
+}
+
+/*
+==============
+Sys_SetEnv
+
+set/unset environment variables (empty value removes it)
+==============
+*/
+void Sys_SetEnv(const char *name, const char *value)
+{
+	_putenv(va("%s=%s", name, value));
+}
+
+/*
+==============
+Sys_PID
+==============
+*/
+int Sys_PID( void )
+{
+	return GetCurrentProcessId( );
+}
+
+/*
+==============
+Sys_PIDIsRunning
+==============
+*/
+qboolean Sys_PIDIsRunning( int pid )
+{
+	DWORD processes[ 1024 ];
+	DWORD numBytes, numProcesses;
+	int i;
+
+	if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
+		return qfalse; // Assume it's not running
+
+	numProcesses = numBytes / sizeof( DWORD );
+
+	// Search for the pid
+	for( i = 0; i < numProcesses; i++ )
+	{
+		if( processes[ i ] == pid )
+			return qtrue;
+	}
+
+	return qfalse;
 }

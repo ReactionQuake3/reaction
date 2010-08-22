@@ -60,265 +60,89 @@ vec4_t	g_color_table[8] =
 	};
 
 
-//Makro - new table; this allows for a much faster DirToByte function
-vec3_t bytedirs[NUMVERTEXNORMALS] =
+vec3_t	bytedirs[NUMVERTEXNORMALS] =
 {
-	{ 1.00000000f, 0.00000000f, 0.00000000f },
-	{ 0.92387950f, 0.38268346f, 0.00000000f },
-	{ 0.70710677f, 0.70710677f, 0.00000000f },
-	{ 0.38268343f, 0.92387950f, 0.00000000f },
-	{ -0.00000004f, 1.00000000f, 0.00000000f },
-	{ -0.38268340f, 0.92387956f, 0.00000000f },
-	{ -0.70710677f, 0.70710677f, 0.00000000f },
-	{ -0.92387950f, 0.38268349f, 0.00000000f },
-	{ -1.00000000f, -0.00000009f, 0.00000000f },
-	{ -0.92387950f, -0.38268343f, 0.00000000f },
-	{ -0.70710683f, -0.70710671f, 0.00000000f },
-	{ -0.38268358f, -0.92387950f, 0.00000000f },
-	{ 0.00000001f, -1.00000000f, 0.00000000f },
-	{ 0.38268360f, -0.92387944f, 0.00000000f },
-	{ 0.70710665f, -0.70710689f, 0.00000000f },
-	{ 0.92387956f, -0.38268343f, 0.00000000f },
-	{ 0.92387950f, 0.00000000f, -0.38268346f },
-	{ 0.85355335f, 0.35355341f, -0.38268346f },
-	{ 0.65328145f, 0.65328145f, -0.38268346f },
-	{ 0.35355338f, 0.85355335f, -0.38268346f },
-	{ -0.00000004f, 0.92387950f, -0.38268346f },
-	{ -0.35355335f, 0.85355341f, -0.38268346f },
-	{ -0.65328145f, 0.65328145f, -0.38268346f },
-	{ -0.85355335f, 0.35355341f, -0.38268346f },
-	{ -0.92387950f, -0.00000008f, -0.38268346f },
-	{ -0.85355335f, -0.35355338f, -0.38268346f },
-	{ -0.65328151f, -0.65328139f, -0.38268346f },
-	{ -0.35355350f, -0.85355335f, -0.38268346f },
-	{ 0.00000001f, -0.92387950f, -0.38268346f },
-	{ 0.35355353f, -0.85355330f, -0.38268346f },
-	{ 0.65328133f, -0.65328157f, -0.38268346f },
-	{ 0.85355341f, -0.35355338f, -0.38268346f },
-	{ 0.70710677f, 0.00000000f, -0.70710677f },
-	{ 0.65328145f, 0.27059805f, -0.70710677f },
-	{ 0.49999997f, 0.49999997f, -0.70710677f },
-	{ 0.27059805f, 0.65328145f, -0.70710677f },
-	{ -0.00000003f, 0.70710677f, -0.70710677f },
-	{ -0.27059802f, 0.65328151f, -0.70710677f },
-	{ -0.49999997f, 0.49999997f, -0.70710677f },
-	{ -0.65328145f, 0.27059808f, -0.70710677f },
-	{ -0.70710677f, -0.00000006f, -0.70710677f },
-	{ -0.65328145f, -0.27059805f, -0.70710677f },
-	{ -0.50000000f, -0.49999994f, -0.70710677f },
-	{ -0.27059814f, -0.65328145f, -0.70710677f },
-	{ 0.00000001f, -0.70710677f, -0.70710677f },
-	{ 0.27059817f, -0.65328139f, -0.70710677f },
-	{ 0.49999991f, -0.50000006f, -0.70710677f },
-	{ 0.65328151f, -0.27059805f, -0.70710677f },
-	{ 0.38268343f, 0.00000000f, -0.92387950f },
-	{ 0.35355338f, 0.14644662f, -0.92387950f },
-	{ 0.27059805f, 0.27059805f, -0.92387950f },
-	{ 0.14644660f, 0.35355338f, -0.92387950f },
-	{ -0.00000002f, 0.38268343f, -0.92387950f },
-	{ -0.14644660f, 0.35355338f, -0.92387950f },
-	{ -0.27059805f, 0.27059805f, -0.92387950f },
-	{ -0.35355338f, 0.14644663f, -0.92387950f },
-	{ -0.38268343f, -0.00000003f, -0.92387950f },
-	{ -0.35355338f, -0.14644660f, -0.92387950f },
-	{ -0.27059805f, -0.27059802f, -0.92387950f },
-	{ -0.14644666f, -0.35355338f, -0.92387950f },
-	{ 0.00000000f, -0.38268343f, -0.92387950f },
-	{ 0.14644668f, -0.35355335f, -0.92387950f },
-	{ 0.27059799f, -0.27059808f, -0.92387950f },
-	{ 0.35355338f, -0.14644660f, -0.92387950f },
-	{ -0.00000004f, 0.00000000f, -1.00000000f },
-	{ -0.00000004f, -0.00000002f, -1.00000000f },
-	{ -0.00000003f, -0.00000003f, -1.00000000f },
-	{ -0.00000002f, -0.00000004f, -1.00000000f },
-	{ 0.00000000f, -0.00000004f, -1.00000000f },
-	{ 0.00000002f, -0.00000004f, -1.00000000f },
-	{ 0.00000003f, -0.00000003f, -1.00000000f },
-	{ 0.00000004f, -0.00000002f, -1.00000000f },
-	{ 0.00000004f, 0.00000000f, -1.00000000f },
-	{ 0.00000004f, 0.00000002f, -1.00000000f },
-	{ 0.00000003f, 0.00000003f, -1.00000000f },
-	{ 0.00000002f, 0.00000004f, -1.00000000f },
-	{ -0.00000000f, 0.00000004f, -1.00000000f },
-	{ -0.00000002f, 0.00000004f, -1.00000000f },
-	{ -0.00000003f, 0.00000003f, -1.00000000f },
-	{ -0.00000004f, 0.00000002f, -1.00000000f },
-	{ -0.38268340f, 0.00000000f, -0.92387956f },
-	{ -0.35355335f, -0.14644660f, -0.92387956f },
-	{ -0.27059802f, -0.27059802f, -0.92387956f },
-	{ -0.14644660f, -0.35355335f, -0.92387956f },
-	{ 0.00000002f, -0.38268340f, -0.92387956f },
-	{ 0.14644659f, -0.35355335f, -0.92387956f },
-	{ 0.27059802f, -0.27059802f, -0.92387956f },
-	{ 0.35355335f, -0.14644662f, -0.92387956f },
-	{ 0.38268340f, 0.00000003f, -0.92387956f },
-	{ 0.35355335f, 0.14644660f, -0.92387956f },
-	{ 0.27059805f, 0.27059799f, -0.92387956f },
-	{ 0.14644665f, 0.35355335f, -0.92387956f },
-	{ -0.00000000f, 0.38268340f, -0.92387956f },
-	{ -0.14644666f, 0.35355332f, -0.92387956f },
-	{ -0.27059796f, 0.27059805f, -0.92387956f },
-	{ -0.35355335f, 0.14644660f, -0.92387956f },
-	{ -0.70710677f, 0.00000000f, -0.70710677f },
-	{ -0.65328145f, -0.27059805f, -0.70710677f },
-	{ -0.49999997f, -0.49999997f, -0.70710677f },
-	{ -0.27059805f, -0.65328145f, -0.70710677f },
-	{ 0.00000003f, -0.70710677f, -0.70710677f },
-	{ 0.27059802f, -0.65328151f, -0.70710677f },
-	{ 0.49999997f, -0.49999997f, -0.70710677f },
-	{ 0.65328145f, -0.27059808f, -0.70710677f },
-	{ 0.70710677f, 0.00000006f, -0.70710677f },
-	{ 0.65328145f, 0.27059805f, -0.70710677f },
-	{ 0.50000000f, 0.49999994f, -0.70710677f },
-	{ 0.27059814f, 0.65328145f, -0.70710677f },
-	{ -0.00000001f, 0.70710677f, -0.70710677f },
-	{ -0.27059817f, 0.65328139f, -0.70710677f },
-	{ -0.49999991f, 0.50000006f, -0.70710677f },
-	{ -0.65328151f, 0.27059805f, -0.70710677f },
-	{ -0.92387950f, 0.00000000f, -0.38268349f },
-	{ -0.85355335f, -0.35355341f, -0.38268349f },
-	{ -0.65328145f, -0.65328145f, -0.38268349f },
-	{ -0.35355338f, -0.85355335f, -0.38268349f },
-	{ 0.00000004f, -0.92387950f, -0.38268349f },
-	{ 0.35355335f, -0.85355341f, -0.38268349f },
-	{ 0.65328145f, -0.65328145f, -0.38268349f },
-	{ 0.85355335f, -0.35355341f, -0.38268349f },
-	{ 0.92387950f, 0.00000008f, -0.38268349f },
-	{ 0.85355335f, 0.35355338f, -0.38268349f },
-	{ 0.65328151f, 0.65328139f, -0.38268349f },
-	{ 0.35355350f, 0.85355335f, -0.38268349f },
-	{ -0.00000001f, 0.92387950f, -0.38268349f },
-	{ -0.35355353f, 0.85355330f, -0.38268349f },
-	{ -0.65328133f, 0.65328157f, -0.38268349f },
-	{ -0.85355341f, 0.35355338f, -0.38268349f },
-	{ -1.00000000f, 0.00000000f, 0.00000009f },
-	{ -0.92387950f, -0.38268346f, 0.00000009f },
-	{ -0.70710677f, -0.70710677f, 0.00000009f },
-	{ -0.38268343f, -0.92387950f, 0.00000009f },
-	{ 0.00000004f, -1.00000000f, 0.00000009f },
-	{ 0.38268340f, -0.92387956f, 0.00000009f },
-	{ 0.70710677f, -0.70710677f, 0.00000009f },
-	{ 0.92387950f, -0.38268349f, 0.00000009f },
-	{ 1.00000000f, 0.00000009f, 0.00000009f },
-	{ 0.92387950f, 0.38268343f, 0.00000009f },
-	{ 0.70710683f, 0.70710671f, 0.00000009f },
-	{ 0.38268358f, 0.92387950f, 0.00000009f },
-	{ -0.00000001f, 1.00000000f, 0.00000009f },
-	{ -0.38268360f, 0.92387944f, 0.00000009f },
-	{ -0.70710665f, 0.70710689f, 0.00000009f },
-	{ -0.92387956f, 0.38268343f, 0.00000009f },
-	{ -0.92387950f, 0.00000000f, 0.38268343f },
-	{ -0.85355335f, -0.35355341f, 0.38268343f },
-	{ -0.65328145f, -0.65328145f, 0.38268343f },
-	{ -0.35355338f, -0.85355335f, 0.38268343f },
-	{ 0.00000004f, -0.92387950f, 0.38268343f },
-	{ 0.35355335f, -0.85355341f, 0.38268343f },
-	{ 0.65328145f, -0.65328145f, 0.38268343f },
-	{ 0.85355335f, -0.35355341f, 0.38268343f },
-	{ 0.92387950f, 0.00000008f, 0.38268343f },
-	{ 0.85355335f, 0.35355338f, 0.38268343f },
-	{ 0.65328151f, 0.65328139f, 0.38268343f },
-	{ 0.35355350f, 0.85355335f, 0.38268343f },
-	{ -0.00000001f, 0.92387950f, 0.38268343f },
-	{ -0.35355353f, 0.85355330f, 0.38268343f },
-	{ -0.65328133f, 0.65328157f, 0.38268343f },
-	{ -0.85355341f, 0.35355338f, 0.38268343f },
-	{ -0.70710683f, 0.00000000f, 0.70710671f },
-	{ -0.65328151f, -0.27059808f, 0.70710671f },
-	{ -0.50000000f, -0.50000000f, 0.70710671f },
-	{ -0.27059805f, -0.65328151f, 0.70710671f },
-	{ 0.00000003f, -0.70710683f, 0.70710671f },
-	{ 0.27059805f, -0.65328157f, 0.70710671f },
-	{ 0.50000000f, -0.50000000f, 0.70710671f },
-	{ 0.65328151f, -0.27059811f, 0.70710671f },
-	{ 0.70710683f, 0.00000006f, 0.70710671f },
-	{ 0.65328151f, 0.27059805f, 0.70710671f },
-	{ 0.50000006f, 0.49999997f, 0.70710671f },
-	{ 0.27059817f, 0.65328151f, 0.70710671f },
-	{ -0.00000001f, 0.70710683f, 0.70710671f },
-	{ -0.27059820f, 0.65328145f, 0.70710671f },
-	{ -0.49999994f, 0.50000012f, 0.70710671f },
-	{ -0.65328157f, 0.27059805f, 0.70710671f },
-	{ -0.38268358f, 0.00000000f, 0.92387950f },
-	{ -0.35355350f, -0.14644668f, 0.92387950f },
-	{ -0.27059814f, -0.27059814f, 0.92387950f },
-	{ -0.14644666f, -0.35355350f, 0.92387950f },
-	{ 0.00000002f, -0.38268358f, 0.92387950f },
-	{ 0.14644665f, -0.35355353f, 0.92387950f },
-	{ 0.27059814f, -0.27059814f, 0.92387950f },
-	{ 0.35355350f, -0.14644669f, 0.92387950f },
-	{ 0.38268358f, 0.00000003f, 0.92387950f },
-	{ 0.35355350f, 0.14644666f, 0.92387950f },
-	{ 0.27059817f, 0.27059811f, 0.92387950f },
-	{ 0.14644672f, 0.35355350f, 0.92387950f },
-	{ -0.00000000f, 0.38268358f, 0.92387950f },
-	{ -0.14644673f, 0.35355350f, 0.92387950f },
-	{ -0.27059811f, 0.27059820f, 0.92387950f },
-	{ -0.35355353f, 0.14644666f, 0.92387950f },
-	{ 0.00000001f, 0.00000000f, 1.00000000f },
-	{ 0.00000001f, 0.00000000f, 1.00000000f },
-	{ 0.00000001f, 0.00000001f, 1.00000000f },
-	{ 0.00000000f, 0.00000001f, 1.00000000f },
-	{ -0.00000000f, 0.00000001f, 1.00000000f },
-	{ -0.00000000f, 0.00000001f, 1.00000000f },
-	{ -0.00000001f, 0.00000001f, 1.00000000f },
-	{ -0.00000001f, 0.00000000f, 1.00000000f },
-	{ -0.00000001f, -0.00000000f, 1.00000000f },
-	{ -0.00000001f, -0.00000000f, 1.00000000f },
-	{ -0.00000001f, -0.00000001f, 1.00000000f },
-	{ -0.00000000f, -0.00000001f, 1.00000000f },
-	{ 0.00000000f, -0.00000001f, 1.00000000f },
-	{ 0.00000000f, -0.00000001f, 1.00000000f },
-	{ 0.00000001f, -0.00000001f, 1.00000000f },
-	{ 0.00000001f, -0.00000000f, 1.00000000f },
-	{ 0.38268360f, 0.00000000f, 0.92387944f },
-	{ 0.35355353f, 0.14644669f, 0.92387944f },
-	{ 0.27059817f, 0.27059817f, 0.92387944f },
-	{ 0.14644668f, 0.35355353f, 0.92387944f },
-	{ -0.00000002f, 0.38268360f, 0.92387944f },
-	{ -0.14644666f, 0.35355356f, 0.92387944f },
-	{ -0.27059817f, 0.27059817f, 0.92387944f },
-	{ -0.35355353f, 0.14644669f, 0.92387944f },
-	{ -0.38268360f, -0.00000003f, 0.92387944f },
-	{ -0.35355353f, -0.14644668f, 0.92387944f },
-	{ -0.27059820f, -0.27059814f, 0.92387944f },
-	{ -0.14644673f, -0.35355353f, 0.92387944f },
-	{ 0.00000000f, -0.38268360f, 0.92387944f },
-	{ 0.14644673f, -0.35355350f, 0.92387944f },
-	{ 0.27059811f, -0.27059820f, 0.92387944f },
-	{ 0.35355356f, -0.14644668f, 0.92387944f },
-	{ 0.70710665f, 0.00000000f, 0.70710689f },
-	{ 0.65328133f, 0.27059802f, 0.70710689f },
-	{ 0.49999991f, 0.49999991f, 0.70710689f },
-	{ 0.27059799f, 0.65328133f, 0.70710689f },
-	{ -0.00000003f, 0.70710665f, 0.70710689f },
-	{ -0.27059796f, 0.65328139f, 0.70710689f },
-	{ -0.49999991f, 0.49999991f, 0.70710689f },
-	{ -0.65328133f, 0.27059802f, 0.70710689f },
-	{ -0.70710665f, -0.00000006f, 0.70710689f },
-	{ -0.65328133f, -0.27059799f, 0.70710689f },
-	{ -0.49999994f, -0.49999985f, 0.70710689f },
-	{ -0.27059811f, -0.65328133f, 0.70710689f },
-	{ 0.00000001f, -0.70710665f, 0.70710689f },
-	{ 0.27059811f, -0.65328127f, 0.70710689f },
-	{ 0.49999982f, -0.49999997f, 0.70710689f },
-	{ 0.65328139f, -0.27059799f, 0.70710689f },
-	{ 0.92387956f, 0.00000000f, 0.38268343f },
-	{ 0.85355341f, 0.35355341f, 0.38268343f },
-	{ 0.65328151f, 0.65328151f, 0.38268343f },
-	{ 0.35355338f, 0.85355341f, 0.38268343f },
-	{ -0.00000004f, 0.92387956f, 0.38268343f },
-	{ -0.35355335f, 0.85355347f, 0.38268343f },
-	{ -0.65328151f, 0.65328151f, 0.38268343f },
-	{ -0.85355341f, 0.35355344f, 0.38268343f },
-	{ -0.92387956f, -0.00000008f, 0.38268343f },
-	{ -0.85355341f, -0.35355338f, 0.38268343f },
-	{ -0.65328157f, -0.65328145f, 0.38268343f },
-	{ -0.35355353f, -0.85355341f, 0.38268343f },
-	{ 0.00000001f, -0.92387956f, 0.38268343f },
-	{ 0.35355356f, -0.85355335f, 0.38268343f },
-	{ 0.65328139f, -0.65328163f, 0.38268343f },
-	{ 0.85355347f, -0.35355338f, 0.38268343f }
+{-0.525731f, 0.000000f, 0.850651f}, {-0.442863f, 0.238856f, 0.864188f}, 
+{-0.295242f, 0.000000f, 0.955423f}, {-0.309017f, 0.500000f, 0.809017f}, 
+{-0.162460f, 0.262866f, 0.951056f}, {0.000000f, 0.000000f, 1.000000f}, 
+{0.000000f, 0.850651f, 0.525731f}, {-0.147621f, 0.716567f, 0.681718f}, 
+{0.147621f, 0.716567f, 0.681718f}, {0.000000f, 0.525731f, 0.850651f}, 
+{0.309017f, 0.500000f, 0.809017f}, {0.525731f, 0.000000f, 0.850651f}, 
+{0.295242f, 0.000000f, 0.955423f}, {0.442863f, 0.238856f, 0.864188f}, 
+{0.162460f, 0.262866f, 0.951056f}, {-0.681718f, 0.147621f, 0.716567f}, 
+{-0.809017f, 0.309017f, 0.500000f},{-0.587785f, 0.425325f, 0.688191f}, 
+{-0.850651f, 0.525731f, 0.000000f},{-0.864188f, 0.442863f, 0.238856f}, 
+{-0.716567f, 0.681718f, 0.147621f},{-0.688191f, 0.587785f, 0.425325f}, 
+{-0.500000f, 0.809017f, 0.309017f}, {-0.238856f, 0.864188f, 0.442863f}, 
+{-0.425325f, 0.688191f, 0.587785f}, {-0.716567f, 0.681718f, -0.147621f}, 
+{-0.500000f, 0.809017f, -0.309017f}, {-0.525731f, 0.850651f, 0.000000f}, 
+{0.000000f, 0.850651f, -0.525731f}, {-0.238856f, 0.864188f, -0.442863f}, 
+{0.000000f, 0.955423f, -0.295242f}, {-0.262866f, 0.951056f, -0.162460f}, 
+{0.000000f, 1.000000f, 0.000000f}, {0.000000f, 0.955423f, 0.295242f}, 
+{-0.262866f, 0.951056f, 0.162460f}, {0.238856f, 0.864188f, 0.442863f}, 
+{0.262866f, 0.951056f, 0.162460f}, {0.500000f, 0.809017f, 0.309017f}, 
+{0.238856f, 0.864188f, -0.442863f},{0.262866f, 0.951056f, -0.162460f}, 
+{0.500000f, 0.809017f, -0.309017f},{0.850651f, 0.525731f, 0.000000f}, 
+{0.716567f, 0.681718f, 0.147621f}, {0.716567f, 0.681718f, -0.147621f}, 
+{0.525731f, 0.850651f, 0.000000f}, {0.425325f, 0.688191f, 0.587785f}, 
+{0.864188f, 0.442863f, 0.238856f}, {0.688191f, 0.587785f, 0.425325f}, 
+{0.809017f, 0.309017f, 0.500000f}, {0.681718f, 0.147621f, 0.716567f}, 
+{0.587785f, 0.425325f, 0.688191f}, {0.955423f, 0.295242f, 0.000000f}, 
+{1.000000f, 0.000000f, 0.000000f}, {0.951056f, 0.162460f, 0.262866f}, 
+{0.850651f, -0.525731f, 0.000000f},{0.955423f, -0.295242f, 0.000000f}, 
+{0.864188f, -0.442863f, 0.238856f}, {0.951056f, -0.162460f, 0.262866f}, 
+{0.809017f, -0.309017f, 0.500000f}, {0.681718f, -0.147621f, 0.716567f}, 
+{0.850651f, 0.000000f, 0.525731f}, {0.864188f, 0.442863f, -0.238856f}, 
+{0.809017f, 0.309017f, -0.500000f}, {0.951056f, 0.162460f, -0.262866f}, 
+{0.525731f, 0.000000f, -0.850651f}, {0.681718f, 0.147621f, -0.716567f}, 
+{0.681718f, -0.147621f, -0.716567f},{0.850651f, 0.000000f, -0.525731f}, 
+{0.809017f, -0.309017f, -0.500000f}, {0.864188f, -0.442863f, -0.238856f}, 
+{0.951056f, -0.162460f, -0.262866f}, {0.147621f, 0.716567f, -0.681718f}, 
+{0.309017f, 0.500000f, -0.809017f}, {0.425325f, 0.688191f, -0.587785f}, 
+{0.442863f, 0.238856f, -0.864188f}, {0.587785f, 0.425325f, -0.688191f}, 
+{0.688191f, 0.587785f, -0.425325f}, {-0.147621f, 0.716567f, -0.681718f}, 
+{-0.309017f, 0.500000f, -0.809017f}, {0.000000f, 0.525731f, -0.850651f}, 
+{-0.525731f, 0.000000f, -0.850651f}, {-0.442863f, 0.238856f, -0.864188f}, 
+{-0.295242f, 0.000000f, -0.955423f}, {-0.162460f, 0.262866f, -0.951056f}, 
+{0.000000f, 0.000000f, -1.000000f}, {0.295242f, 0.000000f, -0.955423f}, 
+{0.162460f, 0.262866f, -0.951056f}, {-0.442863f, -0.238856f, -0.864188f}, 
+{-0.309017f, -0.500000f, -0.809017f}, {-0.162460f, -0.262866f, -0.951056f}, 
+{0.000000f, -0.850651f, -0.525731f}, {-0.147621f, -0.716567f, -0.681718f}, 
+{0.147621f, -0.716567f, -0.681718f}, {0.000000f, -0.525731f, -0.850651f}, 
+{0.309017f, -0.500000f, -0.809017f}, {0.442863f, -0.238856f, -0.864188f}, 
+{0.162460f, -0.262866f, -0.951056f}, {0.238856f, -0.864188f, -0.442863f}, 
+{0.500000f, -0.809017f, -0.309017f}, {0.425325f, -0.688191f, -0.587785f}, 
+{0.716567f, -0.681718f, -0.147621f}, {0.688191f, -0.587785f, -0.425325f}, 
+{0.587785f, -0.425325f, -0.688191f}, {0.000000f, -0.955423f, -0.295242f}, 
+{0.000000f, -1.000000f, 0.000000f}, {0.262866f, -0.951056f, -0.162460f}, 
+{0.000000f, -0.850651f, 0.525731f}, {0.000000f, -0.955423f, 0.295242f}, 
+{0.238856f, -0.864188f, 0.442863f}, {0.262866f, -0.951056f, 0.162460f}, 
+{0.500000f, -0.809017f, 0.309017f}, {0.716567f, -0.681718f, 0.147621f}, 
+{0.525731f, -0.850651f, 0.000000f}, {-0.238856f, -0.864188f, -0.442863f}, 
+{-0.500000f, -0.809017f, -0.309017f}, {-0.262866f, -0.951056f, -0.162460f}, 
+{-0.850651f, -0.525731f, 0.000000f}, {-0.716567f, -0.681718f, -0.147621f}, 
+{-0.716567f, -0.681718f, 0.147621f}, {-0.525731f, -0.850651f, 0.000000f}, 
+{-0.500000f, -0.809017f, 0.309017f}, {-0.238856f, -0.864188f, 0.442863f}, 
+{-0.262866f, -0.951056f, 0.162460f}, {-0.864188f, -0.442863f, 0.238856f}, 
+{-0.809017f, -0.309017f, 0.500000f}, {-0.688191f, -0.587785f, 0.425325f}, 
+{-0.681718f, -0.147621f, 0.716567f}, {-0.442863f, -0.238856f, 0.864188f}, 
+{-0.587785f, -0.425325f, 0.688191f}, {-0.309017f, -0.500000f, 0.809017f}, 
+{-0.147621f, -0.716567f, 0.681718f}, {-0.425325f, -0.688191f, 0.587785f}, 
+{-0.162460f, -0.262866f, 0.951056f}, {0.442863f, -0.238856f, 0.864188f}, 
+{0.162460f, -0.262866f, 0.951056f}, {0.309017f, -0.500000f, 0.809017f}, 
+{0.147621f, -0.716567f, 0.681718f}, {0.000000f, -0.525731f, 0.850651f}, 
+{0.425325f, -0.688191f, 0.587785f}, {0.587785f, -0.425325f, 0.688191f}, 
+{0.688191f, -0.587785f, 0.425325f}, {-0.955423f, 0.295242f, 0.000000f}, 
+{-0.951056f, 0.162460f, 0.262866f}, {-1.000000f, 0.000000f, 0.000000f}, 
+{-0.850651f, 0.000000f, 0.525731f}, {-0.955423f, -0.295242f, 0.000000f}, 
+{-0.951056f, -0.162460f, 0.262866f}, {-0.864188f, 0.442863f, -0.238856f}, 
+{-0.951056f, 0.162460f, -0.262866f}, {-0.809017f, 0.309017f, -0.500000f}, 
+{-0.864188f, -0.442863f, -0.238856f}, {-0.951056f, -0.162460f, -0.262866f}, 
+{-0.809017f, -0.309017f, -0.500000f}, {-0.681718f, 0.147621f, -0.716567f}, 
+{-0.681718f, -0.147621f, -0.716567f}, {-0.850651f, 0.000000f, -0.525731f}, 
+{-0.688191f, 0.587785f, -0.425325f}, {-0.587785f, 0.425325f, -0.688191f}, 
+{-0.425325f, 0.688191f, -0.587785f}, {-0.425325f, -0.688191f, -0.587785f}, 
+{-0.587785f, -0.425325f, -0.688191f}, {-0.688191f, -0.587785f, -0.425325f}
 };
 
 //==============================================================
@@ -360,15 +184,28 @@ signed short ClampShort( int i ) {
 
 
 // this isn't a real cheap function to call!
-// Makro - a lot cheaper now
+int DirToByte( vec3_t dir ) {
+	int		i, best;
+	float	d, bestd;
 
-int DirToByte(vec3_t dir)
-{
-	vec3_t angles;
-	vectoangles(dir, angles);
-	return ((int) (angles[YAW] * 16 / 360.0f) & 15) | ((((int) (angles[PITCH] * 16 / 360.0f)) & 15) << 4);
+	if ( !dir ) {
+		return 0;
+	}
+
+	bestd = 0;
+	best = 0;
+	for (i=0 ; i<NUMVERTEXNORMALS ; i++)
+	{
+		d = DotProduct (dir, bytedirs[i]);
+		if (d > bestd)
+		{
+			bestd = d;
+			best = i;
+		}
+	}
+
+	return best;
 }
-
 
 void ByteToDir( int b, vec3_t dir ) {
 	if ( b < 0 || b >= NUMVERTEXNORMALS ) {
@@ -810,50 +647,14 @@ void SetPlaneSignbits (cplane_t *out) {
 BoxOnPlaneSide
 
 Returns 1, 2, or 1 + 2
-
-// this is the slow, general version
-int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
-{
-	int		i;
-	float	dist1, dist2;
-	int		sides;
-	vec3_t	corners[2];
-
-	for (i=0 ; i<3 ; i++)
-	{
-		if (p->normal[i] < 0)
-		{
-			corners[0][i] = emins[i];
-			corners[1][i] = emaxs[i];
-		}
-		else
-		{
-			corners[1][i] = emins[i];
-			corners[0][i] = emaxs[i];
-		}
-	}
-	dist1 = DotProduct (p->normal, corners[0]) - p->dist;
-	dist2 = DotProduct (p->normal, corners[1]) - p->dist;
-	sides = 0;
-	if (dist1 >= 0)
-		sides = 1;
-	if (dist2 < 0)
-		sides |= 2;
-
-	return sides;
-}
-
 ==================
 */
-
-#if !id386
-
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 {
-	float	dist1, dist2;
-	int		sides;
+	float	dist[2];
+	int		sides, b, i;
 
-// fast axial cases
+	// fast axial cases
 	if (p->type < 3)
 	{
 		if (p->dist <= emins[p->type])
@@ -863,291 +664,27 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 		return 3;
 	}
 
-// general case
-	switch (p->signbits)
+	// general case
+	dist[0] = dist[1] = 0;
+	if (p->signbits < 8) // >= 8: default case is original code (dist[0]=dist[1]=0)
 	{
-	case 0:
-		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-		dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-		break;
-	case 1:
-		dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-		break;
-	case 2:
-		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-		dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-		break;
-	case 3:
-		dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-		break;
-	case 4:
-		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-		dist2 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-		break;
-	case 5:
-		dist1 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emins[2];
-		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emaxs[2];
-		break;
-	case 6:
-		dist1 = p->normal[0]*emaxs[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-		dist2 = p->normal[0]*emins[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-		break;
-	case 7:
-		dist1 = p->normal[0]*emins[0] + p->normal[1]*emins[1] + p->normal[2]*emins[2];
-		dist2 = p->normal[0]*emaxs[0] + p->normal[1]*emaxs[1] + p->normal[2]*emaxs[2];
-		break;
-	default:
-		dist1 = dist2 = 0;		// shut up compiler
-		break;
+		for (i=0 ; i<3 ; i++)
+		{
+			b = (p->signbits >> i) & 1;
+			dist[ b] += p->normal[i]*emaxs[i];
+			dist[!b] += p->normal[i]*emins[i];
+		}
 	}
 
 	sides = 0;
-	if (dist1 >= p->dist)
+	if (dist[0] >= p->dist)
 		sides = 1;
-	if (dist2 < p->dist)
+	if (dist[1] < p->dist)
 		sides |= 2;
 
 	return sides;
 }
-#elif __GNUC__
-// use matha.s
-#else
-#pragma warning( disable: 4035 )
 
-__declspec( naked ) int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
-{
-	static int bops_initialized;
-	static int Ljmptab[8];
-
-	__asm {
-
-		push ebx
-			
-		cmp bops_initialized, 1
-		je  initialized
-		mov bops_initialized, 1
-		
-		mov Ljmptab[0*4], offset Lcase0
-		mov Ljmptab[1*4], offset Lcase1
-		mov Ljmptab[2*4], offset Lcase2
-		mov Ljmptab[3*4], offset Lcase3
-		mov Ljmptab[4*4], offset Lcase4
-		mov Ljmptab[5*4], offset Lcase5
-		mov Ljmptab[6*4], offset Lcase6
-		mov Ljmptab[7*4], offset Lcase7
-			
-initialized:
-
-		mov edx,dword ptr[4+12+esp]
-		mov ecx,dword ptr[4+4+esp]
-		xor eax,eax
-		mov ebx,dword ptr[4+8+esp]
-		mov al,byte ptr[17+edx]
-		cmp al,8
-		jge Lerror
-		fld dword ptr[0+edx]
-		fld st(0)
-		jmp dword ptr[Ljmptab+eax*4]
-Lcase0:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase1:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase2:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase3:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase4:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase5:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ebx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase6:
-		fmul dword ptr[ebx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ecx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-		jmp LSetSides
-Lcase7:
-		fmul dword ptr[ecx]
-		fld dword ptr[0+4+edx]
-		fxch st(2)
-		fmul dword ptr[ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[4+ecx]
-		fld dword ptr[0+8+edx]
-		fxch st(2)
-		fmul dword ptr[4+ebx]
-		fxch st(2)
-		fld st(0)
-		fmul dword ptr[8+ecx]
-		fxch st(5)
-		faddp st(3),st(0)
-		fmul dword ptr[8+ebx]
-		fxch st(1)
-		faddp st(3),st(0)
-		fxch st(3)
-		faddp st(2),st(0)
-LSetSides:
-		faddp st(2),st(0)
-		fcomp dword ptr[12+edx]
-		xor ecx,ecx
-		fnstsw ax
-		fcomp dword ptr[12+edx]
-		and ah,1
-		xor ah,1
-		add cl,ah
-		fnstsw ax
-		and ah,1
-		add ah,ah
-		add cl,ah
-		pop ebx
-		mov eax,ecx
-		ret
-Lerror:
-		int 3
-	}
-}
-#pragma warning( default: 4035 )
-
-#endif
 
 /*
 =================
@@ -1471,132 +1008,129 @@ int Q_isnan( float x )
 	return (int)( (unsigned int)fi.ui >> 31 );
 }
 
-
 // By NiceAss. Used for reflection of sparks on metal surfaces
 int ReflectVectorByte(vec3_t dir, vec3_t plane)
 {
-	vec3_t final;
-	float dot;
+        vec3_t final;
+        float dot;
 
-	dot = DotProduct(dir, plane);
-	VectorMA(dir, -2 * dot, plane, final);
+        dot = DotProduct(dir, plane);
+        VectorMA(dir, -2 * dot, plane, final);
 
-	return DirToByte(final);
+        return DirToByte(final);
 }
 
-//Makro - moved from g_mover.c
 /*
-================
-CreateRotationMatrix
-================
-*/
+ * ================
+ * CreateRotationMatrix
+ * ================
+ * */
 void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3])
 {
-	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
-	VectorInverse(matrix[1]);
+        AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+        VectorInverse(matrix[1]);
 }
 
 /*
-================
-TransposeMatrix
-================
-*/
+ * ================
+ * TransposeMatrix
+ * ================
+ * */
 void TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3])
 {
-	int i, j;
+        int i, j;
 
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			transpose[i][j] = matrix[j][i];
-		}
-	}
+        for (i = 0; i < 3; i++) {
+                for (j = 0; j < 3; j++) {
+                        transpose[i][j] = matrix[j][i];
+                }
+        }
 }
 
 /*
-================
-RotatePoint
-================
-*/
+ * ================
+ * RotatePoint
+ * ================
+ * */
 void RotatePoint(vec3_t point, vec3_t matrix[3])
 {
-	vec3_t tvec;
+        vec3_t tvec;
 
-	VectorCopy(point, tvec);
-	point[0] = DotProduct(matrix[0], tvec);
-	point[1] = DotProduct(matrix[1], tvec);
-	point[2] = DotProduct(matrix[2], tvec);
+        VectorCopy(point, tvec);
+        point[0] = DotProduct(matrix[0], tvec);
+        point[1] = DotProduct(matrix[1], tvec);
+        point[2] = DotProduct(matrix[2], tvec);
 }
 
 //Makro - added
 void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out)
 {
-	vec3_t result;
+        vec3_t result;
 
-	VectorScale(newaxis[0], in[0], result);
-	VectorMA(result, in[1], newaxis[1], result);
-	VectorMA(result, in[2], newaxis[2], result);
+        VectorScale(newaxis[0], in[0], result);
+        VectorMA(result, in[1], newaxis[1], result);
+        VectorMA(result, in[2], newaxis[2], result);
 
-	if (neworg)
-		VectorAdd(result, neworg, result);
+        if (neworg)
+                VectorAdd(result, neworg, result);
 
-	VectorCopy(result, out);
+        VectorCopy(result, out);
 }
 
 //Makro - added
 void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out)
 {
-	vec3_t dif;
-	
-	if (neworg)
-		VectorSubtract(in, neworg, dif);
-	else
-		VectorCopy(in, dif);
-	out[0] = DotProduct(dif, newaxis[0]);
-	out[1] = DotProduct(dif, newaxis[1]);
-	out[2] = DotProduct(dif, newaxis[2]);
+        vec3_t dif;
+
+        if (neworg)
+                VectorSubtract(in, neworg, dif);
+        else
+                VectorCopy(in, dif);
+        out[0] = DotProduct(dif, newaxis[0]);
+        out[1] = DotProduct(dif, newaxis[1]);
+        out[2] = DotProduct(dif, newaxis[2]);
 }
 
 void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out)
 {
-	vec3_t result;
+        vec3_t result;
 
-	/*
-	result[YAW_AXIS] = in[YAW];
-	result[PITCH_AXIS] = in[PITCH];
-	result[ROLL_AXIS] = in[ROLL];
-	VectorCopy(result, in);
-	*/
-
-	VectorMA(vec3_origin, in[YAW], newaxis[YAW_AXIS], result);
-	VectorMA(result, in[PITCH], newaxis[PITCH_AXIS], result);
-	VectorMA(result, in[ROLL], newaxis[ROLL_AXIS], result);
-	//VectorCopy(result, out);
-	out[YAW] = result[YAW_AXIS];
-	out[PITCH] = result[PITCH_AXIS];
-	out[ROLL] = result[ROLL_AXIS];
-	//VectorCopy(in, out);
+        /*
+        result[YAW_AXIS] = in[YAW];
+        result[PITCH_AXIS] = in[PITCH];
+        result[ROLL_AXIS] = in[ROLL];
+        VectorCopy(result, in);
+        */
+        VectorMA(vec3_origin, in[YAW], newaxis[YAW_AXIS], result);
+        VectorMA(result, in[PITCH], newaxis[PITCH_AXIS], result);
+        VectorMA(result, in[ROLL], newaxis[ROLL_AXIS], result);
+        //VectorCopy(result, out);
+        out[YAW] = result[YAW_AXIS];
+        out[PITCH] = result[PITCH_AXIS];
+        out[ROLL] = result[ROLL_AXIS];
+        //VectorCopy(in, out);
 }
 
 void ToAxisAngles(vec3_t in, vec3_t out)
 {
-	vec3_t angles, result, forward;
-	
-	VectorClear(result);
-	//yaw - around the Z axis
-	result[YAW_AXIS] = in[YAW];
-	
-	//pitch - around the new Y axis
-	angles[YAW] = in[YAW];
-	angles[PITCH] = angles[ROLL] = 0;
-	AngleVectors(angles, NULL, forward, NULL);
-	VectorMA(result, -in[PITCH], forward, result);
-	result[PITCH_AXIS] = in[PITCH];
-	
-	//roll - around the new X axis
-	angles[PITCH] = in[PITCH];
-	AngleVectors(angles, forward, NULL, NULL);
-	VectorMA(result, in[ROLL], forward, result);
+        vec3_t angles, result, forward;
 
-	VectorCopy(result, out);
+        VectorClear(result);
+        //yaw - around the Z axis
+        result[YAW_AXIS] = in[YAW];
+
+        //pitch - around the new Y axis
+        angles[YAW] = in[YAW];
+        angles[PITCH] = angles[ROLL] = 0;
+        AngleVectors(angles, NULL, forward, NULL);
+        VectorMA(result, -in[PITCH], forward, result);
+        result[PITCH_AXIS] = in[PITCH];
+
+        //roll - around the new X axis
+        angles[PITCH] = in[PITCH];
+        AngleVectors(angles, forward, NULL, NULL);
+        VectorMA(result, in[ROLL], forward, result);
+
+        VectorCopy(result, out);
 }
 

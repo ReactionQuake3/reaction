@@ -267,7 +267,9 @@ Sys_StringToSockaddr
 */
 static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int sadr_len, sa_family_t family)
 {
-	struct addrinfo hints, *res = NULL, *search;
+	struct addrinfo hints;
+	struct addrinfo *res = NULL;
+	struct addrinfo *search = NULL;
 	struct addrinfo *hintsp;
 	int retval;
 	
@@ -854,9 +856,6 @@ int NET_IPSocket( char *net_interface, int port, int *err ) {
 	// make it broadcast capable
 	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, (char *) &i, sizeof(i) ) == SOCKET_ERROR ) {
 		Com_Printf( "WARNING: NET_IPSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
-
-		// it is not that bad if this one fails.
-//		return newsocket;
 	}
 
 	if( !net_interface || !net_interface[0]) {
@@ -997,7 +996,7 @@ void NET_SetMulticast6(void)
 	if(*net_mcast6iface->string)
 	{
 #ifdef _WIN32
-		curgroup.ipv6mr_interface = atoi(net_mcast6iface->string);
+		curgroup.ipv6mr_interface = net_mcast6iface->integer;
 #else
 		curgroup.ipv6mr_interface = if_nametoindex(net_mcast6iface->string);
 #endif
@@ -1036,28 +1035,28 @@ void NET_JoinMulticast6(void)
 	if(curgroup.ipv6mr_interface)
 	{
 		if (setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
-			       (char *) &curgroup.ipv6mr_interface, sizeof(curgroup.ipv6mr_interface)) < 0)
+					(char *) &curgroup.ipv6mr_interface, sizeof(curgroup.ipv6mr_interface)) < 0)
 		{
-        	        Com_Printf("NET_JoinMulticast6: Couldn't set scope on multicast socket: %s\n", NET_ErrorString());
+			Com_Printf("NET_JoinMulticast6: Couldn't set scope on multicast socket: %s\n", NET_ErrorString());
 
-        	        if(multicast6_socket != ip6_socket)
-        	        {
-        	        	closesocket(multicast6_socket);
-        	        	multicast6_socket = INVALID_SOCKET;
-        	        	return;
+			if(multicast6_socket != ip6_socket)
+			{
+				closesocket(multicast6_socket);
+				multicast6_socket = INVALID_SOCKET;
+				return;
 			}
 		}
-        }
+	}
 
-        if (setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char *) &curgroup, sizeof(curgroup)))
-        {
-        	Com_Printf("NET_JoinMulticast6: Couldn't join multicast group: %s\n", NET_ErrorString());
-        	
-       	        if(multicast6_socket != ip6_socket)
-       	        {
-       	        	closesocket(multicast6_socket);
-       	        	multicast6_socket = INVALID_SOCKET;
-       	        	return;
+	if (setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char *) &curgroup, sizeof(curgroup)))
+	{
+		Com_Printf("NET_JoinMulticast6: Couldn't join multicast group: %s\n", NET_ErrorString());
+
+		if(multicast6_socket != ip6_socket)
+		{
+			closesocket(multicast6_socket);
+			multicast6_socket = INVALID_SOCKET;
+			return;
 		}
 	}
 }
@@ -1254,10 +1253,10 @@ void NET_OpenSocks( int port ) {
 
 /*
 =====================
-NET_GetLocalAddress
+NET_AddLocalAddress
 =====================
 */
-void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *netmask)
+static void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *netmask)
 {
 	int addrlen;
 	sa_family_t family;
@@ -1295,7 +1294,7 @@ void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *n
 }
 
 #if defined(__linux__) || defined(MACOSX) || defined(__BSD__)
-void NET_GetLocalAddress(void)
+static void NET_GetLocalAddress(void)
 {
 	struct ifaddrs *ifap, *search;
 
@@ -1316,10 +1315,10 @@ void NET_GetLocalAddress(void)
 	}
 }
 #else
-void NET_GetLocalAddress( void ) {
+static void NET_GetLocalAddress( void ) {
 	char				hostname[256];
-	struct addrinfo		hint;
-	struct addrinfo 	*res = NULL;
+	struct addrinfo	hint;
+	struct addrinfo	*res = NULL;
 
 	if(gethostname( hostname, 256 ) == SOCKET_ERROR)
 		return;
@@ -1335,7 +1334,7 @@ void NET_GetLocalAddress( void ) {
 	{
 		struct sockaddr_in mask4;
 		struct sockaddr_in6 mask6;
-		struct addrinfo 	*search;
+		struct addrinfo *search;
 	
 		/* On operating systems where it's more difficult to find out the configured interfaces, we'll just assume a
 		 * netmask with all bits set. */
@@ -1472,28 +1471,32 @@ static qboolean NET_GetCvars( void ) {
 	modified += net_mcast6addr->modified;
 	net_mcast6addr->modified = qfalse;
 
+#ifdef _WIN32
 	net_mcast6iface = Cvar_Get( "net_mcast6iface", "0", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_mcast6iface->modified; 
+#else
+	net_mcast6iface = Cvar_Get( "net_mcast6iface", "", CVAR_LATCH | CVAR_ARCHIVE );
+#endif
+	modified += net_mcast6iface->modified;
 	net_mcast6iface->modified = qfalse;
 
 	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_socksEnabled->modified; 
+	modified += net_socksEnabled->modified;
 	net_socksEnabled->modified = qfalse;
 
 	net_socksServer = Cvar_Get( "net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_socksServer->modified; 
+	modified += net_socksServer->modified;
 	net_socksServer->modified = qfalse;
 
 	net_socksPort = Cvar_Get( "net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_socksPort->modified; 
+	modified += net_socksPort->modified;
 	net_socksPort->modified = qfalse;
 
 	net_socksUsername = Cvar_Get( "net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_socksUsername->modified; 
+	modified += net_socksUsername->modified;
 	net_socksUsername->modified = qfalse;
 
 	net_socksPassword = Cvar_Get( "net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE );
-	modified += net_socksPassword->modified; 
+	modified += net_socksPassword->modified;
 	net_socksPassword->modified = qfalse;
 
 	return modified ? qtrue : qfalse;
