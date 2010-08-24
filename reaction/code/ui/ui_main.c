@@ -2251,7 +2251,10 @@ static void UI_RQ3_DrawPreset(rectDef_t * rect, float scale, vec4_t color, int n
 	if (radioPresets[num-1].Text->string[0]) {
 		text = radioPresets[num-1].Text->string;
 	}
-	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
 }
 
 static char team1Name[128], team2Name[128];
