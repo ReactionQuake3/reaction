@@ -76,7 +76,7 @@
 		itemDef {
 			name team1
 			text ""
-			cvar "ui_RQ3_teamCount1"
+			cvar "ui_RQ3_teamCount1"	//doesn't work
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
 			alignrect title ITEM_ALIGN_LEFT 104 32 32 14
@@ -111,7 +111,7 @@
 		itemDef {
 			name team3
 			text ""
-			cvar "ui_RQ3_numSpectators"
+			cvar "ui_RQ3_numSpectators"	//doesn't work
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
 			alignrect title ITEM_ALIGN_LEFT 104 48 32 14

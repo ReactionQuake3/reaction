@@ -72,8 +72,8 @@
 			uiScript "updateItemBans" ;
 			setfocus mp5
 		}
-		onESC { play "sound/ui/whoosh3.wav" ; close _self }
-		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
+		onESC { play "sound/ui/whoosh3.wav" ; close _self ; open _prev }
+		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self ; open _prev }
 		
 		itemDef {
 			renderpoint
@@ -82,7 +82,8 @@
 			group window
 			style WINDOW_STYLE_SHADER
 			background UI_ASSETS"/paper_1"
-			forecolor .9 .9 .82 1
+			forecolor .934 .938 .891 1
+			//forecolor .9 .9 .82 1
 			//forecolor .78 .82 .86 1
 			rect -8 -12 380 320
 			anglevectors ANGLES

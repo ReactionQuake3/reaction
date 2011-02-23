@@ -272,6 +272,38 @@
 	decoration
     }
 
+// Demo recorder
+
+	itemdef {
+	name "btn_demo"
+	text "> ^_D^_emo recorder"
+	shortcutKey "D"
+	forecolor 0 0 0 1
+	textalign 0
+	textalignx 0
+	textaligny 20
+	textscale UI_MAIN_TEXTSIZE
+	alignrect "btn_replace" ITEM_ALIGN_LEFT 0 36 108 24
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	visible 1
+	action { openSpecial ingame_record }
+    }
+
+	itemdef {
+	text "Shoot a scene"
+	forecolor .25 .25 .25 1
+	textalign 0
+	textalignx 12
+	textaligny 12
+	textscale 0.2
+	alignrect "btn_demo" ITEM_ALIGN_LEFT 0 20 96 24
+	type ITEM_TYPE_TEXT
+	style 0
+	visible 1
+	decoration
+    }
+
 // Reset to defaults
 /*
 	itemdef {

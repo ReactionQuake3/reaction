@@ -91,10 +91,11 @@
 			textscale .2
 			elementtype LISTBOX_TEXT
 			feeder FEEDER_SERVERSTATUS
-			columns 4 4 40 20
-				40 40 10
-				80 40 10
-				120 20 20
+			columns 4
+				2 0 22
+				44 0 5
+				92 0 5
+				136 0 22
 			forecolor 0 0 0 1
 			visible 1
 		}

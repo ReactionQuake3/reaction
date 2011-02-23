@@ -62,7 +62,6 @@
 		//style WINDOW_STYLE_FILLED
 		//backcolor 0 0 0 1
 		popup
-
 		onOOBClick { close _self ; open _prev }
 		onOpen { play "sound/ui/whoosh3.wav" ; uiScript buildReplacementList 
 			ACTIVATE_TAB(1) ;
@@ -267,7 +266,7 @@
 			name "weapon_tip"
 			group "fade_fore_alpha,group1,allgroups"
 			style 0
-			text "Select a weapon you\n"
+			text "Select the weapon you\n"
 				"want to replace:"
 			autowrapped
 			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
@@ -284,7 +283,7 @@
 			name "item_tip"
 			group "fade_fore_alpha,group2,allgroups"
 			style 0
-			text "Select an item you\n"
+			text "Select the item you\n"
 				"want to replace:"
 			autowrapped
 			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20
@@ -301,7 +300,7 @@
 			name "ammo_tip"
 			group "fade_fore_alpha,group3,allgroups"
 			style 0
-			text "Select an ammo type\n"
+			text "Select the ammo type\n"
 				"you want to replace:"
 			autowrapped
 			alignrect "line" ITEM_ALIGN_LEFT 4 48 208 20

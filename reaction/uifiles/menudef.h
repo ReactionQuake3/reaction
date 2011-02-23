@@ -389,6 +389,8 @@
 #define UI_MAIN_ITEM_SPACING_Y	36
 #define UI_MAIN_HINT_OFFSET_Y	20
 #define UI_MAIN_TEXTSIZE		.28
+#define UI_INGAME_TEXTSIZE		.28
+#define UI_COLOR_INACTIVE 0 0 0 0.2
 
 //Ingame stuff
 

@@ -7,6 +7,7 @@
 	//loadMenu { "ui/ingame_vote.menu" }
 	loadMenu { "ui/ingame_callvote.menu" }
 	loadMenu { "ui/ingame_setup.menu" }
+	loadMenu { "ui/ingame_record.menu" }
 	
 	loadMenu { "ui/ingame_join.menu" }
 	loadMenu { "ui/ingame_join_dm.menu" }
@@ -15,12 +16,12 @@
 	loadMenu { "ui/ingame_tkok.menu" }
 
 	//loadMenu { "ui/ingame_player.menu" }
-	//loadMenu { "ui/ingame_addbot.menu" }
-	//loadMenu { "ui/ingame_matchmode.menu" }
-	//loadMenu { "ui/ingame_matchmode_captain.menu" }
-	//loadMenu { "ui/ingame_matchmode_referee.menu" }
-	//loadMenu { "ui/ingame_matchmode_settings.menu" }
-	//loadMenu { "ui/ingame_devmode.menu" }
+	loadMenu { "ui/ingame_addbot.menu" }
+	loadMenu { "ui/ingame_matchmode.menu" }
+	loadMenu { "ui/ingame_matchmode_captain.menu" }
+	loadMenu { "ui/ingame_matchmode_referee.menu" }
+	loadMenu { "ui/ingame_matchmode_settings.menu" }
+	loadMenu { "ui/ingame_devmode.menu" }
 
 	loadMenu { "ui/ingame_presets.menu" }
 	loadMenu { "ui/ingame_presets_edit.menu" }

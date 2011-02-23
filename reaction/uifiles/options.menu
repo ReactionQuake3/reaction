@@ -335,7 +335,7 @@ Group # 2 - Crosshair
 	itemDef {
 		name "preview"
 		subgroup "fade_fore_alpha,group2,allgroups"
-		alignrect "line" ITEM_ALIGN_LEFT 112 16 56 56
+		alignrect "line" ITEM_ALIGN_LEFT 120 24 56 56
 		style WINDOW_STYLE_SHADER
 		background UI_ASSETS"/crosshair_back"
 		decoration
@@ -351,7 +351,7 @@ Group # 2 - Crosshair
 		textaligny -4
 		textscale .225
 		forecolor OPTION_COLOR
-		alignrect "line" ITEM_ALIGN_LEFT 52 52 96 VSIZE
+		alignrect "line" ITEM_ALIGN_LEFT 52 60 96 VSIZE
 		decoration
 		visible 1
 	}
@@ -359,7 +359,7 @@ Group # 2 - Crosshair
 	itemdef {
 		renderpoint
 		name "allgroups,group2,gr2_ctrl3,fade_alpha"
-		alignrect "line" ITEM_ALIGN_LEFT 112 16 56 56
+		alignrect "line" ITEM_ALIGN_LEFT 120 24 56 56
 		ownerdraw UI_CROSSHAIR
 		ASSIGN_HINT("hint_crosshair")
 		visible 1
@@ -372,7 +372,7 @@ Group # 2 - Crosshair
 	// Crosshair size //
 
 	BEGIN_OPTION("Crosshair Size", "cg_crosshairSize", ITEM_TYPE_MULTI, 4, 2)
-		alignrect "line" ITEM_ALIGN_LEFT 112 72 112 VSIZE
+		alignrect "line" ITEM_ALIGN_LEFT 112 80 112 VSIZE
 		ASSIGN_HINT("hint_crosshairsize")
 		cvarFloatList {
 				"Small"		16
@@ -451,26 +451,28 @@ Group # 3 - SSG Crosshair
 
 	BEGIN_SLIDER("Alpha", "cg_RQ3_ssgColorA", 1, 0, 1, 4, 3)
 		OPTION_BELOW("gr3_ctrl3")
-		ASSIGN_HINT("hint_color")
+		ASSIGN_HINT("hint_alpha")
 	END_OPTION
 
 	// Preview //
-
-	itemdef {
+/*
+	itemDef {
 		name "allgroups,group3,gr3_ctrl5,fade_alpha"
-		style WINDOW_STYLE_FILLED
-		backcolor 0 0 0 .5
 		alignrect "gr3_ctrl1" ITEM_ALIGN_LEFT 112 0 136 136
+		style WINDOW_STYLE_SHADER
+		background UI_ASSETS"/crosshair_back"
 		decoration
-		visible 1
-	}
+	}*/
 
 	itemdef {
 		name "allgroups,group3,gr3_ctrl6,fade_alpha"
 		alignrect "gr3_ctrl1" ITEM_ALIGN_LEFT 116 4 128 128
 		ownerdraw UI_SSG_CROSSHAIR
+		ASSIGN_HINT("hint_ssg")
 		visible 1
 	}
+	
+	ADD_HINT("hint_ssg", "Change SSG crosshair style", "group3")
 
 	// Next //
 

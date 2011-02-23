@@ -106,24 +106,26 @@
     //
     //
 
-	// Map
-	ADD_TAB(
-		"^_M^_ap.",
-		"M", 1, "group2,group3",
-		alignrect "title" ITEM_ALIGN_LEFT 2 28 28 TAB_HEIGHT
-	)
-    ADD_HINT("hint_tab1", "Call a vote for a map change", "group2,group3")
-
-//---------------------------------------------------------
-
 	// Gametype
 
 	ADD_TAB(
 		"^_G^_ametype.",
-		"G", 2, "group1,group3",
-		alignrect "tab1" ITEM_ALIGN_RIGHT -58 0 58 TAB_HEIGHT
+		"G", 1, "group2,group3",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 55 TAB_HEIGHT
 	)
-    ADD_HINT("hint_tab2", "Call a vote for a gametype change", "group1,group3")
+    ADD_HINT("hint_tab1", "Call a vote for a gametype change", "group2,group3")
+
+//---------------------------------------------------------
+
+	// Map
+
+	ADD_TAB(
+		"^_M^_ap.",
+		"M", 2, "group1,group3",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -27 0 27 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab2", "Call a vote for a map change", "group1,group3")
+
 
 //---------------------------------------------------------
 
@@ -132,22 +134,68 @@
 	ADD_TAB(
 		"^_K^_ick.",
 		"K", 3, "group1,group2",
-		alignrect "tab2" ITEM_ALIGN_RIGHT -30 0 32 TAB_HEIGHT
+		alignrect "tab2" ITEM_ALIGN_RIGHT -31 0 32 TAB_HEIGHT
 	)
     ADD_HINT("hint_tab3", "Call a vote to kick a player from the server", "group1,group2")
 
 /*
 ==========================================================
 
-Group # 1 - Map
+Group # 1 - Gametype
+
+==========================================================
+*/
+
+		BEGIN_SIMPLE_OPTION(1, 1)
+			alignrect "line" ITEM_ALIGN_LEFT 56 44 156 VSIZE
+			text ""
+			ownerdraw UI_NETGAMETYPE
+			ASSIGN_HINT("hint_tab1")
+		END_OPTION
+		
+		itemDef	{
+			name "btn_game,allgroups,group1"
+			subgroup "fade_fore_alpha"
+			alignrect "line" ITEM_ALIGN_LEFT 228 46 36 16
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript voteGame ; uiScript closeingame }
+			ASSIGN_HINT("hint_tab1")
+		}
+		
+		itemDef {
+			name "gametype_dots"
+			group "fade_fore_alpha,group1,allgroups"
+			style 0
+			text ".............................................."
+			alignrect "gr1_ctrl1" ITEM_ALIGN_LEFT 0 0 168 20
+			textscale .225
+			textalign ITEM_ALIGN_LEFT
+			textaligny 20
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+/*
+==========================================================
+
+Group # 2 - Map
 
 ==========================================================
 */
 	
 		itemDef {
 			text "Call a vote for"
-			name "hint_map,allgroups,group1,hints,fade_alpha"	
-			group "fade_fore_alpha,group1,allgroups"
+			name "hint_map,allgroups,group2,hints,fade_alpha"	
+			group "fade_fore_alpha,group2,allgroups"
 			ownerdraw UI_ALLMAPS_SELECTION
 			autowrapped
 			forecolor HINT_COLOR 1
@@ -165,19 +213,18 @@ Group # 1 - Map
 		
 		itemDef {
 			name "maplist"
-			subgroup "fade_fore_alpha,group1,allgroups"
+			subgroup "fade_fore_alpha,group2,allgroups"
 			LISTBOX_STYLE(.225, 8)
 			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
 			feeder FEEDER_ALLMAPS
 			visible 1
 			columns 1 2 140 25
-			ASSIGN_HINT("hint_tab1")
+			ASSIGN_HINT("hint_tab2")
 		}
 		
 		itemDef	{
-			name "allgroups,group1,gr1_ctrl3,fade_alpha"
-			//name "vote_next"
-			group "fade_fore_alpha,group1,allgroups"
+			name "allgroups,group2,gr2_ctrl3,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
 			alignrect "paper" ITEM_ALIGN_LEFT 240 112 68 14
 			text "> ^_N^_ext map <"
 			shortcutKey "N"
@@ -194,7 +241,7 @@ Group # 1 - Map
 		
 		itemDef	{
 			name "vote_restart"
-			subgroup "fade_fore_alpha,group1,allgroups"
+			subgroup "fade_fore_alpha,group2,allgroups"
 			alignrect "paper" ITEM_ALIGN_LEFT 240 128 84 14
 			text "> ^_R^_estart map <"
 			shortcutKey "R"
@@ -211,7 +258,7 @@ Group # 1 - Map
 		
 		itemDef	{
 			name "vote_map"
-			subgroup "fade_fore_alpha,group1,allgroups"
+			subgroup "fade_fore_alpha,group2,allgroups"
 			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
 			text "> ^_O^_K <"
 			shortcutKey "O"
@@ -226,57 +273,9 @@ Group # 1 - Map
 			ASSIGN_HINT("hint_map")
 		}
 		
-		ADD_HINT("hint_next", "Call a vote to change to the next map in rotation", "group1")
-		ADD_HINT("hint_restart", "Call a vote to restart the current map", "group1")
+		ADD_HINT("hint_next", "Call a vote to change to the next map in rotation", "group2")
+		ADD_HINT("hint_restart", "Call a vote to restart the current map", "group2")
 
-/*
-==========================================================
-
-Group # 2 - Gametype
-
-==========================================================
-*/
-
-		//BEGIN_OPTION("Gametype", "g_gametype", ITEM_TYPE_MULTI, 1, 2)
-		BEGIN_SIMPLE_OPTION(1, 2)
-			alignrect "line" ITEM_ALIGN_LEFT 56 44 156 VSIZE
-			//type ITEM_TYPE_MULTI
-			text ""
-			ownerdraw UI_NETGAMETYPE
-			ASSIGN_HINT("hint_tab2")
-		END_OPTION
-		
-		itemDef	{
-			name "btn_game,allgroups,group2"
-			subgroup "fade_fore_alpha"
-			alignrect "line" ITEM_ALIGN_LEFT 228 46 36 16
-			text "> ^_O^_K <"
-			shortcutKey "O"
-			style WINDOW_STYLE_EMPTY
-			forecolor .5 0 0 1
-			textalignx 0
-			textaligny 12
-			textscale .225
-			visible 1
-			type ITEM_TYPE_BUTTON
-			action { play "sound/ui/whoosh3.wav" ; uiScript voteGame ; uiScript closeingame }
-			ASSIGN_HINT("hint_tab2")
-		}
-		
-		itemDef {
-			name "gametype_dots"
-			group "fade_fore_alpha,group2,allgroups"
-			style 0
-			text ".............................................."
-			alignrect "gr2_ctrl1" ITEM_ALIGN_LEFT 0 0 168 20
-			textscale .225
-			textalign ITEM_ALIGN_LEFT
-			textaligny 20
-			forecolor OPTION_COLOR
-			visible 1
-			decoration
-		}
-	
 /*
 ==========================================================
 
@@ -285,7 +284,6 @@ Group # 3 - Kick
 ==========================================================
 */
 		itemDef {
-			//name "playerlist"
 			name "allgroups,group3,gr3_ctrl1,fade_alpha"
 			subgroup "fade_fore_alpha"
 			LISTBOX_STYLE(.225, 8)
@@ -293,15 +291,6 @@ Group # 3 - Kick
 			feeder FEEDER_PLAYER_LIST
 			visible 1
 			ASSIGN_HINT("hint_tab3")
-			/*
-			type ITEM_TYPE_LISTBOX
-			style WINDOW_STYLE_FILLED
-			elementwidth 192
-			elementheight 15
-			textscale .2
-			elementtype LISTBOX_TEXT
-			forecolor 0 0 0 1
-			*/
 		}
 		
 		itemDef	{

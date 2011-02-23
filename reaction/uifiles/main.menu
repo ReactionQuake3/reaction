@@ -350,40 +350,23 @@
 	decoration
     }
 
-	
 /*
-	itemDef {
-	name "paper"
-	subgroup "fade_alpha"
-	style WINDOW_STYLE_SHADER
-	background UI_ASSETS"/paper_1"
-	forecolor .95 1 .95 1
-	rect 32 48 600 520
-	anglevectors 7 -83
-	visible 1
-	decoration
-    }
-
-//Server list
-
-    itemdef {
-	renderpoint
-	name serverlist_window
-	group serverlist
-	alignrect "paper" ITEM_ALIGN_LEFT 32 96 488 212
-	//rect 20 96 600 212
-	LISTBOX_STYLE(.175, 4)
-	feeder FEEDER_SERVERS
-	visible 1
-	columns 5 2 72 72 280 40 12 404 5 10 464 5 5 524 6 6
-	//mouseenter { setitemcolor serverlist bordercolor .7 0 0 1 }
-	//mouseexit { setitemcolor serverlist bordercolor .5 .5 .5 1 }
-	onFocus { show serverlist_hint ; timeFade serverlist_hint forecolor .9 .9 .9 1 0 250 }
-	leaveFocus { timeFade serverlist_hint forecolor .9 .9 .9 0 0 250 }
-	doubleClick { uiScript JoinServer }
+    itemDef {
+		cvarTest "developer"
+		showCvar { "1" }
+		text "> Test"
+		forecolor 0 0 0 1
+		textalign 0
+		textalignx 0
+		textaligny 20
+		textscale UI_MAIN_TEXTSIZE
+		alignrect "btn_quit" ITEM_ALIGN_LEFT 0 36 96 24
+		type ITEM_TYPE_BUTTON
+		style WINDOW_STYLE_EMPTY
+		visible 1
+		action { open alphabet }
     }
 */
-
 
 }
 

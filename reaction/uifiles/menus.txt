@@ -32,4 +32,6 @@
 
 	loadMenu { "ui/quit.menu" }
 
+	loadMenu { "ui/alphabet.menu" }
+
 }

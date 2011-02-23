@@ -577,7 +577,7 @@ Group # 3
 
 		BEGIN_OPTION("Require Password", "g_needpass", ITEM_TYPE_YESNO, 4, 3)
 			kind YESNO_ICON_RIGHT
-			OPTION_BELOW("gr3_ctrl3")		
+			OPTION_BELOW("gr3_ctrl3")
 			ASSIGN_HINT("hint_needpass")
 		END_OPTION
 		ADD_HINT("hint_needpass", "Specifies whether the password is needed in order to connect to your server", "group3")
@@ -594,7 +594,7 @@ Group # 3
 
 		BEGIN_OPTION("Synchronous Clients", "g_synchronousclients", ITEM_TYPE_YESNO, 6, 3)
 			kind YESNO_ICON_RIGHT
-			OPTION_BELOW("gr3_ctrl5")		
+			OPTION_BELOW("gr3_ctrl5")
 			ASSIGN_HINT("hint_sync")
 		END_OPTION
 		ADD_HINT("hint_sync", "Toggles synchronization of all clients to allow demo recording on the server", "group3")
@@ -603,7 +603,7 @@ Group # 3
 
 		BEGIN_OPTION("VoIP", "sv_voip", ITEM_TYPE_YESNO, 7, 3)
 			kind YESNO_ICON_RIGHT
-			OPTION_BELOW("gr3_ctrl6")		
+			OPTION_BELOW("gr3_ctrl6")
 			ASSIGN_HINT("hint_voip")
 		END_OPTION
 		ADD_HINT("hint_voip", "Enable server-side VoIP support", "group3")

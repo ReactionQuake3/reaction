@@ -18,8 +18,9 @@
 			setitemcolor window forecolor 5 5 5 0 ;
 			timefade window forecolor 5 5 5 1 0 FADEIN_TIME
 		}
-		onESC { play "sound/ui/whoosh3.wav" ; close _self }
-		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
+		//onESC { play "sound/ui/whoosh3.wav" ; close _self }
+		onESC { play "sound/ui/whoosh3.wav" }
+		//onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
 		
 		itemDef {
 			renderpoint
@@ -120,7 +121,7 @@
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
 			*/
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; uiScript closeingame }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; close "ingame_join" }
 		}
 		
 		itemDef {
@@ -159,7 +160,7 @@
 			textscale .225
 			forecolor 0 0 .1 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team auto" ; uiScript "weapAfterJoin" ; uiScript closeingame }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team auto" ; uiScript "weapAfterJoin" ; close "ingame_join" }
 			/*
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
@@ -180,7 +181,7 @@
 			textscale .225
 			forecolor 0 0 .1 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; uiScript closeingame }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; close "ingame_join" }
 			/*
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6

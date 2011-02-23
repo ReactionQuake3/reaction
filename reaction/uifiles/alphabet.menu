@@ -1,0 +1,87 @@
+#include "ui/menudef.h"
+
+{
+
+	menuDef {
+		renderpoint
+		name "alphabet"
+		visible MENU_FALSE				// Visible on open
+		focusColor RQ3_MAIN_FOCUSCOLOR	// Menu focus color for text and items
+		rect 232 80 368 356
+		anglevectors 0 -90
+		style WINDOW_STYLE_EMPTY
+		popup
+		onOpen { play "sound/ui/whoosh3.wav" }	
+		onOOBClick { close _self ; open main }
+		onEsc { close _self ; open main }
+		
+		itemDef {
+			name "paper"
+			menuAnchor
+			subgroup "fade_fore_alpha"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor MENUCOLOR_DEMO 1
+			rect -8 -16 408 420
+			anglevectors 0 -90
+			visible 1
+			decoration
+		}
+		
+		itemDef {
+			name "font20"
+			renderpoint
+			alignrect "paper" ITEM_ALIGN_LEFT 32 40 240 24
+			textaligny 24
+			text "!\"#$%& ()*+,-./0 \n"
+				"123456789:;<=>?@ABCD\n"
+				"EFGHIJKLMNOPQRSTUV\n"
+				"WXYZ[\\]^^0_`abcdefghijkl\n"
+				"mnopqrstuvwxyz{|}~"
+			forecolor 0 0 0 1
+			autowrapped
+			visible 1
+			decoration
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 .6
+		}
+
+		itemDef {
+			name "font16"
+			renderpoint
+			alignrect "font20" ITEM_ALIGN_LEFT 0 160 160 24
+			textscale UI_MAIN_TEXTSIZE
+			textaligny 24
+			text "!\"#$%& ()*+,-./0 \n"
+				"123456789:;<=>?@ABCD\n"
+				"EFGHIJKLMNOPQRSTUV\n"
+				"WXYZ[\\]^^0_`abcdefghijkl\n"
+				"mnopqrstuvwxyz{|}~"
+			forecolor 0 0 0 1
+			autowrapped
+			visible 1
+			decoration
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 .6
+		}
+
+		itemDef {
+			name "font12"
+			renderpoint
+			alignrect "font16" ITEM_ALIGN_LEFT 192 0 128 24
+			textscale 0.2
+			textaligny 24
+			text "!\"#$%& ()*+,-./0 \n"
+				"123456789:;<=>?@ABCD\n"
+				"EFGHIJKLMNOPQRSTUV\n"
+				"WXYZ[\\]^^0_`abcdefghijkl\n"
+				"mnopqrstuvwxyz{|}~"
+			forecolor 0 0 0 1
+			autowrapped
+			visible 1
+			decoration
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 .6
+		}
+	}
+}
