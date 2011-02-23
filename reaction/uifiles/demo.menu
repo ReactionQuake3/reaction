@@ -175,8 +175,30 @@
 	visible 1
 	autowrapped
 	action { uiScript RunDemo }
-    }
+    //style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 .5
+	}
 
+	//Render
+
+	itemdef {
+	name "btn_render"
+	subgroup "fade_fore_alpha"
+	text "^_R^_ender as AVI >"
+	shortcutKey "R"
+	forecolor .5 0 0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .25
+	textalignx 0
+	textaligny 14
+	alignRect demolist ITEM_ALIGN_LEFT 0 180 96 20
+	visible 1
+	autowrapped
+	action { uiScript RenderDemo }
+	//style WINDOW_STYLE_FILLED
+	//backcolor 0 0 0 .5
+    }
 
 }
 }
