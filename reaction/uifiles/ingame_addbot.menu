@@ -1,131 +1,131 @@
 #include "ui/menudef.h"
+#define FADEIN_TIME	125
+#define ANGLES -8 -98
 
 {
-
-    menuDef {
-	name "ingame_addbot"
-	visible 0
-	fullscreen 0
-	//outOfBoundsClick			// this closes the window if it gets a click out of the rectangle
-	onOOBClick { close _self ; open _prev }
-	rect 384 64 152 128
-	disableColor  .5 .5 .5 1
-	focusColor 1 .75 0 1			// Menu focus color for text and items
-	style 1
-	shadowStyle 1
-	onOpen { play "sound/misc/menu1.wav" ; setfocus "ig-bot-name" }
-
-//Window
-
-    itemdef {
-	rect 0 0 152 128
-	style WINDOW_STYLE_FILLED
-	backcolor Ig_Window_Color
-	visible 1
-	border 1
-	bordersize 1
-	bordercolor Ig_Window_BorderColor
-	decoration
-    }
-
-    itemdef {
-	rect 33 1 120 24
-	style WINDOW_STYLE_SHADER
-	background "ui/assets/rq3-ingame-title"
-	visible 1
-	decoration
-    }
-
-    itemdef {
-	rect 33 1 120 24
-	style WINDOW_STYLE_EMPTY
-	forecolor Ig_Window_TitleColor
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_LEFT
-	textalignx 24
-	textaligny 16
-	text "Add bot"
-	visible 1
-	decoration
-    }
-
-//Objects
-
-    itemdef {
-	name "ig-bot-name"
-	style WINDOW_STYLE_EMPTY
-	text "^_N^_ame:"
-	shortcutKey "N"
-	ownerdraw UI_BOTNAME
-	rect 0 32 128 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 48
-	textaligny 18
-	textscale .225
-	forecolor 1 1 1 1
-	border 0
-	bordercolor 0 0 0 0
-	visible 1
-    }
-
-    itemdef {
-	name "ig-bot-team"
-	style WINDOW_STYLE_EMPTY
-	text "^_T^_eam:"
-	shortcutKey "T"
-	ownerdraw UI_REDBLUE
-	rect 0 52 128 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 48
-	textaligny 18
-	textscale .225
-	cvarTest "g_gametype"
-	disableCvar { "0" ; "1" }
-	forecolor 1 1 1 1
-	border 0
-	bordercolor 0 0 0 0
-	visible 1
-    }
-
-    itemdef {
-	name "ig-bot-skill"
-	style WINDOW_STYLE_EMPTY
-	text "^_S^_kill:"
-	shortcutKey "S"
-	ownerdraw UI_BOTSKILL
-	rect 0 72 128 20
-	textalign ITEM_ALIGN_RIGHT
-	textalignx 48
-	textaligny 18
-	textscale .225
-	forecolor 1 1 1 1
-	border 0
-	bordercolor 0 0 0 0
-	visible 1
-    }
-
-    itemdef {
-	name ok
-	rect 80 100 64 20
-	style WINDOW_STYLE_FILLED
-	type ITEM_TYPE_BUTTON
-	textstyle ITEM_TEXTSTYLE_NORMAL
-	textscale .225
-	textalign ITEM_ALIGN_CENTER
-	textalignx 32
-	textaligny 14
-	text "^_O^_k"
-	shortcutKey "O"
-	border 1
-	bordersize 1
-	backcolor Ig_Sub_Color1
-	forecolor Ig_Sub_TextColor
-	bordercolor Ig_Sub_BorderColor1
-	visible 1
-	action { play "sound/misc/menu1.wav" ; uiScript addBot ; uiScript closeingame }
-	onFocus { setcolor backcolor Ig_Sub_Color2 ; setcolor bordercolor Ig_Sub_BorderColor2 }
-	leaveFocus { setcolor backcolor Ig_Sub_Color1 ; setcolor bordercolor Ig_Sub_BorderColor1 }
-    }
-}
+	menuDef {
+		name "ingame_addbot"
+		visible 0
+		fullscreen 0
+		rect 40 32 232 160
+		anglevectors ANGLES
+		focusColor RQ3_MAIN_FOCUSCOLOR
+		popup
+		style WINDOW_STYLE_EMPTY
+		onOOBClick { close _self ; open _prev }
+		onOpen {
+			play "sound/ui/whoosh3.wav" ;
+			setitemcolor window forecolor 5 5 5 0 ;
+			timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
+			setfocus "botname"
+		}
+		onESC { close _self ; open _prev }
+		
+		itemDef {
+			renderpoint
+			name "paper"
+			menuAnchor
+			group window
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor .92 .97 1 1
+			rect -4 -12 256 192
+			anglevectors ANGLES
+			visible 1
+			decoration
+		}
+		
+		// TITLE //
+		
+		itemDef {
+			renderpoint
+			name "title"
+			text "Add bot:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 12
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 28 36 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+		
+		// BUTTONS //
+		
+		
+		// NAME //
+		
+		itemDef {
+			name "botname"
+			text "^_N^_ame:"
+			shortcutKey "N"
+			ownerdraw UI_BOTNAME
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "title" ITEM_ALIGN_LEFT 32 20 128 20
+			textalign 1
+			textalignx 8
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+		}
+		
+		// SKILL //
+		
+		itemDef {
+			name "botskill"
+			text "^_S^_kill:"
+			shortcutKey "S"
+			ownerdraw UI_BOTSKILL
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "botname" ITEM_ALIGN_LEFT 0 20 128 20
+			textalign 1
+			textalignx 10
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+		}
+		
+		// TEAM //
+		
+		itemDef {
+			name "botteam"
+			text "^_T^_eam:"
+			shortcutKey "T"
+			ownerdraw UI_REDBLUE
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "botskill" ITEM_ALIGN_LEFT 0 20 128 20
+			textalign 1
+			textalignx 8
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			cvarTest "g_gametype"
+			disableCvar { "0" ; "1" }
+			//style WINDOW_STYLE_FILLED
+			//backcolor 0 0 0 .25
+		}
+		
+		// OK //
+		
+		itemDef {
+			text "^_O^_K"
+			shortcutKey "O"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "botteam" ITEM_ALIGN_LEFT 112 20 60 20
+			textalign 1
+			textalignx 8
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; uiScript addBot }
+		}
+	}
 }

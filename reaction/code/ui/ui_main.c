@@ -3101,20 +3101,29 @@ static void UI_DrawBotName(rectDef_t * rect, float scale, vec4_t color, int text
 	}
 	text = UI_GetBotNameByNumber(value);
 //      }
-	Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawBotSkill(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels) {
-		Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, 0, textStyle, qfalse);
+		if (rect->hasVectors)
+			Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, 0, textStyle, qfalse);
+		else
+			Text_Paint(rect->x, rect->y, scale, color, skillLevels[uiInfo.skillIndex], 0, 0, 0, textStyle, qfalse);
 	}
 }
 
 static void UI_DrawRedBlue(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	//Makro - added Team 1/2
-	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? "1 (Red)" : "2 (Blue)", 0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawCrosshair(rectDef_t * rect, float scale)
