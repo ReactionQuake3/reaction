@@ -78,8 +78,8 @@
     itemDef {
 	name "rq3_logo,_common_"
 	type 1
-	background UI_ASSETS"/rq3-title-logo.tga"
-	rect $evalfloat(UI_MAXX - 182) 404 176 77
+	background UI_ASSETS"/logo-phoenix.tga"
+	rect $evalfloat(UI_MAXX - 182) 392 176 88
 	//vectors 0.988 -0.156 0.156 0.988
 	style WINDOW_STYLE_SHADER
 	visible 1

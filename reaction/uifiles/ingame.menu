@@ -149,7 +149,7 @@
 		itemdef {
 			name "logo"
 			group "background"
-			background UI_ASSETS"/logo2.tga"
+			background UI_ASSETS"/logo-phoenix-shadow.tga"
 			rect $evalfloat(UI_WIDTH - 256) $evalfloat(UI_MAXY - 128) 256 128
 			style WINDOW_STYLE_SHADER
 			visible 1
