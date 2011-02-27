@@ -2,6 +2,7 @@
 #define ANGLES 2 -88
 
 #define FADEIN_TIME	125
+//#define FADEIN_INGAME 1250
 
 #define ITEM_HEIGHT	20
 
@@ -21,9 +22,6 @@
 	visible 1	\
 	action { open DESTINATION }	\
 	}
-
-	//style WINDOW_STYLE_FILLED \
-	//backcolor 0 0 0 .5 \
 
 #define MENU_ITEM_TOGGLE(ITEM_NAME, DESTINATION, ITEM_TEXT, KEY, ALIGN, ITEM_WIDTH, Y_POS, CVAR_TEST)\
 	itemDef { 	\
@@ -85,20 +83,19 @@
 		name "ingame"
 		visible 0
 		fullScreen 0
-		//onOOBClick { close _self }  // this closes the window if it gets a click out of the rectangle
 		rect UI_MINX UI_MINY UI_WIDTH UI_HEIGHT
 		focusColor RQ3_MAIN_FOCUSCOLOR
 		disableColor .5 .5 .5 1
 		onOpen {
-			setitemcolor window forecolor 5 5 5 0 ;
-			timefade window forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//setitemcolor "background" forecolor 5 5 5 0 ;
+			//timefade "background" forecolor 5 5 5 1 0 FADEIN_INGAME ;
 			play "sound/ui/whoosh3.wav" ;
 			setfocus "button_about" ;
 		}
 
 		itemdef {
 			name "ingame-back"
-			group background
+			group "background"
 			background UI_ASSETS"/ingame-back.tga"
 			rect 0 0 UI_WIDTH UI_HEIGHT
 			style WINDOW_STYLE_SHADER
@@ -108,7 +105,7 @@
 		
 		itemdef {
 			name "gradient-bottom"
-			group background
+			group "background"
 			background UI_ASSETS"/ingame-gradient.tga"
 			rect 0 $evalfloat(UI_MAXY - 128) UI_WIDTH 128
 			style WINDOW_STYLE_SHADER
@@ -131,7 +128,7 @@
 		
 		itemdef {
 			name "gradient-top"
-			group background
+			group "background"
 			background UI_ASSETS"/ingame-gradient-top.tga"
 			rect 0 0 UI_WIDTH 96
 			style WINDOW_STYLE_SHADER
@@ -151,7 +148,7 @@
 		
 		itemdef {
 			name "logo"
-			group background
+			group "background"
 			background UI_ASSETS"/logo2.tga"
 			rect $evalfloat(UI_WIDTH - 256) $evalfloat(UI_MAXY - 128) 256 128
 			style WINDOW_STYLE_SHADER
@@ -167,7 +164,6 @@
 		MENU_ITEM("button_ignore", "ingame_ignore", "^_I^_gnore", "I", "button_vote", 56, 20)
 		
 		MENU_ITEM_TOGGLE("button_addbot", "ingame_addbot", "^_A^_dd Bot", "A", "button_ignore", 64, 40, "bot_enable")
-		//MENU_ITEM_HIDE("button_addbot", "ingame_addbot", "^_A^_dd Bot", "A", "button_ignore", 64, 40, "ui_singlePlayerActive", showCvar { 1 })
 		MENU_ITEM_TOGGLE("button_mm", "ingame_matchmode", "Mat^_c^_h Mode", "C", "button_addbot", 94, 20, "g_RQ3_matchmode")
 		MENU_ITEM_HIDE("button_devmode", "ingame_devmode", "^_D^_eveloper Mode", "D", "button_mm", 119, 20, "sv_cheats", hideCvar { 0 })
 		MENU_ITEM("button_options", "ingame_setup", "^_O^_ptions", "O", "button_mm", 64, 40)
@@ -191,8 +187,6 @@
 		disableColor  .5 .5 .5 1
 		focusColor RQ3_MAIN_FOCUSCOLOR
 		style WINDOW_STYLE_EMPTY
-		//style WINDOW_STYLE_FILLED
-		//backcolor 0 0 0 1
 		fullscreen 0
 		popup
 
@@ -278,8 +272,6 @@
 		disableColor  .5 .5 .5 1
 		focusColor RQ3_MAIN_FOCUSCOLOR
 		style WINDOW_STYLE_EMPTY
-		//style WINDOW_STYLE_FILLED
-		//backcolor 0 0 0 1
 		fullscreen 0
 		popup
 

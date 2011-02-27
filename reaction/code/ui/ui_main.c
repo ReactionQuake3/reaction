@@ -3633,10 +3633,14 @@ static void UI_DrawSelectedPlayer(rectDef_t * rect, float scale, vec4_t color, i
 		uiInfo.playerRefresh = uiInfo.uiDC.realTime + 3000;
 		UI_BuildPlayerList();
 	}
-	Text_Paint(rect->x, rect->y, scale, color,
-		   (uiInfo.
-		    teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name"), 0,
-		   0, 0, textStyle, qfalse);
+	if (rect->hasVectors)
+		Text_PaintAngled(rect->x, rect->y, rect->u, rect->v, scale, color,
+				(uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name"),
+				0, 0, 0, textStyle, qfalse);
+	else
+		Text_Paint(rect->x, rect->y, scale, color,
+				(uiInfo.teamLeader) ? UI_Cvar_VariableString("cg_selectedPlayerName") : UI_Cvar_VariableString("name"),
+				0, 0, 0, textStyle, qfalse);
 }
 
 static void UI_DrawServerRefreshDate(rectDef_t * rect, float scale, vec4_t color, int textStyle)

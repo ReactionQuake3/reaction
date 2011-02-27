@@ -307,7 +307,24 @@ Group # 3 - Kick
 			visible 1
 			type ITEM_TYPE_BUTTON
 			action { play "sound/ui/whoosh3.wav" ; uiScript voteKick ; uiScript closeingame }
-			ASSIGN_HINT("hint_tab3")
+			ASSIGN_HINT("hint_kick")
+		}
+		
+		itemDef {
+			text "Call a vote to kick"
+			name "hint_kick,allgroups,group3,hints,fade_alpha"	
+			group "fade_fore_alpha,group3,allgroups"
+			ownerdraw UI_SELECTEDPLAYER
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
 		}
 		
 	}

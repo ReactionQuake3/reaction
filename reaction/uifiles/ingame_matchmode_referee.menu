@@ -1,4 +1,524 @@
 #include "ui/menudef.h"
+#include "ui/tabs.h"
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR		0 0 .1 1
+#define Tab_Color1			0 0 0 1
+#define Tab_Color2			0 0 .5 1
+#define VSPACE				16
+#define VSIZE				16
+#define ICON_ALPHA			0.5
+#define LINE_ALPHA			0.2
+#define FADEIN_TIME			125
+#define HINT_COLOR			.25 .25 .25
+#define HINT_FADE_TIME		125
+#define TAB_HEIGHT			20
+#define LINE_WIDTH			300
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
+
+{
+    menuDef {
+		name "ingame_matchmode_referee"
+		visible MENU_FALSE				// Visible on open
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		rect 232 100 344 264
+		anglevectors -3 -93
+		style WINDOW_STYLE_EMPTY
+		popup
+		
+		onOOBClick { close _self ; open "ingame_matchmode" }
+		onOpen {
+			play "sound/ui/whoosh3.wav" ;
+			uiScript loadVoteArenas ;
+			setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
+			ACTIVATE_TAB(1) ;
+		}
+		onESC { close _self }
+		
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+		
+		itemDef {
+			name "paper,fade_alpha"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor .95 .94 .87 1
+			rect -8 -16 380 320
+			anglevectors -3 -93
+			visible 1
+			menuAnchor
+			decoration
+		}
+		
+		itemDef {
+			renderpoint
+			name "title,fade_alpha"
+			text "Match Mode:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+
+		//Line
+
+		itemDef {
+			name "line,fade_alpha"
+			style WINDOW_STYLE_FILLED
+			backcolor .25 .25 .25 LINE_ALPHA
+			alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
+			visible 1
+			decoration
+		}
+
+    ///////////////////////////////////////////////////////////
+    //
+    // Sub-options
+    //
+    //
+
+	// Login
+
+	ADD_TAB(
+		"^_L^_ogin.",
+		"L", 1, "group2,group3,group4",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 32 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab1", "Log into the server and attain referee status", "group2,group3,group4")
+
+//---------------------------------------------------------
+
+	// Map
+
+	ADD_TAB(
+		"^_M^_ap.",
+		"M", 2, "group1,group3,group4",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -28 0 27 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab2", "Map selection", "group1,group3,group4")
+
+
+//---------------------------------------------------------
+
+	// Kick
+
+	ADD_TAB(
+		"^_K^_ick.",
+		"K", 3, "group1,group2,group4",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -28 0 27 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab3", "Kick a player off the server", "group1,group2,group4")
+
+
+//---------------------------------------------------------
+
+	// Match
+
+	ADD_TAB(
+		"Mat^_c^_h.",
+		"C", 4, "group1,group2,group3",
+		alignrect "tab3" ITEM_ALIGN_RIGHT -44 0 43 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab4", "Edit match settings", "group1,group2,group3")
+
+
+/*
+==========================================================
+
+Group # 1 - Login
+
+==========================================================
+*/
+
+		itemDef {
+			name "pass_caption"
+			group "fade_fore_alpha,group1,allgroups"
+			style 0
+			text "Password:"
+			alignrect "line" ITEM_ALIGN_LEFT 8 56 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemDef {
+			name "team_dots"
+			group "fade_fore_alpha,group1,allgroups"
+			style 0
+			text "........................................................"
+			alignrect "pass_caption" ITEM_ALIGN_LEFT 80 0 168 20
+			textscale .225
+			textalign ITEM_ALIGN_LEFT
+			textaligny 20
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemDef {
+			name "allgroups,group1,gr1_ctrl1,fade_alpha"
+			group "fade_fore_alpha,group1,allgroups"
+			alignrect "pass_caption" ITEM_ALIGN_RIGHT -32 0 168 20
+			type ITEM_TYPE_EDITFIELD
+			style 0
+			text ""
+			cvar "ui_RQ3_refPassword"
+			backcolor 0 0 0 .1
+			forecolor 0 0 0 1
+			textstyle 0
+			maxPaintChars 20
+			textscale .225
+			textalign 0
+			textalignx 8
+			textaligny 16
+			visible 1
+			ASSIGN_HINT("hint_pass")
+		}
+
+		itemDef {
+			name "allgroups,group1,gr1_ctrl2,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_L^_ogin <"
+			shortcutKey "L"
+			type ITEM_TYPE_BUTTON
+			//textscale UI_INGAME_TEXTSIZE
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "pass_caption" ITEM_ALIGN_LEFT 236 20 50 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; uiScript refLogin }
+			ASSIGN_HINT("hint_pass")
+		}
+
+		itemDef {
+			name "allgroups,group1,gr1_ctrl3,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_R^_esign <"
+			shortcutKey "R"
+			type ITEM_TYPE_BUTTON
+			//textscale UI_INGAME_TEXTSIZE
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr1_ctrl2" ITEM_ALIGN_LEFT -7 20 56 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor .5 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "refresign" ; uiScript closeingame }
+			ASSIGN_HINT("hint_resign")
+		}
+
+		ADD_HINT("hint_pass", "Allows a referee to log into the server and attain referee status without needing to be voted in", "group1")
+		ADD_HINT("hint_resign", "Cease being a referee and become a regular player", "group1")
+
+
+/*
+==========================================================
+
+Group # 2 - Map
+
+==========================================================
+*/
+
+		itemDef {
+			text "Select"
+			name "hint_map,allgroups,group2,hints,fade_alpha"	
+			group "fade_fore_alpha,group2,allgroups"
+			ownerdraw UI_ALLMAPS_SELECTION
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
+		}
+		
+		// Map list //
+		
+		itemDef {
+			name "maplist"
+			subgroup "fade_fore_alpha,group2,allgroups"
+			LISTBOX_STYLE(.225, 8)
+			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
+			feeder FEEDER_ALLMAPS
+			visible 1
+			columns 1 2 140 25
+			ASSIGN_HINT("hint_tab2")
+		}
+		
+		itemDef	{
+			name "allgroups,group2,gr2_ctrl3,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 112 68 14
+			text "> ^_N^_ext map <"
+			shortcutKey "N"
+			style WINDOW_STYLE_EMPTY
+			forecolor OPTION_COLOR
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; exec "ref cyclemap" ; uiScript closeingame }
+			ASSIGN_HINT("hint_ref-next")
+		}
+		
+		itemDef	{
+			name "vote_restart"
+			subgroup "fade_fore_alpha,group2,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 128 84 14
+			text "> ^_R^_estart map <"
+			shortcutKey "R"
+			style WINDOW_STYLE_EMPTY
+			forecolor OPTION_COLOR
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; exec "ref map_restart" ; uiScript closeingame }
+			ASSIGN_HINT("hint_ref-restart")
+		}
+		
+		itemDef	{
+			name "vote_map"
+			subgroup "fade_fore_alpha,group2,allgroups"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript refMap ; uiScript closeingame }
+			ASSIGN_HINT("hint_map")
+		}
+		
+		ADD_HINT("hint_ref-next", "Change to the next map in rotation", "group2")
+		ADD_HINT("hint_ref-restart", "Restart the current map", "group2")
+	
+/*
+==========================================================
+
+Group # 3 - Kick
+
+==========================================================
+*/
+
+		itemDef {
+			name "allgroups,group3,gr3_ctrl1,fade_alpha"
+			subgroup "fade_fore_alpha"
+			LISTBOX_STYLE(.225, 8)
+			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
+			feeder FEEDER_PLAYER_LIST
+			visible 1
+			ASSIGN_HINT("hint_tab3")
+		}
+		
+		itemDef	{
+			name "btn_kick,allgroups,group3"
+			subgroup "fade_fore_alpha"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript refKick ; uiScript closeingame }
+			ASSIGN_HINT("hint_ref-kick")
+		}
+		
+		itemDef {
+			text "Click OK to get rid of"
+			name "hint_ref-kick,allgroups,group3,hints,fade_alpha"	
+			group "fade_fore_alpha,group3,allgroups"
+			ownerdraw UI_SELECTEDPLAYER
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
+		}
+
+/*
+==========================================================
+
+Group # 4 - Match
+
+==========================================================
+*/
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl1,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_P^_ause / Resume"
+			shortcutKey "P"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "line" ITEM_ALIGN_LEFT 32 32 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ref pause" }
+			ASSIGN_HINT("hint_ref-pause")
+		}
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl2,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_C^_lear Scores"
+			shortcutKey "C"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr4_ctrl1" ITEM_ALIGN_LEFT 144 0 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ref clearscores" }
+			ASSIGN_HINT("hint_ref-clear")
+		}
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl3,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_L^_ock Settings"
+			shortcutKey "L"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr4_ctrl1" ITEM_ALIGN_LEFT 0 28 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ref locksettings" }
+			ASSIGN_HINT("hint_ref-lock")
+		}
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl4,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_R^_eset Match"
+			shortcutKey "R"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr4_ctrl2" ITEM_ALIGN_LEFT 0 28 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor .5 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ref resetmatch" }
+			ASSIGN_HINT("hint_ref-reset")
+		}
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl5,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_H^_ear All"
+			shortcutKey "H"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr4_ctrl3" ITEM_ALIGN_LEFT 0 28 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ref hearall" }
+			ASSIGN_HINT("hint_ref-hear")
+		}
+
+		itemDef {
+			name "allgroups,group4,gr4_ctrl6,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_M^_atch Settings..."
+			shortcutKey "M"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr4_ctrl4" ITEM_ALIGN_LEFT 0 76 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_settings" }
+			ASSIGN_HINT("hint_settings")
+		}
+
+		ADD_HINT("hint_ref-pause", "Pause match", "group4")
+		ADD_HINT("hint_ref-clear", "Clear scores", "group4")
+		ADD_HINT("hint_ref-lock", "Lock settings", "group4")
+		ADD_HINT("hint_ref-reset", "Reset match", "group4")
+		ADD_HINT("hint_ref-hear", "Hear all", "group4")
+		ADD_HINT("hint_settings", "Change match rules", "group4")
+	}
+}
+
+#if 0
+#include "ui/menudef.h"
 
 #define SECCOLOR1 1 1 1 0
 #define SECCOLOR2 1 1 1 .2
@@ -521,3 +1041,4 @@
 
 }
 }
+#endif

@@ -1,4 +1,408 @@
 #include "ui/menudef.h"
+#include "ui/tabs.h"
+
+////////////////////////////////////
+//
+// CONSTANTS
+//
+//
+
+
+#define OPTION_COLOR		0 0 .1 1
+#define Tab_Color1			0 0 0 1
+#define Tab_Color2			0 0 .5 1
+#define VSPACE				16
+#define VSIZE				16
+#define ICON_ALPHA			0.5
+#define LINE_ALPHA			0.2
+#define FADEIN_TIME			125
+#define HINT_COLOR			.25 .25 .25
+#define HINT_FADE_TIME		125
+#define TAB_HEIGHT			20
+#define LINE_WIDTH			300
+
+
+////////////////////////////////////
+//
+// MENU DEFINITION
+//
+//
+
+{
+    menuDef {
+		name "ingame_matchmode_captain"
+		visible MENU_FALSE				// Visible on open
+		focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+		rect 232 120 344 264
+		anglevectors 3 -87
+		style WINDOW_STYLE_EMPTY
+		popup
+		
+		onOOBClick { close _self ; open "ingame_matchmode" }
+		onOpen {
+			play "sound/ui/whoosh3.wav" ;
+			uiScript readMMcaptainSettings ;
+			setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
+			ACTIVATE_TAB(1) ;
+		}
+		onESC { close _self }
+		
+		onOpenSpecial {
+			//normal items
+			setItemColor "fade_alpha" forecolor 5 5 5 0 ;
+			timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			//icon - special alpha
+			setItemColor "icon" forecolor 5 5 5 0 ;
+			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			//line - special alpha; using backcolor
+			setItemColor "line" backcolor 5 5 5 0 ;
+			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		}
+		
+		itemDef {
+			name "paper,fade_alpha"
+			style WINDOW_STYLE_SHADER
+			background UI_ASSETS"/paper_1"
+			forecolor .95 .94 .87 1
+			rect -8 -16 380 320
+			anglevectors 3 -87
+			visible 1
+			menuAnchor
+			decoration
+		}
+		
+		itemDef {
+			renderpoint
+			name "title,fade_alpha"
+			text "Match Mode:"
+			forecolor .6 .0 .0 1
+			style WINDOW_STYLE_EMPTY
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 24
+			textscale RQ3_MAIN_TEXTSIZE
+			alignrect paper ITEM_ALIGN_LEFT 32 32 240 36 
+			visible 1
+			autowrapped
+			decoration
+		}
+
+		//Line
+
+		itemDef {
+			name "line,fade_alpha"
+			style WINDOW_STYLE_FILLED
+			backcolor .25 .25 .25 LINE_ALPHA
+			alignrect "title" ITEM_ALIGN_LEFT 0 48 LINE_WIDTH 2
+			visible 1
+			decoration
+		}
+
+    ///////////////////////////////////////////////////////////
+    //
+    // Sub-options
+    //
+    //
+
+	// Status
+
+	ADD_TAB(
+		"^_S^_tatus.",
+		"S", 1, "group2,group3",
+		alignrect "title" ITEM_ALIGN_LEFT 2 28 40 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab1", "Become a captain and lead your team", "group2,group3")
+
+//---------------------------------------------------------
+
+	// Settings
+
+	ADD_TAB(
+		"S^_e^_ttings.",
+		"E", 2, "group1,group3",
+		alignrect "tab1" ITEM_ALIGN_RIGHT -49 0 48 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab2", "Change match settings", "group1,group3")
+
+
+//---------------------------------------------------------
+
+	// Referee
+
+	ADD_TAB(
+		"^_R^_eferee.",
+		"R", 3, "group1,group2",
+		alignrect "tab2" ITEM_ALIGN_RIGHT -45 0 44 TAB_HEIGHT
+	)
+    ADD_HINT("hint_tab3", "Nominate a player to be the match referee", "group1,group2")
+
+/*
+==========================================================
+
+Group # 1 - Status
+
+==========================================================
+*/
+
+		itemDef {
+			name "allgroups,group1,gr1_ctrl1,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> Become a ^_C^_aptain"
+			shortcutKey "C"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "line" ITEM_ALIGN_LEFT 72 42 160 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "captain" }
+			ASSIGN_HINT("hint_captain")
+		}
+
+		itemDef {
+			name "ready"
+			group "fade_fore_alpha,group1,allgroups"
+			text "> Ready/Unready ^_T^_eam"
+			shortcutKey "T"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr1_ctrl1" ITEM_ALIGN_LEFT 0 24 160 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; exec "ready" }
+			ASSIGN_HINT("hint_ready")
+		}
+
+		ADD_HINT("hint_captain", "Become a captain, or click again to resign", "group1")
+		ADD_HINT("hint_ready", "Ready to start the match, or click again to pause the match in-progress", "group1")
+
+
+/*
+==========================================================
+
+Group # 2 - Settings
+
+==========================================================
+*/
+
+		itemDef {
+			name "team_caption"
+			group "fade_fore_alpha,group2,allgroups"
+			style 0
+			text "Team Name:"
+			alignrect "line" ITEM_ALIGN_LEFT 8 24 208 20
+			textscale .225
+			textalign 0
+			textalignx 4
+			textaligny 16
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemDef {
+			name "team_dots"
+			group "fade_fore_alpha,group2,allgroups"
+			style 0
+			text "........................................................"
+			alignrect "team_caption" ITEM_ALIGN_LEFT 80 0 168 20
+			textscale .225
+			textalign ITEM_ALIGN_LEFT
+			textaligny 20
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+
+		itemDef {
+			name "allgroups,group2,gr2_ctrl1,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
+			alignrect "team_caption" ITEM_ALIGN_RIGHT -32 0 168 20
+			type ITEM_TYPE_EDITFIELD
+			style 0
+			text ""
+			cvar "ui_RQ3_teamName"
+			backcolor 0 0 0 .1
+			forecolor 0 0 0 1
+			textstyle 0
+			maxChars 32
+			maxPaintChars 18
+			textscale .225
+			textalign 0
+			textalignx 8
+			textaligny 16
+			visible 1
+			ASSIGN_HINT("hint_teamname")
+		}
+		
+		itemdef {
+			name "allgroups,group2,gr2_ctrl2,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
+			alignrect "team_caption" ITEM_ALIGN_LEFT 0 28 288 60
+			type ITEM_TYPE_LISTBOX
+			style WINDOW_STYLE_EMPTY
+			elementwidth 40
+			elementheight 40
+			elementtype LISTBOX_IMAGE
+			feeder FEEDER_MMHEADS
+			horizontalscroll
+			backcolor 0 0 0 1
+			forecolor 1 1 1 1
+			bordercolor 1 0 0 1
+			bordersize 2
+			visible 1
+			ASSIGN_HINT("hint_teammodel")
+		}
+		
+		itemDef {
+			name "model_dots"
+			group "fade_fore_alpha,group2,allgroups"
+			style 0
+			text "...................................................."
+			alignrect "gr2_ctrl2" ITEM_ALIGN_LEFT 48 68 168 20
+			textscale .225
+			textalign ITEM_ALIGN_LEFT
+			textaligny 20
+			forecolor OPTION_COLOR
+			visible 1
+			decoration
+		}
+		
+		itemDef {
+			name "allgroups,group2,gr2_ctrl3,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
+			text "Model:"
+			cvar "ui_RQ3_teamModel"
+			textscale .225
+			alignrect "gr2_ctrl2" ITEM_ALIGN_LEFT 0 68 80 20
+			type ITEM_TYPE_EDITFIELD
+			textalign ITEM_ALIGN_LEFT
+			textalignx 4
+			textaligny 14
+			forecolor 0 0 0 1
+			visible 0
+			decoration
+		}
+		
+		itemDef {
+			name "allgroups,group2,gr2_ctrl4,fade_alpha"
+			group "fade_fore_alpha,group2,allgroups"
+			text "> ^_A^_pply"
+			shortcutKey "A"
+			textscale .225
+			alignrect "gr2_ctrl3" ITEM_ALIGN_LEFT 232 0 56 20
+			type 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 8
+			textaligny 14
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/misc/menu1.wav" ; uiScript "captainSetTeamModel" }
+			ASSIGN_HINT("hint_apply")
+		}
+
+		itemDef {
+			name "allgroups,group2,gr2_ctrl5,fade_alpha"
+			subgroup "fade_fore_alpha"
+			text "> ^_M^_atch Settings..."
+			shortcutKey "M"
+			type ITEM_TYPE_BUTTON
+			textscale .225
+			style WINDOW_STYLE_EMPTY
+			alignrect "gr2_ctrl4" ITEM_ALIGN_LEFT -56 28 104 20
+			textalign ITEM_ALIGN_LEFT
+			textalignx 0
+			textaligny 16
+			forecolor 0 0 0 1
+			visible 1
+			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_settings" }
+			ASSIGN_HINT("hint_settings")
+		}
+		
+		ADD_HINT("hint_settings", "Change match rules", "group2")
+		ADD_HINT("hint_teamname", "Type in the name of your team", "group2")
+		ADD_HINT("hint_teammodel", "Change the appearance of your team", "group2")
+		itemDef {
+			text "Select"
+			name "hint_apply,allgroups,group2,hints,fade_alpha"	
+			group "fade_fore_alpha,group2,allgroups"
+			cvar "ui_RQ3_teamModel"
+			type ITEM_TYPE_EDITFIELD
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
+		}
+	
+/*
+==========================================================
+
+Group # 3 - Referee
+
+==========================================================
+*/
+		itemDef {
+			name "allgroups,group3,gr3_ctrl1,fade_alpha"
+			subgroup "fade_fore_alpha"
+			LISTBOX_STYLE(.225, 8)
+			alignrect "line" ITEM_ALIGN_LEFT 4 32 188 124
+			feeder FEEDER_PLAYER_LIST
+			visible 1
+			ASSIGN_HINT("hint_nominate")
+		}
+
+		itemDef	{
+			name "btn_kick,allgroups,group3"
+			subgroup "fade_fore_alpha"
+			alignrect "paper" ITEM_ALIGN_LEFT 240 224 36 14
+			text "> ^_O^_K <"
+			shortcutKey "O"
+			style WINDOW_STYLE_EMPTY
+			forecolor .5 0 0 1
+			textalignx 0
+			textaligny 12
+			textscale .225
+			visible 1
+			type ITEM_TYPE_BUTTON
+			action { play "sound/ui/whoosh3.wav" ; uiScript captainRef }
+			ASSIGN_HINT("hint_referee")
+		}
+		
+		ADD_HINT("hint_nominate", "Nominate a player to be the match referee", "group3")
+		itemDef {
+			text "Nominate"
+			name "hint_referee,allgroups,group3,hints,fade_alpha"	
+			group "fade_fore_alpha,group2,allgroups"
+			ownerdraw UI_SELECTEDPLAYER
+			autowrapped
+			forecolor HINT_COLOR 1
+			textalign ITEM_ALIGN_LEFT
+			textalignx 6
+			textaligny 10
+			textscale .2
+			alignrect "line" ITEM_ALIGN_LEFT 0 8 288 40
+			style WINDOW_STYLE_EMPTY
+			visible 0
+			decoration
+		}
+	}
+}
+
+#if 0
+#include "ui/menudef.h"
 
 #define SECCOLOR1 1 1 1 0
 #define SECCOLOR2 1 1 1 .2
@@ -376,3 +780,4 @@
 
 }
 }
+#endif
