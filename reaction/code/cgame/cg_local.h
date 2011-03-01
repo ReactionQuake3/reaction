@@ -1407,8 +1407,6 @@ typedef struct {
 	qhandle_t bloodExplosionShader;
 
 	// special effects models
-	qhandle_t teleportEffectModel;
-	qhandle_t teleportEffectShader;
 // JBravo: moved out of MISSIONPACK
 	qhandle_t dustPuffShader;
 
@@ -2307,7 +2305,6 @@ localEntity_t *CG_SmokePuff(const vec3_t p,
 			    float r, float g, float b, float a,
 			    float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader);
 void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
-void CG_SpawnEffect(vec3_t org);
 void CG_ScorePlum(int client, vec3_t org, int score);
 void CG_DrawVisibleLaser( vec3_t origin, int clientNum, vec3_t dir);
 

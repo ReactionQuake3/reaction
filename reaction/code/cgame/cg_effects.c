@@ -326,40 +326,6 @@ localEntity_t *CG_SmokePuff(const vec3_t p, const vec3_t vel,
 
 /*
 ==================
-CG_SpawnEffect
-
-Player teleporting in or out
-==================
-*/
-void CG_SpawnEffect(vec3_t org)
-{
-	localEntity_t *le;
-	refEntity_t *re;
-
-	le = CG_AllocLocalEntity();
-	le->leFlags = 0;
-	le->leType = LE_FADE_RGB;
-	le->startTime = cg.time;
-	le->endTime = cg.time + 500;
-	le->lifeRate = 1.0 / (le->endTime - le->startTime);
-
-	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
-
-	re = &le->refEntity;
-
-	re->reType = RT_MODEL;
-	re->shaderTime = cg.time / 1000.0f;
-
-	re->customShader = cgs.media.teleportEffectShader;
-	re->hModel = cgs.media.teleportEffectModel;
-	AxisClear(re->axis);
-
-	VectorCopy(org, re->origin);
-	re->origin[2] -= 24;
-}
-
-/*
-==================
 CG_ScorePlum
 ==================
 */

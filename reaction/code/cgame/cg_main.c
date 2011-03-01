@@ -2240,9 +2240,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.hitSparkModel = trap_R_RegisterModel("models/weaphits/tracer/tracer.md3");
 	cgs.media.hitSparkShader = trap_R_RegisterShader("models/weaphits/tracer/tracer");
 
-	cgs.media.teleportEffectModel = trap_R_RegisterModel("models/misc/telep.md3");
-	cgs.media.teleportEffectShader = trap_R_RegisterShader("teleportEffect");
-
 	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3");
 	//cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
 	//cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
