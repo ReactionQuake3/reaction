@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
+				AdditionalDependencies="psapi.lib user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
 				OutputFile="$(OutDir)\Reaction.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -173,7 +173,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
+				AdditionalDependencies="psapi.lib user32.lib advapi32.lib winmm.lib wsock32.lib ws2_32.lib SDLmain.lib SDL.lib OpenGL32.lib msvcrt.lib"
 				OutputFile="$(OutDir)\Reaction.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -714,6 +714,10 @@
 						BrowseInformation="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\code\qcommon\ioapi.c"
+				>
 			</File>
 			<File
 				RelativePath="..\..\code\qcommon\md4.c"
@@ -1346,6 +1350,10 @@
 			</File>
 			<File
 				RelativePath="..\..\code\game\g_public.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\qcommon\ioapi.h"
 				>
 			</File>
 			<File
@@ -2147,6 +2155,66 @@
 			</File>
 			<File
 				RelativePath="..\..\code\libspeex\window.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="zlib"
+			>
+			<File
+				RelativePath="..\..\code\zlib\adler32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\crc32.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\crc32.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inffast.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inffast.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inffixed.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inflate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inflate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inftrees.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\inftrees.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\zconf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\zlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\zutil.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\zlib\zutil.h"
 				>
 			</File>
 		</Filter>
