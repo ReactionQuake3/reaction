@@ -40,7 +40,7 @@
 	popup
 	
 	onOOBClick { close _self }
-	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
+	onOpen { play "sound/ui/whoosh3.wav" ; uiScript initSystemSettings ;
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
@@ -202,22 +202,10 @@ Group # 1 - Graphics
 
     // Resolution //
 
-    BEGIN_OPTION("Video Mode", "r_mode", ITEM_TYPE_MULTI, 4, 1)
-		cvarFloatList {
-				"320 x 240"				0
-				"400 x 300"				1
-				"512 x 384"				2
-				"640 x 480"				3
-				"800 x 600"				4
-				"960 x 720"				5
-				"1024 x 768"				6
-				"1152 x 864"				7
-				"1280 x 1024"				8
-				"1600 x 1200"				9
-				"2048 x 1536"				10
-				"856 x 480 (Wide)"			11
-		}
+    BEGIN_SIMPLE_OPTION(4, 1)
 		OPTION_BELOW("gr1_ctrl3")
+		text "Resolution:"
+		ownerDraw UI_RESOLUTION
 		ASSIGN_HINT("hint_res")
     END_OPTION
     ADD_HINT("hint_res", "Choose rendering resolution", "group1")
@@ -236,7 +224,7 @@ Group # 1 - Graphics
 
     // Fullscreen //
 
-    BEGIN_OPTION("Fullscreen", "r_fullscreen", ITEM_TYPE_YESNO, 6, 1)
+    BEGIN_OPTION("Fullscreen", "ui_RQ3_fullscreen", ITEM_TYPE_YESNO, 6, 1)
 		OPTION_BELOW("gr1_ctrl5")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_fullscreen")
@@ -340,7 +328,7 @@ Group # 1 - Graphics
 	textalignx 64
 	textaligny 14
 	forecolor 0 0 0 1
-	action { exec "vid_restart" ; }
+	action { uiScript applysystemSettings ; }
 	ASSIGN_HINT("hint_apply")
 	anglevectors 4 -83
 	visible 1
