@@ -133,7 +133,7 @@
 			shortcutKey "S"
 			forecolor 0 0 0 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; uiScript closeingame ; exec "stoprecord"}
+			action { play "sound/ui/whoosh3.wav" ; exec "stoprecord"}
 		}
 	}
 }

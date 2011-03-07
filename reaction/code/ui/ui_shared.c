@@ -5030,7 +5030,7 @@ static bind_t g_bindings[] = {
 	{"messagemode2", 'y', -1, -1, -1},
 	{"messagemode3", -1, -1, -1, -1},
 	{"messagemode4", -1, -1, -1, -1},
-	{"bandage", 'c', -1, -1, -1},
+	{"bandage", 'f', -1, -1, -1},
 	//reload
 	{"+button5", 'r', -1, -1, -1},
 	{"weapon", 'z', K_MOUSE3, -1, -1},
