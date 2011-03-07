@@ -27,6 +27,7 @@
 	loadMenu { "ui/demo.menu" }
 
 	loadMenu { "ui/error.menu" }
+	loadMenu { "ui/postvidrestart.menu" }
 
 	loadMenu { "ui/memory.menu" }
 
