@@ -5798,24 +5798,21 @@ static void UI_Update(const char *name)
 	}
 }
 
-static qboolean UI_ParseResolution(char* str, int* width, int* height)
+static qboolean UI_ParseResolution(char* str, resolution_t* res)
 {
 	char* x = strchr(str, 'x');
 	if (!x)
 	{
-		*width = *height = 0;
+		res->width = res->height = 0;
 		return qfalse;
 	}
 
 	*x++ = 0;
 
-	if (1 != sscanf(str, "%d", width) || 1 != sscanf(x, "%d", height))
-	{
-		*width = *height = 0;
-		return qfalse;
-	}
+	res->width = atoi(str);
+	res->height = atoi(x);
 
-	return qtrue;
+	return res->width > 0 && res->height > 0;
 }
 
 static void UI_SelectCurrentResolution()
@@ -5852,17 +5849,16 @@ static void UI_GetSupportedModes()
 
 	for (tok=strtok(buf, delim); tok; tok=strtok(NULL, delim))
 	{
-		int width, height;
-		if (UI_ParseResolution(tok, &width, &height))
+		resolution_t tmp;
+		if (UI_ParseResolution(tok, &tmp))
 		{
 			idx = uiInfo.uiDC.numSupportedModes++;
-			if (uiInfo.uiDC.numSupportedModes > MAX_NUM_SUPPORTED_MODES)
+			if (uiInfo.uiDC.numSupportedModes == MAX_NUM_SUPPORTED_MODES)
 			{
 				Com_Printf(S_COLOR_YELLOW "Warning: more than MAX_NUM_SUPPORTED_MODES resolutions found.\n");
-				return;
+				break;
 			}
-			uiInfo.uiDC.supportedMode[idx].width = width;
-			uiInfo.uiDC.supportedMode[idx].height = height;
+			uiInfo.uiDC.supportedMode[idx] = tmp;
 		}
 	}
 

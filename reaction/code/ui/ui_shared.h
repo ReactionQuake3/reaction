@@ -507,7 +507,8 @@ typedef struct {
 #define MAX_NUM_SUPPORTED_MODES		256
 
 typedef struct {
-	unsigned short width, height;
+	unsigned int width;
+	unsigned int height;
 } resolution_t;
 
 typedef struct {
