@@ -80,15 +80,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
 
 //Elder: new surfaces
-#define SURF_GRAVEL			0x80000
-#define SURF_WOOD			0x100000
-#define SURF_CARPET			0x200000
-#define SURF_METAL2			0x400000
-#define SURF_GLASS			0x800000
-#define SURF_GRASS			0x1000000
+#define SURF_GRAVEL                    0x80000
+#define SURF_WOOD                      0x100000
+#define SURF_CARPET                    0x200000
+#define SURF_METAL2                    0x400000
+#define SURF_GLASS                     0x800000
+#define SURF_GRASS                     0x1000000
 // JBravo: new sounds
-#define SURF_SNOW			0x2000000
-#define SURF_MUD			0x4000000
-#define SURF_WOOD2			0x8000000
-#define SURF_HARDMETAL			0x10000000
+#define SURF_SNOW                      0x2000000
+#define SURF_MUD                       0x4000000
+#define SURF_WOOD2                     0x8000000
+#define SURF_HARDMETAL                 0x10000000
 

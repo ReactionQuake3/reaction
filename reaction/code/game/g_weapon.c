@@ -480,7 +480,7 @@ into a wall.
 ======================
 */
 // JBravo: unlagged. moved to q_shared.c
-/*
+
 void SnapVectorTowards(vec3_t v, vec3_t to)
 {
 	int i;
@@ -492,7 +492,7 @@ void SnapVectorTowards(vec3_t v, vec3_t to)
 			v[i] = (int) v[i] + 1;
 		}
 	}
-} */
+}
 
 #define MACHINEGUN_SPREAD	200
 #define	MACHINEGUN_DAMAGE	7

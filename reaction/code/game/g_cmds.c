@@ -955,6 +955,11 @@ void Cmd_LevelShot_f(gentity_t * ent)
 		return;
 	}
 
+	if(!ent->client->pers.localClient) {
+		trap_SendServerCommand(ent-g_entities, "print \"The levelshot command must be executed by a local client\n\"");
+		return;
+	}
+
 	BeginIntermission();
 	trap_SendServerCommand(ent - g_entities, "clientLevelShot");
 }
@@ -1129,17 +1134,17 @@ void SetTeam(gentity_t * ent, char *s)
 		if (g_teamForceBalance.integer) {
 			int counts[TEAM_NUM_TEAMS];
 
-			counts[TEAM_BLUE] = TeamCount(ent->client->ps.clientNum, TEAM_BLUE);
-			counts[TEAM_RED] = TeamCount(ent->client->ps.clientNum, TEAM_RED);
+			counts[TEAM_BLUE] = TeamCount( clientNum, TEAM_BLUE );
+			counts[TEAM_RED] = TeamCount( clientNum, TEAM_RED );
 
 			// We allow a spread of two
 			if (team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1) {
-				trap_SendServerCommand(ent->client->ps.clientNum,
+				trap_SendServerCommand(clientNum,
 						       "cp \"Red team has too many players.\n\"");
 				return;	// ignore the request
 			}
 			if (team == TEAM_BLUE && counts[TEAM_BLUE] - counts[TEAM_RED] > 1) {
-				trap_SendServerCommand(ent->client->ps.clientNum,
+				trap_SendServerCommand(clientNum,
 						       "cp \"Blue team has too many players.\n\"");
 				return;	// ignore the request
 			}
@@ -1995,7 +2000,7 @@ void Cmd_GameCommand_f(gentity_t * ent)
 	if (player < 0 || player >= MAX_CLIENTS) {
 		return;
 	}
-	if (order < 0 || order > sizeof(gc_orders) / sizeof(char *)) {
+	if (order < 0 || order > ARRAY_LEN(gc_orders)) {
 		return;
 	}
 	//Blaze: Prit out some Debug info

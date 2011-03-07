@@ -766,13 +766,13 @@ static void ServerOptions_Start( void ) {
 	case GT_TEAM:
 		trap_Cvar_SetValue( "ui_team_fraglimit", fraglimit );
 		trap_Cvar_SetValue( "ui_team_timelimit", timelimit );
-		trap_Cvar_SetValue( "ui_team_friendlt", friendlyfire );
+		trap_Cvar_SetValue( "ui_team_friendly", friendlyfire );
 		break;
 
 	case GT_CTF:
-		trap_Cvar_SetValue( "ui_ctf_fraglimit", fraglimit );
+		trap_Cvar_SetValue( "ui_ctf_capturelimit", flaglimit );
 		trap_Cvar_SetValue( "ui_ctf_timelimit", timelimit );
-		trap_Cvar_SetValue( "ui_ctf_friendlt", friendlyfire );
+		trap_Cvar_SetValue( "ui_ctf_friendly", friendlyfire );
 		break;
 	}
 
@@ -1239,7 +1239,8 @@ static void ServerOptions_MenuInit( qboolean multiplayer ) {
 
 	memset( &s_serveroptions, 0 ,sizeof(serveroptions_t) );
 	s_serveroptions.multiplayer = multiplayer;
-	s_serveroptions.gametype = (int)Com_Clamp( 0, 5, trap_Cvar_VariableValue( "g_gameType" ) );
+	s_serveroptions.gametype = (int) Com_Clamp(0, ARRAY_LEN(gametype_remap2) - 1,
+						trap_Cvar_VariableValue("g_gametype"));
 	s_serveroptions.punkbuster.curvalue = Com_Clamp( 0, 1, trap_Cvar_VariableValue( "sv_punkbuster" ) );
 
 	ServerOptions_Cache();

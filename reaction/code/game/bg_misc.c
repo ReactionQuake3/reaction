@@ -141,7 +141,7 @@ gitem_t bg_itemlist[] = {
 	 NULL,
 	 {NULL,
 	  NULL,
-	  0, 0}
+	  NULL, NULL}
 	 ,
 /* icon */ NULL,
 /* pickup */ NULL,
@@ -711,7 +711,7 @@ Only in CTF games
 	{NULL}
 };
 
-int bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
+int bg_numItems = ARRAY_LEN( bg_itemlist ) - 1;
 
 /*
 ==============
@@ -1233,12 +1233,19 @@ char *eventnames[] = {
 	"EV_PROXIMITY_MINE_TRIGGER",
 	"EV_KAMIKAZE",		// kamikaze explodes
 	"EV_OBELISKEXPLODE",	// obelisk explodes
+	"EV_OBELISKPAIN",	// obelisk pain
 	"EV_INVUL_IMPACT",	// invulnerability sphere impact
 	"EV_JUICED",		// invulnerability juiced effect
 	"EV_LIGHTNINGBOLT",	// lightning bolt bounced of invulnerability sphere
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",
-	"EV_TAUNT"
+	"EV_TAUNT",
+	"EV_TAUNT_YES",
+	"EV_TAUNT_NO",
+	"EV_TAUNT_FOLLOWME",
+	"EV_TAUNT_GETFLAG",
+	"EV_TAUNT_GUARDBASE",
+	"EV_TAUNT_PATROL"
 };
 
 /*

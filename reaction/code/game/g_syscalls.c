@@ -29,19 +29,17 @@
 #error "Do not use in VM build"
 #endif
 
-static int (QDECL * syscall) (int arg, ...) = (int (QDECL *) (int, ...)) -1;
+static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
 
-void dllEntry(int (QDECL * syscallptr) (int arg, ...))
-{
+Q_EXPORT void dllEntry( intptr_t (QDECL *syscallptr)( intptr_t arg,... ) ) {
 	syscall = syscallptr;
 }
 
 int PASSFLOAT(float x)
 {
-	float floatTemp;
-
-	floatTemp = x;
-	return *(int *) &floatTemp;
+	floatint_t fi;
+	fi.f = x;
+	return fi.i;
 }
 
 void trap_Printf(const char *fmt)
@@ -355,10 +353,9 @@ void trap_AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs
 
 float trap_AAS_Time(void)
 {
-	int temp;
-
-	temp = syscall(BOTLIB_AAS_TIME);
-	return (*(float *) &temp);
+	floatint_t fi;
+	fi.i = syscall( BOTLIB_AAS_TIME );
+	return fi.f;
 }
 
 int trap_AAS_PointAreaNum(vec3_t point)
@@ -592,18 +589,18 @@ void trap_BotFreeCharacter(int character)
 
 float trap_Characteristic_Float(int character, int index)
 {
-	int temp;
+	floatint_t fi;
 
-	temp = syscall(BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index);
-	return (*(float *) &temp);
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
+	return fi.f;
 }
 
 float trap_Characteristic_BFloat(int character, int index, float min, float max)
 {
-	int temp;
+	floatint_t fi;
 
-	temp = syscall(BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max));
-	return (*(float *) &temp);
+	fi.i = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT(min), PASSFLOAT(max) );
+	return fi.f;
 }
 
 int trap_Characteristic_Integer(int character, int index)
@@ -817,10 +814,10 @@ int trap_BotGetMapLocationGoal(char *name, void /* struct bot_goal_s */ *goal)
 
 float trap_BotAvoidGoalTime(int goalstate, int number)
 {
-	int temp;
+	floatint_t fi;
 
-	temp = syscall(BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number);
-	return (*(float *) &temp);
+	fi.i = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
+	return fi.f;
 }
 
 void trap_BotSetAvoidGoalTime(int goalstate, int number, float avoidtime)

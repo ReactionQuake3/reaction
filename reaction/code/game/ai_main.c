@@ -1668,7 +1668,7 @@ int BotInitLibrary(void)
 	//no chatting
 	trap_Cvar_VariableStringBuffer("bot_nochat", buf, sizeof(buf));
 	if (strlen(buf))
-		trap_BotLibVarSet("nochat", "0");
+		trap_BotLibVarSet("nochat", buf);
 	//visualize jump pads
 	trap_Cvar_VariableStringBuffer("bot_visualizejumppads", buf, sizeof(buf));
 	if (strlen(buf))
@@ -1707,9 +1707,13 @@ int BotInitLibrary(void)
 	if (strlen(buf))
 		trap_BotLibVarSet("gamedir", buf);
 	//cd directory
-	trap_Cvar_VariableStringBuffer("fs_cdpath", buf, sizeof(buf));
+//	trap_Cvar_VariableStringBuffer("fs_cdpath", buf, sizeof(buf));
+//	if (strlen(buf))
+//		trap_BotLibVarSet("cddir", buf);
+	//home directory
+	trap_Cvar_VariableStringBuffer("fs_homepath", buf, sizeof(buf));
 	if (strlen(buf))
-		trap_BotLibVarSet("cddir", buf);
+		trap_BotLibVarSet("homedir", buf);
 	//setup the bot library
 	return trap_BotLibSetup();
 }

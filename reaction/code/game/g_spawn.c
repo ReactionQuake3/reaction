@@ -230,7 +230,7 @@ typedef struct {
 	char *name;
 	int ofs;
 	fieldtype_t type;
-	int flags;
+//	int flags;
 } field_t;
 
 field_t fields[] = {
@@ -438,7 +438,7 @@ spawn_t spawns[] = {
 //      {"func_explosive", SP_func_explosive},  // JBravo: for explosive.
 	{"item_botroam", SP_item_botroam},
 
-	{0, 0}
+	{NULL, 0}
 };
 
 // JBravo: Compiler warning shutup

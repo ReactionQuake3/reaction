@@ -124,10 +124,47 @@ static void CG_LaserSight(centity_t * cent);
 static void CG_Dlight(centity_t * cent);
 static void CG_FakeShadow(centity_t * cent);
 static void CG_Corona(centity_t * cent);
-
 extern char rq3_breakables[RQ3_MAX_BREAKABLES][80];
-
 extern void trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
+
+
+/*
+ * ================
+ * RotatePoint
+ * ================
+ * */
+void RotatePoint(vec3_t point, /*const*/ vec3_t matrix[3]) { // FIXME 
+	vec3_t tvec;
+
+	VectorCopy(point, tvec);
+	point[0] = DotProduct(matrix[0], tvec);
+	point[1] = DotProduct(matrix[1], tvec);
+	point[2] = DotProduct(matrix[2], tvec);
+}
+
+/*
+ * ================
+ * TransposeMatrix
+ * ================
+ * */
+void TransposeMatrix(/*const*/ vec3_t matrix[3], vec3_t transpose[3]) { // FIXME
+	int i, j;
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			transpose[i][j] = matrix[j][i];
+		}
+	}
+}
+
+/*
+ * ================
+ * CreateRotationMatrix
+ * ================
+ * */
+void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]) {
+	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+	VectorInverse(matrix[1]);
+}
 
 /*
 ======================

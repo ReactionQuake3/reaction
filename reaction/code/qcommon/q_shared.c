@@ -96,13 +96,6 @@ void COM_StripExtension( const char *in, char *out, int destsize ) {
 		out[length] = 0;
 }
 
-void COM_StripExtensionInPlace(char *name)
-{
-        char* ext = Q_strrchr(name, '.');
-        if (ext)
-                *ext = 0;
-}
-
 
 /*
 ==================
@@ -733,6 +726,39 @@ qboolean Q_isintegral( float f )
 	return (int)f == f;
 }
 
+#ifdef _MSC_VER
+/*
+=============
+Q_vsnprintf
+ 
+Special wrapper function for Microsoft's broken _vsnprintf() function.
+MinGW comes with its own snprintf() which is not broken.
+=============
+*/
+
+int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
+{
+	int retval;
+	
+	retval = _vsnprintf(str, size, format, ap);
+
+	if(retval < 0 || retval == size)
+	{
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
+		// which states that the return value must be the number of
+		// bytes written if the output string had sufficient length.
+		//
+		// Obviously we cannot determine that value from Microsoft's
+		// implementation, so we have no choice but to return size.
+		
+		str[size - 1] = '\0';
+		return size;
+	}
+	
+	return retval;
+}
+#endif
+
 /*
 =============
 Q_strncpyz
@@ -941,28 +967,18 @@ int Q_CountChar(const char *string, char tocount)
 	return count;
 }
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
+void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
+{
 	int		len;
 	va_list		argptr;
-	char	bigbuffer[32000];	// big, but small enough to fit in PPC stack
 
 	va_start (argptr,fmt);
-	len = Q_vsnprintf (bigbuffer, sizeof(bigbuffer), fmt,argptr);
+	len = Q_vsnprintf(dest, size, fmt, argptr);
 	va_end (argptr);
-	if ( len >= sizeof( bigbuffer ) ) {
-		Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" );
-	}
-	if (len >= size) {
-		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-#ifdef	_DEBUG
-		__asm {
-			int 3;
-		}
-#endif
-	}
-	Q_strncpyz (dest, bigbuffer, size );
-}
 
+	if(len >= size)
+		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len);
+}
 
 /*
 ============
@@ -1007,70 +1023,6 @@ void Com_TruncateLongString( char *buffer, const char *s )
 		Q_strcat( buffer, TRUNCATE_LENGTH, " ... " );
 		Q_strcat( buffer, TRUNCATE_LENGTH, s + length - ( TRUNCATE_LENGTH / 2 ) + 3 );
 	}
-}
-
-/*
- * =============
- * TempVector
- *
- * This is just a convenience function
- * for making temporary vectors for function calls
- * =============
- * */
-float *tv(float x, float y, float z)
-{
-        static int index;
-        static vec3_t vecs[8];
-        float *v;
-
-        // use an array so that multiple tempvectors won't collide
-        // for a while
-        v = vecs[index];
-        index = (index + 1) & 7;
-
-        v[0] = x;
-        v[1] = y;
-        v[2] = z;
-
-        return v;
-}
-
-/*
- * =============
- * VectorToString
- *
- * This is just a convenience function
- * for printing vectors
- * =============
- * */
-char *vtos(const vec3_t v)
-{
-        static int index;
-        static char str[8][32];
-        char *s;
-
-        // use an array so that multiple vtos won't collide
-        s = str[index];
-        index = (index + 1) & 7;
-
-        Com_sprintf(s, 32, "(%.3f %.3f %.3f)", v[0], v[1], v[2]);
-
-        return s;
-}
-
-//====================================================================
-// JBravo: moved from g_weapon.c
-void SnapVectorTowards( vec3_t v, vec3_t to )
-{
-       int i;
-
-       for (i = 0 ; i < 3 ; i++) {
-               if ( to[i] <= v[i] ) {
-                       v[i] = (int)v[i];
-               } else {
-                       v[i] = (int)v[i] + 1;
-               }
-       }
 }
 
 /*
@@ -1358,6 +1310,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 Info_SetValueForKey_Big
 
 Changes or adds a key/value pair
+Includes and retains zero-length values
 ==================
 */
 void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
@@ -1378,7 +1331,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	}
 
 	Info_RemoveKey_Big (s, key);
-	if (!value || !strlen(value))
+	if (!value)
 		return;
 
 	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);

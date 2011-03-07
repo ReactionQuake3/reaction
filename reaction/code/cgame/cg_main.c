@@ -410,7 +410,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8,
+Q_EXPORT intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8,
 	   int arg9, int arg10, int arg11)
 {
 
@@ -509,7 +509,6 @@ vmCvar_t cg_fov;
 vmCvar_t cg_thirdPerson;
 vmCvar_t cg_thirdPersonRange;
 vmCvar_t cg_thirdPersonAngle;
-vmCvar_t cg_stereoSeparation;
 vmCvar_t cg_lagometer;
 vmCvar_t cg_drawAttacker;
 vmCvar_t cg_synchronousClients;
@@ -747,7 +746,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE},
 	{&cg_fov, "cg_fov", "90", CVAR_ARCHIVE | CVAR_CHEAT },
 	{&cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE},
-	{&cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE},
 	{&cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE},
 	{&cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE},
 	{&cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE},
@@ -983,7 +981,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	//{ &cg_pmove_fixed, "cg_pmove_fixed", "0", CVAR_USERINFO | CVAR_ARCHIVE }
 };
 
-static int cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);
+static int  cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 =================
@@ -1164,7 +1162,7 @@ void CG_UpdateCvars(void)
 			trap_Cvar_Set("teamoverlay", "0");
 		}
 		// FIXME E3 HACK
-		trap_Cvar_Set("teamoverlay", "1");
+		//trap_Cvar_Set("teamoverlay", "1");
 	}
 	// if force model changed
 	if (forceModelModificationCount != cg_forceModel.modificationCount && cgs.gametype < GT_TEAM) {
@@ -1847,7 +1845,7 @@ static void CG_RegisterSounds(void)
 	}
 
 	// only register the items that the server says we need
-	strcpy(items, CG_ConfigString(CS_ITEMS));
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
 	for (i = 1; i < bg_numItems; i++) {
 //              if ( items[ i ] == '1' || cg_buildScript.integer ) {
@@ -2112,12 +2110,12 @@ static void CG_RegisterGraphics(void)
 	cgs.media.irPlayerShaderFriendly = trap_R_RegisterShader("powerups/irdetailfriendly");
 	cgs.media.itemStrobeShader = trap_R_RegisterShader("rq3-itemstrobe");
 
-	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
-		cgs.media.redCubeModel = trap_R_RegisterModel("models/powerups/orb/r_orb.md3");
-		cgs.media.blueCubeModel = trap_R_RegisterModel("models/powerups/orb/b_orb.md3");
-		cgs.media.redCubeIcon = trap_R_RegisterShader("icons/skull_red");
-		cgs.media.blueCubeIcon = trap_R_RegisterShader("icons/skull_blue");
-	}
+//	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
+//		cgs.media.redCubeModel = trap_R_RegisterModel("models/powerups/orb/r_orb.md3");
+//		cgs.media.blueCubeModel = trap_R_RegisterModel("models/powerups/orb/b_orb.md3");
+//		cgs.media.redCubeIcon = trap_R_RegisterShader("icons/skull_red");
+//		cgs.media.blueCubeIcon = trap_R_RegisterShader("icons/skull_blue");
+//	}
 
 	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
 //		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3");
@@ -2271,7 +2269,7 @@ static void CG_RegisterGraphics(void)
 	memset(cg_weapons, 0, sizeof(cg_weapons));
 
 	// only register the items that the server says we need
-	strcpy(items, CG_ConfigString(CS_ITEMS));
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 	CG_Printf("Items: (%s)\n",items);
 	for (i = 1; i < bg_numItems; i++)
 		if (items[i] == '1' || cg_buildScript.integer)

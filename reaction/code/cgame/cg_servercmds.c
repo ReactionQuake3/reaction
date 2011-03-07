@@ -248,7 +248,7 @@ static const orderTask_t validOrders[] = {
 	{VOICECHAT_FOLLOWFLAGCARRIER, TEAMTASK_ESCORT}
 };
 
-static const int numValidOrders = sizeof(validOrders) / sizeof(orderTask_t);
+static const int numValidOrders = ARRAY_LEN(validOrders);
 
 /*
 =================
@@ -835,6 +835,7 @@ static void CG_MapRestart(void)
 	cg.timelimitWarnings = 0;
 
 	cg.intermissionStarted = qfalse;
+	cg.levelShot = qfalse;
 
 	cgs.voteTime = 0;
 
@@ -1651,11 +1652,26 @@ static void CG_ServerCommand(void)
 		return;
 	}
 
-	if (Q_stricmp(cmd, "remapShader") == 0) {
+	 if ( Q_stricmp (cmd, "remapShader") == 0 ) {
+		if (trap_Argc() == 4) {
+			char shader1[MAX_QPATH];
+			char shader2[MAX_QPATH];
+			char shader3[MAX_QPATH];
+
+			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
+			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
+			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
+
+			trap_R_RemapShader(shader1, shader2, shader3);
+		}
+		return;
+	}
+/*	if (Q_stricmp(cmd, "remapShader") == 0) {
 		if (trap_Argc() == 4) {
 			trap_R_RemapShader(CG_Argv(1), CG_Argv(2), CG_Argv(3));
 		}
 	}
+*/
 	// loaddeferred can be both a servercmd and a consolecmd
 	//Makro - fixed spelling
 	//if ( !strcmp( cmd, "loaddefered" ) ) {        // FIXME: spelled wrong, but not changing for demo

@@ -48,7 +48,6 @@ void UpdateTournamentInfo(void)
 	gentity_t *player;
 	int playerClientNum;
 	int n, accuracy, perfect, msglen;
-	int buflen;
 	char buf[32];
 	char msg[MAX_STRING_CHARS];
 
@@ -97,8 +96,8 @@ void UpdateTournamentInfo(void)
 		n = level.sortedClients[i];
 		Com_sprintf(buf, sizeof(buf), " %i %i %i", n, level.clients[n].ps.persistant[PERS_RANK],
 			    level.clients[n].ps.persistant[PERS_SCORE]);
-		buflen = strlen(buf);
-		if (msglen + buflen + 1 >= sizeof(msg)) {
+		msglen += strlen(buf);
+		if (msglen >= sizeof(msg)) {
 			break;
 		}
 		strcat(msg, buf);

@@ -55,12 +55,20 @@ char *Sys_DefaultHomePath(void)
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
-			Q_strncpyz( homePath, p, sizeof( homePath ) );
+			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
 #ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ),
-					"/Library/Application Support/Reaction" );
+			Q_strcat(homePath, sizeof(homePath),
+				"Library/Application Support/Reaction");
+
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), "Reaction");
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/.Reaction" );
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), ".Reaction");
 #endif
 		}
 	}
@@ -92,8 +100,7 @@ Sys_Milliseconds
 */
 /* base time in seconds, that's our origin
    timeval:tv_sec is an int:
-   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038
-   using unsigned long data type to work right with Sys_XTimeToSysTime */
+   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038 */
 unsigned long sys_timeBase = 0;
 /* current time in ms, using sys_timeBase as origin
    NOTE: sys_timeBase*1000 + curtime -> ms since the Epoch
@@ -499,7 +506,7 @@ void Sys_ErrorDialog( const char *error )
 	unsigned int size;
 	int f = -1;
 	const char *homepath = Cvar_VariableString( "fs_homepath" );
-	const char *gamedir = Cvar_VariableString( "fs_gamedir" );
+	const char *gamedir = Cvar_VariableString( "fs_game" );
 	const char *fileName = "crashlog.txt";
 	char *ospath = FS_BuildOSPath( homepath, gamedir, fileName );
 
@@ -738,6 +745,17 @@ void Sys_PlatformInit( void )
 
 	stdinIsATTY = isatty( STDIN_FILENO ) &&
 		!( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) );
+}
+
+/*
+==============
+Sys_PlatformExit
+
+Unix specific deinitialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
 }
 
 /*

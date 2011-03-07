@@ -1039,8 +1039,10 @@ typedef struct {
 	int spectatorOffset;	// current offset from start
 	int spectatorPaintLen;	// current offset from start
 
+#ifdef MISSIONPACK
 	// skull trails
 	skulltrail_t skulltrails[MAX_CLIENTS];
+#endif
 
 	// centerprinting
 	int centerPrintTime;
@@ -1216,10 +1218,12 @@ typedef struct {
 
 	qhandle_t blackHackShader;
 
+#ifdef MISSIONPACK
 	qhandle_t redCubeModel;
 	qhandle_t blueCubeModel;
 	qhandle_t redCubeIcon;
 	qhandle_t blueCubeIcon;
+#endif
 	qhandle_t redFlagModel;
 	qhandle_t blueFlagModel;
 	qhandle_t neutralFlagModel;
@@ -1839,7 +1843,6 @@ extern vmCvar_t cg_fov;
 extern vmCvar_t cg_thirdPersonRange;
 extern vmCvar_t cg_thirdPersonAngle;
 extern vmCvar_t cg_thirdPerson;
-extern vmCvar_t cg_stereoSeparation;
 extern vmCvar_t cg_lagometer;
 extern vmCvar_t cg_drawAttacker;
 extern vmCvar_t cg_synchronousClients;

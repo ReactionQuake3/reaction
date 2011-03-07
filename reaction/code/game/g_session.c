@@ -111,7 +111,7 @@ void G_WriteClientSessionData(gclient_t * client)
 	       //Captain and sub
 	    );
 
-	var = va("session%i", client - level.clients);
+	var = va( "session%i", (int)(client - level.clients) );
 
 	trap_Cvar_Set(var, s);
 
@@ -141,7 +141,7 @@ void G_ReadSessionData(gclient_t * client)
 	int sub;
 	int ref;
 
-	var = va("session%i", client - level.clients);
+	var = va("session%i", (int)(client - level.clients));
 	trap_Cvar_VariableStringBuffer(var, s, sizeof(s));
 //Slicer: Reading savedTeam also.
 	sscanf(s, "%i %i %i %i %i %i %i %i %i %i %i", &sessionTeam,	// bk010221 - format

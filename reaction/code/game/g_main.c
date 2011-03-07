@@ -452,6 +452,8 @@ gentity_t *getEntByName(char *name);
 void AddIP(char *str);
 void G_RunAttachedEnt(gentity_t *ent);
 void G_SetGlobalRefSystem(int newRefSys);
+void G_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]);
+void G_RotatePoint(vec3_t point, vec3_t matrix[3]);
 level_locals_t level;
 
 typedef struct {
@@ -749,7 +751,7 @@ static cvarTable_t gameCvarTable[] = {
 };
 
 // bk001129 - made static to avoid aliasing
-static int gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable[0]);
+static int gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
 void G_InitGame(int levelTime, int randomSeed, int restart);
 void G_RunFrame(int levelTime);
@@ -764,9 +766,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8,
-	   int arg9, int arg10, int arg11)
-{
+Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch (command) {
 	case GAME_INIT:
 		G_InitGame(arg0, arg1, arg2);
@@ -775,7 +775,7 @@ int vmMain(int command, int arg0, int arg1, int arg2, int arg3, int arg4, int ar
 		G_ShutdownGame(arg0);
 		return 0;
 	case GAME_CLIENT_CONNECT:
-		return (int) ClientConnect(arg0, arg1, arg2);
+		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
 	case GAME_CLIENT_THINK:
 		//G_SetGlobalRefSystem(REFSYSTEM_WORLD);
 		ClientThink(arg0);
@@ -1201,8 +1201,8 @@ void G_InitMoveParents( void )
 					VectorNegate(ent->moveParent_ent->s.origin, ent->s.angles2);
 					VectorNegate(ent->moveParent_ent->s.angles, v);
 					AnglesToAxis(v, axis);
-					TransposeMatrix(axis, matrix);
-					RotatePoint(ent->s.angles2, matrix);
+					G_TransposeMatrix(axis, matrix);
+					G_RotatePoint(ent->s.angles2, matrix);
 
 					/*
 					//adjust origin, angles etc.
@@ -1215,13 +1215,13 @@ void G_InitMoveParents( void )
 					VectorSubtract(ent->pos2, ent->moveParent_ent->s.origin, ent->pos2);
 					//
 
-					RotatePoint(ent->s.origin, matrix);
-					RotatePoint(ent->r.currentOrigin, matrix);
-					RotatePoint(ent->s.pos.trBase, matrix);
+					G_RotatePoint(ent->s.origin, matrix);
+					G_RotatePoint(ent->r.currentOrigin, matrix);
+					G_RotatePoint(ent->s.pos.trBase, matrix);
 					
 					//temp
-					RotatePoint(ent->pos1, matrix);
-					RotatePoint(ent->pos2, matrix);
+					G_RotatePoint(ent->pos1, matrix);
+					G_RotatePoint(ent->pos2, matrix);
 					//
 					*/
 
@@ -1531,7 +1531,6 @@ void G_ShutdownGame(int restart)
 
 //===================================================================
 
-#ifndef GAME_HARD_LINKED
 // this is only here so the functions in q_shared.c and bg_*.c can link
 
 void QDECL Com_Error(int level, const char *error, ...)
@@ -1557,8 +1556,6 @@ void QDECL Com_Printf(const char *msg, ...)
 
 	G_Printf("%s", text);
 }
-
-#endif
 
 /*
 ========================================================================
@@ -1778,7 +1775,7 @@ void CalculateRanks(void)
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;	// don't count bots
-	for (i = 0; i < TEAM_NUM_TEAMS; i++) {
+	for (i = 0; i < ARRAY_LEN(level.numteamVotingClients); i++) {
 		level.numteamVotingClients[i] = 0;
 	}
 	for (i = 0; i < level.maxclients; i++) {

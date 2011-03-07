@@ -1773,49 +1773,6 @@ int ReflectVectorByte(vec3_t dir, vec3_t plane)
 	return DirToByte(final);
 }
 
-//Makro - moved from g_mover.c
-/*
-================
-CreateRotationMatrix
-================
-*/
-void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3])
-{
-	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
-	VectorInverse(matrix[1]);
-}
-
-/*
-================
-TransposeMatrix
-================
-*/
-void TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3])
-{
-	int i, j;
-
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			transpose[i][j] = matrix[j][i];
-		}
-	}
-}
-
-/*
-================
-RotatePoint
-================
-*/
-void RotatePoint(vec3_t point, vec3_t matrix[3])
-{
-	vec3_t tvec;
-
-	VectorCopy(point, tvec);
-	point[0] = DotProduct(matrix[0], tvec);
-	point[1] = DotProduct(matrix[1], tvec);
-	point[2] = DotProduct(matrix[2], tvec);
-}
-
 //Makro - added
 void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out)
 {

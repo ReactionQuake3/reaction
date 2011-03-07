@@ -107,15 +107,15 @@
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -139,7 +139,7 @@ void Cmd_Bandage(gentity_t * ent);
 void Cmd_DropItem_f(gentity_t * ent);
 void Cmd_DropWeapon_f(gentity_t * ent);
 
-//goal flag, see be_ai_goal.h for the other GFL_*
+//goal flag, see ../botlib/be_ai_goal.h for the other GFL_*
 #define GFL_AIR			128
 
 int numnodeswitches;
@@ -171,7 +171,7 @@ void BotDumpNodeSwitches(bot_state_t * bs)
 	BotAI_Print(PRT_MESSAGE, "%s at %1.1f switched more than %d AI nodes\n", netname, FloatTime(),
 		    MAX_NODESWITCHES);
 	for (i = 0; i < numnodeswitches; i++) {
-		BotAI_Print(PRT_MESSAGE, nodeswitch[i]);
+		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[i]);
 	}
 	BotAI_Print(PRT_FATAL, "");
 }
@@ -190,7 +190,7 @@ void BotRecordNodeSwitch(bot_state_t * bs, char *node, char *str, char *s)
 		    node, str, s);
 #ifdef DEBUG
 	if (0) {
-		BotAI_Print(PRT_MESSAGE, nodeswitch[numnodeswitches]);
+		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[numnodeswitches]);
 	}
 #endif				//DEBUG
 	numnodeswitches++;

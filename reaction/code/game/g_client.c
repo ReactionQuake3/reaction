@@ -940,75 +940,43 @@ ClientCheckName
 */
 static void ClientCleanName(const char *in, char *out, int outSize)
 {
-	int len, colorlessLen;
-	char ch;
-	char *p;
-	int spaces;
+	int outpos = 0, colorlessLen = 0, spaces = 0;
 
-	//save room for trailing null byte
-	outSize--;
+	// discard leading spaces
+	for (; *in == ' '; in++);
+	for (; *in && outpos < outSize - 1; in++) {
+		out[outpos] = *in;
 
-	len = 0;
-	colorlessLen = 0;
-	p = out;
-	*p = 0;
-	spaces = 0;
-
-	while (1) {
-		ch = *in++;
-		if (!ch) {
-			break;
-		}
-		// don't allow leading spaces
-		if (!*p && ch == ' ') {
-			continue;
-		}
-		// check colors
-		if (ch == Q_COLOR_ESCAPE) {
-			// solo trailing carat is not a color prefix
-			if (!*in) {
-				break;
-			}
-			// don't allow black in a name, period
-			if (ColorIndex(*in) == 0) {
-				in++;
+		if (*in == ' ') {
+			// don't allow too many consecutive spaces
+			if (spaces > 2)
 				continue;
-			}
-			// make sure room in dest for both chars
-			if (len > outSize - 2) {
-				break;
-			}
-
-			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
-			continue;
-		}
-		// don't allow too many consecutive spaces
-		if (ch == ' ') {
 			spaces++;
-			if (spaces > 3) {
-				continue;
+		} else if (outpos > 0 && out[outpos - 1] == Q_COLOR_ESCAPE) {
+			if (Q_IsColorString(&out[outpos - 1])) {
+				colorlessLen--;
+				if (ColorIndex(*in) == 0) {
+					// Disallow color black in names to prevent players
+					// from getting advantage playing in front of black backgrounds
+					outpos--;
+					continue;
+				}
+			} else {
+				spaces = 0;
+				colorlessLen++;
 			}
 		} else {
 			spaces = 0;
+			colorlessLen++;
 		}
-
-		if (len > outSize - 1) {
-			break;
-		}
-
-		*out++ = ch;
-		colorlessLen++;
-		len++;
+		outpos++;
 	}
-	*out = 0;
+
+	out[outpos] = '\0';
 
 	// don't allow empty names
-	if (*p == 0 || colorlessLen == 0) {
-		//Elder: change to what we want
-		Q_strncpyz(p, RQ3_NONAMEPLAYER, outSize);
-	}
+	if( *out == '\0' || colorlessLen == 0)
+		Q_strncpyz(out, RQ3_NONAMEPLAYER, outSize);
 }
 
 /*
@@ -1326,13 +1294,11 @@ restarts.
 */
 char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
-	char *value, *ip;
+	char *value;
 	gclient_t *client;
 	char userinfo[MAX_INFO_STRING], ipaddr[64];
 	gentity_t *ent;
 
-	//Blaze: Prit out some Debug info
-	if (&g_entities[clientNum] == NULL) G_Printf("Ln 1399\n");
 	ent = &g_entities[clientNum];
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
@@ -1340,16 +1306,15 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
 	// check to see if they are on the banned IP list
-	ip = Info_ValueForKey(userinfo, "ip");
-	strcpy(ipaddr, ip);
-	if (G_FilterPacket(ip)) {
+	value = Info_ValueForKey(userinfo, "ip");
+	strncpy(ipaddr, value, sizeof(ipaddr));
+	if (G_FilterPacket(value)) {
 		return "You are banned from this server..";
 	}
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
 	// this means this client is not running in our current process
-		//Slicer: Crash FIX -  during the 1.32 merging the strcmp was using "value" without being assigned.. replaced it with "ip"
-	if (!(ent->r.svFlags & SVF_BOT) && (strcmp(ip, "localhost") != 0)) {
+	if ( !isBot && (strcmp(value, "localhost") != 0)) {
 		// check for a password
 		value = Info_ValueForKey(userinfo, "password");
 		if (g_password.string[0] && Q_stricmp(g_password.string, "none") &&
@@ -1738,7 +1703,7 @@ void ClientSpawn(gentity_t * ent)
 	savedFemaleSet = client->radioSetFemale;
 	memcpy(&savedCamera, &client->camera, sizeof(camera_t));
 
-	memset(client, 0, sizeof(*client));	// bk FIXME: Com_Memset?
+	Com_Memset (client, 0, sizeof(*client));
 
 // JBravo: restore weapon/item info
 	client->teamplayWeapon = savedWeapon;

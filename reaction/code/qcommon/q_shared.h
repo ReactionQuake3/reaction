@@ -31,14 +31,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE     	"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
-  #define GAMENAME_FOR_MASTER		"Reaction"	// must NOT contain whitespaces
+  #define GAMENAME_FOR_MASTER		"Reaction"		// must NOT contain whitespaces
+  #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
+  #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
 #else
   #define PRODUCT_NAME			"Reaction"
-  #define BASEGAME			"Boomstick"
+  #define BASEGAME			"baseq3"
   #define CLIENT_WINDOW_TITLE     	"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
   #define GAMENAME_FOR_MASTER		"Reaction"
+  #define HEARTBEAT_FOR_MASTER		"Reaction-1"
+  #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER
 #endif
+
+#define BASETA				"missionpack"
 
 #ifdef _MSC_VER
   #define PRODUCT_VERSION "1.35"
@@ -46,7 +52,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
 
-#define MAX_TEAMNAME 32
+#define MAX_TEAMNAME		32
+#define MAX_MASTER_SERVERS      5	// number of supported master servers
 
 #ifdef _MSC_VER
 
@@ -125,16 +132,6 @@ typedef int intptr_t;
 #include <ctype.h>
 #include <limits.h>
 
-// vsnprintf is ISO/IEC 9899:1999
-// abstracting this to make it portable
-#ifdef _WIN32
-  #define Q_vsnprintf _vsnprintf
-  #define Q_snprintf _snprintf
-#else
-  #define Q_vsnprintf vsnprintf
-  #define Q_snprintf snprintf
-#endif
-
 #ifdef _MSC_VER
   #include <io.h>
 
@@ -146,8 +143,14 @@ typedef int intptr_t;
   typedef unsigned __int32 uint32_t;
   typedef unsigned __int16 uint16_t;
   typedef unsigned __int8 uint8_t;
+
+  // vsnprintf is ISO/IEC 9899:1999
+  // abstracting this to make it portable
+  int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #else
   #include <stdint.h>
+
+  #define Q_vsnprintf vsnprintf
 #endif
 
 #endif
@@ -175,9 +178,9 @@ typedef int		clipHandle_t;
 #define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #ifdef __GNUC__
-#define ALIGN(x) __attribute__((aligned(x)))
+#define QALIGN(x) __attribute__((aligned(x)))
 #else
-#define ALIGN(x)
+#define QALIGN(x)
 #endif
 
 #ifndef NULL
@@ -191,16 +194,17 @@ typedef int		clipHandle_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
+#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
+
 
 // angle indexes
 #define	PITCH				0		// up / down
 #define	YAW					1		// left / right
 #define	ROLL				2		// fall over
-
 //Makro - angle axis
-#define PITCH_AXIS                     1
-#define YAW_AXIS                       2
-#define ROLL_AXIS                      0
+#define PITCH_AXIS			1
+#define YAW_AXIS			2
+#define ROLL_AXIS			0
 
 
 // the game guarantees that no string from the network will ever
@@ -338,11 +342,9 @@ typedef	int	fixed16_t;
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h
 #endif
 
-//#define NUMVERTEXNORMALS	162
-//extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 //Makro - changed from 162 to 256 in order to use the new bytedirs table
 #define NUMVERTEXNORMALS	256
-extern vec3_t bytedirs[NUMVERTEXNORMALS];
+extern	vec3_t	bytedirs[NUMVERTEXNORMALS];
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
@@ -388,6 +390,9 @@ extern	vec4_t		colorDkGrey;
 //#define ColorIndex(c)	(((c) - '0') & 0x07)
 #define ColorIndex(c)   ( ( (c) - '0' ) & 7 )
 
+//Makro - reset color
+#define S_COLOR_RESET  "^*"
+
 #define S_COLOR_BLACK	"^0"
 #define S_COLOR_RED	"^1"
 #define S_COLOR_GREEN	"^2"
@@ -397,23 +402,10 @@ extern	vec4_t		colorDkGrey;
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
 
-//Makro - reset color
-#define S_COLOR_RESET  "^*"
-
 extern vec4_t	g_color_table[8];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
-
-//Makro - for the UI
-#define Vector2Copy(a,b)                       ((b)[0]=(a)[0],(b)[1]=(a)[1])
-#define Vector2MA(v,s,b,o)                     ((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
-#define Vector2Add(a,b,o)                      ((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
-#define Vector2Subtract(a,b,o)                 ((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
-#define Vector2Scale(a,s,o)                    ((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
-#define Vector2Negate(a,o)                     ((o)[0]=-(a)[0],(o)[1]=-(a)[1])
-#define Vector2Set(v,x,y)                      ((v)[0]=(x),(v)[1]=(y))
-#define Vector2Norm2(v)                        ((v)[0]*(v)[0]+(v)[1]*(v)[1])
 
 #define DEG2RAD( a ) ( ( (a) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( (a) * 180.0f ) / M_PI )
@@ -500,6 +492,16 @@ typedef struct {
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
+//Makro - for the UI
+#define Vector2Copy(a,b)                       ((b)[0]=(a)[0],(b)[1]=(a)[1])
+#define Vector2MA(v,s,b,o)                     ((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s))
+#define Vector2Add(a,b,o)                      ((o)[0]=(a)[0]+(b)[0],(o)[1]=(a)[1]+(b)[1])
+#define Vector2Subtract(a,b,o)                 ((o)[0]=(a)[0]-(b)[0],(o)[1]=(a)[1]-(b)[1])
+#define Vector2Scale(a,s,o)                    ((o)[0]=(a)[0]*(s),(o)[1]=(a)[1]*(s))
+#define Vector2Negate(a,o)                     ((o)[0]=-(a)[0],(o)[1]=-(a)[1])
+#define Vector2Set(v,x,y)                      ((v)[0]=(x),(v)[1]=(y))
+#define Vector2Norm2(v)                        ((v)[0]*(v)[0]+(v)[1]*(v)[1])
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 void SnapVectorTowards(vec3_t v, vec3_t to);
@@ -650,14 +652,13 @@ int ReflectVectorByte( vec3_t dir, vec3_t plane );
 int Q_isnan( float x );
 
 // Makro - added
-void RotatePoint(vec3_t point, /*const*/ vec3_t matrix[3]);
-void TransposeMatrix(/*const*/ vec3_t matrix[3], vec3_t transpose[3]);
-void CreateRotationMatrix(const vec3_t angles, vec3_t matrix[3]);
 void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
 void ChangeBackRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
 void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out);
 
-
+// Makro - moved from bg_lic.c so all can use :P
+#define is_digit(c)    ((unsigned)to_digit(c) <= 9)
+#define to_digit(c)    ((c) - '0')
 
 //=============================================
 
@@ -666,7 +667,6 @@ float Com_Clamp( float min, float max, float value );
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension(const char *in, char *out, int destsize);
-void	COM_StripExtensionInPlace(char* name);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
@@ -790,9 +790,6 @@ float	LittleFloat (const float *l);
 void	Swap_Init (void);
 */
 char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
-float   *tv(float x, float y, float z);
-char *vtos( const vec3_t v );
-
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -1279,10 +1276,6 @@ typedef struct {
 
 #define Square(x) ((x)*(x))
 
-// Makro - moved from bg_lic.c so all can use :P
-#define is_digit(c)    ((unsigned)to_digit(c) <= 9)
-#define to_digit(c)    ((c) - '0')
-
 // real time
 //=============================================
 
@@ -1342,5 +1335,8 @@ typedef enum _flag_status {
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
 
+
+#define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
+#define LUMA( red, green, blue ) ( 0.2126f * ( red ) + 0.7152f * ( green ) + 0.0722f * ( blue ) )
 
 #endif	// __Q_SHARED_H

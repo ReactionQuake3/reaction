@@ -386,7 +386,7 @@
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION		"rq3"
+#define	GAMEVERSION		BASEGAME
 #define BODY_QUEUE_SIZE		8
 
 // JBravo: Max number of killed enemys to track
@@ -1125,8 +1125,8 @@ qboolean G_EntitiesFree(void);
 void G_TouchTriggers(gentity_t * ent);
 void G_TouchSolids(gentity_t * ent);
 
-/*float *tv(float x, float y, float z);
-char *vtos(const vec3_t v);*/
+//float *tv(float x, float y, float z);
+char *vtos(const vec3_t v);
 
 float vectoyaw(const vec3_t vec);
 
@@ -1204,7 +1204,7 @@ qboolean G_FileExists(char *filename);
 //
 qboolean LogAccuracyHit(gentity_t * target, gentity_t * attacker);
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
-//void SnapVectorTowards(vec3_t v, vec3_t to);
+void SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean CheckGauntletAttack(gentity_t * ent);
 
 // JBravo: unlagged - g_unlagged.c
@@ -1413,7 +1413,7 @@ extern gentity_t g_entities[MAX_GENTITIES];
 //Makro - moveparent tree
 extern gentity_t *g_parentOrder[MAX_GENTITIES];
 
-#define	FOFS(x) ((int)&(((gentity_t *)0)->x))
+#define FOFS(x) ((size_t)&(((gentity_t *)0)->x))
 
 extern vmCvar_t g_gametype;
 extern vmCvar_t g_dedicated;

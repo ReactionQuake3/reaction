@@ -187,15 +187,15 @@
  *****************************************************************************/
 
 #include "g_local.h"
-#include "botlib.h"
-#include "be_aas.h"
-#include "be_ea.h"
-#include "be_ai_char.h"
-#include "be_ai_chat.h"
-#include "be_ai_gen.h"
-#include "be_ai_goal.h"
-#include "be_ai_move.h"
-#include "be_ai_weap.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas.h"
+#include "../botlib/be_ea.h"
+#include "../botlib/be_ai_char.h"
+#include "../botlib/be_ai_chat.h"
+#include "../botlib/be_ai_gen.h"
+#include "../botlib/be_ai_goal.h"
+#include "../botlib/be_ai_move.h"
+#include "../botlib/be_ai_weap.h"
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -1463,7 +1463,7 @@ char *EasyClientName(int client, char *buf, int size)
 	char *str1, *str2, *ptr, c;
 	char name[128];
 
-	strcpy(name, ClientName(client, name, sizeof(name)));
+	ClientName(client, name, sizeof(name));
 	for (i = 0; name[i]; i++)
 		name[i] &= 127;
 	//remove all spaces

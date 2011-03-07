@@ -245,6 +245,18 @@
 #include "cg_local.h"
 
 /*
+ * ============
+ * COM_StripExtensionInPlace
+ * ============
+ * */
+void COM_StripExtensionInPlace(char *name)
+{
+	char* ext = Q_strrchr(name, '.');
+	if (ext)
+		*ext = 0;
+}
+
+/*
 ==========================
 CG_ParseWeaponSoundFile
 

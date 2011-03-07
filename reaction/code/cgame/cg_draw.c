@@ -2812,33 +2812,16 @@ Perform all drawing needed to completely fill the screen
 */
 void CG_DrawActive(stereoFrame_t stereoView)
 {
-	float separation;
-	vec3_t baseOrg;
-
 	// optionally draw the info screen instead
 	if (!cg.snap) {
 		CG_DrawInformation();
 		return;
 	}
+
 	// optionally draw the tournement scoreboard instead
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR && (cg.snap->ps.pm_flags & PMF_SCOREBOARD)) {
 		CG_DrawTourneyScoreboard();
 		return;
-	}
-
-	switch (stereoView) {
-	case STEREO_CENTER:
-		separation = 0;
-		break;
-	case STEREO_LEFT:
-		separation = -cg_stereoSeparation.value / 2;
-		break;
-	case STEREO_RIGHT:
-		separation = cg_stereoSeparation.value / 2;
-		break;
-	default:
-		separation = 0;
-		CG_Error("CG_DrawActive: Undefined stereoView");
 	}
 
 	// clear around the rendered view if sized down
@@ -2848,12 +2831,6 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	//if (cg.snap->ps.pm_type == PM_NORMAL)
 	//	CG_DrawBigPolygon();
 
-	// offset vieworg appropriately if we're doing stereo separation
-	VectorCopy(cg.refdef.vieworg, baseOrg);
-	if (separation != 0) {
-		VectorMA(cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg);
-	}
-
 	//Makro - sun flare
 	CG_AddLensFlare(qtrue);
 
@@ -2861,9 +2838,9 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	trap_R_RenderScene(&cg.refdef);
 
 	// restore original viewpoint if running stereo
-	if (separation != 0) {
-		VectorCopy(baseOrg, cg.refdef.vieworg);
-	}
+//	if (separation != 0) {
+//		VectorCopy(baseOrg, cg.refdef.vieworg);
+//	}
 	// Elder: draw damage blend
 	CG_DrawDamageBlend();
 	//CG_DrawIRBlend();

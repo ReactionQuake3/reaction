@@ -306,7 +306,7 @@ Dlls will call this directly
 
  rcg010206 The horror; the horror.
 
-  The syscall mechanism relies on stack manipulation to get it's args.
+  The syscall mechanism relies on stack manipulation to get its args.
    This is likely due to C's inability to pass "..." parameters to
    a function in one clean chunk. On PowerPC Linux, these parameters
    are not necessarily passed on the stack, so while (&arg[0] == arg)
@@ -346,7 +346,7 @@ intptr_t QDECL VM_DllSyscall( intptr_t arg, ... ) {
   args[0] = arg;
   
   va_start(ap, arg);
-  for (i = 1; i < sizeof (args) / sizeof (args[i]); i++)
+  for (i = 1; i < ARRAY_LEN (args); i++)
     args[i] = va_arg(ap, intptr_t);
   va_end(ap);
   
@@ -383,6 +383,9 @@ vmHeader_t *VM_LoadQVM( vm_t *vm, qboolean alloc ) {
 		VM_Free( vm );
 		return NULL;
 	}
+
+	// show where the qvm was loaded from
+	Cmd_ExecuteString( va( "which %s\n", filename ) );
 
 	if( LittleLong( header.h->vmMagic ) == VM_MAGIC_VER2 ) {
 		Com_Printf( "...which has vmMagic VM_MAGIC_VER2\n" );
@@ -556,7 +559,7 @@ vm_t *VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 	if ( interpret == VMI_NATIVE ) {
 		// try to load as a system dll
 		Com_Printf( "Loading dll file %s.\n", vm->name );
-		vm->dllHandle = Sys_LoadDll( module, vm->fqpath , &vm->entryPoint, VM_DllSyscall );
+		vm->dllHandle = Sys_LoadDll( module, &vm->entryPoint, VM_DllSyscall );
 		if ( vm->dllHandle ) {
 			return vm;
 		}
@@ -753,7 +756,7 @@ intptr_t	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
 		int args[10];
 		va_list ap;
 		va_start(ap, callnum);
-		for (i = 0; i < sizeof (args) / sizeof (args[i]); i++) {
+		for (i = 0; i < ARRAY_LEN(args); i++) {
 			args[i] = va_arg(ap, int);
 		}
 		va_end(ap);
@@ -778,7 +781,7 @@ intptr_t	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
 
 		a.callnum = callnum;
 		va_start(ap, callnum);
-		for (i = 0; i < sizeof (a.args) / sizeof (a.args[0]); i++) {
+		for (i = 0; i < ARRAY_LEN(a.args); i++) {
 			a.args[i] = va_arg(ap, int);
 		}
 		va_end(ap);

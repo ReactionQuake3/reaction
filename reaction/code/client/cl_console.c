@@ -309,7 +309,7 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "txt", qfalse );
+		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 	}
 }
 
@@ -445,10 +445,8 @@ void CL_ConsolePrint( char *txt ) {
 			y = con.current % con.totallines;
 			con.text[y*con.linewidth+con.x] = (color << 8) | c;
 			con.x++;
-			if (con.x >= con.linewidth) {
+			if(con.x >= con.linewidth)
 				Con_Linefeed(skipnotify);
-				con.x = 0;
-			}
 			break;
 		}
 	}

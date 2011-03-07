@@ -203,7 +203,6 @@
 
 #include "g_local.h"
 void InitRotator(gentity_t * ent);
-
 /*
 ===============================================================================
 
@@ -257,6 +256,44 @@ gentity_t *G_TestEntityPosition(gentity_t * ent)
 }
 
 /*
+ * ================
+ * G_CreateRotationMatrix
+ * ================
+ * */
+void G_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]) {
+	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
+	VectorInverse(matrix[1]);
+}
+
+/*
+ * ================
+ * G_TransposeMatrix
+ * ================
+ * */
+void G_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]) {
+	int i, j;
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			transpose[i][j] = matrix[j][i];
+		}
+	}
+}
+
+/*
+ * ================
+ * G_RotatePoint
+ * ================
+ * */
+void G_RotatePoint(vec3_t point, vec3_t matrix[3]) {
+	vec3_t tvec;
+
+	VectorCopy(point, tvec);
+	point[0] = DotProduct(matrix[0], tvec);
+	point[1] = DotProduct(matrix[1], tvec);
+	point[2] = DotProduct(matrix[2], tvec);
+}
+
+/*
 ==================
 G_TryPushingEntity
 
@@ -289,8 +326,8 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 
 	// try moving the contacted entity
 	// figure movement due to the pusher's amove
-	CreateRotationMatrix(amove, transpose);
-	TransposeMatrix(transpose, matrix);
+	G_CreateRotationMatrix(amove, transpose);
+	G_TransposeMatrix(transpose, matrix);
 	if (check->client) {
 		VectorSubtract(check->client->ps.origin, pusher->r.currentOrigin, org);
 	} else {
@@ -302,7 +339,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 	VectorAdd(org, move, org);
 
 	VectorCopy(org, org2);
-	RotatePoint(org2, matrix);
+	G_RotatePoint(org2, matrix);
 	VectorSubtract(org2, org, move2);
 	// add movement
 	VectorAdd(check->s.pos.trBase, move, check->s.pos.trBase);
@@ -2445,6 +2482,25 @@ void Use_Func_Train(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	length = VectorLength(move);
 
 	ent->s.pos.trDuration = length * 1000 / speed;
+
+	// Tequila comment: Be sure to send to clients after any fast move case
+	ent->r.svFlags &= ~SVF_NOCLIENT;
+
+	// Tequila comment: Fast move case
+	if(ent->s.pos.trDuration<1) {
+		// Tequila comment: As trDuration is used later in a division, we need to avoid that case now
+		// With null trDuration,
+		// the calculated rocks bounding box becomes infinite and the engine think for a short time
+		// any entity is riding that mover but not the world entity... In rare case, I found it
+		// can also stuck every map entities after func_door are used.
+		// The desired effect with very very big speed is to have instant move, so any not null duration
+		// lower than a frame duration should be sufficient.
+		// Afaik, the negative case don't have to be supported.
+		ent->s.pos.trDuration=1;
+
+		// Tequila comment: Don't send entity to clients so it becomes really invisible
+		ent->r.svFlags |= SVF_NOCLIENT;
+	}
 
 	// looping sound
 	ent->s.loopSound = next->soundLoop;

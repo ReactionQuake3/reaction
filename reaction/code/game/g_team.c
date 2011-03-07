@@ -81,8 +81,9 @@ void Team_InitGame(void)
 
 	switch (g_gametype.integer) {
 	case GT_CTF:
-		teamgame.redStatus = teamgame.blueStatus = -1;	// Invalid to force update
+		teamgame.redStatus = -1; // Invalid to force update
 		Team_SetFlagStatus(TEAM_RED, FLAG_ATBASE);
+		teamgame.blueStatus = -1; // Invalid to force update
 		Team_SetFlagStatus(TEAM_BLUE, FLAG_ATBASE);
 		break;
 	default:
@@ -758,7 +759,7 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 	// Ok, let's do the player loop, hand out the bonuses
 	for (i = 0; i < g_maxclients.integer; i++) {
 		player = &g_entities[i];
-		if (!player->inuse)
+		if (!player->inuse || player == other)
 			continue;
 
 		if (player->client->sess.sessionTeam != cl->sess.sessionTeam) {
@@ -1079,7 +1080,7 @@ void TeamplayInfoMessage(gentity_t * ent)
 				    i, player->client->pers.teamState.location, h, a,
 				    player->client->ps.weapon, player->s.powerups);
 			j = strlen(entry);
-			if (stringlength + j > sizeof(string))
+			if (stringlength + j >= sizeof(string))
 				break;
 			strcpy(string + stringlength, entry);
 			stringlength += j;

@@ -1255,7 +1255,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			self->client->pers.records[REC_WORLDDEATHS]++;
 	}
 
-	if (meansOfDeath < 0 || meansOfDeath >= sizeof(modNames) / sizeof(modNames[0])) {
+	if ( meansOfDeath < 0 || meansOfDeath >= ARRAY_LEN( modNames ) ) {
 		obit = "<bad obituary>";
 	} else {
 		obit = modNames[meansOfDeath];

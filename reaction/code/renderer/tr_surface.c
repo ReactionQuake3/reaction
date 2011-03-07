@@ -615,10 +615,10 @@ static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
 {
 	short	*oldXyz, *newXyz, *oldNormals, *newNormals;
 	float	*outXyz, *outNormal;
-	float	oldXyzScale ALIGN(16);
-	float   newXyzScale ALIGN(16);
-	float	oldNormalScale ALIGN(16);
-	float newNormalScale ALIGN(16);
+	float	oldXyzScale QALIGN(16);
+	float   newXyzScale QALIGN(16);
+	float	oldNormalScale QALIGN(16);
+	float newNormalScale QALIGN(16);
 	int		vertNum;
 	unsigned lat, lng;
 	int		numVerts;
@@ -879,21 +879,8 @@ static void RB_SurfaceMesh(md3Surface_t *surface) {
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
-	
-	if (backEnd.currentEntity->mirrored) {
-		// Makro - this should be done differently, but since we're copying
-		// indices in a loop anyway (see below), reversing them in the same loop
-		// is practically free...
-		
-		for (j = 0 ; j < indexes ; j += 3) {
-			tess.indexes[Bob + j + 0] = Doug + triangles[j + 0];
-			tess.indexes[Bob + j + 1] = Doug + triangles[j + 2];
-			tess.indexes[Bob + j + 2] = Doug + triangles[j + 1];
-		}
-	} else {
-		for (j = 0 ; j < indexes ; j++) {
-			tess.indexes[Bob + j] = Doug + triangles[j];
-		}
+	for (j = 0 ; j < indexes ; j++) {
+		tess.indexes[Bob + j] = Doug + triangles[j];
 	}
 	tess.numIndexes += indexes;
 
