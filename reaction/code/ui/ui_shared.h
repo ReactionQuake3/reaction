@@ -503,7 +503,12 @@ typedef struct {
 										(intvec)[(pos)>>5] &= ~(1 << ((pos) & 31))\
 										
 
-#define MAX_NUM_GL_EXTENSIONS	128
+#define MAX_NUM_GL_EXTENSIONS		128
+#define MAX_NUM_SUPPORTED_MODES		256
+
+typedef struct {
+	unsigned short width, height;
+} resolution_t;
 
 typedef struct {
 	qhandle_t(*registerShaderNoMip) (const char *p);
@@ -621,6 +626,11 @@ typedef struct {
 	// Makro - total screen extents (which can go outside 0,0-640,480 for wide screens)
 	float min[2];
 	float max[2];
+
+	// Makro - supported resolutions
+	resolution_t supportedMode[MAX_NUM_SUPPORTED_MODES];
+	int numSupportedModes;
+	int selectedMode;
 } displayContextDef_t;
 
 const char *String_Alloc(const char *p);

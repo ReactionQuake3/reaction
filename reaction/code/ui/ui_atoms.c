@@ -579,6 +579,11 @@ qboolean UI_ConsoleCommand(int realTime)
 	}
 	*/
 
+	if (Q_stricmp(cmd, "ui_RQ3_postVidRestart") == 0) {
+		_UI_SetActiveMenu(UIMENU_RQ3_POST_VID_RESTART);
+		return qtrue;
+	}
+
 	return qfalse;
 }
 

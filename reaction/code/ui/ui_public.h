@@ -151,14 +151,16 @@ typedef enum {
 	UIMENU_BAD_CD_KEY,
 	UIMENU_TEAM,
 	UIMENU_POSTGAME,
-//Makro - added weapon menu
+// Makro - added weapon menu
 	UIMENU_RQ3_WEAPON,
-//Makro - added join menu
+// Makro - added join menu
 	UIMENU_RQ3_JOIN,
-//Makro - tkok yes/no menu
+// Makro - tkok yes/no menu
 	UIMENU_RQ3_TKOK,
-//Makro - radio presets menu
-	UIMENU_RQ3_PRESETS
+// Makro - radio presets menu
+	UIMENU_RQ3_PRESETS,
+// Makro - post-vid_restart menu
+	UIMENU_RQ3_POST_VID_RESTART,
 } uiMenuCommand_t;
 
 #define SORT_HOST			0

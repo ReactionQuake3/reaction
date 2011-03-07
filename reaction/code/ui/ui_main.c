@@ -2948,6 +2948,31 @@ static void UI_DrawOpponentName(rectDef_t * rect, float scale, vec4_t color, int
 		textStyle, qfalse);
 }
 
+static qboolean UI_IsCurrentResolution(const resolution_t* res)
+{
+	return (res->width == uiInfo.uiDC.glconfig.vidWidth && res->height == uiInfo.uiDC.glconfig.vidHeight);
+}
+
+static const char* UI_GetCustomResolutionString()
+{
+	int idx = uiInfo.uiDC.selectedMode;
+
+	if (idx == -2)
+	{
+		return "Custom";
+	}
+	else if (idx == -1 || uiInfo.uiDC.numSupportedModes <= 0)
+	{
+		return "Desktop Default";
+	}
+	else
+	{
+		char* fmt[2] = { "%d x %d", "%d x %d *" };
+		const resolution_t* res = &uiInfo.uiDC.supportedMode[idx];
+		return va(fmt[UI_IsCurrentResolution(res)], res->width, res->height);
+	}
+}
+
 static int UI_OwnerDrawWidth(int ownerDraw, float scale)
 {
 	int i, h, value;
@@ -3069,6 +3094,9 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale)
 	//Makro - replacement model info
 	case UI_RQ3_REPLACEMENTINFO:
 		s = uiInfo.replacements.Info;
+		break;
+	case UI_RESOLUTION:
+		//s = UI_GetCustomResolutionString();
 		break;
 	default:
 		break;
@@ -4004,6 +4032,19 @@ static void UI_DrawReplacementModel(rectDef_t *rect)
 	uiInfo.uiDC.renderScene(&refdef);
 }
 
+// Makro - custom resolutions
+static void UI_DrawResolution(rectDef_t * rect, float scale, vec4_t color, int textStyle)
+{
+	const char *text = UI_GetCustomResolutionString();
+
+	if (!rect->hasVectors) {
+		Text_Paint(rect->x, rect->y, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	} else {
+		Text_PaintAngled(rect->x, rect->y,
+			rect->u, rect->v, scale, color, text, 0, 0, 0, textStyle, qfalse);
+	}
+}
+
 
 // FIXME: table drive
 //
@@ -4018,7 +4059,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 	rect.h = h;
 	if (item->window.rectClient.hasVectors)
 	{
-		float p[2];
+		float* p = &rect.x;
 
 		p[0] = x;
 		p[1] = y;
@@ -4026,8 +4067,7 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 		Vector2Copy(item->window.rectClient.v, rect.v);
 		Vector2MA(p, text_x, rect.u, p);
 		Vector2MA(p, text_y, rect.v, p);
-		rect.x = p[0];
-		rect.y = p[1];
+		//Vector2MA(p, item->textaligny * scale, rect.v, p);
 		rect.hasVectors = qtrue;
 	} else {
 		rect.hasVectors = qfalse;
@@ -4236,6 +4276,9 @@ static void UI_OwnerDraw(itemDef_t *item, float x, float y, float w, float h, fl
 		break;
 	case UI_KEYBINDSTATUS:
 		UI_DrawKeyBindStatus(item, &rect, scale, color, textStyle);
+		break;
+	case UI_RESOLUTION:
+		UI_DrawResolution(&rect, scale, color, textStyle);
 		break;
 	default:
 		break;
@@ -5050,6 +5093,46 @@ static qboolean UI_ReplacementSubType_HandleKey(int flags, float *special, int k
 	return qfalse;
 }
 
+static qboolean UI_Resolution_HandleKey(int flags, float *special, int key)
+{
+	if (uiInfo.uiDC.numSupportedModes <= 0)
+		return qfalse;
+
+	if (key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER || key == K_LEFTARROW || key == K_RIGHTARROW)
+	{
+		int index = uiInfo.uiDC.selectedMode;
+
+		if (key == K_MOUSE2 || key == K_LEFTARROW) {
+			index--;
+		} else {
+			index++;
+		}
+
+		if (index == uiInfo.uiDC.numSupportedModes)
+			index = -1;
+		else if (index == -2)
+			index = uiInfo.uiDC.numSupportedModes - 1;
+
+		uiInfo.uiDC.selectedMode = index;
+
+		return qtrue;
+	}
+
+	if (key == K_HOME)
+	{
+		uiInfo.uiDC.selectedMode = -1;
+		return qtrue;
+	}
+
+	if (key == K_END)
+	{
+		uiInfo.uiDC.selectedMode = uiInfo.uiDC.numSupportedModes - 1;
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
 static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key)
 {
 	switch (ownerDraw) {
@@ -5129,6 +5212,9 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 		break;
 	case UI_SELECTEDPLAYER:
 		UI_SelectedPlayer_HandleKey(flags, special, key);
+		break;
+	case UI_RESOLUTION:
+		UI_Resolution_HandleKey(flags, special, key);
 		break;
 	default:
 		break;
@@ -5712,6 +5798,159 @@ static void UI_Update(const char *name)
 	}
 }
 
+static qboolean UI_ParseResolution(char* str, int* width, int* height)
+{
+	char* x = strchr(str, 'x');
+	if (!x)
+	{
+		*width = *height = 0;
+		return qfalse;
+	}
+
+	*x++ = 0;
+
+	if (1 != sscanf(str, "%d", width) || 1 != sscanf(x, "%d", height))
+	{
+		*width = *height = 0;
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+static void UI_SelectCurrentResolution()
+{
+	int idx;
+	int r_mode = (int) trap_Cvar_VariableValue("r_mode");
+
+	if (r_mode == -2)
+	{
+		uiInfo.uiDC.selectedMode = -1;
+	}
+	else
+	{
+		uiInfo.uiDC.selectedMode = -2;
+		for (idx=0; idx<uiInfo.uiDC.numSupportedModes; ++idx)
+		{
+			if (UI_IsCurrentResolution(&uiInfo.uiDC.supportedMode[idx]))
+				uiInfo.uiDC.selectedMode = idx;
+		}
+	}
+}
+
+static void UI_GetSupportedModes()
+{
+	char buf[4096] = { 0 };
+	const char* delim = " ";
+	char* tok;
+	int idx;
+
+	uiInfo.uiDC.numSupportedModes = 0;
+	uiInfo.uiDC.selectedMode = 0;
+
+	trap_Cvar_VariableStringBuffer("r_availableModes", buf, sizeof(buf));
+
+	for (tok=strtok(buf, delim); tok; tok=strtok(NULL, delim))
+	{
+		int width, height;
+		if (UI_ParseResolution(tok, &width, &height))
+		{
+			idx = uiInfo.uiDC.numSupportedModes++;
+			if (uiInfo.uiDC.numSupportedModes > MAX_NUM_SUPPORTED_MODES)
+			{
+				Com_Printf(S_COLOR_YELLOW "Warning: more than MAX_NUM_SUPPORTED_MODES resolutions found.\n");
+				return;
+			}
+			uiInfo.uiDC.supportedMode[idx].width = width;
+			uiInfo.uiDC.supportedMode[idx].height = height;
+		}
+	}
+
+	// O(n^2) sort
+	
+	for (idx=0; idx<uiInfo.uiDC.numSupportedModes-1; ++idx)
+	{
+		int j;
+		resolution_t* ri = &uiInfo.uiDC.supportedMode[idx];
+		for (j=idx+1; j<uiInfo.uiDC.numSupportedModes; ++j)
+		{
+			resolution_t* rj = &uiInfo.uiDC.supportedMode[j];
+			if (rj->width < ri->width || (rj->width == ri->width && rj->height < ri->height))
+			{
+				resolution_t tmp = *ri;
+				*ri = *rj;
+				*rj = tmp;
+			}
+		}
+	}
+
+	UI_SelectCurrentResolution();
+}
+
+static void UI_InitSystemSettings()
+{
+	UI_SelectCurrentResolution();
+}
+
+static qboolean UI_ChangeVideoCvarAndBackup(const char* name, const char* backup, int value)
+{
+	int oldValue = (int) trap_Cvar_VariableValue(name);
+	trap_Cvar_SetValue(backup, oldValue);
+	trap_Cvar_SetValue(name, value);
+	return oldValue != value;
+}
+
+static qboolean UI_BackupVideoCvar(const char* src, const char* dst)
+{
+	int oldValue = (int) trap_Cvar_VariableValue(dst);
+	int value = (int) trap_Cvar_VariableValue(src);
+	trap_Cvar_SetValue(dst, value);
+	return value != oldValue;
+}
+
+static void UI_ApplySystemSettings()
+{
+	int fullScreen = (int) trap_Cvar_VariableValue("ui_RQ3_fullScreen");
+	qboolean changed = UI_ChangeVideoCvarAndBackup("r_fullscreen", "ui_RQ3_old_r_fullScreen", fullScreen);
+
+	if (uiInfo.uiDC.selectedMode == -2)
+	{
+		// keep current settings
+		UI_BackupVideoCvar("r_mode", "ui_RQ3_old_r_mode");
+	}
+	else if (uiInfo.uiDC.selectedMode != -1 && uiInfo.uiDC.numSupportedModes > 0)
+	{
+		changed |=
+			UI_ChangeVideoCvarAndBackup("r_mode", "ui_RQ3_old_r_mode", -1) |
+			UI_ChangeVideoCvarAndBackup("r_customWidth", "ui_RQ3_old_r_customWidth", uiInfo.uiDC.supportedMode[uiInfo.uiDC.selectedMode].width) |
+			UI_ChangeVideoCvarAndBackup("r_customHeight", "ui_RQ3_old_r_customHeight", uiInfo.uiDC.supportedMode[uiInfo.uiDC.selectedMode].height)
+			;
+	}
+	else
+	{
+		changed |= UI_ChangeVideoCvarAndBackup("r_mode", "ui_RQ3_old_r_mode", -2);
+		UI_BackupVideoCvar("r_customwidth", "ui_RQ3_old_r_customWidth");
+		UI_BackupVideoCvar("r_customheight", "ui_RQ3_old_r_customHeight");
+	}
+	
+	if (changed)
+	{
+		trap_Cvar_Set("ui_RQ3_videoChanges", "1");
+	}
+
+	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+}
+
+static void UI_RevertVideoSettings()
+{
+	UI_BackupVideoCvar("ui_RQ3_old_r_mode", "r_mode");
+	UI_BackupVideoCvar("ui_RQ3_old_r_customWidth", "r_customwidth");
+	UI_BackupVideoCvar("ui_RQ3_old_r_customHeight", "r_customheight");
+	UI_BackupVideoCvar("ui_RQ3_old_r_fullScreen", "r_fullscreen");
+
+	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
+}
+
 // FIXME: Makro - this is a monster of a function
 // Not exactly efficient with all this strcmp's in it, either...
 
@@ -6012,6 +6251,12 @@ static void UI_RunMenuScript(char **args)
 			Controls_SetConfig(qtrue);
 		} else if (Q_stricmp(name, "loadControls") == 0) {
 			Controls_GetConfig();
+		} else if (Q_stricmp(name, "initSystemSettings") == 0) {
+			UI_InitSystemSettings();
+		} else if (Q_stricmp(name, "applySystemSettings") == 0) {
+			UI_ApplySystemSettings();
+		} else if (Q_stricmp(name, "revertVideoSettings") == 0) {
+			UI_RevertVideoSettings();
 		} else if (Q_stricmp(name, "clearError") == 0) {
 			trap_Cvar_Set("com_errorMessage", "");
 		} else if (Q_stricmp(name, "loadGameInfo") == 0) {
@@ -8256,6 +8501,25 @@ static void UI_MakeExtensionsList( void )
 	}
 }
 
+static qboolean UI_VidRestartPopup(qboolean inGame)
+{
+	int changes = (int) trap_Cvar_VariableValue("ui_RQ3_videoChanges");
+	if (changes)
+	{
+		trap_Cvar_Set("ui_RQ3_videoChanges", "0");
+		// popup menu
+		if (inGame)
+		{
+			trap_Cvar_Set("cl_paused", "1");
+			trap_Key_SetCatcher(KEYCATCH_UI);
+			Menus_CloseAll();
+		}
+		Menus_ActivateByName("post_vid_restart", qfalse);
+		return qtrue;
+	}
+	return qfalse;
+}
+
 /*
 =================
 UI_Init
@@ -8278,6 +8542,8 @@ void _UI_Init(qboolean inGameLoad)
 	
 	// cache redundant calulations
 	trap_GetGlconfig(&uiInfo.uiDC.glconfig);
+	UI_GetSupportedModes();
+	UI_BackupVideoCvar("r_fullscreen", "ui_RQ3_fullScreen");
 
 	UI_MakeExtensionsList();
 
@@ -8623,12 +8889,10 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 					trap_Cvar_Set("com_errorMessage", "");
 				}
 			//Makro - check com_hunkmegs
-			} else {
-				if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 256)
-				{
-					trap_Cvar_SetValue("com_hunkMegs", 256);
-					Menus_ActivateByName("memory_popmenu", qfalse);
-				};
+			} else if ((int)trap_Cvar_VariableValue("com_hunkMegs") < 256) {
+				trap_Cvar_SetValue("com_hunkMegs", 256);
+				Menus_ActivateByName("memory_popmenu", qfalse);
+			} else if (UI_VidRestartPopup(qfalse)) {
 			}
 			return;
 		case UIMENU_TEAM:
@@ -8696,6 +8960,12 @@ void _UI_SetActiveMenu(uiMenuCommand_t menu)
 			UI_BuildPlayerList();
 			Menus_CloseAll();
 			Menus_ActivateByName("ingame_presets", qfalse);
+			return;
+
+		case UIMENU_RQ3_POST_VID_RESTART:
+			//Menus_CloseAll();
+			//Menus_ActivateByName("post_vid_restart", qfalse);
+			UI_VidRestartPopup(qtrue);
 			return;
 		}
 	}
@@ -9183,6 +9453,14 @@ vmCvar_t ui_RQ3_radioPreset10Script;
 //Makro - player gender; irrelevant for now
 vmCvar_t ui_RQ3_gender;
 
+vmCvar_t ui_RQ3_old_r_mode;
+vmCvar_t ui_RQ3_old_r_customWidth;
+vmCvar_t ui_RQ3_old_r_customHeight;
+vmCvar_t ui_RQ3_old_r_fullScreen;
+vmCvar_t ui_RQ3_videoChanges;
+vmCvar_t ui_RQ3_fullScreen;
+
+
 
 // bk001129 - made static to avoid aliasing
 static cvarTable_t cvarTable[] = {
@@ -9378,7 +9656,14 @@ static cvarTable_t cvarTable[] = {
 	{&ui_RQ3_radioPreset10Desc,		"ui_RQ3_radioPreset10Desc", "", CVAR_ARCHIVE},
 	{&ui_RQ3_radioPreset10Script,	"ui_RQ3_radioPreset10Script", "", CVAR_ARCHIVE},
 	//Makro - player gender; irrelevant for now
-	{&ui_RQ3_gender,				"ui_RQ3_gender", "0",	CVAR_ARCHIVE}
+	{&ui_RQ3_gender,				"ui_RQ3_gender", "0",	CVAR_ARCHIVE},
+
+	{&ui_RQ3_old_r_mode,			"ui_RQ3_old_r_mode", "-2", CVAR_ROM},
+	{&ui_RQ3_old_r_customWidth,		"ui_RQ3_old_r_customWidth", "640", CVAR_ROM},
+	{&ui_RQ3_old_r_customHeight,	"ui_RQ3_old_r_customHeight", "480", CVAR_ROM},
+	{&ui_RQ3_old_r_fullScreen,		"ui_RQ3_old_r_fullScreen", "1", CVAR_ROM},
+	{&ui_RQ3_videoChanges,			"ui_RQ3_videoChanges", "0", CVAR_ROM},
+	{&ui_RQ3_fullScreen,			"ui_RQ3_fullScreen", "1", CVAR_ROM},
 };
 
 // bk001129 - made static to avoid aliasing

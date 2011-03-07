@@ -6068,9 +6068,11 @@ void Item_OwnerDraw_Paint(itemDef_t * item)
 		if (item->text) {
 			float p[2];
 			
-			p[0] = item->textRect.x;
-			p[1] = item->window.rect.y;
 			Item_Text_Paint(item);
+			
+			p[0] = item->textRect.x;
+			p[1] = item->textRect.y;
+			//p[1] = item->window.rect.y;
 
 			// +8 is an offset kludge to properly align owner draw items that have text combined with them
 			if (item->window.rectClient.hasVectors) {
@@ -6087,7 +6089,7 @@ void Item_OwnerDraw_Paint(itemDef_t * item)
 				}
 			}
 			DC->ownerDrawItem(item, p[0], p[1],
-				item->window.rect.w, item->window.rect.h, 0, item->textaligny,
+				item->window.rect.w, item->window.rect.h, 0, 0,
 				item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment,
 				item->special, item->textscale, color, item->window.background,
 				item->textStyle);
@@ -6273,7 +6275,10 @@ void Item_Paint(itemDef_t * item)
 		color[1] = color[3] = 1;
 		color[0] = color[2] = 0;
 		//Makro - added shader parm
-		DC->drawRect(r->x, r->y, r->w, r->h, 1, color, DC->whiteShader);
+		if (r->hasVectors)
+			DC->drawAngledRect(r->x, r->y, r->w, r->h, r->u, r->v, 1, color, RECT_FULL, DC->whiteShader);
+		else
+			DC->drawRect(r->x, r->y, r->w, r->h, 1, color, DC->whiteShader);
 	}
 	//DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
 

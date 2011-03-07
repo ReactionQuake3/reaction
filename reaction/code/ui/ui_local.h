@@ -280,6 +280,14 @@ extern vmCvar_t ui_maxpolyverts;
 
 //Makro - player gender; irrelevant actually
 extern vmCvar_t ui_RQ3_gender;
+
+extern vmCvar_t ui_RQ3_old_r_mode;
+extern vmCvar_t ui_RQ3_old_r_customWidth;
+extern vmCvar_t ui_RQ3_old_r_customHeight;
+extern vmCvar_t ui_RQ3_old_r_fullScreen;
+extern vmCvar_t ui_RQ3_videoChanges;
+extern vmCvar_t ui_RQ3_fullScreen;
+
 //
 // ui_qmenu.c
 //
