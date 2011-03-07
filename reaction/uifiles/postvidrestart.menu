@@ -1,0 +1,185 @@
+#include "ui/menudef.h"
+
+{
+#   define REVERT_CHANGES uiScript revertVideoSettings
+
+    menuDef {
+	name "post_vid_restart"
+	visible 0
+	fullscreen 0
+	rect 176 128 280 240
+	anglevectors -3 -93
+	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
+	style WINDOW_STYLE_EMPTY
+
+	onOOBClick { close _self }	
+	onOpen {
+		play "sound/misc/menu1.wav" ; setfocus "keep" ;
+		startTimer
+	}
+	onClose { open _prev }
+	onESC { close _self }
+	popup
+
+
+	itemDef {
+	name "paper,fade_alpha"
+	menuAnchor
+	style WINDOW_STYLE_SHADER
+	background UI_ASSETS"/paper_1"
+	forecolor 1 1 1 1
+	rect 0 0 280 240
+	anglevectors -3 -93
+	visible 1
+	renderpoint
+	decoration
+    }
+
+
+	itemdef {
+	renderpoint
+	name "title,fade_alpha"
+	text "New settings"
+	forecolor .4 0 0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .25
+	textalignx 28
+	textaligny 24
+	alignrect "paper" ITEM_ALIGN_CENTER -12 20 240 24
+	visible 1
+	autowrapped
+	decoration
+    }
+
+	itemdef {
+	name "lines,line1"
+	alignrect "title" ITEM_ALIGN_CENTER 4 32 216 2
+	style WINDOW_STYLE_FILLED
+	backcolor 0 0 0 .1
+	visible 1
+	decoration
+    }
+
+	itemdef {
+		style WINDOW_STYLE_SHADER
+		forecolor 1 1 1 .5
+		alignrect title ITEM_ALIGN_RIGHT 16 8 24 24
+		background UI_ASSETS"/icons/rq3-system-driverinfo"
+		visible 1
+		decoration
+		}
+
+
+	itemdef {
+	name "text,fade_alpha"
+	autowrapped
+	text	"Display resolution has been changed.\n"
+		"Do you want to keep the new settings?\n"
+	forecolor 0 0 0 1
+	style WINDOW_STYLE_EMPTY
+	textalign ITEM_ALIGN_LEFT
+	textscale .2
+	textheight 16
+	textalignx 28
+	textaligny 28
+	alignrect "title" ITEM_ALIGN_LEFT 0 32 224 72
+	visible 1
+	decoration
+    }
+
+
+	// Timer //
+
+    timedItems 15
+    timerInterval 1000
+    timerMaxDisplay 1
+
+    //onFinishTimer { uiScript "restoreMusicVolume" ; uiScript "quit" }
+    onFinishTimer { REVERT_CHANGES }
+    onTimerShow {
+			show _self ;
+			setcolor forecolor 5 5 5 0 ;
+			timeFadeSelf forecolor 5 5 5 1 0 500 ;
+		}
+    onTimerHide {
+			setcolor forecolor 5 5 5 1 ;
+			timeFadeSelf forecolor 5 5 5 0 0 500;
+		}
+
+#	define ADD_TIMED_ITEM_EX(num, msg)\
+	itemdef {\
+	name "timer"#num ",fade_alpha"\
+	group timer\
+	autowrapped\
+	text	"Changes will be reverted automatically\n" "in " msg "."\
+	forecolor 0.5 0.5 0.5 1\
+	style WINDOW_STYLE_EMPTY\
+	textalign ITEM_ALIGN_LEFT\
+	textscale .2\
+	textheight 16\
+	textalignx 28\
+	textaligny 28\
+	alignrect "text" ITEM_ALIGN_LEFT 0 48 224 72\
+	visible 1\
+	decoration\
+    }
+
+#	define ADD_TIMED_ITEM(num)\
+	ADD_TIMED_ITEM_EX(num, #num " seconds")
+
+	ADD_TIMED_ITEM_EX(1, "15 seconds")
+	ADD_TIMED_ITEM_EX(2, "14 seconds")
+	ADD_TIMED_ITEM_EX(3, "13 seconds")
+	ADD_TIMED_ITEM_EX(4, "12 seconds")
+	ADD_TIMED_ITEM_EX(5, "11 seconds")
+	ADD_TIMED_ITEM_EX(6, "10 seconds")
+	ADD_TIMED_ITEM_EX(7, "9 seconds")
+	ADD_TIMED_ITEM_EX(8, "8 seconds")
+	ADD_TIMED_ITEM_EX(9, "7 seconds")
+	ADD_TIMED_ITEM_EX(10, "6 seconds")
+	ADD_TIMED_ITEM_EX(11, "5 seconds")
+	ADD_TIMED_ITEM_EX(12, "4 seconds")
+	ADD_TIMED_ITEM_EX(13, "3 seconds")
+	ADD_TIMED_ITEM_EX(14, "2 seconds")
+	ADD_TIMED_ITEM_EX(15, "1 second")
+    
+
+    // Revert	//
+
+    itemDef {
+	name "revert,fade_alpha"
+	text "^_R^_evert"
+	shortcutKey "R"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	alignrect title ITEM_ALIGN_RIGHT 88 148 48 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 24
+	textaligny 12
+	forecolor 0 0 .1 1
+	visible 1
+	action { REVERT_CHANGES ; close _self }
+    }
+
+    // Keep	//
+
+    itemDef {
+	name "keep,fade_alpha"
+	text "> ^_K^_eep <"
+	shortcutKey "K"
+	type ITEM_TYPE_BUTTON
+	style WINDOW_STYLE_EMPTY
+	textscale .25
+	alignrect title ITEM_ALIGN_RIGHT 24 148 48 16
+	textalign ITEM_ALIGN_CENTER
+	textalignx 24
+	textaligny 12
+	forecolor 0 0 .1 1
+	visible 1
+	action { close _self }
+    }
+
+}
+}
