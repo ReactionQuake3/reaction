@@ -53,6 +53,8 @@ static void CG_ResetEntity(centity_t * cent)
 	if (cent->currentState.eType == ET_PLAYER) {
 		CG_ResetPlayerEntity(cent);
 	}
+
+	CG_EvaluateTrajectoryEx(cent, cg.snap->serverTime, cent->lerpOrigin, cent->lerpAngles);
 }
 
 /*
@@ -110,6 +112,11 @@ static void CG_OrderSnapshotEntities(snapshot_t *snap, int *order)
 	}
 }
 
+static void CG_CheckVidRestart()
+{
+	trap_SendConsoleCommand("ui_RQ3_postVidRestart");
+}
+
 /*
 ==================
 CG_SetInitialSnapshot
@@ -143,7 +150,7 @@ void CG_SetInitialSnapshot(snapshot_t * snap)
 	CG_Respawn();
 
 	for (i = 0; i < cg.snap->numEntities; i++) {
-		state = &cg.snap->entities[i];
+		state = &cg.snap->entities[cg_snapEntityOrder[i]];
 		cent = &cg_entities[state->number];
 
 		memcpy(&cent->currentState, state, sizeof(entityState_t));
@@ -156,6 +163,8 @@ void CG_SetInitialSnapshot(snapshot_t * snap)
 		// check for events
 		CG_CheckEvents(cent);
 	}
+
+	CG_CheckVidRestart();
 }
 
 /*
