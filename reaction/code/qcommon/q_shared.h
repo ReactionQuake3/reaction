@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
 #else
   #define PRODUCT_NAME			"Reaction"
-  #define BASEGAME			"baseq3"
+  #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE     	"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
   #define GAMENAME_FOR_MASTER		"Reaction"
