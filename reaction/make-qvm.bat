@@ -13,7 +13,7 @@ REM *** Typically this will be something like c:\code\reaction\
 REM *** but you can put in whatever you want, like make-qvm-location="c:\reaction code\"
 REM *** Remember to add in a trailing backslash \ at the end of the path!
 
-set make-qvm-location=c:\reaction\reaction\
+set make-qvm-location=%~dp0
 
 
 REM *** Check to see if the location of make-qvm.bat is valid.  It is required for this batch file.
