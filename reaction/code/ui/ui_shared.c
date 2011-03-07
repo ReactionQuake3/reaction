@@ -5209,6 +5209,44 @@ int BindingIDFromName(const char *name)
 char g_nameBind1[32];
 char g_nameBind2[32];
 
+static void UI_KeyNumToShortStringBuf(int keynum, char* buf, int buflen)
+{
+	switch (keynum)
+	{
+	case K_DOWNARROW:
+		Q_strncpyz(buf, "Down", buflen);
+		return;
+	case K_KP_DOWNARROW:
+		Q_strncpyz(buf, "Num Down", buflen);
+		return;
+
+	case K_UPARROW:
+		Q_strncpyz(buf, "Up", buflen);
+		return;
+	case K_KP_UPARROW:
+		Q_strncpyz(buf, "Num Up", buflen);
+		return;
+
+	case K_LEFTARROW:
+		Q_strncpyz(buf, "Left", buflen);
+		return;
+	case K_KP_LEFTARROW:
+		Q_strncpyz(buf, "Num Left", buflen);
+		return;
+
+	case K_RIGHTARROW:
+		Q_strncpyz(buf, "Right", buflen);
+		return;
+	case K_KP_RIGHTARROW:
+		Q_strncpyz(buf, "Num Right", buflen);
+		return;
+
+	default:
+		DC->keynumToStringBuf(keynum, buf, buflen);
+		return;
+	}
+}
+
 void BindingFromName(const char *cvar)
 {
 	int i, b1, b2;
@@ -5220,12 +5258,12 @@ void BindingFromName(const char *cvar)
 			if (b1 == -1) {
 				break;
 			}
-			DC->keynumToStringBuf(b1, g_nameBind1, 32);
+			UI_KeyNumToShortStringBuf(b1, g_nameBind1, 32);
 			Q_strupr(g_nameBind1);
 
 			b2 = g_bindings[i].bind2;
 			if (b2 != -1) {
-				DC->keynumToStringBuf(b2, g_nameBind2, 32);
+				UI_KeyNumToShortStringBuf(b2, g_nameBind2, 32);
 				Q_strupr(g_nameBind2);
 				strcat(g_nameBind1, " or ");
 				strcat(g_nameBind1, g_nameBind2);
