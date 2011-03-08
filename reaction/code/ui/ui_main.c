@@ -2953,7 +2953,7 @@ static qboolean UI_IsCurrentResolution(const resolution_t* res)
 	return (res->width == uiInfo.uiDC.glconfig.vidWidth && res->height == uiInfo.uiDC.glconfig.vidHeight);
 }
 
-static const char* UI_GetCustomResolutionString()
+static const char* UI_GetCustomResolutionString(void)
 {
 	int idx = uiInfo.uiDC.selectedMode;
 
@@ -5815,7 +5815,7 @@ static qboolean UI_ParseResolution(char* str, resolution_t* res)
 	return res->width > 0 && res->height > 0;
 }
 
-static void UI_SelectCurrentResolution()
+static void UI_SelectCurrentResolution(void)
 {
 	int idx;
 	int r_mode = (int) trap_Cvar_VariableValue("r_mode");
@@ -5835,7 +5835,7 @@ static void UI_SelectCurrentResolution()
 	}
 }
 
-static void UI_GetSupportedModes()
+static void UI_GetSupportedModes(void)
 {
 	char buf[4096] = { 0 };
 	const char* delim = " ";
@@ -5883,7 +5883,7 @@ static void UI_GetSupportedModes()
 	UI_SelectCurrentResolution();
 }
 
-static void UI_InitSystemSettings()
+static void UI_InitSystemSettings(void)
 {
 	UI_SelectCurrentResolution();
 }
@@ -5904,7 +5904,7 @@ static qboolean UI_BackupVideoCvar(const char* src, const char* dst)
 	return value != oldValue;
 }
 
-static void UI_ApplySystemSettings()
+static void UI_ApplySystemSettings(void)
 {
 	int fullScreen = (int) trap_Cvar_VariableValue("ui_RQ3_fullScreen");
 	qboolean changed = UI_ChangeVideoCvarAndBackup("r_fullscreen", "ui_RQ3_old_r_fullScreen", fullScreen);
@@ -5937,7 +5937,7 @@ static void UI_ApplySystemSettings()
 	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
 }
 
-static void UI_RevertVideoSettings()
+static void UI_RevertVideoSettings(void)
 {
 	UI_BackupVideoCvar("ui_RQ3_old_r_mode", "r_mode");
 	UI_BackupVideoCvar("ui_RQ3_old_r_customWidth", "r_customwidth");
