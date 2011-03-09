@@ -147,6 +147,10 @@ void GL_BindToTMU( image_t *image, int tmu )
 ** GL_Cull
 */
 void GL_Cull( int cullType ) {
+	// Makro - flip culling if needed
+	qboolean flip = (backEnd.currentEntity != NULL && backEnd.currentEntity->mirrored != qfalse && cullType != CT_TWO_SIDED);
+	cullType ^= flip;	// this assumes CT_BACK_SIDED and CT_FRONT_SIDED are 0 or 1
+
 	if ( glState.faceCulling == cullType ) {
 		return;
 	}
