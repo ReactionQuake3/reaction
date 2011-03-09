@@ -2286,10 +2286,49 @@ void RQ3_SpectatorMode(gentity_t * ent)
 					  (ent->client->sess.spectatorState == SPECTATOR_FREE) ? "FREE" : "FOLLOW"));
 }
 
+static qboolean RQ3_IsSpecialWeapon(int weapon)
+{
+	switch (weapon)
+	{
+	case WP_M3:
+	case WP_MP5:
+	case WP_HANDCANNON:
+	case WP_SSG3000:
+	case WP_M4:
+		return qtrue;
+
+	default:
+		return qfalse;
+	}
+}
+
+static weapon_t RQ3_CycleSpecialWeapon(gentity_t* ent)
+{
+	int i;
+	for (i=ent->client->ps.weapon-1; i>WP_NONE; --i)
+	{
+		int mask = (1 << i);
+		if ((ent->client->ps.stats[STAT_WEAPONS] & mask) == mask && RQ3_IsSpecialWeapon(i))
+			return (weapon_t) i;
+	}
+	
+	for (i=WP_NUM_WEAPONS-1; i>ent->client->ps.weapon; --i)
+	{
+		int mask = (1 << i);
+		if ((ent->client->ps.stats[STAT_WEAPONS] & mask) == mask && RQ3_IsSpecialWeapon(i))
+			return (weapon_t) i;
+	}
+	
+	if (RQ3_IsSpecialWeapon(ent->client->ps.weapon))
+		return (weapon_t) ent->client->ps.weapon;
+	
+	return WP_NONE;
+}
+
 void RQ3_Cmd_Use_f(gentity_t * ent)
 {
 	char *cmd, buf[128];
-	int weapon, i;
+	int weapon;
 
 	if (!ent->client) {
 		return;		// not fully in game yet
@@ -2341,7 +2380,15 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
 			return;
 		}
+	} else if (Q_stricmp(cmd, RQ3_KNIFE_NAME) == 0 || Q_stricmp(cmd, "knife") == 0 || Q_stricmp(cmd, "knives") == 0) {
+		if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << WP_KNIFE)) == (1 << WP_KNIFE)) {
+			weapon = WP_KNIFE;
+		} else {
+			trap_SendServerCommand(ent - g_entities, va("print \"Out of item: %s\n\"", RQ3_KNIFE_NAME));
+			return;
+		}
 	}
+	
 	if (weapon != WP_NONE) {
 		if (weapon == ent->client->ps.weapon)
 			return;
@@ -2405,14 +2452,7 @@ void RQ3_Cmd_Use_f(gentity_t * ent)
 			return;
 		}
 	} else if (Q_stricmp(cmd, "special") == 0) {
-		for (i = WP_NUM_WEAPONS - 1; i > 0; i--) {
-			if (i == WP_KNIFE || i == WP_PISTOL || i == WP_AKIMBO || i == WP_GRENADE)
-				continue;
-			if (ent->client->ps.stats[STAT_WEAPONS] & (1 << i)) {
-				weapon = i;
-				break;
-			}
-		}
+		weapon = RQ3_CycleSpecialWeapon(ent);
 		if (weapon == WP_NONE) {
 			trap_SendServerCommand(ent - g_entities, va("print \"You dont have a special weapon!\n\""));
 			return;
