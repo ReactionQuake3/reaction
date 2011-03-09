@@ -1409,6 +1409,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\code\renderer\tr_extramath.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\renderer\tr_local.h"
 				>
 			</File>
@@ -1897,11 +1901,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\code\renderer\tr_extramath.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\code\renderer\tr_flares.c"
 					>
 				</File>
 				<File
 					RelativePath="..\..\code\renderer\tr_font.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\code\renderer\tr_glsl.c"
 					>
 				</File>
 				<File
@@ -1982,6 +1994,10 @@
 				</File>
 				<File
 					RelativePath="..\..\code\renderer\tr_surface.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\code\renderer\tr_vbo.c"
 					>
 				</File>
 				<File
