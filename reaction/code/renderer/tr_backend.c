@@ -73,15 +73,21 @@ void GL_SelectTexture( int unit )
 	{
 		qglActiveTextureARB( GL_TEXTURE0_ARB );
 		GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE0_ARB )\n" );
-		qglClientActiveTextureARB( GL_TEXTURE0_ARB );
-		GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE0_ARB )\n" );
+		if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer))
+		{
+			qglClientActiveTextureARB( GL_TEXTURE0_ARB );
+			GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE0_ARB )\n" );
+		}
 	}
 	else if ( unit == 1 )
 	{
 		qglActiveTextureARB( GL_TEXTURE1_ARB );
 		GLimp_LogComment( "glActiveTextureARB( GL_TEXTURE1_ARB )\n" );
-		qglClientActiveTextureARB( GL_TEXTURE1_ARB );
-		GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
+		if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer))
+		{
+			qglClientActiveTextureARB( GL_TEXTURE1_ARB );
+			GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
+		}
 	} else {
 		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 	}
@@ -114,6 +120,25 @@ void GL_BindMultitexture( image_t *image0, GLuint env0, image_t *image1, GLuint 
 		image0->frameUsed = tr.frameCount;
 		glState.currenttextures[0] = texnum0;
 		qglBindTexture( GL_TEXTURE_2D, texnum0 );
+	}
+}
+
+/*
+** GL_BindToTMU
+*/
+void GL_BindToTMU( image_t *image, int tmu )
+{
+	int		texnum;
+	int     oldtmu = glState.currenttmu;
+
+	texnum = image->texnum;
+
+	if ( glState.currenttextures[tmu] != texnum ) {
+		GL_SelectTexture( tmu );
+		image->frameUsed = tr.frameCount;
+		glState.currenttextures[tmu] = texnum;
+		qglBindTexture( GL_TEXTURE_2D, texnum );
+		GL_SelectTexture( oldtmu );
 	}
 }
 
@@ -386,6 +411,33 @@ void GL_State( unsigned long stateBits )
 }
 
 
+void GL_SetProjectionMatrix(matrix_t matrix)
+{
+	Matrix16Copy(matrix, glState.projection);
+	Matrix16Multiply(glState.projection, glState.modelview, glState.modelviewProjection);	
+
+	if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && 
+	    glRefConfig.glsl && r_arb_shader_objects->integer))
+	{
+		qglMatrixMode(GL_PROJECTION);
+		qglLoadMatrixf(matrix);
+		qglMatrixMode(GL_MODELVIEW);
+	}
+}
+
+
+void GL_SetModelviewMatrix(matrix_t matrix)
+{
+	Matrix16Copy(matrix, glState.modelview);
+	Matrix16Multiply(glState.projection, glState.modelview, glState.modelviewProjection);	
+
+	if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer &&
+	    glRefConfig.glsl && r_arb_shader_objects->integer))
+	{
+		qglLoadMatrixf(matrix);
+	}
+}
+
 
 /*
 ================
@@ -410,9 +462,7 @@ static void RB_Hyperspace( void ) {
 
 
 static void SetViewportAndScissor( void ) {
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
-	qglMatrixMode(GL_MODELVIEW);
+	GL_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 
 	// set the window clipping
 	qglViewport( backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, 
@@ -500,16 +550,26 @@ void RB_BeginDrawingView (void) {
 		plane2[2] = DotProduct (backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct (plane, backEnd.viewParms.or.origin) - plane[3];
 
-		qglLoadMatrixf( s_flipMatrix );
-		qglClipPlane (GL_CLIP_PLANE0, plane2);
-		qglEnable (GL_CLIP_PLANE0);
+		GL_SetModelviewMatrix( s_flipMatrix );
+
+		if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer &&
+		    glRefConfig.glsl && r_arb_shader_objects->integer))
+		{
+			qglClipPlane (GL_CLIP_PLANE0, plane2);
+			qglEnable (GL_CLIP_PLANE0);
+		}
 	} else {
-		qglDisable (GL_CLIP_PLANE0);
+		if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer &&
+		    glRefConfig.glsl && r_arb_shader_objects->integer))
+		{
+			qglDisable (GL_CLIP_PLANE0);
+		}
 	}
 }
 
 
 #define	MAC_EVENT_PUMP_MSEC		5
+
 
 /*
 ==================
@@ -565,6 +625,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				RB_EndSurface();
 			}
 			RB_BeginSurface( shader, fogNum );
+			backEnd.pc.c_surfBatches++;
 			oldShader = shader;
 			oldFogNum = fogNum;
 			oldDlighted = dlighted;
@@ -609,7 +670,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 			}
 
-			qglLoadMatrixf( backEnd.or.modelMatrix );
+			GL_SetModelviewMatrix( backEnd.or.modelMatrix );
 
 			//
 			// change depthrange. Also change projection matrix so first person weapon does not look like coming
@@ -626,9 +687,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 							if(oldDepthRange)
 							{
 								// was not a crosshair but now is, change back proj matrix
-								qglMatrixMode(GL_PROJECTION);
-								qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
-								qglMatrixMode(GL_MODELVIEW);
+								GL_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 							}
 						}
 						else
@@ -637,9 +696,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 							R_SetupProjection(&temp, r_znear->value, qfalse);
 
-							qglMatrixMode(GL_PROJECTION);
-							qglLoadMatrixf(temp.projectionMatrix);
-							qglMatrixMode(GL_MODELVIEW);
+							GL_SetProjectionMatrix( temp.projectionMatrix );
 						}
 					}
 
@@ -650,9 +707,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				{
 					if(!wasCrosshair && backEnd.viewParms.stereoFrame != STEREO_CENTER)
 					{
-						qglMatrixMode(GL_PROJECTION);
-						qglLoadMatrixf(backEnd.viewParms.projectionMatrix);
-						qglMatrixMode(GL_MODELVIEW);
+						GL_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 					}
 
 					qglDepthRange (0, 1);
@@ -677,7 +732,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	// go back to the world modelview matrix
-	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+
+	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
 	if ( depthRange ) {
 		qglDepthRange (0, 1);
 	}
@@ -708,16 +764,18 @@ RB_SetGL2D
 ================
 */
 void	RB_SetGL2D (void) {
+	matrix_t matrix;
+
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
 	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
-	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho (0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1);
-	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
+
+	Matrix16Ortho(0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1, matrix);
+	GL_SetProjectionMatrix(matrix);
+	Matrix16Identity(matrix);
+	GL_SetModelviewMatrix(matrix);
 
 	GL_State( GLS_DEPTHTEST_DISABLE |
 			  GLS_SRCBLEND_SRC_ALPHA |
@@ -744,6 +802,7 @@ Used for cinematics.
 void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
 	int			i, j;
 	int			start, end;
+	matrix_t matrix;
 
 	if ( !tr.registered ) {
 		return;
@@ -793,18 +852,113 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	RB_SetGL2D();
 
-	qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+	{
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+		tess.firstIndex = 0;
 
-	qglBegin (GL_QUADS);
-	qglTexCoord2f ( 0.5f / cols,  0.5f / rows );
-	qglVertex2f (x, y);
-	qglTexCoord2f ( ( cols - 0.5f ) / cols ,  0.5f / rows );
-	qglVertex2f (x+w, y);
-	qglTexCoord2f ( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f (x+w, y+h);
-	qglTexCoord2f ( 0.5f / cols, ( rows - 0.5f ) / rows );
-	qglVertex2f (x, y+h);
-	qglEnd ();
+		tess.xyz[tess.numVertexes][0] = x;
+		tess.xyz[tess.numVertexes][1] = y;
+		tess.xyz[tess.numVertexes][2] = 0;
+		tess.xyz[tess.numVertexes][3] = 1;
+		tess.texCoords[tess.numVertexes][0][0] = 0.5f / cols;
+		tess.texCoords[tess.numVertexes][0][1] = 0.5f / rows;
+		tess.texCoords[tess.numVertexes][0][2] = 0;
+		tess.texCoords[tess.numVertexes][0][3] = 1;
+		tess.numVertexes++;
+
+		tess.xyz[tess.numVertexes][0] = x + w;
+		tess.xyz[tess.numVertexes][1] = y;
+		tess.xyz[tess.numVertexes][2] = 0;
+		tess.xyz[tess.numVertexes][3] = 1;
+		tess.texCoords[tess.numVertexes][0][0] = (cols - 0.5f) / cols;
+		tess.texCoords[tess.numVertexes][0][1] = 0.5f / rows;
+		tess.texCoords[tess.numVertexes][0][2] = 0;
+		tess.texCoords[tess.numVertexes][0][3] = 1;
+		tess.numVertexes++;
+
+		tess.xyz[tess.numVertexes][0] = x + w;
+		tess.xyz[tess.numVertexes][1] = y + h;
+		tess.xyz[tess.numVertexes][2] = 0;
+		tess.xyz[tess.numVertexes][3] = 1;
+		tess.texCoords[tess.numVertexes][0][0] = (cols - 0.5f) / cols;
+		tess.texCoords[tess.numVertexes][0][1] = (rows - 0.5f) / rows;
+		tess.texCoords[tess.numVertexes][0][2] = 0;
+		tess.texCoords[tess.numVertexes][0][3] = 1;
+		tess.numVertexes++;
+
+		tess.xyz[tess.numVertexes][0] = x;
+		tess.xyz[tess.numVertexes][1] = y + h;
+		tess.xyz[tess.numVertexes][2] = 0;
+		tess.xyz[tess.numVertexes][3] = 1;
+		tess.texCoords[tess.numVertexes][0][0] = 0.5f / cols;
+		tess.texCoords[tess.numVertexes][0][1] = (rows - 0.5f) / rows;
+		tess.texCoords[tess.numVertexes][0][2] = 0;
+		tess.texCoords[tess.numVertexes][0][3] = 1;
+		tess.numVertexes++;
+
+		tess.indexes[tess.numIndexes++] = 0;
+		tess.indexes[tess.numIndexes++] = 1;
+		tess.indexes[tess.numIndexes++] = 2;
+		tess.indexes[tess.numIndexes++] = 0;
+		tess.indexes[tess.numIndexes++] = 2;
+		tess.indexes[tess.numIndexes++] = 3;
+
+		// FIXME: A lot of this can probably be removed for speed, and refactored into a more convenient function
+		RB_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
+		
+		if (glRefConfig.glsl && r_arb_shader_objects->integer)
+		{
+			shaderProgram_t *sp = &tr.genericShader[0];
+
+			GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
+			
+			GLSL_BindProgram(sp);
+			
+			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+			
+			GLSL_SetUniform_FogAdjustColors(sp, 0);
+			GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+			GLSL_SetUniform_TCGen0(sp, TCGEN_TEXTURE);
+			Matrix16Identity(matrix);
+			GLSL_SetUniform_Texture0Matrix(sp, matrix);
+			GLSL_SetUniform_Texture1Env(sp, 0);
+			GLSL_SetUniform_ColorGen(sp, CGEN_IDENTITY);
+			GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+		}
+		else
+		{
+			qglEnableClientState( GL_VERTEX_ARRAY );
+			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			qglVertexPointer(3, GL_FLOAT, glState.currentVBO->stride_xyz, BUFFER_OFFSET(glState.currentVBO->ofs_xyz));
+			qglTexCoordPointer( 2, GL_FLOAT, glState.currentVBO->stride_st, BUFFER_OFFSET(glState.currentVBO->ofs_st) );			
+		}
+
+		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
+		
+		//R_BindNullVBO();
+		//R_BindNullIBO();
+
+		tess.numIndexes = 0;
+		tess.numVertexes = 0;
+		tess.firstIndex = 0;
+	}
+	else
+	{
+		qglColor3f( tr.identityLight, tr.identityLight, tr.identityLight );
+
+		qglBegin (GL_QUADS);  // Alternate made
+		qglTexCoord2f ( 0.5f / cols,  0.5f / rows );
+		qglVertex2f (x, y);
+		qglTexCoord2f ( ( cols - 0.5f ) / cols ,  0.5f / rows );
+		qglVertex2f (x+w, y);
+		qglTexCoord2f ( ( cols - 0.5f ) / cols, ( rows - 0.5f ) / rows );
+		qglVertex2f (x+w, y+h);
+		qglTexCoord2f ( 0.5f / cols, ( rows - 0.5f ) / rows );
+		qglVertex2f (x, y+h);
+		qglEnd ();
+	}
 }
 
 void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
@@ -986,6 +1140,7 @@ void RB_ShowImages( void ) {
 	int		i;
 	image_t	*image;
 	float	x, y, w, h;
+	vec4_t          quadVerts[4];
 	int		start, end;
 
 	if ( !backEnd.projection2D ) {
@@ -1012,17 +1167,31 @@ void RB_ShowImages( void ) {
 			h *= image->uploadHeight / 512.0f;
 		}
 
-		GL_Bind( image );
-		qglBegin (GL_QUADS);
-		qglTexCoord2f( 0, 0 );
-		qglVertex2f( x, y );
-		qglTexCoord2f( 1, 0 );
-		qglVertex2f( x + w, y );
-		qglTexCoord2f( 1, 1 );
-		qglVertex2f( x + w, y + h );
-		qglTexCoord2f( 0, 1 );
-		qglVertex2f( x, y + h );
-		qglEnd();
+		if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+		{
+			GL_Bind(image);
+
+			VectorSet4(quadVerts[0], x, y, 0, 1);
+			VectorSet4(quadVerts[1], x + w, y, 0, 1);
+			VectorSet4(quadVerts[2], x + w, y + h, 0, 1);
+			VectorSet4(quadVerts[3], x, y + h, 0, 1);
+
+			RB_InstantQuad(quadVerts);
+		}
+		else
+		{
+			GL_Bind( image );  // Alternate made
+			qglBegin (GL_QUADS);
+			qglTexCoord2f( 0, 0 );
+			qglVertex2f( x, y );
+			qglTexCoord2f( 1, 0 );
+			qglVertex2f( x + w, y );
+			qglTexCoord2f( 1, 1 );
+			qglVertex2f( x + w, y + h );
+			qglTexCoord2f( 0, 1 );
+			qglVertex2f( x, y + h );
+			qglEnd();
+		}
 	}
 
 	qglFinish();
@@ -1206,4 +1375,5 @@ void RB_RenderThread( void ) {
 		renderThreadActive = qfalse;
 	}
 }
+
 

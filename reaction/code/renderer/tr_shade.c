@@ -200,6 +200,31 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 }
 
 
+static void R_DrawElementsVBO( int numIndexes, int firstIndex )
+{
+	qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE)));
+}
+
+
+static void R_DrawMultiElementsVBO( int multiDrawPrimitives, const GLvoid **multiDrawFirstIndex, GLsizei *multiDrawNumIndexes)
+{
+	if (glRefConfig.multiDrawArrays && r_ext_multi_draw_arrays->integer)
+	{
+		qglMultiDrawElementsEXT(GL_TRIANGLES, multiDrawNumIndexes, GL_INDEX_TYPE, multiDrawFirstIndex, multiDrawPrimitives);
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < multiDrawPrimitives; i++)
+		{
+			qglDrawElements(GL_TRIANGLES, multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
+		}
+	}
+}
+
+
+
 /*
 =============================================================
 
@@ -213,21 +238,24 @@ static qboolean	setArraysOnce;
 
 /*
 =================
-R_BindAnimatedImage
+R_BindAnimatedImageToTMU
 
 =================
 */
-static void R_BindAnimatedImage( textureBundle_t *bundle ) {
+static void R_BindAnimatedImageToTMU( textureBundle_t *bundle, int tmu ) {
 	int		index;
 
 	if ( bundle->isVideoMap ) {
+		int oldtmu = glState.currenttmu;
+		GL_SelectTexture(tmu);
 		ri.CIN_RunCinematic(bundle->videoMapHandle);
 		ri.CIN_UploadCinematic(bundle->videoMapHandle);
+		GL_SelectTexture(oldtmu);
 		return;
 	}
 
 	if ( bundle->numImageAnimations <= 1 ) {
-		GL_Bind( bundle->image[0] );
+		GL_BindToTMU( bundle->image[0], tmu);
 		return;
 	}
 
@@ -241,8 +269,19 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 	}
 	index %= bundle->numImageAnimations;
 
-	GL_Bind( bundle->image[ index ] );
+	GL_BindToTMU( bundle->image[ index ], tmu );
 }
+
+/*
+=================
+R_BindAnimatedImage
+
+=================
+*/
+static void R_BindAnimatedImage( textureBundle_t *bundle ) {
+	R_BindAnimatedImageToTMU( bundle, glState.currenttmu );
+}
+
 
 /*
 ================
@@ -253,26 +292,64 @@ Draws triangle outlines for debugging
 */
 static void DrawTris (shaderCommands_t *input) {
 	GL_Bind( tr.whiteImage );
-	qglColor3f (1,1,1);
 
 	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
 	qglDepthRange( 0, 0 );
 
-	qglDisableClientState (GL_COLOR_ARRAY);
-	qglDisableClientState (GL_TEXTURE_COORD_ARRAY);
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+	{
+		if (glRefConfig.glsl && r_arb_shader_objects->integer)
+		{
+			matrix_t matrix;
+			shaderProgram_t *sp = &tr.genericShader[0];
 
-	qglVertexPointer (3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
-
-	if (qglLockArraysEXT) {
-		qglLockArraysEXT(0, input->numVertexes);
-		GLimp_LogComment( "glLockArraysEXT\n" );
+			GLSL_VertexAttribsState(ATTR_POSITION);
+			GLSL_BindProgram(sp);
+			
+			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+			
+			//GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+			GLSL_SetUniform_TCGen0(sp, TCGEN_IDENTITY);
+			Matrix16Identity(matrix);
+			GLSL_SetUniform_Texture0Matrix(sp, matrix);
+			GLSL_SetUniform_Texture1Env(sp, 0);
+			GLSL_SetUniform_ColorGen(sp, CGEN_IDENTITY);
+			GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+			
+			if (input->multiDrawPrimitives)
+			{
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+			}
+			else
+			{
+				R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+			}
+		}
+		else
+		{
+			// FIXME: implement this
+		}
 	}
+	else
+	{
+		qglColor3f (1,1,1);
 
-	R_DrawElements( input->numIndexes, input->indexes );
+		qglDisableClientState (GL_COLOR_ARRAY);
+		qglDisableClientState (GL_TEXTURE_COORD_ARRAY);
 
-	if (qglUnlockArraysEXT) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+		qglVertexPointer (3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
+
+		if (qglLockArraysEXT) {
+			qglLockArraysEXT(0, input->numVertexes);
+			GLimp_LogComment( "glLockArraysEXT\n" );
+		}
+
+		R_DrawElements( input->numIndexes, input->indexes );
+
+		if (qglUnlockArraysEXT) {
+			qglUnlockArraysEXT();
+			GLimp_LogComment( "glUnlockArraysEXT\n" );
+		}
 	}
 	qglDepthRange( 0, 1 );
 }
@@ -286,6 +363,8 @@ Draws vertex normals for debugging
 ================
 */
 static void DrawNormals (shaderCommands_t *input) {
+	//FIXME: implement this
+#if 0
 	int		i;
 	vec3_t	temp;
 
@@ -303,6 +382,7 @@ static void DrawNormals (shaderCommands_t *input) {
 	qglEnd ();
 
 	qglDepthRange( 0, 1 );
+#endif
 }
 
 /*
@@ -319,21 +399,223 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	shader_t *state = (shader->remappedShader) ? shader->remappedShader : shader;
 
 	tess.numIndexes = 0;
+	tess.firstIndex = 0;
 	tess.numVertexes = 0;
+	tess.multiDrawPrimitives = 0;
 	tess.shader = state;
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
 	tess.xstages = state->stages;
 	tess.numPasses = state->numUnfoggedPasses;
 	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+	tess.useInternalVBO = qtrue;
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
 		tess.shaderTime = tess.shader->clampTime;
 	}
-
-
 }
+
+
+
+extern float EvalWaveForm( const waveForm_t *wf );
+extern float EvalWaveFormClamped( const waveForm_t *wf );
+
+
+static void GenerateGLTexCoords( shaderStage_t *pStage, int bundleNum)
+{
+	vec4_t vec;
+
+	switch(pStage->bundle[bundleNum].tcGen)
+	{
+		case TCGEN_IDENTITY:
+			qglDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+			qglEnable(GL_TEXTURE_GEN_S);
+			qglEnable(GL_TEXTURE_GEN_T);
+
+			vec[0] = 0.0f;
+			vec[1] = 0.0f;
+			vec[2] = 0.0f;
+			vec[3] = 0.0f;
+
+			glTexGenfv(GL_S, GL_OBJECT_PLANE, vec);
+			glTexGenfv(GL_T, GL_OBJECT_PLANE, vec);
+			break;
+
+		case TCGEN_TEXTURE:
+			qglTexCoordPointer( 2, GL_FLOAT, glState.currentVBO->stride_st, BUFFER_OFFSET(glState.currentVBO->ofs_st) );
+			qglEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+			break;
+
+		case TCGEN_LIGHTMAP:
+			qglTexCoordPointer( 2, GL_FLOAT, glState.currentVBO->stride_lightmap, BUFFER_OFFSET(glState.currentVBO->ofs_lightmap) );
+			qglEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+			break;
+
+		case TCGEN_ENVIRONMENT_MAPPED:
+			//FIXME: This doesn't look anything like the original
+			qglDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+			qglEnable(GL_TEXTURE_GEN_S);
+			qglEnable(GL_TEXTURE_GEN_T);
+			glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+			glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
+			break;
+
+		case TCGEN_VECTOR:
+			qglDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+			qglEnable(GL_TEXTURE_GEN_S);
+			qglEnable(GL_TEXTURE_GEN_T);
+
+			vec[0] = pStage->bundle[0].tcGenVectors[0][0];
+			vec[1] = pStage->bundle[0].tcGenVectors[0][1];
+			vec[2] = pStage->bundle[0].tcGenVectors[0][2];
+			vec[3] = 0.0f;
+			
+			glTexGenfv(GL_S, GL_OBJECT_PLANE, vec);
+			
+			vec[0] = pStage->bundle[0].tcGenVectors[1][0];
+			vec[1] = pStage->bundle[0].tcGenVectors[2][1];
+			vec[2] = pStage->bundle[0].tcGenVectors[3][2];
+			vec[3] = 0.0f;
+			
+			glTexGenfv(GL_T, GL_OBJECT_PLANE, vec);
+			break;
+		case TCGEN_FOG:
+			// FIXME: This doesn't look anything like the original
+			{
+				vec4_t vec;
+
+				vec[0] = 0.0f;
+				vec[1] = 0.0f;
+				vec[2] = 1.0f;
+				vec[3] = 0.0f;
+
+				qglDisableClientState ( GL_TEXTURE_COORD_ARRAY );
+				qglEnable(GL_TEXTURE_GEN_S);
+				qglEnable(GL_TEXTURE_GEN_T);
+				glTexGenfv(GL_S, GL_EYE_PLANE, vec);
+				glTexGenfv(GL_T, GL_EYE_PLANE, vec);
+			}
+			break;
+		default:
+			// nothing else is supported, bail out
+			break;
+	}
+}
+
+
+static void UndoGLTexCoords( shaderStage_t *pStage, int bundleNum)
+{
+	switch(pStage->bundle[bundleNum].tcGen)
+	{
+		case TCGEN_IDENTITY:
+		case TCGEN_ENVIRONMENT_MAPPED:
+		case TCGEN_VECTOR:
+		case TCGEN_FOG:
+			qglEnableClientState ( GL_TEXTURE_COORD_ARRAY );
+			qglDisable(GL_TEXTURE_GEN_S);
+			qglDisable(GL_TEXTURE_GEN_T);
+			break;
+
+		case TCGEN_TEXTURE:
+		case TCGEN_LIGHTMAP:
+		default:
+			break;
+	}
+}
+
+
+static void ComputeTexMatrix( shaderStage_t *pStage, int bundleNum, float *outmatrix)
+{
+	int tm;
+	float matrix[16], currentmatrix[16];
+	textureBundle_t *bundle = &pStage->bundle[bundleNum];
+
+/*
+	if (pStage->bundle[bundleNum].tcGen == TCGEN_ENVIRONMENT_MAPPED)
+	{
+		Matrix16Identity(currentmatrix);
+		currentmatrix[0] = 1.0f;
+		currentmatrix[5] = -1.0f;
+		//currentmatrix[10] = 1.0f;
+		Matrix16Copy(currentmatrix, outmatrix);
+	}
+	else*/
+	{
+		Matrix16Identity(outmatrix);
+		Matrix16Identity(currentmatrix);
+	}
+
+	for ( tm = 0; tm < bundle->numTexMods ; tm++ ) {
+		switch ( bundle->texMods[tm].type )
+		{
+			
+		case TMOD_NONE:
+			tm = TR_MAX_TEXMODS;		// break out of for loop
+			break;
+
+		case TMOD_TURBULENT:
+			RB_CalcTurbulentTexMatrix( &bundle->texMods[tm].wave, 
+									 matrix );
+			currentmatrix[12] = matrix[12];
+			currentmatrix[13] = matrix[13];
+			break;
+
+		case TMOD_ENTITY_TRANSLATE:
+			RB_CalcScrollTexMatrix( backEnd.currentEntity->e.shaderTexCoord,
+								 matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+
+		case TMOD_SCROLL:
+			RB_CalcScrollTexMatrix( bundle->texMods[tm].scroll,
+									 matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+
+		case TMOD_SCALE:
+			RB_CalcScaleTexMatrix( bundle->texMods[tm].scale,
+								  matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+		
+		case TMOD_STRETCH:
+			RB_CalcStretchTexMatrix( &bundle->texMods[tm].wave, 
+								   matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+
+		case TMOD_TRANSFORM:
+			RB_CalcTransformTexMatrix( &bundle->texMods[tm],
+									 matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+
+		case TMOD_ROTATE:
+			RB_CalcRotateTexMatrix( bundle->texMods[tm].rotateSpeed,
+									matrix );
+			//Matrix16Multiply(currentmatrix, matrix, outmatrix);
+			Matrix16Multiply(matrix, currentmatrix, outmatrix);
+			Matrix16Copy(outmatrix, currentmatrix);
+			break;
+
+		default:
+			ri.Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", bundle->texMods[tm].type, tess.shader->name );
+			break;
+		}
+	}
+}
+
 
 /*
 ===================
@@ -393,6 +675,82 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	GL_SelectTexture( 0 );
 }
 
+
+/*
+===================
+DrawMultitexturedVBO
+
+output = t0 * t1 or t0 + t1
+
+t0 = most upstream according to spec
+t1 = most downstream according to spec
+===================
+*/
+static void DrawMultitexturedVBO( shaderCommands_t *input, int stage ) {
+	shaderStage_t	*pStage;
+	float matrix[16];
+
+	pStage = tess.xstages[stage];
+
+	GL_State( pStage->stateBits );
+
+	// this is an ugly hack to work around a GeForce driver
+	// bug with multitexture and clip planes
+	if ( backEnd.viewParms.isPortal ) {
+		qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	}
+
+	//
+	// base
+	//
+	GL_SelectTexture( 0 );
+	GenerateGLTexCoords( pStage, 0 );
+	ComputeTexMatrix( pStage, 0, matrix );
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(matrix);
+	qglMatrixMode(GL_MODELVIEW);
+	R_BindAnimatedImage( &pStage->bundle[0] );
+
+	//
+	// lightmap/secondary pass
+	//
+	GL_SelectTexture( 1 );
+	qglEnable( GL_TEXTURE_2D );
+	GenerateGLTexCoords( pStage, 1 );
+	ComputeTexMatrix( pStage, 1, matrix );
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadMatrixf(matrix);
+	qglMatrixMode(GL_MODELVIEW);
+
+	if ( r_lightmap->integer ) {
+		GL_TexEnv( GL_REPLACE );
+	} else {
+		GL_TexEnv( tess.shader->multitextureEnv );
+	}
+
+	R_BindAnimatedImage( &pStage->bundle[1] );
+
+	if (input->multiDrawPrimitives)
+	{
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+	}
+	else
+	{
+		R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+	}
+
+	qglDisable( GL_TEXTURE_2D );
+	UndoGLTexCoords( pStage, 1 );
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+
+	GL_SelectTexture( 0 );
+	UndoGLTexCoords( pStage, 0 );
+	qglMatrixMode(GL_TEXTURE);
+	qglLoadIdentity();
+	qglMatrixMode(GL_MODELVIEW);
+}
 
 
 /*
@@ -748,6 +1106,79 @@ static void ProjectDlightTexture( void ) {
 	ProjectDlightTexture_scalar();
 }
 
+static void ProjectDlightTextureVBOGLSL( void ) {
+	int		l;
+	vec3_t	origin;
+	float	scale;
+	float	radius;
+
+	if ( !backEnd.refdef.num_dlights ) {
+		return;
+	}
+
+	for ( l = 0 ; l < backEnd.refdef.num_dlights ; l++ ) {
+		dlight_t	*dl;
+		shaderProgram_t *sp;
+		vec4_t vector;
+		matrix_t matrix;
+
+		if ( !( tess.dlightBits & ( 1 << l ) ) ) {
+			continue;	// this surface definately doesn't have any of this light
+		}
+
+		dl = &backEnd.refdef.dlights[l];
+		VectorCopy( dl->transformed, origin );
+		radius = dl->radius;
+		scale = 1.0f / radius;
+
+		sp = GLSL_GetGenericShaderProgram();
+
+		GLSL_BindProgram(sp);
+
+		GLSL_SetUniform_TCGen0(sp, TCGEN_DLIGHT);
+		Matrix16Identity(matrix);
+		GLSL_SetUniform_Texture0Matrix(sp, matrix);
+		GLSL_SetUniform_Texture1Env(sp, 0);
+		GLSL_SetUniform_ColorGen(sp, CGEN_DLIGHT);
+		GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+
+		vector[0] = dl->color[0];
+		vector[1] = dl->color[1];
+		vector[2] = dl->color[2];
+		vector[3] = 1.0f;
+		GLSL_SetUniform_Color(sp, vector);
+
+		vector[0] = origin[0];
+		vector[1] = origin[1];
+		vector[2] = origin[2];
+		vector[3] = scale;
+		GLSL_SetUniform_TCGen0Vector0(sp, vector);
+	  
+		GL_Bind( tr.dlightImage );
+
+		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
+		// where they aren't rendered
+		if ( dl->additive ) {
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+		}
+		else {
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
+		}
+
+		if (tess.multiDrawPrimitives)
+		{
+			R_DrawMultiElementsVBO(tess.multiDrawPrimitives, tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+		}
+		else
+		{
+			R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
+		}
+
+		backEnd.pc.c_totalIndexes += tess.numIndexes;
+		backEnd.pc.c_dlightIndexes += tess.numIndexes;
+	}
+}
+
 
 /*
 ===================
@@ -784,6 +1215,94 @@ static void RB_FogPass( void ) {
 
 	R_DrawElements( tess.numIndexes, tess.indexes );
 }
+
+/*
+===================
+RB_FogPassVBOGLSL
+
+Blends a fog texture on top of everything else
+===================
+*/
+static void RB_FogPassVBOGLSL( void ) {
+	fog_t		*fog;
+	vec4_t  color;
+	matrix_t matrix;
+	shaderProgram_t *sp = GLSL_GetGenericShaderProgram();
+
+	GLSL_BindProgram(sp);
+
+	fog = tr.world->fogs + tess.fogNum;
+
+	GLSL_SetUniform_FogAdjustColors(sp, 4);
+	GLSL_SetUniform_TCGen0(sp, TCGEN_IDENTITY);
+	Matrix16Identity(matrix);
+	GLSL_SetUniform_Texture0Matrix(sp, matrix);
+	GLSL_SetUniform_Texture1Env(sp, 0);
+	GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
+	GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+
+	color[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
+	color[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
+	color[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
+	color[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
+	GLSL_SetUniform_Color(sp, color);
+
+#if 0 // already set
+	// from RB_CalcFogTexCoords()
+	VectorSubtract( backEnd.or.origin, backEnd.viewParms.or.origin, local );
+	fogDistanceVector[0] = -backEnd.or.modelMatrix[2];
+	fogDistanceVector[1] = -backEnd.or.modelMatrix[6];
+	fogDistanceVector[2] = -backEnd.or.modelMatrix[10];
+	fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.or.axis[0] );
+
+	// scale the fog vectors based on the fog's thickness
+	fogDistanceVector[0] *= fog->tcScale;
+	fogDistanceVector[1] *= fog->tcScale;
+	fogDistanceVector[2] *= fog->tcScale;
+	fogDistanceVector[3] *= fog->tcScale;
+
+	// rotate the gradient vector for this orientation
+	if ( fog->hasSurface ) {
+		fogDepthVector[0] = fog->surface[0] * backEnd.or.axis[0][0] + 
+			fog->surface[1] * backEnd.or.axis[0][1] + fog->surface[2] * backEnd.or.axis[0][2];
+		fogDepthVector[1] = fog->surface[0] * backEnd.or.axis[1][0] + 
+			fog->surface[1] * backEnd.or.axis[1][1] + fog->surface[2] * backEnd.or.axis[1][2];
+		fogDepthVector[2] = fog->surface[0] * backEnd.or.axis[2][0] + 
+			fog->surface[1] * backEnd.or.axis[2][1] + fog->surface[2] * backEnd.or.axis[2][2];
+		fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.or.origin, fog->surface );
+
+		eyeT = DotProduct( backEnd.or.viewOrigin, fogDepthVector ) + fogDepthVector[3];
+	} else {
+		eyeT = 1;	// non-surface fog always has eye inside
+	}
+
+	fogDistanceVector[3] += 1.0/512;
+
+	//ri.Printf(PRINT_ALL,"eyeT %f fogDistanceVector %f %f %f %f fogDepthVector %f %f %f %f\n", eyeT, fogDistanceVector[0], fogDistanceVector[1], fogDistanceVector[2], fogDistanceVector[3], fogDepthVector[0], fogDepthVector[1], fogDepthVector[2], fogDepthVector[3]);
+	//ri.Printf(PRINT_ALL, "fogsurface %f %f %f %f\n", fog->surface[0], fog->surface[1], fog->surface[2], fog->surface[3]);
+
+	GLSL_SetUniform_TCGen0Vector0(sp, fogDistanceVector);
+	GLSL_SetUniform_TCGen0Vector1(sp, fogDepthVector);
+	GLSL_SetUniform_FogEyeT(sp, eyeT);
+#endif
+	GL_Bind( tr.fogImage );
+
+	if ( tess.shader->fogPass == FP_EQUAL ) {
+		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
+	} else {
+		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	}
+
+	if (tess.multiDrawPrimitives)
+	{
+		R_DrawMultiElementsVBO(tess.multiDrawPrimitives, tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+	}
+	else
+	{
+		R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
+	}
+}
+
 
 /*
 ===============
@@ -1002,6 +1521,521 @@ static void ComputeColors( shaderStage_t *pStage )
 	}
 }
 
+static void ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
+{
+	//
+	// rgbGen
+	//
+	switch ( pStage->rgbGen )
+	{
+		case CGEN_IDENTITY:
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
+			break;
+		case CGEN_IDENTITY_LIGHTING:
+			color[0] = tr.identityLight;
+			color[1] = tr.identityLight;
+			color[2] = tr.identityLight;
+			color[3] = tr.identityLight; // FIXME: Code was like this in quake 3, is this a bug?
+			break;
+		case CGEN_LIGHTING_DIFFUSE:
+			// Done entirely in vertex program
+			break;
+		case CGEN_EXACT_VERTEX:
+			// Done entirely in vertex program
+			break;
+		case CGEN_CONST:
+			color[0] = pStage->constantColor[0] / 255.0f;
+			color[1] = pStage->constantColor[1] / 255.0f;
+			color[2] = pStage->constantColor[2] / 255.0f;
+			color[3] = pStage->constantColor[3] / 255.0f;
+			break;
+		case CGEN_VERTEX:
+		case CGEN_ONE_MINUS_VERTEX:
+			color[0] = tr.identityLight;
+			color[1] = tr.identityLight;
+			color[2] = tr.identityLight;
+			color[3] = 1.0f;
+			break;
+		case CGEN_FOG:
+			{
+				fog_t		*fog;
+
+				fog = tr.world->fogs + tess.fogNum;
+
+				color[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
+				color[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
+				color[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
+				color[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
+			}
+			break;
+		case CGEN_WAVEFORM:
+			{
+				// from RB_CalcWaveColor
+				float glow;
+				waveForm_t *wf = &pStage->rgbWave;
+
+				if ( wf->func == GF_NOISE ) {
+					glow = wf->base + R_NoiseGet4f( 0, 0, 0, ( tess.shaderTime + wf->phase ) * wf->frequency ) * wf->amplitude;
+				} else {
+					glow = EvalWaveForm( wf ) * tr.identityLight;
+				}
+				
+				if ( glow < 0 ) {
+					glow = 0;
+				}
+				else if ( glow > 1 ) {
+					glow = 1;
+				}
+
+				color[0] = glow;
+				color[1] = glow;
+				color[2] = glow;
+				color[3] = 1.0f;
+			}
+			break;
+		case CGEN_ENTITY:
+			if (backEnd.currentEntity)
+			{
+				color[0] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				color[1] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				color[2] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				color[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+			}
+			else // FIXME: does original quake3 black out vertex colors like this?
+			{
+				color[0] = 0.0f;
+				color[1] = 0.0f;
+				color[2] = 0.0f;
+				color[3] = 0.0f;
+			}
+			break;
+		case CGEN_ONE_MINUS_ENTITY:
+			if (backEnd.currentEntity)
+			{
+				color[0] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				color[1] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				color[2] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				color[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+			}
+			else // FIXME: does original quake3 black out vertex colors like this?
+			{
+				color[0] = 0.0f;
+				color[1] = 0.0f;
+				color[2] = 0.0f;
+				color[3] = 0.0f;
+			}
+			break;
+	}
+
+	//
+	// alphaGen
+	//
+	switch ( pStage->alphaGen )
+	{
+	case AGEN_SKIP:
+		break;
+	case AGEN_IDENTITY:
+		if ( pStage->rgbGen != CGEN_IDENTITY ) {
+			if ( ( pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1 ) ||
+				 pStage->rgbGen != CGEN_VERTEX ) {
+				color[3] = 1.0f;
+			}
+		}
+		break;
+	case AGEN_CONST:
+		if ( pStage->rgbGen != CGEN_CONST ) {
+			color[3] = pStage->constantColor[3] / 255.0f;
+		}
+		break;
+	case AGEN_WAVEFORM:
+		// From RB_CalcWaveAlpha
+		{
+			float glow;
+			waveForm_t *wf = &pStage->alphaWave;
+			glow = EvalWaveFormClamped( wf );
+			color[3] = glow;
+		}
+		break;
+	case AGEN_LIGHTING_SPECULAR:
+		// Done entirely in vertex program
+		// RB_CalcSpecularAlpha( ( unsigned char * ) tess.svars.colors );
+		break;
+	case AGEN_ENTITY:
+		//RB_CalcAlphaFromEntity( ( unsigned char * ) tess.svars.colors );
+		if (backEnd.currentEntity)
+		{
+			color[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+		}
+		break;
+	case AGEN_ONE_MINUS_ENTITY:
+		//RB_CalcAlphaFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
+		if (backEnd.currentEntity)
+		{
+			color[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+		}
+		break;
+    case AGEN_VERTEX:
+		// Done entirely in vertex program
+        break;
+    case AGEN_ONE_MINUS_VERTEX:
+		// Done entirely in vertex program
+        break;
+	case AGEN_PORTAL:
+		// Done entirely in vertex program
+		break;
+	}
+
+	//
+	// pStage->adjustColorsForFog is done in the vertex program now
+	//
+
+	// FIXME: find some way to implement this.
+#if 0
+	// if in greyscale rendering mode turn all color values into greyscale.
+	if(r_greyscale->integer)
+	{
+		int scale;
+		
+		for(i = 0; i < tess.numVertexes; i++)
+		{
+			scale = (tess.svars.colors[i][0] + tess.svars.colors[i][1] + tess.svars.colors[i][2]) / 3;
+			tess.svars.colors[i][0] = tess.svars.colors[i][1] = tess.svars.colors[i][2] = scale;
+		}
+	}
+#endif
+
+}
+
+/*
+===============
+ComputeColorMatrix
+
+if disableVertexColors is true, outmatrix[12-15] contains a color that should be used.
+===============
+*/
+
+static void ComputeColorMatrix( shaderStage_t *pStage, float *outmatrix, qboolean *disableVertexColors)
+{
+	*disableVertexColors = qfalse;
+
+	//
+	// rgbGen
+	//
+	switch ( pStage->rgbGen )
+	{
+		case CGEN_IDENTITY:
+			*disableVertexColors = qtrue;
+			Matrix16Zero(outmatrix);
+			outmatrix[12] = 1.0f;
+			outmatrix[13] = 1.0f;
+			outmatrix[14] = 1.0f;
+			outmatrix[15] = 1.0f;
+			break;
+		default:
+		case CGEN_IDENTITY_LIGHTING:
+			*disableVertexColors = qtrue;
+			Matrix16Zero(outmatrix);
+			outmatrix[12] = tr.identityLight;
+			outmatrix[13] = tr.identityLight;
+			outmatrix[14] = tr.identityLight;
+			outmatrix[15] = 1.0f;  // FIXME: used to just be straight tr.identityLight, is this a bug?
+			break;
+		case CGEN_LIGHTING_DIFFUSE:
+			// FIXME: Can't do this with just a matrix
+			//RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
+			*disableVertexColors = qtrue;
+			Matrix16Zero(outmatrix);
+			outmatrix[12] = 1.0f;
+			outmatrix[13] = 1.0f;
+			outmatrix[14] = 1.0f;
+			outmatrix[15] = 1.0f;
+			break;
+		case CGEN_EXACT_VERTEX:
+			Matrix16Identity(outmatrix);
+			break;
+		case CGEN_CONST:
+			*disableVertexColors = qtrue;
+			Matrix16Zero(outmatrix);
+			outmatrix[12] = pStage->constantColor[0] / 255.0f;
+			outmatrix[13] = pStage->constantColor[1] / 255.0f;
+			outmatrix[14] = pStage->constantColor[2] / 255.0f;
+			outmatrix[15] = pStage->constantColor[3] / 255.0f;
+			break;
+		case CGEN_VERTEX:
+			Matrix16Identity(outmatrix);
+			outmatrix[ 0] = tr.identityLight;
+			outmatrix[ 5] = tr.identityLight;
+			outmatrix[10] = tr.identityLight;
+			outmatrix[15] = 1.0f;
+			break;
+		case CGEN_ONE_MINUS_VERTEX:
+			// FIXME: Not a perfect fit, if alpha is less than 1.0f or identitylight isn't 1 then this doesn't work
+#if 0
+			if ( tr.identityLight == 1 )
+			{
+				for ( i = 0; i < tess.numVertexes; i++ )
+				{
+					tess.svars.colors[i][0] = 255 - tess.vertexColors[i][0];
+					tess.svars.colors[i][1] = 255 - tess.vertexColors[i][1];
+					tess.svars.colors[i][2] = 255 - tess.vertexColors[i][2];
+				}
+			}
+			else
+			{
+				for ( i = 0; i < tess.numVertexes; i++ )
+				{
+					tess.svars.colors[i][0] = ( 255 - tess.vertexColors[i][0] ) * tr.identityLight;
+					tess.svars.colors[i][1] = ( 255 - tess.vertexColors[i][1] ) * tr.identityLight;
+					tess.svars.colors[i][2] = ( 255 - tess.vertexColors[i][2] ) * tr.identityLight;
+				}
+			}
+#endif
+			Matrix16Zero(outmatrix);
+			outmatrix[0] = -1.0f;
+			outmatrix[5] = -1.0f;
+			outmatrix[10] = -1.0f;
+
+			outmatrix[12] = 1.0f;
+			outmatrix[13] = 1.0f;
+			outmatrix[14] = 1.0f;
+			outmatrix[15] = 1.0f;
+			break;
+		case CGEN_FOG:
+			*disableVertexColors = qtrue;
+			{
+				fog_t		*fog;
+
+				fog = tr.world->fogs + tess.fogNum;
+
+				outmatrix[12] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
+				outmatrix[13] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
+				outmatrix[14] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
+				outmatrix[15] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
+
+			}
+			break;
+		case CGEN_WAVEFORM:
+			*disableVertexColors = qtrue;
+			{
+				// from RB_CalcWaveColor
+				float glow;
+				waveForm_t *wf = &pStage->rgbWave;
+
+				if ( wf->func == GF_NOISE ) {
+					glow = wf->base + R_NoiseGet4f( 0, 0, 0, ( tess.shaderTime + wf->phase ) * wf->frequency ) * wf->amplitude;
+				} else {
+					glow = EvalWaveForm( wf ) * tr.identityLight;
+				}
+				
+				if ( glow < 0 ) {
+					glow = 0;
+				}
+				else if ( glow > 1 ) {
+					glow = 1;
+				}
+
+				outmatrix[12] = glow;
+				outmatrix[13] = glow;
+				outmatrix[14] = glow;
+				outmatrix[15] = 1.0f;
+			}
+			break;
+		case CGEN_ENTITY:
+			*disableVertexColors = qtrue;
+			if (backEnd.currentEntity)
+			{
+				outmatrix[12] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				outmatrix[13] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				outmatrix[14] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				outmatrix[15] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+			}
+			else // FIXME: does original quake3 black out vertex colors like this?
+			{
+				outmatrix[12] = 0.0f;
+				outmatrix[13] = 0.0f;
+				outmatrix[14] = 0.0f;
+				outmatrix[15] = 0.0f;
+			}
+			break;
+		case CGEN_ONE_MINUS_ENTITY:
+			*disableVertexColors = qtrue;
+			if (backEnd.currentEntity)
+			{
+				outmatrix[12] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				outmatrix[13] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				outmatrix[14] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				outmatrix[15] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+			}
+			else // FIXME: does original quake3 black out vertex colors like this?
+			{
+				outmatrix[12] = 0.0f;
+				outmatrix[13] = 0.0f;
+				outmatrix[14] = 0.0f;
+				outmatrix[15] = 0.0f;
+			}
+			break;
+	}
+
+	//
+	// alphaGen
+	//
+	switch ( pStage->alphaGen )
+	{
+	case AGEN_SKIP:
+		break;
+	case AGEN_IDENTITY:
+		if ( pStage->rgbGen != CGEN_IDENTITY ) {
+			if ( ( pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1 ) ||
+				 pStage->rgbGen != CGEN_VERTEX ) {
+				// FIXME: Not a perfect fit, if alpha is less than 1.0f and vertex colors are enabled then this doesn't work
+				outmatrix[15] = 1.0f;
+#if 0
+				for ( i = 0; i < tess.numVertexes; i++ ) {
+					tess.svars.colors[i][3] = 0xff;
+				}
+#endif
+			}
+		}
+		break;
+	case AGEN_CONST:
+		if ( pStage->rgbGen != CGEN_CONST ) {
+			// FIXME: Not a perfect fit, if alpha is less than 1.0f and vertex colors are enabled then this doesn't work
+#if 0
+			for ( i = 0; i < tess.numVertexes; i++ ) {
+				tess.svars.colors[i][3] = pStage->constantColor[3];
+			}
+#endif
+			outmatrix[15] = pStage->constantColor[3] / 255.0f;
+		}
+		break;
+	case AGEN_WAVEFORM:
+		// From RB_CalcWaveAlpha
+		// FIXME: Not a perfect fit, if alpha is less than 1.0f and vertex colors are enabled then this doesn't work
+		{
+			float glow;
+			waveForm_t *wf = &pStage->alphaWave;
+			glow = EvalWaveFormClamped( wf );
+			outmatrix[15] = glow;
+		}
+		break;
+	case AGEN_LIGHTING_SPECULAR:
+		// FIXME: Can't do this with just a matrix
+		// RB_CalcSpecularAlpha( ( unsigned char * ) tess.svars.colors );
+		break;
+	case AGEN_ENTITY:
+		// FIXME: Doesn't work if alpha is less than 1.0f and vertex colors are enabled
+		//RB_CalcAlphaFromEntity( ( unsigned char * ) tess.svars.colors );
+		if (backEnd.currentEntity)
+		{
+			outmatrix[15] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+		}
+		break;
+	case AGEN_ONE_MINUS_ENTITY:
+		// FIXME: Doesn't work if alpha is less than 1.0f and vertex colors are enabled
+		//RB_CalcAlphaFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
+		if (backEnd.currentEntity)
+		{
+			outmatrix[15] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+		}
+		break;
+    case AGEN_VERTEX:
+		// FIXME: Doesn't work if vertex colors are disabled
+#if 0
+		if ( pStage->rgbGen != CGEN_VERTEX ) {
+			for ( i = 0; i < tess.numVertexes; i++ ) {
+				tess.svars.colors[i][3] = tess.vertexColors[i][3];
+			}
+		}
+#endif
+		outmatrix[15] = 1.0f;
+        break;
+    case AGEN_ONE_MINUS_VERTEX:
+		// FIXME: Doesn't work at all
+		outmatrix[15] = 1.0f;
+#if 0
+        for ( i = 0; i < tess.numVertexes; i++ )
+        {
+			tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
+        }
+#endif
+        break;
+	case AGEN_PORTAL:
+		// FIXME: This very doesn't work.
+#if 0
+		{
+			unsigned char alpha;
+
+			for ( i = 0; i < tess.numVertexes; i++ )
+			{
+				float len;
+				vec3_t v;
+
+				VectorSubtract( tess.xyz[i], backEnd.viewParms.or.origin, v );
+				len = VectorLength( v );
+
+				len /= tess.shader->portalRange;
+
+				if ( len < 0 )
+				{
+					alpha = 0;
+				}
+				else if ( len > 1 )
+				{
+					alpha = 0xff;
+				}
+				else
+				{
+					alpha = len * 0xff;
+				}
+
+				tess.svars.colors[i][3] = alpha;
+			}
+		}
+#endif
+		break;
+	}
+
+	// FIXME: find some way to implement this stuff.
+#if 0
+	//
+	// fog adjustment for colors to fade out as fog increases
+	//
+	if ( tess.fogNum )
+	{
+		switch ( pStage->adjustColorsForFog )
+		{
+		case ACFF_MODULATE_RGB:
+			RB_CalcModulateColorsByFog( ( unsigned char * ) tess.svars.colors );
+			break;
+		case ACFF_MODULATE_ALPHA:
+			RB_CalcModulateAlphasByFog( ( unsigned char * ) tess.svars.colors );
+			break;
+		case ACFF_MODULATE_RGBA:
+			RB_CalcModulateRGBAsByFog( ( unsigned char * ) tess.svars.colors );
+			break;
+		case ACFF_NONE:
+			break;
+		}
+	}
+	
+	// if in greyscale rendering mode turn all color values into greyscale.
+	if(r_greyscale->integer)
+	{
+		int scale;
+		
+		for(i = 0; i < tess.numVertexes; i++)
+		{
+			scale = (tess.svars.colors[i][0] + tess.svars.colors[i][1] + tess.svars.colors[i][2]) / 3;
+			tess.svars.colors[i][0] = tess.svars.colors[i][1] = tess.svars.colors[i][2] = scale;
+		}
+	}
+#endif
+}
+
+
 /*
 ===============
 ComputeTexCoords
@@ -1169,6 +2203,392 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 
 /*
+** RB_IterateStagesGenericVBO
+*/
+static void RB_IterateStagesGenericVBO( shaderCommands_t *input )
+{
+	int stage;
+
+	qglEnableClientState( GL_VERTEX_ARRAY );
+	qglVertexPointer(3, GL_FLOAT, glState.currentVBO->stride_xyz, BUFFER_OFFSET(glState.currentVBO->ofs_xyz));
+	qglEnableClientState( GL_NORMAL_ARRAY );
+	qglNormalPointer(GL_FLOAT, glState.currentVBO->stride_normal, BUFFER_OFFSET(glState.currentVBO->ofs_normal));
+
+	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	{
+		shaderStage_t *pStage = tess.xstages[stage];
+		qboolean disableVertexColors = qfalse;
+		float matrix[16];
+
+		if ( !pStage )
+		{
+			break;
+		}
+
+		ComputeColorMatrix( pStage, matrix, &disableVertexColors);
+
+		if (!disableVertexColors)
+		{
+			qglMatrixMode(GL_COLOR);
+			qglLoadMatrixf(matrix);
+		}
+		else
+		{
+			qglColor4fv(&matrix[12]);
+		}
+
+		qglMatrixMode(GL_MODELVIEW);
+
+		if (!disableVertexColors)
+		{
+			qglEnableClientState( GL_COLOR_ARRAY );
+			qglColorPointer(4, GL_UNSIGNED_BYTE, glState.currentVBO->stride_vertexcolor, BUFFER_OFFSET(glState.currentVBO->ofs_vertexcolor));
+		}
+		else
+		{
+			qglDisableClientState( GL_COLOR_ARRAY );
+		}
+
+		//
+		// do multitexture
+		//
+		if ( pStage->bundle[1].image[0] != 0 )
+		{
+			DrawMultitexturedVBO( input, stage );
+		}
+		else
+		{
+			float matrix[16];
+
+			GenerateGLTexCoords( pStage, 0 );
+				
+			ComputeTexMatrix( pStage, 0, matrix );
+			qglMatrixMode(GL_TEXTURE);
+			qglLoadMatrixf(matrix);
+			qglMatrixMode(GL_MODELVIEW);
+
+			//
+			// set state
+			//
+			if ( pStage->bundle[0].vertexLightmap && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer )
+			{
+				GL_Bind( tr.whiteImage );
+			}
+			else 
+				R_BindAnimatedImage( &pStage->bundle[0] );
+
+			GL_State( pStage->stateBits );
+
+			//
+			// draw
+			//
+
+			if (input->multiDrawPrimitives)
+			{
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+			}
+			else
+			{
+				R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+			}
+
+			UndoGLTexCoords( pStage, 0 );
+			qglEnableClientState ( GL_COLOR_ARRAY );
+			qglMatrixMode(GL_COLOR);
+			qglLoadIdentity();
+			qglMatrixMode(GL_TEXTURE);
+			qglLoadIdentity();
+			qglMatrixMode(GL_MODELVIEW);
+
+		}
+		// allow skipping out to show just lightmaps during development
+		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap ) )
+		{
+			break;
+		}
+	}
+}
+
+
+static void DrawMultitexturedVBOGLSL( shaderProgram_t *sp, shaderCommands_t *input, int stage ) {
+	shaderStage_t	*pStage;
+	matrix_t matrix;
+	vec4_t vector;
+
+	pStage = tess.xstages[stage];
+
+	//
+	// base
+	//
+	GLSL_SetUniform_TCGen0(sp, pStage->bundle[0].tcGen);
+	if (pStage->bundle[0].tcGen == TCGEN_VECTOR)
+	{
+		vector[3] = 0.0f;
+		VectorCopy(pStage->bundle[0].tcGenVectors[0], vector);
+		GLSL_SetUniform_TCGen0Vector0(sp, vector);
+		VectorCopy(pStage->bundle[0].tcGenVectors[1], vector);
+		GLSL_SetUniform_TCGen0Vector1(sp, vector);
+	}
+
+	ComputeTexMatrix( pStage, 0, matrix );
+	GLSL_SetUniform_Texture0Matrix(sp, matrix);
+	
+	R_BindAnimatedImageToTMU( &pStage->bundle[0], 0 );
+
+	//
+	// lightmap/secondary pass
+	//
+	if ( r_lightmap->integer ) {
+		GLSL_SetUniform_Texture1Env(sp, GL_REPLACE);
+	} else {
+		GLSL_SetUniform_Texture1Env(sp, tess.shader->multitextureEnv);
+	}
+
+	R_BindAnimatedImageToTMU( &pStage->bundle[1], 1 );
+
+	if (input->multiDrawPrimitives)
+	{
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+	}
+	else
+	{
+		R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+	}
+}
+
+static unsigned int RB_CalcShaderVertexAttribs( shaderCommands_t *input )
+{
+	unsigned int vertexAttribs = input->shader->vertexAttribs;
+
+	if(glState.vertexAttribsInterpolation > 0.0f)
+	{
+		vertexAttribs |= ATTR_POSITION2;
+		if (vertexAttribs & ATTR_NORMAL)
+		{
+			vertexAttribs |= ATTR_NORMAL2;
+		}
+	}
+
+	return vertexAttribs;
+}
+
+
+static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
+{
+	int stage;
+	matrix_t matrix;
+	shaderProgram_t *sp = GLSL_GetGenericShaderProgram();
+
+	GLSL_BindProgram(sp);
+
+	GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+	GLSL_SetUniform_ViewOrigin(sp, backEnd.or.viewOrigin);
+
+	GLSL_SetUniform_VertexLerp(sp, glState.vertexAttribsInterpolation);
+	
+	// u_DeformGen
+	if(input->shader->numDeforms)
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &input->shader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniform_DeformGen(sp, ds->deformationWave.func);
+				GLSL_SetUniform_DeformWave(sp, &ds->deformationWave);
+				GLSL_SetUniform_DeformSpread(sp, ds->deformationSpread);
+				GLSL_SetUniform_Time(sp, tess.shaderTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniform_DeformGen(sp, DGEN_BULGE);
+				GLSL_SetUniform_DeformBulge(sp, ds);
+				GLSL_SetUniform_Time(sp, tess.shaderTime);
+				break;
+
+			default:
+				GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+	}
+
+	if ( input->fogNum ) {
+		fog_t		*fog;
+		vec3_t	local;
+		vec4_t	fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
+		float		eyeT;
+
+		fog = tr.world->fogs + tess.fogNum;
+
+		VectorSubtract( backEnd.or.origin, backEnd.viewParms.or.origin, local );
+		fogDistanceVector[0] = -backEnd.or.modelMatrix[2];
+		fogDistanceVector[1] = -backEnd.or.modelMatrix[6];
+		fogDistanceVector[2] = -backEnd.or.modelMatrix[10];
+		fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.or.axis[0] );
+
+		// scale the fog vectors based on the fog's thickness
+		VectorScale4(fogDistanceVector, fog->tcScale, fogDistanceVector);
+
+		// rotate the gradient vector for this orientation
+		if ( fog->hasSurface ) {
+			fogDepthVector[0] = fog->surface[0] * backEnd.or.axis[0][0] + 
+				fog->surface[1] * backEnd.or.axis[0][1] + fog->surface[2] * backEnd.or.axis[0][2];
+			fogDepthVector[1] = fog->surface[0] * backEnd.or.axis[1][0] + 
+				fog->surface[1] * backEnd.or.axis[1][1] + fog->surface[2] * backEnd.or.axis[1][2];
+			fogDepthVector[2] = fog->surface[0] * backEnd.or.axis[2][0] + 
+				fog->surface[1] * backEnd.or.axis[2][1] + fog->surface[2] * backEnd.or.axis[2][2];
+			fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.or.origin, fog->surface );
+
+			eyeT = DotProduct( backEnd.or.viewOrigin, fogDepthVector ) + fogDepthVector[3];
+		} else {
+			eyeT = 1;	// non-surface fog always has eye inside
+		}
+
+		GLSL_SetUniform_FogDistance(sp, fogDistanceVector);
+		GLSL_SetUniform_FogDepth(sp, fogDepthVector);
+		GLSL_SetUniform_FogEyeT(sp, eyeT);
+	}
+
+	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	{
+		shaderStage_t *pStage = input->xstages[stage];
+		qboolean setcolor = qfalse;
+
+		if ( !pStage )
+		{
+			break;
+		}
+
+		GL_State( pStage->stateBits );
+
+		switch (pStage->rgbGen)
+		{
+			case CGEN_IDENTITY:
+			case CGEN_EXACT_VERTEX:
+			case CGEN_LIGHTING_DIFFUSE:
+				break;
+			default:
+				setcolor = qtrue;
+		}
+
+		switch (pStage->alphaGen)
+		{
+			case AGEN_SKIP:
+			case AGEN_IDENTITY:
+			case AGEN_LIGHTING_SPECULAR:
+			case AGEN_VERTEX:
+			case AGEN_ONE_MINUS_VERTEX:
+			case AGEN_PORTAL:
+				break;
+			default:
+				setcolor = qtrue;
+		}
+
+		if (setcolor)
+		{
+			vec4_t color;
+
+			ComputeHelperColor (pStage, color);
+			GLSL_SetUniform_Color(sp, color);
+		}
+
+		if (pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
+		{
+			vec3_t vec;
+
+			VectorScale(backEnd.currentEntity->ambientLight, 1.0f / 255.0f, vec);
+			GLSL_SetUniform_AmbientLight(sp, vec);
+
+			VectorScale(backEnd.currentEntity->directedLight, 1.0f / 255.0f, vec);
+			GLSL_SetUniform_DirectedLight(sp, vec);
+			
+			GLSL_SetUniform_LightDir(sp, backEnd.currentEntity->lightDir);
+		}
+
+		if (pStage->alphaGen == AGEN_PORTAL)
+		{
+			GLSL_SetUniform_PortalRange(sp, tess.shader->portalRange);
+		}
+
+		GLSL_SetUniform_ColorGen(sp, pStage->rgbGen);
+		GLSL_SetUniform_AlphaGen(sp, pStage->alphaGen);
+
+		if ( input->fogNum )
+		{
+			GLSL_SetUniform_FogAdjustColors(sp, pStage->adjustColorsForFog);
+		}
+		else
+		{
+			GLSL_SetUniform_FogAdjustColors(sp, 0);
+		}
+
+		//
+		// do multitexture
+		//
+		if ( pStage->bundle[1].image[0] != 0 )
+		{
+			DrawMultitexturedVBOGLSL( sp, input, stage );
+		}
+		else 
+		{
+			GLSL_SetUniform_TCGen0(sp, pStage->bundle[0].tcGen);
+			if (pStage->bundle[0].tcGen == TCGEN_VECTOR)
+			{
+				vec4_t vector;
+
+				VectorCopy(pStage->bundle[0].tcGenVectors[0], vector);
+				vector[3] = 0.0f;
+				GLSL_SetUniform_TCGen0Vector0(sp, vector);
+				VectorCopy(pStage->bundle[0].tcGenVectors[1], vector);
+				GLSL_SetUniform_TCGen0Vector1(sp, vector);
+			}
+
+			ComputeTexMatrix( pStage, 0, matrix );
+			GLSL_SetUniform_Texture0Matrix(sp, matrix);
+
+			//
+			// set state
+			//
+			if ( pStage->bundle[0].vertexLightmap && ( (r_vertexLight->integer && !r_uiFullScreen->integer) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer )
+			{
+				GL_Bind( tr.whiteImage );
+			}
+			else 
+				R_BindAnimatedImage( &pStage->bundle[0] );
+
+			GLSL_SetUniform_Texture1Env(sp, 0);
+
+			//
+			// draw
+			//
+
+			if (input->multiDrawPrimitives)
+			{
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+			}
+			else
+			{
+				R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+			}
+		}
+	
+		// allow skipping out to show just lightmaps during development
+		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap ) )
+		{
+			break;
+		}
+	}
+}
+
+
+/*
 ** RB_StageIteratorGeneric
 */
 void RB_StageIteratorGeneric( void )
@@ -1176,6 +2596,11 @@ void RB_StageIteratorGeneric( void )
 	shaderCommands_t *input;
 
 	input = &tess;
+	
+	if (!input->numVertexes || !input->numIndexes)
+	{
+		return;
+	}
 
 	RB_DeformTessGeometry();
 
@@ -1283,12 +2708,132 @@ void RB_StageIteratorGeneric( void )
 
 
 /*
+** RB_StageIteratorGenericVBO
+*/
+void RB_StageIteratorGenericVBO( void )
+{
+	shaderCommands_t *input;
+	unsigned int vertexAttribs = 0;
+
+	input = &tess;
+	
+	if (!input->numVertexes || !input->numIndexes)
+	{
+		return;
+	}
+
+	if (tess.useInternalVBO)
+	{
+		RB_DeformTessGeometry();
+	}
+
+	vertexAttribs = RB_CalcShaderVertexAttribs( input );
+
+	if (tess.useInternalVBO)
+	{
+		RB_UpdateVBOs(vertexAttribs);
+	}
+	else
+	{
+		backEnd.pc.c_staticVboDraws++;
+	}
+
+	//
+	// log this call
+	//
+	if ( r_logFile->integer ) 
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment( va("--- RB_StageIteratorGenericVBO( %s ) ---\n", tess.shader->name) );
+	}
+
+	//
+	// set face culling appropriately
+	//
+	GL_Cull( input->shader->cullType );
+
+	// set polygon offset if necessary
+	if ( input->shader->polygonOffset )
+	{
+		qglEnable( GL_POLYGON_OFFSET_FILL );
+		qglPolygonOffset( r_offsetFactor->value, r_offsetUnits->value );
+	}
+
+	//
+	// Set vertex attribs and pointers
+	//
+	if (glRefConfig.glsl && r_arb_shader_objects->integer)
+	{
+		GLSL_VertexAttribsState(vertexAttribs);
+	}
+
+
+	//
+	// call shader function
+	//
+	if (glRefConfig.glsl && r_arb_shader_objects->integer)
+	{
+		RB_IterateStagesGenericVBOGLSL( input );
+	}
+	else
+	{
+		RB_IterateStagesGenericVBO( input );
+	}
+
+	// 
+	// now do any dynamic lighting needed
+	//
+	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
+		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+		if (glRefConfig.glsl && r_arb_shader_objects->integer)
+		{
+			ProjectDlightTextureVBOGLSL();
+		}
+		else
+		{
+			// FIXME
+		}
+	}
+
+	//
+	// now do fog
+	//
+	if ( tess.fogNum && tess.shader->fogPass ) {
+		if (glRefConfig.glsl && r_arb_shader_objects->integer)
+		{
+			RB_FogPassVBOGLSL();
+		}
+		else
+		{
+			// FIXME: figure out a way to do fog without GLSL
+		}
+	}
+
+	//
+	// reset polygon offset
+	//
+	if ( input->shader->polygonOffset )
+	{
+		qglDisable( GL_POLYGON_OFFSET_FILL );
+	}
+}
+
+
+/*
 ** RB_StageIteratorVertexLitTexture
 */
 void RB_StageIteratorVertexLitTexture( void )
 {
 	shaderCommands_t *input;
 	shader_t		*shader;
+
+	if(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+	{
+		//R_BindNullVBO();
+		//R_BindNullIBO();
+		return;
+	}
 
 	input = &tess;
 
@@ -1365,6 +2910,13 @@ void RB_StageIteratorVertexLitTexture( void )
 
 void RB_StageIteratorLightmappedMultitexture( void ) {
 	shaderCommands_t *input;
+
+	if(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+	{
+		//R_BindNullVBO();
+		//R_BindNullIBO();
+		return;
+	}
 
 	input = &tess;
 
@@ -1473,7 +3025,7 @@ void RB_EndSurface( void ) {
 
 	input = &tess;
 
-	if (input->numIndexes == 0) {
+	if (input->numIndexes == 0 || input->numVertexes == 0) {
 		return;
 	}
 
@@ -1516,8 +3068,18 @@ void RB_EndSurface( void ) {
 	if ( r_shownormals->integer ) {
 		DrawNormals (input);
 	}
+
+	if (glRefConfig.vertexBufferObject)
+	{
+		//R_BindNullVBO();
+		//R_BindNullIBO();
+	}
+
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+	tess.firstIndex = 0;
+	tess.multiDrawPrimitives = 0;
 
 	GLimp_LogComment( "----------\n" );
 }

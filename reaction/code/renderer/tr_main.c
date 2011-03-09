@@ -45,12 +45,104 @@ surfaceType_t	entitySurface = SF_ENTITY;
 
 /*
 =================
+R_FindSurfaceTriangleWithEdge
+Tr3B - recoded from Q2E
+=================
+*/
+static int R_FindSurfaceTriangleWithEdge(int numTriangles, srfTriangle_t * triangles, int start, int end, int ignore)
+{
+	srfTriangle_t  *tri;
+	int             count, match;
+	int             i;
+
+	count = 0;
+	match = -1;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		if((tri->indexes[0] == start && tri->indexes[1] == end) ||
+		   (tri->indexes[1] == start && tri->indexes[2] == end) || (tri->indexes[2] == start && tri->indexes[0] == end))
+		{
+			if(i != ignore)
+			{
+				match = i;
+			}
+
+			count++;
+		}
+		else if((tri->indexes[1] == start && tri->indexes[0] == end) ||
+				(tri->indexes[2] == start && tri->indexes[1] == end) || (tri->indexes[0] == start && tri->indexes[2] == end))
+		{
+			count++;
+		}
+	}
+
+	// detect edges shared by three triangles and make them seams
+	if(count > 2)
+	{
+		match = -1;
+	}
+
+	return match;
+}
+
+
+/*
+=================
+R_CalcSurfaceTriangleNeighbors
+Tr3B - recoded from Q2E
+=================
+*/
+void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles)
+{
+	int             i;
+	srfTriangle_t  *tri;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		tri->neighbors[0] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[1], tri->indexes[0], i);
+		tri->neighbors[1] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[2], tri->indexes[1], i);
+		tri->neighbors[2] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[0], tri->indexes[2], i);
+	}
+}
+
+/*
+=================
+R_CalcSurfaceTrianglePlanes
+=================
+*/
+void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts)
+{
+	int             i;
+	srfTriangle_t  *tri;
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		float          *v1, *v2, *v3;
+		vec3_t          d1, d2;
+
+		v1 = verts[tri->indexes[0]].xyz;
+		v2 = verts[tri->indexes[1]].xyz;
+		v3 = verts[tri->indexes[2]].xyz;
+
+		VectorSubtract(v2, v1, d1);
+		VectorSubtract(v3, v1, d2);
+
+		CrossProduct(d2, d1, tri->plane);
+		tri->plane[3] = DotProduct(tri->plane, v1);
+	}
+}
+
+
+/*
+=================
 R_CullLocalBox
 
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox (vec3_t bounds[2]) {
+int R_CullLocalBox(vec3_t localBounds[2]) {
+#if 0
 	int		i, j;
 	vec3_t	transformed[8];
 	float	dists[8];
@@ -104,6 +196,75 @@ int R_CullLocalBox (vec3_t bounds[2]) {
 	}
 
 	return CULL_CLIP;		// partially clipped
+#else
+	int             j;
+	vec3_t          transformed;
+	vec3_t          v;
+	vec3_t          worldBounds[2];
+
+	if(r_nocull->integer)
+	{
+		return CULL_CLIP;
+	}
+
+	// transform into world space
+	ClearBounds(worldBounds[0], worldBounds[1]);
+
+	for(j = 0; j < 8; j++)
+	{
+		v[0] = localBounds[j & 1][0];
+		v[1] = localBounds[(j >> 1) & 1][1];
+		v[2] = localBounds[(j >> 2) & 1][2];
+
+		R_LocalPointToWorld(v, transformed);
+
+		AddPointToBounds(transformed, worldBounds[0], worldBounds[1]);
+	}
+
+	return R_CullBox(worldBounds);
+#endif
+}
+
+/*
+=================
+R_CullBox
+
+Returns CULL_IN, CULL_CLIP, or CULL_OUT
+=================
+*/
+int R_CullBox(vec3_t worldBounds[2]) {
+	int             i;
+	cplane_t       *frust;
+	qboolean        anyClip;
+	int             r;
+
+	// check against frustum planes
+	anyClip = qfalse;
+	for(i = 0; i < 4 /*FRUSTUM_PLANES*/; i++)
+	{
+		frust = &tr.viewParms.frustum[i];
+
+		r = BoxOnPlaneSide(worldBounds[0], worldBounds[1], frust);
+
+		if(r == 2)
+		{
+			// completely outside frustum
+			return CULL_OUT;
+		}
+		if(r == 3)
+		{
+			anyClip = qtrue;
+		}
+	}
+
+	if(!anyClip)
+	{
+		// completely inside frustum
+		return CULL_IN;
+	}
+
+	// partially clipped
+	return CULL_CLIP;
 }
 
 /*
@@ -570,7 +731,7 @@ void R_SetupProjectionZ(viewParms_t *dest)
 {
 	float zNear, zFar, depth;
 	
-	zNear	= r_znear->value;
+	zNear = r_znear->value;
 	zFar	= dest->zFar;	
 	depth	= zFar - zNear;
 
@@ -578,6 +739,40 @@ void R_SetupProjectionZ(viewParms_t *dest)
 	dest->projectionMatrix[6] = 0;
 	dest->projectionMatrix[10] = -( zFar + zNear ) / depth;
 	dest->projectionMatrix[14] = -2 * zFar * zNear / depth;
+
+	if (dest->isPortal)
+	{
+		float	plane[4];
+		float	plane2[4];
+		vec4_t q, c;
+
+		// transform portal plane into camera space
+		plane[0] = dest->portalPlane.normal[0];
+		plane[1] = dest->portalPlane.normal[1];
+		plane[2] = dest->portalPlane.normal[2];
+		plane[3] = dest->portalPlane.dist;
+
+		plane2[0] = -DotProduct (dest->or.axis[1], plane);
+		plane2[1] = DotProduct (dest->or.axis[2], plane);
+		plane2[2] = -DotProduct (dest->or.axis[0], plane);
+		plane2[3] = DotProduct (plane, dest->or.origin) - plane[3];
+
+		// Lengyel, Eric. “Modifying the Projection Matrix to Perform Oblique Near-plane Clipping”.
+		// Terathon Software 3D Graphics Library, 2004. http://www.terathon.com/code/oblique.html
+		q[0] = (SGN(plane2[0]) + dest->projectionMatrix[8]) / dest->projectionMatrix[0];
+		q[1] = (SGN(plane2[1]) + dest->projectionMatrix[9]) / dest->projectionMatrix[5];
+		q[2] = -1.0f;
+		q[3] = (1.0f + dest->projectionMatrix[10]) / dest->projectionMatrix[14];
+
+		VectorScale4(plane2, 2.0f / DotProduct4(plane2, q), c);
+
+		dest->projectionMatrix[2]  = c[0];
+		dest->projectionMatrix[6]  = c[1];
+		dest->projectionMatrix[10] = c[2] + 1.0f;
+		dest->projectionMatrix[14] = c[3];
+
+	}
+
 }
 
 /*
@@ -622,7 +817,7 @@ R_PlaneForSurface
 void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	srfTriangles_t	*tri;
 	srfPoly_t		*poly;
-	drawVert_t		*v1, *v2, *v3;
+	srfVert_t		*v1, *v2, *v3;
 	vec4_t			plane4;
 
 	if (!surfType) {
@@ -636,9 +831,9 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 		return;
 	case SF_TRIANGLES:
 		tri = (srfTriangles_t *)surfType;
-		v1 = tri->verts + tri->indexes[0];
-		v2 = tri->verts + tri->indexes[1];
-		v3 = tri->verts + tri->indexes[2];
+		v1 = tri->verts + tri->triangles[0].indexes[0];
+		v2 = tri->verts + tri->triangles[0].indexes[1];
+		v3 = tri->verts + tri->triangles[0].indexes[2];
 		PlaneFromPoints( plane4, v1->xyz, v2->xyz, v3->xyz );
 		VectorCopy( plane4, plane->normal ); 
 		plane->dist = plane4[3];
@@ -1314,6 +1509,8 @@ R_DebugPolygon
 ================
 */
 void R_DebugPolygon( int color, int numPoints, float *points ) {
+	// FIXME: implement this
+#if 0
 	int		i;
 
 	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
@@ -1337,6 +1534,7 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	}
 	qglEnd();
 	qglDepthRange( 0, 1 );
+#endif
 }
 
 /*

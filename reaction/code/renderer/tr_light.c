@@ -92,7 +92,7 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 
 	// set the dlight bits in all the surfaces
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
-		surf = bmodel->firstSurface + i;
+		surf = tr.world->surfaces + bmodel->firstSurface + i;
 
 		if ( *surf->data == SF_FACE ) {
 			((srfSurfaceFace_t *)surf->data)->dlightBits[ tr.smpFrame ] = mask;

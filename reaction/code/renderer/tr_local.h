@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
+#include "tr_extramath.h"
 #include "qgl.h"
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
@@ -40,6 +41,7 @@ long myftol( float f );
 #define	myftol(x) ((int)(x))
 #endif
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
@@ -56,6 +58,9 @@ long myftol( float f );
 
 // can't be increased without changing bit packing for drawsurfs
 
+#define MAX_VISCOUNTS				5
+#define MAX_VBOS					4096
+#define MAX_IBOS					4096
 
 typedef struct dlight_s {
 	vec3_t	origin;
@@ -109,6 +114,43 @@ typedef struct image_s {
 
 	struct image_s*	next;
 } image_t;
+
+typedef enum
+{
+	VBO_USAGE_STATIC,
+	VBO_USAGE_DYNAMIC
+} vboUsage_t;
+
+typedef struct VBO_s
+{
+	char            name[MAX_QPATH];
+
+	uint32_t        vertexesVBO;
+	int             vertexesSize;	// amount of memory data allocated for all vertices in bytes
+	uint32_t        ofs_xyz;
+	uint32_t        ofs_normal;
+	uint32_t        ofs_st;
+	uint32_t        ofs_lightmap;
+	uint32_t        ofs_vertexcolor;
+	uint32_t        stride_xyz;
+	uint32_t        stride_normal;
+	uint32_t        stride_st;
+	uint32_t        stride_lightmap;
+	uint32_t        stride_vertexcolor;
+	uint32_t        size_xyz;
+	uint32_t        size_normal;
+
+	int             attribs;
+} VBO_t;
+
+typedef struct IBO_s
+{
+	char            name[MAX_QPATH];
+
+	uint32_t        indexesVBO;
+	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
+//  uint32_t        ofsIndexes;
+} IBO_t;
 
 //===============================================================================
 
@@ -175,6 +217,25 @@ typedef enum {
 	DEFORM_TEXT7
 } deform_t;
 
+// deformVertexes types that can be handled by the GPU
+typedef enum
+{
+	// do not edit: same as genFunc_t
+
+	DGEN_NONE,
+	DGEN_WAVE_SIN,
+	DGEN_WAVE_SQUARE,
+	DGEN_WAVE_TRIANGLE,
+	DGEN_WAVE_SAWTOOTH,
+	DGEN_WAVE_INVERSE_SAWTOOTH,
+	DGEN_WAVE_NOISE,
+
+	// do not edit until this line
+
+	DGEN_BULGE,
+	DGEN_MOVE
+} deformGen_t;
+
 typedef enum {
 	AGEN_IDENTITY,
 	AGEN_SKIP,
@@ -200,8 +261,17 @@ typedef enum {
 	CGEN_WAVEFORM,			// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,				// standard fog
-	CGEN_CONST				// fixed color
+	CGEN_CONST,				// fixed color
+	CGEN_DLIGHT
 } colorGen_t;
+
+typedef enum
+{
+	ATEST_NONE,
+	ATEST_GT_0,
+	ATEST_LT_128,
+	ATEST_GE_128
+} alphaTest_t;
 
 typedef enum {
 	TCGEN_BAD,
@@ -210,7 +280,8 @@ typedef enum {
 	TCGEN_TEXTURE,
 	TCGEN_ENVIRONMENT_MAPPED,
 	TCGEN_FOG,
-	TCGEN_VECTOR			// S and T from world coordinates
+	TCGEN_VECTOR,			// S and T from world coordinates
+	TCGEN_DLIGHT
 } texCoordGen_t;
 
 typedef enum {
@@ -381,6 +452,7 @@ typedef struct shader_s {
 	fogParms_t	fogParms;
 
 	float		portalRange;			// distance to fog out at
+	qboolean	isPortal;
 
 	int			multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
@@ -391,10 +463,7 @@ typedef struct shader_s {
 
 	fogPass_t	fogPass;				// draw a blended pass, possibly with depth test equals
 
-	qboolean	needsNormal;			// not all shaders will need all data to be gathered
-	qboolean	needsST1;
-	qboolean	needsST2;
-	qboolean	needsColor;
+	int         vertexAttribs;          // not all shaders will need all data to be gathered
 
 	int			numDeforms;
 	deformStage_t	deforms[MAX_SHADER_DEFORMS];
@@ -420,6 +489,29 @@ typedef struct shader_s {
 	struct	shader_s	*next;
 } shader_t;
 
+static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
+{
+	if(shader->numDeforms)
+	{
+		const deformStage_t *ds = &shader->deforms[0];
+
+		if (shader->numDeforms > 1)
+			return qtrue;
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+			case DEFORM_BULGE:
+				return qfalse;
+
+			default:
+				return qtrue;
+		}
+	}
+
+	return qfalse;
+}
+
 typedef struct shaderState_s {
   char shaderName[MAX_QPATH];     // name of shader this state belongs to
   char name[MAX_STATE_NAME];      // name of this state
@@ -427,6 +519,1000 @@ typedef struct shaderState_s {
   int cycleTime;                  // time this cycle lasts, <= 0 is forever
   shader_t *shader;
 } shaderState_t;
+
+enum
+{
+	ATTR_INDEX_POSITION       = 0,
+	ATTR_INDEX_TEXCOORD0      = 1,
+	ATTR_INDEX_TEXCOORD1      = 2,
+	ATTR_INDEX_TANGENT        = 3,
+	ATTR_INDEX_BINORMAL       = 4,
+	ATTR_INDEX_NORMAL         = 5,
+	ATTR_INDEX_COLOR          = 6,
+	ATTR_INDEX_PAINTCOLOR     = 7,
+	ATTR_INDEX_LIGHTDIRECTION = 8,
+	ATTR_INDEX_BONE_INDEXES   = 9,
+	ATTR_INDEX_BONE_WEIGHTS   = 10,
+
+	// GPU vertex animations
+	ATTR_INDEX_POSITION2      = 11,
+	ATTR_INDEX_TANGENT2       = 12,
+	ATTR_INDEX_BINORMAL2      = 13,
+	ATTR_INDEX_NORMAL2        = 14
+};
+
+enum
+{
+	GLS_SRCBLEND_ZERO					= (1 << 0),
+	GLS_SRCBLEND_ONE					= (1 << 1),
+	GLS_SRCBLEND_DST_COLOR				= (1 << 2),
+	GLS_SRCBLEND_ONE_MINUS_DST_COLOR	= (1 << 3),
+	GLS_SRCBLEND_SRC_ALPHA				= (1 << 4),
+	GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 5),
+	GLS_SRCBLEND_DST_ALPHA				= (1 << 6),
+	GLS_SRCBLEND_ONE_MINUS_DST_ALPHA	= (1 << 7),
+	GLS_SRCBLEND_ALPHA_SATURATE			= (1 << 8),
+
+	GLS_SRCBLEND_BITS					= GLS_SRCBLEND_ZERO
+											| GLS_SRCBLEND_ONE
+											| GLS_SRCBLEND_DST_COLOR
+											| GLS_SRCBLEND_ONE_MINUS_DST_COLOR
+											| GLS_SRCBLEND_SRC_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_SRCBLEND_DST_ALPHA
+											| GLS_SRCBLEND_ONE_MINUS_DST_ALPHA
+											| GLS_SRCBLEND_ALPHA_SATURATE,
+
+	GLS_DSTBLEND_ZERO					= (1 << 9),
+	GLS_DSTBLEND_ONE					= (1 << 10),
+	GLS_DSTBLEND_SRC_COLOR				= (1 << 11),
+	GLS_DSTBLEND_ONE_MINUS_SRC_COLOR	= (1 << 12),
+	GLS_DSTBLEND_SRC_ALPHA				= (1 << 13),
+	GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA	= (1 << 14),
+	GLS_DSTBLEND_DST_ALPHA				= (1 << 15),
+	GLS_DSTBLEND_ONE_MINUS_DST_ALPHA	= (1 << 16),
+
+	GLS_DSTBLEND_BITS					= GLS_DSTBLEND_ZERO
+											| GLS_DSTBLEND_ONE
+											| GLS_DSTBLEND_SRC_COLOR
+											| GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
+											| GLS_DSTBLEND_SRC_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+											| GLS_DSTBLEND_DST_ALPHA
+											| GLS_DSTBLEND_ONE_MINUS_DST_ALPHA,
+
+	GLS_DEPTHMASK_TRUE					= (1 << 17),
+
+	GLS_POLYMODE_LINE					= (1 << 18),
+
+	GLS_DEPTHTEST_DISABLE				= (1 << 19),
+
+	GLS_DEPTHFUNC_LESS					= (1 << 20),
+	GLS_DEPTHFUNC_EQUAL					= (1 << 21),
+
+	GLS_DEPTHFUNC_BITS					= GLS_DEPTHFUNC_LESS
+											| GLS_DEPTHFUNC_EQUAL,
+
+	GLS_ATEST_GT_0						= (1 << 22),
+	GLS_ATEST_LT_128					= (1 << 23),
+	GLS_ATEST_GE_128					= (1 << 24),
+//	GLS_ATEST_GE_CUSTOM					= (1 << 25),
+
+	GLS_ATEST_BITS						= GLS_ATEST_GT_0
+											| GLS_ATEST_LT_128
+											| GLS_ATEST_GE_128,
+//											| GLS_ATEST_GT_CUSTOM,
+
+	GLS_REDMASK_FALSE					= (1 << 26),
+	GLS_GREENMASK_FALSE					= (1 << 27),
+	GLS_BLUEMASK_FALSE					= (1 << 28),
+	GLS_ALPHAMASK_FALSE					= (1 << 29),
+
+	GLS_COLORMASK_BITS					= GLS_REDMASK_FALSE
+											| GLS_GREENMASK_FALSE
+											| GLS_BLUEMASK_FALSE
+											| GLS_ALPHAMASK_FALSE,
+
+	GLS_STENCILTEST_ENABLE				= (1 << 30),
+
+	GLS_DEFAULT							= GLS_DEPTHMASK_TRUE
+};
+
+enum
+{
+	ATTR_POSITION =       0x0001,
+	ATTR_TEXCOORD =       0x0002,
+	ATTR_LIGHTCOORD =     0x0004,
+	ATTR_TANGENT =        0x0008,
+	ATTR_BINORMAL =       0x0010,
+	ATTR_NORMAL =         0x0020,
+	ATTR_COLOR =          0x0040,
+	ATTR_PAINTCOLOR =     0x0080,
+	ATTR_LIGHTDIRECTION = 0x0100,
+	ATTR_BONE_INDEXES =   0x0200,
+	ATTR_BONE_WEIGHTS =   0x0400,
+
+	// for .md3 interpolation
+	ATTR_POSITION2 =      0x0800,
+	ATTR_TANGENT2 =       0x1000,
+	ATTR_BINORMAL2 =      0x2000,
+	ATTR_NORMAL2 =        0x4000,
+
+	ATTR_DEFAULT = ATTR_POSITION,
+	ATTR_BITS =	ATTR_POSITION |
+				ATTR_TEXCOORD |
+				ATTR_LIGHTCOORD |
+				ATTR_TANGENT |
+				ATTR_BINORMAL |
+				ATTR_NORMAL |
+				ATTR_COLOR |
+				ATTR_PAINTCOLOR |
+				ATTR_LIGHTDIRECTION |
+				ATTR_BONE_INDEXES |
+				ATTR_BONE_WEIGHTS |
+				ATTR_POSITION2 |
+				ATTR_TANGENT2 |
+				ATTR_BINORMAL2 |
+				ATTR_NORMAL2
+};
+
+enum
+{
+	GLSLDEF_USE_DEFORM_VERTEXES  = 0x0001,
+	GLSLDEF_USE_TCGEN            = 0x0002,
+	GLSLDEF_USE_VERTEX_ANIMATION = 0x0004,
+	GLSLDEF_USE_FOG              = 0x0008,
+	GLSLDEF_ALL                  = 0x000F,
+	GLSLDEF_COUNT                = 0x0010,
+};
+
+
+// Tr3B - shaderProgram_t represents a pair of one
+// GLSL vertex and one GLSL fragment shader
+typedef struct shaderProgram_s
+{
+	char            name[MAX_QPATH];
+
+	GLhandleARB     program;
+	GLhandleARB     vertexShader;
+	GLhandleARB     fragmentShader;
+	uint32_t        attribs;	// vertex array attributes
+
+	// uniform parameters
+	GLint           u_Texture0Map;
+	GLint           u_Texture1Map;
+	GLint           u_Texture2Map;
+	GLint           u_Texture3Map;
+
+	GLint           u_PortalRange;
+	float			t_PortalRange;
+
+	GLint           u_FogAdjustColors;
+	int				t_FogAdjustColors;
+
+	GLint           u_FogDistance;
+	vec4_t			t_FogDistance;
+
+	GLint           u_FogDepth;
+	vec4_t			t_FogDepth;
+
+	GLint           u_FogEyeT;
+	float			t_FogEyeT;
+
+	GLint           u_ModelMatrix;	// model -> world
+	matrix_t		t_ModelMatrix;
+
+	GLint           u_ModelViewProjectionMatrix;
+	matrix_t		t_ModelViewProjectionMatrix;
+
+	GLint           u_AlphaTest;
+	alphaTest_t		t_AlphaTest;
+
+	GLint           u_ColorGen;
+	colorGen_t		t_ColorGen;
+
+	GLint           u_AlphaGen;
+	alphaGen_t		t_AlphaGen;
+
+	GLint           u_TCGen0;
+	texCoordGen_t	t_TCGen0;
+
+	GLint           u_TCGen1;
+	texCoordGen_t	t_TCGen1;
+
+	GLint			u_TCGen0Vector0;
+	vec4_t			t_TCGen0Vector0;
+
+	GLint			u_TCGen0Vector1;
+	vec4_t			t_TCGen0Vector1;
+
+	GLint			u_TCGen1Vector0;
+	vec4_t			t_TCGen1Vector0;
+
+	GLint			u_TCGen1Vector1;
+	vec4_t			t_TCGen1Vector1;
+
+	GLint           u_DeformGen;
+	deformGen_t		t_DeformGen;
+
+	GLint           u_DeformWave;
+	vec4_t			t_DeformWave;
+
+	GLint           u_DeformBulge;
+	vec3_t			t_DeformBulge;
+
+	GLint           u_DeformSpread;
+	float			t_DeformSpread;
+
+	GLint           u_Time;
+	float			t_Time;
+
+	GLint           u_Color;
+	vec4_t			t_Color;
+
+	GLint           u_AmbientLight;
+	vec3_t			t_AmbientLight;
+
+	GLint           u_DirectedLight;
+	vec3_t			t_DirectedLight;
+
+	GLint           u_LightDir;
+	vec3_t			t_LightDir;
+
+	GLint           u_ViewOrigin;
+	vec4_t			t_ViewOrigin;
+
+	GLint			u_Texture0Matrix;
+	matrix_t		t_Texture0Matrix;
+
+	GLint			u_Texture1Matrix;
+	matrix_t		t_Texture1Matrix;
+
+	GLint           u_Texture1Env;
+	uint32_t		t_Texture1Env;
+
+	GLint			u_Texture2Matrix;
+	matrix_t		t_Texture2Matrix;
+
+	GLint			u_Texture3Matrix;
+	matrix_t		t_Texture3Matrix;
+
+	GLint           u_VertexLerp;
+	float           t_VertexLerp;
+
+} shaderProgram_t;
+
+
+//
+// Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
+#define USE_UNIFORM_FIREWALL 1
+//#define LOG_GLSL_UNIFORMS 1
+
+#if defined(LOG_GLSL_UNIFORMS)
+extern cvar_t  *r_logFile;		// number of frames to emit GL logs
+void            GLimp_LogComment(char *comment);
+#define GLimp_LogUniformComment(...) GLimp_LogComment(__VA_ARGS__)
+#else
+#define GLimp_LogUniformComment(...)
+#endif
+
+// *INDENT-OFF*
+
+static ID_INLINE void GLSL_SetUniform_Texture0Matrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_Texture0Matrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_Texture0Matrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_Texture0Matrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture0Matrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_Texture0Matrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_Texture1Matrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_Texture1Matrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_Texture1Matrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_Texture1Matrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture1Matrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_Texture1Matrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_Texture1Env(shaderProgram_t * program, uint32_t env)
+{
+	uint32_t value;
+
+	if (program->u_Texture1Env == -1)
+		return;
+
+	switch ( env )
+	{
+	case GL_MODULATE:
+		value = 1;
+		break;
+	case GL_REPLACE:
+		value = 2;
+		break;
+	case GL_DECAL:
+		value = 3;
+		break;
+	case GL_ADD:
+		value = 4;
+		break;
+	default:
+		value = 0;
+		break;
+	}
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_Texture1Env == value)
+		return;
+
+	program->t_Texture1Env = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture1Env( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_Texture1Env, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_Texture2Matrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_Texture2Matrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_Texture2Matrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_Texture2Matrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture2Matrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_Texture2Matrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_Texture3Matrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_Texture3Matrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_Texture3Matrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_Texture3Matrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture3Matrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_Texture3Matrix, 1, GL_FALSE, m);
+}
+
+
+static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint32_t stateBits)
+{
+	alphaTest_t			value;
+
+	if (program->u_AlphaTest == -1)
+		return;
+
+	switch (stateBits & GLS_ATEST_BITS)
+	{
+		case GLS_ATEST_GT_0:
+			value = ATEST_GT_0;
+			break;
+
+		case GLS_ATEST_LT_128:
+			value = ATEST_LT_128;
+			break;
+
+		case GLS_ATEST_GE_128:
+			value = ATEST_GE_128;
+			break;
+
+		default:
+			value = ATEST_NONE;
+			break;
+	}
+
+	// don't just call LogComment, or we will get
+	// a call to va() every frame!
+	GLimp_LogUniformComment(va("--- GLSL_SetUniformAlphaTest( program = %s, value = %i ) ---\n", program->name, value));
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_AlphaTest == value)
+		return;
+
+	program->t_AlphaTest = value;
+#endif
+
+	qglUniform1iARB(program->u_AlphaTest, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, const vec3_t v)
+{
+	if (program->u_ViewOrigin == -1)
+		return;
+
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_ViewOrigin, v))
+		return;
+
+	VectorCopy(v, program->t_ViewOrigin);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ViewOrigin( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+
+	qglUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_TCGen0(shaderProgram_t * program, texCoordGen_t value)
+{
+	if (program->u_TCGen0 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_TCGen0 == value)
+		return;
+
+	program->t_TCGen0 = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_TCGen0, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_TCGen1(shaderProgram_t * program, texCoordGen_t value)
+{
+	if (program->u_TCGen1 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_TCGen1 == value)
+		return;
+
+	program->t_TCGen1 = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_TCGen1, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_TCGen0Vector0(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_TCGen0Vector0 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_TCGen0Vector0, v))
+		return;
+
+	VectorCopy(v, program->t_TCGen0Vector0);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen0Vector0( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_TCGen0Vector0, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_TCGen0Vector1(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_TCGen0Vector1 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_TCGen0Vector1, v))
+		return;
+
+	VectorCopy(v, program->t_TCGen0Vector1);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen0Vector1( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_TCGen0Vector1, v[0], v[1], v[2], v[3]);
+}
+static ID_INLINE void GLSL_SetUniform_TCGen1Vector0(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_TCGen1Vector0 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_TCGen1Vector0, v))
+		return;
+
+	VectorCopy(v, program->t_TCGen1Vector0);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen1Vector0( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_TCGen1Vector0, v[0], v[1], v[2], v[3]);
+}
+static ID_INLINE void GLSL_SetUniform_TCGen1Vector1(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_TCGen1Vector1 == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_TCGen1Vector1, v))
+		return;
+
+	VectorCopy(v, program->t_TCGen1Vector1);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen1Vector1( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_TCGen1Vector1, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformGen(shaderProgram_t * program, deformGen_t value)
+{
+	if (program->u_DeformGen == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_DeformGen == value)
+		return;
+
+	program->t_DeformGen = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformGen( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_DeformGen, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformWave(shaderProgram_t * program, const waveForm_t * wf)
+{
+	vec4_t v;
+
+	if (program->u_DeformWave == -1)
+		return;
+
+	VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_DeformWave, v))
+		return;
+
+	VectorCopy4(v, program->t_DeformWave);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformWave( program = %s, wave form = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_DeformWave, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformBulge(shaderProgram_t * program, const deformStage_t * ds)
+{
+	vec3_t v;
+
+	if (program->u_DeformBulge == -1)
+		return;
+
+	VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_DeformBulge, v))
+		return;
+
+	VectorCopy(v, program->t_DeformBulge);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformBulge( program = %s, bulge = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+
+	qglUniform3fARB(program->u_DeformBulge, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DeformSpread(shaderProgram_t * program, float value)
+{
+	if (program->u_DeformSpread == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_DeformSpread == value)
+		return;
+
+	program->t_DeformSpread = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformSpread( program = %s, value = %f ) ---\n", program->name, value));
+
+	qglUniform1fARB(program->u_DeformSpread, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
+{
+#if 0
+	float			floatValue;
+
+	switch (value)
+	{
+		case CGEN_VERTEX:
+			floatValue = 1.0f;
+			break;
+
+		case CGEN_ONE_MINUS_VERTEX:
+			floatValue = -1.0f;
+			break;
+
+		default:
+			floatValue = 0.0f;
+			break;
+	}
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_ColorGen == floatValue)
+		return;
+
+	program->t_ColorGen = floatValue;
+#endif
+
+	qglUniform1fARB(program->u_ColorGen, floatValue);
+#else
+	if (program->u_ColorGen == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_ColorGen == value)
+		return;
+
+	program->t_ColorGen = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ColorGen( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_ColorGen, value);
+#endif
+}
+
+static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaGen_t value)
+{
+#if 0
+	float			floatValue;
+
+	switch (value)
+	{
+		case AGEN_VERTEX:
+			floatValue = 1.0f;
+			break;
+
+		case AGEN_ONE_MINUS_VERTEX:
+			floatValue = -1.0f;
+			break;
+
+		default:
+			floatValue = 0.0f;
+			break;
+	}
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_AlphaGen == floatValue)
+		return;
+
+	program->t_AlphaGen = floatValue;
+#endif
+
+	qglUniform1fARB(program->u_AlphaGen, floatValue);
+
+#else
+#if defined(USE_UNIFORM_FIREWALL)
+	if (program->u_AlphaGen == -1)
+		return;
+
+	if(program->t_AlphaGen == value)
+		return;
+
+	program->t_AlphaGen = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_AlphaGen( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_AlphaGen, value);
+#endif
+}
+
+static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_Color == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_Color, v))
+		return;
+
+	VectorCopy4(v, program->t_Color);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Color( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
+}
+
+
+static ID_INLINE void GLSL_SetUniform_AmbientLight(shaderProgram_t * program, const vec3_t v)
+{
+	if (program->u_AmbientLight == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_AmbientLight, v))
+		return;
+
+	VectorCopy(v, program->t_AmbientLight);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_AmbientLight( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+
+	qglUniform3fARB(program->u_AmbientLight, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_DirectedLight(shaderProgram_t * program, const vec3_t v)
+{
+	if (program->u_DirectedLight == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_DirectedLight, v))
+		return;
+
+	VectorCopy(v, program->t_DirectedLight);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DirectedLight( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+
+	qglUniform3fARB(program->u_DirectedLight, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_LightDir(shaderProgram_t * program, const vec3_t v)
+{
+	if (program->u_LightDir == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare(program->t_LightDir, v))
+		return;
+
+	VectorCopy(v, program->t_LightDir);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_LightDir( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
+
+	qglUniform3fARB(program->u_LightDir, v[0], v[1], v[2]);
+}
+
+static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, float value)
+{
+	if (program->u_PortalRange == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_PortalRange == value)
+		return;
+
+	program->t_PortalRange = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_PortalRange( program = %s, value = %f ) ---\n", program->name, value));
+
+	qglUniform1fARB(program->u_PortalRange, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_FogDistance(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_FogDistance == -1)
+		return;
+
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_FogDistance, v))
+		return;
+
+	VectorCopy(v, program->t_FogDistance);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniformFogDistance( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_FogDistance, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_FogDepth(shaderProgram_t * program, const vec4_t v)
+{
+	if (program->u_FogDepth == -1)
+		return;
+
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(VectorCompare4(program->t_FogDepth, v))
+		return;
+
+	VectorCopy(v, program->t_FogDepth);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniformFogDepth( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+
+	qglUniform4fARB(program->u_FogDepth, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_FogEyeT(shaderProgram_t * program, float value)
+{
+	if (program->u_FogEyeT == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_FogEyeT == value)
+		return;
+
+	program->t_FogEyeT = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
+
+	qglUniform1fARB(program->u_FogEyeT, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_FogAdjustColors(shaderProgram_t * program, int value)
+{
+	if (program->u_FogAdjustColors == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_FogAdjustColors == value)
+		return;
+
+	program->t_FogAdjustColors = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_FogAdjustColors( program = %s, value = %i ) ---\n", program->name, value));
+
+	qglUniform1iARB(program->u_FogAdjustColors, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_ModelMatrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_ModelMatrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_ModelMatrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ModelMatrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t * program, const matrix_t m)
+{
+	if (program->u_ModelViewProjectionMatrix == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Matrix16Compare(program->t_ModelViewProjectionMatrix, m))
+		return;
+
+	Matrix16Copy(m, program->t_ModelViewProjectionMatrix);
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ModelViewProjectionMatrix( program = %s, "
+							   "matrix = \n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
+							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
+							program->name,
+							m[0], m[4], m[8], m[12],
+							m[1], m[5], m[9], m[13],
+							m[2], m[6], m[10], m[14],
+							m[3], m[7], m[11], m[15]));
+
+	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
+}
+
+static ID_INLINE void GLSL_SetUniform_Time(shaderProgram_t * program, float value)
+{
+	if (program->u_Time == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_Time == value)
+		return;
+
+	program->t_Time = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Time( program = %s, value = %f ) ---\n", program->name, value));
+
+	qglUniform1fARB(program->u_Time, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_VertexLerp(shaderProgram_t * program, float value)
+{
+	if (program->u_VertexLerp == -1)
+		return;
+
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_VertexLerp == value)
+		return;
+
+	program->t_VertexLerp = value;
+#endif
+
+	GLimp_LogUniformComment(va("--- GLSL_SetUniform_VertexLerp( program = %s, value = %f ) ---\n", program->name, value));
+
+	qglUniform1fARB(program->u_VertexLerp, value);
+}
 
 
 // trRefdef_t holds everything that comes in refdef_t,
@@ -521,6 +1607,7 @@ SURFACES
 
 ==============================================================================
 */
+typedef byte color4ub_t[4];
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
 typedef enum {
@@ -530,7 +1617,7 @@ typedef enum {
 	SF_GRID,
 	SF_TRIANGLES,
 	SF_POLY,
-	SF_MD3,
+	SF_MDV,
 	SF_MD4,
 #ifdef RAVENMD4
 	SF_MDR,
@@ -538,6 +1625,8 @@ typedef enum {
 	SF_FLARE,
 	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
+	SF_VBO_MESH,
+	SF_VBO_MDVMESH,
 
 	SF_NUM_SURFACE_TYPES,
 	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
@@ -576,8 +1665,34 @@ typedef struct srfFlare_s {
 	vec3_t			color;
 } srfFlare_t;
 
-typedef struct srfGridMesh_s {
-	surfaceType_t	surfaceType;
+typedef struct
+{
+	vec3_t          xyz;
+	vec2_t          st;
+	vec2_t          lightmap;
+	vec3_t          normal;
+	color4ub_t      vertexColors;
+
+#if DEBUG_OPTIMIZEVERTICES
+	unsigned int    id;
+#endif
+} srfVert_t;
+
+#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
+
+typedef struct
+{
+	int             indexes[3];
+	int             neighbors[3];
+	vec4_t          plane;
+	qboolean        facingLight;
+	qboolean        degenerated;
+} srfTriangle_t;
+
+
+typedef struct srfGridMesh_s
+{
+	surfaceType_t   surfaceType;
 
 	// dynamic lighting information
 	int				dlightBits[SMP_FRAMES];
@@ -599,48 +1714,117 @@ typedef struct srfGridMesh_s {
 	int				width, height;
 	float			*widthLodError;
 	float			*heightLodError;
-	drawVert_t		verts[1];		// variable sized
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+	int             numVerts;
+	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstIndex;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfGridMesh_t;
 
 
-
-#define	VERTEXSIZE	8
-typedef struct {
-	surfaceType_t	surfaceType;
-	cplane_t	plane;
+typedef struct
+{
+	surfaceType_t   surfaceType;
 
 	// dynamic lighting information
 	int			dlightBits[SMP_FRAMES];
 
-	// triangle definitions (no normals at points)
-	int			numPoints;
-	int			numIndices;
-	int			ofsIndices;
-	float		points[1][VERTEXSIZE];	// variable sized
-										// there is a variable length list of indices here also
+	// culling information
+	cplane_t        plane;
+	vec3_t          bounds[2];
+
+	// triangle definitions
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+	int             numVerts;
+	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstIndex;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfSurfaceFace_t;
 
 
-// misc_models in maps are turned into direct geometry by q3map
-typedef struct {
-	surfaceType_t	surfaceType;
+// misc_models in maps are turned into direct geometry by xmap
+typedef struct
+{
+	surfaceType_t   surfaceType;
 
 	// dynamic lighting information
-	int				dlightBits[SMP_FRAMES];
+	int			dlightBits[SMP_FRAMES];
 
-	// culling information (FIXME: use this!)
-	vec3_t			bounds[2];
-	vec3_t			localOrigin;
-	float			radius;
+	// culling information
+	vec3_t          bounds[2];
 
 	// triangle definitions
-	int				numIndexes;
-	int				*indexes;
+	int             numTriangles;
+	srfTriangle_t  *triangles;
 
-	int				numVerts;
-	drawVert_t		*verts;
+	int             numVerts;
+	srfVert_t      *verts;
+
+	// BSP VBO offsets
+	int             firstVert;
+	int             firstIndex;
+
+	// static render data
+	VBO_t          *vbo;		// points to bsp model VBO
+	IBO_t          *ibo;
 } srfTriangles_t;
 
+
+typedef struct srfVBOMesh_s
+{
+	surfaceType_t   surfaceType;
+
+	struct shader_s *shader;	// FIXME move this to somewhere else
+	int				fogIndex;
+
+	// dynamic lighting information
+	int			dlightBits[SMP_FRAMES];
+
+	// culling information
+	vec3_t          bounds[2];
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+	int				firstIndex;
+
+	// static render data
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+} srfVBOMesh_t;
+
+typedef struct srfVBOMDVMesh_s
+{
+	surfaceType_t   surfaceType;
+
+	struct mdvModel_s *mdvModel;
+	struct mdvSurface_s *mdvSurface;
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+
+	// static render data
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+} srfVBOMDVMesh_t;
 
 extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
@@ -661,21 +1845,34 @@ BRUSH MODELS
 #define	SIDE_BACK	1
 #define	SIDE_ON		2
 
+#define CULLINFO_NONE   0
+#define CULLINFO_BOX    1
+#define CULLINFO_SPHERE 2
+#define CULLINFO_PLANE  4
+
+typedef struct cullinfo_s {
+	int             type;
+	vec3_t          bounds[2];
+	vec3_t			localOrigin;
+	float			radius;
+	cplane_t        plane;
+} cullinfo_t;
+
 typedef struct msurface_s {
-	int					viewCount;		// if == tr.viewCount, already added
+	//int					viewCount;		// if == tr.viewCount, already added
 	struct shader_s		*shader;
 	int					fogIndex;
+	cullinfo_t          cullinfo;
 
 	surfaceType_t		*data;			// any of srf*_t
 } msurface_t;
-
 
 
 #define	CONTENTS_NODE		-1
 typedef struct mnode_s {
 	// common with leaf and node
 	int			contents;		// -1 for nodes, to differentiate from leafs
-	int			visframe;		// node needs to be traversed if current
+	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	vec3_t		mins, maxs;		// for bounding box culling
 	struct mnode_s	*parent;
 
@@ -687,13 +1884,13 @@ typedef struct mnode_s {
 	int			cluster;
 	int			area;
 
-	msurface_t	**firstmarksurface;
+	int         firstmarksurface;
 	int			nummarksurfaces;
 } mnode_t;
 
 typedef struct {
 	vec3_t		bounds[2];		// for culling
-	msurface_t	*firstSurface;
+	int	        firstSurface;
 	int			numSurfaces;
 } bmodel_t;
 
@@ -706,6 +1903,7 @@ typedef struct {
 	int			numShaders;
 	dshader_t	*shaders;
 
+	int			numBModels;
 	bmodel_t	*bmodels;
 
 	int			numplanes;
@@ -715,11 +1913,33 @@ typedef struct {
 	int			numDecisionNodes;
 	mnode_t		*nodes;
 
+	int             numVerts;
+	srfVert_t      *verts;
+	int             redundantVertsCalculationNeeded;
+	int            *redundantLightVerts;	// util to optimize IBOs
+	int            *redundantShadowVerts;
+	int            *redundantShadowAlphaTestVerts;
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+	int         numWorldSurfaces;
+
 	int			numsurfaces;
 	msurface_t	*surfaces;
+	int         *surfacesViewCount;
+	int         *surfacesDlightBits;
+
+	int			numMergedSurfaces;
+	msurface_t	*mergedSurfaces;
+	int         *mergedSurfacesViewCount;
+	int         *mergedSurfacesDlightBits;
 
 	int			nummarksurfaces;
-	msurface_t	**marksurfaces;
+	int         *marksurfaces;
+	int         *viewSurfaces;
 
 	int			numfogs;
 	fog_t		*fogs;
@@ -741,6 +1961,79 @@ typedef struct {
 	char		*entityParsePoint;
 } world_t;
 
+
+/*
+==============================================================================
+MDV MODELS - meta format for vertex animation models like .md2, .md3, .mdc
+==============================================================================
+*/
+typedef struct
+{
+	float           bounds[2][3];
+	float           localOrigin[3];
+	float           radius;
+} mdvFrame_t;
+
+typedef struct
+{
+	float           origin[3];
+	float           axis[3][3];
+} mdvTag_t;
+
+typedef struct
+{
+	char            name[MAX_QPATH];	// tag name
+} mdvTagName_t;
+
+typedef struct
+{
+	vec3_t          xyz;
+	vec3_t          normal;
+} mdvVertex_t;
+
+typedef struct
+{
+	float           st[2];
+} mdvSt_t;
+
+typedef struct mdvSurface_s
+{
+	surfaceType_t   surfaceType;
+
+	char            name[MAX_QPATH];	// polyset name
+
+	int             numShaderIndexes;
+	int				*shaderIndexes;
+
+	int             numVerts;
+	mdvVertex_t    *verts;
+	mdvSt_t        *st;
+
+	int             numTriangles;
+	srfTriangle_t  *triangles;
+
+	struct mdvModel_s *model;
+} mdvSurface_t;
+
+typedef struct mdvModel_s
+{
+	int             numFrames;
+	mdvFrame_t     *frames;
+
+	int             numTags;
+	mdvTag_t       *tags;
+	mdvTagName_t   *tagNames;
+
+	int             numSurfaces;
+	mdvSurface_t   *surfaces;
+
+	int             numVBOSurfaces;
+	srfVBOMDVMesh_t  *vboSurfaces;
+
+	int             numSkins;
+} mdvModel_t;
+
+
 //======================================================================
 
 typedef enum {
@@ -760,7 +2053,7 @@ typedef struct model_s {
 
 	int			dataSize;			// just for listing purposes
 	bmodel_t	*bmodel;			// only if type == MOD_BRUSH
-	md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
+	mdvModel_t	*mdv[MD3_MAX_LODS];	// only if type == MOD_MESH
 	void	*md4;				// only if type == (MOD_MD4 | MOD_MDR)
 
 	int			 numLods;
@@ -840,13 +2133,52 @@ typedef struct {
 	int			texEnv[2];
 	int			faceCulling;
 	unsigned long	glStateBits;
+	uint32_t		vertexAttribsState;
+	uint32_t		vertexAttribPointersSet;
+	uint32_t        vertexAttribsNewFrame;
+	uint32_t        vertexAttribsOldFrame;
+	float           vertexAttribsInterpolation;
+	shaderProgram_t *currentProgram;
+	VBO_t          *currentVBO;
+	IBO_t          *currentIBO;
+	matrix_t        modelview;
+	matrix_t        projection;
+	matrix_t		modelviewProjection;
 } glstate_t;
+
+// We can't change glConfig_t without breaking DLL/vms compatibility, so
+// store extensions we have here.
+typedef struct {
+	qboolean    textureFilterAnisotropic;
+	int         maxAnisotropy;
+	qboolean    multiDrawArrays;
+	qboolean    vertexBufferObject;
+
+	// These next three are all required for one chunk of code, so glsl is
+	// set if they are all true.
+	qboolean    vertexProgram;
+	qboolean    shaderObjects;
+	qboolean    vertexShader;
+	qboolean    glsl;
+} glRefConfig_t;
 
 
 typedef struct {
 	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
+	int     c_surfBatches;
 	float	c_overDraw;
 	
+	int		c_vboVertexBuffers;
+	int		c_vboIndexBuffers;
+	int		c_vboVertexes;
+	int		c_vboIndexes;
+
+	int     c_staticVboDraws;
+	int     c_dynamicVboDraws;
+
+	int     c_multidraws;
+	int     c_multidrawsMerged;
+
 	int		c_dlightVertexes;
 	int		c_dlightIndexes;
 
@@ -886,7 +2218,10 @@ typedef struct {
 typedef struct {
 	qboolean				registered;		// cleared at shutdown, set at beginRegistration
 
-	int						visCount;		// incremented every time a new vis cluster is entered
+	int						visIndex;
+	int						visClusters[MAX_VISCOUNTS];
+	int						visCounts[MAX_VISCOUNTS];	// incremented every time a new vis cluster is entered
+
 	int						frameCount;		// incremented every frame
 	int						sceneCount;		// incremented every scene
 	int						viewCount;		// incremented every view (twice a scene if portaled)
@@ -919,11 +2254,24 @@ typedef struct {
 	int						numLightmaps;
 	image_t					**lightmaps;
 
+	image_t                 *fatLightmap;
+	int                     fatLightmapSize;
+	int		                fatLightmapStep;
+
 	trRefEntity_t			*currentEntity;
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
 	int						currentEntityNum;
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	model_t					*currentModel;
+
+	//
+	// GPU shader programs
+	//
+
+	shaderProgram_t genericShader[GLSLDEF_COUNT];
+
+
+	// -----------------------------------------
 
 	viewParms_t				viewParms;
 
@@ -953,6 +2301,12 @@ typedef struct {
 	int						numImages;
 	image_t					*images[MAX_DRAWIMAGES];
 
+	int						numVBOs;
+	VBO_t					*vbos[MAX_VBOS];
+
+	int						numIBOs;
+	IBO_t					*ibos[MAX_IBOS];
+
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
 	// lower indexed sortedShaders must be rendered first (opaque surfaces before translucent)
@@ -979,8 +2333,7 @@ extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during
 // These two variables should live inside glConfig but can't because of compatibility issues to the original ID vms.
 // If you release a stand-alone game and your mod uses tr_types.h from this build you can safely move them to
 // the glconfig_t struct.
-extern qboolean  textureFilterAnisotropic;
-extern int       maxAnisotropy;
+extern glRefConfig_t glRefConfig;
 extern float     displayAspect;
 
 
@@ -1057,6 +2410,10 @@ extern cvar_t	*r_ext_texture_env_add;
 extern cvar_t	*r_ext_texture_filter_anisotropic;
 extern cvar_t	*r_ext_max_anisotropy;
 
+extern  cvar_t  *r_arb_vertex_buffer_object;
+extern  cvar_t  *r_arb_shader_objects;
+extern  cvar_t  *r_ext_multi_draw_arrays;
+
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
 extern	cvar_t	*r_roundImagesDown;
@@ -1098,6 +2455,9 @@ extern	cvar_t	*r_skipBackEnd;
 extern	cvar_t	*r_stereoEnabled;
 extern	cvar_t	*r_anaglyphMode;
 
+extern  cvar_t  *r_mergeMultidraws;
+extern  cvar_t  *r_mergeLeafSurfaces;
+
 extern	cvar_t	*r_greyscale;
 
 extern	cvar_t	*r_ignoreGLErrors;
@@ -1138,12 +2498,15 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
+void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
+void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
 
 #define	CULL_IN		0		// completely unclipped
 #define	CULL_CLIP	1		// clipped by one or more planes
 #define	CULL_OUT	2		// completely outside the clipping planes
 void R_LocalNormalToWorld (vec3_t local, vec3_t world);
 void R_LocalPointToWorld (vec3_t local, vec3_t world);
+int R_CullBox (vec3_t bounds[2]);
 int R_CullLocalBox (vec3_t bounds[2]);
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
@@ -1155,11 +2518,15 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, 
 ** GL wrapper/helper functions
 */
 void	GL_Bind( image_t *image );
+void	GL_BindToTMU( image_t *image, int tmu );
 void	GL_SetDefaultState (void);
 void	GL_SelectTexture( int unit );
 void	GL_TextureMode( const char *string );
-void	GL_CheckErrors( void );
+void	GL_CheckErrs( char *file, int line );
+#define GL_CheckErrors(...) GL_CheckErrs(__FILE__, __LINE__)
 void	GL_State( unsigned long stateVector );
+void    GL_SetProjectionMatrix(matrix_t matrix);
+void    GL_SetModelviewMatrix(matrix_t matrix);
 void	GL_TexEnv( int env );
 void	GL_Cull( int cullType );
 
@@ -1290,7 +2657,6 @@ TESSELATOR/SHADER DECLARATIONS
 
 ====================================================================
 */
-typedef byte color4ub_t[4];
 
 typedef struct stageVars
 {
@@ -1298,6 +2664,7 @@ typedef struct stageVars
 	vec2_t		texcoords[NUM_TEXTURE_BUNDLES][SHADER_MAX_VERTEXES];
 } stageVars_t;
 
+#define MAX_MULTIDRAW_PRIMITIVES	16384
 
 typedef struct shaderCommands_s 
 {
@@ -1306,7 +2673,11 @@ typedef struct shaderCommands_s
 	vec4_t		normal[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] QALIGN(16);
 	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] QALIGN(16);
-	int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
+	//int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
+
+	VBO_t       *vbo;
+	IBO_t       *ibo;
+	qboolean    useInternalVBO;
 
 	stageVars_t	svars QALIGN(16);
 
@@ -1318,8 +2689,14 @@ typedef struct shaderCommands_s
 
 	int			dlightBits;	// or together of all vertexDlightBits
 
+	int			firstIndex;
 	int			numIndexes;
 	int			numVertexes;
+
+	int         multiDrawPrimitives;
+	GLsizei     multiDrawNumIndexes[MAX_MULTIDRAW_PRIMITIVES];
+	GLvoid *    multiDrawFirstIndex[MAX_MULTIDRAW_PRIMITIVES];
+	GLvoid *    multiDrawLastIndex[MAX_MULTIDRAW_PRIMITIVES];
 
 	// info extracted from current shader
 	int			numPasses;
@@ -1335,6 +2712,7 @@ void RB_CheckOverflow( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
 
 void RB_StageIteratorGeneric( void );
+void RB_StageIteratorGenericVBO( void );
 void RB_StageIteratorSky( void );
 void RB_StageIteratorVertexLitTexture( void );
 void RB_StageIteratorLightmappedMultitexture( void );
@@ -1423,7 +2801,7 @@ CURVE TESSELATION
 #define PATCH_STITCHING
 
 srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
-								drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] );
+								srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] );
 srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec3_t point, float loderror );
 srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t point, float loderror );
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid );
@@ -1439,6 +2817,48 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
+
+/*
+============================================================
+
+VERTEX BUFFER OBJECTS
+
+============================================================
+*/
+VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, vboUsage_t usage);
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vertexes, uint32_t stateBits, vboUsage_t usage);
+
+IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, vboUsage_t usage);
+IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, vboUsage_t usage);
+
+void            R_BindVBO(VBO_t * vbo);
+void            R_BindNullVBO(void);
+
+void            R_BindIBO(IBO_t * ibo);
+void            R_BindNullIBO(void);
+
+void            R_InitVBOs(void);
+void            R_ShutdownVBOs(void);
+void            R_VBOList_f(void);
+
+void            RB_UpdateVBOs(unsigned int attribBits);
+
+
+/*
+============================================================
+
+GLSL
+
+============================================================
+*/
+
+void GLSL_InitGPUShaders(void);
+void GLSL_ShutdownGPUShaders(void);
+void GLSL_VertexAttribsState(uint32_t stateBits);
+void GLSL_VertexAttribPointers(uint32_t attribBits);
+void GLSL_BindProgram(shaderProgram_t * program);
+void GLSL_BindNullProgram(void);
+shaderProgram_t *GLSL_GetGenericShaderProgram(void);
 
 /*
 ============================================================
@@ -1525,6 +2945,14 @@ void	RB_CalcRotateTexCoords( float rotSpeed, float *dstTexCoords );
 void	RB_CalcScaleTexCoords( const float scale[2], float *dstTexCoords );
 void	RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *dstTexCoords );
 void	RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *dstTexCoords );
+
+void	RB_CalcScaleTexMatrix( const float scale[2], float *matrix );
+void	RB_CalcScrollTexMatrix( const float scrollSpeed[2], float *matrix );
+void	RB_CalcRotateTexMatrix( float degsPerSecond, float *matrix );
+void RB_CalcTurbulentTexMatrix( const waveForm_t *wf, matrix_t matrix );
+void	RB_CalcTransformTexMatrix( const texModInfo_t *tmi, float *matrix  );
+void	RB_CalcStretchTexMatrix( const waveForm_t *wf, float *matrix );
+
 void	RB_CalcModulateColorsByFog( unsigned char *dstColors );
 void	RB_CalcModulateAlphasByFog( unsigned char *dstColors );
 void	RB_CalcModulateRGBAsByFog( unsigned char *dstColors );

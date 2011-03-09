@@ -1431,8 +1431,10 @@ Q3OBJ = \
   $(B)/client/tr_bsp.o \
   $(B)/client/tr_cmds.o \
   $(B)/client/tr_curve.o \
+  $(B)/client/tr_extramath.o \
   $(B)/client/tr_flares.o \
   $(B)/client/tr_font.o \
+  $(B)/client/tr_glsl.o \
   $(B)/client/tr_image.o \
   $(B)/client/tr_image_png.o \
   $(B)/client/tr_image_jpg.o \
@@ -1454,6 +1456,7 @@ Q3OBJ = \
   $(B)/client/tr_sky.o \
   $(B)/client/tr_surface.o \
   $(B)/client/tr_world.o \
+  $(B)/client/tr_vbo.o \
   \
   $(B)/client/sdl_gamma.o \
   $(B)/client/sdl_input.o \

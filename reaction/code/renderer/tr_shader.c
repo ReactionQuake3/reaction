@@ -1551,6 +1551,7 @@ static qboolean ParseShader( char **text )
 		else if ( !Q_stricmp(token, "portal") )
 		{
 			shader.sort = SS_PORTAL;
+			shader.isPortal = qtrue;
 			continue;
 		}
 		// skyparms <cloudheight> <outerbox> <innerbox>
@@ -1634,6 +1635,11 @@ static void ComputeStageIteratorFunc( void )
 {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
 
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
+	{
+		shader.optimalStageIteratorFunc = RB_StageIteratorGenericVBO;
+	}
+
 	//
 	// see if this should go into the sky path
 	//
@@ -1645,6 +1651,12 @@ static void ComputeStageIteratorFunc( void )
 
 	if ( r_ignoreFastPath->integer )
 	{
+		return;
+	}
+
+	if ( glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer )
+	{
+		// VBOs don't support the fast path!
 		return;
 	}
 
@@ -1702,6 +1714,133 @@ static void ComputeStageIteratorFunc( void )
 
 done:
 	return;
+}
+
+/*
+===================
+ComputeVertexAttribs
+
+Check which vertex attributes we only need, so we
+don't need to submit/copy all of them.
+===================
+*/
+static void ComputeVertexAttribs()
+{
+	int i, stage;
+
+	shader.vertexAttribs = ATTR_POSITION;
+
+	// portals always need normals, for SurfIsOffscreen()
+	if (shader.isPortal)
+	{
+		shader.vertexAttribs |= ATTR_NORMAL;
+	}
+
+	if (shader.defaultShader)
+	{
+		shader.vertexAttribs |= ATTR_TEXCOORD;
+		return;
+	}
+
+	if(shader.numDeforms)
+	{
+		for ( i = 0; i < shader.numDeforms; i++)
+		{
+			deformStage_t  *ds = &shader.deforms[i];
+
+			switch (ds->deformation)
+			{
+				case DEFORM_BULGE:
+					shader.vertexAttribs |= ATTR_NORMAL | ATTR_TEXCOORD;
+					break;
+
+				case DEFORM_AUTOSPRITE:
+					shader.vertexAttribs |= ATTR_NORMAL | ATTR_COLOR;
+					break;
+
+				case DEFORM_WAVE:
+				case DEFORM_NORMALS:
+				case DEFORM_TEXT0:
+				case DEFORM_TEXT1:
+				case DEFORM_TEXT2:
+				case DEFORM_TEXT3:
+				case DEFORM_TEXT4:
+				case DEFORM_TEXT5:
+				case DEFORM_TEXT6:
+				case DEFORM_TEXT7:
+					shader.vertexAttribs |= ATTR_NORMAL;
+					break;
+
+				default:
+				case DEFORM_NONE:
+				case DEFORM_MOVE:
+				case DEFORM_PROJECTION_SHADOW:
+				case DEFORM_AUTOSPRITE2:
+					break;
+			}
+		}
+	}
+
+	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	{
+		shaderStage_t *pStage = &stages[stage];
+
+		if ( !pStage->active ) 
+		{
+			break;
+		}
+
+		for (i = 0; i < 2; i++)
+		{
+			if (i == 1 && ( pStage->bundle[1].image[0] == 0 ))
+			{
+				break;
+			}
+
+			switch(pStage->bundle[i].tcGen)
+			{
+				case TCGEN_TEXTURE:
+					shader.vertexAttribs |= ATTR_TEXCOORD;
+					break;
+				case TCGEN_LIGHTMAP:
+					shader.vertexAttribs |= ATTR_LIGHTCOORD;
+					break;
+				case TCGEN_ENVIRONMENT_MAPPED:
+					shader.vertexAttribs |= ATTR_NORMAL;
+					break;
+
+				default:
+					break;
+			}
+		}
+
+		switch(pStage->rgbGen)
+		{
+			case CGEN_EXACT_VERTEX:
+			case CGEN_VERTEX:
+			case CGEN_ONE_MINUS_VERTEX:
+				shader.vertexAttribs |= ATTR_COLOR;
+				break;
+
+			default:
+				break;
+		}
+
+		switch(pStage->alphaGen)
+		{
+			case AGEN_LIGHTING_SPECULAR:
+				shader.vertexAttribs |= ATTR_NORMAL;
+				break;
+
+			case AGEN_VERTEX:
+			case AGEN_ONE_MINUS_VERTEX:
+				shader.vertexAttribs |= ATTR_COLOR;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
 
 typedef struct {
@@ -2284,7 +2423,8 @@ static shader_t *FinishShader( void ) {
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
 		} else {
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name );
-  			shader.lightmapIndex = LIGHTMAP_NONE;
+			// Don't set this, it will just add duplicate shaders to the hash
+  			//shader.lightmapIndex = LIGHTMAP_NONE;
 		}
 	}
 
@@ -2300,6 +2440,9 @@ static shader_t *FinishShader( void ) {
 
 	// determine which stage iterator function is appropriate
 	ComputeStageIteratorFunc();
+
+	// determine which vertex attributes this shader needs
+	ComputeVertexAttribs();
 
 	return GeneratePermanentShader();
 }
@@ -2486,12 +2629,6 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
-	// FIXME: set these "need" values apropriately
-	shader.needsNormal = qtrue;
-	shader.needsST1 = qtrue;
-	shader.needsST2 = qtrue;
-	shader.needsColor = qtrue;
-
 	//
 	// attempt to define shader from an explicit parameter file
 	//
@@ -2621,12 +2758,6 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 	for ( i = 0 ; i < MAX_SHADER_STAGES ; i++ ) {
 		stages[i].bundle[0].texMods = texMods[i];
 	}
-
-	// FIXME: set these "need" values apropriately
-	shader.needsNormal = qtrue;
-	shader.needsST1 = qtrue;
-	shader.needsST2 = qtrue;
-	shader.needsColor = qtrue;
 
 	//
 	// create the default shading commands
@@ -2848,6 +2979,8 @@ void	R_ShaderList_f (void) {
 
 		if ( shader->optimalStageIteratorFunc == RB_StageIteratorGeneric ) {
 			ri.Printf( PRINT_ALL, "gen " );
+		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorGenericVBO ) {
+			ri.Printf( PRINT_ALL, "genv" );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorSky ) {
 			ri.Printf( PRINT_ALL, "sky " );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture ) {

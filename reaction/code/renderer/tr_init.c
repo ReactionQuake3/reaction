@@ -24,8 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 glconfig_t  glConfig;
-qboolean    textureFilterAnisotropic = qfalse;
-int         maxAnisotropy = 0;
+
+glRefConfig_t glRefConfig;
+
 float       displayAspect = 0.0f;
 
 glstate_t	glState;
@@ -91,6 +92,13 @@ cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_env_add;
 cvar_t	*r_ext_texture_filter_anisotropic;
 cvar_t	*r_ext_max_anisotropy;
+
+cvar_t  *r_arb_vertex_buffer_object;
+cvar_t  *r_arb_shader_objects;
+cvar_t  *r_ext_multi_draw_arrays;
+
+cvar_t  *r_mergeMultidraws;
+cvar_t  *r_mergeLeafSurfaces;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -222,7 +230,7 @@ static void InitOpenGL( void )
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrors( void ) {
+void GL_CheckErrs( char *file, int line ) {
 	int		err;
 	char	s[64];
 
@@ -257,7 +265,7 @@ void GL_CheckErrors( void ) {
 			break;
 	}
 
-	ri.Error( ERR_FATAL, "GL_CheckErrors: %s", s );
+	ri.Error( ERR_FATAL, "GL_CheckErrors: %s in %s at line %d", s , file, line);
 }
 
 
@@ -772,6 +780,22 @@ void GL_SetDefaultState( void )
 	//
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 
+	if (glRefConfig.glsl)
+	{
+		glState.vertexAttribsState = 0;
+		glState.vertexAttribPointersSet = 0;
+		glState.currentProgram = 0;
+		qglUseProgramObjectARB(0);
+	}
+
+	if (glRefConfig.vertexBufferObject)
+	{
+		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glState.currentVBO = NULL;
+		glState.currentIBO = NULL;
+	}
+
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask( GL_TRUE );
 	qglDisable( GL_DEPTH_TEST );
@@ -891,6 +915,9 @@ void R_Register( void )
 	r_ext_multitexture = ri.Cvar_Get( "r_ext_multitexture", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_compiled_vertex_array = ri.Cvar_Get( "r_ext_compiled_vertex_array", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_env_add = ri.Cvar_Get( "r_ext_texture_env_add", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_arb_vertex_buffer_object = ri.Cvar_Get( "r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_arb_shader_objects = ri.Cvar_Get( "r_arb_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_multi_draw_arrays = ri.Cvar_Get( "r_ext_multi_draw_arrays", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",
 			"0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -966,6 +993,8 @@ void R_Register( void )
 	r_directedScale = ri.Cvar_Get( "r_directedScale", "1", CVAR_CHEAT );
 
 	r_anaglyphMode = ri.Cvar_Get("r_anaglyphMode", "0", CVAR_ARCHIVE);
+	r_mergeMultidraws = ri.Cvar_Get("r_mergeMultidraws", "1", CVAR_ARCHIVE);
+	r_mergeLeafSurfaces = ri.Cvar_Get("r_mergeLeafSurfaces", "1", CVAR_ARCHIVE);
 
 	//
 	// temporary variables that can change at any time
@@ -1119,7 +1148,17 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
+	if (glRefConfig.glsl)
+	{
+		GLSL_InitGPUShaders();
+	}
+
 	R_InitImages();
+
+	if (glRefConfig.vertexBufferObject)
+	{
+		R_InitVBOs();
+	}
 
 	R_InitShaders();
 
@@ -1161,6 +1200,14 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_DeleteTextures();
+		if (glRefConfig.vertexBufferObject)
+		{
+			R_ShutdownVBOs();
+		}
+		if (glRefConfig.glsl)
+		{
+			GLSL_ShutdownGPUShaders();
+		}
 	}
 
 	R_DoneFreeType();
