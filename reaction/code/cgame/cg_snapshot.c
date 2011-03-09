@@ -112,7 +112,7 @@ static void CG_OrderSnapshotEntities(snapshot_t *snap, int *order)
 	}
 }
 
-static void CG_CheckVidRestart()
+static void CG_CheckVidRestart(void)
 {
 	trap_SendConsoleCommand("ui_RQ3_postVidRestart");
 }
