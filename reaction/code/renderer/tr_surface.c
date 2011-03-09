@@ -1215,10 +1215,10 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 		// Makro - this should be done differently, but since we're copying
 		// indices in a loop anyway (see below), reversing them in the same loop
 		// is practically free...
-		for (j = 0 ; j < indexes ; j += 3) {
-			tess.indexes[Bob + j + 0] = Doug + triangles[j + 0];
-			tess.indexes[Bob + j + 1] = Doug + triangles[j + 2];
-			tess.indexes[Bob + j + 2] = Doug + triangles[j + 1];
+		for (j = 0 ; j < surface->numTriangles ; j++) {
+			tess.indexes[Bob + j*3 + 0] = Doug + triangles[j].indexes[0];
+			tess.indexes[Bob + j*3 + 1] = Doug + triangles[j].indexes[2];
+			tess.indexes[Bob + j*3 + 2] = Doug + triangles[j].indexes[1];
 		}
 	} else {
 		for (j = 0 ; j < surface->numTriangles ; j++) {
