@@ -135,6 +135,7 @@ copy /y "%make-qvm-location%uifiles\menus.txt" "%make-qvm-location%bin\qvm\ui"
 copy /y "%make-qvm-location%uifiles\ingame.txt" "%make-qvm-location%bin\qvm\ui"
 "%zipper%" a -tzip "%zipname%" vm\*.qvm
 "%zipper%" a -tzip "%zipname%" ui\*.menu
+"%zipper%" a -tzip "%zipname%" ui\*.h
 "%zipper%" a -tzip "%zipname%" ui\menus.txt
 "%zipper%" a -tzip "%zipname%" ui\ingame.txt
 
