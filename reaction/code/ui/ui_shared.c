@@ -4230,11 +4230,15 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 		break;
 
 	case K_ESCAPE:
-		if (!g_waitingForKey && menu->onESC) {
-			itemDef_t it;
+		if (!g_waitingForKey) {
+			if (menu->onESC) {
+				itemDef_t it;
 
-			it.parent = menu;
-			Item_RunScript(&it, menu->onESC);
+				it.parent = menu;
+				Item_RunScript(&it, menu->onESC);
+			} else if (openMenuCount > 0) {
+				Menus_Close(menuStack[openMenuCount]);
+			}
 		}
 		break;
 	case K_TAB:

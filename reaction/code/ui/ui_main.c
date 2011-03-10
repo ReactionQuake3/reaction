@@ -8777,11 +8777,7 @@ void _UI_KeyEvent(int key, qboolean down)
 		menuDef_t *menu = Menu_GetFocused();
 
 		if (menu) {
-			if (key == K_ESCAPE && down && !Menus_AnyFullScreenVisible()) {
-				Menus_CloseAll();
-			} else {
-				Menu_HandleKey(menu, key, down);
-			}
+			Menu_HandleKey(menu, key, down);
 		} else {
 			trap_Key_SetCatcher(trap_Key_GetCatcher() & ~KEYCATCH_UI);
 			trap_Key_ClearStates();
