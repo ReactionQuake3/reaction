@@ -23,11 +23,11 @@
 	popup
 	
 	onOOBClick { close _self ; open _prev }
-	onOpen { uiScript update "ui_GetName" ; play "sound/ui/whoosh3.wav" ; uiScript LoadMods ;
+	onOpen { uiScript update "ui_GetName" ; play "sound/ui/whoosh3.wav" ; 
 		setitemcolor hints forecolor .9 .9 .9 1 ; hide hints ;
 		hide focus }
 	onClose { uiScript update "ui_SetName" }
-	onEsc { close _self ; open main }
+	onEsc { close _self ; open _prev }
 
 	onOpenSpecial {
 		//normal items
@@ -326,7 +326,56 @@
 	subgroup "fade_fore_alpha"
 	style 0
 	text "Gender:"
-	alignrect "model_caption" ITEM_ALIGN_LEFT 0 32 208 20
+	alignrect "model_caption" ITEM_ALIGN_LEFT 0 24 208 20
+	textscale .225
+	textalign 0
+	textalignx 4
+	textaligny 16
+	forecolor RQ3_Player_Option_Color
+	visible 1
+	decoration
+    }
+
+#	define CHECKBOX_WIDTH 64
+#	define CHECKBOX_PROPS					\
+		type ITEM_TYPE_YESNO				\
+		style WINDOW_STYLE_EMPTY			\
+		subgroup "fade_fore_alpha"			\
+		forecolor 0 0 0 1				\
+		textalign ITEM_ALIGN_RIGHT			\
+		textalignx $evalint(CHECKBOX_WIDTH - 20)	\
+		textaligny 16					\
+		textscale .225					\
+		visible 1
+
+	itemdef {
+	text "Male"
+	CHECKBOX_PROPS
+	activeCvarValue 0
+	alignrect "gender_caption" ITEM_ALIGN_LEFT 64 0 CHECKBOX_WIDTH 20
+	kind YESNO_ICON_RIGHT
+	cvar "ui_RQ3_gender"
+	groupIndex 1
+    }
+
+	itemdef {
+	text "Female"
+	CHECKBOX_PROPS
+	alignrect "gender_caption" ITEM_ALIGN_RIGHT 0 0 CHECKBOX_WIDTH 20
+	kind YESNO_ICON_RIGHT
+	cvar "ui_RQ3_gender"
+	groupIndex 1
+	activeCvarValue 1
+    }
+
+//Handedness
+
+    itemdef {
+	name "handedness_caption"
+	subgroup "fade_fore_alpha"
+	style 0
+	text "Handedness:"
+	alignrect "gender_caption" ITEM_ALIGN_LEFT 0 24 208 20
 	textscale .225
 	textalign 0
 	textalignx 4
@@ -337,39 +386,23 @@
     }
 
 	itemdef {
-	text "Male"
-	subgroup "fade_fore_alpha"
-	forecolor 0 0 0 1
-	textalign 0
-	textalignx 0
-	textaligny 16
-	textscale .225
-	alignrect "gender_caption" ITEM_ALIGN_LEFT 64 0 64 20
-	type ITEM_TYPE_YESNO
+	text "Left"
+	CHECKBOX_PROPS
+	alignrect "handedness_caption" ITEM_ALIGN_LEFT 64 0 CHECKBOX_WIDTH 20
 	kind YESNO_ICON_RIGHT
-	cvar "ui_RQ3_gender"
-	groupIndex 1
-	activeCvarValue 0
-	style WINDOW_STYLE_EMPTY
-	visible 1
+	cvar "cg_RQ3_leftHanded"
+	groupIndex 2
+	activeCvarValue 1
     }
 
 	itemdef {
-	text "Female"
-	subgroup "fade_fore_alpha"
-	forecolor 0 0 0 1
-	textalign 0
-	textalignx 0
-	textaligny 16
-	textscale .225
-	alignrect "gender_caption" ITEM_ALIGN_RIGHT 0 0 64 20
-	type ITEM_TYPE_YESNO
+	text "Right"
+	CHECKBOX_PROPS
+	alignrect "handedness_caption" ITEM_ALIGN_RIGHT 0 0 CHECKBOX_WIDTH 20
 	kind YESNO_ICON_RIGHT
-	cvar "ui_RQ3_gender"
-	groupIndex 1
-	activeCvarValue 1
-	style WINDOW_STYLE_EMPTY
-	visible 1
+	cvar "cg_RQ3_leftHanded"
+	groupIndex 2
+	activeCvarValue 0
     }
 
 
