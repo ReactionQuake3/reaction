@@ -31,7 +31,7 @@
 	onFocus { show HINT_NAME ; timeFade HINT_NAME forecolor 5 5 5 1 0 HINT_FADE_TIME }	\
 	leaveFocus { timeFade HINT_NAME forecolor 5 5 5 0 0 HINT_FADE_TIME }
 
-#define BUTTON_DIMX 116
+#define BUTTON_DIMX 122
 #define BUTTON_DIMY 16
 #define BUTTON_SPACEX 8
 #define BUTTON_SPACEY 4
@@ -80,7 +80,7 @@
 	visible MENU_FALSE				// Visible on open
 	//fullScreen MENU_FALSE
 	focusColor RQ3_MAIN_FOCUSCOLOR			// Menu focus color for text and items
-	rect 48 48 560 440
+	rect 48 44 560 440
 	anglevectors ANGLES
 	style WINDOW_STYLE_EMPTY
 	popup
@@ -89,7 +89,7 @@
 	onOpen { play "sound/ui/whoosh3.wav" ; uiScript "UpdateFilter" ;
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
 	}
-	onEsc { uiScript closeJoin }
+	onESC { uiScript closeJoin }
 
 	onOpenSpecial {
 		//normal items
@@ -110,9 +110,9 @@
 	menuAnchor
 	subgroup "fade_fore_alpha"
 	style WINDOW_STYLE_SHADER
-	background UI_ASSETS"/paper_1"
+	background UI_ASSETS"/paper_2"
 	forecolor MENUCOLOR_MOD 1
-	rect -16 -16 620 520
+	rect -44 -60 640 696
 	anglevectors ANGLES
 	visible 1
 	decoration
@@ -131,7 +131,7 @@
 	textalignx 4
 	textaligny 24
 	textscale RQ3_MAIN_TEXTSIZE
-	alignRect paper ITEM_ALIGN_LEFT 40 40 480 20
+	alignRect paper ITEM_ALIGN_LEFT 72 88 480 20
 	visible 1
 	autowrapped
 	decoration
@@ -340,7 +340,7 @@
 
     BEGIN_CONTROL(2, 4, "")
 	ownerdraw UI_NETSOURCE
-	textalignx 6
+	textalignx 8
 	action { play "sound/ui/whoosh3.wav" }
 	ASSIGN_HINT(Hint_Source)
     }
