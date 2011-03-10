@@ -230,12 +230,12 @@ static void CG_Bandage_f(void)
 	}
 	//Elder: prevent "bandaging" when dead hehe
 	if (cg.snap->ps.stats[STAT_HEALTH] < 0) {
-		CG_Printf("It's a bit too late to bandage yourself...\n");
+		CG_AddMessage("It's a bit too late to bandage yourself...\n");
 		return;
 	}
 //      if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
-		CG_Printf("You are already bandaging!\n");
+		CG_AddMessage("You are already bandaging!\n");
 		return;
 	}
 	//Elder: don't allow bandaging when in the middle of bursts
@@ -610,9 +610,9 @@ static void CG_IRVision_f(void)
 	}
 
 	if (cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER)) {
-		CG_Printf(va("IR vision %s.\n", status));
+		CG_AddMessage(va("IR vision %s.\n", status));
 	} else {
-		CG_Printf(va("IR vision will be %s next time you get a bandolier.\n", status));
+		CG_AddMessage(va("IR vision will be %s next time you get a bandolier.\n", status));
 	}
 
 	trap_S_StartLocalSound(cgs.media.weapToggleSound, CHAN_ITEM);
