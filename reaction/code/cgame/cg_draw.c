@@ -2213,7 +2213,9 @@ static void CG_DrawVote(void)
 {
 	char *s, *s2;
 	int sec, y = 58;
+	int line;
 	float Color1[4];
+	float xmin;
 
 	if (!cgs.voteTime) {
 		return;
@@ -2230,25 +2232,42 @@ static void CG_DrawVote(void)
 		sec = 0;
 	}
 
-	s = va("Vote[%i seconds left] Yes[%i] No[%i]", sec, cgs.voteYes, cgs.voteNo);
-	s2 = va("Vote: %s", cgs.voteString);
+	s = va("Vote: %s (%d seconds left)", cgs.voteString, sec);
+	s2 = va("Yes(%d)  No(%d)", cgs.voteYes, cgs.voteNo);
 
 	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	xmin = cgs.screenXMin;
+	line = SMALLCHAR_HEIGHT + 5;
+
+	if (cgs.media.voteMapShader)
+	{
+		int width = 64;
+		int height = 48;
+		
+		CG_FillRect(xmin + 1, y, width + 4, height + 4, Color1);
+		CG_DrawCleanRect(xmin + 1, y, width + 4, height + 4, 1, colorBlack);
+		CG_DrawPic(xmin + 3, y + 2, width, height, cgs.media.voteMapShader);
+
+		xmin += width + 4 + 4;
+		y += ((height + 4) - (line + line)) / 2;
+	}
+
+	CG_FillRect(xmin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(xmin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(cgs.screenXMin + 3, y+2, s, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(xmin + 3, y+2, s, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
-	y += SMALLCHAR_HEIGHT + 3;
+	y += line;
 	
-	CG_FillRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_FillRect(xmin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(cgs.screenXMin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
+	CG_DrawCleanRect(xmin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
 		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(cgs.screenXMin + 3, y + 2, s2, colorWhite, qtrue, qfalse, 
+	CG_DrawStringExt(xmin + 3, y + 2, s2, colorWhite, qtrue, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
+	y += line;
 }
 
 /*

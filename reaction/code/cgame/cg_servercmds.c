@@ -643,6 +643,22 @@ void CG_ShaderStateChanged(void)
 	}
 }
 
+static void CG_UpdateVoteMapShader(void)
+{
+	const char* vote = cgs.voteString;
+	cgs.media.voteMapShader = 0;
+	
+	if (!*vote)
+		return;
+
+	if (Q_stricmpn(vote, "map ", 4) == 0)
+	{
+		vote += 4;
+		vote = va("levelshots/%s.tga", vote);
+		cgs.media.voteMapShader = trap_R_RegisterShaderNoMip(vote);
+	}
+}
+
 /*
 ================
 CG_ConfigStringModified
@@ -679,6 +695,7 @@ static void CG_ConfigStringModified(void)
 	} else if (num == CS_VOTE_TIME) {
 		cgs.voteTime = atoi(str);
 		cgs.voteModified = qtrue;
+		CG_UpdateVoteMapShader();
 	} else if (num == CS_VOTE_YES) {
 		cgs.voteYes = atoi(str);
 		cgs.voteModified = qtrue;
@@ -687,6 +704,7 @@ static void CG_ConfigStringModified(void)
 		cgs.voteModified = qtrue;
 	} else if (num == CS_VOTE_STRING) {
 		Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
+		CG_UpdateVoteMapShader();
 	} else if (num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi(str);
 		cgs.teamVoteModified[num - CS_TEAMVOTE_TIME] = qtrue;

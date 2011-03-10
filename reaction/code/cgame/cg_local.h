@@ -1663,6 +1663,9 @@ typedef struct {
 	qhandle_t snowImpactShader;
 	//Makro - generic particle impact shader
 	qhandle_t particleImpactShader;
+
+	// Makro - map preview
+	qhandle_t voteMapShader;
 } cgMedia_t;
 
 // The client game static (cgs) structure hold everything
