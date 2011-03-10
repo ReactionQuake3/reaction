@@ -2278,7 +2278,7 @@ static void CG_DrawVote(void)
 		int begin = cg.time - cgs.voteTime;
 		int end = VOTE_TIME - begin;
 		int min = begin < end ? begin : end;
-		alpha = Com_Clamp(0.f, 1.f, min / (1000.f * 0.125f));
+		alpha = SmoothLerp(Com_Clamp(0.f, 1.f, min / (1000.f * 0.125f)));
 	}
 	
 	// slide in //
