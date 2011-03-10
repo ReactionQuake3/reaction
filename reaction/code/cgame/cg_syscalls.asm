@@ -105,3 +105,4 @@ equ	testPrintInt				-110
 equ	testPrintFloat				-111
 equ acos						-112
 
+equ trap_RQ3_Key_KeynumToStringBuf		-514
