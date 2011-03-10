@@ -1194,7 +1194,7 @@ void CG_AddMessage(const char* str)
 	int lastcolor;
 	int chatHeight;
 
-	if (!cg_messageQueue.integer || cg_messageQueueTime.integer <= 0) {
+	if (!cg_messageQueue.integer || cg_messageQueueTime.integer <= 0 || !Q_strncmp(str, "[skipnotify]", 12)) {
 		// team chat disabled, dump into normal chat
 		cgs.teamChatPos = cgs.teamLastChatPos = 0;
 		trap_Print(str);
