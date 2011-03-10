@@ -546,13 +546,13 @@ void CG_TransitionPlayerState(playerState_t * ps, playerState_t * ops)
 	if (ps->weapon == WP_GRENADE && ps->weaponstate == WEAPON_COCKED && ops->weaponstate != WEAPON_COCKED) {
 		switch (CG_RQ3_GetGrenadeMode()) {
 		case RQ3_GRENSHORT | RQ3_GRENMED:
-			CG_Printf("Pin pulled. Ready to make a long range throw.\n");
+			CG_AddMessage("Pin pulled. Ready to make a long range throw.\n");
 			break;
 		case RQ3_GRENMED:
-			CG_Printf("Pin pulled. Ready to make a medium range throw.\n");
+			CG_AddMessage("Pin pulled. Ready to make a medium range throw.\n");
 			break;
 		case RQ3_GRENSHORT:
-			CG_Printf("Pin pulled. Ready to make a short range throw.\n");
+			CG_AddMessage("Pin pulled. Ready to make a short range throw.\n");
 			break;
 		}
 	}

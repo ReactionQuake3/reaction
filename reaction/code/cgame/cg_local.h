@@ -459,8 +459,8 @@
 #define	CHAR_HEIGHT			48
 #define	TEXT_ICON_SPACE		4
 
-#define	TEAMCHAT_WIDTH		80
-#define TEAMCHAT_HEIGHT		8
+#define	MSGQUEUE_WIDTH		80
+#define MSGQUEUE_HEIGHT		8
 
 // very large characters
 #define	GIANT_WIDTH			32
@@ -1733,8 +1733,8 @@ typedef struct {
 	clientInfo_t clientinfo[MAX_CLIENTS];
 
 	// teamchat width is *3 because of embedded color codes
-	char teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH * 3 + 1];
-	int teamChatMsgTimes[TEAMCHAT_HEIGHT];
+	char teamChatMsgs[MSGQUEUE_HEIGHT][MSGQUEUE_WIDTH * 3 + 1];
+	int teamChatMsgTimes[MSGQUEUE_HEIGHT];
 	int teamChatPos;
 	int teamLastChatPos;
 
@@ -1850,8 +1850,8 @@ extern vmCvar_t cg_lagometer;
 extern vmCvar_t cg_drawAttacker;
 extern vmCvar_t cg_synchronousClients;
 extern vmCvar_t cg_gravity;
-extern vmCvar_t cg_teamChatTime;
-extern vmCvar_t cg_teamChatHeight;
+extern vmCvar_t cg_messageQueueTime;
+extern vmCvar_t cg_messageQueue;
 extern vmCvar_t cg_stats;
 extern vmCvar_t cg_forceModel;
 extern vmCvar_t cg_buildScript;
@@ -2064,6 +2064,10 @@ qboolean CG_Cvar_ClampInt(const char *name, vmCvar_t *vmCvar, int min, int max);
 //
 const char *CG_ConfigString(int index);
 const char *CG_Argv(int arg);
+
+void CG_InitMessageQueue(void);
+void CG_UpdateMessageQueue(void);
+void CG_AddMessage(const char* msg);
 
 void QDECL CG_Printf(const char *msg, ...);
 void QDECL CG_Error(const char *msg, ...);

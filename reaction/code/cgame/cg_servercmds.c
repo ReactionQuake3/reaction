@@ -754,80 +754,6 @@ static void CG_ConfigStringModified(void)
 }
 
 /*
-=======================
-CG_AddToTeamChat
-
-=======================
-*/
-static void CG_AddToTeamChat(const char *str)
-{
-	int len;
-	char *p, *ls;
-	int lastcolor;
-	int chatHeight;
-
-	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT) {
-		chatHeight = cg_teamChatHeight.integer;
-	} else {
-		chatHeight = TEAMCHAT_HEIGHT;
-	}
-
-	if (chatHeight <= 0 || cg_teamChatTime.integer <= 0) {
-		// team chat disabled, dump into normal chat
-		cgs.teamChatPos = cgs.teamLastChatPos = 0;
-		return;
-	}
-
-	len = 0;
-
-	p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
-	*p = 0;
-
-	lastcolor = '7';
-
-	ls = NULL;
-	while (*str) {
-		if (len > TEAMCHAT_WIDTH - 1) {
-			if (ls) {
-				str -= (p - ls);
-				str++;
-				p -= (p - ls);
-			}
-			*p = 0;
-
-			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
-
-			cgs.teamChatPos++;
-			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
-			*p = 0;
-			*p++ = Q_COLOR_ESCAPE;
-			*p++ = lastcolor;
-			len = 0;
-			ls = NULL;
-		}
-
-		if (Q_IsColorString(str)) {
-			*p++ = *str++;
-			lastcolor = *str;
-			*p++ = *str++;
-			continue;
-		}
-		if (*str == ' ') {
-			ls = p;
-		}
-		*p++ = *str++;
-		len++;
-	}
-	*p = 0;
-
-	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
-	cgs.teamChatPos++;
-
-	if (cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
-		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
-}
-
-/*
 ===============
 CG_MapRestart
 
@@ -1424,12 +1350,12 @@ void CG_RQ3_Cmd( void )
 		cg.showScores = qfalse;
 		cg.scoreTPMode = 0;
 		CG_CenterPrint("LIGHTS...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-		CG_Printf("\nLIGHTS...\n");
+		CG_AddMessage("\nLIGHTS...\n");
 		CG_AddBufferedSound(cgs.media.lightsSound);
 		break;
 	case CAMERA:
 		CG_CenterPrint("CAMERA...", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-		CG_Printf("\nCAMERA...\n");
+		CG_AddMessage("\nCAMERA...\n");
 		CG_AddBufferedSound(cgs.media.cameraSound);
 		break;
 	case TPCOUNTDOWN:
@@ -1437,7 +1363,7 @@ void CG_RQ3_Cmd( void )
 		break;
 	case ACTION:
 		CG_CenterPrint("ACTION!", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-		CG_Printf("\nACTION!\n");
+		CG_AddMessage("\nACTION!\n");
 		cg.lca = 0;
 		//      trap_Cvar_Set("cg_RQ3_lca", "0");
 		CG_AddBufferedSound(cgs.media.actionSound);
@@ -1609,7 +1535,8 @@ static void CG_ServerCommand(void)
 	}
 
 	if (!strcmp(cmd, "print")) {
-		CG_Printf("%s", CG_Argv(1));
+		//CG_Printf("%s", CG_Argv(1));
+		CG_AddMessage(CG_Argv(1));
 		return;
 	}
 
@@ -1618,7 +1545,7 @@ static void CG_ServerCommand(void)
 			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 			Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 			CG_RemoveChatEscapeChar(text);
-			CG_Printf("%s\n", text);
+			CG_AddMessage(text);
 		}
 		return;
 	}
@@ -1627,8 +1554,7 @@ static void CG_ServerCommand(void)
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 		CG_RemoveChatEscapeChar(text);
-		CG_AddToTeamChat(text);
-		CG_Printf("%s\n", text);
+		CG_AddMessage(text);
 		return;
 	}
 	if (!strcmp(cmd, "vchat")) {

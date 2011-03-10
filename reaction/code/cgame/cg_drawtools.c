@@ -184,7 +184,7 @@ void CG_DrawChar(int x, int y, int width, int height, int ch)
 
 	ch &= 255;
 
-	if (ch == ' ') {
+	if (ch == ' ' || ch == '\t' || ch == '\n') {
 		return;
 	}
 
@@ -241,7 +241,15 @@ void CG_DrawStringExt(int x, int y, const char *string, const float *setColor,
 				s += 2;
 				continue;
 			}
-			CG_DrawChar(xx + 2, y + 2, charWidth, charHeight, *s);
+			if (*s == '\n')
+			{
+				xx = x;
+				y += charHeight;
+				yoffset += charHeight;
+				++s;
+				continue;
+			}
+			CG_DrawChar(xx + 1, y + 1, charWidth, charHeight, *s);
 			cnt++;
 			xx += charWidth;
 			s++;
@@ -270,6 +278,14 @@ void CG_DrawStringExt(int x, int y, const char *string, const float *setColor,
 				}
 			}
 			s += 2;
+			continue;
+		}
+		if (*s == '\n')
+		{
+			xx = x;
+			y += charHeight;
+			yoffset += charHeight;
+			++s;
 			continue;
 		}
 		CG_DrawChar(xx, y, charWidth, charHeight, *s);
@@ -323,17 +339,27 @@ int CG_DrawStrlen(const char *str)
 {
 	const char *s = str;
 	int count = 0;
+	int max = 0;
 
 	while (*s) {
 		if (Q_IsColorString(s)) {
 			s += 2;
 		} else {
+			if (*s == '\n')
+			{
+				max = count > max ? count : max;
+				count = 0;
+				++s;
+				continue;
+			}
 			count++;
 			s++;
 		}
 	}
+	
+	max = count > max ? count : max;
 
-	return count;
+	return max;
 }
 
 /*

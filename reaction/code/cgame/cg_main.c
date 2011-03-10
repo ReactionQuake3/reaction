@@ -512,8 +512,8 @@ vmCvar_t cg_thirdPersonAngle;
 vmCvar_t cg_lagometer;
 vmCvar_t cg_drawAttacker;
 vmCvar_t cg_synchronousClients;
-vmCvar_t cg_teamChatTime;
-vmCvar_t cg_teamChatHeight;
+vmCvar_t cg_messageQueueTime;
+vmCvar_t cg_messageQueue;
 vmCvar_t cg_stats;
 vmCvar_t cg_buildScript;
 vmCvar_t cg_forceModel;
@@ -799,8 +799,8 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT},
 	//Makro - changing from CVAR_ROM (why was it like that ?) to CVAR_CHEAT
 	{&cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT},
-	{&cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE},
-	{&cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE},
+	{&cg_messageQueueTime, "cg_messageQueueTime", "3000", CVAR_ARCHIVE},
+	{&cg_messageQueue, "cg_messageQueue", "8", CVAR_ARCHIVE},
 	{&cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE},
 	{&cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE},
 	{&cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE},
@@ -1185,6 +1185,102 @@ int CG_LastAttacker(void)
 		return -1;
 	}
 	return cg.snap->ps.persistant[PERS_ATTACKER];
+}
+
+void CG_AddMessage(const char* str)
+{
+	int len;
+	char *p, *ls;
+	int lastcolor;
+	int chatHeight;
+
+	if (!cg_messageQueue.integer || cg_messageQueueTime.integer <= 0) {
+		// team chat disabled, dump into normal chat
+		cgs.teamChatPos = cgs.teamLastChatPos = 0;
+		trap_Print(str);
+		return;
+	}
+	
+	chatHeight = MSGQUEUE_HEIGHT;
+	len = 0;
+
+	p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
+	*p = 0;
+
+	lastcolor = '7';
+
+	ls = NULL;
+	while (*str) {
+		if (len > MSGQUEUE_WIDTH - 1) {
+			if (ls) {
+				str -= (p - ls);
+				str++;
+				p -= (p - ls);
+			}
+			*p = 0;
+
+			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+			cgs.teamChatPos++;
+			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
+			*p = 0;
+			*p++ = Q_COLOR_ESCAPE;
+			*p++ = lastcolor;
+			len = 2;
+			ls = NULL;
+		}
+
+		if (Q_IsColorString(str)) {
+			*p++ = *str++;
+			lastcolor = *str;
+			*p++ = *str++;
+			len += 2;
+			continue;
+		}
+		if (*str == ' ') {
+			ls = p;
+		}
+
+		if (*str == '\n')
+		{
+			// skip last '\n'
+			if (!str[1])
+				break;
+	
+			++str;
+			
+			*p = 0;
+
+			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+			cgs.teamChatPos++;
+			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
+			*p = 0;
+			*p++ = Q_COLOR_ESCAPE;
+			*p++ = lastcolor;
+			len = 2;
+			ls = NULL;
+
+			continue;
+		}
+		
+		
+		*p++ = *str++;
+		len++;
+	}
+	*p = 0;
+
+	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+	cgs.teamChatPos++;
+
+	if (cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
+		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
+
+	// integer overflow is very unlikely, but still...
+	if (cgs.teamLastChatPos > chatHeight)
+	{
+		int extra = cgs.teamLastChatPos - cgs.teamLastChatPos % chatHeight;
+		cgs.teamLastChatPos -= extra;
+		cgs.teamChatPos -= extra;
+	}
 }
 
 void QDECL CG_Printf(const char *msg, ...)

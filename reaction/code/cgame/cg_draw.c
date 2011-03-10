@@ -1375,19 +1375,80 @@ static int CG_DrawPickupItem(int y)
 		return y;
 	}
 
-	y -= ICON_SIZE;
-
 	value = cg.itemPickup;
 	if (value) {
 		fadeColor = CG_FadeColor(cg.itemPickupTime, 3000);
 		if (fadeColor) {
 			CG_RegisterItemVisuals(value);
 			trap_R_SetColor(fadeColor);
+			y -= ICON_SIZE;
 			CG_DrawPic(cgs.screenXMin + 8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
 			CG_DrawBigString(cgs.screenXMin + ICON_SIZE + 16, y + (ICON_SIZE / 2 - BIGCHAR_HEIGHT / 2),
 					 bg_itemlist[value].pickup_name, fadeColor[0]);
 			trap_R_SetColor(NULL);
 		}
+	}
+
+	return y;
+}
+
+/*
+=================
+CG_DrawMessageQueue
+=================
+*/
+static float CG_DrawMessageQueue(float y)
+{
+	int w, h;
+	int i, len;
+	vec4_t hcolor;
+	int chatHeight;
+	float div;
+
+#define CHATLOC_Y y
+#define CHATLOC_X cgs.screenXMin
+
+	if (!cg_messageQueue.integer || cg_messageQueueTime.integer <= 0)
+		return y;
+	
+	chatHeight = MSGQUEUE_HEIGHT;
+
+	while (cgs.teamLastChatPos < cgs.teamChatPos && cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_messageQueueTime.integer)
+		cgs.teamLastChatPos++;
+	
+	if (cgs.teamLastChatPos == cgs.teamChatPos)
+		return y;
+
+	y -= 32;
+
+	h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
+
+	w = 0;
+
+	for (i = cgs.teamLastChatPos; i < cgs.teamChatPos; i++) {
+		len = CG_DrawStrlen(cgs.teamChatMsgs[i % chatHeight]);
+		if (len > w)
+			w = len;
+	}
+	w *= TINYCHAR_WIDTH;
+	w += TINYCHAR_WIDTH * 2;
+
+	div = 1.f / cg_messageQueueTime.integer;
+
+	hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
+	hcolor[3] = 1.0f;
+
+	for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
+		int index = i % chatHeight;
+		float frac = (cg.time - cgs.teamChatMsgTimes[index]) * div;
+		if (frac > 1.f)
+			continue;
+		hcolor[3] = frac > 0.875f ? (1.f - frac) * 8.f : 1.f;
+		CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
+				 CHATLOC_Y,
+				 cgs.teamChatMsgs[index], hcolor, qfalse, qtrue,
+				 TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+		y -= TINYCHAR_HEIGHT;
 	}
 
 	return y;
@@ -1409,78 +1470,11 @@ static void CG_DrawLowerLeft(void)
 		y = CG_DrawTeamOverlay(y, qfalse, qfalse);
 	}
 
+	y = CG_DrawMessageQueue(y);
 	y = CG_DrawPickupItem(y);
 }
 
 //===========================================================================================
-
-/*
-=================
-CG_DrawTeamInfo
-=================
-*/
-static void CG_DrawTeamInfo(void)
-{
-	int w, h;
-	int i, len;
-	vec4_t hcolor;
-	int chatHeight;
-
-#define CHATLOC_Y 420		// bottom end
-#define CHATLOC_X 0
-
-	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
-		chatHeight = cg_teamChatHeight.integer;
-	else
-		chatHeight = TEAMCHAT_HEIGHT;
-	if (chatHeight <= 0)
-		return;		// disabled
-
-	if (cgs.teamLastChatPos != cgs.teamChatPos) {
-		if (cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer) {
-			cgs.teamLastChatPos++;
-		}
-
-		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
-
-		w = 0;
-
-		for (i = cgs.teamLastChatPos; i < cgs.teamChatPos; i++) {
-			len = CG_DrawStrlen(cgs.teamChatMsgs[i % chatHeight]);
-			if (len > w)
-				w = len;
-		}
-		w *= TINYCHAR_WIDTH;
-		w += TINYCHAR_WIDTH * 2;
-
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			CG_TeamColor(TEAM_RED, hcolor);
-			hcolor[3] = 0.33f;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			CG_TeamColor(TEAM_RED, hcolor);
-			hcolor[3] = 0.33f;
-		} else {
-			hcolor[0] = 0.0f;
-			hcolor[1] = 1.0f;
-			hcolor[2] = 0.0f;
-			hcolor[3] = 0.33f;
-		}
-
-		trap_R_SetColor(hcolor);
-		CG_DrawPic(CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar);
-		trap_R_SetColor(NULL);
-
-		hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
-		hcolor[3] = 1.0f;
-
-		for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
-			CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
-					 CHATLOC_Y - (cgs.teamChatPos - i) * TINYCHAR_HEIGHT,
-					 cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse,
-					 TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
-		}
-	}
-}
 
 /*
 ===================
@@ -2211,11 +2205,12 @@ CG_DrawVote
 */
 static void CG_DrawVote(void)
 {
-	char *s, *s2;
+	const char *s;
+	int len;
 	int sec, y = 58;
-	int line;
 	float Color1[4];
 	float xmin;
+	int lines = 3;
 
 	if (!cgs.voteTime) {
 		return;
@@ -2232,13 +2227,17 @@ static void CG_DrawVote(void)
 		sec = 0;
 	}
 
-	s = va("Vote: %s (%d seconds left)", cgs.voteString, sec);
-	s2 = va("Yes(%d)  No(%d)", cgs.voteYes, cgs.voteNo);
+	s = va(	"Vote called: %s\n"
+			"Yes(%d) No(%d)\n"
+			"%d %s left\n",
+			cgs.voteString,
+			cgs.voteYes, cgs.voteNo,
+			sec, sec == 1 ? "second" : "seconds"
+			);
 
 	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
 
-	xmin = cgs.screenXMin;
-	line = SMALLCHAR_HEIGHT + 5;
+	xmin = cgs.screenXMin + 4;
 
 	if (cgs.media.voteMapShader)
 	{
@@ -2250,24 +2249,15 @@ static void CG_DrawVote(void)
 		CG_DrawPic(xmin + 3, y + 2, width, height, cgs.media.voteMapShader);
 
 		xmin += width + 4 + 4;
-		y += ((height + 4) - (line + line)) / 2;
+		//y += ((height + 4) - (SMALLCHAR_HEIGHT * lines + 4)) / 2;
 	}
 
-	CG_FillRect(xmin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
-		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(xmin + 1, y, CG_DrawStrlen(s) * SMALLCHAR_WIDTH + 4, 
-		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
+	len = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+
+	CG_FillRect(xmin + 1, y, len + 4, SMALLCHAR_HEIGHT * lines + 4, Color1);
+	CG_DrawCleanRect(xmin + 1, y, len + 4, SMALLCHAR_HEIGHT * lines + 4, 1, colorBlack);
 	CG_DrawStringExt(xmin + 3, y+2, s, colorWhite, qtrue, qfalse, 
-		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
-	y += line;
-	
-	CG_FillRect(xmin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
-		SMALLCHAR_HEIGHT + 4, Color1);
-	CG_DrawCleanRect(xmin + 1, y, CG_DrawStrlen(s2) * SMALLCHAR_WIDTH + 4, 
-		SMALLCHAR_HEIGHT + 4, 1, colorBlack);
-	CG_DrawStringExt(xmin + 3, y + 2, s2, colorWhite, qtrue, qfalse, 
-		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,  100);
-	y += line;
+		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 100);
 }
 
 /*
@@ -2628,10 +2618,6 @@ static void CG_Draw2D(void)
 			CG_DrawWeaponSelect();
 			CG_DrawHoldableItem();
 			CG_DrawReward();
-		}
-
-		if (cgs.gametype >= GT_TEAM) {
-			CG_DrawTeamInfo();
 		}
 	}
 
