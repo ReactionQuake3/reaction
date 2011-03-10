@@ -1546,7 +1546,7 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 		g_gametype.integer == GT_TEAMPLAY && level.team_round_going && mode != SAY_REF)
 		return;
 
-	trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\"",
+	trap_SendServerCommand(other - g_entities, va("%s \"%s%c%c%s\n\"",
 						      mode == SAY_TEAM ? "tchat" : "chat",
 						      name, Q_COLOR_ESCAPE, color, message));
 }
