@@ -356,7 +356,7 @@ static void CG_DMRewardEvent(entityState_t * ent)
 		message = "16";
 
 	if (message) {
-		CG_Printf("%s has %d kills in a row and receives %s frags for the kill!\n", attackerName, mod, message);
+		CG_AddMessage(va("%s has %d kills in a row and receives %s frags for the kill!\n", attackerName, mod, message));
 		return;
 	}
 
@@ -441,12 +441,12 @@ static void CG_JumpKick(entityState_t * ent)
 		else
 			Q_strncpyz(sex, "its", sizeof(sex));
 
-		CG_Printf("You kicked %s^7's %s from %s hands!\n",
-			  ci->name, cg_weapons[ent->weapon].item->pickup_name, sex);
+		CG_AddMessage(va("You kicked %s^7's %s from %s hands!\n",
+			  ci->name, cg_weapons[ent->weapon].item->pickup_name, sex));
 	} else if (ent->weapon && target == cg.clientNum) {
 		// this client was the kicked
 		ci = &cgs.clientinfo[attacker];
-		CG_Printf("%s^7 kicked your weapon from your hands!\n", ci->name);
+		CG_AddMessage(va("%s^7 kicked your weapon from your hands!\n", ci->name));
 	}
 	// everyone hears this
 	trap_S_StartSound(NULL, ent->number, CHAN_AUTO, cgs.media.kickSound);
