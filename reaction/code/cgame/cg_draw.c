@@ -2229,7 +2229,7 @@ static void CG_DrawVote(void)
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	}
 
-	sec = (VOTE_TIME - (cg.time - cgs.voteTime)) / 1000;
+	sec = (VOTE_TIME - (cg.time - cgs.voteTime) + 999) / 1000;
 	if (sec < 0) {
 		sec = 0;
 	}
@@ -2274,7 +2274,12 @@ static void CG_DrawVote(void)
 			height = previewHeight + 4;
 	}
 
-	alpha = SmoothLerp(Com_Clamp(0.f, 1.f, (cg.time - cgs.voteTime) / (1000.f * 0.125f)));
+	{
+		int begin = cg.time - cgs.voteTime;
+		int end = VOTE_TIME - begin;
+		int min = begin < end ? begin : end;
+		alpha = Com_Clamp(0.f, 1.f, min / (1000.f * 0.125f));
+	}
 	
 	// slide in //
 	xmin -= (1.f - alpha) * (len + offset);
