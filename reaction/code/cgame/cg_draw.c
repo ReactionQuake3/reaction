@@ -2208,9 +2208,16 @@ static void CG_DrawVote(void)
 	const char *s;
 	int len;
 	int sec, y = 58;
-	float Color1[4];
+	vec4_t color1;
 	float xmin;
 	int lines = 3;
+	int offset = 0;
+	float alpha = 1.f;
+
+	const int previewWidth = 64;
+	const int previewHeight = 48;
+
+	int height;
 
 	if (!cgs.voteTime) {
 		return;
@@ -2227,37 +2234,72 @@ static void CG_DrawVote(void)
 		sec = 0;
 	}
 
-	s = va(	"Vote called: %s\n"
-			"Yes(%d) No(%d)\n"
-			"%d %s left\n",
-			cgs.voteString,
-			cgs.voteYes, cgs.voteNo,
-			sec, sec == 1 ? "second" : "seconds"
-			);
+#	define VOTE_FMT(msg) msg "(%d)"
 
-	MAKERGBA(Color1, 0.0f, 0.0f, 0.0f, 0.4f);
+	if ((cg.snap && EF_VOTED == (cg.snap->ps.eFlags & EF_VOTED)) || !cgs.voteYesKey[0] || !cgs.voteNoKey[0])
+	{
+		s = va(	"Vote called: %s\n"
+				VOTE_FMT("Yes") "  " VOTE_FMT("No") "\n"
+				"%d %s left\n",
+				cgs.voteString,
+				cgs.voteYes, cgs.voteNo,
+				sec, sec == 1 ? "second" : "seconds"
+				);
+	}
+	else
+	{
+#		define KEY_FMT S_COLOR_CYAN "%s" S_COLOR_RESET
+		
+		s = va(	"Vote called: %s\n"
+				KEY_FMT "=" VOTE_FMT("Yes") "  " KEY_FMT "=" VOTE_FMT("No") "\n"
+				"%d %s left\n",
+				cgs.voteString,
+				cgs.voteYesKey, cgs.voteYes, cgs.voteNoKey, cgs.voteNo,
+				sec, sec == 1 ? "second" : "seconds"
+				);
+
+#		undef KEY_FMT
+	}
+#	undef VOTE_FMT
+
+	len = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+	height = lines * SMALLCHAR_HEIGHT + 4;
 
 	xmin = cgs.screenXMin + 4;
 
 	if (cgs.media.voteMapShader)
 	{
-		int width = 64;
-		int height = 48;
-		
-		CG_FillRect(xmin + 1, y, width + 4, height + 4, Color1);
-		CG_DrawCleanRect(xmin + 1, y, width + 4, height + 4, 1, colorBlack);
-		CG_DrawPic(xmin + 3, y + 2, width, height, cgs.media.voteMapShader);
-
-		xmin += width + 4 + 4;
-		//y += ((height + 4) - (SMALLCHAR_HEIGHT * lines + 4)) / 2;
+		offset += previewWidth + 4 + 4;
+		if (height < previewHeight + 4 + 4)
+			height = previewHeight + 4;
 	}
 
-	len = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+	alpha = SmoothLerp(Com_Clamp(0.f, 1.f, (cg.time - cgs.voteTime) / (1000.f * 0.125f)));
+	
+	// slide in //
+	xmin -= (1.f - alpha) * (len + offset);
 
-	CG_FillRect(xmin + 1, y, len + 4, SMALLCHAR_HEIGHT * lines + 4, Color1);
-	CG_DrawCleanRect(xmin + 1, y, len + 4, SMALLCHAR_HEIGHT * lines + 4, 1, colorBlack);
-	CG_DrawStringExt(xmin + 3, y+2, s, colorWhite, qtrue, qfalse, 
+	{
+		const int inflatex = 32;
+		const int inflatey = 24;
+		CG_DrawFuzzyShadow(xmin + 1 - inflatex, y - inflatey, len + 4 + offset + inflatex + inflatex, height + inflatey + inflatey, 32, 0.75f * alpha);
+	}
+
+	MAKERGBA(color1, 1.0f, 1.0f, 1.0f, alpha);
+	
+	if (cgs.media.voteMapShader)
+	{
+		CG_FillRect(xmin + 1, y, previewWidth + 4, previewHeight + 4, color1);
+		trap_R_SetColor(color1);
+		CG_DrawPic(xmin + 3, y + 2, previewWidth, previewHeight, cgs.media.voteMapShader);
+
+		xmin += offset;
+	}
+	
+	CG_DrawStringExt(xmin + 3, y+2, s, color1, qfalse, qfalse, 
 		SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 100);
+
+	trap_R_SetColor(NULL);
 }
 
 /*

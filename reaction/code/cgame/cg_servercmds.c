@@ -659,6 +659,22 @@ static void CG_UpdateVoteMapShader(void)
 	}
 }
 
+static void CG_UpdateVoteKeys(void)
+{
+	int yesKey = trap_Key_GetKey("vote yes");
+	int noKey = trap_Key_GetKey("vote no");
+	if (yesKey != -1 && noKey != -1)
+	{
+		trap_RQ3_Key_KeynumToStringBuf(yesKey, cgs.voteYesKey, sizeof(cgs.voteYesKey));
+		trap_RQ3_Key_KeynumToStringBuf(noKey, cgs.voteNoKey, sizeof(cgs.voteNoKey));
+	}
+	else
+	{
+		cgs.voteYesKey[0] = 0;
+		cgs.voteNoKey[0] = 0;
+	}
+}
+
 /*
 ================
 CG_ConfigStringModified
@@ -695,6 +711,7 @@ static void CG_ConfigStringModified(void)
 	} else if (num == CS_VOTE_TIME) {
 		cgs.voteTime = atoi(str);
 		cgs.voteModified = qtrue;
+		CG_UpdateVoteKeys();
 		CG_UpdateVoteMapShader();
 	} else if (num == CS_VOTE_YES) {
 		cgs.voteYes = atoi(str);

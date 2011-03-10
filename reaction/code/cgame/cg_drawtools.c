@@ -136,6 +136,47 @@ void CG_DrawRect(float x, float y, float width, float height, float size, const 
 	trap_R_SetColor(NULL);
 }
 
+void CG_DrawFuzzyRect(float x, float y, float w, float h, float corner, vec4_t color, qhandle_t shader)
+{
+	float xcorner = corner * cgs.screenXScale;
+	float ycorner = corner * cgs.screenYScale;
+
+	CG_AdjustFrom640(&x, &y, &w, &h);
+	
+	trap_R_SetColor(color);
+
+	// top //
+	trap_R_DrawStretchPic(x, y, xcorner, ycorner, 0, 0, 0.5f, 0.5f, shader);
+	trap_R_DrawStretchPic(x+xcorner, y, w-xcorner-xcorner, ycorner, 0.5f, 0, 0.5f, 0.5f, shader);
+	trap_R_DrawStretchPic(x+w-xcorner, y, xcorner, ycorner, 0.5f, 0, 1, 0.5f, shader);
+
+	// middle //
+	trap_R_DrawStretchPic(x, y+ycorner, xcorner, h-ycorner-ycorner, 0, 0.5f, 0.5f, 0.5f, shader);
+	trap_R_DrawStretchPic(x+xcorner, y+ycorner, w-xcorner-xcorner, h-ycorner-ycorner, 0.5f, 0.5f, 0.5f, 0.5f, shader);
+	trap_R_DrawStretchPic(x+w-xcorner, y+ycorner, xcorner, h-ycorner-ycorner, 0.5f, 0.5f, 1, 0.5f, shader);
+
+	// bottom //
+	trap_R_DrawStretchPic(x, y+h-ycorner, xcorner, ycorner, 0, 0.5f, 0.5f, 1, shader);
+	trap_R_DrawStretchPic(x+xcorner, y+h-ycorner, w-xcorner-xcorner, ycorner, 0.5f, 0.5f, 0.5f, 1, shader);
+	trap_R_DrawStretchPic(x+w-xcorner, y+h-ycorner, xcorner, ycorner, 0.5f, 0.5f, 1, 1, shader);
+
+	trap_R_SetColor(NULL);
+}
+
+void CG_DrawFuzzyShadow(float x, float y, float w, float h, float corner, float alpha)
+{
+	vec4_t color;
+	color[0] = color[1] = color[2] = alpha;
+	color[3] = 1.f;
+	CG_DrawFuzzyRect(x, y, w, h, corner, color, cgs.media.fuzzyShadowShader);
+}
+
+void CG_DrawFuzzyGlow(float x, float y, float w, float h, float corner, vec4_t color)
+{
+	CG_DrawFuzzyRect(x, y, w, h, corner, color, cgs.media.fuzzyGlowShader);
+}
+
+
 /*
 ================
 UI_DrawRect -- Added by NiceAss

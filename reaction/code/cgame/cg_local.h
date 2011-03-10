@@ -1217,6 +1217,8 @@ typedef struct {
 	qhandle_t whiteShader;
 
 	qhandle_t blackHackShader;
+	qhandle_t fuzzyShadowShader;
+	qhandle_t fuzzyGlowShader;
 
 #ifdef MISSIONPACK
 	qhandle_t redCubeModel;
@@ -1706,6 +1708,9 @@ typedef struct {
 	qboolean voteModified;	// beep whenever changed
 	char voteString[MAX_STRING_TOKENS];
 
+	char voteYesKey[32];
+	char voteNoKey[32];
+
 	int teamVoteTime[2];
 	int teamVoteYes[2];
 	int teamVoteNo[2];
@@ -2125,6 +2130,10 @@ void CG_DrawBigString(int x, int y, const char *s, float alpha);
 void CG_DrawBigStringColor(int x, int y, const char *s, vec4_t color);
 void CG_DrawSmallString(int x, int y, const char *s, float alpha);
 void CG_DrawSmallStringColor(int x, int y, const char *s, vec4_t color);
+
+void CG_DrawFuzzyRect(float x, float y, float w, float h, float corner, vec4_t color, qhandle_t shader);
+void CG_DrawFuzzyShadow(float x, float y, float w, float h, float corner, float alpha);
+void CG_DrawFuzzyGlow(float x, float y, float w, float h, float corner, vec4_t color);
 
 int CG_DrawStrlen(const char *str);
 
@@ -2574,6 +2583,7 @@ void trap_startCamera(int time);
 qboolean trap_getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
 
 qboolean trap_GetEntityToken(char *buffer, int bufferSize);
+void trap_RQ3_Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
 
 void CG_ClearParticles(void);
 void CG_AddParticles(void);
