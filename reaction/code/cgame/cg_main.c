@@ -3043,6 +3043,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.media.charsetProp = trap_R_RegisterShaderNoMip("menu/art/font1_prop.tga");
 	cgs.media.charsetPropGlow = trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
 	cgs.media.charsetPropB = trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
+	cgs.media.fuzzyShadowShader = trap_R_RegisterShaderNoMip("gfx/misc/fuzzyShadow.tga");
+	cgs.media.fuzzyGlowShader = trap_R_RegisterShaderNoMip("gfx/misc/fuzzyGlow.tga");
 
 	CG_RegisterCvars();
 
