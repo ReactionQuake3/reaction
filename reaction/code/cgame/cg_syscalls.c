@@ -531,3 +531,8 @@ qboolean trap_R_inPVS(const vec3_t p1, const vec3_t p2)
 {
 	return syscall(CG_R_INPVS, p1, p2);
 }
+
+void trap_RQ3_Key_KeynumToStringBuf(int keynum, char *buf, int buflen)
+{
+	syscall(CG_RQ3_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen);
+}
