@@ -62,10 +62,11 @@
 		//style WINDOW_STYLE_FILLED
 		//backcolor 0 0 0 1
 		popup
-		onOOBClick { close _self ; open _prev }
+		onOOBClick { close _self }
 		onOpen { play "sound/ui/whoosh3.wav" ; uiScript buildReplacementList 
 			ACTIVATE_TAB(1) ;
 		}
+		onClose { open _prev }
 		onEsc { close _self }
 
 		onOpenSpecial {

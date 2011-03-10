@@ -40,25 +40,22 @@
 	popup
 	
 	onOOBClick { close _self }
-	onOpen { play "sound/ui/whoosh3.wav" ; uiScript loadControls ;
+	onOpen { play "sound/ui/whoosh3.wav" ; 
 		setitemcolor hints forecolor HINT_COLOR 1 ; hide hints ;
 		ACTIVATE_TAB(1) ;
 	}
-	onClose { uiScript saveControls ; open _prev }
+	onClose { open _prev }
 	onEsc { close _self }
 
 	onOpenSpecial {
 		//normal items
-		setItemColor "fade_alpha" forecolor 5 5 5 0 ;
-		timeFade "fade_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+		ALPHA_FADE_FORE(fade_alpha, 1) ;
 
 		//icon - special alpha
-		setItemColor "icon" forecolor 5 5 5 0 ;
-		timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+		ALPHA_FADE_FORE(icon, ICON_ALPHA) ;
 
 		//line - special alpha; using backcolor
-		setItemColor "line" backcolor 5 5 5 0 ;
-		timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+		ALPHA_FADE_BACK(line, LINE_ALPHA) ;
 	}
 
 
