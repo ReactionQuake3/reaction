@@ -1904,6 +1904,11 @@ static qboolean CG_WeaponSelectable(int i)
 	return qtrue;
 }
 
+static void CG_TooBusyBandaging(void)
+{
+	CG_AddMessage("You are too busy bandaging...\n");
+}
+
 /*
 ===============
 CG_NextWeapon_f
@@ -1925,7 +1930,7 @@ void CG_NextWeapon_f(void)
 	}
 	//Elder: added
 	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
-		CG_Printf("You are too busy bandaging...\n");
+		CG_TooBusyBandaging();
 		return;
 	}
 	//Elder: don't allow weapon switching when in the middle of bursts
@@ -1978,7 +1983,7 @@ void CG_PrevWeapon_f(void)
 	//Elder: added
 // if ( (cg.snap->ps.stats[STAT_RQ3] & RQ3_BANDAGE_WORK) == RQ3_BANDAGE_WORK) {
 	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
-		CG_Printf("You are too busy bandaging...\n");
+		CG_TooBusyBandaging();
 		return;
 	}
 	//Elder: don't allow weapon switching when in the middle of bursts
@@ -2033,7 +2038,7 @@ void CG_SpecialWeapon_f(void)
 	}
 	//Elder: added
 	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
-		CG_Printf("You are too busy bandaging...\n");
+		CG_AddMessage("You are too busy bandaging...\n");
 		return;
 	}
 	//Elder: don't allow weapon switching when in the middle of bursts
@@ -2205,7 +2210,7 @@ void CG_Weapon_f(void)
 	}
 	//Elder: added to prevent weapon switching while bandaging
 	if (cg.snap->ps.weaponstate == WEAPON_BANDAGING) {
-		CG_Printf("You are too busy bandaging...\n");
+		CG_AddMessage("You are too busy bandaging...\n");
 		return;
 	}
 	//Elder: don't allow weapon switching when in the middle of bursts
