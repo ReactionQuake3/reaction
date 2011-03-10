@@ -1200,6 +1200,9 @@ void CG_AddMessage(const char* str)
 		trap_Print(str);
 		return;
 	}
+
+	// print to console only
+	trap_Print(va("[skipnotify]%s", str));
 	
 	chatHeight = MSGQUEUE_HEIGHT;
 	len = 0;
