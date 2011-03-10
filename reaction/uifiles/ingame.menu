@@ -92,6 +92,9 @@
 			play "sound/ui/whoosh3.wav" ;
 			setfocus "button_about" ;
 		}
+		onESC {
+			uiScript closeInGame ;
+		}
 
 		itemdef {
 			name "ingame-back"
@@ -170,7 +173,7 @@
 		
 		MENU_ITEM("button_restart", "confirmRestart", "^_R^_estart", "R", "button_options", 62, 40)
 		MENU_ITEM("button_main", "confirmMain", "^_M^_ain Menu", "M", "button_restart", 84, 20)
-		MENU_ITEM("button_quit", "confirmQuit", "^_E^_xit Reaction", "E", "button_main", 100, 20)
+		MENU_ITEM("button_quit", "confirmQuit", "E^_x^_it Reaction", "X", "button_main", 100, 20)
 
 	}
 
@@ -345,13 +348,21 @@
 	}
 
 
+#define BACK_COLOR1	.94 .94 .82 1
+#define BACK_COLOR2	1 .95 .8 1
 
 	// Quit game
 
 	menuDef {
 		name "confirmQuit"
-		rect 84 184 160 144
-		onOpen { play "sound/ui/whoosh3.wav" ; setfocus no }
+		rect 84 184 188 144
+		onOpen {
+			setrandomitemcolor postit forecolor 2 BACK_COLOR1 BACK_COLOR2 ;
+			ALPHA_FADE_FORE(confirm, 1) ;
+			play "sound/ui/whoosh3.wav" ;
+			setQuitText message ;
+			setfocus no
+		}
 		onOOBClick { close _self ; open _prev }
 		onEsc { close _self ; open _prev }
 		disableColor  .5 .5 .5 1
@@ -359,6 +370,7 @@
 		style WINDOW_STYLE_EMPTY
 		//style WINDOW_STYLE_FILLED
 		//backcolor 0 0 0 1
+		anglevectors -9 -99
 		fullscreen 0
 		popup
 
@@ -366,10 +378,11 @@
 			renderpoint
 			name "postit"
 			group confirm
+			menuAnchor
 			style WINDOW_STYLE_SHADER
 			background UI_ASSETS"/post_it"
 			forecolor .94 .94 .82 1
-			rect 0 0 180 152
+			rect 0 0 188 148
 			anglevectors -9 -99
 			visible 1
 			decoration
@@ -377,14 +390,16 @@
 		
 		itemdef {
 			renderpoint
-			name restartConfirm
+			name message
 			group confirm
 			autowrapped
 			text "Exit Reaction?"
 			forecolor 0 0 0 1
+			textalign ITEM_ALIGN_CENTER
+			textalignx 56
 			textaligny 20
-			textscale UI_MAIN_TEXTSIZE
-			alignrect "postit" ITEM_ALIGN_LEFT 44 8 120 24
+			textscale UI_SUBMENU_TEXTSIZE
+			alignrect "postit" ITEM_ALIGN_LEFT 36 20 112 24
 			style WINDOW_STYLE_EMPTY
 			decoration
 			visible 1
@@ -399,9 +414,8 @@
 			shortcutKey "Y"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
-			backcolor 0 0 0 .1
 			textscale .25
-			alignrect restartConfirm ITEM_ALIGN_LEFT 4 56 32 16
+			alignrect message ITEM_ALIGN_LEFT 20 56 32 16
 			textalign ITEM_ALIGN_CENTER
 			textalignx 16
 			textaligny 12
@@ -419,9 +433,8 @@
 			shortcutKey "N"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
-			backcolor 0 0 0 .1
 			textscale .25
-			alignrect restartConfirm ITEM_ALIGN_LEFT 56 56 32 16
+			alignrect message ITEM_ALIGN_RIGHT 20 56 32 16
 			textalign ITEM_ALIGN_CENTER
 			textalignx 16
 			textaligny 12
