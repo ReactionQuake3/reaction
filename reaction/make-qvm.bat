@@ -131,6 +131,7 @@ del "%zipname%"
 set zipname=%make-qvm-location%bin\qvm\zzzz-code-%date:~-4,4%%date:~-7,2%%date:~-10,2%.pk3
 cd "%make-qvm-location%bin\qvm"
 copy /y "%make-qvm-location%uifiles\*.menu" "%make-qvm-location%bin\qvm\ui"
+copy /y "%make-qvm-location%uifiles\*.h" "%make-qvm-location%bin\qvm\ui"
 copy /y "%make-qvm-location%uifiles\menus.txt" "%make-qvm-location%bin\qvm\ui"
 copy /y "%make-qvm-location%uifiles\ingame.txt" "%make-qvm-location%bin\qvm\ui"
 "%zipper%" a -tzip "%zipname%" vm\*.qvm
