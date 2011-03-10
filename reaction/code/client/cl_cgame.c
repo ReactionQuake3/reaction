@@ -401,6 +401,17 @@ void CL_ShutdownCGame( void ) {
 	cgvm = NULL;
 }
 
+/*
+====================
+CL_RQ3_Key_KeynumToStringBuf
+====================
+*/
+static void CL_RQ3_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+	Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
+}
+
+
+
 static int	FloatAsInt( float f ) {
 	floatint_t fi;
 	fi.f = f;
@@ -698,6 +709,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return re.GetEntityToken( VMA(1), args[2] );
 	case CG_R_INPVS:
 		return re.inPVS( VMA(1), VMA(2) );
+
+	case CG_RQ3_KEY_KEYNUMTOSTRINGBUF:
+		CL_RQ3_Key_KeynumToStringBuf( args[1], VMA(2), args[3] );
+		return 0;
 
 	default:
 	        assert(0);
