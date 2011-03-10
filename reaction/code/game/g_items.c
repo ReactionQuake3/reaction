@@ -319,6 +319,7 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 // Begin Duffman - Adds a clip for each weapon picked up, will want to edit this later
 	switch (ent->item->giTag) {
 	case WP_KNIFE:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_KNIFE_NAME "^7\n\""));
 		if (other->client->ps.ammo[WP_KNIFE] < RQ3_KNIFE_MAXCLIP * bandolierFactor) {
 			ammotoadd = other->client->ps.ammo[WP_KNIFE] + 1;
 		} else {
@@ -329,7 +330,7 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		//Elder: special case
 		//Someone can optimize this code later, but for now, it works.
 		if (!(other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO))) {
-			trap_SendServerCommand(other - g_entities, va("print \"%s^7\n\"", RQ3_AKIMBO_NAME));
+			trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_AKIMBO_NAME "^7\n\""));
 			other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_AKIMBO);
 			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
 			//Elder: always reset back to full clip like Action if first pistol picked up
@@ -338,7 +339,7 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		//Elder: Already have akimbo - technically should have pistol
 		else if (other->client->numClips[WP_PISTOL] < 2) {
 			//give an extra clip - make < 2 + 2 * hasBandolier(0/1) or something for bando when it's in
-			trap_SendServerCommand(other - g_entities, va("print \"Picked up an extra clip^7\n\""));
+			trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up an extra clip^7\n\""));
 			other->client->numClips[WP_PISTOL]++;
 			other->client->numClips[WP_AKIMBO]++;
 			ammotoadd = other->client->ps.ammo[WP_PISTOL];
@@ -352,18 +353,22 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		ammotoadd = RQ3_AKIMBO_AMMO;
 		break;
 	case WP_MP5:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_MP5_NAME "^7\n\""));
 		ammotoadd = RQ3_MP5_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_M4:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_M4_NAME "^7\n\""));
 		ammotoadd = RQ3_M4_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_M3:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_M3_NAME "^7\n\""));
 		ammotoadd = RQ3_M3_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_HANDCANNON:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_HANDCANNON_NAME "^7\n\""));
 		ammotoadd = RQ3_HANDCANNON_AMMO;
 		//Elder: HC gets 2 in chamber and 5 in reserve
 		//Also sync with M3
@@ -374,10 +379,12 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		other->client->uniqueWeapons++;
 		break;
 	case WP_SSG3000:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_SSG3000_NAME "^7\n\""));
 		ammotoadd = RQ3_SSG3000_AMMO;
 		other->client->uniqueWeapons++;
 		break;
 	case WP_GRENADE:
+		trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_GRENADE_NAME "^7\n\""));
 		if (other->client->ps.ammo[WP_GRENADE] < RQ3_GRENADE_MAXCLIP * bandolierFactor) {
 			ammotoadd = other->client->ps.ammo[WP_GRENADE] + 1;
 		} else {
