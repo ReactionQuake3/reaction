@@ -89,7 +89,7 @@
 			textaligny 16
 			forecolor 0 0 0 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_captain" }
+			action { play "sound/ui/whoosh3.wav" ; openSpecial "ingame_matchmode_captain" }
 		}
 		
 		// REFEREE //
@@ -107,7 +107,7 @@
 			textaligny 16
 			forecolor 0 0 0 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_referee" }
+			action { play "sound/ui/whoosh3.wav" ; openSpecial "ingame_matchmode_referee" }
 		}
 	}
 }
