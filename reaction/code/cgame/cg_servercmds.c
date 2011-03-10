@@ -484,6 +484,7 @@ void CG_ParseSkyPortal(const char *str)
 	//lens flare
 	cgs.sunFlareSize = atoi(Info_ValueForKey(str, "lsun"));
 	cgs.numFlares = atoi(Info_ValueForKey(str, "ln"));
+	cgs.numFlares = 0;
 	if (cgs.sunFlareSize > 0 || cgs.numFlares > 0) {
 		float alphamin, alphamax, sizemin, sizemax, dfactor = 0.75f;
 		int i;
