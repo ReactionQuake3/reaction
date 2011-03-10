@@ -2,6 +2,9 @@
 #define FADEIN_TIME	125
 #define ANGLES -4 -94
 
+#define COUNTERS_ALPHA .6
+#define COUNTERS_COLOR forecolor 0 0 .1 COUNTERS_ALPHA
+
 {
 	menuDef {
 		name "ingame_join"
@@ -14,13 +17,14 @@
 		style WINDOW_STYLE_EMPTY
 		onOpen {
 			play "sound/ui/whoosh3.wav" ;
-			uiScript "updateJoinTeamNames"
-			setitemcolor window forecolor 5 5 5 0 ;
-			timefade window forecolor 5 5 5 1 0 FADEIN_TIME
+			uiScript "updateJoinTeamNames" ;
+			ALPHA_FADE_FORE(window, 1) ;
+			ALPHA_FADE_FORE(counters, COUNTERS_ALPHA) ;
 		}
-		//onESC { play "sound/ui/whoosh3.wav" ; close _self }
-		onESC { play "sound/ui/whoosh3.wav" }
-		//onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
+		onESC { close _self }
+		onClose { play "sound/ui/whoosh3.wav" ; open _prev }
+		//onESC { play "sound/ui/whoosh3.wav" }
+		onOOBClick { close _self }
 		
 		itemDef {
 			renderpoint
@@ -43,6 +47,7 @@
 			renderpoint
 			name "title"
 			text "Join team:"
+			group window
 			forecolor .6 .0 .0 1
 			//forecolor .0 .0 .1 1
 			style WINDOW_STYLE_EMPTY
@@ -63,6 +68,7 @@
 		itemDef {
 			name team
 			text "^_1^_."
+			group window
 			ownerDraw UI_RQ3_JOINTEAM1
 			shortcutKey "1"
 			alignrect title ITEM_ALIGN_LEFT 0 32 128 14
@@ -77,12 +83,13 @@
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
 			*/
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team red" ; uiScript "weapAfterJoin" ; uiScript closeingame }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team red" ; uiScript "weapAfterJoin" ; close _self }
 		}
 		
 		itemDef {
 			name team1
 			text ""
+			group counters
 			cvar "ui_RQ3_teamCount1"
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
@@ -91,7 +98,7 @@
 			textalignx 8
 			textaligny 12
 			textscale .225
-			forecolor 0 0 .1 .6
+			COUNTERS_COLOR
 			visible 1
 			decoration
 			/*
@@ -105,6 +112,7 @@
 		itemDef {
 			name team
 			text "^_2^_."
+			group window
 			ownerDraw UI_RQ3_JOINTEAM2
 			shortcutKey "2"
 			alignrect title ITEM_ALIGN_LEFT 0 48 128 14
@@ -119,12 +127,13 @@
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
 			*/
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; close "ingame_join" }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team blue" ; uiScript "weapAfterJoin" ; close _self }
 		}
 		
 		itemDef {
 			name team2
 			text ""
+			group counters
 			cvar "ui_RQ3_teamCount2"
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
@@ -133,7 +142,7 @@
 			textalignx 8
 			textaligny 12
 			textscale .225
-			forecolor 0 0 .1 .6
+			COUNTERS_COLOR
 			visible 1
 			decoration
 			/*
@@ -147,6 +156,7 @@
 		itemDef {
 			name team
 			text "^_A^_uto-assign"
+			group window
 			shortcutKey "A"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
@@ -158,7 +168,7 @@
 			textscale .225
 			forecolor 0 0 .1 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team auto" ; uiScript "weapAfterJoin" ; close "ingame_join" }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team auto" ; uiScript "weapAfterJoin" ; close _self }
 			/*
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
@@ -168,6 +178,7 @@
 		itemDef {
 			name team
 			text "^_S^_pectators"
+			group window
 			shortcutKey "S"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
@@ -179,7 +190,7 @@
 			textscale .225
 			forecolor 0 0 .1 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; close "ingame_join" }
+			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; close _self }
 			/*
 			style WINDOW_STYLE_FILLED
 			backcolor 0 0 0 .6
@@ -189,6 +200,7 @@
 		itemDef {
 			name team3
 			text ""
+			group counters
 			cvar "ui_RQ3_numSpectators"
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
@@ -197,7 +209,7 @@
 			textalignx 8
 			textaligny 12
 			textscale .225
-			forecolor 0 0 .1 .6
+			COUNTERS_COLOR
 			visible 1
 			decoration
 			/*

@@ -2,6 +2,9 @@
 #define FADEIN_TIME	125
 #define ANGLES -4 -94
 
+#define COUNTERS_ALPHA .6
+#define COUNTERS_COLOR forecolor 0 0 .1 COUNTERS_ALPHA
+
 {
 	menuDef {
 		name "ingame_join_dm"
@@ -14,10 +17,11 @@
 		style WINDOW_STYLE_EMPTY
 		onOpen {
 			play "sound/ui/whoosh3.wav" ;
-			setitemcolor window forecolor 5 5 5 0 ;
-			timefade window forecolor 5 5 5 1 0 FADEIN_TIME
+			ALPHA_FADE_FORE(window, 1) ;
+			ALPHA_FADE_FORE(counters, COUNTERS_ALPHA) ;
 		}
 		onESC { play "sound/ui/whoosh3.wav" ; close _self }
+		onClose { open _prev }
 		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
 		
 		itemDef {
@@ -39,6 +43,7 @@
 		itemDef {
 			renderpoint
 			name "title"
+			group window
 			text "Join game:"
 			forecolor .6 .0 .0 1
 			style WINDOW_STYLE_EMPTY
@@ -58,8 +63,10 @@
 		
 		itemDef {
 			name team
-			text "^_P^_layers"
+			text "1. ^_P^_layers"
+			group window
 			shortcutKey "P"
+			shortcutKey "1"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			textstyle ITEM_TEXTSTYLE_NORMAL
@@ -76,6 +83,7 @@
 		itemDef {
 			name team1
 			text ""
+			group counters
 			cvar "ui_RQ3_teamCount1"	//doesn't work
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
@@ -93,8 +101,10 @@
 		
 		itemDef {
 			name team
-			text "^_S^_pectators"
+			text "2. ^_S^_pectators"
+			group window
 			shortcutKey "S"
+			shortcutKey "2"
 			type ITEM_TYPE_BUTTON
 			style WINDOW_STYLE_EMPTY
 			textstyle ITEM_TEXTSTYLE_NORMAL
@@ -103,7 +113,7 @@
 			textalignx 8
 			textaligny 12
 			textscale .225
-			forecolor 0 0 .1 1
+			COUNTERS_COLOR
 			visible 1
 			action { play "sound/ui/whoosh3.wav" ; exec "cmd team s" ; uiScript closeingame }
 		}
@@ -111,6 +121,7 @@
 		itemDef {
 			name team3
 			text ""
+			group counters
 			cvar "ui_RQ3_numSpectators"	//doesn't work
 			type ITEM_TYPE_NUMERICFIELD
 			style WINDOW_STYLE_EMPTY
@@ -119,7 +130,7 @@
 			textalignx 8
 			textaligny 12
 			textscale .225
-			forecolor 0 0 .1 .6
+			COUNTERS_COLOR
 			visible 1
 			decoration
 		}
