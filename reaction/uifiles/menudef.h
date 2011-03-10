@@ -392,6 +392,7 @@
 #define UI_MAIN_TEXTSIZE		.28
 #define UI_INGAME_TEXTSIZE		.28
 #define UI_COLOR_INACTIVE 0 0 0 0.2
+#define UI_SUBMENU_TEXTSIZE		.25
 
 //Ingame stuff
 
@@ -455,7 +456,21 @@
 	textalignx ALIGNX\
 	textaligny 14\
 	outlinecolor .0 .0 0 .1
-	
 
 #define STANDARD_MENU()
+
+// alpha fading
+
+#define ALPHA_FADE_EX(what, whichcolor, from, to, duration)	\
+			setitemcolor what whichcolor 5 5 5 from ;	\
+			timefade what whichcolor 5 5 5 to 0 duration
+	
+#define ALPHA_FADE_FORE_EX(what, to, duration)	\
+		ALPHA_FADE_EX(what, forecolor, 0, to, duration)
+
+#define DEFAULT_FADEIN_TIME 125
+
+#define ALPHA_FADE_FORE(what, to)	\
+		ALPHA_FADE_FORE_EX(what, to, DEFAULT_FADEIN_TIME)
+
 
