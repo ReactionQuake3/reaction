@@ -468,9 +468,15 @@
 #define ALPHA_FADE_FORE_EX(what, to, duration)	\
 		ALPHA_FADE_EX(what, forecolor, 0, to, duration)
 
+#define ALPHA_FADE_BACK_EX(what, to, duration)	\
+		ALPHA_FADE_EX(what, backcolor, 0, to, duration)
+
 #define DEFAULT_FADEIN_TIME 125
 
 #define ALPHA_FADE_FORE(what, to)	\
 		ALPHA_FADE_FORE_EX(what, to, DEFAULT_FADEIN_TIME)
+
+#define ALPHA_FADE_BACK(what, to)	\
+		ALPHA_FADE_BACK_EX(what, to, DEFAULT_FADEIN_TIME)
 
 
