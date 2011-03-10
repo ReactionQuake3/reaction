@@ -1628,6 +1628,7 @@ int GetMaterialFromFlag(int flag);
 
 
 float SawTooth(int time, int period);
+float SmoothLerp(float x);
 
 #define PULSE_SAWTOOTH_PERIOD		500
 #define ARRAY_SIZE(arr)				(sizeof(arr) / sizeof(arr[0]))

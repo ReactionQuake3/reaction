@@ -1816,3 +1816,8 @@ float SawTooth(int time, int period)
 			return 1.0f - (time % period) / ((float)period);
 	}
 }
+
+float SmoothLerp(float x)
+{
+	return x * x * (3.f - 2.f * x);
+}
