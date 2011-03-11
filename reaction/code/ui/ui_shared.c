@@ -1634,10 +1634,14 @@ void Menus_Close(menuDef_t *menu)
 	if (!menu)
 		return;
 
+	prevMenu = NULL;
 	for (i=0; i<openMenuCount; i++)
 	{
 		if (menuStack[i] == menu)
 		{
+			if (i > 0)
+				prevMenu = menuStack[i-1];
+			
 			openMenuCount--;
 			while (i < openMenuCount)
 			{
@@ -4236,8 +4240,8 @@ void Menu_HandleKey(menuDef_t * menu, int key, qboolean down)
 
 				it.parent = menu;
 				Item_RunScript(&it, menu->onESC);
-			} else if (openMenuCount > 0) {
-				Menus_Close(menuStack[openMenuCount]);
+			} else {
+				Menus_Close(menu);
 			}
 		}
 		break;
@@ -6488,10 +6492,10 @@ menuDef_t *Menus_ActivateByName(const char *p, qboolean special)
 				if (menuStack[j] == m) {
 					alreadyActive = qtrue;
 					//move to the top of the stack
-					if (j != openMenuCount - 1) {
-						menuStack[j] = menuStack[openMenuCount-1];
-						menuStack[openMenuCount-1] = m;
+					for (; j<openMenuCount-1; ++j) {
+						menuStack[j] = menuStack[j+1];
 					}
+					menuStack[openMenuCount-1] = m;
 					break;
 				}
 			}
