@@ -38,12 +38,13 @@
 		style WINDOW_STYLE_EMPTY
 		popup
 		
-		onOOBClick { close _self ; open "ingame_matchmode" }
+		onOOBClick { close _self ; }
 		onOpen {
 			play "sound/ui/whoosh3.wav" ;
 			uiScript readMMcaptainSettings ;
 			setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
 		}
+		onClose { open _prev ; }
 		onESC { close _self }
 		
 		onOpenSpecial {
@@ -320,7 +321,7 @@ Group # 2 - Settings
 			textaligny 16
 			forecolor 0 0 0 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_settings" }
+			action { play "sound/ui/whoosh3.wav" ; openSpecial "ingame_matchmode_settings" }
 			ASSIGN_HINT("hint_settings")
 		}
 		

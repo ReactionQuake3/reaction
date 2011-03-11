@@ -38,13 +38,14 @@
 		style WINDOW_STYLE_EMPTY
 		popup
 		
-		onOOBClick { close _self ; open "ingame_matchmode" }
+		onOOBClick { close _self }
 		onOpen {
 			play "sound/ui/whoosh3.wav" ;
 			uiScript loadVoteArenas ;
 			setitemcolor hints forecolor HINT_COLOR 1 ; hide "hints" ;
 		}
 		onESC { close _self }
+		onClose { open _prev }
 		
 		onOpenSpecial {
 			//normal items
@@ -491,8 +492,8 @@ Group # 4 - Match
 		itemDef {
 			name "allgroups,group4,gr4_ctrl6,fade_alpha"
 			subgroup "fade_fore_alpha"
-			text "> ^_M^_atch Settings..."
-			shortcutKey "M"
+			text "> Match ^_S^_ettings..."
+			shortcutKey "S"
 			type ITEM_TYPE_BUTTON
 			textscale .225
 			style WINDOW_STYLE_EMPTY
@@ -502,7 +503,7 @@ Group # 4 - Match
 			textaligny 16
 			forecolor 0 0 0 1
 			visible 1
-			action { play "sound/ui/whoosh3.wav" ; open "ingame_matchmode_settings" }
+			action { play "sound/ui/whoosh3.wav" ; openSpecial "ingame_matchmode_settings" }
 			ASSIGN_HINT("hint_settings")
 		}
 

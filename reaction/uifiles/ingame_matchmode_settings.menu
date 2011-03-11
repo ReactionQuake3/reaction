@@ -7,6 +7,7 @@
 #define MM_OPTION(ITEM_NAME, ITEM_TEXT, ITEM_CVAR, ITEM_TYPE)\
 	itemdef {	\
 	name ITEM_NAME	\
+	group "fade_fore_alpha"\
 	type ITEM_TYPE	\
 	text ITEM_TEXT":"	\
 	cvar ITEM_CVAR
@@ -35,25 +36,24 @@
 		style WINDOW_STYLE_EMPTY
 		popup
 		
-		onOOBClick { close _self ; open _prev }
+		onOOBClick { close _self }
 		onOpen { play "sound/ui/whoosh3.wav" ; uiScript "readMMsettings" }
-		onESC { close _self ; open _prev }
+		onClose { open _prev }
+		onESC { close _self }
 		
 		onOpenSpecial {
 			//normal items
-			setItemColor "fade_fore_alpha" forecolor 5 5 5 0 ;
-			timeFade "fade_fore_alpha" forecolor 5 5 5 1 0 FADEIN_TIME ;
+			ALPHA_FADE_FORE(fade_fore_alpha, 1) ;
 			//icon - special alpha
-			setItemColor "icon" forecolor 5 5 5 0 ;
-			timeFade "icon" forecolor 5 5 5 ICON_ALPHA 0 FADEIN_TIME ;
+			ALPHA_FADE_FORE(icon, ICON_ALPHA) ;
 			//line - special alpha; using backcolor
-			setItemColor "line" backcolor 5 5 5 0 ;
-			timeFade "line" backcolor 5 5 5 LINE_ALPHA 0 FADEIN_TIME ;
+			ALPHA_FADE_BACK(line, LINE_ALPHA) ;
 		}
 		
 		itemDef {
 			renderpoint
 			name "paper"
+			group "fade_fore_alpha"
 			menuAnchor
 			style WINDOW_STYLE_SHADER
 			background UI_ASSETS"/paper_1"
@@ -68,8 +68,9 @@
 		
 		itemdef {
 			renderpoint
-			name "title,fade_alpha"
+			name "title"
 			text "Match Settings:"
+			group "fade_fore_alpha"
 			forecolor .6 .0 .0 1
 			style WINDOW_STYLE_EMPTY
 			textalign ITEM_ALIGN_LEFT
@@ -141,6 +142,7 @@
 		
 		itemDef	{
 			name "submit"
+			group "fade_fore_alpha"
 			alignrect "paper" ITEM_ALIGN_LEFT 224 224 36 14
 			text "> ^_O^_K <"
 			shortcutKey "O"
@@ -155,7 +157,6 @@
 				play "sound/ui/whoosh3.wav" ;
 				uiScript "sendMMsettings" ;
 				close _self ;
-				open _prev
 			}
 		}
 	}
