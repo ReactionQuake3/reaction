@@ -142,6 +142,10 @@ void CG_DrawFuzzyRect(float x, float y, float w, float h, float corner, vec4_t c
 	float ycorner = corner * cgs.screenYScale;
 
 	CG_AdjustFrom640(&x, &y, &w, &h);
+	if (xcorner + xcorner > w)
+		xcorner = w * 0.5f;
+	if (ycorner + ycorner > h)
+		ycorner = h * 0.5f;
 	
 	trap_R_SetColor(color);
 
@@ -381,6 +385,9 @@ int CG_DrawStrlen(const char *str)
 	const char *s = str;
 	int count = 0;
 	int max = 0;
+
+	if (!str)
+		return 0;
 
 	while (*s) {
 		if (Q_IsColorString(s)) {
