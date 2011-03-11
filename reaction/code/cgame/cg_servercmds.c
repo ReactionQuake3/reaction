@@ -1532,7 +1532,7 @@ Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand(void)
 {
 	const char *cmd;
-	char text[MAX_SAY_TEXT];
+	char text[MAX_SAY_TEXT * 2];
 
 	cmd = CG_Argv(0);
 
@@ -1560,7 +1560,7 @@ static void CG_ServerCommand(void)
 	if (!strcmp(cmd, "chat")) {
 		if (!cg_teamChatsOnly.integer) {
 			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-			Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+			Q_strncpyz(text, CG_Argv(1), sizeof(text));
 			CG_RemoveChatEscapeChar(text);
 			CG_AddMessage(text);
 		}
@@ -1569,7 +1569,7 @@ static void CG_ServerCommand(void)
 
 	if (!strcmp(cmd, "tchat")) {
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+		Q_strncpyz(text, CG_Argv(1), sizeof(text));
 		CG_RemoveChatEscapeChar(text);
 		CG_AddMessage(text);
 		return;
