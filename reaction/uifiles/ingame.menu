@@ -20,7 +20,7 @@
 	type ITEM_TYPE_BUTTON	\
 	style WINDOW_STYLE_EMPTY	\
 	visible 1	\
-	action { open DESTINATION }	\
+	action { openSpecial DESTINATION }	\
 	}
 
 #define MENU_ITEM_TOGGLE(ITEM_NAME, DESTINATION, ITEM_TEXT, KEY, ALIGN, ITEM_WIDTH, Y_POS, CVAR_TEST)\
@@ -55,7 +55,7 @@
 	visible 1	\
 	cvartest CVAR_TEST	\
 	hideCvar { "0" }	\
-	action { open DESTINATION }	\
+	action { openSpecial DESTINATION }	\
 	}
 
 #define MENU_ITEM_HIDE(ITEM_NAME, DESTINATION, ITEM_TEXT, KEY, ALIGN, ITEM_WIDTH, Y_POS, CVAR_TEST, HIDE_OR_SHOW)\
@@ -74,7 +74,7 @@
 	visible 1	\
 	cvartest CVAR_TEST	\
 	HIDE_OR_SHOW	\
-	action { open DESTINATION }	\
+	action { openSpecial DESTINATION }	\
 	}
 
 {
@@ -166,7 +166,7 @@
 		MENU_ITEM_TOGGLE("button_vote", "ingame_callvote", "^_V^_ote", "V", "button_weapon", 43, 20, "g_allowVote")
 		MENU_ITEM("button_ignore", "ingame_ignore", "^_I^_gnore", "I", "button_vote", 56, 20)
 		
-		MENU_ITEM_TOGGLE("button_addbot", "ingame_addbot", "^_A^_dd Bot", "A", "button_ignore", 64, 40, "bot_enable")
+		MENU_ITEM_TOGGLE("button_addbot", "ingame_addbot", "Add ^_B^_ot", "B", "button_ignore", 64, 40, "bot_enable")
 		MENU_ITEM_TOGGLE("button_mm", "ingame_matchmode", "Mat^_c^_h Mode", "C", "button_addbot", 94, 20, "g_RQ3_matchmode")
 		MENU_ITEM_HIDE("button_devmode", "ingame_devmode", "^_D^_eveloper Mode", "D", "button_mm", 119, 20, "sv_cheats", hideCvar { 0 })
 		MENU_ITEM("button_options", "ingame_setup", "^_O^_ptions", "O", "button_mm", 64, 40)
