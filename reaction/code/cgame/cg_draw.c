@@ -890,7 +890,7 @@ CG_DrawFPSandPing
 
 static float CG_DrawFPSandPing(float y)
 {
-	char *s;
+	char *sfps = NULL, *sping = NULL;
 	int w;
 	static int previousTimes[FPS_FRAMES];
 	static int index;
@@ -899,6 +899,10 @@ static float CG_DrawFPSandPing(float y)
 	static int previous;
 	int t, frameTime, x = 0, num = 0;
 	float Color[4];
+	
+	const int expand = 4;
+	const int corner = 12;
+	const float shadowAlpha = 0.75f;
 
 	/*static int Pings[PING_SNAPS];
 	static int currentSnapshotNum;
@@ -936,17 +940,12 @@ static float CG_DrawFPSandPing(float y)
 		fps = 1000 * FPS_FRAMES / total;
 
 		if (cg_drawFPS.integer) {
-			s = va("%ifps", fps);
-			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+			sfps = va("%ifps", fps);
+			w = CG_DrawStrlen(sfps) * SMALLCHAR_WIDTH;
 			x = w;
 
-			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-			CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
-
-			MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-			CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
-
-			CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
+			CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, y - 1 - expand, w + 6 + expand + expand, SMALLCHAR_HEIGHT + 6 + expand + expand, 12, shadowAlpha);
+			CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, sfps, 1.0F);
 
 			x += 9;
 		}
@@ -970,19 +969,15 @@ static float CG_DrawFPSandPing(float y)
 		else
 			avgping = 0;
 
-		s = va("%ims", avgping);
-		w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		sping = va("%ims", avgping);
+		w = CG_DrawStrlen(sping) * SMALLCHAR_WIDTH;
 		x += w;
 
 		l = (lagometer.frameCount & (LAG_SAMPLES - 1)) - 1;
 		if (l < 0) l += LAG_SAMPLES;
 
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-		CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
 
-		MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-		CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
-
+		CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, y - 1 - expand, w + 6 + expand + expand, SMALLCHAR_HEIGHT + 6 + expand + expand, corner, shadowAlpha);
 
 		MAKERGBA(Color, 0.0f, 1.0f, 0.0f, 1.0f);								// Green, All good
 
@@ -992,7 +987,7 @@ static float CG_DrawFPSandPing(float y)
 		if (lagometer.snapshotFlags[l] & SNAPFLAG_RATE_DELAYED)					// Yellow. Delayed packet
 			MAKERGBA(Color, 1.0f, 1.0f, 0.0f, 1.0f);
 
-		CG_DrawStringExt(cgs.screenXMax - x - 9, y + 2, s, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(cgs.screenXMax - x - 9, y + 2, sping, Color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 	}
 	
 	if (!cg_drawFPS.integer && (!cg_drawPing.integer || cg.demoPlayback))
@@ -1403,6 +1398,7 @@ static float CG_DrawMessageQueue(float y)
 	int i, len;
 	vec4_t hcolor;
 	int chatHeight;
+	int maxtime = 0;
 	float div;
 
 #define CHATLOC_Y y
@@ -1425,29 +1421,35 @@ static float CG_DrawMessageQueue(float y)
 
 	w = 0;
 
+	div = 1.f / cg_messageQueueTime.integer;
+
 	for (i = cgs.teamLastChatPos; i < cgs.teamChatPos; i++) {
-		len = CG_DrawStrlen(cgs.teamChatMsgs[i % chatHeight]);
+		int index = i % chatHeight;
+		len = CG_DrawStrlen(cgs.teamChatMsgs[index]);
 		if (len > w)
 			w = len;
+		if (cgs.teamChatMsgTimes[index] > maxtime)
+			maxtime = cgs.teamChatMsgTimes[index];
 	}
 	w *= TINYCHAR_WIDTH;
 	w += TINYCHAR_WIDTH * 2;
-
-	div = 1.f / cg_messageQueueTime.integer;
+	
+	{
+		float frac = SmoothLerp(Com_Clamp(0.f, 1.f, 8.f * (1.f - (cg.time - maxtime) * div)));
+		const int expand = 8;
+		CG_DrawFuzzyShadow(CHATLOC_X - expand, CHATLOC_Y - h + TINYCHAR_HEIGHT - expand, w + expand + expand, h + expand + expand, 12.f, 0.5f * frac);
+	}
 
 	hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
 	hcolor[3] = 1.0f;
 
 	for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
 		int index = i % chatHeight;
-		float frac = (cg.time - cgs.teamChatMsgTimes[index]) * div;
-		if (frac > 1.f)
-			continue;
-		hcolor[3] = frac > 0.875f ? (1.f - frac) * 8.f : 1.f;
-		CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
-				 CHATLOC_Y,
-				 cgs.teamChatMsgs[index], hcolor, qfalse, qtrue,
-				 TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+		float frac = SmoothLerp(Com_Clamp(0.f, 1.f, 8.f * (1.f - (cg.time - cgs.teamChatMsgTimes[index]) * div)));
+		hcolor[3] = frac;
+		CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH, CHATLOC_Y,
+			cgs.teamChatMsgs[index], hcolor, qfalse, qtrue,
+			TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
 		y -= TINYCHAR_HEIGHT;
 	}
 
