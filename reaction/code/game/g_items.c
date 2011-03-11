@@ -330,14 +330,14 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		//Elder: special case
 		//Someone can optimize this code later, but for now, it works.
 		if (!(other->client->ps.stats[STAT_WEAPONS] & (1 << WP_AKIMBO))) {
-			trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_AKIMBO_NAME "^7\n\""));
+			trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up " RQ3_PISTOL_NAME "^7\n\""));
 			other->client->ps.stats[STAT_WEAPONS] |= (1 << WP_AKIMBO);
 			other->client->ps.ammo[WP_AKIMBO] = other->client->ps.ammo[WP_PISTOL] + RQ3_PISTOL_AMMO;
 			//Elder: always reset back to full clip like Action if first pistol picked up
 			ammotoadd = RQ3_PISTOL_AMMO;
 		}
 		//Elder: Already have akimbo - technically should have pistol
-		else if (other->client->numClips[WP_PISTOL] < 2) {
+		else if (other->client->numClips[WP_PISTOL] < 2 * bandolierFactor) {
 			//give an extra clip - make < 2 + 2 * hasBandolier(0/1) or something for bando when it's in
 			trap_SendServerCommand(other - g_entities, va("print \"[skipnotify]Picked up an extra clip^7\n\""));
 			other->client->numClips[WP_PISTOL]++;
