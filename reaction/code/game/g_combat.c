@@ -1959,6 +1959,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 // JBravo:  flydir was uninitialized in the case of MOD_FALLING.   Dont know why it does not like to have flydir set
 // but I guess flydir = dir in MOD_FALLING is still better than random stack space has.
 			VectorCopy(dir, flydir);
+			flydir[2] += 0.4f;
 /*			if (mod != MOD_FALLING) {
 				VectorCopy(dir, flydir);
 				// NiceAss: Although AQ2 has this, it was being much more
