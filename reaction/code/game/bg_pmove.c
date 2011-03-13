@@ -160,7 +160,7 @@ pml_t pml;
 #define PM_LADDER_MOVE_REDUCTION	10
 
 #define STOP_EPSILON 0.1f
-#define Q2PHYSICS
+//#define Q2PHYSICS
 
 // movement parameters
 float pm_stopspeed = 100.0f;
