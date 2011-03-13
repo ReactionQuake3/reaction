@@ -764,14 +764,17 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 		count = DEFAULT_M3_COUNT;
 	} else if (shotType == WP_HANDCANNON) {
 		// Elder: Statistics tracking
-		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
-			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
+		// JBravo: moving counting elsewhere to not count each HC shot twice as this gets called once
+		// for each barrel of the HC
+//		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
+//			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 4;
 	} else {
 		// Elder: Statistics tracking
-		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
-			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
+		// JBravo: moving counting elsewhere to not count each HC shot twice as this gets called once
+//		if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
+//			ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 		count = DEFAULT_HANDCANNON_COUNT;
 		hc_multipler = 5;
 	}
@@ -1552,8 +1555,12 @@ void Weapon_HandCannon_Fire(gentity_t * ent)
 	tent2->s.angles2[1] += 5;
 	//Elder: note negative one
 	//JBravo: Yes, why is that ?  removing...
-//	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1);
-	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, WP_HANDCANNON);
+	//JBravo: thats because the second barrel has a higher vspread. reverting back to -1
+	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, -1);
+//	ShotgunPattern(tent2->s.pos.trBase, tent2->s.origin2, tent2->s.eventParm, ent, WP_HANDCANNON);
+// JBravo: count the HC blasts here
+	if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY)
+		ent->client->pers.records[REC_HANDCANNONSHOTS]++;
 
 	//Elder: added for damage report
 	RQ3_ProduceShotgunDamageReport(ent);
