@@ -1724,7 +1724,7 @@ Check which vertex attributes we only need, so we
 don't need to submit/copy all of them.
 ===================
 */
-static void ComputeVertexAttribs()
+static void ComputeVertexAttribs(void)
 {
 	int i, stage;
 

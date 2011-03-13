@@ -40,7 +40,7 @@ int			c_subdivisions;
 int			c_gridVerts;
 
 //===============================================================================
-
+/*
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 {
 	int i;
@@ -90,7 +90,7 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 		break;
 	}
 }
-
+*/
 /*
 ===============
 R_ColorShiftLightingBytes
@@ -130,6 +130,7 @@ static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 R_ColorShiftLightingFloats
 ===============
 */
+/*
 static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 {
 	int             shift, r, g, b;
@@ -159,7 +160,7 @@ static void R_ColorShiftLightingFloats(const vec4_t in, vec4_t out)
 	out[2] = b * (1.0f / 255.0f);
 	out[3] = in[3];
 }
-
+*/
 /*
 ===============
 R_LoadLightmaps
@@ -1540,7 +1541,7 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 R_CreateWorldVBO
 ===============
 */
-static void R_CreateWorldVBO()
+static void R_CreateWorldVBO(void)
 {
 	int             i, j, k;
 
@@ -2500,7 +2501,7 @@ R_MergeLeafSurfaces
 Merges surfaces that share a common leaf
 =================
 */
-void R_MergeLeafSurfaces()
+void R_MergeLeafSurfaces(void)
 {
 	int i, j, k;
 	int numWorldSurfaces;
@@ -2776,6 +2777,9 @@ void R_MergeLeafSurfaces()
 							numIboIndexes += 3;
 						}
 					}
+					break;
+
+				default:
 					break;
 			}
 		}

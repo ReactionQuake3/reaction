@@ -318,7 +318,7 @@ static void DrawTris (shaderCommands_t *input) {
 			
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
@@ -732,7 +732,7 @@ static void DrawMultitexturedVBO( shaderCommands_t *input, int stage ) {
 
 	if (input->multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 	}
 	else
 	{
@@ -1167,7 +1167,7 @@ static void ProjectDlightTextureVBOGLSL( void ) {
 
 		if (tess.multiDrawPrimitives)
 		{
-			R_DrawMultiElementsVBO(tess.multiDrawPrimitives, tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+			R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **) tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
 		}
 		else
 		{
@@ -1295,7 +1295,7 @@ static void RB_FogPassVBOGLSL( void ) {
 
 	if (tess.multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(tess.multiDrawPrimitives, tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **) tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
 	}
 	else
 	{
@@ -1627,6 +1627,8 @@ static void ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 				color[2] = 0.0f;
 				color[3] = 0.0f;
 			}
+			break;
+		default:
 			break;
 	}
 
@@ -2082,6 +2084,8 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 			break;
 		case TCGEN_BAD:
 			return;
+		default:
+			break;
 		}
 
 		//
@@ -2285,7 +2289,7 @@ static void RB_IterateStagesGenericVBO( shaderCommands_t *input )
 
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
@@ -2348,7 +2352,7 @@ static void DrawMultitexturedVBOGLSL( shaderProgram_t *sp, shaderCommands_t *inp
 
 	if (input->multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 	}
 	else
 	{
@@ -2495,6 +2499,8 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		{
 			vec4_t color;
 
+// JBravo: silincing a compiler warning about color being uninitialized
+			MAKERGBA(color, 1.f, 1.f, 1.f, 1.f);
 			ComputeHelperColor (pStage, color);
 			GLSL_SetUniform_Color(sp, color);
 		}
@@ -2571,7 +2577,7 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
