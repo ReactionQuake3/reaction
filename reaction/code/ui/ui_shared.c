@@ -1447,14 +1447,15 @@ void Script_SetRandomItemColor(itemDef_t * item, char **args)
 {
 	const char *itemname;
 	const char *name;
-	vec4_t tempColor, color;
 	int i, colorCount;
-	vec4_t *out;
 
 	if (String_Parse(args, &itemname) && String_Parse(args, &name) && Int_Parse(args, &colorCount)) {
+		vec4_t tempColor, color, *out;
 		itemDef_t *item2;
 		int j, k, rnd = rand() % colorCount;
 		int count = Menu_ItemsMatchingGroup(item->parent, itemname);
+
+		MAKERGBA(color, 1.f, 1.f, 1.f, 1.f);
 
 		for (k=0; k<colorCount; k++)
 		{
