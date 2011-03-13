@@ -1003,7 +1003,7 @@ void Knife_Attack(gentity_t * self, int damage)
 	gentity_t *tent;
 
 	if (self->client && ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY))
-		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
+//		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
 
 	VectorMA(muzzle, KNIFE_RANGE, forward, end);
 	trap_Trace(&tr, muzzle, NULL, NULL, end, self->s.number, MASK_SHOT);
@@ -1025,6 +1025,7 @@ void Knife_Attack(gentity_t * self, int damage)
 	}
 	// NiceAss: Play appropriate sound on 5th slash
 	if (self->client->ps.stats[STAT_BURST] > 4) {
+		self->client->pers.records[REC_KNIFESLASHSHOTS]++;
 		if (self->client->knife_sound == 0) {	// Missed
 			// TODO: Miss sound should be here, like in AQ2
 		} else if (self->client->knife_sound == -1) {	// Hit wall
