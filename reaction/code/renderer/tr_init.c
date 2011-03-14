@@ -96,6 +96,7 @@ cvar_t	*r_ext_max_anisotropy;
 cvar_t  *r_arb_vertex_buffer_object;
 cvar_t  *r_arb_shader_objects;
 cvar_t  *r_ext_multi_draw_arrays;
+cvar_t  *r_ext_framebuffer_object;
 
 cvar_t  *r_mergeMultidraws;
 cvar_t  *r_mergeLeafSurfaces;
@@ -224,6 +225,7 @@ static void InitOpenGL( void )
 	// set default state
 	GL_SetDefaultState();
 }
+
 
 /*
 ==================
@@ -918,6 +920,8 @@ void R_Register( void )
 	r_arb_vertex_buffer_object = ri.Cvar_Get( "r_arb_vertex_buffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_arb_shader_objects = ri.Cvar_Get( "r_arb_shader_objects", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_multi_draw_arrays = ri.Cvar_Get( "r_ext_multi_draw_arrays", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	
+	r_ext_framebuffer_object = ri.Cvar_Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",
 			"0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1154,6 +1158,7 @@ void R_Init( void ) {
 	}
 
 	R_InitImages();
+	R_InitFBOs();
 
 	if (glRefConfig.vertexBufferObject)
 	{
@@ -1199,6 +1204,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	if ( tr.registered ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
+		R_ShutDownFBOs();
 		R_DeleteTextures();
 		if (glRefConfig.vertexBufferObject)
 		{

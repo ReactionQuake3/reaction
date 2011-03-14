@@ -501,6 +501,18 @@ static void Upload32( unsigned *data,
 	GLenum		internalFormat = GL_RGB;
 	float		rMax = 0, gMax = 0, bMax = 0;
 
+	// Makro - render target
+	if (!data)
+	{
+		internalFormat = GL_RGBA8;
+		qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		GL_CheckErrors();
+		*format = internalFormat;
+		*pUploadWidth = width;
+		*pUploadHeight = height;
+		goto done;
+	}
+
 	//
 	// convert to exact power of 2 sizes
 	//

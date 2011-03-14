@@ -152,6 +152,14 @@ typedef struct IBO_s
 //  uint32_t        ofsIndexes;
 } IBO_t;
 
+typedef struct fboRenderBuffer_s fboRenderBuffer_t;
+typedef fboRenderBuffer_t fboZBuffer_t;
+typedef fboRenderBuffer_t fboStencilBuffer_t;
+typedef struct fbo_s fbo_t;
+
+fbo_t *R_FBO_Bind(fbo_t* fbo);
+void R_FBO_BindColorBuffer(fbo_t* fbo, int index);
+
 //===============================================================================
 
 typedef enum {
@@ -2141,6 +2149,7 @@ typedef struct {
 	shaderProgram_t *currentProgram;
 	VBO_t          *currentVBO;
 	IBO_t          *currentIBO;
+	fbo_t			*currentFBO;
 	matrix_t        modelview;
 	matrix_t        projection;
 	matrix_t		modelviewProjection;
@@ -2153,6 +2162,10 @@ typedef struct {
 	int         maxAnisotropy;
 	qboolean    multiDrawArrays;
 	qboolean    vertexBufferObject;
+	
+	qboolean	framebufferObject;
+	qboolean	framebufferBlit;
+	qboolean	framebufferMultisample;
 
 	// These next three are all required for one chunk of code, so glsl is
 	// set if they are all true.
@@ -2200,12 +2213,26 @@ typedef struct {
 	qboolean	isHyperspace;
 	trRefEntity_t	*currentEntity;
 	qboolean	skyRenderedThisView;	// flag for drawing sun
+	
+	vec3_t					sunFlarePos;
+	qboolean				hasSunFlare;
 
 	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
 	qboolean	vertexes2D;		// shader needs to be finished
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
+
+typedef struct {
+	fbo_t					*full[2];	// full resolution, shared zbuffer
+	fbo_t					*quarter[2];	// quarter resolution, no zbuffer
+
+	int						numFBOs;
+	fbo_t					*fbos[1024];
+
+	int						numRenderBuffers;
+	fboRenderBuffer_t		*renderBuffers[1024];
+} fboState_t;
 
 /*
 ** trGlobals_t 
@@ -2306,6 +2333,8 @@ typedef struct {
 
 	int						numIBOs;
 	IBO_t					*ibos[MAX_IBOS];
+
+	fboState_t				fbo;
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
 	// shader indexes from drawsurfs will be looked up in sortedShaders[]
@@ -2413,6 +2442,8 @@ extern cvar_t	*r_ext_max_anisotropy;
 extern  cvar_t  *r_arb_vertex_buffer_object;
 extern  cvar_t  *r_arb_shader_objects;
 extern  cvar_t  *r_ext_multi_draw_arrays;
+
+extern  cvar_t  *r_ext_framebuffer_object;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
@@ -2722,6 +2753,10 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 void RB_ShowImages( void );
 
+void RB_SetGL2D(void);
+void RB_SetGL2D_Level(int level);
+void RB_PostProcess( void );
+
 
 /*
 ============================================================
@@ -2843,6 +2878,16 @@ void            R_VBOList_f(void);
 
 void            RB_UpdateVBOs(unsigned int attribBits);
 
+/*
+============================================================
+
+FRAME BUFFER OBJECTS
+
+============================================================
+*/
+
+void			R_InitFBOs(void);
+void			R_ShutDownFBOs(void);
 
 /*
 ============================================================

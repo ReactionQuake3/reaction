@@ -500,10 +500,27 @@ void RB_BeginDrawingView (void) {
 	// 2D images again
 	backEnd.projection2D = qfalse;
 
+	if (backEnd.refdef.width == glConfig.vidWidth && backEnd.refdef.height == glConfig.vidHeight && 0 == (backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	{
+		R_FBO_Bind(tr.fbo.full[0]);
+	}
+	else
+	{
+		R_FBO_Bind(NULL);
+	}
+
 	//
 	// set the modelview matrix for the viewer
 	//
 	SetViewportAndScissor();
+
+	if (glState.currentFBO)
+	{
+		fbo_t* old = R_FBO_Bind(tr.fbo.full[1]);
+		qglClearColor(0.f, 0.f, 0.f, 1.f);
+		qglClear(GL_COLOR_BUFFER_BIT);
+		R_FBO_Bind(old);
+	}
 
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );
@@ -540,6 +557,8 @@ void RB_BeginDrawingView (void) {
 	// we will only draw a sun if there was sky rendered in this view
 	backEnd.skyRenderedThisView = qfalse;
 
+	backEnd.hasSunFlare = qfalse;
+
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
 		float	plane[4];
@@ -572,9 +591,7 @@ void RB_BeginDrawingView (void) {
 	}
 }
 
-
 #define	MAC_EVENT_PUMP_MSEC		5
-
 
 /*
 ==================
@@ -591,6 +608,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurf_t		*drawSurf;
 	int				oldSort;
 	float			originalTime;
+	float			depth[2];
+
+	depth[0] = 0.f;
+	depth[1] = 1.f;
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -640,7 +661,14 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// change the modelview matrix if needed
 		//
 		if ( entityNum != oldEntityNum ) {
+			qboolean sunflare = qfalse;
 			depthRange = isCrosshair = qfalse;
+
+			if (oldEntityNum != -1 && 0 == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) && glState.currentFBO)
+			{
+				R_FBO_Bind(tr.fbo.fbos[0]);
+				qglDepthRange(depth[0], depth[1]);
+			}
 
 			if ( entityNum != ENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
@@ -655,6 +683,18 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				// set up the dynamic lighting if needed
 				if ( backEnd.currentEntity->needDlights ) {
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
+				}
+				
+				if(backEnd.currentEntity->e.renderfx & RF_SUNFLARE) {
+					if (glState.currentFBO) {
+						VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
+						backEnd.hasSunFlare = qtrue;
+						sunflare = qtrue;
+						R_FBO_Bind(tr.fbo.fbos[1]);
+						qglDepthRange(1.f, 1.f);
+					} else {
+						depthRange = qtrue;
+					}
 				}
 
 				if(backEnd.currentEntity->e.renderfx & RF_DEPTHHACK)
@@ -681,6 +721,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			// change depthrange. Also change projection matrix so first person weapon does not look like coming
 			// out of the screen.
 			//
+
 			if (oldDepthRange != depthRange || wasCrosshair != isCrosshair)
 			{
 				if (depthRange)
@@ -706,7 +747,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					}
 
 					if(!oldDepthRange)
+					{
+						depth[0] = 0;
+						depth[1] = 0.3f;
 						qglDepthRange (0, 0.3);
+					}
 				}
 				else
 				{
@@ -715,7 +760,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 						GL_SetProjectionMatrix( backEnd.viewParms.projectionMatrix );
 					}
 
-					qglDepthRange (0, 1);
+					if (!sunflare)
+						qglDepthRange (0, 1);
+					depth[0] = 0;
+					depth[1] = 1;
 				}
 
 				oldDepthRange = depthRange;
@@ -739,9 +787,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// go back to the world modelview matrix
 
 	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
-	if ( depthRange ) {
+	//if ( depthRange ) {
 		qglDepthRange (0, 1);
-	}
+	//}
 
 #if 0
 	RB_DrawSun();
@@ -751,6 +799,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
+
+	RB_PostProcess();
+
 }
 
 
@@ -764,20 +815,24 @@ RENDER BACK END THREAD FUNCTIONS
 
 /*
 ================
-RB_SetGL2D
+RB_SetGL2D_Level
 
 ================
 */
-void	RB_SetGL2D (void) {
+
+void RB_SetGL2D_Level(int level)
+{
 	matrix_t matrix;
+	int width = glConfig.vidWidth >> level;
+	int height = glConfig.vidHeight >> level;
 
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
-	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
+	qglViewport( 0, 0, width, height );
+	qglScissor( 0, 0, width, height );
 
-	Matrix16Ortho(0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1, matrix);
+	Matrix16Ortho(0, width, height, 0, 0, 1, matrix);
 	GL_SetProjectionMatrix(matrix);
 	Matrix16Identity(matrix);
 	GL_SetModelviewMatrix(matrix);
@@ -794,6 +849,16 @@ void	RB_SetGL2D (void) {
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
+/*
+================
+RB_SetGL2D
+
+================
+*/
+
+void	RB_SetGL2D (void) {
+	RB_SetGL2D_Level(0);
+}
 
 /*
 =============

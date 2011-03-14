@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <SDL_opengl.h>
 #endif
 
+#include "qglextensions.h"
+
 extern void (APIENTRYP qglActiveTextureARB) (GLenum texture);
 extern void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
 extern void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
@@ -109,6 +111,13 @@ extern void     (APIENTRY * qglBindAttribLocationARB) (GLhandleARB programObj, G
 extern void     (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei * length,
 													GLint * size, GLenum * type, GLcharARB * name);
 extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
+
+#define HANDLE_EXT_FUNC(t, n) extern t q##n
+
+ADD_ALL_EXTENSION_FUNCTIONS;
+
+#undef HANDLE_EXT_FUNC
+
 
 #if defined(WIN32)
 // WGL_ARB_create_context

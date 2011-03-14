@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 
 #include "../renderer/tr_local.h"
+#include "../renderer/qglextensions.h"
 #include "../client/client.h"
 #include "../sys/sys_local.h"
 #include "sdl_icon.h"
@@ -199,6 +200,13 @@ void            (APIENTRY * qglGetActiveUniformARB) (GLhandleARB programObj, GLu
 void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint location, GLfloat * params);
 void            (APIENTRY * qglGetUniformivARB) (GLhandleARB programObj, GLint location, GLint * params);
 void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * source);
+
+#define HANDLE_EXT_FUNC(t, n) t q##n
+
+ADD_ALL_EXTENSION_FUNCTIONS;
+
+#undef HANDLE_EXT_FUNC
+
 
 #if defined(WIN32)
 // WGL_ARB_create_context
@@ -1078,6 +1086,50 @@ static void GLimp_InitExtensions( void )
 	{
 		ri.Printf(PRINT_ALL, "...GL_ARB_vertex_shader not found\n");
 	}
+
+	// Makro - copy/paste vs macros - choosing the lesser evil
+#	define HANDLE_EXT_FUNC(type, name) q##name = (type) SDL_GL_GetProcAddress(#name)
+
+	// GL_EXT_framebuffer_object
+	if (GLimp_HaveExtension("GL_EXT_framebuffer_object"))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		GL_EXT_framebuffer_object_functions;
+		glRefConfig.framebufferObject = (r_ext_framebuffer_object->integer != 0);
+		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_object\n", action[glRefConfig.framebufferObject]);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_object not found\n");
+	}
+	
+	// GL_EXT_framebuffer_blit
+	if (GLimp_HaveExtension("GL_EXT_framebuffer_blit"))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		GL_EXT_framebuffer_blit_functions;
+		glRefConfig.framebufferBlit = (r_ext_framebuffer_object->integer != 0);
+		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_blit\n", action[glRefConfig.framebufferBlit]);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_blit not found\n");
+	}
+
+	// GL_EXT_framebuffer_multisample
+	if (GLimp_HaveExtension("GL_EXT_framebuffer_multisample"))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		GL_EXT_framebuffer_multisample_functions;
+		glRefConfig.framebufferMultisample = (r_ext_framebuffer_object->integer != 0);
+		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_multisample\n", action[glRefConfig.framebufferMultisample]);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_multisample not found\n");
+	}
+
+#	undef HANDLE_EXT_FUNC
 
 	glRefConfig.glsl = glRefConfig.vertexProgram && glRefConfig.shaderObjects && glRefConfig.vertexShader;
 

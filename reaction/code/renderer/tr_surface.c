@@ -260,8 +260,10 @@ RB_SurfaceSprite
 ==============
 */
 static void RB_SurfaceSprite( void ) {
-	vec3_t		left, up;
-	float		radius;
+	vec3_t			left, up;
+	float			radius;
+	byte			colors[4];
+	trRefEntity_t	*ent = backEnd.currentEntity;
 
 	// calculate the xyz locations for the four corners
 	radius = backEnd.currentEntity->e.radius;
@@ -285,8 +287,16 @@ static void RB_SurfaceSprite( void ) {
 	if ( backEnd.viewParms.isMirror ) {
 		VectorSubtract( vec3_origin, left, left );
 	}
+	
+	if (ent->e.renderfx & RF_SUNFLARE) {
+		colors[0] = colors[1] = colors[2] = colors[3] = ent->e.shaderRGBA[glRefConfig.framebufferObject];
+		if (colors[0] == 0)
+			return;
+	} else {
+		Vector4Copy(ent->e.shaderRGBA, colors);
+	}
 
-	RB_AddQuadStamp( backEnd.currentEntity->e.origin, left, up, backEnd.currentEntity->e.shaderRGBA );
+	RB_AddQuadStamp( backEnd.currentEntity->e.origin, left, up, colors );
 }
 
 
