@@ -1389,6 +1389,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\code\renderer\qglextensions.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\win32\resource.h"
 				>
 			</File>
@@ -1905,6 +1909,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\code\renderer\tr_fbo.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\code\renderer\tr_flares.c"
 					>
 				</File>
@@ -1966,6 +1974,10 @@
 				</File>
 				<File
 					RelativePath="..\..\code\renderer\tr_noise.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\code\renderer\tr_postprocess.c"
 					>
 				</File>
 				<File
