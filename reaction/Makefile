@@ -1457,6 +1457,8 @@ Q3OBJ = \
   $(B)/client/tr_surface.o \
   $(B)/client/tr_world.o \
   $(B)/client/tr_vbo.o \
+  $(B)/client/tr_fbo.o \
+  $(B)/client/tr_postprocess.o \
   \
   $(B)/client/sdl_gamma.o \
   $(B)/client/sdl_input.o \
