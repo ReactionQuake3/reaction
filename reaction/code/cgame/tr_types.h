@@ -42,6 +42,8 @@
 #define	RF_WRAP_FRAMES		512	// mod the model frames by the maxframes to allow continuous
 									// animation without needing to know the frame count
 
+#define RF_SUNFLARE			1024
+
 // refdef flags
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
 #define RDF_HYPERSPACE		4	// teleportation effect

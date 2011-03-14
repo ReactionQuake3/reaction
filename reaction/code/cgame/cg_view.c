@@ -1178,7 +1178,7 @@ void CG_AddLensFlare(qboolean sun)
 			if (timeDelta > FLARE_FADEOUT_TIME)
 			{
 				cgs.lastSunTime = 0;
-				return;
+				timeDelta = FLARE_FADEOUT_TIME;
 			}
 			cgs.flareFadeFactor = 1.0f - (float)timeDelta / FLARE_FADEOUT_TIME;
 		}
@@ -1188,7 +1188,9 @@ void CG_AddLensFlare(qboolean sun)
 		else
 			cgs.flareFovFactor = 1.0f;
 		//finally, add the sun
-		if (cgs.sunFlareSize > 0 && cgs.sunAlpha > 0 && cgs.flareFadeFactor != 0.0f) {
+		
+		if (1) {
+		//if (cgs.sunFlareSize > 0 && cgs.sunAlpha > 0 && cgs.flareFadeFactor != 0.0f) {
 			refEntity_t ent;
 
 			memset(&ent, 0, sizeof(ent));
@@ -1198,11 +1200,12 @@ void CG_AddLensFlare(qboolean sun)
 			//this function wouldn't be complete without some funny math
 			//this makes the sprite as big as the mapper wanted it to be
 			ent.radius = cgs.sunFlareSize * tr.fraction * 25.6f;
-			ent.renderfx = RF_DEPTHHACK;
+			//ent.renderfx = RF_DEPTHHACK | RF_SUNFLARE;
+			ent.renderfx = RF_SUNFLARE;
 			ent.shaderRGBA[0] = cgs.flareFadeFactor * cgs.sunAlpha * 255;
-			ent.shaderRGBA[1] = ent.shaderRGBA[0];
-			ent.shaderRGBA[2] = ent.shaderRGBA[0];
-			ent.shaderRGBA[3] = ent.shaderRGBA[0];
+			ent.shaderRGBA[1] = cgs.sunAlpha * 255;
+			ent.shaderRGBA[2] = 0.f;
+			ent.shaderRGBA[3] = 0.f;
 			trap_R_AddRefEntityToScene(&ent);
 		}
 		//speed hack
@@ -1241,7 +1244,8 @@ void CG_AddLensFlare(qboolean sun)
 				color[0] = color[1] = color[2] = 1.0f;
 				//color[3] = cgs.sunAlpha * cgs.flareForwardFactor * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
 				color[3] = min_atten * min_atten * cgs.flareFadeFactor * FLARE_BLIND_ALPHA;
-				CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, color);
+				
+				//CG_FillRect(cgs.screenXMin, 0, cgs.screenWidth, SCREEN_HEIGHT, color);
 			}
 		}
 	}
