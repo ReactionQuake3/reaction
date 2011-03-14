@@ -1003,12 +1003,16 @@ CG_DrawTimer
 */
 static float CG_DrawTimer(float y)
 {
-	char *s;
+	char *s = NULL;
 	int w;
 	int mins, seconds, tens;
 	int msec;
 	int x = 0;
 	float Color[4];
+
+	const int expand = 4;
+	const int corner = 12;
+	const float shadowAlpha = 0.75f;
 
 	y += 4;
 	msec = cg.time - cgs.levelStartTime;
@@ -1023,11 +1027,13 @@ static float CG_DrawTimer(float y)
 	w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 	x = w;
 
-	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 0.4f);
-	CG_FillRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, Color);
-
-	MAKERGBA(Color, 0.0f, 0.0f, 0.0f, 1.0f);
-	CG_DrawCleanRect(cgs.screenXMax - x - 12, y - 1, w + 6, SMALLCHAR_HEIGHT + 6, 1, Color);
+	CG_DrawFuzzyShadow(cgs.screenXMax - x - 12 - expand, 
+		y - 1 - expand, 
+		w + 6 + expand + expand, 
+		SMALLCHAR_HEIGHT + 6 + expand + expand, 
+		12, 
+		shadowAlpha
+	);
 
 	CG_DrawSmallString(cgs.screenXMax - x - 9, y + 2, s, 1.0F);
 
