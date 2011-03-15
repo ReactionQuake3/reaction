@@ -13,14 +13,14 @@ Can be either a zbuffer, a stencil buffer or a multisampled color buffer
 ===============
 */
 
-typedef struct fboRenderBuffer_s {
+struct fboRenderBuffer_s {
 	GLuint			id;
 	int				internalFormat;
 
 	int				width;
 	int				height;
 	qboolean		msaa;
-} fboRenderBuffer_t;
+};
 
 typedef fboRenderBuffer_t fboZBuffer_t;
 typedef fboRenderBuffer_t fboStencilBuffer_t;
@@ -36,12 +36,12 @@ Otherwise, only the texture is initialized.
 ===============
 */
 
-typedef struct fboColorBuffer_s {
+struct fboColorBuffer_s {
 	fboRenderBuffer_t	*buf;
 	image_t				*tex;
 	GLuint				fboResolve[2];
 	qboolean			dirty;
-} fboColorBuffer_t;
+};
 
 /*
 ===============
@@ -52,7 +52,7 @@ and an optional stencil buffer
 ===============
 */
 
-typedef struct fbo_s {
+struct fbo_s {
 	GLuint				id;
 	
 	int					numColorBufs;
@@ -62,7 +62,7 @@ typedef struct fbo_s {
 	fboStencilBuffer_t*	stencil;
 
 	char				name[MAX_QPATH];
-} fbo_t;
+};
 
 
 void R_FBO_InitRenderBuffer(fboRenderBuffer_t* buf)
