@@ -14,14 +14,28 @@
 	HANDLE_EXT_FUNC(PFNGLRENDERBUFFERSTORAGEEXTPROC,				glRenderbufferStorageEXT);				\
 	HANDLE_EXT_FUNC(PFNGLBINDRENDERBUFFEREXTPROC,					glBindRenderbufferEXT)					\
 
-#if !defined(GL_EXT_framebuffer_multisample) || !defined(GL_EXT_framebuffer_blit)
-#	error "You need to update glext.h / SDL_opengl.h"
-#endif
 
+#ifndef GL_EXT_framebuffer_multisample
+	#define GL_EXT_framebuffer_multisample 1
+	#define GL_RENDERBUFFER_SAMPLES_EXT       0x8CAB
+	#define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT 0x8D56
+	#define GL_MAX_SAMPLES_EXT                0x8D57
+	typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC) (GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+#endif
 
 #define GL_EXT_framebuffer_multisample_functions															\
 	HANDLE_EXT_FUNC(PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC,		glRenderbufferStorageMultisampleEXT)	\
 
+
+
+#ifndef GL_EXT_framebuffer_blit
+	#define GL_EXT_framebuffer_blit 1
+	#define GL_READ_FRAMEBUFFER_EXT           0x8CA8
+	#define GL_DRAW_FRAMEBUFFER_EXT           0x8CA9
+	#define GL_DRAW_FRAMEBUFFER_BINDING_EXT   GL_FRAMEBUFFER_BINDING_EXT
+	#define GL_READ_FRAMEBUFFER_BINDING_EXT   0x8CAA
+	typedef void (APIENTRYP PFNGLBLITFRAMEBUFFEREXTPROC) (GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+#endif
 
 #define GL_EXT_framebuffer_blit_functions																	\
 	HANDLE_EXT_FUNC(PFNGLBLITFRAMEBUFFEREXTPROC,					glBlitFramebufferEXT)					\
