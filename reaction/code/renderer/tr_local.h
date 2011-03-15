@@ -2223,7 +2223,7 @@ typedef struct {
 } backEndState_t;
 
 typedef struct {
-	int						maxSamples;
+	int						samples;
 	
 	fbo_t					*full[2];	// full resolution, shared zbuffer
 	fbo_t					*quarter[2];	// quarter resolution, no zbuffer
