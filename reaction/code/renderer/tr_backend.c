@@ -609,15 +609,15 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				oldSort;
 	float			originalTime;
 	float			depth[2];
-
-	depth[0] = 0.f;
-	depth[1] = 1.f;
+	fbo_t*			fbo = NULL;
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
 
 	// clear the z buffer, set the modelview, etc
 	RB_BeginDrawingView ();
+
+	fbo = glState.currentFBO;
 
 	// draw everything
 	oldEntityNum = -1;
@@ -629,6 +629,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldDlighted = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
+	depth[0] = 0.f;
+	depth[1] = 1.f;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -664,9 +666,13 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			qboolean sunflare = qfalse;
 			depthRange = isCrosshair = qfalse;
 
-			if (oldEntityNum != -1 && 0 == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) && glState.currentFBO)
+			// if we were rendering to a FBO and the previous entity was a sunflare
+			// and the current one isn't, switch back to the main fbo
+			if (oldEntityNum != -1 && fbo &&
+				RF_SUNFLARE == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) &&
+				0 == (backEnd.refdef.entities[entityNum].e.renderfx & RF_SUNFLARE))
 			{
-				R_FBO_Bind(tr.fbo.fbos[0]);
+				R_FBO_Bind(fbo);
 				qglDepthRange(depth[0], depth[1]);
 			}
 
@@ -685,11 +691,14 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.or );
 				}
 				
+				// if the current entity is a sunflare
 				if(backEnd.currentEntity->e.renderfx & RF_SUNFLARE) {
-					if (glState.currentFBO) {
+					// if we're rendering to a fbo
+					if (fbo) {
 						VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
 						backEnd.hasSunFlare = qtrue;
 						sunflare = qtrue;
+						// switch FBO
 						R_FBO_Bind(tr.fbo.fbos[1]);
 						qglDepthRange(1.f, 1.f);
 					} else {
@@ -784,6 +793,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		RB_EndSurface();
 	}
 
+	R_FBO_Bind(fbo);
+	
 	// go back to the world modelview matrix
 
 	GL_SetModelviewMatrix( backEnd.viewParms.world.modelMatrix );
@@ -795,7 +806,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	RB_DrawSun();
 #endif
 	// darken down any stencil shadows
-	RB_ShadowFinish();		
+	RB_ShadowFinish();
 
 	// add light flares on lights that aren't obscured
 	RB_RenderFlares();
