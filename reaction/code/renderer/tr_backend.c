@@ -500,15 +500,6 @@ void RB_BeginDrawingView (void) {
 	// 2D images again
 	backEnd.projection2D = qfalse;
 
-	if (backEnd.refdef.width == glConfig.vidWidth && backEnd.refdef.height == glConfig.vidHeight && 0 == (backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		R_FBO_Bind(tr.fbo.full[0]);
-	}
-	else
-	{
-		R_FBO_Bind(NULL);
-	}
-
 	//
 	// set the modelview matrix for the viewer
 	//
@@ -826,24 +817,22 @@ RENDER BACK END THREAD FUNCTIONS
 
 /*
 ================
-RB_SetGL2D_Level
+RB_SetGL2D_Ex
 
 ================
 */
 
-void RB_SetGL2D_Level(int level)
+void RB_SetGL2D_Ex(int x, int y, int width, int height)
 {
 	matrix_t matrix;
-	int width = glConfig.vidWidth >> level;
-	int height = glConfig.vidHeight >> level;
 
 	backEnd.projection2D = qtrue;
 
 	// set 2D virtual screen size
-	qglViewport( 0, 0, width, height );
-	qglScissor( 0, 0, width, height );
+	qglViewport( x, y, width, height );
+	qglScissor( x, y, width, height );
 
-	Matrix16Ortho(0, width, height, 0, 0, 1, matrix);
+	Matrix16Ortho(x, x+width, y+height, y, 0, 1, matrix);
 	GL_SetProjectionMatrix(matrix);
 	Matrix16Identity(matrix);
 	GL_SetModelviewMatrix(matrix);
@@ -858,6 +847,21 @@ void RB_SetGL2D_Level(int level)
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
+}
+
+/*
+================
+RB_SetGL2D_Level
+
+================
+*/
+void RB_SetGL2D_Level(int level)
+{
+	int x = 0;
+	int y = 0;
+	int width = glConfig.vidWidth >> level;
+	int height = glConfig.vidHeight >> level;
+	RB_SetGL2D_Ex(x, y, width, height);
 }
 
 /*
@@ -1337,6 +1341,8 @@ const void	*RB_SwapBuffers( const void *data ) {
 	if ( r_showImages->integer ) {
 		RB_ShowImages();
 	}
+
+	RB_FBO_Blit();
 
 	cmd = (const swapBuffersCommand_t *)data;
 

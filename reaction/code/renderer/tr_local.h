@@ -2757,8 +2757,11 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 void RB_ShowImages( void );
 
-void RB_SetGL2D(void);
+void RB_SetGL2D_Ex(int x, int y, int width, int height);
 void RB_SetGL2D_Level(int level);
+void RB_SetGL2D(void);
+
+void RB_FBO_Blit();
 void RB_PostProcess( void );
 
 

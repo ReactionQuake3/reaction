@@ -276,7 +276,10 @@ fbo_t* R_FBO_Bind(fbo_t* fbo)
 	fbo_t* old = glState.currentFBO;
 	GLuint id = 0;
 	if (!glRefConfig.framebufferObject)
-		return old;
+	{
+		glState.currentFBO = NULL;
+		return NULL;
+	}
 	
 	if (old == fbo)
 		return old;
@@ -456,8 +459,8 @@ void R_InitFBOs(void)
 		ri.Printf(PRINT_ALL, "MSAA enabled with %d samples (max %d)\n", tr.fbo.samples, maxSamples);
 
 	R_FBO_CreateDefaultBuffers();
-	
-	ri.Printf(PRINT_DEVELOPER, "...created %d FBOs\n", tr.fbo.numFBOs);
+
+	R_FBO_Bind(tr.fbo.full[0]);
 }
 
 

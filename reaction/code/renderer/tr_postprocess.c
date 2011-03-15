@@ -209,7 +209,7 @@ static void RB_GodRays(void)
 	R_FBO_BindColorBuffer(tr.fbo.full[1], 0);
 	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 	
-	mul = 0.5f;
+	mul = 0.75f;
 	RB_Color4f(mul, mul, mul, 1.f);
 	RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
 	
@@ -217,7 +217,7 @@ static void RB_GodRays(void)
 	R_FBO_Bind(tr.fbo.quarter[1]);
 	R_FBO_BindColorBuffer(tr.fbo.quarter[0], 0);
 
-	mul = 0.5f;
+	mul = 0.25f;
 	RB_Color4f(mul, mul, mul, 1.f);
 	
 	RB_DrawScaledQuad(x, y, w2, h2, pos[0], pos[1], 1.f);
@@ -231,6 +231,9 @@ static void RB_GodRays(void)
 	R_FBO_Bind(tr.fbo.quarter[0]);
 	R_FBO_BindColorBuffer(tr.fbo.quarter[1], 0);
 	
+	mul = 1.f/6.f;
+	RB_Color4f(mul, mul, mul, 1.f/5.f);
+	RB_DrawScaledQuad(x, y, w2, h2, pos[0], pos[1], 1.f);
 	RB_RadialBlur(5, 5.f, x, y, w2, h2, pos[0], pos[1], 1.f);
 
 	RB_Color4f(1.f, 1.f, 1.f, 1.f);
@@ -245,31 +248,8 @@ static void RB_GodRays(void)
 	RB_DrawQuad(x, y, w, h, 0.f, 0.f, 1.f, 1.f);
 }
 
-static void RB_BlitFBO(void)
+void RB_FBO_Set2D(void)
 {
-	R_FBO_Bind(NULL);
-	
-	RB_Color4f(1.f, 1.f, 1.f, 1.f);
-	
-	R_FBO_BindColorBuffer(tr.fbo.full[0], 0);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
-
-	RB_DrawQuad(0.f, 0.f, glConfig.vidWidth, glConfig.vidHeight, 0.f, 0.f, 1.f, 1.f);
-}
-
-/*
-================
-RB_PostProcess
-
-================
-*/
-
-void RB_PostProcess(void)
-{
-	if (!glState.currentFBO)
-		return;
-
-
 	RB_DrawQuad = NULL;
 	RB_Color4f = NULL;
 	
@@ -315,7 +295,42 @@ void RB_PostProcess(void)
 	GL_SelectTexture(0);
 	
 	RB_Color4f(1.f, 1.f, 1.f, 1.f);
+}
 
+
+/*
+================
+RB_FBO_Blit
+================
+*/
+
+void RB_FBO_Blit(void)
+{
+	fbo_t* fbo = R_FBO_Bind(NULL);
+	if (!fbo)
+		return;
+	
+	RB_FBO_Set2D();
+
+	R_FBO_BindColorBuffer(fbo, 0);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+
+	RB_DrawQuad(0.f, 0.f, glConfig.vidWidth, glConfig.vidHeight, 0.f, 0.f, 1.f, 1.f);
+
+	R_FBO_Bind(fbo);
+}
+
+/*
+================
+RB_PostProcess
+================
+*/
+
+void RB_PostProcess(void)
+{
+	if (!glState.currentFBO)
+		return;
+
+	RB_FBO_Set2D();
 	RB_GodRays();
-	RB_BlitFBO();
 }
