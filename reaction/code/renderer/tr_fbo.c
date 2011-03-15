@@ -114,7 +114,7 @@ fboRenderBuffer_t *R_FBO_CreateRenderBuffer(int width, int height, int pixelform
 	return ret;
 }
 
-qboolean R_FBO_Check()
+qboolean R_FBO_Check(void)
 {
 	GLenum status = qglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	const char* msg = "unknown error";
