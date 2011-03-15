@@ -153,8 +153,7 @@ typedef struct IBO_s
 } IBO_t;
 
 typedef struct fboRenderBuffer_s fboRenderBuffer_t;
-typedef fboRenderBuffer_t fboZBuffer_t;
-typedef fboRenderBuffer_t fboStencilBuffer_t;
+typedef struct fboColorBuffer_s fboColorBuffer_t;
 typedef struct fbo_s fbo_t;
 
 fbo_t *R_FBO_Bind(fbo_t* fbo);
@@ -2224,6 +2223,8 @@ typedef struct {
 } backEndState_t;
 
 typedef struct {
+	int						maxSamples;
+	
 	fbo_t					*full[2];	// full resolution, shared zbuffer
 	fbo_t					*quarter[2];	// quarter resolution, no zbuffer
 
@@ -2232,6 +2233,9 @@ typedef struct {
 
 	int						numRenderBuffers;
 	fboRenderBuffer_t		*renderBuffers[1024];
+
+	int						numColorBuffers;
+	fboColorBuffer_t		*colorBuffers[1024];
 } fboState_t;
 
 /*

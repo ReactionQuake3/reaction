@@ -425,6 +425,8 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		depthbits = r_depthbits->value;
 	stencilbits = r_stencilbits->value;
 	samples = r_ext_multisample->value;
+	if (r_ext_framebuffer_object->integer)
+		samples = 0;
 
 	for (i = 0; i < 16; i++)
 	{
