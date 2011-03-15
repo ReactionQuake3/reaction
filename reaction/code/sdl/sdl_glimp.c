@@ -392,8 +392,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 		glConfig.vidWidth = videoInfo->current_w;
 		glConfig.vidHeight = videoInfo->current_h;
 		glConfig.windowAspect = displayAspect;
-		fullscreen = qtrue;
-		noborder = qtrue;
 	}
 	else if ( !R_GetModeInfo( &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect, mode ) )
 	{
@@ -690,14 +688,6 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qbool
 		ri.Cvar_Set( "r_fullscreen", "0" );
 		r_fullscreen->modified = qfalse;
 		fullscreen = qfalse;
-	}
-	
-	if (!fullscreen && mode == -2)
-	{
-		ri.Printf( PRINT_ALL, "Windowed not allowed with r_mode -2\n");
-		ri.Cvar_Set( "r_fullscreen", "1" );
-		r_fullscreen->modified = qfalse;
-		fullscreen = qtrue;
 	}
 	
 	err = GLimp_SetMode(mode, fullscreen, noborder);
