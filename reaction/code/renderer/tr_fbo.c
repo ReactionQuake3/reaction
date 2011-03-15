@@ -65,56 +65,7 @@ struct fbo_s {
 };
 
 
-void R_FBO_InitRenderBuffer(fboRenderBuffer_t* buf)
-{
-	buf->id = 0;
-	qglGenRenderbuffersEXT(1, &buf->id);
-	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, buf->id);
-	if (buf->msaa)
-	{
-		qglRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, tr.fbo.maxSamples, buf->internalFormat, buf->width, buf->height);
-	}
-	else
-	{
-		qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, buf->internalFormat, buf->width, buf->height);
-	}
-	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-}
-
-void R_FBO_ReleaseRenderBuffer(fboRenderBuffer_t* buf)
-{
-	if (buf->id == 0)
-		return;
-
-	qglDeleteRenderbuffersEXT(1, &buf->id);
-	buf->id = 0;
-}
-
-fboRenderBuffer_t *R_FBO_CreateRenderBuffer(int width, int height, int pixelformat, qboolean msaa)
-{
-	fboRenderBuffer_t* ret = NULL;
-	if (tr.fbo.numRenderBuffers >= ARRAY_SIZE(tr.fbo.renderBuffers))
-	{
-		ri.Error(ERR_FATAL, "Too many FBO render buffers\n");
-		return NULL;
-	}
-
-	ret = ri.Hunk_Alloc(sizeof(*ret), h_low);
-	memset(ret, 0, sizeof(*ret));
-
-	ret->width = width;
-	ret->height = height;
-	ret->internalFormat = pixelformat;
-	ret->msaa = (msaa && tr.fbo.maxSamples > 1);
-	
-	R_FBO_InitRenderBuffer(ret);
-
-	tr.fbo.renderBuffers[tr.fbo.numRenderBuffers++] = ret;
-	
-	return ret;
-}
-
-qboolean R_FBO_Check(void)
+qboolean R_FBO_CheckStatus(void)
 {
 	GLenum status = qglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	const char* msg = "unknown error";
@@ -161,13 +112,62 @@ qboolean R_FBO_Check(void)
 		break;
 
 	default:
-		msg = va("unknown error (0x%x)", status);
+		msg = va("0x%x", status);
 		break;
 	}
 
 	ri.Error(ERR_FATAL, "Framebuffer setup error: %s\n", msg);
 	
 	return qfalse;
+}
+
+void R_FBO_InitRenderBuffer(fboRenderBuffer_t* buf)
+{
+	buf->id = 0;
+	qglGenRenderbuffersEXT(1, &buf->id);
+	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, buf->id);
+	if (buf->msaa)
+	{
+		qglRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT, tr.fbo.samples, buf->internalFormat, buf->width, buf->height);
+	}
+	else
+	{
+		qglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, buf->internalFormat, buf->width, buf->height);
+	}
+	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+}
+
+void R_FBO_ReleaseRenderBuffer(fboRenderBuffer_t* buf)
+{
+	if (buf->id == 0)
+		return;
+
+	qglDeleteRenderbuffersEXT(1, &buf->id);
+	buf->id = 0;
+}
+
+fboRenderBuffer_t *R_FBO_CreateRenderBuffer(int width, int height, int pixelformat, qboolean msaa)
+{
+	fboRenderBuffer_t* ret = NULL;
+	if (tr.fbo.numRenderBuffers >= ARRAY_SIZE(tr.fbo.renderBuffers))
+	{
+		ri.Error(ERR_FATAL, "Too many FBO render buffers\n");
+		return NULL;
+	}
+
+	ret = ri.Hunk_Alloc(sizeof(*ret), h_low);
+	memset(ret, 0, sizeof(*ret));
+
+	ret->width = width;
+	ret->height = height;
+	ret->internalFormat = pixelformat;
+	ret->msaa = (msaa && tr.fbo.samples > 1);
+	
+	R_FBO_InitRenderBuffer(ret);
+
+	tr.fbo.renderBuffers[tr.fbo.numRenderBuffers++] = ret;
+	
+	return ret;
 }
 
 fboColorBuffer_t *R_FBO_CreateColorBuffer(const char* name, int width, int height, qboolean msaa, qboolean mipmap, int clamp)
@@ -179,7 +179,7 @@ fboColorBuffer_t *R_FBO_CreateColorBuffer(const char* name, int width, int heigh
 	}
 	else
 	{
-		qboolean			realmsaa	= msaa && tr.fbo.maxSamples > 1;
+		qboolean			realmsaa	= msaa && tr.fbo.samples > 1;
 		image_t				*texture	= R_CreateImage(name, NULL, width, height, mipmap, qfalse, clamp);
 		fboRenderBuffer_t	*buf		= realmsaa ? R_FBO_CreateRenderBuffer(width, height, texture->internalFormat, qtrue) : NULL;
 		fboColorBuffer_t	*ret		= ri.Hunk_Alloc(sizeof(*ret), h_low);
@@ -196,11 +196,11 @@ fboColorBuffer_t *R_FBO_CreateColorBuffer(const char* name, int width, int heigh
 			
 			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ret->fboResolve[0]);
 			qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, ret->buf->id);
-			R_FBO_Check();
+			R_FBO_CheckStatus();
 
 			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ret->fboResolve[1]);
 			qglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, ret->tex->texnum, 0);
-			R_FBO_Check();
+			R_FBO_CheckStatus();
 
 			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		}
@@ -265,14 +265,20 @@ void R_FBO_AddColorBuffer(fbo_t* fbo, fboColorBuffer_t* color)
 	}
 }
 
+/*
+===============
+R_FBO_Bind
+===============
+*/
+
 fbo_t* R_FBO_Bind(fbo_t* fbo)
 {
 	fbo_t* old = glState.currentFBO;
 	GLuint id = 0;
 	if (!glRefConfig.framebufferObject)
-		return NULL;
+		return old;
 	
-	if (glState.currentFBO == fbo)
+	if (old == fbo)
 		return old;
 
 	glState.currentFBO = fbo;
@@ -291,11 +297,17 @@ fbo_t* R_FBO_Bind(fbo_t* fbo)
 		}
 		
 		if (1)
-			R_FBO_Check();
+			R_FBO_CheckStatus();
 	}
 
 	return old;
 }
+
+/*
+===============
+R_FBO_BindColorBuffer
+===============
+*/
 
 void R_FBO_BindColorBuffer(fbo_t* fbo, int index)
 {
@@ -326,6 +338,12 @@ void R_FBO_BindColorBuffer(fbo_t* fbo, int index)
 	}
 	GL_Bind(color->tex);
 }
+
+/*
+===============
+R_FBO_CreateEx
+===============
+*/
 
 fbo_t* R_FBO_CreateEx(const char* name, int numColorBuffers, fboColorBuffer_t** colorBuffers, fboZBuffer_t* depth, fboStencilBuffer_t* stencil)
 {
@@ -373,33 +391,13 @@ fbo_t* R_FBO_CreateSimple(const char* name, fboColorBuffer_t* color, fboZBuffer_
 
 /*
 ===============
-R_InitFBOs
+R_FBO_CreateDefaultBuffers
 ===============
 */
 
-void R_InitFBOs(void)
+static void R_FBO_CreateDefaultBuffers(void)
 {
-	qboolean msaa;
-	if (!glRefConfig.framebufferObject)
-		return;
-
-	ri.Printf(PRINT_ALL, "------- R_InitFBOs -------\n");
-
-	if (glRefConfig.framebufferMultisample && glRefConfig.framebufferBlit)
-	{
-		GLint maxSupported = 0;
-		qglGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSupported);
-		tr.fbo.maxSamples = maxSupported < r_ext_multisample->integer ? maxSupported : r_ext_multisample->integer;
-		if (tr.fbo.maxSamples < 2)
-			tr.fbo.maxSamples = 0;
-	}
-	else
-	{
-		tr.fbo.maxSamples = 0;
-	}
-
-	Com_Printf("Samples: %d\n", tr.fbo.maxSamples);
-	msaa = tr.fbo.maxSamples > 1;
+	qboolean msaa = tr.fbo.samples > 1;
 
 	tr.fbo.full[0] = R_FBO_CreateSimple(
 		"main",
@@ -425,7 +423,41 @@ void R_InitFBOs(void)
 		NULL,
 		NULL);
 	
-	ri.Printf(PRINT_DEVELOPER, "Created %d FBOs\n", tr.fbo.numFBOs);
+	ri.Printf(PRINT_DEVELOPER, "...created %d FBOs\n", tr.fbo.numFBOs);
+}
+
+/*
+===============
+R_InitFBOs
+===============
+*/
+
+void R_InitFBOs(void)
+{
+	GLint maxSamples = 0;
+	if (!glRefConfig.framebufferObject)
+		return;
+
+	ri.Printf(PRINT_ALL, "------- R_InitFBOs -------\n");
+
+	if (glRefConfig.framebufferMultisample && glRefConfig.framebufferBlit)
+	{
+		qglGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSamples);
+		tr.fbo.samples = maxSamples < r_ext_multisample->integer ? maxSamples : r_ext_multisample->integer;
+		if (tr.fbo.samples < 2)
+			tr.fbo.samples = 0;
+	}
+	else
+	{
+		tr.fbo.samples = 0;
+	}
+
+	if (tr.fbo.samples > 1)
+		ri.Printf(PRINT_ALL, "MSAA enabled with %d samples (max %d)\n", tr.fbo.samples, maxSamples);
+
+	R_FBO_CreateDefaultBuffers();
+	
+	ri.Printf(PRINT_DEVELOPER, "...created %d FBOs\n", tr.fbo.numFBOs);
 }
 
 
