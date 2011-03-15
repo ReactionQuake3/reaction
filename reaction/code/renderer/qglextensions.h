@@ -14,6 +14,10 @@
 	HANDLE_EXT_FUNC(PFNGLRENDERBUFFERSTORAGEEXTPROC,				glRenderbufferStorageEXT);				\
 	HANDLE_EXT_FUNC(PFNGLBINDRENDERBUFFEREXTPROC,					glBindRenderbufferEXT)					\
 
+#if !defined(GL_EXT_framebuffer_multisample) || !defined(GL_EXT_framebuffer_blit)
+#	error "You need to update glext.h / SDL_opengl.h"
+#endif
+
 
 #define GL_EXT_framebuffer_multisample_functions															\
 	HANDLE_EXT_FUNC(PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC,		glRenderbufferStorageMultisampleEXT)	\
