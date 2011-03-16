@@ -2165,6 +2165,8 @@ typedef struct {
 	qboolean	framebufferObject;
 	qboolean	framebufferBlit;
 	qboolean	framebufferMultisample;
+	
+	qboolean	occlusionQuery;
 
 	// These next three are all required for one chunk of code, so glsl is
 	// set if they are all true.

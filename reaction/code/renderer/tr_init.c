@@ -1066,6 +1066,18 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
 }
 
+void R_InitQueries(void)
+{
+	if (!glRefConfig.occlusionQuery)
+		return;
+}
+
+void R_ShutDownQueries(void)
+{
+	if (!glRefConfig.occlusionQuery)
+		return;
+}
+
 /*
 ===============
 R_Init
@@ -1173,6 +1185,9 @@ void R_Init( void ) {
 
 	R_InitFreeType();
 
+	R_InitQueries();
+
+
 
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
@@ -1204,6 +1219,7 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	if ( tr.registered ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
+		R_ShutDownQueries();
 		R_ShutDownFBOs();
 		R_DeleteTextures();
 		if (glRefConfig.vertexBufferObject)

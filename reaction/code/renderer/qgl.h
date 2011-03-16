@@ -112,9 +112,9 @@ extern void     (APIENTRY * qglGetActiveAttribARB) (GLhandleARB programObj, GLui
 													GLint * size, GLenum * type, GLcharARB * name);
 extern          GLint(APIENTRY * qglGetAttribLocationARB) (GLhandleARB programObj, const GLcharARB * name);
 
-#define HANDLE_EXT_FUNC(t, n) extern t q##n
+#define HANDLE_EXT_FUNC(t, n) extern t q##n;
 
-ADD_ALL_EXTENSION_FUNCTIONS;
+ADD_ALL_EXTENSION_FUNCTIONS
 
 #undef HANDLE_EXT_FUNC
 

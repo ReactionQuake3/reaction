@@ -170,14 +170,15 @@ static void RB_GodRays(void)
 	vec3_t dir;
 	float dot;
 	const float cutoff = 0.25f;
+	qboolean colorize = qtrue;
 
-	float x, y, w, h, w2, h2;
+	float w, h, w2, h2;
 	matrix_t mvp;
 	vec4_t pos, hpos;
 
 	if (!backEnd.hasSunFlare)
 		return;
-	
+
 	VectorSubtract(backEnd.sunFlarePos, backEnd.viewParms.or.origin, dir);
 	VectorNormalize(dir);
 
@@ -199,8 +200,6 @@ static void RB_GodRays(void)
 	pos[1] = 0.5f + hpos[1] * hpos[3];
 	
 	// viewport dimensions
-	x = 0.f;
-	y = 0.f;
 	w = glConfig.vidWidth;
 	h = glConfig.vidHeight;
 	w2 = w * 0.5f;
@@ -217,32 +216,16 @@ static void RB_GodRays(void)
 
 		// first, downsample the main framebuffers
 		R_FBO_Bind(tr.fbo.quarter[0]);
-		R_FBO_BindColorBuffer(tr.fbo.full[0], 0);
-		RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
-
-		R_FBO_Bind(tr.fbo.quarter[1]);
 		R_FBO_BindColorBuffer(tr.fbo.full[1], 0);
-		RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
-		
-		R_FBO_Bind(tr.fbo.quarter[0]);
-		R_FBO_BindColorBuffer(tr.fbo.quarter[1], 0);
-		
-		// then blend over the flare buffer using multiply2x
-		if (1)
+		RB_DrawQuad(0.f, 0.f, w2, h2, 0.f, 0.f, 1.f, 1.f);
+
+		if (colorize)
 		{
 			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_SRC_COLOR );
+			R_FBO_BindColorBuffer(tr.fbo.full[0], 0);
 			mul = 1.f;
 			RB_Color4f(mul, mul, mul, 1.f);
-			RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
-		}
-
-		// or additively
-		if (0)
-		{
-			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-			mul = 0.25f;
-			RB_Color4f(mul, mul, mul, 1.f);
-			RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
+			RB_DrawQuad(0.f, 0.f, w2, h2, 0.f, 0.f, 1.f, 1.f);
 		}
 	}
 
@@ -255,7 +238,7 @@ static void RB_GodRays(void)
 		{
 			R_FBO_Bind(tr.fbo.quarter[(~i) & 1]);
 			R_FBO_BindColorBuffer(tr.fbo.quarter[i&1], 0);
-			RB_RadialBlur(5, stretch, x, y, w2, h2, pos[0], pos[1], 1.f);
+			RB_RadialBlur(5, stretch, 0.f, 0.f, w2, h2, pos[0], pos[1], 1.125f);
 			stretch += stretch_add;
 		}
 	}
@@ -267,7 +250,7 @@ static void RB_GodRays(void)
 		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 		
 		RB_Color4f(1.f, 1.f, 1.f, 1.f);
-		RB_DrawQuad(x, y, w, h, 0.f, 0.f, 1.f, 1.f);
+		RB_DrawQuad(0.f, 0.f, w, h, 0.f, 0.f, 1.f, 1.f);
 	}
 }
 
