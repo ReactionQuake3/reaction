@@ -134,13 +134,19 @@ static void RB_DrawScaledQuad(float x, float y, float w, float h, float xcenter,
 
 static void RB_RadialBlur(int passes, float stretch, float x, float y, float w, float h, float xcenter, float ycenter, float alpha)
 {
-	const float inc = 1.f / (passes + 1.f);
+	const float inc = 1.f / passes;
 	const float mul = powf(stretch, inc);
 	float scale;
+	
 	
 	alpha *= inc;
 	RB_Color4f(alpha, alpha, alpha, 1.f);
 	
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	RB_DrawQuad(x, y, w, h, 0.f, 0.f, 1.f, 1.f);
+	
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	--passes;
 	scale = mul;
 	while (passes > 0)
 	{
@@ -168,7 +174,6 @@ static void RB_GodRays(void)
 	float x, y, w, h, w2, h2;
 	matrix_t mvp;
 	vec4_t pos, hpos;
-	float mul;
 
 	if (!backEnd.hasSunFlare)
 		return;
@@ -201,51 +206,69 @@ static void RB_GodRays(void)
 	w2 = w * 0.5f;
 	h2 = h * 0.5f;
 
-	// downsample full-screen buffer to first quarter buffer
-	R_FBO_Bind(tr.fbo.quarter[0]);
-	
-	RB_SetGL2D_Level(1);
-	
-	R_FBO_BindColorBuffer(tr.fbo.full[1], 0);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
-	
-	mul = 0.75f;
-	RB_Color4f(mul, mul, mul, 1.f);
-	RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
-	
-	// copy to second quarter buffer
-	R_FBO_Bind(tr.fbo.quarter[1]);
-	R_FBO_BindColorBuffer(tr.fbo.quarter[0], 0);
+	// initialize quarter buffers
+	{
+		float mul = 1.f;
+		
+		RB_SetGL2D_Level(1);
+		
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+		RB_Color4f(1.f, 1.f, 1.f, 1.f);
 
-	mul = 0.25f;
-	RB_Color4f(mul, mul, mul, 1.f);
-	
-	RB_DrawScaledQuad(x, y, w2, h2, pos[0], pos[1], 1.f);
-	
-	// several additive passes
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-	
-	RB_RadialBlur(3, 4.f/3.f, x, y, w2, h2, pos[0], pos[1], 1.f);
+		// first, downsample the main framebuffers
+		R_FBO_Bind(tr.fbo.quarter[0]);
+		R_FBO_BindColorBuffer(tr.fbo.full[0], 0);
+		RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
 
-	// switch back to the first buffer and do some more passes
-	R_FBO_Bind(tr.fbo.quarter[0]);
-	R_FBO_BindColorBuffer(tr.fbo.quarter[1], 0);
-	
-	mul = 1.f/6.f;
-	RB_Color4f(mul, mul, mul, 1.f/5.f);
-	RB_DrawScaledQuad(x, y, w2, h2, pos[0], pos[1], 1.f);
-	RB_RadialBlur(5, 5.f, x, y, w2, h2, pos[0], pos[1], 1.f);
+		R_FBO_Bind(tr.fbo.quarter[1]);
+		R_FBO_BindColorBuffer(tr.fbo.full[1], 0);
+		RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
+		
+		R_FBO_Bind(tr.fbo.quarter[0]);
+		R_FBO_BindColorBuffer(tr.fbo.quarter[1], 0);
+		
+		// then blend over the flare buffer using multiply2x
+		if (1)
+		{
+			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_SRC_COLOR );
+			mul = 1.f;
+			RB_Color4f(mul, mul, mul, 1.f);
+			RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
+		}
 
-	RB_Color4f(1.f, 1.f, 1.f, 1.f);
+		// or additively
+		if (0)
+		{
+			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+			mul = 0.25f;
+			RB_Color4f(mul, mul, mul, 1.f);
+			RB_DrawQuad(x, y, w2, h2, 0.f, 0.f, 1.f, 1.f);
+		}
+	}
+
+	// radial blur passes, ping-ponging between the two quarter-size buffers
+	{
+		const float stretch_add = 2.f/3.f;
+		float stretch = 1.f + stretch_add;
+		int i;
+		for (i=0; i<2; ++i)
+		{
+			R_FBO_Bind(tr.fbo.quarter[(~i) & 1]);
+			R_FBO_BindColorBuffer(tr.fbo.quarter[i&1], 0);
+			RB_RadialBlur(5, stretch, x, y, w2, h2, pos[0], pos[1], 1.f);
+			stretch += stretch_add;
+		}
+	}
 	
-	// add back on top of the main buffer
-	R_FBO_Bind(tr.fbo.full[0]);
-	
-	RB_SetGL2D_Level(0);
-	R_FBO_BindColorBuffer(tr.fbo.quarter[0], 0);
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
-	
-	RB_DrawQuad(x, y, w, h, 0.f, 0.f, 1.f, 1.f);
+	// add result back on top of the main buffer
+	{
+		R_FBO_BindColorBuffer(R_FBO_Bind(tr.fbo.full[0]), 0);
+		RB_SetGL2D_Level(0);
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+		
+		RB_Color4f(1.f, 1.f, 1.f, 1.f);
+		RB_DrawQuad(x, y, w, h, 0.f, 0.f, 1.f, 1.f);
+	}
 }
 
 void RB_FBO_Set2D(void)
