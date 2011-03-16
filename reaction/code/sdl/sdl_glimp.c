@@ -201,7 +201,7 @@ void            (APIENTRY * qglGetUniformfvARB) (GLhandleARB programObj, GLint l
 void            (APIENTRY * qglGetUniformivARB) (GLhandleARB programObj, GLint location, GLint * params);
 void            (APIENTRY * qglGetShaderSourceARB) (GLhandleARB obj, GLsizei maxLength, GLsizei * length, GLcharARB * source);
 
-#define HANDLE_EXT_FUNC(t, n) t q##n
+#define HANDLE_EXT_FUNC(t, n) t q##n;
 
 ADD_ALL_EXTENSION_FUNCTIONS;
 
@@ -724,6 +724,7 @@ GLimp_InitExtensions
 */
 static void GLimp_InitExtensions( void )
 {
+	const char* extension = NULL;
 	if ( !r_allowExtensions->integer )
 	{
 		ri.Printf( PRINT_ALL, "* IGNORING OPENGL EXTENSIONS *\n" );
@@ -1080,15 +1081,16 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// Makro - copy/paste vs macros - choosing the lesser evil
-#	define HANDLE_EXT_FUNC(type, name) q##name = (type) SDL_GL_GetProcAddress(#name)
+#	define HANDLE_EXT_FUNC(type, name) q##name = (type) SDL_GL_GetProcAddress(#name);
 
 	// GL_EXT_framebuffer_object
-	if (GLimp_HaveExtension("GL_EXT_framebuffer_object"))
+	extension = "GL_EXT_framebuffer_object";
+	if (GLimp_HaveExtension(extension))
 	{
 		const char* action[2] = { "ignoring", "using" };
 		GL_EXT_framebuffer_object_functions;
 		glRefConfig.framebufferObject = (r_ext_framebuffer_object->integer != 0);
-		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_object\n", action[glRefConfig.framebufferObject]);
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.framebufferObject], extension);
 	}
 	else
 	{
@@ -1096,30 +1098,47 @@ static void GLimp_InitExtensions( void )
 	}
 	
 	// GL_EXT_framebuffer_blit
-	if (GLimp_HaveExtension("GL_EXT_framebuffer_blit"))
+	extension = "GL_EXT_framebuffer_blit";
+	if (GLimp_HaveExtension(extension))
 	{
 		const char* action[2] = { "ignoring", "using" };
 		GL_EXT_framebuffer_blit_functions;
 		glRefConfig.framebufferBlit = (r_ext_framebuffer_object->integer != 0);
-		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_blit\n", action[glRefConfig.framebufferBlit]);
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.framebufferBlit], extension);
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_blit not found\n");
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
 	}
 
 	// GL_EXT_framebuffer_multisample
+	extension = "GL_EXT_framebuffer_multisample";
 	if (GLimp_HaveExtension("GL_EXT_framebuffer_multisample"))
 	{
 		const char* action[2] = { "ignoring", "using" };
 		GL_EXT_framebuffer_multisample_functions;
 		glRefConfig.framebufferMultisample = (r_ext_framebuffer_object->integer != 0);
-		ri.Printf(PRINT_ALL, "...%s GL_EXT_framebuffer_multisample\n", action[glRefConfig.framebufferMultisample]);
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.framebufferMultisample], extension);
 	}
 	else
 	{
-		ri.Printf(PRINT_ALL, "...GL_EXT_framebuffer_multisample not found\n");
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
 	}
+
+	// GL_ARB_occlusion_query
+	extension = "GL_ARB_occlusion_query";
+	if (GLimp_HaveExtension("GL_ARB_occlusion_query"))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		GL_ARB_occlusion_query_functions;
+		glRefConfig.occlusionQuery = qfalse;
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.occlusionQuery], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
+	}
+
 
 #	undef HANDLE_EXT_FUNC
 
