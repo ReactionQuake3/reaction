@@ -2484,13 +2484,13 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 		switch (pStage->alphaGen)
 		{
-			case AGEN_SKIP:
 			case AGEN_IDENTITY:
 			case AGEN_LIGHTING_SPECULAR:
 			case AGEN_VERTEX:
 			case AGEN_ONE_MINUS_VERTEX:
 			case AGEN_PORTAL:
 				break;
+			case AGEN_SKIP:
 			default:
 				setcolor = qtrue;
 		}
