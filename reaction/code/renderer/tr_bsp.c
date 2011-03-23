@@ -665,7 +665,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	srfTriangles_t *cv;
 	srfTriangle_t  *tri;
 	int             i, j;
-	int             numVerts, numTriangles;
+	int             numVerts, numTriangles, badTriangles;
 
 	// get fog volume
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -715,6 +715,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	}
 
 	// copy triangles
+	badTriangles = 0;
 	indexes += LittleLong(ds->firstIndex);
 	for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 	{
@@ -727,7 +728,20 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 				ri.Error(ERR_DROP, "Bad index in face surface");
 			}
 		}
-	}}
+
+		if ((tri->indexes[0] == tri->indexes[1]) || (tri->indexes[1] == tri->indexes[2]) || (tri->indexes[0] == tri->indexes[2]))
+		{
+			tri--;
+			badTriangles++;
+		}
+	}
+
+	if (badTriangles)
+	{
+		ri.Printf(PRINT_WARNING, "Surface has bad triangles, originally shader %s %d tris %d verts, now %d tris\n", surf->shader->name, numTriangles, numVerts, numTriangles - badTriangles);
+		cv->numTriangles -= badTriangles;
+	}
+}
 
 /*
 ===============
