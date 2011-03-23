@@ -517,6 +517,10 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 		if (check->s.eType != ET_ITEM && check->s.eType != ET_PLAYER && !check->physicsObject) {
 			continue;
 		}
+		// Makro - only push normal players (no spectators or noclippers)
+		if (check->s.eType == ET_PLAYER && check->client && check->client->ps.pm_type != PM_NORMAL) {
+			continue;
+		}
 		// if the entity is standing on the pusher, it will definitely be moved
 		if (check->s.groundEntityNum != pusher->s.number) {
 			// see if the ent needs to be tested
@@ -546,6 +550,10 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 		// bobbing entities are instant-kill and never get blocked
 		//Elder: Pendulum killer code - commented out for now
 		//But it has to PUSH the client off... I don't know how just yet :(
+		
+		// Makro - this is pretty bad, disabling for now.
+		// This needs to be rewritten
+#if 0
 		if (pusher->s.pos.trType == TR_SINE || pusher->s.apos.trType == TR_SINE) {
 			//Elder: debug code
 			//G_Printf("RQ3: TR_SINE crusher code removed\n");
@@ -583,6 +591,7 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 			//G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
 			//continue;
 		}
+#endif
 		// save off the obstacle so we can call the block function (crush, etc)
 		*obstacle = check;
 
@@ -2759,7 +2768,7 @@ PENDULUM
 ===============================================================================
 */
 
-/*QUAKED func_pendulum (0 .5 .8) ?
+/*QUAKED func_pendulum (0 .5 .8) ? Y_AXIS
 You need to have an origin brush as part of this entity.
 Pendulums always swing north / south on unrotated models.  Add an angles field to the model to allow rotation in other directions.
 Pendulum frequency is a physical constant based on the length of the beam and gravity.
@@ -2767,30 +2776,41 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 "speed"		the number of degrees each way the pendulum swings, (30 default)
 "phase"		the 0.0 to 1.0 offset in the cycle to start at
 "dmg"		damage to inflict when blocked (2 default)
+"frequency"	set oscillation frequency, overriding the automatic computation
 "color"		constantLight color
 "light"		constantLight radius
 */
+
+#define SF_PENDULUM_Y_AXIS 1
+
 void SP_func_pendulum(gentity_t * ent)
 {
 	float freq;
-	float length;
 	float phase;
 	float speed;
+	int axis;
+
+	trap_SetBrushModel(ent, ent->model);
 
 	G_SpawnFloat("speed", "30", &speed);
 	G_SpawnInt("dmg", "2", &ent->damage);
 	G_SpawnFloat("phase", "0", &phase);
+	
+	if (!G_SpawnFloat("freq", "0", &freq) && !G_SpawnFloat("frequency", "0", &freq))
+	{
+		// find pendulum length
+		float length = fabs(ent->r.mins[2]);
+		if (length < 8) {
+			length = 8;
+		}
 
-	trap_SetBrushModel(ent, ent->model);
-
-	// find pendulum length
-	length = fabs(ent->r.mins[2]);
-	if (length < 8) {
-		length = 8;
+		freq = 1 / (M_PI * 2) * sqrt(g_gravity.value / (3 * length));
 	}
 
-	freq = 1 / (M_PI * 2) * sqrt(g_gravity.value / (3 * length));
-	G_Printf("func_pendulum at %s: freq = %f\n", vtos(ent->s.origin), freq);
+	if (ent->spawnflags & SF_PENDULUM_Y_AXIS)
+		axis = PITCH;
+	else
+		axis = ROLL;
 
 	ent->s.pos.trDuration = (1000 / freq);
 
@@ -2798,13 +2818,12 @@ void SP_func_pendulum(gentity_t * ent)
 
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
-
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 
 	ent->s.apos.trDuration = 1000 / freq;
 	ent->s.apos.trTime = ent->s.apos.trDuration * phase;
 	ent->s.apos.trType = TR_SINE;
-	ent->s.apos.trDelta[2] = speed;
+	ent->s.apos.trDelta[axis] = speed;
 }
 
 //Blaze: Merged into func_breakable in g_misc.c
