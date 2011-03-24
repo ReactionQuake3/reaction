@@ -927,6 +927,9 @@ typedef struct {
 #define MAX_VISIBLE_FLARES	24
 #define NUM_FLARE_SHADERS	3
 
+// Makro - explosion screen shake (in msec)
+#define EXPLOSION_SHAKE_TIME	500
+
 typedef struct {
 	int clientFrame;	// incremented each frame
 
@@ -1193,6 +1196,10 @@ typedef struct {
 
 	// Makro - time of death
 	int timeOfDeath;
+
+	// Makro - explosion screen shake
+	int explosionTime;
+	float explosionForce;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff

@@ -2607,10 +2607,27 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin,
 	//
 	if (mod) {
 		if (weapon == WP_GRENADE) {
+			vec3_t delta;
+			float severity;
+			const float MAX_EXPLOSION_DIST = 800.f;
+			
+			VectorSubtract(origin, cg.refdef.vieworg, delta);
+			severity = Com_Clamp(0.f, 1.f, 1.f - VectorLength(delta) / MAX_EXPLOSION_DIST);
+			if (severity > 0.f)
+			{
+				trace_t tr;
+				CG_Trace(&tr, cg.refdef.vieworg, NULL, NULL, origin, cg.predictedPlayerState.clientNum, CONTENTS_SOLID);
+				if (tr.fraction < 1.f)
+					severity *= 0.5f;
+				severity *= severity;
+				if (cg.explosionTime < cg.time || severity > cg.explosionForce)
+					cg.explosionForce = severity;
+				cg.explosionTime = cg.time + EXPLOSION_SHAKE_TIME;
+			}
+
 			le = CG_MakeExplosion(origin, dir, mod, shader, duration, isSprite);
 			le->light = light;
 			VectorCopy(lightColor, le->lightColor);
-
 		} else if (cg_RQ3_impactEffects.integer) {
 			vec3_t temp, offsetDir;
 			byte color[4];

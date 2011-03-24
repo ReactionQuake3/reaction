@@ -1047,6 +1047,16 @@ static int CG_CalcViewValues(void)
 		CG_OffsetFirstPersonView();
 	}
 
+	// Makro - explosion shake
+	if (cg.explosionTime > cg.time)
+	{
+		const float frac = (cg.explosionTime - cg.time) / ((float)EXPLOSION_SHAKE_TIME);
+		const float freq = 10.f;
+		const float angle = frac * 10.f * cg.explosionForce;
+		float wave = sin(freq * 2.f * M_PI * cg.time / 1000.f);
+		cg.refdefViewAngles[ROLL] += wave * angle;
+	}
+
 	// position eye reletive to origin
 	if (cg.snap->ps.stats[STAT_HEALTH] > 0)
 		AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
@@ -1054,6 +1064,7 @@ static int CG_CalcViewValues(void)
 	if (cg.hyperspace) {
 		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
 	}
+	
 	// field of view
 	return CG_CalcFov();
 }
