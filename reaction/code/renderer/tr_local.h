@@ -43,6 +43,10 @@ long myftol( float f );
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+#ifndef ARRAY_SIZE
+#	define ARRAY_SIZE(arr)				(sizeof(arr) / sizeof(arr[0]))
+#endif
+
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
 // parallel on a dual cpu machine
@@ -2166,6 +2170,11 @@ typedef struct {
 	qboolean	framebufferBlit;
 	qboolean	framebufferMultisample;
 	
+	qboolean	glslOverbright;
+	
+	qboolean	textureFloat;
+	qboolean	colorBufferFloat;
+	
 	qboolean	occlusionQuery;
 
 	// These next three are all required for one chunk of code, so glsl is
@@ -2229,6 +2238,7 @@ typedef struct {
 	
 	fbo_t					*full[2];	// full resolution, shared zbuffer
 	fbo_t					*quarter[2];	// quarter resolution, no zbuffer
+	fbo_t					*tiny[2];	// 1/16 resolution, no zbuffer
 
 	int						numFBOs;
 	fbo_t					*fbos[1024];
@@ -2351,6 +2361,10 @@ typedef struct {
 
 	int						numSkins;
 	skin_t					*skins[MAX_SKINS];
+
+	GLuint					sunFlareQuery[2];
+	int						sunFlareQueryIndex;
+	qboolean				sunFlareQueryActive[2];
 
 	float					sinTable[FUNCTABLE_SIZE];
 	float					squareTable[FUNCTABLE_SIZE];

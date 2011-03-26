@@ -1,9 +1,5 @@
 #include "tr_local.h"
 
-#ifndef ARRAY_SIZE
-#	define ARRAY_SIZE(arr)				(sizeof(arr) / sizeof(arr[0]))
-#endif
-
 #define MAX_FBO_COLOR_BUFFERS		8
 
 /*
@@ -423,6 +419,18 @@ static void R_FBO_CreateDefaultBuffers(void)
 	tr.fbo.quarter[1] = R_FBO_CreateSimple(
 		"quarter1",
 		R_FBO_CreateColorBuffer("*quarterBuffer1", glConfig.vidWidth/2, glConfig.vidHeight/2, qfalse, qfalse, GL_CLAMP_TO_EDGE),
+		NULL,
+		NULL);
+	
+	tr.fbo.tiny[0] = R_FBO_CreateSimple(
+		"tiny0",
+		R_FBO_CreateColorBuffer("*tinyBuffer0", glConfig.vidWidth/4, glConfig.vidHeight/4, qfalse, qfalse, GL_CLAMP_TO_EDGE),
+		NULL,
+		NULL);
+	
+	tr.fbo.tiny[1] = R_FBO_CreateSimple(
+		"tiny1",
+		R_FBO_CreateColorBuffer("*tinyBuffer1", glConfig.vidWidth/4, glConfig.vidHeight/4, qfalse, qfalse, GL_CLAMP_TO_EDGE),
 		NULL,
 		NULL);
 	

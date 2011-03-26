@@ -410,7 +410,7 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 
 	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*4);
 
-	qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer ); 
+	qglReadPixels( x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer ); 
 
 	// gamma correct
 	if ( glConfig.deviceSupportsGamma ) {
@@ -430,6 +430,7 @@ RB_TakeScreenshotCmd
 */
 const void *RB_TakeScreenshotCmd( const void *data ) {
 	const screenshotCommand_t	*cmd;
+	fbo_t						*fbo = R_FBO_Bind(NULL);
 	
 	cmd = (const screenshotCommand_t *)data;
 	
@@ -437,6 +438,8 @@ const void *RB_TakeScreenshotCmd( const void *data ) {
 		RB_TakeScreenshotJPEG( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
 	else
 		RB_TakeScreenshot( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
+
+	R_FBO_Bind(fbo);
 	
 	return (const void *)(cmd + 1);	
 }
@@ -708,13 +711,18 @@ RB_TakeVideoFrameCmd
 const void *RB_TakeVideoFrameCmd( const void *data )
 {
 	const videoFrameCommand_t	*cmd;
-	int												frameSize;
-	int												i;
+	int							frameSize;
+	int							i;
+	fbo_t						*fbo;
 	
 	cmd = (const videoFrameCommand_t *)data;
+
+	fbo = R_FBO_Bind(NULL);
 	
 	qglReadPixels( 0, 0, cmd->width, cmd->height, GL_RGBA,
 			GL_UNSIGNED_BYTE, cmd->captureBuffer );
+
+	R_FBO_Bind(fbo);
 
 	// gamma correct
 	if( glConfig.deviceSupportsGamma )
@@ -1070,12 +1078,16 @@ void R_InitQueries(void)
 {
 	if (!glRefConfig.occlusionQuery)
 		return;
+
+	qglGenQueriesARB(ARRAY_SIZE(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 void R_ShutDownQueries(void)
 {
 	if (!glRefConfig.occlusionQuery)
 		return;
+
+	qglDeleteQueriesARB(ARRAY_SIZE(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 /*

@@ -24,7 +24,11 @@
 	HANDLE_EXT_FUNC(	PFNGLGETQUERYOBJECTIVARBPROC,					glGetQueryObjectivARB)			\
 	HANDLE_EXT_FUNC(	PFNGLGETQUERYOBJECTUIVARBPROC,					glGetQueryObjectuivARB)			\
 
+#define GL_MISSING_FUNCTIONS																			\
+	HANDLE_EXT_FUNC(	PFNGLBLENDEQUATIONPROC,							glBlendEquation)				\
 
+#define GL_ARB_color_buffer_float_functions																\
+	HANDLE_EXT_FUNC(	PFNGLCLAMPCOLORARBPROC,							glClampColorARB)				\
 
 #ifndef GL_EXT_framebuffer_multisample
 	#define GL_EXT_framebuffer_multisample 1
@@ -57,6 +61,7 @@
 	GL_EXT_framebuffer_multisample_functions																\
 	GL_EXT_framebuffer_blit_functions																		\
 	GL_ARB_occlusion_query_functions																		\
-
+	GL_ARB_color_buffer_float_functions																		\
+	GL_MISSING_FUNCTIONS																					\
 
 #endif

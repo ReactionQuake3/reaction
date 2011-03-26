@@ -501,11 +501,19 @@ static void Upload32( unsigned *data,
 	GLenum		internalFormat = GL_RGB;
 	float		rMax = 0, gMax = 0, bMax = 0;
 
-	// Makro - render target
+	// Makro - no data, this must be a render target
 	if (!data)
 	{
-		internalFormat = GL_RGBA8;
-		qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		if (r_ext_framebuffer_object->integer >= 2 && glRefConfig.textureFloat)
+		{
+			internalFormat = GL_RGBA16F_ARB;
+			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		}
+		else
+		{
+			internalFormat = GL_RGBA8;
+			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		}
 		GL_CheckErrors();
 		*format = internalFormat;
 		*pUploadWidth = width;
@@ -777,19 +785,45 @@ done:
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
+static image_t *R_AllocImage(const char* name, int width, int height, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode)
+{
+	image_t		*image;
+	long		hash;
+
+	image = tr.images[tr.numImages++] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
+	Com_Memset(image, 0, sizeof(*image));
+
+	image->texnum = 1024 + tr.numImages;
+	image->mipmap = mipmap;
+	image->allowPicmip = allowPicmip;
+
+	strcpy (image->imgName, name);
+
+	image->width = width;
+	image->height = height;
+	image->wrapClampMode = glWrapClampMode;
+
+	hash = generateHashValue(name);
+	image->next = hashTable[hash];
+	hashTable[hash] = image;
+
+	return image;
+}
 
 /*
 ================
 R_CreateImage
 
 This is the only way any image_t are created
+
+Makro - except maybe for render targets
+at some point in the near future...
 ================
 */
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
-	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
 		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
@@ -802,18 +836,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
 	}
 
-	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ), h_low );
-	image->texnum = 1024 + tr.numImages;
-	tr.numImages++;
-
-	image->mipmap = mipmap;
-	image->allowPicmip = allowPicmip;
-
-	strcpy (image->imgName, name);
-
-	image->width = width;
-	image->height = height;
-	image->wrapClampMode = glWrapClampMode;
+	image = R_AllocImage(name, width, height, mipmap, allowPicmip, glWrapClampMode);
 
 	// lightmaps are always allocated on TMU 1
 	if ( qglActiveTextureARB && isLightmap ) {
@@ -844,10 +867,6 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	if ( image->TMU == 1 ) {
 		GL_SelectTexture( 0 );
 	}
-
-	hash = generateHashValue(name);
-	image->next = hashTable[hash];
-	hashTable[hash] = image;
 
 	return image;
 }
@@ -1226,12 +1245,12 @@ void R_SetColorMappings( void ) {
 
 	// setup the overbright lighting
 	tr.overbrightBits = r_overBrightBits->integer;
-	if ( !glConfig.deviceSupportsGamma ) {
+	if ( !glConfig.deviceSupportsGamma && !glRefConfig.glslOverbright ) {
 		tr.overbrightBits = 0;		// need hardware gamma for overbright
 	}
 
 	// never overbright in windowed mode
-	if ( !glConfig.isFullscreen ) 
+	if ( !glConfig.isFullscreen && !glRefConfig.glslOverbright ) 
 	{
 		tr.overbrightBits = 0;
 	}
@@ -1267,6 +1286,9 @@ void R_SetColorMappings( void ) {
 	g = r_gamma->value;
 
 	shift = tr.overbrightBits;
+
+	if (glRefConfig.glslOverbright)
+		shift = 0;
 
 	for ( i = 0; i < 256; i++ ) {
 		if ( g == 1 ) {

@@ -601,6 +601,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	float			originalTime;
 	float			depth[2];
 	fbo_t*			fbo = NULL;
+	qboolean		inQuery = qfalse;
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -665,6 +666,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			{
 				R_FBO_Bind(fbo);
 				qglDepthRange(depth[0], depth[1]);
+				if (inQuery) {
+					inQuery = qfalse;
+					qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+				}
 			}
 
 			if ( entityNum != ENTITYNUM_WORLD ) {
@@ -687,11 +692,16 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					// if we're rendering to a fbo
 					if (fbo) {
 						VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
-						backEnd.hasSunFlare = qtrue;
-						sunflare = qtrue;
 						// switch FBO
 						R_FBO_Bind(tr.fbo.fbos[1]);
 						qglDepthRange(1.f, 1.f);
+						if (glRefConfig.occlusionQuery && !inQuery && !backEnd.hasSunFlare) {
+							inQuery = qtrue;
+							tr.sunFlareQueryActive[tr.sunFlareQueryIndex] = qtrue;
+							qglBeginQueryARB(GL_SAMPLES_PASSED_ARB, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
+						}
+						backEnd.hasSunFlare = qtrue;
+						sunflare = qtrue;
 					} else {
 						depthRange = qtrue;
 					}
@@ -785,6 +795,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	R_FBO_Bind(fbo);
+	if (inQuery) {
+		inQuery = qfalse;
+		qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
+	}
 	
 	// go back to the world modelview matrix
 
