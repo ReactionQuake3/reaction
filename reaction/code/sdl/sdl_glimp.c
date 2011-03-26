@@ -1113,7 +1113,7 @@ static void GLimp_InitExtensions( void )
 
 	// GL_EXT_framebuffer_multisample
 	extension = "GL_EXT_framebuffer_multisample";
-	if (GLimp_HaveExtension("GL_EXT_framebuffer_multisample"))
+	if (GLimp_HaveExtension(extension))
 	{
 		const char* action[2] = { "ignoring", "using" };
 		GL_EXT_framebuffer_multisample_functions;
@@ -1127,11 +1127,11 @@ static void GLimp_InitExtensions( void )
 
 	// GL_ARB_occlusion_query
 	extension = "GL_ARB_occlusion_query";
-	if (GLimp_HaveExtension("GL_ARB_occlusion_query"))
+	if (GLimp_HaveExtension(extension))
 	{
 		const char* action[2] = { "ignoring", "using" };
 		GL_ARB_occlusion_query_functions;
-		glRefConfig.occlusionQuery = qfalse;
+		glRefConfig.occlusionQuery = qtrue;
 		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.occlusionQuery], extension);
 	}
 	else
@@ -1139,10 +1139,45 @@ static void GLimp_InitExtensions( void )
 		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
 	}
 
+	// GL_ARB_texture_float
+	extension = "GL_ARB_texture_float";
+	if (GLimp_HaveExtension(extension))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		glRefConfig.textureFloat = qtrue;
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.textureFloat], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
+	}
+
+	// GL_ARB_color_buffer_float
+	extension = "GL_ARB_color_buffer_float";
+	if (GLimp_HaveExtension(extension))
+	{
+		const char* action[2] = { "ignoring", "using" };
+		GL_ARB_color_buffer_float_functions;
+		glRefConfig.colorBufferFloat = qtrue;
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.colorBufferFloat], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
+	}
+
+	GL_MISSING_FUNCTIONS;
+
 
 #	undef HANDLE_EXT_FUNC
 
 	glRefConfig.glsl = glRefConfig.vertexProgram && glRefConfig.shaderObjects && glRefConfig.vertexShader;
+
+	glRefConfig.glslOverbright = 
+		glRefConfig.framebufferObject &&
+		(glRefConfig.shaderObjects && r_arb_shader_objects->integer) &&
+		(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer);
+
 
 }
 
