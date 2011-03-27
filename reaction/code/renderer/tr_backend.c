@@ -664,12 +664,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				RF_SUNFLARE == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) &&
 				0 == (backEnd.refdef.entities[entityNum].e.renderfx & RF_SUNFLARE))
 			{
-				R_FBO_Bind(fbo);
-				qglDepthRange(depth[0], depth[1]);
 				if (inQuery) {
 					inQuery = qfalse;
 					qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 				}
+				R_FBO_Bind(fbo);
+				qglDepthRange(depth[0], depth[1]);
 			}
 
 			if ( entityNum != ENTITYNUM_WORLD ) {
@@ -794,11 +794,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		RB_EndSurface();
 	}
 
-	R_FBO_Bind(fbo);
 	if (inQuery) {
 		inQuery = qfalse;
 		qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 	}
+	R_FBO_Bind(fbo);
 	
 	// go back to the world modelview matrix
 
