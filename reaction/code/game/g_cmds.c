@@ -2953,6 +2953,41 @@ void Cmd_PlayerStats_f(gentity_t * ent)
 	trap_SendServerCommand(ent - g_entities, va("print \"----------------------------------\n\""));
 }
 
+void G_SetSunFlare(const vec3_t dir, int size, float alpha);
+
+void Cmd_TestSunFlare_f(gentity_t *ent)
+{
+	vec3_t dir;
+	int size = 0;
+	float alpha = 0.f;
+	char arg[64];
+	
+	if (!CheatsOk(ent) || !ent->client || !ent->client->pers.localClient)
+		return;
+
+	if (trap_Argc() >= 2)
+	{
+		trap_Argv(1, arg, sizeof(arg));
+		size = atoi(arg);
+	}
+
+	if (trap_Argc() >= 3)
+	{
+		trap_Argv(2, arg, sizeof(arg));
+		alpha = atof(arg);
+	}
+
+	if (size <= 0)
+		size = 256;
+
+	if (alpha <= 0.f)
+		alpha = 0.75f;
+
+	AngleVectors(ent->client->ps.viewangles, dir, NULL, NULL);
+
+	G_SetSunFlare(dir, size, alpha);
+}
+
 /*
 =================
 ClientCommand
@@ -3146,6 +3181,8 @@ void ClientCommand(int clientNum)
 		camera_cmd(ent);
 	else if (Q_stricmp(cmd, "playerstats") == 0)
 		Cmd_PlayerStats_f(ent);
+	else if (Q_stricmp(cmd, "testSunFlare") == 0)
+		Cmd_TestSunFlare_f(ent);
 	else if (Q_stricmp(cmd, "SendCheatCvars") == 0) {
 		if (!G_SendCheatVars(clientNum))
 			Com_Printf("Error loading cvar cfg\n");
