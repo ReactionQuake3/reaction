@@ -476,9 +476,24 @@ void G_RunDlight(gentity_t * ent)
 /*QUAKED misc_lens_flare (0 1 0) (-8 -8 -8) (8 8 8) ?
 */
 
-void Think_SetupFlare(gentity_t *ent)
+void G_SetSunFlare(const vec3_t dir, int size, float alpha)
 {
 	char  info[MAX_INFO_STRING]={0};
+	
+	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
+	
+	Info_SetValueForKey(info, "lx", va("%f", dir[0]));
+	Info_SetValueForKey(info, "ly", va("%f", dir[1]));
+	Info_SetValueForKey(info, "lz", va("%f", dir[2]));
+
+	Info_SetValueForKey(info, "lsun", va("%d", size));
+	Info_SetValueForKey(info, "lsa", va("%.2f", alpha));
+
+	trap_SetConfigstring(CS_SKYPORTAL, info);
+}
+
+void Think_SetupFlare(gentity_t *ent)
+{
 	vec3_t dir;
 
 	ent->think = 0;
@@ -494,8 +509,10 @@ void Think_SetupFlare(gentity_t *ent)
 		VectorCopy(ent->s.origin2, dir);
 	}
 	VectorNormalize(dir);
-	trap_GetConfigstring(CS_SKYPORTAL, info, sizeof(info));
 
+	G_SetSunFlare(dir, ent->mass, ent->speed);
+
+	/*
 	Info_SetValueForKey(info, "ln", va("%d", ent->count));
 	Info_SetValueForKey(info, "lx", va("%f", dir[0]));
 	Info_SetValueForKey(info, "ly", va("%f", dir[1]));
@@ -507,6 +524,7 @@ void Think_SetupFlare(gentity_t *ent)
 	Info_SetValueForKey(info, "lsun", va("%d", ent->mass));
 	Info_SetValueForKey(info, "lsa", va("%f", ent->speed));
 	trap_SetConfigstring(CS_SKYPORTAL, info);
+	*/
 	
 	G_FreeEntity(ent, __LINE__, __FILE__);
 }
