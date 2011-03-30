@@ -2710,6 +2710,25 @@ Makro - changed to 0..1 instead of 0/1
 */
 #define MAX_DAMAGE_ALPHA	0.75
 #define MAX_BLEND_TIME		1500
+
+static float CG_GetDamageBlendAlpha( void )
+{
+	float dmg, blend = Com_Clamp(0, 1, cg_RQ3_painblend.value);
+
+	if (cg.rq3_blendTime <= 0.f)
+		return 0.f;
+	
+	//Clamp blend time
+	if (cg.rq3_blendTime > MAX_BLEND_TIME)
+		cg.rq3_blendTime = MAX_BLEND_TIME;
+
+	dmg = cg.rq3_trueDamage;
+	dmg = blend * MAX_DAMAGE_ALPHA * (dmg / 100.0) * (1.0 - (cg.time - cg.damageTime) / cg.rq3_blendTime);
+	dmg = Com_Clamp(0.f, MAX_DAMAGE_ALPHA, dmg);
+
+	return dmg;
+}
+
 static void CG_DrawDamageBlend( void )
 {
 	float dmg, blend = Com_Clamp(0, 1, cg_RQ3_painblend.value);
@@ -2863,6 +2882,36 @@ void CG_DrawBigPolygon(void) {
 	trap_R_AddPolyToScene(cgs.media.blackHackShader, 4, Corners);
 }
 
+static qboolean CG_UnderWater( void )
+{
+	return 0 != (CG_PointContents(cg.refdef.vieworg, -1) & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA));
+}
+
+static qboolean CG_IsDead( void )
+{
+	return cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0;
+}
+
+static void CG_SetupPostProcess( void )
+{
+	cg.refdefex.blurFactor = CG_GetDamageBlendAlpha();
+	
+	if (CG_UnderWater() || CG_IsDead())
+		cg.refdefex.blurFactor = 1.f;
+	if (CG_IsDead())
+		cg.refdefex.blurFactor = 1.f;
+	
+	if (trap_Key_GetCatcher() & KEYCATCH_UI)
+		cg.refdefex.blurFactor = 1.f;
+
+	cg.refdefex.blurFactor = Com_Clamp(0.f, 1.f, cg.refdefex.blurFactor);
+
+	if (cg.refdefex.blurFactor > 0.f)
+	{
+		cg.refdef.rdflags |= RDF_EXTRA;
+	}
+}
+
 /*
 =====================
 CG_DrawActive
@@ -2893,6 +2942,8 @@ void CG_DrawActive(stereoFrame_t stereoView)
 
 	//Makro - sun flare
 	CG_AddLensFlare(qtrue);
+
+	CG_SetupPostProcess();
 
 	// draw 3D view
 	trap_R_RenderScene(&cg.refdef);

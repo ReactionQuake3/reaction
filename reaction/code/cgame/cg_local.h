@@ -1002,6 +1002,7 @@ typedef struct {
 
 	// view rendering
 	refdef_t refdef;
+	refdefex_t refdefex;		// Makro - extra data to be sent to the renderer; it absolutely needs to follow refdef
 	vec3_t refdefViewAngles;	// will be converted to refdef.viewaxis
 
 	// zoom key

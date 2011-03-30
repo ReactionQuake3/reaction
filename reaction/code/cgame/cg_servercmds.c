@@ -492,6 +492,8 @@ void CG_ParseSkyPortal(const char *str)
 		cgs.sunDir[0] = atof(Info_ValueForKey(str, "lx"));
 		cgs.sunDir[1] = atof(Info_ValueForKey(str, "ly"));
 		cgs.sunDir[2] = atof(Info_ValueForKey(str, "lz"));
+		VectorNormalize(cgs.sunDir);
+
 		alphamin = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lamin")));
 		alphamax = Com_Clamp(0.0f, 1.0f, atof(Info_ValueForKey(str, "lamax")));
 		sizemin = atof(Info_ValueForKey(str, "lsmin"));

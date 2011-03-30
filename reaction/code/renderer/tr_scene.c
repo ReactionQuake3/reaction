@@ -360,6 +360,13 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
+	// Makro - copy exta info if present
+	if (fd->rdflags & RDF_EXTRA) {
+		const refdefex_t* extra = (const refdefex_t*) (fd+1);
+		tr.refdef.blurFactor = extra->blurFactor;
+	} else {
+		tr.refdef.blurFactor = 0.f;
+	}
 
 	// derived info
 

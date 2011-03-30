@@ -287,13 +287,13 @@ static void RB_GodRays(void)
 	}
 }
 
-static void RB_BlurAxis(float w, float h, qboolean horizontal)
+static void RB_BlurAxis(float w, float h, float strength, qboolean horizontal)
 {
 	float dx, dy;
 	float xmul, ymul;
 	float weights[3] = {
-		0.316216216f,
 		0.227027027f,
+		0.316216216f,
 		0.070270270f,
 	};
 	float offsets[3] = {
@@ -308,34 +308,104 @@ static void RB_BlurAxis(float w, float h, qboolean horizontal)
 	xmul /= w;
 	ymul /= h;
 
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	xmul *= strength;
+	ymul *= strength;
+
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK_FALSE );
 	
-	RB_Color4f(weights[0], weights[0], weights[0], 1.f);
+	RB_Color4f(weights[0], weights[0], weights[0], 0.f);
 	RB_DrawQuad(0.f, 0.f, w, h, 0.f, 0.f, 1.f, 1.f);
 
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_ALPHAMASK_FALSE );
 	
-	RB_Color4f(weights[1], weights[1], weights[1], 1.f);
+	RB_Color4f(weights[1], weights[1], weights[1], 0.f);
 	dx = offsets[1] * xmul;
 	dy = offsets[1] * ymul;
 	RB_DrawQuad(0.f, 0.f, w, h, dx, dy, 1.f+dx, 1.f+dy);
 	RB_DrawQuad(0.f, 0.f, w, h, -dx, -dy, 1.f-dx, 1.f-dy);
 
-	RB_Color4f(weights[2], weights[2], weights[2], 1.f);
+	RB_Color4f(weights[2], weights[2], weights[2], 0.f);
 	dx = offsets[2] * xmul;
 	dy = offsets[2] * ymul;
 	RB_DrawQuad(0.f, 0.f, w, h, dx, dy, 1.f+dx, 1.f+dy);
 	RB_DrawQuad(0.f, 0.f, w, h, -dx, -dy, 1.f-dx, 1.f-dy);
 }
 
-static void RB_HBlur(float w, float h)
+static void RB_HBlur(float w, float h, float strength)
 {
-	RB_BlurAxis(w, h, qtrue);
+	RB_BlurAxis(w, h, strength, qtrue);
 }
 
-static void RB_VBlur(float w, float h)
+static void RB_VBlur(float w, float h, float strength)
 {
-	RB_BlurAxis(w, h, qfalse);
+	RB_BlurAxis(w, h, strength, qfalse);
+}
+
+static void RB_Blur(void)
+{
+	float w, h, w2, h2, w4, h4;
+	float mul = 1.f;
+	float factor = Com_Clamp(0.f, 1.f, backEnd.refdef.blurFactor);
+	int i;
+
+	if (factor <= 0.f)
+		return;
+
+	// viewport dimensions
+	w = glConfig.vidWidth;
+	h = glConfig.vidHeight;
+	w2 = glConfig.vidWidth / 2;
+	h2 = glConfig.vidHeight / 2;
+	w4 = glConfig.vidWidth / 4;
+	h4 = glConfig.vidHeight / 4;
+	
+	RB_SetGL2D_Level(1);
+	
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	RB_Color4f(mul, mul, mul, 1.f);
+
+	// first, downsample the main framebuffers
+	R_FBO_Bind(tr.fbo.quarter[0]);
+	R_FBO_BindColorBuffer(tr.fbo.full[0], 0);
+	RB_DrawQuad(0.f, 0.f, w2, h2, 0.f, 0.f, 1.f, 1.f);
+
+	RB_SetGL2D_Level(2);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	RB_Color4f(mul, mul, mul, 1.f);
+	
+	R_FBO_Bind(tr.fbo.tiny[0]);
+	
+	R_FBO_BindColorBuffer(tr.fbo.quarter[0], 0);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	mul = 1.f;
+	RB_Color4f(mul, mul, mul, 1.f);
+	RB_DrawQuad(0.f, 0.f, w4, h4, 0.f, 0.f, 1.f, 1.f);
+
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_REDMASK_FALSE | GLS_BLUEMASK_FALSE | GLS_GREENMASK_FALSE );
+	GL_Bind(tr.whiteImage);
+	mul = 1.f;
+	RB_Color4f(mul, mul, mul, 1.f);
+	RB_DrawQuad(0.f, 0.f, w4, h4, 0.f, 0.f, 1.f, 1.f);
+
+	//for (i=0; i<2; ++i)
+	{
+		R_FBO_Bind(tr.fbo.tiny[1]);
+		R_FBO_BindColorBuffer(tr.fbo.tiny[0], 0);
+		RB_HBlur(w4, h4, factor);
+
+		R_FBO_Bind(tr.fbo.tiny[0]);
+		R_FBO_BindColorBuffer(tr.fbo.tiny[1], 0);
+		RB_VBlur(w4, h4, factor);
+	}
+
+	RB_SetGL2D_Level(0);
+	R_FBO_BindColorBuffer(R_FBO_Bind(tr.fbo.full[0]), 0);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	mul = 1.f;
+	RB_Color4f(mul, mul, mul, factor);
+	RB_DrawQuad(0.f, 0.f, w, h, 0.f, 0.f, 1.f, 1.f);
+
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 }
 
 void RB_FBO_Set2D(void)
@@ -363,7 +433,7 @@ void RB_FBO_Set2D(void)
 			GLSL_SetUniform_Texture0Matrix(sp, matrix);
 			GLSL_SetUniform_Texture1Env(sp, 0);
 			GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
-			GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+			GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
 
 			RB_Color4f = &GLSL_Color4f;
 		}
@@ -429,4 +499,5 @@ void RB_PostProcess(void)
 
 	RB_FBO_Set2D();
 	RB_GodRays();
+	RB_Blur();
 }

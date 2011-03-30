@@ -48,6 +48,11 @@
 #define RDF_NOWORLDMODEL	1	// used for player configuration screen
 #define RDF_HYPERSPACE		4	// teleportation effect
 #define RDF_NOFOG			8
+#define RDF_EXTRA			0x0010		// Makro - refdefex_t to follow after refdef_t
+
+typedef struct {
+	float			blurFactor;
+} refdefex_t;
 
 typedef struct {
 	vec3_t xyz;

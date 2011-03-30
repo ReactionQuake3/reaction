@@ -289,9 +289,17 @@ static void RB_SurfaceSprite( void ) {
 	}
 	
 	if (ent->e.renderfx & RF_SUNFLARE) {
+		if (backEnd.hasSunFlare)
+		{
+			ri.Printf(PRINT_WARNING, "Multiple sun flares not supported\n");
+			return;
+		}
+		if (R_CullPointAndRadiusEx(ent->e.origin, ent->e.radius, backEnd.viewParms.frustum, ARRAY_LEN(backEnd.viewParms.frustum)) == CULL_OUT)
+			return;
 		colors[0] = colors[1] = colors[2] = colors[3] = ent->e.shaderRGBA[glRefConfig.framebufferObject];
 		if (colors[0] == 0)
 			return;
+		backEnd.hasSunFlare = qtrue;
 	} else {
 		Vector4Copy(ent->e.shaderRGBA, colors);
 	}

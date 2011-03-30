@@ -412,6 +412,19 @@ void GL_State( unsigned long stateBits )
 		}
 	}
 
+	//
+	// color mask
+	//
+	if ( diff & GLS_COLORMASK_BITS )
+	{
+		qglColorMask(
+			(stateBits & GLS_REDMASK_FALSE) == 0,
+			(stateBits & GLS_GREENMASK_FALSE) == 0,
+			(stateBits & GLS_BLUEMASK_FALSE) == 0,
+			(stateBits & GLS_ALPHAMASK_FALSE) == 0
+			);
+	}
+
 	glState.glStateBits = stateBits;
 }
 
@@ -700,7 +713,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 							tr.sunFlareQueryActive[tr.sunFlareQueryIndex] = qtrue;
 							qglBeginQueryARB(GL_SAMPLES_PASSED_ARB, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
 						}
-						backEnd.hasSunFlare = qtrue;
+						//backEnd.hasSunFlare = qtrue;
 						sunflare = qtrue;
 					} else {
 						depthRange = qtrue;

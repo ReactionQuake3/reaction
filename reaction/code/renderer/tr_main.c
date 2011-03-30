@@ -270,7 +270,7 @@ int R_CullBox(vec3_t worldBounds[2]) {
 /*
 ** R_CullLocalPointAndRadius
 */
-int R_CullLocalPointAndRadius( vec3_t pt, float radius )
+int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 {
 	vec3_t transformed;
 
@@ -280,13 +280,14 @@ int R_CullLocalPointAndRadius( vec3_t pt, float radius )
 }
 
 /*
-** R_CullPointAndRadius
+** R_CullPointAndRadiusEx
 */
-int R_CullPointAndRadius( vec3_t pt, float radius )
+
+int R_CullPointAndRadiusEx( const vec3_t pt, float radius, const cplane_t* frustum, int numPlanes )
 {
 	int		i;
 	float	dist;
-	cplane_t	*frust;
+	const cplane_t	*frust;
 	qboolean mightBeClipped = qfalse;
 
 	if ( r_nocull->integer ) {
@@ -294,9 +295,9 @@ int R_CullPointAndRadius( vec3_t pt, float radius )
 	}
 
 	// check against frustum planes
-	for (i = 0 ; i < 4 ; i++) 
+	for (i = 0 ; i < numPlanes ; i++) 
 	{
-		frust = &tr.viewParms.frustum[i];
+		frust = &frustum[i];
 
 		dist = DotProduct( pt, frust->normal) - frust->dist;
 		if ( dist < -radius )
@@ -317,6 +318,14 @@ int R_CullPointAndRadius( vec3_t pt, float radius )
 	return CULL_IN;		// completely inside frustum
 }
 
+/*
+** R_CullPointAndRadius
+*/
+int R_CullPointAndRadius( const vec3_t pt, float radius )
+{
+	return R_CullPointAndRadiusEx(pt, radius, tr.viewParms.frustum, ARRAY_LEN(tr.viewParms.frustum));
+}
+
 
 /*
 =================
@@ -324,7 +333,7 @@ R_LocalNormalToWorld
 
 =================
 */
-void R_LocalNormalToWorld (vec3_t local, vec3_t world) {
+void R_LocalNormalToWorld (const vec3_t local, vec3_t world) {
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2];
@@ -336,7 +345,7 @@ R_LocalPointToWorld
 
 =================
 */
-void R_LocalPointToWorld (vec3_t local, vec3_t world) {
+void R_LocalPointToWorld (const vec3_t local, vec3_t world) {
 	world[0] = local[0] * tr.or.axis[0][0] + local[1] * tr.or.axis[1][0] + local[2] * tr.or.axis[2][0] + tr.or.origin[0];
 	world[1] = local[0] * tr.or.axis[0][1] + local[1] * tr.or.axis[1][1] + local[2] * tr.or.axis[2][1] + tr.or.origin[1];
 	world[2] = local[0] * tr.or.axis[0][2] + local[1] * tr.or.axis[1][2] + local[2] * tr.or.axis[2][2] + tr.or.origin[2];
@@ -348,7 +357,7 @@ R_WorldToLocal
 
 =================
 */
-void R_WorldToLocal (vec3_t world, vec3_t local) {
+void R_WorldToLocal (const vec3_t world, vec3_t local) {
 	local[0] = DotProduct(world, tr.or.axis[0]);
 	local[1] = DotProduct(world, tr.or.axis[1]);
 	local[2] = DotProduct(world, tr.or.axis[2]);

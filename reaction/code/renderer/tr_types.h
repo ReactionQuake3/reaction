@@ -56,6 +56,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RDF_HYPERSPACE		0x0004		// teleportation effect
 // JBravo: Fox fixes
 #define RDF_NOFOG		0x0008		// don't apply fog
+#define RDF_EXTRA		0x0010		// Makro - refdefex_t to follow after refdef_t
+
+// Makro - this should mirror the definition in cgame
+// TODO: single tr_types.h file!
+
+typedef struct {
+	float			blurFactor;
+} refdefex_t;
 
 typedef struct {
 	vec3_t		xyz;
