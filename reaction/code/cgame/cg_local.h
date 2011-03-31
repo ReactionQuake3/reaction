@@ -1442,6 +1442,7 @@ typedef struct {
 	//qhandle_t medalCapture;
 
 	qhandle_t zoomMask;
+	qhandle_t irvision_overlay;
 
 	// sounds
 	sfxHandle_t kickSound;	//Elder: kick sound

@@ -2357,6 +2357,8 @@ static void CG_RegisterGraphics(void)
 
 	//Makro - zoom mask
 	cgs.media.zoomMask = trap_R_RegisterShaderNoMip("gfx/2d/zoom_mask");
+
+	cgs.media.irvision_overlay = trap_R_RegisterShaderNoMip("gfx/2d/irvision_overlay");
 	
 	//Elder: other hud-related elements
 	cgs.media.rq3_healthicon = trap_R_RegisterShaderNoMip("gfx/rq3_hud/hud_health");

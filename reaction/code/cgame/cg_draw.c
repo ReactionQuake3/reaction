@@ -1916,6 +1916,38 @@ CROSSHAIR
 ================================================================================
 */
 
+static void CG_DrawVignetting(float scale)
+{
+	if (cgs.media.zoomMask)
+	{
+		float sx = cgs.glconfig.vidWidth / (float) SCREEN_WIDTH;
+		float sy = cgs.glconfig.vidHeight / (float) SCREEN_HEIGHT;
+
+		float tex[4];
+
+		if (sx >= sy)
+		{
+			tex[0] = 0.f;
+			tex[1] = 0.5f * (1.f - sy / sx);
+		}
+		else
+		{
+			tex[0] = 0.5f * (1.f - sx / sy);
+			tex[1] = 0.f;
+		}
+
+		tex[2] = 1.f - tex[0];
+		tex[3] = 1.f - tex[1];
+		
+		tex[0] = (tex[0] - 0.5f) * scale + 0.5f;
+		tex[1] = (tex[1] - 0.5f) * scale + 0.5f;
+		tex[2] = (tex[2] - 0.5f) * scale + 0.5f;
+		tex[3] = (tex[3] - 0.5f) * scale + 0.5f;
+
+		trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, tex[0], tex[1], tex[2], tex[3], cgs.media.zoomMask);
+	}
+}
+
 /*
 =================
 CG_DrawCrosshair
@@ -2000,7 +2032,6 @@ static void CG_DrawCrosshair(void)
 
 			trap_R_SetColor(NULL);
 			// vignetting
-			if (cgs.media.zoomMask)
 			{
 				const float ZMC_NORMAL = 0.f;
 				const float ZMC_MAX = 0.175f;
@@ -2008,27 +2039,7 @@ static void CG_DrawCrosshair(void)
 				float fov_frac = (cg.refdef.fov_x - 10.f) / (90.f - 10.f);
 				float frac = 1.f - 2.f * (ZMC_NORMAL * fov_frac + ZMC_MAX * (1.f - fov_frac));
 
-				float sx = cgs.glconfig.vidWidth / (float) SCREEN_WIDTH;
-				float sy = cgs.glconfig.vidHeight / (float) SCREEN_HEIGHT;
-
-				float tex[2];
-
-				if (sx >= sy)
-				{
-					tex[0] = 0.f;
-					tex[1] = 0.5f * (1.f - sy / sx);
-					
-				}
-				else
-				{
-					tex[0] = 0.5f * (1.f - sx / sy);
-					tex[1] = 0.f;
-				}
-
-				tex[0] = (tex[0] - 0.5f) * frac + 0.5f;
-				tex[1] = (tex[1] - 0.5f) * frac + 0.5f;
-
-				trap_R_DrawStretchPic(0, 0, cg.refdef.width, cg.refdef.height, tex[0], tex[1], 1.f - tex[0], 1.f - tex[1], cgs.media.zoomMask);
+				CG_DrawVignetting(frac);
 			}
 
 			drawSSG = 1;
@@ -2892,17 +2903,42 @@ static qboolean CG_IsDead( void )
 	return cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0;
 }
 
+static qboolean CG_UsesIRVision( void )
+{
+	return cg.rq3_irvision && cg.snap && cg.snap->ps.stats[STAT_HOLDABLE_ITEM] & (1 << HI_BANDOLIER);
+}
+
+static void CG_DrawIRVisionBlend( void )
+{
+	float xoffset, yoffset, xscale, yscale;
+	if (!CG_UsesIRVision() || !cgs.media.irvision_overlay)
+		return;
+
+	xscale = cg.refdef.width / 256.f;
+	yscale = cg.refdef.height / 256.f;
+	xoffset = random() * xscale;
+	yoffset = random() * yscale;
+
+	CG_DrawVignetting(0.8125f);
+	trap_R_SetColor(NULL);
+	trap_R_DrawStretchPic(0.f, 0.f, cg.refdef.width, cg.refdef.height, xoffset, yoffset, xscale+xoffset, yscale+yoffset, cgs.media.irvision_overlay);
+}
+
 static void CG_SetupPostProcess( void )
 {
 	cg.refdefex.blurFactor = CG_GetDamageBlendAlpha();
 	
-	if (CG_UnderWater() || CG_IsDead())
-		cg.refdefex.blurFactor = 1.f;
-	if (CG_IsDead())
-		cg.refdefex.blurFactor = 1.f;
+	if (CG_UnderWater())
+		cg.refdefex.blurFactor += 1.f;
 	
+	if (CG_IsDead())
+		cg.refdefex.blurFactor += 1.f;
+	
+	if (CG_UsesIRVision())
+		cg.refdefex.blurFactor += 0.75f;
+
 	if (trap_Key_GetCatcher() & KEYCATCH_UI)
-		cg.refdefex.blurFactor = 1.f;
+		cg.refdefex.blurFactor += 1.f;
 
 	cg.refdefex.blurFactor = Com_Clamp(0.f, 1.f, cg.refdefex.blurFactor);
 
@@ -2956,6 +2992,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	CG_DrawDamageBlend();
 	//CG_DrawIRBlend();
 	CG_DrawDeathBlend();
+	CG_DrawIRVisionBlend();
 
 	// draw status bar and other floating elements
 	CG_Draw2D();
