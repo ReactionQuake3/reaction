@@ -1656,8 +1656,11 @@ static void ComputeStageIteratorFunc( void )
 
 	if ( glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer )
 	{
-		// VBOs don't support the fast path!
-		return;
+		if (!(glRefConfig.glsl && r_arb_shader_objects->integer))
+		{
+			// VBOs without shader objects don't support the fast path!
+			return;
+		}
 	}
 
 	//
@@ -1677,7 +1680,14 @@ static void ComputeStageIteratorFunc( void )
 						{
 							if ( !shader.numDeforms )
 							{
-								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+								if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer)
+								{
+									//shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTextureVBOGLSL;
+								}
+								else
+								{
+									shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+								}
 								goto done;
 							}
 						}
@@ -1701,9 +1711,16 @@ static void ComputeStageIteratorFunc( void )
 				{
 					if ( !shader.numDeforms )
 					{
-						if ( shader.multitextureEnv )
+						if ( shader.multitextureEnv == GL_MODULATE && !stages[0].adjustColorsForFog )
 						{
-							shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
+							if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer)
+							{
+								shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitextureVBOGLSL;
+							}
+							else
+							{
+								shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
+							}
 							goto done;
 						}
 					}

@@ -300,25 +300,16 @@ static void DrawTris (shaderCommands_t *input) {
 	{
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			matrix_t matrix;
-			shaderProgram_t *sp = &tr.genericShader[0];
+			shaderProgram_t *sp = &tr.textureOnlyShader;
 
 			GLSL_VertexAttribsState(ATTR_POSITION);
 			GLSL_BindProgram(sp);
 			
-			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
-			
-			//GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-			GLSL_SetUniform_TCGen0(sp, TCGEN_IDENTITY);
-			Matrix16Identity(matrix);
-			GLSL_SetUniform_Texture0Matrix(sp, matrix);
-			GLSL_SetUniform_Texture1Env(sp, 0);
-			GLSL_SetUniform_ColorGen(sp, CGEN_IDENTITY);
-			GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+			GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 			
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
@@ -732,7 +723,7 @@ static void DrawMultitexturedVBO( shaderCommands_t *input, int stage ) {
 
 	if (input->multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 	}
 	else
 	{
@@ -1120,7 +1111,6 @@ static void ProjectDlightTextureVBOGLSL( void ) {
 		dlight_t	*dl;
 		shaderProgram_t *sp;
 		vec4_t vector;
-		matrix_t matrix;
 
 		if ( !( tess.dlightBits & ( 1 << l ) ) ) {
 			continue;	// this surface definately doesn't have any of this light
@@ -1131,28 +1121,69 @@ static void ProjectDlightTextureVBOGLSL( void ) {
 		radius = dl->radius;
 		scale = 1.0f / radius;
 
-		sp = GLSL_GetGenericShaderProgram();
+		sp = &tr.dlightShader;
+
+		backEnd.pc.c_dlightDraws++;
 
 		GLSL_BindProgram(sp);
 
-		GLSL_SetUniform_TCGen0(sp, TCGEN_DLIGHT);
-		Matrix16Identity(matrix);
-		GLSL_SetUniform_Texture0Matrix(sp, matrix);
-		GLSL_SetUniform_Texture1Env(sp, 0);
-		GLSL_SetUniform_ColorGen(sp, CGEN_DLIGHT);
-		GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+		GLSL_SetUniformMatrix16(sp, DLIGHT_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+
+		GLSL_SetUniformFloat(sp, DLIGHT_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
+		
+		// u_DeformGen
+		if(!ShaderRequiresCPUDeforms(tess.shader))
+		{
+			deformStage_t  *ds;
+
+			// only support the first one
+			ds = &tess.shader->deforms[0];
+
+			switch (ds->deformation)
+			{
+				case DEFORM_WAVE:
+					GLSL_SetUniformInt(sp, DLIGHT_UNIFORM_DEFORMGEN, ds->deformationWave.func);
+					{
+						vec4_t v;
+						waveForm_t *wf = &ds->deformationWave;
+						VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
+						GLSL_SetUniformVec4(sp, DLIGHT_UNIFORM_DEFORMWAVE, v);
+					}
+					GLSL_SetUniformFloat(sp, DLIGHT_UNIFORM_DEFORMSPREAD, ds->deformationSpread);
+					GLSL_SetUniformFloat(sp, DLIGHT_UNIFORM_TIME, tess.shaderTime);
+					break;
+
+				case DEFORM_BULGE:
+					GLSL_SetUniformInt(sp, DLIGHT_UNIFORM_DEFORMGEN, DGEN_BULGE);
+					{
+						vec3_t v;
+						VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
+						GLSL_SetUniformVec3(sp, DLIGHT_UNIFORM_DEFORMBULGE, v);
+					}
+					GLSL_SetUniformFloat(sp, DLIGHT_UNIFORM_TIME, tess.shaderTime);
+					break;
+
+				default:
+					GLSL_SetUniformInt(sp, DLIGHT_UNIFORM_DEFORMGEN, DGEN_NONE);
+					break;
+			}
+		}
+		else
+		{
+			GLSL_SetUniformInt(sp, DLIGHT_UNIFORM_DEFORMGEN, DGEN_NONE);
+		}
 
 		vector[0] = dl->color[0];
 		vector[1] = dl->color[1];
 		vector[2] = dl->color[2];
 		vector[3] = 1.0f;
-		GLSL_SetUniform_Color(sp, vector);
+		GLSL_SetUniformVec4(sp, DLIGHT_UNIFORM_COLOR, vector);
 
 		vector[0] = origin[0];
 		vector[1] = origin[1];
 		vector[2] = origin[2];
 		vector[3] = scale;
-		GLSL_SetUniform_TCGen0Vector0(sp, vector);
+		GLSL_SetUniformVec4(sp, DLIGHT_UNIFORM_DLIGHTINFO, vector);
 	  
 		GL_Bind( tr.dlightImage );
 
@@ -1167,7 +1198,7 @@ static void ProjectDlightTextureVBOGLSL( void ) {
 
 		if (tess.multiDrawPrimitives)
 		{
-			R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **) tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+			R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **)tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
 		}
 		else
 		{
@@ -1225,29 +1256,70 @@ Blends a fog texture on top of everything else
 */
 static void RB_FogPassVBOGLSL( void ) {
 	fog_t		*fog;
+	vec3_t  local;
 	vec4_t  color;
-	matrix_t matrix;
-	shaderProgram_t *sp = GLSL_GetGenericShaderProgram();
+	vec4_t	fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
+	float		eyeT;
+	shaderProgram_t *sp = &tr.fogShader;
+
+	backEnd.pc.c_fogDraws++;
 
 	GLSL_BindProgram(sp);
 
 	fog = tr.world->fogs + tess.fogNum;
 
-	GLSL_SetUniform_FogAdjustColors(sp, 4);
-	GLSL_SetUniform_TCGen0(sp, TCGEN_IDENTITY);
-	Matrix16Identity(matrix);
-	GLSL_SetUniform_Texture0Matrix(sp, matrix);
-	GLSL_SetUniform_Texture1Env(sp, 0);
-	GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
-	GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+	GLSL_SetUniformMatrix16(sp, FOGPASS_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+
+	GLSL_SetUniformFloat(sp, FOGPASS_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
+	
+	// u_DeformGen
+	if(!ShaderRequiresCPUDeforms(tess.shader))
+	{
+		deformStage_t  *ds;
+
+		// only support the first one
+		ds = &tess.shader->deforms[0];
+
+		switch (ds->deformation)
+		{
+			case DEFORM_WAVE:
+				GLSL_SetUniformInt(sp, FOGPASS_UNIFORM_DEFORMGEN, ds->deformationWave.func);
+				{
+					vec4_t v;
+					waveForm_t *wf = &ds->deformationWave;
+					VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
+					GLSL_SetUniformVec4(sp, FOGPASS_UNIFORM_DEFORMWAVE, v);
+				}
+				GLSL_SetUniformFloat(sp, FOGPASS_UNIFORM_DEFORMSPREAD, ds->deformationSpread);
+				GLSL_SetUniformFloat(sp, FOGPASS_UNIFORM_TIME, tess.shaderTime);
+				break;
+
+			case DEFORM_BULGE:
+				GLSL_SetUniformInt(sp, FOGPASS_UNIFORM_DEFORMGEN, DGEN_BULGE);
+				{
+					vec3_t v;
+					VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
+					GLSL_SetUniformVec3(sp, FOGPASS_UNIFORM_DEFORMBULGE, v);
+				}
+				GLSL_SetUniformFloat(sp, FOGPASS_UNIFORM_TIME, tess.shaderTime);
+				break;
+
+			default:
+				GLSL_SetUniformInt(sp, FOGPASS_UNIFORM_DEFORMGEN, DGEN_NONE);
+				break;
+		}
+	}
+	else
+	{
+		GLSL_SetUniformInt(sp, FOGPASS_UNIFORM_DEFORMGEN, DGEN_NONE);
+	}
 
 	color[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
 	color[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
 	color[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
 	color[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
-	GLSL_SetUniform_Color(sp, color);
+	GLSL_SetUniformVec4(sp, FOGPASS_UNIFORM_COLOR, color);
 
-#if 0 // already set
 	// from RB_CalcFogTexCoords()
 	VectorSubtract( backEnd.or.origin, backEnd.viewParms.or.origin, local );
 	fogDistanceVector[0] = -backEnd.or.modelMatrix[2];
@@ -1278,14 +1350,9 @@ static void RB_FogPassVBOGLSL( void ) {
 
 	fogDistanceVector[3] += 1.0/512;
 
-	//ri.Printf(PRINT_ALL,"eyeT %f fogDistanceVector %f %f %f %f fogDepthVector %f %f %f %f\n", eyeT, fogDistanceVector[0], fogDistanceVector[1], fogDistanceVector[2], fogDistanceVector[3], fogDepthVector[0], fogDepthVector[1], fogDepthVector[2], fogDepthVector[3]);
-	//ri.Printf(PRINT_ALL, "fogsurface %f %f %f %f\n", fog->surface[0], fog->surface[1], fog->surface[2], fog->surface[3]);
-
-	GLSL_SetUniform_TCGen0Vector0(sp, fogDistanceVector);
-	GLSL_SetUniform_TCGen0Vector1(sp, fogDepthVector);
-	GLSL_SetUniform_FogEyeT(sp, eyeT);
-#endif
-	GL_Bind( tr.fogImage );
+	GLSL_SetUniformVec4(sp, FOGPASS_UNIFORM_FOGDISTANCE, fogDistanceVector);
+	GLSL_SetUniformVec4(sp, FOGPASS_UNIFORM_FOGDEPTH, fogDepthVector);
+	GLSL_SetUniformFloat(sp, FOGPASS_UNIFORM_FOGEYET, eyeT);
 
 	if ( tess.shader->fogPass == FP_EQUAL ) {
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
@@ -1295,7 +1362,7 @@ static void RB_FogPassVBOGLSL( void ) {
 
 	if (tess.multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **) tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(tess.multiDrawPrimitives, (const GLvoid **)tess.multiDrawFirstIndex, tess.multiDrawNumIndexes);
 	}
 	else
 	{
@@ -1879,6 +1946,8 @@ static void ComputeColorMatrix( shaderStage_t *pStage, float *outmatrix, qboolea
 				outmatrix[15] = 0.0f;
 			}
 			break;
+		default:
+			break;
 	}
 
 	//
@@ -2289,7 +2358,7 @@ static void RB_IterateStagesGenericVBO( shaderCommands_t *input )
 
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
@@ -2324,18 +2393,18 @@ static void DrawMultitexturedVBOGLSL( shaderProgram_t *sp, shaderCommands_t *inp
 	//
 	// base
 	//
-	GLSL_SetUniform_TCGen0(sp, pStage->bundle[0].tcGen);
+	GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, pStage->bundle[0].tcGen);
 	if (pStage->bundle[0].tcGen == TCGEN_VECTOR)
 	{
 		vector[3] = 0.0f;
 		VectorCopy(pStage->bundle[0].tcGenVectors[0], vector);
-		GLSL_SetUniform_TCGen0Vector0(sp, vector);
+		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_TCGEN0VECTOR0, vector);
 		VectorCopy(pStage->bundle[0].tcGenVectors[1], vector);
-		GLSL_SetUniform_TCGen0Vector1(sp, vector);
+		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_TCGEN0VECTOR1, vector);
 	}
 
 	ComputeTexMatrix( pStage, 0, matrix );
-	GLSL_SetUniform_Texture0Matrix(sp, matrix);
+	GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
 	
 	R_BindAnimatedImageToTMU( &pStage->bundle[0], 0 );
 
@@ -2343,16 +2412,16 @@ static void DrawMultitexturedVBOGLSL( shaderProgram_t *sp, shaderCommands_t *inp
 	// lightmap/secondary pass
 	//
 	if ( r_lightmap->integer ) {
-		GLSL_SetUniform_Texture1Env(sp, GL_REPLACE);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, GL_REPLACE);
 	} else {
-		GLSL_SetUniform_Texture1Env(sp, tess.shader->multitextureEnv);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, tess.shader->multitextureEnv);
 	}
 
 	R_BindAnimatedImageToTMU( &pStage->bundle[1], 1 );
 
 	if (input->multiDrawPrimitives)
 	{
-		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 	}
 	else
 	{
@@ -2385,13 +2454,13 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 	GLSL_BindProgram(sp);
 
-	GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
-	GLSL_SetUniform_ViewOrigin(sp, backEnd.or.viewOrigin);
+	GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_VIEWORIGIN, backEnd.or.viewOrigin);
 
-	GLSL_SetUniform_VertexLerp(sp, glState.vertexAttribsInterpolation);
+	GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
 	
 	// u_DeformGen
-	if(input->shader->numDeforms)
+	if(!ShaderRequiresCPUDeforms(input->shader))
 	{
 		deformStage_t  *ds;
 
@@ -2401,26 +2470,39 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		switch (ds->deformation)
 		{
 			case DEFORM_WAVE:
-				GLSL_SetUniform_DeformGen(sp, ds->deformationWave.func);
-				GLSL_SetUniform_DeformWave(sp, &ds->deformationWave);
-				GLSL_SetUniform_DeformSpread(sp, ds->deformationSpread);
-				GLSL_SetUniform_Time(sp, tess.shaderTime);
+				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, ds->deformationWave.func);
+				{
+					vec4_t v;
+					waveForm_t *wf = &ds->deformationWave;
+
+					VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
+
+					GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_DEFORMWAVE, v);
+				}
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_DEFORMSPREAD, ds->deformationSpread);
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
 				break;
 
 			case DEFORM_BULGE:
-				GLSL_SetUniform_DeformGen(sp, DGEN_BULGE);
-				GLSL_SetUniform_DeformBulge(sp, ds);
-				GLSL_SetUniform_Time(sp, tess.shaderTime);
+				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_BULGE);
+				{
+					vec3_t v;
+
+					VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
+
+					GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_DEFORMBULGE, v);
+				}
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
 				break;
 
 			default:
-				GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
 				break;
 		}
 	}
 	else
 	{
-		GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
 	}
 
 	if ( input->fogNum ) {
@@ -2455,9 +2537,9 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 			eyeT = 1;	// non-surface fog always has eye inside
 		}
 
-		GLSL_SetUniform_FogDistance(sp, fogDistanceVector);
-		GLSL_SetUniform_FogDepth(sp, fogDepthVector);
-		GLSL_SetUniform_FogEyeT(sp, eyeT);
+		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDISTANCE, fogDistanceVector);
+		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDEPTH, fogDepthVector);
+		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_FOGEYET, eyeT);
 	}
 
 	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
@@ -2484,13 +2566,13 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 		switch (pStage->alphaGen)
 		{
+			case AGEN_SKIP:
 			case AGEN_IDENTITY:
 			case AGEN_LIGHTING_SPECULAR:
 			case AGEN_VERTEX:
 			case AGEN_ONE_MINUS_VERTEX:
 			case AGEN_PORTAL:
 				break;
-			case AGEN_SKIP:
 			default:
 				setcolor = qtrue;
 		}
@@ -2499,10 +2581,10 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		{
 			vec4_t color;
 
-// JBravo: silincing a compiler warning about color being uninitialized
-			MAKERGBA(color, 1.f, 1.f, 1.f, 1.f);
+			VectorSet4(color, 1.0f, 1.0f, 1.0f, 1.0f);
+
 			ComputeHelperColor (pStage, color);
-			GLSL_SetUniform_Color(sp, color);
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, color);
 		}
 
 		if (pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
@@ -2510,29 +2592,29 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 			vec3_t vec;
 
 			VectorScale(backEnd.currentEntity->ambientLight, 1.0f / 255.0f, vec);
-			GLSL_SetUniform_AmbientLight(sp, vec);
+			GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_AMBIENTLIGHT, vec);
 
 			VectorScale(backEnd.currentEntity->directedLight, 1.0f / 255.0f, vec);
-			GLSL_SetUniform_DirectedLight(sp, vec);
+			GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_DIRECTEDLIGHT, vec);
 			
-			GLSL_SetUniform_LightDir(sp, backEnd.currentEntity->lightDir);
+			GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_LIGHTDIR, backEnd.currentEntity->lightDir);
 		}
 
 		if (pStage->alphaGen == AGEN_PORTAL)
 		{
-			GLSL_SetUniform_PortalRange(sp, tess.shader->portalRange);
+			GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_PORTALRANGE, tess.shader->portalRange);
 		}
 
-		GLSL_SetUniform_ColorGen(sp, pStage->rgbGen);
-		GLSL_SetUniform_AlphaGen(sp, pStage->alphaGen);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_COLORGEN, pStage->rgbGen);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, pStage->alphaGen);
 
 		if ( input->fogNum )
 		{
-			GLSL_SetUniform_FogAdjustColors(sp, pStage->adjustColorsForFog);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, pStage->adjustColorsForFog);
 		}
 		else
 		{
-			GLSL_SetUniform_FogAdjustColors(sp, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
 		}
 
 		//
@@ -2544,20 +2626,20 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		}
 		else 
 		{
-			GLSL_SetUniform_TCGen0(sp, pStage->bundle[0].tcGen);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, pStage->bundle[0].tcGen);
 			if (pStage->bundle[0].tcGen == TCGEN_VECTOR)
 			{
 				vec4_t vector;
 
 				VectorCopy(pStage->bundle[0].tcGenVectors[0], vector);
 				vector[3] = 0.0f;
-				GLSL_SetUniform_TCGen0Vector0(sp, vector);
+				GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_TCGEN0VECTOR0, vector);
 				VectorCopy(pStage->bundle[0].tcGenVectors[1], vector);
-				GLSL_SetUniform_TCGen0Vector1(sp, vector);
+				GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_TCGEN0VECTOR1, vector);
 			}
 
 			ComputeTexMatrix( pStage, 0, matrix );
-			GLSL_SetUniform_Texture0Matrix(sp, matrix);
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
 
 			//
 			// set state
@@ -2569,7 +2651,7 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 			else 
 				R_BindAnimatedImage( &pStage->bundle[0] );
 
-			GLSL_SetUniform_Texture1Env(sp, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, 0);
 
 			//
 			// draw
@@ -2577,7 +2659,7 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 			if (input->multiDrawPrimitives)
 			{
-				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **) input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
 			}
 			else
 			{
@@ -2727,6 +2809,8 @@ void RB_StageIteratorGenericVBO( void )
 	{
 		return;
 	}
+
+	backEnd.pc.c_genericDraws++;
 
 	if (tess.useInternalVBO)
 	{
@@ -2913,6 +2997,116 @@ void RB_StageIteratorVertexLitTexture( void )
 }
 
 //define	REPLACE_MODE
+
+void RB_StageIteratorLightmappedMultitextureVBOGLSL( void )
+{
+	shaderCommands_t *input;
+	unsigned int vertexAttribs = 0;
+	shaderProgram_t *sp;
+	shaderStage_t *pStage;
+	matrix_t matrix;
+
+	input = &tess;
+	
+	if (!input->numVertexes || !input->numIndexes)
+	{
+		return;
+	}
+
+	backEnd.pc.c_lightmappedDraws++;
+
+	vertexAttribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD; //RB_CalcShaderVertexAttribs( input );
+
+	if (tess.useInternalVBO)
+	{
+		RB_UpdateVBOs(vertexAttribs);
+	}
+	else
+	{
+		backEnd.pc.c_staticVboDraws++;
+	}
+
+	//
+	// log this call
+	//
+	if ( r_logFile->integer ) 
+	{
+		// don't just call LogComment, or we will get
+		// a call to va() every frame!
+		GLimp_LogComment( va("--- RB_StageIteratorLightmappedMultitextureVBOGLSL( %s ) ---\n", tess.shader->name) );
+	}
+
+	//
+	// set face culling appropriately
+	//
+	GL_Cull( input->shader->cullType );
+
+	//
+	// Set vertex attribs and pointers
+	//
+	if (glRefConfig.glsl && r_arb_shader_objects->integer)
+	{
+		GLSL_VertexAttribsState(vertexAttribs);
+	}
+
+	//
+	// Bind lightmapped shader
+	//
+	sp = &tr.lightmappedShader;
+	GLSL_BindProgram(sp);
+	GLSL_SetUniformMatrix16(sp, LIGHTMAPPED_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+
+	pStage = input->xstages[0];
+	GL_State( pStage->stateBits );
+
+	//
+	// base
+	//
+	ComputeTexMatrix( pStage, 0, matrix );
+	GLSL_SetUniformMatrix16(sp, LIGHTMAPPED_UNIFORM_TEXTURE0MATRIX, matrix);
+	
+	R_BindAnimatedImageToTMU( &pStage->bundle[0], 0 );
+
+	//
+	// lightmap/secondary pass
+	//
+#if 0
+	if ( r_lightmap->integer ) {
+		GLSL_SetUniformInt(sp, LIGHTMAPPED_UNIFORM_TEXTURE1ENV, GL_REPLACE);
+	} else {
+		GLSL_SetUniformInt(sp, LIGHTMAPPED_UNIFORM_TEXTURE1ENV, tess.shader->multitextureEnv);
+	}
+#endif
+
+	R_BindAnimatedImageToTMU( &pStage->bundle[1], 1 );
+
+	//
+	// draw
+	//
+	if (input->multiDrawPrimitives)
+	{
+		R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+	}
+	else
+	{
+		R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+	}
+
+	// 
+	// now do any dynamic lighting needed
+	//
+	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
+		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+		ProjectDlightTextureVBOGLSL();
+	}
+
+	//
+	// now do fog
+	//
+	if ( tess.fogNum && tess.shader->fogPass ) {
+		RB_FogPassVBOGLSL();
+	}
+}
 
 void RB_StageIteratorLightmappedMultitexture( void ) {
 	shaderCommands_t *input;

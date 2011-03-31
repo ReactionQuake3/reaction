@@ -677,6 +677,15 @@ enum
 	GLSLDEF_COUNT                = 0x0010,
 };
 
+enum
+{
+	GLSL_INT,
+	GLSL_FLOAT,
+	GLSL_VEC2,
+	GLSL_VEC3,
+	GLSL_VEC4,
+	GLSL_MAT16
+};
 
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
@@ -690,840 +699,100 @@ typedef struct shaderProgram_s
 	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
-	GLint           u_Texture0Map;
-	GLint           u_Texture1Map;
-	GLint           u_Texture2Map;
-	GLint           u_Texture3Map;
-
-	GLint           u_PortalRange;
-	float			t_PortalRange;
-
-	GLint           u_FogAdjustColors;
-	int				t_FogAdjustColors;
-
-	GLint           u_FogDistance;
-	vec4_t			t_FogDistance;
-
-	GLint           u_FogDepth;
-	vec4_t			t_FogDepth;
-
-	GLint           u_FogEyeT;
-	float			t_FogEyeT;
-
-	GLint           u_ModelMatrix;	// model -> world
-	matrix_t		t_ModelMatrix;
-
-	GLint           u_ModelViewProjectionMatrix;
-	matrix_t		t_ModelViewProjectionMatrix;
-
-	GLint           u_AlphaTest;
-	alphaTest_t		t_AlphaTest;
-
-	GLint           u_ColorGen;
-	colorGen_t		t_ColorGen;
-
-	GLint           u_AlphaGen;
-	alphaGen_t		t_AlphaGen;
-
-	GLint           u_TCGen0;
-	texCoordGen_t	t_TCGen0;
-
-	GLint           u_TCGen1;
-	texCoordGen_t	t_TCGen1;
-
-	GLint			u_TCGen0Vector0;
-	vec4_t			t_TCGen0Vector0;
-
-	GLint			u_TCGen0Vector1;
-	vec4_t			t_TCGen0Vector1;
-
-	GLint			u_TCGen1Vector0;
-	vec4_t			t_TCGen1Vector0;
-
-	GLint			u_TCGen1Vector1;
-	vec4_t			t_TCGen1Vector1;
-
-	GLint           u_DeformGen;
-	deformGen_t		t_DeformGen;
-
-	GLint           u_DeformWave;
-	vec4_t			t_DeformWave;
-
-	GLint           u_DeformBulge;
-	vec3_t			t_DeformBulge;
-
-	GLint           u_DeformSpread;
-	float			t_DeformSpread;
-
-	GLint           u_Time;
-	float			t_Time;
-
-	GLint           u_Color;
-	vec4_t			t_Color;
-
-	GLint           u_AmbientLight;
-	vec3_t			t_AmbientLight;
-
-	GLint           u_DirectedLight;
-	vec3_t			t_DirectedLight;
-
-	GLint           u_LightDir;
-	vec3_t			t_LightDir;
-
-	GLint           u_ViewOrigin;
-	vec4_t			t_ViewOrigin;
-
-	GLint			u_Texture0Matrix;
-	matrix_t		t_Texture0Matrix;
-
-	GLint			u_Texture1Matrix;
-	matrix_t		t_Texture1Matrix;
-
-	GLint           u_Texture1Env;
-	uint32_t		t_Texture1Env;
-
-	GLint			u_Texture2Matrix;
-	matrix_t		t_Texture2Matrix;
-
-	GLint			u_Texture3Matrix;
-	matrix_t		t_Texture3Matrix;
-
-	GLint           u_VertexLerp;
-	float           t_VertexLerp;
-
+	int   numUniforms;
+	GLint *uniforms;
+	GLint *uniformTypes;
+	int   *uniformBufferOffsets;
+	char  *uniformBuffer;
 } shaderProgram_t;
 
+
+enum
+{
+	LIGHTMAPPED_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
+	LIGHTMAPPED_UNIFORM_TEXTURE0MATRIX,
+	LIGHTMAPPED_UNIFORM_TEXTURE1ENV,
+	LIGHTMAPPED_UNIFORM_TEXTURE0MAP,
+	LIGHTMAPPED_UNIFORM_TEXTURE1MAP,
+	LIGHTMAPPED_UNIFORM_COUNT
+};
+
+
+enum
+{
+	TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
+	TEXTUREONLY_UNIFORM_TEXTURE0MAP,
+	TEXTUREONLY_UNIFORM_COUNT
+};
+
+
+enum
+{
+	FOGPASS_UNIFORM_FOGDISTANCE = 0,
+	FOGPASS_UNIFORM_FOGDEPTH,
+	FOGPASS_UNIFORM_FOGEYET,
+	FOGPASS_UNIFORM_DEFORMGEN,
+	FOGPASS_UNIFORM_DEFORMWAVE,
+	FOGPASS_UNIFORM_DEFORMBULGE,
+	FOGPASS_UNIFORM_DEFORMSPREAD,
+	FOGPASS_UNIFORM_TIME,
+	FOGPASS_UNIFORM_COLOR,
+	FOGPASS_UNIFORM_MODELVIEWPROJECTIONMATRIX,
+	FOGPASS_UNIFORM_VERTEXLERP,
+	FOGPASS_UNIFORM_COUNT
+};
+
+
+enum
+{
+	DLIGHT_UNIFORM_DLIGHTINFO = 0,
+	DLIGHT_UNIFORM_DEFORMGEN,
+	DLIGHT_UNIFORM_DEFORMWAVE,
+	DLIGHT_UNIFORM_DEFORMBULGE,
+	DLIGHT_UNIFORM_DEFORMSPREAD,
+	DLIGHT_UNIFORM_TIME,
+	DLIGHT_UNIFORM_COLOR,
+	DLIGHT_UNIFORM_MODELVIEWPROJECTIONMATRIX,
+	DLIGHT_UNIFORM_VERTEXLERP,
+	DLIGHT_UNIFORM_COUNT
+};
+
+
+enum
+{
+	GENERIC_UNIFORM_TEXTURE0MAP = 0,
+	GENERIC_UNIFORM_TEXTURE1MAP,
+	GENERIC_UNIFORM_TEXTURE0MATRIX,
+	GENERIC_UNIFORM_TEXTURE1ENV,
+	GENERIC_UNIFORM_VIEWORIGIN,
+	GENERIC_UNIFORM_TCGEN0,
+	GENERIC_UNIFORM_TCGEN0VECTOR0,
+	GENERIC_UNIFORM_TCGEN0VECTOR1,
+	GENERIC_UNIFORM_DEFORMGEN,
+	GENERIC_UNIFORM_DEFORMWAVE,
+	GENERIC_UNIFORM_DEFORMBULGE,
+	GENERIC_UNIFORM_DEFORMSPREAD,
+	GENERIC_UNIFORM_COLORGEN,
+	GENERIC_UNIFORM_ALPHAGEN,
+	GENERIC_UNIFORM_COLOR,
+	GENERIC_UNIFORM_AMBIENTLIGHT,
+	GENERIC_UNIFORM_DIRECTEDLIGHT,
+	GENERIC_UNIFORM_LIGHTDIR,
+	GENERIC_UNIFORM_PORTALRANGE,
+	GENERIC_UNIFORM_FOGDISTANCE,
+	GENERIC_UNIFORM_FOGDEPTH,
+	GENERIC_UNIFORM_FOGEYET,
+	GENERIC_UNIFORM_FOGADJUSTCOLORS,
+	GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX,
+	GENERIC_UNIFORM_TIME,
+	GENERIC_UNIFORM_VERTEXLERP,
+	GENERIC_UNIFORM_COUNT
+};
 
 //
 // Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
 #define USE_UNIFORM_FIREWALL 1
 //#define LOG_GLSL_UNIFORMS 1
-
-#if defined(LOG_GLSL_UNIFORMS)
-extern cvar_t  *r_logFile;		// number of frames to emit GL logs
-void            GLimp_LogComment(char *comment);
-#define GLimp_LogUniformComment(...) GLimp_LogComment(__VA_ARGS__)
-#else
-#define GLimp_LogUniformComment(...)
-#endif
-
-// *INDENT-OFF*
-
-static ID_INLINE void GLSL_SetUniform_Texture0Matrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_Texture0Matrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_Texture0Matrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_Texture0Matrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture0Matrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_Texture0Matrix, 1, GL_FALSE, m);
-}
-
-static ID_INLINE void GLSL_SetUniform_Texture1Matrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_Texture1Matrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_Texture1Matrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_Texture1Matrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture1Matrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_Texture1Matrix, 1, GL_FALSE, m);
-}
-
-static ID_INLINE void GLSL_SetUniform_Texture1Env(shaderProgram_t * program, uint32_t env)
-{
-	uint32_t value;
-
-	if (program->u_Texture1Env == -1)
-		return;
-
-	switch ( env )
-	{
-	case GL_MODULATE:
-		value = 1;
-		break;
-	case GL_REPLACE:
-		value = 2;
-		break;
-	case GL_DECAL:
-		value = 3;
-		break;
-	case GL_ADD:
-		value = 4;
-		break;
-	default:
-		value = 0;
-		break;
-	}
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_Texture1Env == value)
-		return;
-
-	program->t_Texture1Env = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture1Env( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_Texture1Env, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_Texture2Matrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_Texture2Matrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_Texture2Matrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_Texture2Matrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture2Matrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_Texture2Matrix, 1, GL_FALSE, m);
-}
-
-static ID_INLINE void GLSL_SetUniform_Texture3Matrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_Texture3Matrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_Texture3Matrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_Texture3Matrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Texture3Matrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_Texture3Matrix, 1, GL_FALSE, m);
-}
-
-
-static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint32_t stateBits)
-{
-	alphaTest_t			value;
-
-	if (program->u_AlphaTest == -1)
-		return;
-
-	switch (stateBits & GLS_ATEST_BITS)
-	{
-		case GLS_ATEST_GT_0:
-			value = ATEST_GT_0;
-			break;
-
-		case GLS_ATEST_LT_128:
-			value = ATEST_LT_128;
-			break;
-
-		case GLS_ATEST_GE_128:
-			value = ATEST_GE_128;
-			break;
-
-		default:
-			value = ATEST_NONE;
-			break;
-	}
-
-	// don't just call LogComment, or we will get
-	// a call to va() every frame!
-	GLimp_LogUniformComment(va("--- GLSL_SetUniformAlphaTest( program = %s, value = %i ) ---\n", program->name, value));
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_AlphaTest == value)
-		return;
-
-	program->t_AlphaTest = value;
-#endif
-
-	qglUniform1iARB(program->u_AlphaTest, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, const vec3_t v)
-{
-	if (program->u_ViewOrigin == -1)
-		return;
-
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_ViewOrigin, v))
-		return;
-
-	VectorCopy(v, program->t_ViewOrigin);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ViewOrigin( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-
-	qglUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_TCGen0(shaderProgram_t * program, texCoordGen_t value)
-{
-	if (program->u_TCGen0 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_TCGen0 == value)
-		return;
-
-	program->t_TCGen0 = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_TCGen0, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_TCGen1(shaderProgram_t * program, texCoordGen_t value)
-{
-	if (program->u_TCGen1 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_TCGen1 == value)
-		return;
-
-	program->t_TCGen1 = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_TCGen1, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_TCGen0Vector0(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_TCGen0Vector0 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_TCGen0Vector0, v))
-		return;
-
-	VectorCopy(v, program->t_TCGen0Vector0);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen0Vector0( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_TCGen0Vector0, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_TCGen0Vector1(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_TCGen0Vector1 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_TCGen0Vector1, v))
-		return;
-
-	VectorCopy(v, program->t_TCGen0Vector1);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen0Vector1( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_TCGen0Vector1, v[0], v[1], v[2], v[3]);
-}
-static ID_INLINE void GLSL_SetUniform_TCGen1Vector0(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_TCGen1Vector0 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_TCGen1Vector0, v))
-		return;
-
-	VectorCopy(v, program->t_TCGen1Vector0);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen1Vector0( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_TCGen1Vector0, v[0], v[1], v[2], v[3]);
-}
-static ID_INLINE void GLSL_SetUniform_TCGen1Vector1(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_TCGen1Vector1 == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_TCGen1Vector1, v))
-		return;
-
-	VectorCopy(v, program->t_TCGen1Vector1);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_TCGen1Vector1( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_TCGen1Vector1, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformGen(shaderProgram_t * program, deformGen_t value)
-{
-	if (program->u_DeformGen == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformGen == value)
-		return;
-
-	program->t_DeformGen = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformGen( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_DeformGen, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformWave(shaderProgram_t * program, const waveForm_t * wf)
-{
-	vec4_t v;
-
-	if (program->u_DeformWave == -1)
-		return;
-
-	VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_DeformWave, v))
-		return;
-
-	VectorCopy4(v, program->t_DeformWave);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformWave( program = %s, wave form = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_DeformWave, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformBulge(shaderProgram_t * program, const deformStage_t * ds)
-{
-	vec3_t v;
-
-	if (program->u_DeformBulge == -1)
-		return;
-
-	VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_DeformBulge, v))
-		return;
-
-	VectorCopy(v, program->t_DeformBulge);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformBulge( program = %s, bulge = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-
-	qglUniform3fARB(program->u_DeformBulge, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformSpread(shaderProgram_t * program, float value)
-{
-	if (program->u_DeformSpread == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformSpread == value)
-		return;
-
-	program->t_DeformSpread = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DeformSpread( program = %s, value = %f ) ---\n", program->name, value));
-
-	qglUniform1fARB(program->u_DeformSpread, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
-{
-#if 0
-	float			floatValue;
-
-	switch (value)
-	{
-		case CGEN_VERTEX:
-			floatValue = 1.0f;
-			break;
-
-		case CGEN_ONE_MINUS_VERTEX:
-			floatValue = -1.0f;
-			break;
-
-		default:
-			floatValue = 0.0f;
-			break;
-	}
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_ColorGen == floatValue)
-		return;
-
-	program->t_ColorGen = floatValue;
-#endif
-
-	qglUniform1fARB(program->u_ColorGen, floatValue);
-#else
-	if (program->u_ColorGen == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_ColorGen == value)
-		return;
-
-	program->t_ColorGen = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ColorGen( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_ColorGen, value);
-#endif
-}
-
-static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaGen_t value)
-{
-#if 0
-	float			floatValue;
-
-	switch (value)
-	{
-		case AGEN_VERTEX:
-			floatValue = 1.0f;
-			break;
-
-		case AGEN_ONE_MINUS_VERTEX:
-			floatValue = -1.0f;
-			break;
-
-		default:
-			floatValue = 0.0f;
-			break;
-	}
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_AlphaGen == floatValue)
-		return;
-
-	program->t_AlphaGen = floatValue;
-#endif
-
-	qglUniform1fARB(program->u_AlphaGen, floatValue);
-
-#else
-#if defined(USE_UNIFORM_FIREWALL)
-	if (program->u_AlphaGen == -1)
-		return;
-
-	if(program->t_AlphaGen == value)
-		return;
-
-	program->t_AlphaGen = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_AlphaGen( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_AlphaGen, value);
-#endif
-}
-
-static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_Color == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_Color, v))
-		return;
-
-	VectorCopy4(v, program->t_Color);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Color( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
-}
-
-
-static ID_INLINE void GLSL_SetUniform_AmbientLight(shaderProgram_t * program, const vec3_t v)
-{
-	if (program->u_AmbientLight == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_AmbientLight, v))
-		return;
-
-	VectorCopy(v, program->t_AmbientLight);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_AmbientLight( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-
-	qglUniform3fARB(program->u_AmbientLight, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DirectedLight(shaderProgram_t * program, const vec3_t v)
-{
-	if (program->u_DirectedLight == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_DirectedLight, v))
-		return;
-
-	VectorCopy(v, program->t_DirectedLight);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_DirectedLight( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-
-	qglUniform3fARB(program->u_DirectedLight, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_LightDir(shaderProgram_t * program, const vec3_t v)
-{
-	if (program->u_LightDir == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_LightDir, v))
-		return;
-
-	VectorCopy(v, program->t_LightDir);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_LightDir( program = %s, color = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-
-	qglUniform3fARB(program->u_LightDir, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, float value)
-{
-	if (program->u_PortalRange == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_PortalRange == value)
-		return;
-
-	program->t_PortalRange = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_PortalRange( program = %s, value = %f ) ---\n", program->name, value));
-
-	qglUniform1fARB(program->u_PortalRange, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_FogDistance(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_FogDistance == -1)
-		return;
-
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_FogDistance, v))
-		return;
-
-	VectorCopy(v, program->t_FogDistance);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniformFogDistance( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_FogDistance, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_FogDepth(shaderProgram_t * program, const vec4_t v)
-{
-	if (program->u_FogDepth == -1)
-		return;
-
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_FogDepth, v))
-		return;
-
-	VectorCopy(v, program->t_FogDepth);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniformFogDepth( program = %s, viewOrigin = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-
-	qglUniform4fARB(program->u_FogDepth, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_FogEyeT(shaderProgram_t * program, float value)
-{
-	if (program->u_FogEyeT == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_FogEyeT == value)
-		return;
-
-	program->t_FogEyeT = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
-
-	qglUniform1fARB(program->u_FogEyeT, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_FogAdjustColors(shaderProgram_t * program, int value)
-{
-	if (program->u_FogAdjustColors == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_FogAdjustColors == value)
-		return;
-
-	program->t_FogAdjustColors = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_FogAdjustColors( program = %s, value = %i ) ---\n", program->name, value));
-
-	qglUniform1iARB(program->u_FogAdjustColors, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_ModelMatrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_ModelMatrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_ModelMatrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ModelMatrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
-}
-
-static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t * program, const matrix_t m)
-{
-	if (program->u_ModelViewProjectionMatrix == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(Matrix16Compare(program->t_ModelViewProjectionMatrix, m))
-		return;
-
-	Matrix16Copy(m, program->t_ModelViewProjectionMatrix);
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_ModelViewProjectionMatrix( program = %s, "
-							   "matrix = \n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f )\n"
-							   "( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n",
-							program->name,
-							m[0], m[4], m[8], m[12],
-							m[1], m[5], m[9], m[13],
-							m[2], m[6], m[10], m[14],
-							m[3], m[7], m[11], m[15]));
-
-	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
-}
-
-static ID_INLINE void GLSL_SetUniform_Time(shaderProgram_t * program, float value)
-{
-	if (program->u_Time == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_Time == value)
-		return;
-
-	program->t_Time = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_Time( program = %s, value = %f ) ---\n", program->name, value));
-
-	qglUniform1fARB(program->u_Time, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_VertexLerp(shaderProgram_t * program, float value)
-{
-	if (program->u_VertexLerp == -1)
-		return;
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_VertexLerp == value)
-		return;
-
-	program->t_VertexLerp = value;
-#endif
-
-	GLimp_LogUniformComment(va("--- GLSL_SetUniform_VertexLerp( program = %s, value = %f ) ---\n", program->name, value));
-
-	qglUniform1fARB(program->u_VertexLerp, value);
-}
 
 
 // trRefdef_t holds everything that comes in refdef_t,
@@ -2211,6 +1480,12 @@ typedef struct {
 	int		c_flareTests;
 	int		c_flareRenders;
 
+	int     c_glslShaderBinds;
+	int     c_genericDraws;
+	int     c_lightmappedDraws;
+	int     c_fogDraws;
+	int     c_dlightDraws;
+
 	int		msec;			// total msec for backend run
 } backEndCounters_t;
 
@@ -2314,6 +1589,10 @@ typedef struct {
 	//
 
 	shaderProgram_t genericShader[GLSLDEF_COUNT];
+	shaderProgram_t lightmappedShader;
+	shaderProgram_t textureOnlyShader;
+	shaderProgram_t fogShader;
+	shaderProgram_t dlightShader;
 
 
 	// -----------------------------------------
@@ -2769,10 +2048,12 @@ void RB_StageIteratorGeneric( void );
 void RB_StageIteratorGenericVBO( void );
 void RB_StageIteratorSky( void );
 void RB_StageIteratorVertexLitTexture( void );
+void RB_StageIteratorLightmappedMultitextureVBOGLSL( void );
 void RB_StageIteratorLightmappedMultitexture( void );
 
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
+void RB_InstantQuad( vec4_t quadVerts[4] );
 
 void RB_ShowImages( void );
 
@@ -2929,6 +2210,16 @@ void GLSL_VertexAttribsState(uint32_t stateBits);
 void GLSL_VertexAttribPointers(uint32_t attribBits);
 void GLSL_BindProgram(shaderProgram_t * program);
 void GLSL_BindNullProgram(void);
+
+void GLSL_SetNumUniforms(shaderProgram_t *program, int numUniforms);
+void GLSL_SetUniformName(shaderProgram_t *program, int uniformNum, const char *name);
+void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value);
+void GLSL_SetUniformFloat(shaderProgram_t *program, int uniformNum, GLfloat value);
+void GLSL_SetUniformVec2(shaderProgram_t *program, int uniformNum, const vec2_t v);
+void GLSL_SetUniformVec3(shaderProgram_t *program, int uniformNum, const vec3_t v);
+void GLSL_SetUniformVec4(shaderProgram_t *program, int uniformNum, const vec4_t v);
+void GLSL_SetUniformMatrix16(shaderProgram_t *program, int uniformNum, const matrix_t matrix);
+
 shaderProgram_t *GLSL_GetGenericShaderProgram(void);
 
 /*

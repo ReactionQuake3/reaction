@@ -173,8 +173,6 @@ based on Tess_InstantQuad from xreal
 */
 void RB_InstantQuad(vec4_t quadVerts[4])
 {
-	matrix_t matrix;
-
 	GLimp_LogComment("--- RB_InstantQuad ---\n");
 
 	tess.numVertexes = 0;
@@ -216,25 +214,16 @@ void RB_InstantQuad(vec4_t quadVerts[4])
 	tess.indexes[tess.numIndexes++] = 2;
 	tess.indexes[tess.numIndexes++] = 3;
 
-	// FIXME: A lot of this can probably be removed for speed
 	RB_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
 
 	if (glRefConfig.glsl && r_arb_shader_objects->integer)
 	{
-		shaderProgram_t *sp = &tr.genericShader[0];
+		shaderProgram_t *sp = &tr.textureOnlyShader;
+
 		GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 		GLSL_BindProgram(sp);
-		
-		GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
-		
-		GLSL_SetUniform_FogAdjustColors(sp, 0);
-		GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-		GLSL_SetUniform_TCGen0(sp, TCGEN_TEXTURE);
-		Matrix16Identity(matrix);
-		GLSL_SetUniform_Texture0Matrix(sp, matrix);
-		GLSL_SetUniform_Texture1Env(sp, 0);
-		GLSL_SetUniform_ColorGen(sp, CGEN_IDENTITY);
-		GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+			
+		GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 	}
 	else
 	{
@@ -592,22 +581,22 @@ static void RB_SurfaceBeam( void )
 			GLSL_VertexAttribsState(ATTR_POSITION);
 			GLSL_BindProgram(sp);
 			
-			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 			
-			GLSL_SetUniform_FogAdjustColors(sp, 0);
-			GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-			GLSL_SetUniform_TCGen0(sp, TCGEN_IDENTITY);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, TCGEN_IDENTITY);
 			Matrix16Identity(matrix);
-			GLSL_SetUniform_Texture0Matrix(sp, matrix);
-			GLSL_SetUniform_Texture1Env(sp, 0);
-			GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
-			GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_COLORGEN, CGEN_CONST);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, AGEN_CONST);
 			
 			color[0] = 1.0f;
 			color[1] = 0.0f;
 			color[2] = 0.0f;
 			color[3] = 1.0f;
-			GLSL_SetUniform_Color(sp, color);
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, color);
 		}
 		else
 		{

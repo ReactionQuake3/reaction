@@ -73,6 +73,8 @@ void R_PerformanceCounters( void ) {
 	{
 		ri.Printf( PRINT_ALL, "VBO draws: static %i dynamic %i\nMultidraws: %i merged %i\n",
 			backEnd.pc.c_staticVboDraws, backEnd.pc.c_dynamicVboDraws, backEnd.pc.c_multidraws, backEnd.pc.c_multidrawsMerged );
+		ri.Printf( PRINT_ALL, "GLSL binds: %i  draws: gen %i lightmap %i fog %i dlight %i\n",
+			backEnd.pc.c_glslShaderBinds, backEnd.pc.c_genericDraws, backEnd.pc.c_lightmappedDraws, backEnd.pc.c_fogDraws, backEnd.pc.c_dlightDraws);
 	}
 
 	Com_Memset( &tr.pc, 0, sizeof( tr.pc ) );

@@ -448,22 +448,22 @@ static void DrawSkySideVBO( struct image_s *image, const int mins[2], const int 
 		GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 		GLSL_BindProgram(sp);
 		
-		GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		
-		GLSL_SetUniform_FogAdjustColors(sp, 0);
-		GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-		GLSL_SetUniform_TCGen0(sp, TCGEN_TEXTURE);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, TCGEN_TEXTURE);
 		Matrix16Identity(matrix);
-		GLSL_SetUniform_Texture0Matrix(sp, matrix);
-		GLSL_SetUniform_Texture1Env(sp, 0);
-		GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
-		GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, 0);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_COLORGEN, CGEN_CONST);
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, AGEN_CONST);
 		
 		color[0] = tr.identityLight;
 		color[1] = tr.identityLight;
 		color[2] = tr.identityLight;
 		color[3] = 1.0f;
-		GLSL_SetUniform_Color(sp, color);
+		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, color);
 	}
 	else
 	{

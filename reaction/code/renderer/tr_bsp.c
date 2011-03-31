@@ -40,7 +40,7 @@ int			c_subdivisions;
 int			c_gridVerts;
 
 //===============================================================================
-/*
+#if 0
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 {
 	int i;
@@ -742,7 +742,9 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		cv->numTriangles -= badTriangles;
 	}
 }
+#endif
 
+#if 0
 /*
 ===============
 ParseFlare
@@ -773,6 +775,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 		flare->normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
 	}
 }
+#endif
 
 
 /*
@@ -2793,6 +2796,10 @@ void R_MergeLeafSurfaces(void)
 					}
 					break;
 
+				default:
+					break;
+
+				// never happens, but silences a compile warning
 				default:
 					break;
 			}

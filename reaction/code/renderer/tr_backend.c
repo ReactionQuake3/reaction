@@ -914,7 +914,6 @@ Used for cinematics.
 void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
 	int			i, j;
 	int			start, end;
-	matrix_t matrix;
 
 	if ( !tr.registered ) {
 		return;
@@ -1022,22 +1021,13 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			shaderProgram_t *sp = &tr.genericShader[0];
+			shaderProgram_t *sp = &tr.textureOnlyShader;
 
 			GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 			
 			GLSL_BindProgram(sp);
-			
-			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
-			
-			GLSL_SetUniform_FogAdjustColors(sp, 0);
-			GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-			GLSL_SetUniform_TCGen0(sp, TCGEN_TEXTURE);
-			Matrix16Identity(matrix);
-			GLSL_SetUniform_Texture0Matrix(sp, matrix);
-			GLSL_SetUniform_Texture1Env(sp, 0);
-			GLSL_SetUniform_ColorGen(sp, CGEN_IDENTITY);
-			GLSL_SetUniform_AlphaGen(sp, AGEN_IDENTITY);
+
+			GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		}
 		else
 		{
