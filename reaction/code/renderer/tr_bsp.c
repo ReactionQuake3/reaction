@@ -40,7 +40,7 @@ int			c_subdivisions;
 int			c_gridVerts;
 
 //===============================================================================
-#if 0
+#if 1
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 {
 	int i;
@@ -90,7 +90,6 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 		break;
 	}
 }
-*/
 /*
 ===============
 R_ColorShiftLightingBytes
@@ -744,7 +743,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 }
 #endif
 
-#if 0
+#if 1
 /*
 ===============
 ParseFlare
@@ -2794,9 +2793,6 @@ void R_MergeLeafSurfaces(void)
 							numIboIndexes += 3;
 						}
 					}
-					break;
-
-				default:
 					break;
 
 				// never happens, but silences a compile warning

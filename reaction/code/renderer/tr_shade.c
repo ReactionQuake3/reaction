@@ -1946,8 +1946,6 @@ static void ComputeColorMatrix( shaderStage_t *pStage, float *outmatrix, qboolea
 				outmatrix[15] = 0.0f;
 			}
 			break;
-		default:
-			break;
 	}
 
 	//

@@ -6,7 +6,7 @@ static void GLSL_Color4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
 	vec4_t clr;
 	MAKERGBA(clr, r, g, b, a);
-	GLSL_SetUniform_Color(glState.currentProgram, clr);
+	GLSL_SetUniformVec4(glState.currentProgram, GENERIC_UNIFORM_COLOR, clr);
 }
 
 static void qglDefColor4f(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
@@ -60,7 +60,7 @@ static void tessEndQuads(void)
 	if (glRefConfig.glsl && r_arb_shader_objects->integer)
 	{
 		GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
-		GLSL_SetUniform_ModelViewProjectionMatrix(glState.currentProgram, glState.modelviewProjection);
+		GLSL_SetUniformMatrix16(glState.currentProgram, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 	}
 	else
 	{
@@ -424,16 +424,16 @@ void RB_FBO_Set2D(void)
 
 			GLSL_BindProgram(sp);
 			
-			GLSL_SetUniform_ModelViewProjectionMatrix(sp, glState.modelviewProjection);
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 			
-			GLSL_SetUniform_FogAdjustColors(sp, 0);
-			GLSL_SetUniform_DeformGen(sp, DGEN_NONE);
-			GLSL_SetUniform_TCGen0(sp, TCGEN_TEXTURE);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, TCGEN_TEXTURE);
 			Matrix16Identity(matrix);
-			GLSL_SetUniform_Texture0Matrix(sp, matrix);
-			GLSL_SetUniform_Texture1Env(sp, 0);
-			GLSL_SetUniform_ColorGen(sp, CGEN_CONST);
-			GLSL_SetUniform_AlphaGen(sp, AGEN_CONST);
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, 0);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_COLORGEN, CGEN_CONST);
+			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, AGEN_CONST);
 
 			RB_Color4f = &GLSL_Color4f;
 		}
