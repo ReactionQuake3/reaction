@@ -36,8 +36,7 @@
 		//backcolor 0 0 0 1
 		onOpen {
 			play "sound/ui/whoosh3.wav" ;
-			setitemcolor window forecolor 5 5 5 0 ;
-			timefade window forecolor 5 5 5 1 0 FADEIN_TIME
+			ALPHA_FADE_FORE(fade_fore_alpha, 1) ;
 		}
 		onESC { play "sound/ui/whoosh3.wav" ; close _self }
 		onOOBClick { play "sound/ui/whoosh3.wav" ; close _self }
