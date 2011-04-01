@@ -2564,7 +2564,6 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 		switch (pStage->alphaGen)
 		{
-			case AGEN_SKIP:
 			case AGEN_IDENTITY:
 			case AGEN_LIGHTING_SPECULAR:
 			case AGEN_VERTEX:
