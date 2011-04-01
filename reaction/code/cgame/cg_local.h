@@ -1201,6 +1201,10 @@ typedef struct {
 	// Makro - explosion screen shake
 	int explosionTime;
 	float explosionForce;
+
+	// Makro - water transitions
+	qboolean inWaterLastFrame;
+	int waterTransitionTime;
 } cg_t;
 
 //Blaze: struct to hold the func_breakable stuff

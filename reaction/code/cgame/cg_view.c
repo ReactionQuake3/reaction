@@ -1262,6 +1262,18 @@ void CG_AddLensFlare(qboolean sun)
 	}
 }
 
+static qboolean CG_UnderWater( void )
+{
+	return 0 != (CG_PointContents(cg.refdef.vieworg, -1) & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA));
+}
+
+static void CG_UpdateWaterTransitions( void )
+{
+	qboolean inWater = CG_UnderWater();
+	if (inWater != cg.inWaterLastFrame)
+		cg.waterTransitionTime = cg.time;
+	cg.inWaterLastFrame = inWater;
+}
 
 /*
 =================
@@ -1324,6 +1336,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
+	CG_UpdateWaterTransitions();
 
 	// first person blend blobs, done after AnglesToAxis
 	if (!cg.renderingThirdPerson) {

@@ -2893,9 +2893,15 @@ void CG_DrawBigPolygon(void) {
 	trap_R_AddPolyToScene(cgs.media.blackHackShader, 4, Corners);
 }
 
-static qboolean CG_UnderWater( void )
+// Makro - this needs to be called after cg.waterTransitionTime and cg.inWaterLastFrame have been updated
+static float CG_GetUnderWaterFraction( void )
 {
-	return 0 != (CG_PointContents(cg.refdef.vieworg, -1) & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA));
+	const int WATER_ANIM_TIME = 500; // msec
+	const int delta = cg.time - cg.waterTransitionTime;
+	float frac = Com_Clamp(0.f, 1.f, delta / (float)WATER_ANIM_TIME);
+	if (!cg.inWaterLastFrame)
+		frac = 1.f - frac;
+	return frac;
 }
 
 static qboolean CG_IsDead( void )
@@ -2927,9 +2933,7 @@ static void CG_DrawIRVisionBlend( void )
 static void CG_SetupPostProcess( void )
 {
 	cg.refdefex.blurFactor = CG_GetDamageBlendAlpha();
-	
-	if (CG_UnderWater())
-		cg.refdefex.blurFactor += 1.f;
+	cg.refdefex.blurFactor += CG_GetUnderWaterFraction();
 	
 	if (CG_IsDead())
 		cg.refdefex.blurFactor += 1.f;
