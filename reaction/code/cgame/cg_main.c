@@ -876,7 +876,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	// Elder: added
 	{&cg_RQ3_flash, "cg_RQ3_flash", "1", CVAR_ARCHIVE},
 	// NiceAss: added
-	{&cg_RQ3_strobe, "cg_RQ3_strobe", "0", CVAR_ARCHIVE},
+	{&cg_RQ3_strobe, "cg_RQ3_strobe", "1", CVAR_ARCHIVE},
 	{&cg_RQ3_painblend, "cg_RQ3_painblend", "1", CVAR_ARCHIVE},
 	//Slicer: no longer being used
 	//{&cg_RQ3_ssgZoomAssist, "cg_RQ3_ssgZoomAssist", "1", CVAR_ARCHIVE},

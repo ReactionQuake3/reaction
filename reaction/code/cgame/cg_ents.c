@@ -608,17 +608,48 @@ static void CG_Item(centity_t * cent)
 	VectorScale(ent.axis[1], scale, ent.axis[1]);
 	VectorScale(ent.axis[2], scale, ent.axis[2]);
 
-	// add to refresh list
-	trap_R_AddRefEntityToScene(&ent);
+	// Makro - nudge them up a bit
+	// the strobe effect looks a lot better if it isn't clipped by the ground
+	ent.origin[2] += 0.5f;
 
 	// add strobe effect -- should make this toggle?
 	// NiceAss: Temp Cvar usage for strobe shader.
 	if ((item->giType == IT_WEAPON ||
 	     item->giType == IT_ARMOR ||
-	     item->giType == IT_AMMO || item->giType == IT_HOLDABLE) && cg_RQ3_strobe.integer == 1) {
-		ent.customShader = cgs.media.itemStrobeShader;
-		trap_R_AddRefEntityToScene(&ent);
+	     item->giType == IT_AMMO || item->giType == IT_HOLDABLE) && cg_RQ3_strobe.integer) {
+		const float MAX_DIST = 512.f;
+		vec3_t delta;
+		float dist;
+		
+		VectorSubtract(cg.refdef.vieworg, ent.origin, delta);
+		dist = VectorLengthSquared(delta);
+
+		if (dist <= MAX_DIST * MAX_DIST) {
+			refEntity_t glow = ent;
+			float frac = 1.f - sqrt(dist) * (1.f / MAX_DIST);
+			const float freq = 1.f;
+
+			frac *= frac;			
+			
+			// Note: sadly, this looks different depending on overbright bits
+			// 96 was picked to look good with OBB on
+			glow.customShader = cgs.media.itemStrobeShader;
+			glow.shaderRGBA[0] = glow.shaderRGBA[1] = 96;
+			glow.shaderRGBA[2] = 0;
+			
+			// Makro - constant alpha for values >= 2, otherwise pulse
+			if (cg_RQ3_strobe.integer > 1)
+				glow.shaderRGBA[3] = (int)Com_Clamp(0.f, 255.f, frac * 255.f);
+			else
+				glow.shaderRGBA[3] = (int)Com_Clamp(0.f, 255.f, frac * 255.f * (sin(freq * 2.f * M_PI * cg.time / 1000.f) * 0.5 + 0.5));
+			
+			trap_R_AddRefEntityToScene(&glow);
+		}
 	}
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+
 	// accompanying rings / spheres for powerups
 	if (!cg_simpleItems.integer) {
 		vec3_t spinAngles;
