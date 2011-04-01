@@ -1008,10 +1008,10 @@ static float CG_DrawTimer(float y)
 	int mins, seconds, tens;
 	int msec;
 	int x = 0;
-	float Color[4];
+//	float Color[4];
 
 	const int expand = 4;
-	const int corner = 12;
+//	const int corner = 12;
 	const float shadowAlpha = 0.75f;
 
 	y += 4;

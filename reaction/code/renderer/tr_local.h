@@ -2061,7 +2061,7 @@ void RB_SetGL2D_Ex(int x, int y, int width, int height);
 void RB_SetGL2D_Level(int level);
 void RB_SetGL2D(void);
 
-void RB_FBO_Blit();
+void RB_FBO_Blit(void);
 void RB_PostProcess( void );
 
 

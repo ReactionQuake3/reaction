@@ -462,8 +462,8 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 	pushed_t *p;
 	int entityList[MAX_GENTITIES];
 	int listedEntities;
-	float deltaTime;
-	float phase;
+//	float deltaTime;
+//	float phase;
 	vec3_t totalMins, totalMaxs;
 
 	*obstacle = NULL;

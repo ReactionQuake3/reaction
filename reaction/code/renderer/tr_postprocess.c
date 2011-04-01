@@ -346,7 +346,7 @@ static void RB_Blur(void)
 	float w, h, w2, h2, w4, h4;
 	float mul = 1.f;
 	float factor = Com_Clamp(0.f, 1.f, backEnd.refdef.blurFactor);
-	int i;
+//	int i;
 
 	if (factor <= 0.f)
 		return;
