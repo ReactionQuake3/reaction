@@ -437,6 +437,10 @@ static void CG_Item(centity_t * cent)
 	weaponInfo_t *wi;
 	itemInfo_t *itemInfo;
 
+	int boundIndex = 0;
+	float offsetMul = 1.f;
+	int boundAxis = 2;
+
 	es = &cent->currentState;
 	if (es->modelindex >= bg_numItems) {
 		CG_Error("Bad item index %i on entity", es->modelindex);
@@ -530,23 +534,21 @@ static void CG_Item(centity_t * cent)
 		cent->lerpOrigin[1] -=
 		    wi->weaponMidpoint[0] * ent.axis[0][1] +
 		    wi->weaponMidpoint[1] * ent.axis[1][1] + wi->weaponMidpoint[2] * ent.axis[2][1];
+		// Makro - did we really need this?
+		/*
 		cent->lerpOrigin[2] -=
 		    wi->weaponMidpoint[0] * ent.axis[0][2] +
 		    wi->weaponMidpoint[1] * ent.axis[1][2] + wi->weaponMidpoint[2] * ent.axis[2][2];
-		//Blaze: Dont raise the weapon, but lower it
-		//Elder: don't lower knives by much - this is bad hardcode but oh well
-		if (item->giTag == WP_KNIFE)
-			cent->lerpOrigin[2] -= 10;
-		else
-			cent->lerpOrigin[2] -= 14;
-
-		//      cent->lerpOrigin[2] += 8;       // an extra height boost
-
+			*/
+		
 		if (es->pos.trDelta[0] == 0 && es->pos.trDelta[1] == 0 && es->pos.trDelta[2] == 0) {
 			// Blaze: rotate the gun by 90 degrees to place it on the ground
 			VectorCopy(ent.axis[1], myvec);
 			VectorNegate(ent.axis[2], ent.axis[1]);
 			VectorCopy(myvec, ent.axis[2]);
+			boundIndex = 1;
+			boundAxis = 1;
+			offsetMul = -1.f;
 		}
 	}
 	// JBravo: world skins
@@ -560,12 +562,6 @@ static void CG_Item(centity_t * cent)
 		if (itemInfo->customSkin)
 			ent.customSkin = itemInfo->customSkin;
 	}
-
-	//Elder: ammo offset?
-	if (item->giType == IT_AMMO)
-		cent->lerpOrigin[2] -= 12;
-	else if (item->giType == IT_HOLDABLE)
-		cent->lerpOrigin[2] -= 12;
 
 	ent.hModel = cg_items[es->modelindex].models[0];
 
@@ -608,9 +604,22 @@ static void CG_Item(centity_t * cent)
 	VectorScale(ent.axis[1], scale, ent.axis[1]);
 	VectorScale(ent.axis[2], scale, ent.axis[2]);
 
-	// Makro - nudge them up a bit
-	// the strobe effect looks a lot better if it isn't clipped by the ground
-	ent.origin[2] += 0.5f;
+	// Makro - offset based on bounding box, not magic numbers
+	{
+		vec3_t bound[2];
+		float offset;
+		
+		trap_R_ModelBounds(ent.hModel, bound[0], bound[1]);
+		offset = -ITEM_RADIUS - bound[boundIndex][boundAxis] * offsetMul * scale;
+
+		// Makro - nudge them up a bit
+		// the strobe effect looks a lot better if it isn't clipped by the ground
+		// Note - magic number :)
+		offset += 0.5f;
+
+		ent.origin[2] += offset;
+		ent.oldorigin[2] += offset;
+	}
 
 	// add strobe effect -- should make this toggle?
 	// NiceAss: Temp Cvar usage for strobe shader.
@@ -628,21 +637,23 @@ static void CG_Item(centity_t * cent)
 			refEntity_t glow = ent;
 			float frac = 1.f - sqrt(dist) * (1.f / MAX_DIST);
 			const float freq = 1.f;
+			vec4_t color;
 
-			frac *= frac;			
-			
-			// Note: sadly, this looks different depending on overbright bits
-			// 96 was picked to look good with OBB on
-			glow.customShader = cgs.media.itemStrobeShader;
-			glow.shaderRGBA[0] = glow.shaderRGBA[1] = 96;
-			glow.shaderRGBA[2] = 0;
+			frac *= frac;
+
+			VectorCopy(g_color_table[cg_RQ3_strobeColor.integer % ARRAY_LEN(g_color_table)], color);
 			
 			// Makro - constant alpha for values >= 2, otherwise pulse
 			if (cg_RQ3_strobe.integer > 1)
-				glow.shaderRGBA[3] = (int)Com_Clamp(0.f, 255.f, frac * 255.f);
+				color[3] = Com_Clamp(0.f, 1.f, frac);
 			else
-				glow.shaderRGBA[3] = (int)Com_Clamp(0.f, 255.f, frac * 255.f * (sin(freq * 2.f * M_PI * cg.time / 1000.f) * 0.5 + 0.5));
+				color[3] = Com_Clamp(0.f, 1.f, frac * (sin(freq * 2.f * M_PI * cg.time / 1000.f) * 0.5f + 0.5f));
 			
+			glow.shaderRGBA[0] = (int) (color[0] * 255.f + 0.5f);
+			glow.shaderRGBA[1] = (int) (color[1] * 255.f + 0.5f);
+			glow.shaderRGBA[2] = (int) (color[2] * 255.f + 0.5f);
+			glow.shaderRGBA[3] = (int) (color[3] * 255.f + 0.5f);
+			glow.customShader = cgs.media.itemStrobeShader;
 			trap_R_AddRefEntityToScene(&glow);
 		}
 	}

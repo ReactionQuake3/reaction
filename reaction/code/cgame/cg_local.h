@@ -1968,6 +1968,8 @@ extern vmCvar_t cg_RQ3_bloodStyle;
 
 //NiceAss: strobing weapons/items like quake 2
 extern vmCvar_t cg_RQ3_strobe;
+// Makro - added color
+extern vmCvar_t cg_RQ3_strobeColor;
 extern vmCvar_t cg_RQ3_predictWeapons;
 
 //Makro - left-handed weapons
