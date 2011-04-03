@@ -54,6 +54,8 @@
 #include "bg_public.h"
 #include "bg_local.h"
 
+#define TEMPORARY_STAIR_CLIMBING_BUG_FIX
+
 /* QUAKE 2 Style */
 /*
 ==================
@@ -117,10 +119,17 @@ qboolean Q2_PM_SlideMove (qboolean gravity)
 		if (trace.fraction == 1)
 			 break;		// moved the entire distance
 
+		time_left -= time_left * trace.fraction;
+
+#ifdef TEMPORARY_STAIR_CLIMBING_BUG_FIX
+		if (time_left < 0.001) {
+			// Please see comments on similar section of code in PM_SlideMove().
+			break;
+		}
+#endif
+
 		// save entity for contact
 		PM_AddTouchEnt(trace.entityNum);
-
-		time_left -= time_left * trace.fraction;
 
 		// slide along this plane
 		if (numplanes >= MAX_CLIP_PLANES)
@@ -389,10 +398,29 @@ qboolean PM_SlideMove(qboolean gravity)
 		if (trace.fraction == 1) {
 			break;	// moved the entire distance
 		}
-		// save entity for contact
-		PM_AddTouchEnt(trace.entityNum);
 
 		time_left -= time_left * trace.fraction;
+
+#ifdef TEMPORARY_STAIR_CLIMBING_BUG_FIX
+		if (time_left < 0.001) { // Rambetter tested other values and this is the smallest acceptable.
+
+			// When time_left is small, it leads to some degenerate math computations
+			// which cause, for example, the player to get stuck while climbing stairs.
+			// The correct solution is to find those degenerate computations and fix
+			// them, but in the meantime this is a temporary fix that also fixes the
+			// problem.  The bad thing about this fix is that we're ignoring
+			// as much as one-thousandth of a second on each client frame.  So for
+			// example if the client is at 200 fps and walking into obstacles,
+			// as much as 1/5 of the forward progress could be ingored due to this code.
+			// Removing this temporary fix and cleaning up the degenerate computations
+			// might be especially important for trick jump maps.  Rambetter is
+			// currently looking into the degenerate computations.
+			break;
+		}
+#endif
+
+		// save entity for contact
+		PM_AddTouchEnt(trace.entityNum);
 
 		if (numplanes >= MAX_CLIP_PLANES) {
 			// this shouldn't really happen
