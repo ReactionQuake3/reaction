@@ -1838,6 +1838,10 @@ static void ComputeVertexAttribs(void)
 			case CGEN_ONE_MINUS_VERTEX:
 				shader.vertexAttribs |= ATTR_COLOR;
 				break;
+				
+			case CGEN_LIGHTING_DIFFUSE:
+				shader.vertexAttribs |= ATTR_NORMAL;
+				break;
 
 			default:
 				break;
