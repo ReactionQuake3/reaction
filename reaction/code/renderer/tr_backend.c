@@ -518,7 +518,7 @@ void RB_BeginDrawingView (void) {
 	//
 	SetViewportAndScissor();
 
-	if (glState.currentFBO)
+	if (glState.currentFBO && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		fbo_t* old = R_FBO_Bind(tr.fbo.full[1]);
 		qglClearColor(0.f, 0.f, 0.f, 1.f);
@@ -1359,8 +1359,6 @@ const void	*RB_SwapBuffers( const void *data ) {
 		RB_ShowImages();
 	}
 
-	RB_FBO_Blit();
-
 	cmd = (const swapBuffersCommand_t *)data;
 
 	// we measure overdraw by reading back the stencil buffer and
@@ -1386,6 +1384,8 @@ const void	*RB_SwapBuffers( const void *data ) {
 		qglFinish();
 	}
 
+	RB_FBO_Blit();
+	
 	GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
 	GLimp_EndFrame();
