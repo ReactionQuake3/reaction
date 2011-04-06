@@ -706,7 +706,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					if (fbo) {
 						VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
 						// switch FBO
-						R_FBO_Bind(tr.fbo.fbos[1]);
+						R_FBO_Bind(tr.fbo.full[1]);
 						qglDepthRange(1.f, 1.f);
 						if (glRefConfig.occlusionQuery && !inQuery && !backEnd.hasSunFlare) {
 							inQuery = qtrue;
