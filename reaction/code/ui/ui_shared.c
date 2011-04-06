@@ -6750,6 +6750,7 @@ void Menu_Paint(menuDef_t * menu, qboolean forcePaint)
 			tex[1] = 0.f;
 		}
 
+		DC->setColor(colorWhite);
 		DC->drawStretchPic(0, 0, DC->glconfig.vidWidth, DC->glconfig.vidHeight, tex[0], tex[1], 1.f - tex[0], 1.f - tex[1], menu->window.background, qfalse);
 	} else if (menu->window.background) {
 		// this allows a background shader without being full screen
