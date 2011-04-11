@@ -1334,3 +1334,4 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	RB_CalcDiffuseColor_scalar( colors );
 }
 
+

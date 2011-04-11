@@ -527,3 +527,4 @@ void RB_RenderFlares (void) {
 	GL_SetModelviewMatrix(oldmodelview);
 }
 
+

@@ -214,6 +214,85 @@ static	int	neighbors[8][2] = {
 }
 
 
+static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
+								   srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
+{
+	int             i, j;
+	srfVert_t      *dv[3];
+	static srfVert_t       ctrl2[MAX_GRID_SIZE * MAX_GRID_SIZE];
+	srfTriangle_t  *tri;
+
+	// FIXME: use more elegant way
+	for(i = 0; i < width; i++)
+	{
+		for(j = 0; j < height; j++)
+		{
+			dv[0] = &ctrl2[j * width + i];
+			*dv[0] = ctrl[j][i];
+		}
+	}
+
+	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
+	{
+		dv[0] = &ctrl2[tri->indexes[0]];
+		dv[1] = &ctrl2[tri->indexes[1]];
+		dv[2] = &ctrl2[tri->indexes[2]];
+
+		R_CalcTangentVectors(dv);
+	}
+
+#if 0
+	for(i = 0; i < (width * height); i++)
+	{
+		dv0 = &ctrl2[i];
+
+		VectorNormalize(dv0->normal);
+#if 0
+		VectorNormalize(dv0->tangent);
+		VectorNormalize(dv0->bitangent);
+#else
+		d = DotProduct(dv0->tangent, dv0->normal);
+		VectorMA(dv0->tangent, -d, dv0->normal, dv0->tangent);
+		VectorNormalize(dv0->tangent);
+
+		d = DotProduct(dv0->bitangent, dv0->normal);
+		VectorMA(dv0->bitangent, -d, dv0->normal, dv0->bitangent);
+		VectorNormalize(dv0->bitangent);
+#endif
+	}
+#endif
+
+
+#if 0
+	// do another extra smoothing for normals to avoid flat shading
+	for(i = 0; i < (width * height); i++)
+	{
+		for(j = 0; j < (width * height); j++)
+		{
+			if(R_CompareVert(&ctrl2[i], &ctrl2[j], qfalse))
+			{
+				VectorAdd(ctrl2[i].normal, ctrl2[j].normal, ctrl2[i].normal);
+			}
+		}
+
+		VectorNormalize(ctrl2[i].normal);
+	}
+#endif
+
+	for(i = 0; i < width; i++)
+	{
+		for(j = 0; j < height; j++)
+		{
+			dv[0] = &ctrl2[j * width + i];
+			dv[1] = &ctrl[j][i];
+
+			VectorCopy(dv[0]->tangent, dv[1]->tangent);
+			VectorCopy(dv[0]->bitangent, dv[1]->bitangent);
+		}
+	}
+}
+
+
 static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 							 srfTriangle_t triangles[SHADER_MAX_TRIANGLES])
 {
@@ -589,6 +668,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 
 	// calculate normals
 	MakeMeshNormals( width, height, ctrl );
+	MakeMeshTangentVectors(width, height, ctrl, numTriangles, triangles);
 
 	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numTriangles, triangles);
 }

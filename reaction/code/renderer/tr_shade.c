@@ -300,13 +300,16 @@ static void DrawTris (shaderCommands_t *input) {
 	{
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			shaderProgram_t *sp = &tr.textureOnlyShader;
+			shaderProgram_t *sp = &tr.textureColorShader;
+			vec4_t color;
 
 			GLSL_VertexAttribsState(ATTR_POSITION);
 			GLSL_BindProgram(sp);
 			
-			GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-			
+			GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+			VectorSet4(color, 1, 1, 1, 1);
+			GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
+
 			if (input->multiDrawPrimitives)
 			{
 				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
@@ -1541,6 +1544,9 @@ static void ComputeColors( shaderStage_t *pStage )
 			}
 		}
 		break;
+	case AGEN_FRESNEL:
+		// FIXME: implement me!
+		break;
 	}
 
 	//
@@ -1753,6 +1759,9 @@ static void ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 		// Done entirely in vertex program
         break;
 	case AGEN_PORTAL:
+		// Done entirely in vertex program
+		break;
+	case AGEN_FRESNEL:
 		// Done entirely in vertex program
 		break;
 	}
@@ -2064,6 +2073,9 @@ static void ComputeColorMatrix( shaderStage_t *pStage, float *outmatrix, qboolea
 			}
 		}
 #endif
+		break;
+	case AGEN_FRESNEL:
+		// FIXME: implement me!
 		break;
 	}
 
@@ -2448,16 +2460,17 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 {
 	int stage;
 	matrix_t matrix;
-	shaderProgram_t *sp = GLSL_GetGenericShaderProgram();
 
-	GLSL_BindProgram(sp);
-
-	GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-	GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_VIEWORIGIN, backEnd.or.viewOrigin);
-
-	GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
+	int deformGen;
+	vec4_t deformWave;
+	vec3_t deformBulge;
+	float deformSpread;
+	
+	vec4_t fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
+	float eyeT;
 	
 	// u_DeformGen
+	deformGen = DGEN_NONE;
 	if(!ShaderRequiresCPUDeforms(input->shader))
 	{
 		deformStage_t  *ds;
@@ -2468,46 +2481,28 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		switch (ds->deformation)
 		{
 			case DEFORM_WAVE:
-				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, ds->deformationWave.func);
+				deformGen = ds->deformationWave.func;
 				{
-					vec4_t v;
 					waveForm_t *wf = &ds->deformationWave;
 
-					VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
-
-					GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_DEFORMWAVE, v);
+					VectorSet4(deformWave, wf->base, wf->amplitude, wf->phase, wf->frequency);
 				}
-				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_DEFORMSPREAD, ds->deformationSpread);
-				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
+				deformSpread = ds->deformationSpread;
 				break;
 
 			case DEFORM_BULGE:
-				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_BULGE);
-				{
-					vec3_t v;
-
-					VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
-
-					GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_DEFORMBULGE, v);
-				}
-				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
+				deformGen = DGEN_BULGE;
+				VectorSet(deformBulge, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
 				break;
 
 			default:
-				GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
 				break;
 		}
-	}
-	else
-	{
-		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
 	}
 
 	if ( input->fogNum ) {
 		fog_t		*fog;
 		vec3_t	local;
-		vec4_t	fogDistanceVector, fogDepthVector = {0, 0, 0, 0};
-		float		eyeT;
 
 		fog = tr.world->fogs + tess.fogNum;
 
@@ -2534,27 +2529,65 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		} else {
 			eyeT = 1;	// non-surface fog always has eye inside
 		}
-
-		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDISTANCE, fogDistanceVector);
-		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDEPTH, fogDepthVector);
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_FOGEYET, eyeT);
 	}
 
 	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
 	{
 		shaderStage_t *pStage = input->xstages[stage];
 		qboolean setcolor = qfalse;
+		shaderProgram_t *sp;
 
 		if ( !pStage )
 		{
 			break;
 		}
 
+		if (pStage->glslShader)
+		{
+			sp = pStage->glslShader;
+		}
+		else
+		{
+			sp = GLSL_GetGenericShaderProgram();
+		}
+
+		GLSL_BindProgram(sp);
+
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+		GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_VIEWORIGIN, backEnd.or.viewOrigin);
+
+		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
+		
+		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, deformGen);
+		switch(deformGen)
+		{
+			case DGEN_WAVE_SIN:
+			case DGEN_WAVE_SQUARE:
+			case DGEN_WAVE_TRIANGLE:
+			case DGEN_WAVE_SAWTOOTH:
+			case DGEN_WAVE_INVERSE_SAWTOOTH:
+				GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_DEFORMWAVE, deformWave);
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_DEFORMSPREAD, deformSpread);
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
+				break;
+			case DGEN_BULGE:
+				GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_DEFORMBULGE, deformBulge);
+				GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_TIME, tess.shaderTime);
+				break;
+			default:
+				break;
+		}
+
+		if ( input->fogNum ) {
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDISTANCE, fogDistanceVector);
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDEPTH, fogDepthVector);
+			GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_FOGEYET, eyeT);
+		}
+
 		GL_State( pStage->stateBits );
 
 		switch (pStage->rgbGen)
 		{
-			case CGEN_IDENTITY:
 			case CGEN_EXACT_VERTEX:
 			case CGEN_LIGHTING_DIFFUSE:
 				break;
@@ -2564,11 +2597,11 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 		switch (pStage->alphaGen)
 		{
-			case AGEN_IDENTITY:
 			case AGEN_LIGHTING_SPECULAR:
 			case AGEN_VERTEX:
 			case AGEN_ONE_MINUS_VERTEX:
 			case AGEN_PORTAL:
+			case AGEN_FRESNEL:
 				break;
 			default:
 				setcolor = qtrue;
@@ -2617,7 +2650,37 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		//
 		// do multitexture
 		//
-		if ( pStage->bundle[1].image[0] != 0 )
+		if ( pStage->glslShader )
+		{
+			int i;
+
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.modelMatrix);
+
+			for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
+			{
+				if (pStage->bundle[i].image[0])
+				{
+					R_BindAnimatedImageToTMU( &pStage->bundle[i], i);
+				}
+			}
+
+			ComputeTexMatrix( pStage, 0, matrix );
+			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
+
+			//
+			// draw
+			//
+
+			if (input->multiDrawPrimitives)
+			{
+				R_DrawMultiElementsVBO(input->multiDrawPrimitives, (const GLvoid **)input->multiDrawFirstIndex, input->multiDrawNumIndexes);
+			}
+			else
+			{
+				R_DrawElementsVBO(input->numIndexes, input->firstIndex);
+			}
+		}
+		else if ( pStage->bundle[1].image[0] != 0 )
 		{
 			DrawMultitexturedVBOGLSL( sp, input, stage );
 		}
@@ -3280,4 +3343,5 @@ void RB_EndSurface( void ) {
 
 	GLimp_LogComment( "----------\n" );
 }
+
 

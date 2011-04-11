@@ -255,6 +255,7 @@ static	void R_LoadLightmaps( lump_t *l ) {
 	//int       BIGNUM=16;
 
 	byte           *fatbuffer;
+	byte           *fatbuffer2;
 	int             xoff, yoff, x, y;
 	//float           scale = 0.9f;
 
@@ -273,6 +274,9 @@ static	void R_LoadLightmaps( lump_t *l ) {
 
 	// create all the lightmaps
 	numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
+	
+	numLightmaps >>= (tr.worldDeluxeMapping ? 1 : 0);
+
 	if(numLightmaps == 1)
 	{
 		//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
@@ -304,18 +308,33 @@ static	void R_LoadLightmaps( lump_t *l ) {
 
 	// This is going to be huge (4, 16, or 64MB), so don't use ri.Malloc()
 	fatbuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
-
 	Com_Memset(fatbuffer, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
+
+	if (tr.worldDeluxeMapping)
+	{
+		tr.deluxemaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
+		fatbuffer2 = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
+		Com_Memset(fatbuffer2, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
+	}
+
 	for(i = 0; i < numLightmaps; i++)
 	{
 		// expand the 24 bit on-disk to 32 bit
-		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+
+		if (tr.worldDeluxeMapping)
+		{
+			buf_p = buf + (i * 2) * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+		}
+		else
+		{
+			buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+		}
+
 
 		xoff = i % tr.fatLightmapStep;
 		yoff = i / tr.fatLightmapStep;
 
-		//if (tr.radbumping==qfalse)
-		if(1)
+		// if (tr.worldLightmapping)
 		{
 			for(y = 0; y < LIGHTMAP_SIZE; y++)
 			{
@@ -332,32 +351,39 @@ static	void R_LoadLightmaps( lump_t *l ) {
 				}
 			}
 		}
-		/*else
-		   {
-		   //We need to darken the lightmaps a little bit when mixing radbump and fallback path rendering
-		   //because radbump will be darker due to the error introduced by using 3 basis vector probes for lighting instead of surf normal.
-		   for ( y = 0 ; y < LIGHTMAP_SIZE ; y++ )
-		   {
-		   for ( x = 0 ; x < LIGHTMAP_SIZE ; x++ )
-		   {
-		   int index = (x+(y*tr.fatLightmapSize))+((xoff*LIGHTMAP_SIZE)+(yoff*tr.fatLightmapSize*LIGHTMAP_SIZE));
-		   fatbuffer[(index*4)+0 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+0])*scale);
-		   fatbuffer[(index*4)+1 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+1])*scale);
-		   fatbuffer[(index*4)+2 ]=(byte)(((float)buf_p[((x+(y*LIGHTMAP_SIZE))*3)+2])*scale);
-		   fatbuffer[(index*4)+3 ]=255;
-		   }
-		   }
 
-		   } */
+		if (tr.worldDeluxeMapping)
+		{
+			buf_p = buf + (i * 2 + 1) * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 
+			for(y = 0; y < LIGHTMAP_SIZE; y++)
+			{
+				for(x = 0; x < LIGHTMAP_SIZE; x++)
+				{
+					int             index =
+						(x + (y * tr.fatLightmapSize)) + ((xoff * LIGHTMAP_SIZE) + (yoff * tr.fatLightmapSize * LIGHTMAP_SIZE));
+					fatbuffer2[(index * 4) + 0] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 0];
+					fatbuffer2[(index * 4) + 1] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 1];
+					fatbuffer2[(index * 4) + 2] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 2];
+					fatbuffer2[(index * 4) + 3] = 255;
+				}
+			}
+		}
 
 	}
-	//memset(fatbuffer,128,tr.fatLightmapSize*tr.fatLightmapSize*4);
 
 	tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), fatbuffer, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
 	tr.lightmaps[0] = tr.fatLightmap;
 
 	ri.Hunk_FreeTempMemory(fatbuffer);
+
+	if (tr.worldDeluxeMapping)
+	{
+		tr.fatDeluxemap = R_CreateImage(va("_fatdeluxemap%d", 0), fatbuffer2, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+		tr.deluxemaps[0] = tr.fatDeluxemap;
+
+		ri.Hunk_FreeTempMemory(fatbuffer2);
+	}
 #endif
 }
 
@@ -366,7 +392,7 @@ static float FatPackU(float input, int lightmapnum)
 {
 	if(tr.fatLightmapSize > 0)
 	{
-		int             x = lightmapnum % tr.fatLightmapStep;
+		int             x = (lightmapnum >> (tr.worldDeluxeMapping ? 1 : 0)) % tr.fatLightmapStep;
 
 		return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)x);
 	}
@@ -378,7 +404,7 @@ static float FatPackV(float input, int lightmapnum)
 {
 	if(tr.fatLightmapSize > 0)
 	{
-		int             y = lightmapnum / ((float)tr.fatLightmapStep);
+		int             y = (lightmapnum >> (tr.worldDeluxeMapping ? 1 : 0)) / tr.fatLightmapStep;
 
 		return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
 	}
@@ -575,6 +601,68 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	cv->plane.type = PlaneTypeForNormal( cv->plane.normal );
 
 	surf->data = (surfaceType_t *)cv;
+
+	// Tr3B - calc tangent spaces
+#if 0
+	{
+		float          *v;
+		const float    *v0, *v1, *v2;
+		const float    *t0, *t1, *t2;
+		vec3_t          tangent;
+		vec3_t          bitangent;
+		vec3_t          normal;
+
+		for(i = 0; i < numVerts; i++)
+		{
+			VectorClear(cv->verts[i].tangent);
+			VectorClear(cv->verts[i].bitangent);
+			VectorClear(cv->verts[i].normal);
+		}
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			v0 = cv->verts[tri->indexes[0]].xyz;
+			v1 = cv->verts[tri->indexes[1]].xyz;
+			v2 = cv->verts[tri->indexes[2]].xyz;
+
+			t0 = cv->verts[tri->indexes[0]].st;
+			t1 = cv->verts[tri->indexes[1]].st;
+			t2 = cv->verts[tri->indexes[2]].st;
+
+			R_CalcTangentSpace(tangent, bitangent, normal, v0, v1, v2, t0, t1, t2);
+
+			for(j = 0; j < 3; j++)
+			{
+				v = cv->verts[tri->indexes[j]].tangent;
+				VectorAdd(v, tangent, v);
+				v = cv->verts[tri->indexes[j]].bitangent;
+				VectorAdd(v, bitangent, v);
+				v = cv->verts[tri->indexes[j]].normal;
+				VectorAdd(v, normal, v);
+			}
+		}
+
+		for(i = 0; i < numVerts; i++)
+		{
+			VectorNormalize(cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].bitangent);
+			VectorNormalize(cv->verts[i].normal);
+		}
+	}
+#else
+	{
+		srfVert_t      *dv[3];
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			dv[0] = &cv->verts[tri->indexes[0]];
+			dv[1] = &cv->verts[tri->indexes[1]];
+			dv[2] = &cv->verts[tri->indexes[2]];
+
+			R_CalcTangentVectors(dv);
+		}
+	}
+#endif
 }
 
 
@@ -740,6 +828,84 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		ri.Printf(PRINT_WARNING, "Surface has bad triangles, originally shader %s %d tris %d verts, now %d tris\n", surf->shader->name, numTriangles, numVerts, numTriangles - badTriangles);
 		cv->numTriangles -= badTriangles;
 	}
+
+	// Tr3B - calc tangent spaces
+#if 0
+	{
+		float          *v;
+		const float    *v0, *v1, *v2;
+		const float    *t0, *t1, *t2;
+		vec3_t          tangent;
+		vec3_t          bitangent;
+		vec3_t          normal;
+
+		for(i = 0; i < numVerts; i++)
+		{
+			VectorClear(cv->verts[i].tangent);
+			VectorClear(cv->verts[i].bitangent);
+			VectorClear(cv->verts[i].normal);
+		}
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			v0 = cv->verts[tri->indexes[0]].xyz;
+			v1 = cv->verts[tri->indexes[1]].xyz;
+			v2 = cv->verts[tri->indexes[2]].xyz;
+
+			t0 = cv->verts[tri->indexes[0]].st;
+			t1 = cv->verts[tri->indexes[1]].st;
+			t2 = cv->verts[tri->indexes[2]].st;
+
+#if 1
+			R_CalcTangentSpace(tangent, bitangent, normal, v0, v1, v2, t0, t1, t2);
+#else
+			R_CalcNormalForTriangle(normal, v0, v1, v2);
+			R_CalcTangentsForTriangle2(tangent, bitangent, v0, v1, v2, t0, t1, t2);
+#endif
+
+			for(j = 0; j < 3; j++)
+			{
+				v = cv->verts[tri->indexes[j]].tangent;
+				VectorAdd(v, tangent, v);
+				v = cv->verts[tri->indexes[j]].bitangent;
+				VectorAdd(v, bitangent, v);
+				v = cv->verts[tri->indexes[j]].normal;
+				VectorAdd(v, normal, v);
+			}
+		}
+
+		for(i = 0; i < numVerts; i++)
+		{
+			float			dot;
+
+			//VectorNormalize(cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].bitangent);
+			VectorNormalize(cv->verts[i].normal);
+
+			// Gram-Schmidt orthogonalize
+			dot = DotProduct(cv->verts[i].normal, cv->verts[i].tangent);
+			VectorMA(cv->verts[i].tangent, -dot, cv->verts[i].normal, cv->verts[i].tangent);
+			VectorNormalize(cv->verts[i].tangent);
+
+			//dot = DotProduct(cv->verts[i].normal, cv->verts[i].tangent);
+			//VectorMA(cv->verts[i].tangent, -dot, cv->verts[i].normal, cv->verts[i].tangent);
+			//VectorNormalize(cv->verts[i].tangent);
+		}
+	}
+#else
+	{
+		srfVert_t      *dv[3];
+
+		for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
+		{
+			dv[0] = &cv->verts[tri->indexes[0]];
+			dv[1] = &cv->verts[tri->indexes[1]];
+			dv[2] = &cv->verts[tri->indexes[2]];
+
+			R_CalcTangentVectors(dv);
+		}
+	}
+#endif
 }
 #endif
 
@@ -1525,10 +1691,10 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 
 	for(j = 0; j < 3; j++)
 	{
-		out->xyz[j] = in->xyz[j];
-		//out->tangent[j] = in->tangent[j];
-		//out->binormal[j] = in->binormal[j];
-		out->normal[j] = in->normal[j];
+		out->xyz[j]       = in->xyz[j];
+		out->tangent[j]   = in->tangent[j];
+		out->bitangent[j] = in->bitangent[j];
+		out->normal[j]    = in->normal[j];
 		//out->lightDirection[j] = in->lightDirection[j];
 	}
 
@@ -1794,12 +1960,12 @@ static void R_CreateWorldVBO(void)
 	}
 
 	s_worldData.vbo = R_CreateVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
-								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BINORMAL |
+								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BITANGENT |
 								   ATTR_NORMAL | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION);
 #else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
-								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_COLOR,
-								   VBO_USAGE_STATIC);
+								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BITANGENT |
+								   ATTR_NORMAL | ATTR_COLOR, VBO_USAGE_STATIC);
 #endif
 
 	s_worldData.ibo = R_CreateIBO2(va("staticBspModel0_IBO %i", 0), numTriangles, triangles, VBO_USAGE_STATIC);
@@ -2488,6 +2654,20 @@ void R_LoadEntities( lump_t *l ) {
 			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
 			continue;
 		}
+
+		// check for deluxe mapping provided by NetRadiant's q3map2
+		//FIXME: xmap2?
+		if(!Q_stricmp(keyname, "_q3map2_cmdline"))
+		{
+			ri.Printf(PRINT_ALL, "wtf? %s %s\n", keyname, value);
+			s = strstr(value, "-deluxe");
+			if(s)
+			{
+				ri.Printf(PRINT_ALL, "map features directional light mapping\n");
+				tr.worldDeluxeMapping = qtrue;
+			}
+			continue;
+		}
 	}
 }
 
@@ -2938,6 +3118,7 @@ void RE_LoadWorldMap( const char *name ) {
 	}
 
 	// load into heap
+	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
 	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
 	R_LoadLightmaps( &header->lumps[LUMP_LIGHTMAPS] );
 	R_LoadPlanes (&header->lumps[LUMP_PLANES]);
@@ -2947,7 +3128,6 @@ void RE_LoadWorldMap( const char *name ) {
 	R_LoadNodesAndLeafs (&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);
 	R_LoadSubmodels (&header->lumps[LUMP_MODELS]);
 	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
-	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
 	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
 
 	// create static VBOS from the world
@@ -2974,4 +3154,5 @@ void RE_LoadWorldMap( const char *name ) {
 
     ri.FS_FreeFile( buffer.v );
 }
+
 

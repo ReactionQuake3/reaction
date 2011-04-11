@@ -70,6 +70,7 @@ void GL_SelectTexture( int unit )
 		return;
 	}
 
+#if 0
 	if ( unit == 0 )
 	{
 		qglActiveTextureARB( GL_TEXTURE0_ARB );
@@ -92,6 +93,13 @@ void GL_SelectTexture( int unit )
 	} else {
 		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
 	}
+#else
+	qglActiveTextureARB( GL_TEXTURE0_ARB + unit );
+	if (!(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer))
+	{
+		qglClientActiveTextureARB( GL_TEXTURE0_ARB + unit );
+	}
+#endif
 
 	glState.currenttmu = unit;
 }
@@ -1021,13 +1029,16 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 		
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			shaderProgram_t *sp = &tr.textureOnlyShader;
+			shaderProgram_t *sp = &tr.textureColorShader;
+			vec4_t color;
 
 			GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 			
 			GLSL_BindProgram(sp);
 
-			GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+			GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+			VectorSet4(color, 1, 1, 1, 1);
+			GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
 		}
 		else
 		{
@@ -1479,5 +1490,6 @@ void RB_RenderThread( void ) {
 		renderThreadActive = qfalse;
 	}
 }
+
 
 

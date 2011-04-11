@@ -136,11 +136,15 @@ typedef struct VBO_s
 	uint32_t        ofs_st;
 	uint32_t        ofs_lightmap;
 	uint32_t        ofs_vertexcolor;
+	uint32_t        ofs_tangent;
+	uint32_t        ofs_bitangent;
 	uint32_t        stride_xyz;
 	uint32_t        stride_normal;
 	uint32_t        stride_st;
 	uint32_t        stride_lightmap;
 	uint32_t        stride_vertexcolor;
+	uint32_t        stride_tangent;
+	uint32_t        stride_bitangent;
 	uint32_t        size_xyz;
 	uint32_t        size_normal;
 
@@ -257,7 +261,8 @@ typedef enum {
 	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
 	AGEN_PORTAL,
-	AGEN_CONST
+	AGEN_CONST,
+	AGEN_FRESNEL
 } alphaGen_t;
 
 typedef enum {
@@ -382,9 +387,39 @@ typedef struct {
 	qboolean		isVideoMap;
 } textureBundle_t;
 
-#define NUM_TEXTURE_BUNDLES 2
+enum
+{
+	TB_COLORMAP = 0,
+	TB_DIFFUSEMAP = 0,
+	TB_LIGHTMAP,
+	TB_NORMALMAP,
+	TB_DELUXEMAP,
+	TB_SPECULARMAP,
+	NUM_TEXTURE_BUNDLES = 5
+};
+
+typedef enum
+{
+	// material shader stage types
+	ST_COLORMAP = 0,			// vanilla Q3A style shader treatening
+	ST_DIFFUSEMAP = 0,          // treat color and diffusemap the same
+	ST_NORMALMAP,
+	ST_SPECULARMAP,
+	ST_GLSL
+} stageType_t;
+
+typedef enum
+{
+	COLLAPSE_none,
+	COLLAPSE_genericMulti,
+	COLLAPSE_lighting_DB,
+	COLLAPSE_lighting_DBS,
+	COLLAPSE_reflection_CB
+} collapseType_t;
 
 typedef struct {
+	stageType_t     type;
+
 	qboolean		active;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
@@ -402,6 +437,8 @@ typedef struct {
 	acff_t			adjustColorsForFog;
 
 	qboolean		isDetail;
+
+	struct shaderProgram_s *glslShader;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -537,7 +574,7 @@ enum
 	ATTR_INDEX_TEXCOORD0      = 1,
 	ATTR_INDEX_TEXCOORD1      = 2,
 	ATTR_INDEX_TANGENT        = 3,
-	ATTR_INDEX_BINORMAL       = 4,
+	ATTR_INDEX_BITANGENT      = 4,
 	ATTR_INDEX_NORMAL         = 5,
 	ATTR_INDEX_COLOR          = 6,
 	ATTR_INDEX_PAINTCOLOR     = 7,
@@ -548,7 +585,7 @@ enum
 	// GPU vertex animations
 	ATTR_INDEX_POSITION2      = 11,
 	ATTR_INDEX_TANGENT2       = 12,
-	ATTR_INDEX_BINORMAL2      = 13,
+	ATTR_INDEX_BITANGENT2     = 13,
 	ATTR_INDEX_NORMAL2        = 14
 };
 
@@ -635,7 +672,7 @@ enum
 	ATTR_TEXCOORD =       0x0002,
 	ATTR_LIGHTCOORD =     0x0004,
 	ATTR_TANGENT =        0x0008,
-	ATTR_BINORMAL =       0x0010,
+	ATTR_BITANGENT =      0x0010,
 	ATTR_NORMAL =         0x0020,
 	ATTR_COLOR =          0x0040,
 	ATTR_PAINTCOLOR =     0x0080,
@@ -646,7 +683,7 @@ enum
 	// for .md3 interpolation
 	ATTR_POSITION2 =      0x0800,
 	ATTR_TANGENT2 =       0x1000,
-	ATTR_BINORMAL2 =      0x2000,
+	ATTR_BITANGENT2 =     0x2000,
 	ATTR_NORMAL2 =        0x4000,
 
 	ATTR_DEFAULT = ATTR_POSITION,
@@ -654,7 +691,7 @@ enum
 				ATTR_TEXCOORD |
 				ATTR_LIGHTCOORD |
 				ATTR_TANGENT |
-				ATTR_BINORMAL |
+				ATTR_BITANGENT |
 				ATTR_NORMAL |
 				ATTR_COLOR |
 				ATTR_PAINTCOLOR |
@@ -663,7 +700,7 @@ enum
 				ATTR_BONE_WEIGHTS |
 				ATTR_POSITION2 |
 				ATTR_TANGENT2 |
-				ATTR_BINORMAL2 |
+				ATTR_BITANGENT2 |
 				ATTR_NORMAL2
 };
 
@@ -720,9 +757,10 @@ enum
 
 enum
 {
-	TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
-	TEXTUREONLY_UNIFORM_TEXTURE0MAP,
-	TEXTUREONLY_UNIFORM_COUNT
+	TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
+	TEXTURECOLOR_UNIFORM_TEXTURE0MAP,
+	TEXTURECOLOR_UNIFORM_COLOR,
+	TEXTURECOLOR_UNIFORM_COUNT
 };
 
 
@@ -762,6 +800,9 @@ enum
 {
 	GENERIC_UNIFORM_TEXTURE0MAP = 0,
 	GENERIC_UNIFORM_TEXTURE1MAP,
+	GENERIC_UNIFORM_TEXTURE2MAP,
+	GENERIC_UNIFORM_TEXTURE3MAP,
+	GENERIC_UNIFORM_TEXTURE4MAP,
 	GENERIC_UNIFORM_TEXTURE0MATRIX,
 	GENERIC_UNIFORM_TEXTURE1ENV,
 	GENERIC_UNIFORM_VIEWORIGIN,
@@ -783,6 +824,7 @@ enum
 	GENERIC_UNIFORM_FOGDEPTH,
 	GENERIC_UNIFORM_FOGEYET,
 	GENERIC_UNIFORM_FOGADJUSTCOLORS,
+	GENERIC_UNIFORM_MODELMATRIX,
 	GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX,
 	GENERIC_UNIFORM_TIME,
 	GENERIC_UNIFORM_VERTEXLERP,
@@ -953,6 +995,8 @@ typedef struct
 	vec2_t          st;
 	vec2_t          lightmap;
 	vec3_t          normal;
+	vec3_t          tangent;
+	vec3_t          bitangent;
 	color4ub_t      vertexColors;
 
 #if DEBUG_OPTIMIZEVERTICES
@@ -960,7 +1004,7 @@ typedef struct
 #endif
 } srfVert_t;
 
-#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
+#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
 
 typedef struct
 {
@@ -1552,6 +1596,7 @@ typedef struct {
 	int						frameSceneNum;	// zeroed at RE_BeginFrame
 
 	qboolean				worldMapLoaded;
+	qboolean				worldDeluxeMapping;
 	world_t					*world;
 
 	const byte				*externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
@@ -1562,6 +1607,7 @@ typedef struct {
 	image_t					*dlightImage;	// inverse-quare highlight for projective adding
 	image_t					*flareImage;
 	image_t					*whiteImage;			// full of 0xff
+	image_t                 *blackImage;            // full of 0x000000ff
 	image_t					*identityLightImage;	// full of tr.identityLightByte
 
 	shader_t				*defaultShader;
@@ -1573,8 +1619,10 @@ typedef struct {
 
 	int						numLightmaps;
 	image_t					**lightmaps;
+	image_t					**deluxemaps;
 
 	image_t                 *fatLightmap;
+	image_t					*fatDeluxemap;
 	int                     fatLightmapSize;
 	int		                fatLightmapStep;
 
@@ -1590,9 +1638,10 @@ typedef struct {
 
 	shaderProgram_t genericShader[GLSLDEF_COUNT];
 	shaderProgram_t lightmappedShader;
-	shaderProgram_t textureOnlyShader;
+	shaderProgram_t textureColorShader;
 	shaderProgram_t fogShader;
 	shaderProgram_t dlightShader;
+	shaderProgram_t deluxemappedShader;
 
 
 	// -----------------------------------------
@@ -1830,8 +1879,9 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
-void            R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
-void            R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
+qboolean R_CalcTangentVectors(srfVert_t * dv[3]);
+void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
+void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
 
 #define	CULL_IN		0		// completely unclipped
 #define	CULL_CLIP	1		// clipped by one or more planes
@@ -2004,6 +2054,8 @@ typedef struct shaderCommands_s
 	glIndex_t	indexes[SHADER_MAX_INDEXES] QALIGN(16);
 	vec4_t		xyz[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec4_t		normal[SHADER_MAX_VERTEXES] QALIGN(16);
+	vec4_t		tangent[SHADER_MAX_VERTEXES] QALIGN(16);
+	vec4_t		bitangent[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] QALIGN(16);
 	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] QALIGN(16);
 	//int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);

@@ -87,60 +87,57 @@ static const char *fallbackGenericShader_vp =
 "ot(position.xyz, TCGenVector0.xyz);\r\n\t\ttex.t = dot(position.xyz, TCGenV"
 "ector1.xyz);\r\n\t}\r\n\t\r\n\treturn tex;\r\n}\r\n#endif\r\n\r\nvoid main("
 ")\r\n{\r\n\tvec4 position;\r\n\tvec3 normal;\r\n\tvec4 tex;\r\n\r\n#if defi"
-"ned(USE_VERTEX_ANIMATION)\r\n\tif (u_VertexLerp > 0.0)\r\n\t{\r\n\t\tpositi"
-"on = mix(attr_Position, attr_Position2, u_VertexLerp);\r\n\t\tnormal = mix("
-"attr_Normal, attr_Normal2, u_VertexLerp);\r\n\t\tnormal = normalize(normal)"
-";\r\n\t}\r\n\telse\r\n#endif\r\n\t{\r\n\t\tposition = attr_Position;\r\n\t"
-"\tnormal = attr_Normal;\r\n\t}\r\n\r\n#if defined(USE_DEFORM_VERTEXES)\r\n"
-"\tposition = DeformPosition(position, normal, attr_TexCoord0.st);\r\n#endif"
-"\r\n\r\n\tgl_Position = u_ModelViewProjectionMatrix * position;\r\n\r\n\r\n"
-"\ttex = vec4(1.0, 1.0, 1.0, 0.0);\r\n\r\n#if defined(USE_TCGEN)\r\n\ttex.st"
-" = GenTexCoords(u_TCGen0, position, normal, u_Texture0Matrix, u_TCGen0Vecto"
-"r0, u_TCGen0Vector1);\r\n#else\r\n\ttex.st = attr_TexCoord0.st;\r\n#endif\r"
-"\n    \r\n\tvar_Tex1 = (u_Texture0Matrix * tex).st;\r\n\r\n\tif (u_Texture0"
-"Matrix[3][0] != 0)\r\n\t{\r\n\t\tvar_Tex1.s += sin(((position.x + position."
-"z) * 1.0 / 128.0 * 0.125 + u_Texture0Matrix[3][1]) * 2.0 * M_PI) * u_Textur"
-"e0Matrix[3][0];\r\n\t\tvar_Tex1.t += sin((position.y * 1.0 / 128.0 * 0.125 "
-"+ u_Texture0Matrix[3][1]) * 2.0 * M_PI) * u_Texture0Matrix[3][0];\r\n\t}\r"
-"\n\r\n\tvar_Tex2 = attr_TexCoord1.st;\r\n\r\n\tif (u_ColorGen == CGEN_IDENT"
-"ITY)\r\n\t{\r\n\t\tvar_Color.rgb = vec3(1.0);\r\n\t}\r\n\telse if (u_ColorG"
-"en == CGEN_LIGHTING_DIFFUSE)\r\n\t{\r\n\t\tfloat incoming = dot(attr_Normal"
-", u_LightDir);\r\n\r\n\t\tif (incoming <= 0)\r\n\t\t{\r\n\t\t\tvar_Color.rg"
-"b = u_AmbientLight;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tvar_Color.rgb = "
-"min(u_AmbientLight + u_DirectedLight * incoming, vec3(1));\r\n\t\t}\r\n\t}"
-"\r\n\telse if (u_ColorGen == CGEN_EXACT_VERTEX)\r\n\t{\r\n\t\tvar_Color.rgb"
-" = attr_Color.rgb;\r\n\t}\r\n\telse if (u_ColorGen == CGEN_VERTEX)\r\n\t{\r"
-"\n\t\tvar_Color.rgb = attr_Color.rgb * u_Color.rgb;\r\n\t}\r\n\telse if (u_"
-"ColorGen == CGEN_ONE_MINUS_VERTEX)\r\n\t{\r\n\t\tvar_Color.rgb = (vec3(1.0)"
-" - attr_Color.rgb) * u_Color.rgb;\r\n\t}\r\n\telse\r\n\t{\r\n\t\tvar_Color."
-"rgb = u_Color.rgb;\r\n\t}\r\n\r\n\tif (u_AlphaGen == AGEN_IDENTITY)\r\n\t{"
-"\r\n\t\tvar_Color.a = 1.0;\r\n\t}\r\n\telse if (u_AlphaGen == AGEN_LIGHTING"
-"_SPECULAR)\r\n\t{\r\n\t\tvec3 lightDir = vec3(-960.0, -1980.0, 96.0) - posi"
-"tion.xyz;\r\n\t\tlightDir = normalize(lightDir);\r\n\r\n\t\tfloat d = dot(a"
-"ttr_Normal, lightDir);\r\n\t\tvec3 reflected = attr_Normal * 2.0 * d - ligh"
-"tDir;\r\n\r\n\t\tvec3 viewer = u_ViewOrigin - position.xyz;\r\n\t\tfloat il"
-"ength = 1.0 / length(viewer);\r\n\r\n\t\tfloat l = dot(reflected, viewer);"
-"\r\n\t\tl *= ilength;\r\n\r\n\t\tif (l < 0.0)\r\n\t\t{\r\n\t\t\tvar_Color.a"
-" = 0.0;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tl = l*l;\r\n\t\t\tl = l*l;\r"
-"\n\t\t\tvar_Color.a = min(l, 1.0);\r\n\t\t}\r\n\t}\r\n\telse if (u_AlphaGen"
-" == AGEN_VERTEX)\r\n\t{\r\n\t\tvar_Color.a = attr_Color.a;\r\n\t}\r\n\telse"
-" if (u_AlphaGen == AGEN_ONE_MINUS_VERTEX)\r\n\t{\r\n\t\tvar_Color.a = 1.0 -"
-" attr_Color.a;\r\n\t}\r\n\telse if (u_AlphaGen == AGEN_PORTAL)\r\n\t{\r\n\t"
-"\tfloat len;\r\n\t\tvec3 v;\r\n\r\n\t\tv = position.xyz - u_ViewOrigin;\r\n"
-"\t\tlen = length(v);\r\n\r\n\t\tlen /= u_PortalRange;\r\n\r\n\t\tvar_Color."
-"a = clamp(len, 0.0, 1.0);\r\n\t}\r\n\telse\r\n\t{\r\n\t\tvar_Color.a = u_Co"
-"lor.a;\r\n\t}\r\n\r\n#if defined (USE_FOG)\r\n\tif (u_FogAdjustColors != AC"
-"FF_NONE) \r\n\t{\r\n\t\tfloat s = dot(position.xyz, u_FogDistance.xyz) + u_"
-"FogDistance.a;\r\n\t\tfloat t = dot(position.xyz, u_FogDepth.xyz) + u_FogDe"
-"pth.a;\r\n\t\t\r\n\t\tif (s < 0.0 || t < 0.0 || (u_FogEyeT < 0.0 && t < 1.0"
-") )\r\n\t\t{\r\n\t\t\ts = 0.0;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (u"
-"_FogEyeT < 0.0)\r\n\t\t\t{\r\n\t\t\t\ts *= t / (t - u_FogEyeT);\r\n\t\t\t}"
-"\r\n\r\n\t\t\ts *= 8.0;\r\n\t\t\t\t  \r\n\t\t\ts = clamp(s, 0.0, 1.0);\r\n"
-"\r\n\t\t\ts = 1.0 - sqrt(s);\r\n\t\t}\r\n\t\t\r\n\t\tif (u_FogAdjustColors "
-"== ACFF_MODULATE_RGB)\r\n\t\t{\r\n\t\t\tvar_Color.xyz *= s;\r\n\t\t}\r\n\t"
-"\telse if (u_FogAdjustColors == ACFF_MODULATE_ALPHA)\r\n\t\t{\r\n\t\t\tvar_"
-"Color.a *= s;\r\n\t\t}\r\n\t\telse if (u_FogAdjustColors == ACFF_MODULATE_R"
-"GBA)\r\n\t\t{\r\n\t\t\tvar_Color *= s;\r\n\t\t}\r\n\t}\r\n#endif\r\n}\r\n";
+"ned(USE_VERTEX_ANIMATION)\r\n\tposition = mix(attr_Position, attr_Position2"
+", u_VertexLerp);\r\n\tnormal = normalize(mix(attr_Normal, attr_Normal2, u_V"
+"ertexLerp));\r\n#else\r\n\tposition = attr_Position;\r\n\tnormal = attr_Nor"
+"mal;\r\n#endif\r\n\r\n#if defined(USE_DEFORM_VERTEXES)\r\n\tposition = Defo"
+"rmPosition(position, normal, attr_TexCoord0.st);\r\n#endif\r\n\r\n\tgl_Posi"
+"tion = u_ModelViewProjectionMatrix * position;\r\n\r\n\r\n\ttex = vec4(1.0,"
+" 1.0, 1.0, 0.0);\r\n\r\n#if defined(USE_TCGEN)\r\n\ttex.st = GenTexCoords(u"
+"_TCGen0, position, normal, u_Texture0Matrix, u_TCGen0Vector0, u_TCGen0Vecto"
+"r1);\r\n#else\r\n\ttex.st = attr_TexCoord0.st;\r\n#endif\r\n    \r\n\tvar_T"
+"ex1 = (u_Texture0Matrix * tex).st;\r\n\r\n\tvar_Tex1.s += sin(((position.x "
+"+ position.z) * 1.0 / 128.0 * 0.125 + u_Texture0Matrix[3][1]) * 2.0 * M_PI)"
+" * u_Texture0Matrix[3][0];\r\n\tvar_Tex1.t += sin((position.y * 1.0 / 128.0"
+" * 0.125 + u_Texture0Matrix[3][1]) * 2.0 * M_PI) * u_Texture0Matrix[3][0];"
+"\r\n\r\n\tvar_Tex2 = attr_TexCoord1.st;\r\n\t\r\n\tvar_Color = u_Color;\r\n"
+"\r\n\tif (u_ColorGen == CGEN_LIGHTING_DIFFUSE)\r\n\t{\r\n\t\tfloat incoming"
+" = max(dot(normal, u_LightDir), 0.0);\r\n\r\n\t\tvar_Color.rgb = min(u_Dire"
+"ctedLight * incoming + u_AmbientLight, 1.0);\r\n\t}\r\n\telse if (u_ColorGe"
+"n == CGEN_EXACT_VERTEX)\r\n\t{\r\n\t\tvar_Color.rgb = attr_Color.rgb;\r\n\t"
+"}\r\n\telse if (u_ColorGen == CGEN_VERTEX)\r\n\t{\r\n\t\tvar_Color.rgb *= a"
+"ttr_Color.rgb;\r\n\t}\r\n\telse if (u_ColorGen == CGEN_ONE_MINUS_VERTEX)\r"
+"\n\t{\r\n\t\tvar_Color.rgb *= (vec3(1.0) - attr_Color.rgb);\r\n\t}\r\n\r\n"
+"\tif (u_AlphaGen == AGEN_LIGHTING_SPECULAR)\r\n\t{\r\n#if 0 // phong specul"
+"ar\r\n\t\tvec3 lightDir = vec3(-960.0, -1980.0, 96.0) - position.xyz;\r\n\t"
+"\tlightDir = normalize(lightDir);\r\n\r\n\t\tfloat d = dot(normal, lightDir"
+");\r\n\t\tvec3 reflected = normal * 2.0 * d - lightDir;\r\n\r\n\t\tvec3 vie"
+"wer = u_ViewOrigin - position.xyz;\r\n\t\tfloat ilength = 1.0 / length(view"
+"er);\r\n\r\n\t\tfloat l = dot(reflected, viewer);\r\n\t\tl *= ilength;\r\n"
+"\r\n\t\tif (l < 0.0)\r\n\t\t{\r\n\t\t\tvar_Color.a = 0.0;\r\n\t\t}\r\n\t\te"
+"lse\r\n\t\t{\r\n\t\t\tl = l*l;\r\n\t\t\tl = l*l;\r\n\t\t\tvar_Color.a = min"
+"(l, 1.0);\r\n\t\t}\r\n#else // blinn specular\r\n\t\tvec3 lightDir = normal"
+"ize(vec3(-960.0, -1980.0, 96.0) - position.xyz);\r\n\t\tvec3 viewer = norma"
+"lize(u_ViewOrigin - position.xyz);\r\n\t\tvec3 halfangle = normalize(lightD"
+"ir + viewer);\r\n\t\t\r\n\t\tvar_Color.a = pow(max(dot(normal, halfangle), "
+"0.0), 4.0);\r\n#endif\r\n\t}\r\n\telse if (u_AlphaGen == AGEN_VERTEX)\r\n\t"
+"{\r\n\t\tvar_Color.a = attr_Color.a;\r\n\t}\r\n\telse if (u_AlphaGen == AGE"
+"N_ONE_MINUS_VERTEX)\r\n\t{\r\n\t\tvar_Color.a = 1.0 - attr_Color.a;\r\n\t}"
+"\r\n\telse if (u_AlphaGen == AGEN_PORTAL)\r\n\t{\r\n\t\tfloat alpha = lengt"
+"h(position.xyz - u_ViewOrigin) / u_PortalRange;\r\n\r\n\t\tvar_Color.a = mi"
+"n(alpha, 1.0);\r\n\t}\r\n\telse if (u_AlphaGen == AGEN_FRESNEL)\r\n\t{\r\n"
+"\t\tvec3 viewer = normalize(u_ViewOrigin - position.xyz);\r\n\t\t\r\n\t\tva"
+"r_Color.a = dot(viewer, normal);\r\n\t}\r\n\r\n#if defined (USE_FOG)\r\n\ti"
+"f (u_FogAdjustColors != ACFF_NONE) \r\n\t{\r\n\t\tfloat s = max(dot(positio"
+"n.xyz, u_FogDistance.xyz) + u_FogDistance.a, 0.0);\r\n\t\tfloat t = max(dot"
+"(position.xyz, u_FogDepth.xyz) + u_FogDepth.a, 0.0);\r\n\t\t\r\n\t\tif (t >"
+"= 1.0)\r\n\t\t{\r\n\t\t\ts *= t / (t - min(u_FogEyeT, 0.0));\r\n\t\t}\r\n\t"
+"\t\r\n\t\ts = 1.0 - sqrt(min(s * 8.0, 1.0));\r\n\t\r\n\t\tif (u_FogAdjustCo"
+"lors == ACFF_MODULATE_RGB)\r\n\t\t{\r\n\t\t\tvar_Color.xyz *= s;\r\n\t\t}\r"
+"\n\t\telse if (u_FogAdjustColors == ACFF_MODULATE_ALPHA)\r\n\t\t{\r\n\t\t\t"
+"var_Color.a *= s;\r\n\t\t}\r\n\t\telse if (u_FogAdjustColors == ACFF_MODULA"
+"TE_RGBA)\r\n\t\t{\r\n\t\t\tvar_Color *= s;\r\n\t\t}\r\n\t}\r\n#endif\r\n}\r"
+"\n";
 
 static const char *fallbackGenericShader_fp = 
 "uniform sampler2D u_Texture0Map;\r\nuniform sampler2D u_Texture1Map;\r\nuni"
@@ -177,17 +174,17 @@ static const char *fallbackLightmappedShader_fp =
 "\n\tcolor = texture2D(u_Texture0Map, var_Tex1);\r\n\tlight = texture2D(u_Te"
 "xture1Map, var_Tex2);\r\n\r\n\tgl_FragColor = color * light;\r\n}\r\n";
 
-static const char *fallbackTextureOnlyShader_vp =
+static const char *fallbackTextureColorShader_vp =
 "#version 120\r\n\r\nattribute vec4 attr_Position;\r\nattribute vec4 attr_Te"
 "xCoord0;\r\n\r\nuniform mat4   u_ModelViewProjectionMatrix;\r\n\r\nvarying "
 "vec2   var_Tex1;\r\n\r\n\r\nvoid main()\r\n{\r\n\tgl_Position = u_ModelView"
 "ProjectionMatrix * attr_Position;\r\n\tvar_Tex1 = attr_TexCoord0.st;\r\n}\r"
 "\n";
 
-static const char *fallbackTextureOnlyShader_fp =
-"#version 120\r\n\r\nuniform sampler2D    u_Texture0Map;\r\n\r\nvarying vec2"
-"         var_Tex1;\r\n\r\n\r\nvoid main()\r\n{\r\n\tgl_FragColor = texture2"
-"D(u_Texture0Map, var_Tex1);\r\n}\r\n";
+static const char *fallbackTextureColorShader_fp =
+"#version 120\r\n\r\nuniform sampler2D u_Texture0Map;\r\nuniform vec4      u"
+"_Color;\r\n\r\nvarying vec2         var_Tex1;\r\n\r\n\r\nvoid main()\r\n{\r"
+"\n\tgl_FragColor = texture2D(u_Texture0Map, var_Tex1) * u_Color;\r\n}\r\n";
 
 static const char *fallbackFogPassShader_vp =
 "attribute vec4  attr_Position;\r\nattribute vec3  attr_Normal;\r\nattribute"
@@ -234,19 +231,16 @@ static const char *fallbackFogPassShader_vp =
 "\n\r\n\r\nvoid\tmain()\r\n{\r\n\tvec4 position;\r\n\tvec3 normal;\r\n\r\n//"
 "#if defined(USE_VERTEX_ANIMATION)\r\n\tif (u_VertexLerp > 0.0)\r\n\t{\r\n\t"
 "\tposition = mix(attr_Position, attr_Position2, u_VertexLerp);\r\n\t\tnorma"
-"l = mix(attr_Normal, attr_Normal2, u_VertexLerp);\r\n\t\tnormal = normalize"
-"(normal);\r\n\t}\r\n\telse\r\n//#endif\r\n\t{\r\n\t\tposition = attr_Positi"
-"on;\r\n\t\tnormal = attr_Normal;\r\n\t}\r\n\r\n//#if defined(USE_DEFORM_VER"
-"TEXES)\r\n\tposition = DeformPosition(position, normal, attr_TexCoord0.st);"
-"\r\n//#endif\r\n\r\n\tgl_Position = u_ModelViewProjectionMatrix * position;"
-"\r\n\r\n\t{\r\n\t\tfloat s = dot(position.xyz, u_FogDistance.xyz) + u_FogDi"
-"stance.a;\r\n\t\tfloat t = dot(position.xyz, u_FogDepth.xyz) + u_FogDepth.a"
-";\r\n\r\n\t\tif (s < 0.0 || t < 0.0 || (u_FogEyeT < 0.0 && t < 1.0) )\r\n\t"
-"\t{\r\n\t\t\ts = 0.0;\r\n\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\tif (u_FogEyeT "
-"< 0.0)\r\n\t\t\t{\r\n\t\t\t\ts *= t / (t - u_FogEyeT);\r\n\t\t\t}\r\n\r\n\t"
-"\t\ts *= 8.0;\r\n\t\t  \r\n\t\t\ts = clamp(s, 0.0, 1.0);\r\n\r\n\t\t\ts = s"
-"qrt(s);\r\n\t\t}\r\n\r\n\t\tvar_Color.xyz = u_Color.xyz;\r\n\t\tvar_Color.a"
-" = u_Color.a * s;\r\n\t}\r\n}\r\n";
+"l = normalize(mix(attr_Normal, attr_Normal2, u_VertexLerp));\r\n\t}\r\n\tel"
+"se\r\n//#endif\r\n\t{\r\n\t\tposition = attr_Position;\r\n\t\tnormal = attr"
+"_Normal;\r\n\t}\r\n\r\n//#if defined(USE_DEFORM_VERTEXES)\r\n\tposition = D"
+"eformPosition(position, normal, attr_TexCoord0.st);\r\n//#endif\r\n\r\n\tgl"
+"_Position = u_ModelViewProjectionMatrix * position;\r\n\r\n\tfloat s = max("
+"dot(position.xyz, u_FogDistance.xyz) + u_FogDistance.a, 0.0);\r\n\tfloat t "
+"= max(dot(position.xyz, u_FogDepth.xyz) + u_FogDepth.a, 0.0);\r\n\t\r\n\tif"
+" (t >= 1.0)\r\n\t{\r\n\t\ts *= t / (t - min(u_FogEyeT, 0.0));\r\n\t}\r\n\t"
+"\r\n\ts = sqrt(min(s * 8.0, 1.0));\r\n\t\r\n\tvar_Color.xyz = u_Color.xyz;"
+"\r\n\tvar_Color.a = u_Color.a * s;\r\n}\r\n";
 
 static const char *fallbackFogPassShader_fp =
 "varying vec4         var_Color;\r\n\r\n\r\nvoid\tmain()\r\n{\r\n\tgl_FragCo"
@@ -291,28 +285,73 @@ static const char *fallbackDlightShader_vp =
 " = (M_PI * 0.25) * st.x * bulgeWidth + now;\r\n\t\tfloat scale = sin(off) *"
 " bulgeHeight;\r\n\t\tvec3 offset = normal * scale;\r\n\r\n\t\tdeformed.xyz "
 "+= offset;\r\n\t}\r\n\r\n\treturn deformed;\r\n}\r\n\r\n\r\nvoid main()\r\n"
-"{\r\n\tvec4 position;\r\n\tvec3 normal;\r\n\tvec3 dist;\r\n\tvec2 tex;\r\n"
-"\tfloat dlightmod;\r\n\r\n\tif (u_VertexLerp > 0.0)\r\n\t{\r\n\t\tposition "
-"= mix(attr_Position, attr_Position2, u_VertexLerp);\r\n\t\tnormal = mix(att"
-"r_Normal, attr_Normal2, u_VertexLerp);\r\n\t\tnormal = normalize(normal);\r"
-"\n\t}\r\n\telse\r\n\t{\r\n\t\tposition = attr_Position;\r\n\t\tnormal = att"
-"r_Normal;\r\n\t}\r\n\r\n\tposition = DeformPosition(position, normal, attr_"
-"TexCoord0.st);\r\n\r\n\tgl_Position = u_ModelViewProjectionMatrix * positio"
-"n;\r\n\t\r\n\t\r\n\ttex = vec2(0);\r\n\t\r\n\tdist = u_DlightInfo.xyz - pos"
-"ition.xyz;\t\r\n\tdlightmod = 0;\r\n\r\n\tif (!(dot(dist, normal) < 0))\r\n"
-"\t{\r\n\t\tfloat diffz = abs(dist.z);\r\n\t\tfloat radius = 1.0 / u_DlightI"
-"nfo.a;\r\n    \r\n\t\tif (diffz <= radius)\r\n\t\t{\r\n\t\t\ttex = vec2(0.5"
-") + dist.xy * u_DlightInfo.a;\r\n\r\n\t\t\tif (diffz < radius * 0.5)\r\n\t"
-"\t\t{\r\n\t\t\t\tdlightmod = 1.0;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t"
-"\t\t\tdlightmod = 2.0 * (radius - diffz) * u_DlightInfo.a;\r\n\t\t\t}\r\n\t"
-"\t}\r\n\t}\r\n\r\n\tvar_Tex1 = tex;\r\n\tvar_Color.rgb = u_Color.rgb * dlig"
-"htmod;\r\n\tvar_Color.a = u_Color.a;\r\n}\r\n";
+"{\r\n\tvec4 position = mix(attr_Position, attr_Position2, u_VertexLerp);\r"
+"\n\tvec3 normal = normalize(mix(attr_Normal, attr_Normal2, u_VertexLerp));"
+"\r\n\r\n\tposition = DeformPosition(position, normal, attr_TexCoord0.st);\r"
+"\n\r\n\tgl_Position = u_ModelViewProjectionMatrix * position;\r\n\t\r\n\tve"
+"c2 tex = vec2(0);\r\n\t\r\n\tvec3 dist = u_DlightInfo.xyz - position.xyz;\t"
+"\r\n\tfloat dlightmod = 0;\r\n\r\n\tif (dot(dist, normal) > 0)\r\n\t{\r\n\t"
+"\tfloat diffz = abs(dist.z);\r\n\t\tfloat radius = 1.0 / u_DlightInfo.a;\r"
+"\n    \r\n\t\tif (diffz <= radius)\r\n\t\t{\r\n\t\t\ttex = vec2(0.5) + dist"
+".xy * u_DlightInfo.a;\r\n\r\n\t\t\tif (diffz < radius * 0.5)\r\n\t\t\t{\r\n"
+"\t\t\t\tdlightmod = 1.0;\r\n\t\t\t}\r\n\t\t\telse\r\n\t\t\t{\r\n\t\t\t\tdli"
+"ghtmod = 2.0 * (radius - diffz) * u_DlightInfo.a;\r\n\t\t\t}\r\n\t\t}\r\n\t"
+"}\r\n\r\n\tvar_Tex1 = tex;\r\n\tvar_Color.rgb = u_Color.rgb * dlightmod;\r"
+"\n\tvar_Color.a = u_Color.a;\r\n}\r\n";
 
 static const char *fallbackDlightShader_fp =
 "uniform sampler2D u_Texture0Map;\r\n\r\nvarying vec2      var_Tex1;\r\nvary"
-"ing vec4      var_Color;\r\n\r\n\r\nvoid main()\r\n{\r\n\tvec4 color;\r\n\r"
-"\n\tcolor = texture2D(u_Texture0Map, var_Tex1);\r\n\r\n\tcolor *= var_Color"
-";\r\n\r\n\tgl_FragColor = color;\r\n}\r\n";
+"ing vec4      var_Color;\r\n\r\n\r\nvoid main()\r\n{\r\n\tvec4 color = text"
+"ure2D(u_Texture0Map, var_Tex1);\r\n\r\n\tgl_FragColor = color * var_Color;"
+"\n}\n";
+
+static const char *fallbackDeluxemappedShader_vp =
+"#version 120\r\n\r\n#ifndef M_PI\r\n#define M_PI 3.14159265358979323846f\r"
+"\n#endif\r\n\r\nattribute vec4 attr_Position;\r\nattribute vec4 attr_TexCoo"
+"rd0;\r\nattribute vec4 attr_TexCoord1;\r\nattribute vec4 attr_Tangent;\r\na"
+"ttribute vec4 attr_Bitangent;\r\nattribute vec4 attr_Normal;\r\n\r\nuniform"
+" mat4   u_Texture0Matrix;\r\nuniform mat4   u_ModelViewProjectionMatrix;\r"
+"\n\r\nvarying vec2   var_Tex1;\r\nvarying vec2   var_Tex2;\r\nvarying vec3 "
+"  var_Position;\r\n\r\nvarying vec3   var_Tangent;\r\nvarying vec3   var_Bi"
+"tangent;\r\nvarying vec3   var_Normal;\r\n\r\nvoid main()\r\n{\r\n\tvec4 te"
+"x = vec4(1, 1, 1, 0);\r\n\r\n\tgl_Position = u_ModelViewProjectionMatrix * "
+"attr_Position;\r\n\r\n\ttex.st = attr_TexCoord0.st;\r\n\r\n\tvar_Tex1 = (u_"
+"Texture0Matrix * tex).st;\r\n\r\n\tif (u_Texture0Matrix[3][0] != 0)\r\n\t{"
+"\r\n\t\tvar_Tex1.s += sin(((attr_Position.x + attr_Position.z) * 1.0 / 128."
+"0 * 0.125 + u_Texture0Matrix[3][1]) * 2.0 * M_PI) * u_Texture0Matrix[3][0];"
+"\r\n\t\tvar_Tex1.t += sin((attr_Position.y * 1.0 / 128.0 * 0.125 + u_Textur"
+"e0Matrix[3][1]) * 2.0 * M_PI) * u_Texture0Matrix[3][0];\r\n\t}\r\n\r\n\tvar"
+"_Tex2 = attr_TexCoord1.st;\r\n\r\n\tvar_Tangent   = attr_Tangent.xyz;\r\n\t"
+"var_Bitangent = attr_Bitangent.xyz;\r\n\tvar_Normal    = attr_Normal.xyz;\r"
+"\n\t\r\n\tvar_Position = attr_Position.xyz;\r\n}\r\n";
+
+static const char *fallbackDeluxemappedShader_fp =
+"#version 120\r\n\r\nuniform sampler2D u_Texture0Map;\r\nuniform sampler2D u"
+"_Texture1Map;\r\nuniform sampler2D u_Texture2Map;\r\nuniform sampler2D u_Te"
+"xture3Map;\r\nuniform sampler2D u_Texture4Map;\r\n\r\nuniform vec3      u_V"
+"iewOrigin;\r\n\r\nvarying vec2      var_Tex1;\r\nvarying vec2      var_Tex2"
+";\r\nvarying vec3      var_Position;\r\n\r\nvarying vec3      var_Tangent;"
+"\r\nvarying vec3      var_Bitangent;\r\nvarying vec3      var_Normal;\r\n\r"
+"\nvoid\tmain()\r\n{\r\n\tvec3 SampleToView = normalize(u_ViewOrigin - var_P"
+"osition);\r\n\r\n\tmat3 tangentToWorld;\r\n\ttangentToWorld = mat3(var_Tang"
+"ent.xyz, var_Bitangent.xyz, var_Normal.xyz);\r\n\r\n\tmat3 worldToTangent;"
+"\r\n\tworldToTangent = mat3(tangentToWorld[0][0], tangentToWorld[1][0], tan"
+"gentToWorld[2][0],\r\n\t\ttangentToWorld[0][1], tangentToWorld[1][1], tange"
+"ntToWorld[2][1], \r\n\t\ttangentToWorld[0][2], tangentToWorld[1][2], tangen"
+"tToWorld[2][2]);\r\n\t\t\t\t\t\t\t\t\t\r\n\tfloat height = 0.02 * texture2D"
+"(u_Texture2Map, var_Tex1).a - (0.02 / 2.0);\r\n\t\r\n\tvec2 offsetDir = nor"
+"malize(worldToTangent * SampleToView).st;\r\n\tvec2 finalTex = var_Tex1 + o"
+"ffsetDir * height;\r\n\t\r\n\tvec4 diffuse =  texture2D(u_Texture0Map, fina"
+"lTex);\r\n\tvec4 lightmap = texture2D(u_Texture1Map, var_Tex2);\r\n\tvec4 n"
+"ormal =   texture2D(u_Texture2Map, finalTex);\r\n\tvec4 deluxe =   texture2"
+"D(u_Texture3Map, var_Tex2);\r\n\tvec4 specular = texture2D(u_Texture4Map, f"
+"inalTex);\r\n\r\n\tvec3 worldNormal  = tangentToWorld * normalize(2.0 * nor"
+"mal.xyz - vec3(1.0));\r\n\tvec3 worldLight   = normalize(2.0 * deluxe.xyz -"
+" vec3(1.0));\r\n\tvec3 HalfAngle    = normalize(worldLight + SampleToView);"
+"\r\n\t\r\n\tdiffuse.rgb *= lightmap.rgb * max(dot(worldNormal, worldLight),"
+" 0.0);\r\n\tspecular.rgb *= lightmap.rgb * pow(max(dot(worldNormal, HalfAng"
+"le), 0.0), 16.0);\r\n\t\t\r\n\tgl_FragColor = diffuse;\r\n\tgl_FragColor.rg"
+"b += specular.rgb;\r\n}\r\n";
 
 
 static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
@@ -488,12 +527,14 @@ static int GLSL_CompileGPUShader(GLhandleARB program, GLhandleARB *prevShader, c
 									"#define AGEN_ONE_MINUS_VERTEX %i\n"
 									"#define AGEN_LIGHTING_SPECULAR %i\n"
 									"#define AGEN_PORTAL %i\n"
+									"#define AGEN_FRESNEL %i\n"
 									"#endif\n",
 									AGEN_IDENTITY,
 									AGEN_VERTEX,
 									AGEN_ONE_MINUS_VERTEX,
 									AGEN_LIGHTING_SPECULAR,
-									AGEN_PORTAL));
+									AGEN_PORTAL,
+									AGEN_FRESNEL));
 
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 								 va("#ifndef alphaTest_t\n"
@@ -616,8 +657,6 @@ static int GLSL_LoadGPUShader(GLhandleARB program, GLhandleARB *prevShader, cons
 	size = ri.FS_ReadFile(filename, (void **)&buffer);
 	if(!buffer)
 	{
-		//ri.Error(ERR_DROP, "Couldn't load %s", filename);
-		ri.Printf(PRINT_ALL, "Couldn't load %s, size %d\n", filename, size);
 		return 0;
 	}
 
@@ -771,13 +810,12 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int a
 
 	if (!(GLSL_LoadGPUShader(program->program, &program->vertexShader, name, GL_VERTEX_SHADER_ARB, extra, addHeader)))
 	{
-		ri.Printf(PRINT_ALL, "GLSL_InitGPUShader: Unable to load \"%s\" as GL_VERTEX_SHADER_ARB\n", name);
 		if (fallback_vp)
 		{
 			ri.Printf(PRINT_ALL, "compiling fallback...\n");
 			if (!GLSL_CompileGPUShader(program->program, &program->vertexShader, fallback_vp, strlen(fallback_vp), GL_VERTEX_SHADER_ARB, extra, addHeader))
 			{
-				ri.Printf(PRINT_ALL, "Fallback failed!\n");
+				ri.Printf(PRINT_ALL, "GLSL_InitGPUShader: Unable to load \"%s\" as GL_VERTEX_SHADER_ARB\n", name);
 				qglDeleteObjectARB(program->program);
 				return 0;
 			}
@@ -793,13 +831,12 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int a
 	{
 		if(!(GLSL_LoadGPUShader(program->program, &program->fragmentShader, name, GL_FRAGMENT_SHADER_ARB, extra, addHeader)))
 		{
-			ri.Printf(PRINT_ALL, "GLSL_InitGPUShader: Unable to load \"%s\" as GL_FRAGMENT_SHADER_ARB\n", name);
 			if (fallback_fp)
 			{
 				ri.Printf(PRINT_ALL, "compiling fallback...\n");
 				if (!GLSL_CompileGPUShader(program->program, &program->fragmentShader, fallback_fp, strlen(fallback_fp), GL_FRAGMENT_SHADER_ARB, extra, addHeader))
 				{
-					ri.Printf(PRINT_ALL, "Fallback failed!\n");
+					ri.Printf(PRINT_ALL, "GLSL_InitGPUShader: Unable to load \"%s\" as GL_FRAGMENT_SHADER_ARB\n", name);
 					qglDeleteObjectARB(program->program);
 					return 0;
 				}
@@ -830,8 +867,8 @@ static int GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int a
 	if(attribs & ATTR_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
-	if(attribs & ATTR_BINORMAL)
-		qglBindAttribLocationARB(program->program, ATTR_INDEX_BINORMAL, "attr_Binormal");
+	if(attribs & ATTR_BITANGENT)
+		qglBindAttribLocationARB(program->program, ATTR_INDEX_BITANGENT, "attr_Bitangent");
 
 	if(attribs & ATTR_NORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_NORMAL, "attr_Normal");
@@ -925,8 +962,6 @@ void GLSL_FinishGPUShader(shaderProgram_t *program)
 			}
 		}
 
-		ri.Printf(PRINT_ALL, "size %d\n", size);
-
 		program->uniformBuffer = ri.Malloc(size);
 
 	}
@@ -955,6 +990,8 @@ void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value)
 		return;
 	}
 
+	*compare = value;
+
 	qglUniform1iARB(uniforms[uniformNum], value);
 }
 
@@ -976,6 +1013,8 @@ void GLSL_SetUniformFloat(shaderProgram_t *program, int uniformNum, GLfloat valu
 	{
 		return;
 	}
+
+	*compare = value;
 	
 	qglUniform1fARB(uniforms[uniformNum], value);
 }
@@ -999,6 +1038,9 @@ void GLSL_SetUniformVec2(shaderProgram_t *program, int uniformNum, const vec2_t 
 		return;
 	}
 
+	compare[0] = v[0];
+	compare[1] = v[1];
+
 	qglUniform2fARB(uniforms[uniformNum], v[0], v[1]);
 }
 
@@ -1020,6 +1062,8 @@ void GLSL_SetUniformVec3(shaderProgram_t *program, int uniformNum, const vec3_t 
 	{
 		return;
 	}
+
+	VectorCopy(v, compare);
 
 	qglUniform3fARB(uniforms[uniformNum], v[0], v[1], v[2]);
 }
@@ -1043,6 +1087,8 @@ void GLSL_SetUniformVec4(shaderProgram_t *program, int uniformNum, const vec4_t 
 		return;
 	}
 
+	VectorCopy4(v, compare);
+
 	qglUniform4fARB(uniforms[uniformNum], v[0], v[1], v[2], v[3]);
 }
 
@@ -1064,6 +1110,8 @@ void GLSL_SetUniformMatrix16(shaderProgram_t *program, int uniformNum, const mat
 	{
 		return;
 	}
+
+	Matrix16Copy(matrix, compare);
 
 	qglUniformMatrix4fvARB(uniforms[uniformNum], 1, GL_FALSE, matrix);
 }
@@ -1233,18 +1281,19 @@ void GLSL_InitGPUShaders(void)
 
 	attribs = ATTR_POSITION | ATTR_TEXCOORD;
 
-	if (!GLSL_InitGPUShader(&tr.textureOnlyShader, "textureonly", attribs, qtrue, NULL, qfalse, fallbackTextureOnlyShader_vp, fallbackTextureOnlyShader_fp, TEXTUREONLY_UNIFORM_COUNT))
+	if (!GLSL_InitGPUShader(&tr.textureColorShader, "texturecolor", attribs, qtrue, NULL, qfalse, fallbackTextureColorShader_vp, fallbackTextureColorShader_fp, TEXTURECOLOR_UNIFORM_COUNT))
 	{
-		ri.Error(ERR_FATAL, "Could not load textureonly shader!\n");
+		ri.Error(ERR_FATAL, "Could not load texturecolor shader!\n");
 	}
 	
-	GLSL_AddUniform(&tr.textureOnlyShader, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, "u_ModelViewProjectionMatrix", GLSL_MAT16);
-	GLSL_AddUniform(&tr.textureOnlyShader, TEXTUREONLY_UNIFORM_TEXTURE0MAP,               "u_Texture0Map",               GLSL_INT);
+	GLSL_AddUniform(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, "u_ModelViewProjectionMatrix", GLSL_MAT16);
+	GLSL_AddUniform(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_COLOR,                     "u_Color",                     GLSL_VEC4);
+	GLSL_AddUniform(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_TEXTURE0MAP,               "u_Texture0Map",               GLSL_INT);
 
-	GLSL_FinishGPUShader(&tr.textureOnlyShader);
+	GLSL_FinishGPUShader(&tr.textureColorShader);
 
-	qglUseProgramObjectARB(tr.textureOnlyShader.program);
-	GLSL_SetUniformInt(&tr.textureOnlyShader, TEXTUREONLY_UNIFORM_TEXTURE0MAP, 0);
+	qglUseProgramObjectARB(tr.textureColorShader.program);
+	GLSL_SetUniformInt(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_TEXTURE0MAP, 0);
 	qglUseProgramObjectARB(0);
 
 
@@ -1290,6 +1339,34 @@ void GLSL_InitGPUShaders(void)
 	GLSL_FinishGPUShader(&tr.dlightShader);
 	
 	
+	attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_COLOR | ATTR_TANGENT | ATTR_BITANGENT;
+	
+	if (!GLSL_InitGPUShader(&tr.deluxemappedShader, "deluxemapped", attribs, qtrue, extradefines, qfalse, fallbackDeluxemappedShader_vp, fallbackDeluxemappedShader_fp, GENERIC_UNIFORM_COUNT))
+	{
+		ri.Error(ERR_FATAL, "Could not load generic shader!\n");
+	}
+
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, "u_ModelViewProjectionMatrix", GLSL_MAT16);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_MODELMATRIX,               "u_ModelMatrix",               GLSL_MAT16);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE0MATRIX,            "u_Texture0Matrix",            GLSL_MAT16);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_VIEWORIGIN,                "u_ViewOrigin",                GLSL_VEC3);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE0MAP,               "u_Texture0Map",               GLSL_INT);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE1MAP,               "u_Texture1Map",               GLSL_INT);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE2MAP,               "u_Texture2Map",               GLSL_INT);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE3MAP,               "u_Texture3Map",               GLSL_INT);
+	GLSL_AddUniform(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE4MAP,               "u_Texture4Map",               GLSL_INT);
+
+	GLSL_FinishGPUShader(&tr.deluxemappedShader);
+
+	qglUseProgramObjectARB(tr.deluxemappedShader.program);
+	GLSL_SetUniformInt(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE0MAP, 0);
+	GLSL_SetUniformInt(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE1MAP, 1);
+	GLSL_SetUniformInt(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE2MAP, 2);
+	GLSL_SetUniformInt(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE3MAP, 3);
+	GLSL_SetUniformInt(&tr.deluxemappedShader, GENERIC_UNIFORM_TEXTURE4MAP, 4);
+	qglUseProgramObjectARB(0);
+		
+		
 	endTime = ri.Milliseconds();
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
@@ -1307,6 +1384,8 @@ void GLSL_ShutdownGPUShaders(void)
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION2);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL2);
+	qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+	qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 	GLSL_BindNullProgram();
 
@@ -1315,10 +1394,11 @@ void GLSL_ShutdownGPUShaders(void)
 		GLSL_DeleteGPUShader(&tr.genericShader[i]);
 	}
 
-	GLSL_DeleteGPUShader(&tr.textureOnlyShader);
+	GLSL_DeleteGPUShader(&tr.textureColorShader);
 	GLSL_DeleteGPUShader(&tr.lightmappedShader);
 	GLSL_DeleteGPUShader(&tr.fogShader);
 	GLSL_DeleteGPUShader(&tr.dlightShader);
+	GLSL_DeleteGPUShader(&tr.deluxemappedShader);
 	
 	glState.currentProgram = 0;
 	qglUseProgramObjectARB(0);
@@ -1431,6 +1511,34 @@ void GLSL_VertexAttribsState(uint32_t stateBits)
 		}
 	}
 
+	if(diff & ATTR_TANGENT)
+	{
+		if(stateBits & ATTR_TANGENT)
+		{
+			GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_TANGENT )\n");
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+		else
+		{
+			GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_TANGENT )\n");
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
+		}
+	}
+
+	if(diff & ATTR_BITANGENT)
+	{
+		if(stateBits & ATTR_BITANGENT)
+		{
+			GLimp_LogComment("qglEnableVertexAttribArrayARB( ATTR_INDEX_BITANGENT )\n");
+			qglEnableVertexAttribArrayARB(ATTR_INDEX_BITANGENT);
+		}
+		else
+		{
+			GLimp_LogComment("qglDisableVertexAttribArrayARB( ATTR_INDEX_BITANGENT )\n");
+			qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT);
+		}
+	}
+
 	if(diff & ATTR_COLOR)
 	{
 		if(stateBits & ATTR_COLOR)
@@ -1519,6 +1627,22 @@ void GLSL_VertexAttribPointers(uint32_t attribBits)
 		glState.vertexAttribPointersSet |= ATTR_NORMAL;
 	}
 
+	if((attribBits & ATTR_TANGENT) && !(glState.vertexAttribPointersSet & ATTR_TANGENT))
+	{
+		GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_TANGENT )\n");
+
+		qglVertexAttribPointerARB(ATTR_INDEX_TANGENT, 3, GL_FLOAT, 0, glState.currentVBO->stride_tangent, BUFFER_OFFSET(glState.currentVBO->ofs_tangent + glState.vertexAttribsNewFrame * glState.currentVBO->size_normal)); // FIXME
+		glState.vertexAttribPointersSet |= ATTR_TANGENT;
+	}
+
+	if((attribBits & ATTR_BITANGENT) && !(glState.vertexAttribPointersSet & ATTR_BITANGENT))
+	{
+		GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_BITANGENT )\n");
+
+		qglVertexAttribPointerARB(ATTR_INDEX_BITANGENT, 3, GL_FLOAT, 0, glState.currentVBO->stride_bitangent, BUFFER_OFFSET(glState.currentVBO->ofs_bitangent + glState.vertexAttribsNewFrame * glState.currentVBO->size_normal)); // FIXME
+		glState.vertexAttribPointersSet |= ATTR_BITANGENT;
+	}
+
 	if((attribBits & ATTR_COLOR) && !(glState.vertexAttribPointersSet & ATTR_COLOR))
 	{
 		GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_COLOR )\n");
@@ -1551,7 +1675,23 @@ shaderProgram_t *GLSL_GetGenericShaderProgram()
 
 	if (tess.fogNum)
 	{
-		shaderAttribs |= GLSLDEF_USE_FOG;
+		int stage;
+
+		for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+		{
+			shaderStage_t *pStage = tess.xstages[stage];
+
+			if ( !pStage )
+			{
+				break;
+			}
+
+			if ( pStage->adjustColorsForFog)
+			{
+				shaderAttribs |= GLSLDEF_USE_FOG;
+				break;
+			}
+		}
 	}
 
 	// swapping these two out causes the worse case frame time to increase due to too many context switches

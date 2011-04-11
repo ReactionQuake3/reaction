@@ -634,6 +634,22 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				}
 				continue;
 			}
+			else if ( !Q_stricmp( token, "$deluxemap" ) )
+			{
+				if (!tr.worldDeluxeMapping)
+				{
+					ri.Printf( PRINT_WARNING, "WARNING: shader '%s' wants a deluxe map in a map compiled without them\n", shader.name );
+					return qfalse;
+				}
+
+				stage->bundle[0].isLightmap = qtrue;
+				if ( shader.lightmapIndex < 0 ) {
+					stage->bundle[0].image[0] = tr.whiteImage;
+				} else {
+					stage->bundle[0].image[0] = tr.deluxemaps[shader.lightmapIndex];
+				}
+				continue;
+			}
 			else
 			{
 				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
@@ -800,6 +816,36 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 		}
 		//
+		// stage <type>
+		//
+		else if(!Q_stricmp(token, "stage"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if(token[0] == 0)
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameters for stage in shader '%s'\n", shader.name);
+				continue;
+			}
+
+			 if(!Q_stricmp(token, "diffuseMap"))
+			{
+				stage->type = ST_DIFFUSEMAP;
+			}
+			else if(!Q_stricmp(token, "normalMap") || !Q_stricmp(token, "bumpMap"))
+			{
+				stage->type = ST_NORMALMAP;
+			}
+			else if(!Q_stricmp(token, "specularMap"))
+			{
+				stage->type = ST_SPECULARMAP;
+			}
+			else
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: unknown stage parameter '%s' in shader '%s'\n", token, shader.name);
+				continue;
+			}
+		}
+		//
 		// rgbGen
 		//
 		else if ( !Q_stricmp( token, "rgbGen" ) )
@@ -928,6 +974,10 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				{
 					shader.portalRange = atof( token );
 				}
+			}
+			else if ( !Q_stricmp( token, "fresnel" ) )
+			{
+				stage->alphaGen = AGEN_FRESNEL;
 			}
 			else
 			{
@@ -1807,11 +1857,16 @@ static void ComputeVertexAttribs(void)
 			break;
 		}
 
-		for (i = 0; i < 2; i++)
+		if (pStage->glslShader)
 		{
-			if (i == 1 && ( pStage->bundle[1].image[0] == 0 ))
+			shader.vertexAttribs |= ATTR_NORMAL | ATTR_BITANGENT | ATTR_TANGENT;
+		}
+
+		for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
+		{
+			if ( pStage->bundle[i].image[0] == 0 )
 			{
-				break;
+				continue;
 			}
 
 			switch(pStage->bundle[i].tcGen)
@@ -1850,12 +1905,17 @@ static void ComputeVertexAttribs(void)
 		switch(pStage->alphaGen)
 		{
 			case AGEN_LIGHTING_SPECULAR:
+			case AGEN_FRESNEL:
 				shader.vertexAttribs |= ATTR_NORMAL;
 				break;
 
 			case AGEN_VERTEX:
 			case AGEN_ONE_MINUS_VERTEX:
 				shader.vertexAttribs |= ATTR_COLOR;
+				break;
+
+			case CGEN_LIGHTING_DIFFUSE:
+				shader.vertexAttribs |= ATTR_NORMAL;
 				break;
 
 			default:
@@ -2018,6 +2078,117 @@ static qboolean CollapseMultitexture( void ) {
 	Com_Memset( &stages[MAX_SHADER_STAGES-1], 0, sizeof( stages[0] ) );
 
 	return qtrue;
+}
+
+static qboolean CollapseStagesToGLSL(void)
+{
+	int i, numStages;
+	shaderStage_t *diffuse, *lightmap, *normal, *specular;
+
+	diffuse  = NULL;
+	lightmap = NULL;
+	normal   = NULL;
+	specular = NULL;
+
+	// find all the stages that are important
+	for (i = 0; i < MAX_SHADER_STAGES; i++)
+	{
+		shaderStage_t *pStage = &stages[i];
+		int blendbits;
+
+		if (!pStage->active)
+			continue;
+
+		blendbits = pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);
+
+		if (pStage->bundle[0].isLightmap && 
+			(blendbits == (GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO) ||
+			 blendbits == (GLS_SRCBLEND_ZERO | GLS_DSTBLEND_SRC_COLOR)))
+		{
+			lightmap = pStage;
+		}
+		else
+		{
+			switch (pStage->type)
+			{
+				case ST_DIFFUSEMAP:
+					diffuse = pStage;
+					break;
+				case ST_NORMALMAP:
+					normal = pStage;
+					break;
+				case ST_SPECULARMAP:
+					specular = pStage;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	// if we've got these, use deluxemapped shader
+	if (diffuse && lightmap && normal)
+	{
+		if (tr.worldDeluxeMapping)
+		{
+			// reuse diffuse, mark others inactive
+			diffuse->type = ST_GLSL;
+			diffuse->glslShader = &tr.deluxemappedShader;
+
+			diffuse->bundle[TB_LIGHTMAP]    = lightmap->bundle[0];
+			diffuse->bundle[TB_NORMALMAP]   = normal->bundle[0];
+
+			if (specular)
+			{
+				diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
+			}
+			else
+			{
+				diffuse->bundle[TB_SPECULARMAP] = diffuse->bundle[0];
+				diffuse->bundle[TB_SPECULARMAP].image[0] = tr.blackImage;
+			}
+
+			diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
+			diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
+
+			lightmap->active = qfalse;
+			normal->active   = qfalse;
+
+			if (specular)
+			{
+				specular->active = qfalse;
+			}
+		}
+		else
+		{
+			// no deluxe mapping, turn off normal and specular
+			normal->active = qfalse;
+			specular->active = qfalse;
+		}
+	}
+
+	// condense stages
+	numStages = 0;
+	for (i = 0; i < MAX_SHADER_STAGES; i++)
+	{
+		if (!stages[i].active)
+			continue;
+
+		if (i == numStages)
+		{
+			numStages++;
+			continue;
+		}
+
+		stages[numStages] = stages[i];
+		stages[i].active = qfalse;
+		numStages++;
+	}
+
+	if (numStages == i && i == 2 && CollapseMultitexture())
+		numStages--;
+
+	return numStages;
 }
 
 /*
@@ -2435,9 +2606,7 @@ static shader_t *FinishShader( void ) {
 	//
 	// look for multitexture potential
 	//
-	if ( stage > 1 && CollapseMultitexture() ) {
-		stage--;
-	}
+	stage = CollapseStagesToGLSL();
 
 	if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
 		if (vertexLightmap) {

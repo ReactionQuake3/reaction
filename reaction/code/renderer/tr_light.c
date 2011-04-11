@@ -175,13 +175,19 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		byte	*data;
 		int		lat, lng;
 		vec3_t	normal;
+		qboolean ignore;
 		#if idppc
 		float d0, d1, d2, d3, d4, d5;
 		#endif
 		factor = 1.0;
 		data = gridData;
+		ignore = qfalse;
 		for ( j = 0 ; j < 3 ; j++ ) {
 			if ( i & (1<<j) ) {
+				if ((pos[j] + 1) >= tr.world->lightGridBounds[j] - 1)
+				{
+					ignore = qtrue; // ignore values outside lightgrid
+				}
 				factor *= frac[j];
 				data += gridStep[j];
 			} else {
@@ -189,7 +195,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 			}
 		}
 
-		if ( !(data[0]+data[1]+data[2]) ) {
+		if ( ignore || !(data[0]+data[1]+data[2]+data[3]+data[4]+data[5]) ) {
 			continue;	// ignore samples in walls
 		}
 		totalFactor += factor;

@@ -218,12 +218,15 @@ void RB_InstantQuad(vec4_t quadVerts[4])
 
 	if (glRefConfig.glsl && r_arb_shader_objects->integer)
 	{
-		shaderProgram_t *sp = &tr.textureOnlyShader;
+		shaderProgram_t *sp = &tr.textureColorShader;
+		vec4_t color;
 
 		GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
 		GLSL_BindProgram(sp);
 			
-		GLSL_SetUniformMatrix16(sp, TEXTUREONLY_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+		GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+		VectorSet4(color, 1, 1, 1, 1);
+		GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
 	}
 	else
 	{
@@ -335,7 +338,7 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 	int			i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *normal, *texCoords;
+	float          *xyz, *normal, *tangent, *bitangent, *texCoords;
 	glIndex_t      *index;
 	byte		*color;
 	qboolean	needsNormal;
@@ -354,6 +357,8 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 	dv = verts;
 	xyz = tess.xyz[ tess.numVertexes ];
 	normal = tess.normal[ tess.numVertexes ];
+	tangent = tess.tangent[ tess.numVertexes ];
+	bitangent = tess.bitangent[ tess.numVertexes ];
 	texCoords = tess.texCoords[ tess.numVertexes ][0];
 	color = tess.vertexColors[ tess.numVertexes ];
 	needsNormal = tess.shader->vertexAttribs & ATTR_NORMAL;
@@ -367,6 +372,12 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 			normal[0] = dv->normal[0];
 			normal[1] = dv->normal[1];
 			normal[2] = dv->normal[2];
+			tangent[0] = dv->tangent[0];
+			tangent[1] = dv->tangent[1];
+			tangent[2] = dv->tangent[2];
+			bitangent[0] = dv->bitangent[0];
+			bitangent[1] = dv->bitangent[1];
+			bitangent[2] = dv->bitangent[2];
 		}
 
 		texCoords[0] = dv->st[0];
@@ -514,7 +525,6 @@ static void RB_SurfaceBeam( void )
 	vec3_t direction, normalized_direction;
 	vec3_t	start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
-	matrix_t matrix;
 	vec4_t color;
 
 	e = &backEnd.currentEntity->e;
@@ -576,27 +586,18 @@ static void RB_SurfaceBeam( void )
 		
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			shaderProgram_t *sp = GLSL_GetGenericShaderProgram();
+			shaderProgram_t *sp = &tr.textureColorShader;
 
 			GLSL_VertexAttribsState(ATTR_POSITION);
 			GLSL_BindProgram(sp);
 			
-			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-			
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_DEFORMGEN, DGEN_NONE);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TCGEN0, TCGEN_IDENTITY);
-			Matrix16Identity(matrix);
-			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_TEXTURE0MATRIX, matrix);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_TEXTURE1ENV, 0);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_COLORGEN, CGEN_CONST);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, AGEN_CONST);
-			
+			GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+						
 			color[0] = 1.0f;
 			color[1] = 0.0f;
 			color[2] = 0.0f;
 			color[3] = 1.0f;
-			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, color);
+			GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
 		}
 		else
 		{
@@ -1295,7 +1296,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	int		i, j;
 	float	*xyz;
 	float	*texCoords;
-	float	*normal;
+	float	*normal, *tangent, *bitangent;
 	unsigned char *color;
 	srfVert_t	*dv;
 	int		rows, irows, vrows;
@@ -1377,6 +1378,8 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 
 		xyz = tess.xyz[numVertexes];
 		normal = tess.normal[numVertexes];
+		tangent = tess.tangent[numVertexes];
+		bitangent = tess.bitangent[numVertexes];
 		texCoords = tess.texCoords[numVertexes][0];
 		color = ( unsigned char * ) &tess.vertexColors[numVertexes];
 		//vDlightBits = &tess.vertexDlightBits[numVertexes];
@@ -1398,6 +1401,12 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 					normal[0] = dv->normal[0];
 					normal[1] = dv->normal[1];
 					normal[2] = dv->normal[2];
+					tangent[0] = dv->tangent[0];
+					tangent[1] = dv->tangent[1];
+					tangent[2] = dv->tangent[2];
+					bitangent[0] = dv->bitangent[0];
+					bitangent[1] = dv->bitangent[1];
+					bitangent[2] = dv->bitangent[2];
 				}
 				* ( unsigned int * ) color = * ( unsigned int * ) dv->vertexColors;
 				//*vDlightBits++ = dlightBits;
