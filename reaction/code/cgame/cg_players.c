@@ -1341,8 +1341,11 @@ static void CG_SetWeaponLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAn
 		//CG_Printf( "Snap Weapon: %i\n", cg.snap->ps.weapon);
 		//CG_Printf( "Desired Weapon: %i\n", cg.weaponSelect);
 	}
+
 	//Elder: reset frame so there is no lerping between new animations
-	lf->oldFrame = lf->frame = lf->animation->firstFrame;
+	// Paril: Only do this if the new animation is activation. It looked too jerky.
+	if (newAnimation == WP_ANIM_ACTIVATE)
+		lf->oldFrame = lf->frame = lf->animation->firstFrame;
 
 }
 
