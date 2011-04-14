@@ -1319,15 +1319,18 @@ may include ANIM_TOGGLEBIT
 static void CG_SetWeaponLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAnimation)
 {
 	animation_t *anim;
+	qboolean isActivate;
 
 	lf->animationNumber = newAnimation;
 	newAnimation &= ~ANIM_TOGGLEBIT;
+
+	isActivate = (newAnimation == WP_ANIM_ACTIVATE || newAnimation == WP_ANIM_THROWACTIVATE);
 
 	if (newAnimation < 0 || newAnimation >= MAX_WEAPON_ANIMATIONS) {
 		CG_Error("Bad weapon animation number: %i", newAnimation);
 	}
 	// Elder: selecting the right weapon animation
-	if (newAnimation == WP_ANIM_ACTIVATE || newAnimation == WP_ANIM_THROWACTIVATE)
+	if (isActivate)
 		anim = &cg_weapons[cg.weaponSelect].animations[newAnimation];
 	else
 		anim = &cg_weapons[cg.snap->ps.weapon].animations[newAnimation];
@@ -1344,7 +1347,7 @@ static void CG_SetWeaponLerpFrame(clientInfo_t * ci, lerpFrame_t * lf, int newAn
 
 	//Elder: reset frame so there is no lerping between new animations
 	// Paril: Only do this if the new animation is activation. It looked too jerky.
-	if (newAnimation == WP_ANIM_ACTIVATE)
+	if (isActivate)
 		lf->oldFrame = lf->frame = lf->animation->firstFrame;
 
 }
