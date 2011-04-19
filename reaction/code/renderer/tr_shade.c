@@ -1318,7 +1318,7 @@ static void ForwardDlightVBOGLSL( void ) {
 
 		//if (pStage->glslShaderGroup == tr.lightallShader)
 		{
-			sp = &tr.lightallShader[pStage->glslShaderIndex & ~LIGHTDEF_USE_LIGHTMAP];
+			sp = &tr.lightallShader[pStage->glslShaderIndex & ~(LIGHTDEF_USE_LIGHTMAP | LIGHTDEF_USE_DELUXEMAP)];
 		}
 
 		backEnd.pc.c_lightallDraws++;
