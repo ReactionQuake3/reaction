@@ -99,6 +99,7 @@ typedef struct {
 	vec3_t		axis[3];		// orientation in world
 	vec3_t		viewOrigin;		// viewParms->or.origin in local coordinates
 	float		modelMatrix[16];
+	float		transformMatrix[16];
 } orientationr_t;
 
 typedef struct image_s {
@@ -277,8 +278,7 @@ typedef enum {
 	CGEN_WAVEFORM,			// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,				// standard fog
-	CGEN_CONST,				// fixed color
-	CGEN_DLIGHT
+	CGEN_CONST				// fixed color
 } colorGen_t;
 
 typedef enum
@@ -404,6 +404,7 @@ typedef enum
 	ST_COLORMAP = 0,			// vanilla Q3A style shader treatening
 	ST_DIFFUSEMAP = 0,          // treat color and diffusemap the same
 	ST_NORMALMAP,
+	ST_NORMALPARALLAXMAP,
 	ST_SPECULARMAP,
 	ST_GLSL
 } stageType_t;
@@ -438,7 +439,8 @@ typedef struct {
 
 	qboolean		isDetail;
 
-	struct shaderProgram_s *glslShader;
+	struct shaderProgram_s *glslShaderGroup;
+	int glslShaderIndex;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -706,12 +708,26 @@ enum
 
 enum
 {
-	GLSLDEF_USE_DEFORM_VERTEXES  = 0x0001,
-	GLSLDEF_USE_TCGEN            = 0x0002,
-	GLSLDEF_USE_VERTEX_ANIMATION = 0x0004,
-	GLSLDEF_USE_FOG              = 0x0008,
-	GLSLDEF_ALL                  = 0x000F,
-	GLSLDEF_COUNT                = 0x0010,
+	GENERICDEF_USE_DEFORM_VERTEXES  = 0x0001,
+	GENERICDEF_USE_TCGEN            = 0x0002,
+	GENERICDEF_USE_VERTEX_ANIMATION = 0x0004,
+	GENERICDEF_USE_FOG              = 0x0008,
+	GENERICDEF_USE_RGBAGEN          = 0x0010,
+	GENERICDEF_ALL                  = 0x001F,
+	GENERICDEF_COUNT                = 0x0020,
+};
+
+enum
+{
+	LIGHTDEF_USE_LIGHTMAP      = 0x0001,
+	LIGHTDEF_USE_NORMALMAP     = 0x0002,
+	LIGHTDEF_USE_SPECULARMAP   = 0x0004,
+	LIGHTDEF_USE_DELUXEMAP     = 0x0008,
+	LIGHTDEF_USE_PARALLAXMAP   = 0x0010,
+	LIGHTDEF_TCGEN_ENVIRONMENT = 0x0020,
+	LIGHTDEF_ENTITY         = 0x0040,
+	LIGHTDEF_ALL               = 0x007F,
+	LIGHTDEF_COUNT             = 0x0080
 };
 
 enum
@@ -746,19 +762,8 @@ typedef struct shaderProgram_s
 
 enum
 {
-	LIGHTMAPPED_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
-	LIGHTMAPPED_UNIFORM_TEXTURE0MATRIX,
-	LIGHTMAPPED_UNIFORM_TEXTURE1ENV,
-	LIGHTMAPPED_UNIFORM_TEXTURE0MAP,
-	LIGHTMAPPED_UNIFORM_TEXTURE1MAP,
-	LIGHTMAPPED_UNIFORM_COUNT
-};
-
-
-enum
-{
 	TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX = 0,
-	TEXTURECOLOR_UNIFORM_TEXTURE0MAP,
+	TEXTURECOLOR_UNIFORM_DIFFUSEMAP,
 	TEXTURECOLOR_UNIFORM_COLOR,
 	TEXTURECOLOR_UNIFORM_COUNT
 };
@@ -783,7 +788,8 @@ enum
 
 enum
 {
-	DLIGHT_UNIFORM_DLIGHTINFO = 0,
+	DLIGHT_UNIFORM_DIFFUSEMAP = 0,
+	DLIGHT_UNIFORM_DLIGHTINFO,
 	DLIGHT_UNIFORM_DEFORMGEN,
 	DLIGHT_UNIFORM_DEFORMWAVE,
 	DLIGHT_UNIFORM_DEFORMBULGE,
@@ -798,12 +804,14 @@ enum
 
 enum
 {
-	GENERIC_UNIFORM_TEXTURE0MAP = 0,
-	GENERIC_UNIFORM_TEXTURE1MAP,
-	GENERIC_UNIFORM_TEXTURE2MAP,
-	GENERIC_UNIFORM_TEXTURE3MAP,
-	GENERIC_UNIFORM_TEXTURE4MAP,
-	GENERIC_UNIFORM_TEXTURE0MATRIX,
+	GENERIC_UNIFORM_DIFFUSEMAP = 0,
+	GENERIC_UNIFORM_LIGHTMAP,
+	GENERIC_UNIFORM_NORMALMAP,
+	GENERIC_UNIFORM_DELUXEMAP,
+	GENERIC_UNIFORM_SPECULARMAP,
+	GENERIC_UNIFORM_DIFFUSETEXMATRIX,
+	GENERIC_UNIFORM_NORMALTEXMATRIX,
+	GENERIC_UNIFORM_SPECULARTEXMATRIX,
 	GENERIC_UNIFORM_TEXTURE1ENV,
 	GENERIC_UNIFORM_VIEWORIGIN,
 	GENERIC_UNIFORM_TCGEN0,
@@ -818,7 +826,8 @@ enum
 	GENERIC_UNIFORM_COLOR,
 	GENERIC_UNIFORM_AMBIENTLIGHT,
 	GENERIC_UNIFORM_DIRECTEDLIGHT,
-	GENERIC_UNIFORM_LIGHTDIR,
+	GENERIC_UNIFORM_LIGHTORIGIN,
+	GENERIC_UNIFORM_LIGHTSCALESQR,
 	GENERIC_UNIFORM_PORTALRANGE,
 	GENERIC_UNIFORM_FOGDISTANCE,
 	GENERIC_UNIFORM_FOGDEPTH,
@@ -1315,6 +1324,8 @@ typedef struct
 {
 	vec3_t          xyz;
 	vec3_t          normal;
+	vec3_t          tangent;
+	vec3_t          bitangent;
 } mdvVertex_t;
 
 typedef struct
@@ -1526,7 +1537,7 @@ typedef struct {
 
 	int     c_glslShaderBinds;
 	int     c_genericDraws;
-	int     c_lightmappedDraws;
+	int     c_lightallDraws;
 	int     c_fogDraws;
 	int     c_dlightDraws;
 
@@ -1636,12 +1647,11 @@ typedef struct {
 	// GPU shader programs
 	//
 
-	shaderProgram_t genericShader[GLSLDEF_COUNT];
-	shaderProgram_t lightmappedShader;
+	shaderProgram_t genericShader[GENERICDEF_COUNT];
 	shaderProgram_t textureColorShader;
 	shaderProgram_t fogShader;
-	shaderProgram_t dlightShader;
-	shaderProgram_t deluxemappedShader;
+	shaderProgram_t dlightallShader;
+	shaderProgram_t lightallShader[LIGHTDEF_COUNT];
 
 
 	// -----------------------------------------
@@ -1839,6 +1849,12 @@ extern	cvar_t	*r_anaglyphMode;
 extern  cvar_t  *r_mergeMultidraws;
 extern  cvar_t  *r_mergeLeafSurfaces;
 
+extern  cvar_t  *r_normalMapping;
+extern  cvar_t  *r_specularMapping;
+extern  cvar_t  *r_deluxeMapping;
+extern  cvar_t  *r_parallaxMapping;
+extern  cvar_t  *r_normalAmbient;
+
 extern	cvar_t	*r_greyscale;
 
 extern	cvar_t	*r_ignoreGLErrors;
@@ -1879,6 +1895,8 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
+void R_CalcTangentSpace(vec3_t tangent, vec3_t bitangent, vec3_t normal,
+                        const vec3_t v0, const vec3_t v1, const vec3_t v2, const vec2_t t0, const vec2_t t1, const vec2_t t2);
 qboolean R_CalcTangentVectors(srfVert_t * dv[3]);
 void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles);
 void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts);
@@ -2100,7 +2118,6 @@ void RB_StageIteratorGeneric( void );
 void RB_StageIteratorGenericVBO( void );
 void RB_StageIteratorSky( void );
 void RB_StageIteratorVertexLitTexture( void );
-void RB_StageIteratorLightmappedMultitextureVBOGLSL( void );
 void RB_StageIteratorLightmappedMultitexture( void );
 
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
@@ -2272,7 +2289,7 @@ void GLSL_SetUniformVec3(shaderProgram_t *program, int uniformNum, const vec3_t 
 void GLSL_SetUniformVec4(shaderProgram_t *program, int uniformNum, const vec4_t v);
 void GLSL_SetUniformMatrix16(shaderProgram_t *program, int uniformNum, const matrix_t matrix);
 
-shaderProgram_t *GLSL_GetGenericShaderProgram(void);
+shaderProgram_t *GLSL_GetGenericShaderProgram(int stage);
 
 /*
 ============================================================

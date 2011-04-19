@@ -371,10 +371,19 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 	
 	// transform the direction to local space
+	// no need to do this if using lightentity glsl shader
 	VectorNormalize( lightDir );
-	ent->lightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
-	ent->lightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
-	ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer &&
+		glRefConfig.glsl && r_arb_shader_objects->integer)
+	{
+		VectorCopy(lightDir, ent->lightDir);
+	}
+	else
+	{
+		ent->lightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
+		ent->lightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
+		ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
+	}
 }
 
 /*

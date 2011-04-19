@@ -2655,11 +2655,18 @@ void R_LoadEntities( lump_t *l ) {
 			continue;
 		}
 
+		// check for deluxe mapping support
+		if(!Q_stricmp(keyname, "deluxeMapping") && !Q_stricmp(value, "1"))
+		{
+			ri.Printf(PRINT_ALL, "map features directional light mapping\n");
+			tr.worldDeluxeMapping = qtrue;
+			continue;
+		}
+
 		// check for deluxe mapping provided by NetRadiant's q3map2
 		//FIXME: xmap2?
 		if(!Q_stricmp(keyname, "_q3map2_cmdline"))
 		{
-			ri.Printf(PRINT_ALL, "wtf? %s %s\n", keyname, value);
 			s = strstr(value, "-deluxe");
 			if(s)
 			{
