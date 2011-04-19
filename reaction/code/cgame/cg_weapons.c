@@ -1423,7 +1423,8 @@ void CG_AddPlayerWeapon( refEntity_t * parent, playerState_t * ps, centity_t * c
 
 				if (cg.curSyncSound.played == qfalse) {
 					cg.curSyncSound.played = qtrue;
-					trap_S_StartLocalSound(cg.curSyncSound.sound, CHAN_WEAPON);
+					// Makro - no longer local in order to have reverb effect applied
+					trap_S_StartSound(NULL, cent->currentState.clientNum, CHAN_WEAPON, cg.curSyncSound.sound);
 				}
 			}
 		}
