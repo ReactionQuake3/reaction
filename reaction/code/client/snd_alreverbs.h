@@ -10,14 +10,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.0730298f,	\
 		/*flReflectionsDelay*/  	0.007f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.142725f,	\
 		/*flLateReverbDelay*/   	0.011f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -41,14 +45,18 @@
 		/*flDecayLFRatio*/      	0.91f,  	\
 		/*flReflectionsGain*/   	0.707946f,	\
 		/*flReflectionsDelay*/  	0.046f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.25893f,	\
 		/*flLateReverbDelay*/   	0.028f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.125f, 	\
 		/*flEchoDepth*/         	0.21f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -72,14 +80,18 @@
 		/*flDecayLFRatio*/      	0.91f,  	\
 		/*flReflectionsGain*/   	0.398107f,	\
 		/*flReflectionsDelay*/  	0.059f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.891251f,	\
 		/*flLateReverbDelay*/   	0.037f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.14f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -103,14 +115,18 @@
 		/*flDecayLFRatio*/      	0.91f,  	\
 		/*flReflectionsGain*/   	0.446684f,	\
 		/*flReflectionsDelay*/  	0.044f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.281838f,	\
 		/*flLateReverbDelay*/   	0.024f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.2f,   	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -134,14 +150,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.250035f,	\
 		/*flReflectionsDelay*/  	0.007f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.995405f,	\
 		/*flLateReverbDelay*/   	0.011f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.125f, 	\
 		/*flEchoDepth*/         	0.95f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -165,14 +185,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.208209f,	\
 		/*flReflectionsDelay*/  	0.008f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.265155f,	\
 		/*flLateReverbDelay*/   	0.012f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -196,14 +220,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	1.6387f,	\
 		/*flReflectionsDelay*/  	0.014f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	3.24713f,	\
 		/*flLateReverbDelay*/   	0.021f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -227,14 +255,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.653131f,	\
 		/*flReflectionsDelay*/  	0.007f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	3.27341f,	\
 		/*flLateReverbDelay*/   	0.011f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -258,14 +290,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.441062f,	\
 		/*flReflectionsDelay*/  	0.012f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.10027f,	\
 		/*flLateReverbDelay*/   	0.017f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -289,14 +325,18 @@
 		/*flDecayLFRatio*/      	0.21f,  	\
 		/*flReflectionsGain*/   	0.501187f,	\
 		/*flReflectionsDelay*/  	0.002f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.25893f,	\
 		/*flLateReverbDelay*/   	0.006f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.202f, 	\
 		/*flEchoDepth*/         	0.05f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -320,14 +360,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.245754f,	\
 		/*flReflectionsDelay*/  	0.007f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.6615f,	\
 		/*flLateReverbDelay*/   	0.011f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -351,14 +395,18 @@
 		/*flDecayLFRatio*/      	1.23f,  	\
 		/*flReflectionsGain*/   	0.446684f,	\
 		/*flReflectionsDelay*/  	0.032f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.794328f,	\
 		/*flLateReverbDelay*/   	0.049f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -382,14 +430,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.403181f,	\
 		/*flReflectionsDelay*/  	0.02f,  	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.716968f,	\
 		/*flLateReverbDelay*/   	0.03f,  	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -413,14 +465,18 @@
 		/*flDecayLFRatio*/      	1.35f,  	\
 		/*flReflectionsGain*/   	0.398107f,	\
 		/*flReflectionsDelay*/  	0.029f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.562341f,	\
 		/*flLateReverbDelay*/   	0.045f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.146f, 	\
 		/*flEchoDepth*/         	0.14f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -444,14 +500,18 @@
 		/*flDecayLFRatio*/      	1.1f,   	\
 		/*flReflectionsGain*/   	0.0630957f,	\
 		/*flReflectionsDelay*/  	0.183f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.398107f,	\
 		/*flLateReverbDelay*/   	0.038f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -475,14 +535,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.261216f,	\
 		/*flReflectionsDelay*/  	0.02f,  	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.01859f,	\
 		/*flLateReverbDelay*/   	0.03f,  	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -506,14 +570,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.500035f,	\
 		/*flReflectionsDelay*/  	0.02f,  	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.25603f,	\
 		/*flLateReverbDelay*/   	0.03f,  	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -537,14 +605,18 @@
 		/*flDecayLFRatio*/      	1.31f,  	\
 		/*flReflectionsGain*/   	0.707946f,	\
 		/*flReflectionsDelay*/  	0.051f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.707946f,	\
 		/*flLateReverbDelay*/   	0.047f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.214f, 	\
 		/*flEchoDepth*/         	0.05f,  	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -568,14 +640,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.040738f,	\
 		/*flReflectionsDelay*/  	0.3f,   	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.191867f,	\
 		/*flLateReverbDelay*/   	0.1f,   	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	1.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -599,14 +675,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.0524807f,	\
 		/*flReflectionsDelay*/  	0.162f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	0.768245f,	\
 		/*flLateReverbDelay*/   	0.088f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.125f, 	\
 		/*flEchoDepth*/         	1.f,    	\
 		/*flModulationTime*/    	0.25f,  	\
@@ -630,14 +710,18 @@
 		/*flDecayLFRatio*/      	1.f,    	\
 		/*flReflectionsGain*/   	0.596348f,	\
 		/*flReflectionsDelay*/  	0.007f, 	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	7.07946f,	\
 		/*flLateReverbDelay*/   	0.011f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	1.18f,  	\
@@ -661,14 +745,18 @@
 		/*flDecayLFRatio*/      	0.56f,  	\
 		/*flReflectionsGain*/   	0.242661f,	\
 		/*flReflectionsDelay*/  	0.02f,  	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.25893f,	\
 		/*flLateReverbDelay*/   	0.029f, 	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.08f,  	\
 		/*flModulationTime*/    	2.742f, 	\
@@ -692,14 +780,18 @@
 		/*flDecayLFRatio*/      	2.f,    	\
 		/*flReflectionsGain*/   	0.f,    	\
 		/*flReflectionsDelay*/  	0.02f,  	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.41254f,	\
 		/*flLateReverbDelay*/   	0.03f,  	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.11f,  	\
 		/*flEchoDepth*/         	0.04f,  	\
 		/*flModulationTime*/    	2.109f, 	\
@@ -723,14 +815,18 @@
 		/*flDecayLFRatio*/      	0.56f,  	\
 		/*flReflectionsGain*/   	0.0398107f,	\
 		/*flReflectionsDelay*/  	0.f,    	\
+		{\
 		/*flReflectionsPan[0]*/ 	0.f,    	\
 		/*flReflectionsPan[1]*/ 	0.f,    	\
 		/*flReflectionsPan[2]*/ 	0.f,    	\
+		},\
 		/*flLateReverbGain*/    	1.12202f,	\
 		/*flLateReverbDelay*/   	0.f,    	\
+		{\
 		/*flLateReverbPan[0]*/  	0.f,    	\
 		/*flLateReverbPan[1]*/  	0.f,    	\
 		/*flLateReverbPan[2]*/  	0.f,    	\
+		},\
 		/*flEchoTime*/          	0.25f,  	\
 		/*flEchoDepth*/         	0.f,    	\
 		/*flModulationTime*/    	0.474f, 	\
@@ -754,14 +850,18 @@
 		/*flDecayLFRatio*/              1.f,	\
 		/*flReflectionsGain*/           0.05f,	\
 		/*flReflectionsDelay*/          0.007f,	\
+		{\
 		/*flReflectionsPan[0]*/         0.f,	\
 		/*flReflectionsPan[1]*/         0.f,	\
 		/*flReflectionsPan[2]*/         0.f,	\
+		},\
 		/*flLateReverbGain*/            1.26f,	\
 		/*flLateReverbDelay*/           0.011f,	\
+		{\
 		/*flLateReverbPan[0]*/          0.f,	\
 		/*flLateReverbPan[1]*/          0.f,	\
 		/*flLateReverbPan[2]*/          0.f,	\
+		},\
 		/*flEchoTime*/                  0.25f,	\
 		/*flEchoDepth*/                 0.f,	\
 		/*flModulationTime*/            0.25f,	\
