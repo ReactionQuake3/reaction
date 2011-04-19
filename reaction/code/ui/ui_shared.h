@@ -707,7 +707,9 @@ void UI_AddQuadToScene(qhandle_t hShader, const polyVert_t *verts);
 void UI_Render2DScene( void );
 void Rect_ToInnerCoords(rectDef_t *rect, float x, float y, float *resx, float *resy);
 
-#define UI_POLY_Z_OFFSET -0.00001f
+//#define UI_POLY_Z_OFFSET -0.00001f
+#define UI_POLY_Z_OFFSET 0.f
+
 //Makro - for all the lazy people
 #define IsBetween(a, min, max) ( (a) >= (min) && (a) <= (max) )
 #define PRINT_RECT(r) (r).x, (r).y, (r).w, (r).h
