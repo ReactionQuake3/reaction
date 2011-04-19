@@ -2666,8 +2666,8 @@ static void S_AL_ShutDownEffects(void)
 	Com_Memset(&s_alEffects, 0, sizeof(s_alEffects));
 
 	Cmd_RemoveCommand("s_alTestReverb");
-	Cmd_RemoveCommand("s_alDumpSoundShader");
-	Cmd_RemoveCommand("s_alDumpCustinfoparms");
+	Cmd_RemoveCommand("writesoundshader");
+	Cmd_RemoveCommand("writecustinfoparms");
 }
 
 /*
@@ -2726,52 +2726,47 @@ static qboolean S_AL_InitEFX( ALCdevice* alDevice )
 		return qfalse;
 	}
 
+#	define INIT_FUNCTION(name) q##name = qalGetProcAddress(#name); if (!q##name) return qfalse
+
 	// Get function pointers
-	qalGenEffects = (LPALGENEFFECTS)qalGetProcAddress("alGenEffects");
-	qalDeleteEffects = (LPALDELETEEFFECTS )qalGetProcAddress("alDeleteEffects");
-	qalIsEffect = (LPALISEFFECT )qalGetProcAddress("alIsEffect");
-	qalEffecti = (LPALEFFECTI)qalGetProcAddress("alEffecti");
-	qalEffectiv = (LPALEFFECTIV)qalGetProcAddress("alEffectiv");
-	qalEffectf = (LPALEFFECTF)qalGetProcAddress("alEffectf");
-	qalEffectfv = (LPALEFFECTFV)qalGetProcAddress("alEffectfv");
-	qalGetEffecti = (LPALGETEFFECTI)qalGetProcAddress("alGetEffecti");
-	qalGetEffectiv = (LPALGETEFFECTIV)qalGetProcAddress("alGetEffectiv");
-	qalGetEffectf = (LPALGETEFFECTF)qalGetProcAddress("alGetEffectf");
-	qalGetEffectfv = (LPALGETEFFECTFV)qalGetProcAddress("alGetEffectfv");
-	qalGenFilters = (LPALGENFILTERS)qalGetProcAddress("alGenFilters");
-	qalDeleteFilters = (LPALDELETEFILTERS)qalGetProcAddress("alDeleteFilters");
-	qalIsFilter = (LPALISFILTER)qalGetProcAddress("alIsFilter");
-	qalFilteri = (LPALFILTERI)qalGetProcAddress("alFilteri");
-	qalFilteriv = (LPALFILTERIV)qalGetProcAddress("alFilteriv");
-	qalFilterf = (LPALFILTERF)qalGetProcAddress("alFilterf");
-	qalFilterfv = (LPALFILTERFV)qalGetProcAddress("alFilterfv");
-	qalGetFilteri = (LPALGETFILTERI )qalGetProcAddress("alGetFilteri");
-	qalGetFilteriv= (LPALGETFILTERIV )qalGetProcAddress("alGetFilteriv");
-	qalGetFilterf = (LPALGETFILTERF )qalGetProcAddress("alGetFilterf");
-	qalGetFilterfv= (LPALGETFILTERFV )qalGetProcAddress("alGetFilterfv");
-	qalGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)qalGetProcAddress("alGenAuxiliaryEffectSlots");
-	qalDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)qalGetProcAddress("alDeleteAuxiliaryEffectSlots");
-	qalIsAuxiliaryEffectSlot = (LPALISAUXILIARYEFFECTSLOT)qalGetProcAddress("alIsAuxiliaryEffectSlot");
-	qalAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)qalGetProcAddress("alAuxiliaryEffectSloti");
-	qalAuxiliaryEffectSlotiv = (LPALAUXILIARYEFFECTSLOTIV)qalGetProcAddress("alAuxiliaryEffectSlotiv");
-	qalAuxiliaryEffectSlotf = (LPALAUXILIARYEFFECTSLOTF)qalGetProcAddress("alAuxiliaryEffectSlotf");
-	qalAuxiliaryEffectSlotfv = (LPALAUXILIARYEFFECTSLOTFV)qalGetProcAddress("alAuxiliaryEffectSlotfv");
-	qalGetAuxiliaryEffectSloti = (LPALGETAUXILIARYEFFECTSLOTI)qalGetProcAddress("alGetAuxiliaryEffectSloti");
-	qalGetAuxiliaryEffectSlotiv = (LPALGETAUXILIARYEFFECTSLOTIV)qalGetProcAddress("alGetAuxiliaryEffectSlotiv");
-	qalGetAuxiliaryEffectSlotf = (LPALGETAUXILIARYEFFECTSLOTF)qalGetProcAddress("alGetAuxiliaryEffectSlotf");
-	qalGetAuxiliaryEffectSlotfv = (LPALGETAUXILIARYEFFECTSLOTFV)qalGetProcAddress("alGetAuxiliaryEffectSlotfv");
+	
+	INIT_FUNCTION(alGenEffects);
+	INIT_FUNCTION(alDeleteEffects);
+	INIT_FUNCTION(alIsEffect);
+	INIT_FUNCTION(alEffecti);
+	INIT_FUNCTION(alEffectiv);
+	INIT_FUNCTION(alEffectf);
+	INIT_FUNCTION(alEffectfv);
+	INIT_FUNCTION(alGetEffecti);
+	INIT_FUNCTION(alGetEffectiv);
+	INIT_FUNCTION(alGetEffectf);
+	INIT_FUNCTION(alGetEffectfv);
+	INIT_FUNCTION(alGenFilters);
+	INIT_FUNCTION(alDeleteFilters);
+	INIT_FUNCTION(alIsFilter);
+	INIT_FUNCTION(alFilteri);
+	INIT_FUNCTION(alFilteriv);
+	INIT_FUNCTION(alFilterf);
+	INIT_FUNCTION(alFilterfv);
+	INIT_FUNCTION(alGetFilteri);
+	INIT_FUNCTION(alGetFilteriv);
+	INIT_FUNCTION(alGetFilterf);
+	INIT_FUNCTION(alGetFilterfv);
+	INIT_FUNCTION(alGenAuxiliaryEffectSlots);
+	INIT_FUNCTION(alDeleteAuxiliaryEffectSlots);
+	INIT_FUNCTION(alIsAuxiliaryEffectSlot);
+	INIT_FUNCTION(alAuxiliaryEffectSloti);
+	INIT_FUNCTION(alAuxiliaryEffectSlotiv);
+	INIT_FUNCTION(alAuxiliaryEffectSlotf);
+	INIT_FUNCTION(alAuxiliaryEffectSlotfv);
+	INIT_FUNCTION(alGetAuxiliaryEffectSloti);
+	INIT_FUNCTION(alGetAuxiliaryEffectSlotiv);
+	INIT_FUNCTION(alGetAuxiliaryEffectSlotf);
+	INIT_FUNCTION(alGetAuxiliaryEffectSlotfv);
 
-	if (qalGenEffects &&	qalDeleteEffects && qalIsEffect && qalEffecti && qalEffectiv &&	qalEffectf &&
-		qalEffectfv && qalGetEffecti && qalGetEffectiv && qalGetEffectf && qalGetEffectfv &&	qalGenFilters &&
-		qalDeleteFilters && qalIsFilter && qalFilteri && qalFilteriv &&	qalFilterf && qalFilterfv &&
-		qalGetFilteri &&	qalGetFilteriv && qalGetFilterf && qalGetFilterfv && qalGenAuxiliaryEffectSlots &&
-		qalDeleteAuxiliaryEffectSlots &&	qalIsAuxiliaryEffectSlot && qalAuxiliaryEffectSloti &&
-		qalAuxiliaryEffectSlotiv && qalAuxiliaryEffectSlotf && qalAuxiliaryEffectSlotfv &&
-		qalGetAuxiliaryEffectSloti && qalGetAuxiliaryEffectSlotiv && qalGetAuxiliaryEffectSlotf &&
-		qalGetAuxiliaryEffectSlotfv)
-		return qtrue;
+#	undef INIT_FUNCTION
 
-	return qfalse;
+	return qtrue;
 }
 
 /*
@@ -2869,7 +2864,7 @@ static void S_Cmd_AL_DumpCustinfoparms( void )
 {
 	const char* filename;
 	fileHandle_t file;
-	int i, end;
+	int i;
 
 	if (Cmd_Argc() < 2)
 		filename = "scripts/custinfoparms.txt";
@@ -3056,8 +3051,8 @@ static qboolean S_AL_InitEffects(ALCdevice* alDevice)
 		qalAuxiliaryEffectSloti(s_alEffects.env.alEffectSlot, AL_EFFECTSLOT_EFFECT, s_alEffects.env.alEffect);
 
 		Cmd_AddCommand("s_alTestReverb", S_Cmd_AL_TestReverb);
-		Cmd_AddCommand("s_alDumpSoundShader", S_Cmd_AL_DumpSoundShader);
-		Cmd_AddCommand("s_alDumpCustinfoparms", S_Cmd_AL_DumpCustinfoparms);
+		Cmd_AddCommand("writesoundshader", S_Cmd_AL_DumpSoundShader);
+		Cmd_AddCommand("writecustinfoparms", S_Cmd_AL_DumpCustinfoparms);
 	}
 	
 	return s_alEffects.initialized;
