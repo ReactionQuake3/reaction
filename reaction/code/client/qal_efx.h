@@ -210,29 +210,29 @@ extern "C" {
  */
 
 /* Create Effect objects. */
-typedef void (__cdecl *LPALGENEFFECTS)( ALsizei n, ALuint* effects );
+typedef void (ALCAPIENTRY *LPALGENEFFECTS)( ALsizei n, ALuint* effects );
 
 /* Delete Effect objects. */
-typedef void (__cdecl *LPALDELETEEFFECTS)( ALsizei n, ALuint* effects );
+typedef void (ALCAPIENTRY *LPALDELETEEFFECTS)( ALsizei n, ALuint* effects );
 
 /* Verify a handle is a valid Effect. */ 
-typedef ALboolean (__cdecl *LPALISEFFECT)( ALuint eid );
+typedef ALboolean (ALCAPIENTRY *LPALISEFFECT)( ALuint eid );
 
 /* Set an integer parameter for an Effect object. */
-typedef void (__cdecl *LPALEFFECTI)( ALuint eid, ALenum param, ALint value); 
-typedef void (__cdecl *LPALEFFECTIV)( ALuint eid, ALenum param, ALint* values ); 
+typedef void (ALCAPIENTRY *LPALEFFECTI)( ALuint eid, ALenum param, ALint value); 
+typedef void (ALCAPIENTRY *LPALEFFECTIV)( ALuint eid, ALenum param, ALint* values ); 
 
 /* Set a floating point parameter for an Effect object. */
-typedef void (__cdecl *LPALEFFECTF)( ALuint eid, ALenum param, ALfloat value); 
-typedef void (__cdecl *LPALEFFECTFV)( ALuint eid, ALenum param, ALfloat* values ); 
+typedef void (ALCAPIENTRY *LPALEFFECTF)( ALuint eid, ALenum param, ALfloat value); 
+typedef void (ALCAPIENTRY *LPALEFFECTFV)( ALuint eid, ALenum param, ALfloat* values ); 
 
 /* Get an integer parameter for an Effect object. */
-typedef void (__cdecl *LPALGETEFFECTI)( ALuint eid, ALenum pname, ALint* value );
-typedef void (__cdecl *LPALGETEFFECTIV)( ALuint eid, ALenum pname, ALint* values );
+typedef void (ALCAPIENTRY *LPALGETEFFECTI)( ALuint eid, ALenum pname, ALint* value );
+typedef void (ALCAPIENTRY *LPALGETEFFECTIV)( ALuint eid, ALenum pname, ALint* values );
 
 /* Get a floating point parameter for an Effect object. */
-typedef void (__cdecl *LPALGETEFFECTF)( ALuint eid, ALenum pname, ALfloat* value );
-typedef void (__cdecl *LPALGETEFFECTFV)( ALuint eid, ALenum pname, ALfloat* values );
+typedef void (ALCAPIENTRY *LPALGETEFFECTF)( ALuint eid, ALenum pname, ALfloat* value );
+typedef void (ALCAPIENTRY *LPALGETEFFECTFV)( ALuint eid, ALenum pname, ALfloat* values );
 
 
 /**
@@ -240,29 +240,29 @@ typedef void (__cdecl *LPALGETEFFECTFV)( ALuint eid, ALenum pname, ALfloat* valu
  */
 
 /* Create Filter objects. */
-typedef void (__cdecl *LPALGENFILTERS)( ALsizei n, ALuint* filters ); 
+typedef void (ALCAPIENTRY *LPALGENFILTERS)( ALsizei n, ALuint* filters ); 
 
 /* Delete Filter objects. */
-typedef void (__cdecl *LPALDELETEFILTERS)( ALsizei n, ALuint* filters );
+typedef void (ALCAPIENTRY *LPALDELETEFILTERS)( ALsizei n, ALuint* filters );
 
 /* Verify a handle is a valid Filter. */ 
-typedef ALboolean (__cdecl *LPALISFILTER)( ALuint fid );
+typedef ALboolean (ALCAPIENTRY *LPALISFILTER)( ALuint fid );
 
 /* Set an integer parameter for a Filter object. */
-typedef void (__cdecl *LPALFILTERI)( ALuint fid, ALenum param, ALint value ); 
-typedef void (__cdecl *LPALFILTERIV)( ALuint fid, ALenum param, ALint* values ); 
+typedef void (ALCAPIENTRY *LPALFILTERI)( ALuint fid, ALenum param, ALint value ); 
+typedef void (ALCAPIENTRY *LPALFILTERIV)( ALuint fid, ALenum param, ALint* values ); 
 
 /* Set a floating point parameter for an Filter object. */
-typedef void (__cdecl *LPALFILTERF)( ALuint fid, ALenum param, ALfloat value); 
-typedef void (__cdecl *LPALFILTERFV)( ALuint fid, ALenum param, ALfloat* values ); 
+typedef void (ALCAPIENTRY *LPALFILTERF)( ALuint fid, ALenum param, ALfloat value); 
+typedef void (ALCAPIENTRY *LPALFILTERFV)( ALuint fid, ALenum param, ALfloat* values ); 
 
 /* Get an integer parameter for a Filter object. */
-typedef void (__cdecl *LPALGETFILTERI)( ALuint fid, ALenum pname, ALint* value );
-typedef void (__cdecl *LPALGETFILTERIV)( ALuint fid, ALenum pname, ALint* values );
+typedef void (ALCAPIENTRY *LPALGETFILTERI)( ALuint fid, ALenum pname, ALint* value );
+typedef void (ALCAPIENTRY *LPALGETFILTERIV)( ALuint fid, ALenum pname, ALint* values );
 
 /* Get a floating point parameter for a Filter object. */
-typedef void (__cdecl *LPALGETFILTERF)( ALuint fid, ALenum pname, ALfloat* value );
-typedef void (__cdecl *LPALGETFILTERFV)( ALuint fid, ALenum pname, ALfloat* values );
+typedef void (ALCAPIENTRY *LPALGETFILTERF)( ALuint fid, ALenum pname, ALfloat* value );
+typedef void (ALCAPIENTRY *LPALGETFILTERFV)( ALuint fid, ALenum pname, ALfloat* values );
 
 
 /**
@@ -270,29 +270,29 @@ typedef void (__cdecl *LPALGETFILTERFV)( ALuint fid, ALenum pname, ALfloat* valu
  */
 
 /* Create Auxiliary Slot objects. */
-typedef void (__cdecl *LPALGENAUXILIARYEFFECTSLOTS)( ALsizei n, ALuint* slots ); 
+typedef void (ALCAPIENTRY *LPALGENAUXILIARYEFFECTSLOTS)( ALsizei n, ALuint* slots ); 
 
 /* Delete Auxiliary Slot objects. */
-typedef void (__cdecl *LPALDELETEAUXILIARYEFFECTSLOTS)( ALsizei n, ALuint* slots );
+typedef void (ALCAPIENTRY *LPALDELETEAUXILIARYEFFECTSLOTS)( ALsizei n, ALuint* slots );
 
 /* Verify a handle is a valid Auxiliary Slot. */ 
-typedef ALboolean (__cdecl *LPALISAUXILIARYEFFECTSLOT)( ALuint slot ); 
+typedef ALboolean (ALCAPIENTRY *LPALISAUXILIARYEFFECTSLOT)( ALuint slot ); 
 
 /* Set an integer parameter for a Auxiliary Slot object. */
-typedef void (__cdecl *LPALAUXILIARYEFFECTSLOTI)( ALuint asid, ALenum param, ALint value ); 
-typedef void (__cdecl *LPALAUXILIARYEFFECTSLOTIV)( ALuint asid, ALenum param, ALint* values ); 
+typedef void (ALCAPIENTRY *LPALAUXILIARYEFFECTSLOTI)( ALuint asid, ALenum param, ALint value ); 
+typedef void (ALCAPIENTRY *LPALAUXILIARYEFFECTSLOTIV)( ALuint asid, ALenum param, ALint* values ); 
 
 /* Set a floating point parameter for an Auxiliary Slot object. */
-typedef void (__cdecl *LPALAUXILIARYEFFECTSLOTF)( ALuint asid, ALenum param, ALfloat value ); 
-typedef void (__cdecl *LPALAUXILIARYEFFECTSLOTFV)( ALuint asid, ALenum param, ALfloat* values ); 
+typedef void (ALCAPIENTRY *LPALAUXILIARYEFFECTSLOTF)( ALuint asid, ALenum param, ALfloat value ); 
+typedef void (ALCAPIENTRY *LPALAUXILIARYEFFECTSLOTFV)( ALuint asid, ALenum param, ALfloat* values ); 
 
 /* Get an integer parameter for a Auxiliary Slot object. */
-typedef void (__cdecl *LPALGETAUXILIARYEFFECTSLOTI)( ALuint asid, ALenum pname, ALint* value );
-typedef void (__cdecl *LPALGETAUXILIARYEFFECTSLOTIV)( ALuint asid, ALenum pname, ALint* values );
+typedef void (ALCAPIENTRY *LPALGETAUXILIARYEFFECTSLOTI)( ALuint asid, ALenum pname, ALint* value );
+typedef void (ALCAPIENTRY *LPALGETAUXILIARYEFFECTSLOTIV)( ALuint asid, ALenum pname, ALint* values );
 
 /* Get a floating point parameter for a Auxiliary Slot object. */
-typedef void (__cdecl *LPALGETAUXILIARYEFFECTSLOTF)( ALuint asid, ALenum pname, ALfloat* value );
-typedef void (__cdecl *LPALGETAUXILIARYEFFECTSLOTFV)( ALuint asid, ALenum pname, ALfloat* values );
+typedef void (ALCAPIENTRY *LPALGETAUXILIARYEFFECTSLOTF)( ALuint asid, ALenum pname, ALfloat* value );
+typedef void (ALCAPIENTRY *LPALGETAUXILIARYEFFECTSLOTFV)( ALuint asid, ALenum pname, ALfloat* values );
 
 
 
