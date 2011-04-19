@@ -47,6 +47,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#include "qal_efx.h"
+
+
 #ifdef USE_OPENAL_DLOPEN
 extern LPALENABLE qalEnable;
 extern LPALDISABLE qalDisable;
@@ -142,6 +145,46 @@ extern LPALCCAPTURECLOSEDEVICE qalcCaptureCloseDevice;
 extern LPALCCAPTURESTART qalcCaptureStart;
 extern LPALCCAPTURESTOP qalcCaptureStop;
 extern LPALCCAPTURESAMPLES qalcCaptureSamples;
+
+// Effect objects
+extern LPALGENEFFECTS qalGenEffects;
+extern LPALDELETEEFFECTS qalDeleteEffects;
+extern LPALISEFFECT qalIsEffect;
+extern LPALEFFECTI qalEffecti;
+extern LPALEFFECTIV qalEffectiv;
+extern LPALEFFECTF qalEffectf;
+extern LPALEFFECTFV qalEffectfv;
+extern LPALGETEFFECTI qalGetEffecti;
+extern LPALGETEFFECTIV qalGetEffectiv;
+extern LPALGETEFFECTF qalGetEffectf;
+extern LPALGETEFFECTFV qalGetEffectfv;
+
+//Filter objects
+extern LPALGENFILTERS qalGenFilters;
+extern LPALDELETEFILTERS qalDeleteFilters;
+extern LPALISFILTER qalIsFilter;
+extern LPALFILTERI qalFilteri;
+extern LPALFILTERIV qalFilteriv;
+extern LPALFILTERF qalFilterf;
+extern LPALFILTERFV qalFilterfv;
+extern LPALGETFILTERI qalGetFilteri;
+extern LPALGETFILTERIV qalGetFilteriv;
+extern LPALGETFILTERF qalGetFilterf;
+extern LPALGETFILTERFV qalGetFilterfv;
+
+// Auxiliary slot object
+extern LPALGENAUXILIARYEFFECTSLOTS qalGenAuxiliaryEffectSlots;
+extern LPALDELETEAUXILIARYEFFECTSLOTS qalDeleteAuxiliaryEffectSlots;
+extern LPALISAUXILIARYEFFECTSLOT qalIsAuxiliaryEffectSlot;
+extern LPALAUXILIARYEFFECTSLOTI qalAuxiliaryEffectSloti;
+extern LPALAUXILIARYEFFECTSLOTIV qalAuxiliaryEffectSlotiv;
+extern LPALAUXILIARYEFFECTSLOTF qalAuxiliaryEffectSlotf;
+extern LPALAUXILIARYEFFECTSLOTFV qalAuxiliaryEffectSlotfv;
+extern LPALGETAUXILIARYEFFECTSLOTI qalGetAuxiliaryEffectSloti;
+extern LPALGETAUXILIARYEFFECTSLOTIV qalGetAuxiliaryEffectSlotiv;
+extern LPALGETAUXILIARYEFFECTSLOTF qalGetAuxiliaryEffectSlotf;
+extern LPALGETAUXILIARYEFFECTSLOTFV qalGetAuxiliaryEffectSlotfv;
+
 #else
 #define qalEnable alEnable
 #define qalDisable alDisable
