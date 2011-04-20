@@ -599,6 +599,11 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 			if (other->client->uniqueWeapons >= g_RQ3_maxWeapons.integer + (bandolierFactor - 1) ||
 			    ent->s.pos.trDelta[2] != 0)
 				return;
+
+			// Paril: fix/workaround for 4085
+			// don't pick up dupe special weapons even if we could.
+			if ((other->client->ps.stats[STAT_WEAPONS] & (1 << ent->item->giTag)) == (1 << ent->item->giTag))
+				return;
 			break;
 		case WP_AKIMBO:
 		default:
