@@ -44,7 +44,9 @@ cvar_t *s_alRolloff;
 cvar_t *s_alGraceDistance;
 cvar_t *s_alDriver;
 cvar_t *s_alDevice;
+cvar_t *s_alInputDevice;
 cvar_t *s_alAvailableDevices;
+cvar_t *s_alAvailableInputDevices;
 cvar_t *s_alEffectsLevel;
 
 
@@ -2641,10 +2643,16 @@ void S_AL_SoundInfo( void )
 	Com_Printf( "  ALC Extensions: %s\n", qalcGetString( alDevice, ALC_EXTENSIONS ) );
 	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
 	{
-		Com_Printf("  Device:     %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
+		Com_Printf("  Device:      %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
 		Com_Printf("Available Devices:\n%s", s_alAvailableDevices->string);
+#ifdef USE_VOIP
+		Com_Printf("Input Device:  %s\n", qalcGetString(alCaptureDevice, ALC_DEVICE_SPECIFIER));
+		Com_Printf("Available Input Devices:\n%s", s_alAvailableInputDevices->string);
+#endif
 	}
 }
+
+
 
 static void S_AL_ShutDownEffects(void)
 {
@@ -3067,6 +3075,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 {
 #ifdef USE_OPENAL
 	const char* device = NULL;
+	const char* inputdevice = NULL;
 	int i;
 
 	if( !si ) {
@@ -3091,6 +3100,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
+	s_alInputDevice = Cvar_Get( "s_alInputDevice", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
 
 	s_alDevice = Cvar_Get("s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH);
 	s_alEffectsLevel = Cvar_Get("s_alEffects", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -3106,6 +3116,10 @@ qboolean S_AL_Init( soundInterface_t *si )
 	if(device && !*device)
 		device = NULL;
 
+	inputdevice = s_alInputDevice->string;
+	if(inputdevice && !*inputdevice)
+		inputdevice = NULL;
+
 	// Device enumeration support (extension is implemented reasonably only on Windows right now).
 	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
 	{
@@ -3115,7 +3129,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 		int curlen;
 		
 		// get all available devices + the default device name.
-		devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+		devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 		defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
 #ifdef _WIN32
@@ -3209,13 +3223,36 @@ qboolean S_AL_Init( soundInterface_t *si )
 		}
 		else
 		{
+			char inputdevicenames[1024] = "";
+			const char *inputdevicelist;
+			const char *defaultinputdevice;
+			int curlen;
+
+			// get all available input devices + the default input device name.
+			inputdevicelist = qalcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
+			defaultinputdevice = qalcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+
+			// dump a list of available devices to a cvar for the user to see.
+			while((curlen = strlen(inputdevicelist)))
+			{
+				Q_strcat(inputdevicenames, sizeof(inputdevicenames), inputdevicelist);
+				Q_strcat(inputdevicenames, sizeof(inputdevicenames), "\n");
+				inputdevicelist += curlen + 1;
+			}
+
+			s_alAvailableInputDevices = Cvar_Get("s_alAvailableInputDevices", inputdevicenames, CVAR_ROM | CVAR_NORESTART);
+
 			// !!! FIXME: 8000Hz is what Speex narrowband mode needs, but we
 			// !!! FIXME:  should probably open the capture device after
 			// !!! FIXME:  initializing Speex so we can change to wideband
 			// !!! FIXME:  if we like.
-			Com_Printf("OpenAL default capture device is '%s'\n",
-			           qalcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
-			alCaptureDevice = qalcCaptureOpenDevice(NULL, 8000, AL_FORMAT_MONO16, 4096);
+			Com_Printf("OpenAL default capture device is '%s'\n", defaultinputdevice);
+			alCaptureDevice = qalcCaptureOpenDevice(inputdevice, 8000, AL_FORMAT_MONO16, 4096);
+			if( !alCaptureDevice && inputdevice )
+			{
+				Com_Printf( "Failed to open OpenAL Input device '%s', trying default.\n", inputdevice );
+				alCaptureDevice = qalcCaptureOpenDevice(NULL, 8000, AL_FORMAT_MONO16, 4096);
+			}
 			Com_Printf( "OpenAL capture device %s.\n",
 			            (alCaptureDevice == NULL) ? "failed to open" : "opened");
 		}
