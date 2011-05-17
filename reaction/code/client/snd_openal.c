@@ -50,7 +50,7 @@ cvar_t *s_alAvailableInputDevices;
 cvar_t *s_alEffectsLevel;
 
 
-static enumeration_ext = qfalse;
+static qboolean enumeration_ext = qfalse;
 
 /*
 =================
@@ -3102,7 +3102,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
-	s_alInputDevice = Cvar_Get( "s_alInputDevice", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
+	s_alInputDevice = Cvar_Get( "s_alInputDevice", "", CVAR_ARCHIVE | CVAR_LATCH );
 
 	s_alDevice = Cvar_Get("s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH);
 	s_alEffectsLevel = Cvar_Get("s_alEffects", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -3123,8 +3123,8 @@ qboolean S_AL_Init( soundInterface_t *si )
 		inputdevice = NULL;
 
 	// Device enumeration support
-	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") ||
-	   (enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+	if((enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT")) ||
+	  qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")
 	  )
 	{
 		char devicenames[1024] = "";
