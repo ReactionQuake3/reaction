@@ -50,6 +50,8 @@ cvar_t *s_alAvailableInputDevices;
 cvar_t *s_alEffectsLevel;
 
 
+static enumeration_ext = qfalse;
+
 /*
 =================
 S_AL_Format
@@ -2641,7 +2643,7 @@ void S_AL_SoundInfo( void )
 	Com_Printf( "  Renderer:   %s\n", qalGetString( AL_RENDERER ) );
 	Com_Printf( "  AL Extensions: %s\n", qalGetString( AL_EXTENSIONS ) );
 	Com_Printf( "  ALC Extensions: %s\n", qalcGetString( alDevice, ALC_EXTENSIONS ) );
-	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
+	if(enumeration_ext)
 	{
 		Com_Printf("  Device:      %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
 		Com_Printf("Available Devices:\n%s", s_alAvailableDevices->string);
@@ -3120,8 +3122,10 @@ qboolean S_AL_Init( soundInterface_t *si )
 	if(inputdevice && !*inputdevice)
 		inputdevice = NULL;
 
-	// Device enumeration support (extension is implemented reasonably only on Windows right now).
-	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
+	// Device enumeration support
+	if(qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") ||
+	   (enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT"))
+	  )
 	{
 		char devicenames[1024] = "";
 		const char *devicelist;
@@ -3129,7 +3133,15 @@ qboolean S_AL_Init( soundInterface_t *si )
 		int curlen;
 		
 		// get all available devices + the default device name.
-		devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+		if(enumeration_ext)
+        		devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+                else
+                {
+                        // We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
+                        devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+                        enumeration_ext = qtrue;
+                }
+                
 		defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
 #ifdef _WIN32
