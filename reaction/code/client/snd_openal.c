@@ -3134,15 +3134,18 @@ qboolean S_AL_Init( soundInterface_t *si )
 		
 		// get all available devices + the default device name.
 		if(enumeration_ext)
+		{
         		devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+		}
                 else
                 {
                         // We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
                         devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+                        defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
                         enumeration_ext = qtrue;
                 }
                 
-		defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 
 #ifdef _WIN32
 		// check whether the default device is generic hardware. If it is, change to
