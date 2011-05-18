@@ -257,6 +257,11 @@ FILE *Sys_Mkfifo( const char *ospath )
 	FILE	*fifo; 
 	int		result;
 	int		fn;
+	struct  stat buf;
+
+	// if file already exists AND is a pipefile, remove it
+	if( !stat( ospath, &buf ) && S_ISFIFO( buf.st_mode ) )
+		FS_Remove( ospath );
 
 	result = mkfifo( ospath, 0600 );
 	if( result != 0 )
