@@ -399,47 +399,59 @@ Group # 3 - Misc
 ==========================================================
 */
 
-    //Icon
+	//Icon
 
-    ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-menu-setup", "group3")
+	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-menu-setup", "group3")
 
-    //Icon
+	//Icon
 
-    itemdef {
-	name "icon,allgroups,group3"
-	background UI_ASSETS"/icons/rq3-system-display"
-	forecolor 1 1 1 ICON_ALPHA
-	alignrect "line" ITEM_ALIGN_LEFT 0 36 24 24
-	style WINDOW_STYLE_SHADER
-	visible 1
-	decoration
+	itemdef {
+		name "icon,allgroups,group3"
+		background UI_ASSETS"/icons/rq3-system-display"
+		forecolor 1 1 1 ICON_ALPHA
+		alignrect "line" ITEM_ALIGN_LEFT 0 36 24 24
+		style WINDOW_STYLE_SHADER
+		visible 1
+		decoration
 	}
+
 
     // Brightness //
 
 	BEGIN_SLIDER("Brightness", "r_gamma", 1, .5, 1.7, 1, 3)
 		alignrect "line" ITEM_ALIGN_CENTER 56 40 112 VSIZE
 		ASSIGN_HINT("hint_gamma")
-    END_OPTION
-    ADD_HINT("hint_gamma", "Change image brightness", "group3")
+	END_OPTION
+	ADD_HINT("hint_gamma", "Change image brightness", "group3")
 
 
-    // Screen size //
+	// Screen size //
 
 	BEGIN_SLIDER("Screen Size", "cg_viewsize", 100, 30, 100, 2, 3)
 		OPTION_BELOW("gr3_ctrl1")
 		ASSIGN_HINT("hint_screensize")
-    END_OPTION
-    ADD_HINT("hint_screensize", "Change rendering window size", "group3")
+	END_OPTION
+	ADD_HINT("hint_screensize", "Change rendering window size", "group3")
 
 
-    // Overbrightbits //
+	// Overbrightbits //
 
-    BEGIN_OPTION("Overbright Bits", "r_overbrightbits", ITEM_TYPE_YESNO, 3, 3)
+	BEGIN_OPTION("Overbright Bits", "r_overbrightbits", ITEM_TYPE_YESNO, 3, 3)
 		OPTION_BELOW("gr3_ctrl2")
 		ASSIGN_HINT("hint_overbits")
-    END_OPTION
-    ADD_HINT("hint_overbits", "Enable overbright bits (greater color range at the expense of precision)", "group3")
+	END_OPTION
+	ADD_HINT("hint_overbits", "Enable overbright bits (greater color range at the expense of precision)", "group3")
+
+
+	// V-SYNC //
+
+	BEGIN_OPTION("Sync Every Frame", "r_finish", ITEM_TYPE_YESNO, 4, 3)
+		//kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr3_ctrl3")
+		ASSIGN_HINT("hint_vsync")
+	END_OPTION
+    ADD_HINT("hint_vsync", "Enable V-SYNC (recommended off)", "group3")
+
 
 /*
     // Anisotropic filtering //
@@ -473,20 +485,20 @@ Group # 3 - Misc
 	name "icon,allgroups,group3"
 	background UI_ASSETS"/icons/rq3-system-sound"
 	forecolor 1 1 1 ICON_ALPHA
-	alignrect "line" ITEM_ALIGN_LEFT 0 112 24 24
+	alignrect "line" ITEM_ALIGN_LEFT 0 120 24 24
 	style WINDOW_STYLE_SHADER
 	visible 1
 	decoration
 	}
 
 
-		// OpenAL //
-		
-		BEGIN_OPTION("OpenAL", "s_useOpenAL", ITEM_TYPE_YESNO, 5, 3)
-		alignrect "line" ITEM_ALIGN_CENTER 56 112 112 VSIZE
+	// OpenAL //
+
+	BEGIN_OPTION("OpenAL", "s_useOpenAL", ITEM_TYPE_YESNO, 5, 3)
+		alignrect "line" ITEM_ALIGN_CENTER 56 120 112 VSIZE
 		ASSIGN_HINT("hint_openal")
-		END_OPTION
-		ADD_HINT("hint_openal", "Enable OpenAL sound rendering", "group3")
+	END_OPTION
+	ADD_HINT("hint_openal", "Enable OpenAL sound rendering", "group3")
 
     // Sound volume //
 
@@ -536,7 +548,7 @@ Group # 3 - Misc
 	name "icon,allgroups,group3"
 	background UI_ASSETS"/icons/rq3-system-network"
 	forecolor 1 1 1 ICON_ALPHA
-	alignrect "line" ITEM_ALIGN_LEFT 0 200 24 24
+	alignrect "line" ITEM_ALIGN_LEFT 0 216 24 24
 	style WINDOW_STYLE_SHADER
 	visible 1
 	decoration
@@ -546,7 +558,7 @@ Group # 3 - Misc
     // Net rate //
 
     BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 10, 3)
-		alignrect "line" ITEM_ALIGN_CENTER 56 204 112 VSIZE
+		alignrect "line" ITEM_ALIGN_CENTER 56 216 112 VSIZE
 		cvarFloatList {
 			"<=28.8k"			2500
 			"33.6k"				3000

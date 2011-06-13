@@ -220,21 +220,11 @@ Group # 1 - Gameplay
     ADD_HINT("hint_idtarget", "Enable crosshair target identification", "group1")
 
 
-    // V-SYNC //
-
-	BEGIN_OPTION("Sync Every Frame", "r_finish", ITEM_TYPE_YESNO, 7, 1)
-		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl6")
-		ASSIGN_HINT("hint_vsync")
-	END_OPTION
-    ADD_HINT("hint_vsync", "Enable V-SYNC (recommended off)", "group1")
-
-
     // Force player models //
 
-	BEGIN_OPTION("Force Player Models", "cg_forceModel", ITEM_TYPE_YESNO, 8, 1)
+	BEGIN_OPTION("Force Player Models", "cg_forceModel", ITEM_TYPE_YESNO, 7, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl7")
+		OPTION_BELOW("gr1_ctrl6")
 		ASSIGN_HINT("hint_forcemodel")
 	END_OPTION
     ADD_HINT("hint_forcemodel", "Force player models to your own", "group1")
