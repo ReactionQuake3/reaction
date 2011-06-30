@@ -4,7 +4,7 @@
 # GNU Make required
 #
 
-COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]')
+COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'|sed -e 's/\//_/g')
 
 COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/i386/)
 
@@ -103,6 +103,10 @@ ifndef BUILD_DIR
 BUILD_DIR=build
 endif
 
+ifndef TEMPDIR
+TEMPDIR=/tmp
+endif
+
 ifndef GENERATE_DEPENDENCIES
 GENERATE_DEPENDENCIES=1
 endif
@@ -159,6 +163,10 @@ ifndef DEBUG_CFLAGS
 DEBUG_CFLAGS=-g -O0
 endif
 
+ifndef USE_OLD_VM64
+USE_OLD_VM64=0
+endif
+
 #############################################################################
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
@@ -175,6 +183,7 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
+Q3UIDIR=$(MOUNT_DIR)/q3_ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 ZDIR=$(MOUNT_DIR)/zlib
@@ -187,7 +196,6 @@ LOKISETUPDIR=misc/setup
 NSISDIR=misc/nsis
 SDLHDIR=$(MOUNT_DIR)/SDL12
 LIBSDIR=$(MOUNT_DIR)/libs
-TEMPDIR=/tmp
 
 bin_path=$(shell which $(1) 2> /dev/null)
 
@@ -242,10 +250,10 @@ LIB=lib
 INSTALL=install
 MKDIR=mkdir
 
-ifeq ($(PLATFORM),linux)
+ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
-  ifeq ($(ARCH),alpha)
-    ARCH=axp
+  ifeq ($(ARCH),axp)
+    ARCH=alpha
   else
   ifeq ($(ARCH),x86_64)
     LIB=lib64
@@ -312,6 +320,11 @@ ifeq ($(PLATFORM),linux)
     OPTIMIZE += -mtune=ultrasparc3 -mv8plus
     OPTIMIZEVM += -mtune=ultrasparc3 -mv8plus
     HAVE_VM_COMPILED=true
+  endif
+  ifeq ($(ARCH),alpha)
+    # According to http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=410555
+    # -ffast-math will cause the client to die with SIGFPE on Alpha
+    OPTIMIZE = $(OPTIMIZEVM)
   endif
   endif
   endif
@@ -549,8 +562,7 @@ ifeq ($(PLATFORM),mingw32)
                       $(LIBSDIR)/win32/libSDL.dll.a
     else
     CLIENT_LIBS += $(LIBSDIR)/win64/libSDLmain.a \
-                      $(LIBSDIR)/win64/libSDL.dll.a \
-                      $(LIBSDIR)/win64/libSDL.a
+                      $(LIBSDIR)/win64/libSDL64.dll.a
     endif
   else
     CLIENT_CFLAGS += $(SDL_CFLAGS)
@@ -575,8 +587,8 @@ ifeq ($(PLATFORM),freebsd)
   SERVER_CFLAGS = 
   HAVE_VM_COMPILED = true
 
-  OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer -ffast-math
-  OPTIMIZE = $(OPTIMIZEVM)
+  OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer
+  OPTIMIZE = $(OPTIMIZEVM) -ffast-math
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
@@ -609,9 +621,6 @@ ifeq ($(PLATFORM),freebsd)
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
-  endif
-
-  ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LIBS += -lvorbisfile -lvorbis -logg
   endif
 
@@ -635,11 +644,10 @@ else # ifeq freebsd
 
 ifeq ($(PLATFORM),openbsd)
 
-  #default to i386, no tests done on anything else
-  ARCH=i386
+  ARCH=$(shell uname -m)
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
-    -DUSE_ICON
+    -DUSE_ICON -DMAP_ANONYMOUS=MAP_ANON
   CLIENT_CFLAGS = $(SDL_CFLAGS)
   SERVER_CFLAGS = 
 
@@ -727,7 +735,7 @@ else # ifeq netbsd
 
 ifeq ($(PLATFORM),irix64)
 
-  ARCH=mips  #default to MIPS
+  ARCH=mips
 
   CC = c99
   MKDIR = mkdir -p
@@ -1496,15 +1504,30 @@ ifeq ($(ARCH),i386)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/ftola.o \
-    $(B)/client/snapvectora.o
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
 endif
 ifeq ($(ARCH),x86)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/ftola.o \
-    $(B)/client/snapvectora.o
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+endif
+ifeq ($(ARCH),x86_64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+endif
+ifeq ($(ARCH),amd64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+endif
+ifeq ($(ARCH),x64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
 endif
 
 ifeq ($(USE_VOIP),1)
@@ -1565,19 +1588,42 @@ endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),i386)
-    Q3OBJ += $(B)/client/vm_x86.o
+    Q3OBJ += \
+      $(B)/client/vm_x86.o
   endif
   ifeq ($(ARCH),x86)
-    Q3OBJ += $(B)/client/vm_x86.o
+    Q3OBJ += \
+      $(B)/client/vm_x86.o
   endif
   ifeq ($(ARCH),x86_64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),amd64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),x64)
-    Q3OBJ += $(B)/client/vm_x86_64.o $(B)/client/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3OBJ += \
+        $(B)/client/vm_x86_64.o \
+        $(B)/client/vm_x86_64_assembler.o
+    else
+      Q3OBJ += \
+        $(B)/client/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),ppc)
     Q3OBJ += $(B)/client/vm_powerpc.o $(B)/client/vm_powerpc_asm.o
@@ -1713,15 +1759,30 @@ Q3DOBJ = \
 
 ifeq ($(ARCH),i386)
   Q3DOBJ += \
-      $(B)/ded/ftola.o \
-      $(B)/ded/snapvectora.o \
-      $(B)/ded/matha.o
+      $(B)/ded/matha.o \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o
 endif
 ifeq ($(ARCH),x86)
   Q3DOBJ += \
-      $(B)/ded/ftola.o \
-      $(B)/ded/snapvectora.o \
-      $(B)/ded/matha.o
+      $(B)/ded/matha.o \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o 
+endif
+ifeq ($(ARCH),x86_64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o 
+endif
+ifeq ($(ARCH),amd64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o 
+endif
+ifeq ($(ARCH),x64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o 
 endif
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
@@ -1736,19 +1797,42 @@ endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),i386)
-    Q3DOBJ += $(B)/ded/vm_x86.o
+    Q3DOBJ += \
+      $(B)/ded/vm_x86.o
   endif
   ifeq ($(ARCH),x86)
-    Q3DOBJ += $(B)/ded/vm_x86.o
+    Q3DOBJ += \
+      $(B)/ded/vm_x86.o
   endif
   ifeq ($(ARCH),x86_64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),amd64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),x64)
-    Q3DOBJ += $(B)/ded/vm_x86_64.o $(B)/ded/vm_x86_64_assembler.o
+    ifeq ($(USE_OLD_VM64),1)
+      Q3DOBJ += \
+        $(B)/ded/vm_x86_64.o \
+        $(B)/ded/vm_x86_64_assembler.o
+    else
+      Q3DOBJ += \
+        $(B)/ded/vm_x86.o
+    endif
   endif
   ifeq ($(ARCH),ppc)
     Q3DOBJ += $(B)/ded/vm_powerpc.o $(B)/ded/vm_powerpc_asm.o
@@ -2022,6 +2106,10 @@ $(B)/Boomstick/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 $(B)/client/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
 
+# k8 so inline assembler knows about SSE
+$(B)/client/%.o: $(ASMDIR)/%.c
+	$(DO_CC) -march=k8
+
 $(B)/client/%.o: $(CDIR)/%.c
 	$(DO_CC)
 
@@ -2064,6 +2152,10 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
+
+ k8 so inline assembler knows about SSE
+$(B)/ded/%.o: $(ASMDIR)/%.c
+	$(DO_CC) -march=k8
 
 $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
