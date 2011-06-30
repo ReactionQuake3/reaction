@@ -31,7 +31,10 @@ typedef unsigned char boolean;
 #endif
 
 /* #undef RIGHT_SHIFT_IS_UNSIGNED */
+// Makro - the code didn't compile in VC++ 2008 Express
+#ifndef _WIN32
 #define INLINE __inline__
+#endif
 /* These are for configuring the JPEG memory manager. */
 /* #undef DEFAULT_MAX_MEM */
 /* #undef NO_MKTEMP */
