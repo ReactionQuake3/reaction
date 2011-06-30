@@ -270,6 +270,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -pipe -DUSE_ICON
+  BASE_CFLAGS += -Wno-unused-but-set-variable
   CLIENT_CFLAGS = $(SDL_CFLAGS)
   SERVER_CFLAGS =
 
@@ -2153,7 +2154,7 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
 
- k8 so inline assembler knows about SSE
+# k8 so inline assembler knows about SSE
 $(B)/ded/%.o: $(ASMDIR)/%.c
 	$(DO_CC) -march=k8
 
