@@ -242,6 +242,9 @@ PROTOCOL
 ==============================================================
 */
 
+// Makro - this wasn't defined anywhere...
+#define DEMOEXT				"dm"
+
 #define	PROTOCOL_VERSION	68
 // 1.31 - 67
 
