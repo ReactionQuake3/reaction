@@ -1232,7 +1232,7 @@ void SetTeam(gentity_t * ent, char *s)
 		ent->client->sess.sub = TEAM_FREE;
 	}
 	// they go to the end of the line for tournements
-	if (team == TEAM_SPECTATOR) {
+	if (team == TEAM_SPECTATOR && oldTeam != team) {
 		client->sess.spectatorTime = level.time;
 	}
 // JBravo: not messing with spec system in TP during teamswitches

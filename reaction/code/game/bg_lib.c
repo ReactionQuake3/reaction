@@ -240,6 +240,24 @@ char *strchr( const char *string, int c ) {
 	return (char *)0;
 }
 
+char *strrchr(const char *string, int c)
+{
+	const char *found = 0;
+
+	while(*string)
+	{
+	if(*string == c)
+		found = string;
+
+	string++;
+	}
+
+	if(c)
+		return (char *) found;
+	else
+		return (char *) string;
+}
+
 char *strstr( const char *string, const char *strCharSet ) {
 	while ( *string ) {
 		int		i;
@@ -1502,8 +1520,8 @@ static int dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c );
 #define DP_C_LDOUBLE 4
 
 #define char_to_int(p) (p - '0')
-#define MAX(p,q) ((p >= q) ? p : q)
-#define MIN(p,q) ((p <= q) ? p : q)
+//#define MAX(p,q) ((p >= q) ? p : q)
+//#define MIN(p,q) ((p <= q) ? p : q)
 
 static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
 {

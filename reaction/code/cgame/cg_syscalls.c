@@ -32,7 +32,7 @@
 
 #include "cg_local.h"
 
-static int (QDECL * syscall) (int arg, ...) = (int (QDECL *) (int, ...)) -1;
+static intptr_t (QDECL *syscall)( intptr_t arg, ... ) = (intptr_t (QDECL *)( intptr_t, ...))-1;
 
 Q_EXPORT void dllEntry( intptr_t (QDECL  *syscallptr)( intptr_t arg,... ) ) {
 	syscall = syscallptr;

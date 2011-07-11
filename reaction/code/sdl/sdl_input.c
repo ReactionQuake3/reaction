@@ -576,17 +576,13 @@ static void IN_InitJoystick( void )
 {
 	int i = 0;
 	int total = 0;
+	char buf[16384] = "";
 
 	if (stick != NULL)
 		SDL_JoystickClose(stick);
 
 	stick = NULL;
 	memset(&stick_state, '\0', sizeof (stick_state));
-
-	if( !in_joystick->integer ) {
-		Com_DPrintf( "Joystick is not active.\n" );
-		return;
-	}
 
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
@@ -601,8 +597,21 @@ static void IN_InitJoystick( void )
 
 	total = SDL_NumJoysticks();
 	Com_DPrintf("%d possible joysticks\n", total);
+
+	// Print list and build cvar to allow ui to select joystick.
 	for (i = 0; i < total; i++)
-		Com_DPrintf("[%d] %s\n", i, SDL_JoystickName(i));
+	{
+		Q_strcat(buf, sizeof(buf), SDL_JoystickName(i));
+		Q_strcat(buf, sizeof(buf), "\n");
+	}
+
+	Cvar_Get( "in_availableJoysticks", buf, CVAR_ROM );
+
+	if( !in_joystick->integer ) {
+		Com_DPrintf( "Joystick is not active.\n" );
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		return;
+	}
 
 	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE );
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
@@ -964,7 +973,7 @@ void IN_Frame( void )
 	IN_ProcessEvents( );
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
-	loading = !!( cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE );
+	loading = !!( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
 
 	if( !r_fullscreen->integer && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
@@ -1017,7 +1026,7 @@ void IN_Init( void )
 
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
-		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )\n" );
+		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )" );
 		return;
 	}
 
@@ -1031,7 +1040,7 @@ void IN_Init( void )
 
 	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
 	in_joystickDebug = Cvar_Get( "in_joystickDebug", "0", CVAR_TEMP );
-	in_joystickThreshold = Cvar_Get( "in_joystickThreshold", "0.15", CVAR_ARCHIVE );
+	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
 
 #ifdef MACOS_X_ACCELERATION_HACK
 	in_disablemacosxmouseaccel = Cvar_Get( "in_disablemacosxmouseaccel", "1", CVAR_ARCHIVE );

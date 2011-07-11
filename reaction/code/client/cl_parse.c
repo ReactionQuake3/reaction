@@ -265,7 +265,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	
 	if(len > sizeof(newSnap.areamask))
 	{
-		Com_Error (ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask.", len);
+		Com_Error (ERR_DROP,"CL_ParseSnapshot: Invalid size %d for areamask", len);
 		return;
 	}
 	
@@ -463,6 +463,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	entityState_t	nullstate;
 	int				cmd;
 	char			*s;
+	char oldGame[MAX_QPATH];
 
 	Con_Close();
 
@@ -518,6 +519,9 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
 
+	// save old gamedir
+	Cvar_VariableStringBuffer("fs_game", oldGame, sizeof(oldGame));
+
 	// parse useful values out of CS_SERVERINFO
 	CL_ParseServerInfo();
 
@@ -529,7 +533,11 @@ void CL_ParseGamestate( msg_t *msg ) {
 		CL_StopRecord_f();
 	
 	// reinitialize the filesystem if the game directory has changed
-	FS_ConditionalRestart( clc.checksumFeed );
+	if(FS_ConditionalRestart(clc.checksumFeed, qfalse) && !cls.oldGameSet)
+	{
+		cls.oldGameSet = qtrue;
+		Q_strncpyz(cls.oldGame, oldGame, sizeof(cls.oldGame));
+	}
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame
@@ -580,7 +588,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 	size = MSG_ReadShort ( msg );
 	if (size < 0 || size > sizeof(data))
 	{
-		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk.", size);
+		Com_Error(ERR_DROP, "CL_ParseDownload: Invalid size %d for download chunk", size);
 		return;
 	}
 	
@@ -885,7 +893,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 	// other commands
 		switch ( cmd ) {
 		default:
-			Com_Error (ERR_DROP,"CL_ParseServerMessage: Illegible server message\n");
+			Com_Error (ERR_DROP,"CL_ParseServerMessage: Illegible server message");
 			break;			
 		case svc_nop:
 			break;

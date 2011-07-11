@@ -386,8 +386,12 @@ static void sort_symbols ()
   symbol_t *s;
   symbol_t **symlist;
 
+  if(!symbols)
+  	return;
+
 //crumb("sort_symbols: Constructing symlist array\n");
   for (elems = 0, s = symbols; s; s = s->next, elems++) /* nop */ ;
+
   symlist = malloc(elems * sizeof(symbol_t*));
   for (i = 0, s = symbols; s; s = s->next, i++)
     {
@@ -489,10 +493,10 @@ static void CodeError( char *fmt, ... ) {
 
 	errorCount++;
 
-	report( "%s:%i ", currentFileName, currentFileLine );
+	fprintf( stderr, "%s:%i ", currentFileName, currentFileLine );
 
 	va_start( argptr,fmt );
-	vprintf( fmt,argptr );
+	vfprintf( stderr, fmt, argptr );
 	va_end( argptr );
 }
 

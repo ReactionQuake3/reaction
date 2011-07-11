@@ -258,7 +258,7 @@ static qboolean alBuffersInitialised = qfalse;
 // Sound effect storage, data structures
 #define MAX_SFX 4096
 static alSfx_t knownSfx[MAX_SFX];
-static int numSfx = 0;
+static sfxHandle_t numSfx = 0;
 
 static sfxHandle_t default_sfx;
 
@@ -337,7 +337,7 @@ S_AL_BufferUseDefault
 static void S_AL_BufferUseDefault(sfxHandle_t sfx)
 {
 	if(sfx == default_sfx)
-		Com_Error(ERR_FATAL, "Can't load default sound effect %s\n", knownSfx[sfx].filename);
+		Com_Error(ERR_FATAL, "Can't load default sound effect %s", knownSfx[sfx].filename);
 
 	Com_Printf( S_COLOR_YELLOW "WARNING: Using default sound for %s\n", knownSfx[sfx].filename);
 	knownSfx[sfx].isDefault = qtrue;
@@ -442,7 +442,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 	if (!cache)
 	{
 		// Don't create AL cache
-		Z_Free(data);
+		Hunk_FreeTempMemory(data);
 		return;
 	}
 
@@ -454,7 +454,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 	if((error = qalGetError()) != AL_NO_ERROR)
 	{
 		S_AL_BufferUseDefault(sfx);
-		Z_Free(data);
+		Hunk_FreeTempMemory(data);
 		Com_Printf( S_COLOR_RED "ERROR: Can't create a sound buffer for %s - %s\n",
 				curSfx->filename, S_AL_ErrorMsg(error));
 		return;
@@ -479,7 +479,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 		if( !S_AL_BufferEvict( ) )
 		{
 			S_AL_BufferUseDefault(sfx);
-			Z_Free(data);
+			Hunk_FreeTempMemory(data);
 			Com_Printf( S_COLOR_RED "ERROR: Out of memory loading %s\n", curSfx->filename);
 			return;
 		}
@@ -493,7 +493,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 	if(error != AL_NO_ERROR)
 	{
 		S_AL_BufferUseDefault(sfx);
-		Z_Free(data);
+		Hunk_FreeTempMemory(data);
 		Com_Printf( S_COLOR_RED "ERROR: Can't fill sound buffer for %s - %s\n",
 				curSfx->filename, S_AL_ErrorMsg(error));
 		return;
@@ -502,7 +502,7 @@ static void S_AL_BufferLoad(sfxHandle_t sfx, qboolean cache)
 	curSfx->info = info;
 	
 	// Free the memory
-	Z_Free(data);
+	Hunk_FreeTempMemory(data);
 
 	// Woo!
 	curSfx->inMemory = qtrue;
@@ -570,7 +570,7 @@ void S_AL_BufferShutdown( void )
 		S_AL_BufferUnload(i);
 
 	// Clear the tables
-	memset(knownSfx, 0, sizeof(knownSfx));
+	numSfx = 0;
 
 	// All undone
 	alBuffersInitialised = qfalse;
@@ -2568,6 +2568,8 @@ S_AL_BeginRegistration
 static
 void S_AL_BeginRegistration( void )
 {
+	if(!numSfx)
+		S_AL_BufferInit();
 }
 
 /*
@@ -3129,6 +3131,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	if(inputdevice && !*inputdevice)
 		inputdevice = NULL;
 
+
 	// Device enumeration support
 	enumeration_all_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
 	enumeration_ext = qalcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
@@ -3143,17 +3146,16 @@ qboolean S_AL_Init( soundInterface_t *si )
 		// get all available devices + the default device name.
 		if(enumeration_ext)
 		{
-        		devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 		}
-                else
-                {
-                        // We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
-                        devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
-                        defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-                        enumeration_ext = qtrue;
-                }
-                
+		else
+		{
+			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
+			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+			enumeration_ext = qtrue;
+		}
 
 #ifdef _WIN32
 		// check whether the default device is generic hardware. If it is, change to
@@ -3212,7 +3214,6 @@ qboolean S_AL_Init( soundInterface_t *si )
 	qalDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 	qalDopplerFactor( s_alDopplerFactor->value );
 	qalDopplerVelocity( s_alDopplerSpeed->value );
-
 
 #ifdef USE_VOIP
 	// !!! FIXME: some of these alcCaptureOpenDevice() values should be cvars.

@@ -108,7 +108,7 @@ void SV_SetConfigstring (int index, const char *val) {
 	client_t	*client;
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
+		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i", index);
 	}
 
 	if ( !val ) {
@@ -156,7 +156,7 @@ void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_GetConfigstring: bad index %i\n", index);
+		Com_Error (ERR_DROP, "SV_GetConfigstring: bad index %i", index);
 	}
 	if ( !sv.configstrings[index] ) {
 		buffer[0] = 0;
@@ -175,7 +175,7 @@ SV_SetUserinfo
 */
 void SV_SetUserinfo( int index, const char *val ) {
 	if ( index < 0 || index >= sv_maxclients->integer ) {
-		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
+		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i", index);
 	}
 
 	if ( !val ) {
@@ -199,7 +199,7 @@ void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
 	}
 	if ( index < 0 || index >= sv_maxclients->integer ) {
-		Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i\n", index);
+		Com_Error (ERR_DROP, "SV_GetUserinfo: bad index %i", index);
 	}
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
@@ -417,7 +417,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CL_MapLoading();
 
 	// make sure all the client stuff is unloaded
-	CL_ShutdownAll();
+	CL_ShutdownAll(qfalse);
 
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();
@@ -681,7 +681,9 @@ void SV_Init (void)
 	sv_killserver = Cvar_Get ("sv_killserver", "0", 0);
 	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get ("sv_lanForceRate", "1", CVAR_ARCHIVE );
+#ifndef STANDALONE
 	sv_strictAuth = Cvar_Get ("sv_strictAuth", "1", CVAR_ARCHIVE );
+#endif
 	sv_banFile = Cvar_Get("sv_banFile", "serverbans.dat", CVAR_ARCHIVE);
 	sv_heartbeat = Cvar_Get("sv_heartbeat", HEARTBEAT_FOR_MASTER, CVAR_INIT);
 	sv_flatline = Cvar_Get("sv_flatline", FLATLINE_FOR_MASTER, CVAR_INIT);

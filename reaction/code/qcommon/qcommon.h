@@ -242,9 +242,6 @@ PROTOCOL
 ==============================================================
 */
 
-// Makro - this wasn't defined anywhere...
-#define DEMOEXT				"dm"
-
 #define	PROTOCOL_VERSION	68
 // 1.31 - 67
 
@@ -507,6 +504,9 @@ void	Cvar_Update( vmCvar_t *vmCvar );
 void 	Cvar_Set( const char *var_name, const char *value );
 // will create the variable with no flags if it doesn't exist
 
+cvar_t	*Cvar_Set2(const char *var_name, const char *value, qboolean force);
+// same as Cvar_Set, but allows more control over setting of cvar
+
 void	Cvar_SetSafe( const char *var_name, const char *value );
 // sometimes we set variables from an untrusted source: fail if flags & CVAR_PROTECTED
 
@@ -600,7 +600,7 @@ qboolean FS_Initialized( void );
 void	FS_InitFilesystem ( void );
 void	FS_Shutdown( qboolean closemfp );
 
-qboolean	FS_ConditionalRestart( int checksumFeed );
+qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect);
 void	FS_Restart( int checksumFeed );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
@@ -617,7 +617,7 @@ qboolean FS_FileExists( const char *file );
 
 qboolean FS_CreatePath (char *OSPath);
 
-char *FS_FindDll( const char *filename );
+vmInterpret_t FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, int enableDll);
 
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 qboolean FS_CompareZipChecksum(const char *zipfile);
@@ -633,9 +633,9 @@ fileHandle_t	FS_FCreateOpenPipeFile( const char *filename );
 // will properly create any needed paths and deal with seperater character issues
 
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
-int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
+long		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
 void	FS_SV_Rename( const char *from, const char *to );
-int		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
+long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
 // FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
@@ -654,7 +654,8 @@ int		FS_Read( void *buffer, int len, fileHandle_t f );
 void	FS_FCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
 
-int		FS_ReadFile( const char *qpath, void **buffer );
+long	FS_ReadFileDir(const char *qpath, void *searchPath, void **buffer);
+long	FS_ReadFile(const char *qpath, void **buffer);
 // returns the length of the file
 // a null buffer will just return the file length without loading
 // as a quick check for existance. -1 length == not present
@@ -671,7 +672,7 @@ void	FS_FreeFile( void *buffer );
 void	FS_WriteFile( const char *qpath, const void *buffer, int size );
 // writes a complete file, creating any subdirectories needed
 
-int		FS_filelength( fileHandle_t f );
+long FS_filelength(fileHandle_t f);
 // doesn't work for files that are opened from a pack file
 
 int		FS_FTell( fileHandle_t f );
@@ -729,6 +730,7 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 		qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk );
 
 const char *FS_GetCurrentGameDir(void);
+qboolean FS_Which(const char *filename, void *searchPath);
 
 /*
 ==============================================================
@@ -814,7 +816,7 @@ void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
 void 		Com_Quit_f( void );
-void		Com_GameRestart(int checksumFeed, qboolean clientRestart);
+void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
@@ -869,6 +871,7 @@ extern	int		time_backend;		// renderer backend time
 extern	int		com_frameTime;
 
 extern	qboolean	com_errorEntered;
+extern	qboolean	com_fullyInitialized;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -958,7 +961,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown( char *finalmsg );
+void CL_Shutdown(char *finalmsg, qboolean disconnect);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -988,16 +991,19 @@ void	CL_ForwardCommandToServer( const char *string );
 void CL_CDDialog( void );
 // bring up the "need a cd to play" dialog
 
-void CL_ShutdownAll( void );
-// shutdown all the client stuff
-
 void CL_FlushMemory( void );
 // dump all memory on an error
+
+void CL_ShutdownAll(qboolean shutdownRef);
+// shutdown client
+
+void CL_InitRef(void);
+// initialize renderer interface
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 // start all the client stuff using the hunk
 
-void CL_Snd_Restart(void);
+void CL_Snd_Shutdown(void);
 // Restart sound subsystem
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );

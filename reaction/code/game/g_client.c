@@ -1092,7 +1092,7 @@ void ClientUserinfoChanged(int clientNum)
 	if (g_gametype.integer >= GT_TEAM) {
 		if (client->sess.savedTeam == TEAM_RED) {
 			Q_strncpyz(model2, g_RQ3_team1model.string, sizeof(model));
-			skin2 = Q_strrchr(model2, '/');
+			skin2 = strrchr(model2, '/');
 			if (skin2) {
 				*skin2++ = '\0';
 			} else {
@@ -1107,7 +1107,7 @@ void ClientUserinfoChanged(int clientNum)
 			}
 		} else {
 			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
-			skin2 = Q_strrchr(model2, '/');
+			skin2 = strrchr(model2, '/');
 			if (skin2) {
 				*skin2++ = '\0';
 			} else {
@@ -1123,7 +1123,7 @@ void ClientUserinfoChanged(int clientNum)
 		}
 	} else {
 		Q_strncpyz(model2, model, sizeof(model));
-		skin2 = Q_strrchr(model2, '/');
+		skin2 = strrchr(model2, '/');
 		if (skin2) {
 			*skin2++ = '\0';
 		} else {

@@ -363,7 +363,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage )
 	texModInfo_t *tmi;
 
 	if ( stage->bundle[0].numTexMods == TR_MAX_TEXMODS ) {
-		ri.Error( ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name );
+		ri.Error( ERR_DROP, "ERROR: too many tcMod stages in shader '%s'", shader.name );
 		return;
 	}
 
@@ -842,12 +842,26 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			else if(!Q_stricmp(token, "specularMap"))
 			{
 				stage->type = ST_SPECULARMAP;
+				stage->specularReflectance = 0.04f;
 			}
 			else
 			{
 				ri.Printf(PRINT_WARNING, "WARNING: unknown stage parameter '%s' in shader '%s'\n", token, shader.name);
 				continue;
 			}
+		}
+		//
+		// specularReflectance <value>
+		//
+		else if (!Q_stricmp(token, "specularreflectance"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if ( token[0] == 0 )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for specular reflectance in shader '%s'\n", shader.name );
+				continue;
+			}
+			stage->specularReflectance = atof( token );
 		}
 		//
 		// rgbGen
@@ -1845,9 +1859,14 @@ static void ComputeVertexAttribs(void)
 			break;
 		}
 
-		if (pStage->glslShaderGroup)
+		if (pStage->glslShaderGroup == tr.lightallShader)
 		{
-			shader.vertexAttribs |= ATTR_NORMAL | ATTR_BITANGENT | ATTR_TANGENT;
+			shader.vertexAttribs |= ATTR_NORMAL;
+
+			if (pStage->glslShaderIndex & LIGHTDEF_USE_NORMALMAP)
+			{
+				shader.vertexAttribs |= ATTR_BITANGENT | ATTR_TANGENT;
+			}
 		}
 
 		for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
@@ -1881,7 +1900,7 @@ static void ComputeVertexAttribs(void)
 			case CGEN_ONE_MINUS_VERTEX:
 				shader.vertexAttribs |= ATTR_COLOR;
 				break;
-				
+
 			case CGEN_LIGHTING_DIFFUSE:
 				shader.vertexAttribs |= ATTR_NORMAL;
 				break;
@@ -2107,12 +2126,13 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 	{
 		//ri.Printf(PRINT_ALL, ", specularmap %s", specular->bundle[0].image[0]->imgName);
 		diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
+		diffuse->specularReflectance = specular->specularReflectance;
 		defs |= LIGHTDEF_USE_SPECULARMAP;
 	}
 
 	if (!isWorld)
 	{
-		defs |= LIGHTDEF_ENTITY;
+		defs |= LIGHTDEF_ENTITY | LIGHTDEF_USE_LIGHT_VECTOR;
 	}
 
 	if (environment)
@@ -2140,6 +2160,31 @@ static qboolean CollapseStagesToGLSL(void)
 
 	if (!skip)
 	{
+		// if 2+ stages and first stage is lightmap, switch them
+		// this makes it easier for the later bits to process
+		if (stages[0].active && stages[0].bundle[0].isLightmap && stages[1].active)
+		{
+			int blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
+
+			if (blendBits == (GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO)
+				|| blendBits == (GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR))
+			{
+				int stateBits0 = stages[0].stateBits;
+				int stateBits1 = stages[1].stateBits;
+				shaderStage_t swapStage;
+
+				swapStage = stages[0];
+				stages[0] = stages[1];
+				stages[1] = swapStage;
+
+				stages[0].stateBits = stateBits0;
+				stages[1].stateBits = stateBits1;
+			}
+		}
+	}
+
+	if (!skip)
+	{
 		// scan for shaders that aren't supported
 		for (i = 0; i < MAX_SHADER_STAGES; i++)
 		{
@@ -2148,7 +2193,7 @@ static qboolean CollapseStagesToGLSL(void)
 			if (!pStage->active)
 				continue;
 
-			if (pStage->bundle[0].isLightmap && i != 0)
+			if (pStage->bundle[0].isLightmap)
 			{
 				int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 				
@@ -2156,6 +2201,7 @@ static qboolean CollapseStagesToGLSL(void)
 					&& blendBits != (GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR))
 				{
 					skip = qtrue;
+					break;
 				}
 			}
 
@@ -2198,19 +2244,21 @@ static qboolean CollapseStagesToGLSL(void)
 
 	if (!skip)
 	{
-		qboolean processedColormap = qfalse;
-
 		for (i = 0; i < MAX_SHADER_STAGES; i++)
 		{
 			shaderStage_t *pStage = &stages[i];
 			shaderStage_t *diffuse, *normal, *specular, *lightmap;
-			qboolean parallax, environment;
-			int stateBits;
+			qboolean parallax, environment, world;
 
 			if (!pStage->active)
 				continue;
 
-			if (pStage->type != ST_COLORMAP) // same as diffusemap and lightmap
+			// skip normal and specular maps
+			if (pStage->type != ST_COLORMAP)
+				continue;
+
+			// skip lightmaps
+			if (pStage->bundle[0].isLightmap)
 				continue;
 
 			diffuse  = NULL;
@@ -2219,15 +2267,7 @@ static qboolean CollapseStagesToGLSL(void)
 			specular = NULL;
 			lightmap = NULL;
 
-			if (pStage->bundle[0].isLightmap)
-			{
-				// stop processing if we've already done all the previous colormaps
-				if (processedColormap)
-					break;
-
-				lightmap = pStage;
-			}
-
+			// find matching normal, specular, and lightmap for this diffuse stage
 			for (j = i + 1; j < MAX_SHADER_STAGES; j++)
 			{
 				shaderStage_t *pStage2 = &stages[j];
@@ -2235,66 +2275,43 @@ static qboolean CollapseStagesToGLSL(void)
 				if (!pStage2->active)
 					continue;
 
-				if (pStage2->type == ST_NORMALMAP && !normal)
+				switch(pStage2->type)
 				{
-					normal = pStage2;
-					continue;
-				}
-
-				if (pStage2->type == ST_NORMALPARALLAXMAP && !normal)
-				{
-					normal = pStage2;
-					parallax = qtrue;
-					continue;
-				}
-
-				if (pStage2->type == ST_SPECULARMAP && !specular)
-				{
-					specular = pStage2;
-					continue;
-				}
-
-				if (pStage2->type != ST_COLORMAP) // same as diffusemap and lightmap
-					continue;
-
-				// stop if
-				//  - we hit another diffusemap after a lightmap
-				//  - we hit the lightmap
-				if (lightmap)
-				{
-					if (pStage2->bundle[0].isLightmap)
-					{
-						// wtf? two lightmaps in one shader?
-						ri.Printf(PRINT_WARNING, "Found two lightmap passes in shader %s\n", shader.name);
+					case ST_NORMALMAP:
+						if (!normal)
+						{
+							normal = pStage2;
+						}
 						break;
-					}
 
-					diffuse = pStage2;
-					break;
+					case ST_NORMALPARALLAXMAP:
+						if (!normal)
+						{
+							normal = pStage2;
+							parallax = qtrue;
+						}
+						break;
+
+					case ST_SPECULARMAP:
+						if (!specular)
+						{
+							specular = pStage2;
+						}
+						break;
+
+					case ST_COLORMAP:
+						if (pStage2->bundle[0].isLightmap)
+						{
+							lightmap = pStage2;
+						}
+						break;
+
+					default:
+						break;
 				}
-				else if (pStage2->bundle[0].isLightmap)
-				{
-					lightmap = pStage2;
-					break;
-				}
 			}
 
-			if (lightmap == pStage)
-			{
-				// after light map
-
-				// deal with two lightmap stages problem
-				if (!diffuse)
-					break;
-
-				stateBits = lightmap->stateBits;
-			}
-			else
-			{
-				// before light map
-				diffuse = pStage;
-				stateBits = diffuse->stateBits;
-			}
+			diffuse = pStage;
 
 			environment = qfalse;
 			if (diffuse->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED)
@@ -2302,21 +2319,13 @@ static qboolean CollapseStagesToGLSL(void)
 				environment = qtrue;
 			}
 
+			world = qtrue;
 			if (diffuse->rgbGen == CGEN_LIGHTING_DIFFUSE)
 			{
-				CollapseStagesToLightall(diffuse, normal, specular, NULL, qfalse, parallax, environment);
-			}
-			else if (lightmap)
-			{
-				CollapseStagesToLightall(diffuse, normal, specular, lightmap, qtrue, parallax, environment);
+				world = qfalse;
 			}
 
-			processedColormap = qtrue;
-
-			diffuse->stateBits = stateBits;
-
-			if (lightmap == pStage)
-				break;
+			CollapseStagesToLightall(diffuse, normal, specular, lightmap, world, parallax, environment);
 		}
 
 		// deactivate lightmap stages
@@ -2400,6 +2409,8 @@ static void FixRenderCommandList( int newShader ) {
 		const void *curCmd = cmdList->cmds;
 
 		while ( 1 ) {
+			curCmd = PADP(curCmd, sizeof(void *));
+
 			switch ( *(const int *)curCmd ) {
 			case RC_SET_COLOR:
 				{
@@ -2421,15 +2432,16 @@ static void FixRenderCommandList( int newShader ) {
 				int			fogNum;
 				int			entityNum;
 				int			dlightMap;
+				int         pshadowMap;
 				int			sortedIndex;
 				const drawSurfsCommand_t *ds_cmd =  (const drawSurfsCommand_t *)curCmd;
 
 				for( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ ) {
-					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap );
+					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap, &pshadowMap );
                     sortedIndex = (( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1));
 					if( sortedIndex >= newShader ) {
 						sortedIndex++;
-						drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
+						drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( (int)pshadowMap << QSORT_PSHADOW_SHIFT) | (int)dlightMap;
 					}
 				}
 				curCmd = (const void *)(ds_cmd + 1);

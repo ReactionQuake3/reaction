@@ -85,6 +85,7 @@ extern void     (APIENTRY * qglUniform1iARB) (GLint location, GLint v0);
 extern void     (APIENTRY * qglUniform2iARB) (GLint location, GLint v0, GLint v1);
 extern void     (APIENTRY * qglUniform3iARB) (GLint location, GLint v0, GLint v1, GLint v2);
 extern void     (APIENTRY * qglUniform4iARB) (GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+extern void     (APIENTRY * qglUniform1fvARB) (GLint location, GLsizei count, const GLfloat * value);
 extern void     (APIENTRY * qglUniform2fvARB) (GLint location, GLsizei count, const GLfloat * value);
 extern void     (APIENTRY * qglUniform3fvARB) (GLint location, GLsizei count, const GLfloat * value);
 extern void     (APIENTRY * qglUniform4fvARB) (GLint location, GLsizei count, const GLfloat * value);

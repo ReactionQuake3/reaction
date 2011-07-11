@@ -333,7 +333,7 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
 	tess.numVertexes = numv;
 }
 
-static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, srfTriangle_t *triangles, int dlightBits)
+static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, srfTriangle_t *triangles, int dlightBits, int pshadowBits)
 {
 	int			i;
 	srfTriangle_t  *tri;
@@ -396,11 +396,12 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 #endif
 
 	tess.dlightBits |= dlightBits;
+	tess.pshadowBits |= pshadowBits;
 
 	tess.numVertexes += numVerts;
 }
 
-static qboolean RB_SurfaceHelperVBO(VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndexes, int firstIndex, int dlightBits, qboolean shaderCheck)
+static qboolean RB_SurfaceHelperVBO(VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndexes, int firstIndex, int dlightBits, int pshadowBits, qboolean shaderCheck)
 {
 	if( glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && vbo && ibo)
 	{
@@ -415,6 +416,7 @@ static qboolean RB_SurfaceHelperVBO(VBO_t *vbo, IBO_t *ibo, int numVerts, int nu
 		RB_CheckVBOandIBO(vbo, ibo);
 
 		tess.dlightBits |= dlightBits;
+		tess.pshadowBits |= pshadowBits;
 
 		// merge this into any existing multidraw primitives
 		mergeForward = -1;
@@ -501,12 +503,12 @@ RB_SurfaceTriangles
 =============
 */
 static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], qtrue ) )
+	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
 	{
 		return;
 	}
 
-	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame]);
+	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame]);
 }
 
 
@@ -1218,7 +1220,6 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
-
 	for (j = 0 ; j < surface->numTriangles ; j++) {
 		tess.indexes[Bob + j*3 + 0] = Doug + triangles[j].indexes[0];
 		tess.indexes[Bob + j*3 + 1] = Doug + triangles[j].indexes[1];
@@ -1246,12 +1247,12 @@ RB_SurfaceFace
 ==============
 */
 static void RB_SurfaceFace( srfSurfaceFace_t *srf ) {
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], qtrue ) )
+	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
 	{
 		return;
 	}
 
-	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame]);
+	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame]);
 }
 
 
@@ -1307,16 +1308,20 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	int		lodWidth, lodHeight;
 	int		numVertexes;
 	int		dlightBits;
+	int     pshadowBits;
 	//int		*vDlightBits;
 	qboolean	needsNormal;
 
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], qtrue ) )
+	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
 	{
 		return;
 	}
 
 	dlightBits = srf->dlightBits[backEnd.smpFrame];
 	tess.dlightBits |= dlightBits;
+
+	pshadowBits = srf->pshadowBits[backEnd.smpFrame];
+	tess.pshadowBits |= pshadowBits;
 
 	// determine the allowable discrepance
 	lodError = LodErrorForVolume( srf->lodOrigin, srf->lodRadius );
@@ -1537,7 +1542,7 @@ static void RB_SurfaceFlare(srfFlare_t *surf)
 
 static void RB_SurfaceVBOMesh(srfVBOMesh_t * srf)
 {
-	RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], qfalse );
+	RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qfalse );
 }
 
 void RB_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
@@ -1608,6 +1613,7 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 #ifdef RAVENMD4
 	(void(*)(void*))RB_MDRSurfaceAnim,		// SF_MDR,
 #endif
+	(void(*)(void*))RB_IQMSurfaceAnim,		// SF_IQM,
 	(void(*)(void*))RB_SurfaceFlare,		// SF_FLARE,
 	(void(*)(void*))RB_SurfaceEntity,		// SF_ENTITY
 	(void(*)(void*))RB_SurfaceDisplayList,		// SF_DISPLAY_LIST

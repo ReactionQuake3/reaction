@@ -56,7 +56,9 @@ cvar_t	*sv_gametype;
 cvar_t	*sv_pure;
 cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
+#ifndef STANDALONE
 cvar_t	*sv_strictAuth;
+#endif
 cvar_t	*sv_banFile;
 cvar_t  *sv_heartbeat;			// Heartbeat string that is sent to the master
 cvar_t  *sv_flatline;			// If the master server supports it we can send a flatline
@@ -606,7 +608,7 @@ if a user is interested in a server to do a full status
 ================
 */
 void SVC_Info( netadr_t from ) {
-	int		i, count;
+	int		i, count, humans;
 	char	*gamedir;
 	char	infostring[MAX_INFO_STRING];
 
@@ -625,10 +627,13 @@ void SVC_Info( netadr_t from ) {
 		return;
 
 	// don't count privateclients
-	count = 0;
+	count = humans = 0;
 	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			count++;
+			if (svs.clients[i].netchan.remoteAddress.type != NA_BOT) {
+				humans++;
+			}
 		}
 	}
 
@@ -642,10 +647,12 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
+	Info_SetValueForKey(infostring, "g_humanplayers", va("%i", humans));
 	Info_SetValueForKey( infostring, "sv_maxclients", 
 		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
 	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
 	Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
+	Info_SetValueForKey(infostring, "g_needpass", va("%d", Cvar_VariableIntegerValue("g_needpass")));
 
 #ifdef USE_VOIP
 	if (sv_voip->integer) {

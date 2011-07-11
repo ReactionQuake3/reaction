@@ -1618,7 +1618,7 @@ int GetMaterialFromFlag(int flag)
 	char *p, *out = s;
 	if (!s)
 		return NULL;
-	if ((p = Q_strrchr(s, '/')) != NULL)
+	if ((p = strrchr(s, '/')) != NULL)
 	{
 		*p=0;
 		out=va("%s", s);
@@ -1634,7 +1634,7 @@ int GetMaterialFromFlag(int flag)
 		return NULL;
 	if (!*s)
 		return va("");
-	if ((p = Q_strrchr(s, '/')) != NULL)
+	if ((p = strrchr(s, '/')) != NULL)
 		return p+1;
 	return va("default");
 } */
@@ -1648,7 +1648,7 @@ char *modelFromStr(char *s)
 	if (!s)
 		return NULL;
 	strncpy(buffer, s, sizeof(buffer));
-	if ((p = Q_strrchr(buffer, '/')) != NULL)
+	if ((p = strrchr(buffer, '/')) != NULL)
 		*p = '\0';
 	return buffer;
 }
@@ -1664,7 +1664,7 @@ char *skinFromStr(char *s)
 	if (!*s)
 		return buffer;
 	strncpy(buffer, s, 128);
-	if ((p = Q_strrchr(buffer, '/')) != NULL)
+	if ((p = strrchr(buffer, '/')) != NULL)
 		return p+1;
 	strcpy(buffer, "default");
 	return buffer;

@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <pwd.h>
 #include <libgen.h>
 #include <fcntl.h>
+#include <fenv.h>
 
 qboolean stdinIsATTY;
 
@@ -58,17 +59,17 @@ char *Sys_DefaultHomePath(void)
 			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
 #ifdef MACOS_X
 			Q_strcat(homePath, sizeof(homePath),
-				"Library/Application Support/Reaction");
+				"Library/Application Support/");
 
 			if(com_homepath->string[0])
 				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
 			else
-				Q_strcat(homePath, sizeof(homePath), "Reaction");
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
 #else
 			if(com_homepath->string[0])
 				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
 			else
-				Q_strcat(homePath, sizeof(homePath), ".Reaction");
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 #endif
 		}
 	}
@@ -124,31 +125,6 @@ int Sys_Milliseconds (void)
 
 	return curtime;
 }
-
-#if !id386
-/*
-==================
-fastftol
-==================
-*/
-long fastftol( float f )
-{
-	return (long)f;
-}
-
-/*
-==================
-Sys_SnapVector
-==================
-*/
-void Sys_SnapVector( float *v )
-{
-	v[0] = rint(v[0]);
-	v[1] = rint(v[1]);
-	v[2] = rint(v[2]);
-}
-#endif
-
 
 /*
 ==================
@@ -254,10 +230,10 @@ Sys_Mkfifo
 */
 FILE *Sys_Mkfifo( const char *ospath )
 {
-	FILE	*fifo; 
-	int		result;
-	int		fn;
-	struct  stat buf;
+	FILE	*fifo;
+	int	result;
+	int	fn;
+	struct	stat buf;
 
 	// if file already exists AND is a pipefile, remove it
 	if( !stat( ospath, &buf ) && S_ISFIFO( buf.st_mode ) )
@@ -754,6 +730,12 @@ Unix specific GL implementation initialisation
 void Sys_GLimpInit( void )
 {
 	// NOP
+}
+
+void Sys_SetFloatEnv(void)
+{
+	// rounding towards 0
+	fesetround(FE_TOWARDZERO);
 }
 
 /*

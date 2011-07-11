@@ -31,9 +31,8 @@ typedef unsigned char boolean;
 #endif
 
 /* #undef RIGHT_SHIFT_IS_UNSIGNED */
-// Makro - the code didn't compile in VC++ 2008 Express
 #ifdef _MSC_VER
-#define INLINE __forceinline
+#define INLINE __inline
 #else
 #define INLINE __inline__
 #endif

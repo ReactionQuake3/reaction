@@ -351,7 +351,7 @@ void Sys_Error( const char *error, ... )
 	Q_vsnprintf (string, sizeof(string), error, argptr);
 	va_end (argptr);
 
-	CL_Shutdown( string );
+	CL_Shutdown(string, qtrue);
 	Sys_ErrorDialog( string );
 
 	Sys_Exit( 3 );
@@ -412,35 +412,23 @@ void Sys_UnloadDll( void *dllHandle )
 Sys_LoadDll
 
 Used to load a development dll instead of a virtual machine
-#1 look in fs_homepath
-#2 look in fs_basepath
 =================
 */
-void *Sys_LoadDll( const char *name,
-	intptr_t (**entryPoint)(int, ...),
-	intptr_t (*systemcalls)(intptr_t, ...) )
+void *Sys_LoadDll(const char *name,
+	intptr_t (QDECL **entryPoint)(int, ...),
+	intptr_t (*systemcalls)(intptr_t, ...))
 {
-	void  *libHandle;
-	void  (*dllEntry)( intptr_t (*syscallptr)(intptr_t, ...) );
-	char  fname[MAX_OSPATH];
-	char  *netpath;
+	void *libHandle;
+	void (*dllEntry)(intptr_t (*syscallptr)(intptr_t, ...));
 
-	assert( name );
+	assert(name);
 
-	Com_sprintf(fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
+	Com_Printf( "Loading DLL file: %s\n", name);
+	libHandle = Sys_LoadLibrary(name);
 
-	netpath = FS_FindDll(fname);
-
-	if(!netpath) {
-		Com_Printf( "Sys_LoadDll(%s) could not find it\n", fname );
-		return NULL;
-	}
-
-	Com_Printf( "Loading DLL file: %s\n", netpath);
-	libHandle = Sys_LoadLibrary(netpath);
-
-	if(!libHandle) {
-		Com_Printf( "Sys_LoadDll(%s) failed:\n\"%s\"\n", netpath, Sys_LibraryError() );
+	if(!libHandle)
+	{
+		Com_Printf("Sys_LoadDll(%s) failed:\n\"%s\"\n", name, Sys_LibraryError());
 		return NULL;
 	}
 
@@ -510,9 +498,9 @@ void Sys_SigHandler( int signal )
 	{
 		signalcaught = qtrue;
 #ifndef DEDICATED
-		CL_Shutdown( va( "Received signal %d", signal ) );
+		CL_Shutdown(va("Received signal %d", signal), qtrue);
 #endif
-		SV_Shutdown( va( "Received signal %d", signal ) );
+		SV_Shutdown(va("Received signal %d", signal) );
 	}
 
 	if( signal == SIGTERM || signal == SIGINT )

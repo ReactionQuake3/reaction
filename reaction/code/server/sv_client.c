@@ -459,7 +459,7 @@ void SV_DirectConnect( netadr_t from ) {
 				newcl = &svs.clients[sv_maxclients->integer - 1];
 			}
 			else {
-				Com_Error( ERR_FATAL, "server is full on local connect\n" );
+				Com_Error( ERR_FATAL, "server is full on local connect" );
 				return;
 			}
 		}
@@ -864,7 +864,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	
  		// Chop off filename extension.
 		Com_sprintf(pakbuf, sizeof(pakbuf), "%s", cl->downloadName);
-		pakptr = Q_strrchr(pakbuf, '.');
+		pakptr = strrchr(pakbuf, '.');
 		
 		if(pakptr)
 		{
@@ -1537,7 +1537,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// the command, we will stop processing the rest of the packet,
 	// including the usercmd.  This causes flooders to lag themselves
 	// but not other people
-	// We don't do this when the client hasn't been active yet since its
+	// We don't do this when the client hasn't been active yet since it's
 	// normal to spam a lot of commands when downloading
 	if ( !com_cl_running->integer && 
 		cl->state >= CS_ACTIVE &&

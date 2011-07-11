@@ -784,7 +784,7 @@ done:
 	if ( resampledBuffer != 0 )
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
-
+ 
 static image_t *R_AllocImage(const char* name, int width, int height, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode)
 {
 	image_t		*image;
@@ -809,7 +809,7 @@ static image_t *R_AllocImage(const char* name, int width, int height, qboolean m
 
 	return image;
 }
-
+ 
 /*
 ================
 R_CreateImage
@@ -820,20 +820,21 @@ Makro - except maybe for render targets
 at some point in the near future...
 ================
 */
-image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
-					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t *R_CreateImage2( const char *name, const byte *pic, int width, int height, 
+					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean cube ) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
+	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
-		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
+		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long", name);
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
 		isLightmap = qtrue;
 	}
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
-		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit");
 	}
 
 	image = R_AllocImage(name, width, height, mipmap, allowPicmip, glWrapClampMode);
@@ -849,18 +850,41 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		GL_SelectTexture( image->TMU );
 	}
 
-	GL_Bind(image);
+	if (cube)
+	{
+		GL_BindCubemap(image);
+		qglTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		qglTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		qglTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		qglTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		qglTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	Upload32( (unsigned *)pic, image->width, image->height, 
-								image->mipmap,
-								allowPicmip,
-								isLightmap,
-								&image->internalFormat,
-								&image->uploadWidth,
-								&image->uploadHeight );
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
+		qglTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pic);
 
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
+		image->internalFormat = GL_RGBA8;
+		image->uploadWidth = width;
+		image->uploadHeight = height;
+	}
+	else
+	{
+		GL_Bind(image);
+
+		Upload32( (unsigned *)pic, image->width, image->height, 
+									image->mipmap,
+									allowPicmip,
+									isLightmap,
+									&image->internalFormat,
+									&image->uploadWidth,
+									&image->uploadHeight );
+
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
+		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
+	}
 
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 
@@ -869,6 +893,18 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	}
 
 	return image;
+}
+
+image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
+					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
+{
+	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qfalse);
+}
+
+image_t *R_CreateCubeImage( const char *name, const byte *pic, int width, int height, 
+					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
+{
+	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qtrue);
 }
 
 //===================================================================
@@ -891,8 +927,7 @@ static imageExtToLoaderMap_t imageLoaders[ ] =
 	{ "bmp",  R_LoadBMP }
 };
 
-static int numImageLoaders = sizeof( imageLoaders ) /
-		sizeof( imageLoaders[ 0 ] );
+static int numImageLoaders = ARRAY_LEN( imageLoaders );
 
 /*
 =================
@@ -905,9 +940,11 @@ Loads any of the supported image types into a cannonical
 void R_LoadImage( const char *name, byte **pic, int *width, int *height )
 {
 	qboolean orgNameFailed = qfalse;
+	int orgLoader = -1;
 	int i;
 	char localName[ MAX_QPATH ];
 	const char *ext;
+	char *altName;
 
 	*pic = NULL;
 	*width = 0;
@@ -938,6 +975,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height )
 				// Loader failed, most likely because the file isn't there;
 				// try again without the extension
 				orgNameFailed = qtrue;
+				orgLoader = i;
 				COM_StripExtension( name, localName, MAX_QPATH );
 			}
 			else
@@ -952,7 +990,10 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height )
 	// the image formats supported
 	for( i = 0; i < numImageLoaders; i++ )
 	{
-		char *altName = va( "%s.%s", localName, imageLoaders[ i ].ext );
+		if (i == orgLoader)
+			continue;
+
+		altName = va( "%s.%s", localName, imageLoaders[ i ].ext );
 
 		// Load
 		imageLoaders[ i ].ImageLoader( altName, pic, width, height );
@@ -1208,7 +1249,24 @@ void R_CreateBuiltinImages( void ) {
 	Com_Memset( data, 255, sizeof( data ) );
 	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
 
-	// black image, for no specular
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
+		&& glRefConfig.glsl && r_arb_shader_objects->integer)
+	{
+		if (r_dlightShadows->integer)
+		{
+			for( x = 0; x < MAX_DLIGHTS; x++)
+			{
+				tr.shadowCubemaps[x] = R_CreateCubeImage(va("*shadowcubemap%i", x), (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+			}
+		}
+
+		for( x = 0; x < MAX_DRAWN_PSHADOWS; x++)
+		{
+			tr.pshadowMaps[x] = R_CreateImage(va("*shadowmap%i", x), (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+		}
+	}
+
+	// black image
 	for (x=0 ; x<DEFAULT_SIZE ; x++) {
 		for (y=0 ; y<DEFAULT_SIZE ; y++) {
 			data[y][x][0] = 
@@ -1649,5 +1707,6 @@ void	R_SkinList_f( void ) {
 	}
 	ri.Printf (PRINT_ALL, "------------------\n");
 }
+
 
 

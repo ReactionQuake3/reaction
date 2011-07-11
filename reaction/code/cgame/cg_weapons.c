@@ -251,7 +251,7 @@
  * */
 void COM_StripExtensionInPlace(char *name)
 {
-	char* ext = Q_strrchr(name, '.');
+	char* ext = strrchr(name, '.');
 	if (ext)
 		*ext = 0;
 }

@@ -387,15 +387,16 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 static void DrawSkySideVBO( struct image_s *image, const int mins[2], const int maxs[2] )
 {
 	int s, t;
-	//int firstVertex = tess.numVertexes;
+	int firstVertex = tess.numVertexes;
 	//int firstIndex = tess.numIndexes;
 	vec4_t color;
 
-	tess.numVertexes = 0;
-	tess.numIndexes = 0;
-	tess.firstIndex = 0;
+	//tess.numVertexes = 0;
+	//tess.numIndexes = 0;
+	tess.firstIndex = tess.numIndexes;
 	
 	GL_Bind( image );
+	GL_Cull( CT_TWO_SIDED );
 
 	for ( t = mins[1]+HALF_SKY_SUBDIVISIONS; t <= maxs[1]+HALF_SKY_SUBDIVISIONS; t++ )
 	{
@@ -427,13 +428,13 @@ static void DrawSkySideVBO( struct image_s *image, const int mins[2], const int 
 				ri.Error(ERR_DROP, "SHADER_MAX_INDEXES hit in DrawSkySideVBO()\n");
 			}
 
-			tess.indexes[tess.numIndexes++] =  s +       t      * (maxs[0] - mins[0] + 1);
-			tess.indexes[tess.numIndexes++] =  s +      (t + 1) * (maxs[0] - mins[0] + 1);
-			tess.indexes[tess.numIndexes++] = (s + 1) +  t      * (maxs[0] - mins[0] + 1);
+			tess.indexes[tess.numIndexes++] =  s +       t      * (maxs[0] - mins[0] + 1) + firstVertex;
+			tess.indexes[tess.numIndexes++] =  s +      (t + 1) * (maxs[0] - mins[0] + 1) + firstVertex;
+			tess.indexes[tess.numIndexes++] = (s + 1) +  t      * (maxs[0] - mins[0] + 1) + firstVertex;
 
-			tess.indexes[tess.numIndexes++] = (s + 1) +  t      * (maxs[0] - mins[0] + 1);
-			tess.indexes[tess.numIndexes++] =  s +      (t + 1) * (maxs[0] - mins[0] + 1);
-			tess.indexes[tess.numIndexes++] = (s + 1) + (t + 1) * (maxs[0] - mins[0] + 1);
+			tess.indexes[tess.numIndexes++] = (s + 1) +  t      * (maxs[0] - mins[0] + 1) + firstVertex;
+			tess.indexes[tess.numIndexes++] =  s +      (t + 1) * (maxs[0] - mins[0] + 1) + firstVertex;
+			tess.indexes[tess.numIndexes++] = (s + 1) + (t + 1) * (maxs[0] - mins[0] + 1) + firstVertex;
 		}
 	}
 
@@ -449,8 +450,8 @@ static void DrawSkySideVBO( struct image_s *image, const int mins[2], const int 
 		
 		GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 		
-		color[0] = tr.identityLight;
-		color[1] = tr.identityLight;
+		color[0] = 
+		color[1] = 
 		color[2] = tr.identityLight;
 		color[3] = 1.0f;
 		GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
@@ -459,17 +460,18 @@ static void DrawSkySideVBO( struct image_s *image, const int mins[2], const int 
 	{
 		qglEnableClientState( GL_VERTEX_ARRAY );
 		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		qglDisableClientState( GL_COLOR_ARRAY );
 		qglVertexPointer(3, GL_FLOAT, glState.currentVBO->stride_xyz, BUFFER_OFFSET(glState.currentVBO->ofs_xyz));
 		qglTexCoordPointer( 2, GL_FLOAT, glState.currentVBO->stride_st, BUFFER_OFFSET(glState.currentVBO->ofs_st) );
 	}
 
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex));
+	qglDrawElements(GL_TRIANGLES, tess.numIndexes - tess.firstIndex, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex * sizeof(GL_INDEX_TYPE)));
 	
 	//R_BindNullVBO();
 	//R_BindNullIBO();
 
-	tess.numIndexes = 0;
-	tess.numVertexes = 0;
+	tess.numIndexes = tess.firstIndex;
+	tess.numVertexes = firstVertex;
 	tess.firstIndex = 0;
 }
 
@@ -574,7 +576,7 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 
 			if ( tess.numVertexes >= SHADER_MAX_VERTEXES )
 			{
-				ri.Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
+				ri.Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()" );
 			}
 		}
 	}
@@ -652,10 +654,10 @@ static void FillCloudBox( const shader_t *shader, int stage )
 			continue;
 		}
 
-		sky_mins_subd[0] = myftol( sky_mins[0][i] * HALF_SKY_SUBDIVISIONS );
-		sky_mins_subd[1] = myftol( sky_mins[1][i] * HALF_SKY_SUBDIVISIONS );
-		sky_maxs_subd[0] = myftol( sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS );
-		sky_maxs_subd[1] = myftol( sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS );
+		sky_mins_subd[0] = Q_ftol(sky_mins[0][i] * HALF_SKY_SUBDIVISIONS);
+		sky_mins_subd[1] = Q_ftol(sky_mins[1][i] * HALF_SKY_SUBDIVISIONS);
+		sky_maxs_subd[0] = Q_ftol(sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS);
+		sky_maxs_subd[1] = Q_ftol(sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS);
 
 		if ( sky_mins_subd[0] < -HALF_SKY_SUBDIVISIONS ) 
 			sky_mins_subd[0] = -HALF_SKY_SUBDIVISIONS;
@@ -974,5 +976,6 @@ void RB_StageIteratorSky( void ) {
 	// note that sky was drawn so we will draw a sun later
 	backEnd.skyRenderedThisView = qtrue;
 }
+
 
 

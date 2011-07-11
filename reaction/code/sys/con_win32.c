@@ -225,7 +225,7 @@ void CON_Init( void )
 	GetConsoleScreenBufferInfo( qconsole_hout, &info );
 	qconsole_attrib = info.wAttributes;
 
-	SetConsoleTitle("Reaction Dedicated Server Console");
+	SetConsoleTitle(CLIENT_WINDOW_TITLE " Dedicated Server Console");
 
 	// make cursor invisible
 	GetConsoleCursorInfo( qconsole_hout, &qconsole_orig_cursorinfo );

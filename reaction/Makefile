@@ -183,7 +183,7 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-Q3UIDIR=$(MOUNT_DIR)/q3_ui
+Q3UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 ZDIR=$(MOUNT_DIR)/zlib
@@ -1442,6 +1442,7 @@ Q3OBJ = \
   $(B)/client/tr_vbo.o \
   $(B)/client/tr_fbo.o \
   $(B)/client/tr_postprocess.o \
+  $(B)/client/tr_model_iqm.o \
   \
   $(B)/client/sdl_gamma.o \
   $(B)/client/sdl_input.o \

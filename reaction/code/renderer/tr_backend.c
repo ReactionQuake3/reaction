@@ -61,6 +61,30 @@ void GL_Bind( image_t *image ) {
 }
 
 /*
+** GL_BindCubemap
+*/
+void GL_BindCubemap( image_t *image ) {
+	int texnum;
+
+	if ( !image ) {
+		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
+		texnum = tr.defaultImage->texnum;
+	} else {
+		texnum = image->texnum;
+	}
+
+	if ( r_nobind->integer && tr.dlightImage ) {		// performance evaluation option
+		texnum = tr.dlightImage->texnum;
+	}
+
+	if ( glState.currenttextures[glState.currenttmu] != texnum ) {
+		image->frameUsed = tr.frameCount;
+		glState.currenttextures[glState.currenttmu] = texnum;
+		qglBindTexture (GL_TEXTURE_CUBE_MAP, texnum);
+	}
+}
+
+/*
 ** GL_SelectTexture
 */
 void GL_SelectTexture( int unit )
@@ -176,7 +200,7 @@ void GL_Cull( int cullType ) {
 
 		if ( cullType == CT_BACK_SIDED )
 		{
-			if ( backEnd.viewParms.isMirror )
+			if ( backEnd.viewParms.isMirror && !backEnd.viewParms.isShadowmap)
 			{
 				qglCullFace( GL_FRONT );
 			}
@@ -187,7 +211,7 @@ void GL_Cull( int cullType ) {
 		}
 		else
 		{
-			if ( backEnd.viewParms.isMirror )
+			if ( backEnd.viewParms.isMirror && !backEnd.viewParms.isShadowmap)
 			{
 				qglCullFace( GL_BACK );
 			}
@@ -227,7 +251,7 @@ void GL_TexEnv( int env )
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
 	default:
-		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
+		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed", env );
 		break;
 	}
 }
@@ -302,7 +326,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				srcFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits\n" );
+				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits" );
 				break;
 			}
 
@@ -334,7 +358,7 @@ void GL_State( unsigned long stateBits )
 				break;
 			default:
 				dstFactor = GL_ONE;		// to get warning to shut up
-				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits\n" );
+				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits" );
 				break;
 			}
 
@@ -552,6 +576,14 @@ void RB_BeginDrawingView (void) {
 		qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
 #endif
 	}
+
+	// clear to white for shadow maps
+	if (backEnd.viewParms.isShadowmap)
+	{
+		clearBits |= GL_COLOR_BUFFER_BIT;
+		qglClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+	}
+
 	qglClear( clearBits );
 
 	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
@@ -615,6 +647,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				fogNum, oldFogNum;
 	int				entityNum, oldEntityNum;
 	int				dlighted, oldDlighted;
+	int				pshadowed, oldPshadowed;
 	qboolean		depthRange, oldDepthRange, isCrosshair, wasCrosshair;
 	int				i;
 	drawSurf_t		*drawSurf;
@@ -640,6 +673,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldDepthRange = qfalse;
 	wasCrosshair = qfalse;
 	oldDlighted = qfalse;
+	oldPshadowed = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
 	depth[0] = 0.f;
@@ -654,13 +688,13 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
+		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
 
 		//
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted 
+		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted || pshadowed != oldPshadowed
 			|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
 			if (oldShader != NULL) {
 				RB_EndSurface();
@@ -670,6 +704,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			oldShader = shader;
 			oldFogNum = fogNum;
 			oldDlighted = dlighted;
+			oldPshadowed = pshadowed;
 		}
 
 		//
@@ -771,7 +806,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 						{
 							viewParms_t temp = backEnd.viewParms;
 
-							R_SetupProjection(&temp, r_znear->value, qfalse);
+							R_SetupProjection(&temp, r_znear->value, 0, qfalse);
 
 							GL_SetProjectionMatrix( temp.projectionMatrix );
 						}
@@ -1407,6 +1442,34 @@ const void	*RB_SwapBuffers( const void *data ) {
 }
 
 /*
+=============
+RB_CapShadowMap
+
+=============
+*/
+const void *RB_CapShadowMap(const void *data)
+{
+	const capShadowmapCommand_t *cmd = data;
+
+	if (cmd->map != -1)
+	{
+		GL_SelectTexture(0);
+		if (cmd->cubeSide != -1)
+		{
+			GL_BindCubemap(tr.shadowCubemaps[cmd->map]);
+			qglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + cmd->cubeSide, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + 256 ), 256, 256, 0);
+		}
+		else
+		{
+			GL_Bind(tr.pshadowMaps[cmd->map]);
+			qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + 256 ), 256, 256, 0);
+		}
+	}
+
+	return (const void *)(cmd + 1);
+}
+
+/*
 ====================
 RB_ExecuteRenderCommands
 
@@ -1426,6 +1489,8 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	}
 
 	while ( 1 ) {
+		data = PADP(data, sizeof(void *));
+
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
@@ -1453,6 +1518,9 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			break;
 		case RC_CLEARDEPTH:
 			data = RB_ClearDepth(data);
+			break;
+		case RC_CAPSHADOWMAP:
+			data = RB_CapShadowMap(data);
 			break;
 		case RC_END_OF_LIST:
 		default:

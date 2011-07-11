@@ -275,7 +275,10 @@ static	void R_LoadLightmaps( lump_t *l ) {
 	// create all the lightmaps
 	numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
 	
-	numLightmaps >>= (tr.worldDeluxeMapping ? 1 : 0);
+	if (tr.worldDeluxeMapping)
+	{
+		numLightmaps >>= 1;
+	}
 
 	if(numLightmaps == 1)
 	{
@@ -369,7 +372,6 @@ static	void R_LoadLightmaps( lump_t *l ) {
 				}
 			}
 		}
-
 	}
 
 	tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), fatbuffer, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
@@ -1795,13 +1797,10 @@ static void R_CreateWorldVBO(void)
 
 	// create arrays
 
-	s_worldData.numVerts = numVerts;
-	s_worldData.verts = verts = ri.Hunk_Alloc(numVerts * sizeof(srfVert_t), h_low);
+	verts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));
 	//optimizedVerts = ri.Hunk_AllocateTempMemory(numVerts * sizeof(srfVert_t));
 
-	s_worldData.numTriangles = numTriangles;
-	s_worldData.triangles = triangles = ri.Hunk_Alloc(numTriangles * sizeof(srfTriangle_t), h_low);
-
+	triangles = ri.Hunk_AllocateTempMemory(numTriangles * sizeof(srfTriangle_t));
 
 	// presort surfaces
 	surfacesSorted = ri.Malloc(numSurfaces * sizeof(*surfacesSorted));
@@ -1950,23 +1949,9 @@ static void R_CreateWorldVBO(void)
 		}
 	}
 
-#if 0
-	numVerts = OptimizeVertices(numVerts, verts, numTriangles, triangles, optimizedVerts, CompareWorldVert);
-	if(c_redundantVertexes)
-	{
-		ri.Printf(PRINT_DEVELOPER,
-				  "...removed %i redundant vertices from staticWorldMesh %i ( %s, %i verts %i tris )\n",
-				  c_redundantVertexes, vboSurfaces.currentElements, shader->name, numVerts, numTriangles);
-	}
-
-	s_worldData.vbo = R_CreateVBO2(va("bspModelMesh_vertices %i", 0), numVerts, optimizedVerts,
-								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BITANGENT |
-								   ATTR_NORMAL | ATTR_COLOR | GLCS_LIGHTCOLOR | ATTR_LIGHTDIRECTION);
-#else
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BITANGENT |
 								   ATTR_NORMAL | ATTR_COLOR, VBO_USAGE_STATIC);
-#endif
 
 	s_worldData.ibo = R_CreateIBO2(va("staticBspModel0_IBO %i", 0), numTriangles, triangles, VBO_USAGE_STATIC);
 
@@ -2011,42 +1996,11 @@ static void R_CreateWorldVBO(void)
 
 	startTime = ri.Milliseconds();
 
-	// Tr3B: FIXME move this to somewhere else?
-#if CALC_REDUNDANT_SHADOWVERTS
-	s_worldData.redundantVertsCalculationNeeded = 0;
-	for(i = 0; i < s_worldData.numLights; i++)
-	{
-		light = &s_worldData.lights[i];
-
-		if((r_precomputedLighting->integer || r_vertexLighting->integer) && !light->noRadiosity)
-			continue;
-
-		s_worldData.redundantVertsCalculationNeeded++;
-	}
-
-	if(s_worldData.redundantVertsCalculationNeeded)
-	{
-		ri.Printf(PRINT_ALL, "...calculating redundant world vertices ( %i verts )\n", numVerts);
-
-		s_worldData.redundantLightVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-		BuildRedundantIndices(numVerts, verts, s_worldData.redundantLightVerts, CompareLightVert);
-
-		s_worldData.redundantShadowVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-		BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowVerts, CompareShadowVert);
-
-		s_worldData.redundantShadowAlphaTestVerts = ri.Hunk_Alloc(numVerts * sizeof(int), h_low);
-		BuildRedundantIndices(numVerts, verts, s_worldData.redundantShadowAlphaTestVerts, CompareShadowVertAlphaTest);
-	}
-
-	endTime = ri.Milliseconds();
-	ri.Printf(PRINT_ALL, "redundant world vertices calculation time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
-#endif
-
 	ri.Free(surfacesSorted);
 
-	//ri.Hunk_FreeTempMemory(triangles);
+	ri.Hunk_FreeTempMemory(triangles);
 	//ri.Hunk_FreeTempMemory(optimizedVerts);
-	//ri.Hunk_FreeTempMemory(verts);
+	ri.Hunk_FreeTempMemory(verts);
 }
 
 
@@ -2088,6 +2042,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	s_worldData.numsurfaces = count;
 	s_worldData.surfacesViewCount = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesViewCount), h_low );
 	s_worldData.surfacesDlightBits = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesDlightBits), h_low );
+	s_worldData.surfacesPshadowBits = ri.Hunk_Alloc ( count * sizeof(*s_worldData.surfacesPshadowBits), h_low );
 	//s_worldData.numWorldSurfaces = count;
 
 	// Two passes, allocate surfaces first, then load them full of data
@@ -2147,7 +2102,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			{
 				srfSurfaceFace_t *surface = (srfSurfaceFace_t *)out->data;
 
-				out->cullinfo.type = CULLINFO_PLANE; // | CULLINFO_BOX;
+				out->cullinfo.type = CULLINFO_PLANE | CULLINFO_BOX;
 				VectorCopy(surface->bounds[0], out->cullinfo.bounds[0]);
 				VectorCopy(surface->bounds[1], out->cullinfo.bounds[1]);
 				out->cullinfo.plane = surface->plane;
@@ -3161,5 +3116,6 @@ void RE_LoadWorldMap( const char *name ) {
 
     ri.FS_FreeFile( buffer.v );
 }
+
 
 

@@ -180,6 +180,7 @@ void            (APIENTRY * qglUniform1iARB) (GLint location, GLint v0);
 void            (APIENTRY * qglUniform2iARB) (GLint location, GLint v0, GLint v1);
 void            (APIENTRY * qglUniform3iARB) (GLint location, GLint v0, GLint v1, GLint v2);
 void            (APIENTRY * qglUniform4iARB) (GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+void            (APIENTRY * qglUniform1fvARB) (GLint location, GLsizei count, const GLfloat * value);
 void            (APIENTRY * qglUniform2fvARB) (GLint location, GLsizei count, const GLfloat * value);
 void            (APIENTRY * qglUniform3fvARB) (GLint location, GLsizei count, const GLfloat * value);
 void            (APIENTRY * qglUniform4fvARB) (GLint location, GLsizei count, const GLfloat * value);
@@ -975,6 +976,7 @@ static void GLimp_InitExtensions( void )
 	qglUniform2iARB = NULL;
 	qglUniform3iARB = NULL;
 	qglUniform4iARB = NULL;
+	qglUniform1fvARB = NULL;
 	qglUniform2fvARB = NULL;
 	qglUniform3fvARB = NULL;
 	qglUniform4fvARB = NULL;
@@ -1014,6 +1016,7 @@ static void GLimp_InitExtensions( void )
 		qglUniform2iARB = (PFNGLUNIFORM2IARBPROC) SDL_GL_GetProcAddress("glUniform2iARB");
 		qglUniform3iARB = (PFNGLUNIFORM3IARBPROC) SDL_GL_GetProcAddress("glUniform3iARB");
 		qglUniform4iARB = (PFNGLUNIFORM4IARBPROC) SDL_GL_GetProcAddress("glUniform4iARB");
+		qglUniform1fvARB = (PFNGLUNIFORM1FVARBPROC) SDL_GL_GetProcAddress("glUniform1fvARB");
 		qglUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) SDL_GL_GetProcAddress("glUniform2fvARB");
 		qglUniform3fvARB = (PFNGLUNIFORM3FVARBPROC) SDL_GL_GetProcAddress("glUniform3fvARB");
 		qglUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) SDL_GL_GetProcAddress("glUniform4fvARB");
@@ -1231,7 +1234,7 @@ void GLimp_Init( void )
 	}
 
 	// Nothing worked, give up
-	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n" );
+	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
 
 success:
 	// This values force the UI to disable driver selection

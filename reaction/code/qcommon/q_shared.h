@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define GAMENAME_FOR_MASTER		"Reaction"		// must NOT contain whitespaces
   #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
   #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
+  #define HOMEPATH_NAME_UNIX		".Reaction"
+  #define HOMEPATH_NAME_WIN		"Reaction"
+  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 #else
   #define PRODUCT_NAME			"Reaction"
   #define BASEGAME			"Boomstick"
@@ -42,18 +45,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define GAMENAME_FOR_MASTER		"Reaction"
   #define HEARTBEAT_FOR_MASTER		"Reaction-1"
   #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER
+  #define HOMEPATH_NAME_UNIX		".Reaction"
+  #define HOMEPATH_NAME_WIN		"Reaction"
+  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
 #endif
 
 #define BASETA				"missionpack"
 
 #ifdef _MSC_VER
-  #define PRODUCT_VERSION "1.35"
+  #define PRODUCT_VERSION "1.36"
 #endif
 
 #define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
 
 #define MAX_TEAMNAME		32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers
+
+#define DEMOEXT	"dm_"			// standard demo extension
 
 #ifdef _MSC_VER
 
@@ -175,8 +183,10 @@ typedef int		sfxHandle_t;
 typedef int		fileHandle_t;
 typedef int		clipHandle_t;
 
-#define PAD(x,y)	(((x)+(y)-1) & ~((y)-1))
-#define PADLEN(x,y)	(PAD((x), (y)) - (x))
+#define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
+#define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
+
+#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
 
 #ifdef __GNUC__
 #define QALIGN(x) __attribute__((aligned(x)))
@@ -420,6 +430,58 @@ extern	vec3_t	axisDefault[3];
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+int Q_isnan(float x);
+
+#if idx64
+  extern long qftolsse(float f);
+  extern int qvmftolsse(void);
+  extern void qsnapvectorsse(vec3_t vec);
+
+  #define Q_ftol qftolsse
+  #define Q_SnapVector qsnapvectorsse
+
+  extern int (*Q_VMftol)(void);
+#elif id386
+  extern long QDECL qftolx87(float f);
+  extern long QDECL qftolsse(float f);
+  extern int QDECL qvmftolx87(void);
+  extern int QDECL qvmftolsse(void);
+  extern void QDECL qsnapvectorx87(vec3_t vec);
+  extern void QDECL qsnapvectorsse(vec3_t vec);
+
+  extern long (QDECL *Q_ftol)(float f);
+  extern int (QDECL *Q_VMftol)(void);
+  extern void (QDECL *Q_SnapVector)(vec3_t vec);
+#else
+  #define Q_ftol(f) lrintf((f))
+  #define Q_SnapVector(vec)\
+	do\
+	{\
+		vec3_t *temp = (vec);\
+		\
+		(*temp)[0] = round((*temp)[0]);\
+		(*temp)[1] = round((*temp)[1]);\
+		(*temp)[2] = round((*temp)[2]);\
+	} while(0)
+#endif
+/*
+// if your system does not have lrintf() and round() you can try this block. Please also open a bug report at bugzilla.icculus.org
+// or write a mail to the ioq3 mailing list.
+#else
+  #define Q_ftol(v) ((long) (v))
+  #define Q_round(v) do { if((v) < 0) (v) -= 0.5f; else (v) += 0.5f; (v) = Q_ftol((v)); } while(0)
+  #define Q_SnapVector(vec) \
+	do\
+	{\
+		vec3_t *temp = (vec);\
+		\
+		Q_round((*temp)[0]);\
+		Q_round((*temp)[1]);\
+		Q_round((*temp)[2]);\
+	} while(0)
+#endif
+*/
+
 #if idppc
 
 static ID_INLINE float Q_rsqrt( float number ) {
@@ -493,6 +555,8 @@ typedef struct {
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
+#define Byte4Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
 //Makro - for the UI
 #define Vector2Copy(a,b)                       ((b)[0]=(a)[0],(b)[1]=(a)[1])
@@ -650,7 +714,6 @@ void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void PerpendicularVector( vec3_t dst, const vec3_t src );
 int ReflectVectorByte( vec3_t dir, vec3_t plane );
-int Q_isnan( float x );
 
 // Makro - added
 void ChangeRefSystem(vec3_t in, vec3_t neworg, vec3_t newaxis[], vec3_t out);
@@ -660,6 +723,14 @@ void ChangeAngleRefSystem(vec3_t in, vec3_t newaxis[], vec3_t out);
 // Makro - moved from bg_lic.c so all can use :P
 #define is_digit(c)    ((unsigned)to_digit(c) <= 9)
 #define to_digit(c)    ((c) - '0')
+
+#ifndef MAX
+#define MAX(x,y) ((x)>(y)?(x):(y))
+#endif
+
+#ifndef MIN
+#define MIN(x,y) ((x)<(y)?(x):(y))
+#endif
 
 //=============================================
 
@@ -747,7 +818,6 @@ int		Q_strncmp (const char *s1, const char *s2, int n);
 int		Q_stricmpn (const char *s1, const char *s2, int n);
 char	*Q_strlwr( char *s1 );
 char	*Q_strupr( char *s1 );
-char	*Q_strrchr( const char* string, int c );
 const char	*Q_stristr( const char *s, const char *find);
 
 // buffer size safe library replacements

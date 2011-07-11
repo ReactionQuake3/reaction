@@ -879,10 +879,10 @@ void UI_MouseEvent( int dx, int dy )
 
 	// update mouse screen position
 	uis.cursorx += dx;
-	if (uis.cursorx < 0)
-		uis.cursorx = 0;
-	else if (uis.cursorx > SCREEN_WIDTH)
-		uis.cursorx = SCREEN_WIDTH;
+	if (uis.cursorx < -uis.bias)
+		uis.cursorx = -uis.bias;
+	else if (uis.cursorx > SCREEN_WIDTH+uis.bias)
+		uis.cursorx = SCREEN_WIDTH+uis.bias;
 
 	uis.cursory += dy;
 	if (uis.cursory < 0)
@@ -994,6 +994,9 @@ UI_ConsoleCommand
 */
 qboolean UI_ConsoleCommand( int realTime ) {
 	char	*cmd;
+
+	uis.frametime = realTime - uis.realtime;
+	uis.realtime = realTime;
 
 	cmd = UI_Argv( 0 );
 

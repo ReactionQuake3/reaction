@@ -1442,10 +1442,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		//Slicer: Default Radio Gender according to MODEL gender
 		Q_strncpyz(model, g_RQ3_team1model.string, sizeof(model));
 		Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
-		s = Q_strrchr(model, '/');
+		s = strrchr(model, '/');
 		if (s)
 			*s++ = '\0';
-		s = Q_strrchr(model2, '/');
+		s = strrchr(model2, '/');
 		if (s)
 			*s++ = '\0';
 
@@ -3194,7 +3194,7 @@ int RQ3_ParseBlock(int tag_type, char *tag, int *cur_pos, char *buf, int len)
 		if (RQ3_GetWord(buf, cur_pos, word_buff, len) != TOKEN_TAG) {
 			G_Printf("RQ3 config system: found model/skin name: %s\n", word_buff);
 			Com_sprintf(model, sizeof(model), "%s", word_buff);
-			skin = Q_strrchr(word_buff, '/');
+			skin = strrchr(word_buff, '/');
 			if (skin) {
 				*skin++ = '\0';
 			} else {

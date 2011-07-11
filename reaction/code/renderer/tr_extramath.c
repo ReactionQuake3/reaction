@@ -123,3 +123,29 @@ void VectorLerp( vec3_t a, vec3_t b, float lerp, vec3_t c)
 	c[1] = a[1] * (1.0f - lerp) + b[1] * lerp;
 	c[2] = a[2] * (1.0f - lerp) + b[2] * lerp;
 }
+
+qboolean SpheresIntersect(vec3_t origin1, float radius1, vec3_t origin2, float radius2)
+{
+	float radiusSum = radius1 + radius2;
+	vec3_t diff;
+	
+	VectorSubtract(origin1, origin2, diff);
+
+	if (DotProduct(diff, diff) <= radiusSum * radiusSum)
+	{
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+void BoundingSphereOfSpheres(vec3_t origin1, float radius1, vec3_t origin2, float radius2, vec3_t origin3, float *radius3)
+{
+	vec3_t diff;
+
+	VectorScale(origin1, 0.5f, origin3);
+	VectorMA(origin3, 0.5f, origin2, origin3);
+
+	VectorSubtract(origin1, origin2, diff);
+	*radius3 = VectorLength(diff) * 0.5 + MAX(radius1, radius2);
+}

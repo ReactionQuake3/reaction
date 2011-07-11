@@ -202,6 +202,7 @@ void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData[tr.smpFrame]->commands;
+	bytes = PAD(bytes, sizeof(void *));
 
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
@@ -238,6 +239,26 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	cmd->refdef = tr.refdef;
 	cmd->viewParms = tr.viewParms;
+}
+
+
+/*
+=============
+R_AddCapShadowmapCmd
+
+=============
+*/
+void	R_AddCapShadowmapCmd( int map, int cubeSide ) {
+	capShadowmapCommand_t	*cmd;
+
+	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
+	if ( !cmd ) {
+		return;
+	}
+	cmd->commandId = RC_CAPSHADOWMAP;
+
+	cmd->map = map;
+	cmd->cubeSide = cubeSide;
 }
 
 
@@ -417,7 +438,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 
 		R_SyncRenderThread();
 		if ((err = qglGetError()) != GL_NO_ERROR)
-			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err);
+			ri.Error(ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!", err);
 	}
 
 	if (glConfig.stereoEnabled) {

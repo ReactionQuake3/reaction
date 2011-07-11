@@ -106,6 +106,9 @@ cvar_t  *r_specularMapping;
 cvar_t  *r_deluxeMapping;
 cvar_t  *r_parallaxMapping;
 cvar_t  *r_normalAmbient;
+cvar_t  *r_recalcMD3Normals;
+cvar_t  *r_dlightShadows;
+cvar_t  *r_pshadowDist;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -389,21 +392,21 @@ byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *pa
 	byte *buffer, *bufstart;
 	int padwidth, linelen;
 	GLint packAlign;
-       
+	
 	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
-       
+	
 	linelen = width * 3;
 	padwidth = PAD(linelen, packAlign);
-       
+	
 	// Allocate a few more bytes so that we can choose an alignment we like
 	buffer = ri.Hunk_AllocateTempMemory(padwidth * height + *offset + packAlign - 1);
-       
-	bufstart = (byte *) PAD((intptr_t) buffer + *offset, packAlign);
+	
+	bufstart = PADP((intptr_t) buffer + *offset, packAlign);
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart);
-       
+	
 	*offset = bufstart - buffer;
 	*padlen = padwidth - linelen;
-       
+	
 	return buffer;
 }
 
@@ -418,13 +421,13 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 	byte *srcptr, *destptr;
 	byte *endline, *endmem;
 	byte temp;
-       
+	
 	int linelen, padlen;
 	size_t offset = 18, memcount;
-
+		
 	allbuf = RB_ReadPixels(x, y, width, height, &offset, &padlen);
 	buffer = allbuf + offset - 18;
-
+	
 	Com_Memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = width & 255;
@@ -435,10 +438,10 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 
 	// swap rgb to bgr and remove padding from line endings
 	linelen = width * 3;
-       
+	
 	srcptr = destptr = allbuf + offset;
 	endmem = srcptr + (linelen + padlen) * height;
-       
+	
 	while(srcptr < endmem)
 	{
 		endline = srcptr + linelen;
@@ -449,10 +452,10 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 			*destptr++ = srcptr[2];
 			*destptr++ = srcptr[1];
 			*destptr++ = temp;
-                       
+			
 			srcptr += 3;
 		}
-               
+		
 		// Skip the pad
 		srcptr += padlen;
 	}
@@ -472,7 +475,8 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 ================== 
 RB_TakeScreenshotJPEG
 ================== 
-*/  
+*/
+
 void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
 {
 	byte *buffer;
@@ -802,8 +806,8 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	avipadwidth = PAD(linelen, AVI_LINE_PADDING);
 	avipadlen = avipadwidth - linelen;
 
-	cBuf = (byte *) PAD((intptr_t) cmd->captureBuffer, packAlign);
-
+	cBuf = PADP(cmd->captureBuffer, packAlign);
+		
 	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
 		GL_UNSIGNED_BYTE, cBuf);
 
@@ -826,13 +830,13 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	{
 		byte *lineend, *memend;
 		byte *srcptr, *destptr;
-       
+	
 		srcptr = cBuf;
 		destptr = cmd->encodeBuffer;
 		memend = srcptr + memcount;
 		
-               // swap R and B and remove line paddings
-               while(srcptr < memend)
+		// swap R and B and remove line paddings
+		while(srcptr < memend)
 		{
 			lineend = srcptr + linelen;
 			while(srcptr < lineend)
@@ -1094,6 +1098,9 @@ void R_Register( void )
 	r_deluxeMapping = ri.Cvar_Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_parallaxMapping = ri.Cvar_Get( "r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_normalAmbient = ri.Cvar_Get( "r_normalAmbient", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_dlightShadows = ri.Cvar_Get( "r_dlightShadows", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_pshadowDist = ri.Cvar_Get( "r_pshadowDist", "128", CVAR_ARCHIVE );
+	r_recalcMD3Normals = ri.Cvar_Get( "r_recalcMD3Normals", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -1307,7 +1314,8 @@ void R_Init( void ) {
 
 	InitOpenGL();
 
-	if (glRefConfig.glsl)
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
+		&& glRefConfig.glsl && r_arb_shader_objects->integer)
 	{
 		GLSL_InitGPUShaders();
 	}
@@ -1315,7 +1323,7 @@ void R_Init( void ) {
 	R_InitImages();
 	R_InitFBOs();
 
-	if (glRefConfig.vertexBufferObject)
+	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
 	{
 		R_InitVBOs();
 	}

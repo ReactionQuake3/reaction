@@ -90,6 +90,14 @@ cvar_t	*com_basegame;
 cvar_t  *com_homepath;
 cvar_t	*com_busyWait;
 
+#if idx64
+	int (*Q_VMftol)(void);
+#elif id386
+	long (QDECL *Q_ftol)(float f);
+	int (QDECL *Q_VMftol)(void);
+	void (QDECL *Q_SnapVector)(vec3_t vec);
+#endif
+
 // com_speeds times
 int		time_game;
 int		time_frontend;		// renderer frontend time
@@ -330,7 +338,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		longjmp (abortframe, -1);
 	} else {
 		VM_Forced_Unload_Start();
-		CL_Shutdown (va("Client fatal crashed: %s", com_errorMessage));
+		CL_Shutdown (va("Client fatal crashed: %s", com_errorMessage), qtrue);
 		SV_Shutdown (va("Server fatal crashed: %s", com_errorMessage));
 		VM_Forced_Unload_Done();
 	}
@@ -354,8 +362,14 @@ void Com_Quit_f( void ) {
 	// don't try to shutdown if we are in a recursive error
 	char *p = Cmd_Args( );
 	if ( !com_errorEntered ) {
+		// Some VMs might execute "quit" command directly,
+		// which would trigger an unload of active VM error.
+		// Sys_Quit will kill this process anyways, so
+		// a corrupt call stack makes no difference
+		VM_Forced_Unload_Start();
 		SV_Shutdown (p[0] ? p : "Server quit");
-		CL_Shutdown (p[0] ? p : "Client quit");
+		CL_Shutdown (p[0] ? p : "Client quit", qtrue);
+		VM_Forced_Unload_Done();
 		Com_Shutdown ();
 		FS_Shutdown(qtrue);
 	}
@@ -461,13 +475,13 @@ void Com_StartupVariable( const char *match ) {
 		}
 
 		s = Cmd_Argv(1);
-
+		
 		if(!match || !strcmp(s, match))
 		{
 			if(Cvar_Flags(s) == CVAR_NONEXISTENT)
 				Cvar_Get(s, Cmd_Argv(2), CVAR_USER_CREATED);
 			else
-			Cvar_Set( s, Cmd_Argv(2) );
+				Cvar_Set2(s, Cmd_Argv(2), qfalse);
 		}
 	}
 }
@@ -1054,12 +1068,12 @@ void Z_CheckHeap( void ) {
 			break;			// all blocks have been hit
 		}
 		if ( (byte *)block + block->size != (byte *)block->next)
-			Com_Error( ERR_FATAL, "Z_CheckHeap: block size does not touch the next block\n" );
+			Com_Error( ERR_FATAL, "Z_CheckHeap: block size does not touch the next block" );
 		if ( block->next->prev != block) {
-			Com_Error( ERR_FATAL, "Z_CheckHeap: next block doesn't have proper back link\n" );
+			Com_Error( ERR_FATAL, "Z_CheckHeap: next block doesn't have proper back link" );
 		}
 		if ( !block->tag && !block->next->tag ) {
-			Com_Error( ERR_FATAL, "Z_CheckHeap: two consecutive free blocks\n" );
+			Com_Error( ERR_FATAL, "Z_CheckHeap: two consecutive free blocks" );
 		}
 	}
 }
@@ -1870,7 +1884,7 @@ void Hunk_Trash( void ) {
 		return;
 
 #ifdef _DEBUG
-	Com_Error(ERR_DROP, "hunk trashed\n");
+	Com_Error(ERR_DROP, "hunk trashed");
 	return;
 #endif
 
@@ -2378,34 +2392,47 @@ Change to a new mod properly with cleaning up cvars before switching.
 ==================
 */
 
-void Com_GameRestart(int checksumFeed, qboolean clientRestart)
+void Com_GameRestart(int checksumFeed, qboolean disconnect)
 {
 	// make sure no recursion can be triggered
 	if(!com_gameRestarting && com_fullyInitialized)
 	{
-		com_gameRestarting = qtrue;
+		int clWasRunning;
 		
-		if(clientRestart)
-		{
-			CL_Disconnect(qfalse);
-			CL_ShutdownAll();
-		}
-
+		com_gameRestarting = qtrue;
+		clWasRunning = com_cl_running->integer;
+		
 		// Kill server if we have one
 		if(com_sv_running->integer)
 			SV_Shutdown("Game directory changed");
+
+		if(clWasRunning)
+		{
+			if(disconnect)
+				CL_Disconnect(qfalse);
+				
+			CL_Shutdown("Game directory changed", disconnect);
+		}
 
 		FS_Restart(checksumFeed);
 	
 		// Clean out any user and VM created cvars
 		Cvar_Restart(qtrue);
 		Com_ExecuteCfg();
-		
-		// Restart sound subsystem so old handles are flushed
-		CL_Snd_Restart();
 
-		if(clientRestart)
+		if(disconnect)
+		{
+			// We don't want to change any network settings if gamedir
+			// change was triggered by a connect to server because the
+			// new network settings might make the connection fail.
+			NET_Restart_f();
+		}
+
+		if(clWasRunning)
+		{
+			CL_Init();
 			CL_StartHunkUsers(qfalse);
+		}
 		
 		com_gameRestarting = qfalse;
 	}
@@ -2421,7 +2448,16 @@ Expose possibility to change current running mod to the user
 
 void Com_GameRestart_f(void)
 {
-	Cvar_Set("fs_game", Cmd_Argv(1));
+	if(!FS_FilenameCompare(Cmd_Argv(1), com_basegame->string))
+	{
+		// This is the standard base game. Servers and clients should
+		// use "" and not the standard basegame name because this messes
+		// up pak file negotiation and lots of other stuff
+		
+		Cvar_Set("fs_game", "");
+	}
+	else
+		Cvar_Set("fs_game", Cmd_Argv(1));
 
 	Com_GameRestart(0, qtrue);
 }
@@ -2567,6 +2603,53 @@ static void Com_DetectAltivec(void)
 
 /*
 =================
+Com_DetectSSE
+Find out whether we have SSE support for Q_ftol function
+=================
+*/
+
+#if id386 || idx64
+
+static void Com_DetectSSE(void)
+{
+#if !idx64
+	cpuFeatures_t feat;
+	
+	feat = Sys_GetProcessorFeatures();
+
+	if(feat & CF_SSE)
+	{
+		if(feat & CF_SSE2)
+			Q_SnapVector = qsnapvectorsse;
+		else
+			Q_SnapVector = qsnapvectorx87;
+
+		Q_ftol = qftolsse;
+#endif
+		Q_VMftol = qvmftolsse;
+
+		Com_Printf("Have SSE support\n");
+#if !idx64
+	}
+	else
+	{
+		Q_ftol = qftolx87;
+		Q_VMftol = qvmftolx87;
+		Q_SnapVector = qsnapvectorx87;
+
+		Com_Printf("No SSE support on this machine\n");
+	}
+#endif
+}
+
+#else
+
+#define Com_DetectSSE()
+
+#endif
+
+/*
+=================
 Com_InitRand
 Seed the random number generator, if possible with an OS supplied random seed.
 =================
@@ -2615,6 +2698,8 @@ void Com_Init( char *commandLine ) {
 //	Swap_Init ();
 	Cbuf_Init ();
 
+	Com_DetectSSE();
+
 	// override anything from the config files with command line args
 	Com_StartupVariable( NULL );
 
@@ -2634,7 +2719,6 @@ void Com_Init( char *commandLine ) {
 	if(!com_basegame->string[0])
 		Cvar_ForceReset("com_basegame");
 
-	// Com_StartupVariable(
 	FS_InitFilesystem ();
 
 	Com_InitJournaling();
@@ -2704,6 +2788,7 @@ void Com_Init( char *commandLine ) {
 	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE );
 	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
 	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
+	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
 
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
 

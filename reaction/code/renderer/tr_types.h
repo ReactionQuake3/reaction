@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_DLIGHTS		32		// can't be increased, because bit flags are used on surfaces
 #define	MAX_ENTITIES		1023		// can't be increased without changing drawsurf bit packing
 
+#define MAX_CALC_PSHADOWS    64
+#define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
+
 // renderfx flags
 #define	RF_MINLIGHT		0x0001		// allways have some light (viewmodel, some items)
 #define	RF_THIRD_PERSON		0x0002		// don't draw through eyes, only mirrors (player bodies, chat sprites)
