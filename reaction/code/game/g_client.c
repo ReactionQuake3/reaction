@@ -694,7 +694,7 @@ void ClearBodyQue(void)
 	level.bodyQueIndex = 0;
 	for (i = 0; i < BODY_QUEUE_SIZE; i++) {
 		ent = level.bodyQue[i];
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 		ent->physicsObject = qfalse;
 	}
 }
@@ -714,7 +714,7 @@ void BodySink(gentity_t * ent)
 
 	if (level.time - ent->timestamp > 6500) {
 		// the body ques are never actually freed, they are just unlinked
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 		ent->physicsObject = qfalse;
 		return;
 	}
@@ -735,7 +735,7 @@ void CopyToBodyQue(gentity_t * ent)
 	gentity_t *body;
 	int contents;
 
-	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+	trap_UnlinkEntity(ent);
 
 	// if client is in a nodrop area, don't leave the body
 	contents = trap_PointContents(ent->s.origin, -1);
@@ -746,7 +746,7 @@ void CopyToBodyQue(gentity_t * ent)
 	body = level.bodyQue[level.bodyQueIndex];
 	level.bodyQueIndex = (level.bodyQueIndex + 1) % BODY_QUEUE_SIZE;
 
-	trap_RQ3UnlinkEntity(body, __LINE__, __FILE__);
+	trap_UnlinkEntity(body);
 
 	body->s = ent->s;
 
@@ -1417,7 +1417,7 @@ void ClientBegin(int clientNum)
 	client = level.clients + clientNum;
 
 	if (ent->r.linked) {
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 	}
 
 	G_InitGentity(ent);
@@ -2038,7 +2038,7 @@ void ClientDisconnect(int clientNum)
 		ClientUserinfoChanged(level.sortedClients[0]);
 	}
 
-	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+	trap_UnlinkEntity(ent);
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";

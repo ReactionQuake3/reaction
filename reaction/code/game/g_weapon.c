@@ -881,7 +881,7 @@ void weapon_railgun_fire(gentity_t * ent)
 			break;	// we hit something solid enough to stop the beam
 		}
 		// unlink this entity, so the next trace will go past it
-		trap_RQ3UnlinkEntity(traceEnt, __LINE__, __FILE__);
+		trap_UnlinkEntity(traceEnt);
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while (unlinked < MAX_RAIL_HITS);
@@ -1422,7 +1422,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 
 		if (hitBreakable == qfalse ||
 			OnSameTeam(traceEnt, ent) ) {
-			trap_RQ3UnlinkEntity(traceEnt, __LINE__, __FILE__);
+			trap_UnlinkEntity(traceEnt);
 			unlinkedEntities[unlinked] = traceEnt;
 			unlinked++;
 		}
@@ -1947,7 +1947,7 @@ void Laser_Think(gentity_t * self)
 		//Did you not hit anything?
 		if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY) {
 			self->nextthink = level.time + 10;
-			trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+			trap_UnlinkEntity(self);
 			return;
 		}
 

@@ -1506,7 +1506,7 @@ void MakeSpectator(gentity_t * ent)
 		}
 		ClientSpawn(ent);
 		ent->client->gibbed = qtrue;
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 		return;
 	}
 	if (ent->r.svFlags & SVF_BOT)

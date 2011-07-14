@@ -591,7 +591,7 @@ void G_FreeEntity(gentity_t * ed, int line, char *file)
 		return;
 	}
 
-	trap_RQ3UnlinkEntity(ed, __LINE__, __FILE__);	// unlink from world
+	trap_UnlinkEntity(ed);	// unlink from world
 
 	if (ed->neverFree) {
 		return;
@@ -611,7 +611,7 @@ void G_RealFreeEntity(gentity_t * ed)
 		return;
 	}
 
-	trap_RQ3UnlinkEntity(ed, __LINE__, __FILE__);	// unlink from world
+	trap_UnlinkEntity(ed);	// unlink from world
 
 	if (ed->neverFree) {
 		return;

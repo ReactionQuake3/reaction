@@ -560,7 +560,7 @@ void SpectatorThink(gentity_t * ent, usercmd_t * ucmd)
 		VectorCopy(client->ps.origin, ent->s.origin);
 
 		G_TouchTriggers(ent);
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 	}
 // JBravo: Lets not allow bots to use any specmode other than FREE
 	if (ent->r.svFlags & SVF_BOT)

@@ -626,7 +626,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 		tent->s.clientNum = player->s.clientNum;
 	}
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	trap_RQ3UnlinkEntity(player, __LINE__, __FILE__);
+	trap_UnlinkEntity(player);
 
 	VectorCopy(origin, player->client->ps.origin);
 	player->client->ps.origin[2] += 1;
@@ -996,7 +996,7 @@ void func_breakable_die(gentity_t * self, gentity_t * inflictor, gentity_t * att
 	if (self->damage > 0 && self->damage_radius > 0)
 		G_RadiusDamage(impactPoint, attacker, self->damage, self->damage_radius, self, meansOfDeath);
 	//    radius damage
-	trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+	trap_UnlinkEntity(self);
 
 }
 
@@ -1377,7 +1377,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 		//tent = G_TempEntity( center, EV_BREAK_GLASS );
 		//tent->s.eventParm = eParm;
 		//unlink it instead of freeing
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 
 	} else if (ent->chippable) {
 		//Stil has some life left, so chip it

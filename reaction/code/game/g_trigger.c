@@ -254,7 +254,7 @@ void trigger_always_think(gentity_t * ent)
 	//Makro - we want to be able to re-use this entity (round-based gametypes)
 	//so we're not going to free it
 	//G_FreeEntity(ent, __LINE__, __FILE__);
-	trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+	trap_UnlinkEntity(ent);
 }
 
 //Makro - reset function
@@ -542,14 +542,14 @@ void hurt_reset(gentity_t *ent)
 		trap_LinkEntity(ent);
 	} else {
 		//Makro - added
-		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
+		trap_UnlinkEntity(ent);
 	}
 }
 
 void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 {
 	if (self->r.linked) {
-		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+		trap_UnlinkEntity(self);
 	} else {
 		trap_LinkEntity(self);
 	}
@@ -618,7 +618,7 @@ void SP_trigger_hurt(gentity_t * self)
 		trap_LinkEntity(self);
 	} else {
 		//Makro - added
-		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+		trap_UnlinkEntity(self);
 	}
 }
 

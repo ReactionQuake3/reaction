@@ -501,7 +501,7 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 	}
 
 	// unlink the pusher so we don't get it in the entityList
-	trap_RQ3UnlinkEntity(pusher, __LINE__, __FILE__);
+	trap_UnlinkEntity(pusher);
 
 	listedEntities = trap_EntitiesInBox(totalMins, totalMaxs, entityList, MAX_GENTITIES);
 

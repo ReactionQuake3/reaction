@@ -1595,14 +1595,14 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 				//GibEntity (self, killer);
 				G_TempEntity(self->r.currentOrigin, EV_GIB_PLAYER);
 				self->client->gibbed = qtrue;
-				trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+				trap_UnlinkEntity(self);
 			}
 		} else if (meansOfDeath == MOD_HANDCANNON && g_RQ3_gib.integer > 1 && self->health <= -15) {
 			self->client->noHead = qfalse;
 			//GibEntity (self, killer);
 			G_TempEntity(self->r.currentOrigin, EV_GIB_PLAYER);
 			self->client->gibbed = qtrue;
-			trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
+			trap_UnlinkEntity(self);
 		}
 	}
 	// never gib in a nodrop
