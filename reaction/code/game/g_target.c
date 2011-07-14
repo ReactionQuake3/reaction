@@ -527,7 +527,7 @@ void SP_target_activate(gentity_t * self)
 {
 	if (!self->target) {
 		G_Printf(S_COLOR_YELLOW "WARNING: target_activate with no target at %s^7\n", vtos(self->s.origin));
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 	self->use = target_activate_use;

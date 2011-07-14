@@ -1071,7 +1071,7 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 		//Blaze: Get rid of the knife if it hits the sky
 //                G_FreeEdict (ent);
 		//Elder: I think you want this
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 		return;
 	}
 
@@ -1124,7 +1124,7 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 		xr_drop->count = 1;
 	}
 
-	G_FreeEntity(ent, __LINE__, __FILE__);
+	G_FreeEntity(ent);
 }
 
 //gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
@@ -1865,7 +1865,7 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 	if (ent->client->ps.weapon != WP_PISTOL && ent->client->ps.weapon != WP_MP5 && ent->client->ps.weapon != WP_M4) {
 		//Kill laser if it exists
 		if (ent->client->lasersight) {
-			G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
+			G_FreeEntity(ent->client->lasersight);
 			ent->client->lasersight = NULL;
 		}
 		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
@@ -1875,7 +1875,7 @@ void Laser_Gen(gentity_t * ent, qboolean enabled)
 	if (ent->client->lasersight || enabled == qfalse) {
 		// JBravo: fixing the bad gEnt crashbug
 		if (ent->client->lasersight)
-			G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
+			G_FreeEntity(ent->client->lasersight);
 		ent->client->lasersight = NULL;
 		ent->client->ps.powerups[PW_LASERSIGHT] = 0;
 		return;
@@ -1925,7 +1925,7 @@ void Laser_Think(gentity_t * self)
 		//Make sure you kill the reference before freeing the entity
 		self->parent->client->lasersight = NULL;
 		self->parent->client->ps.powerups[PW_LASERSIGHT] = 0;
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 	//Set Aiming Directions

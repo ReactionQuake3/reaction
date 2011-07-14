@@ -559,7 +559,7 @@ gentity_t *Team_ResetFlag(int team)
 	ent = NULL;
 	while ((ent = G_Find(ent, FOFS(classname), c)) != NULL) {
 		if (ent->flags & FL_DROPPED_ITEM)
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 		else {
 			rent = ent;
 			RespawnItem(ent);

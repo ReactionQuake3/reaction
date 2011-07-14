@@ -1211,7 +1211,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 		//JBravo: switch off the lasersight
 		if (self->client->lasersight) {
-			G_FreeEntity(self->client->lasersight, __LINE__, __FILE__);
+			G_FreeEntity(self->client->lasersight);
 			self->client->lasersight = NULL;
 		}
 		// JBravo: clear the gib flag

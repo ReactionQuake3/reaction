@@ -858,7 +858,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 			dropped->nextthink = level.time + RQ3_RESPAWNTIME_DEFAULT;
 	} else {
 		// auto-remove after 30 seconds
-		dropped->think = G_RealFreeEntity;
+		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
 	}
 
@@ -1000,7 +1000,7 @@ void FinishSpawningItem(gentity_t * ent)
 		trap_Trace(&tr, ent->s.origin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID);
 		if (tr.startsolid) {
 			G_Printf("FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos(ent->s.origin));
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 		// allow to ride movers
@@ -1211,7 +1211,7 @@ void G_ResetItem(gentity_t *ent)
 		case WP_PISTOL:
 		case WP_KNIFE:
 		case WP_GRENADE:
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			break;
 		default:
 			break;
@@ -1224,13 +1224,13 @@ void G_ResetItem(gentity_t *ent)
 		case HI_BANDOLIER:
 		case HI_SLIPPERS:
 		case HI_HELMET:
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			break;
 		default:
 			break;
 		}
 	} else if (ent->item->giType == IT_AMMO) {
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 	}
 }
 
@@ -1398,7 +1398,7 @@ void G_RunItem(gentity_t * ent)
 		} else if (ent->item && ent->item->giType == IT_HOLDABLE) {
 			RQ3_DroppedItemThink(ent);
 		} else {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 		}
 		return;
 	}
@@ -1433,7 +1433,7 @@ void RQ3_DroppedWeaponThink(gentity_t * ent)
 	case WP_KNIFE:
 	case WP_GRENADE:
 		//Just free the entity
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 		return;
 		break;
 	case WP_AKIMBO:
@@ -1510,7 +1510,7 @@ void RQ3_ResetWeapon(int weapon)
 		    (ent->flags & FL_RQ3_JUNKITEM) == FL_RQ3_JUNKITEM) {
 			//Elder: removed because of possible door collision removal
 			//level.time - ent->timestamp >= RQ3_RESPAWNTIME_DEFAULT) {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			numRemoved++;
 		} else {
 			//rent = ent;
@@ -1555,12 +1555,12 @@ void RQ3_DroppedItemThink(gentity_t * ent)
 	case HI_SLIPPERS:
 	case HI_HELMET:
 		RQ3_ResetItem(ent->item->giTag);
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 		break;
 	default:
 		//Elder: shouldn't have to come here
 		G_Printf("RQ3_DroppedItemThink: Out of range or invalid item %d\n", ent->item->giTag);
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 		break;
 	}
 }

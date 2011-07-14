@@ -176,7 +176,7 @@ void multi_trigger(gentity_t * ent, gentity_t * activator)
 		/*
 		ent->touch = 0;
 		ent->nextthink = level.time + FRAMETIME;
-		ent->think = G_RealFreeEntity;
+		ent->think = G_FreeEntity;
 		*/
 		//On second thought, now that I've added those soundInactive/targetInactive keys
 		//I think just setting touch to 0 will do
@@ -253,7 +253,7 @@ void trigger_always_think(gentity_t * ent)
 	G_UseTargets(ent, ent);
 	//Makro - we want to be able to re-use this entity (round-based gametypes)
 	//so we're not going to free it
-	//G_FreeEntity(ent, __LINE__, __FILE__);
+	//G_FreeEntity(ent);
 	trap_UnlinkEntity(ent);
 }
 
@@ -345,7 +345,7 @@ void AimAtTarget(gentity_t * self)
 
 	ent = G_PickTarget(self->target);
 	if (!ent) {
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 
@@ -353,7 +353,7 @@ void AimAtTarget(gentity_t * self)
 	gravity = g_gravity.value;
 	time = sqrt(height / (.5 * gravity));
 	if (!time) {
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 	// set s.origin2 to the push velocity

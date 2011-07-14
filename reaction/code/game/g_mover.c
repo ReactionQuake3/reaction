@@ -1341,7 +1341,7 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 			}
 		}
 		G_TempEntity(other->s.origin, EV_ITEM_POP);
-		G_FreeEntity(other, __LINE__, __FILE__);
+		G_FreeEntity(other);
 		return;
 	}
 
@@ -2429,7 +2429,7 @@ void SP_path_corner(gentity_t * self)
 
 	if (!self->targetname) {
 		G_Printf("path_corner with no targetname at %s\n", vtos(self->s.origin));
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 	//Makro - added
@@ -2577,7 +2577,7 @@ void SP_func_train(gentity_t * self)
 
 	if (!self->target) {
 		G_Printf("func_train without a target at %s\n", vtos(self->r.absmin));
-		G_FreeEntity(self, __LINE__, __FILE__);
+		G_FreeEntity(self);
 		return;
 	}
 

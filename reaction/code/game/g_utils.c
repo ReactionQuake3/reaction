@@ -583,34 +583,8 @@ G_FreeEntity
 Marks the entity as free
 =================
 */
-void G_FreeEntity(gentity_t * ed, int line, char *file)
+void G_FreeEntity(gentity_t * ed)
 {
-	if (ed == NULL || ed-g_entities < 0 || ed-g_entities > level.num_entities || ed->s.number <0 || ed->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1G_FreeEntity got called with a bad ent from line %d of file %s. PLEASE report this to the RQ3 team\"", line, file));
-		G_LogPrintf("G_FreeEntity got called with a bad ent from line %d of file %s. PLEASE report this to the RQ3 team", line, file);
-		return;
-	}
-
-	trap_UnlinkEntity(ed);	// unlink from world
-
-	if (ed->neverFree) {
-		return;
-	}
-
-	memset(ed, 0, sizeof(*ed));
-	ed->classname = "freed";
-	ed->freetime = level.time;
-	ed->inuse = qfalse;
-}
-
-void G_RealFreeEntity(gentity_t * ed)
-{
-	if (ed == NULL || ed-g_entities < 0 || ed-g_entities > level.num_entities || ed->s.number <0 || ed->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1G_FreeEntity got called with a bad ent with no tracing. PLEASE report this to the RQ3 team\""));
-		G_LogPrintf("G_FreeEntity got called with a bad ent with no tracing. PLEASE report this to the RQ3 team");
-		return;
-	}
-
 	trap_UnlinkEntity(ed);	// unlink from world
 
 	if (ed->neverFree) {

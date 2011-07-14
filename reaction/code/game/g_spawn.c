@@ -711,34 +711,34 @@ void G_SpawnGEntityFromSpawnVars(void)
 	if (g_gametype.integer == GT_SINGLE_PLAYER) {
 		G_SpawnInt("notsingle", "0", &i);
 		if (i) {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 	}
 	//Makro - check for "notgametype" key
 	if (G_SpawnInt("notgametype", "0", &i)) {
 		if ((i & (1 << g_gametype.integer)) != 0) {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 	// check for "notteam" flag (GT_FFA, GT_TOURNAMENT, GT_SINGLE_PLAYER)
 	} else if (g_gametype.integer >= GT_TEAM) {
 		G_SpawnInt("notteam", "0", &i);
 		if (i) {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 	} else {
 		G_SpawnInt("notfree", "0", &i);
 		if (i) {
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 	}
 
 	G_SpawnInt("notq3a", "0", &i);
 	if (i) {
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 		return;
 	}
 
@@ -748,7 +748,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 			s = strstr(value, gametypeName);
 			if (!s) {
-				G_FreeEntity(ent, __LINE__, __FILE__);
+				G_FreeEntity(ent);
 				return;
 			}
 		}
@@ -759,7 +759,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 	// if we didn't get a classname, don't bother spawning anything
 	if (!G_CallSpawn(ent)) {
-		G_FreeEntity(ent, __LINE__, __FILE__);
+		G_FreeEntity(ent);
 	}
 
 	//Makro - is the entity in a sky portal ?

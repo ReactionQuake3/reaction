@@ -1113,8 +1113,7 @@ gentity_t *G_TempEntity(vec3_t origin, int event);
 //Elder: added
 gentity_t *G_TempEntity2(vec3_t origin, int event, int eParm);
 void G_Sound(gentity_t * ent, int channel, int soundIndex);
-void G_FreeEntity(gentity_t * e, int line, char *file);
-void G_RealFreeEntity(gentity_t * e);
+void G_FreeEntity(gentity_t * e);
 
 //Elder: added
 void RQ3_SaveZoomLevel(gentity_t * ent);

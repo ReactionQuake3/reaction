@@ -848,7 +848,7 @@ void Cmd_Give_f(gentity_t * ent)
 		memset(&trace, 0, sizeof(trace));
 		Touch_Item(it_ent, ent, &trace);
 		if (it_ent->inuse) {
-			G_FreeEntity(it_ent, __LINE__, __FILE__);
+			G_FreeEntity(it_ent);
 		}
 	}
 }

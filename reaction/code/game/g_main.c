@@ -2807,7 +2807,7 @@ void G_RunFrame(int levelTime)
 				}
 			}
 			if (ent->freeAfterEvent) {
-				G_FreeEntity(ent, __LINE__, __FILE__);
+				G_FreeEntity(ent);
 				continue;
 			} else if (ent->unlinkAfterEvent) {
 				// items that will respawn will hide themselves after their pickup event

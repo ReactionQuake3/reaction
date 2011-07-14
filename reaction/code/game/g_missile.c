@@ -396,7 +396,7 @@ void G_RunMissile(gentity_t * ent)
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
 				ent->parent->client->hook = NULL;
 			}
-			G_FreeEntity(ent, __LINE__, __FILE__);
+			G_FreeEntity(ent);
 			return;
 		}
 		G_MissileImpact(ent, &tr);
@@ -503,7 +503,7 @@ gentity_t *fire_knife(gentity_t * self, vec3_t start, vec3_t dir)
 	bolt = G_Spawn();
 	bolt->classname = "weapon_knife";
 	bolt->nextthink = level.time + 10000;
-	bolt->think = G_RealFreeEntity;
+	bolt->think = G_FreeEntity;
 	bolt->s.eType = ET_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WP_KNIFE;

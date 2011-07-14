@@ -2001,7 +2001,7 @@ void ClientDisconnect(int clientNum)
 
 // JBravo: if the client had a laser, turn it off so it doesnt stay there forever.
 	if (ent->client->lasersight) {
-		G_FreeEntity(ent->client->lasersight, __LINE__, __FILE__);
+		G_FreeEntity(ent->client->lasersight);
 		ent->client->lasersight = NULL;
 	}
 	// stop any following clients
