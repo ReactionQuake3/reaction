@@ -1304,9 +1304,6 @@ void QDECL G_Error(const char *fmt, ...);
 //Elder: added
 void RQ3_StartUniqueItems(void);
 
-// JBravo: added
-void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file);
-
 // aasimon: init stuff
 void RQ3_ReadInitFile(void);
 void RQ3_ParseBuffer(char *buf, int len);

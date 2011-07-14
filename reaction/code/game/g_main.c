@@ -829,27 +829,6 @@ void QDECL G_Error(const char *fmt, ...)
 	trap_Error(text);
 }
 
-void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file)
-{
-	if (ent == NULL) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-	if (ent->s.number <0 || ent->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_RQ3AdjustAreaPortalState got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-
-	trap_AdjustAreaPortalState(ent, open);
-}
-
 /*
 ================
 G_FindTeams

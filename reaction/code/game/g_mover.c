@@ -888,7 +888,7 @@ void Reached_BinaryMover(gentity_t * ent)
 		}
 		// close areaportals
 		if (ent->teammaster == ent || !ent->teammaster) {
-			trap_RQ3AdjustAreaPortalState(ent, qfalse, __LINE__, __FILE__);
+			trap_AdjustAreaPortalState(ent, qfalse);
 		}
 
 	} else if (ent->moverState == ROTATOR_1TO2) {	// Reaction
@@ -927,7 +927,7 @@ void Reached_BinaryMover(gentity_t * ent)
 		}
 		// close areaportals
 		if (ent->teammaster == ent || !ent->teammaster) {
-			trap_RQ3AdjustAreaPortalState(ent, qfalse, __LINE__, __FILE__);
+			trap_AdjustAreaPortalState(ent, qfalse);
 		}
 	} else {
 		G_Error("Reached_BinaryMover: bad moverState");
@@ -1058,7 +1058,7 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 		// open areaportal
 		if (ent->teammaster == ent || !ent->teammaster) {
-			trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+			trap_AdjustAreaPortalState(ent, qtrue);
 		}
 		return;
 	}
@@ -1134,7 +1134,7 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 		// open areaportal
 		if (ent->teammaster == ent || !ent->teammaster) {
-			trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+			trap_AdjustAreaPortalState(ent, qtrue);
 		}
 		return;
 	}
@@ -1566,7 +1566,7 @@ void reset_door(gentity_t *ent)
 		SetMoverState(ent, ROTATOR_POS1, level.time);
 	//Elder: open areaportals for start_open doors
 	if ((ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster)) {
-		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+		trap_AdjustAreaPortalState(ent, qtrue);
 	}
 }
 
@@ -1728,7 +1728,7 @@ void SP_func_door(gentity_t * ent)
 	}
 	//Elder: open areaportals for start_open doors
 	if ((ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster)) {
-		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+		trap_AdjustAreaPortalState(ent, qtrue);
 	}
 
 	//Makro - added
@@ -1893,7 +1893,7 @@ void SP_func_door_rotating(gentity_t * ent)
 	//Makro - copied from func_door
 	//Elder: open areaportals for start_open doors
 	if ((ent->spawnflags & 1) == 1 && (ent->teammaster == ent || !ent->teammaster)) {
-		trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+		trap_AdjustAreaPortalState(ent, qtrue);
 	}
 
 	//Makro - added
@@ -2619,12 +2619,12 @@ void SetFuncStaticState(gentity_t *ent, qboolean state)
 		ent->s.eFlags &= ~EF_NODRAW;
 		ent->r.contents = CONTENTS_SOLID;
 		ent->r.svFlags &= ~SVF_NOCLIENT;
-		//trap_RQ3AdjustAreaPortalState(ent, qtrue, __LINE__, __FILE__);
+		//trap_AdjustAreaPortalState(ent, qtrue);
 	} else {
 		ent->s.eFlags |= EF_NODRAW;
 		ent->r.contents = CONTENTS_TRIGGER;
 		ent->r.svFlags |= SVF_NOCLIENT;
-		//trap_RQ3AdjustAreaPortalState(ent, qfalse, __LINE__, __FILE__);
+		//trap_AdjustAreaPortalState(ent, qfalse);
 	}
 }
 
