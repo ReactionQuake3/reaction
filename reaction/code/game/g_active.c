@@ -1257,7 +1257,7 @@ void ClientThink_real(gentity_t * ent)
 	// link entity now, after any personal teleporters have been used
 	// JBravo: this call reactivates gibbed players.
 	if (!ent->client->gibbed)
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 	if (!ent->client->noclip) {
 		G_TouchTriggers(ent);
 	}

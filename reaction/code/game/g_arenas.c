@@ -162,7 +162,7 @@ static gentity_t *SpawnModelOnVictoryPad(gentity_t * pad, vec3_t offset, gentity
 
 	G_SetOrigin(body, vec);
 
-	trap_RQ3LinkEntity(body, __LINE__, __FILE__);
+	trap_LinkEntity(body);
 
 	body->count = place;
 
@@ -283,7 +283,7 @@ static gentity_t *SpawnPodium(void)
 
 	VectorSubtract(level.intermission_origin, podium->r.currentOrigin, vec);
 	podium->s.apos.trBase[YAW] = vectoyaw(vec);
-	trap_RQ3LinkEntity(podium, __LINE__, __FILE__);
+	trap_LinkEntity(podium);
 
 	podium->think = PodiumPlacementThink;
 	podium->nextthink = level.time + 100;

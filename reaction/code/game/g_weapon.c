@@ -889,7 +889,7 @@ void weapon_railgun_fire(gentity_t * ent)
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
-		trap_RQ3LinkEntity(unlinkedEntities[i], __LINE__, __FILE__);
+		trap_LinkEntity(unlinkedEntities[i]);
 	}
 
 	// the final trace endpos will be the terminal point of the rail trail
@@ -1431,7 +1431,7 @@ void Weapon_SSG3000_Fire(gentity_t * ent)
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
-		trap_RQ3LinkEntity(unlinkedEntities[i], __LINE__, __FILE__);
+		trap_LinkEntity(unlinkedEntities[i]);
 	}
 
 	// snap the endpos to integers to save net bandwidth, but nudged towards the line
@@ -1967,7 +1967,7 @@ void Laser_Think(gentity_t * self)
 
 	vectoangles(tr.plane.normal, self->s.angles);
 
-	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+	trap_LinkEntity(self);
 
 	//Prep next move
 	self->nextthink = level.time + 10;

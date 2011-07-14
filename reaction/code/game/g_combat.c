@@ -1658,7 +1658,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	// JBravo: lets not relink players that have been gibbed here.
 	if (!self->client->gibbed)
-		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+		trap_LinkEntity(self);
 }
 
 /*

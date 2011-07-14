@@ -197,7 +197,7 @@ Move a client back to where he was at the specified "time"
 				trap_SendServerCommand(debugger - g_entities, msg);
 			}
 			// this will recalculate absmin and absmax
-			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+			trap_LinkEntity(ent);
 		} else {
 			// we wrapped, so grab the earliest
 			VectorCopy(ent->client->history[k].currentOrigin, ent->r.currentOrigin);
@@ -205,7 +205,7 @@ Move a client back to where he was at the specified "time"
 			VectorCopy(ent->client->history[k].maxs, ent->r.maxs);
 
 			// this will recalculate absmin and absmax
-			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+			trap_LinkEntity(ent);
 		}
 	} else {
 		// this only happens when the client is using a negative timenudge, because that
@@ -304,7 +304,7 @@ Move a client back to where he was before the time shift
 		ent->client->saved.leveltime = 0;
 
 		// this will recalculate absmin and absmax
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 	}
 } */
 

@@ -368,7 +368,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 		} else {
 			VectorCopy(check->s.pos.trBase, check->r.currentOrigin);
 		}
-		trap_RQ3LinkEntity(check, __LINE__, __FILE__);
+		trap_LinkEntity(check);
 		return qtrue;
 	}
 	// if it is ok to leave in the old position, do it
@@ -438,7 +438,7 @@ qboolean G_TryPushingProxMine(gentity_t * check, gentity_t * pusher, vec3_t move
 	ret = G_CheckProxMinePosition(check);
 	if (ret) {
 		VectorCopy(check->s.pos.trBase, check->r.currentOrigin);
-		trap_RQ3LinkEntity(check, __LINE__, __FILE__);
+		trap_LinkEntity(check);
 	}
 	return ret;
 }
@@ -508,7 +508,7 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 	// move the pusher to it's final position
 	VectorAdd(pusher->r.currentOrigin, move, pusher->r.currentOrigin);
 	VectorAdd(pusher->r.currentAngles, amove, pusher->r.currentAngles);
-	trap_RQ3LinkEntity(pusher, __LINE__, __FILE__);
+	trap_LinkEntity(pusher);
 
 	// see if any solid entities are inside the final position
 	for (e = 0; e < listedEntities; e++) {
@@ -581,7 +581,7 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 					p->ent->client->ps.delta_angles[YAW] = p->deltayaw;
 					//VectorCopy (p->origin, p->ent->client->ps.origin);
 				}
-//                              trap_RQ3LinkEntity (p->ent, __LINE__, __FILE__);
+//                              trap_LinkEntity (p->ent);
 			}
 			//      return qfalse;
 			continue;
@@ -605,7 +605,7 @@ qboolean G_MoverPush(gentity_t * pusher, vec3_t move, vec3_t amove, gentity_t **
 				p->ent->client->ps.delta_angles[YAW] = p->deltayaw;
 				VectorCopy(p->origin, p->ent->client->ps.origin);
 			}
-			trap_RQ3LinkEntity(p->ent, __LINE__, __FILE__);
+			trap_LinkEntity(p->ent);
 		}
 		return qfalse;
 	}
@@ -652,7 +652,7 @@ void G_MoverTeam(gentity_t * ent)
 			G_EvaluateTrajectoryEx(part, level.time, part->r.currentOrigin, part->r.currentAngles);
 			//Makro - set blocked flag so that clients don't predict movement for this frame
 			part->s.eFlags |= EF_MOVER_BLOCKED;
-			trap_RQ3LinkEntity(part, __LINE__, __FILE__);
+			trap_LinkEntity(part);
 		}
 
 		// if the pusher has a "blocked" function, call it
@@ -784,7 +784,7 @@ void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 	//G_EvaluateTrajectory(&ent->s.apos, level.time, ent->r.currentAngles);
 	G_EvaluateTrajectoryEx(ent, level.time, ent->r.currentOrigin, ent->r.currentAngles);
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -1263,7 +1263,7 @@ void InitMover(gentity_t * ent)
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
 	VectorCopy(ent->pos1, ent->r.currentOrigin);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	ent->s.pos.trType = TR_STATIONARY;
 	VectorCopy(ent->pos1, ent->s.pos.trBase);
@@ -1510,7 +1510,7 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 		other->touch = Touch_DoorTrigger;
 		// remember the thinnest axis
 		other->count = best;
-		trap_RQ3LinkEntity(other, __LINE__, __FILE__);
+		trap_LinkEntity(other);
 	}
 	//Makro - some doors shouldn't have triggers for spectators
 	if (!ent->explosive) {
@@ -1538,7 +1538,7 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 		other->touch = Touch_DoorTriggerSpectator;
 		// remember the thinnest axis
 		other->count = best;
-		trap_RQ3LinkEntity(other, __LINE__, __FILE__);
+		trap_LinkEntity(other);
 	}
 
 	MatchTeam(ent, ent->moverState, level.time);
@@ -1965,7 +1965,7 @@ void InitRotator(gentity_t * ent)
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
 	VectorCopy(ent->pos1, ent->r.currentAngles);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	ent->s.apos.trType = TR_STATIONARY;
 	VectorCopy(ent->pos1, ent->s.apos.trBase);
@@ -2069,7 +2069,7 @@ void SpawnPlatTrigger(gentity_t * ent)
 	VectorCopy(tmin, trigger->r.mins);
 	VectorCopy(tmax, trigger->r.maxs);
 
-	trap_RQ3LinkEntity(trigger, __LINE__, __FILE__);
+	trap_LinkEntity(trigger);
 }
 
 /*QUAKED func_plat (0 .5 .8) ?
@@ -2661,7 +2661,7 @@ void SP_func_static(gentity_t * ent)
 	ent->use = use_func_static;
 	ent->reset = reset_func_static;
 	ent->reset(ent);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -2709,7 +2709,7 @@ void SP_func_rotating(gentity_t * ent)
 	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
 	VectorCopy(ent->s.apos.trBase, ent->r.currentAngles);
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*

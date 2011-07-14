@@ -317,7 +317,7 @@ void SP_target_speaker(gentity_t * ent)
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 //==========================================================
@@ -352,7 +352,7 @@ void target_laser_think(gentity_t * self)
 
 	VectorCopy(tr.endpos, self->s.origin2);
 
-	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+	trap_LinkEntity(self);
 	self->nextthink = level.time + FRAMETIME;
 }
 

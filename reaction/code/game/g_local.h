@@ -1305,7 +1305,6 @@ void QDECL G_Error(const char *fmt, ...);
 void RQ3_StartUniqueItems(void);
 
 // JBravo: added
-void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file);
 void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file);
 void trap_RQ3AdjustAreaPortalState(gentity_t *ent, qboolean open, int line, char *file);
 

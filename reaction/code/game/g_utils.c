@@ -649,7 +649,7 @@ gentity_t *G_TempEntity(vec3_t origin, int event)
 	G_SetOrigin(e, snapped);
 
 	// find cluster for PVS
-	trap_RQ3LinkEntity(e, __LINE__, __FILE__);
+	trap_LinkEntity(e);
 
 	return e;
 }
@@ -678,7 +678,7 @@ gentity_t *G_TempEntity2(vec3_t origin, int event, int eParm)
 	G_SetOrigin(e, snapped);
 
 	// find cluster for PVS
-	trap_RQ3LinkEntity(e, __LINE__, __FILE__);
+	trap_LinkEntity(e);
 
 	return e;
 }

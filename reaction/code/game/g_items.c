@@ -496,7 +496,7 @@ void RespawnItem(gentity_t * ent)
 	ent->r.contents = CONTENTS_TRIGGER;
 	ent->s.eFlags &= ~EF_NODRAW;
 	ent->r.svFlags &= ~SVF_NOCLIENT;
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	if (ent->item->giType == IT_POWERUP) {
 		// play powerup spawn sound to all clients
@@ -767,7 +767,7 @@ void Touch_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 	}
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 //======================================================================
@@ -872,7 +872,7 @@ gentity_t *LaunchItem(gitem_t * item, vec3_t origin, vec3_t velocity, int xr_fla
 		dropped->physicsBounce = 0.1f;
 	}
 
-	trap_RQ3LinkEntity(dropped, __LINE__, __FILE__);
+	trap_LinkEntity(dropped);
 
 	return dropped;
 }
@@ -1027,7 +1027,7 @@ void FinishSpawningItem(gentity_t * ent)
 		return;
 	}
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 qboolean itemRegistered[MAX_ITEMS];
@@ -1071,7 +1071,7 @@ void G_CheckTeamItems(void)
 			ent->s.pos.trType = TR_STATIONARY;
 			ent->s.modelindex = TEAM_RED;
 			G_SetOrigin(ent, flag->s.origin);
-			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+			trap_LinkEntity(ent);
 		}
 
 		// NiceAss: Find the blue flag
@@ -1088,7 +1088,7 @@ void G_CheckTeamItems(void)
 			ent->s.pos.trType = TR_STATIONARY;
 			ent->s.modelindex = TEAM_BLUE;
 			G_SetOrigin(ent, flag->s.origin);
-			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+			trap_LinkEntity(ent);
 		}
 	}
 }
@@ -1374,7 +1374,7 @@ void G_RunItem(gentity_t * ent)
 		ent->s.angles[1] = (level.time & 1023) * 360 / 1024.0f;
 	}
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);	// FIXME: avoid this for stationary?
+	trap_LinkEntity(ent);	// FIXME: avoid this for stationary?
 
 	// check think function
 	G_RunThink(ent);

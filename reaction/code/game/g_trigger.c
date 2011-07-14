@@ -237,7 +237,7 @@ void SP_trigger_multiple(gentity_t * ent)
 	ent->reset = Reset_Multi;
 
 	InitTrigger(ent);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -260,7 +260,7 @@ void trigger_always_think(gentity_t * ent)
 //Makro - reset function
 void trigger_always_reset(gentity_t *ent)
 {
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 	ent->nextthink = level.time + 300;
 	ent->think = trigger_always_think;
 }
@@ -392,7 +392,7 @@ void SP_trigger_push(gentity_t * self)
 	self->touch = trigger_push_touch;
 	self->think = AimAtTarget;
 	self->nextthink = level.time + FRAMETIME;
-	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+	trap_LinkEntity(self);
 }
 
 void Use_target_push(gentity_t * self, gentity_t * other, gentity_t * activator)
@@ -511,7 +511,7 @@ void SP_trigger_teleport(gentity_t * self)
 	self->s.eType = ET_TELEPORT_TRIGGER;
 	self->touch = trigger_teleporter_touch;
 
-	trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+	trap_LinkEntity(self);
 }
 
 /*
@@ -539,7 +539,7 @@ void hurt_reset(gentity_t *ent)
 {
 	ent->timestamp = level.time;
 	if (!(ent->spawnflags & 1)) {
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 	} else {
 		//Makro - added
 		trap_RQ3UnlinkEntity(ent, __LINE__, __FILE__);
@@ -551,7 +551,7 @@ void hurt_use(gentity_t * self, gentity_t * other, gentity_t * activator)
 	if (self->r.linked) {
 		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);
 	} else {
-		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+		trap_LinkEntity(self);
 	}
 }
 
@@ -615,7 +615,7 @@ void SP_trigger_hurt(gentity_t * self)
 
 	// link in to the world if starting active
 	if (!(self->spawnflags & 1)) {
-		trap_RQ3LinkEntity(self, __LINE__, __FILE__);
+		trap_LinkEntity(self);
 	} else {
 		//Makro - added
 		trap_RQ3UnlinkEntity(self, __LINE__, __FILE__);

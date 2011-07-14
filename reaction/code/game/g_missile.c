@@ -140,7 +140,7 @@ void G_ExplodeMissile(gentity_t * ent)
 	}
 	//Elder: huhh?
 	//G_Printf("exploding knife\n");
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -231,8 +231,8 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		ent->parent->client->ps.pm_flags |= PMF_GRAPPLE_PULL;
 		VectorCopy(ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
-		trap_RQ3LinkEntity(nent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
+		trap_LinkEntity(nent);
 
 		return;
 	}
@@ -351,7 +351,7 @@ void G_MissileImpact(gentity_t * ent, trace_t * trace)
 		}
 	}
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -387,7 +387,7 @@ void G_RunMissile(gentity_t * ent)
 		VectorCopy(tr.endpos, ent->r.currentOrigin);
 	}
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	if (tr.fraction != 1) {
 		// never explode or bounce on sky

@@ -1047,7 +1047,7 @@ void SpawnPlayers()
 		ent = &g_entities[i];
 		if (ent != NULL && ent->classname != NULL && !strcmp(ent->classname, "func_breakable")) {
 			//re-link all unlinked breakables
-			trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+			trap_LinkEntity(ent);
 
 			ent->exploded = qfalse;
 			ent->takedamage = qtrue;

@@ -829,35 +829,6 @@ void QDECL G_Error(const char *fmt, ...)
 	trap_Error(text);
 }
 
-/*
-================
-trap_RQ3LinkEntity, trap_RQ3UnlinkEntity and trap_RQ3AdjustAreaPortalState
-Written by JBravo to catch the bad gEnt bug
-// if (!((((btye*)ent - (byte*)g_entities)) % sizeof(gentity_t))
-// ((((btye*)ent - (byte*)g_entities)) / sizeof(gentity_t)))
-================
-*/
-void trap_RQ3LinkEntity(gentity_t *ent, int line, char *file)
-{
-	if (ent == NULL) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with a NULL ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-	if (ent-g_entities < 0 || ent-g_entities > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with a unaligned ent from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-	if (ent->s.number <0 || ent->s.number > level.num_entities) {
-		trap_SendServerCommand(-1, va("print \"^1trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n\"", line, file));
-		G_Printf("^1trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-		G_LogPrintf("trap_LinkEntity got called with s.number outof range from line %d of file %s. PLEASE report this to the RQ3 team\n", line, file);
-	}
-
-	trap_LinkEntity(ent);
-}
-
 void trap_RQ3UnlinkEntity(gentity_t *ent, int line, char *file)
 {
 	if (ent == NULL) {
@@ -1230,7 +1201,7 @@ void G_InitMoveParents( void )
 					//this is so cgame knows which entity is the moveparent
 					ent->s.time2 = ent->moveParent_ent - g_entities;
 					if (ent->r.linked)
-						trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+						trap_LinkEntity(ent);
 					break;
 				}
 			}
@@ -2822,7 +2793,7 @@ void G_RunAttachedEnt(gentity_t *ent)
 		VectorCopy(ent->moveParent_ent->r.currentOrigin, ent->s.origin2);
 	}
 	if (ent->r.linked)
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 }
 
 /*

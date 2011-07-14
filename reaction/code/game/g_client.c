@@ -814,7 +814,7 @@ void CopyToBodyQue(gentity_t * ent)
 	}
 
 	VectorCopy(body->s.pos.trBase, body->r.currentOrigin);
-	trap_RQ3LinkEntity(body, __LINE__, __FILE__);
+	trap_LinkEntity(body);
 }
 
 //======================================================================
@@ -1798,7 +1798,7 @@ void ClientSpawn(gentity_t * ent)
 
 	} else {
 		G_KillBox(ent);
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 
 		// force the base weapon up
 		//Blaze: Changed WP_MACHINEGUN to WP_PISTOL
@@ -1893,7 +1893,7 @@ void ClientSpawn(gentity_t * ent)
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
 		BG_PlayerStateToEntityState(&client->ps, &ent->s, qtrue);
 		VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
-		trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+		trap_LinkEntity(ent);
 	}
 	// run the presend to set anything else
 // JBravo: We should not have to call this during TP spawns

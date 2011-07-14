@@ -461,14 +461,14 @@ void SP_dlight(gentity_t * ent)
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 
 	ent->s.eType = ET_DLIGHT;
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
 // Nothing significant to do
 void G_RunDlight(gentity_t * ent)
 {
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 */
 
@@ -592,7 +592,7 @@ void SP_func_shadow(gentity_t *ent)
 	trap_SetConfigstring(CS_SHADOWS, info);
 
 	ent->s.eType = ET_SHADOW;
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 
@@ -600,7 +600,7 @@ void SP_misc_corona(gentity_t *ent)
 {
 	ent->s.eType = ET_CORONA;
 	//ent->r.svFlags = SVF_NOCLIENT;
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 
@@ -657,7 +657,7 @@ void TeleportPlayer(gentity_t * player, vec3_t origin, vec3_t angles)
 	VectorCopy(player->client->ps.origin, player->r.currentOrigin);
 
 	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
-		trap_RQ3LinkEntity(player, __LINE__, __FILE__);
+		trap_LinkEntity(player);
 	}
 }
 
@@ -682,7 +682,7 @@ void SP_misc_model(gentity_t * ent)
 	ent->s.modelindex = G_ModelIndex(ent->model);
 	VectorSet(ent->mins, -16, -16, -16);
 	VectorSet(ent->maxs, 16, 16, 16);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	G_SetOrigin(ent, ent->s.origin);
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
@@ -757,7 +757,7 @@ void SP_misc_portal_surface(gentity_t * ent)
 {
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	ent->r.svFlags = SVF_PORTAL;
 	ent->s.eType = ET_PORTAL;
@@ -798,7 +798,7 @@ void SP_misc_portal_camera(gentity_t * ent)
 
 	VectorClear(ent->r.mins);
 	VectorClear(ent->r.maxs);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	G_SpawnFloat("roll", "0", &roll);
 
@@ -864,7 +864,7 @@ void SP_misc_sky_portal(gentity_t * ent)
 	ent->think = Think_SetupSkyPortal;
 	ent->nextthink = level.time + FRAMETIME;
 
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -941,7 +941,7 @@ void InitShooter(gentity_t * ent, int weapon)
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
 	}
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 }
 
 /*QUAKED shooter_rocket (1 0 0) (-16 -16 -16) (16 16 16)
@@ -1051,7 +1051,7 @@ If you wish to add a custom breakable to your map, please include your mapname (
 
 void reset_breakable(gentity_t *ent)
 {
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 	
 	ent->exploded = qfalse;
 	ent->takedamage = qtrue;
@@ -1274,7 +1274,7 @@ void SP_func_breakable(gentity_t * ent)
 	//ent->think = Think_SpawnNewDoorTrigger;
 
 	ent->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 }
 
@@ -1435,7 +1435,7 @@ void SP_func_pressure(gentity_t * ent)
 
 	// Make it appear as the brush
 	trap_SetBrushModel(ent, ent->model);
-	trap_RQ3LinkEntity(ent, __LINE__, __FILE__);
+	trap_LinkEntity(ent);
 
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
