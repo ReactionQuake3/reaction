@@ -5384,6 +5384,8 @@ static void UI_LoadMovies( void )
 
 }
 
+#define NAMEBUFSIZE (MAX_DEMOS * 32)
+
 /*
 ===============
 UI_LoadDemos
@@ -5448,47 +5450,52 @@ void UI_SortDemoList(int start, int end, int column)
 	}
 }
 
-static void UI_LoadDemos( void )
-{
-	char demolist[4096];
-	char demoExt[32];
-	char *demoname;
-	int i, j, len, protocol = (int) trap_Cvar_VariableValue("protocol");
+static void UI_LoadDemos( void ) {
+	char	demolist[NAMEBUFSIZE];
+	char	demoExt[32];
+	char	*demoname;
+	int	i, j, len;
+	int	protocol, protocolLegacy;
 
-	uiInfo.demoCount = 0;
-	//Makro - old code was using just the "protocol" cvar; replaced with a for loop
-	for (j=66; j<=protocol; j++)
+	protocolLegacy = trap_Cvar_VariableValue("com_legacyprotocol");
+	protocol = trap_Cvar_VariableValue("com_protocol");
+
+	if(!protocol)
+		protocol = trap_Cvar_VariableValue("protocol");
+	if(protocolLegacy == protocol)
+		protocolLegacy = 0;
+
+	Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, protocol);
+	uiInfo.demoCount = trap_FS_GetFileList("demos", demoExt, demolist, ARRAY_LEN(demolist));
+
+	demoname = demolist;
+	i = 0;
+
+	for(j = 0; j < 2; j++)
 	{
-		int count;
-		//Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", (int) trap_Cvar_VariableValue("protocol"));
-		Com_sprintf(demoExt, sizeof(demoExt), "dm_%d", j);
+		if(uiInfo.demoCount > MAX_DEMOS)
+			uiInfo.demoCount = MAX_DEMOS;
 
-		count = trap_FS_GetFileList("demos", demoExt, demolist, 4096);
+		for(; i < uiInfo.demoCount; i++)
+		{
+			len = strlen(demoname);
+			uiInfo.demoList[i] = String_Alloc(demoname);
+			demoname += len + 1;
+		}
 
-		//Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", (int) trap_Cvar_VariableValue("protocol"));
-		Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", j);
-
-		if (count) {
-			//int start = uiInfo.demoCount+1;
-			//uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("*** Recorded with Quake 3 %s ***", q3VersionFromProtocol(j)));
-			demoname = demolist;
-			for (i = 0; i < count && uiInfo.demoCount <= MAX_DEMOS; i++)
+		if(!j)
+		{
+			if(protocolLegacy > 0 && uiInfo.demoCount < MAX_DEMOS)
 			{
-				len = strlen(demoname);
-				if (!Q_stricmp(demoname + len - strlen(demoExt), demoExt))
-				{
-					demoname[len - strlen(demoExt)] = '\0';
-				}
-				//Makro - bad for linux users
-				//Q_strupr(demoname);
-				uiInfo.demoType[uiInfo.demoCount] = j;
-				//uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(va("%s (%s)", demoname, q3VersionFromProtocol(j)));
-				uiInfo.demoList[uiInfo.demoCount++] = String_Alloc(demoname);
-				demoname += len + 1;
+				Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, protocolLegacy);
+				uiInfo.demoCount += trap_FS_GetFileList("demos", demoExt, demolist, ARRAY_LEN(demolist));
+				demoname = demolist;
 			}
+			else
+				break;
 		}
 	}
-	UI_SortDemoList(0, uiInfo.demoCount, 0);
+
 }
 
 static qboolean UI_SetNextMap(int actual, int index)

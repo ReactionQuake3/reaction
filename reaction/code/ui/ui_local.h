@@ -788,7 +788,7 @@ qboolean UI_RQ3_WeaponMenuAccess( void );
 #define MAPS_PER_TIER 3
 #define MAX_TIERS 16
 #define MAX_MODS 64
-#define MAX_DEMOS 256
+#define MAX_DEMOS 512
 #define MAX_MOVIES 256
 #define MAX_PLAYERMODELS 256
 
