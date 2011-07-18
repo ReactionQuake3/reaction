@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+//  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
   #define PRODUCT_NAME			"Reaction"
   #define BASEGAME			"Boomstick"
@@ -48,6 +49,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+  #define LEGACY_PROTOCOL
 #endif
 
 #define BASETA				"missionpack"
