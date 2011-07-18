@@ -1049,7 +1049,7 @@ void camera_state_save(gclient_t * client)
 		target = ent - g_entities;
 
 	s = va("%i %i", mode, target);
-	var = va("zcam%i", client - level.clients);
+	var = va("zcam%i", (int)(client - level.clients));
 
 	trap_Cvar_Set(var, s);
 }
