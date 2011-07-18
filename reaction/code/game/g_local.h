@@ -1295,10 +1295,10 @@ void FindIntermissionPoint(void);
 void SetLeader(int team, int client);
 void CheckTeamLeader(int team);
 void G_RunThink(gentity_t * ent);
-void QDECL G_LogPrintf(const char *fmt, ...);
+void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void SendScoreboardMessageToAllClients(void);
-void QDECL G_Printf(const char *fmt, ...);
-void QDECL G_Error(const char *fmt, ...);
+void QDECL G_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL G_Error( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 
 //Elder: added
 void RQ3_StartUniqueItems(void);

@@ -2089,8 +2089,8 @@ void CG_InitMessageQueue(void);
 void CG_UpdateMessageQueue(void);
 void CG_AddMessage(const char* msg);
 
-void QDECL CG_Printf(const char *msg, ...);
-void QDECL CG_Error(const char *msg, ...);
+void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void QDECL CG_Error( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 void CG_StartMusic(void);
 

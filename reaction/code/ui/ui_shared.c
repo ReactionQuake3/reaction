@@ -417,8 +417,7 @@ void String_Init( void )
 PC_SourceWarning
 =================
 */
-void PC_SourceWarning(int handle, char *format, ...)
-{
+static __attribute__ ((format (printf, 2, 3))) void PC_SourceWarning(int handle, char *format, ...) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -440,8 +439,7 @@ void PC_SourceWarning(int handle, char *format, ...)
 PC_SourceError
 =================
 */
-void PC_SourceError(int handle, char *format, ...)
-{
+static __attribute__ ((format (printf, 2, 3))) void PC_SourceError(int handle, char *format, ...) {
 	int line;
 	char filename[128];
 	va_list argptr;
