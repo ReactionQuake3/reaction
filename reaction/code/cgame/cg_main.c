@@ -2691,7 +2691,7 @@ void CG_ReplaceModels(void)
 					bg_itemlist[item - bg_itemlist].world_model[0] = (char *)&RQ3_mp5_model;
 					bg_itemlist[item - bg_itemlist].icon = (char *)&RQ3_mp5_icon;
 				} else
-					CG_Printf("^1Error loading mp5 replacement model\n", model);
+					CG_Printf("^1Error loading mp5 replacement model %s\n", model);
 			}
 			if (strcmp(skin, "default")) {
 				Com_sprintf(RQ3_mp5_icon, MAX_MODEL_LEN, "icons/iconw_%s", skin);

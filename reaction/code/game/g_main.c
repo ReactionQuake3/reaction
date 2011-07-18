@@ -1170,7 +1170,7 @@ void G_InitMoveParents( void )
 //Makro - determine moveparent order
 void G_SetMoveParentOrder( void )
 {
-	int i, j;
+	int i, j, x;
 	char info[MAX_INFO_STRING], *p;
 
 	for (i=0; i<MAX_GENTITIES; i++)
@@ -1218,15 +1218,16 @@ void G_SetMoveParentOrder( void )
 // JBravo: apparently unused
 //		gentity_t *ent = g_parentOrder[i];
 
-		Com_sprintf(p, 4, "%03i", g_parentOrder[i]-g_entities);
+		x = g_parentOrder[i]-g_entities;
+		Com_sprintf(p, 4, "%03i", x);
 		p += 3;
 		//SetIntBytes(((g_parentOrder[i] - g_entities) << 1) | 1, p, 2);
 		//p += 2;
 		Com_sprintf(p, 4, "%03i", g_parentOrder[i]->moveParent_rank);
-		p+=3;
+		p += 3;
 		//SetIntBytes(((g_parentOrder[i]->moveParent_rank) << 1) | 1, p, 2);
 		//p += 2;
-		G_Printf("%i (%i)> %s, rank %i\n", i, g_parentOrder[i]-g_entities,
+		G_Printf("%i (%i)> %s, rank %i\n", i, x,
 			g_parentOrder[i]->classname, g_parentOrder[i]->moveParent_rank);
 	}
 	//trailing zero
