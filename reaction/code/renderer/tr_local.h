@@ -1501,7 +1501,7 @@ the bits are allocated as follows:
 7-16  : entity index
 17-30 : sorted shader index
 
-	SmileTheory - for pshadows
+    SmileTheory - for pshadows
 17-31 : sorted shader index
 7-16  : entity index
 2-6   : fog index
