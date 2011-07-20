@@ -1080,13 +1080,13 @@ void GfxMemInfo_f( void )
 			// GL_ATI_meminfo
 			int value[4];
 
-			qglGetIntegerv(VBO_FREE_MEMORY_ATI, &value[0]);
+			qglGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &value[0]);
 			ri.Printf(PRINT_ALL, "VBO_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
 
-			qglGetIntegerv(TEXTURE_FREE_MEMORY_ATI, &value[0]);
+			qglGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &value[0]);
 			ri.Printf(PRINT_ALL, "TEXTURE_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
 
-			qglGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, &value[0]);
+			qglGetIntegerv(GL_RENDERBUFFER_FREE_MEMORY_ATI, &value[0]);
 			ri.Printf(PRINT_ALL, "RENDERBUFFER_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
 		}
 		break;
