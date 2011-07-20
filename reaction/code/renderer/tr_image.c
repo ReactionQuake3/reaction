@@ -977,7 +977,6 @@ image_t *R_CreateImage2( const char *name, const byte *pic, int width, int heigh
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean cube ) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
-	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
 		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long", name);
@@ -1045,10 +1044,6 @@ image_t *R_CreateImage2( const char *name, const byte *pic, int width, int heigh
 	}
 
 	GL_SelectTexture( 0 );
-
-	hash = generateHashValue(name);
-	image->next = hashTable[hash];
-	hashTable[hash] = image;
 
 	return image;
 }
