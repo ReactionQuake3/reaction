@@ -12,6 +12,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<DefaultToolFile
+			FileName="masm.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -27,6 +30,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -125,6 +131,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -1357,6 +1366,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\code\renderer\iqm.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\code\ui\keycodes.h"
 				>
 			</File>
@@ -2009,6 +2022,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\code\renderer\tr_model_iqm.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\code\renderer\tr_noise.c"
 					>
 				</File>
@@ -2279,6 +2296,18 @@
 			</File>
 			<File
 				RelativePath="..\..\code\zlib\zutil.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="asm"
+			>
+			<File
+				RelativePath="..\..\code\asm\ftola.asm"
+				>
+			</File>
+			<File
+				RelativePath="..\..\code\asm\snapvector.asm"
 				>
 			</File>
 		</Filter>
