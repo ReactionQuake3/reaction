@@ -404,7 +404,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.sceneCount++;
 
 	// SmileTheory: playing with shadow mapping
-	if (!( fd->rdflags & RDF_NOWORLDMODEL ) && tr.refdef.num_dlights && r_dlightShadows->integer
+	if (!( fd->rdflags & RDF_NOWORLDMODEL ) && tr.refdef.num_dlights && r_dlightMode->integer >= 2
 		&& glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
 		&& glRefConfig.glsl && r_arb_shader_objects->integer)
 	{

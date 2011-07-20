@@ -56,10 +56,10 @@ typedef unsigned int glIndex_t;
 #define MAX_STATES_PER_SHADER 32
 #define MAX_STATE_NAME 32
 
+
 #define MAX_VISCOUNTS				5
 #define MAX_VBOS					4096
 #define MAX_IBOS					4096
-
 
 typedef struct dlight_s {
 	vec3_t	origin;
@@ -821,7 +821,8 @@ enum
 	GENERIC_UNIFORM_DEFORMPARAMS,
 	GENERIC_UNIFORM_COLORGEN,
 	GENERIC_UNIFORM_ALPHAGEN,
-	GENERIC_UNIFORM_COLOR,
+	GENERIC_UNIFORM_BASECOLOR,
+	GENERIC_UNIFORM_VERTCOLOR,
 	GENERIC_UNIFORM_AMBIENTLIGHT,
 	GENERIC_UNIFORM_DIRECTEDLIGHT,
 	GENERIC_UNIFORM_LIGHTORIGIN,
@@ -830,7 +831,7 @@ enum
 	GENERIC_UNIFORM_FOGDISTANCE,
 	GENERIC_UNIFORM_FOGDEPTH,
 	GENERIC_UNIFORM_FOGEYET,
-	GENERIC_UNIFORM_FOGADJUSTCOLORS,
+	GENERIC_UNIFORM_FOGCOLORMASK,
 	GENERIC_UNIFORM_MODELMATRIX,
 	GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX,
 	GENERIC_UNIFORM_TIME,
@@ -1514,7 +1515,7 @@ the bits are allocated as follows:
 #if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
 	#error "Need to update sorting, too many bits."
 #endif
-#define QSORT_PSHADOW_SHIFT	1
+#define QSORT_PSHADOW_SHIFT     1
 
 extern	int			gl_filter_min, gl_filter_max;
 
@@ -1560,6 +1561,12 @@ typedef struct {
 	matrix_t		modelviewProjection;
 } glstate_t;
 
+typedef enum {
+	MI_NONE,
+	MI_NVX,
+	MI_ATI
+} memInfo_t;
+
 // We can't change glConfig_t without breaking DLL/vms compatibility, so
 // store extensions we have here.
 typedef struct {
@@ -1585,6 +1592,8 @@ typedef struct {
 	qboolean    shaderObjects;
 	qboolean    vertexShader;
 	qboolean    glsl;
+
+	memInfo_t   memInfo;
 } glRefConfig_t;
 
 
@@ -1934,9 +1943,10 @@ extern  cvar_t  *r_specularMapping;
 extern  cvar_t  *r_deluxeMapping;
 extern  cvar_t  *r_parallaxMapping;
 extern  cvar_t  *r_normalAmbient;
-extern  cvar_t  *r_dlightShadows;
+extern  cvar_t  *r_dlightMode;
 extern  cvar_t  *r_pshadowDist;
 extern  cvar_t  *r_recalcMD3Normals;
+extern  cvar_t  *r_mergeLightmaps;
 
 extern	cvar_t	*r_greyscale;
 
@@ -2073,6 +2083,7 @@ image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicm
 
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
+void		R_UpdateSubImage( image_t *image, const byte *pic, int x, int y, int width, int height);
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );

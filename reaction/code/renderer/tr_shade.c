@@ -1192,7 +1192,8 @@ static void ProjectDlightTextureVBOGLSL( void ) {
 }
 
 
-static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color);
+static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t vertColor );
+static void ComputeFogColorMask( shaderStage_t *pStage, vec4_t fogColorMask );
 
 static void ComputeFogValues(vec4_t fogDistanceVector, vec4_t fogDepthVector, float *eyeT)
 {
@@ -1334,18 +1335,26 @@ static void ForwardDlightVBOGLSL( void ) {
 		}
 
 		if ( input->fogNum ) {
+			vec4_t fogColorMask;
+
 			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDISTANCE, fogDistanceVector);
 			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGDEPTH, fogDepthVector);
 			GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_FOGEYET, eyeT);
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, pStage->adjustColorsForFog);
-		}
-		else
-		{
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
+
+			ComputeFogColorMask(pStage, fogColorMask);
+
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGCOLORMASK, fogColorMask);
 		}
 
-		if (ComputeHelperColor(pStage, vector))
-			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, vector);
+		{
+			vec4_t baseColor;
+			vec4_t vertColor;
+
+			ComputeShaderColors(pStage, baseColor, vertColor);
+
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_BASECOLOR, baseColor);
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_VERTCOLOR, vertColor);
+		}
 
 		if (pStage->alphaGen == AGEN_PORTAL)
 		{
@@ -1384,7 +1393,7 @@ static void ForwardDlightVBOGLSL( void ) {
 		if (pStage->bundle[TB_SPECULARMAP].image[0])
 			R_BindAnimatedImageToTMU( &pStage->bundle[TB_SPECULARMAP], TB_SPECULARMAP);
 
-		if (r_dlightShadows->integer)
+		if (r_dlightMode->integer >= 2)
 		{
 			GL_SelectTexture(TB_SHADOWMAP);
 			GL_BindCubemap(tr.shadowCubemaps[l]);
@@ -1416,7 +1425,6 @@ static void ForwardDlightVBOGLSL( void ) {
 static void ProjectPshadowVBOGLSL( void ) {
 	int		l;
 	vec3_t	origin;
-	float	scale;
 	float	radius;
 
 	int deformGen;
@@ -1442,7 +1450,6 @@ static void ProjectPshadowVBOGLSL( void ) {
 		ps = &backEnd.refdef.pshadows[l];
 		VectorCopy( ps->lightOrigin, origin );
 		radius = ps->lightRadius;
-		scale = 1.0f / radius;
 
 		sp = &tr.pshadowShader;
 
@@ -1454,14 +1461,14 @@ static void ProjectPshadowVBOGLSL( void ) {
 		vector[3] = 1.0f;
 		GLSL_SetUniformVec4(sp, PSHADOW_UNIFORM_LIGHTORIGIN, vector);
 
-		VectorScale(ps->lightViewAxis[0], -1.0f / ps->viewRadius, vector);
+		VectorScale(ps->lightViewAxis[0], 1.0f / ps->viewRadius, vector);
 		GLSL_SetUniformVec3(sp, PSHADOW_UNIFORM_LIGHTFORWARD, vector);
 
 		VectorScale(ps->lightViewAxis[1], 1.0f / ps->viewRadius, vector);
-		GLSL_SetUniformVec3(sp, PSHADOW_UNIFORM_LIGHTUP, vector);
-
-		VectorScale(ps->lightViewAxis[2], -1.0f / ps->viewRadius, vector);
 		GLSL_SetUniformVec3(sp, PSHADOW_UNIFORM_LIGHTRIGHT, vector);
+
+		VectorScale(ps->lightViewAxis[2], 1.0f / ps->viewRadius, vector);
+		GLSL_SetUniformVec3(sp, PSHADOW_UNIFORM_LIGHTUP, vector);
 
 		GLSL_SetUniformFloat(sp, PSHADOW_UNIFORM_LIGHTRADIUS, radius);
 	  
@@ -1811,43 +1818,78 @@ static void ComputeColors( shaderStage_t *pStage )
 	}
 }
 
-static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
+static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t vertColor )
 {
-	qboolean set = qfalse;
-
-	color[0] = 
-	color[1] = 
-	color[2] = 
-	color[3] = 1.0f;
-
 	//
 	// rgbGen
 	//
 	switch ( pStage->rgbGen )
 	{
 		case CGEN_IDENTITY:
-			set = qtrue;
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] =
+			baseColor[3] = 1.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_IDENTITY_LIGHTING:
-			color[0] = 
-			color[1] = 
-			color[2] = 
-			color[3] = tr.identityLight; // FIXME: Code was like this in quake 3, is this a bug?
-			set = qtrue;
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] = tr.identityLight;
+			baseColor[3] = 1.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
+			break;
+		case CGEN_EXACT_VERTEX:
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] =
+			baseColor[3] = 0.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 1.0f;
 			break;
 		case CGEN_CONST:
-			color[0] = pStage->constantColor[0] / 255.0f;
-			color[1] = pStage->constantColor[1] / 255.0f;
-			color[2] = pStage->constantColor[2] / 255.0f;
-			color[3] = pStage->constantColor[3] / 255.0f;
-			set = qtrue;
+			baseColor[0] = pStage->constantColor[0] / 255.0f;
+			baseColor[1] = pStage->constantColor[1] / 255.0f;
+			baseColor[2] = pStage->constantColor[2] / 255.0f;
+			baseColor[3] = pStage->constantColor[3] / 255.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_VERTEX:
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] =
+			baseColor[3] = 0.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] = tr.identityLight;
+			vertColor[3] = 1.0f;
+			break;
 		case CGEN_ONE_MINUS_VERTEX:
-			color[0] = 
-			color[1] = 
-			color[2] = tr.identityLight;
-			set = qtrue;
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] = tr.identityLight;
+			baseColor[3] = 1.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] = -tr.identityLight;
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_FOG:
 			{
@@ -1855,12 +1897,16 @@ static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 
 				fog = tr.world->fogs + tess.fogNum;
 
-				color[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
-				color[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
-				color[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
-				color[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
+				baseColor[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
+				baseColor[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
+				baseColor[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
+				baseColor[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
 			}
-			set = qtrue;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_WAVEFORM:
 			{
@@ -1881,35 +1927,56 @@ static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 					glow = 1;
 				}
 
-				color[0] = 
-				color[1] = 
-				color[2] = glow;
+				baseColor[0] = 
+				baseColor[1] = 
+				baseColor[2] = glow;
+				baseColor[3] = 1.0f;
 			}
-			set = qtrue;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_ENTITY:
 			if (backEnd.currentEntity)
 			{
-				color[0] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
-				color[1] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
-				color[2] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
-				color[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+				baseColor[0] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				baseColor[1] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				baseColor[2] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				baseColor[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-			set = qtrue;
+			
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_ONE_MINUS_ENTITY:
 			if (backEnd.currentEntity)
 			{
-				color[0] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
-				color[1] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
-				color[2] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
-				color[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+				baseColor[0] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[0] / 255.0f;
+				baseColor[1] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[1] / 255.0f;
+				baseColor[2] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
+				baseColor[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-			set = qtrue;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 		case CGEN_LIGHTING_DIFFUSE:
-		case CGEN_EXACT_VERTEX:
 		case CGEN_BAD:
+			baseColor[0] = 
+			baseColor[1] =
+			baseColor[2] =
+			baseColor[3] = 1.0f;
+
+			vertColor[0] =
+			vertColor[1] =
+			vertColor[2] =
+			vertColor[3] = 0.0f;
 			break;
 	}
 
@@ -1919,15 +1986,14 @@ static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 	switch ( pStage->alphaGen )
 	{
 		case AGEN_SKIP:
-			set = qtrue;
 			break;
 		case AGEN_IDENTITY:
-			color[3] = 1.0f;
-			set = qtrue;
+			baseColor[3] = 1.0f;
+			vertColor[3] = 0.0f;
 			break;
 		case AGEN_CONST:
-			color[3] = pStage->constantColor[3] / 255.0f;
-			set = qtrue;
+			baseColor[3] = pStage->constantColor[3] / 255.0f;
+			vertColor[3] = 0.0f;
 			break;
 		case AGEN_WAVEFORM:
 			// From RB_CalcWaveAlpha
@@ -1935,36 +2001,40 @@ static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 				float glow;
 				waveForm_t *wf = &pStage->alphaWave;
 				glow = EvalWaveFormClamped( wf );
-				color[3] = glow;
+				baseColor[3] = glow;
 			}
-			set = qtrue;
+			vertColor[3] = 0.0f;
 			break;
 		case AGEN_ENTITY:
 			if (backEnd.currentEntity)
 			{
-				color[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+				baseColor[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-			set = qtrue;
+			vertColor[3] = 0.0f;
 			break;
 		case AGEN_ONE_MINUS_ENTITY:
 			if (backEnd.currentEntity)
 			{
-				color[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
+				baseColor[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-			set = qtrue;
+			vertColor[3] = 0.0f;
+			break;
+		case AGEN_VERTEX:
+			baseColor[3] = 0.0f;
+			vertColor[3] = 1.0f;
+			break;
+		case AGEN_ONE_MINUS_VERTEX:
+			baseColor[3] = 1.0f;
+			vertColor[3] = -1.0f;
 			break;
 		case AGEN_LIGHTING_SPECULAR:
-		case AGEN_VERTEX:
-		case AGEN_ONE_MINUS_VERTEX:
 		case AGEN_PORTAL:
 		case AGEN_FRESNEL:
 			// Done entirely in vertex program
+			baseColor[3] = 1.0f;
+			vertColor[3] = 0.0f;
 			break;
 	}
-
-	//
-	// pStage->adjustColorsForFog is done in the vertex program now
-	//
 
 	// FIXME: find some way to implement this.
 #if 0
@@ -1980,9 +2050,39 @@ static qboolean ComputeHelperColor( shaderStage_t *pStage, vec4_t color)
 		}
 	}
 #endif
-
-	return set;
 }
+
+static void ComputeFogColorMask( shaderStage_t *pStage, vec4_t fogColorMask )
+{
+	switch(pStage->adjustColorsForFog)
+	{
+		case ACFF_MODULATE_RGB:
+			fogColorMask[0] =
+			fogColorMask[1] =
+			fogColorMask[2] = 1.0f;
+			fogColorMask[3] = 0.0f;
+			break;
+		case ACFF_MODULATE_ALPHA:
+			fogColorMask[0] =
+			fogColorMask[1] =
+			fogColorMask[2] = 0.0f;
+			fogColorMask[3] = 1.0f;
+			break;
+		case ACFF_MODULATE_RGBA:
+			fogColorMask[0] =
+			fogColorMask[1] =
+			fogColorMask[2] =
+			fogColorMask[3] = 1.0f;
+			break;
+		default:
+			fogColorMask[0] =
+			fogColorMask[1] =
+			fogColorMask[2] =
+			fogColorMask[3] = 0.0f;
+			break;
+	}
+}
+
 
 /*
 ===============
@@ -2684,10 +2784,17 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		if (pStage->glslShaderGroup)
 		{
 			int index = pStage->glslShaderIndex;
+
+			if (backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity)
+			{
+				index |= LIGHTDEF_ENTITY;
+			}
+
 			if (r_lightmap->integer && index & LIGHTDEF_USE_LIGHTMAP)
 			{
 				index = LIGHTDEF_USE_LIGHTMAP;
 			}
+
 			sp = &pStage->glslShaderGroup[index];
 
 			if (pStage->glslShaderGroup == tr.lightallShader)
@@ -2725,12 +2832,14 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 		GL_State( pStage->stateBits );
 
 		{
-			vec4_t color;
+			vec4_t baseColor;
+			vec4_t vertColor;
 
-			if (ComputeHelperColor(pStage, color))
-				GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_COLOR, color);
+			ComputeShaderColors(pStage, baseColor, vertColor);
+
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_BASECOLOR, baseColor);
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_VERTCOLOR, vertColor);
 		}
-
 
 		if (pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
 		{
@@ -2759,11 +2868,11 @@ static void RB_IterateStagesGenericVBOGLSL( shaderCommands_t *input )
 
 		if ( input->fogNum )
 		{
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, pStage->adjustColorsForFog);
-		}
-		else
-		{
-			GLSL_SetUniformInt(sp, GENERIC_UNIFORM_FOGADJUSTCOLORS, 0);
+			vec4_t fogColorMask;
+
+			ComputeFogColorMask(pStage, fogColorMask);
+
+			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_FOGCOLORMASK, fogColorMask);
 		}
 
 		ComputeTexMatrix( pStage, TB_DIFFUSEMAP, matrix );
@@ -3164,7 +3273,8 @@ void RB_StageIteratorGenericVBO( void )
 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
 		if (glRefConfig.glsl && r_arb_shader_objects->integer)
 		{
-			if (tess.shader->numUnfoggedPasses == 1 && tess.xstages[0]->glslShaderGroup == tr.lightallShader)
+			if (tess.shader->numUnfoggedPasses == 1 && tess.xstages[0]->glslShaderGroup == tr.lightallShader
+				&& r_dlightMode->integer)
 			{
 				ForwardDlightVBOGLSL();
 			}

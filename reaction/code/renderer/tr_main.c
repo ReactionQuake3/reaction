@@ -2347,7 +2347,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 	{
 		trRefEntity_t fakeEnt;
 		pshadow_t *shadow = &tr.refdef.pshadows[i];
-		vec3_t right;
+		vec3_t up;
 		vec3_t lightDir;
 
 #if 0
@@ -2367,16 +2367,16 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 
 		VectorMA(shadow->viewOrigin, shadow->viewRadius, lightDir, shadow->lightOrigin);
 
-		// make up a projection, spin doesn't matter
+		// make up a projection, up doesn't matter
 		VectorScale(lightDir, -1.0f, shadow->lightViewAxis[0]);
-		VectorSet(right, 0, 0, -1);
+		VectorSet(up, 0, 0, -1);
 
-		if ( abs(DotProduct(right, shadow->lightViewAxis[0])) > 0.9f )
+		if ( abs(DotProduct(up, shadow->lightViewAxis[0])) > 0.9f )
 		{
-			VectorSet(right, -1, 0, 0);
+			VectorSet(up, -1, 0, 0);
 		}
 
-		CrossProduct(shadow->lightViewAxis[0], right, shadow->lightViewAxis[1]);
+		CrossProduct(shadow->lightViewAxis[0], up, shadow->lightViewAxis[1]);
 		VectorNormalize(shadow->lightViewAxis[1]);
 		CrossProduct(shadow->lightViewAxis[0], shadow->lightViewAxis[1], shadow->lightViewAxis[2]);
 

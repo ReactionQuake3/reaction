@@ -40,7 +40,7 @@ int			c_subdivisions;
 int			c_gridVerts;
 
 //===============================================================================
-#if 1
+
 static void HSVtoRGB( float h, float s, float v, float rgb[3] )
 {
 	int i;
@@ -168,13 +168,18 @@ R_LoadLightmaps
 */
 #define	LIGHTMAP_SIZE	128
 static	void R_LoadLightmaps( lump_t *l ) {
-#if 0
 	byte		*buf, *buf_p;
 	int			len;
 	byte		image[LIGHTMAP_SIZE*LIGHTMAP_SIZE*4];
-	int			i, j;
+	int			i, j, numLightmaps;
 	float maxIntensity = 0;
 	double sumIntensity = 0;
+
+	if (r_mergeLightmaps->integer)
+	{
+		tr.fatLightmapSize = 4096;
+		tr.fatLightmapStep = 32;
+	}
 
 	len = l->filelen;
 	if ( !len ) {
@@ -186,95 +191,8 @@ static	void R_LoadLightmaps( lump_t *l ) {
 	R_SyncRenderThread();
 
 	// create all the lightmaps
-	tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-	if ( tr.numLightmaps == 1 ) {
-		//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
-		//this avoids this, but isn't the correct solution.
-		tr.numLightmaps++;
-	}
-
-	// if we are in r_vertexLight mode, we don't need the lightmaps at all
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
-		return;
-	}
-
-	tr.lightmaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
-	for ( i = 0 ; i < tr.numLightmaps ; i++ ) {
-		// expand the 24 bit on-disk to 32 bit
-		buf_p = buf + i * LIGHTMAP_SIZE*LIGHTMAP_SIZE * 3;
-
-		if ( r_lightmap->integer == 2 )
-		{	// color code by intensity as development tool	(FIXME: check range)
-			for ( j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ )
-			{
-				float r = buf_p[j*3+0];
-				float g = buf_p[j*3+1];
-				float b = buf_p[j*3+2];
-				float intensity;
-				float out[3] = {0.0, 0.0, 0.0};
-
-				intensity = 0.33f * r + 0.685f * g + 0.063f * b;
-
-				if ( intensity > 255 )
-					intensity = 1.0f;
-				else
-					intensity /= 255.0f;
-
-				if ( intensity > maxIntensity )
-					maxIntensity = intensity;
-
-				HSVtoRGB( intensity, 1.00, 0.50, out );
-
-				image[j*4+0] = out[0] * 255;
-				image[j*4+1] = out[1] * 255;
-				image[j*4+2] = out[2] * 255;
-				image[j*4+3] = 255;
-
-				sumIntensity += intensity;
-			}
-		} else {
-			for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
-				R_ColorShiftLightingBytes( &buf_p[j*3], &image[j*4] );
-				image[j*4+3] = 255;
-			}
-		}
-		tr.lightmaps[i] = R_CreateImage( va("*lightmap%d",i), image, 
-			LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
-	}
-
-	if ( r_lightmap->integer == 2 )	{
-		ri.Printf( PRINT_ALL, "Brightest lightmap value: %d\n", ( int ) ( maxIntensity * 255 ) );
-	}
-#else
-	int             len;
-	int             numLightmaps;
-	int             i;
-	byte           *buf, *buf_p;
-
-	//int       BIGSIZE=2048;
-	//int       BIGNUM=16;
-
-	byte           *fatbuffer;
-	byte           *fatbuffer2;
-	int             xoff, yoff, x, y;
-	//float           scale = 0.9f;
-
-	tr.fatLightmapSize = 4096;
-	tr.fatLightmapStep = 32;
-
-	len = l->filelen;
-	if(!len)
-	{
-		return;
-	}
-	buf = fileBase + l->fileofs;
-
-	// we are about to upload textures
-	R_SyncRenderThread();
-
-	// create all the lightmaps
 	numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-	
+
 	if (tr.worldDeluxeMapping)
 	{
 		numLightmaps >>= 1;
@@ -286,7 +204,7 @@ static	void R_LoadLightmaps( lump_t *l ) {
 		//this avoids this, but isn't the correct solution.
 		numLightmaps++;
 	}
-	else if(numLightmaps >= tr.fatLightmapStep * tr.fatLightmapStep )
+	else if (r_mergeLightmaps->integer && numLightmaps >= tr.fatLightmapStep * tr.fatLightmapStep )
 	{
 		// FIXME: fat light maps don't support more than 1024 light maps
 		ri.Printf(PRINT_WARNING, "WARNING: number of lightmaps > %d\n", tr.fatLightmapStep * tr.fatLightmapStep);
@@ -294,34 +212,50 @@ static	void R_LoadLightmaps( lump_t *l ) {
 	}
 
 	// use a fat lightmap of an appropriate size
-	if(numLightmaps < 65)
+
+	if (r_mergeLightmaps->integer)
 	{
-		tr.fatLightmapSize = 1024;
-		tr.fatLightmapStep = 8;
+		if(numLightmaps < 65)
+		{
+			tr.fatLightmapSize = 1024;
+			tr.fatLightmapStep = 8;
+		}
+		else if(numLightmaps < 256)
+		{
+			tr.fatLightmapSize = 2048;
+			tr.fatLightmapStep = 16;
+		}
+
+		// allocate one fat lightmap
+		tr.numLightmaps = 1;
 	}
-	else if(numLightmaps < 256)
+	else
 	{
-		tr.fatLightmapSize = 2048;
-		tr.fatLightmapStep = 16;
+		tr.numLightmaps = numLightmaps;
 	}
 
-	// allocate one fat lightmap
-	tr.numLightmaps = 1;
 	tr.lightmaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
 
-	// This is going to be huge (4, 16, or 64MB), so don't use ri.Malloc()
-	fatbuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
-	Com_Memset(fatbuffer, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
-
-	if (tr.worldDeluxeMapping)
+	if (tr.worldDeluxeMapping || r_deluxeMapping->integer == 2)
 	{
 		tr.deluxemaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
-		fatbuffer2 = ri.Hunk_AllocateTempMemory(sizeof(byte) * tr.fatLightmapSize * tr.fatLightmapSize * 4);
-		Com_Memset(fatbuffer2, 128, tr.fatLightmapSize * tr.fatLightmapSize * 4);
+	}
+
+	if (r_mergeLightmaps->integer)
+	{
+		tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), NULL, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+		tr.lightmaps[0] = tr.fatLightmap;
+
+		if (tr.worldDeluxeMapping || r_deluxeMapping->integer == 2)
+		{
+			tr.fatDeluxemap = R_CreateImage(va("_fatdeluxemap%d", 0), NULL, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+			tr.deluxemaps[0] = tr.fatDeluxemap;
+		}
 	}
 
 	for(i = 0; i < numLightmaps; i++)
 	{
+		int xoff = 0, yoff = 0;
 		// expand the 24 bit on-disk to 32 bit
 
 		if (tr.worldDeluxeMapping)
@@ -333,25 +267,57 @@ static	void R_LoadLightmaps( lump_t *l ) {
 			buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 		}
 
-
-		xoff = i % tr.fatLightmapStep;
-		yoff = i / tr.fatLightmapStep;
+		if (r_mergeLightmaps->integer)
+		{
+			xoff = (i % tr.fatLightmapStep) * LIGHTMAP_SIZE;
+			yoff = (i / tr.fatLightmapStep) * LIGHTMAP_SIZE;
+		}
 
 		// if (tr.worldLightmapping)
 		{
-			for(y = 0; y < LIGHTMAP_SIZE; y++)
-			{
-				for(x = 0; x < LIGHTMAP_SIZE; x++)
+			if ( r_lightmap->integer == 2 )
+			{	// color code by intensity as development tool  (FIXME: check range)
+				for ( j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ )
 				{
-					int             index =
-						(x + (y * tr.fatLightmapSize)) + ((xoff * LIGHTMAP_SIZE) + (yoff * tr.fatLightmapSize * LIGHTMAP_SIZE));
-					fatbuffer[(index * 4) + 0] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 0];
-					fatbuffer[(index * 4) + 1] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 1];
-					fatbuffer[(index * 4) + 2] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 2];
-					fatbuffer[(index * 4) + 3] = 255;
+					float r = buf_p[j*3+0];
+					float g = buf_p[j*3+1];
+					float b = buf_p[j*3+2];
+					float intensity;
+					float out[3] = {0.0, 0.0, 0.0};
 
-					R_ColorShiftLightingBytes(&fatbuffer[(index * 4) + 0], &fatbuffer[(index * 4) + 0]);
+					intensity = 0.33f * r + 0.685f * g + 0.063f * b;
+
+					if ( intensity > 255 )
+						intensity = 1.0f;
+					else
+						intensity /= 255.0f;
+
+					if ( intensity > maxIntensity )
+						maxIntensity = intensity;
+
+					HSVtoRGB( intensity, 1.00, 0.50, out );
+
+					image[j*4+0] = out[0] * 255;
+					image[j*4+1] = out[1] * 255;
+					image[j*4+2] = out[2] * 255;
+					image[j*4+3] = 255;
+
+					sumIntensity += intensity;
 				}
+			} else {
+				for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
+					R_ColorShiftLightingBytes( &buf_p[j*3], &image[j*4] );
+					image[j*4+3] = 255;
+				}
+			}
+
+			if (r_mergeLightmaps->integer)
+			{
+				R_UpdateSubImage(tr.fatLightmap, image, xoff, yoff, LIGHTMAP_SIZE, LIGHTMAP_SIZE);
+			}
+			else
+			{
+				tr.lightmaps[i] = R_CreateImage( va("*lightmap%d",i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
 			}
 		}
 
@@ -359,34 +325,120 @@ static	void R_LoadLightmaps( lump_t *l ) {
 		{
 			buf_p = buf + (i * 2 + 1) * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 
-			for(y = 0; y < LIGHTMAP_SIZE; y++)
+			for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
+				image[j*4+0] = buf_p[j*3+0];
+				image[j*4+1] = buf_p[j*3+1];
+				image[j*4+2] = buf_p[j*3+2];
+				image[j*4+3] = 255;
+			}
+
+			if (r_mergeLightmaps->integer)
 			{
-				for(x = 0; x < LIGHTMAP_SIZE; x++)
-				{
-					int             index =
-						(x + (y * tr.fatLightmapSize)) + ((xoff * LIGHTMAP_SIZE) + (yoff * tr.fatLightmapSize * LIGHTMAP_SIZE));
-					fatbuffer2[(index * 4) + 0] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 0];
-					fatbuffer2[(index * 4) + 1] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 1];
-					fatbuffer2[(index * 4) + 2] = buf_p[((x + (y * LIGHTMAP_SIZE)) * 3) + 2];
-					fatbuffer2[(index * 4) + 3] = 255;
-				}
+				R_UpdateSubImage(tr.fatDeluxemap, image, xoff, yoff, LIGHTMAP_SIZE, LIGHTMAP_SIZE);
+			}
+			else
+			{
+				tr.deluxemaps[i] = R_CreateImage( va("*deluxemap%d",i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
 			}
 		}
+		else if ( r_deluxeMapping->integer == 2 )
+		{
+			// approximate a deluxe map using magic.
+			for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
+				int x, y, dx, dy, dz, count, value;
+
+				x = j % LIGHTMAP_SIZE;
+				y = j / LIGHTMAP_SIZE;
+
+				value = buf_p[j*3+0] + buf_p[j*3+1] + buf_p[j*3+2];
+
+				dx = 0;
+				count = 0;
+				if (x > 0)
+				{
+					int k = j - 1;
+
+					dx += value - buf_p[k*3+0] + buf_p[k*3+1] + buf_p[k*3+2];
+					count++;
+				}
+
+				if (x < LIGHTMAP_SIZE - 1)
+				{
+					int k = j + 1;
+
+					dx += buf_p[k*3+0] + buf_p[k*3+1] + buf_p[k*3+2] - value;
+					count++;
+				}
+
+				if (count)
+				{
+					dx /= count;
+				}
+
+				dy = 0;
+				count = 0;
+				if (y > 0)
+				{
+					int k = j - LIGHTMAP_SIZE;
+
+					dy += value - (buf_p[k*3+0] + buf_p[k*3+1] + buf_p[k*3+2]);
+					count++;
+				}
+
+				if (y < LIGHTMAP_SIZE - 1)
+				{
+					int k = j + LIGHTMAP_SIZE;
+
+					dy += buf_p[k*3+0] + buf_p[k*3+1] + buf_p[k*3+2] - value;
+					count++;
+				}
+
+				if (count)
+				{
+					dy /= count;
+				}
+
+				dx /= 3;
+				dy /= 3;
+
+				if (dx < -255)
+					dx = -255;
+
+				if (dx > 255)
+					dx = 255;
+
+				if (dy < -255)
+					dy = -255;
+
+				if (dy > 255)
+					dy = 255;
+
+				dz = sqrt(255*255 - dx*dx - dy*dy);
+
+				dx = dx / 2 + 127;
+				dy = dy / 2 + 127;
+				dz = dz / 2 + 127;
+
+				image[j*4+0] = dx;
+				image[j*4+1] = dy;
+				image[j*4+2] = dz;
+				image[j*4+3] = 255;
+			}
+
+			if (r_mergeLightmaps->integer)
+			{
+				R_UpdateSubImage(tr.fatDeluxemap, image, xoff, yoff, LIGHTMAP_SIZE, LIGHTMAP_SIZE);
+			}
+			else
+			{
+				tr.deluxemaps[i] = R_CreateImage( va("*deluxemap%d",i), image, LIGHTMAP_SIZE, LIGHTMAP_SIZE, qfalse, qfalse, GL_CLAMP_TO_EDGE );
+			}
+                }
+        }
+
+	if ( r_lightmap->integer == 2 ) {
+		ri.Printf( PRINT_ALL, "Brightest lightmap value: %d\n", ( int ) ( maxIntensity * 255 ) );
 	}
-
-	tr.fatLightmap = R_CreateImage(va("_fatlightmap%d", 0), fatbuffer, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
-	tr.lightmaps[0] = tr.fatLightmap;
-
-	ri.Hunk_FreeTempMemory(fatbuffer);
-
-	if (tr.worldDeluxeMapping)
-	{
-		tr.fatDeluxemap = R_CreateImage(va("_fatdeluxemap%d", 0), fatbuffer2, tr.fatLightmapSize, tr.fatLightmapSize, qfalse, qfalse, GL_CLAMP_TO_EDGE );
-		tr.deluxemaps[0] = tr.fatDeluxemap;
-
-		ri.Hunk_FreeTempMemory(fatbuffer2);
-	}
-#endif
 }
 
 
@@ -417,13 +469,16 @@ static float FatPackV(float input, int lightmapnum)
 
 static int FatLightmap(int lightmapnum)
 {
+	if (lightmapnum < 0)
+		return lightmapnum;
+
 	if (tr.fatLightmapSize > 0)
 	{
-		if (lightmapnum < 0)
-			return lightmapnum;
-
 		return 0;
 	}
+
+	if (tr.worldDeluxeMapping)
+		return lightmapnum >> 1;
 	
 	return lightmapnum;
 }
@@ -909,7 +964,6 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	}
 #endif
 }
-#endif
 
 #if 1
 /*

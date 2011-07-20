@@ -120,6 +120,39 @@ ADD_ALL_EXTENSION_FUNCTIONS
 #undef HANDLE_EXT_FUNC
 
 
+// GL_ARB_texture_compression
+extern void (APIENTRY * qglCompressedTexImage3DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, 
+	GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexImage2DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height,
+	GLint border, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexImage1DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border,
+	GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage3DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset,
+	GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage2DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width,
+	GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglCompressedTexSubImage1DARB)(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, 
+	GLsizei imageSize, const GLvoid *data);
+extern void (APIENTRY * qglGetCompressedTexImageARB)(GLenum target, GLint lod,
+	GLvoid *img);
+
+// GL_NVX_gpu_memory_info
+#ifndef GL_NVX_gpu_memory_info
+#define GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047
+#define GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX    0x9048
+#define GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX  0x9049
+#define GPU_MEMORY_INFO_EVICTION_COUNT_NVX            0x904A
+#define GPU_MEMORY_INFO_EVICTED_MEMORY_NVX            0x904B
+#endif
+
+// GL_ATI_meminfo
+#ifndef GL_ATI_meminfo
+#define VBO_FREE_MEMORY_ATI                     0x87FB
+#define TEXTURE_FREE_MEMORY_ATI                 0x87FC
+#define RENDERBUFFER_FREE_MEMORY_ATI            0x87FD
+#endif
+
+
 #if defined(WIN32)
 // WGL_ARB_create_context
 #ifndef WGL_ARB_create_context

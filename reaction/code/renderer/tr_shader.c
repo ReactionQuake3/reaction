@@ -658,6 +658,27 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 					return qfalse;
 				}
+
+				//if ( r_autoFindNormalMap->integer )
+				{
+					char filename[MAX_QPATH];
+
+					COM_StripExtension(token, filename, sizeof(filename));
+					Q_strcat(filename, sizeof(filename), "_normal");
+
+					stage->bundle[TB_NORMALMAP].image[0] = R_FindImageFile( filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+				}
+
+				//if ( r_autoFindSpecularMap->integer )
+				{
+					char filename[MAX_QPATH];
+
+					COM_StripExtension(token, filename, sizeof(filename));
+					Q_strcat(filename, sizeof(filename), "_specular");
+
+					stage->bundle[TB_SPECULARMAP].image[0] = R_FindImageFile( filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
+					stage->specularReflectance = 0.04f;
+				}
 			}
 		}
 		//
@@ -2089,7 +2110,7 @@ static qboolean CollapseMultitexture( void ) {
 
 static void CollapseStagesToLightall(shaderStage_t *diffuse, 
 	shaderStage_t *normal, shaderStage_t *specular, shaderStage_t *lightmap, 
-	qboolean isWorld, qboolean parallax, qboolean environment)
+	qboolean useLightVector, qboolean parallax, qboolean environment)
 {
 	int defs = 0;
 
@@ -2105,20 +2126,27 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 		defs |= LIGHTDEF_USE_LIGHTMAP;
 	}
 
-	if (tr.worldDeluxeMapping && lightmap)
+	if ((tr.worldDeluxeMapping || r_deluxeMapping->integer == 2) && lightmap)
 	{
 		//ri.Printf(PRINT_ALL, ", deluxemap");
 		diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
 		diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
 		defs |= LIGHTDEF_USE_DELUXEMAP;
-		if (parallax)
-			defs |= LIGHTDEF_USE_PARALLAXMAP;
 	}
 
 	if (normal)
 	{
 		//ri.Printf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
 		diffuse->bundle[TB_NORMALMAP] = normal->bundle[0];
+		defs |= LIGHTDEF_USE_NORMALMAP;
+		if (parallax)
+			defs |= LIGHTDEF_USE_PARALLAXMAP;
+	}
+	else if (diffuse->bundle[TB_NORMALMAP].image[0])
+	{
+		image_t *tmpImg = diffuse->bundle[TB_NORMALMAP].image[0];
+		diffuse->bundle[TB_NORMALMAP] = diffuse->bundle[TB_DIFFUSEMAP];
+		diffuse->bundle[TB_NORMALMAP].image[0] = tmpImg;
 		defs |= LIGHTDEF_USE_NORMALMAP;
 	}
 
@@ -2129,10 +2157,17 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 		diffuse->specularReflectance = specular->specularReflectance;
 		defs |= LIGHTDEF_USE_SPECULARMAP;
 	}
-
-	if (!isWorld)
+	else if (diffuse->bundle[TB_SPECULARMAP].image[0])
 	{
-		defs |= LIGHTDEF_ENTITY | LIGHTDEF_USE_LIGHT_VECTOR;
+		image_t *tmpImg = diffuse->bundle[TB_SPECULARMAP].image[0];
+		diffuse->bundle[TB_SPECULARMAP] = diffuse->bundle[TB_DIFFUSEMAP];
+		diffuse->bundle[TB_SPECULARMAP].image[0] = tmpImg;
+		defs |= LIGHTDEF_USE_SPECULARMAP;
+	}
+
+	if (useLightVector)
+	{
+		defs |= LIGHTDEF_USE_LIGHT_VECTOR;
 	}
 
 	if (environment)
@@ -2193,6 +2228,12 @@ static qboolean CollapseStagesToGLSL(void)
 			if (!pStage->active)
 				continue;
 
+			if (pStage->adjustColorsForFog)
+			{
+				skip = qtrue;
+				break;
+			}
+
 			if (pStage->bundle[0].isLightmap)
 			{
 				int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
@@ -2216,22 +2257,9 @@ static qboolean CollapseStagesToGLSL(void)
 					break;
 			}
 
-			switch(pStage->rgbGen)
-			{
-				//case CGEN_LIGHTING_DIFFUSE:
-				case CGEN_EXACT_VERTEX:
-				case CGEN_VERTEX:
-				case CGEN_ONE_MINUS_VERTEX:
-					skip = qtrue;
-					break;
-				default:
-					break;
-			}
 			switch(pStage->alphaGen)
 			{
 				case AGEN_LIGHTING_SPECULAR:
-				case AGEN_VERTEX:
-				case AGEN_ONE_MINUS_VERTEX:
 				case AGEN_PORTAL:
 				case AGEN_FRESNEL:
 					skip = qtrue;
@@ -2248,7 +2276,7 @@ static qboolean CollapseStagesToGLSL(void)
 		{
 			shaderStage_t *pStage = &stages[i];
 			shaderStage_t *diffuse, *normal, *specular, *lightmap;
-			qboolean parallax, environment, world;
+			qboolean parallax, environment, entity;
 
 			if (!pStage->active)
 				continue;
@@ -2261,13 +2289,13 @@ static qboolean CollapseStagesToGLSL(void)
 			if (pStage->bundle[0].isLightmap)
 				continue;
 
-			diffuse  = NULL;
+			diffuse  = pStage;
 			normal   = NULL;
 			parallax = qfalse;
 			specular = NULL;
 			lightmap = NULL;
 
-			// find matching normal, specular, and lightmap for this diffuse stage
+			// we have a diffuse map, find matching normal, specular, and lightmap
 			for (j = i + 1; j < MAX_SHADER_STAGES; j++)
 			{
 				shaderStage_t *pStage2 = &stages[j];
@@ -2311,21 +2339,19 @@ static qboolean CollapseStagesToGLSL(void)
 				}
 			}
 
-			diffuse = pStage;
-
 			environment = qfalse;
 			if (diffuse->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED)
 			{
 				environment = qtrue;
 			}
 
-			world = qtrue;
+			entity = qfalse;
 			if (diffuse->rgbGen == CGEN_LIGHTING_DIFFUSE)
 			{
-				world = qfalse;
+				entity = qtrue;
 			}
 
-			CollapseStagesToLightall(diffuse, normal, specular, lightmap, world, parallax, environment);
+			CollapseStagesToLightall(diffuse, normal, specular, lightmap, entity, parallax, environment);
 		}
 
 		// deactivate lightmap stages

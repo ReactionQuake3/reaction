@@ -209,6 +209,23 @@ ADD_ALL_EXTENSION_FUNCTIONS;
 #undef HANDLE_EXT_FUNC
 
 
+// GL_ARB_texture_compression
+void (APIENTRY * qglCompressedTexImage3DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, 
+	GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglCompressedTexImage2DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height,
+	GLint border, GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglCompressedTexImage1DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border,
+	GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglCompressedTexSubImage3DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset,
+	GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglCompressedTexSubImage2DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width,
+	GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglCompressedTexSubImage1DARB)(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, 
+	GLsizei imageSize, const GLvoid *data);
+void (APIENTRY * qglGetCompressedTexImageARB)(GLenum target, GLint lod,
+	GLvoid *img);
+
+
 #if defined(WIN32)
 // WGL_ARB_create_context
 HGLRC(APIENTRY * qwglCreateContextAttribsARB) (HDC hdC, HGLRC hShareContext, const int *attribList);
@@ -744,6 +761,14 @@ static void GLimp_InitExtensions( void )
 		{
 			glConfig.textureCompression = TC_S3TC_ARB;
 			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_compression_s3tc\n" );
+
+			qglCompressedTexImage3DARB = SDL_GL_GetProcAddress( "glCompressedTexImage3DARB" );
+			qglCompressedTexImage2DARB = SDL_GL_GetProcAddress( "glCompressedTexImage2DARB" );
+			qglCompressedTexImage1DARB = SDL_GL_GetProcAddress( "glCompressedTexImage1DARB" );
+			qglCompressedTexSubImage3DARB = SDL_GL_GetProcAddress( "glCompressedTexSubImage3DARB" );
+			qglCompressedTexSubImage2DARB = SDL_GL_GetProcAddress( "glCompressedTexSubImage2DARB" );
+			qglCompressedTexSubImage1DARB = SDL_GL_GetProcAddress( "glCompressedTexSubImage1DARB" );
+			qglGetCompressedTexImageARB = SDL_GL_GetProcAddress( "glGetCompressedTexImageARB" );
 		}
 		else
 		{
@@ -1181,6 +1206,17 @@ static void GLimp_InitExtensions( void )
 		(glRefConfig.shaderObjects && r_arb_shader_objects->integer) &&
 		(glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer);
 
+
+	glRefConfig.memInfo = MI_NONE;
+
+	if( GLimp_HaveExtension( "GL_NVX_gpu_memory_info"))
+	{
+		glRefConfig.memInfo = MI_NVX;
+	}
+	else if( GLimp_HaveExtension( "GL_ATI_meminfo"))
+	{
+		glRefConfig.memInfo = MI_ATI;
+	}
 
 }
 

@@ -679,6 +679,10 @@ static void Upload32( unsigned *data,
 			}
 			else
 			{
+				if ( glConfig.textureCompression == TC_S3TC_ARB )
+				{
+					internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+				}
 				if ( r_texturebits->integer == 16 )
 				{
 					internalFormat = GL_RGBA4;
@@ -784,7 +788,156 @@ done:
 	if ( resampledBuffer != 0 )
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
- 
+
+
+static void EmptyTexture( int width, int height, qboolean mipmap,
+	qboolean picmip, qboolean lightMap, int *format, int *pUploadWidth,
+	int *pUploadHeight )
+{
+	int			samples;
+	int			scaled_width, scaled_height;
+	GLenum		internalFormat = GL_RGB;
+
+	//
+	// convert to exact power of 2 sizes
+	//
+	for (scaled_width = 1 ; scaled_width < width ; scaled_width<<=1)
+		;
+	for (scaled_height = 1 ; scaled_height < height ; scaled_height<<=1)
+		;
+	if ( r_roundImagesDown->integer && scaled_width > width )
+		scaled_width >>= 1;
+	if ( r_roundImagesDown->integer && scaled_height > height )
+		scaled_height >>= 1;
+
+	if ( scaled_width != width || scaled_height != height ) {
+		width = scaled_width;
+		height = scaled_height;
+	}
+
+	//
+	// perform optional picmip operation
+	//
+	if ( picmip ) {
+		scaled_width >>= r_picmip->integer;
+		scaled_height >>= r_picmip->integer;
+	}
+
+	//
+	// clamp to minimum size
+	//
+	if (scaled_width < 1) {
+		scaled_width = 1;
+	}
+	if (scaled_height < 1) {
+		scaled_height = 1;
+	}
+
+	//
+	// clamp to the current upper OpenGL limit
+	// scale both axis down equally so we don't have to
+	// deal with a half mip resampling
+	//
+	while ( scaled_width > glConfig.maxTextureSize
+		|| scaled_height > glConfig.maxTextureSize ) {
+		scaled_width >>= 1;
+		scaled_height >>= 1;
+	}
+
+	//
+	// scan the texture for each channel's max values
+	// and verify if the alpha channel is being used or not
+	//
+	samples = 3;
+
+	if(lightMap)
+	{
+		if(r_greyscale->integer)
+			internalFormat = GL_LUMINANCE;
+		else
+			internalFormat = GL_RGB;
+	}
+	else
+	{
+		samples = 4;
+
+		if(r_greyscale->integer)
+		{
+			if(r_texturebits->integer == 16)
+				internalFormat = GL_LUMINANCE8_ALPHA8;
+			else if(r_texturebits->integer == 32)
+				internalFormat = GL_LUMINANCE16_ALPHA16;
+			else
+				internalFormat = GL_LUMINANCE_ALPHA;
+		}
+		else
+		{
+			if ( glConfig.textureCompression == TC_S3TC_ARB )
+			{
+				internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			}
+			if ( r_texturebits->integer == 16 )
+			{
+				internalFormat = GL_RGBA4;
+			}
+			else if ( r_texturebits->integer == 32 )
+			{
+				internalFormat = GL_RGBA8;
+			}
+			else
+			{
+				internalFormat = GL_RGBA;
+			}
+		}
+	}
+
+	*pUploadWidth = scaled_width;
+	*pUploadHeight = scaled_height;
+	*format = internalFormat;
+
+	qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+
+	if (mipmap)
+	{
+		int		miplevel;
+
+		miplevel = 0;
+		while (scaled_width > 1 || scaled_height > 1)
+		{
+			scaled_width >>= 1;
+			scaled_height >>= 1;
+			if (scaled_width < 1)
+				scaled_width = 1;
+			if (scaled_height < 1)
+				scaled_height = 1;
+			miplevel++;
+
+			qglTexImage2D (GL_TEXTURE_2D, miplevel, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL );
+		}
+	}
+
+	if (mipmap)
+	{
+		if ( glRefConfig.textureFilterAnisotropic )
+			qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+					(GLint)Com_Clamp( 1, glRefConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) );
+
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+	}
+	else
+	{
+		if ( glRefConfig.textureFilterAnisotropic )
+			qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
+
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	}
+
+	GL_CheckErrors();
+}
+
+
 static image_t *R_AllocImage(const char* name, int width, int height, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode)
 {
 	image_t		*image;
@@ -874,23 +1027,28 @@ image_t *R_CreateImage2( const char *name, const byte *pic, int width, int heigh
 	{
 		GL_Bind(image);
 
-		Upload32( (unsigned *)pic, image->width, image->height, 
-									image->mipmap,
-									allowPicmip,
-									isLightmap,
-									&image->internalFormat,
-									&image->uploadWidth,
-									&image->uploadHeight );
+		if (pic)
+		{
+			Upload32( (unsigned *)pic, image->width, image->height, image->mipmap,
+				allowPicmip, isLightmap, &image->internalFormat, &image->uploadWidth,
+				&image->uploadHeight );
+		}
+		else
+		{
+			EmptyTexture(image->width, image->height, image->mipmap, allowPicmip,
+				isLightmap, &image->internalFormat, &image->uploadWidth,
+				&image->uploadHeight );
+		}
 
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
 	}
 
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	GL_SelectTexture( 0 );
 
-	if ( image->TMU == 1 ) {
-		GL_SelectTexture( 0 );
-	}
+	hash = generateHashValue(name);
+	image->next = hashTable[hash];
+	hashTable[hash] = image;
 
 	return image;
 }
@@ -905,6 +1063,149 @@ image_t *R_CreateCubeImage( const char *name, const byte *pic, int width, int he
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
 {
 	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qtrue);
+}
+
+void R_UpdateSubImage( image_t *image, const byte *pic, int x, int y, int width, int height)
+{
+	unsigned	*scaledBuffer = NULL;
+	unsigned	*resampledBuffer = NULL;
+	int			scaled_width, scaled_height, scaled_x, scaled_y;
+	unsigned    *data = (unsigned *)pic;
+
+	//
+	// convert to exact power of 2 sizes
+	//
+	for (scaled_width = 1 ; scaled_width < width ; scaled_width<<=1)
+		;
+	for (scaled_height = 1 ; scaled_height < height ; scaled_height<<=1)
+		;
+	if ( r_roundImagesDown->integer && scaled_width > width )
+		scaled_width >>= 1;
+	if ( r_roundImagesDown->integer && scaled_height > height )
+		scaled_height >>= 1;
+
+	if ( scaled_width != width || scaled_height != height ) {
+		resampledBuffer = ri.Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
+		ResampleTexture ( data, width, height, resampledBuffer, scaled_width, scaled_height);
+		data = resampledBuffer;
+		x = x * scaled_width / width;
+		y = y * scaled_height / height;
+		width = scaled_width;
+		height = scaled_height;
+	}
+
+//
+	// perform optional picmip operation
+	//
+	if ( image->allowPicmip ) {
+		scaled_width >>= r_picmip->integer;
+		scaled_height >>= r_picmip->integer;
+	}
+
+	//
+	// clamp to minimum size
+	//
+	if (scaled_width < 1) {
+		scaled_width = 1;
+	}
+	if (scaled_height < 1) {
+		scaled_height = 1;
+	}
+
+	//
+	// clamp to the current upper OpenGL limit
+	// scale both axis down equally so we don't have to
+	// deal with a half mip resampling
+	//
+	while ( scaled_width > glConfig.maxTextureSize
+		|| scaled_height > glConfig.maxTextureSize ) {
+		scaled_width >>= 1;
+		scaled_height >>= 1;
+	}
+
+	scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
+
+	if ( qglActiveTextureARB ) {
+		GL_SelectTexture( image->TMU );
+	}
+
+	GL_Bind(image);	
+
+	// copy or resample data as appropriate for first MIP level
+	if ( ( scaled_width == width ) && 
+		( scaled_height == height ) ) {
+		if (!image->mipmap)
+		{
+			scaled_x = x * scaled_width / width;
+			scaled_y = y * scaled_height / height;
+			qglTexSubImage2D( GL_TEXTURE_2D, 0, scaled_x, scaled_y, scaled_width, scaled_height, GL_RGBA, GL_UNSIGNED_BYTE, data );
+
+			GL_CheckErrors();
+			goto done;
+		}
+		Com_Memcpy (scaledBuffer, data, width*height*4);
+	}
+	else
+	{
+		// use the normal mip-mapping function to go down from here
+		while ( width > scaled_width || height > scaled_height ) {
+			R_MipMap( (byte *)data, width, height );
+			width >>= 1;
+			height >>= 1;
+			x >>= 1;
+			y >>= 1;
+			if ( width < 1 ) {
+				width = 1;
+			}
+			if ( height < 1 ) {
+				height = 1;
+			}
+		}
+		Com_Memcpy( scaledBuffer, data, width * height * 4 );
+	}
+
+	R_LightScaleTexture (scaledBuffer, scaled_width, scaled_height, !image->mipmap );
+
+	scaled_x = x * scaled_width / width;
+	scaled_y = y * scaled_height / height;
+	qglTexSubImage2D( GL_TEXTURE_2D, 0, scaled_x, scaled_y, scaled_width, scaled_height, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+	
+	if (image->mipmap)
+	{
+		int		miplevel;
+
+		miplevel = 0;
+		while (scaled_width > 1 || scaled_height > 1)
+		{
+			R_MipMap( (byte *)scaledBuffer, scaled_width, scaled_height );
+			scaled_width >>= 1;
+			scaled_height >>= 1;
+			if (scaled_width < 1)
+				scaled_width = 1;
+			if (scaled_height < 1)
+				scaled_height = 1;
+			miplevel++;
+
+			if ( r_colorMipLevels->integer ) {
+				R_BlendOverTexture( (byte *)scaledBuffer, scaled_width * scaled_height, mipBlendColors[miplevel] );
+			}
+
+			scaled_x = x * scaled_width / width;
+			scaled_y = y * scaled_height / height;
+			qglTexSubImage2D( GL_TEXTURE_2D, 0, scaled_x, scaled_y, scaled_width, scaled_height, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
+		}
+	}
+
+done:
+	
+	GL_SelectTexture( 0 );
+
+	GL_CheckErrors();
+
+	if ( scaledBuffer != 0 )
+		ri.Hunk_FreeTempMemory( scaledBuffer );
+	if ( resampledBuffer != 0 )
+		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
 //===================================================================
@@ -1252,7 +1553,7 @@ void R_CreateBuiltinImages( void ) {
 	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
 		&& glRefConfig.glsl && r_arb_shader_objects->integer)
 	{
-		if (r_dlightShadows->integer)
+		if (r_dlightMode->integer >= 2)
 		{
 			for( x = 0; x < MAX_DLIGHTS; x++)
 			{

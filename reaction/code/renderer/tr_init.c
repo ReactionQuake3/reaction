@@ -32,6 +32,7 @@ float       displayAspect = 0.0f;
 glstate_t	glState;
 
 static void GfxInfo_f( void );
+static void GfxMemInfo_f( void );
 
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
@@ -107,7 +108,8 @@ cvar_t  *r_deluxeMapping;
 cvar_t  *r_parallaxMapping;
 cvar_t  *r_normalAmbient;
 cvar_t  *r_recalcMD3Normals;
-cvar_t  *r_dlightShadows;
+cvar_t  *r_mergeLightmaps;
+cvar_t  *r_dlightMode;
 cvar_t  *r_pshadowDist;
 
 cvar_t	*r_ignoreGLErrors;
@@ -1040,6 +1042,58 @@ void GfxInfo_f( void )
 }
 
 /*
+================
+GfxMemInfo_f
+================
+*/
+void GfxMemInfo_f( void ) 
+{
+	switch (glRefConfig.memInfo)
+	{
+		case MI_NONE:
+		{
+			ri.Printf(PRINT_ALL, "No extension found for GPU memory info.\n");
+		}
+		break;
+		case MI_NVX:
+		{
+			int value;
+
+			qglGetIntegerv(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &value);
+			ri.Printf(PRINT_ALL, "GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX: %ikb\n", value);
+
+			qglGetIntegerv(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &value);
+			ri.Printf(PRINT_ALL, "GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX: %ikb\n", value);
+
+			qglGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &value);
+			ri.Printf(PRINT_ALL, "GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX: %ikb\n", value);
+
+			qglGetIntegerv(GPU_MEMORY_INFO_EVICTION_COUNT_NVX, &value);
+			ri.Printf(PRINT_ALL, "GPU_MEMORY_INFO_EVICTION_COUNT_NVX: %i\n", value);
+
+			qglGetIntegerv(GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, &value);
+			ri.Printf(PRINT_ALL, "GPU_MEMORY_INFO_EVICTED_MEMORY_NVX: %ikb\n", value);
+		}
+		break;
+		case MI_ATI:
+		{
+			// GL_ATI_meminfo
+			int value[4];
+
+			qglGetIntegerv(VBO_FREE_MEMORY_ATI, &value[0]);
+			ri.Printf(PRINT_ALL, "VBO_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
+
+			qglGetIntegerv(TEXTURE_FREE_MEMORY_ATI, &value[0]);
+			ri.Printf(PRINT_ALL, "TEXTURE_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
+
+			qglGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, &value[0]);
+			ri.Printf(PRINT_ALL, "RENDERBUFFER_FREE_MEMORY_ATI: %ikb total %ikb largest aux: %ikb total %ikb largest\n", value[0], value[1], value[2], value[3]);
+		}
+		break;
+	}
+}
+
+/*
 ===============
 R_Register
 ===============
@@ -1098,9 +1152,10 @@ void R_Register( void )
 	r_deluxeMapping = ri.Cvar_Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_parallaxMapping = ri.Cvar_Get( "r_parallaxMapping", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_normalAmbient = ri.Cvar_Get( "r_normalAmbient", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_dlightShadows = ri.Cvar_Get( "r_dlightShadows", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_pshadowDist = ri.Cvar_Get( "r_pshadowDist", "128", CVAR_ARCHIVE );
 	r_recalcMD3Normals = ri.Cvar_Get( "r_recalcMD3Normals", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_mergeLightmaps = ri.Cvar_Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
 	// temporary latched variables that can only change over a restart
@@ -1210,6 +1265,7 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "screenshot", R_ScreenShot_f );
 	ri.Cmd_AddCommand( "screenshotJPEG", R_ScreenShotJPEG_f );
 	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
+	ri.Cmd_AddCommand( "gfxmeminfo", GfxMemInfo_f );
 }
 
 void R_InitQueries(void)
