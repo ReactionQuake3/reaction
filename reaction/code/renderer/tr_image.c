@@ -477,6 +477,50 @@ byte	mipBlendColors[16][4] = {
 };
 
 
+static void RenderTarget( int width, int height, 
+						  qboolean mipmap, 
+						  int *format, 
+						  int *pUploadWidth, int *pUploadHeight )
+{
+	GLenum		internalFormat = GL_RGB;
+
+	if (r_ext_framebuffer_object->integer >= 2 && glRefConfig.textureFloat)
+	{
+		internalFormat = GL_RGBA16F_ARB;
+		qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+	}
+	else
+	{
+		internalFormat = GL_RGBA8;
+		qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	}
+	GL_CheckErrors();
+	*format = internalFormat;
+	*pUploadWidth = width;
+	*pUploadHeight = height;
+
+
+	if (mipmap)
+	{
+		if ( glRefConfig.textureFilterAnisotropic )
+			qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+					(GLint)Com_Clamp( 1, glRefConfig.maxAnisotropy, r_ext_max_anisotropy->integer ) );
+
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+	}
+	else
+	{
+		if ( glRefConfig.textureFilterAnisotropic )
+			qglTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
+
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	}
+
+	GL_CheckErrors();
+}
+
 /*
 ===============
 Upload32
@@ -500,26 +544,6 @@ static void Upload32( unsigned *data,
 	byte		*scan;
 	GLenum		internalFormat = GL_RGB;
 	float		rMax = 0, gMax = 0, bMax = 0;
-
-	// Makro - no data, this must be a render target
-	if (!data)
-	{
-		if (r_ext_framebuffer_object->integer >= 2 && glRefConfig.textureFloat)
-		{
-			internalFormat = GL_RGBA16F_ARB;
-			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		}
-		else
-		{
-			internalFormat = GL_RGBA8;
-			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		}
-		GL_CheckErrors();
-		*format = internalFormat;
-		*pUploadWidth = width;
-		*pUploadHeight = height;
-		goto done;
-	}
 
 	//
 	// convert to exact power of 2 sizes
@@ -974,7 +998,8 @@ at some point in the near future...
 ================
 */
 image_t *R_CreateImage2( const char *name, const byte *pic, int width, int height, 
-					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean cube ) {
+					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode, qboolean cube,
+					   qboolean isRenderTarget) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
 
@@ -1026,7 +1051,12 @@ image_t *R_CreateImage2( const char *name, const byte *pic, int width, int heigh
 	{
 		GL_Bind(image);
 
-		if (pic)
+		if (isRenderTarget)
+		{
+			RenderTarget( image->width, image->height, image->mipmap,
+				&image->internalFormat, &image->uploadWidth, &image->uploadHeight );
+		}
+		else if (pic)
 		{
 			Upload32( (unsigned *)pic, image->width, image->height, image->mipmap,
 				allowPicmip, isLightmap, &image->internalFormat, &image->uploadWidth,
@@ -1051,13 +1081,19 @@ image_t *R_CreateImage2( const char *name, const byte *pic, int width, int heigh
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
 {
-	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qfalse);
+	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qfalse, qfalse);
 }
 
 image_t *R_CreateCubeImage( const char *name, const byte *pic, int width, int height, 
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode )
 {
-	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qtrue);
+	return R_CreateImage2( name, pic, width, height, mipmap, allowPicmip, glWrapClampMode, qtrue, qfalse);
+}
+
+image_t *R_CreateRenderTarget(  const char *name, int width, int height, 
+					   qboolean mipmap, int glWrapClampMode )
+{
+	return R_CreateImage2( name, NULL, width, height, mipmap, qfalse, glWrapClampMode, qfalse, qtrue);
 }
 
 void R_UpdateSubImage( image_t *image, const byte *pic, int x, int y, int width, int height)

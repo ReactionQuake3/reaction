@@ -2083,6 +2083,8 @@ image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicm
 
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
+image_t     *R_CreateRenderTarget( const char *name, int width, int height, qboolean mipmap,
+					int glWrapClampMode );
 void		R_UpdateSubImage( image_t *image, const byte *pic, int x, int y, int width, int height);
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 

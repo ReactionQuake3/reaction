@@ -176,7 +176,7 @@ fboColorBuffer_t *R_FBO_CreateColorBuffer(const char* name, int width, int heigh
 	else
 	{
 		qboolean			realmsaa	= msaa && tr.fbo.samples > 1;
-		image_t				*texture	= R_CreateImage(name, NULL, width, height, mipmap, qfalse, clamp);
+		image_t				*texture	= R_CreateRenderTarget(name, width, height, mipmap, clamp);
 		fboRenderBuffer_t	*buf		= realmsaa ? R_FBO_CreateRenderBuffer(width, height, texture->internalFormat, qtrue) : NULL;
 		fboColorBuffer_t	*ret		= ri.Hunk_Alloc(sizeof(*ret), h_low);
 
