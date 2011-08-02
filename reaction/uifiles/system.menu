@@ -232,26 +232,61 @@ Group # 1 - Graphics
     ADD_HINT("hint_fullscreen", "Render in full screen or a window", "group1")
 
 
+	// Anti-Aliasing Mode //
+
+	BEGIN_OPTION("Anti-Aliasing", "r_ext_multisample", ITEM_TYPE_MULTI, 7, 1)
+		cvarFloatList {
+			"Off"	0
+			"2x MSAA"	2
+			"4x MSAA"	4
+		}
+		OPTION_BELOW("gr1_ctrl6")
+		action { uiScript glCustom ; }
+		ASSIGN_HINT("hint_aa")
+	END_OPTION
+    ADD_HINT("hint_aa", "Use anti-aliasing to improve image quality", "group1")
+
+
+    // Texture filtering mode //
+
+	BEGIN_OPTION("Filtering Mode", "ui_filteringMode", ITEM_TYPE_MULTI, 8, 1)
+		cvarFloatList {
+				"Bilinear"		0
+				"Trilinear"		1
+				"2x Anisotropic"		2
+				"4x Anisotropic"		3
+				"8x Anisotropic"		4
+				"16x Anisotropic"		5
+		}
+		OPTION_BELOW("gr1_ctrl7")
+		action { uiScript update "ui_filteringMode" ; }
+		ASSIGN_HINT("hint_texfilter")
+    END_OPTION
+    ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
+
+
     // Lightmap/vertex //
 
-    BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 7, 1)
+	/*
+    BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_lightmap")
     END_OPTION
     ADD_HINT("hint_lightmap", "Choose map light rendering mode", "group1")
+	*/
 
 
     // Geometric detail //
 
-	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 8, 1)
+	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList {
 			"High"		0
 			"Medium"	1
 			"Low"		2
 		}
-		OPTION_BELOW("gr1_ctrl7")
+		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; uiScript update "r_lodbias" }
 		ASSIGN_HINT("hint_geodetail")
     END_OPTION
@@ -260,14 +295,14 @@ Group # 1 - Graphics
 
     // Texture detail //
 
-	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 9, 1)
+	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 10, 1)
 		cvarFloatList {
 			"Very Low"	3
 			"Low"		2
 			"Normal"	1
 			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl8")
+		OPTION_BELOW("gr1_ctrl9")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_texdetail")
     END_OPTION
@@ -276,31 +311,17 @@ Group # 1 - Graphics
 
     // Texture quality //
 
-	BEGIN_OPTION("Texture Quality", "r_texturebits", ITEM_TYPE_MULTI, 10, 1)
+	BEGIN_OPTION("Texture Quality", "r_texturebits", ITEM_TYPE_MULTI, 11, 1)
 		cvarFloatList {
 			"Default"	0
 			"16 bit"	16
 			"32 bit"	32
 		}
-		OPTION_BELOW("gr1_ctrl9")
+		OPTION_BELOW("gr1_ctrl10")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_texquality")
 	END_OPTION
     ADD_HINT("hint_texquality", "Choose texture quality", "group1")
-
-
-    // Texture filtering mode //
-
-	BEGIN_OPTION("Texture Filter", "r_textureMode", ITEM_TYPE_MULTI, 11, 1)
-		cvarStrList {
-			"Bilinear",		"GL_LINEAR_MIPMAP_NEAREST",
-			"Trilinear",		"GL_LINEAR_MIPMAP_LINEAR"
-		}
-		OPTION_BELOW("gr1_ctrl10")
-		action { uiScript glCustom ; }
-		ASSIGN_HINT("hint_texfilter")
-    END_OPTION
-    ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
 
 
     // Compressed textures //
@@ -427,17 +448,19 @@ Group # 3 - Misc
 
 	// Screen size //
 
+	/*
 	BEGIN_SLIDER("Screen Size", "cg_viewsize", 100, 30, 100, 2, 3)
 		OPTION_BELOW("gr3_ctrl1")
 		ASSIGN_HINT("hint_screensize")
 	END_OPTION
 	ADD_HINT("hint_screensize", "Change rendering window size", "group3")
+	*/
 
 
 	// Overbrightbits //
 
-	BEGIN_OPTION("Overbright Bits", "r_overbrightbits", ITEM_TYPE_YESNO, 3, 3)
-		OPTION_BELOW("gr3_ctrl2")
+	BEGIN_OPTION("Overbright Bits", "r_overbrightbits", ITEM_TYPE_YESNO, 2, 3)
+		OPTION_BELOW("gr3_ctrl1")
 		ASSIGN_HINT("hint_overbits")
 	END_OPTION
 	ADD_HINT("hint_overbits", "Enable overbright bits (greater color range at the expense of precision)", "group3")
@@ -445,37 +468,13 @@ Group # 3 - Misc
 
 	// V-SYNC //
 
-	BEGIN_OPTION("Sync Every Frame", "r_finish", ITEM_TYPE_YESNO, 4, 3)
+	BEGIN_OPTION("Sync Every Frame", "r_finish", ITEM_TYPE_YESNO, 3, 3)
 		//kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr3_ctrl3")
+		OPTION_BELOW("gr3_ctrl2")
 		ASSIGN_HINT("hint_vsync")
 	END_OPTION
-    ADD_HINT("hint_vsync", "Enable V-SYNC (recommended off)", "group3")
+    ADD_HINT("hint_vsync", "Wait for vertical sync (recommended off)", "group3")
 
-
-/*
-    // Anisotropic filtering //
-
-    BEGIN_OPTION("Anisotropic Filtering", "r_ext_texture_filter_anisotropic", ITEM_TYPE_YESNO, 3, 3)
-		OPTION_BELOW("gr3_ctrl2")
-		ASSIGN_HINT("hint_af")
-    END_OPTION
-    ADD_HINT("hint_af", "Enable anisotropic filtering (enhances texture quality at oblique viewing angles)", "group3")
-
-
-    // AF quality //
-
-    BEGIN_OPTION("Anisotropy Level", "r_ext_max_anisotropy", ITEM_TYPE_MULTI, 4, 3)
-		OPTION_BELOW("gr3_ctrl3")
-		cvarFloatList {
-			//unfinished, doesn't make sense
-			"2:1"		0
-			"4:1"			1
-		}
-		ASSIGN_HINT("hint_aflvl")
-    END_OPTION
-    ADD_HINT("hint_aflvl", "AF quality", "group3")
-*/
 
     // Sound //
 

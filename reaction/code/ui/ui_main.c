@@ -5668,10 +5668,8 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("cg_gibs", 1);
 			trap_Cvar_SetValue("cg_simpleItems", 0);
 			trap_Cvar_SetValue("cg_marks", 1);
-			trap_Cvar_SetValue("cg_brassTime", 30000);
+			trap_Cvar_SetValue("cg_brassTime", 15000);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 30000);
-			trap_Cvar_SetValue("cg_RQ3_flash", 1);
-			trap_Cvar_SetValue("cg_RQ3_impactEffects", 1);
 			trap_Cvar_SetValue("cg_shadows", 1);
 			trap_Cvar_SetValue("r_inGameVideo", 1);
 			trap_Cvar_SetValue("r_picmip", 0);
@@ -5690,21 +5688,16 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_drawSun", 1);
 			trap_Cvar_SetValue("r_fastsky", 0);
 			trap_Cvar_SetValue("r_flares", 1);
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_multitexture", 1);
 			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
 			break;
 		case 1:	// normal 
 			trap_Cvar_SetValue("com_blood", 1);
 			trap_Cvar_SetValue("cg_gibs", 1);
 			trap_Cvar_SetValue("cg_simpleItems", 0);
 			trap_Cvar_SetValue("cg_marks", 1);
-			trap_Cvar_SetValue("cg_brassTime", 10000);
+			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 10000);
-			trap_Cvar_SetValue("cg_RQ3_flash", 1);
-			trap_Cvar_SetValue("cg_RQ3_impactEffects", 1);
 			trap_Cvar_SetValue("cg_shadows", 1);
 			trap_Cvar_SetValue("r_inGameVideo", 1);
 			trap_Cvar_SetValue("r_picmip", 0);
@@ -5723,21 +5716,16 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_drawSun", 0);
 			trap_Cvar_SetValue("r_fastsky", 0);
 			trap_Cvar_SetValue("r_flares", 1);
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_multitexture", 1);
 			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 4);
 			break;
 		case 2:	// fast
 			trap_Cvar_SetValue("com_blood", 1);
 			trap_Cvar_SetValue("cg_gibs", 1);
 			trap_Cvar_SetValue("cg_simpleItems", 0);
 			trap_Cvar_SetValue("cg_marks", 1);
-			trap_Cvar_SetValue("cg_brassTime", 2000);
+			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 2000);
-			trap_Cvar_SetValue("cg_RQ3_flash", 1);
-			trap_Cvar_SetValue("cg_RQ3_impactEffects", 0);
 			trap_Cvar_SetValue("cg_shadows", 0);
 			trap_Cvar_SetValue("r_inGameVideo", 1);
 			trap_Cvar_SetValue("r_picmip", 1);
@@ -5756,11 +5744,8 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_drawSun", 0);
 			trap_Cvar_SetValue("r_fastsky", 0);
 			trap_Cvar_SetValue("r_flares", 0);
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_multitexture", 1);
 			trap_Cvar_SetValue("r_ext_compressed_textures", 1);
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
 			break;
 		case 3:	// fastest
 			trap_Cvar_SetValue("com_blood", 0);
@@ -5769,8 +5754,6 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("cg_marks", 0);
 			trap_Cvar_SetValue("cg_brassTime", 0);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
-			trap_Cvar_SetValue("cg_RQ3_flash", 0);
-			trap_Cvar_SetValue("cg_RQ3_impactEffects", 0);
 			trap_Cvar_SetValue("cg_shadows", 0);
 			trap_Cvar_SetValue("r_inGameVideo", 1);
 			trap_Cvar_SetValue("r_picmip", 2);
@@ -5789,11 +5772,42 @@ static void UI_Update(const char *name)
 			trap_Cvar_SetValue("r_drawSun", 0);
 			trap_Cvar_SetValue("r_fastsky", 1);
 			trap_Cvar_SetValue("r_flares", 0);
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
 			trap_Cvar_SetValue("r_ext_multitexture", 0);
 			trap_Cvar_SetValue("r_ext_compressed_textures", 1);
+			break;
+		}
+	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
+		switch (val) {
+		//TTI: filtering mode
+		case 0:	// bilinear
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
 			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
+			break;
+		case 1: // trilinear
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
+			break;
+		case 2: // 2x anisotropic
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
+			break;
+		case 3: // 4x anisotropic
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 4);
+			break;
+		case 4: // 8x anisotropic
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 8);
+			break;
+		case 5: // 16x anisotropic
+			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {

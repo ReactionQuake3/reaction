@@ -180,8 +180,8 @@ Group # 1 - Gameplay
 
 	BEGIN_OPTION("Ejecting Brass", "cg_brassTime", ITEM_TYPE_MULTI, 3, 1)
 		cvarFloatList {
-				"High"		2500
-				"Med"		1250
+				"High"		15000
+				"Med"		7500
 				"Off"		0
 		}
 		OPTION_BELOW("gr1_ctrl2")
