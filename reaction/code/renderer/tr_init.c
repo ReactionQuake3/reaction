@@ -543,17 +543,17 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *name, qboolean
 
 /* 
 ================== 
-R_ScreenshotFilename
+R_ScreenshotFilenameEx
 ================== 
 */  
-void R_ScreenshotFilename( int lastNumber, char *fileName ) {
+void R_ScreenshotFilenameEx( const char* extension, int lastNumber, char *fileName ) {
 	int		a,b,c,d;
+	qtime_t	now;
 
 	if ( lastNumber < 0 || lastNumber > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.tga" );
-		return;
+		lastNumber = 9999;
 	}
-
+	
 	a = lastNumber / 1000;
 	lastNumber -= a*1000;
 	b = lastNumber / 100;
@@ -562,33 +562,31 @@ void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 	lastNumber -= c*10;
 	d = lastNumber;
 
-	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga"
-		, a, b, c, d );
+	Com_RealTime(&now);
+
+	Com_sprintf( fileName, MAX_OSPATH, "screenshots/" PRODUCT_NAME "-%04i%02i%02i-%02i%02i%02i-%i%i%i%i.%s",
+		now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
+		now.tm_hour, now.tm_min, now.tm_sec,
+		a, b, c, d, extension );
 }
+
 
 /* 
 ================== 
 R_ScreenshotFilename
 ================== 
 */  
+void R_ScreenshotFilename( int lastNumber, char *fileName ) {
+	R_ScreenshotFilenameEx("tga", lastNumber, fileName);
+}
+
+/* 
+================== 
+R_ScreenshotFilenameJPEG
+================== 
+*/  
 void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
-	int		a,b,c,d;
-
-	if ( lastNumber < 0 || lastNumber > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.jpg" );
-		return;
-	}
-
-	a = lastNumber / 1000;
-	lastNumber -= a*1000;
-	b = lastNumber / 100;
-	lastNumber -= b*100;
-	c = lastNumber / 10;
-	lastNumber -= c*10;
-	d = lastNumber;
-
-	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg"
-		, a, b, c, d );
+	R_ScreenshotFilenameEx("jpg", lastNumber, fileName);
 }
 
 /*
@@ -702,10 +700,10 @@ void R_ScreenShot_f (void) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilename( lastNumber, checkname );
 
-      if (!ri.FS_FileExists( checkname ))
-      {
-        break; // file doesn't exist
-      }
+			if (!ri.FS_FileExists( checkname ))
+			{
+				break; // file doesn't exist
+			}
 		}
 
 		if ( lastNumber >= 9999 ) {
