@@ -545,11 +545,6 @@ void RB_BeginDrawingView (void) {
 	// 2D images again
 	backEnd.projection2D = qfalse;
 
-	//
-	// set the modelview matrix for the viewer
-	//
-	SetViewportAndScissor();
-
 	if (glState.currentFBO && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		fbo_t* old = R_FBO_Bind(tr.fbo.full[1]);
@@ -585,6 +580,11 @@ void RB_BeginDrawingView (void) {
 	}
 
 	qglClear( clearBits );
+
+	//
+	// set the modelview matrix for the viewer
+	//
+	SetViewportAndScissor();
 
 	if ( ( backEnd.refdef.rdflags & RDF_HYPERSPACE ) )
 	{
