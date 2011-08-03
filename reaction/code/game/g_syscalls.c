@@ -50,6 +50,7 @@ void trap_Printf(const char *fmt)
 void trap_Error(const char *fmt)
 {
 	syscall(G_ERROR, fmt);
+	exit(1);
 }
 
 int trap_Milliseconds(void)
