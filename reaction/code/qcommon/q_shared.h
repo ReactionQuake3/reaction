@@ -31,27 +31,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE     	"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
-  #define GAMENAME_FOR_MASTER		"Reaction"		// must NOT contain whitespaces
-  #define HEARTBEAT_FOR_MASTER		GAMENAME_FOR_MASTER
-  #define FLATLINE_FOR_MASTER		GAMENAME_FOR_MASTER "dead"
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+    #define GAMENAME_FOR_MASTER		"Reaction"
 //  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
 #else
   #define PRODUCT_NAME			"Reaction"
   #define BASEGAME			"Boomstick"
   #define CLIENT_WINDOW_TITLE     	"Reaction"
   #define CLIENT_WINDOW_MIN_TITLE 	"Reaction"
-  #define GAMENAME_FOR_MASTER		"Reaction"
-  #define HEARTBEAT_FOR_MASTER		"Reaction-1"
-  #define FLATLINE_FOR_MASTER		HEARTBEAT_FOR_MASTER
   #define HOMEPATH_NAME_UNIX		".Reaction"
   #define HOMEPATH_NAME_WIN		"Reaction"
   #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
+  #define GAMENAME_FOR_MASTER		"Reaction"
   #define LEGACY_PROTOCOL
 #endif
 
+// Heartbeat for dpmaster protocol. You shouldn't change this unless you know what you're doing
+#define HEARTBEAT_FOR_MASTER		"DarkPlaces"
 #define BASETA				"missionpack"
 
 #ifndef PRODUCT_VERSION
