@@ -720,14 +720,14 @@ void R_BuildCloudData( shaderCommands_t *input )
 	tess.numVertexes = 0;
 	tess.firstIndex = 0;
 
-	if ( input->shader->sky.cloudHeight )
+	if ( shader->sky.cloudHeight )
 	{
 		for ( i = 0; i < MAX_SHADER_STAGES; i++ )
 		{
 			if ( !tess.xstages[i] ) {
 				break;
 			}
-			FillCloudBox( input->shader, i );
+			FillCloudBox( shader, i );
 		}
 	}
 }

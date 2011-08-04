@@ -1355,7 +1355,6 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	// in the tess structure, so we may have to issue it in multiple passes
 
 	used = 0;
-	rows = 0;
 	while ( used < lodHeight - 1 ) {
 		// see how many rows of both verts and indexes we can add without overflowing
 		do {
