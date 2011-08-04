@@ -5391,8 +5391,8 @@ static void UI_LoadMovies( void )
 UI_LoadDemos
 ===============
 */
-static const int q3Protocols[] = {66, 67, 68};
-static const char *q3Versions[] = {"1.30", "1.31", "1.32"};
+static const int q3Protocols[] = {66, 67, 68, 70};
+static const char *q3Versions[] = {"1.30", "1.31", "1.32", "1.36"};
 static const int q3VersionCount = sizeof(q3Protocols)/sizeof(q3Protocols[0]);
 
 const char *q3VersionFromProtocol(int protocol)
