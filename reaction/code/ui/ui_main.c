@@ -6097,9 +6097,18 @@ static void UI_RunMenuScript(char **args)
 			UI_GameType_HandleKey(0, 0, K_MOUSE1, qfalse);
 			UI_GameType_HandleKey(0, 0, K_MOUSE2, qfalse);
 		} else if (Q_stricmp(name, "resetDefaults") == 0) {
-			trap_Cmd_ExecuteText(EXEC_APPEND, "exec default.cfg\n");
+			// Makro - changed the order a bit
+			
+			// First we reset the cvars, then we exec default.cfg to have
+			// all of them initialized with the proper values, even (c)game cvars
+			// when (c)game isn't loaded yet.
+			
+			// Also, Controls_SetDefaults() is no longer called because we already
+			// set up default bindings in default.cfg
+			
 			trap_Cmd_ExecuteText(EXEC_APPEND, "cvar_restart\n");
-			Controls_SetDefaults();
+			trap_Cmd_ExecuteText(EXEC_APPEND, "exec default.cfg\n");
+			//Controls_SetDefaults();
 			trap_Cvar_Set("com_introPlayed", "1");
 			trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 		} else if (Q_stricmp(name, "getCDKey") == 0) {
