@@ -162,13 +162,13 @@ Group # 1 - Graphics
 ==========================================================
 */
 
-    //Icon
+	//Icon
 
 	ADD_TITLE_ICON(UI_ASSETS"/icons/rq3-system-graphics", "group1")
 
-    // Pre-defined settings //
+	// Pre-defined settings //
 
-    BEGIN_OPTION("Quality", "ui_glCustom", ITEM_TYPE_MULTI, 1, 1)
+	BEGIN_OPTION("Quality", "ui_glCustom", ITEM_TYPE_MULTI, 1, 1)
 		alignrect "line" ITEM_ALIGN_CENTER 56 32 112 VSIZE
 		cvarFloatList {
 			"Fastest"		3
@@ -177,79 +177,81 @@ Group # 1 - Graphics
 			"High Quality"		0
 			"Custom"		4
 		}
-		action { uiScript update "ui_glCustom" ; }
+		action { uiScript update "ui_glCustom" }
 		ASSIGN_HINT("hint_predef")
-    END_OPTION
-    ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
+	END_OPTION
+	ADD_HINT("hint_predef", "Choose pre-defined graphics settings", "group1")
 
 
-    // GL Driver //
-
-    BEGIN_OPTION("GL Driver", "r_glDriver", ITEM_TYPE_EDITFIELD, 2, 1)
+	// GL Driver //
+	// ioq3 doesn't recognize this cvar
+	/*
+	BEGIN_OPTION("GL Driver", "r_glDriver", ITEM_TYPE_EDITFIELD, 2, 1)
 		OPTION_BELOW("gr1_ctrl1")		
 		ASSIGN_HINT("hint_gldriver")
-    END_OPTION
-    ADD_HINT("hint_gldriver", "Choose OpenGL driver (default: opengl32)", "group1")
+	END_OPTION
+	ADD_HINT("hint_gldriver", "Choose OpenGL driver (default: opengl32)", "group1")
+	*/
 
+	// GL Extensions //
 
-    // GL Extensions //
-
-    BEGIN_OPTION("GL Extensions", "r_allowExtensions", ITEM_TYPE_YESNO, 3, 1)
-		OPTION_BELOW("gr1_ctrl2")
+	BEGIN_OPTION("GL Extensions", "r_allowExtensions", ITEM_TYPE_YESNO, 2, 1)
+		OPTION_BELOW("gr1_ctrl1")
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_glext")
 	END_OPTION
-    ADD_HINT("hint_glext", "Enable OpenGL extensions", "group1")
+	ADD_HINT("hint_glext", "Enable OpenGL extensions", "group1")
 
-    // Resolution //
+	// Resolution //
 
-    BEGIN_SIMPLE_OPTION(4, 1)
-		OPTION_BELOW("gr1_ctrl3")
+	BEGIN_SIMPLE_OPTION(3, 1)
+		OPTION_BELOW("gr1_ctrl2")
 		text "Resolution:"
 		ownerDraw UI_RESOLUTION
 		ASSIGN_HINT("hint_res")
-    END_OPTION
-    ADD_HINT("hint_res", "Choose rendering resolution", "group1")
+	END_OPTION
+	ADD_HINT("hint_res", "Choose rendering resolution", "group1")
 
 
-    // Color depth //
+	// Color depth //
 
-    BEGIN_OPTION("Color Depth", "r_colorbits", ITEM_TYPE_MULTI, 5, 1)
+	BEGIN_OPTION("Color Depth", "r_colorbits", ITEM_TYPE_MULTI, 4, 1)
 		cvarFloatList { "Desktop Default" 0 "16-bit" 16 "32-bit" 32 }
-		OPTION_BELOW("gr1_ctrl4")
-		action { uiScript glCustom ; uiScript update "r_colorbits" ; }
+		OPTION_BELOW("gr1_ctrl3")
+		action { uiScript glCustom ; uiScript update "r_colorbits" }
 		ASSIGN_HINT("hint_depth")
-    END_OPTION
-    ADD_HINT("hint_depth", "Choose rendering color depth", "group1")
+	END_OPTION
+	ADD_HINT("hint_depth", "Choose rendering color depth", "group1")
 
 
-    // Fullscreen //
+	// Fullscreen //
 
-    BEGIN_OPTION("Fullscreen", "ui_RQ3_fullscreen", ITEM_TYPE_YESNO, 6, 1)
-		OPTION_BELOW("gr1_ctrl5")
-		action { uiScript glCustom ; }
+	BEGIN_OPTION("Fullscreen", "ui_RQ3_fullscreen", ITEM_TYPE_YESNO, 5, 1)
+		OPTION_BELOW("gr1_ctrl4")
+		//action { uiScript glCustom }
 		ASSIGN_HINT("hint_fullscreen")
-    END_OPTION
-    ADD_HINT("hint_fullscreen", "Render in full screen or a window", "group1")
+	END_OPTION
+	ADD_HINT("hint_fullscreen", "Render in full screen or a window", "group1")
 
 
 	// Anti-Aliasing Mode //
 
-	BEGIN_OPTION("Anti-Aliasing", "r_ext_multisample", ITEM_TYPE_MULTI, 7, 1)
+	BEGIN_OPTION("Anti-Aliasing", "r_ext_multisample", ITEM_TYPE_MULTI, 6, 1)
 		cvarFloatList {
 			"Off"	0
 			"2x MSAA"	2
 			"4x MSAA"	4
 		}
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl5")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_aa")
 	END_OPTION
-    ADD_HINT("hint_aa", "Use anti-aliasing to improve image quality", "group1")
+    ADD_HINT("hint_aa", "Use anti-aliasing to reduce jaggedness", "group1")
 
 
     // Texture filtering mode //
 
-	BEGIN_OPTION("Filtering Mode", "ui_filteringMode", ITEM_TYPE_MULTI, 8, 1)
+	BEGIN_OPTION("Filtering Mode", "ui_filteringMode", ITEM_TYPE_MULTI, 7, 1)
 		cvarFloatList {
 				"Bilinear"		0
 				"Trilinear"		1
@@ -258,88 +260,88 @@ Group # 1 - Graphics
 				"8x Anisotropic"		4
 				"16x Anisotropic"		5
 		}
-		OPTION_BELOW("gr1_ctrl7")
-		action { uiScript update "ui_filteringMode" ; }
+		OPTION_BELOW("gr1_ctrl6")
+		action { uiScript glCustom ; uiScript update "ui_filteringMode" }
 		ASSIGN_HINT("hint_texfilter")
     END_OPTION
     ADD_HINT("hint_texfilter", "Choose texture filtering mode", "group1")
 
 
-    // Lightmap/vertex //
+	// Lightmap/vertex //
 
 	/*
-    BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 9, 1)
+	BEGIN_OPTION("Lighting", "r_vertexlight", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
 		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_lightmap")
-    END_OPTION
-    ADD_HINT("hint_lightmap", "Choose map light rendering mode", "group1")
+	END_OPTION
+	ADD_HINT("hint_lightmap", "Choose map light rendering mode", "group1")
 	*/
 
 
-    // Geometric detail //
+	// Geometric detail //
 
-	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 9, 1)
+	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 8, 1)
 		cvarFloatList {
 			"High"		0
 			"Medium"	1
 			"Low"		2
 		}
-		OPTION_BELOW("gr1_ctrl8")
+		OPTION_BELOW("gr1_ctrl7")
 		action { uiScript glCustom ; uiScript update "r_lodbias" }
 		ASSIGN_HINT("hint_geodetail")
-    END_OPTION
-    ADD_HINT("hint_geodetail", "Choose geometric detail level", "group1")
+	END_OPTION
+	ADD_HINT("hint_geodetail", "Choose geometric detail level", "group1")
 
 
-    // Texture detail //
+	// Texture detail //
 
-	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 10, 1)
+	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList {
 			"Very Low"	3
 			"Low"		2
-			"Normal"	1
+			"Medium"	1
 			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl9")
+		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_texdetail")
-    END_OPTION
-    ADD_HINT("hint_texdetail", "Choose texture detail level", "group1")
+	END_OPTION
+	ADD_HINT("hint_texdetail", "Choose texture detail level", "group1")
 
 
-    // Texture quality //
+	// Texture quality //
 
-	BEGIN_OPTION("Texture Quality", "r_texturebits", ITEM_TYPE_MULTI, 11, 1)
+	BEGIN_OPTION("Texture Quality", "r_texturebits", ITEM_TYPE_MULTI, 10, 1)
 		cvarFloatList {
 			"Default"	0
 			"16 bit"	16
 			"32 bit"	32
 		}
-		OPTION_BELOW("gr1_ctrl10")
+		OPTION_BELOW("gr1_ctrl9")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_texquality")
 	END_OPTION
-    ADD_HINT("hint_texquality", "Choose texture quality", "group1")
+	ADD_HINT("hint_texquality", "Choose texture quality", "group1")
 
 
-    // Compressed textures //
+	// Compressed textures //
 
-	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 12, 1)
-		OPTION_BELOW("gr1_ctrl11")
+	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 11, 1)
+		OPTION_BELOW("gr1_ctrl10")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_compress")
-    END_OPTION
-    ADD_HINT("hint_compress", "Enable texture compression", "group1")
+	END_OPTION
+	ADD_HINT("hint_compress", "Enable texture compression", "group1")
 
 
-    // APPLY //
+	// APPLY //
 
-    itemdef {
+	itemdef {
 	name "btn_apply,fade_alpha,allgroups,group1"
 	style WINDOW_STYLE_EMPTY
-	alignrect "gr1_ctrl12" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
+	alignrect "gr1_ctrl11" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
 	type ITEM_TYPE_BUTTON
 	text "^_A^_pply >"
 	shortcutKey "A"
@@ -353,9 +355,9 @@ Group # 1 - Graphics
 	ASSIGN_HINT("hint_apply")
 	anglevectors 4 -83
 	visible 1
-    }
+	}
 
-    ADD_HINT("hint_apply", "Apply graphics changes and return to main menu", "group1")
+	ADD_HINT("hint_apply", "Apply graphics changes and return to main menu", "group1")
 
 /*
 ==========================================================
@@ -499,51 +501,51 @@ Group # 3 - Misc
 	END_OPTION
 	ADD_HINT("hint_openal", "Enable OpenAL sound rendering", "group3")
 
-    // Sound volume //
+	// Sound volume //
 
-    BEGIN_SLIDER("Sound Volume", "s_volume", 0.7, 0, 1, 6, 3)
+	BEGIN_SLIDER("Sound Volume", "s_volume", 0.7, 0, 1, 6, 3)
 		OPTION_BELOW("gr3_ctrl5")
 		ASSIGN_HINT("hint_sndvol")
-    END_OPTION
-    ADD_HINT("hint_sndvol", "Change sound effects volume", "group3")
+	END_OPTION
+	ADD_HINT("hint_sndvol", "Change sound effects volume", "group3")
 
 
-    // Music volume //
+	// Music volume //
 
-    BEGIN_SLIDER("Music Volume", "s_musicvolume", 0.25, 0, 1, 7, 3)
+	BEGIN_SLIDER("Music Volume", "s_musicvolume", 0.25, 0, 1, 7, 3)
 		OPTION_BELOW("gr3_ctrl6")
 		ASSIGN_HINT("hint_musicvol")
-    END_OPTION
-    ADD_HINT("hint_musicvol", "Change background music volume", "group3")
+	END_OPTION
+	ADD_HINT("hint_musicvol", "Change background music volume", "group3")
 
 
-    // Sound quality //
+	// Sound quality //
 
-    BEGIN_OPTION("Sound Quality", "s_khz", ITEM_TYPE_MULTI, 8, 3)
+	BEGIN_OPTION("Sound Quality", "s_khz", ITEM_TYPE_MULTI, 8, 3)
 		cvarFloatList {
 			"22 khz (high)"		22
 			"11 khz (low)"		11
 		}
 		OPTION_BELOW("gr3_ctrl7")
 		ASSIGN_HINT("hint_sndquality")
-    END_OPTION
-    ADD_HINT("hint_sndquality", "Choose sound quality", "group3")
+	END_OPTION
+	ADD_HINT("hint_sndquality", "Choose sound quality", "group3")
 
 
-    // Doppler effect //
+	// Doppler effect //
 
-    BEGIN_OPTION("Doppler Effect", "s_doppler", ITEM_TYPE_YESNO, 9, 3)
+	BEGIN_OPTION("Doppler Effect", "s_doppler", ITEM_TYPE_YESNO, 9, 3)
 		OPTION_BELOW("gr3_ctrl8")
 		ASSIGN_HINT("hint_doppler")
-    END_OPTION
-    ADD_HINT("hint_doppler", "Enable Doppler effect", "group3")
+	END_OPTION
+	ADD_HINT("hint_doppler", "Enable Doppler effect", "group3")
 
 
-    // Net //
+	// Net //
 
-    //Icon
+	//Icon
 
-    itemdef {
+	itemdef {
 	name "icon,allgroups,group3"
 	background UI_ASSETS"/icons/rq3-system-network"
 	forecolor 1 1 1 ICON_ALPHA
@@ -554,9 +556,9 @@ Group # 3 - Misc
 	}
 
 
-    // Net rate //
+	// Net rate //
 
-    BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 10, 3)
+	BEGIN_OPTION("Net Rate", "rate", ITEM_TYPE_MULTI, 10, 3)
 		alignrect "line" ITEM_ALIGN_CENTER 56 216 112 VSIZE
 		cvarFloatList {
 			"<=28.8k"			2500
@@ -566,8 +568,8 @@ Group # 3 - Misc
 			"LAN/CABLE/xDSL"	25000
 		}
 		ASSIGN_HINT("hint_netrate")
-    END_OPTION
-    ADD_HINT("hint_netrate", "Choose network speed", "group3")
+	END_OPTION
+	ADD_HINT("hint_netrate", "Choose network speed", "group3")
 
 
 /*

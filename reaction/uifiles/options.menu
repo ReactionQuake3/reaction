@@ -180,7 +180,7 @@ Group # 1 - Gameplay
 
 	BEGIN_OPTION("Ejecting Brass", "cg_brassTime", ITEM_TYPE_MULTI, 3, 1)
 		cvarFloatList {
-				"High"		15000
+				"High"		20000
 				"Med"		7500
 				"Off"		0
 		}
@@ -189,12 +189,26 @@ Group # 1 - Gameplay
 	END_OPTION
     ADD_HINT("hint_brasstime", "Change the amount of ejecting brass", "group1")
 
+
+    // Glass fragments //
+
+	BEGIN_OPTION("Glass Fragments", "cg_RQ3_glasstime", ITEM_TYPE_MULTI, 4, 1)
+		cvarFloatList {
+				"High"		20000
+				"Med"		7500
+				"Off"		0
+		}
+		OPTION_BELOW("gr1_ctrl3")
+		ASSIGN_HINT("hint_glasstime")
+	END_OPTION
+    ADD_HINT("hint_glasstime", "Change the amount of glass fragments", "group1")
+
     
 	// Wall marks //
 
-	BEGIN_OPTION("Wall marks", "cg_marks", ITEM_TYPE_YESNO, 4, 1)
+	BEGIN_OPTION("Wall marks", "cg_marks", ITEM_TYPE_YESNO, 5, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl3")
+		OPTION_BELOW("gr1_ctrl4")
 		ASSIGN_HINT("hint_wallmarks")
 	END_OPTION
     ADD_HINT("hint_wallmarks", "Enable wall marks", "group1")
@@ -202,9 +216,9 @@ Group # 1 - Gameplay
 
     // Dynamic lights //
 
-	BEGIN_OPTION("Dynamic lights", "r_dynamiclight", ITEM_TYPE_YESNO, 5, 1)
+	BEGIN_OPTION("Dynamic lights", "r_dynamiclight", ITEM_TYPE_YESNO, 6, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl4")
+		OPTION_BELOW("gr1_ctrl5")
 		ASSIGN_HINT("hint_dlights")
 	END_OPTION
     ADD_HINT("hint_dlights", "Enable dynamic lighting", "group1")
@@ -212,9 +226,9 @@ Group # 1 - Gameplay
 
     // Identify target //
 
-	BEGIN_OPTION("Identify Target", "cg_drawCrosshairNames", ITEM_TYPE_YESNO, 6, 1)
+	BEGIN_OPTION("Identify Target", "cg_drawCrosshairNames", ITEM_TYPE_YESNO, 7, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl5")
+		OPTION_BELOW("gr1_ctrl6")
 		ASSIGN_HINT("hint_idtarget")
 	END_OPTION
     ADD_HINT("hint_idtarget", "Enable crosshair target identification", "group1")
@@ -222,9 +236,9 @@ Group # 1 - Gameplay
 
     // Force player models //
 
-	BEGIN_OPTION("Force Player Models", "cg_forceModel", ITEM_TYPE_YESNO, 7, 1)
+	BEGIN_OPTION("Force Player Models", "cg_forceModel", ITEM_TYPE_YESNO, 8, 1)
 		kind YESNO_ICON_RIGHT
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl7")
 		ASSIGN_HINT("hint_forcemodel")
 	END_OPTION
     ADD_HINT("hint_forcemodel", "Force player models to your own", "group1")
@@ -296,6 +310,15 @@ Group # 1 - Gameplay
 	END_OPTION
     ADD_HINT("hint_impactfx", "Enable visual projectile impact effects", "group1")
 
+
+    // Blood //
+
+ 	BEGIN_OPTION("Blood Effects", "com_blood", ITEM_TYPE_YESNO, 15, 1)
+		kind YESNO_ICON_RIGHT
+		OPTION_BELOW("gr1_ctrl14")
+		ASSIGN_HINT("hint_bloodfx")
+	END_OPTION
+    ADD_HINT("hint_bloodfx", "Enable blood effects", "group1")
 
 
 /*

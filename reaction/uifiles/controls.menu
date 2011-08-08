@@ -152,27 +152,27 @@ Group # 1 - Look
 	END_OPTION
 
 
-	BEGIN_OPTION("Look Up", "+lookup", ITEM_TYPE_BIND, 4, 1)
+	BEGIN_OPTION("Free Look", "cl_freelook", ITEM_TYPE_YESNO, 4, 1)
 		OPTION_BELOW("gr1_ctrl3")
-		ASSIGN_HINT("keyBindStatus")
+		ASSIGN_HINT("YesNoMessage")
 	END_OPTION
 
 
-	BEGIN_OPTION("Look Down", "+lookdown", ITEM_TYPE_BIND, 5, 1)
+	BEGIN_OPTION("Mouse Look", "+mlook", ITEM_TYPE_BIND, 5, 1)
 		OPTION_BELOW("gr1_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Mouse Look", "+mlook", ITEM_TYPE_BIND, 6, 1)
+	BEGIN_OPTION("Look Up", "+lookup", ITEM_TYPE_BIND, 6, 1)
 		OPTION_BELOW("gr1_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Free Look", "cl_freelook", ITEM_TYPE_YESNO, 7, 1)
+	BEGIN_OPTION("Look Down", "+lookdown", ITEM_TYPE_BIND, 7, 1)
 		OPTION_BELOW("gr1_ctrl6")
-		ASSIGN_HINT("YesNoMessage")
+		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
@@ -305,49 +305,49 @@ Group # 3 - Shoot
 	END_OPTION
 
 
-	BEGIN_OPTION("MK23 Pistol", "use MK23 Pistol", ITEM_TYPE_BIND, 5, 3)
+	BEGIN_OPTION("Combat Knife", "use Combat Knife", ITEM_TYPE_BIND, 5, 3)
 		OPTION_BELOW("gr3_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("M3 Assault Shotgun", "use M3 Super 90 Assault Shotgun", ITEM_TYPE_BIND, 6, 3)
+	BEGIN_OPTION("MK23 Pistol", "use MK23 Pistol", ITEM_TYPE_BIND, 6, 3)
 		OPTION_BELOW("gr3_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("MP5/10 Sub", "use MP5/10 Submachinegun", ITEM_TYPE_BIND, 7, 3)
+	BEGIN_OPTION("Dual MK23 Pistols", "use Dual MK23 Pistols", ITEM_TYPE_BIND, 7, 3)
 		OPTION_BELOW("gr3_ctrl6")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Handcannon", "use Handcannon", ITEM_TYPE_BIND, 8, 3)
+	BEGIN_OPTION("M3 Assault Shotgun", "use M3 Super 90 Assault Shotgun", ITEM_TYPE_BIND, 8, 3)
 		OPTION_BELOW("gr3_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("SSG Sniper Rifle", "use Sniper Rifle", ITEM_TYPE_BIND, 9, 3)
+	BEGIN_OPTION("MP5/10 Sub", "use MP5/10 Submachinegun", ITEM_TYPE_BIND, 9, 3)
 		OPTION_BELOW("gr3_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("M4 Assault Rifle", "use M4 Assault Rifle", ITEM_TYPE_BIND, 10, 3)
+	BEGIN_OPTION("Handcannon", "use Handcannon", ITEM_TYPE_BIND, 10, 3)
 		OPTION_BELOW("gr3_ctrl9")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Dual MK23 Pistols", "use Dual MK23 Pistols", ITEM_TYPE_BIND, 11, 3)
+	BEGIN_OPTION("SSG Sniper Rifle", "use Sniper Rifle", ITEM_TYPE_BIND, 11, 3)
 		OPTION_BELOW("gr3_ctrl10")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Combat Knife", "use Combat Knife", ITEM_TYPE_BIND, 12, 3)
+	BEGIN_OPTION("M4 Assault Rifle", "use M4 Assault Rifle", ITEM_TYPE_BIND, 12, 3)
 		OPTION_BELOW("gr3_ctrl11")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
@@ -387,56 +387,68 @@ Group # 4 - Misc
 	END_OPTION
 
 
-	BEGIN_OPTION("Chat Message", "messagemode", ITEM_TYPE_BIND, 4, 4)
+	BEGIN_OPTION("Vote Yes", "vote yes", ITEM_TYPE_BIND, 4, 4)
 		OPTION_BELOW("gr4_ctrl3")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Chat - Team", "messagemode2", ITEM_TYPE_BIND, 5, 4)
+	BEGIN_OPTION("Vote No", "vote no", ITEM_TYPE_BIND, 5, 4)
 		OPTION_BELOW("gr4_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Chat - Target", "messagemode3", ITEM_TYPE_BIND, 6, 4)
+	BEGIN_OPTION("Chat Message", "messagemode", ITEM_TYPE_BIND, 6, 4)
 		OPTION_BELOW("gr4_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Chat - Attacker", "messagemode4", ITEM_TYPE_BIND, 7, 4)
+	BEGIN_OPTION("Chat - Team", "messagemode2", ITEM_TYPE_BIND, 7, 4)
 		OPTION_BELOW("gr4_ctrl6")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("VoIP Push-to-talk", "+voiprecord", ITEM_TYPE_BIND, 8, 4)
+	BEGIN_OPTION("Chat - Target", "messagemode3", ITEM_TYPE_BIND, 8, 4)
 		OPTION_BELOW("gr4_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Show Scores", "+scores", ITEM_TYPE_BIND, 9, 4)
+	BEGIN_OPTION("Chat - Attacker", "messagemode4", ITEM_TYPE_BIND, 9, 4)
 		OPTION_BELOW("gr4_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Show Statistics", "+wstats", ITEM_TYPE_BIND, 10, 4)
+	BEGIN_OPTION("VoIP Push-to-talk", "+voiprecord", ITEM_TYPE_BIND, 10, 4)
 		OPTION_BELOW("gr4_ctrl9")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Screenshot", "screenshot", ITEM_TYPE_BIND, 11, 4)
+	BEGIN_OPTION("Show Scores", "+scores", ITEM_TYPE_BIND, 11, 4)
 		OPTION_BELOW("gr4_ctrl10")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Screenshot - JPEG", "screenshotJPEG", ITEM_TYPE_BIND, 12, 4)
+	BEGIN_OPTION("Show Statistics", "+wstats", ITEM_TYPE_BIND, 12, 4)
 		OPTION_BELOW("gr4_ctrl11")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot", "screenshot", ITEM_TYPE_BIND, 13, 4)
+		OPTION_BELOW("gr4_ctrl12")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Screenshot - JPEG", "screenshotJPEG", ITEM_TYPE_BIND, 14, 4)
+		OPTION_BELOW("gr4_ctrl13")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
@@ -475,38 +487,44 @@ Group # 5 - Reaction
 	END_OPTION
 
 
-	BEGIN_OPTION("Weapon Mode", "weapon", ITEM_TYPE_BIND, 5, 5)
+	BEGIN_OPTION("Weapon Mode / Zoom", "weapon", ITEM_TYPE_BIND, 5, 5)
 		OPTION_BELOW("gr5_ctrl4")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Special Weapon Cycle", "use special", ITEM_TYPE_BIND, 6, 5)
+	BEGIN_OPTION("Unzoom", "unzoom", ITEM_TYPE_BIND, 6, 5)
 		OPTION_BELOW("gr5_ctrl5")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Weapon", "drop weapon", ITEM_TYPE_BIND, 7, 5)
+	BEGIN_OPTION("Special Weapon Cycle", "use special", ITEM_TYPE_BIND, 7, 5)
 		OPTION_BELOW("gr5_ctrl6")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Item", "drop item", ITEM_TYPE_BIND, 8, 5)
+	BEGIN_OPTION("Drop Weapon", "drop weapon", ITEM_TYPE_BIND, 8, 5)
 		OPTION_BELOW("gr5_ctrl7")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Drop Briefcase", "drop case", ITEM_TYPE_BIND, 9, 5)
+	BEGIN_OPTION("Drop Item", "drop item", ITEM_TYPE_BIND, 9, 5)
 		OPTION_BELOW("gr5_ctrl8")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
 
-	BEGIN_OPTION("Gesture", "+button3", ITEM_TYPE_BIND, 10, 5)
+	BEGIN_OPTION("Drop Briefcase", "drop case", ITEM_TYPE_BIND, 10, 5)
 		OPTION_BELOW("gr5_ctrl9")
+		ASSIGN_HINT("keyBindStatus")
+	END_OPTION
+
+
+	BEGIN_OPTION("Gesture", "+button3", ITEM_TYPE_BIND, 11, 5)
+		OPTION_BELOW("gr5_ctrl10")
 		ASSIGN_HINT("keyBindStatus")
 	END_OPTION
 
