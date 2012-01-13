@@ -587,10 +587,6 @@ void CG_ColorForHealth(vec4_t hcolor)
 	CG_GetColorForHealth(cg.snap->ps.stats[STAT_HEALTH], cg.snap->ps.stats[STAT_ARMOR], hcolor);
 }
 
-// bk001205 - code below duplicated in q3_ui/ui-atoms.c
-// bk001205 - FIXME: does this belong in ui_shared.c?
-// bk001205 - FIXME: HARD_LINKED flags not visible here
-#ifndef Q3_STATIC		// bk001205 - q_shared defines not visible here
 /*
 =================
 UI_DrawProportionalString2
@@ -989,7 +985,7 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 	trap_R_SetColor(color);
 
 	ax = x * cgs.screenXScale + cgs.screenXBias;
-	ay = y * cgs.screenXScale;
+	ay = y * cgs.screenYScale;
 
 	s = str;
 	while (*s) {
@@ -1003,7 +999,7 @@ static void UI_DrawBannerString2(int x, int y, const char *str, vec4_t color)
 			fwidth = (float) propMapB[ch][2] / 256.0f;
 			fheight = (float) PROPB_HEIGHT / 256.0f;
 			aw = (float) propMapB[ch][2] * cgs.screenXScale;
-			ah = (float) PROPB_HEIGHT *cgs.screenXScale;
+			ah = (float) PROPB_HEIGHT *cgs.screenYScale;
 
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight,
 					      cgs.media.charsetPropB);
@@ -1205,4 +1201,3 @@ void UI_DrawProportionalString(int x, int y, const char *str, int style, vec4_t 
 
 	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp);
 }
-#endif				// Q3STATIC

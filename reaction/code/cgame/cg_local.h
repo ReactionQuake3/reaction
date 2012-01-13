@@ -404,7 +404,8 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "../qcommon/q_shared.h"
-#include "tr_types.h"
+#include "../renderer/tr_types.h"
+#include "../renderergl2/tr_extratypes.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 
@@ -587,7 +588,7 @@ typedef struct {
 	int lightningFiring;
 
 	// railgun trail spawning
-	vec3_t railgunImpact;
+//	vec3_t railgunImpact;
 	qboolean railgunFlash;
 
 	// machinegun spinning
@@ -885,7 +886,7 @@ typedef struct weaponInfo_s {
 	sfxWeapTiming_t animationSounds[MAX_ANIM_SOUNDS];
 	sfxHandle_t worldReloadSound[3];
 
-	qboolean loopFireSound;
+//	qboolean loopFireSound;
 } weaponInfo_t;
 
 // each IT_* item has an associated itemInfo_t

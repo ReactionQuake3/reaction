@@ -1141,9 +1141,9 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 				p = CG_ConfigString(CS_LOCATIONS + ci->location);
 				if (!p || !*p)
 					p = "unknown";
-				len = CG_DrawStrlen(p);
-				if (len > lwidth)
-					len = lwidth;
+				//len = CG_DrawStrlen(p);
+				//if (len > lwidth)
+			//		len = lwidth;
 
 //                              xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth + 
 //                                      ((lwidth/2 - len/2) * TINYCHAR_WIDTH);
@@ -2118,7 +2118,8 @@ static void CG_ScanForCrosshairEntity(void)
 		return;
 	}
 	// if the player is in fog, don't show it
-	content = trap_CM_PointContents(trace.endpos, 0);
+	//content = trap_CM_PointContents(trace.endpos, 0);
+	content = CG_PointContents( trace.endpos, 0 );
 	if (content & CONTENTS_FOG) {
 		return;
 	}
@@ -2337,9 +2338,9 @@ static void CG_DrawTeamVote(void)
 	int sec, cs_offset, y = 100;
 	float Color1[4];
 
-	if (cgs.clientinfo->team == TEAM_RED)
+	if ( cgs.clientinfo[cg.clientNum].team == TEAM_RED )
 		cs_offset = 0;
-	else if (cgs.clientinfo->team == TEAM_BLUE)
+	else if ( cgs.clientinfo[cg.clientNum].team == TEAM_BLUE )
 		cs_offset = 1;
 	else
 		return;
@@ -2488,10 +2489,11 @@ static qboolean CG_DrawFollow(void)
 CG_DrawAmmoWarning
 =================
 */
+/* JBravo: Not used
 static void CG_DrawAmmoWarning(void)
 {
 	const char *s;
-	int w;
+//	int w;
 
 	if (cg_drawAmmoWarning.integer == 0) {
 		return;
@@ -2506,10 +2508,11 @@ static void CG_DrawAmmoWarning(void)
 	} else {
 		s = "LOW AMMO WARNING";
 	}
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
+	CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 	//Elder: commented out for now
 	//CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }
+*/
 
 /*
 =================
@@ -2521,7 +2524,7 @@ static void CG_DrawWarmup(void)
 	int w;
 	int sec;
 	int i;
-	float scale;
+//	float scale;
 	clientInfo_t *ci1, *ci2;
 	int cw;
 	const char *s;
@@ -2611,23 +2614,23 @@ static void CG_DrawWarmup(void)
 			break;
 		}
 	}
-	scale = 0.45f;
+//	scale = 0.45f;
 	switch (cg.warmupCount) {
 	case 0:
 		cw = 28;
-		scale = 0.54f;
+//		scale = 0.54f;
 		break;
 	case 1:
 		cw = 24;
-		scale = 0.51f;
+//		scale = 0.51f;
 		break;
 	case 2:
 		cw = 20;
-		scale = 0.48f;
+//		scale = 0.48f;
 		break;
 	default:
 		cw = 16;
-		scale = 0.45f;
+//		scale = 0.45f;
 		break;
 	}
 
@@ -2679,7 +2682,7 @@ static void CG_Draw2D(void)
 		if (cg.snap->ps.stats[STAT_HEALTH] > 0) {
 			CG_DrawCrosshair();
 			CG_DrawStatusBar();
-			CG_DrawAmmoWarning();
+//			CG_DrawAmmoWarning();
 			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 			CG_DrawHoldableItem();

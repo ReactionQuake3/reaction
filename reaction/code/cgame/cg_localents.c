@@ -345,7 +345,7 @@ void CG_AddFragment(localEntity_t * le)
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if (trap_CM_PointContents(trace.endpos, 0) & CONTENTS_NODROP) {
+	if ( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity(le);
 		return;
 	}
@@ -671,7 +671,7 @@ void CG_AddScorePlum(localEntity_t * le)
 void CG_AddPressureEntity(localEntity_t * le)
 {
 	vec3_t velocity;
-	vec3_t origin;
+//	vec3_t origin;
 	float alpha;
 
 	// Kill it if LCA.
@@ -692,7 +692,7 @@ void CG_AddPressureEntity(localEntity_t * le)
 	} else
 		VectorScale(le->pos.trDelta, le->size, velocity);
 
-	VectorCopy(le->pos.trBase, origin);
+//	VectorCopy(le->pos.trBase, origin);
 
 	if (le->leFlags == LEF_AIR)
 		CG_ParticleAir(le->pos.trBase, velocity, le->life + rand() % 120, alpha, 2, 1);

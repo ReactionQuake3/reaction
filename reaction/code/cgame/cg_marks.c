@@ -1090,9 +1090,9 @@ void CG_AddParticles(void)
 	float alpha;
 	float time, time2, mtime, mtime2;
 	vec3_t org;
-	int color;
+//	int color;
 	cparticle_t *active, *tail;
-	int type;
+//	int type;
 	vec3_t rotate_ang;
 	trace_t tr;
 	vec3_t dist, end;
@@ -1190,7 +1190,7 @@ void CG_AddParticles(void)
 		if (alpha > 1.0)
 			alpha = 1;
 
-		color = p->color;
+//		color = p->color;
 
 		time2 = time * time;
 		mtime2 = mtime * mtime;
@@ -1206,7 +1206,7 @@ void CG_AddParticles(void)
 			org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
 		}
 
-		type = p->type;
+//		type = p->type;
 
 		CG_AddParticleToScene(p, org, alpha);
 

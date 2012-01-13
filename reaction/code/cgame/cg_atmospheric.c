@@ -358,7 +358,7 @@ static void CG_SnowParticleRender(cg_atmosphericParticle_t * particle)
 	vec3_t forward, right;
 	polyVert_t verts[4];
 	vec2_t line;
-	float len, frac, sinTumbling, cosTumbling, particleWidth;
+	float len, sinTumbling, cosTumbling, particleWidth;
 	vec3_t start, finish;
 
 	if (!particle->active)
@@ -376,7 +376,7 @@ static void CG_SnowParticleRender(cg_atmosphericParticle_t * particle)
 	if (start[2] <= particle->minz) {
 		// Stop snow going through surfaces.
 		len = particle->height - particle->minz + start[2];
-		frac = start[2];
+//		frac = start[2];
 		VectorMA(start, len - particle->height, particle->deltaNormalized, start);
 	}
 	if (len <= 0)

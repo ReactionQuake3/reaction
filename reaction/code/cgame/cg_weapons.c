@@ -267,7 +267,7 @@ Reads information for frame-sound timing
 static qboolean CG_ParseWeaponSoundFile(const char *filename, weaponInfo_t * weapon)
 {
 	char *text_p;
-	int len, i, skip;
+	int len, i; // skip;
 	char *token;
 	char text[20000];
 	fileHandle_t f;
@@ -291,7 +291,7 @@ static qboolean CG_ParseWeaponSoundFile(const char *filename, weaponInfo_t * wea
 	// parse the text
 	text_p = text;
 	// Elder: uhh, what was this for?
-	skip = 0;		// quite the compiler warning
+//	skip = 0;		// quite the compiler warning
 
 	for (i = 0; i < MAX_ANIM_SOUNDS; i++) {
 		// Grab frame number
@@ -344,6 +344,7 @@ static qboolean CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
 	VectorCopy(cent->currentState.pos.trBase, muzzle);
 
 	AngleVectors(cent->currentState.apos.trBase, forward, NULL, NULL);
+
 	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 	if (anim == LEGS_WALKCR || anim == LEGS_IDLECR) {
 		muzzle[2] += CROUCH_VIEWHEIGHT;
@@ -365,7 +366,7 @@ CG_ParseWeaponAnimFile
 static qboolean CG_ParseWeaponAnimFile(const char *filename, weaponInfo_t * weapon)
 {
 	char *text_p, *token;
-	int len, i, skip;
+	int len, i; // skip;
 	float fps;
 	char text[20000];
 	fileHandle_t f;
@@ -388,7 +389,7 @@ static qboolean CG_ParseWeaponAnimFile(const char *filename, weaponInfo_t * weap
 
 	// parse the text
 	text_p = text;
-	skip = 0;		// quite the compiler warning
+ //	skip = 0;		// quite the compiler warning
 
 	// read information for each frame
 	for (i = 0; i < MAX_WEAPON_ANIMATIONS; i++) {
@@ -525,7 +526,7 @@ CG_RailTrail
 */
 void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 {
-	vec3_t axis[36], move, move2, next_move, vec, temp;
+	vec3_t axis[36], move, move2, vec, temp;
 	float len;
 	int i, j, skip;
 	localEntity_t *le;
@@ -569,7 +570,7 @@ void CG_RailTrail(clientInfo_t * ci, vec3_t start, vec3_t end)
 	AxisClear(re->axis);
 
 	VectorMA(move, 20, vec, move);
-	VectorCopy(move, next_move);
+//	VectorCopy(move, next_move);
 	VectorScale(vec, SPACING, vec);
 
 	if (cg_oldRail.integer != 0) {
@@ -771,7 +772,7 @@ void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->firstModel = weaponInfo->weaponModel;
 	}
 
-	weaponInfo->loopFireSound = qfalse;
+//	weaponInfo->loopFireSound = qfalse;
 
 	memset (str, 0, sizeof(str));
 
@@ -1729,7 +1730,7 @@ Add the weapon, and flash for the player's view
 void CG_AddViewWeapon(playerState_t * ps)
 {
 	refEntity_t hand;
-	centity_t *cent;
+//	centity_t *cent;
 	float fovOffset;
 	vec3_t angles;
 	weaponInfo_t *weapon;
@@ -1772,7 +1773,7 @@ void CG_AddViewWeapon(playerState_t * ps)
 		fovOffset = 0;
 	}
 
-	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
+//	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	CG_RegisterWeapon(ps->weapon);
 	weapon = &cg_weapons[ps->weapon];
 
@@ -1840,7 +1841,7 @@ void CG_DrawWeaponSelect(void)
 	// count the number of weapons owned
 	bits = cg.snap->ps.stats[STAT_WEAPONS];
 	count = 0;
-	for (i = 1; i < 16; i++) {
+	for (i = 1; i < MAX_WEAPONS; i++) {
 		if (bits & (1 << i)) {
 			count++;
 		}
@@ -1849,7 +1850,7 @@ void CG_DrawWeaponSelect(void)
 	x = 320 - count * 20;
 	y = 380;
 
-	for (i = 1; i < 16; i++) {
+	for (i = 1; i < MAX_WEAPONS; i++) {
 		if (!(bits & (1 << i))) {
 			continue;
 		}
@@ -1942,16 +1943,16 @@ void CG_NextWeapon_f(void)
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
-	for (i = 0; i < 16; i++) {
+	for (i = 0; i < MAX_WEAPONS; i++) {
 		cg.weaponSelect++;
-		if (cg.weaponSelect == 16) {
+		if (cg.weaponSelect == MAX_WEAPONS) {
 			cg.weaponSelect = 0;
 		}
 		if (CG_WeaponSelectable(cg.weaponSelect)) {
 			break;
 		}
 	}
-	if (i == 16) {
+	if (i == MAX_WEAPONS) {
 		cg.weaponSelect = original;
 	}
 //Slicer: Done Server Side
@@ -1995,16 +1996,16 @@ void CG_PrevWeapon_f(void)
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
-	for (i = 0; i < 16; i++) {
+	for (i = 0; i < MAX_WEAPONS; i++) {
 		cg.weaponSelect--;
 		if (cg.weaponSelect == -1) {
-			cg.weaponSelect = 15;
+			cg.weaponSelect = MAX_WEAPONS - 1;
 		}
 		if (CG_WeaponSelectable(cg.weaponSelect)) {
 			break;
 		}
 	}
-	if (i == 16) {
+	if (i == MAX_WEAPONS) {
 		cg.weaponSelect = original;
 	} else {
 //Slicer: Done Server Side
@@ -2054,9 +2055,9 @@ void CG_SpecialWeapon_f(void)
 	cg.weaponSelectTime = cg.time;
 	original = cg.weaponSelect;
 
-	for (i = 0; i < 16; i++) {
+	for (i = 0; i < MAX_WEAPONS; i++) {
 		cg.weaponSelect++;
-		if (cg.weaponSelect == 16) {
+		if (cg.weaponSelect == MAX_WEAPONS) {
 			cg.weaponSelect = 0;
 		}
 		//Skip normal weapons
@@ -2075,7 +2076,7 @@ void CG_SpecialWeapon_f(void)
 	}
 
 	// FIXME: 15 because of the stupid continue I used
-	if (i >= 15) {
+	if (i >= MAX_WEAPONS - 1) {
 		cg.weaponSelect = original;
 	} else {
 //Slicer: Done Server Side
@@ -2220,7 +2221,7 @@ void CG_Weapon_f(void)
 
 	num = atoi(CG_Argv(1));
 
-	if (num < 1 || num > 15) {
+	if (num < 1 || num > MAX_WEAPONS - 1) {
 		return;
 	}
 	// JBravo: CTB provisions

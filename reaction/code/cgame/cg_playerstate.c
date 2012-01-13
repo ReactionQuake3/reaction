@@ -71,7 +71,7 @@ void CG_CheckAmmo(void)
 {
 	//int           i;
 	int total;
-	int previous;
+//	int previous;
 
 	//int           weapons;
 
@@ -148,7 +148,7 @@ void CG_CheckAmmo(void)
 		return;
 	}
 
-	previous = cg.lowAmmoWarning;
+//	previous = cg.lowAmmoWarning;
 
 	if (total == 0) {
 		cg.lowAmmoWarning = 2;
@@ -405,7 +405,8 @@ CG_CheckLocalSounds
 */
 void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 {
-	int health, armor, reward;
+	//int health, armor, reward;
+	int reward;
 
 	// don't play the sounds if the player just changed teams
 	if (ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM]) {
@@ -413,8 +414,8 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 	}
 	// hit changes
 	if (ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) {
-		armor = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
-		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
+//		armor = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
+//		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
 	} else if (ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS]) {
 		if (cg_RQ3_anouncer.integer == 1)
 			trap_S_StartLocalSound(cgs.media.hitTeamSound, CHAN_LOCAL_SOUND);
@@ -451,7 +452,7 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 		reward = qtrue;
 	}
 	// check for flag pickup
-	if (cgs.gametype >= GT_TEAM) {
+	if (cgs.gametype > GT_TEAMPLAY) {
 		if ((ps->powerups[PW_REDFLAG] != ops->powerups[PW_REDFLAG] && ps->powerups[PW_REDFLAG]) ||
 		    (ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
 		    (ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG])) {
@@ -480,10 +481,13 @@ void CG_CheckLocalSounds(playerState_t * ps, playerState_t * ops)
 		}
 	}
 	// timelimit warnings
+	// JBravo: this does nothing
+/*
 	if (cgs.timelimit > 0) {
 		int msec;
 		msec = cg.time - cgs.levelStartTime;
 	}
+*/
 }
 
 /*

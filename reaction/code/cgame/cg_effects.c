@@ -1036,7 +1036,7 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 	qhandle_t mod;
 	qhandle_t shader;
 	vec3_t shrapnelDest;
-	localEntity_t *smokePuff;
+//	localEntity_t *smokePuff;
 	vec3_t puffDir;
 
 	float light;
@@ -1049,13 +1049,14 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 	// JBravo: Unused variable
 	//      int             modelbias[10] = { 0, 0, 0, 0, 1, 1, 1, 2, 2 };
 	int id;
-	int count;
+//	int count;
 
 	id = (eParam & 63);
 	eParam = eParam >> 6;
 
 	trap_S_StartSound(NULL, number, CHAN_BODY, cgs.media.breakables[id].exp_sound);
 
+/* JBravo: After all that setting of 'count' it is never used.
 	if ((eParam & RQ3_DEBRIS_MEDIUM) == RQ3_DEBRIS_MEDIUM && (eParam & RQ3_DEBRIS_HIGH) == RQ3_DEBRIS_HIGH) {
 		//Tons
 		count = 65 + rand() % 16;
@@ -1069,6 +1070,7 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 		//Small
 		count = 8 + rand() % 6;
 	}
+*/
 	//if (material) material--;
 	VectorCopy(cent->lerpOrigin, origin);
 	/*
@@ -1115,7 +1117,7 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 	puffDir[1] = 0;
 	puffDir[2] = 20;
 	origin[2] -= 16;
-	smokePuff = CG_SmokePuff(origin, puffDir,
+	CG_SmokePuff(origin, puffDir,
 				 rand() % 12 + 100, 1, 1, 1, 0.6f, 3000, cg.time, 0, 0, cgs.media.smokePuffShader);
 
 }
@@ -1123,10 +1125,10 @@ void CG_BreakBreakable(centity_t * cent, int eParam, int number)
 void CG_Pressure(vec3_t origin, vec3_t dir, int type, int speed, int life)
 {
 	localEntity_t *le;
-	refEntity_t *re;
+//	refEntity_t *re;
 
 	le = CG_AllocLocalEntity();
-	re = &le->refEntity;
+//	re = &le->refEntity;
 	le->leType = LE_PRESSURE;
 
 	if (type == 1)

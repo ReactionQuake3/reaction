@@ -344,14 +344,13 @@ static void CG_EntityEffects(centity_t * cent)
 	// constant light glow
 	if (cent->currentState.constantLight && cent->currentState.eType != ET_DLIGHT) {
 		int cl;
-		int i, r, g, b;
+		float i, r, g, b;
 
 		cl = cent->currentState.constantLight;
-		r = cl & 255;
-		g = (cl >> 8) & 255;
-		b = (cl >> 16) & 255;
-		i = ((cl >> 24) & 255) * 4;
-
+		r = (float) (cl & 0xFF) / 255.0;
+		g = (float) ((cl >> 8) & 0xFF) / 255.0;
+		b = (float) ((cl >> 16) & 0xFF) / 255.0;
+		i = (float) ((cl >> 24) & 0xFF) * 4.0;
 		trap_R_AddLightToScene(cent->lerpOrigin, i, r, g, b);
 	}
 
@@ -702,7 +701,7 @@ static void CG_Missile(centity_t * cent)
 	const weaponInfo_t *weapon;
 
 	s1 = &cent->currentState;
-	if (s1->weapon > WP_NUM_WEAPONS) {
+	if (s1->weapon >= WP_NUM_WEAPONS) {
 		s1->weapon = 0;
 	}
 	weapon = &cg_weapons[s1->weapon];
@@ -782,7 +781,7 @@ static void CG_Grapple(centity_t * cent)
 	const weaponInfo_t *weapon;
 
 	s1 = &cent->currentState;
-	if (s1->weapon > WP_NUM_WEAPONS) {
+	if (s1->weapon >= WP_NUM_WEAPONS) {
 		s1->weapon = 0;
 	}
 	weapon = &cg_weapons[s1->weapon];
@@ -967,7 +966,7 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int 
 	CG_EvaluateTrajectoryEx(cent, toTime, origin, angles);
 
 	VectorSubtract(origin, oldOrigin, deltaOrigin);
-	VectorSubtract(angles, oldAngles, deltaAngles);
+	//VectorSubtract(angles, oldAngles, deltaAngles);
 
 	VectorAdd(in, deltaOrigin, out);
 	
@@ -1134,7 +1133,8 @@ static void CG_DrawDecal(centity_t * cent)
 {
 	trace_t	trace;
 	vec3_t	end;
-	float	alpha, radius;
+	//float	alpha, radius;
+	float	radius;
 
 	if (cgs.gametype == GT_CTF) {
 		//cent->currentState.modelindex 
@@ -1142,7 +1142,7 @@ static void CG_DrawDecal(centity_t * cent)
 		VectorCopy(cent->lerpOrigin, end);
 		end[2] -= 8192;
 
-		alpha = sin(cg.time / 160.0f) * 0.25 + 0.75f;
+//		alpha = sin(cg.time / 160.0f) * 0.25 + 0.75f;
 		radius = 48 + (cos(cg.time / 320.0f) * 4.0f);
 
 		// Project downward to the ground

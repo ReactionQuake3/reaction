@@ -467,13 +467,13 @@ static int CG_TeamplayScoreboard(void)
 
 	// NiceAss: Deathmatch scoreboard:
 	if (cg.scoreTPMode == 1 || cgs.gametype < GT_TEAM) {
-		vec3_t	headAngles;
+//		vec3_t	headAngles;
 		DrawStrip(y, SB_FONTSIZEH, qtrue, qtrue, qtrue, BlackL, colorWhite);
 		DrawLeftStripText(y, SB_FONTSIZEH, "Frags  Name", 100, colorWhite);
 		DrawRightStripText(y, SB_FONTSIZEH, "Time  Ping  Damage", 100, colorWhite);
 		y += SB_FONTSIZEH + SB_PADDING * 2 + 2;
 
-		VectorSet(headAngles, 0, sin(cg.time * 0.002f) * 20.0f + 180.0f, 0);
+//		VectorSet(headAngles, 0, sin(cg.time * 0.002f) * 20.0f + 180.0f, 0);
 
 		First = 0;
 		for (i = 0; i < cg.numScores; i++) {
@@ -806,15 +806,15 @@ void CG_DrawOldTourneyScoreboard(void)
 		trap_SendClientCommand("score");
 	}
 
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
-
 	// draw the dialog background
 	color[0] = color[1] = color[2] = 0;
 	color[3] = 1;
 	CG_FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, color);
+
+	color[0] = 1;
+	color[1] = 1;
+	color[2] = 1;
+	color[3] = 1;
 
 	// print the mesage of the day
 	s = CG_ConfigString(CS_MOTD);
@@ -892,13 +892,13 @@ CG_DrawWeaponStats
 void CG_DrawWeaponStats(void)
 {
 	int i, offset;
-	float color[4], Alpha, Alpha2;
+	float color[4], Alpha; // Alpha2;
 	int size;
 	char String[80];
 
 	if (cg.time > cg.wstatsStartTime + 300) {
 		Alpha = (cos((cg.time - cg.wstatsStartTime) / 400.0f) + 1.0f) * 0.25f + 0.5f;
-		Alpha2 = (cos((cg.time - cg.wstatsStartTime) / 400.0f) + 1.0f) * 0.5f;
+//		Alpha2 = (cos((cg.time - cg.wstatsStartTime) / 400.0f) + 1.0f) * 0.5f;
 	} else {
 		Alpha = (float) (cg.time - cg.wstatsStartTime) / (float) 300;
 		if (Alpha > 1.0f)
