@@ -92,7 +92,7 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 
 	// set the dlight bits in all the surfaces
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
-		surf = tr.world->surfaces + bmodel->firstSurface + i;
+		surf = bmodel->firstSurface + i;
 
 		if ( *surf->data == SF_FACE ) {
 			((srfSurfaceFace_t *)surf->data)->dlightBits[ tr.smpFrame ] = mask;
@@ -175,19 +175,13 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 		byte	*data;
 		int		lat, lng;
 		vec3_t	normal;
-		qboolean ignore;
 		#if idppc
 		float d0, d1, d2, d3, d4, d5;
 		#endif
 		factor = 1.0;
 		data = gridData;
-		ignore = qfalse;
 		for ( j = 0 ; j < 3 ; j++ ) {
 			if ( i & (1<<j) ) {
-				if ((pos[j] + 1) >= tr.world->lightGridBounds[j] - 1)
-				{
-					ignore = qtrue; // ignore values outside lightgrid
-				}
 				factor *= frac[j];
 				data += gridStep[j];
 			} else {
@@ -195,7 +189,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 			}
 		}
 
-		if ( ignore || !(data[0]+data[1]+data[2]+data[3]+data[4]+data[5]) ) {
+		if ( !(data[0]+data[1]+data[2]) ) {
 			continue;	// ignore samples in walls
 		}
 		totalFactor += factor;
@@ -365,25 +359,16 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// save out the byte packet version
-	((byte *)&ent->ambientLightInt)[0] = Q_ftol(ent->ambientLight[0]);
-	((byte *)&ent->ambientLightInt)[1] = Q_ftol(ent->ambientLight[1]);
-	((byte *)&ent->ambientLightInt)[2] = Q_ftol(ent->ambientLight[2]);
+	((byte *)&ent->ambientLightInt)[0] = ri.ftol(ent->ambientLight[0]);
+	((byte *)&ent->ambientLightInt)[1] = ri.ftol(ent->ambientLight[1]);
+	((byte *)&ent->ambientLightInt)[2] = ri.ftol(ent->ambientLight[2]);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 	
 	// transform the direction to local space
-	// no need to do this if using lightentity glsl shader
 	VectorNormalize( lightDir );
-	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer &&
-		glRefConfig.glsl && r_arb_shader_objects->integer)
-	{
-		VectorCopy(lightDir, ent->lightDir);
-	}
-	else
-	{
-		ent->lightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
-		ent->lightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
-		ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
-	}
+	ent->lightDir[0] = DotProduct( lightDir, ent->e.axis[0] );
+	ent->lightDir[1] = DotProduct( lightDir, ent->e.axis[1] );
+	ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
 }
 
 /*

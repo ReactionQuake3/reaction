@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_DLIGHTS		32		// can't be increased, because bit flags are used on surfaces
 #define	MAX_ENTITIES		1023		// can't be increased without changing drawsurf bit packing
 
-#define MAX_CALC_PSHADOWS    64
-#define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
-
 // renderfx flags
 #define	RF_MINLIGHT		0x0001		// allways have some light (viewmodel, some items)
 #define	RF_THIRD_PERSON		0x0002		// don't draw through eyes, only mirrors (player bodies, chat sprites)
@@ -50,23 +47,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	RF_SHADOW_PLANE		0x0100		// use refEntity->shadowPlane
 #define	RF_WRAP_FRAMES		0x0200		// mod the model frames by the maxframes to allow continuous
-#define	RF_DEPTHHACK		0x0008		// for view weapon Z crunching
-
-#define RF_SUNFLARE			0x0400
 
 // refdef flags
 #define RDF_NOWORLDMODEL	0x0001		// used for player configuration screen
 #define RDF_HYPERSPACE		0x0004		// teleportation effect
-// JBravo: Fox fixes
-#define RDF_NOFOG		0x0008		// don't apply fog
-#define RDF_EXTRA		0x0010		// Makro - refdefex_t to follow after refdef_t
-
-// Makro - this should mirror the definition in cgame
-// TODO: single tr_types.h file!
-
-typedef struct {
-	float			blurFactor;
-} refdefex_t;
 
 typedef struct {
 	vec3_t		xyz;

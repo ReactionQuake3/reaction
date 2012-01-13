@@ -67,21 +67,6 @@ void RB_CheckOverflow( int verts, int indexes ) {
 }
 
 
-void RB_CheckVBOandIBO(VBO_t *vbo, IBO_t *ibo)
-{
-	if (!(vbo == glState.currentVBO && ibo == glState.currentIBO) || tess.multiDrawPrimitives >= MAX_MULTIDRAW_PRIMITIVES)
-	{
-		RB_EndSurface();
-		RB_BeginSurface(tess.shader, tess.fogNum);
-
-		R_BindVBO(vbo);
-		R_BindIBO(ibo);
-	}
-
-	tess.useInternalVBO = qfalse;
-}
-
-
 /*
 ==============
 RB_AddQuadStampExt
@@ -163,99 +148,14 @@ void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color ) {
 	RB_AddQuadStampExt( origin, left, up, color, 0, 0, 1, 1 );
 }
 
-
-/*
-==============
-RB_InstantQuad
-
-based on Tess_InstantQuad from xreal
-==============
-*/
-void RB_InstantQuad(vec4_t quadVerts[4])
-{
-	GLimp_LogComment("--- RB_InstantQuad ---\n");
-
-	tess.numVertexes = 0;
-	tess.numIndexes = 0;
-	tess.firstIndex = 0;
-
-	VectorCopy4(quadVerts[0], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0][0] = 0;
-	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[1], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0][0] = 1;
-	tess.texCoords[tess.numVertexes][0][1] = 0;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[2], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0][0] = 1;
-	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
-	tess.numVertexes++;
-
-	VectorCopy4(quadVerts[3], tess.xyz[tess.numVertexes]);
-	tess.texCoords[tess.numVertexes][0][0] = 0;
-	tess.texCoords[tess.numVertexes][0][1] = 1;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
-	tess.numVertexes++;
-
-	tess.indexes[tess.numIndexes++] = 0;
-	tess.indexes[tess.numIndexes++] = 1;
-	tess.indexes[tess.numIndexes++] = 2;
-	tess.indexes[tess.numIndexes++] = 0;
-	tess.indexes[tess.numIndexes++] = 2;
-	tess.indexes[tess.numIndexes++] = 3;
-
-	RB_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
-
-	if (glRefConfig.glsl && r_arb_shader_objects->integer)
-	{
-		shaderProgram_t *sp = &tr.textureColorShader;
-		vec4_t color;
-
-		GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
-		GLSL_BindProgram(sp);
-			
-		GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-		VectorSet4(color, 1, 1, 1, 1);
-		GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
-	}
-	else
-	{
-		qglEnableClientState( GL_VERTEX_ARRAY );
-		qglVertexPointer(3, GL_FLOAT, glState.currentVBO->stride_xyz, BUFFER_OFFSET(glState.currentVBO->ofs_xyz));
-		qglEnableClientState( GL_NORMAL_ARRAY );
-		qglNormalPointer(GL_FLOAT, glState.currentVBO->stride_normal, BUFFER_OFFSET(glState.currentVBO->ofs_normal));
-	}
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
-
-	//R_BindNullVBO();
-	//R_BindNullIBO();
-
-	tess.numIndexes = 0;
-	tess.numVertexes = 0;
-	tess.firstIndex = 0;
-}
-
-
 /*
 ==============
 RB_SurfaceSprite
 ==============
 */
 static void RB_SurfaceSprite( void ) {
-	vec3_t			left, up;
-	float			radius;
-	byte			colors[4];
-	trRefEntity_t	*ent = backEnd.currentEntity;
+	vec3_t		left, up;
+	float		radius;
 
 	// calculate the xyz locations for the four corners
 	radius = backEnd.currentEntity->e.radius;
@@ -279,24 +179,8 @@ static void RB_SurfaceSprite( void ) {
 	if ( backEnd.viewParms.isMirror ) {
 		VectorSubtract( vec3_origin, left, left );
 	}
-	
-	if (ent->e.renderfx & RF_SUNFLARE) {
-		if (backEnd.hasSunFlare)
-		{
-			ri.Printf(PRINT_WARNING, "Multiple sun flares not supported\n");
-			return;
-		}
-		if (R_CullPointAndRadiusEx(ent->e.origin, ent->e.radius, backEnd.viewParms.frustum, ARRAY_LEN(backEnd.viewParms.frustum)) == CULL_OUT)
-			return;
-		colors[0] = colors[1] = colors[2] = colors[3] = ent->e.shaderRGBA[glRefConfig.framebufferObject];
-		if (colors[0] == 0)
-			return;
-		backEnd.hasSunFlare = qtrue;
-	} else {
-		Vector4Copy(ent->e.shaderRGBA, colors);
-	}
 
-	RB_AddQuadStamp( backEnd.currentEntity->e.origin, left, up, colors );
+	RB_AddQuadStamp( backEnd.currentEntity->e.origin, left, up, backEnd.currentEntity->e.shaderRGBA );
 }
 
 
@@ -333,37 +217,40 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
 	tess.numVertexes = numv;
 }
 
-static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, srfTriangle_t *triangles, int dlightBits, int pshadowBits)
-{
+
+/*
+=============
+RB_SurfaceTriangles
+=============
+*/
+static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	int			i;
-	srfTriangle_t  *tri;
-	srfVert_t      *dv;
-	float          *xyz, *normal, *tangent, *bitangent, *texCoords;
-	glIndex_t      *index;
+	drawVert_t	*dv;
+	float		*xyz, *normal, *texCoords;
 	byte		*color;
+	int			dlightBits;
 	qboolean	needsNormal;
 
-	RB_CHECKOVERFLOW( numVerts, numTriangles * 3 );
+	dlightBits = srf->dlightBits[backEnd.smpFrame];
+	tess.dlightBits |= dlightBits;
 
-	tri = triangles;
-	index = &tess.indexes[ tess.numIndexes ];
-	for ( i = 0 ; i < numTriangles ; i++, tri++ ) {
-		*index++ = tess.numVertexes + tri->indexes[0];
-		*index++ = tess.numVertexes + tri->indexes[1];
-		*index++ = tess.numVertexes + tri->indexes[2];
+	RB_CHECKOVERFLOW( srf->numVerts, srf->numIndexes );
+
+	for ( i = 0 ; i < srf->numIndexes ; i += 3 ) {
+		tess.indexes[ tess.numIndexes + i + 0 ] = tess.numVertexes + srf->indexes[ i + 0 ];
+		tess.indexes[ tess.numIndexes + i + 1 ] = tess.numVertexes + srf->indexes[ i + 1 ];
+		tess.indexes[ tess.numIndexes + i + 2 ] = tess.numVertexes + srf->indexes[ i + 2 ];
 	}
-	tess.numIndexes += numTriangles * 3;
+	tess.numIndexes += srf->numIndexes;
 
-	dv = verts;
+	dv = srf->verts;
 	xyz = tess.xyz[ tess.numVertexes ];
 	normal = tess.normal[ tess.numVertexes ];
-	tangent = tess.tangent[ tess.numVertexes ];
-	bitangent = tess.bitangent[ tess.numVertexes ];
 	texCoords = tess.texCoords[ tess.numVertexes ][0];
 	color = tess.vertexColors[ tess.numVertexes ];
-	needsNormal = tess.shader->vertexAttribs & ATTR_NORMAL;
+	needsNormal = tess.shader->needsNormal;
 
-	for ( i = 0 ; i < numVerts ; i++, dv++, xyz += 4, normal += 4, texCoords += 4, color += 4 ) {
+	for ( i = 0 ; i < srf->numVerts ; i++, dv++, xyz += 4, normal += 4, texCoords += 4, color += 4 ) {
 		xyz[0] = dv->xyz[0];
 		xyz[1] = dv->xyz[1];
 		xyz[2] = dv->xyz[2];
@@ -372,12 +259,6 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 			normal[0] = dv->normal[0];
 			normal[1] = dv->normal[1];
 			normal[2] = dv->normal[2];
-			tangent[0] = dv->tangent[0];
-			tangent[1] = dv->tangent[1];
-			tangent[2] = dv->tangent[2];
-			bitangent[0] = dv->bitangent[0];
-			bitangent[1] = dv->bitangent[1];
-			bitangent[2] = dv->bitangent[2];
 		}
 
 		texCoords[0] = dv->st[0];
@@ -386,129 +267,14 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 		texCoords[2] = dv->lightmap[0];
 		texCoords[3] = dv->lightmap[1];
 
-		*(int *)color = *(int *)dv->vertexColors;
+		*(int *)color = *(int *)dv->color;
 	}
 
-#if 0  // nothing even uses vertex dlightbits
-	for ( i = 0 ; i < numVerts ; i++ ) {
-		tess.vertexDlightBits[ tess.numVertexes + i ] = dlightBits;
-	}
-#endif
-
-	tess.dlightBits |= dlightBits;
-	tess.pshadowBits |= pshadowBits;
-
-	tess.numVertexes += numVerts;
-}
-
-static qboolean RB_SurfaceHelperVBO(VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndexes, int firstIndex, int dlightBits, int pshadowBits, qboolean shaderCheck)
-{
-	if( glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && vbo && ibo)
-	{
-		int i, mergeForward, mergeBack;
-		GLvoid *firstIndexOffset, *lastIndexOffset;
-
-		if (shaderCheck && !(!ShaderRequiresCPUDeforms(tess.shader) && !tess.shader->isSky && !tess.shader->isPortal))
-		{
-			return qfalse;
-		}
-
-		RB_CheckVBOandIBO(vbo, ibo);
-
-		tess.dlightBits |= dlightBits;
-		tess.pshadowBits |= pshadowBits;
-
-		// merge this into any existing multidraw primitives
-		mergeForward = -1;
-		mergeBack = -1;
-		firstIndexOffset = BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE));
-		lastIndexOffset  = BUFFER_OFFSET((firstIndex + numIndexes) * sizeof(GL_INDEX_TYPE));
-
-		if (r_mergeMultidraws->integer)
-		{
-			i = 0;
-
-			if (r_mergeMultidraws->integer == 1)
-			{
-				// lazy merge, only check the last primitive
-
-				if (tess.multiDrawPrimitives)
-				{
-					i = tess.multiDrawPrimitives - 1;
-				}
-			}
-
-			for (; i < tess.multiDrawPrimitives; i++)
-			{
-				if (tess.multiDrawLastIndex[i] == firstIndexOffset)
-				{
-					mergeBack = i;
-				}
-
-				if (lastIndexOffset == tess.multiDrawFirstIndex[i])
-				{
-					mergeForward = i;
-				}
-			}
-		}
-
-		if (mergeBack != -1 && mergeForward == -1)
-		{
-			tess.multiDrawNumIndexes[mergeBack] += numIndexes;
-			tess.multiDrawLastIndex[mergeBack]   = (byte *)tess.multiDrawFirstIndex[mergeBack] + tess.multiDrawNumIndexes[mergeBack] * sizeof(GL_INDEX_TYPE);
-			backEnd.pc.c_multidrawsMerged++;
-		}
-		else if (mergeBack == -1 && mergeForward != -1)
-		{
-			tess.multiDrawNumIndexes[mergeForward] += numIndexes;
-			tess.multiDrawFirstIndex[mergeForward]  = firstIndexOffset;
-			tess.multiDrawLastIndex[mergeForward]   = (byte *)tess.multiDrawFirstIndex[mergeForward] + tess.multiDrawNumIndexes[mergeForward] * sizeof(GL_INDEX_TYPE);
-			backEnd.pc.c_multidrawsMerged++;
-		}
-		else if (mergeBack != -1 && mergeForward != -1)
-		{
-			tess.multiDrawNumIndexes[mergeBack] += numIndexes + tess.multiDrawNumIndexes[mergeForward];
-			tess.multiDrawLastIndex[mergeBack]   = (byte *)tess.multiDrawFirstIndex[mergeBack] + tess.multiDrawNumIndexes[mergeBack] * sizeof(GL_INDEX_TYPE);
-			tess.multiDrawPrimitives--;
-
-			if (mergeForward != tess.multiDrawPrimitives)
-			{
-				tess.multiDrawNumIndexes[mergeForward] = tess.multiDrawNumIndexes[tess.multiDrawPrimitives];
-				tess.multiDrawFirstIndex[mergeForward] = tess.multiDrawFirstIndex[tess.multiDrawPrimitives];
-			}
-			backEnd.pc.c_multidrawsMerged += 2;
-		}
-		else if (mergeBack == -1 && mergeForward == -1)
-		{
-			tess.multiDrawNumIndexes[tess.multiDrawPrimitives] = numIndexes;
-			tess.multiDrawFirstIndex[tess.multiDrawPrimitives] = firstIndexOffset;
-			tess.multiDrawLastIndex[tess.multiDrawPrimitives] = lastIndexOffset;
-			tess.multiDrawPrimitives++;
-		}
-
-		backEnd.pc.c_multidraws++;
-
-		tess.numIndexes  += numIndexes;
-		tess.numVertexes += numVerts;
-
-		return qtrue;
+	for ( i = 0 ; i < srf->numVerts ; i++ ) {
+		tess.vertexDlightBits[ tess.numVertexes + i] = dlightBits;
 	}
 
-	return qfalse;
-}
-
-/*
-=============
-RB_SurfaceTriangles
-=============
-*/
-static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
-	{
-		return;
-	}
-
-	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame]);
+	tess.numVertexes += srf->numVerts;
 }
 
 
@@ -527,7 +293,6 @@ static void RB_SurfaceBeam( void )
 	vec3_t direction, normalized_direction;
 	vec3_t	start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
-	vec4_t color;
 
 	e = &backEnd.currentEntity->e;
 
@@ -561,69 +326,14 @@ static void RB_SurfaceBeam( void )
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 
-	// FIXME: Quake3 doesn't use this, so I never tested it
-	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
-	{
-		tess.numVertexes = 0;
-		tess.numIndexes = 0;
-		tess.firstIndex = 0;
+	qglColor3f( 1, 0, 0 );
 
-		for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
-			VectorCopy(start_points[ i % NUM_BEAM_SEGS ], tess.xyz[tess.numVertexes++]);
-			VectorCopy(end_points  [ i % NUM_BEAM_SEGS ], tess.xyz[tess.numVertexes++]);
-		}
-
-		for ( i = 0; i < NUM_BEAM_SEGS; i++ ) {
-			tess.indexes[tess.numIndexes++] =       i      * 2;
-			tess.indexes[tess.numIndexes++] =      (i + 1) * 2;
-			tess.indexes[tess.numIndexes++] = 1  +  i      * 2;
-
-			tess.indexes[tess.numIndexes++] = 1  +  i      * 2;
-			tess.indexes[tess.numIndexes++] =      (i + 1) * 2;
-			tess.indexes[tess.numIndexes++] = 1  + (i + 1) * 2;
-		}
-
-		// FIXME: A lot of this can probably be removed for speed, and refactored into a more convenient function
-		RB_UpdateVBOs(ATTR_POSITION);
-		
-		if (glRefConfig.glsl && r_arb_shader_objects->integer)
-		{
-			shaderProgram_t *sp = &tr.textureColorShader;
-
-			GLSL_VertexAttribsState(ATTR_POSITION);
-			GLSL_BindProgram(sp);
-			
-			GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-						
-			color[0] = 1.0f;
-			color[1] = 0.0f;
-			color[2] = 0.0f;
-			color[3] = 1.0f;
-			GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
-		}
-		else
-		{
-			qglEnableClientState( GL_VERTEX_ARRAY );
-			qglVertexPointer(3, GL_FLOAT, glState.currentVBO->stride_xyz, BUFFER_OFFSET(glState.currentVBO->ofs_xyz));
-		}
-
-		qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex));
-
-		tess.numIndexes = 0;
-		tess.numVertexes = 0;
-		tess.firstIndex = 0;
+	qglBegin( GL_TRIANGLE_STRIP );
+	for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
+		qglVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
+		qglVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
 	}
-	else
-	{
-		qglColor3f( 1, 0, 0 );
-
-		qglBegin( GL_TRIANGLE_STRIP );
-		for ( i = 0; i <= NUM_BEAM_SEGS; i++ ) {
-			qglVertex3fv( start_points[ i % NUM_BEAM_SEGS] );
-			qglVertex3fv( end_points[ i % NUM_BEAM_SEGS] );
-		}
-		qglEnd();
-	}
+	qglEnd();
 }
 
 //================================================================================
@@ -1030,9 +740,8 @@ static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
 }
 #endif
 
-static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
+static void LerpMeshVertexes_scalar(md3Surface_t *surf, float backlerp)
 {
-#if 0
 	short	*oldXyz, *newXyz, *oldNormals, *newNormals;
 	float	*outXyz, *outNormal;
 	float	oldXyzScale, newXyzScale;
@@ -1127,59 +836,10 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 		}
     	VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], numVerts);
    	}
-#endif
-	float *outXyz, *outNormal;
-	mdvVertex_t *newVerts;
-	int		vertNum;
-
-	newVerts = surf->verts + backEnd.currentEntity->e.frame * surf->numVerts;
-
-	outXyz =    tess.xyz[tess.numVertexes];
-	outNormal = tess.normal[tess.numVertexes];
-
-	if (backlerp == 0)
-	{
-		//
-		// just copy the vertexes
-		//
-
-		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
-		{
-			VectorCopy(newVerts->xyz,    outXyz);
-			VectorCopy(newVerts->normal, outNormal);
-			newVerts++;
-			outXyz += 4;
-			outNormal += 4;
-		}
-	}
-	else
-	{
-		//
-		// interpolate and copy the vertex and normal
-		//
-
-		mdvVertex_t *oldVerts;
-
-		oldVerts = surf->verts + backEnd.currentEntity->e.oldframe * surf->numVerts;
-
-		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
-		{
-			VectorLerp(newVerts->xyz,    oldVerts->xyz,    backlerp, outXyz);
-			VectorLerp(newVerts->normal, oldVerts->normal, backlerp, outNormal);
-			//VectorNormalize(outNormal);
-			newVerts++;
-			oldVerts++;
-			outXyz += 4;
-			outNormal += 4;
-		}
-		VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], surf->numVerts);
-	}
-
 }
 
-static void LerpMeshVertexes(mdvSurface_t *surf, float backlerp)
+static void LerpMeshVertexes(md3Surface_t *surf, float backlerp)
 {
-#if 0
 #if idppc_altivec
 	if (com_altivec->integer) {
 		// must be in a seperate function or G3 systems will crash.
@@ -1187,7 +847,6 @@ static void LerpMeshVertexes(mdvSurface_t *surf, float backlerp)
 		return;
 	}
 #endif // idppc_altivec
-#endif
 	LerpMeshVertexes_scalar( surf, backlerp );
 }
 
@@ -1197,11 +856,11 @@ static void LerpMeshVertexes(mdvSurface_t *surf, float backlerp)
 RB_SurfaceMesh
 =============
 */
-static void RB_SurfaceMesh(mdvSurface_t *surface) {
+static void RB_SurfaceMesh(md3Surface_t *surface) {
 	int				j;
 	float			backlerp;
-	srfTriangle_t 	*triangles;
-	mdvSt_t			*texCoords;
+	int				*triangles;
+	float			*texCoords;
 	int				indexes;
 	int				Bob, Doug;
 	int				numVerts;
@@ -1216,23 +875,21 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 
 	LerpMeshVertexes (surface, backlerp);
 
-	triangles = surface->triangles;
+	triangles = (int *) ((byte *)surface + surface->ofsTriangles);
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
-	for (j = 0 ; j < surface->numTriangles ; j++) {
-		tess.indexes[Bob + j*3 + 0] = Doug + triangles[j].indexes[0];
-		tess.indexes[Bob + j*3 + 1] = Doug + triangles[j].indexes[1];
-		tess.indexes[Bob + j*3 + 2] = Doug + triangles[j].indexes[2];
+	for (j = 0 ; j < indexes ; j++) {
+		tess.indexes[Bob + j] = Doug + triangles[j];
 	}
 	tess.numIndexes += indexes;
 
-	texCoords = surface->st;
+	texCoords = (float *) ((byte *)surface + surface->ofsSt);
 
 	numVerts = surface->numVerts;
 	for ( j = 0; j < numVerts; j++ ) {
-		tess.texCoords[Doug + j][0][0] = texCoords[j].st[0];
-		tess.texCoords[Doug + j][0][1] = texCoords[j].st[1];
+		tess.texCoords[Doug + j][0][0] = texCoords[j*2+0];
+		tess.texCoords[Doug + j][0][1] = texCoords[j*2+1];
 		// FIXME: fill in lightmapST for completeness?
 	}
 
@@ -1246,13 +903,52 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 RB_SurfaceFace
 ==============
 */
-static void RB_SurfaceFace( srfSurfaceFace_t *srf ) {
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
-	{
-		return;
+static void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
+	int			i;
+	unsigned	*indices, *tessIndexes;
+	float		*v;
+	float		*normal;
+	int			ndx;
+	int			Bob;
+	int			numPoints;
+	int			dlightBits;
+
+	RB_CHECKOVERFLOW( surf->numPoints, surf->numIndices );
+
+	dlightBits = surf->dlightBits[backEnd.smpFrame];
+	tess.dlightBits |= dlightBits;
+
+	indices = ( unsigned * ) ( ( ( char  * ) surf ) + surf->ofsIndices );
+
+	Bob = tess.numVertexes;
+	tessIndexes = tess.indexes + tess.numIndexes;
+	for ( i = surf->numIndices-1 ; i >= 0  ; i-- ) {
+		tessIndexes[i] = indices[i] + Bob;
 	}
 
-	RB_SurfaceHelper(srf->numVerts, srf->verts, srf->numTriangles, srf->triangles, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame]);
+	tess.numIndexes += surf->numIndices;
+
+	numPoints = surf->numPoints;
+
+	if ( tess.shader->needsNormal ) {
+		normal = surf->plane.normal;
+		for ( i = 0, ndx = tess.numVertexes; i < numPoints; i++, ndx++ ) {
+			VectorCopy( normal, tess.normal[ndx] );
+		}
+	}
+
+	for ( i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++ ) {
+		VectorCopy( v, tess.xyz[ndx]);
+		tess.texCoords[ndx][0][0] = v[3];
+		tess.texCoords[ndx][0][1] = v[4];
+		tess.texCoords[ndx][1][0] = v[5];
+		tess.texCoords[ndx][1][1] = v[6];
+		* ( unsigned int * ) &tess.vertexColors[ndx] = * ( unsigned int * ) &v[7];
+		tess.vertexDlightBits[ndx] = dlightBits;
+	}
+
+
+	tess.numVertexes += surf->numPoints;
 }
 
 
@@ -1293,13 +989,13 @@ RB_SurfaceGrid
 Just copy the grid of points and triangulate
 =============
 */
-static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
+static void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 	int		i, j;
 	float	*xyz;
 	float	*texCoords;
-	float	*normal, *tangent, *bitangent;
+	float	*normal;
 	unsigned char *color;
-	srfVert_t	*dv;
+	drawVert_t	*dv;
 	int		rows, irows, vrows;
 	int		used;
 	int		widthTable[MAX_GRID_SIZE];
@@ -1308,46 +1004,37 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	int		lodWidth, lodHeight;
 	int		numVertexes;
 	int		dlightBits;
-	int     pshadowBits;
-	//int		*vDlightBits;
+	int		*vDlightBits;
 	qboolean	needsNormal;
 
-	if( RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qtrue ) )
-	{
-		return;
-	}
-
-	dlightBits = srf->dlightBits[backEnd.smpFrame];
+	dlightBits = cv->dlightBits[backEnd.smpFrame];
 	tess.dlightBits |= dlightBits;
 
-	pshadowBits = srf->pshadowBits[backEnd.smpFrame];
-	tess.pshadowBits |= pshadowBits;
-
 	// determine the allowable discrepance
-	lodError = LodErrorForVolume( srf->lodOrigin, srf->lodRadius );
+	lodError = LodErrorForVolume( cv->lodOrigin, cv->lodRadius );
 
 	// determine which rows and columns of the subdivision
 	// we are actually going to use
 	widthTable[0] = 0;
 	lodWidth = 1;
-	for ( i = 1 ; i < srf->width-1 ; i++ ) {
-		if ( srf->widthLodError[i] <= lodError ) {
+	for ( i = 1 ; i < cv->width-1 ; i++ ) {
+		if ( cv->widthLodError[i] <= lodError ) {
 			widthTable[lodWidth] = i;
 			lodWidth++;
 		}
 	}
-	widthTable[lodWidth] = srf->width-1;
+	widthTable[lodWidth] = cv->width-1;
 	lodWidth++;
 
 	heightTable[0] = 0;
 	lodHeight = 1;
-	for ( i = 1 ; i < srf->height-1 ; i++ ) {
-		if ( srf->heightLodError[i] <= lodError ) {
+	for ( i = 1 ; i < cv->height-1 ; i++ ) {
+		if ( cv->heightLodError[i] <= lodError ) {
 			heightTable[lodHeight] = i;
 			lodHeight++;
 		}
 	}
-	heightTable[lodHeight] = srf->height-1;
+	heightTable[lodHeight] = cv->height-1;
 	lodHeight++;
 
 
@@ -1382,16 +1069,14 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 
 		xyz = tess.xyz[numVertexes];
 		normal = tess.normal[numVertexes];
-		tangent = tess.tangent[numVertexes];
-		bitangent = tess.bitangent[numVertexes];
 		texCoords = tess.texCoords[numVertexes][0];
 		color = ( unsigned char * ) &tess.vertexColors[numVertexes];
-		//vDlightBits = &tess.vertexDlightBits[numVertexes];
-		needsNormal = tess.shader->vertexAttribs & ATTR_NORMAL;
+		vDlightBits = &tess.vertexDlightBits[numVertexes];
+		needsNormal = tess.shader->needsNormal;
 
 		for ( i = 0 ; i < rows ; i++ ) {
 			for ( j = 0 ; j < lodWidth ; j++ ) {
-				dv = srf->verts + heightTable[ used + i ] * srf->width
+				dv = cv->verts + heightTable[ used + i ] * cv->width
 					+ widthTable[ j ];
 
 				xyz[0] = dv->xyz[0];
@@ -1405,15 +1090,9 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 					normal[0] = dv->normal[0];
 					normal[1] = dv->normal[1];
 					normal[2] = dv->normal[2];
-					tangent[0] = dv->tangent[0];
-					tangent[1] = dv->tangent[1];
-					tangent[2] = dv->tangent[2];
-					bitangent[0] = dv->bitangent[0];
-					bitangent[1] = dv->bitangent[1];
-					bitangent[2] = dv->bitangent[2];
 				}
-				* ( unsigned int * ) color = * ( unsigned int * ) dv->vertexColors;
-				//*vDlightBits++ = dlightBits;
+				* ( unsigned int * ) color = * ( unsigned int * ) dv->color;
+				*vDlightBits++ = dlightBits;
 				xyz += 4;
 				normal += 4;
 				texCoords += 4;
@@ -1477,8 +1156,6 @@ Draws x/y/z lines from the origin for orientation debugging
 ===================
 */
 static void RB_SurfaceAxis( void ) {
-	// FIXME: implement this
-#if 0
 	GL_Bind( tr.whiteImage );
 	qglLineWidth( 3 );
 	qglBegin( GL_LINES );
@@ -1493,7 +1170,6 @@ static void RB_SurfaceAxis( void ) {
 	qglVertex3f( 0,0,16 );
 	qglEnd();
 	qglLineWidth( 1 );
-#endif
 }
 
 //===========================================================================
@@ -1539,57 +1215,6 @@ static void RB_SurfaceFlare(srfFlare_t *surf)
 		RB_AddFlare(surf, tess.fogNum, surf->origin, surf->color, surf->normal);
 }
 
-static void RB_SurfaceVBOMesh(srfVBOMesh_t * srf)
-{
-	RB_SurfaceHelperVBO (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes, srf->firstIndex, srf->dlightBits[backEnd.smpFrame], srf->pshadowBits[backEnd.smpFrame], qfalse );
-}
-
-void RB_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
-{
-	mdvModel_t     *mdvModel;
-	mdvSurface_t   *mdvSurface;
-	refEntity_t    *refEnt;
-
-	GLimp_LogComment("--- RB_SurfaceVBOMDVMesh ---\n");
-
-	if(!surface->vbo || !surface->ibo)
-		return;
-
-	//RB_CheckVBOandIBO(surface->vbo, surface->ibo);
-	RB_EndSurface();
-	RB_BeginSurface(tess.shader, tess.fogNum);
-
-	R_BindVBO(surface->vbo);
-	R_BindIBO(surface->ibo);
-
-	tess.useInternalVBO = qfalse;
-
-	tess.numIndexes += surface->numIndexes;
-	tess.numVertexes += surface->numVerts;
-
-	mdvModel = surface->mdvModel;
-	mdvSurface = surface->mdvSurface;
-
-	refEnt = &backEnd.currentEntity->e;
-
-	if(refEnt->oldframe == refEnt->frame)
-	{
-		glState.vertexAttribsInterpolation = 0;
-	}
-	else
-	{
-		glState.vertexAttribsInterpolation = refEnt->backlerp;
-	}
-
-	glState.vertexAttribsOldFrame = refEnt->oldframe;
-	glState.vertexAttribsNewFrame = refEnt->frame;
-
-	RB_EndSurface();
-
-	// So we don't lerp surfaces that shouldn't be lerped
-	glState.vertexAttribsInterpolation = 0;
-}
-
 static void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
@@ -1607,7 +1232,7 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_SurfaceGrid,			// SF_GRID,
 	(void(*)(void*))RB_SurfaceTriangles,		// SF_TRIANGLES,
 	(void(*)(void*))RB_SurfacePolychain,		// SF_POLY,
-	(void(*)(void*))RB_SurfaceMesh,			// SF_MDV,
+	(void(*)(void*))RB_SurfaceMesh,			// SF_MD3,
 	(void(*)(void*))RB_SurfaceAnim,			// SF_MD4,
 #ifdef RAVENMD4
 	(void(*)(void*))RB_MDRSurfaceAnim,		// SF_MDR,
@@ -1615,7 +1240,5 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_IQMSurfaceAnim,		// SF_IQM,
 	(void(*)(void*))RB_SurfaceFlare,		// SF_FLARE,
 	(void(*)(void*))RB_SurfaceEntity,		// SF_ENTITY
-	(void(*)(void*))RB_SurfaceDisplayList,		// SF_DISPLAY_LIST
-	(void(*)(void*))RB_SurfaceVBOMesh,	    // SF_VBO_MESH,
-	(void(*)(void*))RB_SurfaceVBOMDVMesh,   // SF_VBO_MDVMESH
+	(void(*)(void*))RB_SurfaceDisplayList		// SF_DISPLAY_LIST
 };

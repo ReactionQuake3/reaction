@@ -453,7 +453,9 @@ int Q_isnan(float x);
   extern int (QDECL *Q_VMftol)(void);
   extern void (QDECL *Q_SnapVector)(vec3_t vec);
 #else
-  #define Q_ftol(f) lrintf((f))
+  // Q_ftol must expand to a function name so the pluggable renderer can take
+  // its address
+  #define Q_ftol lrintf
   #define Q_SnapVector(vec)\
 	do\
 	{\
@@ -917,7 +919,9 @@ default values.
 #define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
 #define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
 #define CVAR_PROTECTED		0x2000	// prevent modifying this var from VMs or the server
-#define CVAR_NONEXISTENT	0xFFFFFFFF	// Cvar doesn't exist.
+// These flags are only returned by the Cvar_Flags() function
+#define CVAR_MODIFIED		0x40000000	// Cvar was modified
+#define CVAR_NONEXISTENT	0x80000000	// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s cvar_t;

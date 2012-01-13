@@ -316,7 +316,7 @@ static int SCR_Strlen( const char *str ) {
 ** SCR_GetBigStringWidth
 */ 
 int	SCR_GetBigStringWidth( const char *str ) {
-	return SCR_Strlen( str ) * 16;
+	return SCR_Strlen( str ) * BIGCHAR_WIDTH;
 }
 
 
@@ -571,9 +571,9 @@ void SCR_UpdateScreen( void ) {
 	if( uivm || com_dedicated->integer )
 	{
 		// XXX
-		extern cvar_t* r_anaglyphMode;
+		int in_anaglyphMode = Cvar_VariableIntegerValue("r_anaglyphMode");
 		// if running in stereo, we need to draw the frame twice
-		if ( cls.glconfig.stereoEnabled || r_anaglyphMode->integer) {
+		if ( cls.glconfig.stereoEnabled || in_anaglyphMode) {
 			SCR_DrawScreenField( STEREO_LEFT );
 			SCR_DrawScreenField( STEREO_RIGHT );
 		} else {

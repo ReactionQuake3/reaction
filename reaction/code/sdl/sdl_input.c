@@ -464,7 +464,7 @@ static void IN_ActivateMouse( void )
 	}
 
 	// in_nograb makes no sense in fullscreen mode
-	if( !r_fullscreen->integer )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") )
 	{
 		if( in_nograb->modified || !mouseActive )
 		{
@@ -492,7 +492,7 @@ static void IN_DeactivateMouse( void )
 
 	// Always show the cursor when the mouse is disabled,
 	// but not when fullscreen
-	if( !r_fullscreen->integer )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") )
 		SDL_ShowCursor( 1 );
 
 	if( !mouseAvailable )
@@ -525,7 +525,7 @@ static void IN_DeactivateMouse( void )
 
 		// Don't warp the mouse unless the cursor is within the window
 		if( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS )
-			SDL_WarpMouse( glConfig.vidWidth / 2, glConfig.vidHeight / 2 );
+			SDL_WarpMouse( cls.glconfig.vidWidth / 2, cls.glconfig.vidHeight / 2 );
 
 		mouseActive = qfalse;
 	}
@@ -535,13 +535,12 @@ static void IN_DeactivateMouse( void )
 static int joy_keys[16] = {
 	K_LEFTARROW, K_RIGHTARROW,
 	K_UPARROW, K_DOWNARROW,
-	K_JOY16, K_JOY17,
-	K_JOY18, K_JOY19,
-	K_JOY20, K_JOY21,
-	K_JOY22, K_JOY23,
-
-	K_JOY24, K_JOY25,
-	K_JOY26, K_JOY27
+	K_JOY17, K_JOY18,
+	K_JOY19, K_JOY20,
+	K_JOY21, K_JOY22,
+	K_JOY23, K_JOY24,
+	K_JOY25, K_JOY26,
+	K_JOY27, K_JOY28
 };
 
 // translate hat events into keypresses
@@ -936,9 +935,9 @@ static void IN_ProcessEvents( void )
 				char width[32], height[32];
 				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
 				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
-				ri.Cvar_Set( "r_customwidth", width );
-				ri.Cvar_Set( "r_customheight", height );
-				ri.Cvar_Set( "r_mode", "-1" );
+				Cvar_Set( "r_customwidth", width );
+				Cvar_Set( "r_customheight", height );
+				Cvar_Set( "r_mode", "-1" );
 				/* wait until user stops dragging for 1 second, so
 				   we aren't constantly recreating the GL context while
 				   he tries to drag...*/
@@ -975,12 +974,12 @@ void IN_Frame( void )
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
 	loading = !!( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
 
-	if( !r_fullscreen->integer && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !r_fullscreen->integer && loading )
+	else if( !Cvar_VariableIntegerValue("r_fullscreen") && loading )
 	{
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
@@ -1050,16 +1049,8 @@ void IN_Init( void )
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 	keyRepeatEnabled = qtrue;
 
-	if( in_mouse->value )
-	{
-		mouseAvailable = qtrue;
-		IN_ActivateMouse( );
-	}
-	else
-	{
-		IN_DeactivateMouse( );
-		mouseAvailable = qfalse;
-	}
+	mouseAvailable = ( in_mouse->value != 0 );
+	IN_DeactivateMouse( );
 
 	appState = SDL_GetAppState( );
 	Cvar_SetValue( "com_unfocused",	!( appState & SDL_APPINPUTFOCUS ) );

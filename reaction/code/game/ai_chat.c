@@ -45,15 +45,6 @@
  *****************************************************************************/
 
 #include "g_local.h"
-//#include "botlib.h"
-//#include "be_aas.h"
-//#include "be_ea.h"
-//#include "be_ai_char.h"
-//#include "be_ai_chat.h"
-//#include "be_ai_gen.h"
-//#include "be_ai_goal.h"
-//#include "be_ai_move.h"
-//#include "be_ai_weap.h"
 #include "../botlib/botlib.h"
 #include "../botlib/be_aas.h"
 #include "../botlib/be_ea.h"

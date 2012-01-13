@@ -417,8 +417,14 @@ void CL_SystemInfoChanged( void ) {
 			// If this cvar may not be modified by a server discard the value.
 			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED | CVAR_USER_CREATED)))
 			{
-				Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
-				continue;
+#ifndef STANDALONE
+				if(Q_stricmp(key, "g_synchronousClients") && Q_stricmp(key, "pmove_fixed") &&
+				   Q_stricmp(key, "pmove_msec"))
+#endif
+				{
+					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+					continue;
+				}
 			}
 
 			Cvar_SetSafe(key, value);
@@ -532,11 +538,13 @@ void CL_ParseGamestate( msg_t *msg ) {
 		CL_StopRecord_f();
 	
 	// reinitialize the filesystem if the game directory has changed
-	if(FS_ConditionalRestart(clc.checksumFeed, qfalse) && !cls.oldGameSet)
+	if(!cls.oldGameSet && (Cvar_Flags("fs_game") & CVAR_MODIFIED))
 	{
 		cls.oldGameSet = qtrue;
 		Q_strncpyz(cls.oldGame, oldGame, sizeof(cls.oldGame));
 	}
+
+	FS_ConditionalRestart(clc.checksumFeed, qfalse);
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame

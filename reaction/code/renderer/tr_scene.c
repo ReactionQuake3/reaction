@@ -99,16 +99,13 @@ void R_AddPolygonSurfaces( void ) {
 	int			i;
 	shader_t	*sh;
 	srfPoly_t	*poly;
-// JBravo: Fog fixes
-	int		fogMask;
 
 	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
-	fogMask = -((tr.refdef.rdflags & RDF_NOFOG) == 0);
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex & fogMask, qfalse, qfalse );
+		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse );
 	}
 }
 
@@ -130,10 +127,8 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 
 	if ( !hShader ) {
-		// This isn't a useful warning, and an hShader of zero isn't a null shader, it's
-		// the default shader.
-		//ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: NULL poly shader\n");
-		//return;
+		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+		return;
 	}
 
 	for ( j = 0; j < numPolys; j++ ) {
@@ -210,9 +205,6 @@ RE_AddRefEntityToScene
 =====================
 */
 void RE_AddRefEntityToScene( const refEntity_t *ent ) {
-	// JBravo: Mirrored models
-	vec3_t cross;
-
 	if ( !tr.registered ) {
 		return;
 	}
@@ -223,20 +215,16 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		static qboolean firstTime = qtrue;
 		if (firstTime) {
 			firstTime = qfalse;
-			Com_DPrintf(S_COLOR_YELLOW "WARNING: RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
+			ri.Printf( PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
 		}
 		return;
 	}
-	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
+	if ( (int)ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
 		ri.Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
 	}
 
 	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
 	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
-
-	// JBravo: Mirrored models
-	CrossProduct(ent->axis[0], ent->axis[1], cross);
-	backEndData[tr.smpFrame]->entities[r_numentities].mirrored = (DotProduct(ent->axis[2], cross) < 0.f);
 
 	r_numentities++;
 }
@@ -360,13 +348,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
-	// Makro - copy exta info if present
-	if (fd->rdflags & RDF_EXTRA) {
-		const refdefex_t* extra = (const refdefex_t*) (fd+1);
-		tr.refdef.blurFactor = extra->blurFactor;
-	} else {
-		tr.refdef.blurFactor = 0.f;
-	}
 
 	// derived info
 
@@ -384,9 +365,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
 
-	tr.refdef.num_pshadows = 0;
-	tr.refdef.pshadows = &backEndData[tr.smpFrame]->pshadows[0];
-
 	// turn off dynamic lighting globally by clearing all the
 	// dlights if it needs to be disabled or if vertex lighting is enabled
 	if ( r_dynamiclight->integer == 0 ||
@@ -402,22 +380,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// each scene / view.
 	tr.frameSceneNum++;
 	tr.sceneCount++;
-
-	// SmileTheory: playing with shadow mapping
-	if (!( fd->rdflags & RDF_NOWORLDMODEL ) && tr.refdef.num_dlights && r_dlightMode->integer >= 2
-		&& glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
-		&& glRefConfig.glsl && r_arb_shader_objects->integer)
-	{
-		R_RenderDlightCubemaps(fd);
-	}
-
-	/* playing with more shadows */
-	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && r_shadows->integer == 4
-		&& glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer
-		&& glRefConfig.glsl && r_arb_shader_objects->integer)
-	{
-		R_RenderPshadowMaps(fd);
-	}
 
 	// setup view parms for the initial view
 	//

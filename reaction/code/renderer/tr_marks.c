@@ -134,8 +134,7 @@ R_BoxSurfaces_r
 void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **list, int listsize, int *listlength, vec3_t dir) {
 
 	int			s, c;
-	msurface_t	*surf;
-	int *mark;
+	msurface_t	*surf, **mark;
 
 	// do the tail recursion in a loop
 	while ( node->contents == -1 ) {
@@ -151,39 +150,37 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 	}
 
 	// add the individual surfaces
-	mark = tr.world->marksurfaces + node->firstmarksurface;
+	mark = node->firstmarksurface;
 	c = node->nummarksurfaces;
 	while (c--) {
-		int *surfViewCount;
 		//
 		if (*listlength >= listsize) break;
 		//
-		surfViewCount = &tr.world->surfacesViewCount[*mark];
-		surf = tr.world->surfaces + *mark;
+		surf = *mark;
 		// check if the surface has NOIMPACT or NOMARKS set
 		if ( ( surf->shader->surfaceFlags & ( SURF_NOIMPACT | SURF_NOMARKS ) )
 			|| ( surf->shader->contentFlags & CONTENTS_FOG ) ) {
-			*surfViewCount = tr.viewCount;
+			surf->viewCount = tr.viewCount;
 		}
 		// extra check for surfaces to avoid list overflows
 		else if (*(surf->data) == SF_FACE) {
 			// the face plane should go through the box
-			s = BoxOnPlaneSide( mins, maxs, &surf->cullinfo.plane );
+			s = BoxOnPlaneSide( mins, maxs, &(( srfSurfaceFace_t * ) surf->data)->plane );
 			if (s == 1 || s == 2) {
-				*surfViewCount = tr.viewCount;
-			} else if (DotProduct(surf->cullinfo.plane.normal, dir) > -0.5) {
+				surf->viewCount = tr.viewCount;
+			} else if (DotProduct((( srfSurfaceFace_t * ) surf->data)->plane.normal, dir) > -0.5) {
 			// don't add faces that make sharp angles with the projection direction
-				*surfViewCount = tr.viewCount;
+				surf->viewCount = tr.viewCount;
 			}
 		}
-		else if (*(surf->data) != SF_GRID &&
-			 *(surf->data) != SF_TRIANGLES)
-			*surfViewCount = tr.viewCount;
+		else if (*(surfaceType_t *) (surf->data) != SF_GRID &&
+			 *(surfaceType_t *) (surf->data) != SF_TRIANGLES)
+			surf->viewCount = tr.viewCount;
 		// check the viewCount because the surface may have
 		// already been added if it spans multiple leafs
-		if (*surfViewCount != tr.viewCount) {
-			*surfViewCount = tr.viewCount;
-			list[*listlength] = surf->data;
+		if (surf->viewCount != tr.viewCount) {
+			surf->viewCount = tr.viewCount;
+			list[*listlength] = (surfaceType_t *) surf->data;
 			(*listlength)++;
 		}
 		mark++;
@@ -269,11 +266,11 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 	int				numClipPoints;
 	float			*v;
 	srfGridMesh_t	*cv;
-	srfTriangle_t	*tri;
-	srfVert_t		*dv;
+	drawVert_t		*dv;
 	vec3_t			normal;
 	vec3_t			projectionDir;
 	vec3_t			v1, v2;
+	int				*indexes;
 
 	if (numPoints <= 0) {
 		return 0;
@@ -414,12 +411,11 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 				continue;
 			}
 
-			for(k = 0, tri = surf->triangles; k < surf->numTriangles; k++, tri++)
-			{
-				for(j = 0; j < 3; j++)
-				{
-					v = surf->verts[tri->indexes[j]].xyz;
-					VectorMA(v, MARKER_OFFSET, surf->plane.normal, clipPoints[0][j]);
+			indexes = (int *)( (byte *)surf + surf->ofsIndices );
+			for ( k = 0 ; k < surf->numIndices ; k += 3 ) {
+				for ( j = 0 ; j < 3 ; j++ ) {
+					v = surf->points[0] + VERTEXSIZE * indexes[k+j];;
+					VectorMA( v, MARKER_OFFSET, surf->plane.normal, clipPoints[0][j] );
 				}
 
 				// add the fragments of this face
@@ -437,12 +433,12 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 
 			srfTriangles_t *surf = (srfTriangles_t *) surfaces[i];
 
-			for(k = 0, tri = surf->triangles; k < surf->numTriangles; k++, tri++)
+			for (k = 0; k < surf->numIndexes; k += 3)
 			{
 				for(j = 0; j < 3; j++)
 				{
-					v = surf->verts[tri->indexes[j]].xyz;
-					VectorMA(v, MARKER_OFFSET, surf->verts[tri->indexes[j]].normal, clipPoints[0][j]);
+					v = surf->verts[surf->indexes[k + j]].xyz;
+					VectorMA(v, MARKER_OFFSET, surf->verts[surf->indexes[k + j]].normal, clipPoints[0][j]);
 				}
 
 				// add the fragments of this face
@@ -459,6 +455,4 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 	}
 	return returnedFragments;
 }
-
-
 

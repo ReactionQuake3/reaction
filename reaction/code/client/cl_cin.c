@@ -52,8 +52,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_VIDEO_HANDLES	16
 
-extern glconfig_t glConfig;
-
 
 static void RoQ_init( void );
 
@@ -991,7 +989,7 @@ static void readQuadInfo( byte *qData )
         cinTable[currentHandle].drawY = cinTable[currentHandle].CIN_HEIGHT;
         
 	// rage pro is very slow at 512 wide textures, voodoo can't do it at all
-	if ( glConfig.hardwareType == GLHW_RAGEPRO || glConfig.maxTextureSize <= 256) {
+	if ( cls.glconfig.hardwareType == GLHW_RAGEPRO || cls.glconfig.maxTextureSize <= 256) {
                 if (cinTable[currentHandle].drawX>256) {
                         cinTable[currentHandle].drawX = 256;
                 }
@@ -1295,7 +1293,7 @@ static void RoQShutdown( void ) {
 
 /*
 ==================
-SCR_StopCinematic
+CIN_StopCinematic
 ==================
 */
 e_status CIN_StopCinematic(int handle) {
@@ -1322,7 +1320,7 @@ e_status CIN_StopCinematic(int handle) {
 
 /*
 ==================
-SCR_RunCinematic
+CIN_RunCinematic
 
 Fetch and decompress the pending frame
 ==================
@@ -1400,8 +1398,7 @@ e_status CIN_RunCinematic (int handle)
 
 /*
 ==================
-CL_PlayCinematic
-
+CIN_PlayCinematic
 ==================
 */
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
@@ -1423,7 +1420,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		}
 	}
 
-	Com_DPrintf("SCR_PlayCinematic( %s )\n", arg);
+	Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
 
 	Com_Memset(&cin, 0, sizeof(cinematics_t) );
 	currentHandle = CIN_HandleForVideo();
@@ -1566,8 +1563,7 @@ void CIN_ResampleCinematic(int handle, int *buf2) {
 
 /*
 ==================
-SCR_DrawCinematic
-
+CIN_DrawCinematic
 ==================
 */
 void CIN_DrawCinematic (int handle) {

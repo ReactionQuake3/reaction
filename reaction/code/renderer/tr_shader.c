@@ -634,22 +634,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				}
 				continue;
 			}
-			else if ( !Q_stricmp( token, "$deluxemap" ) )
-			{
-				if (!tr.worldDeluxeMapping)
-				{
-					ri.Printf( PRINT_WARNING, "WARNING: shader '%s' wants a deluxe map in a map compiled without them\n", shader.name );
-					return qfalse;
-				}
-
-				stage->bundle[0].isLightmap = qtrue;
-				if ( shader.lightmapIndex < 0 ) {
-					stage->bundle[0].image[0] = tr.whiteImage;
-				} else {
-					stage->bundle[0].image[0] = tr.deluxemaps[shader.lightmapIndex];
-				}
-				continue;
-			}
 			else
 			{
 				stage->bundle[0].image[0] = R_FindImageFile( token, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
@@ -657,27 +641,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				{
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 					return qfalse;
-				}
-
-				//if ( r_autoFindNormalMap->integer )
-				{
-					char filename[MAX_QPATH];
-
-					COM_StripExtension(token, filename, sizeof(filename));
-					Q_strcat(filename, sizeof(filename), "_normal");
-
-					stage->bundle[TB_NORMALMAP].image[0] = R_FindImageFile( filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
-				}
-
-				//if ( r_autoFindSpecularMap->integer )
-				{
-					char filename[MAX_QPATH];
-
-					COM_StripExtension(token, filename, sizeof(filename));
-					Q_strcat(filename, sizeof(filename), "_specular");
-
-					stage->bundle[TB_SPECULARMAP].image[0] = R_FindImageFile( filename, !shader.noMipMaps, !shader.noPicMip, GL_REPEAT );
-					stage->specularReflectance = 0.04f;
 				}
 			}
 		}
@@ -837,54 +800,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			}
 		}
 		//
-		// stage <type>
-		//
-		else if(!Q_stricmp(token, "stage"))
-		{
-			token = COM_ParseExt(text, qfalse);
-			if(token[0] == 0)
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: missing parameters for stage in shader '%s'\n", shader.name);
-				continue;
-			}
-
-			if(!Q_stricmp(token, "diffuseMap"))
-			{
-				stage->type = ST_DIFFUSEMAP;
-			}
-			else if(!Q_stricmp(token, "normalMap") || !Q_stricmp(token, "bumpMap"))
-			{
-				stage->type = ST_NORMALMAP;
-			}
-			else if(!Q_stricmp(token, "normalParallaxMap") || !Q_stricmp(token, "bumpParallaxMap"))
-			{
-				stage->type = ST_NORMALPARALLAXMAP;
-			}
-			else if(!Q_stricmp(token, "specularMap"))
-			{
-				stage->type = ST_SPECULARMAP;
-				stage->specularReflectance = 0.04f;
-			}
-			else
-			{
-				ri.Printf(PRINT_WARNING, "WARNING: unknown stage parameter '%s' in shader '%s'\n", token, shader.name);
-				continue;
-			}
-		}
-		//
-		// specularReflectance <value>
-		//
-		else if (!Q_stricmp(token, "specularreflectance"))
-		{
-			token = COM_ParseExt(text, qfalse);
-			if ( token[0] == 0 )
-			{
-				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for specular reflectance in shader '%s'\n", shader.name );
-				continue;
-			}
-			stage->specularReflectance = atof( token );
-		}
-		//
 		// rgbGen
 		//
 		else if ( !Q_stricmp( token, "rgbGen" ) )
@@ -1013,10 +928,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				{
 					shader.portalRange = atof( token );
 				}
-			}
-			else if ( !Q_stricmp( token, "fresnel" ) )
-			{
-				stage->alphaGen = AGEN_FRESNEL;
 			}
 			else
 			{
@@ -1640,7 +1551,6 @@ static qboolean ParseShader( char **text )
 		else if ( !Q_stricmp(token, "portal") )
 		{
 			shader.sort = SS_PORTAL;
-			shader.isPortal = qtrue;
 			continue;
 		}
 		// skyparms <cloudheight> <outerbox> <innerbox>
@@ -1724,11 +1634,6 @@ static void ComputeStageIteratorFunc( void )
 {
 	shader.optimalStageIteratorFunc = RB_StageIteratorGeneric;
 
-	if (glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer)
-	{
-		shader.optimalStageIteratorFunc = RB_StageIteratorGenericVBO;
-	}
-
 	//
 	// see if this should go into the sky path
 	//
@@ -1740,12 +1645,6 @@ static void ComputeStageIteratorFunc( void )
 
 	if ( r_ignoreFastPath->integer )
 	{
-		return;
-	}
-
-	if ( glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer )
-	{
-		// VBOs have alternate methods for doing fast path
 		return;
 	}
 
@@ -1803,153 +1702,6 @@ static void ComputeStageIteratorFunc( void )
 
 done:
 	return;
-}
-
-/*
-===================
-ComputeVertexAttribs
-
-Check which vertex attributes we only need, so we
-don't need to submit/copy all of them.
-===================
-*/
-static void ComputeVertexAttribs(void)
-{
-	int i, stage;
-
-	// dlights always need ATTR_NORMAL
-	shader.vertexAttribs = ATTR_POSITION | ATTR_NORMAL;
-
-	// portals always need normals, for SurfIsOffscreen()
-	if (shader.isPortal)
-	{
-		shader.vertexAttribs |= ATTR_NORMAL;
-	}
-
-	if (shader.defaultShader)
-	{
-		shader.vertexAttribs |= ATTR_TEXCOORD;
-		return;
-	}
-
-	if(shader.numDeforms)
-	{
-		for ( i = 0; i < shader.numDeforms; i++)
-		{
-			deformStage_t  *ds = &shader.deforms[i];
-
-			switch (ds->deformation)
-			{
-				case DEFORM_BULGE:
-					shader.vertexAttribs |= ATTR_NORMAL | ATTR_TEXCOORD;
-					break;
-
-				case DEFORM_AUTOSPRITE:
-					shader.vertexAttribs |= ATTR_NORMAL | ATTR_COLOR;
-					break;
-
-				case DEFORM_WAVE:
-				case DEFORM_NORMALS:
-				case DEFORM_TEXT0:
-				case DEFORM_TEXT1:
-				case DEFORM_TEXT2:
-				case DEFORM_TEXT3:
-				case DEFORM_TEXT4:
-				case DEFORM_TEXT5:
-				case DEFORM_TEXT6:
-				case DEFORM_TEXT7:
-					shader.vertexAttribs |= ATTR_NORMAL;
-					break;
-
-				default:
-				case DEFORM_NONE:
-				case DEFORM_MOVE:
-				case DEFORM_PROJECTION_SHADOW:
-				case DEFORM_AUTOSPRITE2:
-					break;
-			}
-		}
-	}
-
-	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
-	{
-		shaderStage_t *pStage = &stages[stage];
-
-		if ( !pStage->active ) 
-		{
-			break;
-		}
-
-		if (pStage->glslShaderGroup == tr.lightallShader)
-		{
-			shader.vertexAttribs |= ATTR_NORMAL;
-
-			if (pStage->glslShaderIndex & LIGHTDEF_USE_NORMALMAP)
-			{
-				shader.vertexAttribs |= ATTR_BITANGENT | ATTR_TANGENT;
-			}
-		}
-
-		for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
-		{
-			if ( pStage->bundle[i].image[0] == 0 )
-			{
-				continue;
-			}
-
-			switch(pStage->bundle[i].tcGen)
-			{
-				case TCGEN_TEXTURE:
-					shader.vertexAttribs |= ATTR_TEXCOORD;
-					break;
-				case TCGEN_LIGHTMAP:
-					shader.vertexAttribs |= ATTR_LIGHTCOORD;
-					break;
-				case TCGEN_ENVIRONMENT_MAPPED:
-					shader.vertexAttribs |= ATTR_NORMAL;
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		switch(pStage->rgbGen)
-		{
-			case CGEN_EXACT_VERTEX:
-			case CGEN_VERTEX:
-			case CGEN_ONE_MINUS_VERTEX:
-				shader.vertexAttribs |= ATTR_COLOR;
-				break;
-
-			case CGEN_LIGHTING_DIFFUSE:
-				shader.vertexAttribs |= ATTR_NORMAL;
-				break;
-
-			default:
-				break;
-		}
-
-		switch(pStage->alphaGen)
-		{
-			case AGEN_LIGHTING_SPECULAR:
-			case AGEN_FRESNEL:
-				shader.vertexAttribs |= ATTR_NORMAL;
-				break;
-
-			case AGEN_VERTEX:
-			case AGEN_ONE_MINUS_VERTEX:
-				shader.vertexAttribs |= ATTR_COLOR;
-				break;
-
-			case CGEN_LIGHTING_DIFFUSE:
-				shader.vertexAttribs |= ATTR_NORMAL;
-				break;
-
-			default:
-				break;
-		}
-	}
 }
 
 typedef struct {
@@ -2108,315 +1860,6 @@ static qboolean CollapseMultitexture( void ) {
 	return qtrue;
 }
 
-static void CollapseStagesToLightall(shaderStage_t *diffuse, 
-	shaderStage_t *normal, shaderStage_t *specular, shaderStage_t *lightmap, 
-	qboolean useLightVector, qboolean parallax, qboolean environment)
-{
-	int defs = 0;
-
-	//ri.Printf(PRINT_ALL, "shader %s has diffuse %s", shader.name, diffuse->bundle[0].image[0]->imgName);
-
-	// reuse diffuse, mark others inactive
-	diffuse->type = ST_GLSL;
-
-	if (lightmap)
-	{
-		//ri.Printf(PRINT_ALL, ", lightmap");
-		diffuse->bundle[TB_LIGHTMAP] = lightmap->bundle[0];
-		defs |= LIGHTDEF_USE_LIGHTMAP;
-	}
-
-	if ((tr.worldDeluxeMapping || r_deluxeMapping->integer == 2) && lightmap)
-	{
-		//ri.Printf(PRINT_ALL, ", deluxemap");
-		diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
-		diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
-		defs |= LIGHTDEF_USE_DELUXEMAP;
-	}
-
-	if (normal)
-	{
-		//ri.Printf(PRINT_ALL, ", normalmap %s", normal->bundle[0].image[0]->imgName);
-		diffuse->bundle[TB_NORMALMAP] = normal->bundle[0];
-		defs |= LIGHTDEF_USE_NORMALMAP;
-		if (parallax)
-			defs |= LIGHTDEF_USE_PARALLAXMAP;
-	}
-	else if (diffuse->bundle[TB_NORMALMAP].image[0])
-	{
-		image_t *tmpImg = diffuse->bundle[TB_NORMALMAP].image[0];
-		diffuse->bundle[TB_NORMALMAP] = diffuse->bundle[TB_DIFFUSEMAP];
-		diffuse->bundle[TB_NORMALMAP].image[0] = tmpImg;
-		defs |= LIGHTDEF_USE_NORMALMAP;
-	}
-
-	if (specular)
-	{
-		//ri.Printf(PRINT_ALL, ", specularmap %s", specular->bundle[0].image[0]->imgName);
-		diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
-		diffuse->specularReflectance = specular->specularReflectance;
-		defs |= LIGHTDEF_USE_SPECULARMAP;
-	}
-	else if (diffuse->bundle[TB_SPECULARMAP].image[0])
-	{
-		image_t *tmpImg = diffuse->bundle[TB_SPECULARMAP].image[0];
-		diffuse->bundle[TB_SPECULARMAP] = diffuse->bundle[TB_DIFFUSEMAP];
-		diffuse->bundle[TB_SPECULARMAP].image[0] = tmpImg;
-		defs |= LIGHTDEF_USE_SPECULARMAP;
-	}
-
-	if (useLightVector)
-	{
-		defs |= LIGHTDEF_USE_LIGHT_VECTOR;
-	}
-
-	if (environment)
-	{
-		defs |= LIGHTDEF_TCGEN_ENVIRONMENT;
-	}
-
-	//ri.Printf(PRINT_ALL, ".\n");
-
-	diffuse->glslShaderGroup = tr.lightallShader;
-	diffuse->glslShaderIndex = defs;
-}
-
-
-static qboolean CollapseStagesToGLSL(void)
-{
-	int i, j, numStages;
-	qboolean skip = qfalse;
-
-	// skip shaders with deforms
-	if (!(shader.numDeforms == 0 && glRefConfig.vertexBufferObject && r_arb_vertex_buffer_object->integer && glRefConfig.glsl && r_arb_shader_objects->integer))
-	{
-		skip = qtrue;
-	}
-
-	if (!skip)
-	{
-		// if 2+ stages and first stage is lightmap, switch them
-		// this makes it easier for the later bits to process
-		if (stages[0].active && stages[0].bundle[0].isLightmap && stages[1].active)
-		{
-			int blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-
-			if (blendBits == (GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO)
-				|| blendBits == (GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR))
-			{
-				int stateBits0 = stages[0].stateBits;
-				int stateBits1 = stages[1].stateBits;
-				shaderStage_t swapStage;
-
-				swapStage = stages[0];
-				stages[0] = stages[1];
-				stages[1] = swapStage;
-
-				stages[0].stateBits = stateBits0;
-				stages[1].stateBits = stateBits1;
-			}
-		}
-	}
-
-	if (!skip)
-	{
-		// scan for shaders that aren't supported
-		for (i = 0; i < MAX_SHADER_STAGES; i++)
-		{
-			shaderStage_t *pStage = &stages[i];
-
-			if (!pStage->active)
-				continue;
-
-			if (pStage->adjustColorsForFog)
-			{
-				skip = qtrue;
-				break;
-			}
-
-			if (pStage->bundle[0].isLightmap)
-			{
-				int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-				
-				if (blendBits != (GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO)
-					&& blendBits != (GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR))
-				{
-					skip = qtrue;
-					break;
-				}
-			}
-
-			switch(pStage->bundle[0].tcGen)
-			{
-				case TCGEN_TEXTURE:
-				case TCGEN_LIGHTMAP:
-				case TCGEN_ENVIRONMENT_MAPPED:
-					break;
-				default:
-					skip = qtrue;
-					break;
-			}
-
-			switch(pStage->alphaGen)
-			{
-				case AGEN_LIGHTING_SPECULAR:
-				case AGEN_PORTAL:
-				case AGEN_FRESNEL:
-					skip = qtrue;
-					break;
-				default:
-					break;
-			}
-		}
-	}
-
-	if (!skip)
-	{
-		for (i = 0; i < MAX_SHADER_STAGES; i++)
-		{
-			shaderStage_t *pStage = &stages[i];
-			shaderStage_t *diffuse, *normal, *specular, *lightmap;
-			qboolean parallax, environment, entity;
-
-			if (!pStage->active)
-				continue;
-
-			// skip normal and specular maps
-			if (pStage->type != ST_COLORMAP)
-				continue;
-
-			// skip lightmaps
-			if (pStage->bundle[0].isLightmap)
-				continue;
-
-			diffuse  = pStage;
-			normal   = NULL;
-			parallax = qfalse;
-			specular = NULL;
-			lightmap = NULL;
-
-			// we have a diffuse map, find matching normal, specular, and lightmap
-			for (j = i + 1; j < MAX_SHADER_STAGES; j++)
-			{
-				shaderStage_t *pStage2 = &stages[j];
-
-				if (!pStage2->active)
-					continue;
-
-				switch(pStage2->type)
-				{
-					case ST_NORMALMAP:
-						if (!normal)
-						{
-							normal = pStage2;
-						}
-						break;
-
-					case ST_NORMALPARALLAXMAP:
-						if (!normal)
-						{
-							normal = pStage2;
-							parallax = qtrue;
-						}
-						break;
-
-					case ST_SPECULARMAP:
-						if (!specular)
-						{
-							specular = pStage2;
-						}
-						break;
-
-					case ST_COLORMAP:
-						if (pStage2->bundle[0].isLightmap)
-						{
-							lightmap = pStage2;
-						}
-						break;
-
-					default:
-						break;
-				}
-			}
-
-			environment = qfalse;
-			if (diffuse->bundle[0].tcGen == TCGEN_ENVIRONMENT_MAPPED)
-			{
-				environment = qtrue;
-			}
-
-			entity = qfalse;
-			if (diffuse->rgbGen == CGEN_LIGHTING_DIFFUSE)
-			{
-				entity = qtrue;
-			}
-
-			CollapseStagesToLightall(diffuse, normal, specular, lightmap, entity, parallax, environment);
-		}
-
-		// deactivate lightmap stages
-		for (i = 0; i < MAX_SHADER_STAGES; i++)
-		{
-			shaderStage_t *pStage = &stages[i];
-
-			if (!pStage->active)
-				continue;
-
-			if (pStage->bundle[0].isLightmap)
-			{
-				pStage->active = qfalse;
-			}
-		}
-	}
-
-	// deactivate normal and specular stages
-	for (i = 0; i < MAX_SHADER_STAGES; i++)
-	{
-		shaderStage_t *pStage = &stages[i];
-
-		if (!pStage->active)
-			continue;
-
-		if (pStage->type == ST_NORMALMAP)
-		{
-			pStage->active = qfalse;
-		}
-
-		if (pStage->type == ST_NORMALPARALLAXMAP)
-		{
-			pStage->active = qfalse;
-		}
-
-		if (pStage->type == ST_SPECULARMAP)
-		{
-			pStage->active = qfalse;
-		}			
-	}
-
-	// remove inactive stages
-	numStages = 0;
-	for (i = 0; i < MAX_SHADER_STAGES; i++)
-	{
-		if (!stages[i].active)
-			continue;
-
-		if (i == numStages)
-		{
-			numStages++;
-			continue;
-		}
-
-		stages[numStages] = stages[i];
-		stages[i].active = qfalse;
-		numStages++;
-	}
-
-	if (numStages == i && i >= 2 && CollapseMultitexture())
-		numStages--;
-
-	return numStages;
-}
-
 /*
 =============
 
@@ -2458,16 +1901,15 @@ static void FixRenderCommandList( int newShader ) {
 				int			fogNum;
 				int			entityNum;
 				int			dlightMap;
-				int         pshadowMap;
 				int			sortedIndex;
 				const drawSurfsCommand_t *ds_cmd =  (const drawSurfsCommand_t *)curCmd;
 
 				for( i = 0, drawSurf = ds_cmd->drawSurfs; i < ds_cmd->numDrawSurfs; i++, drawSurf++ ) {
-					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap, &pshadowMap );
+					R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlightMap );
                     sortedIndex = (( drawSurf->sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1));
 					if( sortedIndex >= newShader ) {
 						sortedIndex++;
-						drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | ( (int)pshadowMap << QSORT_PSHADOW_SHIFT) | (int)dlightMap;
+						drawSurf->sort = (sortedIndex << QSORT_SHADERNUM_SHIFT) | entityNum | ( fogNum << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
 					}
 				}
 				curCmd = (const void *)(ds_cmd + 1);
@@ -2835,15 +2277,16 @@ static shader_t *FinishShader( void ) {
 	//
 	// look for multitexture potential
 	//
-	stage = CollapseStagesToGLSL();
+	if ( stage > 1 && CollapseMultitexture() ) {
+		stage--;
+	}
 
 	if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
 		if (vertexLightmap) {
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
 		} else {
 			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name );
-			// Don't set this, it will just add duplicate shaders to the hash
-  			//shader.lightmapIndex = LIGHTMAP_NONE;
+  			shader.lightmapIndex = LIGHTMAP_NONE;
 		}
 	}
 
@@ -2859,9 +2302,6 @@ static shader_t *FinishShader( void ) {
 
 	// determine which stage iterator function is appropriate
 	ComputeStageIteratorFunc();
-
-	// determine which vertex attributes this shader needs
-	ComputeVertexAttribs();
 
 	return GeneratePermanentShader();
 }
@@ -3048,6 +2488,12 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
+	// FIXME: set these "need" values apropriately
+	shader.needsNormal = qtrue;
+	shader.needsST1 = qtrue;
+	shader.needsST2 = qtrue;
+	shader.needsColor = qtrue;
+
 	//
 	// attempt to define shader from an explicit parameter file
 	//
@@ -3178,6 +2624,12 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 		stages[i].bundle[0].texMods = texMods[i];
 	}
 
+	// FIXME: set these "need" values apropriately
+	shader.needsNormal = qtrue;
+	shader.needsST1 = qtrue;
+	shader.needsST2 = qtrue;
+	shader.needsColor = qtrue;
+
 	//
 	// create the default shading commands
 	//
@@ -3249,7 +2701,7 @@ qhandle_t RE_RegisterShaderLightMap( const char *name, int lightmapIndex ) {
 	shader_t	*sh;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		Com_Printf( "Shader name exceeds MAX_QPATH\n" );
+		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -3283,7 +2735,7 @@ qhandle_t RE_RegisterShader( const char *name ) {
 	shader_t	*sh;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		Com_Printf( "Shader name exceeds MAX_QPATH\n" );
+		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -3313,7 +2765,7 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	shader_t	*sh;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		Com_Printf( "Shader name exceeds MAX_QPATH\n" );
+		ri.Printf( PRINT_ALL, "Shader name exceeds MAX_QPATH\n" );
 		return 0;
 	}
 
@@ -3398,8 +2850,6 @@ void	R_ShaderList_f (void) {
 
 		if ( shader->optimalStageIteratorFunc == RB_StageIteratorGeneric ) {
 			ri.Printf( PRINT_ALL, "gen " );
-		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorGenericVBO ) {
-			ri.Printf( PRINT_ALL, "genv" );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorSky ) {
 			ri.Printf( PRINT_ALL, "sky " );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture ) {

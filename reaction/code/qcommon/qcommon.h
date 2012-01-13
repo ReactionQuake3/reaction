@@ -260,7 +260,9 @@ PROTOCOL
 // NOTE: that stuff only works with two digits protocols
 extern int demo_protocols[];
 
+#if !defined UPDATE_SERVER_NAME && !defined STANDALONE
 #define	UPDATE_SERVER_NAME	"update.quake3arena.com"
+#endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
 #define MASTER_SERVER_NAME	"master.quake3arena.com"
@@ -361,7 +363,7 @@ void	VM_Free( vm_t *vm );
 void	VM_Clear(void);
 void	VM_Forced_Unload_Start(void);
 void	VM_Forced_Unload_Done(void);
-vm_t	*VM_Restart( vm_t *vm );
+vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
 
 intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
 
@@ -661,7 +663,7 @@ int		FS_Read( void *buffer, int len, fileHandle_t f );
 void	FS_FCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
 
-long	FS_ReadFileDir(const char *qpath, void *searchPath, void **buffer);
+long	FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void **buffer);
 long	FS_ReadFile(const char *qpath, void **buffer);
 // returns the length of the file
 // a null buffer will just return the file length without loading
@@ -974,7 +976,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown(char *finalmsg, qboolean disconnect);
+void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -1071,7 +1073,7 @@ typedef enum {
 void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
-void	* QDECL Sys_LoadQVMDll( const char *name, intptr_t (QDECL **entryPoint)(int, ...),
+void	* QDECL Sys_LoadGameDll( const char *name, intptr_t (QDECL **entryPoint)(int, ...),
 				  intptr_t (QDECL *systemcalls)(intptr_t, ...) );
 void	Sys_UnloadDll( void *dllHandle );
 
