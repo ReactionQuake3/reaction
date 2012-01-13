@@ -601,7 +601,7 @@ void SP_trigger_hurt(gentity_t * self)
 		self->damage = 5;
 	}
 
-	self->r.contents = CONTENTS_TRIGGER;
+	//self->r.contents = CONTENTS_TRIGGER;
 
 	//Makro - custom death message
 	G_InitCustomDeathMessage(self, &self->methodOfDeath);
