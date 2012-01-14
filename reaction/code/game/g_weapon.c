@@ -441,6 +441,10 @@ qboolean CheckGauntletAttack(gentity_t * ent)
 		return qfalse;
 	}
 
+	if ( ent->client->noclip ) {
+		return qfalse;
+	}
+
 	traceEnt = &g_entities[tr.entityNum];
 
 	// send blood impact
@@ -487,9 +491,9 @@ void SnapVectorTowards(vec3_t v, vec3_t to)
 
 	for (i = 0; i < 3; i++) {
 		if (to[i] <= v[i]) {
-			v[i] = (int) v[i];
+			v[i] = floor(v[i]);
 		} else {
-			v[i] = (int) v[i] + 1;
+			v[i] = ceil(v[i]);
 		}
 	}
 }
@@ -739,7 +743,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 	float r, u;
 	vec3_t end;
 	vec3_t forward, right, up;
-	int oldScore;
+//	int oldScore;
 	qboolean hitClient = qfalse;
 
 	//Elder: added
@@ -754,7 +758,7 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 	PerpendicularVector(right, forward);
 	CrossProduct(forward, right, up);
 
-	oldScore = ent->client->ps.persistant[PERS_SCORE];
+//	oldScore = ent->client->ps.persistant[PERS_SCORE];
 
 	//Elder: added
 	if (shotType == WP_M3) {

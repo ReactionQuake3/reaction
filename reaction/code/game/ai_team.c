@@ -509,7 +509,7 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t * bs)
 
 				if (defenders > 3)
 					defenders = 3;
-				attackers = (int) (float) numteammates *0.7 + 0.5;
+				attackers = (int) (float) numteammates *0.6 + 0.5;
 
 				if (attackers > 6)
 					attackers = 6;
@@ -554,7 +554,7 @@ void BotCTFOrders_FlagNotAtBase(bot_state_t * bs)
 			{
 				//everyone go for the flag
 				ClientName(teammates[0], name, sizeof(name));
-				BotAI_BotInitialChat(bs, "cmd_defendbase", name, NULL);
+				BotAI_BotInitialChat(bs, "cmd_getflag", name, NULL);
 				BotSayTeamOrder(bs, teammates[0]);
 				BotSayVoiceTeamOrder(bs, teammates[0], VOICECHAT_GETFLAG);
 				//

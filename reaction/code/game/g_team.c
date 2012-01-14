@@ -141,7 +141,7 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL PrintMsg( gentity_t *e
 	char *p;
 
 	va_start(argptr, fmt);
-	if (Q_vsnprintf(msg, sizeof(msg), fmt, argptr) > sizeof(msg)) {
+	if (Q_vsnprintf(msg, sizeof(msg), fmt, argptr) >= sizeof(msg)) {
 		G_Error("PrintMsg overrun");
 	}
 	va_end(argptr);
@@ -782,7 +782,8 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 				player->client->ps.eFlags |= EF_AWARD_ASSIST;
 				player->client->rewardTime = level.time + REWARD_SPRITE_TIME; */
 
-			} else if (player->client->pers.teamState.lastfraggedcarrier +
+			}
+			if (player->client->pers.teamState.lastfraggedcarrier +
 				   CTF_FRAG_CARRIER_ASSIST_TIMEOUT > level.time) {
 				AddScore(player, ent->r.currentOrigin, CTF_FRAG_CARRIER_ASSIST_BONUS);
 				other->client->pers.teamState.assists++;
@@ -1000,8 +1001,7 @@ SelectCTFSpawnPoint
 
 ============
 */
-gentity_t *SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles)
-{
+gentity_t *SelectCTFSpawnPoint (team_t team, int teamstate, vec3_t origin, vec3_t angles) {
 	gentity_t *spot;
 
 	spot = SelectRandomTeamSpawnPoint(teamstate, team);

@@ -554,7 +554,7 @@ LookAtKiller
 void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 {
 	vec3_t dir;
-	vec3_t angles;
+//	vec3_t angles;
 
 	if (attacker && attacker != self) {
 		VectorSubtract(attacker->s.pos.trBase, self->s.pos.trBase, dir);
@@ -567,9 +567,9 @@ void LookAtKiller(gentity_t * self, gentity_t * inflictor, gentity_t * attacker)
 
 	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw(dir);
 
-	angles[YAW] = vectoyaw(dir);
-	angles[PITCH] = 0;
-	angles[ROLL] = 0;
+//	angles[YAW] = vectoyaw(dir);
+//	angles[PITCH] = 0;
+//	angles[ROLL] = 0;
 }
 
 /*
@@ -1502,7 +1502,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		}
 	}
 	// if client is in a nodrop area, don't drop anything (but return CTF flags!)
-	contents = trap_PointContents(self->r.currentOrigin, -1);
+//	contents = trap_PointContents(self->r.currentOrigin, -1);
 	if (!(contents & CONTENTS_NODROP)) {
 		TossClientItems(self);
 	} else {
@@ -1606,6 +1606,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		}
 	}
 	// never gib in a nodrop
+	contents = trap_PointContents(self->r.currentOrigin, -1);
 	if (g_RQ3_gib.integer > 3 && !self->client->gibbed
 	    && (self->health <= GIB_HEALTH && !(contents & CONTENTS_NODROP) && g_blood.integer)) {
 		// gib death
@@ -1777,7 +1778,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	gclient_t *client;
 	gentity_t *tent;
 //	int take, save, asave, knockback;
-	int take, save, knockback;
+	int take, knockback;
 	int bleeding = 0, instant_dam = 1, height;
 	float z_rel, targ_maxs2, from_top;
 	vec3_t line, new_point;
@@ -2039,7 +2040,7 @@ void G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		damage = 1;
 	}
 	take = damage;
-	save = 0;
+//	save = 0;
 
 	// save some from armor
 	// JBravo: armor ?  dont think so.

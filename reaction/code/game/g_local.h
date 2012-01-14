@@ -656,6 +656,7 @@ typedef struct {
 	team_t sessionTeam;
 	team_t savedTeam;	// JBravo: Used to hold the real team status of a player.
 	int spectatorTime;	// for determining next-in-line to play
+	int spectatorNum;	// for determining next-in-line to play
 	spectatorState_t spectatorState;
 	int spectatorClient;	// for chasecam and follow mode
 	int wins, losses;	// tournament stats
@@ -1294,6 +1295,7 @@ void FindIntermissionPoint(void);
 void SetLeader(int team, int client);
 void CheckTeamLeader(int team);
 void G_RunThink(gentity_t * ent);
+void AddTournamentQueue(gclient_t *client);
 void QDECL G_LogPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void SendScoreboardMessageToAllClients(void);
 void QDECL G_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));

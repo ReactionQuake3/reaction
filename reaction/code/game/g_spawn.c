@@ -216,54 +216,48 @@ qboolean G_SpawnVector(const char *key, const char *defaultString, float *out)
 typedef enum {
 	F_INT,
 	F_FLOAT,
-	F_LSTRING,		// string on disk, pointer in memory, TAG_LEVEL
-	F_GSTRING,		// string on disk, pointer in memory, TAG_GAME
+	F_STRING,
 	F_VECTOR,
 	F_ANGLEHACK,
-	F_ENTITY,		// index on disk, pointer in memory
-	F_ITEM,			// index on disk, pointer in memory
-	F_CLIENT,		// index on disk, pointer in memory
-	F_IGNORE
 } fieldtype_t;
 
 typedef struct {
 	char *name;
-	int ofs;
+	size_t ofs;
 	fieldtype_t type;
-//	int flags;
 } field_t;
 
 field_t fields[] = {
-	{"classname", FOFS(classname), F_LSTRING},
+	{"classname", FOFS(classname), F_STRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
-	{"model", FOFS(model), F_LSTRING},
-	{"model2", FOFS(model2), F_LSTRING},
+	{"model", FOFS(model), F_STRING},
+	{"model2", FOFS(model2), F_STRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
-	{"target", FOFS(target), F_LSTRING},
-	{"targetname", FOFS(targetname), F_LSTRING},
-	{"message", FOFS(message), F_LSTRING},
-	{"team", FOFS(team), F_LSTRING},
+	{"target", FOFS(target), F_STRING},
+	{"targetname", FOFS(targetname), F_STRING},
+	{"message", FOFS(message), F_STRING},
+	{"team", FOFS(team), F_STRING},
 	{"wait", FOFS(wait), F_FLOAT},
 	{"random", FOFS(random), F_FLOAT},
 	{"count", FOFS(count), F_INT},
 	{"health", FOFS(health), F_INT},
-	{"light", 0, F_IGNORE},
+//	{"light", 0, F_IGNORE},
 	{"dmg", FOFS(damage), F_INT},
 	{"angles", FOFS(s.angles), F_VECTOR},
 	//Makro - only used by the sky portal code
 	{"portalspeed", FOFS(movedir), F_VECTOR},
 	{"angle", FOFS(s.angles), F_ANGLEHACK},
-	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
-	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
+	{"targetShaderName", FOFS(targetShaderName), F_STRING},
+	{"targetShaderNewName", FOFS(targetShaderNewName), F_STRING},
 	{"distance", FOFS(distance), F_FLOAT},	// VALKYRIE: for rotating doors
-	{"targetinactive", FOFS(targetInactive), F_LSTRING},	// Makro - target to be fired when inactive
-	{"pathtarget", FOFS(pathtarget), F_LSTRING},	// Makro - for func_trains
+	{"targetinactive", FOFS(targetInactive), F_STRING},	// Makro - target to be fired when inactive
+	{"pathtarget", FOFS(pathtarget), F_STRING},	// Makro - for func_trains
 	{"inactive", FOFS(inactive), F_INT},	// Makro - for inactive objects
-	{"activatename", FOFS(activatename), F_LSTRING},
-	{"alias", FOFS(alias), F_LSTRING},		//Makro - entity id strings
-	{"moveparent", FOFS(moveParent), F_LSTRING},		//Makro - entity id strings
-	{"attachto", FOFS(moveParent), F_LSTRING},			//
+	{"activatename", FOFS(activatename), F_STRING},
+	{"alias", FOFS(alias), F_STRING},		//Makro - entity id strings
+	{"moveparent", FOFS(moveParent), F_STRING},		//Makro - entity id strings
+	{"attachto", FOFS(moveParent), F_STRING},			//
 	{"noreset", FOFS(noreset), F_INT},	//Makro - for entities that shouldn't respawn in TP
 	{NULL}
 };
@@ -276,10 +270,10 @@ typedef struct {
 void SP_info_player_start(gentity_t * ent);
 void SP_info_player_deathmatch(gentity_t * ent);
 void SP_info_player_intermission(gentity_t * ent);
-void SP_info_firstplace(gentity_t * ent);
-void SP_info_secondplace(gentity_t * ent);
-void SP_info_thirdplace(gentity_t * ent);
-void SP_info_podium(gentity_t * ent);
+//void SP_info_firstplace(gentity_t * ent);
+//void SP_info_secondplace(gentity_t * ent);
+//void SP_info_thirdplace(gentity_t * ent);
+//void SP_info_podium(gentity_t * ent);
 
 void SP_func_plat(gentity_t * ent);
 void SP_func_static(gentity_t * ent);
@@ -305,7 +299,7 @@ void SP_target_delay(gentity_t * ent);
 void SP_target_speaker(gentity_t * ent);
 void SP_target_print(gentity_t * ent);
 void SP_target_laser(gentity_t * self);
-void SP_target_character(gentity_t * ent);
+//void SP_target_character(gentity_t * ent);
 void SP_target_score(gentity_t * ent);
 void SP_target_teleporter(gentity_t * ent);
 void SP_target_relay(gentity_t * ent);
@@ -348,7 +342,7 @@ void SP_func_door_rotating(gentity_t * ent);	// VALKYRIE: for rotating doors
 
 // JBravo: SP_item_botroam doesnt really exsist.
 // Makro - still, bots are supposed to use these
-void SP_item_botroam(gentity_t * ent);
+void SP_item_botroam(gentity_t * ent) {}
 
 //Blaze: merged func_explosive into func_breakable
 
@@ -440,12 +434,6 @@ spawn_t spawns[] = {
 
 	{NULL, 0}
 };
-
-// JBravo: Compiler warning shutup
-void SP_item_botroam(gentity_t * ent)
-{
-	return;
-}
 
 /*
 ===============
@@ -650,7 +638,7 @@ void G_ParseField(const char *key, const char *value, gentity_t * ent)
 			b = (byte *) ent;
 
 			switch (f->type) {
-			case F_LSTRING:
+			case F_STRING:
 				*(char **) (b + f->ofs) = G_NewString(value);
 				break;
 			case F_VECTOR:
@@ -671,14 +659,22 @@ void G_ParseField(const char *key, const char *value, gentity_t * ent)
 				((float *) (b + f->ofs))[1] = v;
 				((float *) (b + f->ofs))[2] = 0;
 				break;
-			default:
-			case F_IGNORE:
-				break;
+//			default:
+//			case F_IGNORE:
+//				break;
 			}
 			return;
 		}
 	}
 }
+
+#define ADJUST_AREAPORTAL() \
+	if(ent->s.eType == ET_MOVER) \
+	{ \
+		trap_LinkEntity(ent); \
+		trap_AdjustAreaPortalState(ent, qtrue); \
+	}
+
 
 /*
 ===================
@@ -711,6 +707,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 	if (g_gametype.integer == GT_SINGLE_PLAYER) {
 		G_SpawnInt("notsingle", "0", &i);
 		if (i) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity(ent);
 			return;
 		}
@@ -718,6 +715,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 	//Makro - check for "notgametype" key
 	if (G_SpawnInt("notgametype", "0", &i)) {
 		if ((i & (1 << g_gametype.integer)) != 0) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity(ent);
 			return;
 		}
@@ -725,12 +723,14 @@ void G_SpawnGEntityFromSpawnVars(void)
 	} else if (g_gametype.integer >= GT_TEAM) {
 		G_SpawnInt("notteam", "0", &i);
 		if (i) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity(ent);
 			return;
 		}
 	} else {
 		G_SpawnInt("notfree", "0", &i);
 		if (i) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity(ent);
 			return;
 		}
@@ -738,6 +738,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 	G_SpawnInt("notq3a", "0", &i);
 	if (i) {
+		ADJUST_AREAPORTAL();
 		G_FreeEntity(ent);
 		return;
 	}
@@ -748,6 +749,7 @@ void G_SpawnGEntityFromSpawnVars(void)
 
 			s = strstr(value, gametypeName);
 			if (!s) {
+				ADJUST_AREAPORTAL();
 				G_FreeEntity(ent);
 				return;
 			}
@@ -782,7 +784,7 @@ char *G_AddSpawnVarToken(const char *string)
 
 	l = strlen(string);
 	if (level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS) {
-		G_Error("G_AddSpawnVarToken: MAX_SPAWN_CHARS");
+		G_Error("G_AddSpawnVarToken: MAX_SPAWN_VARS");
 	}
 
 	dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -943,7 +945,12 @@ void SP_worldspawn(void)
 
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
+	g_entities[ENTITYNUM_WORLD].r.ownerNum = ENTITYNUM_NONE;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
+
+	g_entities[ENTITYNUM_NONE].s.number = ENTITYNUM_NONE;
+	g_entities[ENTITYNUM_NONE].r.ownerNum = ENTITYNUM_NONE;
+	g_entities[ENTITYNUM_NONE].classname = "nothing";
 
 	// see if we want a warmup time
 	trap_SetConfigstring(CS_WARMUP, "");

@@ -685,18 +685,15 @@ BotTeam
 */
 int BotTeam(bot_state_t * bs)
 {
-	char info[1024];
-
 	if (bs->client < 0 || bs->client >= MAX_CLIENTS) {
-		//BotAI_Print(PRT_ERROR, "BotCTFTeam: client out of range\n");
 		return qfalse;
 	}
-	trap_GetConfigstring(CS_PLAYERS + bs->client, info, sizeof(info));
-	//
-	if (atoi(Info_ValueForKey(info, "t")) == TEAM_RED)
+
+	if (level.clients[bs->client].sess.sessionTeam == TEAM_RED) {
 		return TEAM_RED;
-	else if (atoi(Info_ValueForKey(info, "t")) == TEAM_BLUE)
+	} else if (level.clients[bs->client].sess.sessionTeam == TEAM_BLUE) {
 		return TEAM_BLUE;
+	}
 	return TEAM_FREE;
 }
 
@@ -2716,11 +2713,9 @@ int BotSameTeam(bot_state_t * bs, int entnum)
 	int team1, team2;
 
 	if (bs->client < 0 || bs->client >= MAX_CLIENTS) {
-		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
 		return qfalse;
 	}
 	if (entnum < 0 || entnum >= MAX_CLIENTS) {
-		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
 		return qfalse;
 	}
 	if (gametype >= GT_TEAM) {
@@ -3539,7 +3534,7 @@ void BotCheckAttack(bot_state_t * bs)
 	VectorMA(start, -12, forward, start);
 	BotAI_Trace(&trace, start, mins, maxs, end, bs->entitynum, MASK_SHOT);
 	//if the entity is a client
-	if (trace.ent > 0 && trace.ent <= MAX_CLIENTS) {
+	if (trace.ent >= 0 && trace.ent < MAX_CLIENTS) {
 		if (trace.ent != attackentity) {
 			//if a teammate is hit
 			if (BotSameTeam(bs, trace.ent))
@@ -4495,7 +4490,8 @@ open, which buttons to activate etc.
 void BotAIBlocked(bot_state_t * bs, bot_moveresult_t * moveresult, int activate)
 {
 	int movetype, bspent;
-	vec3_t hordir, start, end, mins, maxs, sideward, angles, up = { 0, 0, 1 };
+	vec3_t hordir, sideward, angles, up = {0, 0, 1};
+	//vec3_t start, end, mins, maxs;
 	aas_entityinfo_t entinfo;
 	bot_activategoal_t activategoal;
 
@@ -4556,11 +4552,11 @@ void BotAIBlocked(bot_state_t * bs, bot_moveresult_t * moveresult, int activate)
 	movetype = MOVE_WALK;
 	//if there's an obstacle at the bot's feet and head then
 	//the bot might be able to crouch through
-	VectorCopy(bs->origin, start);
-	start[2] += 18;
-	VectorMA(start, 5, hordir, end);
-	VectorSet(mins, -16, -16, -24);
-	VectorSet(maxs, 16, 16, 4);
+	//VectorCopy(bs->origin, start);
+	//start[2] += 18;
+	//VectorMA(start, 5, hordir, end);
+	//VectorSet(mins, -16, -16, -24);
+	//VectorSet(maxs, 16, 16, 4);
 	//
 	//bsptrace = AAS_Trace(start, mins, maxs, end, bs->entitynum, MASK_PLAYERSOLID);
 	//if (bsptrace.fraction >= 1) movetype = MOVE_CROUCH;
