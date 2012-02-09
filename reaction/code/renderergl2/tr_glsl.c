@@ -266,10 +266,13 @@ static const char *fallbackLightallShader_vp =
 "lMatrix * position).xyz;\r\n\tvar_Normal    = (u_ModelMatrix * vec4(normal,"
 " 0.0)).xyz;\r\n\r\n  #if defined(USE_NORMALMAP)\r\n\tvar_Tangent   = (u_Mod"
 "elMatrix * vec4(tangent, 0.0)).xyz;\r\n\tvar_Bitangent = (u_ModelMatrix * v"
-"ec4(bitangent, 0.0)).xyz;\r\n  #endif\r\n#else\r\n\tvar_Position  = positio"
-"n.xyz;\r\n\tvar_Normal    = normal;\r\n\r\n  #if defined(USE_NORMALMAP)\r\n"
-"\tvar_Tangent   = tangent;\r\n\tvar_Bitangent = bitangent;\r\n  #endif\r\n#"
-"endif\r\n\r\n\tvar_LightDirection = attr_LightDirection;\r\n}\r\n";
+"ec4(bitangent, 0.0)).xyz;\r\n  #endif\r\n\r\n  #if defined(USE_LIGHTMAP)\r"
+"\n\tvar_LightDirection = (u_ModelMatrix * vec4(attr_LightDirection, 0.0)).x"
+"yz;\r\n  #else\r\n\tvar_LightDirection = attr_LightDirection;\r\n  #endif\r"
+"\n#else\r\n\tvar_Position  = position.xyz;\r\n\tvar_Normal    = normal;\r\n"
+"\r\n  #if defined(USE_NORMALMAP)\r\n\tvar_Tangent   = tangent;\r\n\tvar_Bit"
+"angent = bitangent;\r\n  #endif\r\n\r\n  \tvar_LightDirection = attr_LightD"
+"irection;\r\n#endif\r\n}\r\n";
 
 static const char *fallbackLightallShader_fp =
 "uniform sampler2D u_DiffuseMap;\r\n\r\n#if defined(USE_LIGHTMAP)\r\nuniform"
@@ -664,6 +667,7 @@ static const char *fallbackCalcLevels4xShader_fp =
 "s(vec2( 0.5,  1.5), current);\r\n\tcurrent = GetValues(vec2( 1.5,  1.5), cu"
 "rrent);\r\n\r\n\tcurrent.y *= 0.0625;\r\n\r\n\tgl_FragColor = vec4(current,"
 " 1.0f);\r\n}\r\n";
+
 
 
 static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
