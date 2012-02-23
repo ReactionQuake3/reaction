@@ -5666,7 +5666,8 @@ static void UI_Update(const char *name)
 		//TTI: new presets
 		case 0:	// high quality
 			trap_Cvar_SetValue("r_allowExtensions", 1);
-			trap_Cvar_SetValue("r_ext_multisample", 4);
+			//trap_Cvar_SetValue("r_ext_multisample", 4);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 4);
 
 			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
@@ -5697,7 +5698,8 @@ static void UI_Update(const char *name)
 			break;
 		case 1:	// normal 
 			trap_Cvar_SetValue("r_allowExtensions", 1);
-			trap_Cvar_SetValue("r_ext_multisample", 0);
+			//trap_Cvar_SetValue("r_ext_multisample", 0);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
 
 			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
@@ -5728,7 +5730,8 @@ static void UI_Update(const char *name)
 			break;
 		case 2:	// fast
 			trap_Cvar_SetValue("r_allowExtensions", 1);
-			trap_Cvar_SetValue("r_ext_multisample", 0);
+			//trap_Cvar_SetValue("r_ext_multisample", 0);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
 
 			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
@@ -5759,7 +5762,8 @@ static void UI_Update(const char *name)
 			break;
 		case 3:	// fastest
 			trap_Cvar_SetValue("r_allowExtensions", 1);
-			trap_Cvar_SetValue("r_ext_multisample", 0);
+			//trap_Cvar_SetValue("r_ext_multisample", 0);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
 
 			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);

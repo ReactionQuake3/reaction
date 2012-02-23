@@ -236,7 +236,7 @@ Group # 1 - Graphics
 
 	// Anti-Aliasing Mode //
 
-	BEGIN_OPTION("Anti-Aliasing", "r_ext_multisample", ITEM_TYPE_MULTI, 6, 1)
+	BEGIN_OPTION("Anti-Aliasing", "r_ext_framebuffer_multisample", ITEM_TYPE_MULTI, 6, 1)
 		cvarFloatList {
 			"Off"	0
 			"2x MSAA"	2
