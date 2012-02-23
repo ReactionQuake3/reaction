@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-void RB_ToneMap(int autoExposure)
+void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 {
 	vec4_t white;
 	vec2_t texScale;
@@ -38,10 +38,10 @@ void RB_ToneMap(int autoExposure)
 		vec4_t srcBox, dstBox, color;
 		int size = 256, currentScratch, nextScratch, tmp;
 
-		VectorSet4(srcBox, 0, 0, tr.renderFbo->width, tr.renderFbo->height);
+		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
 		VectorSet4(dstBox, 0, 0, 256, 256);
 
-		FBO_Blit(tr.renderFbo, srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.calclevels4xShader[0], white, 0);
+		FBO_Blit(hdrFbo, srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.calclevels4xShader[0], white, 0);
 
 		currentScratch = 0;
 		nextScratch = 1;
@@ -79,7 +79,7 @@ void RB_ToneMap(int autoExposure)
 		// tonemap
 		vec4_t srcBox, dstBox, color;
 
-		VectorSet4(srcBox, 0, 0, tr.renderFbo->width, tr.renderFbo->height);
+		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
 		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
 
 		color[0] =
@@ -93,9 +93,9 @@ void RB_ToneMap(int autoExposure)
 			GL_BindToTMU(tr.fixedLevelsImage, TB_LEVELSMAP);
 
 		if (r_hdr->integer)
-			FBO_Blit(tr.renderFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.tonemapShader, color, 0);
+			FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.tonemapShader, color, 0);
 		else
-			FBO_Blit(tr.renderFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
+			FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
 	}
 }
 

@@ -405,6 +405,16 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 						color[0] = (buf_p[j*3+0] + 1.0f);
 						color[1] = (buf_p[j*3+1] + 1.0f);
 						color[2] = (buf_p[j*3+2] + 1.0f);
+
+						// if under an arbitrary value (say 12) grey it out
+						// this prevents weird splotches in dimly lit areas
+						if (color[0] + color[1] + color[2] < 12)
+						{
+							float avg = (color[0] + color[1] + color[2]) * 0.3333f;
+							color[0] = avg;
+							color[1] = avg;
+							color[2] = avg;
+						}
 					}
 
 					VectorScale(color, lightScale, color);
@@ -683,7 +693,8 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 	cv->verts = ri.Hunk_Alloc(numVerts * sizeof(cv->verts[0]), h_low);
 
 	// copy vertexes
-	ClearBounds(cv->bounds[0], cv->bounds[1]);
+	surf->cullinfo.type = CULLINFO_PLANE | CULLINFO_BOX;
+	ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
 	verts += LittleLong(ds->firstVert);
 	for(i = 0; i < numVerts; i++)
 	{
@@ -694,7 +705,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 			cv->verts[i].xyz[j] = LittleFloat(verts[i].xyz[j]);
 			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
-		AddPointToBounds(cv->verts[i].xyz, cv->bounds[0], cv->bounds[1]);
+		AddPointToBounds(cv->verts[i].xyz, surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
 		for(j = 0; j < 2; j++)
 		{
 			cv->verts[i].st[j] = LittleFloat(verts[i].st[j]);
@@ -753,6 +764,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 	cv->plane.dist = DotProduct( cv->verts[0].xyz, cv->plane.normal );
 	SetPlaneSignbits( &cv->plane );
 	cv->plane.type = PlaneTypeForNormal( cv->plane.normal );
+	surf->cullinfo.plane = cv->plane;
 
 	surf->data = (surfaceType_t *)cv;
 
@@ -911,7 +923,8 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
 	surf->data = (surfaceType_t *) cv;
 
 	// copy vertexes
-	ClearBounds(cv->bounds[0], cv->bounds[1]);
+	surf->cullinfo.type = CULLINFO_BOX;
+	ClearBounds(surf->cullinfo.bounds[0], surf->cullinfo.bounds[1]);
 	verts += LittleLong(ds->firstVert);
 	for(i = 0; i < numVerts; i++)
 	{
@@ -923,7 +936,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
 			cv->verts[i].normal[j] = LittleFloat(verts[i].normal[j]);
 		}
 
-		AddPointToBounds( cv->verts[i].xyz, cv->bounds[0], cv->bounds[1] );
+		AddPointToBounds( cv->verts[i].xyz, surf->cullinfo.bounds[0], surf->cullinfo.bounds[1] );
 
 		for(j = 0; j < 2; j++)
 		{
@@ -2175,25 +2188,10 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			break;
 		case MST_TRIANGLE_SOUP:
 			ParseTriSurf( in, dv, hdrVertColors, out, indexes );
-			{
-				srfTriangles_t *surface = (srfTriangles_t *)out->data;
-
-				out->cullinfo.type = CULLINFO_BOX;
-				VectorCopy(surface->bounds[0], out->cullinfo.bounds[0]);
-				VectorCopy(surface->bounds[1], out->cullinfo.bounds[1]);
-			}
 			numTriSurfs++;
 			break;
 		case MST_PLANAR:
 			ParseFace( in, dv, hdrVertColors, out, indexes );
-			{
-				srfSurfaceFace_t *surface = (srfSurfaceFace_t *)out->data;
-
-				out->cullinfo.type = CULLINFO_PLANE | CULLINFO_BOX;
-				VectorCopy(surface->bounds[0], out->cullinfo.bounds[0]);
-				VectorCopy(surface->bounds[1], out->cullinfo.bounds[1]);
-				out->cullinfo.plane = surface->plane;
-			}
 			numFaces++;
 			break;
 		case MST_FLARE:

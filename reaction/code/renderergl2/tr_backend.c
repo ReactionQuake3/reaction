@@ -538,6 +538,7 @@ void RB_BeginDrawingView (void) {
 
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
+#if 0
 		float	plane[4];
 		double	plane2[4];
 
@@ -550,7 +551,7 @@ void RB_BeginDrawingView (void) {
 		plane2[1] = DotProduct (backEnd.viewParms.or.axis[1], plane);
 		plane2[2] = DotProduct (backEnd.viewParms.or.axis[2], plane);
 		plane2[3] = DotProduct (plane, backEnd.viewParms.or.origin) - plane[3];
-
+#endif
 		GL_SetModelviewMatrix( s_flipMatrix );
 	}
 }
@@ -950,8 +951,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = 0.5f / cols;
 	tess.texCoords[tess.numVertexes][0][1] = 0.5f / rows;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
+	tess.texCoords[tess.numVertexes][1][0] = 0;
+	tess.texCoords[tess.numVertexes][1][1] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x + w;
@@ -960,8 +961,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = (cols - 0.5f) / cols;
 	tess.texCoords[tess.numVertexes][0][1] = 0.5f / rows;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
+	tess.texCoords[tess.numVertexes][1][0] = 0;
+	tess.texCoords[tess.numVertexes][1][1] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x + w;
@@ -970,8 +971,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = (cols - 0.5f) / cols;
 	tess.texCoords[tess.numVertexes][0][1] = (rows - 0.5f) / rows;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
+	tess.texCoords[tess.numVertexes][1][0] = 0;
+	tess.texCoords[tess.numVertexes][1][1] = 1;
 	tess.numVertexes++;
 
 	tess.xyz[tess.numVertexes][0] = x;
@@ -980,8 +981,8 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	tess.xyz[tess.numVertexes][3] = 1;
 	tess.texCoords[tess.numVertexes][0][0] = 0.5f / cols;
 	tess.texCoords[tess.numVertexes][0][1] = (rows - 0.5f) / rows;
-	tess.texCoords[tess.numVertexes][0][2] = 0;
-	tess.texCoords[tess.numVertexes][0][3] = 1;
+	tess.texCoords[tess.numVertexes][1][0] = 0;
+	tess.texCoords[tess.numVertexes][1][1] = 1;
 	tess.numVertexes++;
 
 	tess.indexes[tess.numIndexes++] = 0;
@@ -1356,10 +1357,21 @@ const void	*RB_SwapBuffers( const void *data ) {
 		}
 		else
 		{
-			// frame still in render fbo, copy from there
-			VectorSet4(srcBox, 0, 0, tr.renderFbo->width, tr.renderFbo->height);
+			// frame still in render fbo, possibly resolve then copy from there
+			FBO_t *hdrFbo;
 
-			FBO_Blit(tr.renderFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
+			if (tr.msaaResolveFbo)
+			{
+				// Resolve the MSAA before anything else
+				FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
+				hdrFbo = tr.msaaResolveFbo;
+			}
+			else
+				hdrFbo = tr.renderFbo;
+
+			VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
+
+			FBO_Blit(hdrFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
 		}
 	}
 
@@ -1416,14 +1428,21 @@ RB_PostProcess
 const void *RB_PostProcess(const void *data)
 {
 	const postProcessCommand_t *cmd = data;
-	vec4_t white;
+	FBO_t *hdrFbo;
 	vec2_t texScale;
 	qboolean autoExposure;
 
 	texScale[0] = 
 	texScale[1] = 1.0f;
 
-	VectorSet4(white, 1, 1, 1, 1);
+	if (tr.msaaResolveFbo)
+	{
+		// Resolve the MSAA before anything else
+		FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
+		hdrFbo = tr.msaaResolveFbo;
+	}
+	else
+		hdrFbo = tr.renderFbo;
 
 	if (!r_postProcess->integer)
 	{
@@ -1432,7 +1451,7 @@ const void *RB_PostProcess(const void *data)
 		{
 			vec4_t srcBox, dstBox, color;
 
-			VectorSet4(srcBox, 0, 0, tr.renderFbo->width, tr.renderFbo->height);
+			VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
 			//VectorSet4(dstBox, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
 			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
 
@@ -1441,8 +1460,8 @@ const void *RB_PostProcess(const void *data)
 			color[2] = pow(2, r_cameraExposure->value); //exp2(r_cameraExposure->value);
 			color[3] = 1.0f;
 
-			//FBO_Blit(tr.renderFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, color, 0);
-			FBO_Blit(tr.renderFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
+			//FBO_Blit(hdrFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, color, 0);
+			FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
 		}
 
 		backEnd.framePostProcessed = qtrue;
@@ -1462,13 +1481,13 @@ const void *RB_PostProcess(const void *data)
 	if (r_hdr->integer && (r_toneMap->integer == 2 || (r_toneMap->integer == 1 && tr.autoExposure)))
 	{
 		autoExposure = (r_autoExposure->integer == 1 && tr.autoExposure) || (r_autoExposure->integer == 2);
-		RB_ToneMap(autoExposure);
+		RB_ToneMap(hdrFbo, autoExposure);
 	}
 	else
 	{
 		vec4_t srcBox, dstBox, color;
 
-		VectorSet4(srcBox, 0, 0, tr.renderFbo->width, tr.renderFbo->height);
+		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
 		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
 
 		color[0] =
@@ -1476,7 +1495,7 @@ const void *RB_PostProcess(const void *data)
 		color[2] = pow(2, r_cameraExposure->value); //exp2(r_cameraExposure->value);
 		color[3] = 1.0f;
 
-		FBO_Blit(tr.renderFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
+		FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
 	}
 
 #ifdef REACTION
@@ -1487,18 +1506,7 @@ const void *RB_PostProcess(const void *data)
 	else
 		RB_GaussianBlur(backEnd.refdef.blurFactor);
 #endif
-/*
-	if (glRefConfig.framebufferObject)
-	{
-		// copy final image to screen
-		vec4_t srcBox, dstBox;
 
-		VectorSet4(srcBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-		VectorSet4(dstBox, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
-
-		FBO_Blit(tr.screenScratchFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
-	}
-*/
 	backEnd.framePostProcessed = qtrue;
 
 	return (const void *)(cmd + 1);

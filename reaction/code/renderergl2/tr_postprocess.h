@@ -23,7 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_POSTPROCESS_H
 #define TR_POSTPROCESS_H
 
-void RB_ToneMap(int autoExposure);
+#include "tr_fbo.h"
+
+void RB_ToneMap(FBO_t *hdrFbo, int autoExposure);
 void RB_BokehBlur(float blur);
 void RB_GodRays(void);
 void RB_GaussianBlur(float blur);

@@ -280,7 +280,31 @@ extern void (APIENTRY * qglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint
 #define GL_QUERY_RESULT_ARB                               0x8866
 #define GL_QUERY_RESULT_AVAILABLE_ARB                     0x8867
 #endif
-        
+
+// GL_EXT_framebuffer_blit
+void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                            GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                            GLbitfield mask, GLenum filter);
+
+#ifndef GL_EXT_framebuffer_blit
+#define GL_EXT_framebuffer_blit
+#define GL_READ_FRAMEBUFFER_EXT                0x8CA8
+#define GL_DRAW_FRAMEBUFFER_EXT                0x8CA9
+#define GL_DRAW_FRAMEBUFFER_BINDING_EXT        0x8CA6
+#define GL_READ_FRAMEBUFFER_BINDING_EXT        0x8CAA
+#endif
+
+// GL_EXT_framebuffer_multisample
+void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
+	GLenum internalformat, GLsizei width, GLsizei height);
+
+#ifndef GL_EXT_framebuffer_multisample
+#define GL_EXT_framebuffer_multisample
+#define GL_RENDERBUFFER_SAMPLES_EXT                0x8CAB
+#define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT  0x8D56
+#define GL_MAX_SAMPLES_EXT                         0x8D57
+#endif
+
 #if defined(WIN32)
 // WGL_ARB_create_context
 #ifndef WGL_ARB_create_context

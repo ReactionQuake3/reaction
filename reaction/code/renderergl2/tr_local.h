@@ -1100,7 +1100,7 @@ typedef struct
 
 	// culling information
 	cplane_t        plane;
-	vec3_t          bounds[2];
+//	vec3_t          bounds[2];
 
 	// triangle definitions
 	int             numTriangles;
@@ -1129,7 +1129,7 @@ typedef struct
 	int         pshadowBits[SMP_FRAMES];
 
 	// culling information
-	vec3_t          bounds[2];
+//	vec3_t          bounds[2];
 
 	// triangle definitions
 	int             numTriangles;
@@ -1599,6 +1599,9 @@ typedef struct {
 	qboolean textureFloat;
 	qboolean halfFloatPixel;
 	qboolean packedDepthStencil;
+	
+	qboolean framebufferMultisample;
+	qboolean framebufferBlit;
 } glRefConfig_t;
 
 
@@ -1716,6 +1719,7 @@ typedef struct {
 	image_t					*textureDepthImage;
 
 	FBO_t					*renderFbo;
+	FBO_t					*msaaResolveFbo;
 	FBO_t					*godRaysFbo;
 	FBO_t					*depthFbo;
 	FBO_t					*pshadowFbos[MAX_DRAWN_PSHADOWS];
@@ -1909,6 +1913,7 @@ extern  cvar_t  *r_ext_multi_draw_arrays;
 extern  cvar_t  *r_ext_framebuffer_object;
 extern  cvar_t  *r_ext_texture_float;
 extern  cvar_t  *r_arb_half_float_pixel;
+extern  cvar_t  *r_ext_framebuffer_multisample;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader

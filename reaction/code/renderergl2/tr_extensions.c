@@ -164,6 +164,14 @@ void (APIENTRY * qglGetQueryivARB)(GLenum target, GLenum pname, GLint *params);
 void (APIENTRY * qglGetQueryObjectivARB)(GLuint id, GLenum pname, GLint *params);
 void (APIENTRY * qglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint *params);
 
+// GL_EXT_framebuffer_blit
+void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+                            GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
+                            GLbitfield mask, GLenum filter);
+
+// GL_EXT_framebuffer_multisample
+void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
+	GLenum internalformat, GLsizei width, GLsizei height);
 
 static qboolean GLimp_HaveExtension(const char *ext)
 {
@@ -519,4 +527,33 @@ void GLimp_InitExtraExtensions()
 	{
 		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
 	}
+
+	// GL_EXT_framebuffer_blit
+	extension = "GL_EXT_framebuffer_blit";
+	glRefConfig.framebufferBlit = qfalse;
+	if (GLimp_HaveExtension(extension))
+	{
+		qglBlitFramebufferEXT = (void *)SDL_GL_GetProcAddress("glBlitFramebufferEXT");
+		glRefConfig.framebufferBlit = qtrue;
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.framebufferBlit], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
+	}
+
+	// GL_EXT_framebuffer_multisample
+	extension = "GL_EXT_framebuffer_multisample";
+	glRefConfig.framebufferMultisample = qfalse;
+	if (GLimp_HaveExtension(extension))
+	{
+		qglRenderbufferStorageMultisampleEXT = (void *)SDL_GL_GetProcAddress("glRenderbufferStorageMultisampleEXT");
+		glRefConfig.framebufferMultisample = qtrue;
+		ri.Printf(PRINT_ALL, "...%s %s\n", action[glRefConfig.framebufferMultisample], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, "...%s not found\n", extension);
+	}
+	
 }
