@@ -6352,17 +6352,17 @@ static void UI_RunMenuScript(char **args)
 				//if (p)
 				//	*(p-1)=0;
 				//trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", demoname, uiInfo.demoType[uiInfo.demoIndex]));
-				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", uiInfo.demoList[uiInfo.demoIndex], uiInfo.demoType[uiInfo.demoIndex]));
+				//trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d\n", uiInfo.demoList[uiInfo.demoIndex], uiInfo.demoType[uiInfo.demoIndex]));
+				trap_Cmd_ExecuteText( EXEC_APPEND, va("demo %s\n", uiInfo.demoList[uiInfo.demoIndex]));
 			}
 		} else if (Q_stricmp(name, "RenderDemo") == 0) {
-			//TTI - Render to AVI
+			//TTI - Render as AVI
 			if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount)
 			{
-				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s.dm_%d ; video %s.dm_%d\n",
+				trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s ; video %s\n",
 					uiInfo.demoList[uiInfo.demoIndex],
-					uiInfo.demoType[uiInfo.demoIndex],
-					uiInfo.demoList[uiInfo.demoIndex],
-					uiInfo.demoType[uiInfo.demoIndex]));
+					uiInfo.demoList[uiInfo.demoIndex])
+				);
 			}
 		} else if (Q_stricmp(name, "Quake3") == 0) {
 			trap_Cvar_Set("fs_game", "");
