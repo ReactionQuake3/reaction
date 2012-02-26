@@ -261,16 +261,16 @@ PROTOCOL
 extern int demo_protocols[];
 
 #if !defined UPDATE_SERVER_NAME && !defined STANDALONE
-#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
+#define	UPDATE_SERVER_NAME	"update.rq3.com"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
-#define MASTER_SERVER_NAME	"master.quake3arena.com"
+#define MASTER_SERVER_NAME	"master.rq3.com"
 #endif
 
 #ifndef STANDALONE
   #ifndef AUTHORIZE_SERVER_NAME
-    #define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
+    #define	AUTHORIZE_SERVER_NAME	"authorize.rq3.com"
   #endif
   #ifndef PORT_AUTHORIZE
   #define	PORT_AUTHORIZE		27952
