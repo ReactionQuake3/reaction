@@ -1417,9 +1417,16 @@ Q3OBJ = \
   $(B)/client/sdl_input.o \
   $(B)/client/sdl_snd.o \
   \
-  $(B)/client/con_passive.o \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
+
+ifeq ($(PLATFORM),mingw32)
+  Q3OBJ += \
+    $(B)/client/con_passive.o
+else
+  Q3OBJ += \
+    $(B)/client/con_tty.o
+endif
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
