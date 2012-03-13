@@ -940,16 +940,16 @@ static cvarTable_t cvarTable[] = {	// bk001129
 
 //Slicer: apparently not being used     
 //      { &cg_RQ3_team_round_going, "cg_RQ3_team_round_going", "0", CVAR_ROM},
-	{&cg_RQ3_team1name, "g_RQ3_team1name", "0", 0},
-	{&cg_RQ3_team2name, "g_RQ3_team2name", "0", 0},
-	{&cg_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", 0},
-	{&cg_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", 0},
+	{&cg_RQ3_team1name, "g_RQ3_team1name", "0", CVAR_SYSTEMINFO},
+	{&cg_RQ3_team2name, "g_RQ3_team2name", "0", CVAR_SYSTEMINFO},
+	{&cg_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", CVAR_SYSTEMINFO},
+	{&cg_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", CVAR_SYSTEMINFO},
 	{&ui_RQ3_teamCount1, "ui_RQ3_teamCount1", "0", CVAR_ROM},
 	{&ui_RQ3_teamCount2, "ui_RQ3_teamCount2", "0", CVAR_ROM},
 	{&ui_RQ3_numSpectators, "ui_RQ3_numSpectators", "0", CVAR_ROM},
-	{&cg_gravity, "g_gravity", "800", 0},
+	{&cg_gravity, "g_gravity", "800", CVAR_SYSTEMINFO},
 	//Slicer: Team Status Cvars for MM
-	{&cg_RQ3_matchmode, "g_RQ3_matchmode", "0", 0},
+	{&cg_RQ3_matchmode, "g_RQ3_matchmode", "0", CVAR_SYSTEMINFO},
 	// JBravo: more MM ingame cvars.
 	//Makro - removed timelimit/fraglimit cvars - they were causing problems on local servers
 	//{&cg_RQ3_timelimit, "cg_RQ#timelimit", "0", CVAR_ROM},
@@ -961,7 +961,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_RQ3_limchasecam, "cg_RQ3_limchasecam", "0", CVAR_ROM},
 	{&cg_RQ3_tgren, "cg_RQ3_tgren", "0", CVAR_ROM},
 	{&cg_RQ3_friendlyFire, "cg_RQ3_friendlyFire", "0", CVAR_ROM},
-	{&cg_RQ3_version, "g_RQ3_version", "0", CVAR_ROM},
+	{&cg_RQ3_version, "g_RQ3_version", "0", CVAR_SYSTEMINFO| CVAR_ROM},
 	// JBravo: cvars for the about menu.
 	{&cg_RQ3_hostname, "sv_hostname", "0", CVAR_ROM},
 	{&cg_RQ3_needpass, "g_needpass", "0", CVAR_ROM},
@@ -975,7 +975,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 // JBravo: unlagged
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
 	{&cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT},
-	{&sv_fps, "sv_fps", "20", 0},
+	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO},
 	{&cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE},
 	{&cg_latentCmds, "cg_latentCmds", "0", CVAR_USERINFO | CVAR_CHEAT},
 	{&cl_timeNudge, "cl_timeNudge", "0", CVAR_ARCHIVE}
