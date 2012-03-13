@@ -50,6 +50,8 @@
  *
  *****************************************************************************/
 
+// JBravo: here be dragons.  ioquake3's ai_main.c rev 2116 meight have something for us
+
 #include "g_local.h"
 #include "../qcommon/q_shared.h"
 #include "../botlib/botlib.h"           //bot lib interface

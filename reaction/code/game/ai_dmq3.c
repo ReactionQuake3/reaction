@@ -186,6 +186,8 @@
  *
  *****************************************************************************/
 
+// JBravo: Here be dragons.  ioquake3's ai_dmq3.c rev 2116 meight have something for us.
+
 #include "g_local.h"
 #include "../botlib/botlib.h"
 #include "../botlib/be_aas.h"
