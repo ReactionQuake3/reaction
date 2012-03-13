@@ -2861,7 +2861,6 @@ void Com_ReadFromPipe( void )
 		Cbuf_ExecuteText( EXEC_APPEND, buffer );
 }
 
-
 //==================================================================
 
 void Com_WriteConfigToFile( const char *filename ) {
