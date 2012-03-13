@@ -6988,7 +6988,7 @@ static void UI_BuildServerDisplayList(qboolean force)
 	if (len == 0) {
 		//Makro - changing from Team Arena to RQ3 beta2
 		//strcpy(uiInfo.serverStatus.motd, "Welcome to Team Arena!");
-		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction Quake 3 v3.3 *** ");
+		strcpy(uiInfo.serverStatus.motd, " *** Welcome to Reaction *** ");
 		len = strlen(uiInfo.serverStatus.motd);
 	}
 	if (len != uiInfo.serverStatus.motdLen) {
@@ -7059,14 +7059,15 @@ static void UI_BuildServerDisplayList(qboolean force)
 			*/
 			//Makro - changed check
 			//if (ui_serverFilterType.integer > 0) {
-			if (serverFilters[ui_serverFilterType.integer].basedir[0]) {
+// JBravo: Now we are no longer a Q3 mod, so filtering by gamename is not needed.
+/*			if (serverFilters[ui_serverFilterType.integer].basedir[0]) {
 				if (Q_stricmp
 				    (Info_ValueForKey(info, "game"),
 				     serverFilters[ui_serverFilterType.integer].basedir) != 0) {
 					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 					continue;
 				}
-			}
+			} */
 			// make sure we never add a favorite server twice
 			if (ui_netSource.integer == AS_FAVORITES) {
 				UI_RemoveServerFromDisplayList(i);
