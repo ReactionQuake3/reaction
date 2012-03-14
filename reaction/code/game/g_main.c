@@ -745,7 +745,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_NextMapID, "g_RQ3_NextMapID", "-1", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_NextMap, "g_RQ3_NextMap", "", CVAR_SYSTEMINFO, 0, qfalse},
 	//Makro - for server browsers
-	{&g_RQ3_version, "g_RQ3_version", "3.3", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
+	{&g_RQ3_version, "g_RQ3_version", "1.0", CVAR_SERVERINFO | CVAR_SYSTEMINFO | CVAR_ROM, 0, qfalse},
 	//Makro - max votes per client
 	{&g_RQ3_maxClientVotes, "g_RQ3_maxClientVotes", "3", CVAR_ARCHIVE, 0, qfalse}
 };
