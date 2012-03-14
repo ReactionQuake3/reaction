@@ -633,7 +633,7 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE},
 	{&g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE},
 	{&g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue},
-	{&g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue},
+	{&g_doWarmup, "g_doWarmup", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_logfile, "g_log", "reaction.log", CVAR_ARCHIVE, 0, qfalse},
 	{&g_logfileSync, "g_logsync", "0", CVAR_ARCHIVE, 0, qfalse},
 	{&g_password, "g_password", "", CVAR_USERINFO, 0, qfalse},
@@ -1322,6 +1322,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// range are NEVER anything but clients
 	level.num_entities = MAX_CLIENTS;
 
+	for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
+		g_entities[i].classname = "clientslot";
+	}
+
 	// let the server system know where the entites are
 	trap_LocateGameData(level.gentities, level.num_entities, sizeof(gentity_t),
 			    &level.clients[0].ps, sizeof(level.clients[0]));
@@ -1446,6 +1450,7 @@ void G_ShutdownGame(int restart)
 		G_LogPrintf("ShutdownGame:\n");
 		G_LogPrintf("------------------------------------------------------------\n");
 		trap_FS_FCloseFile(level.logFile);
+		level.logFile = 0;
 	}
 
 	camera_shutdown();
@@ -2048,7 +2053,7 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 	Com_sprintf(string, sizeof(string), "[%02i:%02i:%02i] ", now.tm_hour, now.tm_min, now.tm_sec);
 
 	va_start(argptr, fmt);
-	Q_vsnprintf(string + 11, sizeof(string), fmt, argptr);
+	Q_vsnprintf(string + 11, sizeof(string) - 11, fmt, argptr);
 	va_end(argptr);
 
 	if (g_dedicated.integer) {
@@ -2764,7 +2769,7 @@ Advances the non-player objects in the world
 void G_RunFrame(int levelTime)
 {
 	gentity_t *ent;
-	int i, msec, start, end;
+	int i; // msec, start, end;
 
 	// if we are waiting for the level to restart, do nothing
 	if (level.restarted) {
@@ -2779,7 +2784,7 @@ void G_RunFrame(int levelTime)
 	level.framenum++;
 	level.previousTime = level.time;
 	level.time = levelTime;
-	msec = level.time - level.previousTime;
+	// msec = level.time - level.previousTime;
 
 	//Makro - in progress
 	//G_UpdateParentDeltas();
@@ -2791,7 +2796,7 @@ void G_RunFrame(int levelTime)
 	//
 	// go through all allocated objects
 	//
-	start = trap_Milliseconds();
+	// start = trap_Milliseconds();
 	//Makro - use g_parentOder
 	for (i = 0; i < level.num_entities; i++) {
 		ent = g_parentOrder[i];
@@ -2860,9 +2865,9 @@ void G_RunFrame(int levelTime)
 	//Makro - in progress
 	//G_AdjustCoordinates();
 
-	end = trap_Milliseconds();
+	// end = trap_Milliseconds();
 
-	start = trap_Milliseconds();
+	// start = trap_Milliseconds();
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for (i = 0; i < level.maxclients; i++, ent++) {
@@ -2870,7 +2875,7 @@ void G_RunFrame(int levelTime)
 			ClientEndFrame(ent);
 		}
 	}
-	end = trap_Milliseconds();
+	// end = trap_Milliseconds();
 
 	// see if it is time to do a tournement restart
 	// JBravo: no need if teamplay
