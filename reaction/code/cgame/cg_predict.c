@@ -609,8 +609,9 @@ void CG_PredictPlayerState(void)
 	// JBravo: Zcam fix
 	/* camera jitter fix (client side) */
 	if (cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ||
-	    ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM)
-		|| (cg_pmove.ps && cg_pmove.ps->pm_type == PM_DEAD) ) {
+//	    ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM) 
+	    ((cg.snap->ps.stats[STAT_RQ3] & RQ3_ZCAM) == RQ3_ZCAM)) {
+//		|| (cg_pmove.ps && cg_pmove.ps->pm_type == PM_DEAD) ) {
 		CG_InterpolatePlayerState(qfalse);
 		return;
 	}
