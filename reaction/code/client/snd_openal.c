@@ -47,8 +47,8 @@ cvar_t *s_alDevice;
 cvar_t *s_alInputDevice;
 cvar_t *s_alAvailableDevices;
 cvar_t *s_alAvailableInputDevices;
+// Makro
 cvar_t *s_alEffectsLevel;
-
 
 static qboolean enumeration_ext = qfalse;
 static qboolean enumeration_all_ext = qfalse;
@@ -2348,7 +2348,7 @@ void S_AL_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int 
 	orientation[3] = axis[2][0]; orientation[4] = axis[2][1]; orientation[5] = axis[2][2];
 
 	VectorCopy( sorigin, lastListenerOrigin );
-
+// Makro
 	contents = CM_PointContents(sorigin, 0);
 	changedContents = contents ^ s_alEffects.lastContents;
 	s_alEffects.lastContents = contents;
@@ -2369,6 +2369,7 @@ void S_AL_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int 
 	qalListenerfv(AL_ORIENTATION, orientation);
 }
 
+// Makro
 static void S_AL_LerpReverb(const reverb_t* from, const reverb_t* to, float fraction, reverb_t* out)
 {
 #	define LERP_FIELD(field) out->field = from->field + (to->field - from->field) * fraction
@@ -2615,6 +2616,30 @@ void S_AL_ClearSoundBuffer( void )
 {
 }
 
+static void S_AL_ShutDownEffects(void)
+{
+	if (!s_alEffects.initialized)
+		return;
+	
+	// Delete Effect
+	if (s_alEffects.env.alEffect)
+		qalDeleteEffects(1, &s_alEffects.env.alEffect);
+
+	// Delete Auxiliary Effect Slot
+	if (s_alEffects.env.alEffectSlot)
+		qalDeleteAuxiliaryEffectSlots(1, &s_alEffects.env.alEffectSlot);
+
+	// Delete filter
+	if (s_alEffects.water.alFilter)
+		qalDeleteFilters(1, &s_alEffects.water.alFilter);
+
+	Com_Memset(&s_alEffects, 0, sizeof(s_alEffects));
+
+	Cmd_RemoveCommand("s_alTestReverb");
+	Cmd_RemoveCommand("writesoundshader");
+	Cmd_RemoveCommand("writecustinfoparms");
+}
+
 /*
 =================
 S_AL_SoundList
@@ -2674,53 +2699,30 @@ S_AL_SoundInfo
 static void S_AL_SoundInfo(void)
 {
 	Com_Printf( "OpenAL info:\n" );
-	Com_Printf( "  Vendor:     %s\n", qalGetString( AL_VENDOR ) );
-	Com_Printf( "  Version:    %s\n", qalGetString( AL_VERSION ) );
-	Com_Printf( "  Renderer:   %s\n", qalGetString( AL_RENDERER ) );
-	Com_Printf( "  AL Extensions: %s\n", qalGetString( AL_EXTENSIONS ) );
+	Com_Printf( "  Vendor:         %s\n", qalGetString( AL_VENDOR ) );
+	Com_Printf( "  Version:        %s\n", qalGetString( AL_VERSION ) );
+	Com_Printf( "  Renderer:       %s\n", qalGetString( AL_RENDERER ) );
+	Com_Printf( "  AL Extensions:  %s\n", qalGetString( AL_EXTENSIONS ) );
 	Com_Printf( "  ALC Extensions: %s\n", qalcGetString( alDevice, ALC_EXTENSIONS ) );
+
 	if(enumeration_all_ext)
 		Com_Printf("  Device:         %s\n", qalcGetString(alDevice, ALC_ALL_DEVICES_SPECIFIER));
 	else if(enumeration_ext)
-		Com_Printf("  Device:      %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
+		Com_Printf("  Device:         %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
 
 	if(enumeration_all_ext || enumeration_ext)
-		Com_Printf("Available Devices:\n%s", s_alAvailableDevices->string);
+		Com_Printf("  Available Devices:\n%s", s_alAvailableDevices->string);
 
 #ifdef USE_VOIP
 	if(capture_ext)
 	{
 		Com_Printf("  Input Device:   %s\n", qalcGetString(alCaptureDevice, ALC_CAPTURE_DEVICE_SPECIFIER));
-		Com_Printf("Available Input Devices:\n%s", s_alAvailableInputDevices->string);
+		Com_Printf("  Available Input Devices:\n%s", s_alAvailableInputDevices->string);
 	}
 #endif
 }
 
 
-
-static void S_AL_ShutDownEffects(void)
-{
-	if (!s_alEffects.initialized)
-		return;
-	
-	// Delete Effect
-	if (s_alEffects.env.alEffect)
-		qalDeleteEffects(1, &s_alEffects.env.alEffect);
-
-	// Delete Auxiliary Effect Slot
-	if (s_alEffects.env.alEffectSlot)
-		qalDeleteAuxiliaryEffectSlots(1, &s_alEffects.env.alEffectSlot);
-
-	// Delete filter
-	if (s_alEffects.water.alFilter)
-		qalDeleteFilters(1, &s_alEffects.water.alFilter);
-
-	Com_Memset(&s_alEffects, 0, sizeof(s_alEffects));
-
-	Cmd_RemoveCommand("s_alTestReverb");
-	Cmd_RemoveCommand("writesoundshader");
-	Cmd_RemoveCommand("writecustinfoparms");
-}
 
 /*
 =================
@@ -3144,8 +3146,8 @@ qboolean S_AL_Init( soundInterface_t *si )
 	s_alGraceDistance = Cvar_Get("s_alGraceDistance", "512", CVAR_CHEAT);
 
 	s_alDriver = Cvar_Get( "s_alDriver", ALDRIVER_DEFAULT, CVAR_ARCHIVE | CVAR_LATCH );
-	s_alInputDevice = Cvar_Get( "s_alInputDevice", "", CVAR_ARCHIVE | CVAR_LATCH );
 
+	s_alInputDevice = Cvar_Get( "s_alInputDevice", "", CVAR_ARCHIVE | CVAR_LATCH );
 	s_alDevice = Cvar_Get("s_alDevice", "", CVAR_ARCHIVE | CVAR_LATCH);
 	s_alEffectsLevel = Cvar_Get("s_alEffects", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
@@ -3259,6 +3261,7 @@ qboolean S_AL_Init( soundInterface_t *si )
 	qalDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 	qalDopplerFactor( s_alDopplerFactor->value );
 	qalDopplerVelocity( s_alDopplerSpeed->value );
+
 
 #ifdef USE_VOIP
 	// !!! FIXME: some of these alcCaptureOpenDevice() values should be cvars.
