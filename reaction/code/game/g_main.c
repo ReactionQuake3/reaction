@@ -706,8 +706,8 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_RQ3_tgren, "g_RQ3_tgren", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_limchasecam, "g_RQ3_limchasecam", "0", CVAR_ARCHIVE, 0, qtrue},
 	{&g_RQ3_sniperup, "g_RQ3_sniperup", "0", CVAR_ARCHIVE, 0, qtrue},
-	{&g_RQ3_team1name, "g_RQ3_team1name", "Team 1", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
-	{&g_RQ3_team2name, "g_RQ3_team2name", "Team 2", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
+	{&g_RQ3_team1name, "g_RQ3_team1name", "Cops", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
+	{&g_RQ3_team2name, "g_RQ3_team2name", "Robbers", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse},
 	{&g_RQ3_team1model, "g_RQ3_team1model", "reactionmale/default", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_team2model, "g_RQ3_team2model", "reactionmale/robber", CVAR_SYSTEMINFO, 0, qfalse},
 	{&g_RQ3_tpcountdown, "g_RQ3_tpcountdown", "1", CVAR_ARCHIVE, 0, qfalse},
@@ -930,9 +930,9 @@ void G_RegisterCvars(void)
 		trap_Cvar_Set("g_RQ3_team2name", "BLACK");
 	} else {
 		if (Q_stricmp(g_RQ3_team1name.string, "SILVER") == 0)
-			trap_Cvar_Set("g_RQ3_team1name", "Team 1");
+			trap_Cvar_Set("g_RQ3_team1name", "Cops");
 		if (Q_stricmp(g_RQ3_team2name.string, "BLACK") == 0)
-			trap_Cvar_Set("g_RQ3_team2name", "Team 2");
+			trap_Cvar_Set("g_RQ3_team2name", "Robbers");
 	}
 
 // JBravo: tdmMode now used to control the weapon/item menu in the UI

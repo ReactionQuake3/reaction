@@ -249,7 +249,7 @@ void MM_TeamModel_f(gentity_t * ent)
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team1model", buff);
-			trap_SendServerCommand(-1, va("print \"New Team 1 Model: "MM_OK_COLOR"%s\n\"", buff));
+			trap_SendServerCommand(-1, va("print \"New Team %s Model: "MM_OK_COLOR"%s\n\"", g_RQ3_team1name.string, buff));
 		} else {
 			if (level.team2ready) {
 				trap_SendServerCommand(ent - g_entities,
@@ -257,7 +257,7 @@ void MM_TeamModel_f(gentity_t * ent)
 				return;
 			}
 			trap_Cvar_Set("g_RQ3_team2model", buff);
-			trap_SendServerCommand(-1, va("print \"New Team 2 Model: "MM_OK_COLOR"%s\n\"", buff));
+			trap_SendServerCommand(-1, va("print \"New Team %s Model: "MM_OK_COLOR"%s\n\"", g_RQ3_team2name.string, buff));
 		}
 	}
 }
