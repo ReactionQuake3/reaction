@@ -47,7 +47,8 @@ void UpdateTournamentInfo(void)
 	int i;
 	gentity_t *player;
 	int playerClientNum;
-	int n, accuracy, perfect, msglen;
+	//int n, accuracy, perfect, msglen;
+	int n, msglen;
 	char buf[32];
 	char msg[MAX_STRING_CHARS];
 
@@ -73,7 +74,7 @@ void UpdateTournamentInfo(void)
 
 	CalculateRanks();
 
-	if (level.clients[playerClientNum].sess.sessionTeam == TEAM_SPECTATOR) {
+/*	if (level.clients[playerClientNum].sess.sessionTeam == TEAM_SPECTATOR) {
 		Com_sprintf(msg, sizeof(msg), "postgame %i %i 0 0 0 0 0 0", level.numNonSpectatorClients,
 			    playerClientNum);
 	} else {
@@ -85,11 +86,11 @@ void UpdateTournamentInfo(void)
 		perfect = (level.clients[playerClientNum].ps.persistant[PERS_RANK] == 0
 			   && player->client->ps.persistant[PERS_KILLED] == 0) ? 1 : 0;
 //Blaze: Removed because it uses the persistant stats stuff
-/*		Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
+		Com_sprintf( msg, sizeof(msg), "postgame %i %i %i %i %i %i %i %i", level.numNonSpectatorClients, playerClientNum, accuracy,
 			player->client->ps.persistant[PERS_IMPRESSIVE_COUNT], player->client->ps.persistant[PERS_EXCELLENT_COUNT],
 			player->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT], player->client->ps.persistant[PERS_SCORE],
-			perfect );*/
-	}
+			perfect );
+	} */
 
 	msglen = strlen(msg);
 	for (i = 0; i < level.numNonSpectatorClients; i++) {

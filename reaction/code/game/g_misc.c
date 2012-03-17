@@ -977,12 +977,11 @@ Fires at either the target or the current direction.
 void func_breakable_explode(gentity_t * self, vec3_t pos)
 {
 	int eParam;
-	gentity_t *tent;
 
 //      GibEntity( self, 0 );
 	eParam = self->s.eventParm;
 
-	tent = G_TempEntity2(pos, EV_EXPLODE_BREAKABLE, eParam);
+	G_TempEntity2(pos, EV_EXPLODE_BREAKABLE, eParam);
 
 //      self->takedamage = qfalse;
 //      self->s.eType = ET_INVISIBLE;
@@ -1291,7 +1290,6 @@ Original by inolen, heavy modifications by Elder
 */
 void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, vec3_t point, int mod, int damage)
 {
-	gentity_t *tent;
 	vec3_t size;
 	vec3_t impactPoint;
 
@@ -1362,13 +1360,13 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
 		switch (shiftCount) {
 		case 0:
-			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS1, eParm);
+			G_TempEntity2(impactPoint, EV_BREAK_GLASS1, eParm);
 			break;
 		case 1:
-			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS2, eParm);
+			G_TempEntity2(impactPoint, EV_BREAK_GLASS2, eParm);
 			break;
 		case 2:
-			tent = G_TempEntity2(impactPoint, EV_BREAK_GLASS3, eParm);
+			G_TempEntity2(impactPoint, EV_BREAK_GLASS3, eParm);
 			break;
 		default:
 			G_Error("G_BreakGlass: shiftCount > 2\n");
@@ -1427,7 +1425,7 @@ void G_BreakGlass(gentity_t * ent, gentity_t * inflictor, gentity_t * attacker, 
 		}
 		//G_FreeEntity( ent );
 		//G_Printf("%s shift: %i\n", vtos(impactPoint), shiftCount);
-		tent = G_TempEntity2(impactPoint, EV_CHIP_GLASS, eParm);
+		G_TempEntity2(impactPoint, EV_CHIP_GLASS, eParm);
 
 	}
 }

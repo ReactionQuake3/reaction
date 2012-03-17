@@ -746,7 +746,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 	int event;
 	gclient_t *client;
 	int damage;
-	vec3_t dir;
+//	vec3_t dir;
 	vec3_t origin, angles;
 	gitem_t *item;
 	gentity_t *drop;
@@ -775,7 +775,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 			}
 
 			damage = ent->client->ps.stats[STAT_FALLDAMAGE];
-			VectorSet(dir, 0, 0, 1);
+//			VectorSet(dir, 0, 0, 1);
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
@@ -806,7 +806,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 			}
 
 			damage = ent->client->ps.stats[STAT_FALLDAMAGE];
-			VectorSet(dir, 0, 0, 1);
+//			VectorSet(dir, 0, 0, 1);
 			ent->pain_debounce_time = level.time + 200;	// no normal pain sound
 			//Elder: added so we can trigger AQ2 pain blends
 			ent->client->ps.damageEvent++;
@@ -1461,14 +1461,14 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame(gentity_t * ent)
 {
 	int i, frames;
-	clientPersistant_t *pers;
+//	clientPersistant_t *pers;
 
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 		SpectatorClientEndFrame(ent);
 		return;
 	}
 
-	pers = &ent->client->pers;
+//	pers = &ent->client->pers;
 
 	// turn off any expired powerups
 	for (i = 0; i < MAX_POWERUPS; i++) {

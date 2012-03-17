@@ -1906,7 +1906,7 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 	clientInfo_t *ci;
 	vec3_t dir, origin;
 	int contents, i;
-	localEntity_t *puff[NUM_BREATH_PUFFS];
+//	localEntity_t *puff[NUM_BREATH_PUFFS];
 
 	ci = &cgs.clientinfo[cent->currentState.number];
 
@@ -1947,7 +1947,8 @@ static void CG_BreathPuffs(centity_t * cent, refEntity_t * head)
 		//up-down
 		VectorMA(dir, -0.3f + crandom() * 0.3f, head->axis[2], dir);
 		VectorScale(dir, 3+random()*3, dir);
-		puff[i] = CG_SmokePuff(origin, dir, 3.5f+crandom()*0.5f, 1, 1, 1, 0.15f+crandom()*0.05f, 1000+random()*500, cg.time, 0,
+		//puff[i] = CG_SmokePuff(origin, dir, 3.5f+crandom()*0.5f, 1, 1, 1, 0.15f+crandom()*0.05f, 1000+random()*500, cg.time, 0,
+		CG_SmokePuff(origin, dir, 3.5f+crandom()*0.5f, 1, 1, 1, 0.15f+crandom()*0.05f, 1000+random()*500, cg.time, 0,
 			LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader);
 	}
 	

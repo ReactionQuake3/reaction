@@ -299,8 +299,9 @@ int Pickup_Ammo(gentity_t * ent, gentity_t * other, int bandolierFactor)
 
 int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 {
-	int quantity, ammotoadd;
+	int ammotoadd;
 
+/* JBravo:  Not used
 	if (ent->count < 0) {
 		quantity = 0;	// None for you, sir!
 	} else {
@@ -309,7 +310,7 @@ int Pickup_Weapon(gentity_t * ent, gentity_t * other, int bandolierFactor)
 		} else {
 			quantity = ent->item->quantity;
 		}
-	}
+	} */
 
 	// add the weapon if not knife or pistol
 	if (ent->item->giTag != WP_KNIFE || ent->item->giTag != WP_PISTOL) {

@@ -418,7 +418,7 @@ Toss the weapon and powerups for the killed player
 void TossClientItems(gentity_t * self)
 {
 	gitem_t *item, *dropitem;
-	int weapon, i;
+	int i;
 	float angle;
 	gentity_t *drop;
 
@@ -426,7 +426,7 @@ void TossClientItems(gentity_t * self)
 	int weaponInventory;
 
 	// drop the weapon if not a gauntlet or machinegun
-	weapon = self->s.weapon;
+	//weapon = self->s.weapon;
 
 	//Slicer: don't drop weapons with all weapons enable.. 
 	if(g_RQ3_allWeapons.integer)

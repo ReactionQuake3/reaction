@@ -1214,7 +1214,6 @@ int G_SendCheatVars(int clientNum)
 	char *text_p;
 	int len;
 	int i;
-	int skip;
 	char *token;
 	char text[20000];
 	fileHandle_t f;
@@ -1242,7 +1241,6 @@ int G_SendCheatVars(int clientNum)
 
 	// parse the text
 	text_p = text;
-	skip = 0;		// quite the compiler warning
 
 	for (i = 0; i < 30; i++) {
 		token = COM_Parse(&text_p);
