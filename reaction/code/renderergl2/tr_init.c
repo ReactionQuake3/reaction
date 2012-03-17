@@ -1114,9 +1114,9 @@ void R_Register( void )
 	r_greyscale = ri.Cvar_Get("r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_greyscale, 0, 1, qfalse);
 
-	r_hdr = ri.Cvar_Get( "r_hdr", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_hdr = ri.Cvar_Get( "r_hdr", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_postProcess = ri.Cvar_Get( "r_postProcess", "1", CVAR_ARCHIVE );
-	r_toneMap = ri.Cvar_Get( "r_toneMap", "1", CVAR_ARCHIVE );
+	r_toneMap = ri.Cvar_Get( "r_toneMap", "0", CVAR_ARCHIVE );
 	r_autoExposure = ri.Cvar_Get( "r_autoExposure", "1", CVAR_ARCHIVE );
 	r_cameraExposure = ri.Cvar_Get( "r_cameraExposure", "0", CVAR_CHEAT );
 
