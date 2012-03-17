@@ -94,7 +94,7 @@
 
     itemDef {
       name copyright
-      text "Reaction Quake3 TA UI Test"
+      text "Reaction TA UI Test"
       style 0
       textscale RQ3_MAIN_TEXTSIZE
       rect 0 440 640 40
@@ -139,7 +139,7 @@
 
 	itemdef {
 	name RQ3_start_hint
-	text "Play Reaction Quake3"
+	text "Play Reaction"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 0
 	textalignx 8
@@ -178,7 +178,7 @@
 
 	itemdef {
 	name RQ3_setup_hint
-	text "Configure Reaction Quake3"
+	text "Configure Reaction"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 0
 	textalignx 8
@@ -295,7 +295,7 @@
 
 	itemdef {
 	name RQ3_quit_hint
-	text "Exit Reaction Quake3"
+	text "Exit Reaction"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 0
 	textalignx 8
@@ -332,7 +332,7 @@
 
 	itemdef {
 	name RQ3_logo_hint
-	text "About Reaction Quake3"
+	text "About Reaction"
 	forecolor RQ3_MAIN_HINT_COLOR
 	textalign 0
 	textalignx 8

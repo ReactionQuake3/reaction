@@ -39,7 +39,7 @@
 	// Timer //
 
     timedItems 39
-    timerInterval 2500
+    timerInterval 4500
 	timerMaxDisplay 1
     onFinishTimer { uiScript "restoreMusicVolume" ; uiScript "quit" }
     //onFinishTimer { restartTimer }
@@ -1109,7 +1109,7 @@
 
 
 
-    // REACTION QUAKE 3 CONTRIBUTIONS //
+    // REACTION CONTRIBUTIONS //
 
 	itemDef {
 	name "timer15"
@@ -1129,7 +1129,7 @@
 	name "timer15"
 	group timer	
 	subgroup "t15_title"
-	text "Reaction Quake 3\n"
+	text "Reaction 1.0\n"
 	     "contributions"
 	forecolor 0 0 .1 1
 	style WINDOW_STYLE_EMPTY
@@ -1216,7 +1216,7 @@
 
 
 
-    // REACTION QUAKE 3 TITLE SCORE //
+    // REACTION TITLE SCORE //
 
 	itemDef {
 	name "timer17"
@@ -1236,7 +1236,7 @@
 	name "timer17"
 	group timer	
 	subgroup "t17_title"
-	text "REACTION QUAKE 3\n"
+	text "REACTION 1.0\n"
 	     "TITLE SCORE\n"
 	     "\n"
 		 "\n"

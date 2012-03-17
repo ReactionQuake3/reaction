@@ -596,7 +596,7 @@
 	group grpGame
 	style 1
 	text "Note: pressing the apply button will restart "
-	     "Reaction Quake 3 in order to load the new "
+	     "Reaction in order to load the new "
 	     "SSG crosshair"
 	autowrapped
 	rect 112 280 232 20
@@ -784,7 +784,7 @@
 	group grpGame
 	style 1
 	text "Note: pressing the apply button will restart "
-	     "Reaction Quake 3 in order to load the new "
+	     "Reaction in order to load the new "
 	     "models and skins"
 	autowrapped
 	rect 112 256 232 20
