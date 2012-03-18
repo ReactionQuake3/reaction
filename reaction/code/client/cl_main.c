@@ -3559,8 +3559,8 @@ void CL_Init( void ) {
 	Cvar_Get ("headmodel", "reactionmale", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("team_model", "reactionmale", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("team_headmodel", "*reactionmale", CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Get ("g_redTeam", "Cops", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("g_blueTeam", "Robbers", CVAR_SERVERINFO | CVAR_ARCHIVE);
+	Cvar_Get ("g_redTeam", "Robbers", CVAR_SERVERINFO | CVAR_ARCHIVE);
+	Cvar_Get ("g_blueTeam", "Cops", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("color2", "5", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("handicap", "100", CVAR_USERINFO | CVAR_ARCHIVE );

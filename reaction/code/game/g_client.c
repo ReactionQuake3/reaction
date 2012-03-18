@@ -1096,21 +1096,6 @@ void ClientUserinfoChanged(int clientNum)
 			if (skin2) {
 				*skin2++ = '\0';
 			} else {
-				skin2 = "cops";
-			}
-			if (RQ3_Validatemodel(model2) != -1) {
-				Com_sprintf(model, sizeof(model), "%s/%s", model2, skin2);
-				Com_sprintf(headModel, sizeof(headModel), "%s/%s", model2, skin2);
-			} else {
-				Com_sprintf(model, sizeof(model), "reactionmale/cops");
-				Com_sprintf(headModel, sizeof(headModel), "reactionmale/cops");
-			}
-		} else {
-			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
-			skin2 = strrchr(model2, '/');
-			if (skin2) {
-				*skin2++ = '\0';
-			} else {
 				skin2 = "robbers";
 			}
 			if (RQ3_Validatemodel(model2) != -1) {
@@ -1119,6 +1104,21 @@ void ClientUserinfoChanged(int clientNum)
 			} else {
 				Com_sprintf(model, sizeof(model), "reactionmale/robbers");
 				Com_sprintf(headModel, sizeof(headModel), "reactionmale/robbers");
+			}
+		} else {
+			Q_strncpyz(model2, g_RQ3_team2model.string, sizeof(model));
+			skin2 = strrchr(model2, '/');
+			if (skin2) {
+				*skin2++ = '\0';
+			} else {
+				skin2 = "cops";
+			}
+			if (RQ3_Validatemodel(model2) != -1) {
+				Com_sprintf(model, sizeof(model), "%s/%s", model2, skin2);
+				Com_sprintf(headModel, sizeof(headModel), "%s/%s", model2, skin2);
+			} else {
+				Com_sprintf(model, sizeof(model), "reactionmale/cops");
+				Com_sprintf(headModel, sizeof(headModel), "reactionmale/cops");
 			}
 		}
 	} else {
