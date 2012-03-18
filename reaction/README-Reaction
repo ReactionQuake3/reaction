@@ -3,12 +3,11 @@ Welcome to the sourcecode of Reaction 1.0.   Reaction uses a modified version of
 To build Reaction on *nix, just Change to the directory containing this readme and run make.
 If you want to compile only certain parts or influence what is included in the build, edit Makefile.local.  You should not change BUILD_RENDERER_GL2 and build Reaction with the Original Quake 3 renderer as many maps, the UI and more depend on many of the new advanced features in our new renderer.
 
-Building Windows binaries is also straight forward on *nix.  Make sure the mingw compiler environment is installed and take a look at cross-make-mingw.sh. At the top of the script it looks for the gcc and windres binaries in your distro.  You meight have to modify these checks to fit your system.    Then just run cross-make-mingw.shcross-make-mingw.sh.
+Building Windows binaries is also straight forward on *nix.  Make sure the mingw compiler environment is installed and take a look at cross-make-mingw.sh. At the top of the script it looks for the gcc and windres binaries in your distro.  You might have to modify these checks to fit your system.    Then just run cross-make-mingw.sh.
 
 Building Windows binaries using other environments (Microsoft compilers and such) has not been tested in a long time and is probably broken as the project files have not been updated in ages.    If anyone manages to get this working, please dont hesitate to send us a patch.
 
 Building on Mac's:  Blaze needs to fill out this part.
-
 
 We have a bugzilla for Reaction that is hosted at icculus.org, the home of ioquake3: https://bugzilla.icculus.org/
 Please file all bugs/patches there and/or drop us a line at bugs@rq3.com
@@ -18,6 +17,3 @@ Please enjoy hacking Reaction and please share your work with us so we can make 
 
 --
 JBravo.
-
-
-
