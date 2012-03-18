@@ -83,9 +83,17 @@ Makefile.local:
   BUILD_SERVER       - build the 'ioq3ded' server binary
   BUILD_CLIENT       - build the 'ioquake3' client binary
   BUILD_CLIENT_SMP   - build the 'ioquake3-smp' client binary
+  BUILD_BASEGAME     - build the 'baseq3' binaries
+  BUILD_MISSIONPACK  - build the 'missionpack' binaries
   BUILD_GAME_SO      - build the game shared libraries
   BUILD_GAME_QVM     - build the game qvms
   BUILD_STANDALONE   - build binaries suited for stand-alone games
+  SERVERBIN          - rename 'ioq3ded' server binary
+  CLIENTBIN          - rename 'ioquake3' client binary
+  BASEGAME           - rename 'baseq3'
+  BASEGAME_CFLAGS    - custom CFLAGS for basegame
+  MISSIONPACK        - rename 'missionpack'
+  MISSIONPACK_CFLAGS - custom CFLAGS for missionpack (default '-DMISSIONPACK')
   USE_OPENAL         - use OpenAL where available
   USE_OPENAL_DLOPEN  - link with OpenAL at runtime
   USE_CURL           - use libcurl for http/ftp download support
@@ -95,6 +103,8 @@ Makefile.local:
   USE_VOIP           - enable built-in VoIP support
   USE_INTERNAL_SPEEX - build internal speex library instead of dynamically
                        linking against system libspeex
+  USE_OLD_VM64       - use Ludwig Nussel's old JIT compiler implementation
+                       for x86_64
   USE_INTERNAL_ZLIB  - build and link against internal zlib
   USE_INTERNAL_JPEG  - build and link against internal JPEG library
   USE_LOCAL_HEADERS  - use headers local to ioq3 instead of system ones
@@ -126,6 +136,7 @@ New cvars
                                       for forward movement speed/direction.
   j_side                            - Joystick analogue to m_side,
                                       for side movement speed/direction.
+  j_up                              - Joystick up movement speed/direction.
   j_pitch                           - Joystick analogue to m_pitch,
                                       for pitch rotation speed/direction.
   j_yaw                             - Joystick analogue to m_yaw,
@@ -134,6 +145,8 @@ New cvars
                                       controls forward/back.
   j_side_axis                       - Selects which joystick axis
                                       controls left/right.
+  j_up_axis                         - Selects which joystick axis
+                                      controls up/down.
   j_pitch_axis                      - Selects which joystick axis
                                       controls pitch.
   j_yaw_axis                        - Selects which joystick axis
@@ -647,9 +660,9 @@ Building with MinGW for pre Windows XP
 ------------------------------------------------------------- Contributing -----
 
 Please send all patches to bugzilla (https://bugzilla.icculus.org), or join the
-mailing list (quake3-subscribe@icculus.org) and submit your patch there.  The
-best case scenario is that you submit your patch to bugzilla, and then post the
-URL to the mailing list.
+mailing list (http://lists.ioquake.org/listinfo.cgi/ioquake3-ioquake.org) and 
+submit your patch there.  The best case scenario is that you submit your patch 
+to bugzilla, and then post the URL to the mailing list.
 
 The focus for ioq3 is to develop a stable base suitable for further development
 and provide players with the same Quake 3 experience they've had for years. As
