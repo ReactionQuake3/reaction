@@ -517,7 +517,7 @@ void FBO_Init(void)
 		tr.quarterFbo[i] = FBO_Create(va("_quarter%d", i), tr.quarterImage[i]->width, tr.quarterImage[i]->height);
 		FBO_Bind(tr.quarterFbo[i]);
 
-		FBO_CreateBuffer(tr.quarterFbo[i], GL_RGBA8, 0, 0);
+		FBO_CreateBuffer(tr.quarterFbo[i], hdrFormat, 0, 0);
 		FBO_AttachTextureImage(tr.quarterImage[i], 0);
 
 		R_CheckFBO(tr.quarterFbo[i]);

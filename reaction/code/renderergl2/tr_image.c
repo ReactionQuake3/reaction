@@ -2761,7 +2761,7 @@ void R_CreateBuiltinImages( void ) {
 		}
 		for (x = 0; x < 2; x++)
 		{
-			tr.quarterImage[x] = R_CreateImage2(va("*quarter%d", x), NULL, 512, 512, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
+			tr.quarterImage[x] = R_CreateImage2(va("*quarter%d", x), NULL, 512, 512, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat);
 		}
 	}
 
