@@ -9,3 +9,11 @@ cp *.so /usr/local/games/Reaction/Boomstick/
 rm -f /usr/local/games/Reaction/Boomstick/zzzzzzzzzzzzzzzzzzzz-code.pk3
 zip -r /usr/local/games/Reaction/Boomstick/zzzzzzzzzzzzzzzzzzzz-code.pk3 vm/
 
+# Check for the Windows bins
+cd ../..
+if [ -d release-mingw32-x86 ]; then
+	cd release-mingw32-x86
+	cp *.exe *.dll /usr/local/games/Reaction/
+	cd Boomstick
+	cp *.dll /usr/local/games/Reaction/Boomstick/
+fi
