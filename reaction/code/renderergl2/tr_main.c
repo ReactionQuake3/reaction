@@ -2100,9 +2100,9 @@ void R_RenderDlightCubemaps(const refdef_t *fd)
 		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
 
 		shadowParms.viewportX = tr.refdef.x;
-		shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + 256 );
-		shadowParms.viewportWidth = 256;
-		shadowParms.viewportHeight = 256;
+		shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + PSHADOW_MAP_SIZE );
+		shadowParms.viewportWidth = PSHADOW_MAP_SIZE;
+		shadowParms.viewportHeight = PSHADOW_MAP_SIZE;
 		shadowParms.isPortal = qfalse;
 		shadowParms.isMirror = qtrue; // because it is
 
@@ -2110,6 +2110,7 @@ void R_RenderDlightCubemaps(const refdef_t *fd)
 		shadowParms.fovY = 90;
 
 		shadowParms.isShadowmap = qtrue;
+		shadowParms.isDepthShadow = qtrue;
 		shadowParms.zFar = tr.refdef.dlights[i].radius;
 
 		VectorCopy( tr.refdef.dlights[i].origin, shadowParms.or.origin );
@@ -2402,10 +2403,10 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 		else
 		{
 			shadowParms.viewportX = tr.refdef.x;
-			shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + 256 );
+			shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + PSHADOW_MAP_SIZE );
 		}
-		shadowParms.viewportWidth = 256;
-		shadowParms.viewportHeight = 256;
+		shadowParms.viewportWidth = PSHADOW_MAP_SIZE;
+		shadowParms.viewportHeight = PSHADOW_MAP_SIZE;
 		shadowParms.isPortal = qfalse;
 		shadowParms.isMirror = qfalse;
 
@@ -2416,6 +2417,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 			shadowParms.targetFbo = tr.pshadowFbos[i];
 
 		shadowParms.isShadowmap = qtrue;
+		shadowParms.isDepthShadow = qtrue;
 
 		shadowParms.zFar = shadow->lightRadius;
 

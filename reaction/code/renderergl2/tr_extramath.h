@@ -48,8 +48,12 @@ void Matrix16Ortho( float left, float right, float bottom, float top, float znea
 #define VectorCopy5(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3],(b)[4]=(a)[4])
 
 #define OffsetByteToFloat(a)    ((float)(a) * 1.0f/127.5f - 1.0f)
-#define ByteToFloat(a)          ((float)(a) * 1.0f/255.0f)
 #define FloatToOffsetByte(a)    (byte)(((a) + 1.0f) * 127.5f)
+#define ByteToFloat(a)          ((float)(a) * 1.0f/255.0f)
+#define FloatToByte(a)          (byte)((a) * 255.0f)
+
+#define RGBtosRGB(a)            (((a) < 0.0031308f) ? (12.92f * (a)) : (1.055f * pow((a), 0.41666f) - 0.055f))
+#define sRGBtoRGB(a)            (((a) <= 0.04045f)  ? ((a) / 12.92f) : (pow((((a) + 0.055f) / 1.055f), 2.4)) )
 
 static ID_INLINE int VectorCompare4(const vec4_t v1, const vec4_t v2)
 {

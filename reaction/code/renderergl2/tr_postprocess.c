@@ -484,7 +484,7 @@ static void RB_VBlur(FBO_t *srcFbo, FBO_t *dstFbo, float strength)
 
 void RB_GaussianBlur(float blur)
 {
-	float mul = 1.f;
+	//float mul = 1.f;
 	float factor = Com_Clamp(0.f, 1.f, blur);
 
 	if (factor <= 0.f)

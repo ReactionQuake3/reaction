@@ -575,9 +575,13 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurf_t		*drawSurf;
 	int				oldSort;
 	float			originalTime;
-	float			depth[2];
 	FBO_t*			fbo = NULL;
 	qboolean		inQuery = qfalse;
+
+#ifdef REACTION
+	float			depth[2];
+#endif
+
 
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
@@ -598,8 +602,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldPshadowed = qfalse;
 	oldSort = -1;
 	depthRange = qfalse;
+
+#ifdef REACTION
 	depth[0] = 0.f;
 	depth[1] = 1.f;
+#endif
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -759,8 +766,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 					if (!sunflare)
 						qglDepthRange (0, 1);
+#ifdef REACTION
 					depth[0] = 0;
 					depth[1] = 1;
+#endif
 				}
 
 				oldDepthRange = depthRange;
@@ -1265,7 +1274,16 @@ RB_ColorMask
 const void *RB_ColorMask(const void *data)
 {
 	const colorMaskCommand_t *cmd = data;
-	
+
+	if (glRefConfig.framebufferObject)
+	{
+		// reverse color mask, so 0 0 0 0 is the default
+		backEnd.colorMask[0] = !cmd->rgba[0];
+		backEnd.colorMask[1] = !cmd->rgba[1];
+		backEnd.colorMask[2] = !cmd->rgba[2];
+		backEnd.colorMask[3] = !cmd->rgba[3];
+	}
+
 	qglColorMask(cmd->rgba[0], cmd->rgba[1], cmd->rgba[2], cmd->rgba[3]);
 	
 	return (const void *)(cmd + 1);
@@ -1337,42 +1355,66 @@ const void	*RB_SwapBuffers( const void *data ) {
 		// copy final image to screen
 		vec2_t texScale;
 		vec4_t srcBox, dstBox, white;
+		FBO_t *srcFbo, *dstFbo;
 
 		texScale[0] =
 		texScale[1] = 1.0f;
 
 		white[0] =
 		white[1] =
-		white[2] = pow(2, tr.overbrightBits); //exp2(tr.overbrightBits);
+		white[2] =
 		white[3] = 1.0f;
 
-		VectorSet4(dstBox, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
-		
+		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
+
 		if (backEnd.framePostProcessed)
 		{
 			// frame was postprocessed into screen fbo, copy from there
-			VectorSet4(srcBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
+			srcFbo = tr.screenScratchFbo;
+		}
+		else if (tr.msaaResolveFbo)
+		{
+			// Resolve the MSAA before copying
+			FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
 
-			FBO_Blit(tr.screenScratchFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
+			// need to copy from resolve to screenscratch to fix gamma
+			srcFbo = tr.msaaResolveFbo;
+			dstFbo = tr.screenScratchFbo;
+
+			VectorSet4(srcBox, 0, 0, srcFbo->width, srcFbo->height);
+			VectorSet4(dstBox, 0, 0, dstFbo->width, dstFbo->height);
+
+			FBO_Blit(srcFbo, srcBox, texScale, dstFbo, dstBox, &tr.textureColorShader, white, 0);
+
+			srcFbo = tr.screenScratchFbo;
 		}
 		else
 		{
-			// frame still in render fbo, possibly resolve then copy from there
-			FBO_t *hdrFbo;
+			// need to copy from render to screenscratch to fix gamma
+			srcFbo = tr.renderFbo;
+			dstFbo = tr.screenScratchFbo;
 
-			if (tr.msaaResolveFbo)
-			{
-				// Resolve the MSAA before anything else
-				FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
-				hdrFbo = tr.msaaResolveFbo;
-			}
-			else
-				hdrFbo = tr.renderFbo;
+			VectorSet4(srcBox, 0, 0, srcFbo->width, srcFbo->height);
+			VectorSet4(dstBox, 0, 0, dstFbo->width, dstFbo->height);
 
-			VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
+			FBO_Blit(srcFbo, srcBox, texScale, dstFbo, dstBox, &tr.textureColorShader, white, 0);
 
-			FBO_Blit(hdrFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
+			srcFbo = tr.screenScratchFbo;
 		}
+		
+		VectorSet4(srcBox, 0, 0, srcFbo->width, srcFbo->height);
+		VectorSet4(dstBox, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
+
+		white[0] =
+		white[1] =
+		white[2] = pow(2, tr.overbrightBits); //exp2(tr.overbrightBits);
+		white[3] = 1.0f;
+
+		// turn off colormask when copying final image
+		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		FBO_Blit(srcFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
+		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
+		
 	}
 
 	if ( !glState.finishCalled ) {
@@ -1405,12 +1447,12 @@ const void *RB_CapShadowMap(const void *data)
 		if (cmd->cubeSide != -1)
 		{
 			GL_BindCubemap(tr.shadowCubemaps[cmd->map]);
-			qglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + cmd->cubeSide, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + 256 ), 256, 256, 0);
+			qglCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + cmd->cubeSide, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + PSHADOW_MAP_SIZE ), PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, 0);
 		}
 		else
 		{
 			GL_Bind(tr.pshadowMaps[cmd->map]);
-			qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + 256 ), 256, 256, 0);
+			qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, backEnd.refdef.x, glConfig.vidHeight - ( backEnd.refdef.y + PSHADOW_MAP_SIZE ), PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, 0);
 		}
 	}
 
@@ -1435,16 +1477,19 @@ const void *RB_PostProcess(const void *data)
 	texScale[0] = 
 	texScale[1] = 1.0f;
 
-	if (tr.msaaResolveFbo)
+	if (glRefConfig.framebufferObject)
 	{
-		// Resolve the MSAA before anything else
-		FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
-		hdrFbo = tr.msaaResolveFbo;
+		if (tr.msaaResolveFbo)
+		{
+			// Resolve the MSAA before anything else
+			FBO_ResolveMSAA(tr.renderFbo, tr.msaaResolveFbo);
+			hdrFbo = tr.msaaResolveFbo;
+		}
+		else
+			hdrFbo = tr.renderFbo;
 	}
-	else
-		hdrFbo = tr.renderFbo;
 
-	if (!r_postProcess->integer)
+	if (!r_postProcess->integer || !glRefConfig.framebufferObject)
 	{
 		// if we have an FBO, just copy it out, otherwise, do nothing.
 		if (glRefConfig.framebufferObject)

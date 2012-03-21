@@ -271,33 +271,196 @@ static void ResampleTexture( byte *in, int inwidth, int inheight, byte *out,
 	}
 }
 
+static void RGBAtoYCoCgA(const byte *in, byte *out, int width, int height)
+{
+	int x, y;
+
+	for (y = 0; y < height; y++)
+	{
+		const byte *inbyte  = in  + y * width * 4;
+		byte       *outbyte = out + y * width * 4;
+
+		for (x = 0; x < width; x++)
+		{
+			byte r, g, b, a, rb2;
+
+			r = *inbyte++;
+			g = *inbyte++;
+			b = *inbyte++;
+			a = *inbyte++;
+			rb2 = (r + b) >> 1;
+
+			*outbyte++ = (g + rb2) >> 1;       // Y  =  R/4 + G/2 + B/4
+			*outbyte++ = (r - b + 256) >> 1;   // Co =  R/2       - B/2
+			*outbyte++ = (g - rb2 + 256) >> 1; // Cg = -R/4 + G/2 - B/4
+			*outbyte++ = a;
+		}
+	}
+}
+
+static void YCoCgAtoRGBA(const byte *in, byte *out, int width, int height)
+{
+	int x, y;
+
+	for (y = 0; y < height; y++)
+	{
+		const byte *inbyte  = in  + y * width * 4;
+		byte       *outbyte = out + y * width * 4;
+
+		for (x = 0; x < width; x++)
+		{
+			byte _Y, Co, Cg, a;
+
+			_Y = *inbyte++;
+			Co = *inbyte++;
+			Cg = *inbyte++;
+			a  = *inbyte++;
+
+			*outbyte++ = CLAMP(_Y + Co - Cg,       0, 255); // R = Y + Co - Cg
+			*outbyte++ = CLAMP(_Y      + Cg - 128, 0, 255); // G = Y + Cg
+			*outbyte++ = CLAMP(_Y - Co - Cg + 256, 0, 255); // B = Y - Co - Cg
+			*outbyte++ = a;
+		}
+	}
+}
+
+
+// uses a sobel filter to change a texture to a normal map
+static void RGBAtoNormal(const byte *in, byte *out, int width, int height, qboolean clampToEdge)
+{
+	int x, y, max;
+
+	// convert to heightmap, storing in alpha
+	// same as converting to Y in YCoCg
+	max = 1;
+	for (y = 0; y < height; y++)
+	{
+		const byte *inbyte  = in  + y * width * 4;
+		byte       *outbyte = out + y * width * 4 + 3;
+
+		for (x = 0; x < width; x++)
+		{
+			*outbyte = (inbyte[0] >> 2) + (inbyte[1] >> 1) + (inbyte[2] >> 2);
+			max = MAX(max, *outbyte);
+			outbyte += 4;
+			inbyte  += 4;
+		}
+	}
+
+	// level out heights
+	if (max < 255)
+	{
+		for (y = 0; y < height; y++)
+		{
+			byte *outbyte = out + y * width * 4 + 3;
+
+			for (x = 0; x < width; x++)
+			{
+				*outbyte = *outbyte + (255 - max);
+				outbyte += 4;
+			}
+		}
+	}
+
+
+	// now run sobel filter over height values to generate X and Y
+	// then normalize
+	for (y = 0; y < height; y++)
+	{
+		byte *outbyte = out + y * width * 4;
+
+		for (x = 0; x < width; x++)
+		{
+			// 0 1 2
+			// 3 4 5
+			// 6 7 8
+
+			byte s[9];
+			int x2, y2, i;
+			vec3_t normal;
+
+			i = 0;
+			for (y2 = -1; y2 <= 1; y2++)
+			{
+				int src_y = y + y2;
+
+				if (clampToEdge)
+				{
+					src_y = CLAMP(src_y, 0, height - 1);
+				}
+				else
+				{
+					src_y = (src_y + height) % height;
+				}
+
+
+				for (x2 = -1; x2 <= 1; x2++)
+				{
+					int src_x = x + x2;
+
+					if (clampToEdge)
+					{
+						src_x = CLAMP(src_x, 0, height - 1);
+					}
+					else
+					{
+						src_x = (src_x + height) % height;
+					}
+
+					s[i++] = *(out + (src_y * width + src_x) * 4 + 3);
+				}
+			}
+
+			normal[0] =        s[0]            -     s[2]
+						 + 2 * s[3]            - 2 * s[5]
+						 +     s[6]            -     s[8];
+
+			normal[1] =        s[0] + 2 * s[1] +     s[2]
+
+						 -     s[6] - 2 * s[7] -     s[8];
+
+			normal[2] = s[4] * 4;
+
+			if (!VectorNormalize2(normal, normal))
+			{
+				VectorSet(normal, 0, 0, 1);
+			}
+
+			*outbyte++ = FloatToOffsetByte(normal[0]);
+			*outbyte++ = FloatToOffsetByte(normal[1]);
+			*outbyte++ = FloatToOffsetByte(normal[2]);
+			outbyte++;
+		}
+	}
+}
+
 #define COPYSAMPLE(a,b) *(unsigned int *)(a) = *(unsigned int *)(b)
 
 // based on Fast Curve Based Interpolation
 // from Fast Artifacts-Free Image Interpolation (http://www.andreagiachetti.it/icbi/)
 // assumes data has a 2 pixel thick border of clamped or wrapped data
 // expects data to be a grid with even (0, 0), (2, 0), (0, 2), (2, 2) etc pixels filled
-static void DoFCBI(byte *in, byte *out, int width, int height)
+// only performs FCBI on specified component
+static void DoFCBI(byte *in, byte *out, int width, int height, int component)
 {
-	int x, y, i;
+	int x, y;
 	byte *outbyte, *inbyte;
 
-	//copy in to out
-	for (y = 0; y < height; y+=2)
+	// copy in to out
+	for (y = 2; y < height - 2; y += 2)
 	{
-		inbyte = in + y * width * 4;
-		outbyte = out + y * width * 4;
+		inbyte  = in  + (y * width + 2) * 4 + component;
+		outbyte = out + (y * width + 2) * 4 + component;
 
-		for (x = width / 2; x > 0; x--)
+		for (x = 2; x < width - 2; x += 2)
 		{
-			COPYSAMPLE(outbyte, inbyte);
+			*outbyte = *inbyte;
 			outbyte += 8;
 			inbyte += 8;
 		}
 	}
-
-	//for (y = 1; y < height; y += 2)
-	for (y = 3; y < height - 4; y += 2)
+	
+	for (y = 3; y < height - 3; y += 2)
 	{
 		// diagonals
 		//
@@ -336,10 +499,9 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 		//
 		// only b, f, j, and l need to be sampled on next iteration
 
-		byte sa[4], sb[4], sc[4], sd[4], se[4], sf[4], sg[4], sh[4], si[4], sj[4], sk[4], sl[4];
+		byte sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
 		byte *line1, *line2, *line3, *line4;
 
-		//x = 1;
 		x = 3;
 
 		// optimization one
@@ -349,21 +511,27 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 		//                       SAMPLE2(sk, x-1, y+3);
 
 		// optimization two
-		line1 = in + ((y - 3) * width + (x - 1)) * 4;
-		line2 = in + ((y - 1) * width + (x - 3)) * 4;
-		line3 = in + ((y + 1) * width + (x - 3)) * 4;
-		line4 = in + ((y + 3) * width + (x - 1)) * 4;
+		line1 = in + ((y - 3) * width + (x - 1)) * 4 + component;
+		line2 = in + ((y - 1) * width + (x - 3)) * 4 + component;
+		line3 = in + ((y + 1) * width + (x - 3)) * 4 + component;
+		line4 = in + ((y + 3) * width + (x - 1)) * 4 + component;
 
-		                                   COPYSAMPLE(sa, line1); line1 += 8;
-		COPYSAMPLE(sc, line2); line2 += 8; COPYSAMPLE(sd, line2); line2 += 8; COPYSAMPLE(se, line2); line2 += 8;
-		COPYSAMPLE(sg, line3); line3 += 8; COPYSAMPLE(sh, line3); line3 += 8; COPYSAMPLE(si, line3); line3 += 8;
-		                                   COPYSAMPLE(sk, line4); line4 += 8;
+		//                                   COPYSAMPLE(sa, line1); line1 += 8;
+		//COPYSAMPLE(sc, line2); line2 += 8; COPYSAMPLE(sd, line2); line2 += 8; COPYSAMPLE(se, line2); line2 += 8;
+		//COPYSAMPLE(sg, line3); line3 += 8; COPYSAMPLE(sh, line3); line3 += 8; COPYSAMPLE(si, line3); line3 += 8;
+		//                                   COPYSAMPLE(sk, line4); line4 += 8;
 
-	   outbyte = &out[(y * width + x) << 2];
+		                         sa = *line1; line1 += 8;
+		sc = *line2; line2 += 8; sd = *line2; line2 += 8; se = *line2; line2 += 8;
+		sg = *line3; line3 += 8; sh = *line3; line3 += 8; si = *line3; line3 += 8;
+		                         sk = *line4; line4 += 8;
 
-		//for ( ; x < width; x += 2)
-		for ( ; x < width - 4; x += 2)
+		outbyte = out + (y * width + x) * 4 + component;
+
+		for ( ; x < width - 3; x += 2)
 		{
+			int NWd, NEd, NWp, NEp;
+
 			// original
 			//                       SAMPLE2(sa, x-1, y-3); SAMPLE2(sb, x+1, y-3);
 			//SAMPLE2(sc, x-3, y-1); SAMPLE2(sd, x-1, y-1); SAMPLE2(se, x+1, y-1); SAMPLE2(sf, x+3, y-1);
@@ -377,69 +545,71 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 			//SAMPLE2(sl, x+1, y+3);
 
 			// optimization two
-			COPYSAMPLE(sb, line1); line1 += 8;
-			COPYSAMPLE(sf, line2); line2 += 8;
-			COPYSAMPLE(sj, line3); line3 += 8;
-			COPYSAMPLE(sl, line4); line4 += 8;
+			//COPYSAMPLE(sb, line1); line1 += 8;
+			//COPYSAMPLE(sf, line2); line2 += 8;
+			//COPYSAMPLE(sj, line3); line3 += 8;
+			//COPYSAMPLE(sl, line4); line4 += 8;
 
-			for (i = 0; i < 4; i++)
-			{	
-				int NWd, NEd, NWp, NEp;
+			sb = *line1; line1 += 8;
+			sf = *line2; line2 += 8;
+			sj = *line3; line3 += 8;
+			sl = *line4; line4 += 8;
 
-				NWp = sd[i] + si[i];
-				NEp = se[i] + sh[i];
-				NWd = abs(sd[i] - si[i]);
-				NEd = abs(se[i] - sh[i]);
+			NWp = sd + si;
+			NEp = se + sh;
+			NWd = abs(sd - si);
+			NEd = abs(se - sh);
 
-				if (NWd > 100 || NEd > 100 || abs(NWp-NEp) > 200)
-				{
-					if (NWd < NEd)
-						*outbyte = NWp >> 1;
-					else
-						*outbyte = NEp >> 1;
-				}
+			if (NWd > 100 || NEd > 100 || abs(NWp-NEp) > 200)
+			{
+				if (NWd < NEd)
+					*outbyte = NWp >> 1;
 				else
-				{
-					int NWdd, NEdd;
+					*outbyte = NEp >> 1;
+			}
+			else
+			{
+				int NWdd, NEdd;
 
-					//NEdd = abs(sg + sd + sb - 3 * (se + sh) + sk + si + sf);
-					//NWdd = abs(sa + se + sj - 3 * (sd + si) + sc + sh + sl);
-					NEdd = abs(sg[i] + sb[i] - 3 * NEp + sk[i] + sf[i] + NWp);
-					NWdd = abs(sa[i] + sj[i] - 3 * NWp + sc[i] + sl[i] + NEp);
+				//NEdd = abs(sg + sd + sb - 3 * (se + sh) + sk + si + sf);
+				//NWdd = abs(sa + se + sj - 3 * (sd + si) + sc + sh + sl);
+				NEdd = abs(sg + sb - 3 * NEp + sk + sf + NWp);
+				NWdd = abs(sa + sj - 3 * NWp + sc + sl + NEp);
 
-					if (NWdd > NEdd)
-						*outbyte = NWp >> 1;
-					else
-						*outbyte = NEp >> 1;
-				}
-
-				outbyte++;
+				if (NWdd > NEdd)
+					*outbyte = NWp >> 1;
+				else
+					*outbyte = NEp >> 1;
 			}
 
-			outbyte += 4;
+			outbyte += 8;
 
-			                    COPYSAMPLE(sa, sb);
-			COPYSAMPLE(sc, sd); COPYSAMPLE(sd, se); COPYSAMPLE(se, sf);
-			COPYSAMPLE(sg, sh); COPYSAMPLE(sh, si); COPYSAMPLE(si, sj);
-								COPYSAMPLE(sk, sl);
+			//                    COPYSAMPLE(sa, sb);
+			//COPYSAMPLE(sc, sd); COPYSAMPLE(sd, se); COPYSAMPLE(se, sf);
+			//COPYSAMPLE(sg, sh); COPYSAMPLE(sh, si); COPYSAMPLE(si, sj);
+			//                    COPYSAMPLE(sk, sl);
+
+			         sa = sb;
+			sc = sd; sd = se; se = sf;
+			sg = sh; sh = si; si = sj;
+			         sk = sl;
 		}
 	}
 
 	// hack: copy out to in again
-	for (y = 1; y < height; y+=2)
+	for (y = 3; y < height - 3; y += 2)
 	{
-		inbyte = out + y * width * 4 + 4;
-		outbyte = in + y * width * 4 + 4;
+		inbyte = out + (y * width + 3) * 4 + component;
+		outbyte = in + (y * width + 3) * 4 + component;
 
-		for (x = width / 2; x > 0; x--)
+		for (x = 3; x < width - 3; x += 2)
 		{
-			COPYSAMPLE(outbyte, inbyte);
+			*outbyte = *inbyte;
 			outbyte += 8;
 			inbyte += 8;
 		}
 	}
 	
-	//for (y = 0; y < height; y++)
 	for (y = 2; y < height - 3; y++)
 	{
 		// horizontal & vertical
@@ -474,7 +644,7 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 		//
 		// only b, e, g, j, and l need to be sampled on next iteration
 
-		byte sa[4], sb[4], sc[4], sd[4], se[4], sf[4], sg[4], sh[4], si[4], sj[4], sk[4], sl[4];
+		byte sa, sb, sc, sd, se, sf, sg, sh, si, sj, sk, sl;
 		byte *line1, *line2, *line3, *line4, *line5;
 
 		//x = (y + 1) % 2;
@@ -487,23 +657,30 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 		//SAMPLE2(sh, x-2, y+1); SAMPLE2(si, x,   y+1);
 		//            SAMPLE2(sk, x-1, y+2);
 
-		line1 = in + ((y - 2) * width + (x - 1)) * 4;
-		line2 = in + ((y - 1) * width + (x - 2)) * 4;
-		line3 = in + ((y    ) * width + (x - 1)) * 4;
-		line4 = in + ((y + 1) * width + (x - 2)) * 4;
-		line5 = in + ((y + 2) * width + (x - 1)) * 4;
+		line1 = in + ((y - 2) * width + (x - 1)) * 4 + component;
+		line2 = in + ((y - 1) * width + (x - 2)) * 4 + component;
+		line3 = in + ((y    ) * width + (x - 1)) * 4 + component;
+		line4 = in + ((y + 1) * width + (x - 2)) * 4 + component;
+		line5 = in + ((y + 2) * width + (x - 1)) * 4 + component;
 
-		                 COPYSAMPLE(sa, line1); line1 += 8;
-		COPYSAMPLE(sc, line2); line2 += 8; COPYSAMPLE(sd, line2); line2 += 8;
-		                 COPYSAMPLE(sf, line3); line3 += 8;
-		COPYSAMPLE(sh, line4); line4 += 8; COPYSAMPLE(si, line4); line4 += 8;
-                         COPYSAMPLE(sk, line5); line5 += 8;
+		//                 COPYSAMPLE(sa, line1); line1 += 8;
+		//COPYSAMPLE(sc, line2); line2 += 8; COPYSAMPLE(sd, line2); line2 += 8;
+		//                 COPYSAMPLE(sf, line3); line3 += 8;
+		//COPYSAMPLE(sh, line4); line4 += 8; COPYSAMPLE(si, line4); line4 += 8;
+        //                 COPYSAMPLE(sk, line5); line5 += 8;
 
-		outbyte = &out[(y * width + x) << 2];
+		             sa = *line1; line1 += 8;
+		sc = *line2; line2 += 8; sd = *line2; line2 += 8;
+		             sf = *line3; line3 += 8;
+		sh = *line4; line4 += 8; si = *line4; line4 += 8;
+		             sk = *line5; line5 += 8;
 
-		//for ( ; x < width; x+=2)
+		outbyte = out + (y * width + x) * 4 + component;
+
 		for ( ; x < width - 3; x+=2)
 		{
+			int hd, vd, hp, vp;
+
 			//            SAMPLE2(sa, x-1, y-2); SAMPLE2(sb, x+1, y-2);
 			//SAMPLE2(sc, x-2, y-1); SAMPLE2(sd, x,   y-1); SAMPLE2(se, x+2, y-1);
 			//            SAMPLE2(sf, x-1, y  ); SAMPLE2(sg, x+1, y  );
@@ -517,73 +694,77 @@ static void DoFCBI(byte *in, byte *out, int width, int height)
 			//SAMPLE2(sj, x+2, y+1);
 			//SAMPLE2(sl, x+1, y+2);
 
-			COPYSAMPLE(sb, line1); line1 += 8;
-			COPYSAMPLE(se, line2); line2 += 8;
-			COPYSAMPLE(sg, line3); line3 += 8;
-			COPYSAMPLE(sj, line4); line4 += 8;
-			COPYSAMPLE(sl, line5); line5 += 8;
+			//COPYSAMPLE(sb, line1); line1 += 8;
+			//COPYSAMPLE(se, line2); line2 += 8;
+			//COPYSAMPLE(sg, line3); line3 += 8;
+			//COPYSAMPLE(sj, line4); line4 += 8;
+			//COPYSAMPLE(sl, line5); line5 += 8;
 
-			for (i = 0; i < 4; i++)
+			sb = *line1; line1 += 8;
+			se = *line2; line2 += 8;
+			sg = *line3; line3 += 8;
+			sj = *line4; line4 += 8;
+			sl = *line5; line5 += 8;
+
+			hp = sf + sg; 
+			vp = sd + si;
+			hd = abs(sf - sg);
+			vd = abs(sd - si);
+
+			if (hd > 100 || vd > 100 || abs(hp-vp) > 200)
 			{
-				int hd, vd, hp, vp;
-				
-				hp = sf[i] + sg[i]; 
-				vp = sd[i] + si[i];
-				hd = abs(sf[i] - sg[i]);
-				vd = abs(sd[i] - si[i]);
-
-				if (hd > 100 || vd > 100 || abs(hp-vp) > 200)
-				{
-					if (hd < vd)
-						*outbyte = hp >> 1;
-					else
-						*outbyte = vp >> 1;
-				}
+				if (hd < vd)
+					*outbyte = hp >> 1;
 				else
-				{
-					int hdd, vdd;
+					*outbyte = vp >> 1;
+			}
+			else
+			{
+				int hdd, vdd;
 
-					//hdd = abs(sc[i] + sd[i] + se[i] - 3 * (sf[i] + sg[i]) + sh[i] + si[i] + sj[i]);
-					//vdd = abs(sa[i] + sf[i] + sk[i] - 3 * (sd[i] + si[i]) + sb[i] + sg[i] + sl[i]);
+				//hdd = abs(sc[i] + sd[i] + se[i] - 3 * (sf[i] + sg[i]) + sh[i] + si[i] + sj[i]);
+				//vdd = abs(sa[i] + sf[i] + sk[i] - 3 * (sd[i] + si[i]) + sb[i] + sg[i] + sl[i]);
 
-					hdd = abs(sc[i] + se[i] - 3 * hp + sh[i] + sj[i] + vp);
-					vdd = abs(sa[i] + sk[i] - 3 * vp + sb[i] + sl[i] + hp);
+				hdd = abs(sc + se - 3 * hp + sh + sj + vp);
+				vdd = abs(sa + sk - 3 * vp + sb + sl + hp);
 
-					if (hdd > vdd)
-						*outbyte = hp >> 1;
-					else 
-						*outbyte = vp >> 1;
-				}
-
-				outbyte++;
+				if (hdd > vdd)
+					*outbyte = hp >> 1;
+				else 
+					*outbyte = vp >> 1;
 			}
 
-			outbyte += 4;
+			outbyte += 8;
 
-			          COPYSAMPLE(sa, sb);
-			COPYSAMPLE(sc, sd); COPYSAMPLE(sd, se);
-			          COPYSAMPLE(sf, sg);
-			COPYSAMPLE(sh, si); COPYSAMPLE(si, sj);
-			          COPYSAMPLE(sk, sl);
+			//          COPYSAMPLE(sa, sb);
+			//COPYSAMPLE(sc, sd); COPYSAMPLE(sd, se);
+			//          COPYSAMPLE(sf, sg);
+			//COPYSAMPLE(sh, si); COPYSAMPLE(si, sj);
+			//          COPYSAMPLE(sk, sl);
+			    sa = sb;
+			sc = sd; sd = se;
+			    sf = sg;
+			sh = si; si = sj;
+			    sk = sl;
 		}
 	}
 }
 
 // Similar to FCBI, but throws out the second order derivatives for speed
-static void DoFCBIQuick(byte *in, byte *out, int width, int height)
+static void DoFCBIQuick(byte *in, byte *out, int width, int height, int component)
 {
-	int x, y, i;
+	int x, y;
 	byte *outbyte, *inbyte;
 
-	//copy in to out
-	for (y = 0; y < height; y+=2)
+	// copy in to out
+	for (y = 2; y < height - 2; y += 2)
 	{
-		inbyte = in + y * width * 4;
-		outbyte = out + y * width * 4;
+		inbyte  = in  + (y * width + 2) * 4 + component;
+		outbyte = out + (y * width + 2) * 4 + component;
 
-		for (x = width / 2; x > 0; x--)
+		for (x = 2; x < width - 2; x += 2)
 		{
-			COPYSAMPLE(outbyte, inbyte);
+			*outbyte = *inbyte;
 			outbyte += 8;
 			inbyte += 8;
 		}
@@ -591,10 +772,126 @@ static void DoFCBIQuick(byte *in, byte *out, int width, int height)
 
 	for (y = 3; y < height - 4; y += 2)
 	{
-		byte sd[4], se[4], sh[4], si[4];
+		byte sd, se, sh, si;
 		byte *line2, *line3;
 
 		x = 3;
+
+		line2 = in + ((y - 1) * width + (x - 1)) * 4 + component;
+		line3 = in + ((y + 1) * width + (x - 1)) * 4 + component;
+
+		sd = *line2; line2 += 8;
+		sh = *line3; line3 += 8;
+
+		outbyte = out + (y * width + x) * 4 + component;
+
+		for ( ; x < width - 4; x += 2)
+		{
+			int NWd, NEd, NWp, NEp;
+
+			se = *line2; line2 += 8;
+			si = *line3; line3 += 8;
+
+			NWp = sd + si;
+			NEp = se + sh;
+			NWd = abs(sd - si);
+			NEd = abs(se - sh);
+
+			if (NWd < NEd)
+				*outbyte = NWp >> 1;
+			else
+				*outbyte = NEp >> 1;
+
+			outbyte += 8;
+
+			sd = se;
+			sh = si;
+		}
+	}
+
+	// hack: copy out to in again
+	for (y = 3; y < height - 3; y += 2)
+	{
+		inbyte  = out + (y * width + 3) * 4 + component;
+		outbyte = in  + (y * width + 3) * 4 + component;
+
+		for (x = 3; x < width - 3; x += 2)
+		{
+			*outbyte = *inbyte;
+			outbyte += 8;
+			inbyte += 8;
+		}
+	}
+	
+	for (y = 2; y < height - 3; y++)
+	{
+		byte sd, sf, sg, si;
+		byte *line2, *line3, *line4;
+
+		x = (y + 1) % 2 + 2;
+
+		line2 = in + ((y - 1) * width + (x    )) * 4 + component;
+		line3 = in + ((y    ) * width + (x - 1)) * 4 + component;
+		line4 = in + ((y + 1) * width + (x    )) * 4 + component;
+
+		outbyte = out + (y * width + x) * 4 + component;
+
+		sf = *line3; line3 += 8;
+
+		for ( ; x < width - 3; x+=2)
+		{
+			int hd, vd, hp, vp;
+
+			sd = *line2; line2 += 8;
+			sg = *line3; line3 += 8;
+			si = *line4; line4 += 8;
+			
+			hp = sf + sg; 
+			vp = sd + si;
+			hd = abs(sf - sg);
+			vd = abs(sd - si);
+
+			if (hd < vd)
+				*outbyte = hp >> 1;
+			else
+				*outbyte = vp >> 1;
+
+			outbyte += 8;
+
+			sf = sg;
+		}
+	}
+}
+
+// Similar to DoFCBIQuick, but just takes the average instead of checking derivatives
+// as well, this operates on all four components
+static void DoLinear(byte *in, byte *out, int width, int height)
+{
+	int x, y, i;
+	byte *outbyte, *inbyte;
+
+	// copy in to out
+	for (y = 2; y < height - 2; y += 2)
+	{
+		x = 2;
+
+		inbyte  = in  + (y * width + x) * 4;
+		outbyte = out + (y * width + x) * 4;
+
+		for ( ; x < width - 2; x += 2)
+		{
+			COPYSAMPLE(outbyte, inbyte);
+			outbyte += 8;
+			inbyte += 8;
+		}
+	}
+
+	for (y = 1; y < height - 1; y += 2)
+	{
+		byte sd[4], se[4], sh[4], si[4];
+		byte *line2, *line3;
+
+		x = 1;
 
 		line2 = in + ((y - 1) * width + (x - 1)) * 4;
 		line3 = in + ((y + 1) * width + (x - 1)) * 4;
@@ -602,29 +899,16 @@ static void DoFCBIQuick(byte *in, byte *out, int width, int height)
 		COPYSAMPLE(sd, line2); line2 += 8;
 		COPYSAMPLE(sh, line3); line3 += 8;
 
-	   outbyte = &out[(y * width + x) << 2];
+		outbyte = out + (y * width + x) * 4;
 
-		//for ( ; x < width; x += 2)
-		for ( ; x < width - 4; x += 2)
+		for ( ; x < width - 1; x += 2)
 		{
 			COPYSAMPLE(se, line2); line2 += 8;
 			COPYSAMPLE(si, line3); line3 += 8;
 
 			for (i = 0; i < 4; i++)
 			{	
-				int NWd, NEd, NWp, NEp;
-
-				NWp = sd[i] + si[i];
-				NEp = se[i] + sh[i];
-				NWd = abs(sd[i] - si[i]);
-				NEd = abs(se[i] - sh[i]);
-
-				if (NWd < NEd)
-					*outbyte = NWp >> 1;
-				else
-					*outbyte = NEp >> 1;
-
-				outbyte++;
+				*outbyte++ = (sd[i] + si[i] + se[i] + sh[i]) >> 2;
 			}
 
 			outbyte += 4;
@@ -635,12 +919,14 @@ static void DoFCBIQuick(byte *in, byte *out, int width, int height)
 	}
 
 	// hack: copy out to in again
-	for (y = 1; y < height; y+=2)
+	for (y = 1; y < height - 1; y += 2)
 	{
-		inbyte = out + y * width * 4 + 4;
-		outbyte = in + y * width * 4 + 4;
+		x = 1;
 
-		for (x = width / 2; x > 0; x--)
+		inbyte  = out + (y * width + x) * 4;
+		outbyte = in  + (y * width + x) * 4;
+
+		for ( ; x < width - 1; x += 2)
 		{
 			COPYSAMPLE(outbyte, inbyte);
 			outbyte += 8;
@@ -648,23 +934,22 @@ static void DoFCBIQuick(byte *in, byte *out, int width, int height)
 		}
 	}
 	
-	for (y = 2; y < height - 3; y++)
+	for (y = 1; y < height - 1; y++)
 	{
-
 		byte sd[4], sf[4], sg[4], si[4];
 		byte *line2, *line3, *line4;
 
-		x = (y + 1) % 2 + 2;
+		x = y % 2 + 1;
 
 		line2 = in + ((y - 1) * width + (x    )) * 4;
 		line3 = in + ((y    ) * width + (x - 1)) * 4;
 		line4 = in + ((y + 1) * width + (x    )) * 4;
 
-		outbyte = &out[(y * width + x) << 2];
-
 		COPYSAMPLE(sf, line3); line3 += 8;
 
-		for ( ; x < width - 3; x+=2)
+		outbyte = out + (y * width + x) * 4;
+
+		for ( ; x < width - 1; x += 2)
 		{
 			COPYSAMPLE(sd, line2); line2 += 8;
 			COPYSAMPLE(sg, line3); line3 += 8;
@@ -672,19 +957,7 @@ static void DoFCBIQuick(byte *in, byte *out, int width, int height)
 
 			for (i = 0; i < 4; i++)
 			{
-				int hd, vd, hp, vp;
-				
-				hp = sf[i] + sg[i]; 
-				vp = sd[i] + si[i];
-				hd = abs(sf[i] - sg[i]);
-				vd = abs(sd[i] - si[i]);
-
-				if (hd < vd)
-					*outbyte = hp >> 1;
-				else
-					*outbyte = vp >> 1;
-
-				outbyte++;
+				*outbyte++ = (sf[i] + sg[i] + sd[i] + si[i]) >> 2;
 			}
 
 			outbyte += 4;
@@ -701,15 +974,12 @@ static void ExpandHalfTextureToGrid( byte *data, int width, int height)
 
 	for (y = height / 2; y > 0; y--)
 	{
-		byte *outbyte = &data[((y * 2 - 1) * (width) - 2) * 4];
-		byte *inbyte = &data[(y * (width / 2) - 1) * 4];
+		byte *outbyte = data + ((y * 2 - 1) * (width)     - 2) * 4;
+		byte *inbyte  = data + (y           * (width / 2) - 1) * 4;
 
 		for (x = width / 2; x > 0; x--)
 		{
-			outbyte[0] = inbyte[0];
-			outbyte[1] = inbyte[1];
-			outbyte[2] = inbyte[2];
-			outbyte[3] = inbyte[3];
+			COPYSAMPLE(outbyte, inbyte);
 
 			outbyte -= 8;
 			inbyte -= 4;
@@ -717,19 +987,59 @@ static void ExpandHalfTextureToGrid( byte *data, int width, int height)
 	}
 }
 
+static void FillInNormalizedZ(const byte *in, byte *out, int width, int height)
+{
+	int x, y;
+
+	for (y = 0; y < height; y++)
+	{
+		const byte *inbyte  = in  + y * width * 4;
+		byte       *outbyte = out + y * width * 4;
+
+		for (x = 0; x < width; x++)
+		{
+			byte nx, ny, nz, h;
+			float fnx, fny, fll, fnz;
+
+			nx = *inbyte++;
+			ny = *inbyte++;
+			inbyte++;
+			h  = *inbyte++;
+
+			fnx = OffsetByteToFloat(nx);
+			fny = OffsetByteToFloat(ny);
+			fll = 1.0f - fnx * fnx - fny * fny;
+			if (fll >= 0.0f)
+				fnz = (float)sqrt(fll);
+			else
+				fnz = 0.0f;
+
+			nz = FloatToOffsetByte(fnz);
+
+			*outbyte++ = nx;
+			*outbyte++ = ny;
+			*outbyte++ = nz;
+			*outbyte++ = h;
+		}
+	}
+}
+
+
 // size must be even
 #define WORKBLOCK_SIZE     128
 #define WORKBLOCK_BORDER   4
 #define WORKBLOCK_REALSIZE (WORKBLOCK_SIZE + WORKBLOCK_BORDER * 2)
 
 // assumes that data has already been expanded into a 2x2 grid
-static void FCBIByBlock(byte *data, int width, int height, qboolean clampToEdge)
+static void FCBIByBlock(byte *data, int width, int height, qboolean clampToEdge, qboolean normalized)
 {
 	byte workdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
 	byte outdata[WORKBLOCK_REALSIZE * WORKBLOCK_REALSIZE * 4];
 	byte *inbyte, *outbyte;
-	int x, y, i;
-	int srcx, srcy, dstx, dsty;
+	int x, y;
+	int srcx, srcy;
+
+	ExpandHalfTextureToGrid(data, width, height);
 
 	for (y = 0; y < height; y += WORKBLOCK_SIZE)
 	{
@@ -749,42 +1059,79 @@ static void FCBIByBlock(byte *data, int width, int height, qboolean clampToEdge)
 			// fill in work block
 			for (y2 = 0; y2 < fullworkheight; y2 += 2)
 			{
+				srcy = y + y2 - WORKBLOCK_BORDER;
+
+				if (clampToEdge)
+				{
+					srcy = CLAMP(srcy, 0, height - 2);
+				}
+				else
+				{
+					srcy = (srcy + height) % height;
+				}
+
+				outbyte = workdata + y2   * fullworkwidth * 4;
+				inbyte  = data     + srcy * width         * 4;		
+
 				for (x2 = 0; x2 < fullworkwidth; x2 += 2)
 				{
 					srcx = x + x2 - WORKBLOCK_BORDER;
-					srcy = y + y2 - WORKBLOCK_BORDER;
-					dstx = x2;
-					dsty = y2;
 
 					if (clampToEdge)
 					{
 						srcx = CLAMP(srcx, 0, width - 2);
-						srcy = CLAMP(srcy, 0, height - 2);
 					}
 					else
 					{
-						srcx = srcx % width;
-						srcy = srcy % height;
+						srcx = (srcx + width) % width;
 					}
 
-					for (i = 0; i < 4; i++)
-					{
-						workdata[(dsty * fullworkwidth + dstx) * 4 + i] = data[(srcy * width + srcx) * 4 + i];
-					}
+					COPYSAMPLE(outbyte, inbyte + srcx * 4);
+					outbyte += 8;
 				}
 			}
 
 			// submit work block
-			if (r_imageUpsampleType->integer == 1)
-				DoFCBIQuick(workdata, outdata, fullworkwidth, fullworkheight);
+			DoLinear(workdata, outdata, fullworkwidth, fullworkheight);
+
+			if (!normalized)
+			{
+				switch (r_imageUpsampleType->integer)
+				{
+					case 0:
+						break;
+					case 1:
+						DoFCBIQuick(workdata, outdata, fullworkwidth, fullworkheight, 0);
+						break;
+					case 2:
+					default:
+						DoFCBI(workdata, outdata, fullworkwidth, fullworkheight, 0);
+						break;
+				}
+			}
 			else
-				DoFCBI(workdata, outdata, fullworkwidth, fullworkheight);
+			{
+				switch (r_imageUpsampleType->integer)
+				{
+					case 0:
+						break;
+					case 1:
+						DoFCBIQuick(workdata, outdata, fullworkwidth, fullworkheight, 0);
+						DoFCBIQuick(workdata, outdata, fullworkwidth, fullworkheight, 1);
+						break;
+					case 2:
+					default:
+						DoFCBI(workdata, outdata, fullworkwidth, fullworkheight, 0);
+						DoFCBI(workdata, outdata, fullworkwidth, fullworkheight, 1);
+						break;
+				}
+			}
 
 			// copy back work block
 			for (y2 = 0; y2 < workheight; y2++)
 			{
-				inbyte = &outdata[((y2 + WORKBLOCK_BORDER) * fullworkwidth + WORKBLOCK_BORDER) * 4];
-				outbyte = &data[((y + y2) * width + x) * 4];
+				inbyte = outdata + ((y2 + WORKBLOCK_BORDER) * fullworkwidth + WORKBLOCK_BORDER) * 4;
+				outbyte = data +   ((y + y2)                * width         + x)                * 4;
 				for (x2 = 0; x2 < workwidth; x2++)
 				{
 					COPYSAMPLE(outbyte, inbyte);
@@ -912,6 +1259,48 @@ static void R_MipMap2( byte *in, int inWidth, int inHeight ) {
 	ri.Hunk_FreeTempMemory( temp );
 }
 
+
+static void R_MipMapsRGB( byte *in, int inWidth, int inHeight)
+{
+	int			i, j, k;
+	int			outWidth, outHeight;
+	byte		*temp;
+
+	outWidth = inWidth >> 1;
+	outHeight = inHeight >> 1;
+	temp = ri.Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
+
+	for ( i = 0 ; i < outHeight ; i++ ) {
+		byte *outbyte = temp + (  i          * outWidth ) * 4;
+		byte *inbyte1 = in   + (  i * 2      * inWidth  ) * 4;
+		byte *inbyte2 = in   + ( (i * 2 + 1) * inWidth  ) * 4;
+		for ( j = 0 ; j < outWidth ; j++ ) {
+			for ( k = 0 ; k < 3 ; k++ ) {
+				float total, current;
+
+				current = ByteToFloat(inbyte1[0]); total  = sRGBtoRGB(current);
+				current = ByteToFloat(inbyte1[4]); total += sRGBtoRGB(current);
+				current = ByteToFloat(inbyte2[0]); total += sRGBtoRGB(current);
+				current = ByteToFloat(inbyte2[4]); total += sRGBtoRGB(current);
+
+				total *= 0.25f;
+
+				inbyte1++;
+				inbyte2++;
+
+				current = RGBtosRGB(total);
+				*outbyte++ = FloatToByte(current);
+			}
+			*outbyte++ = (inbyte1[0] + inbyte1[4] + inbyte2[0] + inbyte2[4]) >> 2;
+			inbyte1 += 5;
+			inbyte2 += 5;
+		}
+	}
+
+	Com_Memcpy( in, temp, outWidth * outHeight * 4 );
+	ri.Hunk_FreeTempMemory( temp );
+}
+
 /*
 ================
 R_MipMap
@@ -991,6 +1380,11 @@ static void R_MipMapNormalHeight (byte *in, int width, int height, qboolean swiz
 
 			VectorNormalizeFast(v);
 
+			//v[0] *= 0.5f;
+			//v[1] *= 0.5f;
+			//v[2] = 1.0f - v[0] * v[0] - v[1] * v[1];
+			//v[2] = sqrt(MAX(v[2], 0.0f));
+
 			out[sx] = FloatToOffsetByte(v[0]);
 			out[1 ] = FloatToOffsetByte(v[1]);
 			out[2 ] = FloatToOffsetByte(v[2]);
@@ -1020,6 +1414,11 @@ static void R_MipMapNormalHeight (byte *in, int width, int height, qboolean swiz
 			v[2] += OffsetByteToFloat(in[   row+6]);
 
 			VectorNormalizeFast(v);
+
+			//v[0] *= 0.25f;
+			//v[1] *= 0.25f;
+			//v[2] = 1.0f - v[0] * v[0] - v[1] * v[1];
+			//v[2] = sqrt(MAX(v[2], 0.0f));
 
 			out[sx] = FloatToOffsetByte(v[0]);
 			out[1 ] = FloatToOffsetByte(v[1]);
@@ -1087,29 +1486,6 @@ static void RawImage_SwizzleRA( byte *data, int width, int height )
 	}
 }
 
-#if 0
-static void RawImage_Normalize( byte *data, int width, int height, qboolean swizzle )
-{
-	int i;
-	byte *ptr = data;
-	int s = swizzle ? 3 : 0;
-
-	for (i=0; i<width*height; i++, ptr+=4)
-	{
-		vec3_t v;
-
-		v[0] = (float)ptr[s] * 1.0f/127.5f - 1.0f;
-		v[1] = (float)ptr[1] * 1.0f/127.5f - 1.0f;
-		v[2] = (float)ptr[2] * 1.0f/127.5f - 1.0f;
-
-		VectorNormalizeFast(v);
-
-		ptr[s] = (byte)(v[0] * 127.5f + 127.5f);
-		ptr[1] = (byte)(v[1] * 127.5f + 127.5f);
-		ptr[2] = (byte)(v[2] * 127.5f + 127.5f);
-	}
-}
-#endif
 
 /*
 ===============
@@ -1189,15 +1565,26 @@ static void RawImage_ScaleToPower2( byte **data, int *inout_width, int *inout_he
 			}
 		}
 
+		if (!(flags & IMGFLAG_NORMALIZED))
+			RGBAtoYCoCgA(*resampledBuffer, *resampledBuffer, scaled_width, scaled_height);
+
 		while (scaled_width < finalwidth || scaled_height < finalheight)
 		{
 			scaled_width <<= 1;
 			scaled_height <<= 1;
 
-			ExpandHalfTextureToGrid(*resampledBuffer, scaled_width, scaled_height);
-			/*DoFCBI(*resampledBuffer, scaled_width, scaled_height);*/
-			FCBIByBlock(*resampledBuffer, scaled_width, scaled_height, clampToEdge);
+			FCBIByBlock(*resampledBuffer, scaled_width, scaled_height, clampToEdge, flags & IMGFLAG_NORMALIZED);
 		}
+
+		if (!(flags & IMGFLAG_NORMALIZED))
+		{
+			YCoCgAtoRGBA(*resampledBuffer, *resampledBuffer, scaled_width, scaled_height);
+		}
+		else
+		{
+			FillInNormalizedZ(*resampledBuffer, *resampledBuffer, scaled_width, scaled_height);
+		}
+
 
 		//endTime = ri.Milliseconds();
 
@@ -1361,6 +1748,57 @@ static GLenum RawImage_GetFormat(const byte *data, int numPixels, qboolean light
 				}
 			}
 		}
+
+		if (glRefConfig.texture_srgb && (flags & IMGFLAG_SRGB))
+		{
+			switch(internalFormat)
+			{
+				case GL_RGB:
+					internalFormat = GL_SRGB_EXT;
+					break;
+
+				case GL_RGB4:
+				case GL_RGB5:
+				case GL_RGB8:
+					internalFormat = GL_SRGB8_EXT;
+					break;
+
+				case GL_RGBA:
+					internalFormat = GL_SRGB_ALPHA_EXT;
+					break;
+
+				case GL_RGBA4:
+				case GL_RGBA8:
+					internalFormat = GL_SRGB8_ALPHA8_EXT;
+					break;
+
+				case GL_LUMINANCE:
+					internalFormat = GL_SLUMINANCE_EXT;
+					break;
+
+				case GL_LUMINANCE8:
+				case GL_LUMINANCE16:
+					internalFormat = GL_SLUMINANCE8_EXT;
+					break;
+
+				case GL_LUMINANCE_ALPHA:
+					internalFormat = GL_SLUMINANCE_ALPHA_EXT;
+					break;
+
+				case GL_LUMINANCE8_ALPHA8:
+				case GL_LUMINANCE16_ALPHA16:
+					internalFormat = GL_SLUMINANCE8_ALPHA8_EXT;
+					break;
+
+				case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+					internalFormat = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+					break;
+
+				case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+					internalFormat = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+					break;
+			}
+		}
 	}
 
 	return internalFormat;
@@ -1407,6 +1845,10 @@ static void RawImage_UploadTexture( byte *data, int x, int y, int width, int hei
 				if (flags & IMGFLAG_NORMALIZED)
 				{
 					R_MipMapNormalHeight( data, width, height, flags & IMGFLAG_SWIZZLE );
+				}
+				else if (flags & IMGFLAG_SRGB)
+				{
+					R_MipMapsRGB( data, width, height );
 				}
 				else
 				{
@@ -1516,7 +1958,16 @@ static void Upload32( byte *data, int width, int height, imgFlags_t flags,
 	{
 		// use the normal mip-mapping function to go down from here
 		while ( width > scaled_width || height > scaled_height ) {
-			R_MipMap( (byte *)data, width, height );
+
+			if (flags & IMGFLAG_SRGB)
+			{
+				R_MipMapsRGB( (byte *)data, width, height );
+			}
+			else
+			{
+				R_MipMap( (byte *)data, width, height );
+			}
+
 			width >>= 1;
 			height >>= 1;
 			if ( width < 1 ) {
@@ -1785,7 +2236,16 @@ void R_UpdateSubImage( image_t *image, byte *pic, int x, int y, int width, int h
 	{
 		// use the normal mip-mapping function to go down from here
 		while ( width > scaled_width || height > scaled_height ) {
-			R_MipMap( (byte *)data, width, height );
+
+			if (image->flags & IMGFLAG_SRGB)
+			{
+				R_MipMapsRGB( (byte *)data, width, height );
+			}
+			else
+			{
+				R_MipMap( (byte *)data, width, height );
+			}
+
 			width >>= 1;
 			height >>= 1;
 			x >>= 1;
@@ -1932,7 +2392,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t	*R_FindImageFile2( const char *name, imgFlags_t flags )
+image_t	*R_FindImageFile( const char *name, imgFlags_t flags )
 {
 	image_t	*image;
 	int		width, height;
@@ -1968,27 +2428,56 @@ image_t	*R_FindImageFile2( const char *name, imgFlags_t flags )
 		return NULL;
 	}
 
+	if (r_normalMapping->integer && !(flags & IMGFLAG_NORMALIZED) && (flags & IMGFLAG_PICMIP) && (flags & IMGFLAG_MIPMAP) && (flags & IMGFLAG_GENNORMALMAP))
+	{
+		char normalName[MAX_QPATH];
+		image_t *normalImage;
+		int normalWidth, normalHeight;
+		imgFlags_t normalFlags;
+
+		normalFlags = (flags & ~(IMGFLAG_GENNORMALMAP | IMGFLAG_SRGB)) | IMGFLAG_SWIZZLE | IMGFLAG_NORMALIZED | IMGFLAG_NOLIGHTSCALE;
+
+		COM_StripExtension(name, normalName, MAX_QPATH);
+		Q_strcat(normalName, MAX_QPATH, "_n");
+
+		// find normalmap in case it's there
+		normalImage = R_FindImageFile(normalName, normalFlags);
+
+		// if not, generate it
+		if (normalImage == NULL)
+		{
+			byte *normalPic;
+			int x, y;
+
+			normalWidth = width;
+			normalHeight = height;
+			normalPic = ri.Malloc(width * height * 4);
+			RGBAtoNormal(pic, normalPic, width, height, flags & IMGFLAG_CLAMPTOEDGE);
+
+			// Brighten up the original image to work with the normal map
+			RGBAtoYCoCgA(pic, pic, width, height);
+			for (y = 0; y < height; y++)
+			{
+				byte *picbyte  = pic       + y * width * 4;
+				byte *normbyte = normalPic + y * width * 4;
+				for (x = 0; x < width; x++)
+				{
+					int div = MAX(normbyte[2] - 127, 16);
+					picbyte[0] = CLAMP(picbyte[0] * 128 / div, 0, 255);
+					picbyte  += 4;
+					normbyte += 4;
+				}
+			}
+			YCoCgAtoRGBA(pic, pic, width, height);
+
+			R_CreateImage2( normalName, normalPic, normalWidth, normalHeight, normalFlags, 0 );
+			ri.Free( normalPic );	
+		}
+	}
+
 	image = R_CreateImage2( ( char * ) name, pic, width, height, flags, 0 );
 	ri.Free( pic );
 	return image;
-}
-
-
-image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
-	imgFlags_t flags = IMGFLAG_NONE;
-
-	flags = IMGFLAG_NONE;
-
-	if (mipmap)
-		flags |= IMGFLAG_MIPMAP;
-
-	if (allowPicmip)
-		flags |= IMGFLAG_PICMIP;
-
-	if (glWrapClampMode == GL_CLAMP_TO_EDGE)
-		flags |= IMGFLAG_CLAMPTOEDGE;
-
-	return R_FindImageFile2( name, flags );
 }
 
 
@@ -2224,12 +2713,21 @@ void R_CreateBuiltinImages( void ) {
 		tr.godRaysImage = R_CreateImage2("*godRays", NULL, width, height, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 #endif
 
-		tr.screenScratchImage = R_CreateImage2("*screenScratch", NULL, width, height, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
+		{
+			int format;
+
+			if (glRefConfig.texture_srgb && glRefConfig.framebuffer_srgb)
+				format = GL_SRGB8_ALPHA8_EXT;
+			else
+				format = GL_RGBA8;
+
+			tr.screenScratchImage = R_CreateImage2("*screenScratch", NULL, width, height, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, format);
+		}
 
 		if (glRefConfig.framebufferObject)
 		{
 			tr.renderDepthImage  = R_CreateImage2("*renderdepth",  NULL, width, height, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
-			tr.textureDepthImage = R_CreateImage2("*texturedepth", NULL, 256, 256, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
+			tr.textureDepthImage = R_CreateImage2("*texturedepth", NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
 		}
 
 		{
@@ -2269,7 +2767,7 @@ void R_CreateBuiltinImages( void ) {
 
 	for( x = 0; x < MAX_DRAWN_PSHADOWS; x++)
 	{
-		tr.pshadowMaps[x] = R_CreateImage2(va("*shadowmap%i", x), NULL, 256, 256, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
+		tr.pshadowMaps[x] = R_CreateImage2(va("*shadowmap%i", x), NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 	}
 }
 

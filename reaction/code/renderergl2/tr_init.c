@@ -34,6 +34,10 @@ glstate_t	glState;
 static void GfxInfo_f( void );
 static void GfxMemInfo_f( void );
 
+#ifdef USE_RENDERER_DLOPEN
+cvar_t  *com_altivec;
+#endif
+
 cvar_t	*r_flareSize;
 cvar_t	*r_flareFade;
 cvar_t	*r_flareCoeff;
@@ -107,6 +111,8 @@ cvar_t  *r_postProcess;
 cvar_t  *r_toneMap;
 cvar_t  *r_autoExposure;
 
+cvar_t  *r_srgb;
+
 cvar_t  *r_normalMapping;
 cvar_t  *r_specularMapping;
 cvar_t  *r_deluxeMapping;
@@ -119,6 +125,7 @@ cvar_t  *r_pshadowDist;
 cvar_t  *r_imageUpsample;
 cvar_t  *r_imageUpsampleMaxSize;
 cvar_t  *r_imageUpsampleType;
+cvar_t  *r_genNormalMaps;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -908,6 +915,11 @@ void GL_SetDefaultState( void )
 	glState.currentVBO = NULL;
 	glState.currentIBO = NULL;
 
+	if (glRefConfig.framebuffer_srgb)
+	{
+		qglEnable(GL_FRAMEBUFFER_SRGB_EXT);
+	}
+
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	qglDepthMask( GL_TRUE );
 	qglDisable( GL_DEPTH_TEST );
@@ -1067,6 +1079,10 @@ R_Register
 */
 void R_Register( void ) 
 {
+	#ifdef USE_RENDERER_DLOPEN
+	com_altivec = ri.Cvar_Get("com_altivec", "1", CVAR_ARCHIVE);
+	#endif	
+
 	//
 	// latched and archived variables
 	//
@@ -1120,6 +1136,8 @@ void R_Register( void )
 	r_autoExposure = ri.Cvar_Get( "r_autoExposure", "1", CVAR_ARCHIVE );
 	r_cameraExposure = ri.Cvar_Get( "r_cameraExposure", "0", CVAR_CHEAT );
 
+	r_srgb = ri.Cvar_Get( "r_srgb", "0", CVAR_ARCHIVE | CVAR_LATCH );
+
 	r_normalMapping = ri.Cvar_Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_specularMapping = ri.Cvar_Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_deluxeMapping = ri.Cvar_Get( "r_deluxeMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1132,6 +1150,7 @@ void R_Register( void )
 	r_imageUpsample = ri.Cvar_Get( "r_imageUpsample", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsampleMaxSize = ri.Cvar_Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsampleType = ri.Cvar_Get( "r_imageUpsampleType", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_genNormalMaps = ri.Cvar_Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
 	// temporary latched variables that can only change over a restart

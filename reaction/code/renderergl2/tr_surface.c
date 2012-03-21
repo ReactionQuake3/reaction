@@ -1599,8 +1599,8 @@ static void RB_SurfaceVBOMesh(srfVBOMesh_t * srf)
 
 void RB_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 {
-	mdvModel_t     *mdvModel;
-	mdvSurface_t   *mdvSurface;
+	//mdvModel_t     *mdvModel;
+	//mdvSurface_t   *mdvSurface;
 	refEntity_t    *refEnt;
 
 	GLimp_LogComment("--- RB_SurfaceVBOMDVMesh ---\n");
@@ -1620,8 +1620,8 @@ void RB_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 	tess.numIndexes += surface->numIndexes;
 	tess.numVertexes += surface->numVerts;
 
-	mdvModel = surface->mdvModel;
-	mdvSurface = surface->mdvSurface;
+	//mdvModel = surface->mdvModel;
+	//mdvSurface = surface->mdvSurface;
 
 	refEnt = &backEnd.currentEntity->e;
 

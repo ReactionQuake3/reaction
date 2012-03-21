@@ -66,6 +66,7 @@ typedef unsigned int glIndex_t;
 
 #define MAX_CALC_PSHADOWS    64
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
+#define PSHADOW_MAP_SIZE      512
 
 typedef struct dlight_s {
 	vec3_t	origin;
@@ -116,6 +117,8 @@ typedef enum
 	IMGFLAG_NORMALIZED     = 0x0020,
 	IMGFLAG_NOLIGHTSCALE   = 0x0040,
 	IMGFLAG_CLAMPTOEDGE    = 0x0080,
+	IMGFLAG_SRGB           = 0x0100,
+	IMGFLAG_GENNORMALMAP   = 0x0200,
 } imgFlags_t;
 
 typedef struct image_s {
@@ -940,6 +943,7 @@ typedef struct {
 	qboolean	isPortal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
 	qboolean    isShadowmap;
+	qboolean    isDepthShadow;
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring
@@ -1527,7 +1531,7 @@ the bits are allocated as follows:
 */
 #define	QSORT_FOGNUM_SHIFT	2
 #define	QSORT_ENTITYNUM_SHIFT	7
-#define	QSORT_SHADERNUM_SHIFT	(QSORT_ENTITYNUM_SHIFT+GENTITYNUM_BITS)
+#define	QSORT_SHADERNUM_SHIFT	(QSORT_ENTITYNUM_SHIFT+ENTITYNUM_BITS)
 #if (QSORT_SHADERNUM_SHIFT+SHADERNUM_BITS) > 32
 	#error "Need to update sorting, too many bits."
 #endif
@@ -1602,6 +1606,9 @@ typedef struct {
 	
 	qboolean framebufferMultisample;
 	qboolean framebufferBlit;
+
+	qboolean texture_srgb;
+	qboolean framebuffer_srgb;
 } glRefConfig_t;
 
 
@@ -1660,6 +1667,7 @@ typedef struct {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 
 	FBO_t *last2DFBO;
+	qboolean    colorMask[4];
 	qboolean    framePostProcessed;
 } backEndState_t;
 
@@ -1965,6 +1973,8 @@ extern  cvar_t  *r_toneMap;
 extern  cvar_t  *r_autoExposure;
 extern  cvar_t  *r_cameraExposure;
 
+extern  cvar_t  *r_srgb;
+
 extern  cvar_t  *r_normalMapping;
 extern  cvar_t  *r_specularMapping;
 extern  cvar_t  *r_deluxeMapping;
@@ -1977,6 +1987,7 @@ extern  cvar_t  *r_mergeLightmaps;
 extern  cvar_t  *r_imageUpsample;
 extern  cvar_t  *r_imageUpsampleMaxSize;
 extern  cvar_t  *r_imageUpsampleType;
+extern  cvar_t  *r_genNormalMaps;
 
 extern	cvar_t	*r_greyscale;
 
@@ -2109,8 +2120,7 @@ qboolean	R_GetEntityToken( char *buffer, int size );
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
-image_t     *R_FindImageFile2( const char *name, imgFlags_t flags );
+image_t     *R_FindImageFile( const char *name, imgFlags_t flags );
 image_t		*R_CreateImage( const char *name, byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
 image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, imgFlags_t flags, int internalFormat );

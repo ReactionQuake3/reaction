@@ -343,7 +343,8 @@ void RE_StretchPic ( float x, float y, float w, float h,
 #define MODE_RED_CYAN	1
 #define MODE_RED_BLUE	2
 #define MODE_RED_GREEN	3
-#define MODE_MAX	MODE_RED_GREEN
+#define MODE_GREEN_MAGENTA 4
+#define MODE_MAX	MODE_GREEN_MAGENTA
 
 void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
 {
@@ -359,16 +360,26 @@ void R_SetColorMode(GLboolean *rgba, stereoFrame_t stereoFrame, int colormode)
 		colormode -= MODE_MAX;
 	}
 	
-	if(stereoFrame == STEREO_LEFT)
-		rgba[1] = rgba[2] = GL_FALSE;
-	else if(stereoFrame == STEREO_RIGHT)
+	if(colormode == MODE_GREEN_MAGENTA)
 	{
-		rgba[0] = GL_FALSE;
-		
-		if(colormode == MODE_RED_BLUE)
+		if(stereoFrame == STEREO_LEFT)
+			rgba[0] = rgba[2] = GL_FALSE;
+		else if(stereoFrame == STEREO_RIGHT)
 			rgba[1] = GL_FALSE;
-		else if(colormode == MODE_RED_GREEN)
-			rgba[2] = GL_FALSE;
+	}
+	else
+	{
+		if(stereoFrame == STEREO_LEFT)
+			rgba[1] = rgba[2] = GL_FALSE;
+		else if(stereoFrame == STEREO_RIGHT)
+		{
+			rgba[0] = GL_FALSE;
+		
+			if(colormode == MODE_RED_BLUE)
+				rgba[1] = GL_FALSE;
+			else if(colormode == MODE_RED_GREEN)
+				rgba[2] = GL_FALSE;
+		}
 	}
 }
 
@@ -482,6 +493,10 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			{
 				// clear both, front and backbuffer.
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				backEnd.colorMask[0] = GL_FALSE;
+				backEnd.colorMask[1] = GL_FALSE;
+				backEnd.colorMask[2] = GL_FALSE;
+				backEnd.colorMask[3] = GL_FALSE;
 				qglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 				
 				qglDrawBuffer(GL_FRONT);
@@ -489,6 +504,42 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 				qglDrawBuffer(GL_BACK);
 				qglClear(GL_COLOR_BUFFER_BIT);
 				
+				if (glRefConfig.framebufferObject)
+				{
+					// clear all framebuffers
+					// FIXME: must be a better way to do this
+					int i;
+
+					for (i = 0; i < 3; i++)
+					{
+						if (i == 1 && !tr.msaaResolveFbo)
+							continue;
+
+						switch(i)
+						{
+							case 0:
+								FBO_Bind(tr.renderFbo);
+								break;
+
+							case 1:
+								FBO_Bind(tr.msaaResolveFbo);
+								break;
+
+							case 2:
+								FBO_Bind(tr.screenScratchFbo);
+								break;
+						}
+
+						qglDrawBuffer(GL_FRONT);
+						qglClear(GL_COLOR_BUFFER_BIT);
+						qglDrawBuffer(GL_BACK);
+						qglClear(GL_COLOR_BUFFER_BIT);
+	
+					}
+
+					FBO_Bind(NULL);
+				}
+
 				r_anaglyphMode->modified = qfalse;
 			}
 			
@@ -534,6 +585,10 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			if(r_anaglyphMode->modified)
 			{
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				backEnd.colorMask[0] = 0;
+				backEnd.colorMask[1] = 0;
+				backEnd.colorMask[2] = 0;
+				backEnd.colorMask[3] = 0;
 				r_anaglyphMode->modified = qfalse;
 			}
 

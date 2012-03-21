@@ -464,7 +464,7 @@ void FBO_Init(void)
 		FBO_AttachTextureImage(tr.pshadowMaps[i], 0);
 
 		FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24_ARB, 0, 0);
-		R_AttachFBOTextureDepth(tr.textureDepthImage->texnum);
+		//R_AttachFBOTextureDepth(tr.textureDepthImage->texnum);
 
 		R_CheckFBO(tr.pshadowFbos[i]);
 	}
@@ -491,11 +491,18 @@ void FBO_Init(void)
 	}
 
 	{
+		int format;
+
+		if (glRefConfig.texture_srgb && glRefConfig.framebuffer_srgb)
+			format = GL_SRGB8_ALPHA8_EXT;
+		else
+			format = GL_RGBA8;
+
 		//tr.screenScratchFbo = FBO_Create("_screenscratch", width, height);
 		tr.screenScratchFbo = FBO_Create("_screenscratch", tr.screenScratchImage->width, tr.screenScratchImage->height);
 		FBO_Bind(tr.screenScratchFbo);
-
-		FBO_CreateBuffer(tr.screenScratchFbo, GL_RGBA8, 0, 0);
+		
+		FBO_CreateBuffer(tr.screenScratchFbo, format, 0, 0);
 		FBO_AttachTextureImage(tr.screenScratchImage, 0);
 
 		// FIXME: hack: share zbuffer between render fbo and pre-screen fbo
