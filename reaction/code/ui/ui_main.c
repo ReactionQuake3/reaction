@@ -9617,7 +9617,7 @@ static cvarTable_t cvarTable[] = {
 	{&ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{&ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	//Makro - changed from Sarge
-	{&ui_findPlayer, "ui_findPlayer", "Suislide", CVAR_ARCHIVE},
+	{&ui_findPlayer, "ui_findPlayer", "Al Leong", CVAR_ARCHIVE},
 	//Makro - adding CVAR_ROM
 	{&ui_Q3Model, "ui_q3model", "1", CVAR_ARCHIVE | CVAR_ROM},
 	{&ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
