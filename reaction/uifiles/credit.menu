@@ -14,11 +14,14 @@
     fadeAmount 0.01				// amount to adjust alpha per cycle
     fadeClamp 1.0					// sets the fadeup alpha
 
+    soundLoop "music/rq3_title_loop"
+    soundIntro "music/rq3_title_intro"
+
     onOpen {
       uiScript "backupMusicVolume" ;
       play "sound/ui/whoosh3.wav" ;
       //exec "set s_musicvolume 1" ;
-      playlooped "music/sonic1" ;
+      //playlooped "music/sonic1" ;
       transition hint  UI_MINX -40 UI_WIDTH 40  UI_MINX 8 UI_WIDTH 40   20 10 ;
 	  //hide timer ;
 	  startTimer 
@@ -69,7 +72,7 @@
 
 
 
-    // PROGRAMMING //
+    // BOOMSTICK STUDIOS //
 
 	itemDef {
 	name "timer2"
@@ -89,7 +92,7 @@
 	name "timer2"
 	group timer	
 	subgroup "t2_title"
-	text "PROGRAMMING"
+	text "BOOMSTICK STUDIOS"
 	forecolor 0 0 .1 1
 	style WINDOW_STYLE_EMPTY
 	textalign ITEM_ALIGN_CENTER
@@ -113,13 +116,14 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Richard Allen\n"
+	text "Tomi Isoaho\n"
+	     "Richard Allen\n"
 	     "Andrei Drexler\n"
-	     "Bryce Hutchings\n"
+	     "James Canete\n"
 	     "Scott Brooks\n"
-	     "Victor Chow\n"
-	     "Bruno Covacha\n"
-	     "Daniel Simoes"
+		 "Walter Somol\n"
+	     "Christopher\nJayawardena\n"
+	     "Andrew Prosnik"
 	autowrapped
 	visible 1
 	decoration
@@ -135,13 +139,14 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "JBravo\n"
+	text "T.T.I.\n"
+	     "JBravo\n"
 	     "Makro\n"
-	     "NiceAss\n"
+	     "SmileTheory\n"
 	     "Blaze\n"
-	     "Elder_MMHS\n"
-	     "aasimon\n"
-	     "sLiCeR"
+	     "Johnny Rocket\n"
+	     "EvilFutsin\n\n"
+	     "Black Monk"
 	autowrapped
 	visible 1
 	decoration
@@ -158,7 +163,7 @@
 	style WINDOW_STYLE_SHADER
 	background UI_ASSETS"/paper_1"
 	forecolor 1 1 1 1
-	rect 36 104 320 260
+	rect 36 104 320 320
 	anglevectors 5 -85
 	visible 1
 	decoration
@@ -193,11 +198,14 @@
 	textalignx 112
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "Michael Bruce\n"
+	text "Bryce Hutchings\n"
+	     "Victor Chow\n"
+	     "Bruno Covacha\n"
+	     "Daniel Simoes\n"
+	     "Michael Bruce\n"
 	     "Dan Chin\n"
 	     "Malcolm Bechard\n"
-	     "Tomas Edwardsson\n"
-	     "Tomi Isoaho\n"
+	     "Tomas Edwardsson"
 	autowrapped
 	visible 1
 	decoration
@@ -213,11 +221,14 @@
 	textalignx 96
 	textaligny 24
 	forecolor 0 0 0.1 1
-	text "AgtOrange\n"
+	text "NiceAss\n"
+	     "Elder_MMHS\n"
+	     "aasimon\n"
+	     "sLiCeR\n"
+	     "AgtOrange\n"
 	     "Lt. Hawkins\n"
 	     "Tsunami\n"
-	     "Freud\n"
-	     "T.T.I.\n"
+	     "Freud"
 	autowrapped
 	visible 1
 	decoration
@@ -830,6 +841,7 @@
 	textaligny 24
 	forecolor 0 0 0.1 1
 	text "Tomi Isoaho\n"
+	     "Kyle Ross\n"
 	     "Victor Chow\n"
 	     "Christopher A.\n"
 		 "Strickler\n"
@@ -853,6 +865,7 @@
 	textaligny 24
 	forecolor 0 0 0.1 1
 	text "T.T.I.\n"
+	     "Gimp\n"
 	     "Elder_MMHS\n"
 	     "Preacher\n"
 	     "\n"
@@ -1339,6 +1352,7 @@
 	forecolor 0 0 0.1 1
 	textHeight 20
 	text "A-TEAM\n"
+	     "ioquake3\n"
 	     "ZCam\n"
 	     "Unlagged\n"
 	     "Installers\n"
@@ -1359,6 +1373,7 @@
 	forecolor 0 0 0.1 1
 	textHeight 20
 	text "Dwayne Douglass\n"
+ 	     "Zachary 'zakk' Slater\n"
  	     "Avi 'Zung!' Rozen\n"
 	     "Neil 'haste' Toronto\n"
 	     "Karmann (Windows)\n"
