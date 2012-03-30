@@ -1,19 +1,19 @@
 #!/bin/sh
-APPBUNDLE=ioquake3.app
-BINARY=ioquake3.x86_64
-DEDBIN=ioq3ded.x86_64
+APPBUNDLE=Reaction.app
+BINARY=Reaction.x86_64
+DEDBIN=Reactionded.x86_64
 PKGINFO=APPLIOQ3
 ICNS=misc/quake3.icns
 DESTDIR=build/release-darwin-x86_64
-BASEDIR=baseq3
+BASEDIR=Boomstick
 MPACKDIR=missionpack
 RENDERDIR=build/release-darwin-x86_64
 
 BIN_OBJ="
-	build/release-darwin-x86_64/ioquake3.x86_64
+	build/release-darwin-x86_64/Reaction.x86_64
 "
 BIN_DEDOBJ="
-	build/release-darwin-x86_64/ioq3ded.x86_64
+	build/release-darwin-x86_64/Reactionded.x86_64
 "
 BASE_OBJ="
 	build/release-darwin-x86_64/$BASEDIR/cgamex86_64.dylib
@@ -33,7 +33,7 @@ RENDER_OBJ="
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
-	echo "This script must be run from the ioquake3 build directory"
+	echo "This script must be run from the Reaction build directory"
 	exit 1
 fi
 
@@ -82,7 +82,7 @@ fi
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/Resources ]; then
 	mkdir -p $DESTDIR/$APPBUNDLE/Contents/Resources
 fi
-cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/ioquake3.icns || exit 1;
+cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/Reaction.icns || exit 1;
 echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
 echo "
 	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -96,15 +96,15 @@ echo "
 		<key>CFBundleExecutable</key>
 		<string>$BINARY</string>
 		<key>CFBundleGetInfoString</key>
-		<string>ioquake3 $Q3_VERSION</string>
+		<string>Reaction $Q3_VERSION</string>
 		<key>CFBundleIconFile</key>
-		<string>ioquake3.icns</string>
+		<string>Reaction.icns</string>
 		<key>CFBundleIdentifier</key>
-		<string>org.ioquake.ioquake3</string>
+		<string>org.ioquake.Reaction</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>ioquake3</string>
+		<string>Reaction</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
