@@ -611,11 +611,13 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 		// calc tangent spaces
 		{
-			const float    *v0, *v1, *v2;
-			const float    *t0, *t1, *t2;
-			vec3_t          tangent;
-			vec3_t          bitangent;
-			vec3_t          normal;
+			// Valgrind complaints: Conditional jump or move depends on uninitialised value(s)
+			// So lets Initialize them.
+			const float    *v0 = NULL, *v1 = NULL, *v2 = NULL;
+			const float    *t0 = NULL, *t1 = NULL, *t2 = NULL;
+			vec3_t          tangent = { 0, 0, 0 };
+			vec3_t          bitangent = { 0, 0, 0 };
+			vec3_t          normal = { 0, 0, 0 };
 
 			for(j = 0, v = surf->verts; j < (surf->numVerts * mdvModel->numFrames); j++, v++)
 			{
