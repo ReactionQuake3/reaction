@@ -282,7 +282,7 @@ extern void (APIENTRY * qglGetQueryObjectuivARB)(GLuint id, GLenum pname, GLuint
 #endif
 
 // GL_EXT_framebuffer_blit
-void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
+extern void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1,
                             GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1,
                             GLbitfield mask, GLenum filter);
 
@@ -295,7 +295,7 @@ void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, G
 #endif
 
 // GL_EXT_framebuffer_multisample
-void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
+extern void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
 	GLenum internalformat, GLsizei width, GLsizei height);
 
 #ifndef GL_EXT_framebuffer_multisample
