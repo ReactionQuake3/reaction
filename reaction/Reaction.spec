@@ -7,6 +7,8 @@ Group:		Amusements/Games
 License:	GPL
 URL:		http://www.rq3.com
 Source0:	http://www.rq3.com/download/Reaction-%{version}.tar.gz
+Source1:	%{name}.desktop
+Source2:	%{name}.png
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires:	desktop-file-utils SDL-devel openal-soft-devel libvorbis-devel libjpeg-devel libcurl-devel zlib-devel speex-devel
@@ -29,17 +31,41 @@ install -m 0755 build/release-linux-*/Reactionded.* \
 install -m 0755 build/release-linux-*/Reaction.* \
   $RPM_BUILD_ROOT%{_bindir}/%{name}
 
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/applications
+desktop-file-install --vendor fedora            \
+  --dir $RPM_BUILD_ROOT%{_datadir}/applications \
+  %{SOURCE1}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/48x48/apps
+install -p -m 644 %{SOURCE2} \
+  $RPM_BUILD_ROOT%{_datadir}/icons/hicolor/48x48/apps
+
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+touch --no-create %{_datadir}/icons/hicolor || :
+if [ -x %{_bindir}/gtk-update-icon-cache ]; then
+   %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+fi
+
+%postun
+touch --no-create %{_datadir}/icons/hicolor || :
+if [ -x %{_bindir}/gtk-update-icon-cache ]; then
+   %{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+fi
 
 %files
 %defattr(-,root,root,-)
 %doc ChangeLog COPYING.txt GPL
 %{_bindir}/%{name}*
 %{_bindir}/Reactionded
+%{_datadir}/applications/fedora-%{name}.desktop
+%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
 
 
 %changelog
+* Fri Mar 30 2012 Richard Allen <ra@ra.is>
+- Adding Icon and Desktop Icons
 * Wed Mar 28 2012 Richard Allen <ra@ra.is>
-- Initial version of the spec file for Reaction 1.0
+- Initial version of the spec file for Reaction 1.0 based on the spec from tremulous
