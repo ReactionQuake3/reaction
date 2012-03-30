@@ -21,7 +21,6 @@
       uiScript "backupMusicVolume" ;
       play "sound/ui/whoosh3.wav" ;
       //exec "set s_musicvolume 1" ;
-      //playlooped "music/sonic1" ;
       transition hint  UI_MINX -40 UI_WIDTH 40  UI_MINX 8 UI_WIDTH 40   20 10 ;
 	  //hide timer ;
 	  startTimer 
@@ -121,7 +120,7 @@
 	     "Andrei Drexler\n"
 	     "James Canete\n"
 	     "Scott Brooks\n"
-		 "Walter Somol\n"
+	     "Walter Somol\n"
 	     "Christopher\nJayawardena\n"
 	     "Andrew Prosnik"
 	autowrapped
