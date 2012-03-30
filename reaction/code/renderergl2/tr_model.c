@@ -641,6 +641,8 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 					if (!r_recalcMD3Normals->integer)
 						VectorCopy(v->normal, normal);
+					else
+						VectorClear(normal);
 
 					#if 1
 					R_CalcTangentSpace(tangent, bitangent, normal, v0, v1, v2, t0, t1, t2);
