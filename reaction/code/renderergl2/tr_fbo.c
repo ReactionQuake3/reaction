@@ -309,44 +309,45 @@ FBO_Bind
 */
 void FBO_Bind(FBO_t * fbo)
 {
-	if(!fbo)
-	{
-		if(glState.currentFBO)
-		{
-			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-			qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-			glState.currentFBO = NULL;
-		}
+	if (fbo && glState.currentFBO == fbo)
 		return;
-	}
-
-	if(r_logFile->integer)
+		
+	if (r_logFile->integer)
 	{
 		// don't just call LogComment, or we will get a call to va() every frame!
-		GLimp_LogComment(va("--- FBO_Bind( %s ) ---\n", fbo->name));
+		if (fbo)
+			GLimp_LogComment(va("--- FBO_Bind( %s ) ---\n", fbo->name));
+		else
+			GLimp_LogComment("--- FBO_Bind ( NULL ) ---\n");
 	}
 
-	if(glState.currentFBO != fbo)
+	if (!fbo)
 	{
-		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frameBuffer);
-
-		/*
-		   if(fbo->colorBuffers[0])
-		   {
-		   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[0]);
-		   }
-		 */
-
-		/*
-		   if(fbo->depthBuffer)
-		   {
-		   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->depthBuffer);
-		   qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->depthBuffer);
-		   }
-		 */
-
-		glState.currentFBO = fbo;
+		qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		//qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+		glState.currentFBO = NULL;
+		
+		return;
 	}
+		
+	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo->frameBuffer);
+
+	/*
+	   if(fbo->colorBuffers[0])
+	   {
+	   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->colorBuffers[0]);
+	   }
+	 */
+
+	/*
+	   if(fbo->depthBuffer)
+	   {
+	   qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+	   qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, fbo->depthBuffer);
+	   }
+	 */
+
+	glState.currentFBO = fbo;
 }
 
 /*
@@ -417,10 +418,10 @@ void FBO_Init(void)
 		tr.msaaResolveFbo = FBO_Create("_msaaResolve", tr.renderDepthImage->width, tr.renderDepthImage->height);
 		FBO_Bind(tr.msaaResolveFbo);
 
-		FBO_CreateBuffer(tr.msaaResolveFbo, hdrFormat, 0, 0);
+		//FBO_CreateBuffer(tr.msaaResolveFbo, hdrFormat, 0, 0);
 		FBO_AttachTextureImage(tr.renderImage, 0);
 
-		FBO_CreateBuffer(tr.msaaResolveFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+		//FBO_CreateBuffer(tr.msaaResolveFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
 		R_AttachFBOTextureDepth(tr.renderDepthImage->texnum);
 
 		R_CheckFBO(tr.msaaResolveFbo);
@@ -430,10 +431,10 @@ void FBO_Init(void)
 		tr.renderFbo = FBO_Create("_render", tr.renderDepthImage->width, tr.renderDepthImage->height);
 		FBO_Bind(tr.renderFbo);
 
-		FBO_CreateBuffer(tr.renderFbo, hdrFormat, 0, 0);
+		//FBO_CreateBuffer(tr.renderFbo, hdrFormat, 0, 0);
 		FBO_AttachTextureImage(tr.renderImage, 0);
 
-		FBO_CreateBuffer(tr.renderFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+		//FBO_CreateBuffer(tr.renderFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
 		R_AttachFBOTextureDepth(tr.renderDepthImage->texnum);
 
 		R_CheckFBO(tr.renderFbo);
@@ -444,10 +445,10 @@ void FBO_Init(void)
 		tr.godRaysFbo = FBO_Create("_godRays", tr.renderDepthImage->width, tr.renderDepthImage->height);
 		FBO_Bind(tr.godRaysFbo);
 
-		FBO_CreateBuffer(tr.godRaysFbo, GL_RGBA8, 0, multisample);
+		//FBO_CreateBuffer(tr.godRaysFbo, GL_RGBA8, 0, multisample);
 		FBO_AttachTextureImage(tr.godRaysImage, 0);
 
-		FBO_CreateBuffer(tr.godRaysFbo, GL_DEPTH_COMPONENT24_ARB, 0, multisample);
+		//FBO_CreateBuffer(tr.godRaysFbo, GL_DEPTH_COMPONENT24_ARB, 0, multisample);
 		R_AttachFBOTextureDepth(tr.renderDepthImage->texnum);
 
 		R_CheckFBO(tr.godRaysFbo);
@@ -460,7 +461,7 @@ void FBO_Init(void)
 		tr.pshadowFbos[i] = FBO_Create(va("_shadowmap%d", i), tr.pshadowMaps[i]->width, tr.pshadowMaps[i]->height);
 		FBO_Bind(tr.pshadowFbos[i]);
 
-		FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
+		//FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
 		FBO_AttachTextureImage(tr.pshadowMaps[i], 0);
 
 		FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24_ARB, 0, 0);
@@ -474,7 +475,7 @@ void FBO_Init(void)
 		tr.textureScratchFbo[i] = FBO_Create(va("_texturescratch%d", i), tr.textureScratchImage[i]->width, tr.textureScratchImage[i]->height);
 		FBO_Bind(tr.textureScratchFbo[i]);
 
-		FBO_CreateBuffer(tr.textureScratchFbo[i], GL_RGBA8, 0, 0);
+		//FBO_CreateBuffer(tr.textureScratchFbo[i], GL_RGBA8, 0, 0);
 		FBO_AttachTextureImage(tr.textureScratchImage[i], 0);
 
 		R_CheckFBO(tr.textureScratchFbo[i]);
@@ -484,7 +485,7 @@ void FBO_Init(void)
 		tr.calcLevelsFbo = FBO_Create("_calclevels", tr.calcLevelsImage->width, tr.calcLevelsImage->height);
 		FBO_Bind(tr.calcLevelsFbo);
 
-		FBO_CreateBuffer(tr.calcLevelsFbo, hdrFormat, 0, 0);
+		//FBO_CreateBuffer(tr.calcLevelsFbo, hdrFormat, 0, 0);
 		FBO_AttachTextureImage(tr.calcLevelsImage, 0);
 
 		R_CheckFBO(tr.calcLevelsFbo);
@@ -502,11 +503,11 @@ void FBO_Init(void)
 		tr.screenScratchFbo = FBO_Create("_screenscratch", tr.screenScratchImage->width, tr.screenScratchImage->height);
 		FBO_Bind(tr.screenScratchFbo);
 		
-		FBO_CreateBuffer(tr.screenScratchFbo, format, 0, 0);
+		//FBO_CreateBuffer(tr.screenScratchFbo, format, 0, 0);
 		FBO_AttachTextureImage(tr.screenScratchImage, 0);
 
 		// FIXME: hack: share zbuffer between render fbo and pre-screen fbo
-		FBO_CreateBuffer(tr.screenScratchFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+		//FBO_CreateBuffer(tr.screenScratchFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
 		R_AttachFBOTextureDepth(tr.renderDepthImage->texnum);
 
 		R_CheckFBO(tr.screenScratchFbo);
@@ -517,7 +518,7 @@ void FBO_Init(void)
 		tr.quarterFbo[i] = FBO_Create(va("_quarter%d", i), tr.quarterImage[i]->width, tr.quarterImage[i]->height);
 		FBO_Bind(tr.quarterFbo[i]);
 
-		FBO_CreateBuffer(tr.quarterFbo[i], hdrFormat, 0, 0);
+		//FBO_CreateBuffer(tr.quarterFbo[i], hdrFormat, 0, 0);
 		FBO_AttachTextureImage(tr.quarterImage[i], 0);
 
 		R_CheckFBO(tr.quarterFbo[i]);
