@@ -2656,7 +2656,15 @@ static void CG_Draw2D(void)
 	}
 
 	if (cg.snap->ps.pm_type == PM_INTERMISSION) {
+		float y;
+
 		CG_DrawIntermission();
+
+		// Makro - make sure chat messages still get drawn during intermission
+
+		y = 480 - ICON_SIZE;
+		y = CG_DrawMessageQueue(y);
+		
 		return;
 	}
 
