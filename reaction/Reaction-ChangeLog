@@ -1,4 +1,5 @@
-
+- Clear render buffer on allocate, fixes corrupt screen issue
+- Use GL_RGB16_F instead of GL_RGBA16_F for hdr render buffer
 - Draw chat messages & co. during intermission
 - Don't reserve render buffers when textures are used for a FBO.  Fixes a crash when GPU memory is at a premium.
 * Beta 1 - Initial Public Release.
