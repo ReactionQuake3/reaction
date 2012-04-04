@@ -2706,7 +2706,7 @@ void R_CreateBuiltinImages( void ) {
 
 		hdrFormat = GL_RGBA8;
 		if (r_hdr->integer && glRefConfig.framebufferObject && glRefConfig.textureFloat)
-			hdrFormat = GL_RGBA16F_ARB;
+			hdrFormat = GL_RGB16F_ARB;
 
 		tr.renderImage = R_CreateImage2("_render", NULL, width, height, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, hdrFormat);
 #ifdef REACTION
@@ -2734,7 +2734,7 @@ void R_CreateBuiltinImages( void ) {
 			unsigned short sdata[4];
 			void *p;
 
-			if (hdrFormat == GL_RGBA16F_ARB)
+			if (hdrFormat == GL_RGB16F_ARB)
 			{
 				sdata[0] = FloatToHalf(0.0f);
 				sdata[1] = FloatToHalf(0.45f);
