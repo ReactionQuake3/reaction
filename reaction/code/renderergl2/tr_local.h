@@ -108,17 +108,23 @@ typedef struct {
 
 typedef enum
 {
+	IMGTYPE_COLORALPHA, // for color, lightmap, diffuse, and specular
+	IMGTYPE_NORMAL,
+	IMGTYPE_NORMALHEIGHT,
+	IMGTYPE_DELUXE, // normals are swizzled, deluxe are not
+} imgType_t;
+
+typedef enum
+{
 	IMGFLAG_NONE           = 0x0000,
 	IMGFLAG_MIPMAP         = 0x0001,
 	IMGFLAG_PICMIP         = 0x0002,
 	IMGFLAG_CUBEMAP        = 0x0004,
-	IMGFLAG_SWIZZLE        = 0x0008,
 	IMGFLAG_NO_COMPRESSION = 0x0010,
-	IMGFLAG_NORMALIZED     = 0x0020,
-	IMGFLAG_NOLIGHTSCALE   = 0x0040,
-	IMGFLAG_CLAMPTOEDGE    = 0x0080,
-	IMGFLAG_SRGB           = 0x0100,
-	IMGFLAG_GENNORMALMAP   = 0x0200,
+	IMGFLAG_NOLIGHTSCALE   = 0x0020,
+	IMGFLAG_CLAMPTOEDGE    = 0x0040,
+	IMGFLAG_SRGB           = 0x0080,
+	IMGFLAG_GENNORMALMAP   = 0x0100,
 } imgFlags_t;
 
 typedef struct image_s {
@@ -132,8 +138,8 @@ typedef struct image_s {
 	int			internalFormat;
 	int			TMU;				// only needed for voodoo2
 
+	imgType_t   type;
 	imgFlags_t  flags;
-	int			wrapClampMode;		// GL_CLAMP_TO_EDGE or GL_REPEAT
 
 	struct image_s*	next;
 } image_t;
@@ -1587,6 +1593,12 @@ typedef enum {
 	MI_ATI
 } memInfo_t;
 
+typedef enum {
+	TCR_NONE = 0x0000,
+	TCR_LATC = 0x0001,
+	TCR_BPTC = 0x0002,
+} textureCompressionRef_t;
+
 // We can't change glConfig_t without breaking DLL/vms compatibility, so
 // store extensions we have here.
 typedef struct {
@@ -1603,6 +1615,7 @@ typedef struct {
 	qboolean textureFloat;
 	qboolean halfFloatPixel;
 	qboolean packedDepthStencil;
+	textureCompressionRef_t textureCompression;
 	
 	qboolean framebufferMultisample;
 	qboolean framebufferBlit;
@@ -2120,10 +2133,8 @@ qboolean	R_GetEntityToken( char *buffer, int size );
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t     *R_FindImageFile( const char *name, imgFlags_t flags );
-image_t		*R_CreateImage( const char *name, byte *pic, int width, int height, qboolean mipmap
-					, qboolean allowPicmip, int wrapClampMode );
-image_t *R_CreateImage2( const char *name, byte *pic, int width, int height, imgFlags_t flags, int internalFormat );
+image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
+image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
 void		R_UpdateSubImage( image_t *image, byte *pic, int x, int y, int width, int height );
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 

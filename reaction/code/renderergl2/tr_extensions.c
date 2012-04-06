@@ -439,7 +439,7 @@ void GLimp_InitExtraExtensions()
 	}
 
 	// GL_ARB_half_float_pixel
-	extension = "GL_ARB_texture_float";
+	extension = "GL_ARB_half_float_pixel";
 	glRefConfig.halfFloatPixel = qfalse;
 	if( GLimp_HaveExtension( extension ) )
 	{
@@ -575,6 +575,36 @@ void GLimp_InitExtraExtensions()
 			glRefConfig.framebuffer_srgb = qtrue;
 
 		ri.Printf(PRINT_ALL, result[glRefConfig.framebuffer_srgb], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, result[2], extension);
+	}
+
+	glRefConfig.textureCompression = TCR_NONE;
+
+	// GL_EXT_texture_compression_latc
+	extension = "GL_EXT_texture_compression_latc";
+	if (GLimp_HaveExtension(extension))
+	{
+		if (r_ext_compressed_textures->integer)
+			glRefConfig.textureCompression |= TCR_LATC;
+
+		ri.Printf(PRINT_ALL, result[r_ext_compressed_textures->integer ? 1 : 0], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, result[2], extension);
+	}
+
+	// GL_ARB_texture_compression_bptc
+	extension = "GL_ARB_texture_compression_bptc";
+	if (GLimp_HaveExtension(extension))
+	{
+		if (r_ext_compressed_textures->integer >= 2)
+			glRefConfig.textureCompression |= TCR_BPTC;
+
+		ri.Printf(PRINT_ALL, result[(r_ext_compressed_textures->integer >= 2) ? 1 : 0], extension);
 	}
 	else
 	{
