@@ -1,3 +1,11 @@
+- Reserve FBOs before shaders, as recommended in nvidia docs
+- Minor tweak in VBO allocation.
+- Update tr_font.c to ioq3 latest (r2232)
+- Minor image code cleanup.
+- Added support for LATC(normalmaps) and BPTC(everything else) image compression
+- Use faster framebuffer blits whenever possible.
+- Optimized lightall shader for older hardware.
+- Fixed case in GLSL_PrintInfoLog when log is 0 length.
 - Clear render buffer on allocate, fixes corrupt screen issue
 - Use GL_RGB16_F instead of GL_RGBA16_F for hdr render buffer
 - Draw chat messages & co. during intermission
