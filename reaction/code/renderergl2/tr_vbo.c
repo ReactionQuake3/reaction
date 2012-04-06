@@ -678,7 +678,6 @@ R_InitVBOs
 void R_InitVBOs(void)
 {
 	int             dataSize;
-	byte           *data;
 
 	ri.Printf(PRINT_ALL, "------- R_InitVBOs -------\n");
 
@@ -694,12 +693,7 @@ void R_InitVBOs(void)
 	dataSize += sizeof(tess.lightdir[0]);
 	dataSize *= SHADER_MAX_VERTEXES;
 
-	data = ri.Malloc(dataSize);
-	memset(data, 0, dataSize);
-
-	tess.vbo = R_CreateVBO("tessVertexArray_VBO", data, dataSize, VBO_USAGE_DYNAMIC);
-
-	ri.Free(data);
+	tess.vbo = R_CreateVBO("tessVertexArray_VBO", NULL, dataSize, VBO_USAGE_DYNAMIC);
 
 	tess.vbo->ofs_xyz         = 0;
 	tess.vbo->ofs_normal      = tess.vbo->ofs_xyz         + sizeof(tess.xyz[0])              * SHADER_MAX_VERTEXES;
@@ -723,12 +717,7 @@ void R_InitVBOs(void)
 
 	dataSize = sizeof(tess.indexes[0]) * SHADER_MAX_INDEXES;
 
-	data = ri.Malloc(dataSize);
-	memset(data, 0, dataSize);
-
-	tess.ibo = R_CreateIBO("tessVertexArray_IBO", data, dataSize, VBO_USAGE_DYNAMIC);
-
-	ri.Free(data);
+	tess.ibo = R_CreateIBO("tessVertexArray_IBO", NULL, dataSize, VBO_USAGE_DYNAMIC);
 
 	R_BindNullVBO();
 	R_BindNullIBO();

@@ -896,10 +896,6 @@ void GL_SetDefaultState( void )
 	qglShadeModel( GL_SMOOTH );
 	qglDepthFunc( GL_LEQUAL );
 
-	// the vertex array is always enabled, but the color and texture
-	// arrays are enabled and disabled around the compiled vertex array call
-	qglEnableClientState (GL_VERTEX_ARRAY);
-
 	//
 	// make sure our GL state vector is set correctly
 	//
@@ -1368,9 +1364,9 @@ void R_Init( void ) {
 
 	R_InitImages();
 
-	GLSL_InitGPUShaders();
-
 	FBO_Init();
+
+	GLSL_InitGPUShaders();
 
 	R_InitVBOs();
 
@@ -1417,9 +1413,9 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_SyncRenderThread();
 		R_ShutdownCommandBuffers();
 		R_ShutDownQueries();
+		FBO_Shutdown();
 		R_DeleteTextures();
 		R_ShutdownVBOs();
-		FBO_Shutdown();
 		GLSL_ShutdownGPUShaders();
 	}
 
