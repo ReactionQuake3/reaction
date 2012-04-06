@@ -396,7 +396,7 @@ void FBO_Init(void)
 		multisample = r_ext_framebuffer_multisample->integer;
 	}
 
-	if (multisample < 2)
+	if (multisample < 2 || !glRefConfig.framebufferBlit)
 		multisample = 0;
 
 	if (multisample != r_ext_framebuffer_multisample->integer)
@@ -439,7 +439,7 @@ void FBO_Init(void)
 
 		R_CheckFBO(tr.renderFbo);
 	}
-	
+
 	// clear render buffer
 	// this fixes the corrupt screen bug with r_hdr 1 on older hardware
 	FBO_Bind(tr.renderFbo);
@@ -499,13 +499,6 @@ void FBO_Init(void)
 	}
 
 	{
-		int format;
-
-		if (glRefConfig.texture_srgb && glRefConfig.framebuffer_srgb)
-			format = GL_SRGB8_ALPHA8_EXT;
-		else
-			format = GL_RGBA8;
-
 		//tr.screenScratchFbo = FBO_Create("_screenscratch", width, height);
 		tr.screenScratchFbo = FBO_Create("_screenscratch", tr.screenScratchImage->width, tr.screenScratchImage->height);
 		FBO_Bind(tr.screenScratchFbo);
@@ -606,7 +599,7 @@ void R_FBOList_f(void)
 // FIXME
 extern void RB_SetGL2D (void);
 
-void FBO_BlitFromTexture(struct image_s *src, vec4_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_BlitFromTexture(struct image_s *src, vec4i_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
 {
 		vec4_t quadVerts[4];
 		vec2_t texCoords[4];
@@ -638,24 +631,105 @@ void FBO_BlitFromTexture(struct image_s *src, vec4_t srcBox, vec2_t srcTexScale,
 		RB_InstantQuad2(quadVerts, texCoords, color, shaderProgram, invTexRes);
 }
 
-void FBO_Blit(FBO_t *src, vec4_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_Blit(FBO_t *src, vec4i_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
 {
-	if (1) //(glRefConfig.extFramebufferBlit && (sp == NULL || sp == &tr.textureColorShader))
-	{
-		FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend);
-	}
+	FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend);
 }
 
-void FBO_ResolveMSAA(FBO_t *src, FBO_t *dst)
+void FBO_FastBlit(FBO_t *src, vec4i_t srcBox, FBO_t *dst, vec4i_t dstBox, int buffers, int filter)
 {
+	vec4i_t srcBoxFinal, dstBoxFinal;
+	GLuint srcFb, dstFb;
+
+	if (!glRefConfig.framebufferBlit)
+	{
+		vec2_t texScale;
+		vec4_t white;
+
+		texScale[0] = 
+		texScale[1] = 1.0f;
+
+		white[0] =
+		white[1] =
+		white[2] =
+		white[3] = 1.0f;
+
+		if (!src || !src->colorImage[0])
+			return;
+
+		if (srcBox)
+		{
+			VectorSet4(srcBoxFinal, srcBox[0], srcBox[1], srcBox[2], srcBox[3]);
+		}
+		else
+		{
+			VectorSet4(srcBoxFinal, 0, 0, src->width, src->height);
+		}
+
+		if (dstBox)
+		{
+			VectorSet4(dstBoxFinal, dstBox[0], dstBox[1], dstBox[2], dstBox[3]);
+		}
+		else
+		{
+			if (dst)
+			{
+				VectorSet4(dstBoxFinal, 0, 0, dst->width, dst->height);
+			}
+			else
+			{
+				VectorSet4(dstBoxFinal, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
+			}
+		}
+
+		FBO_Blit(src, srcBoxFinal, texScale, dst, dstBoxFinal, &tr.textureColorShader, white, 0);
+		return;
+	}
+
 	// get to a neutral state first
 	FBO_Bind(NULL);
 
-	qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, src->frameBuffer);
-	qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, dst->frameBuffer);
-	qglBlitFramebufferEXT(0, 0, src->width, src->height, 0, 0, dst->width, dst->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	srcFb = src ? src->frameBuffer : 0;
+	dstFb = dst ? dst->frameBuffer : 0;
+
+	if (!srcBox)
+	{
+		if (src)
+		{
+			VectorSet4(srcBoxFinal, 0, 0, src->width, src->height);
+		}
+		else
+		{
+			VectorSet4(srcBoxFinal, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		}
+	}
+	else
+	{
+		VectorSet4(srcBoxFinal, srcBox[0], srcBox[1], srcBox[0] + srcBox[2], srcBox[1] + srcBox[3]);
+	}
+
+	if (!dstBox)
+	{
+		if (dst)
+		{
+			VectorSet4(dstBoxFinal, 0, 0, dst->width, dst->height);
+		}
+		else
+		{
+			VectorSet4(dstBoxFinal, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
+		}
+	}
+	else
+	{
+		VectorSet4(dstBoxFinal, dstBox[0], dstBox[1], dstBox[0] + dstBox[2], dstBox[1] + dstBox[3]);
+	}
+
+	qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, srcFb);
+	qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, dstFb);
+	qglBlitFramebufferEXT(srcBoxFinal[0], srcBoxFinal[1], srcBoxFinal[2], srcBoxFinal[3],
+	                      dstBoxFinal[0], dstBoxFinal[1], dstBoxFinal[2], dstBoxFinal[3],
+						  buffers, filter);
 
 	qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	qglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 	glState.currentFBO = NULL;
 }

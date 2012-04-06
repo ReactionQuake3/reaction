@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 {
+	vec4i_t srcBox, dstBox;
+	vec4_t color;
 	vec4_t white;
 	vec2_t texScale;
 
@@ -35,7 +37,6 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 	if (glRefConfig.framebufferObject && autoExposure)
 	{
 		// determine average log luminance
-		vec4_t srcBox, dstBox, color;
 		int size = 256, currentScratch, nextScratch, tmp;
 
 		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
@@ -77,8 +78,6 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 	if (glRefConfig.framebufferObject)
 	{
 		// tonemap
-		vec4_t srcBox, dstBox, color;
-
 		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
 		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
 
@@ -92,16 +91,15 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 		else
 			GL_BindToTMU(tr.fixedLevelsImage, TB_LEVELSMAP);
 
-		if (r_hdr->integer)
-			FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.tonemapShader, color, 0);
-		else
-			FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
+		FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.tonemapShader, color, 0);
 	}
 }
 
 
 void RB_BokehBlur(float blur)
 {
+	vec4i_t srcBox, dstBox;
+	vec4_t color;
 	vec4_t white;
 	vec2_t texScale;
 
@@ -118,8 +116,6 @@ void RB_BokehBlur(float blur)
 	if (glRefConfig.framebufferObject)
 	{
 		// bokeh blur
-		vec4_t srcBox, dstBox, color;
-
 		if (blur > 0.0f)
 		{
 			// create a quarter texture
@@ -249,12 +245,13 @@ void RB_BokehBlur(float blur)
 #ifdef REACTION
 static void RB_RadialBlur(FBO_t *srcFbo, FBO_t *dstFbo, int passes, float stretch, float x, float y, float w, float h, float xcenter, float ycenter, float alpha)
 {
+	vec4i_t srcBox, dstBox;
+	vec4_t color;
 	const float inc = 1.f / passes;
 	const float mul = powf(stretch, inc);
 	float scale;
 
 	{
-		vec4_t srcBox, dstBox, color;
 		vec2_t texScale;
 
 		texScale[0] = 
@@ -322,6 +319,8 @@ static qboolean RB_UpdateSunFlareVis(void)
 
 void RB_GodRays(void)
 {
+	vec4i_t srcBox, dstBox;
+	vec4_t color;
 	vec3_t dir;
 	float dot;
 	const float cutoff = 0.25f;
@@ -366,9 +365,6 @@ void RB_GodRays(void)
 	// initialize quarter buffers
 	{
 		float mul = 1.f;
-		
-		vec4_t srcBox, dstBox;
-		vec4_t color;
 		vec2_t texScale;
 
 		texScale[0] = 
@@ -404,9 +400,6 @@ void RB_GodRays(void)
 	// add result back on top of the main buffer
 	{
 		float mul = 1.f;
-
-		vec4_t srcBox, dstBox;
-		vec4_t color;
 		vec2_t texScale;
 
 		texScale[0] = 
@@ -443,7 +436,8 @@ static void RB_BlurAxis(FBO_t *srcFbo, FBO_t *dstFbo, float strength, qboolean h
 	ymul *= strength;
 
 	{
-		vec4_t srcBox, dstBox, color;
+		vec4i_t srcBox, dstBox;
+		vec4_t color;
 		vec2_t texScale;
 
 		texScale[0] = 
@@ -491,7 +485,7 @@ void RB_GaussianBlur(float blur)
 		return;
 
 	{
-		vec4_t srcBox, dstBox;
+		vec4i_t srcBox, dstBox;
 		vec4_t color;
 		vec2_t texScale;
 

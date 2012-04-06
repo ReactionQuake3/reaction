@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef vec_t matrix_t[16];
 typedef int vec2i_t[2];
-typedef int vec3i_t[2];
+typedef int vec3i_t[3];
+typedef int vec4i_t[4];
 
 void Matrix16Zero( matrix_t out );
 void Matrix16Identity( matrix_t out );
