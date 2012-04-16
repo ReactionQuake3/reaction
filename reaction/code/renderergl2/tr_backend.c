@@ -227,11 +227,15 @@ void GL_State( unsigned long stateBits )
 	//
 	// check depthFunc bits
 	//
-	if ( diff & GLS_DEPTHFUNC_EQUAL )
+	if ( diff & GLS_DEPTHFUNC_BITS )
 	{
 		if ( stateBits & GLS_DEPTHFUNC_EQUAL )
 		{
 			qglDepthFunc( GL_EQUAL );
+		}
+		else if ( stateBits & GLS_DEPTHFUNC_GREATER)
+		{
+			qglDepthFunc( GL_GREATER );
 		}
 		else
 		{
@@ -533,7 +537,7 @@ void RB_BeginDrawingView (void) {
 	backEnd.skyRenderedThisView = qfalse;
 
 #ifdef REACTION
-	backEnd.hasSunFlare = qfalse;
+	backEnd.viewHasSunFlare = qfalse;
 #endif
 
 	// clip to the plane of the portal
@@ -687,12 +691,11 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 						qglClear( GL_COLOR_BUFFER_BIT );
 
 						qglDepthRange(1.f, 1.f);
-						if (glRefConfig.occlusionQuery && !inQuery && !backEnd.hasSunFlare) {
+						if (glRefConfig.occlusionQuery && !inQuery && !backEnd.viewHasSunFlare) {
 							inQuery = qtrue;
 							tr.sunFlareQueryActive[tr.sunFlareQueryIndex] = qtrue;
 							qglBeginQueryARB(GL_SAMPLES_PASSED_ARB, tr.sunFlareQuery[tr.sunFlareQueryIndex]);
 						}
-						//backEnd.hasSunFlare = qtrue;
 						sunflare = qtrue;
 					} else {
 						depthRange = qtrue;
@@ -794,6 +797,17 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		inQuery = qfalse;
 		qglEndQueryARB(GL_SAMPLES_PASSED_ARB);
 	}
+#ifdef REACTION
+	// HACK: flip Z and render black to god rays buffer
+	if (backEnd.frameHasSunFlare)
+	{
+		vec4_t black;
+		VectorSet4(black, 0, 0, 0, 1);
+		qglDepthRange (1, 1);
+		FBO_BlitFromTexture(tr.whiteImage, NULL, NULL, tr.godRaysFbo, NULL, NULL, black, GLS_DEPTHFUNC_GREATER);
+	}
+#endif
+
 	FBO_Bind(fbo);
 
 	// go back to the world modelview matrix
@@ -1405,6 +1419,9 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 	backEnd.framePostProcessed = qfalse;
 	backEnd.projection2D = qfalse;
+#ifdef REACTION
+	backEnd.frameHasSunFlare = qfalse;
+#endif
 
 	return (const void *)(cmd + 1);
 }

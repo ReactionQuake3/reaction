@@ -296,7 +296,7 @@ void RB_GodRays(void)
 	matrix_t mvp;
 	vec4_t pos, hpos;
 
-	if (!backEnd.hasSunFlare)
+	if (!backEnd.viewHasSunFlare)
 		return;
 
 	VectorSubtract(backEnd.sunFlarePos, backEnd.viewParms.or.origin, dir);
@@ -473,7 +473,7 @@ void RB_GaussianBlur(float blur)
 		VectorSet4(srcBox, 0, 0, tr.whiteImage->width, tr.whiteImage->height);
 		VectorSet4(dstBox, 0, 0, tr.textureScratchFbo[0]->width, tr.textureScratchFbo[0]->height);
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
-		FBO_BlitFromTexture(tr.whiteImage, srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.textureColorShader, color, 0);
+		FBO_BlitFromTexture(tr.whiteImage, srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.textureColorShader, color, GLS_DEPTHTEST_DISABLE);
 		qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		// blur the tiny buffer horizontally and vertically

@@ -701,7 +701,7 @@ void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexS
 	invTexRes[0] = 1.0f / src->width  * srcTexScale[0];
 	invTexRes[1] = 1.0f / src->height * srcTexScale[1];
 
-	GL_State( blend | GLS_DEPTHTEST_DISABLE );
+	GL_State( blend );
 
 	RB_InstantQuad2(quadVerts, texCoords, color, shaderProgram, invTexRes);
 }
@@ -726,7 +726,7 @@ void FBO_Blit(FBO_t *src, vec4i_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, vec4
 		VectorSet4(srcBox, 0, src->height, src->width, -src->height);
 	}
 
-	FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend);
+	FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend | GLS_DEPTHTEST_DISABLE);
 }
 
 void FBO_FastBlit(FBO_t *src, vec4i_t srcBox, FBO_t *dst, vec4i_t dstBox, int buffers, int filter)

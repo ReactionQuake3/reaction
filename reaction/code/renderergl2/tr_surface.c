@@ -297,7 +297,7 @@ static void RB_SurfaceSprite( void ) {
 #ifdef REACTION
 	if (ent->e.renderfx & RF_SUNFLARE)
 	{
-		if (backEnd.hasSunFlare)
+		if (backEnd.viewHasSunFlare)
 		{
 			ri.Printf(PRINT_WARNING, "Multiple sun flares not supported\n");
 			return;
@@ -307,7 +307,8 @@ static void RB_SurfaceSprite( void ) {
 		colors[0] = colors[1] = colors[2] = colors[3] = ent->e.shaderRGBA[glRefConfig.framebufferObject] / 255.0f;
 		if (colors[0] == 0)
 			return;
-		backEnd.hasSunFlare = qtrue;
+		backEnd.viewHasSunFlare = qtrue;
+		backEnd.frameHasSunFlare = qtrue;
 	}
 	else
 #endif

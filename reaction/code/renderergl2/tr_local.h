@@ -1675,7 +1675,8 @@ typedef struct {
 
 #ifdef REACTION
 	vec3_t					sunFlarePos;
-	qboolean				hasSunFlare;
+	qboolean				viewHasSunFlare;
+	qboolean                frameHasSunFlare;
 #endif
 
 	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
@@ -2116,6 +2117,8 @@ void	GL_Cull( int cullType );
 
 #define GLS_DEPTHTEST_DISABLE					0x00010000
 #define GLS_DEPTHFUNC_EQUAL						0x00020000
+#define GLS_DEPTHFUNC_GREATER                   0x00040000
+#define GLS_DEPTHFUNC_BITS                      0x00060000
 
 #define GLS_ATEST_GT_0							0x10000000
 #define GLS_ATEST_LT_80							0x20000000
