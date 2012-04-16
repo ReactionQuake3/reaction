@@ -458,7 +458,9 @@ static void DrawSkySide( struct image_s *image, const int mins[2], const int max
 		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_DIFFUSETEXMATRIX, matrix);
 	}
 
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes - tess.firstIndex, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex * sizeof(GL_INDEX_TYPE)));
+	R_DrawElementsVBO(tess.numIndexes - tess.firstIndex, tess.firstIndex);
+
+	//qglDrawElements(GL_TRIANGLES, tess.numIndexes - tess.firstIndex, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex * sizeof(GL_INDEX_TYPE)));
 	
 	//R_BindNullVBO();
 	//R_BindNullIBO();

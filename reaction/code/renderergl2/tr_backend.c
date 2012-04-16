@@ -1014,7 +1014,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	VectorSet4(color, 1, 1, 1, 1);
 	GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
 
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
+	R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
 	
 	//R_BindNullVBO();
 	//R_BindNullIBO();
