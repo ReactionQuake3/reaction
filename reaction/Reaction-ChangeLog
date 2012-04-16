@@ -1,3 +1,4 @@
+- Use GL_ext_draw_range_elements
 - Reserve FBOs before shaders, as recommended in nvidia docs
 - Minor tweak in VBO allocation.
 - Update tr_font.c to ioq3 latest (r2232)

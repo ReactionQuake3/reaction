@@ -38,15 +38,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==================
 R_DrawElements
 
-Optionally performs our own glDrawElements that looks for strip conditions
-instead of using the single glDrawElements call that may be inefficient
-without compiled vertex arrays.
 ==================
 */
 
-static void R_DrawElementsVBO( int numIndexes, int firstIndex )
+void R_DrawElementsVBO( int numIndexes, int firstIndex )
 {
-	qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE)));
+	if (glRefConfig.drawRangeElements)
+		qglDrawRangeElementsEXT(GL_TRIANGLES, 0, numIndexes, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE)));
+	else
+		qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE)));
+	
 }
 
 
@@ -60,9 +61,19 @@ static void R_DrawMultiElementsVBO( int multiDrawPrimitives, const GLvoid **mult
 	{
 		int i;
 
-		for (i = 0; i < multiDrawPrimitives; i++)
+		if (glRefConfig.drawRangeElements)
 		{
-			qglDrawElements(GL_TRIANGLES, multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
+			for (i = 0; i < multiDrawPrimitives; i++)
+			{
+				qglDrawRangeElementsEXT(GL_TRIANGLES, 0, multiDrawNumIndexes[i],  multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
+			}
+		}
+		else
+		{
+			for (i = 0; i < multiDrawPrimitives; i++)
+			{
+				qglDrawElements(GL_TRIANGLES, multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
+			}
 		}
 	}
 }

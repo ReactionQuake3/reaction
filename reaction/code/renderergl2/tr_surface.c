@@ -77,7 +77,8 @@ void RB_CheckVBOandIBO(VBO_t *vbo, IBO_t *ibo)
 		R_BindIBO(ibo);
 	}
 
-	tess.useInternalVBO = qfalse;
+	if (vbo != tess.vbo && ibo != tess.ibo)
+		tess.useInternalVBO = qfalse;
 }
 
 
@@ -224,7 +225,7 @@ void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4], vec4_t color, sha
 	GLSL_SetUniformVec2(sp, TEXTURECOLOR_UNIFORM_INVTEXRES, invTexRes);
 	GLSL_SetUniformVec2(sp, TEXTURECOLOR_UNIFORM_AUTOEXPOSUREMINMAX, tr.autoExposureMinMax);
 
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(0));
+	R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
@@ -362,6 +363,8 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 	float          *xyz, *normal, *tangent, *bitangent, *texCoords, *lightCoords, *lightdir;
 	glIndex_t      *index;
 	float		*color;
+
+	RB_CheckVBOandIBO(tess.vbo, tess.ibo);
 
 	RB_CHECKOVERFLOW( numVerts, numTriangles * 3 );
 
@@ -647,7 +650,7 @@ static void RB_SurfaceBeam( void )
 		GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
 	}
 
-	qglDrawElements(GL_TRIANGLES, tess.numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(tess.firstIndex));
+	R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;

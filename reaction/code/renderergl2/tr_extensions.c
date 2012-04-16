@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+// GL_EXT_draw_range_elements
+void            (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 // GL_EXT_multi_draw_arrays
 void            (APIENTRY * qglMultiDrawArraysEXT) (GLenum mode, GLint *first, GLsizei *count, GLsizei primcount);
@@ -186,6 +188,25 @@ void GLimp_InitExtraExtensions()
 {
 	char *extension;
 	const char* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
+
+	// GL_EXT_draw_range_elements
+	extension = "GL_EXT_draw_range_elements";
+	glRefConfig.drawRangeElements = qfalse;
+	qglMultiDrawArraysEXT = NULL;
+	qglMultiDrawElementsEXT = NULL;
+	if( GLimp_HaveExtension( extension ) )
+	{
+		qglDrawRangeElementsEXT = (PFNGLMULTIDRAWARRAYSEXTPROC) SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
+
+		if ( r_ext_draw_range_elements->integer)
+			glRefConfig.drawRangeElements = qtrue;
+
+		ri.Printf(PRINT_ALL, result[glRefConfig.drawRangeElements], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, result[2], extension);
+	}
 
 	// GL_EXT_multi_draw_arrays
 	extension = "GL_EXT_multi_draw_arrays";
