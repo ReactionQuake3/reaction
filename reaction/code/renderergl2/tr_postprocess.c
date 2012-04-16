@@ -26,43 +26,49 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 {
 	vec4i_t srcBox, dstBox;
 	vec4_t color;
-	vec4_t white;
-	vec2_t texScale;
+	static int lastFrameCount = 0;
 
-	texScale[0] = 
-	texScale[1] = 1.0f;
-
-	VectorSet4(white, 1, 1, 1, 1);
-
-	if (glRefConfig.framebufferObject && autoExposure)
+	if (autoExposure)
 	{
-		// determine average log luminance
-		int size = 256, currentScratch, nextScratch, tmp;
-
-		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
-		VectorSet4(dstBox, 0, 0, 256, 256);
-
-		FBO_Blit(hdrFbo, srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.calclevels4xShader[0], white, 0);
-
-		currentScratch = 0;
-		nextScratch = 1;
-
-		// downscale to 1x1 texture
-		while (size > 1)
+		if (lastFrameCount == 0 || tr.frameCount < lastFrameCount || tr.frameCount - lastFrameCount > 5)
 		{
-			VectorSet4(srcBox, 0, 0, size, size);
-			size >>= 2;
-			VectorSet4(dstBox, 0, 0, size, size);
-			FBO_Blit(tr.textureScratchFbo[currentScratch], srcBox, texScale, tr.textureScratchFbo[nextScratch], dstBox, &tr.calclevels4xShader[1], white, 0);
+			// determine average log luminance
+			FBO_t *srcFbo, *dstFbo, *tmp;
+			int size = 256;
 
-			tmp = currentScratch;
-			currentScratch = nextScratch;
-			nextScratch = tmp;
+			lastFrameCount = tr.frameCount;
+
+			VectorSet4(dstBox, 0, 0, size, size);
+
+			srcFbo = hdrFbo;
+			dstFbo = tr.textureScratchFbo[0];
+			FBO_Blit(srcFbo, NULL, NULL, dstFbo, dstBox, &tr.calclevels4xShader[0], NULL, 0);
+
+			srcFbo = tr.textureScratchFbo[0];
+			dstFbo = tr.textureScratchFbo[1];
+
+			// downscale to 1x1 texture
+			while (size > 1)
+			{
+				VectorSet4(srcBox, 0, 0, size, size);
+				//size >>= 2;
+				size >>= 1;
+				VectorSet4(dstBox, 0, 0, size, size);
+
+				if (size == 1)
+					dstFbo = tr.targetLevelsFbo;
+
+				//FBO_Blit(targetFbo, srcBox, NULL, tr.textureScratchFbo[nextScratch], dstBox, &tr.calclevels4xShader[1], NULL, 0);
+				FBO_FastBlit(srcFbo, srcBox, dstFbo, dstBox, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+				tmp = srcFbo;
+				srcFbo = dstFbo;
+				dstFbo = tmp;
+			}
 		}
 
 		// blend with old log luminance for gradual change
 		VectorSet4(srcBox, 0, 0, 0, 0);
-		VectorSet4(dstBox, 0, 0, 1, 1);
 
 		color[0] = 
 		color[1] =
@@ -72,27 +78,21 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 		else
 			color[3] = 0.1f;
 
-		FBO_Blit(tr.textureScratchFbo[currentScratch], srcBox, texScale, tr.calcLevelsFbo, dstBox, &tr.textureColorShader, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+		FBO_Blit(tr.targetLevelsFbo, srcBox, NULL, tr.calcLevelsFbo, NULL,  NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 	}
 
-	if (glRefConfig.framebufferObject)
-	{
-		// tonemap
-		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
-		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
+	// tonemap
+	color[0] =
+	color[1] =
+	color[2] = pow(2, r_cameraExposure->value); //exp2(r_cameraExposure->value);
+	color[3] = 1.0f;
 
-		color[0] =
-		color[1] =
-		color[2] = pow(2, r_cameraExposure->value); //exp2(r_cameraExposure->value);
-		color[3] = 1.0f;
+	if (autoExposure)
+		GL_BindToTMU(tr.calcLevelsImage,  TB_LEVELSMAP);
+	else
+		GL_BindToTMU(tr.fixedLevelsImage, TB_LEVELSMAP);
 
-		if (autoExposure)
-			GL_BindToTMU(tr.calcLevelsImage,  TB_LEVELSMAP);
-		else
-			GL_BindToTMU(tr.fixedLevelsImage, TB_LEVELSMAP);
-
-		FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.tonemapShader, color, 0);
-	}
+	FBO_Blit(hdrFbo, NULL, NULL, tr.screenScratchFbo, NULL, &tr.tonemapShader, color, 0);
 }
 
 
@@ -100,13 +100,6 @@ void RB_BokehBlur(float blur)
 {
 	vec4i_t srcBox, dstBox;
 	vec4_t color;
-	vec4_t white;
-	vec2_t texScale;
-
-	texScale[0] = 
-	texScale[1] = 1.0f;
-
-	VectorSet4(white, 1, 1, 1, 1);
 	
 	blur *= 10.0f;
 
@@ -119,57 +112,39 @@ void RB_BokehBlur(float blur)
 		if (blur > 0.0f)
 		{
 			// create a quarter texture
-			VectorSet4(srcBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-			VectorSet4(dstBox, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
-
-			FBO_Blit(tr.screenScratchFbo, srcBox, texScale, tr.quarterFbo[0], dstBox, &tr.textureColorShader, white, 0);
+			FBO_Blit(tr.screenScratchFbo, NULL, NULL, tr.quarterFbo[0], NULL, NULL, NULL, 0);
 		}
 
 #ifndef HQ_BLUR
 		if (blur > 1.0f)
 		{
 			// create a 1/16th texture
-			VectorSet4(srcBox, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.textureScratchFbo[0]->width, tr.textureScratchFbo[0]->height);
-
-			FBO_Blit(tr.quarterFbo[0], srcBox, texScale, tr.textureScratchFbo[0], dstBox, &tr.textureColorShader, white, 0);
+			FBO_Blit(tr.quarterFbo[0], NULL, NULL, tr.textureScratchFbo[0], NULL, NULL, NULL, 0);
 		}
 #endif
 
 		if (blur > 0.0f && blur <= 1.0f)
 		{
 			// Crossfade original with quarter texture
-			VectorSet4(srcBox, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-
 			VectorSet4(color, 1, 1, 1, blur);
 
-			FBO_Blit(tr.quarterFbo[0], srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+			FBO_Blit(tr.quarterFbo[0], NULL, NULL, tr.screenScratchFbo, NULL, NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		}
 #ifndef HQ_BLUR
 		// ok blur, but can see some pixelization
 		else if (blur > 1.0f && blur <= 2.0f)
 		{
 			// crossfade quarter texture with 1/16th texture
-			VectorSet4(srcBox, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-
-			FBO_Blit(tr.quarterFbo[0], srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, white, 0);
-
-			VectorSet4(srcBox, 0, 0, tr.textureScratchFbo[0]->width, tr.textureScratchFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
+			FBO_Blit(tr.quarterFbo[0], NULL, NULL, tr.screenScratchFbo, NULL, NULL, NULL, 0);
 
 			VectorSet4(color, 1, 1, 1, blur - 1.0f);
 
-			FBO_Blit(tr.textureScratchFbo[0], srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+			FBO_Blit(tr.textureScratchFbo[0], NULL, NULL, tr.screenScratchFbo, NULL, NULL, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 		}
 		else if (blur > 2.0f)
 		{
 			// blur 1/16th texture then replace
 			int i;
-
-			VectorSet4(srcBox, 0, 0, tr.textureScratchFbo[0]->width, tr.textureScratchFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.textureScratchFbo[1]->width, tr.textureScratchFbo[1]->height);
 
 			for (i = 0; i < 2; i++)
 			{
@@ -187,24 +162,18 @@ void RB_BokehBlur(float blur)
 				color[3] = 1.0f;
 
 				if (i != 0)
-					FBO_Blit(tr.textureScratchFbo[0], srcBox, blurTexScale, tr.textureScratchFbo[1], dstBox, &tr.bokehShader, color, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+					FBO_Blit(tr.textureScratchFbo[0], NULL, blurTexScale, tr.textureScratchFbo[1], NULL, &tr.bokehShader, color, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 				else
-					FBO_Blit(tr.textureScratchFbo[0], srcBox, blurTexScale, tr.textureScratchFbo[1], dstBox, &tr.bokehShader, color, 0);
+					FBO_Blit(tr.textureScratchFbo[0], NULL, blurTexScale, tr.textureScratchFbo[1], NULL, &tr.bokehShader, color, 0);
 			}
 
-			VectorSet4(srcBox, 0, 0, tr.textureScratchFbo[1]->width, tr.textureScratchFbo[1]->height);
-			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-
-			FBO_Blit(tr.textureScratchFbo[1], srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, white, 0);
+			FBO_Blit(tr.textureScratchFbo[1], NULL, NULL, tr.screenScratchFbo, NULL, &tr.textureColorShader, NULL, 0);
 		}
 #else // higher quality blur, but slower
 		else if (blur > 1.0f)
 		{
 			// blur quarter texture then replace
 			int i;
-
-			VectorSet4(srcBox, 0, 0, tr.quarterFbo[0]->width, tr.quarterFbo[0]->height);
-			VectorSet4(dstBox, 0, 0, tr.quarterFbo[1]->width, tr.quarterFbo[1]->height);
 
 			src = tr.quarterFbo[0];
 			dst = tr.quarterFbo[1];
@@ -229,13 +198,10 @@ void RB_BokehBlur(float blur)
 				else
 					color[3] = 0.5f;
 
-				FBO_Blit(tr.quarterFbo[0], srcBox, blurTexScale, tr.quarterFbo[1], dstBox, &tr.bokehShader, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+				FBO_Blit(tr.quarterFbo[0], NULL, blurTexScale, tr.quarterFbo[1], NULL, &tr.bokehShader, color, GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
 			}
 
-			VectorSet4(srcBox, 0, 0, 512, 512);
-			VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
-
-			FBO_Blit(tr.quarterFbo[1], srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, white, 0);
+			FBO_Blit(tr.quarterFbo[1], NULL, NULL, tr.screenScratchFbo, NULL, &tr.textureColorShader, NULL, 0);
 		}
 #endif
 	}
@@ -354,7 +320,7 @@ void RB_GodRays(void)
 	hpos[3] = 0.5f / hpos[3];
 
 	pos[0] = 0.5f + hpos[0] * hpos[3];
-	pos[1] = 0.5f + hpos[1] * hpos[3];
+	pos[1] = 0.5f - hpos[1] * hpos[3];
 	
 	// viewport dimensions
 	w = glConfig.vidWidth;

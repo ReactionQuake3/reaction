@@ -1,3 +1,6 @@
+- Speed up tone mapping
+- Add fast light shader path when r_normalMapping and r_specularMapping are 0
+- Revise FBO blitting code (Still needs more work)
 - Detect GLSL version
 - Use GL_EXT_draw_range_elements
 - Reserve FBOs before shaders, as recommended in nvidia docs

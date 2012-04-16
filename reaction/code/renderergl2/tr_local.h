@@ -1739,6 +1739,7 @@ typedef struct {
 	image_t					*screenScratchImage;
 	image_t                 *quarterImage[2];
 	image_t					*calcLevelsImage;
+	image_t					*targetLevelsImage;
 	image_t					*fixedLevelsImage;
 	
 	image_t					*textureDepthImage;
@@ -1752,6 +1753,7 @@ typedef struct {
 	FBO_t					*screenScratchFbo;
 	FBO_t                   *quarterFbo[2];
 	FBO_t					*calcLevelsFbo;
+	FBO_t					*targetLevelsFbo;
 
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;

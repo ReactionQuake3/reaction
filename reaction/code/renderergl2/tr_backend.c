@@ -1353,20 +1353,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 	if (glRefConfig.framebufferObject)
 	{
 		// copy final image to screen
-		vec2_t texScale;
-		vec4i_t srcBox, dstBox;
-		vec4_t white;
-		FBO_t *srcFbo, *dstFbo;
-
-		texScale[0] =
-		texScale[1] = 1.0f;
-
-		white[0] =
-		white[1] =
-		white[2] =
-		white[3] = 1.0f;
-
-		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
+		vec4_t color;
 
 		if (backEnd.framePostProcessed)
 		{
@@ -1375,49 +1362,34 @@ const void	*RB_SwapBuffers( const void *data ) {
 		else if (!glRefConfig.framebuffer_srgb)
 		{
 			// Copy render to screenscratch, possibly resolving MSAA
-			srcFbo = tr.renderFbo;
-			dstFbo = tr.screenScratchFbo;
-
-			FBO_FastBlit(srcFbo, NULL, dstFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			FBO_FastBlit(tr.renderFbo, NULL, tr.screenScratchFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		}
 		else
 		{
-			srcFbo = tr.renderFbo;
+			FBO_t *srcFbo = tr.renderFbo;
 
 			if (tr.msaaResolveFbo)
 			{
 				// Resolve the MSAA before copying
-				dstFbo = tr.msaaResolveFbo;
-
-				FBO_FastBlit(srcFbo, NULL, dstFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+				FBO_FastBlit(srcFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 				srcFbo = tr.msaaResolveFbo;
 			}
 
 			// need to copy from resolve to screenscratch to fix gamma
-			dstFbo = tr.screenScratchFbo;
-
-			VectorSet4(srcBox, 0, 0, srcFbo->width, srcFbo->height);
-			VectorSet4(dstBox, 0, 0, dstFbo->width, dstFbo->height);
-
-			FBO_Blit(srcFbo, srcBox, texScale, dstFbo, dstBox, &tr.textureColorShader, white, 0);
+			FBO_Blit(srcFbo, NULL, NULL, tr.screenScratchFbo, NULL, NULL, NULL, 0);
 		}
-
-		srcFbo = tr.screenScratchFbo;
 		
-		VectorSet4(srcBox, 0, 0, srcFbo->width, srcFbo->height);
-		VectorSet4(dstBox, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
-
-		white[0] =
-		white[1] =
-		white[2] = pow(2, tr.overbrightBits); //exp2(tr.overbrightBits);
-		white[3] = 1.0f;
+		color[0] =
+		color[1] =
+		color[2] = pow(2, tr.overbrightBits); //exp2(tr.overbrightBits);
+		color[3] = 1.0f;
 
 		// turn off colormask when copying final image
 		if (backEnd.colorMask[0] || backEnd.colorMask[1] || backEnd.colorMask[2] || backEnd.colorMask[3])
 			qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			
-		FBO_Blit(srcFbo, srcBox, texScale, NULL, dstBox, &tr.textureColorShader, white, 0);
+		FBO_Blit(tr.screenScratchFbo, NULL, NULL, NULL, NULL, NULL, color, 0);
 
 		if (backEnd.colorMask[0] || backEnd.colorMask[1] || backEnd.colorMask[2] || backEnd.colorMask[3])
 			qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
@@ -1476,12 +1448,8 @@ RB_PostProcess
 const void *RB_PostProcess(const void *data)
 {
 	const postProcessCommand_t *cmd = data;
-	FBO_t *hdrFbo;
-	vec2_t texScale;
+	FBO_t *srcFbo;
 	qboolean autoExposure;
-
-	texScale[0] = 
-	texScale[1] = 1.0f;
 
 	if (!glRefConfig.framebufferObject)
 	{
@@ -1491,37 +1459,33 @@ const void *RB_PostProcess(const void *data)
 		return (const void *)(cmd + 1);
 	}
 
-	hdrFbo = tr.renderFbo;
+	srcFbo = tr.renderFbo;
 	if (tr.msaaResolveFbo)
 	{
 		// Resolve the MSAA before anything else
 		FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-		hdrFbo = tr.msaaResolveFbo;
+		srcFbo = tr.msaaResolveFbo;
 	}
 
 	if (r_postProcess->integer && r_hdr->integer && (r_toneMap->integer == 2 || (r_toneMap->integer == 1 && tr.autoExposure)))
 	{
 		autoExposure = (r_autoExposure->integer == 1 && tr.autoExposure) || (r_autoExposure->integer == 2);
-		RB_ToneMap(hdrFbo, autoExposure);
+		RB_ToneMap(srcFbo, autoExposure);
 	}
 	else if (!glRefConfig.framebuffer_srgb && r_cameraExposure->value == 0.0f)
 	{
-		FBO_FastBlit(hdrFbo, NULL, tr.screenScratchFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		FBO_FastBlit(srcFbo, NULL, tr.screenScratchFbo, NULL, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 	else
 	{
-		vec4i_t srcBox, dstBox;
 		vec4_t color;
-
-		VectorSet4(srcBox, 0, 0, hdrFbo->width, hdrFbo->height);
-		VectorSet4(dstBox, 0, 0, tr.screenScratchFbo->width, tr.screenScratchFbo->height);
 
 		color[0] =
 		color[1] =
 		color[2] = pow(2, r_cameraExposure->value); //exp2(r_cameraExposure->value);
 		color[3] = 1.0f;
 
-		FBO_Blit(hdrFbo, srcBox, texScale, tr.screenScratchFbo, dstBox, &tr.textureColorShader, color, 0);
+		FBO_Blit(srcFbo, NULL, NULL, tr.screenScratchFbo, NULL, NULL, color, 0);
 	}
 
 #ifdef REACTION

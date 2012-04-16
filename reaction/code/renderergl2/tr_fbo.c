@@ -499,6 +499,16 @@ void FBO_Init(void)
 	}
 
 	{
+		tr.targetLevelsFbo = FBO_Create("_targetlevels", tr.targetLevelsImage->width, tr.targetLevelsImage->height);
+		FBO_Bind(tr.targetLevelsFbo);
+
+		//FBO_CreateBuffer(tr.targetLevelsFbo, hdrFormat, 0, 0);
+		FBO_AttachTextureImage(tr.targetLevelsImage, 0);
+
+		R_CheckFBO(tr.targetLevelsFbo);
+	}
+
+	{
 		//tr.screenScratchFbo = FBO_Create("_screenscratch", width, height);
 		tr.screenScratchFbo = FBO_Create("_screenscratch", tr.screenScratchImage->width, tr.screenScratchImage->height);
 		FBO_Bind(tr.screenScratchFbo);
@@ -599,40 +609,123 @@ void R_FBOList_f(void)
 // FIXME
 extern void RB_SetGL2D (void);
 
-void FBO_BlitFromTexture(struct image_s *src, vec4i_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexScale, FBO_t *dst, vec4i_t inDstBox, struct shaderProgram_s *shaderProgram, vec4_t inColor, int blend)
 {
-		vec4_t quadVerts[4];
-		vec2_t texCoords[4];
-		vec2_t invTexRes;
+	vec4i_t dstBox, srcBox;
+	vec2_t srcTexScale;
+	vec4_t color;
+	vec4_t quadVerts[4];
+	vec2_t texCoords[4];
+	vec2_t invTexRes;
 
-		FBO_Bind(dst);
-		
-		RB_SetGL2D();
+	if (!src)
+		return;
 
-		GL_SelectTexture(TB_COLORMAP);
+	if (inSrcBox)
+	{
+		VectorSet4(srcBox, inSrcBox[0], inSrcBox[1], inSrcBox[0] + inSrcBox[2],  inSrcBox[1] + inSrcBox[3]);
+	}
+	else
+	{
+		VectorSet4(srcBox, 0, 0, src->width, src->height);
+	}
 
-		GL_Bind(src);
+	// framebuffers are 0 bottom, Y up.
+	if (inDstBox)
+	{
+		if (dst)
+		{
+			dstBox[0] = inDstBox[0];
+			dstBox[1] = dst->height - inDstBox[1] - inDstBox[3];
+			dstBox[2] = inDstBox[0] + inDstBox[2];
+			dstBox[3] = dst->height - inDstBox[1];
+		}
+		else
+		{
+			dstBox[0] = inDstBox[0];
+			dstBox[1] = glConfig.vidHeight - inDstBox[1] - inDstBox[3];
+			dstBox[2] = inDstBox[0] + inDstBox[2];
+			dstBox[3] = glConfig.vidHeight - inDstBox[1];
+		}
+	}
+	else if (dst)
+	{
+		VectorSet4(dstBox, 0, dst->height, dst->width, 0);
+	}
+	else
+	{
+		VectorSet4(dstBox, 0, glConfig.vidHeight, glConfig.vidWidth, 0);
+	}
 
-		VectorSet4(quadVerts[0], dstBox[0],             dstBox[1],             0, 1);
-		VectorSet4(quadVerts[1], dstBox[0] + dstBox[2], dstBox[1],             0, 1);
-		VectorSet4(quadVerts[2], dstBox[0] + dstBox[2], dstBox[1] + dstBox[3], 0, 1);
-		VectorSet4(quadVerts[3], dstBox[0],             dstBox[1] + dstBox[3], 0, 1);
+	if (inSrcTexScale)
+	{
+		VectorCopy2(inSrcTexScale, srcTexScale);
+	}
+	else
+	{
+		srcTexScale[0] = srcTexScale[1] = 1.0f;
+	}
 
-		texCoords[0][0] = (srcBox[0]            ) / (float)src->width; texCoords[0][1] = 1.0f - (srcBox[1]             ) / (float)src->height;
-		texCoords[1][0] = (srcBox[0] + srcBox[2]) / (float)src->width; texCoords[1][1] = 1.0f - (srcBox[1]             ) / (float)src->height;
-		texCoords[2][0] = (srcBox[0] + srcBox[2]) / (float)src->width; texCoords[2][1] = 1.0f - (srcBox[1] + srcBox[3] ) / (float)src->height;
-		texCoords[3][0] = (srcBox[0]            ) / (float)src->width; texCoords[3][1] = 1.0f - (srcBox[1] + srcBox[3] ) / (float)src->height;
+	if (inColor)
+	{
+		VectorCopy4(inColor, color);
+	}
+	else
+	{
+		color[0] = color[1] = color[2] = color[3] = 1.0f;
+	}
 
-		invTexRes[0] = 1.0f / src->width  * srcTexScale[0];
-		invTexRes[1] = 1.0f / src->height * srcTexScale[1];
+	if (!shaderProgram)
+	{
+		shaderProgram = &tr.textureColorShader;
+	}
 
-		GL_State( blend | GLS_DEPTHTEST_DISABLE );
+	FBO_Bind(dst);
 
-		RB_InstantQuad2(quadVerts, texCoords, color, shaderProgram, invTexRes);
+	RB_SetGL2D();
+
+	GL_SelectTexture(TB_COLORMAP);
+
+	GL_Bind(src);
+
+	VectorSet4(quadVerts[0], dstBox[0], dstBox[1], 0, 1);
+	VectorSet4(quadVerts[1], dstBox[2], dstBox[1], 0, 1);
+	VectorSet4(quadVerts[2], dstBox[2], dstBox[3], 0, 1);
+	VectorSet4(quadVerts[3], dstBox[0], dstBox[3], 0, 1);
+
+	texCoords[0][0] = srcBox[0] / (float)src->width; texCoords[0][1] = 1.0f - srcBox[1] / (float)src->height;
+	texCoords[1][0] = srcBox[2] / (float)src->width; texCoords[1][1] = 1.0f - srcBox[1] / (float)src->height;
+	texCoords[2][0] = srcBox[2] / (float)src->width; texCoords[2][1] = 1.0f - srcBox[3] / (float)src->height;
+	texCoords[3][0] = srcBox[0] / (float)src->width; texCoords[3][1] = 1.0f - srcBox[3] / (float)src->height;
+
+	invTexRes[0] = 1.0f / src->width  * srcTexScale[0];
+	invTexRes[1] = 1.0f / src->height * srcTexScale[1];
+
+	GL_State( blend | GLS_DEPTHTEST_DISABLE );
+
+	RB_InstantQuad2(quadVerts, texCoords, color, shaderProgram, invTexRes);
 }
 
-void FBO_Blit(FBO_t *src, vec4i_t srcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_Blit(FBO_t *src, vec4i_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
 {
+	vec4i_t srcBox;
+
+	if (!src)
+		return;
+
+	// framebuffers are 0 bottom, Y up.
+	if (inSrcBox)
+	{
+		srcBox[0] = inSrcBox[0];
+		srcBox[1] = src->height - inSrcBox[1] - inSrcBox[3];
+		srcBox[2] = inSrcBox[2];
+		srcBox[3] = inSrcBox[3];
+	}
+	else
+	{
+		VectorSet4(srcBox, 0, src->height, src->width, -src->height);
+	}
+
 	FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend);
 }
 
@@ -643,46 +736,7 @@ void FBO_FastBlit(FBO_t *src, vec4i_t srcBox, FBO_t *dst, vec4i_t dstBox, int bu
 
 	if (!glRefConfig.framebufferBlit)
 	{
-		vec2_t texScale;
-		vec4_t white;
-
-		texScale[0] = 
-		texScale[1] = 1.0f;
-
-		white[0] =
-		white[1] =
-		white[2] =
-		white[3] = 1.0f;
-
-		if (!src || !src->colorImage[0])
-			return;
-
-		if (srcBox)
-		{
-			VectorSet4(srcBoxFinal, srcBox[0], srcBox[1], srcBox[2], srcBox[3]);
-		}
-		else
-		{
-			VectorSet4(srcBoxFinal, 0, 0, src->width, src->height);
-		}
-
-		if (dstBox)
-		{
-			VectorSet4(dstBoxFinal, dstBox[0], dstBox[1], dstBox[2], dstBox[3]);
-		}
-		else
-		{
-			if (dst)
-			{
-				VectorSet4(dstBoxFinal, 0, 0, dst->width, dst->height);
-			}
-			else
-			{
-				VectorSet4(dstBoxFinal, 0, 0, glConfig.vidWidth, glConfig.vidHeight);
-			}
-		}
-
-		FBO_Blit(src, srcBoxFinal, texScale, dst, dstBoxFinal, &tr.textureColorShader, white, 0);
+		FBO_Blit(src, srcBox, NULL, dst, dstBox, NULL, NULL, 0);
 		return;
 	}
 
