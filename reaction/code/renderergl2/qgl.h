@@ -46,6 +46,12 @@ extern void     (APIENTRY * qglDrawRangeElementsEXT) (GLenum mode, GLuint start,
 extern void     (APIENTRY * qglMultiDrawArraysEXT) (GLenum, GLint *, GLsizei *, GLsizei);
 extern void     (APIENTRY * qglMultiDrawElementsEXT) (GLenum, const GLsizei *, GLenum, const GLvoid **, GLsizei);
 
+// GL_ARB_shading_language_100
+#ifndef GL_ARB_shading_language_100
+#define GL_ARB_shading_language_100
+#define GL_SHADING_LANGUAGE_VERSION_ARB 0x8B8C
+#endif
+
 // GL_ARB_vertex_program
 extern void     (APIENTRY * qglVertexAttrib4fARB) (GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
 extern void     (APIENTRY * qglVertexAttrib4fvARB) (GLuint, const GLfloat *);

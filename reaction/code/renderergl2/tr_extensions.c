@@ -196,7 +196,7 @@ void GLimp_InitExtraExtensions()
 	qglMultiDrawElementsEXT = NULL;
 	if( GLimp_HaveExtension( extension ) )
 	{
-		qglDrawRangeElementsEXT = (PFNGLMULTIDRAWARRAYSEXTPROC) SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
+		qglDrawRangeElementsEXT = (void *) SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
 
 		if ( r_ext_draw_range_elements->integer)
 			glRefConfig.drawRangeElements = qtrue;
@@ -409,6 +409,24 @@ void GLimp_InitExtraExtensions()
 		qglGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glGetAttribLocationARB");
 		ri.Printf(PRINT_ALL, result[1], extension);
 		//glRefConfig.vertexShader = qtrue;
+	}
+	else
+	{
+		ri.Error(ERR_FATAL, result[2], extension);
+	}
+
+	// GL_ARB_shading_language_100
+	extension = "GL_ARB_shading_language_100";
+	glRefConfig.textureFloat = qfalse;
+	if( GLimp_HaveExtension( extension ) )
+	{
+		char version[256];
+
+		Q_strncpyz( version, (char *) qglGetString (GL_SHADING_LANGUAGE_VERSION_ARB), sizeof( version ) );
+
+		sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
+
+		ri.Printf(PRINT_ALL, "...using GLSL version %s\n", version);
 	}
 	else
 	{

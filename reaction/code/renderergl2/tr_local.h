@@ -1606,6 +1606,9 @@ typedef struct {
 	qboolean    multiDrawArrays;
 	qboolean	occlusionQuery;
 
+	int glslMajorVersion;
+	int glslMinorVersion;
+
 	memInfo_t   memInfo;
 
 	qboolean framebufferObject;
