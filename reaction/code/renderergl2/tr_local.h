@@ -162,16 +162,20 @@ typedef struct VBO_s
 	uint32_t        ofs_lightmap;
 	uint32_t        ofs_vertexcolor;
 	uint32_t        ofs_lightdir;
+#ifdef USE_VERT_TANGENT_SPACE
 	uint32_t        ofs_tangent;
 	uint32_t        ofs_bitangent;
+#endif
 	uint32_t        stride_xyz;
 	uint32_t        stride_normal;
 	uint32_t        stride_st;
 	uint32_t        stride_lightmap;
 	uint32_t        stride_vertexcolor;
 	uint32_t        stride_lightdir;
+#ifdef USE_VERT_TANGENT_SPACE
 	uint32_t        stride_tangent;
 	uint32_t        stride_bitangent;
+#endif
 	uint32_t        size_xyz;
 	uint32_t        size_normal;
 
@@ -1036,8 +1040,10 @@ typedef struct
 	vec2_t          st;
 	vec2_t          lightmap;
 	vec3_t          normal;
+#ifdef USE_VERT_TANGENT_SPACE
 	vec3_t          tangent;
 	vec3_t          bitangent;
+#endif
 	vec3_t          lightdir;
 	vec4_t			vertexColors;
 
@@ -1046,7 +1052,11 @@ typedef struct
 #endif
 } srfVert_t;
 
+#ifdef USE_VERT_TANGENT_SPACE
 #define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0, 0}}
+#else
+#define srfVert_t_cleared(x) srfVert_t (x) = {{0, 0, 0}, {0, 0}, {0, 0}, {0, 0, 0}, {0, 0, 0},  {0, 0, 0, 0}}
+#endif
 
 typedef struct
 {
@@ -1415,8 +1425,10 @@ typedef struct
 {
 	vec3_t          xyz;
 	vec3_t          normal;
+#ifdef USE_VERT_TANGENT_SPACE
 	vec3_t          tangent;
 	vec3_t          bitangent;
+#endif
 } mdvVertex_t;
 
 typedef struct
@@ -2234,8 +2246,10 @@ typedef struct shaderCommands_s
 	glIndex_t	indexes[SHADER_MAX_INDEXES] QALIGN(16);
 	vec4_t		xyz[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec4_t		normal[SHADER_MAX_VERTEXES] QALIGN(16);
+#ifdef USE_VERT_TANGENT_SPACE
 	vec4_t		tangent[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec4_t		bitangent[SHADER_MAX_VERTEXES] QALIGN(16);
+#endif
 	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] QALIGN(16);
 	vec4_t		vertexColors[SHADER_MAX_VERTEXES] QALIGN(16);
 	vec4_t      lightdir[SHADER_MAX_VERTEXES] QALIGN(16);

@@ -212,7 +212,7 @@ static	int	neighbors[8][2] = {
 	}
 }
 
-
+#ifdef USE_VERT_TANGENT_SPACE
 static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numTriangles,
 								   srfTriangle_t triangles[(MAX_GRID_SIZE-1)*(MAX_GRID_SIZE-1)*2])
 {
@@ -290,6 +290,7 @@ static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRI
 		}
 	}
 }
+#endif
 
 
 static int MakeMeshTriangles(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
@@ -667,7 +668,9 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 
 	// calculate normals
 	MakeMeshNormals( width, height, ctrl );
+#ifdef USE_VERT_TANGENT_SPACE
 	MakeMeshTangentVectors(width, height, ctrl, numTriangles, triangles);
+#endif
 
 	return R_CreateSurfaceGridMesh(width, height, ctrl, errorTable, numTriangles, triangles);
 }

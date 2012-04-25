@@ -361,7 +361,10 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 	int			i;
 	srfTriangle_t  *tri;
 	srfVert_t      *dv;
-	float          *xyz, *normal, *tangent, *bitangent, *texCoords, *lightCoords, *lightdir;
+	float          *xyz, *normal, *texCoords, *lightCoords, *lightdir;
+#ifdef USE_VERT_TANGENT_SPACE
+	float          *tangent, *bitangent;
+#endif
 	glIndex_t      *index;
 	float		*color;
 
@@ -394,6 +397,7 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 			VectorCopy(dv->normal, normal);
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 	{
 		dv = verts;
@@ -409,6 +413,7 @@ static void RB_SurfaceHelper( int numVerts, srfVert_t *verts, int numTriangles, 
 		for ( i = 0 ; i < numVerts ; i++, dv++, bitangent+=4 )
 			VectorCopy(dv->bitangent, bitangent);
 	}
+#endif
 
 	if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
 	{
@@ -1329,7 +1334,10 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	int		i, j;
 	float	*xyz;
 	float	*texCoords, *lightCoords;
-	float	*normal, *tangent, *bitangent;
+	float	*normal;
+#ifdef USE_VERT_TANGENT_SPACE
+	float   *tangent, *bitangent;
+#endif
 	float   *color, *lightdir;
 	srfVert_t	*dv;
 	int		rows, irows, vrows;
@@ -1413,8 +1421,10 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 
 		xyz = tess.xyz[numVertexes];
 		normal = tess.normal[numVertexes];
+#ifdef USE_VERT_TANGENT_SPACE
 		tangent = tess.tangent[numVertexes];
 		bitangent = tess.bitangent[numVertexes];
+#endif
 		texCoords = tess.texCoords[numVertexes][0];
 		lightCoords = tess.texCoords[numVertexes][1];
 		color = tess.vertexColors[numVertexes];
@@ -1438,6 +1448,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 					normal += 4;
 				}
 
+#ifdef USE_VERT_TANGENT_SPACE
 				if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 				{
 					VectorCopy(dv->tangent, tangent);
@@ -1449,7 +1460,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 					VectorCopy(dv->bitangent, bitangent);
 					bitangent += 4;
 				}
-
+#endif
 				if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
 				{
 					VectorCopy2(dv->st, texCoords);

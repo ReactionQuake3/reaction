@@ -226,74 +226,75 @@ static const char *fallbackLightallShader_vp =
 "attribute vec4 attr_TexCoord0;\r\n#if defined(USE_LIGHTMAP)\r\nattribute ve"
 "c4 attr_TexCoord1;\r\n#endif\r\nattribute vec4 attr_Color;\r\n\r\nattribute"
 " vec4 attr_Position;\r\nattribute vec3 attr_Normal;\r\n\r\n#if defined(USE_"
-"NORMALMAP)\r\nattribute vec3 attr_Tangent;\r\nattribute vec3 attr_Bitangent"
-";\r\n#endif\r\n\r\n#if defined(USE_VERTEX_ANIMATION)\r\nattribute vec4 attr"
-"_Position2;\r\nattribute vec3 attr_Normal2;\r\n  #if defined(USE_NORMALMAP)"
-"\r\nattribute vec3 attr_Tangent2;\r\nattribute vec3 attr_Bitangent2;\r\n  #"
-"endif\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_LIGHT_VECTOR)"
-"\r\nattribute vec3 attr_LightDirection;\r\n#endif\r\n\r\n#if defined(TCGEN_"
-"ENVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(US"
-"E_FAST_LIGHT)\r\nuniform vec3   u_ViewOrigin;\r\n#endif\r\n\r\nuniform mat4"
-"   u_DiffuseTexMatrix;\r\nuniform mat4   u_ModelViewProjectionMatrix;\r\nun"
-"iform vec4   u_BaseColor;\r\nuniform vec4   u_VertColor;\r\n\r\n#if defined"
-"(USE_MODELMATRIX)\r\nuniform mat4   u_ModelMatrix;\r\n#endif\r\n\r\n#if def"
-"ined(USE_VERTEX_ANIMATION)\r\nuniform float  u_VertexLerp;\r\n#endif\r\n\r"
-"\n#if defined(USE_LIGHT_VECTOR)\r\nuniform vec4   u_LightOrigin;\r\n  #if d"
-"efined(USE_FAST_LIGHT)\r\nuniform vec3   u_DirectedLight;\r\nuniform vec3  "
-" u_AmbientLight;\r\nuniform float  u_LightRadius;\r\n  #endif\r\n#endif\r\n"
-"\r\nvarying vec2   var_DiffuseTex;\r\n\r\n#if defined(USE_LIGHTMAP)\r\nvary"
-"ing vec2   var_LightTex;\r\n#endif\r\n\r\n#if defined(USE_NORMALMAP) || def"
-"ined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\nvarying vec3   var_SampleToV"
-"iew;\r\n#endif\r\n\r\nvarying vec4   var_Color;\r\n//varying vec3   var_Pos"
-"ition;\r\nvarying vec3   var_Normal;\r\n#if defined(USE_NORMALMAP)\r\nvaryi"
-"ng vec3   var_Tangent;\r\nvarying vec3   var_Bitangent;\r\n#endif\r\n\r\n#i"
-"f defined(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r\nvarying vec3   va"
-"r_VectLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXE"
-"MAP)\r\nvarying vec3   var_WorldLight;\r\n#endif\r\n\r\n\r\nvec2 DoTexMatri"
-"x(vec2 st, vec3 position, mat4 texMatrix)\r\n{\r\n\tvec2 st2 = (texMatrix *"
-" vec4(st, 1, 0)).st;\r\n\r\n\tvec3 offsetPos = position.xyz / 1024.0;\r\n\t"
-"offsetPos.x += offsetPos.z;\r\n\r\n\tvec2 texOffset = sin((offsetPos.xy + v"
-"ec2(texMatrix[3][1])) * 2.0 * M_PI);\r\n\t\r\n\treturn st2 + texOffset * te"
-"xMatrix[3][0];\r\n}\r\n\r\nvoid main()\r\n{\r\n#if defined(USE_VERTEX_ANIMA"
-"TION)\r\n\tvec4 position  = mix(attr_Position, attr_Position2, u_VertexLerp"
-");\r\n\tvec3 normal    = normalize(mix(attr_Normal,    attr_Normal2,    u_V"
-"ertexLerp));\r\n  #if defined(USE_NORMALMAP)\r\n\tvec3 tangent   = normaliz"
-"e(mix(attr_Tangent,   attr_Tangent2,   u_VertexLerp));\r\n\tvec3 bitangent "
-"= normalize(mix(attr_Bitangent, attr_Bitangent2, u_VertexLerp));\r\n  #endi"
-"f\r\n#else\r\n\tvec4 position  = attr_Position;\r\n\tvec3 normal    = attr_"
-"Normal;\r\n  #if defined(USE_NORMALMAP)\r\n\tvec3 tangent   = attr_Tangent;"
-"\r\n\tvec3 bitangent = attr_Bitangent;\r\n  #endif\r\n#endif\r\n\r\n\tgl_Po"
-"sition = u_ModelViewProjectionMatrix * position;\r\n\r\n#if (defined(USE_LI"
-"GHTMAP) || defined(USE_LIGHT_VERTEX)) && !defined(USE_DELUXEMAP)\r\n\tvec3 "
-"worldLight = attr_LightDirection;\r\n#endif\r\n\t\r\n#if defined(USE_MODELM"
-"ATRIX)\r\n\tposition  = u_ModelMatrix * position;\r\n\tnormal    = (u_Model"
-"Matrix * vec4(normal, 0.0)).xyz;\r\n\r\n  #if defined (USE_NORMALMAP)\r\n\t"
-"tangent   = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;\r\n\tbitangent = (u_M"
-"odelMatrix * vec4(bitangent, 0.0)).xyz;\r\n  #endif\r\n\r\n  #if defined(US"
-"E_LIGHTMAP) && !defined(USE_DELUXEMAP)\r\n\tworldLight = (u_ModelMatrix * v"
-"ec4(worldLight, 0.0)).xyz;\r\n  #endif\r\n#endif\r\n\r\n#if defined(TCGEN_E"
-"NVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE"
-"_FAST_LIGHT)\r\n\tvec3 SampleToView = u_ViewOrigin - position.xyz;\r\n#endi"
-"f\r\n\r\n#if defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_F"
-"AST_LIGHT)\r\n\tvar_SampleToView = SampleToView;\r\n#endif\r\n\r\n#if defin"
-"ed(TCGEN_ENVIRONMENT)\r\n\tvec3 viewer = normalize(SampleToView);\r\n\tvec3"
-" reflected = normal * 2.0 * dot(normal, viewer) - viewer;\r\n\r\n\tvec2 tex"
-" = reflected.yz * vec2(0.5, -0.5) + 0.5;\r\n#else\r\n\tvec2 tex = attr_TexC"
-"oord0.st;\r\n#endif\r\n\r\n\tvar_DiffuseTex = DoTexMatrix(tex, position.xyz"
-", u_DiffuseTexMatrix);\r\n\r\n#if defined(USE_LIGHTMAP)\r\n\tvar_LightTex ="
-" attr_TexCoord1.st;\r\n#endif\r\n\r\n\tvar_Color = u_VertColor * attr_Color"
-" + u_BaseColor;\r\n  \r\n\tvar_Normal = normal;\r\n\r\n#if defined (USE_NOR"
-"MALMAP)\r\n\tvar_Tangent = tangent;\r\n\tvar_Bitangent = bitangent;\r\n#end"
-"if\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXEMAP)\r\n  #if define"
-"d(USE_LIGHT_VECTOR)\r\n\tvec3 worldLight = u_LightOrigin.xyz - (position.xy"
-"z * u_LightOrigin.w);\r\n  #endif\r\n\r\n\tworldLight += normal * 0.0001;\r"
-"\n\tvar_WorldLight = worldLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VEC"
-"TOR) && defined(USE_FAST_LIGHT)\r\n  #if defined(USE_INVSQRLIGHT)\r\n\tfloa"
-"t intensity = 1.0 / dot(worldLight, worldLight);\r\n  #else\r\n\tfloat inte"
-"nsity = clamp((1.0 - dot(worldLight, worldLight) / (u_LightRadius * u_Light"
-"Radius)) * 1.07, 0.0, 1.0);\r\n  #endif\r\n\tfloat NL = clamp(dot(normal, n"
-"ormalize(worldLight)), 0.0, 1.0);\r\n\r\n\tvar_VectLight = u_DirectedLight "
-"* intensity * NL + u_AmbientLight;\r\n#endif\r\n}\r\n";
+"VERT_TANGENT_SPACE)\r\nattribute vec3 attr_Tangent;\r\nattribute vec3 attr_"
+"Bitangent;\r\n#endif\r\n\r\n#if defined(USE_VERTEX_ANIMATION)\r\nattribute "
+"vec4 attr_Position2;\r\nattribute vec3 attr_Normal2;\r\n  #if defined(USE_V"
+"ERT_TANGENT_SPACE)\r\nattribute vec3 attr_Tangent2;\r\nattribute vec3 attr_"
+"Bitangent2;\r\n  #endif\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined"
+"(USE_LIGHT_VECTOR)\r\nattribute vec3 attr_LightDirection;\r\n#endif\r\n\r\n"
+"#if defined(TCGEN_ENVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIG"
+"HT) && !defined(USE_FAST_LIGHT)\r\nuniform vec3   u_ViewOrigin;\r\n#endif\r"
+"\n\r\nuniform mat4   u_DiffuseTexMatrix;\r\nuniform mat4   u_ModelViewProje"
+"ctionMatrix;\r\nuniform vec4   u_BaseColor;\r\nuniform vec4   u_VertColor;"
+"\r\n\r\n#if defined(USE_MODELMATRIX)\r\nuniform mat4   u_ModelMatrix;\r\n#e"
+"ndif\r\n\r\n#if defined(USE_VERTEX_ANIMATION)\r\nuniform float  u_VertexLer"
+"p;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR)\r\nuniform vec4   u_Light"
+"Origin;\r\n  #if defined(USE_FAST_LIGHT)\r\nuniform vec3   u_DirectedLight;"
+"\r\nuniform vec3   u_AmbientLight;\r\nuniform float  u_LightRadius;\r\n  #e"
+"ndif\r\n#endif\r\n\r\nvarying vec2   var_DiffuseTex;\r\n\r\n#if defined(USE"
+"_LIGHTMAP)\r\nvarying vec2   var_LightTex;\r\n#endif\r\n\r\n#if defined(USE"
+"_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\nvarying ve"
+"c3   var_SampleToView;\r\n#endif\r\n\r\nvarying vec4   var_Color;\r\nvaryin"
+"g vec3   var_Position;\r\nvarying vec3   var_Normal;\r\n\r\n#if defined(USE"
+"_VERT_TANGENT_SPACE)\r\nvarying vec3   var_Tangent;\r\nvarying vec3   var_B"
+"itangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR) && defined(USE_FAS"
+"T_LIGHT)\r\nvarying vec3   var_VectLight;\r\n#endif\r\n\r\n#if defined(USE_"
+"LIGHT) && !defined(USE_DELUXEMAP)\r\nvarying vec3   var_WorldLight;\r\n#end"
+"if\r\n\r\n\r\nvec2 DoTexMatrix(vec2 st, vec3 position, mat4 texMatrix)\r\n{"
+"\r\n\tvec2 st2 = (texMatrix * vec4(st, 1, 0)).st;\r\n\r\n\tvec3 offsetPos ="
+" position.xyz / 1024.0;\r\n\toffsetPos.x += offsetPos.z;\r\n\r\n\tvec2 texO"
+"ffset = sin((offsetPos.xy + vec2(texMatrix[3][1])) * 2.0 * M_PI);\r\n\t\r\n"
+"\treturn st2 + texOffset * texMatrix[3][0];\r\n}\r\n\r\nvoid main()\r\n{\r"
+"\n#if defined(USE_VERTEX_ANIMATION)\r\n\tvec4 position  = mix(attr_Position"
+", attr_Position2, u_VertexLerp);\r\n\tvec3 normal    = normalize(mix(attr_N"
+"ormal,    attr_Normal2,    u_VertexLerp));\r\n  #if defined(USE_VERT_TANGEN"
+"T_SPACE)\r\n\tvec3 tangent   = normalize(mix(attr_Tangent,   attr_Tangent2,"
+"   u_VertexLerp));\r\n\tvec3 bitangent = normalize(mix(attr_Bitangent, attr"
+"_Bitangent2, u_VertexLerp));\r\n  #endif\r\n#else\r\n\tvec4 position  = att"
+"r_Position;\r\n\tvec3 normal    = attr_Normal;\r\n  #if defined(USE_VERT_TA"
+"NGENT_SPACE)\r\n\tvec3 tangent   = attr_Tangent;\r\n\tvec3 bitangent = attr"
+"_Bitangent;\r\n  #endif\r\n#endif\r\n\r\n\tgl_Position = u_ModelViewProject"
+"ionMatrix * position;\r\n\r\n#if (defined(USE_LIGHTMAP) || defined(USE_LIGH"
+"T_VERTEX)) && !defined(USE_DELUXEMAP)\r\n\tvec3 worldLight = attr_LightDire"
+"ction;\r\n#endif\r\n\t\r\n#if defined(USE_MODELMATRIX)\r\n\tposition  = u_M"
+"odelMatrix * position;\r\n\tnormal    = (u_ModelMatrix * vec4(normal, 0.0))"
+".xyz;\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n\ttangent   = (u_ModelMat"
+"rix * vec4(tangent, 0.0)).xyz;\r\n\tbitangent = (u_ModelMatrix * vec4(bitan"
+"gent, 0.0)).xyz;\r\n  #endif\r\n\r\n  #if defined(USE_LIGHTMAP) && !defined"
+"(USE_DELUXEMAP)\r\n\tworldLight = (u_ModelMatrix * vec4(worldLight, 0.0)).x"
+"yz;\r\n  #endif\r\n#endif\r\n\r\n\tvar_Position = position.xyz;\r\n\r\n#if "
+"defined(TCGEN_ENVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIGHT) "
+"&& !defined(USE_FAST_LIGHT)\r\n\tvec3 SampleToView = u_ViewOrigin - positio"
+"n.xyz;\r\n#endif\r\n\r\n#if defined(USE_NORMALMAP) || defined(USE_LIGHT) &&"
+" !defined(USE_FAST_LIGHT)\r\n\tvar_SampleToView = SampleToView;\r\n#endif\r"
+"\n\r\n#if defined(TCGEN_ENVIRONMENT)\r\n\tvec3 viewer = normalize(SampleToV"
+"iew);\r\n\tvec3 reflected = normal * 2.0 * dot(normal, viewer) - viewer;\r"
+"\n\r\n\tvec2 tex = reflected.yz * vec2(0.5, -0.5) + 0.5;\r\n#else\r\n\tvec2"
+" tex = attr_TexCoord0.st;\r\n#endif\r\n\r\n\tvar_DiffuseTex = DoTexMatrix(t"
+"ex, position.xyz, u_DiffuseTexMatrix);\r\n\r\n#if defined(USE_LIGHTMAP)\r\n"
+"\tvar_LightTex = attr_TexCoord1.st;\r\n#endif\r\n\r\n\tvar_Color = u_VertCo"
+"lor * attr_Color + u_BaseColor;\r\n  \r\n\tvar_Normal = normal;\r\n#if defi"
+"ned(USE_VERT_TANGENT_SPACE)\r\n\tvar_Tangent = tangent;\r\n\tvar_Bitangent "
+"= bitangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXE"
+"MAP)\r\n  #if defined(USE_LIGHT_VECTOR)\r\n\tvec3 worldLight = u_LightOrigi"
+"n.xyz - (position.xyz * u_LightOrigin.w);\r\n  #endif\r\n\r\n\tworldLight +"
+"= normal * 0.0001;\r\n\tvar_WorldLight = worldLight;\r\n#endif\r\n\r\n#if d"
+"efined(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r\n  #if defined(USE_IN"
+"VSQRLIGHT)\r\n\tfloat intensity = 1.0 / dot(worldLight, worldLight);\r\n  #"
+"else\r\n\tfloat intensity = clamp((1.0 - dot(worldLight, worldLight) / (u_L"
+"ightRadius * u_LightRadius)) * 1.07, 0.0, 1.0);\r\n  #endif\r\n\tfloat NL ="
+" clamp(dot(normal, normalize(worldLight)), 0.0, 1.0);\r\n\r\n\tvar_VectLigh"
+"t = u_DirectedLight * intensity * NL + u_AmbientLight;\r\n#endif\r\n}\r\n";
 
 static const char *fallbackLightallShader_fp =
 "uniform sampler2D u_DiffuseMap;\r\n\r\n#if defined(USE_LIGHTMAP)\r\nuniform"
@@ -308,123 +309,129 @@ static const char *fallbackLightallShader_fp =
 "t     u_SpecularReflectance;\r\n#endif\r\n\r\n#if !defined(USE_FAST_LIGHT)"
 "\r\nuniform float     u_DiffuseRoughness;\r\n#endif\r\n\r\nvarying vec2    "
 "  var_DiffuseTex;\r\n#if defined(USE_LIGHTMAP)\r\nvarying vec2      var_Lig"
-"htTex;\r\n#endif\r\nvarying vec4      var_Color;\r\n\r\nvarying vec3      v"
-"ar_SampleToView;\r\n\r\nvarying vec3      var_Normal;\r\n#if defined(USE_NO"
-"RMALMAP)\r\nvarying vec3      var_Tangent;\r\nvarying vec3      var_Bitange"
-"nt;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGH"
-"T)\r\nvarying vec3      var_VectLight;\r\n#endif\r\n\r\n#if defined(USE_LIG"
-"HT) && !defined(USE_DELUXEMAP)\r\nvarying vec3      var_WorldLight;\r\n#end"
-"if\r\n\r\n#define EPSILON 0.00000001\r\n\r\n#if defined(USE_PARALLAXMAP)\r"
-"\nfloat SampleHeight(sampler2D normalMap, vec2 t)\r\n{\r\n  #if defined(SWI"
-"ZZLE_NORMALMAP)\r\n\treturn texture2D(normalMap, t).r;\r\n  #else\r\n\tretu"
-"rn texture2D(normalMap, t).a;\r\n  #endif\r\n}\r\n\r\nfloat RayIntersectDis"
-"placeMap(vec2 dp, vec2 ds, sampler2D normalMap)\r\n{\r\n\tconst int linearS"
-"earchSteps = 16;\r\n\tconst int binarySearchSteps = 6;\r\n\r\n\tfloat depth"
-"Step = 1.0 / float(linearSearchSteps);\r\n\r\n\t// current size of search w"
-"indow\r\n\tfloat size = depthStep;\r\n\r\n\t// current depth position\r\n\t"
-"float depth = 0.0;\r\n\r\n\t// best match found (starts with last position "
-"1.0)\r\n\tfloat bestDepth = 1.0;\r\n\r\n\t// search front to back for first"
-" point inside object\r\n\tfor(int i = 0; i < linearSearchSteps - 1; ++i)\r"
-"\n\t{\r\n\t\tdepth += size;\r\n\t\t\r\n\t\tfloat t = SampleHeight(normalMap"
-", dp + ds * depth);\r\n\t\t\r\n\t\tif(bestDepth > 0.996)\t\t// if no depth "
-"found yet\r\n\t\t\tif(depth >= t)\r\n\t\t\t\tbestDepth = depth;\t// store b"
-"est depth\r\n\t}\r\n\r\n\tdepth = bestDepth;\r\n\t\r\n\t// recurse around f"
-"irst point (depth) for closest match\r\n\tfor(int i = 0; i < binarySearchSt"
-"eps; ++i)\r\n\t{\r\n\t\tsize *= 0.5;\r\n\r\n\t\tfloat t = SampleHeight(norm"
-"alMap, dp + ds * depth);\r\n\t\t\r\n\t\tif(depth >= t)\r\n\t\t{\r\n\t\t\tbe"
-"stDepth = depth;\r\n\t\t\tdepth -= 2.0 * size;\r\n\t\t}\r\n\r\n\t\tdepth +="
-" size;\r\n\t}\r\n\r\n\treturn bestDepth;\r\n}\r\n#endif\r\n\r\nfloat CalcDi"
-"ffuse(vec3 N, vec3 L, vec3 E, float NE, float NL, float fzero, float roughn"
-"ess)\r\n{\r\n  #if defined(USE_OREN_NAYAR)\r\n\tfloat gamma = dot(E - N * N"
-"E, L - N * NL);\r\n\tfloat r_sq = roughness * roughness;\r\n\r\n\tfloat A ="
-" 1.0 - 0.5 * (r_sq / (r_sq + 0.57));\r\n\tfloat B = 0.45 * (r_sq / (r_sq + "
-"0.09));\r\n\r\n\tfloat alpha = max(acos(NE), acos(NL));\r\n\tfloat beta  = "
-"min(acos(NE), acos(NL));\r\n\r\n\tfloat C = sin(alpha) * tan(beta);\r\n\r\n"
-"\treturn A + B * clamp(gamma, 0.0, 1.0) * C;\r\n  #else\r\n\treturn 1.0 - f"
-"zero;\r\n  #endif\r\n}\r\n\r\n#if defined(USE_SPECULARMAP)\r\nfloat CalcSpe"
-"cular(float NH, float NL, float NE, float EH, float fzero, float shininess)"
-"\r\n{\r\n  #if defined(USE_BLINN) || defined(USE_TRIACE) || defined(USE_TOR"
-"RANCE_SPARROW)\r\n\tfloat blinn = pow(NH, shininess);\r\n  #endif\r\n\r\n  "
-"#if defined(USE_BLINN)\r\n\treturn blinn;\r\n  #endif\r\n\r\n  #if defined("
-"USE_COOK_TORRANCE) || defined (USE_TRIACE) || defined (USE_TORRANCE_SPARROW"
-")\r\n\tfloat fresnel = fzero + (1.0 - fzero) * pow(1.0 - EH, 5);\r\n  #endi"
-"f\r\n\r\n  #if defined(USE_COOK_TORRANCE) || defined(USE_TORRANCE_SPARROW)"
-"\r\n\tfloat geo = 2.0 * NH * min(NE, NL);\r\n\tgeo /= max(EH, geo);\r\n  #e"
-"ndif  \r\n\r\n  #if defined(USE_COOK_TORRANCE)\r\n\tfloat m = sqrt(2.0 / sh"
-"ininess);\r\n\r\n\tfloat m_sq = m * m;\r\n\tfloat NH_sq = NH * NH;\r\n\tflo"
-"at beckmann = exp((NH_sq - 1.0) / max(m_sq * NH_sq, EPSILON)) / max(4.0 * m"
-"_sq * NH_sq * NH_sq, EPSILON);\r\n\r\n\treturn fresnel * geo * beckmann / m"
-"ax(NE, EPSILON);\r\n  #endif\r\n\r\n  #if defined(USE_TRIACE)\r\n\tfloat sc"
-"ale = 0.1248582 * shininess + 0.2691817;\r\n\r\n\treturn fresnel * scale * "
-"blinn / max(max(NL, NE), EPSILON);\r\n  #endif\r\n  \r\n  #if defined(USE_T"
-"ORRANCE_SPARROW)\r\n\tfloat scale = 0.125 * shininess + 1.0;\r\n\r\n\tretur"
-"n fresnel * geo * scale * blinn / max(NE, EPSILON);\r\n  #endif\r\n}\r\n#en"
-"dif\r\n\r\nvoid main()\r\n{\r\n#if defined(USE_DELUXEMAP)\r\n\tvec3 worldLi"
-"ght = 2.0 * texture2D(u_DeluxeMap, var_LightTex).xyz - vec3(1.0);\r\n\t//wo"
-"rldLight += var_WorldLight * 0.0001;\r\n#elif defined(USE_LIGHT)\r\n\tvec3 "
-"worldLight = var_WorldLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHTMAP)\r\n"
-"\tvec4 lightSample = texture2D(u_LightMap, var_LightTex).rgba;\r\n  #if def"
-"ined(RGBE_LIGHTMAP)\r\n\tlightSample.rgb *= exp2(lightSample.a * 255.0 - 12"
-"8.0);\r\n  #endif\r\n\tvec3 directedLight = lightSample.rgb;\r\n#elif defin"
-"ed(USE_LIGHT_VECTOR)\r\n  #if defined(USE_FAST_LIGHT)\r\n\tvec3 directedLig"
-"ht = var_VectLight;\r\n  #else\r\n    #if defined(USE_INVSQRLIGHT)\r\n\tflo"
-"at intensity = 1.0 / dot(worldLight, worldLight);\r\n    #else\r\n\tfloat i"
-"ntensity = clamp((1.0 - dot(worldLight, worldLight) / (u_LightRadius * u_Li"
-"ghtRadius)) * 1.07, 0.0, 1.0);\r\n    #endif\r\n    #if defined(USE_SHADOWM"
-"AP)\r\n  \tvec3 dist3 = textureCube(u_ShadowMap, worldLight).rgb;\r\n\tfloa"
-"t dist = dot(dist3, vec3(1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0)) * u_Ligh"
-"tRadius;\r\n\r\n\tintensity *= clamp(sign(dist - length(worldLight)), 0.0, "
-"1.0);\r\n    #endif\r\n\tvec3 directedLight = u_DirectedLight * intensity;"
-"\r\n\tvec3 ambientLight  = u_AmbientLight;\r\n  #endif\r\n#elif defined(USE"
-"_LIGHT_VERTEX)\r\n\tvec3 directedLight = var_Color.rgb;\r\n#endif\r\n\t\r\n"
-"#if defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT"
-")\r\n\tvec3 SampleToView = normalize(var_SampleToView);\r\n#endif\r\n\tvec2"
-" tex = var_DiffuseTex;\r\n\r\n\tfloat ambientDiff = 1.0;\r\n\r\n#if defined"
-"(USE_NORMALMAP)\r\n\tmat3 tangentToWorld = mat3(var_Tangent.xyz, var_Bitang"
-"ent.xyz, var_Normal.xyz);\r\n\r\n  #if defined(USE_PARALLAXMAP)\r\n\tvec3 o"
-"ffsetDir = normalize(SampleToView * tangentToWorld);\r\n    #if 0\r\n    fl"
-"oat height = SampleHeight(u_NormalMap, tex);\r\n\tfloat pdist = 0.05 * heig"
-"ht - (0.05 / 2.0);\r\n    #else\r\n\toffsetDir.xy *= 0.02 / offsetDir.z;\r"
-"\n\tfloat pdist = RayIntersectDisplaceMap(tex, offsetDir.xy, u_NormalMap);"
-"\r\n    #endif\t\r\n\ttex += offsetDir.xy * pdist;\r\n  #endif\r\n  #if def"
-"ined(SWIZZLE_NORMALMAP)\r\n\tvec3 normal = 2.0 * texture2D(u_NormalMap, tex"
-").agb - 1.0;\r\n  #else\r\n\tvec3 normal = 2.0 * texture2D(u_NormalMap, tex"
-").rgb - 1.0;\r\n  #endif\r\n\tnormal.z = sqrt(clamp(1.0 - dot(normal.xy, no"
-"rmal.xy), 0.0, 1.0));\r\n\tvec3 worldNormal = tangentToWorld * normal;\r\n "
-" #if defined(r_normalAmbient)\r\n\tambientDiff = 0.781341 * normal.z + 0.21"
-"8659;\r\n  #endif\r\n#else\r\n\tvec3 worldNormal = var_Normal;\r\n#endif\r"
-"\n\r\n\tvec4 diffuse = texture2D(u_DiffuseMap, tex);\r\n\r\n#if defined(USE"
-"_LIGHT) && defined(USE_FAST_LIGHT)\r\n\tdiffuse.rgb *= directedLight;\r\n#e"
-"lif defined(USE_LIGHT)\r\n\tworldNormal = normalize(worldNormal);\r\n\tworl"
-"dLight = normalize(worldLight);\r\n\r\n  #if defined(USE_LIGHTMAP) || defin"
-"ed(USE_LIGHT_VERTEX)\r\n\tdirectedLight /= max(dot(normalize(var_Normal), w"
-"orldLight), 0.004);\r\n\r\n    #if defined(r_normalAmbient)\r\n\tvec3 ambie"
-"ntLight = directedLight * r_normalAmbient;\r\n\tdirectedLight -= ambientLig"
-"ht;\r\n    #else\r\n\tvec3 ambientLight = vec3(0);\r\n    #endif\r\n  #endi"
-"f\r\n\r\n\tfloat NL = clamp(dot(worldNormal,  worldLight),   0.0, 1.0);\r\n"
-"\tfloat NE = clamp(dot(worldNormal,  SampleToView), 0.0, 1.0);\r\n  #if def"
-"ined(USE_SPECULARMAP)\r\n\tfloat fzero = u_SpecularReflectance;\r\n  #else"
-"\r\n\tfloat fzero = 0.0;\r\n  #endif\r\n\tfloat directedDiff = NL * CalcDif"
-"fuse(worldNormal, worldLight, SampleToView, NE, NL, fzero, u_DiffuseRoughne"
-"ss);\r\n\tdiffuse.rgb *= directedLight * directedDiff + ambientDiff * ambie"
-"ntLight;\r\n  \r\n  #if defined(USE_SPECULARMAP)\r\n\tvec4 specular = textu"
-"re2D(u_SpecularMap, tex);\r\n\t//specular.rgb = clamp(specular.rgb - diffus"
-"e.rgb, 0.0, 1.0);\r\n\tfloat shininess = specular.a * 255 + 1.0;\r\n\r\n\tv"
-"ec3 halfAngle = normalize(worldLight + SampleToView);\r\n\r\n\tfloat EH = c"
-"lamp(dot(SampleToView, halfAngle), 0.0, 1.0);\r\n\tfloat NH = clamp(dot(wor"
-"ldNormal,  halfAngle), 0.0, 1.0);\r\n\r\n\tfloat directedSpec = NL * CalcSp"
-"ecular(NH, NL, NE, EH, fzero, shininess);\r\n  \r\n    #if defined(r_normal"
-"Ambient)\r\n\tvec3 ambientHalf = normalize(var_Normal + SampleToView);\r\n"
-"\tfloat ambientSpec = max(dot(ambientHalf, worldNormal) + 0.5, 0.0);\r\n\ta"
-"mbientSpec *= ambientSpec * 0.44;\r\n\tambientSpec = pow(ambientSpec, shini"
-"ness) * fzero;\r\n      #if defined(USE_TRIACE)\r\n\tambientSpec *= 0.12485"
-"82 * shininess + 0.2691817;\r\n      #endif    \r\n\tspecular.rgb *= direct"
-"edSpec * directedLight + ambientSpec * ambientLight;\r\n    #else\r\n\tspec"
-"ular.rgb *= directedSpec * directedLight;\r\n    #endif\r\n  #endif\r\n#end"
-"if\r\n\r\n\tgl_FragColor = diffuse;\r\n\r\n#if defined(USE_SPECULARMAP) && "
-"defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\n\tgl_FragColor.rgb += spe"
-"cular.rgb;\r\n#endif\r\n\r\n#if !defined(USE_LIGHT_VERTEX)\r\n\tgl_FragColo"
-"r *= var_Color;\r\n#endif\r\n}\r\n";
+"htTex;\r\n#endif\r\nvarying vec4      var_Color;\r\nvarying vec3      var_P"
+"osition;\r\n\r\nvarying vec3      var_SampleToView;\r\n\r\nvarying vec3    "
+"  var_Normal;\r\n#if defined(USE_VERT_TANGENT_SPACE)\r\nvarying vec3      v"
+"ar_Tangent;\r\nvarying vec3      var_Bitangent;\r\n#endif\r\n\r\n#if define"
+"d(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r\nvarying vec3      var_Vec"
+"tLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXEMAP)"
+"\r\nvarying vec3      var_WorldLight;\r\n#endif\r\n\r\n#define EPSILON 0.00"
+"000001\r\n\r\n#if defined(USE_PARALLAXMAP)\r\nfloat SampleHeight(sampler2D "
+"normalMap, vec2 t)\r\n{\r\n  #if defined(SWIZZLE_NORMALMAP)\r\n\treturn tex"
+"ture2D(normalMap, t).r;\r\n  #else\r\n\treturn texture2D(normalMap, t).a;\r"
+"\n  #endif\r\n}\r\n\r\nfloat RayIntersectDisplaceMap(vec2 dp, vec2 ds, samp"
+"ler2D normalMap)\r\n{\r\n\tconst int linearSearchSteps = 16;\r\n\tconst int"
+" binarySearchSteps = 6;\r\n\r\n\tfloat depthStep = 1.0 / float(linearSearch"
+"Steps);\r\n\r\n\t// current size of search window\r\n\tfloat size = depthSt"
+"ep;\r\n\r\n\t// current depth position\r\n\tfloat depth = 0.0;\r\n\r\n\t// "
+"best match found (starts with last position 1.0)\r\n\tfloat bestDepth = 1.0"
+";\r\n\r\n\t// search front to back for first point inside object\r\n\tfor(i"
+"nt i = 0; i < linearSearchSteps - 1; ++i)\r\n\t{\r\n\t\tdepth += size;\r\n"
+"\t\t\r\n\t\tfloat t = SampleHeight(normalMap, dp + ds * depth);\r\n\t\t\r\n"
+"\t\tif(bestDepth > 0.996)\t\t// if no depth found yet\r\n\t\t\tif(depth >= "
+"t)\r\n\t\t\t\tbestDepth = depth;\t// store best depth\r\n\t}\r\n\r\n\tdepth"
+" = bestDepth;\r\n\t\r\n\t// recurse around first point (depth) for closest "
+"match\r\n\tfor(int i = 0; i < binarySearchSteps; ++i)\r\n\t{\r\n\t\tsize *="
+" 0.5;\r\n\r\n\t\tfloat t = SampleHeight(normalMap, dp + ds * depth);\r\n\t"
+"\t\r\n\t\tif(depth >= t)\r\n\t\t{\r\n\t\t\tbestDepth = depth;\r\n\t\t\tdept"
+"h -= 2.0 * size;\r\n\t\t}\r\n\r\n\t\tdepth += size;\r\n\t}\r\n\r\n\treturn "
+"bestDepth;\r\n}\r\n#endif\r\n\r\nfloat CalcDiffuse(vec3 N, vec3 L, vec3 E, "
+"float NE, float NL, float fzero, float roughness)\r\n{\r\n  #if defined(USE"
+"_OREN_NAYAR)\r\n\tfloat gamma = dot(E - N * NE, L - N * NL);\r\n\tfloat r_s"
+"q = roughness * roughness;\r\n\r\n\tfloat A = 1.0 - 0.5 * (r_sq / (r_sq + 0"
+".57));\r\n\tfloat B = 0.45 * (r_sq / (r_sq + 0.09));\r\n\r\n\tfloat alpha ="
+" max(acos(NE), acos(NL));\r\n\tfloat beta  = min(acos(NE), acos(NL));\r\n\r"
+"\n\tfloat C = sin(alpha) * tan(beta);\r\n\r\n\treturn A + B * clamp(gamma, "
+"0.0, 1.0) * C;\r\n  #else\r\n\treturn 1.0 - fzero;\r\n  #endif\r\n}\r\n\r\n"
+"#if defined(USE_SPECULARMAP)\r\nfloat CalcSpecular(float NH, float NL, floa"
+"t NE, float EH, float fzero, float shininess)\r\n{\r\n  #if defined(USE_BLI"
+"NN) || defined(USE_TRIACE) || defined(USE_TORRANCE_SPARROW)\r\n\tfloat blin"
+"n = pow(NH, shininess);\r\n  #endif\r\n\r\n  #if defined(USE_BLINN)\r\n\tre"
+"turn blinn;\r\n  #endif\r\n\r\n  #if defined(USE_COOK_TORRANCE) || defined "
+"(USE_TRIACE) || defined (USE_TORRANCE_SPARROW)\r\n\tfloat fresnel = fzero +"
+" (1.0 - fzero) * pow(1.0 - EH, 5);\r\n  #endif\r\n\r\n  #if defined(USE_COO"
+"K_TORRANCE) || defined(USE_TORRANCE_SPARROW)\r\n\tfloat geo = 2.0 * NH * mi"
+"n(NE, NL);\r\n\tgeo /= max(EH, geo);\r\n  #endif  \r\n\r\n  #if defined(USE"
+"_COOK_TORRANCE)\r\n\tfloat m = sqrt(2.0 / shininess);\r\n\r\n\tfloat m_sq ="
+" m * m;\r\n\tfloat NH_sq = NH * NH;\r\n\tfloat beckmann = exp((NH_sq - 1.0)"
+" / max(m_sq * NH_sq, EPSILON)) / max(4.0 * m_sq * NH_sq * NH_sq, EPSILON);"
+"\r\n\r\n\treturn fresnel * geo * beckmann / max(NE, EPSILON);\r\n  #endif\r"
+"\n\r\n  #if defined(USE_TRIACE)\r\n\tfloat scale = 0.1248582 * shininess + "
+"0.2691817;\r\n\r\n\treturn fresnel * scale * blinn / max(max(NL, NE), EPSIL"
+"ON);\r\n  #endif\r\n  \r\n  #if defined(USE_TORRANCE_SPARROW)\r\n\tfloat sc"
+"ale = 0.125 * shininess + 1.0;\r\n\r\n\treturn fresnel * geo * scale * blin"
+"n / max(NE, EPSILON);\r\n  #endif\r\n}\r\n#endif\r\n\r\nvoid main()\r\n{\r"
+"\n#if defined(USE_DELUXEMAP)\r\n\tvec3 worldLight = 2.0 * texture2D(u_Delux"
+"eMap, var_LightTex).xyz - vec3(1.0);\r\n\t//worldLight += var_WorldLight * "
+"0.0001;\r\n#elif defined(USE_LIGHT)\r\n\tvec3 worldLight = var_WorldLight;"
+"\r\n#endif\r\n\r\n#if defined(USE_LIGHTMAP)\r\n\tvec4 lightSample = texture"
+"2D(u_LightMap, var_LightTex).rgba;\r\n  #if defined(RGBE_LIGHTMAP)\r\n\tlig"
+"htSample.rgb *= exp2(lightSample.a * 255.0 - 128.0);\r\n  #endif\r\n\tvec3 "
+"directedLight = lightSample.rgb;\r\n#elif defined(USE_LIGHT_VECTOR)\r\n  #i"
+"f defined(USE_FAST_LIGHT)\r\n\tvec3 directedLight = var_VectLight;\r\n  #el"
+"se\r\n    #if defined(USE_INVSQRLIGHT)\r\n\tfloat intensity = 1.0 / dot(wor"
+"ldLight, worldLight);\r\n    #else\r\n\tfloat intensity = clamp((1.0 - dot("
+"worldLight, worldLight) / (u_LightRadius * u_LightRadius)) * 1.07, 0.0, 1.0"
+");\r\n    #endif\r\n    #if defined(USE_SHADOWMAP)\r\n  \tvec3 dist3 = text"
+"ureCube(u_ShadowMap, worldLight).rgb;\r\n\tfloat dist = dot(dist3, vec3(1.0"
+" / (256.0 * 256.0), 1.0 / 256.0, 1.0)) * u_LightRadius;\r\n\r\n\tintensity "
+"*= clamp(sign(dist - length(worldLight)), 0.0, 1.0);\r\n    #endif\r\n\tvec"
+"3 directedLight = u_DirectedLight * intensity;\r\n\tvec3 ambientLight  = u_"
+"AmbientLight;\r\n  #endif\r\n#elif defined(USE_LIGHT_VERTEX)\r\n\tvec3 dire"
+"ctedLight = var_Color.rgb;\r\n#endif\r\n\t\r\n#if defined(USE_NORMALMAP) ||"
+" defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\n\tvec3 SampleToView = no"
+"rmalize(var_SampleToView);\r\n#endif\r\n\tvec2 tex = var_DiffuseTex;\r\n\r"
+"\n\tfloat ambientDiff = 1.0;\r\n\r\n#if defined(USE_NORMALMAP)\r\n  #if def"
+"ined(USE_VERT_TANGENT_SPACE)\r\n    vec3   tangent = normalize(var_Tangent)"
+";\r\n\tvec3 bitangent = normalize(var_Bitangent);\r\n  #else\r\n\tvec3 q0  "
+"= dFdx(var_Position.xyz);\r\n\tvec3 q1  = dFdy(var_Position.xyz);\r\n\tvec2"
+" st0 = dFdx(tex);\r\n\tvec2 st1 = dFdy(tex);\r\n\r\n\tvec3   tangent = -nor"
+"malize( q0 * st1.t - q1 * st0.t);\r\n\tvec3 bitangent = -normalize(-q0 * st"
+"1.s + q1 * st0.s);\r\n  #endif\r\n\r\n\tmat3 tangentToWorld = mat3(tangent,"
+" bitangent, normalize(var_Normal.xyz));\r\n\r\n  #if defined(USE_PARALLAXMA"
+"P)\r\n\tvec3 offsetDir = normalize(SampleToView * tangentToWorld);\r\n    #"
+"if 0\r\n    float height = SampleHeight(u_NormalMap, tex);\r\n\tfloat pdist"
+" = 0.05 * height - (0.05 / 2.0);\r\n    #else\r\n\toffsetDir.xy *= 0.02 / o"
+"ffsetDir.z;\r\n\tfloat pdist = RayIntersectDisplaceMap(tex, offsetDir.xy, u"
+"_NormalMap);\r\n    #endif\t\r\n\ttex += offsetDir.xy * pdist;\r\n  #endif"
+"\r\n  #if defined(SWIZZLE_NORMALMAP)\r\n\tvec3 normal = 2.0 * texture2D(u_N"
+"ormalMap, tex).agb - 1.0;\r\n  #else\r\n\tvec3 normal = 2.0 * texture2D(u_N"
+"ormalMap, tex).rgb - 1.0;\r\n  #endif\r\n\tnormal.z = sqrt(clamp(1.0 - dot("
+"normal.xy, normal.xy), 0.0, 1.0));\r\n\tvec3 worldNormal = tangentToWorld *"
+" normal;\r\n  #if defined(r_normalAmbient)\r\n\tambientDiff = 0.781341 * no"
+"rmal.z + 0.218659;\r\n  #endif\r\n#else\r\n\tvec3 worldNormal = var_Normal;"
+"\r\n#endif\r\n\r\n\tvec4 diffuse = texture2D(u_DiffuseMap, tex);\r\n\r\n#if"
+" defined(USE_LIGHT) && defined(USE_FAST_LIGHT)\r\n\tdiffuse.rgb *= directed"
+"Light;\r\n#elif defined(USE_LIGHT)\r\n\tworldNormal = normalize(worldNormal"
+");\r\n\tworldLight = normalize(worldLight);\r\n\r\n  #if defined(USE_LIGHTM"
+"AP) || defined(USE_LIGHT_VERTEX)\r\n\tdirectedLight /= max(dot(normalize(va"
+"r_Normal), worldLight), 0.004);\r\n\r\n    #if defined(r_normalAmbient)\r\n"
+"\tvec3 ambientLight = directedLight * r_normalAmbient;\r\n\tdirectedLight -"
+"= ambientLight;\r\n    #else\r\n\tvec3 ambientLight = vec3(0);\r\n    #endi"
+"f\r\n  #endif\r\n\r\n\tfloat NL = clamp(dot(worldNormal,  worldLight),   0."
+"0, 1.0);\r\n\tfloat NE = clamp(dot(worldNormal,  SampleToView), 0.0, 1.0);"
+"\r\n  #if defined(USE_SPECULARMAP)\r\n\tfloat fzero = u_SpecularReflectance"
+";\r\n  #else\r\n\tfloat fzero = 0.0;\r\n  #endif\r\n\tfloat directedDiff = "
+"NL * CalcDiffuse(worldNormal, worldLight, SampleToView, NE, NL, fzero, u_Di"
+"ffuseRoughness);\r\n\tdiffuse.rgb *= directedLight * directedDiff + ambient"
+"Diff * ambientLight;\r\n  \r\n  #if defined(USE_SPECULARMAP)\r\n\tvec4 spec"
+"ular = texture2D(u_SpecularMap, tex);\r\n\t//specular.rgb = clamp(specular."
+"rgb - diffuse.rgb, 0.0, 1.0);\r\n\tfloat shininess = specular.a * 255 + 1.0"
+";\r\n\r\n\tvec3 halfAngle = normalize(worldLight + SampleToView);\r\n\r\n\t"
+"float EH = clamp(dot(SampleToView, halfAngle), 0.0, 1.0);\r\n\tfloat NH = c"
+"lamp(dot(worldNormal,  halfAngle), 0.0, 1.0);\r\n\r\n\tfloat directedSpec ="
+" NL * CalcSpecular(NH, NL, NE, EH, fzero, shininess);\r\n  \r\n    #if defi"
+"ned(r_normalAmbient)\r\n\tvec3 ambientHalf = normalize(var_Normal + SampleT"
+"oView);\r\n\tfloat ambientSpec = max(dot(ambientHalf, worldNormal) + 0.5, 0"
+".0);\r\n\tambientSpec *= ambientSpec * 0.44;\r\n\tambientSpec = pow(ambient"
+"Spec, shininess) * fzero;\r\n      #if defined(USE_TRIACE)\r\n\tambientSpec"
+" *= 0.1248582 * shininess + 0.2691817;\r\n      #endif    \r\n\tspecular.rg"
+"b *= directedSpec * directedLight + ambientSpec * ambientLight;\r\n    #els"
+"e\r\n\tspecular.rgb *= directedSpec * directedLight;\r\n    #endif\r\n  #en"
+"dif\r\n#endif\r\n\r\n\tgl_FragColor = diffuse;\r\n\r\n#if defined(USE_SPECU"
+"LARMAP) && defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\n\tgl_FragColor"
+".rgb += specular.rgb;\r\n#endif\r\n\r\n#if !defined(USE_LIGHT_VERTEX)\r\n\t"
+"gl_FragColor *= var_Color;\r\n#endif\r\n}\r\n";
 
 static const char *fallbackShadowfillShader_vp =
 "attribute vec4  attr_Position;\r\nattribute vec3  attr_Normal;\r\nattribute"
@@ -633,26 +640,26 @@ static const char *fallbackToneMapShader_vp =
 
 static const char *fallbackToneMapShader_fp =
 "uniform sampler2D u_TextureMap;\r\nuniform sampler2D u_LevelsMap;\r\n\r\nun"
-"iform vec4      u_Color;\r\n\r\nuniform vec2      u_InvTexRes;\r\nuniform v"
-"ec2      u_AutoExposureMinMax;\r\n\r\nvarying vec2      var_TexCoords;\r\n"
-"\r\nconst vec3  LUMINANCE_VECTOR =   vec3(0.2125, 0.7154, 0.0721); //vec3(0"
-".299, 0.587, 0.114);\r\n\r\nvec3 FilmicTonemap(vec3 x)\r\n{\r\n\tconst floa"
-"t SS  = 0.22; // Shoulder Strength\r\n\tconst float LS  = 0.30; // Linear S"
-"trength\r\n\tconst float LA  = 0.10; // Linear Angle\r\n\tconst float TS  ="
-" 0.20; // Toe Strength\r\n\tconst float TAN = 0.01; // Toe Angle Numerator"
-"\r\n\tconst float TAD = 0.30; // Toe Angle Denominator\r\n\t\r\n\tvec3 SSxx"
-" = SS * x * x;\r\n\tvec3 LSx = LS * x;\r\n\tvec3 LALSx = LSx * LA;\r\n\t\r"
-"\n\treturn ((SSxx + LALSx + TS * TAN) / (SSxx + LSx + TS * TAD)) - TAN / TA"
-"D;\r\n\r\n\t//return ((x*(SS*x+LA*LS)+TS*TAN)/(x*(SS*x+LS)+TS*TAD)) - TAN/T"
-"AD;\r\n\r\n}\r\n\r\nvoid main()\r\n{\r\n\tvec4 color = texture2D(u_TextureM"
-"ap, var_TexCoords) * u_Color;\r\n\tvec3 minAvgMax = texture2D(u_LevelsMap, "
-"var_TexCoords).rgb;\r\n\tvec3 logMinAvgMaxLum = clamp(minAvgMax * 20.0 - 10"
-".0, -u_AutoExposureMinMax.y, -u_AutoExposureMinMax.x);\r\n\t\t\r\n\tfloat a"
-"vgLum = exp2(logMinAvgMaxLum.y);\r\n\t//float maxLum = exp2(logMinAvgMaxLum"
-".z);\r\n\t\r\n\tcolor.rgb /= avgLum;\r\n\r\n\tvec3 fWhite = 1.0 / FilmicTon"
-"emap(vec3(2.0));\r\n\tcolor.rgb = FilmicTonemap(color.rgb) * fWhite;\r\n\t"
-"\r\n#if defined(r_obbcorrect)\r\n\tcolor.rgb /= r_obbcorrect;\r\n#endif\r\n"
-"\t\r\n\tgl_FragColor = color;\r\n}\r\n";
+"iform vec4      u_Color;\r\n\r\nuniform vec2      u_AutoExposureMinMax;\r\n"
+"\r\nvarying vec2      var_TexCoords;\r\n\r\nconst vec3  LUMINANCE_VECTOR = "
+"  vec3(0.2125, 0.7154, 0.0721); //vec3(0.299, 0.587, 0.114);\r\n\r\nvec3 Fi"
+"lmicTonemap(vec3 x)\r\n{\r\n\tconst float SS  = 0.22; // Shoulder Strength"
+"\r\n\tconst float LS  = 0.30; // Linear Strength\r\n\tconst float LA  = 0.1"
+"0; // Linear Angle\r\n\tconst float TS  = 0.20; // Toe Strength\r\n\tconst "
+"float TAN = 0.01; // Toe Angle Numerator\r\n\tconst float TAD = 0.30; // To"
+"e Angle Denominator\r\n\t\r\n\tvec3 SSxx = SS * x * x;\r\n\tvec3 LSx = LS *"
+" x;\r\n\tvec3 LALSx = LSx * LA;\r\n\t\r\n\treturn ((SSxx + LALSx + TS * TAN"
+") / (SSxx + LSx + TS * TAD)) - TAN / TAD;\r\n\r\n\t//return ((x*(SS*x+LA*LS"
+")+TS*TAN)/(x*(SS*x+LS)+TS*TAD)) - TAN/TAD;\r\n\r\n}\r\n\r\nvoid main()\r\n{"
+"\r\n\tvec4 color = texture2D(u_TextureMap, var_TexCoords) * u_Color;\r\n\tv"
+"ec3 minAvgMax = texture2D(u_LevelsMap, var_TexCoords).rgb;\r\n\tvec3 logMin"
+"AvgMaxLum = clamp(minAvgMax * 20.0 - 10.0, -u_AutoExposureMinMax.y, -u_Auto"
+"ExposureMinMax.x);\r\n\t\t\r\n\tfloat avgLum = exp2(logMinAvgMaxLum.y);\r\n"
+"\t//float maxLum = exp2(logMinAvgMaxLum.z);\r\n\t\r\n\tcolor.rgb /= avgLum;"
+"\r\n\r\n\tvec3 fWhite = 1.0 / FilmicTonemap(vec3(2.0));\r\n\tcolor.rgb = Fi"
+"lmicTonemap(color.rgb) * fWhite;\r\n\t\r\n#if defined(r_obbcorrect)\r\n\tco"
+"lor.rgb /= r_obbcorrect;\r\n#endif\r\n\t\r\n\tgl_FragColor = color;\r\n}\r"
+"\n";
 
 static const char *fallbackCalcLevels4xShader_vp =
 "attribute vec4 attr_Position;\r\nattribute vec4 attr_TexCoord0;\r\n\r\nunif"
@@ -1147,11 +1154,13 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 //  if(attribs & ATTR_TEXCOORD3)
 //      qglBindAttribLocationARB(program->program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if(attribs & ATTR_TANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
 	if(attribs & ATTR_BITANGENT)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BITANGENT, "attr_Bitangent");
+#endif
 
 	if(attribs & ATTR_NORMAL)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_NORMAL, "attr_Normal");
@@ -1171,11 +1180,13 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 	if(attribs & ATTR_NORMAL2)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_NORMAL2, "attr_Normal2");
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if(attribs & ATTR_TANGENT2)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
 
 	if(attribs & ATTR_BITANGENT2)
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BITANGENT2, "attr_Bitangent2");
+#endif
 
 	GLSL_LinkProgram(program->program);
 
@@ -1788,7 +1799,10 @@ void GLSL_InitGPUShaders(void)
 			if (r_normalMapping->integer == 2)
 				Q_strcat(extradefines, 1024, "#define USE_OREN_NAYAR\n");
 
+#ifdef USE_VERT_TANGENT_SPACE
+			Q_strcat(extradefines, 1024, "#define USE_VERT_TANGENT_SPACE");
 			attribs |= ATTR_TANGENT | ATTR_BITANGENT;
+#endif
 		}
 
 		if ((i & LIGHTDEF_USE_SPECULARMAP) && r_specularMapping->integer)
@@ -1830,10 +1844,12 @@ void GLSL_InitGPUShaders(void)
 			Q_strcat(extradefines, 1024, "#define USE_VERTEX_ANIMATION\n#define USE_MODELMATRIX\n");
 			attribs |= ATTR_POSITION2 | ATTR_NORMAL2;
 
+#ifdef USE_VERT_TANGENT_SPACE
 			if (i & LIGHTDEF_USE_NORMALMAP && r_normalMapping->integer)
 			{
 				attribs |= ATTR_TANGENT2 | ATTR_BITANGENT2;
 			}
+#endif
 		}
 
 		if (!GLSL_InitGPUShader(&tr.lightallShader[i], "lightall", attribs, qtrue, extradefines, qtrue, fallbackLightallShader_vp, fallbackLightallShader_fp, GENERIC_UNIFORM_COUNT))
@@ -2097,11 +2113,15 @@ void GLSL_ShutdownGPUShaders(void)
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_POSITION2);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL);
+#ifdef USE_VERT_TANGENT_SPACE
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT);
+#endif
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_NORMAL2);
+#ifdef USE_VERT_TANGENT_SPACE
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_TANGENT2);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT2);
+#endif
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_COLOR);
 	qglDisableVertexAttribArrayARB(ATTR_INDEX_LIGHTDIRECTION);
 	GLSL_BindNullProgram();
@@ -2234,6 +2254,7 @@ void GLSL_VertexAttribsState(uint32_t stateBits)
 		}
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if(diff & ATTR_TANGENT)
 	{
 		if(stateBits & ATTR_TANGENT)
@@ -2261,6 +2282,7 @@ void GLSL_VertexAttribsState(uint32_t stateBits)
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT);
 		}
 	}
+#endif
 
 	if(diff & ATTR_COLOR)
 	{
@@ -2318,6 +2340,7 @@ void GLSL_VertexAttribsState(uint32_t stateBits)
 		}
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if(diff & ATTR_TANGENT2)
 	{
 		if(stateBits & ATTR_TANGENT2)
@@ -2345,6 +2368,7 @@ void GLSL_VertexAttribsState(uint32_t stateBits)
 			qglDisableVertexAttribArrayARB(ATTR_INDEX_BITANGENT2);
 		}
 	}
+#endif
 
 	glState.vertexAttribsState = stateBits;
 }
@@ -2392,6 +2416,7 @@ void GLSL_VertexAttribPointers(uint32_t attribBits)
 		glState.vertexAttribPointersSet |= ATTR_NORMAL;
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if((attribBits & ATTR_TANGENT) && !(glState.vertexAttribPointersSet & ATTR_TANGENT))
 	{
 		GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_TANGENT )\n");
@@ -2407,6 +2432,7 @@ void GLSL_VertexAttribPointers(uint32_t attribBits)
 		qglVertexAttribPointerARB(ATTR_INDEX_BITANGENT, 3, GL_FLOAT, 0, glState.currentVBO->stride_bitangent, BUFFER_OFFSET(glState.currentVBO->ofs_bitangent + glState.vertexAttribsNewFrame * glState.currentVBO->size_normal)); // FIXME
 		glState.vertexAttribPointersSet |= ATTR_BITANGENT;
 	}
+#endif
 
 	if((attribBits & ATTR_COLOR) && !(glState.vertexAttribPointersSet & ATTR_COLOR))
 	{
@@ -2440,6 +2466,7 @@ void GLSL_VertexAttribPointers(uint32_t attribBits)
 		glState.vertexAttribPointersSet |= ATTR_NORMAL2;
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	if((attribBits & ATTR_TANGENT2) && !(glState.vertexAttribPointersSet & ATTR_TANGENT2))
 	{
 		GLimp_LogComment("qglVertexAttribPointerARB( ATTR_INDEX_TANGENT2 )\n");
@@ -2455,6 +2482,8 @@ void GLSL_VertexAttribPointers(uint32_t attribBits)
 		qglVertexAttribPointerARB(ATTR_INDEX_BITANGENT2, 3, GL_FLOAT, 0, glState.currentVBO->stride_bitangent, BUFFER_OFFSET(glState.currentVBO->ofs_bitangent + glState.vertexAttribsOldFrame * glState.currentVBO->size_normal)); // FIXME
 		glState.vertexAttribPointersSet |= ATTR_BITANGENT2;
 	}
+#endif
+
 }
 
 shaderProgram_t *GLSL_GetGenericShaderProgram(int stage)

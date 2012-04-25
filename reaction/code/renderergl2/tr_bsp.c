@@ -768,6 +768,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 
 	surf->data = (surfaceType_t *)cv;
 
+#ifdef USE_VERT_TANGENT_SPACE
 	// Tr3B - calc tangent spaces
 	{
 		srfVert_t      *dv[3];
@@ -781,6 +782,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 			R_CalcTangentVectors(dv);
 		}
 	}
+#endif
 }
 
 
@@ -999,6 +1001,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
 		cv->numTriangles -= badTriangles;
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	// Tr3B - calc tangent spaces
 	{
 		srfVert_t      *dv[3];
@@ -1012,6 +1015,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
 			R_CalcTangentVectors(dv);
 		}
 	}
+#endif
 }
 
 /*
@@ -1788,8 +1792,10 @@ static void CopyVert(const srfVert_t * in, srfVert_t * out)
 	for(j = 0; j < 3; j++)
 	{
 		out->xyz[j]       = in->xyz[j];
+#ifdef USE_VERT_TANGENT_SPACE
 		out->tangent[j]   = in->tangent[j];
 		out->bitangent[j] = in->bitangent[j];
+#endif
 		out->normal[j]    = in->normal[j];
 		out->lightdir[j]  = in->lightdir[j];
 	}
@@ -2031,9 +2037,15 @@ static void R_CreateWorldVBO(void)
 		}
 	}
 
+#ifdef USE_VERT_TANGENT_SPACE
 	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
 								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_TANGENT | ATTR_BITANGENT |
 								   ATTR_NORMAL | ATTR_COLOR | ATTR_LIGHTDIRECTION, VBO_USAGE_STATIC);
+#else
+	s_worldData.vbo = R_CreateVBO2(va("staticBspModel0_VBO %i", 0), numVerts, verts,
+								   ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD |
+								   ATTR_NORMAL | ATTR_COLOR | ATTR_LIGHTDIRECTION, VBO_USAGE_STATIC);
+#endif
 
 	s_worldData.ibo = R_CreateIBO2(va("staticBspModel0_IBO %i", 0), numTriangles, triangles, VBO_USAGE_STATIC);
 

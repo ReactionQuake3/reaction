@@ -1881,10 +1881,12 @@ static void ComputeVertexAttribs(void)
 		{
 			shader.vertexAttribs |= ATTR_NORMAL;
 
+#ifdef USE_VERT_TANGENT_SPACE
 			if (pStage->glslShaderIndex & LIGHTDEF_USE_NORMALMAP)
 			{
 				shader.vertexAttribs |= ATTR_BITANGENT | ATTR_TANGENT;
 			}
+#endif
 
 			switch (pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK)
 			{

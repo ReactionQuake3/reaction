@@ -609,6 +609,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 			st->st[1] = LittleFloat(md3st->st[1]);
 		}
 
+#ifdef USE_VERT_TANGENT_SPACE
 		// calc tangent spaces
 		{
 			// Valgrind complaints: Conditional jump or move depends on uninitialised value(s)
@@ -677,6 +678,7 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 				VectorNormalize(v->normal);
 			}
 		}
+#endif
 
 		// find the next surface
 		md3Surf = (md3Surface_t *) ((byte *) md3Surf + md3Surf->ofsEnd);
@@ -695,14 +697,19 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 		{
 			vec3_t *verts;
 			vec3_t *normals;
+			vec2_t *texcoords;
+#ifdef USE_VERT_TANGENT_SPACE
 			vec3_t *tangents;
 			vec3_t *bitangents;
-			vec2_t *texcoords;
+#endif
 
 			byte *data;
 			int dataSize;
 
-			int ofs_xyz, ofs_normal, ofs_st, ofs_tangent, ofs_bitangent;
+			int ofs_xyz, ofs_normal, ofs_st;
+#ifdef USE_VERT_TANGENT_SPACE
+			int ofs_tangent, ofs_bitangent;
+#endif
 
 			dataSize = 0;
 
@@ -712,11 +719,13 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 			ofs_normal = dataSize;
 			dataSize += surf->numVerts * mdvModel->numFrames * sizeof(*normals);
 
+#ifdef USE_VERT_TANGENT_SPACE
 			ofs_tangent = dataSize;
 			dataSize += surf->numVerts * mdvModel->numFrames * sizeof(*tangents);
 
 			ofs_bitangent = dataSize;
 			dataSize += surf->numVerts * mdvModel->numFrames * sizeof(*bitangents);
+#endif
 
 			ofs_st = dataSize;
 			dataSize += surf->numVerts * sizeof(*texcoords);
@@ -725,8 +734,10 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 			verts =      (void *)(data + ofs_xyz);
 			normals =    (void *)(data + ofs_normal);
+#ifdef USE_VERT_TANGENT_SPACE
 			tangents =   (void *)(data + ofs_tangent);
 			bitangents = (void *)(data + ofs_bitangent);
+#endif
 			texcoords =  (void *)(data + ofs_st);
 		
 			v = surf->verts;
@@ -734,8 +745,10 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 			{
 				VectorCopy(v->xyz,       verts[j]);
 				VectorCopy(v->normal,    normals[j]);
+#ifdef USE_VERT_TANGENT_SPACE
 				VectorCopy(v->tangent,   tangents[j]);
 				VectorCopy(v->bitangent, bitangents[j]);
+#endif
 			}
 
 			st = surf->st;
@@ -753,14 +766,18 @@ static qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, 
 
 			vboSurf->vbo->ofs_xyz       = ofs_xyz;
 			vboSurf->vbo->ofs_normal    = ofs_normal;
+#ifdef USE_VERT_TANGENT_SPACE
 			vboSurf->vbo->ofs_tangent   = ofs_tangent;
 			vboSurf->vbo->ofs_bitangent = ofs_bitangent;
+#endif
 			vboSurf->vbo->ofs_st        = ofs_st;
 
 			vboSurf->vbo->stride_xyz       = sizeof(*verts);
 			vboSurf->vbo->stride_normal    = sizeof(*normals);
+#ifdef USE_VERT_TANGENT_SPACE
 			vboSurf->vbo->stride_tangent   = sizeof(*tangents);
 			vboSurf->vbo->stride_bitangent = sizeof(*bitangents);
+#endif
 			vboSurf->vbo->stride_st        = sizeof(*st);
 
 			vboSurf->vbo->size_xyz    = sizeof(*verts) * surf->numVerts;
