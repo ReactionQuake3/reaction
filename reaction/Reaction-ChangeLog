@@ -1,3 +1,4 @@
+- Change imagelist cmd to give more relevant information
 - Remove DiffuseRoughness shader param, add SpecularExponent shader param
 - Change R_SubdividePatchToGrid() to subdivide patches more evenly
 - Calculate tangent space in fragment shader instead of storing per vertex

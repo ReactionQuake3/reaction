@@ -146,6 +146,144 @@ R_ImageList_f
 ===============
 */
 void R_ImageList_f( void ) {
+#if 1
+	int i;
+	int estTotalSize = 0;
+
+	ri.Printf(PRINT_ALL, "\n      -w-- -h-- type  -size- --name-------\n");
+
+	for ( i = 0 ; i < tr.numImages ; i++ )
+	{
+		image_t *image = tr.images[i];
+		char *format = "???? ";
+		char *sizeSuffix;
+		int estSize;
+		int displaySize;
+
+		estSize = image->uploadHeight * image->uploadWidth;
+
+		switch(image->internalFormat)
+		{
+			case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+				format = "sDXT1";
+				// 64 bits per 16 pixels, so 4 bits per pixel
+				estSize /= 2;
+				break;
+			case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+				format = "sDXT5";
+				// 128 bits per 16 pixels, so 1 byte per pixel
+				break;
+			case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB:
+				format = "sBPTC";
+				// 128 bits per 16 pixels, so 1 byte per pixel
+				break;
+			case GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT:
+				format = "LATC ";
+				// 128 bits per 16 pixels, so 1 byte per pixel
+				break;
+			case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+				format = "DXT1 ";
+				// 64 bits per 16 pixels, so 4 bits per pixel
+				estSize /= 2;
+				break;
+			case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+				format = "DXT5 ";
+				// 128 bits per 16 pixels, so 1 byte per pixel
+				break;
+			case GL_COMPRESSED_RGBA_BPTC_UNORM_ARB:
+				format = "BPTC ";
+				// 128 bits per 16 pixels, so 1 byte per pixel
+				break;
+			case GL_RGB4_S3TC:
+				format = "S3TC ";
+				// same as DXT1?
+				estSize /= 2;
+				break;
+			case GL_RGBA4:
+			case GL_RGBA8:
+			case GL_RGBA:
+				format = "RGBA ";
+				// 4 bytes per pixel
+				estSize *= 4;
+				break;
+			case GL_LUMINANCE8:
+			case GL_LUMINANCE16:
+			case GL_LUMINANCE:
+				format = "L    ";
+				// 1 byte per pixel?
+				break;
+			case GL_RGB5:
+			case GL_RGB8:
+			case GL_RGB:
+				format = "RGB  ";
+				// 3 bytes per pixel?
+				estSize *= 3;
+				break;
+			case GL_LUMINANCE8_ALPHA8:
+			case GL_LUMINANCE16_ALPHA16:
+			case GL_LUMINANCE_ALPHA:
+				format = "LA   ";
+				// 2 bytes per pixel?
+				estSize *= 2;
+				break;
+			case GL_SRGB_EXT:
+			case GL_SRGB8_EXT:
+				format = "sRGB ";
+				// 3 bytes per pixel?
+				estSize *= 3;
+				break;
+			case GL_SRGB_ALPHA_EXT:
+			case GL_SRGB8_ALPHA8_EXT:
+				format = "sRGBA";
+				// 4 bytes per pixel?
+				estSize *= 4;
+				break;
+			case GL_SLUMINANCE_EXT:
+			case GL_SLUMINANCE8_EXT:
+				format = "sL   ";
+				// 1 byte per pixel?
+				break;
+			case GL_SLUMINANCE_ALPHA_EXT:
+			case GL_SLUMINANCE8_ALPHA8_EXT:
+				format = "sLA  ";
+				// 2 byte per pixel?
+				estSize *= 2;
+				break;
+		}
+
+		// mipmap adds about 50%
+		if (image->flags & IMGFLAG_MIPMAP)
+			estSize += estSize / 2;
+
+		sizeSuffix = "b ";
+		displaySize = estSize;
+
+		if (displaySize > 1024)
+		{
+			displaySize /= 1024;
+			sizeSuffix = "kb";
+		}
+
+		if (displaySize > 1024)
+		{
+			displaySize /= 1024;
+			sizeSuffix = "Mb";
+		}
+
+		if (displaySize > 1024)
+		{
+			displaySize /= 1024;
+			sizeSuffix = "Gb";
+		}
+
+		ri.Printf(PRINT_ALL, "%4i: %4ix%4i %s %4i%s %s\n", i, image->uploadWidth, image->uploadHeight, format, displaySize, sizeSuffix, image->imgName);
+		estTotalSize += estSize;
+	}
+
+	ri.Printf (PRINT_ALL, " ---------\n");
+	ri.Printf (PRINT_ALL, " approx %i bytes\n", estTotalSize);
+	ri.Printf (PRINT_ALL, " %i total images\n\n", tr.numImages );
+#else
 	int		i;
 	image_t	*image;
 	int		texels;
@@ -245,6 +383,7 @@ void R_ImageList_f( void ) {
 	ri.Printf (PRINT_ALL, " ---------\n");
 	ri.Printf (PRINT_ALL, " %i total texels (not including mipmaps)\n", texels);
 	ri.Printf (PRINT_ALL, " %i total images\n\n", tr.numImages );
+#endif
 }
 
 //=======================================================================
