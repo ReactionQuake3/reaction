@@ -803,9 +803,8 @@ static void ForwardDlight( void ) {
 
 		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_LIGHTRADIUS, radius);
 
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_SPECULARREFLECTANCE, pStage->specularReflectance);
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_DIFFUSEROUGHNESS, pStage->diffuseRoughness);
-	  
+		GLSL_SetUniformVec2(sp, GENERIC_UNIFORM_MATERIALINFO, pStage->materialInfo);
+		
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
@@ -1147,8 +1146,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.transformMatrix);
 
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_SPECULARREFLECTANCE, pStage->specularReflectance);
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_DIFFUSEROUGHNESS, pStage->diffuseRoughness);
+		GLSL_SetUniformVec2(sp, GENERIC_UNIFORM_MATERIALINFO, pStage->materialInfo);
 
 		//
 		// do multitexture

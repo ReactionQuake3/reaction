@@ -449,8 +449,7 @@ typedef struct {
 	stageType_t     type;
 	struct shaderProgram_s *glslShaderGroup;
 	int glslShaderIndex;
-	float specularReflectance;
-	float diffuseRoughness;
+	vec2_t materialInfo;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -864,8 +863,7 @@ enum
 	GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX,
 	GENERIC_UNIFORM_TIME,
 	GENERIC_UNIFORM_VERTEXLERP,
-	GENERIC_UNIFORM_SPECULARREFLECTANCE,
-	GENERIC_UNIFORM_DIFFUSEROUGHNESS,
+	GENERIC_UNIFORM_MATERIALINFO,
 	GENERIC_UNIFORM_COUNT
 };
 

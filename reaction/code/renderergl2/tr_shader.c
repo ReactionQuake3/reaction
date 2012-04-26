@@ -907,7 +907,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			else if(!Q_stricmp(token, "specularMap"))
 			{
 				stage->type = ST_SPECULARMAP;
-				stage->specularReflectance = 0.04f;
+				stage->materialInfo[0] = 0.04f;
+				stage->materialInfo[1] = 256.0f;
 			}
 			else
 			{
@@ -926,20 +927,20 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for specular reflectance in shader '%s'\n", shader.name );
 				continue;
 			}
-			stage->specularReflectance = atof( token );
+			stage->materialInfo[0] = atof( token );
 		}
 		//
-		// diffuseRoughness <value>
+		// specularExponent <value>
 		//
-		else if (!Q_stricmp(token, "diffuseroughness"))
+		else if (!Q_stricmp(token, "specularexponent"))
 		{
 			token = COM_ParseExt(text, qfalse);
 			if ( token[0] == 0 )
 			{
-				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for diffuse roughness in shader '%s'\n", shader.name );
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for specular exponent in shader '%s'\n", shader.name );
 				continue;
 			}
-			stage->diffuseRoughness = atof( token );
+			stage->materialInfo[1] = atof( token );
 		}
 		//
 		// rgbGen
@@ -2189,7 +2190,8 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 		{
 			//ri.Printf(PRINT_ALL, ", specularmap %s", specular->bundle[0].image[0]->imgName);
 			diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
-			diffuse->specularReflectance = specular->specularReflectance;
+			diffuse->materialInfo[0] = specular->materialInfo[0];
+			diffuse->materialInfo[1] = specular->materialInfo[1];
 			defs |= LIGHTDEF_USE_SPECULARMAP;
 		}
 	}
