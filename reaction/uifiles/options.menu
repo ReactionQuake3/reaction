@@ -185,6 +185,7 @@ Group # 1 - Gameplay
 				"Off"		0
 		}
 		OPTION_BELOW("gr1_ctrl2")
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_brasstime")
 	END_OPTION
     ADD_HINT("hint_brasstime", "Change the amount of ejecting brass", "group1")
@@ -199,6 +200,7 @@ Group # 1 - Gameplay
 				"Off"		0
 		}
 		OPTION_BELOW("gr1_ctrl3")
+		action { uiScript glCustom }
 		ASSIGN_HINT("hint_glasstime")
 	END_OPTION
     ADD_HINT("hint_glasstime", "Change the amount of glass fragments", "group1")

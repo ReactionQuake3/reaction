@@ -5649,148 +5649,135 @@ static void UI_Update(const char *name)
 		//TTI: minor changes
 		switch (val) {
 		case 0:
+			trap_Cvar_SetValue("r_subdivisions", 1);
+			trap_Cvar_SetValue("r_lodCurveError", 10000);
+			break;
+		case 1:
 			trap_Cvar_SetValue("r_subdivisions", 4);
 			trap_Cvar_SetValue("r_lodCurveError", 250);
 			break;
-		case 1:
+		case 2:
 			trap_Cvar_SetValue("r_subdivisions", 8);
 			trap_Cvar_SetValue("r_lodCurveError", 250);
-			break;
-		case 2:
-			trap_Cvar_SetValue("r_subdivisions", 16);
-			trap_Cvar_SetValue("r_lodCurveError", 125);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_glCustom") == 0) {
 		switch (val) {
 		//TTI: new presets
-		case 0:	// high quality
-			trap_Cvar_SetValue("r_allowExtensions", 1);
-			//trap_Cvar_SetValue("r_ext_multisample", 4);
-			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 4);
-
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
-
-			trap_Cvar_SetValue("ui_filteringMode", 5);
-
-			trap_Cvar_SetValue("cg_simpleItems", 0);
-			trap_Cvar_SetValue("cg_marks", 1);
-			trap_Cvar_SetValue("cg_brassTime", 20000);
-			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
-			trap_Cvar_SetValue("cg_shadows", 1);
-			trap_Cvar_SetValue("r_finish", 0);
-			trap_Cvar_SetValue("r_swapInterval", 0);
-			trap_Cvar_SetValue("r_picmip", 0);
-			trap_Cvar_SetValue("r_detailtextures", 1);
-			trap_Cvar_SetValue("r_lodBias", 0);
-			trap_Cvar_SetValue("r_subdivisions", 0);
-			trap_Cvar_SetValue("r_lodCurveError", 10000);
-			trap_Cvar_SetValue("r_colorbits", 32);
-			trap_Cvar_SetValue("r_texturebits", 32);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			trap_Cvar_SetValue("r_depthbits", 24);
-			trap_Cvar_SetValue("r_dynamiclight", 1);
-			trap_Cvar_SetValue("r_fastsky", 0);
-			trap_Cvar_SetValue("r_ext_multitexture", 1);
-			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
-			break;
-		case 1:	// normal 
-			trap_Cvar_SetValue("r_allowExtensions", 1);
-			//trap_Cvar_SetValue("r_ext_multisample", 0);
-			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
-
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
-			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
-			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-
-			trap_Cvar_SetValue("ui_filteringMode", 1);
-
-			trap_Cvar_SetValue("cg_simpleItems", 0);
-			trap_Cvar_SetValue("cg_marks", 1);
+		case 1:	// normal
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
-			trap_Cvar_SetValue("cg_shadows", 1);
-			trap_Cvar_SetValue("r_finish", 0);
-			trap_Cvar_SetValue("r_swapInterval", 0);
+			
 			trap_Cvar_SetValue("r_picmip", 0);
-			trap_Cvar_SetValue("r_detailtextures", 1);
-			trap_Cvar_SetValue("r_lodBias", 0);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_normalMapping", 1);
+			trap_Cvar_SetValue("r_specularMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
+			
+			trap_Cvar_SetValue("r_lodBias", 1);
 			trap_Cvar_SetValue("r_subdivisions", 4);
 			trap_Cvar_SetValue("r_lodCurveError", 250);
-			trap_Cvar_SetValue("r_colorbits", 0);
-			trap_Cvar_SetValue("r_texturebits", 0);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			trap_Cvar_SetValue("r_depthbits", 0);
-			trap_Cvar_SetValue("r_dynamiclight", 1);
-			trap_Cvar_SetValue("r_fastsky", 0);
-			trap_Cvar_SetValue("r_ext_multitexture", 1);
+			
+			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
-			break;
-		case 2:	// fast
-			trap_Cvar_SetValue("r_allowExtensions", 1);
-			//trap_Cvar_SetValue("r_ext_multisample", 0);
 			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
-
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
 			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-
+			
 			trap_Cvar_SetValue("ui_filteringMode", 1);
-
-			trap_Cvar_SetValue("cg_simpleItems", 0);
-			trap_Cvar_SetValue("cg_marks", 1);
+			trap_Cvar_SetValue("ui_shaderLevel", 1);
+			break;
+		case 2:	// crappiest
+			trap_Cvar_SetValue("cg_brassTime", 0);
+			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
+			
+			trap_Cvar_SetValue("r_picmip", 2);
+			trap_Cvar_SetValue("r_hdr", 0);
+			trap_Cvar_SetValue("r_normalMapping", 0);
+			trap_Cvar_SetValue("r_specularMapping", 0);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
+			
+			trap_Cvar_SetValue("r_lodBias", 2);
+			trap_Cvar_SetValue("r_subdivisions", 8);
+			trap_Cvar_SetValue("r_lodCurveError", 250);
+			
+			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
+			trap_Cvar_SetValue("r_ext_compressed_textures", 1);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
+			
+			trap_Cvar_SetValue("ui_filteringMode", 0);
+			trap_Cvar_SetValue("ui_shaderLevel", 0);
+			break;
+		case 3:	// crap
 			trap_Cvar_SetValue("cg_brassTime", 7500);
 			trap_Cvar_SetValue("cg_RQ3_glasstime", 7500);
-			trap_Cvar_SetValue("cg_shadows", 0);
-			trap_Cvar_SetValue("r_finish", 0);
-			trap_Cvar_SetValue("r_swapInterval", 0);
+			
 			trap_Cvar_SetValue("r_picmip", 1);
-			trap_Cvar_SetValue("r_detailtextures", 1);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_normalMapping", 0);
+			trap_Cvar_SetValue("r_specularMapping", 0);
+			trap_Cvar_SetValue("r_imageUpsample", 0);
+			
 			trap_Cvar_SetValue("r_lodBias", 1);
 			trap_Cvar_SetValue("r_subdivisions", 8);
 			trap_Cvar_SetValue("r_lodCurveError", 250);
-			trap_Cvar_SetValue("r_colorbits", 32);
-			trap_Cvar_SetValue("r_texturebits", 32);
-			trap_Cvar_SetValue("r_stencilbits", 8);
-			trap_Cvar_SetValue("r_depthbits", 0);
-			trap_Cvar_SetValue("r_dynamiclight", 1);
-			trap_Cvar_SetValue("r_fastsky", 0);
-			trap_Cvar_SetValue("r_ext_multitexture", 1);
+			
+			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_compressed_textures", 1);
-			break;
-		case 3:	// fastest
-			trap_Cvar_SetValue("r_allowExtensions", 1);
-			//trap_Cvar_SetValue("r_ext_multisample", 0);
 			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 0);
-
-			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 0);
 			trap_Cvar_SetValue("r_ext_max_anisotropy", 2);
-
-			trap_Cvar_SetValue("ui_filteringMode", 0);
-
-			trap_Cvar_SetValue("cg_simpleItems", 1);
-			trap_Cvar_SetValue("cg_marks", 0);
-			trap_Cvar_SetValue("cg_brassTime", 0);
-			trap_Cvar_SetValue("cg_RQ3_glasstime", 0);
-			trap_Cvar_SetValue("cg_shadows", 0);
-			trap_Cvar_SetValue("r_finish", 0);
-			trap_Cvar_SetValue("r_swapInterval", 0);
-			trap_Cvar_SetValue("r_picmip", 2);
-			trap_Cvar_SetValue("r_detailtextures", 0);
-			trap_Cvar_SetValue("r_lodBias", 2);
-			trap_Cvar_SetValue("r_subdivisions", 16);
-			trap_Cvar_SetValue("r_lodCurveError", 125);
-			trap_Cvar_SetValue("r_colorbits", 16);
-			trap_Cvar_SetValue("r_texturebits", 16);
-			trap_Cvar_SetValue("r_stencilbits", 0);
-			trap_Cvar_SetValue("r_depthbits", 0);
-			trap_Cvar_SetValue("r_dynamiclight", 0);
-			trap_Cvar_SetValue("r_fastsky", 1);
-			trap_Cvar_SetValue("r_ext_multitexture", 0);
-			trap_Cvar_SetValue("r_ext_compressed_textures", 1);
+			
+			trap_Cvar_SetValue("ui_filteringMode", 1);
+			trap_Cvar_SetValue("ui_shaderLevel", 0);
+			break;
+		case 4:	// high quality
+			trap_Cvar_SetValue("cg_brassTime", 20000);
+			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
+			
+			trap_Cvar_SetValue("r_picmip", 0);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_normalMapping", 1);
+			trap_Cvar_SetValue("r_specularMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 1);
+			
+			trap_Cvar_SetValue("r_lodBias", 0);
+			trap_Cvar_SetValue("r_subdivisions", 1);
+			trap_Cvar_SetValue("r_lodCurveError", 10000);
+			
+			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 2);
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 8);
+			
+			trap_Cvar_SetValue("ui_filteringMode", 4);
+			trap_Cvar_SetValue("ui_shaderLevel", 1);
+			break;
+		case 5: // highest quality
+			trap_Cvar_SetValue("cg_brassTime", 20000);
+			trap_Cvar_SetValue("cg_RQ3_glasstime", 20000);
+			
+			trap_Cvar_SetValue("r_picmip", 0);
+			trap_Cvar_SetValue("r_hdr", 1);
+			trap_Cvar_SetValue("r_normalMapping", 1);
+			trap_Cvar_SetValue("r_specularMapping", 1);
+			trap_Cvar_SetValue("r_imageUpsample", 1);
+			
+			trap_Cvar_SetValue("r_lodBias", 0);
+			trap_Cvar_SetValue("r_subdivisions", 1);
+			trap_Cvar_SetValue("r_lodCurveError", 10000);
+			
+			trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
+			trap_Cvar_SetValue("r_ext_compressed_textures", 0);
+			trap_Cvar_SetValue("r_ext_framebuffer_multisample", 4);
+			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
+			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
+			
+			trap_Cvar_SetValue("ui_filteringMode", 5);
+			trap_Cvar_SetValue("ui_shaderLevel", 1);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
@@ -5825,6 +5812,18 @@ static void UI_Update(const char *name)
 			trap_Cvar_Set("r_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
 			trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", 1);
 			trap_Cvar_SetValue("r_ext_max_anisotropy", 16);
+			break;
+		}
+	} else if (Q_stricmp(name, "ui_shaderLevel") == 0) {
+		switch (val) {
+		// per-pixel lighting
+		case 0:	// flat (disabled)
+			trap_Cvar_SetValue("r_normalMapping", 0);
+			trap_Cvar_SetValue("r_specularMapping", 0);
+			break;
+		case 1: // bumpy (enabled)
+			trap_Cvar_SetValue("r_normalMapping", 1);
+			trap_Cvar_SetValue("r_specularMapping", 1);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {
@@ -6669,7 +6668,7 @@ static void UI_RunMenuScript(char **args)
 				Menus_CloseAll();
 			}
 		} else if (Q_stricmp(name, "glCustom") == 0) {
-			trap_Cvar_Set("ui_glCustom", "4");
+			trap_Cvar_Set("ui_glCustom", "0");
 			//Makro - save/load the music volume            
 		} else if (Q_stricmp(name, "backupMusicVolume") == 0) {
 			uiInfo.oldMusicVol = trap_Cvar_VariableValue("s_musicvolume");
