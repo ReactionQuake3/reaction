@@ -520,6 +520,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 	float		errorTable[2][MAX_GRID_SIZE];
 	int			numTriangles;
 	static srfTriangle_t triangles[(MAX_GRID_SIZE-1)*(MAX_GRID_SIZE-1)*2];
+	int consecutiveComplete;
 
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {
@@ -533,8 +534,10 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 			errorTable[dir][j] = 0;
 		}
 
+		consecutiveComplete = 0;
+
 		// horizontal subdivisions
-		for ( j = 0 ; j + 2 < width ; j += 2 ) {
+		for ( j = 0 ; ; j = (j + 2) % (width - 2) ) {
 			// check subdivided midpoints against control points
 
 			// FIXME: also check midpoints of adjacent patches against the control points
@@ -576,19 +579,29 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 			// if all the points are on the lines, remove the entire columns
 			if ( maxLen < 0.1f ) {
 				errorTable[dir][j+1] = 999;
+				consecutiveComplete++;
+				// if we go over the whole grid twice without adding any columns, stop
+				if (consecutiveComplete >= (width - 2))
+					break;
 				continue;
 			}
 
 			// see if we want to insert subdivided columns
 			if ( width + 2 > MAX_GRID_SIZE ) {
 				errorTable[dir][j+1] = 1.0f/maxLen;
-				continue;	// can't subdivide any more
+				break;	// can't subdivide any more
 			}
 
 			if ( maxLen <= r_subdivisions->value ) {
 				errorTable[dir][j+1] = 1.0f/maxLen;
+				consecutiveComplete++;
+				// if we go over the whole grid twice without adding any columns, stop
+				if (consecutiveComplete >= (width - 2))
+					break;
 				continue;	// didn't need subdivision
 			}
+
+			consecutiveComplete = 0;
 
 			errorTable[dir][j+2] = 1.0f/maxLen;
 
@@ -607,9 +620,8 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 				ctrl[i][j + 3] = next;
 			}
 
-			// back up and recheck this set again, it may need more subdivision
-			j -= 2;
-
+			// skip the new one, we'll get it on the next pass
+			j += 2;
 		}
 
 		Transpose( width, height, ctrl );

@@ -1,3 +1,4 @@
+- Change R_SubdividePatchToGrid() to subdivide patches more evenly
 - Calculate tangent space in fragment shader instead of storing per vertex
 - Fix sun flare with sky portals.  Sun flare must be inside sky portal.
 - Speed up tone mapping
