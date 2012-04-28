@@ -537,7 +537,7 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 		consecutiveComplete = 0;
 
 		// horizontal subdivisions
-		for ( j = 0 ; ; j = (j + 2) % (width - 2) ) {
+		for ( j = 0 ; ; j = (j + 2) % (width - 1) ) {
 			// check subdivided midpoints against control points
 
 			// FIXME: also check midpoints of adjacent patches against the control points
@@ -579,9 +579,8 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 			// if all the points are on the lines, remove the entire columns
 			if ( maxLen < 0.1f ) {
 				errorTable[dir][j+1] = 999;
-				consecutiveComplete++;
 				// if we go over the whole grid twice without adding any columns, stop
-				if (consecutiveComplete >= (width - 2))
+				if (++consecutiveComplete >= width)
 					break;
 				continue;
 			}
@@ -594,16 +593,15 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 
 			if ( maxLen <= r_subdivisions->value ) {
 				errorTable[dir][j+1] = 1.0f/maxLen;
-				consecutiveComplete++;
 				// if we go over the whole grid twice without adding any columns, stop
-				if (consecutiveComplete >= (width - 2))
+				if (++consecutiveComplete >= width)
 					break;
 				continue;	// didn't need subdivision
 			}
 
-			consecutiveComplete = 0;
-
 			errorTable[dir][j+2] = 1.0f/maxLen;
+
+			consecutiveComplete = 0;
 
 			// insert two columns and replace the peak
 			width += 2;

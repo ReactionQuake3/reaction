@@ -1,3 +1,4 @@
+- Fix a bug in new curves code
 - System menu makes a bit more sense now (removed irrelevant options, added new presets)
 - Change imagelist cmd to give more relevant information
 - Remove DiffuseRoughness shader param, add SpecularExponent shader param
