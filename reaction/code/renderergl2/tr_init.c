@@ -113,6 +113,7 @@ cvar_t  *r_toneMap;
 cvar_t  *r_autoExposure;
 
 cvar_t  *r_srgb;
+cvar_t  *r_depthPrepass;
 
 cvar_t  *r_normalMapping;
 cvar_t  *r_specularMapping;
@@ -1135,6 +1136,7 @@ void R_Register( void )
 	r_cameraExposure = ri.Cvar_Get( "r_cameraExposure", "0", CVAR_CHEAT );
 
 	r_srgb = ri.Cvar_Get( "r_srgb", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_depthPrepass = ri.Cvar_Get( "r_depthPrepass", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_normalMapping = ri.Cvar_Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_specularMapping = ri.Cvar_Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );

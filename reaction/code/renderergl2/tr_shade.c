@@ -1036,7 +1036,37 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			break;
 		}
 
-		if (pStage->glslShaderGroup)
+		if (backEnd.depthFill)
+		{
+			if (pStage->glslShaderGroup)
+			{
+				int index = 0;
+
+				if (backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity)
+				{
+					index |= LIGHTDEF_ENTITY;
+				}
+
+				sp = &pStage->glslShaderGroup[index];
+			}
+			else
+			{
+				int shaderAttribs = 0;
+
+				if (tess.shader->numDeforms && !ShaderRequiresCPUDeforms(tess.shader))
+				{
+					shaderAttribs |= GENERICDEF_USE_DEFORM_VERTEXES;
+				}
+
+				if (glState.vertexAttribsInterpolation > 0.0f && backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity)
+				{
+					shaderAttribs |= GENERICDEF_USE_VERTEX_ANIMATION;
+				}
+
+				sp = &tr.genericShader[shaderAttribs];
+			}
+		}
+		else if (pStage->glslShaderGroup)
 		{
 			int index = pStage->glslShaderIndex;
 
@@ -1151,7 +1181,11 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		//
 		// do multitexture
 		//
-		if ( pStage->glslShaderGroup )
+		if ( backEnd.depthFill )
+		{
+			GL_BindToTMU( tr.whiteImage, 0 );
+		}
+		else if ( pStage->glslShaderGroup )
 		{
 			int i;
 
@@ -1390,6 +1424,25 @@ void RB_StageIteratorGeneric( void )
 		return;
 	}
 
+	//
+	// render depth if in depthfill mode
+	//
+	if (backEnd.depthFill)
+	{
+		RB_IterateStagesGeneric( input );
+
+		//
+		// reset polygon offset
+		//
+		if ( input->shader->polygonOffset )
+		{
+			qglDisable( GL_POLYGON_OFFSET_FILL );
+		}
+
+		return;
+	}
+
+	//
 	//
 	// call shader function
 	//

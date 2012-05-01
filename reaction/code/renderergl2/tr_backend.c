@@ -595,7 +595,122 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	fbo = glState.currentFBO;
 
+	if (r_depthPrepass->integer)
+	{
+		qboolean skip = qfalse;
+
+		// do a depth fill with just the static vbos
+		backEnd.depthFill = qtrue;
+
+		oldEntityNum = -1;
+		backEnd.currentEntity = &tr.worldEntity;
+		oldShader = NULL;
+		oldFogNum = -1;
+		oldDepthRange = qfalse;
+		wasCrosshair = qfalse;
+		oldDlighted = qfalse;
+		oldPshadowed = qfalse;
+		oldSort = -1;
+		depthRange = qfalse;
+
+		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+		for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
+			if ( drawSurf->sort == oldSort ) {
+				// fast path, same as previous sort
+				if (!skip)
+					rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
+				continue;
+			}
+			oldSort = drawSurf->sort;
+			R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
+
+			skip = qfalse;
+			if (entityNum != ENTITYNUM_WORLD)
+			{
+				skip = qtrue;
+				continue;
+			}
+
+			if (ShaderRequiresCPUDeforms(shader))
+			{
+				skip = qtrue;
+				continue;
+			}
+
+			if (shader->sort != SS_OPAQUE)
+			{
+				skip = qtrue;
+				continue;
+			}
+
+			{
+				int stage;
+				shaderStage_t *pStage = NULL;
+
+				for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+				{
+					if (shader->stages[stage])
+					{
+						pStage = shader->stages[stage];
+						break;
+					}
+				}
+				
+				if (pStage && (pStage->stateBits & GLS_ATEST_BITS) != 0)
+				{
+					skip = qtrue;
+					continue;
+				}
+			}
+
+			//
+			// change the tess parameters if needed
+			// a "entityMergable" shader is a shader that can have surfaces from seperate
+			// entities merged into a single batch, like smoke and blood puff sprites
+			if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted || pshadowed != oldPshadowed
+				|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
+				if (oldShader != NULL) {
+					RB_EndSurface();
+				}
+				RB_BeginSurface( shader, fogNum );
+				backEnd.pc.c_surfBatches++;
+				oldShader = shader;
+				oldFogNum = fogNum;
+				oldDlighted = dlighted;
+				oldPshadowed = pshadowed;
+			}
+
+			//
+			// change the modelview matrix if needed
+			//
+			if ( entityNum != oldEntityNum ) {
+				backEnd.currentEntity = &tr.worldEntity;
+				backEnd.refdef.floatTime = originalTime;
+				backEnd.or = backEnd.viewParms.world;
+				// we have to reset the shaderTime as well otherwise image animations on
+				// the world (like water) continue with the wrong frame
+				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+
+				GL_SetModelviewMatrix( backEnd.or.modelMatrix );
+
+				oldEntityNum = entityNum;
+			}
+
+			// add the triangles for this surface
+			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
+		}
+
+		// draw the contents of the last shader batch
+		if (oldShader != NULL) {
+			RB_EndSurface();
+		}
+
+		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
+	}
+
 	// draw everything
+	backEnd.depthFill = qfalse;
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;

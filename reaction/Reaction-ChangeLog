@@ -1,3 +1,4 @@
+- Add r_depthPrepass.
 - Improve parallax mapping
 - Add AVG_MAP, BLACK_LEVEL, and WHITE_LEVEL defines to tonemap shader
 - Fix a bug in fragment shader tangent space calculations

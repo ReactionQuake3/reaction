@@ -1697,6 +1697,7 @@ typedef struct {
 	FBO_t *last2DFBO;
 	qboolean    colorMask[4];
 	qboolean    framePostProcessed;
+	qboolean    depthFill;
 } backEndState_t;
 
 /*
@@ -2005,6 +2006,7 @@ extern  cvar_t  *r_autoExposure;
 extern  cvar_t  *r_cameraExposure;
 
 extern  cvar_t  *r_srgb;
+extern  cvar_t  *r_depthPrepass;
 
 extern  cvar_t  *r_normalMapping;
 extern  cvar_t  *r_specularMapping;
