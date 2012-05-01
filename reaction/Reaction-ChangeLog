@@ -1,3 +1,6 @@
+- Improve parallax mapping
+- Add AVG_MAP, BLACK_LEVEL, and WHITE_LEVEL defines to tonemap shader
+- Fix a bug in fragment shader tangent space calculations
 - Fix a bug in new curves code
 - System menu makes a bit more sense now (removed irrelevant options, added new presets)
 - Change imagelist cmd to give more relevant information
