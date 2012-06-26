@@ -477,6 +477,21 @@ void FBO_Init(void)
 		R_CheckFBO(tr.pshadowFbos[i]);
 	}
 
+	for ( i = 0; i < 3; i++)
+	{
+		tr.sunShadowFbo[i] = FBO_Create("_sunshadowmap", tr.sunShadowDepthImage[i]->width, tr.sunShadowDepthImage[i]->height);
+		FBO_Bind(tr.sunShadowFbo[i]);
+
+		//FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
+		//FBO_AttachTextureImage(tr.sunShadowImage, 0);
+		qglDrawBuffer(GL_NONE);
+
+		//FBO_CreateBuffer(tr.sunShadowFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+		R_AttachFBOTextureDepth(tr.sunShadowDepthImage[i]->texnum);
+
+		R_CheckFBO(tr.sunShadowFbo[i]);
+	}
+
 	for (i = 0; i < 2; i++)
 	{
 		tr.textureScratchFbo[i] = FBO_Create(va("_texturescratch%d", i), tr.textureScratchImage[i]->width, tr.textureScratchImage[i]->height);

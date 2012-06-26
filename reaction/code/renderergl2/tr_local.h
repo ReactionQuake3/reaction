@@ -67,6 +67,7 @@ typedef unsigned int glIndex_t;
 #define MAX_CALC_PSHADOWS    64
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
 #define PSHADOW_MAP_SIZE      512
+#define SUNSHADOW_MAP_SIZE    1024
 
 typedef struct dlight_s {
 	vec3_t	origin;
@@ -409,10 +410,12 @@ enum
 	TB_DIFFUSEMAP  = 0,
 	TB_LIGHTMAP    = 1,
 	TB_LEVELSMAP   = 1,
-	TB_NORMALMAP,
-	TB_DELUXEMAP,
-	TB_SPECULARMAP,
-	TB_SHADOWMAP,
+	TB_SHADOWMAP   = 1,
+	TB_NORMALMAP   = 2,
+	TB_DELUXEMAP   = 3,
+	TB_SHADOWMAP2  = 3,
+	TB_SPECULARMAP = 4,
+	TB_SHADOWMAP3  = 5,
 	NUM_TEXTURE_BUNDLES = 6
 };
 
@@ -737,10 +740,12 @@ enum
 	LIGHTDEF_USE_SPECULARMAP   = 0x0008,
 	LIGHTDEF_USE_DELUXEMAP     = 0x0010,
 	LIGHTDEF_USE_PARALLAXMAP   = 0x0020,
-	LIGHTDEF_TCGEN_ENVIRONMENT = 0x0040,
-	LIGHTDEF_ENTITY            = 0x0080,
-	LIGHTDEF_ALL               = 0x00FF,
-	LIGHTDEF_COUNT             = 0x0100
+	LIGHTDEF_USE_SHADOWMAP     = 0x0040,
+	LIGHTDEF_USE_SHADOW_CASCADE= 0x0080,
+	LIGHTDEF_TCGEN_ENVIRONMENT = 0x0100,
+	LIGHTDEF_ENTITY            = 0x0200,
+	LIGHTDEF_ALL               = 0x03FF,
+	LIGHTDEF_COUNT             = 0x0400
 };
 
 enum
@@ -836,6 +841,8 @@ enum
 	GENERIC_UNIFORM_DELUXEMAP,
 	GENERIC_UNIFORM_SPECULARMAP,
 	GENERIC_UNIFORM_SHADOWMAP,
+	GENERIC_UNIFORM_SHADOWMAP2,
+	GENERIC_UNIFORM_SHADOWMAP3,
 	GENERIC_UNIFORM_DIFFUSETEXMATRIX,
 	//GENERIC_UNIFORM_NORMALTEXMATRIX,
 	//GENERIC_UNIFORM_SPECULARTEXMATRIX,
@@ -864,6 +871,9 @@ enum
 	GENERIC_UNIFORM_TIME,
 	GENERIC_UNIFORM_VERTEXLERP,
 	GENERIC_UNIFORM_MATERIALINFO,
+	GENERIC_UNIFORM_SHADOWMVP,
+	GENERIC_UNIFORM_SHADOWMVP2,
+	GENERIC_UNIFORM_SHADOWMVP3,
 	GENERIC_UNIFORM_COUNT
 };
 
@@ -913,6 +923,10 @@ typedef struct {
 	unsigned int dlightMask;
 	int         num_pshadows;
 	struct pshadow_s *pshadows;
+
+	float       sunShadowMvp[3][16];
+	float       sunDir[4];
+	float       sunCol[4];
 } trRefdef_t;
 
 
@@ -962,6 +976,7 @@ typedef struct {
 	cplane_t	frustum[5];
 	vec3_t		visBounds[2];
 	float		zFar;
+	float       zNear;
 	stereoFrame_t	stereoFrame;
 } viewParms_t;
 
@@ -1636,6 +1651,8 @@ typedef struct {
 
 	qboolean texture_srgb;
 	qboolean framebuffer_srgb;
+
+	qboolean depthClamp;
 } glRefConfig_t;
 
 
@@ -1753,6 +1770,7 @@ typedef struct {
 	image_t					*calcLevelsImage;
 	image_t					*targetLevelsImage;
 	image_t					*fixedLevelsImage;
+	image_t					*sunShadowDepthImage[3];
 	
 	image_t					*textureDepthImage;
 
@@ -1766,6 +1784,7 @@ typedef struct {
 	FBO_t                   *quarterFbo[2];
 	FBO_t					*calcLevelsFbo;
 	FBO_t					*targetLevelsFbo;
+	FBO_t					*sunShadowFbo[3];
 
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;
@@ -2021,6 +2040,7 @@ extern  cvar_t  *r_imageUpsample;
 extern  cvar_t  *r_imageUpsampleMaxSize;
 extern  cvar_t  *r_imageUpsampleType;
 extern  cvar_t  *r_genNormalMaps;
+extern  cvar_t  *r_testSunlight;
 
 extern	cvar_t	*r_greyscale;
 
@@ -2050,6 +2070,7 @@ void R_SwapBuffers( int );
 void R_RenderView( viewParms_t *parms );
 void R_RenderDlightCubemaps(const refdef_t *fd);
 void R_RenderPshadowMaps(const refdef_t *fd);
+void R_RenderSunShadowMaps(const refdef_t *fd, int level);
 
 void R_AddMD3Surfaces( trRefEntity_t *e );
 void R_AddNullModelSurfaces( trRefEntity_t *e );

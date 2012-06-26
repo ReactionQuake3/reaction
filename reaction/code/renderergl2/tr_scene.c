@@ -365,15 +365,29 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
-#ifdef REACTION
+//#ifdef REACTION
 	// Makro - copy exta info if present
 	if (fd->rdflags & RDF_EXTRA) {
 		const refdefex_t* extra = (const refdefex_t*) (fd+1);
+#ifdef REACTION
 		tr.refdef.blurFactor = extra->blurFactor;
-	} else {
-		tr.refdef.blurFactor = 0.f;
-	}
 #endif
+		if (fd->rdflags & RDF_SUNLIGHT)
+		{
+			VectorCopy(extra->sunDir, tr.refdef.sunDir);
+			tr.refdef.sunDir[3] = 0.0f;
+
+			VectorCopy(extra->sunCol, tr.refdef.sunCol);
+			tr.refdef.sunCol[3] = 1.0f;
+		}
+	} else {
+#ifdef REACTION
+		tr.refdef.blurFactor = 0.f;
+#endif
+		VectorSet4(tr.refdef.sunDir, 0.0f, 1.0f, 0.0f, 0.0f);
+		VectorSet4(tr.refdef.sunCol, 1.0f, 1.0f, 1.0f, 1.0f);
+	}
+//#endif
 
 	// derived info
 
@@ -420,6 +434,14 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && r_shadows->integer == 4)
 	{
 		R_RenderPshadowMaps(fd);
+	}
+
+	// playing with even more shadows
+	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && ((fd->rdflags & RDF_SUNLIGHT) || r_testSunlight->integer))
+	{
+		R_RenderSunShadowMaps(fd, 0);
+		R_RenderSunShadowMaps(fd, 1);
+		R_RenderSunShadowMaps(fd, 2);
 	}
 
 	// setup view parms for the initial view

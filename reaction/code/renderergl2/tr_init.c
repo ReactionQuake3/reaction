@@ -128,6 +128,7 @@ cvar_t  *r_imageUpsample;
 cvar_t  *r_imageUpsampleMaxSize;
 cvar_t  *r_imageUpsampleType;
 cvar_t  *r_genNormalMaps;
+cvar_t  *r_testSunlight;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -1151,6 +1152,7 @@ void R_Register( void )
 	r_imageUpsampleMaxSize = ri.Cvar_Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsampleType = ri.Cvar_Get( "r_imageUpsampleType", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_genNormalMaps = ri.Cvar_Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_testSunlight = ri.Cvar_Get( "r_testSunlight", "0", CVAR_CHEAT );
 
 	//
 	// temporary latched variables that can only change over a restart

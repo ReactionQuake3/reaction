@@ -167,7 +167,7 @@ void GL_Cull( int cullType ) {
 		qglEnable( GL_CULL_FACE );
 
 		cullFront = (cullType == CT_FRONT_SIDED);
-		if ( backEnd.viewParms.isMirror && !backEnd.viewParms.isShadowmap )
+		if ( backEnd.viewParms.isMirror )
 		{
 			cullFront = !cullFront;
 		}
@@ -590,127 +590,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// save original time for entity shader offsets
 	originalTime = backEnd.refdef.floatTime;
 
-	// clear the z buffer, set the modelview, etc
-	RB_BeginDrawingView ();
-
 	fbo = glState.currentFBO;
 
-	if (r_depthPrepass->integer)
-	{
-		qboolean skip = qfalse;
-
-		// do a depth fill with just the static vbos
-		backEnd.depthFill = qtrue;
-
-		oldEntityNum = -1;
-		backEnd.currentEntity = &tr.worldEntity;
-		oldShader = NULL;
-		oldFogNum = -1;
-		oldDepthRange = qfalse;
-		wasCrosshair = qfalse;
-		oldDlighted = qfalse;
-		oldPshadowed = qfalse;
-		oldSort = -1;
-		depthRange = qfalse;
-
-		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-		for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
-			if ( drawSurf->sort == oldSort ) {
-				// fast path, same as previous sort
-				if (!skip)
-					rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
-				continue;
-			}
-			oldSort = drawSurf->sort;
-			R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &pshadowed );
-
-			skip = qfalse;
-			if (entityNum != ENTITYNUM_WORLD)
-			{
-				skip = qtrue;
-				continue;
-			}
-
-			if (ShaderRequiresCPUDeforms(shader))
-			{
-				skip = qtrue;
-				continue;
-			}
-
-			if (shader->sort != SS_OPAQUE)
-			{
-				skip = qtrue;
-				continue;
-			}
-
-			{
-				int stage;
-				shaderStage_t *pStage = NULL;
-
-				for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
-				{
-					if (shader->stages[stage])
-					{
-						pStage = shader->stages[stage];
-						break;
-					}
-				}
-				
-				if (pStage && (pStage->stateBits & GLS_ATEST_BITS) != 0)
-				{
-					skip = qtrue;
-					continue;
-				}
-			}
-
-			//
-			// change the tess parameters if needed
-			// a "entityMergable" shader is a shader that can have surfaces from seperate
-			// entities merged into a single batch, like smoke and blood puff sprites
-			if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted || pshadowed != oldPshadowed
-				|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
-				if (oldShader != NULL) {
-					RB_EndSurface();
-				}
-				RB_BeginSurface( shader, fogNum );
-				backEnd.pc.c_surfBatches++;
-				oldShader = shader;
-				oldFogNum = fogNum;
-				oldDlighted = dlighted;
-				oldPshadowed = pshadowed;
-			}
-
-			//
-			// change the modelview matrix if needed
-			//
-			if ( entityNum != oldEntityNum ) {
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.or = backEnd.viewParms.world;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-
-				GL_SetModelviewMatrix( backEnd.or.modelMatrix );
-
-				oldEntityNum = entityNum;
-			}
-
-			// add the triangles for this surface
-			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
-		}
-
-		// draw the contents of the last shader batch
-		if (oldShader != NULL) {
-			RB_EndSurface();
-		}
-
-		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
-	}
-
 	// draw everything
-	backEnd.depthFill = qfalse;
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
@@ -731,6 +613,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
 		if ( drawSurf->sort == oldSort ) {
+			if (backEnd.depthFill && shader && shader->sort != SS_OPAQUE)
+				continue;
+
 			// fast path, same as previous sort
 			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 			continue;
@@ -755,6 +640,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			oldPshadowed = pshadowed;
 		}
 
+		if (backEnd.depthFill && shader && shader->sort != SS_OPAQUE)
+			continue;
+
 		//
 		// change the modelview matrix if needed
 		//
@@ -765,7 +653,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 #ifdef REACTION
 			// if we were rendering to a FBO and the previous entity was a sunflare
 			// and the current one isn't, switch back to the main fbo
-			if (oldEntityNum != -1 && fbo &&
+			if (oldEntityNum != -1 && fbo && !backEnd.depthFill &&
 				RF_SUNFLARE == (backEnd.refdef.entities[oldEntityNum].e.renderfx & RF_SUNFLARE) &&
 				0 == (backEnd.refdef.entities[entityNum].e.renderfx & RF_SUNFLARE))
 			{
@@ -795,7 +683,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 #ifdef REACTION
 				// if the current entity is a sunflare
-				if(backEnd.currentEntity->e.renderfx & RF_SUNFLARE) {
+				if(backEnd.currentEntity->e.renderfx & RF_SUNFLARE && !backEnd.depthFill) {
 					// if we're rendering to a fbo
 					if (fbo) {
 						VectorCopy(backEnd.currentEntity->e.origin, backEnd.sunFlarePos);
@@ -914,7 +802,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 #ifdef REACTION
 	// HACK: flip Z and render black to god rays buffer
-	if (backEnd.frameHasSunFlare)
+	if (backEnd.frameHasSunFlare && !backEnd.depthFill)
 	{
 		vec4_t black;
 		VectorSet4(black, 0, 0, 0, 1);
@@ -931,18 +819,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	//if ( depthRange ) {
 		qglDepthRange (0, 1);
 	//}
-
-#if 0
-	RB_DrawSun();
-#endif
-	// darken down any stencil shadows
-	RB_ShadowFinish();		
-
-	// add light flares on lights that aren't obscured
-	RB_RenderFlares();
-
-	if (glRefConfig.framebufferObject)
-		FBO_Bind(NULL);
 }
 
 
@@ -1307,7 +1183,44 @@ const void	*RB_DrawSurfs( const void *data ) {
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
-	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+	// clear the z buffer, set the modelview, etc
+	RB_BeginDrawingView ();
+
+	if (backEnd.viewParms.isDepthShadow && glRefConfig.depthClamp)
+	{
+		qglEnable(GL_DEPTH_CLAMP);
+	}
+
+	if (r_depthPrepass->integer || backEnd.viewParms.isDepthShadow)
+	{
+		backEnd.depthFill = qtrue;
+		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
+		backEnd.depthFill = qfalse;
+	}
+
+	if (backEnd.viewParms.isDepthShadow && glRefConfig.depthClamp)
+	{
+		qglDisable(GL_DEPTH_CLAMP);
+	}
+
+	if (!backEnd.viewParms.isDepthShadow)
+	{
+		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+
+#if 0
+		RB_DrawSun();
+#endif
+		// darken down any stencil shadows
+		RB_ShadowFinish();		
+
+		// add light flares on lights that aren't obscured
+		RB_RenderFlares();
+	}
+
+	if (glRefConfig.framebufferObject)
+		FBO_Bind(NULL);
 
 	return (const void *)(cmd + 1);
 }
@@ -1631,6 +1544,17 @@ const void *RB_PostProcess(const void *data)
 			RB_GaussianBlur(backEnd.refdef.blurFactor);
 	}
 #endif
+
+	if (0)
+	{
+		vec4i_t dstBox;
+		VectorSet4(dstBox, 0, 0, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[0], NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+		VectorSet4(dstBox, 128, 0, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[1], NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+		VectorSet4(dstBox, 256, 0, 128, 128);
+		FBO_BlitFromTexture(tr.sunShadowDepthImage[2], NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+	}
 
 	backEnd.framePostProcessed = qtrue;
 

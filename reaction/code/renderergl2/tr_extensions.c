@@ -175,6 +175,9 @@ void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, G
 void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
 	GLenum internalformat, GLsizei width, GLsizei height);
 
+// GL_ARB_draw_buffers
+void (APIENTRY * qglDrawBuffersARB)(GLsizei n, const GLenum *bufs);
+
 static qboolean GLimp_HaveExtension(const char *ext)
 {
 	const char *ptr = Q_stristr( glConfig.extensions_string, ext );
@@ -644,6 +647,33 @@ void GLimp_InitExtraExtensions()
 			glRefConfig.textureCompression |= TCR_BPTC;
 
 		ri.Printf(PRINT_ALL, result[(r_ext_compressed_textures->integer >= 2) ? 1 : 0], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, result[2], extension);
+	}
+
+	// GL_ARB_draw_buffers
+	extension = "GL_ARB_draw_buffers";
+	qglDrawBuffersARB = NULL;
+	if( GLimp_HaveExtension( extension ) )
+	{
+		qglDrawBuffersARB = (void *) SDL_GL_GetProcAddress("glDrawBuffersARB");
+
+		ri.Printf(PRINT_ALL, result[1], extension);
+	}
+	else
+	{
+		ri.Printf(PRINT_ALL, result[2], extension);
+	}
+
+	// GL_ARB_depth_clamp
+	extension = "GL_ARB_depth_clamp";
+	glRefConfig.depthClamp = qfalse;
+	if( GLimp_HaveExtension( extension ) )
+	{
+		glRefConfig.depthClamp = qtrue;
+		ri.Printf(PRINT_ALL, result[1], extension);
 	}
 	else
 	{

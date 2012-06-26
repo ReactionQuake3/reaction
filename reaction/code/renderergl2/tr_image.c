@@ -2983,6 +2983,12 @@ void R_CreateBuiltinImages( void ) {
 	{
 		tr.pshadowMaps[x] = R_CreateImage(va("*shadowmap%i", x), NULL, PSHADOW_MAP_SIZE, PSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 	}
+
+	//tr.sunShadowImage = R_CreateImage("*sunshadowmap", NULL, SUNSHADOW_MAP_SIZE, SUNSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
+	for ( x = 0; x < 3; x++)
+	{
+		tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x),  NULL, SUNSHADOW_MAP_SIZE, SUNSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT16_ARB);
+	}
 }
 
 

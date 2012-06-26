@@ -54,7 +54,7 @@ static qboolean	R_CullSurface( msurface_t *surf ) {
 		}
 
 		// shadowmaps draw back surfaces
-		if ( tr.viewParms.isShadowmap )
+		if ( tr.viewParms.isShadowmap || tr.viewParms.isDepthShadow)
 		{
 			if (ct == CT_FRONT_SIDED)
 			{
@@ -64,6 +64,19 @@ static qboolean	R_CullSurface( msurface_t *surf ) {
 			{
 				ct = CT_FRONT_SIDED;
 			}
+		}
+
+		// FIXME: actually cull properly for depth shadows
+		if (tr.viewParms.isDepthShadow) {
+			d = DotProduct(tr.viewParms.or.axis[0], surf->cullinfo.plane.normal);
+			if ( ct == CT_FRONT_SIDED ) {
+				if (d > 0)
+					return qtrue;
+			} else {
+				if (d < 0)
+					return qtrue;
+			}
+			return qfalse;
 		}
 
 		d = DotProduct (tr.or.viewOrigin, surf->cullinfo.plane.normal);
@@ -389,7 +402,8 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits, 
 		unsigned int newPShadows[2];
 
 		// if the node wasn't marked as potentially visible, exit
-		if (node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex]) {
+		// pvs is skipped for depth shadows
+		if (!tr.viewParms.isDepthShadow && node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex]) {
 			return;
 		}
 
@@ -772,7 +786,8 @@ void R_AddWorldSurfaces (void) {
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
 	// determine which leaves are in the PVS / areamask
-	R_MarkLeaves ();
+	if (!tr.viewParms.isDepthShadow)
+		R_MarkLeaves ();
 
 	// clear out the visible min/max
 	ClearBounds( tr.viewParms.visBounds[0], tr.viewParms.visBounds[1] );
@@ -786,7 +801,11 @@ void R_AddWorldSurfaces (void) {
 		tr.refdef.num_pshadows = 32 ;
 	}
 
-	if ( !tr.viewParms.isShadowmap )
+	if ( tr.viewParms.isDepthShadow )
+	{
+		R_RecursiveWorldNode( tr.world->nodes, 31, 0, 0);
+	}
+	else if ( !tr.viewParms.isShadowmap )
 	{
 		R_RecursiveWorldNode( tr.world->nodes, 15, ( 1 << tr.refdef.num_dlights ) - 1, ( 1 << tr.refdef.num_pshadows ) - 1 );
 	}
