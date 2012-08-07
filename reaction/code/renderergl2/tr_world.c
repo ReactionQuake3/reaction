@@ -53,8 +53,14 @@ static qboolean	R_CullSurface( msurface_t *surf ) {
 			return qfalse;
 		}
 
+		// don't cull for depth shadow
+		if ( (tr.viewParms.flags & VPF_DEPTHSHADOW ) )
+		{
+			return qfalse;
+		}
+
 		// shadowmaps draw back surfaces
-		if ( tr.viewParms.isShadowmap || tr.viewParms.isDepthShadow)
+		if ( (tr.viewParms.flags & VPF_SHADOWMAP) )
 		{
 			if (ct == CT_FRONT_SIDED)
 			{
@@ -66,8 +72,8 @@ static qboolean	R_CullSurface( msurface_t *surf ) {
 			}
 		}
 
-		// FIXME: actually cull properly for depth shadows
-		if (tr.viewParms.isDepthShadow) {
+		// do proper cull for orthographic projection
+		if (tr.viewParms.flags & VPF_ORTHOGRAPHIC) {
 			d = DotProduct(tr.viewParms.or.axis[0], surf->cullinfo.plane.normal);
 			if ( ct == CT_FRONT_SIDED ) {
 				if (d > 0)
@@ -403,7 +409,7 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits, 
 
 		// if the node wasn't marked as potentially visible, exit
 		// pvs is skipped for depth shadows
-		if (!tr.viewParms.isDepthShadow && node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex]) {
+		if (!(tr.viewParms.flags & VPF_DEPTHSHADOW) && node->visCounts[tr.visIndex] != tr.visCounts[tr.visIndex]) {
 			return;
 		}
 
@@ -786,7 +792,7 @@ void R_AddWorldSurfaces (void) {
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
 	// determine which leaves are in the PVS / areamask
-	if (!tr.viewParms.isDepthShadow)
+	if (!(tr.viewParms.flags & VPF_DEPTHSHADOW))
 		R_MarkLeaves ();
 
 	// clear out the visible min/max
@@ -801,11 +807,11 @@ void R_AddWorldSurfaces (void) {
 		tr.refdef.num_pshadows = 32 ;
 	}
 
-	if ( tr.viewParms.isDepthShadow )
+	if ( tr.viewParms.flags & VPF_DEPTHSHADOW )
 	{
 		R_RecursiveWorldNode( tr.world->nodes, 31, 0, 0);
 	}
-	else if ( !tr.viewParms.isShadowmap )
+	else if ( !tr.viewParms.flags & VPF_SHADOWMAP )
 	{
 		R_RecursiveWorldNode( tr.world->nodes, 15, ( 1 << tr.refdef.num_dlights ) - 1, ( 1 << tr.refdef.num_pshadows ) - 1 );
 	}

@@ -513,7 +513,7 @@ void RB_BeginDrawingView (void) {
 	}
 
 	// clear to white for shadow maps
-	if (backEnd.viewParms.isShadowmap)
+	if (backEnd.viewParms.flags & VPF_SHADOWMAP)
 	{
 		clearBits |= GL_COLOR_BUFFER_BIT;
 		qglClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1186,12 +1186,12 @@ const void	*RB_DrawSurfs( const void *data ) {
 	// clear the z buffer, set the modelview, etc
 	RB_BeginDrawingView ();
 
-	if (backEnd.viewParms.isDepthShadow && glRefConfig.depthClamp)
+	if ((backEnd.viewParms.flags & VPF_DEPTHCLAMP) && glRefConfig.depthClamp)
 	{
 		qglEnable(GL_DEPTH_CLAMP);
 	}
 
-	if (r_depthPrepass->integer || backEnd.viewParms.isDepthShadow)
+	if (r_depthPrepass->integer || (backEnd.viewParms.flags & VPF_DEPTHSHADOW))
 	{
 		backEnd.depthFill = qtrue;
 		qglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -1200,12 +1200,12 @@ const void	*RB_DrawSurfs( const void *data ) {
 		backEnd.depthFill = qfalse;
 	}
 
-	if (backEnd.viewParms.isDepthShadow && glRefConfig.depthClamp)
+	if ((backEnd.viewParms.flags & VPF_DEPTHCLAMP) && glRefConfig.depthClamp)
 	{
 		qglDisable(GL_DEPTH_CLAMP);
 	}
 
-	if (!backEnd.viewParms.isDepthShadow)
+	if (!(backEnd.viewParms.flags & VPF_DEPTHSHADOW))
 	{
 		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 

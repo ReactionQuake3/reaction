@@ -278,7 +278,7 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 
 	tr.lightmaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
 
-	if (tr.worldDeluxeMapping || r_deluxeMapping->integer == 2)
+	if (tr.worldDeluxeMapping)
 	{
 		tr.deluxemaps = ri.Hunk_Alloc( tr.numLightmaps * sizeof(image_t *), h_low );
 	}
@@ -659,7 +659,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 	int			i, j;
 	srfSurfaceFace_t	*cv;
 	srfTriangle_t  *tri;
-	int			numVerts, numTriangles;
+	int			numVerts, numTriangles, badTriangles;
 	int realLightmapNum;
 
 	realLightmapNum = LittleLong( ds->lightmapNum );
@@ -743,6 +743,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 	}
 
 	// copy triangles
+	badTriangles = 0;
 	indexes += LittleLong(ds->firstIndex);
 	for(i = 0, tri = cv->triangles; i < numTriangles; i++, tri++)
 	{
@@ -755,6 +756,18 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, 
 				ri.Error(ERR_DROP, "Bad index in face surface");
 			}
 		}
+
+		if ((tri->indexes[0] == tri->indexes[1]) || (tri->indexes[1] == tri->indexes[2]) || (tri->indexes[0] == tri->indexes[2]))
+		{
+			tri--;
+			badTriangles++;
+		}
+	}
+
+	if (badTriangles)
+	{
+		ri.Printf(PRINT_WARNING, "Face has bad triangles, originally shader %s %d tris %d verts, now %d tris\n", surf->shader->name, numTriangles, numVerts, numTriangles - badTriangles);
+		cv->numTriangles -= badTriangles;
 	}
 
 	// take the plane information from the lightmap vector
@@ -997,7 +1010,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, float *hdrVertColor
 
 	if (badTriangles)
 	{
-		ri.Printf(PRINT_WARNING, "Surface has bad triangles, originally shader %s %d tris %d verts, now %d tris\n", surf->shader->name, numTriangles, numVerts, numTriangles - badTriangles);
+		ri.Printf(PRINT_WARNING, "Trisurf has bad triangles, originally shader %s %d tris %d verts, now %d tris\n", surf->shader->name, numTriangles, numVerts, numTriangles - badTriangles);
 		cv->numTriangles -= badTriangles;
 	}
 
@@ -3219,6 +3232,9 @@ void RE_LoadWorldMap( const char *name ) {
 	if ( tr.worldMapLoaded ) {
 		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map\n" );
 	}
+
+	// set default map light scale
+	tr.mapLightScale = 1.0;
 
 	// set default sun direction to be used if it isn't
 	// overridden by a shader

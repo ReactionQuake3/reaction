@@ -1606,8 +1606,11 @@ static qboolean ParseShader( char **text )
 			continue;
 		}
 		// sun parms
-		else if ( !Q_stricmp( token, "q3map_sun" ) ) {
+		else if ( !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "q3map_sunExt" ) || !Q_stricmp( token, "q3gl2_sun" ) ) {
 			float	a, b;
+
+			if (!Q_stricmp( token, "q3gl2_sun" ) )
+				tr.sunShadows = qtrue;
 
 			token = COM_ParseExt( text, qfalse );
 			tr.sunLight[0] = atof( token );
@@ -1633,6 +1636,8 @@ static qboolean ParseShader( char **text )
 			tr.sunDirection[0] = cos( a ) * cos( b );
 			tr.sunDirection[1] = sin( a ) * cos( b );
 			tr.sunDirection[2] = sin( b );
+
+			SkipRestOfLine( text );
 		}
 		else if ( !Q_stricmp( token, "deformVertexes" ) ) {
 			ParseDeform( text );

@@ -1246,6 +1246,79 @@ void R_SetupProjectionZ(viewParms_t *dest)
 }
 
 /*
+===============
+R_SetupProjectionOrtho
+===============
+*/
+void R_SetupProjectionOrtho(viewParms_t *dest, vec3_t viewBounds[2])
+{
+	float xmin, xmax, ymin, ymax, znear, zfar;
+	//viewParms_t *dest = &tr.viewParms;
+	int i;
+	vec3_t pop;
+
+	// Quake3:   Projection:
+	//
+	//    Z  X   Y  Z
+	//    | /    | /
+	//    |/     |/
+	// Y--+      +--X
+
+	xmin  =  viewBounds[0][1];
+	xmax  =  viewBounds[1][1];
+	ymin  = -viewBounds[1][2];
+	ymax  = -viewBounds[0][2];
+	znear =  viewBounds[0][0];
+	zfar  =  viewBounds[1][0];
+
+	dest->projectionMatrix[0]  = 2 / (xmax - xmin);
+	dest->projectionMatrix[4]  = 0;
+	dest->projectionMatrix[8]  = 0;
+	dest->projectionMatrix[12] = (xmax + xmin) / (xmax - xmin);
+
+	dest->projectionMatrix[1]  = 0;
+	dest->projectionMatrix[5]  = 2 / (ymax - ymin);
+	dest->projectionMatrix[9]  = 0;
+	dest->projectionMatrix[13] = (ymax + ymin) / (ymax - ymin);
+
+	dest->projectionMatrix[2]  = 0;
+	dest->projectionMatrix[6]  = 0;
+	dest->projectionMatrix[10] = -2 / (zfar - znear);
+	dest->projectionMatrix[14] = -(zfar + znear) / (zfar - znear);
+
+	dest->projectionMatrix[3]  = 0;
+	dest->projectionMatrix[7]  = 0;
+	dest->projectionMatrix[11] = 0;
+	dest->projectionMatrix[15] = 1;
+
+	VectorScale(dest->or.axis[1],  1.0f, dest->frustum[0].normal);
+	VectorMA(dest->or.origin, viewBounds[0][1], dest->frustum[0].normal, pop);
+	dest->frustum[0].dist = DotProduct(pop, dest->frustum[0].normal);
+
+	VectorScale(dest->or.axis[1], -1.0f, dest->frustum[1].normal);
+	VectorMA(dest->or.origin, -viewBounds[1][1], dest->frustum[1].normal, pop);
+	dest->frustum[1].dist = DotProduct(pop, dest->frustum[1].normal);
+
+	VectorScale(dest->or.axis[2],  1.0f, dest->frustum[2].normal);
+	VectorMA(dest->or.origin, viewBounds[0][2], dest->frustum[2].normal, pop);
+	dest->frustum[2].dist = DotProduct(pop, dest->frustum[2].normal);
+
+	VectorScale(dest->or.axis[2], -1.0f, dest->frustum[3].normal);
+	VectorMA(dest->or.origin, -viewBounds[1][2], dest->frustum[3].normal, pop);
+	dest->frustum[3].dist = DotProduct(pop, dest->frustum[3].normal);
+
+	VectorScale(dest->or.axis[0], -1.0f, dest->frustum[4].normal);
+	VectorMA(dest->or.origin, -viewBounds[1][0], dest->frustum[4].normal, pop);
+	dest->frustum[4].dist = DotProduct(pop, dest->frustum[4].normal);
+	
+	for (i = 0; i < 5; i++)
+	{
+		dest->frustum[i].type = PLANE_NON_AXIAL;
+		SetPlaneSignbits (&dest->frustum[i]);
+	}
+}
+
+/*
 =================
 R_MirrorPoint
 =================
@@ -1831,7 +1904,8 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// sort the drawsurfs by sort type, then orientation, then shader
 	R_RadixSort( drawSurfs, numDrawSurfs );
 
-	if (tr.viewParms.isShadowmap || tr.viewParms.isDepthShadow)
+	// skip pass through drawing if rendering a shadow map
+	if ((tr.viewParms.flags & VPF_SHADOWMAP) || (tr.viewParms.flags & VPF_DEPTHSHADOW))
 	{
 		R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
 		return;
@@ -1883,7 +1957,8 @@ static void R_AddEntitySurface (int entityNum)
 	// we don't want the hacked weapon position showing in 
 	// mirrors, because the true body position will already be drawn
 	//
-	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.isPortal || tr.viewParms.isShadowmap || tr.viewParms.isDepthShadow)) {
+	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.isPortal 
+	      || (tr.viewParms.flags & VPF_SHADOWMAP) || (tr.viewParms.flags & VPF_DEPTHSHADOW))) {
 		return;
 	}
 
@@ -1983,7 +2058,7 @@ void R_GenerateDrawSurfs( void ) {
 	// matrix for lod calculation
 
 	// dynamically compute far clip plane distance
-	if (!tr.viewParms.isShadowmap)
+	if (!(tr.viewParms.flags & VPF_SHADOWMAP))
 	{
 		R_SetFarClip();
 	}
@@ -2113,8 +2188,7 @@ void R_RenderDlightCubemaps(const refdef_t *fd)
 		shadowParms.fovX = 90;
 		shadowParms.fovY = 90;
 
-		shadowParms.isShadowmap = qtrue;
-		shadowParms.isDepthShadow = qtrue;
+		shadowParms.flags = VPF_SHADOWMAP | VPF_DEPTHSHADOW;
 		shadowParms.zFar = tr.refdef.dlights[i].radius;
 
 		VectorCopy( tr.refdef.dlights[i].origin, shadowParms.or.origin );
@@ -2420,9 +2494,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 		if (glRefConfig.framebufferObject)
 			shadowParms.targetFbo = tr.pshadowFbos[i];
 
-		shadowParms.isShadowmap = qtrue;
-		shadowParms.isDepthShadow = qtrue;
-
+		shadowParms.flags = VPF_SHADOWMAP | VPF_DEPTHSHADOW;
 		shadowParms.zFar = shadow->lightRadius;
 
 		VectorCopy(shadow->lightOrigin, shadowParms.or.origin);
@@ -2523,9 +2595,10 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 	vec3_t up;
 	vec3_t lightViewAxis[3];
 	vec3_t lightOrigin;
-	float xmin, xmax, ymin, ymax, znear, zfar, viewznear, viewzfar;
+	float viewznear, viewzfar;
+	vec3_t lightviewBounds[2];
 
-	if (r_testSunlight->integer)
+	if (r_testSunlight->integer == 2)
 	{
 		int scale = 32768;
 		float angle = (fd->time % scale) / (float)scale * M_PI;
@@ -2557,46 +2630,46 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		VectorCopy4(tr.refdef.sunDir, lightDir);
 	}
 
-	//viewRadius = 128;
-	//lightRadius = 4096;
 	switch(level)
 	{
 		case 0:
 		default:
+			//viewznear = r_znear->value;
+			//viewzfar  = 256;
 			viewznear = r_znear->value;
-			viewzfar  = 256;
+			viewzfar = 128;
 			break;
 		case 1:
-			viewznear = 256;
-			viewzfar  = 768;
+			viewznear = 128;
+			viewzfar = 384;
+			//viewznear = 256;
+			//viewzfar  = 896;
 			break;
 		case 2:
-			viewznear = 768;
-			viewzfar  = 2048;
+			viewznear = 384;
+			viewzfar = 1024;
+			//viewznear = 896;
+			//viewzfar  = 3072;
 			break;
 	}
 			
 	VectorCopy(fd->vieworg, lightOrigin);
-	//VectorMA(fd->vieworg, (zfar - znear) / 2, lightDir, lightOrigin);
-	//VectorMA(lightOrigin, (xmax - xmin) / 2, fd->viewaxis[0], lightOrigin);
 
-	//ri.Printf(PRINT_ALL, "viewOrigin  %f %f %f\n", fd->vieworg[0],     fd->vieworg[1],     fd->vieworg[2]);
-	//ri.Printf(PRINT_ALL, "forward     %f %f %f\n", fd->viewaxis[0][0], fd->viewaxis[0][1], fd->viewaxis[0][2]);
-	//ri.Printf(PRINT_ALL, "right       %f %f %f\n", fd->viewaxis[1][0], fd->viewaxis[1][1], fd->viewaxis[1][2]);
-	//ri.Printf(PRINT_ALL, "up          %f %f %f\n", fd->viewaxis[2][0], fd->viewaxis[2][1], fd->viewaxis[2][2]);
-	//ri.Printf(PRINT_ALL, "lightOrigin %f %f %f\n", lightOrigin[0],     lightOrigin[1],     lightOrigin[2]);
 
 	// make up a projection
 	VectorScale(lightDir, -1.0f, lightViewAxis[0]);
 
-	// try to use player right as up
-	VectorCopy(fd->viewaxis[1], up);
-	//VectorSet(up, 0, 1, 0);
-
+	// try to use halfway between player right and player forward as up
+	//VectorCopy(fd->viewaxis[1], up);
+	VectorScale(fd->viewaxis[0], 0.5f, up);
+	VectorMA(up, 0.5f, fd->viewaxis[1], up);
+	
 	if ( abs(DotProduct(up, lightViewAxis[0])) > 0.9f )
 	{
-		VectorCopy(fd->viewaxis[2], up);
-		//VectorSet(up, 0, 0, 1);
+		// if not, halfway between player up and player forward
+		//VectorCopy(fd->viewaxis[2], up);
+		VectorScale(fd->viewaxis[0], 0.5f, up);
+		VectorMA(up, 0.5f, fd->viewaxis[2], up);
 	}
 
 	CrossProduct(lightViewAxis[0], up, lightViewAxis[1]);
@@ -2605,7 +2678,6 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 	{
 		matrix_t lightViewMatrix;
-		vec3_t lightviewBounds[2];
 		vec4_t point, base, lightViewPoint;
 		float lx, ly;
 
@@ -2634,9 +2706,6 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		lightViewMatrix[15] = 1;
 
 		ClearBounds(lightviewBounds[0], lightviewBounds[1]);
-
-		//viewznear = r_znear->value;
-		//viewzfar = 512;
 
 		// add view near plane
 		lx = viewznear * tan(fd->fov_x * M_PI / 360.0f);
@@ -2689,19 +2758,10 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
-		xmin  = lightviewBounds[0][1];
-		xmax  = lightviewBounds[1][1];
-		ymin  = -lightviewBounds[1][2];
-		ymax  = -lightviewBounds[0][2];
-		zfar  = lightviewBounds[1][0];
+		if (!glRefConfig.depthClamp)
+			lightviewBounds[0][0] = lightviewBounds[1][0] - 8192;
 
-		if (glRefConfig.depthClamp)
-			znear = lightviewBounds[0][0];
-		else
-			znear = zfar - 8192;
-
-		//ri.Printf(PRINT_ALL, "znear %f zfar %f\n", lightviewBounds[0][0], lightviewBounds[1][0]);
-		
+		//ri.Printf(PRINT_ALL, "znear %f zfar %f\n", lightviewBounds[0][0], lightviewBounds[1][0]);		
 		//ri.Printf(PRINT_ALL, "fovx %f fovy %f xmin %f xmax %f ymin %f ymax %f\n", fd->fov_x, fd->fov_y, xmin, xmax, ymin, ymax);
 	}
 
@@ -2733,10 +2793,8 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		if (glRefConfig.framebufferObject)
 			shadowParms.targetFbo = tr.sunShadowFbo[level];
 
-		shadowParms.isShadowmap = qfalse;
-		shadowParms.isDepthShadow = qtrue;
-
-		shadowParms.zFar = zfar;
+		shadowParms.flags = VPF_DEPTHSHADOW | VPF_DEPTHCLAMP | VPF_ORTHOGRAPHIC;
+		shadowParms.zFar = lightviewBounds[1][0];
 
 		VectorCopy(lightOrigin, shadowParms.or.origin);
 		
@@ -2760,79 +2818,17 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			// set viewParms.world
 			R_RotateForViewer ();
 
-			{
-				//float xmin, xmax, ymin, ymax, znear, zfar;
-				viewParms_t *dest = &tr.viewParms;
-				vec3_t pop;
-
-				dest->projectionMatrix[0]  = 2 / (xmax - xmin);
-				dest->projectionMatrix[4]  = 0;
-				dest->projectionMatrix[8]  = 0;
-				dest->projectionMatrix[12] = (xmax + xmin) / (xmax - xmin);
-
-				dest->projectionMatrix[1]  = 0;
-				dest->projectionMatrix[5]  = 2 / (ymax - ymin);
-				dest->projectionMatrix[9]  = 0;
-				dest->projectionMatrix[13] = ( ymax + ymin ) / (ymax - ymin);
-
-				dest->projectionMatrix[2]  = 0;
-				dest->projectionMatrix[6]  = 0;
-				dest->projectionMatrix[10] = -2 / (zfar - znear);
-				dest->projectionMatrix[14] = (zfar + znear) / (znear - zfar);
-
-				dest->projectionMatrix[3]  = 0;
-				dest->projectionMatrix[7]  = 0;
-				dest->projectionMatrix[11] = 0;
-				dest->projectionMatrix[15] = 1;
-
-				Matrix16Multiply(dest->projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
-
-				VectorScale(dest->or.axis[1],  1.0f, dest->frustum[0].normal);
-				VectorMA(dest->or.origin, xmin, dest->frustum[0].normal, pop);
-				dest->frustum[0].dist = DotProduct(pop, dest->frustum[0].normal);
-
-				VectorScale(dest->or.axis[1], -1.0f, dest->frustum[1].normal);
-				VectorMA(dest->or.origin, -xmax, dest->frustum[1].normal, pop);
-				dest->frustum[1].dist = DotProduct(pop, dest->frustum[1].normal);
-
-				VectorScale(dest->or.axis[2],  1.0f, dest->frustum[2].normal);
-				VectorMA(dest->or.origin, -ymax, dest->frustum[2].normal, pop);
-				dest->frustum[2].dist = DotProduct(pop, dest->frustum[2].normal);
-
-				VectorScale(dest->or.axis[2], -1.0f, dest->frustum[3].normal);
-				VectorMA(dest->or.origin, ymin, dest->frustum[3].normal, pop);
-				dest->frustum[3].dist = DotProduct(pop, dest->frustum[3].normal);
-
-				VectorScale(dest->or.axis[0], -1.0f, dest->frustum[4].normal);
-				VectorMA(dest->or.origin, -zfar, dest->frustum[4].normal, pop);
-				dest->frustum[4].dist = DotProduct(pop, dest->frustum[4].normal);
-
-				for (j = 0; j < 5; j++)
-				{
-					dest->frustum[j].type = PLANE_NON_AXIAL;
-					SetPlaneSignbits (&dest->frustum[j]);
-				}
-			}
+			R_SetupProjectionOrtho(&tr.viewParms, lightviewBounds);
 
 			R_AddWorldSurfaces ();
 
 			R_AddPolygonSurfaces();
 
-			// set the projection matrix with the minimum zfar
-			// now that we have the world bounded
-			// this needs to be done before entities are
-			// added, because they use the projection
-			// matrix for lod calculation
-
-			// dynamically compute far clip plane distance
-			//R_SetFarClip();
-
-			// we know the size of the clipping volume. Now set the rest of the projection matrix.
-			//R_SetupProjectionZ (&tr.viewParms);
-
 			R_AddEntitySurfaces ();
 
 			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
 		}
+
+		Matrix16Multiply(tr.viewParms.projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
 	}
 }

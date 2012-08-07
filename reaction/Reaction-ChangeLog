@@ -1,3 +1,7 @@
+- Scale map lights by 0.66 and sunlight by 0.33 when r_testSunlight 1
+- Offset shadowmap samples by surface normal and reenable PCF
+- Reenabled per vertex tangent space values, fixes visual issues in normal maps
+- Simplified some viewparms flags
 - Add cascaded shadow mapping, test with r_testSunlight 1.
 - Add r_depthPrepass.
 - Improve parallax mapping

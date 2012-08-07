@@ -295,7 +295,8 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	qboolean		personalModel;
 
 	// don't add third_person objects if not in a portal
-	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !(tr.viewParms.isPortal || tr.viewParms.isShadowmap || tr.viewParms.isDepthShadow);
+	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !(tr.viewParms.isPortal 
+	                 || (tr.viewParms.flags & VPF_SHADOWMAP) || (tr.viewParms.flags & VPF_DEPTHSHADOW));
 
 	if ( ent->e.renderfx & RF_WRAP_FRAMES ) {
 		ent->e.frame %= tr.currentModel->mdv[0]->numFrames;

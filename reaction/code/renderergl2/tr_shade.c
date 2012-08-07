@@ -207,7 +207,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 		tess.shaderTime = tess.shader->clampTime;
 	}
 
-	if (backEnd.viewParms.isShadowmap)
+	if (backEnd.viewParms.flags & VPF_SHADOWMAP)
 	{
 		tess.currentStageIteratorFunc = RB_StageIteratorGeneric;
 	}
@@ -1371,6 +1371,8 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_SetUniformVec2(sp, GENERIC_UNIFORM_MATERIALINFO, pStage->materialInfo);
 
+		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);
+
 		//
 		// do multitexture
 		//
@@ -1588,14 +1590,17 @@ void RB_StageIteratorGeneric( void )
 	//
 	// set face culling appropriately
 	//
-	if (backEnd.viewParms.isDepthShadow)
+	if ((backEnd.viewParms.flags & VPF_DEPTHSHADOW))
 	{
+		GL_Cull( CT_TWO_SIDED );
+		/*
 		if (input->shader->cullType == CT_TWO_SIDED)
 			GL_Cull( CT_TWO_SIDED );
 		else if (input->shader->cullType == CT_FRONT_SIDED)
 			GL_Cull( CT_BACK_SIDED );
 		else
 			GL_Cull( CT_FRONT_SIDED );
+		*/
 	}
 	else
 		GL_Cull( input->shader->cullType );
@@ -1633,7 +1638,7 @@ void RB_StageIteratorGeneric( void )
 	//
 	// render shadowmap if in shadowmap mode
 	//
-	if (backEnd.viewParms.isShadowmap)
+	if (backEnd.viewParms.flags & VPF_SHADOWMAP)
 	{
 		if ( input->shader->sort == SS_OPAQUE )
 		{
@@ -1681,7 +1686,7 @@ void RB_StageIteratorGeneric( void )
 		}
 	}
 
-	if (((backEnd.refdef.rdflags & RDF_SUNLIGHT) || r_testSunlight->integer) && tess.shader->sort <= SS_OPAQUE 
+	if ((tr.sunShadows || r_testSunlight->integer) && tess.shader->sort <= SS_OPAQUE 
 	    && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) && tess.xstages[0]->glslShaderGroup == tr.lightallShader) {
 		ForwardSunlight();
 	}

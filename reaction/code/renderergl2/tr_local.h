@@ -69,6 +69,8 @@ typedef unsigned int glIndex_t;
 #define PSHADOW_MAP_SIZE      512
 #define SUNSHADOW_MAP_SIZE    1024
 
+#define USE_VERT_TANGENT_SPACE
+
 typedef struct dlight_s {
 	vec3_t	origin;
 	vec3_t	color;				// range from 0.0 to 1.0, should be color normalized
@@ -874,6 +876,7 @@ enum
 	GENERIC_UNIFORM_SHADOWMVP,
 	GENERIC_UNIFORM_SHADOWMVP2,
 	GENERIC_UNIFORM_SHADOWMVP3,
+	GENERIC_UNIFORM_MAPLIGHTSCALE,
 	GENERIC_UNIFORM_COUNT
 };
 
@@ -901,9 +904,7 @@ typedef struct {
 
 	float		floatTime;			// tr.refdef.time / 1000.0
 
-#ifdef REACTION
 	float		blurFactor;
-#endif
 
 	// text messages for deform text shaders
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
@@ -927,6 +928,7 @@ typedef struct {
 	float       sunShadowMvp[3][16];
 	float       sunDir[4];
 	float       sunCol[4];
+	float       mapLightScale;
 } trRefdef_t;
 
 
@@ -958,14 +960,21 @@ typedef struct {
 	float		surface[4];
 } fog_t;
 
+typedef enum {
+	VPF_NONE          = 0x00,
+	VPF_SHADOWMAP     = 0x01,
+	VPF_DEPTHSHADOW   = 0x02,
+	VPF_DEPTHCLAMP    = 0x04,
+	VPF_ORTHOGRAPHIC  = 0x08,
+} viewParmFlags_t;
+
 typedef struct {
 	orientationr_t	or;
 	orientationr_t	world;
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
 	qboolean	isPortal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
-	qboolean    isShadowmap;
-	qboolean    isDepthShadow;
+	viewParmFlags_t flags;
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring
@@ -1837,6 +1846,9 @@ typedef struct {
 
 	int						viewCluster;
 
+	float                   mapLightScale;
+
+	qboolean                sunShadows;
 	vec3_t					sunLight;			// from the sky shader for this level
 	vec3_t					sunDirection;
 
