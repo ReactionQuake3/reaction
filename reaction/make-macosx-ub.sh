@@ -10,8 +10,8 @@ BASEDIR=Boomstick
 MPACKDIR=missionpack
 
 BIN_OBJ="
-	build/release-darwin-ppc/Reaction-smp.ppc
-	build/release-darwin-i386/Reaction-smp.i386
+	build/release-darwin-ppc/Reaction.ppc
+	build/release-darwin-i386/Reaction.i386
 "
 BIN_DEDOBJ="
 	build/release-darwin-ppc/Reactionded.ppc
