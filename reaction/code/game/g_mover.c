@@ -356,7 +356,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 	}
 	// may have pushed them off an edge
 	if (check->s.groundEntityNum != pusher->s.number) {
-		check->s.groundEntityNum = -1;
+		check->s.groundEntityNum = ENTITYNUM_NONE;
 	}
 
 	block = G_TestEntityPosition(check);
@@ -381,7 +381,7 @@ qboolean G_TryPushingEntity(gentity_t * check, gentity_t * pusher, vec3_t move, 
 	VectorCopy((pushed_p - 1)->angles, check->s.apos.trBase);
 	block = G_TestEntityPosition(check);
 	if (!block) {
-		check->s.groundEntityNum = -1;
+		check->s.groundEntityNum = ENTITYNUM_NONE;
 		pushed_p--;
 		return qtrue;
 	}
