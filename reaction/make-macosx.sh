@@ -1,4 +1,5 @@
 #!/bin/sh
+CC=gcc-4.0
 APPBUNDLE=Reaction.app
 BINARY=Reaction.x86_64
 DEDBIN=Reactionded.x86_64

@@ -1,4 +1,5 @@
 #!/bin/sh
+CC=gcc4.0
 APPBUNDLE=Reaction.app
 BINARY=Reaction.ub
 DEDBIN=Reactionded.ub
