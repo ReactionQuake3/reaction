@@ -5,7 +5,7 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #define YYBYACC 1
 #define YYMAJOR 1
 #define YYMINOR 9
-#define YYPATCH 20101229
+#define YYPATCH 20111219
 
 #define YYEMPTY        (-1)
 #define yyclearin      (yychar = YYEMPTY)
@@ -36,6 +36,7 @@ typedef union {
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 #line 38 "y.tab.c"
+
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
 /* compatibility with FreeBSD */
@@ -201,6 +202,15 @@ static const char *yyrule[] = {
 
 };
 #endif
+
+int      yydebug;
+int      yynerrs;
+
+int      yyerrflag;
+int      yychar;
+YYSTYPE  yyval;
+YYSTYPE  yylval;
+
 /* define the initial stack-sizes */
 #ifdef YYSTACKSIZE
 #undef YYMAXDEPTH
@@ -209,15 +219,12 @@ static const char *yyrule[] = {
 #ifdef YYMAXDEPTH
 #define YYSTACKSIZE YYMAXDEPTH
 #else
-#define YYSTACKSIZE 500
+#define YYSTACKSIZE 10000
 #define YYMAXDEPTH  500
 #endif
 #endif
 
 #define YYINITSTACKSIZE 500
-
-int      yydebug;
-int      yynerrs;
 
 typedef struct {
     unsigned stacksize;
@@ -227,11 +234,6 @@ typedef struct {
     YYSTYPE  *l_base;
     YYSTYPE  *l_mark;
 } YYSTACKDATA;
-int      yyerrflag;
-int      yychar;
-YYSTYPE  yyval;
-YYSTYPE  yylval;
-
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
 #line 60 "code/tools/lcc/lburg/gram.y"
@@ -378,7 +380,7 @@ void yywarn(char *fmt, ...) {
 	fprintf(stderr, "warning: ");
 	vfprintf(stderr, fmt, ap);
 }
-#line 381 "y.tab.c"
+#line 383 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -635,7 +637,7 @@ case 19:
 #line 57 "code/tools/lcc/lburg/gram.y"
 	{ if (*yystack.l_mark[0].string == 0) yyval.string = "0"; }
 break;
-#line 638 "y.tab.c"
+#line 640 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;
