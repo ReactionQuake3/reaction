@@ -2322,9 +2322,9 @@ void CheckExitRules(void)
 		}
 	}
 
-	if (level.numPlayingClients < 2) {
+/*	if (level.numPlayingClients < 2) {
 		return;
-	}
+	} */
 
 	if (g_gametype.integer < GT_CTF && g_fraglimit.integer) {
 		if (level.teamScores[TEAM_RED] >= g_fraglimit.integer) {
