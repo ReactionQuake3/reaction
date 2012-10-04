@@ -203,7 +203,7 @@ void G_InitSessionData(gclient_t * client, char *userinfo)
 
 	// initial team determination
 	if (g_gametype.integer >= GT_TEAM) {
-		if (g_teamAutoJoin.integer) {
+		if ( g_teamAutoJoin.integer && !(g_entities[ client - level.clients ].r.svFlags & SVF_BOT) ) {
 			if (g_gametype.integer == GT_TEAMPLAY) {
 				sess->savedTeam = PickTeam(-1);
 				client->ps.persistant[PERS_SAVEDTEAM] = sess->savedTeam;
