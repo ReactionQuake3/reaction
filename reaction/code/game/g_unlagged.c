@@ -549,7 +549,7 @@ Advance the given entity frametime seconds, stepping and sliding as appropriate
 
 void G_PredictPlayerStepSlideMove(gentity_t * ent, float frametime)
 {
-	vec3_t start_o, start_v, down_o, down_v;
+	vec3_t start_o, start_v; // down_o, down_v;
 	vec3_t down, up;
 	trace_t trace;
 	float stepSize;
@@ -562,8 +562,8 @@ void G_PredictPlayerStepSlideMove(gentity_t * ent, float frametime)
 		return;
 	}
 
-	VectorCopy(ent->s.pos.trBase, down_o);
-	VectorCopy(ent->s.pos.trDelta, down_v);
+//	VectorCopy(ent->s.pos.trBase, down_o);
+//	VectorCopy(ent->s.pos.trDelta, down_v);
 
 	VectorCopy(start_o, up);
 	up[2] += STEPSIZE;

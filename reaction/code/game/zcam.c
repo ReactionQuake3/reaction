@@ -932,7 +932,7 @@ static void CameraSwingThink(gentity_t * ent)
 	gentity_t *target;
 	vec3_t forward, right;
 	trace_t trace;
-	vec3_t oldgoal;
+//	vec3_t oldgoal;
 	vec3_t angles;
 	vec3_t viewangles;
 	static vec3_t mins = { -4, -4, -4 };
@@ -960,7 +960,7 @@ static void CameraSwingThink(gentity_t * ent)
 	ent->client->camera->swing_height = SWING_NOMINAL_HEIGHT;
 
 	VectorCopy(target->client->ps.origin, ownerv);
-	VectorCopy(ent->client->ps.origin, oldgoal);
+//	VectorCopy(ent->client->ps.origin, oldgoal);
 	VectorCopy(ent->client->camera->swing_last_viewangles, angles);
 
 	angles[YAW] += ent->client->camera->swing_angle;
