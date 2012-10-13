@@ -46,7 +46,7 @@ void UpdateTournamentInfo(void)
 {
 	int i;
 	gentity_t *player;
-	int playerClientNum;
+//	int playerClientNum;
 	//int n, accuracy, perfect, msglen;
 	int n, msglen;
 	char buf[32];
@@ -70,7 +70,7 @@ void UpdateTournamentInfo(void)
 	if (!player || i == level.maxclients) {
 		return;
 	}
-	playerClientNum = i;
+//	playerClientNum = i;
 
 	CalculateRanks();
 

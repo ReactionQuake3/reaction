@@ -115,10 +115,10 @@ void CG_CreateTracer(int entity, vec3_t start, vec3_t end);
 void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 {
 	vec3_t forward, right;
-	polyVert_t verts[4];
+//	polyVert_t verts[4];
 	vec3_t line;
 	float len, begin, end;
-	vec3_t start, finish;
+//	vec3_t start, finish;
 
 	//vec3_t                midpoint;
 
@@ -136,8 +136,8 @@ void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 	if (end > len) {
 		end = len;
 	}
-	VectorMA(source, begin, forward, start);
-	VectorMA(source, end, forward, finish);
+//	VectorMA(source, begin, forward, start);
+//	VectorMA(source, end, forward, finish);
 
 	line[0] = DotProduct(forward, cg.refdef.viewaxis[1]);
 	line[1] = DotProduct(forward, cg.refdef.viewaxis[2]);
@@ -146,7 +146,7 @@ void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 	VectorMA(right, -line[0], cg.refdef.viewaxis[2], right);
 	VectorNormalize(right);
 
-	VectorMA(finish, width, right, verts[0].xyz);
+/*	VectorMA(finish, width, right, verts[0].xyz);
 	verts[0].st[0] = 0;
 	verts[0].st[1] = 1;
 	verts[0].modulate[0] = 255;
@@ -176,7 +176,7 @@ void CG_ShrapnelSpark(vec3_t source, vec3_t dest, float width, float length)
 	verts[3].modulate[0] = 255;
 	verts[3].modulate[1] = 255;
 	verts[3].modulate[2] = 255;
-	verts[3].modulate[3] = 255;
+	verts[3].modulate[3] = 255; */
 
 	//trap_R_AddPolyToScene(cgs.media.tracerShader, 4, verts);
 	CG_CreateTracer(ENTITYNUM_WORLD, source, dest);

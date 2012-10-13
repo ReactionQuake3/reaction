@@ -1188,7 +1188,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	int anim, contents, killer, i, hurt;
 	char *killerName, *obit;
 
-	hurt = 0;
+	hurt = contents = 0;
 	//Blaze: Stop bleeding when dead
 	if (self->client) {
 		//Elder: drop the primed grenade
