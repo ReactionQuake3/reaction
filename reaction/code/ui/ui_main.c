@@ -8427,7 +8427,7 @@ static void UI_BuildQ3Model_List(void)
 			if (Q_stricmpn(skinname, "icon_", 5) == 0
 			    && !(Q_stricmp(skinname, "icon_blue") == 0 || Q_stricmp(skinname, "icon_red") == 0)) {
 				if (Q_stricmp(skinname, "icon_default") == 0) {
-					Com_sprintf(scratch, sizeof(scratch), dirptr);
+					Com_sprintf(scratch, sizeof(scratch), "%s", dirptr);
 				} else {
 					Com_sprintf(scratch, sizeof(scratch), "%s/%s", dirptr, skinname + 5);
 				}
@@ -8441,7 +8441,7 @@ static void UI_BuildQ3Model_List(void)
 				}
 				if (!dirty) {
 					Com_sprintf(uiInfo.q3HeadNames[uiInfo.q3HeadCount],
-						    sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), scratch);
+						    sizeof(uiInfo.q3HeadNames[uiInfo.q3HeadCount]), "%s", scratch);
 					//Makro - see if this model is the selected one
 					if (!strcmp(currentSkin, scratch)) {
 						uiInfo.q3SelectedHead = uiInfo.q3HeadCount;
@@ -8574,7 +8574,7 @@ void _UI_Init(qboolean inGameLoad)
 	//Makro - added
 	char info[MAX_INFO_STRING];
 	//
-	int start;
+//	int start;
 	qboolean needRestart = qfalse;
 
 	//uiInfo.inGameLoad = inGameLoad;
@@ -8713,7 +8713,7 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.uiDC.max[0] = SCREEN_WIDTH - uiInfo.uiDC.min[0];
 	uiInfo.uiDC.max[1] = SCREEN_HEIGHT;
 
-	start = trap_Milliseconds();
+//	start = trap_Milliseconds();
 
 	UI_ExportSymbols();
 

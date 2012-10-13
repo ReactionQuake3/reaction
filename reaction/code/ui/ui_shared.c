@@ -416,7 +416,7 @@ void String_Init( void )
 =================
 PC_SourceWarning
 =================
-*/
+
 static __attribute__ ((format (printf, 2, 3))) void PC_SourceWarning(int handle, char *format, ...) {
 	int line;
 	char filename[128];
@@ -433,7 +433,7 @@ static __attribute__ ((format (printf, 2, 3))) void PC_SourceWarning(int handle,
 
 	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
 }
-
+*/
 /*
 =================
 PC_SourceError
@@ -2520,17 +2520,17 @@ int Item_Slider_OverSlider(itemDef_t * item, float x, float y)
 int Item_ListBox_OverLB(itemDef_t * item, float x, float y)
 {
 	rectDef_t r;
-	listBoxDef_t *listPtr;
+//	listBoxDef_t *listPtr;
 	int thumbstart;
-	int count;
+//	int count;
 	float p[2];
 
 	r.hasVectors = item->window.rect.hasVectors;
 	Vector2Copy(item->window.rect.u, r.u);
 	Vector2Copy(item->window.rect.v, r.v);
 	
-	count = DC->feederCount(item->special);
-	listPtr = (listBoxDef_t *) item->typeData;
+//	count = DC->feederCount(item->special);
+//	listPtr = (listBoxDef_t *) item->typeData;
 	//horizontal
 	if (item->window.flags & WINDOW_HORIZONTAL) {
 		//vectors?
