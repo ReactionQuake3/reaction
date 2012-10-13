@@ -1060,6 +1060,7 @@ void Knife_Attack(gentity_t * self, int damage)
 //static int knives = 0;
 
 //Elder: this function does not appear to be in use
+/*
 void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
 	vec3_t origin;
@@ -1103,21 +1104,21 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 		// if knifelimit == 0 then it won't be in effect and it can
 		// start removing knives even when less than the limit are
 		// out there.
-		/*    if ( g_rxn_knifelimit.value != 0 )
-		   {
-		   knives++;
-
-		   if (knives > g_rxn_knifelimit.value)
-		   knives = 1;
-
-		   knife = FindEdictByClassnum ("weapon_Knife", knives);
-
-		   if (knife)
-		   {
-		   knife->nextthink = level.time + .1;
-		   }
-
-		   }   */
+//		   if ( g_rxn_knifelimit.value != 0 )
+//		   {
+//		   knives++;
+//
+//		   if (knives > g_rxn_knifelimit.value)
+//		   knives = 1;
+//
+//		   knife = FindEdictByClassnum ("weapon_Knife", knives);
+//
+//		   if (knife)
+//		   {
+//		   knife->nextthink = level.time + .1;
+//		   }
+//
+//		   }
 
 		//spawn a knife in the object
 		//Elder: todo - rotate the knife model so it's collinear with trajectory
@@ -1130,6 +1131,7 @@ void Knife_Touch(gentity_t * ent, gentity_t * other, trace_t * trace)
 
 	G_FreeEntity(ent);
 }
+*/
 
 //gentity_t *Knife_Throw (gentity_t *self,vec3_t start, vec3_t dir, int damage, int speed )
 //Elder: moved knife_throw to g_missile.c where it belongs
@@ -1184,7 +1186,7 @@ Knife Attack
 void Weapon_Knife_Fire(gentity_t * ent)
 {
 //      Knife_Attack(ent,THROW_DAMAGE);
-	gentity_t *m;
+//	gentity_t *m;
 
 // Homer: if client is supposed to be slashing, go to that function instead
 	if ((ent->client->ps.persistant[PERS_WEAPONMODES] & RQ3_KNIFEMODE) == RQ3_KNIFEMODE) {
@@ -1204,7 +1206,7 @@ void Weapon_Knife_Fire(gentity_t * ent)
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
 
-	m = fire_knife(ent, muzzle, forward);
+	fire_knife(ent, muzzle, forward);
 }
 
 /*
@@ -1238,7 +1240,7 @@ void Weapon_M4_Fire(gentity_t * ent)
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
 
-	Bullet_Fire(ent, RQ3_Spread(ent, M4_SPREAD), M4_DAMAGE, MOD_M4);
+	Bullet_Fire(ent, RQ3_Spread(ent, spread), M4_DAMAGE, MOD_M4);
 }
 
 /*
@@ -1521,7 +1523,7 @@ void Weapon_MP5_Fire(gentity_t * ent)
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
 
-	Bullet_Fire(ent, RQ3_Spread(ent, MP5_SPREAD), MP5_DAMAGE, MOD_MP5);
+	Bullet_Fire(ent, RQ3_Spread(ent, spread), MP5_DAMAGE, MOD_MP5);
 
 }
 
@@ -1697,7 +1699,7 @@ Grenade Attack
 */
 void Weapon_Grenade_Fire(gentity_t * ent)
 {
-	gentity_t *m;
+//	gentity_t *m;
 
 	// extra vertical velocity
 	// Elder: not present in AQ2
@@ -1708,7 +1710,7 @@ void Weapon_Grenade_Fire(gentity_t * ent)
 	if (g_gametype.integer >= GT_TEAM)
 		setFFState(ent);
 	
-	m = fire_grenade(ent, muzzle, forward);
+	fire_grenade(ent, muzzle, forward);
 }
 
 /*
@@ -1916,7 +1918,7 @@ void Laser_Think(gentity_t * self)
 	vec3_t end, start, forward, up;
 	trace_t tr;		//, tr2;
 	int l = 0, passent;
-	gentity_t *traceEnt;
+//	gentity_t *traceEnt;
 
 	//Makro - added
 	//int                   contents;
@@ -1946,7 +1948,7 @@ void Laser_Think(gentity_t * self)
 
 		//Trace Position
 		trap_Trace(&tr, start, NULL, NULL, end, passent, MASK_SHOT);
-		traceEnt = &g_entities[tr.entityNum];
+//		traceEnt = &g_entities[tr.entityNum];
 
 		//Did you not hit anything?
 		if (tr.surfaceFlags & SURF_NOIMPACT || tr.surfaceFlags & SURF_SKY) {

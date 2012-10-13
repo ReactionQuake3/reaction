@@ -1068,12 +1068,12 @@ static void InitBreakable_Finish(gentity_t * ent)
 	ent->think = 0;
 	ent->nextthink = 0;
 	if (ent->s.weapon < 0 || ent->s.weapon >= RQ3_MAX_BREAKABLES) {
-		G_Printf(S_COLOR_RED, "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
+		G_Printf(S_COLOR_RED "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
 		G_FreeEntity(ent);
 	}
 	trap_GetConfigstring(CS_BREAKABLES + ent->s.weapon, info, sizeof(info));
 	if (strlen(Info_ValueForKey(info, "type")) == 0) {
-		G_Printf(S_COLOR_RED, "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
+		G_Printf(S_COLOR_RED "ERROR: Invalid func_breakable id (%d)\n", ent->s.weapon);
 		G_FreeEntity(ent);
 	}
 	ent->s.eventParm |= (ent->s.weapon & 0x0FFF);
