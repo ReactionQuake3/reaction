@@ -2165,7 +2165,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 		{
 			//ri.Printf(PRINT_ALL, "Found!\n");
 			if (size != sizeof(float) * 3 * (verts->filelen / sizeof(*dv)))
-				ri.Error(ERR_DROP, "Bad size for %s (%i, expected %i)!\n", filename, size, sizeof(float) * 3 * (verts->filelen / sizeof(*dv)));
+				ri.Error(ERR_DROP, "Bad size for %s (%i, expected %lu)!\n", filename, size, sizeof(float) * 3 * (verts->filelen / sizeof(*dv)));
 		}
 	}
 
@@ -2666,7 +2666,7 @@ void R_LoadLightGrid( lump_t *l ) {
 
 			if (size != sizeof(float) * 6 * numGridPoints)
 			{
-				ri.Error(ERR_DROP, "Bad size for %s (%i, expected %i)!\n", filename, size, sizeof(float) * 6 * numGridPoints);
+				ri.Error(ERR_DROP, "Bad size for %s (%i, expected %lu)!\n", filename, size, sizeof(float) * 6 * numGridPoints);
 			}
 
 			w->hdrLightGrid = ri.Hunk_Alloc(size, h_low);
