@@ -2768,7 +2768,6 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 	{
 		int firstDrawSurf;
-		int j;
 
 		Com_Memset( &shadowParms, 0, sizeof( shadowParms ) );
 
