@@ -1223,8 +1223,8 @@ void CG_AddLensFlare(qboolean sun)
 			ent.renderfx = RF_SUNFLARE;
 			ent.shaderRGBA[0] = cgs.flareFadeFactor * cgs.sunAlpha * 255;
 			ent.shaderRGBA[1] = cgs.sunAlpha * 255;
-			ent.shaderRGBA[2] = 0.f;
-			ent.shaderRGBA[3] = 0.f;
+			ent.shaderRGBA[2] = 0;
+			ent.shaderRGBA[3] = 0;
 			trap_R_AddRefEntityToScene(&ent);
 		}
 		//speed hack
