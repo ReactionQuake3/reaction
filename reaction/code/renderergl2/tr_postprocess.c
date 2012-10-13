@@ -98,7 +98,7 @@ void RB_ToneMap(FBO_t *hdrFbo, int autoExposure)
 
 void RB_BokehBlur(float blur)
 {
-	vec4i_t srcBox, dstBox;
+//	vec4i_t srcBox, dstBox;
 	vec4_t color;
 	
 	blur *= 10.0f;
@@ -292,7 +292,7 @@ void RB_GodRays(void)
 	const float cutoff = 0.25f;
 	qboolean colorize = qtrue;
 
-	float w, h, w2, h2;
+//	float w, h, w2, h2;
 	matrix_t mvp;
 	vec4_t pos, hpos;
 
@@ -323,10 +323,11 @@ void RB_GodRays(void)
 	pos[1] = 0.5f - hpos[1] * hpos[3];
 	
 	// viewport dimensions
-	w = glConfig.vidWidth;
+	// JBravo: Apparently not used
+/*	w = glConfig.vidWidth;
 	h = glConfig.vidHeight;
 	w2 = glConfig.vidWidth / 2;
-	h2 = glConfig.vidHeight / 2;
+	h2 = glConfig.vidHeight / 2; */
 
 	// initialize quarter buffers
 	{
