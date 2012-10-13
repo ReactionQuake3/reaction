@@ -851,7 +851,7 @@ static void ForwardDlight( void ) {
 
 
 static void ForwardSunlight( void ) {
-	int		l;
+//	int		l;
 	//vec3_t	origin;
 	//float	scale;
 	int stage;
