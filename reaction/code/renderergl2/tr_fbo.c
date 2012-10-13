@@ -358,7 +358,8 @@ FBO_Init
 void FBO_Init(void)
 {
 	int             i;
-	int             width, height, hdrFormat, multisample;
+	// int             width, height, hdrFormat, multisample;
+	int             hdrFormat, multisample;
 
 	ri.Printf(PRINT_ALL, "------- FBO_Init -------\n");
 
@@ -372,7 +373,7 @@ void FBO_Init(void)
 	// make sure the render thread is stopped
 	R_SyncRenderThread();
 
-	if(glRefConfig.textureNonPowerOfTwo)
+/*	if(glRefConfig.textureNonPowerOfTwo)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -381,7 +382,7 @@ void FBO_Init(void)
 	{
 		width = NextPowerOfTwo(glConfig.vidWidth);
 		height = NextPowerOfTwo(glConfig.vidHeight);
-	}
+	} */
 
 	hdrFormat = GL_RGBA8;
 	if (r_hdr->integer && glRefConfig.framebufferObject && glRefConfig.textureFloat)
