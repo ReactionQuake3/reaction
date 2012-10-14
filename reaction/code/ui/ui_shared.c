@@ -3435,11 +3435,11 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 		max = Item_ListBox_MaxScroll(si->item); 
 		//vectors?
 		if (r.hasVectors) {
-			float p[2];
+			float pt[2];
 			//Makro - FIXME!!!
-			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, &p[0], NULL);
-			p[1] = (p[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.w - 3 * SCROLLBAR_SIZE - 2);
-			pos = (int) (max * p[1]);
+			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, &pt[0], NULL);
+			pt[1] = (pt[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.w - 3 * SCROLLBAR_SIZE - 2);
+			pos = (int) (max * pt[1]);
 		//no vectors
 		} else {
 			r.x = si->item->window.rect.x + SCROLLBAR_SIZE + 1;
@@ -3462,15 +3462,15 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 		max = Item_ListBox_MaxScroll(si->item);
 		//vectors?
 		if (r.hasVectors) {
-			float p[2];
-			Vector2Set(p, DC->cursorx - si->item->window.rect.x, DC->cursory - si->item->window.rect.y);
+			float pt[2];
+			Vector2Set(pt, DC->cursorx - si->item->window.rect.x, DC->cursory - si->item->window.rect.y);
 			
 			//projection
 			//p[0] = p[0] * si->item->window.rect.v[0] + p[1] * si->item->window.rect.v[1];
-			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, NULL, &p[0]);
+			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, NULL, &pt[0]);
 			//0..1 fraction
-			p[1] = (p[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.h - 3 * SCROLLBAR_SIZE - 2);
-			pos = (int) (max * p[1]);
+			pt[1] = (pt[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.h - 3 * SCROLLBAR_SIZE - 2);
+			pos = (int) (max * pt[1]);
 		//no vectors
 		} else {
 			r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_SIZE - 1;
@@ -6063,12 +6063,9 @@ void Item_ListBox_Paint(itemDef_t * item)
 
 void Item_OwnerDraw_Paint(itemDef_t * item)
 {
-	menuDef_t *parent;
-
 	if (item == NULL) {
 		return;
 	}
-	parent = (menuDef_t *) item->parent;
 
 	if (DC->ownerDrawItem) {
 		vec4_t color, lowLight;
