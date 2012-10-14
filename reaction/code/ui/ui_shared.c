@@ -3436,6 +3436,7 @@ static void Scroll_ListBox_ThumbFunc(void *p)
 		//vectors?
 		if (r.hasVectors) {
 			float pt[2];
+			Vector2Set(pt, 0.f, 0.f);	// fix bogus compiler warning :(
 			//Makro - FIXME!!!
 			Rect_ToInnerCoords(&si->item->window.rect, DC->cursorx, DC->cursory, &pt[0], NULL);
 			pt[1] = (pt[0] - SCROLLBAR_SIZE / 2 - SCROLLBAR_SIZE - 1) / (si->item->window.rect.w - 3 * SCROLLBAR_SIZE - 2);
