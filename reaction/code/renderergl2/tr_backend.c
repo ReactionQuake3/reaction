@@ -129,11 +129,15 @@ void GL_BindToTMU( image_t *image, int tmu )
 	int		texnum;
 	int     oldtmu = glState.currenttmu;
 
-	texnum = image->texnum;
+	if (!image)
+		texnum = 0;
+	else
+		texnum = image->texnum;
 
 	if ( glState.currenttextures[tmu] != texnum ) {
 		GL_SelectTexture( tmu );
-		image->frameUsed = tr.frameCount;
+		if (image)
+			image->frameUsed = tr.frameCount;
 		glState.currenttextures[tmu] = texnum;
 		qglBindTexture( GL_TEXTURE_2D, texnum );
 		GL_SelectTexture( oldtmu );
@@ -582,7 +586,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	FBO_t*			fbo = NULL;
 	qboolean		inQuery = qfalse;
 
-#ifdef REACTION
+#if 1 //def REACTION
 	float			depth[2];
 #endif
 
@@ -604,7 +608,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldSort = -1;
 	depthRange = qfalse;
 
-#ifdef REACTION
+#if 1 //def REACTION
 	depth[0] = 0.f;
 	depth[1] = 1.f;
 #endif
@@ -754,7 +758,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 						}
 					}
 
-#ifdef REACTION
+#if 1 //def REACTION
  					if(!oldDepthRange)
 					{
 						depth[0] = 0;
@@ -772,7 +776,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 					if (!sunflare)
 						qglDepthRange (0, 1);
-#ifdef REACTION
+#if 1 //def REACTION
 					depth[0] = 0;
 					depth[1] = 1;
 #endif
@@ -876,6 +880,9 @@ void	RB_SetGL2D (void) {
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
+
+	// reset color scaling
+	backEnd.refdef.colorScale = 1.0f;
 }
 
 
@@ -1198,6 +1205,72 @@ const void	*RB_DrawSurfs( const void *data ) {
 		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 		qglColorMask(!backEnd.colorMask[0], !backEnd.colorMask[1], !backEnd.colorMask[2], !backEnd.colorMask[3]);
 		backEnd.depthFill = qfalse;
+
+		if (backEnd.viewParms.flags & VPF_USESUNLIGHT)
+		{
+			vec4_t quadVerts[4];
+			vec2_t texCoords[4];
+			FBO_t *oldFbo = glState.currentFBO;
+
+			// If we're using multisampling, resolve the depth first
+			if (tr.msaaResolveFbo)
+			{
+				FBO_FastBlit(tr.renderFbo, NULL, tr.msaaResolveFbo, NULL, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			}
+
+			FBO_Bind(tr.screenShadowFbo);
+
+			VectorSet4(quadVerts[0], -1,  1, 0, 1);
+			VectorSet4(quadVerts[1],  1,  1, 0, 1);
+			VectorSet4(quadVerts[2],  1, -1, 0, 1);
+			VectorSet4(quadVerts[3], -1, -1, 0, 1);
+
+			texCoords[0][0] = 0; texCoords[0][1] = 1;
+			texCoords[1][0] = 1; texCoords[1][1] = 1;
+			texCoords[2][0] = 1; texCoords[2][1] = 0;
+			texCoords[3][0] = 0; texCoords[3][1] = 0;
+
+			GL_State( GLS_DEPTHTEST_DISABLE );
+
+			GLSL_BindProgram(&tr.shadowmaskShader);
+
+			GL_BindToTMU(tr.renderDepthImage, TB_COLORMAP);
+			GL_BindToTMU(tr.sunShadowDepthImage[0], TB_SHADOWMAP);
+			GL_BindToTMU(tr.sunShadowDepthImage[1], TB_SHADOWMAP2);
+			GL_BindToTMU(tr.sunShadowDepthImage[2], TB_SHADOWMAP3);
+
+			GLSL_SetUniformMatrix16(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP,  backEnd.refdef.sunShadowMvp[0]);
+			GLSL_SetUniformMatrix16(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP2, backEnd.refdef.sunShadowMvp[1]);
+			GLSL_SetUniformMatrix16(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP3, backEnd.refdef.sunShadowMvp[2]);
+			
+			GLSL_SetUniformVec3(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWORIGIN,  backEnd.refdef.vieworg);
+			{
+				vec4_t viewInfo;
+				vec3_t viewVector;
+
+				float zmax = backEnd.viewParms.zFar;
+				float ymax = zmax * tan(backEnd.viewParms.fovY * M_PI / 360.0f);
+				float xmax = zmax * tan(backEnd.viewParms.fovX * M_PI / 360.0f);
+
+				float zmin = r_znear->value;
+
+				VectorScale(backEnd.refdef.viewaxis[0], zmax, viewVector);
+				GLSL_SetUniformVec3(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWFORWARD, viewVector);
+				VectorScale(backEnd.refdef.viewaxis[1], xmax, viewVector);
+				GLSL_SetUniformVec3(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWLEFT,    viewVector);
+				VectorScale(backEnd.refdef.viewaxis[2], ymax, viewVector);
+				GLSL_SetUniformVec3(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWUP,      viewVector);
+
+				VectorSet4(viewInfo, zmax / zmin, zmax, 0.0, 0.0);
+
+				GLSL_SetUniformVec4(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWINFO, viewInfo);
+			}
+
+
+			RB_InstantQuad2(quadVerts, texCoords); //, color, shaderProgram, invTexRes);
+
+			FBO_Bind(oldFbo);
+		}
 	}
 
 	if ((backEnd.viewParms.flags & VPF_DEPTHCLAMP) && glRefConfig.depthClamp)
@@ -1554,6 +1627,15 @@ const void *RB_PostProcess(const void *data)
 		FBO_BlitFromTexture(tr.sunShadowDepthImage[1], NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
 		VectorSet4(dstBox, 256, 0, 128, 128);
 		FBO_BlitFromTexture(tr.sunShadowDepthImage[2], NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+	}
+
+	if (0)
+	{
+		vec4i_t dstBox;
+		VectorSet4(dstBox, 256, tr.screenScratchFbo->height - 256, 256, 256);
+		FBO_BlitFromTexture(tr.renderDepthImage, NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
+		VectorSet4(dstBox, 512, tr.screenScratchFbo->height - 256, 256, 256);
+		FBO_BlitFromTexture(tr.screenShadowImage, NULL, NULL, tr.screenScratchFbo, dstBox, NULL, NULL, 0);
 	}
 
 	backEnd.framePostProcessed = qtrue;

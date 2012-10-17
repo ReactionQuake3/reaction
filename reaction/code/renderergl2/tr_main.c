@@ -1905,7 +1905,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	R_RadixSort( drawSurfs, numDrawSurfs );
 
 	// skip pass through drawing if rendering a shadow map
-	if ((tr.viewParms.flags & VPF_SHADOWMAP) || (tr.viewParms.flags & VPF_DEPTHSHADOW))
+	if (tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW))
 	{
 		R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
 		return;
@@ -1958,7 +1958,7 @@ static void R_AddEntitySurface (int entityNum)
 	// mirrors, because the true body position will already be drawn
 	//
 	if ( (ent->e.renderfx & RF_FIRST_PERSON) && (tr.viewParms.isPortal 
-	      || (tr.viewParms.flags & VPF_SHADOWMAP) || (tr.viewParms.flags & VPF_DEPTHSHADOW))) {
+	      || (tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW))) ) {
 		return;
 	}
 
@@ -2587,18 +2587,24 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 	}
 }
 
+static float CalcSplit(float n, float f, float i, float m)
+{
+	return (n * pow(f / n, i / m) + (f - n) * i / m) / 2.0f;
+}
+
 
 void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 {
 	viewParms_t		shadowParms;
 	vec4_t lightDir, lightCol;
-	vec3_t up;
 	vec3_t lightViewAxis[3];
 	vec3_t lightOrigin;
-	float viewznear, viewzfar;
+	float splitZNear, splitZFar, splitBias;
+	float viewZNear, viewZFar;
 	vec3_t lightviewBounds[2];
+	qboolean lightViewIndependentOfCameraView = qfalse;
 
-	if (r_testSunlight->integer == 2)
+	if (r_forceSun->integer == 2)
 	{
 		int scale = 32768;
 		float angle = (fd->time % scale) / (float)scale * M_PI;
@@ -2624,58 +2630,90 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 		VectorCopy4(lightDir, tr.refdef.sunDir);
 		VectorCopy4(lightCol, tr.refdef.sunCol);
+		VectorScale4(lightCol, 0.2f, tr.refdef.sunAmbCol);
 	}
 	else
 	{
 		VectorCopy4(tr.refdef.sunDir, lightDir);
 	}
 
+	viewZNear = r_shadowCascadeZNear->value;
+	viewZFar = r_shadowCascadeZFar->value;
+	splitBias = r_shadowCascadeZBias->value;
+
 	switch(level)
 	{
 		case 0:
 		default:
-			//viewznear = r_znear->value;
-			//viewzfar  = 256;
-			viewznear = r_znear->value;
-			viewzfar = 128;
+			//splitZNear = r_znear->value;
+			//splitZFar  = 256;
+			splitZNear = viewZNear;
+			splitZFar = CalcSplit(viewZNear, viewZFar, 1, 3) + splitBias;
 			break;
 		case 1:
-			viewznear = 128;
-			viewzfar = 384;
-			//viewznear = 256;
-			//viewzfar  = 896;
+			splitZNear = CalcSplit(viewZNear, viewZFar, 1, 3) + splitBias;
+			splitZFar = CalcSplit(viewZNear, viewZFar, 2, 3) + splitBias;
+			//splitZNear = 256;
+			//splitZFar  = 896;
 			break;
 		case 2:
-			viewznear = 384;
-			viewzfar = 1024;
-			//viewznear = 896;
-			//viewzfar  = 3072;
+			splitZNear = CalcSplit(viewZNear, viewZFar, 2, 3) + splitBias;
+			splitZFar = viewZFar;
+			//splitZNear = 896;
+			//splitZFar  = 3072;
 			break;
 	}
 			
 	VectorCopy(fd->vieworg, lightOrigin);
 
 
-	// make up a projection
+	// Make up a projection
 	VectorScale(lightDir, -1.0f, lightViewAxis[0]);
 
-	// try to use halfway between player right and player forward as up
-	//VectorCopy(fd->viewaxis[1], up);
-	VectorScale(fd->viewaxis[0], 0.5f, up);
-	VectorMA(up, 0.5f, fd->viewaxis[1], up);
-	
-	if ( abs(DotProduct(up, lightViewAxis[0])) > 0.9f )
+	if (lightViewIndependentOfCameraView)
 	{
-		// if not, halfway between player up and player forward
-		//VectorCopy(fd->viewaxis[2], up);
-		VectorScale(fd->viewaxis[0], 0.5f, up);
-		VectorMA(up, 0.5f, fd->viewaxis[2], up);
+		// Use world up as light view up
+		VectorSet(lightViewAxis[2], 0, 0, 1);
+	}
+	else if (level == 0)
+	{
+		// Level 0 tries to use a diamond texture orientation relative to camera view
+		// Use halfway between camera view forward and left for light view up
+		VectorAdd(fd->viewaxis[0], fd->viewaxis[1], lightViewAxis[2]);
+	}
+	else
+	{
+		// Use camera view up as light view up
+		VectorCopy(fd->viewaxis[2], lightViewAxis[2]);
 	}
 
-	CrossProduct(lightViewAxis[0], up, lightViewAxis[1]);
+	// Check if too close to parallel to light direction
+	if (abs(DotProduct(lightViewAxis[2], lightViewAxis[0])) > 0.9f)
+	{
+		if (lightViewIndependentOfCameraView)
+		{
+			// Use world left as light view up
+			VectorSet(lightViewAxis[2], 0, 1, 0);
+		}
+		else if (level == 0)
+		{
+			// Level 0 tries to use a diamond texture orientation relative to camera view
+			// Use halfway between camera view forward and up for light view up
+			VectorAdd(fd->viewaxis[0], fd->viewaxis[2], lightViewAxis[2]);
+		}
+		else
+		{
+			// Use camera view left as light view up
+			VectorCopy(fd->viewaxis[1], lightViewAxis[2]);
+		}
+	}
+
+	// clean axes
+	CrossProduct(lightViewAxis[2], lightViewAxis[0], lightViewAxis[1]);
 	VectorNormalize(lightViewAxis[1]);
 	CrossProduct(lightViewAxis[0], lightViewAxis[1], lightViewAxis[2]);
 
+	// Create bounds for light projection using slice of view projection
 	{
 		matrix_t lightViewMatrix;
 		vec4_t point, base, lightViewPoint;
@@ -2685,32 +2723,14 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		point[3] = 1;
 		lightViewPoint[3] = 1;
 
-		lightViewMatrix[0]  = lightViewAxis[0][0];
-		lightViewMatrix[1]  = lightViewAxis[1][0];
-		lightViewMatrix[2]  = lightViewAxis[2][0];
-		lightViewMatrix[3]  = 0;
-
-		lightViewMatrix[4]  = lightViewAxis[0][1];
-		lightViewMatrix[5]  = lightViewAxis[1][1];
-		lightViewMatrix[6]  = lightViewAxis[2][1];
-		lightViewMatrix[7]  = 0;
-
-		lightViewMatrix[8]  = lightViewAxis[0][2];
-		lightViewMatrix[9]  = lightViewAxis[1][2];
-		lightViewMatrix[10] = lightViewAxis[2][2];
-		lightViewMatrix[11] = 0;
-
-		lightViewMatrix[12] = -DotProduct(lightOrigin, lightViewAxis[0]);
-		lightViewMatrix[13] = -DotProduct(lightOrigin, lightViewAxis[1]);
-		lightViewMatrix[14] = -DotProduct(lightOrigin, lightViewAxis[2]);
-		lightViewMatrix[15] = 1;
+		Matrix16View(lightViewAxis, lightOrigin, lightViewMatrix);
 
 		ClearBounds(lightviewBounds[0], lightviewBounds[1]);
 
 		// add view near plane
-		lx = viewznear * tan(fd->fov_x * M_PI / 360.0f);
-		ly = viewznear * tan(fd->fov_y * M_PI / 360.0f);
-		VectorMA(fd->vieworg, viewznear, fd->viewaxis[0], base);
+		lx = splitZNear * tan(fd->fov_x * M_PI / 360.0f);
+		ly = splitZNear * tan(fd->fov_y * M_PI / 360.0f);
+		VectorMA(fd->vieworg, splitZNear, fd->viewaxis[0], base);
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
@@ -2734,9 +2754,9 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		
 
 		// add view far plane
-		lx = viewzfar * tan(fd->fov_x * M_PI / 360.0f);
-		ly = viewzfar * tan(fd->fov_y * M_PI / 360.0f);
-		VectorMA(fd->vieworg, viewzfar, fd->viewaxis[0], base);
+		lx = splitZFar * tan(fd->fov_x * M_PI / 360.0f);
+		ly = splitZFar * tan(fd->fov_y * M_PI / 360.0f);
+		VectorMA(fd->vieworg, splitZFar, fd->viewaxis[0], base);
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
@@ -2761,6 +2781,31 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		if (!glRefConfig.depthClamp)
 			lightviewBounds[0][0] = lightviewBounds[1][0] - 8192;
 
+		// Moving the Light in Texel-Sized Increments
+		// from http://msdn.microsoft.com/en-us/library/windows/desktop/ee416324%28v=vs.85%29.aspx
+		//
+		if (lightViewIndependentOfCameraView)
+		{
+			float cascadeBound, worldUnitsPerTexel, invWorldUnitsPerTexel;
+
+			cascadeBound = MAX(lightviewBounds[1][0] - lightviewBounds[0][0], lightviewBounds[1][1] - lightviewBounds[0][1]);
+			cascadeBound = MAX(cascadeBound, lightviewBounds[1][2] - lightviewBounds[0][2]);
+			worldUnitsPerTexel = cascadeBound / tr.sunShadowFbo[level]->width;
+			invWorldUnitsPerTexel = 1.0f / worldUnitsPerTexel;
+
+			VectorScale(lightviewBounds[0], invWorldUnitsPerTexel, lightviewBounds[0]);
+			lightviewBounds[0][0] = floor(lightviewBounds[0][0]);
+			lightviewBounds[0][1] = floor(lightviewBounds[0][1]);
+			lightviewBounds[0][2] = floor(lightviewBounds[0][2]);
+			VectorScale(lightviewBounds[0], worldUnitsPerTexel, lightviewBounds[0]);
+
+			VectorScale(lightviewBounds[1], invWorldUnitsPerTexel, lightviewBounds[1]);
+			lightviewBounds[1][0] = floor(lightviewBounds[1][0]);
+			lightviewBounds[1][1] = floor(lightviewBounds[1][1]);
+			lightviewBounds[1][2] = floor(lightviewBounds[1][2]);
+			VectorScale(lightviewBounds[1], worldUnitsPerTexel, lightviewBounds[1]);
+		}
+
 		//ri.Printf(PRINT_ALL, "znear %f zfar %f\n", lightviewBounds[0][0], lightviewBounds[1][0]);		
 		//ri.Printf(PRINT_ALL, "fovx %f fovy %f xmin %f xmax %f ymin %f ymax %f\n", fd->fov_x, fd->fov_y, xmin, xmax, ymin, ymax);
 	}
@@ -2779,10 +2824,10 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		else
 		{
 			shadowParms.viewportX = tr.refdef.x;
-			shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + SUNSHADOW_MAP_SIZE );
+			shadowParms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.sunShadowFbo[level]->height );
 		}
-		shadowParms.viewportWidth = SUNSHADOW_MAP_SIZE;
-		shadowParms.viewportHeight = SUNSHADOW_MAP_SIZE;
+		shadowParms.viewportWidth  = tr.sunShadowFbo[level]->width;
+		shadowParms.viewportHeight = tr.sunShadowFbo[level]->height;
 		shadowParms.isPortal = qfalse;
 		shadowParms.isMirror = qfalse;
 

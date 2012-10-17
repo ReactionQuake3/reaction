@@ -809,8 +809,7 @@ static void ForwardDlight( void ) {
 		// where they aren't rendered
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 
-		Matrix16Identity(matrix);
-		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, matrix);
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.transformMatrix);
 
 		if (pStage->bundle[TB_DIFFUSEMAP].image[0])
 			R_BindAnimatedImageToTMU( &pStage->bundle[TB_DIFFUSEMAP], TB_DIFFUSEMAP);
@@ -905,7 +904,7 @@ static void ForwardSunlight( void ) {
 	{
 		shaderStage_t *pStage = input->xstages[stage];
 		shaderProgram_t *sp;
-		vec4_t vector;
+		//vec4_t vector;
 		matrix_t matrix;
 
 		if ( !pStage )
@@ -920,7 +919,12 @@ static void ForwardSunlight( void ) {
 			int index = pStage->glslShaderIndex;
 
 			index &= ~(LIGHTDEF_LIGHTTYPE_MASK | LIGHTDEF_USE_DELUXEMAP);
-			index |= LIGHTDEF_USE_LIGHT_VECTOR | LIGHTDEF_USE_SHADOWMAP | LIGHTDEF_USE_SHADOW_CASCADE;
+			index |= LIGHTDEF_USE_LIGHT_VECTOR | LIGHTDEF_USE_SHADOWMAP;
+
+			if (backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity)
+			{
+				index |= LIGHTDEF_ENTITY;
+			}
 
 			sp = &tr.lightallShader[index];
 		}
@@ -986,12 +990,8 @@ static void ForwardSunlight( void ) {
 		GLSL_SetUniformInt(sp, GENERIC_UNIFORM_ALPHAGEN, pStage->alphaGen);
 
 		GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_DIRECTEDLIGHT, backEnd.refdef.sunCol);
+		GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_AMBIENTLIGHT,  backEnd.refdef.sunAmbCol);
 
-		VectorSet(vector, 0, 0, 0);
-		GLSL_SetUniformVec3(sp, GENERIC_UNIFORM_AMBIENTLIGHT, vector);
-
-		//VectorSet4(vector, 0, 0, 1, 0);
-		//VectorSet4(vector, 0.57735f, 0.57735f, 0.57735f, 0);
 		GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_LIGHTORIGIN, backEnd.refdef.sunDir);
 
 		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_LIGHTRADIUS, 9999999999);
@@ -1000,8 +1000,7 @@ static void ForwardSunlight( void ) {
 		
 		GL_State( stageGlState[stage] );
 
-		Matrix16Identity(matrix);
-		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, matrix);
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.transformMatrix);
 
 		if (pStage->bundle[TB_DIFFUSEMAP].image[0])
 			R_BindAnimatedImageToTMU( &pStage->bundle[TB_DIFFUSEMAP], TB_DIFFUSEMAP);
@@ -1012,6 +1011,7 @@ static void ForwardSunlight( void ) {
 		if (pStage->bundle[TB_SPECULARMAP].image[0])
 			R_BindAnimatedImageToTMU( &pStage->bundle[TB_SPECULARMAP], TB_SPECULARMAP);
 
+		/*
 		{
 			GL_BindToTMU(tr.sunShadowDepthImage[0], TB_SHADOWMAP);
 			GL_BindToTMU(tr.sunShadowDepthImage[1], TB_SHADOWMAP2);
@@ -1020,6 +1020,8 @@ static void ForwardSunlight( void ) {
 			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_SHADOWMVP2, backEnd.refdef.sunShadowMvp[1]);
 			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_SHADOWMVP3, backEnd.refdef.sunShadowMvp[2]);
 		}
+		*/
+		GL_BindToTMU(tr.screenShadowImage, TB_SHADOWMAP);
 
 		ComputeTexMatrix( pStage, TB_DIFFUSEMAP, matrix );
 		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_DIFFUSETEXMATRIX, matrix);
@@ -1312,8 +1314,43 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		{
 			vec4_t baseColor;
 			vec4_t vertColor;
+			qboolean tint = qtrue;
+			int stage2;
 
 			ComputeShaderColors(pStage, baseColor, vertColor);
+
+			for ( stage2 = stage + 1; stage2 < MAX_SHADER_STAGES; stage2++ )
+			{
+				shaderStage_t *pStage2 = input->xstages[stage2];
+				unsigned int srcBlendBits, dstBlendBits;
+
+				if ( !pStage2 )
+				{
+					break;
+				}
+
+				srcBlendBits = pStage2->stateBits & GLS_SRCBLEND_BITS;
+				dstBlendBits = pStage2->stateBits & GLS_DSTBLEND_BITS;
+
+				if (srcBlendBits == GLS_SRCBLEND_DST_COLOR)
+				{
+					tint = qfalse;
+					break;
+				}
+			}
+			
+			if (!((tr.sunShadows || r_forceSun->integer) && tess.shader->sort <= SS_OPAQUE 
+				&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) && tess.xstages[0]->glslShaderGroup == tr.lightallShader))
+			{
+				tint = qfalse;
+			}
+
+			if (tint)
+			{
+				// use vectorscale to only scale first three values, not alpha
+				VectorScale(baseColor, backEnd.refdef.colorScale, baseColor);
+				VectorScale(vertColor, backEnd.refdef.colorScale, vertColor);
+			}
 
 			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_BASECOLOR, baseColor);
 			GLSL_SetUniformVec4(sp, GENERIC_UNIFORM_VERTCOLOR, vertColor);
@@ -1371,7 +1408,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		GLSL_SetUniformVec2(sp, GENERIC_UNIFORM_MATERIALINFO, pStage->materialInfo);
 
-		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);
+		//GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);
 
 		//
 		// do multitexture
@@ -1496,16 +1533,7 @@ static void RB_RenderShadowmap( shaderCommands_t *input )
 
 		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 
-		if (backEnd.currentEntity && backEnd.currentEntity != &tr.worldEntity)
-		{
-			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.transformMatrix);
-		}
-		else
-		{
-			matrix_t matrix;
-			Matrix16Identity(matrix);
-			GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, matrix);
-		}
+		GLSL_SetUniformMatrix16(sp, GENERIC_UNIFORM_MODELMATRIX, backEnd.or.transformMatrix);
 
 		GLSL_SetUniformFloat(sp, GENERIC_UNIFORM_VERTEXLERP, glState.vertexAttribsInterpolation);
 
@@ -1592,15 +1620,15 @@ void RB_StageIteratorGeneric( void )
 	//
 	if ((backEnd.viewParms.flags & VPF_DEPTHSHADOW))
 	{
-		GL_Cull( CT_TWO_SIDED );
-		/*
+		//GL_Cull( CT_TWO_SIDED );
+		
 		if (input->shader->cullType == CT_TWO_SIDED)
 			GL_Cull( CT_TWO_SIDED );
 		else if (input->shader->cullType == CT_FRONT_SIDED)
 			GL_Cull( CT_BACK_SIDED );
 		else
 			GL_Cull( CT_FRONT_SIDED );
-		*/
+		
 	}
 	else
 		GL_Cull( input->shader->cullType );
@@ -1686,7 +1714,8 @@ void RB_StageIteratorGeneric( void )
 		}
 	}
 
-	if ((tr.sunShadows || r_testSunlight->integer) && tess.shader->sort <= SS_OPAQUE 
+	if ((backEnd.viewParms.flags & VPF_USESUNLIGHT) && tess.shader->sort <= SS_OPAQUE 
+	//if ((tr.sunShadows || r_forceSunlight->value > 0.0f) && tess.shader->sort <= SS_OPAQUE 
 	    && !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) && tess.xstages[0]->glslShaderGroup == tr.lightallShader) {
 		ForwardSunlight();
 	}

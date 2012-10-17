@@ -54,13 +54,15 @@ static qboolean	R_CullSurface( msurface_t *surf ) {
 		}
 
 		// don't cull for depth shadow
-		if ( (tr.viewParms.flags & VPF_DEPTHSHADOW ) )
+		/*
+		if ( tr.viewParms.flags & VPF_DEPTHSHADOW )
 		{
 			return qfalse;
 		}
+		*/
 
 		// shadowmaps draw back surfaces
-		if ( (tr.viewParms.flags & VPF_SHADOWMAP) )
+		if ( tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW) )
 		{
 			if (ct == CT_FRONT_SIDED)
 			{
@@ -811,7 +813,7 @@ void R_AddWorldSurfaces (void) {
 	{
 		R_RecursiveWorldNode( tr.world->nodes, 31, 0, 0);
 	}
-	else if ( !tr.viewParms.flags & VPF_SHADOWMAP )
+	else if ( !(tr.viewParms.flags & VPF_SHADOWMAP) )
 	{
 		R_RecursiveWorldNode( tr.world->nodes, 15, ( 1 << tr.refdef.num_dlights ) - 1, ( 1 << tr.refdef.num_pshadows ) - 1 );
 	}

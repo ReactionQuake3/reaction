@@ -67,7 +67,6 @@ typedef unsigned int glIndex_t;
 #define MAX_CALC_PSHADOWS    64
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
 #define PSHADOW_MAP_SIZE      512
-#define SUNSHADOW_MAP_SIZE    1024
 
 #define USE_VERT_TANGENT_SPACE
 
@@ -743,11 +742,10 @@ enum
 	LIGHTDEF_USE_DELUXEMAP     = 0x0010,
 	LIGHTDEF_USE_PARALLAXMAP   = 0x0020,
 	LIGHTDEF_USE_SHADOWMAP     = 0x0040,
-	LIGHTDEF_USE_SHADOW_CASCADE= 0x0080,
-	LIGHTDEF_TCGEN_ENVIRONMENT = 0x0100,
-	LIGHTDEF_ENTITY            = 0x0200,
-	LIGHTDEF_ALL               = 0x03FF,
-	LIGHTDEF_COUNT             = 0x0400
+	LIGHTDEF_TCGEN_ENVIRONMENT = 0x0080,
+	LIGHTDEF_ENTITY            = 0x0100,
+	LIGHTDEF_ALL               = 0x01FF,
+	LIGHTDEF_COUNT             = 0x0200
 };
 
 enum
@@ -843,8 +841,6 @@ enum
 	GENERIC_UNIFORM_DELUXEMAP,
 	GENERIC_UNIFORM_SPECULARMAP,
 	GENERIC_UNIFORM_SHADOWMAP,
-	GENERIC_UNIFORM_SHADOWMAP2,
-	GENERIC_UNIFORM_SHADOWMAP3,
 	GENERIC_UNIFORM_DIFFUSETEXMATRIX,
 	//GENERIC_UNIFORM_NORMALTEXMATRIX,
 	//GENERIC_UNIFORM_SPECULARTEXMATRIX,
@@ -873,11 +869,24 @@ enum
 	GENERIC_UNIFORM_TIME,
 	GENERIC_UNIFORM_VERTEXLERP,
 	GENERIC_UNIFORM_MATERIALINFO,
-	GENERIC_UNIFORM_SHADOWMVP,
-	GENERIC_UNIFORM_SHADOWMVP2,
-	GENERIC_UNIFORM_SHADOWMVP3,
-	GENERIC_UNIFORM_MAPLIGHTSCALE,
 	GENERIC_UNIFORM_COUNT
+};
+
+enum
+{
+	SHADOWMASK_UNIFORM_SCREENDEPTHMAP = 0,
+	SHADOWMASK_UNIFORM_SHADOWMAP,
+	SHADOWMASK_UNIFORM_SHADOWMAP2,
+	SHADOWMASK_UNIFORM_SHADOWMAP3,
+	SHADOWMASK_UNIFORM_SHADOWMVP,
+	SHADOWMASK_UNIFORM_SHADOWMVP2,
+	SHADOWMASK_UNIFORM_SHADOWMVP3,
+	SHADOWMASK_UNIFORM_VIEWORIGIN,
+	SHADOWMASK_UNIFORM_VIEWINFO, // znear, zfar, width/2, height/2
+	SHADOWMASK_UNIFORM_VIEWFORWARD,
+	SHADOWMASK_UNIFORM_VIEWLEFT,
+	SHADOWMASK_UNIFORM_VIEWUP,
+	SHADOWMASK_UNIFORM_COUNT
 };
 
 //
@@ -928,7 +937,8 @@ typedef struct {
 	float       sunShadowMvp[3][16];
 	float       sunDir[4];
 	float       sunCol[4];
-	float       mapLightScale;
+	float       sunAmbCol[4];
+	float       colorScale;
 } trRefdef_t;
 
 
@@ -961,11 +971,12 @@ typedef struct {
 } fog_t;
 
 typedef enum {
-	VPF_NONE          = 0x00,
-	VPF_SHADOWMAP     = 0x01,
-	VPF_DEPTHSHADOW   = 0x02,
-	VPF_DEPTHCLAMP    = 0x04,
-	VPF_ORTHOGRAPHIC  = 0x08,
+	VPF_NONE         = 0x00,
+	VPF_SHADOWMAP    = 0x01,
+	VPF_DEPTHSHADOW  = 0x02,
+	VPF_DEPTHCLAMP   = 0x04,
+	VPF_ORTHOGRAPHIC = 0x08,
+	VPF_USESUNLIGHT  = 0x10,
 } viewParmFlags_t;
 
 typedef struct {
@@ -1601,7 +1612,7 @@ typedef struct {
 
 // the renderer front end should never modify glstate_t
 typedef struct {
-	int			currenttextures[2];
+	int			currenttextures[NUM_TEXTURE_BUNDLES];
 	int			currenttmu;
 	qboolean	finishCalled;
 	int			texEnv[2];
@@ -1780,6 +1791,7 @@ typedef struct {
 	image_t					*targetLevelsImage;
 	image_t					*fixedLevelsImage;
 	image_t					*sunShadowDepthImage[3];
+	image_t                 *screenShadowImage;
 	
 	image_t					*textureDepthImage;
 
@@ -1794,6 +1806,7 @@ typedef struct {
 	FBO_t					*calcLevelsFbo;
 	FBO_t					*targetLevelsFbo;
 	FBO_t					*sunShadowFbo[3];
+	FBO_t					*screenShadowFbo;
 
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;
@@ -1830,6 +1843,7 @@ typedef struct {
 	shaderProgram_t bokehShader;
 	shaderProgram_t tonemapShader;
 	shaderProgram_t calclevels4xShader[2];
+	shaderProgram_t shadowmaskShader;
 
 
 	// -----------------------------------------
@@ -1850,6 +1864,7 @@ typedef struct {
 
 	qboolean                sunShadows;
 	vec3_t					sunLight;			// from the sky shader for this level
+	vec3_t					sunAmbient;
 	vec3_t					sunDirection;
 
 	frontEndCounters_t		pc;
@@ -2052,7 +2067,16 @@ extern  cvar_t  *r_imageUpsample;
 extern  cvar_t  *r_imageUpsampleMaxSize;
 extern  cvar_t  *r_imageUpsampleType;
 extern  cvar_t  *r_genNormalMaps;
-extern  cvar_t  *r_testSunlight;
+extern  cvar_t  *r_forceSun;
+extern  cvar_t  *r_forceSunMapLightScale;
+extern  cvar_t  *r_forceSunLightScale;
+extern  cvar_t  *r_forceSunAmbientScale;
+extern  cvar_t  *r_sunShadows;
+extern  cvar_t  *r_shadowFilter;
+extern  cvar_t  *r_shadowMapSize;
+extern  cvar_t  *r_shadowCascadeZNear;
+extern  cvar_t  *r_shadowCascadeZFar;
+extern  cvar_t  *r_shadowCascadeZBias;
 
 extern	cvar_t	*r_greyscale;
 
@@ -2334,7 +2358,8 @@ void RB_StageIteratorLightmappedMultitexture( void );
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, float color[4] );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, float color[4], float s1, float t1, float s2, float t2 );
 void RB_InstantQuad( vec4_t quadVerts[4] );
-void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4], vec4_t color, shaderProgram_t *sp, vec2_t invTexRes);
+//void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4], vec4_t color, shaderProgram_t *sp, vec2_t invTexRes);
+void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4]);
 
 void RB_ShowImages( void );
 

@@ -1608,9 +1608,13 @@ static qboolean ParseShader( char **text )
 		// sun parms
 		else if ( !Q_stricmp( token, "q3map_sun" ) || !Q_stricmp( token, "q3map_sunExt" ) || !Q_stricmp( token, "q3gl2_sun" ) ) {
 			float	a, b;
+			qboolean isGL2Sun = qfalse;
 
-			if (!Q_stricmp( token, "q3gl2_sun" ) )
+			if (!Q_stricmp( token, "q3gl2_sun" ) && r_sunShadows->integer )
+			{
+				isGL2Sun = qtrue;
 				tr.sunShadows = qtrue;
+			}
 
 			token = COM_ParseExt( text, qfalse );
 			tr.sunLight[0] = atof( token );
@@ -1625,6 +1629,8 @@ static qboolean ParseShader( char **text )
 			a = atof( token );
 			VectorScale( tr.sunLight, a, tr.sunLight);
 
+			VectorSet( tr.sunAmbient, 0.0f, 0.0f, 0.0f);
+
 			token = COM_ParseExt( text, qfalse );
 			a = atof( token );
 			a = a / 180 * M_PI;
@@ -1636,6 +1642,15 @@ static qboolean ParseShader( char **text )
 			tr.sunDirection[0] = cos( a ) * cos( b );
 			tr.sunDirection[1] = sin( a ) * cos( b );
 			tr.sunDirection[2] = sin( b );
+
+			if (isGL2Sun)
+			{
+				token = COM_ParseExt( text, qfalse );
+				tr.mapLightScale = atof(token);
+
+				token = COM_ParseExt( text, qfalse );
+				VectorScale( tr.sunLight, atof(token), tr.sunAmbient );
+			}
 
 			SkipRestOfLine( text );
 		}
@@ -3511,7 +3526,21 @@ static void ScanAndLoadShaderFiles( void )
 	{
 		char filename[MAX_QPATH];
 
-		Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+		// look for a .mtr file first
+		{
+			char *ext;
+			Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+			if ( (ext = strrchr(filename, '.')) )
+			{
+				strcpy(ext, ".mtr");
+			}
+
+			if ( ri.FS_ReadFile( filename, NULL ) <= 0 )
+			{
+				Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+			}
+		}
+		
 		ri.Printf( PRINT_DEVELOPER, "...loading '%s'\n", filename );
 		summand = ri.FS_ReadFile( filename, (void **)&buffers[i] );
 		

@@ -184,9 +184,9 @@ RB_InstantQuad
 based on Tess_InstantQuad from xreal
 ==============
 */
-void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4], vec4_t color, shaderProgram_t *sp, vec2_t invTexRes)
+void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4])
 {
-	GLimp_LogComment("--- RB_InstantQuad ---\n");
+	GLimp_LogComment("--- RB_InstantQuad2 ---\n");
 
 	tess.numVertexes = 0;
 	tess.numIndexes = 0;
@@ -218,12 +218,6 @@ void RB_InstantQuad2(vec4_t quadVerts[4], vec2_t texCoords[4], vec4_t color, sha
 	RB_UpdateVBOs(ATTR_POSITION | ATTR_TEXCOORD);
 
 	GLSL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD);
-	GLSL_BindProgram(sp);
-	
-	GLSL_SetUniformMatrix16(sp, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
-	GLSL_SetUniformVec4(sp, TEXTURECOLOR_UNIFORM_COLOR, color);
-	GLSL_SetUniformVec2(sp, TEXTURECOLOR_UNIFORM_INVTEXRES, invTexRes);
-	GLSL_SetUniformVec2(sp, TEXTURECOLOR_UNIFORM_AUTOEXPOSUREMINMAX, tr.autoExposureMinMax);
 
 	R_DrawElementsVBO(tess.numIndexes, tess.firstIndex);
 
@@ -256,7 +250,14 @@ void RB_InstantQuad(vec4_t quadVerts[4])
 	invTexRes[0] = 1.0f / 256.0f;
 	invTexRes[1] = 1.0f / 256.0f;
 
-	RB_InstantQuad2(quadVerts, texCoords, color, &tr.textureColorShader, invTexRes);
+	GLSL_BindProgram(&tr.textureColorShader);
+	
+	GLSL_SetUniformMatrix16(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformVec4(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_COLOR, color);
+	GLSL_SetUniformVec2(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_INVTEXRES, invTexRes);
+	GLSL_SetUniformVec2(&tr.textureColorShader, TEXTURECOLOR_UNIFORM_AUTOEXPOSUREMINMAX, tr.autoExposureMinMax);
+
+	RB_InstantQuad2(quadVerts, texCoords); //, color, &tr.textureColorShader, invTexRes);
 }
 
 

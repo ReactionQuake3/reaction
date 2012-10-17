@@ -367,17 +367,27 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	tr.refdef.sunDir[3] = 0.0f;
 	tr.refdef.sunCol[3] = 1.0f;
+	tr.refdef.sunAmbCol[3] = 1.0f;
 
 	VectorCopy(tr.sunDirection, tr.refdef.sunDir);
-	if (r_testSunlight->integer == 1)
+	if ( (tr.refdef.rdflags & RDF_NOWORLDMODEL) || !(r_depthPrepass->value) ){
+		tr.refdef.colorScale = 1.0f;
+		VectorSet(tr.refdef.sunCol, 0, 0, 0);
+		VectorSet(tr.refdef.sunAmbCol, 0, 0, 0);
+	}
+	else if (r_forceSun->integer == 1)
 	{
-		tr.refdef.mapLightScale = 0.66f;
-		VectorScale(tr.sunLight, pow(2, r_mapOverBrightBits->integer - tr.overbrightBits - 8) * 0.33f, tr.refdef.sunCol);
+		float scale = pow(2, r_mapOverBrightBits->integer - tr.overbrightBits - 8);
+		tr.refdef.colorScale = r_forceSunMapLightScale->value;
+		VectorScale(tr.sunLight, scale * r_forceSunLightScale->value, tr.refdef.sunCol);
+		VectorScale(tr.sunLight, scale * r_forceSunAmbientScale->value, tr.refdef.sunAmbCol);
 	}
 	else
 	{
-		tr.refdef.mapLightScale = tr.mapLightScale;
-		VectorScale(tr.sunLight, pow(2, r_mapOverBrightBits->integer - tr.overbrightBits - 8), tr.refdef.sunCol);
+		float scale = pow(2, r_mapOverBrightBits->integer - tr.overbrightBits - 8);
+		tr.refdef.colorScale = tr.mapLightScale;
+		VectorScale(tr.sunLight,   scale, tr.refdef.sunCol);
+		VectorScale(tr.sunAmbient, scale, tr.refdef.sunAmbCol);
 	}
 
 //#ifdef REACTION
@@ -389,8 +399,9 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 		if (fd->rdflags & RDF_SUNLIGHT)
 		{
-			VectorCopy(extra->sunDir, tr.refdef.sunDir);
-			VectorCopy(extra->sunCol, tr.refdef.sunCol);
+			VectorCopy(extra->sunDir,    tr.refdef.sunDir);
+			VectorCopy(extra->sunCol,    tr.refdef.sunCol);
+			VectorCopy(extra->sunAmbCol, tr.refdef.sunAmbCol);
 		}
 	} 
 	else
@@ -447,7 +458,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	}
 
 	// playing with even more shadows
-	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && (r_testSunlight->integer || tr.sunShadows))
+	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && (r_forceSun->integer || tr.sunShadows))
 	{
 		R_RenderSunShadowMaps(fd, 0);
 		R_RenderSunShadowMaps(fd, 1);
@@ -483,6 +494,11 @@ void RE_RenderScene( const refdef_t *fd ) {
 	VectorCopy( fd->viewaxis[2], parms.or.axis[2] );
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
+
+	if(!( fd->rdflags & RDF_NOWORLDMODEL ) && r_depthPrepass->value && ((r_forceSun->integer) || tr.sunShadows))
+	{
+		parms.flags = VPF_USESUNLIGHT;
+	}
 
 	R_RenderView( &parms );
 

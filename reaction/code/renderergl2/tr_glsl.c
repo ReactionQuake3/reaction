@@ -250,51 +250,52 @@ static const char *fallbackLightallShader_vp =
 "itangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR) && defined(USE_FAS"
 "T_LIGHT)\r\nvarying vec3   var_VectLight;\r\n#endif\r\n\r\n#if defined(USE_"
 "LIGHT) && !defined(USE_DELUXEMAP)\r\nvarying vec3   var_WorldLight;\r\n#end"
-"if\r\n\r\n\r\nvec2 DoTexMatrix(vec2 st, vec3 position, mat4 texMatrix)\r\n{"
-"\r\n\tvec2 st2 = (texMatrix * vec4(st, 1, 0)).st;\r\n\r\n\tvec3 offsetPos ="
-" position.xyz / 1024.0;\r\n\toffsetPos.x += offsetPos.z;\r\n\r\n\tvec2 texO"
-"ffset = sin((offsetPos.xy + vec2(texMatrix[3][1])) * 2.0 * M_PI);\r\n\t\r\n"
-"\treturn st2 + texOffset * texMatrix[3][0];\r\n}\r\n\r\nvoid main()\r\n{\r"
-"\n#if defined(USE_VERTEX_ANIMATION)\r\n\tvec4 position  = mix(attr_Position"
-", attr_Position2, u_VertexLerp);\r\n\tvec3 normal    = normalize(mix(attr_N"
-"ormal,    attr_Normal2,    u_VertexLerp));\r\n  #if defined(USE_VERT_TANGEN"
-"T_SPACE)\r\n\tvec3 tangent   = normalize(mix(attr_Tangent,   attr_Tangent2,"
-"   u_VertexLerp));\r\n\tvec3 bitangent = normalize(mix(attr_Bitangent, attr"
-"_Bitangent2, u_VertexLerp));\r\n  #endif\r\n#else\r\n\tvec4 position  = att"
-"r_Position;\r\n\tvec3 normal    = attr_Normal;\r\n  #if defined(USE_VERT_TA"
-"NGENT_SPACE)\r\n\tvec3 tangent   = attr_Tangent;\r\n\tvec3 bitangent = attr"
-"_Bitangent;\r\n  #endif\r\n#endif\r\n\r\n\tgl_Position = u_ModelViewProject"
-"ionMatrix * position;\r\n\r\n#if (defined(USE_LIGHTMAP) || defined(USE_LIGH"
-"T_VERTEX)) && !defined(USE_DELUXEMAP)\r\n\tvec3 worldLight = attr_LightDire"
-"ction;\r\n#endif\r\n\t\r\n#if defined(USE_MODELMATRIX)\r\n\tposition  = u_M"
-"odelMatrix * position;\r\n\tnormal    = (u_ModelMatrix * vec4(normal, 0.0))"
-".xyz;\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n\ttangent   = (u_ModelMat"
-"rix * vec4(tangent, 0.0)).xyz;\r\n\tbitangent = (u_ModelMatrix * vec4(bitan"
-"gent, 0.0)).xyz;\r\n  #endif\r\n\r\n  #if defined(USE_LIGHTMAP) && !defined"
-"(USE_DELUXEMAP)\r\n\tworldLight = (u_ModelMatrix * vec4(worldLight, 0.0)).x"
-"yz;\r\n  #endif\r\n#endif\r\n\r\n\tvar_Position = position.xyz;\r\n\r\n#if "
-"defined(TCGEN_ENVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIGHT) "
-"&& !defined(USE_FAST_LIGHT)\r\n\tvec3 SampleToView = u_ViewOrigin - positio"
-"n.xyz;\r\n#endif\r\n\r\n#if defined(USE_NORMALMAP) || defined(USE_LIGHT) &&"
-" !defined(USE_FAST_LIGHT)\r\n\tvar_SampleToView = SampleToView;\r\n#endif\r"
-"\n\r\n#if defined(TCGEN_ENVIRONMENT)\r\n\tvec3 viewer = normalize(SampleToV"
-"iew);\r\n\tvec3 reflected = normal * 2.0 * dot(normal, viewer) - viewer;\r"
-"\n\r\n\tvec2 tex = reflected.yz * vec2(0.5, -0.5) + 0.5;\r\n#else\r\n\tvec2"
-" tex = attr_TexCoord0.st;\r\n#endif\r\n\r\n\tvar_DiffuseTex = DoTexMatrix(t"
-"ex, position.xyz, u_DiffuseTexMatrix);\r\n\r\n#if defined(USE_LIGHTMAP)\r\n"
-"\tvar_LightTex = attr_TexCoord1.st;\r\n#endif\r\n\r\n\tvar_Color = u_VertCo"
-"lor * attr_Color + u_BaseColor;\r\n  \r\n\tvar_Normal = normal;\r\n#if defi"
-"ned(USE_VERT_TANGENT_SPACE)\r\n\tvar_Tangent = tangent;\r\n\tvar_Bitangent "
-"= bitangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXE"
-"MAP)\r\n  #if defined(USE_LIGHT_VECTOR)\r\n\tvec3 worldLight = u_LightOrigi"
-"n.xyz - (position.xyz * u_LightOrigin.w);\r\n  #endif\r\n\r\n\tworldLight +"
-"= normal * 0.0001;\r\n\tvar_WorldLight = worldLight;\r\n#endif\r\n\r\n#if d"
-"efined(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r\n  #if defined(USE_IN"
-"VSQRLIGHT)\r\n\tfloat intensity = 1.0 / dot(worldLight, worldLight);\r\n  #"
-"else\r\n\tfloat intensity = clamp((1.0 - dot(worldLight, worldLight) / (u_L"
-"ightRadius * u_LightRadius)) * 1.07, 0.0, 1.0);\r\n  #endif\r\n\tfloat NL ="
-" clamp(dot(normal, normalize(worldLight)), 0.0, 1.0);\r\n\r\n\tvar_VectLigh"
-"t = u_DirectedLight * intensity * NL + u_AmbientLight;\r\n#endif\r\n}\r\n";
+"if\r\n\r\nvarying vec4   var_ScreenPos;\r\n\r\nvec2 DoTexMatrix(vec2 st, ve"
+"c3 position, mat4 texMatrix)\r\n{\r\n\tvec2 st2 = (texMatrix * vec4(st, 1, "
+"0)).st;\r\n\r\n\tvec3 offsetPos = position.xyz / 1024.0;\r\n\toffsetPos.x +"
+"= offsetPos.z;\r\n\r\n\tvec2 texOffset = sin((offsetPos.xy + vec2(texMatrix"
+"[3][1])) * 2.0 * M_PI);\r\n\t\r\n\treturn st2 + texOffset * texMatrix[3][0]"
+";\r\n}\r\n\r\nvoid main()\r\n{\r\n#if defined(USE_VERTEX_ANIMATION)\r\n\tve"
+"c4 position  = mix(attr_Position, attr_Position2, u_VertexLerp);\r\n\tvec3 "
+"normal    = normalize(mix(attr_Normal,    attr_Normal2,    u_VertexLerp));"
+"\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n\tvec3 tangent   = normalize(m"
+"ix(attr_Tangent,   attr_Tangent2,   u_VertexLerp));\r\n\tvec3 bitangent = n"
+"ormalize(mix(attr_Bitangent, attr_Bitangent2, u_VertexLerp));\r\n  #endif\r"
+"\n#else\r\n\tvec4 position  = attr_Position;\r\n\tvec3 normal    = attr_Nor"
+"mal;\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n\tvec3 tangent   = attr_Ta"
+"ngent;\r\n\tvec3 bitangent = attr_Bitangent;\r\n  #endif\r\n#endif\r\n\r\n"
+"\tgl_Position = u_ModelViewProjectionMatrix * position;\r\n\tvar_ScreenPos "
+"= gl_Position;\r\n\r\n#if (defined(USE_LIGHTMAP) || defined(USE_LIGHT_VERTE"
+"X)) && !defined(USE_DELUXEMAP)\r\n\tvec3 worldLight = attr_LightDirection;"
+"\r\n#endif\r\n\t\r\n#if defined(USE_MODELMATRIX)\r\n\tposition  = u_ModelMa"
+"trix * position;\r\n\tnormal    = (u_ModelMatrix * vec4(normal, 0.0)).xyz;"
+"\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n\ttangent   = (u_ModelMatrix *"
+" vec4(tangent, 0.0)).xyz;\r\n\tbitangent = (u_ModelMatrix * vec4(bitangent,"
+" 0.0)).xyz;\r\n  #endif\r\n\r\n  #if defined(USE_LIGHTMAP) && !defined(USE_"
+"DELUXEMAP)\r\n\tworldLight = (u_ModelMatrix * vec4(worldLight, 0.0)).xyz;\r"
+"\n  #endif\r\n#endif\r\n\r\n\tvar_Position = position.xyz;\r\n\r\n#if defin"
+"ed(TCGEN_ENVIRONMENT) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !d"
+"efined(USE_FAST_LIGHT)\r\n\tvec3 SampleToView = u_ViewOrigin - position.xyz"
+";\r\n#endif\r\n\r\n#if defined(USE_NORMALMAP) || defined(USE_LIGHT) && !def"
+"ined(USE_FAST_LIGHT)\r\n\tvar_SampleToView = SampleToView;\r\n#endif\r\n\r"
+"\n#if defined(TCGEN_ENVIRONMENT)\r\n\tvec3 viewer = normalize(SampleToView)"
+";\r\n\tvec3 reflected = normal * 2.0 * dot(normal, viewer) - viewer;\r\n\r"
+"\n\tvec2 tex = reflected.yz * vec2(0.5, -0.5) + 0.5;\r\n#else\r\n\tvec2 tex"
+" = attr_TexCoord0.st;\r\n#endif\r\n\r\n\tvar_DiffuseTex = DoTexMatrix(tex, "
+"position.xyz, u_DiffuseTexMatrix);\r\n\r\n#if defined(USE_LIGHTMAP)\r\n\tva"
+"r_LightTex = attr_TexCoord1.st;\r\n#endif\r\n\r\n\tvar_Color = u_VertColor "
+"* attr_Color + u_BaseColor;\r\n  \r\n\tvar_Normal = normal;\r\n#if defined("
+"USE_VERT_TANGENT_SPACE)\r\n\tvar_Tangent = tangent;\r\n\tvar_Bitangent = bi"
+"tangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) && !defined(USE_DELUXEMAP)"
+"\r\n  #if defined(USE_LIGHT_VECTOR)\r\n\tvec3 worldLight = u_LightOrigin.xy"
+"z - (position.xyz * u_LightOrigin.w);\r\n  #endif\r\n\r\n\tworldLight += no"
+"rmal * 0.0001;\r\n\tvar_WorldLight = worldLight;\r\n#endif\r\n\r\n#if defin"
+"ed(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r\n  #if defined(USE_INVSQR"
+"LIGHT)\r\n\tfloat intensity = 1.0 / dot(worldLight, worldLight);\r\n  #else"
+"\r\n\tfloat intensity = clamp((1.0 - dot(worldLight, worldLight) / (u_Light"
+"Radius * u_LightRadius)) * 1.07, 0.0, 1.0);\r\n  #endif\r\n\tfloat NL = cla"
+"mp(dot(normal, normalize(worldLight)), 0.0, 1.0);\r\n\r\n\tvar_VectLight = "
+"u_DirectedLight * intensity * NL + u_AmbientLight;\r\n#endif\r\n}\r\n";
 
 static const char *fallbackLightallShader_fp =
 "uniform sampler2D u_DiffuseMap;\r\n\r\n#if defined(USE_LIGHTMAP)\r\nuniform"
@@ -302,167 +303,137 @@ static const char *fallbackLightallShader_fp =
 "rm sampler2D u_NormalMap;\r\n#endif\r\n\r\n#if defined(USE_DELUXEMAP)\r\nun"
 "iform sampler2D u_DeluxeMap;\r\n#endif\r\n\r\n#if defined(USE_SPECULARMAP)"
 "\r\nuniform sampler2D u_SpecularMap;\r\n#endif\r\n\r\n#if defined(USE_SHADO"
-"WMAP)\r\nuniform sampler2D u_ShadowMap;\r\n  #if defined(USE_SHADOW_CASCADE"
-")\r\nuniform sampler2D u_ShadowMap2;\r\nuniform sampler2D u_ShadowMap3;\r\n"
-"  #endif\r\n#endif\r\n\r\nuniform vec3      u_ViewOrigin;\r\n\r\n#if define"
-"d(USE_LIGHT_VECTOR)\r\nuniform vec3      u_DirectedLight;\r\nuniform vec3  "
-"    u_AmbientLight;\r\nuniform float     u_LightRadius;\r\n#endif\r\n\r\n#i"
-"f defined(USE_SHADOWMAP)\r\nuniform mat4      u_ShadowMvp;\r\n  #if defined"
-"(USE_SHADOW_CASCADE)\r\nuniform mat4      u_ShadowMvp2;\r\nuniform mat4    "
-"  u_ShadowMvp3;\r\n  #endif\r\n#endif\r\n\r\n#if defined(USE_LIGHT)\r\nunif"
-"orm vec2      u_MaterialInfo;\r\n#endif\r\n\r\n#if defined(USE_LIGHTMAP) ||"
-" defined(USE_LIGHT_VERTEX)\r\nuniform float     u_MapLightScale;\r\n#endif"
-"\r\n\r\nvarying vec2      var_DiffuseTex;\r\n#if defined(USE_LIGHTMAP)\r\nv"
-"arying vec2      var_LightTex;\r\n#endif\r\nvarying vec4      var_Color;\r"
-"\nvarying vec3      var_Position;\r\n\r\nvarying vec3      var_SampleToView"
-";\r\n\r\nvarying vec3      var_Normal;\r\n#if defined(USE_VERT_TANGENT_SPAC"
-"E)\r\nvarying vec3      var_Tangent;\r\nvarying vec3      var_Bitangent;\r"
-"\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR) && defined(USE_FAST_LIGHT)\r"
-"\nvarying vec3      var_VectLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHT) "
-"&& !defined(USE_DELUXEMAP)\r\nvarying vec3      var_WorldLight;\r\n#endif\r"
-"\n\r\n#define EPSILON 0.00000001\r\n\r\n#if defined(USE_PARALLAXMAP)\r\nflo"
-"at SampleHeight(sampler2D normalMap, vec2 t)\r\n{\r\n  #if defined(SWIZZLE_"
-"NORMALMAP)\r\n\treturn texture2D(normalMap, t).r;\r\n  #else\r\n\treturn te"
-"xture2D(normalMap, t).a;\r\n  #endif\r\n}\r\n\r\nfloat RayIntersectDisplace"
-"Map(vec2 dp, vec2 ds, sampler2D normalMap)\r\n{\r\n\tconst int linearSearch"
-"Steps = 16;\r\n\tconst int binarySearchSteps = 6;\r\n\r\n\tfloat depthStep "
-"= 1.0 / float(linearSearchSteps);\r\n\r\n\t// current size of search window"
-"\r\n\tfloat size = depthStep;\r\n\r\n\t// current depth position\r\n\tfloat"
-" depth = 0.0;\r\n\r\n\t// best match found (starts with last position 1.0)"
-"\r\n\tfloat bestDepth = 1.0;\r\n\r\n\t// search front to back for first poi"
-"nt inside object\r\n\tfor(int i = 0; i < linearSearchSteps - 1; ++i)\r\n\t{"
-"\r\n\t\tdepth += size;\r\n\t\t\r\n\t\tfloat t = 1.0 - SampleHeight(normalMa"
-"p, dp + ds * depth);\r\n\t\t\r\n\t\tif(bestDepth > 0.996)\t\t// if no depth"
-" found yet\r\n\t\t\tif(depth >= t)\r\n\t\t\t\tbestDepth = depth;\t// store "
-"best depth\r\n\t}\r\n\r\n\tdepth = bestDepth;\r\n\t\r\n\t// recurse around "
-"first point (depth) for closest match\r\n\tfor(int i = 0; i < binarySearchS"
-"teps; ++i)\r\n\t{\r\n\t\tsize *= 0.5;\r\n\r\n\t\tfloat t = 1.0 - SampleHeig"
-"ht(normalMap, dp + ds * depth);\r\n\t\t\r\n\t\tif(depth >= t)\r\n\t\t{\r\n"
-"\t\t\tbestDepth = depth;\r\n\t\t\tdepth -= 2.0 * size;\r\n\t\t}\r\n\r\n\t\t"
-"depth += size;\r\n\t}\r\n\r\n\treturn bestDepth;\r\n}\r\n#endif\r\n\r\nfloa"
-"t CalcDiffuse(vec3 N, vec3 L, vec3 E, float NE, float NL, float fzero, floa"
-"t shininess)\r\n{\r\n  #if defined(USE_OREN_NAYAR)\r\n\tfloat roughness = s"
-"qrt(2.0 / max(shininess, EPSILON));\r\n\r\n\tfloat gamma = dot(E - N * NE, "
-"L - N * NL);\r\n\tfloat r_sq = roughness * roughness;\r\n\r\n\tfloat A = 1."
-"0 - 0.5 * (r_sq / (r_sq + 0.57));\r\n\tfloat B = 0.45 * (r_sq / (r_sq + 0.0"
-"9));\r\n\r\n\tfloat alpha = max(acos(NE), acos(NL));\r\n\tfloat beta  = min"
-"(acos(NE), acos(NL));\r\n\r\n\tfloat C = sin(alpha) * tan(beta);\r\n\r\n\tr"
-"eturn A + B * clamp(gamma, 0.0, 1.0) * C;\r\n  #else\r\n\treturn 1.0 - fzer"
-"o;\r\n  #endif\r\n}\r\n\r\n#if defined(USE_SPECULARMAP)\r\nfloat CalcSpecul"
-"ar(float NH, float NL, float NE, float EH, float fzero, float shininess)\r"
-"\n{\r\n  #if defined(USE_BLINN) || defined(USE_TRIACE) || defined(USE_TORRA"
-"NCE_SPARROW)\r\n\tfloat blinn = pow(NH, shininess);\r\n  #endif\r\n\r\n  #i"
-"f defined(USE_BLINN)\r\n\treturn blinn;\r\n  #endif\r\n\r\n  #if defined(US"
-"E_COOK_TORRANCE) || defined (USE_TRIACE) || defined (USE_TORRANCE_SPARROW)"
-"\r\n\tfloat fresnel = fzero + (1.0 - fzero) * pow(1.0 - EH, 5);\r\n  #endif"
-"\r\n\r\n  #if defined(USE_COOK_TORRANCE) || defined(USE_TORRANCE_SPARROW)\r"
-"\n\tfloat geo = 2.0 * NH * min(NE, NL);\r\n\tgeo /= max(EH, geo);\r\n  #end"
-"if  \r\n\r\n  #if defined(USE_COOK_TORRANCE)\r\n\tfloat m = sqrt(2.0 / max("
-"shininess, EPSILON));\r\n\r\n\tfloat m_sq = m * m;\r\n\tfloat NH_sq = NH * "
-"NH;\r\n\tfloat beckmann = exp((NH_sq - 1.0) / max(m_sq * NH_sq, EPSILON)) /"
-" max(4.0 * m_sq * NH_sq * NH_sq, EPSILON);\r\n\r\n\treturn fresnel * geo * "
-"beckmann / max(NE, EPSILON);\r\n  #endif\r\n\r\n  #if defined(USE_TRIACE)\r"
-"\n\tfloat scale = 0.1248582 * shininess + 0.2691817;\r\n\r\n\treturn fresne"
-"l * scale * blinn / max(max(NL, NE), EPSILON);\r\n  #endif\r\n  \r\n  #if d"
-"efined(USE_TORRANCE_SPARROW)\r\n\tfloat scale = 0.125 * shininess + 1.0;\r"
-"\n\r\n\treturn fresnel * geo * scale * blinn / max(NE, EPSILON);\r\n  #endi"
-"f\r\n}\r\n#endif\r\n\r\nfloat PCF(sampler2D shadowmap, vec2 st, float dist)"
-"\r\n{\r\n\tfloat mult;\r\n\t\r\n\tmult  = sign(clamp(texture2D(shadowmap, s"
-"t + vec2(-1.0, -1.0) / 1024.0).r - dist, 0.0, 1.0));\r\n\tmult += sign(clam"
-"p(texture2D(shadowmap, st + vec2( 1.0, -1.0) / 1024.0).r - dist, 0.0, 1.0))"
-";\r\n\tmult += sign(clamp(texture2D(shadowmap, st + vec2(-1.0,  1.0) / 1024"
-".0).r - dist, 0.0, 1.0));\r\n\tmult += sign(clamp(texture2D(shadowmap, st +"
-" vec2( 1.0,  1.0) / 1024.0).r - dist, 0.0, 1.0));\r\n\tmult *= 0.25;\r\n\t"
-"\r\n\t//mult  = sign(clamp(texture2D(shadowmap, st).r - dist, 0.0, 1.0));\r"
-"\n\t\t\r\n\treturn mult;\r\n}\r\n\r\nvoid main()\r\n{\r\n#if defined(USE_LI"
-"GHT) || defined(USE_NORMALMAP)\r\n\tvec3 surfNormal = normalize(var_Normal)"
-";\r\n#endif\r\n\r\n#if defined(USE_DELUXEMAP)\r\n\tvec3 worldLight = 2.0 * "
-"texture2D(u_DeluxeMap, var_LightTex).xyz - vec3(1.0);\r\n\t//worldLight += "
-"var_WorldLight * 0.0001;\r\n#elif defined(USE_LIGHT)\r\n\tvec3 worldLight ="
-" var_WorldLight;\r\n#endif\r\n\r\n#if defined(USE_LIGHTMAP)\r\n\tvec4 light"
-"Sample = texture2D(u_LightMap, var_LightTex).rgba;\r\n  #if defined(RGBE_LI"
-"GHTMAP)\r\n\tlightSample.rgb *= exp2(lightSample.a * 255.0 - 128.0);\r\n  #"
-"endif\r\n\tvec3 directedLight = lightSample.rgb * u_MapLightScale;\r\n#elif"
-" defined(USE_LIGHT_VECTOR)\r\n  #if defined(USE_FAST_LIGHT)\r\n\tvec3 direc"
-"tedLight = var_VectLight;\r\n  #else\r\n    #if defined(USE_INVSQRLIGHT)\r"
-"\n\tfloat intensity = 1.0 / dot(worldLight, worldLight);\r\n    #else\r\n\t"
-"float intensity = clamp((1.0 - dot(worldLight, worldLight) / (u_LightRadius"
-" * u_LightRadius)) * 1.07, 0.0, 1.0);\r\n    #endif\r\n\r\n\tvec3 directedL"
-"ight = u_DirectedLight * intensity;\r\n\tvec3 ambientLight  = u_AmbientLigh"
-"t;\r\n  #endif\r\n\r\n  #if defined(USE_SHADOWMAP)\r\n\tvec4 biasPos = vec4"
-"(var_Position + surfNormal * (length(var_SampleToView) * 0.005 + 0.05), 1.0"
-");\r\n\tvec4 shadowpos = u_ShadowMvp * biasPos;\r\n\tfloat outside1 = dot(v"
-"ec3(1.0, 1.0, 1.0), sign(clamp(abs(shadowpos.xyz) - 1.0, 0.0, 1.0)));\r\n\t"
-"\r\n\t#if defined(USE_SHADOW_CASCADE)\r\n\tvec4 shadowpos2 = u_ShadowMvp2 *"
-" biasPos;\r\n\tfloat outside2 = dot(vec3(1.0, 1.0, 1.0), sign(clamp(abs(sha"
-"dowpos2.xyz) - 1.0, 0.0, 1.0)));\r\n\r\n\tvec4 shadowpos3 = u_ShadowMvp3 * "
-"biasPos;\r\n\tfloat outside3 = dot(vec3(1.0, 1.0, 1.0), sign(clamp(abs(shad"
-"owpos3.xyz) - 1.0, 0.0, 1.0)));\r\n\t\r\n\tif (outside1 < 1.0)\r\n\t{\r\n\t"
-"\tshadowpos.xyz = shadowpos.xyz * 0.5 + 0.5;\r\n\t\tdirectedLight *= PCF(u_"
-"ShadowMap, shadowpos.xy, shadowpos.z);\r\n\t}\r\n\telse if (outside2 < 1.0)"
-"\r\n\t{\r\n\t\tshadowpos2.xyz = shadowpos2.xyz * 0.5 + 0.5;\r\n\t\tdirected"
-"Light *= PCF(u_ShadowMap2, shadowpos2.xy, shadowpos2.z);\r\n\t}\r\n\telse i"
-"f (outside3 < 1.0)\r\n\t{\r\n\t\tshadowpos3.xyz = shadowpos3.xyz * 0.5 + 0."
-"5;\r\n\t\tfloat mult = PCF(u_ShadowMap3, shadowpos3.xy, shadowpos3.z) + cla"
-"mp(length(var_SampleToView) / 1024.0 - 0.95, 0.0, 1.0);\r\n\t\tdirectedLigh"
-"t *= clamp(mult, 0.0, 1.0);\r\n\t}\r\n\t\r\n\t#else\r\n\tshadowpos.xyz = sh"
-"adowpos.xyz * 0.5 + 0.5;\r\n\tdirectedLight *= clamp(PCF(u_ShadowMap, shado"
-"wpos.xy, shadowpos.z) - outside1, 1.0, 0.0);\r\n\t#endif\r\n  #endif\r\n#el"
-"if defined(USE_LIGHT_VERTEX)\r\n\tvec3 directedLight = var_Color.rgb * u_Ma"
-"pLightScale;\r\n#endif\r\n\t\r\n#if defined(USE_NORMALMAP) || defined(USE_L"
-"IGHT) && !defined(USE_FAST_LIGHT)\r\n\tvec3 SampleToView = normalize(var_Sa"
-"mpleToView);\r\n#endif\r\n\tvec2 tex = var_DiffuseTex;\r\n\r\n\tfloat ambie"
-"ntDiff = 1.0;\r\n\r\n#if defined(USE_NORMALMAP)\r\n  #if defined(USE_VERT_T"
-"ANGENT_SPACE)\r\n    vec3   tangent = normalize(var_Tangent);\r\n\tvec3 bit"
-"angent = normalize(var_Bitangent);\r\n  #else\r\n\tvec3 q0  = dFdx(var_Posi"
-"tion);\r\n\tvec3 q1  = dFdy(var_Position);\r\n\tvec2 st0 = dFdx(tex);\r\n\t"
-"vec2 st1 = dFdy(tex);\r\n\tfloat dir = sign(st1.t * st0.s - st0.t * st1.s);"
-"\r\n\r\n\tvec3   tangent = normalize( q0 * st1.t - q1 * st0.t) * dir;\r\n\t"
-"vec3 bitangent = -normalize( q0 * st1.s - q1 * st0.s) * dir;\r\n  #endif\r"
-"\n\r\n\tmat3 tangentToWorld = mat3(tangent, bitangent, surfNormal);\r\n\r\n"
-"  #if defined(USE_PARALLAXMAP)\r\n\tvec3 offsetDir = normalize(SampleToView"
-" * tangentToWorld);\r\n    #if 0\r\n    float height = SampleHeight(u_Norma"
-"lMap, tex);\r\n\tfloat pdist = 0.05 * height - (0.05 / 2.0);\r\n    #else\r"
-"\n\toffsetDir.xy *= -0.05 / offsetDir.z;\r\n\tfloat pdist = RayIntersectDis"
-"placeMap(tex, offsetDir.xy, u_NormalMap);\r\n    #endif\t\r\n\ttex += offse"
-"tDir.xy * pdist;\r\n  #endif\r\n  #if defined(SWIZZLE_NORMALMAP)\r\n\tvec3 "
-"normal = 2.0 * texture2D(u_NormalMap, tex).agb - 1.0;\r\n  #else\r\n\tvec3 "
-"normal = 2.0 * texture2D(u_NormalMap, tex).rgb - 1.0;\r\n  #endif\r\n\tnorm"
-"al.z = sqrt(clamp(1.0 - dot(normal.xy, normal.xy), 0.0, 1.0));\r\n\tvec3 wo"
-"rldNormal = tangentToWorld * normal;\r\n  #if defined(r_normalAmbient)\r\n"
-"\tambientDiff = 0.781341 * normal.z + 0.218659;\r\n  #endif\r\n#elif define"
-"d(USE_LIGHT)\r\n\tvec3 worldNormal = surfNormal;\r\n#endif\r\n\r\n\tvec4 di"
-"ffuse = texture2D(u_DiffuseMap, tex);\r\n\r\n#if defined(USE_LIGHT) && defi"
-"ned(USE_FAST_LIGHT)\r\n\tdiffuse.rgb *= directedLight;\r\n#elif defined(USE"
-"_LIGHT)\r\n\tworldNormal = normalize(worldNormal);\r\n\tworldLight = normal"
-"ize(worldLight);\r\n\r\n  #if defined(USE_LIGHTMAP) || defined(USE_LIGHT_VE"
-"RTEX)\r\n\tdirectedLight /= max(dot(surfNormal, worldLight), 0.004);\r\n\r"
-"\n    #if defined(r_normalAmbient)\r\n\tvec3 ambientLight = directedLight *"
-" r_normalAmbient;\r\n\tdirectedLight -= ambientLight;\r\n    #else\r\n\tvec"
-"3 ambientLight = vec3(0);\r\n    #endif\r\n  #endif\r\n\r\n\tfloat NL = cla"
-"mp(dot(worldNormal,  worldLight),   0.0, 1.0);\r\n\tfloat surfNL = clamp(do"
-"t(surfNormal,  worldLight),   0.0, 1.0);\r\n\tNL = min(NL, surfNL * 2.0);\r"
-"\n\tfloat NE = clamp(dot(worldNormal,  SampleToView), 0.0, 1.0);\r\n\t\r\n"
-"\tfloat fzero = u_MaterialInfo.x;\r\n\tfloat shininess = u_MaterialInfo.y;"
-"\r\n  #if defined(USE_SPECULARMAP)\r\n\tvec4 specular = texture2D(u_Specula"
-"rMap, tex);\r\n\t//specular.rgb = clamp(specular.rgb - diffuse.rgb, 0.0, 1."
-"0);\r\n\tshininess *= specular.a;\r\n  #endif\r\n\tfloat directedDiff = NL "
-"* CalcDiffuse(worldNormal, worldLight, SampleToView, NE, NL, fzero, shinine"
-"ss);\r\n\tdiffuse.rgb *= directedLight * directedDiff + ambientDiff * ambie"
-"ntLight;\r\n  \r\n  #if defined(USE_SPECULARMAP)\r\n\tvec3 halfAngle = norm"
-"alize(worldLight + SampleToView);\r\n\r\n\tfloat EH = clamp(dot(SampleToVie"
-"w, halfAngle), 0.0, 1.0);\r\n\tfloat NH = clamp(dot(worldNormal,  halfAngle"
-"), 0.0, 1.0);\r\n\r\n\tfloat directedSpec = NL * CalcSpecular(NH, NL, NE, E"
-"H, fzero, shininess);\r\n  \r\n    #if defined(r_normalAmbient)\r\n\tvec3 a"
-"mbientHalf = normalize(surfNormal + SampleToView);\r\n\tfloat ambientSpec ="
-" max(dot(ambientHalf, worldNormal) + 0.5, 0.0);\r\n\tambientSpec *= ambient"
-"Spec * 0.44;\r\n\tambientSpec = pow(ambientSpec, shininess) * fzero;\r\n\ts"
-"pecular.rgb *= directedSpec * directedLight + ambientSpec * ambientLight;\r"
-"\n    #else\r\n\tspecular.rgb *= directedSpec * directedLight;\r\n    #endi"
-"f\r\n  #endif\r\n#endif\r\n\r\n\tgl_FragColor = diffuse;\r\n\r\n#if defined"
-"(USE_SPECULARMAP) && defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\n\tgl"
-"_FragColor.rgb += specular.rgb;\r\n#endif\r\n\r\n#if !defined(USE_LIGHT_VER"
-"TEX)\r\n\tgl_FragColor *= var_Color;\r\n#endif\r\n}\r\n";
+"WMAP)\r\nuniform sampler2D u_ShadowMap;\r\n#endif\r\n\r\nuniform vec3      "
+"u_ViewOrigin;\r\n\r\n#if defined(USE_LIGHT_VECTOR)\r\nuniform vec3      u_D"
+"irectedLight;\r\nuniform vec3      u_AmbientLight;\r\nuniform float     u_L"
+"ightRadius;\r\n#endif\r\n\r\n#if defined(USE_LIGHT)\r\nuniform vec2      u_"
+"MaterialInfo;\r\n#endif\r\n\r\nvarying vec2      var_DiffuseTex;\r\n#if def"
+"ined(USE_LIGHTMAP)\r\nvarying vec2      var_LightTex;\r\n#endif\r\nvarying "
+"vec4      var_Color;\r\nvarying vec3      var_Position;\r\n\r\nvarying vec3"
+"      var_SampleToView;\r\n\r\nvarying vec3      var_Normal;\r\n#if defined"
+"(USE_VERT_TANGENT_SPACE)\r\nvarying vec3      var_Tangent;\r\nvarying vec3 "
+"     var_Bitangent;\r\n#endif\r\n\r\n#if defined(USE_LIGHT_VECTOR) && defin"
+"ed(USE_FAST_LIGHT)\r\nvarying vec3      var_VectLight;\r\n#endif\r\n\r\n#if"
+" defined(USE_LIGHT) && !defined(USE_DELUXEMAP)\r\nvarying vec3      var_Wor"
+"ldLight;\r\n#endif\r\n\r\nvarying vec4   var_ScreenPos;\r\n\r\n#define EPSI"
+"LON 0.00000001\r\n\r\n#if defined(USE_PARALLAXMAP)\r\nfloat SampleHeight(sa"
+"mpler2D normalMap, vec2 t)\r\n{\r\n  #if defined(SWIZZLE_NORMALMAP)\r\n\tre"
+"turn texture2D(normalMap, t).r;\r\n  #else\r\n\treturn texture2D(normalMap,"
+" t).a;\r\n  #endif\r\n}\r\n\r\nfloat RayIntersectDisplaceMap(vec2 dp, vec2 "
+"ds, sampler2D normalMap)\r\n{\r\n\tconst int linearSearchSteps = 16;\r\n\tc"
+"onst int binarySearchSteps = 6;\r\n\r\n\tfloat depthStep = 1.0 / float(line"
+"arSearchSteps);\r\n\r\n\t// current size of search window\r\n\tfloat size ="
+" depthStep;\r\n\r\n\t// current depth position\r\n\tfloat depth = 0.0;\r\n"
+"\r\n\t// best match found (starts with last position 1.0)\r\n\tfloat bestDe"
+"pth = 1.0;\r\n\r\n\t// search front to back for first point inside object\r"
+"\n\tfor(int i = 0; i < linearSearchSteps - 1; ++i)\r\n\t{\r\n\t\tdepth += s"
+"ize;\r\n\t\t\r\n\t\tfloat t = 1.0 - SampleHeight(normalMap, dp + ds * depth"
+");\r\n\t\t\r\n\t\tif(bestDepth > 0.996)\t\t// if no depth found yet\r\n\t\t"
+"\tif(depth >= t)\r\n\t\t\t\tbestDepth = depth;\t// store best depth\r\n\t}"
+"\r\n\r\n\tdepth = bestDepth;\r\n\t\r\n\t// recurse around first point (dept"
+"h) for closest match\r\n\tfor(int i = 0; i < binarySearchSteps; ++i)\r\n\t{"
+"\r\n\t\tsize *= 0.5;\r\n\r\n\t\tfloat t = 1.0 - SampleHeight(normalMap, dp "
+"+ ds * depth);\r\n\t\t\r\n\t\tif(depth >= t)\r\n\t\t{\r\n\t\t\tbestDepth = "
+"depth;\r\n\t\t\tdepth -= 2.0 * size;\r\n\t\t}\r\n\r\n\t\tdepth += size;\r\n"
+"\t}\r\n\r\n\treturn bestDepth;\r\n}\r\n#endif\r\n\r\nfloat CalcDiffuse(vec3"
+" N, vec3 L, vec3 E, float NE, float NL, float fzero, float shininess)\r\n{"
+"\r\n  #if defined(USE_OREN_NAYAR)\r\n\tfloat roughness = sqrt(2.0 / max(shi"
+"niness, EPSILON));\r\n\r\n\tfloat gamma = dot(E - N * NE, L - N * NL);\r\n"
+"\tfloat r_sq = roughness * roughness;\r\n\r\n\tfloat A = 1.0 - 0.5 * (r_sq "
+"/ (r_sq + 0.57));\r\n\tfloat B = 0.45 * (r_sq / (r_sq + 0.09));\r\n\r\n\tfl"
+"oat alpha = max(acos(NE), acos(NL));\r\n\tfloat beta  = min(acos(NE), acos("
+"NL));\r\n\r\n\tfloat C = sin(alpha) * tan(beta);\r\n\r\n\treturn A + B * cl"
+"amp(gamma, 0.0, 1.0) * C;\r\n  #else\r\n\treturn 1.0 - fzero;\r\n  #endif\r"
+"\n}\r\n\r\n#if defined(USE_SPECULARMAP)\r\nfloat CalcSpecular(float NH, flo"
+"at NL, float NE, float EH, float fzero, float shininess)\r\n{\r\n  #if defi"
+"ned(USE_BLINN) || defined(USE_TRIACE) || defined(USE_TORRANCE_SPARROW)\r\n"
+"\tfloat blinn = pow(NH, shininess);\r\n  #endif\r\n\r\n  #if defined(USE_BL"
+"INN)\r\n\treturn blinn;\r\n  #endif\r\n\r\n  #if defined(USE_COOK_TORRANCE)"
+" || defined (USE_TRIACE) || defined (USE_TORRANCE_SPARROW)\r\n\tfloat fresn"
+"el = fzero + (1.0 - fzero) * pow(1.0 - EH, 5);\r\n  #endif\r\n\r\n  #if def"
+"ined(USE_COOK_TORRANCE) || defined(USE_TORRANCE_SPARROW)\r\n\tfloat geo = 2"
+".0 * NH * min(NE, NL);\r\n\tgeo /= max(EH, geo);\r\n  #endif  \r\n\r\n  #if"
+" defined(USE_COOK_TORRANCE)\r\n\tfloat m = sqrt(2.0 / max(shininess, EPSILO"
+"N));\r\n\r\n\tfloat m_sq = m * m;\r\n\tfloat NH_sq = NH * NH;\r\n\tfloat be"
+"ckmann = exp((NH_sq - 1.0) / max(m_sq * NH_sq, EPSILON)) / max(4.0 * m_sq *"
+" NH_sq * NH_sq, EPSILON);\r\n\r\n\treturn fresnel * geo * beckmann / max(NE"
+", EPSILON);\r\n  #endif\r\n\r\n  #if defined(USE_TRIACE)\r\n\tfloat scale ="
+" 0.1248582 * shininess + 0.2691817;\r\n\r\n\treturn fresnel * scale * blinn"
+" / max(max(NL, NE), EPSILON);\r\n  #endif\r\n  \r\n  #if defined(USE_TORRAN"
+"CE_SPARROW)\r\n\tfloat scale = 0.125 * shininess + 1.0;\r\n\r\n\treturn fre"
+"snel * geo * scale * blinn / max(NE, EPSILON);\r\n  #endif\r\n}\r\n#endif\r"
+"\n\r\nvoid main()\r\n{\r\n#if defined(USE_LIGHT) || defined(USE_NORMALMAP)"
+"\r\n\tvec3 surfNormal = normalize(var_Normal);\r\n#endif\r\n\r\n#if defined"
+"(USE_DELUXEMAP)\r\n\tvec3 worldLight = 2.0 * texture2D(u_DeluxeMap, var_Lig"
+"htTex).xyz - vec3(1.0);\r\n\t//worldLight += var_WorldLight * 0.0001;\r\n#e"
+"lif defined(USE_LIGHT)\r\n\tvec3 worldLight = var_WorldLight;\r\n#endif\r\n"
+"\r\n#if defined(USE_LIGHTMAP)\r\n\tvec4 lightSample = texture2D(u_LightMap,"
+" var_LightTex).rgba;\r\n  #if defined(RGBE_LIGHTMAP)\r\n\tlightSample.rgb *"
+"= exp2(lightSample.a * 255.0 - 128.0);\r\n  #endif\r\n\tvec3 directedLight "
+"= lightSample.rgb;\r\n#elif defined(USE_LIGHT_VECTOR)\r\n  #if defined(USE_"
+"FAST_LIGHT)\r\n\tvec3 directedLight = var_VectLight;\r\n  #else\r\n    #if "
+"defined(USE_INVSQRLIGHT)\r\n\tfloat intensity = 1.0 / dot(worldLight, world"
+"Light);\r\n    #else\r\n\tfloat intensity = clamp((1.0 - dot(worldLight, wo"
+"rldLight) / (u_LightRadius * u_LightRadius)) * 1.07, 0.0, 1.0);\r\n    #end"
+"if\r\n\r\n\tvec3 directedLight = u_DirectedLight * intensity;\r\n\tvec3 amb"
+"ientLight  = u_AmbientLight;\r\n  #endif\r\n\r\n  #if defined(USE_SHADOWMAP"
+")\r\n\tvec2 shadowTex = var_ScreenPos.xy / var_ScreenPos.w * 0.5 + 0.5;\r\n"
+"\tdirectedLight *= texture2D(u_ShadowMap, shadowTex).r;\r\n  #endif\r\n#eli"
+"f defined(USE_LIGHT_VERTEX)\r\n\tvec3 directedLight = var_Color.rgb;\r\n#en"
+"dif\r\n\t\r\n#if defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(U"
+"SE_FAST_LIGHT)\r\n\tvec3 SampleToView = normalize(var_SampleToView);\r\n#en"
+"dif\r\n\tvec2 tex = var_DiffuseTex;\r\n\r\n\tfloat ambientDiff = 1.0;\r\n\r"
+"\n#if defined(USE_NORMALMAP)\r\n  #if defined(USE_VERT_TANGENT_SPACE)\r\n  "
+"  vec3   tangent = normalize(var_Tangent);\r\n\tvec3 bitangent = normalize("
+"var_Bitangent);\r\n  #else\r\n\tvec3 q0  = dFdx(var_Position);\r\n\tvec3 q1"
+"  = dFdy(var_Position);\r\n\tvec2 st0 = dFdx(tex);\r\n\tvec2 st1 = dFdy(tex"
+");\r\n\tfloat dir = sign(st1.t * st0.s - st0.t * st1.s);\r\n\r\n\tvec3   ta"
+"ngent = normalize( q0 * st1.t - q1 * st0.t) * dir;\r\n\tvec3 bitangent = -n"
+"ormalize( q0 * st1.s - q1 * st0.s) * dir;\r\n  #endif\r\n\r\n\tmat3 tangent"
+"ToWorld = mat3(tangent, bitangent, surfNormal);\r\n\r\n  #if defined(USE_PA"
+"RALLAXMAP)\r\n\tvec3 offsetDir = normalize(SampleToView * tangentToWorld);"
+"\r\n    #if 0\r\n    float height = SampleHeight(u_NormalMap, tex);\r\n\tfl"
+"oat pdist = 0.05 * height - (0.05 / 2.0);\r\n    #else\r\n\toffsetDir.xy *="
+" -0.05 / offsetDir.z;\r\n\tfloat pdist = RayIntersectDisplaceMap(tex, offse"
+"tDir.xy, u_NormalMap);\r\n    #endif\t\r\n\ttex += offsetDir.xy * pdist;\r"
+"\n  #endif\r\n  #if defined(SWIZZLE_NORMALMAP)\r\n\tvec3 normal = 2.0 * tex"
+"ture2D(u_NormalMap, tex).agb - 1.0;\r\n  #else\r\n\tvec3 normal = 2.0 * tex"
+"ture2D(u_NormalMap, tex).rgb - 1.0;\r\n  #endif\r\n\tnormal.z = sqrt(clamp("
+"1.0 - dot(normal.xy, normal.xy), 0.0, 1.0));\r\n\tvec3 worldNormal = tangen"
+"tToWorld * normal;\r\n  #if defined(r_normalAmbient)\r\n\tambientDiff = 0.7"
+"81341 * normal.z + 0.218659;\r\n  #endif\r\n#elif defined(USE_LIGHT)\r\n\tv"
+"ec3 worldNormal = surfNormal;\r\n#endif\r\n\r\n\tvec4 diffuse = texture2D(u"
+"_DiffuseMap, tex);\r\n\r\n#if defined(USE_LIGHT) && defined(USE_FAST_LIGHT)"
+"\r\n\tdiffuse.rgb *= directedLight;\r\n#elif defined(USE_LIGHT)\r\n\tworldN"
+"ormal = normalize(worldNormal);\r\n\tworldLight = normalize(worldLight);\r"
+"\n\r\n  #if defined(USE_LIGHTMAP) || defined(USE_LIGHT_VERTEX)\r\n\tdirecte"
+"dLight /= max(dot(surfNormal, worldLight), 0.004);\r\n\r\n    #if defined(r"
+"_normalAmbient)\r\n\tvec3 ambientLight = directedLight * r_normalAmbient;\r"
+"\n\tdirectedLight -= ambientLight;\r\n    #else\r\n\tvec3 ambientLight = ve"
+"c3(0);\r\n    #endif\r\n  #endif\r\n\r\n\tfloat NL = clamp(dot(worldNormal,"
+"  worldLight),   0.0, 1.0);\r\n\tfloat surfNL = clamp(dot(surfNormal,  worl"
+"dLight),   0.0, 1.0);\r\n\tNL = min(NL, surfNL * 2.0);\r\n\tfloat NE = clam"
+"p(dot(worldNormal,  SampleToView), 0.0, 1.0);\r\n\t\r\n\tfloat fzero = u_Ma"
+"terialInfo.x;\r\n\tfloat shininess = u_MaterialInfo.y;\r\n  #if defined(USE"
+"_SPECULARMAP)\r\n\tvec4 specular = texture2D(u_SpecularMap, tex);\r\n\t//sp"
+"ecular.rgb = clamp(specular.rgb - diffuse.rgb, 0.0, 1.0);\r\n\tshininess *="
+" specular.a;\r\n  #endif\r\n\tfloat directedDiff = NL * CalcDiffuse(worldNo"
+"rmal, worldLight, SampleToView, NE, NL, fzero, shininess);\r\n\tdiffuse.rgb"
+" *= directedLight * directedDiff + ambientDiff * ambientLight;\r\n  \r\n  #"
+"if defined(USE_SPECULARMAP)\r\n\tvec3 halfAngle = normalize(worldLight + Sa"
+"mpleToView);\r\n\r\n\tfloat EH = clamp(dot(SampleToView, halfAngle), 0.0, 1"
+".0);\r\n\tfloat NH = clamp(dot(worldNormal,  halfAngle), 0.0, 1.0);\r\n\r\n"
+"\tfloat directedSpec = NL * CalcSpecular(NH, NL, NE, EH, fzero, shininess);"
+"\r\n  \r\n    #if defined(r_normalAmbient)\r\n\tvec3 ambientHalf = normaliz"
+"e(surfNormal + SampleToView);\r\n\tfloat ambientSpec = max(dot(ambientHalf,"
+" worldNormal) + 0.5, 0.0);\r\n\tambientSpec *= ambientSpec * 0.44;\r\n\tamb"
+"ientSpec = pow(ambientSpec, shininess) * fzero;\r\n\tspecular.rgb *= direct"
+"edSpec * directedLight + ambientSpec * ambientLight;\r\n    #else\r\n\tspec"
+"ular.rgb *= directedSpec * directedLight;\r\n    #endif\r\n  #endif\r\n#end"
+"if\r\n\r\n\tgl_FragColor = diffuse;\r\n\r\n#if defined(USE_SPECULARMAP) && "
+"defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)\r\n\tgl_FragColor.rgb += spe"
+"cular.rgb;\r\n#endif\r\n\r\n#if !defined(USE_LIGHT_VERTEX)\r\n\tgl_FragColo"
+"r *= var_Color;\r\n#endif\r\n}\r\n";
 
 static const char *fallbackShadowfillShader_vp =
 "attribute vec4  attr_Position;\r\nattribute vec3  attr_Normal;\r\nattribute"
@@ -726,6 +697,77 @@ static const char *fallbackCalcLevels4xShader_fp =
 "tValues(vec2( 0.5,  1.5), current);\r\n\tcurrent = GetValues(vec2( 1.5,  1."
 "5), current);\r\n\r\n\tcurrent.y *= 0.0625;\r\n#endif\r\n\r\n\tgl_FragColor"
 " = vec4(current, 1.0f);\r\n}\r\n";
+
+static const char *fallbackShadowmaskShader_vp =
+"attribute vec4 attr_Position;\r\nattribute vec4 attr_TexCoord0;\r\n\r\nunif"
+"orm vec3   u_ViewForward;\r\nuniform vec3   u_ViewLeft;\r\nuniform vec3   u"
+"_ViewUp;\r\nuniform vec4   u_ViewInfo; // zfar / znear\r\n\r\nvarying vec2 "
+"  var_ScreenTex;\r\nvarying vec3   var_ViewDir;\r\n\r\nvoid main()\r\n{\r\n"
+"\tgl_Position = attr_Position;\r\n\t//vec2 screenCoords = gl_Position.xy / "
+"gl_Position.w;\r\n\t//var_ScreenTex = screenCoords * 0.5 + 0.5;\r\n\tvar_Sc"
+"reenTex = attr_TexCoord0.xy;\r\n\tvec2 screenCoords = attr_TexCoord0.xy * 2"
+".0 - 1.0;\r\n\tvar_ViewDir = u_ViewForward + u_ViewLeft * -screenCoords.x +"
+" u_ViewUp * screenCoords.y;\r\n}\r\n";
+
+static const char *fallbackShadowmaskShader_fp =
+"uniform sampler2D u_ScreenDepthMap;\r\n\r\nuniform sampler2D u_ShadowMap;\r"
+"\n#if 1 //defined(USE_SHADOW_CASCADE)\r\nuniform sampler2D u_ShadowMap2;\r"
+"\nuniform sampler2D u_ShadowMap3;\r\n#endif\r\n\r\nuniform mat4      u_Shad"
+"owMvp;\r\n#if 1 //defined(USE_SHADOW_CASCADE)\r\nuniform mat4      u_Shadow"
+"Mvp2;\r\nuniform mat4      u_ShadowMvp3;\r\n#endif\r\n\r\nuniform vec3   u_"
+"ViewOrigin;\r\nuniform vec4   u_ViewInfo; // zfar / znear, zfar\r\n\r\nvary"
+"ing vec2   var_ScreenTex;\r\nvarying vec3   var_ViewDir;\r\n\r\n// Input: I"
+"t uses texture coords as the random number seed.\r\n// Output: Random numbe"
+"r: [0,1), that is between 0.0 and 0.999999... inclusive.\r\n// Author: Mich"
+"ael Pohoreski\r\n// Copyright: Copyleft 2012 :-)\r\n// Source: http://stack"
+"overflow.com/questions/5149544/can-i-generate-a-random-number-inside-a-pixe"
+"l-shader\r\n\r\nfloat random( vec2 p )\r\n{\r\n  // We need irrationals for"
+" pseudo randomness.\r\n  // Most (all?) known transcendental numbers will ("
+"generally) work.\r\n  const vec2 r = vec2(\r\n    23.1406926327792690,  // "
+"e^pi (Gelfond's constant)\r\n     2.6651441426902251); // 2^sqrt(2) (Gelfon"
+"d?chneider constant)\r\n  //return fract( cos( mod( 123456789., 1e-7 + 256"
+". * dot(p,r) ) ) );\r\n  return mod( 123456789., 1e-7 + 256. * dot(p,r) ); "
+" \r\n}\r\n\r\nfloat PCF(sampler2D shadowmap, vec2 st, float dist)\r\n{\r\n"
+"\tfloat mult;\r\n\tfloat scale = 2.0 / r_shadowMapSize;\r\n\t\t\r\n#if defi"
+"ned(USE_SHADOW_FILTER)\r\n\tfloat r = random(var_ScreenTex.xy);\r\n\tfloat "
+"sinr = sin(r) * scale;\r\n\tfloat cosr = cos(r) * scale;\r\n\tmat2 rmat = m"
+"at2(cosr, sinr, -sinr, cosr);\r\n\r\n\tmult = step(dist, texture2D(shadowma"
+"p, st + rmat * vec2(-0.7055767, 0.196515)).r);\r\n\tmult += step(dist, text"
+"ure2D(shadowmap, st + rmat * vec2(0.3524343, -0.7791386)).r);\r\n    mult +"
+"= step(dist, texture2D(shadowmap, st + rmat * vec2(0.2391056, 0.9189604)).r"
+");\r\n  #if defined(USE_SHADOW_FILTER2)\r\n\tmult += step(dist, texture2D(s"
+"hadowmap, st + rmat * vec2(-0.07580382, -0.09224417)).r);\r\n\tmult += step"
+"(dist, texture2D(shadowmap, st + rmat * vec2(0.5784913, -0.002528916)).r);"
+"\r\n\tmult += step(dist, texture2D(shadowmap, st + rmat * vec2(0.192888, 0."
+"4064181)).r);\r\n\tmult += step(dist, texture2D(shadowmap, st + rmat * vec2"
+"(-0.6335801, -0.5247476)).r);\r\n\tmult += step(dist, texture2D(shadowmap, "
+"st + rmat * vec2(-0.5579782, 0.7491854)).r);\r\n\tmult += step(dist, textur"
+"e2D(shadowmap, st + rmat * vec2(0.7320465, 0.6317794)).r);\r\n\r\n\tmult *="
+" 0.11111;\r\n  #else\r\n    mult *= 0.33333;\r\n  #endif\r\n#else\r\n\tmult"
+" = step(dist, texture2D(shadowmap, st).r);\r\n#endif\r\n\t\t\r\n\treturn mu"
+"lt;\r\n}\r\n\r\nvoid main()\r\n{\r\n\tconst float fadeTo = 0.5;\r\n\tfloat "
+"result = fadeTo;\r\n\tfloat sampleZ_W = texture2D(u_ScreenDepthMap, var_Scr"
+"eenTex).r;\r\n\r\n\tfloat depth = 1.0 / mix(u_ViewInfo.x, 1.0, sampleZ_W);"
+"\r\n\tfloat sampleZ = u_ViewInfo.y * depth;\r\n\tvec4 biasPos = vec4(u_View"
+"Origin + var_ViewDir * depth * 0.99, 1.0);\r\n\t\r\n  #if defined(USE_SHADO"
+"W_CASCADE)\r\n\tvec4 shadowpos = u_ShadowMvp * biasPos;\r\n\tshadowpos /= s"
+"hadowpos.w;\r\n\r\n\tvec4 shadowpos2 = u_ShadowMvp2 * biasPos;\r\n\tshadowp"
+"os2 /= shadowpos2.w;\r\n\r\n\tvec4 shadowpos3 = u_ShadowMvp3 * biasPos;\r\n"
+"\tshadowpos3 /= shadowpos3.w;\r\n\t\r\n\tif (all(lessThan(abs(shadowpos.xyz"
+"), vec3(1.0))))\r\n\t{\r\n\t\tshadowpos.xyz = shadowpos.xyz * 0.5 + 0.5;\r"
+"\n\t\tresult = PCF(u_ShadowMap, shadowpos.xy, shadowpos.z);\r\n\t}\r\n\tels"
+"e if (all(lessThan(abs(shadowpos2.xyz), vec3(1.0))))\r\n\t{\r\n\t\tshadowpo"
+"s2.xyz = shadowpos2.xyz * 0.5 + 0.5;\r\n\t\tresult = PCF(u_ShadowMap2, shad"
+"owpos2.xy, shadowpos2.z);\r\n\t}\r\n\telse if (all(lessThan(abs(shadowpos3."
+"xyz), vec3(1.0))))\r\n\t{\r\n\t\tshadowpos3.xyz = shadowpos3.xyz * 0.5 + 0."
+"5;\r\n\t\tresult = PCF(u_ShadowMap3, shadowpos3.xy, shadowpos3.z);\r\n\r\n"
+"\t\tfloat fade = clamp(sampleZ / r_shadowCascadeZFar * 10.0 - 9.0, 0.0, 1.0"
+");\r\n\t\tresult = mix(result, fadeTo, fade);\r\n\t}\r\n\t\r\n  #else\r\n\t"
+"vec4 shadowpos = u_ShadowMvp * biasPos;\r\n\tshadowpos /= shadowpos.w;\r\n"
+"\r\n\tfloat outside = dot(vec3(1.0), step(1.0, abs(shadowpos.xyz)));\r\n\r"
+"\n\tshadowpos.xyz = shadowpos.xyz * 0.5 + 0.5;\r\n\tresult = clamp(PCF(u_Sh"
+"adowMap, shadowpos.xy, shadowpos.z) - outside, 1.0, 0.0);\r\n  #endif\r\n\t"
+"\t\r\n\tgl_FragColor.rgba = vec4(vec3(result), 1.0);\r\n}";
 
 
 
@@ -1786,12 +1828,7 @@ void GLSL_InitGPUShaders(void)
 		{
 			if (i & LIGHTDEF_USE_SHADOWMAP)
 				continue;
-			if (i & LIGHTDEF_USE_SHADOW_CASCADE)
-				continue;
 		}
-
-		if ((i & LIGHTDEF_USE_SHADOW_CASCADE) && !(i & LIGHTDEF_USE_SHADOWMAP))
-			continue;
 
 		attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR | ATTR_NORMAL;
 
@@ -1883,9 +1920,6 @@ void GLSL_InitGPUShaders(void)
 		if (i & LIGHTDEF_USE_SHADOWMAP)
 			Q_strcat(extradefines, 1024, "#define USE_SHADOWMAP\n");
 
-		if (i & LIGHTDEF_USE_SHADOW_CASCADE)
-			Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
-
 		if (i & LIGHTDEF_TCGEN_ENVIRONMENT)
 			Q_strcat(extradefines, 1024, "#define TCGEN_ENVIRONMENT\n");
 
@@ -1920,8 +1954,6 @@ void GLSL_InitGPUShaders(void)
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_DELUXEMAP,                 "u_DeluxeMap",                 GLSL_INT);
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SPECULARMAP,               "u_SpecularMap",               GLSL_INT);
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP,                 "u_ShadowMap",                 GLSL_INT);
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP2,                "u_ShadowMap2",                GLSL_INT);
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP3,                "u_ShadowMap3",                GLSL_INT);
 
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_AMBIENTLIGHT,              "u_AmbientLight",              GLSL_VEC3);
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_DIRECTEDLIGHT,             "u_DirectedLight",             GLSL_VEC3);
@@ -1933,12 +1965,6 @@ void GLSL_InitGPUShaders(void)
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_BASECOLOR,                 "u_BaseColor",                 GLSL_VEC4);
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_VERTCOLOR,                 "u_VertColor",                 GLSL_VEC4);
 		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_VERTEXLERP,                "u_VertexLerp",                GLSL_FLOAT);
-
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMVP,                 "u_ShadowMvp",                 GLSL_MAT16);
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMVP2,                "u_ShadowMvp2",                GLSL_MAT16);
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMVP3,                "u_ShadowMvp3",                GLSL_MAT16);
-
-		GLSL_AddUniform(&tr.lightallShader[i], GENERIC_UNIFORM_MAPLIGHTSCALE,             "u_MapLightScale",             GLSL_FLOAT);
 		
 		GLSL_EndUniforms(&tr.lightallShader[i]);
 
@@ -1949,8 +1975,6 @@ void GLSL_InitGPUShaders(void)
 		GLSL_SetUniformInt(&tr.lightallShader[i], GENERIC_UNIFORM_DELUXEMAP,   TB_DELUXEMAP);
 		GLSL_SetUniformInt(&tr.lightallShader[i], GENERIC_UNIFORM_SPECULARMAP, TB_SPECULARMAP);
 		GLSL_SetUniformInt(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP,   TB_SHADOWMAP);
-		GLSL_SetUniformInt(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP2,  TB_SHADOWMAP2);
-		GLSL_SetUniformInt(&tr.lightallShader[i], GENERIC_UNIFORM_SHADOWMAP3,  TB_SHADOWMAP3);
 		qglUseProgramObjectARB(0);
 
 		GLSL_FinishGPUShader(&tr.lightallShader[i]);
@@ -1985,7 +2009,7 @@ void GLSL_InitGPUShaders(void)
 	attribs = ATTR_POSITION | ATTR_NORMAL;
 	extradefines[0] = '\0';
 
-	Q_strcat(extradefines, 1024, "#define USE_PCF\n#define USE_DISCARD");
+	Q_strcat(extradefines, 1024, "#define USE_PCF\n#define USE_DISCARD\n");
 
 	if (!GLSL_InitGPUShader(&tr.pshadowShader, "pshadow", attribs, qtrue, extradefines, qtrue, fallbackPshadowShader_vp, fallbackPshadowShader_fp, PSHADOW_UNIFORM_COUNT))
 	{
@@ -2092,7 +2116,7 @@ void GLSL_InitGPUShaders(void)
 		extradefines[0] = '\0';
 
 		if (!i)
-			Q_strcat(extradefines, 1024, "#define FIRST_PASS");
+			Q_strcat(extradefines, 1024, "#define FIRST_PASS\n");
 
 		if (!GLSL_InitGPUShader(&tr.calclevels4xShader[i], "calclevels4x", attribs, qtrue, extradefines, qtrue, fallbackCalcLevels4xShader_vp, fallbackCalcLevels4xShader_fp, TEXTURECOLOR_UNIFORM_COUNT))
 		{
@@ -2115,6 +2139,54 @@ void GLSL_InitGPUShaders(void)
 
 		numEtcShaders++;		
 	}
+
+
+	attribs = ATTR_POSITION | ATTR_TEXCOORD;
+	extradefines[0] = '\0';
+
+	if (r_shadowFilter->integer >= 1)
+		Q_strcat(extradefines, 1024, "#define USE_SHADOW_FILTER\n");
+
+	if (r_shadowFilter->integer >= 2)
+		Q_strcat(extradefines, 1024, "#define USE_SHADOW_FILTER2\n");
+
+	Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
+
+	Q_strcat(extradefines, 1024, va("#define r_shadowMapSize %d\n", r_shadowMapSize->integer));
+	Q_strcat(extradefines, 1024, va("#define r_shadowCascadeZFar %f\n", r_shadowCascadeZFar->value));
+
+
+	if (!GLSL_InitGPUShader(&tr.shadowmaskShader, "shadowmask", attribs, qtrue, extradefines, qtrue, fallbackShadowmaskShader_vp, fallbackShadowmaskShader_fp, SHADOWMASK_UNIFORM_COUNT))
+	{
+		ri.Error(ERR_FATAL, "Could not load shadowmask shader!\n");
+	}
+	
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP,  "u_ShadowMvp",   GLSL_MAT16);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP2, "u_ShadowMvp2",  GLSL_MAT16);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMVP3, "u_ShadowMvp3",  GLSL_MAT16);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWORIGIN, "u_ViewOrigin",  GLSL_VEC3);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWINFO,   "u_ViewInfo",    GLSL_VEC4);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWFORWARD,"u_ViewForward", GLSL_VEC3);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWLEFT,   "u_ViewLeft",    GLSL_VEC3);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_VIEWUP,     "u_ViewUp",      GLSL_VEC3);
+
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SCREENDEPTHMAP, "u_ScreenDepthMap", GLSL_INT);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP,      "u_ShadowMap",      GLSL_INT);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP2,     "u_ShadowMap2",     GLSL_INT);
+	GLSL_AddUniform(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP3,     "u_ShadowMap3",     GLSL_INT);
+
+	GLSL_EndUniforms(&tr.shadowmaskShader);
+
+	qglUseProgramObjectARB(tr.shadowmaskShader.program);
+	GLSL_SetUniformInt(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SCREENDEPTHMAP, TB_COLORMAP);
+	GLSL_SetUniformInt(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP,  TB_SHADOWMAP);
+	GLSL_SetUniformInt(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP2, TB_SHADOWMAP2);
+	GLSL_SetUniformInt(&tr.shadowmaskShader, SHADOWMASK_UNIFORM_SHADOWMAP3, TB_SHADOWMAP3);
+	qglUseProgramObjectARB(0);
+
+	GLSL_FinishGPUShader(&tr.shadowmaskShader);
+
+	numEtcShaders++;
 
 
 	endTime = ri.Milliseconds();
@@ -2157,6 +2229,9 @@ void GLSL_InitGPUShaders(void)
 
 		GLSL_LoadGPUShaderText("CalcLevels4x", NULL, GL_VERTEX_SHADER_ARB,   NULL, 0, qtrue);
 		GLSL_LoadGPUShaderText("CalcLevels4x", NULL, GL_FRAGMENT_SHADER_ARB, NULL, 0, qtrue);
+
+		GLSL_LoadGPUShaderText("Shadowmask", NULL, GL_VERTEX_SHADER_ARB,   NULL, 0, qtrue);
+		GLSL_LoadGPUShaderText("Shadowmask", NULL, GL_FRAGMENT_SHADER_ARB, NULL, 0, qtrue);
 	}
 
 }

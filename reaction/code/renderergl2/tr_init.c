@@ -128,7 +128,16 @@ cvar_t  *r_imageUpsample;
 cvar_t  *r_imageUpsampleMaxSize;
 cvar_t  *r_imageUpsampleType;
 cvar_t  *r_genNormalMaps;
-cvar_t  *r_testSunlight;
+cvar_t  *r_forceSun;
+cvar_t  *r_forceSunMapLightScale;
+cvar_t  *r_forceSunLightScale;
+cvar_t  *r_forceSunAmbientScale;
+cvar_t  *r_sunShadows;
+cvar_t  *r_shadowFilter;
+cvar_t  *r_shadowMapSize;
+cvar_t  *r_shadowCascadeZNear;
+cvar_t  *r_shadowCascadeZFar;
+cvar_t  *r_shadowCascadeZBias;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -1137,7 +1146,7 @@ void R_Register( void )
 	r_cameraExposure = ri.Cvar_Get( "r_cameraExposure", "0", CVAR_CHEAT );
 
 	r_srgb = ri.Cvar_Get( "r_srgb", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_depthPrepass = ri.Cvar_Get( "r_depthPrepass", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_depthPrepass = ri.Cvar_Get( "r_depthPrepass", "1", CVAR_ARCHIVE );
 
 	r_normalMapping = ri.Cvar_Get( "r_normalMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_specularMapping = ri.Cvar_Get( "r_specularMapping", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1152,7 +1161,17 @@ void R_Register( void )
 	r_imageUpsampleMaxSize = ri.Cvar_Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsampleType = ri.Cvar_Get( "r_imageUpsampleType", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_genNormalMaps = ri.Cvar_Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	r_testSunlight = ri.Cvar_Get( "r_testSunlight", "0", CVAR_CHEAT );
+
+	r_forceSun = ri.Cvar_Get( "r_forceSun", "0", CVAR_CHEAT );
+	r_forceSunMapLightScale = ri.Cvar_Get( "r_forceSunMapLightScale", "0.5", CVAR_CHEAT );
+	r_forceSunLightScale = ri.Cvar_Get( "r_forceSunLightScale", "0.5", CVAR_CHEAT );
+	r_forceSunAmbientScale = ri.Cvar_Get( "r_forceSunAmbientScale", "0.2", CVAR_CHEAT );
+	r_sunShadows = ri.Cvar_Get( "r_sunShadows", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowFilter = ri.Cvar_Get( "r_shadowFilter", "1", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowMapSize = ri.Cvar_Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZNear = ri.Cvar_Get( "r_shadowCascadeZNear", "4", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZFar = ri.Cvar_Get( "r_shadowCascadeZFar", "3072", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZBias = ri.Cvar_Get( "r_shadowCascadeZBias", "-320", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
 	// temporary latched variables that can only change over a restart

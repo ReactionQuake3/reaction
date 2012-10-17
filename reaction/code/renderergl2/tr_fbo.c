@@ -483,9 +483,10 @@ void FBO_Init(void)
 		tr.sunShadowFbo[i] = FBO_Create("_sunshadowmap", tr.sunShadowDepthImage[i]->width, tr.sunShadowDepthImage[i]->height);
 		FBO_Bind(tr.sunShadowFbo[i]);
 
-		//FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
+		//FBO_CreateBuffer(tr.sunShadowFbo[i], GL_RGBA8, 0, 0);
 		//FBO_AttachTextureImage(tr.sunShadowImage, 0);
 		qglDrawBuffer(GL_NONE);
+		qglReadBuffer(GL_NONE);
 
 		//FBO_CreateBuffer(tr.sunShadowFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
 		R_AttachFBOTextureDepth(tr.sunShadowDepthImage[i]->texnum);
@@ -548,6 +549,15 @@ void FBO_Init(void)
 		FBO_AttachTextureImage(tr.quarterImage[i], 0);
 
 		R_CheckFBO(tr.quarterFbo[i]);
+	}
+
+	{
+		tr.screenShadowFbo = FBO_Create("_screenshadow", tr.screenShadowImage->width, tr.screenShadowImage->height);
+		FBO_Bind(tr.screenShadowFbo);
+		
+		FBO_AttachTextureImage(tr.screenShadowImage, 0);
+
+		R_CheckFBO(tr.screenShadowFbo);
 	}
 
 	GL_CheckErrors();
@@ -719,7 +729,14 @@ void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexS
 
 	GL_State( blend );
 
-	RB_InstantQuad2(quadVerts, texCoords, color, shaderProgram, invTexRes);
+	GLSL_BindProgram(shaderProgram);
+	
+	GLSL_SetUniformMatrix16(shaderProgram, TEXTURECOLOR_UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformVec4(shaderProgram, TEXTURECOLOR_UNIFORM_COLOR, color);
+	GLSL_SetUniformVec2(shaderProgram, TEXTURECOLOR_UNIFORM_INVTEXRES, invTexRes);
+	GLSL_SetUniformVec2(shaderProgram, TEXTURECOLOR_UNIFORM_AUTOEXPOSUREMINMAX, tr.autoExposureMinMax);
+
+	RB_InstantQuad2(quadVerts, texCoords); //, color, shaderProgram, invTexRes);
 }
 
 void FBO_Blit(FBO_t *src, vec4i_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)

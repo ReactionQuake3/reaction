@@ -107,14 +107,53 @@ void Matrix16Translation( vec3_t vec, matrix_t out )
 
 void Matrix16Ortho( float left, float right, float bottom, float top, float znear, float zfar, matrix_t out )
 {
-	Matrix16Zero(out);
-	out[ 0] = 2.0f / (right - left);
-	out[ 5] = 2.0f / (top - bottom);
-	out[10] = 2.0f / (zfar - znear);
-	out[12] = -(right + left) / (right - left);
-	out[13] = -(top + bottom) / (top - bottom);
-	out[14] = -(zfar + znear) / (zfar - znear);
-	out[15] = 1.0f;
+	out[ 0] = 2.0f / (right - left); out[ 4] = 0.0f;                  out[ 8] = 0.0f;                  out[12] = -(right + left) / (right - left);
+	out[ 1] = 0.0f;                  out[ 5] = 2.0f / (top - bottom); out[ 9] = 0.0f;                  out[13] = -(top + bottom) / (top - bottom);
+	out[ 2] = 0.0f;                  out[ 6] = 0.0f;                  out[10] = 2.0f / (zfar - znear); out[14] = -(zfar + znear) / (zfar - znear);
+	out[ 3] = 0.0f;                  out[ 7] = 0.0f;                  out[11] = 0.0f;                  out[15] = 1.0f;
+}
+
+void Matrix16View(vec3_t axes[3], vec3_t origin, matrix_t out)
+{
+	out[0]  = axes[0][0];
+	out[1]  = axes[1][0];
+	out[2]  = axes[2][0];
+	out[3]  = 0;
+
+	out[4]  = axes[0][1];
+	out[5]  = axes[1][1];
+	out[6]  = axes[2][1];
+	out[7]  = 0;
+
+	out[8]  = axes[0][2];
+	out[9]  = axes[1][2];
+	out[10] = axes[2][2];
+	out[11] = 0;
+
+	out[12] = -DotProduct(origin, axes[0]);
+	out[13] = -DotProduct(origin, axes[1]);
+	out[14] = -DotProduct(origin, axes[2]);
+	out[15] = 1;
+}
+
+void Matrix16SimpleInverse( const matrix_t in, matrix_t out)
+{
+	vec3_t v;
+	float invSqrLen;
+ 
+	VectorCopy(in + 0, v);
+	invSqrLen = 1.0f / DotProduct(v, v); VectorScale(v, invSqrLen, v);
+	out[ 0] = v[0]; out[ 4] = v[1]; out[ 8] = v[2]; out[12] = -DotProduct(v, &in[12]);
+
+	VectorCopy(in + 4, v);
+	invSqrLen = 1.0f / DotProduct(v, v); VectorScale(v, invSqrLen, v);
+	out[ 1] = v[0]; out[ 5] = v[1]; out[ 9] = v[2]; out[13] = -DotProduct(v, &in[12]);
+
+	VectorCopy(in + 8, v);
+	invSqrLen = 1.0f / DotProduct(v, v); VectorScale(v, invSqrLen, v);
+	out[ 2] = v[0]; out[ 6] = v[1]; out[10] = v[2]; out[14] = -DotProduct(v, &in[12]);
+
+	out[ 3] = 0.0f; out[ 7] = 0.0f; out[11] = 0.0f; out[15] = 1.0f;
 }
 
 void VectorLerp( vec3_t a, vec3_t b, float lerp, vec3_t c)

@@ -2278,6 +2278,22 @@ static void EmptyTexture( int width, int height, imgType_t type, imgFlags_t flag
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	}
 
+	// Fix for sampling depth buffer on old nVidia cards
+	// from http://www.idevgames.com/forums/thread-4141-post-34844.html#pid34844
+	switch(internalFormat)
+	{
+		case GL_DEPTH_COMPONENT:
+		case GL_DEPTH_COMPONENT16_ARB:
+		case GL_DEPTH_COMPONENT24_ARB:
+		case GL_DEPTH_COMPONENT32_ARB:
+			qglTexParameterf(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE );
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+			break;
+		default:
+			break;
+	}
+
 	GL_CheckErrors();
 }
 
@@ -2977,6 +2993,8 @@ void R_CreateBuiltinImages( void ) {
 		{
 			tr.quarterImage[x] = R_CreateImage(va("*quarter%d", x), NULL, 512, 512, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 		}
+
+		tr.screenShadowImage = R_CreateImage("*screenShadow", NULL, width, height, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 	}
 
 	for( x = 0; x < MAX_DRAWN_PSHADOWS; x++)
@@ -2987,7 +3005,7 @@ void R_CreateBuiltinImages( void ) {
 	//tr.sunShadowImage = R_CreateImage("*sunshadowmap", NULL, SUNSHADOW_MAP_SIZE, SUNSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_RGBA8);
 	for ( x = 0; x < 3; x++)
 	{
-		tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x),  NULL, SUNSHADOW_MAP_SIZE, SUNSHADOW_MAP_SIZE, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT16_ARB);
+		tr.sunShadowDepthImage[x] = R_CreateImage(va("*sunshadowdepth%i", x),  NULL, r_shadowMapSize->integer, r_shadowMapSize->integer, IMGTYPE_COLORALPHA, IMGFLAG_NO_COMPRESSION | IMGFLAG_CLAMPTOEDGE, GL_DEPTH_COMPONENT24_ARB);
 	}
 }
 

@@ -38,6 +38,8 @@ qboolean Matrix16Compare(const matrix_t a, const matrix_t b);
 void Matrix16Dump( const matrix_t in );
 void Matrix16Translation( vec3_t vec, matrix_t out );
 void Matrix16Ortho( float left, float right, float bottom, float top, float znear, float zfar, matrix_t out );
+void Matrix16View(vec3_t axes[3], vec3_t origin, matrix_t out);
+void Matrix16SimpleInverse( const matrix_t in, matrix_t out);
 
 #define VectorCopy2(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1])
 
