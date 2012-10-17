@@ -1,3 +1,4 @@
+- Adjust default auto-exposure a bit higher.
 - Added .mtr file support.  .mtr files are just .shader files that are accessed first.
 - Added support for q3gl2_sun shaderparm in sky shaders to control sun shadows
 - Added r_shadowFilter 0/1/2 for cascaded shadow maps.

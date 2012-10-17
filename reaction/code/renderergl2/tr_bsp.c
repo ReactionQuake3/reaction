@@ -3245,8 +3245,8 @@ void RE_LoadWorldMap( const char *name ) {
 	VectorNormalize( tr.sunDirection );
 
 	// set default autoexposure settings
-	tr.autoExposureMinMax[0] = -2.0;
-	tr.autoExposureMinMax[1] = 2.0;
+	tr.autoExposureMinMax[0] = -3.0;
+	tr.autoExposureMinMax[1] = 3.0;
 
 	tr.worldMapLoaded = qtrue;
 
