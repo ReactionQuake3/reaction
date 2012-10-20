@@ -797,20 +797,22 @@ void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t * ent, in
 		VectorMA(origin, 8192, forward, end);
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
-		if (ShotgunPellet(origin, end, ent) && !hitClient) {
-			hitClient = qtrue;
-			ent->client->accuracy_hits++;
-			// Elder: Statistics tracking
-			if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
-				switch (shotType) {
-				case WP_M3:
-					ent->client->pers.records[REC_M3HITS]++;
-					//ent->client->m3Hits++;
-					break;
-				case WP_HANDCANNON:
-					ent->client->pers.records[REC_HANDCANNONHITS]++;
-					//ent->client->hcHits++;
-					break;
+		if (ShotgunPellet(origin, end, ent)) {
+			if (!hitClient) {
+				hitClient = qtrue;
+				ent->client->accuracy_hits++;
+				// Elder: Statistics tracking
+				if ((g_gametype.integer == GT_TEAMPLAY && level.team_round_going) || g_gametype.integer != GT_TEAMPLAY) {
+					switch (shotType) {
+					case WP_M3:
+						ent->client->pers.records[REC_M3HITS]++;
+						//ent->client->m3Hits++;
+						break;
+					case WP_HANDCANNON:
+						ent->client->pers.records[REC_HANDCANNONHITS]++;
+						//ent->client->hcHits++;
+						break;
+					}
 				}
 			}
 		}
