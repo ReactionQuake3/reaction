@@ -1,3 +1,4 @@
+- Added UI options for Cascaded Shadow Maps
 - Changed com_zoneMegs to 128 (from 64)
 - Adjust default auto-exposure a bit higher.
 - Added .mtr file support.  .mtr files are just .shader files that are accessed first.

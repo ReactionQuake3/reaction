@@ -5686,6 +5686,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("ui_filteringMode", 1);
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
+			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
 		case 2:	// crappiest
 			trap_Cvar_SetValue("cg_brassTime", 0);
@@ -5709,6 +5710,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("ui_filteringMode", 0);
 			trap_Cvar_SetValue("ui_shaderLevel", 0);
+			trap_Cvar_SetValue("ui_shadowMaps", 0);
 			break;
 		case 3:	// crap
 			trap_Cvar_SetValue("cg_brassTime", 7500);
@@ -5732,6 +5734,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("ui_filteringMode", 1);
 			trap_Cvar_SetValue("ui_shaderLevel", 0);
+			trap_Cvar_SetValue("ui_shadowMaps", 1);
 			break;
 		case 4:	// high quality
 			trap_Cvar_SetValue("cg_brassTime", 20000);
@@ -5755,6 +5758,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("ui_filteringMode", 4);
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
+			trap_Cvar_SetValue("ui_shadowMaps", 2);
 			break;
 		case 5: // highest quality
 			trap_Cvar_SetValue("cg_brassTime", 20000);
@@ -5778,6 +5782,7 @@ static void UI_Update(const char *name)
 			
 			trap_Cvar_SetValue("ui_filteringMode", 5);
 			trap_Cvar_SetValue("ui_shaderLevel", 1);
+			trap_Cvar_SetValue("ui_shadowMaps", 3);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_filteringMode") == 0) {
@@ -5824,6 +5829,30 @@ static void UI_Update(const char *name)
 		case 1: // bumpy (enabled)
 			trap_Cvar_SetValue("r_normalMapping", 1);
 			trap_Cvar_SetValue("r_specularMapping", 1);
+			break;
+		}
+	} else if (Q_stricmp(name, "ui_shadowMaps") == 0) {
+		switch (val) {
+		// cascaded shadow maps
+		case 0:	// disabled
+			trap_Cvar_SetValue("r_sunShadows", 0);
+			trap_Cvar_SetValue("r_shadowFilter", 0);
+			trap_Cvar_SetValue("r_shadowMapSize", 0);
+			break;
+		case 1: // low
+			trap_Cvar_SetValue("r_sunShadows", 1);
+			trap_Cvar_SetValue("r_shadowFilter", 1);
+			trap_Cvar_SetValue("r_shadowMapSize", 512);
+			break;
+		case 2: // medium
+			trap_Cvar_SetValue("r_sunShadows", 1);
+			trap_Cvar_SetValue("r_shadowFilter", 2);
+			trap_Cvar_SetValue("r_shadowMapSize", 1024);
+			break;
+		case 3: // high
+			trap_Cvar_SetValue("r_sunShadows", 1);
+			trap_Cvar_SetValue("r_shadowFilter", 2);
+			trap_Cvar_SetValue("r_shadowMapSize", 2048);
 			break;
 		}
 	} else if (Q_stricmp(name, "ui_mousePitch") == 0) {

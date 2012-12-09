@@ -276,7 +276,23 @@ Group # 1 - Graphics
 		action { uiScript glCustom ; uiScript update "ui_shaderLevel" }
 		ASSIGN_HINT("hint_shader")
     END_OPTION
-    ADD_HINT("hint_shader", "Use per-pixel lighting to improve render quality", "group1")
+    ADD_HINT("hint_shader", "Enable normal mapping and specular reflectivity", "group1")
+
+
+    // Cascaded Shadow Maps //
+
+	BEGIN_OPTION("Cascaded Shadow Maps", "ui_shadowMaps", ITEM_TYPE_MULTI, 7, 1)
+		cvarFloatList {
+			"Off"					0
+			"Low"					1
+			"Medium"				2
+			"High"					3
+		}
+		OPTION_BELOW("gr1_ctrl6")
+		action { uiScript glCustom ; uiScript update "ui_shadowMaps" }
+		ASSIGN_HINT("hint_csm")
+    END_OPTION
+    ADD_HINT("hint_csm", "Enable sunlight and cascaded shadow maps", "group1")
 
 
 	// Lightmap/vertex //
@@ -294,13 +310,13 @@ Group # 1 - Graphics
 
 	// Geometric detail //
 
-	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 7, 1)
+	BEGIN_OPTION("Geometric Detail", "r_lodbias", ITEM_TYPE_MULTI, 8, 1)
 		cvarFloatList {
-			"High"		0
-			"Medium"	1
 			"Low"		2
+			"Medium"	1
+			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl6")
+		OPTION_BELOW("gr1_ctrl7")
 		action { uiScript glCustom ; uiScript update "r_lodbias" }
 		ASSIGN_HINT("hint_geodetail")
 	END_OPTION
@@ -309,14 +325,14 @@ Group # 1 - Graphics
 
 	// Texture detail //
 
-	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 8, 1)
+	BEGIN_OPTION("Texture Detail", "r_picmip", ITEM_TYPE_MULTI, 9, 1)
 		cvarFloatList {
 			"Very Low"	3
 			"Low"		2
 			"Medium"	1
 			"High"		0
 		}
-		OPTION_BELOW("gr1_ctrl7")
+		OPTION_BELOW("gr1_ctrl8")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_texdetail")
 	END_OPTION
@@ -340,8 +356,8 @@ Group # 1 - Graphics
 
 	// Compressed textures //
 
-	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 9, 1)
-		OPTION_BELOW("gr1_ctrl8")
+	BEGIN_OPTION("Compress Textures", "r_ext_compressed_textures", ITEM_TYPE_YESNO, 10, 1)
+		OPTION_BELOW("gr1_ctrl9")
 		action { uiScript glCustom ; }
 		ASSIGN_HINT("hint_compress")
 	END_OPTION
@@ -353,7 +369,7 @@ Group # 1 - Graphics
 	itemdef {
 	name "btn_apply,fade_alpha,allgroups,group1"
 	style WINDOW_STYLE_EMPTY
-	alignrect "gr1_ctrl9" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
+	alignrect "gr1_ctrl10" ITEM_ALIGN_RIGHT 0 24 80 VSIZE
 	type ITEM_TYPE_BUTTON
 	text "^_A^_pply >"
 	shortcutKey "A"
