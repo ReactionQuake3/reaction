@@ -46,17 +46,16 @@ varying vec4      var_Color;
 varying vec3      var_Position;
 #endif
 
-#if defined(USE_TCGEN) || defined(USE_NORMALMAP) || (defined(USE_LIGHT) && !defined(USE_FAST_LIGHT))
+#if defined(USE_TCGEN) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 varying vec3      var_SampleToView;
 #endif
 
 #if !defined(USE_FAST_LIGHT)
 varying vec3      var_Normal;
-#endif
-
-#if defined(USE_VERT_TANGENT_SPACE)
+  #if defined(USE_VERT_TANGENT_SPACE)
 varying vec3      var_Tangent;
 varying vec3      var_Bitangent;
+  #endif
 #endif
 
 varying vec3      var_VertLight;
@@ -233,7 +232,7 @@ void main()
 	vec3 directedLight = var_VertLight;
 #endif
 	
-#if defined(USE_TCGEN) || defined(USE_NORMALMAP) || (defined(USE_LIGHT) && !defined(USE_FAST_LIGHT))
+#if defined(USE_TCGEN) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	vec3 SampleToView = normalize(var_SampleToView);
 #endif
 	vec2 tex = var_DiffuseTex;

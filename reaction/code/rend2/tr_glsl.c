@@ -334,7 +334,7 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 	return result;
 }
 
-static void GLSL_LinkProgram(GLhandleARB program)
+static void GLSL_LinkProgram(GLhandleARB program, char *vpCode, char *fpCode)
 {
 	GLint           linked;
 
@@ -344,6 +344,8 @@ static void GLSL_LinkProgram(GLhandleARB program)
 	if(!linked)
 	{
 		GLSL_PrintInfoLog(program, qfalse);
+		ri.Printf(PRINT_ALL, "vpCode:\n%s\n", vpCode);
+		ri.Printf(PRINT_ALL, "fpCode:\n%s\n", fpCode);
 		ri.Error(ERR_DROP, "\nshaders failed to link");
 	}
 }
@@ -467,7 +469,7 @@ static int GLSL_InitGPUShader2(shaderProgram_t * program, const char *name, int 
 		qglBindAttribLocationARB(program->program, ATTR_INDEX_BITANGENT2, "attr_Bitangent2");
 #endif
 
-	GLSL_LinkProgram(program->program);
+	GLSL_LinkProgram(program->program, vpCode, fpCode);
 
 	program->numUniforms = numUniforms;
 

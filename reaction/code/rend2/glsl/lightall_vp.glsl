@@ -152,9 +152,6 @@ void main()
 
 #if defined(USE_TCGEN) || defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	vec3 SampleToView = u_ViewOrigin - position.xyz;
-#endif
-
-#if defined(USE_NORMALMAP) || defined(USE_LIGHT) && !defined(USE_FAST_LIGHT)
 	var_SampleToView = SampleToView;
 #endif
 
