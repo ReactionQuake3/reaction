@@ -3800,10 +3800,11 @@ static void UI_DrawKeyBindStatus(itemDef_t *item, rectDef_t * rect, float scale,
 #define GLINFO_STRING2	va("VERSION: %s", uiInfo.uiDC.glconfig.version_string)
 #define GLINFO_STRING3	va("PIXELFORMAT: color(%d) Z(%d) stencil(%d); REFRESH: %d Hz", uiInfo.uiDC.glconfig.colorBits,\
 	uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits, uiInfo.uiDC.glconfig.displayFrequency)
+/*
 #define GLINFO_STRING4	va("TEX: %d units, %d x %d max%s%s", uiInfo.uiDC.glconfig.maxActiveTextures,\
 	uiInfo.uiDC.glconfig.maxTextureSize, uiInfo.uiDC.glconfig.maxTextureSize,\
 	(uiInfo.uiDC.glconfig.textureCompression == TC_NONE) ? "" : ", compressed", uiInfo.uiDC.glconfig.smpActive ? "; SMP: on" : "")
-
+*/
 static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textStyle)
 {
 	float p[2];
@@ -3829,7 +3830,7 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING1);
 		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING2);
 		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING3);
-		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING4);
+//		GLINFO_OUTPUT_STRING_ANGLED(GLINFO_STRING4);
 	}
 	else
 	{
@@ -3840,7 +3841,7 @@ static void UI_DrawGLInfo(rectDef_t * rect, float scale, vec4_t color, int textS
 		GLINFO_OUTPUT_STRING(GLINFO_STRING1);
 		GLINFO_OUTPUT_STRING(GLINFO_STRING2);
 		GLINFO_OUTPUT_STRING(GLINFO_STRING3);
-		GLINFO_OUTPUT_STRING(GLINFO_STRING4);
+//		GLINFO_OUTPUT_STRING(GLINFO_STRING4);
 	}
 }
 
@@ -8643,7 +8644,8 @@ void _UI_Init(qboolean inGameLoad)
 	uiInfo.uiDC.bias = 0.5f * (uiInfo.uiDC.glconfig.vidWidth - (uiInfo.uiDC.glconfig.vidHeight * SCREEN_WIDTH / (float)SCREEN_HEIGHT));
 
 	//Makro - set up 2D scene
-	memset(&uiInfo.uiDC.scene2D, 0, sizeof(&uiInfo.uiDC.scene2D));
+//	memset(&uiInfo.uiDC.scene2D, 0, sizeof(&uiInfo.uiDC.scene2D));
+	memset(&uiInfo.uiDC.scene2D, 0, sizeof(uiInfo.uiDC.scene2D));
 	uiInfo.uiDC.scene2D.x = 0;
 	uiInfo.uiDC.scene2D.y = 0;
 	uiInfo.uiDC.scene2D.width = uiInfo.uiDC.glconfig.vidWidth;

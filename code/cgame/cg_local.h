@@ -404,8 +404,8 @@
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "../qcommon/q_shared.h"
-#include "../renderer/tr_types.h"
-#include "../rend2/tr_extratypes.h"
+#include "../renderercommon/tr_types.h"
+#include "../renderergl2/tr_extratypes.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 
@@ -2461,6 +2461,7 @@ void trap_SendConsoleCommand(const char *text);
 // register a command name so the console can perform command completion.
 // FIXME: replace this with a normal console command "defineCommand"?
 void trap_AddCommand(const char *cmdName);
+void trap_RemoveCommand(const char *cmdName);
 
 // send a string to the server over the network
 void trap_SendClientCommand(const char *s);
@@ -2477,9 +2478,17 @@ int trap_CM_PointContents(const vec3_t p, clipHandle_t model);
 int trap_CM_TransformedPointContents(const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles);
 void trap_CM_BoxTrace(trace_t * results, const vec3_t start, const vec3_t end,
 		      const vec3_t mins, const vec3_t maxs, clipHandle_t model, int brushmask);
+void trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
+				const vec3_t mins, const vec3_t maxs,
+				clipHandle_t model, int brushmask );
 void trap_CM_TransformedBoxTrace(trace_t * results, const vec3_t start, const vec3_t end,
 				 const vec3_t mins, const vec3_t maxs,
 				 clipHandle_t model, int brushmask, const vec3_t origin, const vec3_t angles);
+void trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
+				const vec3_t mins, const vec3_t maxs,
+				clipHandle_t model, int brushmask,
+				const vec3_t origin, const vec3_t angles );
+
 
 // Returns the projection of a polygon onto the solid brushes in the world
 int trap_CM_MarkFragments(int numPoints, const vec3_t * points,
@@ -2524,6 +2533,7 @@ void trap_R_AddRefEntityToScene(const refEntity_t * re);
 void trap_R_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts);
 void trap_R_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
 void trap_R_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
+void trap_R_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
 int trap_R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 void trap_R_RenderScene(const refdef_t * fd);
 void trap_R_SetColor(const float *rgba);	// NULL = 1,1,1,1
@@ -2533,6 +2543,7 @@ void trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs);
 int trap_R_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame,
 		   float frac, const char *tagName);
 void trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
+qboolean trap_R_inPVS(const vec3_t p1, const vec3_t p2);
 
 // The glconfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
@@ -2593,6 +2604,7 @@ void trap_CIN_DrawCinematic(int handle);
 void trap_CIN_SetExtents(int handle, int x, int y, int w, int h);
 
 void trap_SnapVector(float *v);
+int trap_RealTime(qtime_t *qtime);
 
 qboolean trap_loadCamera(const char *name);
 void trap_startCamera(int time);
@@ -2624,4 +2636,4 @@ void CG_DrawBigPolygon(void);
 void CG_ParticleHitSnow(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_ParticleHitGrass(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
 void CG_ParticleHitWall(vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float scale);
-void CG_AddLensFlare(qboolean sun);
+//void CG_AddLensFlare(qboolean sun);

@@ -2992,7 +2992,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	//	CG_DrawBigPolygon();
 
 	//Makro - sun flare
-	CG_AddLensFlare(qtrue);
+//	CG_AddLensFlare(qtrue);
 
 	CG_SetupPostProcess();
 
@@ -3013,5 +3013,5 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	CG_Draw2D();
 
 	//Makro - reflection particles
-	CG_AddLensFlare(qfalse);
+//	CG_AddLensFlare(qfalse);
 }

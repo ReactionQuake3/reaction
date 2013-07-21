@@ -1144,6 +1144,7 @@ static void CG_PlayBufferedSounds(void)
 #define FLARE_BLIND_ALPHA	0.25f
 
 //Makro - lens flare
+/* JBravo - Temporarily disabled
 void CG_AddLensFlare(qboolean sun)
 {
 	vec3_t dir, dp;
@@ -1269,7 +1270,7 @@ void CG_AddLensFlare(qboolean sun)
 		}
 	}
 }
-
+*/
 static qboolean CG_UnderWater( void )
 {
 	return 0 != (CG_PointContents(cg.refdef.vieworg, -1) & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA));

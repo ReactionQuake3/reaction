@@ -1,3 +1,5 @@
+- Temporarily disabled the Sun flares.
+- Updated the ioq3 base Reaction is based on to ioq3 git dated Jul 21 2013
 - Updated the ioq3 base Reaction is based on to ioq3 svn version 2378
 - Added UI options for Cascaded Shadow Maps
 - Changed com_zoneMegs to 128 (from 64)

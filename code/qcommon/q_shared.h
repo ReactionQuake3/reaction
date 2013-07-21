@@ -51,6 +51,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Heartbeat for dpmaster protocol. You shouldn't change this unless you know what you're doing
 #define HEARTBEAT_FOR_MASTER		"DarkPlaces"
 
+// When com_gamename is LEGACY_MASTER_GAMENAME, use quake3 master protocol.
+// You shouldn't change this unless you know what you're doing
+#define LEGACY_MASTER_GAMENAME		"Quake3Arena"
+#define LEGACY_HEARTBEAT_FOR_MASTER	"QuakeArena-1"
+
 #define BASETA				"missionpack"
 
 #ifndef PRODUCT_VERSION
@@ -784,7 +789,7 @@ typedef struct pc_token_s
 
 void	COM_MatchToken( char**buf_p, char *match );
 
-void SkipBracedSection (char **program);
+qboolean SkipBracedSection (char **program, int depth);
 void SkipRestOfLine ( char **data );
 
 void Parse1DMatrix (char **buf_p, int x, float *m);
@@ -1216,7 +1221,7 @@ typedef struct playerState_s {
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
-	int			pmove_framecount;	// FIXME: don't transmit over the network
+	int			pmove_framecount;
 	int			jumppad_frame;
 	int			entityEventSequence;
 } playerState_t;

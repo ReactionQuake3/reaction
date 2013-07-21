@@ -74,7 +74,7 @@
 #define __UI_SHARED_H
 
 #include "../qcommon/q_shared.h"
-#include "../cgame/tr_types.h"
+#include "../renderercommon/tr_types.h"
 #include "keycodes.h"
 
 #include "menudef.h"

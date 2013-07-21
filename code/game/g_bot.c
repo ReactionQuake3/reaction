@@ -314,8 +314,7 @@ void G_AddRandomBot(int team)
 					teamstr = "blue";
 				else
 					teamstr = "";
-				strncpy(netname, value, sizeof(netname) - 1);
-				netname[sizeof(netname) - 1] = '\0';
+				Q_strncpyz(netname, value, sizeof(netname));
 				Q_CleanStr(netname);
 				trap_SendConsoleCommand(EXEC_INSERT,
 							va("addbot %s %f %s %i\n", netname, skill, teamstr, 0));

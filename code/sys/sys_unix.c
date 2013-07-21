@@ -123,7 +123,7 @@ qboolean Sys_RandomBytes( byte *string, int len )
 	if( !fp )
 		return qfalse;
 
-	if( !fread( string, sizeof( byte ), len, fp ) )
+	if( fread( string, sizeof( byte ), len, fp ) != len )
 	{
 		fclose( fp );
 		return qfalse;
@@ -190,6 +190,21 @@ Sys_Dirname
 const char *Sys_Dirname( char *path )
 {
 	return dirname( path );
+}
+
+/*
+==============
+Sys_FOpen
+==============
+*/
+FILE *Sys_FOpen( const char *ospath, const char *mode ) {
+	struct stat buf;
+
+	// check if path exists and is a directory
+	if ( !stat( ospath, &buf ) && S_ISDIR( buf.st_mode ) )
+		return NULL;
+
+	return fopen( ospath, mode );
 }
 
 /*

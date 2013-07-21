@@ -252,7 +252,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 			// The frame that the server did the delta from
 			// is too old, so we can't reconstruct it properly.
 			Com_Printf ("Delta frame too old.\n");
-		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES-128 ) {
+		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES - MAX_SNAPSHOT_ENTITIES ) {
 			Com_Printf ("Delta parseEntitiesNum too old.\n");
 		} else {
 			newSnap.valid = qtrue;	// valid delta parse
@@ -352,11 +352,6 @@ void CL_SystemInfoChanged( void ) {
 	// in some cases, outdated cp commands might get sent with this news serverId
 	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
 
-	// don't set any vars when playing a demo
-	if ( clc.demoplaying ) {
-		return;
-	}
-
 #ifdef USE_VOIP
 #ifdef LEGACY_PROTOCOL
 	if(clc.compat)
@@ -365,12 +360,14 @@ void CL_SystemInfoChanged( void ) {
 #endif
 	{
 		s = Info_ValueForKey( systemInfo, "sv_voip" );
-		if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
-			clc.voipEnabled = qfalse;
-		else
-			clc.voipEnabled = atoi(s);
+		clc.voipEnabled = atoi(s);
 	}
 #endif
+
+	// don't set any vars when playing a demo
+	if ( clc.demoplaying ) {
+		return;
+	}
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
 	cl_connectedToCheatServer = atoi( s );
@@ -637,7 +634,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 			clc.download = 0;
 
 			// rename the file
-			FS_SV_Rename ( clc.downloadTempName, clc.downloadName );
+			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, qfalse );
 		}
 
 		// send intentions now
@@ -789,7 +786,6 @@ void CL_ParseVoip ( msg_t *msg ) {
 	}
 
 	for (i = 0; i < frames; i++) {
-		char encoded[256];
 		const int len = MSG_ReadByte(msg);
 		if (len < 0) {
 			Com_DPrintf("VoIP: Short packet!\n");

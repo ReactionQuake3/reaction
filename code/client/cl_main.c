@@ -256,7 +256,7 @@ void CL_Voip_f( void )
 		reason = "Speex not initialized";
 	else if (!clc.voipEnabled)
 		reason = "Server doesn't support VoIP";
-	else if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive"))
+	else if (!clc.demoplaying && (Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive")))
 		reason = "running in single-player mode";
 
 	if (reason != NULL) {
@@ -1142,13 +1142,13 @@ void CL_PlayDemo_f( void ) {
 		Com_Error( ERR_DROP, "couldn't open %s", name);
 		return;
 	}
-	Q_strncpyz( clc.demoName, Cmd_Argv(1), sizeof( clc.demoName ) );
+	Q_strncpyz( clc.demoName, arg, sizeof( clc.demoName ) );
 
 	Con_Close();
 
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
-	Q_strncpyz( clc.servername, Cmd_Argv(1), sizeof( clc.servername ) );
+	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
 
 #ifdef LEGACY_PROTOCOL
 	if(protocol <= com_legacyprotocol->integer)
@@ -3070,11 +3070,18 @@ CL_ShutdownRef
 ============
 */
 void CL_ShutdownRef( void ) {
-	if ( !re.Shutdown ) {
-		return;
+	if ( re.Shutdown ) {
+		re.Shutdown( qtrue );
 	}
-	re.Shutdown( qtrue );
+
 	Com_Memset( &re, 0, sizeof( re ) );
+
+#ifdef USE_RENDERER_DLOPEN
+	if ( rendererLib ) {
+		Sys_UnloadLibrary( rendererLib );
+		rendererLib = NULL;
+	}
+#endif
 }
 
 /*
@@ -3169,7 +3176,7 @@ void CL_InitRef( void ) {
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
 #ifdef USE_RENDERER_DLOPEN
-	cl_renderer = Cvar_Get("cl_renderer", "rend2", CVAR_ARCHIVE | CVAR_LATCH);
+	cl_renderer = Cvar_Get("cl_renderer", "opengl2", CVAR_ARCHIVE | CVAR_LATCH);
 
 	Com_sprintf(dllName, sizeof(dllName), "renderer_%s_" ARCH_STRING DLL_EXT, cl_renderer->string);
 
@@ -4145,6 +4152,9 @@ void CL_GlobalServers_f( void ) {
 				com_gamename->string, Cmd_Argv(2));
 		}
 	}
+	else if ( !Q_stricmp( com_gamename->string, LEGACY_MASTER_GAMENAME ) )
+		Com_sprintf(command, sizeof(command), "getservers %s",
+			Cmd_Argv(2));
 	else
 		Com_sprintf(command, sizeof(command), "getservers %s %s",
 			com_gamename->string, Cmd_Argv(2));
