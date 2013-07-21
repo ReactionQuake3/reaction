@@ -405,7 +405,7 @@
 //
 #include "../qcommon/q_shared.h"
 #include "../renderer/tr_types.h"
-#include "../renderergl2/tr_extratypes.h"
+#include "../rend2/tr_extratypes.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
 
