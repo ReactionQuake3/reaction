@@ -992,7 +992,7 @@ void Key_Bind_f (void)
 
 	if (c == 2)
 	{
-		if (keys[b].binding)
+		if (keys[b].binding && keys[b].binding[0])
 			Com_Printf ("\"%s\" = \"%s\"\n", Key_KeynumToString(b), keys[b].binding );
 		else
 			Com_Printf ("\"%s\" is not bound\n", Key_KeynumToString(b) );
@@ -1267,6 +1267,9 @@ void CL_KeyDownEvent( int key, unsigned time )
 		return;
 	}
 
+	// send the bound action
+	CL_ParseBinding( key, qtrue, time );
+
 	// distribute the key down event to the apropriate handler
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
@@ -1283,9 +1286,6 @@ void CL_KeyDownEvent( int key, unsigned time )
 	} else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
 	}
-
-	// send the bound action
-	CL_ParseBinding( key, qtrue, time );
 }
 
 /*
