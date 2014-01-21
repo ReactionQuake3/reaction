@@ -454,6 +454,8 @@ qboolean R_CalcTangentVectors(srfVert_t * dv[3])
 	/* do each vertex */
 	for(i = 0; i < 3; i++)
 	{
+		vec3_t bitangent, nxt;
+
 		// calculate s tangent vector
 		s = dv[i]->st[0] + 10.0f;
 		t = dv[i]->st[1];
@@ -475,12 +477,16 @@ qboolean R_CalcTangentVectors(srfVert_t * dv[3])
 		bary[1] = ((dv[2]->st[0] - s) * (dv[0]->st[1] - t) - (dv[0]->st[0] - s) * (dv[2]->st[1] - t)) / bb;
 		bary[2] = ((dv[0]->st[0] - s) * (dv[1]->st[1] - t) - (dv[1]->st[0] - s) * (dv[0]->st[1] - t)) / bb;
 
-		dv[i]->bitangent[0] = bary[0] * dv[0]->xyz[0] + bary[1] * dv[1]->xyz[0] + bary[2] * dv[2]->xyz[0];
-		dv[i]->bitangent[1] = bary[0] * dv[0]->xyz[1] + bary[1] * dv[1]->xyz[1] + bary[2] * dv[2]->xyz[1];
-		dv[i]->bitangent[2] = bary[0] * dv[0]->xyz[2] + bary[1] * dv[1]->xyz[2] + bary[2] * dv[2]->xyz[2];
+		bitangent[0] = bary[0] * dv[0]->xyz[0] + bary[1] * dv[1]->xyz[0] + bary[2] * dv[2]->xyz[0];
+		bitangent[1] = bary[0] * dv[0]->xyz[1] + bary[1] * dv[1]->xyz[1] + bary[2] * dv[2]->xyz[1];
+		bitangent[2] = bary[0] * dv[0]->xyz[2] + bary[1] * dv[1]->xyz[2] + bary[2] * dv[2]->xyz[2];
 
-		VectorSubtract(dv[i]->bitangent, dv[i]->xyz, dv[i]->bitangent);
-		VectorNormalize(dv[i]->bitangent);
+		VectorSubtract(bitangent, dv[i]->xyz, bitangent);
+		VectorNormalize(bitangent);
+
+		// store bitangent handedness
+		CrossProduct(dv[i]->normal, dv[i]->tangent, nxt);
+		dv[i]->tangent[3] = (DotProduct(nxt, bitangent) < 0.0f) ? -1.0f : 1.0f;
 
 		// debug code
 		//% Sys_FPrintf( SYS_VRB, "%d S: (%f %f %f) T: (%f %f %f)\n", i,
@@ -490,99 +496,6 @@ qboolean R_CalcTangentVectors(srfVert_t * dv[3])
 	return qtrue;
 }
 #endif
-
-
-/*
-=================
-R_FindSurfaceTriangleWithEdge
-
-Recoded from Q2E
-=================
-*/
-static int R_FindSurfaceTriangleWithEdge(int numTriangles, srfTriangle_t * triangles, int start, int end, int ignore)
-{
-	srfTriangle_t  *tri;
-	int             count, match;
-	int             i;
-
-	count = 0;
-	match = -1;
-
-	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
-	{
-		if((tri->indexes[0] == start && tri->indexes[1] == end) ||
-		   (tri->indexes[1] == start && tri->indexes[2] == end) || (tri->indexes[2] == start && tri->indexes[0] == end))
-		{
-			if(i != ignore)
-			{
-				match = i;
-			}
-
-			count++;
-		}
-		else if((tri->indexes[1] == start && tri->indexes[0] == end) ||
-				(tri->indexes[2] == start && tri->indexes[1] == end) || (tri->indexes[0] == start && tri->indexes[2] == end))
-		{
-			count++;
-		}
-	}
-
-	// detect edges shared by three triangles and make them seams
-	if(count > 2)
-	{
-		match = -1;
-	}
-
-	return match;
-}
-
-
-/*
-=================
-R_CalcSurfaceTriangleNeighbors
-
-Recoded from Q2E
-=================
-*/
-void R_CalcSurfaceTriangleNeighbors(int numTriangles, srfTriangle_t * triangles)
-{
-	int             i;
-	srfTriangle_t  *tri;
-
-	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
-	{
-		tri->neighbors[0] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[1], tri->indexes[0], i);
-		tri->neighbors[1] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[2], tri->indexes[1], i);
-		tri->neighbors[2] = R_FindSurfaceTriangleWithEdge(numTriangles, triangles, tri->indexes[0], tri->indexes[2], i);
-	}
-}
-
-/*
-=================
-R_CalcSurfaceTrianglePlanes
-=================
-*/
-void R_CalcSurfaceTrianglePlanes(int numTriangles, srfTriangle_t * triangles, srfVert_t * verts)
-{
-	int             i;
-	srfTriangle_t  *tri;
-
-	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
-	{
-		float          *v1, *v2, *v3;
-		vec3_t          d1, d2;
-
-		v1 = verts[tri->indexes[0]].xyz;
-		v2 = verts[tri->indexes[1]].xyz;
-		v3 = verts[tri->indexes[2]].xyz;
-
-		VectorSubtract(v2, v1, d1);
-		VectorSubtract(v3, v1, d2);
-
-		CrossProduct(d2, d1, tri->plane);
-		tri->plane[3] = DotProduct(tri->plane, v1);
-	}
-}
 
 
 /*
@@ -927,7 +840,7 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms,
 	glMatrix[11] = 0;
 	glMatrix[15] = 1;
 
-	Matrix16Copy(glMatrix, or->transformMatrix);
+	Mat4Copy(glMatrix, or->transformMatrix);
 	myGlMultMatrix( glMatrix, viewParms->world.modelMatrix, or->modelMatrix );
 
 	// calculate the viewer origin in the model's space
@@ -1365,7 +1278,7 @@ R_PlaneForSurface
 =============
 */
 void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
-	srfTriangles_t	*tri;
+	srfBspSurface_t	*tri;
 	srfPoly_t		*poly;
 	srfVert_t		*v1, *v2, *v3;
 	vec4_t			plane4;
@@ -1377,13 +1290,13 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 	}
 	switch (*surfType) {
 	case SF_FACE:
-		*plane = ((srfSurfaceFace_t *)surfType)->plane;
+		*plane = ((srfBspSurface_t *)surfType)->cullPlane;
 		return;
 	case SF_TRIANGLES:
-		tri = (srfTriangles_t *)surfType;
-		v1 = tri->verts + tri->triangles[0].indexes[0];
-		v2 = tri->verts + tri->triangles[0].indexes[1];
-		v3 = tri->verts + tri->triangles[0].indexes[2];
+		tri = (srfBspSurface_t *)surfType;
+		v1 = tri->verts + tri->indexes[0];
+		v2 = tri->verts + tri->indexes[1];
+		v3 = tri->verts + tri->indexes[2];
 		PlaneFromPoints( plane4, v1->xyz, v2->xyz, v3->xyz );
 		VectorCopy( plane4, plane->normal ); 
 		plane->dist = plane4[3];
@@ -1649,7 +1562,8 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 
 	for ( i = 0; i < tess.numIndexes; i += 3 )
 	{
-		vec3_t normal;
+		vec3_t normal, tNormal;
+
 		float len;
 
 		VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.or.origin, normal );
@@ -1660,7 +1574,9 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 			shortest = len;
 		}
 
-		if ( DotProduct( normal, tess.normal[tess.indexes[i]] ) >= 0 )
+		R_VboUnpackNormal(tNormal, tess.normal[tess.indexes[i]]);
+
+		if ( DotProduct( normal, tNormal ) >= 0 )
 		{
 			numTriangles--;
 		}
@@ -1997,9 +1913,6 @@ static void R_AddEntitySurface (int entityNum)
 			case MOD_MESH:
 				R_AddMD3Surfaces( ent );
 				break;
-			case MOD_MD4:
-				R_AddAnimSurfaces( ent );
-				break;
 			case MOD_MDR:
 				R_MDRAddAnimSurfaces( ent );
 				break;
@@ -2286,12 +2199,6 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 				}
 				break;
 
-				case MOD_MD4:
-				{
-					// FIXME: actually calculate the radius and bounds, this is a horrible hack
-					radius = r_pshadowDist->value / 2.0f;
-				}
-				break;
 				case MOD_MDR:
 				{
 					// FIXME: never actually tested this
@@ -2716,7 +2623,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 	// Create bounds for light projection using slice of view projection
 	{
-		matrix_t lightViewMatrix;
+		mat4_t lightViewMatrix;
 		vec4_t point, base, lightViewPoint;
 		float lx, ly;
 
@@ -2724,7 +2631,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 		point[3] = 1;
 		lightViewPoint[3] = 1;
 
-		Matrix16View(lightViewAxis, lightOrigin, lightViewMatrix);
+		Mat4View(lightViewAxis, lightOrigin, lightViewMatrix);
 
 		ClearBounds(lightviewBounds[0], lightviewBounds[1]);
 
@@ -2735,22 +2642,22 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,  -lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point, -ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,  -lx, fd->viewaxis[1], point);
 		VectorMA(point, -ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 		
 
@@ -2761,22 +2668,22 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,  -lx, fd->viewaxis[1], point);
 		VectorMA(point,  ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,   lx, fd->viewaxis[1], point);
 		VectorMA(point, -ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		VectorMA(base,  -lx, fd->viewaxis[1], point);
 		VectorMA(point, -ly, fd->viewaxis[2], point);
-		Matrix16Transform(lightViewMatrix, point, lightViewPoint);
+		Mat4Transform(lightViewMatrix, point, lightViewPoint);
 		AddPointToBounds(lightViewPoint, lightviewBounds[0], lightviewBounds[1]);
 
 		if (!glRefConfig.depthClamp)
@@ -2874,7 +2781,7 @@ void R_RenderSunShadowMaps(const refdef_t *fd, int level)
 			R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
 		}
 
-		Matrix16Multiply(tr.viewParms.projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
+		Mat4Multiply(tr.viewParms.projectionMatrix, tr.viewParms.world.modelMatrix, tr.refdef.sunShadowMvp[level]);
 	}
 }
 
@@ -2944,7 +2851,7 @@ void R_RenderCubemapSide( int cubemapIndex, int cubemapSide, qboolean subscene )
 
 		// FIXME: sun shadows aren't rendered correctly in cubemaps
 		// fix involves changing r_FBufScale to fit smaller cubemap image size, or rendering cubemap to framebuffer first
-		if(0) //(glRefConfig.framebufferObject && (r_forceSun->integer || tr.sunShadows))
+		if(0) //(glRefConfig.framebufferObject && r_sunlightMode->integer && (r_forceSun->integer || tr.sunShadows))
 		{
 			R_RenderSunShadowMaps(&refdef, 0);
 			R_RenderSunShadowMaps(&refdef, 1);

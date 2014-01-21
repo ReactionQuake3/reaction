@@ -203,10 +203,16 @@ static int NameToSrcBlendMode( const char *name )
 	}
 	else if ( !Q_stricmp( name, "GL_DST_ALPHA" ) )
 	{
+		if (r_ignoreDstAlpha->integer)
+			return GLS_SRCBLEND_ONE;
+
 		return GLS_SRCBLEND_DST_ALPHA;
 	}
 	else if ( !Q_stricmp( name, "GL_ONE_MINUS_DST_ALPHA" ) )
 	{
+		if (r_ignoreDstAlpha->integer)
+			return GLS_SRCBLEND_ZERO;
+
 		return GLS_SRCBLEND_ONE_MINUS_DST_ALPHA;
 	}
 	else if ( !Q_stricmp( name, "GL_SRC_ALPHA_SATURATE" ) )
@@ -243,10 +249,16 @@ static int NameToDstBlendMode( const char *name )
 	}
 	else if ( !Q_stricmp( name, "GL_DST_ALPHA" ) )
 	{
+		if (r_ignoreDstAlpha->integer)
+			return GLS_DSTBLEND_ONE;
+
 		return GLS_DSTBLEND_DST_ALPHA;
 	}
 	else if ( !Q_stricmp( name, "GL_ONE_MINUS_DST_ALPHA" ) )
 	{
+		if (r_ignoreDstAlpha->integer)
+			return GLS_DSTBLEND_ZERO;
+
 		return GLS_DSTBLEND_ONE_MINUS_DST_ALPHA;
 	}
 	else if ( !Q_stricmp( name, "GL_SRC_COLOR" ) )
@@ -1109,10 +1121,6 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 					shader.portalRange = atof( token );
 				}
 			}
-			else if ( !Q_stricmp( token, "fresnel" ) )
-			{
-				stage->alphaGen = AGEN_FRESNEL;
-			}
 			else
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: unknown alphaGen parameter '%s' in shader '%s'\n", token, shader.name );
@@ -1951,7 +1959,7 @@ static void ComputeVertexAttribs(void)
 #ifdef USE_VERT_TANGENT_SPACE
 			if ((pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) && !(r_normalMapping->integer == 0 && r_specularMapping->integer == 0))
 			{
-				shader.vertexAttribs |= ATTR_BITANGENT | ATTR_TANGENT;
+				shader.vertexAttribs |= ATTR_TANGENT;
 			}
 #endif
 
@@ -2011,7 +2019,6 @@ static void ComputeVertexAttribs(void)
 		switch(pStage->alphaGen)
 		{
 			case AGEN_LIGHTING_SPECULAR:
-			case AGEN_FRESNEL:
 				shader.vertexAttribs |= ATTR_NORMAL;
 				break;
 
@@ -2213,7 +2220,6 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 		//ri.Printf(PRINT_ALL, ", deluxemap");
 		diffuse->bundle[TB_DELUXEMAP] = lightmap->bundle[0];
 		diffuse->bundle[TB_DELUXEMAP].image[0] = tr.deluxemaps[shader.lightmapIndex];
-		defs |= LIGHTDEF_USE_DELUXEMAP;
 	}
 
 	if (r_normalMapping->integer)
@@ -2247,15 +2253,6 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 					defs |= LIGHTDEF_USE_PARALLAXMAP;
 			}
 		}
-
-		if (!diffuse->bundle[TB_NORMALMAP].image[0])
-		{
-			// use 0x80 image, shader will interpret as (0,0,1)
-			diffuse->bundle[TB_NORMALMAP] = diffuse->bundle[0];
-			diffuse->bundle[TB_NORMALMAP].numImageAnimations = 0;
-			diffuse->bundle[TB_NORMALMAP].image[0] = tr.greyImage;
-			//ri.Printf(PRINT_ALL, ", normalmap %s", diffuse->bundle[TB_NORMALMAP].image[0]->imgName);
-		}
 	}
 
 	if (r_specularMapping->integer)
@@ -2266,18 +2263,6 @@ static void CollapseStagesToLightall(shaderStage_t *diffuse,
 			diffuse->bundle[TB_SPECULARMAP] = specular->bundle[0];
 			diffuse->materialInfo[0] = specular->materialInfo[0];
 			diffuse->materialInfo[1] = specular->materialInfo[1];
-		}
-		else if (lightmap || useLightVector || useLightVertex)
-		{
-			// use a white image, materialinfo will do the rest
-			diffuse->bundle[TB_SPECULARMAP] = diffuse->bundle[0];
-			diffuse->bundle[TB_SPECULARMAP].numImageAnimations = 0;
-			diffuse->bundle[TB_SPECULARMAP].image[0] = tr.whiteImage;
-			if (!diffuse->materialInfo[0])
-				diffuse->materialInfo[0] = r_baseSpecular->value;
-			if (!diffuse->materialInfo[1])
-				diffuse->materialInfo[1] = r_baseGloss->value;
-			//ri.Printf(PRINT_ALL, ", specularmap %s", diffuse->bundle[TB_SPECULARMAP].image[0]->imgName);
 		}
 	}
 
@@ -2308,7 +2293,7 @@ static qboolean CollapseStagesToGLSL(void)
 	{
 		// if 2+ stages and first stage is lightmap, switch them
 		// this makes it easier for the later bits to process
-		if (stages[0].active && stages[0].bundle[0].isLightmap && stages[1].active)
+		if (stages[0].active && stages[0].bundle[0].tcGen == TCGEN_LIGHTMAP && stages[1].active)
 		{
 			int blendBits = stages[1].stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 
@@ -2345,7 +2330,7 @@ static qboolean CollapseStagesToGLSL(void)
 				break;
 			}
 
-			if (pStage->bundle[0].isLightmap)
+			if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
 			{
 				int blendBits = pStage->stateBits & ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 				
@@ -2362,6 +2347,7 @@ static qboolean CollapseStagesToGLSL(void)
 				case TCGEN_TEXTURE:
 				case TCGEN_LIGHTMAP:
 				case TCGEN_ENVIRONMENT_MAPPED:
+				case TCGEN_VECTOR:
 					break;
 				default:
 					skip = qtrue;
@@ -2372,7 +2358,6 @@ static qboolean CollapseStagesToGLSL(void)
 			{
 				case AGEN_LIGHTING_SPECULAR:
 				case AGEN_PORTAL:
-				case AGEN_FRESNEL:
 					skip = qtrue;
 					break;
 				default:
@@ -2397,7 +2382,7 @@ static qboolean CollapseStagesToGLSL(void)
 				continue;
 
 			// skip lightmaps
-			if (pStage->bundle[0].isLightmap)
+			if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
 				continue;
 
 			diffuse  = pStage;
@@ -2439,7 +2424,7 @@ static qboolean CollapseStagesToGLSL(void)
 						break;
 
 					case ST_COLORMAP:
-						if (pStage2->bundle[0].isLightmap)
+						if (pStage2->bundle[0].tcGen == TCGEN_LIGHTMAP)
 						{
 							lightmap = pStage2;
 						}
@@ -2481,7 +2466,7 @@ static qboolean CollapseStagesToGLSL(void)
 			if (!pStage->active)
 				continue;
 
-			if (pStage->bundle[0].isLightmap)
+			if (pStage->bundle[0].tcGen == TCGEN_LIGHTMAP)
 			{
 				pStage->active = qfalse;
 			}
@@ -2547,15 +2532,14 @@ static qboolean CollapseStagesToGLSL(void)
 			if (pStage->adjustColorsForFog)
 				continue;
 
-			if (pStage->bundle[TB_DIFFUSEMAP].isLightmap)
+			if (pStage->bundle[TB_DIFFUSEMAP].tcGen == TCGEN_LIGHTMAP)
 			{
 				pStage->glslShaderGroup = tr.lightallShader;
 				pStage->glslShaderIndex = LIGHTDEF_USE_LIGHTMAP;
-				if (r_deluxeMapping->integer && tr.worldDeluxeMapping)
-					pStage->glslShaderIndex |= LIGHTDEF_USE_DELUXEMAP;
 				pStage->bundle[TB_LIGHTMAP] = pStage->bundle[TB_DIFFUSEMAP];
 				pStage->bundle[TB_DIFFUSEMAP].image[0] = tr.whiteImage;
 				pStage->bundle[TB_DIFFUSEMAP].isLightmap = qfalse;
+				pStage->bundle[TB_DIFFUSEMAP].tcGen = TCGEN_TEXTURE;
 			}
 		}
 	}
@@ -2577,11 +2561,14 @@ static qboolean CollapseStagesToGLSL(void)
 			{
 				pStage->glslShaderGroup = tr.lightallShader;
 				pStage->glslShaderIndex = LIGHTDEF_USE_LIGHT_VECTOR;
+
+				if (pStage->bundle[0].tcGen != TCGEN_TEXTURE || pStage->bundle[0].numTexMods != 0)
+					pStage->glslShaderIndex |= LIGHTDEF_USE_TCGEN_AND_TCMOD;
 			}
 		}
 	}
 
-	// convert any remaining lightingdiffuse stages to a lighting pass
+	// insert default material info if needed
 	for (i = 0; i < MAX_SHADER_STAGES; i++)
 	{
 		shaderStage_t *pStage = &stages[i];
@@ -2589,13 +2576,20 @@ static qboolean CollapseStagesToGLSL(void)
 		if (!pStage->active)
 			continue;
 
-		if (pStage->rgbGen == CGEN_LIGHTING_DIFFUSE)
+		if (pStage->glslShaderGroup != tr.lightallShader)
+			continue;
+
+		if ((pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) == 0)
+			continue;
+
+		if (!pStage->bundle[TB_SPECULARMAP].image[0] && r_specularMapping->integer)
 		{
-			pStage->glslShaderGroup = tr.lightallShader;
-			pStage->glslShaderIndex = LIGHTDEF_USE_LIGHT_VECTOR;
+			if (!pStage->materialInfo[0])
+				pStage->materialInfo[0] = r_baseSpecular->value;
+			if (!pStage->materialInfo[1])
+				pStage->materialInfo[1] = r_baseGloss->value;
 		}
 	}
-
 
 	return numStages;
 }

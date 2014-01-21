@@ -386,7 +386,7 @@ void FBO_Init(void)
 	hdrFormat = GL_RGBA8;
 	if (r_hdr->integer && glRefConfig.framebufferObject && glRefConfig.textureFloat)
 	{
-		hdrFormat = GL_RGB16F_ARB;
+		hdrFormat = GL_RGBA16F_ARB;
 	}
 
 	qglGetIntegerv(GL_MAX_SAMPLES_EXT, &multisample);
@@ -465,34 +465,48 @@ void FBO_Init(void)
 	}
 
 	// FIXME: Don't use separate color/depth buffers for a shadow buffer
-	for( i = 0; i < MAX_DRAWN_PSHADOWS; i++)
+	if (MAX_DRAWN_PSHADOWS && tr.pshadowMaps[0])
 	{
-		tr.pshadowFbos[i] = FBO_Create(va("_shadowmap%d", i), tr.pshadowMaps[i]->width, tr.pshadowMaps[i]->height);
-		FBO_Bind(tr.pshadowFbos[i]);
+		for( i = 0; i < MAX_DRAWN_PSHADOWS; i++)
+		{
+			tr.pshadowFbos[i] = FBO_Create(va("_shadowmap%d", i), tr.pshadowMaps[i]->width, tr.pshadowMaps[i]->height);
+			FBO_Bind(tr.pshadowFbos[i]);
 
-		//FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
-		FBO_AttachTextureImage(tr.pshadowMaps[i], 0);
+			//FBO_CreateBuffer(tr.pshadowFbos[i], GL_RGBA8, 0, 0);
+			FBO_AttachTextureImage(tr.pshadowMaps[i], 0);
 
-		FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24_ARB, 0, 0);
-		//R_AttachFBOTextureDepth(tr.textureDepthImage->texnum);
+			FBO_CreateBuffer(tr.pshadowFbos[i], GL_DEPTH_COMPONENT24_ARB, 0, 0);
+			//R_AttachFBOTextureDepth(tr.textureDepthImage->texnum);
 
-		R_CheckFBO(tr.pshadowFbos[i]);
+			R_CheckFBO(tr.pshadowFbos[i]);
+		}
 	}
 
-	for ( i = 0; i < 3; i++)
+	if (tr.sunShadowDepthImage[0])
 	{
-		tr.sunShadowFbo[i] = FBO_Create("_sunshadowmap", tr.sunShadowDepthImage[i]->width, tr.sunShadowDepthImage[i]->height);
-		FBO_Bind(tr.sunShadowFbo[i]);
+		for ( i = 0; i < 3; i++)
+		{
+			tr.sunShadowFbo[i] = FBO_Create("_sunshadowmap", tr.sunShadowDepthImage[i]->width, tr.sunShadowDepthImage[i]->height);
+			FBO_Bind(tr.sunShadowFbo[i]);
 
-		//FBO_CreateBuffer(tr.sunShadowFbo[i], GL_RGBA8, 0, 0);
-		//FBO_AttachTextureImage(tr.sunShadowImage, 0);
-		qglDrawBuffer(GL_NONE);
-		qglReadBuffer(GL_NONE);
+			//FBO_CreateBuffer(tr.sunShadowFbo[i], GL_RGBA8, 0, 0);
+			//FBO_AttachTextureImage(tr.sunShadowImage, 0);
+			qglDrawBuffer(GL_NONE);
+			qglReadBuffer(GL_NONE);
 
-		//FBO_CreateBuffer(tr.sunShadowFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
-		R_AttachFBOTextureDepth(tr.sunShadowDepthImage[i]->texnum);
+			//FBO_CreateBuffer(tr.sunShadowFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
+			R_AttachFBOTextureDepth(tr.sunShadowDepthImage[i]->texnum);
 
-		R_CheckFBO(tr.sunShadowFbo[i]);
+			R_CheckFBO(tr.sunShadowFbo[i]);
+
+		}
+
+		tr.screenShadowFbo = FBO_Create("_screenshadow", tr.screenShadowImage->width, tr.screenShadowImage->height);
+		FBO_Bind(tr.screenShadowFbo);
+
+		FBO_AttachTextureImage(tr.screenShadowImage, 0);
+
+		R_CheckFBO(tr.screenShadowFbo);
 	}
 
 	for (i = 0; i < 2; i++)
@@ -526,22 +540,6 @@ void FBO_Init(void)
 		R_CheckFBO(tr.targetLevelsFbo);
 	}
 
-	if (r_softOverbright->integer)
-	{
-		//tr.screenScratchFbo = FBO_Create("_screenscratch", width, height);
-		tr.screenScratchFbo = FBO_Create("_screenscratch", tr.screenScratchImage->width, tr.screenScratchImage->height);
-		FBO_Bind(tr.screenScratchFbo);
-		
-		//FBO_CreateBuffer(tr.screenScratchFbo, format, 0, 0);
-		FBO_AttachTextureImage(tr.screenScratchImage, 0);
-
-		// FIXME: hack: share zbuffer between render fbo and pre-screen fbo
-		//FBO_CreateBuffer(tr.screenScratchFbo, GL_DEPTH_COMPONENT24_ARB, 0, 0);
-		R_AttachFBOTextureDepth(tr.renderDepthImage->texnum);
-
-		R_CheckFBO(tr.screenScratchFbo);
-	}
-
 	for (i = 0; i < 2; i++)
 	{
 		tr.quarterFbo[i] = FBO_Create(va("_quarter%d", i), tr.quarterImage[i]->width, tr.quarterImage[i]->height);
@@ -551,15 +549,6 @@ void FBO_Init(void)
 		FBO_AttachTextureImage(tr.quarterImage[i], 0);
 
 		R_CheckFBO(tr.quarterFbo[i]);
-	}
-
-	{
-		tr.screenShadowFbo = FBO_Create("_screenshadow", tr.screenShadowImage->width, tr.screenShadowImage->height);
-		FBO_Bind(tr.screenShadowFbo);
-		
-		FBO_AttachTextureImage(tr.screenShadowImage, 0);
-
-		R_CheckFBO(tr.screenShadowFbo);
 	}
 
 	if (r_ssao->integer)
@@ -579,6 +568,7 @@ void FBO_Init(void)
 		R_CheckFBO(tr.screenSsaoFbo);
 	}
 
+	if (tr.renderCubeImage)
 	{
 		tr.renderCubeFbo = FBO_Create("_renderCubeFbo", tr.renderCubeImage->width, tr.renderCubeImage->height);
 		FBO_Bind(tr.renderCubeFbo);
@@ -667,16 +657,16 @@ void R_FBOList_f(void)
 // FIXME
 extern void RB_SetGL2D (void);
 
-void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexScale, FBO_t *dst, vec4i_t inDstBox, struct shaderProgram_s *shaderProgram, vec4_t inColor, int blend)
+void FBO_BlitFromTexture(struct image_s *src, ivec4_t inSrcBox, vec2_t inSrcTexScale, FBO_t *dst, ivec4_t inDstBox, struct shaderProgram_s *shaderProgram, vec4_t inColor, int blend)
 {
-	vec4i_t dstBox, srcBox;
+	ivec4_t dstBox, srcBox;
 	vec2_t srcTexScale;
 	vec4_t color;
 	vec4_t quadVerts[4];
 	vec2_t texCoords[4];
 	vec2_t invTexRes;
 	FBO_t *oldFbo = glState.currentFBO;
-	matrix_t projection;
+	mat4_t projection;
 	int width, height;
 
 	if (!src)
@@ -757,7 +747,7 @@ void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexS
 	qglViewport( 0, 0, width, height );
 	qglScissor( 0, 0, width, height );
 
-	Matrix16Ortho(0, width, height, 0, 0, 1, projection);
+	Mat4Ortho(0, width, height, 0, 0, 1, projection);
 
 	qglDisable( GL_CULL_FACE );
 
@@ -780,7 +770,7 @@ void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexS
 
 	GLSL_BindProgram(shaderProgram);
 	
-	GLSL_SetUniformMatrix16(shaderProgram, UNIFORM_MODELVIEWPROJECTIONMATRIX, projection);
+	GLSL_SetUniformMat4(shaderProgram, UNIFORM_MODELVIEWPROJECTIONMATRIX, projection);
 	GLSL_SetUniformVec4(shaderProgram, UNIFORM_COLOR, color);
 	GLSL_SetUniformVec2(shaderProgram, UNIFORM_INVTEXRES, invTexRes);
 	GLSL_SetUniformVec2(shaderProgram, UNIFORM_AUTOEXPOSUREMINMAX, tr.refdef.autoExposureMinMax);
@@ -791,9 +781,9 @@ void FBO_BlitFromTexture(struct image_s *src, vec4i_t inSrcBox, vec2_t inSrcTexS
 	FBO_Bind(oldFbo);
 }
 
-void FBO_Blit(FBO_t *src, vec4i_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, vec4i_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
+void FBO_Blit(FBO_t *src, ivec4_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, ivec4_t dstBox, struct shaderProgram_s *shaderProgram, vec4_t color, int blend)
 {
-	vec4i_t srcBox;
+	ivec4_t srcBox;
 
 	if (!src)
 	{
@@ -817,9 +807,9 @@ void FBO_Blit(FBO_t *src, vec4i_t inSrcBox, vec2_t srcTexScale, FBO_t *dst, vec4
 	FBO_BlitFromTexture(src->colorImage[0], srcBox, srcTexScale, dst, dstBox, shaderProgram, color, blend | GLS_DEPTHTEST_DISABLE);
 }
 
-void FBO_FastBlit(FBO_t *src, vec4i_t srcBox, FBO_t *dst, vec4i_t dstBox, int buffers, int filter)
+void FBO_FastBlit(FBO_t *src, ivec4_t srcBox, FBO_t *dst, ivec4_t dstBox, int buffers, int filter)
 {
-	vec4i_t srcBoxFinal, dstBoxFinal;
+	ivec4_t srcBoxFinal, dstBoxFinal;
 	GLuint srcFb, dstFb;
 
 	if (!glRefConfig.framebufferBlit)

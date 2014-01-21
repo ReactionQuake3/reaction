@@ -124,11 +124,11 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, float color[4], 
 	// constant normal all the way around
 	VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
 
-	VectorCopy(normal, tess.normal[ndx]);
-	VectorCopy(normal, tess.normal[ndx+1]);
-	VectorCopy(normal, tess.normal[ndx+2]);
-	VectorCopy(normal, tess.normal[ndx+3]);
-	
+	tess.normal[ndx] =
+	tess.normal[ndx+1] =
+	tess.normal[ndx+2] =
+	tess.normal[ndx+3] = R_VboPackNormal(normal);
+
 	// standard square texture coordinates
 	VectorSet2(tess.texCoords[ndx  ][0], s1, t1);
 	VectorSet2(tess.texCoords[ndx  ][1], s1, t1);
@@ -228,7 +228,7 @@ void RB_InstantQuad(vec4_t quadVerts[4])
 
 	GLSL_BindProgram(&tr.textureColorShader);
 	
-	GLSL_SetUniformMatrix16(&tr.textureColorShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformMat4(&tr.textureColorShader, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 	GLSL_SetUniformVec4(&tr.textureColorShader, UNIFORM_COLOR, colorWhite);
 
 	RB_InstantQuad2(quadVerts, texCoords);
@@ -311,30 +311,30 @@ static void RB_SurfacePolychain( srfPoly_t *p ) {
 	tess.numVertexes = numv;
 }
 
-static void RB_SurfaceVertsAndTris( int numVerts, srfVert_t *verts, int numTriangles, srfTriangle_t *triangles, int dlightBits, int pshadowBits)
+static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIndexes, glIndex_t *indexes, int dlightBits, int pshadowBits)
 {
 	int             i;
-	srfTriangle_t  *tri;
+	glIndex_t      *inIndex;
 	srfVert_t      *dv;
-	float          *xyz, *normal, *texCoords, *lightCoords, *lightdir;
+	float          *xyz, *texCoords, *lightCoords;
+	uint32_t        *lightdir;
+	uint32_t        *normal;
 #ifdef USE_VERT_TANGENT_SPACE
-	float          *tangent, *bitangent;
+	uint32_t        *tangent;
 #endif
-	glIndex_t      *index;
+	glIndex_t      *outIndex;
 	float          *color;
 
 	RB_CheckVBOandIBO(tess.vbo, tess.ibo);
 
-	RB_CHECKOVERFLOW( numVerts, numTriangles * 3 );
+	RB_CHECKOVERFLOW( numVerts, numIndexes );
 
-	tri = triangles;
-	index = &tess.indexes[ tess.numIndexes ];
-	for ( i = 0 ; i < numTriangles ; i++, tri++ ) {
-		*index++ = tess.numVertexes + tri->indexes[0];
-		*index++ = tess.numVertexes + tri->indexes[1];
-		*index++ = tess.numVertexes + tri->indexes[2];
+	inIndex = indexes;
+	outIndex = &tess.indexes[ tess.numIndexes ];
+	for ( i = 0 ; i < numIndexes ; i++ ) {
+		*outIndex++ = tess.numVertexes + *inIndex++;
 	}
-	tess.numIndexes += numTriangles * 3;
+	tess.numIndexes += numIndexes;
 
 	if ( tess.shader->vertexAttribs & ATTR_POSITION )
 	{
@@ -347,26 +347,18 @@ static void RB_SurfaceVertsAndTris( int numVerts, srfVert_t *verts, int numTrian
 	if ( tess.shader->vertexAttribs & ATTR_NORMAL )
 	{
 		dv = verts;
-		normal = tess.normal[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, normal+=4 )
-			VectorCopy(dv->normal, normal);
+		normal = &tess.normal[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, normal++ )
+			*normal = R_VboPackNormal(dv->normal);
 	}
 
 #ifdef USE_VERT_TANGENT_SPACE
 	if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 	{
 		dv = verts;
-		tangent = tess.tangent[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, tangent+=4 )
-			VectorCopy(dv->tangent, tangent);
-	}
-
-	if ( tess.shader->vertexAttribs & ATTR_BITANGENT )
-	{
-		dv = verts;
-		bitangent = tess.bitangent[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, bitangent+=4 )
-			VectorCopy(dv->bitangent, bitangent);
+		tangent = &tess.tangent[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, tangent++ )
+			*tangent = R_VboPackTangent(dv->tangent);
 	}
 #endif
 
@@ -397,9 +389,9 @@ static void RB_SurfaceVertsAndTris( int numVerts, srfVert_t *verts, int numTrian
 	if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
 	{
 		dv = verts;
-		lightdir = tess.lightdir[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, lightdir+=4 )
-			VectorCopy(dv->lightdir, lightdir);
+		lightdir = &tess.lightdir[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, lightdir++ )
+			*lightdir = R_VboPackNormal(dv->lightdir);
 	}
 
 #if 0  // nothing even uses vertex dlightbits
@@ -437,8 +429,8 @@ static qboolean RB_SurfaceVbo(VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndex
 	// merge this into any existing multidraw primitives
 	mergeForward = -1;
 	mergeBack = -1;
-	firstIndexOffset = BUFFER_OFFSET(firstIndex * sizeof(GL_INDEX_TYPE));
-	lastIndexOffset  = BUFFER_OFFSET((firstIndex + numIndexes) * sizeof(GL_INDEX_TYPE));
+	firstIndexOffset = BUFFER_OFFSET(firstIndex * sizeof(glIndex_t));
+	lastIndexOffset  = BUFFER_OFFSET((firstIndex + numIndexes) * sizeof(glIndex_t));
 
 	if (r_mergeMultidraws->integer)
 	{
@@ -522,15 +514,15 @@ static qboolean RB_SurfaceVbo(VBO_t *vbo, IBO_t *ibo, int numVerts, int numIndex
 RB_SurfaceTriangles
 =============
 */
-static void RB_SurfaceTriangles( srfTriangles_t *srf ) {
-	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3,
+static void RB_SurfaceTriangles( srfBspSurface_t *srf ) {
+	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes,
 				srf->firstIndex, srf->minIndex, srf->maxIndex, srf->dlightBits, srf->pshadowBits, qtrue ) )
 	{
 		return;
 	}
 
-	RB_SurfaceVertsAndTris(srf->numVerts, srf->verts, srf->numTriangles,
-			srf->triangles, srf->dlightBits, srf->pshadowBits);
+	RB_SurfaceVertsAndIndexes(srf->numVerts, srf->verts, srf->numIndexes,
+			srf->indexes, srf->dlightBits, srf->pshadowBits);
 }
 
 
@@ -614,7 +606,7 @@ static void RB_SurfaceBeam( void )
 	GLSL_VertexAttribsState(ATTR_POSITION);
 	GLSL_BindProgram(sp);
 		
-	GLSL_SetUniformMatrix16(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
+	GLSL_SetUniformMat4(sp, UNIFORM_MODELVIEWPROJECTIONMATRIX, glState.modelviewProjection);
 					
 	GLSL_SetUniformVec4(sp, UNIFORM_COLOR, colorRed);
 
@@ -840,6 +832,7 @@ static void RB_SurfaceLightningBolt( void ) {
 	}
 }
 
+#if 0
 /*
 ** VectorArrayNormalize
 *
@@ -895,12 +888,14 @@ static void VectorArrayNormalize(vec4_t *normals, unsigned int count)
 #endif
 
 }
+#endif
 
 
 
 /*
 ** LerpMeshVertexes
 */
+#if 0
 #if idppc_altivec
 static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
 {
@@ -1030,6 +1025,7 @@ static void LerpMeshVertexes_altivec(md3Surface_t *surf, float backlerp)
    	}
 }
 #endif
+#endif
 
 static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 {
@@ -1129,14 +1125,15 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
     	VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], numVerts);
    	}
 #endif
-	float *outXyz, *outNormal;
+	float *outXyz;
+	uint32_t *outNormal;
 	mdvVertex_t *newVerts;
 	int		vertNum;
 
 	newVerts = surf->verts + backEnd.currentEntity->e.frame * surf->numVerts;
 
 	outXyz =    tess.xyz[tess.numVertexes];
-	outNormal = tess.normal[tess.numVertexes];
+	outNormal = &tess.normal[tess.numVertexes];
 
 	if (backlerp == 0)
 	{
@@ -1146,11 +1143,16 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 
 		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
 		{
+			vec3_t normal;
+
 			VectorCopy(newVerts->xyz,    outXyz);
-			VectorCopy(newVerts->normal, outNormal);
+			VectorCopy(newVerts->normal, normal);
+
+			*outNormal = R_VboPackNormal(normal);
+
 			newVerts++;
 			outXyz += 4;
-			outNormal += 4;
+			outNormal++;
 		}
 	}
 	else
@@ -1165,15 +1167,19 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 
 		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
 		{
+			vec3_t normal;
+
 			VectorLerp(newVerts->xyz,    oldVerts->xyz,    backlerp, outXyz);
-			VectorLerp(newVerts->normal, oldVerts->normal, backlerp, outNormal);
-			//VectorNormalize(outNormal);
+			VectorLerp(newVerts->normal, oldVerts->normal, backlerp, normal);
+			VectorNormalize(normal);
+
+			*outNormal = R_VboPackNormal(normal);
+
 			newVerts++;
 			oldVerts++;
 			outXyz += 4;
-			outNormal += 4;
+			outNormal++;
 		}
-		VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], surf->numVerts);
 	}
 
 }
@@ -1201,9 +1207,7 @@ RB_SurfaceMesh
 static void RB_SurfaceMesh(mdvSurface_t *surface) {
 	int				j;
 	float			backlerp;
-	srfTriangle_t 	*triangles;
 	mdvSt_t			*texCoords;
-	int				indexes;
 	int				Bob, Doug;
 	int				numVerts;
 
@@ -1213,20 +1217,16 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 		backlerp = backEnd.currentEntity->e.backlerp;
 	}
 
-	RB_CHECKOVERFLOW( surface->numVerts, surface->numTriangles*3 );
+	RB_CHECKOVERFLOW( surface->numVerts, surface->numIndexes );
 
 	LerpMeshVertexes (surface, backlerp);
 
-	triangles = surface->triangles;
-	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
-	for (j = 0 ; j < surface->numTriangles ; j++) {
-		tess.indexes[Bob + j*3 + 0] = Doug + triangles[j].indexes[0];
-		tess.indexes[Bob + j*3 + 1] = Doug + triangles[j].indexes[1];
-		tess.indexes[Bob + j*3 + 2] = Doug + triangles[j].indexes[2];
+	for (j = 0 ; j < surface->numIndexes ; j++) {
+		tess.indexes[Bob + j] = Doug + surface->indexes[j];
 	}
-	tess.numIndexes += indexes;
+	tess.numIndexes += surface->numIndexes;
 
 	texCoords = surface->st;
 
@@ -1247,15 +1247,15 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 RB_SurfaceFace
 ==============
 */
-static void RB_SurfaceFace( srfSurfaceFace_t *srf ) {
-	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3,
+static void RB_SurfaceFace( srfBspSurface_t *srf ) {
+	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes,
 				srf->firstIndex, srf->minIndex, srf->maxIndex, srf->dlightBits, srf->pshadowBits, qtrue ) )
 	{
 		return;
 	}
 
-	RB_SurfaceVertsAndTris(srf->numVerts, srf->verts, srf->numTriangles,
-			srf->triangles, srf->dlightBits, srf->pshadowBits);
+	RB_SurfaceVertsAndIndexes(srf->numVerts, srf->verts, srf->numIndexes,
+			srf->indexes, srf->dlightBits, srf->pshadowBits);
 }
 
 
@@ -1296,15 +1296,16 @@ RB_SurfaceGrid
 Just copy the grid of points and triangulate
 =============
 */
-static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
+static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 	int		i, j;
 	float	*xyz;
 	float	*texCoords, *lightCoords;
-	float	*normal;
+	uint32_t *normal;
 #ifdef USE_VERT_TANGENT_SPACE
-	float   *tangent, *bitangent;
+	uint32_t *tangent;
 #endif
-	float   *color, *lightdir;
+	float   *color;
+	uint32_t *lightdir;
 	srfVert_t	*dv;
 	int		rows, irows, vrows;
 	int		used;
@@ -1317,7 +1318,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 	int     pshadowBits;
 	//int		*vDlightBits;
 
-	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numTriangles * 3,
+	if( RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes,
 				srf->firstIndex, srf->minIndex, srf->maxIndex, srf->dlightBits, srf->pshadowBits, qtrue ) )
 	{
 		return;
@@ -1387,15 +1388,14 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 		numVertexes = tess.numVertexes;
 
 		xyz = tess.xyz[numVertexes];
-		normal = tess.normal[numVertexes];
+		normal = &tess.normal[numVertexes];
 #ifdef USE_VERT_TANGENT_SPACE
-		tangent = tess.tangent[numVertexes];
-		bitangent = tess.bitangent[numVertexes];
+		tangent = &tess.tangent[numVertexes];
 #endif
 		texCoords = tess.texCoords[numVertexes][0];
 		lightCoords = tess.texCoords[numVertexes][1];
 		color = tess.vertexColors[numVertexes];
-		lightdir = tess.lightdir[numVertexes];
+		lightdir = &tess.lightdir[numVertexes];
 		//vDlightBits = &tess.vertexDlightBits[numVertexes];
 
 		for ( i = 0 ; i < rows ; i++ ) {
@@ -1411,21 +1411,13 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 
 				if ( tess.shader->vertexAttribs & ATTR_NORMAL )
 				{
-					VectorCopy(dv->normal, normal);
-					normal += 4;
+					*normal++ = R_VboPackNormal(dv->normal);
 				}
 
 #ifdef USE_VERT_TANGENT_SPACE
 				if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 				{
-					VectorCopy(dv->tangent, tangent);
-					tangent += 4;
-				}
-
-				if ( tess.shader->vertexAttribs & ATTR_BITANGENT )
-				{
-					VectorCopy(dv->bitangent, bitangent);
-					bitangent += 4;
+					*tangent++ = R_VboPackTangent(dv->tangent);
 				}
 #endif
 				if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
@@ -1448,8 +1440,7 @@ static void RB_SurfaceGrid( srfGridMesh_t *srf ) {
 
 				if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
 				{
-					VectorCopy(dv->lightdir, lightdir);
-					lightdir += 4;
+					*lightdir++ = R_VboPackNormal(dv->lightdir);
 				}
 
 				//*vDlightBits++ = dlightBits;
@@ -1574,7 +1565,7 @@ static void RB_SurfaceFlare(srfFlare_t *surf)
 		RB_AddFlare(surf, tess.fogNum, surf->origin, surf->color, surf->normal);
 }
 
-static void RB_SurfaceVBOMesh(srfVBOMesh_t * srf)
+static void RB_SurfaceVBOMesh(srfBspSurface_t * srf)
 {
 	RB_SurfaceVbo (srf->vbo, srf->ibo, srf->numVerts, srf->numIndexes, srf->firstIndex,
 			srf->minIndex, srf->maxIndex, srf->dlightBits, srf->pshadowBits, qfalse );
@@ -1621,11 +1612,12 @@ void RB_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 
 	glState.vertexAttribsOldFrame = refEnt->oldframe;
 	glState.vertexAttribsNewFrame = refEnt->frame;
+	glState.vertexAnimation = qtrue;
 
 	RB_EndSurface();
 
 	// So we don't lerp surfaces that shouldn't be lerped
-	glState.vertexAttribsInterpolation = 0;
+	glState.vertexAnimation = qfalse;
 }
 
 static void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
@@ -1646,7 +1638,6 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_SurfaceTriangles,		// SF_TRIANGLES,
 	(void(*)(void*))RB_SurfacePolychain,		// SF_POLY,
 	(void(*)(void*))RB_SurfaceMesh,			// SF_MDV,
-	(void(*)(void*))RB_SurfaceAnim,			// SF_MD4,
 	(void(*)(void*))RB_MDRSurfaceAnim,		// SF_MDR,
 	(void(*)(void*))RB_IQMSurfaceAnim,		// SF_IQM,
 	(void(*)(void*))RB_SurfaceFlare,		// SF_FLARE,

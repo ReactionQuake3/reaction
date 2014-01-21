@@ -88,6 +88,19 @@ int flareCoeff;
 
 /*
 ==================
+R_SetFlareCoeff
+==================
+*/
+static void R_SetFlareCoeff( void ) {
+
+	if(r_flareCoeff->value == 0.0f)
+		flareCoeff = atof(FLARE_STDCOEFF);
+	else
+		flareCoeff = r_flareCoeff->value;
+}
+
+/*
+==================
 R_ClearFlares
 ==================
 */
@@ -102,6 +115,8 @@ void R_ClearFlares( void ) {
 		r_flareStructs[i].next = r_inactiveFlares;
 		r_inactiveFlares = &r_flareStructs[i];
 	}
+
+	R_SetFlareCoeff();
 }
 
 
@@ -262,6 +277,7 @@ void RB_TestFlare( flare_t *f ) {
 	qboolean		visible;
 	float			fade;
 	float			screenZ;
+	FBO_t           *oldFbo;
 
 	backEnd.pc.c_flareTests++;
 
@@ -269,8 +285,21 @@ void RB_TestFlare( flare_t *f ) {
 	// don't bother with another sync
 	glState.finishCalled = qfalse;
 
+	// if we're doing multisample rendering, read from the correct FBO
+	oldFbo = glState.currentFBO;
+	if (tr.msaaResolveFbo)
+	{
+		FBO_Bind(tr.msaaResolveFbo);
+	}
+
 	// read back the z buffer contents
 	qglReadPixels( f->windowX, f->windowY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth );
+
+	// if we're doing multisample rendering, switch to the old FBO
+	if (tr.msaaResolveFbo)
+	{
+		FBO_Bind(oldFbo);
+	}
 
 	screenZ = backEnd.viewParms.projectionMatrix[14] / 
 		( ( 2*depth - 1 ) * backEnd.viewParms.projectionMatrix[11] - backEnd.viewParms.projectionMatrix[10] );
@@ -443,7 +472,7 @@ void RB_RenderFlares (void) {
 	flare_t		*f;
 	flare_t		**prev;
 	qboolean	draw;
-	matrix_t    oldmodelview, oldprojection, matrix;
+	mat4_t    oldmodelview, oldprojection, matrix;
 
 	if ( !r_flares->integer ) {
 		return;
@@ -451,11 +480,7 @@ void RB_RenderFlares (void) {
 
 	if(r_flareCoeff->modified)
 	{
-		if(r_flareCoeff->value == 0.0f)
-			flareCoeff = atof(FLARE_STDCOEFF);
-		else
-			flareCoeff = r_flareCoeff->value;
-			
+		R_SetFlareCoeff();
 		r_flareCoeff->modified = qfalse;
 	}
 
@@ -505,11 +530,11 @@ void RB_RenderFlares (void) {
 		qglDisable (GL_CLIP_PLANE0);
 	}
 
-	Matrix16Copy(glState.projection, oldprojection);
-	Matrix16Copy(glState.modelview, oldmodelview);
-	Matrix16Identity(matrix);
+	Mat4Copy(glState.projection, oldprojection);
+	Mat4Copy(glState.modelview, oldmodelview);
+	Mat4Identity(matrix);
 	GL_SetModelviewMatrix(matrix);
-	Matrix16Ortho( backEnd.viewParms.viewportX, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
+	Mat4Ortho( backEnd.viewParms.viewportX, backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
 	               backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
 	               -99999, 99999, matrix );
 	GL_SetProjectionMatrix(matrix);
